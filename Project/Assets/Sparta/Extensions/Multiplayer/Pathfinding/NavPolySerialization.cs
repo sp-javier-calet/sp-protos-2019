@@ -13,10 +13,11 @@ namespace SocialPoint.Pathfinding
         {
             writer.Write((int)value.PolyType);
             SerializationUtils.SerializeArray<Link>(value.Links.ToArray(), NavLinkSerializer.Instance.Serialize, writer);
-            //attr.Set(kVerts, SUtils.Array2Attr(value.Verts));
-            //attr.Set(kNeis, SUtils.Array2Attr(value.Neis));
-            //attr.SetValue(kTag, value.Tag);
-            //TODO: Complete
+            SerializationUtils.SerializeIntArray(value.Verts, writer);
+            SerializationUtils.SerializeIntArray(value.Neis, writer);
+            writer.Write(value.VertCount);   
+            writer.Write(value.Area.Id);
+            //TODO: Serialize NavPoly.Tag if used
         }
     }
 
@@ -27,14 +28,17 @@ namespace SocialPoint.Pathfinding
         public override NavPoly Parse(IReader reader)
         {
             var navPoly = new NavPoly();
-            /*navPoly.PolyType = (NavPolyType)dic[kPolyType].AsValue.ToInt();
-            var parsedLinks = SUtils.Attr2Array<Link>(dic[kLinks], AttrLinkConverter.Parse);
+            navPoly.PolyType = (NavPolyType)reader.ReadInt32();
+            var parsedLinks = SerializationUtils.ParseArray(NavLinkParser.Instance.Parse, reader);
             for(int i = 0; i < parsedLinks.Length; i++)
             {
                 navPoly.Links.Add(parsedLinks[i]);
             }
-            navPoly.Verts = SUtils.Attr2ArrayInt(dic[kVerts]);*/
-            //TODO: Complete
+            navPoly.Verts = SerializationUtils.ParseIntArray(reader);
+            navPoly.Neis = SerializationUtils.ParseIntArray(reader);
+            navPoly.VertCount = reader.ReadInt32();
+            navPoly.Area = new SharpNav.Area(reader.ReadByte());
+            //TODO: Parse NavPoly.Tag if used
             return navPoly;
         }
     }

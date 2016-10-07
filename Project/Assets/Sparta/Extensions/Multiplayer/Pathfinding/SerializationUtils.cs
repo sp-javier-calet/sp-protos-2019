@@ -16,7 +16,7 @@ namespace SocialPoint.Pathfinding
 
         public static void SerializeArray<T>(T[] array, SerializeDelegate<T> serializeDelegate, IWriter writer)
         {
-            int size = array.Length;
+            int size = (array != null) ? array.Length : 0;
             writer.Write(size);
             for(int i = 0; i < size; ++i)
             {

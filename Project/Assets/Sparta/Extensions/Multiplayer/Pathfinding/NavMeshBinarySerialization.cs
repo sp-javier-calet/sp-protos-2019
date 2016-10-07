@@ -30,15 +30,10 @@ namespace SocialPoint.Pathfinding
             {
                 var tile = itr.Current;
                 NavPolyId id = mesh.GetTileRef(tile);
-                SerializeMeshTile(tile, id, writer);
+                writer.Write(id.Id);
+                NavTileSerializer.Instance.Serialize(tile, writer);
             }
             itr.Dispose();
-        }
-
-        void SerializeMeshTile(NavTile tile, NavPolyId id, IWriter writer)
-        {
-            writer.Write(id.Id);
-            NavTileSerializer.Instance.Serialize(tile, writer);
         }
     }
 
@@ -46,27 +41,23 @@ namespace SocialPoint.Pathfinding
     {
         public override TiledNavMesh Parse(IReader reader)
         {
-            /*string data = FileUtils.ReadAllText(path);
-            var root = _parser.ParseString(data).AsDic;
-
-            Vector3 origin = AttrVector3Converter.Parse(root["origin"]);
-            float tileWidth = root["tileWidth"].AsValue.ToFloat();
-            float tileHeight = root["tileHeight"].AsValue.ToFloat();
-            int maxTiles = root["maxTiles"].AsValue.ToInt();
-            int maxPolys = root["maxPolys"].AsValue.ToInt();
+            Vector3 origin = NavVector3Parser.Instance.Parse(reader);
+            float tileWidth = reader.ReadSingle();
+            float tileHeight = reader.ReadSingle();
+            int maxTiles = reader.ReadInt32();
+            int maxPolys = reader.ReadInt32();
 
             var mesh = new TiledNavMesh(origin, tileWidth, tileHeight, maxTiles, maxPolys);
 
-            var tilesArray = root["tiles"].AsList.ToList<AttrDic>();
-            foreach(var tileToken in tilesArray)
+            /*int tileCount = reader.ReadInt32();
+            for(int i = 0; i < tileCount; i++)
             {
-                NavPolyId tileRef;
+                NavPolyId tileRef = new NavPolyId(reader.ReadInt32());
                 NavTile tile = DeserializeMeshTile(tileToken, mesh.IdManager, out tileRef);
                 mesh.AddTileAt(tile, tileRef);
-            }
+            }*/
 
-            return mesh;*/
-            return null;
+            return mesh;
         }
 
         NavTile DeserializeMeshTile(AttrDic token, NavPolyIdManager manager, out NavPolyId refId)

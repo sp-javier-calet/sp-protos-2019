@@ -1,4 +1,6 @@
 ﻿using System;
+using SharpNav;
+using SharpNav.Geometry;
 using SharpNav.Pathfinding;
 using SocialPoint.Attributes;
 using SocialPoint.IO;
@@ -17,18 +19,15 @@ namespace SocialPoint.Pathfinding
             NavBBox3Serializer.Instance.Serialize(value.Bounds, writer);
 
             SerializationUtils.SerializeArray<NavPoly>(value.Polys, NavPolySerializer.Instance.Serialize, writer);
+            SerializationUtils.SerializeArray<Vector3>(value.Verts, NavVector3Serializer.Instance.Serialize, writer);
 
-            /*result.Set("location", AttrVector2iConverter.Serialize(tile.Location));
-            result.SetValue("layer", tile.Layer);
-            result.SetValue("salt", tile.Salt);
-            result.Set("bounds", AttrBBox3Converter.Serialize(tile.Bounds));
-            result.Set("polys", SerializationUtils.Array2Attr<NavPoly>(tile.Polys, AttrNavPolyConverter.Serialize));
-            result.Add("verts", tile.Verts);
-            result.Add("detailMeshes", tile.DetailMeshes);
-            result.Add("detailVerts", tile.DetailVerts);
-            result.Add("detailTris", tile.DetailTris);
-            result.Add("offMeshConnections", tile.OffMeshConnections);
+            SerializationUtils.SerializeArray<PolyMeshDetail.MeshData>(value.DetailMeshes, NavDetailMeshDataSerializer.Instance.Serialize, writer);
+            SerializationUtils.SerializeArray<Vector3>(value.DetailVerts, NavVector3Serializer.Instance.Serialize, writer);
+            SerializationUtils.SerializeArray<PolyMeshDetail.TriangleData>(value.DetailTris, NavDetailTriangleDataSerializer.Instance.Serialize, writer);
 
+            SerializationUtils.SerializeArray<OffMeshConnection>(value.OffMeshConnections, NavOffMeshConnSerializer.Instance.Serialize, writer);
+
+            /*
             JObject treeObject = new JObject();
             JArray treeNodes = new JArray();
             for(int i = 0; i < tile.BVTree.Count; i++)
@@ -38,9 +37,11 @@ namespace SocialPoint.Pathfinding
             treeObject.Add("nodes", treeNodes);
 
             result.Add("bvTree", treeObject);
-            result.SetValue("bvQuantFactor", tile.BvQuantFactor);
-            result.SetValue("bvNodeCount", tile.BvNodeCount);
-            result.SetValue("walkableClimb", tile.WalkableClimb);*/
+            */
+
+            writer.Write(value.BvQuantFactor);
+            writer.Write(value.BvNodeCount);
+            writer.Write(value.WalkableClimb);
         }
     }
 
