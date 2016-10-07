@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 using SharpNav;
 using SharpNav.Collections;
 using SharpNav.Geometry;
 using SharpNav.Pathfinding;
-using System.Reflection;
-using SocialPoint.Attributes;
 using SocialPoint.IO;
 
 /// <summary>
@@ -16,6 +13,8 @@ namespace SocialPoint.Pathfinding
 {
     public class NavMeshBinarySerializer : SimpleWriteSerializer<TiledNavMesh>
     {
+        public static readonly NavMeshBinarySerializer Instance = new NavMeshBinarySerializer();
+
         public override void Serialize(TiledNavMesh mesh, IWriter writer)
         {
             NavVector3Serializer.Instance.Serialize(mesh.Origin, writer);
@@ -30,15 +29,44 @@ namespace SocialPoint.Pathfinding
             {
                 var tile = itr.Current;
                 NavPolyId id = mesh.GetTileRef(tile);
+
                 writer.Write(id.Id);
-                NavTileSerializer.Instance.Serialize(tile, writer);
+                SerializeTile(tile, writer);
             }
             itr.Dispose();
+        }
+
+        void SerializeTile(NavTile value, IWriter writer)
+        {
+            NavVector2iSerializer.Instance.Serialize(value.Location, writer);
+            writer.Write(value.Layer);
+            writer.Write(value.Salt);
+            NavBBox3Serializer.Instance.Serialize(value.Bounds, writer);
+
+            SerializationUtils.SerializeArray<NavPoly>(value.Polys, NavPolySerializer.Instance.Serialize, writer);
+            SerializationUtils.SerializeArray<Vector3>(value.Verts, NavVector3Serializer.Instance.Serialize, writer);
+
+            SerializationUtils.SerializeArray<PolyMeshDetail.MeshData>(value.DetailMeshes, NavDetailMeshDataSerializer.Instance.Serialize, writer);
+            SerializationUtils.SerializeArray<Vector3>(value.DetailVerts, NavVector3Serializer.Instance.Serialize, writer);
+            SerializationUtils.SerializeArray<PolyMeshDetail.TriangleData>(value.DetailTris, NavDetailTriangleDataSerializer.Instance.Serialize, writer);
+            SerializationUtils.SerializeArray<OffMeshConnection>(value.OffMeshConnections, NavOffMeshConnSerializer.Instance.Serialize, writer);
+
+            writer.Write(value.BVTree.Count);
+            for(int i = 0; i < value.BVTree.Count; i++)
+            {
+                NavBVTreeNodeSerializer.Instance.Serialize(value.BVTree[i], writer);
+            }
+
+            writer.Write(value.BvQuantFactor);
+            writer.Write(value.BvNodeCount);
+            writer.Write(value.WalkableClimb);
         }
     }
 
     public class NavMeshBinaryParser : SimpleReadParser<TiledNavMesh>
     {
+        public static readonly NavMeshBinaryParser Instance = new NavMeshBinaryParser();
+
         public override TiledNavMesh Parse(IReader reader)
         {
             Vector3 origin = NavVector3Parser.Instance.Parse(reader);
@@ -49,42 +77,42 @@ namespace SocialPoint.Pathfinding
 
             var mesh = new TiledNavMesh(origin, tileWidth, tileHeight, maxTiles, maxPolys);
 
-            /*int tileCount = reader.ReadInt32();
+            int tileCount = reader.ReadInt32();
             for(int i = 0; i < tileCount; i++)
             {
                 NavPolyId tileRef = new NavPolyId(reader.ReadInt32());
-                NavTile tile = DeserializeMeshTile(tileToken, mesh.IdManager, out tileRef);
+                NavTile tile = ParseTile(mesh.IdManager, tileRef, reader);
                 mesh.AddTileAt(tile, tileRef);
-            }*/
+            }
 
             return mesh;
         }
 
-        NavTile DeserializeMeshTile(AttrDic token, NavPolyIdManager manager, out NavPolyId refId)
+        NavTile ParseTile(NavPolyIdManager manager, NavPolyId refId, IReader reader)
         {
-            refId = new NavPolyId(token["polyId"].AsValue.ToInt());
-            Vector2i location = AttrVector2iConverter.Parse(token["location"]);
-            int layer = token["layer"].AsValue.ToInt();
+            Vector2i location = NavVector2iParser.Instance.Parse(reader);
+            int layer = reader.ReadInt32();
             NavTile result = new NavTile(location, layer, manager, refId);
 
-            result.Salt = token["salt"].AsValue.ToInt();
-            result.Bounds = AttrBBox3Converter.Parse(token["bounds"]);
-            result.Polys = SerializationUtils.Attr2Array<NavPoly>(token["polys"], AttrNavPolyConverter.Parse);
-            /*result.PolyCount = result.Polys.Length;
-            result.Verts = token["verts"].ToObject<Vector3[]>(serializer);
-            result.DetailMeshes = token["detailMeshes"].ToObject<PolyMeshDetail.MeshData[]>(serializer);
-            result.DetailVerts = token["detailVerts"].ToObject<Vector3[]>(serializer);
-            result.DetailTris = token["detailTris"].ToObject<PolyMeshDetail.TriangleData[]>(serializer);
-            result.OffMeshConnections = token["offMeshConnections"].ToObject<OffMeshConnection[]>(serializer);
-            result.OffMeshConnectionCount = result.OffMeshConnections.Length;
-            result.BvNodeCount = token["bvNodeCount"].AsValue.ToInt();
-            result.BvQuantFactor = token["bvQuantFactor"].AsValue.ToFloat();
-            result.WalkableClimb = token["walkableClimb"].AsValue.ToFloat();
-    
-            var treeObject = (JObject)token["bvTree"];
-            var nodes = treeObject.GetValue("nodes").ToObject<BVTree.Node[]>();
+            result.Salt = reader.ReadInt32();
+            result.Bounds = NavBBox3Parser.Instance.Parse(reader);
 
-            result.BVTree = new BVTree(nodes);*/
+            result.Polys = SerializationUtils.ParseArray<NavPoly>(NavPolyParser.Instance.Parse, reader);
+            result.PolyCount = result.Polys.Length;
+            result.Verts = SerializationUtils.ParseArray<Vector3>(NavVector3Parser.Instance.Parse, reader);
+
+            result.DetailMeshes = SerializationUtils.ParseArray<PolyMeshDetail.MeshData>(NavDetailMeshDataParser.Instance.Parse, reader);
+            result.DetailVerts = SerializationUtils.ParseArray<Vector3>(NavVector3Parser.Instance.Parse, reader);
+            result.DetailTris = SerializationUtils.ParseArray<PolyMeshDetail.TriangleData>(NavDetailTriangleDataParser.Instance.Parse, reader);
+            result.OffMeshConnections = SerializationUtils.ParseArray<OffMeshConnection>(NavOffMeshConnParser.Instance.Parse, reader);
+            result.OffMeshConnectionCount = result.OffMeshConnections.Length;
+
+            var nodes = SerializationUtils.ParseArray<BVTree.Node>(NavBVTreeNodeParser.Instance.Parse, reader);
+            result.BVTree = new BVTree(nodes);
+
+            result.BvQuantFactor = reader.ReadSingle();
+            result.BvNodeCount = reader.ReadInt32();
+            result.WalkableClimb = reader.ReadSingle();
 
             return result;
         }

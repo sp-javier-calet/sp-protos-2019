@@ -1,6 +1,4 @@
-﻿using System;
-using SharpNav.Pathfinding;
-using SocialPoint.Attributes;
+﻿using SharpNav.Pathfinding;
 using SocialPoint.IO;
 
 namespace SocialPoint.Pathfinding

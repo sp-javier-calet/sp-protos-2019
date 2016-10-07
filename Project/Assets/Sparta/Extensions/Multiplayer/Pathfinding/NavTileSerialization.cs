@@ -2,7 +2,6 @@
 using SharpNav;
 using SharpNav.Geometry;
 using SharpNav.Pathfinding;
-using SocialPoint.Attributes;
 using SocialPoint.IO;
 
 namespace SocialPoint.Pathfinding
@@ -27,17 +26,11 @@ namespace SocialPoint.Pathfinding
 
             SerializationUtils.SerializeArray<OffMeshConnection>(value.OffMeshConnections, NavOffMeshConnSerializer.Instance.Serialize, writer);
 
-            /*
-            JObject treeObject = new JObject();
-            JArray treeNodes = new JArray();
-            for(int i = 0; i < tile.BVTree.Count; i++)
+            writer.Write(value.BVTree.Count);
+            for(int i = 0; i < value.BVTree.Count; i++)
             {
-                treeNodes.Add(tile.BVTree[i]);
+                NavBVTreeNodeSerializer.Instance.Serialize(value.BVTree[i], writer);
             }
-            treeObject.Add("nodes", treeNodes);
-
-            result.Add("bvTree", treeObject);
-            */
 
             writer.Write(value.BvQuantFactor);
             writer.Write(value.BvNodeCount);

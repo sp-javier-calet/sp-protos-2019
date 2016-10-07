@@ -1,6 +1,4 @@
-﻿using System;
-using SharpNav.Pathfinding;
-using SocialPoint.Attributes;
+﻿using SharpNav.Pathfinding;
 using SocialPoint.IO;
 
 namespace SocialPoint.Pathfinding
@@ -29,7 +27,7 @@ namespace SocialPoint.Pathfinding
         {
             var navPoly = new NavPoly();
             navPoly.PolyType = (NavPolyType)reader.ReadInt32();
-            var parsedLinks = SerializationUtils.ParseArray(NavLinkParser.Instance.Parse, reader);
+            var parsedLinks = SerializationUtils.ParseArray<Link>(NavLinkParser.Instance.Parse, reader);
             for(int i = 0; i < parsedLinks.Length; i++)
             {
                 navPoly.Links.Add(parsedLinks[i]);

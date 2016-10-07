@@ -2,17 +2,19 @@
 using UnityEngine.EventSystems;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using SharpNav;
 using SharpNav.Collections;
 using SharpNav.Crowds;
 using SharpNav.Geometry;
 using SharpNav.Pathfinding;
 using SocialPoint.Attributes;
+using SocialPoint.IO;
 using SocialPoint.Pathfinding;
 
 public class PathfindingTest : MonoBehaviour, IPointerClickHandler
 {
-    const string kTestNavMeshFile = "/Users/abarrera/Projects/sp-unity-BaseGame/Project/Assets/Examples/Multiplayer/Resources/test_nav_mesh.txt";
+    const string kTestNavMeshFile = "/Users/abarrera/Projects/sp-unity-BaseGame/Project/Assets/Examples/Multiplayer/Resources/test_bin_nav_mesh";
 
     public GameObject pathNodePrefab;
     public bool loadFromFile = false;
@@ -72,10 +74,10 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
             if(started)
             {
                 var endPoint = hit.point.ToPathfinding();
-                NavMeshQuery query = new NavMeshQuery(navMesh, maxNodes);
+                var query = new NavMeshQuery(navMesh, maxNodes);
                 NavPoint startPoly = query.FindNearestPoly(startPoint, SharpNav.Geometry.Vector3.One);
                 NavPoint endPoly = query.FindNearestPoly(endPoint, SharpNav.Geometry.Vector3.One);
-                Path path = new Path();
+                var path = new SharpNav.Pathfinding.Path();
                 if(query.FindPath(ref startPoly, ref endPoly, new NavQueryFilter(), path))
                 {
                     StraightPath straightPath = new StraightPath();
@@ -204,11 +206,17 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
     {
         //var serializer = new NavMeshSerializer(new JsonAttrSerializer(), new JsonAttrParser());
         //serializer.Serialize(kTestNavMeshFile, navMesh);
+
+        var stream = new FileStream(kTestNavMeshFile, FileMode.OpenOrCreate);
+        NavMeshBinarySerializer.Instance.Serialize(navMesh, new SystemBinaryWriter(stream));
     }
 
     void LoadNavMesh()
     {
         //var serializer = new NavMeshSerializer(new JsonAttrSerializer(), new JsonAttrParser());
         //navMesh = serializer.Deserialize(kTestNavMeshFile);
+
+        var stream = new FileStream(kTestNavMeshFile, FileMode.Open);
+        navMesh = NavMeshBinaryParser.Instance.Parse(new SystemBinaryReader(stream));
     }
 }
