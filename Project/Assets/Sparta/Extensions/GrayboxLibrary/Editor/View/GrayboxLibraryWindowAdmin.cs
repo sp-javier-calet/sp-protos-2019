@@ -286,9 +286,6 @@ namespace SocialPoint.GrayboxLibrary
             GUILayout.BeginHorizontal(GUILayout.ExpandHeight(false));
             GUILayout.Label("Load asset", GUILayout.Width(70));
             DisplayAssetSearchBar();
-            if(GUILayout.Button("Load", GUILayout.Width(70)))
-                LoadAsset();
-            GUILayout.Label("", GUILayout.Width(10));
             GUILayout.EndHorizontal();
             GUILayout.Label("", GUILayout.Height(10));
             GUILayout.EndVertical();

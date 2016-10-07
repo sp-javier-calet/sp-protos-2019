@@ -149,8 +149,15 @@ namespace SocialPoint.GrayboxLibrary
             LaunchClient();
         }
 
+        [MenuItem("Social Point/Graybox Library/Fx UI")]
+        public static void LaunchFxUIClient()
+        {
+            _currentCategory = (int)GrayboxAssetCategory.FxUI;
+            LaunchClient();
+        }
 
-        
+
+
 
         void OnGUI()
         {
