@@ -392,7 +392,7 @@
 		FE4490461C1F205800A10FEA /* SPUnityPlugins.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SPUnityPlugins.h; sourceTree = "<group>"; };
 		FE4490481C1F205800A10FEA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FE44907C1C1F20C400A10FEA /* SPUnityPlugins.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SPUnityPlugins.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		FE8913491DABEF4D00BD87C0 /* UnityAppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UnityAppController.h; path = ../LinkerValidator/UnityAppController.h; sourceTree = "<group>"; };
+		FE89134D1DABF2ED00BD87C0 /* UnityAppController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnityAppController.h; sourceTree = "<group>"; };
 		FEE21F661C20198100ECC3E2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnityGameObject.h; sourceTree = "<group>"; };
 		FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UnityGameObject.cpp; sourceTree = "<group>"; };
@@ -850,7 +850,7 @@
 			children = (
 				FE448F311C1EEAD800A10FEA /* Common */,
 				FEE21F3E1C20128600ECC3E2 /* Frameworks */,
-				FE89134B1DABF17700BD87C0 /* LinkerApp */,
+				FE89134C1DABF2CE00BD87C0 /* LinkerApp */,
 				460B35CD1C3EAE80003E0D9D /* LinkerValidator */,
 				0691705B1C762BED00C6B0B6 /* LinkerValidator_macOS */,
 				460B36111C3EB1B8003E0D9D /* LinkerValidator_tvOS */,
@@ -986,16 +986,15 @@
 			path = SPUnityPlugins;
 			sourceTree = "<group>";
 		};
-		FE89134B1DABF17700BD87C0 /* LinkerApp */ = {
+		FE89134C1DABF2CE00BD87C0 /* LinkerApp */ = {
 			isa = PBXGroup;
 			children = (
 				468F9D741D9BB44000EF4AE7 /* SPUnityAppControllerSubClass.h */,
 				468F9D751D9BB44000EF4AE7 /* SPUnityAppControllerSubClass.mm */,
-				FE8913491DABEF4D00BD87C0 /* UnityAppController.h */,
+				FE89134D1DABF2ED00BD87C0 /* UnityAppController.h */,
 			);
-			name = LinkerApp;
-			path = SPUnityPlugins;
-			sourceTree = "<group>";
+			path = LinkerApp;
+			sourceTree = SOURCE_ROOT;
 		};
 		FEE21F3E1C20128600ECC3E2 /* Frameworks */ = {
 			isa = PBXGroup;
