@@ -4,6 +4,7 @@ using SocialPoint.Lockstep;
 using SocialPoint.Lockstep.Network;
 using SocialPoint.Utils;
 using SocialPoint.Network;
+using SocialPoint.AdminPanel;
 using System;
 
 public class LockstepInstaller : Installer
@@ -31,6 +32,17 @@ public class LockstepInstaller : Installer
             (CreateClientNetworkController);
         Container.Rebind<ServerLockstepNetworkController>().ToMethod<ServerLockstepNetworkController>
             (CreateServerNetworkController);
+
+        Container.Bind<AdminPanelLockstep>().ToMethod<AdminPanelLockstep>(CreateAdminPanel);
+        Container.Bind<IAdminPanelConfigurer>().ToLookup<AdminPanelLockstep>();
+    }
+
+    AdminPanelLockstep _adminPanel;
+    AdminPanelLockstep CreateAdminPanel()
+    {
+        _adminPanel = new AdminPanelLockstep(
+            Container.Resolve<ClientLockstepController>());
+        return _adminPanel;
     }
 
     LockstepConfig CreateConfig()
@@ -100,6 +112,11 @@ public class LockstepInstaller : Installer
             ctrl.RegisterLocalClient(
                 Container.Resolve<ClientLockstepController>(),
                 Container.Resolve<LockstepCommandFactory>());
+        }
+
+        if(_adminPanel != null)
+        {
+            _adminPanel.RegisterServer(ctrl);
         }
 
         return ctrl;

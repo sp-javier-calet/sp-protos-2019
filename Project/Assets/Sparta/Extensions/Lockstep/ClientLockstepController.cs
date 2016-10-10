@@ -67,6 +67,17 @@ namespace SocialPoint.Lockstep
         public int LocalSimulationDelay = DefaultLocalSimulationDelay;
         public int MaxSimulationStepsPerFrame = DefaultMaxSimulationStepsPerFrame;
         public float SpeedFactor = DefaultSpeedFactor;
+
+        public override string ToString()
+        {
+            return string.Format("[ClientLockstepConfig\n" +
+                "LocalSimulationDelay:{0}\n" +
+                "MaxSimulationStepsPerFrame:{1}\n" +
+                "SpeedFactor:{2}]",
+                LocalSimulationDelay,
+                MaxSimulationStepsPerFrame,
+                SpeedFactor);
+        }
     }
 
     public class ClientLockstepController : IUpdateable, IDisposable
@@ -92,6 +103,38 @@ namespace SocialPoint.Lockstep
         public event Action Started;
         public event Action ConnectionChanged;
         public event Action<int> Simulate;
+
+        public int TurnBuffer
+        {
+            get
+            {
+                return _confirmedTurns.Count;
+            }
+        }
+
+        public int UpdateTime
+        {
+            get
+            {
+                return _time;
+            }
+        }
+
+        public int SimulationDeltaTime
+        {
+            get
+            {
+                return _time - _lastSimTime;
+            }
+        }
+
+        public int CommandDeltaTime
+        {
+            get
+            {
+                return _time - _lastCmdTime;
+            }
+        }
 
         public ClientLockstepController(IUpdateScheduler updateScheduler=null)
         {
