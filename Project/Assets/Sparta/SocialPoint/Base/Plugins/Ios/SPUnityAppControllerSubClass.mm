@@ -75,6 +75,7 @@
 
 #pragma mark - Notifications
 
+#if !UNITY_TVOS
 - (void)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings// IOS 8.0
 {
     if(userAllowsNotifications())
@@ -82,6 +83,7 @@
         onPermissionsGranted();
     }
 }
+#endif
 
 - (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken// IOS 3.0
 {
