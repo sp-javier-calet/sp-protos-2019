@@ -4,7 +4,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.Pathfinding
 {
-    public static class PathfindingExtensions
+    public static class UnityModelExtensions
     {
         public static UnityVector ToUnity(this PathVector v)
         {
