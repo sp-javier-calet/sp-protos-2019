@@ -36,8 +36,8 @@ namespace SocialPoint.Lockstep
         public override string ToString()
         {
             return string.Format("[LockstepConfig\n" +
-                "SimulationStepDuration:{0}\n" +
-                "CommandStepDuration:{1}]", SimulationStepDuration, CommandStepDuration);
+            "SimulationStepDuration:{0}\n" +
+            "CommandStepDuration:{1}]", SimulationStepDuration, CommandStepDuration);
         }
     }
 }

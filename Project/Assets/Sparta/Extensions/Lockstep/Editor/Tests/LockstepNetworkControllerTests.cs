@@ -41,7 +41,6 @@ namespace SocialPoint.Lockstep.Network
         }
     }
 
-
     [TestFixture]
     [Category("SocialPoint.Lockstep")]
     class LockstepNetworkControllerTests
@@ -58,17 +57,15 @@ namespace SocialPoint.Lockstep.Network
         ClientLockstepController _lockClient2;
         ClientLockstepNetworkController _netLockClient2;
 
-        UpdateScheduler _scheduler;
         LockstepCommandFactory _factory;
 
         [SetUp]
         public void SetUp()
         {
             _netServer = new LocalNetworkServer();
-            _scheduler = new UpdateScheduler();
             _factory = new LockstepCommandFactory();
 
-            _netLockServer = new ServerLockstepNetworkController(_netServer, _scheduler);
+            _netLockServer = new ServerLockstepNetworkController(_netServer);
             _netLockServer.ServerConfig.MaxPlayers = 2;
 
             _netClient1 = new LocalNetworkClient(_netServer);
@@ -126,8 +123,10 @@ namespace SocialPoint.Lockstep.Network
 
         void StartMatch()
         {
-            _netLockServer.ServerConfig.ClientSimulationDelay = 50;
-            _netLockServer.ServerConfig.ClientStartDelay = 100;
+            _netLockServer.ServerConfig.ClientSimulationDelay = 200;
+            _netLockServer.ServerConfig.ClientStartDelay = 500;
+            _netLockServer.Config.CommandStepDuration = 100;
+            _netLockServer.Config.SimulationStepDuration = 10;
             _lockClient1.ClientConfig.MaxSimulationStepsPerFrame = 10;
 
             _netServer.Start();
@@ -146,11 +145,24 @@ namespace SocialPoint.Lockstep.Network
 
             _lockClient2.AddPendingCommand(new TestCommand(4));
 
-            Assert.AreEqual(0, _logic1.SumValues, "Clients will not get commands before start plus sim delay");
+            Assert.AreEqual(0, _logic1.SumValues, "Clients will not get commands before start");
 
-            Update(150);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
 
-            Assert.AreEqual(4, _logic1.SumValues, "Commands are sent from the clients to the server and back");
+            _lockClient2.AddPendingCommand(new TestCommand(5));
+
+            Update(100);
+            Update(100);
+            Update(50);
+
+            Assert.AreEqual(0, _logic1.SumValues, "Client did not get command because of the client sim delay");
+
+            Update(50);
+
+            Assert.AreEqual(5, _logic1.SumValues, "Commands are sent from the clients to the server and back");
         }
 
 
@@ -159,12 +171,18 @@ namespace SocialPoint.Lockstep.Network
         {
             StartMatch();
 
-            Update(150);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(50);
 
             Assert.IsTrue(_lockClient1.Connected, "Client is connected");
 
             _netClient1.DelayReceivedMessages = true;
 
+            Update(100);
             Update(100);
             Update(100);
 
@@ -178,13 +196,136 @@ namespace SocialPoint.Lockstep.Network
 
             _netClient1.DelayReceivedMessages = false;
 
-            Update(150);
+            Update(100);
+            Update(50);
 
             Assert.AreEqual(0, _logic1.SumValues, "Catches up at MaxSimulationStepsPerFrame");
 
             Update(100);
 
             Assert.AreEqual(4, _logic1.SumValues, "Catches up at MaxSimulationStepsPerFrame");
+        }
+
+        [Test]
+        public void ReconnectSamePlayerId()
+        {
+            _netLockServer.ServerConfig.MaxPlayers = 3;
+
+            var localClient = new ClientLockstepController();
+            _netLockServer.RegisterLocalClient(localClient, _factory);
+
+            StartMatch();
+
+            _netLockServer.LocalPlayerReady();
+
+            var playerId1 = _netLockClient1.PlayerNumber;
+            var playerId2 = _netLockClient2.PlayerNumber;
+            var playerId3 = _netLockServer.LocalPlayerNumber;
+
+            Assert.AreEqual(0, playerId1, "Player ids should be consecutive");
+            Assert.AreEqual(1, playerId2, "Player ids should be consecutive");
+            Assert.AreEqual(2, playerId3, "Player ids should be consecutive");
+
+            _netClient1.Disconnect();
+            _netClient2.Disconnect();
+            _netLockServer.UnregisterLocalClient();
+
+            _netClient2.Connect();
+            _netLockClient2.SendPlayerReady();
+
+            _netLockServer.RegisterLocalClient(localClient, _factory);
+            _netLockServer.LocalPlayerReady();
+
+            _netClient1.Connect();
+            _netLockClient1.SendPlayerReady();
+
+            Assert.AreEqual(playerId1, _netLockClient1.PlayerNumber, "Server maintains the same player id for the same client.");
+            Assert.AreEqual(playerId2, _netLockClient2.PlayerNumber, "Server maintains the same player id for the same client.");
+            Assert.AreEqual(playerId3, _netLockServer.LocalPlayerNumber, "Server maintains the same player id for the same client.");
+
+            _netLockServer.UnregisterLocalClient();
+            _netClient1.Disconnect();
+            _netClient2.Disconnect();
+
+            _netLockServer.RegisterLocalClient(localClient, _factory);
+            _netLockServer.LocalPlayerReady();
+
+            _netClient1.Connect();
+            _netLockClient1.SendPlayerReady();
+
+            _netClient2.Connect();
+            _netLockClient2.SendPlayerReady();
+
+            Assert.AreEqual(playerId1, _netLockClient1.PlayerNumber, "Server maintains the same player id for the same client.");
+            Assert.AreEqual(playerId2, _netLockClient2.PlayerNumber, "Server maintains the same player id for the same client.");
+            Assert.AreEqual(playerId3, _netLockServer.LocalPlayerNumber, "Server maintains the same player id for the same client.");
+        }
+
+        [Test]
+        public void ReconnectSituation()
+        {
+            StartMatch();
+
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+
+            _netClient1.Disconnect();
+
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+            Update(100);
+
+            _lockClient2.AddPendingCommand(new TestCommand(4));
+
+            Update(100);
+            Update(100);
+            Update(100);
+
+            Assert.AreEqual(0, _logic1.SumValues, "Client is disconnected, it did not get the command");
+            Assert.AreEqual(0, _lockClient1.TurnBuffer, "Client is disconnected, no turn buffer");
+
+            _netClient1.Connect();
+
+            Assert.AreEqual(0, _logic1.SumValues, "Client is reconnected, but has not applied command");
+
+            Update(0);
+
+            Assert.AreEqual(0, _logic1.SumValues, "Client is reconnected, but has not sent player ready");
+
+            Assert.AreEqual(0, _lockClient1.TurnBuffer, "Client is reconnected, but has not sent player ready");
+
+            _netLockClient1.SendPlayerReady();
+
+            Update(0);
+
+            Assert.AreEqual(14, _netLockServer.CurrentTurnNumber, "Client is reconnected, server resends all turns from the beginning");
+            Assert.AreEqual(13, _lockClient1.TurnBuffer, "Client is reconnected, server resends all turns from the beginning");
+
+            Update(0);
+            Update(0);
+            Update(0);
+            Update(0);
+            Update(0);
+            Update(0);
+            Update(0);
+            Update(0);
+
+            Assert.AreEqual(5, _lockClient1.TurnBuffer, "Client is reconnected and playing, but has not catched up");
+            Assert.AreEqual(0, _logic1.SumValues, "Client is reconnected and playing, but has not catched up");
+
+            Update(0);
+            Update(0);
+
+            Assert.AreEqual(4, _logic1.SumValues, "Client is reconnected, client simulation catched up");
         }
     }
 

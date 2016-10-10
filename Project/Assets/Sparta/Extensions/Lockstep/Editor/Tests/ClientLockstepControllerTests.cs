@@ -9,20 +9,18 @@ namespace SocialPoint.Lockstep
     class ClientLockstepControllerTests
     {
         ClientLockstepController _client;
-        UpdateScheduler _scheduler;
 
         [SetUp]
         public void SetUp()
         {
-            _scheduler = new UpdateScheduler();
-            _client = new ClientLockstepController(_scheduler);
+            _client = new ClientLockstepController();
         }
 
         [Test]
         public void StartedCalled()
         {
             bool started = false;
-            _client.Started += () => started = true;
+            _client.SimulationStarted += () => started = true;
             _client.Update(100);
             Assert.IsFalse(started, "Started should not be called withouth having called Start()");
             _client.Start();
@@ -38,11 +36,16 @@ namespace SocialPoint.Lockstep
             _client.Update(2000);
             Assert.IsTrue(started);
             started = false;
-            _client.Start(200);
+            _client.Start(-200);
             _client.Update(150);
             Assert.IsFalse(started, "Started should not be called if update time is lower than start delay");
             _client.Update(150);
             Assert.IsTrue(started, "Started should be called after update time exceeds start delay");
+
+            started = false;
+            _client.Start(200);
+            _client.Update(0);
+            Assert.IsTrue(started, "Started should not be called if started after 0 time (reconnection)");
         }
 
         [Test]
@@ -119,7 +122,10 @@ namespace SocialPoint.Lockstep
             _client.AddPendingCommand(cmd, finish);
             _client.Update(950);
             finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
-            _client.Update(50);
+            _client.Update(149);
+            finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
+            apply.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
+            _client.Update(1);
             finish.Received().Apply(cmd);
             apply.Received().Apply(cmd);
 
@@ -136,7 +142,7 @@ namespace SocialPoint.Lockstep
             _client.Config.CommandStepDuration = 100;
             _client.Config.SimulationStepDuration = 1000;
 
-            _client.Start(1000);
+            _client.Start(-1000);
             Assert.IsTrue(_client.Connected, "Client should be connected after start.");
             _client.Update(100);
             Assert.IsTrue(_client.Connected, "Client should be connected if update time is less than start delay.");

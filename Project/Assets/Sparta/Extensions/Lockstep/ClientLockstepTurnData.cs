@@ -7,7 +7,7 @@ namespace SocialPoint.Lockstep
     {
         List<ClientLockstepCommandData> _commands;
 
-        public ClientLockstepTurnData(List<ClientLockstepCommandData> commands=null)
+        public ClientLockstepTurnData(List<ClientLockstepCommandData> commands = null)
         {
             if(commands == null)
             {
@@ -24,9 +24,11 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public ClientLockstepCommandData GetCommand(int i)
+        public static readonly ClientLockstepTurnData Empty = new ClientLockstepTurnData();
+
+        public static bool IsNullOrEmpty(ClientLockstepTurnData turn)
         {
-            return _commands[i];
+            return turn == null || turn.CommandCount == 0;
         }
 
         public void AddCommand(ClientLockstepCommandData cmd)
@@ -84,5 +86,5 @@ namespace SocialPoint.Lockstep
             }
             return new ServerLockstepTurnData(commands);
         }
-    }    
+    }
 }

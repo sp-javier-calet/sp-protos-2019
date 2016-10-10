@@ -4,7 +4,7 @@ using SocialPoint.IO;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep
-{    
+{
     public class ServerLockstepCommandData : INetworkShareable
     {
         byte[] _command;
@@ -12,7 +12,7 @@ namespace SocialPoint.Lockstep
 
         public ServerLockstepCommandData()
         {
-        }            
+        }
 
         public ClientLockstepCommandData ToClient(LockstepCommandFactory factory)
         {
@@ -55,5 +55,5 @@ namespace SocialPoint.Lockstep
         {
             return string.Format("[ServerLockstepCommandData:{0}]", _id);
         }
-    }        
+    }
 }

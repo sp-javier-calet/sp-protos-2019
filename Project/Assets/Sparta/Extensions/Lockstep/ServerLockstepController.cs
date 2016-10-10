@@ -10,10 +10,11 @@ namespace SocialPoint.Lockstep
         int _time;
         long _timestamp;
         int _lastCmdTime;
-        ServerLockstepTurnData _turn;
         IUpdateScheduler _updateScheduler;
+        Dictionary<int, ServerLockstepTurnData> _turns;
 
         public bool Running{ get; private set; }
+
         public LockstepConfig Config { get; set; }
 
         public event Action<ServerLockstepTurnData> TurnReady;
@@ -34,12 +35,46 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public int CurrentTurnNumber
+        {
+            get
+            {
+                return _lastCmdTime / Config.CommandStepDuration;
+            }
+        }
+
         public ServerLockstepController(IUpdateScheduler updateScheduler = null)
         {
             Config = new LockstepConfig();
             _updateScheduler = updateScheduler;
-            _turn = new ServerLockstepTurnData();
+            _turns = new Dictionary<int, ServerLockstepTurnData>();
             Stop();
+        }
+
+        public IEnumerator<ServerLockstepTurnData> GetTurnsEnumerator()
+        {
+            var t = 0;
+            var itr = _turns.GetEnumerator();
+            var n = CurrentTurnNumber;
+            while(itr.MoveNext())
+            {
+                var k = itr.Current.Key;
+                if(k >= n)
+                {
+                    break;
+                }
+                for(; t < k; t++)
+                {
+                    yield return ServerLockstepTurnData.Empty;
+                }
+                yield return itr.Current.Value;
+                t++;
+            }
+            itr.Dispose();
+            for(; t < n; t++)
+            {
+                yield return ServerLockstepTurnData.Empty;
+            }
         }
 
         public void AddCommand(ServerLockstepCommandData command)
@@ -48,15 +83,23 @@ namespace SocialPoint.Lockstep
             {
                 return;
             }
-            _turn.AddCommand(command);
+            var t = CurrentTurnNumber;
+            ServerLockstepTurnData turn;
+            if(!_turns.TryGetValue(t, out turn))
+            {
+                turn = new ServerLockstepTurnData();
+                _turns[t] = turn;
+            }
+            turn.AddCommand(command);
         }
 
-        public void Start(int dt=0)
+        public void Start(int startTime = 0)
         {
             Running = true;
-            _time = -dt;
+            _time = startTime;
             _lastCmdTime = 0;
             _timestamp = TimeUtils.TimestampMilliseconds;
+            _turns.Clear();
             if(_updateScheduler != null)
             {
                 _updateScheduler.Add(this);
@@ -66,7 +109,7 @@ namespace SocialPoint.Lockstep
         public void Stop()
         {
             Running = false;
-            _turn.Clear();
+            _turns.Clear();
             if(_updateScheduler != null)
             {
                 _updateScheduler.Remove(this);
@@ -94,12 +137,17 @@ namespace SocialPoint.Lockstep
                 {                
                     break;
                 }
+                ServerLockstepTurnData turn;
+                var t = CurrentTurnNumber;
+                if(!_turns.TryGetValue(t, out turn))
+                {
+                    turn = ServerLockstepTurnData.Empty;
+                }
                 if(TurnReady != null)
                 {
-                    TurnReady(_turn);
+                    TurnReady(turn);
                 }
-                ConfirmLocalClientTurn(_turn);
-                _turn.Clear();
+                ConfirmLocalClientTurn(turn);
                 _lastCmdTime = nextCmdTime;
             }
         }

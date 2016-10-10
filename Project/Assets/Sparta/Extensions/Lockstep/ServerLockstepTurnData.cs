@@ -2,12 +2,12 @@
 using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep
-{    
+{
     public sealed class ServerLockstepTurnData : INetworkShareable
     {
         List<ServerLockstepCommandData> _commands;
 
-        public ServerLockstepTurnData(List<ServerLockstepCommandData> commands=null)
+        public ServerLockstepTurnData(List<ServerLockstepCommandData> commands = null)
         {
             if(commands == null)
             {
@@ -15,7 +15,7 @@ namespace SocialPoint.Lockstep
             }
             _commands = commands;
         }
-            
+
         public int CommandCount
         {
             get
@@ -26,8 +26,13 @@ namespace SocialPoint.Lockstep
 
         public void AddCommand(ServerLockstepCommandData cmd)
         {
-            _commands.Add(cmd);
+            if(cmd != null)
+            {
+                _commands.Add(cmd);
+            }
         }
+
+        public static readonly ServerLockstepTurnData Empty = new ServerLockstepTurnData();
 
         public void Clear()
         {
