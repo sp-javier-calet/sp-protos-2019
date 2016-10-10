@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using SocialPoint.IO;
 
-/// <summary>
-/// Class based in the original files from SharpNav/IO/Json.
-/// </summary>
 namespace SocialPoint.Pathfinding
 {
     public static class SerializationUtils

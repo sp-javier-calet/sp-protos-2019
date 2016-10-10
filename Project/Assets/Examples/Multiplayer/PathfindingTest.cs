@@ -23,33 +23,31 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
     int maxNodes = 1000;
 
     List<SharpNav.Geometry.Vector3> navPath = new List<SharpNav.Geometry.Vector3>();
+    StraightPath straightPath;
     SharpNav.Geometry.Vector3 startPoint = SharpNav.Geometry.Vector3.Zero;
     bool started = false;
 
     List<GameObject> navPathNodes = new List<GameObject>();
 
+    IPathfindingDebugger _debugger;
+
     // Use this for initialization
     void Start()
     {
-        CombineMesh(gameObject);
-        Mesh map = GetMesh(gameObject);
-        UnityEngine.Vector3[] vertices = map.vertices;
-        int[] triangles = map.triangles;
-        int totalTriangles = triangles.Length / 3;
-        Debug.Log("Mesh Triangles: " + totalTriangles);
+        _debugger = new PathfindingUnityDebugger();
+
+        Mesh map = PathfindingUnityUtils.CombineSubMeshes(gameObject);
+        SetMesh(gameObject, map);
 
         if(!loadFromFile)
         {
-            //prepare the geometry from your mesh data
-            var tris = TriangleEnumerable.FromIndexedVector3(ConvertVectorsToPathfinding(vertices), triangles, 0, 1, 0, totalTriangles);
-
             //use the default generation settings
             var settings = NavMeshGenerationSettings.Default;
             settings.AgentHeight = 1.7f;
             settings.AgentRadius = 0.5f;
 
             //generate the mesh
-            navMesh = SharpNav.NavMesh.Generate(tris, settings);
+            navMesh = PathfindingUnityUtils.CreateNavMesh(map, settings);
             SaveNavMesh();
         }
         else
@@ -61,8 +59,15 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
 
     void Update()
     {
-        DrawNavmesh();
-        DrawPath();
+        if(navMesh != null)
+        {
+            _debugger.DrawNavMesh(navMesh);
+        }
+
+        if(straightPath != null)
+        {
+            _debugger.DrawStraightPath(straightPath);
+        }
     }
 
     void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
@@ -80,7 +85,7 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
                 var path = new SharpNav.Pathfinding.Path();
                 if(query.FindPath(ref startPoly, ref endPoly, new NavQueryFilter(), path))
                 {
-                    StraightPath straightPath = new StraightPath();
+                    straightPath = new StraightPath();
                     if(query.FindStraightPath(startPoint, endPoint, path, straightPath, new PathBuildFlags()))
                     {
                         navPath.Clear();
@@ -109,62 +114,20 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    void DrawNavmesh()
+    void SetMesh(GameObject parent, Mesh mesh)
     {
-        //IMPORTANT: Use TileCount, PolyCount, VertCount instead of the arrays.Lenth, arrays can have additional "blank" positions
-        for(int t = 0; t < navMesh.TileCount; t++)
-        {
-            var tile = navMesh.Tiles[t];
-            var polys = tile.Polys;
-            for(int p = 0; p < tile.PolyCount; p++)
-            {
-                var poly = polys[p];
-                var verts = poly.Verts;
-                for(int i = 0; i < poly.VertCount; i++)
-                {
-                    int index1 = verts[i];
-                    int index2 = verts[(i + 1) % poly.VertCount];
-                    var v1 = tile.Verts[index1];
-                    var v2 = tile.Verts[index2];
-                    Debug.DrawLine(v1.ToUnity(), v2.ToUnity(), Color.red);
-                }
-            }
-        }
-    }
-
-    void DrawPath()
-    {
-        for(int i = 0; i < navPath.Count - 1; i++)
-        {
-            var v1 = navPath[i];
-            var v2 = navPath[i + 1];
-            Debug.DrawLine(v1.ToUnity(), v2.ToUnity(), Color.green);
-        }
-    }
-
-    Mesh GetMesh(GameObject go)
-    {
-        MeshFilter meshFilter = go.GetComponent<MeshFilter>();
-        return meshFilter.mesh;
-    }
-
-    void CombineMesh(GameObject parent)
-    {
+        //Hide children
         MeshFilter[] meshFilters = parent.GetComponentsInChildren<MeshFilter>();
-        CombineInstance[] combine = new CombineInstance[meshFilters.Length];
-        int i = 0;
-        while(i < meshFilters.Length)
+        for(int i = 0; i < meshFilters.Length; i++)
         {
-            combine[i].mesh = meshFilters[i].sharedMesh;
-            combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
-            meshFilters[i].gameObject.SetActive(false);//Note: If not deactivated it can cause some problems with raycasting, even if they don't have colliders (weird)
-            i++;
+            //Note: If not deactivated it can cause some problems with raycasting, even if they don't have colliders (weird)
+            meshFilters[i].gameObject.SetActive(false);
         }
 
+        //Add mesh components to parent object
         parent.AddComponent<MeshFilter>();
         MeshFilter meshFilter = parent.GetComponent<MeshFilter>();
-        meshFilter.mesh = new Mesh();
-        meshFilter.mesh.CombineMeshes(combine);
+        meshFilter.mesh = mesh;
 
         parent.AddComponent<MeshCollider>();
         MeshCollider meshCollider = parent.GetComponent<MeshCollider>();
@@ -180,26 +143,6 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
         meshRenderer.useLightProbes = childRenderer.useLightProbes;
 
         parent.gameObject.SetActive(true);
-    }
-
-    SharpNav.Geometry.Vector3[] ConvertVectorsToPathfinding(UnityEngine.Vector3[] vectors)
-    {
-        var navVectors = new SharpNav.Geometry.Vector3[vectors.Length];
-        for(int i = 0; i < vectors.Length; i++)
-        {
-            navVectors[i] = vectors[i].ToPathfinding();
-        }
-        return navVectors;
-    }
-
-    UnityEngine.Vector3[] ConvertVectorsToUnity(SharpNav.Geometry.Vector3[] vectors)
-    {
-        var navVectors = new UnityEngine.Vector3[vectors.Length];
-        for(int i = 0; i < vectors.Length; i++)
-        {
-            navVectors[i] = vectors[i].ToUnity();
-        }
-        return navVectors;
     }
 
     void SaveNavMesh()
