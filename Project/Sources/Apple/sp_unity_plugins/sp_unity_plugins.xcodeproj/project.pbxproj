@@ -174,7 +174,6 @@
 		FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490231C1F11D900A10FEA /* SPUnityAlertViewFacade.mm */; };
 		FE4490AA1C1F33A400A10FEA /* SPUnityCrashReporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490101C1EF36200A10FEA /* SPUnityCrashReporter.mm */; };
 		FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490131C1EF36200A10FEA /* SPUnityHardwareFacade.mm */; };
-		FE89134A1DABEF4D00BD87C0 /* UnityAppController.h in Headers */ = {isa = PBXBuildFile; fileRef = FE8913491DABEF4D00BD87C0 /* UnityAppController.h */; };
 		FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */; };
 		FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF5AF77E1C623DCF00B5573A /* SPUnityGameCenter.mm */; };
 		FF68D9831CF83D81008891E2 /* SPNativeCallsSender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */; };
@@ -393,7 +392,7 @@
 		FE4490461C1F205800A10FEA /* SPUnityPlugins.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SPUnityPlugins.h; sourceTree = "<group>"; };
 		FE4490481C1F205800A10FEA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FE44907C1C1F20C400A10FEA /* SPUnityPlugins.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SPUnityPlugins.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		FE8913491DABEF4D00BD87C0 /* UnityAppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UnityAppController.h; sourceTree = "<group>"; };
+		FE8913491DABEF4D00BD87C0 /* UnityAppController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UnityAppController.h; path = ../LinkerValidator/UnityAppController.h; sourceTree = "<group>"; };
 		FEE21F661C20198100ECC3E2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnityGameObject.h; sourceTree = "<group>"; };
 		FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UnityGameObject.cpp; sourceTree = "<group>"; };
@@ -519,7 +518,6 @@
 				460B35DF1C3EAE80003E0D9D /* Info.plist */,
 				460B35DC1C3EAE80003E0D9D /* LaunchScreen.storyboard */,
 				460B35D71C3EAE80003E0D9D /* Main.storyboard */,
-				FE8913491DABEF4D00BD87C0 /* UnityAppController.h */,
 				460B35D41C3EAE80003E0D9D /* ViewController.h */,
 				460B35D51C3EAE80003E0D9D /* ViewController.m */,
 			);
@@ -852,6 +850,7 @@
 			children = (
 				FE448F311C1EEAD800A10FEA /* Common */,
 				FEE21F3E1C20128600ECC3E2 /* Frameworks */,
+				FE89134B1DABF17700BD87C0 /* LinkerApp */,
 				460B35CD1C3EAE80003E0D9D /* LinkerValidator */,
 				0691705B1C762BED00C6B0B6 /* LinkerValidator_macOS */,
 				460B36111C3EB1B8003E0D9D /* LinkerValidator_tvOS */,
@@ -979,13 +978,22 @@
 				460B36251C3EB3E6003E0D9D /* Info_tvOS.plist */,
 				FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */,
 				FF68D9811CF83A39008891E2 /* SPNativeCallsSender.h */,
-				468F9D741D9BB44000EF4AE7 /* SPUnityAppControllerSubClass.h */,
-				468F9D751D9BB44000EF4AE7 /* SPUnityAppControllerSubClass.mm */,
 				FE4490461C1F205800A10FEA /* SPUnityPlugins.h */,
 				46E208D21D251DFB00FB1CEE /* SPUnityPlugins_tvOS.h */,
 				FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */,
 				FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */,
 			);
+			path = SPUnityPlugins;
+			sourceTree = "<group>";
+		};
+		FE89134B1DABF17700BD87C0 /* LinkerApp */ = {
+			isa = PBXGroup;
+			children = (
+				468F9D741D9BB44000EF4AE7 /* SPUnityAppControllerSubClass.h */,
+				468F9D751D9BB44000EF4AE7 /* SPUnityAppControllerSubClass.mm */,
+				FE8913491DABEF4D00BD87C0 /* UnityAppController.h */,
+			);
+			name = LinkerApp;
 			path = SPUnityPlugins;
 			sourceTree = "<group>";
 		};
@@ -1083,7 +1091,6 @@
 				46F7491F1C60AE77000DB6B1 /* PLCrashReportThreadInfo.h in Headers */,
 				468F9D7C1D9BB56D00EF4AE7 /* SPUnityNativeUtils.h in Headers */,
 				46E208D11D251DF000FB1CEE /* SPUnityPlugins.h in Headers */,
-				FE89134A1DABEF4D00BD87C0 /* UnityAppController.h in Headers */,
 				468F9D7A1D9BB52400EF4AE7 /* UnityGameObject.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
