@@ -74,6 +74,27 @@ namespace SocialPoint.Lockstep
 
             finish.Received().Apply(cmd);
         }
+
+        [Test]
+        public void TurnEnumeratorWorking()
+        {
+            _server.Start();
+            _server.Update(200);
+            _server.AddCommand(new ServerLockstepCommandData());
+            _server.Update(300);
+            _server.AddCommand(new ServerLockstepCommandData());
+            _server.Update(100);
+
+            var itr = _server.GetTurnsEnumerator();
+            itr.MoveNext();
+            itr.MoveNext();
+            itr.MoveNext();
+            Assert.AreEqual(1, itr.Current.CommandCount);
+            itr.MoveNext();
+            itr.MoveNext();
+            itr.MoveNext();
+            Assert.AreEqual(1, itr.Current.CommandCount);
+        }
     }
 
 }

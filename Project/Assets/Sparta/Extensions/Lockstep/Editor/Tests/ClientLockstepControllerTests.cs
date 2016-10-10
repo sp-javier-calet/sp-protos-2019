@@ -20,7 +20,7 @@ namespace SocialPoint.Lockstep
         public void StartedCalled()
         {
             bool started = false;
-            _client.Started += () => started = true;
+            _client.SimulationStarted += () => started = true;
             _client.Update(100);
             Assert.IsFalse(started, "Started should not be called withouth having called Start()");
             _client.Start();

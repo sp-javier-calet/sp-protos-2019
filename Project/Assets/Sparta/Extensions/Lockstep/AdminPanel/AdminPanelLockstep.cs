@@ -34,7 +34,14 @@ namespace SocialPoint.Lockstep
                 builder.Append("(running) ");
                 if(_client.Connected)
                 {
-                    builder.AppendLine("(connected)");
+                    if(_client.Recovering)
+                    {
+                        builder.AppendLine("(recovering)");
+                    }
+                    else
+                    {
+                        builder.AppendLine("(connected)");
+                    }
                 }
                 else
                 {

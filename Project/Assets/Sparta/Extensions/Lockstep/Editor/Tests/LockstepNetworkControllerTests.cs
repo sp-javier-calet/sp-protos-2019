@@ -307,9 +307,9 @@ namespace SocialPoint.Lockstep.Network
 
             Update(0);
 
-            Assert.AreEqual(14, _lockClient1.TurnBuffer, "Client is reconnected, server resends all turns from the beginning");
+            Assert.AreEqual(14, _netLockServer.CurrentTurnNumber, "Client is reconnected, server resends all turns from the beginning");
+            Assert.AreEqual(13, _lockClient1.TurnBuffer, "Client is reconnected, server resends all turns from the beginning");
 
-            Update(0);
             Update(0);
             Update(0);
             Update(0);
@@ -322,6 +322,7 @@ namespace SocialPoint.Lockstep.Network
             Assert.AreEqual(5, _lockClient1.TurnBuffer, "Client is reconnected and playing, but has not catched up");
             Assert.AreEqual(0, _logic1.SumValues, "Client is reconnected and playing, but has not catched up");
 
+            Update(0);
             Update(0);
 
             Assert.AreEqual(4, _logic1.SumValues, "Client is reconnected, client simulation catched up");

@@ -82,6 +82,25 @@ namespace SocialPoint.Lockstep
 
     public class ClientLockstepController : IUpdateable, IDisposable
     {
+        enum State
+        {
+            /**
+             * turn buffer is withing the normal limits
+             */
+            Normal,
+
+            /*
+             * when the client is stopped because the current turn was not received
+             */
+            Waiting,
+
+            /**
+             * when the client is speeding to get to the current turn
+             * (after lag or at the start of a reconnection)
+             */
+            Recovering
+        }
+
         IUpdateScheduler _updateScheduler;
 
         long _timestamp;
@@ -89,13 +108,13 @@ namespace SocialPoint.Lockstep
         int _lastSimTime;
         int _lastCmdTime;
         int _lastConfirmedTurnNumber;
-        bool _justStarted;
+        bool _simStartedCalled;
+        bool _simRecoveredCalled;
+        State _state;
 
         Dictionary<Type, ILockstepCommandLogic> _commandLogics = new Dictionary<Type, ILockstepCommandLogic>();
         List<ClientLockstepCommandData> _pendingCommands = new List<ClientLockstepCommandData>();
         Dictionary<int, ClientLockstepTurnData> _confirmedTurns = new Dictionary<int, ClientLockstepTurnData>();
-
-        public bool Connected{ get; private set; }
 
         public bool Running{ get; private set; }
 
@@ -105,9 +124,26 @@ namespace SocialPoint.Lockstep
 
         public event Action<ClientLockstepCommandData> CommandAdded;
         public event Action<ClientLockstepTurnData> TurnApplied;
-        public event Action Started;
+        public event Action SimulationStarted;
+        public event Action SimulationRecovered;
         public event Action ConnectionChanged;
         public event Action<int> Simulate;
+
+        public bool Connected
+        {
+            get
+            {
+                return _state != State.Waiting;
+            }
+        }
+
+        public bool Recovering
+        {
+            get
+            {
+                return _state == State.Recovering;
+            }
+        }
 
         public int TurnBuffer
         {
@@ -153,6 +189,7 @@ namespace SocialPoint.Lockstep
 
         public ClientLockstepController(IUpdateScheduler updateScheduler = null)
         {
+            _state = State.Normal;
             Config = new LockstepConfig();
             ClientConfig = new ClientLockstepConfig();
             _updateScheduler = updateScheduler;
@@ -168,12 +205,13 @@ namespace SocialPoint.Lockstep
         public void Start(int startTime = 0)
         {
             Running = true;
-            Connected = true;
             _time = startTime;
+            _state = _time > 0 ? State.Recovering : State.Normal;
             _timestamp = TimeUtils.TimestampMilliseconds;
             _lastSimTime = 0;
             _lastCmdTime = 0;
-            _justStarted = true;
+            _simStartedCalled = false;
+            _simRecoveredCalled = false;
             if(_updateScheduler != null)
             {
                 _updateScheduler.Add(this);
@@ -183,7 +221,7 @@ namespace SocialPoint.Lockstep
         public void Stop()
         {
             Running = false;
-            Connected = false;
+            _state = State.Waiting;
             _confirmedTurns.Clear();
             _pendingCommands.Clear();
             _lastConfirmedTurnNumber = 0;
@@ -326,21 +364,29 @@ namespace SocialPoint.Lockstep
             }
             dt = (int)(ClientConfig.SpeedFactor * (float)dt);
             _time += dt;
-            if(_justStarted && _time >= 0)
+            if(!_simStartedCalled && _time >= 0)
             {
-                _justStarted = false;
-                if(Started != null)
+                _simStartedCalled = true;
+                if(SimulationStarted != null)
                 {
-                    Started();
+                    SimulationStarted();
+                }
+            }
+            if(!_simRecoveredCalled && _time >= 0 && _state == State.Normal)
+            {
+                _simRecoveredCalled = true;
+                if(SimulationRecovered != null)
+                {
+                    SimulationRecovered();
                 }
             }
             var simSteps = 0;
             var wasConnected = Connected;
+            _state = State.Normal;
             while(true)
             {
                 var nextSimTime = _lastSimTime + Config.SimulationStepDuration;
                 var nextCmdTime = _lastCmdTime + Config.CommandStepDuration;
-                var finished = true;
                 if(nextSimTime <= nextCmdTime && nextSimTime <= _time)
                 {
                     if(Simulate != null)
@@ -349,9 +395,10 @@ namespace SocialPoint.Lockstep
                     }
                     _lastSimTime = nextSimTime;
                     simSteps++;
-                    if(ClientConfig.MaxSimulationStepsPerFrame <= 0 || simSteps <= ClientConfig.MaxSimulationStepsPerFrame)
+                    if(ClientConfig.MaxSimulationStepsPerFrame > 0 && simSteps > ClientConfig.MaxSimulationStepsPerFrame)
                     {
-                        finished = false;
+                        _state = State.Recovering;
+                        break;
                     }
                 }
                 else if(nextCmdTime <= _time)
@@ -359,7 +406,7 @@ namespace SocialPoint.Lockstep
                     var t = CurrentTurnNumber + 1;
                     if(_lastConfirmedTurnNumber >= t)
                     {
-                        Connected = true;
+                        _state = State.Normal;
                         ClientLockstepTurnData turn;
                         if(!_confirmedTurns.TryGetValue(t, out turn))
                         {
@@ -377,15 +424,15 @@ namespace SocialPoint.Lockstep
                     }
                     else
                     {
-                        Connected = false;
+                        _state = State.Waiting;
+                        break;
                     }
-                    if(Connected)
+                    if(_state == State.Normal)
                     {
                         _lastCmdTime = nextCmdTime;
-                        finished = false;
                     }
                 }
-                if(finished)
+                else
                 {
                     break;
                 }

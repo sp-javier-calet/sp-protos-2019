@@ -289,7 +289,7 @@ namespace SocialPoint.Lockstep.Network
         {
             get
             {
-                return UpdateTime - ServerConfig.ClientSimulationDelay;
+                return _serverLockstep.UpdateTime - ServerConfig.ClientSimulationDelay;
             }
         }
 
@@ -298,6 +298,14 @@ namespace SocialPoint.Lockstep.Network
             get
             {
                 return _serverLockstep.CommandDeltaTime;
+            }
+        }
+
+        public int CurrentTurnNumber
+        {
+            get
+            {
+                return _serverLockstep.CurrentTurnNumber;
             }
         }
 
@@ -327,14 +335,6 @@ namespace SocialPoint.Lockstep.Network
                 return;
             }
 
-            // send the old turns
-            var itr = _serverLockstep.GetTurnsEnumerator();
-            while(itr.MoveNext())
-            {
-                SendTurn(itr.Current, clientData.ClientId);
-            }
-            itr.Dispose();
-
             clientData.PlayerNumber = playerNum;
             _server.SendMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.ClientStart,
@@ -344,6 +344,14 @@ namespace SocialPoint.Lockstep.Network
                 ClientUpdateTime,
                 clientData.PlayerNumber
             ));
+
+            // send the old turns
+            var itr = _serverLockstep.GetTurnsEnumerator();
+            while(itr.MoveNext())
+            {
+                SendTurn(itr.Current, clientData.ClientId);
+            }
+            itr.Dispose();
         }
 
         void CheckAllPlayersReady()

@@ -17,6 +17,7 @@ namespace SocialPoint.Lockstep.Network
         bool _clientSetupReceived;
 
         public uint PlayerId;
+
         public int PlayerNumber{ get; private set; }
 
         public bool Running
@@ -37,7 +38,7 @@ namespace SocialPoint.Lockstep.Network
             _client.AddDelegate(this);
         }
 
-        public ClientLockstepNetworkController(INetworkClient client, ClientLockstepController clientLockstep, LockstepCommandFactory factory):this(client)
+        public ClientLockstepNetworkController(INetworkClient client, ClientLockstepController clientLockstep, LockstepCommandFactory factory) : this(client)
         {
             SetupClientLockstep(clientLockstep, factory);
         }
