@@ -61,9 +61,10 @@ namespace SocialPoint.Network
 
         public WebSocketsEventDispatcher(ICoroutineRunner runner)
         {
-            _runner = runner;
-            _dispatchCoroutine = _runner.StartCoroutine(Dispatch());
             _pending = new List<EventData>();
+            _runner = runner;
+
+            _dispatchCoroutine = _runner.StartCoroutine(Dispatch());
         }
 
         public void Dispose()
@@ -108,6 +109,8 @@ namespace SocialPoint.Network
                         }
                     }
                 }
+
+                yield return null;
             }
         }
 
