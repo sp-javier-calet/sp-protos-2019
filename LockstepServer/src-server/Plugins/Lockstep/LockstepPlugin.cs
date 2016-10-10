@@ -34,12 +34,9 @@ namespace Photon.Hive.Plugin.Lockstep
         }
 
         ServerLockstepNetworkController _netServer;
-        UpdateScheduler _updateScheduler;
         List<INetworkServerDelegate> _delegates;
         INetworkMessageReceiver _receiver;
-        LockstepCommandFactory _factory;
         object _timer;
-        float _updateInterval;
  
         const byte MaxPlayersKey = 255;
         const byte MasterClientIdKey = 248;
@@ -50,9 +47,8 @@ namespace Photon.Hive.Plugin.Lockstep
         public LockstepPlugin()
         {
             UseStrictMode = true;
-            _updateScheduler = new UpdateScheduler();
             _delegates = new List<INetworkServerDelegate>();
-            _factory = new LockstepCommandFactory();
+            _netServer = new ServerLockstepNetworkController(this);
         }
 
         byte GetClientId(string userId)
@@ -190,14 +186,11 @@ namespace Photon.Hive.Plugin.Lockstep
             }
         }
 
-        const string PlayersCountKey = "PlayersCount";
-        const string StartDelayKey = "StartDelay";
-        const string CommandStepFactorKey = "CommandStepFactor";
-        const string SimulationStepKey = "SimulationStep";
-        const string MinExecutionTurnAnticipationKey = "MinExecutionTurnAnticipation";
-        const string MaxExecutionTurnAnticipationKey = "MaxExecutionTurnAnticipation";
-        const string ExecutionTurnAnticipationKey = "ExecutionTurnAnticipation";
-        const string MaxRetriesKey = "MaxRetries";
+        const string CommandStepDurationConfig = "CommandStepDuration";
+        const string SimulationStepDurationConfig = "SimulationStepDuration";
+        const string MaxPlayersConfig = "MaxPlayers";
+        const string ClientStartDelayConfig = "ClientStartDelay";
+        const string ClientSimulationDelayConfig = "ClientSimulationDelay";
 
         int GetConfigOption(Dictionary<string, string> config, string key, int def)
         {
@@ -219,33 +212,24 @@ namespace Photon.Hive.Plugin.Lockstep
             {
                 return false;
             }
-            var lsConfig = new LockstepConfig
-            {
-                CommandStepFactor = GetConfigOption(config, CommandStepFactorKey, LockstepConfig.DefaultCommandStepFactor),
-                SimulationStep = GetConfigOption(config, SimulationStepKey, LockstepConfig.DefaultSimulationStep),
-                MinExecutionTurnAnticipation = GetConfigOption(config, MinExecutionTurnAnticipationKey, LockstepConfig.DefaultMinExecutionTurnAnticipation),
-                MaxExecutionTurnAnticipation = GetConfigOption(config, MaxExecutionTurnAnticipationKey, LockstepConfig.DefaultMaxExecutionTurnAnticipation),
-                ExecutionTurnAnticipation = GetConfigOption(config, ExecutionTurnAnticipationKey, LockstepConfig.DefaultExecutionTurnAnticipation),
-                MaxRetries = GetConfigOption(config, MaxRetriesKey, LockstepConfig.DefaultMaxRetries),
-            };
-            var srvConfig = new ServerLockstepConfig
-            {
-                MaxPlayers = (byte)GetConfigOption(config, PlayersCountKey, 2),
-                StartDelay = GetConfigOption(config, StartDelayKey, 3000)
-            };
-            _netServer = new ServerLockstepNetworkController(
-                this, lsConfig, srvConfig);
-            _netServer.Init(
-                new ServerLockstepController(_updateScheduler, lsConfig.CommandStep));
+            _netServer.Config.CommandStepDuration = GetConfigOption(config,
+                CommandStepDurationConfig, _netServer.Config.CommandStepDuration);
+            _netServer.Config.SimulationStepDuration = GetConfigOption(config,
+                SimulationStepDurationConfig, _netServer.Config.SimulationStepDuration);
+            _netServer.ServerConfig.MaxPlayers = (byte)GetConfigOption(config,
+                MaxPlayersConfig, _netServer.ServerConfig.MaxPlayers);
+            _netServer.ServerConfig.ClientStartDelay = GetConfigOption(config,
+                ClientStartDelayConfig, _netServer.ServerConfig.ClientStartDelay);
+            _netServer.ServerConfig.ClientSimulationDelay = GetConfigOption(config,
+                ClientSimulationDelayConfig, _netServer.ServerConfig.ClientSimulationDelay);
 
-            _updateInterval = (float)lsConfig.CommandStep/1000.0f;
-            _timer = PluginHost.CreateTimer(Update, 0, lsConfig.CommandStep);
+            _timer = PluginHost.CreateTimer(Update, 0, _netServer.Config.CommandStepDuration);
             return true;
         }
 
         void Update()
         {
-            _updateScheduler.Update(_updateInterval);
+            _netServer.Update();
         }
 
         void INetworkServer.Start()

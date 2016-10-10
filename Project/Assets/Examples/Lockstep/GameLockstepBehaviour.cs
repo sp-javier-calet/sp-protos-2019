@@ -61,6 +61,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
     void Start()
     {
         _lockstep = ServiceLocator.Instance.Resolve<ClientLockstepController>();
+        _lockstep.ClientConfig.LocalSimulationDelay = 500;
         _replay = ServiceLocator.Instance.Resolve<LockstepReplay>();
         _factory = ServiceLocator.Instance.Resolve<LockstepCommandFactory>();
         _lockstep.Simulate += Simulate;
@@ -90,7 +91,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         SetupGameScreen();
         _mode = GameLockstepMode.Local;
         _replay.Record();
-        _lockstep.Start(TimeUtils.TimestampMilliseconds);
+        _lockstep.Start();
     }
 
     public void OnReplayClicked()
@@ -112,7 +113,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         SetupGameScreen();
         _mode = GameLockstepMode.Replay;
         _replay.Replay();
-        _lockstep.Start(TimeUtils.TimestampMilliseconds);
+        _lockstep.Start();
     }
 
     public void OnClientClicked()
@@ -135,6 +136,10 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         SetupGameScreen();
         _mode = GameLockstepMode.Server;
         StartServer();
+        _netLockstepServer.RegisterLocalClient(
+            ServiceLocator.Instance.Resolve<ClientLockstepController>(),
+            ServiceLocator.Instance.Resolve<LockstepCommandFactory>()
+        );
         _netLockstepServer.LocalPlayerReady();
     }
 
@@ -151,6 +156,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         _mode = GameLockstepMode.Host;
         StartServer();
         StartClient();
+        _netLockstepServer.UnregisterLocalClient();
     }
 
     public void OnCloseClicked()
@@ -206,9 +212,9 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    void Simulate(long tsmillis)
+    void Simulate(int dt)
     {
-        _model.Simulate(tsmillis);
+        _model.Simulate(dt);
     }
 
     void OnInstantiate(Fix64 x, Fix64 y, Fix64 z)

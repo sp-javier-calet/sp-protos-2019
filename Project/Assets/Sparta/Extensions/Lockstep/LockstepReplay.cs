@@ -12,12 +12,12 @@ namespace SocialPoint.Lockstep
     {
         ClientLockstepController _clientLockstep;
         LockstepCommandFactory _commandFactory;
-        List<ClientLockstepCommandData> _commands;
+        List<ClientLockstepTurnData> _turns;
         LockstepConfig _config;
 
         public LockstepReplay(ClientLockstepController clientLockstep, LockstepCommandFactory commandFactory)
         {
-            _commands = new List<ClientLockstepCommandData>();
+            _turns = new List<ClientLockstepTurnData>();
             _clientLockstep = clientLockstep;
             _commandFactory = commandFactory;
         }
@@ -25,31 +25,31 @@ namespace SocialPoint.Lockstep
         public void Record()
         {
             _config = null;
-            _clientLockstep.CommandApplied += OnCommandApplied;
+            _clientLockstep.TurnApplied += OnTurnApplied;
         }
 
         public void Replay()
         {
-            _clientLockstep.Init(_config);
-            for(var i = 0; i < _commands.Count; i++)
+            _clientLockstep.Config = _config;
+            for(var i = 0; i < _turns.Count; i++)
             {
-                _clientLockstep.AddConfirmedCommand(_commands[i]);
+                _clientLockstep.AddConfirmedTurn(_turns[i]);
             }
         }
 
         public void Reset()
         {
-            _commands.Clear();
+            _turns.Clear();
             _config = null;
         }
 
-        void OnCommandApplied(ClientLockstepCommandData command)
+        void OnTurnApplied(ClientLockstepTurnData turn)
         {
             if(_config == null)
             {
-                _config = _clientLockstep.LockstepConfig;
+                _config = _clientLockstep.Config;
             }
-            _commands.Add(command);
+            _turns.Add(turn);
         }
 
         public void Serialize(IWriter writer)
@@ -59,11 +59,10 @@ namespace SocialPoint.Lockstep
                 return;
             }
             _config.Serialize(writer);
-            writer.Write(_commands.Count);
-            for(int i = 0; i < _commands.Count; ++i)
+            writer.Write(_turns.Count);
+            for(var i=0; i<_turns.Count; i++)
             {
-                var command = _commands[i];
-                command.Serialize(_commandFactory, writer);
+                _turns[i].Serialize(_commandFactory, writer);
             }
         }
 
@@ -74,9 +73,9 @@ namespace SocialPoint.Lockstep
             int count = reader.ReadInt32();
             for(int i = 0; i < count; ++i)
             {
-                var cmd = new ClientLockstepCommandData();
-                cmd.Deserialize(_commandFactory, reader);
-                _commands.Add(cmd);
+                var turn = new ClientLockstepTurnData();
+                turn.Deserialize(_commandFactory, reader);
+                _turns.Add(turn);
             }
         }
 
@@ -84,7 +83,7 @@ namespace SocialPoint.Lockstep
         {
             if(_clientLockstep != null)
             {
-                _clientLockstep.CommandApplied -= OnCommandApplied;
+                _clientLockstep.TurnApplied -= OnTurnApplied;
             }
         }
     }

@@ -1,253 +1,141 @@
 ﻿using System.Collections.Generic;
 using System;
 using SocialPoint.Utils;
+using SocialPoint.Base;
 
 namespace SocialPoint.Lockstep
 {
     public sealed class ServerLockstepController : IUpdateable, IDisposable
     {
-        public long CommandStep;
-        long _simulationTime;
-        long _lastTimestamp;
-        int _lastTurn;
-        bool _isRunning;
-        Dictionary<int, ServerLockstepTurnData> _turns;
-        Dictionary<byte, HashSet<int>> _pendingTurns;
+        int _time;
+        long _timestamp;
+        int _lastCmdTime;
+        ServerLockstepTurnData _turn;
         IUpdateScheduler _updateScheduler;
 
-        public int CurrentTurn
+        public bool Running{ get; private set; }
+        public LockstepConfig Config { get; set; }
+
+        public event Action<ServerLockstepTurnData> TurnReady;
+
+        public ServerLockstepController(IUpdateScheduler updateScheduler = null)
         {
-            get
-            {
-                return (int)(_simulationTime / CommandStep);
-            }
+            Config = new LockstepConfig();
+            _updateScheduler = updateScheduler;
+            _turn = new ServerLockstepTurnData();
+            Stop();
         }
 
-        public bool Running
+        public void AddCommand(ServerLockstepCommandData command)
         {
-            get
+            if(!Running || _time < 0)
             {
-                return _isRunning;
+                return;
             }
+            _turn.AddCommand(command);
         }
 
-        public ServerLockstepController(IUpdateScheduler updateScheduler, long commandStep = 300)
+        public void Start(int dt=0)
         {
-            CommandStep = commandStep;
-            if(updateScheduler != null)
+            Running = true;
+            _time = -dt;
+            _lastCmdTime = 0;
+            _timestamp = TimeUtils.TimestampMilliseconds;
+            if(_updateScheduler != null)
             {
-                _updateScheduler = updateScheduler;
-                updateScheduler.Add(this);
+                _updateScheduler.Add(this);
             }
-            _lastTurn = -1;
-            _turns = new Dictionary<int, ServerLockstepTurnData>();
-            _pendingTurns = new Dictionary<byte, HashSet<int>>();
-        }
-
-        public void OnClientCommandReceived(ServerLockstepCommandData command)
-        {
-            // If the execution turn is not in the future, ignore it.
-            if(command.Turn > _lastTurn)
-            {
-                ServerLockstepTurnData turnData;
-                if(!_turns.TryGetValue(command.Turn, out turnData))
-                {
-                    turnData = new ServerLockstepTurnData(command.Turn);
-                    turnData.Commands = new List<ServerLockstepCommandData>();
-                    _turns.Add(turnData.Turn, turnData);
-                }
-                turnData.Commands.Add(command);
-            }
-        }
-
-        public void OnClientTurnReceptionConfirmed(byte client, int turn)
-        {
-            HashSet<int> turns;
-            if(_pendingTurns.TryGetValue(client, out turns))
-            {
-                turns.Remove(turn);
-            }
-        }
-
-        public void Start(long timestamp, byte[] clients)
-        {
-            for(int i = 0; i < clients.Length; ++i)
-            {
-                _pendingTurns[clients[i]] = new HashSet<int>();
-            }
-
-            _isRunning = true;
-            _lastTimestamp = timestamp;
         }
 
         public void Stop()
         {
-            _isRunning = false;
-            _simulationTime = 0;
-            _lastTimestamp = 0;
-            _lastTurn = -1;
-        }
-
-        void RemoveClientConfirmedTurns()
-        {
-            List<int> turnsToRemove = null;
-            var enumerator = _turns.GetEnumerator();
-            while(enumerator.MoveNext())
+            Running = false;
+            _turn.Clear();
+            if(_updateScheduler != null)
             {
-                if(enumerator.Current.Key > _lastTurn)
-                {
-                    continue;
-                }
-                bool isAnyPendingConfirmation = false;
-                var itr = _pendingTurns.GetEnumerator();
-                while(itr.MoveNext())
-                {
-                    if(itr.Current.Value.Contains(enumerator.Current.Key))
-                    {
-                        isAnyPendingConfirmation = true;
-                        break;
-                    }
-                }
-                itr.Dispose();
-                if(!isAnyPendingConfirmation)
-                {
-                    if(turnsToRemove == null)
-                    {
-                        turnsToRemove = new List<int>();
-                    }
-                    turnsToRemove.Add(enumerator.Current.Key);
-                }
-            }
-            enumerator.Dispose();
-
-            if(turnsToRemove != null)
-            {
-                for(int i = 0; i < turnsToRemove.Count; ++i)
-                {
-                    _turns.Remove(turnsToRemove[i]);
-                }
-            }
-        }
-
-        public Action<byte, ServerLockstepTurnData[]> SendClientTurnData;
-
-        void SendTurnData()
-        {
-            var itr = _pendingTurns.GetEnumerator();
-            while(itr.MoveNext())
-            {
-                var pendingConfirmation = itr.Current.Value;
-                var pendingTurns = new ServerLockstepTurnData[pendingConfirmation.Count];
-                int j = 0;
-                var enumerator = pendingConfirmation.GetEnumerator();
-                while(enumerator.MoveNext())
-                {
-                    pendingTurns[j++] = _turns[enumerator.Current];
-                }
-                enumerator.Dispose();
-
-                if(SendClientTurnData != null)
-                {
-                    SendClientTurnData(itr.Current.Key, pendingTurns);
-                }
-            }
-            itr.Dispose();
-            SendLocalClientTurnData();
-        }
-
-        void CreateTurnIfEmpty(int turn)
-        {
-            if(!_turns.ContainsKey(turn))
-            {
-                _turns.Add(turn, new ServerLockstepTurnData(turn));
+                _updateScheduler.Remove(this);
             }
         }
 
         public void Update()
         {
-            if(!_isRunning)
+            var timestamp = TimeUtils.TimestampMilliseconds;
+            Update((int)(timestamp - _timestamp));
+            _timestamp = timestamp;
+        }
+
+        public void Update(int dt)
+        {
+            if(!Running || dt < 0)
             {
                 return;
             }
-            long timestamp = TimeUtils.TimestampMilliseconds;
-            long elapsedTime = timestamp - _lastTimestamp;
-            if(elapsedTime <= 0)
+            _time += dt;
+            while(true)
             {
-                return;
-            }
-            _simulationTime += elapsedTime;
-            _lastTimestamp = timestamp;
-            long currentTurn = CurrentTurn;
-            while(_lastTurn < currentTurn)
-            {
-                RemoveClientConfirmedTurns();
-                _lastTurn++;
-                var itr = _pendingTurns.GetEnumerator();
-                while(itr.MoveNext())
-                {
-                    itr.Current.Value.Add(_lastTurn);
+                var nextCmdTime = _lastCmdTime + Config.CommandStepDuration;
+                if(nextCmdTime > _time)
+                {                
+                    break;
                 }
-                itr.Dispose();
-                CreateTurnIfEmpty(_lastTurn);
-                SendTurnData();
+                if(TurnReady != null)
+                {
+                    TurnReady(_turn);
+                }
+                ConfirmLocalClientTurn(_turn);
+                _turn.Clear();
+                _lastCmdTime = nextCmdTime;
             }
         }
 
         public void Dispose()
         {
-            SendClientTurnData = null;
-            if(_updateScheduler != null)
-            {
-                _updateScheduler.Remove(this);
-            }
-            RemoveLocalClient();
+            Stop();
+            TurnReady = null;
+            UnregisterLocalClient();
         }
 
         #region local client implementation
 
         ClientLockstepController _localClient;
         LockstepCommandFactory _localFactory;
-        const int LocalClientId = -1;
 
-        void RemoveLocalClient()
+        public void UnregisterLocalClient()
         {
             if(_localClient != null)
             {
-                _localClient.PendingCommandAdded -= AddPendingLocalClientCommand;
+                _localClient.CommandAdded -= AddPendingLocalClientCommand;
             }
             _localClient = null;
+            _localFactory = null;
         }
 
         public void RegisterLocalClient(ClientLockstepController client, LockstepCommandFactory factory)
         {
-            RemoveLocalClient();
+            UnregisterLocalClient();
             _localClient = client;
             _localFactory = factory;
+            _localClient.Config = Config;
             if(_localClient != null)
             {
-                _localClient.PendingCommandAdded += AddPendingLocalClientCommand;
+                _localClient.CommandAdded += AddPendingLocalClientCommand;
             }
         }
 
         void AddPendingLocalClientCommand(ClientLockstepCommandData command)
         {
-            command.ClientId = LocalClientId;
             var serverCommand = command.ToServer(_localFactory);
-            OnClientCommandReceived(serverCommand);
+            AddCommand(serverCommand);
         }
 
-        void SendLocalClientTurnData()
+        void ConfirmLocalClientTurn(ServerLockstepTurnData turn)
         {
             if(_localClient == null)
             {
                 return;
             }
-            var itr = _turns.GetEnumerator();
-            while(itr.MoveNext())
-            {
-                var data = itr.Current.Value.ToClient(_localFactory);
-                _localClient.ConfirmTurn(data.Turn, data.Commands);
-            }
+            var clientTurn = turn.ToClient(_localFactory);
+            _localClient.AddConfirmedTurn(clientTurn);
         }
 
         #endregion
