@@ -4,7 +4,8 @@ using SocialPoint.Network;
 using SocialPoint.Utils;
 using SocialPoint.AppEvents;
 using SocialPoint.Hardware;
-
+using SocialPoint.AdminPanel;
+using SocialPoint.WAMP;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -37,17 +38,24 @@ public class HttpClientInstaller : Installer
         Container.Rebind<IHttpClient>("internal").ToLookup<HttpClient>();
         Container.Rebind<IHttpClient>().ToLookup<HttpClient>();
         Container.Bind<IDisposable>().ToLookup<IHttpClient>();
+
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWAMP>(CreateAdminPanelWAMP);
     }
 
     HttpClient CreateHttpClient()
     {
         string proxy = EditorProxy.GetProxy();
         var client = new HttpClient(
-            Container.Resolve<ICoroutineRunner>(), proxy,
-            Container.Resolve<IDeviceInfo>(),
-            Container.Resolve<IAppEvents>()
-        );
+                         Container.Resolve<ICoroutineRunner>(), proxy,
+                         Container.Resolve<IDeviceInfo>(),
+                         Container.Resolve<IAppEvents>()
+                     );
         client.Config = Settings.Config;
         return client;
+    }
+
+    AdminPanelWAMP CreateAdminPanelWAMP()
+    {
+        return new AdminPanelWAMP();
     }
 }
