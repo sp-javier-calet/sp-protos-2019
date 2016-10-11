@@ -116,10 +116,6 @@ namespace Photon.Hive.Plugin.Lockstep
             {
                 info.Fail("Game is full.");
             }
-            else if (_netServer.Running)
-            {
-                info.Fail("Game already running.");
-            }
             else
             {
                 info.Continue();
