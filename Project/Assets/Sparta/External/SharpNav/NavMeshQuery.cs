@@ -318,7 +318,7 @@ namespace SharpNav
                 if(bestNode.ParentIndex != 0)
                     parentRef = nodePool.GetNodeAtIdx(bestNode.ParentIndex).Id;
 
-                //*** SP Change: Replaced foreach
+                //[SP-Change]: Replaced foreach
                 var itr = bestPoly.Links.GetEnumerator();
                 while(itr.MoveNext())
                 {
@@ -474,7 +474,7 @@ namespace SharpNav
                     nav.TryGetTileAndPolyByRefUnsafe(parentRef, out parentTile, out parentPoly);
 
                 //examine neighbors
-                //*** SP Change: Replaced foreach
+                //[SP-Change]: Replaced foreach
                 var itr = bestPoly.Links.GetEnumerator();
                 while(itr.MoveNext())
                 {
@@ -798,7 +798,7 @@ namespace SharpNav
                 }
             }
 
-            //*** SP Change: changed NavPoint id to last poly id, previously was NavPolyId.Null
+            //[SP-Change]: changed NavPoint id to last poly id, previously was NavPolyId.Null
             stat = straightPath.AppendVertex(new StraightPathVertex(new NavPoint(path[path.Count - 1], closestEndPos), StraightPathFlags.End));
 
             return true;
@@ -887,7 +887,7 @@ namespace SharpNav
                     if((curPoly.Neis[j] & Link.External) != 0)
                     {
                         //tile border
-                        //*** SP Change: Replaced foreach
+                        //[SP-Change]: Replaced foreach
                         var itr = curPoly.Links.GetEnumerator();
                         while(itr.MoveNext())
                         {
@@ -1113,7 +1113,7 @@ namespace SharpNav
                         tryLOS = true;
                 }
 
-                //*** SP Change: Replaced foreach
+                //[SP-Change]: Replaced foreach
                 var itr = bestPoly.Links.GetEnumerator();
                 while(itr.MoveNext())
                 {
@@ -1258,7 +1258,7 @@ namespace SharpNav
                 return false;
             }
 
-            //int n = 0;//*** SP Change
+            //int n = 0;//[SP-Change]
 
             if(query.Start.Polygon == query.End.Polygon)
             {
@@ -1293,7 +1293,7 @@ namespace SharpNav
                         RaycastHit hit;
                         Path m = new Path();
                         NavPoint startPoint = new NavPoint(node.Id, node.Position);
-                        Raycast(ref startPoint, ref next.Position, RaycastOptions.None, out hit, m);//*** SP Change: removed "bool result = "... should be used before appending path?
+                        Raycast(ref startPoint, ref next.Position, RaycastOptions.None, out hit, m);//[SP-Change]: removed "bool result = "... unused variable
                         path.AppendPath(m);
 
                         if(path[path.Count - 1] == next.Id)
@@ -1339,7 +1339,7 @@ namespace SharpNav
                 return false;
             }
 
-            //int n = 0;//*** SP Change
+            //int n = 0;//[SP-Change]
 
             if(query.Start.Polygon == query.End.Polygon)
             {
@@ -1387,7 +1387,7 @@ namespace SharpNav
                         RaycastHit hit;
                         Path m = new Path();
                         NavPoint startPoint = new NavPoint(node.Id, node.Position);
-                        Raycast(ref startPoint, ref next.Position, RaycastOptions.None, out hit, m);//*** SP Change: removed "bool result = "... should be used before appending path?
+                        Raycast(ref startPoint, ref next.Position, RaycastOptions.None, out hit, m);//[SP-Change]: removed "bool result = "... unused variable
                         path.AppendPath(m);
 
                         if(path[path.Count - 1] == next.Id)
@@ -1483,7 +1483,7 @@ namespace SharpNav
                 NavPolyId nextRef = NavPolyId.Null;
 
 
-                //*** SP Change: Replaced foreach
+                //[SP-Change]: Replaced foreach
                 var itr = curPoly.Links.GetEnumerator();
                 while(itr.MoveNext())
                 {
@@ -1661,7 +1661,7 @@ namespace SharpNav
                 NavPoly curPoly;
                 nav.TryGetTileAndPolyByRefUnsafe(curRef, out curTile, out curPoly);
 
-                //*** SP Change: Replaced foreach
+                //[SP-Change]: Replaced foreach
                 var itr = curPoly.Links.GetEnumerator();
                 while(itr.MoveNext())
                 {
@@ -1720,7 +1720,7 @@ namespace SharpNav
 
                         //connected polys do not overlap
                         bool connected = false;
-                        //*** SP Change: Replaced foreach
+                        //[SP-Change]: Replaced foreach
                         var itr2 = curPoly.Links.GetEnumerator();
                         while(itr2.MoveNext())
                         {
@@ -1809,7 +1809,7 @@ namespace SharpNav
                 if((poly.Neis[j] & Link.External) != 0)
                 {
                     //tile border
-                    //*** SP Change: Replaced foreach
+                    //[SP-Change]: Replaced foreach
                     var itr = poly.Links.GetEnumerator();
                     while(itr.MoveNext())
                     {
@@ -2004,7 +2004,7 @@ namespace SharpNav
         {
             //find the link that points to the 'to' polygon
             Link link = null;
-            //*** SP Change: Replaced foreach
+            //[SP-Change]: Replaced foreach
             var itr = fromPoly.Links.GetEnumerator();
             while(itr.MoveNext())
             {
@@ -2024,7 +2024,7 @@ namespace SharpNav
             if(fromPoly.PolyType == NavPolyType.OffMeshConnection)
             {
                 //find link that points to first vertex
-                //*** SP Change: Replaced foreach
+                //[SP-Change]: Replaced foreach
                 var itr2 = fromPoly.Links.GetEnumerator();
                 while(itr2.MoveNext())
                 {
@@ -2045,7 +2045,7 @@ namespace SharpNav
             if(toPoly.PolyType == NavPolyType.OffMeshConnection)
             {
                 //find link that points to first vertex
-                //*** SP Change: Replaced foreach
+                //[SP-Change]: Replaced foreach
                 var itr3 = toPoly.Links.GetEnumerator();
                 while(itr3.MoveNext())
                 {
@@ -2433,7 +2433,7 @@ namespace SharpNav
             {
                 for(int x = minx; x <= maxx; x++)
                 {
-                    //*** SP Change: Replaced foreach
+                    //[SP-Change]: Replaced foreach
                     var itr = nav.GetTilesAt(x, y).GetEnumerator();
                     while(itr.MoveNext())
                     {
@@ -2494,9 +2494,9 @@ namespace SharpNav
             public float LastBestNodeCost;
             public NavPoint Start, End;
 
-            //*** SP Change: Previously unasigned
+            //[SP-Change]: Previously unasigned
             public FindPathOptions Options = FindPathOptions.None;
-            //*** SP Change: Previously unasigned
+            //[SP-Change]: Previously unasigned
             public float RaycastLimitSquared = 0;
 
             public NavQueryFilter Filter;

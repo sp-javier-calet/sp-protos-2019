@@ -205,7 +205,7 @@ namespace SharpNav
         {
             Area[] areas = new Area[triCount];
 
-            //*** SP Change: Replaced foreachs
+            //[SP-Change]: Replaced foreachs
             int i = 0;
             var itr = tris.GetEnumerator();
             while(itr.MoveNext())

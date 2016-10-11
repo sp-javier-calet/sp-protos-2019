@@ -7,20 +7,8 @@ using System.Collections.Generic;
 #if MONOGAME
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
-
-
-
-
-
-
 #elif OPENTK
 using Vector3 = OpenTK.Vector3;
-
-
-
-
-
-
 
 #elif SHARPDX
 using Vector3 = SharpDX.Vector3;
@@ -83,8 +71,8 @@ namespace SharpNav.Geometry
 #elif UNITY3D
 			result = Vector3.Min(left, right);
 #else
-            result = Vector3.Min(left, right);
-            //Vector3.Min(ref left, ref right, out result);//*** SP Change
+            Vector3.ComponentMin(ref left, ref right, out result);
+            //Vector3.Min(ref left, ref right, out result);//[SP-Change]: Min with three arguments doesn't exists
 #endif
         }
 
@@ -101,8 +89,8 @@ namespace SharpNav.Geometry
 #elif UNITY3D
 			result = Vector3.Max(left, right);
 #else
-            result = Vector3.Max(left, right);
-            //Vector3.Max(ref left, ref right, out result);//*** SP Change
+            Vector3.ComponentMax(ref left, ref right, out result);
+            //Vector3.Max(ref left, ref right, out result);//[SP-Change]: Max with three arguments doesn't exists
 #endif
         }
 
@@ -215,7 +203,7 @@ namespace SharpNav.Geometry
             float threshSq = threshold * threshold;
             float distSq = (b - a).LengthSquared();
 
-            return distSq < threshSq;//*** SP Change: Previously < threshold
+            return distSq < threshSq;//[SP-Change]: Previously < threshold
         }
     }
 }

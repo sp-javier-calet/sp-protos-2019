@@ -4,17 +4,15 @@
 using System;
 using System.Collections.Generic;
 
-//using Newtonsoft.Json;//*** SP Change
+//using Newtonsoft.Json;//[SP-Change]
 
 using SharpNav;
 
 #if MONOGAME
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
-
 #elif OPENTK
 using Vector3 = OpenTK.Vector3;
-
 
 #elif SHARPDX
 using Vector3 = SharpDX.Vector3;
@@ -72,7 +70,7 @@ namespace SharpNav.Geometry
         /// <summary>
         /// Gets the center of the box.
         /// </summary>
-        // [JsonIgnore]//*** SP Change
+        // [JsonIgnore]//[SP-Change]
         public Vector3 Center
         {
             get
@@ -84,7 +82,7 @@ namespace SharpNav.Geometry
         /// <summary>
         /// Gets the size of the box.
         /// </summary>
-        //[JsonIgnore]//*** SP Change
+        //[JsonIgnore]//[SP-Change]
         public Vector3 Size
         {
             get

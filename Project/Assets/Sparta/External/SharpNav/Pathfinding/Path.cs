@@ -118,7 +118,7 @@ namespace SharpNav.Pathfinding
             //adjust beginning of the buffer to include the visited
             int req = visited.Count - furthestVisited;
             int orig = Math.Min(furthestPath + 1, polys.Count);
-            //int size = Math.Max(0, polys.Count - orig);//*** SP Change
+            //int size = Math.Max(0, polys.Count - orig);//[SP-Change]
 
             //remove everything before visited
             polys.RemoveRange(0, orig);

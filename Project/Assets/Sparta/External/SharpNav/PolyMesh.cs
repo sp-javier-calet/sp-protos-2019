@@ -87,7 +87,7 @@ namespace SharpNav
             List<Polygon> contPolys = new List<Polygon>(maxVertsPerCont + 1);
 
             //extract contour data
-            //*** SP Change: Replaced foreach
+            //[SP-Change]: Replaced foreach
             var itr = contSet.GetEnumerator();
             while(itr.MoveNext())
             {

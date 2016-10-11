@@ -11,26 +11,8 @@ using SharpNav.Pathfinding;
 #if MONOGAME
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
-
-
-
-
-
-
-
-
-
 #elif OPENTK
 using Vector3 = OpenTK.Vector3;
-
-
-
-
-
-
-
-
-
 
 #elif SHARPDX
 using Vector3 = SharpDX.Vector3;
@@ -62,7 +44,7 @@ namespace SharpNav.Crowds
 
         private int maxAgents;
         private Agent[] agents;
-        //private Agent[] activeAgents;//*** SP Change
+        //private Agent[] activeAgents;//[SP-Change]
         private AgentAnimation[] agentAnims;
 
         private PathQueue pathq;
@@ -74,7 +56,7 @@ namespace SharpNav.Crowds
 
         private Vector3 ext;
 
-        //private float maxAgentRadius;//*** SP Change
+        //private float maxAgentRadius;//[SP-Change]
 
         private int velocitySampleCount;
 
@@ -90,7 +72,7 @@ namespace SharpNav.Crowds
         public Crowd(int maxAgents, float maxAgentRadius, ref TiledNavMesh navMesh)
         {
             this.maxAgents = maxAgents;
-            //this.maxAgentRadius = maxAgentRadius;//*** SP Change
+            //this.maxAgentRadius = maxAgentRadius;//[SP-Change]
 
             this.ext = new Vector3(maxAgentRadius * 2.0f, maxAgentRadius * 1.5f, maxAgentRadius * 2.0f);
 
@@ -119,7 +101,7 @@ namespace SharpNav.Crowds
             this.pathq = new PathQueue(4096, ref navMesh);
 
             this.agents = new Agent[maxAgents];
-            //this.activeAgents = new Agent[maxAgents];//*** SP Change
+            //this.activeAgents = new Agent[maxAgents];//[SP-Change]
             this.agentAnims = new AgentAnimation[maxAgents];
 
             for(int i = 0; i < maxAgents; i++)
@@ -134,7 +116,7 @@ namespace SharpNav.Crowds
 
             //allocate nav mesh query
             this.navQuery = new NavMeshQuery(navMesh, 512);
-            this.navQueryFilter = new NavQueryFilter();//*** SP CHange: Previously unasigned
+            this.navQueryFilter = new NavQueryFilter();//[SP-Change]: Previously unasigned
         }
 
         public ObstacleAvoidanceQuery.ObstacleAvoidanceParams GetObstacleAvoidanceParams(int idx)
@@ -883,12 +865,12 @@ namespace SharpNav.Crowds
                 if(!navQuery.IsValidPolyRef(agentRef))
                 {
                     //current location is not valid, try to reposition
-                    //Vector3 nearest = agentPos;//*** SP Change
+                    //Vector3 nearest = agentPos;//[SP-Change]
                     Vector3 pos = ag.Position;
                     agentRef = NavPolyId.Null;
                     NavPoint nearestPt;
                     navQuery.FindNearestPoly(ref pos, ref ext, out nearestPt);
-                    //nearest = nearestPt.Position;//*** SP Change
+                    //nearest = nearestPt.Position;//[SP-Change]
                     agentRef = nearestPt.Polygon;
                     agentPos = nearestPt.Position;
 

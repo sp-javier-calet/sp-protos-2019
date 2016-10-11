@@ -511,7 +511,7 @@ namespace SharpNav
             pcz /= polyCount;
 
             //stack groups 3 elements as one part
-            //*** SP Change: Replaced foreach
+            //[SP-Change]: Replaced foreach
             var itr = stack.GetEnumerator();
             while(itr.MoveNext())
             {

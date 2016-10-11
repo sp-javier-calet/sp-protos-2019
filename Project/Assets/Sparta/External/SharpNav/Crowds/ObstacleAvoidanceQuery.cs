@@ -10,14 +10,8 @@ using SharpNav.Geometry;
 #if MONOGAME
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
-
-
-
 #elif OPENTK
 using Vector3 = OpenTK.Vector3;
-
-
-
 
 #elif SHARPDX
 using Vector3 = SharpDX.Vector3;
@@ -35,7 +29,6 @@ namespace SharpNav.Crowds
         private ObstacleAvoidanceParams parameters;
         private float invHorizTime;
         private float vmax;
-//*** SP Change
         private float invVmax;
 
         private int maxCircles;
@@ -312,8 +305,8 @@ namespace SharpNav.Crowds
 
             this.parameters = parameters;
             this.invHorizTime = 1.0f / parameters.HorizTime;
-            //this.vmax = vmax;//*** SP Change
-            this.invVmax = 1.0f / vmax;
+            this.vmax = vmax;
+            this.invVmax = 1.0f / this.vmax;
 
             nvel = new Vector3(0, 0, 0);
 

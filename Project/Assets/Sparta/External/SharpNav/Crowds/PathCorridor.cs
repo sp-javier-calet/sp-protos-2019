@@ -12,10 +12,8 @@ using SharpNav.Pathfinding;
 #if MONOGAME
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
-
 #elif OPENTK
 using Vector3 = OpenTK.Vector3;
-
 
 #elif SHARPDX
 using Vector3 = SharpDX.Vector3;
@@ -169,7 +167,7 @@ namespace SharpNav.Crowds
                 return false;
 
             const int MaxIter = 32;
-            //const int MaxRes = 32;//*** SP Change
+            //const int MaxRes = 32;//[SP-Change]
 
             Path res = new Path();
             int numRes = 0;

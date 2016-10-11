@@ -9,10 +9,8 @@ using SharpNav.Pathfinding;
 #if MONOGAME
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
-
 #elif OPENTK
 using Vector3 = OpenTK.Vector3;
-
 
 #elif SHARPDX
 using Vector3 = SharpDX.Vector3;
@@ -352,7 +350,7 @@ namespace SharpNav.Crowds
             return base.ToString();
         }
 
-        //*** SP Change: Added
+        //[SP-Change]: Added
         public override int GetHashCode()
         {
             //TODO write an actual GetHashCode.

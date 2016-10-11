@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-//using System.Threading.Tasks;//*** SP Change
+//using System.Threading.Tasks;//[SP-Change]
 
 using SharpNav.Geometry;
 
@@ -489,8 +489,8 @@ namespace SharpNav
         /// <param name="area">The area flags for all of the triangles.</param>
         public void RasterizeTriangles(IEnumerable<Triangle3> tris, Area area)
         {
-            //*** SP Change: Removed Parallel.ForEach(tris, t => { ... });
-            //*** SP Change: Replaced foreach
+            //[SP-Change]: Removed Parallel.ForEach(tris, t => { ... });
+            //[SP-Change]: Replaced foreach
             var itr = tris.GetEnumerator();
             while(itr.MoveNext())
             {
@@ -572,7 +572,7 @@ namespace SharpNav
 				}
 			});*/
             
-            //*** SP Change: Removed Parallel.For(0, threads, i => { ... });
+            //[SP-Change]: Removed Parallel.For(0, threads, i => { ... });
             for(int i = 0; i < threads; i++)
             {
                 int start = triOffset + i * numBatches;
@@ -654,7 +654,7 @@ namespace SharpNav
             if(vertEnd > verts.Length)
                 throw new ArgumentOutOfRangeException("triCount", "The specified offset, count, and stride end outside the bounds of the provided array.");
 
-            //*** SP Change: Removed Parallel.For(0, triCount, i => { ... });
+            //[SP-Change]: Removed Parallel.For(0, triCount, i => { ... });
             for(int i = 0; i < triCount; i++)
             {
                 i = vertOffset + (i * vertStride * 3);
@@ -730,7 +730,7 @@ namespace SharpNav
 
             Vector3 a, b, c;
 
-            //*** SP Change: Removed Parallel.For(0, triCount, i => { ... });
+            //[SP-Change]: Removed Parallel.For(0, triCount, i => { ... });
             for(int i = 0; i < triCount; i++)
             {
                 i = floatOffset + (i * floatStride * 3);

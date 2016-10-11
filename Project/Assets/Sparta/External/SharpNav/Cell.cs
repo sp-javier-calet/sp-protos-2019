@@ -101,7 +101,7 @@ namespace SharpNav
                     throw new ArgumentOutOfRangeException("Location must be a value between 0 and " + height + ".");
 
                 //iterate the list of spans
-                //*** SP Change: Replaced foreach
+                //[SP-Change]: Replaced foreach
                 var itr = spans.GetEnumerator();
                 while(itr.MoveNext())
                 {

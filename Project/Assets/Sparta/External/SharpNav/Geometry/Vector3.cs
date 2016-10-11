@@ -28,8 +28,8 @@ using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 
-//using Newtonsoft.Json;//*** SP Change
-//using Newtonsoft.Json.Linq;//*** SP Change
+//using Newtonsoft.Json;//[SP-Change]
+//using Newtonsoft.Json.Linq;//[SP-Change]
 
 namespace SharpNav.Geometry
 {
@@ -148,7 +148,7 @@ namespace SharpNav.Geometry
 
         /// <summary>Add the Vector passed as parameter to this instance.</summary>
         /// <param name="right">Right operand. This parameter is only read from.</param>
-        //[CLSCompliant(false)]//*** SP Change
+        //[CLSCompliant(false)]//[SP-Change]
         [Obsolete("Use static Add() method instead.")]
         public void Add(Vector3 right)
         {
@@ -159,7 +159,7 @@ namespace SharpNav.Geometry
 
         /// <summary>Add the Vector passed as parameter to this instance.</summary>
         /// <param name="right">Right operand. This parameter is only read from.</param>
-        //[CLSCompliant(false)]//*** SP Change
+        //[CLSCompliant(false)]//[SP-Change]
         [Obsolete("Use static Add() method instead.")]
         public void Add(ref Vector3 right)
         {
@@ -174,7 +174,7 @@ namespace SharpNav.Geometry
 
         /// <summary>Subtract the Vector passed as parameter from this instance.</summary>
         /// <param name="right">Right operand. This parameter is only read from.</param>
-        //[CLSCompliant(false)]//*** SP Change
+        //[CLSCompliant(false)]//[SP-Change]
         [Obsolete("Use static Subtract() method instead.")]
         public void Sub(Vector3 right)
         {
@@ -185,7 +185,7 @@ namespace SharpNav.Geometry
 
         /// <summary>Subtract the Vector passed as parameter from this instance.</summary>
         /// <param name="right">Right operand. This parameter is only read from.</param>
-        //[CLSCompliant(false)]//*** SP Change
+        //[CLSCompliant(false)]//[SP-Change]
         [Obsolete("Use static Subtract() method instead.")]
         public void Sub(ref Vector3 right)
         {
@@ -298,7 +298,7 @@ namespace SharpNav.Geometry
 
         /// <summary>Scales this instance by the given parameter.</summary>
         /// <param name="scale">The scaling of the individual components.</param>
-        //[CLSCompliant(false)]//*** SP Change
+        //[CLSCompliant(false)]//[SP-Change]
         [Obsolete("Use static Multiply() method instead.")]
         public void Scale(Vector3 scale)
         {
@@ -309,7 +309,7 @@ namespace SharpNav.Geometry
 
         /// <summary>Scales this instance by the given parameter.</summary>
         /// <param name="scale">The scaling of the individual components.</param>
-        //[CLSCompliant(false)]//*** SP Change
+        //[CLSCompliant(false)]//[SP-Change]
         [Obsolete("Use static Multiply() method instead.")]
         public void Scale(ref Vector3 scale)
         {
@@ -940,7 +940,7 @@ namespace SharpNav.Geometry
         /// <summary>
         /// Gets or sets an OpenTK.Vector3 with the X, Z, and Y components of this instance.
         /// </summary>
-        //[JsonIgnore]//*** SP Change
+        //[JsonIgnore]//[SP-Change]
         public Vector3 Xzy
         {
             get { return new Vector3(X, Z, Y); }
@@ -955,7 +955,7 @@ namespace SharpNav.Geometry
         /// <summary>
         /// Gets or sets an OpenTK.Vector3 with the Y, X, and Z components of this instance.
         /// </summary>
-        //[JsonIgnore]//*** SP Change
+        //[JsonIgnore]//[SP-Change]
         public Vector3 Yxz
         {
             get { return new Vector3(Y, X, Z); }
@@ -970,7 +970,7 @@ namespace SharpNav.Geometry
         /// <summary>
         /// Gets or sets an OpenTK.Vector3 with the Y, Z, and X components of this instance.
         /// </summary>
-        //[JsonIgnore]//*** SP Change
+        //[JsonIgnore]//[SP-Change]
         public Vector3 Yzx
         {
             get { return new Vector3(Y, Z, X); }
@@ -985,7 +985,7 @@ namespace SharpNav.Geometry
         /// <summary>
         /// Gets or sets an OpenTK.Vector3 with the Z, X, and Y components of this instance.
         /// </summary>
-        //[JsonIgnore]//*** SP Change
+        //[JsonIgnore]//[SP-Change]
         public Vector3 Zxy
         {
             get { return new Vector3(Z, X, Y); }
@@ -1000,7 +1000,7 @@ namespace SharpNav.Geometry
         /// <summary>
         /// Gets or sets an OpenTK.Vector3 with the Z, Y, and X components of this instance.
         /// </summary>
-        //[JsonIgnore]//*** SP Change
+        //[JsonIgnore]//[SP-Change]
         public Vector3 Zyx
         {
             get { return new Vector3(Z, Y, X); }

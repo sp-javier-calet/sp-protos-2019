@@ -183,7 +183,7 @@ namespace SharpNav.Geometry
         {
             BBox3 bounds = new BBox3();
             Vector3 va, vb, vc;
-            //*** SP Change: Replaced foreach
+            //[SP-Change]: Replaced foreach
             var itr = tris.GetEnumerator();
             while(itr.MoveNext())
             {
@@ -212,7 +212,7 @@ namespace SharpNav.Geometry
         {
             BBox3 bounds = new BBox3();
             Vector3 v;
-            //*** SP Change: Replaced foreach
+            //[SP-Change]: Replaced foreach
             var itr = vecs.GetEnumerator();
             while(itr.MoveNext())
             {

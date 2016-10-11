@@ -111,10 +111,10 @@ namespace SharpNav
 
         public float TileHeight { get { return tileHeight; } }
 
-        //*** SP Change: previously was float
+        //[SP-Change]: previously was float
         public int MaxTiles { get { return maxTiles; } }
 
-        //*** SP Change: previously was float
+        //[SP-Change]: previously was float
         public int MaxPolys { get { return maxPolys; } }
 
         /// <summary>
@@ -262,7 +262,7 @@ namespace SharpNav
             //create connections with neighbor tiles
 
             //connect with layers in current tile
-            //*** SP Change: Replaced foreach
+            //[SP-Change]: Replaced foreach
             var itr = GetTilesAt(header.X, header.Y).GetEnumerator();
             while(itr.MoveNext())
             {
@@ -283,7 +283,7 @@ namespace SharpNav
             {
                 BoundarySide b = (BoundarySide)i;
                 BoundarySide bo = b.GetOpposite();
-                //*** SP Change: Replaced foreach
+                //[SP-Change]: Replaced foreach
                 var itr2 = GetNeighborTilesAt(header.X, header.Y, b).GetEnumerator();
                 while(itr2.MoveNext())
                 {
@@ -340,7 +340,7 @@ namespace SharpNav
             int idx0 = 0, idx1 = 1;
 
             //find the link that points to the first vertex
-            //*** SP Change: Replaced foreach
+            //[SP-Change]: Replaced foreach
             var itr = poly.Links.GetEnumerator();
             while(itr.MoveNext())
             {

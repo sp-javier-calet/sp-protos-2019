@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-//using System.Threading.Tasks;//*** SP Change
+//using System.Threading.Tasks;//[SP-Change]
 
 using SharpNav.Geometry;
 
@@ -325,7 +325,7 @@ namespace SharpNav
         public void FilterLedgeSpans(int walkableHeight, int walkableClimb)
         {
             //Mark border spans.
-            //*** SP Change: Removed Parallel.For(0, length, y => { ... });
+            //[SP-Change]: Removed Parallel.For(0, length, y => { ... });
             for(int y = 0; y < length; y++)
             {
                 //for (int y = 0; y < length; y++)

@@ -106,7 +106,7 @@ namespace SharpNav
             maxTris = 0;
             maxVertsPerContour = 0;
 
-            //*** SP Change: Replaced foreach
+            //[SP-Change]: Replaced foreach
             var itr = contours.GetEnumerator();
             while(itr.MoveNext())
             {

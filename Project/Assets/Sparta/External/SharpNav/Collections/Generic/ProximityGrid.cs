@@ -30,7 +30,7 @@ namespace SharpNav.Collections.Generic
 
         private const int Invalid = -1;
 
-        //private float cellSize;//*** SP Change
+        //private float cellSize;//[SP-Change]
         private float invCellSize;
 
         private Item[] pool;
@@ -51,7 +51,7 @@ namespace SharpNav.Collections.Generic
         /// <param name="cellSize">The size of each cell</param>
         public ProximityGrid(int poolSize, float cellSize)
         {
-            //this.cellSize = cellSize;//*** SP Change
+            //this.cellSize = cellSize;//[SP-Change]
             this.invCellSize = 1.0f / cellSize;
 
             //allocate hash buckets
