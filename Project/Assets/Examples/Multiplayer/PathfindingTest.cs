@@ -62,14 +62,31 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
 
     void Update()
     {
+        DebugDrawNavMesh();
+        DebugDrawPath();
+    }
+
+    void DebugDrawNavMesh()
+    {
         if(_navMesh != null)
         {
+            Color c = Color.red;
+            _debugger.SetColor(c.r, c.g, c.b, c.a);
             _debugger.DrawNavMesh(_navMesh);
         }
+    }
 
+    void DebugDrawPath()
+    {
         if(_straightPath != null)
         {
+            Color c = Color.green;
+            _debugger.SetColor(c.r, c.g, c.b, c.a);
             _debugger.DrawStraightPath(_straightPath);
+
+            c = Color.blue;
+            _debugger.SetColor(c.r, c.g, c.b, c.a);
+            _debugger.DrawPolyPath(_navMesh, _straightPath);
         }
     }
 
@@ -84,7 +101,7 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
                 var endPoint = hit.point.ToPathfinding();
                 var extents = SharpNav.Geometry.Vector3.One;
 
-                _straightPath = _pathfinder.GetPath(_startPoint, endPoint, extents);
+                _pathfinder.GetPath(_startPoint, endPoint, extents, out _straightPath);
 
                 UpdateVisualPath();
             }

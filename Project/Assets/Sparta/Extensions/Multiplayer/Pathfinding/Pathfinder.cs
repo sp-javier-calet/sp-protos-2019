@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Collections;
-using SharpNav;
+﻿using SharpNav;
 using SharpNav.Geometry;
 using SharpNav.Pathfinding;
 
@@ -30,27 +27,35 @@ namespace SocialPoint.Pathfinding
         /// <summary>
         /// Gets shortest path between two points in the navigation mesh.
         /// </summary>
-        /// <returns>The path.</returns>
+        /// <returns>Ture if path is found, false otherwise.</returns>
         /// <param name="start">Start point.</param>
         /// <param name="end">End point.</param>
         /// <param name="extents">Maximun distance in each axis that the 'start' and 'end' point can search for the closest navigation poly.</param>
-        public StraightPath GetPath(Vector3 startPoint, Vector3 endPoint, Vector3 extents)
+        /// <param name="straightPath">Resulting path.</param>
+        public bool GetPath(Vector3 startPoint, Vector3 endPoint, Vector3 extents, out StraightPath straightPath)
         {
-            //Default empty path
-            var straightPath = new StraightPath();
-
+            straightPath = new StraightPath();
             //First, find poly path between targets
             var query = new NavMeshQuery(_navMesh, _maxNodes);
-            NavPoint startPoly = query.FindNearestPoly(startPoint, extents);
-            NavPoint endPoly = query.FindNearestPoly(endPoint, extents);
+            NavPoint startNavPoint = query.FindNearestPoly(startPoint, extents);
+            NavPoint endNavPoint = query.FindNearestPoly(endPoint, extents);
             var path = new SharpNav.Pathfinding.Path();
-            if(query.FindPath(ref startPoly, ref endPoly, new NavQueryFilter(), path))
+            if(query.FindPath(ref startNavPoint, ref endNavPoint, new NavQueryFilter(), path))
             {
                 //With poly path found, find straight path
-                query.FindStraightPath(startPoint, endPoint, path, straightPath, new PathBuildFlags());
+                if(query.FindStraightPath(startNavPoint.Position, endNavPoint.Position, path, straightPath, new PathBuildFlags()))
+                {
+                    //*** TEST debug
+                    if(straightPath.Count == 2 && path.Count > 2)
+                    {
+                        UnityEngine.Debug.Log("*** TEST Warning - Polys: " + path.Count);
+                    }
+
+                    return true;
+                }
             }
 
-            return straightPath;
+            return false;
         }
     }
 }
