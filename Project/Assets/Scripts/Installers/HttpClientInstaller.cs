@@ -5,7 +5,6 @@ using SocialPoint.Utils;
 using SocialPoint.AppEvents;
 using SocialPoint.Hardware;
 
-
 #if UNITY_EDITOR
 using UnityEditor;
 
