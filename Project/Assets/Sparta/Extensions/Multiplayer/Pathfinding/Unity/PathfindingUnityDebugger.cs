@@ -15,6 +15,16 @@ namespace SocialPoint.Pathfinding
             _color = new Color(r, g, b, a);
         }
 
+        public void DrawNavPoly(TiledNavMesh navMesh, NavPolyId navPolyRef)
+        {
+            NavTile tile;
+            NavPoly poly;
+            if(navMesh.TryGetTileAndPolyByRef(navPolyRef, out tile, out poly))
+            {
+                DrawNavPoly(tile, poly);
+            }
+        }
+
         public void DrawNavPoly(NavTile tile, NavPoly navPoly)
         {
             var verts = navPoly.Verts;
@@ -39,21 +49,6 @@ namespace SocialPoint.Pathfinding
                 for(int p = 0; p < tile.PolyCount; p++)
                 {
                     var poly = polys[p];
-                    DrawNavPoly(tile, poly);
-                }
-            }
-        }
-
-        public void DrawPolyPath(TiledNavMesh navMesh, StraightPath straightPath)
-        {
-            for(int i = 0; i < straightPath.Count; i++)
-            {
-                var pathVert = straightPath[i];
-                var point = pathVert.Point;
-                NavTile tile;
-                NavPoly poly;
-                if(navMesh.TryGetTileAndPolyByRef(point.Polygon, out tile, out poly))
-                {
                     DrawNavPoly(tile, poly);
                 }
             }

@@ -11,26 +11,8 @@ using SharpNav.Pathfinding;
 #if MONOGAME
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
-
-
-
-
-
-
-
-
-
 #elif OPENTK
 using Vector3 = OpenTK.Vector3;
-
-
-
-
-
-
-
-
-
 
 #elif SHARPDX
 using Vector3 = SharpDX.Vector3;
@@ -808,7 +790,8 @@ namespace SharpNav
                 }
             }
 
-            stat = straightPath.AppendVertex(new StraightPathVertex(new NavPoint(NavPolyId.Null, closestEndPos), StraightPathFlags.End));
+            //*** SP Change: changed NavPoint id to last poly id, previously was NavPolyId.Null
+            stat = straightPath.AppendVertex(new StraightPathVertex(new NavPoint(path[path.Count - 1], closestEndPos), StraightPathFlags.End));
 
             return true;
         }

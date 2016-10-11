@@ -8,11 +8,11 @@ public interface IPathfindingDebugger
 {
     void SetColor(float r, float g, float b, float a);
 
+    void DrawNavPoly(TiledNavMesh navMesh, NavPolyId navPolyRef);
+
     void DrawNavPoly(NavTile tile, NavPoly navPoly);
 
     void DrawNavMesh(TiledNavMesh navMesh);
-
-    void DrawPolyPath(TiledNavMesh navMesh, StraightPath straightPath);
 
     void DrawStraightPath(StraightPath straightPath);
 }

@@ -32,7 +32,7 @@ namespace SocialPoint.Pathfinding
         /// <param name="end">End point.</param>
         /// <param name="extents">Maximun distance in each axis that the 'start' and 'end' point can search for the closest navigation poly.</param>
         /// <param name="straightPath">Resulting path.</param>
-        public bool GetPath(Vector3 startPoint, Vector3 endPoint, Vector3 extents, out StraightPath straightPath)
+        public bool TryGetPath(Vector3 startPoint, Vector3 endPoint, Vector3 extents, out StraightPath straightPath)
         {
             straightPath = new StraightPath();
             //First, find poly path between targets
