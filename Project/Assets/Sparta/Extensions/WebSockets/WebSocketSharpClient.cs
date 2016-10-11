@@ -107,7 +107,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                return _socket.IsConnected;
+                return _socket.ReadyState == WebSocketSharp.WebSocketState.Open;
             }
         }
 
