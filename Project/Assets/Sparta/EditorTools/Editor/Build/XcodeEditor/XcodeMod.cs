@@ -193,7 +193,6 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             {
                 foreach(string lib in libs)
                 {
-
                     string[] attrs;
                     var filename = SplitAttributes(lib, out attrs);
                     bool isWeak = (attrs.Length > 0 && attrs[0].Equals("weak"));
