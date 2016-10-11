@@ -35,7 +35,7 @@ public class WebSocketConnectionInstaller : Installer
         }
         else
         {
-            Container.Rebind<WebSocketUnityClient>(WebSocketConnectionTag).ToMethod<WebSocketUnityClient>(CreateWebSocketUnityClient);
+            Container.Rebind<WebSocketUnityClient>().ToMethod<WebSocketUnityClient>(CreateWebSocketUnityClient);
             Container.Rebind<INetworkClient>(WebSocketConnectionTag).ToLookup<WebSocketUnityClient>();
             Container.Bind<IDisposable>().ToLookup<WebSocketUnityClient>();
         }
