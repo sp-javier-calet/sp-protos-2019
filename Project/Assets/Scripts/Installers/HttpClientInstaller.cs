@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
 using SocialPoint.Utils;
@@ -6,7 +6,6 @@ using SocialPoint.AppEvents;
 using SocialPoint.Hardware;
 using SocialPoint.AdminPanel;
 using SocialPoint.WAMP;
-
 #if UNITY_EDITOR
 using UnityEditor;
 
@@ -46,10 +45,10 @@ public class HttpClientInstaller : Installer
     {
         string proxy = EditorProxy.GetProxy();
         var client = new HttpClient(
-                         Container.Resolve<ICoroutineRunner>(), proxy,
-                         Container.Resolve<IDeviceInfo>(),
-                         Container.Resolve<IAppEvents>()
-                     );
+            Container.Resolve<ICoroutineRunner>(), proxy,
+            Container.Resolve<IDeviceInfo>(),
+            Container.Resolve<IAppEvents>()
+        );
         client.Config = Settings.Config;
         return client;
     }

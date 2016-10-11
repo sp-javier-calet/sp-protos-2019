@@ -1,5 +1,7 @@
 fileFormatVersion: 2
-guid: 748eb70bc0d7515498ef73fed155520a
+guid: 5936d19d247334bbd8bf4b2612963838
+timeCreated: 1453575159
+licenseType: Store
 PluginImporter:
   serializedVersion: 1
   iconMap: {}
@@ -11,7 +13,7 @@ PluginImporter:
       settings:
         CPU: AnyCPU
     Any:
-      enabled: 1
+      enabled: 0
       settings: {}
     Editor:
       enabled: 1
@@ -35,12 +37,9 @@ PluginImporter:
       enabled: 0
       settings:
         CPU: AnyCPU
-    WP8:
-      enabled: 0
-      settings:
-        CPU: AnyCPU
-        DontProcess: False
-        PlaceholderPath: 
+    WebGL:
+      enabled: 1
+      settings: {}
     Win:
       enabled: 0
       settings:
@@ -49,13 +48,6 @@ PluginImporter:
       enabled: 0
       settings:
         CPU: AnyCPU
-    WindowsStoreApps:
-      enabled: 0
-      settings:
-        CPU: AnyCPU
-        DontProcess: False
-        PlaceholderPath: 
-        SDK: AnySDK
     iOS:
       enabled: 0
       settings:
