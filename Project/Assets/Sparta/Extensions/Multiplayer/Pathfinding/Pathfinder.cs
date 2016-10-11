@@ -45,12 +45,6 @@ namespace SocialPoint.Pathfinding
                 //With poly path found, find straight path
                 if(query.FindStraightPath(startNavPoint.Position, endNavPoint.Position, path, straightPath, new PathBuildFlags()))
                 {
-                    //*** TEST debug
-                    if(straightPath.Count == 2 && path.Count > 2)
-                    {
-                        UnityEngine.Debug.Log("*** TEST Warning - Polys: " + path.Count);
-                    }
-
                     return true;
                 }
             }

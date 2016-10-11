@@ -38,7 +38,7 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
     void Start()
     {
         Mesh map = PathfindingUnityUtils.CombineSubMeshes(gameObject);
-        SetMesh(gameObject, map);
+        SetMeshCollider(gameObject, map);
 
         //Create NavMesh
         var settings = NavMeshGenerationSettings.Default;//Use the default generation settings
@@ -83,10 +83,6 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
             Color c = Color.green;
             _debugger.SetColor(c.r, c.g, c.b, c.a);
             _debugger.DrawStraightPath(_straightPath);
-
-            c = Color.blue;
-            _debugger.SetColor(c.r, c.g, c.b, c.a);
-            _debugger.DrawPolyPath(_navMesh, _straightPath);
         }
     }
 
@@ -101,7 +97,7 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
                 var endPoint = hit.point.ToPathfinding();
                 var extents = SharpNav.Geometry.Vector3.One;
 
-                _pathfinder.GetPath(_startPoint, endPoint, extents, out _straightPath);
+                _pathfinder.TryGetPath(_startPoint, endPoint, extents, out _straightPath);
 
                 UpdateVisualPath();
             }
@@ -110,32 +106,19 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
         }
     }
 
-    void SetMesh(GameObject parent, Mesh mesh)
+    void SetMeshCollider(GameObject parent, Mesh mesh)
     {
-        //Hide children. If not deactivated it can cause some problems with raycasting, even if they don't have colliders (weird)
-        MeshFilter[] meshFilters = parent.GetComponentsInChildren<MeshFilter>();
-        for(int i = 0; i < meshFilters.Length; i++)
+        //Deactive colliders in children
+        Collider[] colliders = parent.GetComponentsInChildren<Collider>();
+        for(int i = 0; i < colliders.Length; i++)
         {
-            meshFilters[i].gameObject.SetActive(false);
+            colliders[i].enabled = false;
         }
 
-        //Add mesh components to parent object
-        parent.AddComponent<MeshFilter>();
-        MeshFilter meshFilter = parent.GetComponent<MeshFilter>();
-        meshFilter.mesh = mesh;
-
+        //Add mesh collider to parent object
         parent.AddComponent<MeshCollider>();
         MeshCollider meshCollider = parent.GetComponent<MeshCollider>();
-        meshCollider.sharedMesh = meshFilter.mesh;
-
-        parent.AddComponent<MeshRenderer>();
-        MeshRenderer meshRenderer = parent.GetComponent<MeshRenderer>();
-        MeshRenderer childRenderer = parent.GetComponentInChildren<MeshRenderer>();
-        meshRenderer.material = childRenderer.material;
-        meshRenderer.shadowCastingMode = childRenderer.shadowCastingMode;
-        meshRenderer.receiveShadows = childRenderer.receiveShadows;
-        meshRenderer.reflectionProbeUsage = childRenderer.reflectionProbeUsage;
-        meshRenderer.useLightProbes = childRenderer.useLightProbes;
+        meshCollider.sharedMesh = mesh;
 
         parent.gameObject.SetActive(true);
     }
