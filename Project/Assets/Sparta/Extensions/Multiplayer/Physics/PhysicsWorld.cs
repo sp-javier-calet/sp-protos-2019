@@ -72,11 +72,6 @@ namespace SocialPoint.Multiplayer
         void CollisionDetectedHandler(RigidBody body1, RigidBody body2, 
                                       JVector point1, JVector point2, JVector normal, float penetration)
         {
-            if(!IsCollisionEnabled(body1.LayerIndex, body2.LayerIndex))
-            {
-                return;
-            }
-
             var behavior1 = (PhysicsRigidBody)body1.Tag;
             var behavior2 = (PhysicsRigidBody)body2.Tag;
             behavior1.OnCollision(body2, point1, point2, normal, penetration);
@@ -92,12 +87,12 @@ namespace SocialPoint.Multiplayer
 
         public bool IsCollisionEnabled(int layerIdxA, int layerIdxB)
         {
-            return _world.IsCollisionEnabled(layerIdxA, layerIdxB);
+            return _collisionSystem.IsCollisionEnabled(layerIdxA, layerIdxB);
         }
 
         public void SetCollisionBetweenLayers(int layerIdxA, int layerIdxB, bool enable = true)
         {
-            _world.SetCollisionBetweenLayers(layerIdxA, layerIdxB, enable);
+            _collisionSystem.SetCollisionBetweenLayers(layerIdxA, layerIdxB, enable);
         }
     }
 }

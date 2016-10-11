@@ -35,6 +35,12 @@ namespace Jitter.Dynamics
 {
     public partial class SoftBody : IBroadphaseEntity
     {
+        public int LayerIndex
+        {
+            get;
+            set;
+        }
+
         [Flags]
         public enum SpringType
         {

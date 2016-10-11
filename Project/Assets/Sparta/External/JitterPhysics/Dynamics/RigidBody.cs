@@ -97,7 +97,7 @@ namespace Jitter.Dynamics
 
         internal int marker = 0;
 
-        public int LayerIndex // 0-31 (int)
+        public int LayerIndex
         {
             get;
             set;

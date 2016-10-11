@@ -39,19 +39,12 @@ namespace SocialPoint.Multiplayer
             JVector hitNormal;
             float fraction;
 
-            if(physicsWorld.World.CollisionSystem.Raycast(startPoint, endPoint, null, out resBody, out hitNormal, out fraction))
+            if(physicsWorld.World.CollisionSystem.Raycast(startPoint, endPoint, rayLayerIdx, null, out resBody, out hitNormal, out fraction))
             {
-                
-                var objectHit = (PhysicsRigidBody)resBody.Tag;
-                if(!physicsWorld.IsCollisionEnabled(objectHit.LayerIndex, rayLayerIdx))
-                {
-                    return false;
-                }
-
-                rayResult.ObjectHit = objectHit;
+                rayResult.ObjectHit = (PhysicsRigidBody)resBody.Tag;
                 rayResult.HitNormal = hitNormal;
                 rayResult.Fraction = fraction;
-
+                return true;
             }
             return false;
         }

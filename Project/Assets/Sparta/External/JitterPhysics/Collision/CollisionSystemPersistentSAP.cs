@@ -184,8 +184,11 @@ namespace Jitter.Collision
                 {
                     foreach(IBroadphaseEntity body in activeList)
                     {
-                        if(CheckBoundingBoxes(body, keyelement.Body))
-                            fullOverlaps.Add(new OverlapPair(body, keyelement.Body));
+                        if(IsCollisionEnabled(body.LayerIndex, keyelement.Body.LayerIndex))
+                        {
+                            if(CheckBoundingBoxes(body, keyelement.Body))
+                                fullOverlaps.Add(new OverlapPair(body, keyelement.Body));
+                        }
                     }
 
                     activeList.Add(keyelement.Body);
@@ -216,10 +219,13 @@ namespace Jitter.Collision
 
                     if(keyelement.Begin && !swapper.Begin)
                     {
-                        if(CheckBoundingBoxes(swapper.Body, keyelement.Body))
+                        if(IsCollisionEnabled(swapper.Body.LayerIndex, keyelement.Body.LayerIndex))
                         {
-                            lock(fullOverlaps)
-                                fullOverlaps.Add(new OverlapPair(swapper.Body, keyelement.Body));
+                            if(CheckBoundingBoxes(swapper.Body, keyelement.Body))
+                            {
+                                lock(fullOverlaps)
+                                    fullOverlaps.Add(new OverlapPair(swapper.Body, keyelement.Body));
+                            }
                         }
                     }
 
@@ -349,7 +355,7 @@ namespace Jitter.Collision
             addCounter = 0;
 
             foreach(OverlapPair key in fullOverlaps)
-            {
+            {  
                 if(this.CheckBothStaticNonKinematic(key.Entity1, key.Entity2))
                     continue;
 
@@ -509,7 +515,7 @@ namespace Jitter.Collision
         /// which start at rayOrigin and end in rayOrigin + rayDirection.
         /// </summary>
         #region public override bool Raycast(JVector rayOrigin, JVector rayDirection, out JVector normal,out float fraction)
-        public override bool Raycast(JVector rayOrigin, JVector rayDirection, RaycastCallback raycast, out RigidBody body, out JVector normal, out float fraction)
+        public override bool Raycast(JVector rayOrigin, JVector rayDirection, int rayLayerIdx, RaycastCallback raycast, out RigidBody body, out JVector normal, out float fraction)
         {
             body = null;
             normal = JVector.Zero;
@@ -522,6 +528,11 @@ namespace Jitter.Collision
             // TODO: This can be done better in CollisionSystemPersistenSAP
             foreach(IBroadphaseEntity e in bodyList)
             {
+                if(!IsCollisionEnabled(e.LayerIndex, rayLayerIdx))
+                {
+                    continue;
+                }
+
                 if(e is SoftBody)
                 {
                     SoftBody softBody = e as SoftBody;

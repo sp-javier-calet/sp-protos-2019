@@ -976,55 +976,8 @@ namespace Jitter
             }
         }
 
-        public static class LayerCollisionMatrix
-        {
-            static readonly int[] masks = new int[32];
-
-            // http://www.vipan.com/htdocs/bitwisehelp.html
-
-            public static bool IsCollisionEnabled(int layerIdxA, int layerIdxB)
-            {
-                var maskA = masks[layerIdxA];
-                var maskB = masks[layerIdxB];
-                var flagA = 1 << layerIdxA;
-                var flagB = 1 << layerIdxB;
-
-                bool enabled = ((maskA & flagB) == flagB) || ((maskB & flagA) == flagA);
-                return enabled;
-            }
-
-            public static void SetCollisionBetweenLayers(int layerIdxA, int layerIdxB, bool enable = true)
-            {
-                if(enable)
-                {
-                    masks[layerIdxA] |= (1 << layerIdxB);
-                    masks[layerIdxB] |= (1 << layerIdxA);
-                }
-                else
-                {
-                    masks[layerIdxA] &= ~(1 << layerIdxB);
-                    masks[layerIdxB] &= ~(1 << layerIdxA);
-                }
-            }
-        }
-
-        public bool IsCollisionEnabled(int layerIdxA, int layerIdxB)
-        {
-            return LayerCollisionMatrix.IsCollisionEnabled(layerIdxA, layerIdxB);
-        }
-
-        public void SetCollisionBetweenLayers(int layerIdxA, int layerIdxB, bool enable = true)
-        {
-            LayerCollisionMatrix.SetCollisionBetweenLayers(layerIdxA, layerIdxB, enable);
-        }
-
         private void CollisionDetected(RigidBody body1, RigidBody body2, JVector point1, JVector point2, JVector normal, float penetration)
         {
-            if(!LayerCollisionMatrix.IsCollisionEnabled(body1.LayerIndex, body2.LayerIndex))
-            {
-                return;
-            }
-
             Arbiter arbiter = null;
 
             lock(arbiterMap)
