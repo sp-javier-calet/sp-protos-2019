@@ -11,20 +11,8 @@ using SharpNav.Geometry;
 #if MONOGAME
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
-
-
-
-
-
-
 #elif OPENTK
 using Vector3 = OpenTK.Vector3;
-
-
-
-
-
-
 
 #elif SHARPDX
 using Vector3 = SharpDX.Vector3;
@@ -505,11 +493,14 @@ namespace SharpNav
             /*Parallel.ForEach(tris, t => {
                 RasterizeTriangle(ref t, area);
             });*/
-            foreach(Triangle3 t in tris)
+            //*** SP Change: Replaced foreach
+            var itr = tris.GetEnumerator();
+            while(itr.MoveNext())
             {
-                var tAux = t;
-                RasterizeTriangle(ref tAux, area);//Cannot pass 't' as ref because is a foreach variable
+                var t = itr.Current;
+                RasterizeTriangle(ref t, area);
             }
+            itr.Dispose();
         }
 
         /// <summary>

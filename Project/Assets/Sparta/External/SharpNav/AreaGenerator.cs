@@ -11,26 +11,8 @@ using SharpNav.Geometry;
 #if MONOGAME
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
-
-
-
-
-
-
-
-
-
 #elif OPENTK
 using Vector3 = OpenTK.Vector3;
-
-
-
-
-
-
-
-
-
 
 #elif SHARPDX
 using Vector3 = SharpDX.Vector3;
@@ -223,16 +205,24 @@ namespace SharpNav
         {
             Area[] areas = new Area[triCount];
 
+            //*** SP Change: Replaced foreachs
             int i = 0;
-            foreach(var tri in tris)
+            var itr = tris.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var tri = itr.Current;
                 areas[i] = defaultArea;
-                foreach(var condition in conditions)
+                var itr2 = conditions.GetEnumerator();
+                while(itr2.MoveNext())
+                {
+                    var condition = itr2.Current;
                     if(condition.Item1(tri))
                         areas[i] = condition.Item2;
-
+                }
+                itr2.Dispose();
                 i++;
             }
+            itr.Dispose();
 
             return areas;
         }

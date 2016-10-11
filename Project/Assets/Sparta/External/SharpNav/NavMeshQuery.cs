@@ -318,8 +318,11 @@ namespace SharpNav
                 if(bestNode.ParentIndex != 0)
                     parentRef = nodePool.GetNodeAtIdx(bestNode.ParentIndex).Id;
 
-                foreach(Link link in bestPoly.Links)
+                //*** SP Change: Replaced foreach
+                var itr = bestPoly.Links.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    Link link = itr.Current;
                     NavPolyId neighborRef = link.Reference;
 
                     //skip invalid neighbors and do not follow back to parent
@@ -378,6 +381,7 @@ namespace SharpNav
                         openList.Push(neighborNode);
                     }
                 }
+                itr.Dispose();
             }
 
             //TODO invalid state.
@@ -470,8 +474,11 @@ namespace SharpNav
                     nav.TryGetTileAndPolyByRefUnsafe(parentRef, out parentTile, out parentPoly);
 
                 //examine neighbors
-                foreach(Link link in bestPoly.Links)
+                //*** SP Change: Replaced foreach
+                var itr = bestPoly.Links.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    Link link = itr.Current;
                     NavPolyId neighborRef = link.Reference;
 
                     //skip invalid ids and do not expand back to where we came from
@@ -562,6 +569,7 @@ namespace SharpNav
                         lastBestNode = neighborNode;
                     }
                 }
+                itr.Dispose();
             }
 
             //save path
@@ -879,8 +887,11 @@ namespace SharpNav
                     if((curPoly.Neis[j] & Link.External) != 0)
                     {
                         //tile border
-                        foreach(Link link in curPoly.Links)
+                        //*** SP Change: Replaced foreach
+                        var itr = curPoly.Links.GetEnumerator();
+                        while(itr.MoveNext())
                         {
+                            Link link = itr.Current;
                             if(link.Edge == j)
                             {
                                 if(link.Reference != NavPolyId.Null)
@@ -888,12 +899,13 @@ namespace SharpNav
                                     NavTile neiTile;
                                     NavPoly neiPoly;
                                     nav.TryGetTileAndPolyByRefUnsafe(link.Reference, out neiTile, out neiPoly);
-									
+
                                     if(neis.Count < neis.Capacity)
                                         neis.Add(link.Reference);
                                 }
                             }
                         }
+                        itr.Dispose();
                     }
                     else if(curPoly.Neis[j] != 0)
                     {
@@ -1101,8 +1113,11 @@ namespace SharpNav
                         tryLOS = true;
                 }
 
-                foreach(Link link in bestPoly.Links)
+                //*** SP Change: Replaced foreach
+                var itr = bestPoly.Links.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var link = itr.Current;
                     NavPolyId neighborRef = link.Reference;
 
                     //skip invalid ids and do not expand back to where we came from
@@ -1212,6 +1227,7 @@ namespace SharpNav
                         query.LastBestNode = neighborNode;
                     }
                 }
+                itr.Dispose();
             }
 
             //exhausted all nodes, but could not find path
@@ -1466,8 +1482,12 @@ namespace SharpNav
                 //follow neighbors
                 NavPolyId nextRef = NavPolyId.Null;
 
-                foreach(Link link in curPoly.Links)
+
+                //*** SP Change: Replaced foreach
+                var itr = curPoly.Links.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var link = itr.Current;
                     //find link which contains the edge
                     if(link.Edge != segMax)
                         continue;
@@ -1549,6 +1569,7 @@ namespace SharpNav
                         }
                     }
                 }
+                itr.Dispose();
 
                 if((options & RaycastOptions.UseCosts) != 0)
                 {
@@ -1640,8 +1661,11 @@ namespace SharpNav
                 NavPoly curPoly;
                 nav.TryGetTileAndPolyByRefUnsafe(curRef, out curTile, out curPoly);
 
-                foreach(Link link in curPoly.Links)
+                //*** SP Change: Replaced foreach
+                var itr = curPoly.Links.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var link = itr.Current;
                     NavPolyId neighborRef = link.Reference;
 
                     //skip invalid neighbors
@@ -1696,14 +1720,18 @@ namespace SharpNav
 
                         //connected polys do not overlap
                         bool connected = false;
-                        foreach(Link link2 in curPoly.Links)
+                        //*** SP Change: Replaced foreach
+                        var itr2 = curPoly.Links.GetEnumerator();
+                        while(itr2.MoveNext())
                         {
+                            var link2 = itr2.Current;
                             if(link2.Reference == pastRef)
                             {
                                 connected = true;
                                 break;
                             }
                         }
+                        itr2.Dispose();
 
                         if(connected)
                             continue;
@@ -1741,6 +1769,7 @@ namespace SharpNav
                         stack[nstack++] = neighborNode;
                     }
                 }
+                itr.Dispose();
             }
 
             resultCount = n;
@@ -1780,8 +1809,11 @@ namespace SharpNav
                 if((poly.Neis[j] & Link.External) != 0)
                 {
                     //tile border
-                    foreach(Link link in poly.Links)
+                    //*** SP Change: Replaced foreach
+                    var itr = poly.Links.GetEnumerator();
+                    while(itr.MoveNext())
                     {
+                        var link = itr.Current;
                         if(link.Edge == j)
                         {
                             if(link.Reference != NavPolyId.Null)
@@ -1793,6 +1825,7 @@ namespace SharpNav
                             }
                         }
                     }
+                    itr.Dispose();
                 }
                 else
                 {
@@ -1971,14 +2004,18 @@ namespace SharpNav
         {
             //find the link that points to the 'to' polygon
             Link link = null;
-            foreach(Link fromLink in fromPoly.Links)
+            //*** SP Change: Replaced foreach
+            var itr = fromPoly.Links.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var fromLink = itr.Current;
                 if(fromLink.Reference == to)
                 {
                     link = fromLink;
                     break;
                 }
             }
+            itr.Dispose();
 
             if(link == null)
                 return false;
@@ -1987,8 +2024,11 @@ namespace SharpNav
             if(fromPoly.PolyType == NavPolyType.OffMeshConnection)
             {
                 //find link that points to first vertex
-                foreach(Link fromLink in fromPoly.Links)
+                //*** SP Change: Replaced foreach
+                var itr2 = fromPoly.Links.GetEnumerator();
+                while(itr2.MoveNext())
                 {
+                    var fromLink = itr2.Current;
                     if(fromLink.Reference == to)
                     {
                         int v = fromLink.Edge;
@@ -1997,6 +2037,7 @@ namespace SharpNav
                         return true;
                     }
                 }
+                itr2.Dispose();
 
                 return false;
             }
@@ -2004,8 +2045,11 @@ namespace SharpNav
             if(toPoly.PolyType == NavPolyType.OffMeshConnection)
             {
                 //find link that points to first vertex
-                foreach(Link toLink in toPoly.Links)
+                //*** SP Change: Replaced foreach
+                var itr3 = toPoly.Links.GetEnumerator();
+                while(itr3.MoveNext())
                 {
+                    var toLink = itr3.Current;
                     if(toLink.Reference == from)
                     {
                         int v = toLink.Edge;
@@ -2014,6 +2058,7 @@ namespace SharpNav
                         return true;
                     }
                 }
+                itr3.Dispose();
 
                 return false;
             }
@@ -2388,14 +2433,18 @@ namespace SharpNav
             {
                 for(int x = minx; x <= maxx; x++)
                 {
-                    foreach(NavTile neighborTile in nav.GetTilesAt(x, y))
+                    //*** SP Change: Replaced foreach
+                    var itr = nav.GetTilesAt(x, y).GetEnumerator();
+                    while(itr.MoveNext())
                     {
+                        var neighborTile = itr.Current;
                         n += neighborTile.QueryPolygons(bounds, polys);
                         if(n >= polys.Capacity)
                         {
                             return true;
                         }
                     }
+                    itr.Dispose();
                 }
             }
 

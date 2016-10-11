@@ -13,12 +13,8 @@ using System.Collections.ObjectModel;
 #if MONOGAME
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
-
-
 #elif OPENTK
 using Vector3 = OpenTK.Vector3;
-
-
 
 #elif SHARPDX
 using Vector3 = SharpDX.Vector3;
@@ -266,8 +262,11 @@ namespace SharpNav
             //create connections with neighbor tiles
 
             //connect with layers in current tile
-            foreach(NavTile layerTile in GetTilesAt(header.X, header.Y))
+            //*** SP Change: Replaced foreach
+            var itr = GetTilesAt(header.X, header.Y).GetEnumerator();
+            while(itr.MoveNext())
             {
+                var layerTile = itr.Current;
                 if(layerTile != tile)
                 {
                     tile.ConnectExtLinks(layerTile, BoundarySide.Internal);
@@ -277,19 +276,24 @@ namespace SharpNav
                 tile.ConnectExtOffMeshLinks(layerTile, BoundarySide.Internal);
                 layerTile.ConnectExtOffMeshLinks(tile, BoundarySide.Internal);
             }
+            itr.Dispose();
 
             //connect with neighbor tiles
             for(int i = 0; i < 8; i++)
             {
                 BoundarySide b = (BoundarySide)i;
                 BoundarySide bo = b.GetOpposite();
-                foreach(NavTile neighborTile in GetNeighborTilesAt(header.X, header.Y, b))
+                //*** SP Change: Replaced foreach
+                var itr2 = GetNeighborTilesAt(header.X, header.Y, b).GetEnumerator();
+                while(itr2.MoveNext())
                 {
+                    var neighborTile = itr2.Current;
                     tile.ConnectExtLinks(neighborTile, b);
                     neighborTile.ConnectExtLinks(tile, bo);
                     tile.ConnectExtOffMeshLinks(neighborTile, b);
                     neighborTile.ConnectExtOffMeshLinks(tile, bo);
                 }
+                itr2.Dispose();
             }
 
             AddTileAt(tile, GetNextTileRef());
@@ -336,8 +340,11 @@ namespace SharpNav
             int idx0 = 0, idx1 = 1;
 
             //find the link that points to the first vertex
-            foreach(Link link in poly.Links)
+            //*** SP Change: Replaced foreach
+            var itr = poly.Links.GetEnumerator();
+            while(itr.MoveNext())
             {
+                var link = itr.Current;
                 if(link.Edge == 0)
                 {
                     if(link.Reference != prevRef)
@@ -349,6 +356,7 @@ namespace SharpNav
                     break;
                 }
             }
+            itr.Dispose();
 
             startPos = tile.Verts[poly.Verts[idx0]];
             endPos = tile.Verts[poly.Verts[idx1]];
