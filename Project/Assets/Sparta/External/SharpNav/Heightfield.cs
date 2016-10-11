@@ -4,21 +4,15 @@
 using System;
 using System.Collections.Generic;
 
-//***TEST using System.Threading.Tasks;
+//using System.Threading.Tasks;//*** SP Change
 
 using SharpNav.Geometry;
 
 #if MONOGAME
 using Vector3 = Microsoft.Xna.Framework.Vector3;
 
-
-
-
 #elif OPENTK
 using Vector3 = OpenTK.Vector3;
-
-
-
 
 #elif SHARPDX
 using Vector3 = SharpDX.Vector3;
@@ -331,97 +325,7 @@ namespace SharpNav
         public void FilterLedgeSpans(int walkableHeight, int walkableClimb)
         {
             //Mark border spans.
-            //***TEST 
-            /*Parallel.For(0, length, y => {
-                //for (int y = 0; y < length; y++)
-                //{
-                for(int x = 0; x < width; x++)
-                {
-                    Cell c = cells[x + y * width];
-                    List<Span> spans = c.MutableSpans;
-
-                    //Examine all the spans in each cell
-                    for(int i = 0; i < spans.Count; i++)
-                    {
-                        Span currentSpan = spans[i];
-
-                        // Skip non walkable spans.
-                        if(currentSpan.Area == Area.Null)
-                            continue;
-
-                        int bottom = (int)currentSpan.Maximum;
-                        int top = (i == spans.Count - 1) ? int.MaxValue : spans[i + 1].Minimum;
-
-                        // Find neighbors minimum height.
-                        int minHeight = int.MaxValue;
-
-                        // Min and max height of accessible neighbors.
-                        int accessibleMin = currentSpan.Maximum;
-                        int accessibleMax = currentSpan.Maximum;
-
-                        for(var dir = Direction.West; dir <= Direction.South; dir++)
-                        {
-                            int dx = x + dir.GetHorizontalOffset();
-                            int dy = y + dir.GetVerticalOffset();
-
-                            // Skip neighbors which are out of bounds.
-                            if(dx < 0 || dy < 0 || dx >= width || dy >= length)
-                            {
-                                minHeight = Math.Min(minHeight, -walkableClimb - bottom);
-                                continue;
-                            }
-
-                            // From minus infinity to the first span.
-                            Cell neighborCell = cells[dy * width + dx];
-                            List<Span> neighborSpans = neighborCell.MutableSpans;
-                            int neighborBottom = -walkableClimb;
-                            int neighborTop = neighborSpans.Count > 0 ? neighborSpans[0].Minimum : int.MaxValue;
-
-                            // Skip neighbor if the gap between the spans is too small.
-                            if(Math.Min(top, neighborTop) - Math.Max(bottom, neighborBottom) > walkableHeight)
-                                minHeight = Math.Min(minHeight, neighborBottom - bottom);
-
-                            // Rest of the spans.
-                            for(int j = 0; j < neighborSpans.Count; j++)
-                            {
-                                Span currentNeighborSpan = neighborSpans[j];
-
-                                neighborBottom = currentNeighborSpan.Maximum;
-                                neighborTop = (j == neighborSpans.Count - 1) ? int.MaxValue : neighborSpans[j + 1].Minimum;
-
-                                // Skip neighbor if the gap between the spans is too small.
-                                if(Math.Min(top, neighborTop) - Math.Max(bottom, neighborBottom) > walkableHeight)
-                                {
-                                    minHeight = Math.Min(minHeight, neighborBottom - bottom);
-
-                                    // Find min/max accessible neighbor height.
-                                    if(Math.Abs(neighborBottom - bottom) <= walkableClimb)
-                                    {
-                                        if(neighborBottom < accessibleMin)
-                                            accessibleMin = neighborBottom;
-                                        if(neighborBottom > accessibleMax)
-                                            accessibleMax = neighborBottom;
-                                    }
-                                }
-                            }
-                        }
-
-                        // The current span is close to a ledge if the drop to any
-                        // neighbor span is less than the walkableClimb.
-                        if(minHeight < -walkableClimb)
-                            currentSpan.Area = Area.Null;
-
-                        // If the difference between all neighbors is too large,
-                        // we are at steep slope, mark the span as ledge.
-                        if((accessibleMax - accessibleMin) > walkableClimb)
-                            currentSpan.Area = Area.Null;
-
-                        //save span data
-                        spans[i] = currentSpan;
-                    }
-                }
-                //}
-            });*/
+            //*** SP Change: Removed Parallel.For(0, length, y => { ... });
             for(int y = 0; y < length; y++)
             {
                 //for (int y = 0; y < length; y++)
