@@ -247,7 +247,7 @@ CURL* CurlClient::create(CurlRequest req)
 
 bool CurlClient::send(CurlRequest req)
 {
-    auto conn = _connections.get(req.id);
+    CurlConnection& conn = _connections.get(req.id);
     
     if(!conn.isValid)
     {
@@ -307,7 +307,7 @@ void CurlClient::update()
     curlUpdateLock.lock();
     mc = curl_multi_perform(_multi, &_running);
     
-    int msgs_left;
+    int msgs_left = 0;
     while(auto res_msg = curl_multi_info_read(_multi, &msgs_left))
     {
         CURL* easy = res_msg->easy_handle;
@@ -358,7 +358,7 @@ bool CurlClient::isFinished(int id)
         return false;
     }
     
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid || conn.responseCode != 0 || conn.errorCode != 0)
     {
         return true;
@@ -374,7 +374,7 @@ int CurlClient::createConnection()
 
 bool CurlClient::destroyConnection(int id)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(!conn.isValid && conn.isActive)
     {
         curl_multi_remove_handle(_multi, conn.easy);
@@ -387,7 +387,7 @@ bool CurlClient::destroyConnection(int id)
 
 bool CurlClient::sendStreamMessage(int id, CurlMessage data)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
         if(conn.messages.outcoming.empty())
@@ -403,7 +403,7 @@ bool CurlClient::sendStreamMessage(int id, CurlMessage data)
 
 int CurlClient::getStreamMessageLenght(int id)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
         return (int)conn.messages.incoming.length();
@@ -413,7 +413,7 @@ int CurlClient::getStreamMessageLenght(int id)
 
 void CurlClient::getStreamMessage(int id, char* data)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
         memcpy(data, conn.messages.incoming.c_str(), conn.messages.incoming.length() * sizeof(char));
@@ -425,7 +425,7 @@ void CurlClient::getStreamMessage(int id, char* data)
 
 double CurlClient::getTime(int id)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
         return conn.connectTime;
@@ -435,7 +435,7 @@ double CurlClient::getTime(int id)
 
 double CurlClient::getTotalTime(int id)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
         return conn.totalTime;
@@ -445,7 +445,7 @@ double CurlClient::getTotalTime(int id)
 
 double CurlClient::getDownloadSize(int id)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
         return conn.downloadSize;
@@ -456,7 +456,7 @@ double CurlClient::getDownloadSize(int id)
 
 double CurlClient::getDownloadSpeed(int id)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
         return conn.downloadSpeed;
@@ -466,7 +466,7 @@ double CurlClient::getDownloadSpeed(int id)
 
 int CurlClient::getResponseCode(int id)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
         return conn.responseCode;
@@ -476,7 +476,7 @@ int CurlClient::getResponseCode(int id)
 
 int CurlClient::getErrorCode(int id)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
         return conn.errorCode;
@@ -486,7 +486,7 @@ int CurlClient::getErrorCode(int id)
 
 bool CurlClient::getError(int id, char* data)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
         memcpy(data, conn.errorBuffer.c_str(), conn.errorBuffer.length() * sizeof(char));
@@ -497,7 +497,7 @@ bool CurlClient::getError(int id, char* data)
 
 bool CurlClient::getBody(int id, char* data)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
         memcpy(data, conn.bodyBuffer.c_str(), conn.bodyBuffer.length() * sizeof(char));
@@ -508,7 +508,7 @@ bool CurlClient::getBody(int id, char* data)
 
 bool CurlClient::getHeaders(int id, char* data)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
         memcpy(data, conn.headersBuffer.c_str(), conn.headersBuffer.length() * sizeof(char));
@@ -519,7 +519,7 @@ bool CurlClient::getHeaders(int id, char* data)
 
 int CurlClient::getErrorLength(int id)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
         return (int)conn.errorBuffer.length();
@@ -529,7 +529,7 @@ int CurlClient::getErrorLength(int id)
 
 int CurlClient::getBodyLength(int id)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
         return (int)conn.bodyBuffer.length();
@@ -539,7 +539,7 @@ int CurlClient::getBodyLength(int id)
 
 int CurlClient::getHeadersLength(int id)
 {
-    auto conn = _connections.get(id);
+    CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
         return (int)conn.headersBuffer.length();

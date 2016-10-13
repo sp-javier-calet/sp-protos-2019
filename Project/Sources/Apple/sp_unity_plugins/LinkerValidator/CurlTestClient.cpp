@@ -171,6 +171,14 @@ void CurlTestClient::run()
                     delete[] buffer;
                 }
                 
+                int msgL = _client->getStreamMessageLenght(cId);
+                if(msgL > 0)
+                {
+                    char* buffer = new char[msgL];
+                    _client->getStreamMessage(cId, buffer);
+                    delete[] buffer;
+                }
+                
                 int errL = _client->getErrorLength(cId);
                 if(errL != response.error.length())
                 {
