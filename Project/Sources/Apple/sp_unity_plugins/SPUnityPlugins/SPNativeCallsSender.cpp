@@ -7,6 +7,7 @@
 //
 
 #include "SPNativeCallsSender.h"
+#include "UnityGameObject.h"
 
 std::string _gameObjectName;
 std::string _listenerMethodName;

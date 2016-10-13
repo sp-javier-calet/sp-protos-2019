@@ -28,7 +28,7 @@ namespace SpartaTools.Editor.Build
 
         BuildReport Add(string label, string content)
         {
-            return Add(string.Format("{0}: {1}", label, content?? "<null>"));
+            return Add(string.Format("{0}: {1}", label, content ?? "<null>"));
         }
 
         BuildReport Add(string line)
@@ -64,6 +64,7 @@ namespace SpartaTools.Editor.Build
                         .Add("Product Name", bs.App.ProductName)
                         .Add("Override Icon", bs.App.OverrideIcon.ToString())
                         .Add("Icon", bs.App.IconTexture.ToString())
+                        .Add("Jenkins Forced Environment Url", BuildSet.EnvironmentUrl)
                     .IndentBack()
 
                     .AddTitle("Common")
@@ -117,7 +118,7 @@ namespace SpartaTools.Editor.Build
         string GetIconName(BuildTargetGroup targetGroup)
         {
             var textures = PlayerSettings.GetIconsForTargetGroup(targetGroup);
-            return (textures.Length > 0 && textures[0] != null)? textures[0].name : "<null>";
+            return (textures.Length > 0 && textures[0] != null) ? textures[0].name : "<null>";
         }
 
         public BuildReport CollectPlayerSettings()

@@ -122,7 +122,7 @@ namespace SocialPoint.Network
         {
             if(!Running)
             {
-                throw new InvalidOperationException("Server not running.");
+                return new LocalNetworkMessage(info, null);
             }
             LocalNetworkClient[] clients;
             if(info.ClientId > 0)

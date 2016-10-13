@@ -47,7 +47,7 @@ namespace SocialPoint.Base
                 #endif
 
             #else
-                Log.e(msg);
+                SocialPoint.Base.Log.e(msg);
             #endif
         }
 

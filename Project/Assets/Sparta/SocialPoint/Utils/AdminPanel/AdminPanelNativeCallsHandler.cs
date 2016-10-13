@@ -9,7 +9,7 @@ namespace SocialPoint.Utils
     public sealed class AdminPanelNativeCallsHandler : IAdminPanelGUI, IAdminPanelConfigurer
     {
         NativeCallsHandler _nativeCallsHandler;
-        AdminPanel.AdminPanel _adminPanel;
+        AdminPanelConsole _console;
 
         public AdminPanelNativeCallsHandler(NativeCallsHandler handler)
         {
@@ -20,7 +20,7 @@ namespace SocialPoint.Utils
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
-            _adminPanel = adminPanel;
+            _console = adminPanel.Console;
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Native Calls Handler", this));
         }
 
@@ -42,16 +42,19 @@ namespace SocialPoint.Utils
             while(itr.MoveNext())
             {
                 var item = itr.Current;
-                _adminPanel.Console.Print(string.Format("registering to {0} native call", item.Key)); 
-                item.Value.ArgMethod -= PrintCall;
-                item.Value.ArgMethod += PrintCall;
+                ConsolePrint(string.Format("registering to {0} native call", item.Key)); 
+                item.Value.ArgMethod -= ConsolePrint;
+                item.Value.ArgMethod += ConsolePrint;
             }
             itr.Dispose();
         }
 
-        void PrintCall(string call)
+        void ConsolePrint(string msg)
         {
-            _adminPanel.Console.Print(call);   
+            if(_console != null)
+            {
+                _console.Print(msg);   
+            }
         }
 
     }

@@ -1,18 +1,22 @@
 ﻿using SocialPoint.Network;
 using SocialPoint.Multiplayer;
 using SocialPoint.IO;
+using Jitter.LinearMath;
 
 public class ClickAction : INetworkShareable
 {
-    public Vector3 Position;
+    public JVector Position;
+    public Ray Ray;
 
     public void Deserialize(IReader reader)
     {
-        Position = Vector3Parser.Instance.Parse(reader);
+        Position = JVectorParser.Instance.Parse(reader);
+        Ray = RayParser.Instance.Parse(reader);
     }
 
     public void Serialize(IWriter writer)
     {
-        Vector3Serializer.Instance.Serialize(Position, writer);
+        JVectorSerializer.Instance.Serialize(Position, writer);
+        RaySerializer.Instance.Serialize(Ray, writer);
     }
 }

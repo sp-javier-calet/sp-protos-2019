@@ -8,18 +8,21 @@ namespace SocialPoint.Utils
 {
     public sealed class AdminPanelUtilCommands : IAdminPanelConfigurer
     {
-        AdminPanel.AdminPanel _adminPanel;
+        AdminPanelConsole _console;
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
-            _adminPanel = adminPanel;
+            _console = adminPanel.Console;
             adminPanel.RegisterCommand("echo", "print arguments", OnEcho);
         }
 
         void OnEcho(ConsoleCommand cmd)
         {
-            var args = string.Join(" ", new List<string>(cmd.Arguments).ToArray());
-            _adminPanel.Console.Print(args);
+            if(_console != null)
+            {
+                var args = string.Join(" ", new List<string>(cmd.Arguments).ToArray());
+                _console.Print(args);
+            }
         }
     }
 }

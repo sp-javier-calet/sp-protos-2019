@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.IO;
+using ExitGames.Client.Photon;
 
 namespace SocialPoint.Network
 {
@@ -66,11 +67,16 @@ namespace SocialPoint.Network
             }
         }
 
-        void SetServerPlayer()
+        bool SetServerPlayer()
         {
-            var props = new ExitGames.Client.Photon.Hashtable{
+            if(PhotonNetwork.room.customProperties.ContainsKey(ServerIdRoomProperty))
+            {
+                return false;
+            }
+            var props = new Hashtable{
                 { ServerIdRoomProperty, PhotonNetwork.player.ID }};
             PhotonNetwork.room.SetCustomProperties(props);
+            return true;
         }
 
         void OnPhotonPlayerConnected(PhotonPlayer player)
@@ -93,7 +99,12 @@ namespace SocialPoint.Network
 
         protected override void OnConnected()
         {
-            SetServerPlayer();
+            if(!SetServerPlayer())
+            {
+                OnNetworkError(new Error("There is already a server in the room."));
+                Stop();
+                return;
+            }
             var players = PhotonNetwork.otherPlayers;
             for(var i = 0; i < players.Length; i++)
             {

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using SocialPoint.Utils;
 
 namespace SocialPoint.AdminPanel
 {
@@ -7,23 +8,7 @@ namespace SocialPoint.AdminPanel
     {
         public RectTransform Parent { get; protected set; }
 
-        private AdminPanelController _adminPanelController;
-
-        public AdminPanel AdminPanel
-        {
-            get
-            {
-                return _adminPanelController.AdminPanel;
-            }
-        }
-
-        public MonoBehaviour Behaviour
-        {
-            get
-            {
-                return _adminPanelController;
-            }
-        }
+        private IPanelController _adminPanelController;
 
         /// <summary>
         /// Check if the game object is active in the scene
@@ -48,7 +33,7 @@ namespace SocialPoint.AdminPanel
             Parent = rectTransform;
         }
 
-        protected AdminPanelLayout(AdminPanelController controller)
+        protected AdminPanelLayout(IPanelController controller)
         {
             _adminPanelController = controller;
         }
@@ -57,21 +42,21 @@ namespace SocialPoint.AdminPanel
         {
             if(IsActiveInHierarchy)
             {
-                _adminPanelController.RefreshPanel(true);
+                _adminPanelController.RefreshPanel();
             }
         }
 
-        protected void OpenPanel(IAdminPanelGUI panel)
+        public void OpenPanel(IAdminPanelGUI panel)
         {
             _adminPanelController.OpenPanel(panel);
         }
 
-        protected void ReplacePanel(IAdminPanelGUI panel)
+        public void ReplacePanel(IAdminPanelGUI panel)
         {
             _adminPanelController.ReplacePanel(panel);
         }
 
-        protected void ClosePanel()
+        public void ClosePanel()
         {
             _adminPanelController.ClosePanel();
         }
@@ -83,6 +68,37 @@ namespace SocialPoint.AdminPanel
 
         public virtual void Dispose()
         {
+            if(Parent != null)
+            {
+                UnityEngine.Object.Destroy(Parent.gameObject);
+            }
+        }
+
+        public void RegisterUpdateable(IUpdateable updateable)
+        {
+            _adminPanelController.RegisterUpdateable(updateable);
+        }
+
+        public void UnregisterUpdateable(IUpdateable updateable)
+        {
+            _adminPanelController.UnregisterUpdateable(updateable);
+        }
+
+        public void Clear()
+        {
+            if(Parent == null)
+            {
+                return;
+            }
+            var itr = Parent.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                var child = (Transform)itr.Current;
+                if(child != null)
+                {
+                    UnityEngine.Object.Destroy(child.gameObject);
+                }
+            }
         }
     }
 }

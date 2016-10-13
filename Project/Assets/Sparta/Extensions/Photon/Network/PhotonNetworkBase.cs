@@ -9,12 +9,46 @@ using System.Collections.Generic;
 namespace SocialPoint.Network
 {
     [Serializable]
+    public class PhotonNetworkRoomConfig
+    {
+        public const bool DefaultIsVisible = true;
+        public const bool DefaultIsOpen = true;
+        public const byte DefaultMaxPlayers = 2;
+        public const int DefaultPlayerTtl = 0;
+        public const bool DefaultCleanupCache = true;
+        public const bool DefaultPublishUserId = false;
+
+        public bool IsVisible = DefaultIsVisible;
+        public bool IsOpen = DefaultIsOpen;
+        public byte MaxPlayers = DefaultMaxPlayers;
+        public int PlayerTtl = DefaultPlayerTtl;
+        public bool CleanupCache = DefaultCleanupCache;
+        public bool PublishUserId = DefaultPublishUserId;
+        public string[] CustomProperties;
+        public string[] CustomLobbyProperties;
+        public string[] Plugins;
+
+        public RoomOptions ToPhoton()
+        {
+            return new RoomOptions {
+                isVisible = IsVisible,
+                isOpen = IsOpen,
+                maxPlayers = MaxPlayers,
+                PlayerTtl = PlayerTtl,
+                cleanupCacheOnLeave = CleanupCache,
+                customRoomPropertiesForLobby = CustomLobbyProperties,
+                plugins = Plugins,
+                publishUserId = PublishUserId
+            };
+        }
+    }
+
+    [Serializable]
     public class PhotonNetworkConfig
     {
         public string GameVersion;
         public string RoomName;
-        public RoomOptions RoomOptions;
-        public byte[] UnreliableChannels;
+        public PhotonNetworkRoomConfig RoomOptions = new PhotonNetworkRoomConfig();
     }
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
@@ -51,6 +85,27 @@ namespace SocialPoint.Network
         public void Dispose()
         {
             DoDisconnect();
+            Destroy(this);
+        }
+
+        RoomOptions PhotonRoomOptions
+        {
+            get
+            {
+                return _config.RoomOptions == null ? null : _config.RoomOptions.ToPhoton();
+            }
+        }
+
+        void JoinOrCreateRoom()
+        {
+            if(string.IsNullOrEmpty(_config.RoomName))
+            {
+                PhotonNetwork.CreateRoom(_config.RoomName, PhotonRoomOptions, null);
+            }
+            else
+            {
+                PhotonNetwork.JoinOrCreateRoom(_config.RoomName, PhotonRoomOptions, null);
+            }
         }
 
         abstract protected void OnNetworkError(Error err);
@@ -79,22 +134,28 @@ namespace SocialPoint.Network
             }
             else
             {
-                PhotonNetwork.JoinRoom(_config.RoomName);
+                JoinOrCreateRoom();
             }
         }
 
         void OnPhotonRandomJoinFailed()
         {
-            PhotonNetwork.CreateRoom(_config.RoomName, _config.RoomOptions, null);
+            JoinOrCreateRoom();
         }
 
-        void OnFailedToConnectToPhoton(DisconnectCause cause)
+        public void OnPhotonJoinRoomFailed(object[] codeAndMsg)
+        {
+            var err = new Error(ConnectionError, "Failed to join: " + StringUtils.Join(codeAndMsg, " "));
+            OnNetworkError(err);
+        }
+
+        public void OnFailedToConnectToPhoton(DisconnectCause cause)
         {
             var err = new Error(ConnectionError, "Failed to connect: " + cause);
             OnNetworkError(err);
         }
 
-        void OnPhotonCreateRoomFailed(object[] codeAndMsg)
+        public void OnPhotonCreateRoomFailed(object[] codeAndMsg)
         {
             var err = new Error(CreateRoomError, "Failed to create room: " + StringUtils.Join(codeAndMsg, " "));
             OnNetworkError(err);
@@ -157,22 +218,6 @@ namespace SocialPoint.Network
         public INetworkMessage CreateMessage(NetworkMessageData info)
         {
             return new PhotonNetworkMessage(info, this);
-        }
-
-        bool IsChannelReliable(byte channelId)
-        {
-            if(_config.UnreliableChannels == null)
-            {
-                return true;
-            }
-            for(var i = 0; i < _config.UnreliableChannels.Length; i++)
-            {
-                if(_config.UnreliableChannels[i] == channelId)
-                {
-                    return false;
-                }
-            }
-            return true;
         }
 
         public void SendNetworkMessage(NetworkMessageData info, byte[] data)

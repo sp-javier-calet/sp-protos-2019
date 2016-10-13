@@ -9,22 +9,32 @@ namespace SocialPoint.Lockstep.Network
 {
     public static class LockstepMsgType
     {
-        public const byte LockstepCommand = 2;
-        public const byte ConfirmTurns = 3;
-        public const byte ConfirmTurnsReception = 4;
+        public const byte Command = 2;
+        public const byte Turn = 3;
         public const byte ClientSetup = 5;
         public const byte PlayerReady = 6;
-        public const byte AllPlayersReady = 7;
+        public const byte ClientStart = 7;
     }
 
     [Serializable]
     public sealed class ServerLockstepConfig
     {
         public const byte DefaultMaxPlayers = 2;
-        public const int DefaultStartDelay = 3000;
+        public const int DefaultClientStartDelay = 3000;
+        public const int DefaultClientSimulationDelay = 1000;
 
         public byte MaxPlayers = DefaultMaxPlayers;
-        public int StartDelay = DefaultStartDelay;
+        public int ClientStartDelay = DefaultClientStartDelay;
+        public int ClientSimulationDelay = DefaultClientSimulationDelay;
+
+        public override string ToString()
+        {
+            return string.Format("[ServerLockstepConfig\n" +
+            "MaxPlayers:{0}\n" +
+            "ClientStartDelay:{1}\n" +
+            "ClientSimulationDelay:{2}]",
+                MaxPlayers, ClientStartDelay, ClientSimulationDelay);
+        }
     }
 
     public sealed class ServerLockstepNetworkController : IDisposable, INetworkMessageReceiver, INetworkServerDelegate
@@ -32,50 +42,72 @@ namespace SocialPoint.Lockstep.Network
         class ClientData
         {
             public byte ClientId;
-            public byte PlayerId;
+            public byte PlayerNumber;
             public bool Ready;
-
-            public void Clear()
-            {
-                PlayerId = BadPlayerId;
-                Ready = false;
-            }
         }
-
-        const byte BadPlayerId = byte.MaxValue;
 
         ServerLockstepController _serverLockstep;
-        LockstepConfig _lockstepConfig;
-        ServerLockstepConfig _serverConfig;
         INetworkServer _server;
         Dictionary<byte, ClientData> _clients;
+        Dictionary<uint, byte> _playerNums;
         INetworkMessageReceiver _receiver;
 
-        public ServerLockstepNetworkController(INetworkServer server,
-                                               LockstepConfig lockstepConfig = null,
-                                               ServerLockstepConfig serverConfig = null)
+        ClientLockstepController _localClient;
+        LockstepCommandFactory _localFactory;
+        ClientData _localClientData;
+
+        public ServerLockstepConfig ServerConfig{ get; set; }
+
+        public LockstepConfig Config
         {
-            if(lockstepConfig == null)
+            get
             {
-                lockstepConfig = new LockstepConfig();
+                return _serverLockstep.Config;
             }
-            if(serverConfig == null)
+
+            set
             {
-                serverConfig = new ServerLockstepConfig();
+                _serverLockstep.Config = value;
             }
-            _clients = new Dictionary<byte, ClientData>();
-            _server = server;
-            _serverConfig = serverConfig;
-            _lockstepConfig = lockstepConfig;
         }
 
-        public void Init(ServerLockstepController serverLockstep)
+        public ServerLockstepNetworkController(INetworkServer server, IUpdateScheduler scheduler = null)
         {
-            _serverLockstep = serverLockstep;
-            _serverLockstep.CommandStep = _lockstepConfig.CommandStep;
-            _serverLockstep.SendClientTurnData = SendClientTurnData;
+            ServerConfig = new ServerLockstepConfig();
+            _clients = new Dictionary<byte, ClientData>();
+            _playerNums = new Dictionary<uint, byte>();
+            _localClientData = new ClientData();
+            _server = server;
             _server.RegisterReceiver(this);
             _server.AddDelegate(this);
+            SetupServerLockstep(new ServerLockstepController(scheduler));
+        }
+
+        [Obsolete("Pass scheduler to constructor.")]
+        public void Init(ServerLockstepController serverLockstep)
+        {
+            SetupServerLockstep(serverLockstep);
+        }
+
+        void SetupServerLockstep(ServerLockstepController serverLockstep)
+        {
+            DebugUtils.Assert(serverLockstep != null);
+            _serverLockstep = serverLockstep;
+            _serverLockstep.TurnReady += OnServerTurnReady;
+            if(_localClient != null)
+            {
+                _serverLockstep.RegisterLocalClient(_localClient, _localFactory);
+            }
+        }
+
+        public void Update()
+        {
+            _serverLockstep.Update();
+        }
+
+        public void Update(int dt)
+        {
+            _serverLockstep.Update(dt);
         }
 
         public void RegisterReceiver(INetworkMessageReceiver receiver)
@@ -83,16 +115,26 @@ namespace SocialPoint.Lockstep.Network
             _receiver = receiver;
         }
 
-        void SendClientTurnData(byte clientId, ServerLockstepTurnData[] turnData)
+        void OnServerTurnReady(ServerLockstepTurnData turnData)
         {
-            var action = new ServerConfirmTurnsMessage();
-            action.ConfirmedTurns = turnData;
+            var itr = _clients.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                var client = itr.Current.Value;
+                if(client.Ready)
+                {
+                    SendTurn(turnData, client.ClientId);
+                }
+            }
+            itr.Dispose();
+        }
 
+        void SendTurn(ServerLockstepTurnData turnData, byte client)
+        {
             _server.SendMessage(new NetworkMessageData {
-                MessageType = LockstepMsgType.ConfirmTurns,
-                Unreliable = true,
-                ClientId = clientId
-            }, action);
+                MessageType = LockstepMsgType.Turn,
+                ClientId = client
+            }, turnData);
         }
 
         public void OnMessageReceived(NetworkMessageData data, IReader reader)
@@ -104,14 +146,11 @@ namespace SocialPoint.Lockstep.Network
             }
             switch(data.MessageType)
             {
-            case LockstepMsgType.ConfirmTurnsReception:
-                OnConfirmTurnsReceptionReceived(clientData, reader);
-                break;
-            case LockstepMsgType.LockstepCommand:
+            case LockstepMsgType.Command:
                 OnLockstepCommandReceived(clientData, reader);
                 break;
             case LockstepMsgType.PlayerReady:
-                OnPlayerReadyReceived(clientData);
+                OnPlayerReadyReceived(clientData, reader);
                 break;
             default:
                 if(_receiver != null)
@@ -122,59 +161,51 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        void OnConfirmTurnsReceptionReceived(ClientData clientData, IReader reader)
-        {
-            var msg = new ConfirmTurnsReceptionMessage();
-            msg.Deserialize(reader);
-            for(int i = 0; i < msg.ConfirmedTurns.Length; ++i)
-            {
-                _serverLockstep.OnClientTurnReceptionConfirmed(clientData.ClientId, msg.ConfirmedTurns[i]);
-            }
-        }
-
         void OnLockstepCommandReceived(ClientData clientData, IReader reader)
         {
             var command = new ServerLockstepCommandData();
             command.Deserialize(reader);
-            command.ClientId = clientData.ClientId;
-            _serverLockstep.OnClientCommandReceived(command);
+            _serverLockstep.AddCommand(command);
         }
 
-        byte FindPlayerClient(byte playerId)
+        bool FindPlayerClient(byte playerNum, out byte clientId)
         {
             var itr = _clients.GetEnumerator();
-            byte clientId = BadPlayerId;
+            bool found = false;
+            clientId = 0;
             while(itr.MoveNext())
             {
                 var client = itr.Current.Value;
-                if(client.Ready && client.PlayerId == playerId)
+                if(client.Ready && client.PlayerNumber == playerNum)
                 {
                     clientId = client.ClientId;
+                    found = true;
                     break;
                 }
             }
             itr.Dispose();
-            return clientId;
+            return found;
         }
 
-        byte FreePlayerId
+        byte FreePlayerNumber
         {
             get
             {
-                byte id = 0;
-                for(; id < byte.MaxValue; id++)
+                byte num = 0;
+                byte clientId;
+                for(; num < byte.MaxValue; num++)
                 {
-                    if(FindPlayerClient(id) != BadPlayerId)
+                    if(FindPlayerClient(num, out clientId))
                     {
                         continue;
                     }
-                    if(IsLocalPlayerId(id))
+                    if(IsLocalPlayerNumber(num))
                     {
                         continue;
                     }
                     break;
                 }
-                return id;
+                return num;
             }
         }
 
@@ -201,11 +232,19 @@ namespace SocialPoint.Lockstep.Network
                     }
                 }
                 itr.Dispose();
-                if(_localClientData != null && _localClientData.Ready)
+                if(_localClientData.Ready)
                 {
                     count++;
                 }
                 return count;
+            }
+        }
+
+        public byte MaxPlayers
+        {
+            get
+            {
+                return ServerConfig.MaxPlayers;
             }
         }
 
@@ -214,7 +253,7 @@ namespace SocialPoint.Lockstep.Network
             get
             {
                 var count = _clients.Count;
-                if(_localClientData != null)
+                if(_localClient != null)
                 {
                     count++;
                 }
@@ -234,22 +273,90 @@ namespace SocialPoint.Lockstep.Network
         {
             get
             {
-                return PlayerCount >= _serverConfig.MaxPlayers;
+                return PlayerCount >= ServerConfig.MaxPlayers;
             }
         }
 
-        byte OnPlayerReadyReceived(ClientData clientData)
+        public int UpdateTime
         {
-            var playerId = FreePlayerId;
+            get
+            {
+                return _serverLockstep.UpdateTime;
+            }
+        }
+
+        public int ClientUpdateTime
+        {
+            get
+            {
+                return _serverLockstep.UpdateTime - ServerConfig.ClientSimulationDelay;
+            }
+        }
+
+        public int CommandDeltaTime
+        {
+            get
+            {
+                return _serverLockstep.CommandDeltaTime;
+            }
+        }
+
+        public int CurrentTurnNumber
+        {
+            get
+            {
+                return _serverLockstep.CurrentTurnNumber;
+            }
+        }
+
+        void OnPlayerReadyReceived(ClientData clientData, IReader reader)
+        {
+            if(clientData.Ready)
+            {
+                // client sent multiple ready messages
+                return;
+            }
+            var msg = new PlayerReadyMessage();
+            msg.Deserialize(reader);
+            var playerNum = FreePlayerNumber;
             clientData.Ready = true;
-            clientData.PlayerId = playerId;
-            CheckAllPlayersReady();
-            return playerId;
+            if(!Running)
+            {
+                clientData.PlayerNumber = playerNum;
+                _playerNums[msg.PlayerId] = clientData.PlayerNumber;
+                CheckAllPlayersReady();
+                return;
+            }
+            // client reconnected
+            if(!_playerNums.TryGetValue(msg.PlayerId, out playerNum))
+            {
+                // bad player, kick him out!
+                _clients.Remove(clientData.ClientId);
+                return;
+            }
+
+            clientData.PlayerNumber = playerNum;
+            _server.SendMessage(new NetworkMessageData {
+                MessageType = LockstepMsgType.ClientStart,
+                ClientId = clientData.ClientId
+            }, new ClientStartMessage(
+                _server.GetTimestamp(),
+                ClientUpdateTime,
+                clientData.PlayerNumber
+            ));
+
+            // send the old turns
+            var itr = _serverLockstep.GetTurnsEnumerator();
+            while(itr.MoveNext())
+            {
+                SendTurn(itr.Current, clientData.ClientId);
+            }
+            itr.Dispose();
         }
 
         void CheckAllPlayersReady()
         {
-            if(ReadyPlayerCount == _serverConfig.MaxPlayers)
+            if(!_serverLockstep.Running && ReadyPlayerCount == ServerConfig.MaxPlayers)
             {
                 StartLockstep();
             }
@@ -257,29 +364,24 @@ namespace SocialPoint.Lockstep.Network
 
         void StartLockstep()
         {
+            if(_serverLockstep != null)
+            {
+                _serverLockstep.Start(ServerConfig.ClientSimulationDelay - ServerConfig.ClientStartDelay);
+            }
             var itr = _clients.GetEnumerator();
             while(itr.MoveNext())
             {
-                var client = itr.Current.Value;
-                var msg = new AllPlayersReadyMessage(
-                              _server.GetTimestamp(),
-                              _serverConfig.StartDelay,
-                              client.PlayerId);
+                var clientData = itr.Current.Value;
                 _server.SendMessage(new NetworkMessageData {
-                    MessageType = LockstepMsgType.AllPlayersReady,
-                    ClientId = client.ClientId
-                }, msg);
+                    MessageType = LockstepMsgType.ClientStart,
+                    ClientId = clientData.ClientId
+                }, new ClientStartMessage(
+                    _server.GetTimestamp(),
+                    ClientUpdateTime,
+                    clientData.PlayerNumber
+                ));
             }
             itr.Dispose();
-
-            if(_serverLockstep != null)
-            {
-                var ts = TimeUtils.TimestampMilliseconds;
-                _serverLockstep.Start(
-                    ts + _serverConfig.StartDelay - _serverLockstep.CommandStep,
-                    new List<byte>(_clients.Keys).ToArray());
-            }
-
             StartLocalClientOnAllPlayersReady();
         }
 
@@ -315,7 +417,7 @@ namespace SocialPoint.Lockstep.Network
                 MessageType = LockstepMsgType.ClientSetup,
                 ClientId = clientId,
                 Unreliable = false
-            }, new ClientSetupMessage(_lockstepConfig));
+            }, new ClientSetupMessage(Config));
         }
 
         public void OnClientDisconnected(byte clientId)
@@ -325,11 +427,9 @@ namespace SocialPoint.Lockstep.Network
 
         public void Stop()
         {
-            if(_clients != null)
-            {
-                _clients.Clear();
-            }
-            _localClientData.Clear();
+            _clients.Clear();
+            _playerNums.Clear();
+            _localClientData.Ready = false;
             if(_serverLockstep != null)
             {
                 _serverLockstep.Stop();
@@ -345,55 +445,74 @@ namespace SocialPoint.Lockstep.Network
             {
                 _serverLockstep.Dispose();
             }
+            UnregisterLocalClient();
         }
 
         #region local client
 
-        ClientLockstepController _localClient;
-        ClientData _localClientData;
-
-        public byte LocalPlayerId
+        public byte LocalPlayerNumber
         {
             get
             {
-                if(_localClientData == null)
-                {
-                    return BadPlayerId;
-                }
-                return _localClientData.PlayerId;
+                return _localClientData.PlayerNumber;
             }
         }
 
-        public bool IsLocalPlayerId(byte id)
+        public bool IsLocalPlayerNumber(byte num)
         {
-            return _localClientData != null && _localClientData.Ready && _localClientData.PlayerId == id;
+            return _localClient != null && _localClientData.Ready && _localClientData.PlayerNumber == num;
+        }
+
+        public void UnregisterLocalClient()
+        {
+            if(_serverLockstep != null)
+            {
+                _serverLockstep.UnregisterLocalClient();
+            }
+            _localClient = null;
+            _localFactory = null;
+            _localClientData.Ready = false;
         }
 
         public void RegisterLocalClient(ClientLockstepController ctrl, LockstepCommandFactory factory)
         {
+            UnregisterLocalClient();
             _localClient = ctrl;
-            _localClientData = new ClientData();
-            _serverLockstep.RegisterLocalClient(ctrl, factory);
+            _localFactory = factory;
+            if(_serverLockstep != null)
+            {
+                _serverLockstep.RegisterLocalClient(ctrl, _localFactory);
+            }
         }
 
-        public byte LocalPlayerReady()
+        public void LocalPlayerReady()
         {
-            if(_localClientData == null)
+            if(_localClientData.Ready)
             {
-                return BadPlayerId;
+                return;
             }
-            var playerId = FreePlayerId;
+            var playerNum = FreePlayerNumber;
             _localClientData.Ready = true;
-            _localClientData.PlayerId = playerId;
-            CheckAllPlayersReady();
-            return playerId;
+            if(!Running)
+            {
+                _localClientData.PlayerNumber = playerNum;
+                CheckAllPlayersReady();
+                return;
+            }
+            var itr = _serverLockstep.GetTurnsEnumerator();
+            while(itr.MoveNext())
+            {
+                _localClient.AddConfirmedTurn(itr.Current.ToClient(_localFactory));
+            }
+            itr.Dispose();
+            _localClient.Start(ClientUpdateTime);
         }
 
         void StartLocalClientOnAllPlayersReady()
         {
             if(_localClient != null)
             {
-                _localClient.Start(TimeUtils.TimestampMilliseconds + _serverConfig.StartDelay);
+                _localClient.Start(ClientUpdateTime);
             }
         }
 

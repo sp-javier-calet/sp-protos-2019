@@ -2,6 +2,7 @@
 using SocialPoint.Utils;
 using SocialPoint.Network;
 using System;
+using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
@@ -14,6 +15,7 @@ namespace SocialPoint.Multiplayer
         public NetworkGameObject(int id)
         {
             Id = id;
+            Transform = new Transform();
         }
 
         public NetworkGameObject(int id, Transform t)
@@ -28,6 +30,10 @@ namespace SocialPoint.Multiplayer
             {
                 Id = go.Id;
                 Transform = new Transform(go.Transform);
+            }
+            else
+            {
+                Transform = new Transform();
             }
         }
 

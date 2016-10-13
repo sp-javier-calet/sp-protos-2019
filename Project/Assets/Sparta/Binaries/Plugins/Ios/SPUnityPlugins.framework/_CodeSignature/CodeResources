@@ -4,6 +4,10 @@
 <dict>
 	<key>files</key>
 	<dict>
+		<key>Headers/SPUnityNativeUtils.h</key>
+		<data>
+		ww4zYT1Q/WHJuM5F5uzdP91Wecc=
+		</data>
 		<key>Headers/UnityGameObject.h</key>
 		<data>
 		m78W3PPIMN+NbOdc2Jt36l7Agi4=
@@ -19,6 +23,17 @@
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Headers/SPUnityNativeUtils.h</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			ww4zYT1Q/WHJuM5F5uzdP91Wecc=
+			</data>
+			<key>hash2</key>
+			<data>
+			caRn8a2vorjo1fsMV/cFNIxUlSC7aNgT1Zg14q9Fgp0=
+			</data>
+		</dict>
 		<key>Headers/UnityGameObject.h</key>
 		<dict>
 			<key>hash</key>

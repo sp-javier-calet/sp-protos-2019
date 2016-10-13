@@ -10,7 +10,6 @@
 #define SPNativeCallsSender_
 
 #include <string>
-#include "UnityGameObject.h"
 
 class SPNativeCallsSender
 {

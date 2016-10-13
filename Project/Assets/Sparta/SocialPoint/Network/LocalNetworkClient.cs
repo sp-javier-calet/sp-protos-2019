@@ -14,6 +14,29 @@ namespace SocialPoint.Network
         public byte ClientId{ get; private set; }
         public bool Connected{ get; private set; }
 
+        bool _delayReceivedMessages;
+        public bool DelayReceivedMessages
+        {
+            get
+            {
+                return _delayReceivedMessages;
+            }
+            set
+            {
+                _delayReceivedMessages = value;
+                if(!_delayReceivedMessages && _delayedMessages != null)
+                {
+                    for(var i=0; i<_delayedMessages.Count; i++)
+                    {
+                        OnLocalMessageReceived(_delayedMessages[i]);
+                    }
+                    _delayedMessages.Clear();
+                }
+            }
+        }
+
+        List<LocalNetworkMessage> _delayedMessages;
+
         public LocalNetworkClient(LocalNetworkServer server)
         {
             _server = server;
@@ -61,6 +84,15 @@ namespace SocialPoint.Network
             {
                 return;
             }
+            if(DelayReceivedMessages)
+            {
+                if(_delayedMessages == null)
+                {
+                    _delayedMessages = new List<LocalNetworkMessage>();
+                }
+                _delayedMessages.Add(msg);
+                return;
+            }
             if(_receiver != null)
             {
                 _receiver.OnMessageReceived(msg.Data, msg.Receive());
@@ -89,11 +121,7 @@ namespace SocialPoint.Network
 
         public INetworkMessage CreateMessage(NetworkMessageData info)
         {
-            if(!Connected)
-            {
-                throw new InvalidOperationException("Client not connected.");
-            }
-            return new LocalNetworkMessage(info, this, _server);
+            return new LocalNetworkMessage(info, this, Connected ? _server : null);
         }
 
         public void AddDelegate(INetworkClientDelegate dlg)
