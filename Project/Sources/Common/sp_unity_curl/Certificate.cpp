@@ -40,41 +40,42 @@ namespace
                                                   0xF3, 0xBB, 0x1B, 0x75, 0x5E, 0x07, 0x73, 0x70, 0xFD, 0x99, 0x23, 0x47, 0x6E,
                                                   0x4F, 0x33, 0x25, 0xFB, 0x99, 0x23, 0x55, 0x53, 0x62, 0x71, 0x35, 0xF0, 0xD6,
                                                   0x0D, 0x66, 0x20, 0x45, 0x71, 0x07, 0xF3, 0xBF, 0x51, 0x46, 0x7C, 0x6D, 0x7A};
-}
 
 
-/*
- * Static structure and methods for available certificates definition
- */
+    /*
+     * Static structure and methods for available certificates definition
+     */
 
-struct CertificateInfo
-{
-    const uint8_t* key;
-    const size_t keySize;
-};
-
-#define CERTIFICATE_INFO(cert) { cert, sizeof(cert) / sizeof(cert[0]) }
-
-std::map<std::string, CertificateInfo> availableCertificates = {
-    { "basegame", CERTIFICATE_INFO(pinnedCertBaseGame) },
-    { "dragonland", CERTIFICATE_INFO(pinnedCertDragonLand) },
-    { "dragonstadium", CERTIFICATE_INFO(pinnedCertDragonStadium) },
-    { "leagueofdragons", CERTIFICATE_INFO(pinnedCertLeagueOfDragons) },
-    { "worldchef", CERTIFICATE_INFO(pinnedCertWorldChef) }
-};
-
-CertificateInfo InvalidCertificate{ nullptr, 0 };
-
-const CertificateInfo& get(const std::string& name)
-{
-    auto it = availableCertificates.find(name);
-    if(it != availableCertificates.end())
+    struct CertificateInfo
     {
-        return it->second;
+        const uint8_t* key;
+        const size_t keySize;
+    };
+
+    #define CERTIFICATE_INFO(cert)           \
+    {                                        \
+        cert, sizeof(cert) / sizeof(cert[0]) \
     }
-    else
+
+    std::map<std::string, CertificateInfo> availableCertificates = {{"basegame", CERTIFICATE_INFO(pinnedCertBaseGame)},
+                                                                    {"dragonland", CERTIFICATE_INFO(pinnedCertDragonLand)},
+                                                                    {"dragonstadium", CERTIFICATE_INFO(pinnedCertDragonStadium)},
+                                                                    {"leagueofdragons", CERTIFICATE_INFO(pinnedCertLeagueOfDragons)},
+                                                                    {"worldchef", CERTIFICATE_INFO(pinnedCertWorldChef)}};
+
+    CertificateInfo DefaultCertificate CERTIFICATE_INFO(pinnedCertBaseGame);
+
+    const CertificateInfo& get(const std::string& name)
     {
-        return InvalidCertificate;
+        auto it = availableCertificates.find(name);
+        if(it != availableCertificates.end())
+        {
+            return it->second;
+        }
+        else
+        {
+            return DefaultCertificate;
+        }
     }
 }
 
@@ -101,12 +102,12 @@ void Certificate::obfuscate(const uint8_t* in, uint8_t** out, size_t size)
 {
     static const uint8_t secret[] = {55, 11, 44, 71, 66, 177, 253, 122};
     (*out) = new uint8_t[size + 1];// size + null terminated char
-    
+
     for(size_t i = 0; i < size; ++i)
     {
         (*out)[i] = in[i] ^ secret[i % (sizeof(secret) / sizeof(secret[0]))];
     }
-    
+
     (*out)[size] = 0;
 }
 
