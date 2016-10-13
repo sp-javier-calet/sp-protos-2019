@@ -7,6 +7,7 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
 {
     const string ClockUrl = "https://http2.golang.org/clockstream";
     const string EchoUrl = "https://http2.golang.org/ECHO";
+    const int DefaultTimeout = 10000000;
 
     enum MessageEncoding
     {
@@ -43,11 +44,11 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
     {
         layout.CreateButton("Open Clock stream", () => {
             var req = new HttpRequest(ClockUrl);
-            req.Timeout = 10000000;
+            req.Timeout = DefaultTimeout;
             req.Proxy = EditorProxy.GetProxy();
             var conn = _client.Connect(req, OnRequestFinished);
             conn.DataReceived += OnDataReceived;
-            _streams.Add(new StreamData { Name = "Clock", Stream = conn as CurlHttpStream });
+            _streams.Add(new StreamData { Name = "Clock", Stream = conn });
             layout.Refresh();
         });
 
@@ -55,11 +56,11 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
             var req = new HttpRequest(EchoUrl);
             req.Method = HttpRequest.MethodType.PUT;
             req.Body = Encode("hello");
-            req.Timeout = 10000000;
+            req.Timeout = DefaultTimeout;
             req.Proxy = EditorProxy.GetProxy();
             var conn = _client.Connect(req, OnRequestFinished);
             conn.DataReceived += OnDataReceived;
-            _streams.Add(new StreamData { Name = "Echo", Stream = conn as CurlHttpStream });
+            _streams.Add(new StreamData { Name = "Echo", Stream = conn });
             layout.Refresh();
         });
 
@@ -162,13 +163,11 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
     {   
         var msg = Decode(data);
         _console.Print(msg);
-        UnityEngine.Debug.LogWarning(msg);
     }
 
     void OnRequestFinished(HttpResponse response)
     {
         var msg = Decode(response.Body);
         _console.Print(msg);
-        UnityEngine.Debug.LogWarning(msg);
     }
 }

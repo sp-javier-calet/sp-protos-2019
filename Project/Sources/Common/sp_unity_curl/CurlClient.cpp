@@ -316,6 +316,8 @@ void CurlClient::update()
         if(msg->msg == CURLMSG_DONE)
         {
             curl_easy_getinfo(easy, CURLINFO_PRIVATE, &conn);
+            assert(conn && "Could not access to curl connection data");
+            
             if(msg->data.result != CURLE_OK)
             {
                 conn->errorBuffer = curl_easy_strerror(msg->data.result);

@@ -54,7 +54,7 @@ namespace SocialPoint.Network
 
         public void Update()
         {
-            SPUnityCurlUpdate(_nativeClient, 0);
+            SPUnityCurlUpdate(_nativeClient);
         }
 
         public void Dispose()
@@ -139,7 +139,7 @@ namespace SocialPoint.Network
             /// </summary>
             public bool Update()
             {
-                return SPUnityCurlUpdate(_curl._nativeClient, _connectionId);
+                return SPUnityCurlUpdateConn(_curl._nativeClient, _connectionId);
             }
 
             public int Send(RequestStruct req)
@@ -463,7 +463,10 @@ namespace SocialPoint.Network
         static extern int SPUnityCurlSendStreamMessage(UIntPtr client, int id, MessageStruct data);
 
         [DllImport(PluginModuleName)]
-        static extern bool SPUnityCurlUpdate(UIntPtr client, int id);
+        static extern bool SPUnityCurlUpdate(UIntPtr client);
+
+        [DllImport(PluginModuleName)]
+        static extern bool SPUnityCurlUpdateConn(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
         static extern void SPUnityCurlGetError(UIntPtr client, int id, byte[] data);

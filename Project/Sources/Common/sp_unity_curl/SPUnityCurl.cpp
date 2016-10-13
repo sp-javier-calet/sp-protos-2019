@@ -50,7 +50,12 @@ extern "C"
         return client->sendStreamMessage(id, msg);
     }
     
-    EXPORT_API bool SPUnityCurlUpdate(CurlClient* client, int id)
+    EXPORT_API void SPUnityCurlUpdate(CurlClient* client)
+    {
+        client->update();
+    }
+    
+    EXPORT_API bool SPUnityCurlUpdateConn(CurlClient* client, int id)
     {
         return client->update(id);
     }
