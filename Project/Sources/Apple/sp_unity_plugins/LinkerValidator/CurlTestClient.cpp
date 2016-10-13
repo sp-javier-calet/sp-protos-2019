@@ -41,7 +41,7 @@ struct Config
     bool destroyConnectionsOnFinish = true;
     bool singleDeferred = false;
     bool verbose = true;
-    std::string proxy = "192.168.91.144:8888";
+    std::string proxy = "";
     std::vector<RequestType> initialRequests{ RequestType::Clock };
     std::vector<RequestType> deferredRequests{ RequestType::Echo, RequestType::Clock };
 };
