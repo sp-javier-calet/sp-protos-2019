@@ -7,7 +7,6 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
 {
     const string ClockUrl = "https://http2.golang.org/clockstream";
     const string EchoUrl = "https://http2.golang.org/ECHO";
-    const int DefaultTimeout = 10000000;
 
     enum MessageEncoding
     {
@@ -44,7 +43,6 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
     {
         layout.CreateButton("Open Clock stream", () => {
             var req = new HttpRequest(ClockUrl);
-            req.Timeout = DefaultTimeout;
             req.Proxy = EditorProxy.GetProxy();
             var conn = _client.Connect(req, OnRequestFinished);
             conn.DataReceived += OnDataReceived;
@@ -56,7 +54,6 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
             var req = new HttpRequest(EchoUrl);
             req.Method = HttpRequest.MethodType.PUT;
             req.Body = Encode("hello");
-            req.Timeout = DefaultTimeout;
             req.Proxy = EditorProxy.GetProxy();
             var conn = _client.Connect(req, OnRequestFinished);
             conn.DataReceived += OnDataReceived;
