@@ -7,6 +7,8 @@ namespace SocialPoint.Network
 {
     public class CurlHttpStreamClient : IHttpStreamClient
     {
+        const int WillGoBackgroundEventPriority = -1000;
+
         readonly List<CurlHttpStream> Running;
         readonly ICoroutineRunner _runner;
         readonly IAppEvents _appEvents;
@@ -102,7 +104,7 @@ namespace SocialPoint.Network
         {
             if(_appEvents != null)
             {
-                _appEvents.WillGoBackground.Add(-1000, OnWillGoBackground);
+                _appEvents.WillGoBackground.Add(WillGoBackgroundEventPriority, OnWillGoBackground);
                 _appEvents.WasOnBackground += WasOnBackground;
             }
         }

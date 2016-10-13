@@ -6,6 +6,8 @@ namespace SocialPoint.Network
 {
     public class CurlHttpClient  : BaseYieldHttpClient
     {
+        const int WillGoBackgroundEventPriority = -1000;
+
         IAppEvents _appEvents;
 
         protected readonly Curl _curl;
@@ -18,7 +20,7 @@ namespace SocialPoint.Network
                 _appEvents = value;
                 if(_appEvents != null)
                 {
-                    _appEvents.WillGoBackground.Add(-1000, OnWillGoBackground);
+                    _appEvents.WillGoBackground.Add(WillGoBackgroundEventPriority, OnWillGoBackground);
                     _appEvents.WasOnBackground += WasOnBackground;
                 }
             }
