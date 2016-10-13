@@ -11,7 +11,7 @@ namespace SocialPoint.Network
         byte[] _body;
         public string _headers;
         int _respCode;
-        bool _dataReceived;
+        bool _streamFinished;
         double _downloadSize;
         double _downloadSpeed;
         double _connectTime;
@@ -40,7 +40,7 @@ namespace SocialPoint.Network
             _connection.Streamed = true;
 
             _request = req;
-            _dataReceived = false;
+            _streamFinished = false;
             _callback = del;
             Send(_connection, _request);
         }
@@ -49,7 +49,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                return !_cancelled && !_dataReceived;
+                return !_cancelled && !_streamFinished;
             }
         }
 
@@ -74,9 +74,9 @@ namespace SocialPoint.Network
             }
 
             bool finished = _connection.Finished;
-            if(finished && !_dataReceived)
+            if(finished && !_streamFinished)
             {
-                ReceiveData();
+                FinalizeStream();
             }
 
             return finished;
@@ -150,7 +150,7 @@ namespace SocialPoint.Network
         public void Cancel()
         {
             _cancelled = true;
-            ReceiveData();
+            FinalizeStream();
         }
 
         static Curl.RequestStruct CreateRequestStruct(HttpRequest request, int id = 0)
@@ -201,13 +201,13 @@ namespace SocialPoint.Network
             int ok = connection.Send(data);
             if(ok == 0)
             {
-                ReceiveData();
+                FinalizeStream();
             }
         }
 
-        void ReceiveData()
+        void FinalizeStream()
         {
-            _dataReceived = true;
+            _streamFinished = true;
             _connectTime = _connection.ConnectTime;
             _totalTime = _connection.TotalTime;
             _downloadSize = _connection.DownloadSize;
