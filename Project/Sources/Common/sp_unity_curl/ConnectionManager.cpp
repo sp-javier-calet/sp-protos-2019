@@ -8,6 +8,12 @@
 
 #include "ConnectionManager.hpp"
 #include <limits.h>
+#include <assert.h>
+
+namespace
+{
+    static CurlConnection InvalidConnection(CurlConnection::kInvalidId);
+}
 
 ConnectionManager::ConnectionManager(bool isHttp2)
 : _isHttp2(isHttp2)
@@ -44,26 +50,24 @@ int ConnectionManager::create()
 
 bool ConnectionManager::add(int id)
 {
-    CurlConnection* conn = new CurlConnection(id);
-    auto result = _map.insert(std::make_pair(id, conn));
+    auto result = _map.insert(std::make_pair(id, std::unique_ptr<CurlConnection>(new CurlConnection(id))));
     if(result.second == false)
     {
-        // A connection with the same ID already existed
         // This should not really happen. ID range is big enough and old connections should be removed when finished.
-        delete conn;
+        assert(false && "A connection with the same ID already existed");
         return false;
     }
     return true;
 }
 
-CurlConnection* ConnectionManager::get(int id)
+CurlConnection& ConnectionManager::get(int id)
 {
     auto it = _map.find(id);
     if(it != _map.end())
     {
-        return it->second;
+        return *it->second;
     }
-    return nullptr;
+    return InvalidConnection;
 }
 
 bool ConnectionManager::remove(int id)
@@ -73,7 +77,6 @@ bool ConnectionManager::remove(int id)
     {
         return false;
     }
-    delete it->second;
     _map.erase(it);
     return true;
 }

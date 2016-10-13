@@ -11,7 +11,8 @@
 
 #include <stdio.h>
 #include <string>
-#include <map>
+#include <unordered_map>
+#include <memory>
 
 extern "C" {
 #include "curl.h"
@@ -30,6 +31,7 @@ public:
     static const int kInvalidId = 0;
     
     const int id;
+    const bool isValid;
     
     CURL* easy = NULL;
     int responseCode = 0;
@@ -46,6 +48,7 @@ public:
     
     CurlConnection(int pId)
     : id(pId)
+    , isValid(pId != kInvalidId)
     {
     }
 };
@@ -53,7 +56,7 @@ public:
 class ConnectionManager
 {
 private:
-    std::map<int, CurlConnection*> _map;
+    std::unordered_map<int, std::unique_ptr<CurlConnection>> _map;
     
     /* Must start with 1
      * ID must be different from 0 (INVALID_CONN_ID - reserved value for update when app is paused)
@@ -68,7 +71,7 @@ public:
     ConnectionManager(bool isHttp2);
     int create();
     bool remove(int id);
-    CurlConnection* get(int id);
+    CurlConnection& get(int id);
 };
 
 #endif /* __sparta__ConnectionManager__ */
