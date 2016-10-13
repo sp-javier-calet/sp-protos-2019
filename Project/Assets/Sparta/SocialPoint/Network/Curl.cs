@@ -133,7 +133,11 @@ namespace SocialPoint.Network
                 _connectionId = connection;
             }
 
-            public int Update()
+            /// <summary>
+            /// Perform the curl if the connection is still active.
+            /// Returns true if the petition finishes.
+            /// </summary>
+            public bool Update()
             {
                 return SPUnityCurlUpdate(_curl._nativeClient, _connectionId);
             }
@@ -459,7 +463,7 @@ namespace SocialPoint.Network
         static extern int SPUnityCurlSendStreamMessage(UIntPtr client, int id, MessageStruct data);
 
         [DllImport(PluginModuleName)]
-        static extern int SPUnityCurlUpdate(UIntPtr client, int id);
+        static extern bool SPUnityCurlUpdate(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
         static extern void SPUnityCurlGetError(UIntPtr client, int id, byte[] data);
@@ -501,10 +505,10 @@ namespace SocialPoint.Network
         static extern double SPUnityCurlGetTotalTime(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
-        static extern int SPUnityCurlGetDownloadSize(UIntPtr client, int id);
+        static extern double SPUnityCurlGetDownloadSize(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
-        static extern int SPUnityCurlGetDownloadSpeed(UIntPtr client, int id);
+        static extern double SPUnityCurlGetDownloadSpeed(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
         static extern void SPUnityCurlOnApplicationPause(UIntPtr client, bool pause);

@@ -31,8 +31,8 @@ namespace SocialPoint.Network
         {
             while(!_dataReceived)
             {
-                int status = _connection.Update();
-                if(status == 1) // Is finished
+                bool finished = _connection.Update();
+                if(finished)
                 {
                     ReceiveData();
                     break;
