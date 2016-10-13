@@ -254,7 +254,9 @@ namespace SocialPoint.GrayboxLibrary
             GUILayout.Label("", GUILayout.ExpandWidth(true));
             if(GUILayout.Button("Clear", GUILayout.Width(100)))
             {
+                GrayboxAssetCategory category = _asset.Category;
                 _asset = new GrayboxAsset();
+                _asset.Category = category;
             }
             if(GUILayout.Button("Save Asset", GUILayout.Width(100)))
             {
@@ -272,9 +274,7 @@ namespace SocialPoint.GrayboxLibrary
                 }
 
                 GrayboxAssetCategory category = _asset.Category;
-
                 _asset = new GrayboxAsset();
-
                 _asset.Category = category;
 
                 EditorUtility.DisplayDialog("Graybox Library", "The asset has been succesfully registered to the Graybox Library", "Close");
@@ -427,6 +427,10 @@ namespace SocialPoint.GrayboxLibrary
                         _asset.Name = Path.GetFileNameWithoutExtension(_asset.PackagePath);
                         _asset.Name = _asset.Name.Replace("[GRAYBOX]_", "");
                     }
+
+                    int categoryNumber = _tool.GetAssetCategoryByPrefix(_asset.Name);
+                    if (categoryNumber >= 0)
+                        _asset.Category = (GrayboxAssetCategory)categoryNumber;
                 }
 
                 _previousAsset = _asset.MainAssetPath;
@@ -630,7 +634,7 @@ namespace SocialPoint.GrayboxLibrary
             GUILayout.BeginVertical();
             GUILayout.Label("", GUILayout.Height(3));
             GUI.SetNextControlName("SearchBar");
-            _newTag = GUILayout.TextField(_newTag, GUILayout.ExpandWidth(true), GUILayout.Height(20));
+            _newTag = EditorGUILayout.TextField(_newTag, GUILayout.ExpandWidth(true), GUILayout.Height(20));
             GUILayout.EndVertical();
 
             if(previousFilter != _newTag && _newTag.Length > 0)
@@ -700,7 +704,7 @@ namespace SocialPoint.GrayboxLibrary
 
             GUILayout.BeginVertical();
             GUILayout.Label("", GUILayout.Height(3));
-            _assetFilter = GUILayout.TextField(_assetFilter, GUILayout.ExpandWidth(true), GUILayout.Height(20));
+            _assetFilter = EditorGUILayout.TextField(_assetFilter, GUILayout.ExpandWidth(true), GUILayout.Height(20));
             GUILayout.EndVertical();
 
             if(previousAssetFilter != _assetFilter && _assetFilter.Length > 0)

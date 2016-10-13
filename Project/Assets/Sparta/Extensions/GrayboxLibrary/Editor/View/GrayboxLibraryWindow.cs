@@ -15,6 +15,7 @@ namespace SocialPoint.GrayboxLibrary
         private static List<GrayboxAsset> _toInstantiate;
         private static List<GrayboxAsset> _toDownload;
         private static Dictionary<string, Vector3> _instantiatePositions;
+        private static Dictionary<string, Transform> _instantiateParents;
 
         private static string[] _categories;
         public static string Filter = "";
@@ -29,7 +30,7 @@ namespace SocialPoint.GrayboxLibrary
         private static int _currentPage = 0;
         private static int _maxPage = 0;
         private Vector2 _scrollPos;
-        private static GUIStyle _buttonStyle, _buttonAreaStyle, _simpleButtonStyle, _bottomMenuStyle, _bottomMenuTextStyle, _bottomMenuTextBoldStyle, _searchOptionStyle, _searchSelectedOptionStyle, _separatorStyle;
+        private static GUIStyle _buttonStyle, _buttonAreaStyle, _simpleButtonStyle, _upperMenuStyle, _bottomMenuStyle, _bottomMenuTextStyle, _bottomMenuTextBoldStyle, _searchOptionStyle, _searchSelectedOptionStyle, _separatorStyle;
         public static float ThumbWidth = 640;
         public static float ThumbHeight = 480;
         public static float AnimatedThumbWidth = 320;
@@ -68,6 +69,7 @@ namespace SocialPoint.GrayboxLibrary
             _toInstantiate = new List<GrayboxAsset>();
             _toDownload = new List<GrayboxAsset>();
             _instantiatePositions = new Dictionary<string, Vector3>();
+            _instantiateParents = new Dictionary<string, Transform>();
 
             _categories = Enum.GetNames(typeof(GrayboxAssetCategory));
             Filter = "";
@@ -81,6 +83,7 @@ namespace SocialPoint.GrayboxLibrary
             _buttonStyle = null;
             _buttonAreaStyle = null;
             _simpleButtonStyle = null;
+            _upperMenuStyle = null;
             _bottomMenuStyle = null;
             _bottomMenuTextStyle = null;
             _bottomMenuTextBoldStyle = null;
@@ -227,7 +230,15 @@ namespace SocialPoint.GrayboxLibrary
                 _buttonAreaStyle.border = new RectOffset(0, 0, 0, 0);
                 _buttonAreaStyle.margin = new RectOffset(0, 0, 0, 10);
             }
-            if(_bottomMenuStyle == null)
+            if(_upperMenuStyle == null)
+            {
+                _upperMenuStyle = new GUIStyle(GUI.skin.label);
+                Texture2D tex = new Texture2D(1, 1);
+                tex.SetPixel(0, 0, new Color(0.15f, 0.15f, 0.15f, 1f));
+                tex.Apply();
+                _upperMenuStyle.normal.background = tex;
+            }
+            if (_bottomMenuStyle == null)
             {
                 _bottomMenuStyle = new GUIStyle(GUI.skin.label);
                 Texture2D tex = new Texture2D(1, 1);
@@ -235,7 +246,7 @@ namespace SocialPoint.GrayboxLibrary
                 tex.Apply();
                 _bottomMenuStyle.normal.background = tex;
             }
-            if(_separatorStyle == null)
+            if (_separatorStyle == null)
             {
                 _separatorStyle = new GUIStyle(GUI.skin.label);
                 Texture2D tex = new Texture2D(1, 1);
@@ -277,8 +288,7 @@ namespace SocialPoint.GrayboxLibrary
             }
 
             GUILayout.BeginVertical();
-
-            GUILayout.BeginHorizontal(_bottomMenuStyle);
+            GUILayout.BeginHorizontal(_upperMenuStyle);
             GUILayout.BeginVertical();
             GUILayout.Label("", GUILayout.Height(7));
             int previousCategory = _currentCategory;
@@ -404,7 +414,7 @@ namespace SocialPoint.GrayboxLibrary
             if(GUILayout.Button("Contact", GUILayout.Width(100)))
                 Application.OpenURL(GrayboxLibraryConfig.ContactUrl);
 
-            if (GUILayout.Button(Tool.DownloadImage(GrayboxLibraryConfig.IconsPath + "help.png"), _simpleButtonStyle, GUILayout.Width(20), GUILayout.Height(20)))
+            if (GUILayout.Button(Tool.DownloadImage(GrayboxLibraryConfig.IconsPath + "help.png"), _simpleButtonStyle, GUILayout.Width(23), GUILayout.Height(23)))
                 Application.OpenURL(GrayboxLibraryConfig.HelpUrl);
 
             GUILayout.EndHorizontal();
@@ -482,19 +492,34 @@ namespace SocialPoint.GrayboxLibrary
         private void DisplaySearchBar()
         {
             EditorGUILayout.BeginVertical();
-            EditorGUILayout.BeginHorizontal();
 
+            GUILayout.Label("", GUILayout.Height(3));
+
+            EditorGUILayout.BeginHorizontal();
             int previousFilterCount = Filters.Count;
             DisplayTags();
             if(previousFilterCount != Filters.Count)
                 DisplayTags();
 
             string previousFilter = Filter;
+            EditorGUILayout.EndHorizontal();
 
+            GUILayout.Label("", GUILayout.Height(2));
+
+            EditorGUILayout.BeginHorizontal();
             GUILayout.BeginVertical();
-            GUILayout.Label("", GUILayout.Height(3));
+            EditorGUILayout.BeginHorizontal();
             GUI.SetNextControlName("SearchBar");
-            Filter = GUILayout.TextField(Filter, GUILayout.ExpandWidth(true), GUILayout.Height(20));
+            Filter = EditorGUILayout.TextField(Filter, GUI.skin.FindStyle("ToolbarSeachTextField"), GUILayout.ExpandWidth(true), GUILayout.Height(20));
+            if (GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
+            {
+                Filter = "";
+                Filters = new List<string>();
+                _displayFilterOptions = false;
+                Search(Filters);
+                GUI.FocusControl(null);
+            }
+            EditorGUILayout.EndHorizontal();
             GUILayout.EndVertical();
 
             if(previousFilter != Filter && Filter.Length > 0)
@@ -511,12 +536,6 @@ namespace SocialPoint.GrayboxLibrary
                 if(_tagList.Length > 0 && Filter.Length > 0)
                     _displayFilterOptions = true;
             }
-
-            GUILayout.BeginVertical(GUILayout.Width(22), GUILayout.Height(25));
-            GUILayout.Label("", GUILayout.Height(3), GUILayout.Width(1));
-            if(GUILayout.Button(Tool.DownloadImage(GrayboxLibraryConfig.IconsPath + "search.png"), GUILayout.Width(22), GUILayout.Height(22)))
-                Search(Filters);
-            GUILayout.EndVertical();
 
             EditorGUILayout.EndHorizontal();
 
@@ -727,6 +746,22 @@ namespace SocialPoint.GrayboxLibrary
         }
 
 
+        public static void DownloadAsset(GrayboxAsset asset, Transform parent = null)
+        {
+            Tool.DownloadAsset(asset);
+            if(parent != null && !_instantiateParents.ContainsKey(asset.Name) && asset.MainAssetPath.Length > 0)
+                _instantiateParents.Add(asset.Name, parent);
+            _toInstantiate.Add(asset);
+            ClearDownload(asset);
+        }
+
+        public static void ClearDownload(GrayboxAsset asset)
+        {
+            if (_toDownload.Contains(asset))
+                _toDownload.Remove(asset);
+        }
+
+
         void Update()
         {
             if(_toDownload != null)
@@ -735,17 +770,19 @@ namespace SocialPoint.GrayboxLibrary
                 {
                     if(_toDownload[i].Category == GrayboxAssetCategory.UI)
                     {
-                        if(GameObject.FindObjectsOfType(typeof(Canvas)).Length != 1)
+                        UnityEngine.Object[] canvasList = GameObject.FindObjectsOfType(typeof(Canvas));
+                        if(canvasList.Length == 0)
                         {
                             EditorUtility.DisplayDialog("Graybox Library", "You need to have exactly one Canvas in your current scene in order to download the UI graybox asset. The asset will not be downloaded.", "Close");
-                            _toDownload.RemoveAt(i);
+                            ClearDownload(_toDownload[i]);
+                        }
+                        else if(canvasList.Length > 1)
+                        {
+                            GrayboxLibraryCanvasWindow.Launch(canvasList, _toDownload[i]);
+                            ClearDownload(_toDownload[i]);
                         }
                         else
-                        {
-                            Tool.DownloadAsset(_toDownload[i]);
-                            _toInstantiate.Add(_toDownload[i]);
-                            _toDownload.RemoveAt(i);
-                        }
+                            DownloadAsset(_toDownload[i]);
                     }
                     else
                     {
@@ -767,7 +804,15 @@ namespace SocialPoint.GrayboxLibrary
                 {
                     if(AssetDatabase.LoadMainAssetAtPath(_toInstantiate[i].MainAssetPath) != null)
                     {
-                        GameObject instance = Tool.InstantiateAsset(_toInstantiate[i]);
+                        GameObject instance;
+                        if (_instantiateParents.ContainsKey(_toInstantiate[i].Name))
+                        {
+                            instance = Tool.InstantiateAsset(_toInstantiate[i], _instantiateParents[_toInstantiate[i].Name]);
+                            _instantiateParents.Remove(_toInstantiate[i].Name);
+                        }
+                        else
+                            instance = Tool.InstantiateAsset(_toInstantiate[i]);
+
                         if (_instantiatePositions.ContainsKey(_toInstantiate[i].Name))
                         {
                             instance.transform.position = _instantiatePositions[_toInstantiate[i].Name];

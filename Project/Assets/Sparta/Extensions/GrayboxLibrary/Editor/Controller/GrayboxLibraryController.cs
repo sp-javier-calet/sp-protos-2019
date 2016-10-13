@@ -503,6 +503,20 @@ namespace SocialPoint.GrayboxLibrary
         }
 
 
+        public int GetAssetCategoryByPrefix(string fullname)
+        {
+            int category = -1;
+            Dictionary<GrayboxAssetCategory, string>.Enumerator enumerator = GrayboxLibraryConfig.CategoryPrefix.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                string prefix = enumerator.Current.Value;
+                if (fullname.Contains(prefix))
+                    category = (int) enumerator.Current.Key;
+            }
+            
+            return category;
+        }
+
 
         public void DownloadAsset(GrayboxAsset asset)
         {
@@ -523,7 +537,7 @@ namespace SocialPoint.GrayboxLibrary
             _downloadController.FlushImageCache();
         }
 
-        public GameObject InstantiateAsset(GrayboxAsset asset)
+        public GameObject InstantiateAsset(GrayboxAsset asset, Transform parent = null)
         {
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -532,8 +546,9 @@ namespace SocialPoint.GrayboxLibrary
             instance.name = instance.name.Replace("(Clone)", "");
             if(asset.Category == GrayboxAssetCategory.UI)
             {
-                Canvas canvas = (Canvas) GameObject.FindObjectOfType(typeof(Canvas));
-                instance.transform.SetParent(canvas.transform, false);
+                if(parent == null)
+                    parent = ((Canvas) GameObject.FindObjectOfType(typeof(Canvas))).transform;
+                instance.transform.SetParent(parent, false);
             }
 
             if (GrayboxLibraryConfig.ScriptOnInstance[asset.Category] != null)

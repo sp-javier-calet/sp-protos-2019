@@ -28,7 +28,7 @@ namespace SocialPoint.GrayboxLibrary
 
         public static string ContactMail = "technical-art@socialpoint.es";
 
-        public static string ContactUrl = "https://mail.google.com/mail/?view=cm&fs=1&to="+ ContactMail + "&su=Graybox Tool Contact";
+        public static string ContactUrl = "https://mail.google.com/mail/?view=cm&fs=1&to="+ ContactMail + "&su=Graybox+Tool+Contact";
 
         public static string HelpUrl = "https://sites.google.com/a/socialpoint.es/technical-art/07---tools-documentation/greybox-library";
         
@@ -38,8 +38,30 @@ namespace SocialPoint.GrayboxLibrary
             { GrayboxAssetCategory.Fx, null },
             { GrayboxAssetCategory.Props, null },
             { GrayboxAssetCategory.UI, null },
-            { GrayboxAssetCategory.Vehicles, null }
+            { GrayboxAssetCategory.Vehicles, null },
+            { GrayboxAssetCategory.FxUI, null }
+        };
+
+        public static Dictionary<GrayboxAssetCategory, string> CategoryPrefix = new Dictionary<GrayboxAssetCategory, string>{
+            { GrayboxAssetCategory.Buildings, "BLD_" },
+            { GrayboxAssetCategory.Characters, "CHR_" },
+            { GrayboxAssetCategory.Fx, "FX_" },
+            { GrayboxAssetCategory.Props, "PRP_" },
+            { GrayboxAssetCategory.UI, "UI_" },
+            { GrayboxAssetCategory.Vehicles, "VHC_" },
+            { GrayboxAssetCategory.FxUI, "FXUI_" }
         };
 
     }
+
+    public enum GrayboxAssetCategory
+    {
+        Buildings,
+        Props,
+        Fx,
+        Characters,
+        Vehicles,
+        UI,
+        FxUI
+    };
 }
