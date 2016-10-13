@@ -1,20 +1,27 @@
-﻿using SocialPoint.AdminPanel;
+﻿using System.Text;
+using SocialPoint.AdminPanel;
 using SocialPoint.Network;
-using SocialPoint.Utils;
 using System.Collections.Generic;
 
 public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
 {
+    enum MessageEncoding
+    {
+        ASCII,
+        UTF8,
+        Binary
+    }
+
     struct StreamData
     {
         public string Name;
-        public IHttpStream Stream; 
+        public IHttpStream Stream;
     }
 
     readonly CurlHttpStreamClient _client;
     AdminPanelConsole _console;
+    MessageEncoding _encoding = MessageEncoding.ASCII;
     bool _verbose;
-    IHttpStream _stream;
     List<StreamData> _streams;
 
     public AdminPanelHttpStream(CurlHttpStreamClient client)
@@ -31,25 +38,23 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
 
     public void OnCreateGUI(AdminPanelLayout layout)
     {
-        layout.CreateToggleButton("Verbose", _verbose, (value) => 
+        layout.CreateToggleButton("Verbose", _verbose, (value) => {
+            _verbose = value;
+            if(_client != null)
             {
-                _verbose = value;
-                if(_client != null)
-                {
-                    _client.Verbose = _verbose;
-                }
-            });
+                _client.Verbose = _verbose;
+            }
+        });
 
-        layout.CreateButton("Send message", () =>
+        layout.CreateButton("Send message", () => {
+            foreach(var st in _streams)
             {
-                foreach(var st in _streams)
+                if(st.Stream.Active)
                 {
-                    if(st.Stream.Active)
-                    {
-                        st.Stream.SendData(System.Text.ASCIIEncoding.ASCII.GetBytes("Message"));
-                    }
+                    st.Stream.SendData(Encode("Message"));
                 }
-            });
+            }
+        });
 
         layout.CreateButton("Open Clock stream", () => {
             var req = new HttpRequest("https://http2.golang.org/clockstream");
@@ -64,7 +69,7 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
         layout.CreateButton("Open Echo stream", () => {
             var req = new HttpRequest("https://http2.golang.org/ECHO");
             req.Method = HttpRequest.MethodType.PUT;
-            req.Body = System.Text.ASCIIEncoding.ASCII.GetBytes("hello");
+            req.Body = Encode("hello");
             req.Timeout = 10000000;
             req.Proxy = EditorProxy.GetProxy();
             var conn = _client.Connect(req, OnRequestFinished);
@@ -73,6 +78,26 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
             layout.Refresh();
         });
 
+        layout.CreateMargin();
+
+        using(var hlayout = layout.CreateHorizontalLayout())
+        {
+            hlayout.CreateToggleButton("ASCII", _encoding == MessageEncoding.ASCII,
+                value => {
+                    _encoding = MessageEncoding.ASCII;
+                    layout.Refresh();
+                });
+            hlayout.CreateToggleButton("UTF8", _encoding == MessageEncoding.UTF8,
+                value => {
+                    _encoding = MessageEncoding.UTF8;
+                    layout.Refresh();
+                });
+            hlayout.CreateToggleButton("Binary", _encoding == MessageEncoding.Binary,
+                value => {
+                    _encoding = MessageEncoding.Binary;
+                    layout.Refresh();
+                });
+        }
 
         layout.CreateMargin();
 
@@ -87,16 +112,56 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
         }
     }
 
+    byte[] Encode(string data)
+    {
+        switch(_encoding)
+        {
+        case MessageEncoding.ASCII:
+        default:
+            return Encoding.ASCII.GetBytes(data);
+        case MessageEncoding.UTF8:
+            return Encoding.UTF8.GetBytes(data);
+        case MessageEncoding.Binary:
+            return Encoding.BigEndianUnicode.GetBytes(data);
+        }
+    }
+
+    string Decode(byte[] data)
+    {
+        switch(_encoding)
+        {
+        case MessageEncoding.ASCII:
+        default:
+            return Encoding.ASCII.GetString(data);
+        case MessageEncoding.UTF8:
+            return Encoding.UTF8.GetString(data);
+        case MessageEncoding.Binary:
+            var content = new StringBuilder();
+            for(int i = 0; i < data.Length; ++i)
+            {
+                content.AppendFormat("{0:x2}", data[i]);
+                if(i % 4 == 0)
+                {
+                    content.Append(" ");
+                }
+                if(i % 16 == 0)
+                {
+                    content.AppendLine();
+                }
+            }
+            return content.ToString();
+        }
+    }
+
     void OnDataReceived(byte[] data)
     {   
-        var msg = System.Text.ASCIIEncoding.ASCII.GetString(data);
+        var msg = Decode(data);
         _console.Print(msg);
-
     }
 
     void OnRequestFinished(HttpResponse response)
     {
-        var msg = System.Text.ASCIIEncoding.ASCII.GetString(response.Body);
+        var msg = Decode(response.Body);
         _console.Print(msg);
     }
 }
