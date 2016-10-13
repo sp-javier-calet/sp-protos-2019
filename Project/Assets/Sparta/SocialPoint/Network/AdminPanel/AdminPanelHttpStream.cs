@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
 {
+    const string ClockUrl = "https://http2.golang.org/clockstream";
+    const string EchoUrl = "https://http2.golang.org/ECHO";
+
     enum MessageEncoding
     {
         ASCII,
@@ -38,12 +41,26 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
 
     public void OnCreateGUI(AdminPanelLayout layout)
     {
-        layout.CreateToggleButton("Verbose", _verbose, (value) => {
-            _verbose = value;
-            if(_client != null)
-            {
-                _client.Verbose = _verbose;
-            }
+        layout.CreateButton("Open Clock stream", () => {
+            var req = new HttpRequest(ClockUrl);
+            req.Timeout = 10000000;
+            req.Proxy = EditorProxy.GetProxy();
+            var conn = _client.Connect(req, OnRequestFinished);
+            conn.DataReceived += OnDataReceived;
+            _streams.Add(new StreamData { Name = "Clock", Stream = conn as CurlHttpStream });
+            layout.Refresh();
+        });
+
+        layout.CreateButton("Open Echo stream", () => {
+            var req = new HttpRequest(EchoUrl);
+            req.Method = HttpRequest.MethodType.PUT;
+            req.Body = Encode("hello");
+            req.Timeout = 10000000;
+            req.Proxy = EditorProxy.GetProxy();
+            var conn = _client.Connect(req, OnRequestFinished);
+            conn.DataReceived += OnDataReceived;
+            _streams.Add(new StreamData { Name = "Echo", Stream = conn as CurlHttpStream });
+            layout.Refresh();
         });
 
         layout.CreateButton("Send message", () => {
@@ -56,29 +73,15 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
             }
         });
 
-        layout.CreateButton("Open Clock stream", () => {
-            var req = new HttpRequest("https://http2.golang.org/clockstream");
-            req.Timeout = 10000000;
-            req.Proxy = EditorProxy.GetProxy();
-            var conn = _client.Connect(req, OnRequestFinished);
-            conn.DataReceived += OnDataReceived;
-            _streams.Add(new StreamData { Name = "Clock", Stream = conn as CurlHttpStream });
-            layout.Refresh();
-        });
-
-        layout.CreateButton("Open Echo stream", () => {
-            var req = new HttpRequest("https://http2.golang.org/ECHO");
-            req.Method = HttpRequest.MethodType.PUT;
-            req.Body = Encode("hello");
-            req.Timeout = 10000000;
-            req.Proxy = EditorProxy.GetProxy();
-            var conn = _client.Connect(req, OnRequestFinished);
-            conn.DataReceived += OnDataReceived;
-            _streams.Add(new StreamData { Name = "Echo", Stream = conn as CurlHttpStream });
-            layout.Refresh();
-        });
-
         layout.CreateMargin();
+
+        layout.CreateToggleButton("Verbose", _verbose, (value) => {
+            _verbose = value;
+            if(_client != null)
+            {
+                _client.Verbose = _verbose;
+            }
+        });
 
         using(var hlayout = layout.CreateHorizontalLayout())
         {
@@ -100,6 +103,8 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
         }
 
         layout.CreateMargin();
+
+        layout.CreateLabel("Active streams");
 
         foreach(var data in _streams)
         {
@@ -157,11 +162,13 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
     {   
         var msg = Decode(data);
         _console.Print(msg);
+        UnityEngine.Debug.LogWarning(msg);
     }
 
     void OnRequestFinished(HttpResponse response)
     {
         var msg = Decode(response.Body);
         _console.Print(msg);
+        UnityEngine.Debug.LogWarning(msg);
     }
 }
