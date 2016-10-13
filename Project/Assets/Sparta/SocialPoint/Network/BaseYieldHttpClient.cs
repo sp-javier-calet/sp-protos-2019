@@ -86,6 +86,10 @@ namespace SocialPoint.Network
             {
                 req.Proxy = _defaultProxy;
             }
+            if(Math.Abs(req.Timeout) < Single.Epsilon)
+            {
+                req.Timeout = 60.0f;
+            }
             if(RequestSetup != null)
             {
                 RequestSetup(req);
