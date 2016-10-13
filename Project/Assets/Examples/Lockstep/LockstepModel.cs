@@ -5,7 +5,6 @@ using FixMath.NET;
 public class LockstepModel
 {
     long _mana = 0;
-    long _lastTimestamp;
     int _nextObjectId = 0;
 
     const long ManaSpeed = 2;
@@ -37,20 +36,17 @@ public class LockstepModel
         return true;
     }
 
-    public void Simulate(long timestamp)
+    public void Simulate(long dt)
     {
-        var dt = timestamp - _lastTimestamp;
         _mana += dt * ManaSpeed;
         if(_mana > MaxMana)
         {
             _mana = MaxMana;
         }
-        _lastTimestamp = timestamp;
     }
 
     public void Reset()
     {
-        _lastTimestamp = 0;
         _mana = 0;
     }
 }

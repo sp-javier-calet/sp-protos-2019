@@ -1,13 +1,13 @@
+#if UNITY_IOS && !UNITY_EDITOR
+#define IOS_DEVICE
+#endif
+
 #if UNITY_IOS
-using UnityEngine;
 using System;
 using System.Collections;
-using SocialPoint.ServerSync;
+using System.Runtime.InteropServices;
 using SocialPoint.Utils;
-
-using LocalNotification = UnityEngine.iOS.LocalNotification;
-using NotificationServices = UnityEngine.iOS.NotificationServices;
-using NotificationType = UnityEngine.iOS.NotificationType;
+using UnityEngine;
 #endif
 
 namespace SocialPoint.Notifications
@@ -15,8 +15,71 @@ namespace SocialPoint.Notifications
     #if UNITY_IOS
     public sealed class IosNotificationServices : BaseNotificationServices
     {
+        [StructLayout(LayoutKind.Sequential)]
+        public struct NotificationData
+        {
+            [MarshalAs(UnmanagedType.LPTStr)]
+            public string Message;
+            [MarshalAs(UnmanagedType.LPTStr)]
+            public string Title;
+            [MarshalAs(UnmanagedType.I8)]
+            public long FireDelay;
+            [MarshalAs(UnmanagedType.I4)]
+            public int IconBadgeNumber;
+        };
+
+        static class NotificationServices
+        {
+            #if IOS_DEVICE
+            [DllImport("__Internal")] public static extern void SPUnityNotificationsScheduleLocalNotification(NotificationData data);
+
+            [DllImport("__Internal")] public static extern void SPUnityNotificationsPresentLocalNotification(NotificationData data);
+
+            [DllImport("__Internal")] public static extern void SPUnityNotificationsCancelAllLocalNotifications();
+
+            [DllImport("__Internal")] public static extern void SPUnityNotificationsClearAllLocalNotifications();
+
+            [DllImport("__Internal")] public static extern void SPUnityNotificationsRegisterForNotifications();
+            
+            [DllImport("__Internal")] public static extern string SPUnityNotificationsDeviceToken();
+
+            [DllImport("__Internal")] public static extern string SPUnityNotificationsRegistrationError();
+
+#else
+
+            public static void SPUnityNotificationsScheduleLocalNotification(NotificationData data)
+            {
+            }
+
+            public static void SPUnityNotificationsPresentLocalNotification(NotificationData data)
+            {
+            }
+
+            public static void SPUnityNotificationsCancelAllLocalNotifications()
+            {
+            }
+
+            public static void SPUnityNotificationsClearAllLocalNotifications()
+            {
+            }
+
+            public static void SPUnityNotificationsRegisterForNotifications()
+            {
+            }
+
+            public static string SPUnityNotificationsDeviceToken()
+            {
+                return null;
+            }
+
+            public static string SPUnityNotificationsRegistrationError()
+            {
+                return null;
+            }
+            #endif
+        }
+
         const string TokenSeparator = "-";
-        const NotificationType NotificationTypes = NotificationType.Alert | NotificationType.Badge | NotificationType.Sound;
         const float PushTokenTimeout = 30.0f;
 
         IEnumerator _checkPermissionStatusCoroutine;
@@ -34,37 +97,40 @@ namespace SocialPoint.Notifications
 
         public override void Schedule(Notification notif)
         {
-            var unotif = new LocalNotification();
-            unotif.fireDate = DateTime.Now.ToLocalTime().AddSeconds(notif.FireDelay);
-            unotif.alertBody = notif.Message;
-            unotif.alertAction = notif.Title;
-            unotif.applicationIconBadgeNumber = 1;
+            var notifData = new NotificationData {
+                Message = string.Empty, Title = string.Empty, FireDelay = 0, IconBadgeNumber = 0
+            };
+            
+            notifData.Message = notif.Message;
+            notifData.Title = notif.Title;
+            notifData.FireDelay = notif.FireDelay;
+            notifData.IconBadgeNumber = 1;
+
             if(notif.FireDelay > 0)
             {
-                NotificationServices.ScheduleLocalNotification(unotif);
+                NotificationServices.SPUnityNotificationsScheduleLocalNotification(notifData);
             }
             else
             {
-                NotificationServices.PresentLocalNotificationNow(unotif);
+                NotificationServices.SPUnityNotificationsPresentLocalNotification(notifData);
             }
         }
 
         public override void CancelPending()
         {
-            NotificationServices.CancelAllLocalNotifications();
+            NotificationServices.SPUnityNotificationsCancelAllLocalNotifications();
         }
 
         public override void ClearReceived()
         {
-            NotificationServices.ClearRemoteNotifications();
-            NotificationServices.ClearLocalNotifications();
+            NotificationServices.SPUnityNotificationsClearAllLocalNotifications();
         }
 
         public override void RequestPermissions()
         {
             if(_checkPermissionStatusCoroutine == null)
             {
-                NotificationServices.RegisterForNotifications(NotificationTypes, true);
+                NotificationServices.SPUnityNotificationsRegisterForNotifications();
                 _checkPermissionStatusCoroutine = _runner.StartCoroutine(CheckPermissionStatus());
             }
         }
@@ -73,19 +139,19 @@ namespace SocialPoint.Notifications
         {
             float startTime = Time.unscaledTime;
             float currentTime = startTime;
-            byte[] byteToken = null;
+            string pushToken = null;
             string registrationError = null;
-            while(byteToken == null && string.IsNullOrEmpty(registrationError) && (currentTime - startTime) < PushTokenTimeout)
+            while(string.IsNullOrEmpty(pushToken) && string.IsNullOrEmpty(registrationError) && (currentTime - startTime) < PushTokenTimeout)
             {
-                byteToken = NotificationServices.deviceToken;
-                registrationError = NotificationServices.registrationError;
+                pushToken = NotificationServices.SPUnityNotificationsDeviceToken();
+                registrationError = NotificationServices.SPUnityNotificationsRegistrationError();
                 yield return new WaitForSeconds(1.0f);
                 currentTime = Time.unscaledTime;
             }
 
-            if(byteToken != null)
+            if(!string.IsNullOrEmpty(pushToken))
             {
-                _pushToken = BitConverter.ToString(byteToken).Replace(TokenSeparator, string.Empty).ToLower();
+                _pushToken = pushToken;
                 OnRequestPermissionsSuccess();
             }
             else
@@ -97,9 +163,8 @@ namespace SocialPoint.Notifications
             _checkPermissionStatusCoroutine = null;
         }
     }
-
     
-#else
+    #else
     public sealed class IosNotificationServices : EmptyNotificationServices
     {
     }
