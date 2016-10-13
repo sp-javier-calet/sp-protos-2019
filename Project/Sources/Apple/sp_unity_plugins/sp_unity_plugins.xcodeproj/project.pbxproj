@@ -169,18 +169,10 @@
 		FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490131C1EF36200A10FEA /* SPUnityHardwareFacade.mm */; };
 		FE6072241DAFBF6D00323426 /* Certificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE60721C1DAFBF6D00323426 /* Certificate.cpp */; };
 		FE6072251DAFBF6D00323426 /* Certificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE60721C1DAFBF6D00323426 /* Certificate.cpp */; };
-		FE6072261DAFBF6D00323426 /* Certificate.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE60721D1DAFBF6D00323426 /* Certificate.hpp */; };
-		FE6072271DAFBF6D00323426 /* Certificate.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE60721D1DAFBF6D00323426 /* Certificate.hpp */; };
 		FE6072281DAFBF6D00323426 /* ConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE60721E1DAFBF6D00323426 /* ConnectionManager.cpp */; };
 		FE6072291DAFBF6D00323426 /* ConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE60721E1DAFBF6D00323426 /* ConnectionManager.cpp */; };
-		FE60722A1DAFBF6D00323426 /* ConnectionManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE60721F1DAFBF6D00323426 /* ConnectionManager.hpp */; };
-		FE60722B1DAFBF6D00323426 /* ConnectionManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE60721F1DAFBF6D00323426 /* ConnectionManager.hpp */; };
 		FE60722C1DAFBF6D00323426 /* CurlClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6072201DAFBF6D00323426 /* CurlClient.cpp */; };
 		FE60722D1DAFBF6D00323426 /* CurlClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6072201DAFBF6D00323426 /* CurlClient.cpp */; };
-		FE60722E1DAFBF6D00323426 /* CurlClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE6072211DAFBF6D00323426 /* CurlClient.hpp */; };
-		FE60722F1DAFBF6D00323426 /* CurlClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE6072211DAFBF6D00323426 /* CurlClient.hpp */; };
-		FE6072301DAFBF6D00323426 /* Mutex.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE6072221DAFBF6D00323426 /* Mutex.hpp */; };
-		FE6072311DAFBF6D00323426 /* Mutex.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE6072221DAFBF6D00323426 /* Mutex.hpp */; };
 		FE6072321DAFBF6D00323426 /* SPUnityCurl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6072231DAFBF6D00323426 /* SPUnityCurl.cpp */; };
 		FE6072331DAFBF6D00323426 /* SPUnityCurl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6072231DAFBF6D00323426 /* SPUnityCurl.cpp */; };
 		FE6072351DAFBFA000323426 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE6072341DAFBFA000323426 /* ViewController.mm */; };
@@ -193,6 +185,10 @@
 		FE6072501DAFC0CA00323426 /* nghttp2.h in Headers */ = {isa = PBXBuildFile; fileRef = FE60724C1DAFC0CA00323426 /* nghttp2.h */; };
 		FE6072511DAFC0CA00323426 /* nghttp2ver.h in Headers */ = {isa = PBXBuildFile; fileRef = FE60724D1DAFC0CA00323426 /* nghttp2ver.h */; };
 		FE6072521DAFC0CA00323426 /* libnghttp2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FE60724F1DAFC0CA00323426 /* libnghttp2.a */; };
+		FE6072531DAFC31500323426 /* SPUnityCurl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6072231DAFBF6D00323426 /* SPUnityCurl.cpp */; };
+		FE6072541DAFC31800323426 /* CurlClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6072201DAFBF6D00323426 /* CurlClient.cpp */; };
+		FE6072551DAFC31A00323426 /* ConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE60721E1DAFBF6D00323426 /* ConnectionManager.cpp */; };
+		FE6072561DAFC31D00323426 /* Certificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE60721C1DAFBF6D00323426 /* Certificate.cpp */; };
 		FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */; };
 		FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF5AF77E1C623DCF00B5573A /* SPUnityGameCenter.mm */; };
 		FF68D9831CF83D81008891E2 /* SPNativeCallsSender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */; };
@@ -441,8 +437,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4609F96C1D19A99700DA8662 /* libcrypto.a in Frameworks */,
-				FE6072491DAFC09800323426 /* libnghttp2.a in Frameworks */,
 				4609F9671D19A97200DA8662 /* libcurl.a in Frameworks */,
+				FE6072491DAFC09800323426 /* libnghttp2.a in Frameworks */,
 				4609F96D1D19A99700DA8662 /* libssl.a in Frameworks */,
 				4609F9691D19A98300DA8662 /* libz.a in Frameworks */,
 			);
@@ -481,9 +477,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				46D2D9E41D086FB500051221 /* CrashReporter in Frameworks */,
-				FE6072521DAFC0CA00323426 /* libnghttp2.a in Frameworks */,
 				7B25282D1C99BDED003C86E6 /* libcrypto.a in Frameworks */,
 				7B25282B1C99BDEC003C86E6 /* libcurl.a in Frameworks */,
+				FE6072521DAFC0CA00323426 /* libnghttp2.a in Frameworks */,
 				7B25282E1C99BDED003C86E6 /* libssl.a in Frameworks */,
 				7B25282C1C99BDEC003C86E6 /* libz.a in Frameworks */,
 			);
@@ -496,9 +492,9 @@
 				46F749091C60AE77000DB6B1 /* CrashReporter in Frameworks */,
 				7B3855E41C98A35300D04AEF /* libcrypto.a in Frameworks */,
 				7B38558C1C98A35300D04AEF /* libcurl.a in Frameworks */,
+				FE6072401DAFC07A00323426 /* libnghttp2.a in Frameworks */,
 				7B3855E51C98A35300D04AEF /* libssl.a in Frameworks */,
 				7B3855981C98A35300D04AEF /* libz.a in Frameworks */,
-				FE6072401DAFC07A00323426 /* libnghttp2.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -550,16 +546,16 @@
 		460B35CD1C3EAE80003E0D9D /* LinkerValidator */ = {
 			isa = PBXGroup;
 			children = (
-				FE6072361DAFBFB600323426 /* CurlTestClient.cpp */,
-				FE6072371DAFBFB600323426 /* CurlTestClient.hpp */,
-				FE6072341DAFBFA000323426 /* ViewController.mm */,
 				460B35CE1C3EAE80003E0D9D /* Supporting Files */,
 				460B35D11C3EAE80003E0D9D /* AppDelegate.h */,
 				460B35D21C3EAE80003E0D9D /* AppDelegate.m */,
+				FE6072361DAFBFB600323426 /* CurlTestClient.cpp */,
+				FE6072371DAFBFB600323426 /* CurlTestClient.hpp */,
 				460B35DF1C3EAE80003E0D9D /* Info.plist */,
 				460B35DC1C3EAE80003E0D9D /* LaunchScreen.storyboard */,
 				460B35D71C3EAE80003E0D9D /* Main.storyboard */,
 				460B35D41C3EAE80003E0D9D /* ViewController.h */,
+				FE6072341DAFBFA000323426 /* ViewController.mm */,
 			);
 			path = LinkerValidator;
 			sourceTree = "<group>";
@@ -636,9 +632,9 @@
 		7B25275B1C99BDC1003C86E6 /* tvos */ = {
 			isa = PBXGroup;
 			children = (
-				FE60724A1DAFC0CA00323426 /* nghttp2 */,
 				7B25275C1C99BDC1003C86E6 /* curl */,
 				7B2527691C99BDC1003C86E6 /* libz */,
+				FE60724A1DAFC0CA00323426 /* nghttp2 */,
 				7B2527781C99BDC1003C86E6 /* openssl */,
 			);
 			name = tvos;
@@ -714,9 +710,9 @@
 		7B3854A41C98A35200D04AEF /* ios */ = {
 			isa = PBXGroup;
 			children = (
-				FE6072391DAFC06C00323426 /* nghttp2 */,
 				7B3854A51C98A35200D04AEF /* curl */,
 				7B3854B21C98A35200D04AEF /* libz */,
+				FE6072391DAFC06C00323426 /* nghttp2 */,
 				7B3854C11C98A35200D04AEF /* openssl */,
 			);
 			name = ios;
@@ -792,9 +788,9 @@
 		7B3855111C98A35300D04AEF /* macos */ = {
 			isa = PBXGroup;
 			children = (
-				FE6072411DAFC09800323426 /* nghttp2 */,
 				7B3855121C98A35300D04AEF /* curl */,
 				7B38551F1C98A35300D04AEF /* libz */,
+				FE6072411DAFC09800323426 /* nghttp2 */,
 				7B38552E1C98A35300D04AEF /* openssl */,
 			);
 			name = macos;
@@ -1153,8 +1149,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FE6072481DAFC09800323426 /* nghttp2ver.h in Headers */,
 				FE6072471DAFC09800323426 /* nghttp2.h in Headers */,
+				FE6072481DAFC09800323426 /* nghttp2ver.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1163,6 +1159,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				46D2D9E51D086FD400051221 /* CrashReporter.h in Headers */,
+				FE6072501DAFC0CA00323426 /* nghttp2.h in Headers */,
+				FE6072511DAFC0CA00323426 /* nghttp2ver.h in Headers */,
 				46D2D9E61D086FD400051221 /* PLCrashAsyncSignalInfo.h in Headers */,
 				46D2D9E71D086FD400051221 /* PLCrashFeatureConfig.h in Headers */,
 				46D2D9E81D086FD400051221 /* PLCrashNamespace.h in Headers */,
@@ -1173,23 +1171,17 @@
 				46D2D9ED1D086FD400051221 /* PLCrashReporterConfig.h in Headers */,
 				46D2D9EE1D086FD400051221 /* PLCrashReportExceptionInfo.h in Headers */,
 				46D2D9EF1D086FD400051221 /* PLCrashReportFormatter.h in Headers */,
-				FE6072311DAFBF6D00323426 /* Mutex.hpp in Headers */,
-				FE6072501DAFC0CA00323426 /* nghttp2.h in Headers */,
-				FE60722B1DAFBF6D00323426 /* ConnectionManager.hpp in Headers */,
 				46D2D9F01D086FD400051221 /* PLCrashReportMachExceptionInfo.h in Headers */,
 				46D2D9F11D086FD400051221 /* PLCrashReportMachineInfo.h in Headers */,
 				46D2D9F21D086FD400051221 /* PLCrashReportProcessInfo.h in Headers */,
-				FE6072511DAFC0CA00323426 /* nghttp2ver.h in Headers */,
 				46D2D9F31D086FD400051221 /* PLCrashReportProcessorInfo.h in Headers */,
 				46D2D9F41D086FD400051221 /* PLCrashReportRegisterInfo.h in Headers */,
 				46D2D9F51D086FD400051221 /* PLCrashReportSignalInfo.h in Headers */,
 				46D2D9F61D086FD400051221 /* PLCrashReportStackFrameInfo.h in Headers */,
 				46D2D9F71D086FD400051221 /* PLCrashReportSymbolInfo.h in Headers */,
 				46D2D9F81D086FD400051221 /* PLCrashReportSystemInfo.h in Headers */,
-				FE60722F1DAFBF6D00323426 /* CurlClient.hpp in Headers */,
 				46D2D9F91D086FD400051221 /* PLCrashReportTextFormatter.h in Headers */,
 				46D2D9FA1D086FD400051221 /* PLCrashReportThreadInfo.h in Headers */,
-				FE6072271DAFBF6D00323426 /* Certificate.hpp in Headers */,
 				468F9D7D1D9BB56E00EF4AE7 /* SPUnityNativeUtils.h in Headers */,
 				46E208D31D251DFB00FB1CEE /* SPUnityPlugins_tvOS.h in Headers */,
 				468F9D7B1D9BB52500EF4AE7 /* UnityGameObject.h in Headers */,
@@ -1211,8 +1203,6 @@
 				46F749121C60AE77000DB6B1 /* PLCrashReporterConfig.h in Headers */,
 				46F749131C60AE77000DB6B1 /* PLCrashReportExceptionInfo.h in Headers */,
 				46F749141C60AE77000DB6B1 /* PLCrashReportFormatter.h in Headers */,
-				FE6072301DAFBF6D00323426 /* Mutex.hpp in Headers */,
-				FE60722A1DAFBF6D00323426 /* ConnectionManager.hpp in Headers */,
 				46F749151C60AE77000DB6B1 /* PLCrashReportMachExceptionInfo.h in Headers */,
 				46F749161C60AE77000DB6B1 /* PLCrashReportMachineInfo.h in Headers */,
 				46F749171C60AE77000DB6B1 /* PLCrashReportProcessInfo.h in Headers */,
@@ -1222,10 +1212,8 @@
 				46F7491B1C60AE77000DB6B1 /* PLCrashReportStackFrameInfo.h in Headers */,
 				46F7491C1C60AE77000DB6B1 /* PLCrashReportSymbolInfo.h in Headers */,
 				46F7491D1C60AE77000DB6B1 /* PLCrashReportSystemInfo.h in Headers */,
-				FE60722E1DAFBF6D00323426 /* CurlClient.hpp in Headers */,
 				46F7491E1C60AE77000DB6B1 /* PLCrashReportTextFormatter.h in Headers */,
 				46F7491F1C60AE77000DB6B1 /* PLCrashReportThreadInfo.h in Headers */,
-				FE6072261DAFBF6D00323426 /* Certificate.hpp in Headers */,
 				468F9D7C1D9BB56D00EF4AE7 /* SPUnityNativeUtils.h in Headers */,
 				46E208D11D251DF000FB1CEE /* SPUnityPlugins.h in Headers */,
 				468F9D7A1D9BB52400EF4AE7 /* UnityGameObject.h in Headers */,
@@ -1454,8 +1442,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE6072561DAFC31D00323426 /* Certificate.cpp in Sources */,
+				FE6072551DAFC31A00323426 /* ConnectionManager.cpp in Sources */,
+				FE6072541DAFC31800323426 /* CurlClient.cpp in Sources */,
 				06A2492D1D5C84B500499252 /* SPUnityBreadcrumbManager.cpp in Sources */,
 				06A2492F1D5C853F00499252 /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
+				FE6072531DAFC31500323426 /* SPUnityCurl.cpp in Sources */,
 				069170551C760D6600C6B0B6 /* SPUnityCurlFacadeMacos.mm in Sources */,
 				06A2492E1D5C84D800499252 /* SPUnityFileUtils.cpp in Sources */,
 				460FE16F1D25282000BF7E97 /* SPUnityUtils.cpp in Sources */,
@@ -1475,11 +1467,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FE6072351DAFBFA000323426 /* ViewController.mm in Sources */,
 				460B35D31C3EAE80003E0D9D /* AppDelegate.m in Sources */,
 				FE6072381DAFBFB600323426 /* CurlTestClient.cpp in Sources */,
 				460B35D01C3EAE80003E0D9D /* main.m in Sources */,
 				468F9D9E1D9BE56500EF4AE7 /* SPUnityAppControllerSubClass.mm in Sources */,
+				FE6072351DAFBFA000323426 /* ViewController.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1498,22 +1490,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				468E00261C3E75E500CA07AF /* KeychainItemWrapper.m in Sources */,
+				FE6072251DAFBF6D00323426 /* Certificate.cpp in Sources */,
 				FE6072291DAFBF6D00323426 /* ConnectionManager.cpp in Sources */,
+				FE60722D1DAFBF6D00323426 /* CurlClient.cpp in Sources */,
+				468E00261C3E75E500CA07AF /* KeychainItemWrapper.m in Sources */,
 				460EFA981D19303300CDDC48 /* SPNativeCallsSender.cpp in Sources */,
 				46D2D9E21D086F8B00051221 /* SPPurchaseNativeServices.mm in Sources */,
-				FE6072331DAFBF6D00323426 /* SPUnityCurl.cpp in Sources */,
 				46D2D9E01D086F8B00051221 /* SPPurchaseStore.mm in Sources */,
 				460EFA991D19360100CDDC48 /* SPUnityBreadcrumbManager.cpp in Sources */,
 				460EFA9A1D19360600CDDC48 /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
-				FE60722D1DAFBF6D00323426 /* CurlClient.cpp in Sources */,
 				465AA5881D09AF6A00D77C43 /* SPUnityCrashReporter.mm in Sources */,
+				FE6072331DAFBF6D00323426 /* SPUnityCurl.cpp in Sources */,
 				468E001C1C3E75E500CA07AF /* SPUnityCurlFacadeIos.mm in Sources */,
 				465B05F91D1940BA00E7DD61 /* SPUnityFileUtils.cpp in Sources */,
 				468E00221C3E75E500CA07AF /* SPUnityHardwareFacade.mm in Sources */,
 				468E00201C3E75E500CA07AF /* SPUnityKeychainFacade.mm in Sources */,
 				468F9DA11D9BE6BA00EF4AE7 /* SPUnityNativeUtils.mm in Sources */,
-				FE6072251DAFBF6D00323426 /* Certificate.cpp in Sources */,
 				06A173241C770787002178EF /* SPUnityUtils.cpp in Sources */,
 				468E001D1C3E75E500CA07AF /* UnityGameObject.cpp in Sources */,
 			);
@@ -1523,23 +1515,23 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE6072241DAFBF6D00323426 /* Certificate.cpp in Sources */,
+				FE6072281DAFBF6D00323426 /* ConnectionManager.cpp in Sources */,
+				FE60722C1DAFBF6D00323426 /* CurlClient.cpp in Sources */,
 				FE4490A71C1F339500A10FEA /* KeychainItemWrapper.m in Sources */,
 				FF68D9831CF83D81008891E2 /* SPNativeCallsSender.cpp in Sources */,
 				F53F90891CC7D1120020C2AC /* SPPurchaseNativeServices.mm in Sources */,
-				FE6072241DAFBF6D00323426 /* Certificate.cpp in Sources */,
-				FE60722C1DAFBF6D00323426 /* CurlClient.cpp in Sources */,
 				F542C21E1CC4E6650045B8A9 /* SPPurchaseStore.mm in Sources */,
 				FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */,
 				F53B19141CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp in Sources */,
-				FE6072281DAFBF6D00323426 /* ConnectionManager.cpp in Sources */,
 				F53B19181CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
 				FE4490AA1C1F33A400A10FEA /* SPUnityCrashReporter.mm in Sources */,
+				FE6072321DAFBF6D00323426 /* SPUnityCurl.cpp in Sources */,
 				FE4490A01C1F338500A10FEA /* SPUnityCurlFacadeIos.mm in Sources */,
 				F523B6511CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in Sources */,
 				FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */,
 				FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */,
 				FE4490A81C1F339500A10FEA /* SPUnityKeychainFacade.mm in Sources */,
-				FE6072321DAFBF6D00323426 /* SPUnityCurl.cpp in Sources */,
 				468F9DA01D9BE6B900EF4AE7 /* SPUnityNativeUtils.mm in Sources */,
 				468F9D081D995ABF00EF4AE7 /* SPUnityNotifications.mm in Sources */,
 				069170231C75CADE00C6B0B6 /* SPUnityUtils.cpp in Sources */,
