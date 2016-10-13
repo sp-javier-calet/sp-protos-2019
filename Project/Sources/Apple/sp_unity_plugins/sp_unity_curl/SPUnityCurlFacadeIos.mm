@@ -23,10 +23,11 @@ extern "C"
         std::lock_guard<std::mutex> lk(appPausedMutex);
         appPaused = paused;
         
-        if(client->isRunning())
+        if(!client->isRunning())
         {
             return;
         }
+        
         UIApplication* app = [UIApplication sharedApplication];
         if(paused)
         {
