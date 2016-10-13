@@ -353,13 +353,8 @@ bool CurlClient::update(int id)
 
 bool CurlClient::isFinished(int id)
 {
-    if(id == CurlConnection::kInvalidId)
-    {
-        return false;
-    }
-    
     CurlConnection& conn = _connections.get(id);
-    if(conn.isValid || conn.responseCode != 0 || conn.errorCode != 0)
+    if(!conn.isValid || conn.responseCode != 0 || conn.errorCode != 0)
     {
         return true;
     }
@@ -375,7 +370,7 @@ int CurlClient::createConnection()
 bool CurlClient::destroyConnection(int id)
 {
     CurlConnection& conn = _connections.get(id);
-    if(!conn.isValid && conn.isActive)
+    if(conn.isValid && conn.isActive)
     {
         curl_multi_remove_handle(_multi, conn.easy);
         curl_easy_cleanup(conn.easy);
