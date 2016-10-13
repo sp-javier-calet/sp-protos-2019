@@ -27,6 +27,7 @@ public class HttpClientInstaller : Installer
     public class SettingsData
     {
         public string Config = "basegame";
+        public bool EnableHttpStreamPinning = false;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -98,7 +99,10 @@ public class HttpClientInstaller : Installer
                      );
 
         client.RequestSetup += OnRequestSetup;
-        client.Config = Settings.Config;
+        if(Settings.EnableHttpStreamPinning)
+        {
+            client.Config = Settings.Config;
+        }
         return client;
     }
 
