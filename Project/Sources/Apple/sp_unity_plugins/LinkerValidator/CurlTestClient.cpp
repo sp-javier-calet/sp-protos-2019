@@ -66,7 +66,7 @@ struct Response
 CurlClient* _client(nullptr);
 Config cfg;
 
-Request data_create(int connection, std::string url, std::string method, std::string body)
+Request data_create(int connection, const std::string& url, const std::string& method, const std::string& body)
 {
     Request cdata;
     
@@ -110,24 +110,6 @@ void clearLog()
     ss.open("/tmp/sp_unity_curl_app.log", std::ofstream::out | std::ofstream::app);
     ss << "\n\n\n";
     ss.close();
-}
-
-void dumpReport(Response& response)
-{
-    //std::ofstream ss;
-    //ss.open("/tmp/sp_unity_curl_app.log", std::ofstream::out | std::ofstream::app);
-    
-    std::stringstream ss;
-    ss << "id " << response.cId  << " :: " << (unsigned int)response.cId << std::endl;
-    ss << "finished " << response.finished << std::endl;
-    ss << "responseCode " << response.responseCode << std::endl;
-    ss << "headersReceived " << response.headersReceived << std::endl;
-    ss << "bodyReceived " << response.bodyReceived << std::endl;
-    ss << "errorReceived " << response.errorReceived << std::endl;
-    //ss << std::endl;
-    
-    //std::cout << ss.str();
-    //ss.close();
 }
 
 void CurlTestClient::run()
@@ -184,7 +166,6 @@ void CurlTestClient::run()
                     char* buffer = new char[bodyL];
                     _client->getBody(cId, buffer);
                     response.bodyReceived++;
-                    //size_t l = response.body.length();
                     response.body = std::string(buffer, bodyL);
                     
                     delete[] buffer;
@@ -201,8 +182,6 @@ void CurlTestClient::run()
                     delete[] buffer;
                 }
                 
-                dumpReport(response);
-                
                 if(response.finished && cfg.destroyConnectionsOnFinish)
                 {
                     bool removed = _client->destroyConnection(cId);
@@ -210,7 +189,6 @@ void CurlTestClient::run()
                     
                     response.connectionDestroyed = removed;
                     finishedConnections.push_back(cId);
-                    
                 }
             }
         }
@@ -237,5 +215,5 @@ void CurlTestClient::run()
             }
             finishedConnections.clear();
         }
-    } while(1); // !connections.empty());
+    } while(1);
 }
