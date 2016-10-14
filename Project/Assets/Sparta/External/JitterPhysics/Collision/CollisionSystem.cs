@@ -57,12 +57,15 @@ namespace Jitter.Collision
 
         public static bool IsCollisionEnabled(int layerIdxA, int layerIdxB)
         {
-            var maskA = masks[layerIdxA];
-            var maskB = masks[layerIdxB];
-            var flagA = 1 << layerIdxA;
-            var flagB = 1 << layerIdxB;
+            bool enabled = IsMaskCollisionEnabled(masks[layerIdxA], layerIdxB) || IsMaskCollisionEnabled(masks[layerIdxB], layerIdxA);
+            return enabled;
+        }
 
-            bool enabled = ((maskA & flagB) == flagB) || ((maskB & flagA) == flagA);
+        public static bool IsMaskCollisionEnabled(int mask, int layerIdx)
+        {
+            var flag = 1 << layerIdx;
+
+            bool enabled = ((mask & flag) == flag);
             return enabled;
         }
 
@@ -644,7 +647,7 @@ namespace Jitter.Collision
         /// against rays (rays are of infinite length). They are checked against segments
         /// which start at rayOrigin and end in rayOrigin + rayDirection.
         /// </summary>
-        public abstract bool Raycast(JVector rayOrigin, JVector rayDirection, int rayLayerIdx, RaycastCallback raycast, out RigidBody body, out JVector normal, out float fraction);
+        public abstract bool Raycast(JVector rayOrigin, JVector rayDirection, int rayLayerMask, RaycastCallback raycast, out RigidBody body, out JVector normal, out float fraction);
 
         /// <summary>
         /// Raycasts a single body. NOTE: For performance reasons terrain and trianglemeshshape aren't checked
@@ -729,6 +732,11 @@ namespace Jitter.Collision
         public bool IsCollisionEnabled(int layerIdxA, int layerIdxB)
         {
             return LayerCollisionMatrix.IsCollisionEnabled(layerIdxA, layerIdxB);
+        }
+
+        public bool IsMaskCollisionEnabled(int mask, int layerIdxB)
+        {
+            return LayerCollisionMatrix.IsMaskCollisionEnabled(mask, layerIdxB);
         }
 
         public void SetCollisionBetweenLayers(int layerIdxA, int layerIdxB, bool enable = true)

@@ -515,7 +515,7 @@ namespace Jitter.Collision
         /// which start at rayOrigin and end in rayOrigin + rayDirection.
         /// </summary>
         #region public override bool Raycast(JVector rayOrigin, JVector rayDirection, out JVector normal,out float fraction)
-        public override bool Raycast(JVector rayOrigin, JVector rayDirection, int rayLayerIdx, RaycastCallback raycast, out RigidBody body, out JVector normal, out float fraction)
+        public override bool Raycast(JVector rayOrigin, JVector rayDirection, int rayLayerMask, RaycastCallback raycast, out RigidBody body, out JVector normal, out float fraction)
         {
             body = null;
             normal = JVector.Zero;
@@ -528,7 +528,7 @@ namespace Jitter.Collision
             // TODO: This can be done better in CollisionSystemPersistenSAP
             foreach(IBroadphaseEntity e in bodyList)
             {
-                if(!IsCollisionEnabled(e.LayerIndex, rayLayerIdx))
+                if(!IsMaskCollisionEnabled(rayLayerMask, e.LayerIndex))
                 {
                     continue;
                 }

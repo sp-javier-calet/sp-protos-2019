@@ -19,7 +19,7 @@ namespace SocialPoint.Multiplayer
             set;
         }
 
-        public int LayerIndex
+        public int LayerMask
         {
             get;
             set;
@@ -41,9 +41,9 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public Ray(JVector pOrigin, JVector pDirection, int layerIdx = 0)
+        public Ray(JVector pOrigin, JVector pDirection, int layerMask = 1)
         {
-            LayerIndex = layerIdx;
+            LayerMask = layerMask;
 
             Origin = pOrigin;
 
@@ -65,13 +65,13 @@ namespace SocialPoint.Multiplayer
         {
             var hash = Origin.GetHashCode();
             hash = CryptographyUtils.HashCombine(hash, Direction.GetHashCode());
-            hash = CryptographyUtils.HashCombine(hash, LayerIndex.GetHashCode());
+            hash = CryptographyUtils.HashCombine(hash, LayerMask.GetHashCode());
             return hash;
         }
 
         public static bool operator ==(Ray a, Ray b)
         {
-            return a.Origin == b.Origin && a.Direction == b.Direction && a.LayerIndex == b.LayerIndex;
+            return a.Origin == b.Origin && a.Direction == b.Direction && a.LayerMask == b.LayerMask;
         }
 
         public static bool operator !=(Ray a, Ray b)
@@ -88,7 +88,7 @@ namespace SocialPoint.Multiplayer
         {
             dirty.Set(newObj.Origin != oldObj.Origin);
             dirty.Set(newObj.Direction != oldObj.Direction);
-            dirty.Set(newObj.LayerIndex != oldObj.LayerIndex);
+            dirty.Set(newObj.LayerMask != oldObj.LayerMask);
         }
 
         public void Serialize(Ray newObj, IWriter writer)
@@ -96,7 +96,7 @@ namespace SocialPoint.Multiplayer
             var vs = JVectorSerializer.Instance;
             vs.Serialize(newObj.Origin, writer);
             vs.Serialize(newObj.Direction, writer);
-            writer.Write(newObj.LayerIndex);
+            writer.Write(newObj.LayerMask);
         }
 
         public void Serialize(Ray newObj, Ray oldObj, IWriter writer, Bitset dirty)
@@ -112,7 +112,7 @@ namespace SocialPoint.Multiplayer
             }
             if(Bitset.NullOrGet(dirty))
             {
-                writer.Write(newObj.LayerIndex);
+                writer.Write(newObj.LayerMask);
             }
         }
     }
@@ -128,7 +128,7 @@ namespace SocialPoint.Multiplayer
             var obj = new Ray();
             obj.Origin = vp.Parse(reader);
             obj.Direction = vp.Parse(reader);
-            obj.LayerIndex = reader.ReadInt32();
+            obj.LayerMask = reader.ReadInt32();
             return obj;
         }
 
@@ -150,7 +150,7 @@ namespace SocialPoint.Multiplayer
             }
             if(Bitset.NullOrGet(dirty))
             {
-                obj.LayerIndex = reader.ReadInt32();
+                obj.LayerMask = reader.ReadInt32();
             }
             return obj;
         }
