@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using SocialPoint.AdminPanel;
+using SocialPoint.Base;
 using SocialPoint.Network;
 using System.Collections.Generic;
 
@@ -164,7 +165,16 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
 
     void OnRequestFinished(HttpResponse response)
     {
-        var msg = Decode(response.Body);
+        var msg = string.Empty;
+        var er = response.Error;
+        if(Error.IsNullOrEmpty(er))
+        {
+            msg = er.ToString();
+        }
+        else
+        {
+            msg = Decode(response.Body);   
+        }
         _console.Print(msg);
     }
 }
