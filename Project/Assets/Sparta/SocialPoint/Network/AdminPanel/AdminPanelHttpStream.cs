@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
 {
+    const string InfoUrl = "https://http2.golang.org/reqinfo";
     const string ClockUrl = "https://http2.golang.org/clockstream";
     const string EchoUrl = "https://http2.golang.org/ECHO";
 
@@ -42,9 +43,16 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
 
     public void OnCreateGUI(AdminPanelLayout layout)
     {
+        layout.CreateButton("Open Info stream", () => {
+            var req = new HttpRequest(InfoUrl);
+            var conn = _client.Connect(req, OnRequestFinished);
+            conn.DataReceived += OnDataReceived;
+            _streams.Add(new StreamData { Name = "Info", Stream = conn });
+            layout.Refresh();
+        });
+
         layout.CreateButton("Open Clock stream", () => {
             var req = new HttpRequest(ClockUrl);
-            req.Proxy = EditorProxy.GetProxy();
             var conn = _client.Connect(req, OnRequestFinished);
             conn.DataReceived += OnDataReceived;
             _streams.Add(new StreamData { Name = "Clock", Stream = conn });
@@ -55,7 +63,6 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
             var req = new HttpRequest(EchoUrl);
             req.Method = HttpRequest.MethodType.PUT;
             req.Body = Encode("hello");
-            req.Proxy = EditorProxy.GetProxy();
             var conn = _client.Connect(req, OnRequestFinished);
             conn.DataReceived += OnDataReceived;
             _streams.Add(new StreamData { Name = "Echo", Stream = conn });
@@ -167,7 +174,7 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
     {
         var msg = string.Empty;
         var er = response.Error;
-        if(Error.IsNullOrEmpty(er))
+        if(!Error.IsNullOrEmpty(er))
         {
             msg = er.ToString();
         }
