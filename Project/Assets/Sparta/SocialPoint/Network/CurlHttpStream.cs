@@ -207,6 +207,8 @@ namespace SocialPoint.Network
 
         void FinalizeStream()
         {
+            if(_streamFinished)
+                return;
             _streamFinished = true;
             _connectTime = _connection.ConnectTime;
             _totalTime = _connection.TotalTime;

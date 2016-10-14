@@ -127,6 +127,7 @@ namespace SocialPoint.Network
                 }
             }
             _runner.StopCoroutine(_updateCoroutine);
+            _curl.Dispose();
         }
 
         void OnWillGoBackground()
