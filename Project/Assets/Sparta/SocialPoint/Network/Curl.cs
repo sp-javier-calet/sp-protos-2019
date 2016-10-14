@@ -34,7 +34,28 @@ namespace SocialPoint.Network
             }
         }
 
-        readonly UIntPtr _nativeClient;
+        UIntPtr _nativeClient;
+
+        UIntPtr NativeClient
+        {
+            get
+            {
+                if(!IsValidInstance)
+                {
+                    throw new NullReferenceException("Native object reference not set or already disposed");
+                }
+
+                return _nativeClient;
+            }
+        }
+
+        public bool IsValidInstance
+        {
+            get
+            {
+                return _nativeClient != default(UIntPtr);
+            }
+        }
 
         public Curl(bool enableHttp2)
         {
@@ -43,30 +64,31 @@ namespace SocialPoint.Network
 
         public void SetConfig(string config)
         {
-            SPUnityCurlSetConfig(_nativeClient, config);
+            SPUnityCurlSetConfig(NativeClient, config);
         }
 
         public Connection CreateConnection()
         {
-            var id = SPUnityCurlCreateConn(_nativeClient);
+            var id = SPUnityCurlCreateConn(NativeClient);
             return new Connection(this, id);
         }
 
         public void Update()
         {
-            SPUnityCurlUpdate(_nativeClient);
+            SPUnityCurlUpdate(NativeClient);
         }
 
         public void Dispose()
         {
-            SPUnityCurlDestroy(_nativeClient);
+            SPUnityCurlDestroy(NativeClient);
+            _nativeClient = default(UIntPtr);
         }
 
         public bool Pause
         {
             set
             {
-                SPUnityCurlOnApplicationPause(_nativeClient, value);
+                SPUnityCurlOnApplicationPause(NativeClient, value);
             }
         }
 
@@ -74,7 +96,7 @@ namespace SocialPoint.Network
         {
             set
             {
-                SPUnityCurlSetVerbose(_nativeClient, value);
+                SPUnityCurlSetVerbose(NativeClient, value);
             }
         }
 
@@ -139,17 +161,17 @@ namespace SocialPoint.Network
             /// </summary>
             public bool Update()
             {
-                return SPUnityCurlUpdateConn(_curl._nativeClient, _connectionId);
+                return SPUnityCurlUpdateConn(_curl.NativeClient, _connectionId);
             }
 
             public int Send(RequestStruct req)
             {
-                return SPUnityCurlSend(_curl._nativeClient, req);
+                return SPUnityCurlSend(_curl.NativeClient, req);
             }
 
             public int SendStreamMessage(MessageStruct msg)
             {
-                return SPUnityCurlSendStreamMessage(_curl._nativeClient, _connectionId, msg);
+                return SPUnityCurlSendStreamMessage(_curl.NativeClient, _connectionId, msg);
             }
 
             public int Id
@@ -164,7 +186,7 @@ namespace SocialPoint.Network
             {
                 get
                 {
-                    return SPUnityCurlIsFinished(_curl._nativeClient, _connectionId);
+                    return SPUnityCurlIsFinished(_curl.NativeClient, _connectionId);
                 }
             }
 
@@ -172,7 +194,7 @@ namespace SocialPoint.Network
             {
                 get
                 {
-                    return SPUnityCurlGetConnectTime(_curl._nativeClient, _connectionId);
+                    return SPUnityCurlGetConnectTime(_curl.NativeClient, _connectionId);
                 }
             }
 
@@ -180,7 +202,7 @@ namespace SocialPoint.Network
             {
                 get
                 {
-                    return SPUnityCurlGetTotalTime(_curl._nativeClient, _connectionId);
+                    return SPUnityCurlGetTotalTime(_curl.NativeClient, _connectionId);
                 }
             }
 
@@ -188,7 +210,7 @@ namespace SocialPoint.Network
             {
                 get
                 {
-                    return SPUnityCurlGetDownloadSize(_curl._nativeClient, _connectionId);
+                    return SPUnityCurlGetDownloadSize(_curl.NativeClient, _connectionId);
                 }
             }
 
@@ -196,7 +218,7 @@ namespace SocialPoint.Network
             {
                 get
                 {
-                    return SPUnityCurlGetDownloadSpeed(_curl._nativeClient, _connectionId);
+                    return SPUnityCurlGetDownloadSpeed(_curl.NativeClient, _connectionId);
                 }
             }
 
@@ -204,7 +226,7 @@ namespace SocialPoint.Network
             {
                 get
                 {   
-                    return SPUnityCurlGetResponseCode(_curl._nativeClient, _connectionId);
+                    return SPUnityCurlGetResponseCode(_curl.NativeClient, _connectionId);
                 }
             }
 
@@ -213,11 +235,11 @@ namespace SocialPoint.Network
                 get
                 {
                     var headers = String.Empty;
-                    var headersLength = SPUnityCurlGetHeadersLength(_curl._nativeClient, _connectionId);
+                    var headersLength = SPUnityCurlGetHeadersLength(_curl.NativeClient, _connectionId);
                     if(headersLength > 0)
                     {
                         var bytes = new byte[headersLength];
-                        SPUnityCurlGetHeaders(_curl._nativeClient, _connectionId, bytes);
+                        SPUnityCurlGetHeaders(_curl.NativeClient, _connectionId, bytes);
                         headers = System.Text.Encoding.ASCII.GetString(bytes);
                     }
                     return headers;
@@ -229,11 +251,11 @@ namespace SocialPoint.Network
                 get
                 {
                     byte[] body = null;
-                    var bodyLength = SPUnityCurlGetBodyLength(_curl._nativeClient, _connectionId);
+                    var bodyLength = SPUnityCurlGetBodyLength(_curl.NativeClient, _connectionId);
                     if(bodyLength > 0)
                     {
                         body = new byte[bodyLength];
-                        SPUnityCurlGetBody(_curl._nativeClient, _connectionId, body);
+                        SPUnityCurlGetBody(_curl.NativeClient, _connectionId, body);
                     }
                     else
                     {
@@ -248,11 +270,11 @@ namespace SocialPoint.Network
                 get
                 {
                     byte[] message = null;
-                    var len = SPUnityCurlGetStreamMessageLenght(_curl._nativeClient, _connectionId);
+                    var len = SPUnityCurlGetStreamMessageLenght(_curl.NativeClient, _connectionId);
                     if(len > 0)
                     {
                         message = new byte[len];
-                        SPUnityCurlGetStreamMessage(_curl._nativeClient, _connectionId, message);
+                        SPUnityCurlGetStreamMessage(_curl.NativeClient, _connectionId, message);
                     }
 
                     return message;
@@ -263,7 +285,7 @@ namespace SocialPoint.Network
             {
                 get
                 {
-                    return SPUnityCurlGetErrorCode(_curl._nativeClient, _connectionId);
+                    return SPUnityCurlGetErrorCode(_curl.NativeClient, _connectionId);
                 }
             }
 
@@ -271,9 +293,9 @@ namespace SocialPoint.Network
             {
                 get
                 {
-                    int errorLength = Curl.SPUnityCurlGetErrorLength(_curl._nativeClient, _connectionId);
+                    int errorLength = Curl.SPUnityCurlGetErrorLength(_curl.NativeClient, _connectionId);
                     var bytes = new byte[errorLength];
-                    SPUnityCurlGetError(_curl._nativeClient, _connectionId, bytes);
+                    SPUnityCurlGetError(_curl.NativeClient, _connectionId, bytes);
                     var error = System.Text.Encoding.ASCII.GetString(bytes);
                     return error;
                 }
@@ -295,7 +317,7 @@ namespace SocialPoint.Network
 
             public void Dispose()
             {
-                SPUnityCurlDestroyConn(_curl._nativeClient, _connectionId);
+                SPUnityCurlDestroyConn(_curl.NativeClient, _connectionId);
             }
         }
 
@@ -436,11 +458,14 @@ namespace SocialPoint.Network
         const string PluginModuleName = "SPUnityPlugins";
         #elif UNITY_ANDROID && !UNITY_EDITOR
         const string PluginModuleName = "sp_unity_curl";
-        #elif (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+        
+#elif (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         const string PluginModuleName = "__Internal";
-        #elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
+        
+#elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
         const string PluginModuleName = "sp_unity_curl";
-        #else
+        
+#else
         const string PluginModuleName = "none";
         #endif
 
