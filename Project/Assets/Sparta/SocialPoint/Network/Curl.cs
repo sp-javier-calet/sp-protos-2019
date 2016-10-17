@@ -100,6 +100,22 @@ namespace SocialPoint.Network
             }
         }
 
+        public string VersionInfo
+        {
+            get
+            {
+                var info = String.Empty;
+                var infoLength = SPUnityCurlGetVersionInfoLength(NativeClient);
+                if(infoLength > 0)
+                {
+                    var bytes = new byte[infoLength];
+                    SPUnityCurlGetVersionInfo(NativeClient, bytes);
+                    info = System.Text.Encoding.ASCII.GetString(bytes);
+                }
+                return info;
+            }
+        }
+
         static int GetResponseErrorCode(int code)
         {
             switch((CurlError)code)
@@ -503,6 +519,9 @@ namespace SocialPoint.Network
         static extern void SPUnityCurlGetHeaders(UIntPtr client, int id, byte[] data);
 
         [DllImport(PluginModuleName)]
+        static extern void SPUnityCurlGetVersionInfo(UIntPtr client, byte[] data);
+
+        [DllImport(PluginModuleName)]
         static extern void SPUnityCurlGetStreamMessage(UIntPtr client, int id, byte[] data);
 
         [DllImport(PluginModuleName)]
@@ -519,6 +538,9 @@ namespace SocialPoint.Network
 
         [DllImport(PluginModuleName)]
         static extern int SPUnityCurlGetHeadersLength(UIntPtr client, int id);
+
+        [DllImport(PluginModuleName)]
+        static extern int SPUnityCurlGetVersionInfoLength(UIntPtr client);
 
         [DllImport(PluginModuleName)]
         static extern int SPUnityCurlGetStreamMessageLenght(UIntPtr client, int id);

@@ -85,10 +85,12 @@ public:
     bool getError(int id, char* data);
     bool getBody(int id, char* data);
     bool getHeaders(int id, char* data);
+    bool getVersionInfo(char* data);
     
     int getErrorLength(int id);
     int getBodyLength(int id);
     int getHeadersLength(int id);
+    int getVersionInfoLength();
     
     void setConfig(const std::string& name);
 };

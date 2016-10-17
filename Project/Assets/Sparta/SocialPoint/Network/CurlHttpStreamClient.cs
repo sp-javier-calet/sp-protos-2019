@@ -37,6 +37,14 @@ namespace SocialPoint.Network
             }
         }
 
+        public string Info
+        {
+            get
+            {
+                return _curl.VersionInfo;
+            }
+        }
+
         public CurlHttpStreamClient(ICoroutineRunner runner, IAppEvents appEvents)
         {
             _runner = runner;

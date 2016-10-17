@@ -81,6 +81,10 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
 
         layout.CreateMargin();
 
+        layout.CreateLabel("Client Info");
+
+        layout.CreateTextArea(_client.Info);
+
         layout.CreateToggleButton("Verbose", _verbose, (value) => {
             _verbose = value;
             if(_client != null)

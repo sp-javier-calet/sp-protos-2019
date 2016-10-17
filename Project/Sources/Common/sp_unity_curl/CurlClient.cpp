@@ -514,6 +514,13 @@ bool CurlClient::getHeaders(int id, char* data)
     return false;
 }
 
+bool CurlClient::getVersionInfo(char* data)
+{
+    std::string versionInfo(curl_version());
+    memcpy(data, versionInfo.c_str(), versionInfo.length() * sizeof(char));
+    return true;
+}
+
 int CurlClient::getErrorLength(int id)
 {
     CurlConnection& conn = _connections.get(id);
@@ -542,6 +549,12 @@ int CurlClient::getHeadersLength(int id)
         return (int)conn.headersBuffer.length();
     }
     return 0;
+}
+
+int CurlClient::getVersionInfoLength()
+{
+    std::string versionInfo(curl_version());
+    return (int)versionInfo.length();
 }
 
 void CurlClient::setConfig(const std::string &name)

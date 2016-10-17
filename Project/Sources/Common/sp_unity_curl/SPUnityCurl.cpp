@@ -110,6 +110,11 @@ extern "C"
         client->getHeaders(id, data);
     }
     
+    EXPORT_API void SPUnityCurlGetVersionInfo(CurlClient* client, char* data)
+    {
+        client->getVersionInfo(data);
+    }
+    
     EXPORT_API void SPUnityCurlGetStreamMessage(CurlClient* client, int id, char* data)
     {
         client->getStreamMessage(id, data);
@@ -128,6 +133,11 @@ extern "C"
     EXPORT_API int SPUnityCurlGetHeadersLength(CurlClient* client, int id)
     {
         return client->getHeadersLength(id);
+    }
+    
+    EXPORT_API int SPUnityCurlGetVersionInfoLength(CurlClient* client, int id)
+    {
+        return client->getVersionInfoLength();
     }
     
     EXPORT_API int SPUnityCurlGetStreamMessageLenght(CurlClient* client, int id)
