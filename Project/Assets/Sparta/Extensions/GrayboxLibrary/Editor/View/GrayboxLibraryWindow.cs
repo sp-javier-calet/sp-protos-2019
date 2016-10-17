@@ -786,13 +786,14 @@ namespace SocialPoint.GrayboxLibrary
                     }
                     else
                     {
-                        Tool.DownloadAsset(_toDownload[i]);
                         if(_toDownload[i].MainAssetPath.Length > 0)
                         {
                             if (AssetDatabase.LoadMainAssetAtPath(_toDownload[i].MainAssetPath) != null)
                                 AssetDatabase.DeleteAsset(_toDownload[i].MainAssetPath);
                             _toInstantiate.Add(_toDownload[i]);
                         }
+
+                        Tool.DownloadAsset(_toDownload[i]);
                         _toDownload.RemoveAt(i);
                     }
                 }
