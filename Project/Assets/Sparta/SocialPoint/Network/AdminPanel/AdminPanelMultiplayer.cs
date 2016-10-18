@@ -49,21 +49,16 @@ namespace SocialPoint.Network
             layout.CreateLabel("Send Message");
             layout.CreateMargin();
 
-            using(var hlayout = layout.CreateHorizontalLayout())
-            {
-                hlayout.CreateFormLabel("Origin");
-                _msgOrigin = hlayout.CreateDropdown("Server", new string[]{ "Client" });
-            }
+            var hlayout = layout.CreateHorizontalLayout();
+            hlayout.CreateFormLabel("Origin");
+            _msgOrigin = hlayout.CreateDropdown("Server", new string[]{ "Client" });
 
-            using(var hlayout = layout.CreateHorizontalLayout())
-            {
-                hlayout.CreateFormLabel("Type");
-                _msgType = hlayout.CreateTextInput("0");
-            }
-            using(var hlayout = layout.CreateHorizontalLayout())
-            {
-                _msgReliable = hlayout.CreateToggleButton("Reliable", true, null);
-            }
+            hlayout = layout.CreateHorizontalLayout();
+            hlayout.CreateFormLabel("Type");
+            _msgType = hlayout.CreateTextInput("0");
+
+            hlayout = layout.CreateHorizontalLayout();
+            _msgReliable = hlayout.CreateToggleButton("Reliable", true, null);
 
             _msgBody = layout.CreateTextInput();
 
@@ -205,7 +200,7 @@ namespace SocialPoint.Network
                 }
                 else
                 {
-                    Log("sending "+reliableStr+" message from server to client of type " + type);
+                    Log("sending " + reliableStr + " message from server to client of type " + type);
                     msg = _server.CreateMessage(new NetworkMessageData {
                         MessageType = type,
                         Unreliable = !reliable
@@ -220,7 +215,7 @@ namespace SocialPoint.Network
                 }
                 else
                 {
-                    Log("sending "+reliableStr+" message from client to server of type " + type);
+                    Log("sending " + reliableStr + " message from client to server of type " + type);
                     msg = _client.CreateMessage(new NetworkMessageData {
                         MessageType = type,
                         Unreliable = !reliable
@@ -338,25 +333,22 @@ namespace SocialPoint.Network
             layout.CreateMargin();
 
             layout.CreateLabel("Server");
-            using(var hlayout = layout.CreateHorizontalLayout())
-            {
-                hlayout.CreateFormLabel("Port");
-                _serverPort = hlayout.CreateTextInput(UnetNetworkServer.DefaultPort.ToString());
-            }
+
+            var hlayout = layout.CreateHorizontalLayout();
+            hlayout.CreateFormLabel("Port");
+            _serverPort = hlayout.CreateTextInput(UnetNetworkServer.DefaultPort.ToString());
             layout.CreateButton("Start", OnUnetServerStartClicked);
             layout.CreateMargin();
-
             layout.CreateLabel("Client");
-            using(var hlayout = layout.CreateHorizontalLayout())
-            {
-                hlayout.CreateFormLabel("Server Address");
-                _clientAddress = hlayout.CreateTextInput(UnetNetworkClient.DefaultServerAddr);
-            }
-            using(var hlayout = layout.CreateHorizontalLayout())
-            {
-                hlayout.CreateFormLabel("Server Port");
-                _clientPort = hlayout.CreateTextInput(UnetNetworkServer.DefaultPort.ToString());
-            }
+
+            hlayout = layout.CreateHorizontalLayout();
+            hlayout.CreateFormLabel("Server Address");
+            _clientAddress = hlayout.CreateTextInput(UnetNetworkClient.DefaultServerAddr);
+
+            hlayout = layout.CreateHorizontalLayout();
+            hlayout.CreateFormLabel("Server Port");
+            _clientPort = hlayout.CreateTextInput(UnetNetworkServer.DefaultPort.ToString());
+
             layout.CreateButton("Start", OnUnetClientStartClicked);
             layout.CreateMargin();
         }
