@@ -51,7 +51,7 @@ namespace SocialPoint.Network
             Send(_connection, _request);
         }
 
-        public HttpResponse getResponse()
+        public HttpResponse GetResponse()
         {   
             var headersData = new Dictionary<string, string>();
 
@@ -170,7 +170,7 @@ namespace SocialPoint.Network
             HttpResponse resp;
             try
             {
-                resp = getResponse();
+                resp = GetResponse();
             }
             catch(Exception e)
             {
