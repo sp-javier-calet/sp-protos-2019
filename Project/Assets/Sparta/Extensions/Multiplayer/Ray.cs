@@ -41,7 +41,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public Ray(JVector pOrigin, JVector pDirection, int layerMask = 1)
+        public Ray(JVector pOrigin, JVector pDirection, int layerMask = 0xFFFFFFF)
         {
             LayerMask = layerMask;
 

@@ -143,9 +143,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     void AddPhysicsWorld()
     {
         _physicsWorld = new PhysicsWorld(true);
-
-        _physicsWorld.SetCollisionBetweenLayers(0,0);
-
         _controller.AddBehaviour(_physicsWorld);
     }
 
@@ -154,7 +151,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         var boxShape = new PhysicsBoxShape(new JVector(1f));
         var rigidBody = new PhysicsRigidBody(boxShape, PhysicsRigidBody.ControlType.Kinematic, _physicsWorld, _physicsDebugger);
         rigidBody.DoDebugDraw = true;
-        rigidBody.LayerIndex = 0;
 
         if(go.Id == _playerCube.Id)
         {

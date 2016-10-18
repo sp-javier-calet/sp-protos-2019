@@ -51,12 +51,18 @@ namespace Jitter.Collision
 
     public static class LayerCollisionMatrix
     {
-        static readonly int[] masks = new int[32];
+        static int numLayers = 32;
+        static readonly int[] masks = new int[numLayers];
 
         // http://www.vipan.com/htdocs/bitwisehelp.html
 
         public static bool IsCollisionEnabled(int layerIdxA, int layerIdxB)
         {
+            if(layerIdxA == layerIdxB)
+            {
+                return true;
+            }
+
             bool enabled = IsMaskCollisionEnabled(masks[layerIdxA], layerIdxB) || IsMaskCollisionEnabled(masks[layerIdxB], layerIdxA);
             return enabled;
         }
@@ -71,6 +77,11 @@ namespace Jitter.Collision
 
         public static void SetCollisionBetweenLayers(int layerIdxA, int layerIdxB, bool enable = true)
         {
+            if(layerIdxA == layerIdxB)
+            {
+                return;
+            }
+
             if(enable)
             {
                 masks[layerIdxA] |= (1 << layerIdxB);
