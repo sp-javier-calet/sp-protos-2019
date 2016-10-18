@@ -10,13 +10,16 @@ namespace SocialPoint.Utils
     public sealed class AdminPanelLog : IAdminPanelConfigurer, IAdminPanelGUI
     {
         readonly List<LogEntry> _entries;
+        readonly HashSet<string> _availableTags;
         bool _showLogLevels;
+        string _selectedTag;
         Text _textComponent;
         LogConfig _config;
 
         public AdminPanelLog()
         {
             _entries = new List<LogEntry>();
+            _availableTags = new HashSet<string>();
             _config = new LogConfig();
 
             LogCallbackHandler.RegisterLogCallback(HandleLog);
@@ -54,6 +57,7 @@ namespace SocialPoint.Utils
 
                 hLayout.CreateButton("Clear", () => {
                     _entries.Clear();
+                    _availableTags.Clear();
                     RefreshContent();
                 });
             }
@@ -81,6 +85,16 @@ namespace SocialPoint.Utils
                     _config.Filter = string.IsNullOrEmpty(status.Content)? null : status.Content.ToLower();
                     RefreshContent();
                 });
+
+            // TODO multi selected
+            layout.CreateLabel("Tags");
+            foreach(var tagFilter in _availableTags)
+            {
+                layout.CreateToggleButton(tagFilter, _selectedTag == tagFilter, value =>
+                    {
+                        _selectedTag = value ? tagFilter : null;
+                    });
+            }
 
             RefreshContent();
         }
@@ -124,6 +138,10 @@ namespace SocialPoint.Utils
                         {
                             continue;
                         }
+                        if(_selectedTag != null && entry.Tag != _selectedTag)
+                        {
+                            continue;
+                        }
 
                         logContent.Append(entry.Content);
                         numEntriesToDisplay++;
@@ -136,7 +154,20 @@ namespace SocialPoint.Utils
 
         void HandleLog(string message, string stackTrace, LogType type)
         {
-            _entries.Add(new LogEntry(type, message, stackTrace));
+            string tag = null;
+            if(!string.IsNullOrEmpty(message))
+            {
+                if(message[0] == '[')
+                {
+                    var idx = message.IndexOf(']');
+                    if(idx > 0)
+                    {
+                        tag = message.Substring(1, idx - 1);
+                        _availableTags.Add(tag);
+                    }
+                }
+            }
+            _entries.Add(new LogEntry(type, message, stackTrace, tag));
             RefreshContent();
         }
 
@@ -164,9 +195,12 @@ namespace SocialPoint.Utils
 
             public string LowerContent { get; private set; }
 
-            public LogEntry(LogType type, string message, string stackTrace)
+            public string Tag { get; private set; }
+
+            public LogEntry(LogType type, string message, string stackTrace, string tag = null)
             {
                 Type = type;
+                Tag = tag;
                 string color;
                 LogColors.TryGetValue(type, out color);
 
