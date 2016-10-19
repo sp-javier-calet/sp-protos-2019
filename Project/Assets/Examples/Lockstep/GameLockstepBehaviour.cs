@@ -111,7 +111,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         }
 
         _lockstep.Start();
-        _random = new XRandom(_lockstep.RandomSeed);
+        _random = new XRandom(_lockstep.GameParams.RandomSeed);
     }
 
     public void OnLocalClicked()

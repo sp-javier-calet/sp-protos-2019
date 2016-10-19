@@ -6,28 +6,33 @@ namespace SocialPoint.Lockstep.Network
     {
         public LockstepConfig Config { get; private set; }
 
-        public uint RandomSeed { get; private set; }
+        public LockstepGameParams GameParams { get; private set; }
 
-        public ClientSetupMessage(uint randomSeed = 0, LockstepConfig config = null)
+        public ClientSetupMessage(LockstepConfig config = null, LockstepGameParams gameParams = null)
         {
             if(config == null)
             {
                 config = new LockstepConfig();
             }
             Config = config;
-            RandomSeed = randomSeed;
+
+            if(gameParams == null)
+            {
+                gameParams = new LockstepGameParams();
+            }
+            GameParams = gameParams;
         }
 
         public void Deserialize(IReader reader)
         {
             Config.Deserialize(reader);
-            RandomSeed = reader.ReadUInt32();
+            GameParams.Deserialize(reader);
         }
 
         public void Serialize(IWriter writer)
         {
             Config.Serialize(writer);
-            writer.Write(RandomSeed);
+            GameParams.Serialize(writer);
         }
     }
 }

@@ -117,7 +117,7 @@ namespace SocialPoint.Lockstep.Network
             if(_clientLockstep != null)
             {
                 _clientLockstep.Config = msg.Config;
-                _clientLockstep.RandomSeed = msg.RandomSeed;
+                _clientLockstep.GameParams = msg.GameParams;
             }
             TrySendPlayerReady();
         }

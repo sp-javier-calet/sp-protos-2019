@@ -117,7 +117,7 @@ namespace SocialPoint.Lockstep
 
         public LockstepConfig Config { get; set; }
 
-        public uint RandomSeed { get; set; }
+        public LockstepGameParams GameParams { get; set; }
 
         public ClientLockstepConfig ClientConfig { get; set; }
 
@@ -190,6 +190,7 @@ namespace SocialPoint.Lockstep
         {
             _state = State.Normal;
             Config = new LockstepConfig();
+            GameParams = new LockstepGameParams();
             ClientConfig = new ClientLockstepConfig();
             _updateScheduler = updateScheduler;
             Stop();
@@ -201,7 +202,7 @@ namespace SocialPoint.Lockstep
             Config = config;
         }
 
-        public void Start(int startTime = 0, uint randomSeed = 0)
+        public void Start(int startTime = 0)
         {
             Running = true;
             _time = startTime;
@@ -215,12 +216,6 @@ namespace SocialPoint.Lockstep
             {
                 _updateScheduler.Add(this);
             }
-
-            if(randomSeed == 0)
-            {
-                randomSeed = XRandom.GenerateSeed();
-            }
-            RandomSeed = randomSeed;
         }
 
         public void Stop()

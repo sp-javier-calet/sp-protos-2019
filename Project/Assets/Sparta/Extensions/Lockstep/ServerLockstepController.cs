@@ -17,7 +17,7 @@ namespace SocialPoint.Lockstep
 
         public LockstepConfig Config { get; set; }
 
-        public uint RandomSeed { get; private set; }
+        public LockstepGameParams GameParams { get; private set; }
 
         public event Action<ServerLockstepTurnData> TurnReady;
 
@@ -48,7 +48,7 @@ namespace SocialPoint.Lockstep
         public ServerLockstepController(IUpdateScheduler updateScheduler = null)
         {
             Config = new LockstepConfig();
-            RandomSeed =  XRandom.GenerateSeed();
+            GameParams =  new LockstepGameParams();
             _updateScheduler = updateScheduler;
             _turns = new Dictionary<int, ServerLockstepTurnData>();
             Stop();
