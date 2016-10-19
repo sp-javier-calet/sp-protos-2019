@@ -43,13 +43,13 @@ namespace SocialPoint.Pathfinding
             writer.Write(value.Salt);
             NavBBox3Serializer.Instance.Serialize(value.Bounds, writer);
 
-            SerializationUtils.SerializeArray<NavPoly>(value.Polys, NavPolySerializer.Instance.Serialize, writer);
-            SerializationUtils.SerializeArray<Vector3>(value.Verts, NavVector3Serializer.Instance.Serialize, writer);
+            writer.Write<NavPoly>(value.Polys, NavPolySerializer.Instance.Serialize);
+            writer.Write<Vector3>(value.Verts, NavVector3Serializer.Instance.Serialize);
 
-            SerializationUtils.SerializeArray<PolyMeshDetail.MeshData>(value.DetailMeshes, NavDetailMeshDataSerializer.Instance.Serialize, writer);
-            SerializationUtils.SerializeArray<Vector3>(value.DetailVerts, NavVector3Serializer.Instance.Serialize, writer);
-            SerializationUtils.SerializeArray<PolyMeshDetail.TriangleData>(value.DetailTris, NavDetailTriangleDataSerializer.Instance.Serialize, writer);
-            SerializationUtils.SerializeArray<OffMeshConnection>(value.OffMeshConnections, NavOffMeshConnSerializer.Instance.Serialize, writer);
+            writer.Write<PolyMeshDetail.MeshData>(value.DetailMeshes, NavDetailMeshDataSerializer.Instance.Serialize);
+            writer.Write<Vector3>(value.DetailVerts, NavVector3Serializer.Instance.Serialize);
+            writer.Write<PolyMeshDetail.TriangleData>(value.DetailTris, NavDetailTriangleDataSerializer.Instance.Serialize);
+            writer.Write<OffMeshConnection>(value.OffMeshConnections, NavOffMeshConnSerializer.Instance.Serialize);
 
             writer.Write(value.BVTree.Count);
             for(int i = 0; i < value.BVTree.Count; i++)
@@ -97,17 +97,17 @@ namespace SocialPoint.Pathfinding
             result.Salt = reader.ReadInt32();
             result.Bounds = NavBBox3Parser.Instance.Parse(reader);
 
-            result.Polys = SerializationUtils.ParseArray<NavPoly>(NavPolyParser.Instance.Parse, reader);
+            result.Polys = reader.Read<NavPoly>(NavPolyParser.Instance.Parse);
             result.PolyCount = result.Polys.Length;
-            result.Verts = SerializationUtils.ParseArray<Vector3>(NavVector3Parser.Instance.Parse, reader);
+            result.Verts = reader.Read<Vector3>(NavVector3Parser.Instance.Parse);
 
-            result.DetailMeshes = SerializationUtils.ParseArray<PolyMeshDetail.MeshData>(NavDetailMeshDataParser.Instance.Parse, reader);
-            result.DetailVerts = SerializationUtils.ParseArray<Vector3>(NavVector3Parser.Instance.Parse, reader);
-            result.DetailTris = SerializationUtils.ParseArray<PolyMeshDetail.TriangleData>(NavDetailTriangleDataParser.Instance.Parse, reader);
-            result.OffMeshConnections = SerializationUtils.ParseArray<OffMeshConnection>(NavOffMeshConnParser.Instance.Parse, reader);
+            result.DetailMeshes = reader.Read<PolyMeshDetail.MeshData>(NavDetailMeshDataParser.Instance.Parse);
+            result.DetailVerts = reader.Read<Vector3>(NavVector3Parser.Instance.Parse);
+            result.DetailTris = reader.Read<PolyMeshDetail.TriangleData>(NavDetailTriangleDataParser.Instance.Parse);
+            result.OffMeshConnections = reader.Read<OffMeshConnection>(NavOffMeshConnParser.Instance.Parse);
             result.OffMeshConnectionCount = result.OffMeshConnections.Length;
 
-            var nodes = SerializationUtils.ParseArray<BVTree.Node>(NavBVTreeNodeParser.Instance.Parse, reader);
+            var nodes = reader.Read<BVTree.Node>(NavBVTreeNodeParser.Instance.Parse);
             result.BVTree = new BVTree(nodes);
 
             result.BvQuantFactor = reader.ReadSingle();
