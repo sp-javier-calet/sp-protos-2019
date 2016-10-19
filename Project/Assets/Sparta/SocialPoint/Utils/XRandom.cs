@@ -25,6 +25,16 @@ namespace SocialPoint.Utils
             _lce = new LinearCongruentialEngine(seed);
         }
 
+        public uint Next()
+        {
+            return Range(LinearCongruentialEngine.Min, LinearCongruentialEngine.Max);
+        }
+
+        public uint Range(uint min, uint max)
+        {
+            return (uint)(Value * (max - min + 1) % (max - min + 1) + min);
+        }
+
         public int Range(int min, int max)
         {
             return (int)(Value * (max - min + 1) % (max - min + 1) + min);

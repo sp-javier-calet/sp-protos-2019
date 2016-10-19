@@ -108,6 +108,7 @@ namespace SocialPoint.Lockstep
         bool _simStartedCalled;
         bool _simRecoveredCalled;
         State _state;
+        XRandom _rootRandom;
 
         Dictionary<Type, ILockstepCommandLogic> _commandLogics = new Dictionary<Type, ILockstepCommandLogic>();
         List<ClientLockstepCommandData> _pendingCommands = new List<ClientLockstepCommandData>();
@@ -221,6 +222,7 @@ namespace SocialPoint.Lockstep
         public void Stop()
         {
             Running = false;
+            _rootRandom = null;
             _state = State.Waiting;
             _confirmedTurns.Clear();
             _pendingCommands.Clear();
@@ -444,6 +446,15 @@ namespace SocialPoint.Lockstep
                     ConnectionChanged();
                 }
             }
+        }
+
+        public XRandom CreateRandomGenerator()
+        {
+            if(_rootRandom == null)
+            {
+                _rootRandom = new XRandom(GameParams.RandomSeed);
+            }
+            return new XRandom(_rootRandom.Next());
         }
 
         public void Dispose()

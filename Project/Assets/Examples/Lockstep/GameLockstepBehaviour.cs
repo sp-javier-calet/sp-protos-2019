@@ -97,7 +97,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
 
     void OnGameStarted()
     {
-        _random = new XRandom(_lockstep.GameParams.RandomSeed);
+        _random = _lockstep.CreateRandomGenerator();
     }
 
     void StartGame(GameLockstepMode mode)
