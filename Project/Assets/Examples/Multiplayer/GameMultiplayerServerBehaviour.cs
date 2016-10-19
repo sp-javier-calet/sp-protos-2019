@@ -25,6 +25,29 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     PhysicsWorld _physicsWorld;
     IPhysicsDebugger _physicsDebugger;
 
+    int _maxPlayers = 4;
+    int _currentPlayers = 0;
+
+    public int MaxPlayers
+    {
+        get
+        {
+            return _maxPlayers;
+        }
+        private set
+        {
+            _maxPlayers = value;
+        }
+    }
+
+    public bool Full
+    {
+        get
+        {
+            return (_currentPlayers >= _maxPlayers);
+        }
+    }
+
     public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl, IPhysicsDebugger physicsDebugger)
     {
         _server = server;
@@ -134,10 +157,12 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void INetworkServerSceneBehaviour.OnClientConnected(byte clientId)
     {
+        _currentPlayers++;
     }
 
     void INetworkServerSceneBehaviour.OnClientDisconnected(byte clientId)
     {
+        _currentPlayers--;
     }
 
     void AddPhysicsWorld()
