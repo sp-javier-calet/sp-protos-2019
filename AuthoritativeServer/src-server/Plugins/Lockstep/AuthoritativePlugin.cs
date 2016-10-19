@@ -46,6 +46,7 @@ namespace Photon.Hive.Plugin.Authoritative
         //Game related variables
         GameMultiplayerServerBehaviour _gameServer;
         int _lastUpdateTimestamp = 0;
+        int _updateIntervalMs = 100;
 
         public AuthoritativePlugin()
         {
@@ -53,6 +54,8 @@ namespace Photon.Hive.Plugin.Authoritative
             _delegates = new List<INetworkServerDelegate>();
             _netServer = new NetworkServerSceneController(this);
             _gameServer = new GameMultiplayerServerBehaviour(this, _netServer, new EmptyPhysicsDebugger());
+
+            ((INetworkServerDelegate)_netServer).OnServerStarted();//TODO: Do here or inside INetworkServer.Start() implementation?
         }
 
         byte GetClientId(string userId)
@@ -77,7 +80,7 @@ namespace Photon.Hive.Plugin.Authoritative
         public override void OnCloseGame(ICloseGameCallInfo info)
         {
             PluginHost.StopTimer(_timer);
-            //_netServer.Stop();
+            ((INetworkServerDelegate)_netServer).OnServerStopped();//TODO: Do here or inside INetworkServer.Stop() implementation?
             info.Continue();
         }
 
@@ -87,11 +90,11 @@ namespace Photon.Hive.Plugin.Authoritative
             {
                 return;
             }
-            PluginHost.SetProperties(0, new Hashtable {
+            /*PluginHost.SetProperties(0, new Hashtable {
                 { (int)MaxPlayersKey, _gameServer.MaxPlayers },
                 { (int)MasterClientIdKey, 0 },
                 { ServerIdRoomProperty, 0 },
-            }, null, false);
+            }, null, false);*/
             var clientId = GetClientId(info.UserId);
             OnClientConnected(clientId);
         }
@@ -221,9 +224,9 @@ namespace Photon.Hive.Plugin.Authoritative
             _netServer.ServerConfig.ClientStartDelay = GetConfigOption(config,
                 ClientStartDelayConfig, _netServer.ServerConfig.ClientStartDelay);
             _netServer.ServerConfig.ClientSimulationDelay = GetConfigOption(config,
-                ClientSimulationDelayConfig, _netServer.ServerConfig.ClientSimulationDelay);
+                ClientSimulationDelayConfig, _netServer.ServerConfig.ClientSimulationDelay);*/
 
-            _timer = PluginHost.CreateTimer(Update, 0, _netServer.Config.CommandStepDuration);*/
+            _timer = PluginHost.CreateTimer(Update, 0, _updateIntervalMs);
             return true;
         }
 
