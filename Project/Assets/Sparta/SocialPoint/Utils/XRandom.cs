@@ -5,6 +5,11 @@ namespace SocialPoint.Utils
 
     public sealed class XRandom
     {
+        public static uint GenerateSeed()
+        {
+            return (uint)(new Random().Next());
+        }
+
         LinearCongruentialEngine _lce;
 
         double Value
@@ -13,10 +18,6 @@ namespace SocialPoint.Utils
             {
                 return (double) _lce.Next / (double)LinearCongruentialEngine.Max;
             }
-        }
-
-        public XRandom() : this(1)
-        {
         }
 
         public XRandom(uint seed)
@@ -33,6 +34,8 @@ namespace SocialPoint.Utils
         {
             return (float)(Value * (max - min) + min);
         }
+
+        #region Linear concruential engine
 
         class LinearCongruentialEngine
         {
@@ -72,5 +75,7 @@ namespace SocialPoint.Utils
                 }
             }
         }
+
+        #endregion
     }
 }
