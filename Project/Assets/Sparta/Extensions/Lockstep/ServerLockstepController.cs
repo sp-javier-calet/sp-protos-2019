@@ -183,6 +183,7 @@ namespace SocialPoint.Lockstep
             _localClient = client;
             _localFactory = factory;
             _localClient.Config = Config;
+            _localClient.GameParams = GameParams;
             if(_localClient != null)
             {
                 _localClient.CommandAdded += AddPendingLocalClientCommand;
