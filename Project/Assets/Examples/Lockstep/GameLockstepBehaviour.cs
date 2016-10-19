@@ -78,6 +78,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         _model.OnInstantiate += OnInstantiate;
 
         _lockstep.RegisterCommandLogic<ClickCommand>(new ClickCommandLogic(_model));
+        _lockstep.SimulationStarted += OnGameStarted;
         _factory.Register<ClickCommand>(1);
 
         _mode = GameLockstepMode.None;
@@ -92,6 +93,11 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
     {
         _lockstep.Simulate -= Simulate;
         _model.OnInstantiate -= OnInstantiate;
+    }
+
+    void OnGameStarted()
+    {
+        _random = new XRandom(_lockstep.GameParams.RandomSeed);
     }
 
     void StartGame(GameLockstepMode mode)
@@ -111,7 +117,6 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         }
 
         _lockstep.Start();
-        _random = new XRandom(_lockstep.GameParams.RandomSeed);
     }
 
     public void OnLocalClicked()
