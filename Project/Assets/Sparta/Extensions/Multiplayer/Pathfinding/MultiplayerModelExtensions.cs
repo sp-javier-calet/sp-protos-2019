@@ -1,6 +1,5 @@
 ﻿using PathVector = SharpNav.Geometry.Vector3;
 using MultiplayerVector = Jitter.LinearMath.JVector;
-using SocialPoint.Attributes;
 
 namespace SocialPoint.Pathfinding
 {
