@@ -43,8 +43,9 @@ namespace SocialPoint.Lockstep
 
         public void Record()
         {
-            _config = null;
-            _gameParams = null;
+            Clear();
+
+            _client.TurnApplied -= OnTurnApplied;
             _client.TurnApplied += OnTurnApplied;
         }
 

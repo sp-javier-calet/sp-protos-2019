@@ -97,32 +97,28 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
 
     void OnGameStarted()
     {
+        if(_mode == GameLockstepMode.Replay)
+        {
+            _replay.Replay();
+        }
+        else
+        {
+            _replay.Record();
+        }
+
         _random = _lockstep.CreateRandomGenerator();
     }
 
-    void StartGame(GameLockstepMode mode)
+    void StartLocalGame(GameLockstepMode mode)
     {
         _mode = mode;
-
-        switch(_mode)
-        {
-        case GameLockstepMode.Replay:
-            _replay.Replay();
-            break;
-        case GameLockstepMode.Local:
-            _replay.Record();
-            break;
-        default:
-            throw new Exception("Invalid StartGame mode " + mode);
-        }
-
         _lockstep.Start();
     }
 
     public void OnLocalClicked()
     {
         SetupGameScreen();
-        StartGame(GameLockstepMode.Local);
+        StartLocalGame(GameLockstepMode.Local);
     }
 
     public void OnReplayClicked()
@@ -142,7 +138,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         }
 
         SetupGameScreen();
-        StartGame(GameLockstepMode.Replay);
+        StartLocalGame(GameLockstepMode.Replay);
     }
 
     public void OnClientClicked()
