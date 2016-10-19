@@ -71,6 +71,14 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
+        public uint RandomSeed
+        {
+            get
+            {
+                return _serverLockstep.RandomSeed;
+            }
+        }
+
         public ServerLockstepNetworkController(INetworkServer server, IUpdateScheduler scheduler = null)
         {
             ServerConfig = new ServerLockstepConfig();
@@ -417,7 +425,7 @@ namespace SocialPoint.Lockstep.Network
                 MessageType = LockstepMsgType.ClientSetup,
                 ClientId = clientId,
                 Unreliable = false
-            }, new ClientSetupMessage(Config));
+            }, new ClientSetupMessage(RandomSeed, Config));
         }
 
         public void OnClientDisconnected(byte clientId)
@@ -505,14 +513,14 @@ namespace SocialPoint.Lockstep.Network
                 _localClient.AddConfirmedTurn(itr.Current.ToClient(_localFactory));
             }
             itr.Dispose();
-            _localClient.Start(ClientUpdateTime);
+            _localClient.Start(ClientUpdateTime, RandomSeed);
         }
 
         void StartLocalClientOnAllPlayersReady()
         {
             if(_localClient != null)
             {
-                _localClient.Start(ClientUpdateTime);
+                _localClient.Start(ClientUpdateTime, RandomSeed);
             }
         }
 

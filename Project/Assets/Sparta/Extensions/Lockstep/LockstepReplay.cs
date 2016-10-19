@@ -1,10 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System;
 using SocialPoint.IO;
-using SocialPoint.Utils;
-using SocialPoint.Lockstep.Network;
 
 namespace SocialPoint.Lockstep
 {
@@ -14,6 +10,7 @@ namespace SocialPoint.Lockstep
         LockstepCommandFactory _commandFactory;
         Dictionary<int, ClientLockstepTurnData> _turns;
         LockstepConfig _config;
+        uint _randomSeed;
 
         public LockstepReplay(ClientLockstepController clientLockstep, LockstepCommandFactory commandFactory)
         {
@@ -40,12 +37,14 @@ namespace SocialPoint.Lockstep
         public void Clear()
         {
             _config = null;
+            _randomSeed = 0;
             _turns.Clear();
         }
 
         public void Record()
         {
             _config = null;
+            _randomSeed = 0;
             _client.TurnApplied += OnTurnApplied;
         }
 
@@ -56,6 +55,7 @@ namespace SocialPoint.Lockstep
                 _config = new LockstepConfig();
             }
             _client.Config = _config;
+            _client.RandomSeed = _randomSeed;
             var itr = GetTurnsEnumerator();
             while(itr.MoveNext())
             {
@@ -113,6 +113,10 @@ namespace SocialPoint.Lockstep
             {
                 _config = _client.Config;
             }
+            if(_randomSeed == 0)
+            {
+                _randomSeed = _client.RandomSeed;
+            }
             if(!ClientLockstepTurnData.IsNullOrEmpty(turn))
             {
                 _turns[_client.CurrentTurnNumber] = turn;
@@ -126,6 +130,7 @@ namespace SocialPoint.Lockstep
                 return;
             }
             _config.Serialize(writer);
+            writer.Write(_randomSeed);
             writer.Write(_turns.Count);
             var itr = _turns.GetEnumerator();
             while(itr.MoveNext())
@@ -140,6 +145,7 @@ namespace SocialPoint.Lockstep
         {
             _config = new LockstepConfig();
             _config.Deserialize(reader);
+            _randomSeed = reader.ReadUInt32();
             int count = reader.ReadInt32();
             for(int i = 0; i < count; ++i)
             {

@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using SocialPoint.Utils;
-using SocialPoint.Base;
-using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep
 {
@@ -14,7 +11,7 @@ namespace SocialPoint.Lockstep
 
     public class ActionLockstepCommandLogic<T> : ILockstepCommandLogic<T>
     {
-        Action<T> _action;
+        readonly Action<T> _action;
 
         public ActionLockstepCommandLogic(Action<T> action)
         {
@@ -120,6 +117,8 @@ namespace SocialPoint.Lockstep
 
         public LockstepConfig Config { get; set; }
 
+        public uint RandomSeed { get; set; }
+
         public ClientLockstepConfig ClientConfig { get; set; }
 
         public event Action<ClientLockstepCommandData> CommandAdded;
@@ -202,7 +201,7 @@ namespace SocialPoint.Lockstep
             Config = config;
         }
 
-        public void Start(int startTime = 0)
+        public void Start(int startTime = 0, uint randomSeed = 0)
         {
             Running = true;
             _time = startTime;
@@ -216,6 +215,12 @@ namespace SocialPoint.Lockstep
             {
                 _updateScheduler.Add(this);
             }
+
+            if(randomSeed == 0)
+            {
+                randomSeed = XRandom.GenerateSeed();
+            }
+            RandomSeed = randomSeed;
         }
 
         public void Stop()
@@ -450,6 +455,5 @@ namespace SocialPoint.Lockstep
         {
             Stop();
         }
-
     }
 }

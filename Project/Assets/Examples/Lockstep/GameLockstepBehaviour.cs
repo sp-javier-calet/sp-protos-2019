@@ -5,12 +5,11 @@ using SocialPoint.Base;
 using SocialPoint.Lockstep;
 using SocialPoint.Lockstep.Network;
 using SocialPoint.Dependency;
-using SocialPoint.Utils;
 using SocialPoint.IO;
 using SocialPoint.Pooling;
 using SocialPoint.Network;
 using SocialPoint.AdminPanel;
-using SocialPoint.GUIControl;
+using SocialPoint.Utils;
 using FixMath.NET;
 using System;
 using System.IO;
@@ -51,6 +50,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
     INetworkServer _netServer;
     ServerLockstepNetworkController _netLockstepServer;
     GameLockstepMode _mode;
+    XRandom _random;
 
     FloatingPanelController _clientFloating;
     FloatingPanelController _serverFloating;
@@ -94,12 +94,30 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         _model.OnInstantiate -= OnInstantiate;
     }
 
+    void StartGame(GameLockstepMode mode)
+    {
+        _mode = mode;
+
+        switch(_mode)
+        {
+        case GameLockstepMode.Replay:
+            _replay.Replay();
+            break;
+        case GameLockstepMode.Local:
+            _replay.Record();
+            break;
+        default:
+            throw new Exception("Invalid StartGame mode " + mode);
+        }
+
+        _lockstep.Start();
+        _random = new XRandom(_lockstep.RandomSeed);
+    }
+
     public void OnLocalClicked()
     {
         SetupGameScreen();
-        _mode = GameLockstepMode.Local;
-        _replay.Record();
-        _lockstep.Start();
+        StartGame(GameLockstepMode.Local);
     }
 
     public void OnReplayClicked()
@@ -119,20 +137,18 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         }
 
         SetupGameScreen();
-        _mode = GameLockstepMode.Replay;
-        _replay.Replay();
-        _lockstep.Start();
+        StartGame(GameLockstepMode.Replay);
     }
 
     public void OnClientClicked()
     {
         SetupGameScreen();
-        _mode = GameLockstepMode.Client;
-        StartClient();
+        StartClient(GameLockstepMode.Client);
     }
 
-    void StartClient()
+    void StartClient(GameLockstepMode mode)
     {
+        _mode = mode;
         _netClient = ServiceLocator.Instance.Resolve<INetworkClient>();
         _netLockstepClient = ServiceLocator.Instance.Resolve<ClientLockstepNetworkController>();
         _netClient.Connect();
@@ -168,9 +184,8 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
     public void OnHostClicked()
     {
         SetupGameScreen();
-        _mode = GameLockstepMode.Host;
         StartServer();
-        StartClient();
+        StartClient(GameLockstepMode.Host);
         _netLockstepServer.UnregisterLocalClient();
     }
 
@@ -241,8 +256,10 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
 
     void OnInstantiate(Fix64 x, Fix64 y, Fix64 z)
     {
-        ObjectPool.Spawn(_unitPrefab, transform,
-            new Vector3((float)x, (float)y, (float)z), Quaternion.identity);
+        var unit = ObjectPool.Spawn(_unitPrefab, transform,
+                       new Vector3((float)x, (float)y, (float)z), Quaternion.identity);
+        var scale = new Vector3(_random.Range(0.2f, 2.0f), _random.Range(0.2f, 2.0f), _random.Range(0.2f, 2.0f));
+        unit.transform.localScale = scale;
     }
 
     void Update()
@@ -272,7 +289,4 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
     {
         ObjectPool.Recycle(loading);
     }
-
-
-
 }
