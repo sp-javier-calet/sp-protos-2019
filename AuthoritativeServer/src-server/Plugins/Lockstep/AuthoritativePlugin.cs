@@ -233,10 +233,10 @@ namespace Photon.Hive.Plugin.Authoritative
         void Update()
         {
             int currentTimestamp = ((INetworkServer)this).GetTimestamp();
-            int deltaTime = currentTimestamp - _lastUpdateTimestamp;
+            float deltaTime = ((float)(currentTimestamp - _lastUpdateTimestamp)) * 0.001f;//Milliseconds to seconds
             _lastUpdateTimestamp = currentTimestamp;
             
-            _netServer.Update((float)deltaTime);
+            _netServer.Update(deltaTime);
         }
 
         void INetworkServer.Start()
