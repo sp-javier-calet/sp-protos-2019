@@ -41,6 +41,18 @@ namespace SocialPoint.Multiplayer
         PhysicsWorld _physicsWorld;
         bool _isInWorld = false;
 
+        public int LayerIndex // 0-31 (int)
+        {
+            get
+            {
+                return _rigidBody.LayerIndex;
+            }
+            set
+            {
+                _rigidBody.LayerIndex = value;
+            }
+        }
+
         event CollisionDetectedHandler _collisionListeners;
 
         public PhysicsRigidBody(PhysicsCollisionShape shape, ControlType type, PhysicsWorld physicsWorld, IPhysicsDebugger debugger)
