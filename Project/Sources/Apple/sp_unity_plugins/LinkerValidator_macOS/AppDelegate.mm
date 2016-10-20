@@ -7,8 +7,7 @@
 //
 
 #import "AppDelegate.h"
-
-void SPUnityCurlInit();
+#include "CurlTestClient.hpp"
 
 @interface AppDelegate ()
 
@@ -20,8 +19,9 @@ void SPUnityCurlInit();
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification
 {
     // Insert code here to initialize your application
-
-    SPUnityCurlInit();
+    
+    CurlTestClient test;
+    test.run();
 }
 
 - (void)applicationWillTerminate:(NSNotification*)aNotification
