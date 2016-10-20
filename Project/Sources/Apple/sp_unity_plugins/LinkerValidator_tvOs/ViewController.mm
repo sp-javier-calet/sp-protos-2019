@@ -7,8 +7,7 @@
 //
 
 #import "ViewController.h"
-
-void SPUnityCurlInit();
+#include "CurlTestClient.hpp"
 
 @interface ViewController ()
 
@@ -20,8 +19,9 @@ void SPUnityCurlInit();
 {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
-
-    SPUnityCurlInit();
+    
+    CurlTestClient test;
+    test.run();
 }
 
 - (void)didReceiveMemoryWarning
