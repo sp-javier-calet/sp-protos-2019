@@ -118,6 +118,12 @@ namespace SpartaTools.Editor.View
 
         #region Editor options
 
+        [MenuItem("Sparta/Build/Apply Current", false, 0)]
+        public static void ApplyCurrent()
+        {
+            ApplyConfig(CurrentMode);
+        }
+
         [MenuItem("Sparta/Build/Debug", false, 1)]
         public static void SetDebugConfig()
         {
