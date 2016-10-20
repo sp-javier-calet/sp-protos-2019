@@ -90,7 +90,7 @@ namespace Jitter.Collision
                 {
                     for (int e = i + 1; e < count; e++)
                     {
-                        if (!this.CheckBothStaticOrInactive(bodyList[i], bodyList[e]) && this.CheckBoundingBoxes(bodyList[i], bodyList[e]))
+                        if (!this.CheckBothStaticNonKinematicOrInactive(bodyList[i], bodyList[e]) && this.CheckBoundingBoxes(bodyList[i], bodyList[e]))
                         {
                             if (RaisePassedBroadphase(bodyList[i], bodyList[e]))
                             {
@@ -114,7 +114,7 @@ namespace Jitter.Collision
                 {
                     for (int e = i + 1; e < count; e++)
                     {
-                        if (!this.CheckBothStaticOrInactive(bodyList[i], bodyList[e]) && this.CheckBoundingBoxes(bodyList[i], bodyList[e]))
+                        if (!this.CheckBothStaticNonKinematicOrInactive(bodyList[i], bodyList[e]) && this.CheckBoundingBoxes(bodyList[i], bodyList[e]))
                         {
                             if (RaisePassedBroadphase(bodyList[i], bodyList[e]))
                             {

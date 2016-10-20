@@ -680,11 +680,19 @@ namespace Jitter.Dynamics
             get { return (!this.isActive || this.isStatic); }
         }
 
+        public bool IsStaticNonKinematicOrInactive
+        {
+            get
+            {
+                return !this.isActive || IsStaticNonKinematic;
+            }
+        }
+
         public bool IsStaticNonKinematic
         {
             get
             {
-                return !this.isActive || this.isStatic && !this.isKinematic;
+                return this.isStatic && !this.isKinematic;
             }
         }
 

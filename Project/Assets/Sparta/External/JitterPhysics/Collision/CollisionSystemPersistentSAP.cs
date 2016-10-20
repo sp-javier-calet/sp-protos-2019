@@ -350,7 +350,7 @@ namespace Jitter.Collision
 
             foreach(OverlapPair key in fullOverlaps)
             {
-                if(this.CheckBothStaticNonKinematic(key.Entity1, key.Entity2))
+                if(this.CheckBothStaticNonKinematicOrInactive(key.Entity1, key.Entity2))
                     continue;
 
                 if(base.RaisePassedBroadphase(key.Entity1, key.Entity2))
