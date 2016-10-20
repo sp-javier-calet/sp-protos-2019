@@ -6,14 +6,14 @@ namespace SocialPoint.Utils
 {
     public interface ISimulateable
     {
-        void Simulate(long timestamp);
+        void Simulate(int timestamp);
 
-        long KeyTimestamp{ get; }
+        int KeyTimestamp{ get; }
     }
 
     static class SimulateableUtils
     {
-        static public long KeyTimestamp<T>(List<T> sims) where T : ISimulateable
+        static public int KeyTimestamp<T>(List<T> sims) where T : ISimulateable
         {
             if(sims == null || sims.Count == 0)
             {
