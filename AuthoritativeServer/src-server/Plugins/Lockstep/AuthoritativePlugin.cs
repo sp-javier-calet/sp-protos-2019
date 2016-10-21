@@ -47,6 +47,7 @@ namespace Photon.Hive.Plugin.Authoritative
         GameMultiplayerServerBehaviour _gameServer;
         int _lastUpdateTimestamp = 0;
         int _updateIntervalMs = 100;
+        string _navMeshFileLocation = "\\..\\data\\test_navmesh";
 
         public AuthoritativePlugin()
         {
@@ -56,6 +57,10 @@ namespace Photon.Hive.Plugin.Authoritative
             _gameServer = new GameMultiplayerServerBehaviour(this, _netServer, new EmptyPhysicsDebugger());
 
             ((INetworkServerDelegate)_netServer).OnServerStarted();//TODO: Do here or inside INetworkServer.Start() implementation?
+
+            string navmeshPath = typeof(AuthoritativePlugin).Assembly.Location + _navMeshFileLocation;
+            string message = string.Empty;
+            _gameServer.LoadNavMesh(navmeshPath, out message);
         }
 
         byte GetClientId(string userId)

@@ -3,12 +3,17 @@ using SocialPoint.Utils;
 using SocialPoint.IO;
 using SocialPoint.Multiplayer;
 using SocialPoint.Network;
+using SocialPoint.Pathfinding;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using Jitter;
 using Jitter.LinearMath;
 using Jitter.Dynamics;
 using Jitter.Collision;
+using SharpNav;
+using SharpNav.Geometry;
+using SharpNav.Pathfinding;
 
 public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisposable
 {
@@ -27,6 +32,9 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     int _maxPlayers = 4;
     int _currentPlayers = 0;
+
+    TiledNavMesh _navMesh;
+    Pathfinder _pathfinder;
 
     public int MaxPlayers
     {
@@ -48,6 +56,11 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         }
     }
 
+    public string NavMeshPath
+    {
+        get; set;
+    }
+
     public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl, IPhysicsDebugger physicsDebugger)
     {
         _server = server;
@@ -64,6 +77,23 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     public void Dispose()
     {
         _controller.RegisterReceiver(null);
+    }
+
+    public bool LoadNavMesh(string path, out string message)
+    {
+        message = string.Empty;
+        try
+        {
+            var stream = new FileStream(path, FileMode.Open);
+            _navMesh = NavMeshParser.Instance.Parse(new SystemBinaryReader(stream));
+            _pathfinder = new Pathfinder(_navMesh);
+            return true;
+        }
+        catch (Exception e)
+        {
+            message = e.Message;
+            return false;
+        }
     }
 
     void INetworkServerSceneBehaviour.Update(float dt, NetworkScene scene, NetworkScene oldScene)
@@ -85,10 +115,10 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
                 var id = itr.Current.Id;
                 var p = itr.Current.Transform.Position;
 
-                p += new JVector(
-                    RandomUtils.Range(-_movement.X, _movement.X),
-                    0.0f,//RandomUtils.Range(-_movement.Y, _movement.Y),
-                    RandomUtils.Range(-_movement.Z, _movement.Z));
+                var deltaX = RandomUtils.Range(-_movement.X, _movement.X);
+                var deltaZ = RandomUtils.Range(-_movement.Z, _movement.Z);
+
+                p += new JVector(deltaX, 0.0f, deltaZ);
 
                 _controller.Tween(id, p, _moveInterval);
                 int times;
@@ -141,6 +171,8 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
                 }
 
                 AddCollision(currentCube);
+
+                PathfindToTarget(ac.Position);
             }
             else
             {
@@ -211,5 +243,20 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
                                 JVector point1, JVector point2, JVector normal, float penetration)
     {
         Log.i("Player Collision Detected!");
+    }
+
+    void PathfindToTarget(JVector target)
+    {
+        if (_playerCube != null && _pathfinder != null)
+        {
+            Vector3 startPoint = _playerCube.Transform.Position.ToPathfinding();
+            Vector3 endPoint = target.ToPathfinding();
+            var extents = Vector3.One;
+            StraightPath straightPath;
+            if(_pathfinder.TryGetPath(startPoint, endPoint, extents, out straightPath))
+            {
+                Log.i("Path Found!");
+            }
+        }
     }
 }
