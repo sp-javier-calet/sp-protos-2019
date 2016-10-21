@@ -2,44 +2,41 @@
 {
     public interface IChatMessage
     {
-        string Uuid { get; }
-        string PlayerId { get; }
-        string PlayerName { get; }
-        string Text { get; }
-        long Timestamp { get; }
+        string Uuid { get; set; }
+        string PlayerId { get; set; }
+        string PlayerName { get; set; }
+        string Text { get; set; }
+        long Timestamp { get; set; }
 
-        bool IsWarning { get; }
-        bool HasAlliance { get; }
-        bool IsSending { get; }
+        bool IsWarning { get; set; }
+        bool HasAlliance { get; set; }
+        bool IsSending { get; set; }
 
-        string AllianceName { get; }
-        string AllianceId { get; }
-        int RankInAlliance { get; }
-        int PlayerLevel { get; }
-        int AllianceAvatarId { get; }
+        string AllianceName { get; set; }
+        string AllianceId { get; set; }
+        int RankInAlliance { get; set; }
+        int PlayerLevel { get; set; }
+        int AllianceAvatarId { get; set; }
     }
-
-    public class BaseChatMessage
+    /*
+    public class ManagedChatMessage : IChatMessage
     {
-        public string Uuid { get; protected set; }
-        public string PlayerId { get; protected set; }
-        public string PlayerName { get; protected set; }
-        public string Text { get; protected set; }
-        public long Timestamp { get; protected set; }
+        public string Uuid { get; set; }
+        public string PlayerId { get; set; }
+        public string PlayerName { get; set; }
+        public string Text { get;  set; }
+        public long Timestamp { get;  set; }
 
-        public bool IsWarning { get; protected set; }
-        public bool HasAlliance { get; protected set; }
-        public bool IsSending { get; protected set; }
+        public bool IsWarning { get; set; }
+        public bool HasAlliance { get; set; }
+        public bool IsSending { get;  set; }
 
-        public string AllianceName { get; protected set; }
-        public string AllianceId { get; protected set; }
-        public int RankInAlliance { get; protected set; }
-        public int PlayerLevel { get; protected set; }
-        public int AllianceAvatarId { get; protected set; }
+        public string AllianceName { get; set; }
+        public string AllianceId { get; set; }
+        public int RankInAlliance { get; set; }
+        public int PlayerLevel { get; set; }
+        public int AllianceAvatarId { get; set; }
 
-        public BaseChatMessage(string text)
-        {
-            Text = text;
-        }
     }
+    */
 }

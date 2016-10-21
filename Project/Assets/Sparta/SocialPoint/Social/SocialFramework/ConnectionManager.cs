@@ -312,8 +312,8 @@ namespace SocialPoint.Social
             var topicsList = dic.Get(ConnectionManager.TopicsKey).AsList;
             for(int i = 0; i < topicsList.Count; ++i)
             {
-                var topicDic = topicsList[i].AsDic;
-                var subscriptionId = topicDic.GetValue(ConnectionManager.SubscriptionIdTopicKey).ToLong();
+                //var topicDic = topicsList[i].AsDic;
+                //var subscriptionId = topicDic.GetValue(ConnectionManager.SubscriptionIdTopicKey).ToLong();
 
                 // TODO WAMP Autosubscribe to subscriptionId, "notifications"
             }

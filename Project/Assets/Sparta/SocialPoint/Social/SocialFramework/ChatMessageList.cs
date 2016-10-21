@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.Social
 {
@@ -8,24 +9,31 @@ namespace SocialPoint.Social
         IEnumerator<IChatMessage> GetMessages();
 
         int Add(IChatMessage message);
+
         void Edit(int index, Action<IChatMessage> editCallback);
+
         void SetHistory(IEnumerable<IChatMessage> historic);
+
         void ProcessMessages(Action<int, IChatMessage> processCallback);
+
         void Clear();
     }
 
-    public class ChatMessageList<MessageType> : IMessageList where MessageType : IChatMessage 
+    public class ChatMessageList<MessageType> : IMessageList where MessageType : class, IChatMessage
     {
-        readonly List<MessageType> _messages;
+        public delegate void MessageListEventDelegate();
+        public delegate void MessageEventDelegate(int index);
 
-        public event Action<int> OnMessageAdded;
-        public event Action<int> OnMessageEdited;
-        public event Action OnMessagesCleared;
-        public event Action OnHistoricAdded;
+        public event MessageListEventDelegate OnMessagesCleared;
+        public event MessageListEventDelegate OnHistoryAdded;
+        public event MessageEventDelegate OnMessageAdded;
+        public event MessageEventDelegate OnMessageEdited;
+
+        readonly List<MessageType> _messages;
 
         public bool HasMessages
         {
-            get 
+            get
             {
                 return _messages.Count > 0;
             }
@@ -35,9 +43,10 @@ namespace SocialPoint.Social
         {
             get
             {
-                _messages.Count;
+                return _messages.Count;
             }
         }
+
         public ChatMessageList()
         {
             _messages = new List<MessageType>();
@@ -79,7 +88,7 @@ namespace SocialPoint.Social
             }
             return idx;
         }
-            
+
         public void Edit(int index, Action<IChatMessage> editCallback)
         {
             Edit(index, new Action<MessageType>(editCallback));
@@ -89,12 +98,17 @@ namespace SocialPoint.Social
         {
             if(index < 0 || index >= _messages.Count)
             {
-                // TODO Assert
+                Log.e("Invalid index");
                 return;
             }
 
             var msg = _messages[index];
             editCallback(msg);
+
+            if(OnMessageEdited != null)
+            {
+                OnMessageEdited(index);
+            }
         }
 
         public void SetHistory(IEnumerable<IChatMessage> historic)
@@ -102,7 +116,8 @@ namespace SocialPoint.Social
             var custom = historic as IEnumerable<MessageType>;
             if(custom == default(IEnumerable<MessageType>))
             {
-                throw new Exception("Incompatible message type");
+                Log.e("Incompatible message type");
+                return;
             }
 
             SetHistory(custom);
@@ -113,9 +128,9 @@ namespace SocialPoint.Social
             Clear();
             _messages.AddRange(historic);
 
-            if(OnHistoricAdded != null)
+            if(OnHistoryAdded != null)
             {
-                OnHistoricAdded();
+                OnHistoryAdded();
             }
         }
 

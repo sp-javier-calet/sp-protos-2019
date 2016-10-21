@@ -5,7 +5,7 @@ using SocialPoint.Locale;
 
 namespace SocialPoint.Social
 {
-    public class FactoryChatMessages<MessageType> where MessageType : IChatMessage
+    public class FactoryChatMessages<MessageType> where MessageType : class, IChatMessage, new()
     {
         const string Tag = "SocialFramework";
         const string UserNameKey = "user_name";
@@ -22,11 +22,62 @@ namespace SocialPoint.Social
 
         public Localization Localization;
 
-        public virtual MessageType[] ParseMessage(AttrDic dic)
+        public MessageType Create(string text)
+        {
+            var message = new MessageType();
+            message.Text = text;
+            return message;
+        }
+
+        public MessageType CreateLocalized(string tid)
+        {
+            var message = new MessageType();
+            message.Text = Localization.Get(tid);
+            return message;
+        }
+
+        public MessageType CreateWarning(string text)
+        {
+            var message = Create(text);
+            message.IsWarning = true;
+            return message;
+        }
+
+        public MessageType CreateLocalizedWarning(string tid)
+        {
+            var message = CreateLocalized(tid);
+            message.IsWarning = true;
+            return message;
+        }
+
+        public AttrDic SerializeMessage(MessageType message)
+        {
+            var msgInfo = new AttrDic();
+
+            if(SerializeExtraInfo != null)
+            {
+                SerializeExtraInfo(message, msgInfo);
+            }
+
+            msgInfo.SetValue(ConnectionManager.ChatMessageUuidKey, message.Uuid);
+            msgInfo.SetValue(ConnectionManager.ChatMessageUserIdKey, message.PlayerId);
+            msgInfo.SetValue(ConnectionManager.ChatMessageUserNameKey, message.PlayerName);
+            msgInfo.SetValue(ConnectionManager.ChatMessageTsKey, message.Timestamp);
+            msgInfo.SetValue(ConnectionManager.ChatMessageTextKey, message.Text);
+            msgInfo.SetValue(ConnectionManager.ChatMessageLevelKey, message.PlayerLevel);
+            msgInfo.SetValue(ConnectionManager.ChatMessageAllyNameKey, message.AllianceName);
+            msgInfo.SetValue(ConnectionManager.ChatMessageAllyIdKey, message.AllianceId);
+            msgInfo.SetValue(ConnectionManager.ChatMessageAllyAvatarKey, message.AllianceAvatarId);
+            msgInfo.SetValue(ConnectionManager.ChatMessageAllyRoleKey, message.RankInAlliance);
+
+            return msgInfo;
+        }
+
+        public MessageType[] ParseMessage(AttrDic dic)
         {
             var messages = new MessageType[0];
 
-            var type = dic.GetValue(ConnectionManager.NotificationTypeKey);
+            var type = dic.GetValue(ConnectionManager.NotificationTypeKey).ToInt();
 
             switch(type)
             {
@@ -85,8 +136,7 @@ namespace SocialPoint.Social
             }
 
             var msgInfo = dic.Get(ConnectionManager.ChatMessageInfoKey).AsDic;
-
-            const string[] required = new string[] {
+            if(!Validate(msgInfo, new string[] {
                 ConnectionManager.ChatMessageInfoKey, 
                 ConnectionManager.ChatMessageUserNameKey,
                 ConnectionManager.ChatMessageTsKey,
@@ -96,15 +146,13 @@ namespace SocialPoint.Social
                 ConnectionManager.ChatMessageAllyIdKey,
                 ConnectionManager.ChatMessageAllyAvatarKey,
                 ConnectionManager.ChatMessageAllyRoleKey
-            };
-
-            if(!Validate(msgInfo, required))
+            }))
             {
                 Log.e(Tag, "Received chat message of text type does not contain all the mandatory fields");
                 return new MessageType[0];
             }
 
-            var message = new MessageType(msgInfo.GetValue(ConnectionManager.ChatMessageTextKey).ToString());
+            var message = Create(msgInfo.GetValue(ConnectionManager.ChatMessageTextKey).ToString());
 
             message.PlayerId = msgInfo.GetValue(ConnectionManager.ChatMessageUserIdKey).ToString();
             message.PlayerName = msgInfo.GetValue(ConnectionManager.ChatMessageUserNameKey).ToString();
@@ -134,8 +182,7 @@ namespace SocialPoint.Social
             }
 
             var playerName = dic.GetValue(UserNameKey).ToString();
-            var message = new MessageType(string.Format(Localization.Get("socialFramework.ChatPlayerJoined"), playerName));
-            message.IsWarning = true;
+            var message = CreateWarning(string.Format(Localization.Get("socialFramework.ChatPlayerJoined"), playerName));
 
             return new MessageType[] { message };
         }
@@ -149,20 +196,18 @@ namespace SocialPoint.Social
             }
 
             var playerName = dic.GetValue(UserNameKey).ToString();
-            var message = new MessageType(string.Format(Localization.Get("socialFramework.ChatPlayerLeft"), playerName));
-            message.IsWarning = true;
+            var message = CreateWarning(string.Format(Localization.Get("socialFramework.ChatPlayerLeft"), playerName));
 
             return new MessageType[] { message };
         }
 
         MessageType[] ParseMemberPromotedMessage(AttrDic dic)
         {
-            const string[] required = new string[]{ 
+            if(!Validate(dic, new string[] { 
                 UserNameKey, 
                 OldRoleKey, 
                 NewRoleKey 
-            };
-            if(!Validate(dic, required))
+            }))
             {
                 Log.e(Tag, "Received chat message of member promoted type does not contain all the mandatory fields");
                 return new MessageType[0];
@@ -170,19 +215,16 @@ namespace SocialPoint.Social
 
             var playerName = dic.GetValue(UserNameKey).ToString();
             // TODO Alliance management.
-            var message = new MessageType("");
-            message.IsWarning = true;
-
+            var message = CreateWarning(playerName);
             return new MessageType[] { message };
         }
 
         MessageType[] ParseTwoMembersAutoPromotedMessage(AttrDic dic)
         {
-            const string[] required = new string[]{ 
+            if(!Validate(dic, new string[] { 
                 RankPromotionKey, 
                 RankDemotionKey
-            };
-            if(!Validate(dic, required))
+            }))
             {
                 Log.e(Tag, "Received chat message of two members changed rank type does not contain all the mandatory fields");
                 return new MessageType[0];
@@ -194,33 +236,8 @@ namespace SocialPoint.Social
 
         MessageType[] ParseJoinRequestMessage(AttrDic dic)
         {
-            var message = new MessageType(Localization.Get("socialFramework.ChatJoinRequest"));
-            message.IsWarning = true;
-
+            var message = CreateWarning(Localization.Get("socialFramework.ChatJoinRequest"));
             return new MessageType[] { message };
-        }
-
-        AttrDic SerializeMessage(MessageType message)
-        {
-            var msgInfo = new AttrDic();
-
-            if(SerializeExtraInfo != null)
-            {
-                SerializeExtraInfo(message, msgInfo);
-            }
-
-            msgInfo.SetValue(ConnectionManager.ChatMessageUuidKey, message.Uuid);
-            msgInfo.SetValue(ConnectionManager.ChatMessageUserIdKey, message.PlayerId);
-            msgInfo.SetValue(ConnectionManager.ChatMessageUserNameKey, message.PlayerName);
-            msgInfo.SetValue(ConnectionManager.ChatMessageTsKey, message.Timestamp);
-            msgInfo.SetValue(ConnectionManager.ChatMessageTextKey, message.Text);
-            msgInfo.SetValue(ConnectionManager.ChatMessageLevelKey, message.PlayerLevel);
-            msgInfo.SetValue(ConnectionManager.ChatMessageAllyNameKey, message.AllianceName);
-            msgInfo.SetValue(ConnectionManager.ChatMessageAllyIdKey, message.AllianceId);
-            msgInfo.SetValue(ConnectionManager.ChatMessageAllyAvatarKey, message.AllianceAvatarId);
-            msgInfo.SetValue(ConnectionManager.ChatMessageAllyRoleKey, message.RankInAlliance);
-
-            return msgInfo;
         }
 
         bool Validate(AttrDic dic, string requiredValue)

@@ -16,7 +16,7 @@ namespace SocialPoint.Social
         //
     }
 
-    public class ChatManager : IDisposable
+    public sealed class ChatManager : IDisposable
     {
         public event Action<long> OnChatBanReceived;
 
@@ -24,9 +24,9 @@ namespace SocialPoint.Social
         readonly Dictionary<string, IChatRoom> _chatRooms;
         readonly  Dictionary<IChatRoom, WAMP.Subscription> _chatSubscriptions;
 
-        IChatRoom AllianceRoom;
+        public IChatRoom AllianceRoom { get; private set; }
 
-        public long ChatBanEndTimestamp { get; protected set; }
+        public long ChatBanEndTimestamp { get; private set; }
 
 
         public ChatManager(ConnectionManager connection)

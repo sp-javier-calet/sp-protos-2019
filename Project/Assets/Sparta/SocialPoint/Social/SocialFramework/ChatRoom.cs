@@ -23,9 +23,9 @@ namespace SocialPoint.Social
     }
 
     public class ChatRoom<MessageType> : IChatRoom 
-        where MessageType : IChatMessage
+        where MessageType : class, IChatMessage, new()
     {
-        FactoryChatMessages<MessageType> _factory;
+        readonly FactoryChatMessages<MessageType> _factory;
 
         ChatMessageList<MessageType> _messages;
 
@@ -50,7 +50,10 @@ namespace SocialPoint.Social
             set
             {
                 _members = value;
-                OnMembersChanged(_members);
+                if(OnMembersChanged != null)
+                {
+                    OnMembersChanged(_members);
+                }
             }
         }
 
@@ -80,11 +83,10 @@ namespace SocialPoint.Social
             }
         }
 
-
-
-        public ChatRoom(string name, ConnectionManager connection)
+        public ChatRoom(string name, ConnectionManager connection, FactoryChatMessages<MessageType> factory)
         {
             Name = name;
+            _factory = factory;
             _connection = connection;
             _messages = new ChatMessageList<MessageType>();
         }
@@ -104,7 +106,7 @@ namespace SocialPoint.Social
 
         public void AddNotificationMessage(AttrDic dic)
         {
-            var messages = _factory.ParseMessages(dic);
+            var messages = _factory.ParseMessage(dic);
             for(int i = 0; i < messages.Length; ++i)
             {
                 _messages.Add(messages[i]);
@@ -116,12 +118,11 @@ namespace SocialPoint.Social
             var history = new List<MessageType>();
             for(int i = 0; i < list.Count; ++i)
             {
-                var msgs = _factory.ParseMessages(list[i].AsDic);
+                var msgs = _factory.ParseMessage(list[i].AsDic);
                 history.AddRange(msgs);
             }
 
-            var message = new MessageType(""); // TODO LocalizedString("socialFramework.ChatWarning")
-            message.IsWarning = true;
+            var message = _factory.CreateLocalizedWarning("socialFramework.ChatWarning");
             history.Add(message);
 
             _messages.SetHistory(history);
@@ -164,18 +165,18 @@ namespace SocialPoint.Social
 
         public void SendDebugMessage(string text)
         {
-            var message = new MessageType(text);
-            SendMessage(message);
+            SendMessage(_factory.Create(text));
         }
 
         void OnMessageSent(int index, string originalUuid)
         {
-            _messages.Edit(index, msg => {
+            Action<IChatMessage> editCallback = msg => {
                 if(msg.Uuid == originalUuid)
                 {
                     msg.IsSending = false;
                 }
-            });
+            };
+            _messages.Edit(index, editCallback);
         }
     }
 }
