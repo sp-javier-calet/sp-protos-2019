@@ -682,9 +682,49 @@ namespace SocialPoint.WAMP
             {
                 throw new System.Exception("Invalid ERROR message structure - REQUEST.Request must be an integer");
             }
-            ulong requestId = (ulong)msg.Get(2).AsValue.ToLong();
+//            ulong requestId = (ulong)msg.Get(2).AsValue.ToLong();
 
             // Details
+        }
+
+        void processWelcome(AttrList msg)
+        {
+
+        }
+
+        void processAbort(AttrList msg)
+        {
+
+        }
+
+        void processGoodbye(AttrList msg)
+        {
+
+        }
+
+        void processCallResult(AttrList msg)
+        {
+
+        }
+
+        void processSubscribed(AttrList msg)
+        {
+
+        }
+
+        void processUnsubscribed(AttrList msg)
+        {
+
+        }
+
+        void processPublished(AttrList msg)
+        {
+
+        }
+
+        void processEvent(AttrList msg)
+        {
+
         }
 
         void sendData(Attr data)
