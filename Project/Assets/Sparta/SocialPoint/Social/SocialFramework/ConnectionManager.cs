@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Hardware;
+using SocialPoint.Locale;
 using SocialPoint.Utils;
 using SocialPoint.Login;
 
@@ -47,6 +49,11 @@ namespace SocialPoint.Social
         const string NotificationTopicType = "notification";
 
         public float PingInterval = 10.0f;
+
+        // Client-only error code. It is set on timeout errors.
+        const int TimeoutErrorCode = 9000;
+
+        const string TimeoutErrorTag = "timeout_error";
 
         #region Attr keys
 
@@ -95,11 +102,6 @@ namespace SocialPoint.Social
             Connected
         }
 
-        readonly ChatManager _chatManager;
-        readonly IAppEvents _appEvents;
-        readonly IUpdateScheduler _scheduler;
-
-
         ConnectionState _state = ConnectionState.Disconnected;
 
         public event Action OnConnected;
@@ -110,9 +112,31 @@ namespace SocialPoint.Social
         public event NotificationReceivedDelegate OnNotificationReceived;
         public event NotificationReceivedDelegate OnPendingNotification;
 
+        ChatManager _chatManager;
+
+        public ChatManager ChatManager
+        {
+            get
+            {
+                return _chatManager;
+            }
+            set
+            {
+                if(_chatManager != null && _chatManager != null && _chatManager != value)
+                {
+                    throw new Exception("ConnectionManager is already binded to a different instance of Chat Manager");
+
+                }
+                _chatManager = value;
+            }
+        }
+
+        public ILoginData LoginData;
+        public IDeviceInfo DeviceInfo;
+
         ConnectionManagerConfig _config;
 
-        ConnectionManagerConfig Config
+        public ConnectionManagerConfig Config
         {
             get
             {
@@ -125,6 +149,35 @@ namespace SocialPoint.Social
                 {
                     SchedulePing();
                 }
+            }
+        }
+
+        IAppEvents _appEvents;
+
+        public IAppEvents AppEvents
+        {
+            set
+            {
+                if(_appEvents != null)
+                {
+                    _appEvents.GameWillRestart.Remove(Disconnect);
+                }
+                _appEvents = value;
+                if(_appEvents != null)
+                {
+                    
+                    _appEvents.GameWillRestart.Add(0, Disconnect);
+                }
+            }
+        }
+
+        IUpdateScheduler _scheduler;
+
+        public IUpdateScheduler Scheduler
+        {
+            set
+            {
+                _scheduler = value;
             }
         }
 
@@ -168,20 +221,18 @@ namespace SocialPoint.Social
             }
         }
 
-        public ConnectionManager(ChatManager chatManager, IAppEvents appEvents, IUpdateScheduler scheduler)
+        public ConnectionManager()
         {
-            _chatManager = chatManager;
-            _appEvents = appEvents;
-            _scheduler = scheduler;
-            _appEvents.GameWillRestart.Add(0, Disconnect);
-
             // TODO Create and configure websocket and wamp connection
         }
 
         public void Dispose()
         {
             Disconnect();
-            _appEvents.GameWillRestart.Remove(Disconnect);
+            if(_appEvents != null)
+            {   
+                _appEvents.GameWillRestart.Remove(Disconnect);
+            }
         }
 
         public void AutosubscribeToTopic(string topic, WAMP.Subscription subscription)
@@ -379,8 +430,6 @@ namespace SocialPoint.Social
                 onResult();//TODO(err, iargs, ikwargs);
             }
         }
-
-        ILoginData LoginData;
 
         void SendHello()
         {

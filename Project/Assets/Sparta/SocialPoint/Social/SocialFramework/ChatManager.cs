@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 
@@ -21,10 +20,10 @@ namespace SocialPoint.Social
     {
         public event Action<long> OnChatBanReceived;
 
-        ConnectionManager _connection;
+        readonly ConnectionManager _connection;
+        readonly Dictionary<string, IChatRoom> _chatRooms;
+        readonly  Dictionary<IChatRoom, WAMP.Subscription> _chatSubscriptions;
 
-        Dictionary<string, IChatRoom> _chatRooms;
-        Dictionary<IChatRoom, WAMP.Subscription> _chatSubscriptions;
         IChatRoom AllianceRoom;
 
         public long ChatBanEndTimestamp { get; protected set; }
@@ -32,7 +31,11 @@ namespace SocialPoint.Social
 
         public ChatManager(ConnectionManager connection)
         {
+            _chatRooms = new Dictionary<string, IChatRoom>();
+            _chatSubscriptions = new Dictionary<IChatRoom, WAMP.Subscription>();
+
             _connection = connection;
+            _connection.ChatManager = this;
             _connection.OnNotificationReceived += ProcessNotificationMessage;
         }
 
@@ -53,6 +56,11 @@ namespace SocialPoint.Social
 
         public void Register(IChatRoom room)
         {
+            IChatRoom existing;
+            if(_chatRooms.TryGetValue(room.Type, out existing) && existing != room)
+            {
+                throw new Exception("A Chat Room is already registered for the topic type " + room.Type);
+            }
             _chatRooms.Add(room.Type, room);
         }
 
