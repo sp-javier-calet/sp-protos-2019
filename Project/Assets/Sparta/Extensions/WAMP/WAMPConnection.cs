@@ -39,11 +39,11 @@ namespace SocialPoint.WAMP
 
         public class Subscription
         {
-            public ulong Id{ get; private set; }
+            public long Id{ get; private set; }
 
             public string Topic{ get; private set; }
 
-            public Subscription(ulong id, string topic)
+            public Subscription(long id, string topic)
             {
                 Id = id;
                 Topic = topic;
@@ -70,11 +70,11 @@ namespace SocialPoint.WAMP
 
         public class Publication
         {
-            public ulong Id{ get; private set; }
+            public long Id{ get; private set; }
 
             public string Topic{ get; private set; }
 
-            public Publication(ulong id, string topic)
+            public Publication(long id, string topic)
             {
                 Id = id;
                 Topic = topic;
@@ -134,15 +134,15 @@ namespace SocialPoint.WAMP
         bool _debug;
         bool _goodbyeSent;
         // WAMP session ID (if the session is joined to a realm).
-        ulong _sessionId;
+        long _sessionId;
         // Last request ID of outgoing WAMP requests.
-        ulong _requestId;
+        long _requestId;
 
-        Dictionary<ulong, SubscribeRequest> _subscribeRequests;
-        Dictionary<ulong, List<HandlerSubscription>> _subscriptionHandlers;
-        Dictionary<ulong, OnUnsubscribed> _unsubscribeRequests;
-        Dictionary<ulong, PublishRequest> _publishRequests;
-        Dictionary<ulong, HandlerCall> _calls;
+        Dictionary<long, SubscribeRequest> _subscribeRequests;
+        Dictionary<long, List<HandlerSubscription>> _subscriptionHandlers;
+        Dictionary<long, OnUnsubscribed> _unsubscribeRequests;
+        Dictionary<long, PublishRequest> _publishRequests;
+        Dictionary<long, HandlerCall> _calls;
 
         WAMPConnection(INetworkClient networkClient)
         {
@@ -152,6 +152,12 @@ namespace SocialPoint.WAMP
             _goodbyeSent = false;
             _sessionId = 0;
             _requestId = 0;
+
+            _subscribeRequests = new Dictionary<long, SubscribeRequest>();
+            _subscriptionHandlers = new Dictionary<long, List<HandlerSubscription>>();
+            _unsubscribeRequests = new Dictionary<long, OnUnsubscribed>();
+            _publishRequests = new Dictionary<long, PublishRequest>();
+            _calls = new Dictionary<long, HandlerCall>();
 
             NetworkClient.AddDelegate(this);
             NetworkClient.RegisterReceiver(this);
@@ -306,7 +312,7 @@ namespace SocialPoint.WAMP
             NetworkClient.Disconnect();
         }
 
-        public delegate void OnJoinCompleted(Error error, AttrDic dict);
+        public delegate void OnJoinCompleted(Error error, long sessionId, AttrDic dict);
 
         OnJoinCompleted _joinCompleteHandler;
 
@@ -317,7 +323,7 @@ namespace SocialPoint.WAMP
             {
                 if(completionHandler != null)
                 {
-                    completionHandler(new Error((int)ErrorCodes.JoinInProgress, "Another JOIN already in progress"), new AttrDic());
+                    completionHandler(new Error((int)ErrorCodes.JoinInProgress, "Another JOIN already in progress"), 0, null);
                 }
                 return;
             }
@@ -640,7 +646,14 @@ namespace SocialPoint.WAMP
              */
             var data = new AttrList();
             data.Add(new AttrInt((int)MsgCode.GOODBYE));
-            data.Add(detailsDict);
+            if(detailsDict != null)
+            {
+                data.Add(detailsDict);
+            }
+            else
+            {
+                data.Add(new AttrDic());
+            }
             data.AddValue(reason);
 
             sendData(data);
@@ -664,51 +677,255 @@ namespace SocialPoint.WAMP
             }
             var requestType = (MsgCode)(msg.Get(1).AsValue.ToInt());
 
-            switch(requestType)
-            {
-            case MsgCode.CALL:
-            case MsgCode.REGISTER:
-            case MsgCode.UNREGISTER:
-            case MsgCode.PUBLISH:
-            case MsgCode.SUBSCRIBE:
-            case MsgCode.UNSUBSCRIBE:
-                break;
-            default:
-                throw new System.Exception("Invalid ERROR message - ERROR.Type must one of CALL, REGISTER, UNREGISTER, PUBLISH, SUBSCRIBE, UNSUBSCRIBE");
-            }
-
             // REQUEST.Request|id
             if(!msg.Get(2).IsValue)
             {
                 throw new System.Exception("Invalid ERROR message structure - REQUEST.Request must be an integer");
             }
-//            ulong requestId = (ulong)msg.Get(2).AsValue.ToLong();
+            long requestId = msg.Get(2).AsValue.ToLong();
 
             // Details
+            string description = string.Empty;
+            int code = 0;
+            if(msg.Get(3).IsDic)
+            {
+                var errorDict = msg.Get(3).AsDic;
+                description = errorDict.Get("message").AsValue.ToString();
+                code = errorDict.Get("code").AsValue.ToInt();
+            }
+
+            // Arguments|list
+            AttrList listArgs = null;
+            if(msg.Count > 5)
+            {
+                if(!msg.Get(5).IsList)
+                {
+                    throw new System.Exception("Invalid ERROR message structure - Arguments must be a list");
+                }
+                listArgs = msg.Get(5).AsList;
+            }
+
+            // ArgumentsKw|list
+            AttrDic dictArgs = null;
+            if(msg.Count > 6)
+            {
+                if(!msg.Get(6).IsDic)
+                {
+                    throw new System.Exception("Invalid ERROR message structure - ArgumentsKw must be a dictionary");
+                }
+                dictArgs = msg.Get(6).AsDic;
+            }
+
+            switch(requestType)
+            {
+            case MsgCode.CALL:
+                {
+                    HandlerCall callHandler;
+                    if(!_calls.TryGetValue(requestId, out callHandler))
+                    {
+                        throw new System.Exception("Bogus ERROR message for non-pending CALL request ID");
+                    }
+                    var error = new Error(code, description);
+                    callHandler(error, listArgs, dictArgs);
+                    _calls.Remove(requestId);
+                    break;
+                }
+            case MsgCode.REGISTER:
+            case MsgCode.UNREGISTER:
+                throw new System.Exception("CALLEE role not implemented");
+            case MsgCode.PUBLISH:
+                {
+                    PublishRequest request;
+                    if(!_publishRequests.TryGetValue(requestId, out request))
+                    {
+                        throw new System.Exception("Bogus ERROR message for non-pending PUBLISH request ID");
+                    }
+                    var error = new Error((int)ErrorCodes.PublishError, description);
+                    request.CompletionHandler(error, new Publication(requestId, request.Topic));
+                    _publishRequests.Remove(requestId);
+                    break;
+                }
+            case MsgCode.SUBSCRIBE:
+                {
+                    SubscribeRequest request;
+                    if(!_subscribeRequests.TryGetValue(requestId, out request))
+                    {
+                        throw new System.Exception("Bogus ERROR message for non-pending SUBSCRIBE request ID");
+                    }
+                    var error = new Error((int)ErrorCodes.SubscribeError, description);
+                    request.CompletionHandler(error, new Subscription(requestId, request.Topic));
+                    _subscribeRequests.Remove(requestId);
+                    break;
+                }
+            case MsgCode.UNSUBSCRIBE:
+                {
+                    OnUnsubscribed request;
+                    if(!_unsubscribeRequests.TryGetValue(requestId, out request))
+                    {
+                        throw new System.Exception("Bogus ERROR message for non-pending UNSUBSCRIBE request ID");
+                    }
+                    var error = new Error((int)ErrorCodes.UnsubscribeError, description);
+                    request(error);
+                    _unsubscribeRequests.Remove(requestId);
+                    break;
+                }
+            default:
+                throw new System.Exception("Invalid ERROR message - ERROR.Type must one of CALL, REGISTER, UNREGISTER, PUBLISH, SUBSCRIBE, UNSUBSCRIBE");
+            }
         }
 
         void processWelcome(AttrList msg)
         {
+            //[WELCOME, Session|id, Details|dict]
+            if(msg.Count != 3)
+            {
+                throw new System.Exception("Invalid WELCOME message structure - length must be 3");
+            }
+            if(!msg.Get(1).IsValue)
+            {
+                throw new System.Exception("Invalid WELCOME message structure - Session must be an integer");
+            }
+            if(!msg.Get(2).IsDic)
+            {
+                throw new System.Exception("Invalid WELCOME message structure - Details must be a dictionary");
+            }
 
+            // If there is no active JOIN it means that has been aborted, so do nothing
+            if(_joinCompleteHandler == null)
+            {
+                return;
+            }
+
+            _sessionId = msg.Get(1).AsValue.ToLong();
+            var detailsDict = msg.Get(2).AsDic;
+            _joinCompleteHandler(null, _sessionId, detailsDict);
+            _joinCompleteHandler = null;
         }
 
         void processAbort(AttrList msg)
         {
+            //[ABORT, Details|dict, Reason|uri]
+            if(msg.Count != 3)
+            {
+                throw new System.Exception("Invalid ABORT message structure - length must be 3");
+            }
+            if(!msg.Get(2).IsValue)
+            {
+                throw new System.Exception("Invalid ABORT message structure - Reason must be an string");
+            }
 
+            // If there is no active JOIN it means that has been aborted, so do nothing
+            if(_joinCompleteHandler == null)
+            {
+                return;
+            }
+
+            var reason = msg.Get(2).AsValue.ToString();
+            var error = new Error((int)ErrorCodes.SessionAborted, reason);
+            _joinCompleteHandler(error, 0, null);
         }
 
         void processGoodbye(AttrList msg)
         {
+            //[GOODBYE, Details|dict, Reason|uri]
+            if(_sessionId == 0)
+            {
+                throw new System.Exception("Invalid GOODBYE received when no session was established");
+            }
 
+            _sessionId = 0;
+
+            if(!_goodbyeSent)
+            {
+                // if we did not initiate closing, reply ..
+                sendGoodbye(null, "wamp.error.goodbye_and_out");
+            }
+
+            if(_leaveCompletedHandler != null)
+            {
+                var reason = msg.Get(2).AsValue.ToString();
+                _leaveCompletedHandler(null, reason);
+                _leaveCompletedHandler = null;
+            }
         }
 
         void processCallResult(AttrList msg)
         {
+            // [RESULT, CALL.Request|id, Details|dict]
+            // [RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list]
+            // [RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list, YIELD.ArgumentsKw|dict]
 
+            if(msg.Count < 3 || msg.Count > 5)
+            {
+                throw new System.Exception("Invalid RESULT message structure - length must be 3, 4 or 5");
+            }
+
+            if(!msg.Get(1).IsValue)
+            {
+                throw new System.Exception("Invalid RESULT message structure - CALL.Request must be an integer");
+            }
+            long requestId = msg.Get(1).AsValue.ToLong();
+
+            HandlerCall callHandler; 
+            if(!_calls.TryGetValue(requestId, out callHandler))
+            {
+                throw new System.Exception("Bogus RESULT message for non-pending request ID");
+            }
+
+            if(callHandler != null)
+            {
+                AttrList listParams = null;
+                AttrDic dictParams = null;
+                if(msg.Count >= 4)
+                {
+                    if(!msg.Get(3).IsList)
+                    {
+                        throw new System.Exception("Invalid RESULT message structure - YIELD.Arguments must be a list");
+                    }
+                    listParams = msg.Get(3).AsList;
+                }
+                if(msg.Count >= 5)
+                {
+                    if(!msg.Get(4).IsDic)
+                    {
+                        throw new System.Exception("Invalid RESULT message structure - YIELD.ArgumentsKw must be a dictionary");
+                    }
+                    dictParams = msg.Get(4).AsDic;
+                }
+                callHandler(null, listParams, dictParams);
+            }
+            _calls.Remove(requestId);
         }
 
         void processSubscribed(AttrList msg)
         {
+            // [SUBSCRIBED, SUBSCRIBE.Request|id, Subscription|id]
+
+            if(msg.Count != 3)
+            {
+                throw new System.Exception("Invalid SUBSCRIBED message structure - length must be 3");
+            }
+
+            if(!msg.Get(1).IsValue)
+            {
+                throw new System.Exception("Invalid SUBSCRIBED message structure - SUBSCRIBE.Request must be an integer");
+            }
+
+            long requestId = msg.Get(1).AsValue.ToLong();
+            SubscribeRequest request;
+            if(!_subscribeRequests.TryGetValue(requestId, out request))
+            {
+                throw new System.Exception("Bogus SUBSCRIBED message for non-pending request ID");
+            }
+
+            if(!msg.Get(2).IsValue)
+            {
+                throw new System.Exception("Invalid SUBSCRIBED message structure - SUBSCRIBED.Subscription must be an integer");
+            }
+            long subscriptionId = msg.Get(2).AsValue.ToLong();
+
+
+            autosubscribe(new Subscription(subscriptionId, request.Topic), request.Handler);
 
         }
 
