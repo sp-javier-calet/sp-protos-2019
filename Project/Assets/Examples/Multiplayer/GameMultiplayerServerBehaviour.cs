@@ -155,6 +155,17 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         });
     }
 
+    void SendPathEvent(StraightPath path)
+    {
+        _server.SendMessage(new NetworkMessageData
+        {
+            MessageType = GameMsgType.PathEvent
+        }, new PathEvent
+        {
+            Points = Pathfinder.StraightPathToVector(path)
+        });
+    }
+
     void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
     {
         if(data.MessageType == GameMsgType.ClickAction)
@@ -255,7 +266,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             StraightPath straightPath;
             if(_pathfinder.TryGetPath(startPoint, endPoint, extents, out straightPath))
             {
-                Log.i("Path Found!");
+                SendPathEvent(straightPath);
             }
         }
     }

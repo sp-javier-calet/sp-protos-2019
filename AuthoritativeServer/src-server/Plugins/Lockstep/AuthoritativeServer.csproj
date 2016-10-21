@@ -58,6 +58,9 @@
     <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\MovementAction.cs">
       <Link>Game\MovementAction.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\PathEvent.cs">
+      <Link>Game\PathEvent.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\EmptyPhysicsDebugger.cs">
       <Link>Lib\Multiplayer\EmptyPhysicsDebugger.cs</Link>
     </Compile>
@@ -132,9 +135,6 @@
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavVector3Serialization.cs">
       <Link>Lib\Multiplayer\Pathfinding\Serialization\NavVector3Serialization.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\SerializationUtils.cs">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\SerializationUtils.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics\IPhysicsDebugger.cs">
       <Link>Lib\Multiplayer\Physics\IPhysicsDebugger.cs</Link>
@@ -577,11 +577,17 @@
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\IReader.cs">
       <Link>Lib\IO\IReader.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\IReaderExtensions.cs">
+      <Link>Lib\IO\IReaderExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\IReadParser.cs">
       <Link>Lib\IO\IReadParser.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\IWriter.cs">
       <Link>Lib\IO\IWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\IWriterExtensions.cs">
+      <Link>Lib\IO\IWriterExtensions.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\IWriteSerializer.cs">
       <Link>Lib\IO\IWriteSerializer.cs</Link>
@@ -706,9 +712,6 @@
     </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavVector3Serialization.cs.meta">
       <Link>Lib\Multiplayer\Pathfinding\Serialization\NavVector3Serialization.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\SerializationUtils.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\SerializationUtils.cs.meta</Link>
     </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics.meta">
       <Link>Lib\Multiplayer\Physics.meta</Link>
