@@ -6,7 +6,7 @@ namespace SocialPoint.GUIAnimation
     // Class that spawns a particle effect
     // Notes: By default this class will instanciate the prefab by using GameObject.Instantiate
     [System.Serializable]
-    public sealed class ParticleStoperEffect : TriggerEffect
+    public sealed class ParticleStopperEffect : TriggerEffect
     {
         public interface ISpawner
         {
@@ -57,7 +57,7 @@ namespace SocialPoint.GUIAnimation
 
         public override void CopyActionValues(Effect other)
         {
-            _particles = ((ParticleStoperEffect)other).Particles;
+            _particles = ((ParticleStopperEffect)other).Particles;
         }
 
         public override void OnRemoved()

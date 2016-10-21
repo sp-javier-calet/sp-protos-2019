@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using SocialPoint.Base;
 
 namespace SocialPoint.Utils
 {
     public interface ISimulateable
     {
-        void Simulate(int timestamp);
+        void Simulate(long timestamp);
 
-        int KeyTimestamp{ get; }
+        long KeyTimestamp{ get; }
     }
 
     static class SimulateableUtils
     {
-        static public int KeyTimestamp<T>(List<T> sims) where T : ISimulateable
+        static public long KeyTimestamp<T>(List<T> sims) where T : ISimulateable
         {
             if(sims == null || sims.Count == 0)
             {
