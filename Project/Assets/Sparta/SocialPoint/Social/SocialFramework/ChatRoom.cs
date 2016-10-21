@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
@@ -27,7 +28,7 @@ namespace SocialPoint.Social
     {
         readonly FactoryChatMessages<MessageType> _factory;
 
-        ChatMessageList<MessageType> _messages;
+        readonly ChatMessageList<MessageType> _messages;
 
         readonly ConnectionManager _connection;
 
@@ -144,6 +145,29 @@ namespace SocialPoint.Social
 
         void SetupMessage(MessageType message)
         {
+            message.Uuid = RandomUtils.GetUuid();
+            // TODO
+            /*
+                message.PlayerName = 
+                message.PlayerId;
+                message.playerLevel;
+                message.Timestamp  
+             */
+
+            if(_connection.AlliancesManager != null)
+            {
+                /*
+                var player = _connection.AlliancesManager.PlayerInfo;
+                message.HasAlliance = player.IsInAlliance;
+                message.AllianceName = player.Name;
+                message.AllianceId = player.Id;
+                message.AllianceAvatarId = player.AvatarId;
+                message.RankInAlliance = player.Rank;
+                */
+            }
+
+            message.IsSending = true;
+
             /*
              message._uuid = RandomUtils::getUuid();
  +        message._playerId = GenericGameData::userId();

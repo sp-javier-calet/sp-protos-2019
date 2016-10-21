@@ -131,6 +131,8 @@ namespace SocialPoint.Social
             }
         }
 
+        public AlliancesManager AllianceManager;
+
         public ILoginData LoginData;
         public IDeviceInfo DeviceInfo;
 

@@ -2,6 +2,6 @@
 {
     public class AlliancesManager
     {
-
+        public AlliancePlayerInfo PlayerInfo;
     }
 }
