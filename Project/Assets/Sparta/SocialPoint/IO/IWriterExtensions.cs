@@ -4,7 +4,7 @@
     {
         public delegate void WriteDelegate<T>(T value, IWriter writer);
 
-        public static void Write<T>(this IWriter writer, T[] array, WriteDelegate<T> writeDelegate)
+        public static void WriteArray<T>(this IWriter writer, T[] array, WriteDelegate<T> writeDelegate)
         {
             int size = (array != null) ? array.Length : 0;
             writer.Write(size);
@@ -14,12 +14,12 @@
             }
         }
 
-        public static void Write(this IWriter writer, int[] array)
+        public static void WriteInt32Array(this IWriter writer, int[] array)
         {
             WriteDelegate<int> serializeDelegate = (int i, IWriter w) => { 
                 w.Write(i); 
             };
-            writer.Write<int>(array, serializeDelegate);
+            writer.WriteArray<int>(array, serializeDelegate);
         }
     }
 }

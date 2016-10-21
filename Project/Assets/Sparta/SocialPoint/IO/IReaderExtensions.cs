@@ -4,7 +4,7 @@
     {
         public delegate T ReadDelegate<T>(IReader reader);
 
-        public static T[] Read<T>(this IReader reader, ReadDelegate<T> readDelegate)
+        public static T[] ReadArray<T>(this IReader reader, ReadDelegate<T> readDelegate)
         {
             int size = reader.ReadInt32();
             var array = new T[size];
@@ -20,7 +20,7 @@
             ReadDelegate<int> parseDelegate = (IReader r) => { 
                 return r.ReadInt32(); 
             };
-            return reader.Read<int>(parseDelegate);
+            return reader.ReadArray<int>(parseDelegate);
         }
     }
 }
