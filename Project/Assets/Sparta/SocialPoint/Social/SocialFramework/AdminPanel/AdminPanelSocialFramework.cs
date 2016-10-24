@@ -1,17 +1,20 @@
 ﻿using System.Text;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
+using SocialPoint.Network;
 using UnityEngine.UI;
 
 namespace SocialPoint.Social
 {
     public class AdminPanelSocialFramework : IAdminPanelConfigurer, IAdminPanelGUI
     {
+        readonly INetworkClient _client;
         readonly ConnectionManager _connection;
         readonly ChatManager _chat;
 
-        public AdminPanelSocialFramework(ConnectionManager connection, ChatManager chat)
+        public AdminPanelSocialFramework(INetworkClient client, ConnectionManager connection, ChatManager chat)
         {
+            _client = client;
             _connection = connection;
             _chat = chat;
         }
@@ -25,6 +28,8 @@ namespace SocialPoint.Social
         {
             layout.CreateLabel("Social Framework");
             layout.CreateMargin();
+
+            layout.CreateOpenPanelButton("Network client", new AdminPanelSocialFrameworkNetworkClient(_client));
 
             if(_connection.IsConnected)
             {
@@ -41,6 +46,83 @@ namespace SocialPoint.Social
             layout.CreateToggleButton("Debug Mode", _connection.DebugEnabled, value => {
                 _connection.DebugEnabled = value;
             });
+        }
+
+        class AdminPanelSocialFrameworkNetworkClient : IAdminPanelManagedGUI, INetworkClientDelegate
+        {
+            Text _text;
+            readonly INetworkClient _client;
+            readonly StringBuilder _content;
+
+            public AdminPanelSocialFrameworkNetworkClient(INetworkClient client)
+            {
+                _client = client;
+                _content = new StringBuilder();;
+            }
+
+            public void OnOpened()
+            {
+                _client.AddDelegate(this);
+            }
+
+            public void OnClosed()
+            {
+                _client.RemoveDelegate(this);
+            }
+
+            public void OnCreateGUI(AdminPanelLayout layout)
+            {
+                layout.CreateLabel("Social Framework Network");
+                layout.CreateToggleButton("Connect", _client.Connected, value =>
+                    {
+                        if(value)
+                        {
+                            _client.Connect();
+                        }
+                        else
+                        {
+                            _client.Disconnect();
+                        }
+                        layout.Refresh();
+                    });
+                _text = layout.CreateVerticalScrollLayout().CreateTextArea(_content.ToString());
+            }
+
+            void RefreshLog()
+            {
+                if(_text != null)
+                {
+                    _text.text = _content.ToString();
+                }
+            }
+
+            #region INetworkClientDelegate implementation
+
+            public void OnClientConnected()
+            {
+                _content.AppendLine("Connected");
+                RefreshLog();
+            }
+
+            public void OnClientDisconnected()
+            {
+                _content.AppendLine("Disconnected");
+                RefreshLog();
+            }
+
+            public void OnMessageReceived(NetworkMessageData data)
+            {
+                _content.AppendLine("Message received from " + data.ClientId);
+                RefreshLog();
+            }
+
+            public void OnNetworkError(SocialPoint.Base.Error err)
+            {
+                _content.AppendLine("Network error: " + err);
+                RefreshLog();
+            }
+
+            #endregion
         }
 
         class AdminPanelSocialFrameworkChat : IAdminPanelGUI

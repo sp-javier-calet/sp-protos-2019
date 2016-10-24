@@ -11,6 +11,8 @@ using SocialPoint.Social;
 
 public class SocialFrameworkInstaller : Installer
 {
+    const string SocialFrameworkTag = "social_framework";
+
     [Serializable]
     public class SettingsData
     {
@@ -25,11 +27,13 @@ public class SocialFrameworkInstaller : Installer
         Container.Bind<IDisposable>().ToLookup<ChatManager>();
 
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanel);
+
+        Container.Bind<INetworkClient>(SocialFrameworkTag).ToMethod<FakeNetworkClient>(CreateNetworkClient);
     }
 
     ConnectionManager CreateConnectionManager()
     {
-        return new ConnectionManager(new FakeNetworkClient()); // FIXME Container.Resolve<INetworkClient>());
+        return new ConnectionManager(Container.Resolve<INetworkClient>(SocialFrameworkTag));
     }
 
     void SetupConnectionManager(ConnectionManager manager)
@@ -50,8 +54,14 @@ public class SocialFrameworkInstaller : Installer
     AdminPanelSocialFramework CreateAdminPanel()
     {
         return new AdminPanelSocialFramework(
+            Container.Resolve<INetworkClient>(SocialFrameworkTag),
             Container.Resolve<ConnectionManager>(),
             Container.Resolve<ChatManager>());
+    }
+
+    FakeNetworkClient CreateNetworkClient()
+    {
+        return new FakeNetworkClient();
     }
 
     // FIXME Dummy class
