@@ -29,7 +29,7 @@ public class SocialFrameworkInstaller : Installer
 
     ConnectionManager CreateConnectionManager()
     {
-        return new ConnectionManager(Container.Resolve<INetworkClient>());
+        return new ConnectionManager(new FakeNetworkClient()); // FIXME Container.Resolve<INetworkClient>());
     }
 
     void SetupConnectionManager(ConnectionManager manager)
@@ -53,4 +53,75 @@ public class SocialFrameworkInstaller : Installer
             Container.Resolve<ConnectionManager>(),
             Container.Resolve<ChatManager>());
     }
+
+    // FIXME Dummy class
+    #region INetworkClient implementation for testing
+
+    class FakeNetworkClient : INetworkClient
+    {
+        bool _connected;
+        #region INetworkClient implementation
+        public void Connect()
+        {
+            _connected = true;
+        }
+        public void Disconnect()
+        {
+            _connected = false;
+        }
+        public INetworkMessage CreateMessage(NetworkMessageData data)
+        {
+            return new FakeNetworkMessage();
+        }
+        public void AddDelegate(INetworkClientDelegate dlg)
+        {
+            
+        }
+        public void RemoveDelegate(INetworkClientDelegate dlg)
+        {
+            
+        }
+        public void RegisterReceiver(INetworkMessageReceiver receiver)
+        {
+            
+        }
+        public int GetDelay(int networkTimestamp)
+        {
+            return 0;
+        }
+        public byte ClientId
+        {
+            get
+            {
+                return 1;
+            }
+        }
+        public bool Connected
+        {
+            get
+            {
+                return _connected;
+            }
+        }
+        #endregion
+
+        class FakeNetworkMessage : INetworkMessage
+        {
+            #region INetworkMessage implementation
+            public void Send()
+            {
+                
+            }
+            public SocialPoint.IO.IWriter Writer
+            {
+                get
+                {
+                    return null;
+                }
+            }
+            #endregion
+        }
+    }
+
+    #endregion
 }
