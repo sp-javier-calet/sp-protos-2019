@@ -95,11 +95,11 @@ namespace Photon.Hive.Plugin.Authoritative
             {
                 return;
             }
-            /*PluginHost.SetProperties(0, new Hashtable {
+            PluginHost.SetProperties(0, new Hashtable {
                 { (int)MaxPlayersKey, _gameServer.MaxPlayers },
                 { (int)MasterClientIdKey, 0 },
                 { ServerIdRoomProperty, 0 },
-            }, null, false);*/
+            }, null, false);
             var clientId = GetClientId(info.UserId);
             OnClientConnected(clientId);
         }

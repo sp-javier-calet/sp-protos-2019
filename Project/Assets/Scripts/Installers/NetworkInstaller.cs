@@ -24,6 +24,9 @@ public class NetworkInstaller : Installer
     [Serializable]
     public class SettingsData
     {
+        //False if server is installed by other means (for example, if it is running in an external environment)
+        public bool InstallServer = true;
+
         public NetworkTech Tech = NetworkTech.Local;
         public UnetNetworkConfig UnetConfig;
         public PhotonNetworkConfig PhotonConfig;
@@ -33,26 +36,35 @@ public class NetworkInstaller : Installer
 
     public override void InstallBindings()
     {
-        if(Settings.Tech == NetworkTech.Local)
+        if (Settings.Tech == NetworkTech.Local)
         {
-            Container.Rebind<LocalNetworkServer>().ToMethod<LocalNetworkServer>(CreateLocalServer, SetupServer);
-            Container.Rebind<INetworkServer>().ToLookup<LocalNetworkServer>();
+            if (Settings.InstallServer)
+            {
+                Container.Rebind<LocalNetworkServer>().ToMethod<LocalNetworkServer>(CreateLocalServer, SetupServer);
+                Container.Rebind<INetworkServer>().ToLookup<LocalNetworkServer>();
+            }
             Container.Rebind<LocalNetworkClient>().ToMethod<LocalNetworkClient>(CreateLocalClient, SetupClient);
             Container.Rebind<INetworkClient>().ToLookup<LocalNetworkClient>();
         }
-        else if(Settings.Tech == NetworkTech.Unet)
+        else if (Settings.Tech == NetworkTech.Unet)
         {
-            Container.Rebind<UnetNetworkServer>().ToMethod<UnetNetworkServer>(CreateUnetServer, SetupServer);
-            Container.Bind<IDisposable>().ToLookup<UnetNetworkServer>();
-            Container.Rebind<INetworkServer>().ToLookup<UnetNetworkServer>();
+            if (Settings.InstallServer)
+            {
+                Container.Rebind<UnetNetworkServer>().ToMethod<UnetNetworkServer>(CreateUnetServer, SetupServer);
+                Container.Bind<IDisposable>().ToLookup<UnetNetworkServer>();
+                Container.Rebind<INetworkServer>().ToLookup<UnetNetworkServer>();
+            }
             Container.Rebind<UnetNetworkClient>().ToMethod<UnetNetworkClient>(CreateUnetClient, SetupClient);
             Container.Bind<IDisposable>().ToLookup<UnetNetworkClient>();
             Container.Rebind<INetworkClient>().ToLookup<UnetNetworkClient>();
         }
-        else if(Settings.Tech == NetworkTech.Photon)
+        else if (Settings.Tech == NetworkTech.Photon)
         {
-            Container.RebindUnityComponent<PhotonNetworkServer>().WithSetup<PhotonNetworkServer>(SetupPhotonServer);
-            Container.Rebind<INetworkServer>().ToLookup<PhotonNetworkServer>();
+            if (Settings.InstallServer)
+            { 
+                Container.RebindUnityComponent<PhotonNetworkServer>().WithSetup<PhotonNetworkServer>(SetupPhotonServer);
+                Container.Rebind<INetworkServer>().ToLookup<PhotonNetworkServer>();
+            }
             Container.RebindUnityComponent<PhotonNetworkClient>().WithSetup<PhotonNetworkServer>(SetupPhotonClient);
             Container.Rebind<INetworkClient>().ToLookup<PhotonNetworkClient>();
         }        
