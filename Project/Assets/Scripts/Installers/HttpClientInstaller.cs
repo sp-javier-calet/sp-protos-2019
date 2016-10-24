@@ -5,6 +5,7 @@ using SocialPoint.Network;
 using SocialPoint.Utils;
 using SocialPoint.AppEvents;
 using SocialPoint.Hardware;
+using SocialPoint.WAMP;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -65,6 +66,9 @@ public class HttpClientInstaller : Installer
 
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelHttpStream>(CreateAdminPanel);
         }
+
+        // FIXME
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWAMP>(CreateAdminPanelWAMP);
     }
 
     CurlHttpClient CreateCurlHttpClient()
@@ -122,5 +126,10 @@ public class HttpClientInstaller : Installer
     {
         return new AdminPanelHttpStream(
             Container.Resolve<CurlHttpStreamClient>());
+    }
+
+    AdminPanelWAMP CreateAdminPanelWAMP()
+    {
+        return new AdminPanelWAMP();
     }
 }
