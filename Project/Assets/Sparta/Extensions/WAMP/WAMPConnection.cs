@@ -139,7 +139,7 @@ namespace SocialPoint.WAMP
         long _requestId;
 
         Dictionary<long, SubscribeRequest> _subscribeRequests;
-        Dictionary<long, List<HandlerSubscription>> _subscriptionHandlers;
+        Dictionary<long, HandlerSubscription> _subscriptionHandlers;
         Dictionary<long, OnUnsubscribed> _unsubscribeRequests;
         Dictionary<long, PublishRequest> _publishRequests;
         Dictionary<long, HandlerCall> _calls;
@@ -154,7 +154,7 @@ namespace SocialPoint.WAMP
             _requestId = 0;
 
             _subscribeRequests = new Dictionary<long, SubscribeRequest>();
-            _subscriptionHandlers = new Dictionary<long, List<HandlerSubscription>>();
+            _subscriptionHandlers = new Dictionary<long, HandlerSubscription>();
             _unsubscribeRequests = new Dictionary<long, OnUnsubscribed>();
             _publishRequests = new Dictionary<long, PublishRequest>();
             _calls = new Dictionary<long, HandlerCall>();
@@ -396,7 +396,7 @@ namespace SocialPoint.WAMP
             data.AddValue("wamp.error.client_aborting");
             sendData(data);
 
-            _joinCompleteHandler(new Error((int)ErrorCodes.SessionAborted, "Joining aborted by client"), new AttrDic());
+            _joinCompleteHandler(new Error((int)ErrorCodes.SessionAborted, "Joining aborted by client"), 0, null);
             _joinCompleteHandler = null;
 
             return true;
@@ -521,14 +521,11 @@ namespace SocialPoint.WAMP
 
         public void autosubscribe(Subscription subscription, HandlerSubscription handler)
         {
-            List<HandlerSubscription> list;
-            if(!_subscriptionHandlers.TryGetValue(subscription.Id, out list))
+            if(_subscriptionHandlers.ContainsKey(subscription.Id))
             {
-                list = new List<HandlerSubscription>();
-                _subscriptionHandlers.Add(subscription.Id, list);
+                throw new System.Exception("This subscriptionId was already in use");
             }
-
-            list.Add(handler);
+            _subscriptionHandlers.Add(subscription.Id, handler);
         }
 
         #endregion
@@ -924,24 +921,127 @@ namespace SocialPoint.WAMP
             }
             long subscriptionId = msg.Get(2).AsValue.ToLong();
 
+            var subscription = new Subscription(subscriptionId, request.Topic);
+            autosubscribe(subscription, request.Handler);
 
-            autosubscribe(new Subscription(subscriptionId, request.Topic), request.Handler);
-
+            if(request.CompletionHandler != null)
+            {
+                request.CompletionHandler(null, subscription);
+            }
+            _subscribeRequests.Remove(requestId);
         }
 
         void processUnsubscribed(AttrList msg)
         {
+            // [UNSUBSCRIBED, UNSUBSCRIBE.Request|id]
 
+            if(msg.Count != 2)
+            {
+                throw new System.Exception("Invalid UNSUBSCRIBED message structure - length must be 2");
+            }
+
+            if(!msg.Get(1).IsValue)
+            {
+                throw new System.Exception("Invalid UNSUBSCRIBED message structure - UNSUBSCRIBE.Request must be an integer");
+            }
+
+            long requestId = msg.Get(1).AsValue.ToLong();
+            OnUnsubscribed request;
+            if(!_unsubscribeRequests.TryGetValue(requestId, out request))
+            {
+                throw new System.Exception("Bogus UNSUBSCRIBED message for non-pending request ID");
+            }
+
+            if(request != null)
+            {
+                request(null);
+            }
+            _unsubscribeRequests.Remove(requestId);
         }
 
         void processPublished(AttrList msg)
         {
+            // [PUBLISHED, PUBLISH.Request|id, Publication|id]
+            if(msg.Count != 3)
+            {
+                throw new System.Exception("Invalid PUBLISHED message structure - length must be 3");
+            }
 
-        }
+            if(!msg.Get(1).IsValue)
+            {
+                throw new System.Exception("Invalid PUBLISHED message structure - PUBLISHED.Request must be an integer");
+            }
+
+            long requestId = msg.Get(1).AsValue.ToLong();
+
+            PublishRequest request;
+            if(!_publishRequests.TryGetValue(requestId, out request))
+            {
+                throw new System.Exception("Bogus PUBLISHED message for non-pending request ID");
+            }
+
+            if(!msg.Get(2).IsValue)
+            {
+                throw new System.Exception("Invalid PUBLISHED message structure - PUBLISHED.Subscription must be an integer");
+            }
+            long publicationId = msg.Get(2).AsValue.ToLong();
+
+            if(request.CompletionHandler != null)
+            {
+                request.CompletionHandler(null, new Publication(publicationId, request.Topic));
+            }
+            _publishRequests.Remove(requestId);
+        } 
 
         void processEvent(AttrList msg)
         {
+            // [EVENT, SUBSCRIBED.Subscription|id, PUBLISHED.Publication|id, Details|dict]
+            // [EVENT, SUBSCRIBED.Subscription|id, PUBLISHED.Publication|id, Details|dict, PUBLISH.Arguments|list]
+            // [EVENT, SUBSCRIBED.Subscription|id, PUBLISHED.Publication|id, Details|dict, PUBLISH.Arguments|list, PUBLISH.ArgumentsKw|dict]
 
+            if(msg.Count < 4 || msg.Count > 6)
+            {
+                throw new System.Exception("Invalid EVENT message structure - length must be 4, 5 or 6");
+            }
+
+            if(!msg.Get(1).IsValue)
+            {
+                throw new System.Exception("Invalid EVENT message structure - SUBSCRIBED.Subscription must be an integer");
+            }
+            long subscriptionId = msg.Get(1).AsValue.ToLong();
+
+            HandlerSubscription handler; 
+            if(!_subscriptionHandlers.TryGetValue(subscriptionId, out handler))
+            {
+                // silently swallow EVENT for non-existent subscription IDs.
+                // We may have just unsubscribed, when this EVENT might be have
+                // already been in-flight.
+                debugMessage(string.Concat("Skipping EVENT for non-existent subscription ID ", subscriptionId));
+                return;
+            }
+
+            if(handler != null)
+            {
+                AttrList listParams = null;
+                AttrDic dictParams = null;
+                if(msg.Count >= 5)
+                {
+                    if(!msg.Get(4).IsList)
+                    {
+                        throw new System.Exception("Invalid RESULT message structure - YIELD.Arguments must be a list");
+                    }
+                    listParams = msg.Get(4).AsList;
+                }
+                if(msg.Count >= 6)
+                {
+                    if(!msg.Get(5).IsDic)
+                    {
+                        throw new System.Exception("Invalid RESULT message structure - YIELD.ArgumentsKw must be a dictionary");
+                    }
+                    dictParams = msg.Get(5).AsDic;
+                }
+                handler(listParams, dictParams);
+            }
         }
 
         void sendData(Attr data)
