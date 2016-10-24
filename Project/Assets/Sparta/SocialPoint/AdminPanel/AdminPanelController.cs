@@ -131,13 +131,15 @@ namespace SocialPoint.AdminPanel
             }
             _activePanels.Push(panel);
             _mainPanelDirty = true;
+            NotifyOpenedPanel(panel);
             RefreshPanel(false);
         }
 
         public override void ClosePanel()
         {
-            _activePanels.Pop();
+            var current = _activePanels.Pop();
             _mainPanelDirty = true;
+            NotifyClosedPanel(current);
             RefreshPanel(false);
         }
 
@@ -184,7 +186,7 @@ namespace SocialPoint.AdminPanel
         // Categories Panel content
         class AdminPanelCategoriesGUI : IAdminPanelGUI
         {
-            Dictionary<string, IAdminPanelGUI> _categories;
+            readonly Dictionary<string, IAdminPanelGUI> _categories;
 
             public AdminPanelCategoriesGUI(Dictionary<string, IAdminPanelGUI> categories)
             {

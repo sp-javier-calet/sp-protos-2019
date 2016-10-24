@@ -12,10 +12,16 @@ namespace SocialPoint.AdminPanel
         void OnCreateGUI(AdminPanelLayout layout);
     }
 
+    public interface IAdminPanelManagedGUI : IAdminPanelGUI
+    {
+        void OnOpened();
+        void OnClosed();
+    }
+
     public sealed class AdminPanelNestedGUI : IAdminPanelGUI
     {
-        string _name;
-        IAdminPanelGUI _gui;
+        readonly string _name;
+        readonly IAdminPanelGUI _gui;
 
         public AdminPanelNestedGUI(string name, IAdminPanelGUI gui)
         {
@@ -31,7 +37,7 @@ namespace SocialPoint.AdminPanel
 
     public sealed class AdminPanelGUIGroup : IAdminPanelGUI
     {
-        List<IAdminPanelGUI> guiGroup;
+        readonly List<IAdminPanelGUI> guiGroup;
 
         public AdminPanelGUIGroup()
         {
