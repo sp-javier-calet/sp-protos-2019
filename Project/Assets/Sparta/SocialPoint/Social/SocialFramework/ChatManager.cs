@@ -34,6 +34,11 @@ namespace SocialPoint.Social
             _connection.OnNotificationReceived -= ProcessNotificationMessage;
         }
 
+        public IEnumerator<IChatRoom> GetRooms()
+        {
+            return _chatRooms.Values.GetEnumerator();
+        }
+
         public void DeleteSubscription(IChatRoom room)
         {
             if(IsSubscribedToChat(room))

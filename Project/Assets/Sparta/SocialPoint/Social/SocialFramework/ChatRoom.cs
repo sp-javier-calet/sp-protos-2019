@@ -21,6 +21,8 @@ namespace SocialPoint.Social
         void ParseInitialInfo(AttrDic dic);
 
         void AddNotificationMessage(AttrDic dic);
+
+        void SendDebugMessage(string text);
     }
 
     public class ChatRoom<MessageType> : IChatRoom 
@@ -156,7 +158,7 @@ namespace SocialPoint.Social
 
             if(_connection.AlliancesManager != null)
             {
-                /*
+                /* TODO Alliances
                 var player = _connection.AlliancesManager.PlayerInfo;
                 message.HasAlliance = player.IsInAlliance;
                 message.AllianceName = player.Name;

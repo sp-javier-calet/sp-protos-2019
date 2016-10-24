@@ -6,6 +6,11 @@ namespace SocialPoint.Social
 {
     public interface IMessageList
     {
+        event Action OnMessagesCleared;
+        event Action OnHistoryAdded;
+        event Action<int> OnMessageAdded;
+        event Action<int> OnMessageEdited;
+
         IEnumerator<IChatMessage> GetMessages();
 
         int Add(IChatMessage message);
@@ -21,13 +26,10 @@ namespace SocialPoint.Social
 
     public class ChatMessageList<MessageType> : IMessageList where MessageType : class, IChatMessage
     {
-        public delegate void MessageListEventDelegate();
-        public delegate void MessageEventDelegate(int index);
-
-        public event MessageListEventDelegate OnMessagesCleared;
-        public event MessageListEventDelegate OnHistoryAdded;
-        public event MessageEventDelegate OnMessageAdded;
-        public event MessageEventDelegate OnMessageEdited;
+        public event Action OnMessagesCleared;
+        public event Action OnHistoryAdded;
+        public event Action<int> OnMessageAdded;
+        public event Action<int> OnMessageEdited;
 
         readonly List<MessageType> _messages;
 
