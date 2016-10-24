@@ -60,7 +60,6 @@ namespace SocialPoint.Social
             {
                 _client = client;
                 _content = new StringBuilder();
-                ;
             }
 
             public void OnOpened()

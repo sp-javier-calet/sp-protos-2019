@@ -23,6 +23,19 @@ namespace SocialPoint.AdminPanel
 
         public AdminPanel AdminPanel;
 
+        IAdminPanelGUI CurrentGUI
+        {
+            get
+            {
+                IAdminPanelGUI current = null;
+                if(_activePanels.Count > 0)
+                {
+                    current = _activePanels.Peek();
+                }
+                return current;
+            }
+        }
+
         protected override void OnLoad()
         {
             base.OnLoad();
@@ -110,15 +123,13 @@ namespace SocialPoint.AdminPanel
 
         public override void ReplacePanel(IAdminPanelGUI gui)
         {
-            IAdminPanelGUI currentGUI = null;
-            if(_activePanels.Count > 0)
-            {
-                currentGUI = _activePanels.Peek();
-            }
+            IAdminPanelGUI currentGUI = CurrentGUI;
 
             if(currentGUI != gui)
             {
+                NotifyClosedPanel(currentGUI);
                 _activePanels.Clear();
+
                 OpenPanel(gui);
             }
         }
@@ -129,9 +140,14 @@ namespace SocialPoint.AdminPanel
             {
                 panel = new AdminPanelGUIGroup(panel);
             }
+
+            var current = CurrentGUI;
             _activePanels.Push(panel);
             _mainPanelDirty = true;
+
+            NotifyClosedPanel(current);
             NotifyOpenedPanel(panel);
+
             RefreshPanel(false);
         }
 
@@ -139,7 +155,10 @@ namespace SocialPoint.AdminPanel
         {
             var current = _activePanels.Pop();
             _mainPanelDirty = true;
+
             NotifyClosedPanel(current);
+            NotifyOpenedPanel(CurrentGUI);
+
             RefreshPanel(false);
         }
 
@@ -170,9 +189,10 @@ namespace SocialPoint.AdminPanel
                 _mainPanel.SetActive(false);
 
                 // Inflate panel if needed
-                if(_activePanels.Count > 0)
+                var currentGui = CurrentGUI;
+                if(currentGui != null)
                 {
-                    _activePanels.Peek().OnCreateGUI(_mainPanelContent);
+                    currentGui.OnCreateGUI(_mainPanelContent);
                     _mainPanel.SetActive(true);
                 }
 
