@@ -223,7 +223,7 @@ namespace SocialPoint.Social
             set
             {
                 _debugEnabled = value;
-                _connection.setDebugMode(value);
+                _connection.SetDebugMode(value);
             }
         }
 
@@ -259,7 +259,7 @@ namespace SocialPoint.Social
 
         public void AutosubscribeToTopic(string topic, WAMPConnection.Subscription subscription)
         {
-            _connection.autosubscribe(subscription, (args, kwargs) => OnNotificationMessageReceived(topic, args, kwargs));
+            _connection.Autosubscribe(subscription, (args, kwargs) => OnNotificationMessageReceived(topic, args, kwargs));
         }
 
         public void Connect(string[] socketUrls)
@@ -277,7 +277,7 @@ namespace SocialPoint.Social
 
             _state = ConnectionState.Connecting;
 
-            _connection.start(() => {
+            _connection.Start(() => {
                 SendHello();
                 SchedulePing();
             });
@@ -295,11 +295,11 @@ namespace SocialPoint.Social
         {
             if(IsConnected)
             {
-                _connection.leave(null, "Disconnect requested");
+                _connection.Leave(null, "Disconnect requested");
             }
             else if(IsConnecting)
             {
-                _connection.abortJoining();
+                _connection.AbortJoining();
             }
 
             if(_chatManager != null)
@@ -369,9 +369,9 @@ namespace SocialPoint.Social
             for(int i = 0; i < topicsList.Count; ++i)
             {
                 var topicDic = topicsList[i].AsDic;
-                var subscriptionId = (ulong)topicDic.GetValue(ConnectionManager.SubscriptionIdTopicKey).ToLong();
+                var subscriptionId = topicDic.GetValue(ConnectionManager.SubscriptionIdTopicKey).ToLong();
 
-                _connection.autosubscribe(new WAMPConnection.Subscription(subscriptionId, NotificationTopicName), 
+                _connection.Autosubscribe(new WAMPConnection.Subscription(subscriptionId, NotificationTopicName), 
                     (args, kwargs) => OnNotificationMessageReceived(NotificationTopicType, args, kwargs));
             }
         }
@@ -397,12 +397,12 @@ namespace SocialPoint.Social
 
         public void Publish(string topic, AttrList args, AttrDic kwargs, WAMPConnection.OnPublished onComplete)
         {
-            _connection.publish(topic, args, kwargs, onComplete != null, onComplete);
+            _connection.Publish(topic, args, kwargs, onComplete != null, onComplete);
         }
 
         public void Call(string procedure, AttrList args, AttrDic kwargs, WAMPConnection.HandlerCall onResult)
         {
-            _connection.call(procedure, args, kwargs, (err, iargs, ikwargs) => OnRPCFinished(iargs, ikwargs, onResult, err));
+            _connection.Call(procedure, args, kwargs, (err, iargs, ikwargs) => OnRPCFinished(iargs, ikwargs, onResult, err));
         }
 
         void OnConnectionStateChanged(/*TODO websocket */ConnectionState state)
@@ -470,7 +470,8 @@ namespace SocialPoint.Social
             {
                 OnRPCError(err);
 
-                if(err.Code == WAMPConnection.ErrorCodes.ConnectionClosed)
+                // FIXME constants instead of enum?
+                if(err.Code == (int)WAMPConnection.ErrorCodes.ConnectionClosed)
                 {
                     if(onResult != null)
                     {
@@ -502,19 +503,25 @@ namespace SocialPoint.Social
             dicDetails.SetValue("platform", DeviceInfo.Platform);
             dicDetails.SetValue("language", Localization.Language);
 
-            _connection.join(string.Empty, dicDetails, OnJoined);
+            _connection.Join(string.Empty, dicDetails, OnJoined);
         }
 
         #region INetworkClientDelegate implementation
 
         public void OnClientConnected()
         {
-            OnUpdatedConnectivity(true);
+            if(OnUpdatedConnectivity != null)
+            {
+                OnUpdatedConnectivity(true);
+            }
         }
 
         public void OnClientDisconnected()
         {
-            OnUpdatedConnectivity(false);
+            if(OnUpdatedConnectivity != null)
+            {
+                OnUpdatedConnectivity(false);
+            }
         }
 
         public void OnMessageReceived(NetworkMessageData data)

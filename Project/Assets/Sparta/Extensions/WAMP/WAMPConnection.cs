@@ -144,7 +144,7 @@ namespace SocialPoint.WAMP
         Dictionary<long, PublishRequest> _publishRequests;
         Dictionary<long, HandlerCall> _calls;
 
-        WAMPConnection(INetworkClient networkClient)
+        public WAMPConnection(INetworkClient networkClient)
         {
             NetworkClient = networkClient;
             _stopped = false;

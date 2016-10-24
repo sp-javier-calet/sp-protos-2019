@@ -137,16 +137,12 @@ namespace SocialPoint.Social
         void ProcessChatTopic(string topic, AttrDic dic)
         {
             IChatRoom room;
-            if(_chatRooms.TryGetValue(topic, out room))
-            {
-                
-            }
-            else
+            if(!_chatRooms.TryGetValue(topic, out room))
             {
                 throw new Exception("There is no registered room for topic " + topic);
             }
 
-            ulong subscriptionId = dic.GetValue(ConnectionManager.SubscriptionIdTopicKey).ToValue<ulong>();
+            var subscriptionId = dic.GetValue(ConnectionManager.SubscriptionIdTopicKey).ToLong();
             var topicName = dic.GetValue(ConnectionManager.IdTopicKey).ToString();
             var subscription = new WAMPConnection.Subscription(subscriptionId, topicName);
             _chatSubscriptions.Add(room, subscription);
