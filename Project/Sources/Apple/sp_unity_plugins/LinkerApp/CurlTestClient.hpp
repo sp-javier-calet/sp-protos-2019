@@ -13,7 +13,7 @@
 
 class CurlTestClient
 {
-public:
+  public:
     void run();
 };
 #endif /* CurlTestClient_hpp */
