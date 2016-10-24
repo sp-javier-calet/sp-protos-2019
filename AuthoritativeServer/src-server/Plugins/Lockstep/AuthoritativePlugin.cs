@@ -16,6 +16,12 @@ namespace Photon.Hive.Plugin.Authoritative
      */
     public class AuthoritativePlugin : PluginBase, INetworkServer
     {
+        const byte MaxPlayersKey = 255;
+        const byte MasterClientIdKey = 248;
+        const byte IsOpenKey = 253;
+        const int NoRandomMatchFoundCode = 32760;
+        const string ServerIdRoomProperty = "server";
+
         public override string Name
         {
             get
@@ -36,12 +42,6 @@ namespace Photon.Hive.Plugin.Authoritative
         List<INetworkServerDelegate> _delegates;
         INetworkMessageReceiver _receiver;
         object _timer;
- 
-        const byte MaxPlayersKey = 255;
-        const byte MasterClientIdKey = 248;
-        const byte IsOpenKey = 253;
-        const int NoRandomMatchFoundCode = 32760;
-        const string ServerIdRoomProperty = "server";
 
         //Game related variables
         GameMultiplayerServerBehaviour _gameServer;
@@ -56,7 +56,7 @@ namespace Photon.Hive.Plugin.Authoritative
             _netServer = new NetworkServerSceneController(this);
             _gameServer = new GameMultiplayerServerBehaviour(this, _netServer, new EmptyPhysicsDebugger());
 
-            ((INetworkServerDelegate)_netServer).OnServerStarted();//TODO: Do here or inside INetworkServer.Start() implementation?
+            ((INetworkServerDelegate)_netServer).OnServerStarted();
 
             string navmeshPath = typeof(AuthoritativePlugin).Assembly.Location + _navMeshFileLocation;
             string message = string.Empty;
@@ -85,7 +85,7 @@ namespace Photon.Hive.Plugin.Authoritative
         public override void OnCloseGame(ICloseGameCallInfo info)
         {
             PluginHost.StopTimer(_timer);
-            ((INetworkServerDelegate)_netServer).OnServerStopped();//TODO: Do here or inside INetworkServer.Stop() implementation?
+            ((INetworkServerDelegate)_netServer).OnServerStopped();
             info.Continue();
         }
 
@@ -194,12 +194,6 @@ namespace Photon.Hive.Plugin.Authoritative
             }
         }
 
-        const string CommandStepDurationConfig = "CommandStepDuration";
-        const string SimulationStepDurationConfig = "SimulationStepDuration";
-        const string MaxPlayersConfig = "MaxPlayers";
-        const string ClientStartDelayConfig = "ClientStartDelay";
-        const string ClientSimulationDelayConfig = "ClientSimulationDelay";
-
         int GetConfigOption(Dictionary<string, string> config, string key, int def)
         {
             string sval;
@@ -220,16 +214,6 @@ namespace Photon.Hive.Plugin.Authoritative
             {
                 return false;
             }
-            /*_netServer.Config.CommandStepDuration = GetConfigOption(config,
-                CommandStepDurationConfig, _netServer.Config.CommandStepDuration);
-            _netServer.Config.SimulationStepDuration = GetConfigOption(config,
-                SimulationStepDurationConfig, _netServer.Config.SimulationStepDuration);
-            _netServer.ServerConfig.MaxPlayers = (byte)GetConfigOption(config,
-                MaxPlayersConfig, _netServer.ServerConfig.MaxPlayers);
-            _netServer.ServerConfig.ClientStartDelay = GetConfigOption(config,
-                ClientStartDelayConfig, _netServer.ServerConfig.ClientStartDelay);
-            _netServer.ServerConfig.ClientSimulationDelay = GetConfigOption(config,
-                ClientSimulationDelayConfig, _netServer.ServerConfig.ClientSimulationDelay);*/
 
             _timer = PluginHost.CreateTimer(Update, 0, _updateIntervalMs);
             return true;
