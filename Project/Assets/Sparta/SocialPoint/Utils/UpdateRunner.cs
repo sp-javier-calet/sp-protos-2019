@@ -44,40 +44,52 @@ namespace SocialPoint.Utils
         }
     }
 
-    public sealed class TimeScaleDependantInterval
+    public sealed class ScheduledAction : IUpdateable, IDisposable
     {
-        public readonly double Interval;
-        public double AccumTime;
+        Action _action;
+        IUpdateScheduler _scheduler;
+        bool _started;
 
-        public TimeScaleDependantInterval(double interval)
+        public ScheduledAction(IUpdateScheduler scheduler, Action action)
         {
-            Interval = interval;
-            AccumTime = 0.0;
-        }
-    }
-
-    public sealed class TimeScaleNonDependantInterval
-    {
-        public readonly double Interval;
-        public double CurrentTimeStamp;
-
-        public TimeScaleNonDependantInterval(double interval)
-        {
-            Interval = interval;
-            CurrentTimeStamp = TimeUtils.GetTimestampDouble(DateTime.Now);
-        }
-    }
-
-    public sealed class ReferenceComparer<T> : IEqualityComparer<T>
-    {
-        public bool Equals(T x, T y)
-        {
-            return ReferenceEquals(x, y);
+            _scheduler = scheduler;
+            _action = action;
         }
 
-        public int GetHashCode(T obj)
+        public void Start(double interval = 0)
         {
-            return obj.GetType().GetHashCode();
+            if(_started)
+            {
+                Stop();
+            }
+
+            _started = true;
+            if(interval <= 0)
+            {
+                _scheduler.Add(this);
+            }
+            else
+            {
+                _scheduler.AddFixed(this, interval);
+            }
+        }
+
+        public void Update()
+        {
+            _action();
+        }
+
+        public void Stop()
+        {
+            _started = false;
+            _scheduler.Remove(this);
+        }
+
+        public void Dispose()
+        {
+            Stop();
+            _scheduler = null;
+            _action = null;
         }
     }
 
@@ -221,6 +233,30 @@ namespace SocialPoint.Utils
                     sb.Append(ex.Message);
                 }
                 throw new Exception(sb.ToString());
+            }
+        }
+
+        sealed class TimeScaleDependantInterval
+        {
+            public readonly double Interval;
+            public double AccumTime;
+
+            public TimeScaleDependantInterval(double interval)
+            {
+                Interval = interval;
+                AccumTime = 0.0;
+            }
+        }
+
+        sealed class TimeScaleNonDependantInterval
+        {
+            public readonly double Interval;
+            public double CurrentTimeStamp;
+
+            public TimeScaleNonDependantInterval(double interval)
+            {
+                Interval = interval;
+                CurrentTimeStamp = TimeUtils.GetTimestampDouble(DateTime.Now);
             }
         }
     }
