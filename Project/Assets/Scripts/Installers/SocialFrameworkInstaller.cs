@@ -12,11 +12,16 @@ using SocialPoint.Social;
 public class SocialFrameworkInstaller : Installer
 {
     const string SocialFrameworkTag = "social_framework";
+    const string DefaultEndpoint = "ws://echo.websocket.org";
 
     [Serializable]
     public class SettingsData
     {
+        public string Endpoint = DefaultEndpoint;
+        public bool UseFakeNetworkClient = false;
     }
+
+    public SettingsData Settings;
 
     public override void InstallBindings()
     {   
@@ -28,7 +33,14 @@ public class SocialFrameworkInstaller : Installer
 
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanel);
 
-        Container.Bind<INetworkClient>(SocialFrameworkTag).ToMethod<FakeNetworkClient>(CreateNetworkClient);
+        if(Settings.UseFakeNetworkClient)
+        {
+            Container.Bind<INetworkClient>(SocialFrameworkTag).ToMethod<FakeNetworkClient>(CreateNetworkClient);
+        }
+        else
+        {
+            Container.Bind<INetworkClient>(SocialFrameworkTag).ToMethod<WebSocketSharpClient>(CreateWebsocketClient);
+        }
     }
 
     ConnectionManager CreateConnectionManager()
@@ -57,6 +69,11 @@ public class SocialFrameworkInstaller : Installer
             Container.Resolve<INetworkClient>(SocialFrameworkTag),
             Container.Resolve<ConnectionManager>(),
             Container.Resolve<ChatManager>());
+    }
+
+    WebSocketSharpClient CreateWebsocketClient()
+    {
+        return new WebSocketSharpClient(Settings.Endpoint, Container.Resolve<ICoroutineRunner>());
     }
 
     FakeNetworkClient CreateNetworkClient()
