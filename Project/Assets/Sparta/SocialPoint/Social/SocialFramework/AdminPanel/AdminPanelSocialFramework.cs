@@ -48,6 +48,8 @@ namespace SocialPoint.Social
             });
         }
 
+        #region Network Client
+
         class AdminPanelSocialFrameworkNetworkClient : IAdminPanelManagedGUI, INetworkClientDelegate
         {
             Text _text;
@@ -57,7 +59,8 @@ namespace SocialPoint.Social
             public AdminPanelSocialFrameworkNetworkClient(INetworkClient client)
             {
                 _client = client;
-                _content = new StringBuilder();;
+                _content = new StringBuilder();
+                ;
             }
 
             public void OnOpened()
@@ -73,18 +76,17 @@ namespace SocialPoint.Social
             public void OnCreateGUI(AdminPanelLayout layout)
             {
                 layout.CreateLabel("Social Framework Network");
-                layout.CreateToggleButton("Connect", _client.Connected, value =>
+                layout.CreateToggleButton("Connect", _client.Connected, value => {
+                    if(value)
                     {
-                        if(value)
-                        {
-                            _client.Connect();
-                        }
-                        else
-                        {
-                            _client.Disconnect();
-                        }
-                        layout.Refresh();
-                    });
+                        _client.Connect();
+                    }
+                    else
+                    {
+                        _client.Disconnect();
+                    }
+                    layout.Refresh();
+                });
                 _text = layout.CreateVerticalScrollLayout().CreateTextArea(_content.ToString());
             }
 
@@ -125,6 +127,10 @@ namespace SocialPoint.Social
             #endregion
         }
 
+        #endregion
+
+        #region Chat
+
         class AdminPanelSocialFrameworkChat : IAdminPanelGUI
         {
             readonly ChatManager _chat;
@@ -160,6 +166,10 @@ namespace SocialPoint.Social
                     "You are a legal player!";
             }
         }
+
+        #endregion
+
+        #region Chat Rooms
 
         class AdminPanelSocialFrameworkChatRoom : IAdminPanelManagedGUI
         {
@@ -240,5 +250,7 @@ namespace SocialPoint.Social
                 }
             }
         }
+
+        #endregion
     }
 }
