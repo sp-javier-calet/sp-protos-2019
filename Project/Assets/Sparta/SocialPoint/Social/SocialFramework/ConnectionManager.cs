@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
@@ -492,10 +491,10 @@ namespace SocialPoint.Social
         {
             var dicDetails = new AttrDic();
             dicDetails.SetValue("user_id", LoginData.UserId);
-            // TODO dicDetails.SetValue("security_token", LoginData.s); //security token?
+            dicDetails.SetValue("security_token", LoginData.SecurityToken);
 
             #if ADMIN_PANEL
-            // TODO dicDetails.SetValue("privileged_token", LoginData.
+            dicDetails.SetValue("privileged_token", LoginData.PrivilegeToken);
             #endif
 
             dicDetails.SetValue("device_uid", DeviceInfo.Uid);
