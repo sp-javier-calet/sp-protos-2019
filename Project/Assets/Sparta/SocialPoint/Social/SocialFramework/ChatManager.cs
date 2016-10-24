@@ -1,28 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
+using SocialPoint.WAMP;
 
 namespace SocialPoint.Social
 {
-    public static class WAMP
-    {
-        //
-        public struct Subscription
-        {
-            public Subscription(ulong id, string name)
-            {
-            }
-        }
-        //
-    }
-
     public sealed class ChatManager : IDisposable
     {
         public event Action<long> OnChatBanReceived;
 
         readonly ConnectionManager _connection;
         readonly Dictionary<string, IChatRoom> _chatRooms;
-        readonly  Dictionary<IChatRoom, WAMP.Subscription> _chatSubscriptions;
+        readonly  Dictionary<IChatRoom, WAMPConnection.Subscription> _chatSubscriptions;
 
         public IChatRoom AllianceRoom { get; private set; }
 
@@ -32,7 +21,7 @@ namespace SocialPoint.Social
         public ChatManager(ConnectionManager connection)
         {
             _chatRooms = new Dictionary<string, IChatRoom>();
-            _chatSubscriptions = new Dictionary<IChatRoom, WAMP.Subscription>();
+            _chatSubscriptions = new Dictionary<IChatRoom, WAMPConnection.Subscription>();
 
             _connection = connection;
             _connection.ChatManager = this;
@@ -159,7 +148,7 @@ namespace SocialPoint.Social
 
             ulong subscriptionId = dic.GetValue(ConnectionManager.SubscriptionIdTopicKey).ToValue<ulong>();
             var topicName = dic.GetValue(ConnectionManager.IdTopicKey).ToString();
-            var subscription = new WAMP.Subscription(subscriptionId, topicName);
+            var subscription = new WAMPConnection.Subscription(subscriptionId, topicName);
             _chatSubscriptions.Add(room, subscription);
             room.Subscribed = true;
 

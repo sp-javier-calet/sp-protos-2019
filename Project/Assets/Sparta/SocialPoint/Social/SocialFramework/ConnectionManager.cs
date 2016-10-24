@@ -7,6 +7,8 @@ using SocialPoint.Hardware;
 using SocialPoint.Locale;
 using SocialPoint.Utils;
 using SocialPoint.Login;
+using SocialPoint.Network;
+using SocialPoint.WAMP;
 
 namespace SocialPoint.Social
 {
@@ -44,9 +46,10 @@ namespace SocialPoint.Social
     }
 
 
-    public class ConnectionManager : IDisposable, IUpdateable
+    public class ConnectionManager : INetworkClientDelegate, IDisposable
     {
         const string NotificationTopicType = "notification";
+        const string NotificationTopicName = "notifications";
 
         public float PingInterval = 10.0f;
 
@@ -131,7 +134,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public AlliancesManager AllianceManager;
+        public AlliancesManager AlliancesManager;
 
         public ILoginData LoginData;
         public IDeviceInfo DeviceInfo;
@@ -172,6 +175,8 @@ namespace SocialPoint.Social
                 }
             }
         }
+
+        public Localization Localization;
 
         IUpdateScheduler _scheduler;
 
@@ -218,14 +223,19 @@ namespace SocialPoint.Social
             set
             {
                 _debugEnabled = value;
-
-                // TODO Set connection debug mode
+                _connection.setDebugMode(value);
             }
         }
 
-        public ConnectionManager()
+        readonly WAMPConnection _connection;
+
+        ScheduledAction _pingUpdate;
+        ScheduledAction _reconnectUpdate;
+
+        public ConnectionManager(INetworkClient client)
         {
-            // TODO Create and configure websocket and wamp connection
+            _connection = new WAMPConnection(client);
+            // TODO StateChanged and Error callbacks? 
         }
 
         public void Dispose()
@@ -235,35 +245,42 @@ namespace SocialPoint.Social
             {   
                 _appEvents.GameWillRestart.Remove(Disconnect);
             }
+
+            if(_pingUpdate != null)
+            {
+                _pingUpdate.Dispose();
+            }
+
+            if(_reconnectUpdate != null)
+            {
+                _reconnectUpdate.Dispose();
+            }
         }
 
-        public void AutosubscribeToTopic(string topic, WAMP.Subscription subscription)
+        public void AutosubscribeToTopic(string topic, WAMPConnection.Subscription subscription)
         {
-            // TODO Wamp autosubscribe
+            _connection.autosubscribe(subscription, (args, kwargs) => OnNotificationMessageReceived(topic, args, kwargs));
         }
 
         public void Connect(string[] socketUrls)
         {
-            // TODO Configure websocket
+            // TODO Configure websocket with urls?
             Reconnect();
         }
 
         public void Reconnect()
         {
-            if(_state != ConnectionState.Disconnected /*|| !_connection*/)
+            if(_state != ConnectionState.Disconnected)
             {
                 return;
             }
 
             _state = ConnectionState.Connecting;
 
-            // TODO 
-            /*
-            _connection.Start () => {
+            _connection.start(() => {
                 SendHello();
                 SchedulePing();
-            }
-            */
+            });
         }
 
         void RestartConnection()
@@ -276,31 +293,68 @@ namespace SocialPoint.Social
 
         public void Disconnect()
         {
-            // TODO Disconnect wamp
+            if(IsConnected)
+            {
+                _connection.leave(null, "Disconnect requested");
+            }
+            else if(IsConnecting)
+            {
+                _connection.abortJoining();
+            }
 
-            _chatManager.UnregisterAll();
+            if(_chatManager != null)
+            {
+                _chatManager.UnregisterAll();
+            }
+
             UnschedulePing();
+            _state = ConnectionState.Disconnected;
         }
 
         void ResetState()
         {
             _state = ConnectionState.Disconnected;
-            _chatManager.ClearAllSubscriptions();
+            if(_chatManager != null)
+            {
+                _chatManager.ClearAllSubscriptions();
+            }
         }
 
         void SchedulePing()
         {
-            _scheduler.AddFixed(this, PingInterval);
+            if(_scheduler == null)
+            {
+                Log.e("Failed to schedule ping actions. Scheduler instance is not available.");
+                return;
+            }
+            if(_pingUpdate == null)
+            {
+                _pingUpdate = new ScheduledAction(_scheduler, () => {
+                    if(IsConnected)
+                    {
+                        // TODO _socket.SendPing();
+                    }
+                });
+            }
+
+            if(_reconnectUpdate == null)
+            {
+                _reconnectUpdate = new ScheduledAction(_scheduler, () => {
+                    if(!IsConnected && !IsConnecting)
+                    {
+                        Reconnect();
+                    }
+                });
+            }
+
+            _pingUpdate.Start(_config.PingInterval);
+            _reconnectUpdate.Start(_config.ReconnectInterval);
         }
 
         void UnschedulePing()
         {
-            _scheduler.Remove(this);
-            // TODO ScheduledActions
-        }
-
-        public void Update()
-        {
+            _pingUpdate.Stop();
+            _reconnectUpdate.Stop();
         }
 
         void ProcessNotificationServices(AttrDic dic)
@@ -314,10 +368,11 @@ namespace SocialPoint.Social
             var topicsList = dic.Get(ConnectionManager.TopicsKey).AsList;
             for(int i = 0; i < topicsList.Count; ++i)
             {
-                //var topicDic = topicsList[i].AsDic;
-                //var subscriptionId = topicDic.GetValue(ConnectionManager.SubscriptionIdTopicKey).ToLong();
+                var topicDic = topicsList[i].AsDic;
+                var subscriptionId = (ulong)topicDic.GetValue(ConnectionManager.SubscriptionIdTopicKey).ToLong();
 
-                // TODO WAMP Autosubscribe to subscriptionId, "notifications"
+                _connection.autosubscribe(new WAMPConnection.Subscription(subscriptionId, NotificationTopicName), 
+                    (args, kwargs) => OnNotificationMessageReceived(NotificationTopicType, args, kwargs));
             }
         }
 
@@ -340,15 +395,14 @@ namespace SocialPoint.Social
             }
         }
 
-        public void Publish(string topic, AttrList args, AttrDic kwargs, Action onComplete)
+        public void Publish(string topic, AttrList args, AttrDic kwargs, WAMPConnection.OnPublished onComplete)
         {
-            //bool askForConfirmation = onComplete != null;
-            // WAMP Publish
+            _connection.publish(topic, args, kwargs, onComplete != null, onComplete);
         }
 
-        public void Call(string procedure, AttrList args, AttrDic kwargs, Action onResult)
+        public void Call(string procedure, AttrList args, AttrDic kwargs, WAMPConnection.HandlerCall onResult)
         {
-            // TODO WAMP Call
+            _connection.call(procedure, args, kwargs, (err, iargs, ikwargs) => OnRPCFinished(iargs, ikwargs, onResult, err));
         }
 
         void OnConnectionStateChanged(/*TODO websocket */ConnectionState state)
@@ -374,9 +428,9 @@ namespace SocialPoint.Social
             
         }
 
-        void OnJoined(long sessionId, AttrDic dic, Error err)
+        void OnJoined(Error err, long sessionId, AttrDic dic)
         {
-            if(Error.IsNullOrEmpty(err))
+            if(!Error.IsNullOrEmpty(err))
             {
                 _state = ConnectionState.Disconnected;
                 return;
@@ -384,7 +438,7 @@ namespace SocialPoint.Social
 
             var servicesDic = dic.Get(ServicesKey).AsDic;
 
-            if(servicesDic.ContainsKey(ChatServiceKey))
+            if(_chatManager != null && servicesDic.ContainsKey(ChatServiceKey))
             {
                 _chatManager.ProcessChatServices(servicesDic.Get(ChatServiceKey).AsDic);
             }
@@ -410,17 +464,17 @@ namespace SocialPoint.Social
             OnNotificationReceived(type, topic, dicParams);
         }
 
-        void OnRPCFinished(AttrList iargs, AttrDic ikwargs, Action onResult, int rpcId, Error err)
+        void OnRPCFinished(AttrList iargs, AttrDic ikwargs, WAMPConnection.HandlerCall onResult, Error err)
         {
             if(!Error.IsNullOrEmpty(err))
             {
                 OnRPCError(err);
 
-                if(err.Code == /*TODO*/1)
+                if(err.Code == WAMPConnection.ErrorCodes.ConnectionClosed)
                 {
                     if(onResult != null)
                     {
-                        onResult();//TODO(err, iargs, ikwargs);
+                        onResult(err, iargs, ikwargs);
                     }
                 }
                 RestartConnection();
@@ -429,7 +483,7 @@ namespace SocialPoint.Social
 
             if(onResult != null)
             {
-                onResult();//TODO(err, iargs, ikwargs);
+                onResult(err, iargs, ikwargs);
             }
         }
 
@@ -437,14 +491,42 @@ namespace SocialPoint.Social
         {
             var dicDetails = new AttrDic();
             dicDetails.SetValue("user_id", LoginData.UserId);
-            //dicDetails.SetValue("security_token", LoginData.s); //security token?
+            // TODO dicDetails.SetValue("security_token", LoginData.s); //security token?
+
             #if ADMIN_PANEL
-            //dicDetails.SetValue("privileged_token", LoginData.
+            // TODO dicDetails.SetValue("privileged_token", LoginData.
             #endif
 
-            // TODO Add more children
+            dicDetails.SetValue("device_uid", DeviceInfo.Uid);
+            dicDetails.SetValue("country", DeviceInfo.AppInfo.Country);
+            dicDetails.SetValue("platform", DeviceInfo.Platform);
+            dicDetails.SetValue("language", Localization.Language);
 
-            // TODO _connection.Join
+            _connection.join(string.Empty, dicDetails, OnJoined);
         }
+
+        #region INetworkClientDelegate implementation
+
+        public void OnClientConnected()
+        {
+            OnUpdatedConnectivity(true);
+        }
+
+        public void OnClientDisconnected()
+        {
+            OnUpdatedConnectivity(false);
+        }
+
+        public void OnMessageReceived(NetworkMessageData data)
+        {
+            
+        }
+
+        public void OnNetworkError(Error err)
+        {
+            OnConnectionError();
+        }
+
+        #endregion
     }
 }

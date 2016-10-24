@@ -3,6 +3,8 @@ using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.Hardware;
 using SocialPoint.Login;
+using SocialPoint.Locale;
+using SocialPoint.Network;
 using SocialPoint.Utils;
 using SocialPoint.Social;
 
@@ -21,7 +23,7 @@ public class SocialFrameworkInstaller : Installer
 
     ConnectionManager CreateConnectionManager()
     {
-        return new ConnectionManager();
+        return new ConnectionManager(Container.Resolve<INetworkClient>());
     }
 
     void SetupConnectionManager(ConnectionManager manager)
@@ -30,6 +32,7 @@ public class SocialFrameworkInstaller : Installer
         manager.Scheduler = Container.Resolve<IUpdateScheduler>();
         manager.LoginData = Container.Resolve<ILoginData>();
         manager.DeviceInfo = Container.Resolve<IDeviceInfo>();
+        manager.Localization = Container.Resolve<Localization>();
     }
 
     ChatManager CreateChatManager()

@@ -13,8 +13,8 @@ namespace SocialPoint.Social
 
         int Members { get; set; }
 
-        bool Subscribed { get; set; }
         // TODO Accessible from ChatManager only
+        bool Subscribed { get; set; }
 
         bool IsAllianceChat { get; }
 
@@ -140,13 +140,13 @@ namespace SocialPoint.Social
             args.Set(ConnectionManager.ChatMessageInfoKey, messageInfo);
 
             var idx = _messages.Add(message);
-            _connection.Publish(Id, null, args, () => OnMessageSent(idx, message.Uuid));
+            _connection.Publish(Id, null, args, (err, pub) => OnMessageSent(idx, message.Uuid));
         }
 
         void SetupMessage(MessageType message)
         {
             message.Uuid = RandomUtils.GetUuid();
-            // TODO
+            // TODO. Hydra is using the GenericGameData to access to user info.
             /*
                 message.PlayerName = 
                 message.PlayerId;
@@ -167,24 +167,6 @@ namespace SocialPoint.Social
             }
 
             message.IsSending = true;
-
-            /*
-             message._uuid = RandomUtils::getUuid();
- +        message._playerId = GenericGameData::userId();
- +        message._playerName = GenericGameData::userName();
- +        message._timestamp = GenericGameData::currentTimestamp();
- +        message._playerLevel = GenericGameData::userLevel();
- +        message._isSending = true;
- +
- +        if(GameConfig::alliancesManager.enabled)
- +        {
- +            AlliancePlayerInfo* allyInfo = Services::get().getAlliancesManager().getAlliancePlayerInfo();
- +            message._hasAlliance = allyInfo->isInAlliance();
- +            message._allianceName = allyInfo->name;
- +            message._allianceId = allyInfo->id;
- +            message._allianceAvatarId = static_cast<int>(allyInfo->avatarId);
- +            message._rankInAlliance = static_cast<int>(AllianceUtils::getIndexForMemberType(allyInfo->memberType));
- +        }*/
         }
 
         public void SendDebugMessage(string text)
