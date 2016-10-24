@@ -163,7 +163,7 @@ namespace SocialPoint.WAMP
             NetworkClient.RegisterReceiver(this);
         }
 
-        public void setDebugMode(bool newValue)
+        public void SetDebugMode(bool newValue)
         {
             _debug = newValue;
         }
@@ -208,7 +208,7 @@ namespace SocialPoint.WAMP
         const string MissingMessageTypeMsg = "Missing message type field in message: ";
         const string InvalidCodeMsg = "Received invalid WAMP message code: ";
 
-        string getInvalidCodeMessage(MsgCode code)
+        string GetInvalidCodeMessage(MsgCode code)
         {
             var sb = StringUtils.StartBuilder();
             sb.Append(InvalidCodeMsg);
@@ -235,45 +235,45 @@ namespace SocialPoint.WAMP
             MsgCode code = (MsgCode)msg.Get(0).AsValue.ToInt();
             if(_stopped)
             {
-                debugMessage("Recieved message while stopped " + msg);
+                DebugMessage("Recieved message while stopped " + msg);
                 return;
             }
             switch(code)
             {
             case MsgCode.HELLO:
-                throw new System.Exception(getInvalidCodeMessage(code));
+                throw new System.Exception(GetInvalidCodeMessage(code));
             case MsgCode.WELCOME:
-                processWelcome(msg);
+                ProcessWelcome(msg);
                 break;
             case MsgCode.ABORT:
-                processAbort(msg);
+                ProcessAbort(msg);
                 break;
             case MsgCode.CHALLENGE:
             case MsgCode.AUTHENTICATE:
-                throw new System.Exception(getInvalidCodeMessage(code));
+                throw new System.Exception(GetInvalidCodeMessage(code));
             case MsgCode.GOODBYE:
-                processGoodbye(msg);
+                ProcessGoodbye(msg);
                 break;
             case MsgCode.ERROR:
-                processError(msg);
+                ProcessError(msg);
                 break;
             case MsgCode.PUBLISH:
-                throw new System.Exception(getInvalidCodeMessage(code));
+                throw new System.Exception(GetInvalidCodeMessage(code));
             case MsgCode.PUBLISHED:
-                processPublished(msg);
+                ProcessPublished(msg);
                 break;
             case MsgCode.SUBSCRIBE:
-                throw new System.Exception(getInvalidCodeMessage(code));
+                throw new System.Exception(GetInvalidCodeMessage(code));
             case MsgCode.SUBSCRIBED:
-                processSubscribed(msg);
+                ProcessSubscribed(msg);
                 break;
             case MsgCode.UNSUBSCRIBE:
-                throw new System.Exception(getInvalidCodeMessage(code));
+                throw new System.Exception(GetInvalidCodeMessage(code));
             case MsgCode.UNSUBSCRIBED:
-                processUnsubscribed(msg);
+                ProcessUnsubscribed(msg);
                 break;
             case MsgCode.EVENT:
-                processEvent(msg);
+                ProcessEvent(msg);
                 break;
             case MsgCode.CALL:
             case MsgCode.CANCEL:
@@ -285,7 +285,7 @@ namespace SocialPoint.WAMP
             case MsgCode.INVOCATION:
             case MsgCode.INTERRUPT:
             case MsgCode.YIELD:
-                throw new System.Exception(getInvalidCodeMessage(code));
+                throw new System.Exception(GetInvalidCodeMessage(code));
             default:
                 throw new System.ArgumentOutOfRangeException();
             }
@@ -297,7 +297,7 @@ namespace SocialPoint.WAMP
 
         Action _startCompletionHandler;
 
-        public void start(Action completionHandler)
+        public void Start(Action completionHandler)
         {
             _startCompletionHandler = completionHandler;
             NetworkClient.Connect();
@@ -305,7 +305,7 @@ namespace SocialPoint.WAMP
 
         Action _stopCompletionHandler;
 
-        public void stop(Action completionHandler)
+        public void Stop(Action completionHandler)
         {
             _stopCompletionHandler = completionHandler;
             _stopped = true;
@@ -316,7 +316,7 @@ namespace SocialPoint.WAMP
 
         OnJoinCompleted _joinCompleteHandler;
 
-        public void join(string realm, AttrDic additionalDetailsDic, OnJoinCompleted completionHandler)
+        public void Join(string realm, AttrDic additionalDetailsDic, OnJoinCompleted completionHandler)
         {
             //There is a JOIN process already in progress, call the handler with an error
             if(_joinCompleteHandler != null)
@@ -338,7 +338,7 @@ namespace SocialPoint.WAMP
                 };
             }
 
-            debugMessage(string.Concat("Joining realm ", realm));
+            DebugMessage(string.Concat("Joining realm ", realm));
 
             /* [HELLO, Realm|uri, Details|dict]
              * [1, "somerealm", {
@@ -372,10 +372,10 @@ namespace SocialPoint.WAMP
             }
             data.Add(optionsDict);
 
-            sendData(data);
+            SendData(data);
         }
 
-        public bool abortJoining()
+        public bool AbortJoining()
         {
             // Check if there is and active join in process
             if(_joinCompleteHandler == null)
@@ -383,7 +383,7 @@ namespace SocialPoint.WAMP
                 return false;
             }
 
-            debugMessage("Aborting join");
+            DebugMessage("Aborting join");
 
             /* [ABORT, Details|dict, Reason|uri]
              * [3, {"message": "Joining aborted by client."}, "wamp.error.client_aborting"]
@@ -394,7 +394,7 @@ namespace SocialPoint.WAMP
             abortDetailsDic.SetValue("message", "Joining aborted by client.");
             data.Add(abortDetailsDic);
             data.AddValue("wamp.error.client_aborting");
-            sendData(data);
+            SendData(data);
 
             _joinCompleteHandler(new Error((int)ErrorCodes.SessionAborted, "Joining aborted by client"), 0, null);
             _joinCompleteHandler = null;
@@ -406,7 +406,7 @@ namespace SocialPoint.WAMP
 
         OnLeaved _leaveCompletedHandler;
 
-        public void leave(OnLeaved completionHandler, string reason)
+        public void Leave(OnLeaved completionHandler, string reason)
         {
             //There is a LEAVE process already in progress, call the handler with an error
             if(_leaveCompletedHandler != null)
@@ -437,10 +437,10 @@ namespace SocialPoint.WAMP
                 };
             }
 
-            debugMessage(string.Concat("Leaving realm with reason ", reason));
+            DebugMessage(string.Concat("Leaving realm with reason ", reason));
 
             _goodbyeSent = true;
-            sendGoodbye(new AttrDic(), reason);
+            SendGoodbye(null, reason);
         }
 
         #endregion
@@ -449,7 +449,7 @@ namespace SocialPoint.WAMP
 
         public delegate void OnSubscribed(Error error, Subscription subscription);
 
-        public void subscribe(string topic, HandlerSubscription handler, OnSubscribed completionHandler)
+        public void Subscribe(string topic, HandlerSubscription handler, OnSubscribed completionHandler)
         {
             if(_sessionId == 0)
             {
@@ -460,7 +460,7 @@ namespace SocialPoint.WAMP
                 return;
             }
 
-            debugMessage(string.Concat("Subscribe to event ", topic));
+            DebugMessage(string.Concat("Subscribe to event ", topic));
 
             /* [SUBSCRIBE, Request|id, Options|dict, Topic|uri]
              * [32, 713845233, {}, "com.myapp.mytopic1"]
@@ -475,12 +475,12 @@ namespace SocialPoint.WAMP
             data.Add(new AttrDic());
             data.AddValue(topic);
 
-            sendData(data);
+            SendData(data);
         }
 
         public delegate void OnUnsubscribed(Error error);
 
-        public void unsubscribe(Subscription subscription, OnUnsubscribed completionHandler)
+        public void Unsubscribe(Subscription subscription, OnUnsubscribed completionHandler)
         {
             if(_sessionId == 0)
             {
@@ -500,7 +500,7 @@ namespace SocialPoint.WAMP
                 return;
             }
 
-            debugMessage(string.Concat("Unsubscribe to subscription ", subscription.Id));
+            DebugMessage(string.Concat("Unsubscribe to subscription ", subscription.Id));
 
             _subscriptionHandlers.Remove(subscription.Id);
 
@@ -516,10 +516,10 @@ namespace SocialPoint.WAMP
             data.AddValue(_requestId);
             data.AddValue(subscription.Id);
 
-            sendData(data);
+            SendData(data);
         }
 
-        public void autosubscribe(Subscription subscription, HandlerSubscription handler)
+        public void Autosubscribe(Subscription subscription, HandlerSubscription handler)
         {
             if(_subscriptionHandlers.ContainsKey(subscription.Id))
             {
@@ -534,7 +534,7 @@ namespace SocialPoint.WAMP
 
         public delegate void OnPublished(Error error, Publication pub);
 
-        public void publish(string topic, AttrList args, AttrDic kwargs, bool acknowledged, OnPublished completionHandler)
+        public void Publish(string topic, AttrList args, AttrDic kwargs, bool acknowledged, OnPublished completionHandler)
         {
             DebugUtils.Assert((acknowledged && completionHandler != null) || !acknowledged, "Asked for acknowledge but without completionHandler");
 
@@ -547,7 +547,7 @@ namespace SocialPoint.WAMP
                 return;
             }
 
-            debugMessage(string.Concat("Publish event ", topic, " with args", args, " and ", kwargs));
+            DebugMessage(string.Concat("Publish event ", topic, " with args", args, " and ", kwargs));
 
             /* [PUBLISH, Request|id, Options|dict, Topic|uri, Arguments|list, ArgumentsKw|dict]
              * [16, 239714735, {}, "com.myapp.mytopic1", [], {"color": "orange", "sizes": [23, 42, 7]}]
@@ -583,14 +583,14 @@ namespace SocialPoint.WAMP
                 data.Add(kwargs);
             }
 
-            sendData(data);
+            SendData(data);
         }
 
         #endregion
 
         #region Caller
 
-        public void call(string procedure, AttrList args, AttrDic kwargs, HandlerCall resultHandler)
+        public void Call(string procedure, AttrList args, AttrDic kwargs, HandlerCall resultHandler)
         {
             if(_sessionId == 0)
             {
@@ -601,7 +601,7 @@ namespace SocialPoint.WAMP
                 return;
             }
 
-            debugMessage(string.Concat("Request call ", procedure));
+            DebugMessage(string.Concat("Request call ", procedure));
 
             _requestId++;
             DebugUtils.Assert(!_calls.ContainsKey(_requestId), "This requestId was already in use");
@@ -629,14 +629,14 @@ namespace SocialPoint.WAMP
                 data.Add(kwargs);
             }
 
-            sendData(data);
+            SendData(data);
         }
 
         #endregion
 
         #region Private methods
 
-        void sendGoodbye(AttrDic detailsDict, string reason)
+        void SendGoodbye(AttrDic detailsDict, string reason)
         {
             /* [GOODBYE, Details|dict, Reason|uri]
              * [6, {"message": "The host is shutting down now."}, "wamp.error.syste_shutdown"]
@@ -653,10 +653,10 @@ namespace SocialPoint.WAMP
             }
             data.AddValue(reason);
 
-            sendData(data);
+            SendData(data);
         }
 
-        void processError(AttrList msg)
+        void ProcessError(AttrList msg)
         {
             // [ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri]
             // [ERROR, REQUEST.Type|int, REQUEST.Request|id, Details|dict, Error|uri, Arguments|list]
@@ -771,7 +771,7 @@ namespace SocialPoint.WAMP
             }
         }
 
-        void processWelcome(AttrList msg)
+        void ProcessWelcome(AttrList msg)
         {
             //[WELCOME, Session|id, Details|dict]
             if(msg.Count != 3)
@@ -799,7 +799,7 @@ namespace SocialPoint.WAMP
             _joinCompleteHandler = null;
         }
 
-        void processAbort(AttrList msg)
+        void ProcessAbort(AttrList msg)
         {
             //[ABORT, Details|dict, Reason|uri]
             if(msg.Count != 3)
@@ -822,7 +822,7 @@ namespace SocialPoint.WAMP
             _joinCompleteHandler(error, 0, null);
         }
 
-        void processGoodbye(AttrList msg)
+        void ProcessGoodbye(AttrList msg)
         {
             //[GOODBYE, Details|dict, Reason|uri]
             if(_sessionId == 0)
@@ -835,7 +835,7 @@ namespace SocialPoint.WAMP
             if(!_goodbyeSent)
             {
                 // if we did not initiate closing, reply ..
-                sendGoodbye(null, "wamp.error.goodbye_and_out");
+                SendGoodbye(null, "wamp.error.goodbye_and_out");
             }
 
             if(_leaveCompletedHandler != null)
@@ -846,7 +846,7 @@ namespace SocialPoint.WAMP
             }
         }
 
-        void processCallResult(AttrList msg)
+        void ProcessCallResult(AttrList msg)
         {
             // [RESULT, CALL.Request|id, Details|dict]
             // [RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list]
@@ -894,7 +894,7 @@ namespace SocialPoint.WAMP
             _calls.Remove(requestId);
         }
 
-        void processSubscribed(AttrList msg)
+        void ProcessSubscribed(AttrList msg)
         {
             // [SUBSCRIBED, SUBSCRIBE.Request|id, Subscription|id]
 
@@ -922,7 +922,7 @@ namespace SocialPoint.WAMP
             long subscriptionId = msg.Get(2).AsValue.ToLong();
 
             var subscription = new Subscription(subscriptionId, request.Topic);
-            autosubscribe(subscription, request.Handler);
+            Autosubscribe(subscription, request.Handler);
 
             if(request.CompletionHandler != null)
             {
@@ -931,7 +931,7 @@ namespace SocialPoint.WAMP
             _subscribeRequests.Remove(requestId);
         }
 
-        void processUnsubscribed(AttrList msg)
+        void ProcessUnsubscribed(AttrList msg)
         {
             // [UNSUBSCRIBED, UNSUBSCRIBE.Request|id]
 
@@ -959,7 +959,7 @@ namespace SocialPoint.WAMP
             _unsubscribeRequests.Remove(requestId);
         }
 
-        void processPublished(AttrList msg)
+        void ProcessPublished(AttrList msg)
         {
             // [PUBLISHED, PUBLISH.Request|id, Publication|id]
             if(msg.Count != 3)
@@ -991,9 +991,9 @@ namespace SocialPoint.WAMP
                 request.CompletionHandler(null, new Publication(publicationId, request.Topic));
             }
             _publishRequests.Remove(requestId);
-        } 
+        }
 
-        void processEvent(AttrList msg)
+        void ProcessEvent(AttrList msg)
         {
             // [EVENT, SUBSCRIBED.Subscription|id, PUBLISHED.Publication|id, Details|dict]
             // [EVENT, SUBSCRIBED.Subscription|id, PUBLISHED.Publication|id, Details|dict, PUBLISH.Arguments|list]
@@ -1016,7 +1016,7 @@ namespace SocialPoint.WAMP
                 // silently swallow EVENT for non-existent subscription IDs.
                 // We may have just unsubscribed, when this EVENT might be have
                 // already been in-flight.
-                debugMessage(string.Concat("Skipping EVENT for non-existent subscription ID ", subscriptionId));
+                DebugMessage(string.Concat("Skipping EVENT for non-existent subscription ID ", subscriptionId));
                 return;
             }
 
@@ -1044,7 +1044,7 @@ namespace SocialPoint.WAMP
             }
         }
 
-        void sendData(Attr data)
+        void SendData(Attr data)
         {
             var serializer = new JsonAttrSerializer();
             var serializedData = serializer.SerializeString(data);
@@ -1054,7 +1054,7 @@ namespace SocialPoint.WAMP
             networkMessage.Send();
         }
 
-        void debugMessage(string message)
+        void DebugMessage(string message)
         {
             if(_debug)
             {
