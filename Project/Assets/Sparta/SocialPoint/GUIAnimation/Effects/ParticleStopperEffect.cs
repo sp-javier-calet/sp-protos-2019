@@ -3,39 +3,10 @@ using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
-    // Class that spawns a particle effect
-    // Notes: By default this class will instanciate the prefab by using GameObject.Instantiate
     [System.Serializable]
     public sealed class ParticleStopperEffect : TriggerEffect
     {
-        public interface ISpawner
-        {
-            GameObject Spawn(GameObject prefab);
-        }
-
-        public class DefaultSpawner : ISpawner
-        {
-            public GameObject Spawn(GameObject prefab)
-            {
-                return GameObject.Instantiate(prefab);
-            }
-        }
-
         const string kOnAnimationTriggeredMessage = "OnAnimationTriggered";
-
-        static ISpawner _spawner = null;
-
-        static ISpawner Spawner
-        {
-            get
-            {
-                if(_spawner == null)
-                {
-                    _spawner = new DefaultSpawner();
-                }
-                return _spawner;
-            }
-        }
 
         [ShowInEditor]
         [SerializeField]
@@ -52,7 +23,7 @@ namespace SocialPoint.GUIAnimation
         public override void Copy(Step other)
         {
             base.Copy(other);
-            CopyActionValues((ParticleSpawnerEffect)other);
+            CopyActionValues((ParticleStopperEffect)other);
         }
 
         public override void CopyActionValues(Effect other)

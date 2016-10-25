@@ -133,7 +133,7 @@ namespace SocialPoint.GUIAnimation
             { typeof(ParticleSpawnerEffect), "Particle Spawner" },
             { typeof(GameObjectEnablerEffect), "Object Enabler" },
             { typeof(ParticlePlayerEffect), "Particle Player" },
-            { typeof(ParticleStopperEffect), "Particle Stoper" },
+            { typeof(ParticleStopperEffect), "Particle Stopper" },
             { typeof(CallbackEffect), "Callback" },
             { typeof(AnimatorEffect), "Animator" },
         };
