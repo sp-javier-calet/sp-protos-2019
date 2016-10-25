@@ -39,17 +39,7 @@ namespace SocialPoint.Social
                 layout.Refresh();
             });
 
-            if(_connection.IsConnected)
-            {
-                if(_chat != null)
-                {
-                    layout.CreateOpenPanelButton("Chat", new AdminPanelSocialFrameworkChat(_chat));
-                }
-            }
-            else
-            {
-                layout.CreateLabel("Connection Manager is disconnected");
-            }
+            layout.CreateOpenPanelButton("Chat", new AdminPanelSocialFrameworkChat(_chat), _chat != null && _connection.IsConnected);
 
             layout.CreateToggleButton("Debug Mode", _connection.DebugEnabled, value => {
                 _connection.DebugEnabled = value;

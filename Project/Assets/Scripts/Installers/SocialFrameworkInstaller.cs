@@ -54,6 +54,7 @@ public class SocialFrameworkInstaller : Installer
         manager.AppEvents = Container.Resolve<IAppEvents>();
         manager.Scheduler = Container.Resolve<IUpdateScheduler>();
         manager.LoginData = Container.Resolve<ILoginData>();
+        manager.PlayerData = Container.Resolve<IPlayerData>();
         manager.DeviceInfo = Container.Resolve<IDeviceInfo>();
         manager.Localization = Container.Resolve<Localization>();
     }

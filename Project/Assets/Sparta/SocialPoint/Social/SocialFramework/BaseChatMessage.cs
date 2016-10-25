@@ -15,7 +15,7 @@
         string AllianceName { get; set; }
         string AllianceId { get; set; }
         int RankInAlliance { get; set; }
-        int PlayerLevel { get; set; }
+        long PlayerLevel { get; set; }
         int AllianceAvatarId { get; set; }
     }
 }
