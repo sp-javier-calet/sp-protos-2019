@@ -17,7 +17,7 @@ public class NavMeshToFile : MonoBehaviour
     IPathfindingDebugger _debugger;
 
     // Use this for initialization
-    void Start()
+    void Awake()
     {
         Mesh map = PathfindingUnityUtils.CombineSubMeshes(gameObject);
 
@@ -42,6 +42,7 @@ public class NavMeshToFile : MonoBehaviour
         {
             var stream = new FileStream(FilePath, FileMode.OpenOrCreate);
             NavMeshSerializer.Instance.Serialize(navMesh, new SystemBinaryWriter(stream));
+            stream.Close();
         }
         catch (System.Exception e)
         {

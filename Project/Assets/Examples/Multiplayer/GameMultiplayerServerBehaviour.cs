@@ -95,6 +95,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         {
             var stream = new FileStream(path, FileMode.Open);
             _navMesh = NavMeshParser.Instance.Parse(new SystemBinaryReader(stream));
+            stream.Close();
             _pathfinder = new Pathfinder(_navMesh);
             return true;
         }
