@@ -65,11 +65,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         }
     }
 
-    public string NavMeshPath
-    {
-        get; set;
-    }
-
     public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl, IPhysicsDebugger physicsDebugger)
     {
         _server = server;
@@ -99,7 +94,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             _pathfinder = new Pathfinder(_navMesh);
             return true;
         }
-        catch (Exception e)
+        catch(Exception e)
         {
             message = e.Message;
             return false;
@@ -124,7 +119,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
                 var id = itr.Current.Id;
                 var objType = GetTypeById(id);
-                if (objType == MultiplayerObjectType.Pickup)
+                if(objType == MultiplayerObjectType.Pickup)
                 {
                     continue;
                 }
@@ -138,7 +133,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
                 if(times > _maxUpdateTimes)
                 {
                     var go = _controller.Scene.FindObject(id);
-                    if (go != null)
+                    if(go != null)
                     {
                         SendExplosionEvent(go.Transform);
                     }
@@ -154,7 +149,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         }
 
         //Destroy any pending object
-        for (int i = 0; i < _toDestroy.Count; i++)
+        for(int i = 0; i < _toDestroy.Count; i++)
         {
             DestroyObject(_toDestroy[i]);
         }
@@ -188,11 +183,9 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void SendPathEvent(StraightPath path)
     {
-        _server.SendMessage(new NetworkMessageData
-        {
+        _server.SendMessage(new NetworkMessageData {
             MessageType = GameMsgType.PathEvent
-        }, new PathEvent
-        {
+        }, new PathEvent {
             Points = Pathfinder.StraightPathToVector(path)
         });
     }
@@ -306,7 +299,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void PathfindToTarget(JVector target)
     {
-        if (_playerCube != null && _pathfinder != null)
+        if(_playerCube != null && _pathfinder != null)
         {
             Vector3 startPoint = _playerCube.Transform.Position.ToPathfinding();
             Vector3 endPoint = target.ToPathfinding();
