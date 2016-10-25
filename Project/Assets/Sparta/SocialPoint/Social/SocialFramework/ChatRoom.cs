@@ -148,24 +148,21 @@ namespace SocialPoint.Social
         void SetupMessage(MessageType message)
         {
             message.Uuid = RandomUtils.GetUuid();
-            // TODO. Hydra is using the GenericGameData to access to user info.
-            /*
-                message.PlayerName = 
-                message.PlayerId;
-                message.playerLevel;
-                message.Timestamp  
-             */
+
+            var player = _connection.PlayerData;
+            message.PlayerId = player.Id;
+            message.PlayerName = player.Name;
+            message.PlayerLevel = player.Level;
+            message.Timestamp = TimeUtils.Timestamp;
 
             if(_connection.AlliancesManager != null)
             {
-                /* TODO Alliances
-                var player = _connection.AlliancesManager.PlayerInfo;
-                message.HasAlliance = player.IsInAlliance;
-                message.AllianceName = player.Name;
-                message.AllianceId = player.Id;
-                message.AllianceAvatarId = player.AvatarId;
-                message.RankInAlliance = player.Rank;
-                */
+                var member = _connection.AlliancesManager.Player;
+                message.HasAlliance = member.IsInAlliance;
+                message.AllianceName = member.Name;
+                message.AllianceId = member.Id;
+                message.AllianceAvatarId = member.AvatarId;
+                message.RankInAlliance = member.Rank;
             }
 
             message.IsSending = true;

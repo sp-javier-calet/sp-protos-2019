@@ -216,11 +216,13 @@ namespace SocialPoint.Social
 
         public AlliancesManager AlliancesManager { get; set; }
 
-        public Localization Localization { private get; set; }
+        public ILoginData LoginData { get; set; }
 
-        public ILoginData LoginData { private get; set; }
+        public IPlayerData PlayerData { get; set; }
 
-        public IDeviceInfo DeviceInfo { private get; set; }
+        public Localization Localization { get; set; }
+
+        public IDeviceInfo DeviceInfo { get; set; }
 
         readonly WAMPConnection _connection;
         readonly IWebSocketClient _socket;

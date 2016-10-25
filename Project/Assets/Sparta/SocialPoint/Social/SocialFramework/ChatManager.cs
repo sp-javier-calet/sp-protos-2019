@@ -17,7 +17,6 @@ namespace SocialPoint.Social
 
         public long ChatBanEndTimestamp { get; private set; }
 
-
         public ChatManager(ConnectionManager connection)
         {
             _chatRooms = new Dictionary<string, IChatRoom>();
