@@ -31,8 +31,8 @@ namespace SocialPoint.GrayboxLibrary
         private static int _maxPage = 0;
         private Vector2 _scrollPos;
         private static GUIStyle _buttonStyle, _buttonAreaStyle, _simpleButtonStyle, _upperMenuStyle, _bottomMenuStyle, _bottomMenuTextStyle, _bottomMenuTextBoldStyle, _searchOptionStyle, _searchSelectedOptionStyle, _separatorStyle;
-        public static float ThumbWidth = 640;
-        public static float ThumbHeight = 480;
+        public static float ThumbWidth = 512;
+        public static float ThumbHeight = 512;
         public static float AnimatedThumbWidth = 320;
         public static float AnimatedThumbHeight = 240;
         private float _thumbSizeMultiplier = 0.3f;
