@@ -138,8 +138,13 @@ namespace SocialPoint.Multiplayer
         {
         }
 
+        virtual protected void OnError(SocialPoint.Base.Error err)
+        {
+        }
+
         void INetworkClientDelegate.OnNetworkError(SocialPoint.Base.Error err)
         {
+            OnError(err);
         }
 
         public void RegisterReceiver(INetworkClientSceneReceiver receiver)
