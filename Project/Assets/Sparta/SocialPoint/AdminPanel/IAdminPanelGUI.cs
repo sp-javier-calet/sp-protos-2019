@@ -15,6 +15,7 @@ namespace SocialPoint.AdminPanel
     public interface IAdminPanelManagedGUI : IAdminPanelGUI
     {
         void OnOpened();
+
         void OnClosed();
     }
 
@@ -35,7 +36,7 @@ namespace SocialPoint.AdminPanel
         }
     }
 
-    public sealed class AdminPanelGUIGroup : IAdminPanelGUI
+    public sealed class AdminPanelGUIGroup : IAdminPanelManagedGUI
     {
         readonly List<IAdminPanelGUI> guiGroup;
 
@@ -54,11 +55,35 @@ namespace SocialPoint.AdminPanel
             guiGroup.Add(gui);
         }
 
+        public void OnOpened()
+        {
+            for(int i = 0, guiGroupCount = guiGroup.Count; i < guiGroupCount; i++)
+            {
+                var managed = guiGroup[i] as IAdminPanelManagedGUI;
+                if(managed != null)
+                {
+                    managed.OnOpened();
+                }
+            }
+        }
+
+        public void OnClosed()
+        {
+            for(int i = 0, guiGroupCount = guiGroup.Count; i < guiGroupCount; i++)
+            {
+                var managed = guiGroup[i] as IAdminPanelManagedGUI;
+                if(managed != null)
+                {
+                    managed.OnClosed();
+                }
+            }
+        }
+
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             for(int i = 0, guiGroupCount = guiGroup.Count; i < guiGroupCount; i++)
             {
-                IAdminPanelGUI gui = guiGroup[i];
+                var gui = guiGroup[i];
                 gui.OnCreateGUI(layout);
             }
         }
