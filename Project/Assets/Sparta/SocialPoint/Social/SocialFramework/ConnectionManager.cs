@@ -44,18 +44,14 @@ namespace SocialPoint.Social
         public const int BroadcastAllianceOnlineMember = 308;
     }
 
-
     public class ConnectionManager : INetworkClientDelegate, IDisposable
     {
-        const string NotificationTopicType = "notification";
-        const string NotificationTopicName = "notifications";
-
-        public float PingInterval = 10.0f;
-
-        // Client-only error code. It is set on timeout errors.
-        const int TimeoutErrorCode = 9000;
-
-        const string TimeoutErrorTag = "timeout_error";
+        enum ConnectionState
+        {
+            Disconnected,
+            Connecting,
+            Connected
+        }
 
         #region Attr keys
 
@@ -95,16 +91,10 @@ namespace SocialPoint.Social
 
         #endregion
 
+        const string NotificationTopicType = "notification";
+        const string NotificationTopicName = "notifications";
+
         public delegate void NotificationReceivedDelegate(int type, string topic, AttrDic dictParams);
-
-        enum ConnectionState
-        {
-            Disconnected,
-            Connecting,
-            Connected
-        }
-
-        ConnectionState _state = ConnectionState.Disconnected;
 
         public event Action OnConnected;
         public event Action OnClosed;
@@ -132,11 +122,6 @@ namespace SocialPoint.Social
                 _chatManager = value;
             }
         }
-
-        public AlliancesManager AlliancesManager;
-
-        public ILoginData LoginData;
-        public IDeviceInfo DeviceInfo;
 
         ConnectionManagerConfig _config;
 
@@ -179,8 +164,6 @@ namespace SocialPoint.Social
                 }
             }
         }
-
-        public Localization Localization;
 
         IUpdateScheduler _scheduler;
 
@@ -231,11 +214,20 @@ namespace SocialPoint.Social
             }
         }
 
+        public AlliancesManager AlliancesManager { get; set; }
+
+        public Localization Localization { private get; set; }
+
+        public ILoginData LoginData { private get; set; }
+
+        public IDeviceInfo DeviceInfo { private get; set; }
+
         readonly WAMPConnection _connection;
         readonly IWebSocketClient _socket;
 
         ScheduledAction _pingUpdate;
         ScheduledAction _reconnectUpdate;
+        ConnectionState _state;
 
         public ConnectionManager(IWebSocketClient client)
         {
@@ -243,6 +235,7 @@ namespace SocialPoint.Social
             _socket.AddDelegate(this);
             _connection = new WAMPConnection(client);
             _config = new ConnectionManagerConfig();
+            _state = ConnectionState.Disconnected;
         }
 
         public void Dispose()
@@ -293,7 +286,6 @@ namespace SocialPoint.Social
         {
             UnschedulePing();
             ResetState();
-
             Reconnect();
         }
 
@@ -397,7 +389,10 @@ namespace SocialPoint.Social
 
                 var payloadDic = notif.Get(ConnectionManager.NotificationPayloadKey).AsDic;
 
-                OnPendingNotification(codeType, NotificationTopicType, payloadDic);
+                if(OnPendingNotification != null)
+                {
+                    OnPendingNotification(codeType, NotificationTopicType, payloadDic);
+                }
             }
         }
 
@@ -463,9 +458,15 @@ namespace SocialPoint.Social
                 ProcessNotificationServices(servicesDic.Get(NotificationsServiceKey).AsDic);
             }
 
-            OnProcessServices(servicesDic);
+            if(OnProcessServices != null)
+            {
+                OnProcessServices(servicesDic);
+            }
             _state = ConnectionState.Connected;
-            OnConnected();
+            if(OnConnected != null)
+            {
+                OnConnected();
+            }
         }
 
         void OnNotificationMessageReceived(string topic, AttrList listParams, AttrDic dicParams)
@@ -476,14 +477,20 @@ namespace SocialPoint.Social
                 type = dicParams.GetValue(NotificationCapitalTypeKey).ToInt();
             }
 
-            OnNotificationReceived(type, topic, dicParams);
+            if(OnNotificationReceived != null)
+            {
+                OnNotificationReceived(type, topic, dicParams);
+            }
         }
 
         void OnRPCFinished(AttrList iargs, AttrDic ikwargs, WAMPConnection.HandlerCall onResult, Error err)
         {
             if(!Error.IsNullOrEmpty(err))
             {
-                OnRPCError(err);
+                if(OnRPCError != null)
+                {
+                    OnRPCError(err);
+                }
 
                 // FIXME constants instead of enum?
                 if(err.Code == (int)WAMPConnection.ErrorCodes.ConnectionClosed)
