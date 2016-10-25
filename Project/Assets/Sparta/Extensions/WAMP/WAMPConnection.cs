@@ -37,6 +37,54 @@ namespace SocialPoint.WAMP
 
         #region Data structures
 
+        public class IRequest<TCompletion> : IDisposable where TCompletion : class
+        {
+            public TCompletion CompletionHandler{ get; protected set; }
+
+            protected IRequest(TCompletion completionHandler)
+            {
+                CompletionHandler = completionHandler;
+            }
+
+            void IDisposable.Dispose()
+            {
+                CompletionHandler = null;
+            }
+
+        }
+
+        public class StartRequest : IRequest<Action>
+        {
+            internal StartRequest(Action action) : base(action)
+            {
+
+            }
+        }
+
+        public class StopRequest : IRequest<Action>
+        {
+            internal StopRequest(Action action) : base(action)
+            {
+
+            }
+        }
+
+        public class JoinRequest : IRequest<OnJoinCompleted>
+        {
+            internal JoinRequest(OnJoinCompleted completionHandler) : base(completionHandler)
+            {
+
+            }
+        }
+
+        public class LeaveRequest : IRequest<OnLeaved>
+        {
+            internal LeaveRequest(OnLeaved completionHandler) : base(completionHandler)
+            {
+
+            }
+        }
+
         public class Subscription
         {
             public long Id{ get; private set; }
@@ -52,19 +100,24 @@ namespace SocialPoint.WAMP
 
         public delegate void HandlerSubscription(AttrList args, AttrDic kwargs);
 
-        class SubscribeRequest
+        public class SubscribeRequest : IRequest<OnSubscribed>
         {
             internal HandlerSubscription Handler{ get; private set; }
 
-            internal OnSubscribed CompletionHandler{ get; private set; }
-
             internal string Topic{ get; private set; }
 
-            internal SubscribeRequest(HandlerSubscription handler, OnSubscribed completionHandler, string topic)
+            internal SubscribeRequest(HandlerSubscription handler, OnSubscribed completionHandler, string topic) : base(completionHandler)
             {
                 Handler = handler;
-                CompletionHandler = completionHandler;
                 Topic = topic;
+            }
+        }
+
+        public class UnsubscribeRequest : IRequest<OnUnsubscribed>
+        {
+            internal UnsubscribeRequest(OnUnsubscribed completionHandler) : base(completionHandler)
+            {
+                
             }
         }
 
@@ -81,20 +134,24 @@ namespace SocialPoint.WAMP
             }
         }
 
-        class PublishRequest
+        public class PublishRequest : IRequest<OnPublished>
         {
-            internal OnPublished CompletionHandler{ get; private set; }
-
             internal string Topic{ get; private set; }
 
-            public PublishRequest(OnPublished completionHandler, string topic)
+            public PublishRequest(OnPublished completionHandler, string topic) : base(completionHandler)
             {
-                CompletionHandler = completionHandler;
                 Topic = topic;
             }
         }
 
         public delegate void HandlerCall(Error error, AttrList args, AttrDic kwargs);
+
+        public class CallRequest : IRequest<HandlerCall>
+        {
+            internal CallRequest(HandlerCall handler) : base(handler)
+            {
+            }
+        }
 
         enum MsgCode
         {
@@ -138,13 +195,14 @@ namespace SocialPoint.WAMP
         // Last request ID of outgoing WAMP requests.
         long _requestId;
 
-        Dictionary<long, SubscribeRequest> _subscribeRequests;
         Dictionary<long, HandlerSubscription> _subscriptionHandlers;
-        Dictionary<long, OnUnsubscribed> _unsubscribeRequests;
-        Dictionary<long, PublishRequest> _publishRequests;
-        Dictionary<long, HandlerCall> _calls;
 
-        WAMPConnection(INetworkClient networkClient)
+        Dictionary<long, SubscribeRequest> _subscribeRequests;
+        Dictionary<long, UnsubscribeRequest> _unsubscribeRequests;
+        Dictionary<long, PublishRequest> _publishRequests;
+        Dictionary<long, CallRequest> _calls;
+
+        public WAMPConnection(INetworkClient networkClient)
         {
             NetworkClient = networkClient;
             _stopped = false;
@@ -153,11 +211,12 @@ namespace SocialPoint.WAMP
             _sessionId = 0;
             _requestId = 0;
 
-            _subscribeRequests = new Dictionary<long, SubscribeRequest>();
             _subscriptionHandlers = new Dictionary<long, HandlerSubscription>();
-            _unsubscribeRequests = new Dictionary<long, OnUnsubscribed>();
+
+            _subscribeRequests = new Dictionary<long, SubscribeRequest>();
+            _unsubscribeRequests = new Dictionary<long, UnsubscribeRequest>();
             _publishRequests = new Dictionary<long, PublishRequest>();
-            _calls = new Dictionary<long, HandlerCall>();
+            _calls = new Dictionary<long, CallRequest>();
 
             NetworkClient.AddDelegate(this);
             NetworkClient.RegisterReceiver(this);
@@ -174,20 +233,20 @@ namespace SocialPoint.WAMP
 
         void INetworkClientDelegate.OnClientConnected()
         {
-            if(_startCompletionHandler != null)
+            if(_startRequest.CompletionHandler != null)
             {
-                _startCompletionHandler();
-                _startCompletionHandler = null;
+                _startRequest.CompletionHandler();
             }
+            _startRequest = null;
         }
 
         void INetworkClientDelegate.OnClientDisconnected()
         {
-            if(_stopCompletionHandler != null)
+            if(_stopRequest.CompletionHandler != null)
             {
-                _stopCompletionHandler();
-                _stopCompletionHandler = null;
+                _stopRequest.CompletionHandler();
             }
+            _stopRequest = null;
         }
 
         void INetworkClientDelegate.OnMessageReceived(NetworkMessageData data)
@@ -208,7 +267,7 @@ namespace SocialPoint.WAMP
         const string MissingMessageTypeMsg = "Missing message type field in message: ";
         const string InvalidCodeMsg = "Received invalid WAMP message code: ";
 
-        string GetInvalidCodeMessage(MsgCode code)
+        static string GetInvalidCodeMessage(MsgCode code)
         {
             var sb = StringUtils.StartBuilder();
             sb.Append(InvalidCodeMsg);
@@ -218,11 +277,11 @@ namespace SocialPoint.WAMP
 
         void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, SocialPoint.IO.IReader reader)
         {
-            JsonAttrParser parser = new JsonAttrParser();
+            var parser = new JsonAttrParser();
             var attrData = parser.ParseString(reader.ReadString());
             if(attrData.AttrType != AttrType.LIST)
             {
-                throw new System.Exception(InvalidDataTypeMsg);
+                throw new Exception(InvalidDataTypeMsg);
             }
             var msg = attrData.AsList;
             if(msg.Count == 0 || !msg.Get(0).IsValue)
@@ -230,9 +289,9 @@ namespace SocialPoint.WAMP
                 var sb = StringUtils.StartBuilder();
                 sb.Append(MissingMessageTypeMsg);
                 sb.Append(msg.ToString());
-                throw new System.Exception(StringUtils.FinishBuilder(sb));
+                throw new Exception(StringUtils.FinishBuilder(sb));
             }
-            MsgCode code = (MsgCode)msg.Get(0).AsValue.ToInt();
+            var code = (MsgCode)msg.Get(0).AsValue.ToInt();
             if(_stopped)
             {
                 DebugMessage("Recieved message while stopped " + msg);
@@ -241,7 +300,7 @@ namespace SocialPoint.WAMP
             switch(code)
             {
             case MsgCode.HELLO:
-                throw new System.Exception(GetInvalidCodeMessage(code));
+                throw new Exception(GetInvalidCodeMessage(code));
             case MsgCode.WELCOME:
                 ProcessWelcome(msg);
                 break;
@@ -250,7 +309,7 @@ namespace SocialPoint.WAMP
                 break;
             case MsgCode.CHALLENGE:
             case MsgCode.AUTHENTICATE:
-                throw new System.Exception(GetInvalidCodeMessage(code));
+                throw new Exception(GetInvalidCodeMessage(code));
             case MsgCode.GOODBYE:
                 ProcessGoodbye(msg);
                 break;
@@ -258,17 +317,17 @@ namespace SocialPoint.WAMP
                 ProcessError(msg);
                 break;
             case MsgCode.PUBLISH:
-                throw new System.Exception(GetInvalidCodeMessage(code));
+                throw new Exception(GetInvalidCodeMessage(code));
             case MsgCode.PUBLISHED:
                 ProcessPublished(msg);
                 break;
             case MsgCode.SUBSCRIBE:
-                throw new System.Exception(GetInvalidCodeMessage(code));
+                throw new Exception(GetInvalidCodeMessage(code));
             case MsgCode.SUBSCRIBED:
                 ProcessSubscribed(msg);
                 break;
             case MsgCode.UNSUBSCRIBE:
-                throw new System.Exception(GetInvalidCodeMessage(code));
+                throw new Exception(GetInvalidCodeMessage(code));
             case MsgCode.UNSUBSCRIBED:
                 ProcessUnsubscribed(msg);
                 break;
@@ -285,9 +344,9 @@ namespace SocialPoint.WAMP
             case MsgCode.INVOCATION:
             case MsgCode.INTERRUPT:
             case MsgCode.YIELD:
-                throw new System.Exception(GetInvalidCodeMessage(code));
+                throw new Exception(GetInvalidCodeMessage(code));
             default:
-                throw new System.ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -295,48 +354,44 @@ namespace SocialPoint.WAMP
 
         #region Session
 
-        Action _startCompletionHandler;
+        StartRequest _startRequest;
 
-        public void Start(Action completionHandler)
+        public StartRequest Start(Action completionHandler)
         {
-            _startCompletionHandler = completionHandler;
+            _startRequest = new StartRequest(completionHandler);
             NetworkClient.Connect();
+
+            return _startRequest;
         }
 
-        Action _stopCompletionHandler;
+        StopRequest _stopRequest;
 
-        public void Stop(Action completionHandler)
+        public StopRequest Stop(Action completionHandler)
         {
-            _stopCompletionHandler = completionHandler;
+            _stopRequest = new StopRequest(completionHandler);
             _stopped = true;
             NetworkClient.Disconnect();
+
+            return _stopRequest;
         }
 
         public delegate void OnJoinCompleted(Error error, long sessionId, AttrDic dict);
 
-        OnJoinCompleted _joinCompleteHandler;
+        JoinRequest _joinRequest;
 
-        public void Join(string realm, AttrDic additionalDetailsDic, OnJoinCompleted completionHandler)
+        public JoinRequest Join(string realm, AttrDic additionalDetailsDic, OnJoinCompleted completionHandler)
         {
             //There is a JOIN process already in progress, call the handler with an error
-            if(_joinCompleteHandler != null)
+            if(_joinRequest != null)
             {
                 if(completionHandler != null)
                 {
                     completionHandler(new Error((int)ErrorCodes.JoinInProgress, "Another JOIN already in progress"), 0, null);
                 }
-                return;
+                return null;
             }
 
-            if(completionHandler != null)
-            {
-                _joinCompleteHandler = completionHandler;
-            }
-            else
-            {
-                _joinCompleteHandler = delegate {
-                };
-            }
+            _joinRequest = new JoinRequest(completionHandler);
 
             DebugMessage(string.Concat("Joining realm ", realm));
 
@@ -373,12 +428,14 @@ namespace SocialPoint.WAMP
             data.Add(optionsDict);
 
             SendData(data);
+
+            return _joinRequest;
         }
 
         public bool AbortJoining()
         {
             // Check if there is and active join in process
-            if(_joinCompleteHandler == null)
+            if(_joinRequest == null)
             {
                 return false;
             }
@@ -396,26 +453,29 @@ namespace SocialPoint.WAMP
             data.AddValue("wamp.error.client_aborting");
             SendData(data);
 
-            _joinCompleteHandler(new Error((int)ErrorCodes.SessionAborted, "Joining aborted by client"), 0, null);
-            _joinCompleteHandler = null;
+            if(_joinRequest.CompletionHandler != null)
+            {
+                _joinRequest.CompletionHandler(new Error((int)ErrorCodes.SessionAborted, "Joining aborted by client"), 0, null);
+            }
+            _joinRequest = null;
 
             return true;
         }
 
         public delegate void OnLeaved(Error error, string reason);
 
-        OnLeaved _leaveCompletedHandler;
+        LeaveRequest _leaveRequest;
 
-        public void Leave(OnLeaved completionHandler, string reason)
+        public LeaveRequest Leave(OnLeaved completionHandler, string reason)
         {
             //There is a LEAVE process already in progress, call the handler with an error
-            if(_leaveCompletedHandler != null)
+            if(_leaveRequest != null)
             {
                 if(completionHandler != null)
                 {
                     completionHandler(new Error((int)ErrorCodes.LeaveInProgress, "Another LEAVE already in progress"), reason);
                 }
-                return;
+                return null;
             }
 
             if(_sessionId == 0)
@@ -424,23 +484,17 @@ namespace SocialPoint.WAMP
                 {
                     completionHandler(new Error((int)ErrorCodes.NoSession, "Leaving an inexistent session"), reason);
                 }
-                return;
+                return null;
             }
 
-            if(completionHandler != null)
-            {
-                _leaveCompletedHandler = completionHandler;
-            }
-            else
-            {
-                _leaveCompletedHandler = delegate {
-                };
-            }
+            _leaveRequest = new LeaveRequest(completionHandler);
 
             DebugMessage(string.Concat("Leaving realm with reason ", reason));
 
             _goodbyeSent = true;
             SendGoodbye(null, reason);
+
+            return _leaveRequest;
         }
 
         #endregion
@@ -449,7 +503,7 @@ namespace SocialPoint.WAMP
 
         public delegate void OnSubscribed(Error error, Subscription subscription);
 
-        public void Subscribe(string topic, HandlerSubscription handler, OnSubscribed completionHandler)
+        public SubscribeRequest Subscribe(string topic, HandlerSubscription handler, OnSubscribed completionHandler)
         {
             if(_sessionId == 0)
             {
@@ -457,7 +511,7 @@ namespace SocialPoint.WAMP
                 {
                     completionHandler(new Error((int)ErrorCodes.NoSession, "No current session"), null);
                 }
-                return;
+                return null;
             }
 
             DebugMessage(string.Concat("Subscribe to event ", topic));
@@ -467,7 +521,8 @@ namespace SocialPoint.WAMP
              */
             _requestId++;
             DebugUtils.Assert(!_subscribeRequests.ContainsKey(_requestId), "This requestId was already in use");
-            _subscribeRequests.Add(_requestId, new SubscribeRequest(handler, completionHandler, topic));
+            var request = new SubscribeRequest(handler, completionHandler, topic);
+            _subscribeRequests.Add(_requestId, request);
 
             var data = new AttrList();
             data.Add(new AttrInt((int)MsgCode.SUBSCRIBE));
@@ -476,11 +531,13 @@ namespace SocialPoint.WAMP
             data.AddValue(topic);
 
             SendData(data);
+
+            return request;
         }
 
         public delegate void OnUnsubscribed(Error error);
 
-        public void Unsubscribe(Subscription subscription, OnUnsubscribed completionHandler)
+        public UnsubscribeRequest Unsubscribe(Subscription subscription, OnUnsubscribed completionHandler)
         {
             if(_sessionId == 0)
             {
@@ -488,7 +545,7 @@ namespace SocialPoint.WAMP
                 {
                     completionHandler(new Error((int)ErrorCodes.NoSession, "No current session"));
                 }
-                return;
+                return null;
             }
 
             if(!_subscriptionHandlers.ContainsKey(subscription.Id))
@@ -497,7 +554,7 @@ namespace SocialPoint.WAMP
                 {
                     completionHandler(new Error((int)ErrorCodes.UnsubscribeError, string.Concat("Invalid subscription id: ", subscription.Id)));
                 }
-                return;
+                return null;
             }
 
             DebugMessage(string.Concat("Unsubscribe to subscription ", subscription.Id));
@@ -509,7 +566,9 @@ namespace SocialPoint.WAMP
              */
             _requestId++;
             DebugUtils.Assert(!_unsubscribeRequests.ContainsKey(_requestId), "This requestId was already in use");
-            _unsubscribeRequests.Add(_requestId, completionHandler);
+
+            var request = new UnsubscribeRequest(completionHandler);
+            _unsubscribeRequests.Add(_requestId, request);
 
             var data = new AttrList();
             data.Add(new AttrInt((int)MsgCode.UNSUBSCRIBE));
@@ -517,13 +576,15 @@ namespace SocialPoint.WAMP
             data.AddValue(subscription.Id);
 
             SendData(data);
+
+            return request;
         }
 
         public void Autosubscribe(Subscription subscription, HandlerSubscription handler)
         {
             if(_subscriptionHandlers.ContainsKey(subscription.Id))
             {
-                throw new System.Exception("This subscriptionId was already in use");
+                throw new Exception("This subscriptionId was already in use");
             }
             _subscriptionHandlers.Add(subscription.Id, handler);
         }
@@ -590,7 +651,7 @@ namespace SocialPoint.WAMP
 
         #region Caller
 
-        public void Call(string procedure, AttrList args, AttrDic kwargs, HandlerCall resultHandler)
+        public CallRequest Call(string procedure, AttrList args, AttrDic kwargs, HandlerCall resultHandler)
         {
             if(_sessionId == 0)
             {
@@ -598,14 +659,15 @@ namespace SocialPoint.WAMP
                 {
                     resultHandler(new Error((int)ErrorCodes.NoSession), null, null);
                 }
-                return;
+                return null;
             }
 
             DebugMessage(string.Concat("Request call ", procedure));
 
             _requestId++;
             DebugUtils.Assert(!_calls.ContainsKey(_requestId), "This requestId was already in use");
-            _calls.Add(_requestId, resultHandler);
+            var request = new CallRequest(resultHandler);
+            _calls.Add(_requestId, request);
 
             /* [CALL, Request|id, Options|dict, Procedure|uri]
              * [48, 7814135, {}, "com.myapp.user.new", ["johnny"], {"firstname": "John", "surname": "Doe"}]
@@ -630,6 +692,8 @@ namespace SocialPoint.WAMP
             }
 
             SendData(data);
+
+            return request;
         }
 
         #endregion
@@ -664,20 +728,20 @@ namespace SocialPoint.WAMP
 
             if(msg.Count < 5 || msg.Count > 7)
             {
-                throw new System.Exception("Invalid ERROR message structure - length must be 5, 6 or 7");
+                throw new Exception("Invalid ERROR message structure - length must be 5, 6 or 7");
             }
 
             // REQUEST.Type|int
             if(!msg.Get(1).IsValue)
             {
-                throw new System.Exception("Invalid ERROR message structure - REQUEST.Type must be an integer");
+                throw new Exception("Invalid ERROR message structure - REQUEST.Type must be an integer");
             }
             var requestType = (MsgCode)(msg.Get(1).AsValue.ToInt());
 
             // REQUEST.Request|id
             if(!msg.Get(2).IsValue)
             {
-                throw new System.Exception("Invalid ERROR message structure - REQUEST.Request must be an integer");
+                throw new Exception("Invalid ERROR message structure - REQUEST.Request must be an integer");
             }
             long requestId = msg.Get(2).AsValue.ToLong();
 
@@ -697,7 +761,7 @@ namespace SocialPoint.WAMP
             {
                 if(!msg.Get(5).IsList)
                 {
-                    throw new System.Exception("Invalid ERROR message structure - Arguments must be a list");
+                    throw new Exception("Invalid ERROR message structure - Arguments must be a list");
                 }
                 listArgs = msg.Get(5).AsList;
             }
@@ -708,7 +772,7 @@ namespace SocialPoint.WAMP
             {
                 if(!msg.Get(6).IsDic)
                 {
-                    throw new System.Exception("Invalid ERROR message structure - ArgumentsKw must be a dictionary");
+                    throw new Exception("Invalid ERROR message structure - ArgumentsKw must be a dictionary");
                 }
                 dictArgs = msg.Get(6).AsDic;
             }
@@ -717,28 +781,32 @@ namespace SocialPoint.WAMP
             {
             case MsgCode.CALL:
                 {
-                    HandlerCall callHandler;
-                    if(!_calls.TryGetValue(requestId, out callHandler))
+                    CallRequest request;
+                    if(!_calls.TryGetValue(requestId, out request))
                     {
-                        throw new System.Exception("Bogus ERROR message for non-pending CALL request ID");
+                        throw new Exception("Bogus ERROR message for non-pending CALL request ID");
                     }
-                    var error = new Error(code, description);
-                    callHandler(error, listArgs, dictArgs);
+                    if(request.CompletionHandler != null)
+                    {
+                        request.CompletionHandler(new Error(code, description), listArgs, dictArgs);
+                    }
                     _calls.Remove(requestId);
                     break;
                 }
             case MsgCode.REGISTER:
             case MsgCode.UNREGISTER:
-                throw new System.Exception("CALLEE role not implemented");
+                throw new Exception("CALLEE role not implemented");
             case MsgCode.PUBLISH:
                 {
                     PublishRequest request;
                     if(!_publishRequests.TryGetValue(requestId, out request))
                     {
-                        throw new System.Exception("Bogus ERROR message for non-pending PUBLISH request ID");
+                        throw new Exception("Bogus ERROR message for non-pending PUBLISH request ID");
                     }
-                    var error = new Error((int)ErrorCodes.PublishError, description);
-                    request.CompletionHandler(error, new Publication(requestId, request.Topic));
+                    if(request.CompletionHandler != null)
+                    {
+                        request.CompletionHandler(new Error((int)ErrorCodes.PublishError, description), new Publication(requestId, request.Topic));
+                    }
                     _publishRequests.Remove(requestId);
                     break;
                 }
@@ -747,27 +815,31 @@ namespace SocialPoint.WAMP
                     SubscribeRequest request;
                     if(!_subscribeRequests.TryGetValue(requestId, out request))
                     {
-                        throw new System.Exception("Bogus ERROR message for non-pending SUBSCRIBE request ID");
+                        throw new Exception("Bogus ERROR message for non-pending SUBSCRIBE request ID");
                     }
-                    var error = new Error((int)ErrorCodes.SubscribeError, description);
-                    request.CompletionHandler(error, new Subscription(requestId, request.Topic));
+                    if(request.CompletionHandler != null)
+                    {
+                        request.CompletionHandler(new Error((int)ErrorCodes.SubscribeError, description), new Subscription(requestId, request.Topic));
+                    }
                     _subscribeRequests.Remove(requestId);
                     break;
                 }
             case MsgCode.UNSUBSCRIBE:
                 {
-                    OnUnsubscribed request;
+                    UnsubscribeRequest request;
                     if(!_unsubscribeRequests.TryGetValue(requestId, out request))
                     {
-                        throw new System.Exception("Bogus ERROR message for non-pending UNSUBSCRIBE request ID");
+                        throw new Exception("Bogus ERROR message for non-pending UNSUBSCRIBE request ID");
                     }
-                    var error = new Error((int)ErrorCodes.UnsubscribeError, description);
-                    request(error);
+                    if(request.CompletionHandler != null)
+                    {
+                        request.CompletionHandler(new Error((int)ErrorCodes.UnsubscribeError, description));
+                    }
                     _unsubscribeRequests.Remove(requestId);
                     break;
                 }
             default:
-                throw new System.Exception("Invalid ERROR message - ERROR.Type must one of CALL, REGISTER, UNREGISTER, PUBLISH, SUBSCRIBE, UNSUBSCRIBE");
+                throw new Exception("Invalid ERROR message - ERROR.Type must one of CALL, REGISTER, UNREGISTER, PUBLISH, SUBSCRIBE, UNSUBSCRIBE");
             }
         }
 
@@ -776,27 +848,30 @@ namespace SocialPoint.WAMP
             //[WELCOME, Session|id, Details|dict]
             if(msg.Count != 3)
             {
-                throw new System.Exception("Invalid WELCOME message structure - length must be 3");
+                throw new Exception("Invalid WELCOME message structure - length must be 3");
             }
             if(!msg.Get(1).IsValue)
             {
-                throw new System.Exception("Invalid WELCOME message structure - Session must be an integer");
+                throw new Exception("Invalid WELCOME message structure - Session must be an integer");
             }
             if(!msg.Get(2).IsDic)
             {
-                throw new System.Exception("Invalid WELCOME message structure - Details must be a dictionary");
+                throw new Exception("Invalid WELCOME message structure - Details must be a dictionary");
             }
 
             // If there is no active JOIN it means that has been aborted, so do nothing
-            if(_joinCompleteHandler == null)
+            if(_joinRequest == null)
             {
                 return;
             }
 
             _sessionId = msg.Get(1).AsValue.ToLong();
             var detailsDict = msg.Get(2).AsDic;
-            _joinCompleteHandler(null, _sessionId, detailsDict);
-            _joinCompleteHandler = null;
+            if(_joinRequest.CompletionHandler != null)
+            {
+                _joinRequest.CompletionHandler(null, _sessionId, detailsDict);
+            }
+            _joinRequest = null;
         }
 
         void ProcessAbort(AttrList msg)
@@ -804,22 +879,26 @@ namespace SocialPoint.WAMP
             //[ABORT, Details|dict, Reason|uri]
             if(msg.Count != 3)
             {
-                throw new System.Exception("Invalid ABORT message structure - length must be 3");
+                throw new Exception("Invalid ABORT message structure - length must be 3");
             }
             if(!msg.Get(2).IsValue)
             {
-                throw new System.Exception("Invalid ABORT message structure - Reason must be an string");
+                throw new Exception("Invalid ABORT message structure - Reason must be an string");
             }
 
             // If there is no active JOIN it means that has been aborted, so do nothing
-            if(_joinCompleteHandler == null)
+            if(_joinRequest == null)
             {
                 return;
             }
 
-            var reason = msg.Get(2).AsValue.ToString();
-            var error = new Error((int)ErrorCodes.SessionAborted, reason);
-            _joinCompleteHandler(error, 0, null);
+            if(_joinRequest.CompletionHandler != null)
+            {
+                var reason = msg.Get(2).AsValue.ToString();
+                var error = new Error((int)ErrorCodes.SessionAborted, reason);
+                _joinRequest.CompletionHandler(error, 0, null);
+            }
+            _joinRequest = null;
         }
 
         void ProcessGoodbye(AttrList msg)
@@ -827,7 +906,7 @@ namespace SocialPoint.WAMP
             //[GOODBYE, Details|dict, Reason|uri]
             if(_sessionId == 0)
             {
-                throw new System.Exception("Invalid GOODBYE received when no session was established");
+                throw new Exception("Invalid GOODBYE received when no session was established");
             }
 
             _sessionId = 0;
@@ -838,12 +917,12 @@ namespace SocialPoint.WAMP
                 SendGoodbye(null, "wamp.error.goodbye_and_out");
             }
 
-            if(_leaveCompletedHandler != null)
+            if(_leaveRequest != null && _leaveRequest.CompletionHandler != null)
             {
                 var reason = msg.Get(2).AsValue.ToString();
-                _leaveCompletedHandler(null, reason);
-                _leaveCompletedHandler = null;
+                _leaveRequest.CompletionHandler(null, reason);
             }
+            _leaveRequest = null;
         }
 
         void ProcessCallResult(AttrList msg)
@@ -854,22 +933,22 @@ namespace SocialPoint.WAMP
 
             if(msg.Count < 3 || msg.Count > 5)
             {
-                throw new System.Exception("Invalid RESULT message structure - length must be 3, 4 or 5");
+                throw new Exception("Invalid RESULT message structure - length must be 3, 4 or 5");
             }
 
             if(!msg.Get(1).IsValue)
             {
-                throw new System.Exception("Invalid RESULT message structure - CALL.Request must be an integer");
+                throw new Exception("Invalid RESULT message structure - CALL.Request must be an integer");
             }
             long requestId = msg.Get(1).AsValue.ToLong();
 
-            HandlerCall callHandler; 
-            if(!_calls.TryGetValue(requestId, out callHandler))
+            CallRequest request; 
+            if(!_calls.TryGetValue(requestId, out request))
             {
-                throw new System.Exception("Bogus RESULT message for non-pending request ID");
+                throw new Exception("Bogus RESULT message for non-pending request ID");
             }
 
-            if(callHandler != null)
+            if(request.CompletionHandler != null)
             {
                 AttrList listParams = null;
                 AttrDic dictParams = null;
@@ -877,7 +956,7 @@ namespace SocialPoint.WAMP
                 {
                     if(!msg.Get(3).IsList)
                     {
-                        throw new System.Exception("Invalid RESULT message structure - YIELD.Arguments must be a list");
+                        throw new Exception("Invalid RESULT message structure - YIELD.Arguments must be a list");
                     }
                     listParams = msg.Get(3).AsList;
                 }
@@ -885,11 +964,11 @@ namespace SocialPoint.WAMP
                 {
                     if(!msg.Get(4).IsDic)
                     {
-                        throw new System.Exception("Invalid RESULT message structure - YIELD.ArgumentsKw must be a dictionary");
+                        throw new Exception("Invalid RESULT message structure - YIELD.ArgumentsKw must be a dictionary");
                     }
                     dictParams = msg.Get(4).AsDic;
                 }
-                callHandler(null, listParams, dictParams);
+                request.CompletionHandler(null, listParams, dictParams);
             }
             _calls.Remove(requestId);
         }
@@ -900,24 +979,24 @@ namespace SocialPoint.WAMP
 
             if(msg.Count != 3)
             {
-                throw new System.Exception("Invalid SUBSCRIBED message structure - length must be 3");
+                throw new Exception("Invalid SUBSCRIBED message structure - length must be 3");
             }
 
             if(!msg.Get(1).IsValue)
             {
-                throw new System.Exception("Invalid SUBSCRIBED message structure - SUBSCRIBE.Request must be an integer");
+                throw new Exception("Invalid SUBSCRIBED message structure - SUBSCRIBE.Request must be an integer");
             }
 
             long requestId = msg.Get(1).AsValue.ToLong();
             SubscribeRequest request;
             if(!_subscribeRequests.TryGetValue(requestId, out request))
             {
-                throw new System.Exception("Bogus SUBSCRIBED message for non-pending request ID");
+                throw new Exception("Bogus SUBSCRIBED message for non-pending request ID");
             }
 
             if(!msg.Get(2).IsValue)
             {
-                throw new System.Exception("Invalid SUBSCRIBED message structure - SUBSCRIBED.Subscription must be an integer");
+                throw new Exception("Invalid SUBSCRIBED message structure - SUBSCRIBED.Subscription must be an integer");
             }
             long subscriptionId = msg.Get(2).AsValue.ToLong();
 
@@ -937,24 +1016,24 @@ namespace SocialPoint.WAMP
 
             if(msg.Count != 2)
             {
-                throw new System.Exception("Invalid UNSUBSCRIBED message structure - length must be 2");
+                throw new Exception("Invalid UNSUBSCRIBED message structure - length must be 2");
             }
 
             if(!msg.Get(1).IsValue)
             {
-                throw new System.Exception("Invalid UNSUBSCRIBED message structure - UNSUBSCRIBE.Request must be an integer");
+                throw new Exception("Invalid UNSUBSCRIBED message structure - UNSUBSCRIBE.Request must be an integer");
             }
 
             long requestId = msg.Get(1).AsValue.ToLong();
-            OnUnsubscribed request;
+            UnsubscribeRequest request;
             if(!_unsubscribeRequests.TryGetValue(requestId, out request))
             {
-                throw new System.Exception("Bogus UNSUBSCRIBED message for non-pending request ID");
+                throw new Exception("Bogus UNSUBSCRIBED message for non-pending request ID");
             }
 
-            if(request != null)
+            if(request.CompletionHandler != null)
             {
-                request(null);
+                request.CompletionHandler(null);
             }
             _unsubscribeRequests.Remove(requestId);
         }
@@ -964,12 +1043,12 @@ namespace SocialPoint.WAMP
             // [PUBLISHED, PUBLISH.Request|id, Publication|id]
             if(msg.Count != 3)
             {
-                throw new System.Exception("Invalid PUBLISHED message structure - length must be 3");
+                throw new Exception("Invalid PUBLISHED message structure - length must be 3");
             }
 
             if(!msg.Get(1).IsValue)
             {
-                throw new System.Exception("Invalid PUBLISHED message structure - PUBLISHED.Request must be an integer");
+                throw new Exception("Invalid PUBLISHED message structure - PUBLISHED.Request must be an integer");
             }
 
             long requestId = msg.Get(1).AsValue.ToLong();
@@ -977,12 +1056,12 @@ namespace SocialPoint.WAMP
             PublishRequest request;
             if(!_publishRequests.TryGetValue(requestId, out request))
             {
-                throw new System.Exception("Bogus PUBLISHED message for non-pending request ID");
+                throw new Exception("Bogus PUBLISHED message for non-pending request ID");
             }
 
             if(!msg.Get(2).IsValue)
             {
-                throw new System.Exception("Invalid PUBLISHED message structure - PUBLISHED.Subscription must be an integer");
+                throw new Exception("Invalid PUBLISHED message structure - PUBLISHED.Subscription must be an integer");
             }
             long publicationId = msg.Get(2).AsValue.ToLong();
 
@@ -1001,12 +1080,12 @@ namespace SocialPoint.WAMP
 
             if(msg.Count < 4 || msg.Count > 6)
             {
-                throw new System.Exception("Invalid EVENT message structure - length must be 4, 5 or 6");
+                throw new Exception("Invalid EVENT message structure - length must be 4, 5 or 6");
             }
 
             if(!msg.Get(1).IsValue)
             {
-                throw new System.Exception("Invalid EVENT message structure - SUBSCRIBED.Subscription must be an integer");
+                throw new Exception("Invalid EVENT message structure - SUBSCRIBED.Subscription must be an integer");
             }
             long subscriptionId = msg.Get(1).AsValue.ToLong();
 
@@ -1028,7 +1107,7 @@ namespace SocialPoint.WAMP
                 {
                     if(!msg.Get(4).IsList)
                     {
-                        throw new System.Exception("Invalid RESULT message structure - YIELD.Arguments must be a list");
+                        throw new Exception("Invalid RESULT message structure - YIELD.Arguments must be a list");
                     }
                     listParams = msg.Get(4).AsList;
                 }
@@ -1036,7 +1115,7 @@ namespace SocialPoint.WAMP
                 {
                     if(!msg.Get(5).IsDic)
                     {
-                        throw new System.Exception("Invalid RESULT message structure - YIELD.ArgumentsKw must be a dictionary");
+                        throw new Exception("Invalid RESULT message structure - YIELD.ArgumentsKw must be a dictionary");
                     }
                     dictParams = msg.Get(5).AsDic;
                 }
