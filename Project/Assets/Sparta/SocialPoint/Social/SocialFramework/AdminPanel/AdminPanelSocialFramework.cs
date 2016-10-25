@@ -38,6 +38,10 @@ namespace SocialPoint.Social
                 }
                 layout.Refresh();
             });
+            layout.CreateButton("Abort", () => {
+                _connection.Disconnect();
+                layout.Refresh();
+            }, _connection.IsConnecting);
 
             layout.CreateOpenPanelButton("Chat", new AdminPanelSocialFrameworkChat(_chat), _chat != null && _connection.IsConnected);
 

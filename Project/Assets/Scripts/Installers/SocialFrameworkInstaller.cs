@@ -14,11 +14,12 @@ public class SocialFrameworkInstaller : Installer
 {
     const string SocialFrameworkTag = "social_framework";
     const string DefaultEndpoint = "ws://echo.websocket.org";
+    const string MLEndpoint = "http://sprocket-dev-566756404.us-east-1.elb.amazonaws.com:8000/ws";
 
     [Serializable]
     public class SettingsData
     {
-        public string Endpoint = DefaultEndpoint;
+        public string Endpoint = MLEndpoint;
     }
 
     public SettingsData Settings;
