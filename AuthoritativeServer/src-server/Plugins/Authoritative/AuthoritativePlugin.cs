@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using SocialPoint.Utils;
 using SocialPoint.Multiplayer;
 using SocialPoint.Network;
@@ -19,6 +20,8 @@ namespace Photon.Hive.Plugin.Authoritative
         const byte MaxPlayersKey = 255;
         const byte MasterClientIdKey = 248;
         const byte IsOpenKey = 253;
+        const byte ErrorInfoCode = 251;
+        const byte ParameterCodeData = 245;
         const int NoRandomMatchFoundCode = 32760;
         const string ServerIdRoomProperty = "server";
 
@@ -55,12 +58,6 @@ namespace Photon.Hive.Plugin.Authoritative
             _delegates = new List<INetworkServerDelegate>();
             _netServer = new NetworkServerSceneController(this);
             _gameServer = new GameMultiplayerServerBehaviour(this, _netServer, new EmptyPhysicsDebugger());
-
-            ((INetworkServerDelegate)_netServer).OnServerStarted();
-
-            string navmeshPath = typeof(AuthoritativePlugin).Assembly.Location + _navMeshFileLocation;
-            string message = string.Empty;
-            _gameServer.LoadNavMesh(navmeshPath, out message);
         }
 
         byte GetClientId(string userId)
@@ -167,17 +164,24 @@ namespace Photon.Hive.Plugin.Authoritative
             info.Continue();
             if (_receiver != null)
             {
-                var data = info.Request.Data as byte[];
-                if (data != null)
+                try
                 {
-                    var stream = new MemoryStream(data);
-                    var reader = new SystemBinaryReader(stream);
-                    var netData = new NetworkMessageData
+                    var data = info.Request.Data as byte[];
+                    if (data != null)
                     {
-                        ClientId = GetClientId(info.ActorNr),
-                        MessageType = info.Request.EvCode
-                    };
-                    _receiver.OnMessageReceived(netData, reader);
+                        var stream = new MemoryStream(data);
+                        var reader = new SystemBinaryReader(stream);
+                        var netData = new NetworkMessageData
+                        {
+                            ClientId = GetClientId(info.ActorNr),
+                            MessageType = info.Request.EvCode
+                        };
+                        _receiver.OnMessageReceived(netData, reader);
+                    }
+                }
+                catch (Exception e)
+                {
+                    HandleException(e);
                 }
             }
         }
@@ -215,17 +219,52 @@ namespace Photon.Hive.Plugin.Authoritative
                 return false;
             }
 
+            ((INetworkServerDelegate)_netServer).OnServerStarted();
+
+            string navmeshPath = typeof(AuthoritativePlugin).Assembly.Location + _navMeshFileLocation;
+            if (!_gameServer.LoadNavMesh(navmeshPath, out errorMsg))
+            {
+                errorMsg = "Error loading NavMesh: " + errorMsg;
+                return false;
+            }
+
             _timer = PluginHost.CreateTimer(Update, 0, _updateIntervalMs);
             return true;
         }
 
         void Update()
         {
+            try
+            {   
+                float deltaTime = UpdateDeltaTime();
+                _netServer.Update(deltaTime);
+            }
+            catch (Exception e)
+            {
+                HandleException(e);
+            }
+        }
+
+        float UpdateDeltaTime()
+        {
             int currentTimestamp = ((INetworkServer)this).GetTimestamp();
             float deltaTime = ((float)(currentTimestamp - _lastUpdateTimestamp)) * 0.001f;//Milliseconds to seconds
             _lastUpdateTimestamp = currentTimestamp;
-            
-            _netServer.Update(deltaTime);
+            return deltaTime;
+        }
+
+        void BroadcastError(string message)
+        {
+            var errorMsg = "[Server Error]: " + message;
+            var dic = new Dictionary<byte, object>();
+            dic.Add(ParameterCodeData, errorMsg);
+            BroadcastEvent(ErrorInfoCode, dic);
+            PluginHost.LogError(errorMsg);
+        }
+
+        void HandleException(Exception e)
+        {
+            BroadcastError(e.Message);
         }
 
         void INetworkServer.Start()

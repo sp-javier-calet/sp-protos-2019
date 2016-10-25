@@ -248,6 +248,7 @@ namespace SocialPoint.Network
             {
                 var err = new Error((string)content);
                 OnNetworkError(err);
+                PhotonNetwork.Disconnect();
                 return;
             }
 
