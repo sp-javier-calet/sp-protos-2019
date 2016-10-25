@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using SocialPoint.Base;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Dependency
@@ -140,6 +141,8 @@ namespace SocialPoint.Dependency
 
     public sealed class DependencyContainer : IDisposable
     {
+        const string Tag = "DependencyContainer";
+
         List<IInstaller> _installed;
         Dictionary<BindingKey, List<IBinding>> _bindings;
         HashSet<IBinding> _resolving;
@@ -168,6 +171,7 @@ namespace SocialPoint.Dependency
                 _bindings.Add(key, list);
             }
             list.Add(binding);
+            Log.v(Tag, string.Format("Added binding <{0}> for type `{1}`", tag, type.Name));
         }
 
         public void AddLookup(IBinding binding, Type type, string tag = null)
@@ -180,13 +184,16 @@ namespace SocialPoint.Dependency
                 _lookups.Add(key, list);
             }
             list.Add(binding);
+            Log.v(Tag, string.Format("Added lookup <{0}> for type `{1}`", tag, type.Name));
         }
 
         public bool Remove<T>(string tag = null)
         {
             var key = new BindingKey(typeof(T), tag);
             DisposeInstances(key);
-            return _bindings.Remove(key);
+            var removed = _bindings.Remove(key);
+            Log.v(Tag, string.Format("Removed binding <{0}> for type `{1}`. {2}", tag, typeof(T).Name, removed ? "Success" : "Failed"));
+            return removed;
         }
 
         public bool HasBinding<T>(string tag = null)
@@ -218,9 +225,9 @@ namespace SocialPoint.Dependency
         {
             List<IBinding> bindings;
             var type = typeof(T);
+            var list = new List<T>();
             if(_bindings.TryGetValue(new BindingKey(type, tag), out bindings))
             {
-                var list = new List<T>();
                 for(var i = 0; i < bindings.Count; i++)
                 {
                     object result;
@@ -229,26 +236,29 @@ namespace SocialPoint.Dependency
                         list.Add((T)result);
                     }
                 }
-                return list;
             }
-            return new List<T>();
+            Log.v(Tag, string.Format("Resolved List <{0}> for type `{1}`. Size {2}", tag, typeof(T).Name, list.Count));
+            return list;
         }
 
         public object Resolve(Type type, string tag = null, object def = null)
         {
             List<IBinding> bindings;
+            object result = def;
             if(_bindings.TryGetValue(new BindingKey(type, tag), out bindings))
             {
                 for(var i = 0; i < bindings.Count; i++)
                 {
-                    object result;
-                    if(TryResolve(bindings[i], out result))
+                    object resolved;
+                    if(TryResolve(bindings[i], out resolved))
                     {
-                        return result;
+                        result = resolved;
+                        break;
                     }
                 }
             }
-            return def;
+            Log.v(Tag, string.Format("Resolved instance <{0}> for type `{1}`. {2}", tag, type.Name, result == def ? "Default" : "Found"));
+            return result;
         }
 
         bool TryResolve(IBinding binding, out object result)
@@ -290,6 +300,7 @@ namespace SocialPoint.Dependency
             _resolved.Clear();
             _resolving.Clear();
             _lookups.Clear();
+            Log.v(Tag, "Depencency Container Cleared");
         }
 
         BindingKey FindBindingKey(IBinding binding)
@@ -373,11 +384,13 @@ namespace SocialPoint.Dependency
         {
             DisposeInstances(new BindingKey(null, null));
             _instances.Clear();
+            Log.v(Tag, "Depencency Container Disposed");
         }
 
         void DisposeInstances(BindingKey key)
         {
             var disposables = FindInstances(new BindingKey(typeof(IDisposable), null), key, true);
+            Log.v(Tag, string.Format("Disposing {0} instances", disposables.Count));
             var itr = disposables.GetEnumerator();
             while(itr.MoveNext())
             {
