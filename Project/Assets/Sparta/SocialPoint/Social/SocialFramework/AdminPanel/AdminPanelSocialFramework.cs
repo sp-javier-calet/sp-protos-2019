@@ -1,15 +1,16 @@
 ﻿using System.Text;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
-using SocialPoint.Network;
 using UnityEngine.UI;
 
 namespace SocialPoint.Social
 {
-    public class AdminPanelSocialFramework : IAdminPanelConfigurer, IAdminPanelGUI
+    public class AdminPanelSocialFramework : IAdminPanelConfigurer, IAdminPanelManagedGUI
     {
         readonly ConnectionManager _connection;
         readonly ChatManager _chat;
+        AdminPanelLayout _layout;
+        AdminPanelConsole _console;
 
         public AdminPanelSocialFramework(ConnectionManager connection, ChatManager chat)
         {
@@ -19,11 +20,26 @@ namespace SocialPoint.Social
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
+            _console = adminPanel.Console;
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Social Framework", this));
+        }
+
+        public void OnOpened()
+        {
+            _connection.OnConnected += OnConnected;
+            _connection.OnClosed += OnDisconnected;
+        }
+
+        public void OnClosed()
+        {
+            _connection.OnConnected -= OnConnected;
+            _connection.OnClosed -= OnDisconnected;
+            _layout = null;
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
+            _layout = layout;
             layout.CreateLabel("Social Framework");
             layout.CreateMargin();
 
@@ -48,6 +64,18 @@ namespace SocialPoint.Social
             layout.CreateToggleButton("Debug Mode", _connection.DebugEnabled, value => {
                 _connection.DebugEnabled = value;
             });
+        }
+
+        void OnConnected()
+        {
+            _console.Print("Social Framework client connected");
+            _layout.Refresh();
+        }
+
+        void OnDisconnected()
+        {
+            _console.Print("Social Framework client disconnected");
+            _layout.Refresh();
         }
 
         #region Chat
