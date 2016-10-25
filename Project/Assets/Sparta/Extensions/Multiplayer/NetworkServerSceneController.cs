@@ -30,7 +30,8 @@ namespace SocialPoint.Multiplayer
         INetworkServerSceneReceiver _receiver;
 
         Dictionary<byte, int> _lastReceivedAction;
-        Dictionary<Type, List<INetworkActionDelegate>> _actionDelegates;
+
+        ActionHandler<NetworkScene> _actionHandler;
 
         public NetworkScene Scene
         {
@@ -62,7 +63,8 @@ namespace SocialPoint.Multiplayer
             _server.RegisterReceiver(this);
 
             _lastReceivedAction = new Dictionary<byte, int>();
-            _actionDelegates = new Dictionary<Type, List<INetworkActionDelegate>>();
+            _actionHandler = new ActionHandler<NetworkScene>();
+            _actionHandler.Register<INetworkSceneAction>(new NetworkSceneActionHandler());
         }
 
         public virtual void Dispose()
@@ -339,33 +341,23 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public void OnAction<T>(T action, byte clientId)
-        {
-            OnAction(typeof(T), action, clientId);
-        }
-
-        void OnAction(Type actionType, object action, byte clientId)
+        public void OnAction(object action, byte clientId)
         {
             if(_lastReceivedAction.ContainsKey(clientId))
             {
                 _lastReceivedAction[clientId]++;
             }
-            ApplyActionToScene(actionType, action);
+            _actionHandler.HandleAction(_scene, action);
         }
 
-        bool ApplyActionToScene(Type actionType, object action)
+        public void RegisterActionDelegate<T>(Action<NetworkScene, T> callback)
         {
-            return NetworkActionUtils.ApplyAction(actionType, action, _actionDelegates, _scene);
+            _actionHandler.Register(callback);
         }
 
-        public void RegisterActionDelegate<T>(Action<T, NetworkScene> callback)
+        public void UnregisterActionDelegate<T>(Action<NetworkScene, T> callback)
         {
-            NetworkActionUtils.RegisterActionDelegate<T>(callback, _actionDelegates);
-        }
-
-        public bool UnregisterActionDelegate<T>(Action<T, NetworkScene> callback)
-        {
-            return NetworkActionUtils.UnregisterActionDelegate<T>(callback, _actionDelegates);
+            _actionHandler.Unregister(callback);
         }
     }
 }
