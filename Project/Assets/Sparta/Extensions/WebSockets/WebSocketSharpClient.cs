@@ -3,28 +3,21 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
-    public class WebSocketSharpClient : INetworkClient, IDisposable
+    public class WebSocketSharpClient : IWebSocketClient, IDisposable
     {
-        readonly WebSocketSharp.WebSocket _socket;
         readonly WebSocketsEventDispatcher _dispatcher;
+        WebSocketSharp.WebSocket _socket;
 
         public WebSocketSharpClient(string url, ICoroutineRunner runner)
         {
             _dispatcher = new WebSocketsEventDispatcher(runner);
-            _socket = new WebSocketSharp.WebSocket(url);
-            _socket.OnOpen += OnSocketOpened;
-            _socket.OnClose += OnSocketClosed;
-            _socket.OnError += OnSocketError;
-            _socket.OnMessage += OnSocketMessage;
+            CreateSocket(url);
         }
 
         public void Dispose()
         {
             Disconnect();
-            _socket.OnOpen -= OnSocketOpened;
-            _socket.OnClose -= OnSocketClosed;
-            _socket.OnError -= OnSocketError;
-            _socket.OnMessage -= OnSocketMessage;
+            DestroySocket();
         }
 
         public void SendNetworkMessage(NetworkMessageData info, byte[] data)
@@ -51,6 +44,57 @@ namespace SocialPoint.Network
         {
             _dispatcher.NotifyDisconnected();
         }
+
+        void CreateSocket(string url)
+        {
+            if(_socket != null)
+            {
+                throw new InvalidOperationException("Socket already existing");
+            }
+
+            _socket = new WebSocketSharp.WebSocket(url);
+            _socket.OnOpen += OnSocketOpened;
+            _socket.OnClose += OnSocketClosed;
+            _socket.OnError += OnSocketError;
+            _socket.OnMessage += OnSocketMessage;
+        }
+
+        void DestroySocket()
+        {
+            if(_socket != null)
+            {
+                _socket.OnOpen -= OnSocketOpened;
+                _socket.OnClose -= OnSocketClosed;
+                _socket.OnError -= OnSocketError;
+                _socket.OnMessage -= OnSocketMessage;
+            }
+            _socket = null;
+        }
+
+        #region WebsocketClient implementation
+
+        string _url;
+
+        public string Url
+        {
+            get
+            {
+                return _url;
+            }
+            set
+            {
+                _url = value;
+                DestroySocket();
+                CreateSocket(value);
+            }
+        }
+
+        public void Ping()
+        {
+            _socket.Ping();
+        }
+
+        #endregion
 
         #region INetworkClient implementation
 
