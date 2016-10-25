@@ -5,12 +5,18 @@ using SocialPoint.Dependency;
 
 public class TestMultiplayerBehaviour : MonoBehaviour
 {
+    //Disable if server will be created outside Unity
+    public bool CreateServer = true;
+
     INetworkServer _server;
     INetworkClient _client;
 
     void Start()
     {
-        _server = ServiceLocator.Instance.Resolve<INetworkServer>();
+        if (CreateServer)
+        {
+            _server = ServiceLocator.Instance.Resolve<INetworkServer>();
+        }
         _client = ServiceLocator.Instance.Resolve<INetworkClient>();
 
         if(_server != null)
