@@ -124,6 +124,13 @@ namespace SocialPoint.GrayboxLibrary
             LaunchClient();
         }
 
+        [MenuItem("Social Point/Graybox Library/Decos")]
+        public static void LaunchDecosClient()
+        {
+            _currentCategory = (int)GrayboxAssetCategory.Decos;
+            LaunchClient();
+        }
+
         [MenuItem("Social Point/Graybox Library/Fx")]
         public static void LaunchFxClient()
         {

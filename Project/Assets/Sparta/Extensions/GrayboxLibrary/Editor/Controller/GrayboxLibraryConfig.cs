@@ -35,6 +35,7 @@ namespace SocialPoint.GrayboxLibrary
         public static Dictionary <GrayboxAssetCategory, Type> ScriptOnInstance = new Dictionary<GrayboxAssetCategory, Type>{
             { GrayboxAssetCategory.Buildings, typeof(ModelClickPoping) },
             { GrayboxAssetCategory.Characters, null },
+            { GrayboxAssetCategory.Decos, null },
             { GrayboxAssetCategory.Fx, null },
             { GrayboxAssetCategory.Props, null },
             { GrayboxAssetCategory.UI, null },
@@ -45,6 +46,7 @@ namespace SocialPoint.GrayboxLibrary
         public static Dictionary<GrayboxAssetCategory, string> CategoryPrefix = new Dictionary<GrayboxAssetCategory, string>{
             { GrayboxAssetCategory.Buildings, "BLD_" },
             { GrayboxAssetCategory.Characters, "CHR_" },
+            { GrayboxAssetCategory.Decos, "DCO_" },
             { GrayboxAssetCategory.Fx, "FX_" },
             { GrayboxAssetCategory.Props, "PRP_" },
             { GrayboxAssetCategory.UI, "UI_" },
@@ -58,6 +60,7 @@ namespace SocialPoint.GrayboxLibrary
     {
         Buildings,
         Props,
+        Decos,
         Fx,
         Characters,
         Vehicles,
