@@ -233,7 +233,7 @@ namespace SocialPoint.WAMP
 
         void INetworkClientDelegate.OnClientConnected()
         {
-            if(_startRequest.CompletionHandler != null)
+            if(_startRequest != null && _startRequest.CompletionHandler != null)
             {
                 _startRequest.CompletionHandler();
             }
@@ -242,7 +242,7 @@ namespace SocialPoint.WAMP
 
         void INetworkClientDelegate.OnClientDisconnected()
         {
-            if(_stopRequest.CompletionHandler != null)
+            if(_stopRequest != null && _stopRequest.CompletionHandler != null)
             {
                 _stopRequest.CompletionHandler();
             }
