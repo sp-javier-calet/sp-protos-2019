@@ -100,6 +100,7 @@ namespace SocialPoint.Social
         public event Action OnClosed;
         public event Action<AttrDic> OnProcessServices;
         public event Action<bool> OnUpdatedConnectivity;
+        public event Action<Error> OnError;
         public event Action<Error> OnRPCError;
         public event NotificationReceivedDelegate OnNotificationReceived;
         public event NotificationReceivedDelegate OnPendingNotification;
@@ -435,9 +436,12 @@ namespace SocialPoint.Social
             }
         }
 
-        void OnConnectionError()
+        void OnConnectionError(Error err)
         {
-            // TODO
+            if(OnError != null)
+            {
+                OnError(err);
+            }
         }
 
         void OnJoined(Error err, long sessionId, AttrDic dic)
@@ -549,7 +553,7 @@ namespace SocialPoint.Social
 
         public void OnNetworkError(Error err)
         {
-            OnConnectionError();
+            OnConnectionError(err);
         }
 
         #endregion

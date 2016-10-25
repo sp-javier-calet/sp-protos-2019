@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
+using SocialPoint.Base;
 using UnityEngine.UI;
 
 namespace SocialPoint.Social
@@ -27,12 +28,14 @@ namespace SocialPoint.Social
         public void OnOpened()
         {
             _connection.OnConnected += OnConnected;
+            _connection.OnError += OnError;
             _connection.OnClosed += OnDisconnected;
         }
 
         public void OnClosed()
         {
             _connection.OnConnected -= OnConnected;
+            _connection.OnError -= OnError;
             _connection.OnClosed -= OnDisconnected;
             _layout = null;
         }
@@ -69,6 +72,12 @@ namespace SocialPoint.Social
         void OnConnected()
         {
             _console.Print("Social Framework client connected");
+            _layout.Refresh();
+        }
+
+        void OnError(Error err)
+        {
+            _console.Print("Social Framework client error: " + err);
             _layout.Refresh();
         }
 
