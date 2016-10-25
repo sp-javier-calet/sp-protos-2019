@@ -148,6 +148,11 @@ namespace SocialPoint.Social
             }
             set
             {
+                if(value == null)
+                {
+                    throw new InvalidOperationException("ConnectionManager Config cannot be null");
+                }
+
                 _config = value;
                 if(IsConnected)
                 {
@@ -227,14 +232,17 @@ namespace SocialPoint.Social
         }
 
         readonly WAMPConnection _connection;
+        readonly IWebSocketClient _socket;
 
         ScheduledAction _pingUpdate;
         ScheduledAction _reconnectUpdate;
 
-        public ConnectionManager(INetworkClient client)
+        public ConnectionManager(IWebSocketClient client)
         {
+            _socket = client;
+            _socket.AddDelegate(this);
             _connection = new WAMPConnection(client);
-            // TODO StateChanged and Error callbacks? 
+            _config = new ConnectionManagerConfig();
         }
 
         public void Dispose()
@@ -261,9 +269,8 @@ namespace SocialPoint.Social
             _connection.Autosubscribe(subscription, (args, kwargs) => OnNotificationMessageReceived(topic, args, kwargs));
         }
 
-        public void Connect(string[] socketUrls)
+        public void Connect()
         {
-            // TODO Configure websocket with urls?
             Reconnect();
         }
 
@@ -331,7 +338,7 @@ namespace SocialPoint.Social
                 _pingUpdate = new ScheduledAction(_scheduler, () => {
                     if(IsConnected)
                     {
-                        // TODO _socket.SendPing();
+                        _socket.Ping();
                     }
                 });
             }
@@ -404,27 +411,36 @@ namespace SocialPoint.Social
             _connection.Call(procedure, args, kwargs, (err, iargs, ikwargs) => OnRPCFinished(iargs, ikwargs, onResult, err));
         }
 
-        void OnConnectionStateChanged(/*TODO websocket */ConnectionState state)
+        void OnConnectionStateChanged(ConnectionState state)
         {
             switch(state)
             {
             case ConnectionState.Disconnected:
                 ResetState();
-                OnClosed();
-                OnUpdatedConnectivity(false);
+                if(OnClosed != null)
+                {
+                    OnClosed();
+                }
+                if(OnUpdatedConnectivity != null)
+                {
+                    OnUpdatedConnectivity(false);
+                }
                 break;
-            case ConnectionState.Connecting: // Closing
+            case ConnectionState.Connecting: // Closing. // FIXME Unused
                 ResetState();
                 break;
             case ConnectionState.Connected:
-                OnUpdatedConnectivity(true);
+                if(OnUpdatedConnectivity != null)
+                {
+                    OnUpdatedConnectivity(true);
+                }
                 break;
             }
         }
 
         void OnConnectionError()
         {
-            
+            // TODO
         }
 
         void OnJoined(Error err, long sessionId, AttrDic dic)
@@ -509,18 +525,12 @@ namespace SocialPoint.Social
 
         public void OnClientConnected()
         {
-            if(OnUpdatedConnectivity != null)
-            {
-                OnUpdatedConnectivity(true);
-            }
+            OnConnectionStateChanged(ConnectionState.Connected);
         }
 
         public void OnClientDisconnected()
         {
-            if(OnUpdatedConnectivity != null)
-            {
-                OnUpdatedConnectivity(false);
-            }
+            OnConnectionStateChanged(ConnectionState.Disconnected);
         }
 
         public void OnMessageReceived(NetworkMessageData data)

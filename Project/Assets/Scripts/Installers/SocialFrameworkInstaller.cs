@@ -8,6 +8,7 @@ using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 using SocialPoint.Social;
+using SocialPoint.WebSockets;
 
 public class SocialFrameworkInstaller : Installer
 {
@@ -18,34 +19,34 @@ public class SocialFrameworkInstaller : Installer
     public class SettingsData
     {
         public string Endpoint = DefaultEndpoint;
-        public bool UseFakeNetworkClient = false;
     }
 
     public SettingsData Settings;
 
     public override void InstallBindings()
     {   
+        Container.Rebind<WebSocketSharpClient>().ToMethod<WebSocketSharpClient>(CreateWebSocket);
+        Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketSharpClient>();
+        Container.Bind<IDisposable>().ToLookup<WebSocketSharpClient>();
+
         Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);    
         Container.Bind<IDisposable>().ToLookup<ConnectionManager>();
 
         Container.Bind<ChatManager>().ToMethod<ChatManager>(CreateChatManager);
         Container.Bind<IDisposable>().ToLookup<ChatManager>();
 
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanel);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWebSockets>(CreateAdminPanelWebSockets);
+    }
 
-        if(Settings.UseFakeNetworkClient)
-        {
-            Container.Bind<INetworkClient>(SocialFrameworkTag).ToMethod<FakeNetworkClient>(CreateNetworkClient);
-        }
-        else
-        {
-            Container.Bind<INetworkClient>(SocialFrameworkTag).ToMethod<WebSocketSharpClient>(CreateWebsocketClient);
-        }
+    WebSocketSharpClient CreateWebSocket()
+    {
+        return new WebSocketSharpClient(Settings.Endpoint, Container.Resolve<ICoroutineRunner>());
     }
 
     ConnectionManager CreateConnectionManager()
     {
-        return new ConnectionManager(Container.Resolve<INetworkClient>(SocialFrameworkTag));
+        return new ConnectionManager(Container.Resolve<IWebSocketClient>(SocialFrameworkTag));
     }
 
     void SetupConnectionManager(ConnectionManager manager)
@@ -63,92 +64,17 @@ public class SocialFrameworkInstaller : Installer
             Container.Resolve<ConnectionManager>());
     }
 
-    AdminPanelSocialFramework CreateAdminPanel()
+    AdminPanelSocialFramework CreateAdminPanelSocialFramework()
     {
         return new AdminPanelSocialFramework(
-            Container.Resolve<INetworkClient>(SocialFrameworkTag),
             Container.Resolve<ConnectionManager>(),
             Container.Resolve<ChatManager>());
     }
 
-    WebSocketSharpClient CreateWebsocketClient()
+    AdminPanelWebSockets CreateAdminPanelWebSockets()
     {
-        return new WebSocketSharpClient(Settings.Endpoint, Container.Resolve<ICoroutineRunner>());
+        return new AdminPanelWebSockets(
+            Container.Resolve<IWebSocketClient>(SocialFrameworkTag),
+            SocialFrameworkTag);
     }
-
-    FakeNetworkClient CreateNetworkClient()
-    {
-        return new FakeNetworkClient();
-    }
-
-    // FIXME Dummy class
-    #region INetworkClient implementation for testing
-
-    class FakeNetworkClient : INetworkClient
-    {
-        bool _connected;
-        #region INetworkClient implementation
-        public void Connect()
-        {
-            _connected = true;
-        }
-        public void Disconnect()
-        {
-            _connected = false;
-        }
-        public INetworkMessage CreateMessage(NetworkMessageData data)
-        {
-            return new FakeNetworkMessage();
-        }
-        public void AddDelegate(INetworkClientDelegate dlg)
-        {
-            
-        }
-        public void RemoveDelegate(INetworkClientDelegate dlg)
-        {
-            
-        }
-        public void RegisterReceiver(INetworkMessageReceiver receiver)
-        {
-            
-        }
-        public int GetDelay(int networkTimestamp)
-        {
-            return 0;
-        }
-        public byte ClientId
-        {
-            get
-            {
-                return 1;
-            }
-        }
-        public bool Connected
-        {
-            get
-            {
-                return _connected;
-            }
-        }
-        #endregion
-
-        class FakeNetworkMessage : INetworkMessage
-        {
-            #region INetworkMessage implementation
-            public void Send()
-            {
-                
-            }
-            public SocialPoint.IO.IWriter Writer
-            {
-                get
-                {
-                    return null;
-                }
-            }
-            #endregion
-        }
-    }
-
-    #endregion
 }

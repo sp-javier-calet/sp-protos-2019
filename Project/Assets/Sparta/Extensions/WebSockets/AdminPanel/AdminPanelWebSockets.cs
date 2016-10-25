@@ -8,44 +8,55 @@ namespace SocialPoint.WebSockets
 {
     public class AdminPanelWebSockets : IAdminPanelConfigurer, IAdminPanelGUI, INetworkClientDelegate, INetworkMessageReceiver
     {
-        readonly INetworkClient _client;
+        readonly string _name;
+        readonly IWebSocketClient _socket;
         readonly StringBuilder _content;
         Text _text;
 
-        public AdminPanelWebSockets(INetworkClient client)
+        public AdminPanelWebSockets(IWebSocketClient client, string name)
         {
             _content = new StringBuilder();
-
-            _client = client;
-            _client.AddDelegate(this);
-            _client.RegisterReceiver(this);
+            _name = name;
+            _socket = client;
+            _socket.AddDelegate(this);
+            _socket.RegisterReceiver(this);
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
-            adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Websockets", this));
+            adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Websockets", new AdminPanelNestedGUI(_name, this)));
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
-            layout.CreateToggleButton("Connect", _client.Connected, (value) => {
+            layout.CreateToggleButton("Connect", _socket.Connected, (value) => {
                 if(value)
                 {
-                    _client.Connect();
+                    _socket.Connect();
                 }
                 else
                 {
-                    _client.Disconnect();
+                    _socket.Disconnect();
                 }
                 layout.Refresh();
             });
 
+            layout.CreateTextInput(value => 
+                {
+                    _socket.Url = value;
+                    layout.Refresh();
+                });
+            
+            layout.CreateLabel(_socket.Url);
+
+            layout.CreateButton("Ping", _socket.Ping);
+
             layout.CreateButton("Send", () => {
                 var data = new NetworkMessageData();
-                var msg = _client.CreateMessage(data);
+                var msg = _socket.CreateMessage(data);
                 msg.Writer.Write("hello");
                 msg.Send();
-            }, _client.Connected);
+            }, _socket.Connected);
 
             _text = layout.CreateVerticalScrollLayout().CreateTextArea(_content.ToString());
         }
@@ -62,13 +73,13 @@ namespace SocialPoint.WebSockets
 
         public void OnClientConnected()
         {
-            _content.AppendLine("Connected");
+            _content.AppendLine("Connected to " + _socket.Url);
             RefreshText();
         }
 
         public void OnClientDisconnected()
         {
-            _content.AppendLine("Disconnected");
+            _content.AppendLine("Disconnected from " + _socket.Url);
             RefreshText();
         }
 
