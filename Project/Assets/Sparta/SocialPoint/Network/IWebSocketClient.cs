@@ -4,6 +4,8 @@
     {
         string Url { get; set; }
 
+        string Proxy { get; set; }
+
         void Ping();
     }
 }
