@@ -1,7 +1,8 @@
 ﻿using System;
 using SocialPoint.Utils;
+using SocialPoint.Network;
 
-namespace SocialPoint.Network
+namespace SocialPoint.WebSockets
 {
     public class WebSocketSharpClient : IWebSocketClient, IDisposable
     {
@@ -29,7 +30,11 @@ namespace SocialPoint.Network
         public void SendNetworkMessage(NetworkMessageData info, byte[] data)
         {
             _socket.Send(data);
+        }
 
+        public void SendNetworkMessage(NetworkMessageData info, string data)
+        {
+            _socket.Send(data);
         }
 
         void OnSocketOpened(object sender, EventArgs e)
@@ -39,7 +44,14 @@ namespace SocialPoint.Network
 
         void OnSocketMessage(object sender, WebSocketSharp.MessageEventArgs e)
         {
-            _dispatcher.NotifyMessage(e.RawData);
+            if(e.IsText)
+            {
+                _dispatcher.NotifyMessage(e.Data);
+            }
+            else
+            {
+                throw new InvalidOperationException("Unsupported binary communication");
+            }
         }
 
         void OnSocketError(object sender, WebSocketSharp.ErrorEventArgs e)
