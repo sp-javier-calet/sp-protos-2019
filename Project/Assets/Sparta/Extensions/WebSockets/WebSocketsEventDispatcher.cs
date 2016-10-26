@@ -1,12 +1,12 @@
 ﻿using System;
-using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.IO;
+using SocialPoint.Network;
 using SocialPoint.Utils;
 
-namespace SocialPoint.Network
+namespace SocialPoint.WebSockets
 {
     public class WebSocketsEventDispatcher : IDisposable
     {
@@ -21,7 +21,7 @@ namespace SocialPoint.Network
         struct EventData
         {
             public EventType Type;
-            public byte[] Message;
+            public string Message;
             public string Error;
 
             public EventData(EventType type)
@@ -31,18 +31,11 @@ namespace SocialPoint.Network
                 Error = null;
             }
 
-            public EventData(string error)
+            public EventData(string message, string error = null)
             {
                 Type = EventType.Error;
-                Message = null;
+                Message = message;
                 Error = error;
-            }
-
-            public EventData(byte[] msg)
-            {
-                Type = EventType.Message;
-                Message = msg;
-                Error = null;
             }
         }
 
@@ -140,19 +133,18 @@ namespace SocialPoint.Network
             }
         }
 
-        public void NotifyMessage(byte[] msg)
+        public void NotifyMessage(string msg)
         {
             _pending.Add(new EventData(msg));
         }
 
-        void DispatchMessageReceived(byte[] data)
+        void DispatchMessageReceived(string data)
         {
             var msg = new NetworkMessageData();
 
             if(OnMessage != null)
             {
-                var stream = new MemoryStream(data);
-                var reader = new SystemBinaryReader(stream);
+                var reader = new WebSocketsTextReader(data);
                 OnMessage(msg, reader);
             }
 
@@ -164,7 +156,7 @@ namespace SocialPoint.Network
 
         public void NotifyError(string error)
         {
-            _pending.Add(new EventData(error));
+            _pending.Add(new EventData(null, error));
         }
 
         void DispatchNetworkError(string message)

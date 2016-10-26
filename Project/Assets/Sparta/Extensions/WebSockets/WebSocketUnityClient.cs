@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using System;
+using SocialPoint.Network;
 using SocialPoint.Utils;
 
-namespace SocialPoint.Network
+namespace SocialPoint.WebSockets
 {
     public class WebSocketUnityClient : INetworkClient, IDisposable
     {
@@ -139,8 +140,7 @@ namespace SocialPoint.Network
 
             public void OnWebSocketUnityReceiveMessage(string message)
             {
-                var data = System.Text.Encoding.ASCII.GetBytes(message);
-                OnWebSocketUnityReceiveData(data);
+                _client._dispatcher.NotifyMessage(message);
             }
 
             public void OnWebSocketUnityReceiveDataOnMobile(string base64EncodedData)
@@ -151,7 +151,8 @@ namespace SocialPoint.Network
 
             public void OnWebSocketUnityReceiveData(byte[] data)
             {
-                _client._dispatcher.NotifyMessage(data);
+                var message = System.Text.Encoding.UTF8.GetString(data);
+                OnWebSocketUnityReceiveMessage(message);
             }
 
             public void OnWebSocketUnityError(string error)

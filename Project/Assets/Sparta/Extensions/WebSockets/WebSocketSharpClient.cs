@@ -1,15 +1,22 @@
 ﻿using System;
 using SocialPoint.Utils;
+using SocialPoint.Network;
 
-namespace SocialPoint.Network
+namespace SocialPoint.WebSockets
 {
     public class WebSocketSharpClient : IWebSocketClient, IDisposable
     {
         readonly WebSocketsEventDispatcher _dispatcher;
+        readonly string[] _protocols;
         WebSocketSharp.WebSocket _socket;
 
-        public WebSocketSharpClient(string url, ICoroutineRunner runner)
+        public WebSocketSharpClient(string url, ICoroutineRunner runner) : this(url, null, runner)
         {
+        }
+
+        public WebSocketSharpClient(string url, string[] protocols, ICoroutineRunner runner)
+        {
+            _protocols = protocols;
             _dispatcher = new WebSocketsEventDispatcher(runner);
             CreateSocket(url);
         }
@@ -25,6 +32,11 @@ namespace SocialPoint.Network
             _socket.Send(data);
         }
 
+        public void SendNetworkMessage(NetworkMessageData info, string data)
+        {
+            _socket.Send(data);
+        }
+
         void OnSocketOpened(object sender, EventArgs e)
         {
             _dispatcher.NotifyConnected();
@@ -32,12 +44,19 @@ namespace SocialPoint.Network
 
         void OnSocketMessage(object sender, WebSocketSharp.MessageEventArgs e)
         {
-            _dispatcher.NotifyMessage(e.RawData);
+            if(e.IsText)
+            {
+                _dispatcher.NotifyMessage(e.Data);
+            }
+            else
+            {
+                throw new InvalidOperationException("Unsupported binary communication");
+            }
         }
 
         void OnSocketError(object sender, WebSocketSharp.ErrorEventArgs e)
         {
-            _dispatcher.NotifyError(e.Message);
+            _dispatcher.NotifyError(string.Format("{0}. {1}", e.Message, e.Exception.GetBaseException().Message)); // FIXME
         }
 
         void OnSocketClosed(object sender, WebSocketSharp.CloseEventArgs e)
@@ -52,11 +71,16 @@ namespace SocialPoint.Network
                 throw new InvalidOperationException("Socket already existing");
             }
 
-            _socket = new WebSocketSharp.WebSocket(url);
+            _socket = new WebSocketSharp.WebSocket(url, _protocols);
             _socket.OnOpen += OnSocketOpened;
             _socket.OnClose += OnSocketClosed;
             _socket.OnError += OnSocketError;
             _socket.OnMessage += OnSocketMessage;
+
+            if(!string.IsNullOrEmpty(_proxy))
+            {   
+               _socket.SetProxy(_proxy, null, null);
+            }
         }
 
         void DestroySocket()
@@ -72,6 +96,24 @@ namespace SocialPoint.Network
         }
 
         #region WebsocketClient implementation
+
+        string _proxy;
+
+        public string Proxy
+        {
+            get
+            {
+                return _proxy;
+            }
+            set
+            {
+                _proxy = value;
+                if(_socket != null)
+                {
+                    _socket.SetProxy(_proxy, null, null);
+                }
+            }
+        }
 
         string _url;
 
