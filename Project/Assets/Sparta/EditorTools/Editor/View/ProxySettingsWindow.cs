@@ -11,7 +11,7 @@ namespace SpartaTools.Editor.View
         const string ProxyPortKey = "SpartaEditorProxyPort";
 
         const string ProxySettingsFile = ".proxy";
-        const string DefaultAddress = "localhost";
+        const string DefaultAddress = "localhost"; // FIXME Use explicit http:// scheme always
         const string DefaultPort = "8888";
 
         [MenuItem("Sparta/Editor proxy...", false, 300)]

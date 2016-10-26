@@ -40,6 +40,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 305f4ae5e39194e188ca04d5b25a7f5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Settings:
+    Endpoint: ws://int-mc-sprocket.socialpointgames.com:8050/ws
+    Protocols:
+    - wamp.2.json
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

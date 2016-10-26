@@ -15,7 +15,7 @@ public class SocialFrameworkInstaller : Installer
     const string SocialFrameworkTag = "social_framework";
     const string DefaultEndpoint = "ws://int-mc-sprocket.socialpointgames.com:8050/ws";
 
-    //readonly string[] DefaultProtocols = new string[] { "wamp.2.json" };
+    //readonly string[] DefaultProtocols = new string[] { "wamp.2.json" }; // FIXME
 
     [Serializable]
     public class SettingsData
