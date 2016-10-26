@@ -90,7 +90,14 @@ public class SocialFrameworkInstaller : Installer
 
     void SetupWebSocket(WebSocketSharpClient client)
     {
-        client.Proxy = _httpProxy;
+        if(string.IsNullOrEmpty(_httpProxy))
+        {
+            client.Proxy = Container.Resolve<IDeviceInfo>().NetworkInfo.Proxy.ToString();
+        }
+        else
+        {
+            client.Proxy = _httpProxy;
+        }
     }
 
     ConnectionManager CreateConnectionManager()
