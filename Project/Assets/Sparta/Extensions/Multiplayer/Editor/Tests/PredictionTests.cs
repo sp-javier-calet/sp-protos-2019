@@ -18,8 +18,6 @@ namespace SocialPoint.Multiplayer
         NetworkClientSceneController _clientCtrl1;
         NetworkClientSceneController _clientCtrl2;
 
-        TestMultiplayerServerBehaviour _serverReceiver;
-
         [SetUp]
         public void SetUp()
         {
@@ -30,10 +28,9 @@ namespace SocialPoint.Multiplayer
             _serverCtrl = new NetworkServerSceneController(_server);
             _clientCtrl1 = new NetworkClientSceneController(_client1);
             _clientCtrl2 = new NetworkClientSceneController(_client2);
-            _serverReceiver = new TestMultiplayerServerBehaviour(_server, _serverCtrl);
-            _serverCtrl.RegisterReceiver(_serverReceiver);
 
-            _serverCtrl.RegisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
+            _serverCtrl.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
+            _serverCtrl.RegisterAction<TestMovementAction>(MovementActionType);
             _clientCtrl1.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
             _clientCtrl1.RegisterAction<TestMovementAction>(MovementActionType);
             _clientCtrl2.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
@@ -219,45 +216,6 @@ namespace SocialPoint.Multiplayer
                     go.Transform.Position += Movement;
                 }
                 itr.Dispose();
-            }
-        }
-
-        class TestMultiplayerServerBehaviour : INetworkServerSceneReceiver
-        {
-            NetworkServerSceneController _controller;
-
-            public TestMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl)
-            {
-                _controller = ctrl;
-            }
-
-            void INetworkServerSceneBehaviour.Update(float dt, NetworkScene scene, NetworkScene oldScene)
-            {
-            }
-
-            void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
-            {
-                object action = null;
-                if(data.MessageType == InstatiateActionType)
-                {
-                    action = reader.Read<TestInstatiateAction>();
-                }
-                else if(data.MessageType == MovementActionType)
-                {
-                    action = reader.Read<TestMovementAction>();
-                }
-                if(action != null)
-                {
-                    _controller.OnAction(action, data.ClientId);
-                }
-            }
-
-            void INetworkServerSceneBehaviour.OnClientConnected(byte clientId)
-            {
-            }
-
-            void INetworkServerSceneBehaviour.OnClientDisconnected(byte clientId)
-            {
             }
         }
     }

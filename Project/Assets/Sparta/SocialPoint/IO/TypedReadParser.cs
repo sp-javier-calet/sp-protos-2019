@@ -14,13 +14,12 @@ namespace SocialPoint.IO
         {
             IReadParser<K> _parser;
 
-
             public TypeParser(byte code, IReadParser<K> parser)
             {
                 _parser = parser;
             }
 
-            T Parse(IReader reader)
+            public T Parse(IReader reader)
             {
                 return _parser.Parse(reader);
             }
@@ -51,16 +50,30 @@ namespace SocialPoint.IO
 
         public bool TryParse(byte code, IReader reader, out T obj)
         {
+            ITypeParser parser;
+            if(_parsers.TryGetValue(code, out parser))
+            {
+                obj = parser.Parse(reader);
+                return true;
+            }
+            obj = default(T);
+            return false;
         }
 
         public T Parse(byte code, IReader reader)
         {
-            ITypeParser parser;
-            if(_parsers.TryGetValue(code, out parser))
+            T obj;
+            if(TryParse(code, reader, out obj))
             {
-                return parser.Parse(reader);
+                return obj;
             }
             throw new InvalidOperationException("No valid parser found");
+        }
+
+        public T Parse(IReader reader)
+        {
+            var code = reader.ReadByte();
+            return Parse(code, reader);
         }
     }
 

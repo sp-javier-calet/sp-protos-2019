@@ -29,18 +29,18 @@ namespace SocialPoint.Multiplayer
         Dictionary<int, object> _pendingActions;
 
         NetworkSceneActionHandler _actionHandler;
-        TypedWriteSerializer _serializers;
+        TypedWriteSerializer _actionSerializer;
 
         public NetworkClientSceneController(INetworkClient client)
         {
+            _sceneBehaviours = new List<INetworkClientSceneBehaviour>();
+            _pendingActions = new Dictionary<int, object>();
+            _actionHandler = new NetworkSceneActionHandler();
+            _actionSerializer = new TypedWriteSerializer();
+
             _client = client;
             _client.AddDelegate(this);
             _client.RegisterReceiver(this);
-            _sceneBehaviours = new List<INetworkClientSceneBehaviour>();
-
-            _pendingActions = new Dictionary<int, object>();
-            _actionHandler = new NetworkSceneActionHandler();
-            _serializers = new TypedWriteSerializer();
         }
 
         public virtual void Dispose()
@@ -182,12 +182,12 @@ namespace SocialPoint.Multiplayer
             }
 
             byte msgType;
-            if(_serializers.FindCode(action, out msgType))
+            if(_actionSerializer.FindCode(action, out msgType))
             {
                 var msg = _client.CreateMessage(new NetworkMessageData {
                     MessageType = msgType
                 });
-                _serializers.Serialize(action, msg.Writer);
+                _actionSerializer.Serialize(action, msg.Writer);
                 msg.Send();
             }
         }
@@ -203,18 +203,30 @@ namespace SocialPoint.Multiplayer
             {
                 _actionHandler.Register(callback);
             }
-            _serializers.Register<T>(msgType);
+            _actionSerializer.Register<T>(msgType);
         }
 
         public void RegisterAction<T>(byte msgType, Action<NetworkScene, T> callback, IWriteSerializer<T> serializer)
         {
             _actionHandler.Register(callback);
-            _serializers.Register<T>(msgType, serializer);
+            _actionSerializer.Register<T>(msgType, serializer);
+        }
+
+        public void RegisterAction<T>(byte msgType, IActionHandler<NetworkScene, T> handler) where T : INetworkShareable
+        {
+            _actionHandler.Register(handler);
+            _actionSerializer.Register<T>(msgType);
+        }
+
+        public void RegisterAction<T>(byte msgType, IActionHandler<NetworkScene, T> handler, IWriteSerializer<T> serializer)
+        {
+            _actionHandler.Register(handler);
+            _actionSerializer.Register<T>(msgType, serializer);
         }
 
         public void UnregisterAction<T>()
         {
-            _serializers.Unregister<T>();
+            _actionSerializer.Unregister<T>();
             _actionHandler.Unregister<T>();
         }
 

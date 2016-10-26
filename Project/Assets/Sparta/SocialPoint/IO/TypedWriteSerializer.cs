@@ -42,7 +42,7 @@ namespace SocialPoint.IO
         public void Register<K>(byte code, IWriteSerializer<K> serializer)
         {
             _types[typeof(K)] = code;
-            _serializers[code] = new TypeSerializer<K>(code, serializer);
+            _serializers[code] = new TypeSerializer<K>(serializer);
         }
 
         public void Unregister<K>()
@@ -55,7 +55,7 @@ namespace SocialPoint.IO
             }
         }
 
-        public void Serialize(T obj, IWriter writer)
+        public bool TrySerialize(T obj, IWriter writer)
         {
             bool found = false;
             var itr = _serializers.GetEnumerator();
@@ -69,7 +69,12 @@ namespace SocialPoint.IO
                 }
             }
             itr.Dispose();
-            if(!found)
+            return found;
+        }
+
+        public void Serialize(T obj, IWriter writer)
+        {
+            if(!TrySerialize(obj, writer))
             {
                 throw new InvalidOperationException("No valid serializer found");
             }
@@ -77,7 +82,12 @@ namespace SocialPoint.IO
 
         public bool FindCode(T obj, out byte code)
         {
-            return _types.TryGetValue(obj, out code);
+            return _types.TryGetValue(obj.GetType(), out code);
+        }
+
+        public bool FindCode<K>(out byte code)
+        {
+            return _types.TryGetValue(typeof(K), out code);
         }
     }
 
