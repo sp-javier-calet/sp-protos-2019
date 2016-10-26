@@ -28,7 +28,9 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
         _client = ServiceLocator.Instance.Resolve<INetworkClient>();
         _controller = ServiceLocator.Instance.Resolve<NetworkClientSceneController>();
         _controller.RegisterReceiver(this);
-        _controller.RegisterActionDelegate<MovementAction>(MovementAction.Apply);
+
+        _controller.RegisterAction<ClickAction>(GameMsgType.ClickAction);
+        _controller.RegisterAction<MovementAction>(GameMsgType.MovementAction, MovementAction.Apply);
     }
 
     public void OnDestroy()
@@ -55,11 +57,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
             var movementAction = new MovementAction {
                 Movement = movement
             };
-            NetworkMessageData msgData = new NetworkMessageData {
-                MessageType = GameMsgType.MovementAction
-            };
-
-            _controller.ApplyActionAndSend(movementAction, msgData);
+            _controller.ApplyAction(movementAction);
         }
     }
 
