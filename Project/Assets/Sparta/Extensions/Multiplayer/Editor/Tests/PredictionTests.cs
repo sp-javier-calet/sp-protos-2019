@@ -11,8 +11,8 @@ namespace SocialPoint.Multiplayer
     class PredictionTests
     {
         LocalNetworkServer _server;
-        LocalNetworkClient _client1;
-        LocalNetworkClient _client2;
+        SimulateNetworkClient _client1;
+        SimulateNetworkClient _client2;
 
         NetworkServerSceneController _serverCtrl;
         NetworkClientSceneController _clientCtrl1;
@@ -25,8 +25,8 @@ namespace SocialPoint.Multiplayer
         {
             var localServer = new LocalNetworkServer();
             _server = localServer;
-            _client1 = new LocalNetworkClient(localServer);
-            _client2 = new LocalNetworkClient(localServer);
+            _client1 = new SimulateNetworkClient(localServer);
+            _client2 = new SimulateNetworkClient(localServer);
             _serverCtrl = new NetworkServerSceneController(_server);
             _clientCtrl1 = new NetworkClientSceneController(_client1);
             _clientCtrl2 = new NetworkClientSceneController(_client2);
@@ -90,6 +90,9 @@ namespace SocialPoint.Multiplayer
             int totalActions = 3;
             TestMovementAction[] actions = new TestMovementAction[totalActions];
 
+
+            _client1.BlockEmission = true;
+
             //Move in client only
             for(int i = 0; i < totalActions; i++)
             {
@@ -104,10 +107,12 @@ namespace SocialPoint.Multiplayer
             int finalAction = totalActions - 1;
             for(int i = 0; i < finalAction; i++)
             {
+                _client1.SendNextMessage();
                 _serverCtrl.Update(0.001f);
                 Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
                 Assert.That(!_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
             }
+            _client1.SendNextMessage();
             _serverCtrl.Update(0.001f);
             Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
@@ -134,6 +139,10 @@ namespace SocialPoint.Multiplayer
             var movementAction = new TestMovementAction {
                 Movement = JVector.One
             };
+
+            _client1.BlockEmission = true;
+            _client2.BlockEmission = true;
+
             //Move in one client locally
             _clientCtrl1.ApplyAction(movementAction);
             //Move in one the other client locally
@@ -145,11 +154,13 @@ namespace SocialPoint.Multiplayer
             Assert.That(!_clientCtrl2.PredictionEquals(_serverCtrl.Scene));
 
             //Start updating
+            _client1.SendNextMessage();
             _serverCtrl.Update(0.001f);
             Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
             Assert.That(_clientCtrl2.Equals(_serverCtrl.Scene));
             Assert.That(!_clientCtrl2.PredictionEquals(_serverCtrl.Scene));
+            _client2.SendNextMessage();
             _serverCtrl.Update(0.001f);
             Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
