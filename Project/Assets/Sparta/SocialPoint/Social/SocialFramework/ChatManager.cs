@@ -74,6 +74,7 @@ namespace SocialPoint.Social
             }
 
             _chatRooms.Add(room.Type, room);
+            room.ChatManager = this; // FIXME :(
 
             if(room.Type == "alliance")
             {

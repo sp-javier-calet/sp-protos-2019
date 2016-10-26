@@ -16,6 +16,8 @@ namespace SocialPoint.Social
 
         bool Subscribed { get; }
 
+        ChatManager ChatManager { set; }
+
         void ParseInitialInfo(AttrDic dic);
 
         void AddNotificationMessage(int type, AttrDic dic);
@@ -30,7 +32,7 @@ namespace SocialPoint.Social
 
         readonly ChatMessageList<MessageType> _messages;
 
-        public ChatManager ChatManager;
+        public ChatManager ChatManager { private get; set; }
 
         public event Action<int> OnMembersChanged;
 
