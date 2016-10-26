@@ -1,4 +1,7 @@
-﻿using System;
+﻿// FIXME Temp code for testing with the ML Backend
+#define FORCE_TEST_USER
+
+using System;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
@@ -424,9 +427,6 @@ namespace SocialPoint.Social
                     OnUpdatedConnectivity(false);
                 }
                 break;
-            case ConnectionState.Connecting: // Closing. // FIXME Unused
-                ResetState();
-                break;
             case ConnectionState.Connected:
                 if(OnUpdatedConnectivity != null)
                 {
@@ -498,7 +498,6 @@ namespace SocialPoint.Social
                     OnRPCError(err);
                 }
 
-                // FIXME constants instead of enum?
                 if(err.Code == (int)WAMPConnection.ErrorCodes.ConnectionClosed)
                 {
                     if(onResult != null)
@@ -518,6 +517,8 @@ namespace SocialPoint.Social
 
         void SendHello()
         {
+            // FIXME Test code
+            #if FORCE_TEST_USER
             var dicDetails = new AttrDic();
             dicDetails.SetValue("user_id", 3129103608223530612L);//LoginData.UserId);
             dicDetails.SetValue("security_token", "22988243147218787487012528873097");//LoginData.SecurityToken);
@@ -530,6 +531,21 @@ namespace SocialPoint.Social
             dicDetails.SetValue("country", "ES");//DeviceInfo.AppInfo.Country);
             dicDetails.SetValue("platform", "android");//DeviceInfo.Platform);
             dicDetails.SetValue("language", "es");//Localization.Language);
+
+            #else
+            var dicDetails = new AttrDic();
+            dicDetails.SetValue("user_id", LoginData.UserId);
+            dicDetails.SetValue("security_token", LoginData.SecurityToken);
+
+            #if ADMIN_PANEL
+            dicDetails.SetValue("privileged_token", LoginData.PrivilegeToken);
+            #endif
+
+            dicDetails.SetValue("device_uid", DeviceInfo.Uid);
+            dicDetails.SetValue("country", DeviceInfo.AppInfo.Country);
+            dicDetails.SetValue("platform", DeviceInfo.Platform);
+            dicDetails.SetValue("language", Localization.Language);
+            #endif
 
             _connection.Join(string.Empty, dicDetails, OnJoined);
         }
