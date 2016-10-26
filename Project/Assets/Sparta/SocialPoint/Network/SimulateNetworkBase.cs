@@ -32,7 +32,7 @@ namespace SocialPoint.Network
 
             public void Send()
             {
-                _sim.SendMessage(_data, _stream.ToArray());
+                _sim.OnMessageSent(_data, _stream.ToArray());
             }
         }
 
@@ -102,14 +102,14 @@ namespace SocialPoint.Network
 
         public INetworkMessage CreateMessage(NetworkMessageData data)
         {
-            if(_blockEmission)
+            if(_blockEmission || _sender == null)
             {
                 return new NetworkMessage(data, this);
             }
             return _sender.CreateMessage(data);
         }
 
-        void SendMessage(NetworkMessageData data, byte[] body)
+        void OnMessageSent(NetworkMessageData data, byte[] body)
         {
             if(_blockEmission)
             {
@@ -119,7 +119,15 @@ namespace SocialPoint.Network
                 });
                 return;
             }
-            _sender.SendMessage(data, body);
+            SendMessage(data, body);
+        }
+
+        void SendMessage(NetworkMessageData data, byte[] body)
+        {
+            if(_sender != null)
+            {
+                _sender.SendMessage(data, body);
+            }
         }
 
         public void RegisterReceiver(INetworkMessageReceiver receiver)
