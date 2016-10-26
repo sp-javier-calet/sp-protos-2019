@@ -27,12 +27,14 @@ public class SocialFrameworkInstaller : Installer
     public SettingsData Settings = new SettingsData();
 
     string _httpProxy;
+    IDeviceInfo _deviceInfo;
 
     public override void InstallBindings()
     {
-        // Service Installer
         _httpProxy = EditorProxy.GetProxy();
+        _deviceInfo = Container.Resolve<IDeviceInfo>();
 
+        // Service Installer
         Container.Rebind<WebSocketSharpClient>().ToMethod<WebSocketSharpClient>(CreateWebSocket, SetupWebSocket);
         Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketSharpClient>();
         Container.Bind<IDisposable>().ToLookup<WebSocketSharpClient>();
@@ -90,13 +92,13 @@ public class SocialFrameworkInstaller : Installer
 
     void SetupWebSocket(WebSocketSharpClient client)
     {
-        if(string.IsNullOrEmpty(_httpProxy))
-        {
-            client.Proxy = Container.Resolve<IDeviceInfo>().NetworkInfo.Proxy.ToString();
-        }
-        else
+        if(!string.IsNullOrEmpty(_httpProxy))
         {
             client.Proxy = _httpProxy;
+        }
+        else if(_deviceInfo.NetworkInfo.Proxy != null)
+        {
+            client.Proxy = _deviceInfo.NetworkInfo.Proxy.ToString();
         }
     }
 
