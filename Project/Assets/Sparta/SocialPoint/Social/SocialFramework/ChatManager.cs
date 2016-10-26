@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
 using SocialPoint.WAMP;
 
 namespace SocialPoint.Social
@@ -143,7 +144,8 @@ namespace SocialPoint.Social
             IChatRoom room;
             if(!_chatRooms.TryGetValue(topic, out room))
             {
-                throw new Exception("There is no registered room for topic " + topic);
+                DebugUtils.Assert(false, "There is no registered room for topic " + topic);
+                return;
             }
 
             var subscriptionId = dic.GetValue(ConnectionManager.SubscriptionIdTopicKey).ToLong();

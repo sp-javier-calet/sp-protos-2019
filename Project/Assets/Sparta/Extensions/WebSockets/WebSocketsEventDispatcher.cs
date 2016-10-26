@@ -22,7 +22,7 @@ namespace SocialPoint.WebSockets
         {
             public EventType Type;
             public string Message;
-            public string Error;
+            public Error Error;
 
             public EventData(EventType type)
             {
@@ -31,11 +31,18 @@ namespace SocialPoint.WebSockets
                 Error = null;
             }
 
-            public EventData(string message, string error = null)
+            public EventData(string message)
+            {
+                Type = EventType.Message;
+                Message = message;
+                Error = null;
+            }
+
+            public EventData(Error err)
             {
                 Type = EventType.Error;
-                Message = message;
-                Error = error;
+                Message = null;
+                Error = err;
             }
         }
 
@@ -156,14 +163,14 @@ namespace SocialPoint.WebSockets
 
         public void NotifyError(string error)
         {
-            _pending.Add(new EventData(null, error));
+            _pending.Add(new EventData(new Error(error)));
         }
 
-        void DispatchNetworkError(string message)
+        void DispatchNetworkError(Error err)
         {
             if(OnNetworkError != null)
             {
-                OnNetworkError(new Error(message));
+                OnNetworkError(err);
             }
         }
     }
