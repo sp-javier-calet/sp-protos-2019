@@ -58,8 +58,12 @@ public class SocialFrameworkInstaller : Installer
 
     void SetupPublicChatRoom(ChatRoom<PublicChatMessage> room)
     {
-        // TODO Setup factory callbacks
-        room.Factory.Localization = Container.Resolve<Localization>();
+        room.Localization = Container.Resolve<Localization>();
+
+        // Configure optional events to manage custom data
+        room.ParseUnknownNotifications = PublicChatMessage.ParseUnknownNotifications;
+        room.ParseExtraInfo = PublicChatMessage.ParseExtraInfo;
+        room.SerializeExtraInfo = PublicChatMessage.SerializeExtraInfo;
     }
 
     ChatRoom<AllianceChatMessage> CreateAllianceChatRoom()
@@ -69,8 +73,12 @@ public class SocialFrameworkInstaller : Installer
 
     void SetupAllianceChatRoom(ChatRoom<AllianceChatMessage> room)
     {
-        // TODO Setup factory callbacks
-        room.Factory.Localization = Container.Resolve<Localization>();
+        room.Localization = Container.Resolve<Localization>();
+
+        // Configure optional events to manage custom data
+        room.ParseUnknownNotifications = AllianceChatMessage.ParseUnknownNotifications;
+        room.ParseExtraInfo = AllianceChatMessage.ParseExtraInfo;
+        room.SerializeExtraInfo = AllianceChatMessage.SerializeExtraInfo;
     }
 
     WebSocketSharpClient CreateWebSocket()

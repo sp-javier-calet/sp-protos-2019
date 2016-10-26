@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
+using SocialPoint.Locale;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Social
@@ -27,6 +28,7 @@ namespace SocialPoint.Social
     public class ChatRoom<MessageType> : IChatRoom 
         where MessageType : class, IChatMessage, new()
     {
+        readonly FactoryChatMessages<MessageType> _factory;
 
         readonly ChatMessageList<MessageType> _messages;
 
@@ -40,15 +42,41 @@ namespace SocialPoint.Social
 
         public string Type { get; private set; }
 
-        readonly FactoryChatMessages<MessageType> _factory;
+        #region Factory methods
 
-        public FactoryChatMessages<MessageType> Factory
+        public Func<AttrDic, MessageType[]> ParseUnknownNotifications 
         {
-            get
+            set
             {
-                return _factory;
+                _factory.ParseUnknownNotifications = value;
             }
         }
+
+        public Action<MessageType, AttrDic> ParseExtraInfo
+        {
+            set
+            {
+                _factory.ParseExtraInfo = value;
+            }
+        }
+
+        public Action<MessageType, AttrDic> SerializeExtraInfo 
+        {
+            set
+            {
+                _factory.SerializeExtraInfo = value;
+            }
+        }
+
+        public Localization Localization
+        {
+            set
+            {
+                _factory.Localization = value;
+            }
+        }
+
+        #endregion
 
         int _members;
 
