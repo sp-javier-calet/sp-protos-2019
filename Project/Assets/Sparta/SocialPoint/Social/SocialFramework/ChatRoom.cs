@@ -13,7 +13,6 @@ namespace SocialPoint.Social
 
         int Members { get; set; }
 
-        // TODO Accessible from ChatManager only
         bool Subscribed { get; set; }
 
         bool IsAllianceChat { get; }
