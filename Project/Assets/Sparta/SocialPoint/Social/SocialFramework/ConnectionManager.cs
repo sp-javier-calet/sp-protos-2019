@@ -519,17 +519,17 @@ namespace SocialPoint.Social
         void SendHello()
         {
             var dicDetails = new AttrDic();
-            dicDetails.SetValue("user_id", LoginData.UserId);
-            dicDetails.SetValue("security_token", LoginData.SecurityToken);
+            dicDetails.SetValue("user_id", 3129103608223530612L);//LoginData.UserId);
+            dicDetails.SetValue("security_token", "22988243147218787487012528873097");//LoginData.SecurityToken);
 
             #if ADMIN_PANEL
-            dicDetails.SetValue("privileged_token", LoginData.PrivilegeToken);
+            dicDetails.SetValue("privileged_token", "");//LoginData.PrivilegeToken);
             #endif
 
-            dicDetails.SetValue("device_uid", DeviceInfo.Uid);
-            dicDetails.SetValue("country", DeviceInfo.AppInfo.Country);
-            dicDetails.SetValue("platform", DeviceInfo.Platform);
-            dicDetails.SetValue("language", Localization.Language);
+            dicDetails.SetValue("device_uid", "a66ce5d5-8dbc-4ac4-9104-9d1b3b2261ae");//DeviceInfo.Uid);
+            dicDetails.SetValue("country", "ES");//DeviceInfo.AppInfo.Country);
+            dicDetails.SetValue("platform", "android");//DeviceInfo.Platform);
+            dicDetails.SetValue("language", "es");//Localization.Language);
 
             _connection.Join(string.Empty, dicDetails, OnJoined);
         }
