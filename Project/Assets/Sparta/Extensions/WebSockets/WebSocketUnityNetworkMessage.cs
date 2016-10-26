@@ -7,15 +7,13 @@ namespace SocialPoint.WebSockets
     public class WebSocketUnityNetworkMessage : INetworkMessage
     {
         readonly NetworkMessageData _data;
-        readonly SystemBinaryWriter _writer;
-        readonly MemoryStream _stream;
+        readonly WebSocketsTextWriter _writer;
         readonly WebSocketUnityClient _socket;
 
         public WebSocketUnityNetworkMessage(NetworkMessageData data, WebSocketUnityClient socket)
         {
             _data = data;
-            _stream = new MemoryStream();
-            _writer = new SystemBinaryWriter(_stream);
+            _writer = new WebSocketsTextWriter();
             _socket = socket;
         }
 
@@ -23,7 +21,7 @@ namespace SocialPoint.WebSockets
 
         public void Send()
         {
-            _socket.SendNetworkMessage(_data, _stream.GetBuffer());
+            _socket.SendNetworkMessage(_data, _writer.ToString());
         }
 
         public IWriter Writer

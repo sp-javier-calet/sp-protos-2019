@@ -46,9 +46,9 @@ namespace SocialPoint.WebSockets
             DisposeDelegateObject(_delegate);
         }
 
-        public void SendNetworkMessage(NetworkMessageData info, byte[] data)
+        public void SendNetworkMessage(NetworkMessageData info, string msg)
         {
-            _socket.Send(data);
+            _socket.Send(msg);
         }
 
         protected byte[] Decode(string base64EncodedData)
