@@ -73,11 +73,9 @@ namespace SocialPoint.Social
             return msgInfo;
         }
 
-        public MessageType[] ParseMessage(AttrDic dic)
+        public MessageType[] ParseMessage(int type, AttrDic dic)
         {
             var messages = new MessageType[0];
-
-            var type = dic.GetValue(ConnectionManager.NotificationTypeKey).ToInt();
 
             switch(type)
             {

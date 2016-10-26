@@ -53,11 +53,12 @@ public class SocialFrameworkInstaller : Installer
 
     ChatRoom<PublicChatMessage> CreatePublicChatRoom()
     {
-        return new ChatRoom<PublicChatMessage>("public", Container.Resolve<ConnectionManager>());
+        return new ChatRoom<PublicChatMessage>("public");
     }
 
     void SetupPublicChatRoom(ChatRoom<PublicChatMessage> room)
     {
+        room.ChatManager = Container.Resolve<ChatManager>();
         room.Localization = Container.Resolve<Localization>();
 
         // Configure optional events to manage custom data
@@ -68,11 +69,12 @@ public class SocialFrameworkInstaller : Installer
 
     ChatRoom<AllianceChatMessage> CreateAllianceChatRoom()
     {
-        return new ChatRoom<AllianceChatMessage>("alliance", Container.Resolve<ConnectionManager>());
+        return new ChatRoom<AllianceChatMessage>("alliance");
     }
 
     void SetupAllianceChatRoom(ChatRoom<AllianceChatMessage> room)
     {
+        room.ChatManager = Container.Resolve<ChatManager>();
         room.Localization = Container.Resolve<Localization>();
 
         // Configure optional events to manage custom data

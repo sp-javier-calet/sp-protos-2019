@@ -11,7 +11,17 @@ namespace SocialPoint.Social
         public event Action<long> OnChatBanReceived;
 
         readonly ConnectionManager _connection;
+
+        public ConnectionManager Connection
+        {
+            get
+            {
+                return _connection;
+            }
+        }
+
         readonly Dictionary<string, IChatRoom> _chatRooms;
+
         readonly  Dictionary<IChatRoom, WAMPConnection.Subscription> _chatSubscriptions;
 
         public IChatRoom AllianceRoom { get; private set; }
@@ -44,7 +54,6 @@ namespace SocialPoint.Social
             if(IsSubscribedToChat(room))
             {
                 _chatSubscriptions.Remove(room);
-                room.Subscribed = false;
             }
         }
 
@@ -63,7 +72,13 @@ namespace SocialPoint.Social
             {
                 throw new Exception("A Chat Room is already registered for the topic type " + room.Type);
             }
+
             _chatRooms.Add(room.Type, room);
+
+            if(room.Type == "alliance")
+            {
+                AllianceRoom = room;
+            }
         }
 
         public void Unregister(string type)
@@ -93,6 +108,11 @@ namespace SocialPoint.Social
             return _chatSubscriptions.ContainsKey(room);
         }
 
+        public bool IsAllianceChat(IChatRoom room)
+        {
+            return AllianceRoom == room; 
+        }
+
         public void ProcessChatServices(AttrDic dic)
         {
             var topicsList = dic.Get(ConnectionManager.TopicsKey).AsList;
@@ -115,39 +135,29 @@ namespace SocialPoint.Social
             if(IsSubscribedToChat(room))
             {
                 _chatSubscriptions.Remove(room);
-                room.Subscribed = false;
             }
         }
 
         public void ClearAllSubscriptions()
         {
-            var itr = _chatRooms.GetEnumerator();
-            while(itr.MoveNext())
-            {
-                var kvp = itr.Current;
-                kvp.Value.Subscribed = false;
-
-            }
-            itr.Dispose();
             _chatSubscriptions.Clear();
         }
 
         void ProcessNotificationMessage(int type, string topic, AttrDic dic)
         {
+            // Global notifications
             switch(type)
             {
             case NotificationTypeCode.NotificationUserChatBan:
                 SetChatBan(dic);
                 break;
-            case NotificationTypeCode.BroadcastAllianceOnlineMember:
-                SetRoomMembersOnline(topic, dic);
-                break;
             }
 
+            // Room notifications
             IChatRoom room;
             if(_chatRooms.TryGetValue(topic, out room))
             {
-                room.AddNotificationMessage(dic);
+                room.AddNotificationMessage(type, dic);
             }
         }
 
@@ -155,15 +165,6 @@ namespace SocialPoint.Social
         {
             ChatBanEndTimestamp = dic.GetValue("ban_end_time").ToLong();
             OnChatBanReceived(ChatBanEndTimestamp);
-        }
-
-        void SetRoomMembersOnline(string topic, AttrDic dic)
-        {
-            IChatRoom room;
-            if(_chatRooms.TryGetValue(topic, out room))
-            {
-                room.Members = dic.GetValue(ConnectionManager.TopicMembersKey).ToInt();
-            }
         }
 
         void ProcessChatTopic(string topic, AttrDic dic)
@@ -179,15 +180,9 @@ namespace SocialPoint.Social
             var topicName = dic.GetValue(ConnectionManager.IdTopicKey).ToString();
             var subscription = new WAMPConnection.Subscription(subscriptionId, topicName);
             _chatSubscriptions.Add(room, subscription);
-            room.Subscribed = true;
 
             _connection.AutosubscribeToTopic(topic, subscription);
             room.ParseInitialInfo(dic);
-
-            if(room.IsAllianceChat)
-            {
-                AllianceRoom = room;
-            }
         }
     }
 }

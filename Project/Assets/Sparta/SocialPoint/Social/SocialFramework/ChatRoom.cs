@@ -12,15 +12,13 @@ namespace SocialPoint.Social
 
         string Type { get; }
 
-        int Members { get; set; }
+        int Members { get; }
 
-        bool Subscribed { get; set; }
-
-        bool IsAllianceChat { get; }
+        bool Subscribed { get; }
 
         void ParseInitialInfo(AttrDic dic);
 
-        void AddNotificationMessage(AttrDic dic);
+        void AddNotificationMessage(int type, AttrDic dic);
 
         void SendDebugMessage(string text);
     }
@@ -32,7 +30,7 @@ namespace SocialPoint.Social
 
         readonly ChatMessageList<MessageType> _messages;
 
-        readonly ConnectionManager _connection;
+        public ChatManager ChatManager;
 
         public event Action<int> OnMembersChanged;
 
@@ -44,7 +42,7 @@ namespace SocialPoint.Social
 
         #region Factory methods
 
-        public Func<AttrDic, MessageType[]> ParseUnknownNotifications 
+        public Func<AttrDic, MessageType[]> ParseUnknownNotifications
         {
             set
             {
@@ -60,7 +58,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public Action<MessageType, AttrDic> SerializeExtraInfo 
+        public Action<MessageType, AttrDic> SerializeExtraInfo
         {
             set
             {
@@ -112,20 +110,17 @@ namespace SocialPoint.Social
             }
         }
 
-        public bool Subscribed { get; set; }
-
-        public bool IsAllianceChat
-        { 
+        public bool Subscribed
+        {
             get
             {
-                return Type == "alliance"; 
+                return ChatManager.IsSubscribedToChat(this);
             }
         }
 
-        public ChatRoom(string type, ConnectionManager connection)
+        public ChatRoom(string type)
         {
             Type = type;
-            _connection = connection;
             _factory = new FactoryChatMessages<MessageType>();
             _messages = new ChatMessageList<MessageType>();
         }
@@ -143,12 +138,22 @@ namespace SocialPoint.Social
             Members = dic.GetValue(ConnectionManager.TopicMembersKey).ToInt();
         }
 
-        public void AddNotificationMessage(AttrDic dic)
+        public void AddNotificationMessage(int type, AttrDic dic)
         {
-            var messages = _factory.ParseMessage(dic);
+            ProcessRoomNotifications(type, dic);
+
+            var messages = _factory.ParseMessage(type, dic);
             for(int i = 0; i < messages.Length; ++i)
             {
                 _messages.Add(messages[i]);
+            }
+        }
+
+        void ProcessRoomNotifications(int type, AttrDic dic)
+        {
+            if(type == NotificationTypeCode.BroadcastAllianceOnlineMember)
+            {
+                Members = dic.GetValue(ConnectionManager.TopicMembersKey).ToInt();
             }
         }
 
@@ -157,7 +162,9 @@ namespace SocialPoint.Social
             var history = new List<MessageType>();
             for(int i = 0; i < list.Count; ++i)
             {
-                var msgs = _factory.ParseMessage(list[i].AsDic);
+                var dic = list[i].AsDic;
+                var type = dic.GetValue(ConnectionManager.NotificationTypeKey).ToInt();
+                var msgs = _factory.ParseMessage(type, dic);
                 history.AddRange(msgs);
             }
 
@@ -178,22 +185,22 @@ namespace SocialPoint.Social
             args.Set(ConnectionManager.ChatMessageInfoKey, messageInfo);
 
             var idx = _messages.Add(message);
-            _connection.Publish(Id, null, args, (err, pub) => OnMessageSent(idx, message.Uuid));
+            ChatManager.Connection.Publish(Id, null, args, (err, pub) => OnMessageSent(idx, message.Uuid));
         }
 
         void SetupMessage(MessageType message)
         {
             message.Uuid = RandomUtils.GetUuid();
 
-            var player = _connection.PlayerData;
+            var player = ChatManager.Connection.PlayerData;
             message.PlayerId = player.Id;
             message.PlayerName = player.Name;
             message.PlayerLevel = player.Level;
             message.Timestamp = TimeUtils.Timestamp;
 
-            if(_connection.AlliancesManager != null)
+            if(ChatManager.Connection.AlliancesManager != null)
             {
-                var member = _connection.AlliancesManager.Player;
+                var member = ChatManager.Connection.AlliancesManager.Player;
                 message.HasAlliance = member.IsInAlliance;
                 message.AllianceName = member.Name;
                 message.AllianceId = member.Id;
