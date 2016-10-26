@@ -116,8 +116,10 @@ namespace SocialPoint.Dependency
         {
             if(_setup != null && _instance != null)
             {
-                _setup(_instance);
+                // Execute a copy to avoid recursive calls in circular dependencies
+                var setup = _setup;
                 _setup = null;
+                setup(_instance);
             }
         }
 
@@ -271,8 +273,18 @@ namespace SocialPoint.Dependency
 
             _resolving.Add(binding);
             result = binding.Resolve();
+
+            HashSet<object> instances;
+            if(!_instances.TryGetValue(binding, out instances))
+            {
+                instances = new HashSet<object>();
+                _instances[binding] = instances;
+            }
+            instances.Add(result);
+
             _resolving.Remove(binding);
             _resolved.Add(binding);
+
             if(_resolving.Count == 0)
             {
                 var resolved = _resolved.ToArray();
@@ -282,13 +294,6 @@ namespace SocialPoint.Dependency
                     resolved[i].OnResolutionFinished();
                 }
             }
-            HashSet<object> instances;
-            if(!_instances.TryGetValue(binding, out instances))
-            {
-                instances = new HashSet<object>();
-                _instances[binding] = instances;
-            }
-            instances.Add(result);
             return true;
         }
 
