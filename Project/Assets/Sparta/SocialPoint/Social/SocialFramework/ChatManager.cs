@@ -68,13 +68,23 @@ namespace SocialPoint.Social
 
         public void Unregister(string type)
         {
-            _chatRooms.Remove(type);
+            IChatRoom room;
+            if(_chatRooms.TryGetValue(type, out room))
+            {
+                _chatRooms.Remove(type);
+                ClearSubscription(room);
+
+                if(room == AllianceRoom)
+                {
+                    AllianceRoom = null;
+                }
+            }
         }
 
         public void UnregisterAll()
         {
-            AllianceRoom = null;
             ClearAllSubscriptions();
+            AllianceRoom = null;
             _chatRooms.Clear();
         }
 
@@ -97,6 +107,15 @@ namespace SocialPoint.Social
             if(dic.ContainsKey("banEndTimestamp"))
             {
                 ChatBanEndTimestamp = dic.GetValue("banEndTimestamp").ToLong();
+            }
+        }
+
+        public void ClearSubscription(IChatRoom room)
+        {
+            if(IsSubscribedToChat(room))
+            {
+                _chatSubscriptions.Remove(room);
+                room.Subscribed = false;
             }
         }
 

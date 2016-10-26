@@ -305,7 +305,7 @@ namespace SocialPoint.Social
 
             if(_chatManager != null)
             {
-                _chatManager.UnregisterAll();
+                _chatManager.ClearAllSubscriptions();
             }
 
             UnschedulePing();
