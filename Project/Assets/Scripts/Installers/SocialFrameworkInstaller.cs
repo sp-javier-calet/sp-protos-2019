@@ -29,7 +29,8 @@ public class SocialFrameworkInstaller : Installer
     string _httpProxy;
 
     public override void InstallBindings()
-    {   
+    {
+        // Service Installer
         _httpProxy = EditorProxy.GetProxy();
 
         Container.Rebind<WebSocketSharpClient>().ToMethod<WebSocketSharpClient>(CreateWebSocket, SetupWebSocket);
@@ -39,11 +40,37 @@ public class SocialFrameworkInstaller : Installer
         Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);    
         Container.Bind<IDisposable>().ToLookup<ConnectionManager>();
 
-        Container.Bind<ChatManager>().ToMethod<ChatManager>(CreateChatManager);
+        Container.Bind<ChatManager>().ToMethod<ChatManager>(CreateChatManager, SetupChatManager);
         Container.Bind<IDisposable>().ToLookup<ChatManager>();
 
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWebSockets>(CreateAdminPanelWebSockets);
+
+        // Game chat rooms
+        Container.Bind<IChatRoom>().ToMethod<ChatRoom<PublicChatMessage>>(CreatePublicChatRoom, SetupPublicChatRoom);
+        Container.Bind<IChatRoom>().ToMethod<ChatRoom<AllianceChatMessage>>(CreateAllianceChatRoom, SetupAllianceChatRoom);
+    }
+
+    ChatRoom<PublicChatMessage> CreatePublicChatRoom()
+    {
+        return new ChatRoom<PublicChatMessage>("public", Container.Resolve<ConnectionManager>());
+    }
+
+    void SetupPublicChatRoom(ChatRoom<PublicChatMessage> room)
+    {
+        // TODO Setup factory callbacks
+        room.Factory.Localization = Container.Resolve<Localization>();
+    }
+
+    ChatRoom<AllianceChatMessage> CreateAllianceChatRoom()
+    {
+        return new ChatRoom<AllianceChatMessage>("alliance", Container.Resolve<ConnectionManager>());
+    }
+
+    void SetupAllianceChatRoom(ChatRoom<AllianceChatMessage> room)
+    {
+        // TODO Setup factory callbacks
+        room.Factory.Localization = Container.Resolve<Localization>();
     }
 
     WebSocketSharpClient CreateWebSocket()
@@ -75,6 +102,11 @@ public class SocialFrameworkInstaller : Installer
     {
         return new ChatManager(
             Container.Resolve<ConnectionManager>());
+    }
+
+    void SetupChatManager(ChatManager manager)
+    {
+        manager.Register(Container.ResolveList<IChatRoom>());
     }
 
     AdminPanelSocialFramework CreateAdminPanelSocialFramework()

@@ -28,7 +28,6 @@ namespace SocialPoint.Social
     public class ChatRoom<MessageType> : IChatRoom 
         where MessageType : class, IChatMessage, new()
     {
-        readonly FactoryChatMessages<MessageType> _factory;
 
         readonly ChatMessageList<MessageType> _messages;
 
@@ -41,6 +40,16 @@ namespace SocialPoint.Social
         public string Name { get; private set; }
 
         public string Type { get; private set; }
+
+        readonly FactoryChatMessages<MessageType> _factory;
+
+        public FactoryChatMessages<MessageType> Factory
+        {
+            get
+            {
+                return _factory;
+            }
+        }
 
         int _members;
 
@@ -86,11 +95,11 @@ namespace SocialPoint.Social
             }
         }
 
-        public ChatRoom(string name, ConnectionManager connection, FactoryChatMessages<MessageType> factory)
+        public ChatRoom(string type, ConnectionManager connection)
         {
-            Name = name;
-            _factory = factory;
+            Type = type;
             _connection = connection;
+            _factory = new FactoryChatMessages<MessageType>();
             _messages = new ChatMessageList<MessageType>();
         }
 

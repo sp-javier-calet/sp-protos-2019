@@ -107,7 +107,7 @@ namespace SocialPoint.Social
                 while(itr.MoveNext())
                 {
                     var room = itr.Current;
-                    layout.CreateOpenPanelButton(room.Type, new AdminPanelSocialFrameworkChatRoom(room));
+                    layout.CreateOpenPanelButton(room.Type, new AdminPanelSocialFrameworkChatRoom(room), room.Subscribed);
                 }
                 itr.Dispose();
 

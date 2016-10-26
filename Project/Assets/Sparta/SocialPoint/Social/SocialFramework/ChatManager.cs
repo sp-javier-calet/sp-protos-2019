@@ -48,6 +48,14 @@ namespace SocialPoint.Social
             }
         }
 
+        public void Register(List<IChatRoom> rooms)
+        {
+            for(var i = 0; i < rooms.Count; ++i)
+            {
+                Register(rooms[i]);
+            }
+        }
+
         public void Register(IChatRoom room)
         {
             IChatRoom existing;

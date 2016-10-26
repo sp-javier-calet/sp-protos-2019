@@ -137,7 +137,7 @@ namespace SocialPoint.Social
 
             var msgInfo = dic.Get(ConnectionManager.ChatMessageInfoKey).AsDic;
             if(!Validate(msgInfo, new string[] {
-                ConnectionManager.ChatMessageInfoKey, 
+                ConnectionManager.ChatMessageUserIdKey,
                 ConnectionManager.ChatMessageUserNameKey,
                 ConnectionManager.ChatMessageTsKey,
                 ConnectionManager.ChatMessageTextKey,
