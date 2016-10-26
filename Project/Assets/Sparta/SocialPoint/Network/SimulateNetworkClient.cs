@@ -6,47 +6,14 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Network
 {
-    public sealed class SimulateNetworkClient : INetworkClient, INetworkClientDelegate, INetworkMessageReceiver
+    public sealed class SimulateNetworkClient : SimulateNetworkBase, INetworkClient, INetworkClientDelegate
     {
-        class Message
-        {
-            public NetworkMessageData Data;
-            public byte[] Body;
-        }
-
-        bool _blockReception;
-        public bool BlockReception
-        {
-            get
-            {
-                return _blockReception;
-            }
-            set
-            {
-                _blockReception = value;
-                if(!_blockReception)
-                {
-                    for(var i=0; i<_receivedMessages.Count; i++)
-                    {
-                        var msg = _receivedMessages[i];
-                        var reader = new SystemBinaryReader(new MemoryStream(msg.Body));
-                        ((INetworkMessageReceiver)this).OnMessageReceived(msg.Data, reader);
-                    }
-                    _receivedMessages.Clear();
-                }
-            }
-        }
-
-        List<Message> _receivedMessages;
-
         INetworkClient _client;
-
         List<INetworkClientDelegate> _delegates;
-        INetworkMessageReceiver _receiver;
 
-        public SimulateNetworkClient(INetworkClient client)
+        public SimulateNetworkClient(INetworkClient client):
+        base(client)
         {
-            _receivedMessages = new List<Message>();
             _delegates = new List<INetworkClientDelegate>();
             _client = client;
             _client.RegisterReceiver(this);
@@ -76,19 +43,14 @@ namespace SocialPoint.Network
 
         public void Connect()
         {
-            _receivedMessages.Clear();
+            ClearSimulationData();
             _client.Connect();
         }
 
         public void Disconnect()
         {
-            _receivedMessages.Clear();
+            ClearSimulationData();
             _client.Disconnect();
-        }
-
-        public INetworkMessage CreateMessage(NetworkMessageData data)
-        {
-            return _client.CreateMessage(data);
         }
 
         public void AddDelegate(INetworkClientDelegate dlg)
@@ -100,12 +62,7 @@ namespace SocialPoint.Network
         {
             _delegates.Remove(dlg);
         }
-
-        public void RegisterReceiver(INetworkMessageReceiver receiver)
-        {
-            _receiver = receiver;
-        }
-
+            
         public int GetDelay(int networkTimestamp)
         {
             return _client.GetDelay(networkTimestamp);
@@ -145,20 +102,9 @@ namespace SocialPoint.Network
 
         #region INetworkMessageReceiver implementation
 
-        void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
+        protected override void OnMessageReceived(NetworkMessageData data, IReader reader)
         {
-            if(BlockReception)
-            {
-                _receivedMessages.Add(new Message{
-                    Data = data,
-                    Body = reader.ReadBytes(int.MaxValue)
-                });
-                return;
-            }
-            if(_receiver != null)
-            {
-                _receiver.OnMessageReceived(data, reader);
-            }
+            base.OnMessageReceived(data, reader);
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnMessageReceived(data);
