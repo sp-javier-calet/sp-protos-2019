@@ -8,6 +8,8 @@ namespace SocialPoint.Social
 {
     public sealed class ChatManager : IDisposable
     {
+        const string AllianceRoomType = "alliance";
+
         public event Action<long> OnChatBanReceived;
 
         readonly ConnectionManager _connection;
@@ -74,9 +76,8 @@ namespace SocialPoint.Social
             }
 
             _chatRooms.Add(room.Type, room);
-            room.ChatManager = this; // FIXME :(
 
-            if(room.Type == "alliance")
+            if(room.Type == AllianceRoomType)
             {
                 AllianceRoom = room;
             }

@@ -60,7 +60,7 @@ public class SocialFrameworkInstaller : Installer
 
     void SetupPublicChatRoom(ChatRoom<PublicChatMessage> room)
     {
-        //room.ChatManager = Container.Resolve<ChatManager>();
+        room.ChatManager = Container.Resolve<ChatManager>();
         room.Localization = Container.Resolve<Localization>();
 
         // Configure optional events to manage custom data
@@ -76,7 +76,7 @@ public class SocialFrameworkInstaller : Installer
 
     void SetupAllianceChatRoom(ChatRoom<AllianceChatMessage> room)
     {
-        //room.ChatManager = Container.Resolve<ChatManager>();
+        room.ChatManager = Container.Resolve<ChatManager>();
         room.Localization = Container.Resolve<Localization>();
 
         // Configure optional events to manage custom data
