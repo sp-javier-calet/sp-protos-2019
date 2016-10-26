@@ -102,9 +102,9 @@ namespace SocialPoint.Network
 
         #region INetworkMessageReceiver implementation
 
-        protected override void OnMessageReceived(NetworkMessageData data, IReader reader)
+        protected override void ReceiveMessage(NetworkMessageData data, IReader reader)
         {
-            base.OnMessageReceived(data, reader);
+            base.ReceiveMessage(data, reader);
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnMessageReceived(data);

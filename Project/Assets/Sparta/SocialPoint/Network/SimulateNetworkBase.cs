@@ -12,7 +12,6 @@ namespace SocialPoint.Network
         {
             public NetworkMessageData Data;
             public byte[] Body;
-            public float Time;
         }
 
         class NetworkMessage : INetworkMessage
@@ -33,7 +32,7 @@ namespace SocialPoint.Network
 
             public void Send()
             {
-                _sim.OnMessageSent(_data, _stream.ToArray());
+                _sim.SendMessage(_data, _stream.ToArray());
             }
         }
 
@@ -52,8 +51,7 @@ namespace SocialPoint.Network
                     for(var i=0; i<_receivedMessages.Count; i++)
                     {
                         var msg = _receivedMessages[i];
-                        var reader = new SystemBinaryReader(new MemoryStream(msg.Body));
-                        ((INetworkMessageReceiver)this).OnMessageReceived(msg.Data, reader);
+                        ReceiveMessage(msg.Data, msg.Body);
                     }
                     _receivedMessages.Clear();
                 }
@@ -76,7 +74,7 @@ namespace SocialPoint.Network
                     for(var i=0; i<_sentMessages.Count; i++)
                     {
                         var msg = _sentMessages[i];
-                        OnMessageSent(msg.Data, msg.Body);
+                        SendMessage(msg.Data, msg.Body);
                     }
                     _sentMessages.Clear();
                 }
@@ -88,7 +86,6 @@ namespace SocialPoint.Network
         INetworkMessageSender _sender;
         List<INetworkClientDelegate> _delegates;
         INetworkMessageReceiver _receiver;
-        float _time;
 
         public SimulateNetworkBase(INetworkMessageSender sender)
         {
@@ -99,7 +96,6 @@ namespace SocialPoint.Network
 
         public void ClearSimulationData()
         {
-            _time = 0.0f;
             _receivedMessages.Clear();
             _sentMessages.Clear();
         }
@@ -113,14 +109,13 @@ namespace SocialPoint.Network
             return _sender.CreateMessage(data);
         }
 
-        void OnMessageSent(NetworkMessageData data, byte[] body)
+        void SendMessage(NetworkMessageData data, byte[] body)
         {
             if(_blockEmission)
             {
                 _sentMessages.Add(new MessageInfo{
                     Data = data,
-                    Body = body,
-                    Time = _time
+                    Body = body
                 });
                 return;
             }
@@ -132,31 +127,55 @@ namespace SocialPoint.Network
             _receiver = receiver;
         }
 
-        public void Update(float dt)
-        {
-            _time += dt;
-        }
-
         void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
         {
-            if(BlockReception)
+            if(_blockReception)
             {
                 _receivedMessages.Add(new MessageInfo{
                     Data = data,
-                    Body = reader.ReadBytes(int.MaxValue),
-                    Time = _time
+                    Body = reader.ReadBytes(int.MaxValue)
                 });
                 return;
             }
-            OnMessageReceived(data, reader);
+            ReceiveMessage(data, reader);
         }
 
-        virtual protected void OnMessageReceived(NetworkMessageData data, IReader reader)
+        virtual protected void ReceiveMessage(NetworkMessageData data, IReader reader)
         {
             if(_receiver != null)
             {
                 _receiver.OnMessageReceived(data, reader);
             }
+        }
+
+        void ReceiveMessage(NetworkMessageData data, byte[] body)
+        {
+            var reader = new SystemBinaryReader(new MemoryStream(body));
+            ReceiveMessage(data, reader);
+        }
+
+        public bool ReceiveNextMessage()
+        {
+            if(_receivedMessages.Count == 0)
+            {
+                return false;
+            }
+            var msg = _receivedMessages[0];
+            _receivedMessages.RemoveAt(0);
+            ReceiveMessage(msg.Data, msg.Body);
+            return true;
+        }
+
+        public bool SendNextMessage()
+        {
+            if(_sentMessages.Count == 0)
+            {
+                return false;
+            }
+            var msg = _sentMessages[0];
+            _sentMessages.RemoveAt(0);
+            SendMessage(msg.Data, msg.Body);
+            return true;
         }
 
     }
