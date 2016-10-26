@@ -7,7 +7,6 @@ namespace SocialPoint.IO
     {
         interface ITypeSerializer
         {
-            byte Code{ get; }
             bool Serialize(object obj, IWriter writer);
         }
 
@@ -15,11 +14,8 @@ namespace SocialPoint.IO
         {
             IWriteSerializer<K> _serializer;
 
-            public byte Code{ get; private set; }
-
-            public TypeSerializer(byte code, IWriteSerializer<K> serializer)
-            {
-                Code = code;
+            public TypeSerializer(IWriteSerializer<K> serializer)
+            {  
                 _serializer = serializer;
             }
 
@@ -35,7 +31,8 @@ namespace SocialPoint.IO
             }
         }
 
-        Dictionary<Type, ITypeSerializer> _serializers = new Dictionary<Type, ITypeSerializer>();
+        Dictionary<Type, byte> _types = new Dictionary<Type, byte>();
+        Dictionary<byte, ITypeSerializer> _serializers = new Dictionary<byte, ITypeSerializer>();
 
         public void Register<K>(byte code) where K : INetworkShareable
         {
@@ -44,44 +41,43 @@ namespace SocialPoint.IO
 
         public void Register<K>(byte code, IWriteSerializer<K> serializer)
         {
-            _serializers[typeof(K)] = new TypeSerializer<K>(code, serializer);
+            _types[typeof(K)] = code;
+            _serializers[code] = new TypeSerializer<K>(code, serializer);
         }
 
         public void Unregister<K>()
         {
-            _serializers.Remove(typeof(K));
+            var type = typeof(K);
+            byte code;
+            if(_types.TryGetValue(type, out code))
+            {
+                _serializers.Remove(code);
+            }
         }
 
         public void Serialize(T obj, IWriter writer)
         {
+            bool found = false;
             var itr = _serializers.GetEnumerator();
             while(itr.MoveNext())
             {
                 var s = itr.Current.Value;
                 if(s.Serialize(obj, writer))
                 {
-                    break;
-                }
-            }
-            itr.Dispose();
-        }
-
-        public bool FindCode(T obj, out byte code)
-        {
-            code = 0;
-            var found = false;
-            var itr = _serializers.GetEnumerator();
-            while(itr.MoveNext())
-            {
-                if(itr.Current.Key.IsAssignableFrom(obj.GetType()))
-                {
-                    code = itr.Current.Value.Code;
                     found = true;
                     break;
                 }
             }
             itr.Dispose();
-            return found;
+            if(!found)
+            {
+                throw new InvalidOperationException("No valid serializer found");
+            }
+        }
+
+        public bool FindCode(T obj, out byte code)
+        {
+            return _types.TryGetValue(obj, out code);
         }
     }
 
