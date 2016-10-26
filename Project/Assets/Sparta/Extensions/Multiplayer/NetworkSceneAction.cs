@@ -3,23 +3,15 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
-    public interface INetworkSceneActionHandler<T> : SocialPoint.Utils.IActionHandler<NetworkScene, T>
+    public interface INetworkSceneActionHandler<T> : IActionHandler<NetworkScene, T>
     {
     }
 
-    public interface INetworkSceneAction
+    public interface INetworkSceneAction : IAppliable<NetworkScene>
     {
-        void Apply(NetworkScene scene);
     }
 
-    public class NetworkSceneActionHandler : INetworkSceneActionHandler<INetworkSceneAction>
+    public class NetworkSceneActionHandler : ActionHandler<NetworkScene>
     {
-        public void HandleAction(NetworkScene scene, INetworkSceneAction action)
-        {
-            if(action != null)
-            {
-                action.Apply(scene);
-            }
-        }
     }
 }

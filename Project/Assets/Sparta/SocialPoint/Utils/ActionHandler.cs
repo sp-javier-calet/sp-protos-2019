@@ -12,6 +12,22 @@ namespace SocialPoint.Utils
     {
     }
 
+    public interface IAppliable<S>
+    {
+        void Apply(S state);
+    }
+
+    public class AppliableActionHandler<S> : IActionHandler<S, IAppliable<S>>
+    {
+        public void HandleAction(S state, IAppliable<S> action)
+        {
+            if(action != null)
+            {
+                action.Apply(state);
+            }
+        }
+    }
+
     public class ActionHandler<S, T>
     {
         interface ITypeHandler
@@ -64,9 +80,9 @@ namespace SocialPoint.Utils
                 }
             }
 
-            public bool HandleAction(S state, object obj)
+            public bool HandleAction(S state, object action)
             {
-                if(!(obj is K))
+                if(!(action is K))
                 {
                     return false;
                 }
@@ -74,14 +90,14 @@ namespace SocialPoint.Utils
                 {
                     return false;
                 }
-                var action = (K)obj;
+                var kaction = (K)action;
                 for(var i = 0; i < _handlers.Count; i++)
                 {
-                    _handlers[i].HandleAction(state, action);
+                    _handlers[i].HandleAction(state, kaction);
                 }
                 if(_actions != null)
                 {
-                    _actions(state, action);
+                    _actions(state, kaction);
                 }
                 return true;
             }
@@ -92,15 +108,16 @@ namespace SocialPoint.Utils
         public ActionHandler()
         {
             _handlers = new Dictionary<Type, ITypeHandler>();
+            Register<IAppliable<S>>(new AppliableActionHandler<S>());
         }
 
-        public bool HandleAction(S state, T evnt)
+        public bool HandleAction(S state, T action)
         {
             var handled = false;
             var itr = _handlers.GetEnumerator();
             while (itr.MoveNext())
             {
-                if(itr.Current.Value.HandleAction(state, evnt))
+                if(itr.Current.Value.HandleAction(state, action))
                 {
                     handled = true;
                 }
@@ -109,7 +126,7 @@ namespace SocialPoint.Utils
             return handled;
         }
 
-        public void Register<K>(IActionHandler<S, K> handler) where K: T
+        public void Register<K>(IActionHandler<S, K> handler)
         {
             var type = typeof(K);
             ITypeHandler typeHandler;
@@ -121,7 +138,7 @@ namespace SocialPoint.Utils
             typeHandler.RegisterHandler(handler);
         }
 
-        public void Unregister<K>(IActionHandler<S, K> handler) where K: T
+        public void Unregister<K>(IActionHandler<S, K> handler)
         {
             var type = typeof(K);
             ITypeHandler typeHandler;
@@ -131,7 +148,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        public void Register<K>(Action<S, K> action) where K: T
+        public void Register<K>(Action<S, K> action)
         {
             var type = typeof(K);
             ITypeHandler typeHandler;
@@ -143,7 +160,7 @@ namespace SocialPoint.Utils
             typeHandler.RegisterAction(action);
         }
 
-        public void Unregister<K>(Action<S, K> action) where K: T
+        public void Unregister<K>(Action<S, K> action)
         {
             var type = typeof(K);
             ITypeHandler typeHandler;

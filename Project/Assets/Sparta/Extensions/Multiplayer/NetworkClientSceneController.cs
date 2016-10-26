@@ -28,7 +28,7 @@ namespace SocialPoint.Multiplayer
         int _lastAppliedAction;
         Dictionary<int, object> _pendingActions;
 
-        ActionHandler<NetworkScene> _actionHandler;
+        NetworkSceneActionHandler _actionHandler;
 
         public NetworkClientSceneController(INetworkClient client)
         {
@@ -38,8 +38,7 @@ namespace SocialPoint.Multiplayer
             _sceneBehaviours = new List<INetworkClientSceneBehaviour>();
 
             _pendingActions = new Dictionary<int, object>();
-            _actionHandler = new ActionHandler<NetworkScene>();
-            _actionHandler.Register<INetworkSceneAction>(new NetworkSceneActionHandler());
+            _actionHandler = new NetworkSceneActionHandler();
         }
 
         public virtual void Dispose()
@@ -234,7 +233,7 @@ namespace SocialPoint.Multiplayer
             var itr = _pendingActions.GetEnumerator();
             while(itr.MoveNext())
             {
-                ApplyActionToScene(itr.Current);
+                ApplyActionToScene(itr.Current.Value);
             }
             itr.Dispose();
         }

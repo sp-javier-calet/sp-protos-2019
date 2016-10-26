@@ -31,7 +31,7 @@ namespace SocialPoint.Multiplayer
 
         Dictionary<byte, int> _lastReceivedAction;
 
-        ActionHandler<NetworkScene> _actionHandler;
+        NetworkSceneActionHandler _actionHandler;
 
         public NetworkScene Scene
         {
@@ -63,8 +63,7 @@ namespace SocialPoint.Multiplayer
             _server.RegisterReceiver(this);
 
             _lastReceivedAction = new Dictionary<byte, int>();
-            _actionHandler = new ActionHandler<NetworkScene>();
-            _actionHandler.Register<INetworkSceneAction>(new NetworkSceneActionHandler());
+            _actionHandler = new NetworkSceneActionHandler();
         }
 
         public virtual void Dispose()

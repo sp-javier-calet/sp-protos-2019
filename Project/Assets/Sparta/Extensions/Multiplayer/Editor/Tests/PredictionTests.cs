@@ -113,6 +113,7 @@ namespace SocialPoint.Multiplayer
                     MessageType = MovementActionType
                 };
                 _clientCtrl1.ApplyAction(actions[i]);
+                Assert.That(!_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
             }
 
             //Start moving in server
@@ -252,15 +253,18 @@ namespace SocialPoint.Multiplayer
 
             void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
             {
+                object action = null;
                 if(data.MessageType == InstatiateActionType)
                 {
-                    var ac = reader.Read<TestInstatiateAction>();
-                    _controller.OnAction(ac, data.ClientId);
+                    action = reader.Read<TestInstatiateAction>();
                 }
                 else if(data.MessageType == MovementActionType)
                 {
-                    var ac = reader.Read<TestMovementAction>();
-                    _controller.OnAction(ac, data.ClientId);
+                    action = reader.Read<TestMovementAction>();
+                }
+                if(action != null)
+                {
+                    _controller.OnAction(action, data.ClientId);
                 }
             }
 
