@@ -6,7 +6,7 @@ using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
-    public class JQuaternionSerializer : IWriteSerializer<JQuaternion>
+    public class JQuaternionSerializer : IDiffWriteSerializer<JQuaternion>
     {
         public static readonly JQuaternionSerializer Instance = new JQuaternionSerializer();
 
@@ -47,7 +47,7 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class JQuaternionParser : IReadParser<JQuaternion>
+    public class JQuaternionParser : IDiffReadParser<JQuaternion>
     {
         public static readonly JQuaternionParser Instance = new JQuaternionParser();
 
