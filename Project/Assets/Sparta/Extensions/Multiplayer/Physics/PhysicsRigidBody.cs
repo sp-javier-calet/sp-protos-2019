@@ -174,6 +174,16 @@ namespace SocialPoint.Multiplayer
 
         void UpdateTransformFromGameObject()
         {
+            //Reactivate object if moving it
+            if(!_rigidBody.IsActive)
+            {
+                bool moved = (_rigidBody.Position != NetworkGameObject.Transform.Position);
+                if(moved)
+                {
+                    _rigidBody.IsActive = true;
+                }
+            }
+
             _rigidBody.Position = NetworkGameObject.Transform.Position;
         }
 
