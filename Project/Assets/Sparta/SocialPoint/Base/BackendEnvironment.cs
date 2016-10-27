@@ -7,8 +7,8 @@ public enum BackendEnvironment
     Development,
     Production,
     Test,
-    Docker}
-;
+    Docker
+}
 
 public static class BackendEnvironmentExtensions
 {
