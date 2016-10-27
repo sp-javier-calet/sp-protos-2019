@@ -1,4 +1,4 @@
-﻿namespace SocialPoint.Network
+namespace SocialPoint.Network
 {
     public interface IWebSocketClient : INetworkClient
     {

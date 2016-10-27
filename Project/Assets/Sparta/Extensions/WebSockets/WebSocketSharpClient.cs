@@ -72,7 +72,7 @@ namespace SocialPoint.WebSockets
 
             if(!string.IsNullOrEmpty(_proxy))
             {   
-               _socket.SetProxy(_proxy, null, null);
+                _socket.SetProxy(_proxy, null, null);
             }
         }
 
