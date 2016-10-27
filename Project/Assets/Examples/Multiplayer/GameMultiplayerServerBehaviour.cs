@@ -65,7 +65,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         }
     }
 
-    public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl, IPhysicsDebugger physicsDebugger)
+    public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl, IPhysicsDebugger physicsDebugger = null)
     {
         _server = server;
         _controller = ctrl;
@@ -254,7 +254,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
         var boxShape = new PhysicsBoxShape(new JVector(1f));
         var rigidBody = new PhysicsRigidBody(boxShape, physicType, _physicsWorld, _physicsDebugger);
-        rigidBody.DoDebugDraw = true;
+        rigidBody.DoDebugDraw = (_physicsDebugger != null);
 
         if(go.Id == _playerCube.Id)
         {

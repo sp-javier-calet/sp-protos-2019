@@ -43,7 +43,7 @@ namespace SocialPoint.Multiplayer
 
         event CollisionDetectedHandler _collisionListeners;
 
-        public PhysicsRigidBody(PhysicsCollisionShape shape, ControlType type, PhysicsWorld physicsWorld, IPhysicsDebugger debugger)
+        public PhysicsRigidBody(PhysicsCollisionShape shape, ControlType type, PhysicsWorld physicsWorld, IPhysicsDebugger debugger = null)
         {
             _collisionShape = shape;
             _controlType = type;
@@ -84,7 +84,7 @@ namespace SocialPoint.Multiplayer
             }
 
             //Debug if requested
-            if(_rigidBody.EnableDebugDraw)
+            if(_rigidBody.EnableDebugDraw && _debugger != null)
             {
                 _rigidBody.DebugDraw(_debugger);
             }
