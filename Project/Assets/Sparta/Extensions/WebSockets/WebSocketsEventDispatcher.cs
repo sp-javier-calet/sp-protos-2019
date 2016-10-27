@@ -1,12 +1,12 @@
 ﻿using System;
-using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.IO;
+using SocialPoint.Network;
 using SocialPoint.Utils;
 
-namespace SocialPoint.Network
+namespace SocialPoint.WebSockets
 {
     public class WebSocketsEventDispatcher : IDisposable
     {
@@ -21,8 +21,8 @@ namespace SocialPoint.Network
         struct EventData
         {
             public EventType Type;
-            public byte[] Message;
-            public string Error;
+            public string Message;
+            public Error Error;
 
             public EventData(EventType type)
             {
@@ -31,18 +31,18 @@ namespace SocialPoint.Network
                 Error = null;
             }
 
-            public EventData(string error)
+            public EventData(string message)
+            {
+                Type = EventType.Message;
+                Message = message;
+                Error = null;
+            }
+
+            public EventData(Error err)
             {
                 Type = EventType.Error;
                 Message = null;
-                Error = error;
-            }
-
-            public EventData(byte[] msg)
-            {
-                Type = EventType.Message;
-                Message = msg;
-                Error = null;
+                Error = err;
             }
         }
 
@@ -140,19 +140,18 @@ namespace SocialPoint.Network
             }
         }
 
-        public void NotifyMessage(byte[] msg)
+        public void NotifyMessage(string msg)
         {
             _pending.Add(new EventData(msg));
         }
 
-        void DispatchMessageReceived(byte[] data)
+        void DispatchMessageReceived(string data)
         {
             var msg = new NetworkMessageData();
 
             if(OnMessage != null)
             {
-                var stream = new MemoryStream(data);
-                var reader = new SystemBinaryReader(stream);
+                var reader = new WebSocketsTextReader(data);
                 OnMessage(msg, reader);
             }
 
@@ -164,14 +163,14 @@ namespace SocialPoint.Network
 
         public void NotifyError(string error)
         {
-            _pending.Add(new EventData(error));
+            _pending.Add(new EventData(new Error(error)));
         }
 
-        void DispatchNetworkError(string message)
+        void DispatchNetworkError(Error err)
         {
             if(OnNetworkError != null)
             {
-                OnNetworkError(new Error(message));
+                OnNetworkError(err);
             }
         }
     }
