@@ -13,15 +13,15 @@ using SocialPoint.WebSockets;
 public class SocialFrameworkInstaller : Installer
 {
     const string SocialFrameworkTag = "social_framework";
-    const string DefaultEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8001/ws";
 
-    //readonly string[] DefaultProtocols = new string[] { "wamp.2.json" }; // FIXME
+    const string DefaultWAMPProtocol = "wamp.2.json";
+    const string DefaultEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8001/ws";
 
     [Serializable]
     public class SettingsData
     {
         public string Endpoint = DefaultEndpoint;
-        public string[] Protocols = new string[]{ "wamp.2.json" };
+        public string[] Protocols = new string[] { DefaultWAMPProtocol };
     }
 
     public SettingsData Settings = new SettingsData();

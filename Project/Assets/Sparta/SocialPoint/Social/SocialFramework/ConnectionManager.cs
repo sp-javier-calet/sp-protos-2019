@@ -1,8 +1,4 @@
-﻿// FIXME Temp code for testing with the ML Backend
-//#define FORCE_LOD_USER_1
-#define FORCE_LOD_USER_2
-
-using System;
+﻿using System;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
@@ -50,13 +46,6 @@ namespace SocialPoint.Social
 
     public class ConnectionManager : INetworkClientDelegate, IDisposable
     {
-        enum ConnectionState
-        {
-            Disconnected,
-            Connecting,
-            Connected
-        }
-
         #region Attr keys
 
         public const string ResultKey = "result";
@@ -97,6 +86,38 @@ namespace SocialPoint.Social
 
         const string NotificationTopicType = "notification";
         const string NotificationTopicName = "notifications";
+
+        enum ConnectionState
+        {
+            Disconnected,
+            Connecting,
+            Connected
+        }
+
+        /// <summary>
+        /// User data to allow forcing user parameters
+        /// </summary>
+        public class UserData
+        {
+            public ulong UserId;
+            public string SecurityToken;
+            public string PrivilegeToken;
+
+
+            public UserData(ulong userId, string securityToken)
+            {
+                UserId = userId;
+                SecurityToken = securityToken;
+                PrivilegeToken = string.Empty;
+            }
+
+            public UserData(ILoginData loginData)
+            {
+                UserId = loginData.UserId;
+                SecurityToken = loginData.SecurityToken;
+                PrivilegeToken = loginData.PrivilegeToken;
+            }
+        }
 
         public delegate void NotificationReceivedDelegate(int type, string topic, AttrDic dictParams);
 
@@ -228,6 +249,8 @@ namespace SocialPoint.Social
         public Localization Localization { get; set; }
 
         public IDeviceInfo DeviceInfo { get; set; }
+
+        public UserData ForcedUser { get; set; }
 
         readonly WAMPConnection _connection;
         readonly IWebSocketClient _socket;
@@ -518,49 +541,21 @@ namespace SocialPoint.Social
 
         void SendHello()
         {
-            // FIXME Test code
-            #if FORCE_LOD_USER_1
+            // Use the ForcedUser if defined. Otherwise, collect info from current user.
+            var data = ForcedUser ?? new UserData(LoginData);
+
             var dicDetails = new AttrDic();
-            dicDetails.SetValue("user_id", 200001);//LoginData.UserId);
-            dicDetails.SetValue("security_token", "18094023679616948036931678079514");//LoginData.SecurityToken);
+            dicDetails.SetValue("user_id", data.UserId);
+            dicDetails.SetValue("security_token", data.SecurityToken);
 
             #if ADMIN_PANEL
-            dicDetails.SetValue("privileged_token", "");//LoginData.PrivilegeToken);
-            #endif
-
-            dicDetails.SetValue("device_uid", "72a488a5-aa00-4187-8ace-e7afd1069532");//DeviceInfo.Uid);
-            dicDetails.SetValue("country", "ES");//DeviceInfo.AppInfo.Country);
-            dicDetails.SetValue("platform", "android");//DeviceInfo.Platform);
-            dicDetails.SetValue("language", "ca");//Localization.Language);
-
-            #elif FORCE_LOD_USER_2
-            var dicDetails = new AttrDic();
-            dicDetails.SetValue("user_id", 200002);//LoginData.UserId);
-            dicDetails.SetValue("security_token", "18094023679616948036931678079514");//LoginData.SecurityToken);
-
-            #if ADMIN_PANEL
-            dicDetails.SetValue("privileged_token", "");//LoginData.PrivilegeToken);
-            #endif
-
-            dicDetails.SetValue("device_uid", "72a488a5-aa00-4187-8ace-e7afd1069532");//DeviceInfo.Uid);
-            dicDetails.SetValue("country", "ES");//DeviceInfo.AppInfo.Country);
-            dicDetails.SetValue("platform", "android");//DeviceInfo.Platform);
-            dicDetails.SetValue("language", "ca");//Localization.Language);
-
-            #else
-            var dicDetails = new AttrDic();
-            dicDetails.SetValue("user_id", LoginData.UserId);
-            dicDetails.SetValue("security_token", LoginData.SecurityToken);
-
-            #if ADMIN_PANEL
-            dicDetails.SetValue("privileged_token", LoginData.PrivilegeToken);
+            dicDetails.SetValue("privileged_token", data.PrivilegeToken);
             #endif
 
             dicDetails.SetValue("device_uid", DeviceInfo.Uid);
             dicDetails.SetValue("country", DeviceInfo.AppInfo.Country);
             dicDetails.SetValue("platform", DeviceInfo.Platform);
             dicDetails.SetValue("language", Localization.Language);
-            #endif
 
             _connection.Join(string.Empty, dicDetails, OnJoined);
         }

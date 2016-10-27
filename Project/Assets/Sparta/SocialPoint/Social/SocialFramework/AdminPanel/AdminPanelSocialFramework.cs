@@ -62,6 +62,7 @@ namespace SocialPoint.Social
                 layout.Refresh();
             }, _connection.IsConnecting);
 
+            layout.CreateOpenPanelButton("User", new AdminPanelSocialFrameworkUser(_connection), !_connection.IsConnected);
             layout.CreateOpenPanelButton("Chat", new AdminPanelSocialFrameworkChat(_chat), _chat != null && _connection.IsConnected);
 
             layout.CreateToggleButton("Debug Mode", _connection.DebugEnabled, value => {
@@ -122,6 +123,50 @@ namespace SocialPoint.Social
                 return _chat.ChatBanEndTimestamp > 0 ? 
                     string.Format("You are banned until {0}", _chat.ChatBanEndTimestamp) : 
                     "You are a legal player!";
+            }
+        }
+
+        #endregion
+
+        #region Chat Rooms
+
+        class AdminPanelSocialFrameworkUser : IAdminPanelGUI
+        {
+            readonly ConnectionManager _connection;
+            ConnectionManager.UserData _selected;
+
+            Dictionary<string, ConnectionManager.UserData> _users = new Dictionary<string, ConnectionManager.UserData> {
+                { "Current User", default(ConnectionManager.UserData) },
+                { "LoD User 1", new ConnectionManager.UserData(200001, "18094023679616948036931678079514") }, // "72a488a5-aa00-4187-8ace-e7afd1069532"
+                { "LoD User 2", new ConnectionManager.UserData(200002, "18094023679616948036931678079514") } // "72a488a5-aa00-4187-8ace-e7afd1069532"
+            };
+
+            public AdminPanelSocialFrameworkUser(ConnectionManager connection)
+            {
+                _connection = connection;
+            }
+
+            public void OnCreateGUI(AdminPanelLayout layout)
+            {
+                layout.CreateLabel("SP-Rocket User");
+                layout.CreateMargin();
+
+                var itr = _users.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    var entry = itr.Current;
+                    CreateUserSelector(layout, entry.Key, entry.Value);
+                }
+                itr.Dispose();
+            }
+
+            void CreateUserSelector(AdminPanelLayout layout, string label, ConnectionManager.UserData user)
+            {
+                layout.CreateToggleButton(label, user == _selected, value => {
+                    _selected = user;
+                    _connection.ForcedUser = _selected;
+                    layout.Refresh();
+                });
             }
         }
 
