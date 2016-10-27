@@ -281,7 +281,7 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public void AddConfirmedTurn(ClientLockstepTurnData turn)
+        public void AddConfirmedTurn(ClientLockstepTurnData turn=null)
         {
             _lastConfirmedTurnNumber++;
             if(!ClientLockstepTurnData.IsNullOrEmpty(turn))
