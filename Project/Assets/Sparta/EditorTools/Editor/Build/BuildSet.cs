@@ -285,6 +285,9 @@ namespace SpartaTools.Editor.Build
                 }
             }
             EditorBuildSettings.scenes = scenes;
+
+            //After selecting scenes, update asset with their data
+            SocialPoint.Base.ScenesData.UpdateData();
         }
 
         public virtual void Apply()
