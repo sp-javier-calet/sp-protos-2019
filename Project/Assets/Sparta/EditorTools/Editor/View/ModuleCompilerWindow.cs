@@ -261,8 +261,14 @@ namespace SpartaTools.Editor.View
                 if(variant == _selectedVariant && t - _lastSelectionTime < 0.2f)
                 {
                     EditorUtility.DisplayProgressBar("Compile module", string.Format("Compiling {0} for {1}", variant.Module.Name, variant.Name), 0.1f);
-                    CompileVariant(variant, false);
-                    EditorUtility.ClearProgressBar();
+                    try
+                    {
+                        CompileVariant(variant, false);
+                    }
+                    finally
+                    {
+                        EditorUtility.ClearProgressBar();
+                    }
                 }
 
                 _lastSelectionTime = t;
@@ -320,15 +326,27 @@ namespace SpartaTools.Editor.View
             if(GUILayout.Button("Compile All", EditorStyles.toolbarButton))
             {
                 EditorUtility.DisplayProgressBar("Compile All", "Compiling all modules and variants", 0.1f);
-                CompileAll();
-                EditorUtility.ClearProgressBar();
+                try
+                {
+                    CompileAll();
+                }
+                finally
+                {
+                    EditorUtility.ClearProgressBar();
+                }
             }
 
             if(GUILayout.Button("Compile Failed", EditorStyles.toolbarButton))
             {
                 EditorUtility.DisplayProgressBar("Compile Failed", "Compiling failed modules and variants", 0.1f);
-                CompileFailed();
-                EditorUtility.ClearProgressBar();
+                try
+                {
+                    CompileFailed();
+                }
+                finally
+                {
+                    EditorUtility.ClearProgressBar();
+                }
             }
 
             if(GUILayout.Button("Clean", EditorStyles.toolbarButton))
