@@ -31,14 +31,14 @@ namespace SocialPoint.Network
         public RoomOptions ToPhoton()
         {
             return new RoomOptions {
-                isVisible = IsVisible,
-                isOpen = IsOpen,
-                maxPlayers = MaxPlayers,
+                IsVisible = IsVisible,
+                IsOpen = IsOpen,
+                MaxPlayers = MaxPlayers,
                 PlayerTtl = PlayerTtl,
-                cleanupCacheOnLeave = CleanupCache,
-                customRoomPropertiesForLobby = CustomLobbyProperties,
-                plugins = Plugins,
-                publishUserId = PublishUserId
+                CleanupCacheOnLeave = CleanupCache,
+                CustomRoomPropertiesForLobby = CustomLobbyProperties,
+                Plugins = Plugins,
+                PublishUserId = PublishUserId
             };
         }
     }
