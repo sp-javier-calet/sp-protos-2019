@@ -143,6 +143,7 @@ namespace SocialPoint.Social
         class AdminPanelSocialFrameworkUser : IAdminPanelGUI
         {
             readonly ConnectionManager _connection;
+            readonly StringBuilder _content;
             ConnectionManager.UserData _selected;
 
             Dictionary<string, ConnectionManager.UserData> _users = new Dictionary<string, ConnectionManager.UserData> {
@@ -154,6 +155,7 @@ namespace SocialPoint.Social
             public AdminPanelSocialFrameworkUser(ConnectionManager connection)
             {
                 _connection = connection;
+                _content = new StringBuilder();
             }
 
             public void OnCreateGUI(AdminPanelLayout layout)
@@ -183,18 +185,18 @@ namespace SocialPoint.Social
 
             void CreateUserInfo(AdminPanelLayout layout, ConnectionManager.UserData user)
             {
-                var content = new StringBuilder();
-
+                _content.Length = 0;
                 if(user != null)
                 {
-                    content.AppendLine("UserId" + user.UserId);
+                    _content.AppendFormat("UserId: {0}", user.UserId).AppendLine()
+                        .AppendFormat("Security Token: {0}", user.SecurityToken).AppendLine();
                 }
                 else
                 {
-                    content.AppendLine("Current logged user");
+                    _content.AppendLine("Current SocialPointLogin user");
                 }
 
-                layout.CreateVerticalScrollLayout().CreateTextArea(content.ToString());
+                layout.CreateVerticalScrollLayout().CreateTextArea(_content.ToString());
             }
         }
 
