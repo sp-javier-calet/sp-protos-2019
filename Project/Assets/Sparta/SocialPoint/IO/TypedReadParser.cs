@@ -28,12 +28,12 @@ namespace SocialPoint.IO
         Dictionary<Type, byte> _types = new Dictionary<Type, byte>();
         Dictionary<byte, ITypeParser> _parsers = new Dictionary<byte, ITypeParser>();
 
-        public void Register<K>(byte code) where K : INetworkShareable, new()
+        public void Register<K>(byte code) where K : T, INetworkShareable, new()
         {
             Register<K>(code, new NetworkShareableParser<K>());
         }
 
-        public void Register<K>(byte code, IReadParser<K> parser)
+        public void Register<K>(byte code, IReadParser<K> parser) where K : T
         {
             _parsers[code] = new TypeParser<K>(code, parser);
         }
