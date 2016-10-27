@@ -44,14 +44,7 @@ namespace SocialPoint.WebSockets
 
         void OnSocketMessage(object sender, WebSocketSharp.MessageEventArgs e)
         {
-            if(e.IsText)
-            {
-                _dispatcher.NotifyMessage(e.Data);
-            }
-            else
-            {
-                throw new InvalidOperationException("Unsupported binary communication");
-            }
+            _dispatcher.NotifyMessage(e.Data);
         }
 
         void OnSocketError(object sender, WebSocketSharp.ErrorEventArgs e)
