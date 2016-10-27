@@ -20,14 +20,14 @@ public class LocaleInstaller : Installer
     [Serializable]
     public class SettingsData
     {
-        public string ProjectId = LocalizationManager.LocationData.DefaultProjectId;
+       // public string ProjectId = GameLocalizationManager.LocationData.DefaultProjectId;
         public EnvironmentID EnvironmentId = EnvironmentID.prod;
-        public string SecretKeyDev = LocalizationManager.LocationData.DefaultSecretKey;
-        public string SecretKeyLoc = LocalizationManager.LocationData.DefaultSecretKey;
-        public string SecretKeyProd = LocalizationManager.LocationData.DefaultSecretKey;
-        public string BundleDir = LocalizationManager.DefaultBundleDir;
-        public string[] SupportedLanguages = LocalizationManager.DefaultSupportedLanguages;
-        public float Timeout = LocalizationManager.DefaultTimeout;
+        //public string SecretKeyDev = GameLocalizationManager.LocationData.DefaultSecretKey;
+        //public string SecretKeyLoc = GameLocalizationManager.LocationData.DefaultSecretKey;
+        //public string SecretKeyProd = GameLocalizationManager.LocationData.DefaultSecretKey;
+        //public string BundleDir = GameLocalizationManager.DefaultBundleDir;
+        //public string[] SupportedLanguages = GameLocalizationManager.DefaultSupportedLanguages;
+        //public float Timeout = GameLocalizationManager.DefaultTimeout;
         public bool EditorDebug = true;
     }
 
@@ -35,9 +35,10 @@ public class LocaleInstaller : Installer
 
     public override void InstallBindings()
     {
+        // TODO Game code
         Container.Rebind<Localization>().ToMethod<Localization>(CreateLocalization);
-        Container.Rebind<ILocalizationManager>().ToMethod<LocalizationManager>(CreateLocalizationManager, SetupLocalizationManager);
-        Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
+        //Container.Rebind<ILocalizationManager>().ToMethod<GameLocalizationManager>(CreateLocalizationManager, SetupLocalizationManager);
+        //Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
          
         Container.Rebind<LocalizeAttributeConfiguration>().ToMethod<LocalizeAttributeConfiguration>(CreateLocalizeAttributeConfiguration);
 
@@ -57,9 +58,9 @@ public class LocaleInstaller : Installer
             Container.Resolve<ILocalizationManager>());
     }
 
-    LocalizationManager CreateLocalizationManager()
+   /* GameLocalizationManager CreateLocalizationManager()
     {
-        return new LocalizationManager(
+        return new GameLocalizationManager(
             Container.Resolve<IHttpClient>(),
             Container.Resolve<IAppInfo>(),
             Container.Resolve<Localization>(),
@@ -67,7 +68,7 @@ public class LocaleInstaller : Installer
             Container.Resolve<IEventDispatcher>());
     }
 
-    void SetupLocalizationManager(LocalizationManager mng)
+    void SetupLocalizationManager(GameLocalizationManager mng)
     {
         string secretKey;
         if(Settings.EnvironmentId == EnvironmentID.dev)
@@ -89,6 +90,7 @@ public class LocaleInstaller : Installer
         mng.BundleDir = Settings.BundleDir;
         mng.AppEvents = Container.Resolve<IAppEvents>();
     }
+    */
 
     Localization CreateLocalization()
     {

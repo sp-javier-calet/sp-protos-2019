@@ -7,7 +7,7 @@ using SocialPoint.AdminPanel;
 using SocialPoint.Notifications;
 using SocialPoint.Utils;
 
-public class NotificationInstaller : SubInstaller, IInitializable
+public class NotificationInstaller : SubInstaller//, IInitializable
 {
     [Serializable]
     public class SettingsData
@@ -31,8 +31,8 @@ public class NotificationInstaller : SubInstaller, IInitializable
         Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
 #endif
 
-        Container.Rebind<NotificationManager>().ToMethod<NotificationManager>(CreateNotificationManager);
-        Container.Bind<IDisposable>().ToMethod<NotificationManager>(CreateNotificationManager);
+        //Container.Rebind<GameNotificationManager>().ToMethod<GameNotificationManager>(CreateNotificationManager);
+        //Container.Bind<IDisposable>().ToMethod<GameNotificationManager>(CreateNotificationManager);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelNotifications>(CreateAdminPanel);
     }
 
@@ -60,9 +60,10 @@ public class NotificationInstaller : SubInstaller, IInitializable
             Container.Resolve<INotificationServices>());
     }
 
-    NotificationManager CreateNotificationManager()
+    /*
+    GameNotificationManager CreateNotificationManager()
     {
-        return new NotificationManager(
+        return new GameNotificationManager(
             Container.Resolve<INotificationServices>(),
             Container.Resolve<IAppEvents>(),
             Container.Resolve<ICommandQueue>()
@@ -71,12 +72,13 @@ public class NotificationInstaller : SubInstaller, IInitializable
 
     public void Initialize()
     {
-        Container.Resolve<NotificationManager>();
+        Container.Resolve<GameNotificationManager>();
         var services = Container.Resolve<INotificationServices>();
         if(Settings.AutoRegisterForRemote)
         {
             services.RequestPermissions();
         }
     }
+        */
 
 }

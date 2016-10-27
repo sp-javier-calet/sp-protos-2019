@@ -1,5 +1,4 @@
-﻿using System;
-using SocialPoint.AdminPanel;
+﻿using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.Network;
@@ -7,14 +6,14 @@ using SocialPoint.Purchase;
 using SocialPoint.ServerEvents;
 using SocialPoint.ServerSync;
 using SocialPoint.Utils;
-using UnityEngine;
 
 public class PurchaseInstaller : Installer
 {
     public override void InstallBindings()
     {
         Container.Rebind<IGamePurchaseStore>().ToMethod<SocialPointPurchaseStore>(CreatePurchaseStore, SetupPurchaseStore);
-        Container.Bind<IStoreProductSource>().ToGetter<ConfigModel>((Config) => Config.Store);
+        // TODO GAME CODE
+        //Container.Bind<IStoreProductSource>().ToGetter<ConfigModel>((Config) => Config.Store);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelPurchase>(CreateAdminPanel);
     }
 
@@ -39,7 +38,7 @@ public class PurchaseInstaller : Installer
         store.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
         store.LoginData = Container.Resolve<ILoginData>();
 
-        var model = Container.Resolve<StoreModel>();
-        model.PurchaseStore = store;
+        //var model = Container.Resolve<StoreModel>();
+        //model.PurchaseStore = store;
     }
 }

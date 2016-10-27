@@ -10,8 +10,9 @@ public class CrossPromotionInstaller : SubInstaller
 {
     public override void InstallBindings()
     {
-        Container.Bind<CrossPromotionManager>().ToMethod<CrossPromotionManager>(CreateManager, SetupManager);
-        Container.Bind<IDisposable>().ToLookup<CrossPromotionManager>();
+        //TODO GAME installer
+        //Container.Bind<CrossPromotionManager>().ToMethod<CrossPromotionManager>(CreateManager, SetupManager);
+        //Container.Bind<IDisposable>().ToLookup<CrossPromotionManager>();
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCrossPromotion>(CreateAdminPanel);
     }
 
@@ -20,6 +21,7 @@ public class CrossPromotionInstaller : SubInstaller
         return new AdminPanelCrossPromotion(Container.Resolve<CrossPromotionManager>());
     }
 
+    /*
     CrossPromotionManager CreateManager()
     {
         return new CrossPromotionManager(Container.Resolve<ICoroutineRunner>(), Container.Resolve<PopupsController>());
@@ -32,4 +34,5 @@ public class CrossPromotionInstaller : SubInstaller
         mng.TrackUrgentSystemEvent = eventTracker.TrackUrgentSystemEvent;
         mng.AppEvents = Container.Resolve<IAppEvents>();
     }
+    */
 }

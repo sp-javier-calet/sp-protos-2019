@@ -25,13 +25,14 @@ public class NetworkInstaller : Installer
     {
         public NetworkTech Tech = NetworkTech.Local;
         public UnetNetworkConfig UnetConfig;
-        public PhotonNetworkConfig PhotonConfig;
+        //public PhotonNetworkConfig PhotonConfig;
     }
 
     public SettingsData Settings = new SettingsData();
 
     public override void InstallBindings()
     {
+        // TODO Move selection to a parent game installer
         if(Settings.Tech == NetworkTech.Local)
         {
             Container.Rebind<LocalNetworkServer>().ToMethod<LocalNetworkServer>(CreateLocalServer, SetupServer);
@@ -50,10 +51,11 @@ public class NetworkInstaller : Installer
         }
         else if(Settings.Tech == NetworkTech.Photon)
         {
-            Container.RebindUnityComponent<PhotonNetworkServer>().WithSetup<PhotonNetworkServer>(SetupPhotonServer);
+           /* Container.RebindUnityComponent<PhotonNetworkServer>().WithSetup<PhotonNetworkServer>(SetupPhotonServer);
             Container.Rebind<INetworkServer>().ToLookup<PhotonNetworkServer>();
             Container.RebindUnityComponent<PhotonNetworkClient>().WithSetup<PhotonNetworkServer>(SetupPhotonClient);
             Container.Rebind<INetworkClient>().ToLookup<PhotonNetworkClient>();
+            */
         }        
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelNetwork>(CreateAdminPanel);
     }
@@ -105,7 +107,7 @@ public class NetworkInstaller : Installer
             client.AddDelegate(dlgs[i]);
         }
     }
-
+    /*
     void SetupPhotonServer(PhotonNetworkServer server)
     {
         server.Init(Settings.PhotonConfig);
@@ -116,5 +118,5 @@ public class NetworkInstaller : Installer
     {
         client.Init(Settings.PhotonConfig);
         SetupClient(client);
-    }
+    }*/
 }
