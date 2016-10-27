@@ -1,25 +1,22 @@
 using System;
-using System.IO;
 using System.Net;
 using System.Collections;
 using System.Collections.Generic;
-using SocialPoint.Utils;
 using SocialPoint.Base;
-using UnityEngine;
 
 namespace SocialPoint.Network
 {
     public sealed class WebRequestHttpConnection : BaseYieldHttpConnection
     {
-        private byte[] _requestBody;
-        private HttpWebRequest _request;
+        byte[] _requestBody;
+        readonly HttpWebRequest _request;
     
         public WebRequestHttpConnection(HttpWebRequest request, HttpResponseDelegate del, byte[] reqBody):base(del)
         {
             _request = request;
             _requestBody = reqBody;
         }
-    
+
         public override void Cancel()
         {
             _request.Abort();

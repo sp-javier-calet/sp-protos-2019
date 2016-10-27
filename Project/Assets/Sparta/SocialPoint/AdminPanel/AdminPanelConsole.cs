@@ -59,14 +59,12 @@ namespace SocialPoint.AdminPanel
             
             layout.CreateMargin(2);
 
-            using(var hLayout = layout.CreateHorizontalLayout())
-            {
-                hLayout.CreateToggleButton("Lock", FixedFocus, value => {
-                    FixedFocus = value;
-                });
-            
-                hLayout.CreateButton("Clear", Clear);
-            }
+            var hLayout = layout.CreateHorizontalLayout();
+            hLayout.CreateToggleButton("Lock", FixedFocus, value => {
+                FixedFocus = value;
+            });
+
+            hLayout.CreateButton("Clear", Clear);
         }
 
         void OnSubmitCommand(string command)

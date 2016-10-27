@@ -46,7 +46,7 @@ namespace SocialPoint.Network
     {
         public string GameVersion;
         public string RoomName;
-        public PhotonNetworkRoomConfig RoomOptions;
+        public PhotonNetworkRoomConfig RoomOptions = new PhotonNetworkRoomConfig();
     }
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
@@ -83,6 +83,7 @@ namespace SocialPoint.Network
         public void Dispose()
         {
             DoDisconnect();
+            Destroy(this);
         }
 
         RoomOptions PhotonRoomOptions
@@ -95,7 +96,14 @@ namespace SocialPoint.Network
 
         void JoinOrCreateRoom()
         {
-            PhotonNetwork.JoinOrCreateRoom(_config.RoomName, PhotonRoomOptions, null);
+            if(string.IsNullOrEmpty(_config.RoomName))
+            {
+                PhotonNetwork.CreateRoom(_config.RoomName, PhotonRoomOptions, null);
+            }
+            else
+            {
+                PhotonNetwork.JoinOrCreateRoom(_config.RoomName, PhotonRoomOptions, null);
+            }
         }
 
         abstract protected void OnNetworkError(Error err);
@@ -130,7 +138,7 @@ namespace SocialPoint.Network
 
         void OnPhotonRandomJoinFailed()
         {
-            PhotonNetwork.CreateRoom(_config.RoomName, PhotonRoomOptions, null);
+            JoinOrCreateRoom();
         }
 
         public void OnPhotonJoinRoomFailed(object[] codeAndMsg)

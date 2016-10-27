@@ -275,12 +275,7 @@ namespace SocialPoint.Network
             {
                 AddHeader(ContentEncodingHeader, BodyEncoding);
             }
-            if(Math.Abs(Timeout) < Single.Epsilon)
-            {
-                Timeout = 60.0f;
-            }
         }
-
 
         public void AddHeader(string key, string value)
         {

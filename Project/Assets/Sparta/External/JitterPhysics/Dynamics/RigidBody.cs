@@ -97,6 +97,12 @@ namespace Jitter.Dynamics
 
         internal int marker = 0;
 
+        public int LayerIndex
+        {
+            get;
+            set;
+        }
+
 
         public RigidBody(Shape shape)
             : this(shape, new Material(), false)
