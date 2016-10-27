@@ -2,7 +2,7 @@
 using MultiplayerVector = Jitter.LinearMath.JVector;
 using SocialPoint.Attributes;
 
-namespace SocialPoint.Pathfinding
+namespace SocialPoint.Multiplayer
 {
     public static class MultiplayerModelExtensions
     {
