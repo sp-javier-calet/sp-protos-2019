@@ -1,5 +1,6 @@
 ﻿// FIXME Temp code for testing with the ML Backend
-#define FORCE_TEST_USER
+//#define FORCE_LOD_USER_1
+#define FORCE_LOD_USER_2
 
 using System;
 using SocialPoint.AppEvents;
@@ -518,19 +519,33 @@ namespace SocialPoint.Social
         void SendHello()
         {
             // FIXME Test code
-            #if FORCE_TEST_USER
+            #if FORCE_LOD_USER_1
             var dicDetails = new AttrDic();
-            dicDetails.SetValue("user_id", 3129103608223530612L);//LoginData.UserId);
-            dicDetails.SetValue("security_token", "22988243147218787487012528873097");//LoginData.SecurityToken);
+            dicDetails.SetValue("user_id", 200001);//LoginData.UserId);
+            dicDetails.SetValue("security_token", "18094023679616948036931678079514");//LoginData.SecurityToken);
 
             #if ADMIN_PANEL
             dicDetails.SetValue("privileged_token", "");//LoginData.PrivilegeToken);
             #endif
 
-            dicDetails.SetValue("device_uid", "a66ce5d5-8dbc-4ac4-9104-9d1b3b2261ae");//DeviceInfo.Uid);
+            dicDetails.SetValue("device_uid", "72a488a5-aa00-4187-8ace-e7afd1069532");//DeviceInfo.Uid);
             dicDetails.SetValue("country", "ES");//DeviceInfo.AppInfo.Country);
             dicDetails.SetValue("platform", "android");//DeviceInfo.Platform);
-            dicDetails.SetValue("language", "es");//Localization.Language);
+            dicDetails.SetValue("language", "ca");//Localization.Language);
+
+            #elif FORCE_LOD_USER_2
+            var dicDetails = new AttrDic();
+            dicDetails.SetValue("user_id", 200002);//LoginData.UserId);
+            dicDetails.SetValue("security_token", "18094023679616948036931678079514");//LoginData.SecurityToken);
+
+            #if ADMIN_PANEL
+            dicDetails.SetValue("privileged_token", "");//LoginData.PrivilegeToken);
+            #endif
+
+            dicDetails.SetValue("device_uid", "72a488a5-aa00-4187-8ace-e7afd1069532");//DeviceInfo.Uid);
+            dicDetails.SetValue("country", "ES");//DeviceInfo.AppInfo.Country);
+            dicDetails.SetValue("platform", "android");//DeviceInfo.Platform);
+            dicDetails.SetValue("language", "ca");//Localization.Language);
 
             #else
             var dicDetails = new AttrDic();

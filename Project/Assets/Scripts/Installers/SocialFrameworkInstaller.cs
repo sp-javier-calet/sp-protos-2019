@@ -13,7 +13,7 @@ using SocialPoint.WebSockets;
 public class SocialFrameworkInstaller : Installer
 {
     const string SocialFrameworkTag = "social_framework";
-    const string DefaultEndpoint = "ws://int-mc-sprocket.socialpointgames.com:8050/ws";
+    const string DefaultEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8001/ws";
 
     //readonly string[] DefaultProtocols = new string[] { "wamp.2.json" }; // FIXME
 
