@@ -49,7 +49,13 @@ namespace SocialPoint.WebSockets
 
         void OnSocketError(object sender, WebSocketSharp.ErrorEventArgs e)
         {
-            _dispatcher.NotifyError(string.Format("{0}. {1}", e.Message, e.Exception.GetBaseException().Message)); // FIXME
+            var msg = e.Message;
+            var baseException = e.Exception.GetBaseException();
+            if(baseException != null)
+            {
+                msg = string.Format("{0}. Reason: {1}", e.Message, baseException.Message);
+            }
+            _dispatcher.NotifyError(msg);
         }
 
         void OnSocketClosed(object sender, WebSocketSharp.CloseEventArgs e)
