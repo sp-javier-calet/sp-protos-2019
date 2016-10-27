@@ -13,6 +13,9 @@ namespace SocialPoint.Social
         AdminPanelLayout _layout;
         AdminPanelConsole _console;
 
+        AdminPanelSocialFrameworkUser _userPanel;
+        AdminPanelSocialFrameworkChat _chatPanel;
+
         public AdminPanelSocialFramework(ConnectionManager connection, ChatManager chat)
         {
             _connection = connection;
@@ -23,6 +26,10 @@ namespace SocialPoint.Social
         {
             _console = adminPanel.Console;
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Social Framework", this));
+
+            // Cache nested panel
+            _userPanel = new AdminPanelSocialFrameworkUser(_connection);
+            _chatPanel = new AdminPanelSocialFrameworkChat(_chat);
         }
 
         public void OnOpened()
@@ -43,11 +50,18 @@ namespace SocialPoint.Social
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             _layout = layout;
+
             layout.CreateLabel("Social Framework");
             layout.CreateMargin();
 
-            layout.CreateToggleButton("Connect", _connection.IsConnected, value => {
-                if(value)
+            var connectLabel = _connection.IsConnecting ? "Connecting..." : "Connect";
+            layout.CreateToggleButton(connectLabel, _connection.IsConnected, value => {
+                // Abort connection
+                if(_connection.IsConnecting)
+                {
+                    _connection.Disconnect();
+                }
+                else if(value)
                 {
                     _connection.Connect();
                 }
@@ -57,17 +71,13 @@ namespace SocialPoint.Social
                 }
                 layout.Refresh();
             });
-            layout.CreateButton("Abort", () => {
-                _connection.Disconnect();
-                layout.Refresh();
-            }, _connection.IsConnecting);
-
-            layout.CreateOpenPanelButton("User", new AdminPanelSocialFrameworkUser(_connection), !_connection.IsConnected);
-            layout.CreateOpenPanelButton("Chat", new AdminPanelSocialFrameworkChat(_chat), _chat != null && _connection.IsConnected);
-
+            layout.CreateOpenPanelButton("User", _userPanel, !_connection.IsConnected);
             layout.CreateToggleButton("Debug Mode", _connection.DebugEnabled, value => {
                 _connection.DebugEnabled = value;
             });
+            layout.CreateMargin();
+
+            layout.CreateOpenPanelButton("Chat", _chatPanel, _chat != null && _connection.IsConnected);
         }
 
         void OnConnected()
@@ -137,8 +147,8 @@ namespace SocialPoint.Social
 
             Dictionary<string, ConnectionManager.UserData> _users = new Dictionary<string, ConnectionManager.UserData> {
                 { "Current User", default(ConnectionManager.UserData) },
-                { "LoD User 1", new ConnectionManager.UserData(200001, "18094023679616948036931678079514") }, // "72a488a5-aa00-4187-8ace-e7afd1069532"
-                { "LoD User 2", new ConnectionManager.UserData(200002, "18094023679616948036931678079514") } // "72a488a5-aa00-4187-8ace-e7afd1069532"
+                { "LoD User 1", new ConnectionManager.UserData(200001L, "18094023679616948036931678079514") },
+                { "LoD User 2", new ConnectionManager.UserData(200002L, "18094023679616948036931678079514") }
             };
 
             public AdminPanelSocialFrameworkUser(ConnectionManager connection)
@@ -158,6 +168,8 @@ namespace SocialPoint.Social
                     CreateUserSelector(layout, entry.Key, entry.Value);
                 }
                 itr.Dispose();
+
+                CreateUserInfo(layout, _selected);
             }
 
             void CreateUserSelector(AdminPanelLayout layout, string label, ConnectionManager.UserData user)
@@ -167,6 +179,22 @@ namespace SocialPoint.Social
                     _connection.ForcedUser = _selected;
                     layout.Refresh();
                 });
+            }
+
+            void CreateUserInfo(AdminPanelLayout layout, ConnectionManager.UserData user)
+            {
+                var content = new StringBuilder();
+
+                if(user != null)
+                {
+                    content.AppendLine("UserId" + user.UserId);
+                }
+                else
+                {
+                    content.AppendLine("Current logged user");
+                }
+
+                layout.CreateVerticalScrollLayout().CreateTextArea(content.ToString());
             }
         }
 

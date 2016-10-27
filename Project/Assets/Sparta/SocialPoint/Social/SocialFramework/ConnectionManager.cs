@@ -103,7 +103,6 @@ namespace SocialPoint.Social
             public string SecurityToken;
             public string PrivilegeToken;
 
-
             public UserData(ulong userId, string securityToken)
             {
                 UserId = userId;
@@ -545,7 +544,7 @@ namespace SocialPoint.Social
             var data = ForcedUser ?? new UserData(LoginData);
 
             var dicDetails = new AttrDic();
-            dicDetails.SetValue("user_id", data.UserId);
+            dicDetails.SetValue("user_id", (long)data.UserId);
             dicDetails.SetValue("security_token", data.SecurityToken);
 
             #if ADMIN_PANEL
