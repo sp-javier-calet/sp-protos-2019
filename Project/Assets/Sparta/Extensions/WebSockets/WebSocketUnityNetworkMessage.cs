@@ -1,7 +1,8 @@
 ﻿using System.IO;
 using SocialPoint.IO;
+using SocialPoint.Network;
 
-namespace SocialPoint.Network
+namespace SocialPoint.WebSockets
 {
     public class WebSocketUnityNetworkMessage : INetworkMessage
     {
