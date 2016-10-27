@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using SocialPoint.GUIControl;
-using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -37,16 +35,7 @@ namespace SocialPoint.AdminPanel
                 throw new InvalidOperationException("Admin panel not set.");
             }
 
-            AdminPanel.Console.OnContentChanged += () => {
-                if(_consoleText != null)
-                {
-                    _consoleText.text = AdminPanel.Console.Content;
-                    if(AdminPanel.Console.FixedFocus)
-                    {
-                        _consoleScroll.verticalNormalizedPosition = 0.0f;
-                    }
-                }
-            };
+            AdminPanel.Console.OnContentChanged += OnContentChanged;
         }
 
         void InflateGUI()
@@ -69,12 +58,23 @@ namespace SocialPoint.AdminPanel
 
             // Console panel
             _consolePanel = rightVerticalLayout.CreatePanelLayout();
-            using(var scrollLayout = _consolePanel.CreateVerticalScrollLayout(out _consoleScroll))
-            {
-                scrollLayout.CreateLabel("Console");
-                _consoleText = scrollLayout.CreateTextArea(AdminPanel.Console.Content);
-            }
+            var scrollLayout = _consolePanel.CreateVerticalScrollLayout(out _consoleScroll);
+            scrollLayout.CreateLabel("Console");
+            _consoleText = scrollLayout.CreateTextArea(AdminPanel.Console.Content);
+
             _consolePanel.SetActive(false);
+        }
+
+        void OnContentChanged()
+        {
+            if(_consoleText != null)
+            {
+                _consoleText.text = AdminPanel.Console.Content;
+                if(AdminPanel.Console.FixedFocus)
+                {
+                    _consoleScroll.verticalNormalizedPosition = 0.0f;
+                }
+            }
         }
 
         void CreateConsoleButton(AdminPanelLayout layout)

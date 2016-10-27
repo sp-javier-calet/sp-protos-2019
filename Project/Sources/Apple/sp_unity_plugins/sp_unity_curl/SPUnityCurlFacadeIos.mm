@@ -1,57 +1,60 @@
 #import <UIKit/UIKit.h>
-#include "SPUnityCurlFacade.h"
-#include "SPUnityCurlManager.h"
 #include <mutex>
+#include "CurlClient.hpp"
 
 UIBackgroundTaskIdentifier bgTask = UIBackgroundTaskInvalid;
+std::mutex appPausedMutex;
+bool appPaused = false;
 
-std::mutex AppPaused_mutex;
-bool AppPaused = false;
-
-void SPUnityCurlEndBackgroundTask()
+extern "C"
 {
-    if(bgTask != UIBackgroundTaskInvalid)
+    void SPUnityCurlEndBackgroundTask()
     {
+        if(bgTask != UIBackgroundTaskInvalid)
+        {
+            UIApplication* app = [UIApplication sharedApplication];
+            [app endBackgroundTask:bgTask];
+            bgTask = UIBackgroundTaskInvalid;
+        }
+    }
+    
+    void SPUnityCurlOnApplicationPause(CurlClient* client, bool paused)
+    {
+        std::lock_guard<std::mutex> lk(appPausedMutex);
+        appPaused = paused;
+        
+        if(!client->isRunning())
+        {
+            return;
+        }
+        
         UIApplication* app = [UIApplication sharedApplication];
-        [app endBackgroundTask:bgTask];
-        bgTask = UIBackgroundTaskInvalid;
-    }
-}
-
-EXPORT_API void SPUnityCurlOnApplicationPause(bool paused)
-{
-    std::lock_guard<std::mutex> lk(AppPaused_mutex);
-    AppPaused = paused;
-    if(SPUnityCurlRunning() == 0)
-    {
-        return;
-    }
-    UIApplication* app = [UIApplication sharedApplication];
-    if(paused)
-    {
-        bgTask = [app beginBackgroundTaskWithName:@"SPUnityCurl"
-                                expirationHandler:^{
-                                  SPUnityCurlEndBackgroundTask();
-                                }];
-
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-          while(SPUnityCurlRunning() > 0)
-          {
-              std::lock_guard<std::mutex> lk(AppPaused_mutex);
-              if(AppPaused)
-              {
-                  SPUnityCurlUpdate(0);
-              }
-              else
-              {
-                  break;
-              }
-          }
-          SPUnityCurlEndBackgroundTask();
-        });
-    }
-    else
-    {
-        SPUnityCurlEndBackgroundTask();
+        if(paused)
+        {
+            bgTask = [app beginBackgroundTaskWithName:@"SPUnityCurl"
+                                    expirationHandler:^{
+                                        SPUnityCurlEndBackgroundTask();
+                                    }];
+            
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                while(client->isRunning())
+                {
+                    std::lock_guard<std::mutex> lk(appPausedMutex);
+                    if(appPaused)
+                    {
+                        client->update();
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                SPUnityCurlEndBackgroundTask();
+            });
+        }
+        else
+        {
+            SPUnityCurlEndBackgroundTask();
+        }
     }
 }

@@ -31,7 +31,6 @@ namespace SocialPoint.QualityStats
 
         public void Dispose()
         {
-            _client.Dispose();
         }
 
         [Obsolete]

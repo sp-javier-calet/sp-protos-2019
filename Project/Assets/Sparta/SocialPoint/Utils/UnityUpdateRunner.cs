@@ -1,7 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Text;
 using SocialPoint.Base;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -18,7 +16,7 @@ namespace SocialPoint.Utils
 
     public sealed class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler
     {
-        UpdateScheduler _scheduler = new UpdateScheduler();
+        readonly UpdateScheduler _scheduler = new UpdateScheduler();
 
         public void Add(IUpdateable elm)
         {

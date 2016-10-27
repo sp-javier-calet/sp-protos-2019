@@ -1,11 +1,11 @@
-using System;
+﻿using System;
+using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 using SocialPoint.AppEvents;
 using SocialPoint.Hardware;
-using SocialPoint.AdminPanel;
-using SocialPoint.WAMP;
+
 #if UNITY_EDITOR
 using UnityEditor;
 
@@ -27,34 +27,100 @@ public class HttpClientInstaller : Installer
     public class SettingsData
     {
         public string Config = "basegame";
+        public bool EnableHttpStreamPinning = false;
     }
 
     public SettingsData Settings = new SettingsData();
 
+    string _httpProxy;
+    IDeviceInfo _deviceInfo;
+
     public override void InstallBindings()
     {
-        Container.Rebind<HttpClient>().ToMethod<HttpClient>(CreateHttpClient);
-        Container.Rebind<IHttpClient>("internal").ToLookup<HttpClient>();
-        Container.Rebind<IHttpClient>().ToLookup<HttpClient>();
+        _httpProxy = EditorProxy.GetProxy();
+        _deviceInfo = Container.Resolve<IDeviceInfo>();
+
+        // Http Client
+        if(Curl.IsSupported)
+        {
+            Container.Rebind<CurlHttpClient>().ToMethod<CurlHttpClient>(CreateCurlHttpClient);
+            Container.Rebind<IHttpClient>("internal").ToLookup<CurlHttpClient>();
+            Container.Rebind<IHttpClient>().ToLookup<CurlHttpClient>();
+        }
+        else
+        {
+            Container.Rebind<WebRequestHttpClient>().ToMethod<WebRequestHttpClient>(CreateWebRequestHttpClient);
+            Container.Rebind<IHttpClient>("internal").ToLookup<WebRequestHttpClient>();
+            Container.Rebind<IHttpClient>().ToLookup<WebRequestHttpClient>(); 
+        }
+
         Container.Bind<IDisposable>().ToLookup<IHttpClient>();
 
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWAMP>(CreateAdminPanelWAMP);
+        // Http Stream Client
+        if(Curl.IsSupported)
+        {
+            Container.Bind<CurlHttpStreamClient>().ToMethod<CurlHttpStreamClient>(CreateStreamClient);    
+            Container.Rebind<IHttpStreamClient>().ToLookup<CurlHttpStreamClient>(); 
+            Container.Bind<IDisposable>().ToLookup<IHttpStreamClient>();
+
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelHttpStream>(CreateAdminPanel);
+        }
     }
 
-    HttpClient CreateHttpClient()
+    CurlHttpClient CreateCurlHttpClient()
     {
-        string proxy = EditorProxy.GetProxy();
-        var client = new HttpClient(
-            Container.Resolve<ICoroutineRunner>(), proxy,
-            Container.Resolve<IDeviceInfo>(),
-            Container.Resolve<IAppEvents>()
-        );
+        var client = new CurlHttpClient(
+                         Container.Resolve<ICoroutineRunner>()
+                     );
+
+        client.AppEvents = Container.Resolve<IAppEvents>();
+
+        client.RequestSetup += OnRequestSetup;
         client.Config = Settings.Config;
         return client;
     }
 
-    AdminPanelWAMP CreateAdminPanelWAMP()
+    WebRequestHttpClient CreateWebRequestHttpClient()
     {
-        return new AdminPanelWAMP();
+        var client = new WebRequestHttpClient(
+                         Container.Resolve<ICoroutineRunner>()
+                     );
+
+        client.RequestSetup += OnRequestSetup;
+        client.Config = Settings.Config;
+        return client;
+    }
+
+    CurlHttpStreamClient CreateStreamClient()
+    {
+        var client = new CurlHttpStreamClient(
+                         Container.Resolve<ICoroutineRunner>(),
+                         Container.Resolve<IAppEvents>()
+                     );
+
+        client.RequestSetup += OnRequestSetup;
+        if(Settings.EnableHttpStreamPinning)
+        {
+            client.Config = Settings.Config;
+        }
+        return client;
+    }
+
+    void OnRequestSetup(HttpRequest req)
+    {
+        if(string.IsNullOrEmpty(req.Proxy) && !string.IsNullOrEmpty(_httpProxy))
+        {
+            req.Proxy = _httpProxy;
+        }
+        if(string.IsNullOrEmpty(req.Proxy) && _deviceInfo.NetworkInfo.Proxy != null)
+        {
+            req.Proxy = _deviceInfo.NetworkInfo.Proxy.ToString();
+        }
+    }
+
+    AdminPanelHttpStream CreateAdminPanel()
+    {
+        return new AdminPanelHttpStream(
+            Container.Resolve<CurlHttpStreamClient>());
     }
 }

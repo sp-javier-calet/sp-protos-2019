@@ -143,7 +143,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     void AddPhysicsWorld()
     {
         _physicsWorld = new PhysicsWorld(true);
-
         _controller.AddBehaviour(_physicsWorld);
     }
 
