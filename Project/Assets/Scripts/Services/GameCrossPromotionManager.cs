@@ -1,14 +1,12 @@
 ﻿using UnityEngine;
 using SocialPoint.CrossPromotion;
-using SocialPoint.AppEvents;
-using SocialPoint.ServerEvents;
 using SocialPoint.Utils;
 
-public class CrossPromotionManager : SocialPoint.CrossPromotion.CrossPromotionManager
+public class GameCrossPromotionManager : CrossPromotionManager
 {
     PopupsController _popupsController;
 
-    public CrossPromotionManager(ICoroutineRunner coroutineRunner, PopupsController popupsController) :
+    public GameCrossPromotionManager(ICoroutineRunner coroutineRunner, PopupsController popupsController) :
         base(coroutineRunner)
     {
         _popupsController = popupsController;

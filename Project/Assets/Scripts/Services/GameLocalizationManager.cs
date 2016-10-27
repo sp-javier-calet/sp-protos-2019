@@ -4,12 +4,12 @@ using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.ScriptEvents;
 
-public class LocalizationManager : SocialPoint.Locale.LocalizationManager
+public class GameLocalizationManager : LocalizationManager
 {
     readonly IEventDispatcher _dispatcher;
     LocalizeAttributeConfiguration _localizeAttributeConfig;
 
-    public LocalizationManager(IHttpClient client, IAppInfo appInfo, Localization locale, LocalizeAttributeConfiguration attrConfig, IEventDispatcher dispatcher) :
+    public GameLocalizationManager(IHttpClient client, IAppInfo appInfo, Localization locale, LocalizeAttributeConfiguration attrConfig, IEventDispatcher dispatcher) :
         base(client, appInfo, locale)
     {
         _localizeAttributeConfig = attrConfig;
