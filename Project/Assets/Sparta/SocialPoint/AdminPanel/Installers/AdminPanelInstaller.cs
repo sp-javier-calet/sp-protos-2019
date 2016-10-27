@@ -3,10 +3,8 @@ using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
 using SocialPoint.Profiling;
 using SocialPoint.Attributes;
-using FlyingWormConsole3;
-using UnityEngine;
 
-public class AdminPanelInstaller : Installer, IInitializable
+public class AdminPanelInstaller : Installer//, IInitializable
 {
     public override void InstallBindings()
     {
@@ -18,7 +16,7 @@ public class AdminPanelInstaller : Installer, IInitializable
 
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelProfiler>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAttributes>();
-        Container.BindUnityComponent<ConsoleProRemoteServer>();
+        //Container.BindUnityComponent<ConsoleProRemoteServer>();
 #endif
     }
 
@@ -28,8 +26,9 @@ public class AdminPanelInstaller : Installer, IInitializable
             Container.ResolveList<IAdminPanelConfigurer>());
     }
 
+    /* TODO Console Pro installer
     public void Initialize()
     {
         Container.Resolve<ConsoleProRemoteServer>();
-    }
+    }*/
 }
