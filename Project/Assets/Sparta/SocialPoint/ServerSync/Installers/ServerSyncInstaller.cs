@@ -59,8 +59,6 @@ public class ServerSyncInstaller : SubInstaller
         queue.TrackEvent = Container.Resolve<IEventTracker>().TrackEvent;
         queue.LoginData = Container.Resolve<ILoginData>();
         queue.CommandReceiver = Container.Resolve<CommandReceiver>();
-        //TODO Install a common interface from game code
-        //queue.AutoSync = Container.Resolve<IGameLoader>().OnAutoSync;
         Container.Resolve<IGameErrorHandler>().Setup(queue);
     }
 

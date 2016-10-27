@@ -1,14 +1,11 @@
 using System;
 using SocialPoint.Dependency;
-using SocialPoint.Attributes;
 using SocialPoint.ServerEvents;
 using SocialPoint.Login;
 using SocialPoint.ServerSync;
 using SocialPoint.Crash;
 using SocialPoint.AdminPanel;
-using SocialPoint.AppEvents;
 using SocialPoint.ServerMessaging;
-using System.Text;
 
 public class EmptyBackendInstaller : Installer, IInitializable
 {

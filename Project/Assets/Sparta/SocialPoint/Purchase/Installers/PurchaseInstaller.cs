@@ -12,8 +12,6 @@ public class PurchaseInstaller : Installer
     public override void InstallBindings()
     {
         Container.Rebind<IGamePurchaseStore>().ToMethod<SocialPointPurchaseStore>(CreatePurchaseStore, SetupPurchaseStore);
-        // TODO GAME CODE
-        //Container.Bind<IStoreProductSource>().ToGetter<ConfigModel>((Config) => Config.Store);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelPurchase>(CreateAdminPanel);
     }
 
@@ -37,8 +35,5 @@ public class PurchaseInstaller : Installer
     {
         store.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
         store.LoginData = Container.Resolve<ILoginData>();
-
-        //var model = Container.Resolve<StoreModel>();
-        //model.PurchaseStore = store;
     }
 }

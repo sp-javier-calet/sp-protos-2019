@@ -1,13 +1,9 @@
-using UnityEngine;
 using System;
 using SocialPoint.Dependency;
-using SocialPoint.AppEvents;
-using SocialPoint.ServerSync;
 using SocialPoint.AdminPanel;
 using SocialPoint.Notifications;
-using SocialPoint.Utils;
 
-public class NotificationInstaller : SubInstaller//, IInitializable
+public class NotificationInstaller : SubInstaller, IInitializable
 {
     [Serializable]
     public class SettingsData
@@ -31,8 +27,6 @@ public class NotificationInstaller : SubInstaller//, IInitializable
         Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
 #endif
 
-        //Container.Rebind<GameNotificationManager>().ToMethod<GameNotificationManager>(CreateNotificationManager);
-        //Container.Bind<IDisposable>().ToMethod<GameNotificationManager>(CreateNotificationManager);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelNotifications>(CreateAdminPanel);
     }
 
@@ -42,13 +36,14 @@ public class NotificationInstaller : SubInstaller//, IInitializable
 #if UNITY_IOS
     IosNotificationServices CreateIosNotificationServices()
     {
-        return new IosNotificationServices(Container.Resolve<ICoroutineRunner>());
+        return new IosNotificationServices(Container.Resolve<SocialPoint.Utils.ICoroutineRunner>());
     }
+
 
 #elif UNITY_ANDROID
     AndroidNotificationServices CreateAndroidNotificationServices()
     {
-        return new AndroidNotificationServices(Container.Resolve<ICoroutineRunner>());
+        return new AndroidNotificationServices(Container.Resolve<SocialPoint.Utils.ICoroutineRunner>());
     }
 #endif
     
@@ -60,25 +55,12 @@ public class NotificationInstaller : SubInstaller//, IInitializable
             Container.Resolve<INotificationServices>());
     }
 
-    /*
-    GameNotificationManager CreateNotificationManager()
-    {
-        return new GameNotificationManager(
-            Container.Resolve<INotificationServices>(),
-            Container.Resolve<IAppEvents>(),
-            Container.Resolve<ICommandQueue>()
-        );
-    }
-
     public void Initialize()
     {
-        Container.Resolve<GameNotificationManager>();
         var services = Container.Resolve<INotificationServices>();
         if(Settings.AutoRegisterForRemote)
         {
             services.RequestPermissions();
         }
     }
-        */
-
 }

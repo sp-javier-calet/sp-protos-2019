@@ -38,6 +38,7 @@ public class GUIInstaller : Installer, IInitializable, IDisposable
         if(popups != null)
         {
             Container.Rebind<PopupsController>().ToInstance(popups);
+            Container.Rebind<UIStackController>().ToLookup<PopupsController>();
         }
         var screens = _root.GetComponentInChildren<ScreensController>();
         if(screens != null)

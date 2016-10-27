@@ -1,10 +1,5 @@
 ﻿using System;
 using SocialPoint.Dependency;
-using SocialPoint.Attributes;
-using SocialPoint.ServerEvents;
-using SocialPoint.Login;
-using SocialPoint.ServerSync;
-using SocialPoint.Crash;
 
 public class RealBackendInstaller : Installer
 {

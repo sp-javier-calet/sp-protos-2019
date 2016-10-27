@@ -4,19 +4,17 @@ using SocialPoint.Utils;
 using SocialPoint.Profiling;
 using SocialPoint.Attributes;
 
-public class AdminPanelInstaller : Installer//, IInitializable
+public class AdminPanelInstaller : Installer
 {
     public override void InstallBindings()
     {
 #if (ADMIN_PANEL && !NO_ADMIN_PANEL) || UNITY_EDITOR
-        Container.Bind<IInitializable>().ToInstance(this);
         Container.Rebind<AdminPanel>().ToMethod<AdminPanel>(CreateAdminPanel);
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLog>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelApplication>();
 
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelProfiler>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAttributes>();
-        //Container.BindUnityComponent<ConsoleProRemoteServer>();
 #endif
     }
 
@@ -25,10 +23,4 @@ public class AdminPanelInstaller : Installer//, IInitializable
         return new AdminPanel(
             Container.ResolveList<IAdminPanelConfigurer>());
     }
-
-    /* TODO Console Pro installer
-    public void Initialize()
-    {
-        Container.Resolve<ConsoleProRemoteServer>();
-    }*/
 }
