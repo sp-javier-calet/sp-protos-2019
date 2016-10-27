@@ -57,13 +57,13 @@ namespace Photon.Hive.Plugin.Authoritative
             UseStrictMode = true;
             _delegates = new List<INetworkServerDelegate>();
             _netServer = new NetworkServerSceneController(this);
-            _gameServer = new GameMultiplayerServerBehaviour(this, _netServer, new EmptyPhysicsDebugger());
+            _gameServer = new GameMultiplayerServerBehaviour(this, _netServer);
         }
 
         byte GetClientId(string userId)
         {
             var actors = PluginHost.GameActors;
-            for(var i=0; i<actors.Count; i++)
+            for(var i = 0; i < actors.Count; i++)
             {
                 var actor = actors[i];
                 if (actor.UserId == userId)
@@ -82,7 +82,7 @@ namespace Photon.Hive.Plugin.Authoritative
         public override void OnCloseGame(ICloseGameCallInfo info)
         {
             PluginHost.StopTimer(_timer);
-            ((INetworkServerDelegate)_netServer).OnServerStopped();
+            ((INetworkServer)this).Stop();
             info.Continue();
         }
 
@@ -97,6 +97,10 @@ namespace Photon.Hive.Plugin.Authoritative
                 { (int)MasterClientIdKey, 0 },
                 { ServerIdRoomProperty, 0 },
             }, null, false);
+
+            ((INetworkServer)this).Start();
+            _timer = PluginHost.CreateTimer(Update, 0, _updateIntervalMs);
+
             var clientId = GetClientId(info.UserId);
             OnClientConnected(clientId);
         }
@@ -219,8 +223,6 @@ namespace Photon.Hive.Plugin.Authoritative
                 return false;
             }
 
-            ((INetworkServerDelegate)_netServer).OnServerStarted();
-
             string navmeshPath = typeof(AuthoritativePlugin).Assembly.Location + _navMeshFileLocation;
             if (!_gameServer.LoadNavMesh(navmeshPath, out errorMsg))
             {
@@ -228,7 +230,6 @@ namespace Photon.Hive.Plugin.Authoritative
                 return false;
             }
 
-            _timer = PluginHost.CreateTimer(Update, 0, _updateIntervalMs);
             return true;
         }
 
@@ -268,11 +269,19 @@ namespace Photon.Hive.Plugin.Authoritative
         }
 
         void INetworkServer.Start()
-        {   
+        {
+            for (var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnServerStarted();
+            }
         }
 
         void INetworkServer.Stop()
-        { 
+        {
+            for (var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnServerStopped();
+            }
         }
 
         INetworkMessage INetworkServer.CreateMessage(NetworkMessageData info)
