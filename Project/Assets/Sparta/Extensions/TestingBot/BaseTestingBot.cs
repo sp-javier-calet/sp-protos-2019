@@ -38,7 +38,6 @@ namespace SocialPoint.TestingBot
             var eventSystem = UnityEngine.EventSystems.EventSystem.current;
             if(eventSystem != null)
             {
-                Debug.Log("EventSystem found!");
                 return eventSystem.GetComponent<TestableActionStandaloneInputModule>();
             }
             return null;
