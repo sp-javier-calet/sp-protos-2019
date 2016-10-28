@@ -37,6 +37,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToSingle<T>() where T : F, new()
         {
+            DependencyTree.AddBinding(typeof(F), typeof(T), _tag);
             _toType = ToType.Single;
             _type = typeof(T);
             return this;
@@ -44,6 +45,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToInstance<T>(T instance) where T : F
         {
+            DependencyTree.AddBinding(typeof(F), typeof(T), _tag);
             _toType = ToType.Single;
             _instance = instance;
             return this;
@@ -51,6 +53,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToLookup<T>(string tag = null) where T : F
         {
+            DependencyTree.AddLookup(typeof(F), _tag, typeof(T), tag);
             _toType = ToType.Lookup;
             _type = typeof(T);
             _tag = tag;
@@ -60,6 +63,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToMethod<T>(Func<T> method, Action<T> setup = null) where T : F
         {
+            DependencyTree.AddBinding(typeof(F), typeof(T), _tag);
             _type = typeof(T);
             _method = () => method();
             _toType = ToType.Method;
@@ -74,6 +78,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToGetter<T>(Func<T,F> method, string tag = null)
         {
+            DependencyTree.AddLookup(typeof(F), typeof(T), _tag);
             _type = typeof(T);
             _getter = t => method((T)t);
             _toType = ToType.Method;
@@ -194,6 +199,7 @@ namespace SocialPoint.Dependency
             var key = new BindingKey(typeof(T), tag);
             DisposeInstances(key);
             var removed = _bindings.Remove(key);
+            DependencyTree.Remove(type.Name, tag);
             Log.v(Tag, string.Format("Removed binding <{0}> for type `{1}`. {2}", tag, typeof(T).Name, removed ? "Success" : "Failed"));
             return removed;
         }
@@ -218,6 +224,7 @@ namespace SocialPoint.Dependency
 
         public void Install(IInstaller installer)
         {
+            DependencyTree.OnInstall(installer.GetType());
             installer.Container = this;
             installer.InstallBindings();
             _installed.Add(installer);
@@ -245,6 +252,7 @@ namespace SocialPoint.Dependency
 
         public object Resolve(Type type, string tag = null, object def = null)
         {
+            DependencyTree.OnResolve(type, tag);
             List<IBinding> bindings;
             object result = def;
             if(_bindings.TryGetValue(new BindingKey(type, tag), out bindings))
