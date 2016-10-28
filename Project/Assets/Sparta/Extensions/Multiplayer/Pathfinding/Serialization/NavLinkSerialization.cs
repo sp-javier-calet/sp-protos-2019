@@ -3,11 +3,11 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Pathfinding
 {
-    public class NavLinkSerializer : SimpleWriteSerializer<Link>
+    public class NavLinkSerializer : IWriteSerializer<Link>
     {
         public static readonly NavLinkSerializer Instance = new NavLinkSerializer();
 
-        public override void Serialize(Link value, IWriter writer)
+        public void Serialize(Link value, IWriter writer)
         {
             writer.Write(value.Reference.Id);
             writer.Write(value.Edge);
@@ -17,11 +17,11 @@ namespace SocialPoint.Pathfinding
         }
     }
 
-    public class NavLinkParser : SimpleReadParser<Link>
+    public class NavLinkParser : IReadParser<Link>
     {
         public static readonly NavLinkParser Instance = new NavLinkParser();
 
-        public override Link Parse(IReader reader)
+        public Link Parse(IReader reader)
         {
             var link = new Link();
             link.Reference = new NavPolyId(reader.ReadInt32());

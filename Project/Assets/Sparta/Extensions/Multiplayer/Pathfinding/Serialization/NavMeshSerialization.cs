@@ -11,11 +11,11 @@ using SocialPoint.IO;
 /// </summary>
 namespace SocialPoint.Pathfinding
 {
-    public class NavMeshSerializer : SimpleWriteSerializer<TiledNavMesh>
+    public class NavMeshSerializer : IWriteSerializer<TiledNavMesh>
     {
         public static readonly NavMeshSerializer Instance = new NavMeshSerializer();
 
-        public override void Serialize(TiledNavMesh mesh, IWriter writer)
+        public void Serialize(TiledNavMesh mesh, IWriter writer)
         {
             NavVector3Serializer.Instance.Serialize(mesh.Origin, writer);
             writer.Write(mesh.TileWidth);
@@ -63,11 +63,11 @@ namespace SocialPoint.Pathfinding
         }
     }
 
-    public class NavMeshParser : SimpleReadParser<TiledNavMesh>
+    public class NavMeshParser : IReadParser<TiledNavMesh>
     {
         public static readonly NavMeshParser Instance = new NavMeshParser();
 
-        public override TiledNavMesh Parse(IReader reader)
+        public TiledNavMesh Parse(IReader reader)
         {
             Vector3 origin = NavVector3Parser.Instance.Parse(reader);
             float tileWidth = reader.ReadSingle();
