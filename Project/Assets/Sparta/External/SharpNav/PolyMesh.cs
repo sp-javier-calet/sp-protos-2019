@@ -139,8 +139,8 @@ namespace SharpNav
 
                     //make sure there are three distinct vertices. anything less can't be a polygon.
                     if(ti.Index0 == ti.Index1
-                        || ti.Index0 == ti.Index2
-                        || ti.Index1 == ti.Index2)
+                       || ti.Index0 == ti.Index2
+                       || ti.Index1 == ti.Index2)
                         continue;
 
                     //each polygon has numVertsPerPoly
@@ -459,9 +459,9 @@ namespace SharpNav
                     int p1 = RemoveDiagonalFlag(indices[k1]);
 
                     if(PolyVertex.Equal2D(ref verts[d0], ref verts[p0]) ||
-                    PolyVertex.Equal2D(ref verts[d1], ref verts[p0]) ||
-                    PolyVertex.Equal2D(ref verts[d0], ref verts[p1]) ||
-                    PolyVertex.Equal2D(ref verts[d1], ref verts[p1]))
+                       PolyVertex.Equal2D(ref verts[d1], ref verts[p0]) ||
+                       PolyVertex.Equal2D(ref verts[d0], ref verts[p1]) ||
+                       PolyVertex.Equal2D(ref verts[d1], ref verts[p1]))
                         continue;
 
                     if(PolyVertex.Intersect(ref verts[d0], ref verts[d1], ref verts[p0], ref verts[p1]))
@@ -594,7 +594,8 @@ namespace SharpNav
                     {
                         int i1 = Next(i, n);
                         int i2 = Next(i1, n);
-                        if(DiagonalieLoose(i, i2, verts, indices))
+                        //[SP-Change]: Previously was DiagonalieLoose, CPP code is DiagonalLoose
+                        if(DiagonalLoose(i, i2, verts, indices))
                         {
                             int p0 = RemoveDiagonalFlag(indices[i]);
                             int p2 = RemoveDiagonalFlag(indices[Next(i2, n)]);
@@ -1219,9 +1220,9 @@ namespace SharpNav
                     int p1 = RemoveDiagonalFlag(indices[k1]);
 
                     if(PolyVertex.Equal2D(ref verts[d0], ref verts[p0]) ||
-                    PolyVertex.Equal2D(ref verts[d1], ref verts[p0]) ||
-                    PolyVertex.Equal2D(ref verts[d0], ref verts[p1]) ||
-                    PolyVertex.Equal2D(ref verts[d1], ref verts[p1]))
+                       PolyVertex.Equal2D(ref verts[d1], ref verts[p0]) ||
+                       PolyVertex.Equal2D(ref verts[d0], ref verts[p1]) ||
+                       PolyVertex.Equal2D(ref verts[d1], ref verts[p1]))
                         continue;
 
                     if(PolyVertex.IntersectProp(ref verts[d0], ref verts[d1], ref verts[p0], ref verts[p1]))
