@@ -64,17 +64,8 @@
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\EmptyPhysicsDebugger.cs">
       <Link>Lib\Multiplayer\EmptyPhysicsDebugger.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\INetworkActionDelegate.cs">
-      <Link>Lib\Multiplayer\INetworkActionDelegate.cs</Link>
-    </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\MatrixSerialization.cs">
       <Link>Lib\Multiplayer\MatrixSerialization.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkActionData.cs">
-      <Link>Lib\Multiplayer\NetworkActionData.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkActionUtils.cs">
-      <Link>Lib\Multiplayer\NetworkActionUtils.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkClientSceneController.cs">
       <Link>Lib\Multiplayer\NetworkClientSceneController.cs</Link>
@@ -84,6 +75,9 @@
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkScene.cs">
       <Link>Lib\Multiplayer\NetworkScene.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkSceneAction.cs">
+      <Link>Lib\Multiplayer\NetworkSceneAction.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkSceneEvents.cs">
       <Link>Lib\Multiplayer\NetworkSceneEvents.cs</Link>
@@ -607,6 +601,9 @@
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\INetworkServer.cs">
       <Link>Lib\Network\INetworkServer.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\ActionHandler.cs">
+      <Link>Lib\Utils\ActionHandler.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\CryptographyUtils.cs">
       <Link>Lib\Utils\CryptographyUtils.cs</Link>
     </Compile>
@@ -632,20 +629,17 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\.sparta_module">
+      <Link>Lib\Multiplayer\.sparta_module</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Editor.meta">
+      <Link>Lib\Multiplayer\Editor.meta</Link>
+    </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\EmptyPhysicsDebugger.cs.meta">
       <Link>Lib\Multiplayer\EmptyPhysicsDebugger.cs.meta</Link>
     </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\INetworkActionDelegate.cs.meta">
-      <Link>Lib\Multiplayer\INetworkActionDelegate.cs.meta</Link>
-    </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\MatrixSerialization.cs.meta">
       <Link>Lib\Multiplayer\MatrixSerialization.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkActionData.cs.meta">
-      <Link>Lib\Multiplayer\NetworkActionData.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkActionUtils.cs.meta">
-      <Link>Lib\Multiplayer\NetworkActionUtils.cs.meta</Link>
     </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkClientSceneController.cs.meta">
       <Link>Lib\Multiplayer\NetworkClientSceneController.cs.meta</Link>
@@ -655,6 +649,9 @@
     </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkScene.cs.meta">
       <Link>Lib\Multiplayer\NetworkScene.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkSceneAction.cs.meta">
+      <Link>Lib\Multiplayer\NetworkSceneAction.cs.meta</Link>
     </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkSceneEvents.cs.meta">
       <Link>Lib\Multiplayer\NetworkSceneEvents.cs.meta</Link>
@@ -713,6 +710,9 @@
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavVector3Serialization.cs.meta">
       <Link>Lib\Multiplayer\Pathfinding\Serialization\NavVector3Serialization.cs.meta</Link>
     </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Unity.meta">
+      <Link>Lib\Multiplayer\Pathfinding\Unity.meta</Link>
+    </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics.meta">
       <Link>Lib\Multiplayer\Physics.meta</Link>
     </None>
@@ -745,6 +745,9 @@
     </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\TweenNetworkBehaviour.cs.meta">
       <Link>Lib\Multiplayer\TweenNetworkBehaviour.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Unity.meta">
+      <Link>Lib\Multiplayer\Unity.meta</Link>
     </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Vector3Serialization.cs.meta">
       <Link>Lib\Multiplayer\Vector3Serialization.cs.meta</Link>
