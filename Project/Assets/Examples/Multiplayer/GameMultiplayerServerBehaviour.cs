@@ -30,7 +30,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         _server = server;
         _controller = ctrl;
         _controller.RegisterReceiver(this);
-        _controller.RegisterActionDelegate<MovementAction>(MovementAction.Apply);
+        _controller.RegisterAction<MovementAction>(GameMsgType.MovementAction, MovementAction.Apply);
         _updateTimes = new Dictionary<int,int>();
         _movement = new JVector(2.0f, 0.0f, 2.0f);
 
@@ -124,11 +124,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
                 Log.i("Raycast over player!");
             }
 
-        }
-        else if(data.MessageType == GameMsgType.MovementAction)
-        {
-            var ac = reader.Read<MovementAction>();
-            _controller.OnAction(ac, data.ClientId);
         }
     }
 

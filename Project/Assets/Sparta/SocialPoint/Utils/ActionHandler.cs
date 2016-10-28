@@ -148,6 +148,11 @@ namespace SocialPoint.Utils
             }
         }
 
+        public void Unregister<K>()
+        {
+            _handlers.Remove(typeof(K));
+        }
+
         public void Register<K>(Action<S, K> action)
         {
             var type = typeof(K);
