@@ -28,10 +28,9 @@ namespace SocialPoint.Multiplayer
         Dictionary<int, List<INetworkBehaviour>> _behaviours;
         Dictionary<string, List<INetworkBehaviour>> _behaviourPrototypes;
         INetworkServerSceneReceiver _receiver;
-
         Dictionary<byte, int> _lastReceivedAction;
-
         NetworkSceneActionHandler _actionHandler;
+        TypedReadParser _actionParser;
 
         public NetworkScene Scene
         {
@@ -58,12 +57,13 @@ namespace SocialPoint.Multiplayer
             _sceneBehaviours = new List<INetworkServerSceneBehaviour>();
             _behaviours = new Dictionary<int,List<INetworkBehaviour>>();
             _behaviourPrototypes = new Dictionary<string,List<INetworkBehaviour>>();
+            _lastReceivedAction = new Dictionary<byte, int>();
+            _actionHandler = new NetworkSceneActionHandler();
+            _actionParser = new TypedReadParser();
+
             _server = server;
             _server.AddDelegate(this);
             _server.RegisterReceiver(this);
-
-            _lastReceivedAction = new Dictionary<byte, int>();
-            _actionHandler = new NetworkSceneActionHandler();
         }
 
         public virtual void Dispose()
@@ -334,29 +334,52 @@ namespace SocialPoint.Multiplayer
 
         void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
         {
-            if(_receiver != null)
+            object action;
+            if(_actionParser.TryParse(data.MessageType, reader, out action))
+            {
+                if(_lastReceivedAction.ContainsKey(data.ClientId))
+                {
+                    _lastReceivedAction[data.ClientId]++;
+                }
+                _actionHandler.HandleAction(_scene, action);
+            }
+            else if(_receiver != null)
             {
                 _receiver.OnMessageReceived(data, reader);
             }
         }
 
-        public void OnAction(object action, byte clientId)
+        public void RegisterAction<T>(byte msgType, Action<NetworkScene, T> callback=null) where T : INetworkShareable, new()
         {
-            if(_lastReceivedAction.ContainsKey(clientId))
+            if(callback != null)
             {
-                _lastReceivedAction[clientId]++;
+                _actionHandler.Register(callback);
             }
-            _actionHandler.HandleAction(_scene, action);
+            _actionParser.Register<T>(msgType);
         }
 
-        public void RegisterActionDelegate<T>(Action<NetworkScene, T> callback)
+        public void RegisterAction<T>(byte msgType, Action<NetworkScene, T> callback, IReadParser<T> parser)
         {
             _actionHandler.Register(callback);
+            _actionParser.Register<T>(msgType, parser);
         }
 
-        public void UnregisterActionDelegate<T>(Action<NetworkScene, T> callback)
+        public void RegisterAction<T>(byte msgType, IActionHandler<NetworkScene, T> handler) where T : INetworkShareable, new()
         {
-            _actionHandler.Unregister(callback);
+            _actionHandler.Register(handler);
+            _actionParser.Register<T>(msgType);
+        }
+
+        public void RegisterAction<T>(byte msgType, IActionHandler<NetworkScene, T> handler, IReadParser<T> parser)
+        {
+            _actionHandler.Register(handler);
+            _actionParser.Register<T>(msgType, parser);
+        }
+
+        public void UnregisterAction<T>()
+        {
+            _actionParser.Unregister<T>();
+            _actionHandler.Unregister<T>();
         }
     }
 }
