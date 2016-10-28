@@ -96,6 +96,7 @@ namespace SocialPoint.GUIAnimation
             new StepData(){ StepType = typeof(ParticleSpawnerEffect) },
             new StepData(){ StepType = typeof(GameObjectEnablerEffect) },
             new StepData(){ StepType = typeof(ParticlePlayerEffect) },
+            new StepData(){ StepType = typeof(ParticleStopperEffect) },
             new StepData(){ StepType = typeof(CallbackEffect) },
             new StepData(){ StepType = typeof(AnimatorEffect) },
         };
@@ -132,6 +133,7 @@ namespace SocialPoint.GUIAnimation
             { typeof(ParticleSpawnerEffect), "Particle Spawner" },
             { typeof(GameObjectEnablerEffect), "Object Enabler" },
             { typeof(ParticlePlayerEffect), "Particle Player" },
+            { typeof(ParticleStopperEffect), "Particle Stopper" },
             { typeof(CallbackEffect), "Callback" },
             { typeof(AnimatorEffect), "Animator" },
         };
