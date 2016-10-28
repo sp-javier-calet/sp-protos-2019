@@ -2,6 +2,7 @@
 using SharpNav.Geometry;
 using SharpNav.Pathfinding;
 using Jitter.LinearMath;
+using SocialPoint.Multiplayer;
 
 namespace SocialPoint.Pathfinding
 {
@@ -57,7 +58,7 @@ namespace SocialPoint.Pathfinding
         {
             var navVectors = new JVector[straightPath.Count];
 
-            for (int i = 0; i < straightPath.Count; i++)
+            for(int i = 0; i < straightPath.Count; i++)
             {
                 var pathVert = straightPath[i];
                 var point = pathVert.Point;

@@ -244,7 +244,7 @@ namespace SocialPoint.Network
 
         void OnEventReceived(byte eventcode, object content, int senderid)
         {
-            if(eventcode == ExitGames.Client.Photon.EventCode.ErrorInfo)
+            if(eventcode == EventCode.ErrorInfo)
             {
                 var err = new Error((string)content);
                 OnNetworkError(err);
