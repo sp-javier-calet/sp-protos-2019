@@ -265,7 +265,6 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
             (float)_random.Range(InstanceMinScale, InstanceMaxScale), 
             (float)_random.Range(InstanceMinScale, InstanceMaxScale));
         
-        UnityEngine.Debug.Log(scale.ToString());
         var unit = ObjectPool.Spawn(_unitPrefab, transform,
             new Vector3((float)x, (float)y * scale.y, (float)z), Quaternion.identity);
         
