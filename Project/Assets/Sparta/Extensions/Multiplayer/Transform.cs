@@ -114,7 +114,7 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class TransformSerializer : IWriteSerializer<Transform>
+    public class TransformSerializer : IDiffWriteSerializer<Transform>
     {
         public static readonly TransformSerializer Instance = new TransformSerializer();
 
@@ -149,7 +149,7 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class TransformParser : IReadParser<Transform>
+    public class TransformParser : IDiffReadParser<Transform>
     {
         public static readonly TransformParser Instance = new TransformParser();
 
