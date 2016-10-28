@@ -59,7 +59,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
                 MessageType = GameMsgType.MovementAction
             };
 
-            _controller.ApplyActionAndSend<MovementAction>(movementAction, msgData);
+            _controller.ApplyActionAndSend(movementAction, msgData);
         }
     }
 

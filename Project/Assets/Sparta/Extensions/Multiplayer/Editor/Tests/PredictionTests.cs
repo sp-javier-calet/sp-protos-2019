@@ -43,22 +43,6 @@ namespace SocialPoint.Multiplayer
         }
 
         [Test]
-        public void UnregisterActionDelegate()
-        {
-            _serverCtrl.RegisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
-            bool success = _serverCtrl.UnregisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
-            Assert.That(success);
-            success = _serverCtrl.UnregisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
-            Assert.That(!success);
-
-            _clientCtrl1.RegisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
-            success = _clientCtrl1.UnregisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
-            Assert.That(success);
-            success = _clientCtrl1.UnregisterActionDelegate<TestInstatiateAction>(TestInstatiateAction.Apply);
-            Assert.That(!success);
-        }
-
-        [Test]
         public void ActionPrediction()
         {
             Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
@@ -73,7 +57,7 @@ namespace SocialPoint.Multiplayer
             msgData = new NetworkMessageData {
                 MessageType = InstatiateActionType
             };
-            _clientCtrl1.ApplyActionAndSend<TestInstatiateAction>(instantiateAction, msgData);
+            _clientCtrl1.ApplyActionAndSend(instantiateAction, msgData);
 
             Assert.That(!_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
@@ -88,7 +72,7 @@ namespace SocialPoint.Multiplayer
             msgData = new NetworkMessageData {
                 MessageType = MovementActionType
             };
-            _clientCtrl1.ApplyActionAndSend<TestMovementAction>(movementAction, msgData);
+            _clientCtrl1.ApplyActionAndSend(movementAction, msgData);
 
             Assert.That(!_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
@@ -110,7 +94,7 @@ namespace SocialPoint.Multiplayer
             NetworkMessageData instatiateMsgData = new NetworkMessageData {
                 MessageType = InstatiateActionType
             };
-            _clientCtrl1.ApplyActionAndSend<TestInstatiateAction>(instantiateAction, instatiateMsgData);
+            _clientCtrl1.ApplyActionAndSend(instantiateAction, instatiateMsgData);
             _serverCtrl.Update(0.001f);
             Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
@@ -128,7 +112,8 @@ namespace SocialPoint.Multiplayer
                 msgData[i] = new NetworkMessageData {
                     MessageType = MovementActionType
                 };
-                _clientCtrl1.ApplyAction<TestMovementAction>(actions[i]);
+                _clientCtrl1.ApplyAction(actions[i]);
+                Assert.That(!_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
             }
 
             //Start moving in server
@@ -161,7 +146,7 @@ namespace SocialPoint.Multiplayer
             NetworkMessageData instatiateMsgData = new NetworkMessageData {
                 MessageType = InstatiateActionType
             };
-            _clientCtrl1.ApplyActionAndSend<TestInstatiateAction>(instantiateAction, instatiateMsgData);
+            _clientCtrl1.ApplyActionAndSend(instantiateAction, instatiateMsgData);
             _serverCtrl.Update(0.001f);
             Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
@@ -175,9 +160,9 @@ namespace SocialPoint.Multiplayer
                 MessageType = MovementActionType
             };
             //Move in one client locally
-            _clientCtrl1.ApplyAction<TestMovementAction>(movementAction);
+            _clientCtrl1.ApplyAction(movementAction);
             //Move in one the other client locally
-            _clientCtrl2.ApplyAction<TestMovementAction>(movementAction);
+            _clientCtrl2.ApplyAction(movementAction);
 
             Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(!_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
@@ -218,7 +203,7 @@ namespace SocialPoint.Multiplayer
                 JVectorSerializer.Instance.Serialize(Position, writer);
             }
 
-            public static void Apply(TestInstatiateAction action, NetworkScene scene)
+            public static void Apply(NetworkScene scene, TestInstatiateAction action)
             {
                 Transform newObjTransform = Transform.Identity;
                 newObjTransform.Position = action.Position;
@@ -227,7 +212,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        class TestMovementAction : INetworkShareable, IAppliableSceneAction
+        class TestMovementAction : INetworkShareable, INetworkSceneAction
         {
             public JVector Movement;
 
@@ -268,15 +253,18 @@ namespace SocialPoint.Multiplayer
 
             void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
             {
+                object action = null;
                 if(data.MessageType == InstatiateActionType)
                 {
-                    var ac = reader.Read<TestInstatiateAction>();
-                    _controller.OnAction<TestInstatiateAction>(ac, data.ClientId);
+                    action = reader.Read<TestInstatiateAction>();
                 }
                 else if(data.MessageType == MovementActionType)
                 {
-                    var ac = reader.Read<TestMovementAction>();
-                    _controller.OnAction<TestMovementAction>(ac, data.ClientId);
+                    action = reader.Read<TestMovementAction>();
+                }
+                if(action != null)
+                {
+                    _controller.OnAction(action, data.ClientId);
                 }
             }
 
