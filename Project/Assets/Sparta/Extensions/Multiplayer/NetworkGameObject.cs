@@ -94,7 +94,7 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class NetworkGameObjectSerializer : IWriteSerializer<NetworkGameObject>
+    public class NetworkGameObjectSerializer : IDiffWriteSerializer<NetworkGameObject>
     {
         public static readonly NetworkGameObjectSerializer Instance = new NetworkGameObjectSerializer();
 
@@ -119,7 +119,7 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class NetworkGameObjectParser : IReadParser<NetworkGameObject>
+    public class NetworkGameObjectParser : IDiffReadParser<NetworkGameObject>
     {
         public static readonly NetworkGameObjectParser Instance = new NetworkGameObjectParser();
 

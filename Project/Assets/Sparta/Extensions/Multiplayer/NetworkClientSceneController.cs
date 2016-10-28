@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using SocialPoint.IO;
 using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
@@ -25,18 +26,21 @@ namespace SocialPoint.Multiplayer
 
         NetworkScene _clientScene;
         int _lastAppliedAction;
-        Dictionary<int, NetworkActionData> _pendingActions;
-        Dictionary<Type, List<INetworkActionDelegate>> _actionDelegates;
+        Dictionary<int, object> _pendingActions;
+
+        NetworkSceneActionHandler _actionHandler;
+        TypedWriteSerializer _actionSerializer;
 
         public NetworkClientSceneController(INetworkClient client)
         {
+            _sceneBehaviours = new List<INetworkClientSceneBehaviour>();
+            _pendingActions = new Dictionary<int, object>();
+            _actionHandler = new NetworkSceneActionHandler();
+            _actionSerializer = new TypedWriteSerializer();
+
             _client = client;
             _client.AddDelegate(this);
             _client.RegisterReceiver(this);
-            _sceneBehaviours = new List<INetworkClientSceneBehaviour>();
-
-            _pendingActions = new Dictionary<int, NetworkActionData>();
-            _actionDelegates = new Dictionary<Type, List<INetworkActionDelegate>>();
         }
 
         public virtual void Dispose()
@@ -167,43 +171,63 @@ namespace SocialPoint.Multiplayer
         {
             _sceneBehaviours.Remove(behaviour);
         }
-
-        public void ApplyActionAndSend<T>(T action, NetworkMessageData msgData) where T : INetworkShareable
-        {
-            ApplyAction<T>(action);
-
-            //Send to server
-            _client.SendMessage(msgData, action);
-        }
-
-        public void ApplyAction<T>(T action)
-        {
-            ApplyAction(typeof(T), action);
-        }
-
-        void ApplyAction(Type actionType, object action)
+            
+        public void ApplyAction(object action)
         {
             _lastAppliedAction++;
-            _pendingActions.Add(_lastAppliedAction, new NetworkActionData(actionType, action));
-            if(ApplyActionToScene(actionType, action))
+            _pendingActions.Add(_lastAppliedAction, action);
+            if(ApplyActionToScene(action))
             {
                 UpdateSceneView();
             }
+
+            byte msgType;
+            if(_actionSerializer.FindCode(action, out msgType))
+            {
+                var msg = _client.CreateMessage(new NetworkMessageData {
+                    MessageType = msgType
+                });
+                _actionSerializer.Serialize(action, msg.Writer);
+                msg.Send();
+            }
         }
 
-        bool ApplyActionToScene(Type actionType, object action)
+        bool ApplyActionToScene(object action)
         {
-            return NetworkActionUtils.ApplyAction(actionType, action, _actionDelegates, _clientScene);
+            return _actionHandler.HandleAction(_clientScene, action);
         }
 
-        public void RegisterActionDelegate<T>(Action<T, NetworkScene> callback)
+        public void RegisterAction<T>(byte msgType, Action<NetworkScene, T> callback=null) where T : INetworkShareable
         {
-            NetworkActionUtils.RegisterActionDelegate<T>(callback, _actionDelegates);
+            if(callback != null)
+            {
+                _actionHandler.Register(callback);
+            }
+            _actionSerializer.Register<T>(msgType);
         }
 
-        public bool UnregisterActionDelegate<T>(Action<T, NetworkScene> callback)
+        public void RegisterAction<T>(byte msgType, Action<NetworkScene, T> callback, IWriteSerializer<T> serializer)
         {
-            return NetworkActionUtils.UnregisterActionDelegate<T>(callback, _actionDelegates);
+            _actionHandler.Register(callback);
+            _actionSerializer.Register<T>(msgType, serializer);
+        }
+
+        public void RegisterAction<T>(byte msgType, IActionHandler<NetworkScene, T> handler) where T : INetworkShareable
+        {
+            _actionHandler.Register(handler);
+            _actionSerializer.Register<T>(msgType);
+        }
+
+        public void RegisterAction<T>(byte msgType, IActionHandler<NetworkScene, T> handler, IWriteSerializer<T> serializer)
+        {
+            _actionHandler.Register(handler);
+            _actionSerializer.Register<T>(msgType, serializer);
+        }
+
+        public void UnregisterAction<T>()
+        {
+            _actionSerializer.Unregister<T>();
+            _actionHandler.Unregister<T>();
         }
 
         public void OnActionFromServer(int lastServerAction)
@@ -236,8 +260,7 @@ namespace SocialPoint.Multiplayer
             var itr = _pendingActions.GetEnumerator();
             while(itr.MoveNext())
             {
-                NetworkActionData actionTuple = itr.Current.Value;
-                ApplyActionToScene(actionTuple.ActionType, actionTuple.Action);
+                ApplyActionToScene(itr.Current.Value);
             }
             itr.Dispose();
         }
