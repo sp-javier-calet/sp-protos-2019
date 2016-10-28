@@ -37,6 +37,7 @@ namespace SocialPoint.Network
         }
 
         bool _blockReception;
+
         public bool BlockReception
         {
             get
@@ -48,7 +49,7 @@ namespace SocialPoint.Network
                 _blockReception = value;
                 if(!_blockReception)
                 {
-                    for(var i=0; i<_receivedMessages.Count; i++)
+                    for(var i = 0; i < _receivedMessages.Count; i++)
                     {
                         var msg = _receivedMessages[i];
                         ReceiveMessage(msg.Data, msg.Body);
@@ -59,6 +60,7 @@ namespace SocialPoint.Network
         }
 
         bool _blockEmission;
+
         public bool BlockEmission
         {
             get
@@ -71,7 +73,7 @@ namespace SocialPoint.Network
                 _blockEmission = value;
                 if(!_blockEmission)
                 {
-                    for(var i=0; i<_sentMessages.Count; i++)
+                    for(var i = 0; i < _sentMessages.Count; i++)
                     {
                         var msg = _sentMessages[i];
                         SendMessage(msg.Data, msg.Body);
@@ -113,7 +115,7 @@ namespace SocialPoint.Network
         {
             if(_blockEmission)
             {
-                _sentMessages.Add(new MessageInfo{
+                _sentMessages.Add(new MessageInfo {
                     Data = data,
                     Body = body
                 });
@@ -139,7 +141,7 @@ namespace SocialPoint.Network
         {
             if(_blockReception)
             {
-                _receivedMessages.Add(new MessageInfo{
+                _receivedMessages.Add(new MessageInfo {
                     Data = data,
                     Body = reader.ReadBytes(int.MaxValue)
                 });

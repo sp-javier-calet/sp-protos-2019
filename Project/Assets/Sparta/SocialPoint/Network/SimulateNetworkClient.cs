@@ -11,8 +11,8 @@ namespace SocialPoint.Network
         INetworkClient _client;
         List<INetworkClientDelegate> _delegates;
 
-        public SimulateNetworkClient(INetworkClient client):
-        base(client)
+        public SimulateNetworkClient(INetworkClient client) :
+            base(client)
         {
             _delegates = new List<INetworkClientDelegate>();
             _client = client;
@@ -20,8 +20,8 @@ namespace SocialPoint.Network
             _client.AddDelegate(this);
         }
 
-        public SimulateNetworkClient(LocalNetworkServer server):
-        this(new LocalNetworkClient(server))
+        public SimulateNetworkClient(LocalNetworkServer server) :
+            this(new LocalNetworkClient(server))
         {
         }
 
@@ -62,7 +62,7 @@ namespace SocialPoint.Network
         {
             _delegates.Remove(dlg);
         }
-            
+
         public int GetDelay(int networkTimestamp)
         {
             return _client.GetDelay(networkTimestamp);

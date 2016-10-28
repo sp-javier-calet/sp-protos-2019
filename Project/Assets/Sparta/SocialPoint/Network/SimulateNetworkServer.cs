@@ -11,8 +11,8 @@ namespace SocialPoint.Network
         INetworkServer _server;
         List<INetworkServerDelegate> _delegates;
 
-        public SimulateNetworkServer(INetworkServer server):
-        base(server)
+        public SimulateNetworkServer(INetworkServer server) :
+            base(server)
         {
             _delegates = new List<INetworkServerDelegate>();
             _server = server;
