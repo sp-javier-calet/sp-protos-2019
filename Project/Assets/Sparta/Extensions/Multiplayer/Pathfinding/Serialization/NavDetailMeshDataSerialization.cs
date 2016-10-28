@@ -3,11 +3,11 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Pathfinding
 {
-    public class NavDetailMeshDataSerializer : SimpleWriteSerializer<PolyMeshDetail.MeshData>
+    public class NavDetailMeshDataSerializer : IWriteSerializer<PolyMeshDetail.MeshData>
     {
         public static readonly NavDetailMeshDataSerializer Instance = new NavDetailMeshDataSerializer();
 
-        public override void Serialize(PolyMeshDetail.MeshData value, IWriter writer)
+        public void Serialize(PolyMeshDetail.MeshData value, IWriter writer)
         {
             writer.Write(value.VertexIndex);
             writer.Write(value.VertexCount);
@@ -16,11 +16,11 @@ namespace SocialPoint.Pathfinding
         }
     }
 
-    public class NavDetailMeshDataParser : SimpleReadParser<PolyMeshDetail.MeshData>
+    public class NavDetailMeshDataParser : IReadParser<PolyMeshDetail.MeshData>
     {
         public static readonly NavDetailMeshDataParser Instance = new NavDetailMeshDataParser();
 
-        public override PolyMeshDetail.MeshData Parse(IReader reader)
+        public PolyMeshDetail.MeshData Parse(IReader reader)
         {
             var meshData = new PolyMeshDetail.MeshData();
             meshData.VertexIndex = reader.ReadInt32();
