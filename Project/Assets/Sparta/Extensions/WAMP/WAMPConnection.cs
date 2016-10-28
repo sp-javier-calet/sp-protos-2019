@@ -16,32 +16,62 @@ namespace SocialPoint.WAMP
         void OnNetworkError(Error err);
     }
 
+    internal static class MsgCode
+    {
+        internal const int HELLO = 1;
+        internal const int WELCOME = 2;
+        internal const int ABORT = 3;
+        internal const int CHALLENGE = 4;
+        internal const int AUTHENTICATE = 5;
+        internal const int GOODBYE = 6;
+        internal const int ERROR = 8;
+        internal const int PUBLISH = 16;
+        internal const int PUBLISHED = 17;
+        internal const int SUBSCRIBE = 32;
+        internal const int SUBSCRIBED = 33;
+        internal const int UNSUBSCRIBE = 34;
+        internal const int UNSUBSCRIBED = 35;
+        internal const int EVENT = 36;
+        internal const int CALL = 48;
+        internal const int CANCEL = 49;
+        internal const int RESULT = 50;
+        internal const int REGISTER = 64;
+        internal const int REGISTERED = 65;
+        internal const int UNREGISTER = 66;
+        internal const int UNREGISTERED = 67;
+        internal const int INVOCATION = 68;
+        internal const int INTERRUPT = 69;
+        internal const int YIELD = 70;
+    }
+
+    internal static class ErrorCodes
+    {
+        internal const int NoSession = 1001;
+        internal const int JoinInProgress = 1002;
+        internal const int LeaveInProgress = 1003;
+        internal const int SessionAborted = 1004;
+        internal const int CallError = 1005;
+        internal const int PublishError = 1006;
+        internal const int SubscribeError = 1007;
+        internal const int UnsubscribeError = 1008;
+        internal const int ConnectionClosed = 1009;
+    }
+
     public class WAMPConnection : INetworkClientDelegate, INetworkMessageReceiver
     {
         #region Constants
 
-        public enum ErrorCodes
-        {
-            NoSession = 1001,
-            JoinInProgress = 1002,
-            LeaveInProgress = 1003,
-            SessionAborted = 1004,
-            CallError = 1005,
-            PublishError = 1006,
-            SubscribeError = 1007,
-            UnsubscribeError = 1008,
-            ConnectionClosed = 1009,
-        }
+
 
         #endregion
 
         #region Data structures
 
-        public class IRequest<TCompletion> : IDisposable where TCompletion : class
+        public class Request<TCompletion> : IDisposable where TCompletion : class
         {
             public TCompletion CompletionHandler{ get; protected set; }
 
-            protected IRequest(TCompletion completionHandler)
+            protected Request(TCompletion completionHandler)
             {
                 CompletionHandler = completionHandler;
             }
@@ -53,7 +83,7 @@ namespace SocialPoint.WAMP
 
         }
 
-        public class StartRequest : IRequest<Action>
+        public class StartRequest : Request<Action>
         {
             internal StartRequest(Action action) : base(action)
             {
@@ -61,7 +91,7 @@ namespace SocialPoint.WAMP
             }
         }
 
-        public class StopRequest : IRequest<Action>
+        public class StopRequest : Request<Action>
         {
             internal StopRequest(Action action) : base(action)
             {
@@ -69,7 +99,7 @@ namespace SocialPoint.WAMP
             }
         }
 
-        public class JoinRequest : IRequest<OnJoinCompleted>
+        public class JoinRequest : Request<OnJoinCompleted>
         {
             internal JoinRequest(OnJoinCompleted completionHandler) : base(completionHandler)
             {
@@ -77,7 +107,7 @@ namespace SocialPoint.WAMP
             }
         }
 
-        public class LeaveRequest : IRequest<OnLeaved>
+        public class LeaveRequest : Request<OnLeaved>
         {
             internal LeaveRequest(OnLeaved completionHandler) : base(completionHandler)
             {
@@ -100,7 +130,7 @@ namespace SocialPoint.WAMP
 
         public delegate void HandlerSubscription(AttrList args, AttrDic kwargs);
 
-        public class SubscribeRequest : IRequest<OnSubscribed>
+        public class SubscribeRequest : Request<OnSubscribed>
         {
             internal HandlerSubscription Handler{ get; private set; }
 
@@ -113,7 +143,7 @@ namespace SocialPoint.WAMP
             }
         }
 
-        public class UnsubscribeRequest : IRequest<OnUnsubscribed>
+        public class UnsubscribeRequest : Request<OnUnsubscribed>
         {
             internal UnsubscribeRequest(OnUnsubscribed completionHandler) : base(completionHandler)
             {
@@ -121,64 +151,15 @@ namespace SocialPoint.WAMP
             }
         }
 
-        public class Publication
-        {
-            public long Id{ get; private set; }
 
-            public string Topic{ get; private set; }
-
-            public Publication(long id, string topic)
-            {
-                Id = id;
-                Topic = topic;
-            }
-        }
-
-        public class PublishRequest : IRequest<OnPublished>
-        {
-            internal string Topic{ get; private set; }
-
-            public PublishRequest(OnPublished completionHandler, string topic) : base(completionHandler)
-            {
-                Topic = topic;
-            }
-        }
 
         public delegate void HandlerCall(Error error, AttrList args, AttrDic kwargs);
 
-        public class CallRequest : IRequest<HandlerCall>
+        public class CallRequest : Request<HandlerCall>
         {
             internal CallRequest(HandlerCall handler) : base(handler)
             {
             }
-        }
-
-        enum MsgCode
-        {
-            HELLO = 1,
-            WELCOME = 2,
-            ABORT = 3,
-            CHALLENGE = 4,
-            AUTHENTICATE = 5,
-            GOODBYE = 6,
-            ERROR = 8,
-            PUBLISH = 16,
-            PUBLISHED = 17,
-            SUBSCRIBE = 32,
-            SUBSCRIBED = 33,
-            UNSUBSCRIBE = 34,
-            UNSUBSCRIBED = 35,
-            EVENT = 36,
-            CALL = 48,
-            CANCEL = 49,
-            RESULT = 50,
-            REGISTER = 64,
-            REGISTERED = 65,
-            UNREGISTER = 66,
-            UNREGISTERED = 67,
-            INVOCATION = 68,
-            INTERRUPT = 69,
-            YIELD = 70,
         }
 
         #endregion
@@ -195,11 +176,13 @@ namespace SocialPoint.WAMP
         // Last request ID of outgoing WAMP requests.
         long _requestId;
 
+        WAMPRolePublisher _publisher;
+
         Dictionary<long, HandlerSubscription> _subscriptionHandlers;
 
         Dictionary<long, SubscribeRequest> _subscribeRequests;
         Dictionary<long, UnsubscribeRequest> _unsubscribeRequests;
-        Dictionary<long, PublishRequest> _publishRequests;
+
         Dictionary<long, CallRequest> _calls;
 
         public WAMPConnection(INetworkClient networkClient)
@@ -211,11 +194,13 @@ namespace SocialPoint.WAMP
             _sessionId = 0;
             _requestId = 0;
 
+            _publisher = new WAMPRolePublisher(this);
+
             _subscriptionHandlers = new Dictionary<long, HandlerSubscription>();
 
             _subscribeRequests = new Dictionary<long, SubscribeRequest>();
             _unsubscribeRequests = new Dictionary<long, UnsubscribeRequest>();
-            _publishRequests = new Dictionary<long, PublishRequest>();
+
             _calls = new Dictionary<long, CallRequest>();
 
             NetworkClient.AddDelegate(this);
@@ -225,6 +210,13 @@ namespace SocialPoint.WAMP
         public void SetDebugMode(bool newValue)
         {
             _debug = newValue;
+        }
+
+        internal long GetAndIncrementRequestId()
+        {
+            var ret = _requestId;
+            ++_requestId;
+            return ret;
         }
 
         #endregion
@@ -263,15 +255,13 @@ namespace SocialPoint.WAMP
 
         #region INetworkMessageReceiver implementation
 
-        const string InvalidDataTypeMsg = "Invalid WAMP message structure. It should be a AttrList.";
-        const string MissingMessageTypeMsg = "Missing message type field in message: ";
         const string InvalidCodeMsg = "Received invalid WAMP message code: ";
 
-        static string GetInvalidCodeMessage(MsgCode code)
+        static string GetInvalidCodeMessage(int code)
         {
             var sb = StringUtils.StartBuilder();
             sb.Append(InvalidCodeMsg);
-            sb.Append(code.ToString());
+            sb.Append(code);
             return StringUtils.FinishBuilder(sb);
         }
 
@@ -281,17 +271,14 @@ namespace SocialPoint.WAMP
             var attrData = parser.ParseString(reader.ReadString());
             if(attrData.AttrType != AttrType.LIST)
             {
-                throw new Exception(InvalidDataTypeMsg);
+                throw new Exception("Invalid WAMP message structure. It should be a AttrList.");
             }
             var msg = attrData.AsList;
             if(msg.Count == 0 || !msg.Get(0).IsValue)
             {
-                var sb = StringUtils.StartBuilder();
-                sb.Append(MissingMessageTypeMsg);
-                sb.Append(msg.ToString());
-                throw new Exception(StringUtils.FinishBuilder(sb));
+                throw new Exception(string.Concat("Missing message type field in message: ", msg));
             }
-            var code = (MsgCode)msg.Get(0).AsValue.ToInt();
+            var code = msg.Get(0).AsValue.ToInt();
             if(_stopped)
             {
                 DebugMessage("Recieved message while stopped " + msg);
@@ -319,7 +306,7 @@ namespace SocialPoint.WAMP
             case MsgCode.PUBLISH:
                 throw new Exception(GetInvalidCodeMessage(code));
             case MsgCode.PUBLISHED:
-                ProcessPublished(msg);
+                _publisher.ProcessPublished(msg);
                 break;
             case MsgCode.SUBSCRIBE:
                 throw new Exception(GetInvalidCodeMessage(code));
@@ -353,6 +340,11 @@ namespace SocialPoint.WAMP
         #endregion
 
         #region Session
+
+        internal bool HasActiveSession()
+        {
+            return _sessionId != 0;
+        }
 
         StartRequest _startRequest;
 
@@ -405,7 +397,7 @@ namespace SocialPoint.WAMP
              */
 
             var data = new AttrList();
-            data.Add(new AttrInt((int)MsgCode.HELLO));
+            data.Add(new AttrInt(MsgCode.HELLO));
             data.AddValue(realm);
             var optionsDict = new AttrDic();
             var rolesDict = new AttrDic();
@@ -446,7 +438,7 @@ namespace SocialPoint.WAMP
              * [3, {"message": "Joining aborted by client."}, "wamp.error.client_aborting"]
              */
             var data = new AttrList();
-            data.Add(new AttrInt((int)MsgCode.ABORT));
+            data.Add(new AttrInt(MsgCode.ABORT));
             var abortDetailsDic = new AttrDic();
             abortDetailsDic.SetValue("message", "Joining aborted by client.");
             data.Add(abortDetailsDic);
@@ -525,7 +517,7 @@ namespace SocialPoint.WAMP
             _subscribeRequests.Add(_requestId, request);
 
             var data = new AttrList();
-            data.Add(new AttrInt((int)MsgCode.SUBSCRIBE));
+            data.Add(new AttrInt(MsgCode.SUBSCRIBE));
             data.AddValue(_requestId);
             data.Add(new AttrDic());
             data.AddValue(topic);
@@ -571,7 +563,7 @@ namespace SocialPoint.WAMP
             _unsubscribeRequests.Add(_requestId, request);
 
             var data = new AttrList();
-            data.Add(new AttrInt((int)MsgCode.UNSUBSCRIBE));
+            data.Add(new AttrInt(MsgCode.UNSUBSCRIBE));
             data.AddValue(_requestId);
             data.AddValue(subscription.Id);
 
@@ -591,63 +583,7 @@ namespace SocialPoint.WAMP
 
         #endregion
 
-        #region Publisher
 
-        public delegate void OnPublished(Error error, Publication pub);
-
-        public void Publish(string topic, AttrList args, AttrDic kwargs, bool acknowledged, OnPublished completionHandler)
-        {
-            DebugUtils.Assert((acknowledged && completionHandler != null) || !acknowledged, "Asked for acknowledge but without completionHandler");
-
-            if(_sessionId == 0)
-            {
-                if(completionHandler != null)
-                {
-                    completionHandler(new Error((int)ErrorCodes.NoSession), null);
-                }
-                return;
-            }
-
-            DebugMessage(string.Concat("Publish event ", topic, " with args", args, " and ", kwargs));
-
-            /* [PUBLISH, Request|id, Options|dict, Topic|uri, Arguments|list, ArgumentsKw|dict]
-             * [16, 239714735, {}, "com.myapp.mytopic1", [], {"color": "orange", "sizes": [23, 42, 7]}]
-             */
-            _requestId++;
-            if(acknowledged)
-            {
-                DebugUtils.Assert(!_publishRequests.ContainsKey(_requestId), "This requestId was already in use");
-                _publishRequests.Add(_requestId, new PublishRequest(completionHandler, topic));
-            }
-
-            var data = new AttrList();
-            data.Add(new AttrInt((int)MsgCode.PUBLISH));
-            data.AddValue(_requestId);
-            var optionsDict = new AttrDic();
-            if(acknowledged)
-            {
-                optionsDict.SetValue("acknowledge", true);
-            }
-            data.Add(optionsDict);
-            data.AddValue(topic);
-            if(args != null)
-            {
-                data.Add(args);
-            }
-            else
-            {
-                data.Add(new AttrList());
-            }
-
-            if(kwargs != null)
-            {
-                data.Add(kwargs);
-            }
-
-            SendData(data);
-        }
-
-        #endregion
 
         #region Caller
 
@@ -673,7 +609,7 @@ namespace SocialPoint.WAMP
              * [48, 7814135, {}, "com.myapp.user.new", ["johnny"], {"firstname": "John", "surname": "Doe"}]
              */
             var data = new AttrList();
-            data.Add(new AttrInt((int)MsgCode.CALL));
+            data.Add(new AttrInt(MsgCode.CALL));
             data.AddValue(_requestId);
             data.Add(new AttrDic());
             data.AddValue(procedure);
@@ -706,7 +642,7 @@ namespace SocialPoint.WAMP
              * [6, {"message": "The host is shutting down now."}, "wamp.error.syste_shutdown"]
              */
             var data = new AttrList();
-            data.Add(new AttrInt((int)MsgCode.GOODBYE));
+            data.Add(new AttrInt(MsgCode.GOODBYE));
             if(detailsDict != null)
             {
                 data.Add(detailsDict);
@@ -736,7 +672,7 @@ namespace SocialPoint.WAMP
             {
                 throw new Exception("Invalid ERROR message structure - REQUEST.Type must be an integer");
             }
-            var requestType = (MsgCode)(msg.Get(1).AsValue.ToInt());
+            var requestType = msg.Get(1).AsValue.ToInt();
 
             // REQUEST.Request|id
             if(!msg.Get(2).IsValue)
@@ -798,16 +734,7 @@ namespace SocialPoint.WAMP
                 throw new Exception("CALLEE role not implemented");
             case MsgCode.PUBLISH:
                 {
-                    PublishRequest request;
-                    if(!_publishRequests.TryGetValue(requestId, out request))
-                    {
-                        throw new Exception("Bogus ERROR message for non-pending PUBLISH request ID");
-                    }
-                    if(request.CompletionHandler != null)
-                    {
-                        request.CompletionHandler(new Error((int)ErrorCodes.PublishError, description), new Publication(requestId, request.Topic));
-                    }
-                    _publishRequests.Remove(requestId);
+                    _publisher.ProcessPublishError(requestId, description);
                     break;
                 }
             case MsgCode.SUBSCRIBE:
@@ -1038,39 +965,7 @@ namespace SocialPoint.WAMP
             _unsubscribeRequests.Remove(requestId);
         }
 
-        void ProcessPublished(AttrList msg)
-        {
-            // [PUBLISHED, PUBLISH.Request|id, Publication|id]
-            if(msg.Count != 3)
-            {
-                throw new Exception("Invalid PUBLISHED message structure - length must be 3");
-            }
 
-            if(!msg.Get(1).IsValue)
-            {
-                throw new Exception("Invalid PUBLISHED message structure - PUBLISHED.Request must be an integer");
-            }
-
-            long requestId = msg.Get(1).AsValue.ToLong();
-
-            PublishRequest request;
-            if(!_publishRequests.TryGetValue(requestId, out request))
-            {
-                throw new Exception("Bogus PUBLISHED message for non-pending request ID");
-            }
-
-            if(!msg.Get(2).IsValue)
-            {
-                throw new Exception("Invalid PUBLISHED message structure - PUBLISHED.Subscription must be an integer");
-            }
-            long publicationId = msg.Get(2).AsValue.ToLong();
-
-            if(request.CompletionHandler != null)
-            {
-                request.CompletionHandler(null, new Publication(publicationId, request.Topic));
-            }
-            _publishRequests.Remove(requestId);
-        }
 
         void ProcessEvent(AttrList msg)
         {
@@ -1123,7 +1018,7 @@ namespace SocialPoint.WAMP
             }
         }
 
-        void SendData(Attr data)
+        internal void SendData(Attr data)
         {
             var serializer = new JsonAttrSerializer();
             var serializedData = serializer.SerializeString(data);
@@ -1133,7 +1028,7 @@ namespace SocialPoint.WAMP
             networkMessage.Send();
         }
 
-        void DebugMessage(string message)
+        internal void DebugMessage(string message)
         {
             if(_debug)
             {
