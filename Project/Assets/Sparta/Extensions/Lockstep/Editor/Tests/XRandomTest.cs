@@ -27,6 +27,46 @@ namespace SocialPoint.Lockstep
 
         [Test]
         [Repeat(1000)]
+        public void Range()
+        {
+            const int vMin = 0;
+            const int vMax = 100000;
+            var v = RNGSeedA1.Range(vMin, vMax);
+            Assert.That(v >= vMin);
+            Assert.That(v < vMax);
+
+            Fix64 fMin = Fix64.Zero;
+            Fix64 fMax = new Fix64(10000);
+            var f = RNGSeedA1.Range(fMin, fMax);
+            Assert.That(f >= fMin);
+            Assert.That(f < fMax);
+
+            const uint uMin = 0u;
+            const uint uMax = 100000u;
+            var u = RNGSeedA1.Range(uMin, uMax);
+            Assert.That(u >= uMin);
+            Assert.That(u < uMax);
+        }
+
+        [Test]
+        [Repeat(1000)]
+        public void Negative()
+        {
+            const int vMin = -10000;
+            const int vMax = 10000;
+            var v = RNGSeedA1.Range(vMin, vMax);
+            Assert.That(v >= vMin);
+            Assert.That(v < vMax);
+
+            Fix64 fMin = new Fix64(-10000);
+            Fix64 fMax = new Fix64(10000);
+            var f = RNGSeedA1.Range(fMin, fMax);
+            Assert.That(f >= fMin);
+            Assert.That(f < fMax);
+        }
+
+        [Test]
+        [Repeat(1000)]
         public void Deterministic()
         {
             var v1 = RNGSeedA1.Range(0, 100000);

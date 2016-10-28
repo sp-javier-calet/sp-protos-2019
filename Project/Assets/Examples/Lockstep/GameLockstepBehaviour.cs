@@ -255,17 +255,20 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         _model.Simulate(dt);
     }
 
-    static readonly Fix64 InstanceMinScale = Fix64.Zero;
-    static readonly Fix64 InstanceMaxScale = new Fix64(2);
+    static readonly Fix64 InstanceMinScale = (Fix64)0.2f;
+    static readonly Fix64 InstanceMaxScale = (Fix64)2.0f;
 
     void OnInstantiate(Fix64 x, Fix64 y, Fix64 z)
     {
-        var unit = ObjectPool.Spawn(_unitPrefab, transform,
-                       new Vector3((float)x, (float)y, (float)z), Quaternion.identity);
         var scale = new Vector3(
-            (float)_random.Range(InstanceMinScale, InstanceMaxScale), 
+            (float)_random.Range(InstanceMinScale, InstanceMaxScale),
             (float)_random.Range(InstanceMinScale, InstanceMaxScale), 
             (float)_random.Range(InstanceMinScale, InstanceMaxScale));
+        
+        UnityEngine.Debug.Log(scale.ToString());
+        var unit = ObjectPool.Spawn(_unitPrefab, transform,
+            new Vector3((float)x, (float)y * scale.y, (float)z), Quaternion.identity);
+        
         unit.transform.localScale = scale;
     }
 

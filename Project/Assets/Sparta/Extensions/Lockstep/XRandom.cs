@@ -33,8 +33,8 @@ namespace SocialPoint.Lockstep
         }
 
         public Fix64 Range(Fix64 min, Fix64 max)
-        {
-            return new Fix64((int)_lce.Next) * (max - min) + min;
+        {         
+            return Fix64.FromRaw(_lce.Next64 % (max.RawValue - min.RawValue) + min.RawValue);
         }
 
         #region Linear concruential engine
@@ -58,6 +58,18 @@ namespace SocialPoint.Lockstep
                 {
                     _previous = (uint)((_a * (UInt64)_previous + _c)  % _m);
                     return _previous;
+                }
+            }
+
+            public long Next64
+            {
+                get
+                {
+                    long r64 = 0;
+                    r64 = Next;
+                    r64 = r64 << 32;
+                    r64 += Next;
+                    return r64;
                 }
             }
 
