@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using FixMath.NET;
 
-namespace SocialPoint.Lockstep
+namespace SocialPoint.Utils
 {
     [TestFixture]
     [Category("SocialPoint.Utils")]

@@ -1,7 +1,7 @@
 ﻿using System;
 using FixMath.NET;
 
-namespace SocialPoint.Lockstep
+namespace SocialPoint.Utils
 {
     public sealed class XRandom
     {
