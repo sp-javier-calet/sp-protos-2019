@@ -1,8 +1,8 @@
 ﻿using System;
+using FixMath.NET;
 
 namespace SocialPoint.Utils
 {
-
     public sealed class XRandom
     {
         public static uint GenerateSeed()
@@ -10,15 +10,7 @@ namespace SocialPoint.Utils
             return (uint)(new Random().Next());
         }
 
-        LinearCongruentialEngine _lce;
-
-        double Value
-        {
-            get
-            {
-                return (double) _lce.Next / (double)LinearCongruentialEngine.Max;
-            }
-        }
+        readonly LinearCongruentialEngine _lce;
 
         public XRandom(uint seed)
         {
@@ -32,17 +24,17 @@ namespace SocialPoint.Utils
 
         public uint Range(uint min, uint max)
         {
-            return (uint)(Value * (max - min + 1) % (max - min + 1) + min);
+            return _lce.Next % (max - min + 1) + min;
         }
 
         public int Range(int min, int max)
         {
-            return (int)(Value * (max - min + 1) % (max - min + 1) + min);
+            return (int)(_lce.Next % (max - min + 1) + min);
         }
 
-        public float Range(float min, float max)
+        public Fix64 Range(Fix64 min, Fix64 max)
         {
-            return (float)(Value * (max - min) + min);
+            return _lce.Next * (max - min) + min;
         }
 
         #region Linear concruential engine
