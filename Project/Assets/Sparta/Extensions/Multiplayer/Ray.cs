@@ -80,7 +80,7 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class RaySerializer : IWriteSerializer<Ray>
+    public class RaySerializer : IDiffWriteSerializer<Ray>
     {
         public static readonly RaySerializer Instance = new RaySerializer();
 
@@ -118,7 +118,7 @@ namespace SocialPoint.Multiplayer
     }
 
 
-    public class RayParser : IReadParser<Ray>
+    public class RayParser : IDiffReadParser<Ray>
     {
         public static readonly RayParser Instance = new RayParser();
 
