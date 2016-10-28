@@ -7,15 +7,6 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.WAMP
 {
-    public interface IWAMPConnectionDelegate
-    {
-        void OnClientConnected();
-
-        void OnClientDisconnected();
-
-        void OnNetworkError(Error err);
-    }
-
     internal static class MsgCode
     {
         internal const int HELLO = 1;
@@ -59,12 +50,6 @@ namespace SocialPoint.WAMP
 
     public class WAMPConnection : INetworkClientDelegate, INetworkMessageReceiver
     {
-        #region Constants
-
-
-
-        #endregion
-
         #region Data structures
 
         public class Request<TCompletion> : IDisposable where TCompletion : class
@@ -151,17 +136,6 @@ namespace SocialPoint.WAMP
             }
         }
 
-
-
-        public delegate void HandlerCall(Error error, AttrList args, AttrDic kwargs);
-
-        public class CallRequest : Request<HandlerCall>
-        {
-            internal CallRequest(HandlerCall handler) : base(handler)
-            {
-            }
-        }
-
         #endregion
 
         #region Constructor
@@ -177,13 +151,14 @@ namespace SocialPoint.WAMP
         long _requestId;
 
         WAMPRolePublisher _publisher;
+        WAMPRoleCaller _caller;
 
         Dictionary<long, HandlerSubscription> _subscriptionHandlers;
 
         Dictionary<long, SubscribeRequest> _subscribeRequests;
         Dictionary<long, UnsubscribeRequest> _unsubscribeRequests;
 
-        Dictionary<long, CallRequest> _calls;
+
 
         public WAMPConnection(INetworkClient networkClient)
         {
@@ -195,13 +170,12 @@ namespace SocialPoint.WAMP
             _requestId = 0;
 
             _publisher = new WAMPRolePublisher(this);
+            _caller = new WAMPRoleCaller(this);
 
             _subscriptionHandlers = new Dictionary<long, HandlerSubscription>();
 
             _subscribeRequests = new Dictionary<long, SubscribeRequest>();
             _unsubscribeRequests = new Dictionary<long, UnsubscribeRequest>();
-
-            _calls = new Dictionary<long, CallRequest>();
 
             NetworkClient.AddDelegate(this);
             NetworkClient.RegisterReceiver(this);
@@ -378,7 +352,7 @@ namespace SocialPoint.WAMP
             {
                 if(completionHandler != null)
                 {
-                    completionHandler(new Error((int)ErrorCodes.JoinInProgress, "Another JOIN already in progress"), 0, null);
+                    completionHandler(new Error(ErrorCodes.JoinInProgress, "Another JOIN already in progress"), 0, null);
                 }
                 return null;
             }
@@ -447,7 +421,7 @@ namespace SocialPoint.WAMP
 
             if(_joinRequest.CompletionHandler != null)
             {
-                _joinRequest.CompletionHandler(new Error((int)ErrorCodes.SessionAborted, "Joining aborted by client"), 0, null);
+                _joinRequest.CompletionHandler(new Error(ErrorCodes.SessionAborted, "Joining aborted by client"), 0, null);
             }
             _joinRequest = null;
 
@@ -465,7 +439,7 @@ namespace SocialPoint.WAMP
             {
                 if(completionHandler != null)
                 {
-                    completionHandler(new Error((int)ErrorCodes.LeaveInProgress, "Another LEAVE already in progress"), reason);
+                    completionHandler(new Error(ErrorCodes.LeaveInProgress, "Another LEAVE already in progress"), reason);
                 }
                 return null;
             }
@@ -474,7 +448,7 @@ namespace SocialPoint.WAMP
             {
                 if(completionHandler != null)
                 {
-                    completionHandler(new Error((int)ErrorCodes.NoSession, "Leaving an inexistent session"), reason);
+                    completionHandler(new Error(ErrorCodes.NoSession, "Leaving an inexistent session"), reason);
                 }
                 return null;
             }
@@ -501,7 +475,7 @@ namespace SocialPoint.WAMP
             {
                 if(completionHandler != null)
                 {
-                    completionHandler(new Error((int)ErrorCodes.NoSession, "No current session"), null);
+                    completionHandler(new Error(ErrorCodes.NoSession, "No current session"), null);
                 }
                 return null;
             }
@@ -535,7 +509,7 @@ namespace SocialPoint.WAMP
             {
                 if(completionHandler != null)
                 {
-                    completionHandler(new Error((int)ErrorCodes.NoSession, "No current session"));
+                    completionHandler(new Error(ErrorCodes.NoSession, "No current session"));
                 }
                 return null;
             }
@@ -544,7 +518,7 @@ namespace SocialPoint.WAMP
             {
                 if(completionHandler != null)
                 {
-                    completionHandler(new Error((int)ErrorCodes.UnsubscribeError, string.Concat("Invalid subscription id: ", subscription.Id)));
+                    completionHandler(new Error(ErrorCodes.UnsubscribeError, string.Concat("Invalid subscription id: ", subscription.Id)));
                 }
                 return null;
             }
@@ -579,57 +553,6 @@ namespace SocialPoint.WAMP
                 throw new Exception("This subscriptionId was already in use");
             }
             _subscriptionHandlers.Add(subscription.Id, handler);
-        }
-
-        #endregion
-
-
-
-        #region Caller
-
-        public CallRequest Call(string procedure, AttrList args, AttrDic kwargs, HandlerCall resultHandler)
-        {
-            if(_sessionId == 0)
-            {
-                if(resultHandler != null)
-                {
-                    resultHandler(new Error((int)ErrorCodes.NoSession), null, null);
-                }
-                return null;
-            }
-
-            DebugMessage(string.Concat("Request call ", procedure));
-
-            _requestId++;
-            DebugUtils.Assert(!_calls.ContainsKey(_requestId), "This requestId was already in use");
-            var request = new CallRequest(resultHandler);
-            _calls.Add(_requestId, request);
-
-            /* [CALL, Request|id, Options|dict, Procedure|uri]
-             * [48, 7814135, {}, "com.myapp.user.new", ["johnny"], {"firstname": "John", "surname": "Doe"}]
-             */
-            var data = new AttrList();
-            data.Add(new AttrInt(MsgCode.CALL));
-            data.AddValue(_requestId);
-            data.Add(new AttrDic());
-            data.AddValue(procedure);
-            if(args != null)
-            {
-                data.Add(args);
-            }
-            else
-            {
-                data.Add(new AttrList());
-            }
-
-            if(kwargs != null)
-            {
-                data.Add(kwargs);
-            }
-
-            SendData(data);
-
-            return request;
         }
 
         #endregion
@@ -717,16 +640,7 @@ namespace SocialPoint.WAMP
             {
             case MsgCode.CALL:
                 {
-                    CallRequest request;
-                    if(!_calls.TryGetValue(requestId, out request))
-                    {
-                        throw new Exception("Bogus ERROR message for non-pending CALL request ID");
-                    }
-                    if(request.CompletionHandler != null)
-                    {
-                        request.CompletionHandler(new Error(code, description), listArgs, dictArgs);
-                    }
-                    _calls.Remove(requestId);
+                    _caller.ProcessCallError(requestId, code, description, listArgs, dictArgs);
                     break;
                 }
             case MsgCode.REGISTER:
@@ -746,7 +660,7 @@ namespace SocialPoint.WAMP
                     }
                     if(request.CompletionHandler != null)
                     {
-                        request.CompletionHandler(new Error((int)ErrorCodes.SubscribeError, description), new Subscription(requestId, request.Topic));
+                        request.CompletionHandler(new Error(ErrorCodes.SubscribeError, description), new Subscription(requestId, request.Topic));
                     }
                     _subscribeRequests.Remove(requestId);
                     break;
@@ -760,7 +674,7 @@ namespace SocialPoint.WAMP
                     }
                     if(request.CompletionHandler != null)
                     {
-                        request.CompletionHandler(new Error((int)ErrorCodes.UnsubscribeError, description));
+                        request.CompletionHandler(new Error(ErrorCodes.UnsubscribeError, description));
                     }
                     _unsubscribeRequests.Remove(requestId);
                     break;
@@ -822,7 +736,7 @@ namespace SocialPoint.WAMP
             if(_joinRequest.CompletionHandler != null)
             {
                 var reason = msg.Get(2).AsValue.ToString();
-                var error = new Error((int)ErrorCodes.SessionAborted, reason);
+                var error = new Error(ErrorCodes.SessionAborted, reason);
                 _joinRequest.CompletionHandler(error, 0, null);
             }
             _joinRequest = null;
@@ -850,54 +764,6 @@ namespace SocialPoint.WAMP
                 _leaveRequest.CompletionHandler(null, reason);
             }
             _leaveRequest = null;
-        }
-
-        void ProcessCallResult(AttrList msg)
-        {
-            // [RESULT, CALL.Request|id, Details|dict]
-            // [RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list]
-            // [RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list, YIELD.ArgumentsKw|dict]
-
-            if(msg.Count < 3 || msg.Count > 5)
-            {
-                throw new Exception("Invalid RESULT message structure - length must be 3, 4 or 5");
-            }
-
-            if(!msg.Get(1).IsValue)
-            {
-                throw new Exception("Invalid RESULT message structure - CALL.Request must be an integer");
-            }
-            long requestId = msg.Get(1).AsValue.ToLong();
-
-            CallRequest request; 
-            if(!_calls.TryGetValue(requestId, out request))
-            {
-                throw new Exception("Bogus RESULT message for non-pending request ID");
-            }
-
-            if(request.CompletionHandler != null)
-            {
-                AttrList listParams = null;
-                AttrDic dictParams = null;
-                if(msg.Count >= 4)
-                {
-                    if(!msg.Get(3).IsList)
-                    {
-                        throw new Exception("Invalid RESULT message structure - YIELD.Arguments must be a list");
-                    }
-                    listParams = msg.Get(3).AsList;
-                }
-                if(msg.Count >= 5)
-                {
-                    if(!msg.Get(4).IsDic)
-                    {
-                        throw new Exception("Invalid RESULT message structure - YIELD.ArgumentsKw must be a dictionary");
-                    }
-                    dictParams = msg.Get(4).AsDic;
-                }
-                request.CompletionHandler(null, listParams, dictParams);
-            }
-            _calls.Remove(requestId);
         }
 
         void ProcessSubscribed(AttrList msg)

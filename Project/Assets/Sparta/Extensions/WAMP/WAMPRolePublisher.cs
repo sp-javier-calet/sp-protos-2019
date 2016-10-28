@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
-using SocialPoint.Network;
 using SocialPoint.Base;
-using SocialPoint.Utils;
 
 namespace SocialPoint.WAMP
 {
@@ -75,7 +73,7 @@ namespace SocialPoint.WAMP
             }
 
             var data = new AttrList();
-            data.Add(new AttrInt(MsgCode.PUBLISH));
+            data.AddValue(MsgCode.PUBLISH);
             data.AddValue(requestId);
             var optionsDict = new AttrDic();
             if(acknowledged)
