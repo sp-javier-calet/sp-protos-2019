@@ -12,11 +12,26 @@ namespace SocialPoint.AdminPanel
         void OnCreateGUI(AdminPanelLayout layout);
     }
 
-    public sealed class AdminPanelNestedGUI : IAdminPanelGUI
+    /// <summary>
+    /// Sorted GUIs appears in order when grouped
+    /// </summary>
+    public interface IAdminPanelSortedGUI : IAdminPanelGUI
     {
-        string _name;
-        IAdminPanelGUI _gui;
+        string Label { get; }
+    }
 
+    public sealed class AdminPanelNestedGUI : IAdminPanelSortedGUI
+    {
+        readonly string _name;
+        readonly IAdminPanelGUI _gui;
+
+        public string Label
+        {
+            get
+            {
+                return _name;
+            }
+        }
         public AdminPanelNestedGUI(string name, IAdminPanelGUI gui)
         {
             _name = name;
@@ -29,9 +44,9 @@ namespace SocialPoint.AdminPanel
         }
     }
 
-    public sealed class AdminPanelGUIGroup : IAdminPanelGUI
+    public sealed class AdminPanelGUIGroup : IAdminPanelGUI, IComparer<IAdminPanelGUI>
     {
-        List<IAdminPanelGUI> guiGroup;
+        readonly List<IAdminPanelGUI> guiGroup;
 
         public AdminPanelGUIGroup()
         {
@@ -41,18 +56,37 @@ namespace SocialPoint.AdminPanel
         public AdminPanelGUIGroup(IAdminPanelGUI gui) : this()
         {
             guiGroup.Add(gui);
+            guiGroup.Sort(this);
         }
 
         public void Add(IAdminPanelGUI gui)
         {
             guiGroup.Add(gui);
+            guiGroup.Sort(this);
         }
+
+        #region IComparer implementation
+
+        public int Compare(IAdminPanelGUI x, IAdminPanelGUI y)
+        {
+            var a = x as IAdminPanelSortedGUI;
+            var b = y as IAdminPanelSortedGUI;
+
+            if(a != null && b != null)
+            {
+                return string.Compare(a.Label, b.Label);
+            }
+
+            return 0;
+        }
+
+        #endregion
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             for(int i = 0, guiGroupCount = guiGroup.Count; i < guiGroupCount; i++)
             {
-                IAdminPanelGUI gui = guiGroup[i];
+                var gui = guiGroup[i];
                 gui.OnCreateGUI(layout);
             }
         }
