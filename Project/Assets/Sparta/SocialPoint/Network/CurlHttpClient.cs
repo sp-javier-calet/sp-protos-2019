@@ -1,7 +1,4 @@
-
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using SocialPoint.Utils;
 using SocialPoint.AppEvents;
 
@@ -9,8 +6,11 @@ namespace SocialPoint.Network
 {
     public class CurlHttpClient  : BaseYieldHttpClient
     {
-        static int _initCount = 0;
+        const int WillGoBackgroundEventPriority = -1000;
+
         IAppEvents _appEvents;
+
+        protected readonly Curl _curl;
 
         public IAppEvents AppEvents
         {
@@ -20,7 +20,7 @@ namespace SocialPoint.Network
                 _appEvents = value;
                 if(_appEvents != null)
                 {
-                    _appEvents.WillGoBackground.Add(-1000, OnWillGoBackground);
+                    _appEvents.WillGoBackground.Add(WillGoBackgroundEventPriority, OnWillGoBackground);
                     _appEvents.WasOnBackground += WasOnBackground;
                 }
             }
@@ -39,28 +39,24 @@ namespace SocialPoint.Network
         {
             set
             {
-                CurlBridge.SPUnityCurlSetConfig(value);
+                _curl.SetConfig(value);
             }
         }
 
-        public CurlHttpClient(ICoroutineRunner runner) : base(runner)
+        public CurlHttpClient(ICoroutineRunner runner, bool supportHttp2) : base(runner)
         {
-            if(_initCount == 0)
-            {
-                CurlBridge.SPUnityCurlInit();
-            }
-            _initCount++;
+            _curl = new Curl(supportHttp2);
+        }
+
+        public CurlHttpClient(ICoroutineRunner runner) : this(runner, false)
+        {
         }
 
         override public void Dispose()
         {
             base.Dispose();
             DisconnectAppEvents();
-            _initCount--;
-            if(_initCount <= 0)
-            {
-                CurlBridge.SPUnityCurlDestroy();
-            }
+            _curl.Dispose();
         }
 
         void OnWillGoBackground()
@@ -70,19 +66,18 @@ namespace SocialPoint.Network
                 IEnumerator e = Current.Update();
                 e.MoveNext();
             }
-            CurlBridge.SPUnityCurlOnApplicationPause(true);
+            _curl.Pause = true;
         }
 
         void WasOnBackground()
         {
-            CurlBridge.SPUnityCurlOnApplicationPause(false);
+            _curl.Pause = false;
         }
 
         protected override BaseYieldHttpConnection CreateConnection(HttpRequest req, HttpResponseDelegate del)
         {
-            int id = CurlBridge.SPUnityCurlCreateConn();
-            return new CurlHttpConnection(id, req, del);
+            var conn = _curl.CreateConnection();
+            return new CurlHttpConnection(conn, req, del);
         }
     }
 }
-

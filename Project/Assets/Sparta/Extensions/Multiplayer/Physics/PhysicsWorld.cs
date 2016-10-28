@@ -84,5 +84,15 @@ namespace SocialPoint.Multiplayer
             _collisionSystem.CollisionDetected += CollisionDetectedHandler;
             _world = new World(_collisionSystem);
         }
+
+        public bool IsCollisionEnabled(int layerIdxA, int layerIdxB)
+        {
+            return _collisionSystem.IsCollisionEnabled(layerIdxA, layerIdxB);
+        }
+
+        public void SetCollisionBetweenLayers(int layerIdxA, int layerIdxB, bool enable = true)
+        {
+            _collisionSystem.SetCollisionBetweenLayers(layerIdxA, layerIdxB, enable);
+        }
     }
 }

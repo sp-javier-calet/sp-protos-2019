@@ -41,6 +41,58 @@ namespace Jitter.Collision
         bool IsStaticOrInactive{ get; }
 
         bool IsStaticNonKinematic { get; }
+
+        int LayerIndex // 0-31 (int)
+        {
+            get;
+            set;
+        }
+    }
+
+    public static class LayerCollisionMatrix
+    {
+        static int numLayers = 32;
+        static readonly int[] masks = new int[numLayers];
+
+        // http://www.vipan.com/htdocs/bitwisehelp.html
+
+        public static bool IsCollisionEnabled(int layerIdxA, int layerIdxB)
+        {
+            if(layerIdxA == layerIdxB)
+            {
+                return true;
+            }
+
+            bool enabled = IsMaskCollisionEnabled(masks[layerIdxA], layerIdxB) || IsMaskCollisionEnabled(masks[layerIdxB], layerIdxA);
+            return enabled;
+        }
+
+        public static bool IsMaskCollisionEnabled(int mask, int layerIdx)
+        {
+            var flag = 1 << layerIdx;
+
+            bool enabled = ((mask & flag) == flag);
+            return enabled;
+        }
+
+        public static void SetCollisionBetweenLayers(int layerIdxA, int layerIdxB, bool enable = true)
+        {
+            if(layerIdxA == layerIdxB)
+            {
+                return;
+            }
+
+            if(enable)
+            {
+                masks[layerIdxA] |= (1 << layerIdxB);
+                masks[layerIdxB] |= (1 << layerIdxA);
+            }
+            else
+            {
+                masks[layerIdxA] &= ~(1 << layerIdxB);
+                masks[layerIdxB] &= ~(1 << layerIdxA);
+            }
+        }
     }
 
 
@@ -606,7 +658,7 @@ namespace Jitter.Collision
         /// against rays (rays are of infinite length). They are checked against segments
         /// which start at rayOrigin and end in rayOrigin + rayDirection.
         /// </summary>
-        public abstract bool Raycast(JVector rayOrigin, JVector rayDirection, RaycastCallback raycast, out RigidBody body, out JVector normal, out float fraction);
+        public abstract bool Raycast(JVector rayOrigin, JVector rayDirection, int rayLayerMask, RaycastCallback raycast, out RigidBody body, out JVector normal, out float fraction);
 
         /// <summary>
         /// Raycasts a single body. NOTE: For performance reasons terrain and trianglemeshshape aren't checked
@@ -687,5 +739,20 @@ namespace Jitter.Collision
         /// </summary>
         /// <param name="multiThreaded">If true internal multithreading is used.</param>
         public abstract void Detect(bool multiThreaded);
+
+        public bool IsCollisionEnabled(int layerIdxA, int layerIdxB)
+        {
+            return LayerCollisionMatrix.IsCollisionEnabled(layerIdxA, layerIdxB);
+        }
+
+        public bool IsMaskCollisionEnabled(int mask, int layerIdxB)
+        {
+            return LayerCollisionMatrix.IsMaskCollisionEnabled(mask, layerIdxB);
+        }
+
+        public void SetCollisionBetweenLayers(int layerIdxA, int layerIdxB, bool enable = true)
+        {
+            LayerCollisionMatrix.SetCollisionBetweenLayers(layerIdxA, layerIdxB, enable);
+        }
     }
 }

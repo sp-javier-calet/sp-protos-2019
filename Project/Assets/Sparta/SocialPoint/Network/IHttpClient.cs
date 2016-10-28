@@ -1,5 +1,4 @@
 using System;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -30,6 +29,5 @@ namespace SocialPoint.Network
         string Config { set; }
 
         event HttpRequestDelegate RequestSetup;
-
     }
 }
