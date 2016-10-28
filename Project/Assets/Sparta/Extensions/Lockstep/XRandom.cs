@@ -1,7 +1,7 @@
 ﻿using System;
 using FixMath.NET;
 
-namespace SocialPoint.Utils
+namespace SocialPoint.Lockstep
 {
     public sealed class XRandom
     {
@@ -24,17 +24,17 @@ namespace SocialPoint.Utils
 
         public uint Range(uint min, uint max)
         {
-            return _lce.Next % (max - min + 1) + min;
+            return _lce.Next % (max - min) + min;
         }
 
         public int Range(int min, int max)
         {
-            return (int)(_lce.Next % (max - min + 1) + min);
+            return (int)(_lce.Next % (max - min) + min);
         }
 
         public Fix64 Range(Fix64 min, Fix64 max)
         {
-            return _lce.Next * (max - min) + min;
+            return new Fix64((int)_lce.Next) * (max - min) + min;
         }
 
         #region Linear concruential engine

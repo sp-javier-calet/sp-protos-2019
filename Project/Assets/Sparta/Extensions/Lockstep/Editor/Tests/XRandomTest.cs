@@ -1,7 +1,8 @@
 ﻿using System;
 using NUnit.Framework;
+using FixMath.NET;
 
-namespace SocialPoint.Utils
+namespace SocialPoint.Lockstep
 {
     [TestFixture]
     [Category("SocialPoint.Utils")]
@@ -14,7 +15,6 @@ namespace SocialPoint.Utils
         XRandom RNGSeedA2;
         XRandom RNGSeedA3;
         XRandom RNGSeedB1;
-        XRandom RNGSeedNested;
 
         [SetUp]
         public void SetUp()
@@ -33,8 +33,8 @@ namespace SocialPoint.Utils
             var v2 = RNGSeedA2.Range(0, 100000);
             Assert.That(v1 == v2);
 
-            var f1 = RNGSeedA1.Range(0, 100.0f);
-            var f2 = RNGSeedA2.Range(0, 100.0f);
+            var f1 = RNGSeedA1.Range(Fix64.Zero, new Fix64(100));
+            var f2 = RNGSeedA2.Range(Fix64.Zero, new Fix64(100));
             Assert.That(f1 == f2);
 
             var u1 = RNGSeedA1.Range(0u, 100u);
