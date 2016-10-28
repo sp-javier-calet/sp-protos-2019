@@ -7,9 +7,9 @@ namespace SocialPoint.IO
         void Serialize(IWriter writer);
     }
 
-    public class NetworkShareableParser<T> : SimpleReadParser<T> where T: INetworkShareable, new()
+    public class NetworkShareableParser<T> : IReadParser<T> where T: INetworkShareable, new()
     {
-        public override T Parse(IReader reader)
+        public T Parse(IReader reader)
         {
             var obj = new T();
             obj.Deserialize(reader);
@@ -17,9 +17,9 @@ namespace SocialPoint.IO
         }
     }
 
-    public class NetworkShareableSerializer<T> : SimpleWriteSerializer<T> where T: INetworkShareable
+    public class NetworkShareableSerializer<T> : IWriteSerializer<T> where T: INetworkShareable
     {
-        public override void Serialize(T newObj, IWriter writer)
+        public void Serialize(T newObj, IWriter writer)
         {
             newObj.Serialize(writer);
         }
