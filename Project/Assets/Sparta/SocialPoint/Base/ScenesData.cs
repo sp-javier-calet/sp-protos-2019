@@ -69,7 +69,9 @@ namespace SocialPoint.Base
                     #endif
                 }
 
+                #if UNITY_EDITOR
                 UpdateData();
+                #endif
             }
             return _instance;
         }
