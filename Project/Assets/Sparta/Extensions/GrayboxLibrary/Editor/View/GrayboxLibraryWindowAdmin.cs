@@ -152,7 +152,7 @@ namespace SocialPoint.GrayboxLibrary
             GUILayout.Label("", GUILayout.Height(5));
 
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Main Asset", GUILayout.Width(position.width - 120));
+            GUILayout.Label("Prefab", GUILayout.Width(position.width - 120));
             _assetRect = GUILayoutUtility.GetRect(100, 100);
             if(GUI.Button(_assetRect, _asset.MainAssetPath.Length > 0 ? _assetPreview : Texture2D.blackTexture, _dropAreaStyle))
             {

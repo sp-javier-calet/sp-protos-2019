@@ -33,8 +33,8 @@ namespace SocialPoint.GrayboxLibrary
         private static GUIStyle _buttonStyle, _buttonAreaStyle, _simpleButtonStyle, _upperMenuStyle, _bottomMenuStyle, _bottomMenuTextStyle, _bottomMenuTextBoldStyle, _searchOptionStyle, _searchSelectedOptionStyle, _separatorStyle;
         public static float ThumbWidth = 512;
         public static float ThumbHeight = 512;
-        public static float AnimatedThumbWidth = 320;
-        public static float AnimatedThumbHeight = 240;
+        public static float AnimatedThumbWidth = 256;
+        public static float AnimatedThumbHeight = 256;
         private float _thumbSizeMultiplier = 0.3f;
         private const float _thumbMinSize = 0.1f;
         private const float _thumbMaxSize = 0.5f;
