@@ -222,7 +222,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         else if(data.MessageType == GameMsgType.MovementAction)
         {
             var ac = reader.Read<MovementAction>();
-            _controller.OnAction<MovementAction>(ac, data.ClientId);
+            _controller.OnAction(ac, data.ClientId);
         }
     }
 
@@ -239,7 +239,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     void AddPhysicsWorld()
     {
         _physicsWorld = new PhysicsWorld(true);
-
         _controller.AddBehaviour(_physicsWorld);
     }
 

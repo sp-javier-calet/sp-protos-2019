@@ -44,25 +44,23 @@ namespace SocialPoint.Utils
 
             layout.CreateMargin();
 
-            using(var hLayout = layout.CreateHorizontalLayout())
-            {
-                hLayout.CreateToggleButton("Auto", _config.AutoRefresh, value => {
-                    _config.AutoRefresh = value;
-                });
+            var hLayout = layout.CreateHorizontalLayout();
+            hLayout.CreateToggleButton("Auto", _config.AutoRefresh, value => {
+                _config.AutoRefresh = value;
+            });
 
-                hLayout.CreateButton("Refresh", RefreshContent);
+            hLayout.CreateButton("Refresh", RefreshContent);
 
-                hLayout.CreateButton("Clear", () => {
-                    _entries.Clear();
-                    RefreshContent();
-                });
-            }
+            hLayout.CreateButton("Clear", () => {
+                _entries.Clear();
+                RefreshContent();
+            });
 
-            layout.CreateToggleButton("Log Levels", _showLogLevels, status =>
-                {
-                    _showLogLevels = status;
-                    layout.Refresh();
-                });
+
+            layout.CreateToggleButton("Log Levels", _showLogLevels, status => {
+                _showLogLevels = status;
+                layout.Refresh();
+            });
             if(_showLogLevels)
             {
                 LogLevelsFoldoutGUI(layout);
@@ -71,14 +69,12 @@ namespace SocialPoint.Utils
             layout.CreateMargin();
 
             layout.CreateTextInput("Filter", 
-                value => 
-                {
-                    _config.Filter = string.IsNullOrEmpty(value)? null : value.ToLower();
+                value => {
+                    _config.Filter = string.IsNullOrEmpty(value) ? null : value.ToLower();
                     RefreshContent();
                 },
-                status => 
-                {
-                    _config.Filter = string.IsNullOrEmpty(status.Content)? null : status.Content.ToLower();
+                status => {
+                    _config.Filter = string.IsNullOrEmpty(status.Content) ? null : status.Content.ToLower();
                     RefreshContent();
                 });
 
@@ -87,16 +83,15 @@ namespace SocialPoint.Utils
 
         public void LogLevelsFoldoutGUI(AdminPanelLayout layout)
         {
-            using(var vlayout = layout.CreateVerticalLayout())
+            var vlayout = layout.CreateVerticalLayout();
+
+            var array = Enum.GetValues(typeof(LogType));
+            for(int i = 0, arrayCount = array.Length; i < arrayCount; i++)
             {
-                var array = Enum.GetValues(typeof(LogType));
-                for(int i = 0, arrayCount = array.Length; i < arrayCount; i++)
-                {
-                    // Each lambda must capture a diferent reference, so it has to be a local variable
-                    var type = (LogType)array.GetValue(i);
-                    LogType aType = type;
-                    vlayout.CreateToggleButton(aType.ToString(), _config.ActiveTypes[aType], value => ActivateLogType(aType, value));
-                }
+                // Each lambda must capture a diferent reference, so it has to be a local variable
+                var type = (LogType)array.GetValue(i);
+                LogType aType = type;
+                vlayout.CreateToggleButton(aType.ToString(), _config.ActiveTypes[aType], value => ActivateLogType(aType, value));
             }
         }
 

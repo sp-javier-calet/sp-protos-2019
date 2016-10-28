@@ -22,9 +22,9 @@ public class LocaleInstaller : Installer
     {
         public string ProjectId = LocalizationManager.LocationData.DefaultProjectId;
         public EnvironmentID EnvironmentId = EnvironmentID.prod;
-        public string SecretKeyDev = LocalizationManager.LocationData.DefaultSecretKey;
-        public string SecretKeyLoc = LocalizationManager.LocationData.DefaultSecretKey;
-        public string SecretKeyProd = LocalizationManager.LocationData.DefaultSecretKey;
+        public string SecretKeyDev = LocalizationManager.LocationData.DefaultDevSecretKey;
+        public string SecretKeyLoc = LocalizationManager.LocationData.DefaultProdSecretKey;
+        public string SecretKeyProd = LocalizationManager.LocationData.DefaultProdSecretKey;
         public string BundleDir = LocalizationManager.DefaultBundleDir;
         public string[] SupportedLanguages = LocalizationManager.DefaultSupportedLanguages;
         public float Timeout = LocalizationManager.DefaultTimeout;

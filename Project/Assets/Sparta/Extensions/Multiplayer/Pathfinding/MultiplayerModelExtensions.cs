@@ -1,7 +1,7 @@
 ﻿using PathVector = SharpNav.Geometry.Vector3;
 using MultiplayerVector = Jitter.LinearMath.JVector;
 
-namespace SocialPoint.Pathfinding
+namespace SocialPoint.Multiplayer
 {
     public static class MultiplayerModelExtensions
     {

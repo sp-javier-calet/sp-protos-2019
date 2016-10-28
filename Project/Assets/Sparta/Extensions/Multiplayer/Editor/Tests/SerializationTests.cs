@@ -22,7 +22,7 @@ namespace SocialPoint.Multiplayer
             Assert.That(obj.Equals(obj2));
         }
 
-        void GenericDiff<T>(T newObj, T oldObj, IWriteSerializer<T> serializer, IReadParser<T> parser)
+        void GenericDiff<T>(T newObj, T oldObj, IDiffWriteSerializer<T> serializer, IDiffReadParser<T> parser)
         {
             var stream = new MemoryStream();
             var writer = new SystemBinaryWriter(stream);

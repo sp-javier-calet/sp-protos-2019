@@ -1,44 +1,45 @@
-#include "SPUnityCurlFacade.h"
-#include "SPUnityCurlManager.h"
+
 #include <mutex>
 #include <thread>
+#include "CurlClient.hpp"
 
 std::mutex m;
 bool AppPaused = false;
 
-void curlUpdater_thread()
+extern "C"
 {
-    while(SPUnityCurlRunning() > 0)
+    void SPUnityCurlOnApplicationPause(CurlClient* client, bool paused)
     {
-        std::lock_guard<std::mutex> lk(m);
-        if(AppPaused)
+        if(client->isRunning())
         {
-            SPUnityCurlUpdate(0);
+            return;
+        }
+
+        if(paused)
+        {
+            std::lock_guard<std::mutex> lk(m);
+            AppPaused = true;
+            std::thread updater([client]()
+                {
+                    while(client->isRunning())
+                    {
+                        std::lock_guard<std::mutex> lk(m);
+                        if(AppPaused)
+                        {
+                            client->update();
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                });
+            updater.detach();
         }
         else
         {
-            break;
+            std::lock_guard<std::mutex> lk(m);
+            AppPaused = false;
         }
-    }
-}
-
-EXPORT_API void SPUnityCurlOnApplicationPause(bool paused)
-{
-    if(SPUnityCurlRunning() == 0)
-    {
-        return;
-    }
-
-    if(paused)
-    {
-        std::lock_guard<std::mutex> lk(m);
-        AppPaused = true;
-        std::thread updater(curlUpdater_thread);
-        updater.detach();
-    }
-    else
-    {
-        std::lock_guard<std::mutex> lk(m);
-        AppPaused = false;
     }
 }
