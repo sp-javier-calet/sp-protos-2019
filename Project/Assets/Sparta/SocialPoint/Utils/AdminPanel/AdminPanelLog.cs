@@ -56,15 +56,8 @@ namespace SocialPoint.Utils
                 RefreshContent();
             });
 
-
-            layout.CreateToggleButton("Log Levels", _showLogLevels, status => {
-                _showLogLevels = status;
-                layout.Refresh();
-            });
-            if(_showLogLevels)
-            {
-                LogLevelsFoldoutGUI(layout);
-            }
+            var foldout = layout.CreateFoldoutLayout("LogLevels");
+            LogLevelsFoldoutGUI(foldout);
 
             layout.CreateMargin();
 
@@ -83,15 +76,13 @@ namespace SocialPoint.Utils
 
         public void LogLevelsFoldoutGUI(AdminPanelLayout layout)
         {
-            var vlayout = layout.CreateVerticalLayout();
-
             var array = Enum.GetValues(typeof(LogType));
             for(int i = 0, arrayCount = array.Length; i < arrayCount; i++)
             {
                 // Each lambda must capture a diferent reference, so it has to be a local variable
                 var type = (LogType)array.GetValue(i);
                 LogType aType = type;
-                vlayout.CreateToggleButton(aType.ToString(), _config.ActiveTypes[aType], value => ActivateLogType(aType, value));
+                layout.CreateToggleButton(aType.ToString(), _config.ActiveTypes[aType], value => ActivateLogType(aType, value));
             }
         }
 
