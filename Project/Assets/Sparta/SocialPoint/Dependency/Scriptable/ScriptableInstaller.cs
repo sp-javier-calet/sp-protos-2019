@@ -2,6 +2,7 @@
 using System.IO;
 using UnityEngine;
 using UnityEditor;
+using System.Collections.Generic;
 
 namespace SocialPoint.Dependency
 {
@@ -14,130 +15,85 @@ namespace SocialPoint.Dependency
 
     public interface IScriptableInstaller
     {
-        bool Enabled { get; }
+        bool Enabled { get; set; }
         ModuleType Type { get; }
         void InstallBindings();
     }
 
-    #if UNITY_EDITOR
-    [UnityEditor.InitializeOnLoad]
-    #endif
-    public abstract class ScriptableInstaller<T> : ScriptableObject, IScriptableInstaller where T : ScriptableObject
+    public static class ScriptableInstallerManager
     {
-        public bool Enabled { get; set; }
-        public ModuleType Type { get; protected set; }
-
-
-        #if UNITY_EDITOR
-        static ScriptableInstaller()
-        {
-            Create();
-        }
-        #endif
-
-        public const string ContainerPath = "Assets/Sparta/Config/Installers/";
+        public const string ContainerPath = "Assets/Sparta/Config/Installers";
         public const string FileExtension = ".asset";
 
-        public DependencyContainer Container{ get; set; }
-
-        public abstract void InstallBindings();
-
-        public static void Create()
+        public static void Create(Type t)
         {
             if(!Directory.Exists(ContainerPath))
             {
                 Directory.CreateDirectory(ContainerPath);
             }
 
-            var path = GetInstallerPath();
+            var path = GetInstallerPath(t);
             if(!File.Exists(path))
             {
-                var asset = ScriptableObject.CreateInstance<T>();
+                var asset = ScriptableObject.CreateInstance(t);
                 string assetPath = AssetDatabase.GenerateUniqueAssetPath(path);
                 AssetDatabase.CreateAsset(asset, assetPath);
                 AssetDatabase.SaveAssets();
             }
         }
 
-        public static string GetInstallerPath()
+        public static ScriptableInstaller Open(string path)
         {
-            return ContainerPath + typeof(T).Name + FileExtension;
+            return AssetDatabase.LoadAssetAtPath<ScriptableInstaller>(path);
         }
 
-        public static bool Delete()
+        public static string GetInstallerPath(Type t)
         {
-            return AssetDatabase.DeleteAsset(GetInstallerPath());
+            return ContainerPath + "/" + t.Name + FileExtension;
+        }
+
+        public static bool Delete(Type t)
+        {
+            return AssetDatabase.DeleteAsset(GetInstallerPath(t));
+        }
+
+        public static ScriptableInstaller[] Installers
+        {
+            get
+            {
+                var list = new List<ScriptableInstaller>();
+                var files = Directory.GetFiles(ContainerPath, "*.asset");
+                foreach(var f in files)
+                {
+                    var asset = Open(f);
+                    if(asset != null && asset.Type != ModuleType.Configurer)
+                    {
+                        list.Add(asset);
+                    }
+                }
+
+                return list.ToArray();
+            }
         }
     }
 
-    public class AdminPanelScriptInstaller : ScriptableInstaller<AdminPanelScriptInstaller>
+    public abstract class ScriptableInstaller : ScriptableObject, IScriptableInstaller
     {
-        public bool ShowButton;
+        public bool Enabled { get; set; }
+        public ModuleType Type { get; private set; }
 
-        public AdminPanelScriptInstaller()
+        protected ScriptableInstaller()
         {
             Type = ModuleType.Service;
         }
 
-        public override void InstallBindings()
+        protected ScriptableInstaller(ModuleType type)
         {
-
-        }
-    }
-
-    public class HttpClientScriptInstaller : ScriptableInstaller<HttpClientScriptInstaller>
-    {
-        public string Config = "basegame";
-        public bool EnableHttpStreamPinning = false;
-
-        public HttpClientScriptInstaller()
-        {
-            Type = ModuleType.Service;
+            Type = type;
         }
 
-        public override void InstallBindings()
-        {
+        public DependencyContainer Container{ get; set; }
 
-        }
-
-        public new static void Create()
-        {
-            ScriptableInstaller<HttpClientScriptInstaller>.Create();
-        }
-    }
-
-    #if UNITY_EDITOR
-    [UnityEditor.InitializeOnLoad]
-    #endif
-    public class SocialFrameworkInstaller : ScriptableInstaller<SocialFrameworkInstaller>
-    {
-        const string DefaultWAMPProtocol = "wamp.2.json";
-        const string DefaultEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8001/ws";
-
-        [Serializable]
-        public class SettingsData
-        {
-            public string Endpoint = DefaultEndpoint;
-            public string[] Protocols = new string[] { DefaultWAMPProtocol };
-        }
-
-        public SettingsData Settings = new SettingsData();
-
-        public SocialFrameworkInstaller()
-        {
-            Type = ModuleType.Service;
-        }
-
-        public override void InstallBindings()
-        {
-
-        }
-
-        #if UNITY_EDITOR
-        static SocialFrameworkInstaller()
-        {
-            Create();
-        }
-        #endif
+        public abstract void InstallBindings();
     }
 }

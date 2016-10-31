@@ -8,9 +8,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f08abeba8f672475cb741720503b3627, type: 3}
-  m_Name: HttpClientScriptInstaller
+  m_Script: {fileID: 11500000, guid: 1f6982c23f8ac49f8846574aa98b2130, type: 3}
+  m_Name: SocialFrameworkScriptInstaller
   m_EditorClassIdentifier: 
   Settings:
-    Config: basegame
-    EnableHttpStreamPinning: 0
+    Endpoint: ws://sprocket-00.int.lod.laicosp.net:8001/ws
+    Protocols:
+    - wamp.2.json

@@ -7,7 +7,6 @@ namespace SocialPoint.Dependency
     public sealed class GlobalScriptableEditor : UnityEditor.Editor
     {
         ReorderableArrayProperty _installers;
-        UnityEditor.Editor _editor;
 
         void OnEnable()
         {
@@ -21,6 +20,7 @@ namespace SocialPoint.Dependency
         {
             serializedObject.Update();
             var configurer = (GlobalScriptableConfigurer)target;
+            configurer.Load();
             var installers = configurer.installers;
 
             foreach(var i in installers)
@@ -29,9 +29,12 @@ namespace SocialPoint.Dependency
                 if(installer.Type == ModuleType.Service)
                 {
                     var obj = (UnityEngine.Object)installer;
-                    CreateCachedEditor(obj, null, ref _editor);
                     EditorGUILayout.LabelField(obj.name, EditorStyles.boldLabel);
-                    _editor.OnInspectorGUI();
+                    installer.Enabled = EditorGUILayout.Toggle("Enabled", installer.Enabled, EditorStyles.toggle);
+                    var editor = CreateEditor(obj);
+                    editor.OnInspectorGUI();
+                    EditorUtility.SetDirty(obj);
+                    EditorGUILayout.Space();
                 }
             }
 
