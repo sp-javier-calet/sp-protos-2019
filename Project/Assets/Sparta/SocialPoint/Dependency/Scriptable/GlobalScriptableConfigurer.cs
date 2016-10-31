@@ -15,8 +15,6 @@ namespace SocialPoint.Dependency
         [System.Diagnostics.Conditional("UNITY_EDITOR")]
         public void Load()
         {
-            installers = ScriptableInstallerManager.Installers;
-            // TODO Load all assets under config/installers
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach(var assembly in assemblies)
             {
@@ -24,12 +22,12 @@ namespace SocialPoint.Dependency
                 {
                     if(t.BaseType == typeof(ScriptableInstaller))
                     {
-                        ScriptableInstallerManager.Create(t);
+                        InstallerAssetsManager.Create(t);
                     }
                 }
             }
 
-            installers = ScriptableInstallerManager.Installers;
+            installers = InstallerAssetsManager.Installers;
         }
 
         public override void InstallBindings()

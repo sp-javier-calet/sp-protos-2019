@@ -10,9 +10,6 @@ namespace SocialPoint.Dependency
 
         void OnEnable()
         {
-            var configurer = (GlobalScriptableConfigurer)target;
-            //var installers = configurer.installers;
-
             _installers = new ReorderableArrayProperty(serializedObject, "Installers");
         }
 
@@ -25,21 +22,17 @@ namespace SocialPoint.Dependency
 
             foreach(var i in installers)
             {
-                var installer = i as IScriptableInstaller;
+                var installer = i as ScriptableInstaller;
                 if(installer.Type == ModuleType.Service)
                 {
-                    var obj = (UnityEngine.Object)installer;
-                    EditorGUILayout.LabelField(obj.name, EditorStyles.boldLabel);
+                    EditorGUILayout.LabelField(installer.name, EditorStyles.boldLabel);
                     installer.Enabled = EditorGUILayout.Toggle("Enabled", installer.Enabled, EditorStyles.toggle);
-                    var editor = CreateEditor(obj);
+                    var editor = CreateEditor(installer);
                     editor.OnInspectorGUI();
-                    EditorUtility.SetDirty(obj);
+                    EditorUtility.SetDirty(installer);
                     EditorGUILayout.Space();
                 }
             }
-
-
-            //_installers.OnInspectorGUI();
             serializedObject.ApplyModifiedProperties();
         }
     }

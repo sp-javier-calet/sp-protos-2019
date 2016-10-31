@@ -15,10 +15,6 @@ public class SocialFrameworkScriptInstaller : ScriptableInstaller
 
     public SettingsData Settings = new SettingsData();
 
-    public SocialFrameworkScriptInstaller()
-    {
-    }
-
     public override void InstallBindings()
     {
 
