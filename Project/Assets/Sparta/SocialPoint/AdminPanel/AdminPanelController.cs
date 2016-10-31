@@ -98,8 +98,20 @@ namespace SocialPoint.AdminPanel
             {
                 InflateGUI();
             }
-            RefreshPanel(false);
+            OpenDefaultPanel();
             AdminPanel.OnAppearing();
+        }
+
+        void OpenDefaultPanel()
+        {
+            if(_activePanels.Count == 0 && AdminPanel.DefaultPanel != null)
+            {
+                OpenPanel(AdminPanel.DefaultPanel);
+            }
+            else
+            {
+                RefreshPanel(false);
+            }
         }
 
         protected override void OnDisappeared()
