@@ -48,12 +48,12 @@ namespace SocialPoint.Lockstep.Network
         LocalNetworkServer _netServer;
         ServerLockstepNetworkController _netLockServer;
 
-        LocalNetworkClient _netClient1;
+        SimulateNetworkClient _netClient1;
         ClientLockstepController _lockClient1;
         ClientLockstepNetworkController _netLockClient1;
         TestCommandLogic _logic1;
 
-        LocalNetworkClient _netClient2;
+        SimulateNetworkClient _netClient2;
         ClientLockstepController _lockClient2;
         ClientLockstepNetworkController _netLockClient2;
 
@@ -68,11 +68,11 @@ namespace SocialPoint.Lockstep.Network
             _netLockServer = new ServerLockstepNetworkController(_netServer);
             _netLockServer.ServerConfig.MaxPlayers = 2;
 
-            _netClient1 = new LocalNetworkClient(_netServer);
+            _netClient1 = new SimulateNetworkClient(_netServer);
             _lockClient1 = new ClientLockstepController();
             _netLockClient1 = new ClientLockstepNetworkController(_netClient1, _lockClient1, _factory);
 
-            _netClient2 = new LocalNetworkClient(_netServer);
+            _netClient2 = new SimulateNetworkClient(_netServer);
             _lockClient2 = new ClientLockstepController();
             _netLockClient2 = new ClientLockstepNetworkController(_netClient2, _lockClient2, _factory);
 
@@ -180,7 +180,7 @@ namespace SocialPoint.Lockstep.Network
 
             Assert.IsTrue(_lockClient1.Connected, "Client is connected");
 
-            _netClient1.DelayReceivedMessages = true;
+            _netClient1.BlockReception = true;
 
             Update(100);
             Update(100);
@@ -194,7 +194,7 @@ namespace SocialPoint.Lockstep.Network
             Assert.IsFalse(_lockClient1.Connected, "Client is lagging, it's not getting any messages");
             Assert.AreEqual(0, _logic1.SumValues, "Client is lagging, it's not getting any messages");
 
-            _netClient1.DelayReceivedMessages = false;
+            _netClient1.BlockReception = false;
 
             Update(100);
             Update(50);

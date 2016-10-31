@@ -30,7 +30,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         _server = server;
         _controller = ctrl;
         _controller.RegisterReceiver(this);
-        _controller.RegisterActionDelegate<MovementAction>(MovementAction.Apply);
+        _controller.RegisterAction<MovementAction>(GameMsgType.MovementAction, MovementAction.Apply);
         _updateTimes = new Dictionary<int,int>();
         _movement = new JVector(2.0f, 0.0f, 2.0f);
 
@@ -125,11 +125,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             }
 
         }
-        else if(data.MessageType == GameMsgType.MovementAction)
-        {
-            var ac = reader.Read<MovementAction>();
-            _controller.OnAction<MovementAction>(ac, data.ClientId);
-        }
     }
 
     void INetworkServerSceneBehaviour.OnClientConnected(byte clientId)
@@ -143,7 +138,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     void AddPhysicsWorld()
     {
         _physicsWorld = new PhysicsWorld(true);
-
         _controller.AddBehaviour(_physicsWorld);
     }
 
