@@ -18,7 +18,7 @@ public class AdminPanelGame : IAdminPanelConfigurer
     {
         adminPanel.RegisterGUI("Game", new AdminPanelGameControl(_appEvents, _gameLoader));
         adminPanel.RegisterGUI("Game", new AdminPanelNestedGUI("Model", new AdminPanelGameModel(_model)));
-        adminPanel.DefaultCategory = "Game";
+        adminPanel.DefaultCategory = "System";
     }
 
     class AdminPanelGameControl : IAdminPanelGUI
