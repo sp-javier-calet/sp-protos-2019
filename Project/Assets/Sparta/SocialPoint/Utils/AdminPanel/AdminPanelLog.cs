@@ -60,7 +60,6 @@ namespace SocialPoint.Utils
                     _availableTags.Clear();
                     RefreshContent();
                 });
-            }
 
             layout.CreateToggleButton("Log Levels", _showLogLevels, status => {
                 _showLogLevels = status;
