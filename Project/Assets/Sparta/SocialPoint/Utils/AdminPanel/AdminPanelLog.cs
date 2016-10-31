@@ -11,8 +11,8 @@ namespace SocialPoint.Utils
     {
         readonly List<LogEntry> _entries;
         readonly HashSet<string> _availableTags;
+        readonly HashSet<string> _selectedTags;
         bool _showLogLevels;
-        string _selectedTag;
         Text _textComponent;
         LogConfig _config;
 
@@ -20,6 +20,7 @@ namespace SocialPoint.Utils
         {
             _entries = new List<LogEntry>();
             _availableTags = new HashSet<string>();
+            _selectedTags = new HashSet<string>();
             _config = new LogConfig();
 
             LogCallbackHandler.RegisterLogCallback(HandleLog);
@@ -62,11 +63,10 @@ namespace SocialPoint.Utils
                 });
             }
 
-            layout.CreateToggleButton("Log Levels", _showLogLevels, status =>
-                {
-                    _showLogLevels = status;
-                    layout.Refresh();
-                });
+            layout.CreateToggleButton("Log Levels", _showLogLevels, status => {
+                _showLogLevels = status;
+                layout.Refresh();
+            });
             if(_showLogLevels)
             {
                 LogLevelsFoldoutGUI(layout);
@@ -75,26 +75,49 @@ namespace SocialPoint.Utils
             layout.CreateMargin();
 
             layout.CreateTextInput("Filter", 
-                value => 
-                {
-                    _config.Filter = string.IsNullOrEmpty(value)? null : value.ToLower();
+                value => {
+                    _config.Filter = string.IsNullOrEmpty(value) ? null : value.ToLower();
                     RefreshContent();
                 },
-                status => 
-                {
-                    _config.Filter = string.IsNullOrEmpty(status.Content)? null : status.Content.ToLower();
+                status => {
+                    _config.Filter = string.IsNullOrEmpty(status.Content) ? null : status.Content.ToLower();
                     RefreshContent();
                 });
-
-            // TODO multi selected
+                    
             layout.CreateLabel("Tags");
-            foreach(var tagFilter in _availableTags)
+            var vlayout = layout.CreateVerticalScrollLayout();
+            if(_availableTags.Count > 0)
             {
-                layout.CreateToggleButton(tagFilter, _selectedTag == tagFilter, value =>
-                    {
-                        _selectedTag = value ? tagFilter : null;
+                foreach(var tagFilter in _availableTags)
+                {
+                    vlayout.CreateToggleButton(tagFilter, _selectedTags.Contains(tagFilter), value => {
+                        if(value)
+                        {
+                            _selectedTags.Add(tagFilter);
+                        }
+                        else
+                        {
+                            _selectedTags.Remove(tagFilter);
+                        }
                     });
+                }
             }
+            else
+            {
+                vlayout.CreateLabel("No Tags available");
+            }
+
+            layout.CreateButton("Test", () => {
+                SocialPoint.Base.Log.d("A", "TEST 1");
+                SocialPoint.Base.Log.d("Ab", "TEST 1");
+                SocialPoint.Base.Log.d("asdA", "TEST 1");
+                SocialPoint.Base.Log.d("asdasdasdA", "TEST 1");
+                SocialPoint.Base.Log.d("Afasfsad", "TEST 1");
+                SocialPoint.Base.Log.d("Adgadf", "TEST 1");
+                SocialPoint.Base.Log.d("basdasd", "TEST 1");
+                SocialPoint.Base.Log.d("rsgadf", "TEST 1");
+                SocialPoint.Base.Log.d("qwdasd", "TEST 1");
+            });
 
             RefreshContent();
         }
@@ -138,7 +161,7 @@ namespace SocialPoint.Utils
                         {
                             continue;
                         }
-                        if(_selectedTag != null && entry.Tag != _selectedTag)
+                        if(_selectedTags.Contains(entry.Tag))
                         {
                             continue;
                         }
