@@ -13,6 +13,7 @@ namespace SocialPoint.Utils
         readonly HashSet<string> _availableTags;
         readonly HashSet<string> _selectedTags;
         bool _showLogLevels;
+        bool _showTags;
         Text _textComponent;
         LogConfig _config;
 
@@ -70,7 +71,16 @@ namespace SocialPoint.Utils
                 LogLevelsFoldoutGUI(layout);
             }
 
-            layout.CreateMargin();
+            layout.CreateToggleButton("Tags",  _showTags, status => {
+                _showTags = status;
+                layout.Refresh();
+            });
+            if(_showTags)
+            {
+                TagsFoldoutGUI(layout);
+            }
+
+            layout.CreateMargin(2);
 
             layout.CreateTextInput("Filter", 
                 value => {
@@ -81,41 +91,6 @@ namespace SocialPoint.Utils
                     _config.Filter = string.IsNullOrEmpty(status.Content) ? null : status.Content.ToLower();
                     RefreshContent();
                 });
-                    
-            layout.CreateLabel("Tags");
-            var vlayout = layout.CreateVerticalScrollLayout();
-            if(_availableTags.Count > 0)
-            {
-                foreach(var tagFilter in _availableTags)
-                {
-                    vlayout.CreateToggleButton(tagFilter, _selectedTags.Contains(tagFilter), value => {
-                        if(value)
-                        {
-                            _selectedTags.Add(tagFilter);
-                        }
-                        else
-                        {
-                            _selectedTags.Remove(tagFilter);
-                        }
-                    });
-                }
-            }
-            else
-            {
-                vlayout.CreateLabel("No Tags available");
-            }
-
-            layout.CreateButton("Test", () => {
-                SocialPoint.Base.Log.d("A", "TEST 1");
-                SocialPoint.Base.Log.d("Ab", "TEST 1");
-                SocialPoint.Base.Log.d("asdA", "TEST 1");
-                SocialPoint.Base.Log.d("asdasdasdA", "TEST 1");
-                SocialPoint.Base.Log.d("Afasfsad", "TEST 1");
-                SocialPoint.Base.Log.d("Adgadf", "TEST 1");
-                SocialPoint.Base.Log.d("basdasd", "TEST 1");
-                SocialPoint.Base.Log.d("rsgadf", "TEST 1");
-                SocialPoint.Base.Log.d("qwdasd", "TEST 1");
-            });
 
             RefreshContent();
         }
@@ -131,6 +106,36 @@ namespace SocialPoint.Utils
                 var type = (LogType)array.GetValue(i);
                 LogType aType = type;
                 vlayout.CreateToggleButton(aType.ToString(), _config.ActiveTypes[aType], value => ActivateLogType(aType, value));
+            }
+        }
+
+        public void TagsFoldoutGUI(AdminPanelLayout layout)
+        {
+            var vlayout = layout.CreateVerticalLayout().CreateVerticalScrollLayout();
+            if(_availableTags.Count > 0)
+            {
+                foreach(var tagFilter in _availableTags)
+                {
+                    vlayout.CreateToggleButton(tagFilter, _selectedTags.Contains(tagFilter), value => {
+                        if(value)
+                        {
+                            _selectedTags.Add(tagFilter);
+                        }
+                        else
+                        {
+                            _selectedTags.Remove(tagFilter);
+                        }
+
+                        if(_config.AutoRefresh)
+                        {
+                            RefreshContent();
+                        }
+                    });
+                }
+            }
+            else
+            {
+                vlayout.CreateLabel("No Tags available");
             }
         }
 
@@ -158,7 +163,7 @@ namespace SocialPoint.Utils
                         {
                             continue;
                         }
-                        if(_selectedTags.Contains(entry.Tag))
+                        if(_selectedTags.Count > 0 && !_selectedTags.Contains(entry.Tag))
                         {
                             continue;
                         }
