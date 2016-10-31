@@ -61,6 +61,7 @@ namespace SocialPoint.Network
 
         public void Init(PhotonNetworkConfig config)
         {
+            //PhotonNetwork.sendRate = 1;
             _config = config;
         }
 
