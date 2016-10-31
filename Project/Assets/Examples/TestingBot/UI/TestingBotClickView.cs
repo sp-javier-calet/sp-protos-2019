@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using SocialPoint.EventSystems;
+using SocialPoint.TestingBot;
 
 public class TestingBotClickView : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class TestingBotClickView : MonoBehaviour
     [SerializeField]
     float _minDuration = 1f;
 
-    MouseAction _mouseAction;
+    IMouseAction _mouseAction;
     Canvas _canvas;
 
     bool _started;
@@ -23,7 +24,7 @@ public class TestingBotClickView : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void Init(MouseAction a, Canvas canvas)
+    public void Init(IMouseAction a, Canvas canvas)
     {
         _mouseAction = a;
         _mouseAction.Started += OnStarted;
@@ -31,12 +32,12 @@ public class TestingBotClickView : MonoBehaviour
         _canvas = canvas;
     }
 
-    void OnFinished(MouseAction obj)
+    void OnFinished(IMouseAction obj)
     {
         _finished = true;
     }
 
-    void OnStarted(MouseAction obj)
+    void OnStarted(IMouseAction obj)
     {
         _started = true;
         gameObject.SetActive(true);

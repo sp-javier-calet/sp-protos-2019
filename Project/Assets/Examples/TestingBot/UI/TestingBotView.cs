@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-using SocialPoint.EventSystems;
+using SocialPoint.TestingBot;
 
 public class TestingBotView : MonoBehaviour
 {
@@ -32,7 +32,7 @@ public class TestingBotView : MonoBehaviour
         }
     }
 
-    void OnMouseActionEnqueued(MouseAction m)
+    void OnMouseActionEnqueued(IMouseAction m)
     {
         GameObject clickView = GameObject.Instantiate(_testingBotClickViewPrefab);
         clickView.transform.SetParent(transform);

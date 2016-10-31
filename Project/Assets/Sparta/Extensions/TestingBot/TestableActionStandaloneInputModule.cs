@@ -7,110 +7,33 @@ using UnityEngine.UI;
 
 namespace SocialPoint.TestingBot
 {
-    public class MouseAction
-    {
-        public Vector2 StartPosition { get; private set; }
-
-        public Vector2 EndPosition { get; private set; }
-
-        public float ClickDuration { get; private set; }
-
-        public bool Clicked { get; private set; }
-
-        public Vector2 Position { get; private set; }
-
-        public float ElapsedTime { get; private set; }
-
-        public bool IsFinished { get; private set; }
-
-        public bool HasStarted { get; private set; }
-
-        public MouseAction(Vector2 startPosition, Vector2 endPosition, float clickDuration)
-        {
-            StartPosition = startPosition;
-            EndPosition = endPosition;
-            ClickDuration = clickDuration;
-
-            Clicked = false;
-            Position = startPosition;
-        }
-
-        public event Action<MouseAction> Started;
-
-        public event Action<MouseAction> Finished;
-
-        public void Start()
-        {
-            Clicked = false;
-            Position = StartPosition;
-            HasStarted = true;
-            if(Started != null)
-            {
-                Started(this);
-            }
-        }
-
-        public void Finish()
-        {
-            if(IsFinished)
-            {
-                return;
-            }
-            IsFinished = true;
-            Clicked = false;
-            if(Finished != null)
-            {
-                Finished(this);
-            }
-        }
-
-        public void Update(float dt)
-        {
-            if(!HasStarted)
-            {
-                Start();
-                return;
-            }
-
-            ElapsedTime += dt;
-            if(ElapsedTime >= ClickDuration && Clicked)
-            {
-                Clicked = false;
-                Position = EndPosition;
-                Finish();
-            }
-            else
-            {
-                Clicked = true;
-                Position = Vector2.Lerp(StartPosition, EndPosition, ElapsedTime / ClickDuration);
-            }
-        }
-    }
-
     public class TestableActionStandaloneInputModule : ActionStandaloneInputModule
     {
         private readonly MouseState _mouseState = new MouseState();
 
-        Queue<MouseAction> _pendingMouseActions = new Queue<MouseAction>();
+        Queue<IMouseAction> _pendingMouseActions = new Queue<IMouseAction>();
 
-        MouseAction _currentMouseAction;
+        IMouseAction _currentMouseAction;
+        bool _currentMouseActionFinished;
 
-        public event Action<MouseAction> MouseActionStarted;
+        public event Action<IMouseAction> MouseActionStarted;
 
-        public event Action<MouseAction> MouseActionFinished;
+        public event Action<IMouseAction> MouseActionFinished;
 
-        public event Action<MouseAction> MouseActionEnqueued;
+        public event Action<IMouseAction> MouseActionEnqueued;
 
-        void OnMouseActionStarted(MouseAction mouseAction)
+        void OnMouseActionStarted(IMouseAction mouseAction)
         {
+            _currentMouseActionFinished = false;
             if(MouseActionStarted != null)
             {
                 MouseActionStarted(mouseAction);
             }
         }
 
-        void OnMouseActionFinished(MouseAction mouseAction)
+        void OnMouseActionFinished(IMouseAction mouseAction)
         {
+            _currentMouseActionFinished = true;
             mouseAction.Started -= OnMouseActionStarted;
             mouseAction.Finished -= OnMouseActionFinished;
             if(MouseActionFinished != null)
@@ -121,7 +44,7 @@ namespace SocialPoint.TestingBot
 
         bool _lastMouseActionClicked = false;
 
-        PointerEventData.FramePressState GetFramePressStateByMouseAction(MouseAction mouseAction, bool lastMouseActionClicked)
+        PointerEventData.FramePressState GetFramePressStateByMouseAction(IMouseAction mouseAction, bool lastMouseActionClicked)
         {
             if(mouseAction.Clicked)
             {
@@ -133,7 +56,7 @@ namespace SocialPoint.TestingBot
             }
         }
 
-        MouseState GetMousePointerEventDataByMouseAction(MouseAction mouseAction)
+        MouseState GetMousePointerEventDataByMouseAction(IMouseAction mouseAction)
         {
             PointerEventData leftData;
             var created = GetPointerData(kMouseLeftId, out leftData, true);
@@ -184,14 +107,8 @@ namespace SocialPoint.TestingBot
             }
         }
 
-        public MouseAction SimulateClick(Vector2 position, float duration = 0.1f)
+        public void SimulateMouseAction(IMouseAction mouseAction)
         {
-            return SimulateDrag(position, position, duration);
-        }
-
-        public MouseAction SimulateDrag(Vector2 startPosition, Vector2 endPosition, float pressDuration)
-        {
-            var mouseAction = new MouseAction(startPosition, endPosition, pressDuration);
             _pendingMouseActions.Enqueue(mouseAction);
 
             mouseAction.Started += OnMouseActionStarted;
@@ -201,12 +118,12 @@ namespace SocialPoint.TestingBot
             {
                 MouseActionEnqueued(mouseAction);
             }
-
-            return mouseAction;
         }
 
         public override void Process()
         {
+            PointerEventData leftData;
+            GetPointerData(kMouseLeftId, out leftData, true);
             if(_currentMouseAction == null && _pendingMouseActions.Count > 0)
             {
                 _currentMouseAction = _pendingMouseActions.Dequeue();
@@ -216,7 +133,7 @@ namespace SocialPoint.TestingBot
                 _currentMouseAction.Update(Time.unscaledDeltaTime);
             }
             base.Process();
-            if(_currentMouseAction != null && _currentMouseAction.IsFinished)
+            if(_currentMouseAction != null && _currentMouseActionFinished)
             {
                 _currentMouseAction = null;
             }
