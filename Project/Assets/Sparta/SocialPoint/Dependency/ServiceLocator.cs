@@ -96,7 +96,7 @@ namespace SocialPoint.Dependency
             _initializables.Initialize();
         }
 
-        const string GlobalInstallersResource = "GlobalInstallers";
+        const string GlobalInstallersResource = "GlobalDependencyConfigurer";
 
         override protected void SingletonAwakened()
         {
