@@ -99,6 +99,11 @@ namespace SocialPoint.Dependency
         {
 
         }
+
+        public new static void Create()
+        {
+            ScriptableInstaller<HttpClientScriptInstaller>.Create();
+        }
     }
 
     #if UNITY_EDITOR
