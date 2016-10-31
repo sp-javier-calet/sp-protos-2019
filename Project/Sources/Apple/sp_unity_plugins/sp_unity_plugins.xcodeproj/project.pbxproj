@@ -170,6 +170,18 @@
 		FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490231C1F11D900A10FEA /* SPUnityAlertViewFacade.mm */; };
 		FE4490AA1C1F33A400A10FEA /* SPUnityCrashReporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490101C1EF36200A10FEA /* SPUnityCrashReporter.mm */; };
 		FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490131C1EF36200A10FEA /* SPUnityHardwareFacade.mm */; };
+		FE5A76A21DC7784B00EB3DC6 /* libwebsockets.h in Headers */ = {isa = PBXBuildFile; fileRef = FE5A76991DC7784B00EB3DC6 /* libwebsockets.h */; };
+		FE5A76A31DC7784B00EB3DC6 /* libwebsockets.h in Headers */ = {isa = PBXBuildFile; fileRef = FE5A76991DC7784B00EB3DC6 /* libwebsockets.h */; };
+		FE5A76A41DC7784B00EB3DC6 /* libwebsockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FE5A769B1DC7784B00EB3DC6 /* libwebsockets.a */; };
+		FE5A76A61DC7784B00EB3DC6 /* libwebsockets.h in Headers */ = {isa = PBXBuildFile; fileRef = FE5A769F1DC7784B00EB3DC6 /* libwebsockets.h */; };
+		FE5A76A71DC7784B00EB3DC6 /* libwebsockets.h in Headers */ = {isa = PBXBuildFile; fileRef = FE5A769F1DC7784B00EB3DC6 /* libwebsockets.h */; };
+		FE5A76A91DC7784B00EB3DC6 /* libwebsockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FE5A76A11DC7784B00EB3DC6 /* libwebsockets.a */; };
+		FE5A76AE1DC7789700EB3DC6 /* SPUnityWebSockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE5A76AB1DC7789700EB3DC6 /* SPUnityWebSockets.cpp */; };
+		FE5A76AF1DC7789700EB3DC6 /* SPUnityWebSockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE5A76AB1DC7789700EB3DC6 /* SPUnityWebSockets.cpp */; };
+		FE5A76B01DC7789700EB3DC6 /* WebSocketsClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE5A76AC1DC7789700EB3DC6 /* WebSocketsClient.cpp */; };
+		FE5A76B11DC7789700EB3DC6 /* WebSocketsClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE5A76AC1DC7789700EB3DC6 /* WebSocketsClient.cpp */; };
+		FE5A76B21DC7789700EB3DC6 /* WebSocketsClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE5A76AD1DC7789700EB3DC6 /* WebSocketsClient.hpp */; };
+		FE5A76B31DC7789700EB3DC6 /* WebSocketsClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE5A76AD1DC7789700EB3DC6 /* WebSocketsClient.hpp */; };
 		FE6072241DAFBF6D00323426 /* Certificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE60721C1DAFBF6D00323426 /* Certificate.cpp */; };
 		FE6072251DAFBF6D00323426 /* Certificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE60721C1DAFBF6D00323426 /* Certificate.cpp */; };
 		FE6072281DAFBF6D00323426 /* ConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE60721E1DAFBF6D00323426 /* ConnectionManager.cpp */; };
@@ -405,6 +417,13 @@
 		FE4490461C1F205800A10FEA /* SPUnityPlugins.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SPUnityPlugins.h; sourceTree = "<group>"; };
 		FE4490481C1F205800A10FEA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FE44907C1C1F20C400A10FEA /* SPUnityPlugins.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SPUnityPlugins.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FE5A76991DC7784B00EB3DC6 /* libwebsockets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libwebsockets.h; sourceTree = "<group>"; };
+		FE5A769B1DC7784B00EB3DC6 /* libwebsockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libwebsockets.a; sourceTree = "<group>"; };
+		FE5A769F1DC7784B00EB3DC6 /* libwebsockets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libwebsockets.h; sourceTree = "<group>"; };
+		FE5A76A11DC7784B00EB3DC6 /* libwebsockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libwebsockets.a; sourceTree = "<group>"; };
+		FE5A76AB1DC7789700EB3DC6 /* SPUnityWebSockets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityWebSockets.cpp; sourceTree = "<group>"; };
+		FE5A76AC1DC7789700EB3DC6 /* WebSocketsClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebSocketsClient.cpp; sourceTree = "<group>"; };
+		FE5A76AD1DC7789700EB3DC6 /* WebSocketsClient.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = WebSocketsClient.hpp; sourceTree = "<group>"; };
 		FE60721C1DAFBF6D00323426 /* Certificate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Certificate.cpp; sourceTree = "<group>"; };
 		FE60721D1DAFBF6D00323426 /* Certificate.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Certificate.hpp; sourceTree = "<group>"; };
 		FE60721E1DAFBF6D00323426 /* ConnectionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConnectionManager.cpp; sourceTree = "<group>"; };
@@ -441,6 +460,7 @@
 				4609F9671D19A97200DA8662 /* libcurl.a in Frameworks */,
 				FE6072491DAFC09800323426 /* libnghttp2.a in Frameworks */,
 				4609F96D1D19A99700DA8662 /* libssl.a in Frameworks */,
+				FE5A76A91DC7784B00EB3DC6 /* libwebsockets.a in Frameworks */,
 				4609F9691D19A98300DA8662 /* libz.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -494,6 +514,7 @@
 				7B38558C1C98A35300D04AEF /* libcurl.a in Frameworks */,
 				FE6072401DAFC07A00323426 /* libnghttp2.a in Frameworks */,
 				7B3855E51C98A35300D04AEF /* libssl.a in Frameworks */,
+				FE5A76A41DC7784B00EB3DC6 /* libwebsockets.a in Frameworks */,
 				7B3855981C98A35300D04AEF /* libz.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -901,6 +922,7 @@
 				468F9D061D9959E400EF4AE7 /* sp_unity_notifications */,
 				F542C21B1CC4E4EA0045B8A9 /* sp_unity_purchase */,
 				06D7A68E1C77189500F71393 /* sp_unity_utils */,
+				FE5A76941DC7784B00EB3DC6 /* sp_unity_websockets */,
 				FE4490451C1F205800A10FEA /* SPUnityPlugins */,
 			);
 			sourceTree = "<group>";
@@ -944,6 +966,7 @@
 				F53B19101CE4DAD20009FCFA /* sp_unity_crash_reporter */,
 				FE448FE21C1EEAD800A10FEA /* sp_unity_curl */,
 				069170201C75CAC500C6B0B6 /* sp_unity_utils */,
+				FE5A76AA1DC7789700EB3DC6 /* sp_unity_websockets */,
 			);
 			name = Common;
 			path = ../../Common;
@@ -1025,6 +1048,99 @@
 				FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */,
 			);
 			path = SPUnityPlugins;
+			sourceTree = "<group>";
+		};
+		FE5A76941DC7784B00EB3DC6 /* sp_unity_websockets */ = {
+			isa = PBXGroup;
+			children = (
+				FE5A76951DC7784B00EB3DC6 /* libs */,
+			);
+			path = sp_unity_websockets;
+			sourceTree = "<group>";
+		};
+		FE5A76951DC7784B00EB3DC6 /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				FE5A76961DC7784B00EB3DC6 /* Ios */,
+				FE5A769C1DC7784B00EB3DC6 /* macos */,
+			);
+			path = libs;
+			sourceTree = "<group>";
+		};
+		FE5A76961DC7784B00EB3DC6 /* Ios */ = {
+			isa = PBXGroup;
+			children = (
+				FE5A76971DC7784B00EB3DC6 /* libwebsockets */,
+			);
+			path = Ios;
+			sourceTree = "<group>";
+		};
+		FE5A76971DC7784B00EB3DC6 /* libwebsockets */ = {
+			isa = PBXGroup;
+			children = (
+				FE5A76981DC7784B00EB3DC6 /* include */,
+				FE5A769A1DC7784B00EB3DC6 /* libs */,
+			);
+			path = libwebsockets;
+			sourceTree = "<group>";
+		};
+		FE5A76981DC7784B00EB3DC6 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				FE5A76991DC7784B00EB3DC6 /* libwebsockets.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		FE5A769A1DC7784B00EB3DC6 /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				FE5A769B1DC7784B00EB3DC6 /* libwebsockets.a */,
+			);
+			path = libs;
+			sourceTree = "<group>";
+		};
+		FE5A769C1DC7784B00EB3DC6 /* macos */ = {
+			isa = PBXGroup;
+			children = (
+				FE5A769D1DC7784B00EB3DC6 /* libwebsockets */,
+			);
+			path = macos;
+			sourceTree = "<group>";
+		};
+		FE5A769D1DC7784B00EB3DC6 /* libwebsockets */ = {
+			isa = PBXGroup;
+			children = (
+				FE5A769E1DC7784B00EB3DC6 /* include */,
+				FE5A76A01DC7784B00EB3DC6 /* libs */,
+			);
+			path = libwebsockets;
+			sourceTree = "<group>";
+		};
+		FE5A769E1DC7784B00EB3DC6 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				FE5A769F1DC7784B00EB3DC6 /* libwebsockets.h */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		FE5A76A01DC7784B00EB3DC6 /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				FE5A76A11DC7784B00EB3DC6 /* libwebsockets.a */,
+			);
+			path = libs;
+			sourceTree = "<group>";
+		};
+		FE5A76AA1DC7789700EB3DC6 /* sp_unity_websockets */ = {
+			isa = PBXGroup;
+			children = (
+				FE5A76AB1DC7789700EB3DC6 /* SPUnityWebSockets.cpp */,
+				FE5A76AC1DC7789700EB3DC6 /* WebSocketsClient.cpp */,
+				FE5A76AD1DC7789700EB3DC6 /* WebSocketsClient.hpp */,
+			);
+			path = sp_unity_websockets;
 			sourceTree = "<group>";
 		};
 		FE6072391DAFC06C00323426 /* nghttp2 */ = {
@@ -1149,8 +1265,11 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE5A76A31DC7784B00EB3DC6 /* libwebsockets.h in Headers */,
+				FE5A76A71DC7784B00EB3DC6 /* libwebsockets.h in Headers */,
 				FE6072471DAFC09800323426 /* nghttp2.h in Headers */,
 				FE6072481DAFC09800323426 /* nghttp2ver.h in Headers */,
+				FE5A76B31DC7789700EB3DC6 /* WebSocketsClient.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1193,6 +1312,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				46F7490A1C60AE77000DB6B1 /* CrashReporter.h in Headers */,
+				FE5A76A61DC7784B00EB3DC6 /* libwebsockets.h in Headers */,
+				FE5A76A21DC7784B00EB3DC6 /* libwebsockets.h in Headers */,
 				46F7490B1C60AE77000DB6B1 /* PLCrashAsyncSignalInfo.h in Headers */,
 				46F7490C1C60AE77000DB6B1 /* PLCrashFeatureConfig.h in Headers */,
 				46F7490D1C60AE77000DB6B1 /* PLCrashNamespace.h in Headers */,
@@ -1217,6 +1338,7 @@
 				468F9D7C1D9BB56D00EF4AE7 /* SPUnityNativeUtils.h in Headers */,
 				46E208D11D251DF000FB1CEE /* SPUnityPlugins.h in Headers */,
 				468F9D7A1D9BB52400EF4AE7 /* UnityGameObject.h in Headers */,
+				FE5A76B21DC7789700EB3DC6 /* WebSocketsClient.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1451,6 +1573,8 @@
 				069170551C760D6600C6B0B6 /* SPUnityCurlFacadeMacos.mm in Sources */,
 				06A2492E1D5C84D800499252 /* SPUnityFileUtils.cpp in Sources */,
 				460FE16F1D25282000BF7E97 /* SPUnityUtils.cpp in Sources */,
+				FE5A76AF1DC7789700EB3DC6 /* SPUnityWebSockets.cpp in Sources */,
+				FE5A76B11DC7789700EB3DC6 /* WebSocketsClient.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1537,7 +1661,9 @@
 				468F9DA01D9BE6B900EF4AE7 /* SPUnityNativeUtils.mm in Sources */,
 				468F9D081D995ABF00EF4AE7 /* SPUnityNotifications.mm in Sources */,
 				069170231C75CADE00C6B0B6 /* SPUnityUtils.cpp in Sources */,
+				FE5A76AE1DC7789700EB3DC6 /* SPUnityWebSockets.cpp in Sources */,
 				FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */,
+				FE5A76B01DC7789700EB3DC6 /* WebSocketsClient.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1652,6 +1778,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/sp_unity_curl/libs/macos/curl/include",
 					"$(SRCROOT)/sp_unity_curl/libs/macos/nghttp2/include",
+					"$(SRCROOT)/sp_unity_websockets/libs/macos/libwebsockets/include",
 				);
 				INFOPLIST_FILE = SPUnityPlugins/Info_macOS.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
@@ -1661,6 +1788,8 @@
 					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/libz/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/openssl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/nghttp2/lib",
+					"$(PROJECT_DIR)/sp_unity_websockets/libs/Ios/libwebsockets/libs",
+					"$(PROJECT_DIR)/sp_unity_websockets/libs/macos/libwebsockets/libs",
 				);
 				MACH_O_TYPE = mh_bundle;
 				MTL_ENABLE_DEBUG_INFO = YES;
@@ -1708,6 +1837,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/sp_unity_curl/libs/macos/curl/include",
 					"$(SRCROOT)/sp_unity_curl/libs/macos/nghttp2/include",
+					"$(SRCROOT)/sp_unity_websockets/libs/macos/libwebsockets/include",
 				);
 				INFOPLIST_FILE = SPUnityPlugins/Info_macOS.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
@@ -1717,6 +1847,8 @@
 					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/libz/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/openssl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/macos/nghttp2/lib",
+					"$(PROJECT_DIR)/sp_unity_websockets/libs/Ios/libwebsockets/libs",
+					"$(PROJECT_DIR)/sp_unity_websockets/libs/macos/libwebsockets/libs",
 				);
 				MACH_O_TYPE = mh_bundle;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -2288,6 +2420,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/sp_unity_curl/libs/Ios/curl/include",
 					"$(SRCROOT)/sp_unity_curl/libs/Ios/nghttp2/include",
+					"$(SRCROOT)/sp_unity_websockets/libs/Ios/libwebsockets/include",
 					"$(PROJECT_DIR)/sp_unity_crash/libs/headers",
 				);
 				INFOPLIST_FILE = SPUnityPlugins/Info.plist;
@@ -2302,6 +2435,8 @@
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/openssl/nghttp2",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/openssl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/nghttp2/lib",
+					"$(PROJECT_DIR)/sp_unity_websockets/libs/Ios/libwebsockets/libs",
+					"$(PROJECT_DIR)/sp_unity_websockets/libs/macos/libwebsockets/libs",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = staticlib;
@@ -2358,6 +2493,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/sp_unity_curl/libs/Ios/curl/include",
 					"$(SRCROOT)/sp_unity_curl/libs/Ios/nghttp2/include",
+					"$(SRCROOT)/sp_unity_websockets/libs/Ios/libwebsockets/include",
 					"$(PROJECT_DIR)/sp_unity_crash/libs/headers",
 				);
 				INFOPLIST_FILE = SPUnityPlugins/Info.plist;
@@ -2372,6 +2508,8 @@
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/openssl/nghttp2",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/openssl/lib",
 					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/nghttp2/lib",
+					"$(PROJECT_DIR)/sp_unity_websockets/libs/Ios/libwebsockets/libs",
+					"$(PROJECT_DIR)/sp_unity_websockets/libs/macos/libwebsockets/libs",
 				);
 				LINK_WITH_STANDARD_LIBRARIES = NO;
 				MACH_O_TYPE = staticlib;
