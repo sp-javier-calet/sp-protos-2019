@@ -11,6 +11,7 @@ namespace SocialPoint.Lockstep.Network
     {
         public const byte Command = 2;
         public const byte Turn = 3;
+        public const byte EmptyTurn = 4;
         public const byte ClientSetup = 5;
         public const byte PlayerReady = 6;
         public const byte ClientStart = 7;
@@ -139,10 +140,20 @@ namespace SocialPoint.Lockstep.Network
 
         void SendTurn(ServerLockstepTurnData turnData, byte client)
         {
-            _server.SendMessage(new NetworkMessageData {
-                MessageType = LockstepMsgType.Turn,
-                ClientId = client
-            }, turnData);
+            if(ServerLockstepTurnData.IsNullOrEmpty(turnData))
+            {
+                _server.CreateMessage(new NetworkMessageData {
+                    MessageType = LockstepMsgType.EmptyTurn,
+                    ClientId = client
+                }).Send();
+            }
+            else
+            {
+                _server.SendMessage(new NetworkMessageData {
+                    MessageType = LockstepMsgType.Turn,
+                    ClientId = client
+                }, turnData);
+            }
         }
 
         public void OnMessageReceived(NetworkMessageData data, IReader reader)

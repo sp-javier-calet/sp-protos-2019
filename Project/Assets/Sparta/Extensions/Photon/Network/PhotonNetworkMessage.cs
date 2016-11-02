@@ -21,7 +21,7 @@ namespace SocialPoint.Network
 
         public void Send()
         {
-            _sender.SendNetworkMessage(_data, _stream.GetBuffer());
+            _sender.SendNetworkMessage(_data, _stream.ToArray());
         }
 
         public IWriter Writer
