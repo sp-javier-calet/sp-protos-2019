@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System;
 using SocialPoint.Utils;
-using SocialPoint.Base;
-using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep
 {
@@ -14,7 +11,7 @@ namespace SocialPoint.Lockstep
 
     public class ActionLockstepCommandLogic<T> : ILockstepCommandLogic<T>
     {
-        Action<T> _action;
+        readonly Action<T> _action;
 
         public ActionLockstepCommandLogic(Action<T> action)
         {
@@ -111,6 +108,7 @@ namespace SocialPoint.Lockstep
         bool _simStartedCalled;
         bool _simRecoveredCalled;
         State _state;
+        XRandom _rootRandom;
 
         Dictionary<Type, ILockstepCommandLogic> _commandLogics = new Dictionary<Type, ILockstepCommandLogic>();
         List<ClientLockstepCommandData> _pendingCommands = new List<ClientLockstepCommandData>();
@@ -119,6 +117,8 @@ namespace SocialPoint.Lockstep
         public bool Running{ get; private set; }
 
         public LockstepConfig Config { get; set; }
+
+        public LockstepGameParams GameParams { get; set; }
 
         public ClientLockstepConfig ClientConfig { get; set; }
 
@@ -191,6 +191,7 @@ namespace SocialPoint.Lockstep
         {
             _state = State.Normal;
             Config = new LockstepConfig();
+            GameParams = new LockstepGameParams();
             ClientConfig = new ClientLockstepConfig();
             _updateScheduler = updateScheduler;
             Stop();
@@ -221,6 +222,7 @@ namespace SocialPoint.Lockstep
         public void Stop()
         {
             Running = false;
+            _rootRandom = null;
             _state = State.Waiting;
             _confirmedTurns.Clear();
             _pendingCommands.Clear();
@@ -446,10 +448,18 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public XRandom CreateRandomGenerator()
+        {
+            if(_rootRandom == null)
+            {
+                _rootRandom = new XRandom(GameParams.RandomSeed);
+            }
+            return new XRandom(_rootRandom.Next());
+        }
+
         public void Dispose()
         {
             Stop();
         }
-
     }
 }

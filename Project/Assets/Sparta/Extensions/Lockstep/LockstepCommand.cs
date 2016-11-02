@@ -40,4 +40,24 @@ namespace SocialPoint.Lockstep
             "CommandStepDuration:{1}]", SimulationStepDuration, CommandStepDuration);
         }
     }
+
+    public sealed class LockstepGameParams : INetworkShareable
+    {
+        public uint RandomSeed;
+
+        public LockstepGameParams()
+        {
+            RandomSeed = XRandom.GenerateSeed();
+        }
+
+        public void Deserialize(IReader reader)
+        {
+            RandomSeed = reader.ReadUInt32();
+        }
+
+        public void Serialize(IWriter writer)
+        {
+            writer.Write(RandomSeed);
+        }
+    }
 }

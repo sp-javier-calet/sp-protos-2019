@@ -71,6 +71,14 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
+        public LockstepGameParams GameParams
+        {
+            get
+            {
+                return _serverLockstep.GameParams;
+            }
+        }
+
         public ServerLockstepNetworkController(INetworkServer server, IUpdateScheduler scheduler = null)
         {
             ServerConfig = new ServerLockstepConfig();
@@ -417,7 +425,7 @@ namespace SocialPoint.Lockstep.Network
                 MessageType = LockstepMsgType.ClientSetup,
                 ClientId = clientId,
                 Unreliable = false
-            }, new ClientSetupMessage(Config));
+            }, new ClientSetupMessage(Config, GameParams));
         }
 
         public void OnClientDisconnected(byte clientId)
