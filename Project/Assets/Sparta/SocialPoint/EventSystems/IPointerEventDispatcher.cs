@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 
 namespace SocialPoint.EventSystems
 {
-    public interface IActionEventSystem
+    public interface IPointerEventDispatcher
     {
         event Action<PointerEventData> OnBeginDrag;
         event Action<PointerEventData> OnEndDrag;
