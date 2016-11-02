@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.WAMP;
+using SocialPoint.WAMP.Subscriber;
 
 namespace SocialPoint.Social
 {
@@ -24,7 +25,7 @@ namespace SocialPoint.Social
 
         readonly Dictionary<string, IChatRoom> _chatRooms;
 
-        readonly  Dictionary<IChatRoom, WAMPConnection.Subscription> _chatSubscriptions;
+        readonly  Dictionary<IChatRoom, Subscription> _chatSubscriptions;
 
         public IChatRoom AllianceRoom { get; private set; }
 
@@ -33,7 +34,7 @@ namespace SocialPoint.Social
         public ChatManager(ConnectionManager connection)
         {
             _chatRooms = new Dictionary<string, IChatRoom>();
-            _chatSubscriptions = new Dictionary<IChatRoom, WAMPConnection.Subscription>();
+            _chatSubscriptions = new Dictionary<IChatRoom, Subscription>();
 
             _connection = connection;
             _connection.ChatManager = this;
@@ -180,7 +181,7 @@ namespace SocialPoint.Social
 
             var subscriptionId = dic.GetValue(ConnectionManager.SubscriptionIdTopicKey).ToLong();
             var topicName = dic.GetValue(ConnectionManager.IdTopicKey).ToString();
-            var subscription = new WAMPConnection.Subscription(subscriptionId, topicName);
+            var subscription = new Subscription(subscriptionId, topicName);
             _chatSubscriptions.Add(room, subscription);
 
             _connection.AutosubscribeToTopic(topic, subscription);

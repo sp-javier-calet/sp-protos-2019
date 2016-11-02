@@ -8,6 +8,9 @@ using SocialPoint.Utils;
 using SocialPoint.Login;
 using SocialPoint.Network;
 using SocialPoint.WAMP;
+using SocialPoint.WAMP.Caller;
+using SocialPoint.WAMP.Publisher;
+using SocialPoint.WAMP.Subscriber;
 
 namespace SocialPoint.Social
 {
@@ -286,7 +289,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public void AutosubscribeToTopic(string topic, WAMPConnection.Subscription subscription)
+        public void AutosubscribeToTopic(string topic, Subscription subscription)
         {
             _connection.Autosubscribe(subscription, (args, kwargs) => OnNotificationMessageReceived(topic, args, kwargs));
         }
@@ -398,7 +401,7 @@ namespace SocialPoint.Social
                 var topicDic = topicsList[i].AsDic;
                 var subscriptionId = topicDic.GetValue(ConnectionManager.SubscriptionIdTopicKey).ToLong();
 
-                _connection.Autosubscribe(new WAMPConnection.Subscription(subscriptionId, NotificationTopicName), 
+                _connection.Autosubscribe(new Subscription(subscriptionId, NotificationTopicName), 
                     (args, kwargs) => OnNotificationMessageReceived(NotificationTopicType, args, kwargs));
             }
         }
@@ -425,12 +428,12 @@ namespace SocialPoint.Social
             }
         }
 
-        public void Publish(string topic, AttrList args, AttrDic kwargs, WAMPConnection.OnPublished onComplete)
+        public void Publish(string topic, AttrList args, AttrDic kwargs, OnPublished onComplete)
         {
             _connection.Publish(topic, args, kwargs, onComplete != null, onComplete);
         }
 
-        public void Call(string procedure, AttrList args, AttrDic kwargs, WAMPConnection.HandlerCall onResult)
+        public void Call(string procedure, AttrList args, AttrDic kwargs, HandlerCall onResult)
         {
             _connection.Call(procedure, args, kwargs, (err, iargs, ikwargs) => OnRPCFinished(iargs, ikwargs, onResult, err));
         }
@@ -512,7 +515,7 @@ namespace SocialPoint.Social
             }
         }
 
-        void OnRPCFinished(AttrList iargs, AttrDic ikwargs, WAMPConnection.HandlerCall onResult, Error err)
+        void OnRPCFinished(AttrList iargs, AttrDic ikwargs, HandlerCall onResult, Error err)
         {
             if(!Error.IsNullOrEmpty(err))
             {
@@ -521,7 +524,7 @@ namespace SocialPoint.Social
                     OnRPCError(err);
                 }
 
-                if(err.Code == (int)WAMPConnection.ErrorCodes.ConnectionClosed)
+                if(err.Code == ErrorCodes.ConnectionClosed)
                 {
                     if(onResult != null)
                     {
