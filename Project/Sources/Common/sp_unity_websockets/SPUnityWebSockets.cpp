@@ -20,7 +20,7 @@
 #define EXPORT_API
 #endif
 
-#include "WebSocketsClient.hpp"
+#include "WebSocketConnection.hpp"
 
 
 /*

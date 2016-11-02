@@ -178,10 +178,6 @@
 		FE5A76A91DC7784B00EB3DC6 /* libwebsockets.a in Frameworks */ = {isa = PBXBuildFile; fileRef = FE5A76A11DC7784B00EB3DC6 /* libwebsockets.a */; };
 		FE5A76AE1DC7789700EB3DC6 /* SPUnityWebSockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE5A76AB1DC7789700EB3DC6 /* SPUnityWebSockets.cpp */; };
 		FE5A76AF1DC7789700EB3DC6 /* SPUnityWebSockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE5A76AB1DC7789700EB3DC6 /* SPUnityWebSockets.cpp */; };
-		FE5A76B01DC7789700EB3DC6 /* WebSocketsClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE5A76AC1DC7789700EB3DC6 /* WebSocketsClient.cpp */; };
-		FE5A76B11DC7789700EB3DC6 /* WebSocketsClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE5A76AC1DC7789700EB3DC6 /* WebSocketsClient.cpp */; };
-		FE5A76B21DC7789700EB3DC6 /* WebSocketsClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE5A76AD1DC7789700EB3DC6 /* WebSocketsClient.hpp */; };
-		FE5A76B31DC7789700EB3DC6 /* WebSocketsClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = FE5A76AD1DC7789700EB3DC6 /* WebSocketsClient.hpp */; };
 		FE6072241DAFBF6D00323426 /* Certificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE60721C1DAFBF6D00323426 /* Certificate.cpp */; };
 		FE6072251DAFBF6D00323426 /* Certificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE60721C1DAFBF6D00323426 /* Certificate.cpp */; };
 		FE6072281DAFBF6D00323426 /* ConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE60721E1DAFBF6D00323426 /* ConnectionManager.cpp */; };
@@ -202,6 +198,12 @@
 		FE6072541DAFC31800323426 /* CurlClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE6072201DAFBF6D00323426 /* CurlClient.cpp */; };
 		FE6072551DAFC31A00323426 /* ConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE60721E1DAFBF6D00323426 /* ConnectionManager.cpp */; };
 		FE6072561DAFC31D00323426 /* Certificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE60721C1DAFBF6D00323426 /* Certificate.cpp */; };
+		FE7056831DC9FBB900CB55E0 /* WebSocketConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7056761DC9FBB900CB55E0 /* WebSocketConnection.cpp */; };
+		FE7056841DC9FBB900CB55E0 /* WebSocketConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7056761DC9FBB900CB55E0 /* WebSocketConnection.cpp */; };
+		FE7056851DC9FBB900CB55E0 /* WebSocketConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7056761DC9FBB900CB55E0 /* WebSocketConnection.cpp */; };
+		FE7056891DC9FBB900CB55E0 /* WebSocketsManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7056781DC9FBB900CB55E0 /* WebSocketsManager.cpp */; };
+		FE70568A1DC9FBB900CB55E0 /* WebSocketsManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7056781DC9FBB900CB55E0 /* WebSocketsManager.cpp */; };
+		FE70568B1DC9FBB900CB55E0 /* WebSocketsManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7056781DC9FBB900CB55E0 /* WebSocketsManager.cpp */; };
 		FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FEE5C1C11C21AAFE0020C4DB /* UnityGameObject.cpp */; };
 		FF5AF77F1C623DCF00B5573A /* SPUnityGameCenter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FF5AF77E1C623DCF00B5573A /* SPUnityGameCenter.mm */; };
 		FF68D9831CF83D81008891E2 /* SPNativeCallsSender.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FF68D9821CF83D81008891E2 /* SPNativeCallsSender.cpp */; };
@@ -422,8 +424,6 @@
 		FE5A769F1DC7784B00EB3DC6 /* libwebsockets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libwebsockets.h; sourceTree = "<group>"; };
 		FE5A76A11DC7784B00EB3DC6 /* libwebsockets.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libwebsockets.a; sourceTree = "<group>"; };
 		FE5A76AB1DC7789700EB3DC6 /* SPUnityWebSockets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityWebSockets.cpp; sourceTree = "<group>"; };
-		FE5A76AC1DC7789700EB3DC6 /* WebSocketsClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebSocketsClient.cpp; sourceTree = "<group>"; };
-		FE5A76AD1DC7789700EB3DC6 /* WebSocketsClient.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = WebSocketsClient.hpp; sourceTree = "<group>"; };
 		FE60721C1DAFBF6D00323426 /* Certificate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Certificate.cpp; sourceTree = "<group>"; };
 		FE60721D1DAFBF6D00323426 /* Certificate.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Certificate.hpp; sourceTree = "<group>"; };
 		FE60721E1DAFBF6D00323426 /* ConnectionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConnectionManager.cpp; sourceTree = "<group>"; };
@@ -442,6 +442,10 @@
 		FE60724C1DAFC0CA00323426 /* nghttp2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nghttp2.h; sourceTree = "<group>"; };
 		FE60724D1DAFC0CA00323426 /* nghttp2ver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nghttp2ver.h; sourceTree = "<group>"; };
 		FE60724F1DAFC0CA00323426 /* libnghttp2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libnghttp2.a; sourceTree = "<group>"; };
+		FE7056761DC9FBB900CB55E0 /* WebSocketConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebSocketConnection.cpp; sourceTree = "<group>"; };
+		FE7056771DC9FBB900CB55E0 /* WebSocketConnection.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = WebSocketConnection.hpp; sourceTree = "<group>"; };
+		FE7056781DC9FBB900CB55E0 /* WebSocketsManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WebSocketsManager.cpp; sourceTree = "<group>"; };
+		FE7056791DC9FBB900CB55E0 /* WebSocketsManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = WebSocketsManager.hpp; sourceTree = "<group>"; };
 		FE89134D1DABF2ED00BD87C0 /* UnityAppController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnityAppController.h; sourceTree = "<group>"; };
 		FEE21F661C20198100ECC3E2 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UnityGameObject.h; sourceTree = "<group>"; };
@@ -1137,8 +1141,10 @@
 			isa = PBXGroup;
 			children = (
 				FE5A76AB1DC7789700EB3DC6 /* SPUnityWebSockets.cpp */,
-				FE5A76AC1DC7789700EB3DC6 /* WebSocketsClient.cpp */,
-				FE5A76AD1DC7789700EB3DC6 /* WebSocketsClient.hpp */,
+				FE7056761DC9FBB900CB55E0 /* WebSocketConnection.cpp */,
+				FE7056771DC9FBB900CB55E0 /* WebSocketConnection.hpp */,
+				FE7056781DC9FBB900CB55E0 /* WebSocketsManager.cpp */,
+				FE7056791DC9FBB900CB55E0 /* WebSocketsManager.hpp */,
 			);
 			path = sp_unity_websockets;
 			sourceTree = "<group>";
@@ -1269,7 +1275,6 @@
 				FE5A76A71DC7784B00EB3DC6 /* libwebsockets.h in Headers */,
 				FE6072471DAFC09800323426 /* nghttp2.h in Headers */,
 				FE6072481DAFC09800323426 /* nghttp2ver.h in Headers */,
-				FE5A76B31DC7789700EB3DC6 /* WebSocketsClient.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1338,7 +1343,6 @@
 				468F9D7C1D9BB56D00EF4AE7 /* SPUnityNativeUtils.h in Headers */,
 				46E208D11D251DF000FB1CEE /* SPUnityPlugins.h in Headers */,
 				468F9D7A1D9BB52400EF4AE7 /* UnityGameObject.h in Headers */,
-				FE5A76B21DC7789700EB3DC6 /* WebSocketsClient.hpp in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1574,7 +1578,8 @@
 				06A2492E1D5C84D800499252 /* SPUnityFileUtils.cpp in Sources */,
 				460FE16F1D25282000BF7E97 /* SPUnityUtils.cpp in Sources */,
 				FE5A76AF1DC7789700EB3DC6 /* SPUnityWebSockets.cpp in Sources */,
-				FE5A76B11DC7789700EB3DC6 /* WebSocketsClient.cpp in Sources */,
+				FE7056851DC9FBB900CB55E0 /* WebSocketConnection.cpp in Sources */,
+				FE70568B1DC9FBB900CB55E0 /* WebSocketsManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1634,6 +1639,8 @@
 				468F9DA11D9BE6BA00EF4AE7 /* SPUnityNativeUtils.mm in Sources */,
 				06A173241C770787002178EF /* SPUnityUtils.cpp in Sources */,
 				468E001D1C3E75E500CA07AF /* UnityGameObject.cpp in Sources */,
+				FE7056841DC9FBB900CB55E0 /* WebSocketConnection.cpp in Sources */,
+				FE70568A1DC9FBB900CB55E0 /* WebSocketsManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1663,7 +1670,8 @@
 				069170231C75CADE00C6B0B6 /* SPUnityUtils.cpp in Sources */,
 				FE5A76AE1DC7789700EB3DC6 /* SPUnityWebSockets.cpp in Sources */,
 				FEE5C1C21C21AAFE0020C4DB /* UnityGameObject.cpp in Sources */,
-				FE5A76B01DC7789700EB3DC6 /* WebSocketsClient.cpp in Sources */,
+				FE7056831DC9FBB900CB55E0 /* WebSocketConnection.cpp in Sources */,
+				FE7056891DC9FBB900CB55E0 /* WebSocketsManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
