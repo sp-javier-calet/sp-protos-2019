@@ -133,6 +133,16 @@ void WebSocketConnection::connect()
     }
 }
 
+bool WebSocketConnection::isConnected()
+{
+    return _state == State::OPEN;
+}
+
+bool WebSocketConnection::isConnecting()
+{
+    return _state == State::CONNECTING;
+}
+
 void WebSocketConnection::disconnect()
 {
     if(_state == State::OPEN && _websocket)

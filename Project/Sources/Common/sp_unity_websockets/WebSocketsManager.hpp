@@ -26,8 +26,6 @@ private:
     
     libwebsocket_context* _context;
     
-    float _socketTimeout;
-    
     std::map<libwebsocket*, WebSocketConnection*> _mapConnection;
     
     std::set<libwebsocket*> _setSocketsShouldClose;
@@ -51,8 +49,6 @@ public:
     
     void setLogLevelMax();
     void setLogLevelNone();
-    
-    void setTimeout(float timeout);
     
     // TODO FIXED
     WebSocketConnection& get(libwebsocket* wsi);

@@ -120,6 +120,10 @@ public:
      */
     void connect();
     
+    bool isConnected();
+    
+    bool isConnecting();
+    
     void disconnect();
 
     virtual void send(const std::string& message);

@@ -160,7 +160,6 @@ static struct libwebsocket_protocols protocols[] = {{
 
 WebSocketsManager::WebSocketsManager()
 : _context(nullptr)
-, _socketTimeout(0.1f)
 {
     lws_set_log_level(0x0, NULL);
 }
@@ -202,11 +201,6 @@ void WebSocketsManager::setLogLevelMax()
 void WebSocketsManager::setLogLevelNone()
 {
     lws_set_log_level(0x0, NULL);
-}
-
-void WebSocketsManager::setTimeout(float timeout)
-{
-    _socketTimeout = timeout;
 }
 
 void WebSocketsManager::checkAndCreateContext()
@@ -356,6 +350,6 @@ void WebSocketsManager::remove(WebSocketConnection* connection)
 
 void WebSocketsManager::update()
 {
-    libwebsocket_service(_context, _socketTimeout * 1000.0f);
+    libwebsocket_service(_context, 0);
 }
 
