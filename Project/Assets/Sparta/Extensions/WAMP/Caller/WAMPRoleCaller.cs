@@ -3,31 +3,29 @@ using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 
-namespace SocialPoint.WAMP
+namespace SocialPoint.WAMP.Caller
 {
-    public class WAMPRoleCaller
+    public delegate void HandlerCall(Error error, AttrList args, AttrDic kwargs);
+
+    public class CallRequest : WAMPConnection.Request<HandlerCall>
+    {
+        internal CallRequest(HandlerCall handler) : base(handler)
+        {
+        }
+    }
+
+    public class WAMPRoleCaller : WAMPRole
     {
         #region Data structures
 
-        public delegate void HandlerCall(Error error, AttrList args, AttrDic kwargs);
-
-        public class CallRequest : WAMPConnection.Request<HandlerCall>
-        {
-            internal CallRequest(HandlerCall handler) : base(handler)
-            {
-            }
-        }
-
-        WAMPConnection _connection;
         Dictionary<long, CallRequest> _calls;
 
         #endregion
 
-        #region Public 
+        #region Public
 
-        public WAMPRoleCaller(WAMPConnection connection)
+        public WAMPRoleCaller(WAMPConnection connection) : base(connection)
         {
-            _connection = connection;
             _calls = new Dictionary<long, CallRequest>();
         }
 
@@ -127,7 +125,7 @@ namespace SocialPoint.WAMP
             }
             _calls.Remove(requestId);
         }
-        
+
         internal void ProcessCallError(long requestId, int code, string description, AttrList listArgs, AttrDic dictArgs)
         {
             CallRequest request;
@@ -140,6 +138,25 @@ namespace SocialPoint.WAMP
                 request.CompletionHandler(new Error(code, description), listArgs, dictArgs);
             }
             _calls.Remove(requestId);
+        }
+
+        internal override void AddRoleDetails(AttrDic detailsDic)
+        {
+            detailsDic.Set("caller", new AttrDic());
+        }
+
+        internal override void ResetToInitialState()
+        {
+            for(var i = 0; i < _calls.Count; i++)
+            {
+                var request = _calls[i];
+                if(request.CompletionHandler != null)
+                {
+                    request.CompletionHandler(new Error(ErrorCodes.ConnectionClosed, "Connection reset"), null, null);
+                }
+            }
+
+            _calls.Clear();
         }
 
         #endregion

@@ -3,51 +3,49 @@ using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 
-namespace SocialPoint.WAMP
+namespace SocialPoint.WAMP.Publisher
 {
-    public class WAMPRolePublisher
+    public class Publication
+    {
+        public long Id{ get; private set; }
+
+        public string Topic{ get; private set; }
+
+        public Publication(long id, string topic)
+        {
+            Id = id;
+            Topic = topic;
+        }
+    }
+
+    public delegate void OnPublished(Error error, Publication pub);
+
+    public class PublishRequest : WAMPConnection.Request<OnPublished>
+    {
+        internal string Topic{ get; private set; }
+
+        public PublishRequest(OnPublished completionHandler, string topic) : base(completionHandler)
+        {
+            Topic = topic;
+        }
+    }
+
+    public class WAMPRolePublisher : WAMPRole
     {
         #region Data structures
 
-        public class Publication
-        {
-            public long Id{ get; private set; }
-
-            public string Topic{ get; private set; }
-
-            public Publication(long id, string topic)
-            {
-                Id = id;
-                Topic = topic;
-            }
-        }
-
-        public class PublishRequest : WAMPConnection.Request<OnPublished>
-        {
-            internal string Topic{ get; private set; }
-
-            public PublishRequest(OnPublished completionHandler, string topic) : base(completionHandler)
-            {
-                Topic = topic;
-            }
-        }
-
         Dictionary<long, PublishRequest> _publishRequests;
-
-        WAMPConnection _connection;
 
         #endregion
 
-        #region Public 
-        public WAMPRolePublisher(WAMPConnection connection)
+        #region Public
+
+        public WAMPRolePublisher(WAMPConnection connection) : base(connection)
         {
-            _connection = connection;
             _publishRequests = new Dictionary<long, PublishRequest>();
         }
 
-        public delegate void OnPublished(Error error, Publication pub);
-
-        public void Publish(string topic, AttrList args, AttrDic kwargs, bool acknowledged, OnPublished completionHandler)
+        public PublishRequest Publish(string topic, AttrList args, AttrDic kwargs, bool acknowledged, OnPublished completionHandler)
         {
             DebugUtils.Assert((acknowledged && completionHandler != null) || !acknowledged, "Asked for acknowledge but without completionHandler");
 
@@ -57,7 +55,7 @@ namespace SocialPoint.WAMP
                 {
                     completionHandler(new Error(ErrorCodes.NoSession), null);
                 }
-                return;
+                return null;
             }
 
             _connection.DebugMessage(string.Concat("Publish event ", topic, " with args", args, " and ", kwargs));
@@ -66,10 +64,12 @@ namespace SocialPoint.WAMP
              * [16, 239714735, {}, "com.myapp.mytopic1", [], {"color": "orange", "sizes": [23, 42, 7]}]
              */
             var requestId = _connection.GetAndIncrementRequestId();
+            PublishRequest request = null;
             if(acknowledged)
             {
                 DebugUtils.Assert(!_publishRequests.ContainsKey(requestId), "This requestId was already in use");
-                _publishRequests.Add(requestId, new PublishRequest(completionHandler, topic));
+                request = new PublishRequest(completionHandler, topic);
+                _publishRequests.Add(requestId, request);
             }
 
             var data = new AttrList();
@@ -97,7 +97,10 @@ namespace SocialPoint.WAMP
             }
 
             _connection.SendData(data);
+
+            return request;
         }
+
         #endregion
 
         #region Private
@@ -148,6 +151,25 @@ namespace SocialPoint.WAMP
                 request.CompletionHandler(new Error(ErrorCodes.PublishError, description), new Publication(requestId, request.Topic));
             }
             _publishRequests.Remove(requestId);
+        }
+
+        internal override void AddRoleDetails(AttrDic detailsDic)
+        {
+            detailsDic.Set("publisher", new AttrDic());
+        }
+
+        internal override void ResetToInitialState()
+        {
+            for(var i = 0; i < _publishRequests.Count; i++)
+            {
+                var request = _publishRequests[i];
+                if(request.CompletionHandler != null)
+                {
+                    request.CompletionHandler(new Error(ErrorCodes.ConnectionClosed, "Connection reset"), null);
+                }
+            }
+
+            _publishRequests.Clear();
         }
 
         #endregion
