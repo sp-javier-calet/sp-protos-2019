@@ -1,12 +1,12 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
     // Class that encapsulates the Keyboard state
     public sealed class KeyboardController
     {
-        Dictionary<KeyCode, bool> _keys = new Dictionary<KeyCode, bool>();
+        readonly Dictionary<KeyCode, bool> _keys = new Dictionary<KeyCode, bool>();
 
         public void UpdateState()
         {
@@ -74,14 +74,7 @@ namespace SocialPoint.GUIAnimation
 
         public bool IsPressed(KeyCode code)
         {
-            if(!_keys.ContainsKey(code))
-            {
-                return false;
-            }
-            else
-            {
-                return _keys[code];
-            }
+            return _keys.ContainsKey(code) && _keys[code];
         }
 
         public void ResetState()

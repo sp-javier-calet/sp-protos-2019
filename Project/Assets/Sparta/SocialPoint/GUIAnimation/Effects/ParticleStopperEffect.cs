@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -52,7 +52,7 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        void StopParticle(GameObject go)
+        static void StopParticle(GameObject go)
         {
             ParticleSystem particle = GUIAnimationUtility.GetComponentRecursiveDown<ParticleSystem>(go);
             if(particle != null)

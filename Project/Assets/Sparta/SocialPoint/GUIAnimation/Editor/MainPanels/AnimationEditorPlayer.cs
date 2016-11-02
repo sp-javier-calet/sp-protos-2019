@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-
+﻿
 namespace SocialPoint.GUIAnimation
 {
     public sealed class AnimationEditorPlayer
@@ -27,14 +25,7 @@ namespace SocialPoint.GUIAnimation
 
         public float GetCurrentTime()
         {
-            if(_animTool.AnimationModel.CurrentAnimation != null)
-            {
-                return _animTool.AnimationModel.CurrentAnimation.CurrentTime;
-            }
-            else
-            {
-                return 0f;
-            }
+            return _animTool.AnimationModel.CurrentAnimation != null ? _animTool.AnimationModel.CurrentAnimation.CurrentTime : 0f;
         }
 
         public void Init(GUIAnimationTool animTool)
@@ -78,7 +69,7 @@ namespace SocialPoint.GUIAnimation
             {
                 return;
             }
-            else if(_state == State.Playing)
+            if(_state == State.Playing)
             {
                 if(_animTool.AnimationModel.CurrentAnimation != null)
                 {
@@ -97,7 +88,7 @@ namespace SocialPoint.GUIAnimation
                 }
                 return;
             }
-            else if(_state == State.Finish)
+            if(_state == State.Finish)
             {
                 _state = State.Idle;
             }

@@ -1,7 +1,6 @@
-using UnityEngine;
-using UnityEditor;
 using System.Collections.Generic;
-using System;
+using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -52,9 +51,9 @@ namespace SocialPoint.GUIAnimation
 
         void OnGUI()
         {
-            GUILayout.Label(_title, AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Title, UnityEngine.GUI.skin.label, TextAnchor.MiddleCenter));
+            GUILayout.Label(_title, AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Title, GUI.skin.label, TextAnchor.MiddleCenter));
             GUILayout.Space(10f);
-            float scroolHeight = 150f;
+            const float scroolHeight = 150f;
 
             // List of Triggers
             _scrollPos = GUILayout.BeginScrollView(
@@ -70,7 +69,7 @@ namespace SocialPoint.GUIAnimation
 
                 GUILayout.Space(position.width * 0.5f - 50f);
 
-                if(GUILayout.Button(StepsManager.GetStepName(_actions[i].StepType), AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.button, TextAnchor.MiddleLeft), GUILayout.ExpandWidth(false)))
+                if(GUILayout.Button(StepsManager.GetStepName(_actions[i].StepType), AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, GUI.skin.button), GUILayout.ExpandWidth(false)))
                 {
                     Value = _actions[i].StepType;
                     OnAccept();

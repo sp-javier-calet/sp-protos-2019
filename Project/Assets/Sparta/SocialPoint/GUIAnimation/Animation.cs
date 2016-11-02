@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -44,7 +44,7 @@ namespace SocialPoint.GUIAnimation
         public bool HideSerializedObjects { get { return _hideSerializedObjects; } }
 
         [SerializeField]
-        bool _playOnStart = false;
+        bool _playOnStart;
 
         public bool PlayOnStart { get { return _playOnStart; } set { _playOnStart = value; } }
 
@@ -53,26 +53,26 @@ namespace SocialPoint.GUIAnimation
 
         public PlayMode Mode { get { return _playMode; } set { _playMode = value; } }
 
-        bool _hasStartPlaying = false;
+        bool _hasStartPlaying;
         State _state = State.Idle;
 
-        float _playTime = 0f;
-        float _currentTime = 0f;
+        float _playTime;
+        float _currentTime;
 
         public float CurrentTime { get { return _currentTime; } }
 
-        float _prevTime = 0f;
+        float _prevTime;
 
         public float PrevTime { get { return _prevTime; } }
 
         public float DeltaTime { get { return CurrentTime - _prevTime; } }
 
         [SerializeField]
-        bool _enableWarnings = false;
+        bool _enableWarnings;
 
         public bool EnableWarnings { get { return _enableWarnings; } }
 
-        bool _isInverted = false;
+        bool _isInverted;
 
         public bool IsInverted { get { return _isInverted; } }
 
@@ -81,9 +81,9 @@ namespace SocialPoint.GUIAnimation
 
         public bool IgnoreTimeScale{ get { return _ignoreTimeScale; } set { _ignoreTimeScale = value; } }
 
-        ITimeGetter _editorTimeGetter = null;
+        ITimeGetter _editorTimeGetter;
 
-        System.Action _onEndCallback = null;
+        System.Action _onEndCallback;
 
         public System.Action OnEndCallback { get { return _onEndCallback; } set { _onEndCallback = value; } }
 
@@ -187,38 +187,26 @@ namespace SocialPoint.GUIAnimation
         {
             RefreshAndInit();
 
-            return _actions.FindAll((Effect a) => {
-                return a.StepName == name;
-            });
+            return _actions.FindAll(a => a.StepName == name);
         }
 
         public Effect FindEffectByName(string name)
         {
             List<Effect> effects = FindEffectsByName(name);
-            if(effects.Count > 0)
-            {
-                return effects[0];
-            }
-            return null;
+            return effects.Count > 0 ? effects[0] : null;
         }
 
         public List<Effect> FindEffectsByType<T>() where T : Effect
         {
             RefreshAndInit();
 
-            return _actions.FindAll((Effect a) => {
-                return a is T;
-            });
+            return _actions.FindAll(a => a is T);
         }
 
         public T FindEffectByType<T>() where T : Effect
         {
             List<Effect> effects = FindEffectsByType<T>();
-            if(effects.Count > 0)
-            {
-                return (T)effects[0];
-            }
-            return null;
+            return effects.Count > 0 ? (T)effects[0] : null;
         }
 
         void OrderActions()
@@ -367,10 +355,7 @@ namespace SocialPoint.GUIAnimation
             {
                 return IgnoreTimeScale ? Time.unscaledTime : Time.time;
             }
-            else
-            {
-                return _editorTimeGetter.Get();
-            }
+            return _editorTimeGetter.Get();
         }
 
         void TriggerOnEndCallback()
@@ -387,14 +372,11 @@ namespace SocialPoint.GUIAnimation
             {
                 return true;
             }
-            else if(_playMode != PlayMode.Once)
+            if(_playMode != PlayMode.Once)
             {
                 return false;
             }
-            else
-            {
-                return CurrentTime >= GetEndingTime();
-            }
+            return CurrentTime >= GetEndingTime();
         }
 
         public float GetEndingTime()
@@ -413,7 +395,7 @@ namespace SocialPoint.GUIAnimation
             if(Root != null)
             {
                 _isInverted = !_isInverted;
-                Root.Invert(false);
+                Root.Invert();
             }
         }
 
