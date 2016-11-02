@@ -13,6 +13,7 @@ public class AdminPanelInstaller : Installer, IInitializable
 #if (ADMIN_PANEL && !NO_ADMIN_PANEL) || UNITY_EDITOR
         Container.Bind<IInitializable>().ToInstance(this);
         Container.Rebind<AdminPanel>().ToMethod<AdminPanel>(CreateAdminPanel);
+        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelSceneSelector>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLog>();
         Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelApplication>();
 
