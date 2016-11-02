@@ -39,8 +39,7 @@ namespace SocialPoint.GrayboxLibrary
             { GrayboxAssetCategory.Fx, null },
             { GrayboxAssetCategory.Props, null },
             { GrayboxAssetCategory.UI, null },
-            { GrayboxAssetCategory.Vehicles, null },
-            { GrayboxAssetCategory.FxUI, null }
+            { GrayboxAssetCategory.Vehicles, null }
         };
 
         public static Dictionary<GrayboxAssetCategory, string> CategoryPrefix = new Dictionary<GrayboxAssetCategory, string>{
@@ -50,8 +49,7 @@ namespace SocialPoint.GrayboxLibrary
             { GrayboxAssetCategory.Fx, "FX_" },
             { GrayboxAssetCategory.Props, "PRP_" },
             { GrayboxAssetCategory.UI, "UI_" },
-            { GrayboxAssetCategory.Vehicles, "VHC_" },
-            { GrayboxAssetCategory.FxUI, "FXUI_" }
+            { GrayboxAssetCategory.Vehicles, "VHC_" }
         };
 
     }
@@ -64,7 +62,6 @@ namespace SocialPoint.GrayboxLibrary
         Fx,
         Characters,
         Vehicles,
-        UI,
-        FxUI
+        UI
     };
 }
