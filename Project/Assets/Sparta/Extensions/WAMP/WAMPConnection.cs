@@ -97,11 +97,11 @@ namespace SocialPoint.WAMP
             }
         }
 
-        public delegate void OnLeaved(Error error, string reason);
+        public delegate void OnLeft(Error error, string reason);
 
-        public class LeaveRequest : Request<OnLeaved>
+        public class LeaveRequest : Request<OnLeft>
         {
-            internal LeaveRequest(OnLeaved completionHandler) : base(completionHandler)
+            internal LeaveRequest(OnLeft completionHandler) : base(completionHandler)
             {
 
             }
@@ -113,13 +113,16 @@ namespace SocialPoint.WAMP
 
         public INetworkClient NetworkClient{ get; private set; }
 
+        public bool Debug{ get; set; }
+
         bool _stopped;
-        bool _debug;
         bool _goodbyeSent;
         // WAMP session ID (if the session is joined to a realm).
         long _sessionId;
         // Last request ID of outgoing WAMP requests.
         long _requestId;
+
+        readonly JsonAttrParser _jsonParser;
 
         WAMPRolePublisher _publisher;
         WAMPRoleCaller _caller;
@@ -137,10 +140,12 @@ namespace SocialPoint.WAMP
         {
             NetworkClient = networkClient;
             _stopped = false;
-            _debug = false;
+            Debug = false;
             _goodbyeSent = false;
             _sessionId = 0;
             _requestId = 0;
+
+            _jsonParser = new JsonAttrParser();
 
             _roles = new List<WAMPRole>();
 
@@ -155,11 +160,6 @@ namespace SocialPoint.WAMP
 
             NetworkClient.AddDelegate(this);
             NetworkClient.RegisterReceiver(this);
-        }
-
-        public void SetDebugMode(bool newValue)
-        {
-            _debug = newValue;
         }
 
         internal long GetAndIncrementRequestId()
@@ -226,8 +226,7 @@ namespace SocialPoint.WAMP
 
         void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, SocialPoint.IO.IReader reader)
         {
-            var parser = new JsonAttrParser();
-            var attrData = parser.ParseString(reader.ReadString());
+            var attrData = _jsonParser.ParseString(reader.ReadString());
             if(attrData.AttrType != AttrType.LIST)
             {
                 throw new Exception("Invalid WAMP message structure. It should be a AttrList.");
@@ -407,7 +406,7 @@ namespace SocialPoint.WAMP
             return true;
         }
 
-        public LeaveRequest Leave(OnLeaved completionHandler, string reason)
+        public LeaveRequest Leave(OnLeft completionHandler, string reason)
         {
             //There is a LEAVE process already in progress, call the handler with an error
             if(_leaveRequest != null)
@@ -672,7 +671,7 @@ namespace SocialPoint.WAMP
 
         internal void DebugMessage(string message)
         {
-            if(_debug)
+            if(Debug)
             {
                 Log.d(string.Concat("WAMPConnection: " + message));
             }
