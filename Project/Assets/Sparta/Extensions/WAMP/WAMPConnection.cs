@@ -452,6 +452,11 @@ namespace SocialPoint.WAMP
             return _subscriber.Unsubscribe(subscription, completionHandler);
         }
 
+        public void Autosubscribe(Subscription subscription, HandlerSubscription handler)
+        {
+            _subscriber.Autosubscribe(subscription, handler);
+        }
+
         public PublishRequest Publish(string topic, AttrList args, AttrDic kwargs, bool acknowledged, OnPublished completionHandler)
         {
             return _publisher.Publish(topic, args, kwargs, acknowledged, completionHandler);
