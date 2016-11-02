@@ -238,7 +238,7 @@ namespace SocialPoint.Social
             set
             {
                 _debugEnabled = value;
-                _connection.SetDebugMode(value);
+                _connection.Debug = value;
             }
         }
 
