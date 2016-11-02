@@ -56,11 +56,11 @@ namespace SocialPoint.Utils
 
             hLayout.CreateButton("Refresh", RefreshContent);
 
-                hLayout.CreateButton("Clear", () => {
-                    _entries.Clear();
-                    _availableTags.Clear();
-                    RefreshContent();
-                });
+            hLayout.CreateButton("Clear", () => {
+                _entries.Clear();
+                _availableTags.Clear();
+                RefreshContent();
+            });
 
             layout.CreateToggleButton("Log Levels", _showLogLevels, status => {
                 _showLogLevels = status;
@@ -71,7 +71,7 @@ namespace SocialPoint.Utils
                 LogLevelsFoldoutGUI(layout);
             }
 
-            layout.CreateToggleButton("Tags",  _showTags, status => {
+            layout.CreateToggleButton("Tags", _showTags, status => {
                 _showTags = status;
                 layout.Refresh();
             });
