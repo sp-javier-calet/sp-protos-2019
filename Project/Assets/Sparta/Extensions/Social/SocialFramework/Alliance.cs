@@ -8,7 +8,7 @@ namespace SocialPoint.Social
         public string Id;
         public string Name;
         public string Description;
-        public int MinScoreToJoin; // TODO Requirement
+        public int Requirement;
         public AllianceAccessType AccessType;
         public int AvatarId;
         public int ActivityIndicator;

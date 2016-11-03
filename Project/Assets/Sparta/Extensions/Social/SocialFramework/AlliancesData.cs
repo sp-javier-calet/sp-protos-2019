@@ -35,7 +35,7 @@ namespace SocialPoint.Social
         public AllianceMemberType Type;
     }
 
-    public class AllianceBasicData // FIXME
+    public class AllianceBasicData
     {
         public string Id;
 
@@ -60,7 +60,7 @@ namespace SocialPoint.Social
 
     public class AllianceRankingData
     {
-        public int PlayerScore;
+        public int Score;
 
         public int PlayerAlliancePosition;
 
@@ -81,7 +81,7 @@ namespace SocialPoint.Social
 
     public class AlliancesSearchData
     {
-        public int PlayerScore;
+        public int Score;
 
         readonly List<AllianceBasicData> SearchData;
 
@@ -102,7 +102,7 @@ namespace SocialPoint.Social
 
         public string Description;
 
-        public int RequirementValue;
+        public int Requirement;
 
         public int Avatar;
 

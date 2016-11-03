@@ -16,7 +16,7 @@ namespace SocialPoint.Social
         JoinPrivateAlliance,
         LeaveAlliance,
         AllianceDescriptionEdited,
-        AllianceIconEdited,
+        AllianceAvatarEdited,
         AllianceTypeEdited,
         AllianceRequirementEdited,
         PlayerChangedRank,
@@ -69,6 +69,7 @@ namespace SocialPoint.Social
         #endregion
 
         #region Alliance endpoints
+
         const string AllianceEndpoint = "/api/alliance/";
         const string AllianceMemberEndpoint = "/api/alliance/member";
         const string AllianceRankingEndpoint = "/api/alliance/ranking";
@@ -314,7 +315,7 @@ namespace SocialPoint.Social
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
             dic.SetValue(NameKey, data.Name);
             dic.SetValue(AllianceDescriptionKey, data.Description);
-            dic.SetValue(AllianceRequirementKey, data.RequirementValue);
+            dic.SetValue(AllianceRequirementKey, data.Requirement);
             dic.SetValue(AllianceTypeKey, data.Type != AllianceAccessType.Open ? 1 : 0);
             dic.SetValue(AvatarKey, data.Avatar);
 
@@ -358,9 +359,9 @@ namespace SocialPoint.Social
                 dicProperties.SetValue(AllianceDescriptionKey, data.Description);
             }
 
-            if(current.MinScoreToJoin != data.RequirementValue)
+            if(current.Requirement != data.Requirement)
             {
-                dicProperties.SetValue(AllianceRequirementKey, data.RequirementValue);
+                dicProperties.SetValue(AllianceRequirementKey, data.Requirement);
             }
 
             if(current.AccessType != data.Type)
@@ -395,8 +396,7 @@ namespace SocialPoint.Social
                 if(current.AvatarId != data.Avatar)
                 {
                     current.AvatarId = data.Avatar;
-                    NotifyAllianceEvent(AllianceAction.AllianceIconEdited, rDic); // TODO Change name?
-
+                    NotifyAllianceEvent(AllianceAction.AllianceAvatarEdited, rDic); // TODO Change name?
                 }
 
                 if(current.AccessType != data.Type)
@@ -405,9 +405,9 @@ namespace SocialPoint.Social
                     NotifyAllianceEvent(AllianceAction.AllianceTypeEdited, rDic);
                 }
 
-                if(current.MinScoreToJoin != data.RequirementValue) // TODO use same name in both classes
+                if(current.Requirement != data.Requirement) // TODO use same name in both classes
                 {
-                    current.MinScoreToJoin = data.RequirementValue;
+                    current.Requirement = data.Requirement;
                     NotifyAllianceEvent(AllianceAction.AllianceRequirementEdited, rDic);
                 }
             });
@@ -498,7 +498,7 @@ namespace SocialPoint.Social
 
             _connection.Call(NotificationReceivedMethod, Attr.InvalidList, dic, null);
         }
-            
+
         #region Private methods
 
         string GetUrl(string suffix)
@@ -764,7 +764,7 @@ namespace SocialPoint.Social
             {
                 var newAvatar = changesDic.GetValue(AvatarKey).ToInt();
                 AlliancePlayerInfo.AvatarId = newAvatar;
-                NotifyAllianceEvent(AllianceAction.AllianceIconEdited, dic);
+                NotifyAllianceEvent(AllianceAction.AllianceAvatarEdited, dic);
             }
 
             if(changesDic.ContainsKey(AllianceTypeKey))
