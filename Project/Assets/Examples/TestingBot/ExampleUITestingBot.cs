@@ -17,13 +17,13 @@ public class ExampleUITestingBot : BaseTestingBot
 
     protected override void OnAwake()
     {
-        InputModuleChanged += OnImputModuleChanged;
-        OnImputModuleChanged(_inputModule);
+        InputModuleChanged += OnInputModuleChanged;
+        OnInputModuleChanged(_inputModule);
     }
 
     TestingBotView _view;
 
-    void OnImputModuleChanged(TestableActionStandaloneInputModule inputModule)
+    void OnInputModuleChanged(TestableActionStandaloneInputModule inputModule)
     {
         if(_view != null)
         {
