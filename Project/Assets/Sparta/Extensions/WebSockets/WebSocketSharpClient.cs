@@ -29,12 +29,12 @@ namespace SocialPoint.WebSockets
 
         public void SendNetworkMessage(NetworkMessageData info, byte[] data)
         {
-            _socket.Send(data);
+            _socket.SendAsync(data, null);
         }
 
         public void SendNetworkMessage(NetworkMessageData info, string data)
         {
-            _socket.Send(data);
+            _socket.SendAsync(data, null);
         }
 
         void OnSocketOpened(object sender, EventArgs e)
@@ -141,12 +141,12 @@ namespace SocialPoint.WebSockets
 
         public void Connect()
         {
-            _socket.Connect();
+            _socket.ConnectAsync();
         }
 
         public void Disconnect()
         {
-            _socket.Close();
+            _socket.CloseAsync();
         }
 
         public INetworkMessage CreateMessage(NetworkMessageData data)
