@@ -67,21 +67,7 @@ namespace SocialPoint.Social
 
         public event AllianceEventDelegate AllianceEvent;
 
-        public AllianceMember Player;
-
-        AlliancePlayerInfo AlliancePlayerInfo;
-
-        readonly JsonAttrParser _parser;
-
-        readonly ConnectionManager _connection;
-
-        public ConnectionManager Connection
-        {
-            get
-            {
-                return _connection;
-            }
-        }
+        public AlliancePlayerInfo AlliancePlayerInfo;
 
         public IHttpClient HttpClient { private get; set; }
 
@@ -89,9 +75,15 @@ namespace SocialPoint.Social
 
         public AllianceDataFactory Factory { private get; set; }
 
-        public string ServerUrl { get; set; }
+        public string ServerUrl { private get; set; }
 
         public uint MaxPendingJoinRequests { get; set; }
+
+        public string AlliancesServerUrl;
+
+        readonly JsonAttrParser _parser;
+
+        readonly ConnectionManager _connection;
 
         public AlliancesManager(ConnectionManager connection)
         {
@@ -107,7 +99,6 @@ namespace SocialPoint.Social
             _connection.OnNotificationReceived -= OnNotificationReceived;
             _connection.OnPendingNotification -= OnPendingNotificationReceived;
         }
-
 
         public AllianceBasicData GetBasicDataFromAlliance(Alliance alliance)
         {
@@ -127,24 +118,9 @@ namespace SocialPoint.Social
 
         void OnAllianceInfoLoaded(HttpResponse resp, string allianceId, Action<Alliance> onSuccess, Action<Error> onFailure)
         {
-            var error = resp.Error;
-            var success = Error.IsNullOrEmpty(error);
-            AttrDic dic = null;
-
-            if(success)
-            {
-                try
-                {
-                    dic = _parser.Parse(resp.Body).AsDic;
-                }
-                catch(SerializationException e)
-                {
-                    error = new Error("Serialization error. " + e.Message);
-                    success = false;
-                }
-            }
-
-            if(success)
+            AttrDic dic;
+            var error = ParseResponse(resp, out dic);
+            if(Error.IsNullOrEmpty(error))
             {
                 onSuccess(Factory.CreateAlliance(allianceId, dic));
             }
@@ -166,24 +142,9 @@ namespace SocialPoint.Social
 
         void OnUserInfoLoaded(HttpResponse resp, Action<AllianceMember> onSuccess, Action<Error> onFailure)
         {
-            var error = resp.Error;
-            var success = Error.IsNullOrEmpty(error);
-            AttrDic dic = null;
-
-            if(success)
-            {
-                try
-                {
-                    dic = _parser.Parse(resp.Body).AsDic;
-                }
-                catch(SerializationException e)
-                {
-                    error = new Error("Serialization error. " + e.Message);
-                    success = false;
-                }
-            }
-
-            if(success)
+            AttrDic dic;
+            var error = ParseResponse(resp, out dic);
+            if(Error.IsNullOrEmpty(error))
             {
                 onSuccess(Factory.CreateMember(dic));
             }
@@ -199,9 +160,9 @@ namespace SocialPoint.Social
             var req = new HttpRequest(url);
             req.Timeout = RequestTimeout;
 
-            if(Player.IsInAlliance)
+            if(AlliancePlayerInfo.IsInAlliance)
             {
-                req.AddParam("alliance_id", Player.Id);
+                req.AddParam("alliance_id", AlliancePlayerInfo.Id);
             }
 
             req.AddParam("user_id", LoginData.UserId.ToString());
@@ -211,24 +172,9 @@ namespace SocialPoint.Social
 
         void OnRankingLoaded(HttpResponse resp, Action<AllianceRankingData> onSuccess, Action<Error> onFailure)
         {
-            var error = resp.Error;
-            var success = Error.IsNullOrEmpty(error);
-            AttrDic dic = null;
-
-            if(success)
-            {
-                try
-                {
-                    dic = _parser.Parse(resp.Body).AsDic;
-                }
-                catch(SerializationException e)
-                {
-                    error = new Error("Serialization error. " + e.Message);
-                    success = false;
-                }
-            }
-
-            if(success)
+            AttrDic dic;
+            var error = ParseResponse(resp, out dic);
+            if(Error.IsNullOrEmpty(error))
             {
                 onSuccess(Factory.CreateRankingData(dic));
             }
@@ -261,24 +207,9 @@ namespace SocialPoint.Social
 
         void OnSearchLoaded(HttpResponse resp, Action<AlliancesSearchData> onSuccess, Action<Error> onFailure, bool suggested)
         {
-            var error = resp.Error;
-            var success = Error.IsNullOrEmpty(error);
-            AttrDic dic = null;
-
-            if(success)
-            {   
-                try
-                {
-                    dic = _parser.Parse(resp.Body).AsDic;
-                }
-                catch(SerializationException e)
-                {
-                    error = new Error("Serialization error. " + e.Message);
-                    success = false;
-                }
-            }
-
-            if(success)
+            AttrDic dic;
+            var error = ParseResponse(resp, out dic);
+            if(Error.IsNullOrEmpty(error))
             {
                 onSuccess(Factory.CreateSearchData(dic, suggested));
             }
@@ -301,24 +232,9 @@ namespace SocialPoint.Social
 
         void OnJoinSuggestedAlliancesLoaded(HttpResponse resp, Action<AlliancesSearchData> onSuccess, Action<Error> onFailure)
         {
-            var error = resp.Error;
-            var success = Error.IsNullOrEmpty(error);
-            AttrDic dic = null;
-
-            if(success)
-            {   
-                try
-                {
-                    dic = _parser.Parse(resp.Body).AsDic;
-                }
-                catch(SerializationException e)
-                {
-                    error = new Error("Serialization error. " + e.Message);
-                    success = false;
-                }
-            }
-
-            if(success)
+            AttrDic dic;
+            var error = ParseResponse(resp, out dic);
+            if(Error.IsNullOrEmpty(error))
             {
                 onSuccess(Factory.CreateJoinData(dic));
             }
@@ -332,9 +248,9 @@ namespace SocialPoint.Social
         {
             var dic = new AttrDic();
             dic.SetValue("user_id", LoginData.UserId.ToString());
-            dic.SetValue("alliance_id", Player.Id);
+            dic.SetValue("alliance_id", AlliancePlayerInfo.Id);
 
-            Connection.Call("alliance.member.leave", Attr.InvalidList, dic, (err, EventArgs, kwargs) => {
+            _connection.Call("alliance.member.leave", Attr.InvalidList, dic, (err, EventArgs, kwargs) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
@@ -342,18 +258,13 @@ namespace SocialPoint.Social
                 }
 
                 ClearPlayerAllianceInfo();
-
-                var chatManager = Connection.ChatManager;
-                if(chatManager != null)
-                {
-                    chatManager.DeleteSubscription(chatManager.AllianceRoom);
-                }
+                LeaveAllianceChat();
 
                 callback(null);
 
-                if(notifyEvent && AllianceEvent != null)
+                if(notifyEvent)
                 {
-                    AllianceEvent(AllianceAction.LeaveAlliance, kwargs);
+                    NotifyAllianceEvent(AllianceAction.LeaveAlliance, kwargs);
                 }
             });
         }
@@ -381,7 +292,7 @@ namespace SocialPoint.Social
             dic.SetValue("type", data.AccessType != AllianceAccessType.Open ? 1 : 0);
             dic.SetValue("avatar", data.AvatarId);
 
-            Connection.Call("alliance.create", Attr.InvalidList, dic, (err, rList, rDic) => {
+            _connection.Call("alliance.create", Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
@@ -398,16 +309,11 @@ namespace SocialPoint.Social
                 AlliancePlayerInfo.JoinTimestamp = TimeUtils.Timestamp;
                 AlliancePlayerInfo.ClearRequests();
 
-                var chatManager = Connection.ChatManager;
-                if(chatManager != null)
-                {
-                    var servicesDic = rDic.Get(ConnectionManager.ServicesKey).AsDic;
-                    chatManager.ProcessChatServices(servicesDic.Get(ConnectionManager.ChatServiceKey).AsDic);
-                }
+                UpdateChatServices(rDic);
 
                 callback(null);
 
-                AllianceEvent(AllianceAction.CreateAlliance, rDic);
+                NotifyAllianceEvent(AllianceAction.CreateAlliance, rDic);
             });
         }
 
@@ -439,7 +345,7 @@ namespace SocialPoint.Social
 
             dic.Set("properties", dicProperties);
 
-            Connection.Call("alliance.edit", Attr.InvalidList, dic, (err, rList, rDic) => {
+            _connection.Call("alliance.edit", Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
@@ -453,26 +359,26 @@ namespace SocialPoint.Social
                 if(current.Description != data.Description)
                 {
                     current.Description = data.Description;
-                    AllianceEvent(AllianceAction.AllianceDescriptionEdited, rDic); // TODO Add trigger action for event
+                    NotifyAllianceEvent(AllianceAction.AllianceDescriptionEdited, rDic);
                 }
 
                 if(current.AvatarId != data.AvatarId)
                 {
                     current.AvatarId = data.AvatarId;
-                    AllianceEvent(AllianceAction.AllianceIconEdited, rDic); // TODO Change name?
+                    NotifyAllianceEvent(AllianceAction.AllianceIconEdited, rDic); // TODO Change name?
 
                 }
 
                 if(current.AccessType != data.AccessType)
                 {
                     current.AccessType = data.AccessType;
-                    AllianceEvent(AllianceAction.AllianceTypeEdited, rDic);
+                    NotifyAllianceEvent(AllianceAction.AllianceTypeEdited, rDic);
                 }
 
                 if(current.MinScoreToJoin != data.RequirementValue) // TODO use same name in both classes
                 {
                     current.MinScoreToJoin = data.RequirementValue;
-                    AllianceEvent(AllianceAction.AllianceRequirementEdited, rDic);
+                    NotifyAllianceEvent(AllianceAction.AllianceRequirementEdited, rDic);
                 }
             });
         }
@@ -483,7 +389,7 @@ namespace SocialPoint.Social
             dic.SetValue("user_id", LoginData.UserId.ToString());
             dic.SetValue("new_member_id", long.Parse(candidateUid));
 
-            Connection.Call("alliance.member.accept", Attr.InvalidList, dic, (err, rList, rDic) => {
+            _connection.Call("alliance.member.accept", Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
@@ -491,7 +397,7 @@ namespace SocialPoint.Social
                 }
 
                 callback(null);
-                AllianceEvent(AllianceAction.MateChangedRank, rDic);
+                NotifyAllianceEvent(AllianceAction.MateChangedRank, rDic);
             });
         }
 
@@ -501,7 +407,7 @@ namespace SocialPoint.Social
             dic.SetValue("user_id", LoginData.UserId.ToString());
             dic.SetValue("denied_user_id", long.Parse(candidateUid));
 
-            Connection.Call("alliance.member.decline", Attr.InvalidList, dic, (err, rList, rDic) => {
+            _connection.Call("alliance.member.decline", Attr.InvalidList, dic, (err, rList, rDic) => {
                 callback(err);
             });
         }
@@ -513,7 +419,7 @@ namespace SocialPoint.Social
             dic.SetValue("kicked_user_id", long.Parse(memberUid));
             dic.SetValue("alliance_id", AlliancePlayerInfo.Id);
 
-            Connection.Call("alliance.member.kickoff", Attr.InvalidList, dic, (err, rList, rDic) => {
+            _connection.Call("alliance.member.kickoff", Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
@@ -521,7 +427,7 @@ namespace SocialPoint.Social
                 }
 
                 callback(null);
-                AllianceEvent(AllianceAction.MateChangedRank, rDic);
+                NotifyAllianceEvent(AllianceAction.MateChangedRank, rDic);
             });
         }
 
@@ -532,7 +438,7 @@ namespace SocialPoint.Social
             dic.SetValue("promoted_user_id", long.Parse(memberUid));
             dic.SetValue("new_role", AllianceUtils.GetIndexForMemberType(newType));
 
-            Connection.Call("alliance.member.promote", Attr.InvalidList, dic, (err, rList, rDic) => {
+            _connection.Call("alliance.member.promote", Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
@@ -545,31 +451,27 @@ namespace SocialPoint.Social
                 }
 
                 callback(null);
-                AllianceEvent(AllianceAction.MateChangedRank, rDic);
+                NotifyAllianceEvent(AllianceAction.MateChangedRank, rDic);
             });
         }
 
         public void ParseAllianceInfo(AttrDic dic)
         {
             AlliancePlayerInfo = Factory.CreatePlayerInfo(MaxPendingJoinRequests, dic);
-            AllianceEvent(AllianceAction.OnPlayerAllianceInfoParsed, dic);
+            NotifyAllianceEvent(AllianceAction.OnPlayerAllianceInfoParsed, dic);
         }
 
         public void SendNotificationAck(int typeCode, string notificationId)
         {
             var dic = new AttrDic();
-            dic.SetValue("user_id", LoginData.UserId.ToString()); // TODO stoll? long or string?
+            dic.SetValue("user_id", LoginData.UserId.ToString());
             dic.SetValue("type", typeCode);
             dic.SetValue("notification_id", notificationId);
 
-            Connection.Call("notification.received", Attr.InvalidList, dic, null);
+            _connection.Call("notification.received", Attr.InvalidList, dic, null);
         }
-
-
+            
         #region Private methods
-
-        public string AlliancesServerUrl;
-        // FIXME top
 
         string GetUrl(string suffix)
         {
@@ -586,30 +488,25 @@ namespace SocialPoint.Social
 
             long joinTs = data.Timestamp;
 
-            Connection.Call("alliance.join", Attr.InvalidList, dic, (err, rList, rDic) => {
+            _connection.Call("alliance.join", Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
                     return;
                 }
 
-                AlliancePlayerInfo.ClearRequests();
                 AlliancePlayerInfo.Id = alliance.Id;
                 AlliancePlayerInfo.Name = alliance.Name;
                 AlliancePlayerInfo.AvatarId = alliance.AvatarId;
                 AlliancePlayerInfo.MemberType = AllianceMemberType.Soldier;
                 AlliancePlayerInfo.TotalMembers = alliance.MemberCount;
                 AlliancePlayerInfo.JoinTimestamp = joinTs;
+                AlliancePlayerInfo.ClearRequests();
 
-                var chatManager = Connection.ChatManager;
-                if(chatManager != null)
-                {
-                    var servicesDic = rDic.Get(ConnectionManager.ServicesKey).AsDic;
-                    chatManager.ProcessChatServices(servicesDic.Get(ConnectionManager.ChatServiceKey).AsDic);
-                }
+                UpdateChatServices(rDic);
 
                 callback(null);
-                AllianceEvent(AllianceAction.JoinPublicAlliance, rDic);
+                NotifyAllianceEvent(AllianceAction.JoinPublicAlliance, rDic);
             });
         }
 
@@ -621,7 +518,7 @@ namespace SocialPoint.Social
             dic.SetValue("timestamp", data.Timestamp);
             dic.SetValue("origin", data.Origin);
 
-            Connection.Call("alliance.request.join", Attr.InvalidList, dic, (err, rList, rDic) => {
+            _connection.Call("alliance.request.join", Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
@@ -630,14 +527,14 @@ namespace SocialPoint.Social
 
                 AlliancePlayerInfo.AddRequest(alliance.Id, MaxPendingJoinRequests);
                 callback(null);
-                AllianceEvent(AllianceAction.ApplyToAlliance, rDic);
+                NotifyAllianceEvent(AllianceAction.ApplyToAlliance, rDic);
             });
         }
 
         void ClearPlayerAllianceInfo()
         {
             AlliancePlayerInfo.ClearInfo();
-            AllianceEvent(AllianceAction.OnPlayerAllianceInfoCleared, Attr.InvalidDic);
+            NotifyAllianceEvent(AllianceAction.OnPlayerAllianceInfoCleared, Attr.InvalidDic);
         }
 
         void OnPendingNotificationReceived(int type, string topic, AttrDic dic)
@@ -758,66 +655,56 @@ namespace SocialPoint.Social
             var totalMembers = dic.GetValue("total_members").ToInt();
             var joinTs = dic.GetValue("join_ts").ToInt();
 
-            // TODO Check duplicated code
-            AlliancePlayerInfo.ClearRequests();
             AlliancePlayerInfo.Id = allianceId;
             AlliancePlayerInfo.Name = allianceName;
             AlliancePlayerInfo.AvatarId = avatarId;
             AlliancePlayerInfo.MemberType = AllianceMemberType.Soldier;
             AlliancePlayerInfo.TotalMembers = totalMembers;
             AlliancePlayerInfo.JoinTimestamp = joinTs;
+            AlliancePlayerInfo.ClearRequests();
 
-            var chatManager = Connection.ChatManager;
-            if(chatManager != null)
-            {
-                var servicesDic = dic.Get(ConnectionManager.ServicesKey).AsDic;
-                chatManager.ProcessChatServices(servicesDic.Get(ConnectionManager.ChatServiceKey).AsDic);
-            }
+            UpdateChatServices(dic);
 
-            AllianceEvent(AllianceAction.JoinPrivateAlliance, dic);
+            NotifyAllianceEvent(AllianceAction.JoinPrivateAlliance, dic);
         }
 
         void OnKicked(AttrDic dic)
         {
             ClearPlayerAllianceInfo();
-            var chatManager = Connection.ChatManager;
-            if(chatManager != null)
-            {
-                chatManager.DeleteSubscription(chatManager.AllianceRoom);
-            }
-            AllianceEvent(AllianceAction.KickedFromAlliance, dic);
+            LeaveAllianceChat();
+            NotifyAllianceEvent(AllianceAction.KickedFromAlliance, dic);
         }
 
         void OnPromoted(AttrDic dic)
         {
             var newRole = dic.GetValue("new_role").ToInt();
             AlliancePlayerInfo.MemberType = AllianceUtils.GetMemberTypeFromIndex(newRole);
-            AllianceEvent(AllianceAction.PlayerChangedRank, dic);
+            NotifyAllianceEvent(AllianceAction.PlayerChangedRank, dic);
         }
 
         void OnPlayerAutoChangedRank(AttrDic dic, AllianceRankChange rankChange)
         {
             var newRole = dic.GetValue("new_role").ToInt();
             AlliancePlayerInfo.MemberType = AllianceUtils.GetMemberTypeFromIndex(newRole);
-            AllianceEvent(AllianceAction.PlayerChangedRank, dic);
+            NotifyAllianceEvent(AllianceAction.PlayerChangedRank, dic);
         }
 
         void OnUserAppliedToPlayerAlliance(AttrDic dic)
         {
             DebugUtils.Assert(!AlliancePlayerInfo.IsInAlliance, "User is not in an alliance");
-            AllianceEvent(AllianceAction.UserAppliedToPlayerAlliance, dic);
+            NotifyAllianceEvent(AllianceAction.UserAppliedToPlayerAlliance, dic);
         }
 
         void OnMemberJoined(AttrDic dic)
         {
             AlliancePlayerInfo.IncreaseTotalMembers();
-            AllianceEvent(AllianceAction.MateJoinedPlayerAlliance, dic);
+            NotifyAllianceEvent(AllianceAction.MateJoinedPlayerAlliance, dic);
         }
 
         void OnMemberLeft(AttrDic dic)
         {
             AlliancePlayerInfo.DecreaseTotalMembers();
-            AllianceEvent(AllianceAction.MateJoinedPlayerAlliance, dic);
+            NotifyAllianceEvent(AllianceAction.MateJoinedPlayerAlliance, dic);
         }
 
         void OnAllianceEdited(AttrDic dic)
@@ -826,30 +713,76 @@ namespace SocialPoint.Social
 
             if(changesDic.ContainsKey("description"))
             {
-                AllianceEvent(AllianceAction.AllianceDescriptionEdited, dic);
+                NotifyAllianceEvent(AllianceAction.AllianceDescriptionEdited, dic);
             }
 
             if(changesDic.ContainsKey("avatar"))
             {
                 var newAvatar = changesDic.GetValue("avatar").ToInt();
                 AlliancePlayerInfo.AvatarId = newAvatar;
-                AllianceEvent(AllianceAction.AllianceIconEdited, dic);
+                NotifyAllianceEvent(AllianceAction.AllianceIconEdited, dic);
             }
 
             if(changesDic.ContainsKey("type"))
             {
-                AllianceEvent(AllianceAction.AllianceTypeEdited, dic);
+                NotifyAllianceEvent(AllianceAction.AllianceTypeEdited, dic);
             }
 
             if(changesDic.ContainsKey("minimum_score"))
             {
-                AllianceEvent(AllianceAction.AllianceRequirementEdited, dic);
+                NotifyAllianceEvent(AllianceAction.AllianceRequirementEdited, dic);
             }
         }
 
         void OnMemberPromoted(AttrDic dic)
         {
-            AllianceEvent(AllianceAction.MateChangedRank, dic);
+            NotifyAllianceEvent(AllianceAction.MateChangedRank, dic);
+        }
+
+        void NotifyAllianceEvent(AllianceAction action, AttrDic dic)
+        {
+            if(AllianceEvent != null)
+            {
+                AllianceEvent(action, dic);
+            }
+        }
+
+        void LeaveAllianceChat()
+        {
+            var chatManager = _connection.ChatManager;
+            if(chatManager != null)
+            {
+                chatManager.DeleteSubscription(chatManager.AllianceRoom);
+            }
+        }
+
+        void UpdateChatServices(AttrDic dic)
+        {
+            var chatManager = _connection.ChatManager;
+            if(chatManager != null)
+            {
+                var servicesDic = dic.Get(ConnectionManager.ServicesKey).AsDic;
+                chatManager.ProcessChatServices(servicesDic.Get(ConnectionManager.ChatServiceKey).AsDic);
+            }
+        }
+
+        Error ParseResponse(HttpResponse response, out AttrDic dic)
+        {
+            dic = null;
+            var error = response.Error;
+            if(Error.IsNullOrEmpty(error))
+            {   
+                try
+                {
+                    dic = _parser.Parse(response.Body).AsDic;
+                }
+                catch(SerializationException e)
+                {
+                    error = new Error("Serialization error. " + e.Message);
+                }
+            }
+
+            return error;
         }
 
         #endregion
