@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Locale;
@@ -8,11 +9,18 @@ namespace SocialPoint.Social
     public class FactoryChatMessages<MessageType> where MessageType : class, IChatMessage, new()
     {
         const string Tag = "SocialFramework";
+
+        #region Attr keys
+
         const string UserNameKey = "user_name";
+        const string UserNameTwoDaysLaterKey = "UserName";
         const string OldRoleKey = "old_role";
         const string NewRoleKey = "new_role";
+        const string NewRoleTwoDaysLaterKey = "NewRole";
         const string RankPromotionKey = "promotion";
         const string RankDemotionKey = "demotion";
+
+        #endregion
 
         public Func<AttrDic, MessageType[]> ParseUnknownNotifications { private get; set; }
 
@@ -180,7 +188,7 @@ namespace SocialPoint.Social
             }
 
             var playerName = dic.GetValue(UserNameKey).ToString();
-            var message = CreateWarning(string.Format(Localization.Get("socialFramework.ChatPlayerJoined"), playerName));
+            var message = CreateWarning(string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerJoinedKey), playerName));
 
             return new MessageType[] { message };
         }
@@ -194,7 +202,7 @@ namespace SocialPoint.Social
             }
 
             var playerName = dic.GetValue(UserNameKey).ToString();
-            var message = CreateWarning(string.Format(Localization.Get("socialFramework.ChatPlayerLeft"), playerName));
+            var message = CreateWarning(string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerLeftKey), playerName));
 
             return new MessageType[] { message };
         }
@@ -212,8 +220,19 @@ namespace SocialPoint.Social
             }
 
             var playerName = dic.GetValue(UserNameKey).ToString();
-            // TODO Alliance management.
-            var message = CreateWarning(playerName);
+            var oldRank = AllianceUtils.GetMemberTypeFromIndex(dic.GetValue(OldRoleKey).ToInt());
+            var newRank = AllianceUtils.GetMemberTypeFromIndex(dic.GetValue(NewRoleKey).ToInt());
+            var ranksComparison = AllianceUtils.CompareRanks(oldRank, newRank);
+            var messageTid = AllianceUtils.GetAlliancePromotionTypeString(ranksComparison);
+
+            if(string.IsNullOrEmpty(messageTid))
+            {
+                return new MessageType[0];
+            }
+
+            var oldRankName = Localization.Get(AllianceUtils.GetAllianceMemberTypeString(oldRank));
+            var newRankName = Localization.Get(AllianceUtils.GetAllianceMemberTypeString(newRank));
+            var message = CreateWarning(string.Format(Localization.Get(messageTid), playerName, oldRankName, newRankName));
             return new MessageType[] { message };
         }
 
@@ -228,13 +247,35 @@ namespace SocialPoint.Social
                 return new MessageType[0];
             }
 
-            // TODO Alliance management.
-            return new MessageType[0];
+            var messageList = new List<MessageType>();
+            var promotionList = dic.Get(RankPromotionKey).AsList;
+            for(var i = 0; i < promotionList.Count; ++i)
+            {
+                var memberDic = promotionList[i].AsDic;
+                var userName = memberDic.GetValue(UserNameTwoDaysLaterKey).ToString();
+
+                var newRank = AllianceUtils.GetMemberTypeFromIndex(memberDic.GetValue(NewRoleTwoDaysLaterKey).ToInt());
+                var newRankName = Localization.Get(AllianceUtils.GetAllianceMemberTypeString(newRank));
+
+                var message = CreateWarning(string.Format(Localization.Get(SocialFrameworkStrings.AllianceMemberAutoPromotionKey), userName, newRankName));
+                messageList.Add(message);
+            }
+
+            var demotionList = dic.Get(RankDemotionKey).AsList;
+            for(var i = 0; i < demotionList.Count; ++i)
+            {
+                var memberDic = demotionList[i].AsDic;
+                var userName = memberDic.GetValue(UserNameTwoDaysLaterKey).ToString();
+                var message = CreateWarning(string.Format(Localization.Get(SocialFrameworkStrings.AllianceMemberAutoDemotionKey), userName));
+                messageList.Add(message);
+            }
+
+            return messageList.ToArray();
         }
 
         MessageType[] ParseJoinRequestMessage(AttrDic dic)
         {
-            var message = CreateWarning(Localization.Get("socialFramework.ChatJoinRequest"));
+            var message = CreateWarning(Localization.Get(SocialFrameworkStrings.ChatJoinRequestKey));
             return new MessageType[] { message };
         }
 

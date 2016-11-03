@@ -51,19 +51,30 @@ namespace SocialPoint.Social
 
         public static string GetAllianceMemberTypeString(AllianceMemberType type)
         {
-            // TODO Localize strings
             switch(type)
             {
             case AllianceMemberType.Lead:
-                return "socialFramework.AlliancesLead";
+                return SocialFrameworkStrings.AllianceLeadNameKey;
             case AllianceMemberType.CoLead:
-                return "socialFramework.AlliancesColead";
+                return SocialFrameworkStrings.AllianceColeadNameKey;
             case AllianceMemberType.Soldier:
-                return "socialFramework.AlliancesSoldier";
+                return SocialFrameworkStrings.AllianceSoldierNameKey;
             default:
                 DebugUtils.Assert(false, "Invalid AllianceMemberType");
                 return string.Empty;
             }
+        }
+
+        public static string GetAlliancePromotionTypeString(RanksComparison comparison)
+        {
+            switch(comparison)
+            {
+            case RanksComparison.Higher:
+                return SocialFrameworkStrings.ChatPlayerPromotedKey;
+            case RanksComparison.Lower:
+                return SocialFrameworkStrings.ChatPlayerDemotedRankKey;
+            }
+            return string.Empty;
         }
 
         public static RanksComparison CompareRanks(AllianceMemberType typeFrom, AllianceMemberType typeTo)
