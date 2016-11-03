@@ -8,20 +8,6 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
-    public enum AllianceAccessType
-    {
-        Open,
-        Private
-    }
-
-    public enum AllianceMemberType
-    {
-        Lead = 1,
-        CoLead,
-        Soldier,
-        Undefined
-    }
-
     public enum AllianceAction
     {
         CreateAlliance,
@@ -52,8 +38,6 @@ namespace SocialPoint.Social
 
     public class AlliancesManager : IDisposable
     {
-        const float RequestTimeout = 30.0f;
-
         #region Attr keys
 
         const string UserIdKey = "user_id";
@@ -109,12 +93,13 @@ namespace SocialPoint.Social
 
         #endregion
 
+        const float RequestTimeout = 30.0f;
 
         public delegate void AllianceEventDelegate(AllianceAction action, AttrDic dic);
 
         public event AllianceEventDelegate AllianceEvent;
 
-        public AlliancePlayerInfo AlliancePlayerInfo;
+        public AlliancePlayerInfo AlliancePlayerInfo { get; private set; }
 
         public IHttpClient HttpClient { private get; set; }
 

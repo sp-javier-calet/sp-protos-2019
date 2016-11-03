@@ -11,5 +11,10 @@
         {
             return AllianceMemberType.Soldier; // TODO
         }
+
+        public static AllianceAccessType GetAllianceTypeFromIndex(int index)
+        {
+            return AllianceAccessType.Open;
+        }
     }
 }
