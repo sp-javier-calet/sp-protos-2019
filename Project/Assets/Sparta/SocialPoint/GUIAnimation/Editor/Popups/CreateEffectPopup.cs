@@ -53,13 +53,13 @@ namespace SocialPoint.GUIAnimation
         {
             GUILayout.Label(_title, AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Title, GUI.skin.label, TextAnchor.MiddleCenter));
             GUILayout.Space(10f);
-            const float scroolHeight = 150f;
+            const float scrollHeight = 150f;
 
             // List of Triggers
             _scrollPos = GUILayout.BeginScrollView(
                 _scrollPos
 				, GUILayout.Width(position.width)
-				, GUILayout.Height(scroolHeight)
+				, GUILayout.Height(scrollHeight)
             );
 
             // Show list of actions
@@ -81,7 +81,7 @@ namespace SocialPoint.GUIAnimation
             GUILayout.EndScrollView();
 
             // Cancel Button
-            GUILayout.BeginArea(new Rect(0f, scroolHeight + 50f, 200, 50));
+            GUILayout.BeginArea(new Rect(0f, scrollHeight + 50f, 200, 50));
             GUILayout.BeginHorizontal();
 
             GUILayout.Space(position.width * 0.5f - 50f);
