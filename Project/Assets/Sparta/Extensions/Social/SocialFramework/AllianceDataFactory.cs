@@ -189,7 +189,7 @@ namespace SocialPoint.Social
             {
                 info.Id = dic.GetValue(AlliancePlayerIdKey).ToString();
                 info.Name = dic.GetValue(AlliancePlayerNameKey).ToString();
-                info.AvatarId = dic.GetValue(AlliancePlayerAvatarKey).ToInt();
+                info.Avatar = dic.GetValue(AlliancePlayerAvatarKey).ToInt();
                 info.MemberType = AllianceUtils.GetMemberTypeFromIndex(dic.GetValue(AlliancePlayerRoleKey).ToInt());
                 info.TotalMembers = dic.GetValue(AlliancePlayerTotalMembersKey).ToInt();
                 info.JoinTimestamp = dic.GetValue(AlliancePlayerJoinTimestampKey).ToLong();

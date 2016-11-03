@@ -206,7 +206,7 @@ namespace SocialPoint.Social
                 message.HasAlliance = member.IsInAlliance;
                 message.AllianceName = member.Name;
                 message.AllianceId = member.Id;
-                message.AllianceAvatarId = member.AvatarId;
+                message.AllianceAvatarId = member.Avatar;
                 message.RankInAlliance = AllianceUtils.GetIndexForMemberType(member.MemberType);
             }
 

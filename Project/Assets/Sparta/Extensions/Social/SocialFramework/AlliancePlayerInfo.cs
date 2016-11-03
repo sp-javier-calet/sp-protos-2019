@@ -8,7 +8,7 @@ namespace SocialPoint.Social
 
         public string Name { get; set; }
 
-        public int AvatarId { get; set; }
+        public int Avatar { get; set; }
 
         public AllianceMemberType MemberType = AllianceMemberType.Soldier;
 

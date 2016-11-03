@@ -42,7 +42,7 @@ namespace SocialPoint.Social
 
         const string UserIdKey = "user_id";
         const string UserSessionKey = "user_key";
-        const string SessionIdKey = "session_id";
+        const string SessionIdKey = "session_id"; // TODO Both Key and Session store the SessionId
         const string NameKey = "name";
         const string AllianceIdKey = "alliance_id";
         const string AvatarKey = "avatar";
@@ -50,7 +50,7 @@ namespace SocialPoint.Social
         const string AllianceDescriptionKey = "description";
         const string AllianceRequirementKey = "minimum_score";
         const string AllianceTypeKey = "type";
-        const string AllianceIconKey = "alliance_symbol";
+        const string AllianceAvatarKey = "alliance_symbol";
         const string AlliancePropertiesKey = "properties";
         const string AllianceNewMemberKey = "new_member_id";
         const string AllianceDeniedMemberKey = "denied_member_id";
@@ -333,7 +333,7 @@ namespace SocialPoint.Social
                 var id = result.GetValue(AllianceIdKey).ToString();
 
                 AlliancePlayerInfo.Id = id;
-                AlliancePlayerInfo.AvatarId = data.Avatar;
+                AlliancePlayerInfo.Avatar = data.Avatar;
                 AlliancePlayerInfo.Name = data.Name;
                 AlliancePlayerInfo.MemberType = AllianceMemberType.Lead;
                 AlliancePlayerInfo.TotalMembers = 1;
@@ -383,7 +383,7 @@ namespace SocialPoint.Social
                     return;
                 }
 
-                AlliancePlayerInfo.AvatarId = data.Avatar;
+                AlliancePlayerInfo.Avatar = data.Avatar;
 
                 callback(null);
 
@@ -527,7 +527,7 @@ namespace SocialPoint.Social
 
                 AlliancePlayerInfo.Id = alliance.Id;
                 AlliancePlayerInfo.Name = alliance.Name;
-                AlliancePlayerInfo.AvatarId = alliance.Avatar;
+                AlliancePlayerInfo.Avatar = alliance.Avatar;
                 AlliancePlayerInfo.MemberType = AllianceMemberType.Soldier;
                 AlliancePlayerInfo.TotalMembers = alliance.Members;
                 AlliancePlayerInfo.JoinTimestamp = joinTs;
@@ -687,15 +687,15 @@ namespace SocialPoint.Social
             DebugUtils.Assert(dic.GetValue(AllianceNameKey).IsValue);
             var allianceName = dic.GetValue(AllianceNameKey).ToString();
 
-            DebugUtils.Assert(dic.GetValue(AllianceIconKey).IsValue);
-            var avatarId = dic.GetValue(AllianceIconKey).ToInt(); // Symbol now, really? -.-
+            DebugUtils.Assert(dic.GetValue(AllianceAvatarKey).IsValue);
+            var avatarId = dic.GetValue(AllianceAvatarKey).ToInt();
 
             var totalMembers = dic.GetValue(AllianceTotalMembersKey).ToInt();
             var joinTs = dic.GetValue(AllianceJoinTimestampKey).ToInt();
 
             AlliancePlayerInfo.Id = allianceId;
             AlliancePlayerInfo.Name = allianceName;
-            AlliancePlayerInfo.AvatarId = avatarId;
+            AlliancePlayerInfo.Avatar = avatarId;
             AlliancePlayerInfo.MemberType = AllianceMemberType.Soldier;
             AlliancePlayerInfo.TotalMembers = totalMembers;
             AlliancePlayerInfo.JoinTimestamp = joinTs;
@@ -763,7 +763,7 @@ namespace SocialPoint.Social
             if(changesDic.ContainsKey(AvatarKey))
             {
                 var newAvatar = changesDic.GetValue(AvatarKey).ToInt();
-                AlliancePlayerInfo.AvatarId = newAvatar;
+                AlliancePlayerInfo.Avatar = newAvatar;
                 NotifyAllianceEvent(AllianceAction.AllianceAvatarEdited, dic);
             }
 
