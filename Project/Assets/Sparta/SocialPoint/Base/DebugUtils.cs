@@ -52,6 +52,19 @@ namespace SocialPoint.Base
         }
 
         [Conditional("DEBUG")]
+        public static void Assert(Func<bool> assertFunction, string msg = "")
+        {
+            Assert(assertFunction(), msg);
+        }
+
+        [Conditional("DEBUG")]
+        public static void Assert(Func<string> assertFunction)
+        {
+            var error = assertFunction();
+            Assert(!string.IsNullOrEmpty(error), error);
+        }
+
+        [Conditional("DEBUG")]
         public static void Break()
         {
             #if UNITY
