@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
-using SocialPoint.WAMP;
-using SocialPoint.WAMP.Subscriber;
 using SocialPoint.Network;
 using SocialPoint.Login;
 using SocialPoint.Utils;
@@ -47,12 +44,6 @@ namespace SocialPoint.Social
         OnPlayerAllianceInfoCleared
     }
 
-    public enum AllianceRankChange
-    {
-        Promotion,
-        Demotion
-    }
-
     public class JoinExtraData
     {
         public string Origin;
@@ -62,6 +53,62 @@ namespace SocialPoint.Social
     public class AlliancesManager : IDisposable
     {
         const float RequestTimeout = 30.0f;
+
+        #region Attr keys
+
+        const string UserIdKey = "user_id";
+        const string UserSessionKey = "user_key";
+        const string SessionIdKey = "session_id";
+        const string NameKey = "name";
+        const string AllianceIdKey = "alliance_id";
+        const string AvatarKey = "avatar";
+        const string AllianceNameKey = "alliance_name";
+        const string AllianceDescriptionKey = "description";
+        const string AllianceRequirementKey = "minimum_score";
+        const string AllianceTypeKey = "type";
+        const string AllianceIconKey = "alliance_symbol";
+        const string AlliancePropertiesKey = "properties";
+        const string AllianceNewMemberKey = "new_member_id";
+        const string AllianceDeniedMemberKey = "denied_member_id";
+        const string AllianceKickedMemberKey = "kicked_user_id";
+        const string AlliancePromotedMemberKey = "promoted_user_id";
+        const string AllianceNewRoleKey = "new_role";
+        const string AllianceTotalMembersKey = "total_members";
+        const string AllianceJoinTimestampKey = "join_ts";
+        const string NotificationTypeKey = "type";
+        const string SearchFilterKey = "filter_name";
+        const string OperationResultKey = "result";
+        const string NotificationIdKey = "notification_id";
+        const string TimestampKey = "timestamp";
+        const string OriginKey = "origin";
+
+        #endregion
+
+        #region Alliance endpoints
+        const string AllianceEndpoint = "/api/alliance/";
+        const string AllianceMemberEndpoint = "/api/alliance/member";
+        const string AllianceRankingEndpoint = "/api/alliance/ranking";
+        const string AllianceSearchEndpoint = "/api/alliance/search";
+        const string AllianceSuggestedEndpoint = "/api/alliance/suggested";
+        const string AllianceJoinSuggestedEndpoint = "/api/alliance/suggested_reward";
+
+        #endregion
+
+        #region RPC methods
+
+        const string AllianceCreateMethod = "alliance.create";
+        const string AllianceEditMethod = "alliance.edit";
+        const string AllianceJoinMethod = "alliance.join";
+        const string AllianceLeaveMethod = "alliance.leave";
+        const string AllianceRequestJoinMethod = "alliance.request.join";
+        const string AllianceMemberAcceptMethod = "alliance.member.accept";
+        const string AllianceMemberDeclineMethod = "alliance.member.decline";
+        const string AllianceMemberKickMethod = "alliance.member.kickoff";
+        const string AllianceMemberPromoteMethod = "alliance.member.promote";
+        const string NotificationReceivedMethod = "notification.received";
+
+        #endregion
+
 
         public delegate void AllianceEventDelegate(AllianceAction action, AttrDic dic);
 
@@ -107,11 +154,10 @@ namespace SocialPoint.Social
 
         public IHttpConnection LoadAllianceInfo(string allianceId, Action<Alliance> onSuccess, Action<Error> onFailure)
         {
-            var url = LoginData.BaseUrl + "/api/alliance/" + allianceId;
-            var req = new HttpRequest(url);
+            var req = new HttpRequest(GetUrl(AllianceEndpoint + allianceId));
             req.Timeout = RequestTimeout;
-            req.AddParam("user_key", LoginData.SessionId);
-            req.AddParam("user_id", LoginData.UserId.ToString());
+            req.AddParam(UserSessionKey, LoginData.SessionId);
+            req.AddParam(UserIdKey, LoginData.UserId.ToString());
              
             return HttpClient.Send(req, response => OnAllianceInfoLoaded(response, allianceId, onSuccess, onFailure));
         }
@@ -132,10 +178,9 @@ namespace SocialPoint.Social
 
         public IHttpConnection LoadUserInfo(string userId, Action<AllianceMember> onSuccess, Action<Error> onFailure)
         {
-            var url = LoginData.BaseUrl + "/api/alliance/member" + userId;
-            var req = new HttpRequest(url);
+            var req = new HttpRequest(GetUrl(AllianceMemberEndpoint + userId));
             req.Timeout = RequestTimeout;
-            req.AddParam("user_key", LoginData.SessionId);
+            req.AddParam(UserSessionKey, LoginData.SessionId);
 
             return HttpClient.Send(req, response => OnUserInfoLoaded(response, onSuccess, onFailure));
         }
@@ -156,16 +201,15 @@ namespace SocialPoint.Social
 
         public IHttpConnection LoadRanking(Action<AllianceRankingData> onSuccess, Action<Error> onFailure)
         {
-            var url = LoginData.BaseUrl + "/api/alliance/ranking";
-            var req = new HttpRequest(url);
+            var req = new HttpRequest(GetUrl(AllianceRankingEndpoint));
             req.Timeout = RequestTimeout;
 
             if(AlliancePlayerInfo.IsInAlliance)
             {
-                req.AddParam("alliance_id", AlliancePlayerInfo.Id);
+                req.AddParam(AllianceIdKey, AlliancePlayerInfo.Id);
             }
 
-            req.AddParam("user_id", LoginData.UserId.ToString());
+            req.AddParam(UserIdKey, LoginData.UserId.ToString());
 
             return HttpClient.Send(req, response => OnRankingLoaded(response, onSuccess, onFailure));
         }
@@ -186,21 +230,19 @@ namespace SocialPoint.Social
 
         public IHttpConnection LoadSearch(string search, Action<AlliancesSearchData> onSuccess, Action<Error> onFailure)
         {
-            var url = LoginData.BaseUrl + "/api/alliance/search";
-            var req = new HttpRequest(url);
+            var req = new HttpRequest(GetUrl(AllianceSearchEndpoint));
             req.Timeout = RequestTimeout;
-            req.AddParam("filter_name", search);
-            req.AddParam("user_id", LoginData.UserId.ToString());
+            req.AddParam(SearchFilterKey, search);
+            req.AddParam(UserIdKey, LoginData.UserId.ToString());
 
             return HttpClient.Send(req, response => OnSearchLoaded(response, onSuccess, onFailure, false));
         }
 
         public IHttpConnection LoadSearchSuggested(Action<AlliancesSearchData> onSuccess, Action<Error> onFailure)
         {
-            var url = LoginData.BaseUrl + "/api/alliance/suggested";
-            var req = new HttpRequest(url);
+            var req = new HttpRequest(GetUrl(AllianceSuggestedEndpoint));
             req.Timeout = RequestTimeout;
-            req.AddParam("user_id", LoginData.UserId.ToString());
+            req.AddParam(UserIdKey, LoginData.UserId.ToString());
 
             return HttpClient.Send(req, response => OnSearchLoaded(response, onSuccess, onFailure, true));
         }
@@ -221,11 +263,10 @@ namespace SocialPoint.Social
 
         public IHttpConnection LoadJoinSuggestedAlliances(Action<AlliancesSearchData> onSuccess, Action<Error> onFailure)
         {
-            var url = LoginData.BaseUrl + "/api/alliance/suggested_reward";
-            var req = new HttpRequest(url);
+            var req = new HttpRequest(GetUrl(AllianceJoinSuggestedEndpoint));
             req.Timeout = RequestTimeout;
-            req.AddParam("user_id", LoginData.UserId.ToString());
-            req.AddParam("session_id", LoginData.SessionId);
+            req.AddParam(UserIdKey, LoginData.UserId.ToString());
+            req.AddParam(SessionIdKey, LoginData.SessionId);
 
             return HttpClient.Send(req, response => OnJoinSuggestedAlliancesLoaded(response, onSuccess, onFailure));
         }
@@ -247,10 +288,10 @@ namespace SocialPoint.Social
         public void LeaveAlliance(Action<Error> callback, bool notifyEvent)
         {
             var dic = new AttrDic();
-            dic.SetValue("user_id", LoginData.UserId.ToString());
-            dic.SetValue("alliance_id", AlliancePlayerInfo.Id);
+            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
+            dic.SetValue(AllianceIdKey, AlliancePlayerInfo.Id);
 
-            _connection.Call("alliance.member.leave", Attr.InvalidList, dic, (err, EventArgs, kwargs) => {
+            _connection.Call(AllianceLeaveMethod, Attr.InvalidList, dic, (err, EventArgs, kwargs) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
@@ -285,22 +326,26 @@ namespace SocialPoint.Social
         public void CreateAlliance(AlliancesCreateData data, Action<Error> callback)
         {
             var dic = new AttrDic();
-            dic.SetValue("user_id", LoginData.UserId.ToString());
-            dic.SetValue("name", data.Name);
-            dic.SetValue("description", data.Description);
-            dic.SetValue("minimum_score", data.RequirementValue);
-            dic.SetValue("type", data.AccessType != AllianceAccessType.Open ? 1 : 0);
-            dic.SetValue("avatar", data.AvatarId);
+            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
+            dic.SetValue(NameKey, data.Name);
+            dic.SetValue(AllianceDescriptionKey, data.Description);
+            dic.SetValue(AllianceRequirementKey, data.RequirementValue);
+            dic.SetValue(AllianceTypeKey, data.AccessType != AllianceAccessType.Open ? 1 : 0);
+            dic.SetValue(AvatarKey, data.AvatarId);
 
-            _connection.Call("alliance.create", Attr.InvalidList, dic, (err, rList, rDic) => {
+            _connection.Call(AllianceCreateMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
                     return;
                 }
 
-                var result = rDic.Get("result").AsDic;
-                var id = result.GetValue("alliance_id").ToString();
+                DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
+                var result = rDic.Get(OperationResultKey).AsDic;
+
+                DebugUtils.Assert(rDic.Get(AllianceIdKey).IsValue);
+                var id = result.GetValue(AllianceIdKey).ToString();
+
                 AlliancePlayerInfo.Id = id;
                 AlliancePlayerInfo.AvatarId = data.AvatarId;
                 AlliancePlayerInfo.Name = data.Name;
@@ -320,32 +365,32 @@ namespace SocialPoint.Social
         public void EditAlliance(Alliance current, AlliancesCreateData data, Action<Error> callback)
         {
             var dic = new AttrDic();
-            dic.SetValue("user_id", LoginData.UserId.ToString());
+            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
             var dicProperties = new AttrDic();
 
             if(current.Description != data.Description)
             {
-                dicProperties.SetValue("description", data.Description);
+                dicProperties.SetValue(AllianceDescriptionKey, data.Description);
             }
 
             if(current.MinScoreToJoin != data.RequirementValue)
             {
-                dicProperties.SetValue("minimum_score", data.RequirementValue);
+                dicProperties.SetValue(AllianceRequirementKey, data.RequirementValue);
             }
 
             if(current.AccessType != data.AccessType)
             {
-                dicProperties.SetValue("type", data.AccessType != AllianceAccessType.Open ? 1 : 0);
+                dicProperties.SetValue(AllianceTypeKey, data.AccessType != AllianceAccessType.Open ? 1 : 0);
             }
 
             if(current.AvatarId != data.AvatarId)
             {
-                dicProperties.SetValue("avatar", data.AvatarId);
+                dicProperties.SetValue(AvatarKey, data.AvatarId);
             }
 
-            dic.Set("properties", dicProperties);
+            dic.Set(AlliancePropertiesKey, dicProperties);
 
-            _connection.Call("alliance.edit", Attr.InvalidList, dic, (err, rList, rDic) => {
+            _connection.Call(AllianceEditMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
@@ -386,10 +431,10 @@ namespace SocialPoint.Social
         public void AcceptCandidate(string candidateUid, Action<Error> callback)
         {
             var dic = new AttrDic();
-            dic.SetValue("user_id", LoginData.UserId.ToString());
-            dic.SetValue("new_member_id", long.Parse(candidateUid));
+            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
+            dic.SetValue(AllianceNewMemberKey, long.Parse(candidateUid));
 
-            _connection.Call("alliance.member.accept", Attr.InvalidList, dic, (err, rList, rDic) => {
+            _connection.Call(AllianceMemberAcceptMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
@@ -404,22 +449,20 @@ namespace SocialPoint.Social
         public void DeclineCandidate(string candidateUid, Action<Error> callback)
         {
             var dic = new AttrDic();
-            dic.SetValue("user_id", LoginData.UserId.ToString());
-            dic.SetValue("denied_user_id", long.Parse(candidateUid));
+            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
+            dic.SetValue(AllianceDeniedMemberKey, long.Parse(candidateUid));
 
-            _connection.Call("alliance.member.decline", Attr.InvalidList, dic, (err, rList, rDic) => {
-                callback(err);
-            });
+            _connection.Call(AllianceMemberAcceptMethod, Attr.InvalidList, dic, (err, rList, rDic) => callback(err));
         }
 
         public void KickMember(string memberUid, Action<Error> callback)
         {
             var dic = new AttrDic();
-            dic.SetValue("user_id", LoginData.UserId.ToString());
-            dic.SetValue("kicked_user_id", long.Parse(memberUid));
-            dic.SetValue("alliance_id", AlliancePlayerInfo.Id);
+            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
+            dic.SetValue(AllianceKickedMemberKey, long.Parse(memberUid));
+            dic.SetValue(AllianceIdKey, AlliancePlayerInfo.Id);
 
-            _connection.Call("alliance.member.kickoff", Attr.InvalidList, dic, (err, rList, rDic) => {
+            _connection.Call(AllianceMemberKickMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
@@ -434,11 +477,11 @@ namespace SocialPoint.Social
         public void PromoteMember(string memberUid, AllianceMemberType newType, Action<Error> callback)
         {
             var dic = new AttrDic();
-            dic.SetValue("user_id", LoginData.UserId.ToString());
-            dic.SetValue("promoted_user_id", long.Parse(memberUid));
-            dic.SetValue("new_role", AllianceUtils.GetIndexForMemberType(newType));
+            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
+            dic.SetValue(AlliancePromotedMemberKey, long.Parse(memberUid));
+            dic.SetValue(AllianceNewRoleKey, AllianceUtils.GetIndexForMemberType(newType));
 
-            _connection.Call("alliance.member.promote", Attr.InvalidList, dic, (err, rList, rDic) => {
+            _connection.Call(AllianceMemberPromoteMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
@@ -464,11 +507,11 @@ namespace SocialPoint.Social
         public void SendNotificationAck(int typeCode, string notificationId)
         {
             var dic = new AttrDic();
-            dic.SetValue("user_id", LoginData.UserId.ToString());
-            dic.SetValue("type", typeCode);
-            dic.SetValue("notification_id", notificationId);
+            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
+            dic.SetValue(NotificationTypeKey, typeCode);
+            dic.SetValue(NotificationIdKey, notificationId);
 
-            _connection.Call("notification.received", Attr.InvalidList, dic, null);
+            _connection.Call(NotificationReceivedMethod, Attr.InvalidList, dic, null);
         }
             
         #region Private methods
@@ -480,15 +523,17 @@ namespace SocialPoint.Social
 
         void JoinPublicAlliance(AllianceBasicData alliance, Action<Error> callback, JoinExtraData data)
         {
+            DebugUtils.Assert(alliance.AccessType == AllianceAccessType.Open);
+
             var dic = new AttrDic();
-            dic.SetValue("userid", LoginData.UserId.ToString());
-            dic.SetValue("alliance_id", alliance.Id);
-            dic.SetValue("timestamp", data.Timestamp);
-            dic.SetValue("origin", data.Origin);
+            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
+            dic.SetValue(AllianceIdKey, alliance.Id);
+            dic.SetValue(TimestampKey, data.Timestamp);
+            dic.SetValue(OriginKey, data.Origin);
 
             long joinTs = data.Timestamp;
 
-            _connection.Call("alliance.join", Attr.InvalidList, dic, (err, rList, rDic) => {
+            _connection.Call(AllianceJoinMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
@@ -512,13 +557,15 @@ namespace SocialPoint.Social
 
         void JoinPrivateAlliance(AllianceBasicData alliance, Action<Error> callback, JoinExtraData data)
         {
-            var dic = new AttrDic();
-            dic.SetValue("user_id", LoginData.UserId.ToString());
-            dic.SetValue("alliance_id", alliance.Id);
-            dic.SetValue("timestamp", data.Timestamp);
-            dic.SetValue("origin", data.Origin);
+            DebugUtils.Assert(alliance.AccessType == AllianceAccessType.Private);
 
-            _connection.Call("alliance.request.join", Attr.InvalidList, dic, (err, rList, rDic) => {
+            var dic = new AttrDic();
+            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
+            dic.SetValue(AllianceIdKey, alliance.Id);
+            dic.SetValue(TimestampKey, data.Timestamp);
+            dic.SetValue(OriginKey, data.Origin);
+
+            _connection.Call(AllianceRequestJoinMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     callback(err);
@@ -544,14 +591,14 @@ namespace SocialPoint.Social
             case NotificationTypeCode.NotificationAlliancePlayerAutoPromote:
                 {
                     var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
-                    OnPlayerAutoChangedRank(dic, AllianceRankChange.Promotion);
+                    OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
                 }
             case NotificationTypeCode.NotificationAlliancePlayerAutoDemote:
                 {
                     var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
-                    OnPlayerAutoChangedRank(dic, AllianceRankChange.Demotion);
+                    OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
                 }
@@ -601,14 +648,14 @@ namespace SocialPoint.Social
             case NotificationTypeCode.NotificationAlliancePlayerAutoPromote:
                 {
                     var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
-                    OnPlayerAutoChangedRank(dic, AllianceRankChange.Promotion);
+                    OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
                 }
             case NotificationTypeCode.NotificationAlliancePlayerAutoDemote:
                 {
                     var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
-                    OnPlayerAutoChangedRank(dic, AllianceRankChange.Demotion);
+                    OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
                 }
@@ -649,11 +696,17 @@ namespace SocialPoint.Social
 
         void OnRequestAccepted(AttrDic dic)
         {
-            var allianceId = dic.GetValue("alliance_id").ToString();
-            var allianceName = dic.GetValue("alliance_name").ToString();
-            var avatarId = dic.GetValue("alliance_symbol").ToInt(); // Symbol now, really? -.-
-            var totalMembers = dic.GetValue("total_members").ToInt();
-            var joinTs = dic.GetValue("join_ts").ToInt();
+            DebugUtils.Assert(dic.GetValue(AllianceIdKey).IsValue);
+            var allianceId = dic.GetValue(AllianceIdKey).ToString();
+
+            DebugUtils.Assert(dic.GetValue(AllianceNameKey).IsValue);
+            var allianceName = dic.GetValue(AllianceNameKey).ToString();
+
+            DebugUtils.Assert(dic.GetValue(AllianceIconKey).IsValue);
+            var avatarId = dic.GetValue(AllianceIconKey).ToInt(); // Symbol now, really? -.-
+
+            var totalMembers = dic.GetValue(AllianceTotalMembersKey).ToInt();
+            var joinTs = dic.GetValue(AllianceJoinTimestampKey).ToInt();
 
             AlliancePlayerInfo.Id = allianceId;
             AlliancePlayerInfo.Name = allianceName;
@@ -677,21 +730,25 @@ namespace SocialPoint.Social
 
         void OnPromoted(AttrDic dic)
         {
-            var newRole = dic.GetValue("new_role").ToInt();
+            DebugUtils.Assert(AlliancePlayerInfo.IsInAlliance, "Trying to promote a user which is not in an alliance");
+            DebugUtils.Assert(dic.Get(AllianceNewRoleKey).IsValue);
+            var newRole = dic.GetValue(AllianceNewRoleKey).ToInt();
             AlliancePlayerInfo.MemberType = AllianceUtils.GetMemberTypeFromIndex(newRole);
             NotifyAllianceEvent(AllianceAction.PlayerChangedRank, dic);
         }
 
-        void OnPlayerAutoChangedRank(AttrDic dic, AllianceRankChange rankChange)
+        void OnPlayerAutoChangedRank(AttrDic dic)
         {
-            var newRole = dic.GetValue("new_role").ToInt();
+            DebugUtils.Assert(AlliancePlayerInfo.IsInAlliance, "User is not in an alliance");
+            var newRole = dic.GetValue(AllianceNewRoleKey).ToInt();
             AlliancePlayerInfo.MemberType = AllianceUtils.GetMemberTypeFromIndex(newRole);
             NotifyAllianceEvent(AllianceAction.PlayerChangedRank, dic);
         }
 
         void OnUserAppliedToPlayerAlliance(AttrDic dic)
         {
-            DebugUtils.Assert(!AlliancePlayerInfo.IsInAlliance, "User is not in an alliance");
+            DebugUtils.Assert(AlliancePlayerInfo.IsInAlliance, "User is not in an alliance");
+            DebugUtils.Assert(AlliancePlayerInfo.MemberType == AllianceMemberType.Lead || AlliancePlayerInfo.MemberType == AllianceMemberType.CoLead);
             NotifyAllianceEvent(AllianceAction.UserAppliedToPlayerAlliance, dic);
         }
 
@@ -709,26 +766,28 @@ namespace SocialPoint.Social
 
         void OnAllianceEdited(AttrDic dic)
         {
-            var changesDic = dic.Get("properties").AsDic;
+            DebugUtils.Assert(AlliancePlayerInfo.IsInAlliance, "User is not in an alliance");
+            DebugUtils.Assert(dic.Get(AlliancePropertiesKey).IsDic);
+            var changesDic = dic.Get(AlliancePropertiesKey).AsDic;
 
-            if(changesDic.ContainsKey("description"))
+            if(changesDic.ContainsKey(AllianceDescriptionKey))
             {
                 NotifyAllianceEvent(AllianceAction.AllianceDescriptionEdited, dic);
             }
 
-            if(changesDic.ContainsKey("avatar"))
+            if(changesDic.ContainsKey(AvatarKey))
             {
-                var newAvatar = changesDic.GetValue("avatar").ToInt();
+                var newAvatar = changesDic.GetValue(AvatarKey).ToInt();
                 AlliancePlayerInfo.AvatarId = newAvatar;
                 NotifyAllianceEvent(AllianceAction.AllianceIconEdited, dic);
             }
 
-            if(changesDic.ContainsKey("type"))
+            if(changesDic.ContainsKey(AllianceTypeKey))
             {
                 NotifyAllianceEvent(AllianceAction.AllianceTypeEdited, dic);
             }
 
-            if(changesDic.ContainsKey("minimum_score"))
+            if(changesDic.ContainsKey(AllianceRequirementKey))
             {
                 NotifyAllianceEvent(AllianceAction.AllianceRequirementEdited, dic);
             }
@@ -761,7 +820,10 @@ namespace SocialPoint.Social
             var chatManager = _connection.ChatManager;
             if(chatManager != null)
             {
+                DebugUtils.Assert(dic.Get(ConnectionManager.ServicesKey).IsDic);
                 var servicesDic = dic.Get(ConnectionManager.ServicesKey).AsDic;
+
+                DebugUtils.Assert(servicesDic.Get(ConnectionManager.ChatServiceKey).IsDic);
                 chatManager.ProcessChatServices(servicesDic.Get(ConnectionManager.ChatServiceKey).AsDic);
             }
         }
