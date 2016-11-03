@@ -291,7 +291,7 @@ namespace SocialPoint.Social
 
         public void AutosubscribeToTopic(string topic, Subscription subscription)
         {
-            _connection.Autosubscribe(subscription, (args, kwargs) => OnNotificationMessageReceived(topic, args, kwargs));
+            _connection.AutoSubscribe(subscription, (args, kwargs) => OnNotificationMessageReceived(topic, args, kwargs));
         }
 
         public void Connect()
@@ -401,7 +401,7 @@ namespace SocialPoint.Social
                 var topicDic = topicsList[i].AsDic;
                 var subscriptionId = topicDic.GetValue(ConnectionManager.SubscriptionIdTopicKey).ToLong();
 
-                _connection.Autosubscribe(new Subscription(subscriptionId, NotificationTopicName), 
+                _connection.AutoSubscribe(new Subscription(subscriptionId, NotificationTopicName), 
                     (args, kwargs) => OnNotificationMessageReceived(NotificationTopicType, args, kwargs));
             }
         }
