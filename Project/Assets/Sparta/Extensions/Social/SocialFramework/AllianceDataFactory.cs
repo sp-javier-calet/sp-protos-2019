@@ -15,7 +15,7 @@ namespace SocialPoint.Social
 
         void ParseMember(AllianceMember member, AttrDic dic)
         {
-            member.Id = dic.GetValue("id").ToString();
+            member.Uid = dic.GetValue("id").ToString();
             member.Name = dic.GetValue("name").ToString();
             member.Level = dic.GetValue("level").ToInt();
             member.Score = dic.GetValue("power").ToInt();
@@ -24,7 +24,7 @@ namespace SocialPoint.Social
             if(dic.ContainsKey("allianceName"))
             {
                 member.AllianceId = dic.GetValue("allianceId").ToString();
-                member.AvatarId = dic.GetValue("allianceAvatarId").ToInt();
+                member.AllianceAvatar = dic.GetValue("allianceAvatarId").ToInt();
                 member.AllianceName = dic.GetValue("allianceName").ToString();
             }
         }
@@ -49,12 +49,12 @@ namespace SocialPoint.Social
         {
             data.Id = dic.GetValue("id").ToString();
             data.Name = dic.GetValue("name").ToString();
-            data.AvatarId = dic.GetValue("avatar").ToInt();
+            data.Avatar = dic.GetValue("avatar").ToInt();
             data.AccessType = dic.GetValue("type").ToBool() ? AllianceAccessType.Private : AllianceAccessType.Open;
-            data.MemberCount = dic.GetValue("member_count").ToInt();
-            data.RequestCount = dic.GetValue("requests").ToInt();
+            data.Members = dic.GetValue("member_count").ToInt();
+            data.Requests = dic.GetValue("requests").ToInt();
             data.Score = dic.GetValue("score").ToInt();
-            data.ScoreToJoin = dic.GetValue("minPowerToJoin").ToInt();
+            data.Requirement = dic.GetValue("minPowerToJoin").ToInt();
             data.ActivityIndicator = dic.GetValue("activityIndicator").ToInt();
             data.IsNewAlliance = dic.GetValue("newAlliance").ToBool();
         }
@@ -63,12 +63,12 @@ namespace SocialPoint.Social
         {
             data.Id = alliance.Id;
             data.Name = alliance.Name;
-            data.AvatarId = alliance.AvatarId;
+            data.Avatar = alliance.AvatarId;
             data.AccessType = alliance.AccessType;
-            data.MemberCount = alliance.Members;
-            data.RequestCount = alliance.Candidates;
+            data.Members = alliance.Members;
+            data.Requests = alliance.Candidates;
             data.Score = alliance.Score;
-            data.ScoreToJoin = alliance.MinScoreToJoin;
+            data.Requirement = alliance.MinScoreToJoin;
             data.ActivityIndicator = alliance.ActivityIndicator;
             data.IsNewAlliance = alliance.IsNewAlliance;
         }

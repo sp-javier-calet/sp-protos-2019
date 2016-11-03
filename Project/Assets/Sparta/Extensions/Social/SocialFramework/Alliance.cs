@@ -3,12 +3,6 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Social
 {
-    public enum AllianceAccessType
-    {
-        Open,
-        Private
-    }
-
     public class Alliance
     {
         public string Id;
@@ -61,7 +55,7 @@ namespace SocialPoint.Social
 
         public void AddMember(AllianceMember member)
         {
-            DebugUtils.Assert(HasMember(member.Id), string.Format("Trying to add player {0} to alliance {1} while he is already a member", member.Id, Id));
+            DebugUtils.Assert(HasMember(member.Uid), string.Format("Trying to add player {0} to alliance {1} while he is already a member", member.Uid, Id));
             _members.Add(member);
             SortMembers(_members);
         }
@@ -72,9 +66,9 @@ namespace SocialPoint.Social
                 for(var i = 0; i < members.Count; ++i)
                 {
                     var member = members[i];
-                    if(HasMember(member.Id))
+                    if(HasMember(member.Uid))
                     {
-                        return string.Format("Trying to add player {0} to alliance {1} while he is already a member", member.Id, Id);
+                        return string.Format("Trying to add player {0} to alliance {1} while he is already a member", member.Uid, Id);
                     }
                 }
                 return null;
@@ -86,7 +80,17 @@ namespace SocialPoint.Social
 
         void SortMembers(List<AllianceMember> members)
         {
-            members.Sort((a, b) => string.Compare(a.Id, b.Id)); // TODO Fix comparation
+            members.Sort((a, b) => {
+                if(a.Score != b.Score)
+                {
+                    return a.Score - b.Score;
+                }
+                if(a.Name != b.Name)
+                {
+                    return string.Compare(a.Name, b.Name);
+                }
+                return string.Compare(a.Uid, b.Uid);
+            });
         }
 
         AllianceMember GetMember(List<AllianceMember> list, string id)
@@ -94,7 +98,7 @@ namespace SocialPoint.Social
             for(var i = 0; i < list.Count; ++i)
             {
                 var member = list[i];
-                if(member.Id == id)
+                if(member.Uid == id)
                 {
                     return member;
                 }
@@ -126,7 +130,7 @@ namespace SocialPoint.Social
 
         public void AddCandidate(AllianceMember candidate)
         {
-            DebugUtils.Assert(HasMember(candidate.Id), string.Format("Trying to add player {0} to alliance {1} while he is already a member", candidate.Id, Id));
+            DebugUtils.Assert(HasMember(candidate.Uid), string.Format("Trying to add player {0} to alliance {1} while he is already a member", candidate.Uid, Id));
             _candidates.Add(candidate);
             SortMembers(_candidates);
         }
@@ -137,9 +141,9 @@ namespace SocialPoint.Social
                 for(var i = 0; i < candidates.Count; ++i)
                 {
                     var candidate = candidates[i];
-                    if(HasCandidate(candidate.Id))
+                    if(HasCandidate(candidate.Uid))
                     {
-                        return string.Format("Trying to add player {0} to alliance {1} while he is already a member", candidate.Id, Id);
+                        return string.Format("Trying to add player {0} to alliance {1} while he is already a member", candidate.Uid, Id);
                     }
                 }
                 return null;

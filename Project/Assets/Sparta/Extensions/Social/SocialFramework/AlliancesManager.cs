@@ -315,8 +315,8 @@ namespace SocialPoint.Social
             dic.SetValue(NameKey, data.Name);
             dic.SetValue(AllianceDescriptionKey, data.Description);
             dic.SetValue(AllianceRequirementKey, data.RequirementValue);
-            dic.SetValue(AllianceTypeKey, data.AccessType != AllianceAccessType.Open ? 1 : 0);
-            dic.SetValue(AvatarKey, data.AvatarId);
+            dic.SetValue(AllianceTypeKey, data.Type != AllianceAccessType.Open ? 1 : 0);
+            dic.SetValue(AvatarKey, data.Avatar);
 
             _connection.Call(AllianceCreateMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
@@ -332,7 +332,7 @@ namespace SocialPoint.Social
                 var id = result.GetValue(AllianceIdKey).ToString();
 
                 AlliancePlayerInfo.Id = id;
-                AlliancePlayerInfo.AvatarId = data.AvatarId;
+                AlliancePlayerInfo.AvatarId = data.Avatar;
                 AlliancePlayerInfo.Name = data.Name;
                 AlliancePlayerInfo.MemberType = AllianceMemberType.Lead;
                 AlliancePlayerInfo.TotalMembers = 1;
@@ -363,14 +363,14 @@ namespace SocialPoint.Social
                 dicProperties.SetValue(AllianceRequirementKey, data.RequirementValue);
             }
 
-            if(current.AccessType != data.AccessType)
+            if(current.AccessType != data.Type)
             {
-                dicProperties.SetValue(AllianceTypeKey, data.AccessType != AllianceAccessType.Open ? 1 : 0);
+                dicProperties.SetValue(AllianceTypeKey, data.Type != AllianceAccessType.Open ? 1 : 0);
             }
 
-            if(current.AvatarId != data.AvatarId)
+            if(current.AvatarId != data.Avatar)
             {
-                dicProperties.SetValue(AvatarKey, data.AvatarId);
+                dicProperties.SetValue(AvatarKey, data.Avatar);
             }
 
             dic.Set(AlliancePropertiesKey, dicProperties);
@@ -382,7 +382,7 @@ namespace SocialPoint.Social
                     return;
                 }
 
-                AlliancePlayerInfo.AvatarId = data.AvatarId;
+                AlliancePlayerInfo.AvatarId = data.Avatar;
 
                 callback(null);
 
@@ -392,16 +392,16 @@ namespace SocialPoint.Social
                     NotifyAllianceEvent(AllianceAction.AllianceDescriptionEdited, rDic);
                 }
 
-                if(current.AvatarId != data.AvatarId)
+                if(current.AvatarId != data.Avatar)
                 {
-                    current.AvatarId = data.AvatarId;
+                    current.AvatarId = data.Avatar;
                     NotifyAllianceEvent(AllianceAction.AllianceIconEdited, rDic); // TODO Change name?
 
                 }
 
-                if(current.AccessType != data.AccessType)
+                if(current.AccessType != data.Type)
                 {
-                    current.AccessType = data.AccessType;
+                    current.AccessType = data.Type;
                     NotifyAllianceEvent(AllianceAction.AllianceTypeEdited, rDic);
                 }
 
@@ -527,9 +527,9 @@ namespace SocialPoint.Social
 
                 AlliancePlayerInfo.Id = alliance.Id;
                 AlliancePlayerInfo.Name = alliance.Name;
-                AlliancePlayerInfo.AvatarId = alliance.AvatarId;
+                AlliancePlayerInfo.AvatarId = alliance.Avatar;
                 AlliancePlayerInfo.MemberType = AllianceMemberType.Soldier;
-                AlliancePlayerInfo.TotalMembers = alliance.MemberCount;
+                AlliancePlayerInfo.TotalMembers = alliance.Members;
                 AlliancePlayerInfo.JoinTimestamp = joinTs;
                 AlliancePlayerInfo.ClearRequests();
 
