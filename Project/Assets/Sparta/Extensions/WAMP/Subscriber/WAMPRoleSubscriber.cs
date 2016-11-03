@@ -141,7 +141,7 @@ namespace SocialPoint.WAMP.Subscriber
             return request;
         }
 
-        public void Autosubscribe(Subscription subscription, HandlerSubscription handler)
+        public void AutoSubscribe(Subscription subscription, HandlerSubscription handler)
         {
             if(_subscriptionHandlers.ContainsKey(subscription.Id))
             {
@@ -182,7 +182,7 @@ namespace SocialPoint.WAMP.Subscriber
             long subscriptionId = msg.Get(2).AsValue.ToLong();
 
             var subscription = new Subscription(subscriptionId, request.Topic);
-            Autosubscribe(subscription, request.Handler);
+            AutoSubscribe(subscription, request.Handler);
 
             if(request.CompletionHandler != null)
             {
