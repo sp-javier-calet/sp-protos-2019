@@ -6,12 +6,19 @@ namespace SocialPoint.Social
     public class Alliance
     {
         public string Id;
+
         public string Name;
+
         public string Description;
+
         public int Requirement;
+
         public AllianceAccessType AccessType;
+
         public int AvatarId;
+
         public int ActivityIndicator;
+
         public bool IsNewAlliance;
 
         public int Score
@@ -21,7 +28,7 @@ namespace SocialPoint.Social
                 var score = 0;
                 for(var i = 0; i < _members.Count; ++i)
                 {
-                    score+= _members[i].Score;
+                    score += _members[i].Score;
                 }
                 return score;
             }
