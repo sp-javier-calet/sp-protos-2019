@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -83,9 +84,14 @@ namespace SocialPoint.GUIAnimation
 
         ITimeGetter _editorTimeGetter;
 
-        System.Action _onEndCallback;
+        Action _onEndCallback;
 
-        public System.Action OnEndCallback { get { return _onEndCallback; } set { _onEndCallback = value; } }
+        public Action OnEndCallback { get { return _onEndCallback; } set { _onEndCallback = value; } }
+
+        [SerializeField]
+        float _endDelayTime;
+
+        public float EndDelayTime { get { return _endDelayTime; } set { _endDelayTime = Math.Max(value, 0f); } }
 
         public string AnimationName
         {
@@ -385,6 +391,11 @@ namespace SocialPoint.GUIAnimation
             if(_actions.Count > 0)
             {
                 endTime = _actions[_actions.Count - 1].GetEndTime(AnimTimeMode.Global);
+            }
+
+            if(_playMode == PlayMode.Once)
+            {
+                return endTime + _endDelayTime;
             }
 
             return endTime;

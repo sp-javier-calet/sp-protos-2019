@@ -44,12 +44,17 @@ namespace SocialPoint.GUIAnimation
 
         bool TryDeleteSelectedAnimationItems()
         {
-            if(Event.current.type == EventType.KeyUp && Event.current.keyCode == KeyCode.Delete
-               && !GUIAnimationTool.Blackboard.CompareValue(AnimationBlackboardKey.FocusPanelKey, AnimationBlackboardValue.EasingGridPanel)
-               && BoxEditorContainer.SelectedStep != null)
+            if(Event.current.type == EventType.keyDown)
             {
-                BoxEditorContainer.RemoveSelectedAnimationItems();
-                return true;
+                bool isCommandPressed = (GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand) || GUIAnimationTool.KeyController.IsPressed(KeyCode.RightCommand));
+
+                if((GUIAnimationTool.KeyController.IsPressed(KeyCode.Delete) || (isCommandPressed && Event.current.keyCode == KeyCode.Backspace))
+                   && !GUIAnimationTool.Blackboard.CompareValue(AnimationBlackboardKey.FocusPanelKey, AnimationBlackboardValue.EasingGridPanel)
+                   && BoxEditorContainer.SelectedStep != null)
+                {
+                    BoxEditorContainer.RemoveSelectedAnimationItems();
+                    return true;
+                }
             }
 
             return false;
