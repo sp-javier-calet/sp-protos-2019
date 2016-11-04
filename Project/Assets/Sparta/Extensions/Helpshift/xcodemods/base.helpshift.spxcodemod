@@ -1,0 +1,16 @@
+{
+    "frameworks":[
+        "CoreGraphics.framework:weak",
+        "QuartzCore.framework:weak",
+        "CoreText.framework:weak",
+        "SystemConfiguration.framework:weak",
+        "CoreTelephony.framework:weak",
+        "UIKit.framework:weak",
+        "QuickLook.framework:weak",
+        "Security.framework:weak"
+    ],
+    "libs":[
+        "libz.dylib:weak",
+        "libsqlite3.dylib:weak"
+    ]
+}

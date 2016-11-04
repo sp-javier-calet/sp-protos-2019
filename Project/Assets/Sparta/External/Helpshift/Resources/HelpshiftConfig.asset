@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 641a25d579c2546da88b52e5f47a25f4, type: 3}
+  m_Name: HelpshiftConfig
+  m_EditorClassIdentifier: 
+  apiKey: 
+  domainName: 
+  iosAppId: 
+  androidAppId: 
+  contactUsOption: 0
+  gotoConversation: 0
+  presentFullScreen: 0
+  enableDialogUIForTablets: 0
+  enableInApp: 0
+  requireEmail: 0
+  hideNameAndEmail: 0
+  enablePrivacy: 0
+  showSearchOnNewConversation: 0
+  showConversationResolutionQuestion: 0
+  enableDefaultFallbackLanguage: 0
+  conversationPrefillText: 
+  contactUsOptions:
+  - 616c77617973
+  - 6e65766572
+  - 61667465725f76696577696e675f66617173
+  unityGameObject: 315981d7b64b541fedb61b47bcb1a08b
+  notificationIcon: 
+  notificationSound: 
