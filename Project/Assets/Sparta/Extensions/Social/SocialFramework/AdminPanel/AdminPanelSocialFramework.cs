@@ -380,14 +380,31 @@ namespace SocialPoint.Social
                 public abstract void OnCreateGUI(AdminPanelLayout layout);
             }
 
+            /// <summary>
+            /// Base alliance panel with http connection management
+            /// </summary>
+            abstract class BaseRequestAlliancePanel : BaseAlliancePanel
+            {
+                protected IHttpConnection _httpConnection;
+                protected Error _httpConnectionError;
+
+                public BaseRequestAlliancePanel(AlliancesManager alliances, AdminPanelConsole console) : base(alliances, console)
+                {
+                }
+
+                protected void Cancel()
+                {
+                    if(_httpConnection != null)
+                    {
+                        _httpConnection.Release();
+                    }
+                    _httpConnection = null;
+                    _httpConnectionError = null;
+                }
+            }
+
             class AdminPanelAllianceCreate : BaseAlliancePanel
             {
-                readonly ValueHandler<string> _nameHandler;
-                readonly ValueHandler<string> _descriptionHandler;
-                readonly ValueHandler<int> _requirementHandler;
-                readonly ValueHandler<int> _avatarHandler;
-                readonly ValueHandler<AllianceAccessType> _accessTypeHandler;
-
                 AlliancesCreateData _data;
 
                 StringBuilder _content;
@@ -430,32 +447,6 @@ namespace SocialPoint.Social
                 {
                     _data = new AlliancesCreateData();
                     _content = new StringBuilder();
-
-                    _nameHandler = new ValueHandler<string>(
-                        () => _data.Name, 
-                        value => {
-                            _data.Name = value;
-                        });
-                    _descriptionHandler = new ValueHandler<string>(
-                        () => _data.Description, 
-                        value => {
-                            _data.Description = value;
-                        });
-                    _requirementHandler = new ValueHandler<int>(
-                        () => _data.Requirement, 
-                        value => {
-                            _data.Requirement = value;
-                        });
-                    _avatarHandler = new ValueHandler<int>(
-                        () => _data.Avatar, 
-                        value => {
-                            _data.Avatar = value;
-                        });
-                    _accessTypeHandler = new ValueHandler<AllianceAccessType>(
-                        () => _data.Type,
-                        value => {
-                            _data.Type = value;
-                        });
                 }
 
                 public override void OnCreateGUI(AdminPanelLayout layout)
@@ -463,11 +454,11 @@ namespace SocialPoint.Social
                     layout.CreateLabel(IsEditing ? "Edit Alliance" : "Create Alliance");
                     layout.CreateMargin();
 
-                    StringValueInput(layout, "Name", _nameHandler);
-                    StringValueInput(layout, "Description", _descriptionHandler);
-                    IntValueInput(layout, "Required Score", _requirementHandler);
-                    IntValueInput(layout, "Avatar", _avatarHandler);
-                    ToggleGroup(layout, "Alliance Access Type", _accessTypeHandler);
+                    StringValueInput(layout, "Name", _data.Name, value => { _data.Name = value; });
+                    StringValueInput(layout, "Description", _data.Description, value => { _data.Description = value; });
+                    IntValueInput(layout, "Required Score", _data.Requirement, value => { _data.Requirement = value; });
+                    IntValueInput(layout, "Avatar", _data.Avatar, value => { _data.Avatar = value; });
+                    ToggleGroup(layout, "Alliance Access Type", () => _data.Type, type => _data.Type = type );
                     layout.CreateMargin();
 
                     if(IsEditing)
@@ -562,61 +553,25 @@ namespace SocialPoint.Social
                     _data = new AlliancesCreateData();
                 }
 
-                class ValueHandler<T>
-                {
-                    T _value;
-
-                    public T Value
-                    {
-                        get
-                        {
-                            if(_onValue != null)
-                            {
-                                return _onValue();
-                            }
-                            return _value;
-                        }
-                        set
-                        {    
-                            _value = value;
-                            _onChanged(_value);
-                        }
-                    }
-
-                    readonly Func<T> _onValue;
-                    readonly Action<T> _onChanged;
-
-                    public ValueHandler(T value, Action<T> onChanged)
-                    {
-                        _value = value;
-                        _onChanged = onChanged;
-                    }
-
-                    public ValueHandler(Func<T> value, Action<T> onChanged)
-                    {
-                        _onValue = value;
-                        _onChanged = onChanged;
-                    }
-                }
-
-                void StringValueInput(AdminPanelLayout layout, string label, ValueHandler<string> handler)
+                void StringValueInput(AdminPanelLayout layout, string label, string current, Action<string> onChanged)
                 {
                     var hlayout = layout.CreateHorizontalLayout();
                     hlayout.CreateLabel(label);
-                    hlayout.CreateTextInput(handler.Value, value => {
-                        handler.Value = value;
+                    hlayout.CreateTextInput(current, value => {
+                        onChanged(value);
                         layout.Refresh();
                     }); 
                 }
 
-                void IntValueInput(AdminPanelLayout layout, string label, ValueHandler<int> handler)
+                void IntValueInput(AdminPanelLayout layout, string label, int current, Action<int> onChanged)
                 {
                     var hlayout = layout.CreateHorizontalLayout();
                     hlayout.CreateLabel(label);
-                    hlayout.CreateTextInput(handler.Value.ToString(), value => {
+                    hlayout.CreateTextInput(current.ToString(), value => {
                         try
                         {
-                            handler.Value = int.Parse(value);
+                            var parsed = int.Parse(value);
+                            onChanged(parsed);
                             layout.Refresh();
                         }
                         catch(Exception)
@@ -627,29 +582,26 @@ namespace SocialPoint.Social
                 }
 
                 // TODO Move to AdminPanelLayout as a generic CreateToggleGroup
-                void ToggleGroup(AdminPanelLayout layout, string label, ValueHandler<AllianceAccessType> selected)
+                void ToggleGroup(AdminPanelLayout layout, string label, Func<AllianceAccessType> selected, Action<AllianceAccessType> onChanged)
                 {
                     layout.CreateLabel(label);
                     var def = AllianceAccessType.Open;
                     foreach(var ev in Enum.GetValues(typeof(AllianceAccessType)))
                     {
                         var enumValue = (AllianceAccessType)ev;
-                        layout.CreateToggleButton(ev.ToString(), selected.Value == enumValue, value => {
-                            selected.Value = value ? enumValue : def;
+                        layout.CreateToggleButton(ev.ToString(), selected() == enumValue, value => {
+                            onChanged(value ? enumValue : def);
                             layout.Refresh();
                         });
                     }
                 }
             }
 
-            class AdminPanelAllianceInfo : BaseAlliancePanel
+            class AdminPanelAllianceInfo : BaseRequestAlliancePanel
             {
                 public Alliance Alliance;
 
                 public string AllianceId;
-
-                IHttpConnection _connection;
-                Error _connectionError;
 
                 readonly StringBuilder _content;
                 readonly AdminPanelAllianceUserInfo _userPanel;
@@ -686,9 +638,9 @@ namespace SocialPoint.Social
                     }
                     else
                     {
-                        if(_connection == null)
+                        if(_httpConnection == null)
                         {
-                            _connection = _alliances.LoadAllianceInfo(AllianceId,
+                            _httpConnection = _alliances.LoadAllianceInfo(AllianceId,
                                 alliance => {
                                     Alliance = alliance;
                                     _console.Print(string.Format("Alliance {0} loaded successfully", alliance.Id));
@@ -697,18 +649,18 @@ namespace SocialPoint.Social
                                 },
                                 err => {
                                     _console.Print(string.Format("Error loading user: {0} ", err.Msg));
-                                    _connectionError = err;
+                                    _httpConnectionError = err;
                                 });
                         }
                         else
                         {   
-                            if(Error.IsNullOrEmpty(_connectionError))
+                            if(Error.IsNullOrEmpty(_httpConnectionError))
                             {
                                 layout.CreateLabel(string.Format("Loading alliance {0}...", AllianceId));
                             }
                             else
                             {
-                                layout.CreateLabel(string.Format("Load Alliance request failed. {0}", _connectionError.Msg));
+                                layout.CreateLabel(string.Format("Load Alliance request failed. {0}", _httpConnectionError.Msg));
                                 layout.CreateButton("Retry", () => {
                                     Cancel();
                                     layout.Refresh();
@@ -716,16 +668,6 @@ namespace SocialPoint.Social
                             }
                         }
                     }
-                }
-
-                void Cancel()
-                {
-                    if(_connection != null)
-                    {
-                        _connection.Release();
-                    }
-                    _connection = null;
-                    _connectionError = null;
                 }
 
                 void CreateMembersList(AdminPanelLayout layout, string label, Alliance alliance, IEnumerator<AllianceMember> members)
@@ -784,15 +726,12 @@ namespace SocialPoint.Social
                 }
             }
 
-            class AdminPanelAllianceUserInfo : BaseAlliancePanel
+            class AdminPanelAllianceUserInfo : BaseRequestAlliancePanel
             {
                 AllianceMember _member;
 
                 public string UserId;
                 public Alliance Alliance;
-
-                IHttpConnection _connection;
-                Error _connectionError;
 
                 readonly StringBuilder _content;
 
@@ -825,9 +764,9 @@ namespace SocialPoint.Social
                     }
                     else
                     {
-                        if(_connection == null)
+                        if(_httpConnection == null)
                         {
-                            _connection = _alliances.LoadUserInfo(UserId, 
+                            _httpConnection = _alliances.LoadUserInfo(UserId, 
                                 member => {
                                     _member = member;
                                     _console.Print(string.Format("User {0} loaded successfully", member.Uid));
@@ -836,18 +775,18 @@ namespace SocialPoint.Social
                                 },
                                 err => {
                                     _console.Print(string.Format("Error loading user: {0} ", err.Msg));
-                                    _connectionError = err;
+                                    _httpConnectionError = err;
                                 });
                         }
                         else
                         {   
-                            if(Error.IsNullOrEmpty(_connectionError))
+                            if(Error.IsNullOrEmpty(_httpConnectionError))
                             {
                                 layout.CreateLabel(string.Format("Loading user {0}...", UserId));
                             }
                             else
                             {
-                                layout.CreateLabel(string.Format("Load user request failed. {0}", _connectionError.Msg));
+                                layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError.Msg));
                                 layout.CreateButton("Retry", () => {
                                     Cancel();
                                     layout.Refresh();
@@ -855,16 +794,6 @@ namespace SocialPoint.Social
                             }
                         }
                     }
-                }
-
-                void Cancel()
-                {
-                    if(_connection != null)
-                    {
-                        _connection.Release();
-                    }
-                    _connection = null;
-                    _connectionError = null;
                 }
 
                 void CreateAllianceActions(AdminPanelLayout layout)
@@ -943,12 +872,9 @@ namespace SocialPoint.Social
                 }
             }
 
-            class AdminPanelAllianceRanking : BaseAlliancePanel
+            class AdminPanelAllianceRanking : BaseRequestAlliancePanel
             {
                 AllianceRankingData _ranking;
-
-                IHttpConnection _connection;
-                Error _connectionError;
 
                 readonly AdminPanelAllianceInfo _infoPanel;
 
@@ -979,9 +905,9 @@ namespace SocialPoint.Social
                     }
                     else
                     {
-                        if(_connection == null)
+                        if(_httpConnection == null)
                         {
-                            _connection = _alliances.LoadRanking(
+                            _httpConnection = _alliances.LoadRanking(
                                 ranking => {
                                     _ranking = ranking;
                                     _console.Print("Ranking loaded successfully");
@@ -990,18 +916,18 @@ namespace SocialPoint.Social
                                 },
                                 err => {
                                     _console.Print(string.Format("Error loading ranking. {0} ", err.Msg));
-                                    _connectionError = err;
+                                    _httpConnectionError = err;
                                 });
                         }
                         else
                         {   
-                            if(Error.IsNullOrEmpty(_connectionError))
+                            if(Error.IsNullOrEmpty(_httpConnectionError))
                             {
                                 layout.CreateLabel("Loading ranking...");
                             }
                             else
                             {
-                                layout.CreateLabel(string.Format("Load user request failed. {0}", _connectionError.Msg));
+                                layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError.Msg));
                                 layout.CreateButton("Retry", () => {
                                     Cancel();
                                     layout.Refresh();
@@ -1010,25 +936,11 @@ namespace SocialPoint.Social
                         }
                     }
                 }
-
-                void Cancel()
-                {
-                    if(_connection != null)
-                    {
-                        _connection.Release();
-                    }
-                    _connection = null;
-                    _connectionError = null;
-                }
             }
 
-            class AdminPanelAllianceSearch : BaseAlliancePanel
+            class AdminPanelAllianceSearch : BaseRequestAlliancePanel
             {
                 public string Search;
-
-                IHttpConnection _connection;
-
-                Error _connectionError;
 
                 AlliancesSearchData _search;
 
@@ -1061,7 +973,7 @@ namespace SocialPoint.Social
                     }
                     else
                     {
-                        if(_connection == null)
+                        if(_httpConnection == null)
                         {
                             Action<AlliancesSearchData> onSuccess = (searchData) => {
                                 _search = searchData;
@@ -1072,7 +984,7 @@ namespace SocialPoint.Social
 
                             Action<Error> onFailure = (err) => {
                                 _console.Print(string.Format("Error loading search results. {0} ", err.Msg));
-                                _connectionError = err;
+                                _httpConnectionError = err;
                             };
 
                             if(string.IsNullOrEmpty(Search))
@@ -1086,13 +998,13 @@ namespace SocialPoint.Social
                         }
                         else
                         {   
-                            if(Error.IsNullOrEmpty(_connectionError))
+                            if(Error.IsNullOrEmpty(_httpConnectionError))
                             {
                                 layout.CreateLabel("Loading ranking...");
                             }
                             else
                             {
-                                layout.CreateLabel(string.Format("Load user request failed. {0}", _connectionError.Msg));
+                                layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError.Msg));
                                 layout.CreateButton("Retry", () => {
                                     Cancel();
                                     layout.Refresh();
@@ -1100,16 +1012,6 @@ namespace SocialPoint.Social
                             }
                         }
                     }
-                }
-
-                void Cancel()
-                {
-                    if(_connection != null)
-                    {
-                        _connection.Release();
-                    }
-                    _connection = null;
-                    _connectionError = null;
                 }
             }
         }
