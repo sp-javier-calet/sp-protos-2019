@@ -13,9 +13,9 @@ namespace SocialPoint.Social
 
         public int Requirement;
 
-        public AllianceAccessType AccessType;
+        public AllianceAccessType Type;
 
-        public int AvatarId;
+        public int Avatar;
 
         public int ActivityIndicator;
 
@@ -113,6 +113,11 @@ namespace SocialPoint.Social
             return null;
         }
 
+        public IEnumerator<AllianceMember> GetMembers()
+        {
+            return _members.GetEnumerator();
+        }
+
         public bool HasMember(string id)
         {
             return GetMember(_members, id) != null;
@@ -158,6 +163,11 @@ namespace SocialPoint.Social
 
             _candidates.AddRange(candidates);
             SortMembers(_candidates);
+        }
+
+        public IEnumerator<AllianceMember> GetCandidates()
+        {
+            return _candidates.GetEnumerator();
         }
 
         public bool HasCandidate(string id)

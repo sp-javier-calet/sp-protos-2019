@@ -34,6 +34,16 @@ namespace SocialPoint.Social
     {
         public string Origin;
         public long Timestamp;
+
+        public JoinExtraData()
+        {
+        }
+
+        public JoinExtraData(string origin)
+        {
+            Origin = origin;
+            Timestamp = TimeUtils.Timestamp;
+        }
     }
 
     public class AlliancesManager : IDisposable
@@ -108,8 +118,6 @@ namespace SocialPoint.Social
 
         public AllianceDataFactory Factory { private get; set; }
 
-        public string ServerUrl { private get; set; }
-
         public uint MaxPendingJoinRequests { get; set; }
 
         public string AlliancesServerUrl;
@@ -120,6 +128,7 @@ namespace SocialPoint.Social
 
         public AlliancesManager(ConnectionManager connection)
         {
+            Factory = new AllianceDataFactory();
             _parser = new JsonAttrParser();
             _connection = connection;
             _connection.AlliancesManager = this;
@@ -364,12 +373,12 @@ namespace SocialPoint.Social
                 dicProperties.SetValue(AllianceRequirementKey, data.Requirement);
             }
 
-            if(current.AccessType != data.Type)
+            if(current.Type != data.Type)
             {
                 dicProperties.SetValue(AllianceTypeKey, data.Type != AllianceAccessType.Open ? 1 : 0);
             }
 
-            if(current.AvatarId != data.Avatar)
+            if(current.Avatar != data.Avatar)
             {
                 dicProperties.SetValue(AvatarKey, data.Avatar);
             }
@@ -393,15 +402,15 @@ namespace SocialPoint.Social
                     NotifyAllianceEvent(AllianceAction.AllianceDescriptionEdited, rDic);
                 }
 
-                if(current.AvatarId != data.Avatar)
+                if(current.Avatar != data.Avatar)
                 {
-                    current.AvatarId = data.Avatar;
+                    current.Avatar = data.Avatar;
                     NotifyAllianceEvent(AllianceAction.AllianceAvatarEdited, rDic); // TODO Change name?
                 }
 
-                if(current.AccessType != data.Type)
+                if(current.Type != data.Type)
                 {
-                    current.AccessType = data.Type;
+                    current.Type = data.Type;
                     NotifyAllianceEvent(AllianceAction.AllianceTypeEdited, rDic);
                 }
 

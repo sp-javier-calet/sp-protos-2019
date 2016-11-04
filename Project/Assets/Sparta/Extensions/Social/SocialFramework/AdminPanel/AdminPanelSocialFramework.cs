@@ -1,7 +1,9 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
 using SocialPoint.Base;
+using SocialPoint.Network;
 using UnityEngine.UI;
 
 namespace SocialPoint.Social
@@ -10,16 +12,20 @@ namespace SocialPoint.Social
     {
         readonly ConnectionManager _connection;
         readonly ChatManager _chat;
+        readonly AlliancesManager _alliances;
+
         AdminPanelLayout _layout;
         AdminPanelConsole _console;
 
         AdminPanelSocialFrameworkUser _userPanel;
         AdminPanelSocialFrameworkChat _chatPanel;
+        AdminPanelSocialFrameworkAlliance _alliancesPanel;
 
-        public AdminPanelSocialFramework(ConnectionManager connection, ChatManager chat)
+        public AdminPanelSocialFramework(ConnectionManager connection, ChatManager chat, AlliancesManager alliances)
         {
             _connection = connection;
             _chat = chat;
+            _alliances = alliances;
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -30,6 +36,7 @@ namespace SocialPoint.Social
             // Cache nested panel
             _userPanel = new AdminPanelSocialFrameworkUser(_connection);
             _chatPanel = new AdminPanelSocialFrameworkChat(_chat);
+            _alliancesPanel = new AdminPanelSocialFrameworkAlliance(_alliances, _console);
         }
 
         public void OnOpened()
@@ -78,6 +85,7 @@ namespace SocialPoint.Social
             layout.CreateMargin();
 
             layout.CreateOpenPanelButton("Chat", _chatPanel, _chat != null && _connection.IsConnected);
+            layout.CreateOpenPanelButton("Alliances", _alliancesPanel, _alliances != null);
         }
 
         void OnConnected()
@@ -98,47 +106,8 @@ namespace SocialPoint.Social
             _layout.Refresh();
         }
 
-        #region Chat
 
-        class AdminPanelSocialFrameworkChat : IAdminPanelGUI
-        {
-            readonly ChatManager _chat;
-
-            public AdminPanelSocialFrameworkChat(ChatManager chat)
-            {
-                _chat = chat;
-            }
-
-            public void OnCreateGUI(AdminPanelLayout layout)
-            {
-                layout.CreateLabel("Chat");
-                layout.CreateMargin();
-
-                var itr = _chat.GetRooms();
-                while(itr.MoveNext())
-                {
-                    var room = itr.Current;
-                    layout.CreateOpenPanelButton(room.Type, new AdminPanelSocialFrameworkChatRoom(room), room.Subscribed);
-                }
-                itr.Dispose();
-
-                layout.CreateMargin();
-                layout.CreateLabel("Ban info:");
-                layout.CreateLabel(GetBanInfo());
-                layout.CreateMargin();
-            }
-
-            string GetBanInfo()
-            {
-                return _chat.ChatBanEndTimestamp > 0 ? 
-                    string.Format("You are banned until {0}", _chat.ChatBanEndTimestamp) : 
-                    "You are a legal player!";
-            }
-        }
-
-        #endregion
-
-        #region Chat Rooms
+        #region User
 
         class AdminPanelSocialFrameworkUser : IAdminPanelGUI
         {
@@ -202,84 +171,945 @@ namespace SocialPoint.Social
 
         #endregion
 
-        #region Chat Rooms
+        #region Chat
 
-        class AdminPanelSocialFrameworkChatRoom : IAdminPanelManagedGUI
+        class AdminPanelSocialFrameworkChat : IAdminPanelGUI
         {
-            public string Name
-            {
-                get
-                {
-                    return _room.Type;
-                }
-            }
+            readonly ChatManager _chat;
 
-            Text _text;
-            readonly StringBuilder _content;
-            readonly IChatRoom _room;
-
-            public AdminPanelSocialFrameworkChatRoom(IChatRoom room)
+            public AdminPanelSocialFrameworkChat(ChatManager chat)
             {
-                _room = room;
-                _content = new StringBuilder();
-            }
-
-            public void OnOpened()
-            {
-                _room.Messages.OnMessageAdded += OnMessageListChanged;
-                _room.Messages.OnMessageEdited += OnMessageListChanged;
-            }
-
-            public void OnClosed()
-            {
-                _room.Messages.OnMessageAdded -= OnMessageListChanged;
-                _room.Messages.OnMessageEdited -= OnMessageListChanged;
+                _chat = chat;
             }
 
             public void OnCreateGUI(AdminPanelLayout layout)
             {
-                layout.CreateLabel(Name);
+                layout.CreateLabel("Chat");
                 layout.CreateMargin();
 
-                RefreshChatContent();
+                var itr = _chat.GetRooms();
+                while(itr.MoveNext())
+                {
+                    var room = itr.Current;
+                    layout.CreateOpenPanelButton(room.Type, new AdminPanelChatRoom(room), room.Subscribed);
+                }
+                itr.Dispose();
 
-                _text = layout.CreateTextArea(_content.ToString());
-                layout.CreateTextInput(_room.SendDebugMessage);
+                layout.CreateMargin();
+                layout.CreateLabel("Ban info:");
+                layout.CreateLabel(GetBanInfo());
+                layout.CreateMargin();
             }
 
-            void OnMessageListChanged(int idx)
+            string GetBanInfo()
             {
-                RefreshChatContent();
+                return _chat.ChatBanEndTimestamp > 0 ? 
+                    string.Format("You are banned until {0}", _chat.ChatBanEndTimestamp) : 
+                    "You are a legal player!";
             }
 
-            void RefreshChatContent()
-            {
-                _content.Length = 0;
 
-                _room.Messages.ProcessMessages((idx, msg) => {
-                    if(msg.IsWarning)
+            #region Chat Inner classes
+
+            class AdminPanelChatRoom : IAdminPanelManagedGUI
+            {
+                public string Name
+                {
+                    get
                     {
-                        _content.AppendLine(msg.Text);
+                        return _room.Type;
+                    }
+                }
+
+                Text _text;
+                readonly StringBuilder _content;
+                readonly IChatRoom _room;
+
+                public AdminPanelChatRoom(IChatRoom room)
+                {
+                    _room = room;
+                    _content = new StringBuilder();
+                }
+
+                public void OnOpened()
+                {
+                    _room.Messages.OnMessageAdded += OnMessageListChanged;
+                    _room.Messages.OnMessageEdited += OnMessageListChanged;
+                }
+
+                public void OnClosed()
+                {
+                    _room.Messages.OnMessageAdded -= OnMessageListChanged;
+                    _room.Messages.OnMessageEdited -= OnMessageListChanged;
+                }
+
+                public void OnCreateGUI(AdminPanelLayout layout)
+                {
+                    layout.CreateLabel(Name);
+                    layout.CreateMargin();
+
+                    RefreshChatContent();
+
+                    _text = layout.CreateTextArea(_content.ToString());
+                    layout.CreateTextInput(_room.SendDebugMessage);
+                }
+
+                void OnMessageListChanged(int idx)
+                {
+                    RefreshChatContent();
+                }
+
+                void RefreshChatContent()
+                {
+                    _content.Length = 0;
+
+                    _room.Messages.ProcessMessages((idx, msg) => {
+                        if(msg.IsWarning)
+                        {
+                            _content.AppendLine(msg.Text);
+                        }
+                        else
+                        {
+                            if(msg.IsSending)
+                            {
+                                _content.Append(">>");
+                            }
+
+                            var allianceText = string.Empty;
+                            if(msg.HasAlliance)
+                            {
+                                allianceText = string.Format("[{0}({1})]", msg.AllianceName, msg.AllianceId);
+                            }
+                            _content.AppendFormat("{0}({1}) {2}: {3}", msg.PlayerName, msg.PlayerId, allianceText, msg.Text).AppendLine();
+                        }
+                    });
+
+                    if(_text != null)
+                    {
+                        _text.text = _content.ToString();
+                    }
+                }
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Alliances
+
+        class AdminPanelSocialFrameworkAlliance : IAdminPanelGUI
+        {
+            readonly AdminPanelConsole _console;
+            readonly AlliancesManager _alliances;
+
+            readonly AdminPanelAllianceCreate _createPanel;
+            readonly AdminPanelAllianceInfo _infoPanel;
+            readonly AdminPanelAllianceSearch _searchPanel;
+            readonly AdminPanelAllianceRanking _rankingPanel;
+
+            public AdminPanelSocialFrameworkAlliance(AlliancesManager alliances, AdminPanelConsole console)
+            {
+                _alliances = alliances;
+                _console = console;
+
+                _createPanel = new AdminPanelAllianceCreate(alliances, console);
+                _infoPanel = new AdminPanelAllianceInfo(alliances, console);
+                _searchPanel = new AdminPanelAllianceSearch(alliances, console);
+                _rankingPanel = new AdminPanelAllianceRanking(alliances, console);
+            }
+
+            public void OnCreateGUI(AdminPanelLayout layout)
+            {
+                layout.CreateLabel("Alliance");
+                layout.CreateMargin();
+
+                CreateOwnAlliancePanel(layout);
+                layout.CreateMargin();
+
+                layout.CreateOpenPanelButton("Ranking", _rankingPanel);
+
+                layout.CreateTextInput("Search alliances", value => {
+                    _searchPanel.Search = value;
+                    layout.Refresh();
+                });
+                layout.CreateOpenPanelButton("Search", _searchPanel, !string.IsNullOrEmpty(_searchPanel.Search));
+                layout.CreateOpenPanelButton("Suggested alliances", _searchPanel);
+               
+            }
+
+            void CreateOwnAlliancePanel(AdminPanelLayout layout)
+            {
+                var info = _alliances.AlliancePlayerInfo;
+                if(info.IsInAlliance)
+                {
+                    _infoPanel.AllianceId = info.Id;
+                    layout.CreateOpenPanelButton(info.Name, _infoPanel);
+                    layout.CreateConfirmButton("Leave Alliance", () => _alliances.LeaveAlliance(err => {
+                        if(Error.IsNullOrEmpty(err))
+                        {
+                            _console.Print("Alliance left");
+                            layout.Refresh();
+                        }
+                        else
+                        {
+                            _console.Print(string.Format("Error leaving alliance. {0}", err.Msg));
+                        }
+                    }, true));
+                }
+                else
+                {
+                    layout.CreateOpenPanelButton("Create Alliance", _createPanel);
+                }
+            }
+
+            /// <summary>
+            /// Base alliance panel.
+            /// </summary>
+            abstract class BaseAlliancePanel : IAdminPanelGUI
+            {
+                protected readonly AlliancesManager _alliances;
+                protected readonly AdminPanelConsole _console;
+
+                public BaseAlliancePanel(AlliancesManager alliances, AdminPanelConsole console)
+                {
+                    _alliances = alliances;
+                    _console = console;
+                }
+
+                public abstract void OnCreateGUI(AdminPanelLayout layout);
+            }
+
+            class AdminPanelAllianceCreate : BaseAlliancePanel
+            {
+                readonly ValueHandler<string> _nameHandler;
+                readonly ValueHandler<string> _descriptionHandler;
+                readonly ValueHandler<int> _requirementHandler;
+                readonly ValueHandler<int> _avatarHandler;
+                readonly ValueHandler<AllianceAccessType> _accessTypeHandler;
+
+                AlliancesCreateData _data;
+
+                StringBuilder _content;
+
+                Alliance _allianceToEdit;
+
+                public Alliance AllianceToEdit
+                {
+                    get
+                    {
+                        return _allianceToEdit;
+                    }
+                    set
+                    {
+                        _allianceToEdit = value;
+                        SetCreateData(_allianceToEdit);
+                    }
+                }
+
+                bool IsEditing
+                {
+                    get
+                    {
+                        return AllianceToEdit != null;
+                    }
+                }
+
+                bool IsValidCreateData
+                {
+                    get
+                    {
+                        bool ret = true;
+                        ret |= !string.IsNullOrEmpty(_data.Name);
+                        ret |= !string.IsNullOrEmpty(_data.Description);
+                        return ret;
+                    }
+                }
+
+                public AdminPanelAllianceCreate(AlliancesManager alliances, AdminPanelConsole console) : base(alliances, console)
+                {
+                    _data = new AlliancesCreateData();
+                    _content = new StringBuilder();
+
+                    _nameHandler = new ValueHandler<string>(
+                        () => _data.Name, 
+                        value => {
+                            _data.Name = value;
+                        });
+                    _descriptionHandler = new ValueHandler<string>(
+                        () => _data.Description, 
+                        value => {
+                            _data.Description = value;
+                        });
+                    _requirementHandler = new ValueHandler<int>(
+                        () => _data.Requirement, 
+                        value => {
+                            _data.Requirement = value;
+                        });
+                    _avatarHandler = new ValueHandler<int>(
+                        () => _data.Avatar, 
+                        value => {
+                            _data.Avatar = value;
+                        });
+                    _accessTypeHandler = new ValueHandler<AllianceAccessType>(
+                        () => _data.Type,
+                        value => {
+                            _data.Type = value;
+                        });
+                }
+
+                public override void OnCreateGUI(AdminPanelLayout layout)
+                {
+                    layout.CreateLabel(IsEditing ? "Edit Alliance" : "Create Alliance");
+                    layout.CreateMargin();
+
+                    StringValueInput(layout, "Name", _nameHandler);
+                    StringValueInput(layout, "Description", _descriptionHandler);
+                    IntValueInput(layout, "Required Score", _requirementHandler);
+                    IntValueInput(layout, "Avatar", _avatarHandler);
+                    ToggleGroup(layout, "Alliance Access Type", _accessTypeHandler);
+                    layout.CreateMargin();
+
+                    if(IsEditing)
+                    {
+                        layout.CreateButton("Edit", () => {
+                            if(IsValidCreateData)
+                            {
+                                _alliances.EditAlliance(AllianceToEdit, _data, err => {
+                                    if(Error.IsNullOrEmpty(err))
+                                    {
+                                        _console.Print(string.Format("Alliance {0} successfully edited", _data.Name));
+                                        ClearData();
+                                        layout.ClosePanel();
+                                    }
+                                    else
+                                    {
+                                        _console.Print(string.Format("Error editing Alliance {0}. {1}", _data.Name, err.Msg));
+                                    }
+                                });
+                                _console.Print("Editing alliance...");
+                            }
+                            else
+                            {
+                                _console.Print("Could not edit the alliance. Invalid alliance data.");
+                            }
+                        });
                     }
                     else
                     {
-                        if(msg.IsSending)
-                        {
-                            _content.Append(">>");
-                        }
-
-                        var allianceText = string.Empty;
-                        if(msg.HasAlliance)
-                        {
-                            allianceText = string.Format("[{0}({1})]", msg.AllianceName, msg.AllianceId);
-                        }
-                        _content.AppendFormat("{0}({1}) {2}: {3}", msg.PlayerName, msg.PlayerId, allianceText, msg.Text).AppendLine();
+                        layout.CreateButton("Create", () => {
+                            if(IsValidCreateData)
+                            {
+                                _alliances.CreateAlliance(_data, err => {
+                                    if(Error.IsNullOrEmpty(err))
+                                    {
+                                        _console.Print(string.Format("Alliance {0} successfully created", _data.Name));
+                                        ClearData();
+                                        layout.ClosePanel();
+                                    }
+                                    else
+                                    {
+                                        _console.Print(string.Format("Error creating Alliance {0}. {1}", _data.Name, err.Msg));
+                                    }
+                                });
+                                _console.Print("Creating alliance...");
+                            }
+                            else
+                            {
+                                _console.Print("Could not create the alliance. Invalid alliance data.");
+                            }
+                        });
                     }
-                });
 
-                if(_text != null)
+                    layout.CreateMargin();
+
+                    layout.CreateLabel("Summary");
+                    layout.CreateVerticalScrollLayout().CreateTextArea(GetDataSummary());
+
+                }
+
+                void SetCreateData(Alliance alliance)
                 {
-                    _text.text = _content.ToString();
+                    if(alliance != null)
+                    {
+                        _data.Name = alliance.Name;
+                        _data.Description = alliance.Description;
+                        _data.Requirement = alliance.Requirement;
+                        _data.Avatar = alliance.Avatar;
+                        _data.Type = alliance.Type;
+                    }
+                    else
+                    {
+                        ClearData();
+                    }
+                }
+
+                string GetDataSummary()
+                {
+                    _content.Length = 0;
+
+                    _content
+                        .Append("Name: ").AppendLine(_data.Name)
+                        .Append("Description: ").AppendLine(_data.Description)
+                        .Append("Requirement: ").AppendLine(_data.Requirement.ToString())
+                        .Append("Avatar: ").AppendLine(_data.Avatar.ToString())
+                        .Append("Type: ").AppendLine(_data.Type.ToString());
+                    return _content.ToString();
+                }
+
+                void ClearData()
+                {
+                    _data = new AlliancesCreateData();
+                }
+
+                class ValueHandler<T>
+                {
+                    T _value;
+
+                    public T Value
+                    {
+                        get
+                        {
+                            if(_onValue != null)
+                            {
+                                return _onValue();
+                            }
+                            return _value;
+                        }
+                        set
+                        {    
+                            _value = value;
+                            _onChanged(_value);
+                        }
+                    }
+
+                    readonly Func<T> _onValue;
+                    readonly Action<T> _onChanged;
+
+                    public ValueHandler(T value, Action<T> onChanged)
+                    {
+                        _value = value;
+                        _onChanged = onChanged;
+                    }
+
+                    public ValueHandler(Func<T> value, Action<T> onChanged)
+                    {
+                        _onValue = value;
+                        _onChanged = onChanged;
+                    }
+                }
+
+                void StringValueInput(AdminPanelLayout layout, string label, ValueHandler<string> handler)
+                {
+                    var hlayout = layout.CreateHorizontalLayout();
+                    hlayout.CreateLabel(label);
+                    hlayout.CreateTextInput(handler.Value, value => {
+                        handler.Value = value;
+                        layout.Refresh();
+                    }); 
+                }
+
+                void IntValueInput(AdminPanelLayout layout, string label, ValueHandler<int> handler)
+                {
+                    var hlayout = layout.CreateHorizontalLayout();
+                    hlayout.CreateLabel(label);
+                    hlayout.CreateTextInput(handler.Value.ToString(), value => {
+                        try
+                        {
+                            handler.Value = int.Parse(value);
+                            layout.Refresh();
+                        }
+                        catch(Exception)
+                        {
+                            _console.Print(string.Format("Invalid {0} value", label));
+                        }
+                    });
+                }
+
+                // TODO Move to AdminPanelLayout as a generic CreateToggleGroup
+                void ToggleGroup(AdminPanelLayout layout, string label, ValueHandler<AllianceAccessType> selected)
+                {
+                    layout.CreateLabel(label);
+                    var def = AllianceAccessType.Open;
+                    foreach(var ev in Enum.GetValues(typeof(AllianceAccessType)))
+                    {
+                        var enumValue = (AllianceAccessType)ev;
+                        layout.CreateToggleButton(ev.ToString(), selected.Value == enumValue, value => {
+                            selected.Value = value ? enumValue : def;
+                            layout.Refresh();
+                        });
+                    }
+                }
+            }
+
+            class AdminPanelAllianceInfo : BaseAlliancePanel
+            {
+                public Alliance Alliance;
+
+                public string AllianceId;
+
+                IHttpConnection _connection;
+                Error _connectionError;
+
+                readonly StringBuilder _content;
+                readonly AdminPanelAllianceUserInfo _userPanel;
+                readonly AdminPanelAllianceCreate _editPanel;
+
+                public AdminPanelAllianceInfo(AlliancesManager alliances, AdminPanelConsole console) : base(alliances, console)
+                {
+                    _content = new StringBuilder();
+                    _userPanel = new AdminPanelAllianceUserInfo(alliances, console);
+                    _editPanel = new AdminPanelAllianceCreate(alliances, console);
+                }
+
+                public override void OnCreateGUI(AdminPanelLayout layout)
+                {
+                    if(Alliance != null)
+                    {
+                        _content.Length = 0;
+                        _content
+                            .Append("Id: ").AppendLine(Alliance.Id)
+                            .Append("Name: ").AppendLine(Alliance.Name)
+                            .Append("Description: ").AppendLine(Alliance.Description)
+                            .Append("Avatar: ").AppendLine(Alliance.Avatar.ToString())
+                            .Append("Type: ").AppendLine(Alliance.Type.ToString())
+                            .Append("Activity: ").AppendLine(Alliance.ActivityIndicator.ToString())
+                            .Append("Is New: ").AppendLine(Alliance.IsNewAlliance.ToString())
+                            .Append("Score: ").AppendLine(Alliance.Score.ToString())
+                            .Append("Required Score: ").AppendLine(Alliance.Requirement.ToString());
+                        layout.CreateTextArea(_content.ToString());
+                        layout.CreateMargin();
+
+                        CreateMembersList(layout, "Members", Alliance, Alliance.GetMembers());
+                        CreateMembersList(layout, "Candidates", Alliance, Alliance.GetCandidates());
+                        CreateAllianceActions(layout);
+                    }
+                    else
+                    {
+                        if(_connection == null)
+                        {
+                            _connection = _alliances.LoadAllianceInfo(AllianceId,
+                                alliance => {
+                                    Alliance = alliance;
+                                    _console.Print(string.Format("Alliance {0} loaded successfully", alliance.Id));
+                                    Cancel();
+                                    layout.Refresh();
+                                },
+                                err => {
+                                    _console.Print(string.Format("Error loading user: {0} ", err.Msg));
+                                    _connectionError = err;
+                                });
+                        }
+                        else
+                        {   
+                            if(Error.IsNullOrEmpty(_connectionError))
+                            {
+                                layout.CreateLabel(string.Format("Loading alliance {0}...", AllianceId));
+                            }
+                            else
+                            {
+                                layout.CreateLabel(string.Format("Load Alliance request failed. {0}", _connectionError.Msg));
+                                layout.CreateButton("Retry", () => {
+                                    Cancel();
+                                    layout.Refresh();
+                                });
+                            }
+                        }
+                    }
+                }
+
+                void Cancel()
+                {
+                    if(_connection != null)
+                    {
+                        _connection.Release();
+                    }
+                    _connection = null;
+                    _connectionError = null;
+                }
+
+                void CreateMembersList(AdminPanelLayout layout, string label, Alliance alliance, IEnumerator<AllianceMember> members)
+                {
+                    layout.CreateLabel(label);
+                    while(members.MoveNext())
+                    {
+                        var member = members.Current;
+                        var userLabel = string.Format("[{0}]: Lvl: {1} - S: {2} -- {3}", member.Name, member.Level, member.Score, member.Type.ToString());
+                        layout.CreateConfirmButton(userLabel, () => {
+                            _userPanel.Alliance = alliance;
+                            _userPanel.UserId = member.Uid;
+                            layout.OpenPanel(_userPanel);
+                        });
+                    }
+                    members.Dispose();
+                    layout.CreateMargin();
+                }
+
+                void CreateAllianceActions(AdminPanelLayout layout)
+                {
+                    var ownAlliance = _alliances.AlliancePlayerInfo;
+                    bool isInAlliance = ownAlliance.IsInAlliance;
+                    var isLead = ownAlliance.MemberType == AllianceMemberType.Lead;
+                    var isColead = ownAlliance.MemberType == AllianceMemberType.CoLead;
+                    var canEditAlliance = isLead || isColead;
+                    var isOpenAlliance = Alliance.Type == AllianceAccessType.Open;
+                    var canJoinAlliance = !isInAlliance && (isOpenAlliance || !Alliance.HasCandidate(ownAlliance.Id)); // TODO?
+
+                    layout.CreateLabel("Actions");
+
+                    var joinButtonLabel = isOpenAlliance ? "Join" : "Request Join";
+                    var joinMessage = isOpenAlliance ? "Joining alliance..." : "Requesting join alliance...";
+
+                    layout.CreateButton(joinButtonLabel, () => {
+                        var data = _alliances.GetBasicDataFromAlliance(Alliance);
+                        _console.Print(joinMessage);
+                        _alliances.JoinAlliance(data, err => {
+                            if(Error.IsNullOrEmpty(err))
+                            {
+                                Alliance = null;
+                                _console.Print("User successfully joined alliance");
+                                layout.Refresh();
+                            }
+                            else
+                            {
+                                _console.Print(string.Format("Error joining Alliance. {0}", err.Msg)); 
+                            }
+                        }, new JoinExtraData("AdminPanel"));
+                    }, canJoinAlliance);
+
+                    layout.CreateButton("Edit", () => {
+                        _editPanel.AllianceToEdit = Alliance;
+                        layout.OpenPanel(_editPanel);
+                    }, canEditAlliance);
+                }
+            }
+
+            class AdminPanelAllianceUserInfo : BaseAlliancePanel
+            {
+                AllianceMember _member;
+
+                public string UserId;
+                public Alliance Alliance;
+
+                IHttpConnection _connection;
+                Error _connectionError;
+
+                readonly StringBuilder _content;
+
+                public AdminPanelAllianceUserInfo(AlliancesManager alliances, AdminPanelConsole console) : base(alliances, console)
+                {
+                    _content = new StringBuilder();
+                }
+
+                public override void OnCreateGUI(AdminPanelLayout layout)
+                {
+                    layout.CreateLabel("User Info");
+                    layout.CreateMargin();
+
+                    if(_member != null)
+                    {
+                        _content.Length = 0;
+                        _content
+                            .Append("Id: ").AppendLine(_member.Uid)
+                            .Append("Name: ").AppendLine(_member.Name)
+                            .Append("Level: ").AppendLine(_member.Level.ToString())
+                            .Append("Score: ").AppendLine(_member.Score.ToString())
+                            .Append("Alliance: ").AppendLine(_member.AllianceName)
+                            .Append("Alliance Id: ").AppendLine(_member.AllianceId)
+                            .Append("Avatar: ").AppendLine(_member.AllianceAvatar.ToString())
+                            .Append("Rank: ").AppendLine(_member.Type.ToString());
+                        layout.CreateVerticalLayout().CreateTextArea(_content.ToString());
+                        layout.CreateMargin();
+
+                        CreateAllianceActions(layout);
+                    }
+                    else
+                    {
+                        if(_connection == null)
+                        {
+                            _connection = _alliances.LoadUserInfo(UserId, 
+                                member => {
+                                    _member = member;
+                                    _console.Print(string.Format("User {0} loaded successfully", member.Uid));
+                                    Cancel();
+                                    layout.Refresh();
+                                },
+                                err => {
+                                    _console.Print(string.Format("Error loading user: {0} ", err.Msg));
+                                    _connectionError = err;
+                                });
+                        }
+                        else
+                        {   
+                            if(Error.IsNullOrEmpty(_connectionError))
+                            {
+                                layout.CreateLabel(string.Format("Loading user {0}...", UserId));
+                            }
+                            else
+                            {
+                                layout.CreateLabel(string.Format("Load user request failed. {0}", _connectionError.Msg));
+                                layout.CreateButton("Retry", () => {
+                                    Cancel();
+                                    layout.Refresh();
+                                });
+                            }
+                        }
+                    }
+                }
+
+                void Cancel()
+                {
+                    if(_connection != null)
+                    {
+                        _connection.Release();
+                    }
+                    _connection = null;
+                    _connectionError = null;
+                }
+
+                void CreateAllianceActions(AdminPanelLayout layout)
+                {
+                    var ownAlliance = _alliances.AlliancePlayerInfo;
+                    bool isOwnAlliance = ownAlliance.Id == Alliance.Id;
+                    var playerHasHigherRank = AllianceUtils.CompareRanks(_member.Type, ownAlliance.MemberType) == RanksComparison.Higher;
+                    var playerIsLead = ownAlliance.MemberType == AllianceMemberType.Lead;
+                    var playerIsColead = ownAlliance.MemberType == AllianceMemberType.CoLead;
+                    var userIsMember = Alliance.HasMember(_member.Uid);
+                    var userIsCandidate = Alliance.HasCandidate(_member.Uid);
+
+                    layout.CreateLabel("Actions");
+
+                    // Rank actions
+                    var rankActionsEnabled = isOwnAlliance && userIsMember && playerHasHigherRank;
+
+                    layout.CreateButton("Promote", () => {
+                        var newRank = ApplyTransform(_member.Type, RanksComparison.Higher);
+                        _alliances.PromoteMember(_member.Uid, newRank, err => OnResponse(err, "Promotion", () => Alliance.SetMemberType(_member.Uid, newRank)));
+                    }, rankActionsEnabled);
+
+                    layout.CreateButton("Demote", () => {
+                        var newRank = ApplyTransform(_member.Type, RanksComparison.Lower);
+                        _alliances.PromoteMember(_member.Uid, newRank, err => OnResponse(err, "Demotion", () => Alliance.SetMemberType(_member.Uid, newRank)));
+                    }, rankActionsEnabled);
+
+                    layout.CreateButton("Kick", 
+                        () => _alliances.KickMember(_member.Uid, err => OnResponse(err, "Kick", () => Alliance.RemoveMember(_member.Uid))), 
+                        rankActionsEnabled);
+
+                    // Management actions
+                    var manageActionsEnabled = isOwnAlliance && userIsCandidate && (playerIsLead || playerIsColead);
+
+                    layout.CreateButton("Accept Request", 
+                        () => _alliances.AcceptCandidate(_member.Uid, err => OnResponse(err, "Accept candidate", () => Alliance.AcceptCandidate(_member.Uid))), 
+                        manageActionsEnabled);
+                    layout.CreateButton("Decline Request", 
+                        () => _alliances.DeclineCandidate(_member.Uid, err => OnResponse(err, "Decline candidate", () => Alliance.RemoveCandidate(_member.Uid))), 
+                        manageActionsEnabled);
+
+                }
+
+                AllianceMemberType ApplyTransform(AllianceMemberType type, RanksComparison transformTo)
+                {
+                    if(transformTo == RanksComparison.Equal)
+                    {
+                        return type;
+                    }
+
+                    switch(type)
+                    {
+                    case AllianceMemberType.Lead:
+                        return (transformTo == RanksComparison.Higher) ? AllianceMemberType.Lead : AllianceMemberType.CoLead;
+                    case AllianceMemberType.CoLead:
+                        return (transformTo == RanksComparison.Higher) ? AllianceMemberType.Lead : AllianceMemberType.Soldier;
+                    case AllianceMemberType.Soldier:
+                        return (transformTo == RanksComparison.Higher) ? AllianceMemberType.CoLead : AllianceMemberType.Soldier;
+                    default: 
+                        return type;
+                    }
+                }
+
+                void OnResponse(Error err, string action, Action onSuccess)
+                {
+                    if(Error.IsNullOrEmpty(err))
+                    {
+                        onSuccess();
+                        _console.Print(string.Format("'{0}' request success", action));
+                        _member = null;
+                    }
+                    else
+                    {
+                        _console.Print(string.Format("Error on '{0}' request. {1}", action, err.Msg));
+                    }
+                }
+            }
+
+            class AdminPanelAllianceRanking : BaseAlliancePanel
+            {
+                AllianceRankingData _ranking;
+
+                IHttpConnection _connection;
+                Error _connectionError;
+
+                readonly AdminPanelAllianceInfo _infoPanel;
+
+                public AdminPanelAllianceRanking(AlliancesManager alliances, AdminPanelConsole console) : base(alliances, console)
+                {
+                    _infoPanel = new AdminPanelAllianceInfo(alliances, console);
+                }
+
+                public override void OnCreateGUI(AdminPanelLayout layout)
+                {
+                    layout.CreateLabel("Ranking");
+                    layout.CreateMargin();
+
+                    if(_ranking != null)
+                    {
+                        var itr = _ranking.GetRanking();
+                        while(itr.MoveNext())
+                        {
+                            var alliance = itr.Current;
+                            var allianceLabel = string.Format("[{0}({1})]: {2}", alliance.Name, alliance.Id, alliance.Score);
+                            layout.CreateConfirmButton(allianceLabel, () => {
+                                _infoPanel.AllianceId = alliance.Id;
+                                layout.OpenPanel(_infoPanel);
+                            });
+                        }
+                        itr.Dispose();
+                        layout.CreateMargin();
+                    }
+                    else
+                    {
+                        if(_connection == null)
+                        {
+                            _connection = _alliances.LoadRanking(
+                                ranking => {
+                                    _ranking = ranking;
+                                    _console.Print("Ranking loaded successfully");
+                                    Cancel();
+                                    layout.Refresh();
+                                },
+                                err => {
+                                    _console.Print(string.Format("Error loading ranking. {0} ", err.Msg));
+                                    _connectionError = err;
+                                });
+                        }
+                        else
+                        {   
+                            if(Error.IsNullOrEmpty(_connectionError))
+                            {
+                                layout.CreateLabel("Loading ranking...");
+                            }
+                            else
+                            {
+                                layout.CreateLabel(string.Format("Load user request failed. {0}", _connectionError.Msg));
+                                layout.CreateButton("Retry", () => {
+                                    Cancel();
+                                    layout.Refresh();
+                                });
+                            }
+                        }
+                    }
+                }
+
+                void Cancel()
+                {
+                    if(_connection != null)
+                    {
+                        _connection.Release();
+                    }
+                    _connection = null;
+                    _connectionError = null;
+                }
+            }
+
+            class AdminPanelAllianceSearch : BaseAlliancePanel
+            {
+                public string Search;
+
+                IHttpConnection _connection;
+
+                Error _connectionError;
+
+                AlliancesSearchData _search;
+
+                readonly AdminPanelAllianceInfo _infoPanel;
+
+                public AdminPanelAllianceSearch(AlliancesManager alliances, AdminPanelConsole console) : base(alliances, console)
+                {
+                    _infoPanel = new AdminPanelAllianceInfo(alliances, console);
+                }
+
+                public override void OnCreateGUI(AdminPanelLayout layout)
+                {
+                    layout.CreateLabel("Search results");
+                    layout.CreateMargin();
+
+                    if(_search != null)
+                    {
+                        var itr = _search.GetSearch();
+                        while(itr.MoveNext())
+                        {
+                            var alliance = itr.Current;
+                            var allianceLabel = string.Format("[{0}({1})]: {2}", alliance.Name, alliance.Id, alliance.Score);
+                            layout.CreateConfirmButton(allianceLabel, () => {
+                                _infoPanel.AllianceId = alliance.Id;
+                                layout.OpenPanel(_infoPanel);
+                            });
+                        }
+                        itr.Dispose();
+                        layout.CreateMargin();
+                    }
+                    else
+                    {
+                        if(_connection == null)
+                        {
+                            Action<AlliancesSearchData> onSuccess = (searchData) => {
+                                _search = searchData;
+                                _console.Print("Search results loaded successfully");
+                                Cancel();
+                                layout.Refresh();
+                            };
+
+                            Action<Error> onFailure = (err) => {
+                                _console.Print(string.Format("Error loading search results. {0} ", err.Msg));
+                                _connectionError = err;
+                            };
+
+                            if(string.IsNullOrEmpty(Search))
+                            {
+                                _alliances.LoadSearchSuggested(onSuccess, onFailure);
+                            }
+                            else
+                            {
+                                _alliances.LoadSearch(Search, onSuccess, onFailure);
+                            }
+                        }
+                        else
+                        {   
+                            if(Error.IsNullOrEmpty(_connectionError))
+                            {
+                                layout.CreateLabel("Loading ranking...");
+                            }
+                            else
+                            {
+                                layout.CreateLabel(string.Format("Load user request failed. {0}", _connectionError.Msg));
+                                layout.CreateButton("Retry", () => {
+                                    Cancel();
+                                    layout.Refresh();
+                                });
+                            }
+                        }
+                    }
+                }
+
+                void Cancel()
+                {
+                    if(_connection != null)
+                    {
+                        _connection.Release();
+                    }
+                    _connection = null;
+                    _connectionError = null;
                 }
             }
         }

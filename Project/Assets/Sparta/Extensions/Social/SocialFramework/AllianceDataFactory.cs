@@ -111,8 +111,8 @@ namespace SocialPoint.Social
         {
             data.Id = alliance.Id;
             data.Name = alliance.Name;
-            data.Avatar = alliance.AvatarId;
-            data.AccessType = alliance.AccessType;
+            data.Avatar = alliance.Avatar;
+            data.AccessType = alliance.Type;
             data.Members = alliance.Members;
             data.Requests = alliance.Candidates;
             data.Score = alliance.Score;
@@ -137,13 +137,13 @@ namespace SocialPoint.Social
             alliance.Name = data.GetValue(AllianceNameKey).ToString();
             alliance.Description = data.GetValue(AllianceDescriptionKey).ToString();
             alliance.Requirement = data.GetValue(AllianceRequirementMinLevelKey).ToInt();
-            alliance.AccessType = AllianceUtils.GetAllianceTypeFromIndex(data.GetValue(AllianceTypeAccessKey).ToInt());
-            alliance.AvatarId = data.ContainsKey(AllianceAvatarIdKey) ? data.GetValue(AllianceAvatarIdKey).ToInt() : 1;
+            alliance.Type = AllianceUtils.GetAllianceTypeFromIndex(data.GetValue(AllianceTypeAccessKey).ToInt());
+            alliance.Avatar = data.ContainsKey(AllianceAvatarIdKey) ? data.GetValue(AllianceAvatarIdKey).ToInt() : 1;
             alliance.ActivityIndicator = data.GetValue(AllianceActivityIndicatorKey).ToInt();
             alliance.IsNewAlliance = data.GetValue(AllianceIsNewKey).ToBool();
 
             // Add candidates for private alliances
-            if(alliance.AccessType == AllianceAccessType.Private)
+            if(alliance.Type == AllianceAccessType.Private)
             {
                 var candidatesList = dic.Get(AllianceCandidatesKey).AsList;
                 var candidates = new List<AllianceMember>();

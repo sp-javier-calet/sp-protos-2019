@@ -66,16 +66,21 @@ namespace SocialPoint.Social
 
         public AllianceBasicData PlayerAllianceData;
 
-        readonly List<AllianceBasicData> RankingData;
+        readonly List<AllianceBasicData> _rankingData;
 
         public AllianceRankingData()
         {
-            RankingData = new List<AllianceBasicData>();
+            _rankingData = new List<AllianceBasicData>();
         }
 
         public void Add(AllianceBasicData data)
         {
-            RankingData.Add(data);
+            _rankingData.Add(data);
+        }
+
+        public IEnumerator<AllianceBasicData> GetRanking()
+        {
+            return _rankingData.GetEnumerator();
         }
     }
 
@@ -83,16 +88,21 @@ namespace SocialPoint.Social
     {
         public int Score;
 
-        readonly List<AllianceBasicData> SearchData;
+        readonly List<AllianceBasicData> _searchData;
 
         public AlliancesSearchData()
         {
-            SearchData = new List<AllianceBasicData>();
+            _searchData = new List<AllianceBasicData>();
         }
 
         public void Add(AllianceBasicData data)
         {
-            SearchData.Add(data);
+            _searchData.Add(data);
+        }
+
+        public IEnumerator<AllianceBasicData> GetSearch()
+        {
+            return _searchData.GetEnumerator();
         }
     }
 
