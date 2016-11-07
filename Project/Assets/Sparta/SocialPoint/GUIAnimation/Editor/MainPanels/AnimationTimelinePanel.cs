@@ -324,7 +324,7 @@ namespace SocialPoint.GUIAnimation
 
         void RenderCollectionActionPanel()
         {
-            GUILayout.BeginArea(new Rect(0f, 50f, 1024f, 40f));
+            GUILayout.BeginArea(new Rect(0f, 50f, 1400f, 40f));
 
             GUILayout.BeginHorizontal();
 
@@ -359,6 +359,11 @@ namespace SocialPoint.GUIAnimation
             GUILayout.Space(220f);
             GUILayout.Label("Play Mode: ", GUILayout.Width(60f));
             _animationTool.AnimationModel.CurrentAnimation.Mode = (Animation.PlayMode)EditorGUILayout.EnumPopup(_animationTool.AnimationModel.CurrentAnimation.Mode, GUILayout.Width(100f));
+
+            // End Delay Time
+            GUILayout.Space(22f);
+            GUILayout.Label("End Delay Time: ", GUILayout.Width(60f));
+            _animationTool.AnimationModel.CurrentAnimation.EndDelayTime = EditorGUILayout.FloatField(_animationTool.AnimationModel.CurrentAnimation.EndDelayTime, GUILayout.Width(100f));
 
             // Play On Start
             GUILayout.Space(22f);
