@@ -78,7 +78,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToGetter<T>(Func<T,F> method, string tag = null)
         {
-            DependencyTree.AddLookup(typeof(F), typeof(T), _tag);
+            DependencyTree.AddLookup(typeof(F), tag, typeof(T), _tag);
             _type = typeof(T);
             _getter = t => method((T)t);
             _toType = ToType.Method;
@@ -199,7 +199,7 @@ namespace SocialPoint.Dependency
             var key = new BindingKey(typeof(T), tag);
             DisposeInstances(key);
             var removed = _bindings.Remove(key);
-            DependencyTree.Remove(type.Name, tag);
+            DependencyTree.Remove(typeof(T), tag);
             Log.v(Tag, string.Format("Removed binding <{0}> for type `{1}`. {2}", tag, typeof(T).Name, removed ? "Success" : "Failed"));
             return removed;
         }

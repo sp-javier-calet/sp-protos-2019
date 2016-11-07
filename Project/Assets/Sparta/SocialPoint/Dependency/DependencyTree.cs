@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#define SPARTA_COLLECT_DEPENDENCIES
 
-#define SPARTA_COLLECT_DEPENDENCIES
+using System;
+using System.Collections.Generic;
 
 namespace SocialPoint.Dependency
 {
@@ -43,7 +43,7 @@ namespace SocialPoint.Dependency
             BindingInfo info;
             if(_bindings.TryGetValue(type, out typeBinding))
             {
-                if(!typeBinding.TryGetValue(tag, info))
+                if(!typeBinding.TryGetValue(tag, out info))
                 {
                     info = new BindingInfo(type.Name, tag);
                     typeBinding.Add(tag, info);
