@@ -14,6 +14,7 @@ public class BaseInstaller : Installer, IInitializable
         Container.Rebind<IUpdateScheduler>().ToLookup<UnityUpdateRunner>();
         Container.Bind<NativeCallsHandler>().ToMethod<NativeCallsHandler>(CreateNativeCallsHandler);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelNativeCallsHandler>(CreateAdminPanel);
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelDependency>(CreateAdminPanelDependency);
     }
 
     public void Initialize()
@@ -39,5 +40,10 @@ public class BaseInstaller : Installer, IInitializable
     {
         return new AdminPanelNativeCallsHandler(
             Container.Resolve<NativeCallsHandler>());
+    }
+
+    AdminPanelDependency CreateAdminPanelDependency()
+    {
+        return new AdminPanelDependency();
     }
 }

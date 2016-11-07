@@ -37,7 +37,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToSingle<T>() where T : F, new()
         {
-            DependencyTree.AddBinding(typeof(F), typeof(T), _tag);
+            DependencyGraphBuilder.Bind(typeof(F), typeof(T), _tag);
             _toType = ToType.Single;
             _type = typeof(T);
             return this;
@@ -45,7 +45,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToInstance<T>(T instance) where T : F
         {
-            DependencyTree.AddBinding(typeof(F), typeof(T), _tag);
+            DependencyGraphBuilder.Bind(typeof(F), typeof(T), _tag);
             _toType = ToType.Single;
             _instance = instance;
             return this;
@@ -53,7 +53,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToLookup<T>(string tag = null) where T : F
         {
-            DependencyTree.AddLookup(typeof(F), _tag, typeof(T), tag);
+            DependencyGraphBuilder.Alias(typeof(F), _tag, typeof(T), tag);
             _toType = ToType.Lookup;
             _type = typeof(T);
             _tag = tag;
@@ -63,7 +63,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToMethod<T>(Func<T> method, Action<T> setup = null) where T : F
         {
-            DependencyTree.AddBinding(typeof(F), typeof(T), _tag);
+            DependencyGraphBuilder.Bind(typeof(F), typeof(T), _tag);
             _type = typeof(T);
             _method = () => method();
             _toType = ToType.Method;
@@ -78,7 +78,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToGetter<T>(Func<T,F> method, string tag = null)
         {
-            DependencyTree.AddLookup(typeof(F), tag, typeof(T), _tag);
+            DependencyGraphBuilder.Bind(typeof(F), typeof(T), tag);
             _type = typeof(T);
             _getter = t => method((T)t);
             _toType = ToType.Method;
@@ -94,8 +94,10 @@ namespace SocialPoint.Dependency
             }
             else if(_toType == ToType.Single)
             {
+                DependencyGraphBuilder.StartCreation(typeof(F), _tag);
                 var construct = _type.GetConstructor(new Type[]{ });
                 _instance = (F)construct.Invoke(new object[]{ });
+                DependencyGraphBuilder.Finalize(typeof(F));
 
             }
             else if(_toType == ToType.Lookup)
@@ -104,6 +106,7 @@ namespace SocialPoint.Dependency
             }
             else if(_toType == ToType.Method)
             {
+                DependencyGraphBuilder.StartCreation(typeof(F), _tag);
                 if(_method != null)
                 {
                     _instance = _method();
@@ -113,7 +116,9 @@ namespace SocialPoint.Dependency
                     var param = _container.Resolve(_type, _tag, null);
                     _instance = _getter(param);
                 }
+                DependencyGraphBuilder.Finalize(typeof(F));
             }
+
             return _instance;
         }
 
@@ -124,6 +129,7 @@ namespace SocialPoint.Dependency
                 // Execute a copy to avoid recursive calls in circular dependencies
                 var setup = _setup;
                 _setup = null;
+                DependencyGraphBuilder.StartSetup(_type, _tag);
                 setup(_instance);
             }
         }
@@ -199,7 +205,7 @@ namespace SocialPoint.Dependency
             var key = new BindingKey(typeof(T), tag);
             DisposeInstances(key);
             var removed = _bindings.Remove(key);
-            DependencyTree.Remove(typeof(T), tag);
+            DependencyGraphBuilder.Remove(typeof(T), tag);
             Log.v(Tag, string.Format("Removed binding <{0}> for type `{1}`. {2}", tag, typeof(T).Name, removed ? "Success" : "Failed"));
             return removed;
         }
@@ -224,7 +230,6 @@ namespace SocialPoint.Dependency
 
         public void Install(IInstaller installer)
         {
-            DependencyTree.OnInstall(installer.GetType());
             installer.Container = this;
             installer.InstallBindings();
             _installed.Add(installer);
@@ -252,7 +257,6 @@ namespace SocialPoint.Dependency
 
         public object Resolve(Type type, string tag = null, object def = null)
         {
-            DependencyTree.OnResolve(type, tag);
             List<IBinding> bindings;
             object result = def;
             if(_bindings.TryGetValue(new BindingKey(type, tag), out bindings))
@@ -354,7 +358,7 @@ namespace SocialPoint.Dependency
             return false;
         }
 
-        HashSet<object> FindInstances(BindingKey fromKey, BindingKey filterKey, bool remove=false)
+        HashSet<object> FindInstances(BindingKey fromKey, BindingKey filterKey, bool remove = false)
         {
             var instances = new HashSet<object>();
             var itr = _bindings.GetEnumerator();

@@ -1,5 +1,7 @@
-﻿using System;
+﻿#define SPARTA_COLLECT_DEPENDENCIES
+using System;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.Dependency
 {
@@ -19,6 +21,18 @@ namespace SocialPoint.Dependency
             }
         }
 
+        public static bool IsAvailable
+        {
+            get
+            {
+                #if SPARTA_COLLECT_DEPENDENCIES
+                return true;
+                #else
+                return false;
+                #endif
+            }
+        }
+
         static Node Current
         {
             get
@@ -28,15 +42,18 @@ namespace SocialPoint.Dependency
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
-        public static void Bind(Type type, string tag)
+        public static void Bind(Type type, Type bind, string tag)
         {
             var node = _graph.GetNode(type, tag);
             if(node == null)
             {
                 node = new Node(type, tag);
+                node.Bind = bind.Name;
                 _graph.AddNode(type, node);
             }
-            node.History.AddLast(Action.Bind);
+
+
+            node.History.Add(Action.Bind);
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
@@ -48,7 +65,7 @@ namespace SocialPoint.Dependency
                 node = new Node(type, tag);
                 _graph.AddNode(type, node);
             }
-            node.History.AddLast(Action.Rebind);
+            node.History.Add(Action.Rebind);
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
@@ -60,7 +77,7 @@ namespace SocialPoint.Dependency
                 node = new Node(type);
                 _graph.AddNode(type, node);
             }
-            node.History.AddLast(Action.Remove);
+            node.History.Add(Action.Remove);
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
@@ -79,8 +96,8 @@ namespace SocialPoint.Dependency
                 _graph.AddNode(toType, toNode);
             }
 
-            fromNode.Aliases.AddLast(toNode);
-            toNode.Definitions.AddLast(fromNode);
+            fromNode.Aliases.Add(toNode);
+            toNode.Definitions.Add(fromNode);
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
@@ -89,16 +106,17 @@ namespace SocialPoint.Dependency
             var node = _graph.GetNode(type, tag);
             if(node != null)
             {
-                node.History.AddLast(Action.Create);
+                node.History.Add(Action.Create);
 
                 if(_nodeStack.Count > 0)
                 {
                     node.Instigator = Current;
-                    Current.Outcoming.AddLast(node);
-                    node.Incoming.AddLast(Current);
+                    Current.Outcoming.Add(node);
+                    node.Incoming.Add(Current);
                 }
                 else
                 {
+                    _graph.RootNodes.Add(node);
                     node.CreationStack = Environment.StackTrace ?? "Unknown stack";
                 }
 
@@ -106,7 +124,8 @@ namespace SocialPoint.Dependency
             }
             else
             {
-                throw new Exception("Start creation with undefined type");   
+                //throw new Exception(string.Format("Start creation with undefined type {0}", type.Name));
+                Log.e(string.Format("Start creation with undefined type {0}", type.Name));
             }
         }
 
@@ -116,21 +135,30 @@ namespace SocialPoint.Dependency
             var node = _graph.GetNode(type, tag);
             if(node != null)
             {
-                node.History.AddLast(Action.Setup);
+                node.History.Add(Action.Setup);
             }
             else
             {
-                throw new Exception("Start setup with undefined type");   
+                //throw new Exception("Start setup with undefined type");
+                Log.e("Start setup with undefined type");
             }
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
         public static void Finalize(Type type)
         {
-            var node = _nodeStack.Pop();
-            if(node.Class != type.Name)
+            if(_nodeStack.Count > 0)
             {
-                throw new Exception("Invalid type");
+                var node = _nodeStack.Pop();
+                if(node.Class != type.Name)
+                {
+                    //throw new Exception("Invalid type");
+                    Log.e("Invalid type");
+                }
+            }
+            else
+            {
+                Log.e("Invalid stack");
             }
         }
 
@@ -140,7 +168,7 @@ namespace SocialPoint.Dependency
             var node = _graph.GetNode(type, tag);
             if(node != null)
             {
-                node.History.AddLast(Action.Resolve);
+                node.History.Add(Action.Resolve);
             }
         }
 
@@ -154,12 +182,12 @@ namespace SocialPoint.Dependency
 
     public class DependencyGraph
     {
-        public readonly LinkedList<Node> RootNodes;
+        public readonly List<Node> RootNodes;
         public readonly Dictionary<Type, Dictionary<string, Node>> Bindings;
 
         public DependencyGraph()
         {
-            RootNodes = new LinkedList<Node>();
+            RootNodes = new List<Node>();
             Bindings = new Dictionary<Type, Dictionary<string, Node>>();
         }
 
@@ -181,7 +209,7 @@ namespace SocialPoint.Dependency
             if(Bindings.TryGetValue(type, out instances))
             {
                 Node n = null;
-                if(instances.TryGetValue(tag, out n))
+                if(instances.TryGetValue(tag ?? string.Empty, out n))
                 {
                     return n;
                 }
@@ -210,24 +238,27 @@ namespace SocialPoint.Dependency
     public class Node
     {
         // Incoming edges.
-        public LinkedList<Node> Incoming;
+        public List<Node> Incoming;
 
         // Outcoming edges. Dependencies.
-        public LinkedList<Node> Outcoming;
+        public List<Node> Outcoming;
 
         // Outcoming edges. Aliased types
-        public LinkedList<Node> Aliases;
+        public List<Node> Aliases;
 
         // Incomig edges. Types aliased as this
-        public LinkedList<Node> Definitions;
+        public List<Node> Definitions;
 
         // Historic
-        public LinkedList<Action> History;
+        public List<Action> History;
 
         public string Namespace;
 
         // Class
         public string Class;
+
+        // Binded Class
+        public string Bind;
 
         // Dependency Tag
         public string Tag;
@@ -259,11 +290,11 @@ namespace SocialPoint.Dependency
 
         public Node()
         {
-            Incoming = new LinkedList<Node>();
-            Outcoming = new LinkedList<Node>();
-            Aliases = new LinkedList<Node>();
-            Definitions = new LinkedList<Node>();
-            History = new LinkedList<Action>();
+            Incoming = new List<Node>();
+            Outcoming = new List<Node>();
+            Aliases = new List<Node>();
+            Definitions = new List<Node>();
+            History = new List<Action>();
 
             Origin = Origin.Explicit;
             CreationStack = string.Empty;
