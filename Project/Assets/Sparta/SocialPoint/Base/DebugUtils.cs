@@ -43,7 +43,14 @@ namespace SocialPoint.Base
                 UnityEngine.Assertions.Assert.IsTrue(condition, msg);
 
                 #if UNITY_EDITOR
-                    UnityEditor.EditorApplication.isPlaying &= condition;
+                    try
+                    {
+                        UnityEditor.EditorApplication.isPlaying &= condition;
+                    }
+                    catch(System.MissingMethodException e)
+                    {
+                        //Do nothing
+                    }
                 #endif
 
             #else

@@ -279,9 +279,11 @@ namespace SocialPoint.WAMP
             case MsgCode.EVENT:
                 _subscriber.ProcessEvent(msg);
                 break;
+            case MsgCode.RESULT:
+                _caller.ProcessCallResult(msg);
+                break;
             case MsgCode.CALL:
             case MsgCode.CANCEL:
-            case MsgCode.RESULT:
             case MsgCode.REGISTER:
             case MsgCode.REGISTERED:
             case MsgCode.UNREGISTER:

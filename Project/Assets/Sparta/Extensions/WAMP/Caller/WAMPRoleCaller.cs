@@ -18,7 +18,7 @@ namespace SocialPoint.WAMP.Caller
     {
         #region Data structures
 
-        Dictionary<long, CallRequest> _calls;
+        readonly Dictionary<long, CallRequest> _calls;
 
         #endregion
 
@@ -78,7 +78,7 @@ namespace SocialPoint.WAMP.Caller
 
         #region Private
 
-        void ProcessCallResult(AttrList msg)
+        internal void ProcessCallResult(AttrList msg)
         {
             // [RESULT, CALL.Request|id, Details|dict]
             // [RESULT, CALL.Request|id, Details|dict, YIELD.Arguments|list]
@@ -147,15 +147,16 @@ namespace SocialPoint.WAMP.Caller
 
         internal override void ResetToInitialState()
         {
-            for(var i = 0; i < _calls.Count; i++)
+            var itr = _calls.GetEnumerator();
+            while(itr.MoveNext())
             {
-                var request = _calls[i];
+                var request = itr.Current.Value;
                 if(request.CompletionHandler != null)
                 {
                     request.CompletionHandler(new Error(ErrorCodes.ConnectionClosed, "Connection reset"), null, null);
                 }
             }
-
+            itr.Dispose();
             _calls.Clear();
         }
 

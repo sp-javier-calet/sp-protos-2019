@@ -34,7 +34,7 @@ namespace SocialPoint.WAMP.Publisher
     {
         #region Data structures
 
-        Dictionary<long, PublishRequest> _publishRequests;
+        readonly Dictionary<long, PublishRequest> _publishRequests;
 
         #endregion
 
@@ -160,15 +160,16 @@ namespace SocialPoint.WAMP.Publisher
 
         internal override void ResetToInitialState()
         {
-            for(var i = 0; i < _publishRequests.Count; i++)
+            var itr = _publishRequests.GetEnumerator();
+            while(itr.MoveNext())
             {
-                var request = _publishRequests[i];
+                var request = itr.Current.Value;
                 if(request.CompletionHandler != null)
                 {
                     request.CompletionHandler(new Error(ErrorCodes.ConnectionClosed, "Connection reset"), null);
                 }
             }
-
+            itr.Dispose();
             _publishRequests.Clear();
         }
 

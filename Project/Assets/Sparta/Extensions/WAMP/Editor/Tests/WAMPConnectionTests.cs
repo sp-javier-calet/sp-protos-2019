@@ -4,13 +4,17 @@ using NSubstitute;
 using System;
 using SocialPoint.Network;
 using SocialPoint.WAMP;
+using SocialPoint.Attributes;
 
 namespace SocialPoint.WAMP
 {
     [TestFixture]
     [Category("SocialPoint.WAMP")]
-    internal class WAMPConnectionTests
+    class WAMPConnectionTests
     {
+        const string TestTopic = "sparta.test.topic";
+        const long TestSubscriptionId = 123456;
+
         WAMPConnection _connection;
         INetworkClient _client;
         INetworkClientDelegate _delegate;
@@ -49,7 +53,7 @@ namespace SocialPoint.WAMP
         [Test]
         public void Connect_Cancel()
         {
-            var t = new System.Threading.Thread((obj) => {
+            var t = new System.Threading.Thread(obj => {
                 System.Threading.Thread.Sleep(10);
                 var del = obj as INetworkClientDelegate;
                 del.OnClientConnected(); 
@@ -82,7 +86,7 @@ namespace SocialPoint.WAMP
             Connect();
             bool connected = true;
 
-            var t = new System.Threading.Thread((obj) => {
+            var t = new System.Threading.Thread(obj => {
                 System.Threading.Thread.Sleep(10);
                 var del = obj as INetworkClientDelegate;
                 del.OnClientDisconnected(); 
@@ -128,7 +132,7 @@ namespace SocialPoint.WAMP
             bool joined = false;
             const long fakedSessionId = 10;
 
-            var t = new System.Threading.Thread((obj) => {
+            var t = new System.Threading.Thread(obj => {
                 System.Threading.Thread.Sleep(10);
                 var receiver = obj as INetworkMessageReceiver;
                 var message = string.Format("[{0}, {1}, {{}}]",MsgCode.WELCOME, fakedSessionId);
@@ -137,9 +141,7 @@ namespace SocialPoint.WAMP
             });
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
-                .Do(x => {
-                    t.Start(_receiver);
-                });
+                .Do(x => t.Start(_receiver));
 
             var req = _connection.Join("wamp.test_realm", null, (error, sessionId, dict) => {
                 Assert.AreEqual(fakedSessionId, sessionId);
@@ -184,7 +186,7 @@ namespace SocialPoint.WAMP
             bool joined = true;
             const string _fakeReason = "wamp.test_leave";
 
-            var t = new System.Threading.Thread((obj) => {
+            var t = new System.Threading.Thread(obj => {
                 System.Threading.Thread.Sleep(10);
                 var receiver = obj as INetworkMessageReceiver;
                 var message = string.Format("[{0}, {{}}, \"{1}\"]", MsgCode.GOODBYE, _fakeReason);
@@ -193,9 +195,7 @@ namespace SocialPoint.WAMP
             });
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
-                .Do(x => {
-                    t.Start(_receiver);
-                });
+                .Do(x => t.Start(_receiver));
 
             var req = _connection.Leave((error, reason) => {
                 Assert.IsNull(error);
@@ -207,6 +207,144 @@ namespace SocialPoint.WAMP
             t.Join(15);
 
             Assert.IsTrue(joined);
+        }
+
+        [Test]
+        public void Subscribe()
+        {
+            Join();
+
+            bool subscribed = false;
+
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
+                .Do(
+                    x => {
+                    var message = string.Format("[{0}, 0, {1}]", MsgCode.SUBSCRIBED, TestSubscriptionId);
+                    var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                    _receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                    });
+
+            Subscriber.HandlerSubscription handlerSubscription = (attrList, attrDict) => {
+                
+            };
+
+            Subscriber.OnSubscribed completionHandler = (error, subscription) => {
+                Assert.IsNull(error);
+                subscribed = true;
+            };
+
+            _connection.Subscribe(TestTopic, handlerSubscription, completionHandler);
+
+            Assert.IsTrue(subscribed);
+        }
+
+        [Test]
+        public void Unsubscribe()
+        {
+            Join();
+            Subscribe();
+
+            bool unsubscribed = false;
+
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).Returns(Substitute.For<INetworkMessage>());
+
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
+                .Do(x => {
+                    var message = string.Format("[{0}, 1]", MsgCode.UNSUBSCRIBED);
+                    var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                    _receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                });
+
+            Subscriber.OnUnsubscribed completionHandler = (error) => {
+                Assert.IsNull(error);
+                unsubscribed = true;
+            };
+
+            _connection.Unsubscribe(new Subscriber.Subscription(TestSubscriptionId, TestTopic), completionHandler);
+
+            Assert.IsTrue(unsubscribed);
+        }
+
+        [Test]
+        public void Call()
+        {
+            Join();
+
+            bool called = false;
+
+            const string testProcedure = "sparta.test_procedure";
+            const string responseKey = "test_response";
+            const string responseValue = "This is a test Response";
+            const int requestArg1 = 987;
+            const string requestArg2 = "Request string param";
+            const string requestKey = "test_request";
+            const bool requestValue = true;
+
+
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
+                .Do(x => {
+                    JsonAttrSerializer serializer = new JsonAttrSerializer();
+                    AttrDic data = new AttrDic();
+                    data.SetValue(responseKey, responseValue);
+                    var message = string.Format("[{0}, 0, {{}}, [], {1}]", MsgCode.RESULT, serializer.SerializeString(data));
+                    var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                    _receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                });
+
+            Caller.HandlerCall completionHandler = (error, respArgs, respKWArgs) => {
+                Assert.IsNull(error);
+                called = true;
+                Assert.AreEqual(respArgs.Count, 0);
+                Assert.AreEqual(respKWArgs.Count, 1);
+                Assert.IsTrue(respKWArgs.ContainsKey(responseKey));
+                Assert.AreEqual(respKWArgs.GetValue(responseKey).ToString(), responseValue);
+            };
+
+            var args = new AttrList();
+            args.AddValue(requestArg1);
+            args.AddValue(requestArg2);
+            var kwargs = new AttrDic();
+            kwargs.SetValue(requestKey, requestValue);
+
+            _connection.Call(testProcedure, args, kwargs, completionHandler);
+
+            Assert.IsTrue(called);
+        }
+
+        [Test]
+        public void Call_Cancel()
+        {
+            Join();
+
+            bool called = false;
+
+            const string testProcedure = "sparta.test_procedure";
+
+            var t = new System.Threading.Thread(obj => {
+                System.Threading.Thread.Sleep(10);
+                var receiver = obj as INetworkMessageReceiver;
+                var message = string.Format("[{0}, 0, {{}}, [], {{}}]", MsgCode.RESULT);
+                var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                receiver.OnMessageReceived(new NetworkMessageData(), reader);
+            });
+
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
+                .Do(x => t.Start(_receiver));
+
+            Caller.HandlerCall completionHandler = (error, respArgs, respKWArgs) => {
+                Assert.IsNull(error);
+                called = true;
+            };
+
+            var args = new AttrList();
+            var kwargs = new AttrDic();
+
+            var req = _connection.Call(testProcedure, args, kwargs, completionHandler);
+
+            req.Dispose();
+            t.Join(15);
+
+            Assert.IsFalse(called);
         }
     }
 }
