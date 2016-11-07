@@ -38,7 +38,7 @@ namespace SocialPoint.WAMP
         public const int YIELD = 70;
     }
 
-    internal static class ErrorCodes
+    static class ErrorCodes
     {
         internal const int NoSession = 1001;
         internal const int JoinInProgress = 1002;
@@ -128,7 +128,7 @@ namespace SocialPoint.WAMP
         WAMPRoleCaller _caller;
         WAMPRoleSubscriber _subscriber;
 
-        List<WAMPRole> _roles;
+        readonly List<WAMPRole> _roles;
 
         StartRequest _startRequest;
         StopRequest _stopRequest;

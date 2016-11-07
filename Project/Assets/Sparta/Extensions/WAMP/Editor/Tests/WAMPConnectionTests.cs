@@ -255,7 +255,7 @@ namespace SocialPoint.WAMP
                     _receiver.OnMessageReceived(new NetworkMessageData(), reader);
                 });
 
-            Subscriber.OnUnsubscribed completionHandler = (error) => {
+            Subscriber.OnUnsubscribed completionHandler = error => {
                 Assert.IsNull(error);
                 unsubscribed = true;
             };
@@ -283,8 +283,8 @@ namespace SocialPoint.WAMP
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
                 .Do(x => {
-                    JsonAttrSerializer serializer = new JsonAttrSerializer();
-                    AttrDic data = new AttrDic();
+                    var serializer = new JsonAttrSerializer();
+                    var data = new AttrDic();
                     data.SetValue(responseKey, responseValue);
                     var message = string.Format("[{0}, 0, {{}}, [], {1}]", MsgCode.RESULT, serializer.SerializeString(data));
                     var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
