@@ -65,7 +65,7 @@ namespace SocialPoint.AdminPanel
         /// Since they are added sequentially in the group, it sorts only the last elegible elements,
         /// until a non-sorted gui element is found.
         /// </summary>
-        void Add(IAdminPanelGUI gui)
+        public void Add(IAdminPanelGUI gui)
         {
             guiGroup.Add(gui);
 
