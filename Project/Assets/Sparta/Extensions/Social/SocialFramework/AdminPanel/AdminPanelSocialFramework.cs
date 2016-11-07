@@ -326,40 +326,51 @@ namespace SocialPoint.Social
 
                 CreateOwnAlliancePanel(layout);
                 layout.CreateMargin();
-
-                layout.CreateOpenPanelButton("Ranking", _rankingPanel);
+                var enabled = _alliances.Enabled;
+                layout.CreateOpenPanelButton("Ranking", _rankingPanel, enabled);
 
                 layout.CreateTextInput("Search alliances", value => {
                     _searchPanel.Search = value;
                     layout.Refresh();
-                });
-                layout.CreateOpenPanelButton("Search", _searchPanel, !string.IsNullOrEmpty(_searchPanel.Search));
-                layout.CreateOpenPanelButton("Suggested alliances", _searchPanel);
+                }, enabled);
+                layout.CreateOpenPanelButton("Search", _searchPanel, !string.IsNullOrEmpty(_searchPanel.Search) && enabled);
+                layout.CreateOpenPanelButton("Suggested alliances", _searchPanel, enabled);
                
             }
 
             void CreateOwnAlliancePanel(AdminPanelLayout layout)
             {
-                var info = _alliances.AlliancePlayerInfo;
-                if(info.IsInAlliance)
+                if(_alliances.Enabled)
                 {
-                    _infoPanel.AllianceId = info.Id;
-                    layout.CreateOpenPanelButton(info.Name, _infoPanel);
-                    layout.CreateConfirmButton("Leave Alliance", () => _alliances.LeaveAlliance(err => {
-                        if(Error.IsNullOrEmpty(err))
-                        {
-                            _console.Print("Alliance left");
-                            layout.Refresh();
-                        }
-                        else
-                        {
-                            _console.Print(string.Format("Error leaving alliance. {0}", err));
-                        }
-                    }, true));
+                    var info = _alliances.AlliancePlayerInfo;
+                    if(info.IsInAlliance)
+                    {
+                        _infoPanel.AllianceId = info.Id;
+                        layout.CreateOpenPanelButton(info.Name, _infoPanel);
+                        layout.CreateConfirmButton("Leave Alliance", () => _alliances.LeaveAlliance(err => {
+                            if(Error.IsNullOrEmpty(err))
+                            {
+                                _console.Print("Alliance left");
+                                layout.Refresh();
+                            }
+                            else
+                            {
+                                _console.Print(string.Format("Error leaving alliance. {0}", err));
+                            }
+                        }, true));
+                    }
+                    else
+                    {
+                        layout.CreateOpenPanelButton("Create Alliance", _createPanel);
+                    }
                 }
                 else
                 {
-                    layout.CreateOpenPanelButton("Create Alliance", _createPanel);
+                    layout.CreateLabel("Not connected to alliances");
+                    layout.CreateButton("Force connect", () => {
+                        _alliances.Enable();
+                        layout.Refresh();
+                    });
                 }
             }
 
@@ -458,11 +469,19 @@ namespace SocialPoint.Social
                     layout.CreateLabel(IsEditing ? "Edit Alliance" : "Create Alliance");
                     layout.CreateMargin();
 
-                    StringValueInput(layout, "Name", _data.Name, value => { _data.Name = value; });
-                    StringValueInput(layout, "Description", _data.Description, value => { _data.Description = value; });
-                    IntValueInput(layout, "Required Score", _data.Requirement, value => { _data.Requirement = value; });
-                    IntValueInput(layout, "Avatar", _data.Avatar, value => { _data.Avatar = value; });
-                    ToggleGroup(layout, "Alliance Access Type", () => _data.Type, type => _data.Type = type );
+                    StringValueInput(layout, "Name", _data.Name, value => {
+                        _data.Name = value;
+                    });
+                    StringValueInput(layout, "Description", _data.Description, value => {
+                        _data.Description = value;
+                    });
+                    IntValueInput(layout, "Required Score", _data.Requirement, value => {
+                        _data.Requirement = value;
+                    });
+                    IntValueInput(layout, "Avatar", _data.Avatar, value => {
+                        _data.Avatar = value;
+                    });
+                    ToggleGroup(layout, "Alliance Access Type", () => _data.Type, type => _data.Type = type);
                     layout.CreateMargin();
 
                     if(IsEditing)
@@ -654,22 +673,20 @@ namespace SocialPoint.Social
                                 err => {
                                     _console.Print(string.Format("Error loading user: {0}", err));
                                     _httpConnectionError = err;
-                                });
-                        }
-                        else
-                        {   
-                            if(Error.IsNullOrEmpty(_httpConnectionError))
-                            {
-                                layout.CreateLabel(string.Format("Loading alliance {0}...", AllianceId));
-                            }
-                            else
-                            {
-                                layout.CreateLabel(string.Format("Load Alliance request failed. {0}", _httpConnectionError));
-                                layout.CreateButton("Retry", () => {
-                                    Cancel();
                                     layout.Refresh();
                                 });
-                            }
+                        }  
+                        if(Error.IsNullOrEmpty(_httpConnectionError))
+                        {
+                            layout.CreateLabel(string.Format("Loading alliance {0}...", AllianceId));
+                        }
+                        else
+                        {
+                            layout.CreateLabel(string.Format("Load Alliance request failed. {0}", _httpConnectionError));
+                            layout.CreateButton("Retry", () => {
+                                Cancel();
+                                layout.Refresh();
+                            });
                         }
                     }
                 }
@@ -780,23 +797,22 @@ namespace SocialPoint.Social
                                 err => {
                                     _console.Print(string.Format("Error loading user: {0} ", err));
                                     _httpConnectionError = err;
-                                });
-                        }
-                        else
-                        {   
-                            if(Error.IsNullOrEmpty(_httpConnectionError))
-                            {
-                                layout.CreateLabel(string.Format("Loading user {0}...", UserId));
-                            }
-                            else
-                            {
-                                layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError));
-                                layout.CreateButton("Retry", () => {
-                                    Cancel();
                                     layout.Refresh();
                                 });
-                            }
+                        } 
+                        if(Error.IsNullOrEmpty(_httpConnectionError))
+                        {
+                            layout.CreateLabel(string.Format("Loading user {0}...", UserId));
                         }
+                        else
+                        {
+                            layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError));
+                            layout.CreateButton("Retry", () => {
+                                Cancel();
+                                layout.Refresh();
+                            });
+                        }
+
                     }
                 }
 
@@ -921,23 +937,22 @@ namespace SocialPoint.Social
                                 err => {
                                     _console.Print(string.Format("Error loading ranking. {0} ", err));
                                     _httpConnectionError = err;
-                                });
-                        }
-                        else
-                        {   
-                            if(Error.IsNullOrEmpty(_httpConnectionError))
-                            {
-                                layout.CreateLabel("Loading ranking...");
-                            }
-                            else
-                            {
-                                layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError));
-                                layout.CreateButton("Retry", () => {
-                                    Cancel();
                                     layout.Refresh();
                                 });
-                            }
+                        }  
+                        if(Error.IsNullOrEmpty(_httpConnectionError))
+                        {
+                            layout.CreateLabel("Loading ranking...");
                         }
+                        else
+                        {
+                            layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError));
+                            layout.CreateButton("Retry", () => {
+                                Cancel();
+                                layout.Refresh();
+                            });
+                        }
+
                     }
                 }
             }
@@ -989,6 +1004,7 @@ namespace SocialPoint.Social
                             Action<Error> onFailure = (err) => {
                                 _console.Print(string.Format("Error loading search results. {0} ", err));
                                 _httpConnectionError = err;
+                                layout.Refresh();
                             };
 
                             if(string.IsNullOrEmpty(Search))
@@ -1000,21 +1016,20 @@ namespace SocialPoint.Social
                                 _alliances.LoadSearch(Search, onSuccess, onFailure);
                             }
                         }
-                        else
-                        {   
-                            if(Error.IsNullOrEmpty(_httpConnectionError))
-                            {
-                                layout.CreateLabel("Loading ranking...");
-                            }
-                            else
-                            {
-                                layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError));
-                                layout.CreateButton("Retry", () => {
-                                    Cancel();
-                                    layout.Refresh();
-                                });
-                            }
+
+                        if(Error.IsNullOrEmpty(_httpConnectionError))
+                        {
+                            layout.CreateLabel("Loading ranking...");
                         }
+                        else
+                        {
+                            layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError));
+                            layout.CreateButton("Retry", () => {
+                                Cancel();
+                                layout.Refresh();
+                            });
+                        }
+
                     }
                 }
             }
