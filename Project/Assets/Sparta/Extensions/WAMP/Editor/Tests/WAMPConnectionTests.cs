@@ -290,7 +290,7 @@ namespace SocialPoint.WAMP
 
             bool unsubscribed = false;
 
-            _client.CreateMessage(Arg.Any<NetworkMessageData>()).Returns(Substitute.For<INetworkMessage>());
+            ClearMessageSubstitute();
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
                 .Do(x => {
@@ -325,7 +325,7 @@ namespace SocialPoint.WAMP
                 receiver.OnMessageReceived(new NetworkMessageData(), reader);
             });
 
-            _client.CreateMessage(Arg.Any<NetworkMessageData>()).Returns(Substitute.For<INetworkMessage>());
+            ClearMessageSubstitute();
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
                 .Do(x => t.Start(_receiver));
@@ -367,8 +367,8 @@ namespace SocialPoint.WAMP
                     Assert.AreEqual(sentData[0].AsValue.ToInt(), MsgCode.PUBLISH);
                     Assert.AreEqual(sentData[3].AsValue.ToString(), TestTopic);
 
-                    checkValidArgs(sentData[4]);
-                    checkValidKWArgs(sentData[5]);
+                    CheckValidArgs(sentData[4]);
+                    CheckValidKWArgs(sentData[5]);
 
                     //Create the fake received message
                     var message = string.Format("[{0}, 0, {1}]", MsgCode.PUBLISHED, PublicationId);
@@ -383,13 +383,7 @@ namespace SocialPoint.WAMP
                 published = true;
             };
 
-            var args = new AttrList();
-            args.AddValue(RequestArg1);
-            args.AddValue(RequestArg2);
-            var kwargs = new AttrDic();
-            kwargs.SetValue(RequestKey, RequestValue);
-
-            _connection.Publish(TestTopic, args, kwargs, true, completionHandler);
+            _connection.Publish(TestTopic, CreateArgs(), CreateKWArgs(), true, completionHandler);
 
             Assert.IsTrue(published);
         }
@@ -428,6 +422,104 @@ namespace SocialPoint.WAMP
         }
 
         [Test]
+        public void Subscribe_Publish()
+        {
+            Join();
+
+            bool subscribed = false;
+            bool eventReceived = false;
+
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
+                .Do(x => {
+                var message = string.Format("[{0}, 0, {1}]", MsgCode.SUBSCRIBED, SubscriptionId);
+                var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                _receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                        
+                //Create the fake EVENT message
+                var serializer = new JsonAttrSerializer();
+                message = string.Format("[{0}, {1}, {2}, {{}}, {3}, {4}]", MsgCode.EVENT, SubscriptionId, PublicationId, serializer.SerializeString(CreateArgs()), serializer.SerializeString(CreateKWArgs()));
+                reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                _receiver.OnMessageReceived(new NetworkMessageData(), reader);
+            });
+
+            Subscriber.HandlerSubscription handlerSubscription = (attrList, attrDict) => {
+                eventReceived = true;
+
+                CheckValidArgs(attrList);
+                CheckValidKWArgs(attrDict);
+            };
+
+            Subscriber.OnSubscribed completionHandler = (error, subscription) => {
+                Assert.IsNull(error);
+                subscribed = true;
+            };
+
+            _connection.Subscribe(TestTopic, handlerSubscription, completionHandler);
+
+            Assert.IsTrue(subscribed);
+            Assert.IsTrue(eventReceived);
+        }
+
+        [Test]
+        public void Subscribe_Unsubscribe_Publish()
+        {
+            Join();
+
+            bool subscribed = false;
+            bool eventReceived = false;
+
+            var t = new System.Threading.Thread(obj => {
+                System.Threading.Thread.Sleep(10);
+                var receiver = obj as INetworkMessageReceiver;
+                //Create the fake EVENT message
+                var serializer = new JsonAttrSerializer();
+                var message = string.Format("[{0}, {1}, {2}, {{}}, {3}, {4}]", MsgCode.EVENT, SubscriptionId, PublicationId, serializer.SerializeString(CreateArgs()), serializer.SerializeString(CreateKWArgs()));
+                var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                receiver.OnMessageReceived(new NetworkMessageData(), reader);
+            });
+
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
+                .Do(x => {
+                    var message = string.Format("[{0}, 0, {1}]", MsgCode.SUBSCRIBED, SubscriptionId);
+                    var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                    _receiver.OnMessageReceived(new NetworkMessageData(), reader);
+
+                    //Delay the fake EVENT message
+                    t.Start(_receiver);
+                });
+
+            Subscriber.HandlerSubscription handlerSubscription = (attrList, attrDict) => {
+                eventReceived = true;
+
+                CheckValidArgs(attrList);
+                CheckValidKWArgs(attrDict);
+            };
+
+            Subscriber.OnSubscribed completionHandler = (error, subscription) => {
+                Assert.IsNull(error);
+                subscribed = true;
+            };
+
+            _connection.Subscribe(TestTopic, handlerSubscription, completionHandler);
+
+            ClearMessageSubstitute();
+
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
+                .Do(x => {
+                    var message = string.Format("[{0}, 1]", MsgCode.UNSUBSCRIBED);
+                    var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                    _receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                });
+
+            _connection.Unsubscribe(new Subscriber.Subscription(SubscriptionId, TestTopic), null);
+
+            t.Join(15);
+
+            Assert.IsTrue(subscribed);
+            Assert.IsFalse(eventReceived);
+        }
+
+        [Test]
         public void Call()
         {
             Join();
@@ -450,8 +542,8 @@ namespace SocialPoint.WAMP
                 Assert.AreEqual(sentData[0].AsValue.ToInt(), MsgCode.CALL);
                 Assert.AreEqual(sentData[3].AsValue.ToString(), TestProcedure);
 
-                checkValidArgs(sentData[4]);
-                checkValidKWArgs(sentData[5]);
+                CheckValidArgs(sentData[4]);
+                CheckValidKWArgs(sentData[5]);
 
                 //Create the fake received message
                 var serializer = new JsonAttrSerializer();
@@ -471,13 +563,7 @@ namespace SocialPoint.WAMP
                 Assert.AreEqual(respKWArgs.GetValue(ResponseKey).ToString(), ResponseValue);
             };
 
-            var args = new AttrList();
-            args.AddValue(RequestArg1);
-            args.AddValue(RequestArg2);
-            var kwargs = new AttrDic();
-            kwargs.SetValue(RequestKey, RequestValue);
-
-            _connection.Call(TestProcedure, args, kwargs, completionHandler);
+            _connection.Call(TestProcedure, CreateArgs(), CreateKWArgs(), completionHandler);
 
             Assert.IsTrue(called);
         }
@@ -507,10 +593,7 @@ namespace SocialPoint.WAMP
                 called = true;
             };
 
-            var args = new AttrList();
-            var kwargs = new AttrDic();
-
-            var req = _connection.Call(testProcedure, args, kwargs, completionHandler);
+            var req = _connection.Call(testProcedure, CreateArgs(), CreateKWArgs(), completionHandler);
 
             req.Dispose();
             t.Join(15);
@@ -518,7 +601,27 @@ namespace SocialPoint.WAMP
             Assert.IsFalse(called);
         }
 
-        static void checkValidArgs(Attr args)
+        void ClearMessageSubstitute()
+        {
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).Returns(Substitute.For<INetworkMessage>());
+        }
+
+        static AttrList CreateArgs()
+        {
+            var args = new AttrList();
+            args.AddValue(RequestArg1);
+            args.AddValue(RequestArg2);
+            return args;
+        }
+
+        static AttrDic CreateKWArgs()
+        {
+            var kwargs = new AttrDic();
+            kwargs.SetValue(RequestKey, RequestValue);
+            return kwargs;
+        }
+
+        static void CheckValidArgs(Attr args)
         {
             Assert.AreEqual(args.AsList.Count, 2);
             var sentArgs = args.AsList;
@@ -526,7 +629,7 @@ namespace SocialPoint.WAMP
             Assert.AreEqual(sentArgs[1].AsValue.ToString(), RequestArg2);
         }
 
-        static void checkValidKWArgs(Attr args)
+        static void CheckValidKWArgs(Attr args)
         {
             Assert.AreEqual(args.AsDic.Count, 1);
             var sentKWArgs = args.AsDic;
