@@ -245,6 +245,14 @@ namespace SocialPoint.Network
 
         void OnEventReceived(byte eventcode, object content, int senderid)
         {
+            if(eventcode == EventCode.ErrorInfo)
+            {
+                var err = new Error((string)content);
+                OnNetworkError(err);
+                PhotonNetwork.Disconnect();
+                return;
+            }
+
             byte clientId = 0;
             var serverId = PhotonNetworkServer.PhotonPlayerId;
             if(senderid != serverId)

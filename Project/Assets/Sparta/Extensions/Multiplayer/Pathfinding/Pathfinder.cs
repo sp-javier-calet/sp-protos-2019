@@ -1,6 +1,8 @@
 ﻿using SharpNav;
 using SharpNav.Geometry;
 using SharpNav.Pathfinding;
+using Jitter.LinearMath;
+using SocialPoint.Multiplayer;
 
 namespace SocialPoint.Pathfinding
 {
@@ -27,7 +29,7 @@ namespace SocialPoint.Pathfinding
         /// <summary>
         /// Gets shortest path between two points in the navigation mesh.
         /// </summary>
-        /// <returns>Ture if path is found, false otherwise.</returns>
+        /// <returns>True if path is found, false otherwise.</returns>
         /// <param name="start">Start point.</param>
         /// <param name="end">End point.</param>
         /// <param name="extents">Maximun distance in each axis that the 'start' and 'end' point can search for the closest navigation poly.</param>
@@ -50,6 +52,20 @@ namespace SocialPoint.Pathfinding
             }
 
             return false;
+        }
+
+        public static JVector[] StraightPathToVector(StraightPath straightPath)
+        {
+            var navVectors = new JVector[straightPath.Count];
+
+            for(int i = 0; i < straightPath.Count; i++)
+            {
+                var pathVert = straightPath[i];
+                var point = pathVert.Point;
+                navVectors[i] = point.Position.ToMultiplayer();
+            }
+
+            return navVectors;
         }
     }
 }
