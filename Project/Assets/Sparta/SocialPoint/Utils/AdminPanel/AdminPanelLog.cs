@@ -10,13 +10,18 @@ namespace SocialPoint.Utils
     public sealed class AdminPanelLog : IAdminPanelConfigurer, IAdminPanelGUI
     {
         readonly List<LogEntry> _entries;
+        readonly HashSet<string> _availableTags;
+        readonly HashSet<string> _selectedTags;
         bool _showLogLevels;
+        bool _showTags;
         Text _textComponent;
         LogConfig _config;
 
         public AdminPanelLog()
         {
             _entries = new List<LogEntry>();
+            _availableTags = new HashSet<string>();
+            _selectedTags = new HashSet<string>();
             _config = new LogConfig();
 
             LogCallbackHandler.RegisterLogCallback(HandleLog);
@@ -53,12 +58,16 @@ namespace SocialPoint.Utils
 
             hLayout.CreateButton("Clear", () => {
                 _entries.Clear();
+                _availableTags.Clear();
                 RefreshContent();
             });
 
-            var foldout = layout.CreateFoldoutLayout("LogLevels");
-            LogLevelsFoldoutGUI(foldout);
+            var foldoutLayout = layout.CreateFoldoutLayout("LogLevels");
+            LogLevelsFoldoutGUI(foldoutLayout);
+            layout.CreateMargin();
 
+            foldoutLayout = layout.CreateFoldoutLayout("Tags");
+            TagsFoldoutGUI(foldoutLayout);
             layout.CreateMargin();
 
             layout.CreateTextInput("Filter", 
@@ -86,6 +95,36 @@ namespace SocialPoint.Utils
             }
         }
 
+        public void TagsFoldoutGUI(AdminPanelLayout layout)
+        {
+            var vlayout = layout.CreateVerticalLayout().CreateVerticalScrollLayout();
+            if(_availableTags.Count > 0)
+            {
+                foreach(var tagFilter in _availableTags)
+                {
+                    vlayout.CreateToggleButton(tagFilter, _selectedTags.Contains(tagFilter), value => {
+                        if(value)
+                        {
+                            _selectedTags.Add(tagFilter);
+                        }
+                        else
+                        {
+                            _selectedTags.Remove(tagFilter);
+                        }
+
+                        if(_config.AutoRefresh)
+                        {
+                            RefreshContent();
+                        }
+                    });
+                }
+            }
+            else
+            {
+                vlayout.CreateLabel("No Tags available");
+            }
+        }
+
         void ActivateLogType(LogType type, bool active)
         {
             _config.ActiveTypes[type] = active;
@@ -110,6 +149,10 @@ namespace SocialPoint.Utils
                         {
                             continue;
                         }
+                        if(_selectedTags.Count > 0 && !_selectedTags.Contains(entry.Tag))
+                        {
+                            continue;
+                        }
 
                         logContent.Append(entry.Content);
                         numEntriesToDisplay++;
@@ -122,7 +165,20 @@ namespace SocialPoint.Utils
 
         void HandleLog(string message, string stackTrace, LogType type)
         {
-            _entries.Add(new LogEntry(type, message, stackTrace));
+            string tag = null;
+            if(!string.IsNullOrEmpty(message))
+            {
+                if(message[0] == '[')
+                {
+                    var idx = message.IndexOf(']');
+                    if(idx > 0)
+                    {
+                        tag = message.Substring(1, idx - 1);
+                        _availableTags.Add(tag);
+                    }
+                }
+            }
+            _entries.Add(new LogEntry(type, message, stackTrace, tag));
             RefreshContent();
         }
 
@@ -150,9 +206,12 @@ namespace SocialPoint.Utils
 
             public string LowerContent { get; private set; }
 
-            public LogEntry(LogType type, string message, string stackTrace)
+            public string Tag { get; private set; }
+
+            public LogEntry(LogType type, string message, string stackTrace, string tag = null)
             {
                 Type = type;
+                Tag = tag;
                 string color;
                 LogColors.TryGetValue(type, out color);
 

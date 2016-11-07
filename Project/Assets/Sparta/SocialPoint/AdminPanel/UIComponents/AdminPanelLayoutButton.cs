@@ -301,8 +301,8 @@ namespace SocialPoint.AdminPanel
             image.color = enabled ? buttonColor.Color : ButtonColor.Disabled.Color;
 
             // Status indicators parameters
-            var anchorMin = new Vector2(0, 0.02f);
-            var anchorMax = new Vector2(1, 0.08f);
+            var anchorMin = new Vector2(0, 0.04f);
+            var anchorMax = new Vector2(1, 0.06f);
             var anchoredPosition = Vector2.zero;
 
             // Disabled indicator
@@ -312,7 +312,7 @@ namespace SocialPoint.AdminPanel
             disableIndicator.anchoredPosition = anchoredPosition;
 
             var disImage = disableIndicator.gameObject.AddComponent<Image>();
-            disImage.color = DisabledColor;
+            disImage.color = Color.white;
 
             // Enabled indicator
             var toggleIndicator = CreateUIObject("Admin Panel - Foldout Opened Graphic", rectTransform);
@@ -321,7 +321,7 @@ namespace SocialPoint.AdminPanel
             toggleIndicator.anchoredPosition = anchoredPosition;
 
             var indImage = toggleIndicator.gameObject.AddComponent<Image>();
-            indImage.color = ForegroundColor;
+            indImage.color = DisabledColor;
 
             // Toggle button
             var toggle = rectTransform.gameObject.AddComponent<Toggle>();
