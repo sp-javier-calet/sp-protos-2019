@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SocialPoint.AdminPanel
 {
@@ -32,6 +33,7 @@ namespace SocialPoint.AdminPanel
                 return _name;
             }
         }
+
         public AdminPanelNestedGUI(string name, IAdminPanelGUI gui)
         {
             _name = name;
@@ -44,7 +46,7 @@ namespace SocialPoint.AdminPanel
         }
     }
 
-    public sealed class AdminPanelGUIGroup : IAdminPanelGUI, IComparer<IAdminPanelGUI>
+    public sealed class AdminPanelGUIGroup : IAdminPanelGUI
     {
         readonly List<IAdminPanelGUI> guiGroup;
 
@@ -55,32 +57,51 @@ namespace SocialPoint.AdminPanel
 
         public AdminPanelGUIGroup(IAdminPanelGUI gui) : this()
         {
-            guiGroup.Add(gui);
-            guiGroup.Sort(this);
+            Add(gui);
         }
 
-        public void Add(IAdminPanelGUI gui)
+        /// <summary>
+        /// Add a new gui and Sort IAdminPanelSortedGUI which are together in the list.
+        /// Since they are added sequentially in the group, it sorts only the last elegible elements,
+        /// until a non-sorted gui element is found.
+        /// </summary>
+        void Add(IAdminPanelGUI gui)
         {
             guiGroup.Add(gui);
-            guiGroup.Sort(this);
+
+            for(var i = guiGroup.Count - 1; i > 0; --i)
+            {
+                var prev = guiGroup[i - 1];
+                var curr = guiGroup[i];
+                try
+                {
+                    if(Compare(prev, curr) > 0)
+                    {
+                        // Switch elements
+                        guiGroup[i - 1] = curr;
+                        guiGroup[i] = prev;
+                    }
+                }
+                catch(Exception)
+                {
+                    // Element is not comparable.
+                    return;
+                }
+            }
         }
 
-        #region IComparer implementation
-
-        public int Compare(IAdminPanelGUI x, IAdminPanelGUI y)
+        int Compare(IAdminPanelGUI x, IAdminPanelGUI y)
         {
             var a = x as IAdminPanelSortedGUI;
             var b = y as IAdminPanelSortedGUI;
 
-            if(a != null && b != null)
+            if(a == null || b == null)
             {
-                return string.Compare(a.Label, b.Label);
+                throw new Exception();
             }
 
-            return 0;
+            return string.Compare(a.Label, b.Label);
         }
-
-        #endregion
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
