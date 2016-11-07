@@ -110,10 +110,10 @@ namespace SocialPoint.WAMP
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
                 .Do(x => {
-                    var message = string.Format("[2, {0}, {{}}]", fakedSessionId);
-                    var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
-                    _receiver.OnMessageReceived(new NetworkMessageData(), reader);
-                });
+                var message = string.Format("[2, {0}, {{}}]", fakedSessionId);
+                var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                _receiver.OnMessageReceived(new NetworkMessageData(), reader);
+            });
             
             _connection.Join("wamp.test_realm", null, (error, sessionId, dict) => {
                 Assert.AreEqual(fakedSessionId, sessionId);
@@ -135,7 +135,7 @@ namespace SocialPoint.WAMP
             var t = new System.Threading.Thread(obj => {
                 System.Threading.Thread.Sleep(10);
                 var receiver = obj as INetworkMessageReceiver;
-                var message = string.Format("[{0}, {1}, {{}}]",MsgCode.WELCOME, fakedSessionId);
+                var message = string.Format("[{0}, {1}, {{}}]", MsgCode.WELCOME, fakedSessionId);
                 var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
                 receiver.OnMessageReceived(new NetworkMessageData(), reader);
             });
@@ -165,10 +165,10 @@ namespace SocialPoint.WAMP
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
                 .Do(x => {
-                    var message = string.Format("[{0}, {{}}, \"{1}\"]", MsgCode.GOODBYE, _fakeReason);
-                    var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
-                    _receiver.OnMessageReceived(new NetworkMessageData(), reader);
-                });
+                var message = string.Format("[{0}, {{}}, \"{1}\"]", MsgCode.GOODBYE, _fakeReason);
+                var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                _receiver.OnMessageReceived(new NetworkMessageData(), reader);
+            });
 
             _connection.Leave((error, reason) => {
                 Assert.IsNull(error);
@@ -218,11 +218,11 @@ namespace SocialPoint.WAMP
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
                 .Do(
-                    x => {
+                x => {
                     var message = string.Format("[{0}, 0, {1}]", MsgCode.SUBSCRIBED, TestSubscriptionId);
                     var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
                     _receiver.OnMessageReceived(new NetworkMessageData(), reader);
-                    });
+                });
 
             Subscriber.HandlerSubscription handlerSubscription = (attrList, attrDict) => {
                 
@@ -239,6 +239,41 @@ namespace SocialPoint.WAMP
         }
 
         [Test]
+        public void Subscribe_Cancel()
+        {
+            Join();
+
+            bool subscribed = false;
+
+            var t = new System.Threading.Thread(obj => {
+                System.Threading.Thread.Sleep(10);
+                var receiver = obj as INetworkMessageReceiver;
+                var message = string.Format("[{0}, 0, {1}]", MsgCode.SUBSCRIBED, TestSubscriptionId);
+                var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                receiver.OnMessageReceived(new NetworkMessageData(), reader);
+            });
+
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
+                .Do(x => t.Start(_receiver));
+
+            Subscriber.HandlerSubscription handlerSubscription = (attrList, attrDict) => {
+
+            };
+
+            Subscriber.OnSubscribed completionHandler = (error, subscription) => {
+                Assert.IsNull(error);
+                subscribed = true;
+            };
+
+            var req = _connection.Subscribe(TestTopic, handlerSubscription, completionHandler);
+
+            req.Dispose();
+            t.Join(15);
+
+            Assert.IsFalse(subscribed);
+        }
+
+        [Test]
         public void Unsubscribe()
         {
             Join();
@@ -250,10 +285,10 @@ namespace SocialPoint.WAMP
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
                 .Do(x => {
-                    var message = string.Format("[{0}, 1]", MsgCode.UNSUBSCRIBED);
-                    var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
-                    _receiver.OnMessageReceived(new NetworkMessageData(), reader);
-                });
+                var message = string.Format("[{0}, 1]", MsgCode.UNSUBSCRIBED);
+                var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                _receiver.OnMessageReceived(new NetworkMessageData(), reader);
+            });
 
             Subscriber.OnUnsubscribed completionHandler = error => {
                 Assert.IsNull(error);
@@ -263,6 +298,40 @@ namespace SocialPoint.WAMP
             _connection.Unsubscribe(new Subscriber.Subscription(TestSubscriptionId, TestTopic), completionHandler);
 
             Assert.IsTrue(unsubscribed);
+        }
+
+        [Test]
+        public void Unsubscribe_Cancel()
+        {
+            Join();
+            Subscribe();
+
+            bool unsubscribed = false;
+
+            var t = new System.Threading.Thread(obj => {
+                System.Threading.Thread.Sleep(10);
+                var receiver = obj as INetworkMessageReceiver;
+                var message = string.Format("[{0}, 1]", MsgCode.UNSUBSCRIBED);
+                var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                receiver.OnMessageReceived(new NetworkMessageData(), reader);
+            });
+
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).Returns(Substitute.For<INetworkMessage>());
+
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
+                .Do(x => t.Start(_receiver));
+
+            Subscriber.OnUnsubscribed completionHandler = error => {
+                Assert.IsNull(error);
+                unsubscribed = true;
+            };
+
+            var req = _connection.Unsubscribe(new Subscriber.Subscription(TestSubscriptionId, TestTopic), completionHandler);
+
+            req.Dispose();
+            t.Join(15);
+
+            Assert.IsFalse(unsubscribed);
         }
 
         [Test]
@@ -283,13 +352,13 @@ namespace SocialPoint.WAMP
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
                 .Do(x => {
-                    var serializer = new JsonAttrSerializer();
-                    var data = new AttrDic();
-                    data.SetValue(responseKey, responseValue);
-                    var message = string.Format("[{0}, 0, {{}}, [], {1}]", MsgCode.RESULT, serializer.SerializeString(data));
-                    var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
-                    _receiver.OnMessageReceived(new NetworkMessageData(), reader);
-                });
+                var serializer = new JsonAttrSerializer();
+                var data = new AttrDic();
+                data.SetValue(responseKey, responseValue);
+                var message = string.Format("[{0}, 0, {{}}, [], {1}]", MsgCode.RESULT, serializer.SerializeString(data));
+                var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                _receiver.OnMessageReceived(new NetworkMessageData(), reader);
+            });
 
             Caller.HandlerCall completionHandler = (error, respArgs, respKWArgs) => {
                 Assert.IsNull(error);

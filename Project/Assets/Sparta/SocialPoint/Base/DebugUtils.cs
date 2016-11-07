@@ -47,7 +47,7 @@ namespace SocialPoint.Base
                     {
                         UnityEditor.EditorApplication.isPlaying &= condition;
                     }
-                    catch(System.MissingMethodException e)
+                    catch(MissingMethodException)
                     {
                         //Do nothing
                     }
