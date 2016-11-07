@@ -349,9 +349,33 @@ namespace SocialPoint.WAMP
             const string requestKey = "test_request";
             const bool requestValue = true;
 
+            var sendingBuffer = String.Empty;
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).Writer.When(x => x.Write(Arg.Any<string>()))
+                .Do(x => {
+                sendingBuffer += x.Arg<string>();
+            });
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
                 .Do(x => {
+                //Check sent message
+                var parser = new JsonAttrParser();
+                var sentData = parser.ParseString(sendingBuffer).AsList;
+
+                Assert.AreEqual(sentData.Count, 6);
+                Assert.AreEqual(sentData[0].AsValue.ToInt(), MsgCode.CALL);
+                Assert.AreEqual(sentData[3].AsValue.ToString(), testProcedure);
+
+                Assert.AreEqual(sentData[4].AsList.Count, 2);
+                var sentArgs = sentData[4].AsList;
+                Assert.AreEqual(sentArgs[0].AsValue.ToInt(), requestArg1);
+                Assert.AreEqual(sentArgs[1].AsValue.ToString(), requestArg2);
+
+                Assert.AreEqual(sentData[5].AsDic.Count, 1);
+                var sentKWArgs = sentData[5].AsDic;
+                Assert.IsTrue(sentKWArgs.ContainsKey(requestKey));
+                Assert.AreEqual(sentKWArgs.Get(requestKey).AsValue.ToBool(), requestValue);
+
+                //Create the fake received message
                 var serializer = new JsonAttrSerializer();
                 var data = new AttrDic();
                 data.SetValue(responseKey, responseValue);
