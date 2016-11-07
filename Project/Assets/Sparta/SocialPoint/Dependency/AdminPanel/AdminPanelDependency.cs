@@ -30,15 +30,16 @@ namespace SocialPoint.Dependency
                 _graph = DependencyGraphBuilder.Graph;
             }
 
-            for(var i = 0; i < _graph.RootNodes.Count; ++i)
+            var itr = _graph.RootNodes.GetEnumerator();
+            while(itr.MoveNext())
             {
-                var node = _graph.RootNodes[i];
-                layout.CreateButton(node.Class, () => {
+                var node = itr.Current;
+                layout.CreateButton(node.Name, () => {
                     _nodePanel.Node = node;
                     layout.OpenPanel(_nodePanel);
                 });
             }
-
+            itr.Dispose();
             layout.CreateMargin();
             layout.CreateButton("Refresh", layout.Refresh);
         }
@@ -56,11 +57,12 @@ namespace SocialPoint.Dependency
 
             public void OnCreateGUI(AdminPanelLayout layout)
             {
-                layout.CreateLabel(Node.Class);
+                layout.CreateLabel(Node.Name);
                 layout.CreateMargin();
                 layout.CreateTextArea(CollectNodeContent());
                 if(!string.IsNullOrEmpty(Node.CreationStack))
                 {
+                    layout.CreateLabel("Creation Stack");
                     layout.CreateVerticalScrollLayout().CreateTextArea(Node.CreationStack);
                 }
                 layout.CreateMargin();
@@ -73,14 +75,20 @@ namespace SocialPoint.Dependency
             public string CollectNodeContent()
             {
                 _content.Length = 0;
-
                 _content
-                    .Append("Class: ").AppendLine(Node.Class)
-                    .Append("Namespace: ").AppendLine(Node.Namespace)
+                    .Append("Class: ").Append(Node.Namespace).Append(".").AppendLine(Node.Class)
                     .Append("Tag: ").AppendLine(Node.Tag)
-                    .Append("Binds: ").AppendLine(Node.Bind)
                     .Append("Is Single: ").AppendLine(Node.IsSingle.ToString())
                     .AppendLine();
+                
+                if(Node.IsRoot || Node.Instigator != null)
+                {
+                    _content
+                        .Append("Root class: ").AppendLine(Node.IsRoot.ToString())
+                        .Append("Instigator: ").AppendLine(Node.Instigator != null ? Node.Instigator.Class ?? "<none>" : "<none>")
+                        .AppendLine();
+                }
+                
                 _content.AppendLine("History:");
                 for(var i = 0; i < Node.History.Count; ++i)
                 {
@@ -88,31 +96,24 @@ namespace SocialPoint.Dependency
                     _content.Append(" - ").AppendLine(action.ToString());
                 }
 
-                if(Node.IsRoot || Node.Instigator != null)
-                {
-                    _content
-                        .AppendLine("Creation: ")
-                        .Append("Root class: ").AppendLine(Node.IsRoot.ToString())
-                        .Append("Instigator: ").AppendLine(Node.Instigator != null ? Node.Instigator.Class ?? "<none>" : "<none>")
-                        .AppendLine();
-                }
-
                 return _content.ToString();
             }
 
-            public void CreateNodeLinkList(AdminPanelLayout layout, string label, List<Node> list)
+            public void CreateNodeLinkList(AdminPanelLayout layout, string label, HashSet<Node> nodes)
             {
-                if(list.Count > 0)
+                if(nodes.Count > 0)
                 {
                     layout.CreateLabel(label);
-                    for(var i = 0; i < list.Count; ++i)
+                    var itr = nodes.GetEnumerator();
+                    while(itr.MoveNext())
                     {
-                        var node = list[i];
-                        layout.CreateButton(node.Class, () => {
+                        var node = itr.Current;
+                        layout.CreateButton(node.Name, () => {
                             Node = node;
                             layout.Refresh();
                         });
                     }
+                    itr.Dispose();
                     layout.CreateMargin();
                 }
             }

@@ -45,38 +45,19 @@ namespace SocialPoint.Dependency
         public static void Bind(Type type, Type bind, string tag)
         {
             var node = _graph.GetNode(type, tag);
-            if(node == null)
-            {
-                node = new Node(type, tag);
-                node.Bind = bind.Name;
-                _graph.AddNode(type, node);
-            }
-
-
             node.History.Add(Action.Bind);
-        }
 
-        [System.Diagnostics.Conditional(CollectDependenciesFlag)]
-        public static void Rebind(Type type, string tag)
-        {
-            var node = _graph.GetNode(type, tag);
-            if(node == null)
-            {
-                node = new Node(type, tag);
-                _graph.AddNode(type, node);
-            }
-            node.History.Add(Action.Rebind);
+            var binded = _graph.GetNode(bind, tag);
+            binded.History.Add(Action.Binded);
+
+            binded.Aliases.Add(node);
+            node.Definitions.Add(binded);
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
         public static void Remove(Type type, string tag)
         {
             var node = _graph.GetNode(type, tag);
-            if(node == null)
-            {
-                node = new Node(type);
-                _graph.AddNode(type, node);
-            }
             node.History.Add(Action.Remove);
         }
 
@@ -84,18 +65,7 @@ namespace SocialPoint.Dependency
         public static void Alias(Type fromType, string fromTag, Type toType, string toTag)
         {
             var fromNode = _graph.GetNode(fromType, fromTag);
-            if(fromNode == null)
-            {
-                fromNode = new Node(fromType);
-                _graph.AddNode(fromType, fromNode);
-            }
             var toNode = _graph.GetNode(toType, toTag);
-            if(toNode == null)
-            {
-                toNode = new Node(toType);
-                _graph.AddNode(toType, toNode);
-            }
-
             fromNode.Aliases.Add(toNode);
             toNode.Definitions.Add(fromNode);
         }
@@ -103,7 +73,7 @@ namespace SocialPoint.Dependency
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
         public static void StartCreation(Type type, string tag)
         {
-            var node = _graph.GetNode(type, tag);
+            var node = _graph.TryGetNode(type, tag);
             if(node != null)
             {
                 node.History.Add(Action.Create);
@@ -124,23 +94,21 @@ namespace SocialPoint.Dependency
             }
             else
             {
-                //throw new Exception(string.Format("Start creation with undefined type {0}", type.Name));
-                Log.e(string.Format("Start creation with undefined type {0}", type.Name));
+                throw new Exception(string.Format("Start creation with undefined type {0}", type.Name));
             }
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
         public static void StartSetup(Type type, string tag)
         {
-            var node = _graph.GetNode(type, tag);
+            var node = _graph.TryGetNode(type, tag);
             if(node != null)
             {
                 node.History.Add(Action.Setup);
             }
             else
             {
-                //throw new Exception("Start setup with undefined type");
-                Log.e("Start setup with undefined type");
+                throw new Exception("Start setup with undefined type");
             }
         }
 
@@ -152,8 +120,7 @@ namespace SocialPoint.Dependency
                 var node = _nodeStack.Pop();
                 if(node.Class != type.Name)
                 {
-                    //throw new Exception("Invalid type");
-                    Log.e("Invalid type");
+                    throw new Exception("Invalid type");
                 }
             }
             else
@@ -165,7 +132,7 @@ namespace SocialPoint.Dependency
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
         public static void Resolve(Type type, string tag)
         {
-            var node = _graph.GetNode(type, tag);
+            var node = _graph.TryGetNode(type, tag);
             if(node != null)
             {
                 node.History.Add(Action.Resolve);
@@ -182,12 +149,12 @@ namespace SocialPoint.Dependency
 
     public class DependencyGraph
     {
-        public readonly List<Node> RootNodes;
+        public readonly HashSet<Node> RootNodes;
         public readonly Dictionary<Type, Dictionary<string, Node>> Bindings;
 
         public DependencyGraph()
         {
-            RootNodes = new List<Node>();
+            RootNodes = new HashSet<Node>();
             Bindings = new Dictionary<Type, Dictionary<string, Node>>();
         }
 
@@ -203,7 +170,7 @@ namespace SocialPoint.Dependency
             instances.Add(node.Tag, node);
         }
 
-        public Node GetNode(Type type, string tag)
+        public Node TryGetNode(Type type, string tag)
         {
             Dictionary<string, Node> instances = null;
             if(Bindings.TryGetValue(type, out instances))
@@ -215,6 +182,17 @@ namespace SocialPoint.Dependency
                 }
             }
             return null;
+        }
+
+        public Node GetNode(Type type, string tag)
+        {
+            var node = TryGetNode(type, tag);
+            if(node == null)
+            {
+                node = new Node(type);
+                AddNode(type, node);
+            }
+            return node;
         }
     }
 
@@ -228,7 +206,7 @@ namespace SocialPoint.Dependency
     public enum Action
     {
         Bind,
-        Rebind,
+        Binded,
         Resolve,
         Create,
         Setup,
@@ -238,16 +216,16 @@ namespace SocialPoint.Dependency
     public class Node
     {
         // Incoming edges.
-        public List<Node> Incoming;
+        public HashSet<Node> Incoming;
 
         // Outcoming edges. Dependencies.
-        public List<Node> Outcoming;
+        public HashSet<Node> Outcoming;
 
         // Outcoming edges. Aliased types
-        public List<Node> Aliases;
+        public HashSet<Node> Aliases;
 
         // Incomig edges. Types aliased as this
-        public List<Node> Definitions;
+        public HashSet<Node> Definitions;
 
         // Historic
         public List<Action> History;
@@ -256,9 +234,6 @@ namespace SocialPoint.Dependency
 
         // Class
         public string Class;
-
-        // Binded Class
-        public string Bind;
 
         // Dependency Tag
         public string Tag;
@@ -288,12 +263,25 @@ namespace SocialPoint.Dependency
             }
         }
 
+        public string Name
+        {
+            get
+            {
+                var root = IsRoot ? "· " : string.Empty;
+                var tag = string.IsNullOrEmpty(Tag) ? string.Empty : string.Format(" <{0}>", Tag );
+                var list = IsSingle ? string.Empty : " []";
+                var className = Class;
+                return string.Format("{0}{1}{2}{3}", root, className, list, tag);
+
+            }
+        }
+
         public Node()
         {
-            Incoming = new List<Node>();
-            Outcoming = new List<Node>();
-            Aliases = new List<Node>();
-            Definitions = new List<Node>();
+            Incoming = new HashSet<Node>();
+            Outcoming = new HashSet<Node>();
+            Aliases = new HashSet<Node>();
+            Definitions = new HashSet<Node>();
             History = new List<Action>();
 
             Origin = Origin.Explicit;
