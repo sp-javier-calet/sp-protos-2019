@@ -15,7 +15,7 @@ public class SocialFrameworkInstaller : Installer
     const string SocialFrameworkTag = "social_framework";
 
     const string DefaultWAMPProtocol = "wamp.2.json";
-    const string DefaultSocketEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8001/ws";
+    const string DefaultSocketEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8002/ws";
     const string DefaultAlliancesServer = "";
 
     [Serializable]
