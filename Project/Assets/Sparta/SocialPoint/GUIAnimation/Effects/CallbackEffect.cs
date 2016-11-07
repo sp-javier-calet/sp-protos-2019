@@ -1,6 +1,5 @@
-using UnityEngine;
-using System.Collections.Generic;
 using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -39,12 +38,7 @@ namespace SocialPoint.GUIAnimation
         public override void SetOrCreateDefaultValues()
         {
         }
-
-        public override void Invert(bool invertTime)
-        {
-            base.Invert(invertTime);
-        }
-
+            
         public override void DoAction()
         {
             if(Target == null)
@@ -61,11 +55,6 @@ namespace SocialPoint.GUIAnimation
             {
                 Target.SendMessageUpwards(_method, _parameters, SendMessageOptions.DontRequireReceiver);
             }
-        }
-
-        public override void OnReset()
-        {
-            base.OnReset();
         }
 
         public override void SaveValuesAt(float localTimeNormalized)

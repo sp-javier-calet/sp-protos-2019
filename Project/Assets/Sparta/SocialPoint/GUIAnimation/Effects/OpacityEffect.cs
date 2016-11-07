@@ -1,6 +1,6 @@
-using UnityEngine;
-using System.Collections.Generic;
+using System;
 using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -37,7 +37,7 @@ namespace SocialPoint.GUIAnimation
                     newAlpha = widget.Alpha;
                 }
 				
-                return newAlpha != Alpha;
+                return Math.Abs(newAlpha - Alpha) > Single.Epsilon;
             }
         }
 
@@ -96,7 +96,7 @@ namespace SocialPoint.GUIAnimation
             SaveValuesAt(1f);
         }
 
-        public override void Invert(bool invertTime)
+        public override void Invert(bool invertTime = false)
         {
             base.Invert(invertTime);
 

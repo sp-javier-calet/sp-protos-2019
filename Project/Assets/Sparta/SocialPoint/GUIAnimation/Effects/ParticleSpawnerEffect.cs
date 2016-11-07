@@ -1,6 +1,6 @@
-using UnityEngine;
 using System.Collections.Generic;
 using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -20,14 +20,14 @@ namespace SocialPoint.GUIAnimation
         {
             public GameObject Spawn(GameObject prefab)
             {
-                return GameObject.Instantiate(prefab);
+                return Object.Instantiate(prefab);
             }
         }
 
         const string kOnAnimationTriggeredMessage = "OnAnimationTriggered";
         const string kDefaultLayer = "UI";
 
-        static ISpawner _spawner = null;
+        static ISpawner _spawner;
 
         static ISpawner Spawner
         {

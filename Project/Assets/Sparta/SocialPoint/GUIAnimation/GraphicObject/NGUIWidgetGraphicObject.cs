@@ -1,25 +1,17 @@
 ﻿#if NGUI
 using UnityEngine;
-using System.Collections;
 
 namespace SocialPoint.GUIAnimation
 {
     public sealed class NGUIWidgetGraphicObject : IGraphicObject
     {
-        UIWidget _graphic;
+        readonly UIWidget _graphic;
 
         public static NGUIWidgetGraphicObject Load(Transform root, bool searchInChild)
         {
-            UIWidget graphic = null;
-            if(searchInChild)
-            {
-                graphic = GUIAnimationUtility.GetComponentRecursiveDown<UIWidget>(root.gameObject);
-            }
-            else
-            {
-                graphic = root.GetComponent<UIWidget>();
-            }
-			
+            UIWidget graphic;
+            graphic = searchInChild ? GUIAnimationUtility.GetComponentRecursiveDown<UIWidget>(root.gameObject) : root.GetComponent<UIWidget>();
+
             NGUIWidgetGraphicObject wrapper = null;
             if(graphic != null)
             {
