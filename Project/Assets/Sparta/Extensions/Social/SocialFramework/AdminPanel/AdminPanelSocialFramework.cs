@@ -353,7 +353,7 @@ namespace SocialPoint.Social
                         }
                         else
                         {
-                            _console.Print(string.Format("Error leaving alliance. {0}", err.Msg));
+                            _console.Print(string.Format("Error leaving alliance. {0}", err));
                         }
                     }, true));
                 }
@@ -362,6 +362,8 @@ namespace SocialPoint.Social
                     layout.CreateOpenPanelButton("Create Alliance", _createPanel);
                 }
             }
+
+            #region Base Panels
 
             /// <summary>
             /// Base alliance panel.
@@ -402,6 +404,8 @@ namespace SocialPoint.Social
                     _httpConnectionError = null;
                 }
             }
+
+            #endregion
 
             class AdminPanelAllianceCreate : BaseAlliancePanel
             {
@@ -475,7 +479,7 @@ namespace SocialPoint.Social
                                     }
                                     else
                                     {
-                                        _console.Print(string.Format("Error editing Alliance {0}. {1}", _data.Name, err.Msg));
+                                        _console.Print(string.Format("Error editing Alliance {0}. {1}", _data.Name, err));
                                     }
                                 });
                                 _console.Print("Editing alliance...");
@@ -500,7 +504,7 @@ namespace SocialPoint.Social
                                     }
                                     else
                                     {
-                                        _console.Print(string.Format("Error creating Alliance {0}. {1}", _data.Name, err.Msg));
+                                        _console.Print(string.Format("Error creating Alliance {0}. {1}", _data.Name, err));
                                     }
                                 });
                                 _console.Print("Creating alliance...");
@@ -648,7 +652,7 @@ namespace SocialPoint.Social
                                     layout.Refresh();
                                 },
                                 err => {
-                                    _console.Print(string.Format("Error loading user: {0} ", err.Msg));
+                                    _console.Print(string.Format("Error loading user: {0}", err));
                                     _httpConnectionError = err;
                                 });
                         }
@@ -660,7 +664,7 @@ namespace SocialPoint.Social
                             }
                             else
                             {
-                                layout.CreateLabel(string.Format("Load Alliance request failed. {0}", _httpConnectionError.Msg));
+                                layout.CreateLabel(string.Format("Load Alliance request failed. {0}", _httpConnectionError));
                                 layout.CreateButton("Retry", () => {
                                     Cancel();
                                     layout.Refresh();
@@ -714,7 +718,7 @@ namespace SocialPoint.Social
                             }
                             else
                             {
-                                _console.Print(string.Format("Error joining Alliance. {0}", err.Msg)); 
+                                _console.Print(string.Format("Error joining Alliance. {0}", err)); 
                             }
                         }, new JoinExtraData("AdminPanel"));
                     }, canJoinAlliance);
@@ -774,7 +778,7 @@ namespace SocialPoint.Social
                                     layout.Refresh();
                                 },
                                 err => {
-                                    _console.Print(string.Format("Error loading user: {0} ", err.Msg));
+                                    _console.Print(string.Format("Error loading user: {0} ", err));
                                     _httpConnectionError = err;
                                 });
                         }
@@ -786,7 +790,7 @@ namespace SocialPoint.Social
                             }
                             else
                             {
-                                layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError.Msg));
+                                layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError));
                                 layout.CreateButton("Retry", () => {
                                     Cancel();
                                     layout.Refresh();
@@ -867,7 +871,7 @@ namespace SocialPoint.Social
                     }
                     else
                     {
-                        _console.Print(string.Format("Error on '{0}' request. {1}", action, err.Msg));
+                        _console.Print(string.Format("Error on '{0}' request. {1}", action, err));
                     }
                 }
             }
@@ -915,7 +919,7 @@ namespace SocialPoint.Social
                                     layout.Refresh();
                                 },
                                 err => {
-                                    _console.Print(string.Format("Error loading ranking. {0} ", err.Msg));
+                                    _console.Print(string.Format("Error loading ranking. {0} ", err));
                                     _httpConnectionError = err;
                                 });
                         }
@@ -927,7 +931,7 @@ namespace SocialPoint.Social
                             }
                             else
                             {
-                                layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError.Msg));
+                                layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError));
                                 layout.CreateButton("Retry", () => {
                                     Cancel();
                                     layout.Refresh();
@@ -983,7 +987,7 @@ namespace SocialPoint.Social
                             };
 
                             Action<Error> onFailure = (err) => {
-                                _console.Print(string.Format("Error loading search results. {0} ", err.Msg));
+                                _console.Print(string.Format("Error loading search results. {0} ", err));
                                 _httpConnectionError = err;
                             };
 
@@ -1004,7 +1008,7 @@ namespace SocialPoint.Social
                             }
                             else
                             {
-                                layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError.Msg));
+                                layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError));
                                 layout.CreateButton("Retry", () => {
                                     Cancel();
                                     layout.Refresh();
