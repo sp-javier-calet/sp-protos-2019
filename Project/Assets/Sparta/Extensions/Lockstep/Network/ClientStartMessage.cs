@@ -8,7 +8,7 @@ namespace SocialPoint.Lockstep.Network
 
         public int ServerTimestamp { get; private set; }
 
-        public byte PlayerNumber{ get; private set; }
+        public byte PlayerNumber { get; private set; }
 
         public ClientStartMessage(int serverTimestamp = 0, int startTime = 0, byte playerId = 0)
         {

@@ -236,7 +236,7 @@ namespace Photon.Hive.Plugin.Lockstep
         { 
         }
 
-        INetworkMessage INetworkServer.CreateMessage(NetworkMessageData info)
+        INetworkMessage INetworkMessageSender.CreateMessage(NetworkMessageData info)
         {
             List<int> actors = null;
             if(info.ClientId != 0)

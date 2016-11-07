@@ -31,14 +31,14 @@ namespace SocialPoint.Network
         public RoomOptions ToPhoton()
         {
             return new RoomOptions {
-                isVisible = IsVisible,
-                isOpen = IsOpen,
-                maxPlayers = MaxPlayers,
+                IsVisible = IsVisible,
+                IsOpen = IsOpen,
+                MaxPlayers = MaxPlayers,
                 PlayerTtl = PlayerTtl,
-                cleanupCacheOnLeave = CleanupCache,
-                customRoomPropertiesForLobby = CustomLobbyProperties,
-                plugins = Plugins,
-                publishUserId = PublishUserId
+                CleanupCacheOnLeave = CleanupCache,
+                CustomRoomPropertiesForLobby = CustomLobbyProperties,
+                Plugins = Plugins,
+                PublishUserId = PublishUserId
             };
         }
     }
@@ -245,6 +245,14 @@ namespace SocialPoint.Network
 
         void OnEventReceived(byte eventcode, object content, int senderid)
         {
+            if(eventcode == EventCode.ErrorInfo)
+            {
+                var err = new Error((string)content);
+                OnNetworkError(err);
+                PhotonNetwork.Disconnect();
+                return;
+            }
+
             byte clientId = 0;
             var serverId = PhotonNetworkServer.PhotonPlayerId;
             if(senderid != serverId)
