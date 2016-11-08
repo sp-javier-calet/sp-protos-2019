@@ -1,10 +1,8 @@
-using Photon;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 using SocialPoint.IO;
 using System;
 using System.IO;
-using System.Collections.Generic;
 
 namespace SocialPoint.Network
 {

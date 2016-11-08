@@ -1,6 +1,5 @@
 using SocialPoint.GUIControl;
 using SocialPoint.Utils;
-using UnityEngine;
 using System.Collections.Generic;
 
 namespace SocialPoint.AdminPanel
@@ -43,7 +42,7 @@ namespace SocialPoint.AdminPanel
 
         public abstract void ClosePanel();
 
-        List<IUpdateable> _updateables = new List<IUpdateable>();
+        readonly List<IUpdateable> _updateables = new List<IUpdateable>();
 
         public void RegisterUpdateable(IUpdateable updateable)
         {
@@ -56,6 +55,24 @@ namespace SocialPoint.AdminPanel
         public void UnregisterUpdateable(IUpdateable updateable)
         {
             _updateables.Remove(updateable);
+        }
+
+        protected void NotifyOpenedPanel(IAdminPanelGUI gui)
+        {
+            var managed = gui as IAdminPanelManagedGUI;
+            if(managed != null)
+            {
+                managed.OnOpened();
+            }
+        }
+
+        protected void NotifyClosedPanel(IAdminPanelGUI gui)
+        {
+            var managed = gui as IAdminPanelManagedGUI;
+            if(managed != null)
+            {
+                managed.OnClosed();
+            }
         }
     }
 }
