@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -8,8 +8,8 @@ namespace SocialPoint.GUIAnimation
     {
         const float kMaxTimeToDoubleClick = 0.50f;
 
-        double _lastTimeClicked = 0;
-        bool _doubleClick = false;
+        double _lastTimeClicked;
+        bool _doubleClick;
 
         public bool DoubleClick
         {
@@ -33,7 +33,7 @@ namespace SocialPoint.GUIAnimation
             return (Abs(_lastTimeClicked - EditorApplication.timeSinceStartup) < kMaxTimeToDoubleClick);
         }
 
-        double Abs(double val)
+        static double Abs(double val)
         {
             return val < 0 ? -val : val;
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace SocialPoint.AdminPanel
 {
@@ -19,10 +20,26 @@ namespace SocialPoint.AdminPanel
         void OnClosed();
     }
 
-    public sealed class AdminPanelNestedGUI : IAdminPanelGUI
+    /// <summary>
+    /// Sorted GUIs appears in order when grouped
+    /// </summary>
+    public interface IAdminPanelSortedGUI : IAdminPanelGUI
+    {
+        string Label { get; }
+    }
+
+    public sealed class AdminPanelNestedGUI : IAdminPanelSortedGUI
     {
         readonly string _name;
         readonly IAdminPanelGUI _gui;
+
+        public string Label
+        {
+            get
+            {
+                return _name;
+            }
+        }
 
         public AdminPanelNestedGUI(string name, IAdminPanelGUI gui)
         {
@@ -47,12 +64,50 @@ namespace SocialPoint.AdminPanel
 
         public AdminPanelGUIGroup(IAdminPanelGUI gui) : this()
         {
-            guiGroup.Add(gui);
+            Add(gui);
         }
 
+        /// <summary>
+        /// Add a new gui and Sort IAdminPanelSortedGUI which are together in the list.
+        /// Since they are added sequentially in the group, it sorts only the last elegible elements,
+        /// until a non-sorted gui element is found.
+        /// </summary>
         public void Add(IAdminPanelGUI gui)
         {
             guiGroup.Add(gui);
+
+            for(var i = guiGroup.Count - 1; i > 0; --i)
+            {
+                var prev = guiGroup[i - 1];
+                var curr = guiGroup[i];
+                try
+                {
+                    if(Compare(prev, curr) > 0)
+                    {
+                        // Switch elements
+                        guiGroup[i - 1] = curr;
+                        guiGroup[i] = prev;
+                    }
+                }
+                catch(Exception)
+                {
+                    // Element is not comparable.
+                    return;
+                }
+            }
+        }
+
+        int Compare(IAdminPanelGUI x, IAdminPanelGUI y)
+        {
+            var a = x as IAdminPanelSortedGUI;
+            var b = y as IAdminPanelSortedGUI;
+
+            if(a == null || b == null)
+            {
+                throw new Exception();
+            }
+
+            return string.Compare(a.Label, b.Label);
         }
 
         public void OnOpened()

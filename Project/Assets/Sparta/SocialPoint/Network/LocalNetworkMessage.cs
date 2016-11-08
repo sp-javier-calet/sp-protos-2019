@@ -57,7 +57,7 @@ namespace SocialPoint.Network
 
         public IReader Receive()
         {
-            return new SystemBinaryReader(new MemoryStream(_stream.GetBuffer()));
+            return new SystemBinaryReader(new MemoryStream(_stream.ToArray()));
         }
     }
 }

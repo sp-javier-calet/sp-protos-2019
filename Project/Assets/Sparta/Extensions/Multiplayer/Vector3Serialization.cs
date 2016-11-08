@@ -6,7 +6,7 @@ using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
-    public class JVectorSerializer : IWriteSerializer<JVector>
+    public class JVectorSerializer : IDiffWriteSerializer<JVector>
     {
         public static readonly JVectorSerializer Instance = new JVectorSerializer();
 
@@ -41,7 +41,7 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class JVectorParser : IReadParser<JVector>
+    public class JVectorParser : IDiffReadParser<JVector>
     {
         public static readonly JVectorParser Instance = new JVectorParser();
 

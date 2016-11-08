@@ -1,11 +1,11 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
     public sealed class MultiTargetValueMonitor : StepMonitor
     {
-        List<StepMonitor> _targetMonitors = new List<StepMonitor>();
+        readonly List<StepMonitor> _targetMonitors = new List<StepMonitor>();
 
         System.Type _monitorType;
 
@@ -40,7 +40,7 @@ namespace SocialPoint.GUIAnimation
             }
 
             _monitorType = type;
-            StepMonitor targetMonitor = (StepMonitor)System.Activator.CreateInstance(_monitorType);
+            var targetMonitor = (StepMonitor)System.Activator.CreateInstance(_monitorType);
             targetMonitor.Target = target;
             _targetMonitors.Add(targetMonitor);
         }
@@ -69,20 +69,14 @@ namespace SocialPoint.GUIAnimation
             if(idx >= 0)
             {
                 _targetMonitors.RemoveAt(idx);
-			
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
-        int GetTargetIndex(Transform target)
+        int GetTargetIndex(Object target)
         {
-            return _targetMonitors.FindIndex((StepMonitor aMonitor) => {
-                return aMonitor.Target == target;
-            });
+            return _targetMonitors.FindIndex(aMonitor => aMonitor.Target == target);
         }
 
         public override void Backup()

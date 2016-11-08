@@ -10,35 +10,35 @@ using SocialPoint.WAMP.Subscriber;
 
 namespace SocialPoint.WAMP
 {
-    internal static class MsgCode
+    public static class MsgCode
     {
-        internal const int HELLO = 1;
-        internal const int WELCOME = 2;
-        internal const int ABORT = 3;
-        internal const int CHALLENGE = 4;
-        internal const int AUTHENTICATE = 5;
-        internal const int GOODBYE = 6;
-        internal const int ERROR = 8;
-        internal const int PUBLISH = 16;
-        internal const int PUBLISHED = 17;
-        internal const int SUBSCRIBE = 32;
-        internal const int SUBSCRIBED = 33;
-        internal const int UNSUBSCRIBE = 34;
-        internal const int UNSUBSCRIBED = 35;
-        internal const int EVENT = 36;
-        internal const int CALL = 48;
-        internal const int CANCEL = 49;
-        internal const int RESULT = 50;
-        internal const int REGISTER = 64;
-        internal const int REGISTERED = 65;
-        internal const int UNREGISTER = 66;
-        internal const int UNREGISTERED = 67;
-        internal const int INVOCATION = 68;
-        internal const int INTERRUPT = 69;
-        internal const int YIELD = 70;
+        public const int HELLO = 1;
+        public const int WELCOME = 2;
+        public const int ABORT = 3;
+        public const int CHALLENGE = 4;
+        public const int AUTHENTICATE = 5;
+        public const int GOODBYE = 6;
+        public const int ERROR = 8;
+        public const int PUBLISH = 16;
+        public const int PUBLISHED = 17;
+        public const int SUBSCRIBE = 32;
+        public const int SUBSCRIBED = 33;
+        public const int UNSUBSCRIBE = 34;
+        public const int UNSUBSCRIBED = 35;
+        public const int EVENT = 36;
+        public const int CALL = 48;
+        public const int CANCEL = 49;
+        public const int RESULT = 50;
+        public const int REGISTER = 64;
+        public const int REGISTERED = 65;
+        public const int UNREGISTER = 66;
+        public const int UNREGISTERED = 67;
+        public const int INVOCATION = 68;
+        public const int INTERRUPT = 69;
+        public const int YIELD = 70;
     }
 
-    internal static class ErrorCodes
+    static class ErrorCodes
     {
         internal const int NoSession = 1001;
         internal const int JoinInProgress = 1002;
@@ -64,7 +64,7 @@ namespace SocialPoint.WAMP
                 CompletionHandler = completionHandler;
             }
 
-            void IDisposable.Dispose()
+            public void Dispose()
             {
                 CompletionHandler = null;
             }
@@ -128,7 +128,7 @@ namespace SocialPoint.WAMP
         WAMPRoleCaller _caller;
         WAMPRoleSubscriber _subscriber;
 
-        List<WAMPRole> _roles;
+        readonly List<WAMPRole> _roles;
 
         StartRequest _startRequest;
         StopRequest _stopRequest;
@@ -279,9 +279,11 @@ namespace SocialPoint.WAMP
             case MsgCode.EVENT:
                 _subscriber.ProcessEvent(msg);
                 break;
+            case MsgCode.RESULT:
+                _caller.ProcessCallResult(msg);
+                break;
             case MsgCode.CALL:
             case MsgCode.CANCEL:
-            case MsgCode.RESULT:
             case MsgCode.REGISTER:
             case MsgCode.REGISTERED:
             case MsgCode.UNREGISTER:

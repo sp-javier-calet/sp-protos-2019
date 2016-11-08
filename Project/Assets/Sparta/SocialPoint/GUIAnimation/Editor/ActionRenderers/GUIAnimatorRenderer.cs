@@ -1,5 +1,5 @@
-using UnityEngine;
 using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -12,7 +12,7 @@ namespace SocialPoint.GUIAnimation
 
         public override void Render(Effect effect, StepsSelection stepsSelection, OnActionChanged onChanged)
         {
-            AnimatorEffect animEffect = (AnimatorEffect)effect;
+            var animEffect = (AnimatorEffect)effect;
 
             base.Render(effect, stepsSelection, onChanged);
 
@@ -22,7 +22,7 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        void OpenAnimator(GameObject target)
+        static void OpenAnimator(GameObject target)
         {
             Selection.activeGameObject = target;
             EditorApplication.ExecuteMenuItem("Window/Animation");

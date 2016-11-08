@@ -84,6 +84,9 @@ namespace SocialPoint.Lockstep.Network
         {
             switch(data.MessageType)
             {
+            case LockstepMsgType.EmptyTurn:
+                OnEmptyTurnReceived();
+                break;
             case LockstepMsgType.Turn:
                 OnTurnReceived(reader);
                 break;
@@ -102,6 +105,11 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
+        void OnEmptyTurnReceived()
+        {
+            _clientLockstep.AddConfirmedTurn();
+        }
+
         void OnTurnReceived(IReader reader)
         {
             var turn = new ClientLockstepTurnData();
@@ -117,6 +125,7 @@ namespace SocialPoint.Lockstep.Network
             if(_clientLockstep != null)
             {
                 _clientLockstep.Config = msg.Config;
+                _clientLockstep.GameParams = msg.GameParams;
             }
             TrySendPlayerReady();
         }

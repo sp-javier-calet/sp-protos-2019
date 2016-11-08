@@ -9,15 +9,8 @@ namespace SocialPoint.GUIAnimation
 
         public static NativeGraphicObject Load(Transform root, bool searchInChild)
         {
-            Graphic graphic = null;
-            if(searchInChild)
-            {
-                graphic = root.GetComponentInChildren<Graphic>();
-            }
-            else
-            {
-                graphic = root.GetComponent<Graphic>();
-            }
+            Graphic graphic;
+            graphic = searchInChild ? root.GetComponentInChildren<Graphic>() : root.GetComponent<Graphic>();
 
             NativeGraphicObject wrapper = null;
             if(graphic != null)
