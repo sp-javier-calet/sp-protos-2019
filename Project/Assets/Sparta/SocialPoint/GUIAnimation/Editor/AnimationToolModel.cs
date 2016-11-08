@@ -1,6 +1,6 @@
-using UnityEngine;
 using System.Collections.Generic;
 using SocialPoint.GUIControl;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -31,29 +31,25 @@ namespace SocialPoint.GUIAnimation
 
         public List<UIViewController> FindScreens()
         {
-            return new List<UIViewController>(GameObject.FindObjectsOfType<UIViewController>());
+            return new List<UIViewController>(Object.FindObjectsOfType<UIViewController>());
         }
 
         public UIViewController GetScreenByIdx(int idx)
         {
             List<UIViewController> screens = FindScreens();
 
-            if(idx < screens.Count)
-            {
-                return screens[idx];
-            }
-            return null;
+            return idx < screens.Count ? screens[idx] : null;
         }
 
         public List<Animation> FindAnimations()
         {
-            List<Animation> animations = new List<Animation>();
+            var animations = new List<Animation>();
             Transform animationsRoot = GetAnimationsRoot();
             if(animationsRoot == null)
             {
                 return animations;
             }
-			
+
             for(int i = 0; i < animationsRoot.childCount; ++i)
             {
                 Transform child = animationsRoot.GetChild(i);
@@ -63,7 +59,7 @@ namespace SocialPoint.GUIAnimation
                     animations.Add(animation);
                 }
             }
-			
+
             return animations;
         }
 
@@ -87,14 +83,7 @@ namespace SocialPoint.GUIAnimation
 
         Transform GetAnimationsRoot()
         {
-            if(_currentScreen == null)
-            {
-                return null;
-            }
-            else
-            {
-                return _currentScreen.transform.FindChild(AnimationsRootName);
-            }
+            return _currentScreen == null ? null : _currentScreen.transform.FindChild(AnimationsRootName);
         }
 
         public Animation GetAnimationByIdx(int idx)
@@ -137,7 +126,7 @@ namespace SocialPoint.GUIAnimation
         {
             if(_currentAnimation != null)
             {
-                GameObject.DestroyImmediate(_currentAnimation.gameObject);
+                Object.DestroyImmediate(_currentAnimation.gameObject);
             }
 
             _currentAnimation = null;

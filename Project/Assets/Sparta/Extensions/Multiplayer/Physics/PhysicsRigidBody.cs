@@ -55,7 +55,7 @@ namespace SocialPoint.Multiplayer
 
         event CollisionDetectedHandler _collisionListeners;
 
-        public PhysicsRigidBody(PhysicsCollisionShape shape, ControlType type, PhysicsWorld physicsWorld, IPhysicsDebugger debugger)
+        public PhysicsRigidBody(PhysicsCollisionShape shape, ControlType type, PhysicsWorld physicsWorld, IPhysicsDebugger debugger = null)
         {
             _collisionShape = shape;
             _controlType = type;
@@ -96,7 +96,7 @@ namespace SocialPoint.Multiplayer
             }
 
             //Debug if requested
-            if(_rigidBody.EnableDebugDraw)
+            if(_rigidBody.EnableDebugDraw && _debugger != null)
             {
                 _rigidBody.DebugDraw(_debugger);
             }
@@ -186,6 +186,16 @@ namespace SocialPoint.Multiplayer
 
         void UpdateTransformFromGameObject()
         {
+            //Reactivate object if moving it
+            if(!_rigidBody.IsActive)
+            {
+                bool moved = (_rigidBody.Position != NetworkGameObject.Transform.Position);
+                if(moved)
+                {
+                    _rigidBody.IsActive = true;
+                }
+            }
+
             _rigidBody.Position = NetworkGameObject.Transform.Position;
         }
 

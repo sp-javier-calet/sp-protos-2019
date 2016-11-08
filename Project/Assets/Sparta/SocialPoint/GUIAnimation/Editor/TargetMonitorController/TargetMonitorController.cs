@@ -1,4 +1,3 @@
-using UnityEngine;
 using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
@@ -16,7 +15,7 @@ namespace SocialPoint.GUIAnimation
         public class EffectTargetMonitorController : IMonitorController
         {
             Effect _step;
-            MultiTargetValueMonitor _monitor = new MultiTargetValueMonitor();
+            readonly MultiTargetValueMonitor _monitor = new MultiTargetValueMonitor();
 
             public EffectTargetMonitorController(Effect step)
             {
@@ -52,7 +51,7 @@ namespace SocialPoint.GUIAnimation
         public class EffectsGroupTargetMonitorController : IMonitorController
         {
             EffectsGroup _step;
-            List<MultiTargetValueMonitor> _monitors = new List<MultiTargetValueMonitor>();
+            readonly List<MultiTargetValueMonitor> _monitors = new List<MultiTargetValueMonitor>();
 
             public EffectsGroupTargetMonitorController(EffectsGroup step)
             {
@@ -60,7 +59,7 @@ namespace SocialPoint.GUIAnimation
 
                 for(int i = 0; i < StepsManager.BlendMonitorsData.Count; ++i)
                 {
-                    MultiTargetValueMonitor monitor = new MultiTargetValueMonitor();
+                    var monitor = new MultiTargetValueMonitor();
                     monitor.Init(_step.Targets, StepsManager.BlendMonitorsData[i].StepMonitorType);
                     _monitors.Add(monitor);
                     monitor.Backup();
@@ -108,13 +107,17 @@ namespace SocialPoint.GUIAnimation
         {
             monitorController = null;
 
-            if(step is Effect)
+            var effect = step as Effect;
+            if(effect != null)
             {
-                monitorController = new EffectTargetMonitorController((Effect)step);
+                monitorController = new EffectTargetMonitorController(effect);
             }
-            else if(step is EffectsGroup)
-            {
-                monitorController = new EffectsGroupTargetMonitorController((EffectsGroup)step);
+            else {
+                var effectsGroup = step as EffectsGroup;
+                if(effectsGroup != null)
+                {
+                    monitorController = new EffectsGroupTargetMonitorController(effectsGroup);
+                }
             }
         }
 
@@ -122,12 +125,7 @@ namespace SocialPoint.GUIAnimation
         {
             modifiedData.Clear();
 
-            if(monitorController == null)
-            {
-                return false;
-            }
-
-            return monitorController.Monitor(modifiedData);
+            return monitorController != null && monitorController.Monitor(modifiedData);
         }
 
         public void Backup()

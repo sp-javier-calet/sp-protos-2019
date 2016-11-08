@@ -1,13 +1,11 @@
 ﻿using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
-using SocialPoint.Attributes;
-using UnityEngine;
 
 public class AdminPanelGame : IAdminPanelConfigurer
 {
-    IAppEvents _appEvents;
-    IGameLoader _gameLoader;
-    GameModel _model;
+    readonly IAppEvents _appEvents;
+    readonly IGameLoader _gameLoader;
+    readonly GameModel _model;
 
     public AdminPanelGame(IAppEvents appEvents, IGameLoader gameLoader, GameModel model)
     {
@@ -20,12 +18,13 @@ public class AdminPanelGame : IAdminPanelConfigurer
     {
         adminPanel.RegisterGUI("Game", new AdminPanelGameControl(_appEvents, _gameLoader));
         adminPanel.RegisterGUI("Game", new AdminPanelNestedGUI("Model", new AdminPanelGameModel(_model)));
+        adminPanel.DefaultCategory = "System";
     }
 
-    private class AdminPanelGameControl : IAdminPanelGUI
+    class AdminPanelGameControl : IAdminPanelGUI
     {
-        IAppEvents _appEvents;
-        IGameLoader _gameLoader;
+        readonly IAppEvents _appEvents;
+        readonly IGameLoader _gameLoader;
 
         public AdminPanelGameControl(IAppEvents appEvents, IGameLoader gameLoader)
         {
@@ -36,12 +35,8 @@ public class AdminPanelGame : IAdminPanelConfigurer
         public void OnCreateGUI(AdminPanelLayout layout)
         {
             layout.CreateLabel("Game Control");
-            layout.CreateConfirmButton("Restart", () => {
-                _appEvents.RestartGame();
-            });
-            layout.CreateButton("Delete local game", () => {
-                _gameLoader.DeleteLocalGame();
-            });
+            layout.CreateConfirmButton("Restart", _appEvents.RestartGame);
+            layout.CreateButton("Delete local game", _gameLoader.DeleteLocalGame);
             layout.CreateMargin(2);
         }
     }

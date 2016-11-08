@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -25,26 +24,23 @@ namespace SocialPoint.GUIAnimation
             {
                 _eventValues.Add(flag, false);
             }
-			
             _eventValues[flag] = value;
         }
 
         public bool GetFlag(T flag)
         {
-            bool value = false;
+            bool value;
             _eventValues.TryGetValue(flag, out value);
-			
             return value;
         }
 
         public bool ResetFlag(T flag)
         {
-            bool value = false;
+            bool value;
             if(_eventValues.TryGetValue(flag, out value))
             {
                 _eventValues[flag] = false;
             }
-			
             return value;
         }
     }

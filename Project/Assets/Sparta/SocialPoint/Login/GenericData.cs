@@ -166,6 +166,9 @@ namespace SocialPoint.Login
                     case AttrKeyCheat:
                         Cheat = reader.GetBoolValue (); 
                         break;
+                    default:
+                        reader.SkipElement();
+                        break;
                     }
                 }
                 if(Upgrade == null)

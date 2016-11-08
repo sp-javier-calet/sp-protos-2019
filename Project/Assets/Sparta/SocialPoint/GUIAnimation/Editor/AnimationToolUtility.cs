@@ -1,6 +1,5 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using SocialPoint.GUIControl;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -18,7 +17,7 @@ namespace SocialPoint.GUIAnimation
 
         public static List<string> ComponentsToNames<T>(List<T> AllAnimationsRoots) where T:Component
         {
-            List<string> _animationsRootsList = new List<string>();
+            var _animationsRootsList = new List<string>();
             for(int i = 0; i < AllAnimationsRoots.Count; ++i)
             {
                 _animationsRootsList.Add(i + " - " + AllAnimationsRoots[i].name);
@@ -29,7 +28,7 @@ namespace SocialPoint.GUIAnimation
 
         public static GUIStyle GetStyle(TextStyle textStyle, GUIStyle defaultStyle, TextAnchor anchor = TextAnchor.MiddleLeft)
         {
-            GUIStyle style = new GUIStyle(defaultStyle);
+            var style = new GUIStyle(defaultStyle);
 
             // Input
             style.alignment = anchor;

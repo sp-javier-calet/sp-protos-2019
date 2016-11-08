@@ -64,6 +64,15 @@
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\ServerLockstepTurnData.cs">
       <Link>Lib\Lockstep\ServerLockstepTurnData.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\External\FixedMathNet\Fix64.cs">
+      <Link>Lib\External\Fix64.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\External\FixedMathNet\Fix64SinLut.cs">
+      <Link>Lib\External\Fix64SinLut.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\External\FixedMathNet\Fix64TanLut.cs">
+      <Link>Lib\External\Fix64TanLut.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Base\DebugUtils.cs">
       <Link>Lib\Base\DebugUtils.cs</Link>
     </Compile>
@@ -135,6 +144,9 @@
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\UpdateRunner.cs">
       <Link>Lib\Utils\UpdateRunner.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\XRandom.cs">
+      <Link>Lib\Utils\XRandom.cs</Link>
     </Compile>
     <Compile Include="LockstepPlugin.cs" />
     <Compile Include="PluginFactory.cs" />

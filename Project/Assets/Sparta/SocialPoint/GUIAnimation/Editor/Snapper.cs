@@ -1,9 +1,9 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
-    public sealed class Snapper
+    public static class Snapper
     {
         public static float kMaxVerticalDistance = 350f;
 
@@ -16,9 +16,9 @@ namespace SocialPoint.GUIAnimation
 
         public static bool Snap(ref ResultData result, List<Rect> rects, Vector2 position, float snapDistance)
         {
-            List<ResultData> closestRectsX = new List<ResultData>();
-            List<ResultData> closestRectsY = new List<ResultData>();
-            List<ResultData> intersection = new List<ResultData>();
+            var closestRectsX = new List<ResultData>();
+            var closestRectsY = new List<ResultData>();
+            var intersection = new List<ResultData>();
 
             FindClosestRects(closestRectsX, rects, position, snapDistance, Vector2.right);
             FindClosestRects(closestRectsY, rects, position, kMaxVerticalDistance, Vector2.up);
@@ -30,10 +30,7 @@ namespace SocialPoint.GUIAnimation
                 result = intersection[0];
                 return true;
             }
-            else
-            {
-                return false;
-            }
+            return false;
         }
 
         static void FindClosestRects(List<ResultData> closestRects, List<Rect> rects, Vector2 position, float snapDistance, Vector2 comparisonDir)
@@ -44,23 +41,23 @@ namespace SocialPoint.GUIAnimation
 
                 if(distMin < snapDistance)
                 {
-                    Vector2 snappedPos = new Vector2(
-                              position.x * (1f - comparisonDir.x) + rects[i].position.x * comparisonDir.x,
-                              position.y * (1f - comparisonDir.y) + rects[i].position.y * comparisonDir.y
-                          );
+                    var snappedPos = new Vector2(
+                                         position.x * (1f - comparisonDir.x) + rects[i].position.x * comparisonDir.x,
+                                         position.y * (1f - comparisonDir.y) + rects[i].position.y * comparisonDir.y
+                                     );
 					
-                    closestRects.Add(new ResultData(){ Pos = snappedPos, Dist = distMin, Rect = rects[i] });
+                    closestRects.Add(new ResultData { Pos = snappedPos, Dist = distMin, Rect = rects[i] });
                 }
 
                 float distMax = Mathf.Abs((rects[i].position.x + rects[i].size.x) - position.x) * comparisonDir.x + Mathf.Abs((rects[i].position.y + rects[i].size.y) - position.y) * comparisonDir.y;
                 if(distMax < snapDistance && distMax < distMin)
                 {
-                    Vector2 snappedPos = new Vector2(
-                              position.x * (1f - comparisonDir.x) + (rects[i].position.x + rects[i].size.x) * comparisonDir.x,
-                              position.y * (1f - comparisonDir.y) + (rects[i].position.y + +rects[i].size.y) * comparisonDir.y
-                          );
+                    var snappedPos = new Vector2(
+                                         position.x * (1f - comparisonDir.x) + (rects[i].position.x + rects[i].size.x) * comparisonDir.x,
+                                         position.y * (1f - comparisonDir.y) + (rects[i].position.y + +rects[i].size.y) * comparisonDir.y
+                                     );
 
-                    closestRects.Add(new ResultData(){ Pos = snappedPos, Dist = distMax, Rect = rects[i] });
+                    closestRects.Add(new ResultData { Pos = snappedPos, Dist = distMax, Rect = rects[i] });
                 }
             }
         }
@@ -69,21 +66,21 @@ namespace SocialPoint.GUIAnimation
         {
             for(int i = 0; i < a.Count; ++i)
             {
-                int foundIdx = b.FindIndex((ResultData test) => {
-                    return (test.Rect.position - a[i].Rect.position).sqrMagnitude < 1e-3f;
-                });
+                int foundIdx = b.FindIndex(test => (test.Rect.position - a[i].Rect.position).sqrMagnitude < 1e-3f);
                 if(foundIdx >= 0)
                 {
-                    result.Add(new ResultData(){ Pos = a[i].Pos, Dist = a[i].Dist + b[foundIdx].Dist, Rect = a[i].Rect });
+                    result.Add(new ResultData {
+                        Pos = a[i].Pos,
+                        Dist = a[i].Dist + b[foundIdx].Dist,
+                        Rect = a[i].Rect
+                    });
                 }
             }
         }
 
         static void Order(List<ResultData> data)
         {
-            data.Sort((ResultData a, ResultData b) => {
-                return a.Dist < b.Dist ? -1 : a.Dist > b.Dist ? 1 : 0;
-            });
+            data.Sort((a, b) => a.Dist < b.Dist ? -1 : a.Dist > b.Dist ? 1 : 0);
         }
     }
 }
