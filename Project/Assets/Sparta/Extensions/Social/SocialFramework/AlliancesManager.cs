@@ -508,7 +508,7 @@ namespace SocialPoint.Social
             }
             else
             {
-                AlliancePlayerInfo = new AlliancePlayerInfo();
+                AlliancePlayerInfo = Factory.CreatePlayerInfo();
             }
         }
 

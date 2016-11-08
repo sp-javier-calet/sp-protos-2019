@@ -175,6 +175,11 @@ namespace SocialPoint.Social
 
         }
 
+        public AlliancePlayerInfo CreatePlayerInfo()
+        {
+            return CreateCustomPlayerInfo();
+        }
+
         public AlliancePlayerInfo CreatePlayerInfo(uint maxPendingJoinRequests, AttrDic dic)
         {
             var data = CreateCustomPlayerInfo();
