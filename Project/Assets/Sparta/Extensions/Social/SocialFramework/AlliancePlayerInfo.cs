@@ -50,6 +50,9 @@ namespace SocialPoint.Social
             Id = string.Empty;
             Name = string.Empty;
             JoinTimestamp = 0;
+            Avatar = 0;
+            TotalMembers = 0;
+            MemberType = AllianceMemberType.Soldier;
         }
 
         public void ClearRequests()

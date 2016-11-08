@@ -171,11 +171,17 @@ namespace SocialPoint.Social
             var error = ParseResponse(resp, out dic);
             if(Error.IsNullOrEmpty(error))
             {
-                onSuccess(Factory.CreateAlliance(allianceId, dic));
+                if(onSuccess != null)
+                {
+                    onSuccess(Factory.CreateAlliance(allianceId, dic));
+                }
             }
             else
             {
-                onFailure(error);
+                if(onFailure != null)
+                {
+                    onFailure(error);
+                }
             }
         }
 
@@ -194,11 +200,17 @@ namespace SocialPoint.Social
             var error = ParseResponse(resp, out dic);
             if(Error.IsNullOrEmpty(error))
             {
-                onSuccess(Factory.CreateMember(dic));
+                if(onSuccess != null)
+                {
+                    onSuccess(Factory.CreateMember(dic));
+                }
             }
             else
             {
-                onFailure(error);
+                if(onFailure != null)
+                {
+                    onFailure(error);
+                }
             }
         }
 
@@ -223,11 +235,18 @@ namespace SocialPoint.Social
             var error = ParseResponse(resp, out dic);
             if(Error.IsNullOrEmpty(error))
             {
-                onSuccess(Factory.CreateRankingData(dic));
+                if(onSuccess != null)
+                {
+                    
+                    onSuccess(Factory.CreateRankingData(dic));
+                }
             }
             else
             {
-                onFailure(error);
+                if(onFailure != null)
+                {
+                    onFailure(error);
+                }
             }
         }
 
@@ -256,11 +275,17 @@ namespace SocialPoint.Social
             var error = ParseResponse(resp, out dic);
             if(Error.IsNullOrEmpty(error))
             {
-                onSuccess(Factory.CreateSearchData(dic, suggested));
+                if(onSuccess != null)
+                {
+                    onSuccess(Factory.CreateSearchData(dic, suggested));
+                }
             }
             else
             {
-                onFailure(error);
+                if(onFailure != null)
+                {
+                    onFailure(error);
+                }
             }
         }
 
@@ -280,11 +305,17 @@ namespace SocialPoint.Social
             var error = ParseResponse(resp, out dic);
             if(Error.IsNullOrEmpty(error))
             {
-                onSuccess(Factory.CreateJoinData(dic));
+                if(onSuccess != null)
+                {
+                    onSuccess(Factory.CreateJoinData(dic));
+                }
             }
             else
             {
-                onFailure(error);
+                if(onFailure != null)
+                {
+                    onFailure(error);
+                }
             }
         }
 
@@ -297,14 +328,20 @@ namespace SocialPoint.Social
             _connection.Call(AllianceLeaveMethod, Attr.InvalidList, dic, (err, EventArgs, kwargs) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
-                    callback(err);
+                    if(callback != null)
+                    {
+                        callback(err);
+                    }
                     return;
                 }
 
                 ClearPlayerAllianceInfo();
                 LeaveAllianceChat();
 
-                callback(null);
+                if(callback != null)
+                {
+                    callback(null);
+                }
 
                 if(notifyEvent)
                 {
@@ -339,7 +376,10 @@ namespace SocialPoint.Social
             _connection.Call(AllianceCreateMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
-                    callback(err);
+                    if(callback != null)
+                    {
+                        callback(err);
+                    }
                     return;
                 }
 
@@ -359,7 +399,10 @@ namespace SocialPoint.Social
 
                 UpdateChatServices(rDic);
 
-                callback(null);
+                if(callback != null)
+                {
+                    callback(null);
+                }
 
                 NotifyAllianceEvent(AllianceAction.CreateAlliance, rDic);
             });
@@ -396,13 +439,19 @@ namespace SocialPoint.Social
             _connection.Call(AllianceEditMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
-                    callback(err);
+                    if(callback != null)
+                    {
+                        callback(err);
+                    }
                     return;
                 }
 
                 AlliancePlayerInfo.Avatar = data.Avatar;
 
-                callback(null);
+                if(callback != null)
+                {
+                    callback(null);
+                }
 
                 if(current.Description != data.Description)
                 {
@@ -439,11 +488,16 @@ namespace SocialPoint.Social
             _connection.Call(AllianceMemberAcceptMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
-                    callback(err);
+                    if(callback != null)
+                    {
+                        callback(err);
+                    }
                     return;
                 }
-
-                callback(null);
+                if(callback != null)
+                {
+                    callback(null);
+                }
                 NotifyAllianceEvent(AllianceAction.MateChangedRank, rDic);
             });
         }
@@ -467,11 +521,17 @@ namespace SocialPoint.Social
             _connection.Call(AllianceMemberKickMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
-                    callback(err);
+                    if(callback != null)
+                    {    
+                        callback(err);
+                    }
                     return;
                 }
 
-                callback(null);
+                if(callback != null)
+                {
+                    callback(null);
+                }
                 NotifyAllianceEvent(AllianceAction.MateChangedRank, rDic);
             });
         }
@@ -486,7 +546,10 @@ namespace SocialPoint.Social
             _connection.Call(AllianceMemberPromoteMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
-                    callback(err);
+                    if(callback != null)
+                    {
+                        callback(err);
+                    }
                     return;
                 }
 
@@ -495,7 +558,10 @@ namespace SocialPoint.Social
                     AlliancePlayerInfo.MemberType = AllianceMemberType.CoLead;
                 }
 
-                callback(null);
+                if(callback != null)
+                {
+                    callback(null);
+                }
                 NotifyAllianceEvent(AllianceAction.MateChangedRank, rDic);
             });
         }
@@ -550,7 +616,10 @@ namespace SocialPoint.Social
             _connection.Call(AllianceJoinMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
-                    callback(err);
+                    if(callback != null)
+                    {
+                        callback(err);
+                    }
                     return;
                 }
 
@@ -564,7 +633,10 @@ namespace SocialPoint.Social
 
                 UpdateChatServices(rDic);
 
-                callback(null);
+                if(callback != null)
+                {
+                    callback(null);
+                }
                 NotifyAllianceEvent(AllianceAction.JoinPublicAlliance, rDic);
             });
         }
@@ -582,12 +654,18 @@ namespace SocialPoint.Social
             _connection.Call(AllianceRequestJoinMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
-                    callback(err);
+                    if(callback != null)
+                    {
+                        callback(err);
+                    }
                     return;
                 }
 
                 AlliancePlayerInfo.AddRequest(alliance.Id, MaxPendingJoinRequests);
-                callback(null);
+                if(callback != null)
+                {
+                    callback(null);
+                }
                 NotifyAllianceEvent(AllianceAction.ApplyToAlliance, rDic);
             });
         }
