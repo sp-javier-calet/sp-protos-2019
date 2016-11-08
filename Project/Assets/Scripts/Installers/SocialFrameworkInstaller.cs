@@ -35,8 +35,8 @@ public class SocialFrameworkInstaller : Installer
         _deviceInfo = Container.Resolve<IDeviceInfo>();
 
         // Service Installer
-        Container.Rebind<WebSocketSharpClient>().ToMethod<WebSocketSharpClient>(CreateWebSocket, SetupWebSocket);
-        Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketSharpClient>();
+        Container.Rebind<WebSocketClient>().ToMethod<WebSocketClient>(CreateWebSocket, SetupWebSocket);
+        Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketClient>();
         Container.Bind<IDisposable>().ToLookup<WebSocketSharpClient>();
 
         Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);    
@@ -85,12 +85,12 @@ public class SocialFrameworkInstaller : Installer
         room.SerializeExtraInfo = AllianceChatMessage.SerializeExtraInfo;
     }
 
-    WebSocketSharpClient CreateWebSocket()
+    WebSocketClient CreateWebSocket()
     {
-        return new WebSocketSharpClient(Settings.Endpoint, Settings.Protocols, Container.Resolve<ICoroutineRunner>());
+        return new WebSocketClient(Settings.Endpoint, Settings.Protocols, Container.Resolve<IUpdateScheduler>());
     }
 
-    void SetupWebSocket(WebSocketSharpClient client)
+    void SetupWebSocket(WebSocketClient client)
     {
         if(!string.IsNullOrEmpty(_httpProxy))
         {
