@@ -157,7 +157,7 @@ namespace SocialPoint.Utils
             #if UNITY
             return UnityEngine.Random.Range(minInclusive, maxInclusive);
             #else
-            return (float)(float.MaxValue * 2.0 * (_random.NextDouble()-0.5));
+            return (float)_random.NextDouble() * (maxInclusive - minInclusive) + minInclusive;
             #endif
         }
     }

@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -7,7 +7,7 @@ namespace SocialPoint.GUIAnimation
     public sealed class MouseController
     {
         MouseDoubleClickMonitor _doubleClick = new MouseDoubleClickMonitor();
-        Dictionary<int, bool> _buttons = new Dictionary<int, bool>();
+        readonly Dictionary<int, bool> _buttons = new Dictionary<int, bool>();
 
         public void UpdateState()
         {
@@ -30,14 +30,7 @@ namespace SocialPoint.GUIAnimation
 
         public bool IsPressed(int code)
         {
-            if(!_buttons.ContainsKey(code))
-            {
-                return false;
-            }
-            else
-            {
-                return _buttons[code];
-            }
+            return _buttons.ContainsKey(code) && _buttons[code];
         }
 
         public void ResetState()

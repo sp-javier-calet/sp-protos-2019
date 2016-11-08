@@ -32,14 +32,14 @@ public class NetworkInstaller : Installer
 
     public override void InstallBindings()
     {
-        if(Settings.Tech == NetworkTech.Local)
+        if (Settings.Tech == NetworkTech.Local)
         {
             Container.Rebind<LocalNetworkServer>().ToMethod<LocalNetworkServer>(CreateLocalServer, SetupServer);
             Container.Rebind<INetworkServer>().ToLookup<LocalNetworkServer>();
             Container.Rebind<LocalNetworkClient>().ToMethod<LocalNetworkClient>(CreateLocalClient, SetupClient);
             Container.Rebind<INetworkClient>().ToLookup<LocalNetworkClient>();
         }
-        else if(Settings.Tech == NetworkTech.Unet)
+        else if (Settings.Tech == NetworkTech.Unet)
         {
             Container.Rebind<UnetNetworkServer>().ToMethod<UnetNetworkServer>(CreateUnetServer, SetupServer);
             Container.Bind<IDisposable>().ToLookup<UnetNetworkServer>();
@@ -48,7 +48,7 @@ public class NetworkInstaller : Installer
             Container.Bind<IDisposable>().ToLookup<UnetNetworkClient>();
             Container.Rebind<INetworkClient>().ToLookup<UnetNetworkClient>();
         }
-        else if(Settings.Tech == NetworkTech.Photon)
+        else if (Settings.Tech == NetworkTech.Photon)
         {
             Container.RebindUnityComponent<PhotonNetworkServer>().WithSetup<PhotonNetworkServer>(SetupPhotonServer);
             Container.Rebind<INetworkServer>().ToLookup<PhotonNetworkServer>();

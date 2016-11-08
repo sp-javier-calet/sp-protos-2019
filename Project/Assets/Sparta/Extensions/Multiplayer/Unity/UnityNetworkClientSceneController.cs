@@ -70,5 +70,10 @@ namespace SocialPoint.Multiplayer
                 _objects.Remove(ev.ObjectId);
             }
         }
+
+        protected override void OnError(SocialPoint.Base.Error err)
+        {
+            Debug.LogError(err.Msg);
+        }
     }
 }

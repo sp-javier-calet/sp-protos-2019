@@ -1,7 +1,7 @@
-using UnityEngine;
-using UnityEditor;
 using System.Collections.Generic;
 using SocialPoint.GUIControl;
+using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -30,18 +30,18 @@ namespace SocialPoint.GUIAnimation
 
         AnimationEditorContainer _animationEditorContainer = new AnimationEditorContainer();
 
-        bool _repaint = false;
-        double _nextRepaintTime = 0.0;
-        double _repaintMinTime = 2.0;
+        bool _repaint;
+        double _nextRepaintTime;
+        const double _repaintMinTime = 2.0;
 
-        bool _saveState = false;
-        double _nextSaveTime = 0.0;
-        double _saveMinTime = 10.0;
+        bool _saveState;
+        double _nextSaveTime;
+        const double _saveMinTime = 10.0;
 
-        int _currentScreenIdx = 0;
-        int _currentAnimationIdx = 0;
+        int _currentScreenIdx;
+        int _currentAnimationIdx;
 
-        bool _isInit = false;
+        bool _isInit;
 
         [MenuItem("Social Point/GUI/Animation Tool")]
         public static void ShowWindow()
@@ -91,10 +91,7 @@ namespace SocialPoint.GUIAnimation
 
                     return;
                 }
-                else
-                {
-                    DoUpdate();
-                }
+                DoUpdate();
             }
 
             DoRender();
@@ -112,7 +109,7 @@ namespace SocialPoint.GUIAnimation
             TryResetPanelOnFocus();
         }
 
-        void TryResetPanelOnFocus()
+        static void TryResetPanelOnFocus()
         {
             if(Event.current.type == EventType.mouseDown)
             {
@@ -159,7 +156,7 @@ namespace SocialPoint.GUIAnimation
             _animationEditorContainer.Render(this);
         }
 
-        void RenderNoScreenMessage()
+        static void RenderNoScreenMessage()
         {
             GUILayout.Label("No screens found. Add the screen prefab to the current scene.", EditorStyles.helpBox);
         }
@@ -188,7 +185,7 @@ namespace SocialPoint.GUIAnimation
             List<string> animationsOptionList = AnimationToolUtility.ComponentsToNames<Animation>(animations);
 
             GUILayout.Label("Animation:", GUILayout.MaxWidth(80f), GUILayout.ExpandWidth(false));
-            _currentAnimationIdx = EditorGUILayout.Popup(_currentAnimationIdx, animationsOptionList.Count > 0 ? animationsOptionList.ToArray() : new string[1]{ "" }, GUILayout.MaxWidth(160f), GUILayout.ExpandWidth(false));
+            _currentAnimationIdx = EditorGUILayout.Popup(_currentAnimationIdx, animationsOptionList.Count > 0 ? animationsOptionList.ToArray() : new string[]{ "" }, GUILayout.MaxWidth(160f), GUILayout.ExpandWidth(false));
 
             Animation currentAnimation = _animationModel.GetAnimationByIdx(_currentAnimationIdx);
             if(Event.current.type == EventType.Repaint && currentAnimation != _animationModel.CurrentAnimation)
@@ -216,24 +213,22 @@ namespace SocialPoint.GUIAnimation
 
             if(GUILayout.Button("Create", GUILayout.ExpandWidth(false)))
             {
-                EnterStringPopup createNameWindow = (EnterStringPopup)EditorWindow.GetWindow(typeof(EnterStringPopup));
+                var createNameWindow = (EnterStringPopup)EditorWindow.GetWindow(typeof(EnterStringPopup));
                 createNameWindow.titleContent = new GUIContent("Animation Name");
-                createNameWindow.SetCallbacks(() => {
-                    OnAnimationNameCreated(createNameWindow.Value);
-                });
+                createNameWindow.SetCallbacks(() => OnAnimationNameCreated(createNameWindow.Value));
             }
 
-            UnityEngine.GUI.enabled = AnimationModel.CurrentScreen != null;
+            GUI.enabled = AnimationModel.CurrentScreen != null;
             if(GUILayout.Button("Save", GUILayout.ExpandWidth(false)))
             {
                 SaveState(true);
             }
-            UnityEngine.GUI.enabled = true;
+            GUI.enabled = true;
 
-            UnityEngine.GUI.enabled = AnimationModel.CurrentAnimation != null;
+            GUI.enabled = AnimationModel.CurrentAnimation != null;
             if(GUILayout.Button("Remove", GUILayout.ExpandWidth(false)))
             {
-                ConfirmationPopup confirmationPopup = (ConfirmationPopup)EditorWindow.GetWindow(typeof(ConfirmationPopup));
+                var confirmationPopup = (ConfirmationPopup)EditorWindow.GetWindow(typeof(ConfirmationPopup));
                 confirmationPopup.titleContent = new GUIContent("Remove Animation");
                 confirmationPopup.SetTitle(string.Format("Really want to Remove {0} ?", AnimationModel.CurrentAnimation.name));
                 confirmationPopup.SetCallbacks(() => {
@@ -241,24 +236,24 @@ namespace SocialPoint.GUIAnimation
                     ResetState();
                 });
             }
-            UnityEngine.GUI.enabled = true;
+            GUI.enabled = true;
 
-            UnityEngine.GUI.enabled = AnimationModel.CurrentAnimation != null;
+            GUI.enabled = AnimationModel.CurrentAnimation != null;
             if(GUILayout.Button("Rename", GUILayout.ExpandWidth(false)))
             {
-                EnterStringPopup renamePopup = (EnterStringPopup)EditorWindow.GetWindow(typeof(EnterStringPopup));
+                var renamePopup = (EnterStringPopup)EditorWindow.GetWindow(typeof(EnterStringPopup));
                 renamePopup.titleContent = new GUIContent("Rename Animation");
                 renamePopup.SetTitle(string.Format("Set the new animation name for {0} ?", AnimationModel.CurrentAnimation.AnimationName));
                 renamePopup.SetCallbacks(() => {
                     AnimationModel.CurrentAnimation.AnimationName = renamePopup.Value;
                 });
             }
-            UnityEngine.GUI.enabled = true;
+            GUI.enabled = true;
 
-            UnityEngine.GUI.enabled = AnimationModel.CurrentAnimation != null;
+            GUI.enabled = AnimationModel.CurrentAnimation != null;
             if(GUILayout.Button("Duplicate", GUILayout.ExpandWidth(false)))
             {
-                EnterStringPopup renamePopup = (EnterStringPopup)EditorWindow.GetWindow(typeof(EnterStringPopup));
+                var renamePopup = (EnterStringPopup)EditorWindow.GetWindow(typeof(EnterStringPopup));
                 renamePopup.titleContent = new GUIContent("Duplicate Animation");
                 renamePopup.SetTitle(string.Format("Set the new animation name to duplicate {0} ?", AnimationModel.CurrentAnimation.AnimationName));
                 renamePopup.SetCallbacks(() => {
@@ -271,14 +266,14 @@ namespace SocialPoint.GUIAnimation
                     _animationEditorContainer.ResetState();
                 });
             }
-            UnityEngine.GUI.enabled = true;
+            GUI.enabled = true;
 
-            UnityEngine.GUI.enabled = AnimationModel.CurrentAnimation != null;
+            GUI.enabled = AnimationModel.CurrentAnimation != null;
             if(GUILayout.Button("Invert", GUILayout.ExpandWidth(false)))
             {
                 AnimationModel.CurrentAnimation.Invert();
             }
-            UnityEngine.GUI.enabled = true;
+            GUI.enabled = true;
         }
 
         void OnAnimationNameCreated(string animationName)
@@ -341,7 +336,7 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        void CleanGarbageCollector()
+        static void CleanGarbageCollector()
         {
             System.GC.Collect();
         }

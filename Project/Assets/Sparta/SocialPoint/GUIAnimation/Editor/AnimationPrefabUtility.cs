@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -8,7 +8,7 @@ namespace SocialPoint.GUIAnimation
     {
         public static GameObject SaveScreenPrefab(GameObject instance)
         {
-            GameObject prefabParent = (GameObject)PrefabUtility.GetPrefabParent(instance);
+            var prefabParent = (GameObject)PrefabUtility.GetPrefabParent(instance);
 
             if(prefabParent != null)
             {

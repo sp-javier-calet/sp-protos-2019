@@ -1,6 +1,5 @@
-using UnityEngine;
 using UnityEditor;
-using System;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -22,7 +21,7 @@ namespace SocialPoint.GUIAnimation
 
         void OnGUI()
         {
-            GUILayout.Label(_title, AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Title, UnityEngine.GUI.skin.label, TextAnchor.MiddleCenter));
+            GUILayout.Label(_title, AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Title, GUI.skin.label, TextAnchor.MiddleCenter));
 
             GUILayout.BeginArea(new Rect((Screen.width / 2) - 100, 50, 200, 50));
 

@@ -1,6 +1,5 @@
-using UnityEngine;
-using System.Collections.Generic;
 using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -46,7 +45,7 @@ namespace SocialPoint.GUIAnimation
         [ShowInEditor]
         bool _disableAfterPlay = true;
 
-        bool _hasBeenPlayed = false;
+        bool _hasBeenPlayed;
 
         public override void Copy(Step other)
         {
@@ -69,7 +68,7 @@ namespace SocialPoint.GUIAnimation
             _startValue = _endValue = true;
         }
 
-        public override void Invert(bool invertTime)
+        public override void Invert(bool invertTime = false)
         {
             base.Invert(invertTime);
 

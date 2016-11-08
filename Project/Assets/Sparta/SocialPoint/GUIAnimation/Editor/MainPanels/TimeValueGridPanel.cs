@@ -1,7 +1,7 @@
-using UnityEngine;
-using UnityEditor;
 using System.Collections.Generic;
 using SocialPoint.Utils;
+using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -16,9 +16,9 @@ namespace SocialPoint.GUIAnimation
 
         public sealed class ProcessRemovePoint: IGridChainProcesser
         {
-            TimeValueGridPanel _host;
+            readonly TimeValueGridPanel _host;
             IGridChainProcesser _next;
-            bool _isProcessed = false;
+            bool _isProcessed;
             TimeValueBox _toRemove;
 
             public ProcessRemovePoint(TimeValueGridPanel host, IGridChainProcesser next)
@@ -62,9 +62,9 @@ namespace SocialPoint.GUIAnimation
 
         public sealed class ProcessMovePoint : IGridChainProcesser
         {
-            TimeValueGridPanel _host;
+            readonly TimeValueGridPanel _host;
             IGridChainProcesser _next;
-            bool _isProcessed = false;
+            bool _isProcessed;
             TimeValueBox _lastMoved;
 
             public ProcessMovePoint(TimeValueGridPanel host, IGridChainProcesser next)
@@ -113,9 +113,9 @@ namespace SocialPoint.GUIAnimation
 
         public sealed class ProcessCreatePoint : IGridChainProcesser
         {
-            TimeValueGridPanel _host;
+            readonly TimeValueGridPanel _host;
             IGridChainProcesser _next;
-            bool _canCreate = false;
+            bool _canCreate;
 
             public ProcessCreatePoint(TimeValueGridPanel host, IGridChainProcesser next)
             {
@@ -146,10 +146,7 @@ namespace SocialPoint.GUIAnimation
                 _canCreate = false;
                 if(Event.current.type == EventType.MouseDown)
                 {
-                    if(_host._gridWindow.Contains(Event.current.mousePosition))
-                    {
-                        _canCreate = true;
-                    }
+                    _canCreate |= _host._gridWindow.Contains(Event.current.mousePosition);
                 }
             }
         }
@@ -168,12 +165,12 @@ namespace SocialPoint.GUIAnimation
             public void Save()
             {
                 PrevFrameColor = Handles.color;
-                PrevBackgroundColor = UnityEngine.GUI.backgroundColor;
+                PrevBackgroundColor = GUI.backgroundColor;
             }
 
             public void LoadBackground()
             {
-                UnityEngine.GUI.backgroundColor = BackgroundColor;
+                GUI.backgroundColor = BackgroundColor;
                 Handles.color = FrameColor;
             }
 
@@ -184,7 +181,7 @@ namespace SocialPoint.GUIAnimation
 
             public void Restore()
             {
-                UnityEngine.GUI.backgroundColor = PrevBackgroundColor;
+                GUI.backgroundColor = PrevBackgroundColor;
                 Handles.color = PrevFrameColor;
             }
         }
@@ -194,17 +191,17 @@ namespace SocialPoint.GUIAnimation
             public float XAxisParts = 4f;
             public float YAxisParts = 4f;
 
-            public float XAxisMin = 0f;
+            public float XAxisMin;
             public float XAxisMax = 1f;
 
-            public float YAxisMin = 0.0f;
+            public float YAxisMin;
             public float YAxisMax = 1.0f;
 
-            public float YAxisMinNew = 0.0f;
-            public bool YAxisMinChanged = false;
+            public float YAxisMinNew;
+            public bool YAxisMinChanged;
 
             public float YAxisMaxNew = 1.0f;
-            public bool YAxisMaxChanged = false;
+            public bool YAxisMaxChanged;
         }
 
         sealed class TimeValueBox
@@ -222,7 +219,7 @@ namespace SocialPoint.GUIAnimation
         // Grid relative to area
         Rect _gridWindow = new Rect(new Vector2(68f, 0f), new Vector2(400f, 400f));
 
-        List<EasePoint> _timeValues = new List<EasePoint>() {
+        List<EasePoint> _timeValues = new List<EasePoint> {
             new EasePoint(0.1f, 0.1f)
 	        , new EasePoint(0.2f, 0.1f)
 	        , new EasePoint(0.3f, 0.4f)
@@ -231,12 +228,12 @@ namespace SocialPoint.GUIAnimation
 
         List<TimeValueBox> _timeValuesWinData = new List<TimeValueBox>();
         List<IGridChainProcesser> _processers = new List<IGridChainProcesser>();
-        IGridChainProcesser _chainProcessing = null;
+        IGridChainProcesser _chainProcessing;
 
-        TimeValueBox _lastUsed = null;
+        TimeValueBox _lastUsed;
 
-        bool _isInit = false;
-        System.Action _onGridTouched = null;
+        bool _isInit;
+        System.Action _onGridTouched;
 
         public List<EasePoint> RenderGUI(Rect window, Rect gridWindow, List<EasePoint> timeValues, System.Action onGridChanged = null)
         {
@@ -270,7 +267,7 @@ namespace SocialPoint.GUIAnimation
             for(int i = 0; i < other.Count; ++i)
             {
                 if(Mathf.Abs(other[i].x - _timeValues[i].x) > 1e-2f
-                || Mathf.Abs(other[i].y - _timeValues[i].y) > 1e-2f)
+                   || Mathf.Abs(other[i].y - _timeValues[i].y) > 1e-2f)
                 {
                     return false;
                 }
@@ -352,12 +349,12 @@ namespace SocialPoint.GUIAnimation
 
             for(int i = 0; i < _timeValues.Count; ++i)
             {
-                Rect window = new Rect();
+                var window = new Rect();
                 window.center = new Vector2(timeToPosition(_timeValues[i].x) - 2f, valueToPosition(_timeValues[i].y) - 2f);
                 window.size = new Vector2(4f, 4f);
 				
                 _timeValuesWinData.Add(
-                    new TimeValueBox() {
+                    new TimeValueBox {
                         Window = window
                     });
             }
@@ -383,7 +380,7 @@ namespace SocialPoint.GUIAnimation
         void TryToTriggerTouchCallback()
         {
             if((Event.current.type == EventType.mouseDown || Event.current.type == EventType.mouseUp)
-            && _gridWindow.Contains(Event.current.mousePosition))
+               && _gridWindow.Contains(Event.current.mousePosition))
             {
                 TriggerModificationCallback();
             }
@@ -410,7 +407,7 @@ namespace SocialPoint.GUIAnimation
         void RenderAreaBackground()
         {
             _colorProperties.LoadBackground();
-            UnityEngine.GUI.Box(_gridWindow, "");
+            GUI.Box(_gridWindow, "");
 
             _colorProperties.Restore();
 
@@ -420,35 +417,32 @@ namespace SocialPoint.GUIAnimation
                 Vector2 xAxisPosition = new Vector2(_gridWindow.position.x, _gridWindow.size.y + 18f) + Vector2.right * (_gridWindow.size.x / _gridProperties.XAxisParts) * ((float)x);
 
                 float normalizedValue = ((float)x) / _gridProperties.XAxisParts;
-                Vector2 labelSize = UnityEngine.GUI.skin.GetStyle("label").CalcSize(new GUIContent(normalizedValue.ToString()));
+                Vector2 labelSize = GUI.skin.GetStyle("label").CalcSize(new GUIContent(normalizedValue.ToString()));
                 labelSize.y = 0f;
-                UnityEngine.GUI.Label(new Rect(xAxisPosition - labelSize * 0.5f, Vector2.one * 25f), float.Parse(normalizedValue.ToString("0.0")).ToString());
+                GUI.Label(new Rect(xAxisPosition - labelSize * 0.5f, Vector2.one * 25f), float.Parse(normalizedValue.ToString("0.0")).ToString());
             }
 
             for(int y = 0; y <= (int)_gridProperties.YAxisParts; ++y)
             {
-                Vector2 startPos = new Vector2(0f, _gridWindow.position.y);
-                Vector2 endPos = new Vector2(0f, _gridWindow.position.y + _gridWindow.size.y);
+                var startPos = new Vector2(0f, _gridWindow.position.y);
+                var endPos = new Vector2(0f, _gridWindow.position.y + _gridWindow.size.y);
                 float normalizedPos = ((float)y) / _gridProperties.YAxisParts;
                 Vector2 currentPosition = Vector2.Lerp(startPos, endPos, normalizedPos);
 				
                 float currentYValue = Mathf.Lerp(_gridProperties.YAxisMin, _gridProperties.YAxisMax, 1f - normalizedPos);
-                Vector2 labelSize = UnityEngine.GUI.skin.GetStyle("label").CalcSize(new GUIContent(currentYValue.ToString()));
+                Vector2 labelSize = GUI.skin.GetStyle("label").CalcSize(new GUIContent(currentYValue.ToString()));
                 labelSize.y = 0f;
 
                 if(y == 0)
                 {
-                    UnityEngine.GUI.changed = false;
+                    GUI.changed = false;
                     float value = float.Parse(_gridProperties.YAxisMax.ToString("0.0"));
                     if(_gridProperties.YAxisMaxChanged)
                     {
                         value = float.Parse(_gridProperties.YAxisMaxNew.ToString("0.0"));
                     }
                     _gridProperties.YAxisMaxNew = EditorGUI.FloatField(new Rect(currentPosition, new Vector2(34f, 20f)), value);
-                    if(UnityEngine.GUI.changed)
-                    {
-                        _gridProperties.YAxisMaxChanged = true;
-                    }
+                    _gridProperties.YAxisMaxChanged |= GUI.changed;
                     if(
                         _gridProperties.YAxisMaxChanged
                         && GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftWindows))
@@ -462,17 +456,14 @@ namespace SocialPoint.GUIAnimation
                 }
                 else if(y == (int)_gridProperties.YAxisParts)
                 {
-                    UnityEngine.GUI.changed = false;
+                    GUI.changed = false;
                     float value = float.Parse(_gridProperties.YAxisMin.ToString("0.0"));
                     if(_gridProperties.YAxisMinChanged)
                     {
                         value = float.Parse(_gridProperties.YAxisMinNew.ToString("0.0"));
                     }
                     _gridProperties.YAxisMinNew = EditorGUI.FloatField(new Rect(currentPosition, new Vector2(34f, 20f)), value);
-                    if(UnityEngine.GUI.changed)
-                    {
-                        _gridProperties.YAxisMinChanged = true;
-                    }
+                    _gridProperties.YAxisMinChanged |= GUI.changed;
                     if(
                         _gridProperties.YAxisMinChanged
                         && GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftWindows))
@@ -486,12 +477,12 @@ namespace SocialPoint.GUIAnimation
                 }
                 else
                 {
-                    UnityEngine.GUI.Label(new Rect(currentPosition, Vector2.one * 34f), currentYValue.ToString());
+                    GUI.Label(new Rect(currentPosition, Vector2.one * 34f), currentYValue.ToString());
                 }
             }
 
-            Vector2 resetButtonPos = new Vector2(200f, _gridWindow.position.y + _gridWindow.size.y + 38f);
-            if(UnityEngine.GUI.Button(new Rect(resetButtonPos, new Vector2(100f, 20f)), "Reset Values"))
+            var resetButtonPos = new Vector2(200f, _gridWindow.position.y + _gridWindow.size.y + 38f);
+            if(GUI.Button(new Rect(resetButtonPos, new Vector2(100f, 20f)), "Reset Values"))
             {
                 ResetValues();
             }
@@ -526,7 +517,7 @@ namespace SocialPoint.GUIAnimation
                 }
 
                 // Try to show info
-                Rect testWindow = new Rect(_timeValuesWinData[i].Window.position, new Vector2(10f, 10f));
+                var testWindow = new Rect(_timeValuesWinData[i].Window.position, new Vector2(10f, 10f));
                 if(testWindow.Contains(Event.current.mousePosition))
                 {
                     float xVal = XPositionToValue(_timeValuesWinData[i].Window.center.x);
@@ -536,10 +527,10 @@ namespace SocialPoint.GUIAnimation
                     yVal = float.Parse(yVal.ToString("0.0"));
 
                     string labelContent = string.Format("({0}, {1})", xVal, yVal);
-                    Vector2 labelSize = UnityEngine.GUI.skin.label.CalcSize(new GUIContent(labelContent));
+                    Vector2 labelSize = GUI.skin.label.CalcSize(new GUIContent(labelContent));
                     labelSize.y = 0f;
 
-                    UnityEngine.GUI.Label(new Rect(_timeValuesWinData[i].Window.position - labelSize, new Vector2(60f, 25f)), labelContent);
+                    GUI.Label(new Rect(_timeValuesWinData[i].Window.position - labelSize, new Vector2(60f, 25f)), labelContent);
                 }
             }
 
@@ -578,7 +569,7 @@ namespace SocialPoint.GUIAnimation
 
         List<EasePoint> GetTimeValuesFromWinData()
         {
-            List<EasePoint> newTimeValues = new List<EasePoint>();
+            var newTimeValues = new List<EasePoint>();
 
             for(int i = 0; i < _timeValuesWinData.Count; ++i)
             {
@@ -605,7 +596,7 @@ namespace SocialPoint.GUIAnimation
         void CreatePoint(Vector2 mousePos)
         {
             _timeValuesWinData.Add(
-                new TimeValueBox() {
+                new TimeValueBox {
                     Window = new Rect(mousePos, new Vector2(4f, 4f))
                 }
             );
@@ -613,9 +604,9 @@ namespace SocialPoint.GUIAnimation
             SetLastPointUsed(_timeValuesWinData[_timeValuesWinData.Count - 1]);
         }
 
-        GUIStyle GetHeaderStyle()
+        static GUIStyle GetHeaderStyle()
         {
-            GUIStyle headerStyle = new GUIStyle();
+            var headerStyle = new GUIStyle();
             headerStyle.fontStyle = FontStyle.Bold;
             headerStyle.fontSize = 12;
             return headerStyle;

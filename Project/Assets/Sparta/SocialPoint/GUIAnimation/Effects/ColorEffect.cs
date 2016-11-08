@@ -1,6 +1,6 @@
-using UnityEngine;
-using System.Collections.Generic;
+using System;
 using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -36,7 +36,7 @@ namespace SocialPoint.GUIAnimation
                     newColor = widget.Color;
                 }
 
-                return newColor.r != Color.r || newColor.g != Color.g || newColor.b != Color.b;
+                return Math.Abs(newColor.r - Color.r) > Single.Epsilon || Math.Abs(newColor.g - Color.g) > Single.Epsilon || Math.Abs(newColor.b - Color.b) > Single.Epsilon;
             }
         }
 
@@ -96,7 +96,7 @@ namespace SocialPoint.GUIAnimation
             SaveValuesAt(1f);
         }
 
-        public override void Invert(bool invertTime)
+        public override void Invert(bool invertTime = false)
         {
             base.Invert(invertTime);
 

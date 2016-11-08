@@ -1,10 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System;
 using SocialPoint.IO;
-using SocialPoint.Utils;
-using SocialPoint.Lockstep.Network;
 
 namespace SocialPoint.Lockstep
 {
@@ -14,6 +10,7 @@ namespace SocialPoint.Lockstep
         LockstepCommandFactory _commandFactory;
         Dictionary<int, ClientLockstepTurnData> _turns;
         LockstepConfig _config;
+        LockstepGameParams _gameParams;
 
         public LockstepReplay(ClientLockstepController clientLockstep, LockstepCommandFactory commandFactory)
         {
@@ -40,12 +37,15 @@ namespace SocialPoint.Lockstep
         public void Clear()
         {
             _config = null;
+            _gameParams = null;
             _turns.Clear();
         }
 
         public void Record()
         {
-            _config = null;
+            Clear();
+
+            _client.TurnApplied -= OnTurnApplied;
             _client.TurnApplied += OnTurnApplied;
         }
 
@@ -55,7 +55,14 @@ namespace SocialPoint.Lockstep
             {
                 _config = new LockstepConfig();
             }
+            if(_gameParams == null)
+            {
+                _gameParams = new LockstepGameParams();
+            }
+
             _client.Config = _config;
+            _client.GameParams = _gameParams;
+
             var itr = GetTurnsEnumerator();
             while(itr.MoveNext())
             {
@@ -113,6 +120,10 @@ namespace SocialPoint.Lockstep
             {
                 _config = _client.Config;
             }
+            if(_gameParams == null)
+            {
+                _gameParams = _client.GameParams;
+            }
             if(!ClientLockstepTurnData.IsNullOrEmpty(turn))
             {
                 _turns[_client.CurrentTurnNumber] = turn;
@@ -121,11 +132,13 @@ namespace SocialPoint.Lockstep
 
         public void Serialize(IWriter writer)
         {
-            if(_config == null)
+            if(_config == null || _gameParams == null)
             {
                 return;
             }
             _config.Serialize(writer);
+            _gameParams.Serialize(writer);
+
             writer.Write(_turns.Count);
             var itr = _turns.GetEnumerator();
             while(itr.MoveNext())
@@ -140,6 +153,10 @@ namespace SocialPoint.Lockstep
         {
             _config = new LockstepConfig();
             _config.Deserialize(reader);
+
+            _gameParams = new LockstepGameParams();
+            _gameParams.Deserialize(reader);
+
             int count = reader.ReadInt32();
             for(int i = 0; i < count; ++i)
             {
