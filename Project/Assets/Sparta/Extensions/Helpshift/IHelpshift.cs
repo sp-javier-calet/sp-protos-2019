@@ -4,12 +4,20 @@ namespace SocialPoint.Extension.Helpshift
 {
     public struct HelpshiftConfiguration
     {
+
+        // default params from DL
+        public const string DefaultIosApiKey = "e80e75c9fd498d3274f3cdbc637b3866";
+        public const string DefaultIosDomainName = "socialpoint.helpshift.com";
+        public const string DefaultIosAppId = "socialpoint_platform_20151021095745155-1b0b401a75542a3";
+        public const string DefaultAndroidApiKey = "e80e75c9fd498d3274f3cdbc637b3866";
+        public const string DefaultAndroidDomainName = "socialpoint.helpshift.com";
+        public const string DefaultAndroidAppId = "socialpoint_platform_20151021095745169-3fd755eb172b848";
+
         public enum ContactMode
         {
-            ALWAYS,
-            AFTER_VIEWING_FAQS,
-            AFTER_UNHELPFUL_ANSWER,
-            NEVER
+            CONTACT_US_ALWAYS,
+            CONTACT_US_NEVER,
+            CONTACT_US_AFTER_VIEWING_FAQS
         }
 
         public string ApiKey { get; private set; }
@@ -31,7 +39,7 @@ namespace SocialPoint.Extension.Helpshift
             ApiKey = apiKey;
             AppId = appId;
             DomainName = domainName;
-            Mode = ContactMode.AFTER_VIEWING_FAQS;
+            Mode = ContactMode.CONTACT_US_ALWAYS;
         }
     }
 
@@ -53,16 +61,18 @@ namespace SocialPoint.Extension.Helpshift
 
     public interface IHelpshift
     {
-        void Setup(string gameObjectName, HelpshiftConfiguration config, HelpshiftCustomer customerData = null);
+        HelpshiftConfiguration Configuration { get; }
 
-        void SetCustomerData(HelpshiftCustomer customerData);
+        HelpshiftCustomer UserData { set; }
 
-        void SetLanguage(string locale);
+        bool IsEnabled{ get; }
+
+        void Enable();
 
         void ShowFAQ(string sectionId = null);
 
         void ShowConversation();
 
-        void RegisterPushNotificationToken(string token);
+        void OpenFromPush(string issueId);
     }
 }

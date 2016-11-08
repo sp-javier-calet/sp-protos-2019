@@ -6,31 +6,43 @@ namespace SocialPoint.Extension.Helpshift
     {
         #region IHelpshift implementation
 
-        public void Setup(string gameObjectName, HelpshiftConfiguration config, HelpshiftCustomer customerData = null)
-        {
+        public HelpshiftConfiguration Configuration
+        { 
+            get
+            {
+                return new HelpshiftConfiguration();
+            }
         }
 
-        public void SetCustomerData(HelpshiftCustomer customerData)
+        public HelpshiftCustomer UserData
         {
+            set
+            {
+            }
         }
 
-        public void SetLanguage(string locale)
+        public bool IsEnabled
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public void Enable()
         {
         }
 
         public void ShowFAQ(string sectionId = null)
         {
-            Debug.LogWarning("ShowFAQ not available. Empty Helpshift implementation");
         }
 
         public void ShowConversation()
         {
-            Debug.LogWarning("ShowConversation not available. Empty Helpshift implementation");
         }
 
-        public void RegisterPushNotificationToken(string token)
+        public void OpenFromPush(string issueId)
         {
-            Debug.LogWarning("RegisterPushNotificationToken not available. Empty Helpshift implementation");
         }
 
         #endregion

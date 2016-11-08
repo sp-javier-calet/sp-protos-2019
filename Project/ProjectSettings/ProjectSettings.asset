@@ -100,7 +100,7 @@ PlayerSettings:
   xboxOneDisableKinectGpuReservation: 0
   virtualRealitySupported: 0
   productGUID: ebb005ff38e9b473cbf04a55f0b772a0
-  AndroidBundleVersionCode: 20160818
+  AndroidBundleVersionCode: 1610101010
   AndroidMinSdkVersion: 15
   AndroidPreferredInstallLocation: 1
   aotOptions: ntrampolines=2048,nimt-trampolines=256
@@ -528,9 +528,9 @@ PlayerSettings:
   WebGL::exceptionSupport: 1
   WebGL::memorySize: 256
   WebPlayer::ScriptingBackend: 0
-  iOS::Architecture: 2
+  iOS::Architecture: 0
   iOS::EnableIncrementalBuildSupportForIl2cpp: 0
-  iOS::ScriptingBackend: 1
+  iOS::ScriptingBackend: 0
   tvOS::Architecture: 1
   tvOS::EnableIncrementalBuildSupportForIl2cpp: 0
   tvOS::ScriptingBackend: 1
