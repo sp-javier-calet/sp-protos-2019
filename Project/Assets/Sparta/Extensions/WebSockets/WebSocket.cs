@@ -71,10 +71,24 @@ namespace SocialPoint.WebSockets
             }
         }
 
-        public WebSocket()
+        public WebSocket(string url, string[] protocols) : this(new string[] {url}, protocols)
+        {
+        }
+
+        public WebSocket(string[] urls, string[] protocols)
         {
             _nativeSocket = SPUnityWebSocketsCreate();
             _lastState = WebSocketState.Closed;
+
+            for(var i = 0; i < urls.Length; ++i)
+            {
+                SPUnityWebSocketAddUrl(NativeSocket, urls[i]);
+            }
+
+            for(var i = 0; i < protocols.Length; ++i)
+            {
+                SPUnityWebSocketAddProtocol(NativeSocket, protocols[i]);
+            }
         }
 
         public void Connect()
@@ -281,6 +295,12 @@ namespace SocialPoint.WebSockets
 
         [DllImport(PluginModuleName)]
         static extern UIntPtr SPUnityWebSocketDestroy(UIntPtr socket);
+
+        [DllImport(PluginModuleName)]
+        static extern void SPUnityWebSocketAddUrl(UIntPtr socket, string url);
+
+        [DllImport(PluginModuleName)]
+        static extern void SPUnityWebSocketAddProtocol(UIntPtr socket, string protocol);
 
         [DllImport(PluginModuleName)]
         static extern void SPUnityWebSocketConnect(UIntPtr socket);

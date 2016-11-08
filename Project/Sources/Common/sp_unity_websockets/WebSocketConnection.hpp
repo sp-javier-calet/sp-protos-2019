@@ -119,8 +119,7 @@ public:
      * Constructor
      * @param pUrl url of the Websocket Server
      */
-    WebSocketConnection(const std::string& pUrl);
-    WebSocketConnection(const std::vector<std::string>& pVecUrls);
+    WebSocketConnection();
     ~WebSocketConnection();
     
     /**
@@ -131,6 +130,7 @@ public:
     
     void disconnect();
 
+    void addUrl(const std::string& url);
     virtual void send(const std::string& message);
     
     /**

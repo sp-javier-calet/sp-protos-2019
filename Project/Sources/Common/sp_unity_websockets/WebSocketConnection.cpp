@@ -12,14 +12,8 @@
 #include <string>
 #include <sstream>
 
-WebSocketConnection::WebSocketConnection(const std::string& pUrl)
-: WebSocketConnection(std::vector<std::string>{pUrl})
-{
-}
-
-WebSocketConnection::WebSocketConnection(const std::vector<std::string>& pVecUrls)
+WebSocketConnection::WebSocketConnection()
 : _allowSelfSignedCertificates(false)
-, _vecUrls(pVecUrls)
 , _currentUrlIndex(0)
 , _websocket(nullptr)
 , _pendingPings(0)
@@ -165,6 +159,11 @@ void WebSocketConnection::disconnect()
         setState(State::Closing);
         WebSocketsManager::get().markSocketToClose(_websocket);
     }
+}
+
+void WebSocketConnection::addUrl(const std::string &url)
+{
+    _vecUrls.push_back(url);
 }
 
 void WebSocketConnection::send(const std::string& message)

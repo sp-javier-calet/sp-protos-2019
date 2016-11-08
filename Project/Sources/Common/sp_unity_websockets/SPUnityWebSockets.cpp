@@ -28,9 +28,9 @@
  */
 extern "C"
 {
-    EXPORT_API WebSocketConnection* SPUnityWebSocketsCreate(char* url)
+    EXPORT_API WebSocketConnection* SPUnityWebSocketsCreate()
     {
-        return new WebSocketConnection(std::string(url));
+        return new WebSocketConnection();
     }
     
     EXPORT_API void SPUnityWebSocketDestroy(WebSocketConnection* socket)
@@ -61,6 +61,16 @@ extern "C"
     EXPORT_API void SPUnityWebSocketDisconnect(WebSocketConnection* socket)
     {
         socket->disconnect();
+    }
+    
+    EXPORT_API void SPUnityWebSocketAddUrl(WebSocketConnection* socket, const std::string url)
+    {
+        socket->addUrl(url);
+    }
+    
+    EXPORT_API void SPUnityWebSocketAddProtocol(WebSocketConnection* socket, const std::string protocol)
+    {
+        socket->addSupportedProtocol(protocol);
     }
     
     EXPORT_API void SPUnityWebSocketUpdate(WebSocketConnection* socket)

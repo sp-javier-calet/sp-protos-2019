@@ -1,0 +1,224 @@
+﻿using System;
+using SocialPoint.Base;
+using SocialPoint.IO;
+using SocialPoint.Utils;
+using SocialPoint.Network;
+
+namespace SocialPoint.WebSockets
+{
+    public class WebSocketClient : IWebSocketClient, IUpdateable, IDisposable
+    {
+        event Action ClientConnected;
+        event Action ClientDisconnected;
+        event Action<NetworkMessageData> MessageWasReceived;
+        event Action<Error> NetworkError;
+        event Action<NetworkMessageData, IReader> MessageReceived;
+
+        readonly IUpdateScheduler _scheduler;
+        readonly string[] _protocols;
+        WebSocket _socket;
+
+        public WebSocketClient(string url, IUpdateScheduler scheduler) : this(url, null, scheduler)
+        {
+        }
+
+        public WebSocketClient(string url, string[] protocols, IUpdateScheduler scheduler)
+        {
+            _url = url;
+            _protocols = protocols;
+            _scheduler = scheduler;
+            CreateSocket(url);
+        }
+
+        public void Update()
+        {
+            _socket.Update();
+        }
+
+        public void Dispose()
+        {
+            Disconnect();
+            DestroySocket();
+        }
+
+        public void SendNetworkMessage(NetworkMessageData info, string data)
+        {
+            _socket.Send(data);
+        }
+
+        void OnSocketStateChanged(bool connected)
+        {
+            if(connected)
+            {
+                if(ClientConnected != null)
+                {
+                    ClientConnected();
+                }
+            }
+            else
+            {
+                if(ClientDisconnected != null)
+                {
+                    ClientDisconnected();
+                }
+            }
+        }
+
+        void OnSocketMessage(string message)
+        {
+            var data = new NetworkMessageData();
+            if(MessageReceived != null)
+            {
+                MessageReceived(data, new WebSocketsTextReader(message));
+            }
+            if(MessageWasReceived != null)
+            {
+                MessageWasReceived(data);
+            }
+        }
+
+        void OnSocketError(Error err)
+        {
+            if(NetworkError != null)
+            {
+                NetworkError(err);
+            }
+        }
+
+        void CreateSocket(string url)
+        {
+            if(_socket != null)
+            {
+                throw new InvalidOperationException("Socket already existing");
+            }
+
+            _socket = new WebSocket(url, _protocols);
+            _socket.ConnectionStateChanged += OnSocketStateChanged;
+            _socket.ConnectionError += OnSocketError;
+            _socket.MessageReceived += OnSocketMessage;
+
+            if(!string.IsNullOrEmpty(_proxy))
+            {   
+                    _socket.Proxy = _proxy;
+            }
+        }
+
+        void DestroySocket()
+        {
+            if(_socket != null)
+            {
+                _socket.ConnectionStateChanged -= OnSocketStateChanged;
+                _socket.ConnectionError -= OnSocketError;
+                _socket.MessageReceived -= OnSocketMessage;
+            }
+            _socket = null;
+        }
+
+        #region WebsocketClient implementation
+
+        string _proxy;
+
+        public string Proxy
+        {
+            get
+            {
+                return _proxy;
+            }
+            set
+            {
+                _proxy = value;
+                if(_socket != null)
+                {
+                    _socket.Proxy = _proxy;
+                }
+            }
+        }
+
+        string _url;
+
+        public string Url
+        {
+            get
+            {
+                return _url;
+            }
+            set
+            {
+                _url = value;
+                DestroySocket();
+                CreateSocket(value);
+            }
+        }
+
+        public void Ping()
+        {
+            _socket.Ping();
+        }
+
+        #endregion
+
+        #region INetworkClient implementation
+
+        public void Connect()
+        {
+            _scheduler.Add(this);
+            _socket.Connect();
+        }
+
+        public void Disconnect()
+        {
+            _socket.Disconnect();
+            _scheduler.Remove(this);
+        }
+
+        public INetworkMessage CreateMessage(NetworkMessageData data)
+        {
+            return new WebSocketNetworkMessage(data, this);
+        }
+
+        public void AddDelegate(INetworkClientDelegate dlg)
+        {
+            ClientConnected += dlg.OnClientConnected;
+            ClientDisconnected += dlg.OnClientDisconnected;
+            MessageWasReceived += dlg.OnMessageReceived;
+            NetworkError += dlg.OnNetworkError;
+
+        }
+
+        public void RemoveDelegate(INetworkClientDelegate dlg)
+        {
+            ClientConnected -= dlg.OnClientConnected;
+            ClientDisconnected -= dlg.OnClientDisconnected;
+            MessageWasReceived -= dlg.OnMessageReceived;
+            NetworkError -= dlg.OnNetworkError;
+        }
+
+        public void RegisterReceiver(INetworkMessageReceiver receiver)
+        {
+            MessageReceived += receiver.OnMessageReceived;
+        }
+
+        public int GetDelay(int networkTimestamp)
+        {
+            return 0;
+        }
+
+        public byte ClientId
+        {
+            get
+            {
+                return 0;
+            }
+        }
+
+        public bool Connected
+        {
+            get
+            {
+                return _socket.IsConnected;
+            }
+        }
+
+        #endregion
+    }
+}
