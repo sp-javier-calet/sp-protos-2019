@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -7,10 +6,10 @@ namespace SocialPoint.GUIAnimation
     {
         GUIAnimationTool _animationTool;
 
-        AnimationTimelinePanel _timelinePanel = new AnimationTimelinePanel();
-        AnimationPropertiesPanel _propertiesPanel = new AnimationPropertiesPanel();
+        readonly AnimationTimelinePanel _timelinePanel = new AnimationTimelinePanel();
+        readonly AnimationPropertiesPanel _propertiesPanel = new AnimationPropertiesPanel();
 
-        bool _isInit = false;
+        bool _isInit;
 
         public void Render(GUIAnimationTool animationTool)
         {
@@ -40,8 +39,8 @@ namespace SocialPoint.GUIAnimation
 
         void DoRender()
         {
-            Rect timelineContainerRect = new Rect(0f, 0f, _animationTool.position.width, _animationTool.position.height * 0.6f);
-            Rect propertiesContainerRect = new Rect(0f, _animationTool.position.height * 0.6f, _animationTool.position.width, (_animationTool.position.height - _animationTool.position.height * 0.6f));
+            var timelineContainerRect = new Rect(0f, 0f, _animationTool.position.width, _animationTool.position.height * 0.6f);
+            var propertiesContainerRect = new Rect(0f, _animationTool.position.height * 0.6f, _animationTool.position.width, (_animationTool.position.height - _animationTool.position.height * 0.6f));
 
             GUI.BeginGroup(timelineContainerRect);
             _timelinePanel.Render(_animationTool, timelineContainerRect);
