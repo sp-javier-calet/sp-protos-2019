@@ -11,6 +11,8 @@ namespace SocialPoint.Social
 
     public static class AllianceUtils
     {
+        const int AllianceTypeOpenIndex = 0;
+        const int AllianceTypePrivateIndex = 1;
         const int MemberTypeLeadIndex = 1;
         const int MemberTypeColeadIndex = 2;
         const int MemberTypeSoldierIndex = 3;
@@ -46,7 +48,16 @@ namespace SocialPoint.Social
 
         public static AllianceAccessType GetAllianceTypeFromIndex(int index)
         {
-            return AllianceAccessType.Open;
+            switch(index)
+            {
+            case AllianceTypeOpenIndex:
+                return AllianceAccessType.Open;
+            case AllianceTypePrivateIndex:
+                return AllianceAccessType.Private;
+            default:
+                DebugUtils.Assert(false, "Invalid Alliance Type index");
+                return AllianceAccessType.Private;
+            }
         }
 
         public static string GetAllianceMemberTypeString(AllianceMemberType type)
