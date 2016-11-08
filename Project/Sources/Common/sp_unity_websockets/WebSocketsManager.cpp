@@ -44,7 +44,6 @@ static int callback_websocket(struct libwebsocket_context* context, struct libwe
         case LWS_CALLBACK_CLIENT_RECEIVE_PONG:
         {
             lwsl_notice("Client RX - PONG\n");
-            connection.receivedPong();
             WebSocketsManager::pingCounter = 0;
             break;
         }
@@ -70,14 +69,14 @@ static int callback_websocket(struct libwebsocket_context* context, struct libwe
                 if(n < 0)
                 {
                     lwsl_err("ERROR %d writing to socket, hanging up\n", n);
-                    connection.connectionError();
+                    connection.connectionError((int)WebSocketConnection::Error::WriteError, "Error writing to socket, hanging up");
                     connection.closeSocket();
                     pRet = -1;
                 }
                 if(n < (int)dataSize)
                 {
                     lwsl_err("Partial write\n");
-                    connection.connectionError();
+                    connection.connectionError((int)WebSocketConnection::Error::StreamError, "Partial write");
                     connection.closeSocket();
                     pRet = -1;
                 }
@@ -99,7 +98,7 @@ static int callback_websocket(struct libwebsocket_context* context, struct libwe
                 if(n < 0)
                 {
                     lwsl_err("ERROR %d writing to socket, hanging up\n", n);
-                    connection.connectionError();
+                    connection.connectionError((int)WebSocketConnection::Error::WriteError, "Error writing to socket, hanging up");
                     connection.closeSocket();
                     pRet = -1;
                 }
@@ -111,7 +110,7 @@ static int callback_websocket(struct libwebsocket_context* context, struct libwe
                     {
                         WebSocketsManager::pingCounter = 0;
                         lwsl_err("ERROR: MAX PINGS REACHED\n");
-                        connection.connectionError();
+                        connection.connectionError((int)WebSocketConnection::Error::MaxPings, "Max pings reached");
                         connection.closeSocket();
                         pRet = -1;
                     }
@@ -124,7 +123,7 @@ static int callback_websocket(struct libwebsocket_context* context, struct libwe
             pRet = -1;
             break;
         case LWS_CALLBACK_CLIENT_CONNECTION_ERROR:
-            connection.connectionError();
+            connection.connectionError((int)WebSocketConnection::Error::ConnectionError, "Connection Error");
             connection.closeSocket();
             pRet = -1;
             break;
@@ -224,9 +223,6 @@ void WebSocketsManager::checkAndCreateContext()
         info.user = this;
         info.http_proxy_address = "";
         _context = libwebsocket_create_context(&info);
-        
-        // TODO start
-        //_dispatcher->dispatch(std::bind(&WebSocketsManager::loop, this));
     }
 }
 
@@ -307,7 +303,7 @@ void WebSocketsManager::connect(WebSocketConnection* connection)
     else
     {
         currentUrlIndex = 0;
-        connection->setState(WebSocketConnection::State::CLOSED);
+        connection->setState(WebSocketConnection::State::Closed);
     }
 }
 
@@ -350,6 +346,7 @@ void WebSocketsManager::remove(WebSocketConnection* connection)
 
 void WebSocketsManager::update()
 {
+    // TODO Check min time between updates?
     libwebsocket_service(_context, 0);
 }
 

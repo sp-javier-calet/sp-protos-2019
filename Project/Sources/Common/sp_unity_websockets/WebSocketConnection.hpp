@@ -16,30 +16,28 @@
 
 class WebSocketConnection
 {
-    // TODO FROM inetworkconnection
 public:
     enum class State
     {
-        CLOSING,
-        CLOSED,
-        CONNECTING,
-        OPEN
+        Closed = 0,
+        Closing,
+        Connecting,
+        Open
     };
     
-    typedef std::function<void(State)> ConnectionStateChangedCallback;
-    typedef std::function<void()> ConnectionErrorCallback;
-    
-    typedef std::function<void()> ReceivePongCallback;
+    enum class Error : int
+    {
+        None = 0,
+        WriteError,
+        StreamError,
+        ConnectionError,
+        MaxPings
+    };
     
 private:
-    //INetworkConnection
     State _state;
-    ConnectionStateChangedCallback _connChangedCallback;
-
-    // IWebsocketConnection
     std::vector<std::string> _vecSupportedProtocols;
     std::string _origin;
-    
     
     bool _allowSelfSignedCertificates;
     /**
@@ -56,9 +54,12 @@ private:
     
     libwebsocket* _websocket;
     
-    
-    std::queue<std::string> _pendingQueue;
+    std::queue<std::string> _incomingQueue;
+    std::queue<std::string> _outcomingQueue;
     int _pendingPings;
+    
+    int _errorCode;
+    std::string _errorMessage;
     
     /**
      * Accumulated message received in multiple frames
@@ -66,16 +67,20 @@ private:
     std::string _accumulatedMessage;
     
 public:
-        void setState(State pNewState);
+    State getState();
+    void setState(State pNewState);
     
     /**
      * Called when new data is received form _socket
      */
     void receivedData(const std::string& message, bool isFinalFrame);
     
-    void receivedPong();
+    void connectionError(int code, const std::string& message);
     
-    void connectionError();
+    bool hasError();
+    int getErrorCode();
+    const std::string& getError();
+    void clearError();
     
     bool hasDataToSend();
     
@@ -87,6 +92,10 @@ public:
      * Remove and delete the oldest data in the queue
      */
     void removeOldestData();
+    
+    bool hasMessages();
+    const std::string& getMessage();
+    void removeOldestMessage();
     
     /**
      * Checks for pending Pings and if any, decrements by 1 and returns true, false otherwise
@@ -120,10 +129,6 @@ public:
      */
     void connect();
     
-    bool isConnected();
-    
-    bool isConnecting();
-    
     void disconnect();
 
     virtual void send(const std::string& message);
@@ -144,14 +149,7 @@ public:
     bool getAllowSelfSignedCertificates() const;
     void setAllowSelfSignedCertificates(bool pNewValue);
     
-    /**
-     * Setter for the callback to be called when the connection state has changed
-     */
-    virtual void setConnectionStateChangedCallback(ConnectionStateChangedCallback pNewCallback);
-    
-    void setSupportedProtocols(const std::vector<std::string>& pNewValue);
-    const std::vector<std::string>& getSuportedProtocols() const;
-    
+    void addSupportedProtocol(const std::string& protocol);
     const std::string getSuportedProtocolsString() const;
     
     void setOrigin(const std::string& pNewOrigin);

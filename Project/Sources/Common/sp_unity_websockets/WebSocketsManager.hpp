@@ -49,8 +49,7 @@ public:
     
     void setLogLevelMax();
     void setLogLevelNone();
-    
-    // TODO FIXED
+
     WebSocketConnection& get(libwebsocket* wsi);
     void connect(WebSocketConnection* connection);
     void connect(WebSocketConnection* connection, int idx);

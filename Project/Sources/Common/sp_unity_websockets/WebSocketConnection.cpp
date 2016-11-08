@@ -12,15 +12,8 @@
 #include <string>
 #include <sstream>
 
-
 WebSocketConnection::WebSocketConnection(const std::string& pUrl)
-: _allowSelfSignedCertificates(false)
-, _vecUrls(1, pUrl)
-, _currentUrlIndex(0)
-, _websocket(nullptr)
-, _pendingPings(0)
-, _state(State::CLOSED)
-, _connChangedCallback(nullptr)
+: WebSocketConnection(std::vector<std::string>{pUrl})
 {
 }
 
@@ -30,8 +23,7 @@ WebSocketConnection::WebSocketConnection(const std::vector<std::string>& pVecUrl
 , _currentUrlIndex(0)
 , _websocket(nullptr)
 , _pendingPings(0)
-, _state(State::CLOSED)
-, _connChangedCallback(nullptr)
+, _state(State::Closed)
 {
 }
 
@@ -50,39 +42,72 @@ void WebSocketConnection::receivedData(const std::string& message, bool isFinalF
     
     if(isFinalFrame)
     {
-        auto received = _accumulatedMessage;
+        _incomingQueue.push(_accumulatedMessage);
         _accumulatedMessage = "";
-        // TODO Receive_receiveCallback(received);
     }
 }
 
-void WebSocketConnection::receivedPong()
-{
-    // TODO
-}
-
-void WebSocketConnection::connectionError()
+void WebSocketConnection::connectionError(int code, const std::string& message)
 {
     _accumulatedMessage = "";
-    
-    // TODO Notify error
+    _errorCode = code;
+    _errorMessage = message;
+}
+
+bool WebSocketConnection::hasError()
+{
+    return _errorCode || !_errorMessage.empty();
+}
+
+int WebSocketConnection::getErrorCode()
+{
+    return _errorCode;
+}
+
+const std::string& WebSocketConnection::getError()
+{
+    return _errorMessage;
+}
+
+void WebSocketConnection::clearError()
+{
+    _errorCode = 0;
+    _errorMessage = "";
 }
 
 bool WebSocketConnection::hasDataToSend()
 {
-    return !_pendingQueue.empty();
+    return !_outcomingQueue.empty();
 }
 
 const std::string& WebSocketConnection::getNextDataToSend()
 {
-    return _pendingQueue.front();
+    return _outcomingQueue.front();
 }
 
 void WebSocketConnection::removeOldestData()
 {
-    if(!_pendingQueue.empty())
+    if(!_outcomingQueue.empty())
     {
-        _pendingQueue.pop();
+        _outcomingQueue.pop();
+    }
+}
+
+bool WebSocketConnection::hasMessages()
+{
+    return !_incomingQueue.empty();
+}
+
+const std::string& WebSocketConnection::getMessage()
+{
+    return _incomingQueue.front();
+}
+
+void WebSocketConnection::removeOldestMessage()
+{
+    if(!_incomingQueue.empty())
+    {
+        _incomingQueue.pop();
     }
 }
 
@@ -99,17 +124,17 @@ bool WebSocketConnection::checkAndDecrementPingCounter()
 void WebSocketConnection::connectionEstablished()
 {
     assert(_websocket);
-    setState(State::OPEN);
+    setState(State::Open);
 }
 
 void WebSocketConnection::closeSocket()
 {
-    if(_state != State::CLOSED)
+    if(_state != State::Closed)
     {
         assert(_websocket);
         WebSocketsManager::get().remove(this);
         _websocket = nullptr;
-        setState(State::CLOSED);
+        setState(State::Closed);
     }
 }
 
@@ -126,28 +151,18 @@ libwebsocket* WebSocketConnection::getWebsocket()
 
 void WebSocketConnection::connect()
 {
-    if(_state != State::CONNECTING)
+    if(_state != State::Connecting)
     {
         WebSocketsManager::get().connect(this);
-        setState(State::CONNECTING);
+        setState(State::Connecting);
     }
-}
-
-bool WebSocketConnection::isConnected()
-{
-    return _state == State::OPEN;
-}
-
-bool WebSocketConnection::isConnecting()
-{
-    return _state == State::CONNECTING;
 }
 
 void WebSocketConnection::disconnect()
 {
-    if(_state == State::OPEN && _websocket)
+    if(_state == State::Open && _websocket)
     {
-        setState(State::CLOSING);
+        setState(State::Closing);
         WebSocketsManager::get().markSocketToClose(_websocket);
     }
 }
@@ -163,7 +178,7 @@ void WebSocketConnection::send(const std::string& message)
     new Data(buffer, (LWS_SEND_BUFFER_PRE_PADDING + data.getSize() + LWS_SEND_BUFFER_POST_PADDING) * sizeof(unsigned char), true); 
      */
     
-    _pendingQueue.push(message);
+    _outcomingQueue.push(message);
     
     WebSocketsManager::get().dataReadyToSendOnConnection(this);
 }
@@ -212,40 +227,42 @@ void WebSocketConnection::setCurrentUrlIndex(size_t newIndex)
 
 void WebSocketConnection::setState(State pNewState)
 {
-    if(_state != pNewState)
-    {
-        _state = pNewState;
-        // TODO Notify connection state change
-    }
+    _state = pNewState;
 }
 
-void WebSocketConnection::setConnectionStateChangedCallback(ConnectionStateChangedCallback pNewCallback)
+
+WebSocketConnection::State WebSocketConnection::getState()
 {
-    _connChangedCallback = pNewCallback;
+    return _state;
 }
 
-void WebSocketConnection::setSupportedProtocols(const std::vector<std::string>& pNewValue)
+void WebSocketConnection::addSupportedProtocol(const std::string& protocol)
 {
-    _vecSupportedProtocols = pNewValue;
-};
-
-const std::vector<std::string>& WebSocketConnection::getSuportedProtocols() const
-{
-    return _vecSupportedProtocols;
-};
+    _vecSupportedProtocols.push_back(protocol);
+}
 
 const std::string WebSocketConnection::getSuportedProtocolsString() const
 {
-    // TODO return StringUtils::join(getSuportedProtocols(), ",");
-    return "";
-};
+    std::string protocols;
+    bool first = true;
+    for(auto& protocol : _vecSupportedProtocols)
+    {
+        if(!first)
+        {
+            protocols += ",";
+        }
+        protocols += protocol;
+        first = false;
+    }
+    return protocols;
+}
 
 void WebSocketConnection::setOrigin(const std::string& pNewOrigin)
 {
     _origin = pNewOrigin;
-};
+}
 
 const std::string& WebSocketConnection::getOrigin() const
 {
     return _origin;
-};
+}

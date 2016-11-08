@@ -21,7 +21,7 @@
 #endif
 
 #include "WebSocketConnection.hpp"
-
+#include "WebSocketsManager.hpp"
 
 /*
  * Native interface
@@ -45,12 +45,17 @@ extern "C"
     
     EXPORT_API bool SPUnityWebSocketIsConnected(WebSocketConnection* socket)
     {
-        return socket->isConnected();
+        return socket->getState() == WebSocketConnection::State::Open;
     }
     
     EXPORT_API bool SPUnityWebSocketIsConnecting(WebSocketConnection* socket)
     {
-        return socket->isConnected();
+        return socket->getState() == WebSocketConnection::State::Connecting;
+    }
+    
+    EXPORT_API int SPUnityWebSocketGetState(WebSocketConnection* socket)
+    {
+        return (int)socket->getState();
     }
     
     EXPORT_API void SPUnityWebSocketDisconnect(WebSocketConnection* socket)
@@ -58,52 +63,74 @@ extern "C"
         socket->disconnect();
     }
     
+    EXPORT_API void SPUnityWebSocketUpdate(WebSocketConnection* socket)
+    {
+        WebSocketsManager::get().update();
+    }
+    
     EXPORT_API void SPUnityWebSocketPing(WebSocketConnection* socket)
     {
         socket->sendPing();
     }
     
-    EXPORT_API void SPUnityWebSocketSend(WebSocketConnection* socket, char* data, size_t size)
+    EXPORT_API void SPUnityWebSocketSend(WebSocketConnection* socket, const std::string data)
     {
-        socket->send(std::string(data, size));
-    }
-    
-    EXPORT_API bool SPUnityWebSocketHasMessages(WebSocketConnection* socket)
-    {
-        return false; // TODO
+        socket->send(data);
     }
     
     EXPORT_API int SPUnityWebSocketGetMessageLength(WebSocketConnection* socket)
     {
-        return 0; // TODO
+        return (int)socket->getMessage().size();
     }
     
-    EXPORT_API void SPUnityWebSocketGetMessage(WebSocketConnection* socket, char* data)
+    EXPORT_API bool SPUnityWebSocketGetMessage(WebSocketConnection* socket, char* data)
     {
-        // TODO
+        if(socket->hasMessages())
+        {
+            auto& msg = socket->getMessage();
+            memcpy(data, msg.c_str(), msg.size() * sizeof(char));
+            socket->removeOldestMessage();
+            return true;
+        }
+        return false;
     }
     
     EXPORT_API int SPUnityWebSocketGetErrorLenght(WebSocketConnection* socket)
     {
-        return 0; // TODO
+        return (int)socket->getError().size();
     }
     
     EXPORT_API int SPUnityWebSocketGetErrorCode(WebSocketConnection* socket)
     {
-        return 0; // TODO
+        return socket->getErrorCode();
     }
     
-    EXPORT_API void SPUnityWebSocketGetError(WebSocketConnection* socket, char* data)
+    EXPORT_API bool SPUnityWebSocketGetError(WebSocketConnection* socket, char* data)
+    {
+        if(socket->hasError())
+        {
+            auto& err = socket->getError();
+            memcpy(data, err.c_str(), err.size() * sizeof(char));
+            socket->clearError();
+            return true;
+        }
+        return false;
+    }
+    
+    EXPORT_API void SPUnityWebSocketSetProxy(WebSocketConnection* socket, const std::string proxy)
     {
         // TODO
     }
     
-    EXPORT_API void SPUnityWebSocketSetProxy(WebSocketConnection* socket, char* proxy)
+    EXPORT_API void SPUnityWebSocketSetVerbose(bool verbose)
     {
-        // TODO
-    }
-    
-    EXPORT_API void SPUnityWebSocketSetVerbose(WebSocketConnection* socket, bool verbose)
-    {
+        if(verbose)
+        {
+            WebSocketsManager::get().setLogLevelMax();
+        }
+        else
+        {
+            WebSocketsManager::get().setLogLevelNone();
+        }
     }
 }
