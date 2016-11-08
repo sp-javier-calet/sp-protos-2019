@@ -1,12 +1,11 @@
 ﻿#if NGUI
 using UnityEngine;
-using System.Collections;
 
 namespace SocialPoint.GUIAnimation
 {
     public sealed class NGUIPanelGraphicObject : IGraphicObject
     {
-        UIPanel _graphic;
+        readonly UIPanel _graphic;
 
         UIWidget _subWidget;
 
@@ -14,36 +13,29 @@ namespace SocialPoint.GUIAnimation
         {
             get
             {
-                if (_subWidget == null)
+                if(_subWidget == null)
                 {
-                    _subWidget = GUIAnimationUtility.GetComponentRecursiveDown<UIWidget> (_graphic.gameObject);
+                    _subWidget = GUIAnimationUtility.GetComponentRecursiveDown<UIWidget>(_graphic.gameObject);
                 }
 
                 return _subWidget;
             }
         }
 
-        public static NGUIPanelGraphicObject Load (Transform root, bool searchInChild)
+        public static NGUIPanelGraphicObject Load(Transform root, bool searchInChild)
         {
-            UIPanel graphic = null;
-            if (searchInChild)
-            {
-                graphic = root.GetComponentInChildren<UIPanel> ();
-            }
-            else
-            {
-                graphic = root.GetComponent<UIPanel> ();
-            }
+            UIPanel graphic;
+            graphic = searchInChild ? root.GetComponentInChildren<UIPanel>() : root.GetComponent<UIPanel>();
 
             NGUIPanelGraphicObject wrapper = null;
-            if (graphic != null)
+            if(graphic != null)
             {
-                wrapper = new NGUIPanelGraphicObject (graphic);
+                wrapper = new NGUIPanelGraphicObject(graphic);
             }
             return wrapper;
         }
 
-        public NGUIPanelGraphicObject (UIPanel panel)
+        public NGUIPanelGraphicObject(UIPanel panel)
         {
             _graphic = panel;
         }
@@ -52,16 +44,12 @@ namespace SocialPoint.GUIAnimation
         {
             get
             {
-                if (SubWidget)
-                {
-                    return SubWidget.color;
-                }
+                return SubWidget ? SubWidget.color : Color.white;
 
-                return Color.white;
             }
             set
             {
-                if (SubWidget)
+                if(SubWidget)
                 {
                     SubWidget.color = value;
 //					Refresh();
@@ -86,26 +74,22 @@ namespace SocialPoint.GUIAnimation
         {
             get
             {
-                if (SubWidget)
-                {
-                    return SubWidget.material;
-                }
+                return SubWidget ? SubWidget.material : null;
 
-                return null;
             }
             set
             {
-                if (SubWidget)
+                if(SubWidget)
                 {
                     SubWidget.material = value;
-                    Refresh ();
+                    Refresh();
                 }
             }
         }
 
-        public void Refresh ()
+        public void Refresh()
         {
-            _graphic.Refresh ();
+            _graphic.Refresh();
         }
     }
 }

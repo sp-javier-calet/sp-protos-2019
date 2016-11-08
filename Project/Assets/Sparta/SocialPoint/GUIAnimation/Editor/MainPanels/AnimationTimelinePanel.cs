@@ -1,6 +1,6 @@
-using UnityEngine;
-using UnityEditor;
 using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -23,7 +23,7 @@ namespace SocialPoint.GUIAnimation
 
             public float MaxBoxRectPixels = 250f;
 
-            float _gridGlobalStartTime = 0f;
+            float _gridGlobalStartTime;
 
             public float GridGlobalStartTime { get { return _gridGlobalStartTime; } }
 
@@ -101,7 +101,7 @@ namespace SocialPoint.GUIAnimation
                 float positionY = SlotsToPixels(slot);
 
                 float normalizedTime = (seconds - _gridGlobalStartTime) / (_gridGlobalEndTime - _gridGlobalStartTime);
-                Vector2 localPosition = new Vector2(distanceX * normalizedTime, positionY);
+                var localPosition = new Vector2(distanceX * normalizedTime, positionY);
 
                 return localPosition + _pivotGridPosition;
             }
@@ -136,7 +136,7 @@ namespace SocialPoint.GUIAnimation
 
         public GUIAnimationTool AnimationToolEditor { get { return _animationTool; } }
 
-        float _gridMaxHeight = 2400f;
+        const float _gridMaxHeight = 2400f;
 
         public float GridMaxHeight { get { return _gridMaxHeight; } }
 
@@ -158,7 +158,7 @@ namespace SocialPoint.GUIAnimation
 
         public Step SelectedStep { get { return _stepsSelection.Step; } }
 
-        float _previewInteractuableHeight = 28f;
+        const float _previewInteractuableHeight = 28f;
         Vector2 _boxesOffsetPosition = new Vector2(8f, 34f);
 
         public Vector2 BoxesOffsetPosition { get { return _boxesOffsetPosition; } }
@@ -167,9 +167,9 @@ namespace SocialPoint.GUIAnimation
 
         public GridProperties GridProps { get { return _gridProperties; } }
 
-        float _defaultDuration = 1f;
+        const float _defaultDuration = 1f;
 
-        float _gridVisibleHeight = 500f;
+        const float _gridVisibleHeight = 500f;
 
         public float PanelHeight { get { return _gridStartPosition.y + _gridVisibleHeight; } }
 
@@ -179,16 +179,16 @@ namespace SocialPoint.GUIAnimation
 
         Vector2 _timelinePosition = Vector2.zero;
 
-        float _currentGlobalTime = 0f;
+        float _currentGlobalTime;
 
         public float CurrentTime { get { return _currentGlobalTime; } set { _currentGlobalTime = value; } }
 
-        bool _isInit = false;
+        bool _isInit;
 
         StepBoxesProcessors _animationBoxProcessors = new StepBoxesProcessors();
 
-        private const float kEpsilon = 1e-4f;
-        private const float kGridExtraWidth = 4f;
+        const float kEpsilon = 1e-4f;
+        const float kGridExtraWidth = 4f;
 
         Rect _parentRect;
 
@@ -285,7 +285,7 @@ namespace SocialPoint.GUIAnimation
 
             GUILayout.Space(8f);
             Rect lastRect = GUILayoutUtility.GetLastRect();
-            Vector3 lineStart = new Vector3(lastRect.position.x, lastRect.position.y + 6f, 0f);
+            var lineStart = new Vector3(lastRect.position.x, lastRect.position.y + 6f, 0f);
             Vector3 lineEnd = lineStart;
             lineEnd.x += 2048f;
             DrawSimpleLine(lineStart, lineEnd, new Color(Color.gray.r, Color.gray.g, Color.gray.b, 0.25f));
@@ -299,7 +299,7 @@ namespace SocialPoint.GUIAnimation
         void RenderHierarchyPanel()
         {
             GUILayout.BeginArea(new Rect(0f, 75f, 2048f, 40f));
-            List<Step> animItemHierarchy = new List<Step>();
+            var animItemHierarchy = new List<Step>();
             Step current = _currentCollection;
             while(current != null)
             {
@@ -324,13 +324,13 @@ namespace SocialPoint.GUIAnimation
 
         void RenderCollectionActionPanel()
         {
-            GUILayout.BeginArea(new Rect(0f, 50f, 1024f, 40f));
+            GUILayout.BeginArea(new Rect(0f, 50f, 1400f, 40f));
 
             GUILayout.BeginHorizontal();
 
             // Group Exclusive Options
             bool collectionGUIEnabled = CurrentCollection.GetType() == typeof(Group);
-            UnityEngine.GUI.enabled = collectionGUIEnabled;
+            GUI.enabled = collectionGUIEnabled;
             if(GUILayout.Button("+ Transition", GUILayout.ExpandWidth(false)))
             {
                 CreateActionCollection();
@@ -341,24 +341,29 @@ namespace SocialPoint.GUIAnimation
                 CreateInstantAction();
             }
 
-            UnityEngine.GUI.enabled = collectionGUIEnabled && _stepsSelection.Steps.Count > 1;
+            GUI.enabled = collectionGUIEnabled && _stepsSelection.Steps.Count > 1;
             if(GUILayout.Button("+ Group Selection", GUILayout.ExpandWidth(false)))
             {
                 GroupSelection();
             }
-            UnityEngine.GUI.enabled = collectionGUIEnabled;
+            GUI.enabled = collectionGUIEnabled;
 
-            UnityEngine.GUI.enabled = collectionGUIEnabled && (SelectedStep != null && SelectedStep.GetType() == typeof(Group));
+            GUI.enabled = collectionGUIEnabled && (SelectedStep != null && SelectedStep.GetType() == typeof(Group));
             if(GUILayout.Button("+ Ungroup", GUILayout.ExpandWidth(false)))
             {
                 UngroupSelection();
             }
-            UnityEngine.GUI.enabled = true;
+            GUI.enabled = true;
 
             // Play Mode
             GUILayout.Space(220f);
             GUILayout.Label("Play Mode: ", GUILayout.Width(60f));
             _animationTool.AnimationModel.CurrentAnimation.Mode = (Animation.PlayMode)EditorGUILayout.EnumPopup(_animationTool.AnimationModel.CurrentAnimation.Mode, GUILayout.Width(100f));
+
+            // End Delay Time
+            GUILayout.Space(22f);
+            GUILayout.Label("End Delay Time: ", GUILayout.Width(60f));
+            _animationTool.AnimationModel.CurrentAnimation.EndDelayTime = EditorGUILayout.FloatField(_animationTool.AnimationModel.CurrentAnimation.EndDelayTime, GUILayout.Width(100f));
 
             // Play On Start
             GUILayout.Space(22f);
@@ -378,15 +383,15 @@ namespace SocialPoint.GUIAnimation
         void RenderGridConfigPanel()
         {
             GUILayout.BeginArea(new Rect(0f, 75f, 2048f, 40f));
-            float rightOptionsSpaceX = 410f;
-            float zoomButtonsSpaceX = 46f;
-            Rect rightAnimItemOptions = new Rect(rightOptionsSpaceX, 100f, 600f, 25f);
+            const float rightOptionsSpaceX = 410f;
+            const float zoomButtonsSpaceX = 46f;
+            var rightAnimItemOptions = new Rect(rightOptionsSpaceX, 100f, 600f, 25f);
 
             GUILayout.BeginHorizontal();
             GUILayout.Space(562f);
 
             // Exclude Group Option
-            UnityEngine.GUI.enabled = CurrentCollection.GetType() == typeof(Group);
+            GUI.enabled = CurrentCollection.GetType() == typeof(Group);
             {
                 // Duplicate selected
                 if(GUILayout.Button("Duplicate selected", GUILayout.ExpandWidth(false), GUILayout.ExpandWidth(false)))
@@ -394,14 +399,14 @@ namespace SocialPoint.GUIAnimation
                     DuplicateSelectedAnimationItems();
                 }
             }
-            UnityEngine.GUI.enabled = true;
+            GUI.enabled = true;
 
             // Scale Grid
             Rect lastWindow = GUILayoutUtility.GetLastRect();
             Rect textureWindow = rightAnimItemOptions;
             textureWindow.position = new Vector2(lastWindow.position.x + lastWindow.width + zoomButtonsSpaceX - 15f, lastWindow.position.y);
             textureWindow.size = new Vector2(16f, 16f);
-            UnityEngine.GUI.DrawTexture(textureWindow, Resources.Load<Texture>("ZoomIcon"));
+            GUI.DrawTexture(textureWindow, Resources.Load<Texture>("ZoomIcon"));
             GUILayout.Space(zoomButtonsSpaceX);
             GUILayout.Label("Grid", GUILayout.Width(28f), GUILayout.Height(18f));
             if(GUILayout.Button("-", GUILayout.Width(28f), GUILayout.Height(18f)))
@@ -418,7 +423,7 @@ namespace SocialPoint.GUIAnimation
             textureWindow = rightAnimItemOptions;
             textureWindow.position = new Vector2(lastWindow.position.x + lastWindow.width + zoomButtonsSpaceX - 15f, lastWindow.position.y);
             textureWindow.size = new Vector2(16f, 16f);
-            UnityEngine.GUI.DrawTexture(textureWindow, Resources.Load<Texture>("ZoomIcon"));
+            GUI.DrawTexture(textureWindow, Resources.Load<Texture>("ZoomIcon"));
             GUILayout.Space(zoomButtonsSpaceX);
             GUILayout.Label("Boxes", GUILayout.Width(36f), GUILayout.Height(18f));
             if(GUILayout.Button("-", GUILayout.Width(28f), GUILayout.Height(18f)))
@@ -439,12 +444,12 @@ namespace SocialPoint.GUIAnimation
         {
             float gridMaxWidth = _gridProperties.GetGridPosFromNormalizedTimeSlot(1f, 0).x;
 
-            Rect scrollRectPos = new Rect(_gridStartPosition.x, _gridStartPosition.y, _parentRect.width - _gridStartPosition.x, _parentRect.height - _gridStartPosition.y);		// External Scroll Rect
-            Rect scrollableArea = new Rect(0f, 0f, gridMaxWidth, _gridMaxHeight);													// Internal Size of the Scroll
+            var scrollRectPos = new Rect(_gridStartPosition.x, _gridStartPosition.y, _parentRect.width - _gridStartPosition.x, _parentRect.height - _gridStartPosition.y);		// External Scroll Rect
+            var scrollableArea = new Rect(0f, 0f, gridMaxWidth, _gridMaxHeight);													// Internal Size of the Scroll
 
             bool isMouseInGridOutOfBox = scrollRectPos.Contains(Event.current.mousePosition);
 
-            _gridScrollPosition = UnityEngine.GUI.BeginScrollView(
+            _gridScrollPosition = GUI.BeginScrollView(
                 scrollRectPos,
                 _gridScrollPosition,
                 scrollableArea
@@ -454,7 +459,7 @@ namespace SocialPoint.GUIAnimation
             bool isMouseInBox = DoRenderGrid();
             isMouseInGridOutOfBox = isMouseInGridOutOfBox && !isMouseInBox;
             if(isMouseInGridOutOfBox
-            && (Event.current.type == EventType.mouseDown || Event.current.type == EventType.mouseDrag))
+               && (Event.current.type == EventType.mouseDown || Event.current.type == EventType.mouseDrag))
             {
                 // Disable Selected Item
                 if(SelectedStep != null)
@@ -466,7 +471,7 @@ namespace SocialPoint.GUIAnimation
                 _timelinePosition = Event.current.mousePosition;
                 if(GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftShift))
                 {
-                    Snapper.ResultData resultData = new Snapper.ResultData();
+                    var resultData = new Snapper.ResultData();
                     if(Snapper.Snap(ref resultData, ConvertDictionaryToList(CacheWindows), _timelinePosition, 26f))
                     {
                         _timelinePosition = resultData.Pos;
@@ -477,12 +482,12 @@ namespace SocialPoint.GUIAnimation
                 PlayAtCurrentTimeline();
             }
 
-            UnityEngine.GUI.EndScrollView();
+            GUI.EndScrollView();
         }
 
-        List<Rect> ConvertDictionaryToList(Dictionary<Step, AnimationStepBox> cacheWindows)
+        static List<Rect> ConvertDictionaryToList(Dictionary<Step, AnimationStepBox> cacheWindows)
         {
-            List<Rect> rects = new List<Rect>();
+            var rects = new List<Rect>();
             foreach(var pair in cacheWindows)
             {
                 rects.Add(pair.Value.Rect);
@@ -502,20 +507,20 @@ namespace SocialPoint.GUIAnimation
 
         void RenderTimelineController(float gridMaxWidth, float gridMaxHeight)
         {
-            Rect previewInteractuableWindow = new Rect(_boxesOffsetPosition.x, _gridScrollPosition.y, _gridProperties.SecondsToPixels(_currentCollection.GetDuration(AnimTimeMode.Global)), _previewInteractuableHeight);
+            var previewInteractuableWindow = new Rect(_boxesOffsetPosition.x, _gridScrollPosition.y, _gridProperties.SecondsToPixels(_currentCollection.GetDuration(AnimTimeMode.Global)), _previewInteractuableHeight);
 
             // Render and Control Preview Timeline
-            Color prevBgColor = UnityEngine.GUI.backgroundColor;
-            UnityEngine.GUI.backgroundColor = Color.gray;
-            UnityEngine.GUI.Box(previewInteractuableWindow, "");
-            UnityEngine.GUI.backgroundColor = prevBgColor;
+            Color prevBgColor = GUI.backgroundColor;
+            GUI.backgroundColor = Color.gray;
+            GUI.Box(previewInteractuableWindow, "");
+            GUI.backgroundColor = prevBgColor;
 
             // Red Line
             DrawCurrentTimeline(_timelinePosition, _timelinePosition + new Vector2(0f, gridMaxHeight));
 
             int deltaSeconds = Mathf.CeilToInt(_gridProperties.GridGlobalEndTime - _gridProperties.GridGlobalStartTime);
 
-            float minDistanceToDraw = 50f;
+            const float minDistanceToDraw = 50f;
             Vector2 prevPosDrawn = Vector2.zero;
             for(int second = 0; second <= deltaSeconds; ++second)
             {
@@ -535,23 +540,20 @@ namespace SocialPoint.GUIAnimation
                 {
                     continue;
                 }
-                else
-                {
-                    prevPosDrawn = posTop;
-                }
+                prevPosDrawn = posTop;
 
                 DrawGrayLine(posTop, posDown);
 
                 float currentTime = _gridProperties.GridGlobalStartTime + deltaSeconsFloat;
                 string currentTimeString = currentTime.ToString("0.0");
-                Vector2 numberSize = UnityEngine.GUI.skin.GetStyle("Label").CalcSize(new GUIContent(currentTimeString));
+                Vector2 numberSize = GUI.skin.GetStyle("Label").CalcSize(new GUIContent(currentTimeString));
 
                 Vector2 posLabel = posTop + new Vector2(0f, 15f) - numberSize * 0.5f;
-                UnityEngine.GUI.Label(new Rect(posLabel, new Vector2(100f, 100f)), currentTimeString);
+                GUI.Label(new Rect(posLabel, new Vector2(100f, 100f)), currentTimeString);
             }
         }
 
-        void DrawGrayLine(Vector2 startPos, Vector2 endPos)
+        static void DrawGrayLine(Vector2 startPos, Vector2 endPos)
         {
             Color prevColor = Handles.color;
             Handles.color = new Color(Color.gray.r, Color.gray.g, Color.gray.b, 0.25f);
@@ -562,7 +564,7 @@ namespace SocialPoint.GUIAnimation
             Handles.DrawLine(startPos, endPos);
         }
 
-        void DrawCurrentTimeline(Vector2 startPos, Vector2 endPos)
+        static void DrawCurrentTimeline(Vector2 startPos, Vector2 endPos)
         {
             Color prevColor = Handles.color;
             Handles.color = new Color(Color.red.r, Color.red.g, Color.red.b, 0.5f);
@@ -570,7 +572,7 @@ namespace SocialPoint.GUIAnimation
             Handles.color = prevColor;
         }
 
-        void DrawSimpleLine(Vector2 startPos, Vector2 endPos, Color color)
+        static void DrawSimpleLine(Vector2 startPos, Vector2 endPos, Color color)
         {
             Color prevColor = Handles.color;
             Handles.color = color;
@@ -595,7 +597,7 @@ namespace SocialPoint.GUIAnimation
                     Vector2 animItemGridPosStart = _gridProperties.GetGridPosFromNormalizedTimeSlot(animationItem.GetStartTime(AnimTimeMode.Local), animationItem.Slot);
                     Vector2 animItemGridPosEnd = _gridProperties.GetGridPosFromNormalizedTimeSlot(animationItem.GetEndTime(AnimTimeMode.Local), animationItem.Slot) + new Vector2(0, _gridProperties.PixelsPerSlot * 0.90f);
 
-                    animationItemBox = new AnimationStepBox() {
+                    animationItemBox = new AnimationStepBox {
                         Rect = new Rect(animItemGridPosStart, (animItemGridPosEnd - animItemGridPosStart)),
                         AnimationItem = animationItem
                     };
@@ -614,12 +616,13 @@ namespace SocialPoint.GUIAnimation
                     _gridProperties.GetNormalizedTimeSlotFromGridPos(ref normalizedEndTime, ref slot, animationItemBox.Rect.position + new Vector2(animationItemBox.Rect.width, 0f));
                     animationItem.SetEndTime(normalizedEndTime, AnimTimeMode.Local);
 
-                    if(animationItem is TriggerEffect)
+                    var triggerEffect = animationItem as TriggerEffect;
+                    if(triggerEffect != null)
                     {
                         Vector2 size = animationItemBox.Rect.size;
 
                         Vector2 animItemGridPosStart = _gridProperties.GetGridPosFromTimeSlot(0f, 0);
-                        Vector2 animItemGridPosEnd = _gridProperties.GetGridPosFromTimeSlot(((TriggerEffect)animationItem).GetFixedDuration(), 0);
+                        Vector2 animItemGridPosEnd = _gridProperties.GetGridPosFromTimeSlot(triggerEffect.GetFixedDuration(), 0);
                         size.x = (animItemGridPosEnd - animItemGridPosStart).x;
 
                         animationItemBox.Rect.size = size;
@@ -644,11 +647,11 @@ namespace SocialPoint.GUIAnimation
 
         bool DoDrawGridBox(AnimationStepBox animationItemBox, Step animationItem)
         {
-            GUIStyle style = AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft);
+            GUIStyle style = AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, GUI.skin.label);
             Vector2 headerSize = style.CalcSize(new GUIContent(animationItem.StepName));
 
-            Rect boxWindowContainer = new Rect(animationItemBox.Rect.position, new Vector2(Mathf.Max(animationItemBox.Rect.size.x, _gridProperties.MaxBoxRectPixels), animationItemBox.Rect.size.y));
-            Rect visibleBoxWindow = new Rect(new Vector2(0f, 0f), animationItemBox.Rect.size);
+            var boxWindowContainer = new Rect(animationItemBox.Rect.position, new Vector2(Mathf.Max(animationItemBox.Rect.size.x, _gridProperties.MaxBoxRectPixels), animationItemBox.Rect.size.y));
+            var visibleBoxWindow = new Rect(new Vector2(0f, 0f), animationItemBox.Rect.size);
             animationItemBox.InteractuableRect = animationItemBox.Rect;
 
             float isMouseOver = animationItemBox.InteractuableRect.Contains(Event.current.mousePosition) ? 1f : 0f;
@@ -656,31 +659,31 @@ namespace SocialPoint.GUIAnimation
             GUILayout.BeginArea(boxWindowContainer);
 
             // Save Prev Colors
-            Color prevBgColor = UnityEngine.GUI.backgroundColor;
-            Color prevColor = UnityEngine.GUI.color;
+            Color prevBgColor = GUI.backgroundColor;
+            Color prevColor = GUI.color;
 
             // Main Box
             Color boxImgColor = animationItemBox.AnimationItem.EditorColor;
             boxImgColor = new Color(boxImgColor.r, boxImgColor.g, boxImgColor.b, 0.5f);
-            UnityEngine.GUI.color = boxImgColor;
-            UnityEngine.GUI.Box(visibleBoxWindow, "");
+            GUI.color = boxImgColor;
+            GUI.Box(visibleBoxWindow, "");
 
             // Figure
-            Vector3 imgPivot = new Vector3(visibleBoxWindow.size.x * 0.001f, visibleBoxWindow.y * 0.001f, 0f);
-            Vector3 imgSize = new Vector3(visibleBoxWindow.size.x * 0.999f, visibleBoxWindow.size.y * 0.999f, 0f);
+            var imgPivot = new Vector3(visibleBoxWindow.size.x * 0.001f, visibleBoxWindow.y * 0.001f, 0f);
+            var imgSize = new Vector3(visibleBoxWindow.size.x * 0.999f, visibleBoxWindow.size.y * 0.999f, 0f);
             imgSize.x = Mathf.Min(imgSize.x, imgSize.y);
             imgSize.y = imgSize.x;
             DrawGridBoxFigure(imgPivot, imgSize, animationItem);
 
             // Title
-            UnityEngine.GUI.color = isMouseOver > 0f ? Color.white : prevColor;
+            GUI.color = isMouseOver > 0f ? Color.white : prevColor;
 
-            GUIStyle titleStyle = AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft);
+            GUIStyle titleStyle = AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, GUI.skin.label);
             Vector2 titleSize = titleStyle.CalcSize(new GUIContent(animationItem.StepName));
             float titlePadding = Mathf.Max(Mathf.Min(imgSize.x + 2f, animationItemBox.InteractuableRect.size.x - titleSize.x), 0f);
-            Rect titleWindow = new Rect(new Vector2(titlePadding, 0f), new Vector2(Mathf.Max(animationItemBox.InteractuableRect.size.x - titlePadding, titleSize.x * isMouseOver), headerSize.y));
+            var titleWindow = new Rect(new Vector2(titlePadding, 0f), new Vector2(Mathf.Max(animationItemBox.InteractuableRect.size.x - titlePadding, titleSize.x * isMouseOver), headerSize.y));
 
-            UnityEngine.GUI.Label(titleWindow, animationItem.StepName, AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft));
+            GUI.Label(titleWindow, animationItem.StepName, AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, GUI.skin.label));
 
             if(StepsSelection.IsSelected(animationItem))
             {
@@ -692,21 +695,21 @@ namespace SocialPoint.GUIAnimation
             }
 
             // Load Prev Colors
-            UnityEngine.GUI.backgroundColor = prevBgColor;
-            UnityEngine.GUI.color = prevColor;
-			
+            GUI.backgroundColor = prevBgColor;
+            GUI.color = prevColor;
+
             GUILayout.EndArea();
 
             return isMouseOver > 0.5f;
         }
 
-        void DrawFrame(Rect window, Color color, float sinFactor)
+        static void DrawFrame(Rect window, Color color, float sinFactor)
         {
             DoDrawFrame(window, color, 1f);
             DoDrawFrame(window, color, 2f);
         }
 
-        void DoDrawFrame(Rect window, Color color, float minOffset)
+        static void DoDrawFrame(Rect window, Color color, float minOffset)
         {
             float offset = minOffset;
             Vector2 pivot = window.position + new Vector2(offset, offset);
@@ -715,7 +718,7 @@ namespace SocialPoint.GUIAnimation
             Color prevColor = Handles.color;
             Handles.color = color;
 
-            Vector3[] points = new Vector3[] {
+            var points = new Vector3[] {
                 pivot,
                 pivot + new Vector2(size.x, 0f),
                 pivot + new Vector2(size.x, size.y),
@@ -728,27 +731,27 @@ namespace SocialPoint.GUIAnimation
             Handles.color = prevColor;
         }
 
-        void DrawGridBoxFigure(Vector3 pivot, Vector3 size, Step animationItem)
+        static void DrawGridBoxFigure(Vector3 pivot, Vector3 size, Step animationItem)
         {
             if(animationItem is TriggerEffect)
             {
                 Texture texture = Resources.Load<Texture>("InstantAction");
-                UnityEngine.GUI.DrawTexture(new Rect(pivot, size), texture);
+                GUI.DrawTexture(new Rect(pivot, size), texture);
             }
             else if(animationItem is BlendEffect)
             {
                 Texture texture = Resources.Load<Texture>("BlendAction");
-                UnityEngine.GUI.DrawTexture(new Rect(pivot, size), texture);
+                GUI.DrawTexture(new Rect(pivot, size), texture);
             }
             else if(animationItem is EffectsGroup)
             {
                 Texture texture = Resources.Load<Texture>("ActionsCollection");
-                UnityEngine.GUI.DrawTexture(new Rect(pivot, size), texture);
+                GUI.DrawTexture(new Rect(pivot, size), texture);
             }
             else if(animationItem is Group)
             {
                 Texture texture = Resources.Load<Texture>("Collection");
-                UnityEngine.GUI.DrawTexture(new Rect(pivot, size), texture);
+                GUI.DrawTexture(new Rect(pivot, size), texture);
             }
         }
 
@@ -774,11 +777,12 @@ namespace SocialPoint.GUIAnimation
 
         void OnAdvancedAnimationItemAdvancedEdition(Step item)
         {
-            if(item is Group)
+            var group = item as Group;
+            if(group != null)
             {
                 ResetState();
 
-                _currentCollection = (Group)item;
+                _currentCollection = group;
                 TriggerOnAnimationItemStateChange();
             }
         }
@@ -819,7 +823,7 @@ namespace SocialPoint.GUIAnimation
         {
             Vector2 position = CalculateSpawnPosition();
 			
-            CreateEffectPopup createNameWindow = (CreateEffectPopup)EditorWindow.GetWindow(typeof(CreateEffectPopup));
+            var createNameWindow = (CreateEffectPopup)EditorWindow.GetWindow(typeof(CreateEffectPopup));
             createNameWindow.SetTitle("Select The Trigger");
             createNameWindow.SetAnimItemType(StepType.TriggerEffect);
             createNameWindow.SetCallbacks(() => {
@@ -846,7 +850,7 @@ namespace SocialPoint.GUIAnimation
             });
         }
 
-        void InitializeColor(Step animItem)
+        static void InitializeColor(Step animItem)
         {
             Vector3 random = Random.onUnitSphere;
             animItem.EditorColor = new Color(random.x, random.y, random.z, 1f);
@@ -876,14 +880,14 @@ namespace SocialPoint.GUIAnimation
 
         public bool UngroupSelection()
         {
-            List<Step> animItems = new List<Step>(((Group)SelectedStep).AnimItems);
+            var animItems = new List<Step>(((Group)SelectedStep).AnimItems);
             if(
                 SelectedStep.GetType() == typeof(Group)
                 && animItems.Count > 0)
             {
-                ((Group)CurrentCollection).AddAndCopyAnimationItems(animItems, false);
+                CurrentCollection.AddAndCopyAnimationItems(animItems, false);
                 RemoveAnimationItem(SelectedStep);
-				
+
                 return true;
             }
 
@@ -994,11 +998,9 @@ namespace SocialPoint.GUIAnimation
                 title = string.Format("Really want to Remove {0} transitions ?", StepsSelection.Count);
             }
 
-            ConfirmationPopup confirmationPopup = (ConfirmationPopup)EditorWindow.GetWindow(typeof(ConfirmationPopup));
+            var confirmationPopup = (ConfirmationPopup)EditorWindow.GetWindow(typeof(ConfirmationPopup));
             confirmationPopup.SetTitle(title);
-            confirmationPopup.SetCallbacks(() => {
-                DoRemoveSelecterdAnimationItems();
-            });
+            confirmationPopup.SetCallbacks(DoRemoveSelecterdAnimationItems);
         }
 
         void DoRemoveSelecterdAnimationItems()

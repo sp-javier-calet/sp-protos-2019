@@ -3,15 +3,27 @@ using SocialPoint.Utils;
 using SocialPoint.IO;
 using SocialPoint.Multiplayer;
 using SocialPoint.Network;
+using SocialPoint.Pathfinding;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using Jitter;
 using Jitter.LinearMath;
 using Jitter.Dynamics;
 using Jitter.Collision;
+using SharpNav;
+using SharpNav.Geometry;
+using SharpNav.Pathfinding;
 
 public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisposable
 {
+    enum MultiplayerObjectType
+    {
+        Player,
+        NPC,
+        Pickup
+    }
+
     INetworkServer _server;
     NetworkServerSceneController _controller;
 
@@ -25,12 +37,40 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     PhysicsWorld _physicsWorld;
     IPhysicsDebugger _physicsDebugger;
 
-    public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl, IPhysicsDebugger physicsDebugger)
+    int _maxPlayers = 4;
+    int _currentPlayers = 0;
+
+    TiledNavMesh _navMesh;
+    Pathfinder _pathfinder;
+
+    List<int> _toDestroy = new List<int>();
+
+    public int MaxPlayers
+    {
+        get
+        {
+            return _maxPlayers;
+        }
+        private set
+        {
+            _maxPlayers = value;
+        }
+    }
+
+    public bool Full
+    {
+        get
+        {
+            return (_currentPlayers >= _maxPlayers);
+        }
+    }
+
+    public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl, IPhysicsDebugger physicsDebugger = null)
     {
         _server = server;
         _controller = ctrl;
         _controller.RegisterReceiver(this);
-        _controller.RegisterActionDelegate<MovementAction>(MovementAction.Apply);
+        _controller.RegisterAction<MovementAction>(GameMsgType.MovementAction, MovementAction.Apply);
         _updateTimes = new Dictionary<int,int>();
         _movement = new JVector(2.0f, 0.0f, 2.0f);
 
@@ -41,6 +81,24 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     public void Dispose()
     {
         _controller.RegisterReceiver(null);
+    }
+
+    public bool LoadNavMesh(string path, out string message)
+    {
+        message = string.Empty;
+        try
+        {
+            var stream = new FileStream(path, FileMode.Open);
+            _navMesh = NavMeshParser.Instance.Parse(new SystemBinaryReader(stream));
+            stream.Close();
+            _pathfinder = new Pathfinder(_navMesh);
+            return true;
+        }
+        catch(Exception e)
+        {
+            message = e.Message;
+            return false;
+        }
     }
 
     void INetworkServerSceneBehaviour.Update(float dt, NetworkScene scene, NetworkScene oldScene)
@@ -60,20 +118,18 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
                 }
 
                 var id = itr.Current.Id;
-                var p = itr.Current.Transform.Position;
+                var objType = GetTypeById(id);
+                if(objType == MultiplayerObjectType.Pickup)
+                {
+                    continue;
+                }
 
-                p += new JVector(
-                    RandomUtils.Range(-_movement.X, _movement.X),
-                    0.0f,//RandomUtils.Range(-_movement.Y, _movement.Y),
-                    RandomUtils.Range(-_movement.Z, _movement.Z));
-
-                _controller.Tween(id, p, _moveInterval);
                 int times;
-
                 if(!_updateTimes.TryGetValue(id, out times))
                 {
                     times = 0;
                 }
+
                 if(times > _maxUpdateTimes)
                 {
                     var go = _controller.Scene.FindObject(id);
@@ -81,16 +137,39 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
                     {
                         SendExplosionEvent(go.Transform);
                     }
-                    _controller.Destroy(id);
-                    _updateTimes.Remove(id);
+                    DestroyObject(id);
                 }
                 else
                 {
+                    TweenObject(itr.Current);
                     _updateTimes[id] = times + 1;
                 }
             }
             itr.Dispose();
         }
+
+        //Destroy any pending object
+        for(int i = 0; i < _toDestroy.Count; i++)
+        {
+            DestroyObject(_toDestroy[i]);
+        }
+        _toDestroy.Clear();
+    }
+
+    void TweenObject(NetworkGameObject obj)
+    {
+        //Add tween behavior to move object
+        var p = obj.Transform.Position;
+        var deltaX = RandomUtils.Range(-_movement.X, _movement.X);
+        var deltaZ = RandomUtils.Range(-_movement.Z, _movement.Z);
+        p += new JVector(deltaX, 0.0f, deltaZ);
+        _controller.Tween(obj.Id, p, _moveInterval);
+    }
+
+    void DestroyObject(int id)
+    {
+        _controller.Destroy(id);
+        _updateTimes.Remove(id);
     }
 
     void SendExplosionEvent(Transform t)
@@ -102,6 +181,15 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         });
     }
 
+    void SendPathEvent(StraightPath path)
+    {
+        _server.SendMessage(new NetworkMessageData {
+            MessageType = GameMsgType.PathEvent
+        }, new PathEvent {
+            Points = Pathfinder.StraightPathToVector(path)
+        });
+    }
+
     void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
     {
         if(data.MessageType == GameMsgType.ClickAction)
@@ -109,7 +197,11 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             var ac = reader.Read<ClickAction>();
             if(!ClosestIntersectsRay(_playerCube, ac.Ray))
             {
-                NetworkGameObject currentCube = _controller.Instantiate("Cube", new Transform(
+                string prefabName = "Cube";
+                var objType = GetTypeById(_controller.Scene.FreeObjectId);
+                prefabName = objType.ToString();
+
+                NetworkGameObject currentCube = _controller.Instantiate(prefabName, new Transform(
                                                     ac.Position, JQuaternion.Identity, JVector.One));
 
                 if(_playerCube == null)
@@ -118,6 +210,8 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
                 }
 
                 AddCollision(currentCube);
+
+                PathfindToTarget(ac.Position);
             }
             else
             {
@@ -125,19 +219,16 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             }
 
         }
-        else if(data.MessageType == GameMsgType.MovementAction)
-        {
-            var ac = reader.Read<MovementAction>();
-            _controller.OnAction<MovementAction>(ac, data.ClientId);
-        }
     }
 
     void INetworkServerSceneBehaviour.OnClientConnected(byte clientId)
     {
+        _currentPlayers++;
     }
 
     void INetworkServerSceneBehaviour.OnClientDisconnected(byte clientId)
     {
+        _currentPlayers--;
     }
 
     void AddPhysicsWorld()
@@ -148,9 +239,16 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void AddCollision(NetworkGameObject go)
     {
+        var physicType = PhysicsRigidBody.ControlType.Kinematic;
+        var objType = GetTypeById(go.Id);
+        if(objType == MultiplayerObjectType.Pickup)
+        {
+            physicType = PhysicsRigidBody.ControlType.Static;
+        }
+
         var boxShape = new PhysicsBoxShape(new JVector(1f));
-        var rigidBody = new PhysicsRigidBody(boxShape, PhysicsRigidBody.ControlType.Kinematic, _physicsWorld, _physicsDebugger);
-        rigidBody.DoDebugDraw = true;
+        var rigidBody = new PhysicsRigidBody(boxShape, physicType, _physicsWorld, _physicsDebugger);
+        rigidBody.DoDebugDraw = (_physicsDebugger != null);
 
         if(go.Id == _playerCube.Id)
         {
@@ -185,5 +283,39 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
                                 JVector point1, JVector point2, JVector normal, float penetration)
     {
         Log.i("Player Collision Detected!");
+
+        var other = (PhysicsRigidBody)body2.Tag;
+        int id = other.NetworkGameObject.Id;
+
+        //Warning: Do not destroy objects here, Jitter can still need them
+        _toDestroy.Add(id);
+    }
+
+    void PathfindToTarget(JVector target)
+    {
+        if(_playerCube != null && _pathfinder != null)
+        {
+            Vector3 startPoint = _playerCube.Transform.Position.ToPathfinding();
+            Vector3 endPoint = target.ToPathfinding();
+            var extents = Vector3.One;
+            StraightPath straightPath;
+            if(_pathfinder.TryGetPath(startPoint, endPoint, extents, out straightPath))
+            {
+                SendPathEvent(straightPath);
+            }
+        }
+    }
+
+    MultiplayerObjectType GetTypeById(int id)
+    {
+        if(id == 1)
+        {
+            return MultiplayerObjectType.Player;
+        }
+        else if(id % 2 == 0)
+        {
+            return MultiplayerObjectType.NPC;
+        }
+        return MultiplayerObjectType.Pickup;
     }
 }

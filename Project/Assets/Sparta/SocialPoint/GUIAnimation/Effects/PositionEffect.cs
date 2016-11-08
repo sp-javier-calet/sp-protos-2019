@@ -80,7 +80,7 @@ namespace SocialPoint.GUIAnimation
 
         [ShowInEditor]
         [SerializeField]
-        bool _isLocal = false;
+        bool _isLocal;
 
         public bool IsLocal
         {
@@ -129,7 +129,7 @@ namespace SocialPoint.GUIAnimation
 
         public override void CopyActionValues(Effect other)
         {
-            PositionEffect otherTrans = (PositionEffect)other;
+            var otherTrans = (PositionEffect)other;
 
             _anchorMode = otherTrans.AnchorsMode;
             _startAnchor.Copy(otherTrans.StartAnchor);
@@ -148,7 +148,7 @@ namespace SocialPoint.GUIAnimation
 
         public override void CopySharedValues(Effect other)
         {
-            PositionEffect otherTrans = (PositionEffect)other;
+            var otherTrans = (PositionEffect)other;
 
             _anchorMode = otherTrans.AnchorsMode;
             _startAnchor.Copy(otherTrans.StartAnchor);
@@ -199,12 +199,12 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        void CopyTransformValues(Transform dest, Transform src)
+        static void CopyTransformValues(Transform dest, Transform src)
         {
             dest.position = src.position;
         }
 
-        public override void Invert(bool invertTime)
+        public override void Invert(bool invertTime = false)
         {
             base.Invert(invertTime);
 
@@ -222,13 +222,13 @@ namespace SocialPoint.GUIAnimation
         {
             if(_startValue != null)
             {
-                GameObject.DestroyImmediate(_startValue.gameObject);
+                Object.DestroyImmediate(_startValue.gameObject);
                 _startValue = null;
             }
 			
             if(_endValue != null)
             {
-                GameObject.DestroyImmediate(_endValue.gameObject);
+                Object.DestroyImmediate(_endValue.gameObject);
                 _endValue = null;
             }
         }
@@ -249,14 +249,7 @@ namespace SocialPoint.GUIAnimation
 
         Vector3 GetPosition(Transform trans)
         {
-            if(IsLocal)
-            {
-                return trans.localPosition;
-            }
-            else
-            {
-                return trans.position;
-            }
+            return IsLocal ? trans.localPosition : trans.position;
         }
 
         void SetPosition(Transform dest, Vector3 src)

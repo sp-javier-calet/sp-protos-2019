@@ -1,6 +1,5 @@
-using UnityEngine;
 using UnityEditor;
-using System;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -22,12 +21,12 @@ namespace SocialPoint.GUIAnimation
 
         void OnGUI()
         {
-            GUILayout.Label(_title, AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Title, UnityEngine.GUI.skin.label, TextAnchor.MiddleCenter));
+            GUILayout.Label(_title, AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Title, GUI.skin.label, TextAnchor.MiddleCenter));
             GUILayout.Space(10f);
 
             GUILayout.BeginHorizontal();
             GUILayout.Space(position.width * 0.5f - 100f);
-            Value = EditorGUILayout.TextField(Value, AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Text, UnityEngine.GUI.skin.textField, TextAnchor.MiddleCenter), GUILayout.Width(200f));
+            Value = EditorGUILayout.TextField(Value, AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Text, GUI.skin.textField, TextAnchor.MiddleCenter), GUILayout.Width(200f));
             GUILayout.EndHorizontal();
 
             GUILayout.BeginArea(new Rect((position.width / 2f) - 100, 65, 200, 50));
@@ -38,7 +37,7 @@ namespace SocialPoint.GUIAnimation
                 OnAccept();
                 Close();
             }
-			
+
             if(GUILayout.Button("Cancel", GUILayout.MaxWidth(100f), GUILayout.ExpandWidth(false)))
             {
                 OnCancel();

@@ -1,18 +1,18 @@
-using UnityEngine;
 using System.Collections.Generic;
 using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
     public abstract class BlendEffect : Effect, IBlendeableEffect
     {
         [SerializeField]
-        bool _useEaseCustom = false;
+        bool _useEaseCustom;
 
         public bool UseEaseCustom { get { return _useEaseCustom; } set { _useEaseCustom = value; } }
 
         [SerializeField]
-        List<EasePoint> _easeCustom = new List<EasePoint>() {
+        List<EasePoint> _easeCustom = new List<EasePoint> {
             new EasePoint(0f, 0f),
             new EasePoint(1f, 1f)
         };
@@ -37,7 +37,7 @@ namespace SocialPoint.GUIAnimation
             CopyEasing(((BlendEffect)other).UseEaseCustom, ((BlendEffect)other).EaseCustom, ((BlendEffect)other).EaseType);
         }
 
-        public override void Invert(bool invertTime)
+        public override void Invert(bool invertTime = false)
         {
             base.Invert(invertTime);
             Easing.InvertCustom(_easeCustom);
@@ -77,14 +77,7 @@ namespace SocialPoint.GUIAnimation
 
         float GetBlendValue(float time, float start, float deltaVal, float duration)
         {
-            if(_useEaseCustom)
-            {
-                return Easing.Custom(time, duration, _easeCustom);
-            }
-            else
-            {
-                return _easeType.ToFunction()(time, start, deltaVal, duration);
-            }
+            return _useEaseCustom ? Easing.Custom(time, duration, _easeCustom) : _easeType.ToFunction()(time, start, deltaVal, duration);
         }
 
         public abstract void OnBlend(float blend);

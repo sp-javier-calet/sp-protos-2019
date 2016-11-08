@@ -173,7 +173,7 @@ namespace Jitter.Collision
 
         private void AddConnection(RigidBody body1, RigidBody body2)
         {
-            System.Diagnostics.Debug.Assert((body1 != null && !body1.isStatic) || (body2 != null && !body2.isStatic), 
+            System.Diagnostics.Debug.Assert((body1 != null && !body1.IsStaticNonKinematic) || (body2 != null && !body2.IsStaticNonKinematic), 
                 "IslandManager Inconsistency.", "Arbiter detected between two static objects.");
 
             if(body1 == null || body1.IsStaticNonKinematic)
@@ -208,7 +208,7 @@ namespace Jitter.Collision
 
         private void RemoveConnection(RigidBody body1, RigidBody body2)
         {
-            System.Diagnostics.Debug.Assert(!(body1.isStatic && body2.isStatic),
+            System.Diagnostics.Debug.Assert(!(body1.IsStaticNonKinematic && body2.IsStaticNonKinematic),
                 "IslandManager Inconsistency.",
                 "Arbiter detected between two static objects.");
 

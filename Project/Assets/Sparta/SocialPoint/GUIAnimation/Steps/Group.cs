@@ -1,6 +1,6 @@
-using UnityEngine;
 using System.Collections.Generic;
 using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -65,7 +65,7 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        public override void Invert(bool invertTime)
+        public override void Invert(bool invertTime = false)
         {
             base.Invert(invertTime);
 			
@@ -136,7 +136,7 @@ namespace SocialPoint.GUIAnimation
 
         public Step AddAndCopyAnimationItem(Step animItem, Step newParent = null)
         {
-            Step copy = (Step)ItemsRoot.gameObject.AddComponent(animItem.GetType());
+            var copy = (Step)ItemsRoot.gameObject.AddComponent(animItem.GetType());
             copy.Animation = Animation;
 
             copy.Copy(animItem);
@@ -153,7 +153,7 @@ namespace SocialPoint.GUIAnimation
         public Step AddAnimationItem(System.Type type, string name)
         {
             name = name != "" ? name : type.ToString();
-            Component newAnimItem = (Component)ItemsRoot.gameObject.AddComponent(type);
+            var newAnimItem = ItemsRoot.gameObject.AddComponent(type);
             ((Step)newAnimItem).StepName = name;
             ((Step)newAnimItem).OnCreated();
             _animation.RefreshAndInit();
@@ -165,13 +165,11 @@ namespace SocialPoint.GUIAnimation
         {
             _animation.Refresh();
 
-            bool exist = AnimItems.Find((Step i) => {
-                return i == item;
-            });
+            bool exist = AnimItems.Find(i => i == item);
             if(exist)
             {
                 item.OnRemoved();
-                GameObject.DestroyImmediate(item);
+                Object.DestroyImmediate(item);
             }
             else
             {
@@ -194,8 +192,8 @@ namespace SocialPoint.GUIAnimation
         {
             for(int i = 0; i < other.AnimItems.Count; ++i)
             {
-                Component copy = (Component)ItemsRoot.gameObject.AddComponent(other.AnimItems[i].GetType());
-                ((Step)copy).Copy((Step)other.AnimItems[i]);
+                var copy = ItemsRoot.gameObject.AddComponent(other.AnimItems[i].GetType());
+                ((Step)copy).Copy(other.AnimItems[i]);
             }
         }
 
@@ -212,16 +210,14 @@ namespace SocialPoint.GUIAnimation
 
         public static T CopyItem<T>(Group target, Group source, T sourceItem, bool isRecursive) where T:Step
         {
-            bool existInSource = source.AnimItems.Find((Step i) => {
-                return i == sourceItem;
-            });
+            bool existInSource = source.AnimItems.Find(i => i == sourceItem);
             if(!existInSource)
             {
                 Log.w("[SPCollection] Trying to move item " + sourceItem.name + " that is not in this collection");
                 return default(T);
             }
 			
-            T copiedItemInTarget = (T)target.AddAnimationItem(typeof(T), "");
+            var copiedItemInTarget = (T)target.AddAnimationItem(typeof(T), "");
             copiedItemInTarget.Copy(sourceItem);
 
             return copiedItemInTarget;
@@ -251,20 +247,18 @@ namespace SocialPoint.GUIAnimation
 
             if(_itemsRoot != null)
             {
-                GameObject.DestroyImmediate(_itemsRoot.gameObject);
+                Object.DestroyImmediate(_itemsRoot.gameObject);
                 _itemsRoot = null;
             }
         }
 
         public int GetFirstFreeSlot(int min, int max)
         {
-            bool isFree = true;
+            bool isFree;
             int slot = min;
             for(; slot < max; ++slot)
             {
-                isFree = !AnimItems.Exists((Step animItem) => {
-                    return animItem.Slot == slot;
-                });
+                isFree = !AnimItems.Exists(animItem => animItem.Slot == slot);
                 if(isFree)
                 {
                     return slot;
