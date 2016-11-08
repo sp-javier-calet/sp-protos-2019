@@ -78,6 +78,9 @@ namespace SocialPoint.Social
                 }
                 layout.Refresh();
             });
+            var foldoutLayout = layout.CreateFoldoutLayout("Urls");
+            foldoutLayout.CreateLabel(_connection.Url);
+
             layout.CreateOpenPanelButton("User", _userPanel, !_connection.IsConnected);
             layout.CreateToggleButton("Debug Mode", _connection.DebugEnabled, value => {
                 _connection.DebugEnabled = value;
@@ -1009,11 +1012,11 @@ namespace SocialPoint.Social
 
                             if(string.IsNullOrEmpty(Search))
                             {
-                                _alliances.LoadSearchSuggested(onSuccess, onFailure);
+                                _httpConnection = _alliances.LoadSearchSuggested(onSuccess, onFailure);
                             }
                             else
                             {
-                                _alliances.LoadSearch(Search, onSuccess, onFailure);
+                                _httpConnection = _alliances.LoadSearch(Search, onSuccess, onFailure);
                             }
                         }
 

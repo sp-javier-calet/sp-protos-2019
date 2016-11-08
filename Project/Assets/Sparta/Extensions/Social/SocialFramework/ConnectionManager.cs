@@ -182,12 +182,14 @@ namespace SocialPoint.Social
             {
                 if(_appEvents != null)
                 {
+
+                    _appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
                     _appEvents.GameWillRestart.Remove(Disconnect);
                 }
                 _appEvents = value;
                 if(_appEvents != null)
                 {
-                    
+                    _appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
                     _appEvents.GameWillRestart.Add(0, Disconnect);
                 }
             }
@@ -224,6 +226,15 @@ namespace SocialPoint.Social
             get
             {
                 return (Config.RPCRetries + 1) * Config.RPCTimeout;
+            }
+        }
+
+        public string Url
+        {
+            get
+            {
+                // TODO Work with multiple Urls
+                return _socket.Url;
             }
         }
 
@@ -319,6 +330,15 @@ namespace SocialPoint.Social
             UnschedulePing();
             ResetState();
             Reconnect();
+        }
+
+        void OnGameWasLoaded()
+        {
+            if(LoginData != null && LoginData.Data.Social != null)
+            {
+                var urls = LoginData.Data.Social.WebSocketUrls;
+                _socket.Url = urls[0]; // TODO Set urls
+            }
         }
 
         public void Disconnect()
