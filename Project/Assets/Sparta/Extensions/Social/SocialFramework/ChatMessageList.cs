@@ -100,7 +100,7 @@ namespace SocialPoint.Social
         {
             if(index < 0 || index >= _messages.Count)
             {
-                Log.e("Invalid index");
+                Log.e(string.Format("Invalid index {0} of {1} while editing a {2}", index, _messages.Count, typeof(MessageType).Name));
                 return;
             }
 

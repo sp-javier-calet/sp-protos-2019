@@ -55,7 +55,11 @@ namespace SocialPoint.WAMP
     {
         #region Data structures
 
-        public class Request<TCompletion> : IDisposable where TCompletion : class
+        public interface IRequest : IDisposable
+        {
+        }
+
+        public class Request<TCompletion> : IRequest where TCompletion : class
         {
             public TCompletion CompletionHandler{ get; protected set; }
 

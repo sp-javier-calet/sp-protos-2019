@@ -69,7 +69,6 @@ namespace SocialPoint.Social
         public const string TopicTotalMembersKey = "total_members";
 
         public const string NotificationTypeKey = "type";
-        public const string NotificationCapitalTypeKey = "Type";
         public const string NotificationPayloadKey = "payload";
         public const string ChatMessageInfoKey = "message_info";
         public const string NotificationIdKey = "notification_id";
@@ -257,6 +256,9 @@ namespace SocialPoint.Social
         readonly WAMPConnection _connection;
         readonly IWebSocketClient _socket;
 
+        WAMPConnection.StartRequest _startRequest;
+        WAMPConnection.JoinRequest _joinRequest;
+
         ScheduledAction _pingUpdate;
         ScheduledAction _reconnectUpdate;
         ConnectionState _state;
@@ -308,9 +310,15 @@ namespace SocialPoint.Social
 
             _state = ConnectionState.Connecting;
 
-            _connection.Start(() => {
+            if(_startRequest != null)
+            {
+                _startRequest.Dispose();
+            }
+
+            _startRequest = _connection.Start(() => {
                 SendHello();
                 SchedulePing();
+                _startRequest = null;
             });
         }
 
@@ -414,28 +422,27 @@ namespace SocialPoint.Social
                 return;
             }
 
-            for(int i = 0; i < pendingDic.Count; ++i)
+            if(OnPendingNotification != null)
             {
-                var notif = pendingDic.ElementAt(i).Value.AsDic;
-                var codeType = notif.GetValue(ConnectionManager.NotificationTypeKey).ToInt();
-
-                var payloadDic = notif.Get(ConnectionManager.NotificationPayloadKey).AsDic;
-
-                if(OnPendingNotification != null)
+                for(int i = 0; i < pendingDic.Count; ++i)
                 {
+                    var notif = pendingDic.ElementAt(i).Value.AsDic;
+                    var codeType = notif.GetValue(ConnectionManager.NotificationTypeKey).ToInt();
+                    var payloadDic = notif.Get(ConnectionManager.NotificationPayloadKey).AsDic;
+
                     OnPendingNotification(codeType, NotificationTopicType, payloadDic);
                 }
             }
         }
 
-        public void Publish(string topic, AttrList args, AttrDic kwargs, OnPublished onComplete)
+        public PublishRequest Publish(string topic, AttrList args, AttrDic kwargs, OnPublished onComplete)
         {
-            _connection.Publish(topic, args, kwargs, onComplete != null, onComplete);
+            return _connection.Publish(topic, args, kwargs, onComplete != null, onComplete);
         }
 
-        public void Call(string procedure, AttrList args, AttrDic kwargs, HandlerCall onResult)
+        public CallRequest Call(string procedure, AttrList args, AttrDic kwargs, HandlerCall onResult)
         {
-            _connection.Call(procedure, args, kwargs, (err, iargs, ikwargs) => OnRPCFinished(iargs, ikwargs, onResult, err));
+            return _connection.Call(procedure, args, kwargs, (err, iargs, ikwargs) => OnRPCFinished(iargs, ikwargs, onResult, err));
         }
 
         void OnConnectionStateChanged(ConnectionState state)
@@ -499,18 +506,15 @@ namespace SocialPoint.Social
             {
                 OnConnected();
             }
+
+            _joinRequest = null;
         }
 
         void OnNotificationMessageReceived(string topic, AttrList listParams, AttrDic dicParams)
         {
-            int type = dicParams.GetValue(NotificationTypeKey).ToInt();
-            if(type == 0)
-            {
-                type = dicParams.GetValue(NotificationCapitalTypeKey).ToInt();
-            }
-
             if(OnNotificationReceived != null)
             {
+                int type = dicParams.GetValue(NotificationTypeKey).ToInt();
                 OnNotificationReceived(type, topic, dicParams);
             }
         }
@@ -559,7 +563,11 @@ namespace SocialPoint.Social
             dicDetails.SetValue("platform", DeviceInfo.Platform);
             dicDetails.SetValue("language", Localization.Language);
 
-            _connection.Join(string.Empty, dicDetails, OnJoined);
+            if(_joinRequest != null)
+            {
+                _joinRequest.Dispose();
+            }
+            _joinRequest = _connection.Join(string.Empty, dicDetails, OnJoined);
         }
 
         #region INetworkClientDelegate implementation
