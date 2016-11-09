@@ -6,16 +6,16 @@ namespace SocialPoint.GUIAnimation
     {
         public delegate void OnResized(Vector2 delta);
 
-        private int _grabDistance;
+        int _grabDistance;
 
         public int GrabDistance { get { return _grabDistance; } set { _grabDistance = value; } }
 
-        private bool _isResizing;
+        bool _isResizing;
 
         public bool IsResizing { get { return _isResizing; } }
 
-        private Vector2 LastMousePos;
-        private Vector2 _minSize;
+        Vector2 LastMousePos;
+        Vector2 _minSize;
 
         public Vector2 DeltaSize;
 
@@ -34,17 +34,15 @@ namespace SocialPoint.GUIAnimation
         public void Resize(ref Rect ResizingWindow, Vector2 axis, OnResized callback = null)
         {
             if(ResizingWindow.Contains(Event.current.mousePosition) &&
-            Event.current.type == EventType.mouseDown &&
-            Mathf.Abs(Event.current.mousePosition.x - (ResizingWindow.position.x + ResizingWindow.width)) < _grabDistance &&
-            Mathf.Abs(Event.current.mousePosition.y - (ResizingWindow.position.y + ResizingWindow.height)) < _grabDistance)
+               Event.current.type == EventType.mouseDown &&
+               Mathf.Abs(Event.current.mousePosition.x - (ResizingWindow.position.x + ResizingWindow.width)) < _grabDistance &&
+               Mathf.Abs(Event.current.mousePosition.y - (ResizingWindow.position.y + ResizingWindow.height)) < _grabDistance)
             {
                 _isResizing = true;
                 LastMousePos = Event.current.mousePosition;
             }
-            else if(Event.current.type == EventType.mouseUp)
-            {
-                _isResizing = false;
-            }
+            else
+                _isResizing &= Event.current.type != EventType.mouseUp;
 
             if(_isResizing)
             {

@@ -1,6 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
 using UnityEditor;
-using System;
 
 namespace SocialPoint.GUIAnimation
 {

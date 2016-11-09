@@ -58,14 +58,6 @@ namespace SocialPoint.Attributes
             while(reader.Read());
         }
 
-        public static void SkipToObjectEnd(this IStreamReader reader)
-        {
-            while(reader.Read() && reader.Token != StreamToken.ObjectEnd)
-            {
-                reader.SkipElement();
-            }
-        }
-
         public static int GetIntValue(this IStreamReader reader, int defaultValue = 0)
         {
             var v = reader.Value;
