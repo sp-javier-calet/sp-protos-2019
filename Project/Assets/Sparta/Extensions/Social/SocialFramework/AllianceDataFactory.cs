@@ -213,8 +213,14 @@ namespace SocialPoint.Social
 
         public AllianceRankingData CreateRankingData(AttrDic dic)
         {
-            var ranking = new AllianceRankingData();
+            var ranking = CreateCustomRankingData();
+            ParseRankingData(ranking, dic);
+            ParseCustomRankingData(ranking, dic);
+            return ranking;
+        }
 
+        public void ParseRankingData(AllianceRankingData ranking, AttrDic dic)
+        {
             var rankDir = dic.Get(RankingKey).AsDic;
             for(var i = 0; i < rankDir.Count; ++i)
             {
@@ -231,12 +237,18 @@ namespace SocialPoint.Social
             }
 
             ranking.Score = dic.GetValue(RankingScoreKey).ToInt();
-            return ranking;
         }
 
         public AlliancesSearchData CreateSearchData(AttrDic dic, bool suggested)
         {
-            var search = new AlliancesSearchData();
+            var search = CreateCustomSearchData();
+            ParseSearchData(search, dic, suggested);
+            ParseCustomSearchData(search, dic, suggested);
+            return search;
+        }
+
+        public void ParseSearchData(AlliancesSearchData search, AttrDic dic, bool suggested)
+        {
             var alliancesKey = suggested ? SearchSuggestedKey : SearchKey;
             var list = dic.Get(alliancesKey).AsList;
             for(var i = 0; i < list.Count; ++i)
@@ -245,7 +257,6 @@ namespace SocialPoint.Social
                 search.Add(CreateBasicData(el.AsDic));
             }
             search.Score = dic.GetValue(SearchScoreKey).ToInt();
-            return search;
         }
 
         public AlliancesSearchData CreateJoinData(AttrDic dic)
@@ -295,6 +306,23 @@ namespace SocialPoint.Social
         {
         }
 
+        protected virtual AllianceRankingData CreateCustomRankingData()
+        {
+            return new AllianceRankingData();
+        }
+
+        protected virtual void ParseCustomRankingData(AllianceRankingData ranking, AttrDic dic)
+        {
+        }
+
+        protected virtual AlliancesSearchData CreateCustomSearchData()
+        {
+            return new AlliancesSearchData();
+        }
+
+        protected virtual void ParseCustomSearchData(AlliancesSearchData search, AttrDic dic, bool suggested)
+        {
+        }
         #endregion
     }
 }
