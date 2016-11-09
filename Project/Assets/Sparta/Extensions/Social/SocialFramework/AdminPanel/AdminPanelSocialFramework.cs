@@ -58,11 +58,13 @@ namespace SocialPoint.Social
         {
             _layout = layout;
 
+            var connected = _connection.IsConnected;
+
             layout.CreateLabel("Social Framework");
             layout.CreateMargin();
 
             var connectLabel = _connection.IsConnecting ? "Connecting..." : "Connect";
-            layout.CreateToggleButton(connectLabel, _connection.IsConnected, value => {
+            layout.CreateToggleButton(connectLabel, connected, value => {
                 // Abort connection
                 if(_connection.IsConnecting)
                 {
@@ -81,14 +83,14 @@ namespace SocialPoint.Social
             var foldoutLayout = layout.CreateFoldoutLayout("Urls");
             foldoutLayout.CreateLabel(_connection.Url);
 
-            layout.CreateOpenPanelButton("User", _userPanel, !_connection.IsConnected);
+            layout.CreateOpenPanelButton("User", _userPanel, !connected);
             layout.CreateToggleButton("Debug Mode", _connection.DebugEnabled, value => {
                 _connection.DebugEnabled = value;
             });
             layout.CreateMargin();
 
-            layout.CreateOpenPanelButton("Chat", _chatPanel, _chat != null && _connection.IsConnected);
-            layout.CreateOpenPanelButton("Alliances", _alliancesPanel, _alliances != null);
+            layout.CreateOpenPanelButton("Chat", _chatPanel, _chat != null && connected);
+            layout.CreateOpenPanelButton("Alliances", _alliancesPanel, _alliances != null && connected);
         }
 
         void OnConnected()
@@ -329,51 +331,38 @@ namespace SocialPoint.Social
 
                 CreateOwnAlliancePanel(layout);
                 layout.CreateMargin();
-                var enabled = _alliances.Enabled;
-                layout.CreateOpenPanelButton("Ranking", _rankingPanel, enabled);
-
+                layout.CreateOpenPanelButton("Ranking", _rankingPanel);
                 layout.CreateTextInput("Search alliances", value => {
                     _searchPanel.Search = value;
                     layout.Refresh();
-                }, enabled);
-                layout.CreateOpenPanelButton("Search", _searchPanel, !string.IsNullOrEmpty(_searchPanel.Search) && enabled);
-                layout.CreateOpenPanelButton("Suggested alliances", _searchPanel, enabled);
+                });
+                layout.CreateOpenPanelButton("Search", _searchPanel, !string.IsNullOrEmpty(_searchPanel.Search));
+                layout.CreateOpenPanelButton("Suggested alliances", _searchPanel);
                
             }
 
             void CreateOwnAlliancePanel(AdminPanelLayout layout)
             {
-                if(_alliances.Enabled)
+                var info = _alliances.AlliancePlayerInfo;
+                if(info.IsInAlliance)
                 {
-                    var info = _alliances.AlliancePlayerInfo;
-                    if(info.IsInAlliance)
-                    {
-                        _infoPanel.AllianceId = info.Id;
-                        layout.CreateOpenPanelButton(info.Name, _infoPanel);
-                        layout.CreateConfirmButton("Leave Alliance", () => _alliances.LeaveAlliance(err => {
-                            if(Error.IsNullOrEmpty(err))
-                            {
-                                _console.Print("Alliance left");
-                                layout.Refresh();
-                            }
-                            else
-                            {
-                                _console.Print(string.Format("Error leaving alliance. {0}", err));
-                            }
-                        }, true));
-                    }
-                    else
-                    {
-                        layout.CreateOpenPanelButton("Create Alliance", _createPanel);
-                    }
+                    _infoPanel.AllianceId = info.Id;
+                    layout.CreateOpenPanelButton(info.Name, _infoPanel);
+                    layout.CreateConfirmButton("Leave Alliance", () => _alliances.LeaveAlliance(err => {
+                        if(Error.IsNullOrEmpty(err))
+                        {
+                            _console.Print("Alliance left");
+                            layout.Refresh();
+                        }
+                        else
+                        {
+                            _console.Print(string.Format("Error leaving alliance. {0}", err));
+                        }
+                    }, true));
                 }
                 else
                 {
-                    layout.CreateLabel("Not connected to alliances");
-                    layout.CreateButton("Force connect", () => {
-                        _alliances.Enable();
-                        layout.Refresh();
-                    });
+                    layout.CreateOpenPanelButton("Create Alliance", _createPanel);
                 }
             }
 
@@ -582,7 +571,7 @@ namespace SocialPoint.Social
                 void StringValueInput(AdminPanelLayout layout, string label, string current, Action<string> onChanged)
                 {
                     var hlayout = layout.CreateHorizontalLayout();
-                    hlayout.CreateLabel(label);
+                    hlayout.CreateFormLabel(label);
                     hlayout.CreateTextInput(current, value => {
                         onChanged(value);
                         layout.Refresh();
@@ -592,7 +581,7 @@ namespace SocialPoint.Social
                 void IntValueInput(AdminPanelLayout layout, string label, int current, Action<int> onChanged)
                 {
                     var hlayout = layout.CreateHorizontalLayout();
-                    hlayout.CreateLabel(label);
+                    hlayout.CreateFormLabel(label);
                     hlayout.CreateTextInput(current.ToString(), value => {
                         try
                         {
@@ -603,11 +592,12 @@ namespace SocialPoint.Social
                         catch(Exception)
                         {
                             _console.Print(string.Format("Invalid {0} value", label));
+                            onChanged(current);
+                            layout.Refresh();
                         }
                     });
                 }
 
-                // TODO Move to AdminPanelLayout as a generic CreateToggleGroup
                 void ToggleGroup(AdminPanelLayout layout, string label, Func<AllianceAccessType> selected, Action<AllianceAccessType> onChanged)
                 {
                     layout.CreateLabel(label);

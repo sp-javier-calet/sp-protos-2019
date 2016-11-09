@@ -112,14 +112,6 @@ namespace SocialPoint.Social
 
         public AlliancePlayerInfo AlliancePlayerInfo { get; private set; }
 
-        public bool Enabled
-        {
-            get
-            {
-                return AlliancePlayerInfo != null;
-            }
-        }
-
         public IHttpClient HttpClient { private get; set; }
 
         public ILoginData LoginData { private get; set; }
@@ -137,6 +129,7 @@ namespace SocialPoint.Social
         public AlliancesManager(ConnectionManager connection)
         {
             Factory = new AllianceDataFactory();
+            AlliancePlayerInfo = Factory.CreatePlayerInfo();
             _parser = new JsonAttrParser();
             _connection = connection;
             _connection.AlliancesManager = this;
@@ -566,16 +559,10 @@ namespace SocialPoint.Social
             });
         }
 
-        public void Enable(AttrDic dic = null)
+        public void ParseAllianceInfo(AttrDic dic)
         {
-            if(dic != null)
-            {
-                ParseAllianceInfo(dic);
-            }
-            else
-            {
-                AlliancePlayerInfo = Factory.CreatePlayerInfo();
-            }
+            AlliancePlayerInfo = Factory.CreatePlayerInfo(MaxPendingJoinRequests, dic);
+            NotifyAllianceEvent(AllianceAction.OnPlayerAllianceInfoParsed, dic);
         }
 
         public void SendNotificationAck(int typeCode, string notificationId)
@@ -589,12 +576,6 @@ namespace SocialPoint.Social
         }
 
         #region Private methods
-
-        void ParseAllianceInfo(AttrDic dic)
-        {
-            AlliancePlayerInfo = Factory.CreatePlayerInfo(MaxPendingJoinRequests, dic);
-            NotifyAllianceEvent(AllianceAction.OnPlayerAllianceInfoParsed, dic);
-        }
 
         string GetUrl(string suffix)
         {
