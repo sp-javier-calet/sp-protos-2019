@@ -657,16 +657,20 @@ namespace SocialPoint.Social
                         if(_httpConnection == null)
                         {
                             _httpConnection = _alliances.LoadAllianceInfo(AllianceId,
-                                alliance => {
-                                    Alliance = alliance;
-                                    _console.Print(string.Format("Alliance {0} loaded successfully", alliance.Id));
-                                    Cancel();
-                                    layout.Refresh();
-                                },
-                                err => {
-                                    _console.Print(string.Format("Error loading user: {0}", err));
-                                    _httpConnectionError = err;
-                                    layout.Refresh();
+                                (err, alliance) => {
+                                    if(Error.IsNullOrEmpty(err))
+                                    {
+                                        Alliance = alliance;
+                                        _console.Print(string.Format("Alliance {0} loaded successfully", alliance.Id));
+                                        Cancel();
+                                        layout.Refresh();
+                                    }
+                                    else
+                                    {
+                                        _console.Print(string.Format("Error loading user: {0}", err));
+                                        _httpConnectionError = err;
+                                        layout.Refresh();
+                                    }
                                 });
                         }  
                         if(Error.IsNullOrEmpty(_httpConnectionError))
@@ -781,16 +785,20 @@ namespace SocialPoint.Social
                         if(_httpConnection == null)
                         {
                             _httpConnection = _alliances.LoadUserInfo(UserId, 
-                                member => {
-                                    _member = member;
-                                    _console.Print(string.Format("User {0} loaded successfully", member.Uid));
-                                    Cancel();
-                                    layout.Refresh();
-                                },
-                                err => {
-                                    _console.Print(string.Format("Error loading user: {0} ", err));
-                                    _httpConnectionError = err;
-                                    layout.Refresh();
+                                (err, member) => {
+                                    if(Error.IsNullOrEmpty(err))
+                                    {
+                                        _member = member;
+                                        _console.Print(string.Format("User {0} loaded successfully", member.Uid));
+                                        Cancel();
+                                        layout.Refresh();
+                                    }
+                                    else
+                                    {
+                                        _console.Print(string.Format("Error loading user: {0} ", err));
+                                        _httpConnectionError = err;
+                                        layout.Refresh();
+                                    }
                                 });
                         } 
                         if(Error.IsNullOrEmpty(_httpConnectionError))
@@ -847,7 +855,6 @@ namespace SocialPoint.Social
                     layout.CreateButton("Decline Request", 
                         () => _alliances.DeclineCandidate(_member.Uid, err => OnResponse(err, "Decline candidate", () => Alliance.RemoveCandidate(_member.Uid))), 
                         manageActionsEnabled);
-
                 }
 
                 AllianceMemberType ApplyTransform(AllianceMemberType type, RanksComparison transformTo)
@@ -921,16 +928,20 @@ namespace SocialPoint.Social
                         if(_httpConnection == null)
                         {
                             _httpConnection = _alliances.LoadRanking(
-                                ranking => {
-                                    _ranking = ranking;
-                                    _console.Print("Ranking loaded successfully");
-                                    Cancel();
-                                    layout.Refresh();
-                                },
-                                err => {
-                                    _console.Print(string.Format("Error loading ranking. {0} ", err));
-                                    _httpConnectionError = err;
-                                    layout.Refresh();
+                                (err, ranking) => {
+                                    if(Error.IsNullOrEmpty(err))
+                                    {
+                                        _ranking = ranking;
+                                        _console.Print("Ranking loaded successfully");
+                                        Cancel();
+                                        layout.Refresh();
+                                    }
+                                    else
+                                    {
+                                        _console.Print(string.Format("Error loading ranking. {0} ", err));
+                                        _httpConnectionError = err;
+                                        layout.Refresh();
+                                    }
                                 });
                         }  
                         if(Error.IsNullOrEmpty(_httpConnectionError))
@@ -987,26 +998,29 @@ namespace SocialPoint.Social
                     {
                         if(_httpConnection == null)
                         {
-                            Action<AlliancesSearchData> onSuccess = (searchData) => {
-                                _search = searchData;
-                                _console.Print("Search results loaded successfully");
-                                Cancel();
-                                layout.Refresh();
-                            };
-
-                            Action<Error> onFailure = (err) => {
-                                _console.Print(string.Format("Error loading search results. {0} ", err));
-                                _httpConnectionError = err;
-                                layout.Refresh();
+                            Action<Error, AlliancesSearchData> callback = (err, searchData) => {
+                                if(Error.IsNullOrEmpty(err))
+                                {
+                                    _search = searchData;
+                                    _console.Print("Search results loaded successfully");
+                                    Cancel();
+                                    layout.Refresh();
+                                }
+                                else
+                                {
+                                    _console.Print(string.Format("Error loading search results. {0} ", err));
+                                    _httpConnectionError = err;
+                                    layout.Refresh();
+                                }
                             };
 
                             if(string.IsNullOrEmpty(Search))
                             {
-                                _httpConnection = _alliances.LoadSearchSuggested(onSuccess, onFailure);
+                                _httpConnection = _alliances.LoadSearchSuggested(callback);
                             }
                             else
                             {
-                                _httpConnection = _alliances.LoadSearch(Search, onSuccess, onFailure);
+                                _httpConnection = _alliances.LoadSearch(Search, callback);
                             }
                         }
 
@@ -1022,7 +1036,6 @@ namespace SocialPoint.Social
                                 layout.Refresh();
                             });
                         }
-
                     }
                 }
             }

@@ -51,8 +51,9 @@ namespace SocialPoint.Social
         #region Attr keys
 
         const string UserIdKey = "user_id";
+        // TODO Both Key and Session store the SessionId
         const string UserSessionKey = "user_key";
-        const string SessionIdKey = "session_id"; // TODO Both Key and Session store the SessionId
+        const string SessionIdKey = "session_id";
         const string NameKey = "name";
         const string AllianceIdKey = "alliance_id";
         const string AvatarKey = "avatar";
@@ -148,66 +149,58 @@ namespace SocialPoint.Social
             return Factory.CreateBasicData(alliance);
         }
 
-        public IHttpConnection LoadAllianceInfo(string allianceId, Action<Alliance> onSuccess, Action<Error> onFailure)
+        public IHttpConnection LoadAllianceInfo(string allianceId, Action<Error, Alliance> callback)
         {
             var req = new HttpRequest(GetUrl(AllianceEndpoint + allianceId));
             req.Timeout = RequestTimeout;
             req.AddParam(UserSessionKey, LoginData.SessionId);
             req.AddParam(UserIdKey, LoginData.UserId.ToString());
              
-            return HttpClient.Send(req, response => OnAllianceInfoLoaded(response, allianceId, onSuccess, onFailure));
+            return HttpClient.Send(req, response => OnAllianceInfoLoaded(response, allianceId, callback));
         }
 
-        void OnAllianceInfoLoaded(HttpResponse resp, string allianceId, Action<Alliance> onSuccess, Action<Error> onFailure)
+        void OnAllianceInfoLoaded(HttpResponse resp, string allianceId, Action<Error, Alliance> callback)
         {
             AttrDic dic;
             var error = ParseResponse(resp, out dic);
+            Alliance alliance = null;
+
             if(Error.IsNullOrEmpty(error))
             {
-                if(onSuccess != null)
-                {
-                    onSuccess(Factory.CreateAlliance(allianceId, dic));
-                }
+                alliance = Factory.CreateAlliance(allianceId, dic);
             }
-            else
+            if(callback != null)
             {
-                if(onFailure != null)
-                {
-                    onFailure(error);
-                }
+                callback(error, alliance);
             }
         }
 
-        public IHttpConnection LoadUserInfo(string userId, Action<AllianceMember> onSuccess, Action<Error> onFailure)
+        public IHttpConnection LoadUserInfo(string userId, Action<Error, AllianceMember> callback)
         {
             var req = new HttpRequest(GetUrl(AllianceMemberEndpoint + userId));
             req.Timeout = RequestTimeout;
             req.AddParam(UserSessionKey, LoginData.SessionId);
 
-            return HttpClient.Send(req, response => OnUserInfoLoaded(response, onSuccess, onFailure));
+            return HttpClient.Send(req, response => OnUserInfoLoaded(response, callback));
         }
 
-        void OnUserInfoLoaded(HttpResponse resp, Action<AllianceMember> onSuccess, Action<Error> onFailure)
+        void OnUserInfoLoaded(HttpResponse resp, Action<Error, AllianceMember> callback)
         {
             AttrDic dic;
             var error = ParseResponse(resp, out dic);
+            AllianceMember member = null;
+
             if(Error.IsNullOrEmpty(error))
             {
-                if(onSuccess != null)
-                {
-                    onSuccess(Factory.CreateMember(dic));
-                }
+                member = Factory.CreateMember(dic);
             }
-            else
+            if(callback != null)
             {
-                if(onFailure != null)
-                {
-                    onFailure(error);
-                }
+                callback(error, member);
             }
         }
 
-        public IHttpConnection LoadRanking(Action<AllianceRankingData> onSuccess, Action<Error> onFailure)
+        public IHttpConnection LoadRanking(Action<Error, AllianceRankingData> callback)
         {
             var req = new HttpRequest(GetUrl(AllianceRankingEndpoint));
             req.Timeout = RequestTimeout;
@@ -219,96 +212,84 @@ namespace SocialPoint.Social
 
             req.AddParam(UserIdKey, LoginData.UserId.ToString());
 
-            return HttpClient.Send(req, response => OnRankingLoaded(response, onSuccess, onFailure));
+            return HttpClient.Send(req, response => OnRankingLoaded(response, callback));
         }
 
-        void OnRankingLoaded(HttpResponse resp, Action<AllianceRankingData> onSuccess, Action<Error> onFailure)
+        void OnRankingLoaded(HttpResponse resp, Action<Error, AllianceRankingData> callback)
         {
             AttrDic dic;
             var error = ParseResponse(resp, out dic);
+            AllianceRankingData ranking = null;
+
             if(Error.IsNullOrEmpty(error))
             {
-                if(onSuccess != null)
-                {
-                    
-                    onSuccess(Factory.CreateRankingData(dic));
-                }
+                ranking = Factory.CreateRankingData(dic);
             }
-            else
+            if(callback != null)
             {
-                if(onFailure != null)
-                {
-                    onFailure(error);
-                }
+                callback(error, ranking);
             }
         }
 
-        public IHttpConnection LoadSearch(string search, Action<AlliancesSearchData> onSuccess, Action<Error> onFailure)
+        public IHttpConnection LoadSearch(string search, Action<Error, AlliancesSearchData> callback)
         {
             var req = new HttpRequest(GetUrl(AllianceSearchEndpoint));
             req.Timeout = RequestTimeout;
             req.AddParam(SearchFilterKey, search);
             req.AddParam(UserIdKey, LoginData.UserId.ToString());
 
-            return HttpClient.Send(req, response => OnSearchLoaded(response, onSuccess, onFailure, false));
+            return HttpClient.Send(req, response => OnSearchLoaded(response, callback, false));
         }
 
-        public IHttpConnection LoadSearchSuggested(Action<AlliancesSearchData> onSuccess, Action<Error> onFailure)
+        public IHttpConnection LoadSearchSuggested(Action<Error, AlliancesSearchData> callback)
         {
             var req = new HttpRequest(GetUrl(AllianceSuggestedEndpoint));
             req.Timeout = RequestTimeout;
             req.AddParam(UserIdKey, LoginData.UserId.ToString());
 
-            return HttpClient.Send(req, response => OnSearchLoaded(response, onSuccess, onFailure, true));
+            return HttpClient.Send(req, response => OnSearchLoaded(response, callback, true));
         }
 
-        void OnSearchLoaded(HttpResponse resp, Action<AlliancesSearchData> onSuccess, Action<Error> onFailure, bool suggested)
+        void OnSearchLoaded(HttpResponse resp, Action<Error, AlliancesSearchData> callback, bool suggested)
         {
             AttrDic dic;
             var error = ParseResponse(resp, out dic);
+            AlliancesSearchData search = null;
+
             if(Error.IsNullOrEmpty(error))
             {
-                if(onSuccess != null)
-                {
-                    onSuccess(Factory.CreateSearchData(dic, suggested));
-                }
+                search = Factory.CreateSearchData(dic, suggested);
             }
-            else
+            if(callback != null)
             {
-                if(onFailure != null)
-                {
-                    onFailure(error);
-                }
+                callback(error, search);
             }
         }
 
-        public IHttpConnection LoadJoinSuggestedAlliances(Action<AlliancesSearchData> onSuccess, Action<Error> onFailure)
+        public IHttpConnection LoadJoinSuggestedAlliances(Action<Error, AlliancesSearchData> callback)
         {
             var req = new HttpRequest(GetUrl(AllianceJoinSuggestedEndpoint));
             req.Timeout = RequestTimeout;
             req.AddParam(UserIdKey, LoginData.UserId.ToString());
             req.AddParam(SessionIdKey, LoginData.SessionId);
 
-            return HttpClient.Send(req, response => OnJoinSuggestedAlliancesLoaded(response, onSuccess, onFailure));
+            return HttpClient.Send(req, response => OnJoinSuggestedAlliancesLoaded(response, callback));
         }
 
-        void OnJoinSuggestedAlliancesLoaded(HttpResponse resp, Action<AlliancesSearchData> onSuccess, Action<Error> onFailure)
+        void OnJoinSuggestedAlliancesLoaded(HttpResponse resp, Action<Error, AlliancesSearchData> callback)
         {
             AttrDic dic;
             var error = ParseResponse(resp, out dic);
+            AlliancesSearchData search = null;
+
             if(Error.IsNullOrEmpty(error))
             {
-                if(onSuccess != null)
-                {
-                    onSuccess(Factory.CreateJoinData(dic));
-                }
+                search = Factory.CreateJoinData(dic);
+
             }
-            else
+            if(callback != null)
             {
-                if(onFailure != null)
-                {
-                    onFailure(error);
-                }
+                callback(error, search);
             }
         }
 
