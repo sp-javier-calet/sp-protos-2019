@@ -91,6 +91,7 @@ namespace SocialPoint.WebSockets
                 _socket.OnClose -= OnSocketClosed;
                 _socket.OnError -= OnSocketError;
                 _socket.OnMessage -= OnSocketMessage;
+                _socket = null;
             }
         }
 
