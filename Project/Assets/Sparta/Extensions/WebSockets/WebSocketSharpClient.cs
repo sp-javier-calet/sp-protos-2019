@@ -92,7 +92,6 @@ namespace SocialPoint.WebSockets
                 _socket.OnError -= OnSocketError;
                 _socket.OnMessage -= OnSocketMessage;
             }
-            _socket = null;
         }
 
         #region WebsocketClient implementation

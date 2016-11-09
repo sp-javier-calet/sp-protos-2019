@@ -13,6 +13,7 @@ namespace SocialPoint.Social
         readonly ConnectionManager _connection;
         readonly ChatManager _chat;
         readonly AlliancesManager _alliances;
+        readonly StringBuilder _content;
 
         AdminPanelLayout _layout;
         AdminPanelConsole _console;
@@ -26,6 +27,7 @@ namespace SocialPoint.Social
             _connection = connection;
             _chat = chat;
             _alliances = alliances;
+            _content = new StringBuilder();
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -81,7 +83,9 @@ namespace SocialPoint.Social
                 layout.Refresh();
             });
             var foldoutLayout = layout.CreateFoldoutLayout("Urls");
-            foldoutLayout.CreateLabel(_connection.Url);
+            _content.Length = 0;
+            _content.AppendLine(_connection.Url);
+            foldoutLayout.CreateTextArea(_content.ToString());
 
             layout.CreateOpenPanelButton("User", _userPanel, !connected);
             layout.CreateToggleButton("Debug Mode", _connection.DebugEnabled, value => {
