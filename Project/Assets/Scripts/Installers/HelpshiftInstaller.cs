@@ -1,8 +1,4 @@
-﻿#if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
-#define HELPSHIFT_SUPPORTED
-#endif
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
