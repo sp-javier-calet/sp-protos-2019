@@ -153,7 +153,7 @@ namespace SocialPoint.Social
                 {
                     var candidateDic = candidatesList[i].AsDic;
                     var candidate = CreateMember(candidateDic);
-                    candidate.Type = AllianceMemberType.Soldier;
+                    candidate.Type = AllianceMemberType.Member;
 
                     candidates.Add(candidate);
                 }

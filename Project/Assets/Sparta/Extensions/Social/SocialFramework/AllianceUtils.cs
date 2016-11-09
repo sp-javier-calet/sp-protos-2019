@@ -15,7 +15,7 @@ namespace SocialPoint.Social
         const int AllianceTypePrivateIndex = 1;
         const int MemberTypeLeadIndex = 1;
         const int MemberTypeColeadIndex = 2;
-        const int MemberTypeSoldierIndex = 3;
+        const int MemberTypeMemberIndex = 3;
 
         public static int GetIndexForMemberType(AllianceMemberType type)
         {
@@ -23,10 +23,10 @@ namespace SocialPoint.Social
             {
             case AllianceMemberType.Lead:
                 return MemberTypeLeadIndex;
-            case AllianceMemberType.CoLead:
+            case AllianceMemberType.Colead:
                 return MemberTypeColeadIndex;
-            case AllianceMemberType.Soldier:
-                return MemberTypeSoldierIndex;
+            case AllianceMemberType.Member:
+                return MemberTypeMemberIndex;
             default:
                 DebugUtils.Assert(false, "Invalid AllianceMemberType");
                 return 0;
@@ -40,9 +40,9 @@ namespace SocialPoint.Social
             case MemberTypeLeadIndex:
                 return AllianceMemberType.Lead;
             case MemberTypeColeadIndex:
-                return AllianceMemberType.CoLead;
+                return AllianceMemberType.Colead;
             default:
-                return AllianceMemberType.Soldier;
+                return AllianceMemberType.Member;
             }
         }
 
@@ -66,10 +66,10 @@ namespace SocialPoint.Social
             {
             case AllianceMemberType.Lead:
                 return SocialFrameworkStrings.AllianceLeadNameKey;
-            case AllianceMemberType.CoLead:
+            case AllianceMemberType.Colead:
                 return SocialFrameworkStrings.AllianceColeadNameKey;
-            case AllianceMemberType.Soldier:
-                return SocialFrameworkStrings.AllianceSoldierNameKey;
+            case AllianceMemberType.Member:
+                return SocialFrameworkStrings.AllianceMemberNameKey;
             default:
                 DebugUtils.Assert(false, "Invalid AllianceMemberType");
                 return string.Empty;

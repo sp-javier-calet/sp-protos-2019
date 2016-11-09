@@ -4,7 +4,7 @@
     {
         public const string AllianceLeadNameKey = "socialFramework.AlliancesLead";
         public const string AllianceColeadNameKey = "socialFramework.AlliancesColead";
-        public const string AllianceSoldierNameKey = "socialFramework.AlliancesSoldier";
+        public const string AllianceMemberNameKey = "socialFramework.AlliancesSoldier";
 
         public const string AllianceMemberAutoPromotionKey = "socialFramework.AlliancesMemberAutoPromotion";
         public const string AllianceMemberAutoDemotionKey =  "socialFramework.AlliancesMemberAutoDemotion";

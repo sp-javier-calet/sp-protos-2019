@@ -529,7 +529,7 @@ namespace SocialPoint.Social
 
                 if(newType == AllianceMemberType.Lead)
                 {
-                    AlliancePlayerInfo.MemberType = AllianceMemberType.CoLead;
+                    AlliancePlayerInfo.MemberType = AllianceMemberType.Colead;
                 }
 
                 if(callback != null)
@@ -588,7 +588,7 @@ namespace SocialPoint.Social
                 AlliancePlayerInfo.Id = alliance.Id;
                 AlliancePlayerInfo.Name = alliance.Name;
                 AlliancePlayerInfo.Avatar = alliance.Avatar;
-                AlliancePlayerInfo.MemberType = AllianceMemberType.Soldier;
+                AlliancePlayerInfo.MemberType = AllianceMemberType.Member;
                 AlliancePlayerInfo.TotalMembers = alliance.Members;
                 AlliancePlayerInfo.JoinTimestamp = joinTs;
                 AlliancePlayerInfo.ClearRequests();
@@ -765,7 +765,7 @@ namespace SocialPoint.Social
             AlliancePlayerInfo.Id = allianceId;
             AlliancePlayerInfo.Name = allianceName;
             AlliancePlayerInfo.Avatar = avatarId;
-            AlliancePlayerInfo.MemberType = AllianceMemberType.Soldier;
+            AlliancePlayerInfo.MemberType = AllianceMemberType.Member;
             AlliancePlayerInfo.TotalMembers = totalMembers;
             AlliancePlayerInfo.JoinTimestamp = joinTs;
             AlliancePlayerInfo.ClearRequests();
@@ -802,7 +802,7 @@ namespace SocialPoint.Social
         void OnUserAppliedToPlayerAlliance(AttrDic dic)
         {
             DebugUtils.Assert(AlliancePlayerInfo.IsInAlliance, "User is not in an alliance");
-            DebugUtils.Assert(AlliancePlayerInfo.MemberType == AllianceMemberType.Lead || AlliancePlayerInfo.MemberType == AllianceMemberType.CoLead);
+            DebugUtils.Assert(AlliancePlayerInfo.MemberType == AllianceMemberType.Lead || AlliancePlayerInfo.MemberType == AllianceMemberType.Colead);
             NotifyAllianceEvent(AllianceAction.UserAppliedToPlayerAlliance, dic);
         }
 

@@ -710,7 +710,7 @@ namespace SocialPoint.Social
                     var ownAlliance = _alliances.AlliancePlayerInfo;
                     bool isInAlliance = ownAlliance.IsInAlliance;
                     var isLead = ownAlliance.MemberType == AllianceMemberType.Lead;
-                    var isColead = ownAlliance.MemberType == AllianceMemberType.CoLead;
+                    var isColead = ownAlliance.MemberType == AllianceMemberType.Colead;
                     var canEditAlliance = isLead || isColead;
                     var isOpenAlliance = Alliance.Type == AllianceAccessType.Open;
                     var canJoinAlliance = !isInAlliance && (isOpenAlliance || !Alliance.HasCandidate(ownAlliance.Id)); // TODO?
@@ -823,7 +823,7 @@ namespace SocialPoint.Social
                     bool isOwnAlliance = ownAlliance.Id == Alliance.Id;
                     var playerHasHigherRank = AllianceUtils.CompareRanks(_member.Type, ownAlliance.MemberType) == RanksComparison.Higher;
                     var playerIsLead = ownAlliance.MemberType == AllianceMemberType.Lead;
-                    var playerIsColead = ownAlliance.MemberType == AllianceMemberType.CoLead;
+                    var playerIsColead = ownAlliance.MemberType == AllianceMemberType.Colead;
                     var userIsMember = Alliance.HasMember(_member.Uid);
                     var userIsCandidate = Alliance.HasCandidate(_member.Uid);
 
@@ -867,11 +867,11 @@ namespace SocialPoint.Social
                     switch(type)
                     {
                     case AllianceMemberType.Lead:
-                        return (transformTo == RanksComparison.Higher) ? AllianceMemberType.Lead : AllianceMemberType.CoLead;
-                    case AllianceMemberType.CoLead:
-                        return (transformTo == RanksComparison.Higher) ? AllianceMemberType.Lead : AllianceMemberType.Soldier;
-                    case AllianceMemberType.Soldier:
-                        return (transformTo == RanksComparison.Higher) ? AllianceMemberType.CoLead : AllianceMemberType.Soldier;
+                        return (transformTo == RanksComparison.Higher) ? AllianceMemberType.Lead : AllianceMemberType.Colead;
+                    case AllianceMemberType.Colead:
+                        return (transformTo == RanksComparison.Higher) ? AllianceMemberType.Lead : AllianceMemberType.Member;
+                    case AllianceMemberType.Member:
+                        return (transformTo == RanksComparison.Higher) ? AllianceMemberType.Colead : AllianceMemberType.Member;
                     default: 
                         return type;
                     }

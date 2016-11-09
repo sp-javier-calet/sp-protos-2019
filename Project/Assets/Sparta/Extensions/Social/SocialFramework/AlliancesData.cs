@@ -11,8 +11,8 @@ namespace SocialPoint.Social
     public enum AllianceMemberType
     {
         Lead = 1,
-        CoLead,
-        Soldier,
+        Colead,
+        Member,
         Undefined
     }
 
