@@ -95,7 +95,7 @@ namespace SocialPoint.Social
         const string AllianceCreateMethod = "alliance.create";
         const string AllianceEditMethod = "alliance.edit";
         const string AllianceJoinMethod = "alliance.join";
-        const string AllianceLeaveMethod = "alliance.leave";
+        const string AllianceLeaveMethod = "alliance.member.leave";
         const string AllianceRequestJoinMethod = "alliance.request.join";
         const string AllianceMemberAcceptMethod = "alliance.member.accept";
         const string AllianceMemberDeclineMethod = "alliance.member.decline";
