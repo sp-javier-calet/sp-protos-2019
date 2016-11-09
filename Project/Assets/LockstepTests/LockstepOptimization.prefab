@@ -400,8 +400,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0558b11e8e6b429c99c72b7adb42afa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _allowClientSendTurn: {fileID: 114000010557880808}
-  _allowServerSendTurn: {fileID: 114000014133426060}
+  _allowClientSendTurn: {fileID: 114000014133426060}
+  _allowServerSendTurn: {fileID: 114000010557880808}
 --- !u!114 &114000012503064128
 MonoBehaviour:
   m_ObjectHideFlags: 1

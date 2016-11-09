@@ -13,8 +13,7 @@ public class LockstepOptimizationView : MonoBehaviour
 
     void Awake()
     {
-        _allowClientSendTurn.text = ClientLockstepController.AllowSendTurn.ToString();
-        _allowServerSendTurn.text = ServerLockstepController.AllowSendTurn.ToString();
+        RefreshUI();
     }
 
     public void OnEnableClientSendTurn()
@@ -25,5 +24,12 @@ public class LockstepOptimizationView : MonoBehaviour
     public void OnEnableServerSendTurn()
     {
         ServerLockstepController.AllowSendTurn = !ServerLockstepController.AllowSendTurn;
+    }
+
+
+    void RefreshUI()
+    {
+        _allowClientSendTurn.text = ClientLockstepController.AllowSendTurn.ToString();
+        _allowServerSendTurn.text = ServerLockstepController.AllowSendTurn.ToString();
     }
 }
