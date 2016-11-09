@@ -13,7 +13,7 @@ namespace SocialPoint.Social
 
         public int Requirement;
 
-        public AllianceAccessType Type;
+        public int AccessType;
 
         public int Avatar;
 
@@ -80,13 +80,13 @@ namespace SocialPoint.Social
             return GetMember(_members, id) != null;
         }
 
-        public void SetMemberType(string id, AllianceMemberType type)
+        public void SetMemberRank(string id, int rank)
         {
             var member = GetMember(_members, id);
             DebugUtils.Assert(member != null, string.Format("Promoting unexistent alliance {0} member {1}", Id, id));
-            if(member != null && member.Type != type)
+            if(member != null && member.Rank != rank)
             {
-                member.Type = type;
+                member.Rank = rank;
             }
         }
 

@@ -28,6 +28,8 @@ namespace SocialPoint.Social
 
         public Action<MessageType, AttrDic> SerializeExtraInfo { private get; set; }
 
+        public IRankManager RankManager;
+
         public Localization Localization;
 
         public MessageType Create(string text)
@@ -220,18 +222,18 @@ namespace SocialPoint.Social
             }
 
             var playerName = dic.GetValue(UserNameKey).ToString();
-            var oldRank = AllianceUtils.GetMemberTypeFromIndex(dic.GetValue(OldRoleKey).ToInt());
-            var newRank = AllianceUtils.GetMemberTypeFromIndex(dic.GetValue(NewRoleKey).ToInt());
-            var ranksComparison = AllianceUtils.CompareRanks(oldRank, newRank);
-            var messageTid = AllianceUtils.GetAlliancePromotionTypeString(ranksComparison);
+            var oldRank = dic.GetValue(OldRoleKey).ToInt();
+            var newRank = dic.GetValue(NewRoleKey).ToInt();
+            // TODO Move localization to RankManager?
+            var messageTid = RankManager.GetRankChangeMessageTid(oldRank, newRank);
 
             if(string.IsNullOrEmpty(messageTid))
             {
                 return new MessageType[0];
             }
 
-            var oldRankName = Localization.Get(AllianceUtils.GetAllianceMemberTypeString(oldRank));
-            var newRankName = Localization.Get(AllianceUtils.GetAllianceMemberTypeString(newRank));
+            var oldRankName = Localization.Get(RankManager.GetRankNameTid(oldRank));
+            var newRankName = Localization.Get(RankManager.GetRankNameTid(newRank));
             var message = CreateWarning(string.Format(Localization.Get(messageTid), playerName, oldRankName, newRankName));
             return new MessageType[] { message };
         }
@@ -254,8 +256,8 @@ namespace SocialPoint.Social
                 var memberDic = promotionList[i].AsDic;
                 var userName = memberDic.GetValue(UserNameTwoDaysLaterKey).ToString();
 
-                var newRank = AllianceUtils.GetMemberTypeFromIndex(memberDic.GetValue(NewRoleTwoDaysLaterKey).ToInt());
-                var newRankName = Localization.Get(AllianceUtils.GetAllianceMemberTypeString(newRank));
+                var newRank = memberDic.GetValue(NewRoleTwoDaysLaterKey).ToInt();
+                var newRankName = Localization.Get(RankManager.GetRankNameTid(newRank));
 
                 var message = CreateWarning(string.Format(Localization.Get(SocialFrameworkStrings.AllianceMemberAutoPromotionKey), userName, newRankName));
                 messageList.Add(message);

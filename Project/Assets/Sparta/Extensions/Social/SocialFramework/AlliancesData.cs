@@ -2,20 +2,6 @@
 
 namespace SocialPoint.Social
 {
-    public enum AllianceAccessType
-    {
-        Open,
-        Private
-    }
-
-    public enum AllianceMemberType
-    {
-        Lead = 1,
-        Colead,
-        Member,
-        Undefined
-    }
-
     public class AllianceMember
     {
         public string Uid;
@@ -32,7 +18,7 @@ namespace SocialPoint.Social
 
         public int AllianceAvatar;
 
-        public AllianceMemberType Type;
+        public int Rank;
     }
 
     public class AllianceBasicData
@@ -51,7 +37,7 @@ namespace SocialPoint.Social
 
         public int Requirement;
 
-        public AllianceAccessType AccessType;
+        public int AccessType;
 
         public int ActivityIndicator;
 
@@ -116,12 +102,11 @@ namespace SocialPoint.Social
 
         public int Avatar;
 
-        public AllianceAccessType Type;
+        public int AccessType;
 
         public AlliancesCreateData()
         {
             Avatar = 1;
-            Type = AllianceAccessType.Open;
         }
     }
 }

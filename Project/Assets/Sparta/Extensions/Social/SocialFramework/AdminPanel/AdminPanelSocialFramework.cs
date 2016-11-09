@@ -473,7 +473,9 @@ namespace SocialPoint.Social
                     IntValueInput(layout, "Avatar", _data.Avatar, value => {
                         _data.Avatar = value;
                     });
-                    ToggleGroup(layout, "Alliance Access Type", () => _data.Type, type => _data.Type = type);
+                    IntValueInput(layout, "Access Type", _data.AccessType, value => {
+                        _data.AccessType = value;
+                    });
                     layout.CreateMargin();
 
                     if(IsEditing)
@@ -542,7 +544,7 @@ namespace SocialPoint.Social
                         _data.Description = alliance.Description;
                         _data.Requirement = alliance.Requirement;
                         _data.Avatar = alliance.Avatar;
-                        _data.Type = alliance.Type;
+                        _data.AccessType = alliance.AccessType;
                     }
                     else
                     {
@@ -559,7 +561,7 @@ namespace SocialPoint.Social
                         .Append("Description: ").AppendLine(_data.Description)
                         .Append("Requirement: ").AppendLine(_data.Requirement.ToString())
                         .Append("Avatar: ").AppendLine(_data.Avatar.ToString())
-                        .Append("Type: ").AppendLine(_data.Type.ToString());
+                        .Append("Type: ").AppendLine(_data.AccessType.ToString());
                     return _content.ToString();
                 }
 
@@ -597,20 +599,6 @@ namespace SocialPoint.Social
                         }
                     });
                 }
-
-                void ToggleGroup(AdminPanelLayout layout, string label, Func<AllianceAccessType> selected, Action<AllianceAccessType> onChanged)
-                {
-                    layout.CreateLabel(label);
-                    var def = AllianceAccessType.Open;
-                    foreach(var ev in Enum.GetValues(typeof(AllianceAccessType)))
-                    {
-                        var enumValue = (AllianceAccessType)ev;
-                        layout.CreateToggleButton(ev.ToString(), selected() == enumValue, value => {
-                            onChanged(value ? enumValue : def);
-                            layout.Refresh();
-                        });
-                    }
-                }
             }
 
             class AdminPanelAllianceInfo : BaseRequestAlliancePanel
@@ -640,7 +628,7 @@ namespace SocialPoint.Social
                             .Append("Name: ").AppendLine(Alliance.Name)
                             .Append("Description: ").AppendLine(Alliance.Description)
                             .Append("Avatar: ").AppendLine(Alliance.Avatar.ToString())
-                            .Append("Type: ").AppendLine(Alliance.Type.ToString())
+                            .Append("Type: ").AppendLine(Alliance.AccessType.ToString())
                             .Append("Activity: ").AppendLine(Alliance.ActivityIndicator.ToString())
                             .Append("Is New: ").AppendLine(Alliance.IsNewAlliance.ToString())
                             .Append("Score: ").AppendLine(Alliance.Score.ToString())
@@ -694,7 +682,7 @@ namespace SocialPoint.Social
                     while(members.MoveNext())
                     {
                         var member = members.Current;
-                        var userLabel = string.Format("[{0}]: Lvl: {1} - S: {2} -- {3}", member.Name, member.Level, member.Score, member.Type.ToString());
+                        var userLabel = string.Format("[{0}]: Lvl: {1} - S: {2} -- {3}", member.Name, member.Level, member.Score, member.Rank.ToString());
                         layout.CreateConfirmButton(userLabel, () => {
                             _userPanel.Alliance = alliance;
                             _userPanel.UserId = member.Uid;
@@ -709,10 +697,8 @@ namespace SocialPoint.Social
                 {
                     var ownAlliance = _alliances.AlliancePlayerInfo;
                     bool isInAlliance = ownAlliance.IsInAlliance;
-                    var isLead = ownAlliance.MemberType == AllianceMemberType.Lead;
-                    var isColead = ownAlliance.MemberType == AllianceMemberType.Colead;
-                    var canEditAlliance = isLead || isColead;
-                    var isOpenAlliance = Alliance.Type == AllianceAccessType.Open;
+                    var canEditAlliance = _alliances.Ranks.HasAllianceManagementPermission(ownAlliance.Rank);
+                    var isOpenAlliance = _alliances.AccessTypes.IsPublic(Alliance.AccessType);
                     var canJoinAlliance = !isInAlliance && (isOpenAlliance || !Alliance.HasCandidate(ownAlliance.Id)); // TODO?
 
                     layout.CreateLabel("Actions");
@@ -774,7 +760,7 @@ namespace SocialPoint.Social
                             .Append("Alliance: ").AppendLine(_member.AllianceName)
                             .Append("Alliance Id: ").AppendLine(_member.AllianceId)
                             .Append("Avatar: ").AppendLine(_member.AllianceAvatar.ToString())
-                            .Append("Rank: ").AppendLine(_member.Type.ToString());
+                            .Append("Rank: ").AppendLine(_member.Rank.ToString());
                         layout.CreateVerticalLayout().CreateTextArea(_content.ToString());
                         layout.CreateMargin();
 
@@ -821,25 +807,23 @@ namespace SocialPoint.Social
                 {
                     var ownAlliance = _alliances.AlliancePlayerInfo;
                     bool isOwnAlliance = ownAlliance.Id == Alliance.Id;
-                    var playerHasHigherRank = AllianceUtils.CompareRanks(_member.Type, ownAlliance.MemberType) == RanksComparison.Higher;
-                    var playerIsLead = ownAlliance.MemberType == AllianceMemberType.Lead;
-                    var playerIsColead = ownAlliance.MemberType == AllianceMemberType.Colead;
+                    var playerHasHigherRank = _alliances.Ranks.Compare(_member.Rank, ownAlliance.Rank) > 0;
                     var userIsMember = Alliance.HasMember(_member.Uid);
                     var userIsCandidate = Alliance.HasCandidate(_member.Uid);
+                    var rankActionsEnabled = isOwnAlliance && userIsMember && playerHasHigherRank;
+                    var manageActionsEnabled = isOwnAlliance && userIsCandidate && _alliances.Ranks.HasMemberManagementPermission(ownAlliance.Rank);
 
                     layout.CreateLabel("Actions");
 
                     // Rank actions
-                    var rankActionsEnabled = isOwnAlliance && userIsMember && playerHasHigherRank;
-
                     layout.CreateButton("Promote", () => {
-                        var newRank = ApplyTransform(_member.Type, RanksComparison.Higher);
-                        _alliances.PromoteMember(_member.Uid, newRank, err => OnResponse(err, "Promotion", () => Alliance.SetMemberType(_member.Uid, newRank)));
+                        var newRank = _alliances.Ranks.GetPromoted(_member.Rank);
+                        _alliances.PromoteMember(_member.Uid, newRank, err => OnResponse(err, "Promotion", () => Alliance.SetMemberRank(_member.Uid, newRank)));
                     }, rankActionsEnabled);
 
                     layout.CreateButton("Demote", () => {
-                        var newRank = ApplyTransform(_member.Type, RanksComparison.Lower);
-                        _alliances.PromoteMember(_member.Uid, newRank, err => OnResponse(err, "Demotion", () => Alliance.SetMemberType(_member.Uid, newRank)));
+                        var newRank = _alliances.Ranks.GetDemoted(_member.Rank);
+                        _alliances.PromoteMember(_member.Uid, newRank, err => OnResponse(err, "Demotion", () => Alliance.SetMemberRank(_member.Uid, newRank)));
                     }, rankActionsEnabled);
 
                     layout.CreateButton("Kick", 
@@ -847,34 +831,12 @@ namespace SocialPoint.Social
                         rankActionsEnabled);
 
                     // Management actions
-                    var manageActionsEnabled = isOwnAlliance && userIsCandidate && (playerIsLead || playerIsColead);
-
                     layout.CreateButton("Accept Request", 
                         () => _alliances.AcceptCandidate(_member.Uid, err => OnResponse(err, "Accept candidate", () => Alliance.AcceptCandidate(_member.Uid))), 
                         manageActionsEnabled);
                     layout.CreateButton("Decline Request", 
                         () => _alliances.DeclineCandidate(_member.Uid, err => OnResponse(err, "Decline candidate", () => Alliance.RemoveCandidate(_member.Uid))), 
                         manageActionsEnabled);
-                }
-
-                AllianceMemberType ApplyTransform(AllianceMemberType type, RanksComparison transformTo)
-                {
-                    if(transformTo == RanksComparison.Equal)
-                    {
-                        return type;
-                    }
-
-                    switch(type)
-                    {
-                    case AllianceMemberType.Lead:
-                        return (transformTo == RanksComparison.Higher) ? AllianceMemberType.Lead : AllianceMemberType.Colead;
-                    case AllianceMemberType.Colead:
-                        return (transformTo == RanksComparison.Higher) ? AllianceMemberType.Lead : AllianceMemberType.Member;
-                    case AllianceMemberType.Member:
-                        return (transformTo == RanksComparison.Higher) ? AllianceMemberType.Colead : AllianceMemberType.Member;
-                    default: 
-                        return type;
-                    }
                 }
 
                 void OnResponse(Error err, string action, Action onSuccess)

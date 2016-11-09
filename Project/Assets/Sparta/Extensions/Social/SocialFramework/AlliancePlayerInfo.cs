@@ -10,7 +10,7 @@ namespace SocialPoint.Social
 
         public int Avatar { get; set; }
 
-        public AllianceMemberType MemberType = AllianceMemberType.Member;
+        public int Rank;
 
         public int TotalMembers { get; set; }
 
@@ -52,7 +52,7 @@ namespace SocialPoint.Social
             JoinTimestamp = 0;
             Avatar = 0;
             TotalMembers = 0;
-            MemberType = AllianceMemberType.Member;
+            Rank = 0;
         }
 
         public void ClearRequests()

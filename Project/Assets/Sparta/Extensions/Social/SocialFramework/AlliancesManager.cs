@@ -67,7 +67,7 @@ namespace SocialPoint.Social
         const string AllianceDeniedMemberKey = "denied_member_id";
         const string AllianceKickedMemberKey = "kicked_user_id";
         const string AlliancePromotedMemberKey = "promoted_user_id";
-        const string AllianceNewRoleKey = "new_role";
+        const string AllianceNewRankKey = "new_role";
         const string AllianceTotalMembersKey = "total_members";
         const string AllianceJoinTimestampKey = "join_ts";
         const string NotificationTypeKey = "type";
@@ -127,8 +127,14 @@ namespace SocialPoint.Social
 
         readonly ConnectionManager _connection;
 
+        public IRankManager Ranks { get; set; }
+
+        public IAccessTypeManager AccessTypes { get; set; }
+
         public AlliancesManager(ConnectionManager connection)
         {
+            Ranks = new DefaultRankManager();
+            AccessTypes = new DefaultAccessTypeManager();
             Factory = new AllianceDataFactory();
             AlliancePlayerInfo = Factory.CreatePlayerInfo();
             _parser = new JsonAttrParser();
@@ -167,7 +173,7 @@ namespace SocialPoint.Social
 
             if(Error.IsNullOrEmpty(error))
             {
-                alliance = Factory.CreateAlliance(allianceId, dic);
+                alliance = Factory.CreateAlliance(allianceId, AccessTypes.DefaultAccessType, dic);
             }
             if(callback != null)
             {
@@ -326,14 +332,20 @@ namespace SocialPoint.Social
 
         public void JoinAlliance(AllianceBasicData alliance, Action<Error> callback, JoinExtraData data)
         {
-            switch(alliance.AccessType)
+            if(AccessTypes.IsPublic(alliance.AccessType))
             {
-            case AllianceAccessType.Open:
                 JoinPublicAlliance(alliance, callback, data);
-                break;
-            case AllianceAccessType.Private:
+            }
+            else if(AccessTypes.AcceptsCandidates(alliance.AccessType))
+            {
                 JoinPrivateAlliance(alliance, callback, data);
-                break;
+            }
+            else
+            {
+                if(callback != null)
+                {
+                    callback(new Error("Cannot join the alliance"));
+                }
             }
         }
 
@@ -344,7 +356,7 @@ namespace SocialPoint.Social
             dic.SetValue(NameKey, data.Name);
             dic.SetValue(AllianceDescriptionKey, data.Description);
             dic.SetValue(AllianceRequirementKey, data.Requirement);
-            dic.SetValue(AllianceTypeKey, data.Type != AllianceAccessType.Open ? 1 : 0);
+            dic.SetValue(AllianceTypeKey, data.AccessType);
             dic.SetValue(AvatarKey, data.Avatar);
 
             _connection.Call(AllianceCreateMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
@@ -366,7 +378,7 @@ namespace SocialPoint.Social
                 AlliancePlayerInfo.Id = id;
                 AlliancePlayerInfo.Avatar = data.Avatar;
                 AlliancePlayerInfo.Name = data.Name;
-                AlliancePlayerInfo.MemberType = AllianceMemberType.Lead;
+                AlliancePlayerInfo.Rank = Ranks.FounderRank;
                 AlliancePlayerInfo.TotalMembers = 1;
                 AlliancePlayerInfo.JoinTimestamp = TimeUtils.Timestamp;
                 AlliancePlayerInfo.ClearRequests();
@@ -398,9 +410,9 @@ namespace SocialPoint.Social
                 dicProperties.SetValue(AllianceRequirementKey, data.Requirement);
             }
 
-            if(current.Type != data.Type)
+            if(current.AccessType != data.AccessType)
             {
-                dicProperties.SetValue(AllianceTypeKey, data.Type != AllianceAccessType.Open ? 1 : 0);
+                dicProperties.SetValue(AllianceTypeKey, data.AccessType);
             }
 
             if(current.Avatar != data.Avatar)
@@ -439,9 +451,9 @@ namespace SocialPoint.Social
                     NotifyAllianceEvent(AllianceAction.AllianceAvatarEdited, rDic); // TODO Change name?
                 }
 
-                if(current.Type != data.Type)
+                if(current.AccessType != data.AccessType)
                 {
-                    current.Type = data.Type;
+                    current.AccessType = data.AccessType;
                     NotifyAllianceEvent(AllianceAction.AllianceTypeEdited, rDic);
                 }
 
@@ -510,12 +522,12 @@ namespace SocialPoint.Social
             });
         }
 
-        public void PromoteMember(string memberUid, AllianceMemberType newType, Action<Error> callback)
+        public void PromoteMember(string memberUid, int rank, Action<Error> callback)
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
             dic.SetValue(AlliancePromotedMemberKey, long.Parse(memberUid));
-            dic.SetValue(AllianceNewRoleKey, AllianceUtils.GetIndexForMemberType(newType));
+            dic.SetValue(AllianceNewRankKey, rank);
 
             _connection.Call(AllianceMemberPromoteMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
@@ -527,10 +539,7 @@ namespace SocialPoint.Social
                     return;
                 }
 
-                if(newType == AllianceMemberType.Lead)
-                {
-                    AlliancePlayerInfo.MemberType = AllianceMemberType.Colead;
-                }
+                AlliancePlayerInfo.Rank = Ranks.GetPromotedTo(rank); 
 
                 if(callback != null)
                 {
@@ -565,7 +574,7 @@ namespace SocialPoint.Social
 
         void JoinPublicAlliance(AllianceBasicData alliance, Action<Error> callback, JoinExtraData data)
         {
-            DebugUtils.Assert(alliance.AccessType == AllianceAccessType.Open);
+            DebugUtils.Assert(AccessTypes.IsPublic(alliance.AccessType));
 
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
@@ -588,7 +597,7 @@ namespace SocialPoint.Social
                 AlliancePlayerInfo.Id = alliance.Id;
                 AlliancePlayerInfo.Name = alliance.Name;
                 AlliancePlayerInfo.Avatar = alliance.Avatar;
-                AlliancePlayerInfo.MemberType = AllianceMemberType.Member;
+                AlliancePlayerInfo.Rank = Ranks.DefaultRank;
                 AlliancePlayerInfo.TotalMembers = alliance.Members;
                 AlliancePlayerInfo.JoinTimestamp = joinTs;
                 AlliancePlayerInfo.ClearRequests();
@@ -605,7 +614,7 @@ namespace SocialPoint.Social
 
         void JoinPrivateAlliance(AllianceBasicData alliance, Action<Error> callback, JoinExtraData data)
         {
-            DebugUtils.Assert(alliance.AccessType == AllianceAccessType.Private);
+            DebugUtils.Assert(AccessTypes.AcceptsCandidates(alliance.AccessType));
 
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
@@ -765,7 +774,7 @@ namespace SocialPoint.Social
             AlliancePlayerInfo.Id = allianceId;
             AlliancePlayerInfo.Name = allianceName;
             AlliancePlayerInfo.Avatar = avatarId;
-            AlliancePlayerInfo.MemberType = AllianceMemberType.Member;
+            AlliancePlayerInfo.Rank = Ranks.DefaultRank;
             AlliancePlayerInfo.TotalMembers = totalMembers;
             AlliancePlayerInfo.JoinTimestamp = joinTs;
             AlliancePlayerInfo.ClearRequests();
@@ -785,24 +794,24 @@ namespace SocialPoint.Social
         void OnPromoted(AttrDic dic)
         {
             DebugUtils.Assert(AlliancePlayerInfo.IsInAlliance, "Trying to promote a user which is not in an alliance");
-            DebugUtils.Assert(dic.Get(AllianceNewRoleKey).IsValue);
-            var newRole = dic.GetValue(AllianceNewRoleKey).ToInt();
-            AlliancePlayerInfo.MemberType = AllianceUtils.GetMemberTypeFromIndex(newRole);
+            DebugUtils.Assert(dic.Get(AllianceNewRankKey).IsValue);
+            var newRank = dic.GetValue(AllianceNewRankKey).ToInt();
+            AlliancePlayerInfo.Rank = newRank;
             NotifyAllianceEvent(AllianceAction.PlayerChangedRank, dic);
         }
 
         void OnPlayerAutoChangedRank(AttrDic dic)
         {
             DebugUtils.Assert(AlliancePlayerInfo.IsInAlliance, "User is not in an alliance");
-            var newRole = dic.GetValue(AllianceNewRoleKey).ToInt();
-            AlliancePlayerInfo.MemberType = AllianceUtils.GetMemberTypeFromIndex(newRole);
+            var newRank = dic.GetValue(AllianceNewRankKey).ToInt();
+            AlliancePlayerInfo.Rank = newRank;
             NotifyAllianceEvent(AllianceAction.PlayerChangedRank, dic);
         }
 
         void OnUserAppliedToPlayerAlliance(AttrDic dic)
         {
             DebugUtils.Assert(AlliancePlayerInfo.IsInAlliance, "User is not in an alliance");
-            DebugUtils.Assert(AlliancePlayerInfo.MemberType == AllianceMemberType.Lead || AlliancePlayerInfo.MemberType == AllianceMemberType.Colead);
+            DebugUtils.Assert(Ranks.HasMemberManagementPermission(AlliancePlayerInfo.Rank));
             NotifyAllianceEvent(AllianceAction.UserAppliedToPlayerAlliance, dic);
         }
 

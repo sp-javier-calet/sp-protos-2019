@@ -27,7 +27,8 @@ namespace SocialPoint.Social
         const string RankingKey = "ranking";
         const string RankingMeKey = "me";
         const string RankingRankKey = "rank";
-        const string RankingScoreKey = "monster_power";  // TODO MONSTER :( score?
+        // TODO MONSTER :( score?
+        const string RankingScoreKey = "monster_power";
 
         const string SearchKey = "search";
         const string SearchSuggestedKey = "suggested";
@@ -37,21 +38,26 @@ namespace SocialPoint.Social
         const string AllianceIdKey = "id";
         const string AllianceNameKey = "name";
         const string AllianceDescriptionKey = "description";
+        // TODO duplicated
         const string AllianceAvatarKey = "avatar";
-        const string AllianceAvatarIdKey = "avatarId"; // TODO duplicated
+        const string AllianceAvatarIdKey = "avatarId";
+        // TODO duplicated
         const string AllianceTypeKey = "type";
-        const string AllianceTypeAccessKey = "allianceType"; // TODO duplicated
+        const string AllianceTypeAccessKey = "allianceType";
         const string AllianceTotalMembersKey = "member_count";
         const string AllianceTotalRequestsKey = "requests";
         const string AllianceMembersKey = "members";
         const string AllianceCandidatesKey = "candidates";
         const string AllianceScoreKey = "score";
+        // TODO duplicated
         const string AllianceRequirementKey = "minPowerToJoin";
-        const string AllianceRequirementMinLevelKey = "minLevel"; // TODO duplicated
+        const string AllianceRequirementMinLevelKey = "minLevel";
         const string AllianceActivityIndicatorKey = "activityIndicator";
         const string AllianceIsNewKey = "newAlliance";
 
         #endregion
+
+        public IRankManager RankManager { protected get; set; }
 
         public AllianceMember CreateMember(AttrDic dic)
         {
@@ -67,7 +73,7 @@ namespace SocialPoint.Social
             member.Name = dic.GetValue(MemberNameKey).ToString();
             member.Level = dic.GetValue(MemberLevelKey).ToInt();
             member.Score = dic.GetValue(MemberScoreKey).ToInt();
-            member.Type = AllianceUtils.GetMemberTypeFromIndex(dic.GetValue(MemberTypeKey).ToInt());
+            member.Rank = dic.GetValue(MemberTypeKey).ToInt();
 
             if(dic.ContainsKey(MemberAllianceNameKey))
             {
@@ -98,7 +104,7 @@ namespace SocialPoint.Social
             data.Id = dic.GetValue(AllianceIdKey).ToString();
             data.Name = dic.GetValue(AllianceNameKey).ToString();
             data.Avatar = dic.GetValue(AllianceAvatarKey).ToInt();
-            data.AccessType = dic.GetValue(AllianceTypeKey).ToBool() ? AllianceAccessType.Private : AllianceAccessType.Open;
+            data.AccessType = dic.GetValue(AllianceTypeKey).ToInt();
             data.Members = dic.GetValue(AllianceTotalMembersKey).ToInt();
             data.Requests = dic.GetValue(AllianceTotalRequestsKey).ToInt();
             data.Score = dic.GetValue(AllianceScoreKey).ToInt();
@@ -112,7 +118,7 @@ namespace SocialPoint.Social
             data.Id = alliance.Id;
             data.Name = alliance.Name;
             data.Avatar = alliance.Avatar;
-            data.AccessType = alliance.Type;
+            data.AccessType = alliance.AccessType;
             data.Members = alliance.Members;
             data.Requests = alliance.Candidates;
             data.Score = alliance.Score;
@@ -121,31 +127,31 @@ namespace SocialPoint.Social
             data.IsNewAlliance = alliance.IsNewAlliance;
         }
 
-        public Alliance CreateAlliance(string allianceId, AttrDic dic)
+        public Alliance CreateAlliance(string allianceId, int defaultMemberRank, AttrDic dic)
         {
             var alliance = CreateCustomAlliance();
             alliance.Id = allianceId;
 
-            ParseAlliance(alliance, dic);
+            ParseAlliance(alliance, defaultMemberRank, dic);
             ParseCustomAlliance(alliance, dic);
             return alliance;
         }
 
-        void ParseAlliance(Alliance alliance, AttrDic dic)
+        void ParseAlliance(Alliance alliance, int defaultMemberRank, AttrDic dic)
         {
             var data = dic.Get(AllianceInfoKey).AsDic;
             alliance.Name = data.GetValue(AllianceNameKey).ToString();
             alliance.Description = data.GetValue(AllianceDescriptionKey).ToString();
             alliance.Requirement = data.GetValue(AllianceRequirementMinLevelKey).ToInt();
-            alliance.Type = AllianceUtils.GetAllianceTypeFromIndex(data.GetValue(AllianceTypeAccessKey).ToInt());
+            alliance.AccessType = data.GetValue(AllianceTypeAccessKey).ToInt();
             alliance.Avatar = data.ContainsKey(AllianceAvatarIdKey) ? data.GetValue(AllianceAvatarIdKey).ToInt() : 1;
             alliance.ActivityIndicator = data.GetValue(AllianceActivityIndicatorKey).ToInt();
             alliance.IsNewAlliance = data.GetValue(AllianceIsNewKey).ToBool();
 
-            // Add candidates for private alliances
-            if(alliance.Type == AllianceAccessType.Private)
+            // Add candidates 
+            var candidatesList = dic.Get(AllianceCandidatesKey).AsList;
+            if(candidatesList.Count > 0)
             {
-                var candidatesList = dic.Get(AllianceCandidatesKey).AsList;
                 var candidates = new List<AllianceMember>();
                 candidates.Capacity = candidatesList.Count;
 
@@ -153,7 +159,7 @@ namespace SocialPoint.Social
                 {
                     var candidateDic = candidatesList[i].AsDic;
                     var candidate = CreateMember(candidateDic);
-                    candidate.Type = AllianceMemberType.Member;
+                    candidate.Rank = defaultMemberRank;
 
                     candidates.Add(candidate);
                 }
@@ -195,7 +201,7 @@ namespace SocialPoint.Social
                 info.Id = dic.GetValue(AlliancePlayerIdKey).ToString();
                 info.Name = dic.GetValue(AlliancePlayerNameKey).ToString();
                 info.Avatar = dic.GetValue(AlliancePlayerAvatarKey).ToInt();
-                info.MemberType = AllianceUtils.GetMemberTypeFromIndex(dic.GetValue(AlliancePlayerRoleKey).ToInt());
+                info.Rank = dic.GetValue(AlliancePlayerRoleKey).ToInt();
                 info.TotalMembers = dic.GetValue(AlliancePlayerTotalMembersKey).ToInt();
                 info.JoinTimestamp = dic.GetValue(AlliancePlayerJoinTimestampKey).ToLong();
             }
@@ -323,6 +329,7 @@ namespace SocialPoint.Social
         protected virtual void ParseCustomSearchData(AlliancesSearchData search, AttrDic dic, bool suggested)
         {
         }
+
         #endregion
     }
 }
