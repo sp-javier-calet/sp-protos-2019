@@ -42,9 +42,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Settings:
     UseEmpty: 0
-    ApiKey: 
-    DomainName: 
-    AppId: 
+    ApiKey: e80e75c9fd498d3274f3cdbc637b3866
+    DomainName: socialpoint.helpshift.com
+    IosAppId: socialpoint_platform_20151021095745155-1b0b401a75542a3
+    AndroidAppId: socialpoint_platform_20151021095745169-3fd755eb172b848
     Mode: 0
     InAppNotificationEnabled: 0
     SearchOnNewConversationEnabled: 0
