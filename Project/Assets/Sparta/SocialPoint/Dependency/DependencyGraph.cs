@@ -50,7 +50,14 @@ namespace SocialPoint.Dependency
             var binded = _graph.GetNode(bind, tag);
             binded.History.Add(Action.Binded);
 
-            binded.Aliases.Add(node);
+            if(type.IsInterface)
+            {
+                binded.Implements.Add(node);
+            }
+            else
+            {
+                binded.Aliases.Add(node);
+            }
             node.Definitions.Add(binded);
         }
 
@@ -66,7 +73,15 @@ namespace SocialPoint.Dependency
         {
             var fromNode = _graph.GetNode(fromType, fromTag);
             var toNode = _graph.GetNode(toType, toTag);
-            fromNode.Aliases.Add(toNode);
+
+            if(fromType.IsInterface)
+            {
+                fromNode.Implements.Add(toNode);
+            }
+            else
+            {
+                fromNode.Aliases.Add(toNode);
+            }
             toNode.Definitions.Add(fromNode);
         }
 
@@ -221,6 +236,9 @@ namespace SocialPoint.Dependency
         // Outcoming edges. Dependencies.
         public HashSet<Node> Outcoming;
 
+        // Outcoming edges. Interface types
+        public HashSet<Node> Implements;
+
         // Outcoming edges. Aliased types
         public HashSet<Node> Aliases;
 
@@ -251,7 +269,7 @@ namespace SocialPoint.Dependency
         {
             get
             {
-                return Definitions.Count == 0;
+                return Definitions.Count <= 1;
             }
         }
 
@@ -272,7 +290,6 @@ namespace SocialPoint.Dependency
                 var list = IsSingle ? string.Empty : " []";
                 var className = Class;
                 return string.Format("{0}{1}{2}{3}", root, className, list, tag);
-
             }
         }
 
@@ -280,6 +297,7 @@ namespace SocialPoint.Dependency
         {
             Incoming = new HashSet<Node>();
             Outcoming = new HashSet<Node>();
+            Implements = new HashSet<Node>();
             Aliases = new HashSet<Node>();
             Definitions = new HashSet<Node>();
             History = new List<Action>();
@@ -323,6 +341,13 @@ namespace SocialPoint.Dependency
 
             content.AppendLine("Needed for;");
             foreach(var dep in Incoming)
+            {
+                content.AppendLine(dep.Class);
+            }
+            content.AppendLine();
+
+            content.AppendLine("Implements:");
+            foreach(var dep in Implements)
             {
                 content.AppendLine(dep.Class);
             }

@@ -66,6 +66,7 @@ namespace SocialPoint.Dependency
                     layout.CreateVerticalScrollLayout().CreateTextArea(Node.CreationStack);
                 }
                 layout.CreateMargin();
+                CreateNodeLinkList(layout, "Implements", Node.Implements);
                 CreateNodeLinkList(layout, "Aliases", Node.Aliases);
                 CreateNodeLinkList(layout, "Definitions", Node.Definitions);
                 CreateNodeLinkList(layout, "Dependencies", Node.Outcoming);
