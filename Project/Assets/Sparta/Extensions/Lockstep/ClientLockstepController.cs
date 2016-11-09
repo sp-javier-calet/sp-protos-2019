@@ -358,12 +358,20 @@ namespace SocialPoint.Lockstep
             _timestamp = timestamp;
         }
 
+        public static bool AllowSendTurn = true;
+
         public void Update(int dt)
         {
             if(!Running || dt < 0)
             {
                 return;
             }
+
+            if(!AllowSendTurn)
+            {
+                return;
+            }
+
             dt = (int)(ClientConfig.SpeedFactor * (float)dt);
             _time += dt;
             if(!_simStartedCalled && _time >= 0)

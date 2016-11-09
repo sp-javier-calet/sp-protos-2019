@@ -126,8 +126,15 @@ namespace SocialPoint.Lockstep
             _timestamp = timestamp;
         }
 
+        public static bool AllowSendTurn = true;
+
         public void Update(int dt)
-        {
+        {   
+            if(!AllowSendTurn)
+            {
+                return;
+            }
+            
             if(!Running || dt < 0)
             {
                 return;
@@ -150,6 +157,7 @@ namespace SocialPoint.Lockstep
                 {
                     TurnReady(turn);
                 }
+
                 ConfirmLocalClientTurn(turn);
                 _lastCmdTime = nextCmdTime;
             }
