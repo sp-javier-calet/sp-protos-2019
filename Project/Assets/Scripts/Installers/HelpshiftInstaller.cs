@@ -20,15 +20,11 @@ public class HelpshiftInstaller : Installer
     {
         public bool UseEmpty;
 
-        public string IosApiKey = HelpshiftConfiguration.DefaultIosApiKey;
+        public string ApiKey = HelpshiftConfiguration.DefaultApiKey;
 
-        public string IosDomainName = HelpshiftConfiguration.DefaultIosDomainName;
+        public string DomainName = HelpshiftConfiguration.DefaultDomainName;
 
         public string IosAppId = HelpshiftConfiguration.DefaultIosAppId;
-
-        public string AndroidApiKey = HelpshiftConfiguration.DefaultAndroidApiKey;
-
-        public string AndroidDomainName = HelpshiftConfiguration.DefaultAndroidDomainName;
 
         public string AndroidAppId = HelpshiftConfiguration.DefaultAndroidAppId;
 
@@ -66,17 +62,12 @@ public class HelpshiftInstaller : Installer
 
     UnityHelpshift CreateUnityHelpshift()
     {
-        string apiKey = Settings.IosApiKey;
-        string domainName = Settings.IosDomainName;
         string appId = Settings.IosAppId;
-
         #if UNITY_ANDROID
-        apiKey = Settings.AndroidApiKey;
-        domainName = Settings.AndroidDomainName;
         appId = Settings.AndroidAppId;
         #endif
            
-        var hsconfig = new HelpshiftConfiguration(apiKey, appId, domainName) {
+        var hsconfig = new HelpshiftConfiguration(Settings.ApiKey, appId, Settings.DomainName) {
             Mode = Settings.Mode,
             InAppNotificationEnabled = Settings.InAppNotificationEnabled,
             SearchOnNewConversationEnabled = Settings.SearchOnNewConversationEnabled,

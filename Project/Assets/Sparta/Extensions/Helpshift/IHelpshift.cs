@@ -6,11 +6,9 @@ namespace SocialPoint.Extension.Helpshift
     {
 
         // default params from DL
-        public const string DefaultIosApiKey = "e80e75c9fd498d3274f3cdbc637b3866";
-        public const string DefaultIosDomainName = "socialpoint.helpshift.com";
+        public const string DefaultApiKey = "e80e75c9fd498d3274f3cdbc637b3866";
+        public const string DefaultDomainName = "socialpoint.helpshift.com";
         public const string DefaultIosAppId = "socialpoint_platform_20151021095745155-1b0b401a75542a3";
-        public const string DefaultAndroidApiKey = "e80e75c9fd498d3274f3cdbc637b3866";
-        public const string DefaultAndroidDomainName = "socialpoint.helpshift.com";
         public const string DefaultAndroidAppId = "socialpoint_platform_20151021095745169-3fd755eb172b848";
 
         public enum ContactMode
