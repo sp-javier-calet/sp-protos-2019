@@ -148,6 +148,21 @@ namespace SocialPoint.Login
                 }
             }
         }
+
+        public SocialFrameworkData(Attr data = null)
+        {
+            if(data != null && data.AttrType == AttrType.DICTIONARY)
+            {
+                var datadic = data.AsDic;
+                var urlList = datadic.Get(AttrKeyWebSocketUrl).AsList;
+                var list = new List<string>();
+                for(var i = 0; i < urlList.Count; ++i)
+                {
+                    list.Add(urlList.GetValue(i).ToString());
+                }
+                WebSocketUrls = list.ToArray();
+            }
+        }
     }
 
     public sealed class GenericData
@@ -255,6 +270,10 @@ namespace SocialPoint.Login
             if(datadic.ContainsKey(AttrKeyMaintenanceData))
             {
                 Maintenance = new MaintenanceData(datadic.Get(AttrKeyMaintenanceData));
+            }
+            if(datadic.ContainsKey(AttrKeySocialFrameworkData))
+            {
+                Social = new SocialFrameworkData(datadic.Get(AttrKeySocialFrameworkData));
             }
         }
 
