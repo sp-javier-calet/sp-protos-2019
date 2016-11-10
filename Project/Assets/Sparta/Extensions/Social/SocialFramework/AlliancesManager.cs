@@ -78,17 +78,6 @@ namespace SocialPoint.Social
 
         #endregion
 
-        #region Alliance endpoints
-
-        const string AllianceEndpoint = "/api/alliance/";
-        const string AllianceMemberEndpoint = "/api/alliance/member";
-        const string AllianceRankingEndpoint = "/api/alliance/ranking";
-        const string AllianceSearchEndpoint = "/api/alliance/search";
-        const string AllianceSuggestedEndpoint = "/api/alliance/suggested";
-        const string AllianceJoinSuggestedEndpoint = "/api/alliance/suggested_reward";
-
-        #endregion
-
         #region RPC methods
 
         const string AllianceCreateMethod = "alliance.create";
