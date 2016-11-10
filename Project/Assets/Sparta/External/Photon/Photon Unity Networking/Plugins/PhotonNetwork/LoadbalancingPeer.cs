@@ -718,6 +718,8 @@ using ExitGames.Client.Photon;
 
         int GetObjectSize(object obj)
         {
+            return 0;
+            /*
             long size = 0;
             object o = new object();
             using (System.IO.Stream s = new System.IO.MemoryStream()) {
@@ -726,6 +728,7 @@ using ExitGames.Client.Photon;
                 size = s.Length;
             }
             return (int)size;
+            */
         }
 
 
