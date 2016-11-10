@@ -201,7 +201,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!1 &1000011583664118
 GameObject:
   m_ObjectHideFlags: 1
@@ -618,7 +618,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: '[Server] Enable/Disable'
+  m_Text: Send Reliable
 --- !u!114 &114000010359912046
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1144,6 +1144,7 @@ MonoBehaviour:
   _turnDataBitsPerFrameText: {fileID: 114000010020769542}
   _totalPhotonDataPerSecondText: {fileID: 114000010234207036}
   _totalPhotonDataPerFrameText: {fileID: 114000010557880808}
+  _sendIsReliableTex: {fileID: 0}
 --- !u!114 &114000012503064128
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1797,9 +1798,9 @@ RectTransform:
   - {fileID: 224000010056283632}
   m_Father: {fileID: 224000012130311696}
   m_RootOrder: 4
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 858, y: 382}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -105.5, y: -155}
   m_SizeDelta: {x: 211, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224000011969588490
