@@ -211,7 +211,7 @@ namespace SocialPoint.Lockstep
                             TurnReady(turn);
                         }
 
-                        ConfirmLocalClientTurn(turn);
+                        ConfirmLocalClientEmptyTurns(turn);
 
                     }
                 }
@@ -269,6 +269,16 @@ namespace SocialPoint.Lockstep
             }
             var clientTurn = turn.ToClient(_localFactory);
             _localClient.AddConfirmedTurn(clientTurn);
+        }
+
+        void ConfirmLocalClientEmptyTurns(ServerLockstepTurnData turn)
+        {
+            if(_localClient == null)
+            {
+                return;
+            }
+//            var clientTurn = turn.ToClient(_localFactory);
+            _localClient.AddConfirmedEmptyTurns();
         }
 
         #endregion
