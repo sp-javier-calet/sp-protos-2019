@@ -395,7 +395,7 @@ namespace SocialPoint.Social
             abstract class BaseRequestAlliancePanel : BaseAlliancePanel
             {
                 protected WAMPRequest _wampRequest;
-                protected Error _httpConnectionError;
+                protected Error _wampRequestError;
 
                 public BaseRequestAlliancePanel(AlliancesManager alliances, AdminPanelConsole console) : base(alliances, console)
                 {
@@ -408,7 +408,7 @@ namespace SocialPoint.Social
                         _wampRequest.Dispose();
                     }
                     _wampRequest = null;
-                    _httpConnectionError = null;
+                    _wampRequestError = null;
                 }
             }
 
@@ -660,18 +660,18 @@ namespace SocialPoint.Social
                                     else
                                     {
                                         _console.Print(string.Format("Error loading user: {0}", err));
-                                        _httpConnectionError = err;
+                                        _wampRequestError = err;
                                         layout.Refresh();
                                     }
                                 });
                         }  
-                        if(Error.IsNullOrEmpty(_httpConnectionError))
+                        if(Error.IsNullOrEmpty(_wampRequestError))
                         {
                             layout.CreateLabel(string.Format("Loading alliance {0}...", AllianceId));
                         }
                         else
                         {
-                            layout.CreateLabel(string.Format("Load Alliance request failed. {0}", _httpConnectionError));
+                            layout.CreateLabel(string.Format("Load Alliance request failed. {0}", _wampRequestError));
                             layout.CreateButton("Retry", () => {
                                 Cancel();
                                 layout.Refresh();
@@ -786,18 +786,18 @@ namespace SocialPoint.Social
                                     else
                                     {
                                         _console.Print(string.Format("Error loading user: {0} ", err));
-                                        _httpConnectionError = err;
+                                        _wampRequestError = err;
                                         layout.Refresh();
                                     }
                                 });
                         } 
-                        if(Error.IsNullOrEmpty(_httpConnectionError))
+                        if(Error.IsNullOrEmpty(_wampRequestError))
                         {
                             layout.CreateLabel(string.Format("Loading user {0}...", UserId));
                         }
                         else
                         {
-                            layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError));
+                            layout.CreateLabel(string.Format("Load user request failed. {0}", _wampRequestError));
                             layout.CreateButton("Retry", () => {
                                 Cancel();
                                 layout.Refresh();
@@ -905,18 +905,18 @@ namespace SocialPoint.Social
                                     else
                                     {
                                         _console.Print(string.Format("Error loading ranking. {0} ", err));
-                                        _httpConnectionError = err;
+                                        _wampRequestError = err;
                                         layout.Refresh();
                                     }
                                 });
                         }  
-                        if(Error.IsNullOrEmpty(_httpConnectionError))
+                        if(Error.IsNullOrEmpty(_wampRequestError))
                         {
                             layout.CreateLabel("Loading ranking...");
                         }
                         else
                         {
-                            layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError));
+                            layout.CreateLabel(string.Format("Load user request failed. {0}", _wampRequestError));
                             layout.CreateButton("Retry", () => {
                                 Cancel();
                                 layout.Refresh();
@@ -975,7 +975,7 @@ namespace SocialPoint.Social
                                 else
                                 {
                                     _console.Print(string.Format("Error loading search results. {0} ", err));
-                                    _httpConnectionError = err;
+                                    _wampRequestError = err;
                                     layout.Refresh();
                                 }
                             };
@@ -990,13 +990,13 @@ namespace SocialPoint.Social
                             }
                         }
 
-                        if(Error.IsNullOrEmpty(_httpConnectionError))
+                        if(Error.IsNullOrEmpty(_wampRequestError))
                         {
                             layout.CreateLabel("Loading ranking...");
                         }
                         else
                         {
-                            layout.CreateLabel(string.Format("Load user request failed. {0}", _httpConnectionError));
+                            layout.CreateLabel(string.Format("Load user request failed. {0}", _wampRequestError));
                             layout.CreateButton("Retry", () => {
                                 Cancel();
                                 layout.Refresh();
