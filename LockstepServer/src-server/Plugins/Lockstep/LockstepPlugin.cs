@@ -1,11 +1,14 @@
-﻿using System.Collections.Generic;
-using SocialPoint.Utils;
+﻿using SocialPoint.Utils;
 using SocialPoint.Network;
-using SocialPoint.Lockstep;
 using SocialPoint.Lockstep.Network;
+using SocialPoint.Matchmaking;
 using SocialPoint.IO;
+using System;
 using System.IO;
 using System.Collections;
+using System.Collections.Generic;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
 
 namespace Photon.Hive.Plugin.Lockstep
 {
@@ -33,14 +36,26 @@ namespace Photon.Hive.Plugin.Lockstep
             }
         }
 
+        string INetworkServer.Id
+        {
+            get
+            {
+                return PluginHost.GameId;
+            }
+        }
+
         ServerLockstepNetworkController _netServer;
         List<INetworkServerDelegate> _delegates;
         INetworkMessageReceiver _receiver;
+        HttpMatchmakingServerController _matchmaking;
+        Examples.Lockstep.ServerBehaviour _game;
         object _timer;
  
         const byte MaxPlayersKey = 255;
         const byte MasterClientIdKey = 248;
         const byte IsOpenKey = 253;
+        const byte ErrorInfoCode = 251;
+        const byte ParameterCodeData = 245;
         const int NoRandomMatchFoundCode = 32760;
         const string ServerIdRoomProperty = "server";
 
@@ -48,7 +63,11 @@ namespace Photon.Hive.Plugin.Lockstep
         {
             UseStrictMode = true;
             _delegates = new List<INetworkServerDelegate>();
-            _netServer = new ServerLockstepNetworkController(this);
+            _matchmaking = new HttpMatchmakingServerController(
+                new WebRequestHttpClient(new ImmediateCoroutineRunner()));
+            _netServer = new ServerLockstepNetworkController(this, _matchmaking);
+            _game = new Examples.Lockstep.ServerBehaviour(_netServer);
+            _netServer.RegisterDelegate(_game);
         }
 
         byte GetClientId(string userId)
@@ -73,7 +92,10 @@ namespace Photon.Hive.Plugin.Lockstep
         public override void OnCloseGame(ICloseGameCallInfo info)
         {
             PluginHost.StopTimer(_timer);
-            _netServer.Stop();
+            for (var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnServerStopped();
+            }
             info.Continue();
         }
 
@@ -88,6 +110,11 @@ namespace Photon.Hive.Plugin.Lockstep
                 { (int)MasterClientIdKey, 0 },
                 { ServerIdRoomProperty, 0 },
             }, null, false);
+            for (var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnServerStarted();
+            }
+
             var clientId = GetClientId(info.UserId);
             OnClientConnected(clientId);
         }
@@ -146,14 +173,18 @@ namespace Photon.Hive.Plugin.Lockstep
             for (var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnClientDisconnected(clientId);
-            }
+            }  
             UpdateRoomOpen();
         }
 
         public override void OnRaiseEvent(IRaiseEventCallInfo info)
         {
             info.Continue();
-            if (_receiver != null)
+            if (_receiver == null)
+            {
+                return;
+            }
+            try
             {
                 var data = info.Request.Data as byte[];
                 if (data != null)
@@ -167,6 +198,10 @@ namespace Photon.Hive.Plugin.Lockstep
                     };
                     _receiver.OnMessageReceived(netData, reader);
                 }
+            }
+            catch(Exception e)
+            {
+                HandleException(e);
             }
         }
 
@@ -187,6 +222,7 @@ namespace Photon.Hive.Plugin.Lockstep
         const string MaxPlayersConfig = "MaxPlayers";
         const string ClientStartDelayConfig = "ClientStartDelay";
         const string ClientSimulationDelayConfig = "ClientSimulationDelay";
+        const string BackendBaseUrlConfig = "BackendBaseUrl";
 
         int GetConfigOption(Dictionary<string, string> config, string key, int def)
         {
@@ -219,13 +255,39 @@ namespace Photon.Hive.Plugin.Lockstep
             _netServer.ServerConfig.ClientSimulationDelay = GetConfigOption(config,
                 ClientSimulationDelayConfig, _netServer.ServerConfig.ClientSimulationDelay);
 
+            string baseUrl;
+            if (_matchmaking != null && config.TryGetValue(BackendBaseUrlConfig, out baseUrl))
+            {
+                _matchmaking.BaseUrl = baseUrl;
+            }
             _timer = PluginHost.CreateTimer(Update, 0, _netServer.Config.CommandStepDuration);
             return true;
         }
 
         void Update()
         {
-            _netServer.Update();
+            try
+            {
+                _netServer.Update();
+            }
+            catch(Exception e)
+            {
+                HandleException(e);
+            }
+        }
+
+        void BroadcastError(string message)
+        {
+            var errorMsg = "[Server Error]: " + message;
+            var dic = new Dictionary<byte, object>();
+            dic.Add(ParameterCodeData, errorMsg);
+            BroadcastEvent(ErrorInfoCode, dic);
+            PluginHost.LogError(errorMsg);
+        }
+
+        void HandleException(Exception e)
+        {
+            BroadcastError(e.Message);
         }
 
         void INetworkServer.Start()
@@ -233,7 +295,13 @@ namespace Photon.Hive.Plugin.Lockstep
         }
 
         void INetworkServer.Stop()
-        { 
+        {
+            BroadcastError("server stopped");
+        }
+
+        void INetworkServer.Fail(string reason)
+        {
+            BroadcastError(reason);
         }
 
         INetworkMessage INetworkMessageSender.CreateMessage(NetworkMessageData info)
