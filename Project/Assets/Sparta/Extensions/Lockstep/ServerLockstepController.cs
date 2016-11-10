@@ -142,25 +142,24 @@ namespace SocialPoint.Lockstep
                 }
                 ServerLockstepTurnData turn;
                 var t = CurrentTurnNumber;
-//                if(!_turns.TryGetValue(t, out turn))
-//                {
-//                    turn = ServerLockstepTurnData.Empty;
-//                }
-//                if(TurnReady != null)
-//                {
-//                    TurnReady(turn);
-//                }
-                if(_turns.TryGetValue(t, out turn))
+                if(!_turns.TryGetValue(t, out turn))
                 {
                     turn = ServerLockstepTurnData.Empty;
-                
+                }
+                if(TurnReady != null)
+                {
+                    TurnReady(turn);
+                }
+                /*
+                if(_turns.TryGetValue(t, out turn))
+                {
                     if(TurnReady != null)
                     {
                         TurnReady(turn);
                     }
 
                     ConfirmLocalClientTurn(turn);
-                }
+                }*/
 
                 _lastCmdTime = nextCmdTime;
             }

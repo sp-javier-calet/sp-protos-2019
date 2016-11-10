@@ -54,6 +54,7 @@ public class IntCircularBuffer
     public void Add(int value)
     {
         _values[CircularCount] = value;
+        _count++;
     }
 
     public float GetAverage(int startFlatIdx, int endFlatIdx)

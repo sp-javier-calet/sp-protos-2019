@@ -431,7 +431,7 @@ namespace SocialPoint.Lockstep
                     else
                     {
                         // We are trying to run a turn ahead of the lastConfirmed turn so we break and do nothing until a new lastConfirmed command is received
-                        //_state = State.Waiting;
+                        _state = State.Waiting;
                         break;
                     }
                     if(_state == State.Normal)
