@@ -204,7 +204,6 @@ namespace SocialPoint.Lockstep
                 {
                     int maxSkippedTurns = 4;
                     _skippedTurns++;
-                    var timeSkipped = Config.CommandStepDuration * _skippedTurns;
                     if(_skippedTurns >= maxSkippedTurns)
                     {
                         turn = ServerLockstepTurnData.Empty;
