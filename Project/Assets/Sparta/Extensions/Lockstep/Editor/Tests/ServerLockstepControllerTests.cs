@@ -59,20 +59,17 @@ namespace SocialPoint.Lockstep
             client.Start(-1000);
 
             _server.Update(1000);
-            client.Update(1000);
 
             var finish = Substitute.For<ILockstepCommandLogic>();
             client.AddPendingCommand(cmd, finish);
 
             _server.Update(100);
-            client.Update(100);
 
-            finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
+            finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>(), Arg.Any<byte>());
 
             _server.Update(1000);
-            client.Update(1000);
 
-            finish.Received().Apply(cmd);
+            finish.Received().Apply(cmd, client.PlayerNumber);
         }
 
         [Test]

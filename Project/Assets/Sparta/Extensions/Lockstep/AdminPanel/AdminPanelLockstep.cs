@@ -104,13 +104,11 @@ namespace SocialPoint.Lockstep
             var builder = new StringBuilder();
             if(_server.Running)
             {
-                builder.AppendLine(Title + " (running) " + _server.MaxPlayers + " players");
+                builder.Append("(running) ");
             }
-            else
-            {
-                builder.AppendLine(_server.ReadyPlayerCount + "/" + _server.PlayerCount + "/" + _server.MaxPlayers + " players");
-            }
-            builder.AppendLine("Time: " + _server.UpdateTime + " cmd:" + _server.CommandDeltaTime);
+            builder.AppendFormat("players: max={0} ready={1}\n", _server.MaxPlayers, _server.ReadyPlayerCount);
+
+            builder.AppendFormat("Time: {0} cmd: {1}",  _server.UpdateTime, _server.CommandDeltaTime);
             return builder.ToString();
         }
 
