@@ -221,6 +221,8 @@ namespace SocialPoint.Network
             return new PhotonNetworkMessage(info, this);
         }
 
+        public static bool SendReliable = true;
+
         public void SendNetworkMessage(NetworkMessageData info, byte[] data)
         {
             var options = new RaiseEventOptions();
@@ -246,8 +248,8 @@ namespace SocialPoint.Network
 
             LockstepOptimizationView.TurnDataBuffer.Add( data.Length );
 
-//            PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
-            PhotonNetwork.RaiseEvent(info.MessageType, data, false, options);
+            PhotonNetwork.RaiseEvent(info.MessageType, data, SendReliable && !info.Unreliable, options);
+//            PhotonNetwork.RaiseEvent(info.MessageType, data, false, options);
         }
 
         void OnEventReceived(byte eventcode, object content, int senderid)

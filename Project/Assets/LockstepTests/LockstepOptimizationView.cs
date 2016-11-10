@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Lockstep;
 using UnityEngine.UI;
+using SocialPoint.Network;
 
 public class LockstepOptimizationView : MonoBehaviour 
 {
@@ -30,6 +31,9 @@ public class LockstepOptimizationView : MonoBehaviour
     [SerializeField]
     Text _totalPhotonDataPerFrameText;
 
+    [SerializeField]
+    Text _sendIsReliableTex;
+
     void Awake()
     {
         RefreshUI();
@@ -55,6 +59,8 @@ public class LockstepOptimizationView : MonoBehaviour
 
         _turnDataBitsPerFrameText.text = (8f * turnDataBufferPerFrameAvg.GetAvg(10)).ToString();
         _totalPhotonDataPerFrameText.text = (8f * photonDataBufferPerFrameAvg.GetAvg(10)).ToString();
+
+        _sendIsReliableTex.text = PhotonNetworkBase.SendReliable.ToString();
     }
 
     IEnumerator ShowSendBytesCo(bool isRealTime)
@@ -102,5 +108,11 @@ public class LockstepOptimizationView : MonoBehaviour
         bufferStartIdx = buffer.Count;
 
         return average;
+    }
+
+    public void OnSendReliableClicked()
+    {
+        PhotonNetworkBase.SendReliable = !PhotonNetworkBase.SendReliable;
+        RefreshUI();
     }
 }
