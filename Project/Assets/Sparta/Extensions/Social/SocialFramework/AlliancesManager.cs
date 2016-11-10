@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Runtime.Serialization;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
-using SocialPoint.Network;
 using SocialPoint.Login;
 using SocialPoint.Utils;
+using SocialPoint.WAMP;
 
 namespace SocialPoint.Social
 {
@@ -103,6 +102,14 @@ namespace SocialPoint.Social
         const string AllianceMemberPromoteMethod = "alliance.member.promote";
         const string NotificationReceivedMethod = "notification.received";
 
+        // TODO Getters RPC methods
+        const string AllianceInfoMethod = "alliance.info";
+        const string AllianceMemberInfoMethod = "alliance.member.info";
+        const string AllianceRankingMethod = "alliance.ranking";
+        const string AllianceSearchMethod = "alliance.search";
+        const string AllianceSearchSuggestedMethod = "alliance.search.suggested";
+        const string AllianceSearchSuggestedJoinMethod = "alliance.search.suggested.reward";
+
         #endregion
 
         const float RequestTimeout = 30.0f;
@@ -112,8 +119,6 @@ namespace SocialPoint.Social
         public event AllianceEventDelegate AllianceEvent;
 
         public AlliancePlayerInfo AlliancePlayerInfo { get; private set; }
-
-        public IHttpClient HttpClient { private get; set; }
 
         public ILoginData LoginData { private get; set; }
 
@@ -127,8 +132,6 @@ namespace SocialPoint.Social
 
         public string AlliancesServerUrl;
 
-        readonly JsonAttrParser _parser;
-
         readonly ConnectionManager _connection;
 
         public AlliancesManager(ConnectionManager connection)
@@ -137,7 +140,6 @@ namespace SocialPoint.Social
             AccessTypes = new DefaultAccessTypeManager();
             Factory = new AllianceDataFactory();
             AlliancePlayerInfo = Factory.CreatePlayerInfo();
-            _parser = new JsonAttrParser();
             _connection = connection;
             _connection.AlliancesManager = this;
             _connection.OnNotificationReceived += OnNotificationReceived;
@@ -155,157 +157,131 @@ namespace SocialPoint.Social
             return Factory.CreateBasicData(alliance);
         }
 
-        public IHttpConnection LoadAllianceInfo(string allianceId, Action<Error, Alliance> callback)
+        public WAMPRequest LoadAllianceInfo(string allianceId, Action<Error, Alliance> callback)
         {
-            var req = new HttpRequest(GetUrl(AllianceEndpoint + allianceId));
-            req.Timeout = RequestTimeout;
-            req.AddParam(UserSessionKey, LoginData.SessionId);
-            req.AddParam(UserIdKey, LoginData.UserId.ToString());
+            var dic = new AttrDic();
+            dic.SetValue(UserSessionKey, LoginData.SessionId);
+            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
              
-            return HttpClient.Send(req, response => OnAllianceInfoLoaded(response, allianceId, callback));
+            return _connection.Call(AllianceInfoMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
+                Alliance alliance = null;
+                if(Error.IsNullOrEmpty(err))
+                {
+                    alliance = Factory.CreateAlliance(allianceId, AccessTypes.DefaultAccessType, rDic);
+                }
+                if(callback != null)
+                {
+                    callback(err, alliance);
+                }
+            });
         }
 
-        void OnAllianceInfoLoaded(HttpResponse resp, string allianceId, Action<Error, Alliance> callback)
+        public WAMPRequest LoadUserInfo(string userId, Action<Error, AllianceMember> callback)
         {
-            AttrDic dic;
-            var error = ParseResponse(resp, out dic);
-            Alliance alliance = null;
+            var dic = new AttrDic();
+            dic.SetValue(UserSessionKey, LoginData.SessionId);
 
-            if(Error.IsNullOrEmpty(error))
-            {
-                alliance = Factory.CreateAlliance(allianceId, AccessTypes.DefaultAccessType, dic);
-            }
-            if(callback != null)
-            {
-                callback(error, alliance);
-            }
+            return _connection.Call(AllianceMemberInfoMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
+                AllianceMember member = null;
+                if(Error.IsNullOrEmpty(err))
+                {
+                    member = Factory.CreateMember(dic);
+                }
+                if(callback != null)
+                {
+                    callback(err, member);
+                }
+            });
         }
 
-        public IHttpConnection LoadUserInfo(string userId, Action<Error, AllianceMember> callback)
+        public WAMPRequest LoadRanking(Action<Error, AllianceRankingData> callback)
         {
-            var req = new HttpRequest(GetUrl(AllianceMemberEndpoint + userId));
-            req.Timeout = RequestTimeout;
-            req.AddParam(UserSessionKey, LoginData.SessionId);
-
-            return HttpClient.Send(req, response => OnUserInfoLoaded(response, callback));
-        }
-
-        void OnUserInfoLoaded(HttpResponse resp, Action<Error, AllianceMember> callback)
-        {
-            AttrDic dic;
-            var error = ParseResponse(resp, out dic);
-            AllianceMember member = null;
-
-            if(Error.IsNullOrEmpty(error))
-            {
-                member = Factory.CreateMember(dic);
-            }
-            if(callback != null)
-            {
-                callback(error, member);
-            }
-        }
-
-        public IHttpConnection LoadRanking(Action<Error, AllianceRankingData> callback)
-        {
-            var req = new HttpRequest(GetUrl(AllianceRankingEndpoint));
-            req.Timeout = RequestTimeout;
-
+            var dic = new AttrDic();
             if(AlliancePlayerInfo.IsInAlliance)
             {
-                req.AddParam(AllianceIdKey, AlliancePlayerInfo.Id);
+                dic.SetValue(AllianceIdKey, AlliancePlayerInfo.Id);
             }
 
-            req.AddParam(UserIdKey, LoginData.UserId.ToString());
+            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
 
-            return HttpClient.Send(req, response => OnRankingLoaded(response, callback));
+            return _connection.Call(AllianceRankingMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
+                AllianceRankingData ranking = null;
+                if(Error.IsNullOrEmpty(err))
+                {
+                    ranking = Factory.CreateRankingData(dic);
+                }
+                if(callback != null)
+                {
+                    callback(err, ranking);
+                }
+            });
         }
 
-        void OnRankingLoaded(HttpResponse resp, Action<Error, AllianceRankingData> callback)
+        public WAMPRequest LoadSearch(string search, Action<Error, AlliancesSearchData> callback)
         {
-            AttrDic dic;
-            var error = ParseResponse(resp, out dic);
-            AllianceRankingData ranking = null;
+            var dic = new AttrDic();
+            dic.SetValue(SearchFilterKey, search);
+            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
 
-            if(Error.IsNullOrEmpty(error))
-            {
-                ranking = Factory.CreateRankingData(dic);
-            }
-            if(callback != null)
-            {
-                callback(error, ranking);
-            }
+            const bool suggested = false;
+            return _connection.Call(AllianceSearchMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
+                AlliancesSearchData searchData = null;
+                if(Error.IsNullOrEmpty(err))
+                {
+                    searchData = Factory.CreateSearchData(dic, suggested);
+                }
+                if(callback != null)
+                {
+                    callback(err, searchData);
+                }
+            });
         }
 
-        public IHttpConnection LoadSearch(string search, Action<Error, AlliancesSearchData> callback)
+        public WAMPRequest LoadSearchSuggested(Action<Error, AlliancesSearchData> callback)
         {
-            var req = new HttpRequest(GetUrl(AllianceSearchEndpoint));
-            req.Timeout = RequestTimeout;
-            req.AddParam(SearchFilterKey, search);
-            req.AddParam(UserIdKey, LoginData.UserId.ToString());
+            var dic = new AttrDic();
+            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
 
-            return HttpClient.Send(req, response => OnSearchLoaded(response, callback, false));
+            const bool suggested = true;
+            return _connection.Call(AllianceSearchSuggestedMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
+                AlliancesSearchData searchData = null;
+                if(Error.IsNullOrEmpty(err))
+                {
+                    searchData = Factory.CreateSearchData(dic, suggested);
+                }
+                if(callback != null)
+                {
+                    callback(err, searchData);
+                }
+            });
         }
 
-        public IHttpConnection LoadSearchSuggested(Action<Error, AlliancesSearchData> callback)
+        public WAMPRequest LoadJoinSuggestedAlliances(Action<Error, AlliancesSearchData> callback)
         {
-            var req = new HttpRequest(GetUrl(AllianceSuggestedEndpoint));
-            req.Timeout = RequestTimeout;
-            req.AddParam(UserIdKey, LoginData.UserId.ToString());
+            var dic = new AttrDic();
+            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
+            dic.SetValue(SessionIdKey, LoginData.SessionId);
 
-            return HttpClient.Send(req, response => OnSearchLoaded(response, callback, true));
+            return _connection.Call(AllianceSearchSuggestedJoinMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
+                AlliancesSearchData search = null;
+                if(Error.IsNullOrEmpty(err))
+                {
+                    search = Factory.CreateJoinData(dic);
+                }
+                if(callback != null)
+                {
+                    callback(err, search);
+                }
+            });
         }
 
-        void OnSearchLoaded(HttpResponse resp, Action<Error, AlliancesSearchData> callback, bool suggested)
-        {
-            AttrDic dic;
-            var error = ParseResponse(resp, out dic);
-            AlliancesSearchData search = null;
-
-            if(Error.IsNullOrEmpty(error))
-            {
-                search = Factory.CreateSearchData(dic, suggested);
-            }
-            if(callback != null)
-            {
-                callback(error, search);
-            }
-        }
-
-        public IHttpConnection LoadJoinSuggestedAlliances(Action<Error, AlliancesSearchData> callback)
-        {
-            var req = new HttpRequest(GetUrl(AllianceJoinSuggestedEndpoint));
-            req.Timeout = RequestTimeout;
-            req.AddParam(UserIdKey, LoginData.UserId.ToString());
-            req.AddParam(SessionIdKey, LoginData.SessionId);
-
-            return HttpClient.Send(req, response => OnJoinSuggestedAlliancesLoaded(response, callback));
-        }
-
-        void OnJoinSuggestedAlliancesLoaded(HttpResponse resp, Action<Error, AlliancesSearchData> callback)
-        {
-            AttrDic dic;
-            var error = ParseResponse(resp, out dic);
-            AlliancesSearchData search = null;
-
-            if(Error.IsNullOrEmpty(error))
-            {
-                search = Factory.CreateJoinData(dic);
-
-            }
-            if(callback != null)
-            {
-                callback(error, search);
-            }
-        }
-
-        public void LeaveAlliance(Action<Error> callback, bool notifyEvent)
+        public WAMPRequest LeaveAlliance(Action<Error> callback, bool notifyEvent)
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
             dic.SetValue(AllianceIdKey, AlliancePlayerInfo.Id);
 
-            _connection.Call(AllianceLeaveMethod, Attr.InvalidList, dic, (err, EventArgs, kwargs) => {
+            return _connection.Call(AllianceLeaveMethod, Attr.InvalidList, dic, (err, EventArgs, kwargs) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     if(callback != null)
@@ -349,7 +325,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public void CreateAlliance(AlliancesCreateData data, Action<Error> callback)
+        public WAMPRequest CreateAlliance(AlliancesCreateData data, Action<Error> callback)
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
@@ -359,7 +335,7 @@ namespace SocialPoint.Social
             dic.SetValue(AllianceTypeKey, data.AccessType);
             dic.SetValue(AvatarKey, data.Avatar);
 
-            _connection.Call(AllianceCreateMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
+            return _connection.Call(AllianceCreateMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     if(callback != null)
@@ -394,7 +370,7 @@ namespace SocialPoint.Social
             });
         }
 
-        public void EditAlliance(Alliance current, AlliancesCreateData data, Action<Error> callback)
+        public WAMPRequest EditAlliance(Alliance current, AlliancesCreateData data, Action<Error> callback)
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
@@ -422,7 +398,7 @@ namespace SocialPoint.Social
 
             dic.Set(AlliancePropertiesKey, dicProperties);
 
-            _connection.Call(AllianceEditMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
+            return _connection.Call(AllianceEditMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     if(callback != null)
@@ -465,13 +441,13 @@ namespace SocialPoint.Social
             });
         }
 
-        public void AcceptCandidate(string candidateUid, Action<Error> callback)
+        public WAMPRequest AcceptCandidate(string candidateUid, Action<Error> callback)
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
             dic.SetValue(AllianceNewMemberKey, long.Parse(candidateUid));
 
-            _connection.Call(AllianceMemberAcceptMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
+            return _connection.Call(AllianceMemberAcceptMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     if(callback != null)
@@ -488,23 +464,23 @@ namespace SocialPoint.Social
             });
         }
 
-        public void DeclineCandidate(string candidateUid, Action<Error> callback)
+        public WAMPRequest DeclineCandidate(string candidateUid, Action<Error> callback)
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
             dic.SetValue(AllianceDeniedMemberKey, long.Parse(candidateUid));
 
-            _connection.Call(AllianceMemberAcceptMethod, Attr.InvalidList, dic, (err, rList, rDic) => callback(err));
+            return _connection.Call(AllianceMemberAcceptMethod, Attr.InvalidList, dic, (err, rList, rDic) => callback(err));
         }
 
-        public void KickMember(string memberUid, Action<Error> callback)
+        public WAMPRequest KickMember(string memberUid, Action<Error> callback)
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
             dic.SetValue(AllianceKickedMemberKey, long.Parse(memberUid));
             dic.SetValue(AllianceIdKey, AlliancePlayerInfo.Id);
 
-            _connection.Call(AllianceMemberKickMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
+            return _connection.Call(AllianceMemberKickMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     if(callback != null)
@@ -522,14 +498,14 @@ namespace SocialPoint.Social
             });
         }
 
-        public void PromoteMember(string memberUid, int rank, Action<Error> callback)
+        public WAMPRequest PromoteMember(string memberUid, int rank, Action<Error> callback)
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
             dic.SetValue(AlliancePromotedMemberKey, long.Parse(memberUid));
             dic.SetValue(AllianceNewRankKey, rank);
 
-            _connection.Call(AllianceMemberPromoteMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
+            return _connection.Call(AllianceMemberPromoteMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     if(callback != null)
@@ -555,14 +531,14 @@ namespace SocialPoint.Social
             NotifyAllianceEvent(AllianceAction.OnPlayerAllianceInfoParsed, dic);
         }
 
-        public void SendNotificationAck(int typeCode, string notificationId)
+        public WAMPRequest SendNotificationAck(int typeCode, string notificationId)
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
             dic.SetValue(NotificationTypeKey, typeCode);
             dic.SetValue(NotificationIdKey, notificationId);
 
-            _connection.Call(NotificationReceivedMethod, Attr.InvalidList, dic, null);
+            return _connection.Call(NotificationReceivedMethod, Attr.InvalidList, dic, null);
         }
 
         #region Private methods
@@ -572,7 +548,7 @@ namespace SocialPoint.Social
             return (string.IsNullOrEmpty(AlliancesServerUrl) ? LoginData.BaseUrl : AlliancesServerUrl) + suffix;
         }
 
-        void JoinPublicAlliance(AllianceBasicData alliance, Action<Error> callback, JoinExtraData data)
+        WAMPRequest JoinPublicAlliance(AllianceBasicData alliance, Action<Error> callback, JoinExtraData data)
         {
             DebugUtils.Assert(AccessTypes.IsPublic(alliance.AccessType));
 
@@ -584,7 +560,7 @@ namespace SocialPoint.Social
 
             long joinTs = data.Timestamp;
 
-            _connection.Call(AllianceJoinMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
+            return _connection.Call(AllianceJoinMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
                     if(callback != null)
@@ -889,25 +865,6 @@ namespace SocialPoint.Social
                 DebugUtils.Assert(servicesDic.Get(ConnectionManager.ChatServiceKey).IsDic);
                 chatManager.ProcessChatServices(servicesDic.Get(ConnectionManager.ChatServiceKey).AsDic);
             }
-        }
-
-        Error ParseResponse(HttpResponse response, out AttrDic dic)
-        {
-            dic = null;
-            var error = response.Error;
-            if(Error.IsNullOrEmpty(error))
-            {   
-                try
-                {
-                    dic = _parser.Parse(response.Body).AsDic;
-                }
-                catch(SerializationException e)
-                {
-                    error = new Error("Serialization error. " + e.Message);
-                }
-            }
-
-            return error;
         }
 
         #endregion

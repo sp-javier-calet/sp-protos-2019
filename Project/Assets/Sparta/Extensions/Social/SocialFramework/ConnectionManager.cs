@@ -305,21 +305,21 @@ namespace SocialPoint.Social
             _connection.AutoSubscribe(subscription, (args, kwargs) => OnNotificationMessageReceived(topic, args, kwargs));
         }
 
-        public void Connect()
+        public WAMPConnection.StartRequest Connect()
         {
-            Reconnect();
+            return Reconnect();
         }
 
-        public void Reconnect()
+        public WAMPConnection.StartRequest Reconnect()
         {
             if(_state != ConnectionState.Disconnected)
             {
-                return;
+                return null;
             }
 
             _state = ConnectionState.Connecting;
 
-            _connection.Start(() => {
+            return _connection.Start(() => {
                 SendHello();
                 SchedulePing();
             });
@@ -454,14 +454,14 @@ namespace SocialPoint.Social
             }
         }
 
-        public void Publish(string topic, AttrList args, AttrDic kwargs, OnPublished onComplete)
+        public PublishRequest Publish(string topic, AttrList args, AttrDic kwargs, OnPublished onComplete)
         {
-            _connection.Publish(topic, args, kwargs, onComplete != null, onComplete);
+            return _connection.Publish(topic, args, kwargs, onComplete != null, onComplete);
         }
 
-        public void Call(string procedure, AttrList args, AttrDic kwargs, HandlerCall onResult)
+        public CallRequest Call(string procedure, AttrList args, AttrDic kwargs, HandlerCall onResult)
         {
-            _connection.Call(procedure, args, kwargs, (err, iargs, ikwargs) => OnRPCFinished(iargs, ikwargs, onResult, err));
+            return _connection.Call(procedure, args, kwargs, (err, iargs, ikwargs) => OnRPCFinished(iargs, ikwargs, onResult, err));
         }
 
         void OnConnectionStateChanged(ConnectionState state)
@@ -567,7 +567,7 @@ namespace SocialPoint.Social
             }
         }
 
-        void SendHello()
+        WAMPConnection.JoinRequest SendHello()
         {
             // Use the ForcedUser if defined. Otherwise, collect info from current user.
             var data = ForcedUser ?? new UserData(LoginData);
@@ -585,7 +585,7 @@ namespace SocialPoint.Social
             dicDetails.SetValue("platform", DeviceInfo.Platform);
             dicDetails.SetValue("language", Localization.Language);
 
-            _connection.Join(string.Empty, dicDetails, OnJoined);
+            return _connection.Join(string.Empty, dicDetails, OnJoined);
         }
 
         #region INetworkClientDelegate implementation

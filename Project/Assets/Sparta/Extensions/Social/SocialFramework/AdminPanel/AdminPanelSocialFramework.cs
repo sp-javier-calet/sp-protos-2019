@@ -3,8 +3,8 @@ using System.Text;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
 using SocialPoint.Base;
-using SocialPoint.Network;
 using UnityEngine.UI;
+using SocialPoint.WAMP;
 
 namespace SocialPoint.Social
 {
@@ -394,7 +394,7 @@ namespace SocialPoint.Social
             /// </summary>
             abstract class BaseRequestAlliancePanel : BaseAlliancePanel
             {
-                protected IHttpConnection _httpConnection;
+                protected WAMPRequest _wampRequest;
                 protected Error _httpConnectionError;
 
                 public BaseRequestAlliancePanel(AlliancesManager alliances, AdminPanelConsole console) : base(alliances, console)
@@ -403,11 +403,11 @@ namespace SocialPoint.Social
 
                 protected void Cancel()
                 {
-                    if(_httpConnection != null)
+                    if(_wampRequest != null)
                     {
-                        _httpConnection.Release();
+                        _wampRequest.Dispose();
                     }
-                    _httpConnection = null;
+                    _wampRequest = null;
                     _httpConnectionError = null;
                 }
             }
@@ -646,9 +646,9 @@ namespace SocialPoint.Social
                     }
                     else
                     {
-                        if(_httpConnection == null)
+                        if(_wampRequest == null)
                         {
-                            _httpConnection = _alliances.LoadAllianceInfo(AllianceId,
+                            _wampRequest = _alliances.LoadAllianceInfo(AllianceId,
                                 (err, alliance) => {
                                     if(Error.IsNullOrEmpty(err))
                                     {
@@ -772,9 +772,9 @@ namespace SocialPoint.Social
                     }
                     else
                     {
-                        if(_httpConnection == null)
+                        if(_wampRequest == null)
                         {
-                            _httpConnection = _alliances.LoadUserInfo(UserId, 
+                            _wampRequest = _alliances.LoadUserInfo(UserId, 
                                 (err, member) => {
                                     if(Error.IsNullOrEmpty(err))
                                     {
@@ -891,9 +891,9 @@ namespace SocialPoint.Social
                     }
                     else
                     {
-                        if(_httpConnection == null)
+                        if(_wampRequest == null)
                         {
-                            _httpConnection = _alliances.LoadRanking(
+                            _wampRequest = _alliances.LoadRanking(
                                 (err, ranking) => {
                                     if(Error.IsNullOrEmpty(err))
                                     {
@@ -962,7 +962,7 @@ namespace SocialPoint.Social
                     }
                     else
                     {
-                        if(_httpConnection == null)
+                        if(_wampRequest == null)
                         {
                             Action<Error, AlliancesSearchData> callback = (err, searchData) => {
                                 if(Error.IsNullOrEmpty(err))
@@ -982,11 +982,11 @@ namespace SocialPoint.Social
 
                             if(string.IsNullOrEmpty(Search))
                             {
-                                _httpConnection = _alliances.LoadSearchSuggested(callback);
+                                _wampRequest = _alliances.LoadSearchSuggested(callback);
                             }
                             else
                             {
-                                _httpConnection = _alliances.LoadSearch(Search, callback);
+                                _wampRequest = _alliances.LoadSearch(Search, callback);
                             }
                         }
 

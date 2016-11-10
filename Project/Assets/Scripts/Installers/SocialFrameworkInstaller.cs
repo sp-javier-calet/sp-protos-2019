@@ -142,7 +142,6 @@ public class SocialFrameworkInstaller : Installer
     void SetupAlliancesManager(AlliancesManager manager)
     {
         manager.AlliancesServerUrl = Settings.AlliancesServer;
-        manager.HttpClient = Container.Resolve<IHttpClient>();
         manager.LoginData = Container.Resolve<ILoginData>();
 
         if(Container.HasBinding<AllianceDataFactory>())
