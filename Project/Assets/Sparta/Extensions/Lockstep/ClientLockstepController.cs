@@ -287,7 +287,6 @@ namespace SocialPoint.Lockstep
         {
             int emptyTurns = 4;
             _lastConfirmedTurnNumber += emptyTurns;
-            _lastCmdTime += Config.CommandStepDuration * emptyTurns;
         }
 
         public void AddConfirmedTurn(ClientLockstepTurnData turn=null)
