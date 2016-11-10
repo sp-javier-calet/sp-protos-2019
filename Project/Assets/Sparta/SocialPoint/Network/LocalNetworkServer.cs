@@ -9,6 +9,7 @@ namespace SocialPoint.Network
     {
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         Dictionary<LocalNetworkClient, byte> _clients = new Dictionary<LocalNetworkClient,byte>();
+        List<LocalNetworkClient> _clientList = new List<LocalNetworkClient>();
         INetworkMessageReceiver _receiver;
 
 
@@ -32,13 +33,12 @@ namespace SocialPoint.Network
             {
                 _delegates[i].OnServerStarted();
             }
-            var clients = new List<LocalNetworkClient>(_clients.Keys);
-            var itr = clients.GetEnumerator();
-            while(itr.MoveNext())
+            _clientList.Clear();
+            _clientList.AddRange(_clients.Keys);
+            for(var i=0; i<_clientList.Count; i++)
             {
-                itr.Current.OnServerStarted();
+                _clientList[i].OnServerStarted();
             }
-            itr.Dispose();
         }
 
         public void Stop()
@@ -52,23 +52,22 @@ namespace SocialPoint.Network
             {
                 _delegates[i].OnServerStopped();
             }
-            var clients = new List<LocalNetworkClient>(_clients.Keys);
-            var itr = clients.GetEnumerator();
-            while(itr.MoveNext())
+            _clientList.Clear();
+            _clientList.AddRange(_clients.Keys);
+            for(var i=0; i<_clientList.Count; i++)
             {
-                itr.Current.OnServerStopped();
+                _clientList[i].OnServerStopped();
             }
-            itr.Dispose();
         }
 
         public void Fail(string reason)
         {
             var err = new Error(reason);
-            var clients = new List<LocalNetworkClient>(_clients.Keys);
-            var itr = clients.GetEnumerator();
-            while(itr.MoveNext())
+            _clientList.Clear();
+            _clientList.AddRange(_clients.Keys);
+            for(var i=0; i<_clientList.Count; i++)
             {
-                itr.Current.OnServerFailed(err);
+                _clientList[i].OnServerFailed(err);
             }
             Stop();
         }
