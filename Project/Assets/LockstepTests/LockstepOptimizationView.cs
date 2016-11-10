@@ -121,9 +121,15 @@ public class LockstepOptimizationView : MonoBehaviour
         RefreshUI();
     }
 
-    public void OnMaxTurnsChanged()
+    public void OnSubstractTurnsClicked()
     {
-        LockStepNetworkCommon.MaxEmptyTurns = int.Parse(_maxEmptyTurns.text);
+        LockStepNetworkCommon.MaxEmptyTurns--;
+        RefreshUI();
+    }
+
+    public void OnAddTurnsClicked()
+    {
+        LockStepNetworkCommon.MaxEmptyTurns++;
         RefreshUI();
     }
 }
