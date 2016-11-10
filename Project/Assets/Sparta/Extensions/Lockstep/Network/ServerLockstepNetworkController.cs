@@ -5,6 +5,7 @@ using SocialPoint.IO;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 using SocialPoint.Attributes;
+using SocialPoint.Matchmaking;
 
 namespace SocialPoint.Lockstep.Network
 {
@@ -42,7 +43,18 @@ namespace SocialPoint.Lockstep.Network
         }
     }
 
-    public sealed class ServerLockstepNetworkController : IDisposable, INetworkMessageReceiver, INetworkServerDelegate
+    public interface IServerLockstepNetworkDelegate
+    {
+        void OnStart(Attr data);
+
+        void OnError(Error err);
+
+        void OnCommandFailed(Error err, byte playerNum);
+
+        void OnFinish(Dictionary<byte, Attr> playerResults);
+    }
+
+    public sealed class ServerLockstepNetworkController : IDisposable, INetworkMessageReceiver, INetworkServerDelegate, IMatchmakingServerDelegate
     {
         class ClientData
         {
@@ -52,9 +64,13 @@ namespace SocialPoint.Lockstep.Network
             public byte PlayerNumber;
         }
 
+        IMatchmakingServerController _matchmaking;
+        IServerLockstepNetworkDelegate _delegate;
+
         ServerLockstepController _serverLockstep;
         INetworkServer _server;
         List<ClientData> _clients;
+        Dictionary<uint, byte> _commandSenders;
         INetworkMessageReceiver _receiver;
 
         ClientLockstepController _localClient;
@@ -84,18 +100,24 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        public ServerLockstepNetworkController(INetworkServer server, IUpdateScheduler scheduler = null)
+        public ServerLockstepNetworkController(INetworkServer server, IMatchmakingServerController matchmaking = null, IUpdateScheduler scheduler = null)
         {
             ServerConfig = new ServerLockstepConfig();
             _clients = new List<ClientData>();
+            _commandSenders = new Dictionary<uint, byte>();
             _serverLockstep = new ServerLockstepController(scheduler);
             _localClientData = new ClientData();
             PlayerResults = new Dictionary<byte, Attr>();
+            _matchmaking = matchmaking;
             _server = server;
 
             _server.RegisterReceiver(this);
             _server.AddDelegate(this);
             _serverLockstep.TurnReady += OnServerTurnReady;
+            if(_matchmaking != null)
+            {
+                _matchmaking.AddDelegate(this);
+            }
         }
 
         public void Update()
@@ -106,6 +128,11 @@ namespace SocialPoint.Lockstep.Network
         public void Update(int dt)
         {
             _serverLockstep.Update(dt);
+        }
+
+        public void RegisterDelegate(IServerLockstepNetworkDelegate dlg)
+        {
+            _delegate = dlg;
         }
 
         public void RegisterReceiver(INetworkMessageReceiver receiver)
@@ -178,6 +205,10 @@ namespace SocialPoint.Lockstep.Network
             // ignore client player number
             // maybe we could trigger a command failed if they don't match?
             command.PlayerNumber = client.PlayerNumber;
+            if(_localClient != null)
+            {
+                _commandSenders[command.Id] = client.PlayerNumber;
+            }
             _serverLockstep.AddCommand(command);
         }
 
@@ -343,6 +374,14 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
+        string MatchId
+        {
+            get
+            {
+                return _server.Id;
+            }
+        }
+
         ClientData FindClientByPlayerId(string playerId)
         {
             for(var i = 0; i < _clients.Count; i++)
@@ -452,7 +491,31 @@ namespace SocialPoint.Lockstep.Network
 
         void StartLockstep()
         {
+            if(_matchmaking != null)
+            {
+                var playerIds = PlayerIds;
+                var matchId = MatchId;
+                if(playerIds.Count > 0 && !string.IsNullOrEmpty(matchId))
+                {
+                    _matchmaking.LoadInfo(matchId, playerIds);
+                    return;
+                }
+            }
             DoStartLockstep();
+        }
+
+        void IMatchmakingServerDelegate.OnMatchInfoReceived(Attr info)
+        {
+            if(_delegate != null)
+            {
+                _delegate.OnStart(info);
+            }
+            DoStartLockstep();
+        }
+
+        void IMatchmakingServerDelegate.OnError(Error err)
+        {
+            OnNetworkError(err);
         }
 
         void DoStartLockstep()
@@ -499,6 +562,27 @@ namespace SocialPoint.Lockstep.Network
         void EndLockstep()
         {
             _serverLockstep.Stop();
+            if(_matchmaking == null)
+            {
+                return;
+            }
+            var results = PlayerResults;
+            if(_delegate != null)
+            {
+                _delegate.OnFinish(results);
+            }
+            var resultsAttr = new AttrDic();
+            var itr = results.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                var playerId = FindPlayerId(itr.Current.Key);
+                if(!string.IsNullOrEmpty(playerId))
+                {
+                    resultsAttr[playerId] = itr.Current.Value;
+                }
+            }
+            itr.Dispose();
+            _matchmaking.NotifyResult(MatchId, resultsAttr);
         }
 
         public void OnServerStarted()
@@ -516,7 +600,10 @@ namespace SocialPoint.Lockstep.Network
 
         public void OnNetworkError(Error e)
         {
-            Stop();
+            if(_delegate != null)
+            {
+                _delegate.OnError(e);
+            }
         }
 
         public void OnClientConnected(byte clientId)
@@ -552,11 +639,20 @@ namespace SocialPoint.Lockstep.Network
             PlayerResults.Clear();
         }
 
+        public void Fail(string msg)
+        {
+            _server.Fail(msg);
+        }
+
         public void Dispose()
         {
             Stop();
             _server.RegisterReceiver(null);
             _server.RemoveDelegate(this);
+            if(_matchmaking != null)
+            {
+                _matchmaking.RemoveDelegate(this);
+            }
             _serverLockstep.Dispose();
             UnregisterLocalClient();
         }
@@ -606,6 +702,10 @@ namespace SocialPoint.Lockstep.Network
             {
                 _serverLockstep.UnregisterLocalClient();
             }
+            if(_localClient != null)
+            {
+                _localClient.CommandFailed -= OnLocalClientCommandFailed;
+            }
             _localClient = null;
             _localFactory = null;
             _localClientData.Ready = false;
@@ -616,10 +716,38 @@ namespace SocialPoint.Lockstep.Network
             UnregisterLocalClient();
             _localClient = ctrl;
             _localFactory = factory;
+            if(_localClient != null)
+            {
+                _localClient.CommandFailed += OnLocalClientCommandFailed;
+            }
             if(_serverLockstep != null)
             {
                 _serverLockstep.RegisterLocalClient(ctrl, _localFactory);
             }
+        }
+
+        void OnLocalClientCommandFailed(Error err, ClientLockstepCommandData cmd)
+        {
+            byte playerNum;
+            _commandSenders.TryGetValue(cmd.Id, out playerNum);
+            if(_delegate != null)
+            {
+                _delegate.OnCommandFailed(err, playerNum);
+            }
+            else
+            {
+                _server.Fail("Command failed: " + err);
+            }
+        }
+
+        void OnLocalClientTurnApplied(ClientLockstepTurnData turn)
+        {
+            var itr = turn.GetCommandEnumerator();
+            while(itr.MoveNext())
+            {
+                _commandSenders.Remove(itr.Current.Id);
+            }
+            itr.Dispose();
         }
 
         public void LocalPlayerReady(string playerId = null)

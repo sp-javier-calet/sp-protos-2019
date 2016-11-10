@@ -5,6 +5,7 @@ using SocialPoint.Lockstep.Network;
 using SocialPoint.Utils;
 using SocialPoint.Network;
 using SocialPoint.AdminPanel;
+using SocialPoint.Matchmaking;
 using System;
 
 public class LockstepInstaller : Installer
@@ -15,6 +16,8 @@ public class LockstepInstaller : Installer
         public LockstepConfig Config;
         public ServerLockstepConfig ServerConfig;
         public ClientLockstepConfig ClientConfig;
+        public string MatchmakingBaseUrl = "http://int-lod.socialpointgames.es";
+        public string MatchmakingWebsocketUrl = "ws://int-lod.socialpointgames.com:8001/find_opponent";
         public bool RunLocalServerClient = true;
     }
 
@@ -90,7 +93,6 @@ public class LockstepInstaller : Installer
         return ctrl;
     }
 
-
     ClientLockstepNetworkController CreateClientNetworkController()
     {
         return new ClientLockstepNetworkController(
@@ -103,6 +105,7 @@ public class LockstepInstaller : Installer
     {
         var ctrl = new ServerLockstepNetworkController(
             Container.Resolve<INetworkServer>(),
+            Container.Resolve<IMatchmakingServerController>(),
             Container.Resolve<IUpdateScheduler>());
         ctrl.Config = Container.Resolve<LockstepConfig>();
         ctrl.ServerConfig = Container.Resolve<ServerLockstepConfig>();
