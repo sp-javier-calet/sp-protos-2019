@@ -11,7 +11,15 @@ namespace SocialPoint.Network
         Dictionary<LocalNetworkClient, byte> _clients = new Dictionary<LocalNetworkClient,byte>();
         INetworkMessageReceiver _receiver;
 
+
         public bool Running{ get; private set; }
+
+        public string Id{ get; set; }
+
+        public LocalNetworkServer()
+        {
+            Id = RandomUtils.GetUuid();
+        }
 
         public void Start()
         {
@@ -51,6 +59,18 @@ namespace SocialPoint.Network
                 itr.Current.OnServerStopped();
             }
             itr.Dispose();
+        }
+
+        public void Fail(string reason)
+        {
+            var err = new Error(reason);
+            var clients = new List<LocalNetworkClient>(_clients.Keys);
+            var itr = clients.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                itr.Current.OnServerFailed(err);
+            }
+            Stop();
         }
 
         public byte OnClientConnecting(LocalNetworkClient client)

@@ -71,7 +71,8 @@ namespace SocialPoint.Network
             _client.RegisterHandler(UnityEngine.Networking.MsgType.Connect, OnConnectReceived);
             _client.RegisterHandler(UnityEngine.Networking.MsgType.Disconnect, OnDisconnectReceived);
             _client.RegisterHandler(UnityEngine.Networking.MsgType.Error, OnErrorReceived);
-            for(byte i = UnityEngine.Networking.MsgType.Highest + 1; i < byte.MaxValue; i++)
+            _client.RegisterHandler(UnetMsgType.Fail, OnFailReceived);
+            for(byte i = UnetMsgType.Highest + 1; i < byte.MaxValue; i++)
             {
                 _client.RegisterHandler(i, OnMessageReceived);
             }
@@ -82,7 +83,8 @@ namespace SocialPoint.Network
             _client.UnregisterHandler(UnityEngine.Networking.MsgType.Connect);
             _client.UnregisterHandler(UnityEngine.Networking.MsgType.Disconnect);
             _client.UnregisterHandler(UnityEngine.Networking.MsgType.Error);
-            for(byte i = UnityEngine.Networking.MsgType.Highest + 1; i < byte.MaxValue; i++)
+            _client.UnregisterHandler(UnetMsgType.Fail);
+            for(byte i = UnetMsgType.Highest + 1; i < byte.MaxValue; i++)
             {
                 _client.UnregisterHandler(i);
             }
@@ -108,6 +110,19 @@ namespace SocialPoint.Network
         {
             var errMsg = umsg.ReadMessage<ErrorMessage>();
             var err = new Error(errMsg.errorCode, errMsg.ToString());
+            OnNetworkError(err);
+        }
+
+        void OnFailReceived(NetworkMessage umsg)
+        {
+            var errMsg = umsg.reader.ReadString();
+            var err = new Error(errMsg);
+            OnNetworkError(err);
+            Disconnect();
+        }
+
+        void OnNetworkError(Error err)
+        {
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnNetworkError(err);
@@ -117,7 +132,7 @@ namespace SocialPoint.Network
         void OnMessageReceived(NetworkMessage umsg)
         {
             var data = new NetworkMessageData {
-                MessageType = UnetNetworkMessage.ConvertType(umsg.msgType),
+                MessageType = UnetMsgType.ConvertType(umsg.msgType),
             };                
             if(_receiver != null)
             {
