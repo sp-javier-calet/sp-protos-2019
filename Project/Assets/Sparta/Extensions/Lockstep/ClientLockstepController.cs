@@ -409,8 +409,8 @@ namespace SocialPoint.Lockstep
                     simSteps++;
                     //if(ClientConfig.MaxSimulationStepsPerFrame > 0 && simSteps > ClientConfig.MaxSimulationStepsPerFrame)
                     {
-                        _state = State.Recovering;
-                        break;
+//                        _state = State.Recovering;
+//                        break;
                     }
                 }
                 // Consume Commands until our current time

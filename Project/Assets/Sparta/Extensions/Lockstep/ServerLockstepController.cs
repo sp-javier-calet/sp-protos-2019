@@ -186,7 +186,6 @@ namespace SocialPoint.Lockstep
                     TurnReady(turn);
                 }
                 ConfirmLocalClientTurn(turn);
-                _lastCmdTime = nextCmdTime;
                 */
 
                 if(_turns.TryGetValue(t, out turn))
@@ -197,7 +196,6 @@ namespace SocialPoint.Lockstep
                     }
 
                     ConfirmLocalClientTurn(turn);
-                    _lastCmdTime = nextCmdTime;
                 }
                 else
                 {
@@ -214,8 +212,10 @@ namespace SocialPoint.Lockstep
                         }
 
                         ConfirmLocalClientTurn(turn);
-                        _lastCmdTime = nextCmdTime;
+
                     }
+
+                    _lastCmdTime = nextCmdTime;
                 }
             }
         }
