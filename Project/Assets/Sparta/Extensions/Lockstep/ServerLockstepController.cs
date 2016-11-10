@@ -53,7 +53,6 @@ namespace SocialPoint.Lockstep
         public event Action<ServerLockstepTurnData> TurnReady;
 
         int _skippedTurns;
-        float _maxSkippedTurnTime = 0.5f;
 
         public int UpdateTime
         {
