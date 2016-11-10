@@ -1144,7 +1144,7 @@ MonoBehaviour:
   _turnDataBitsPerFrameText: {fileID: 114000010020769542}
   _totalPhotonDataPerSecondText: {fileID: 114000010234207036}
   _totalPhotonDataPerFrameText: {fileID: 114000010557880808}
-  _sendIsReliableTex: {fileID: 0}
+  _sendIsReliableTex: {fileID: 114000012356974492}
 --- !u!114 &114000012503064128
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1417,7 +1417,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 114000012462362118}
-        m_MethodName: OnEnableServerSendTurn
+        m_MethodName: OnSendReliableClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
