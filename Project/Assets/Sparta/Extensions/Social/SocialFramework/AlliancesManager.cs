@@ -121,15 +121,15 @@ namespace SocialPoint.Social
 
         public uint MaxPendingJoinRequests { get; set; }
 
+        public IRankManager Ranks { get; set; }
+
+        public IAccessTypeManager AccessTypes { get; set; }
+
         public string AlliancesServerUrl;
 
         readonly JsonAttrParser _parser;
 
         readonly ConnectionManager _connection;
-
-        public IRankManager Ranks { get; set; }
-
-        public IAccessTypeManager AccessTypes { get; set; }
 
         public AlliancesManager(ConnectionManager connection)
         {
