@@ -57,8 +57,6 @@ namespace SocialPoint.Social
 
         #endregion
 
-        public IRankManager RankManager { protected get; set; }
-
         public AllianceMember CreateMember(AttrDic dic)
         {
             var member = CreateCustomMember();
