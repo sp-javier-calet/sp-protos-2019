@@ -224,6 +224,9 @@ namespace SocialPoint.Network
         public void SendNetworkMessage(NetworkMessageData info, byte[] data)
         {
             var options = new RaiseEventOptions();
+            options.CachingOption = EventCaching.DoNotCache;
+            options.Encrypt = false;
+            options.ForwardToWebhook = false;
 
             var serverId = PhotonNetworkServer.PhotonPlayerId;
             if(PhotonNetwork.player.ID != serverId)
@@ -243,7 +246,8 @@ namespace SocialPoint.Network
 
             LockstepOptimizationView.TurnDataBuffer.Add( data.Length );
 
-            PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
+//            PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
+            PhotonNetwork.RaiseEvent(info.MessageType, data, false, options);
         }
 
         void OnEventReceived(byte eventcode, object content, int senderid)
