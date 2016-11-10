@@ -2,9 +2,40 @@
 using System;
 using SocialPoint.Utils;
 using SocialPoint.Base;
+using SocialPoint.IO;
+using FixMath.NET;
 
 namespace SocialPoint.Lockstep
 {
+    public class EmptyTurnsCommand : ILockstepCommand
+    {
+        public int EmptyTurns{ get; private set; }
+
+        public EmptyTurnsCommand()
+        {
+        }
+
+        public EmptyTurnsCommand(int emptyTurns)
+        {
+            EmptyTurns = emptyTurns;
+        }
+
+        public object Clone()
+        {
+            return new EmptyTurnsCommand(EmptyTurns);
+        }
+
+        public void Deserialize(IReader reader)
+        {
+            EmptyTurns = reader.ReadInt32();
+        }
+
+        public void Serialize(IWriter writer)
+        {
+            writer.Write((int)EmptyTurns);
+        }
+    }
+    
     public sealed class ServerLockstepController : IUpdateable, IDisposable
     {
         int _time;
@@ -20,6 +51,9 @@ namespace SocialPoint.Lockstep
         public LockstepGameParams GameParams { get; private set; }
 
         public event Action<ServerLockstepTurnData> TurnReady;
+
+        int _skippedTurns;
+        float _maxSkippedTurnTime = 0.5f;
 
         public int UpdateTime
         {
@@ -51,6 +85,7 @@ namespace SocialPoint.Lockstep
             GameParams =  new LockstepGameParams();
             _updateScheduler = updateScheduler;
             _turns = new Dictionary<int, ServerLockstepTurnData>();
+            _skippedTurns = 0;
             Stop();
         }
 
@@ -151,8 +186,9 @@ namespace SocialPoint.Lockstep
                 {
                     TurnReady(turn);
                 }
-                ConfirmLocalClientTurn(turn);*/
-
+                ConfirmLocalClientTurn(turn);
+                _lastCmdTime = nextCmdTime;
+                */
 
                 if(_turns.TryGetValue(t, out turn))
                 {
@@ -162,9 +198,27 @@ namespace SocialPoint.Lockstep
                     }
 
                     ConfirmLocalClientTurn(turn);
+                    _lastCmdTime = nextCmdTime;
                 }
+                else
+                {
+                    int maxSkippedTurns = 4;
+                    _skippedTurns++;
+                    var timeSkipped = Config.CommandStepDuration * _skippedTurns;
+                    if(_skippedTurns >= maxSkippedTurns)
+                    {
+                        turn = ServerLockstepTurnData.Empty;
+                        _skippedTurns = 0;
 
-                _lastCmdTime = nextCmdTime;
+                        if(TurnReady != null)
+                        {
+                            TurnReady(turn);
+                        }
+
+                        ConfirmLocalClientTurn(turn);
+                        _lastCmdTime = nextCmdTime;
+                    }
+                }
             }
         }
 

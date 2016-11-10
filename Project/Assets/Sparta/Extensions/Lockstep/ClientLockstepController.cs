@@ -187,11 +187,6 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public void AddEmptyTurns(int emptyTurns)
-        {
-            _lastCmdTime += Config.CommandStepDuration * emptyTurns;
-        }
-
         public ClientLockstepController(IUpdateScheduler updateScheduler = null)
         {
             _state = State.Normal;
@@ -286,6 +281,13 @@ namespace SocialPoint.Lockstep
             {
                 AddConfirmedCommand(command);
             }
+        }
+
+        public void AddConfirmedEmptyTurns()
+        {
+            int emptyTurns = 4;
+            _lastConfirmedTurnNumber += emptyTurns;
+            _lastCmdTime += Config.CommandStepDuration * emptyTurns;
         }
 
         public void AddConfirmedTurn(ClientLockstepTurnData turn=null)
