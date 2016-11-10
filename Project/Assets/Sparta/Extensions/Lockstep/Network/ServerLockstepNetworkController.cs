@@ -59,7 +59,6 @@ namespace SocialPoint.Lockstep.Network
         ClientLockstepController _localClient;
         LockstepCommandFactory _localFactory;
         ClientData _localClientData;
-        Dictionary<uint, byte> _commandSenders;
 
         public ServerLockstepConfig ServerConfig{ get; set; }
 
