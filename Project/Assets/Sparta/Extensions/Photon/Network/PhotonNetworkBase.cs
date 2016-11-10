@@ -240,6 +240,9 @@ namespace SocialPoint.Network
                 }
                 options.TargetActors = new int[]{ player.ID };
             }
+
+            IntCircularBuffer.Instance.Add(data.Length + sizeof(int));
+
             PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
         }
 
