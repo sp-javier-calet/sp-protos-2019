@@ -677,6 +677,7 @@ using ExitGames.Client.Photon;
             if (customEventContent != null)
             {
                 opParameters[(byte) ParameterCode.Data] = customEventContent;
+                IntCircularBuffer.Instance.Add(GetObjectSize(customEventContent));
             }
 
             if (raiseEventOptions == null)
@@ -688,26 +689,43 @@ using ExitGames.Client.Photon;
                 if (raiseEventOptions.CachingOption != EventCaching.DoNotCache)
                 {
                     opParameters[(byte) ParameterCode.Cache] = (byte) raiseEventOptions.CachingOption;
+                    IntCircularBuffer.Instance.Add(GetObjectSize((object)raiseEventOptions.CachingOption));
                 }
                 if (raiseEventOptions.Receivers != ReceiverGroup.Others)
                 {
                     opParameters[(byte) ParameterCode.ReceiverGroup] = (byte) raiseEventOptions.Receivers;
+                IntCircularBuffer.Instance.Add(GetObjectSize((byte)raiseEventOptions.Receivers));
                 }
                 if (raiseEventOptions.InterestGroup != 0)
                 {
                     opParameters[(byte) ParameterCode.Group] = (byte) raiseEventOptions.InterestGroup;
+                    IntCircularBuffer.Instance.Add(GetObjectSize((byte)raiseEventOptions.InterestGroup));
                 }
                 if (raiseEventOptions.TargetActors != null)
                 {
                     opParameters[(byte) ParameterCode.ActorList] = raiseEventOptions.TargetActors;
+                    IntCircularBuffer.Instance.Add(GetObjectSize((object)raiseEventOptions.TargetActors));
                 }
                 if (raiseEventOptions.ForwardToWebhook)
                 {
                     opParameters[(byte) ParameterCode.EventForward] = true; //TURNBASED
+                    IntCircularBuffer.Instance.Add(GetObjectSize(true));
                 }
             }
 
             return this.OpCustom((byte) OperationCode.RaiseEvent, opParameters, sendReliable, raiseEventOptions.SequenceChannel, raiseEventOptions.Encrypt);
+        }
+
+        int GetObjectSize(object obj)
+        {
+            long size = 0;
+            object o = new object();
+            using (System.IO.Stream s = new System.IO.MemoryStream()) {
+                System.Runtime.Serialization.Formatters.Binary.BinaryFormatter formatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+                formatter.Serialize(s, o);
+                size = s.Length;
+            }
+            return (int)size;
         }
 
 

@@ -53,6 +53,7 @@ public class IntCircularBuffer
 
     public void Add(int value)
     {
+        Debug.Log(string.Format("Adding data with size: %d", value));
         _values[CircularCount] = value;
         _count++;
     }

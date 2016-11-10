@@ -150,6 +150,9 @@ namespace SocialPoint.Lockstep
                 {
                     TurnReady(turn);
                 }
+
+                ConfirmLocalClientTurn(turn);
+
                 /*
                 if(_turns.TryGetValue(t, out turn))
                 {
