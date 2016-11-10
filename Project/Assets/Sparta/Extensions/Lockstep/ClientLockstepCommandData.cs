@@ -9,13 +9,16 @@ namespace SocialPoint.Lockstep
     {
         ILockstepCommand _command;
         ILockstepCommandLogic _finish;
-        uint _id;
+        byte _playerNum;
 
-        public ClientLockstepCommandData(ILockstepCommand cmd, ILockstepCommandLogic finish)
+        public uint Id{ get; private set; }
+
+        public ClientLockstepCommandData(ILockstepCommand cmd, ILockstepCommandLogic finish, byte playerNum)
         {
-            _id = RandomUtils.GenerateUint();
+            Id = RandomUtils.GenerateUint();
             _command = cmd;
             _finish = finish;
+            _playerNum = playerNum;
         }
 
         public ClientLockstepCommandData()
@@ -36,7 +39,8 @@ namespace SocialPoint.Lockstep
 
         public void Serialize(LockstepCommandFactory factory, IWriter writer)
         {
-            writer.Write(_id);
+            writer.Write(Id);
+            writer.Write(_playerNum);
             if(_command == null)
             {
                 writer.Write(0);
@@ -56,7 +60,8 @@ namespace SocialPoint.Lockstep
 
         public void Deserialize(LockstepCommandFactory factory, IReader reader)
         {
-            _id = reader.ReadUInt32();
+            Id = reader.ReadUInt32();
+            _playerNum = reader.ReadByte();
             var cmdLen = reader.ReadInt32();
             _command = null;
             if(cmdLen > 0)
@@ -69,7 +74,7 @@ namespace SocialPoint.Lockstep
         {
             if(_finish != null)
             {
-                _finish.Apply(_command);
+                _finish.Apply(_command, _playerNum);
             }
         }
 
@@ -77,7 +82,7 @@ namespace SocialPoint.Lockstep
         {
             if(type.IsAssignableFrom(_command.GetType()))
             {
-                logic.Apply(_command);
+                logic.Apply(_command, _playerNum);
                 return true;
             }
             return false;
@@ -99,14 +104,14 @@ namespace SocialPoint.Lockstep
 
         public override int GetHashCode()
         {
-            var hash = _id.GetHashCode();
+            var hash = Id.GetHashCode();
 
             return hash;
         }
 
         static bool Compare(ClientLockstepCommandData a, ClientLockstepCommandData b)
         {
-            return a._id == b._id;
+            return a.Id == b.Id;
         }
 
         public static bool operator ==(ClientLockstepCommandData a, ClientLockstepCommandData b)
@@ -131,7 +136,7 @@ namespace SocialPoint.Lockstep
 
         public override string ToString()
         {
-            return string.Format("[ClientLockstepCommandData:{0} {1}]", _id, _command);
+            return string.Format("[ClientLockstepCommandData:{0} {1} {2}]", Id, _playerNum, _command);
         }
     }
 }

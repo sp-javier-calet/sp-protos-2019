@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using SocialPoint.Network;
 using SocialPoint.IO;
 using SocialPoint.Utils;
@@ -16,10 +18,6 @@ namespace SocialPoint.Lockstep.Network
         bool _sendPlayerReadyPending;
         bool _clientSetupReceived;
 
-        public uint PlayerId;
-
-        public int PlayerNumber{ get; private set; }
-
         public bool Running
         {
             get
@@ -28,28 +26,41 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
+        public string PlayerId{ get; set; }
+
+        public byte PlayerNumber
+        {
+            get
+            {
+                return _clientLockstep.PlayerNumber;
+            }
+
+            private set
+            {
+                _clientLockstep.PlayerNumber = value;
+            }
+        }
+
+        List<string> _playerIds;
+        public ReadOnlyCollection<string> PlayerIds
+        {
+            get
+            {
+                return _playerIds.AsReadOnly();
+            }
+        }
+
         public event Action<int> StartScheduled;
 
         public ClientLockstepNetworkController(INetworkClient client)
         {
-            PlayerId = RandomUtils.GenerateUint();
+            PlayerId = RandomUtils.GenerateSecurityToken();
             _client = client;
             _client.RegisterReceiver(this);
             _client.AddDelegate(this);
         }
 
         public ClientLockstepNetworkController(INetworkClient client, ClientLockstepController clientLockstep, LockstepCommandFactory factory) : this(client)
-        {
-            SetupClientLockstep(clientLockstep, factory);
-        }
-
-        [Obsolete("Use the constructor")]
-        public void Init(ClientLockstepController clientLockstep, LockstepCommandFactory factory)
-        {
-            SetupClientLockstep(clientLockstep, factory);
-        }
-
-        public void SetupClientLockstep(ClientLockstepController clientLockstep, LockstepCommandFactory factory)
         {
             _clientLockstep = clientLockstep;
             _commandFactory = factory;
@@ -135,7 +146,9 @@ namespace SocialPoint.Lockstep.Network
             var msg = new ClientStartMessage();
             msg.Deserialize(reader);
             var time = msg.StartTime + _client.GetDelay(msg.ServerTimestamp);
-            PlayerNumber = msg.PlayerNumber;
+            _playerIds = msg.PlayerIds;
+            PlayerNumber =  (byte)_playerIds.IndexOf(PlayerId);
+
             _clientLockstep.Start(time);
             if(StartScheduled != null)
             {

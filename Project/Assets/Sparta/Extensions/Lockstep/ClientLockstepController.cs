@@ -1,28 +1,49 @@
 ﻿using System.Collections.Generic;
 using System;
 using SocialPoint.Utils;
+using SocialPoint.Base;
 
 namespace SocialPoint.Lockstep
 {
     public interface ILockstepCommandLogic<T>
     {
-        void Apply(T data);
+        void Apply(T data, byte playerNum);
     }
 
     public class ActionLockstepCommandLogic<T> : ILockstepCommandLogic<T>
     {
-        readonly Action<T> _action;
+        readonly Action _action1;
+        readonly Action<T> _action2;
+        readonly Action<T, byte> _action3;
+
+        public ActionLockstepCommandLogic(Action action)
+        {
+            _action1 = action;
+        }
 
         public ActionLockstepCommandLogic(Action<T> action)
         {
-            _action = action;
+            _action2 = action;
         }
 
-        public void Apply(T data)
+        public ActionLockstepCommandLogic(Action<T, byte> action)
         {
-            if(_action != null)
+            _action3 = action;
+        }
+
+        public void Apply(T data, byte playerNum)
+        {
+            if(_action1 != null)
             {
-                _action(data);
+                _action1();
+            }
+            if(_action2 != null)
+            {
+                _action2(data);
+            }
+            if(_action3 != null)
+            {
+                _action3(data, playerNum);
             }
         }
     }
@@ -35,8 +56,18 @@ namespace SocialPoint.Lockstep
     {
         ILockstepCommandLogic<T> _inner;
 
-        public LockstepCommandLogic(Action<T> action) :
+        public LockstepCommandLogic(Action<T, byte> action) :
             this(new ActionLockstepCommandLogic<T>(action))
+        {
+        }
+
+        public LockstepCommandLogic(Action<T> action) :
+        this(new ActionLockstepCommandLogic<T>(action))
+        {
+        }
+
+        public LockstepCommandLogic(Action action) :
+        this(new ActionLockstepCommandLogic<T>(action))
         {
         }
 
@@ -45,11 +76,11 @@ namespace SocialPoint.Lockstep
             _inner = inner;
         }
 
-        public void Apply(ILockstepCommand data)
+        public void Apply(ILockstepCommand data, byte playerNum)
         {
             if(data is T && _inner != null)
             {
-                _inner.Apply((T)data);
+                _inner.Apply((T)data, playerNum);
             }
         }
     }
@@ -128,6 +159,7 @@ namespace SocialPoint.Lockstep
         public event Action SimulationRecovered;
         public event Action ConnectionChanged;
         public event Action<int> Simulate;
+        public event Action<Error, ClientLockstepCommandData> CommandFailed;
 
         public bool Connected
         {
@@ -187,6 +219,8 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public byte PlayerNumber;
+
         public ClientLockstepController(IUpdateScheduler updateScheduler = null)
         {
             _state = State.Normal;
@@ -201,6 +235,22 @@ namespace SocialPoint.Lockstep
         public void Init(LockstepConfig config)
         {
             Config = config;
+        }
+
+        public void OnRegisteredAsServerLocalClient()
+        {
+            if(_updateScheduler != null)
+            {
+                _updateScheduler.Remove(this);
+            }
+        }
+
+        public void OnUnRegisteredAsServerLocalClient()
+        {
+            if(_updateScheduler != null)
+            {
+                _updateScheduler.Add(this);
+            }
         }
 
         public void Start(int startTime = 0)
@@ -233,7 +283,17 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public void RegisterCommandLogic<T>(Action apply) where T:  ILockstepCommand
+        {
+            RegisterCommandLogic<T>(new ActionLockstepCommandLogic<T>(apply));
+        }
+
         public void RegisterCommandLogic<T>(Action<T> apply) where T:  ILockstepCommand
+        {
+            RegisterCommandLogic<T>(new ActionLockstepCommandLogic<T>(apply));
+        }
+
+        public void RegisterCommandLogic<T>(Action<T, byte> apply) where T:  ILockstepCommand
         {
             RegisterCommandLogic<T>(new ActionLockstepCommandLogic<T>(apply));
         }
@@ -248,7 +308,17 @@ namespace SocialPoint.Lockstep
             _commandLogics[type] = logic;
         }
 
+        public ClientLockstepCommandData AddPendingCommand<T>(T command, Action<T, byte> finish) where T : ILockstepCommand
+        {
+            return AddPendingCommand(command, new LockstepCommandLogic<T>(finish));
+        }
+
         public ClientLockstepCommandData AddPendingCommand<T>(T command, Action<T> finish) where T : ILockstepCommand
+        {
+            return AddPendingCommand(command, new LockstepCommandLogic<T>(finish));
+        }
+
+        public ClientLockstepCommandData AddPendingCommand<T>(T command, Action finish) where T : ILockstepCommand
         {
             return AddPendingCommand(command, new LockstepCommandLogic<T>(finish));
         }
@@ -260,7 +330,7 @@ namespace SocialPoint.Lockstep
 
         ClientLockstepCommandData AddPendingCommand(ILockstepCommand command, ILockstepCommandLogic logic = null)
         {
-            var data = new ClientLockstepCommandData(command, logic);
+            var data = new ClientLockstepCommandData(command, logic, PlayerNumber);
             if(!Running || _time < 0)
             {
                 data.Finish();
@@ -326,12 +396,22 @@ namespace SocialPoint.Lockstep
                 {
                     continue;
                 }
-                var itr2 = _commandLogics.GetEnumerator();
-                while(itr2.MoveNext())
+                try
                 {
-                    command.Apply(itr2.Current.Key, itr2.Current.Value);
+                    var itr2 = _commandLogics.GetEnumerator();
+                    while(itr2.MoveNext())
+                    {
+                        command.Apply(itr2.Current.Key, itr2.Current.Value);
+                    }
+                    itr2.Dispose();
                 }
-                itr2.Dispose();
+                catch(Exception e)
+                {
+                    if(CommandFailed != null)
+                    {
+                        CommandFailed(new Error(e.ToString()), command);
+                    }
+                }
                 command.Finish();
             }
             itr.Dispose();
