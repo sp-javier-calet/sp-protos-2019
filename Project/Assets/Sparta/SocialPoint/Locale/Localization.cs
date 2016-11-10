@@ -119,10 +119,10 @@ namespace SocialPoint.Locale
             return defaultString != null ? defaultString : key;
         }
 
-		public string GetWithParams(string key, params object [] t)
-		{
-			return string.Format(Get(key),t);
-		}
+        public string GetWithParams(string key, params object[] t)
+        {
+            return string.Format(Get(key), t);
+        }
 
         public void Clear()
         {
