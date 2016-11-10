@@ -403,8 +403,14 @@ namespace SocialPoint.Social
 
         void UnschedulePing()
         {
-            _pingUpdate.Stop();
-            _reconnectUpdate.Stop();
+            if(_pingUpdate != null)
+            {
+                _pingUpdate.Stop();
+            }
+            if(_reconnectUpdate != null)
+            {
+                _reconnectUpdate.Stop();
+            }
         }
 
         void ProcessNotificationServices(AttrDic dic)
