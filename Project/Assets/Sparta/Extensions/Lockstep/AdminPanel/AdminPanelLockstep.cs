@@ -106,7 +106,7 @@ namespace SocialPoint.Lockstep
             {
                 builder.Append("(running) ");
             }
-            builder.AppendFormat("players: max={0} ready={1}\n", _server.MaxPlayers, _server.ReadyPlayerCount);
+            builder.AppendFormat("players: max={0} ready={1} finished={2}\n", _server.MaxPlayers, _server.ReadyPlayerCount, _server.FinishedPlayerCount);
 
             builder.AppendFormat("Time: {0} cmd: {1}",  _server.UpdateTime, _server.CommandDeltaTime);
             return builder.ToString();
