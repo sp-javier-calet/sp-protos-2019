@@ -187,6 +187,11 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public void AddEmptyTurns(int emptyTurns)
+        {
+            _lastCmdTime += Config.CommandStepDuration * emptyTurns;
+        }
+
         public ClientLockstepController(IUpdateScheduler updateScheduler = null)
         {
             _state = State.Normal;
@@ -400,7 +405,7 @@ namespace SocialPoint.Lockstep
                     }
                     _lastSimTime = nextSimTime;
                     simSteps++;
-                    if(ClientConfig.MaxSimulationStepsPerFrame > 0 && simSteps > ClientConfig.MaxSimulationStepsPerFrame)
+                    //if(ClientConfig.MaxSimulationStepsPerFrame > 0 && simSteps > ClientConfig.MaxSimulationStepsPerFrame)
                     {
                         _state = State.Recovering;
                         break;
