@@ -241,7 +241,7 @@ namespace SocialPoint.Network
                 options.TargetActors = new int[]{ player.ID };
             }
 
-            IntCircularBuffer.Instance.Add(data.Length + sizeof(int));
+            LockstepOptimizationView.TurnDataBuffer.Add( data.Length );
 
             PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
         }

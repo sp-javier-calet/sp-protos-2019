@@ -4,86 +4,38 @@ using System.Collections.Generic;
 using SocialPoint.Lockstep;
 using UnityEngine.UI;
 
-public class IntCircularBuffer
-{
-    public static readonly IntCircularBuffer Instance = new IntCircularBuffer();
-    
-    List<int> _values = new List<int>();
-    int _bufferSize = 50;
-    int _count = 0;
-
-    bool _isLoaded = false;
-    void Load()
-    {
-        if(!_isLoaded)
-        {
-            _isLoaded = true;
-            for(int i = 0; i < 50; ++i)
-            {
-                _values.Add(0);
-            }
-        }
-    }
-
-    int CircularCount
-    {
-        get
-        { 
-            return GetCircularIdx(_count);
-        }
-    }
-
-    public int Count
-    {
-        get
-        {
-            return _count;
-        }
-    }
-
-    public int GetValue(int flatIdx)
-    {
-        return _values[GetCircularIdx(flatIdx)];
-    }
-
-    int GetCircularIdx(int flatIdx)
-    {
-        return _count % _bufferSize;
-    }
-
-    public void Add(int value)
-    {
-        Load();
-
-        Debug.Log(string.Format("Adding data with size: %d", value));
-        _values[CircularCount] = value;
-        _count++;
-    }
-
-    public float GetAverage(int startFlatIdx, int endFlatIdx)
-    {
-        int accValue = 0;
-        int count = endFlatIdx - startFlatIdx;
-        for(int flatIdx = 0; flatIdx < count; ++flatIdx)
-        {
-            accValue += GetValue(flatIdx);
-        }
-
-        return count > 0 ? ((float)accValue) / ((float)count) : 0;
-    }
-}
-
 public class LockstepOptimizationView : MonoBehaviour 
 {
-    float _averageBytesSent = 0;
-    
+    public static readonly IntCircularBuffer TurnDataBuffer = new IntCircularBuffer();
+    public static readonly IntCircularBuffer TotalPhotonDataBuffer = new IntCircularBuffer();
+
+    FloatCircularBuffer turnDataBufferPerFrameAvg = new FloatCircularBuffer();
+    FloatCircularBuffer photonDataBufferPerFrameAvg = new FloatCircularBuffer();
+
+    int _turnDataBufferLastIdx = 0;
+    float _turnDataBitsPerSecond = 0;
     [SerializeField]
-    Text _averageBytesSentText;
+    Text _turnDataBitsPerSecondText;
+
+    int _turnDataBufferLastIdxPerFrame = 0;
+    [SerializeField]
+    Text _turnDataBitsPerFrameText;
+
+    int _photonDataBufferLastIdx = 0;
+    float _totalPhotonDataPerSecond = 0;
+    [SerializeField]
+    Text _totalPhotonDataPerSecondText;
+
+    int _photonDataBufferLastIdxPerFrame = 0;
+    [SerializeField]
+    Text _totalPhotonDataPerFrameText;
 
     void Awake()
     {
         RefreshUI();
-        StartCoroutine(ShowSendBytesCo());
+
+        StartCoroutine(ShowSendBytesCo(true));
+        StartCoroutine(ShowSendBytesCo(false));
     }
 
     public void OnEnableClientSendTurn()
@@ -98,21 +50,57 @@ public class LockstepOptimizationView : MonoBehaviour
 
     void RefreshUI()
     {
-        _averageBytesSentText.text = (8*_averageBytesSent).ToString();
+        _turnDataBitsPerSecondText.text = (8f * _turnDataBitsPerSecond).ToString();
+        _totalPhotonDataPerSecondText.text = (8f * _totalPhotonDataPerSecond).ToString();
+
+        _turnDataBitsPerFrameText.text = (8f * turnDataBufferPerFrameAvg.GetAvg(10)).ToString();
+        _totalPhotonDataPerFrameText.text = (8f * photonDataBufferPerFrameAvg.GetAvg(10)).ToString();
     }
 
-    IEnumerator ShowSendBytesCo()
+    IEnumerator ShowSendBytesCo(bool isRealTime)
     {
-        int lastIdx = 0;
+        float lastTime = Time.time;
+
         while(true)
         {
-            yield return new WaitForSeconds(1f);
+            if(isRealTime)
+            {
+                yield return null;
 
-            int currentIdx = IntCircularBuffer.Instance.Count;
-            _averageBytesSent = IntCircularBuffer.Instance.GetAverage(lastIdx, currentIdx);
-            lastIdx = currentIdx;
+                turnDataBufferPerFrameAvg.Add(GetAveragePerSecond(TurnDataBuffer, ref _turnDataBufferLastIdxPerFrame, 1f));
+                photonDataBufferPerFrameAvg.Add(GetAveragePerSecond(TotalPhotonDataBuffer, ref _photonDataBufferLastIdxPerFrame, 1f));
+
+            }
+            else
+            {
+                yield return new WaitForSeconds(1f);
+                float time = Time.time;
+
+                _turnDataBitsPerSecond = GetAveragePerSecond(TurnDataBuffer, ref _turnDataBufferLastIdx, time - lastTime);
+                _totalPhotonDataPerSecond = GetAveragePerSecond(TotalPhotonDataBuffer, ref _photonDataBufferLastIdx, time - lastTime);
+             
+                lastTime = time;
+            }
 
             RefreshUI();
         }
+    }
+
+    float GetAveragePerSecond(IntCircularBuffer buffer, ref int bufferStartIdx, float deltaTime)
+    {
+        int totalBytes = buffer.GetSum(bufferStartIdx, buffer.Count);
+        float average = ((float)totalBytes) / (deltaTime);
+        bufferStartIdx = buffer.Count;
+
+        return average;
+    }
+
+    float GetAveragePerSecond<T>(FloatCircularBuffer buffer, ref int bufferStartIdx, float deltaTime)
+    {
+        float totalBytes = buffer.GetSum(bufferStartIdx, buffer.Count);
+        float average = ((float)totalBytes) / (deltaTime);
+        bufferStartIdx = buffer.Count;
+
+        return average;
     }
 }
