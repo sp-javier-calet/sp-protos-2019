@@ -214,9 +214,9 @@ namespace SocialPoint.Lockstep
                         ConfirmLocalClientTurn(turn);
 
                     }
-
-                    _lastCmdTime = nextCmdTime;
                 }
+
+                _lastCmdTime = nextCmdTime;
             }
         }
 
