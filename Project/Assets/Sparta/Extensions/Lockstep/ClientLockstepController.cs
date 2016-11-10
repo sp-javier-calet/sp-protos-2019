@@ -358,16 +358,9 @@ namespace SocialPoint.Lockstep
             _timestamp = timestamp;
         }
 
-        public static bool AllowSendTurn = true;
-
         public void Update(int dt)
         {
             if(!Running || dt < 0)
-            {
-                return;
-            }
-
-            if(!AllowSendTurn)
             {
                 return;
             }
@@ -397,6 +390,8 @@ namespace SocialPoint.Lockstep
             {
                 var nextSimTime = _lastSimTime + Config.SimulationStepDuration;
                 var nextCmdTime = _lastCmdTime + Config.CommandStepDuration;
+
+                // Consume Simulation if all commands before simulation time were consumed
                 if(nextSimTime <= nextCmdTime && nextSimTime <= _time)
                 {
                     if(Simulate != null)
@@ -411,6 +406,7 @@ namespace SocialPoint.Lockstep
                         break;
                     }
                 }
+                // Consume Commands until our current time
                 else if(nextCmdTime <= _time)
                 {
                     var t = CurrentTurnNumber + 1;
@@ -434,7 +430,8 @@ namespace SocialPoint.Lockstep
                     }
                     else
                     {
-                        _state = State.Waiting;
+                        // We are trying to run a turn ahead of the lastConfirmed turn so we break and do nothing until a new lastConfirmed command is received
+                        //_state = State.Waiting;
                         break;
                     }
                     if(_state == State.Normal)
