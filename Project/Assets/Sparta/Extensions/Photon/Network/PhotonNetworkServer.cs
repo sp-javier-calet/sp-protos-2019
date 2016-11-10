@@ -20,6 +20,12 @@ namespace SocialPoint.Network
             DoDisconnect();
         }
 
+        public void Fail(string reason)
+        {
+            var errorMsg = "[Server Error]: " + reason;
+            PhotonNetwork.RaiseEvent(EventCode.ErrorInfo, errorMsg, true, null);
+        }
+
         public void AddDelegate(INetworkServerDelegate dlg)
         {
             _delegates.Add(dlg);
@@ -45,6 +51,18 @@ namespace SocialPoint.Network
             get
             {
                 return PhotonNetwork.connected;
+            }
+        }
+
+        public string Id
+        {
+            get
+            {
+                if(PhotonNetwork.room == null)
+                {
+                    return null;
+                }
+                return PhotonNetwork.room.name;
             }
         }
 
@@ -105,14 +123,14 @@ namespace SocialPoint.Network
                 Stop();
                 return;
             }
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnServerStarted();
+            }
             var players = PhotonNetwork.otherPlayers;
             for(var i = 0; i < players.Length; i++)
             {
                 OnPhotonPlayerConnected(players[i]);
-            }
-            for(var i = 0; i < _delegates.Count; i++)
-            {
-                _delegates[i].OnServerStarted();
             }
         }
 

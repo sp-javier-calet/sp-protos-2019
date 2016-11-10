@@ -17,6 +17,14 @@ namespace SocialPoint.Network
 
         public bool Running{ get; private set; }
 
+        public string Id
+        {
+            get
+            {
+                return _server.serverHostId.ToString();
+            }
+        }
+
         public const int DefaultPort = 8888;
 
         public UnetNetworkServer(IUpdateScheduler updateScheduler, int port = DefaultPort, HostTopology topology = null)
@@ -78,6 +86,18 @@ namespace SocialPoint.Network
             }
         }
 
+        public void Fail(string msg)
+        {
+            var writer = new NetworkWriter();
+            writer.StartMessage(UnetMsgType.Fail);
+            writer.Write(msg);
+            writer.FinishMessage();
+            for(var i = 0; i < _server.connections.Count; i++)
+            {
+                _server.connections[i].SendWriter(writer, Channels.DefaultReliable);
+            }
+        }
+
         public void Update()
         {            
             _server.Update();
@@ -89,7 +109,7 @@ namespace SocialPoint.Network
             _server.RegisterHandler(UnityEngine.Networking.MsgType.Connect, OnConnectReceived);
             _server.RegisterHandler(UnityEngine.Networking.MsgType.Disconnect, OnDisconnectReceived);
             _server.RegisterHandler(UnityEngine.Networking.MsgType.Error, OnErrorReceived);
-            for(byte i = UnityEngine.Networking.MsgType.Highest + 1; i < byte.MaxValue; i++)
+            for(byte i = UnetMsgType.Highest + 1; i < byte.MaxValue; i++)
             {
                 _server.RegisterHandler(i, OnMessageReceived);
             }
@@ -100,7 +120,7 @@ namespace SocialPoint.Network
             _server.UnregisterHandler(UnityEngine.Networking.MsgType.Connect);
             _server.UnregisterHandler(UnityEngine.Networking.MsgType.Disconnect);
             _server.UnregisterHandler(UnityEngine.Networking.MsgType.Error);
-            for(byte i = UnityEngine.Networking.MsgType.Highest + 1; i < byte.MaxValue; i++)
+            for(byte i = UnetMsgType.Highest + 1; i < byte.MaxValue; i++)
             {
                 _server.UnregisterHandler(i);
             }
@@ -137,7 +157,7 @@ namespace SocialPoint.Network
         void OnMessageReceived(NetworkMessage umsg)
         {
             var data = new NetworkMessageData {
-                MessageType = UnetNetworkMessage.ConvertType(umsg.msgType),
+                MessageType = UnetMsgType.ConvertType(umsg.msgType),
                 ClientId = (byte)umsg.conn.connectionId
             };
             if(_receiver != null)

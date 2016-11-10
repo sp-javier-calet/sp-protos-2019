@@ -25,9 +25,13 @@ namespace SocialPoint.Network
     {
         bool Running{ get; }
 
+        string Id { get; }
+
         void Start();
 
         void Stop();
+
+        void Fail(string reason);
 
         void AddDelegate(INetworkServerDelegate dlg);
 
