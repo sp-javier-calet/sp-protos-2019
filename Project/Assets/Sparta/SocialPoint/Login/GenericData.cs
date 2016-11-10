@@ -163,6 +163,11 @@ namespace SocialPoint.Login
                 WebSocketUrls = list.ToArray();
             }
         }
+
+        public override string ToString()
+        {
+            return string.Format("[SocialFrameworkData: Urls={0}]", WebSocketUrls.Length);
+        }
     }
 
     public sealed class GenericData
