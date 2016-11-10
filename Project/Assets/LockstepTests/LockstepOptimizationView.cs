@@ -34,6 +34,9 @@ public class LockstepOptimizationView : MonoBehaviour
     [SerializeField]
     Text _sendIsReliableTex;
 
+    [SerializeField]
+    Text _maxEmptyTurns;
+
     void Awake()
     {
         RefreshUI();
@@ -61,6 +64,8 @@ public class LockstepOptimizationView : MonoBehaviour
         _totalPhotonDataPerFrameText.text = (8f * photonDataBufferPerFrameAvg.GetAvg(10)).ToString();
 
         _sendIsReliableTex.text = PhotonNetworkBase.SendReliable.ToString();
+
+        _maxEmptyTurns.text = LockStepNetworkCommon.MaxEmptyTurns.ToString();
     }
 
     IEnumerator ShowSendBytesCo(bool isRealTime)
@@ -113,6 +118,12 @@ public class LockstepOptimizationView : MonoBehaviour
     public void OnSendReliableClicked()
     {
         PhotonNetworkBase.SendReliable = !PhotonNetworkBase.SendReliable;
+        RefreshUI();
+    }
+
+    public void OnMaxTurnsChanged()
+    {
+        LockStepNetworkCommon.MaxEmptyTurns = int.Parse(_maxEmptyTurns.text);
         RefreshUI();
     }
 }

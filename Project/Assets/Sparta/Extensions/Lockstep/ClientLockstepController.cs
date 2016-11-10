@@ -4,6 +4,11 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep
 {
+    public class LockStepNetworkCommon
+    {
+        public static int MaxEmptyTurns = 10;
+    }
+    
     public interface ILockstepCommandLogic<T>
     {
         void Apply(T data);
@@ -285,8 +290,7 @@ namespace SocialPoint.Lockstep
 
         public void AddConfirmedEmptyTurns()
         {
-            int emptyTurns = 4;
-            _lastConfirmedTurnNumber += emptyTurns;
+            _lastConfirmedTurnNumber += LockStepNetworkCommon.MaxEmptyTurns;
         }
 
         public void AddConfirmedTurn(ClientLockstepTurnData turn=null)

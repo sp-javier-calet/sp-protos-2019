@@ -199,9 +199,8 @@ namespace SocialPoint.Lockstep
                 }
                 else
                 {
-                    int maxSkippedTurns = 4;
                     _skippedTurns++;
-                    if(_skippedTurns >= maxSkippedTurns)
+                    if(_skippedTurns >= LockStepNetworkCommon.MaxEmptyTurns)
                     {
                         turn = ServerLockstepTurnData.Empty;
                         _skippedTurns = 0;
