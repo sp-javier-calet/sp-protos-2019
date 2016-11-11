@@ -291,10 +291,18 @@ namespace Photon.Hive.Plugin.Lockstep
 
         void INetworkServer.Start()
         {
+            for (var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnServerStarted();
+            }
         }
 
         void INetworkServer.Stop()
         {
+            for (var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnServerStopped();
+            }
             BroadcastError("server stopped");
         }
 

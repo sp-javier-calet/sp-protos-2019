@@ -592,6 +592,12 @@
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\SystemBinaryWriter.cs">
       <Link>Lib\IO\SystemBinaryWriter.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\TypedReadParser.cs">
+      <Link>Lib\IO\TypedReadParser.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\IO\TypedWriteSerializer.cs">
+      <Link>Lib\IO\TypedWriteSerializer.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\INetworkClient.cs">
       <Link>Lib\Network\INetworkClient.cs</Link>
     </Compile>

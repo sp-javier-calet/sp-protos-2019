@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.Utils;
 using SocialPoint.Multiplayer;
 using SocialPoint.Network;
 using SocialPoint.IO;
@@ -38,6 +37,14 @@ namespace Photon.Hive.Plugin.Authoritative
             get
             {
                 return true;
+            }
+        }
+
+        string INetworkServer.Id
+        {
+            get
+            {
+                return PluginHost.GameId;
             }
         }
 
@@ -284,7 +291,12 @@ namespace Photon.Hive.Plugin.Authoritative
             }
         }
 
-        INetworkMessage INetworkServer.CreateMessage(NetworkMessageData info)
+        void INetworkServer.Fail(string reason)
+        {
+            BroadcastError(reason);
+        }
+
+        INetworkMessage INetworkMessageSender.CreateMessage(NetworkMessageData info)
         {
             List<int> actors = null;
             if(info.ClientId != 0)
