@@ -60,6 +60,7 @@ namespace Examples.Lockstep
         IMatchmakingClientController _matchClient;
         GameLockstepMode _mode;
         XRandom _random;
+        ServerBehaviour _serverBehaviour;
 
         FloatingPanelController _clientFloating;
         FloatingPanelController _serverFloating;
@@ -185,7 +186,7 @@ namespace Examples.Lockstep
         {
             _netServer = ServiceLocator.Instance.Resolve<INetworkServer>();
             _netLockstepServer = ServiceLocator.Instance.Resolve<ServerLockstepNetworkController>();
-            _netLockstepServer.RegisterDelegate(new ServerBehaviour(_netLockstepServer));
+            _serverBehaviour = new ServerBehaviour(_netLockstepServer);
             _netServer.RemoveDelegate(this);
             _netServer.AddDelegate(this);
             _netServer.Start();
@@ -340,6 +341,11 @@ namespace Examples.Lockstep
             {
                 _matchClient.Stop();
                 _matchClient.Clear();
+            }
+            if(_serverBehaviour != null)
+            {
+                _serverBehaviour.Dispose();
+                _serverBehaviour = null;
             }
         }
 

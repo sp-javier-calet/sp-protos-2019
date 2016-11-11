@@ -50,7 +50,7 @@ namespace Photon.Hive.Plugin.Lockstep
         HttpMatchmakingServerController _matchmaking;
         Examples.Lockstep.ServerBehaviour _game;
         object _timer;
- 
+
         const byte MaxPlayersKey = 255;
         const byte MasterClientIdKey = 248;
         const byte IsOpenKey = 253;
@@ -67,7 +67,6 @@ namespace Photon.Hive.Plugin.Lockstep
                 new WebRequestHttpClient(new ImmediateCoroutineRunner()));
             _netServer = new ServerLockstepNetworkController(this, _matchmaking);
             _game = new Examples.Lockstep.ServerBehaviour(_netServer);
-            _netServer.RegisterDelegate(_game);
         }
 
         byte GetClientId(string userId)
@@ -88,7 +87,7 @@ namespace Photon.Hive.Plugin.Lockstep
         {
             return (byte)actorId;
         }
-        
+
         public override void OnCloseGame(ICloseGameCallInfo info)
         {
             PluginHost.StopTimer(_timer);
@@ -165,7 +164,7 @@ namespace Photon.Hive.Plugin.Lockstep
         public override void OnLeave(ILeaveGameCallInfo info)
         {
             OnClientDisconnected(GetClientId(info.ActorNr));
-            info.Continue();            
+            info.Continue();
         }
 
         void OnClientDisconnected(byte clientId)
@@ -173,7 +172,7 @@ namespace Photon.Hive.Plugin.Lockstep
             for (var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnClientDisconnected(clientId);
-            }  
+            }
             UpdateRoomOpen();
         }
 
@@ -291,7 +290,7 @@ namespace Photon.Hive.Plugin.Lockstep
         }
 
         void INetworkServer.Start()
-        {   
+        {
         }
 
         void INetworkServer.Stop()

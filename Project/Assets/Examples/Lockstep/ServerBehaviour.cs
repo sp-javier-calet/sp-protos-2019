@@ -7,10 +7,10 @@ using SocialPoint.Lockstep.Network;
 
 namespace Examples.Lockstep
 {
-    public class ServerBehaviour : IServerLockstepNetworkDelegate
+    public class ServerBehaviour : IDisposable
     {
-        ServerLockstepNetworkController _server;
         Model _model;
+        ServerLockstepNetworkController _server;
         ClientLockstepController _client;
 
         public ServerBehaviour(ServerLockstepNetworkController server)
@@ -19,11 +19,24 @@ namespace Examples.Lockstep
             _model = new Model();
             _client = new ClientLockstepController();
 
-            _client.Simulate += Simulate;
-
             var cmdFactory = new LockstepCommandFactory();
             CommandType.Setup(_model, cmdFactory, _client);
             server.RegisterLocalClient(_client, cmdFactory);
+
+            _server.CommandFailed += OnCommandFailed;
+            _server.ErrorProduced += OnError;
+            _server.MatchStarted += OnMatchStarted;
+            _server.MatchFinished += OnMatchFinished;
+            _client.Simulate += Simulate;
+        }
+
+        public void Dispose()
+        {
+            _server.CommandFailed -= OnCommandFailed;
+            _server.ErrorProduced -= OnError;
+            _server.MatchStarted -= OnMatchStarted;
+            _server.MatchFinished -= OnMatchFinished;
+            _client.Simulate -= Simulate;
         }
 
         void Simulate(int dt)
@@ -43,7 +56,7 @@ namespace Examples.Lockstep
             _server.Fail("Lockstep server failed: " + err);
         }
 
-        public void OnFinish(Dictionary<byte, Attr> playerResults)
+        public void OnMatchFinished(Dictionary<byte, Attr> playerResults)
         {
             // TODO: only replay if playerResults do not match up
             // for example: if all players say they won
@@ -55,6 +68,7 @@ namespace Examples.Lockstep
             _client.Update(_server.UpdateTime);
             _client.Stop();
 
+            // overwrite results
             playerResults.Clear();
             var itr = _model.Results.GetEnumerator();
             while(itr.MoveNext())
@@ -64,7 +78,7 @@ namespace Examples.Lockstep
             itr.Dispose();
         }
 
-        public void OnStart(Attr data)
+        public void OnMatchStarted(Attr data)
         {
             // TODO: game specific model setup
         }
