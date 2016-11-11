@@ -115,7 +115,7 @@ namespace SocialPoint.Lockstep.Network
             DebugUtils.Assert(serverLockstep != null);
             _serverLockstep = serverLockstep;
             _serverLockstep.TurnReady += OnServerTurnReady;
-            _serverLockstep.ServerMessageReady += OnServerMessageReady;
+            _serverLockstep.MessageReady += OnServerMessageReady;
             if(_localClient != null)
             {
                 _serverLockstep.RegisterLocalClient(_localClient, _localFactory);

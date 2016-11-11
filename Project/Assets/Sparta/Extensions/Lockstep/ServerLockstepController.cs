@@ -24,7 +24,7 @@ namespace SocialPoint.Lockstep
         public LockstepGameParams GameParams { get; private set; }
 
         public event Action<ServerLockstepTurnData> TurnReady;
-        public event Action<byte, INetworkShareable> ServerMessageReady;
+        public event Action<byte, INetworkShareable> MessageReady;
         int _skippedTurns;
 
         public int UpdateTime
@@ -173,16 +173,16 @@ namespace SocialPoint.Lockstep
 
         void SendEmptyTurnsToClient()
         {
-            if(_skippedTurns == 0 || (_skippedTurns * Config.CommandStepDuration < Config.MaxFrameSkippingDuration && Config.AllowFrameSkipping))
+            if(_skippedTurns == 0 || (Config.MaxFrameSkippingDuration > 0 && _skippedTurns * Config.CommandStepDuration < Config.MaxFrameSkippingDuration))
             {
                 return;
             }
             
             EmptyTurnsMessage emptyTurnsData = new EmptyTurnsMessage(_skippedTurns);
 
-            if(ServerMessageReady != null)
+            if(MessageReady != null)
             {
-                ServerMessageReady(SocialPoint.Lockstep.Network.LockstepMsgType.EmptyTurns, emptyTurnsData);
+                MessageReady(SocialPoint.Lockstep.Network.LockstepMsgType.EmptyTurns, emptyTurnsData);
             }
 
             ConfirmLocalClientEmptyTurns(emptyTurnsData);
