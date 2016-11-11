@@ -521,13 +521,16 @@ namespace SocialPoint.WAMP
             }
             long requestId = msg.Get(2).AsValue.ToLong();
 
-            // Details
-            string description = string.Empty;
+            // Error initialization
+            string errorDescription  = msg.Get(4).AsValue.ToString();
             int code = 0;
+
+            // Details
             if(msg.Get(3).IsDic)
             {
                 var errorDict = msg.Get(3).AsDic;
-                description = errorDict.Get("message").AsValue.ToString();
+                // TODO Hides actual WAMP Error. Move to AttrList.
+                errorDescription = errorDict.Get("message").AsValue.ToString();
                 code = errorDict.Get("code").AsValue.ToInt();
             }
 
@@ -557,7 +560,8 @@ namespace SocialPoint.WAMP
             {
             case MsgCode.CALL:
                 {
-                    _caller.ProcessCallError(requestId, code, description, listArgs, dictArgs);
+                    var errorCode = code == 0 ? ErrorCodes.CallError : code;
+                    _caller.ProcessCallError(requestId, errorCode, errorDescription, listArgs, dictArgs);
                     break;
                 }
             case MsgCode.REGISTER:
@@ -565,17 +569,17 @@ namespace SocialPoint.WAMP
                 throw new Exception("CALLEE role not implemented");
             case MsgCode.PUBLISH:
                 {
-                    _publisher.ProcessPublishError(requestId, description);
+                    _publisher.ProcessPublishError(requestId, errorDescription);
                     break;
                 }
             case MsgCode.SUBSCRIBE:
                 {
-                    _subscriber.ProcessSubscribeError(requestId, description);
+                    _subscriber.ProcessSubscribeError(requestId, errorDescription);
                     break;
                 }
             case MsgCode.UNSUBSCRIBE:
                 {
-                    _subscriber.ProcessUnsubscribeError(requestId, description);
+                    _subscriber.ProcessUnsubscribeError(requestId, errorDescription);
                     break;
                 }
             default:
