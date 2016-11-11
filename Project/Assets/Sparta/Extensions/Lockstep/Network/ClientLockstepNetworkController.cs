@@ -110,6 +110,7 @@ namespace SocialPoint.Lockstep.Network
 
         void OnEmptyTurnReceived()
         {
+            UnityEngine.Debug.Log(string.Format("EmptyTurn Received :("));
             _clientLockstep.AddConfirmedTurn();
         }
 
@@ -117,6 +118,7 @@ namespace SocialPoint.Lockstep.Network
         {
             var emptyTurns = new EmptyTurnsData();
             emptyTurns.Deserialize(reader);
+            UnityEngine.Debug.Log(string.Format("EmptyTurns Received: {0}", emptyTurns.EmptyTurns));
             for(int i = 0; i < emptyTurns.EmptyTurns; ++i)
             {
                 _clientLockstep.AddConfirmedTurn();
