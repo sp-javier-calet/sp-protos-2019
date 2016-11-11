@@ -677,7 +677,6 @@ using ExitGames.Client.Photon;
             if (customEventContent != null)
             {
                 opParameters[(byte) ParameterCode.Data] = customEventContent;
-                LockstepOptimizationView.TotalPhotonDataBuffer.Add(((byte[]) customEventContent).Length);
             }
 
             if (raiseEventOptions == null)
@@ -689,32 +688,28 @@ using ExitGames.Client.Photon;
                 if (raiseEventOptions.CachingOption != EventCaching.DoNotCache)
                 {
                     opParameters[(byte) ParameterCode.Cache] = (byte) raiseEventOptions.CachingOption;
-                LockstepOptimizationView.TotalPhotonDataBuffer.Add(sizeof(byte));
                 }
                 if (raiseEventOptions.Receivers != ReceiverGroup.Others)
                 {
                     opParameters[(byte) ParameterCode.ReceiverGroup] = (byte) raiseEventOptions.Receivers;
-                LockstepOptimizationView.TotalPhotonDataBuffer.Add(sizeof(byte));
                 }
                 if (raiseEventOptions.InterestGroup != 0)
                 {
                     opParameters[(byte) ParameterCode.Group] = (byte) raiseEventOptions.InterestGroup;
-                LockstepOptimizationView.TotalPhotonDataBuffer.Add(sizeof(byte));
                 }
                 if (raiseEventOptions.TargetActors != null)
                 {
                     opParameters[(byte) ParameterCode.ActorList] = raiseEventOptions.TargetActors;
-                    LockstepOptimizationView.TotalPhotonDataBuffer.Add( sizeof(int)*raiseEventOptions.TargetActors.Length );
                 }
                 if (raiseEventOptions.ForwardToWebhook)
                 {
                     opParameters[(byte) ParameterCode.EventForward] = true; //TURNBASED
-                    LockstepOptimizationView.TotalPhotonDataBuffer.Add(sizeof(bool) );
                 }
             }
 
             return this.OpCustom((byte) OperationCode.RaiseEvent, opParameters, sendReliable, raiseEventOptions.SequenceChannel, raiseEventOptions.Encrypt);
         }
+
 
         /// <summary>
         /// Internally used operation to set some "per server" settings. This is for the Master Server.
