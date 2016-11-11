@@ -5,7 +5,8 @@ using SocialPoint.Locale;
 
 namespace SocialPoint.Social
 {
-    public class FactoryChatMessages<MessageType> where MessageType : class, IChatMessage, new()
+    public class FactoryChatMessages<MessageType> 
+        where MessageType : class, IChatMessage, new()
     {
         const string Tag = "SocialFramework";
         const string UserNameKey = "user_name";

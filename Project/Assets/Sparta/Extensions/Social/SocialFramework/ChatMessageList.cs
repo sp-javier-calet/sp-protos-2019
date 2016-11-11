@@ -24,7 +24,8 @@ namespace SocialPoint.Social
         void Clear();
     }
 
-    public class ChatMessageList<MessageType> : IMessageList where MessageType : class, IChatMessage
+    public class ChatMessageList<MessageType> : IMessageList
+        where MessageType : class, IChatMessage
     {
         public event Action OnMessagesCleared;
         public event Action OnHistoryAdded;
