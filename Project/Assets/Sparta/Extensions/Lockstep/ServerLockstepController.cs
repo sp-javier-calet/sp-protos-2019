@@ -51,7 +51,7 @@ namespace SocialPoint.Lockstep
         public LockstepGameParams GameParams { get; private set; }
 
         public event Action<ServerLockstepTurnData> TurnReady;
-
+        public event Action<byte, INetworkShareable> ServerMessageReady;
         int _skippedTurns;
 
         public int UpdateTime
@@ -190,6 +190,8 @@ namespace SocialPoint.Lockstep
 
                 if(_turns.TryGetValue(t, out turn))
                 {
+                    SendEmptyTurnsToClient();
+                    
                     if(TurnReady != null)
                     {
                         TurnReady(turn);
@@ -202,21 +204,35 @@ namespace SocialPoint.Lockstep
                     _skippedTurns++;
                     if(_skippedTurns >= LockStepNetworkCommon.MaxEmptyTurns)
                     {
-                        turn = ServerLockstepTurnData.Empty;
-                        _skippedTurns = 0;
-
-                        if(TurnReady != null)
-                        {
-                            TurnReady(turn);
-                        }
-
-                        ConfirmLocalClientEmptyTurns(turn);
-
+                        SendEmptyTurnsToClient();
                     }
                 }
 
                 _lastCmdTime = nextCmdTime;
             }
+        }
+
+        void SendEmptyTurnsToClient()
+        {
+            if(_skippedTurns == 0)
+            {
+                return;
+            }
+            
+            EmptyTurnsData emptyTurnsData = new EmptyTurnsData(_skippedTurns);
+            _skippedTurns = 0;
+
+            if(ServerMessageReady != null)
+            {
+                ServerMessageReady(SocialPoint.Lockstep.Network.LockstepMsgType.EmptyTurn, new EmptyTurnsData(_skippedTurns));
+            }
+
+//            if(TurnReady != null)
+//            {
+//                TurnReady(turn);
+//            }
+
+            ConfirmLocalClientEmptyTurns(emptyTurnsData);
         }
 
         public void Dispose()
@@ -270,14 +286,20 @@ namespace SocialPoint.Lockstep
             _localClient.AddConfirmedTurn(clientTurn);
         }
 
-        void ConfirmLocalClientEmptyTurns(ServerLockstepTurnData turn)
+
+        void AddLocalMessage()
+        {
+            
+        }
+
+        void ConfirmLocalClientEmptyTurns(EmptyTurnsData data)
         {
             if(_localClient == null)
             {
                 return;
             }
 //            var clientTurn = turn.ToClient(_localFactory);
-            _localClient.AddConfirmedEmptyTurns();
+            _localClient.AddConfirmedEmptyTurns(data);
         }
 
         #endregion
