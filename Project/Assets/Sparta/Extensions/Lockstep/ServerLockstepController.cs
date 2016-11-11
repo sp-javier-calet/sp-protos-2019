@@ -18,7 +18,6 @@ namespace SocialPoint.Lockstep
         public bool Running{ get; private set; }
 
         public LockstepConfig Config { get; set; }
-        public ClientLockstepConfig ClientConfig{ get; set; }
 
         public LockstepGameParams GameParams { get; private set; }
 
