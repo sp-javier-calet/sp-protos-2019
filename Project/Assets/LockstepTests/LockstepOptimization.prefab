@@ -991,7 +991,6 @@ MonoBehaviour:
   _totalPhotonDataPerSecondText: {fileID: 114000010234207036}
   _totalPhotonDataPerFrameText: {fileID: 114000010557880808}
   _sendIsReliableTex: {fileID: 114000010993706378}
-  _maxEmptyTurns: {fileID: 0}
 --- !u!114 &114000013439748528
 MonoBehaviour:
   m_ObjectHideFlags: 1
