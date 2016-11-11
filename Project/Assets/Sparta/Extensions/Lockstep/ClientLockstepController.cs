@@ -4,11 +4,6 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep
 {
-    public static class LockStepNetworkCommon
-    {
-        public static int MaxEmptyTurns = 10;
-    }
-    
     public interface ILockstepCommandLogic<T>
     {
         void Apply(T data);
