@@ -2,8 +2,6 @@
 using System;
 using SocialPoint.Utils;
 using SocialPoint.Base;
-using SocialPoint.IO;
-using FixMath.NET;
 
 namespace SocialPoint.Lockstep
 {
@@ -245,11 +243,6 @@ namespace SocialPoint.Lockstep
                 return;
             }
             _localClient.AddConfirmedEmptyTurns(new EmptyTurnsMessage(emptyTurns));
-        }
-
-        void AddLocalMessage()
-        {
-            
         }
 
         #endregion
