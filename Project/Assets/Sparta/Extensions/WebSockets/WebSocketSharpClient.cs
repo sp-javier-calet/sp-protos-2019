@@ -10,14 +10,14 @@ namespace SocialPoint.WebSockets
         readonly string[] _protocols;
         WebSocketSharp.WebSocket _socket;
 
-        public WebSocketSharpClient(string url, ICoroutineRunner runner) : this(url, null, runner)
+        public WebSocketSharpClient(string url, IUpdateScheduler scheduler) : this(url, null, scheduler)
         {
         }
 
-        public WebSocketSharpClient(string url, string[] protocols, ICoroutineRunner runner)
+        public WebSocketSharpClient(string url, string[] protocols, IUpdateScheduler scheduler)
         {
             _protocols = protocols;
-            _dispatcher = new WebSocketsEventDispatcher(runner);
+            _dispatcher = new WebSocketsEventDispatcher(scheduler);
             CreateSocket(url);
         }
 
@@ -67,7 +67,7 @@ namespace SocialPoint.WebSockets
         {
             if(_socket != null)
             {
-                throw new InvalidOperationException("Socket already existing");
+                throw new InvalidOperationException("Socket already exists");
             }
 
             _socket = new WebSocketSharp.WebSocket(url, _protocols);
@@ -90,8 +90,8 @@ namespace SocialPoint.WebSockets
                 _socket.OnClose -= OnSocketClosed;
                 _socket.OnError -= OnSocketError;
                 _socket.OnMessage -= OnSocketMessage;
+                _socket = null;
             }
-            _socket = null;
         }
 
         #region WebsocketClient implementation
