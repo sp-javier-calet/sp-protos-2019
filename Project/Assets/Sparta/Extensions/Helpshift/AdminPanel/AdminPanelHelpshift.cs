@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.Extension.Helpshift
 {
-    public class AdminPanelHelpshift : IAdminPanelConfigurer, IAdminPanelGUI
+    public sealed class AdminPanelHelpshift : IAdminPanelConfigurer, IAdminPanelGUI
     {
         readonly IHelpshift _helpshift;
         AdminPanelConsole _console;

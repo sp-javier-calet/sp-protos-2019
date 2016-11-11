@@ -15,13 +15,10 @@ namespace SocialPoint.Extension.Helpshift
             }
         }
 
-        static HelpshiftCustomer _userData;
-
         public HelpshiftCustomer UserData
         {
             set
             {
-                _userData = value;
             }
         }
 
