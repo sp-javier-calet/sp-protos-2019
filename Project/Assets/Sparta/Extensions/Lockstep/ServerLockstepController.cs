@@ -8,35 +8,6 @@ using SocialPoint.Lockstep.Network; // TODO: refactor to avoid this dependency
 
 namespace SocialPoint.Lockstep
 {
-    public class EmptyTurnsCommand : ILockstepCommand
-    {
-        public int EmptyTurns{ get; private set; }
-
-        public EmptyTurnsCommand()
-        {
-        }
-
-        public EmptyTurnsCommand(int emptyTurns)
-        {
-            EmptyTurns = emptyTurns;
-        }
-
-        public object Clone()
-        {
-            return new EmptyTurnsCommand(EmptyTurns);
-        }
-
-        public void Deserialize(IReader reader)
-        {
-            EmptyTurns = reader.ReadInt32();
-        }
-
-        public void Serialize(IWriter writer)
-        {
-            writer.Write((int)EmptyTurns);
-        }
-    }
-    
     public sealed class ServerLockstepController : IUpdateable, IDisposable
     {
         int _time;
@@ -210,14 +181,15 @@ namespace SocialPoint.Lockstep
             }
             
             EmptyTurnsMessage emptyTurnsData = new EmptyTurnsMessage(_skippedTurns);
-            _skippedTurns = 0;
 
             if(ServerMessageReady != null)
             {
-                ServerMessageReady(SocialPoint.Lockstep.Network.LockstepMsgType.EmptyTurns, new EmptyTurnsMessage(_skippedTurns));
+                ServerMessageReady(SocialPoint.Lockstep.Network.LockstepMsgType.EmptyTurns, emptyTurnsData);
             }
 
             ConfirmLocalClientEmptyTurns(emptyTurnsData);
+
+            _skippedTurns = 0;
         }
 
         public void Dispose()

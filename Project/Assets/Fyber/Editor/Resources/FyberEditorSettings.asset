@@ -8,9 +8,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 0}
+  m_Script: {fileID: -1767868503, guid: 237e7d1c83f244fe39e5dd7b3b167eb9, type: 3}
   m_Name: FyberEditorSettings
-  m_EditorClassIdentifier: FyberEditor:FyberEditor:FyberEditorSettings
+  m_EditorClassIdentifier: 
   manifestChecker: {fileID: 0}
   shouldProcessAdapters: 1
   orientationManager: {fileID: 0}
