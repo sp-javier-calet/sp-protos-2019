@@ -556,9 +556,9 @@ namespace SocialPoint.Social
                     {
                         onResult(err, iargs, ikwargs);
                     }
+                    RestartConnection();
+                    return;
                 }
-                RestartConnection();
-                return;
             }
 
             if(onResult != null)
