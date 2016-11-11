@@ -119,8 +119,6 @@ namespace SocialPoint.Social
 
         public IAccessTypeManager AccessTypes { get; set; }
 
-        public string AlliancesServerUrl;
-
         readonly ConnectionManager _connection;
 
         public AlliancesManager(ConnectionManager connection)
@@ -534,7 +532,7 @@ namespace SocialPoint.Social
 
         string GetUrl(string suffix)
         {
-            return (string.IsNullOrEmpty(AlliancesServerUrl) ? LoginData.BaseUrl : AlliancesServerUrl) + suffix;
+            return LoginData.BaseUrl + suffix;
         }
 
         WAMPRequest JoinPublicAlliance(AllianceBasicData alliance, Action<Error> callback, JoinExtraData data)

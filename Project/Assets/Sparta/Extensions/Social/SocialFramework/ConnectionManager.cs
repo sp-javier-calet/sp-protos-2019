@@ -267,9 +267,6 @@ namespace SocialPoint.Social
         readonly WAMPConnection _connection;
         readonly IWebSocketClient _socket;
 
-        WAMPConnection.StartRequest _startRequest;
-        WAMPConnection.JoinRequest _joinRequest;
-
         ScheduledAction _pingUpdate;
         ScheduledAction _reconnectUpdate;
         ConnectionState _state;
@@ -324,7 +321,6 @@ namespace SocialPoint.Social
             return _connection.Start(() => {
                 SendHello();
                 SchedulePing();
-                _startRequest = null;
             });
         }
 
@@ -527,8 +523,6 @@ namespace SocialPoint.Social
             {
                 OnConnected();
             }
-
-            _joinRequest = null;
         }
 
         void OnNotificationMessageReceived(string topic, AttrList listParams, AttrDic dicParams)

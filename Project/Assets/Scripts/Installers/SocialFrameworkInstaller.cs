@@ -16,12 +16,10 @@ public class SocialFrameworkInstaller : Installer
 
     const string DefaultWAMPProtocol = "wamp.2.json";
     const string DefaultSocketEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8002/ws";
-    const string DefaultAlliancesServer = "";
 
     [Serializable]
     public class SettingsData
     {
-        public string AlliancesServer = DefaultAlliancesServer;
         public string SocketEndpoint = DefaultSocketEndpoint;
         public string[] Protocols = new string[] { DefaultWAMPProtocol };
     }
@@ -92,7 +90,10 @@ public class SocialFrameworkInstaller : Installer
 
     WebSocketSharpClient CreateWebSocket()
     {
-        return new WebSocketSharpClient(Settings.SocketEndpoint, Settings.Protocols, Container.Resolve<ICoroutineRunner>());
+        return new WebSocketSharpClient(
+            Settings.SocketEndpoint,
+            Settings.Protocols,
+            Container.Resolve<IUpdateScheduler>());
     }
 
     void SetupWebSocket(WebSocketSharpClient client)
@@ -141,7 +142,6 @@ public class SocialFrameworkInstaller : Installer
 
     void SetupAlliancesManager(AlliancesManager manager)
     {
-        manager.AlliancesServerUrl = Settings.AlliancesServer;
         manager.LoginData = Container.Resolve<ILoginData>();
 
         if(Container.HasBinding<AllianceDataFactory>())
