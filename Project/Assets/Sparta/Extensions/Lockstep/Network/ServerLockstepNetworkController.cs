@@ -43,17 +43,6 @@ namespace SocialPoint.Lockstep.Network
         }
     }
 
-    public interface IServerLockstepNetworkDelegate
-    {
-        void OnStart(Attr data);
-
-        void OnError(Error err);
-
-        void OnCommandFailed(Error err, byte playerNum);
-
-        void OnFinish(Dictionary<byte, Attr> playerResults);
-    }
-
     public sealed class ServerLockstepNetworkController : IDisposable, INetworkMessageReceiver, INetworkServerDelegate, IMatchmakingServerDelegate
     {
         class ClientData
@@ -65,7 +54,6 @@ namespace SocialPoint.Lockstep.Network
         }
 
         IMatchmakingServerController _matchmaking;
-        IServerLockstepNetworkDelegate _delegate;
 
         ServerLockstepController _serverLockstep;
         INetworkServer _server;
@@ -78,6 +66,11 @@ namespace SocialPoint.Lockstep.Network
         ClientData _localClientData;
 
         public ServerLockstepConfig ServerConfig{ get; set; }
+
+        public event Action<Attr> MatchStarted;
+        public event Action<Error> ErrorProduced;
+        public event Action<Error, byte> CommandFailed;
+        public event Action<Dictionary<byte, Attr>> MatchFinished;
 
         public LockstepConfig Config
         {
@@ -128,11 +121,6 @@ namespace SocialPoint.Lockstep.Network
         public void Update(int dt)
         {
             _serverLockstep.Update(dt);
-        }
-
-        public void RegisterDelegate(IServerLockstepNetworkDelegate dlg)
-        {
-            _delegate = dlg;
         }
 
         public void RegisterReceiver(INetworkMessageReceiver receiver)
@@ -506,9 +494,9 @@ namespace SocialPoint.Lockstep.Network
 
         void IMatchmakingServerDelegate.OnMatchInfoReceived(Attr info)
         {
-            if(_delegate != null)
+            if(MatchStarted != null)
             {
-                _delegate.OnStart(info);
+                MatchStarted(info);
             }
             DoStartLockstep();
         }
@@ -567,9 +555,9 @@ namespace SocialPoint.Lockstep.Network
                 return;
             }
             var results = PlayerResults;
-            if(_delegate != null)
+            if(MatchFinished != null)
             {
-                _delegate.OnFinish(results);
+                MatchFinished(results);
             }
             var resultsAttr = new AttrDic();
             var itr = results.GetEnumerator();
@@ -600,9 +588,9 @@ namespace SocialPoint.Lockstep.Network
 
         public void OnNetworkError(Error e)
         {
-            if(_delegate != null)
+            if(ErrorProduced != null)
             {
-                _delegate.OnError(e);
+                ErrorProduced(e);
             }
         }
 
@@ -730,9 +718,9 @@ namespace SocialPoint.Lockstep.Network
         {
             byte playerNum;
             _commandSenders.TryGetValue(cmd.Id, out playerNum);
-            if(_delegate != null)
+            if(CommandFailed != null)
             {
-                _delegate.OnCommandFailed(err, playerNum);
+                CommandFailed(err, playerNum);
             }
             else
             {
