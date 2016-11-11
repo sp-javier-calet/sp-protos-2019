@@ -177,17 +177,6 @@ namespace SocialPoint.Lockstep
                 ServerLockstepTurnData turn;
                 var t = CurrentTurnNumber;
 
-                /*if(!_turns.TryGetValue(t, out turn))
-                {
-                    turn = ServerLockstepTurnData.Empty;
-                }
-                if(TurnReady != null)
-                {
-                    TurnReady(turn);
-                }
-                ConfirmLocalClientTurn(turn);
-                */
-
                 if(_turns.TryGetValue(t, out turn))
                 {
                     SendEmptyTurnsToClient();
@@ -226,11 +215,6 @@ namespace SocialPoint.Lockstep
             {
                 ServerMessageReady(SocialPoint.Lockstep.Network.LockstepMsgType.EmptyTurn, new EmptyTurnsData(_skippedTurns));
             }
-
-//            if(TurnReady != null)
-//            {
-//                TurnReady(turn);
-//            }
 
             ConfirmLocalClientEmptyTurns(emptyTurnsData);
         }
