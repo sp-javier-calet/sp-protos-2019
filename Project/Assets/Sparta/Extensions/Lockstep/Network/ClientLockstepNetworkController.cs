@@ -84,9 +84,6 @@ namespace SocialPoint.Lockstep.Network
         {
             switch(data.MessageType)
             {
-            case LockstepMsgType.EmptyTurn:
-                OnEmptyTurnReceived();
-                break;
             case LockstepMsgType.EmptyTurns:
                 OnEmptyTurnsReceived(reader);
                 break;
@@ -106,11 +103,6 @@ namespace SocialPoint.Lockstep.Network
                 }
                 break;
             }
-        }
-
-        void OnEmptyTurnReceived()
-        {
-            _clientLockstep.AddConfirmedTurn();
         }
 
         void OnEmptyTurnsReceived(IReader reader)
