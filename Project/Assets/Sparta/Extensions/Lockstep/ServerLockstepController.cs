@@ -179,6 +179,13 @@ namespace SocialPoint.Lockstep
             {
                 EmptyTurnsReady(_pendingEmptyTurns);
             }
+            else if(TurnReady != null)
+            {
+                for(int i = 0; i < _pendingEmptyTurns; ++i)
+                {
+                    TurnReady(null);
+                }
+            }
 
             ConfirmLocalClientEmptyTurns(_pendingEmptyTurns);
 
