@@ -14,7 +14,7 @@ namespace SocialPoint.Lockstep
     {
         public const int DefaultCommandStepDuration = 100;
         public const int DefaultSimulationStepDuration = 10;
-        public const int DefaultMaxFrameSkippingDuration = 0;
+        public const int DefaultMaxTurnSkipDuration = 0;
 
         // SimulationStep is the guaranteed simulation tick. Cannot be skipped.
         public int SimulationStepDuration = DefaultSimulationStepDuration;
@@ -22,8 +22,8 @@ namespace SocialPoint.Lockstep
         // Command processing tick.
         public int CommandStepDuration = DefaultCommandStepDuration;
 
-        // How much time we can skip frames
-        public int MaxFrameSkippingDuration = DefaultMaxFrameSkippingDuration;
+        // Max time the server can be skipping turns
+        public int MaxTurnSkipDuration = DefaultMaxTurnSkipDuration;
 
         public void Deserialize(IReader reader)
         {

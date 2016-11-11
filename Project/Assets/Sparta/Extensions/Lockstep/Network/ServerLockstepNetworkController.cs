@@ -169,7 +169,7 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        void OnServerMessageReady(byte messageType, INetworkShareable eventData)
+        void OnServerMessageReady(byte messageType, INetworkShareable message)
         {
             var itr = _clients.GetEnumerator();
             while(itr.MoveNext())
@@ -180,7 +180,7 @@ namespace SocialPoint.Lockstep.Network
                     _server.SendMessage(new NetworkMessageData {
                         MessageType = messageType,
                         ClientId = client.ClientId
-                    }, eventData);
+                    }, message);
                 }
             }
             itr.Dispose();

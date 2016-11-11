@@ -173,7 +173,7 @@ namespace SocialPoint.Lockstep
 
         void SendEmptyTurnsToClient()
         {
-            if(_skippedTurns == 0 || (Config.MaxFrameSkippingDuration > 0 && _skippedTurns * Config.CommandStepDuration < Config.MaxFrameSkippingDuration))
+            if(_skippedTurns == 0 || (Config.MaxTurnSkipDuration > 0 && _skippedTurns * Config.CommandStepDuration < Config.MaxTurnSkipDuration))
             {
                 return;
             }
