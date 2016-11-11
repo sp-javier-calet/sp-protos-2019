@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -7,7 +6,7 @@ namespace SocialPoint.GUIAnimation
     public abstract class Step : MonoBehaviour, IStep
     {
         [SerializeField]
-        float _startTime = 0f;
+        float _startTime;
 
         public float StartTime { get { return _startTime; } }
 
@@ -17,7 +16,7 @@ namespace SocialPoint.GUIAnimation
         public float EndTime { get { return _endTime; } }
 
         [SerializeField]
-        int _slot = 0;
+        int _slot;
 
         public int Slot { get { return _slot; } }
 
@@ -104,14 +103,7 @@ namespace SocialPoint.GUIAnimation
         {
             float localTime = _startTime + (_endTime - _startTime) * iTime;
 
-            if(_parent != null)
-            {
-                return _parent.NormalizedToAbsoluteTime(localTime);
-            }
-            else
-            {
-                return localTime;
-            }
+            return _parent != null ? _parent.NormalizedToAbsoluteTime(localTime) : localTime;
         }
 
         public void SetSlot(int timelineIdx)
@@ -128,10 +120,7 @@ namespace SocialPoint.GUIAnimation
 
                 return (iAbsoluteTime - parentStartTime) / (parentEndTime - parentStartTime);
             }
-            else
-            {
-                return iAbsoluteTime;
-            }
+            return iAbsoluteTime;
         }
 
         public void SetDuration(float duration, AnimTimeMode mode)
@@ -162,34 +151,17 @@ namespace SocialPoint.GUIAnimation
             {
                 return GetEndTime(AnimTimeMode.Global) - GetStartTime(AnimTimeMode.Global);
             }
-            else
-            {
-                return GetEndTime(AnimTimeMode.Local) - GetStartTime(AnimTimeMode.Local);
-            }
+            return GetEndTime(AnimTimeMode.Local) - GetStartTime(AnimTimeMode.Local);
         }
 
         public void SetStartTime(float time, AnimTimeMode mode)
         {
-            if(mode == AnimTimeMode.Global)
-            {
-                _startTime = AbsoluteToNormalizedTime(time);
-            }
-            else
-            {
-                _startTime = time;
-            }
+            _startTime = mode == AnimTimeMode.Global ? AbsoluteToNormalizedTime(time) : time;
         }
 
         public void SetEndTime(float time, AnimTimeMode mode)
         {
-            if(mode == AnimTimeMode.Global)
-            {
-                _endTime = AbsoluteToNormalizedTime(time);
-            }
-            else
-            {
-                _endTime = time;
-            }
+            _endTime = mode == AnimTimeMode.Global ? AbsoluteToNormalizedTime(time) : time;
         }
 
         public float GetStartTime(AnimTimeMode mode)
@@ -198,10 +170,7 @@ namespace SocialPoint.GUIAnimation
             {
                 return _parent.NormalizedToAbsoluteTime(_startTime);
             }
-            else
-            {
-                return _startTime;
-            }
+            return _startTime;
         }
 
         public float GetEndTime(AnimTimeMode mode)
@@ -210,10 +179,7 @@ namespace SocialPoint.GUIAnimation
             {
                 return _parent.NormalizedToAbsoluteTime(_endTime);
             }
-            else
-            {
-                return _endTime;
-            }
+            return _endTime;
         }
 
         public bool IsEnabledInHierarchy()

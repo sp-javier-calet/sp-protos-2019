@@ -1,6 +1,5 @@
-using UnityEngine;
-using SocialPoint.GUIControl;
 using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -52,11 +51,11 @@ namespace SocialPoint.GUIAnimation
 
             public override bool HasChanged()
             {
-                Vector2 AnchorsMinTemp = Vector2.zero;
-                Vector2 AnchorsMaxTemp = Vector2.one;
+                Vector2 AnchorsMinTemp;
+                Vector2 AnchorsMaxTemp;
 				
-                Vector2 OffsetsMinTemp = Vector2.zero;
-                Vector2 OffsetsMaxTemp = Vector2.zero;
+                Vector2 OffsetsMinTemp;
+                Vector2 OffsetsMaxTemp;
 
                 if(AnchorUtility.GetAnchors(Target, out AnchorsMinTemp, out AnchorsMaxTemp, out OffsetsMinTemp, out OffsetsMaxTemp))
                 {
@@ -93,7 +92,7 @@ namespace SocialPoint.GUIAnimation
 
         public override void CopyActionValues(Effect other)
         {
-            AnchorsEffect otherTrans = (AnchorsEffect)other;
+            var otherTrans = (AnchorsEffect)other;
 
             _startValue.Copy(otherTrans.StartValue);
             _endValue.Copy(otherTrans.EndValue);
@@ -108,7 +107,7 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        public override void Invert(bool invertTime)
+        public override void Invert(bool invertTime = false)
         {
             base.Invert(invertTime);
 
@@ -158,7 +157,7 @@ namespace SocialPoint.GUIAnimation
         public void SetCurrentPosition()
         {
             Transform parent = AnchorUtility.GetAnchorParent(Target);
-            AnchorUtility.SetAnchors(Target, parent != null ? parent : Target.parent, AnchorMode.CurrentPosition, false);
+            AnchorUtility.SetAnchors(Target, parent ?? Target.parent, AnchorMode.CurrentPosition, false);
         }
 
         public override void SaveValues()
