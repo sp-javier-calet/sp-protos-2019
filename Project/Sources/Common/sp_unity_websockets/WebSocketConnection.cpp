@@ -33,7 +33,7 @@ WebSocketConnection::~WebSocketConnection()
 void WebSocketConnection::receivedData(const std::string& message, bool isFinalFrame)
 {
     _accumulatedMessage += message;
-    
+
     if(isFinalFrame)
     {
         _incomingQueue.push(_accumulatedMessage);
@@ -132,13 +132,13 @@ void WebSocketConnection::closeSocket()
     }
 }
 
-void WebSocketConnection::setWebsocket(libwebsocket* wsi)
+void WebSocketConnection::setWebsocket(lws* wsi)
 {
     assert(!_websocket);
     _websocket = wsi;
 }
 
-libwebsocket* WebSocketConnection::getWebsocket()
+lws* WebSocketConnection::getWebsocket()
 {
     return _websocket;
 }
@@ -161,31 +161,29 @@ void WebSocketConnection::disconnect()
     }
 }
 
-void WebSocketConnection::addUrl(const std::string &url)
+void WebSocketConnection::addUrl(WebSocketConnectionInfo url)
 {
-    _vecUrls.push_back(url);
+    _vecUrls.push_back(std::move(url));
 }
 
 void WebSocketConnection::send(const std::string& message)
 {
     assert(_websocket);
-    /* TODO padding
-    unsigned char* buffer =
-    (unsigned char*)calloc((LWS_SEND_BUFFER_PRE_PADDING + message.size() + LWS_SEND_BUFFER_POST_PADDING), sizeof(unsigned char));
-    memcpy(&buffer[LWS_SEND_BUFFER_PRE_PADDING], data.getBytes(), message.size());
-    Data* dataPadded =
-    new Data(buffer, (LWS_SEND_BUFFER_PRE_PADDING + data.getSize() + LWS_SEND_BUFFER_POST_PADDING) * sizeof(unsigned char), true); 
-     */
-    
-    _outcomingQueue.push(message);
-    
+
+    std::string copyMessage;
+    copyMessage.resize(LWS_SEND_BUFFER_PRE_PADDING, ' ');
+    copyMessage.append(message);
+    copyMessage.append(LWS_SEND_BUFFER_POST_PADDING, ' ');
+
+    _outcomingQueue.push(copyMessage);
+
     WebSocketsManager::get().dataReadyToSendOnConnection(this);
 }
 
 void WebSocketConnection::sendPing()
 {
     _pendingPings++;
-    
+
     WebSocketsManager::get().dataReadyToSendOnConnection(this);
 }
 
@@ -199,17 +197,7 @@ void WebSocketConnection::setAllowSelfSignedCertificates(bool pNewValue)
     _allowSelfSignedCertificates = pNewValue;
 }
 
-const std::string& WebSocketConnection::getUrl() const
-{
-    return _url;
-}
-
-void WebSocketConnection::setUrl(const std::string& newUrl)
-{
-    _url = newUrl;
-}
-
-const std::vector<std::string>& WebSocketConnection::getVecUrls() const
+const std::vector<WebSocketConnectionInfo>& WebSocketConnection::getVecUrls() const
 {
     return _vecUrls;
 }

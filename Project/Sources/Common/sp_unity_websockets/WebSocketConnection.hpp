@@ -12,11 +12,12 @@
 #include <functional>
 #include <vector>
 #include <queue>
-#include <libwebsockets.h>
+#include "libwebsockets.h"
+#include "WebSocketConnection.fwd.hpp"
 
 class WebSocketConnection
 {
-public:
+  public:
     enum class State
     {
         Closed = 0,
@@ -24,7 +25,7 @@ public:
         Connecting,
         Open
     };
-    
+
     enum class Error : int
     {
         None = 0,
@@ -33,57 +34,54 @@ public:
         ConnectionError,
         MaxPings
     };
-    
-private:
+
+
+  private:
     State _state;
     std::vector<std::string> _vecSupportedProtocols;
     std::string _origin;
-    
+
     bool _allowSelfSignedCertificates;
-    /**
-     * URL to connect
-     */
-    std::string _url;
-    
+
     /**
      * Vector of candidate urls to try the connection
      */
-    std::vector<std::string> _vecUrls;
-    
+    std::vector<WebSocketConnectionInfo> _vecUrls;
+
     size_t _currentUrlIndex;
-    
-    libwebsocket* _websocket;
-    
+
+    lws* _websocket;
+
     std::queue<std::string> _incomingQueue;
     std::queue<std::string> _outcomingQueue;
     int _pendingPings;
-    
+
     int _errorCode;
     std::string _errorMessage;
-    
+
     /**
      * Accumulated message received in multiple frames
      */
     std::string _accumulatedMessage;
-    
-public:
+
+  public:
     State getState();
     void setState(State pNewState);
-    
+
     /**
      * Called when new data is received form _socket
      */
     void receivedData(const std::string& message, bool isFinalFrame);
-    
+
     void connectionError(int code, const std::string& message);
-    
+
     bool hasError();
     int getErrorCode();
     const std::string& getError();
     void clearError();
-    
+
     bool hasDataToSend();
-    
+
     /**
      * Returns next data to send, but NOT remove it from the queue
      */
@@ -92,16 +90,16 @@ public:
      * Remove and delete the oldest data in the queue
      */
     void removeOldestData();
-    
+
     bool hasMessages();
     const std::string& getMessage();
     void removeOldestMessage();
-    
+
     /**
      * Checks for pending Pings and if any, decrements by 1 and returns true, false otherwise
      */
     bool checkAndDecrementPingCounter();
-    
+
     /**
      * Performs all necessary actions when the socket is connected
      */
@@ -110,48 +108,45 @@ public:
      * Performs all necessary actions when the socket is closed remotelly or by error
      */
     void closeSocket();
-    
-    void setWebsocket(libwebsocket* wsi);
-    libwebsocket* getWebsocket();
-    
-public:
+
+    void setWebsocket(lws* wsi);
+    lws* getWebsocket();
+
+  public:
     /**
      * Constructor
      * @param pUrl url of the Websocket Server
      */
     WebSocketConnection();
     ~WebSocketConnection();
-    
+
     /**
      * Start the connecting process asynchronously to the URL given to the constructor. The connectionStateChanged will be called when the
      * operation will finish
      */
     void connect();
-    
+
     void disconnect();
 
-    void addUrl(const std::string& url);
-    virtual void send(const std::string& message);
-    
+    void addUrl(WebSocketConnectionInfo url);
+    void send(const std::string& message);
+
     /**
      * Sends a websocket PING frame
      */
     void sendPing();
-    
-    const std::string& getUrl() const;
-    void setUrl(const std::string& pNewUrl);
-    
-    const std::vector<std::string>& getVecUrls() const;
-    
+
+    const std::vector<WebSocketConnectionInfo>& getVecUrls() const;
+
     size_t getCurrentUrlIndex() const;
     void setCurrentUrlIndex(size_t newIndex);
-    
+
     bool getAllowSelfSignedCertificates() const;
     void setAllowSelfSignedCertificates(bool pNewValue);
-    
+
     void addSupportedProtocol(const std::string& protocol);
     const std::string getSuportedProtocolsString() const;
-    
+
     void setOrigin(const std::string& pNewOrigin);
     const std::string& getOrigin() const;
 };

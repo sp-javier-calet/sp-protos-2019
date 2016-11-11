@@ -159,6 +159,10 @@
 		7B3855981C98A35300D04AEF /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B3854C01C98A35200D04AEF /* libz.a */; };
 		7B3855E41C98A35300D04AEF /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B38550F1C98A35300D04AEF /* libcrypto.a */; };
 		7B3855E51C98A35300D04AEF /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 7B3855101C98A35300D04AEF /* libssl.a */; };
+		B37E5D151DD4A6FA00A59279 /* LibWebsocketTestClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = B37E5D131DD4A6FA00A59279 /* LibWebsocketTestClient.hpp */; };
+		B37E5D161DD4A70500A59279 /* LibWebsocketTestClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B37E5D121DD4A6FA00A59279 /* LibWebsocketTestClient.cpp */; };
+		B37E5D171DD4A70600A59279 /* LibWebsocketTestClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B37E5D121DD4A6FA00A59279 /* LibWebsocketTestClient.cpp */; };
+		B37E5D181DD4A70700A59279 /* LibWebsocketTestClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B37E5D121DD4A6FA00A59279 /* LibWebsocketTestClient.cpp */; };
 		F523B6511CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */; };
 		F53B19141CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */; };
 		F53B19181CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F53B19131CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp */; };
@@ -396,6 +400,9 @@
 		7B3854C01C98A35200D04AEF /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libz.a; sourceTree = "<group>"; };
 		7B38550F1C98A35300D04AEF /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libcrypto.a; sourceTree = "<group>"; };
 		7B3855101C98A35300D04AEF /* libssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libssl.a; sourceTree = "<group>"; };
+		B37E5D121DD4A6FA00A59279 /* LibWebsocketTestClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LibWebsocketTestClient.cpp; sourceTree = "<group>"; };
+		B37E5D131DD4A6FA00A59279 /* LibWebsocketTestClient.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = LibWebsocketTestClient.hpp; sourceTree = "<group>"; };
+		B387E3341DD5C65000E1ADD3 /* WebSocketConnection.fwd.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = WebSocketConnection.fwd.hpp; sourceTree = "<group>"; };
 		F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SPUnityFileUtils.cpp; path = ../../Common/sp_unity_utils/SPUnityFileUtils.cpp; sourceTree = "<group>"; };
 		F523B6501CFCA7DF00DB2597 /* SPUnityFileUtils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = SPUnityFileUtils.hpp; path = ../../Common/sp_unity_utils/SPUnityFileUtils.hpp; sourceTree = "<group>"; };
 		F53B19111CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityBreadcrumbManager.cpp; sourceTree = "<group>"; };
@@ -1142,6 +1149,7 @@
 			children = (
 				FE5A76AB1DC7789700EB3DC6 /* SPUnityWebSockets.cpp */,
 				FE7056761DC9FBB900CB55E0 /* WebSocketConnection.cpp */,
+				B387E3341DD5C65000E1ADD3 /* WebSocketConnection.fwd.hpp */,
 				FE7056771DC9FBB900CB55E0 /* WebSocketConnection.hpp */,
 				FE7056781DC9FBB900CB55E0 /* WebSocketsManager.cpp */,
 				FE7056791DC9FBB900CB55E0 /* WebSocketsManager.hpp */,
@@ -1233,6 +1241,8 @@
 			children = (
 				467F619D1DB8D4F0008CA7D2 /* CurlTestClient.cpp */,
 				467F619E1DB8D4F0008CA7D2 /* CurlTestClient.hpp */,
+				B37E5D121DD4A6FA00A59279 /* LibWebsocketTestClient.cpp */,
+				B37E5D131DD4A6FA00A59279 /* LibWebsocketTestClient.hpp */,
 				468F9D741D9BB44000EF4AE7 /* SPUnityAppControllerSubClass.h */,
 				468F9D751D9BB44000EF4AE7 /* SPUnityAppControllerSubClass.mm */,
 				FE89134D1DABF2ED00BD87C0 /* UnityAppController.h */,
@@ -1319,6 +1329,7 @@
 				46F7490A1C60AE77000DB6B1 /* CrashReporter.h in Headers */,
 				FE5A76A61DC7784B00EB3DC6 /* libwebsockets.h in Headers */,
 				FE5A76A21DC7784B00EB3DC6 /* libwebsockets.h in Headers */,
+				B37E5D151DD4A6FA00A59279 /* LibWebsocketTestClient.hpp in Headers */,
 				46F7490B1C60AE77000DB6B1 /* PLCrashAsyncSignalInfo.h in Headers */,
 				46F7490C1C60AE77000DB6B1 /* PLCrashFeatureConfig.h in Headers */,
 				46F7490D1C60AE77000DB6B1 /* PLCrashNamespace.h in Headers */,
@@ -1589,6 +1600,7 @@
 			files = (
 				0691705E1C762BED00C6B0B6 /* AppDelegate.mm in Sources */,
 				467F61A11DB8D4F0008CA7D2 /* CurlTestClient.cpp in Sources */,
+				B37E5D181DD4A70700A59279 /* LibWebsocketTestClient.cpp in Sources */,
 				069170611C762BED00C6B0B6 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1599,6 +1611,7 @@
 			files = (
 				460B35D31C3EAE80003E0D9D /* AppDelegate.m in Sources */,
 				467F619F1DB8D4F0008CA7D2 /* CurlTestClient.cpp in Sources */,
+				B37E5D161DD4A70500A59279 /* LibWebsocketTestClient.cpp in Sources */,
 				460B35D01C3EAE80003E0D9D /* main.m in Sources */,
 				468F9D9E1D9BE56500EF4AE7 /* SPUnityAppControllerSubClass.mm in Sources */,
 				FE6072351DAFBFA000323426 /* ViewController.mm in Sources */,
@@ -1611,6 +1624,7 @@
 			files = (
 				460B36171C3EB1B8003E0D9D /* AppDelegate.m in Sources */,
 				467F61A01DB8D4F0008CA7D2 /* CurlTestClient.cpp in Sources */,
+				B37E5D171DD4A70600A59279 /* LibWebsocketTestClient.cpp in Sources */,
 				460B36141C3EB1B8003E0D9D /* main.m in Sources */,
 				468F9D9F1D9BE56600EF4AE7 /* SPUnityAppControllerSubClass.mm in Sources */,
 				460B361A1C3EB1B8003E0D9D /* ViewController.mm in Sources */,
@@ -1787,6 +1801,7 @@
 					"$(SRCROOT)/sp_unity_curl/libs/macos/curl/include",
 					"$(SRCROOT)/sp_unity_curl/libs/macos/nghttp2/include",
 					"$(SRCROOT)/sp_unity_websockets/libs/macos/libwebsockets/include",
+					"$(SRCROOT)/sp_unity_curl/libs/macos/openssl/include",
 				);
 				INFOPLIST_FILE = SPUnityPlugins/Info_macOS.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
@@ -1846,6 +1861,7 @@
 					"$(SRCROOT)/sp_unity_curl/libs/macos/curl/include",
 					"$(SRCROOT)/sp_unity_curl/libs/macos/nghttp2/include",
 					"$(SRCROOT)/sp_unity_websockets/libs/macos/libwebsockets/include",
+					"$(SRCROOT)/sp_unity_curl/libs/macos/openssl/include",
 				);
 				INFOPLIST_FILE = SPUnityPlugins/Info_macOS.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
@@ -1929,6 +1945,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/sp_unity_curl/libs/macos/curl/include",
+					"$(SRCROOT)/sp_unity_curl/libs/macos/nghttp2/include",
+					"$(SRCROOT)/sp_unity_websockets/libs/macos/libwebsockets/include",
+					"$(SRCROOT)/sp_unity_curl/libs/macos/openssl/include",
+				);
 				INFOPLIST_FILE = LinkerValidator_macOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
@@ -1973,6 +1995,12 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/sp_unity_curl/libs/macos/curl/include",
+					"$(SRCROOT)/sp_unity_curl/libs/macos/nghttp2/include",
+					"$(SRCROOT)/sp_unity_websockets/libs/macos/libwebsockets/include",
+					"$(SRCROOT)/sp_unity_curl/libs/macos/openssl/include",
+				);
 				INFOPLIST_FILE = LinkerValidator_macOS/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
@@ -2007,7 +2035,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -2022,13 +2049,16 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/sp_unity_curl/libs/Ios/curl/include",
+					"$(SRCROOT)/sp_unity_curl/libs/Ios/nghttp2/include",
+					"$(SRCROOT)/sp_unity_websockets/libs/Ios/libwebsockets/include",
+					"$(PROJECT_DIR)/sp_unity_crash/libs/headers",
+					"$(SRCROOT)/sp_unity_curl/libs/Ios/openssl/include",
+				);
 				INFOPLIST_FILE = LinkerValidator/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/nghttp2/lib",
-				);
 				MACH_O_TYPE = mh_execute;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = NO;
@@ -2062,7 +2092,6 @@
 				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -2071,13 +2100,16 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/sp_unity_curl/libs/Ios/curl/include",
+					"$(SRCROOT)/sp_unity_curl/libs/Ios/nghttp2/include",
+					"$(SRCROOT)/sp_unity_websockets/libs/Ios/libwebsockets/include",
+					"$(PROJECT_DIR)/sp_unity_crash/libs/headers",
+					"$(SRCROOT)/sp_unity_curl/libs/Ios/openssl/include",
+				);
 				INFOPLIST_FILE = LinkerValidator/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/sp_unity_curl/libs/Ios/nghttp2/lib",
-				);
 				MACH_O_TYPE = mh_execute;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
@@ -2109,7 +2141,6 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -2125,9 +2156,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/sp_unity_curl/libs/tvOS/curl/include",
+					"$(SRCROOT)/sp_unity_curl/libs/tvOS/nghttp2/include",
+					"$(SRCROOT)/sp_unity_curl/libs/tvOS/openssl/include",
+				);
 				INFOPLIST_FILE = LinkerValidator_tvOs/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "";
 				MACH_O_TYPE = mh_execute;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = NO;
@@ -2162,7 +2197,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2175,9 +2209,13 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/sp_unity_curl/libs/tvOS/curl/include",
+					"$(SRCROOT)/sp_unity_curl/libs/tvOS/nghttp2/include",
+					"$(SRCROOT)/sp_unity_curl/libs/tvOS/openssl/include",
+				);
 				INFOPLIST_FILE = LinkerValidator_tvOs/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = "";
 				MACH_O_TYPE = mh_execute;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = NO;
@@ -2238,6 +2276,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/sp_unity_curl/libs/tvOS/curl/include",
 					"$(SRCROOT)/sp_unity_curl/libs/tvOS/nghttp2/include",
+					"$(SRCROOT)/sp_unity_curl/libs/tvOS/openssl/include",
 				);
 				INFOPLIST_FILE = SPUnityPlugins/Info_tvOs.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -2309,6 +2348,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/sp_unity_curl/libs/tvOS/curl/include",
 					"$(SRCROOT)/sp_unity_curl/libs/tvOS/nghttp2/include",
+					"$(SRCROOT)/sp_unity_curl/libs/tvOS/openssl/include",
 				);
 				INFOPLIST_FILE = SPUnityPlugins/Info_tvOs.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -2430,6 +2470,7 @@
 					"$(SRCROOT)/sp_unity_curl/libs/Ios/nghttp2/include",
 					"$(SRCROOT)/sp_unity_websockets/libs/Ios/libwebsockets/include",
 					"$(PROJECT_DIR)/sp_unity_crash/libs/headers",
+					"$(SRCROOT)/sp_unity_curl/libs/Ios/openssl/include",
 				);
 				INFOPLIST_FILE = SPUnityPlugins/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -2503,6 +2544,7 @@
 					"$(SRCROOT)/sp_unity_curl/libs/Ios/nghttp2/include",
 					"$(SRCROOT)/sp_unity_websockets/libs/Ios/libwebsockets/include",
 					"$(PROJECT_DIR)/sp_unity_crash/libs/headers",
+					"$(SRCROOT)/sp_unity_curl/libs/Ios/openssl/include",
 				);
 				INFOPLIST_FILE = SPUnityPlugins/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";

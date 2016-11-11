@@ -26,121 +26,121 @@
 /*
  * Native interface
  */
-extern "C"
+extern "C" {
+EXPORT_API WebSocketConnection* SPUnityWebSocketsCreate()
 {
-    EXPORT_API WebSocketConnection* SPUnityWebSocketsCreate()
+    return new WebSocketConnection();
+}
+
+EXPORT_API void SPUnityWebSocketDestroy(WebSocketConnection* socket)
+{
+    delete socket;
+}
+
+EXPORT_API void SPUnityWebSocketConnect(WebSocketConnection* socket)
+{
+    socket->connect();
+}
+
+EXPORT_API bool SPUnityWebSocketIsConnected(WebSocketConnection* socket)
+{
+    return socket->getState() == WebSocketConnection::State::Open;
+}
+
+EXPORT_API bool SPUnityWebSocketIsConnecting(WebSocketConnection* socket)
+{
+    return socket->getState() == WebSocketConnection::State::Connecting;
+}
+
+EXPORT_API int SPUnityWebSocketGetState(WebSocketConnection* socket)
+{
+    return (int)socket->getState();
+}
+
+EXPORT_API void SPUnityWebSocketDisconnect(WebSocketConnection* socket)
+{
+    socket->disconnect();
+}
+
+EXPORT_API void SPUnityWebSocketAddUrl(WebSocketConnection* socket, const std::string scheme, const std::string host, const std::string path,
+                                       int port)
+{
+    socket->addUrl({scheme, host, path, port});
+}
+
+EXPORT_API void SPUnityWebSocketAddProtocol(WebSocketConnection* socket, const std::string protocol)
+{
+    socket->addSupportedProtocol(protocol);
+}
+
+EXPORT_API void SPUnityWebSocketUpdate(WebSocketConnection* socket)
+{
+    WebSocketsManager::get().update();
+}
+
+EXPORT_API void SPUnityWebSocketPing(WebSocketConnection* socket)
+{
+    socket->sendPing();
+}
+
+EXPORT_API void SPUnityWebSocketSend(WebSocketConnection* socket, const std::string data)
+{
+    socket->send(data);
+}
+
+EXPORT_API int SPUnityWebSocketGetMessageLength(WebSocketConnection* socket)
+{
+    return (int)socket->getMessage().size();
+}
+
+EXPORT_API bool SPUnityWebSocketGetMessage(WebSocketConnection* socket, char* data)
+{
+    if(socket->hasMessages())
     {
-        return new WebSocketConnection();
+        auto& msg = socket->getMessage();
+        memcpy(data, msg.c_str(), msg.size() * sizeof(char));
+        socket->removeOldestMessage();
+        return true;
     }
-    
-    EXPORT_API void SPUnityWebSocketDestroy(WebSocketConnection* socket)
+    return false;
+}
+
+EXPORT_API int SPUnityWebSocketGetErrorLenght(WebSocketConnection* socket)
+{
+    return (int)socket->getError().size();
+}
+
+EXPORT_API int SPUnityWebSocketGetErrorCode(WebSocketConnection* socket)
+{
+    return socket->getErrorCode();
+}
+
+EXPORT_API bool SPUnityWebSocketGetError(WebSocketConnection* socket, char* data)
+{
+    if(socket->hasError())
     {
-        delete socket;
+        auto& err = socket->getError();
+        memcpy(data, err.c_str(), err.size() * sizeof(char));
+        socket->clearError();
+        return true;
     }
-    
-    EXPORT_API void SPUnityWebSocketConnect(WebSocketConnection* socket)
+    return false;
+}
+
+EXPORT_API void SPUnityWebSocketSetProxy(WebSocketConnection* socket, const std::string proxy)
+{
+    // TODO
+}
+
+EXPORT_API void SPUnityWebSocketSetVerbose(bool verbose)
+{
+    if(verbose)
     {
-        socket->connect();
+        WebSocketsManager::get().setLogLevelMax();
     }
-    
-    EXPORT_API bool SPUnityWebSocketIsConnected(WebSocketConnection* socket)
+    else
     {
-        return socket->getState() == WebSocketConnection::State::Open;
+        WebSocketsManager::get().setLogLevelNone();
     }
-    
-    EXPORT_API bool SPUnityWebSocketIsConnecting(WebSocketConnection* socket)
-    {
-        return socket->getState() == WebSocketConnection::State::Connecting;
-    }
-    
-    EXPORT_API int SPUnityWebSocketGetState(WebSocketConnection* socket)
-    {
-        return (int)socket->getState();
-    }
-    
-    EXPORT_API void SPUnityWebSocketDisconnect(WebSocketConnection* socket)
-    {
-        socket->disconnect();
-    }
-    
-    EXPORT_API void SPUnityWebSocketAddUrl(WebSocketConnection* socket, const std::string url)
-    {
-        socket->addUrl(url);
-    }
-    
-    EXPORT_API void SPUnityWebSocketAddProtocol(WebSocketConnection* socket, const std::string protocol)
-    {
-        socket->addSupportedProtocol(protocol);
-    }
-    
-    EXPORT_API void SPUnityWebSocketUpdate(WebSocketConnection* socket)
-    {
-        WebSocketsManager::get().update();
-    }
-    
-    EXPORT_API void SPUnityWebSocketPing(WebSocketConnection* socket)
-    {
-        socket->sendPing();
-    }
-    
-    EXPORT_API void SPUnityWebSocketSend(WebSocketConnection* socket, const std::string data)
-    {
-        socket->send(data);
-    }
-    
-    EXPORT_API int SPUnityWebSocketGetMessageLength(WebSocketConnection* socket)
-    {
-        return (int)socket->getMessage().size();
-    }
-    
-    EXPORT_API bool SPUnityWebSocketGetMessage(WebSocketConnection* socket, char* data)
-    {
-        if(socket->hasMessages())
-        {
-            auto& msg = socket->getMessage();
-            memcpy(data, msg.c_str(), msg.size() * sizeof(char));
-            socket->removeOldestMessage();
-            return true;
-        }
-        return false;
-    }
-    
-    EXPORT_API int SPUnityWebSocketGetErrorLenght(WebSocketConnection* socket)
-    {
-        return (int)socket->getError().size();
-    }
-    
-    EXPORT_API int SPUnityWebSocketGetErrorCode(WebSocketConnection* socket)
-    {
-        return socket->getErrorCode();
-    }
-    
-    EXPORT_API bool SPUnityWebSocketGetError(WebSocketConnection* socket, char* data)
-    {
-        if(socket->hasError())
-        {
-            auto& err = socket->getError();
-            memcpy(data, err.c_str(), err.size() * sizeof(char));
-            socket->clearError();
-            return true;
-        }
-        return false;
-    }
-    
-    EXPORT_API void SPUnityWebSocketSetProxy(WebSocketConnection* socket, const std::string proxy)
-    {
-        // TODO
-    }
-    
-    EXPORT_API void SPUnityWebSocketSetVerbose(bool verbose)
-    {
-        if(verbose)
-        {
-            WebSocketsManager::get().setLogLevelMax();
-        }
-        else
-        {
-            WebSocketsManager::get().setLogLevelNone();
-        }
-    }
+}
 }

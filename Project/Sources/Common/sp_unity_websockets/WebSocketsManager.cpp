@@ -9,36 +9,50 @@
 #include "WebSocketConnection.hpp"
 #include <string>
 #include <sstream>
-
+#include <cassert>
 
 int WebSocketsManager::pingCounter = 0;
 int WebSocketsManager::maxNumberOfPings = 3;
 
-static int callback_websocket(struct libwebsocket_context* context, struct libwebsocket* wsi, enum libwebsocket_callback_reasons reason,
-                              void* user, void* in, size_t len)
+static int always_true_callback(X509_STORE_CTX* ctx, void* arg)
+{
+    return 1;
+}
+
+static int callback_websocket(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len)
 {
     WebSocketsManager& manager = WebSocketsManager::get();
-    WebSocketConnection& connection =  manager.get(wsi);//(WebSocketConnection*)libwebsocket_context_user(context);
-    
+    WebSocketConnection* connection = manager.get(wsi);
+
     int n;
     int pRet = 0;
-    
+
+    if(reason != LWS_CALLBACK_GET_THREAD_ID)
+    {
+        lwsl_notice("REASON --- %d\n", reason);
+    }
+
+    if(reason == LWS_CALLBACK_OPENSSL_LOAD_EXTRA_CLIENT_VERIFY_CERTS)
+    {
+        SSL_CTX_set_cert_verify_callback((SSL_CTX*)user, always_true_callback, 0);
+    }
+
     switch(reason)
     {
         case LWS_CALLBACK_CLIENT_ESTABLISHED:
             lwsl_notice("Client has connected\n");
-            connection.connectionEstablished();
+            connection->connectionEstablished();
             WebSocketsManager::pingCounter = 0;
             break;
-            
+
         case LWS_CALLBACK_CLIENT_RECEIVE:
         {
             char* data = (char*)in;
             lwsl_notice("Client RX: %.*s\n", len, data);
-            
-            bool isFinalFrame = libwebsockets_remaining_packet_payload(wsi) == 0 && libwebsocket_is_final_fragment(wsi);
-            connection.receivedData(std::string(data, len), isFinalFrame);
-            
+
+            bool isFinalFrame = lws_remaining_packet_payload(wsi) == 0 && lws_is_final_fragment(wsi);
+            connection->receivedData(std::string(data, len), isFinalFrame);
+
             break;
         }
         case LWS_CALLBACK_CLIENT_RECEIVE_PONG:
@@ -53,65 +67,67 @@ static int callback_websocket(struct libwebsocket_context* context, struct libwe
             {
                 lwsl_notice("Client closing socket %p\n", wsi);
                 manager.removeSocketFromShouldCloseSet(wsi);
-                connection.closeSocket();
+                connection->closeSocket();
                 pRet = -1;
                 break;
             }
-            const std::string& dataToSend = connection.getNextDataToSend();
-            if(!dataToSend.empty())
+
+            if(connection->hasDataToSend())
             {
-                // TODO Padding
+                const std::string& dataToSend = connection->getNextDataToSend();
                 size_t dataSize = dataToSend.size() - LWS_SEND_BUFFER_PRE_PADDING - LWS_SEND_BUFFER_POST_PADDING;
-                lwsl_notice("Client TX: %.*s\n", dataSize, (unsigned char*)dataToSend.c_str());//getBytes(LWS_SEND_BUFFER_PRE_PADDING));
-                
-                n = libwebsocket_write(wsi, (unsigned char*)dataToSend.c_str(), dataSize, LWS_WRITE_TEXT);//->getBytes(LWS_SEND_BUFFER_PRE_PADDING), dataSize, LWS_WRITE_TEXT);
-                
+                const char* dataPointer = dataToSend.c_str();
+                dataPointer += LWS_SEND_BUFFER_PRE_PADDING;
+                lwsl_notice("Client TX: %.*s\n", dataSize, dataPointer);
+
+                n = lws_write(wsi, (unsigned char*)dataPointer, dataSize, LWS_WRITE_TEXT);
+
                 if(n < 0)
                 {
                     lwsl_err("ERROR %d writing to socket, hanging up\n", n);
-                    connection.connectionError((int)WebSocketConnection::Error::WriteError, "Error writing to socket, hanging up");
-                    connection.closeSocket();
+                    connection->connectionError((int)WebSocketConnection::Error::WriteError, "Error writing to socket, hanging up");
+                    connection->closeSocket();
                     pRet = -1;
                 }
                 if(n < (int)dataSize)
                 {
                     lwsl_err("Partial write\n");
-                    connection.connectionError((int)WebSocketConnection::Error::StreamError, "Partial write");
-                    connection.closeSocket();
+                    connection->connectionError((int)WebSocketConnection::Error::StreamError, "Partial write");
+                    connection->closeSocket();
                     pRet = -1;
                 }
-                
-                connection.removeOldestData();
-                if(connection.hasDataToSend())
+
+                connection->removeOldestData();
+                if(connection->hasDataToSend())
                 {
-                    libwebsocket_callback_on_writable(context, wsi);
+                    lws_callback_on_writable(wsi);
                 }
             }
-            else if(connection.checkAndDecrementPingCounter())
+            else if(connection->checkAndDecrementPingCounter())
             {
                 size_t dataSize = LWS_SEND_BUFFER_PRE_PADDING + LWS_SEND_BUFFER_POST_PADDING;
                 unsigned char* data = new unsigned char[dataSize];
                 lwsl_notice("Client TX - PING\n");
-                n = libwebsocket_write(wsi, data + LWS_SEND_BUFFER_PRE_PADDING, 0, LWS_WRITE_PING);
+                n = lws_write(wsi, data + LWS_SEND_BUFFER_PRE_PADDING, 0, LWS_WRITE_PING);
                 delete[] data;
-                
+
                 if(n < 0)
                 {
                     lwsl_err("ERROR %d writing to socket, hanging up\n", n);
-                    connection.connectionError((int)WebSocketConnection::Error::WriteError, "Error writing to socket, hanging up");
-                    connection.closeSocket();
+                    connection->connectionError((int)WebSocketConnection::Error::WriteError, "Error writing to socket, hanging up");
+                    connection->closeSocket();
                     pRet = -1;
                 }
                 else
                 {
                     ++WebSocketsManager::pingCounter;
-                    
+
                     if(WebSocketsManager::pingCounter >= WebSocketsManager::maxNumberOfPings)
                     {
                         WebSocketsManager::pingCounter = 0;
                         lwsl_err("ERROR: MAX PINGS REACHED\n");
-                        connection.connectionError((int)WebSocketConnection::Error::MaxPings, "Max pings reached");
-                        connection.closeSocket();
+                        connection->connectionError((int)WebSocketConnection::Error::MaxPings, "Max pings reached");
+                        connection->closeSocket();
                         pRet = -1;
                     }
                 }
@@ -119,46 +135,49 @@ static int callback_websocket(struct libwebsocket_context* context, struct libwe
             break;
         }
         case LWS_CALLBACK_CLOSED:
-            connection.closeSocket();
+            connection->closeSocket();
             pRet = -1;
             break;
         case LWS_CALLBACK_CLIENT_CONNECTION_ERROR:
-            connection.connectionError((int)WebSocketConnection::Error::ConnectionError, "Connection Error");
-            connection.closeSocket();
+            if(connection)
+            {
+                connection->connectionError((int)WebSocketConnection::Error::ConnectionError, "Connection Error");
+                connection->closeSocket();
+            }
             pRet = -1;
             break;
         default:
             break;
     }
-    
+
     return pRet;
 }
 
-static struct libwebsocket_protocols protocols[] = {{
-    "",                 /* name */
-    callback_websocket, /* callback */
-    0,                  /* per_session_data_size */
-    65536,              /* rx_buffer_size */
-    0,                  /* no_buffer_all_partial_tx */
-    nullptr,            /* owning_server */
-    0,                  /* protocol_index */
-},
-{
-    "wamp.2.json",      /* name */
-    callback_websocket, /* callback */
-    0,                  /* per_session_data_size */
-    65536,              /* rx_buffer_size */
-    0,                  /* no_buffer_all_partial_tx */
-    nullptr,            /* owning_server */
-    0,                  /* protocol_index */
-},
-{
-    NULL, NULL, 0, 0, 0, nullptr, 0 /* End of list */
-}};
+static struct lws_protocols protocols[] = {{
+                                             "",                 /* name */
+                                             callback_websocket, /* callback */
+                                             0,                  /* per_session_data_size */
+                                             65536,              /* rx_buffer_size */
+                                             0,                  /* id */
+                                             nullptr,            /* user */
+                                           },
+                                           {
+                                             "wamp.2.json",      /* name */
+                                             callback_websocket, /* callback */
+                                             0,                  /* per_session_data_size */
+                                             65536,              /* rx_buffer_size */
+                                             0,                  /* id */
+                                             nullptr,            /* user */
+                                           },
+                                           {
+                                             nullptr, nullptr, 0, 0, 0, nullptr /* End of list */
+                                           }};
 
 
 WebSocketsManager::WebSocketsManager()
 : _context(nullptr)
+, _proxy("", -1)
+, _vhost(nullptr)
 {
     lws_set_log_level(0x0, NULL);
 }
@@ -167,8 +186,9 @@ WebSocketsManager::~WebSocketsManager()
 {
     if(_context)
     {
-        libwebsocket_context_destroy(_context);
+        lws_context_destroy(_context);
         _context = nullptr;
+        _vhost = nullptr;
     }
 }
 
@@ -207,7 +227,7 @@ void WebSocketsManager::checkAndCreateContext()
     if(!_context)
     {
         int listen_port = CONTEXT_PORT_NO_LISTEN;
-        
+
         struct lws_context_creation_info info;
         memset(&info, 0, sizeof info);
         info.port = listen_port;
@@ -216,31 +236,28 @@ void WebSocketsManager::checkAndCreateContext()
         info.extensions = NULL;
         info.gid = -1;
         info.uid = -1;
-        info.options = 0;
+        info.options = LWS_SERVER_OPTION_EXPLICIT_VHOSTS | LWS_SERVER_OPTION_SKIP_SERVER_CANONICAL_NAME | LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT;
         info.ka_time = 5000;
         info.ka_probes = 5;
         info.ka_interval = 5000;
         info.user = this;
         info.http_proxy_address = "";
-        _context = libwebsocket_create_context(&info);
+
+        _context = lws_create_context(&info);
+        _vhost = lws_create_vhost(_context, &info);
     }
 }
 
-libwebsocket* WebSocketsManager::connectSocketToUrl(const std::string& pUrl, const WebSocketConnection* connection)
+lws* WebSocketsManager::connectSocketToUrl(const WebSocketConnectionInfo& pUrl, const WebSocketConnection* connection)
 {
-    std::string scheme;
-    std::string host;
-    uint port;
-    std::string path;
-    std::string proxy;
-    libwebsocket* socket = nullptr;
-    
+    lws* socket = nullptr;
+
     int use_ssl = 0;
-    if(scheme == "wss")
+    if(pUrl.scheme == "wss")
     {
-        use_ssl = connection->getAllowSelfSignedCertificates() ? 3 : 1; /* 2 = allow selfsigned, 3 = skip all kind of SSL errors */
+        use_ssl = connection->getAllowSelfSignedCertificates() ? 2 : 1; /* 2 = allow self signed certs, 1 = encrypted */
     }
-    
+
     // Comma-separated list of protocols being asked for from the server, or just one. The server will pick the one it likes best. If you don't
     // want to specify a protocol, which is legal, use NULL here.
     const char* suppProtocolsCStr = nullptr;
@@ -249,55 +266,87 @@ libwebsocket* WebSocketsManager::connectSocketToUrl(const std::string& pUrl, con
     {
         suppProtocolsCStr = suppProtocolsStr.c_str();
     }
-    
+
     if(_context != nullptr)
     {
-        /* TODO Proxy parameter
-         if(networkInfo && !networkInfo->getProxyHost().empty() && networkInfo->getProxyPort() != -1)
+        lws_client_connect_info ccinfo;
+        ccinfo.context = _context;
+        ccinfo.address = pUrl.host.c_str();
+        ccinfo.port = pUrl.port;
+        ccinfo.ssl_connection = use_ssl;
+        ccinfo.path = pUrl.path.c_str();
+        ccinfo.host = pUrl.host.c_str();
+        ccinfo.origin = connection->getOrigin().c_str();
+        ccinfo.protocol = suppProtocolsCStr;
+        ccinfo.ietf_version_or_minus_one = -1;
+        ccinfo.client_exts = nullptr;
+        ccinfo.method = nullptr;
+        ccinfo.parent_wsi = nullptr;
+        ccinfo.uri_replace_from = nullptr;
+        ccinfo.uri_replace_to = nullptr;
+        ccinfo.vhost = _vhost;
+
+        if(!_proxy.host.empty() && _proxy.port != -1)
         {
             std::ostringstream proxyAddr;
-            proxyAddr << networkInfo->getProxyHost() << ":" << networkInfo->getProxyPort();
-            libwebsocket_set_proxy(_context, proxyAddr.str().c_str());
+            proxyAddr << _proxy.host << ":" << _proxy.port;
+            lws_set_proxy(_vhost, proxyAddr.str().c_str());
         }
-        */
-        lwsl_notice("Client connecting to %s:%u%s use_ssl:%d ....\n", host.c_str(), proxy.c_str(), path.c_str(), use_ssl);
-        socket = libwebsocket_client_connect(_context, host.c_str(), port, use_ssl, path.c_str(), host.c_str(),
-                                           connection->getOrigin().c_str(), suppProtocolsCStr, -1);
+        lwsl_notice("Client connecting to %s:%u%s use_ssl:%d ....\n", pUrl.host.c_str(), pUrl.port, pUrl.path.c_str(), use_ssl);
+        socket = lws_client_connect_via_info(&ccinfo);
     }
     else
     {
         lwsl_err("libwebsocket init failed\n");
     }
-    
+
     return socket;
+}
+
+void WebSocketsManager::setProxySettings(WebSocketsManager::ProxySettings proxy)
+{
+    _proxy = std::move(proxy);
+}
+
+WebSocketConnection* WebSocketsManager::get(lws* wsi)
+{
+    auto itr = _mapConnection.find(wsi);
+    if(itr != _mapConnection.end())
+    {
+        return itr->second;
+    }
+    else
+    {
+        return nullptr;
+    }
 }
 
 void WebSocketsManager::connect(WebSocketConnection* connection)
 {
     assert(!connection->getWebsocket());
-    const std::vector<std::string>& vecUrls = connection->getVecUrls();
+    const std::vector<WebSocketConnectionInfo>& vecUrls = connection->getVecUrls();
     assert(!vecUrls.empty());
-    
+
     size_t currentUrlIndex = connection->getCurrentUrlIndex() % vecUrls.size();
-    std::string currentUrl = vecUrls[currentUrlIndex];
+    const WebSocketConnectionInfo& currentUrl = vecUrls[currentUrlIndex];
+    std::string urlStr = (std::ostringstream() << currentUrl).str();
     currentUrlIndex++;
     connection->setCurrentUrlIndex(currentUrlIndex);
-    connection->setUrl(currentUrl);
-    
+
     checkAndCreateContext();
-    
-    libwebsocket* websocket = connectSocketToUrl(currentUrl, connection);
-    
+
+    lws* websocket = connectSocketToUrl(currentUrl, connection);
+
     if(websocket)
     {
         lwsl_notice("Wsi %p added to connection map\n", websocket);
         connection->setWebsocket(websocket);
         _mapConnection.insert(std::make_pair(websocket, connection));
-        lwsl_notice("Client connected to %s\n", currentUrl.c_str());
+        lwsl_notice("Client connected to %s\n", urlStr.c_str());
     }
     else if(currentUrlIndex < vecUrls.size())
     {
-        lwsl_err("Client failed to connect to %s\n", currentUrl.c_str());
+        lwsl_err("Client failed to connect to %s\n", urlStr.c_str());
         connect(connection);
     }
     else
@@ -312,26 +361,26 @@ void WebSocketsManager::dataReadyToSendOnConnection(WebSocketConnection* connect
     lwsl_notice("Wsi %p has data ready to send\n", connection->getWebsocket());
     if(_context && connection->getWebsocket())
     {
-        libwebsocket_callback_on_writable(_context, connection->getWebsocket());
+        lws_callback_on_writable(connection->getWebsocket());
     }
 }
 
-void WebSocketsManager::markSocketToClose(libwebsocket* wsi)
+void WebSocketsManager::markSocketToClose(lws* wsi)
 {
     lwsl_notice("Wsi %p market to close\n", wsi);
     _setSocketsShouldClose.insert(wsi);
     if(_context)
     {
-        libwebsocket_callback_on_writable(_context, wsi);
+        lws_callback_on_writable(wsi);
     }
 }
 
-bool WebSocketsManager::isSocketMarkedToClose(libwebsocket* wsi)
+bool WebSocketsManager::isSocketMarkedToClose(lws* wsi)
 {
     return _setSocketsShouldClose.count(wsi) != 0;
 }
 
-void WebSocketsManager::removeSocketFromShouldCloseSet(libwebsocket* wsi)
+void WebSocketsManager::removeSocketFromShouldCloseSet(lws* wsi)
 {
     assert(_setSocketsShouldClose.count(wsi) != 0);
     _setSocketsShouldClose.erase(wsi);
@@ -346,7 +395,5 @@ void WebSocketsManager::remove(WebSocketConnection* connection)
 
 void WebSocketsManager::update()
 {
-    // TODO Check min time between updates?
-    libwebsocket_service(_context, 0);
+    lws_service(_context, 0);
 }
-
