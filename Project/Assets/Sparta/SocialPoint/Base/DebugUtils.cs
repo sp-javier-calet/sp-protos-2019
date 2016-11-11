@@ -49,7 +49,8 @@ namespace SocialPoint.Base
                     }
                     catch(MissingMethodException)
                     {
-                        //Do nothing
+                        /* This is required to run Tests from MonoDevelop, 
+                         * which includes the UNITY_EDITOR flag but EditorApplication is not available. */
                     }
                 #endif
 
