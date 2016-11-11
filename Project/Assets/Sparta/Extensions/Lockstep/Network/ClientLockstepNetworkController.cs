@@ -110,14 +110,17 @@ namespace SocialPoint.Lockstep.Network
 
         void OnEmptyTurnReceived()
         {
-//            _clientLockstep.AddConfirmedEmptyTurns();
+            _clientLockstep.AddConfirmedTurn();
         }
 
         void OnEmptyTurnsReceived(IReader reader)
         {
-            var emptytTurns = new EmptyTurnsData();
-            emptytTurns.Deserialize(reader);
-            _clientLockstep.AddConfirmedEmptyTurns(emptytTurns);
+            var emptyTurns = new EmptyTurnsData();
+            emptyTurns.Deserialize(reader);
+            for(int i = 0; i < emptyTurns.EmptyTurns; ++i)
+            {
+                _clientLockstep.AddConfirmedTurn();
+            }
         }
 
         void OnTurnReceived(IReader reader)

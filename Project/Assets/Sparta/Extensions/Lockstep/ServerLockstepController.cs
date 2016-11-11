@@ -299,7 +299,10 @@ namespace SocialPoint.Lockstep
                 return;
             }
 //            var clientTurn = turn.ToClient(_localFactory);
-            _localClient.AddConfirmedEmptyTurns(data);
+            for(int i = 0; i < data.EmptyTurns; ++i)
+            {
+                _localClient.AddConfirmedTurn();
+            }
         }
 
         #endregion
