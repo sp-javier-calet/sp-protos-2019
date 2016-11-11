@@ -292,6 +292,14 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public void AddConfirmedEmptyTurns(EmptyTurnsMessage emptyTurns)
+        {
+            for(int i = 0; i < emptyTurns.EmptyTurns; ++i)
+            {
+                AddConfirmedTurn(null);
+            }
+        }
+
         void AddConfirmedCommand(ClientLockstepCommandData cmd)
         {
             var t = 1 + ((_lastCmdTime + ClientConfig.LocalSimulationDelay) / Config.CommandStepDuration);

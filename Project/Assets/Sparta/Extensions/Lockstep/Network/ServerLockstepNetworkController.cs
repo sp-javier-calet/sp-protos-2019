@@ -115,7 +115,7 @@ namespace SocialPoint.Lockstep.Network
             DebugUtils.Assert(serverLockstep != null);
             _serverLockstep = serverLockstep;
             _serverLockstep.TurnReady += OnServerTurnReady;
-            _serverLockstep.MessageReady += OnServerMessageReady;
+            _serverLockstep.EmptyTurnsReady += OnServerEmptyTurnsReady;
             if(_localClient != null)
             {
                 _serverLockstep.RegisterLocalClient(_localClient, _localFactory);
@@ -169,7 +169,7 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        void OnServerMessageReady(byte messageType, INetworkShareable message)
+        void OnServerEmptyTurnsReady(int emptyTurns)
         {
             var itr = _clients.GetEnumerator();
             while(itr.MoveNext())
@@ -178,9 +178,9 @@ namespace SocialPoint.Lockstep.Network
                 if(client.Ready)
                 {
                     _server.SendMessage(new NetworkMessageData {
-                        MessageType = messageType,
+                        MessageType = LockstepMsgType.EmptyTurns,
                         ClientId = client.ClientId
-                    }, message);
+                    }, new EmptyTurnsMessage(emptyTurns));
                 }
             }
             itr.Dispose();
