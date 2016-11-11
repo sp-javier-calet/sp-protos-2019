@@ -213,7 +213,7 @@ namespace SocialPoint.Lockstep
 
             if(ServerMessageReady != null)
             {
-                ServerMessageReady(SocialPoint.Lockstep.Network.LockstepMsgType.EmptyTurn, new EmptyTurnsData(_skippedTurns));
+                ServerMessageReady(SocialPoint.Lockstep.Network.LockstepMsgType.EmptyTurns, new EmptyTurnsData(_skippedTurns));
             }
 
             ConfirmLocalClientEmptyTurns(emptyTurnsData);
