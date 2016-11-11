@@ -18,16 +18,16 @@ namespace SocialPoint.WebSockets
         readonly string[] _protocols;
         WebSocket _socket;
 
-        public WebSocketClient(string url, IUpdateScheduler scheduler) : this(url, null, scheduler)
+        public WebSocketClient(string[] url, IUpdateScheduler scheduler) : this(url, null, scheduler)
         {
         }
 
-        public WebSocketClient(string url, string[] protocols, IUpdateScheduler scheduler)
+        public WebSocketClient(string[] urls, string[] protocols, IUpdateScheduler scheduler)
         {
-            _url = url;
+            _urls = urls;
             _protocols = protocols;
             _scheduler = scheduler;
-            CreateSocket(url);
+            CreateSocket(urls);
         }
 
         public void Update()
@@ -85,21 +85,21 @@ namespace SocialPoint.WebSockets
             }
         }
 
-        void CreateSocket(string url)
+        void CreateSocket(string[] urls)
         {
             if(_socket != null)
             {
                 throw new InvalidOperationException("Socket already existing");
             }
 
-            _socket = new WebSocket(url, _protocols);
+            _socket = new WebSocket(urls, _protocols);
             _socket.ConnectionStateChanged += OnSocketStateChanged;
             _socket.ConnectionError += OnSocketError;
             _socket.MessageReceived += OnSocketMessage;
 
             if(!string.IsNullOrEmpty(_proxy))
             {   
-                    _socket.Proxy = _proxy;
+                _socket.Proxy = _proxy;
             }
         }
 
@@ -114,7 +114,31 @@ namespace SocialPoint.WebSockets
             _socket = null;
         }
 
-        #region WebsocketClient implementation
+        #region IWebSocketClient implementation
+
+        public string ConnectedUrl
+        {
+            get
+            {
+                return _socket.ConnectedUrl;
+            }
+        }
+
+        string[] _urls;
+
+        public string[] Urls
+        {
+            get
+            {
+                return _urls;
+            }
+            set
+            {
+                _urls = value;
+                DestroySocket();
+                CreateSocket(value);
+            }
+        }
 
         string _proxy;
 
@@ -131,22 +155,6 @@ namespace SocialPoint.WebSockets
                 {
                     _socket.Proxy = _proxy;
                 }
-            }
-        }
-
-        string _url;
-
-        public string Url
-        {
-            get
-            {
-                return _url;
-            }
-            set
-            {
-                _url = value;
-                DestroySocket();
-                CreateSocket(value);
             }
         }
 

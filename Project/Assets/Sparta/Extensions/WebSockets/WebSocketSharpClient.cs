@@ -10,16 +10,16 @@ namespace SocialPoint.WebSockets
         readonly string[] _protocols;
         WebSocketSharp.WebSocket _socket;
 
-        public WebSocketSharpClient(string url, ICoroutineRunner runner) : this(url, null, runner)
+        public WebSocketSharpClient(string[] urls, ICoroutineRunner runner) : this(urls, null, runner)
         {
         }
 
-        public WebSocketSharpClient(string url, string[] protocols, ICoroutineRunner runner)
+        public WebSocketSharpClient(string[] urls, string[] protocols, ICoroutineRunner runner)
         {
-            _url = url;
+            _urls = urls;
             _protocols = protocols;
             _dispatcher = new WebSocketsEventDispatcher(runner);
-            CreateSocket(url);
+            CreateSocket(urls);
         }
 
         public void Dispose()
@@ -64,14 +64,14 @@ namespace SocialPoint.WebSockets
             _dispatcher.NotifyDisconnected();
         }
 
-        void CreateSocket(string url)
+        void CreateSocket(string[] urls)
         {
             if(_socket != null)
             {
                 throw new InvalidOperationException("Socket already existing");
             }
 
-            _socket = new WebSocketSharp.WebSocket(url, _protocols);
+            _socket = new WebSocketSharp.WebSocket(urls[0], _protocols);
             _socket.OnOpen += OnSocketOpened;
             _socket.OnClose += OnSocketClosed;
             _socket.OnError += OnSocketError;
@@ -97,6 +97,14 @@ namespace SocialPoint.WebSockets
 
         #region WebsocketClient implementation
 
+        public string ConnectedUrl
+        {
+            get
+            {
+                return _urls[0];
+            }
+        }
+
         string _proxy;
 
         public string Proxy
@@ -115,17 +123,17 @@ namespace SocialPoint.WebSockets
             }
         }
 
-        string _url;
+        string[] _urls;
 
-        public string Url
+        public string[] Urls
         {
             get
             {
-                return _url;
+                return _urls;
             }
             set
             {
-                _url = value;
+                _urls = value;
                 DestroySocket();
                 CreateSocket(value);
             }

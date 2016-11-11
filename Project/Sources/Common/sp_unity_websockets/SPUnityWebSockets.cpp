@@ -62,6 +62,21 @@ EXPORT_API void SPUnityWebSocketDisconnect(WebSocketConnection* socket)
     socket->disconnect();
 }
 
+EXPORT_API int SPUnityWebSocketGetConnectedUrlIndex(WebSocketConnection* socket)
+{
+    if(socket->getState() == WebSocketConnection::State::Open)
+    {
+        // TODO: Change native part to get the CurrentUrlIndex pointing to the connected one
+        int pRet = static_cast<int>(socket->getCurrentUrlIndex()) - 1;
+        if(pRet == -1)
+        {
+            pRet = static_cast<int>(socket->getVecUrls().size()) - 1;
+        }
+        return pRet;
+    }
+    return -1;
+}
+
 EXPORT_API void SPUnityWebSocketAddUrl(WebSocketConnection* socket, const std::string scheme, const std::string host, const std::string path,
                                        int port)
 {
@@ -127,9 +142,9 @@ EXPORT_API bool SPUnityWebSocketGetError(WebSocketConnection* socket, char* data
     return false;
 }
 
-EXPORT_API void SPUnityWebSocketSetProxy(WebSocketConnection* socket, const std::string proxy)
+EXPORT_API void SPUnityWebSocketSetProxy(const std::string host, int port)
 {
-    // TODO
+    WebSocketsManager::get().setProxySettings({host, port});
 }
 
 EXPORT_API void SPUnityWebSocketSetVerbose(bool verbose)

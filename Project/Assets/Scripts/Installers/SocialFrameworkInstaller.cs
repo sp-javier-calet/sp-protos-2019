@@ -20,7 +20,7 @@ public class SocialFrameworkInstaller : Installer
     [Serializable]
     public class SettingsData
     {
-        public string Endpoint = DefaultEndpoint;
+        public string[] Endpoints = new string[] { DefaultEndpoint };
         public string[] Protocols = new string[] { DefaultWAMPProtocol };
     }
 
@@ -37,7 +37,7 @@ public class SocialFrameworkInstaller : Installer
         // Service Installer
         Container.Rebind<WebSocketClient>().ToMethod<WebSocketClient>(CreateWebSocket, SetupWebSocket);
         Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketClient>();
-        Container.Bind<IDisposable>().ToLookup<WebSocketSharpClient>();
+        Container.Bind<IDisposable>().ToLookup<WebSocketClient>();
 
         Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);    
         Container.Bind<IDisposable>().ToLookup<ConnectionManager>();
@@ -87,7 +87,7 @@ public class SocialFrameworkInstaller : Installer
 
     WebSocketClient CreateWebSocket()
     {
-        return new WebSocketClient(Settings.Endpoint, Settings.Protocols, Container.Resolve<IUpdateScheduler>());
+        return new WebSocketClient(Settings.Endpoints, Settings.Protocols, Container.Resolve<IUpdateScheduler>());
     }
 
     void SetupWebSocket(WebSocketClient client)

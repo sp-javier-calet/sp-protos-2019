@@ -40,6 +40,8 @@ namespace SocialPoint.WebSockets
 
         WebSocketState _lastState;
 
+        string[] _urls;
+
         WebSocketState State
         {
             get
@@ -71,18 +73,18 @@ namespace SocialPoint.WebSockets
             }
         }
 
-        public WebSocket(string url, string[] protocols) : this(new string[] {url}, protocols)
-        {
-        }
-
         public WebSocket(string[] urls, string[] protocols)
         {
             _nativeSocket = SPUnityWebSocketsCreate();
             _lastState = WebSocketState.Closed;
+            _urls = urls;
+
+            DebugUtils.Assert(_urls != null && _urls.Length > 0, "Provided urls shoudl have one element at least");
 
             for(var i = 0; i < urls.Length; ++i)
             {
-                SPUnityWebSocketAddUrl(NativeSocket, urls[i]);
+                var uri = new Uri(urls[i]);
+                SPUnityWebSocketAddUrl(NativeSocket, uri.Scheme, uri.Host, uri.PathAndQuery, uri.Port);
             }
 
             for(var i = 0; i < protocols.Length; ++i)
@@ -166,6 +168,14 @@ namespace SocialPoint.WebSockets
             set
             {
                 SPUnityWebSocketSetVerbose(NativeSocket, value);
+            }
+        }
+
+        public string ConnectedUrl
+        {
+            get
+            {
+                return _urls[SPUnityWebSocketGetConnectedUrlIndex(NativeSocket)];
             }
         }
 
@@ -297,7 +307,10 @@ namespace SocialPoint.WebSockets
         static extern UIntPtr SPUnityWebSocketDestroy(UIntPtr socket);
 
         [DllImport(PluginModuleName)]
-        static extern void SPUnityWebSocketAddUrl(UIntPtr socket, string url);
+        static extern int SPUnityWebSocketGetConnectedUrlIndex(UIntPtr socket);
+
+        [DllImport(PluginModuleName)]
+        static extern void SPUnityWebSocketAddUrl(UIntPtr socket, string shceme, string host, string path, int port);
 
         [DllImport(PluginModuleName)]
         static extern void SPUnityWebSocketAddProtocol(UIntPtr socket, string protocol);
