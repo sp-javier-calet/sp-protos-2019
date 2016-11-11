@@ -4,6 +4,7 @@ using SocialPoint.Utils;
 using SocialPoint.Base;
 using SocialPoint.IO;
 using FixMath.NET;
+using SocialPoint.Lockstep.Network; // TODO: refactor to avoid this dependency
 
 namespace SocialPoint.Lockstep
 {
@@ -208,12 +209,12 @@ namespace SocialPoint.Lockstep
                 return;
             }
             
-            EmptyTurnsData emptyTurnsData = new EmptyTurnsData(_skippedTurns);
+            EmptyTurnsMessage emptyTurnsData = new EmptyTurnsMessage(_skippedTurns);
             _skippedTurns = 0;
 
             if(ServerMessageReady != null)
             {
-                ServerMessageReady(SocialPoint.Lockstep.Network.LockstepMsgType.EmptyTurns, new EmptyTurnsData(_skippedTurns));
+                ServerMessageReady(SocialPoint.Lockstep.Network.LockstepMsgType.EmptyTurns, new EmptyTurnsMessage(_skippedTurns));
             }
 
             ConfirmLocalClientEmptyTurns(emptyTurnsData);
@@ -276,7 +277,7 @@ namespace SocialPoint.Lockstep
             
         }
 
-        void ConfirmLocalClientEmptyTurns(EmptyTurnsData data)
+        void ConfirmLocalClientEmptyTurns(EmptyTurnsMessage data)
         {
             if(_localClient == null)
             {

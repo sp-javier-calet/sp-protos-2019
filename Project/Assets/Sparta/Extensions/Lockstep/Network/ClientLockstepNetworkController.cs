@@ -115,7 +115,7 @@ namespace SocialPoint.Lockstep.Network
 
         void OnEmptyTurnsReceived(IReader reader)
         {
-            var emptyTurns = new EmptyTurnsData();
+            var emptyTurns = new EmptyTurnsMessage();
             emptyTurns.Deserialize(reader);
             for(int i = 0; i < emptyTurns.EmptyTurns; ++i)
             {
