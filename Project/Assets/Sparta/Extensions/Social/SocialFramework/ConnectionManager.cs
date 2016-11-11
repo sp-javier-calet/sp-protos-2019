@@ -69,7 +69,6 @@ namespace SocialPoint.Social
         public const string TopicTotalMembersKey = "total_members";
 
         public const string NotificationTypeKey = "type";
-        public const string NotificationCapitalTypeKey = "Type";
         public const string NotificationPayloadKey = "payload";
         public const string ChatMessageInfoKey = "message_info";
         public const string NotificationIdKey = "notification_id";
@@ -268,6 +267,9 @@ namespace SocialPoint.Social
         readonly WAMPConnection _connection;
         readonly IWebSocketClient _socket;
 
+        WAMPConnection.StartRequest _startRequest;
+        WAMPConnection.JoinRequest _joinRequest;
+
         ScheduledAction _pingUpdate;
         ScheduledAction _reconnectUpdate;
         ConnectionState _state;
@@ -322,6 +324,7 @@ namespace SocialPoint.Social
             return _connection.Start(() => {
                 SendHello();
                 SchedulePing();
+                _startRequest = null;
             });
         }
 
@@ -440,15 +443,14 @@ namespace SocialPoint.Social
                 return;
             }
 
-            for(int i = 0; i < pendingDic.Count; ++i)
+            if(OnPendingNotification != null)
             {
-                var notif = pendingDic.ElementAt(i).Value.AsDic;
-                var codeType = notif.GetValue(ConnectionManager.NotificationTypeKey).ToInt();
-
-                var payloadDic = notif.Get(ConnectionManager.NotificationPayloadKey).AsDic;
-
-                if(OnPendingNotification != null)
+                for(int i = 0; i < pendingDic.Count; ++i)
                 {
+                    var notif = pendingDic.ElementAt(i).Value.AsDic;
+                    var codeType = notif.GetValue(ConnectionManager.NotificationTypeKey).ToInt();
+                    var payloadDic = notif.Get(ConnectionManager.NotificationPayloadKey).AsDic;
+
                     OnPendingNotification(codeType, NotificationTopicType, payloadDic);
                 }
             }
@@ -525,18 +527,15 @@ namespace SocialPoint.Social
             {
                 OnConnected();
             }
+
+            _joinRequest = null;
         }
 
         void OnNotificationMessageReceived(string topic, AttrList listParams, AttrDic dicParams)
         {
-            int type = dicParams.GetValue(NotificationTypeKey).ToInt();
-            if(type == 0)
-            {
-                type = dicParams.GetValue(NotificationCapitalTypeKey).ToInt();
-            }
-
             if(OnNotificationReceived != null)
             {
+                int type = dicParams.GetValue(NotificationTypeKey).ToInt();
                 OnNotificationReceived(type, topic, dicParams);
             }
         }
