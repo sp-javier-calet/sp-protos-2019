@@ -24,6 +24,7 @@ public class LockstepInstaller : Installer
     {
         Container.Rebind<LockstepConfig>().ToMethod<LockstepConfig>(CreateConfig);
         Container.Rebind<ServerLockstepConfig>().ToMethod<ServerLockstepConfig>(CreateServerConfig);
+        Container.Rebind<ClientLockstepConfig>().ToMethod<ClientLockstepConfig>(CreateClientConfig);
         Container.Rebind<ClientLockstepController>().ToMethod<ClientLockstepController>(CreateClientController);
         Container.Bind<IDisposable>().ToLookup<ClientLockstepController>();
         Container.Rebind<LockstepCommandFactory>().ToMethod<LockstepCommandFactory>(CreateCommandFactory);
@@ -106,6 +107,7 @@ public class LockstepInstaller : Installer
             Container.Resolve<IUpdateScheduler>());
         ctrl.Config = Container.Resolve<LockstepConfig>();
         ctrl.ServerConfig = Container.Resolve<ServerLockstepConfig>();
+        ctrl.ClientConfig = Container.Resolve<ClientLockstepConfig>();
 
         if(Settings.RunLocalServerClient)
         {

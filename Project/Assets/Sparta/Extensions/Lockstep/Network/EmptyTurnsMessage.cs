@@ -9,7 +9,6 @@ namespace SocialPoint.Lockstep.Network
         public EmptyTurnsMessage(int emptyTurns = 0)
         {
             EmptyTurns = emptyTurns;
-            UnityEngine.Debug.Log("EmptyTurnsMessage .." + EmptyTurns);
         }
 
         public void Deserialize(IReader reader)
@@ -19,7 +18,6 @@ namespace SocialPoint.Lockstep.Network
 
         public void Serialize(IWriter writer)
         {
-            UnityEngine.Debug.Log("Serializing .." + EmptyTurns);
             writer.Write(EmptyTurns);
         }
     }

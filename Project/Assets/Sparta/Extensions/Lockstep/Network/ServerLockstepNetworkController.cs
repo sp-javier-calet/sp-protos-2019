@@ -59,6 +59,17 @@ namespace SocialPoint.Lockstep.Network
         ClientData _localClientData;
 
         public ServerLockstepConfig ServerConfig{ get; set; }
+        public ClientLockstepConfig ClientConfig
+        { 
+            get
+            {
+                return _serverLockstep.ClientConfig;
+            }
+            set
+            {
+                _serverLockstep.ClientConfig = value;
+            }
+        }
 
         public LockstepConfig Config
         {

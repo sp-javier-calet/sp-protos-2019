@@ -4,7 +4,7 @@ using SocialPoint.Utils;
 using SocialPoint.Base;
 using SocialPoint.IO;
 using FixMath.NET;
-using SocialPoint.Lockstep.Network; // TODO: refactor to avoid this dependency
+using SocialPoint.Lockstep.Network;
 
 namespace SocialPoint.Lockstep
 {
@@ -19,6 +19,7 @@ namespace SocialPoint.Lockstep
         public bool Running{ get; private set; }
 
         public LockstepConfig Config { get; set; }
+        public ClientLockstepConfig ClientConfig{ get; set; }
 
         public LockstepGameParams GameParams { get; private set; }
 
@@ -163,10 +164,7 @@ namespace SocialPoint.Lockstep
                 else
                 {
                     _skippedTurns++;
-                    if(_skippedTurns >= LockStepNetworkCommon.MaxEmptyTurns)
-                    {
-                        SendEmptyTurnsToClient();
-                    }
+                    SendEmptyTurnsToClient();
                 }
 
                 _lastCmdTime = nextCmdTime;
@@ -175,7 +173,7 @@ namespace SocialPoint.Lockstep
 
         void SendEmptyTurnsToClient()
         {
-            if(_skippedTurns == 0)
+            if(_skippedTurns == 0 || (_skippedTurns * Config.CommandStepDuration < Config.MaxFrameSkippingDuration && Config.AllowFrameSkipping))
             {
                 return;
             }
@@ -255,7 +253,7 @@ namespace SocialPoint.Lockstep
             {
                 return;
             }
-//            var clientTurn = turn.ToClient(_localFactory);
+
             for(int i = 0; i < data.EmptyTurns; ++i)
             {
                 _localClient.AddConfirmedTurn();

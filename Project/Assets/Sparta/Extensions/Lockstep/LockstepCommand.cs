@@ -14,12 +14,20 @@ namespace SocialPoint.Lockstep
     {
         public const int DefaultCommandStepDuration = 100;
         public const int DefaultSimulationStepDuration = 10;
+        public const bool DefaultAllowFrameSkipping = true;
+        public const int DefaultMaxFrameSkippingDuration = DefaultCommandStepDuration * 4;
 
         // SimulationStep is the guaranteed simulation tick. Cannot be skipped.
         public int SimulationStepDuration = DefaultSimulationStepDuration;
 
         // Command processing tick.
         public int CommandStepDuration = DefaultCommandStepDuration;
+
+        // Allow Frame skipping
+        public bool AllowFrameSkipping = DefaultAllowFrameSkipping;
+
+        // How much time we can skip frames
+        public int MaxFrameSkippingDuration = DefaultMaxFrameSkippingDuration;
 
         public void Deserialize(IReader reader)
         {
