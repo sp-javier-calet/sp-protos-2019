@@ -1,23 +1,27 @@
-﻿using UnityEngine;
-
+﻿
 namespace SocialPoint.Extension.Helpshift
 {
-    class EmptyHelpshift : MonoBehaviour, IHelpshift
+    class EmptyHelpshift : IHelpshift
     {
         #region IHelpshift implementation
+
+        static HelpshiftConfiguration _config = new HelpshiftConfiguration(string.Empty, string.Empty, string.Empty);
 
         public HelpshiftConfiguration Configuration
         { 
             get
             {
-                return new HelpshiftConfiguration();
+                return _config;
             }
         }
+
+        static HelpshiftCustomer _userData;
 
         public HelpshiftCustomer UserData
         {
             set
             {
+                _userData = value;
             }
         }
 

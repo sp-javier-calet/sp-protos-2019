@@ -53,7 +53,7 @@ namespace SocialPoint.Extension.Helpshift
                string.IsNullOrEmpty(_config.DomainName) ||
                string.IsNullOrEmpty(_config.AppId))
             {
-                throw new ArgumentException("Invalid Helshift configuration", "_config");
+                throw new ArgumentException("Invalid Helshift configuration");
             }
 
             // Generate config

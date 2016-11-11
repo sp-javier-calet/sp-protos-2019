@@ -4,7 +4,6 @@ namespace SocialPoint.Extension.Helpshift
 {
     public struct HelpshiftConfiguration
     {
-
         // default params from DL
         public const string DefaultApiKey = "e80e75c9fd498d3274f3cdbc637b3866";
         public const string DefaultDomainName = "socialpoint.helpshift.com";
