@@ -187,7 +187,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         _server.SendMessage(new NetworkMessageData {
             MessageType = GameMsgType.PathEvent
         }, new PathEvent {
-            Points = Pathfinder.StraightPathToVector(path)
+            Points = MultiplayerExtensionsBridge.StraightPathToVectors(path)
         });
     }
 
