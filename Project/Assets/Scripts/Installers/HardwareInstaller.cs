@@ -59,7 +59,7 @@ public class HardwareInstaller : Installer
             {
                 appInfo.Language = Settings.AppLanguage;
             }
-            if(!string.IsNullOrEmpty(Settings.AppLanguage))
+            if(!string.IsNullOrEmpty(Settings.AppCountry))
             {
                 appInfo.Country = Settings.AppCountry;
             }
