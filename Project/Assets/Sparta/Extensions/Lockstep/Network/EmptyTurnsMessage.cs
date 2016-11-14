@@ -13,12 +13,12 @@ namespace SocialPoint.Lockstep
 
         public void Deserialize(IReader reader)
         {
-            EmptyTurns = reader.ReadInt32();
+            EmptyTurns = (int) reader.ReadByte();
         }
 
         public void Serialize(IWriter writer)
         {
-            writer.Write(EmptyTurns);
+            writer.Write((byte) EmptyTurns);
         }
     }
 }
