@@ -164,6 +164,9 @@
 		46F7491D1C60AE77000DB6B1 /* PLCrashReportSystemInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749061C60AE77000DB6B1 /* PLCrashReportSystemInfo.h */; };
 		46F7491E1C60AE77000DB6B1 /* PLCrashReportTextFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749071C60AE77000DB6B1 /* PLCrashReportTextFormatter.h */; };
 		46F7491F1C60AE77000DB6B1 /* PLCrashReportThreadInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749081C60AE77000DB6B1 /* PLCrashReportThreadInfo.h */; };
+		B3524A6D1DD9BBCE008AE6FF /* WebSocketConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7056761DC9FBB900CB55E0 /* WebSocketConnection.cpp */; };
+		B3524A6E1DD9BBD1008AE6FF /* WebSocketsManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7056781DC9FBB900CB55E0 /* WebSocketsManager.cpp */; };
+		B3524A6F1DD9BBDA008AE6FF /* SPUnityWebSockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE5A76AB1DC7789700EB3DC6 /* SPUnityWebSockets.cpp */; };
 		B37E5D161DD4A70500A59279 /* LibWebsocketTestClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B37E5D121DD4A6FA00A59279 /* LibWebsocketTestClient.cpp */; };
 		B37E5D181DD4A70700A59279 /* LibWebsocketTestClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B37E5D121DD4A6FA00A59279 /* LibWebsocketTestClient.cpp */; };
 		F523B6511CFCA7DF00DB2597 /* SPUnityFileUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = F523B64F1CFCA7DF00DB2597 /* SPUnityFileUtils.cpp */; };
@@ -2242,7 +2245,10 @@
 				468E00201C3E75E500CA07AF /* SPUnityKeychainFacade.mm in Sources */,
 				468F9DA11D9BE6BA00EF4AE7 /* SPUnityNativeUtils.mm in Sources */,
 				06A173241C770787002178EF /* SPUnityUtils.cpp in Sources */,
+				B3524A6F1DD9BBDA008AE6FF /* SPUnityWebSockets.cpp in Sources */,
 				468E001D1C3E75E500CA07AF /* UnityGameObject.cpp in Sources */,
+				B3524A6D1DD9BBCE008AE6FF /* WebSocketConnection.cpp in Sources */,
+				B3524A6E1DD9BBD1008AE6FF /* WebSocketsManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

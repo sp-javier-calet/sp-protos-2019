@@ -130,7 +130,7 @@ namespace SocialPoint.WebSockets
 
             // Check error
             var err = Error;
-            if(Error.IsNullOrEmpty(err) && ConnectionError != null)
+            if(!Error.IsNullOrEmpty(err) && ConnectionError != null)
             {
                 ConnectionError(err);
             }   
@@ -167,7 +167,7 @@ namespace SocialPoint.WebSockets
         {
             set
             {
-                SPUnityWebSocketSetVerbose(NativeSocket, value);
+                SPUnityWebSocketSetVerbose(value);
             }
         }
 
@@ -183,7 +183,15 @@ namespace SocialPoint.WebSockets
         {
             set
             {
-                SPUnityWebSocketSetProxy(NativeSocket, value);
+                if(value.Length != 0)
+                {
+                    var uri = new Uri(value);
+                    SPUnityWebSocketSetProxy(uri.Host, uri.Port);
+                }
+                else
+                {
+                    SPUnityWebSocketSetProxy(string.Empty, 0);
+                }
             }
         }
 
@@ -283,20 +291,11 @@ namespace SocialPoint.WebSockets
         const string PluginModuleName = "SPUnityPlugins";
         #elif UNITY_ANDROID && !UNITY_EDITOR
         const string PluginModuleName = "sp_unity_websockets";
-
-        
-
-#elif (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+        #elif (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         const string PluginModuleName = "__Internal";
-
-        
-
-#elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
+        #elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
         const string PluginModuleName = "sp_unity_websockets";
-
-        
-
-#else
+        #else
         const string PluginModuleName = "none";
         #endif
 
@@ -349,10 +348,10 @@ namespace SocialPoint.WebSockets
         static extern bool SPUnityWebSocketGetError(UIntPtr socket, byte[] data);
 
         [DllImport(PluginModuleName)]
-        static extern void SPUnityWebSocketSetProxy(UIntPtr socket, string proxy);
+        static extern void SPUnityWebSocketSetProxy(string proxy, int port);
 
         [DllImport(PluginModuleName)]
-        static extern bool SPUnityWebSocketSetVerbose(UIntPtr socket, bool verbose);
+        static extern bool SPUnityWebSocketSetVerbose(bool verbose);
 
         #endregion
     }
