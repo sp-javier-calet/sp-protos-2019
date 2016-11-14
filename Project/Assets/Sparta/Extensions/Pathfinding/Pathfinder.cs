@@ -62,7 +62,7 @@ namespace SocialPoint.Pathfinding
             {
                 var pathVert = straightPath[i];
                 var point = pathVert.Point;
-                navVectors[i] = point.Position.ToMultiplayer();
+                navVectors[i] = point.Position.ToPhysics();
             }
 
             return navVectors;

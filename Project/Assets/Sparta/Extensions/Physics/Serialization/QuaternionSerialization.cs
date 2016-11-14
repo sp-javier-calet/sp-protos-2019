@@ -1,30 +1,31 @@
 ﻿using SocialPoint.IO;
 using SocialPoint.Utils;
-using SocialPoint.Network;
 using System;
 using Jitter.LinearMath;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Physics
 {
-    public class JVectorSerializer : IDiffWriteSerializer<JVector>
+    public class JQuaternionSerializer : IDiffWriteSerializer<JQuaternion>
     {
-        public static readonly JVectorSerializer Instance = new JVectorSerializer();
+        public static readonly JQuaternionSerializer Instance = new JQuaternionSerializer();
 
-        public void Compare(JVector newObj, JVector oldObj, Bitset dirty)
+        public void Compare(JQuaternion newObj, JQuaternion oldObj, Bitset dirty)
         {
             dirty.Set(newObj.X != oldObj.X);
             dirty.Set(newObj.Y != oldObj.Y);
             dirty.Set(newObj.Z != oldObj.Z);
+            dirty.Set(newObj.W != oldObj.W);
         }
 
-        public void Serialize(JVector newObj, IWriter writer)
+        public void Serialize(JQuaternion newObj, IWriter writer)
         {
             writer.Write(newObj.X);
             writer.Write(newObj.Y);
             writer.Write(newObj.Z);
+            writer.Write(newObj.W);
         }
 
-        public void Serialize(JVector newObj, JVector oldObj, IWriter writer, Bitset dirty)
+        public void Serialize(JQuaternion newObj, JQuaternion oldObj, IWriter writer, Bitset dirty)
         {
             if(Bitset.NullOrGet(dirty))
             {
@@ -38,28 +39,33 @@ namespace SocialPoint.Multiplayer
             {
                 writer.Write(newObj.Z);
             }
+            if(Bitset.NullOrGet(dirty))
+            {
+                writer.Write(newObj.W);
+            }
         }
     }
 
-    public class JVectorParser : IDiffReadParser<JVector>
+    public class JQuaternionParser : IDiffReadParser<JQuaternion>
     {
-        public static readonly JVectorParser Instance = new JVectorParser();
+        public static readonly JQuaternionParser Instance = new JQuaternionParser();
 
-        public JVector Parse(IReader reader)
+        public JQuaternion Parse(IReader reader)
         {
-            JVector obj;
+            JQuaternion obj;
             obj.X = reader.ReadSingle();
             obj.Y = reader.ReadSingle();
             obj.Z = reader.ReadSingle();
+            obj.W = reader.ReadSingle();
             return obj;
         }
 
-        public int GetDirtyBitsSize(JVector obj)
+        public int GetDirtyBitsSize(JQuaternion obj)
         {
-            return 3;
+            return 4;
         }
 
-        public JVector Parse(JVector obj, IReader reader, Bitset dirty)
+        public JQuaternion Parse(JQuaternion obj, IReader reader, Bitset dirty)
         {
             if(Bitset.NullOrGet(dirty))
             {
@@ -72,6 +78,10 @@ namespace SocialPoint.Multiplayer
             if(Bitset.NullOrGet(dirty))
             {
                 obj.Z = reader.ReadSingle();
+            }
+            if(Bitset.NullOrGet(dirty))
+            {
+                obj.W = reader.ReadSingle();
             }
             return obj;
         }

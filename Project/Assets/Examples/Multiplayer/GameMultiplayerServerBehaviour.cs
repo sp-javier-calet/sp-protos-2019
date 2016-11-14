@@ -4,6 +4,7 @@ using SocialPoint.IO;
 using SocialPoint.Multiplayer;
 using SocialPoint.Network;
 using SocialPoint.Pathfinding;
+using SocialPoint.Physics;
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -34,7 +35,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     JVector _movement;
     NetworkGameObject _playerCube;
 
-    PhysicsWorld _physicsWorld;
+    NetworkPhysicsWorld _physicsWorld;
     IPhysicsDebugger _physicsDebugger;
 
     int _maxPlayers = 4;
@@ -233,21 +234,21 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void AddPhysicsWorld()
     {
-        _physicsWorld = new PhysicsWorld(true);
+        _physicsWorld = new NetworkPhysicsWorld(true);
         _controller.AddBehaviour(_physicsWorld);
     }
 
     void AddCollision(NetworkGameObject go)
     {
-        var physicType = PhysicsRigidBody.ControlType.Kinematic;
+        var physicType = NetworkRigidBody.ControlType.Kinematic;
         var objType = GetTypeById(go.Id);
         if(objType == MultiplayerObjectType.Pickup)
         {
-            physicType = PhysicsRigidBody.ControlType.Static;
+            physicType = NetworkRigidBody.ControlType.Static;
         }
 
         var boxShape = new PhysicsBoxShape(new JVector(1f));
-        var rigidBody = new PhysicsRigidBody(boxShape, physicType, _physicsWorld, _physicsDebugger);
+        var rigidBody = new NetworkRigidBody(boxShape, physicType, _physicsWorld, _physicsDebugger);
         rigidBody.DoDebugDraw = (_physicsDebugger != null);
 
         if(go.Id == _playerCube.Id)
@@ -270,7 +271,8 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
         if(PhysicsRaycast.Raycast(ray, maxDistance, _physicsWorld, out rayResultClosest))
         {
-            if(rayResultClosest.ObjectHit.NetworkGameObject.Id == gameObject.Id)
+            var networkBodyHit = rayResultClosest.ObjectHit as NetworkRigidBody;
+            if(networkBodyHit != null && networkBodyHit.NetworkGameObject.Id == gameObject.Id)
             {
                 return true;
             }
@@ -284,7 +286,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     {
         Log.i("Player Collision Detected!");
 
-        var other = (PhysicsRigidBody)body2.Tag;
+        var other = (NetworkRigidBody)body2.Tag;
         int id = other.NetworkGameObject.Id;
 
         //Warning: Do not destroy objects here, Jitter can still need them

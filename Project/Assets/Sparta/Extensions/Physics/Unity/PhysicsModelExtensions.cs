@@ -3,9 +3,9 @@ using UnityQuaternion = UnityEngine.Quaternion;
 using PhysicsVector = Jitter.LinearMath.JVector;
 using PhysicsQuaternion = Jitter.LinearMath.JQuaternion;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Physics
 {
-    public static class UnityModelExtensions
+    public static class PhysicsModelExtensions
     {
         public static UnityVector ToUnity(this PhysicsVector v)
         {
@@ -18,12 +18,12 @@ namespace SocialPoint.Multiplayer
         }
 
 
-        public static PhysicsVector ToMultiplayer(this UnityVector v)
+        public static PhysicsVector ToPhysics(this UnityVector v)
         {
             return new PhysicsVector(v.x, v.y, v.z);
         }
 
-        public static PhysicsQuaternion ToMultiplayer(this UnityQuaternion q)
+        public static PhysicsQuaternion ToPhysics(this UnityQuaternion q)
         {
             return new PhysicsQuaternion(q.x, q.y, q.z, q.w);
         }
