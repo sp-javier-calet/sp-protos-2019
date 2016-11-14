@@ -1,7 +1,7 @@
-using UnityEngine;
-using UnityEditor;
 using System;
 using System.Reflection;
+using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -15,11 +15,11 @@ namespace SocialPoint.GUIAnimation
         public override void Render(Effect action, StepsSelection stepsSelection, OnActionChanged onChanged)
         {
             bool somethingShown = false;
-            UnityEngine.GUI.changed = false;
-			
+            GUI.changed = false;
+
             if(action != null)
             {
-                SerializedObject serializedStep = new SerializedObject(action);
+                var serializedStep = new SerializedObject(action);
                 SerializedProperty prop = serializedStep.GetIterator();
                 bool moreAvailable = prop.NextVisible(true);
                 while(moreAvailable)
@@ -31,10 +31,10 @@ namespace SocialPoint.GUIAnimation
                     }
                     moreAvailable = prop.NextVisible(false);
                 }
-				
+
                 serializedStep.ApplyModifiedProperties();
-				
-                if(UnityEngine.GUI.changed)
+
+                if(GUI.changed)
                 {
                     serializedStep.ApplyModifiedProperties();
                 }
@@ -44,7 +44,7 @@ namespace SocialPoint.GUIAnimation
                     GUILayout.Label("No common properties,\nThe property must be changed in the object itself");
                 }
 
-                if(UnityEngine.GUI.changed)
+                if(GUI.changed)
                 {
                     if(onChanged != null)
                     {
@@ -62,21 +62,20 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        bool CanBeShownOnInspector(UnityEngine.Object obj, string name)
+        static bool CanBeShownOnInspector(object obj, string name)
         {
             BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Public |
                                  BindingFlags.Instance | BindingFlags.Static;
             FieldInfo field = obj.GetType().GetField(name, flags);
-			
+
             if(field != null)
             {
-                ShowInEditorAttribute attribute = Attribute.GetCustomAttribute(field, typeof(ShowInEditorAttribute)) as ShowInEditorAttribute;
+                var attribute = Attribute.GetCustomAttribute(field, typeof(ShowInEditorAttribute)) as ShowInEditorAttribute;
                 if(attribute != null)
                 {
                     return true;
                 }
             }
-			
             return false;
         }
     }

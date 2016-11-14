@@ -17,6 +17,8 @@ namespace SocialPoint.Lockstep
 
         public LockstepConfig Config { get; set; }
 
+        public LockstepGameParams GameParams { get; private set; }
+
         public event Action<ServerLockstepTurnData> TurnReady;
 
         public int UpdateTime
@@ -46,6 +48,7 @@ namespace SocialPoint.Lockstep
         public ServerLockstepController(IUpdateScheduler updateScheduler = null)
         {
             Config = new LockstepConfig();
+            GameParams =  new LockstepGameParams();
             _updateScheduler = updateScheduler;
             _turns = new Dictionary<int, ServerLockstepTurnData>();
             Stop();
@@ -180,6 +183,7 @@ namespace SocialPoint.Lockstep
             _localClient = client;
             _localFactory = factory;
             _localClient.Config = Config;
+            _localClient.GameParams = GameParams;
             if(_localClient != null)
             {
                 _localClient.CommandAdded += AddPendingLocalClientCommand;

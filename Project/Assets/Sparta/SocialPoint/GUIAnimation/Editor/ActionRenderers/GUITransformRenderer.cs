@@ -1,5 +1,5 @@
-using UnityEngine;
 using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -19,9 +19,9 @@ namespace SocialPoint.GUIAnimation
 
         public override void Render(Effect action, StepsSelection stepsSelection, OnActionChanged onChanged)
         {
-            IPositionable transEffect = (IPositionable)action;
-			
-            UnityEngine.GUI.changed = false;
+            var transEffect = (IPositionable)action;
+
+            GUI.changed = false;
 
             transEffect.AnchorsMode = (AnchorMode)EditorGUILayout.EnumPopup(transEffect.AnchorsMode, GUILayout.ExpandWidth(false));
 
@@ -37,7 +37,7 @@ namespace SocialPoint.GUIAnimation
                 DoShowAnchors(transEffect, false);
             }
 
-            if(UnityEngine.GUI.changed)
+            if(GUI.changed)
             {
                 transEffect.SetAnchors();
 				
@@ -49,31 +49,31 @@ namespace SocialPoint.GUIAnimation
                 }
             }
 
-            UnityEngine.GUI.changed = false;
+            GUI.changed = false;
 
             GUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Is Local:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft), GUILayout.Width(100f));
+            EditorGUILayout.LabelField("Is Local:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, GUI.skin.label), GUILayout.Width(100f));
             transEffect.IsLocal = EditorGUILayout.Toggle(transEffect.IsLocal, GUILayout.ExpandWidth(false), GUILayout.MaxWidth(15f));
             GUILayout.EndHorizontal();
 
             if(transEffect is TransformEffect)
             {
                 GUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField("Freeze Position:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft), GUILayout.MaxWidth(150f));
+                EditorGUILayout.LabelField("Freeze Position:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, GUI.skin.label), GUILayout.MaxWidth(150f));
                 ((TransformEffect)transEffect).FreezePosition = EditorGUILayout.Toggle(((TransformEffect)transEffect).FreezePosition, GUILayout.ExpandWidth(false), GUILayout.MaxWidth(15f));
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField("Freeze Rotation:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft), GUILayout.MaxWidth(150f));
+                EditorGUILayout.LabelField("Freeze Rotation:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, GUI.skin.label), GUILayout.MaxWidth(150f));
                 ((TransformEffect)transEffect).FreezeRotation = EditorGUILayout.Toggle(((TransformEffect)transEffect).FreezeRotation, GUILayout.ExpandWidth(false), GUILayout.MaxWidth(15f));
                 GUILayout.EndHorizontal();
 
                 GUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField("Freeze Scale:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft), GUILayout.MaxWidth(150f));
+                EditorGUILayout.LabelField("Freeze Scale:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, GUI.skin.label), GUILayout.MaxWidth(150f));
                 ((TransformEffect)transEffect).FreezeScale = EditorGUILayout.Toggle(((TransformEffect)transEffect).FreezeScale, GUILayout.ExpandWidth(false), GUILayout.MaxWidth(15f));
                 GUILayout.EndHorizontal();
             }
-            if(UnityEngine.GUI.changed)
+            if(GUI.changed)
             {
                 if(onChanged != null)
                 {
@@ -105,19 +105,19 @@ namespace SocialPoint.GUIAnimation
 
         void DoShowAnchors(IPositionable transAction, bool isEditable)
         {
-            bool preEnabled = UnityEngine.GUI.enabled;
-            UnityEngine.GUI.enabled = preEnabled && isEditable;
+            bool preEnabled = GUI.enabled;
+            GUI.enabled = preEnabled && isEditable;
 
-            float labelMaxWidth = 100f;
+            const float labelMaxWidth = 100f;
 
             GUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Anchor Start State:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft), GUILayout.MaxWidth(labelMaxWidth));
+            EditorGUILayout.LabelField("Anchor Start State:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, GUI.skin.label), GUILayout.MaxWidth(labelMaxWidth));
             transAction.StartAnchor.AnchorMin = EditorGUILayout.Vector2Field("", transAction.StartAnchor.AnchorMin, GUILayout.ExpandWidth(false));
             transAction.StartAnchor.AnchorMax = transAction.StartAnchor.AnchorMin;
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField("Anchor End State:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, UnityEngine.GUI.skin.label, TextAnchor.MiddleLeft), GUILayout.MaxWidth(labelMaxWidth));
+            EditorGUILayout.LabelField("Anchor End State:", AnimationToolUtility.GetStyle(AnimationToolUtility.TextStyle.Subtitle2, GUI.skin.label), GUILayout.MaxWidth(labelMaxWidth));
             transAction.EndAnchor.AnchorMin = EditorGUILayout.Vector2Field("", transAction.StartAnchor.AnchorMin, GUILayout.ExpandWidth(false));
             transAction.EndAnchor.AnchorMax = transAction.EndAnchor.AnchorMin;
             GUILayout.EndHorizontal();

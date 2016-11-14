@@ -1,6 +1,5 @@
-using UnityEngine;
-using SocialPoint.GUIControl;
 using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -65,12 +64,12 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        void CopyValues(ref Vector3 dest, Vector3 src)
+        static void CopyValues(ref Vector3 dest, Vector3 src)
         {
             dest = src;
         }
 
-        public override void Invert(bool invertTime)
+        public override void Invert(bool invertTime = false)
         {
             base.Invert(invertTime);
 

@@ -51,8 +51,8 @@ namespace SocialPoint.WAMP.Subscriber
 
         Dictionary<long, HandlerSubscription> _subscriptionHandlers;
 
-        Dictionary<long, SubscribeRequest> _subscribeRequests;
-        Dictionary<long, UnsubscribeRequest> _unsubscribeRequests;
+        readonly Dictionary<long, SubscribeRequest> _subscribeRequests;
+        readonly Dictionary<long, UnsubscribeRequest> _unsubscribeRequests;
 
         #endregion
 
@@ -305,26 +305,28 @@ namespace SocialPoint.WAMP.Subscriber
 
         internal override void ResetToInitialState()
         {
-            for(var i = 0; i < _subscribeRequests.Count; i++)
+            var itrSubscribe = _subscribeRequests.GetEnumerator();
+            while(itrSubscribe.MoveNext())
             {
-                var request = _subscribeRequests[i];
+                var request = itrSubscribe.Current.Value;
                 if(request.CompletionHandler != null)
                 {
                     request.CompletionHandler(new Error(ErrorCodes.ConnectionClosed, "Connection reset"), null);
                 }
             }
-
+            itrSubscribe.Dispose();
             _subscribeRequests.Clear();
 
-            for(var i = 0; i < _unsubscribeRequests.Count; i++)
+            var itrUnsubscribe = _unsubscribeRequests.GetEnumerator();
+            while(itrUnsubscribe.MoveNext())
             {
-                var request = _unsubscribeRequests[i];
+                var request = itrUnsubscribe.Current.Value;
                 if(request.CompletionHandler != null)
                 {
                     request.CompletionHandler(new Error(ErrorCodes.ConnectionClosed, "Connection reset"));
                 }
             }
-
+            itrUnsubscribe.Dispose();
             _unsubscribeRequests.Clear();
         }
 

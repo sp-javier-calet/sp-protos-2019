@@ -52,7 +52,7 @@ namespace SocialPoint.AssetVersioning
                     reader.Read();
                     if (!reader.CheckVersion(key, version))
                     {
-                        reader.SkipToObjectEnd();
+                        reader.SkipElement();
                         return;
                     }
                     switch(key)

@@ -24,6 +24,11 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public static bool IsNullOrEmpty(ServerLockstepTurnData turn)
+        {
+            return turn == null || turn.CommandCount == 0;
+        }
+
         public void AddCommand(ServerLockstepCommandData cmd)
         {
             if(cmd != null)

@@ -1,11 +1,10 @@
 using UnityEngine;
-using UnityEditor;
 
 namespace SocialPoint.GUIAnimation
 {
     public class GUIAnchorRenderer : GUIDefaultActionRenderer
     {
-        bool _showAnchors = false;
+        readonly bool _showAnchors;
 
         public GUIAnchorRenderer()
         {
@@ -37,14 +36,15 @@ namespace SocialPoint.GUIAnimation
                 for(int i = 0; i < stepsSelection.Steps.Count; ++i)
                 {
                     Step step = stepsSelection.Steps[i];
-                    if(step is EffectsGroup)
+                    var effectsGroup = step as EffectsGroup;
+                    if(effectsGroup != null)
                     {
-                        EffectsGroup effectsGroup = (EffectsGroup)step;
                         for(int animItems = 0; animItems < effectsGroup.AnimItems.Count; ++animItems)
                         {
-                            if(effectsGroup.AnimItems[animItems] is AnchorsEffect)
+                            var anchorsEffect = effectsGroup.AnimItems[animItems] as AnchorsEffect;
+                            if(anchorsEffect != null)
                             {
-                                ((AnchorsEffect)effectsGroup.AnimItems[animItems]).SetCurrentPosition();
+                                anchorsEffect.SetCurrentPosition();
                             }
                         }
                     }

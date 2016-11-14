@@ -90,7 +90,7 @@ namespace SocialPoint.Social
             if(_chatRooms.TryGetValue(type, out room))
             {
                 _chatRooms.Remove(type);
-                ClearSubscription(room);
+                DeleteSubscription(room);
 
                 if(room == AllianceRoom)
                 {
@@ -122,22 +122,13 @@ namespace SocialPoint.Social
             for(int i = 0; i < topicsList.Count; ++i)
             {
                 var topicDic = topicsList[i].AsDic;
-                var topic = topicDic.GetValue(ConnectionManager.TypeTopicKey).ToString();
-                ProcessChatTopic(topic, topicDic);
+                ProcessChatTopic(topicDic);
             }
 
             ChatBanEndTimestamp = 0;
             if(dic.ContainsKey("banEndTimestamp"))
             {
                 ChatBanEndTimestamp = dic.GetValue("banEndTimestamp").ToLong();
-            }
-        }
-
-        public void ClearSubscription(IChatRoom room)
-        {
-            if(IsSubscribedToChat(room))
-            {
-                _chatSubscriptions.Remove(room);
             }
         }
 
@@ -170,8 +161,10 @@ namespace SocialPoint.Social
             OnChatBanReceived(ChatBanEndTimestamp);
         }
 
-        void ProcessChatTopic(string topic, AttrDic dic)
+        void ProcessChatTopic(AttrDic dic)
         {
+            var topic = dic.GetValue(ConnectionManager.TypeTopicKey).ToString();
+
             IChatRoom room;
             if(!_chatRooms.TryGetValue(topic, out room))
             {

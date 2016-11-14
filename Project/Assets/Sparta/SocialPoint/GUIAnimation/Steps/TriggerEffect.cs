@@ -1,10 +1,9 @@
-using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
     public abstract class TriggerEffect : Effect
     {
-        bool _wasRun = false;
+        bool _wasRun;
 
         public override void OnReset()
         {

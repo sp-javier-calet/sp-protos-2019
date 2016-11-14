@@ -19,7 +19,7 @@ struct WebSocketConnectionInfo
     int port;
 };
 
-std::ostream& operator<<(std::ostream& os, const WebSocketConnectionInfo& info)
+inline std::ostream& operator<<(std::ostream& os, const WebSocketConnectionInfo& info)
 {
     os << info.scheme << "://" << info.host << ':' << info.port << '/' << info.path;
     return os;

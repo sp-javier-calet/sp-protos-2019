@@ -5,12 +5,11 @@ using SocialPoint.Base;
 using SocialPoint.Lockstep;
 using SocialPoint.Lockstep.Network;
 using SocialPoint.Dependency;
-using SocialPoint.Utils;
 using SocialPoint.IO;
 using SocialPoint.Pooling;
 using SocialPoint.Network;
 using SocialPoint.AdminPanel;
-using SocialPoint.GUIControl;
+using SocialPoint.Utils;
 using FixMath.NET;
 using System;
 using System.IO;
@@ -51,6 +50,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
     INetworkServer _netServer;
     ServerLockstepNetworkController _netLockstepServer;
     GameLockstepMode _mode;
+    XRandom _random;
 
     FloatingPanelController _clientFloating;
     FloatingPanelController _serverFloating;
@@ -78,6 +78,7 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         _model.OnInstantiate += OnInstantiate;
 
         _lockstep.RegisterCommandLogic<ClickCommand>(new ClickCommandLogic(_model));
+        _lockstep.SimulationStarted += OnGameStarted;
         _factory.Register<ClickCommand>(1);
 
         _mode = GameLockstepMode.None;
@@ -94,12 +95,30 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         _model.OnInstantiate -= OnInstantiate;
     }
 
+    void OnGameStarted()
+    {
+        if(_mode == GameLockstepMode.Replay)
+        {
+            _replay.Replay();
+        }
+        else
+        {
+            _replay.Record();
+        }
+
+        _random = _lockstep.CreateRandomGenerator();
+    }
+
+    void StartLocalGame(GameLockstepMode mode)
+    {
+        _mode = mode;
+        _lockstep.Start();
+    }
+
     public void OnLocalClicked()
     {
         SetupGameScreen();
-        _mode = GameLockstepMode.Local;
-        _replay.Record();
-        _lockstep.Start();
+        StartLocalGame(GameLockstepMode.Local);
     }
 
     public void OnReplayClicked()
@@ -119,20 +138,18 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         }
 
         SetupGameScreen();
-        _mode = GameLockstepMode.Replay;
-        _replay.Replay();
-        _lockstep.Start();
+        StartLocalGame(GameLockstepMode.Replay);
     }
 
     public void OnClientClicked()
     {
         SetupGameScreen();
-        _mode = GameLockstepMode.Client;
-        StartClient();
+        StartClient(GameLockstepMode.Client);
     }
 
-    void StartClient()
+    void StartClient(GameLockstepMode mode)
     {
+        _mode = mode;
         _netClient = ServiceLocator.Instance.Resolve<INetworkClient>();
         _netLockstepClient = ServiceLocator.Instance.Resolve<ClientLockstepNetworkController>();
         _netClient.Connect();
@@ -168,9 +185,8 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
     public void OnHostClicked()
     {
         SetupGameScreen();
-        _mode = GameLockstepMode.Host;
         StartServer();
-        StartClient();
+        StartClient(GameLockstepMode.Host);
         _netLockstepServer.UnregisterLocalClient();
     }
 
@@ -239,10 +255,20 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
         _model.Simulate(dt);
     }
 
+    static readonly Fix64 InstanceMinScale = (Fix64)0.2f;
+    static readonly Fix64 InstanceMaxScale = (Fix64)2.0f;
+
     void OnInstantiate(Fix64 x, Fix64 y, Fix64 z)
     {
-        ObjectPool.Spawn(_unitPrefab, transform,
-            new Vector3((float)x, (float)y, (float)z), Quaternion.identity);
+        var scale = new Vector3(
+            (float)_random.Range(InstanceMinScale, InstanceMaxScale),
+            (float)_random.Range(InstanceMinScale, InstanceMaxScale), 
+            (float)_random.Range(InstanceMinScale, InstanceMaxScale));
+        
+        var unit = ObjectPool.Spawn(_unitPrefab, transform,
+            new Vector3((float)x, (float)y * scale.y, (float)z), Quaternion.identity);
+        
+        unit.transform.localScale = scale;
     }
 
     void Update()
@@ -272,7 +298,4 @@ public class GameLockstepBehaviour : MonoBehaviour, IPointerClickHandler
     {
         ObjectPool.Recycle(loading);
     }
-
-
-
 }
