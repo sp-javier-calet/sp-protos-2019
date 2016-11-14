@@ -77,13 +77,12 @@ EXPORT_API int SPUnityWebSocketGetConnectedUrlIndex(WebSocketConnection* socket)
     return -1;
 }
 
-EXPORT_API void SPUnityWebSocketAddUrl(WebSocketConnection* socket, const std::string scheme, const std::string host, const std::string path,
-                                       int port)
+EXPORT_API void SPUnityWebSocketAddUrl(WebSocketConnection* socket, const char* scheme, const char* host, const char* path, int port)
 {
     socket->addUrl({scheme, host, path, port});
 }
 
-EXPORT_API void SPUnityWebSocketAddProtocol(WebSocketConnection* socket, const std::string protocol)
+EXPORT_API void SPUnityWebSocketAddProtocol(WebSocketConnection* socket, const char* protocol)
 {
     socket->addSupportedProtocol(protocol);
 }
@@ -98,14 +97,18 @@ EXPORT_API void SPUnityWebSocketPing(WebSocketConnection* socket)
     socket->sendPing();
 }
 
-EXPORT_API void SPUnityWebSocketSend(WebSocketConnection* socket, const std::string data)
+EXPORT_API void SPUnityWebSocketSend(WebSocketConnection* socket, const char* data)
 {
     socket->send(data);
 }
 
 EXPORT_API int SPUnityWebSocketGetMessageLength(WebSocketConnection* socket)
 {
-    return (int)socket->getMessage().size();
+    if(socket->hasMessages())
+    {
+        return (int)socket->getMessage().size();
+    }
+    return 0;
 }
 
 EXPORT_API bool SPUnityWebSocketGetMessage(WebSocketConnection* socket, char* data)
@@ -142,7 +145,7 @@ EXPORT_API bool SPUnityWebSocketGetError(WebSocketConnection* socket, char* data
     return false;
 }
 
-EXPORT_API void SPUnityWebSocketSetProxy(const std::string host, int port)
+EXPORT_API void SPUnityWebSocketSetProxy(const char* host, int port)
 {
     WebSocketsManager::get().setProxySettings({host, port});
 }

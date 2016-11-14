@@ -18,6 +18,7 @@ WebSocketConnection::WebSocketConnection()
 , _websocket(nullptr)
 , _pendingPings(0)
 , _state(State::Closed)
+, _errorCode(0)
 {
 }
 
