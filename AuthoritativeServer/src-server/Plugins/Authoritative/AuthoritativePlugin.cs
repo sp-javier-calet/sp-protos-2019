@@ -284,7 +284,7 @@ namespace Photon.Hive.Plugin.Authoritative
             }
         }
 
-        INetworkMessage INetworkServer.CreateMessage(NetworkMessageData info)
+        INetworkMessage INetworkMessageSender.CreateMessage(NetworkMessageData info)
         {
             List<int> actors = null;
             if(info.ClientId != 0)
