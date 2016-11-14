@@ -56,18 +56,15 @@ namespace SocialPoint.Lockstep.Network
         public event Action<Attr> PlayerFinishSent;
         public event Action<Error> ErrorProduced;
 
-        public ClientLockstepNetworkController(INetworkClient client)
+        public ClientLockstepNetworkController(INetworkClient client, ClientLockstepController clientLockstep, LockstepCommandFactory factory)
         {
             PlayerId = RandomUtils.GenerateSecurityToken();
             _client = client;
-            _client.RegisterReceiver(this);
-            _client.AddDelegate(this);
-        }
-
-        public ClientLockstepNetworkController(INetworkClient client, ClientLockstepController clientLockstep, LockstepCommandFactory factory) : this(client)
-        {
             _clientLockstep = clientLockstep;
             _commandFactory = factory;
+
+            _client.RegisterReceiver(this);
+            _client.AddDelegate(this);
             _clientLockstep.CommandAdded += OnCommandAdded;
         }
 
