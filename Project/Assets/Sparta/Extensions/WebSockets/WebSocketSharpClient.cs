@@ -10,7 +10,7 @@ namespace SocialPoint.WebSockets
         readonly string[] _protocols;
         WebSocketSharp.WebSocket _socket;
 
-        public WebSocketSharpClient(string[] urls, IUpdateScheduler scheduler) : this(url, null, scheduler)
+        public WebSocketSharpClient(string[] urls, IUpdateScheduler scheduler) : this(urls, null, scheduler)
         {
         }
 
