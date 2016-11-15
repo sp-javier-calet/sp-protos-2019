@@ -8,13 +8,6 @@ namespace SocialPoint.Dependency
     {
         DependencyGraph _graph;
 
-        readonly AdminPanelDependencyNode _nodePanel;
-
-        public AdminPanelDependency()
-        {
-            _nodePanel = new AdminPanelDependencyNode();
-        }
-
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
             if(DependencyGraphBuilder.IsAvailable)
@@ -30,18 +23,43 @@ namespace SocialPoint.Dependency
                 _graph = DependencyGraphBuilder.Graph;
             }
 
-            var itr = _graph.RootNodes.GetEnumerator();
-            while(itr.MoveNext())
+            layout.CreateOpenPanelButton("Root Nodes", new AdminPanelDependencyNodeList(_graph.RootNodes));
+            layout.CreateOpenPanelButton("All Bindings", new AdminPanelDependencyNodeList(_graph));
+        }
+
+        class AdminPanelDependencyNodeList : IAdminPanelGUI
+        {
+            readonly IEnumerable<Node> _list;
+            readonly AdminPanelDependencyNode _nodePanel;
+
+            public AdminPanelDependencyNodeList(IEnumerable<Node> nodes)
             {
-                var node = itr.Current;
-                layout.CreateButton(node.Name, () => {
-                    _nodePanel.Node = node;
-                    layout.OpenPanel(_nodePanel);
-                });
+                _list = nodes;
+                _nodePanel = new AdminPanelDependencyNode();
             }
-            itr.Dispose();
-            layout.CreateMargin();
-            layout.CreateButton("Refresh", layout.Refresh);
+
+            public void OnCreateGUI(AdminPanelLayout layout)
+            {
+                var itr = _list.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    var node = itr.Current;
+
+                    layout.CreateButton(node.Name, GetColor(node), () => {
+                        _nodePanel.Node = node;
+                        layout.OpenPanel(_nodePanel);
+                    });
+                }
+                itr.Dispose();
+
+                layout.CreateMargin();
+                layout.CreateButton("Refresh", layout.Refresh);
+            }
+
+            ButtonColor GetColor(Node node)
+            {
+                return node.Instantiated ? ButtonColor.Blue : ButtonColor.Gray;
+            }
         }
 
         class AdminPanelDependencyNode : IAdminPanelGUI
@@ -79,7 +97,9 @@ namespace SocialPoint.Dependency
                 _content
                     .Append("Class: ").Append(Node.Namespace).Append(".").AppendLine(Node.Class)
                     .Append("Tag: ").AppendLine(Node.Tag)
+                    .Append("Is Interface: ").AppendLine(Node.IsInterface.ToString())
                     .Append("Is Single: ").AppendLine(Node.IsSingle.ToString())
+                    .Append("Instantiated: ").AppendLine(Node.Instantiated.ToString())
                     .AppendLine();
                 
                 if(Node.IsRoot || Node.Instigator != null)

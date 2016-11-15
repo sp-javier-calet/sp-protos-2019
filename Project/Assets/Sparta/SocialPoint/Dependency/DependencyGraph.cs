@@ -168,7 +168,7 @@ namespace SocialPoint.Dependency
         }
     }
 
-    public class DependencyGraph
+    public class DependencyGraph : IEnumerable<Node>
     {
         public readonly HashSet<Node> RootNodes;
         public readonly Dictionary<Type, Dictionary<string, Node>> Bindings;
@@ -215,6 +215,26 @@ namespace SocialPoint.Dependency
             }
             return node;
         }
+
+        #region IEnumerable implementation
+
+        public IEnumerator<Node> GetEnumerator()
+        {
+            foreach(var type in Bindings.Values)
+            {
+                foreach(var node in type.Values)
+                {
+                    yield return node;
+                }
+            }
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
+
+        #endregion
     }
 
     public enum Origin
@@ -254,13 +274,36 @@ namespace SocialPoint.Dependency
         // Historic
         public List<Action> History;
 
-        public string Namespace;
+        readonly Type _type;
 
-        // Class
-        public string Class;
+        readonly string _tag;
 
         // Dependency Tag
-        public string Tag;
+        public string Tag
+        {
+            get
+            {
+                return _tag;
+            }
+        }   
+
+        // Namespace
+        public string Namespace
+        {
+            get
+            {
+                return _type.Namespace;
+            }
+        }
+
+        // Class
+        public string Class
+        {
+            get
+            {
+                return _type.Name;
+            }
+        }
 
         // Creator node
         public Node Instigator;
@@ -284,6 +327,22 @@ namespace SocialPoint.Dependency
             get
             {
                 return Instigator == null;
+            }
+        }
+
+        public bool Instantiated
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(CreationStack) || Instigator != null;
+            }
+        }
+
+        public bool IsInterface
+        {
+            get
+            {
+                return _type.IsInterface;
             }
         }
 
@@ -314,9 +373,8 @@ namespace SocialPoint.Dependency
 
         public Node(Type type, string tag = "") : this()
         {
-            Class = type.Name;
-            Namespace = type.Namespace ?? string.Empty;
-            Tag = tag ?? string.Empty;
+            _type = type;
+            _tag = tag ?? string.Empty;
         }
 
         public override string ToString()
@@ -330,6 +388,7 @@ namespace SocialPoint.Dependency
             content.AppendLine();
             content.AppendLine("Creation:")
             .Append("Root: ").AppendLine(IsRoot.ToString())
+            .Append("Instantiated: ").AppendLine(Instantiated.ToString())
             .Append("Instigator: ").AppendLine(Instigator != null ? Instigator.Class ?? "<none>" : "<none>")
             .AppendLine(CreationStack ?? string.Empty).AppendLine();
             content.AppendLine("History:");
