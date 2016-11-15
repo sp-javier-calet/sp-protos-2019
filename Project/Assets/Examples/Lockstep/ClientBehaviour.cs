@@ -57,7 +57,7 @@ namespace Examples.Lockstep
         ClientLockstepNetworkController _netLockstepClient;
         INetworkServer _netServer;
         ServerLockstepNetworkController _netLockstepServer;
-        IMatchmakingClientController _matchClient;
+        IMatchmakingClient _matchClient;
         GameLockstepMode _mode;
         XRandom _random;
         ServerBehaviour _serverBehaviour;
@@ -210,7 +210,7 @@ namespace Examples.Lockstep
         public void OnMatchClicked()
         {
             SetupGameScreen();
-            _matchClient = ServiceLocator.Instance.Resolve<IMatchmakingClientController>();
+            _matchClient = ServiceLocator.Instance.Resolve<IMatchmakingClient>();
             _matchClient.RemoveDelegate(this);
             _matchClient.AddDelegate(this);
             _fullscreenText.text = "connecting to matchmaker...";

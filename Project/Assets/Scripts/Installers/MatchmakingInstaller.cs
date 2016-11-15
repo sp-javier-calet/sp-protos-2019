@@ -22,9 +22,9 @@ public class MatchmakingInstaller : Installer
 
     public override void InstallBindings()
     {
-        Container.Rebind<IMatchmakingServerController>().ToMethod<HttpMatchmakingServerController>
+        Container.Rebind<IMatchmakingServer>().ToMethod<HttpMatchmakingServer>
             (CreateServer, SetupServer);
-        Container.Rebind<IMatchmakingClientController>().ToMethod<StoredMatchmakingClientController>
+        Container.Rebind<IMatchmakingClient>().ToMethod<StoredMatchmakingClient>
             (CreateClient, SetupClient);
 
         Container.Bind<IMatchmakingClientDelegate>().ToMethod<LockstepMatchmakingClientDelegate>(CreateLockstepDelegate);
@@ -35,24 +35,24 @@ public class MatchmakingInstaller : Installer
     {
         return new LockstepMatchmakingClientDelegate(
             Container.Resolve<ClientLockstepNetworkController>(),
-            Container.Resolve<IMatchmakingClientController>());
+            Container.Resolve<IMatchmakingClient>());
     }
 
     PhotonMatchmakingClientDelegate CreatePhotonDelegate()
     {
         return new PhotonMatchmakingClientDelegate(
             Container.Resolve<PhotonNetworkClient>(),
-            Container.Resolve<IMatchmakingClientController>());
+            Container.Resolve<IMatchmakingClient>());
     }
 
-    HttpMatchmakingServerController CreateServer()
+    HttpMatchmakingServer CreateServer()
     {
-        return new HttpMatchmakingServerController(
+        return new HttpMatchmakingServer(
             Container.Resolve<IHttpClient>(),
             Settings.BaseUrl);
     }
 
-    void SetupServer(HttpMatchmakingServerController server)
+    void SetupServer(HttpMatchmakingServer server)
     {
         var delegates = Container.ResolveList<IMatchmakingServerDelegate>();
         for(var i = 0; i < delegates.Count; i++)
@@ -61,10 +61,10 @@ public class MatchmakingInstaller : Installer
         }
     }
 
-    StoredMatchmakingClientController CreateClient()
+    StoredMatchmakingClient CreateClient()
     {
-        return new StoredMatchmakingClientController(
-            new WebsocketMatchmakingClientController(
+        return new StoredMatchmakingClient(
+            new WebsocketMatchmakingClient(
                 Container.Resolve<ILoginData>(),
                 new WebSocketSharpClient(
                     Settings.WebsocketUrl,
@@ -76,7 +76,7 @@ public class MatchmakingInstaller : Installer
         );
     }
 
-    void SetupClient(StoredMatchmakingClientController client)
+    void SetupClient(StoredMatchmakingClient client)
     {
         var delegates = Container.ResolveList<IMatchmakingClientDelegate>();
         for(var i = 0; i < delegates.Count; i++)
