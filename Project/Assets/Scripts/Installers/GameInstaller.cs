@@ -9,6 +9,7 @@ using SocialPoint.Alert;
 using SocialPoint.Locale;
 using SocialPoint.AppEvents;
 using SocialPoint.ScriptEvents;
+using SocialPoint.Social;
 using SocialPoint.Login;
 
 public class GameInstaller : Installer
@@ -37,6 +38,8 @@ public class GameInstaller : Installer
 
         Container.Rebind<IGameLoader>().ToMethod<GameLoader>(CreateGameLoader);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGame>(CreateAdminPanel);
+
+        Container.Rebind<IPlayerData>().ToMethod<PlayerDataProvider>(CreatePlayerData);
 
         Container.Install<EconomyInstaller>();
     }
@@ -71,5 +74,56 @@ public class GameInstaller : Installer
             Container.Resolve<IAppEvents>(),
             Container.Resolve<bool>("game_debug"));
 
+    }
+
+    PlayerDataProvider CreatePlayerData()
+    {
+        return new PlayerDataProvider(
+            Container.Resolve<ILoginData>(),
+            Container.Resolve<PlayerModel>());
+    }
+
+
+    /// <summary>
+    /// Game must integrate data to implement an unique provider of player data
+    /// </summary>
+    class PlayerDataProvider : IPlayerData
+    {
+        ILoginData _loginData;
+        PlayerModel _playerModel;
+
+        public PlayerDataProvider(ILoginData loginData, PlayerModel playerModel)
+        {
+            _loginData = loginData;
+            _playerModel = playerModel;
+        }
+
+        #region IPlayerData implementation
+
+        public string Id
+        {
+            get
+            {
+                return _loginData.UserId.ToString();
+            }
+        }
+
+        public string Name
+        {
+            get
+            {
+                return "Player Name";
+            }
+        }
+
+        public long Level
+        {
+            get
+            {
+                return _playerModel.Level;
+            }
+        }
+
+        #endregion
     }
 }
