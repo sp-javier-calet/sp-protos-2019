@@ -181,12 +181,14 @@ namespace SocialPoint.Social
             {
                 if(_appEvents != null)
                 {
+
+                    _appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
                     _appEvents.GameWillRestart.Remove(Disconnect);
                 }
                 _appEvents = value;
                 if(_appEvents != null)
                 {
-                    
+                    _appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
                     _appEvents.GameWillRestart.Add(0, Disconnect);
                 }
             }
@@ -226,6 +228,22 @@ namespace SocialPoint.Social
             }
         }
 
+        public string[] Urls
+        {
+            get
+            {
+                return _socket.Urls;
+            }
+        }
+
+        public string ConnectedUrl
+        {
+            get
+            {
+                return _socket.ConnectedUrl;
+            }
+        }
+
         bool _debugEnabled;
 
         public bool DebugEnabled
@@ -255,9 +273,6 @@ namespace SocialPoint.Social
 
         readonly WAMPConnection _connection;
         readonly IWebSocketClient _socket;
-
-        WAMPConnection.StartRequest _startRequest;
-        WAMPConnection.JoinRequest _joinRequest;
 
         ScheduledAction _pingUpdate;
         ScheduledAction _reconnectUpdate;
@@ -296,29 +311,23 @@ namespace SocialPoint.Social
             _connection.AutoSubscribe(subscription, (args, kwargs) => OnNotificationMessageReceived(topic, args, kwargs));
         }
 
-        public void Connect()
+        public WAMPConnection.StartRequest Connect()
         {
-            Reconnect();
+            return Reconnect();
         }
 
-        public void Reconnect()
+        public WAMPConnection.StartRequest Reconnect()
         {
             if(_state != ConnectionState.Disconnected)
             {
-                return;
+                return null;
             }
 
             _state = ConnectionState.Connecting;
 
-            if(_startRequest != null)
-            {
-                _startRequest.Dispose();
-            }
-
-            _startRequest = _connection.Start(() => {
+            return _connection.Start(() => {
                 SendHello();
                 SchedulePing();
-                _startRequest = null;
             });
         }
 
@@ -327,6 +336,15 @@ namespace SocialPoint.Social
             UnschedulePing();
             ResetState();
             Reconnect();
+        }
+
+        void OnGameWasLoaded()
+        {
+            if(LoginData != null && LoginData.Data.Social != null)
+            {
+                var urls = LoginData.Data.Social.WebSocketUrls;
+                _socket.Urls = urls;
+            }
         }
 
         public void Disconnect()
@@ -512,8 +530,6 @@ namespace SocialPoint.Social
             {
                 OnConnected();
             }
-
-            _joinRequest = null;
         }
 
         void OnNotificationMessageReceived(string topic, AttrList listParams, AttrDic dicParams)
@@ -540,9 +556,9 @@ namespace SocialPoint.Social
                     {
                         onResult(err, iargs, ikwargs);
                     }
+                    RestartConnection();
+                    return;
                 }
-                RestartConnection();
-                return;
             }
 
             if(onResult != null)
@@ -551,7 +567,7 @@ namespace SocialPoint.Social
             }
         }
 
-        void SendHello()
+        WAMPConnection.JoinRequest SendHello()
         {
             // Use the ForcedUser if defined. Otherwise, collect info from current user.
             var data = ForcedUser ?? new UserData(LoginData);
@@ -569,11 +585,7 @@ namespace SocialPoint.Social
             dicDetails.SetValue("platform", DeviceInfo.Platform);
             dicDetails.SetValue("language", Localization.Language);
 
-            if(_joinRequest != null)
-            {
-                _joinRequest.Dispose();
-            }
-            _joinRequest = _connection.Join(string.Empty, dicDetails, OnJoined);
+            return _connection.Join(string.Empty, dicDetails, OnJoined);
         }
 
         #region INetworkClientDelegate implementation

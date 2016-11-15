@@ -45,6 +45,9 @@ public class SocialFrameworkInstaller : Installer
         Container.Bind<ChatManager>().ToMethod<ChatManager>(CreateChatManager, SetupChatManager);
         Container.Bind<IDisposable>().ToLookup<ChatManager>();
 
+        Container.Bind<AlliancesManager>().ToMethod<AlliancesManager>(CreateAlliancesManager, SetupAlliancesManager);
+        Container.Bind<IDisposable>().ToLookup<AlliancesManager>();
+
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWebSockets>(CreateAdminPanelWebSockets);
 
@@ -128,11 +131,28 @@ public class SocialFrameworkInstaller : Installer
         manager.Register(Container.ResolveList<IChatRoom>());
     }
 
+    AlliancesManager CreateAlliancesManager()
+    {
+        return new AlliancesManager(
+            Container.Resolve<ConnectionManager>());
+    }
+
+    void SetupAlliancesManager(AlliancesManager manager)
+    {
+        manager.LoginData = Container.Resolve<ILoginData>();
+
+        if(Container.HasBinding<AllianceDataFactory>())
+        {
+            manager.Factory = Container.Resolve<AllianceDataFactory>();
+        }
+    }
+
     AdminPanelSocialFramework CreateAdminPanelSocialFramework()
     {
         return new AdminPanelSocialFramework(
             Container.Resolve<ConnectionManager>(),
-            Container.Resolve<ChatManager>());
+            Container.Resolve<ChatManager>(),
+            Container.Resolve<AlliancesManager>());
     }
 
     AdminPanelWebSockets CreateAdminPanelWebSockets()

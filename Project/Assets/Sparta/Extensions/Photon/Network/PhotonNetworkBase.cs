@@ -51,34 +51,38 @@ namespace SocialPoint.Network
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
     {
-        PhotonNetworkConfig _config;
+        public PhotonNetworkConfig Config;
 
         const int ConnectionError = 1;
         const int CreateRoomError = 2;
         const int CustomAuthError = 3;
 
+        [Obsolete("Use the Config property")]
         public void Init(PhotonNetworkConfig config)
         {
-            //PhotonNetwork.sendRate = 1;
-            _config = config;
+            Config = config;
         }
 
         void Awake()
         {
-            if(_config == null)
+            if(Config == null)
             {
-                _config = new PhotonNetworkConfig();
+                Config = new PhotonNetworkConfig();
             }
         }
 
         protected void DoConnect()
         {
-            PhotonNetwork.ConnectUsingSettings(_config.GameVersion);
+            DoDisconnect();
+            PhotonNetwork.ConnectUsingSettings(Config.GameVersion);
         }
 
         protected void DoDisconnect()
         {
-            PhotonNetwork.Disconnect();
+            if(PhotonNetwork.connected)
+            {
+                PhotonNetwork.Disconnect();
+            }
         }
 
         public void Dispose()
@@ -91,19 +95,19 @@ namespace SocialPoint.Network
         {
             get
             {
-                return _config.RoomOptions == null ? null : _config.RoomOptions.ToPhoton();
+                return Config.RoomOptions == null ? null : Config.RoomOptions.ToPhoton();
             }
         }
 
         void JoinOrCreateRoom()
         {
-            if(string.IsNullOrEmpty(_config.RoomName))
+            if(string.IsNullOrEmpty(Config.RoomName))
             {
-                PhotonNetwork.CreateRoom(_config.RoomName, PhotonRoomOptions, null);
+                PhotonNetwork.CreateRoom(Config.RoomName, PhotonRoomOptions, null);
             }
             else
             {
-                PhotonNetwork.JoinOrCreateRoom(_config.RoomName, PhotonRoomOptions, null);
+                PhotonNetwork.JoinOrCreateRoom(Config.RoomName, PhotonRoomOptions, null);
             }
         }
 
@@ -127,7 +131,7 @@ namespace SocialPoint.Network
 
         void OnJoinedLobby()
         {
-            if(string.IsNullOrEmpty(_config.RoomName))
+            if(string.IsNullOrEmpty(Config.RoomName))
             {
                 PhotonNetwork.JoinRandomRoom();
             }
@@ -181,12 +185,14 @@ namespace SocialPoint.Network
         {
             var err = new Error(ConnectionError, "Failed to connect: " + cause);
             OnNetworkError(err);
+            OnDisconnected();
         }
 
         void OnCustomAuthenticationFailed(string debugMessage)
         {
             var err = new Error(CustomAuthError, "Custom Authentication failed: " + debugMessage);
             OnNetworkError(err);
+            OnDisconnected();
         }
 
         #endregion
@@ -247,7 +253,7 @@ namespace SocialPoint.Network
             {
                 var err = new Error((string)content);
                 OnNetworkError(err);
-                PhotonNetwork.Disconnect();
+                DoDisconnect();
                 return;
             }
 

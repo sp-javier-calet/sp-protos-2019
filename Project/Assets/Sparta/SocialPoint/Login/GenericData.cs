@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Utils;
 
@@ -11,7 +12,7 @@ namespace SocialPoint.Login
         public string Version;
         const string AttrKeyUpgradeMessage = "message";
         const string AttrKeyUpgradeVersion = "version";
-        
+
         public UpgradeData(UpgradeType type, Attr data = null)
         {
             Type = type;
@@ -51,14 +52,14 @@ namespace SocialPoint.Login
                 reader.Read();
             }
         }
-        
+
         public override string ToString()
         {
             return string.Format("[UpgradeData: Type={0}, Message={1}, Version={2}]",
-                                 Type, Message, Version);
+                Type, Message, Version);
         }
     }
-    
+
     public sealed class MaintenanceData
     {
         public string Title;
@@ -106,11 +107,66 @@ namespace SocialPoint.Login
                 Button = datadic.GetValue(AttrKeyMaintenanceButton).AsValue.ToString();
             }
         }
-        
+
         public override string ToString()
         {
             return string.Format("[MaintentanceData: Title={0}, Message={1} Button={2}]",
                 Title, Message, Button);
+        }
+    }
+
+    public sealed class SocialFrameworkData
+    {
+        public string[] WebSocketUrls;
+
+        const string AttrKeyWebSocketUrl = "websocket_endpoints";
+
+        public SocialFrameworkData(IStreamReader reader)
+        {
+            if(reader.Token != StreamToken.ObjectStart)
+            {
+                reader.SkipElement();
+            }
+            else
+            {
+                while(reader.Read() && reader.Token != StreamToken.ObjectEnd)
+                {
+                    var key = reader.GetStringValue();
+                    reader.Read();
+                    switch(key)
+                    {
+                    case AttrKeyWebSocketUrl:
+
+                        var list = new List<string>();
+                        while(reader.Read() && reader.Token != StreamToken.ArrayEnd)
+                        {
+                            list.Add(reader.GetStringValue());
+                        }
+                        WebSocketUrls = list.ToArray();
+                        break;
+                    }
+                }
+            }
+        }
+
+        public SocialFrameworkData(Attr data = null)
+        {
+            if(data != null && data.AttrType == AttrType.DICTIONARY)
+            {
+                var datadic = data.AsDic;
+                var urlList = datadic.Get(AttrKeyWebSocketUrl).AsList;
+                var list = new List<string>();
+                for(var i = 0; i < urlList.Count; ++i)
+                {
+                    list.Add(urlList.GetValue(i).ToString());
+                }
+                WebSocketUrls = list.ToArray();
+            }
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[SocialFrameworkData: Urls={0}]", WebSocketUrls.Length);
         }
     }
 
@@ -122,14 +178,16 @@ namespace SocialPoint.Login
         public string UserImportance;
         public bool Cheat;
         public MaintenanceData Maintenance;
+        public SocialFrameworkData Social;
         const string AttrKeyTimestamp = "ts";
         const string AttrKeyStoreUrl = "store";
         const string AttrKeyUpgradeSuggested = "suggested_upgrade";
         const string AttrKeyUpgradeForced = "forced_upgrade";
         const string AttrKeyMaintenanceData = "maintenance_data";
+        const string AttrKeySocialFrameworkData = "social";
         const string AttrKeyUserImportance = "user_importance";
         const string AttrKeyCheat = "cheat";
-        
+
         public void Load(IStreamReader reader)
         {
             if(reader.Token != StreamToken.ObjectStart)
@@ -160,11 +218,14 @@ namespace SocialPoint.Login
                     case AttrKeyMaintenanceData:
                         Maintenance = new MaintenanceData(reader);
                         break;
+                    case AttrKeySocialFrameworkData:
+                        Social = new SocialFrameworkData(reader);
+                        break;
                     case AttrKeyUserImportance:
                         UserImportance = reader.GetStringValue();
                         break;
                     case AttrKeyCheat:
-                        Cheat = reader.GetBoolValue (); 
+                        Cheat = reader.GetBoolValue(); 
                         break;
                     default:
                         reader.SkipElement();
@@ -172,7 +233,9 @@ namespace SocialPoint.Login
                     }
                 }
                 if(Upgrade == null)
+                {
                     Upgrade = new UpgradeData(UpgradeType.None);
+                }
             }
         }
 
@@ -213,6 +276,10 @@ namespace SocialPoint.Login
             {
                 Maintenance = new MaintenanceData(datadic.Get(AttrKeyMaintenanceData));
             }
+            if(datadic.ContainsKey(AttrKeySocialFrameworkData))
+            {
+                Social = new SocialFrameworkData(datadic.Get(AttrKeySocialFrameworkData));
+            }
         }
 
         public override string ToString()
@@ -221,7 +288,7 @@ namespace SocialPoint.Login
                 "[GenericData: DeltaTime={0}, StoreUrl={1}, UserImportance={2} Upgrade={3}, Maintenance={4}, Cheat={5}]",
                 DeltaTime, StoreUrl, UserImportance, Upgrade, Maintenance, Cheat);
         }
-        
+
         [Obsolete("Use Upgrade.Type")]
         public bool ForcedUpgradeRequired
         {
