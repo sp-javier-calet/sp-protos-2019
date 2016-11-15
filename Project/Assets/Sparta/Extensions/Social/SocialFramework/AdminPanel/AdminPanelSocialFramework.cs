@@ -84,7 +84,19 @@ namespace SocialPoint.Social
             });
             var foldoutLayout = layout.CreateFoldoutLayout("Urls");
             _content.Length = 0;
-            _content.AppendLine(_connection.Url);
+
+            var connectedUrl = _connection.ConnectedUrl;
+            var urls = _connection.Urls;
+            for(var i = 0; i < urls.Length; ++i)
+            {
+                var url = urls[i];
+                if(url == connectedUrl)
+                {
+                    _content.Append(">> ");
+                }
+                _content.AppendLine(url);
+            }
+
             foldoutLayout.CreateTextArea(_content.ToString());
 
             layout.CreateOpenPanelButton("User", _userPanel, !connected);

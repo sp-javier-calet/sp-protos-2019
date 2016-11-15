@@ -228,12 +228,19 @@ namespace SocialPoint.Social
             }
         }
 
-        public string Url
+        public string[] Urls
         {
             get
             {
-                // TODO Work with multiple Urls
-                return _socket.Url;
+                return _socket.Urls;
+            }
+        }
+
+        public string ConnectedUrl
+        {
+            get
+            {
+                return _socket.ConnectedUrl;
             }
         }
 
@@ -336,7 +343,7 @@ namespace SocialPoint.Social
             if(LoginData != null && LoginData.Data.Social != null)
             {
                 var urls = LoginData.Data.Social.WebSocketUrls;
-                _socket.Url = urls[0]; // TODO Set urls
+                _socket.Urls = urls;
             }
         }
 
