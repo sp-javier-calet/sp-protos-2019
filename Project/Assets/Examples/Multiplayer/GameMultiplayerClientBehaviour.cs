@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using SocialPoint.Dependency;
 using SocialPoint.Multiplayer;
 using SocialPoint.Network;
+using SocialPoint.Physics;
 using SocialPoint.IO;
 using SocialPoint.Pooling;
 using Jitter.LinearMath;
@@ -71,8 +72,8 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
             _client.SendMessage(new NetworkMessageData {
                 MessageType = GameMsgType.ClickAction
             }, new ClickAction {
-                Position = eventData.pointerPressRaycast.worldPosition.ToMultiplayer(),
-                Ray = new SocialPoint.Multiplayer.Ray(clickRay.origin.ToMultiplayer(), clickRay.direction.ToMultiplayer())
+                Position = eventData.pointerPressRaycast.worldPosition.ToPhysics(),
+                Ray = new SocialPoint.Physics.Ray(clickRay.origin.ToPhysics(), clickRay.direction.ToPhysics())
             });
         }
     }
@@ -87,16 +88,16 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
 
     void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
     {
-        switch (data.MessageType)
+        switch(data.MessageType)
         {
-            case GameMsgType.ExplosionEvent:
-                ReadExplosionEvent(reader);
-                break;
-            case GameMsgType.PathEvent:
-                ReadPathEvent(reader);
-                break;
-            default:
-                break;
+        case GameMsgType.ExplosionEvent:
+            ReadExplosionEvent(reader);
+            break;
+        case GameMsgType.PathEvent:
+            ReadPathEvent(reader);
+            break;
+        default:
+            break;
         }
     }
 
@@ -109,14 +110,14 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
     void ReadPathEvent(IReader reader)
     {
         //Clear previous objects
-        for (int i = 0; i < _visualPathNodes.Count; i++)
+        for(int i = 0; i < _visualPathNodes.Count; i++)
         {
             Destroy(_visualPathNodes[i]);
         }
 
         //Create new path nodes
         var ev = reader.Read<PathEvent>();
-        for (int i = 0; i < ev.Points.Length; i++)
+        for(int i = 0; i < ev.Points.Length; i++)
         {
             var nodeObj = Instantiate(_pathNodePrefab, ev.Points[i].ToUnity(), Quaternion.identity) as GameObject;
             nodeObj.transform.SetParent(transform);
@@ -124,7 +125,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
         }
 
         //Create path edges
-        for (int i = 0; i < ev.Points.Length - 1; i++)
+        for(int i = 0; i < ev.Points.Length - 1; i++)
         {
             var point1 = ev.Points[i].ToUnity();
             var point2 = ev.Points[i + 1].ToUnity();

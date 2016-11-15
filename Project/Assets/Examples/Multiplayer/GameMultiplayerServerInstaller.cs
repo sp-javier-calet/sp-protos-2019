@@ -1,5 +1,6 @@
 ﻿using SocialPoint.Dependency;
 using SocialPoint.Multiplayer;
+using SocialPoint.Physics;
 using SocialPoint.Network;
 
 public class GameMultiplayerServerInstaller : Installer, IInitializable
