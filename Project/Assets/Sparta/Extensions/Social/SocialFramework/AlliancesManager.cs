@@ -50,6 +50,7 @@ namespace SocialPoint.Social
         #region Attr keys
 
         const string UserIdKey = "user_id";
+        const string MemberIdKey = "player_id";
         // TODO Both Key and Session store the SessionId
         const string UserSessionKey = "user_key";
         const string SessionIdKey = "session_id";
@@ -166,8 +167,7 @@ namespace SocialPoint.Social
         public WAMPRequest LoadUserInfo(string userId, Action<Error, AllianceMember> callback)
         {
             var dic = new AttrDic();
-            dic.SetValue(UserIdKey, userId);
-            dic.SetValue(UserSessionKey, LoginData.SessionId);
+            dic.SetValue(MemberIdKey, userId);
 
             return _connection.Call(AllianceMemberInfoMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 AllianceMember member = null;
