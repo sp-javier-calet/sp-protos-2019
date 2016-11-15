@@ -175,7 +175,8 @@ namespace SocialPoint.WebSockets
         {
             get
             {
-                return _urls[SPUnityWebSocketGetConnectedUrlIndex(NativeSocket)];
+                var index = SPUnityWebSocketGetConnectedUrlIndex(NativeSocket);
+                return (index < 0 || index >= _urls.Length) ? null : _urls[index];
             }
         }
 

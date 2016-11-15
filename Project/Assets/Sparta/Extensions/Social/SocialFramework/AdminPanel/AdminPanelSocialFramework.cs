@@ -90,7 +90,7 @@ namespace SocialPoint.Social
             for(var i = 0; i < urls.Length; ++i)
             {
                 var url = urls[i];
-                if(url == connectedUrl)
+                if(connectedUrl != null && url == connectedUrl)
                 {
                     _content.Append(">> ");
                 }
