@@ -69,7 +69,9 @@ namespace SocialPoint.Login
 
         public string SessionId{ get { return null; } }
 
-        public string PrivilegeToken{ set { } }
+        public string SecurityToken{ get { return null; } }
+
+        public string PrivilegeToken{ get { return null; } set { } }
 
         public GenericData Data{ get; set; }
 

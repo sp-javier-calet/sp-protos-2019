@@ -28,6 +28,16 @@ namespace SocialPoint.Login
         string SessionId { get; }
 
         /// <summary>
+        /// Current Security Token
+        /// </summary>
+        string SecurityToken { get; }
+
+        /// <summary>
+        /// Current Privilege Token
+        /// </summary>
+        string PrivilegeToken { get; }
+
+        /// <summary>
         /// Generic data received in login response
         /// </summary>
         GenericData Data { get; }
