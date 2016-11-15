@@ -89,11 +89,11 @@
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\ServerTurnData.cs">
       <Link>Lib\Lockstep\ServerTurnData.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Matchmaking\HttpMatchmakingServerController.cs">
-      <Link>Lib\Matchmaking\HttpMatchmakingServerController.cs</Link>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Matchmaking\HttpMatchmakingServer.cs">
+      <Link>Lib\Matchmaking\HttpMatchmakingServer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Matchmaking\IMatchmakingServerController.cs">
-      <Link>Lib\Matchmaking\IMatchmakingServerController.cs</Link>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Matchmaking\IMatchmakingServer.cs">
+      <Link>Lib\Matchmaking\IMatchmakingServer.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\External\fastJSON\dynamic.cs">
       <Link>Lib\External\FastJson\dynamic.cs</Link>
