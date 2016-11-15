@@ -578,10 +578,7 @@ namespace SocialPoint.Social
                 {
                     var hlayout = layout.CreateHorizontalLayout();
                     hlayout.CreateFormLabel(label);
-                    hlayout.CreateTextInput(current, value => {
-                        onChanged(value);
-                        layout.Refresh();
-                    }); 
+                    hlayout.CreateTextInput(current, onChanged); 
                 }
 
                 void IntValueInput(AdminPanelLayout layout, string label, int current, Action<int> onChanged)
@@ -593,13 +590,11 @@ namespace SocialPoint.Social
                         {
                             var parsed = int.Parse(value);
                             onChanged(parsed);
-                            layout.Refresh();
                         }
                         catch(Exception)
                         {
                             _console.Print(string.Format("Invalid {0} value", label));
                             onChanged(current);
-                            layout.Refresh();
                         }
                     });
                 }
@@ -683,12 +678,12 @@ namespace SocialPoint.Social
 
                 void CreateMembersList(AdminPanelLayout layout, string label, Alliance alliance, IEnumerator<AllianceMember> members)
                 {
-                    layout.CreateLabel(label);
+                    var foldout = layout.CreateFoldoutLayout(label);
                     while(members.MoveNext())
                     {
                         var member = members.Current;
-                        var userLabel = string.Format("[{0}]: Lvl: {1} - S: {2} -- {3}", member.Name, member.Level, member.Score, member.Rank.ToString());
-                        layout.CreateConfirmButton(userLabel, () => {
+                        var userLabel = string.Format("[{0}]: Lvl: {1} - S: {2} -- {3}", member.Name, member.Level, member.Score, member.Rank);
+                        foldout.CreateConfirmButton(userLabel, () => {
                             _userPanel.Alliance = alliance;
                             _userPanel.UserId = member.Uid;
                             layout.OpenPanel(_userPanel);

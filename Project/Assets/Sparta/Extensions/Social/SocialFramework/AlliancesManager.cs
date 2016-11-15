@@ -147,8 +147,8 @@ namespace SocialPoint.Social
         public WAMPRequest LoadAllianceInfo(string allianceId, Action<Error, Alliance> callback)
         {
             var dic = new AttrDic();
-            dic.SetValue(UserSessionKey, LoginData.SessionId);
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
+            dic.SetValue(AllianceIdKey, allianceId);
              
             return _connection.Call(AllianceInfoMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 Alliance alliance = null;
@@ -166,6 +166,7 @@ namespace SocialPoint.Social
         public WAMPRequest LoadUserInfo(string userId, Action<Error, AllianceMember> callback)
         {
             var dic = new AttrDic();
+            dic.SetValue(UserIdKey, userId);
             dic.SetValue(UserSessionKey, LoginData.SessionId);
 
             return _connection.Call(AllianceMemberInfoMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
@@ -190,6 +191,7 @@ namespace SocialPoint.Social
             }
 
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
+            dic.SetValue("ranking_type", ""); // TODO in use?
 
             return _connection.Call(AllianceRankingMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 AllianceRankingData ranking = null;
