@@ -671,7 +671,8 @@ namespace SocialPoint.Social
                         }
                         else
                         {
-                            layout.CreateLabel(string.Format("Load Alliance request failed. {0}", _wampRequestError));
+                            layout.CreateLabel("Load Alliance request failed.");
+                            layout.CreateTextArea(_wampRequestError.ToString());
                             layout.CreateButton("Retry", () => {
                                 Cancel();
                                 layout.Refresh();
@@ -797,7 +798,8 @@ namespace SocialPoint.Social
                         }
                         else
                         {
-                            layout.CreateLabel(string.Format("Load user request failed. {0}", _wampRequestError));
+                            layout.CreateLabel("Load user request failed");
+                            layout.CreateTextArea(_wampRequestError.ToString());
                             layout.CreateButton("Retry", () => {
                                 Cancel();
                                 layout.Refresh();
@@ -916,7 +918,8 @@ namespace SocialPoint.Social
                         }
                         else
                         {
-                            layout.CreateLabel(string.Format("Load user request failed. {0}", _wampRequestError));
+                            layout.CreateLabel("Load user request failed.");
+                            layout.CreateTextArea(_wampRequestError.ToString());
                             layout.CreateButton("Retry", () => {
                                 Cancel();
                                 layout.Refresh();
@@ -996,7 +999,8 @@ namespace SocialPoint.Social
                         }
                         else
                         {
-                            layout.CreateLabel(string.Format("Load user request failed. {0}", _wampRequestError));
+                            layout.CreateLabel("Load user request failed.");
+                            layout.CreateTextArea(_wampRequestError.ToString());
                             layout.CreateButton("Retry", () => {
                                 Cancel();
                                 layout.Refresh();
