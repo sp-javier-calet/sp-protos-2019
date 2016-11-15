@@ -155,7 +155,9 @@ namespace SocialPoint.Social
                 Alliance alliance = null;
                 if(Error.IsNullOrEmpty(err))
                 {
-                    alliance = Factory.CreateAlliance(allianceId, AccessTypes.DefaultAccessType, rDic);
+                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
+                    var result = rDic.Get(OperationResultKey).AsDic;
+                    alliance = Factory.CreateAlliance(allianceId, AccessTypes.DefaultAccessType, result);
                 }
                 if(callback != null)
                 {
@@ -173,7 +175,9 @@ namespace SocialPoint.Social
                 AllianceMember member = null;
                 if(Error.IsNullOrEmpty(err))
                 {
-                    member = Factory.CreateMember(dic);
+                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
+                    var result = rDic.Get(OperationResultKey).AsDic;
+                    member = Factory.CreateMember(result);
                 }
                 if(callback != null)
                 {
@@ -197,7 +201,9 @@ namespace SocialPoint.Social
                 AllianceRankingData ranking = null;
                 if(Error.IsNullOrEmpty(err))
                 {
-                    ranking = Factory.CreateRankingData(dic);
+                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
+                    var result = rDic.Get(OperationResultKey).AsDic;
+                    ranking = Factory.CreateRankingData(result);
                 }
                 if(callback != null)
                 {
@@ -217,7 +223,9 @@ namespace SocialPoint.Social
                 AlliancesSearchData searchData = null;
                 if(Error.IsNullOrEmpty(err))
                 {
-                    searchData = Factory.CreateSearchData(dic, suggested);
+                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
+                    var result = rDic.Get(OperationResultKey).AsDic;
+                    searchData = Factory.CreateSearchData(result, suggested);
                 }
                 if(callback != null)
                 {
@@ -236,7 +244,9 @@ namespace SocialPoint.Social
                 AlliancesSearchData searchData = null;
                 if(Error.IsNullOrEmpty(err))
                 {
-                    searchData = Factory.CreateSearchData(dic, suggested);
+                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
+                    var result = rDic.Get(OperationResultKey).AsDic;
+                    searchData = Factory.CreateSearchData(result, suggested);
                 }
                 if(callback != null)
                 {
@@ -255,7 +265,9 @@ namespace SocialPoint.Social
                 AlliancesSearchData search = null;
                 if(Error.IsNullOrEmpty(err))
                 {
-                    search = Factory.CreateJoinData(dic);
+                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
+                    var result = rDic.Get(OperationResultKey).AsDic;
+                    search = Factory.CreateJoinData(result);
                 }
                 if(callback != null)
                 {
