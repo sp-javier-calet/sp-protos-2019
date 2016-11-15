@@ -10,9 +10,9 @@ namespace SocialPoint.Dependency
 
     public sealed class InitializableManager
     {
-        Dictionary<IInitializable,int> _initialized;
-        DependencyContainer _container;
-        ReferenceComparer<IInitializable> _comparer;
+        readonly Dictionary<IInitializable,int> _initialized;
+        readonly DependencyContainer _container;
+        readonly ReferenceComparer<IInitializable> _comparer;
 
         public InitializableManager(DependencyContainer container)
         {

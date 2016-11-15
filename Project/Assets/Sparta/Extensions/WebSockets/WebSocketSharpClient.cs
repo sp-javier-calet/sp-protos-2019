@@ -16,6 +16,7 @@ namespace SocialPoint.WebSockets
 
         public WebSocketSharpClient(string url, string[] protocols, IUpdateScheduler scheduler)
         {
+            _url = url;
             _protocols = protocols;
             _dispatcher = new WebSocketsEventDispatcher(scheduler);
             CreateSocket(url);

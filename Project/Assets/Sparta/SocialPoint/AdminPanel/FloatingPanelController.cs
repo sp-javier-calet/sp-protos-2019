@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
 using SocialPoint.GUIControl;
-using SocialPoint.Utils;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 namespace SocialPoint.AdminPanel
@@ -86,12 +82,27 @@ namespace SocialPoint.AdminPanel
 
         public override void ReplacePanel(IAdminPanelGUI panel)
         {
-            _gui = panel;
-            RefreshPanel();
+            if(_gui != panel)
+            {
+                if(_gui != null)
+                {
+                    NotifyClosedPanel(_gui);
+                }
+
+                _gui = panel;
+
+                if(panel != null)
+                {
+                    NotifyOpenedPanel(panel);
+                }
+
+                RefreshPanel();
+            }
         }
 
         public override void ClosePanel()
         {
+            NotifyClosedPanel(_gui);
             Hide(true);
         }
 

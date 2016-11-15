@@ -56,5 +56,23 @@ namespace SocialPoint.AdminPanel
         {
             _updateables.Remove(updateable);
         }
+
+        protected void NotifyOpenedPanel(IAdminPanelGUI gui)
+        {
+            var managed = gui as IAdminPanelManagedGUI;
+            if(managed != null)
+            {
+                managed.OnOpened();
+            }
+        }
+
+        protected void NotifyClosedPanel(IAdminPanelGUI gui)
+        {
+            var managed = gui as IAdminPanelManagedGUI;
+            if(managed != null)
+            {
+                managed.OnClosed();
+            }
+        }
     }
 }
