@@ -50,15 +50,18 @@ namespace SocialPoint.Dependency
             var binded = _graph.GetNode(bind, tag);
             binded.History.Add(Action.Binded);
 
-            if(type.IsInterface)
+            if(type != bind)
             {
-                binded.Implements.Add(node);
+                if(type.IsInterface)
+                {
+                    binded.Implements.Add(node);
+                }
+                else
+                {
+                    binded.Aliases.Add(node);
+                }
+                node.Definitions.Add(binded);
             }
-            else
-            {
-                binded.Aliases.Add(node);
-            }
-            node.Definitions.Add(binded);
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
@@ -71,18 +74,21 @@ namespace SocialPoint.Dependency
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
         public static void Alias(Type fromType, string fromTag, Type toType, string toTag)
         {
-            var fromNode = _graph.GetNode(fromType, fromTag);
-            var toNode = _graph.GetNode(toType, toTag);
+            if(fromType != toType)
+            {
+                var fromNode = _graph.GetNode(fromType, fromTag);
+                var toNode = _graph.GetNode(toType, toTag);
 
-            if(fromType.IsInterface)
-            {
-                fromNode.Implements.Add(toNode);
+                if(fromType.IsInterface)
+                {
+                    toNode.Implements.Add(fromNode);
+                }
+                else
+                {
+                    toNode.Aliases.Add(fromNode);
+                }
+                fromNode.Definitions.Add(toNode);
             }
-            else
-            {
-                fromNode.Aliases.Add(toNode);
-            }
-            toNode.Definitions.Add(fromNode);
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
@@ -286,7 +292,7 @@ namespace SocialPoint.Dependency
             get
             {
                 var root = IsRoot ? "· " : string.Empty;
-                var tag = string.IsNullOrEmpty(Tag) ? string.Empty : string.Format(" <{0}>", Tag );
+                var tag = string.IsNullOrEmpty(Tag) ? string.Empty : string.Format(" <{0}>", Tag);
                 var list = IsSingle ? string.Empty : " []";
                 var className = Class;
                 return string.Format("{0}{1}{2}{3}", root, className, list, tag);
