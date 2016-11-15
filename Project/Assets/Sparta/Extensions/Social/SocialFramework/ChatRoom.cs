@@ -202,11 +202,11 @@ namespace SocialPoint.Social
 
             if(ChatManager.Connection.AlliancesManager != null)
             {
-                var member = ChatManager.Connection.AlliancesManager.Player;
+                var member = ChatManager.Connection.AlliancesManager.AlliancePlayerInfo;
                 message.HasAlliance = member.IsInAlliance;
                 message.AllianceName = member.Name;
                 message.AllianceId = member.Id;
-                message.AllianceAvatarId = member.AvatarId;
+                message.AllianceAvatarId = member.Avatar;
                 message.RankInAlliance = member.Rank;
             }
 

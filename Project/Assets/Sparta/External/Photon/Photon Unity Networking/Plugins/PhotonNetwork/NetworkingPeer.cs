@@ -196,6 +196,10 @@ public enum ServerConnection
 /// </summary>
 internal class NetworkingPeer : LoadBalancingPeer, IPhotonPeerListener
 {
+    // This parameter disables logic from DeltaCompressionWrite/DeltaCompressionRead
+    // as it does not manage if SerializableValue has been set with sendIfChange = true
+    public bool DeltaCompressionDisabled = false;
+
     /// <summary>Combination of GameVersion+"_"+PunVersion. Separates players per app by version.</summary>
     protected internal string AppVersion
     {
@@ -4150,6 +4154,10 @@ internal class NetworkingPeer : LoadBalancingPeer, IPhotonPeerListener
     // SyncFirstValue should be the index of the first actual data-value (3 in PUN's case, as 0=viewId, 1=(bool)compressed, 2=(int[])values that are now null)
     private object[] DeltaCompressionWrite(object[] previousContent, object[] currentContent)
     {
+        if(DeltaCompressionDisabled)
+        {
+            return currentContent;
+        }
         if (currentContent == null || previousContent == null || previousContent.Length != currentContent.Length)
         {
             return currentContent;  // the current data needs to be sent (which might be null)
@@ -4223,7 +4231,7 @@ internal class NetworkingPeer : LoadBalancingPeer, IPhotonPeerListener
     // returns the incomingData with modified content. any object being null (means: value unchanged) gets replaced with a previously sent value. incomingData is being modified
     private object[] DeltaCompressionRead(object[] lastOnSerializeDataReceived, object[] incomingData)
     {
-        if ((bool)incomingData[SyncCompressed] == false)
+        if (DeltaCompressionDisabled || (bool)incomingData[SyncCompressed] == false)
         {
             // index 1 marks "compressed" as being true.
             return incomingData;

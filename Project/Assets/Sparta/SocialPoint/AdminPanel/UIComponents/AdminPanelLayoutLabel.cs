@@ -26,7 +26,9 @@ namespace SocialPoint.AdminPanel
         public Text CreateFormLabel(string label)
         {
             var text = CreateLabel(label);
-            text.GetComponent<LayoutElement>().flexibleWidth = 0;
+            var layoutElement = text.GetComponent<LayoutElement>();
+            layoutElement.flexibleWidth = 0;
+            layoutElement.minWidth = 150;
             return text;
         }
     }
