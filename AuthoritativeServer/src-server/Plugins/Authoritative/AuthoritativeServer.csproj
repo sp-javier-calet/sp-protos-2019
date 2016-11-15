@@ -61,17 +61,20 @@
     <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\PathEvent.cs">
       <Link>Game\PathEvent.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\EmptyPhysicsDebugger.cs">
-      <Link>Lib\Multiplayer\EmptyPhysicsDebugger.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\MatrixSerialization.cs">
-      <Link>Lib\Multiplayer\MatrixSerialization.cs</Link>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\MultiplayerModelExtensions.cs">
+      <Link>Lib\Multiplayer\MultiplayerModelExtensions.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkClientSceneController.cs">
       <Link>Lib\Multiplayer\NetworkClientSceneController.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkGameObject.cs">
       <Link>Lib\Multiplayer\NetworkGameObject.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkPhysicsWorld.cs">
+      <Link>Lib\Multiplayer\NetworkPhysicsWorld.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkRigidBody.cs">
+      <Link>Lib\Multiplayer\NetworkRigidBody.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkScene.cs">
       <Link>Lib\Multiplayer\NetworkScene.cs</Link>
@@ -85,83 +88,89 @@
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkServerSceneController.cs">
       <Link>Lib\Multiplayer\NetworkServerSceneController.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\IPathfindingDebugger.cs">
-      <Link>Lib\Multiplayer\Pathfinding\IPathfindingDebugger.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\MultiplayerModelExtensions.cs">
-      <Link>Lib\Multiplayer\Pathfinding\MultiplayerModelExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Pathfinder.cs">
-      <Link>Lib\Multiplayer\Pathfinding\Pathfinder.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavBBox3Serialization.cs">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavBBox3Serialization.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavBVTreeNodeSerialization.cs">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavBVTreeNodeSerialization.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavDetailMeshDataSerialization.cs">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavDetailMeshDataSerialization.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavDetailTriangleDataSerialization.cs">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavDetailTriangleDataSerialization.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavLinkSerialization.cs">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavLinkSerialization.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavMeshSerialization.cs">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavMeshSerialization.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavOffMeshConnSerialization.cs">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavOffMeshConnSerialization.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavPolyBoundsSerialization.cs">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavPolyBoundsSerialization.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavPolySerialization.cs">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavPolySerialization.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavPolyVertexSerialization.cs">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavPolyVertexSerialization.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavVector2iSerialization.cs">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavVector2iSerialization.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavVector3Serialization.cs">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavVector3Serialization.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics\IPhysicsDebugger.cs">
-      <Link>Lib\Multiplayer\Physics\IPhysicsDebugger.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics\PhysicsBoxShape.cs">
-      <Link>Lib\Multiplayer\Physics\PhysicsBoxShape.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics\PhysicsCollisionShape.cs">
-      <Link>Lib\Multiplayer\Physics\PhysicsCollisionShape.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics\PhysicsRaycast.cs">
-      <Link>Lib\Multiplayer\Physics\PhysicsRaycast.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics\PhysicsRigidBody.cs">
-      <Link>Lib\Multiplayer\Physics\PhysicsRigidBody.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics\PhysicsWorld.cs">
-      <Link>Lib\Multiplayer\Physics\PhysicsWorld.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\QuaternionSerialization.cs">
-      <Link>Lib\Multiplayer\QuaternionSerialization.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Ray.cs">
-      <Link>Lib\Multiplayer\Ray.cs</Link>
-    </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Transform.cs">
       <Link>Lib\Multiplayer\Transform.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\TweenNetworkBehaviour.cs">
       <Link>Lib\Multiplayer\TweenNetworkBehaviour.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Vector3Serialization.cs">
-      <Link>Lib\Multiplayer\Vector3Serialization.cs</Link>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\IPathfindingDebugger.cs">
+      <Link>Lib\Pathfinding\IPathfindingDebugger.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\PathExtensions.cs">
+      <Link>Lib\Pathfinding\PathExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Pathfinder.cs">
+      <Link>Lib\Pathfinding\Pathfinder.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavBBox3Serialization.cs">
+      <Link>Lib\Pathfinding\Serialization\NavBBox3Serialization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavBVTreeNodeSerialization.cs">
+      <Link>Lib\Pathfinding\Serialization\NavBVTreeNodeSerialization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavDetailMeshDataSerialization.cs">
+      <Link>Lib\Pathfinding\Serialization\NavDetailMeshDataSerialization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavDetailTriangleDataSerialization.cs">
+      <Link>Lib\Pathfinding\Serialization\NavDetailTriangleDataSerialization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavLinkSerialization.cs">
+      <Link>Lib\Pathfinding\Serialization\NavLinkSerialization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavMeshSerialization.cs">
+      <Link>Lib\Pathfinding\Serialization\NavMeshSerialization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavOffMeshConnSerialization.cs">
+      <Link>Lib\Pathfinding\Serialization\NavOffMeshConnSerialization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavPolyBoundsSerialization.cs">
+      <Link>Lib\Pathfinding\Serialization\NavPolyBoundsSerialization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavPolySerialization.cs">
+      <Link>Lib\Pathfinding\Serialization\NavPolySerialization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavPolyVertexSerialization.cs">
+      <Link>Lib\Pathfinding\Serialization\NavPolyVertexSerialization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavVector2iSerialization.cs">
+      <Link>Lib\Pathfinding\Serialization\NavVector2iSerialization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavVector3Serialization.cs">
+      <Link>Lib\Pathfinding\Serialization\NavVector3Serialization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\EmptyPhysicsDebugger.cs">
+      <Link>Lib\Physics\EmptyPhysicsDebugger.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\IPhysicsDebugger.cs">
+      <Link>Lib\Physics\IPhysicsDebugger.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\PhysicsBoxShape.cs">
+      <Link>Lib\Physics\PhysicsBoxShape.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\PhysicsCollisionShape.cs">
+      <Link>Lib\Physics\PhysicsCollisionShape.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\PhysicsRaycast.cs">
+      <Link>Lib\Physics\PhysicsRaycast.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\PhysicsRigidBody.cs">
+      <Link>Lib\Physics\PhysicsRigidBody.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\PhysicsWorld.cs">
+      <Link>Lib\Physics\PhysicsWorld.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\Ray.cs">
+      <Link>Lib\Physics\Ray.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\Serialization\MatrixSerialization.cs">
+      <Link>Lib\Physics\Serialization\MatrixSerialization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\Serialization\QuaternionSerialization.cs">
+      <Link>Lib\Physics\Serialization\QuaternionSerialization.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\Serialization\Vector3Serialization.cs">
+      <Link>Lib\Physics\Serialization\Vector3Serialization.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\External\JitterPhysics\Collision\CollisionIsland.cs">
       <Link>Lib\External\JitterPhysics\Collision\CollisionIsland.cs</Link>
@@ -635,23 +644,20 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\.sparta_module">
-      <Link>Lib\Multiplayer\.sparta_module</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Editor.meta">
-      <Link>Lib\Multiplayer\Editor.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\EmptyPhysicsDebugger.cs.meta">
-      <Link>Lib\Multiplayer\EmptyPhysicsDebugger.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\MatrixSerialization.cs.meta">
-      <Link>Lib\Multiplayer\MatrixSerialization.cs.meta</Link>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\MultiplayerModelExtensions.cs.meta">
+      <Link>Lib\Multiplayer\MultiplayerModelExtensions.cs.meta</Link>
     </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkClientSceneController.cs.meta">
       <Link>Lib\Multiplayer\NetworkClientSceneController.cs.meta</Link>
     </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkGameObject.cs.meta">
       <Link>Lib\Multiplayer\NetworkGameObject.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkPhysicsWorld.cs.meta">
+      <Link>Lib\Multiplayer\NetworkPhysicsWorld.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkRigidBody.cs.meta">
+      <Link>Lib\Multiplayer\NetworkRigidBody.cs.meta</Link>
     </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkScene.cs.meta">
       <Link>Lib\Multiplayer\NetworkScene.cs.meta</Link>
@@ -665,98 +671,95 @@
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\NetworkServerSceneController.cs.meta">
       <Link>Lib\Multiplayer\NetworkServerSceneController.cs.meta</Link>
     </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding.meta">
-      <Link>Lib\Multiplayer\Pathfinding.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\IPathfindingDebugger.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\IPathfindingDebugger.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\MultiplayerModelExtensions.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\MultiplayerModelExtensions.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Pathfinder.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Pathfinder.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavBBox3Serialization.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavBBox3Serialization.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavBVTreeNodeSerialization.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavBVTreeNodeSerialization.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavDetailMeshDataSerialization.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavDetailMeshDataSerialization.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavDetailTriangleDataSerialization.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavDetailTriangleDataSerialization.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavLinkSerialization.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavLinkSerialization.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavMeshSerialization.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavMeshSerialization.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavOffMeshConnSerialization.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavOffMeshConnSerialization.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavPolyBoundsSerialization.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavPolyBoundsSerialization.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavPolySerialization.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavPolySerialization.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavPolyVertexSerialization.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavPolyVertexSerialization.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavVector2iSerialization.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavVector2iSerialization.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Serialization\NavVector3Serialization.cs.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Serialization\NavVector3Serialization.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Pathfinding\Unity.meta">
-      <Link>Lib\Multiplayer\Pathfinding\Unity.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics.meta">
-      <Link>Lib\Multiplayer\Physics.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics\IPhysicsDebugger.cs.meta">
-      <Link>Lib\Multiplayer\Physics\IPhysicsDebugger.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics\PhysicsBoxShape.cs.meta">
-      <Link>Lib\Multiplayer\Physics\PhysicsBoxShape.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics\PhysicsCollisionShape.cs.meta">
-      <Link>Lib\Multiplayer\Physics\PhysicsCollisionShape.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics\PhysicsRaycast.cs.meta">
-      <Link>Lib\Multiplayer\Physics\PhysicsRaycast.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics\PhysicsRigidBody.cs.meta">
-      <Link>Lib\Multiplayer\Physics\PhysicsRigidBody.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Physics\PhysicsWorld.cs.meta">
-      <Link>Lib\Multiplayer\Physics\PhysicsWorld.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\QuaternionSerialization.cs.meta">
-      <Link>Lib\Multiplayer\QuaternionSerialization.cs.meta</Link>
-    </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Ray.cs.meta">
-      <Link>Lib\Multiplayer\Ray.cs.meta</Link>
-    </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Transform.cs.meta">
       <Link>Lib\Multiplayer\Transform.cs.meta</Link>
     </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\TweenNetworkBehaviour.cs.meta">
       <Link>Lib\Multiplayer\TweenNetworkBehaviour.cs.meta</Link>
     </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Unity.meta">
-      <Link>Lib\Multiplayer\Unity.meta</Link>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\IPathfindingDebugger.cs.meta">
+      <Link>Lib\Pathfinding\IPathfindingDebugger.cs.meta</Link>
     </None>
-    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\Vector3Serialization.cs.meta">
-      <Link>Lib\Multiplayer\Vector3Serialization.cs.meta</Link>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\PathExtensions.cs.meta">
+      <Link>Lib\Pathfinding\PathExtensions.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Pathfinder.cs.meta">
+      <Link>Lib\Pathfinding\Pathfinder.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization.meta">
+      <Link>Lib\Pathfinding\Serialization.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavBBox3Serialization.cs.meta">
+      <Link>Lib\Pathfinding\Serialization\NavBBox3Serialization.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavBVTreeNodeSerialization.cs.meta">
+      <Link>Lib\Pathfinding\Serialization\NavBVTreeNodeSerialization.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavDetailMeshDataSerialization.cs.meta">
+      <Link>Lib\Pathfinding\Serialization\NavDetailMeshDataSerialization.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavDetailTriangleDataSerialization.cs.meta">
+      <Link>Lib\Pathfinding\Serialization\NavDetailTriangleDataSerialization.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavLinkSerialization.cs.meta">
+      <Link>Lib\Pathfinding\Serialization\NavLinkSerialization.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavMeshSerialization.cs.meta">
+      <Link>Lib\Pathfinding\Serialization\NavMeshSerialization.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavOffMeshConnSerialization.cs.meta">
+      <Link>Lib\Pathfinding\Serialization\NavOffMeshConnSerialization.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavPolyBoundsSerialization.cs.meta">
+      <Link>Lib\Pathfinding\Serialization\NavPolyBoundsSerialization.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavPolySerialization.cs.meta">
+      <Link>Lib\Pathfinding\Serialization\NavPolySerialization.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavPolyVertexSerialization.cs.meta">
+      <Link>Lib\Pathfinding\Serialization\NavPolyVertexSerialization.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavVector2iSerialization.cs.meta">
+      <Link>Lib\Pathfinding\Serialization\NavVector2iSerialization.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Pathfinding\Serialization\NavVector3Serialization.cs.meta">
+      <Link>Lib\Pathfinding\Serialization\NavVector3Serialization.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\EmptyPhysicsDebugger.cs.meta">
+      <Link>Lib\Physics\EmptyPhysicsDebugger.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\IPhysicsDebugger.cs.meta">
+      <Link>Lib\Physics\IPhysicsDebugger.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\PhysicsBoxShape.cs.meta">
+      <Link>Lib\Physics\PhysicsBoxShape.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\PhysicsCollisionShape.cs.meta">
+      <Link>Lib\Physics\PhysicsCollisionShape.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\PhysicsRaycast.cs.meta">
+      <Link>Lib\Physics\PhysicsRaycast.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\PhysicsRigidBody.cs.meta">
+      <Link>Lib\Physics\PhysicsRigidBody.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\PhysicsWorld.cs.meta">
+      <Link>Lib\Physics\PhysicsWorld.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\Ray.cs.meta">
+      <Link>Lib\Physics\Ray.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\Serialization.meta">
+      <Link>Lib\Physics\Serialization.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\Serialization\MatrixSerialization.cs.meta">
+      <Link>Lib\Physics\Serialization\MatrixSerialization.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\Serialization\QuaternionSerialization.cs.meta">
+      <Link>Lib\Physics\Serialization\QuaternionSerialization.cs.meta</Link>
+    </None>
+    <None Include="..\..\..\..\Project\Assets\Sparta\Extensions\Physics\Serialization\Vector3Serialization.cs.meta">
+      <Link>Lib\Physics\Serialization\Vector3Serialization.cs.meta</Link>
     </None>
     <None Include="..\..\..\..\Project\Assets\Sparta\External\JitterPhysics\Collision.meta">
       <Link>Lib\External\JitterPhysics\Collision.meta</Link>

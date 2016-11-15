@@ -13,6 +13,10 @@ namespace SocialPoint.Network
 
         public PhotonNetworkMessage(NetworkMessageData data, PhotonNetworkBase sender)
         {
+            if(data.MessageType >= EventCode.LobbyStats)
+            {
+                throw new ArgumentException("Message type is too big.");
+            }
             _data = data;
             _stream = new MemoryStream();
             _writer = new SystemBinaryWriter(_stream);

@@ -53,7 +53,7 @@ namespace SocialPoint.Lockstep
             public byte PlayerNumber;
         }
 
-        IMatchmakingServerController _matchmaking;
+        IMatchmakingServer _matchmaking;
 
         LockstepServer _serverLockstep;
         INetworkServer _server;
@@ -93,7 +93,7 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public LockstepNetworkServer(INetworkServer server, IMatchmakingServerController matchmaking = null, IUpdateScheduler scheduler = null)
+        public LockstepNetworkServer(INetworkServer server, IMatchmakingServer matchmaking = null, IUpdateScheduler scheduler = null)
         {
             ServerConfig = new LockstepServerConfig();
             _clients = new List<ClientData>();

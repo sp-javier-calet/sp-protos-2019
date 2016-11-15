@@ -104,7 +104,7 @@ public class LockstepInstaller : Installer
     {
         var ctrl = new LockstepNetworkServer(
             Container.Resolve<INetworkServer>(),
-            Container.Resolve<IMatchmakingServerController>(),
+            Container.Resolve<IMatchmakingServer>(),
             Container.Resolve<IUpdateScheduler>());
         ctrl.Config = Container.Resolve<LockstepConfig>();
         ctrl.ServerConfig = Container.Resolve<LockstepServerConfig>();
