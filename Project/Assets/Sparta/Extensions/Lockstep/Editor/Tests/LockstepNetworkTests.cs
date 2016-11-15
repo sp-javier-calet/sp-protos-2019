@@ -43,19 +43,19 @@ namespace SocialPoint.Lockstep.Network
 
     [TestFixture]
     [Category("SocialPoint.Lockstep")]
-    class LockstepNetworkControllerTests
+    class LockstepNetworkTests
     {
         LocalNetworkServer _netServer;
-        ServerLockstepNetworkController _netLockServer;
+        LockstepNetworkServer _netLockServer;
 
         SimulateNetworkClient _netClient1;
-        ClientLockstepController _lockClient1;
-        ClientLockstepNetworkController _netLockClient1;
+        LockstepClient _lockClient1;
+        LockstepNetworkClient _netLockClient1;
         TestCommandLogic _logic1;
 
         SimulateNetworkClient _netClient2;
-        ClientLockstepController _lockClient2;
-        ClientLockstepNetworkController _netLockClient2;
+        LockstepClient _lockClient2;
+        LockstepNetworkClient _netLockClient2;
 
         LockstepCommandFactory _factory;
 
@@ -65,16 +65,16 @@ namespace SocialPoint.Lockstep.Network
             _netServer = new LocalNetworkServer();
             _factory = new LockstepCommandFactory();
 
-            _netLockServer = new ServerLockstepNetworkController(_netServer);
+            _netLockServer = new LockstepNetworkServer(_netServer);
             _netLockServer.ServerConfig.MaxPlayers = 2;
 
             _netClient1 = new SimulateNetworkClient(_netServer);
-            _lockClient1 = new ClientLockstepController();
-            _netLockClient1 = new ClientLockstepNetworkController(_netClient1, _lockClient1, _factory);
+            _lockClient1 = new LockstepClient();
+            _netLockClient1 = new LockstepNetworkClient(_netClient1, _lockClient1, _factory);
 
             _netClient2 = new SimulateNetworkClient(_netServer);
-            _lockClient2 = new ClientLockstepController();
-            _netLockClient2 = new ClientLockstepNetworkController(_netClient2, _lockClient2, _factory);
+            _lockClient2 = new LockstepClient();
+            _netLockClient2 = new LockstepNetworkClient(_netClient2, _lockClient2, _factory);
 
             _factory.Register<TestCommand>(1, new TestCommand());
             _logic1 = new TestCommandLogic();
@@ -211,7 +211,7 @@ namespace SocialPoint.Lockstep.Network
         {
             _netLockServer.ServerConfig.MaxPlayers = 3;
 
-            var localClient = new ClientLockstepController();
+            var localClient = new LockstepClient();
             _netLockServer.RegisterLocalClient(localClient, _factory);
 
             StartMatch();

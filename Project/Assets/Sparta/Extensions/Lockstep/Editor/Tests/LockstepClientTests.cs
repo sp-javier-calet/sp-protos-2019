@@ -6,14 +6,14 @@ namespace SocialPoint.Lockstep
 {
     [TestFixture]
     [Category("SocialPoint.Lockstep")]
-    class ClientLockstepControllerTests
+    class LockstepClientTests
     {
-        ClientLockstepController _client;
+        LockstepClient _client;
 
         [SetUp]
         public void SetUp()
         {
-            _client = new ClientLockstepController();
+            _client = new LockstepClient();
         }
 
         [Test]
@@ -152,12 +152,12 @@ namespace SocialPoint.Lockstep
 
             connChanged = false;
 
-            _client.AddConfirmedTurn(new ClientLockstepTurnData());
+            _client.AddConfirmedTurn(new ClientTurnData());
             _client.Update(100);
             Assert.IsFalse(connChanged);
             Assert.IsFalse(_client.Connected, "Client should not be reconnected if it did not receive enough turns.");
 
-            _client.AddConfirmedTurn(new ClientLockstepTurnData());
+            _client.AddConfirmedTurn(new ClientTurnData());
             _client.Update(0);
             Assert.IsTrue(connChanged);
             Assert.IsTrue(_client.Connected, "Client should be reconnected if it received enough turns.");

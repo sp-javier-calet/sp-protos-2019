@@ -1,7 +1,6 @@
 ﻿
 using SocialPoint.Dependency;
 using SocialPoint.Lockstep;
-using SocialPoint.Lockstep.Network;
 using SocialPoint.Utils;
 using SocialPoint.Network;
 using SocialPoint.AdminPanel;
@@ -14,8 +13,8 @@ public class LockstepInstaller : Installer
     public class SettingsData
     {
         public LockstepConfig Config;
-        public ServerLockstepConfig ServerConfig;
-        public ClientLockstepConfig ClientConfig;
+        public LockstepServerConfig ServerConfig;
+        public LockstepClientConfig ClientConfig;
         public string MatchmakingBaseUrl = "http://int-lod.socialpointgames.es";
         public string MatchmakingWebsocketUrl = "ws://int-lod.socialpointgames.com:8001/find_opponent";
         public bool RunLocalServerClient = true;
@@ -26,14 +25,14 @@ public class LockstepInstaller : Installer
     public override void InstallBindings()
     {
         Container.Rebind<LockstepConfig>().ToMethod<LockstepConfig>(CreateConfig);
-        Container.Rebind<ServerLockstepConfig>().ToMethod<ServerLockstepConfig>(CreateServerConfig);
-        Container.Rebind<ClientLockstepController>().ToMethod<ClientLockstepController>(CreateClientController);
-        Container.Bind<IDisposable>().ToLookup<ClientLockstepController>();
+        Container.Rebind<LockstepServerConfig>().ToMethod<LockstepServerConfig>(CreateServerConfig);
+        Container.Rebind<LockstepClient>().ToMethod<LockstepClient>(CreateClientController);
+        Container.Bind<IDisposable>().ToLookup<LockstepClient>();
         Container.Rebind<LockstepCommandFactory>().ToMethod<LockstepCommandFactory>(CreateCommandFactory);
         Container.Rebind<LockstepReplay>().ToMethod<LockstepReplay>(CreateReplay);
-        Container.Rebind<ClientLockstepNetworkController>().ToMethod<ClientLockstepNetworkController>
+        Container.Rebind<LockstepNetworkClient>().ToMethod<LockstepNetworkClient>
             (CreateClientNetworkController);
-        Container.Rebind<ServerLockstepNetworkController>().ToMethod<ServerLockstepNetworkController>
+        Container.Rebind<LockstepNetworkServer>().ToMethod<LockstepNetworkServer>
             (CreateServerNetworkController);
 
         Container.Bind<AdminPanelLockstep>().ToMethod<AdminPanelLockstep>(CreateAdminPanel);
@@ -44,7 +43,7 @@ public class LockstepInstaller : Installer
     AdminPanelLockstep CreateAdminPanel()
     {
         _adminPanel = new AdminPanelLockstep(
-            Container.Resolve<ClientLockstepController>());
+            Container.Resolve<LockstepClient>());
         return _adminPanel;
     }
 
@@ -53,14 +52,14 @@ public class LockstepInstaller : Installer
         return Settings.Config ?? new LockstepConfig();
     }
 
-    ServerLockstepConfig CreateServerConfig()
+    LockstepServerConfig CreateServerConfig()
     {
-        return Settings.ServerConfig ?? new ServerLockstepConfig();
+        return Settings.ServerConfig ?? new LockstepServerConfig();
     }
 
-    ClientLockstepConfig CreateClientConfig()
+    LockstepClientConfig CreateClientConfig()
     {
-        return Settings.ClientConfig ?? new ClientLockstepConfig();
+        return Settings.ClientConfig ?? new LockstepClientConfig();
     }
 
     LockstepCommandFactory CreateCommandFactory()
@@ -71,49 +70,49 @@ public class LockstepInstaller : Installer
     LockstepReplay CreateReplay()
     {
         return new LockstepReplay(
-            Container.Resolve<ClientLockstepController>(),
+            Container.Resolve<LockstepClient>(),
             Container.Resolve<LockstepCommandFactory>()
         );
     }
 
-    ClientLockstepController CreateClientController()
+    LockstepClient CreateClientController()
     {
-        var ctrl = new ClientLockstepController(
+        var ctrl = new LockstepClient(
             Container.Resolve<IUpdateScheduler>()
         );
         ctrl.Config = Container.Resolve<LockstepConfig>();
         return ctrl;
     }
 
-    ServerLockstepController CreateServerController()
+    LockstepServer CreateServerController()
     {
-        var ctrl = new ServerLockstepController(
+        var ctrl = new LockstepServer(
             Container.Resolve<IUpdateScheduler>());
         ctrl.Config = Container.Resolve<LockstepConfig>();
         return ctrl;
     }
 
-    ClientLockstepNetworkController CreateClientNetworkController()
+    LockstepNetworkClient CreateClientNetworkController()
     {
-        return new ClientLockstepNetworkController(
+        return new LockstepNetworkClient(
             Container.Resolve<INetworkClient>(),
-            Container.Resolve<ClientLockstepController>(),
+            Container.Resolve<LockstepClient>(),
             Container.Resolve<LockstepCommandFactory>());
     }
 
-    ServerLockstepNetworkController CreateServerNetworkController()
+    LockstepNetworkServer CreateServerNetworkController()
     {
-        var ctrl = new ServerLockstepNetworkController(
+        var ctrl = new LockstepNetworkServer(
             Container.Resolve<INetworkServer>(),
             Container.Resolve<IMatchmakingServerController>(),
             Container.Resolve<IUpdateScheduler>());
         ctrl.Config = Container.Resolve<LockstepConfig>();
-        ctrl.ServerConfig = Container.Resolve<ServerLockstepConfig>();
+        ctrl.ServerConfig = Container.Resolve<LockstepServerConfig>();
 
         if(Settings.RunLocalServerClient)
         {
             ctrl.RegisterLocalClient(
-                Container.Resolve<ClientLockstepController>(),
+                Container.Resolve<LockstepClient>(),
                 Container.Resolve<LockstepCommandFactory>());
         }
 

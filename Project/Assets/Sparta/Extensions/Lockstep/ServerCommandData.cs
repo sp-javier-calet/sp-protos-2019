@@ -5,7 +5,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep
 {
-    public class ServerLockstepCommandData : INetworkShareable
+    public class ServerCommandData : INetworkShareable
     {
         byte[] _command;
 
@@ -13,18 +13,18 @@ namespace SocialPoint.Lockstep
 
         public uint Id{ get; private set; }
 
-        public ServerLockstepCommandData()
+        public ServerCommandData()
         {
         }
 
-        public ClientLockstepCommandData ToClient(LockstepCommandFactory factory)
+        public ClientCommandData ToClient(LockstepCommandFactory factory)
         {
             var stream = new MemoryStream();
             var writer = new SystemBinaryWriter(stream);
             Serialize(writer);
             stream.Seek(0, SeekOrigin.Begin);
             var reader = new SystemBinaryReader(stream);
-            var client = new ClientLockstepCommandData();
+            var client = new ClientCommandData();
             client.Deserialize(factory, reader);
             return client;
         }
@@ -58,7 +58,7 @@ namespace SocialPoint.Lockstep
 
         public override string ToString()
         {
-            return string.Format("[ServerLockstepCommandData:{0} {1}]", Id, PlayerNumber);
+            return string.Format("[ServerCommandData:{0} {1}]", Id, PlayerNumber);
         }
     }
 }

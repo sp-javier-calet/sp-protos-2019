@@ -7,7 +7,7 @@ using SocialPoint.Utils;
 using SocialPoint.Attributes;
 using SocialPoint.Matchmaking;
 
-namespace SocialPoint.Lockstep.Network
+namespace SocialPoint.Lockstep
 {
     public static class LockstepMsgType
     {
@@ -21,7 +21,7 @@ namespace SocialPoint.Lockstep.Network
     }
 
     [Serializable]
-    public sealed class ServerLockstepConfig
+    public sealed class LockstepServerConfig
     {
         public const byte DefaultMaxPlayers = 2;
         public const int DefaultClientStartDelay = 3000;
@@ -33,7 +33,7 @@ namespace SocialPoint.Lockstep.Network
 
         public override string ToString()
         {
-            return string.Format("[ServerLockstepConfig\n" +
+            return string.Format("[LockstepServerConfig\n" +
             "MaxPlayers:{0}\n" +
             "ClientStartDelay:{1}\n" +
             "ClientSimulationDelay:{2}\n" +
@@ -43,7 +43,7 @@ namespace SocialPoint.Lockstep.Network
         }
     }
 
-    public sealed class ServerLockstepNetworkController : IDisposable, INetworkMessageReceiver, INetworkServerDelegate, IMatchmakingServerDelegate
+    public sealed class LockstepNetworkServer : IDisposable, INetworkMessageReceiver, INetworkServerDelegate, IMatchmakingServerDelegate
     {
         class ClientData
         {
@@ -55,17 +55,17 @@ namespace SocialPoint.Lockstep.Network
 
         IMatchmakingServerController _matchmaking;
 
-        ServerLockstepController _serverLockstep;
+        LockstepServer _serverLockstep;
         INetworkServer _server;
         List<ClientData> _clients;
         Dictionary<uint, byte> _commandSenders;
         INetworkMessageReceiver _receiver;
 
-        ClientLockstepController _localClient;
+        LockstepClient _localClient;
         LockstepCommandFactory _localFactory;
         ClientData _localClientData;
 
-        public ServerLockstepConfig ServerConfig{ get; set; }
+        public LockstepServerConfig ServerConfig{ get; set; }
 
         public event Action<Attr> MatchStarted;
         public event Action<Error> ErrorProduced;
@@ -93,12 +93,12 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        public ServerLockstepNetworkController(INetworkServer server, IMatchmakingServerController matchmaking = null, IUpdateScheduler scheduler = null)
+        public LockstepNetworkServer(INetworkServer server, IMatchmakingServerController matchmaking = null, IUpdateScheduler scheduler = null)
         {
-            ServerConfig = new ServerLockstepConfig();
+            ServerConfig = new LockstepServerConfig();
             _clients = new List<ClientData>();
             _commandSenders = new Dictionary<uint, byte>();
-            _serverLockstep = new ServerLockstepController(scheduler);
+            _serverLockstep = new LockstepServer(scheduler);
             _localClientData = new ClientData();
             PlayerResults = new Dictionary<byte, Attr>();
             _matchmaking = matchmaking;
@@ -128,7 +128,7 @@ namespace SocialPoint.Lockstep.Network
             _receiver = receiver;
         }
 
-        void OnServerTurnReady(ServerLockstepTurnData turnData)
+        void OnServerTurnReady(ServerTurnData turnData)
         {
             for(var i = 0; i < _clients.Count; i++)
             {
@@ -140,9 +140,9 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        void SendTurn(ServerLockstepTurnData turnData, byte client)
+        void SendTurn(ServerTurnData turnData, byte client)
         {
-            if(ServerLockstepTurnData.IsNullOrEmpty(turnData))
+            if(ServerTurnData.IsNullOrEmpty(turnData))
             {
                 _server.CreateMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.EmptyTurn,
@@ -188,7 +188,7 @@ namespace SocialPoint.Lockstep.Network
                 // only ready clients can send commands
                 return;
             }
-            var command = new ServerLockstepCommandData();
+            var command = new ServerCommandData();
             command.Deserialize(reader);
             // ignore client player number
             // maybe we could trigger a command failed if they don't match?
@@ -645,7 +645,7 @@ namespace SocialPoint.Lockstep.Network
             UnregisterLocalClient();
         }
 
-        public void Replay(ClientLockstepController client, LockstepCommandFactory factory)
+        public void Replay(LockstepClient client, LockstepCommandFactory factory)
         {
             var itr = _serverLockstep.GetTurnsEnumerator();
             while(itr.MoveNext())
@@ -699,7 +699,7 @@ namespace SocialPoint.Lockstep.Network
             _localClientData.Ready = false;
         }
 
-        public void RegisterLocalClient(ClientLockstepController ctrl, LockstepCommandFactory factory)
+        public void RegisterLocalClient(LockstepClient ctrl, LockstepCommandFactory factory)
         {
             UnregisterLocalClient();
             _localClient = ctrl;
@@ -714,7 +714,7 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        void OnLocalClientCommandFailed(Error err, ClientLockstepCommandData cmd)
+        void OnLocalClientCommandFailed(Error err, ClientCommandData cmd)
         {
             byte playerNum;
             _commandSenders.TryGetValue(cmd.Id, out playerNum);
@@ -728,7 +728,7 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        void OnLocalClientTurnApplied(ClientLockstepTurnData turn)
+        void OnLocalClientTurnApplied(ClientTurnData turn)
         {
             var itr = turn.GetCommandEnumerator();
             while(itr.MoveNext())

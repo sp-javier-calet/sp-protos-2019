@@ -1,16 +1,16 @@
-﻿using SocialPoint.Lockstep.Network;
-using SocialPoint.Base;
+﻿using SocialPoint.Base;
 using SocialPoint.Attributes;
+using SocialPoint.Lockstep;
 using System;
 
 namespace SocialPoint.Matchmaking
 {
     public class LockstepMatchmakingClientDelegate : IMatchmakingClientDelegate, IDisposable
     {
-        ClientLockstepNetworkController _lockstep;
+        LockstepNetworkClient _lockstep;
         IMatchmakingClientController _matchmaking;
 
-        public LockstepMatchmakingClientDelegate(ClientLockstepNetworkController lockstep, IMatchmakingClientController matchmaking)
+        public LockstepMatchmakingClientDelegate(LockstepNetworkClient lockstep, IMatchmakingClientController matchmaking)
         {
             _lockstep = lockstep;
             _lockstep.PlayerFinishSent += OnPlayerFinishSent;

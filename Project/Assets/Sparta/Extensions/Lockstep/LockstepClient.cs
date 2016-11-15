@@ -86,7 +86,7 @@ namespace SocialPoint.Lockstep
     }
 
     [Serializable]
-    public sealed class ClientLockstepConfig
+    public sealed class LockstepClientConfig
     {
         public const int DefaultLocalSimulationDelay = 1000;
         public const int DefaultMaxSimulationStepsPerFrame = 0;
@@ -98,7 +98,7 @@ namespace SocialPoint.Lockstep
 
         public override string ToString()
         {
-            return string.Format("[ClientLockstepConfig\n" +
+            return string.Format("[LockstepClientConfig\n" +
             "LocalSimulationDelay:{0}\n" +
             "MaxSimulationStepsPerFrame:{1}\n" +
             "SpeedFactor:{2}]",
@@ -108,7 +108,7 @@ namespace SocialPoint.Lockstep
         }
     }
 
-    public class ClientLockstepController : IUpdateable, IDisposable
+    public class LockstepClient : IUpdateable, IDisposable
     {
         enum State
         {
@@ -142,8 +142,8 @@ namespace SocialPoint.Lockstep
         XRandom _rootRandom;
 
         Dictionary<Type, ILockstepCommandLogic> _commandLogics = new Dictionary<Type, ILockstepCommandLogic>();
-        List<ClientLockstepCommandData> _pendingCommands = new List<ClientLockstepCommandData>();
-        Dictionary<int, ClientLockstepTurnData> _confirmedTurns = new Dictionary<int, ClientLockstepTurnData>();
+        List<ClientCommandData> _pendingCommands = new List<ClientCommandData>();
+        Dictionary<int, ClientTurnData> _confirmedTurns = new Dictionary<int, ClientTurnData>();
 
         public bool Running{ get; private set; }
 
@@ -151,15 +151,15 @@ namespace SocialPoint.Lockstep
 
         public LockstepGameParams GameParams { get; set; }
 
-        public ClientLockstepConfig ClientConfig { get; set; }
+        public LockstepClientConfig ClientConfig { get; set; }
 
-        public event Action<ClientLockstepCommandData> CommandAdded;
-        public event Action<ClientLockstepTurnData> TurnApplied;
+        public event Action<ClientCommandData> CommandAdded;
+        public event Action<ClientTurnData> TurnApplied;
         public event Action SimulationStarted;
         public event Action SimulationRecovered;
         public event Action ConnectionChanged;
         public event Action<int> Simulate;
-        public event Action<Error, ClientLockstepCommandData> CommandFailed;
+        public event Action<Error, ClientCommandData> CommandFailed;
 
         public bool Connected
         {
@@ -221,12 +221,12 @@ namespace SocialPoint.Lockstep
 
         public byte PlayerNumber;
 
-        public ClientLockstepController(IUpdateScheduler updateScheduler = null)
+        public LockstepClient(IUpdateScheduler updateScheduler = null)
         {
             _state = State.Normal;
             Config = new LockstepConfig();
             GameParams = new LockstepGameParams();
-            ClientConfig = new ClientLockstepConfig();
+            ClientConfig = new LockstepClientConfig();
             _updateScheduler = updateScheduler;
             Stop();
         }
@@ -308,29 +308,29 @@ namespace SocialPoint.Lockstep
             _commandLogics[type] = logic;
         }
 
-        public ClientLockstepCommandData AddPendingCommand<T>(T command, Action<T, byte> finish) where T : ILockstepCommand
+        public ClientCommandData AddPendingCommand<T>(T command, Action<T, byte> finish) where T : ILockstepCommand
         {
             return AddPendingCommand(command, new LockstepCommandLogic<T>(finish));
         }
 
-        public ClientLockstepCommandData AddPendingCommand<T>(T command, Action<T> finish) where T : ILockstepCommand
+        public ClientCommandData AddPendingCommand<T>(T command, Action<T> finish) where T : ILockstepCommand
         {
             return AddPendingCommand(command, new LockstepCommandLogic<T>(finish));
         }
 
-        public ClientLockstepCommandData AddPendingCommand<T>(T command, Action finish) where T : ILockstepCommand
+        public ClientCommandData AddPendingCommand<T>(T command, Action finish) where T : ILockstepCommand
         {
             return AddPendingCommand(command, new LockstepCommandLogic<T>(finish));
         }
 
-        public ClientLockstepCommandData AddPendingCommand<T>(T command, ILockstepCommandLogic<T> finish = null) where T : ILockstepCommand
+        public ClientCommandData AddPendingCommand<T>(T command, ILockstepCommandLogic<T> finish = null) where T : ILockstepCommand
         {
             return AddPendingCommand(command, new LockstepCommandLogic<T>(finish));
         }
 
-        ClientLockstepCommandData AddPendingCommand(ILockstepCommand command, ILockstepCommandLogic logic = null)
+        ClientCommandData AddPendingCommand(ILockstepCommand command, ILockstepCommandLogic logic = null)
         {
-            var data = new ClientLockstepCommandData(command, logic, PlayerNumber);
+            var data = new ClientCommandData(command, logic, PlayerNumber);
             if(!Running || _time < 0)
             {
                 data.Finish();
@@ -340,7 +340,7 @@ namespace SocialPoint.Lockstep
             return data;
         }
 
-        void AddPendingCommand(ClientLockstepCommandData command)
+        void AddPendingCommand(ClientCommandData command)
         {
             _pendingCommands.Add(command);
             if(CommandAdded != null)
@@ -353,29 +353,29 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public void AddConfirmedTurn(ClientLockstepTurnData turn=null)
+        public void AddConfirmedTurn(ClientTurnData turn=null)
         {
             _lastConfirmedTurnNumber++;
-            if(!ClientLockstepTurnData.IsNullOrEmpty(turn))
+            if(!ClientTurnData.IsNullOrEmpty(turn))
             {
                 _confirmedTurns[_lastConfirmedTurnNumber] = turn;
             }
         }
 
-        void AddConfirmedCommand(ClientLockstepCommandData cmd)
+        void AddConfirmedCommand(ClientCommandData cmd)
         {
             var t = 1 + ((_lastCmdTime + ClientConfig.LocalSimulationDelay) / Config.CommandStepDuration);
-            ClientLockstepTurnData turn;
+            ClientTurnData turn;
             if(!_confirmedTurns.TryGetValue(t, out turn))
             {
-                turn = new ClientLockstepTurnData();
+                turn = new ClientTurnData();
                 _confirmedTurns[t] = turn;
                 _lastConfirmedTurnNumber = Math.Max(_lastConfirmedTurnNumber, t);
             }
             turn.AddCommand(cmd);
         }
 
-        ClientLockstepCommandData FindCommand(ClientLockstepCommandData cmd)
+        ClientCommandData FindCommand(ClientCommandData cmd)
         {
             var idx = _pendingCommands.IndexOf(cmd);
             if(idx >= 0)
@@ -386,7 +386,7 @@ namespace SocialPoint.Lockstep
             return cmd;
         }
 
-        void ProcessTurn(ClientLockstepTurnData turn)
+        void ProcessTurn(ClientTurnData turn)
         {
             var itr = turn.GetCommandEnumerator();
             while(itr.MoveNext())
@@ -489,10 +489,10 @@ namespace SocialPoint.Lockstep
                     if(_lastConfirmedTurnNumber >= t)
                     {
                         _state = State.Normal;
-                        ClientLockstepTurnData turn;
+                        ClientTurnData turn;
                         if(!_confirmedTurns.TryGetValue(t, out turn))
                         {
-                            turn = ClientLockstepTurnData.Empty;
+                            turn = ClientTurnData.Empty;
                         }
                         else
                         {
@@ -502,7 +502,7 @@ namespace SocialPoint.Lockstep
                     }
                     else if(CommandAdded == null)
                     {
-                        ProcessTurn(ClientLockstepTurnData.Empty);
+                        ProcessTurn(ClientTurnData.Empty);
                     }
                     else
                     {
