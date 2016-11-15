@@ -159,12 +159,18 @@ namespace SocialPoint.Lockstep
                 }
                 else
                 {
-                    _pendingEmptyTurns++;
+                    AddEmptyTurn(t);
                     SendEmptyTurnsToClient();
                 }
 
                 _lastCmdTime = nextCmdTime;
             }
+        }
+
+        void AddEmptyTurn(int turn)
+        {
+            _turns.Add(turn, ServerLockstepTurnData.Empty);
+            _pendingEmptyTurns++;
         }
 
         void SendEmptyTurnsToClient()
