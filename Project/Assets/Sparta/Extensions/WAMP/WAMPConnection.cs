@@ -51,15 +51,15 @@ namespace SocialPoint.WAMP
         internal const int ConnectionClosed = 1009;
     }
 
+    public interface WAMPRequest : IDisposable
+    {
+    }
+
     public class WAMPConnection : INetworkClientDelegate, INetworkMessageReceiver
     {
         #region Data structures
 
-        public interface IRequest : IDisposable
-        {
-        }
-
-        public class Request<TCompletion> : IRequest where TCompletion : class
+        public class Request<TCompletion> : WAMPRequest where TCompletion : class
         {
             public TCompletion CompletionHandler{ get; protected set; }
 
