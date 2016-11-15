@@ -1,14 +1,12 @@
 ﻿using SocialPoint.Utils;
 using SocialPoint.Network;
-using SocialPoint.Lockstep.Network;
 using SocialPoint.Matchmaking;
 using SocialPoint.IO;
+using SocialPoint.Lockstep;
 using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
-using SocialPoint.Attributes;
-using SocialPoint.Base;
 
 namespace Photon.Hive.Plugin.Lockstep
 {
@@ -44,7 +42,7 @@ namespace Photon.Hive.Plugin.Lockstep
             }
         }
 
-        ServerLockstepNetworkController _netServer;
+        LockstepNetworkServer _netServer;
         List<INetworkServerDelegate> _delegates;
         INetworkMessageReceiver _receiver;
         HttpMatchmakingServerController _matchmaking;
@@ -65,7 +63,7 @@ namespace Photon.Hive.Plugin.Lockstep
             _delegates = new List<INetworkServerDelegate>();
             _matchmaking = new HttpMatchmakingServerController(
                 new WebRequestHttpClient(new ImmediateCoroutineRunner()));
-            _netServer = new ServerLockstepNetworkController(this, _matchmaking);
+            _netServer = new LockstepNetworkServer(this, _matchmaking);
             _game = new Examples.Lockstep.ServerBehaviour(_netServer);
         }
 
