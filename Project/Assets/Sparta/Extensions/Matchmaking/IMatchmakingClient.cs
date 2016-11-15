@@ -20,7 +20,7 @@ namespace SocialPoint.Matchmaking
         void OnError(Error err);
     }
 
-    public interface IMatchmakingClientController
+    public interface IMatchmakingClient
     {
         void AddDelegate(IMatchmakingClientDelegate dlg);
         void RemoveDelegate(IMatchmakingClientDelegate dlg);

@@ -8,9 +8,9 @@ namespace SocialPoint.Matchmaking
     public class LockstepMatchmakingClientDelegate : IMatchmakingClientDelegate, IDisposable
     {
         ClientLockstepNetworkController _lockstep;
-        IMatchmakingClientController _matchmaking;
+        IMatchmakingClient _matchmaking;
 
-        public LockstepMatchmakingClientDelegate(ClientLockstepNetworkController lockstep, IMatchmakingClientController matchmaking)
+        public LockstepMatchmakingClientDelegate(ClientLockstepNetworkController lockstep, IMatchmakingClient matchmaking)
         {
             _lockstep = lockstep;
             _lockstep.PlayerFinishSent += OnPlayerFinishSent;

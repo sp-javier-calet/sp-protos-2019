@@ -82,13 +82,13 @@ namespace SocialPoint.Matchmaking
         }
     }
 
-    public class StoredMatchmakingClientController : IMatchmakingClientController, IMatchmakingClientDelegate
+    public class StoredMatchmakingClient : IMatchmakingClient, IMatchmakingClientDelegate
     {
         List<IMatchmakingClientDelegate> _delegates;
-        IMatchmakingClientController _client;
+        IMatchmakingClient _client;
         IMatchStorage _storage;
 
-        public StoredMatchmakingClientController(IMatchmakingClientController client, IMatchStorage storage=null)
+        public StoredMatchmakingClient(IMatchmakingClient client, IMatchStorage storage=null)
         {
             _client = client;
             _storage = storage;

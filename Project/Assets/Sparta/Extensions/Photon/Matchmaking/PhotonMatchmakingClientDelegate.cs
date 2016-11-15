@@ -6,10 +6,10 @@ namespace SocialPoint.Matchmaking
 {
     public class PhotonMatchmakingClientDelegate : IMatchmakingClientDelegate, INetworkClientDelegate, IDisposable
     {
-        IMatchmakingClientController _matchmaking;
+        IMatchmakingClient _matchmaking;
         PhotonNetworkClient _network;
 
-        public PhotonMatchmakingClientDelegate(PhotonNetworkClient network, IMatchmakingClientController matchmaking)
+        public PhotonMatchmakingClientDelegate(PhotonNetworkClient network, IMatchmakingClient matchmaking)
         {
             _network = network;
             _matchmaking = matchmaking;

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Matchmaking
 {
-    public class WebsocketMatchmakingClientController : IMatchmakingClientController, IDisposable, INetworkMessageReceiver, INetworkClientDelegate
+    public class WebsocketMatchmakingClient : IMatchmakingClient, IDisposable, INetworkMessageReceiver, INetworkClientDelegate
     {
         enum Status
         {
@@ -37,7 +37,7 @@ namespace SocialPoint.Matchmaking
         const string MatchInfoAttrKey = "PlayerInfo";
         const string PlayerIdAttrKey = "token";
 
-        public WebsocketMatchmakingClientController(ILoginData loginData, IWebSocketClient websocket)
+        public WebsocketMatchmakingClient(ILoginData loginData, IWebSocketClient websocket)
         {
             _status = Status.Idle;
             _delegates = new List<IMatchmakingClientDelegate>();

@@ -7,7 +7,7 @@ using System;
 namespace SocialPoint.Matchmaking
 {
     
-    public class HttpMatchmakingServerController : IMatchmakingServerController
+    public class HttpMatchmakingServer : IMatchmakingServer
     {
         IHttpClient _httpClient;
         IAttrParser _parser;
@@ -15,7 +15,7 @@ namespace SocialPoint.Matchmaking
 
         public string BaseUrl;
 
-        public HttpMatchmakingServerController(IHttpClient httpClient, string baseUrl=null)
+        public HttpMatchmakingServer(IHttpClient httpClient, string baseUrl=null)
         {
             _delegates = new List<IMatchmakingServerDelegate>();
             _httpClient = httpClient;
