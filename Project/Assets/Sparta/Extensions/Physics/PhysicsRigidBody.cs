@@ -5,21 +5,15 @@ using Jitter.Dynamics;
 using Jitter.Collision;
 using Jitter.Collision.Shapes;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Physics
 {
-    public class PhysicsRigidBody : INetworkBehaviour
+    public class PhysicsRigidBody
     {
         public enum ControlType
         {
             Dynamic,
             Kinematic,
             Static
-        }
-
-        public NetworkGameObject NetworkGameObject
-        {
-            get;
-            private set;
         }
 
         public bool DoDebugDraw
@@ -34,12 +28,12 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        RigidBody _rigidBody;
-        PhysicsCollisionShape _collisionShape;
-        ControlType _controlType;
-        IPhysicsDebugger _debugger;
-        PhysicsWorld _physicsWorld;
-        bool _isInWorld = false;
+        protected RigidBody _rigidBody;
+        protected PhysicsCollisionShape _collisionShape;
+        protected ControlType _controlType;
+        protected PhysicsWorld _physicsWorld;
+        protected bool _isInWorld = false;
+        protected IPhysicsDebugger _debugger;
 
         public int LayerIndex // 0-31 (int)
         {
@@ -70,41 +64,6 @@ namespace SocialPoint.Multiplayer
             PhysicsCollisionShape shapeClone = (PhysicsCollisionShape)_collisionShape.Clone();
             var behavior = new PhysicsRigidBody(shapeClone, _controlType, _physicsWorld, _debugger);
             return behavior;
-        }
-
-        public void OnStart(NetworkGameObject go)
-        {
-            NetworkGameObject = go;
-            UpdateTransformFromGameObject();
-
-            AddObjectToPhysicsWorld();
-        }
-
-        public void Update(float dt)
-        {
-            //Update object transform
-            switch(_controlType)
-            {
-            case ControlType.Kinematic:
-                UpdateTransformFromGameObject();
-                break;
-            case ControlType.Dynamic:
-                UpdateTransformFromPhysicsObject();
-                break;
-            default:
-                break;
-            }
-
-            //Debug if requested
-            if(_rigidBody.EnableDebugDraw && _debugger != null)
-            {
-                _rigidBody.DebugDraw(_debugger);
-            }
-        }
-
-        public void OnDestroy()
-        {
-            RemoveObjectFromPhysicsWorld();
         }
 
         public void OnCollision(RigidBody other, JVector myPoint, JVector otherPoint, JVector normal, float penetration)
@@ -165,6 +124,24 @@ namespace SocialPoint.Multiplayer
             }
         }
 
+        protected void AddObjectToPhysicsWorld()
+        {
+            if(!_isInWorld)
+            {
+                _physicsWorld.AddRigidBody(_rigidBody);
+                _isInWorld = true;
+            }
+        }
+
+        protected void RemoveObjectFromPhysicsWorld()
+        {
+            if(_isInWorld)
+            {
+                _physicsWorld.RemoveRigidBody(_rigidBody);
+                _isInWorld = false;
+            }
+        }
+
         void BuildPhysicObject()
         {
             Shape cs = _collisionShape.GetCollisionShape();
@@ -181,44 +158,6 @@ namespace SocialPoint.Multiplayer
                 break;
             default:
                 break;
-            }
-        }
-
-        void UpdateTransformFromGameObject()
-        {
-            //Reactivate object if moving it
-            if(!_rigidBody.IsActive)
-            {
-                bool moved = (_rigidBody.Position != NetworkGameObject.Transform.Position);
-                if(moved)
-                {
-                    _rigidBody.IsActive = true;
-                }
-            }
-
-            _rigidBody.Position = NetworkGameObject.Transform.Position;
-        }
-
-        void UpdateTransformFromPhysicsObject()
-        {
-            NetworkGameObject.Transform.Position = _rigidBody.Position;
-        }
-
-        void AddObjectToPhysicsWorld()
-        {
-            if(!_isInWorld)
-            {
-                _physicsWorld.AddRigidBody(_rigidBody);
-                _isInWorld = true;
-            }
-        }
-
-        void RemoveObjectFromPhysicsWorld()
-        {
-            if(_isInWorld)
-            {
-                _physicsWorld.RemoveRigidBody(_rigidBody);
-                _isInWorld = false;
             }
         }
     }

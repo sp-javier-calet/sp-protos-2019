@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Physics
 {
     public class UnityPhysicsDebuggerUtility
     {

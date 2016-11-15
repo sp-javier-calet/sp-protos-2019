@@ -1,10 +1,9 @@
 ﻿using SocialPoint.IO;
 using SocialPoint.Utils;
-using SocialPoint.Network;
 using System;
 using Jitter.LinearMath;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Physics
 {
     public class JMatrixSerializer : IDiffWriteSerializer<JMatrix>
     {

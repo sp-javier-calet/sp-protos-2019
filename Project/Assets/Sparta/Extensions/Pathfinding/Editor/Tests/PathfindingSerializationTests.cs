@@ -9,10 +9,10 @@ using SharpNav.Collections;
 using SharpNav.Pathfinding;
 using SocialPoint.Pathfinding;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Pathfinding
 {
     [TestFixture]
-    [Category("SocialPoint.Multiplayer")]
+    [Category("SocialPoint.Pathfinding")]
     class PathfindingSerializationTests
     {
         void GenericTest<T>(T obj1, T obj2, IWriteSerializer<T> serializer, IReadParser<T> parser)

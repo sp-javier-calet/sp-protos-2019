@@ -6,9 +6,9 @@ using Jitter.Dynamics;
 using Jitter.Collision;
 using System.Collections.Generic;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Physics
 {
-    public class PhysicsWorld : INetworkServerSceneBehaviour
+    public class PhysicsWorld
     {
         public bool MultiThreaded
         {
@@ -30,17 +30,9 @@ namespace SocialPoint.Multiplayer
             InitializePhysicsWorld();
         }
 
-        public void Update(float dt, NetworkScene scene, NetworkScene oldScene)
+        public void Update(float dt)
         {
             _world.Step(dt, MultiThreaded);
-        }
-
-        public void OnClientConnected(byte clientId)
-        {
-        }
-
-        public void OnClientDisconnected(byte clientId)
-        {
         }
 
         public void AddRigidBody(RigidBody rb)

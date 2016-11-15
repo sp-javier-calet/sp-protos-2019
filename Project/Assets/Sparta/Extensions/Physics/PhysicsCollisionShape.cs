@@ -2,7 +2,7 @@
 using System.Collections;
 using Jitter.Collision.Shapes;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Physics
 {
     [System.Serializable]
     public abstract class PhysicsCollisionShape : ICloneable

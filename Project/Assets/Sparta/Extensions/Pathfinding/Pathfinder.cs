@@ -1,8 +1,6 @@
 ﻿using SharpNav;
 using SharpNav.Geometry;
 using SharpNav.Pathfinding;
-using Jitter.LinearMath;
-using SocialPoint.Multiplayer;
 
 namespace SocialPoint.Pathfinding
 {
@@ -52,20 +50,6 @@ namespace SocialPoint.Pathfinding
             }
 
             return false;
-        }
-
-        public static JVector[] StraightPathToVector(StraightPath straightPath)
-        {
-            var navVectors = new JVector[straightPath.Count];
-
-            for(int i = 0; i < straightPath.Count; i++)
-            {
-                var pathVert = straightPath[i];
-                var point = pathVert.Point;
-                navVectors[i] = point.Position.ToMultiplayer();
-            }
-
-            return navVectors;
         }
     }
 }
