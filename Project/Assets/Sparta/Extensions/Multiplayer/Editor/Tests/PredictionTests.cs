@@ -2,6 +2,7 @@
 using System.IO;
 using SocialPoint.IO;
 using SocialPoint.Network;
+using SocialPoint.Physics;
 using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer

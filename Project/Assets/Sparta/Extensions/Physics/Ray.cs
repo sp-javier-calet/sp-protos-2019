@@ -4,7 +4,7 @@ using SocialPoint.IO;
 using SocialPoint.Utils;
 using Jitter.LinearMath;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Physics
 {
     public struct Ray : IEquatable<Ray>
     {

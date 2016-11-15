@@ -2,7 +2,7 @@
 using System.Collections;
 using Jitter.LinearMath;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Physics
 {
     public class EmptyPhysicsDebugger : IPhysicsDebugger
     {

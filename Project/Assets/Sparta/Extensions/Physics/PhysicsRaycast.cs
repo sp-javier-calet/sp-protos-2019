@@ -5,7 +5,7 @@ using Jitter.Collision;
 using Jitter.Dynamics;
 using Jitter.LinearMath;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Physics
 {
     public static class PhysicsRaycast
     {

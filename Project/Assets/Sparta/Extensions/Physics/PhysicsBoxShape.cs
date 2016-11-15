@@ -3,7 +3,7 @@ using System.Collections;
 using Jitter.LinearMath;
 using Jitter.Collision.Shapes;
 
-namespace SocialPoint.Multiplayer
+namespace SocialPoint.Physics
 {
     public class PhysicsBoxShape : PhysicsCollisionShape
     {
