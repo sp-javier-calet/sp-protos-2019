@@ -326,7 +326,7 @@ namespace SocialPoint.Dependency
         {
             get
             {
-                return Instigator == null;
+                return Instigator == null && !string.IsNullOrEmpty(CreationStack);
             }
         }
 

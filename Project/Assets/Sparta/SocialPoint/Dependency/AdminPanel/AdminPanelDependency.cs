@@ -6,7 +6,17 @@ namespace SocialPoint.Dependency
 {
     public class AdminPanelDependency : IAdminPanelConfigurer, IAdminPanelGUI
     {
-        DependencyGraph _graph;
+        struct Filter
+        {
+            public string Name;
+            public bool Instantiated;
+            public bool Root;
+            public bool Interface;
+        }
+
+        Filter _filter;
+
+        readonly AdminPanelDependencyNode _nodePanel;
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
@@ -16,51 +26,89 @@ namespace SocialPoint.Dependency
             }
         }
 
-        public void OnCreateGUI(AdminPanelLayout layout)
+        public AdminPanelDependency()
         {
-            if(_graph == null)
-            {
-                _graph = DependencyGraphBuilder.Graph;
-            }
-
-            layout.CreateOpenPanelButton("Root Nodes", new AdminPanelDependencyNodeList(_graph.RootNodes));
-            layout.CreateOpenPanelButton("All Bindings", new AdminPanelDependencyNodeList(_graph));
+            _nodePanel = new AdminPanelDependencyNode();
         }
 
-        class AdminPanelDependencyNodeList : IAdminPanelGUI
+        public void OnCreateGUI(AdminPanelLayout layout)
         {
-            readonly IEnumerable<Node> _list;
-            readonly AdminPanelDependencyNode _nodePanel;
+            var graph = DependencyGraphBuilder.Graph;
 
-            public AdminPanelDependencyNodeList(IEnumerable<Node> nodes)
+            // TODO Foldout
+            layout.CreateTextInput(string.IsNullOrEmpty(_filter.Name) ? "Filter" : _filter.Name, 
+                value => {
+                    _filter.Name = string.IsNullOrEmpty(value) ? null : value.ToLower();
+                });
+                
+            var hlayout = layout.CreateHorizontalLayout();
+            hlayout.CreateToggleButton("Root", _filter.Root, ButtonColor.Green, value => {
+                _filter.Root = value;
+            });
+            hlayout.CreateToggleButton("Instantiated", _filter.Instantiated, ButtonColor.Blue, value => {
+                _filter.Instantiated = value;
+            });
+            hlayout.CreateToggleButton("Interface", _filter.Interface, ButtonColor.Yellow, value => {
+                _filter.Interface = value;
+            });
+            layout.CreateButton("Apply Filter", layout.Refresh);
+            layout.CreateMargin();
+                
+            var itr = graph.GetEnumerator();
+            while(itr.MoveNext())
             {
-                _list = nodes;
-                _nodePanel = new AdminPanelDependencyNode();
-            }
-
-            public void OnCreateGUI(AdminPanelLayout layout)
-            {
-                var itr = _list.GetEnumerator();
-                while(itr.MoveNext())
+                var node = itr.Current;
+                if(IsFiltered(node))
                 {
-                    var node = itr.Current;
-
                     layout.CreateButton(node.Name, GetColor(node), () => {
                         _nodePanel.Node = node;
                         layout.OpenPanel(_nodePanel);
                     });
                 }
-                itr.Dispose();
-
-                layout.CreateMargin();
-                layout.CreateButton("Refresh", layout.Refresh);
             }
-
-            ButtonColor GetColor(Node node)
-            {
-                return node.Instantiated ? ButtonColor.Blue : ButtonColor.Gray;
-            }
+            itr.Dispose();
         }
+
+        bool IsFiltered(Node node)
+        {
+            bool included = true;
+
+            if(_filter.Root)
+            {
+                included &= node.IsRoot;
+            }
+            if(_filter.Instantiated)
+            {
+                included &= node.Instantiated;
+            }
+            if(_filter.Interface)
+            {
+                included &= node.IsInterface;
+            }
+            if(!string.IsNullOrEmpty(_filter.Name))
+            {
+                included &= node.Name.ToLower().Contains(_filter.Name);
+            }
+            return included;
+        }
+
+        ButtonColor GetColor(Node node)
+        {
+            if(node.IsRoot)
+            {
+                return ButtonColor.Green;
+            }
+            else if(node.Instantiated)
+            {
+                return ButtonColor.Blue;
+            }
+            else if(node.IsInterface)
+            {
+                return ButtonColor.Yellow;
+            }
+            return ButtonColor.Gray;
+        }
+
 
         class AdminPanelDependencyNode : IAdminPanelGUI
         {
