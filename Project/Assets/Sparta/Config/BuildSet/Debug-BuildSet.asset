@@ -13,6 +13,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   App:
     ProductName: 
+    Version: 
+    BuildNumber: 0
+    OverrideBuild: 0
     IconTexture: {fileID: 0}
     OverrideIcon: 0
   Common:
@@ -30,8 +33,6 @@ MonoBehaviour:
     RemovedResources: 
   Android:
     BundleIdentifier: 
-    BundleVersionCode: 0
-    ForceBundleVersionCode: 0
     Flags: 
     RemovedResources: 
     UseKeystore: 0
