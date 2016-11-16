@@ -33,7 +33,6 @@ namespace SocialPoint.Utils
                     }
                 }
             }
-
         }
 
         static long SecondsOffset
@@ -48,7 +47,7 @@ namespace SocialPoint.Utils
         {
             return (long)Offset.TotalSeconds;
         }
-        
+
         static public long GetTimestamp(DateTime dt)
         {
             return (long)dt.Subtract(Epoch).TotalSeconds;
@@ -99,7 +98,7 @@ namespace SocialPoint.Utils
                 return Timestamp;
             }
         }
-        
+
         static public long Timestamp
         {
             get
@@ -128,23 +127,23 @@ namespace SocialPoint.Utils
         {
             return FormatTime((float)timeInSeconds);
         }
-        
+
         public static string FormatTime(float time)
         {
             var ts = TimeSpan.FromSeconds(time);
 
-            if( ts.Days > 0 )
+            if(ts.Days > 0)
             {
                 return ts.Hours > 0 ? ts.FormatTime("{0}d {1}h") : ts.FormatTime("{0}d");
             }
 
-            if( ts.Hours > 0 )
+            if(ts.Hours > 0)
             {
                 return ts.Minutes > 0 ? ts.FormatTime("{1}h {2}m") : ts.FormatTime("{1}h");
 
             }
 
-            if( ts.Minutes > 0 )
+            if(ts.Minutes > 0)
             {
                 return ts.Seconds > 0 ? ts.FormatTime("{2}m {3}s") : ts.FormatTime("{2}m ");
             }
@@ -171,12 +170,12 @@ namespace SocialPoint.Utils
                 yield return null;
             }
         }
-        
+
         public static DateTime ToDateTime(this int timestamp)
         {
             return ToDateTime(timestamp);
         }
-        
+
         public static DateTime ToDateTime(this long timestamp)
         {
             return Epoch.AddSeconds(timestamp).ToLocalTime();

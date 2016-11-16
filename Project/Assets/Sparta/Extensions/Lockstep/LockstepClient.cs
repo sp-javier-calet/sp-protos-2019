@@ -362,6 +362,14 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public void AddConfirmedEmptyTurns(EmptyTurnsMessage emptyTurns)
+        {
+            for(int i = 0; i < emptyTurns.EmptyTurns; ++i)
+            {
+                AddConfirmedTurn(null);
+            }
+        }
+
         void AddConfirmedCommand(ClientCommandData cmd)
         {
             var t = 1 + ((_lastCmdTime + ClientConfig.LocalSimulationDelay) / Config.CommandStepDuration);
@@ -444,6 +452,7 @@ namespace SocialPoint.Lockstep
             {
                 return;
             }
+
             dt = (int)(ClientConfig.SpeedFactor * (float)dt);
             _time += dt;
             if(!_simStartedCalled && _time >= 0)
@@ -469,6 +478,7 @@ namespace SocialPoint.Lockstep
             {
                 var nextSimTime = _lastSimTime + Config.SimulationStepDuration;
                 var nextCmdTime = _lastCmdTime + Config.CommandStepDuration;
+
                 if(nextSimTime <= nextCmdTime && nextSimTime <= _time)
                 {
                     if(Simulate != null)
@@ -506,7 +516,12 @@ namespace SocialPoint.Lockstep
                     }
                     else
                     {
-                        _state = State.Waiting;
+                        int missingTurnsCount = t - _lastConfirmedTurnNumber;
+                        bool shouldDisconnect = missingTurnsCount > Config.MaxSkippedEmptyTurns;
+                        if(shouldDisconnect)
+                        {
+                            _state = State.Waiting;
+                        }
                         break;
                     }
                     if(_state == State.Normal)

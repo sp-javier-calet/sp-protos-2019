@@ -20,14 +20,28 @@ namespace SocialPoint.Lockstep
         public void Deserialize(IReader reader)
         {
             var length = reader.ReadInt32();
-            Result = _parser.Parse(reader.ReadBytes(length));
+            if(length == 0)
+            {
+                Result = null;
+            }
+            else
+            {
+                Result = _parser.Parse(reader.ReadBytes(length));
+            }
         }
 
         public void Serialize(IWriter writer)
         {
-            var bytes = _serializer.Serialize(Result);
-            writer.Write(bytes.Length);
-            writer.Write(bytes, bytes.Length);
+            if(Result == null)
+            {
+                writer.Write(0);
+            }
+            else
+            {
+                var bytes = _serializer.Serialize(Result);
+                writer.Write(bytes.Length);
+                writer.Write(bytes, bytes.Length);
+            }
         }
     }
 }

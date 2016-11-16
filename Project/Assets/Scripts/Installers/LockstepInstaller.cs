@@ -26,8 +26,10 @@ public class LockstepInstaller : Installer
     {
         Container.Rebind<LockstepConfig>().ToMethod<LockstepConfig>(CreateConfig);
         Container.Rebind<LockstepServerConfig>().ToMethod<LockstepServerConfig>(CreateServerConfig);
+        Container.Rebind<LockstepClientConfig>().ToMethod<LockstepClientConfig>(CreateClientConfig);
         Container.Rebind<LockstepClient>().ToMethod<LockstepClient>(CreateClientController);
         Container.Bind<IDisposable>().ToLookup<LockstepClient>();
+
         Container.Rebind<LockstepCommandFactory>().ToMethod<LockstepCommandFactory>(CreateCommandFactory);
         Container.Rebind<LockstepReplay>().ToMethod<LockstepReplay>(CreateReplay);
         Container.Rebind<LockstepNetworkClient>().ToMethod<LockstepNetworkClient>
