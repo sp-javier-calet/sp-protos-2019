@@ -45,7 +45,7 @@ namespace Photon.Hive.Plugin.Lockstep
         LockstepNetworkServer _netServer;
         List<INetworkServerDelegate> _delegates;
         INetworkMessageReceiver _receiver;
-        HttpMatchmakingServerController _matchmaking;
+        HttpMatchmakingServer _matchmaking;
         Examples.Lockstep.ServerBehaviour _game;
         object _timer;
 
@@ -61,7 +61,7 @@ namespace Photon.Hive.Plugin.Lockstep
         {
             UseStrictMode = true;
             _delegates = new List<INetworkServerDelegate>();
-            _matchmaking = new HttpMatchmakingServerController(
+            _matchmaking = new HttpMatchmakingServer(
                 new WebRequestHttpClient(new ImmediateCoroutineRunner()));
             _netServer = new LockstepNetworkServer(this, _matchmaking);
             _game = new Examples.Lockstep.ServerBehaviour(_netServer);
