@@ -46,11 +46,11 @@ namespace SocialPoint.Network
     [Serializable]
     public class CustomInternalNetworkConfig
     {
-        const int DefaultUpdateInterval = 10000; // Update Interval
-        const int DefaultUpdateIntervalOnSerialize = 10000; // Update Interval OnSerialize
-        const int DefaultMaximumTransferUnit = 2000; // How much data we can transfer
+        const int DefaultUpdateInterval = 1000; // Update Interval
+        const int DefaultUpdateIntervalOnSerialize = 1000; // Update Interval OnSerialize
+        const int DefaultMaximumTransferUnit = 1500; // How much data we can transfer
         const int DefaultSentCountAllowance = 10; // Allow for big lags
-        const int DefaultQuickResendAttempts = 1; // SpeedUp from second repeat on. This avoid resending repeats too fast
+        const int DefaultQuickResendAttempts = 0; // SpeedUp from second repeat on. This avoid resending repeats too fast
         
         public int UpdateInterval = DefaultUpdateInterval;
         public int UpdateIntervalOnSerialize = DefaultUpdateIntervalOnSerialize;
@@ -140,14 +140,14 @@ namespace SocialPoint.Network
             }
         }
 
-        void Update()
-        {
-            if(_pendingOutgoingCommands)
-            {
-                _pendingOutgoingCommands = false;
-                PhotonNetwork.SendOutgoingCommands();
-            }
-        }
+//        void Update()
+//        {
+//            if(_pendingOutgoingCommands)
+//            {
+//                _pendingOutgoingCommands = false;
+//                PhotonNetwork.SendOutgoingCommands();
+//            }
+//        }
 
         protected void DoConnect()
         {
@@ -319,7 +319,7 @@ namespace SocialPoint.Network
                 options.TargetActors = new int[]{ player.ID };
             }
             PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
-            _pendingOutgoingCommands = true;
+//            _pendingOutgoingCommands = true;
         }
 
         void OnEventReceived(byte eventcode, object content, int senderid)
