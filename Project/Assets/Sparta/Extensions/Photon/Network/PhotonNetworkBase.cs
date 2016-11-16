@@ -91,9 +91,14 @@ namespace SocialPoint.Network
         {
             _originalInternalNetworkConfig.UpdateInterval = PhotonNetwork.photonMono.updateInterval;
             _originalInternalNetworkConfig.UpdateIntervalOnSerialize = PhotonNetwork.photonMono.updateIntervalOnSerialize;
-            _originalInternalNetworkConfig.MaximumTransferUnit = PhotonNetwork.networkingPeer.MaximumTransferUnit;
+
             _originalInternalNetworkConfig.SentCountAllowance = PhotonNetwork.networkingPeer.SentCountAllowance;
             _originalInternalNetworkConfig.QuickResendAttempts = PhotonNetwork.networkingPeer.QuickResendAttempts;
+
+            if(!PhotonNetwork.connected)
+            {
+                PhotonNetwork.networkingPeer.MaximumTransferUnit = _config.CustomInternalNetworkConfig.MaximumTransferUnit;
+            }
         }
 
         void SetCustomInternalPhotonSettings()
@@ -102,9 +107,14 @@ namespace SocialPoint.Network
             {
                 PhotonNetwork.photonMono.updateInterval = _config.CustomInternalNetworkConfig.UpdateInterval;
                 PhotonNetwork.photonMono.updateIntervalOnSerialize = _config.CustomInternalNetworkConfig.UpdateIntervalOnSerialize;
-                PhotonNetwork.networkingPeer.MaximumTransferUnit = _config.CustomInternalNetworkConfig.MaximumTransferUnit;
+
                 PhotonNetwork.networkingPeer.SentCountAllowance = _config.CustomInternalNetworkConfig.SentCountAllowance;
                 PhotonNetwork.networkingPeer.QuickResendAttempts = (byte) _config.CustomInternalNetworkConfig.QuickResendAttempts;
+
+                if(!PhotonNetwork.connected)
+                {
+                    PhotonNetwork.networkingPeer.MaximumTransferUnit = _config.CustomInternalNetworkConfig.MaximumTransferUnit;
+                }
             }
         }
 
@@ -220,7 +230,7 @@ namespace SocialPoint.Network
         void OnJoinedRoom()
         {
             PhotonNetwork.OnEventCall += OnEventReceived;
-//            SetCustomInternalPhotonSettings();
+            SetCustomInternalPhotonSettings();
             OnConnected();
         }
 
