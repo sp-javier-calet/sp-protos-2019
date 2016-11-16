@@ -90,15 +90,13 @@ namespace SocialPoint.Social
         const string AllianceMemberDeclineMethod = "alliance.member.decline";
         const string AllianceMemberKickMethod = "alliance.member.kickoff";
         const string AllianceMemberPromoteMethod = "alliance.member.promote";
-        const string NotificationReceivedMethod = "notification.received";
-
-        // TODO Getters RPC methods
         const string AllianceInfoMethod = "alliance.info";
         const string AllianceMemberInfoMethod = "alliance.member.info";
         const string AllianceRankingMethod = "alliance.ranking";
         const string AllianceSearchMethod = "alliance.search";
         const string AllianceSearchSuggestedMethod = "alliance.search.suggested";
         const string AllianceSearchSuggestedJoinMethod = "alliance.search.suggested.reward";
+        const string NotificationReceivedMethod = "notification.received";
 
         #endregion
 
