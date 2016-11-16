@@ -66,7 +66,7 @@ namespace SocialPoint.Network
         public string RoomName;
 
         public bool EnableCustomInteralPhotonNetworkConfig = true;
-        public CustomInternalNetworkConfig CustomInternalNetworkConfig;
+        public CustomInternalNetworkConfig CustomInternalNetworkConfig = new CustomInternalNetworkConfig();
         public PhotonNetworkRoomConfig RoomOptions = new PhotonNetworkRoomConfig();
     }
 
@@ -83,6 +83,8 @@ namespace SocialPoint.Network
         public void Init(PhotonNetworkConfig config)
         {
             _config = config;
+            SaveOriginalInternalPhotonSettings();
+            SetCustomInternalPhotonSettings();
         }
 
         void SaveOriginalInternalPhotonSettings()
@@ -174,8 +176,6 @@ namespace SocialPoint.Network
 
         void OnConnectedToMaster()
         {
-            SaveOriginalInternalPhotonSettings();
-
             if(!PhotonNetwork.autoJoinLobby)
             {
                 PhotonNetwork.JoinLobby();
@@ -220,7 +220,7 @@ namespace SocialPoint.Network
         void OnJoinedRoom()
         {
             PhotonNetwork.OnEventCall += OnEventReceived;
-            SetCustomInternalPhotonSettings();
+//            SetCustomInternalPhotonSettings();
             OnConnected();
         }
 
