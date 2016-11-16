@@ -79,6 +79,7 @@ namespace SocialPoint.Network
         const int CustomAuthError = 3;
 
         CustomInternalNetworkConfig _originalInternalNetworkConfig = new CustomInternalNetworkConfig();
+        bool _pendingOutgoingCommands = false;
 
         public void Init(PhotonNetworkConfig config)
         {
@@ -136,6 +137,15 @@ namespace SocialPoint.Network
             if(_config == null)
             {
                 _config = new PhotonNetworkConfig();
+            }
+        }
+
+        void Update()
+        {
+            if(_pendingOutgoingCommands)
+            {
+                _pendingOutgoingCommands = false;
+                PhotonNetwork.SendOutgoingCommands();
             }
         }
 
@@ -309,7 +319,7 @@ namespace SocialPoint.Network
                 options.TargetActors = new int[]{ player.ID };
             }
             PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
-            PhotonNetwork.SendOutgoingCommands();
+            _pendingOutgoingCommands = true;
         }
 
         void OnEventReceived(byte eventcode, object content, int senderid)
