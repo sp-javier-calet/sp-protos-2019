@@ -23,7 +23,7 @@ namespace SocialPoint.Lockstep
         public int CommandStepDuration = DefaultCommandStepDuration;
 
         // Max time the server can be skipping turns
-        public int MaxEskippedEmptyTurns = DefaultMaxSkippedEmptyTurns;
+        public int MaxSkippedEmptyTurns = DefaultMaxSkippedEmptyTurns;
 
         public void Deserialize(IReader reader)
         {
