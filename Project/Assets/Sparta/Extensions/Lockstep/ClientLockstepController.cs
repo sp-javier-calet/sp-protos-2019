@@ -436,7 +436,10 @@ namespace SocialPoint.Lockstep
                     }
                     else
                     {
-                        _state = State.Waiting;
+                        if(t*Config.SimulationStepDuration - _lastConfirmedTurnNumber*Config.SimulationStepDuration > Config.MaxTurnSkipDuration)
+                        {
+                            _state = State.Waiting;
+                        }
                         break;
                     }
                     if(_state == State.Normal)

@@ -44,14 +44,29 @@ namespace SocialPoint.Network
     }
 
     [Serializable]
+    public class CustomInternalNetworkConfig
+    {
+        const int DefaultUpdateInterval = 10000; // Update Interval
+        const int DefaultUpdateIntervalOnSerialize = 10000; // Update Interval OnSerialize
+        const int DefaultMaximumTransferUnit = 2000; // How much data we can transfer
+        const int DefaultSentCountAllowance = 10; // Allow for big lags
+        const int DefaultQuickResendAttempts = 1; // SpeedUp from second repeat on. This avoid resending repeats too fast
+        
+        public int UpdateInterval = DefaultUpdateInterval;
+        public int UpdateIntervalOnSerialize = DefaultUpdateIntervalOnSerialize;
+        public int MaximumTransferUnit = DefaultMaximumTransferUnit;
+        public int SentCountAllowance = DefaultSentCountAllowance;
+        public int QuickResendAttempts = DefaultQuickResendAttempts;
+    }
+
+    [Serializable]
     public class PhotonNetworkConfig
     {
         public string GameVersion;
         public string RoomName;
 
-        [UnityEngine.HideInInspector]
-        public int CustomPhotonConnectedUpdateInterval = 10000;
-
+        public bool EnableCustomInteralPhotonNetworkConfig = true;
+        public CustomInternalNetworkConfig CustomInternalNetworkConfig;
         public PhotonNetworkRoomConfig RoomOptions = new PhotonNetworkRoomConfig();
     }
 
@@ -63,36 +78,44 @@ namespace SocialPoint.Network
         const int CreateRoomError = 2;
         const int CustomAuthError = 3;
 
-        int _originalUpdateInterval;
-        int _originalUpdateIntervalOnSerialize;
+        public CustomInternalNetworkConfig _originalInternalNetworkConfig;
 
         public void Init(PhotonNetworkConfig config)
         {
-            SaveOriginalPhotonSettings();
+            SaveOriginalInternalPhotonSettings();
             _config = config;
         }
 
-        void SaveOriginalPhotonSettings()
+        void SaveOriginalInternalPhotonSettings()
         {
-            _originalUpdateInterval = PhotonNetwork.photonMono.updateInterval;
-            _originalUpdateIntervalOnSerialize = PhotonNetwork.photonMono.updateIntervalOnSerialize;
+            _originalInternalNetworkConfig.UpdateInterval = PhotonNetwork.photonMono.updateInterval;
+            _originalInternalNetworkConfig.UpdateIntervalOnSerialize = PhotonNetwork.photonMono.updateIntervalOnSerialize;
+            _originalInternalNetworkConfig.MaximumTransferUnit = PhotonNetwork.networkingPeer.MaximumTransferUnit;
+            _originalInternalNetworkConfig.SentCountAllowance = PhotonNetwork.networkingPeer.SentCountAllowance;
+            _originalInternalNetworkConfig.QuickResendAttempts = PhotonNetwork.networkingPeer.QuickResendAttempts;
         }
 
-        void SetCustomPhotonSettings()
+        void SetCustomInternalPhotonSettings()
         {
-            if(_config.CustomPhotonConnectedUpdateInterval > 0)
+            if(_config.EnableCustomInteralPhotonNetworkConfig)
             {
-                PhotonNetwork.photonMono.updateInterval = _config.CustomPhotonConnectedUpdateInterval;
-                PhotonNetwork.photonMono.updateIntervalOnSerialize = _config.CustomPhotonConnectedUpdateInterval;
+                PhotonNetwork.photonMono.updateInterval = _config.CustomInternalNetworkConfig.UpdateInterval;
+                PhotonNetwork.photonMono.updateIntervalOnSerialize = _config.CustomInternalNetworkConfig.UpdateIntervalOnSerialize;
+                PhotonNetwork.networkingPeer.MaximumTransferUnit = _config.CustomInternalNetworkConfig.MaximumTransferUnit;
+                PhotonNetwork.networkingPeer.SentCountAllowance = _config.CustomInternalNetworkConfig.SentCountAllowance;
+                PhotonNetwork.networkingPeer.QuickResendAttempts = (byte) _config.CustomInternalNetworkConfig.QuickResendAttempts;
             }
         }
 
-        void RestorePhotonSettings()
+        void RestoreInternalCustomPhotonSettings()
         {
-            if(_config.CustomPhotonConnectedUpdateInterval > 0)
+            if(_config.EnableCustomInteralPhotonNetworkConfig)
             {
-                PhotonNetwork.photonMono.updateInterval = _originalUpdateInterval;
-                PhotonNetwork.photonMono.updateIntervalOnSerialize = _originalUpdateIntervalOnSerialize;
+                PhotonNetwork.photonMono.updateInterval = _originalInternalNetworkConfig.UpdateInterval;
+                PhotonNetwork.photonMono.updateIntervalOnSerialize = _originalInternalNetworkConfig.UpdateIntervalOnSerialize;
+                PhotonNetwork.networkingPeer.MaximumTransferUnit = _originalInternalNetworkConfig.MaximumTransferUnit;
+                PhotonNetwork.networkingPeer.SentCountAllowance = _originalInternalNetworkConfig.SentCountAllowance;
+                PhotonNetwork.networkingPeer.QuickResendAttempts = (byte) _originalInternalNetworkConfig.QuickResendAttempts;
             }
         }
 
@@ -196,7 +219,7 @@ namespace SocialPoint.Network
         void OnJoinedRoom()
         {
             PhotonNetwork.OnEventCall += OnEventReceived;
-            SetCustomPhotonSettings();
+            SetCustomInternalPhotonSettings();
             OnConnected();
         }
 
@@ -208,7 +231,7 @@ namespace SocialPoint.Network
         void OnDisconnectedFromPhoton()
         {
             PhotonNetwork.OnEventCall -= OnEventReceived;
-            RestorePhotonSettings();
+            RestoreInternalCustomPhotonSettings();
             OnDisconnected();
         }
 
