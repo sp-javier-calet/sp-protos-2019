@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.IO;
@@ -8,7 +7,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.WebSockets
 {
-    public class WebSocketsEventDispatcher : IDisposable
+    public class WebSocketsEventDispatcher : IUpdateable, IDisposable
     {
         enum EventType
         {
@@ -55,68 +54,55 @@ namespace SocialPoint.WebSockets
         public event Action<NetworkMessageData> OnMessageWasReceived;
         public event Action<Error> OnNetworkError;
 
-        readonly ICoroutineRunner _runner;
-        List<EventData> _pending;
-        IEnumerator _dispatchCoroutine;
+        readonly IUpdateScheduler _scheduler;
+        Queue<EventData> _pending;
 
-        public WebSocketsEventDispatcher(ICoroutineRunner runner)
+        public WebSocketsEventDispatcher(IUpdateScheduler scheduler)
         {
-            _pending = new List<EventData>();
-            _runner = runner;
-
-            _dispatchCoroutine = _runner.StartCoroutine(Dispatch());
+            _pending = new Queue<EventData>();
+            _scheduler = scheduler;
+            _scheduler.Add(this);
         }
 
         public void Dispose()
         {
-            if(_dispatchCoroutine != null)
-            {
-                _runner.StopCoroutine(_dispatchCoroutine);
-                _dispatchCoroutine = null;
-            }
+            _scheduler.Remove(this);
             _pending.Clear();
         }
 
-        IEnumerator Dispatch()
+        public void Update()
         {
-            while(true)
+            if(_pending.Count > 0)
             {
-                if(_pending.Count > 0)
+                var events = _pending.Count;
+                for(int i = 0; i < events; ++i)
                 {
-                    var events = _pending;
-                    _pending = new List<EventData>();
-
-                    for(int i = 0; i < events.Count; ++i)
+                    var e = _pending.Dequeue();
+                    switch(e.Type)
                     {
-                        var e = events[i];
-                        switch(e.Type)
-                        {
-                        case EventType.Open:
-                            DispatchClientConnected();
-                            break;
+                    case EventType.Open:
+                        DispatchClientConnected();
+                        break;
 
-                        case EventType.Close:
-                            DispatchClientDisconnected();
-                            break;
+                    case EventType.Close:
+                        DispatchClientDisconnected();
+                        break;
 
-                        case EventType.Message:
-                            DispatchMessageReceived(e.Message);
-                            break;
+                    case EventType.Message:
+                        DispatchMessageReceived(e.Message);
+                        break;
 
-                        case EventType.Error:
-                            DispatchNetworkError(e.Error);
-                            break;
-                        }
+                    case EventType.Error:
+                        DispatchNetworkError(e.Error);
+                        break;
                     }
                 }
-
-                yield return null;
             }
         }
 
         public void NotifyConnected()
         {
-            _pending.Add(new EventData(EventType.Open));
+            _pending.Enqueue(new EventData(EventType.Open));
         }
 
         void DispatchClientConnected()
@@ -129,7 +115,7 @@ namespace SocialPoint.WebSockets
 
         public void NotifyDisconnected()
         {
-            _pending.Add(new EventData(EventType.Close));
+            _pending.Enqueue(new EventData(EventType.Close));
         }
 
         void DispatchClientDisconnected()
@@ -142,7 +128,7 @@ namespace SocialPoint.WebSockets
 
         public void NotifyMessage(string msg)
         {
-            _pending.Add(new EventData(msg));
+            _pending.Enqueue(new EventData(msg));
         }
 
         void DispatchMessageReceived(string data)
@@ -163,7 +149,7 @@ namespace SocialPoint.WebSockets
 
         public void NotifyError(string error)
         {
-            _pending.Add(new EventData(new Error(error)));
+            _pending.Enqueue(new EventData(new Error(error)));
         }
 
         void DispatchNetworkError(Error err)

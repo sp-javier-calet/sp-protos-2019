@@ -20,6 +20,11 @@ namespace SpartaTools.Editor.View
 
         #endregion
 
+        Vector2 _scrollPosition;
+        List<ModuleCategory> _categories;
+        bool _enableTvOS = true;
+        bool _enableStandalone = true;
+
         Variant _selectedVariant;
         float _lastSelectionTime;
 
@@ -79,7 +84,7 @@ namespace SpartaTools.Editor.View
                 }
             }
 
-            public ModuleData(Module module)
+            public ModuleData(Module module, bool compileTvOS, bool compileStandalone)
             {
                 Module = module;
                 Variants = new List<Variant>();
@@ -88,14 +93,22 @@ namespace SpartaTools.Editor.View
                 Variants.Add(new Variant("Android-Editor", module, BuildTarget.Android, true));
                 Variants.Add(new Variant("iOS", module, BuildTarget.iOS, false));
                 Variants.Add(new Variant("iOS-Editor", module, BuildTarget.iOS, true));
-                Variants.Add(new Variant("tvOS", module, BuildTarget.tvOS, false));
-                Variants.Add(new Variant("tvOS-Editor", module, BuildTarget.tvOS, true));
-                Variants.Add(new Variant("macOS", module, BuildTarget.StandaloneOSXUniversal, false));
-                Variants.Add(new Variant("macOS-Editor", module, BuildTarget.StandaloneOSXUniversal, true));
-                Variants.Add(new Variant("linux", module, BuildTarget.StandaloneLinuxUniversal, false));
-                Variants.Add(new Variant("linux-Editor", module, BuildTarget.StandaloneLinuxUniversal, true));
-                Variants.Add(new Variant("Win Standalone", module, BuildTarget.StandaloneWindows, false));
-                Variants.Add(new Variant("Win-Editor", module, BuildTarget.StandaloneWindows, true));
+
+                if(compileTvOS)
+                {
+                    Variants.Add(new Variant("tvOS", module, BuildTarget.tvOS, false));
+                    Variants.Add(new Variant("tvOS-Editor", module, BuildTarget.tvOS, true));
+                }
+
+                if(compileStandalone)
+                {
+                    Variants.Add(new Variant("macOS", module, BuildTarget.StandaloneOSXUniversal, false));
+                    Variants.Add(new Variant("macOS-Editor", module, BuildTarget.StandaloneOSXUniversal, true));
+                    Variants.Add(new Variant("linux", module, BuildTarget.StandaloneLinuxUniversal, false));
+                    Variants.Add(new Variant("linux-Editor", module, BuildTarget.StandaloneLinuxUniversal, true));
+                    Variants.Add(new Variant("Win Standalone", module, BuildTarget.StandaloneWindows, false));
+                    Variants.Add(new Variant("Win-Editor", module, BuildTarget.StandaloneWindows, true));
+                }
             }
         }
 
@@ -130,8 +143,7 @@ namespace SpartaTools.Editor.View
             }
         }
 
-        Vector2 _scrollPosition;
-        List<ModuleCategory> _categories;
+
 
         List<ModuleCategory> LoadData()
         {
@@ -151,7 +163,7 @@ namespace SpartaTools.Editor.View
                     dic.Add(categoryName, category);
                 }
 
-                category.Modules.Add(new ModuleData(module));
+                category.Modules.Add(new ModuleData(module, _enableTvOS, _enableStandalone));
             }
 
             return categories;
@@ -261,8 +273,14 @@ namespace SpartaTools.Editor.View
                 if(variant == _selectedVariant && t - _lastSelectionTime < 0.2f)
                 {
                     EditorUtility.DisplayProgressBar("Compile module", string.Format("Compiling {0} for {1}", variant.Module.Name, variant.Name), 0.1f);
-                    CompileVariant(variant, false);
-                    EditorUtility.ClearProgressBar();
+                    try
+                    {
+                        CompileVariant(variant, false);
+                    }
+                    finally
+                    {
+                        EditorUtility.ClearProgressBar();
+                    }
                 }
 
                 _lastSelectionTime = t;
@@ -316,19 +334,52 @@ namespace SpartaTools.Editor.View
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
+            if(GUILayout.Button("Reload", EditorStyles.toolbarButton))
+            {
+                _categories = LoadData();
+            }
+
+            var tvOS = GUILayout.Toggle(_enableTvOS, new GUIContent("tvOS", "Compile modules for tvOS"), EditorStyles.toolbarButton);
+            if(tvOS != _enableTvOS)
+            {
+                _enableTvOS = tvOS;
+                _categories = LoadData();
+            }
+
+            var standalone = GUILayout.Toggle(_enableStandalone, new GUIContent("Standalone", "Compile module for Standalone platforms (MacOS, Win, Linux)"), EditorStyles.toolbarButton);
+            if(standalone != _enableStandalone)
+            {
+                _enableStandalone = standalone;
+                _categories = LoadData();
+            }
+
+
             GUILayout.FlexibleSpace();
+
             if(GUILayout.Button("Compile All", EditorStyles.toolbarButton))
             {
                 EditorUtility.DisplayProgressBar("Compile All", "Compiling all modules and variants", 0.1f);
-                CompileAll();
-                EditorUtility.ClearProgressBar();
+                try
+                {
+                    CompileAll();
+                }
+                finally
+                {
+                    EditorUtility.ClearProgressBar();
+                }
             }
 
             if(GUILayout.Button("Compile Failed", EditorStyles.toolbarButton))
             {
                 EditorUtility.DisplayProgressBar("Compile Failed", "Compiling failed modules and variants", 0.1f);
-                CompileFailed();
-                EditorUtility.ClearProgressBar();
+                try
+                {
+                    CompileFailed();
+                }
+                finally
+                {
+                    EditorUtility.ClearProgressBar();
+                }
             }
 
             if(GUILayout.Button("Clean", EditorStyles.toolbarButton))
@@ -354,7 +405,7 @@ namespace SpartaTools.Editor.View
 
             foreach(var category in _categories)
             {
-                category.Show = EditorGUILayout.Foldout(category.Show,new GUIContent(category.Name,  string.Format("{0} Modules", category.Name)), GetFoldoutStyle(category.Status));
+                category.Show = EditorGUILayout.Foldout(category.Show, new GUIContent(category.Name, string.Format("{0} Modules", category.Name)), GetFoldoutStyle(category.Status));
                 if(category.Show)
                 {
                     GUILayout.BeginVertical(Styles.Group);

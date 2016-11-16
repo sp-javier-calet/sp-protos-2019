@@ -594,6 +594,15 @@ namespace SpartaTools.Editor.Build
                             compiler.AddReference(lib);
                         }
                     }
+                    else
+                    {
+                        // Reference .dll dependencies
+                        var file = new FileInfo(depPath);
+                        if(file.Extension == ".dll")
+                        {
+                            compiler.AddReference(depPath);
+                        }
+                    }
                 }
             }
         }
