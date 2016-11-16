@@ -1,10 +1,8 @@
-using Photon;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 using SocialPoint.IO;
 using System;
 using System.IO;
-using System.Collections.Generic;
 
 namespace SocialPoint.Network
 {
@@ -51,7 +49,7 @@ namespace SocialPoint.Network
         const int DefaultMaximumTransferUnit = 1500; // How much data we can transfer
         const int DefaultSentCountAllowance = 10; // Allow for big lags
         const int DefaultQuickResendAttempts = 0; // SpeedUp from second repeat on. This avoid resending repeats too fast
-        
+
         public int UpdateInterval = DefaultUpdateInterval;
         public int UpdateIntervalOnSerialize = DefaultUpdateIntervalOnSerialize;
         public int MaximumTransferUnit = DefaultMaximumTransferUnit;
@@ -64,7 +62,6 @@ namespace SocialPoint.Network
     {
         public string GameVersion;
         public string RoomName;
-
         public bool EnableCustomInteralPhotonNetworkConfig = true;
         public CustomInternalNetworkConfig CustomInternalNetworkConfig = new CustomInternalNetworkConfig();
         public PhotonNetworkRoomConfig RoomOptions = new PhotonNetworkRoomConfig();
@@ -72,7 +69,7 @@ namespace SocialPoint.Network
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
     {
-        PhotonNetworkConfig _config;
+        public PhotonNetworkConfig Config;
 
         const int ConnectionError = 1;
         const int CreateRoomError = 2;
@@ -81,9 +78,11 @@ namespace SocialPoint.Network
         CustomInternalNetworkConfig _originalInternalNetworkConfig = new CustomInternalNetworkConfig();
         bool _pendingOutgoingCommands = false;
 
+        [Obsolete("Use the Config property")]
         public void Init(PhotonNetworkConfig config)
         {
-            _config = config;
+            Config = config;
+
             SaveOriginalInternalPhotonSettings();
             SetCustomInternalPhotonSettings();
         }
@@ -101,26 +100,26 @@ namespace SocialPoint.Network
 
         void SetCustomInternalPhotonSettings()
         {
-            if(_config.EnableCustomInteralPhotonNetworkConfig)
+            if(Config.EnableCustomInteralPhotonNetworkConfig)
             {
                 if(PhotonNetwork.connected)
                 {
-                    PhotonNetwork.photonMono.updateInterval = _config.CustomInternalNetworkConfig.UpdateInterval;
-                    PhotonNetwork.photonMono.updateIntervalOnSerialize = _config.CustomInternalNetworkConfig.UpdateIntervalOnSerialize;
+                    PhotonNetwork.photonMono.updateInterval = Config.CustomInternalNetworkConfig.UpdateInterval;
+                    PhotonNetwork.photonMono.updateIntervalOnSerialize = Config.CustomInternalNetworkConfig.UpdateIntervalOnSerialize;
 
-                    PhotonNetwork.networkingPeer.SentCountAllowance = _config.CustomInternalNetworkConfig.SentCountAllowance;
-                    PhotonNetwork.networkingPeer.QuickResendAttempts = (byte) _config.CustomInternalNetworkConfig.QuickResendAttempts;
+                    PhotonNetwork.networkingPeer.SentCountAllowance = Config.CustomInternalNetworkConfig.SentCountAllowance;
+                    PhotonNetwork.networkingPeer.QuickResendAttempts = (byte) Config.CustomInternalNetworkConfig.QuickResendAttempts;
                 }
                 else
                 {
-                    PhotonNetwork.networkingPeer.MaximumTransferUnit = _config.CustomInternalNetworkConfig.MaximumTransferUnit;
+                    PhotonNetwork.networkingPeer.MaximumTransferUnit = Config.CustomInternalNetworkConfig.MaximumTransferUnit;
                 }
             }
         }
 
         void RestoreInternalCustomPhotonSettings()
         {
-            if(_config.EnableCustomInteralPhotonNetworkConfig)
+            if(Config.EnableCustomInteralPhotonNetworkConfig)
             {
                 PhotonNetwork.photonMono.updateInterval = _originalInternalNetworkConfig.UpdateInterval;
                 PhotonNetwork.photonMono.updateIntervalOnSerialize = _originalInternalNetworkConfig.UpdateIntervalOnSerialize;
@@ -134,29 +133,24 @@ namespace SocialPoint.Network
 
         void Awake()
         {
-            if(_config == null)
+            if(Config == null)
             {
-                _config = new PhotonNetworkConfig();
-            }
-        }
-
-        void Update()
-        {
-            if(_pendingOutgoingCommands)
-            {
-                _pendingOutgoingCommands = false;
-                PhotonNetwork.SendOutgoingCommands();
+                Config = new PhotonNetworkConfig();
             }
         }
 
         protected void DoConnect()
         {
-            PhotonNetwork.ConnectUsingSettings(_config.GameVersion);
+            DoDisconnect();
+            PhotonNetwork.ConnectUsingSettings(Config.GameVersion);
         }
 
         protected void DoDisconnect()
         {
-            PhotonNetwork.Disconnect();
+            if(PhotonNetwork.connected)
+            {
+                PhotonNetwork.Disconnect();
+            }
         }
 
         public void Dispose()
@@ -169,19 +163,19 @@ namespace SocialPoint.Network
         {
             get
             {
-                return _config.RoomOptions == null ? null : _config.RoomOptions.ToPhoton();
+                return Config.RoomOptions == null ? null : Config.RoomOptions.ToPhoton();
             }
         }
 
         void JoinOrCreateRoom()
         {
-            if(string.IsNullOrEmpty(_config.RoomName))
+            if(string.IsNullOrEmpty(Config.RoomName))
             {
-                PhotonNetwork.CreateRoom(_config.RoomName, PhotonRoomOptions, null);
+                PhotonNetwork.CreateRoom(Config.RoomName, PhotonRoomOptions, null);
             }
             else
             {
-                PhotonNetwork.JoinOrCreateRoom(_config.RoomName, PhotonRoomOptions, null);
+                PhotonNetwork.JoinOrCreateRoom(Config.RoomName, PhotonRoomOptions, null);
             }
         }
 
@@ -205,7 +199,7 @@ namespace SocialPoint.Network
 
         void OnJoinedLobby()
         {
-            if(string.IsNullOrEmpty(_config.RoomName))
+            if(string.IsNullOrEmpty(Config.RoomName))
             {
                 PhotonNetwork.JoinRandomRoom();
             }
@@ -261,12 +255,14 @@ namespace SocialPoint.Network
         {
             var err = new Error(ConnectionError, "Failed to connect: " + cause);
             OnNetworkError(err);
+            OnDisconnected();
         }
 
         void OnCustomAuthenticationFailed(string debugMessage)
         {
             var err = new Error(CustomAuthError, "Custom Authentication failed: " + debugMessage);
             OnNetworkError(err);
+            OnDisconnected();
         }
 
         #endregion
@@ -319,7 +315,6 @@ namespace SocialPoint.Network
                 options.TargetActors = new int[]{ player.ID };
             }
             PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
-            _pendingOutgoingCommands = true;
         }
 
         void OnEventReceived(byte eventcode, object content, int senderid)
@@ -328,7 +323,7 @@ namespace SocialPoint.Network
             {
                 var err = new Error((string)content);
                 OnNetworkError(err);
-                PhotonNetwork.Disconnect();
+                DoDisconnect();
                 return;
             }
 

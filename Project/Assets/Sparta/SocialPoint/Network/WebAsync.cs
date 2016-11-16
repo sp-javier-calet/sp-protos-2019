@@ -162,7 +162,7 @@ namespace SocialPoint.Network
             );
 
             // Wait until the the call is completed
-            while(!asyncResult.IsCompleted)
+            while(!asyncResult.IsCompleted || WebResponse == null)
             {
                 yield return null;
             }
@@ -212,7 +212,7 @@ namespace SocialPoint.Network
             }
             else
             {
-                var handle = (RegisteredWaitHandle)obj;
+                var handle = obj as RegisteredWaitHandle;
                 if(handle != null)
                 {
                     handle.Unregister(null);
