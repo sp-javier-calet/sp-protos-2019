@@ -13,8 +13,6 @@ namespace SocialPoint.Geometry
             _y = y;
             _z = z;
         }
-
-
     }
 
     // UnityVector adapter
@@ -33,11 +31,6 @@ namespace SocialPoint.Geometry
         public static implicit operator UnityEngine.Vector3(Vector v)
         {
             return new UnityEngine.Vector3(v._x, v._y, v._z);
-        }
-
-        public UnityEngine.Vector3 ToUnity()
-        {
-            return this;
         }
     }
 }

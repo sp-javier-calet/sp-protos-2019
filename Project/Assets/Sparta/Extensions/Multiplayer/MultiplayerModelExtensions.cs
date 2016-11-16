@@ -42,10 +42,5 @@ namespace SocialPoint.Geometry
         {
             return new PhysicsVector(v._x, v._y, v._z);
         }
-
-        public PhysicsVector ToPhysics()
-        {
-            return this;
-        }
     }
 }
