@@ -180,6 +180,8 @@ internal class PhotonHandler : MonoBehaviour
 
             this.nextSendTickCount = currentMsSinceStart + this.updateInterval;
         }
+
+        UnityEngine.Debug.Log(string.Format("UpdateInterval {0}, UpdateIntervalOnSerialize {1}", updateInterval, updateIntervalOnSerialize));
     }
 
     protected void OnJoinedRoom()

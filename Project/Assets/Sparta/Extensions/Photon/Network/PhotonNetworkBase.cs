@@ -69,7 +69,6 @@ namespace SocialPoint.Network
         public void Init(PhotonNetworkConfig config)
         {
             SaveOriginalPhotonSettings();
-
             _config = config;
         }
 
