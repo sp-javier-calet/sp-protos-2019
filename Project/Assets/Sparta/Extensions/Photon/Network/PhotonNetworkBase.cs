@@ -46,8 +46,8 @@ namespace SocialPoint.Network
     [Serializable]
     public class CustomInternalNetworkConfig
     {
-        const int DefaultUpdateInterval = 10000; // Update Interval
-        const int DefaultUpdateIntervalOnSerialize = 10000; // Update Interval OnSerialize
+        const int DefaultUpdateInterval = 100000; // Update Interval
+        const int DefaultUpdateIntervalOnSerialize = 100000; // Update Interval OnSerialize
         const int DefaultMaximumTransferUnit = 1500; // How much data we can transfer
         const int DefaultSentCountAllowance = 10; // Allow for big lags
         const int DefaultQuickResendAttempts = 0; // SpeedUp from second repeat on. This avoid resending repeats too fast
