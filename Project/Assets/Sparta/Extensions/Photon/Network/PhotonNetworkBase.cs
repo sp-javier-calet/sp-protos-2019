@@ -78,7 +78,7 @@ namespace SocialPoint.Network
         const int CreateRoomError = 2;
         const int CustomAuthError = 3;
 
-        public CustomInternalNetworkConfig _originalInternalNetworkConfig;
+        CustomInternalNetworkConfig _originalInternalNetworkConfig = new CustomInternalNetworkConfig();
 
         public void Init(PhotonNetworkConfig config)
         {
