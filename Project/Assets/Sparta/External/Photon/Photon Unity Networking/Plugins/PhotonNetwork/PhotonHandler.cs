@@ -214,6 +214,8 @@ internal class PhotonHandler : MonoBehaviour
     }
 
     /// <summary>A thread which runs independent from the Update() calls. Keeps connections online while loading or in background. See PhotonNetwork.BackgroundTimeout.</summary>
+
+    static int nextSyncTime = 0;
     public static bool FallbackSendAckThread()
     {
         if (sendThreadShouldRun && PhotonNetwork.networkingPeer != null)
@@ -233,8 +235,11 @@ internal class PhotonHandler : MonoBehaviour
                 }
             }
 
-            if (PhotonNetwork.networkingPeer.ConnectionTime - PhotonNetwork.networkingPeer.LastSendOutgoingTime > 1000)
+            //if (PhotonNetwork.networkingPeer.ConnectionTime - PhotonNetwork.networkingPeer.LastSendOutgoingTime > 2000)
+            int currentMsSinceStart = (int)(Time.realtimeSinceStartup * 1000);  // avoiding Environment.TickCount, which could be negative on long-running platforms
+            if (currentMsSinceStart > nextSyncTime)
             {
+                nextSyncTime = currentMsSinceStart + 2 * 1000;
                 PhotonNetwork.networkingPeer.SendAcksOnly();
             }
         }
