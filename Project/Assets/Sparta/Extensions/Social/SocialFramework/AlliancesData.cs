@@ -91,22 +91,4 @@ namespace SocialPoint.Social
             return _searchData.GetEnumerator();
         }
     }
-
-    public class AlliancesCreateData
-    {
-        public string Name;
-
-        public string Description;
-
-        public int Requirement;
-
-        public int Avatar;
-
-        public int AccessType;
-
-        public AlliancesCreateData()
-        {
-            Avatar = 1;
-        }
-    }
 }

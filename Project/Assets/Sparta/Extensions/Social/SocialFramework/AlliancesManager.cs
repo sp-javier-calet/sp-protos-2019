@@ -54,7 +54,6 @@ namespace SocialPoint.Social
         // TODO Both Key and Session store the SessionId
         const string UserSessionKey = "user_key";
         const string SessionIdKey = "session_id";
-        const string NameKey = "name";
         const string AllianceIdKey = "alliance_id";
         const string AvatarKey = "avatar";
         const string AllianceNameKey = "alliance_name";
@@ -324,15 +323,11 @@ namespace SocialPoint.Social
             }
         }
 
-        public WAMPRequest CreateAlliance(AlliancesCreateData data, Action<Error> callback)
+        public WAMPRequest CreateAlliance(Alliance data, Action<Error> callback)
         {
-            var dic = new AttrDic();
+            var dic = Factory.SerializeAlliance(data);
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
-            dic.SetValue(NameKey, data.Name);
-            dic.SetValue(AllianceDescriptionKey, data.Description);
-            dic.SetValue(AllianceRequirementKey, data.Requirement);
-            dic.SetValue(AllianceTypeKey, data.AccessType);
-            dic.SetValue(AvatarKey, data.Avatar);
+            dic.Set("create", Factory.SerializeAlliance(data));
 
             return _connection.Call(AllianceCreateMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
@@ -369,7 +364,7 @@ namespace SocialPoint.Social
             });
         }
 
-        public WAMPRequest EditAlliance(Alliance current, AlliancesCreateData data, Action<Error> callback)
+        public WAMPRequest EditAlliance(Alliance current, Alliance data, Action<Error> callback)
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());

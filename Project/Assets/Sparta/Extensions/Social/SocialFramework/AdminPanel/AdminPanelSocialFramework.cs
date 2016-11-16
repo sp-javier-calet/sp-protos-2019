@@ -434,7 +434,7 @@ namespace SocialPoint.Social
 
             class AdminPanelAllianceCreate : BaseAlliancePanel
             {
-                AlliancesCreateData _data;
+                Alliance _data;
 
                 StringBuilder _content;
 
@@ -474,7 +474,7 @@ namespace SocialPoint.Social
 
                 public AdminPanelAllianceCreate(AlliancesManager alliances, AdminPanelConsole console) : base(alliances, console)
                 {
-                    _data = new AlliancesCreateData();
+                    _data = new Alliance();
                     _content = new StringBuilder();
                 }
 
@@ -589,7 +589,7 @@ namespace SocialPoint.Social
 
                 void ClearData()
                 {
-                    _data = new AlliancesCreateData();
+                    _data = new Alliance();
                 }
 
                 void StringValueInput(AdminPanelLayout layout, string label, string current, Action<string> onChanged)

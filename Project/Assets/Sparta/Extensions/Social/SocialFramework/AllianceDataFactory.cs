@@ -179,6 +179,23 @@ namespace SocialPoint.Social
 
         }
 
+        public AttrDic SerializeAlliance(Alliance alliance)
+        {
+            var dic = new AttrDic();
+            SerializeAlliance(alliance, dic);
+            SerializeCustomAlliance(alliance, dic);
+            return dic;
+        }
+
+        void SerializeAlliance(Alliance alliance, AttrDic dic)
+        {
+            dic.SetValue(AllianceNameKey, alliance.Name);
+            dic.SetValue(AllianceDescriptionKey, alliance.Description);
+            dic.SetValue(AllianceRequirementKey, alliance.Requirement);
+            dic.SetValue(AllianceTypeKey, alliance.AccessType);
+            dic.SetValue(AllianceAvatarKey, alliance.Avatar);
+        }
+
         public AlliancePlayerInfo CreatePlayerInfo()
         {
             return CreateCustomPlayerInfo();
@@ -298,6 +315,10 @@ namespace SocialPoint.Social
         }
 
         protected virtual void ParseCustomAlliance(Alliance alliance, AttrDic dic)
+        {
+        }
+
+        protected virtual void SerializeCustomAlliance(Alliance alliance, AttrDic dic)
         {
         }
 
