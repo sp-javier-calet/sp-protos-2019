@@ -28,6 +28,14 @@ namespace SocialPoint.Network
             }
         }
 
+        public string Id
+        {
+            get
+            {
+                return _server.Id;
+            }
+        }
+
         public void Start()
         {
             ClearSimulationData();
@@ -38,6 +46,11 @@ namespace SocialPoint.Network
         {
             ClearSimulationData();
             _server.Stop();
+        }
+
+        public void Fail(string msg)
+        {
+            _server.Fail(msg);
         }
 
         public void AddDelegate(INetworkServerDelegate dlg)

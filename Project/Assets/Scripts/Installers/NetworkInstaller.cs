@@ -2,7 +2,6 @@
 using SocialPoint.Utils;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
-using SocialPoint.Multiplayer;
 using SocialPoint.AdminPanel;
 
 public class NetworkInstaller : Installer
@@ -109,13 +108,13 @@ public class NetworkInstaller : Installer
 
     void SetupPhotonServer(PhotonNetworkServer server)
     {
-        server.Init(Settings.PhotonConfig);
+        server.Config = Settings.PhotonConfig;
         SetupServer(server);
     }
 
     void SetupPhotonClient(PhotonNetworkClient client)
     {
-        client.Init(Settings.PhotonConfig);
+        client.Config = Settings.PhotonConfig;
         SetupClient(client);
     }
 }

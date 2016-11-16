@@ -44,45 +44,58 @@ namespace SocialPoint.Utils
         }
     }
 
-    public sealed class TimeScaleDependantInterval
+    public sealed class ScheduledAction : IUpdateable, IDisposable
     {
-        public readonly double Interval;
-        public double AccumTime;
+        Action _action;
+        IUpdateScheduler _scheduler;
+        bool _started;
 
-        public TimeScaleDependantInterval(double interval)
+        public ScheduledAction(IUpdateScheduler scheduler, Action action)
         {
-            Interval = interval;
-            AccumTime = 0.0;
-        }
-    }
-
-    public sealed class TimeScaleNonDependantInterval
-    {
-        public readonly double Interval;
-        public double CurrentTimeStamp;
-
-        public TimeScaleNonDependantInterval(double interval)
-        {
-            Interval = interval;
-            CurrentTimeStamp = TimeUtils.GetTimestampDouble(DateTime.Now);
-        }
-    }
-
-    public sealed class ReferenceComparer<T> : IEqualityComparer<T>
-    {
-        public bool Equals(T x, T y)
-        {
-            return ReferenceEquals(x, y);
+            _scheduler = scheduler;
+            _action = action;
         }
 
-        public int GetHashCode(T obj)
+        public void Start(double interval = 0)
         {
-            return obj.GetType().GetHashCode();
+            if(_started)
+            {
+                Stop();
+            }
+
+            _started = true;
+            if(interval <= 0)
+            {
+                _scheduler.Add(this);
+            }
+            else
+            {
+                _scheduler.AddFixed(this, interval);
+            }
+        }
+
+        public void Update()
+        {
+            _action();
+        }
+
+        public void Stop()
+        {
+            _started = false;
+            _scheduler.Remove(this);
+        }
+
+        public void Dispose()
+        {
+            Stop();
+            _scheduler = null;
+            _action = null;
         }
     }
 
     public sealed class UpdateScheduler : IUpdateScheduler
     {
+        readonly HashSet<IUpdateable> _elementsToRemove;
         readonly HashSet<IUpdateable> _elements;
         readonly Dictionary<IUpdateable, TimeScaleDependantInterval> _intervalTimeScaleDependantElements;
         readonly Dictionary<IUpdateable, TimeScaleNonDependantInterval> _intervalTimeScaleNonDependantElements;
@@ -92,6 +105,7 @@ namespace SocialPoint.Utils
         {
             var comparer = new ReferenceComparer<IUpdateable>();
             _elements = new HashSet<IUpdateable>(comparer);
+            _elementsToRemove = new HashSet<IUpdateable>(comparer);
             _intervalTimeScaleDependantElements = new Dictionary<IUpdateable, TimeScaleDependantInterval>(comparer);
             _intervalTimeScaleNonDependantElements = new Dictionary<IUpdateable, TimeScaleNonDependantInterval>(comparer);
         }
@@ -127,6 +141,16 @@ namespace SocialPoint.Utils
         {
             if(elm != null)
             {
+                _elementsToRemove.Add(elm);
+            }
+        }
+
+        void DoRemove()
+        {
+            var itr = _elementsToRemove.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                var elm = itr.Current;
                 if(_elements.Contains(elm))
                 {
                     _elements.Remove(elm);
@@ -140,10 +164,13 @@ namespace SocialPoint.Utils
                     _intervalTimeScaleNonDependantElements.Remove(elm);
                 }
             }
+            itr.Dispose();
+            _elementsToRemove.Clear();
         }
 
         public void Update(float deltaTime)
         {
+            DoRemove();
             _exceptions.Clear();
 
             var itr = _elements.GetEnumerator();
@@ -222,6 +249,45 @@ namespace SocialPoint.Utils
                 }
                 throw new Exception(sb.ToString());
             }
+        }
+
+        sealed class TimeScaleDependantInterval
+        {
+            public readonly double Interval;
+            public double AccumTime;
+
+            public TimeScaleDependantInterval(double interval)
+            {
+                Interval = interval;
+                AccumTime = 0.0;
+            }
+        }
+
+        sealed class TimeScaleNonDependantInterval
+        {
+            public readonly double Interval;
+            public double CurrentTimeStamp;
+
+            public TimeScaleNonDependantInterval(double interval)
+            {
+                Interval = interval;
+                CurrentTimeStamp = TimeUtils.GetTimestampDouble(DateTime.Now);
+            }
+        }
+    }
+
+    public class ImmediateCoroutineRunner : ICoroutineRunner
+    {
+        public IEnumerator StartCoroutine(IEnumerator enumerator)
+        {
+            while(enumerator.MoveNext())
+            {
+            }
+            return enumerator;
+        }
+
+        public void StopCoroutine(IEnumerator enumerator)
+        {
         }
     }
 }
