@@ -436,7 +436,9 @@ namespace SocialPoint.Lockstep
                     }
                     else
                     {
-                        if(t*Config.SimulationStepDuration - _lastConfirmedTurnNumber*Config.SimulationStepDuration > Config.MaxTurnSkipDuration)
+                        int missingTurnsCount = t - _lastConfirmedTurnNumber;
+                        bool shouldDisconnect = missingTurnsCount > Config.MaxEskippedEmptyTurns;
+                        if(shouldDisconnect)
                         {
                             _state = State.Waiting;
                         }
