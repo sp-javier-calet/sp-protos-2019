@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
-using System.Collections;
 using SharpNav;
-using SharpNav.Geometry;
 using SharpNav.Pathfinding;
+using SocialPoint.Geometry;
 
 namespace SocialPoint.Pathfinding
 {
@@ -32,8 +31,8 @@ namespace SocialPoint.Pathfinding
             {
                 int index1 = verts[i];
                 int index2 = verts[(i + 1) % navPoly.VertCount];
-                var v1 = tile.Verts[index1].ToUnity();
-                var v2 = tile.Verts[index2].ToUnity();
+                Vector v1 = tile.Verts[index1];
+                Vector v2 = tile.Verts[index2];
 
                 Debug.DrawLine(v1, v2, _color);
             }
@@ -69,7 +68,7 @@ namespace SocialPoint.Pathfinding
         {
             var pathVert = straightPath[i];
             var point = pathVert.Point;
-            return point.Position.ToUnity();
+            return Vector.Convert(point.Position);
         }
     }
 }
