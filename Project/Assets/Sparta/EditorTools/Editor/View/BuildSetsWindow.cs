@@ -259,6 +259,17 @@ namespace SpartaTools.Editor.View
 
                 GUILayout.BeginVertical();
                 config.App.ProductName = InheritableTextField("Product Name", "Application name", config.App.ProductName, data.IsBase);
+                config.App.Version = InheritableTextField("Version", "Human-readable build version", config.App.Version, data.IsBase);
+                if(!data.IsBase)
+                {
+                    config.App.OverrideBuild = EditorGUILayout.Toggle("Override Build Number", config.App.OverrideBuild);
+                }
+
+                if(data.IsBase || config.App.OverrideBuild)
+                {
+                    config.App.BuildNumber = EditorGUILayout.IntField("Build Number", config.App.BuildNumber);
+                }
+
                 config.Common.Flags = InheritableTextField("Flags", "Defined symbols for all platforms", config.Common.Flags, data.IsBase);
                 config.Common.LogLevel = (BuildSet.LogLevel)EditorGUILayout.EnumPopup("Log Level", config.Common.LogLevel);
                 TextDataLabel("Environment Url", "Jenkins Forced Environment Url", BuildSet.EnvironmentUrl);
@@ -313,18 +324,6 @@ namespace SpartaTools.Editor.View
                 config.Android.BundleIdentifier = InheritableTextField("Bundle Identifier", "Android bundle identifier", config.Android.BundleIdentifier, data.IsBase);
                 config.Android.Flags = InheritableTextField("Flags", "Android specific defined symbols", config.Android.Flags, data.IsBase);
                 config.Android.RemovedResources = InheritableTextField("Remove Resources", "Extended Feature. Folders and files under Assets to be to removed before build", config.Android.RemovedResources, data.IsBase);
-
-                EditorGUILayout.Space();
-
-                if(!data.IsBase)
-                {
-                    config.Android.ForceBundleVersionCode = EditorGUILayout.Toggle("Force Bundle Version Code", config.Android.ForceBundleVersionCode);
-                }
-
-                if(data.IsBase || config.Android.ForceBundleVersionCode)
-                {
-                    config.Android.BundleVersionCode = EditorGUILayout.IntField("Bundle Version Code", config.Android.BundleVersionCode);
-                }
 
                 EditorGUILayout.Space();
 

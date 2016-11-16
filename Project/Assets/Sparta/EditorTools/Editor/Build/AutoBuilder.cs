@@ -191,7 +191,7 @@ namespace SpartaTools.Editor.Build
             /*
              * Settings Override
              */ 
-            if(!buildSet.Android.ForceBundleVersionCode)
+            if(!buildSet.App.OverrideBuild)
             {
                 OverrideBuildNumber(versionNumber);
             }
