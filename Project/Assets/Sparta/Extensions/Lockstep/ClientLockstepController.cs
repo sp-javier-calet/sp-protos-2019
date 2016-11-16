@@ -437,7 +437,7 @@ namespace SocialPoint.Lockstep
                     else
                     {
                         int missingTurnsCount = t - _lastConfirmedTurnNumber;
-                        bool shouldDisconnect = missingTurnsCount > Config.MaxEskippedEmptyTurns;
+                        bool shouldDisconnect = missingTurnsCount > Config.MaxSkippedEmptyTurns;
                         if(shouldDisconnect)
                         {
                             _state = State.Waiting;
