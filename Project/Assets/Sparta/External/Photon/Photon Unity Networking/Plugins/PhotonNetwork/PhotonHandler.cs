@@ -233,7 +233,7 @@ internal class PhotonHandler : MonoBehaviour
                 }
             }
 
-            if (PhotonNetwork.networkingPeer.ConnectionTime - PhotonNetwork.networkingPeer.LastSendOutgoingTime > 30000)
+            if (PhotonNetwork.networkingPeer.ConnectionTime - PhotonNetwork.networkingPeer.LastSendOutgoingTime > 10000)
             {
                 PhotonNetwork.networkingPeer.SendAcksOnly();
             }
