@@ -33,6 +33,14 @@ namespace Photon.Hive.Plugin.Authoritative
             }
         }
 
+        string INetworkServer.Id
+        {
+            get
+            {
+                return PluginHost.GameId;
+            }
+        }
+
         bool INetworkServer.Running
         {
             get
@@ -263,9 +271,14 @@ namespace Photon.Hive.Plugin.Authoritative
             PluginHost.LogError(errorMsg);
         }
 
+        void INetworkServer.Fail(string reason)
+        {
+            BroadcastError(reason);
+        }
+
         void HandleException(Exception e)
         {
-            BroadcastError(e.Message);
+            ((INetworkServer)this).Fail(e.Message);
         }
 
         void INetworkServer.Start()

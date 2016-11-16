@@ -1,0 +1,3 @@
+name Extension/WAMP
+desc WAMP Protocol implementation
+type extension
