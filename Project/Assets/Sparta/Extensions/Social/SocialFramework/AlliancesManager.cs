@@ -715,7 +715,7 @@ namespace SocialPoint.Social
         void OnUserAppliedToPlayerAlliance(AttrDic dic)
         {
             DebugUtils.Assert(AlliancePlayerInfo.IsInAlliance, "User is not in an alliance");
-            DebugUtils.Assert(Ranks.HasMemberManagementPermission(AlliancePlayerInfo.Rank));
+            DebugUtils.Assert(Ranks.HasPermission(AlliancePlayerInfo.Rank, RankPermission.Members));
             NotifyAllianceEvent(AllianceAction.UserAppliedToPlayerAlliance, dic);
         }
 

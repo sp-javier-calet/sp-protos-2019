@@ -2,6 +2,12 @@
 
 namespace SocialPoint.Social
 {
+    public enum RankPermission
+    {
+        EditAlliance,
+        Members
+    }
+
     public interface IRankManager
     {
         /// <summary>
@@ -35,9 +41,7 @@ namespace SocialPoint.Social
 
         int GetDemoted(int rank);
 
-        bool HasMemberManagementPermission(int rank);
-
-        bool HasAllianceManagementPermission(int rank);
+        bool HasPermission(int rank, RankPermission permission);
 
         string GetRankChangeMessageTid(int oldRank, int newRank);
 
@@ -124,7 +128,20 @@ namespace SocialPoint.Social
             }
         }
 
-        public bool HasMemberManagementPermission(int rank)
+        public bool HasPermission(int rank, RankPermission permission)
+        {
+            switch(permission)
+            {
+            case RankPermission.EditAlliance:
+                return HasAllianceManagementPermission(rank);
+            case RankPermission.Members:
+                return HasMemberManagementPermission(rank);
+            }
+
+            return false;
+        }
+
+        bool HasAllianceManagementPermission(int rank)
         {
             if(!Exists(rank))
             {
@@ -135,7 +152,7 @@ namespace SocialPoint.Social
             return (r == Rank.Lead || r == Rank.Colead);
         }
 
-        public bool HasAllianceManagementPermission(int rank)
+        bool HasMemberManagementPermission(int rank)
         {
             if(!Exists(rank))
             {

@@ -721,7 +721,7 @@ namespace SocialPoint.Social
                 {
                     var ownAlliance = _alliances.AlliancePlayerInfo;
                     bool isInAlliance = ownAlliance.IsInAlliance;
-                    var canEditAlliance = _alliances.Ranks.HasAllianceManagementPermission(ownAlliance.Rank) && ownAlliance.Id == Alliance.Id;
+                    var canEditAlliance = _alliances.Ranks.HasPermission(ownAlliance.Rank, RankPermission.EditAlliance) && ownAlliance.Id == Alliance.Id;
                     var isOpenAlliance = _alliances.AccessTypes.IsPublic(Alliance.AccessType);
                     var canJoinAlliance = !isInAlliance && isOpenAlliance && !Alliance.HasCandidate(ownAlliance.Id);
 
@@ -836,7 +836,7 @@ namespace SocialPoint.Social
                     var userIsMember = Alliance.HasMember(_member.Uid);
                     var userIsCandidate = Alliance.HasCandidate(_member.Uid);
                     var rankActionsEnabled = isOwnAlliance && userIsMember && playerHasHigherRank;
-                    var manageActionsEnabled = isOwnAlliance && userIsCandidate && _alliances.Ranks.HasMemberManagementPermission(ownAlliance.Rank);
+                    var manageActionsEnabled = isOwnAlliance && userIsCandidate && _alliances.Ranks.HasPermission(ownAlliance.Rank, RankPermission.Members);
 
                     layout.CreateLabel("Actions");
 
