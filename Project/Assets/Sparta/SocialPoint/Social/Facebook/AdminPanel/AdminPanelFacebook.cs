@@ -192,11 +192,13 @@ namespace SocialPoint.Social
             }, enabled);
         }
 
+        #region Facebook config
+
         public sealed class AdminPanelFacebookLoginConfig : IAdminPanelGUI
         {
-            static readonly List<string> PublicProfilePermissions = new List<string> {"public_profile"};
-            static readonly List<string> EmailPermissions = new List<string> {"email"};
-            static readonly List<string> UserFriendsPermissions = new List<string> {"user_friends"};
+            static readonly List<string> PublicProfilePermissions = new List<string> { "public_profile" };
+            static readonly List<string> EmailPermissions = new List<string> { "email" };
+            static readonly List<string> UserFriendsPermissions = new List<string> { "user_friends" };
 
             readonly IFacebook _facebook;
 
@@ -213,35 +215,32 @@ namespace SocialPoint.Social
                 var permission = permissionAsList.First();
                 bool active = _facebook.LoginPermissions.Contains(permission);
 
-                layout.CreateToggleButton(name, active, status =>
+                layout.CreateToggleButton(name, active, status => {
+                    if(status)
                     {
-                        if(status)
-                        {
-                            _facebook.LoginPermissions.Add(permission);
-                        }
-                        else
-                        {
-                            _facebook.LoginPermissions.Remove(permission);
-                        }
-                    });
+                        _facebook.LoginPermissions.Add(permission);
+                    }
+                    else
+                    {
+                        _facebook.LoginPermissions.Remove(permission);
+                    }
+                });
             }
 
             void AskForPermissionButton(AdminPanelLayout layout, string name, List<string> permissionAsList)
             {
-                layout.CreateToggleButton(name, _facebook.HasPermissions(permissionAsList), status =>
+                layout.CreateToggleButton(name, _facebook.HasPermissions(permissionAsList), status => {
+                    if(status)
                     {
-                        if(status)
-                        {
-                            _facebook.AskForPermissions(permissionAsList, (permissions, err) =>
-                                {
-                                    if(_console != null && !Error.IsNullOrEmpty(err))
-                                    {
-                                        _console.Print("Error when asking for permissions. " + err.Msg);
-                                    }
-                                    layout.Refresh();
-                                });
-                        }
-                    });
+                        _facebook.AskForPermissions(permissionAsList, (permissions, err) => {
+                            if(_console != null && !Error.IsNullOrEmpty(err))
+                            {
+                                _console.Print("Error when asking for permissions. " + err.Msg);
+                            }
+                            layout.Refresh();
+                        });
+                    }
+                });
             }
 
             public void OnCreateGUI(AdminPanelLayout layout)
@@ -274,6 +273,10 @@ namespace SocialPoint.Social
             }
         }
 
+        #endregion
+
+        #region Facebook friends
+
         public sealed class AdminPanelFacebookFriends : IAdminPanelGUI
         {
             readonly IFacebook _facebook;
@@ -295,7 +298,7 @@ namespace SocialPoint.Social
                 else
                 {
                     var builder = new StringBuilder();
-                    for(int i = 0; i < _facebook.Friends.Count ; ++i)
+                    for(int i = 0; i < _facebook.Friends.Count; ++i)
                     {
                         var friend = _facebook.Friends[i];
 
@@ -312,5 +315,7 @@ namespace SocialPoint.Social
                 }
             }
         }
+
+        #endregion
     }
 }

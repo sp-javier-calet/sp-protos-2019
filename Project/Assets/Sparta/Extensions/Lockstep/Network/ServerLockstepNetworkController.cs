@@ -12,7 +12,7 @@ namespace SocialPoint.Lockstep.Network
     {
         public const byte Command = 2;
         public const byte Turn = 3;
-        public const byte EmptyTurn = 4;
+        public const byte EmptyTurns = 4;
         public const byte ClientSetup = 5;
         public const byte PlayerReady = 6;
         public const byte ClientStart = 7;
@@ -96,6 +96,7 @@ namespace SocialPoint.Lockstep.Network
             _server.RegisterReceiver(this);
             _server.AddDelegate(this);
             _serverLockstep.TurnReady += OnServerTurnReady;
+            _serverLockstep.EmptyTurnsReady += OnServerEmptyTurnsReady;
         }
 
         public void Update()
@@ -129,10 +130,10 @@ namespace SocialPoint.Lockstep.Network
         {
             if(ServerLockstepTurnData.IsNullOrEmpty(turnData))
             {
-                _server.CreateMessage(new NetworkMessageData {
-                    MessageType = LockstepMsgType.EmptyTurn,
+                _server.SendMessage(new NetworkMessageData {
+                    MessageType = LockstepMsgType.EmptyTurns,
                     ClientId = client
-                }).Send();
+                }, new EmptyTurnsMessage(1));
             }
             else
             {
@@ -141,6 +142,23 @@ namespace SocialPoint.Lockstep.Network
                     ClientId = client
                 }, turnData);
             }
+        }
+
+        void OnServerEmptyTurnsReady(int emptyTurns)
+        {
+            var itr = _clients.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                var client = itr.Current;
+                if(client.Ready)
+                {
+                    _server.SendMessage(new NetworkMessageData {
+                        MessageType = LockstepMsgType.EmptyTurns,
+                        ClientId = client.ClientId
+                    }, new EmptyTurnsMessage(emptyTurns));
+                }
+            }
+            itr.Dispose();
         }
 
         public void OnMessageReceived(NetworkMessageData data, IReader reader)

@@ -43,12 +43,33 @@ namespace SocialPoint.Base
                 UnityEngine.Assertions.Assert.IsTrue(condition, msg);
 
                 #if UNITY_EDITOR
-                    UnityEditor.EditorApplication.isPlaying &= condition;
+                    try
+                    {
+                        UnityEditor.EditorApplication.isPlaying &= condition;
+                    }
+                    catch(MissingMethodException)
+                    {
+                        /* This is required to run Tests from MonoDevelop, 
+                         * which includes the UNITY_EDITOR flag but EditorApplication is not available. */
+                    }
                 #endif
 
             #else
                 SocialPoint.Base.Log.e(msg);
             #endif
+        }
+
+        [Conditional("DEBUG")]
+        public static void Assert(Func<bool> assertFunction, string msg = "")
+        {
+            Assert(assertFunction(), msg);
+        }
+
+        [Conditional("DEBUG")]
+        public static void Assert(Func<string> assertFunction)
+        {
+            var error = assertFunction();
+            Assert(!string.IsNullOrEmpty(error), error);
         }
 
         [Conditional("DEBUG")]
