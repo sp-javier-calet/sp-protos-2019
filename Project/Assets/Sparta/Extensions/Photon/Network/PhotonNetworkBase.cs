@@ -48,6 +48,10 @@ namespace SocialPoint.Network
     {
         public string GameVersion;
         public string RoomName;
+
+        [UnityEngine.HideInInspector]
+        public int CustomPhotonConnectedUpdateInterval = 10000;
+
         public PhotonNetworkRoomConfig RoomOptions = new PhotonNetworkRoomConfig();
     }
 
@@ -59,10 +63,38 @@ namespace SocialPoint.Network
         const int CreateRoomError = 2;
         const int CustomAuthError = 3;
 
+        int _originalUpdateInterval;
+        int _originalUpdateIntervalOnSerialize;
+
         public void Init(PhotonNetworkConfig config)
         {
-            //PhotonNetwork.sendRate = 1;
+            SaveOriginalPhotonSettings();
+
             _config = config;
+        }
+
+        void SaveOriginalPhotonSettings()
+        {
+            _originalUpdateInterval = PhotonNetwork.photonMono.updateInterval;
+            _originalUpdateIntervalOnSerialize = PhotonNetwork.photonMono.updateIntervalOnSerialize;
+        }
+
+        void SetCustomPhotonSettings()
+        {
+            if(_config.CustomPhotonConnectedUpdateInterval > 0)
+            {
+                PhotonNetwork.photonMono.updateInterval = _config.CustomPhotonConnectedUpdateInterval;
+                PhotonNetwork.photonMono.updateIntervalOnSerialize = _config.CustomPhotonConnectedUpdateInterval;
+            }
+        }
+
+        void RestorePhotonSettings()
+        {
+            if(_config.CustomPhotonConnectedUpdateInterval > 0)
+            {
+                PhotonNetwork.photonMono.updateInterval = _originalUpdateInterval;
+                PhotonNetwork.photonMono.updateIntervalOnSerialize = _originalUpdateIntervalOnSerialize;
+            }
         }
 
         void Awake()
@@ -165,6 +197,7 @@ namespace SocialPoint.Network
         void OnJoinedRoom()
         {
             PhotonNetwork.OnEventCall += OnEventReceived;
+            SetCustomPhotonSettings();
             OnConnected();
         }
 
@@ -176,6 +209,7 @@ namespace SocialPoint.Network
         void OnDisconnectedFromPhoton()
         {
             PhotonNetwork.OnEventCall -= OnEventReceived;
+            RestorePhotonSettings();
             OnDisconnected();
         }
 
@@ -241,6 +275,7 @@ namespace SocialPoint.Network
                 options.TargetActors = new int[]{ player.ID };
             }
             PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
+            PhotonNetwork.SendOutgoingCommands();
         }
 
         void OnEventReceived(byte eventcode, object content, int senderid)
