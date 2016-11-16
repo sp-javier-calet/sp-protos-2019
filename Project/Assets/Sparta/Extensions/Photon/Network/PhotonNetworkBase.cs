@@ -140,14 +140,14 @@ namespace SocialPoint.Network
             }
         }
 
-//        void Update()
-//        {
-//            if(_pendingOutgoingCommands)
-//            {
-//                _pendingOutgoingCommands = false;
-//                PhotonNetwork.SendOutgoingCommands();
-//            }
-//        }
+        void Update()
+        {
+            if(_pendingOutgoingCommands)
+            {
+                _pendingOutgoingCommands = false;
+                PhotonNetwork.SendOutgoingCommands();
+            }
+        }
 
         protected void DoConnect()
         {
@@ -319,7 +319,7 @@ namespace SocialPoint.Network
                 options.TargetActors = new int[]{ player.ID };
             }
             PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
-//            _pendingOutgoingCommands = true;
+            _pendingOutgoingCommands = true;
         }
 
         void OnEventReceived(byte eventcode, object content, int senderid)
