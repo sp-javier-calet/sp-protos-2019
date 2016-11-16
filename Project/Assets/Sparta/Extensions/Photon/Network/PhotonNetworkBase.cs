@@ -82,7 +82,6 @@ namespace SocialPoint.Network
 
         public void Init(PhotonNetworkConfig config)
         {
-            SaveOriginalInternalPhotonSettings();
             _config = config;
         }
 
@@ -175,6 +174,8 @@ namespace SocialPoint.Network
 
         void OnConnectedToMaster()
         {
+            SaveOriginalInternalPhotonSettings();
+
             if(!PhotonNetwork.autoJoinLobby)
             {
                 PhotonNetwork.JoinLobby();
