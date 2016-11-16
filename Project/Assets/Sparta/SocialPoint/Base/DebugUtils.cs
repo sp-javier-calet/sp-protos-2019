@@ -43,7 +43,10 @@ namespace SocialPoint.Base
                 UnityEngine.Assertions.Assert.IsTrue(condition, msg);
 
                 #if UNITY_EDITOR
+                if(UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
+                {
                     UnityEditor.EditorApplication.isPlaying &= condition;
+                }
                 #endif
 
             #else
