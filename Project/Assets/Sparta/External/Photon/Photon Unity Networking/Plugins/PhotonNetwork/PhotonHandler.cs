@@ -149,6 +149,8 @@ internal class PhotonHandler : MonoBehaviour
             return;
         }
 
+        PhotonNetwork.SendOutgoingCommands();
+
         bool doDispatch = true;
         while (PhotonNetwork.isMessageQueueRunning && doDispatch)
         {
