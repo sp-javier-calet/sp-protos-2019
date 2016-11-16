@@ -149,8 +149,6 @@ internal class PhotonHandler : MonoBehaviour
             return;
         }
 
-        PhotonNetwork.SendOutgoingCommands();
-
         bool doDispatch = true;
         while (PhotonNetwork.isMessageQueueRunning && doDispatch)
         {
@@ -235,7 +233,7 @@ internal class PhotonHandler : MonoBehaviour
                 }
             }
 
-            if (PhotonNetwork.networkingPeer.ConnectionTime - PhotonNetwork.networkingPeer.LastSendOutgoingTime > 2000)
+            if (PhotonNetwork.networkingPeer.ConnectionTime - PhotonNetwork.networkingPeer.LastSendOutgoingTime > 30000)
             {
                 PhotonNetwork.networkingPeer.SendAcksOnly();
             }
