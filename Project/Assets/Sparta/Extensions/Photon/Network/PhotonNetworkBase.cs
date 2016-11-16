@@ -113,6 +113,7 @@ namespace SocialPoint.Network
                 else
                 {
                     PhotonNetwork.networkingPeer.MaximumTransferUnit = _config.CustomInternalNetworkConfig.MaximumTransferUnit;
+                    PhotonNetwork.BackgroundTimeout = 999f;
                 }
             }
         }
