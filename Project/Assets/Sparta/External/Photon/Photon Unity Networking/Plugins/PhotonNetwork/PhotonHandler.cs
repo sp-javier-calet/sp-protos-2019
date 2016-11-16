@@ -179,6 +179,8 @@ internal class PhotonHandler : MonoBehaviour
             }
 
             this.nextSendTickCount = currentMsSinceStart + this.updateInterval;
+
+            UnityEngine.Debug.Log(string.Format("updateInterval {0}, updateIntervalOnSerialize {1}", updateInterval, updateIntervalOnSerialize));
         }
     }
 

@@ -41,7 +41,22 @@ public class CustomPhotonConfig
         _isSavedOriginalConfig = true;
     }
 
-    public void SetCustomPhotonConfig()
+    public void SetConfigBeforeConnection()
+    {
+        if(!EnableCustomConfig)
+        {
+            return;
+        }
+        
+        if(!_isSavedOriginalConfig)
+        {
+            SaveOriginalPhotonSettings();
+        }
+
+        PhotonNetwork.networkingPeer.MaximumTransferUnit = MaximumTransferUnit;
+    }
+
+    public void SetConfigOnJoinedRoom()
     {
         if(!EnableCustomConfig)
         {
@@ -61,15 +76,11 @@ public class CustomPhotonConfig
             PhotonNetwork.networkingPeer.SentCountAllowance = SentCountAllowance;
             PhotonNetwork.networkingPeer.QuickResendAttempts = (byte) QuickResendAttempts;
         }
-        else
-        {
-            PhotonNetwork.networkingPeer.MaximumTransferUnit = MaximumTransferUnit;
-        }
     }
 
     public void RestorePhotonConfig()
     {
-        if(!EnableCustomConfig || !_isSavedOriginalConfig)
+        if(!_isSavedOriginalConfig)
         {
             return;
         }

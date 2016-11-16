@@ -46,7 +46,6 @@ namespace SocialPoint.Network
     {
         public string GameVersion;
         public string RoomName;
-        public bool EnableCustomConfig = true;
         public CustomPhotonConfig CustomPhotonConfig = new CustomPhotonConfig();
         public PhotonNetworkRoomConfig RoomOptions = new PhotonNetworkRoomConfig();
     }
@@ -65,7 +64,6 @@ namespace SocialPoint.Network
         public void Init(PhotonNetworkConfig config)
         {
             Config = config;
-            Config.CustomPhotonConfig.SetCustomPhotonConfig();
         }
 
         void Awake()
@@ -88,12 +86,13 @@ namespace SocialPoint.Network
         protected void DoConnect()
         {
             DoDisconnect();
+            Config.CustomPhotonConfig.SetConfigBeforeConnection();
             PhotonNetwork.ConnectUsingSettings(Config.GameVersion);
         }
 
         protected void DoDisconnect()
         {
-            if(PhotonNetwork.connected)
+            if(PhotonNetwork.connected || PhotonNetwork.connecting)
             {
                 PhotonNetwork.Disconnect();
             }
@@ -181,7 +180,7 @@ namespace SocialPoint.Network
         void OnJoinedRoom()
         {
             PhotonNetwork.OnEventCall += OnEventReceived;
-            Config.CustomPhotonConfig.SetCustomPhotonConfig();
+            Config.CustomPhotonConfig.SetConfigOnJoinedRoom();
             OnConnected();
         }
 
