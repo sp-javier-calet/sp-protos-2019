@@ -139,6 +139,15 @@ namespace SocialPoint.Network
             }
         }
 
+        void Update()
+        {
+            if(_pendingOutgoingCommands)
+            {
+                _pendingOutgoingCommands = false;
+                PhotonNetwork.SendOutgoingCommands();
+            }
+        }
+
         protected void DoConnect()
         {
             DoDisconnect();
