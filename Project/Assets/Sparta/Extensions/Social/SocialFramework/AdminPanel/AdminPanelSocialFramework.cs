@@ -336,8 +336,8 @@ namespace SocialPoint.Social
                 CreateOwnAlliancePanel(layout);
                 layout.CreateMargin();
                 layout.CreateOpenPanelButton("Ranking", _rankingPanel);
-                layout.CreateTextInput(string.IsNullOrEmpty(_searchPanel.Search) ? "Search alliances" : _searchPanel.Search, value => {
-                    _searchPanel.Search = value;
+                layout.CreateTextInput(string.IsNullOrEmpty(_searchPanel.Filter) ? "Search alliances" : _searchPanel.Filter, value => {
+                    _searchPanel.Filter = value;
                 });
                 layout.CreateOpenPanelButton("Search", _searchPanel);
             }
@@ -950,9 +950,9 @@ namespace SocialPoint.Social
 
             class AdminPanelAllianceSearch : BaseRequestAlliancePanel
             {
-                public string Search;
+                public string Filter;
 
-                AlliancesSearchData _search;
+                AlliancesSearchResultData _search;
 
                 readonly AdminPanelAllianceInfo _infoPanel;
 
@@ -985,7 +985,7 @@ namespace SocialPoint.Social
                     {
                         if(_wampRequest == null)
                         {
-                            Action<Error, AlliancesSearchData> callback = (err, searchData) => {
+                            Action<Error, AlliancesSearchResultData> callback = (err, searchData) => {
                                 if(Error.IsNullOrEmpty(err))
                                 {
                                     _search = searchData;
@@ -1001,14 +1001,9 @@ namespace SocialPoint.Social
                                 }
                             };
 
-                            if(string.IsNullOrEmpty(Search))
-                            {
-                                _wampRequest = _alliances.LoadSearchSuggested(callback);
-                            }
-                            else
-                            {
-                                _wampRequest = _alliances.LoadSearch(Search, callback);
-                            }
+                            var search = new AlliancesSearchData();
+                            search.Filter = Filter;
+                            _wampRequest = _alliances.LoadSearch(search, callback);
                         }
 
                         if(Error.IsNullOrEmpty(_wampRequestError))

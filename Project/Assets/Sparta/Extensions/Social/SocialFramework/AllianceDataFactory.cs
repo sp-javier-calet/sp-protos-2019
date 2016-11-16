@@ -33,6 +33,7 @@ namespace SocialPoint.Social
         const string SearchKey = "search";
         const string SearchSuggestedKey = "suggested";
         const string SearchScoreKey = "monster_power";
+        const string SearchFilterKey = "filter_name";
 
         const string AllianceInfoKey = "alliance_info";
         const string AllianceIdKey = "id";
@@ -54,6 +55,7 @@ namespace SocialPoint.Social
         const string AllianceRequirementMinLevelKey = "minLevel";
         const string AllianceActivityIndicatorKey = "activityIndicator";
         const string AllianceIsNewKey = "newAlliance";
+
 
         #endregion
 
@@ -260,29 +262,36 @@ namespace SocialPoint.Social
             ranking.Score = dic.GetValue(RankingScoreKey).ToInt();
         }
 
-        public AlliancesSearchData CreateSearchData(AttrDic dic, bool suggested)
+        public AttrDic SerializeSearchData(AlliancesSearchData search)
+        {
+            var dic = new AttrDic();
+            SerializeSearchData(search, dic);
+            SerializeCustomSearchData(search, dic);
+            return dic;
+        }
+
+        void SerializeSearchData(AlliancesSearchData search, AttrDic dic)
+        {
+            dic.SetValue(SearchFilterKey, search.Filter);
+        }
+
+        public AlliancesSearchResultData CreateSearchResultData(AttrDic dic)
         {
             var search = CreateCustomSearchData();
-            ParseSearchData(search, dic, suggested);
-            ParseCustomSearchData(search, dic, suggested);
+            ParseSearchResultData(search, dic);
+            ParseCustomSearchResultData(search, dic);
             return search;
         }
 
-        public void ParseSearchData(AlliancesSearchData search, AttrDic dic, bool suggested)
+        public void ParseSearchResultData(AlliancesSearchResultData search, AttrDic dic)
         {
-            var alliancesKey = suggested ? SearchSuggestedKey : SearchKey;
-            var list = dic.Get(alliancesKey).AsList;
+            var list = dic.Get(SearchKey).AsList;
             for(var i = 0; i < list.Count; ++i)
             {
                 var el = list[i];
                 search.Add(CreateBasicData(el.AsDic));
             }
             search.Score = dic.GetValue(SearchScoreKey).ToInt();
-        }
-
-        public AlliancesSearchData CreateJoinData(AttrDic dic)
-        {
-            return CreateSearchData(dic, true);
         }
 
         #region Extensible Alliance data
@@ -340,12 +349,16 @@ namespace SocialPoint.Social
         {
         }
 
-        protected virtual AlliancesSearchData CreateCustomSearchData()
+        protected virtual void SerializeCustomSearchData(AlliancesSearchData search, AttrDic dic)
         {
-            return new AlliancesSearchData();
         }
 
-        protected virtual void ParseCustomSearchData(AlliancesSearchData search, AttrDic dic, bool suggested)
+        protected virtual AlliancesSearchResultData CreateCustomSearchData()
+        {
+            return new AlliancesSearchResultData();
+        }
+
+        protected virtual void ParseCustomSearchResultData(AlliancesSearchResultData search, AttrDic dic)
         {
         }
 

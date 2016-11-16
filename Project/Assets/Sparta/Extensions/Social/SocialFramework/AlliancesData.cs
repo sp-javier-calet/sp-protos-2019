@@ -72,11 +72,16 @@ namespace SocialPoint.Social
 
     public class AlliancesSearchData
     {
+        public string Filter;
+    }
+
+    public class AlliancesSearchResultData
+    {
         public int Score;
 
         readonly List<AllianceBasicData> _searchData;
 
-        public AlliancesSearchData()
+        public AlliancesSearchResultData()
         {
             _searchData = new List<AllianceBasicData>();
         }

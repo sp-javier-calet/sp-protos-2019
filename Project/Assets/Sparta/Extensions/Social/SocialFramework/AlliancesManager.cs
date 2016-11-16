@@ -70,7 +70,6 @@ namespace SocialPoint.Social
         const string AllianceTotalMembersKey = "total_members";
         const string AllianceJoinTimestampKey = "join_ts";
         const string NotificationTypeKey = "type";
-        const string SearchFilterKey = "filter_name";
         const string OperationResultKey = "result";
         const string NotificationIdKey = "notification_id";
         const string TimestampKey = "timestamp";
@@ -93,8 +92,6 @@ namespace SocialPoint.Social
         const string AllianceMemberInfoMethod = "alliance.member.info";
         const string AllianceRankingMethod = "alliance.ranking";
         const string AllianceSearchMethod = "alliance.search";
-        const string AllianceSearchSuggestedMethod = "alliance.search.suggested";
-        const string AllianceSearchSuggestedJoinMethod = "alliance.search.suggested.reward";
         const string NotificationReceivedMethod = "notification.received";
 
         #endregion
@@ -209,66 +206,23 @@ namespace SocialPoint.Social
             });
         }
 
-        public WAMPRequest LoadSearch(string search, Action<Error, AlliancesSearchData> callback)
+        public WAMPRequest LoadSearch(AlliancesSearchData data, Action<Error, AlliancesSearchResultData> callback)
         {
             var dic = new AttrDic();
-            dic.SetValue(SearchFilterKey, search);
+            dic.Set("search", Factory.SerializeSearchData(data)); // TODO Use "search" as nested dic?
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
 
-            const bool suggested = false;
             return _connection.Call(AllianceSearchMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
-                AlliancesSearchData searchData = null;
+                AlliancesSearchResultData searchData = null;
                 if(Error.IsNullOrEmpty(err))
                 {
                     DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
                     var result = rDic.Get(OperationResultKey).AsDic;
-                    searchData = Factory.CreateSearchData(result, suggested);
+                    searchData = Factory.CreateSearchResultData(result);
                 }
                 if(callback != null)
                 {
                     callback(err, searchData);
-                }
-            });
-        }
-
-        public WAMPRequest LoadSearchSuggested(Action<Error, AlliancesSearchData> callback)
-        {
-            var dic = new AttrDic();
-            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
-
-            const bool suggested = true;
-            return _connection.Call(AllianceSearchSuggestedMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
-                AlliancesSearchData searchData = null;
-                if(Error.IsNullOrEmpty(err))
-                {
-                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
-                    var result = rDic.Get(OperationResultKey).AsDic;
-                    searchData = Factory.CreateSearchData(result, suggested);
-                }
-                if(callback != null)
-                {
-                    callback(err, searchData);
-                }
-            });
-        }
-
-        public WAMPRequest LoadJoinSuggestedAlliances(Action<Error, AlliancesSearchData> callback)
-        {
-            var dic = new AttrDic();
-            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
-            dic.SetValue(SessionIdKey, LoginData.SessionId);
-
-            return _connection.Call(AllianceSearchSuggestedJoinMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
-                AlliancesSearchData search = null;
-                if(Error.IsNullOrEmpty(err))
-                {
-                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
-                    var result = rDic.Get(OperationResultKey).AsDic;
-                    search = Factory.CreateJoinData(result);
-                }
-                if(callback != null)
-                {
-                    callback(err, search);
                 }
             });
         }
@@ -327,7 +281,7 @@ namespace SocialPoint.Social
         {
             var dic = Factory.SerializeAlliance(data);
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
-            dic.Set("create", Factory.SerializeAlliance(data));
+            dic.Set("create", Factory.SerializeAlliance(data)); // TODO Use create as nested dic?
 
             return _connection.Call(AllianceCreateMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
@@ -368,28 +322,8 @@ namespace SocialPoint.Social
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
-            var dicProperties = new AttrDic();
 
-            if(current.Description != data.Description)
-            {
-                dicProperties.SetValue(AllianceDescriptionKey, data.Description);
-            }
-
-            if(current.Requirement != data.Requirement)
-            {
-                dicProperties.SetValue(AllianceRequirementKey, data.Requirement);
-            }
-
-            if(current.AccessType != data.AccessType)
-            {
-                dicProperties.SetValue(AllianceTypeKey, data.AccessType);
-            }
-
-            if(current.Avatar != data.Avatar)
-            {
-                dicProperties.SetValue(AvatarKey, data.Avatar);
-            }
-
+            var dicProperties = Factory.SerializeAlliance(data); // TODO There was a diff here...
             dic.Set(AlliancePropertiesKey, dicProperties);
 
             return _connection.Call(AllianceEditMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
@@ -418,7 +352,7 @@ namespace SocialPoint.Social
                 if(current.Avatar != data.Avatar)
                 {
                     current.Avatar = data.Avatar;
-                    NotifyAllianceEvent(AllianceAction.AllianceAvatarEdited, rDic); // TODO Change name?
+                    NotifyAllianceEvent(AllianceAction.AllianceAvatarEdited, rDic);
                 }
 
                 if(current.AccessType != data.AccessType)
@@ -427,7 +361,7 @@ namespace SocialPoint.Social
                     NotifyAllianceEvent(AllianceAction.AllianceTypeEdited, rDic);
                 }
 
-                if(current.Requirement != data.Requirement) // TODO use same name in both classes
+                if(current.Requirement != data.Requirement)
                 {
                     current.Requirement = data.Requirement;
                     NotifyAllianceEvent(AllianceAction.AllianceRequirementEdited, rDic);
