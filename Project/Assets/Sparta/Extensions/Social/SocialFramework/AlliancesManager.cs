@@ -61,6 +61,7 @@ namespace SocialPoint.Social
         const string AllianceRequirementKey = "minimum_score";
         const string AllianceTypeKey = "type";
         const string AllianceAvatarKey = "alliance_symbol";
+        const string AllianceSearchKey = "search";
         const string AlliancePropertiesKey = "properties";
         const string AllianceNewMemberKey = "new_member_id";
         const string AllianceDeniedMemberKey = "denied_member_id";
@@ -209,7 +210,7 @@ namespace SocialPoint.Social
         public WAMPRequest LoadSearch(AlliancesSearchData data, Action<Error, AlliancesSearchResultData> callback)
         {
             var dic = new AttrDic();
-            dic.Set("search", Factory.SerializeSearchData(data)); // TODO Use "search" as nested dic?
+            dic.Set(AllianceSearchKey, Factory.SerializeSearchData(data)); // TODO Use "search" as nested dic?
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
 
             return _connection.Call(AllianceSearchMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
@@ -281,7 +282,7 @@ namespace SocialPoint.Social
         {
             var dic = Factory.SerializeAlliance(data);
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
-            dic.Set("create", Factory.SerializeAlliance(data)); // TODO Use create as nested dic?
+            dic.Set(AlliancePropertiesKey, Factory.SerializeAlliance(data)); // TODO Use create as nested dic?
 
             return _connection.Call(AllianceCreateMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
