@@ -95,23 +95,22 @@ namespace SocialPoint.Network
             _originalInternalNetworkConfig.SentCountAllowance = PhotonNetwork.networkingPeer.SentCountAllowance;
             _originalInternalNetworkConfig.QuickResendAttempts = PhotonNetwork.networkingPeer.QuickResendAttempts;
 
-            if(!PhotonNetwork.connected)
-            {
-                PhotonNetwork.networkingPeer.MaximumTransferUnit = _config.CustomInternalNetworkConfig.MaximumTransferUnit;
-            }
+            _originalInternalNetworkConfig.MaximumTransferUnit = PhotonNetwork.networkingPeer.MaximumTransferUnit;
         }
 
         void SetCustomInternalPhotonSettings()
         {
             if(_config.EnableCustomInteralPhotonNetworkConfig)
             {
-                PhotonNetwork.photonMono.updateInterval = _config.CustomInternalNetworkConfig.UpdateInterval;
-                PhotonNetwork.photonMono.updateIntervalOnSerialize = _config.CustomInternalNetworkConfig.UpdateIntervalOnSerialize;
+                if(PhotonNetwork.connected)
+                {
+                    PhotonNetwork.photonMono.updateInterval = _config.CustomInternalNetworkConfig.UpdateInterval;
+                    PhotonNetwork.photonMono.updateIntervalOnSerialize = _config.CustomInternalNetworkConfig.UpdateIntervalOnSerialize;
 
-                PhotonNetwork.networkingPeer.SentCountAllowance = _config.CustomInternalNetworkConfig.SentCountAllowance;
-                PhotonNetwork.networkingPeer.QuickResendAttempts = (byte) _config.CustomInternalNetworkConfig.QuickResendAttempts;
-
-                if(!PhotonNetwork.connected)
+                    PhotonNetwork.networkingPeer.SentCountAllowance = _config.CustomInternalNetworkConfig.SentCountAllowance;
+                    PhotonNetwork.networkingPeer.QuickResendAttempts = (byte) _config.CustomInternalNetworkConfig.QuickResendAttempts;
+                }
+                else
                 {
                     PhotonNetwork.networkingPeer.MaximumTransferUnit = _config.CustomInternalNetworkConfig.MaximumTransferUnit;
                 }
@@ -124,9 +123,11 @@ namespace SocialPoint.Network
             {
                 PhotonNetwork.photonMono.updateInterval = _originalInternalNetworkConfig.UpdateInterval;
                 PhotonNetwork.photonMono.updateIntervalOnSerialize = _originalInternalNetworkConfig.UpdateIntervalOnSerialize;
-                PhotonNetwork.networkingPeer.MaximumTransferUnit = _originalInternalNetworkConfig.MaximumTransferUnit;
+
                 PhotonNetwork.networkingPeer.SentCountAllowance = _originalInternalNetworkConfig.SentCountAllowance;
                 PhotonNetwork.networkingPeer.QuickResendAttempts = (byte) _originalInternalNetworkConfig.QuickResendAttempts;
+
+                PhotonNetwork.networkingPeer.MaximumTransferUnit = _originalInternalNetworkConfig.MaximumTransferUnit;
             }
         }
 
