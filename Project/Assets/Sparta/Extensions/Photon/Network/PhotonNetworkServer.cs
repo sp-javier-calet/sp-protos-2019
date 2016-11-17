@@ -22,8 +22,12 @@ namespace SocialPoint.Network
 
         public void Fail(string reason)
         {
+            if(!Running)
+            {
+                return;
+            }
             var errorMsg = "[Server Error]: " + reason;
-            PhotonNetwork.RaiseEvent(EventCode.ErrorInfo, errorMsg, true, null);
+            PhotonNetwork.RaiseEvent(PhotonMsgType.Fail, errorMsg, true, null);
         }
 
         public void AddDelegate(INetworkServerDelegate dlg)
@@ -50,7 +54,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                return PhotonNetwork.connected;
+                return PhotonNetwork.connected && PhotonNetwork.room != null;
             }
         }
 

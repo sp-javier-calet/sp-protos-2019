@@ -88,6 +88,10 @@ namespace SocialPoint.Network
 
         public void Fail(string msg)
         {
+            if(!Running)
+            {
+                return;
+            }
             var writer = new NetworkWriter();
             writer.StartMessage(UnetMsgType.Fail);
             writer.Write(msg);

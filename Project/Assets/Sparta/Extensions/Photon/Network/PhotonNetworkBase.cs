@@ -52,6 +52,7 @@ namespace SocialPoint.Network
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
     {
         public PhotonNetworkConfig Config;
+        bool _disconnecting;
 
         const int ConnectionError = 1;
         const int CreateRoomError = 2;
@@ -73,14 +74,18 @@ namespace SocialPoint.Network
 
         protected void DoConnect()
         {
-            DoDisconnect();
-            PhotonNetwork.ConnectUsingSettings(Config.GameVersion);
+            if(!PhotonNetwork.connecting)
+            {
+                DoDisconnect();
+                PhotonNetwork.ConnectUsingSettings(Config.GameVersion);
+            }
         }
 
         protected void DoDisconnect()
         {
             if(PhotonNetwork.connected)
             {
+                _disconnecting = true;
                 PhotonNetwork.Disconnect();
             }
         }
@@ -143,7 +148,10 @@ namespace SocialPoint.Network
 
         void OnPhotonRandomJoinFailed()
         {
-            JoinOrCreateRoom();
+            if(!_disconnecting)
+            {
+                JoinOrCreateRoom();
+            }
         }
 
         public void OnPhotonJoinRoomFailed(object[] codeAndMsg)
@@ -162,6 +170,8 @@ namespace SocialPoint.Network
         {
             var err = new Error(CreateRoomError, "Failed to create room: " + StringUtils.Join(codeAndMsg, " "));
             OnNetworkError(err);
+            DoDisconnect();
+            OnDisconnected();
         }
 
         void OnJoinedRoom()
@@ -178,12 +188,14 @@ namespace SocialPoint.Network
         void OnDisconnectedFromPhoton()
         {
             PhotonNetwork.OnEventCall -= OnEventReceived;
+            _disconnecting = false;
             OnDisconnected();
         }
 
         void OnConnectionFail(DisconnectCause cause)
         {
             var err = new Error(ConnectionError, "Failed to connect: " + cause);
+            _disconnecting = false;
             OnNetworkError(err);
             OnDisconnected();
         }
@@ -191,6 +203,7 @@ namespace SocialPoint.Network
         void OnCustomAuthenticationFailed(string debugMessage)
         {
             var err = new Error(CustomAuthError, "Custom Authentication failed: " + debugMessage);
+            _disconnecting = false;
             OnNetworkError(err);
             OnDisconnected();
         }
@@ -249,7 +262,7 @@ namespace SocialPoint.Network
 
         void OnEventReceived(byte eventcode, object content, int senderid)
         {
-            if(eventcode == EventCode.ErrorInfo)
+            if(eventcode == EventCode.ErrorInfo || eventcode == PhotonMsgType.Fail)
             {
                 var err = new Error((string)content);
                 OnNetworkError(err);
