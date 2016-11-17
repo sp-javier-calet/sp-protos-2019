@@ -51,9 +51,6 @@ namespace SocialPoint.Social
 
         const string UserIdKey = "user_id";
         const string MemberIdKey = "player_id";
-        // TODO Both Key and Session store the SessionId
-        const string UserSessionKey = "user_key";
-        const string SessionIdKey = "session_id";
         const string AllianceIdKey = "alliance_id";
         const string AvatarKey = "avatar";
         const string AllianceNameKey = "alliance_name";
@@ -61,7 +58,6 @@ namespace SocialPoint.Social
         const string AllianceRequirementKey = "minimum_score";
         const string AllianceTypeKey = "type";
         const string AllianceAvatarKey = "alliance_symbol";
-        const string AllianceSearchKey = "search";
         const string AlliancePropertiesKey = "properties";
         const string AllianceNewMemberKey = "new_member_id";
         const string AllianceDeniedMemberKey = "denied_member_id";
@@ -209,8 +205,7 @@ namespace SocialPoint.Social
 
         public WAMPRequest LoadSearch(AlliancesSearchData data, Action<Error, AlliancesSearchResultData> callback)
         {
-            var dic = new AttrDic();
-            dic.Set(AllianceSearchKey, Factory.SerializeSearchData(data)); // TODO Use "search" as nested dic?
+            var dic = Factory.SerializeSearchData(data);
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
 
             return _connection.Call(AllianceSearchMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
@@ -282,7 +277,6 @@ namespace SocialPoint.Social
         {
             var dic = Factory.SerializeAlliance(data);
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
-            dic.Set(AlliancePropertiesKey, Factory.SerializeAlliance(data)); // TODO Use create as nested dic?
 
             return _connection.Call(AllianceCreateMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
@@ -322,9 +316,8 @@ namespace SocialPoint.Social
         public WAMPRequest EditAlliance(Alliance current, Alliance data, Action<Error> callback)
         {
             var dic = new AttrDic();
+            var dicProperties = Factory.SerializeAlliance(current, data);
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
-
-            var dicProperties = Factory.SerializeAlliance(data); // TODO There was a diff here...
             dic.Set(AlliancePropertiesKey, dicProperties);
 
             return _connection.Call(AllianceEditMethod, Attr.InvalidList, dic, (err, rList, rDic) => {

@@ -39,6 +39,7 @@ namespace SocialPoint.Social
         const string AllianceIdKey = "id";
         const string AllianceNameKey = "name";
         const string AllianceDescriptionKey = "description";
+        const string AllianceMinimumScore = "minimum_score";
         // TODO duplicated
         const string AllianceAvatarKey = "avatar";
         const string AllianceAvatarIdKey = "avatarId";
@@ -183,19 +184,39 @@ namespace SocialPoint.Social
 
         public AttrDic SerializeAlliance(Alliance alliance)
         {
+            return SerializeAlliance(null, alliance);
+        }
+
+        public AttrDic SerializeAlliance(Alliance baseAlliance, Alliance modifiedAlliance)
+        {
             var dic = new AttrDic();
-            SerializeAlliance(alliance, dic);
-            SerializeCustomAlliance(alliance, dic);
+            SerializeAllianceDiff(baseAlliance, modifiedAlliance, dic);
+            SerializeCustomAllianceDiff(baseAlliance, modifiedAlliance, dic);
             return dic;
         }
 
-        void SerializeAlliance(Alliance alliance, AttrDic dic)
+        void SerializeAllianceDiff(Alliance baseAlliance, Alliance modifiedAlliance, AttrDic dic)
         {
-            dic.SetValue(AllianceNameKey, alliance.Name);
-            dic.SetValue(AllianceDescriptionKey, alliance.Description);
-            dic.SetValue(AllianceRequirementKey, alliance.Requirement);
-            dic.SetValue(AllianceTypeKey, alliance.AccessType);
-            dic.SetValue(AllianceAvatarKey, alliance.Avatar);
+            if(baseAlliance == null || baseAlliance.Name != modifiedAlliance.Name)
+            {
+                dic.SetValue(AllianceNameKey, modifiedAlliance.Name);
+            }
+            if(baseAlliance == null || baseAlliance.Description != modifiedAlliance.Description)
+            { 
+                dic.SetValue(AllianceDescriptionKey, modifiedAlliance.Description);
+            }
+            if(baseAlliance == null || baseAlliance.Requirement != modifiedAlliance.Requirement)
+            {
+                dic.SetValue(AllianceMinimumScore, modifiedAlliance.Requirement);
+            }
+            if(baseAlliance == null || baseAlliance.AccessType != modifiedAlliance.AccessType)
+            {
+                dic.SetValue(AllianceTypeKey, modifiedAlliance.AccessType);
+            }
+            if(baseAlliance == null || baseAlliance.Avatar != modifiedAlliance.Avatar)
+            {
+                dic.SetValue(AllianceAvatarKey, modifiedAlliance.Avatar);
+            }
         }
 
         public AlliancePlayerInfo CreatePlayerInfo()
@@ -327,7 +348,7 @@ namespace SocialPoint.Social
         {
         }
 
-        protected virtual void SerializeCustomAlliance(Alliance alliance, AttrDic dic)
+        protected virtual void SerializeCustomAllianceDiff(Alliance baseAlliance, Alliance modifiedAlliance, AttrDic dic)
         {
         }
 

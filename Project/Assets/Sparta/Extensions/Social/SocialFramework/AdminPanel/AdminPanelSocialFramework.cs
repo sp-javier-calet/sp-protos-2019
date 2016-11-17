@@ -659,8 +659,8 @@ namespace SocialPoint.Social
                         layout.CreateTextArea(_content.ToString());
                         layout.CreateMargin();
 
-                        CreateMembersList(layout, "Members", Alliance, Alliance.GetMembers());
-                        CreateMembersList(layout, "Candidates", Alliance, Alliance.GetCandidates());
+                        CreateMembersList(layout, "Members", Alliance, Alliance.GetMembers(), Alliance.Members);
+                        CreateMembersList(layout, "Candidates", Alliance, Alliance.GetCandidates(), Alliance.Candidates);
                         CreateAllianceActions(layout);
                     }
                     else
@@ -700,9 +700,9 @@ namespace SocialPoint.Social
                     }
                 }
 
-                void CreateMembersList(AdminPanelLayout layout, string label, Alliance alliance, IEnumerator<AllianceMember> members)
+                void CreateMembersList(AdminPanelLayout layout, string label, Alliance alliance, IEnumerator<AllianceMember> members, int count)
                 {
-                    var foldout = layout.CreateFoldoutLayout(label);
+                    var foldout = layout.CreateFoldoutLayout(string.Format("{0} ({1})", label, count));
                     while(members.MoveNext())
                     {
                         var member = members.Current;
