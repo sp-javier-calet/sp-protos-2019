@@ -101,16 +101,16 @@ namespace SocialPoint.Lockstep
             _client.AddPendingCommand(cmd, finish);
             _client.Update(1000);
             // finish called because client not started
-            finish.Received().Apply(cmd);
-            apply.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
+            finish.Received().Apply(cmd, _client.PlayerNumber);
+            apply.DidNotReceive().Apply(Arg.Any<ILockstepCommand>(), Arg.Any<byte>());
             finish = Substitute.For<ILockstepCommandLogic>();
             _client.Start();
             _client.AddPendingCommand(cmd, finish);
             _client.Update(50);
-            finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
+            finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>(), Arg.Any<byte>());
             _client.Update(50);
-            finish.Received().Apply(cmd);
-            apply.Received().Apply(cmd);
+            finish.Received().Apply(cmd, _client.PlayerNumber);
+            apply.Received().Apply(cmd, _client.PlayerNumber);
 
             cmd = Substitute.For<ILockstepCommand>();
             apply = Substitute.For<ILockstepCommandLogic>();
@@ -121,13 +121,13 @@ namespace SocialPoint.Lockstep
             _client.Start();
             _client.AddPendingCommand(cmd, finish);
             _client.Update(950);
-            finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
+            finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>(), Arg.Any<byte>());
             _client.Update(149);
-            finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
-            apply.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
+            finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>(), Arg.Any<byte>());
+            apply.DidNotReceive().Apply(Arg.Any<ILockstepCommand>(), Arg.Any<byte>());
             _client.Update(1);
-            finish.Received().Apply(cmd);
-            apply.Received().Apply(cmd);
+            finish.Received().Apply(cmd, _client.PlayerNumber);
+            apply.Received().Apply(cmd, _client.PlayerNumber);
 
         }
 

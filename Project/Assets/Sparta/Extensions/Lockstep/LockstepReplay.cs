@@ -109,11 +109,6 @@ namespace SocialPoint.Lockstep
             turn.AddCommand(data);
         }
 
-        public void AddCommand(int turnNum, ILockstepCommand cmd, ILockstepCommandLogic finish = null)
-        {
-            AddCommand(turnNum, new ClientLockstepCommandData(cmd, finish));
-        }
-
         void OnTurnApplied(ClientLockstepTurnData turn)
         {
             if(_config == null)
