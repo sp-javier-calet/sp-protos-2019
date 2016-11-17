@@ -1,9 +1,8 @@
-using UnityEngine;
 using System;
-using SocialPoint.Dependency;
-using SocialPoint.Social;
-using SocialPoint.Login;
 using SocialPoint.AdminPanel;
+using SocialPoint.Dependency;
+using SocialPoint.Login;
+using SocialPoint.Social;
 using SocialPoint.Utils;
 
 public class FacebookInstaller : Installer

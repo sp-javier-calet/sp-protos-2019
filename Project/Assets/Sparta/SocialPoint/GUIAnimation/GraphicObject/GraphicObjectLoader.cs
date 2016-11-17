@@ -22,7 +22,17 @@ namespace SocialPoint.GUIAnimation
         #if NGUI
         static IGraphicObject LoadNGUI(Transform trans, bool recursive)
         {
-            IGraphicObject graphic = NGUIPanelGraphicObject.Load(trans, false) ?? NGUIWidgetGraphicObject.Load(trans, recursive) ?? NGUIPanelGraphicObject.Load(trans, recursive);
+            IGraphicObject graphic = NGUIPanelGraphicObject.Load(trans, false);
+
+            if(graphic == null)
+            {
+                graphic = NGUIWidgetGraphicObject.Load(trans, recursive);
+            }
+
+            if(graphic == null)
+            {
+                graphic = NGUIPanelGraphicObject.Load(trans, recursive);
+            }
             return graphic;
         }
         #endif

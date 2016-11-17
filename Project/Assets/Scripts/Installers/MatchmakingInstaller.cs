@@ -68,7 +68,7 @@ public class MatchmakingInstaller : Installer
                 Container.Resolve<ILoginData>(),
                 new WebSocketSharpClient(
                     Settings.WebsocketUrl,
-                    Container.Resolve<ICoroutineRunner>()
+                    Container.Resolve<IUpdateScheduler>()
                 )
             ), new AttrMatchStorage(
                 Container.Resolve<IAttrStorage>("volatile")

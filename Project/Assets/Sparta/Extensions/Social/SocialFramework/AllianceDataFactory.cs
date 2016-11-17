@@ -226,12 +226,14 @@ namespace SocialPoint.Social
         public void ParseRankingData(AllianceRankingData ranking, AttrDic dic)
         {
             var rankDir = dic.Get(RankingKey).AsDic;
-            for(var i = 0; i < rankDir.Count; ++i)
+            var itr = rankDir.GetEnumerator();
+            while(itr.MoveNext())
             {
-                var el = rankDir.ElementAt(i);
+                var el = itr.Current;
                 var info = CreateBasicData(el.Value.AsDic);
                 ranking.Add(info);
             }
+            itr.Dispose();
 
             if(dic.ContainsKey(RankingMeKey))
             {
