@@ -221,6 +221,31 @@ namespace SocialPoint.Lockstep
 
         public byte PlayerNumber;
 
+        bool _externalUpdate;
+        public bool ExternalUpdate
+        {
+            set
+            {
+                _externalUpdate = value;
+                if(_updateScheduler != null)
+                {
+                    if(_externalUpdate)
+                    {
+                        _updateScheduler.Remove(this);
+                    }
+                    else if(Running)
+                    {
+                        _updateScheduler.Add(this);
+                    }
+                }
+            }
+
+            get
+            {
+                return _externalUpdate;
+            }
+        }
+
         public ClientLockstepController(IUpdateScheduler updateScheduler = null)
         {
             _state = State.Normal;
@@ -237,22 +262,6 @@ namespace SocialPoint.Lockstep
             Config = config;
         }
 
-        public void OnRegisteredAsServerLocalClient()
-        {
-            if(_updateScheduler != null)
-            {
-                _updateScheduler.Remove(this);
-            }
-        }
-
-        public void OnUnRegisteredAsServerLocalClient()
-        {
-            if(_updateScheduler != null)
-            {
-                _updateScheduler.Add(this);
-            }
-        }
-
         public void Start(int startTime = 0)
         {
             Running = true;
@@ -263,7 +272,7 @@ namespace SocialPoint.Lockstep
             _lastCmdTime = 0;
             _simStartedCalled = false;
             _simRecoveredCalled = false;
-            if(_updateScheduler != null)
+            if(!_externalUpdate && _updateScheduler != null)
             {
                 _updateScheduler.Add(this);
             }
