@@ -51,7 +51,7 @@ public class ClickCommandLogic : ILockstepCommandLogic<ClickCommand>
         _model = model;
     }
 
-    public void Apply(ClickCommand cmd)
+    public void Apply(ClickCommand cmd, byte playerNum)
     {
         _model.OnClick(cmd.X, cmd.Y, cmd.Z);
     }
