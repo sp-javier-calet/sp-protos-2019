@@ -81,18 +81,12 @@ namespace SocialPoint.TestingBot
 
         protected void ClickOnUIGameObject(GameObject go)
         {
-            Transform t = go.transform;
-            while(t != null)
+            var canvas = go.GetComponentInParent<Canvas>();
+            if(canvas != null)
             {
-                var canvas = t.gameObject.GetComponent<Canvas>();
-                if(canvas != null)
-                {
-                    var position = GetUIGameObjectPosition(go);
-                    var screenPosition = RectTransformUtility.WorldToScreenPoint(canvas.worldCamera, position);
-                    _inputModule.SimulateClick(screenPosition);
-                    break;
-                }
-                t = t.parent;
+                var position = GetUIGameObjectPosition(go);
+                var screenPosition = RectTransformUtility.WorldToScreenPoint(canvas.worldCamera, position);
+                _inputModule.SimulateClick(screenPosition);
             }
         }
 
