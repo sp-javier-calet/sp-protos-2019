@@ -233,7 +233,7 @@ namespace SocialPoint.Lockstep
             if(_localClient != null)
             {
                 _localClient.CommandAdded -= AddPendingLocalClientCommand;
-                _localClient.OnUnRegisteredAsServerLocalClient();
+                _localClient.ExternalUpdate = false;
             }
             _localClient = null;
             _localFactory = null;
@@ -246,7 +246,7 @@ namespace SocialPoint.Lockstep
             _localFactory = factory;
             _localClient.Config = Config;
             _localClient.GameParams = GameParams;
-            _localClient.OnRegisteredAsServerLocalClient();
+            _localClient.ExternalUpdate = true;
             _localClient.CommandAdded += AddPendingLocalClientCommand;
         }
 

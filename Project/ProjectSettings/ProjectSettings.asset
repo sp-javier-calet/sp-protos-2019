@@ -99,7 +99,7 @@ PlayerSettings:
   xboxOneDisableKinectGpuReservation: 0
   virtualRealitySupported: 0
   productGUID: ebb005ff38e9b473cbf04a55f0b772a0
-  AndroidBundleVersionCode: 20160818
+  AndroidBundleVersionCode: 1610101010
   AndroidMinSdkVersion: 15
   AndroidPreferredInstallLocation: 1
   aotOptions: ntrampolines=2048,nimt-trampolines=256
@@ -107,7 +107,7 @@ PlayerSettings:
   stripEngineCode: 1
   iPhoneStrippingLevel: 2
   iPhoneScriptCallOptimization: 0
-  iPhoneBuildNumber: 20160818
+  iPhoneBuildNumber: 1610101010
   ForceInternetPermission: 0
   ForceSDCardPermission: 0
   CreateWallpaper: 0
