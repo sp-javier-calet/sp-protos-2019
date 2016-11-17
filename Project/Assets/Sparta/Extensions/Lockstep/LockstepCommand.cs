@@ -14,7 +14,7 @@ namespace SocialPoint.Lockstep
     {
         public const int DefaultCommandStepDuration = 100;
         public const int DefaultSimulationStepDuration = 10;
-        public const int DefaultMaxSkippedEmptyTurns = 10;
+        public const int DefaultMaxSkippedEmptyTurns = 0;
 
         // SimulationStep is the guaranteed simulation tick. Cannot be skipped.
         public int SimulationStepDuration = DefaultSimulationStepDuration;
