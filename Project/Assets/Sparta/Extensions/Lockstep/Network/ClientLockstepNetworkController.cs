@@ -5,6 +5,7 @@ using SocialPoint.Network;
 using SocialPoint.IO;
 using SocialPoint.Utils;
 using SocialPoint.Base;
+using SocialPoint.Attributes;
 
 namespace SocialPoint.Lockstep.Network
 {
@@ -51,6 +52,8 @@ namespace SocialPoint.Lockstep.Network
         }
 
         public event Action<int> StartScheduled;
+        public event Action PlayerReadySent;
+        public event Action<Attr> PlayerFinishSent;
 
         public ClientLockstepNetworkController(INetworkClient client)
         {
@@ -176,6 +179,25 @@ namespace SocialPoint.Lockstep.Network
                 _client.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.PlayerReady,
                 }, new PlayerReadyMessage(PlayerId));
+                if(PlayerReadySent != null)
+                {
+                    PlayerReadySent();
+                }
+            }
+        }
+
+        public void SendPlayerFinish(Attr data)
+        {
+            if(!_clientLockstep.Running)
+            {
+                return;
+            }
+            _client.SendMessage(new NetworkMessageData{
+                MessageType = LockstepMsgType.PlayerFinish
+            }, new PlayerFinishedMessage(data));
+            if(PlayerFinishSent != null)
+            {
+                PlayerFinishSent(data);
             }
         }
 
