@@ -58,8 +58,6 @@ namespace SocialPoint.Network
         const int CreateRoomError = 2;
         const int CustomAuthError = 3;
 
-        bool _pendingOutgoingCommands = false;
-
         [Obsolete("Use the Config property")]
         public void Init(PhotonNetworkConfig config)
         {
@@ -76,11 +74,7 @@ namespace SocialPoint.Network
 
         void Update()
         {
-            if(_pendingOutgoingCommands)
-            {
-                _pendingOutgoingCommands = false;
-                PhotonNetwork.SendOutgoingCommands();
-            }
+            Config.CustomPhotonConfig.SendOutgoingCommands();
         }
 
         protected void DoConnect()
@@ -260,7 +254,7 @@ namespace SocialPoint.Network
                 options.TargetActors = new int[]{ player.ID };
             }
             PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
-            _pendingOutgoingCommands = true;
+            Config.CustomPhotonConfig.RegisterOnGoingCommand();
         }
 
         void OnEventReceived(byte eventcode, object content, int senderid)

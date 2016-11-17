@@ -11,7 +11,7 @@ public class CustomPhotonConfig
     const int DefaultSentCountAllowance = 10; // Allow for big lags
     const int DefaultQuickResendAttempts = 0; // SpeedUp from second repeat on. This avoid resending repeats too fast
 
-    public bool EnableCustomConfig = false;
+    public bool Enabled = false;
 
     int _originalUpdateInterval;
     public int UpdateInterval = DefaultUpdateInterval;
@@ -28,6 +28,8 @@ public class CustomPhotonConfig
     int _originalQuickResendAttempts = DefaultQuickResendAttempts;
     public int QuickResendAttempts = DefaultQuickResendAttempts;
 
+    bool _pendingOutgoingCommands = false;
+
     public void SaveOriginalPhotonSettings()
     {
         _originalUpdateInterval = PhotonNetwork.photonMono.updateInterval;
@@ -43,7 +45,7 @@ public class CustomPhotonConfig
 
     public void SetConfigBeforeConnection()
     {
-        if(!EnableCustomConfig)
+        if(!Enabled)
         {
             return;
         }
@@ -58,7 +60,7 @@ public class CustomPhotonConfig
 
     public void SetConfigOnJoinedRoom()
     {
-        if(!EnableCustomConfig)
+        if(!Enabled)
         {
             return;
         }
@@ -92,5 +94,19 @@ public class CustomPhotonConfig
         PhotonNetwork.networkingPeer.QuickResendAttempts = (byte) _originalQuickResendAttempts;
 
         PhotonNetwork.networkingPeer.MaximumTransferUnit = _originalMaximumTransferUnit;
+    }
+
+    public void RegisterOnGoingCommand()
+    {
+        _pendingOutgoingCommands = true;
+    }
+
+    public void SendOutgoingCommands()
+    {
+        if(Enabled && _pendingOutgoingCommands)
+        {
+            _pendingOutgoingCommands = false;
+            PhotonNetwork.SendOutgoingCommands();
+        }
     }
 }
