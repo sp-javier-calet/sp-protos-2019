@@ -9,6 +9,8 @@ namespace SocialPoint.Locale
 
         string CurrentLanguage{ get; set; }
 
+        string SelectedLanguage{ get; }
+
         Localization Localization{ get; set; }
 
         event Action<Dictionary<string, Localization>> Loaded;

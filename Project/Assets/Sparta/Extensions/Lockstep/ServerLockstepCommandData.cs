@@ -8,7 +8,10 @@ namespace SocialPoint.Lockstep
     public class ServerLockstepCommandData : INetworkShareable
     {
         byte[] _command;
-        uint _id;
+
+        public byte PlayerNumber;
+
+        public uint Id{ get; private set; }
 
         public ServerLockstepCommandData()
         {
@@ -28,7 +31,8 @@ namespace SocialPoint.Lockstep
 
         public void Serialize(IWriter writer)
         {
-            writer.Write(_id);
+            writer.Write(Id);
+            writer.Write(PlayerNumber);
             if(_command == null)
             {
                 writer.Write(0);
@@ -42,7 +46,8 @@ namespace SocialPoint.Lockstep
 
         public void Deserialize(IReader reader)
         {
-            _id = reader.ReadUInt32();
+            Id = reader.ReadUInt32();
+            PlayerNumber = reader.ReadByte();
             var cmdLen = reader.ReadInt32();
             _command = null;
             if(cmdLen > 0)
@@ -53,7 +58,7 @@ namespace SocialPoint.Lockstep
 
         public override string ToString()
         {
-            return string.Format("[ServerLockstepCommandData:{0}]", _id);
+            return string.Format("[ServerLockstepCommandData:{0} {1}]", Id, PlayerNumber);
         }
     }
 }

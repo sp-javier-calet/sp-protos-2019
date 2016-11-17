@@ -18,6 +18,4 @@ MonoBehaviour:
   - MainScene
   - BaseMainScene
   - MultiplayerScene
-  - MultiplayerSceneAuthoritative
-  - PathfindingTestScene
   - LockstepScene

@@ -78,12 +78,12 @@ namespace SocialPoint.Lockstep
         {
             var cmd = Substitute.For<ILockstepCommand>();
             var finish = Substitute.For<ILockstepCommandLogic>();
-            _replay.AddCommand(0, cmd, finish);
+            _replay.AddCommand(0, new ClientLockstepCommandData(cmd, finish, _client.PlayerNumber));
             _replay.Replay();
             _client.Start();
-            finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
+            finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>(), Arg.Any<byte>());
             _client.Update(2000);
-            finish.Received().Apply(cmd);
+            finish.Received().Apply(cmd, _client.PlayerNumber);
         }
     }
 
