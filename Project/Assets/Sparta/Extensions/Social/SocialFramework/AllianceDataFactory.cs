@@ -39,7 +39,6 @@ namespace SocialPoint.Social
         const string AllianceIdKey = "id";
         const string AllianceNameKey = "name";
         const string AllianceDescriptionKey = "description";
-        const string AllianceMinimumScore = "minimum_score";
         // TODO duplicated
         const string AllianceAvatarKey = "avatar";
         const string AllianceAvatarIdKey = "avatarId";
@@ -54,6 +53,7 @@ namespace SocialPoint.Social
         // TODO duplicated
         const string AllianceRequirementKey = "minPowerToJoin";
         const string AllianceRequirementMinLevelKey = "minLevel";
+        const string AllianceRequirementScore = "minimum_score";
         const string AllianceActivityIndicatorKey = "activityIndicator";
         const string AllianceIsNewKey = "newAlliance";
 
@@ -207,7 +207,7 @@ namespace SocialPoint.Social
             }
             if(baseAlliance == null || baseAlliance.Requirement != modifiedAlliance.Requirement)
             {
-                dic.SetValue(AllianceMinimumScore, modifiedAlliance.Requirement);
+                dic.SetValue(AllianceRequirementScore, modifiedAlliance.Requirement);
             }
             if(baseAlliance == null || baseAlliance.AccessType != modifiedAlliance.AccessType)
             {
