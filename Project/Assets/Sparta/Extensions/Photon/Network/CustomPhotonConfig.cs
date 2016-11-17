@@ -30,7 +30,7 @@ public class CustomPhotonConfig
 
     bool _pendingOutgoingCommands = false;
 
-    public void SaveOriginalPhotonSettings()
+    void SaveOriginalPhotonSettings()
     {
         _originalUpdateInterval = PhotonNetwork.photonMono.updateInterval;
         _originalUpdateIntervalOnSerialize = PhotonNetwork.photonMono.updateIntervalOnSerialize;
