@@ -59,13 +59,6 @@ namespace SocialPoint.Physics
             BuildPhysicObject();
         }
 
-        public Object Clone()
-        {
-            PhysicsCollisionShape shapeClone = (PhysicsCollisionShape)_collisionShape.Clone();
-            var behavior = new PhysicsRigidBody(shapeClone, _controlType, _physicsWorld, _debugger);
-            return behavior;
-        }
-
         public void OnCollision(RigidBody other, JVector myPoint, JVector otherPoint, JVector normal, float penetration)
         {
             if(_collisionListeners != null)
