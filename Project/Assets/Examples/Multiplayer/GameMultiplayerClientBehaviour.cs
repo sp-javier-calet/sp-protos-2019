@@ -74,7 +74,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
                 MessageType = GameMsgType.ClickAction
             }, new ClickAction {
                 Position = Vector.Convert(eventData.pointerPressRaycast.worldPosition),
-                Ray = new SocialPoint.Physics.Ray(clickRay.origin.ToPhysics(), clickRay.direction.ToPhysics())
+                Ray = new SocialPoint.Physics.Ray(Vector.Convert(clickRay.origin), Vector.Convert(clickRay.direction))
             });
         }
     }
