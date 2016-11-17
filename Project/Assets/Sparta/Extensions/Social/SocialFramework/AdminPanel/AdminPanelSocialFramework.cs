@@ -723,7 +723,7 @@ namespace SocialPoint.Social
                     bool isInAlliance = ownAlliance.IsInAlliance;
                     var canEditAlliance = _alliances.Ranks.HasPermission(ownAlliance.Rank, RankPermission.EditAlliance) && ownAlliance.Id == Alliance.Id;
                     var isOpenAlliance = _alliances.AccessTypes.IsPublic(Alliance.AccessType);
-                    var canJoinAlliance = !isInAlliance && (isOpenAlliance || !Alliance.HasCandidate(ownAlliance.Id)); // TODO MEMBER ID
+                    var canJoinAlliance = !isInAlliance && (isOpenAlliance || !Alliance.HasCandidate(ownAlliance.Id)); // TODO Use Member id instead of alliance
 
                     layout.CreateLabel("Actions");
 
@@ -1036,7 +1036,7 @@ namespace SocialPoint.Social
 
                         if(Error.IsNullOrEmpty(_wampRequestError))
                         {
-                            layout.CreateLabel("Loading ranking...");
+                            layout.CreateLabel("Loading search results...");
                         }
                         else
                         {
