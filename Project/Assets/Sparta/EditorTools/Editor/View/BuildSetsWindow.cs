@@ -8,7 +8,7 @@ using SpartaTools.Editor.Build;
 namespace SpartaTools.Editor.View
 {
     [UnityEditor.InitializeOnLoad]
-    public class BuildSetApplier
+    public static class BuildSetApplier
     {
         const string CurrentModeKey = "SpartaCurrentBuildSet";
         const string AutoApplyKey = "SpartaAutoApplyBuildSetEnabled";
@@ -51,7 +51,7 @@ namespace SpartaTools.Editor.View
             }
         }
 
-        public BuildSetApplier()
+        static BuildSetApplier()
         {
             if(AutoApply)
             {
