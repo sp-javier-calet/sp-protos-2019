@@ -20,6 +20,8 @@ namespace SocialPoint.Lockstep
         public LockstepGameParams GameParams { get; private set; }
 
         public event Action<ServerLockstepTurnData> TurnReady;
+        public event Action<int> EmptyTurnsReady;
+        int _pendingEmptyTurns;
 
         public int UpdateTime
         {
@@ -51,6 +53,7 @@ namespace SocialPoint.Lockstep
             GameParams =  new LockstepGameParams();
             _updateScheduler = updateScheduler;
             _turns = new Dictionary<int, ServerLockstepTurnData>();
+            _pendingEmptyTurns = 0;
             Stop();
         }
 
@@ -127,7 +130,7 @@ namespace SocialPoint.Lockstep
         }
 
         public void Update(int dt)
-        {
+        {   
             if(!Running || dt < 0)
             {
                 return;
@@ -142,17 +145,56 @@ namespace SocialPoint.Lockstep
                 }
                 ServerLockstepTurnData turn;
                 var t = CurrentTurnNumber;
-                if(!_turns.TryGetValue(t, out turn))
+
+                if(_turns.TryGetValue(t, out turn))
                 {
-                    turn = ServerLockstepTurnData.Empty;
+                    SendEmptyTurnsToClient();
+                    
+                    if(TurnReady != null)
+                    {
+                        TurnReady(turn);
+                    }
+
+                    ConfirmLocalClientTurn(turn);
                 }
-                if(TurnReady != null)
+                else
                 {
-                    TurnReady(turn);
+                    AddEmptyTurn(t);
+                    SendEmptyTurnsToClient();
                 }
-                ConfirmLocalClientTurn(turn);
+
                 _lastCmdTime = nextCmdTime;
             }
+        }
+
+        void AddEmptyTurn(int turn)
+        {
+            _turns.Add(turn, ServerLockstepTurnData.Empty);
+            _pendingEmptyTurns++;
+        }
+
+        void SendEmptyTurnsToClient()
+        {
+            if(_pendingEmptyTurns == 0 || (Config.MaxSkippedEmptyTurns > 0 && _pendingEmptyTurns < Config.MaxSkippedEmptyTurns))
+            {
+                return;
+            }
+            
+            if(EmptyTurnsReady != null)
+            {
+                EmptyTurnsReady(_pendingEmptyTurns);
+            }
+            else if(TurnReady != null)
+            {
+                for(int i = 0; i < _pendingEmptyTurns; ++i)
+                {
+                    TurnReady(null);
+                }
+            }
+
+            ConfirmLocalClientEmptyTurns(_pendingEmptyTurns);
+
+            _pendingEmptyTurns = 0;
         }
 
         public void Dispose()
@@ -204,6 +246,15 @@ namespace SocialPoint.Lockstep
             }
             var clientTurn = turn.ToClient(_localFactory);
             _localClient.AddConfirmedTurn(clientTurn);
+        }
+
+        void ConfirmLocalClientEmptyTurns(int emptyTurns)
+        {
+            if(_localClient == null)
+            {
+                return;
+            }
+            _localClient.AddConfirmedEmptyTurns(new EmptyTurnsMessage(emptyTurns));
         }
 
         #endregion

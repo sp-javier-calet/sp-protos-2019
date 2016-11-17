@@ -115,7 +115,10 @@ namespace SocialPoint.Utils
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                _elements.Add(elm);
+                if(!_elementsToRemove.Remove(elm) || !_elements.Contains(elm))
+                {
+                    _elements.Add(elm);
+                }
             }
         }
 
