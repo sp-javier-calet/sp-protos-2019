@@ -60,7 +60,7 @@ namespace SocialPoint.Social
         const string AllianceAvatarKey = "alliance_symbol";
         const string AlliancePropertiesKey = "properties";
         const string AllianceNewMemberKey = "new_member_id";
-        const string AllianceDeniedMemberKey = "denied_member_id";
+        const string AllianceDeniedMemberKey = "denied_user_id";
         const string AllianceKickedMemberKey = "kicked_user_id";
         const string AlliancePromotedMemberKey = "promoted_user_id";
         const string AllianceNewRankKey = "new_role";
@@ -367,7 +367,7 @@ namespace SocialPoint.Social
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
-            dic.SetValue(AllianceNewMemberKey, long.Parse(candidateUid));
+            dic.SetValue(AllianceNewMemberKey, candidateUid);
 
             return _connection.Call(AllianceMemberAcceptMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
@@ -390,16 +390,16 @@ namespace SocialPoint.Social
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
-            dic.SetValue(AllianceDeniedMemberKey, long.Parse(candidateUid));
+            dic.SetValue(AllianceDeniedMemberKey, candidateUid);
 
-            return _connection.Call(AllianceMemberAcceptMethod, Attr.InvalidList, dic, (err, rList, rDic) => callback(err));
+            return _connection.Call(AllianceMemberDeclineMethod, Attr.InvalidList, dic, (err, rList, rDic) => callback(err));
         }
 
         public WAMPRequest KickMember(string memberUid, Action<Error> callback)
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
-            dic.SetValue(AllianceKickedMemberKey, long.Parse(memberUid));
+            dic.SetValue(AllianceKickedMemberKey, memberUid);
             dic.SetValue(AllianceIdKey, AlliancePlayerInfo.Id);
 
             return _connection.Call(AllianceMemberKickMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
@@ -416,7 +416,7 @@ namespace SocialPoint.Social
                 {
                     callback(null);
                 }
-                NotifyAllianceEvent(AllianceAction.MateChangedRank, rDic);
+                NotifyAllianceEvent(AllianceAction.KickedFromAlliance, rDic);
             });
         }
 
@@ -424,7 +424,7 @@ namespace SocialPoint.Social
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
-            dic.SetValue(AlliancePromotedMemberKey, long.Parse(memberUid));
+            dic.SetValue(AlliancePromotedMemberKey, memberUid);
             dic.SetValue(AllianceNewRankKey, rank);
 
             return _connection.Call(AllianceMemberPromoteMethod, Attr.InvalidList, dic, (err, rList, rDic) => {

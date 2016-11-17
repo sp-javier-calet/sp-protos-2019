@@ -723,7 +723,7 @@ namespace SocialPoint.Social
                     bool isInAlliance = ownAlliance.IsInAlliance;
                     var canEditAlliance = _alliances.Ranks.HasPermission(ownAlliance.Rank, RankPermission.EditAlliance) && ownAlliance.Id == Alliance.Id;
                     var isOpenAlliance = _alliances.AccessTypes.IsPublic(Alliance.AccessType);
-                    var canJoinAlliance = !isInAlliance && (isOpenAlliance || !Alliance.HasCandidate(ownAlliance.Id));
+                    var canJoinAlliance = !isInAlliance && (isOpenAlliance || !Alliance.HasCandidate(ownAlliance.Id)); // TODO MEMBER ID
 
                     layout.CreateLabel("Actions");
 
@@ -850,7 +850,7 @@ namespace SocialPoint.Social
                     var playerHasHigherRank = hasMemberManagementPermissions && _alliances.Ranks.Compare(memberRank, ownAlliance.Rank) > 0;
                     var userIsMember = Alliance.HasMember(memberId);
                     var userIsCandidate = Alliance.HasCandidate(memberId);
-                    var rankActionsEnabled = userIsMember && isOwnAlliance && playerHasHigherRank;
+                    var rankActionsEnabled = userIsMember && isOwnAlliance;
                     var manageActionsEnabled = userIsCandidate && isOwnAlliance && hasMemberManagementPermissions;
 
                     layout.CreateLabel("Actions");
@@ -858,28 +858,28 @@ namespace SocialPoint.Social
                     // Rank actions
                     layout.CreateButton("Promote", () => {
                         var newRank = _alliances.Ranks.GetPromoted(_member.Rank);
-                        _alliances.PromoteMember(memberId, newRank, err => OnResponse(err, "Promotion", () => Alliance.SetMemberRank(memberId, newRank)));
-                    }, rankActionsEnabled);
+                        _alliances.PromoteMember(memberId, newRank, err => OnResponse(layout, err, "Promotion", () => Alliance.SetMemberRank(memberId, newRank)));
+                    }, rankActionsEnabled && playerHasHigherRank);
 
                     layout.CreateButton("Demote", () => {
                         var newRank = _alliances.Ranks.GetDemoted(_member.Rank);
-                        _alliances.PromoteMember(memberId, newRank, err => OnResponse(err, "Demotion", () => Alliance.SetMemberRank(memberId, newRank)));
-                    }, rankActionsEnabled);
+                        _alliances.PromoteMember(memberId, newRank, err => OnResponse(layout, err, "Demotion", () => Alliance.SetMemberRank(memberId, newRank)));
+                    }, rankActionsEnabled && playerHasHigherRank);
 
                     layout.CreateButton("Kick", 
-                        () => _alliances.KickMember(memberId, err => OnResponse(err, "Kick", () => Alliance.RemoveMember(memberId))), 
+                        () => _alliances.KickMember(memberId, err => OnResponse(layout, err, "Kick", () => Alliance.RemoveMember(memberId))), 
                         rankActionsEnabled);
 
                     // Management actions
                     layout.CreateButton("Accept Request", 
-                        () => _alliances.AcceptCandidate(memberId, err => OnResponse(err, "Accept candidate", () => Alliance.AcceptCandidate(memberId))), 
+                        () => _alliances.AcceptCandidate(memberId, err => OnResponse(layout, err, "Accept candidate", () => Alliance.AcceptCandidate(memberId))), 
                         manageActionsEnabled);
                     layout.CreateButton("Decline Request", 
-                        () => _alliances.DeclineCandidate(memberId, err => OnResponse(err, "Decline candidate", () => Alliance.RemoveCandidate(memberId))), 
+                        () => _alliances.DeclineCandidate(memberId, err => OnResponse(layout, err, "Decline candidate", () => Alliance.RemoveCandidate(memberId))), 
                         manageActionsEnabled);
                 }
 
-                void OnResponse(Error err, string action, Action onSuccess)
+                void OnResponse(AdminPanelLayout layout, Error err, string action, Action onSuccess)
                 {
                     if(Error.IsNullOrEmpty(err))
                     {
@@ -891,6 +891,7 @@ namespace SocialPoint.Social
                     {
                         _console.Print(string.Format("Error on '{0}' request. {1}", action, err));
                     }
+                    layout.Refresh();
                 }
             }
 

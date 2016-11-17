@@ -68,12 +68,12 @@ namespace SocialPoint.Social
         {
             if(!Exists(rank1))
             {
-                throw new InvalidAccessTypeException(rank1);
+                throw new InvalidRankException(rank1);
             }
 
             if(!Exists(rank2))
             {
-                throw new InvalidAccessTypeException(rank2);
+                throw new InvalidRankException(rank2);
             }
 
             return rank2 - rank1;
@@ -83,7 +83,7 @@ namespace SocialPoint.Social
         {
             if(!Exists(toRank))
             {
-                throw new InvalidAccessTypeException(toRank);
+                throw new InvalidRankException(toRank);
             }
 
             var rank = (Rank)toRank;
@@ -94,7 +94,7 @@ namespace SocialPoint.Social
         {
             if(!Exists(rank))
             {
-                throw new InvalidAccessTypeException(rank);
+                throw new InvalidRankException(rank);
             }
 
             switch((Rank)rank)
@@ -145,7 +145,7 @@ namespace SocialPoint.Social
         {
             if(!Exists(rank))
             {
-                throw new InvalidAccessTypeException(rank);
+                throw new InvalidRankException(rank);
             }
 
             var r = (Rank)rank;
@@ -156,7 +156,7 @@ namespace SocialPoint.Social
         {
             if(!Exists(rank))
             {
-                throw new InvalidAccessTypeException(rank);
+                throw new InvalidRankException(rank);
             }
 
             var r = (Rank)rank;
@@ -167,12 +167,12 @@ namespace SocialPoint.Social
         {
             if(!Exists(oldRank))
             {
-                throw new InvalidAccessTypeException(oldRank);
+                throw new InvalidRankException(oldRank);
             }
 
             if(!Exists(newRank))
             {
-                throw new InvalidAccessTypeException(newRank);
+                throw new InvalidRankException(newRank);
             }
 
             var comp = Compare(oldRank, newRank);
