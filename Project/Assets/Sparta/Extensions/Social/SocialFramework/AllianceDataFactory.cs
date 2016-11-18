@@ -147,7 +147,7 @@ namespace SocialPoint.Social
             alliance.IsNewAlliance = data.GetValue(AllianceIsNewKey).ToBool();
 
             // Add candidates 
-            var candidatesList = dic.Get(AllianceCandidatesKey).AsList;
+            var candidatesList = data.Get(AllianceCandidatesKey).AsList;
             if(candidatesList.Count > 0)
             {
                 var candidates = new List<AllianceMember>();
@@ -165,7 +165,7 @@ namespace SocialPoint.Social
             }
 
             // Add alliance members
-            var membersList = dic.Get(AllianceMembersKey).AsList;
+            var membersList = data.Get(AllianceMembersKey).AsList;
             var members = new List<AllianceMember>();
             members.Capacity = membersList.Count;
 
