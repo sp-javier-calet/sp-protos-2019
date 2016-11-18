@@ -54,6 +54,7 @@ namespace SocialPoint.Lockstep.Network
         public event Action<int> StartScheduled;
         public event Action PlayerReadySent;
         public event Action<Attr> PlayerFinishSent;
+        public event Action<Error> ErrorProduced;
 
         public ClientLockstepNetworkController(INetworkClient client)
         {
@@ -92,6 +93,10 @@ namespace SocialPoint.Lockstep.Network
 
         public void OnNetworkError(Error err)
         {
+            if(ErrorProduced != null)
+            {
+                ErrorProduced(err);
+            }
         }
 
         public void OnMessageReceived(NetworkMessageData data, IReader reader)
