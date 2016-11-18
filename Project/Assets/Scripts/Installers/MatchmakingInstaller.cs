@@ -14,8 +14,10 @@ public class MatchmakingInstaller : Installer
     [Serializable]
     public class SettingsData
     {
-        public string BaseUrl = "http://int-lod.socialpointgames.es";
-        public string WebsocketUrl = "ws://int-lod.socialpointgames.com:8001/find_opponent";
+        const string DefaultBaseUrl = "http://int-lod.socialpointgames.es";
+        const string DefaultWebsocketUrl = "ws://int-lod.socialpointgames.com:8001/find_opponent";
+        public string BaseUrl = DefaultBaseUrl;
+        public string WebsocketUrl = DefaultWebsocketUrl;
     }
 
     public SettingsData Settings = new SettingsData();
