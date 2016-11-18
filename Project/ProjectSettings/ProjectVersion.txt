@@ -1,6 +1,2 @@
-<<<<<<< HEAD
-m_EditorVersion: 5.3.7f1
-=======
 m_EditorVersion: 5.3.6p8
->>>>>>> feature/lockstep-matchmaking-game
 m_StandardAssetsVersion: 0
