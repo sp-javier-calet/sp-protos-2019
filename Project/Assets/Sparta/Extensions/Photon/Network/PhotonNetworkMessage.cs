@@ -4,6 +4,12 @@ using System.IO;
 
 namespace SocialPoint.Network
 {
+    public static class PhotonMsgType
+    {
+        public const byte Fail = 199;
+        public const byte Lowest = Fail;
+    }
+
     class PhotonNetworkMessage : INetworkMessage
     {
         NetworkMessageData _data;
@@ -13,7 +19,7 @@ namespace SocialPoint.Network
 
         public PhotonNetworkMessage(NetworkMessageData data, PhotonNetworkBase sender)
         {
-            if(data.MessageType >= EventCode.LobbyStats)
+            if(data.MessageType >= PhotonMsgType.Lowest)
             {
                 throw new ArgumentException("Message type is too big.");
             }
