@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
-using SocialPoint.WAMP;
 using SocialPoint.WAMP.Subscriber;
 
 namespace SocialPoint.Social

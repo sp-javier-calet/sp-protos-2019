@@ -16,8 +16,6 @@ public class LockstepInstaller : Installer
         public LockstepConfig Config;
         public ServerLockstepConfig ServerConfig;
         public ClientLockstepConfig ClientConfig;
-        public string MatchmakingBaseUrl = "http://int-lod.socialpointgames.es";
-        public string MatchmakingWebsocketUrl = "ws://int-lod.socialpointgames.com:8001/find_opponent";
         public bool RunLocalServerClient = true;
     }
 
