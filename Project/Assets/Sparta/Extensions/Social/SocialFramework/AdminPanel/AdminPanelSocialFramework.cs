@@ -336,13 +336,10 @@ namespace SocialPoint.Social
                 CreateOwnAlliancePanel(layout);
                 layout.CreateMargin();
                 layout.CreateOpenPanelButton("Ranking", _rankingPanel);
-                layout.CreateTextInput("Search alliances", value => {
+                layout.CreateTextInput(string.IsNullOrEmpty(_searchPanel.Search) ? "Search alliances" : _searchPanel.Search, value => {
                     _searchPanel.Search = value;
-                    layout.Refresh();
                 });
-                layout.CreateOpenPanelButton("Search", _searchPanel, !string.IsNullOrEmpty(_searchPanel.Search));
-                layout.CreateOpenPanelButton("Suggested alliances", _searchPanel);
-               
+                layout.CreateOpenPanelButton("Search", _searchPanel);
             }
 
             void CreateOwnAlliancePanel(AdminPanelLayout layout)
@@ -375,7 +372,7 @@ namespace SocialPoint.Social
             /// <summary>
             /// Base alliance panel.
             /// </summary>
-            abstract class BaseAlliancePanel : IAdminPanelGUI
+            abstract class BaseAlliancePanel : IAdminPanelManagedGUI
             {
                 protected readonly AlliancesManager _alliances;
                 protected readonly AdminPanelConsole _console;
@@ -384,6 +381,14 @@ namespace SocialPoint.Social
                 {
                     _alliances = alliances;
                     _console = console;
+                }
+
+                public virtual void OnOpened()
+                {
+                }
+
+                public virtual void OnClosed()
+                {
                 }
 
                 public abstract void OnCreateGUI(AdminPanelLayout layout);
@@ -410,6 +415,19 @@ namespace SocialPoint.Social
                     _wampRequest = null;
                     _wampRequestError = null;
                 }
+
+                public override void OnOpened()
+                {
+                    _wampRequest = null;
+                    _wampRequestError = null;
+                }
+
+                public override void OnClosed()
+                {
+                    _wampRequest = null;
+                    _wampRequestError = null;
+                }
+
             }
 
             #endregion
@@ -578,10 +596,7 @@ namespace SocialPoint.Social
                 {
                     var hlayout = layout.CreateHorizontalLayout();
                     hlayout.CreateFormLabel(label);
-                    hlayout.CreateTextInput(current, value => {
-                        onChanged(value);
-                        layout.Refresh();
-                    }); 
+                    hlayout.CreateTextInput(current, onChanged); 
                 }
 
                 void IntValueInput(AdminPanelLayout layout, string label, int current, Action<int> onChanged)
@@ -593,13 +608,11 @@ namespace SocialPoint.Social
                         {
                             var parsed = int.Parse(value);
                             onChanged(parsed);
-                            layout.Refresh();
                         }
                         catch(Exception)
                         {
                             _console.Print(string.Format("Invalid {0} value", label));
                             onChanged(current);
-                            layout.Refresh();
                         }
                     });
                 }
@@ -620,6 +633,12 @@ namespace SocialPoint.Social
                     _content = new StringBuilder();
                     _userPanel = new AdminPanelAllianceUserInfo(alliances, console);
                     _editPanel = new AdminPanelAllianceCreate(alliances, console);
+                }
+
+                public override void OnOpened()
+                {
+                    base.OnOpened();
+                    Alliance = null;
                 }
 
                 public override void OnCreateGUI(AdminPanelLayout layout)
@@ -683,12 +702,12 @@ namespace SocialPoint.Social
 
                 void CreateMembersList(AdminPanelLayout layout, string label, Alliance alliance, IEnumerator<AllianceMember> members)
                 {
-                    layout.CreateLabel(label);
+                    var foldout = layout.CreateFoldoutLayout(label);
                     while(members.MoveNext())
                     {
                         var member = members.Current;
-                        var userLabel = string.Format("[{0}]: Lvl: {1} - S: {2} -- {3}", member.Name, member.Level, member.Score, member.Rank.ToString());
-                        layout.CreateConfirmButton(userLabel, () => {
+                        var userLabel = string.Format("[{0}]: Lvl: {1} - S: {2} -- {3}", member.Name, member.Level, member.Score, member.Rank);
+                        foldout.CreateButton(userLabel, () => {
                             _userPanel.Alliance = alliance;
                             _userPanel.UserId = member.Uid;
                             layout.OpenPanel(_userPanel);
@@ -702,9 +721,9 @@ namespace SocialPoint.Social
                 {
                     var ownAlliance = _alliances.AlliancePlayerInfo;
                     bool isInAlliance = ownAlliance.IsInAlliance;
-                    var canEditAlliance = _alliances.Ranks.HasAllianceManagementPermission(ownAlliance.Rank);
+                    var canEditAlliance = _alliances.Ranks.HasAllianceManagementPermission(ownAlliance.Rank) && ownAlliance.Id == Alliance.Id;
                     var isOpenAlliance = _alliances.AccessTypes.IsPublic(Alliance.AccessType);
-                    var canJoinAlliance = !isInAlliance && (isOpenAlliance || !Alliance.HasCandidate(ownAlliance.Id)); // TODO?
+                    var canJoinAlliance = !isInAlliance && isOpenAlliance && !Alliance.HasCandidate(ownAlliance.Id);
 
                     layout.CreateLabel("Actions");
 
@@ -883,7 +902,7 @@ namespace SocialPoint.Social
                         {
                             var alliance = itr.Current;
                             var allianceLabel = string.Format("[{0}({1})]: {2}", alliance.Name, alliance.Id, alliance.Score);
-                            layout.CreateConfirmButton(allianceLabel, () => {
+                            layout.CreateButton(allianceLabel, () => {
                                 _infoPanel.AllianceId = alliance.Id;
                                 layout.OpenPanel(_infoPanel);
                             });
@@ -925,7 +944,6 @@ namespace SocialPoint.Social
                                 layout.Refresh();
                             });
                         }
-
                     }
                 }
             }
@@ -955,7 +973,7 @@ namespace SocialPoint.Social
                         {
                             var alliance = itr.Current;
                             var allianceLabel = string.Format("[{0}({1})]: {2}", alliance.Name, alliance.Id, alliance.Score);
-                            layout.CreateConfirmButton(allianceLabel, () => {
+                            layout.CreateButton(allianceLabel, () => {
                                 _infoPanel.AllianceId = alliance.Id;
                                 layout.OpenPanel(_infoPanel);
                             });

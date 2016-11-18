@@ -46,6 +46,7 @@ namespace SocialPoint.Network
     {
         public string GameVersion;
         public string RoomName;
+        public CustomPhotonConfig CustomPhotonConfig = new CustomPhotonConfig();
         public PhotonNetworkRoomConfig RoomOptions = new PhotonNetworkRoomConfig();
     }
 
@@ -71,15 +72,21 @@ namespace SocialPoint.Network
             }
         }
 
+        void Update()
+        {
+            Config.CustomPhotonConfig.SendOutgoingCommands();
+        }
+
         protected void DoConnect()
         {
             DoDisconnect();
+            Config.CustomPhotonConfig.SetConfigBeforeConnection();
             PhotonNetwork.ConnectUsingSettings(Config.GameVersion);
         }
 
         protected void DoDisconnect()
         {
-            if(PhotonNetwork.connected)
+            if(PhotonNetwork.connected || PhotonNetwork.connecting)
             {
                 PhotonNetwork.Disconnect();
             }
@@ -167,6 +174,7 @@ namespace SocialPoint.Network
         void OnJoinedRoom()
         {
             PhotonNetwork.OnEventCall += OnEventReceived;
+            Config.CustomPhotonConfig.SetConfigOnJoinedRoom();
             OnConnected();
         }
 
@@ -178,6 +186,7 @@ namespace SocialPoint.Network
         void OnDisconnectedFromPhoton()
         {
             PhotonNetwork.OnEventCall -= OnEventReceived;
+            Config.CustomPhotonConfig.RestorePhotonConfig();
             OnDisconnected();
         }
 
@@ -245,6 +254,7 @@ namespace SocialPoint.Network
                 options.TargetActors = new int[]{ player.ID };
             }
             PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
+            Config.CustomPhotonConfig.RegisterOnGoingCommand();
         }
 
         void OnEventReceived(byte eventcode, object content, int senderid)

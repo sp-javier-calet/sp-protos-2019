@@ -50,6 +50,7 @@ namespace SocialPoint.Social
         #region Attr keys
 
         const string UserIdKey = "user_id";
+        const string MemberIdKey = "player_id";
         // TODO Both Key and Session store the SessionId
         const string UserSessionKey = "user_key";
         const string SessionIdKey = "session_id";
@@ -89,15 +90,13 @@ namespace SocialPoint.Social
         const string AllianceMemberDeclineMethod = "alliance.member.decline";
         const string AllianceMemberKickMethod = "alliance.member.kickoff";
         const string AllianceMemberPromoteMethod = "alliance.member.promote";
-        const string NotificationReceivedMethod = "notification.received";
-
-        // TODO Getters RPC methods
         const string AllianceInfoMethod = "alliance.info";
         const string AllianceMemberInfoMethod = "alliance.member.info";
         const string AllianceRankingMethod = "alliance.ranking";
         const string AllianceSearchMethod = "alliance.search";
         const string AllianceSearchSuggestedMethod = "alliance.search.suggested";
         const string AllianceSearchSuggestedJoinMethod = "alliance.search.suggested.reward";
+        const string NotificationReceivedMethod = "notification.received";
 
         #endregion
 
@@ -147,14 +146,16 @@ namespace SocialPoint.Social
         public WAMPRequest LoadAllianceInfo(string allianceId, Action<Error, Alliance> callback)
         {
             var dic = new AttrDic();
-            dic.SetValue(UserSessionKey, LoginData.SessionId);
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
+            dic.SetValue(AllianceIdKey, allianceId);
              
             return _connection.Call(AllianceInfoMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 Alliance alliance = null;
                 if(Error.IsNullOrEmpty(err))
                 {
-                    alliance = Factory.CreateAlliance(allianceId, AccessTypes.DefaultAccessType, rDic);
+                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
+                    var result = rDic.Get(OperationResultKey).AsDic;
+                    alliance = Factory.CreateAlliance(allianceId, AccessTypes.DefaultAccessType, result);
                 }
                 if(callback != null)
                 {
@@ -166,13 +167,15 @@ namespace SocialPoint.Social
         public WAMPRequest LoadUserInfo(string userId, Action<Error, AllianceMember> callback)
         {
             var dic = new AttrDic();
-            dic.SetValue(UserSessionKey, LoginData.SessionId);
+            dic.SetValue(MemberIdKey, userId);
 
             return _connection.Call(AllianceMemberInfoMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 AllianceMember member = null;
                 if(Error.IsNullOrEmpty(err))
                 {
-                    member = Factory.CreateMember(dic);
+                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
+                    var result = rDic.Get(OperationResultKey).AsDic;
+                    member = Factory.CreateMember(result);
                 }
                 if(callback != null)
                 {
@@ -190,12 +193,15 @@ namespace SocialPoint.Social
             }
 
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
+            dic.SetValue("ranking_type", ""); // TODO in use?
 
             return _connection.Call(AllianceRankingMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 AllianceRankingData ranking = null;
                 if(Error.IsNullOrEmpty(err))
                 {
-                    ranking = Factory.CreateRankingData(dic);
+                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
+                    var result = rDic.Get(OperationResultKey).AsDic;
+                    ranking = Factory.CreateRankingData(result);
                 }
                 if(callback != null)
                 {
@@ -215,7 +221,9 @@ namespace SocialPoint.Social
                 AlliancesSearchData searchData = null;
                 if(Error.IsNullOrEmpty(err))
                 {
-                    searchData = Factory.CreateSearchData(dic, suggested);
+                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
+                    var result = rDic.Get(OperationResultKey).AsDic;
+                    searchData = Factory.CreateSearchData(result, suggested);
                 }
                 if(callback != null)
                 {
@@ -234,7 +242,9 @@ namespace SocialPoint.Social
                 AlliancesSearchData searchData = null;
                 if(Error.IsNullOrEmpty(err))
                 {
-                    searchData = Factory.CreateSearchData(dic, suggested);
+                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
+                    var result = rDic.Get(OperationResultKey).AsDic;
+                    searchData = Factory.CreateSearchData(result, suggested);
                 }
                 if(callback != null)
                 {
@@ -253,7 +263,9 @@ namespace SocialPoint.Social
                 AlliancesSearchData search = null;
                 if(Error.IsNullOrEmpty(err))
                 {
-                    search = Factory.CreateJoinData(dic);
+                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
+                    var result = rDic.Get(OperationResultKey).AsDic;
+                    search = Factory.CreateJoinData(result);
                 }
                 if(callback != null)
                 {
