@@ -32,6 +32,7 @@ namespace SocialPoint.Social
     public class JoinExtraData
     {
         public string Origin;
+        public string Message;
         public long Timestamp;
 
         public JoinExtraData()
@@ -41,6 +42,7 @@ namespace SocialPoint.Social
         public JoinExtraData(string origin)
         {
             Origin = origin;
+            Message = string.Empty;
             Timestamp = TimeUtils.Timestamp;
         }
     }
@@ -69,8 +71,9 @@ namespace SocialPoint.Social
         const string NotificationTypeKey = "type";
         const string OperationResultKey = "result";
         const string NotificationIdKey = "notification_id";
-        const string TimestampKey = "timestamp";
-        const string OriginKey = "origin";
+        const string JoinTimestampKey = "timestamp";
+        const string JoinOriginKey = "origin";
+        const string JoinMessageKey = "message";
 
         #endregion
 
@@ -477,8 +480,9 @@ namespace SocialPoint.Social
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
             dic.SetValue(AllianceIdKey, alliance.Id);
-            dic.SetValue(TimestampKey, data.Timestamp);
-            dic.SetValue(OriginKey, data.Origin);
+            dic.SetValue(JoinTimestampKey, data.Timestamp);
+            dic.SetValue(JoinOriginKey, data.Origin);
+            dic.SetValue(JoinMessageKey, data.Message);
 
             long joinTs = data.Timestamp;
 
@@ -517,8 +521,9 @@ namespace SocialPoint.Social
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
             dic.SetValue(AllianceIdKey, alliance.Id);
-            dic.SetValue(TimestampKey, data.Timestamp);
-            dic.SetValue(OriginKey, data.Origin);
+            dic.SetValue(JoinTimestampKey, data.Timestamp);
+            dic.SetValue(JoinOriginKey, data.Origin);
+            dic.SetValue(JoinMessageKey, data.Message);
 
             _connection.Call(AllianceRequestJoinMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
