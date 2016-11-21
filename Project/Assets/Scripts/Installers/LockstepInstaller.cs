@@ -13,8 +13,8 @@ public class LockstepInstaller : Installer
     public class SettingsData
     {
         public LockstepConfig Config;
-        public ServerLockstepConfig ServerConfig;
-        public ClientLockstepConfig ClientConfig;
+        public LockstepServerConfig ServerConfig;
+        public LockstepClientConfig ClientConfig;
         public bool RunLocalServerClient = true;
     }
 
