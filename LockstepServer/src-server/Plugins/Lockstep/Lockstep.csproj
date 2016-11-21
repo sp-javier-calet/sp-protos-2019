@@ -74,6 +74,9 @@
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\ClientStartMessage.cs">
       <Link>Lib\Lockstep\Network\ClientStartMessage.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\EmptyTurnsMessage.cs">
+      <Link>Lib\Lockstep\Network\EmptyTurnsMessage.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\LockstepNetworkServer.cs">
       <Link>Lib\Lockstep\Network\LockstepNetworkServer.cs</Link>
     </Compile>
@@ -247,6 +250,9 @@
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\WebRequestHttpConnection.cs">
       <Link>Lib\Network\WebRequestHttpConnection.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\CompareUtils.cs">
+      <Link>Lib\Utils\CompareUtils.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\CryptographyUtils.cs">
       <Link>Lib\Utils\CryptographyUtils.cs</Link>
