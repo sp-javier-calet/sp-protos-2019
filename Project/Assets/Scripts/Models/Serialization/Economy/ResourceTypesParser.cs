@@ -41,7 +41,7 @@ public class ResourceTypesParser : IAttrObjParser<IDictionary<string, ResourceTy
         foreach(var elm in dataList)
         {
             var resource = parser.Parse(elm);
-            resources.Add(resource.Id, resource);
+            resources[resource.Id] = resource;
         }
         return resources;
     }
