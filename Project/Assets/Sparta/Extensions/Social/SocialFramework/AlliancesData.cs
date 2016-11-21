@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace SocialPoint.Social
 {
@@ -75,7 +76,7 @@ namespace SocialPoint.Social
         public string Filter;
     }
 
-    public class AlliancesSearchResultData
+    public class AlliancesSearchResultData : IEnumerable<AllianceBasicData>
     {
         public int Score;
 
@@ -91,9 +92,38 @@ namespace SocialPoint.Social
             _searchData.Add(data);
         }
 
-        public IEnumerator<AllianceBasicData> GetSearch()
+        #region IEnumerable implementation
+
+        public IEnumerator<AllianceBasicData> GetEnumerator()
         {
             return _searchData.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _searchData.GetEnumerator();
+        }
+
+        #endregion
+
+        public IEnumerator<T> GetEnumeratorAs<T>() where T : AllianceBasicData
+        {
+            var itr = GetEnumerator();
+            while(itr.MoveNext())
+            {
+                var elm = itr.Current;
+                yield return (T)elm;
+
+            }
+            itr.Dispose();
+        }
+
+        public int Count
+        {
+            get
+            {
+                return _searchData.Count;
+            }
         }
     }
 }

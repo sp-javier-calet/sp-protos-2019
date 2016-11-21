@@ -996,7 +996,7 @@ namespace SocialPoint.Social
 
                     if(_search != null)
                     {
-                        var itr = _search.GetSearch();
+                        var itr = _search.GetEnumerator();
                         while(itr.MoveNext())
                         {
                             var alliance = itr.Current;
