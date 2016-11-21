@@ -20,6 +20,14 @@ namespace SpartaTools.Editor.Build
                 ErrorMessage = "Ios Bundle Identifier must be defined"
             },
             new Validator {
+                Validate = (BuildSet bs) => !string.IsNullOrEmpty(bs.Android.Version),
+                ErrorMessage = "Android Bundle Version must be defined"
+            },
+            new Validator {
+                Validate = (BuildSet bs) => !string.IsNullOrEmpty(bs.Ios.Version),
+                ErrorMessage = "Ios Bundle Version must be defined"
+            },
+            new Validator {
                 Validate = (BuildSet bs) => bs.App.IconTexture != null,
                 ErrorMessage = "Default Icon must be defined"
             },
@@ -70,7 +78,6 @@ namespace SpartaTools.Editor.Build
         static void ImportConfig(BaseSettings config)
         {
             config.App.ProductName = PlayerSettings.productName;
-            config.App.Version = PlayerSettings.bundleVersion;
 
             var buildNumber = 1;
             try
@@ -89,10 +96,12 @@ namespace SpartaTools.Editor.Build
             }
 
             config.Ios.BundleIdentifier = PlayerSettings.bundleIdentifier;
+            config.Ios.Version = PlayerSettings.bundleVersion;
             config.Ios.Flags = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS);
 
             config.Android.BundleIdentifier = PlayerSettings.bundleIdentifier;
             config.Android.Flags = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android);
+            config.Android.Version = PlayerSettings.bundleVersion;
             config.Android.Keystore.Path = PlayerSettings.Android.keystoreName;
             config.Android.Keystore.FilePassword = PlayerSettings.keystorePass;
             config.Android.Keystore.Alias = PlayerSettings.Android.keyaliasName;
@@ -121,7 +130,6 @@ namespace SpartaTools.Editor.Build
             Validate();
 
             PlayerSettings.productName = App.ProductName;
-            PlayerSettings.bundleVersion = App.Version;
             PlayerSettings.Android.bundleVersionCode = App.BuildNumber;
             PlayerSettings.iOS.buildNumber = App.BuildNumber.ToString();
 
@@ -149,10 +157,12 @@ namespace SpartaTools.Editor.Build
             if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.iOS)
             {
                 PlayerSettings.bundleIdentifier = Ios.BundleIdentifier;
+                PlayerSettings.bundleVersion = Ios.Version;
             }
             else if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android)
             {
                 PlayerSettings.bundleIdentifier = Android.BundleIdentifier;
+                PlayerSettings.bundleVersion = Android.Version;
             }
 
             // Flags

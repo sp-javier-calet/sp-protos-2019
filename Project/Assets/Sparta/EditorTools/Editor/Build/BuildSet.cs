@@ -51,7 +51,6 @@ namespace SpartaTools.Editor.Build
         public struct AppConfiguration
         {
             public string ProductName;
-            public string Version;
             public int BuildNumber;
             public bool OverrideBuild;
             public Texture2D IconTexture;
@@ -83,6 +82,7 @@ namespace SpartaTools.Editor.Build
         public struct IosConfiguration
         {
             public string BundleIdentifier;
+            public string Version;
             public string Flags;
             public string XcodeModSchemes;
             public bool UseEnvironmentProvisioningUuid;
@@ -107,6 +107,7 @@ namespace SpartaTools.Editor.Build
         public struct AndroidConfiguration
         {
             public string BundleIdentifier;
+            public string Version;
             public string Flags;
             public string RemovedResources;
             public bool UseKeystore;
@@ -300,11 +301,6 @@ namespace SpartaTools.Editor.Build
             if(!string.IsNullOrEmpty(App.ProductName))
             {
                 PlayerSettings.productName = App.ProductName;
-            }
-
-            if(!string.IsNullOrEmpty(App.Version))
-            {
-                PlayerSettings.bundleVersion = App.Version;
             }
 
             if(App.OverrideIcon)
@@ -587,6 +583,11 @@ namespace SpartaTools.Editor.Build
             public override void OnApply(BuildSet buildSet)
             {
                 SetBundleIdentifier(buildSet.Android.BundleIdentifier);
+
+                if(!string.IsNullOrEmpty(buildSet.Android.Version))
+                {
+                    PlayerSettings.bundleVersion = buildSet.Android.Version;
+                }
             }
 
             public override void OnApplyExtended(BuildSet buildSet)
@@ -606,6 +607,11 @@ namespace SpartaTools.Editor.Build
             public override void OnApply(BuildSet buildSet)
             {
                 SetBundleIdentifier(buildSet.Ios.BundleIdentifier);
+
+                if(!string.IsNullOrEmpty(buildSet.Ios.Version))
+                {
+                    PlayerSettings.bundleVersion = buildSet.Ios.Version;
+                }
             }
 
             public override void OnApplyExtended(BuildSet buildSet)
@@ -624,6 +630,11 @@ namespace SpartaTools.Editor.Build
             public override void OnApply(BuildSet buildSet)
             {
                 SetBundleIdentifier(buildSet.Ios.BundleIdentifier);
+
+                if(!string.IsNullOrEmpty(buildSet.Ios.Version))
+                {
+                    PlayerSettings.bundleVersion = buildSet.Ios.Version;
+                }
             }
 
             public override void OnApplyExtended(BuildSet buildSet)
