@@ -138,6 +138,111 @@ namespace SocialPoint.Base
 
             return componentsList;
         }
+
+        public static void SetPositionX(this Transform transform, float value)
+        {
+            var tmp = transform.position;
+            tmp.x = value;
+            transform.position = tmp;
+        }
+
+        public static void SetPositionY(this Transform transform, float value)
+        {
+            var tmp = transform.position;
+            tmp.y = value;
+            transform.position = tmp;
+        }
+
+        public static void SetPositionZ(this Transform transform, float value)
+        {
+            var tmp = transform.position;
+            tmp.z = value;
+            transform.position = tmp;
+        }
+
+        public static void SetLocalPositionX(this Transform transform, float value)
+        {
+            var tmp = transform.localPosition;
+            tmp.x = value;
+            transform.localPosition = tmp;
+        }
+
+        public static void SetLocalPositionY(this Transform transform, float value)
+        {
+            var tmp = transform.localPosition;
+            tmp.y = value;
+            transform.localPosition = tmp;
+        }
+
+        public static void SetLocalPositionZ(this Transform transform, float value)
+        {
+            var tmp = transform.localPosition;
+            tmp.z = value;
+            transform.localPosition = tmp;
+        }
+
+        public static void SetLocalScaleX(this Transform transform, float value)
+        {
+            var tmp = transform.localScale;
+            tmp.x = value;
+            transform.localScale = tmp;
+        }
+
+        public static void SetLocalScaleY(this Transform transform, float value)
+        {
+            var tmp = transform.localScale;
+            tmp.y = value;
+            transform.localScale = tmp;
+        }
+
+        public static void SetLocalScaleX(this Transform transform, float value)
+        {
+            var tmp = transform.localScale;
+            tmp.z = value;
+            transform.localScale = tmp;
+        }
+
+        public static void SetRotationX(this Transform transform, float value)
+        {
+            var tmp = transform.rotation.eulerAngles;
+            tmp.x = value;
+            transform.rotation = Quaternion.Euler(tmp);
+        }
+
+        public static void SetRotationY(this Transform transform, float value)
+        {
+            var tmp = transform.rotation.eulerAngles;
+            tmp.y = value;
+            transform.rotation = Quaternion.Euler(tmp);
+        }
+
+        public static void SetRotationZ(this Transform transform, float value)
+        {
+            var tmp = transform.rotation.eulerAngles;
+            tmp.z = value;
+            transform.rotation = Quaternion.Euler(tmp);
+        }
+
+        public static void SetLocalRotationX(this Transform transform, float value)
+        {
+            var tmp = transform.localRotation.eulerAngles;
+            tmp.x = value;
+            transform.localRotation = Quaternion.Euler(tmp);
+        }
+
+        public static void SetLocalRotationX(this Transform transform, float value)
+        {
+            var tmp = transform.localRotation.eulerAngles;
+            tmp.y = value;
+            transform.localRotation = Quaternion.Euler(tmp);
+        }
+
+        public static void SetLocalRotationX(this Transform transform, float value)
+        {
+            var tmp = transform.localRotation.eulerAngles;
+            tmp.z = value;
+            transform.localRotation = Quaternion.Euler(tmp);
+        }
     }
 }
 
