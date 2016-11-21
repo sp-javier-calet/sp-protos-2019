@@ -195,7 +195,7 @@ namespace SocialPoint.Base
             transform.localScale = tmp;
         }
 
-        public static void SetLocalScaleX(this Transform transform, float value)
+        public static void SetLocalScaleZ(this Transform transform, float value)
         {
             var tmp = transform.localScale;
             tmp.z = value;
@@ -230,14 +230,14 @@ namespace SocialPoint.Base
             transform.localRotation = Quaternion.Euler(tmp);
         }
 
-        public static void SetLocalRotationX(this Transform transform, float value)
+        public static void SetLocalRotationY(this Transform transform, float value)
         {
             var tmp = transform.localRotation.eulerAngles;
             tmp.y = value;
             transform.localRotation = Quaternion.Euler(tmp);
         }
 
-        public static void SetLocalRotationX(this Transform transform, float value)
+        public static void SetLocalRotationZ(this Transform transform, float value)
         {
             var tmp = transform.localRotation.eulerAngles;
             tmp.z = value;
