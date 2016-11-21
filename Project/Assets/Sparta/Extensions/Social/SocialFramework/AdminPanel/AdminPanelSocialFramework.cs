@@ -919,7 +919,7 @@ namespace SocialPoint.Social
 
                     if(_ranking != null)
                     {
-                        var itr = _ranking.GetRanking();
+                        var itr = _ranking.GetEnumerator();
                         while(itr.MoveNext())
                         {
                             var alliance = itr.Current;

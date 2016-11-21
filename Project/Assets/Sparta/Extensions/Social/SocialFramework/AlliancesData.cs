@@ -45,7 +45,7 @@ namespace SocialPoint.Social
         public bool IsNewAlliance;
     }
 
-    public class AllianceRankingData
+    public class AllianceRankingData : IEnumerable<AllianceBasicData>
     {
         public int Score;
 
@@ -65,10 +65,19 @@ namespace SocialPoint.Social
             _rankingData.Add(data);
         }
 
-        public IEnumerator<AllianceBasicData> GetRanking()
+        #region IEnumerable implementation
+
+        public IEnumerator<AllianceBasicData> GetEnumerator()
         {
             return _rankingData.GetEnumerator();
         }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _rankingData.GetEnumerator();
+        }
+
+        #endregion
     }
 
     public class AlliancesSearchData
