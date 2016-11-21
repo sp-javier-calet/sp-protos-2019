@@ -115,8 +115,10 @@ namespace SocialPoint.Utils
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                _elementsToRemove.Remove(elm);
-                _elements.Add(elm);
+                if(!_elementsToRemove.Remove(elm) || !_elements.Contains(elm))
+                {
+                    _elements.Add(elm);
+                }
             }
         }
 
@@ -140,7 +142,7 @@ namespace SocialPoint.Utils
 
         public void Remove(IUpdateable elm)
         {
-            if(elm != null && !_elementsToRemove.Contains(elm))
+            if(elm != null)
             {
                 _elementsToRemove.Add(elm);
             }
@@ -242,38 +244,13 @@ namespace SocialPoint.Utils
             var exceptionsCount = _exceptions.Count;
             if(exceptionsCount > 0)
             {
-                throw new AggregateException(_exceptions);
-            }
-        }
-
-        sealed class AggregateException : Exception
-        {
-            static string CreateMessage(IEnumerable<Exception> exceptions)
-            {
                 var sb = new StringBuilder();
-                sb.AppendLine("Multiple Exceptions thrown:");
-                var count = 1;
-                var itr = exceptions.GetEnumerator();
-                while(itr.MoveNext())
+                for(int i = 0; i < exceptionsCount; i++)
                 {
-                    var ex = itr.Current;
-                    sb.Append(count++)
-                        .Append(". ")
-                        .Append(ex.GetType().Name)
-                        .Append(": ")
-                        .Append(ex.Message)
-                        .AppendLine(ex.StackTrace);
-                    sb.AppendLine();
+                    var ex = _exceptions[i];
+                    sb.Append(ex.Message);
                 }
-                itr.Dispose();
-                return sb.ToString();
-            }
-
-            public List<Exception> Exceptions { get; private set; }
-
-            public AggregateException(IEnumerable<Exception> exceptions) : base(CreateMessage(exceptions))
-            {
-                Exceptions = new List<Exception>(exceptions);
+                throw new Exception(sb.ToString());
             }
         }
 

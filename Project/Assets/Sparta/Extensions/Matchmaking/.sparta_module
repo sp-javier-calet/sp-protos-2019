@@ -1,0 +1,4 @@
+type extension
+desc Matchmaking implementation for sparta
+name Extension/Matchmaking
+depends_on Assets/Sparta/Extensions/Websockets

@@ -335,14 +335,6 @@ namespace SocialPoint.Locale
             }
             _running = true;
 
-            #if ADMIN_PANEL
-            Location.EnvironmentId = LocationData.DefaultDevEnvironmentId;
-            Location.SecretKey = LocationData.DefaultDevSecretKey;
-            #else
-            Location.EnvironmentId = LocationData.DefaultProdEnvironmentId;
-            Location.SecretKey = LocationData.DefaultProdSecretKey;
-            #endif
-
             LoadCurrentLanguage();
 
             #if !UNITY_EDITOR

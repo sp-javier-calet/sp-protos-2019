@@ -87,6 +87,15 @@ namespace SocialPoint.Network
             }
         }
 
+        public void OnServerFailed(Error err)
+        {
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnNetworkError(err);
+            }
+            Disconnect();
+        }
+
         public INetworkMessage CreateMessage(NetworkMessageData info)
         {
             return new LocalNetworkMessage(info, this, Connected ? _server : null);
