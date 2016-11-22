@@ -22,7 +22,6 @@ namespace SocialPoint.Matchmaking
         ILoginData _loginData;
         ulong _userId;
         IWebSocketClient _websocket;
-        string _baseUrl;
         IAttrParser _parser;
         List<IMatchmakingClientDelegate> _delegates;
         Status _status;
@@ -43,7 +42,6 @@ namespace SocialPoint.Matchmaking
             _delegates = new List<IMatchmakingClientDelegate>();
             _loginData = loginData;
             _websocket = websocket;
-            _baseUrl = websocket.Url;
             _parser = new JsonAttrParser();
             _websocket.AddDelegate(this);
             _websocket.RegisterReceiver(this);
@@ -68,14 +66,7 @@ namespace SocialPoint.Matchmaking
 
         public void Start()
         {
-            var req = new HttpRequest(_baseUrl);
-            if(_loginData != null)
-            {
-                _userId = _loginData.UserId;
-            }
-            _status = Status.Connecting;
-            req.AddQueryParam(UserParameter, _userId.ToString());
-            _websocket.Url = req.Url.ToString();
+            UpdateUrlParameters();
             _websocket.Connect();
         }
 
@@ -87,6 +78,25 @@ namespace SocialPoint.Matchmaking
 
         public void Clear()
         {
+        }
+
+        void UpdateUrlParameters()
+        {
+            var urls = _websocket.Urls;
+            for(var i = 0; i < urls.Length; ++i)
+            {
+                var baseUrl = urls[i];
+                var req = new HttpRequest(baseUrl);
+                if(_loginData != null)
+                {
+                    _userId = _loginData.UserId;
+                }
+                _status = Status.Connecting;
+                req.AddQueryParam(UserParameter, _userId.ToString());
+                urls[i] = req.Url.ToString();
+            }
+
+            _websocket.Urls = urls;
         }
 
         void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
