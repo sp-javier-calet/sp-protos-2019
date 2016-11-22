@@ -424,8 +424,6 @@ namespace SocialPoint.Social
                     return;
                 }
 
-                AlliancePlayerInfo.Rank = Ranks.GetPromotedTo(rank); 
-
                 if(callback != null)
                 {
                     callback(null);
