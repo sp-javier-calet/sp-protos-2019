@@ -452,11 +452,6 @@ namespace SocialPoint.Social
 
         #region Private methods
 
-        string GetUrl(string suffix)
-        {
-            return LoginData.BaseUrl + suffix;
-        }
-
         WAMPRequest JoinPublicAlliance(AllianceBasicData alliance, Action<Error> callback, JoinExtraData data)
         {
             DebugUtils.Assert(AccessTypes.IsPublic(alliance.AccessType));

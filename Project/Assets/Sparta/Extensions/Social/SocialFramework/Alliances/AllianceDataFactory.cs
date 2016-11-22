@@ -71,17 +71,17 @@ namespace SocialPoint.Social
 
         public AllianceMemberBasicData CreateMemberBasicData(AttrDic dic)
         {
-            var member = CreateCustomMemberBasicData();
+            var member = CreateCustomAllianceMemberBasicData();
             ParseMemberData(member, dic);
-            ParseCustomMemberBasicData(member, dic);
+            ParseCustomAllianceMemberBasicData(member, dic);
             return member;
         }
 
         public AllianceMember CreateMember(AttrDic dic)
         {
-            var member = CreateCustomMember();
+            var member = CreateCustomAllianceMember();
             ParseMemberData(member, dic);
-            ParseCustomMember(member, dic);
+            ParseCustomAllianceMember(member, dic);
             return member;
         }
 
@@ -103,17 +103,17 @@ namespace SocialPoint.Social
 
         public AllianceBasicData CreateBasicData(Alliance alliance)
         {
-            var data = CreateCustomBasicData();
+            var data = CreateCustomAllianceBasicData();
             ParseAllianceBasicData(data, alliance);
-            ParseCustomBasicData(data, alliance);
+            ParseCustomAllianceBasicData(data, alliance);
             return data;
         }
 
         public AllianceBasicData CreateBasicData(AttrDic dic)
         {
-            var data = CreateCustomBasicData();
+            var data = CreateCustomAllianceBasicData();
             ParseAllianceBasicData(data, dic);
-            ParseCustomBasicData(data, dic);
+            ParseCustomAllianceBasicData(data, dic);
             return data;
         }
 
@@ -314,9 +314,9 @@ namespace SocialPoint.Social
 
         public AlliancesRanking CreateRankingData(AttrDic dic)
         {
-            var ranking = CreateCustomRankingData();
+            var ranking = CreateCustomRanking();
             ParseRankingData(ranking, dic);
-            ParseCustomRankingData(ranking, dic);
+            ParseCustomRanking(ranking, dic);
             return ranking;
         }
 
@@ -346,7 +346,7 @@ namespace SocialPoint.Social
         {
             var dic = new AttrDic();
             SerializeSearchData(search, dic);
-            SerializeCustomSearchData(search, dic);
+            SerializeCustomSearch(search, dic);
             return dic;
         }
 
@@ -357,9 +357,9 @@ namespace SocialPoint.Social
 
         public AlliancesSearchResult CreateSearchResultData(AttrDic dic)
         {
-            var search = CreateCustomSearchData();
+            var search = CreateCustomSearchResult();
             ParseSearchResultData(search, dic);
-            ParseCustomSearchResultData(search, dic);
+            ParseCustomSearchResult(search, dic);
             return search;
         }
 
@@ -376,34 +376,34 @@ namespace SocialPoint.Social
 
         #region Extensible Alliance data
 
-        protected virtual AllianceMemberBasicData CreateCustomMemberBasicData()
+        protected virtual AllianceMemberBasicData CreateCustomAllianceMemberBasicData()
         {
             return new AllianceMemberBasicData();
         }
 
-        protected virtual void ParseCustomMemberBasicData(AllianceMemberBasicData member, AttrDic dic)
+        protected virtual void ParseCustomAllianceMemberBasicData(AllianceMemberBasicData member, AttrDic dic)
         {
         }
 
-        protected virtual AllianceMember CreateCustomMember()
+        protected virtual AllianceMember CreateCustomAllianceMember()
         {
             return new AllianceMember();
         }
 
-        protected virtual void ParseCustomMember(AllianceMember member, AttrDic dic)
+        protected virtual void ParseCustomAllianceMember(AllianceMember member, AttrDic dic)
         {
         }
 
-        protected virtual AllianceBasicData CreateCustomBasicData()
+        protected virtual AllianceBasicData CreateCustomAllianceBasicData()
         {
             return new AllianceBasicData();
         }
 
-        protected virtual void ParseCustomBasicData(AllianceBasicData data, AttrDic dic)
+        protected virtual void ParseCustomAllianceBasicData(AllianceBasicData data, AttrDic dic)
         {
         }
 
-        protected virtual void ParseCustomBasicData(AllianceBasicData data, Alliance alliance)
+        protected virtual void ParseCustomAllianceBasicData(AllianceBasicData data, Alliance alliance)
         {
         }
 
@@ -429,25 +429,25 @@ namespace SocialPoint.Social
         {
         }
 
-        protected virtual AlliancesRanking CreateCustomRankingData()
+        protected virtual AlliancesRanking CreateCustomRanking()
         {
             return new AlliancesRanking();
         }
 
-        protected virtual void ParseCustomRankingData(AlliancesRanking ranking, AttrDic dic)
+        protected virtual void ParseCustomRanking(AlliancesRanking ranking, AttrDic dic)
         {
         }
 
-        protected virtual void SerializeCustomSearchData(AlliancesSearch search, AttrDic dic)
+        protected virtual void SerializeCustomSearch(AlliancesSearch search, AttrDic dic)
         {
         }
 
-        protected virtual AlliancesSearchResult CreateCustomSearchData()
+        protected virtual AlliancesSearchResult CreateCustomSearchResult()
         {
             return new AlliancesSearchResult();
         }
 
-        protected virtual void ParseCustomSearchResultData(AlliancesSearchResult search, AttrDic dic)
+        protected virtual void ParseCustomSearchResult(AlliancesSearchResult search, AttrDic dic)
         {
         }
 
