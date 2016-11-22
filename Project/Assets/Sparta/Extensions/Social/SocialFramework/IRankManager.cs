@@ -2,6 +2,12 @@
 
 namespace SocialPoint.Social
 {
+    public enum RankPermission
+    {
+        EditAlliance,
+        Members
+    }
+
     public interface IRankManager
     {
         /// <summary>
@@ -35,9 +41,7 @@ namespace SocialPoint.Social
 
         int GetDemoted(int rank);
 
-        bool HasMemberManagementPermission(int rank);
-
-        bool HasAllianceManagementPermission(int rank);
+        bool HasPermission(int rank, RankPermission permission);
 
         string GetRankChangeMessageTid(int oldRank, int newRank);
 
@@ -64,12 +68,12 @@ namespace SocialPoint.Social
         {
             if(!Exists(rank1))
             {
-                throw new InvalidAccessTypeException(rank1);
+                throw new InvalidRankException(rank1);
             }
 
             if(!Exists(rank2))
             {
-                throw new InvalidAccessTypeException(rank2);
+                throw new InvalidRankException(rank2);
             }
 
             return rank2 - rank1;
@@ -79,7 +83,7 @@ namespace SocialPoint.Social
         {
             if(!Exists(toRank))
             {
-                throw new InvalidAccessTypeException(toRank);
+                throw new InvalidRankException(toRank);
             }
 
             var rank = (Rank)toRank;
@@ -90,7 +94,7 @@ namespace SocialPoint.Social
         {
             if(!Exists(rank))
             {
-                throw new InvalidAccessTypeException(rank);
+                throw new InvalidRankException(rank);
             }
 
             switch((Rank)rank)
@@ -124,22 +128,35 @@ namespace SocialPoint.Social
             }
         }
 
-        public bool HasMemberManagementPermission(int rank)
+        public bool HasPermission(int rank, RankPermission permission)
+        {
+            switch(permission)
+            {
+            case RankPermission.EditAlliance:
+                return HasAllianceManagementPermission(rank);
+            case RankPermission.Members:
+                return HasMemberManagementPermission(rank);
+            }
+
+            return false;
+        }
+
+        bool HasAllianceManagementPermission(int rank)
         {
             if(!Exists(rank))
             {
-                throw new InvalidAccessTypeException(rank);
+                throw new InvalidRankException(rank);
             }
 
             var r = (Rank)rank;
             return (r == Rank.Lead || r == Rank.Colead);
         }
 
-        public bool HasAllianceManagementPermission(int rank)
+        bool HasMemberManagementPermission(int rank)
         {
             if(!Exists(rank))
             {
-                throw new InvalidAccessTypeException(rank);
+                throw new InvalidRankException(rank);
             }
 
             var r = (Rank)rank;
@@ -150,12 +167,12 @@ namespace SocialPoint.Social
         {
             if(!Exists(oldRank))
             {
-                throw new InvalidAccessTypeException(oldRank);
+                throw new InvalidRankException(oldRank);
             }
 
             if(!Exists(newRank))
             {
-                throw new InvalidAccessTypeException(newRank);
+                throw new InvalidRankException(newRank);
             }
 
             var comp = Compare(oldRank, newRank);
