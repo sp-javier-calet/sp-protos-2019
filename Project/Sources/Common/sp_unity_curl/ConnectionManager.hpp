@@ -15,7 +15,7 @@
 #include <memory>
 
 extern "C" {
-#include "curl.h"
+#include <curl/curl.h>
 }
 
 /* Information associated with a specific easy handle */
@@ -27,12 +27,12 @@ struct SPUnityCurlMessagesInfo
 
 class CurlConnection
 {
-public:
+  public:
     static const int kInvalidId = 0;
-    
+
     const int id;
     const bool isValid;
-    
+
     CURL* easy = NULL;
     int responseCode = 0;
     int errorCode = 0;
@@ -45,7 +45,7 @@ public:
     double totalTime = 0.0;
     bool isActive = true;
     SPUnityCurlMessagesInfo messages;
-    
+
     CurlConnection(int pId)
     : id(pId)
     , isValid(pId != kInvalidId)
@@ -55,19 +55,19 @@ public:
 
 class ConnectionManager
 {
-private:
+  private:
     std::unordered_map<int, std::unique_ptr<CurlConnection>> _map;
-    
+
     /* Must start with 1
      * ID must be different from 0 (INVALID_CONN_ID - reserved value for update when app is paused)
      */
     int _counterConns = 1;
     bool _isHttp2 = false;
-    
+
     int generateId();
     bool add(int id);
-    
-public:
+
+  public:
     ConnectionManager(bool isHttp2);
     int create();
     bool remove(int id);
