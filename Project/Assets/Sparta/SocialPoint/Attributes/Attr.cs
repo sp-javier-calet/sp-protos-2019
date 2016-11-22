@@ -1308,6 +1308,11 @@ namespace SocialPoint.Attributes
             return true;
         }
 
+        public bool SetValue<T>(string key, T val)
+        {
+            return SetValue(key, val);
+        }
+
         public bool SetValue(string key, bool val)
         {
             return Set(key, new AttrBool(val));
@@ -1661,6 +1666,11 @@ namespace SocialPoint.Attributes
             return false;
         }
 
+        public bool AddValue<T>(T val)
+        {
+            return AddValue(val);
+        }
+
         public bool AddValue(bool val)
         {
             return Add(new AttrBool(val));
@@ -1696,6 +1706,11 @@ namespace SocialPoint.Attributes
             return Add(new AttrString(val));
         }
 
+        public bool SetValue<T>(int idx, T val)
+        {
+            return SetValue(idx, val);
+        }
+
         public bool SetValue(int idx, bool val)
         {
             return Set(idx, new AttrBool(val));
@@ -1729,6 +1744,11 @@ namespace SocialPoint.Attributes
         public bool SetValue(int idx, string val)
         {
             return Set(idx, new AttrString(val));
+        }
+
+        public bool InsertValue<T>(int idx, T val)
+        {
+            return InsertValue(idx, val);
         }
 
         public bool InsertValue(int idx, bool val)
