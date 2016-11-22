@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace SocialPoint.Social
 {
@@ -44,7 +45,7 @@ namespace SocialPoint.Social
         public bool IsNewAlliance;
     }
 
-    public class AllianceRankingData
+    public class AllianceRankingData : IEnumerable<AllianceBasicData>
     {
         public int Score;
 
@@ -64,19 +65,33 @@ namespace SocialPoint.Social
             _rankingData.Add(data);
         }
 
-        public IEnumerator<AllianceBasicData> GetRanking()
+        #region IEnumerable implementation
+
+        public IEnumerator<AllianceBasicData> GetEnumerator()
         {
             return _rankingData.GetEnumerator();
         }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _rankingData.GetEnumerator();
+        }
+
+        #endregion
     }
 
     public class AlliancesSearchData
+    {
+        public string Filter;
+    }
+
+    public class AlliancesSearchResultData : IEnumerable<AllianceBasicData>
     {
         public int Score;
 
         readonly List<AllianceBasicData> _searchData;
 
-        public AlliancesSearchData()
+        public AlliancesSearchResultData()
         {
             _searchData = new List<AllianceBasicData>();
         }
@@ -86,27 +101,38 @@ namespace SocialPoint.Social
             _searchData.Add(data);
         }
 
-        public IEnumerator<AllianceBasicData> GetSearch()
+        #region IEnumerable implementation
+
+        public IEnumerator<AllianceBasicData> GetEnumerator()
         {
             return _searchData.GetEnumerator();
         }
-    }
 
-    public class AlliancesCreateData
-    {
-        public string Name;
-
-        public string Description;
-
-        public int Requirement;
-
-        public int Avatar;
-
-        public int AccessType;
-
-        public AlliancesCreateData()
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            Avatar = 1;
+            return _searchData.GetEnumerator();
+        }
+
+        #endregion
+
+        public IEnumerator<T> GetEnumeratorAs<T>() where T : AllianceBasicData
+        {
+            var itr = GetEnumerator();
+            while(itr.MoveNext())
+            {
+                var elm = itr.Current;
+                yield return (T)elm;
+
+            }
+            itr.Dispose();
+        }
+
+        public int Count
+        {
+            get
+            {
+                return _searchData.Count;
+            }
         }
     }
 }

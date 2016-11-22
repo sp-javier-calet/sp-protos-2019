@@ -33,6 +33,7 @@ namespace SocialPoint.Social
         const string SearchKey = "search";
         const string SearchSuggestedKey = "suggested";
         const string SearchScoreKey = "monster_power";
+        const string SearchFilterKey = "filter_name";
 
         const string AllianceInfoKey = "alliance_info";
         const string AllianceIdKey = "id";
@@ -52,8 +53,10 @@ namespace SocialPoint.Social
         // TODO duplicated
         const string AllianceRequirementKey = "minPowerToJoin";
         const string AllianceRequirementMinLevelKey = "minLevel";
+        const string AllianceRequirementScore = "minimum_score";
         const string AllianceActivityIndicatorKey = "activityIndicator";
         const string AllianceIsNewKey = "newAlliance";
+
 
         #endregion
 
@@ -179,6 +182,43 @@ namespace SocialPoint.Social
 
         }
 
+        public AttrDic SerializeAlliance(Alliance alliance)
+        {
+            return SerializeAlliance(null, alliance);
+        }
+
+        public AttrDic SerializeAlliance(Alliance baseAlliance, Alliance modifiedAlliance)
+        {
+            var dic = new AttrDic();
+            SerializeAllianceDiff(baseAlliance, modifiedAlliance, dic);
+            SerializeCustomAllianceDiff(baseAlliance, modifiedAlliance, dic);
+            return dic;
+        }
+
+        void SerializeAllianceDiff(Alliance baseAlliance, Alliance modifiedAlliance, AttrDic dic)
+        {
+            if(baseAlliance == null || baseAlliance.Name != modifiedAlliance.Name)
+            {
+                dic.SetValue(AllianceNameKey, modifiedAlliance.Name);
+            }
+            if(baseAlliance == null || baseAlliance.Description != modifiedAlliance.Description)
+            { 
+                dic.SetValue(AllianceDescriptionKey, modifiedAlliance.Description);
+            }
+            if(baseAlliance == null || baseAlliance.Requirement != modifiedAlliance.Requirement)
+            {
+                dic.SetValue(AllianceRequirementScore, modifiedAlliance.Requirement);
+            }
+            if(baseAlliance == null || baseAlliance.AccessType != modifiedAlliance.AccessType)
+            {
+                dic.SetValue(AllianceTypeKey, modifiedAlliance.AccessType);
+            }
+            if(baseAlliance == null || baseAlliance.Avatar != modifiedAlliance.Avatar)
+            {
+                dic.SetValue(AllianceAvatarKey, modifiedAlliance.Avatar);
+            }
+        }
+
         public AlliancePlayerInfo CreatePlayerInfo()
         {
             return CreateCustomPlayerInfo();
@@ -245,29 +285,36 @@ namespace SocialPoint.Social
             ranking.Score = dic.GetValue(RankingScoreKey).ToInt();
         }
 
-        public AlliancesSearchData CreateSearchData(AttrDic dic, bool suggested)
+        public AttrDic SerializeSearchData(AlliancesSearchData search)
+        {
+            var dic = new AttrDic();
+            SerializeSearchData(search, dic);
+            SerializeCustomSearchData(search, dic);
+            return dic;
+        }
+
+        void SerializeSearchData(AlliancesSearchData search, AttrDic dic)
+        {
+            dic.SetValue(SearchFilterKey, search.Filter);
+        }
+
+        public AlliancesSearchResultData CreateSearchResultData(AttrDic dic)
         {
             var search = CreateCustomSearchData();
-            ParseSearchData(search, dic, suggested);
-            ParseCustomSearchData(search, dic, suggested);
+            ParseSearchResultData(search, dic);
+            ParseCustomSearchResultData(search, dic);
             return search;
         }
 
-        public void ParseSearchData(AlliancesSearchData search, AttrDic dic, bool suggested)
+        public void ParseSearchResultData(AlliancesSearchResultData search, AttrDic dic)
         {
-            var alliancesKey = suggested ? SearchSuggestedKey : SearchKey;
-            var list = dic.Get(alliancesKey).AsList;
+            var list = dic.Get(SearchKey).AsList;
             for(var i = 0; i < list.Count; ++i)
             {
                 var el = list[i];
                 search.Add(CreateBasicData(el.AsDic));
             }
             search.Score = dic.GetValue(SearchScoreKey).ToInt();
-        }
-
-        public AlliancesSearchData CreateJoinData(AttrDic dic)
-        {
-            return CreateSearchData(dic, true);
         }
 
         #region Extensible Alliance data
@@ -303,6 +350,10 @@ namespace SocialPoint.Social
         {
         }
 
+        protected virtual void SerializeCustomAllianceDiff(Alliance baseAlliance, Alliance modifiedAlliance, AttrDic dic)
+        {
+        }
+
         protected virtual AlliancePlayerInfo CreateCustomPlayerInfo()
         {
             return new AlliancePlayerInfo();
@@ -321,12 +372,16 @@ namespace SocialPoint.Social
         {
         }
 
-        protected virtual AlliancesSearchData CreateCustomSearchData()
+        protected virtual void SerializeCustomSearchData(AlliancesSearchData search, AttrDic dic)
         {
-            return new AlliancesSearchData();
         }
 
-        protected virtual void ParseCustomSearchData(AlliancesSearchData search, AttrDic dic, bool suggested)
+        protected virtual AlliancesSearchResultData CreateCustomSearchData()
+        {
+            return new AlliancesSearchResultData();
+        }
+
+        protected virtual void ParseCustomSearchResultData(AlliancesSearchResultData search, AttrDic dic)
         {
         }
 
