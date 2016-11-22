@@ -7,36 +7,15 @@ using SpartaTools.Editor.Build;
 
 namespace SpartaTools.Editor.View
 {
-    public class BuildSetsWindow : EditorWindow
+    [UnityEditor.InitializeOnLoad]
+    public static class BuildSetApplier
     {
-        const string InheritedLabel = "<inherited>";
         const string CurrentModeKey = "SpartaCurrentBuildSet";
         const string AutoApplyKey = "SpartaAutoApplyBuildSetEnabled";
 
-        #region Static platform and buildset management
-
-        static string _currentMode;
-
-        static string CurrentMode
-        {
-            get
-            {
-                if(_currentMode == null)
-                {
-                    _currentMode = EditorPrefs.GetString(CurrentModeKey);
-                }
-                return _currentMode;
-            }
-            set
-            {
-                _currentMode = value;
-                EditorPrefs.SetString(CurrentModeKey, value);
-            }
-        }
-
         static bool? _autoApply;
 
-        static bool AutoApply
+        public static bool AutoApply
         {
             get
             {
@@ -52,6 +31,79 @@ namespace SpartaTools.Editor.View
                 EditorPrefs.SetBool(AutoApplyKey, value);
             }
         }
+
+        static string _currentMode;
+
+        public static string CurrentMode
+        {
+            get
+            {
+                if(_currentMode == null)
+                {
+                    _currentMode = EditorPrefs.GetString(CurrentModeKey);
+                }
+                return _currentMode;
+            }
+            private set
+            {
+                _currentMode = value;
+                EditorPrefs.SetString(CurrentModeKey, value);
+            }
+        }
+
+        static BuildSetApplier()
+        {
+            if(AutoApply)
+            {
+                ApplyConfig(CurrentMode);
+            }
+        }
+
+        #region Static functions
+
+        public static void ApplyConfig(string configName)
+        {
+            var buildSet = BuildSet.Load(configName);
+            if(buildSet != null)
+            {
+                ApplyConfig(buildSet);
+            }
+            else
+            {
+                throw new FileNotFoundException(string.Format("BuildSet {0} not found", configName));
+            }
+        }
+
+        public static void ApplyConfig(BuildSet config)
+        {
+            CurrentMode = config.Name;
+            config.Apply();
+        }
+
+        public static void ApplyExtendedConfig(BuildSet config)
+        {
+            CurrentMode = config.Name;
+            config.ApplyExtended();
+        }
+
+        public static void Reapply()
+        {
+            var mode = CurrentMode;
+            if(AutoApply && !string.IsNullOrEmpty(mode))
+            {
+                ApplyConfig(mode);
+            }
+        }
+
+        #endregion
+    }
+
+    public class BuildSetsWindow : EditorWindow
+    {
+        const string InheritedLabel = "<inherited>";
+
+
+        #region Static platform and buildset management
 
         bool _editEnabled;
 
@@ -82,11 +134,7 @@ namespace SpartaTools.Editor.View
         static void OnTargetChanged()
         {
             // Reapply the current config after change target platform
-            var mode = CurrentMode;
-            if(AutoApply && !string.IsNullOrEmpty(mode))
-            {
-                ApplyConfig(mode);
-            }
+            BuildSetApplier.Reapply();
         }
 
         #endregion
@@ -121,79 +169,49 @@ namespace SpartaTools.Editor.View
         [MenuItem("Sparta/Build/Apply Current", false, 0)]
         public static void ApplyCurrent()
         {
-            ApplyConfig(CurrentMode);
+            BuildSetApplier.Reapply();
         }
 
         [MenuItem("Sparta/Build/Debug", false, 1)]
         public static void SetDebugConfig()
         {
-            ApplyConfig(BuildSet.DebugConfigName);
+            BuildSetApplier.ApplyConfig(BuildSet.DebugConfigName);
         }
 
         [MenuItem("Sparta/Build/Debug", true)]
         static bool ValidateSetDebugConfig()
         {
-            return CurrentMode != BuildSet.DebugConfigName;
+            return BuildSetApplier.CurrentMode != BuildSet.DebugConfigName;
         }
 
         [MenuItem("Sparta/Build/Release", false, 2)]
         public static void SetReleaseConfig()
         {
-            ApplyConfig(BuildSet.ReleaseConfigName);
+            BuildSetApplier.ApplyConfig(BuildSet.ReleaseConfigName);
         }
 
         [MenuItem("Sparta/Build/Release", true)]
         static bool ValidateSetReleaseConfig()
         {
-            return CurrentMode != BuildSet.ReleaseConfigName;
+            return BuildSetApplier.CurrentMode != BuildSet.ReleaseConfigName;
         }
 
         [MenuItem("Sparta/Build/Shipping", false, 2)]
         public static void SetShippingConfig()
         {
-            ApplyConfig(BuildSet.ShippingConfigName);
+            BuildSetApplier.ApplyConfig(BuildSet.ShippingConfigName);
         }
 
         [MenuItem("Sparta/Build/Shipping", true)]
         static bool ValidateSetShippingConfig()
         {
-            return CurrentMode != BuildSet.ShippingConfigName;
+            return BuildSetApplier.CurrentMode != BuildSet.ShippingConfigName;
         }
 
         [MenuItem("Sparta/Build/Build Set...", false, 3)]
         public static void ShowBuildSettings()
         {
             EditorWindow.GetWindow(typeof(BuildSetsWindow), false, "Build Set", true);
-        }
-
-        #endregion
-
-        #region Static functions
-
-        static void ApplyConfig(string configName)
-        {
-            var buildSet = BuildSet.Load(configName);
-            if(buildSet != null)
-            {
-                ApplyConfig(buildSet);
-            }
-            else
-            {
-                throw new FileNotFoundException(string.Format("BuildSet {0} not found", configName));
-            }
-        }
-
-        static void ApplyConfig(BuildSet config, bool extended = false)
-        {
-            CurrentMode = config.Name;
-            if(extended)
-            {
-                config.ApplyExtended();
-            }
-            else
-            {
-                config.Apply();
-            }
         }
 
         #endregion
@@ -348,7 +366,7 @@ namespace SpartaTools.Editor.View
                 {
                     try
                     {
-                        ApplyConfig(config);
+                        BuildSetApplier.ApplyConfig(config);
 
                         EditorUtility.DisplayDialog("Config applied successfully", 
                             string.Format("{0} build set was applied successfully to Player Settings", data.Name), "Ok");
@@ -365,7 +383,7 @@ namespace SpartaTools.Editor.View
                     {
                         try
                         {
-                            ApplyConfig(config, true);
+                            BuildSetApplier.ApplyExtendedConfig(config);
 
                             EditorUtility.DisplayDialog("Config applied successfully with extended features", 
                                 string.Format("{0} build set was applied successfully to Player Settings.", data.Name), "Ok");
@@ -432,8 +450,8 @@ namespace SpartaTools.Editor.View
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
-            var mode = CurrentMode;
-            var currentAutoApply = AutoApply;
+            var mode = BuildSetApplier.CurrentMode;
+            var currentAutoApply = BuildSetApplier.AutoApply;
 
             if(string.IsNullOrEmpty(mode))
             {
@@ -461,7 +479,7 @@ namespace SpartaTools.Editor.View
             var autoApply = GUILayout.Toggle(currentAutoApply, new GUIContent("Auto Apply", "Apply current configuration on platform switch"), EditorStyles.toolbarButton);
             if(autoApply != currentAutoApply)
             {
-                AutoApply = autoApply;
+                BuildSetApplier.AutoApply = autoApply;
             }
 
             EditorGUILayout.Space();
