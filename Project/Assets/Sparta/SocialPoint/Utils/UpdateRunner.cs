@@ -129,13 +129,19 @@ namespace SocialPoint.Utils
             {
                 if(usesTimeScale)
                 {
-                    var intervalData = new TimeScaleDependantInterval(interval);
-                    _intervalTimeScaleDependantElements.Add(elm, intervalData);
+                    if(!_elementsToRemove.Remove(elm) || !_intervalTimeScaleDependantElements.ContainsKey(elm))
+                    {
+                        var intervalData = new TimeScaleDependantInterval(interval);
+                        _intervalTimeScaleDependantElements.Add(elm, intervalData);
+                    }
                 }
                 else
                 {
-                    var intervalData = new TimeScaleNonDependantInterval(interval);
-                    _intervalTimeScaleNonDependantElements.Add(elm, intervalData);
+                    if(!_elementsToRemove.Remove(elm) || !_intervalTimeScaleNonDependantElements.ContainsKey(elm))
+                    {
+                        var intervalData = new TimeScaleNonDependantInterval(interval);
+                        _intervalTimeScaleNonDependantElements.Add(elm, intervalData);
+                    }
                 }
             }
         }
@@ -169,6 +175,15 @@ namespace SocialPoint.Utils
             }
             itr.Dispose();
             _elementsToRemove.Clear();
+        }
+
+        bool Contains(IUpdateable elm)
+        {
+            if(_elements.Contains(elm))
+            {
+                return true;
+            }
+            return _intervalTimeScaleDependantElements.ContainsKey(elm) || _intervalTimeScaleNonDependantElements.ContainsKey(elm);
         }
 
         public void Update(float deltaTime)
