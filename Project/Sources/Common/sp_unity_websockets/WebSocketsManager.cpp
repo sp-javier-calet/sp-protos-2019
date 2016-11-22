@@ -329,7 +329,11 @@ void WebSocketsManager::connect(WebSocketConnection* connection)
 
     size_t currentUrlIndex = connection->getCurrentUrlIndex() % vecUrls.size();
     const WebSocketConnectionInfo& currentUrl = vecUrls[currentUrlIndex];
-    std::string urlStr = (std::ostringstream() << currentUrl).str();
+    
+    std::stringstream ss;
+    ss << currentUrl;
+    std::string urlStr = ss.str();
+
     currentUrlIndex++;
     connection->setCurrentUrlIndex(currentUrlIndex);
 
