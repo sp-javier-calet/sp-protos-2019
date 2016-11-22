@@ -74,17 +74,16 @@ namespace SpartaTools.Editor.View
             }
         }
 
-        public static void ApplyConfig(BuildSet config, bool extended = false)
+        public static void ApplyConfig(BuildSet config)
         {
             CurrentMode = config.Name;
-            if(extended)
-            {
-                config.ApplyExtended();
-            }
-            else
-            {
-                config.Apply();
-            }
+            config.Apply();
+        }
+
+        public static void ApplyExtendedConfig(BuildSet config)
+        {
+            CurrentMode = config.Name;
+            config.ApplyExtended();
         }
 
         public static void Reapply()
@@ -384,7 +383,7 @@ namespace SpartaTools.Editor.View
                     {
                         try
                         {
-                            BuildSetApplier.ApplyConfig(config, true);
+                            BuildSetApplier.ApplyExtendedConfig(config);
 
                             EditorUtility.DisplayDialog("Config applied successfully with extended features", 
                                 string.Format("{0} build set was applied successfully to Player Settings.", data.Name), "Ok");
