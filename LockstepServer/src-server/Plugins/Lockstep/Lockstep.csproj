@@ -242,15 +242,6 @@
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\INetworkServer.cs">
       <Link>Lib\Network\INetworkServer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\WebAsync.cs">
-      <Link>Lib\Network\WebAsync.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\WebRequestHttpClient.cs">
-      <Link>Lib\Network\WebRequestHttpClient.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\WebRequestHttpConnection.cs">
-      <Link>Lib\Network\WebRequestHttpConnection.cs</Link>
-    </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\CompareUtils.cs">
       <Link>Lib\Utils\CompareUtils.cs</Link>
     </Compile>
@@ -276,6 +267,7 @@
       <Link>Lib\Utils\XRandom.cs</Link>
     </Compile>
     <Compile Include="LockstepPlugin.cs" />
+    <Compile Include="PluginHttpClient.cs" />
     <Compile Include="PluginFactory.cs" />
     <Compile Include="PluginNetworkMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
