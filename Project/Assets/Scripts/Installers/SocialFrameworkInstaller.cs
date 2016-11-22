@@ -15,12 +15,12 @@ public class SocialFrameworkInstaller : Installer
     const string SocialFrameworkTag = "social_framework";
 
     const string DefaultWAMPProtocol = "wamp.2.json";
-    const string DefaultSocketEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8002/ws";
+    const string DefaultEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8002/ws";
 
     [Serializable]
     public class SettingsData
     {
-        public string SocketEndpoint = DefaultSocketEndpoint;
+        public string[] Endpoints = new string[] { DefaultEndpoint };
         public string[] Protocols = new string[] { DefaultWAMPProtocol };
     }
 
@@ -35,9 +35,9 @@ public class SocialFrameworkInstaller : Installer
         _deviceInfo = Container.Resolve<IDeviceInfo>();
 
         // Service Installer
-        Container.Rebind<WebSocketSharpClient>().ToMethod<WebSocketSharpClient>(CreateWebSocket, SetupWebSocket);
-        Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketSharpClient>();
-        Container.Bind<IDisposable>().ToLookup<WebSocketSharpClient>();
+        Container.Rebind<WebSocketClient>().ToMethod<WebSocketClient>(CreateWebSocket, SetupWebSocket);
+        Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketClient>();
+        Container.Bind<IDisposable>().ToLookup<WebSocketClient>();
 
         Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);    
         Container.Bind<IDisposable>().ToLookup<ConnectionManager>();
@@ -88,15 +88,12 @@ public class SocialFrameworkInstaller : Installer
         room.SerializeExtraInfo = AllianceChatMessage.SerializeExtraInfo;
     }
 
-    WebSocketSharpClient CreateWebSocket()
+    WebSocketClient CreateWebSocket()
     {
-        return new WebSocketSharpClient(
-            Settings.SocketEndpoint,
-            Settings.Protocols,
-            Container.Resolve<IUpdateScheduler>());
+        return new WebSocketClient(Settings.Endpoints, Settings.Protocols, Container.Resolve<IUpdateScheduler>());
     }
 
-    void SetupWebSocket(WebSocketSharpClient client)
+    void SetupWebSocket(WebSocketClient client)
     {
         if(!string.IsNullOrEmpty(_httpProxy))
         {

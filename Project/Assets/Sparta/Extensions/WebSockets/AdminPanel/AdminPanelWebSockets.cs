@@ -43,12 +43,14 @@ namespace SocialPoint.WebSockets
 
             layout.CreateTextInput(value => 
                 {
-                    _socket.Url = value;
+                    _socket.Urls = new string[]{value};
                     layout.Refresh();
                 });
-            
-            layout.CreateLabel(_socket.Url);
 
+            for(int i = 0; i < _socket.Urls.Length; ++i)
+            {
+                layout.CreateLabel(_socket.Urls[i]);
+            }
             layout.CreateButton("Ping", _socket.Ping);
 
             layout.CreateButton("Send", () => {
@@ -73,13 +75,13 @@ namespace SocialPoint.WebSockets
 
         public void OnClientConnected()
         {
-            _content.AppendLine("Connected to " + _socket.Url);
+            _content.AppendLine("Connected to " + _socket.ConnectedUrl);
             RefreshText();
         }
 
         public void OnClientDisconnected()
         {
-            _content.AppendLine("Disconnected from " + _socket.Url);
+            _content.AppendLine("Disconnected from " + _socket.ConnectedUrl);
             RefreshText();
         }
 
