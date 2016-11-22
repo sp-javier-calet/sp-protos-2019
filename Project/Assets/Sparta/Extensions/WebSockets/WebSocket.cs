@@ -87,9 +87,12 @@ namespace SocialPoint.WebSockets
                 SPUnityWebSocketAddUrl(NativeSocket, uri.Scheme, uri.Host, uri.PathAndQuery, uri.Port);
             }
 
-            for(var i = 0; i < protocols.Length; ++i)
+            if(protocols != null)
             {
-                SPUnityWebSocketAddProtocol(NativeSocket, protocols[i]);
+                for(var i = 0; i < protocols.Length; ++i)
+                {
+                    SPUnityWebSocketAddProtocol(NativeSocket, protocols[i]);
+                }
             }
         }
 
