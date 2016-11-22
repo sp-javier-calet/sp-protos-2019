@@ -41,8 +41,17 @@ namespace SocialPoint.Network
                 reqStream.Close();
                 reqStream.Dispose();
             }
-            var webResponse = webRequest.GetResponse() as HttpWebResponse;
-            if(webResponse == null)
+            HttpWebResponse webResponse;
+
+            try
+            {
+                webResponse = webRequest.GetResponse() as HttpWebResponse;
+            }
+            catch(WebException ex)
+            {
+                webResponse = ex.Response as HttpWebResponse; 
+            }
+            if (webResponse == null)
             {
                 throw new InvalidOperationException("Could not get a response object.");
             }
