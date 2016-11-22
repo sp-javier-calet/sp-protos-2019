@@ -13,6 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   App:
     ProductName: 
+    Version: 
     BuildNumber: 0
     OverrideBuild: 0
     IconTexture: {fileID: 0}
@@ -26,14 +27,12 @@ MonoBehaviour:
     EnableAdminPanel: 1
   Ios:
     BundleIdentifier: 
-    Version: 
     Flags: +NO_GPGS;
     XcodeModSchemes: release
     UseEnvironmentProvisioningUuid: 1
     RemovedResources: 
   Android:
     BundleIdentifier: 
-    Version: 
     Flags: 
     RemovedResources: 
     UseKeystore: 1
