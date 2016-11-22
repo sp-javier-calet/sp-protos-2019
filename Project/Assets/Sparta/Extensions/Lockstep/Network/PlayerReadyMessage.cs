@@ -1,6 +1,6 @@
 ﻿using SocialPoint.IO;
 
-namespace SocialPoint.Lockstep.Network
+namespace SocialPoint.Lockstep
 {
     public sealed class PlayerReadyMessage : INetworkShareable
     {

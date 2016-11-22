@@ -3,7 +3,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using SocialPoint.Base;
 using SocialPoint.Lockstep;
-using SocialPoint.Lockstep.Network;
 using SocialPoint.Dependency;
 using SocialPoint.IO;
 using SocialPoint.Pooling;
@@ -49,14 +48,14 @@ namespace Examples.Lockstep
         [SerializeField]
         GameObject _setupContainer;
 
-        ClientLockstepController _lockstep;
+        LockstepClient _lockstep;
         Model _model;
-        ClientLockstepController _lockstepServer;
+        LockstepClient _lockstepServer;
         LockstepReplay _replay;
         INetworkClient _netClient;
-        ClientLockstepNetworkController _netLockstepClient;
+        LockstepNetworkClient _netLockstepClient;
         INetworkServer _netServer;
-        ServerLockstepNetworkController _netLockstepServer;
+        LockstepNetworkServer _netLockstepServer;
         IMatchmakingClient _matchClient;
         GameLockstepMode _mode;
         XRandom _random;
@@ -78,7 +77,7 @@ namespace Examples.Lockstep
 
         void Start()
         {
-            _lockstep = ServiceLocator.Instance.Resolve<ClientLockstepController>();
+            _lockstep = ServiceLocator.Instance.Resolve<LockstepClient>();
             _lockstep.ClientConfig.LocalSimulationDelay = 500;
             _replay = ServiceLocator.Instance.Resolve<LockstepReplay>();
             _lockstep.Simulate += SimulateClient;
@@ -164,7 +163,7 @@ namespace Examples.Lockstep
             _netClient = ServiceLocator.Instance.Resolve<INetworkClient>();
             _netClient.RemoveDelegate(this);
             _netClient.AddDelegate(this);
-            _netLockstepClient = ServiceLocator.Instance.Resolve<ClientLockstepNetworkController>();
+            _netLockstepClient = ServiceLocator.Instance.Resolve<LockstepNetworkClient>();
             _netClient.Connect();
             _netLockstepClient.SendPlayerReady();
             _fullscreenText.text = string.Empty;
@@ -176,7 +175,7 @@ namespace Examples.Lockstep
             _mode = GameLockstepMode.Server;
             StartServer();
             _netLockstepServer.RegisterLocalClient(
-                ServiceLocator.Instance.Resolve<ClientLockstepController>(),
+                ServiceLocator.Instance.Resolve<LockstepClient>(),
                 ServiceLocator.Instance.Resolve<LockstepCommandFactory>()
             );
             _netLockstepServer.LocalPlayerReady();
@@ -185,7 +184,7 @@ namespace Examples.Lockstep
         void StartServer()
         {
             _netServer = ServiceLocator.Instance.Resolve<INetworkServer>();
-            _netLockstepServer = ServiceLocator.Instance.Resolve<ServerLockstepNetworkController>();
+            _netLockstepServer = ServiceLocator.Instance.Resolve<LockstepNetworkServer>();
             _serverBehaviour = new ServerBehaviour(_netLockstepServer);
             _netServer.RemoveDelegate(this);
             _netServer.AddDelegate(this);

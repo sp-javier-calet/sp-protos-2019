@@ -5,7 +5,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep
 {
-    public class ClientLockstepCommandData
+    public class ClientCommandData
     {
         ILockstepCommand _command;
         ILockstepCommandLogic _finish;
@@ -13,7 +13,7 @@ namespace SocialPoint.Lockstep
 
         public uint Id{ get; private set; }
 
-        public ClientLockstepCommandData(ILockstepCommand cmd, ILockstepCommandLogic finish, byte playerNum)
+        public ClientCommandData(ILockstepCommand cmd, ILockstepCommandLogic finish, byte playerNum)
         {
             Id = RandomUtils.GenerateUint();
             _command = cmd;
@@ -21,18 +21,18 @@ namespace SocialPoint.Lockstep
             _playerNum = playerNum;
         }
 
-        public ClientLockstepCommandData()
+        public ClientCommandData()
         {
         }
 
-        public ServerLockstepCommandData ToServer(LockstepCommandFactory factory)
+        public ServerCommandData ToServer(LockstepCommandFactory factory)
         {
             var stream = new MemoryStream();
             var writer = new SystemBinaryWriter(stream);
             Serialize(factory, writer);
             stream.Seek(0, SeekOrigin.Begin);
             var reader = new SystemBinaryReader(stream);
-            var server = new ServerLockstepCommandData();
+            var server = new ServerCommandData();
             server.Deserialize(reader);
             return server;
         }
@@ -90,10 +90,10 @@ namespace SocialPoint.Lockstep
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as ClientLockstepCommandData);
+            return Equals(obj as ClientCommandData);
         }
 
-        public bool Equals(ClientLockstepCommandData obj)
+        public bool Equals(ClientCommandData obj)
         {
             if((object)obj == null)
             {
@@ -109,12 +109,12 @@ namespace SocialPoint.Lockstep
             return hash;
         }
 
-        static bool Compare(ClientLockstepCommandData a, ClientLockstepCommandData b)
+        static bool Compare(ClientCommandData a, ClientCommandData b)
         {
             return a.Id == b.Id;
         }
 
-        public static bool operator ==(ClientLockstepCommandData a, ClientLockstepCommandData b)
+        public static bool operator ==(ClientCommandData a, ClientCommandData b)
         {
             var na = (object)a == null;
             var nb = (object)b == null;
@@ -129,14 +129,14 @@ namespace SocialPoint.Lockstep
             return Compare(a, b);
         }
 
-        public static bool operator !=(ClientLockstepCommandData a, ClientLockstepCommandData b)
+        public static bool operator !=(ClientCommandData a, ClientCommandData b)
         {
             return !(a == b);
         }
 
         public override string ToString()
         {
-            return string.Format("[ClientLockstepCommandData:{0} {1} {2}]", Id, _playerNum, _command);
+            return string.Format("[ClientCommandData:{0} {1} {2}]", Id, _playerNum, _command);
         }
     }
 }

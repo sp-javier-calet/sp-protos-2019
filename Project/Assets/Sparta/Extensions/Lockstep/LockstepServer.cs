@@ -5,13 +5,14 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Lockstep
 {
-    public sealed class ServerLockstepController : IUpdateable, IDisposable
+    public sealed class LockstepServer : IUpdateable, IDisposable
     {
         int _time;
         long _timestamp;
         int _lastCmdTime;
         IUpdateScheduler _updateScheduler;
-        Dictionary<int, ServerLockstepTurnData> _turns;
+        Dictionary<int, ServerTurnData> _turns;
+        int _pendingEmptyTurns;
 
         public bool Running{ get; private set; }
 
@@ -19,9 +20,8 @@ namespace SocialPoint.Lockstep
 
         public LockstepGameParams GameParams { get; private set; }
 
-        public event Action<ServerLockstepTurnData> TurnReady;
+        public event Action<ServerTurnData> TurnReady;
         public event Action<int> EmptyTurnsReady;
-        int _pendingEmptyTurns;
 
         public int UpdateTime
         {
@@ -47,17 +47,17 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public ServerLockstepController(IUpdateScheduler updateScheduler = null)
+        public LockstepServer(IUpdateScheduler updateScheduler = null)
         {
             Config = new LockstepConfig();
             GameParams = new LockstepGameParams();
             _updateScheduler = updateScheduler;
-            _turns = new Dictionary<int, ServerLockstepTurnData>();
+            _turns = new Dictionary<int, ServerTurnData>();
             _pendingEmptyTurns = 0;
             Stop();
         }
 
-        public IEnumerator<ServerLockstepTurnData> GetTurnsEnumerator()
+        public IEnumerator<ServerTurnData> GetTurnsEnumerator()
         {
             var t = 0;
             var itr = _turns.GetEnumerator();
@@ -71,7 +71,7 @@ namespace SocialPoint.Lockstep
                 }
                 for(; t < k; t++)
                 {
-                    yield return ServerLockstepTurnData.Empty;
+                    yield return ServerTurnData.Empty;
                 }
                 yield return itr.Current.Value;
                 t++;
@@ -79,21 +79,21 @@ namespace SocialPoint.Lockstep
             itr.Dispose();
             for(; t < n; t++)
             {
-                yield return ServerLockstepTurnData.Empty;
+                yield return ServerTurnData.Empty;
             }
         }
 
-        public void AddCommand(ServerLockstepCommandData command)
+        public void AddCommand(ServerCommandData command)
         {
             if(!Running || _time < 0)
             {
                 return;
             }
             var t = CurrentTurnNumber;
-            ServerLockstepTurnData turn;
+            ServerTurnData turn;
             if(!_turns.TryGetValue(t, out turn))
             {
-                turn = new ServerLockstepTurnData();
+                turn = new ServerTurnData();
                 _turns[t] = turn;
             }
             turn.AddCommand(command);
@@ -161,7 +161,7 @@ namespace SocialPoint.Lockstep
                 {                
                     break;
                 }
-                ServerLockstepTurnData turn;
+                ServerTurnData turn;
                 var t = CurrentTurnNumber;
 
                 if(_turns.TryGetValue(t, out turn))
@@ -187,7 +187,7 @@ namespace SocialPoint.Lockstep
 
         void AddEmptyTurn(int turn)
         {
-            _turns.Add(turn, ServerLockstepTurnData.Empty);
+            _turns.Add(turn, ServerTurnData.Empty);
             _pendingEmptyTurns++;
         }
 
@@ -225,7 +225,7 @@ namespace SocialPoint.Lockstep
 
         #region local client implementation
 
-        ClientLockstepController _localClient;
+        LockstepClient _localClient;
         LockstepCommandFactory _localFactory;
 
         public void UnregisterLocalClient()
@@ -239,7 +239,7 @@ namespace SocialPoint.Lockstep
             _localFactory = null;
         }
 
-        public void RegisterLocalClient(ClientLockstepController client, LockstepCommandFactory factory)
+        public void RegisterLocalClient(LockstepClient client, LockstepCommandFactory factory)
         {
             UnregisterLocalClient();
             _localClient = client;
@@ -250,13 +250,13 @@ namespace SocialPoint.Lockstep
             _localClient.CommandAdded += AddPendingLocalClientCommand;
         }
 
-        void AddPendingLocalClientCommand(ClientLockstepCommandData command)
+        void AddPendingLocalClientCommand(ClientCommandData command)
         {
             var serverCommand = command.ToServer(_localFactory);
             AddCommand(serverCommand);
         }
 
-        void ConfirmLocalClientTurn(ServerLockstepTurnData turn)
+        void ConfirmLocalClientTurn(ServerTurnData turn)
         {
             if(_localClient == null)
             {

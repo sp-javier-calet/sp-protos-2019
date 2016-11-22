@@ -1,7 +1,7 @@
 ﻿using SocialPoint.IO;
 using SocialPoint.Attributes;
 
-namespace SocialPoint.Lockstep.Network
+namespace SocialPoint.Lockstep
 {
     public sealed class PlayerFinishedMessage : INetworkShareable
     {

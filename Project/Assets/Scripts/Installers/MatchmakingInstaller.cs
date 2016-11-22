@@ -6,7 +6,7 @@ using SocialPoint.WebSockets;
 using SocialPoint.Login;
 using SocialPoint.Utils;
 using SocialPoint.Attributes;
-using SocialPoint.Lockstep.Network;
+using SocialPoint.Lockstep;
 using System;
 
 public class MatchmakingInstaller : Installer
@@ -36,7 +36,7 @@ public class MatchmakingInstaller : Installer
     LockstepMatchmakingClientDelegate CreateLockstepDelegate()
     {
         return new LockstepMatchmakingClientDelegate(
-            Container.Resolve<ClientLockstepNetworkController>(),
+            Container.Resolve<LockstepNetworkClient>(),
             Container.Resolve<IMatchmakingClient>());
     }
 

@@ -3,15 +3,15 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Lockstep
 {
-    public sealed class ClientLockstepTurnData
+    public sealed class ClientTurnData
     {
-        List<ClientLockstepCommandData> _commands;
+        List<ClientCommandData> _commands;
 
-        public ClientLockstepTurnData(List<ClientLockstepCommandData> commands = null)
+        public ClientTurnData(List<ClientCommandData> commands = null)
         {
             if(commands == null)
             {
-                commands = new List<ClientLockstepCommandData>();
+                commands = new List<ClientCommandData>();
             }
             _commands = commands;
         }
@@ -24,14 +24,14 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public static readonly ClientLockstepTurnData Empty = new ClientLockstepTurnData();
+        public static readonly ClientTurnData Empty = new ClientTurnData();
 
-        public static bool IsNullOrEmpty(ClientLockstepTurnData turn)
+        public static bool IsNullOrEmpty(ClientTurnData turn)
         {
             return turn == null || turn.CommandCount == 0;
         }
 
-        public void AddCommand(ClientLockstepCommandData cmd)
+        public void AddCommand(ClientCommandData cmd)
         {
             _commands.Add(cmd);
         }
@@ -41,23 +41,23 @@ namespace SocialPoint.Lockstep
             _commands.Clear();
         }
 
-        public List<ClientLockstepCommandData>.Enumerator GetCommandEnumerator()
+        public List<ClientCommandData>.Enumerator GetCommandEnumerator()
         {
             return _commands.GetEnumerator();
         }
 
         public override string ToString()
         {
-            return string.Format("[ClientLockstepTurnData:{0}]", _commands.Count);
+            return string.Format("[ClientTurnData:{0}]", _commands.Count);
         }
 
         public void Deserialize(LockstepCommandFactory factory, IReader reader)
         {
             int commandCount = (int)reader.ReadByte();
-            _commands = new List<ClientLockstepCommandData>();
+            _commands = new List<ClientCommandData>();
             for(int j = 0; j < commandCount; ++j)
             {
-                var command = new ClientLockstepCommandData();
+                var command = new ClientCommandData();
                 command.Deserialize(factory, reader);
                 _commands.Add(command);
             }
@@ -73,9 +73,9 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public ServerLockstepTurnData ToServer(LockstepCommandFactory factory)
+        public ServerTurnData ToServer(LockstepCommandFactory factory)
         {
-            var commands = new List<ServerLockstepCommandData>(_commands.Count);
+            var commands = new List<ServerCommandData>(_commands.Count);
             for(var i = 0; i < _commands.Count; i++)
             {
                 var cmd = _commands[i];
@@ -84,7 +84,7 @@ namespace SocialPoint.Lockstep
                     commands.Add(cmd.ToServer(factory));
                 }
             }
-            return new ServerLockstepTurnData(commands);
+            return new ServerTurnData(commands);
         }
     }
 }

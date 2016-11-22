@@ -7,13 +7,13 @@ using SocialPoint.Utils;
 using SocialPoint.Base;
 using SocialPoint.Attributes;
 
-namespace SocialPoint.Lockstep.Network
+namespace SocialPoint.Lockstep
 {
-    public sealed class ClientLockstepNetworkController : IDisposable, INetworkMessageReceiver, INetworkClientDelegate
+    public sealed class LockstepNetworkClient : IDisposable, INetworkMessageReceiver, INetworkClientDelegate
     {
         INetworkClient _client;
         LockstepCommandFactory _commandFactory;
-        ClientLockstepController _clientLockstep;
+        LockstepClient _clientLockstep;
         INetworkMessageReceiver _receiver;
 
         bool _sendPlayerReadyPending;
@@ -56,7 +56,7 @@ namespace SocialPoint.Lockstep.Network
         public event Action<Attr> PlayerFinishSent;
         public event Action<Error> ErrorProduced;
 
-        public ClientLockstepNetworkController(INetworkClient client, ClientLockstepController clientLockstep, LockstepCommandFactory factory)
+        public LockstepNetworkClient(INetworkClient client, LockstepClient clientLockstep, LockstepCommandFactory factory)
         {
             PlayerId = RandomUtils.GenerateSecurityToken();
             _client = client;
@@ -130,7 +130,7 @@ namespace SocialPoint.Lockstep.Network
 
         void OnTurnReceived(IReader reader)
         {
-            var turn = new ClientLockstepTurnData();
+            var turn = new ClientTurnData();
             turn.Deserialize(_commandFactory, reader);
             _clientLockstep.AddConfirmedTurn(turn);
         }
@@ -203,7 +203,7 @@ namespace SocialPoint.Lockstep.Network
             }
         }
 
-        void OnCommandAdded(ClientLockstepCommandData command)
+        void OnCommandAdded(ClientCommandData command)
         {
             var msg = _client.CreateMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.Command,

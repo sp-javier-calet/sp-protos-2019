@@ -6,14 +6,14 @@ namespace SocialPoint.Lockstep
 {
     [TestFixture]
     [Category("SocialPoint.Lockstep")]
-    class ServerLockstepControllerTests
+    class LockstepServerTests
     {
-        ServerLockstepController _server;
+        LockstepServer _server;
 
         [SetUp]
         public void SetUp()
         {
-            _server = new ServerLockstepController();
+            _server = new LockstepServer();
         }
 
         [Test]
@@ -23,9 +23,9 @@ namespace SocialPoint.Lockstep
             _server.TurnReady += (turn) =>  readyCalled++;
             _server.Config.CommandStepDuration = 200;
 
-            var cmd1 = new ServerLockstepCommandData();
+            var cmd1 = new ServerCommandData();
             _server.AddCommand(cmd1);
-            var cmd2 = new ServerLockstepCommandData();
+            var cmd2 = new ServerCommandData();
             _server.AddCommand(cmd2);
 
             _server.Update(1000);
@@ -46,7 +46,7 @@ namespace SocialPoint.Lockstep
         [Test]
         public void LocalClientWorking()
         {
-            var client = new ClientLockstepController();
+            var client = new LockstepClient();
             var factory = new LockstepCommandFactory();
             var cmd = Substitute.For<ILockstepCommand>();
             cmd.Clone().Returns(cmd);
@@ -77,9 +77,9 @@ namespace SocialPoint.Lockstep
         {
             _server.Start();
             _server.Update(200);
-            _server.AddCommand(new ServerLockstepCommandData());
+            _server.AddCommand(new ServerCommandData());
             _server.Update(300);
-            _server.AddCommand(new ServerLockstepCommandData());
+            _server.AddCommand(new ServerCommandData());
             _server.Update(100);
 
             var itr = _server.GetTurnsEnumerator();

@@ -3,21 +3,20 @@ using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.Attributes;
 using SocialPoint.Lockstep;
-using SocialPoint.Lockstep.Network;
 
 namespace Examples.Lockstep
 {
     public class ServerBehaviour : IDisposable
     {
         Model _model;
-        ServerLockstepNetworkController _server;
-        ClientLockstepController _client;
+        LockstepNetworkServer _server;
+        LockstepClient _client;
 
-        public ServerBehaviour(ServerLockstepNetworkController server)
+        public ServerBehaviour(LockstepNetworkServer server)
         {
             _server = server;
             _model = new Model();
-            _client = new ClientLockstepController();
+            _client = new LockstepClient();
 
             var cmdFactory = new LockstepCommandFactory();
             CommandType.Setup(_model, cmdFactory, _client);
