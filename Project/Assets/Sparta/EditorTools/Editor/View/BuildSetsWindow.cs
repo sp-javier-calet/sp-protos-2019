@@ -259,6 +259,7 @@ namespace SpartaTools.Editor.View
 
                 GUILayout.BeginVertical();
                 config.App.ProductName = InheritableTextField("Product Name", "Application name", config.App.ProductName, data.IsBase);
+                config.App.Version = InheritableTextField("Version", "Human-readable build version", config.App.Version, data.IsBase);
                 if(!data.IsBase)
                 {
                     config.App.OverrideBuild = EditorGUILayout.Toggle("Override Build Number", config.App.OverrideBuild);
@@ -296,7 +297,6 @@ namespace SpartaTools.Editor.View
                 EditorGUILayout.Space();
 
                 config.Ios.BundleIdentifier = InheritableTextField("Bundle Identifier", "iOS bundle identifier", config.Ios.BundleIdentifier, data.IsBase);
-                config.Ios.Version = InheritableTextField("Version", "Human-readable build version", config.Ios.Version, data.IsBase);
                 config.Ios.Flags = InheritableTextField("Flags", "iOS specific defined symbols", config.Ios.Flags, data.IsBase);
                 config.Ios.RemovedResources = InheritableTextField("Remove Resources", "Extended Feature. Folders and files under Assets to be removed before build", config.Ios.RemovedResources, data.IsBase);
                 config.Ios.XcodeModSchemes = InheritableTextField("XcodeMod Schemes", "Xcodemods schemes to apply. 'base' and 'editor' schemes are managed automatically", config.Ios.XcodeModSchemes, data.IsBase);
@@ -322,7 +322,6 @@ namespace SpartaTools.Editor.View
                 EditorGUILayout.Space();
 
                 config.Android.BundleIdentifier = InheritableTextField("Bundle Identifier", "Android bundle identifier", config.Android.BundleIdentifier, data.IsBase);
-                config.Android.Version = InheritableTextField("Version", "Human-readable build version", config.Android.Version, data.IsBase);
                 config.Android.Flags = InheritableTextField("Flags", "Android specific defined symbols", config.Android.Flags, data.IsBase);
                 config.Android.RemovedResources = InheritableTextField("Remove Resources", "Extended Feature. Folders and files under Assets to be to removed before build", config.Android.RemovedResources, data.IsBase);
 
