@@ -180,7 +180,7 @@ namespace SocialPoint.Social
             });
         }
 
-        public WAMPRequest LoadRanking(Action<Error, AllianceRankingData> callback)
+        public WAMPRequest LoadRanking(Action<Error, AlliancesRanking> callback)
         {
             var dic = new AttrDic();
             if(AlliancePlayerInfo.IsInAlliance)
@@ -192,7 +192,7 @@ namespace SocialPoint.Social
             dic.SetValue("ranking_type", ""); // TODO in use?
 
             return _connection.Call(AllianceRankingMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
-                AllianceRankingData ranking = null;
+                AlliancesRanking ranking = null;
                 if(Error.IsNullOrEmpty(err))
                 {
                     DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
@@ -206,13 +206,13 @@ namespace SocialPoint.Social
             });
         }
 
-        public WAMPRequest LoadSearch(AlliancesSearchData data, Action<Error, AlliancesSearchResultData> callback)
+        public WAMPRequest LoadSearch(AlliancesSearch data, Action<Error, AlliancesSearchResult> callback)
         {
             var dic = Factory.SerializeSearchData(data);
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
 
             return _connection.Call(AllianceSearchMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
-                AlliancesSearchResultData searchData = null;
+                AlliancesSearchResult searchData = null;
                 if(Error.IsNullOrEmpty(err))
                 {
                     DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);

@@ -700,7 +700,7 @@ namespace SocialPoint.Social
                     }
                 }
 
-                void CreateMembersList(AdminPanelLayout layout, string label, Alliance alliance, IEnumerator<AllianceMember> members, int count)
+                void CreateMembersList(AdminPanelLayout layout, string label, Alliance alliance, IEnumerator<AllianceMemberBasicData> members, int count)
                 {
                     var foldout = layout.CreateFoldoutLayout(string.Format("{0} ({1})", label, count));
                     while(members.MoveNext())
@@ -897,7 +897,7 @@ namespace SocialPoint.Social
 
             class AdminPanelAllianceRanking : BaseRequestAlliancePanel
             {
-                AllianceRankingData _ranking;
+                AlliancesRanking _ranking;
 
                 readonly AdminPanelAllianceInfo _infoPanel;
 
@@ -974,7 +974,7 @@ namespace SocialPoint.Social
             {
                 public string Filter;
 
-                AlliancesSearchResultData _search;
+                AlliancesSearchResult _search;
 
                 readonly AdminPanelAllianceInfo _infoPanel;
 
@@ -1013,7 +1013,7 @@ namespace SocialPoint.Social
                     {
                         if(_wampRequest == null)
                         {
-                            Action<Error, AlliancesSearchResultData> callback = (err, searchData) => {
+                            Action<Error, AlliancesSearchResult> callback = (err, searchData) => {
                                 if(Error.IsNullOrEmpty(err))
                                 {
                                     _search = searchData;
@@ -1029,7 +1029,7 @@ namespace SocialPoint.Social
                                 }
                             };
 
-                            var search = new AlliancesSearchData();
+                            var search = new AlliancesSearch();
                             search.Filter = Filter;
                             _wampRequest = _alliances.LoadSearch(search, callback);
                         }

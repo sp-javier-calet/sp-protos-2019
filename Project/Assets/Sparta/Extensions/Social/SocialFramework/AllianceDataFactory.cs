@@ -60,15 +60,23 @@ namespace SocialPoint.Social
 
         #endregion
 
+        public AllianceMemberBasicData CreateMemberBasicData(AttrDic dic)
+        {
+            var member = CreateCustomMemberBasicData();
+            ParseMemberData(member, dic);
+            ParseCustomMemberBasicData(member, dic);
+            return member;
+        }
+
         public AllianceMember CreateMember(AttrDic dic)
         {
             var member = CreateCustomMember();
-            ParseMember(member, dic);
+            ParseMemberData(member, dic);
             ParseCustomMember(member, dic);
             return member;
         }
 
-        void ParseMember(AllianceMember member, AttrDic dic)
+        void ParseMemberData(AllianceMemberData member, AttrDic dic)
         {
             member.Uid = dic.GetValue(MemberUidKey).ToString();
             member.Name = dic.GetValue(MemberNameKey).ToString();
@@ -87,7 +95,7 @@ namespace SocialPoint.Social
         public AllianceBasicData CreateBasicData(Alliance alliance)
         {
             var data = CreateCustomBasicData();
-            ParseBasicData(data, alliance);
+            ParseAllianceBasicData(data, alliance);
             ParseCustomBasicData(data, alliance);
             return data;
         }
@@ -95,33 +103,33 @@ namespace SocialPoint.Social
         public AllianceBasicData CreateBasicData(AttrDic dic)
         {
             var data = CreateCustomBasicData();
-            ParseBasicData(data, dic);
+            ParseAllianceBasicData(data, dic);
             ParseCustomBasicData(data, dic);
             return data;
         }
 
-        void ParseBasicData(AllianceBasicData data, AttrDic dic)
+        void ParseAllianceBasicData(AllianceBasicData data, AttrDic dic)
         {
             data.Id = dic.GetValue(AllianceIdKey).ToString();
             data.Name = dic.GetValue(AllianceNameKey).ToString();
             data.Avatar = dic.GetValue(AllianceAvatarKey).ToInt();
             data.AccessType = dic.GetValue(AllianceTypeKey).ToInt();
             data.Members = dic.GetValue(AllianceTotalMembersKey).ToInt();
-            data.Requests = dic.GetValue(AllianceTotalRequestsKey).ToInt();
+            data.Candidates = dic.GetValue(AllianceTotalRequestsKey).ToInt();
             data.Score = dic.GetValue(AllianceScoreKey).ToInt();
             data.Requirement = dic.GetValue(AllianceRequirementKey).ToInt();
             data.ActivityIndicator = dic.GetValue(AllianceActivityIndicatorKey).ToInt();
             data.IsNewAlliance = dic.GetValue(AllianceIsNewKey).ToBool();
         }
 
-        void ParseBasicData(AllianceBasicData data, Alliance alliance)
+        void ParseAllianceBasicData(AllianceBasicData data, Alliance alliance)
         {
             data.Id = alliance.Id;
             data.Name = alliance.Name;
             data.Avatar = alliance.Avatar;
             data.AccessType = alliance.AccessType;
             data.Members = alliance.Members;
-            data.Requests = alliance.Candidates;
+            data.Candidates = alliance.Candidates;
             data.Score = alliance.Score;
             data.Requirement = alliance.Requirement;
             data.ActivityIndicator = alliance.ActivityIndicator;
@@ -153,13 +161,13 @@ namespace SocialPoint.Social
             var candidatesList = data.Get(AllianceCandidatesKey).AsList;
             if(candidatesList.Count > 0)
             {
-                var candidates = new List<AllianceMember>();
+                var candidates = new List<AllianceMemberBasicData>();
                 candidates.Capacity = candidatesList.Count;
 
                 for(var i = 0; i < candidatesList.Count; ++i)
                 {
                     var candidateDic = candidatesList[i].AsDic;
-                    var candidate = CreateMember(candidateDic);
+                    var candidate = CreateMemberBasicData(candidateDic);
                     candidate.Rank = defaultMemberRank;
 
                     candidates.Add(candidate);
@@ -169,13 +177,13 @@ namespace SocialPoint.Social
 
             // Add alliance members
             var membersList = data.Get(AllianceMembersKey).AsList;
-            var members = new List<AllianceMember>();
+            var members = new List<AllianceMemberBasicData>();
             members.Capacity = membersList.Count;
 
             for(var i = 0; i < membersList.Count; ++i)
             {
                 var memberDic = membersList[i].AsDic;
-                var member = CreateMember(memberDic);
+                var member = CreateMemberBasicData(memberDic);
                 members.Add(member);
             }
             alliance.AddMembers(members);
@@ -197,25 +205,18 @@ namespace SocialPoint.Social
 
         void SerializeAllianceDiff(Alliance baseAlliance, Alliance modifiedAlliance, AttrDic dic)
         {
-            if(baseAlliance == null || baseAlliance.Name != modifiedAlliance.Name)
+            AddDiff(dic, AllianceNameKey, baseAlliance != null ? baseAlliance.Name : null, modifiedAlliance.Name);
+            AddDiff(dic, AllianceDescriptionKey, baseAlliance != null ? baseAlliance.Description : null, modifiedAlliance.Description);
+            AddDiff(dic, AllianceRequirementScore, baseAlliance != null ? baseAlliance.Requirement : -1, modifiedAlliance.Requirement);
+            AddDiff(dic, AllianceTypeKey, baseAlliance != null ? baseAlliance.AccessType : -1, modifiedAlliance.AccessType);
+            AddDiff(dic, AllianceAvatarKey, baseAlliance != null ? baseAlliance.Avatar : -1, modifiedAlliance.Avatar);
+        }
+
+        protected void AddDiff<T>(AttrDic dic, string key, T currentData, T newData) where T : System.IComparable
+        {
+            if(newData.CompareTo(currentData) != 0)
             {
-                dic.SetValue(AllianceNameKey, modifiedAlliance.Name);
-            }
-            if(baseAlliance == null || baseAlliance.Description != modifiedAlliance.Description)
-            { 
-                dic.SetValue(AllianceDescriptionKey, modifiedAlliance.Description);
-            }
-            if(baseAlliance == null || baseAlliance.Requirement != modifiedAlliance.Requirement)
-            {
-                dic.SetValue(AllianceRequirementScore, modifiedAlliance.Requirement);
-            }
-            if(baseAlliance == null || baseAlliance.AccessType != modifiedAlliance.AccessType)
-            {
-                dic.SetValue(AllianceTypeKey, modifiedAlliance.AccessType);
-            }
-            if(baseAlliance == null || baseAlliance.Avatar != modifiedAlliance.Avatar)
-            {
-                dic.SetValue(AllianceAvatarKey, modifiedAlliance.Avatar);
+                dic.SetValue(key, newData);
             }
         }
 
@@ -255,7 +256,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public AllianceRankingData CreateRankingData(AttrDic dic)
+        public AlliancesRanking CreateRankingData(AttrDic dic)
         {
             var ranking = CreateCustomRankingData();
             ParseRankingData(ranking, dic);
@@ -263,7 +264,7 @@ namespace SocialPoint.Social
             return ranking;
         }
 
-        public void ParseRankingData(AllianceRankingData ranking, AttrDic dic)
+        public void ParseRankingData(AlliancesRanking ranking, AttrDic dic)
         {
             var rankDir = dic.Get(RankingKey).AsDic;
             var itr = rankDir.GetEnumerator();
@@ -285,7 +286,7 @@ namespace SocialPoint.Social
             ranking.Score = dic.GetValue(RankingScoreKey).ToInt();
         }
 
-        public AttrDic SerializeSearchData(AlliancesSearchData search)
+        public AttrDic SerializeSearchData(AlliancesSearch search)
         {
             var dic = new AttrDic();
             SerializeSearchData(search, dic);
@@ -293,12 +294,12 @@ namespace SocialPoint.Social
             return dic;
         }
 
-        void SerializeSearchData(AlliancesSearchData search, AttrDic dic)
+        void SerializeSearchData(AlliancesSearch search, AttrDic dic)
         {
             dic.SetValue(SearchFilterKey, search.Filter);
         }
 
-        public AlliancesSearchResultData CreateSearchResultData(AttrDic dic)
+        public AlliancesSearchResult CreateSearchResultData(AttrDic dic)
         {
             var search = CreateCustomSearchData();
             ParseSearchResultData(search, dic);
@@ -306,7 +307,7 @@ namespace SocialPoint.Social
             return search;
         }
 
-        public void ParseSearchResultData(AlliancesSearchResultData search, AttrDic dic)
+        public void ParseSearchResultData(AlliancesSearchResult search, AttrDic dic)
         {
             var list = dic.Get(SearchKey).AsList;
             for(var i = 0; i < list.Count; ++i)
@@ -318,6 +319,15 @@ namespace SocialPoint.Social
         }
 
         #region Extensible Alliance data
+
+        protected virtual AllianceMemberBasicData CreateCustomMemberBasicData()
+        {
+            return new AllianceMemberBasicData();
+        }
+
+        protected virtual void ParseCustomMemberBasicData(AllianceMemberBasicData member, AttrDic dic)
+        {
+        }
 
         protected virtual AllianceMember CreateCustomMember()
         {
@@ -363,25 +373,25 @@ namespace SocialPoint.Social
         {
         }
 
-        protected virtual AllianceRankingData CreateCustomRankingData()
+        protected virtual AlliancesRanking CreateCustomRankingData()
         {
-            return new AllianceRankingData();
+            return new AlliancesRanking();
         }
 
-        protected virtual void ParseCustomRankingData(AllianceRankingData ranking, AttrDic dic)
-        {
-        }
-
-        protected virtual void SerializeCustomSearchData(AlliancesSearchData search, AttrDic dic)
+        protected virtual void ParseCustomRankingData(AlliancesRanking ranking, AttrDic dic)
         {
         }
 
-        protected virtual AlliancesSearchResultData CreateCustomSearchData()
+        protected virtual void SerializeCustomSearchData(AlliancesSearch search, AttrDic dic)
         {
-            return new AlliancesSearchResultData();
         }
 
-        protected virtual void ParseCustomSearchResultData(AlliancesSearchResultData search, AttrDic dic)
+        protected virtual AlliancesSearchResult CreateCustomSearchData()
+        {
+            return new AlliancesSearchResult();
+        }
+
+        protected virtual void ParseCustomSearchResultData(AlliancesSearchResult search, AttrDic dic)
         {
         }
 
