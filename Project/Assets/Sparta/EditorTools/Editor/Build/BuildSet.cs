@@ -383,8 +383,8 @@ namespace SpartaTools.Editor.Build
 
         string GetLogLevelFlag(BaseSettings baseSettings)
         {
-            LogLevel level = LogLevel.Info;
-            if(Common.LogLevel == LogLevel.Default)
+            LogLevel level = Common.LogLevel;
+            if(level == LogLevel.Default)
             {
                 level = baseSettings.Common.LogLevel;
             }
