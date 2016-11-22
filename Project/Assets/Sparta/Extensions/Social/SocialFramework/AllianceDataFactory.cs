@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
@@ -57,8 +59,15 @@ namespace SocialPoint.Social
         const string AllianceActivityIndicatorKey = "activityIndicator";
         const string AllianceIsNewKey = "newAlliance";
 
+        const string AllianceRequestIdKey = "alliance_id";
+        const string AllianceRequestNameKey = "alliance_name";
+        const string AllianceRequestAvatarKey = "alliance_symbol";
+        const string AllianceRequestTotalMembersKey = "total_members";
+        const string AllianceRequestJoinTimestampKey = "join_ts";
 
         #endregion
+
+        public IRankManager Ranks;
 
         public AllianceMemberBasicData CreateMemberBasicData(AttrDic dic)
         {
@@ -187,7 +196,6 @@ namespace SocialPoint.Social
                 members.Add(member);
             }
             alliance.AddMembers(members);
-
         }
 
         public AttrDic SerializeAlliance(Alliance alliance)
@@ -254,6 +262,54 @@ namespace SocialPoint.Social
                     info.AddRequest(req, maxRequests);
                 }
             }
+        }
+
+        public void OnAllianceCreated(AlliancePlayerInfo info, Alliance data, AttrDic result)
+        {
+            DebugUtils.Assert(result.Get(AllianceIdKey).IsValue);
+            var id = result.GetValue(AllianceIdKey).ToString();
+
+            info.Id = id;
+            info.Avatar = data.Avatar;
+            info.Name = data.Name;
+            info.Rank = Ranks.FounderRank;
+            info.TotalMembers = 1;
+            info.JoinTimestamp = TimeUtils.Timestamp;
+            info.ClearRequests();
+        }
+
+        public void OnAllianceJoined(AlliancePlayerInfo info, AllianceBasicData data, JoinExtraData extra)
+        {
+            info.Id = data.Id;
+            info.Name = data.Name;
+            info.Avatar = data.Avatar;
+            info.Rank = Ranks.DefaultRank;
+            info.TotalMembers = data.Members;
+            info.JoinTimestamp = extra.Timestamp;
+            info.ClearRequests();
+        }
+
+        public void OnAllianceRequestAccepted(AlliancePlayerInfo info, AttrDic dic)
+        {
+            DebugUtils.Assert(dic.GetValue(AllianceRequestIdKey).IsValue);
+            var allianceId = dic.GetValue(AllianceRequestIdKey).ToString();
+
+            DebugUtils.Assert(dic.GetValue(AllianceRequestNameKey).IsValue);
+            var allianceName = dic.GetValue(AllianceRequestNameKey).ToString();
+
+            DebugUtils.Assert(dic.GetValue(AllianceRequestAvatarKey).IsValue);
+            var avatarId = dic.GetValue(AllianceRequestAvatarKey).ToInt();
+
+            var totalMembers = dic.GetValue(AllianceRequestTotalMembersKey).ToInt();
+            var joinTs = dic.GetValue(AllianceRequestJoinTimestampKey).ToInt();
+
+            info.Id = allianceId;
+            info.Name = allianceName;
+            info.Avatar = avatarId;
+            info.Rank = Ranks.DefaultRank;
+            info.TotalMembers = totalMembers;
+            info.JoinTimestamp = joinTs;
+            info.ClearRequests();
         }
 
         public AlliancesRanking CreateRankingData(AttrDic dic)

@@ -55,19 +55,15 @@ namespace SocialPoint.Social
         const string MemberIdKey = "player_id";
         const string AllianceIdKey = "alliance_id";
         const string AvatarKey = "avatar";
-        const string AllianceNameKey = "alliance_name";
         const string AllianceDescriptionKey = "description";
         const string AllianceRequirementKey = "minimum_score";
         const string AllianceTypeKey = "type";
-        const string AllianceAvatarKey = "alliance_symbol";
         const string AlliancePropertiesKey = "properties";
         const string AllianceNewMemberKey = "new_member_id";
         const string AllianceDeniedMemberKey = "denied_user_id";
         const string AllianceKickedMemberKey = "kicked_user_id";
         const string AlliancePromotedMemberKey = "promoted_user_id";
         const string AllianceNewRankKey = "new_role";
-        const string AllianceTotalMembersKey = "total_members";
-        const string AllianceJoinTimestampKey = "join_ts";
         const string NotificationTypeKey = "type";
         const string OperationResultKey = "result";
         const string NotificationIdKey = "notification_id";
@@ -116,11 +112,9 @@ namespace SocialPoint.Social
 
         readonly ConnectionManager _connection;
 
-        public AlliancesManager(ConnectionManager connection)
+        public AlliancesManager(ConnectionManager connection, AllianceDataFactory factory)
         {
-            Ranks = new DefaultRankManager();
-            AccessTypes = new DefaultAccessTypeManager();
-            Factory = new AllianceDataFactory();
+            Factory = factory;
             AlliancePlayerInfo = Factory.CreatePlayerInfo();
             _connection = connection;
             _connection.AlliancesManager = this;
@@ -293,17 +287,7 @@ namespace SocialPoint.Social
 
                 DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
                 var result = rDic.Get(OperationResultKey).AsDic;
-
-                DebugUtils.Assert(rDic.Get(AllianceIdKey).IsValue);
-                var id = result.GetValue(AllianceIdKey).ToString();
-
-                AlliancePlayerInfo.Id = id;
-                AlliancePlayerInfo.Avatar = data.Avatar;
-                AlliancePlayerInfo.Name = data.Name;
-                AlliancePlayerInfo.Rank = Ranks.FounderRank;
-                AlliancePlayerInfo.TotalMembers = 1;
-                AlliancePlayerInfo.JoinTimestamp = TimeUtils.Timestamp;
-                AlliancePlayerInfo.ClearRequests();
+                Factory.OnAllianceCreated(AlliancePlayerInfo, data, result);
 
                 UpdateChatServices(rDic);
 
@@ -484,8 +468,6 @@ namespace SocialPoint.Social
             dic.SetValue(JoinOriginKey, data.Origin);
             dic.SetValue(JoinMessageKey, data.Message);
 
-            long joinTs = data.Timestamp;
-
             return _connection.Call(AllianceJoinMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
@@ -496,14 +478,7 @@ namespace SocialPoint.Social
                     return;
                 }
 
-                AlliancePlayerInfo.Id = alliance.Id;
-                AlliancePlayerInfo.Name = alliance.Name;
-                AlliancePlayerInfo.Avatar = alliance.Avatar;
-                AlliancePlayerInfo.Rank = Ranks.DefaultRank;
-                AlliancePlayerInfo.TotalMembers = alliance.Members;
-                AlliancePlayerInfo.JoinTimestamp = joinTs;
-                AlliancePlayerInfo.ClearRequests();
-
+                Factory.OnAllianceJoined(AlliancePlayerInfo, alliance, data);
                 UpdateChatServices(rDic);
 
                 if(callback != null)
@@ -662,25 +637,7 @@ namespace SocialPoint.Social
 
         void OnRequestAccepted(AttrDic dic)
         {
-            DebugUtils.Assert(dic.GetValue(AllianceIdKey).IsValue);
-            var allianceId = dic.GetValue(AllianceIdKey).ToString();
-
-            DebugUtils.Assert(dic.GetValue(AllianceNameKey).IsValue);
-            var allianceName = dic.GetValue(AllianceNameKey).ToString();
-
-            DebugUtils.Assert(dic.GetValue(AllianceAvatarKey).IsValue);
-            var avatarId = dic.GetValue(AllianceAvatarKey).ToInt();
-
-            var totalMembers = dic.GetValue(AllianceTotalMembersKey).ToInt();
-            var joinTs = dic.GetValue(AllianceJoinTimestampKey).ToInt();
-
-            AlliancePlayerInfo.Id = allianceId;
-            AlliancePlayerInfo.Name = allianceName;
-            AlliancePlayerInfo.Avatar = avatarId;
-            AlliancePlayerInfo.Rank = Ranks.DefaultRank;
-            AlliancePlayerInfo.TotalMembers = totalMembers;
-            AlliancePlayerInfo.JoinTimestamp = joinTs;
-            AlliancePlayerInfo.ClearRequests();
+            Factory.OnAllianceRequestAccepted(AlliancePlayerInfo, dic);
 
             UpdateChatServices(dic);
 

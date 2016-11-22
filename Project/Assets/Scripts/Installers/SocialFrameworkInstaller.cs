@@ -48,6 +48,11 @@ public class SocialFrameworkInstaller : Installer
         Container.Bind<AlliancesManager>().ToMethod<AlliancesManager>(CreateAlliancesManager, SetupAlliancesManager);
         Container.Bind<IDisposable>().ToLookup<AlliancesManager>();
 
+        Container.Bind<IRankManager>().ToMethod<IRankManager>(CreateRankManager);
+        Container.Bind<IAccessTypeManager>().ToMethod<IAccessTypeManager>(CreateAccessTypeManager);
+
+        Container.Bind<AllianceDataFactory>().ToMethod<AllianceDataFactory>(CreateAlliancesDataFactory, SetupAlliancesDataFactory);
+
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWebSockets>(CreateAdminPanelWebSockets);
 
@@ -65,6 +70,7 @@ public class SocialFrameworkInstaller : Installer
     {
         room.ChatManager = Container.Resolve<ChatManager>();
         room.Localization = Container.Resolve<Localization>();
+        room.RankManager = Container.Resolve<IRankManager>();
 
         // Configure optional events to manage custom data
         room.ParseUnknownNotifications = PublicChatMessage.ParseUnknownNotifications;
@@ -81,6 +87,7 @@ public class SocialFrameworkInstaller : Installer
     {
         room.ChatManager = Container.Resolve<ChatManager>();
         room.Localization = Container.Resolve<Localization>();
+        room.RankManager = Container.Resolve<IRankManager>();
 
         // Configure optional events to manage custom data
         room.ParseUnknownNotifications = AllianceChatMessage.ParseUnknownNotifications;
@@ -137,17 +144,35 @@ public class SocialFrameworkInstaller : Installer
     AlliancesManager CreateAlliancesManager()
     {
         return new AlliancesManager(
-            Container.Resolve<ConnectionManager>());
+            Container.Resolve<ConnectionManager>(),
+            Container.Resolve<AllianceDataFactory>());
     }
 
     void SetupAlliancesManager(AlliancesManager manager)
     {
         manager.LoginData = Container.Resolve<ILoginData>();
+        manager.Ranks = Container.Resolve<IRankManager>();
+        manager.AccessTypes = Container.Resolve<IAccessTypeManager>();
+    }
 
-        if(Container.HasBinding<AllianceDataFactory>())
-        {
-            manager.Factory = Container.Resolve<AllianceDataFactory>();
-        }
+    AllianceDataFactory CreateAlliancesDataFactory()
+    {
+        return new AllianceDataFactory();
+    }
+
+    void SetupAlliancesDataFactory(AllianceDataFactory factory)
+    {
+        factory.Ranks = Container.Resolve<IRankManager>(); 
+    }
+
+    IRankManager CreateRankManager()
+    {
+        return new DefaultRankManager();
+    }
+
+    IAccessTypeManager CreateAccessTypeManager()
+    {
+        return new DefaultAccessTypeManager();
     }
 
     AdminPanelSocialFramework CreateAdminPanelSocialFramework()
