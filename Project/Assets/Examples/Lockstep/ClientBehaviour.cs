@@ -107,6 +107,7 @@ namespace Examples.Lockstep
 
         void OnGameStarted()
         {
+            _fullscreenText.text = string.Empty;
             if(_mode == GameLockstepMode.Replay)
             {
                 _replay.Replay();
@@ -166,7 +167,6 @@ namespace Examples.Lockstep
             _netLockstepClient = ServiceLocator.Instance.Resolve<LockstepNetworkClient>();
             _netClient.Connect();
             _netLockstepClient.SendPlayerReady();
-            _fullscreenText.text = string.Empty;
         }
 
         public void OnServerClicked()
@@ -225,6 +225,7 @@ namespace Examples.Lockstep
 
         void IMatchmakingClientDelegate.OnMatched(Match match)
         {
+            _fullscreenText.text = string.Format("match {0} player {1}", match.Id, match.PlayerId);
             StartClient(GameLockstepMode.Client);
         }
 
