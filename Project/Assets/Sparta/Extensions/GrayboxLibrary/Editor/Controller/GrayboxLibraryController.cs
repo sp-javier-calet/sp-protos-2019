@@ -506,13 +506,14 @@ namespace SocialPoint.GrayboxLibrary
         public int GetAssetCategoryByPrefix(string fullname)
         {
             int category = -1;
-            Dictionary<GrayboxAssetCategory, string>.Enumerator enumerator = GrayboxLibraryConfig.CategoryPrefix.GetEnumerator();
+            var enumerator = GrayboxLibraryConfig.CategoryPrefix.GetEnumerator();
             while (enumerator.MoveNext())
             {
                 string prefix = enumerator.Current.Value;
                 if (fullname.Contains(prefix))
                     category = (int) enumerator.Current.Key;
             }
+            enumerator.Dispose();
             
             return category;
         }
