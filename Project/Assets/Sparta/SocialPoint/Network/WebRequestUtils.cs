@@ -12,8 +12,11 @@ namespace SocialPoint.Network
         {
             var wreq = (HttpWebRequest)WebRequest.Create(req.Url);
 
-            wreq.Timeout = (int)req.Timeout * 1000; // Value is in milliseconds
-            if(req.ActivityTimeout > 0.0f)
+            if (req.Timeout > 0.0f)
+            {
+                wreq.Timeout = (int)req.Timeout * 1000; // Value is in milliseconds
+            }
+            if (req.ActivityTimeout > 0.0f)
             {
                 wreq.ReadWriteTimeout = (int)req.ActivityTimeout * 1000; // Value is in milliseconds
             }

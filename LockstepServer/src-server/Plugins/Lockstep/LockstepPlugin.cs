@@ -47,7 +47,6 @@ namespace Photon.Hive.Plugin.Lockstep
         INetworkMessageReceiver _receiver;
         HttpMatchmakingServer _matchmaking;
         Examples.Lockstep.ServerBehaviour _game;
-        PluginHttpClient _httpClient;
         object _timer;
 
         const byte MaxPlayersKey = 255;
@@ -61,9 +60,8 @@ namespace Photon.Hive.Plugin.Lockstep
         public LockstepPlugin()
         {
             UseStrictMode = true;
-            _httpClient = new PluginHttpClient();
             _delegates = new List<INetworkServerDelegate>();
-            _matchmaking = new HttpMatchmakingServer(_httpClient);
+            _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient());
             _netServer = new LockstepNetworkServer(this, _matchmaking);
             _game = new Examples.Lockstep.ServerBehaviour(_netServer);
         }
@@ -103,7 +101,6 @@ namespace Photon.Hive.Plugin.Lockstep
             {
                 return;
             }
-            _httpClient.PluginHost = PluginHost;
             PluginHost.SetProperties(0, new Hashtable {
                 { (int)MaxPlayersKey, (int)_netServer.MaxPlayers },
                 { (int)MasterClientIdKey, 0 },

@@ -16,7 +16,6 @@ namespace SocialPoint.Network
 
         public void Cancel()
         {
-            throw new NotImplementedException();
         }
 
         public void Release()
@@ -39,7 +38,6 @@ namespace SocialPoint.Network
         {
             set
             {
-                throw new NotImplementedException();
             }
         }
 
@@ -47,7 +45,6 @@ namespace SocialPoint.Network
         {
             set
             {
-                throw new NotImplementedException();
             }
         }
 

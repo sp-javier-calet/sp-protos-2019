@@ -233,6 +233,9 @@
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\IHttpClient.cs">
       <Link>Lib\Network\IHttpClient.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\ImmediateWebRequestHttpClient.cs">
+      <Link>Lib\Network\ImmediateWebRequestHttpClient.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\INetworkClient.cs">
       <Link>Lib\Network\INetworkClient.cs</Link>
     </Compile>
@@ -241,6 +244,9 @@
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\INetworkServer.cs">
       <Link>Lib\Network\INetworkServer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\WebRequestUtils.cs">
+      <Link>Lib\Network\WebRequestUtils.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\CompareUtils.cs">
       <Link>Lib\Utils\CompareUtils.cs</Link>

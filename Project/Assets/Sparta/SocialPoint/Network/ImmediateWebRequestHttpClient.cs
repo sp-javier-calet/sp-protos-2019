@@ -31,26 +31,30 @@ namespace SocialPoint.Network
             {
                 RequestSetup(request);
             }
+            request.Timeout = 0.0f;
+            request.ActivityTimeout = 0.0f;
             var webRequest = WebRequestUtils.ConvertRequest(request);
-            var dataStream = webRequest.GetRequestStream();
             if(request.Body != null)
             {
-                dataStream.Write(request.Body, 0, request.Body.Length);
+                var reqStream = webRequest.GetRequestStream();
+                reqStream.Write(request.Body, 0, request.Body.Length);
+                reqStream.Close();
+                reqStream.Dispose();
             }
-            dataStream.Close();
             var webResponse = webRequest.GetResponse() as HttpWebResponse;
             if(webResponse == null)
             {
                 throw new InvalidOperationException("Could not get a response object.");
             }
-            dataStream = webResponse.GetResponseStream();
+            var respStream = webResponse.GetResponseStream();
             byte[] buffer = new byte[BufferLength];
             var ms = new MemoryStream();
             int read;
-            while((read = dataStream.Read(buffer, 0, buffer.Length)) > 0)
+            while((read = respStream.Read(buffer, 0, buffer.Length)) > 0)
             {
                 ms.Write(buffer, 0, read);
             }
+            respStream.Dispose();
             var resp = WebRequestUtils.ConvertResponse(webResponse, ms.ToArray());
             ms.Dispose();
             if(del != null)
