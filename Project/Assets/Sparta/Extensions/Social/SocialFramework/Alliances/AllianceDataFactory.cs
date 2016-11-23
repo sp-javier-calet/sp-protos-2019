@@ -213,16 +213,23 @@ namespace SocialPoint.Social
 
         void SerializeAllianceDiff(Alliance baseAlliance, Alliance modifiedAlliance, AttrDic dic)
         {
-            AddDiff(dic, AllianceNameKey, baseAlliance != null ? baseAlliance.Name : null, modifiedAlliance.Name);
-            AddDiff(dic, AllianceDescriptionKey, baseAlliance != null ? baseAlliance.Description : null, modifiedAlliance.Description);
-            AddDiff(dic, AllianceRequirementScore, baseAlliance != null ? baseAlliance.Requirement : -1, modifiedAlliance.Requirement);
-            AddDiff(dic, AllianceTypeKey, baseAlliance != null ? baseAlliance.AccessType : -1, modifiedAlliance.AccessType);
-            AddDiff(dic, AllianceAvatarKey, baseAlliance != null ? baseAlliance.Avatar : -1, modifiedAlliance.Avatar);
+            AddStringDiff(dic, AllianceNameKey, baseAlliance != null ? baseAlliance.Name : null, modifiedAlliance.Name);
+            AddStringDiff(dic, AllianceDescriptionKey, baseAlliance != null ? baseAlliance.Description : null, modifiedAlliance.Description);
+            AddIntDiff(dic, AllianceRequirementScore, baseAlliance != null ? baseAlliance.Requirement : -1, modifiedAlliance.Requirement);
+            AddIntDiff(dic, AllianceTypeKey, baseAlliance != null ? baseAlliance.AccessType : -1, modifiedAlliance.AccessType);
+            AddIntDiff(dic, AllianceAvatarKey, baseAlliance != null ? baseAlliance.Avatar : -1, modifiedAlliance.Avatar);
         }
 
-        protected void AddDiff<T>(AttrDic dic, string key, T currentData, T newData) where T : System.IComparable
+        protected void AddStringDiff(AttrDic dic, string key, string currentData, string newData)
         {
-            if(newData.CompareTo(currentData) != 0)
+            if(currentData != newData)
+            {
+                dic.SetValue(key, newData);
+            }
+        }
+        protected void AddIntDiff(AttrDic dic, string key, int currentData, int newData)
+        {
+            if(currentData != newData)
             {
                 dic.SetValue(key, newData);
             }
