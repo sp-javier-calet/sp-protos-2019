@@ -658,7 +658,7 @@ namespace SocialPoint.Social
             DebugUtils.Assert(AlliancePlayerInfo.IsInAlliance, "User is not in an alliance");
             var newRank = dic.GetValue(AllianceNewRankKey).ToInt();
             AlliancePlayerInfo.Rank = newRank;
-            NotifyAllianceEvent(AllianceAction.PlayerChangedRank, dic);
+            NotifyAllianceEvent(AllianceAction.PlayerAutoChangedRank, dic);
         }
 
         void OnUserAppliedToPlayerAlliance(AttrDic dic)
@@ -677,7 +677,7 @@ namespace SocialPoint.Social
         void OnMemberLeft(AttrDic dic)
         {
             AlliancePlayerInfo.DecreaseTotalMembers();
-            NotifyAllianceEvent(AllianceAction.MateJoinedPlayerAlliance, dic);
+            NotifyAllianceEvent(AllianceAction.MateLeftPlayerAlliance, dic);
         }
 
         void OnAllianceEdited(AttrDic dic)
