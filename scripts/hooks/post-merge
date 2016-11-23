@@ -2,9 +2,9 @@
 
 ASSETS_DIR_NAME=$(find . -name 'Assets' -maxdepth 2 -type d)
 PROJECT_NAME="$(basename $(dirname "$ASSETS_DIR_NAME"))"
+PROJECT_DIR=$(cd "$PROJECT_NAME" && pwd)
 
 # Remove empty directories
-PROJECT_DIR=$(cd "$PROJECT_NAME" && pwd)
 ASSETS_DIR=$(cd "$PROJECT_DIR/Assets" && pwd)
-find $PROJECT_DIR -name '*.DS_Store' -type f -delete
-find $PROJECT_DIR -depth -type d -empty -delete
+find $ASSETS_DIR -name '*.DS_Store' -type f -delete
+find $ASSETS_DIR -type d -depth -empty -exec echo "Removing "{} \; -exec rmdir {} \; -exec rm {}.meta \;

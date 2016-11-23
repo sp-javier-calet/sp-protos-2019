@@ -16,7 +16,7 @@
 #include "Certificate.hpp"
 
 extern "C" {
-    #include "curl.h"
+    #include <curl/curl.h>
 }
 
 struct CurlRequest

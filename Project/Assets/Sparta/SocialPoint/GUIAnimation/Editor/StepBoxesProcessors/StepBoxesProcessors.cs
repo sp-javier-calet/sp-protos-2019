@@ -1,7 +1,7 @@
-using UnityEngine;
-using UnityEditor;
 using System.Collections.Generic;
 using SocialPoint.Base;
+using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -48,7 +48,7 @@ namespace SocialPoint.GUIAnimation
                         continue;
                     }
 
-                    animationItemBox.WinResizer.Resize(ref animationItemBox.Rect, Vector2.right, (Vector2 delta) => {
+                    animationItemBox.WinResizer.Resize(ref animationItemBox.Rect, Vector2.right, delta => {
                         if(Host.BoxContainer.StepsSelection.IsSelected(animationItemBox.AnimationItem))
                         {
                             Host.BoxContainer.StepsSelection.OnResized(animationItemBox.AnimationItem, delta, Host.BoxContainer.CacheWindows);
@@ -57,8 +57,8 @@ namespace SocialPoint.GUIAnimation
                         {
                             Host.BoxContainer.OnAnimationItemSelected(animationItemBox.AnimationItem);
                         }
-						
                     });
+
                     bool isResizing = animationItemBox.WinResizer.IsResizing && animationItemBox.WinResizer.DeltaSize.magnitude > 1e-1f;
                     someIsResizing |= isResizing;
                 }
@@ -138,26 +138,18 @@ namespace SocialPoint.GUIAnimation
                 {
                     return true;
                 }
-                if(DoTryToAlign(animationItemBox, 1f, 0f))
-                {
-                    return true;
-                }
-                if(DoTryToAlign(animationItemBox, 1f, 1f))
-                {
-                    return true;
-                }
+                return DoTryToAlign(animationItemBox, 1f, 0f) || DoTryToAlign(animationItemBox, 1f, 1f);
 
-                return false;
             }
 
             bool DoTryToAlign(AnimationStepBox animationItemBox, float sourceWidthFactor, float otherWidthFactor)
             {
-                float distanceToAlignSQ = 10f;
+                const float distanceToAlignSQ = 10f;
 				
                 // Find Closest EndTime to current StartTime
                 Vector2 myStartPosition = animationItemBox.Rect.position + animationItemBox.Rect.size * sourceWidthFactor;
                 Vector2 closestEndPosition = Vector2.zero;
-                Rect closestEndRect = new Rect();
+                var closestEndRect = new Rect();
                 float closestDistSQ = 9999f;
                 foreach(var pair in Host.BoxContainer.CacheWindows)
                 {
@@ -193,15 +185,15 @@ namespace SocialPoint.GUIAnimation
                 return false;
             }
 
-            void RenderAlignLine(Rect source, Rect reference, float referenceWidthFactor)
+            static void RenderAlignLine(Rect source, Rect reference, float referenceWidthFactor)
             {
-                float extraYPixels = 4f;
+                const float extraYPixels = 4f;
 				
                 float alignYStart = Mathf.Max(source.position.y + source.size.y, reference.position.y + reference.size.y) + extraYPixels;
                 float alignYEnd = Mathf.Min(source.position.y, reference.position.y) - extraYPixels;
 				
-                Vector3 startPoint = new Vector3(reference.position.x + reference.size.x * referenceWidthFactor, alignYStart, 0f);
-                Vector3 endPoint = new Vector3(reference.position.x + reference.size.x * referenceWidthFactor, alignYEnd, 0f);
+                var startPoint = new Vector3(reference.position.x + reference.size.x * referenceWidthFactor, alignYStart, 0f);
+                var endPoint = new Vector3(reference.position.x + reference.size.x * referenceWidthFactor, alignYEnd, 0f);
 				
                 Color prevColor = Handles.color;
                 Handles.color = Color.white;
@@ -255,7 +247,7 @@ namespace SocialPoint.GUIAnimation
                     if(!someIsSelected)
                     {
                         // Disable Selected boxes if none is selected
-                        Rect boxesWindow = new Rect(Host.BoxContainer.BoxesOffsetPosition.x, Host.BoxContainer.BoxesOffsetPosition.y, Host.BoxContainer.GridProps.GetGridPosFromNormalizedTimeSlot(1f, 0).x, Host.BoxContainer.GridMaxHeight);
+                        var boxesWindow = new Rect(Host.BoxContainer.BoxesOffsetPosition.x, Host.BoxContainer.BoxesOffsetPosition.y, Host.BoxContainer.GridProps.GetGridPosFromNormalizedTimeSlot(1f, 0).x, Host.BoxContainer.GridMaxHeight);
                         if(
                             Event.current.type == EventType.mouseUp
                             && boxesWindow.Contains(Event.current.mousePosition))
@@ -364,7 +356,7 @@ namespace SocialPoint.GUIAnimation
 
             bool FindFreePositionInSlot(ref Vector2 position, int slot, float width, AnimationStepBox discartBox = null)
             {
-                List<AnimationStepBox> boxesInSlot = new List<AnimationStepBox>();
+                var boxesInSlot = new List<AnimationStepBox>();
                 foreach(var pair in Host.BoxContainer.CacheWindows)
                 {
                     AnimationStepBox otherBox = pair.Value;
@@ -409,16 +401,16 @@ namespace SocialPoint.GUIAnimation
 
         // Processors properties
         AnimationTimelinePanel BoxContainer;
-        List<BaseBoxProcessor> _processors = new List<BaseBoxProcessor>();
-        BaseBoxProcessor EnabledProcessor = null;
-        double _lastBlockingActionTime = 0;
+        readonly List<BaseBoxProcessor> _processors = new List<BaseBoxProcessor>();
+        BaseBoxProcessor EnabledProcessor;
+        double _lastBlockingActionTime;
         List<AnimationStepBox> MovedBoxes = new List<AnimationStepBox>();
 
         void Init()
         {
             EnabledProcessor = null;
             _lastBlockingActionTime = 0;
-		
+
             MovedBoxes.Clear();
 
             _processors.Clear();

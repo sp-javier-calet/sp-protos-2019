@@ -55,4 +55,27 @@ namespace SocialPoint.Network
     {
         void OnMessageReceived(NetworkMessageData data, IReader reader);
     }
+
+    public interface INetworkMessageSender
+    {
+        INetworkMessage CreateMessage(NetworkMessageData data);
+    }
+
+
+    public static class NetworkMessageSenderExtensions
+    {
+        public static void SendMessage(this INetworkMessageSender sender, NetworkMessageData data, INetworkShareable obj)
+        {
+            var msg = sender.CreateMessage(data);
+            obj.Serialize(msg.Writer);
+            msg.Send();
+        }
+
+        public static void SendMessage(this INetworkMessageSender sender, NetworkMessageData data, byte[] body)
+        {
+            var msg = sender.CreateMessage(data);
+            msg.Writer.Write(body, body.Length);
+            msg.Send();
+        }
+    }
 }

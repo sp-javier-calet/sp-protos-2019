@@ -11,6 +11,14 @@ namespace SocialPoint.Dependency
         Action<F> _setup;
         F _instance;
 
+        public BindingKey Key 
+        {
+            get
+            {
+                return new BindingKey(typeof(F), null);
+            }
+        }
+
         public UnityComponentBinding(DependencyContainer container)
         {
             _container = container;

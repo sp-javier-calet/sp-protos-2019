@@ -6,7 +6,7 @@ namespace SocialPoint.GUIAnimation
     {
         public static RectTransform CreateRectTransform(string name)
         {
-            GameObject go = new GameObject(name);
+            var go = new GameObject(name);
             return GetAddRectTransform(go);
         }
 
@@ -17,12 +17,7 @@ namespace SocialPoint.GUIAnimation
 
         public static RectTransform GetAddRectTransform(GameObject go)
         {
-            RectTransform transform = go.GetComponent<RectTransform>();
-            if(transform == null)
-            {
-                transform = go.AddComponent<RectTransform>();
-            }
-			
+            RectTransform transform = go.GetComponent<RectTransform>() ?? go.AddComponent<RectTransform>();
             return transform;
         }
     }

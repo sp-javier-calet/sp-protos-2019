@@ -1,6 +1,7 @@
 using System;
 using SocialPoint.Locale;
 using SocialPoint.AdminPanel;
+using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.Utils;
 
@@ -19,6 +20,8 @@ public class LocaleInstaller : Installer
         Container.Rebind<Localization>().ToMethod<Localization>(CreateLocalization);
          
         Container.Rebind<LocalizeAttributeConfiguration>().ToMethod<LocalizeAttributeConfiguration>(CreateLocalizeAttributeConfiguration);
+
+        Container.Listen<ILocalizationManager>().WhenResolved(SetupLocalizationManager);
 
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLocale>(CreateAdminPanel);
     }
@@ -43,5 +46,14 @@ public class LocaleInstaller : Installer
         locale.Debug = Settings.EditorDebug;
 #endif
         return locale;
+    }
+
+    void SetupLocalizationManager(ILocalizationManager mng)
+    {
+        var manager = mng as LocalizationManager;
+        if(manager != null)
+        {
+            manager.AppEvents = Container.Resolve<IAppEvents>();
+        }
     }
 }

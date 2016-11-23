@@ -19,15 +19,15 @@ namespace SocialPoint.Locale
             public const string DevEnvironmentId = "dev";
             public const string ProdEnvironmentId = "prod";
 
-            public const string DefaultProjectId = "dc";
+            public const string DefaultProjectId = "lod";
 
             // Android uses iOS json too
             public const string DefaultPlatform = "ios";
 
-            //public const string DefaultEnvironmentId = DevEnvironmentId;
-            //public const string DefaultSecretKey = "5TgemMFH4yj7RJ3d";
-            public const string DefaultEnvironmentId = ProdEnvironmentId;
-            public const string DefaultSecretKey = "wetd46pWuR8J5CmS";
+            public const string DefaultDevEnvironmentId = DevEnvironmentId;
+            public const string DefaultDevSecretKey = "AE7ffBEUZXNzfTe0";
+            public const string DefaultProdEnvironmentId = ProdEnvironmentId;
+            public const string DefaultProdSecretKey = "GpfC4F40mwkX0jBX";
 
             const string UrlFormat = "http://sp-translations.socialpointgames.com/deploy/<PROJ>/<PLAT>/<ENV>/<PROJ>_<PLAT>_<LANG>_<ENV>_<KEY>.json";
             const string ProjectIdPlaceholder = "<PROJ>";
@@ -37,8 +37,8 @@ namespace SocialPoint.Locale
             const string LanguagePlaceholder = "<LANG>";
 
             public string ProjectId = DefaultProjectId;
-            public string EnvironmentId = DefaultEnvironmentId;
-            public string SecretKey = DefaultSecretKey;
+            public string EnvironmentId = DefaultDevEnvironmentId;
+            public string SecretKey = DefaultDevSecretKey;
             public string Platform = DefaultPlatform;
 
             public string Format(string pattern, string lang)

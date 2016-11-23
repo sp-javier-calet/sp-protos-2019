@@ -1,5 +1,4 @@
 ﻿using SocialPoint.Base;
-using SocialPoint.IO;
 
 namespace SocialPoint.Network
 {
@@ -14,7 +13,7 @@ namespace SocialPoint.Network
         void OnNetworkError(Error err);
     }
 
-    public interface INetworkClient
+    public interface INetworkClient : INetworkMessageSender
     {
         byte ClientId{ get; }
 
@@ -23,8 +22,6 @@ namespace SocialPoint.Network
         void Connect();
 
         void Disconnect();
-
-        INetworkMessage CreateMessage(NetworkMessageData data);
 
         void AddDelegate(INetworkClientDelegate dlg);
 
@@ -38,15 +35,5 @@ namespace SocialPoint.Network
          * from the server to the clients
          */
         int GetDelay(int networkTimestamp);
-    }
-
-    public static class NetworkClientExtensions
-    {
-        public static void SendMessage(this INetworkClient client, NetworkMessageData data, INetworkShareable obj)
-        {
-            var msg = client.CreateMessage(data);
-            obj.Serialize(msg.Writer);
-            msg.Send();
-        }
     }
 }

@@ -95,6 +95,7 @@ namespace SocialPoint.Utils
 
     public sealed class UpdateScheduler : IUpdateScheduler
     {
+        readonly HashSet<IUpdateable> _elementsToRemove;
         readonly HashSet<IUpdateable> _elements;
         readonly Dictionary<IUpdateable, TimeScaleDependantInterval> _intervalTimeScaleDependantElements;
         readonly Dictionary<IUpdateable, TimeScaleNonDependantInterval> _intervalTimeScaleNonDependantElements;
@@ -104,6 +105,7 @@ namespace SocialPoint.Utils
         {
             var comparer = new ReferenceComparer<IUpdateable>();
             _elements = new HashSet<IUpdateable>(comparer);
+            _elementsToRemove = new HashSet<IUpdateable>(comparer);
             _intervalTimeScaleDependantElements = new Dictionary<IUpdateable, TimeScaleDependantInterval>(comparer);
             _intervalTimeScaleNonDependantElements = new Dictionary<IUpdateable, TimeScaleNonDependantInterval>(comparer);
         }
@@ -113,7 +115,10 @@ namespace SocialPoint.Utils
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                _elements.Add(elm);
+                if(!_elementsToRemove.Remove(elm) || !_elements.Contains(elm))
+                {
+                    _elements.Add(elm);
+                }
             }
         }
 
@@ -139,6 +144,16 @@ namespace SocialPoint.Utils
         {
             if(elm != null)
             {
+                _elementsToRemove.Add(elm);
+            }
+        }
+
+        void DoRemove()
+        {
+            var itr = _elementsToRemove.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                var elm = itr.Current;
                 if(_elements.Contains(elm))
                 {
                     _elements.Remove(elm);
@@ -152,10 +167,13 @@ namespace SocialPoint.Utils
                     _intervalTimeScaleNonDependantElements.Remove(elm);
                 }
             }
+            itr.Dispose();
+            _elementsToRemove.Clear();
         }
 
         public void Update(float deltaTime)
         {
+            DoRemove();
             _exceptions.Clear();
 
             var itr = _elements.GetEnumerator();
@@ -226,13 +244,38 @@ namespace SocialPoint.Utils
             var exceptionsCount = _exceptions.Count;
             if(exceptionsCount > 0)
             {
+                throw new AggregateException(_exceptions);
+            }
+        }
+
+        sealed class AggregateException : Exception
+        {
+            static string CreateMessage(IEnumerable<Exception> exceptions)
+            {
                 var sb = new StringBuilder();
-                for(int i = 0; i < exceptionsCount; i++)
+                sb.AppendLine("Multiple Exceptions thrown:");
+                var count = 1;
+                var itr = exceptions.GetEnumerator();
+                while(itr.MoveNext())
                 {
-                    var ex = _exceptions[i];
-                    sb.Append(ex.Message);
+                    var ex = itr.Current;
+                    sb.Append(count++)
+                        .Append(". ")
+                        .Append(ex.GetType().Name)
+                        .Append(": ")
+                        .Append(ex.Message)
+                        .AppendLine(ex.StackTrace);
+                    sb.AppendLine();
                 }
-                throw new Exception(sb.ToString());
+                itr.Dispose();
+                return sb.ToString();
+            }
+
+            public List<Exception> Exceptions { get; private set; }
+
+            public AggregateException(IEnumerable<Exception> exceptions) : base(CreateMessage(exceptions))
+            {
+                Exceptions = new List<Exception>(exceptions);
             }
         }
 
@@ -258,6 +301,21 @@ namespace SocialPoint.Utils
                 Interval = interval;
                 CurrentTimeStamp = TimeUtils.GetTimestampDouble(DateTime.Now);
             }
+        }
+    }
+
+    public class ImmediateCoroutineRunner : ICoroutineRunner
+    {
+        public IEnumerator StartCoroutine(IEnumerator enumerator)
+        {
+            while(enumerator.MoveNext())
+            {
+            }
+            return enumerator;
+        }
+
+        public void StopCoroutine(IEnumerator enumerator)
+        {
         }
     }
 }

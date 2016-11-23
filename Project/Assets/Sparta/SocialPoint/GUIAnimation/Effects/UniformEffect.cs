@@ -1,6 +1,6 @@
-using UnityEngine;
 using System.Collections.Generic;
 using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -188,12 +188,12 @@ namespace SocialPoint.GUIAnimation
 
         public override void CopyActionValues(Effect other)
         {
-            UniformEffect otherUnimEffect = (UniformEffect)other;
+            var otherUnimEffect = (UniformEffect)other;
 
             _values.Clear();
             for(int i = 0; i < otherUnimEffect.Values.Count; ++i)
             {
-                UniformValues effect = new UniformValues();
+                var effect = new UniformValues();
                 effect.Copy(otherUnimEffect.Values[i]);
                 _values.Add(effect);
             }
@@ -209,7 +209,7 @@ namespace SocialPoint.GUIAnimation
             SaveValuesAt(1f);
         }
 
-        public override void Invert(bool invertTime)
+        public override void Invert(bool invertTime = false)
         {
             base.Invert(invertTime);
             for(int i = 0; i < Values.Count; ++i)

@@ -29,7 +29,7 @@ namespace SocialPoint.GUIAnimation
             // Destroy all original components that were just copied
             for(int i = offsetStartPos; i < originalComps.Count; ++i)
             {
-                GameObject.DestroyImmediate(originalComps[i]);
+                UnityEngine.Object.DestroyImmediate(originalComps[i]);
             }
 
             // Copy back all the new components
@@ -39,7 +39,7 @@ namespace SocialPoint.GUIAnimation
             }
 
             // Destroy the copy GO
-            GameObject.DestroyImmediate(copyGo);
+            UnityEngine.Object.DestroyImmediate(copyGo);
 
             return (T)go.GetComponents<Component>()[offsetStartPos + positionFromOffset];
         }

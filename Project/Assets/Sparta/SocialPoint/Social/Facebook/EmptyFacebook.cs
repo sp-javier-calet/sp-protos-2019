@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
 
@@ -6,7 +5,7 @@ namespace SocialPoint.Social
 {
     public sealed class EmptyFacebook : BaseFacebook
     {
-        private List<FacebookUser> _friends = new List<FacebookUser>();
+        List<FacebookUser> _friends = new List<FacebookUser>();
 
         public override List<FacebookUser> Friends
         {
@@ -16,7 +15,7 @@ namespace SocialPoint.Social
             }
         }
 
-        private FacebookUser _user = new FacebookUser();
+        FacebookUser _user = new FacebookUser();
 
         public override FacebookUser User
         {
@@ -26,7 +25,7 @@ namespace SocialPoint.Social
             }
         }
 
-        private List<string> _loginPermissions = new List<string>();
+        List<string> _loginPermissions = new List<string>();
 
         public override List<string> LoginPermissions
         {
@@ -36,7 +35,7 @@ namespace SocialPoint.Social
             }
         }
 
-        private bool _isConnected = false;
+        bool _isConnected;
 
         public override bool IsConnected
         {
@@ -65,7 +64,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public override string ApiVersion 
+        public override string ApiVersion
         { 
             get
             {

@@ -14,12 +14,16 @@ namespace SocialPoint.Lockstep
     {
         public const int DefaultCommandStepDuration = 100;
         public const int DefaultSimulationStepDuration = 10;
+        public const int DefaultMaxSkippedEmptyTurns = 0;
 
         // SimulationStep is the guaranteed simulation tick. Cannot be skipped.
         public int SimulationStepDuration = DefaultSimulationStepDuration;
 
         // Command processing tick.
         public int CommandStepDuration = DefaultCommandStepDuration;
+
+        // Max time the server can be skipping turns
+        public int MaxSkippedEmptyTurns = DefaultMaxSkippedEmptyTurns;
 
         public void Deserialize(IReader reader)
         {
@@ -38,6 +42,26 @@ namespace SocialPoint.Lockstep
             return string.Format("[LockstepConfig\n" +
             "SimulationStepDuration:{0}\n" +
             "CommandStepDuration:{1}]", SimulationStepDuration, CommandStepDuration);
+        }
+    }
+
+    public sealed class LockstepGameParams : INetworkShareable
+    {
+        public uint RandomSeed;
+
+        public LockstepGameParams()
+        {
+            RandomSeed = XRandom.GenerateSeed();
+        }
+
+        public void Deserialize(IReader reader)
+        {
+            RandomSeed = reader.ReadUInt32();
+        }
+
+        public void Serialize(IWriter writer)
+        {
+            writer.Write(RandomSeed);
         }
     }
 }
