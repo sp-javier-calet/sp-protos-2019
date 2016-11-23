@@ -25,6 +25,8 @@ namespace SocialPoint.Utils
         void AddFixed(IUpdateable elm, double interval, bool usesTimeScale = false);
 
         void Remove(IUpdateable elm);
+
+        bool Contains(IUpdateable elm);
     }
 
     public static class UpdateSchedulerExtension
@@ -115,9 +117,12 @@ namespace SocialPoint.Utils
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                if(!_elementsToRemove.Remove(elm) || !_elements.Contains(elm))
+                if(!_elementsToRemove.Remove(elm))
                 {
-                    _elements.Add(elm);
+                    if(!Contains(elm))
+                    {
+                        _elements.Add(elm);
+                    }
                 }
             }
         }
@@ -127,20 +132,11 @@ namespace SocialPoint.Utils
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                if(usesTimeScale)
+                if(!_elementsToRemove.Remove(elm))
                 {
-                    if(!_elementsToRemove.Remove(elm) || !_intervalTimeScaleDependantElements.ContainsKey(elm))
+                    if(!Contains(elm))
                     {
-                        var intervalData = new TimeScaleDependantInterval(interval);
-                        _intervalTimeScaleDependantElements.Add(elm, intervalData);
-                    }
-                }
-                else
-                {
-                    if(!_elementsToRemove.Remove(elm) || !_intervalTimeScaleNonDependantElements.ContainsKey(elm))
-                    {
-                        var intervalData = new TimeScaleNonDependantInterval(interval);
-                        _intervalTimeScaleNonDependantElements.Add(elm, intervalData);
+                        DoAddFixed(elm, interval, usesTimeScale);
                     }
                 }
             }
@@ -151,6 +147,29 @@ namespace SocialPoint.Utils
             if(elm != null)
             {
                 _elementsToRemove.Add(elm);
+            }
+        }
+
+        public bool Contains(IUpdateable elm)
+        {
+            if(_elements.Contains(elm))
+            {
+                return true;
+            }
+            return _intervalTimeScaleDependantElements.ContainsKey(elm) || _intervalTimeScaleNonDependantElements.ContainsKey(elm);
+        }
+
+        void DoAddFixed(IUpdateable elm, double interval, bool usesTimeScale = false)
+        {
+            if(usesTimeScale)
+            {
+                var intervalData = new TimeScaleDependantInterval(interval);
+                _intervalTimeScaleDependantElements.Add(elm, intervalData);
+            }
+            else
+            {
+                var intervalData = new TimeScaleNonDependantInterval(interval);
+                _intervalTimeScaleNonDependantElements.Add(elm, intervalData);
             }
         }
 
