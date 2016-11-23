@@ -76,6 +76,14 @@ namespace SocialPoint.Social
             }
         }
 
+        public IRankManager RankManager
+        {
+            set
+            {
+                _factory.RankManager = value;
+            }
+        }
+
         #endregion
 
         int _members;
