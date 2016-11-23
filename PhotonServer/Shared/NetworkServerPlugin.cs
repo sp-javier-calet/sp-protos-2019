@@ -246,7 +246,7 @@ namespace SocialPoint.Network
             PluginHost.LogError(errorMsg);
         }
 
-        void HandleException(Exception e)
+        protected void HandleException(Exception e)
         {
             BroadcastError(e.Message);
         }

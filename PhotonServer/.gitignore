@@ -1,4 +1,5 @@
 Cache/
 obj/
 log/
+bin/
 __AssemblyInfo__.ini
