@@ -9,6 +9,7 @@ using SocialPoint.Locale;
 using SocialPoint.Notifications;
 using SocialPoint.Purchase;
 using SocialPoint.Network;
+using SocialPoint.Social;
 using SocialPoint.Hardware;
 using SocialPoint.Utils;
 
@@ -55,6 +56,10 @@ public class GameServicesInstaller : Installer
 
         // Purchase store
         Container.Bind<IStoreProductSource>().ToGetter<ConfigModel>((Config) => Config.Store);
+
+        // Social Framework - Game chat rooms
+        Container.Bind<IChatRoom>().ToMethod<ChatRoom<PublicChatMessage>>(CreatePublicChatRoom, SetupPublicChatRoom);
+        Container.Bind<IChatRoom>().ToMethod<ChatRoom<AllianceChatMessage>>(CreateAllianceChatRoom, SetupAllianceChatRoom);
     }
 
     GameCrossPromotionManager CreateManager()
@@ -101,5 +106,34 @@ public class GameServicesInstaller : Installer
         mng.Location.SecretKey = secretKey;
         mng.Timeout = Settings.Timeout;
         mng.BundleDir = Settings.BundleDir;
+    }
+
+    ChatRoom<PublicChatMessage> CreatePublicChatRoom()
+    {
+        return new ChatRoom<PublicChatMessage>("public");
+    }
+
+    void SetupPublicChatRoom(ChatRoom<PublicChatMessage> room)
+    {
+        room.ChatManager = Container.Resolve<ChatManager>();
+        room.Localization = Container.Resolve<Localization>();
+
+        // Configure optional events to manage custom data
+        room.ParseUnknownNotifications = PublicChatMessage.ParseUnknownNotifications;
+        room.ParseExtraInfo = PublicChatMessage.ParseExtraInfo;
+        room.SerializeExtraInfo = PublicChatMessage.SerializeExtraInfo;
+    }
+
+    ChatRoom<AllianceChatMessage> CreateAllianceChatRoom()
+    {
+        return new ChatRoom<AllianceChatMessage>("alliance");
+    }
+
+    void SetupAllianceChatRoom(ChatRoom<AllianceChatMessage> room)
+    {
+        // Configure optional events to manage custom data
+        room.ParseUnknownNotifications = AllianceChatMessage.ParseUnknownNotifications;
+        room.ParseExtraInfo = AllianceChatMessage.ParseExtraInfo;
+        room.SerializeExtraInfo = AllianceChatMessage.SerializeExtraInfo;
     }
 }

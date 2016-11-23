@@ -51,41 +51,7 @@ public class SocialFrameworkInstaller : Installer
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWebSockets>(CreateAdminPanelWebSockets);
 
-        // Game chat rooms
-        Container.Bind<IChatRoom>().ToMethod<ChatRoom<PublicChatMessage>>(CreatePublicChatRoom, SetupPublicChatRoom);
-        Container.Bind<IChatRoom>().ToMethod<ChatRoom<AllianceChatMessage>>(CreateAllianceChatRoom, SetupAllianceChatRoom);
-    }
-
-    ChatRoom<PublicChatMessage> CreatePublicChatRoom()
-    {
-        return new ChatRoom<PublicChatMessage>("public");
-    }
-
-    void SetupPublicChatRoom(ChatRoom<PublicChatMessage> room)
-    {
-        room.ChatManager = Container.Resolve<ChatManager>();
-        room.Localization = Container.Resolve<Localization>();
-
-        // Configure optional events to manage custom data
-        room.ParseUnknownNotifications = PublicChatMessage.ParseUnknownNotifications;
-        room.ParseExtraInfo = PublicChatMessage.ParseExtraInfo;
-        room.SerializeExtraInfo = PublicChatMessage.SerializeExtraInfo;
-    }
-
-    ChatRoom<AllianceChatMessage> CreateAllianceChatRoom()
-    {
-        return new ChatRoom<AllianceChatMessage>("alliance");
-    }
-
-    void SetupAllianceChatRoom(ChatRoom<AllianceChatMessage> room)
-    {
-        room.ChatManager = Container.Resolve<ChatManager>();
-        room.Localization = Container.Resolve<Localization>();
-
-        // Configure optional events to manage custom data
-        room.ParseUnknownNotifications = AllianceChatMessage.ParseUnknownNotifications;
-        room.ParseExtraInfo = AllianceChatMessage.ParseExtraInfo;
-        room.SerializeExtraInfo = AllianceChatMessage.SerializeExtraInfo;
+        Container.Listen<IChatRoom>().WhenResolved(SetupChatRoom);
     }
 
     WebSocketClient CreateWebSocket()
@@ -160,5 +126,11 @@ public class SocialFrameworkInstaller : Installer
         return new AdminPanelWebSockets(
             Container.Resolve<IWebSocketClient>(SocialFrameworkTag),
             SocialFrameworkTag);
+    }
+
+    void SetupChatRoom(IChatRoom room)
+    {
+        room.ChatManager = Container.Resolve<ChatManager>();
+        room.Localization = Container.Resolve<Localization>();
     }
 }

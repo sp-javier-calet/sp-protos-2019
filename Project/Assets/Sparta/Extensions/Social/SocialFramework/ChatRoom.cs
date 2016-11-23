@@ -18,6 +18,8 @@ namespace SocialPoint.Social
 
         ChatManager ChatManager { set; }
 
+        Localization Localization { set; }
+
         void ParseInitialInfo(AttrDic dic);
 
         void AddNotificationMessage(int type, AttrDic dic);
