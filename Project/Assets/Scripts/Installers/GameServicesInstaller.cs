@@ -101,6 +101,5 @@ public class GameServicesInstaller : Installer
         mng.Location.SecretKey = secretKey;
         mng.Timeout = Settings.Timeout;
         mng.BundleDir = Settings.BundleDir;
-        mng.AppEvents = Container.Resolve<IAppEvents>();
     }
 }
