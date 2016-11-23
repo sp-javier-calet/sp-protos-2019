@@ -332,14 +332,20 @@ namespace SocialPoint.Social
             {
                 layout.CreateLabel("Alliance");
                 layout.CreateMargin();
-
-                CreateOwnAlliancePanel(layout);
-                layout.CreateMargin();
-                layout.CreateOpenPanelButton("Ranking", _rankingPanel);
-                layout.CreateTextInput(string.IsNullOrEmpty(_searchPanel.Filter) ? "Search alliances" : _searchPanel.Filter, value => {
-                    _searchPanel.Filter = value;
-                });
-                layout.CreateOpenPanelButton("Search", _searchPanel);
+                if(_alliances.AlliancePlayerInfo != null)
+                {
+                    CreateOwnAlliancePanel(layout);
+                    layout.CreateMargin();
+                    layout.CreateOpenPanelButton("Ranking", _rankingPanel);
+                    layout.CreateTextInput(string.IsNullOrEmpty(_searchPanel.Filter) ? "Search alliances" : _searchPanel.Filter, value => {
+                        _searchPanel.Filter = value;
+                    });
+                    layout.CreateOpenPanelButton("Search", _searchPanel);
+                }
+                else
+                {
+                    layout.CreateLabel("Alliance Player Info not available");
+                }
             }
 
             void CreateOwnAlliancePanel(AdminPanelLayout layout)
