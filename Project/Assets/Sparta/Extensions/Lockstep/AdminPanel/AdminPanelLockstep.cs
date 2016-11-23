@@ -4,19 +4,18 @@ using SocialPoint.AdminPanel;
 using SocialPoint.Console;
 using SocialPoint.Utils;
 using SocialPoint.GUIControl;
-using SocialPoint.Lockstep.Network;
 using System.Text;
 
 namespace SocialPoint.Lockstep
 {
     public class AdminPanelLockstepClientGUI : IFloatingPanelGUI, IUpdateable
     {
-        ClientLockstepController _client;
+        LockstepClient _client;
         Text _text;
 
         public const string Title = "LockstepClient";
 
-        public AdminPanelLockstepClientGUI(ClientLockstepController client)
+        public AdminPanelLockstepClientGUI(LockstepClient client)
         {
             _client = client;
         }
@@ -85,12 +84,12 @@ namespace SocialPoint.Lockstep
 
     public class AdminPanelLockstepServerGUI : IFloatingPanelGUI, IUpdateable
     {
-        ServerLockstepNetworkController _server;
+        LockstepNetworkServer _server;
         Text _text;
 
         public const string Title = "LockstepServer";
 
-        public AdminPanelLockstepServerGUI(ServerLockstepNetworkController server)
+        public AdminPanelLockstepServerGUI(LockstepNetworkServer server)
         {
             _server = server;
         }
@@ -140,15 +139,15 @@ namespace SocialPoint.Lockstep
 
     public sealed class AdminPanelLockstep : IAdminPanelConfigurer, IAdminPanelGUI
     {
-        ClientLockstepController _client;
-        ServerLockstepNetworkController _server;
+        LockstepClient _client;
+        LockstepNetworkServer _server;
 
-        public AdminPanelLockstep(ClientLockstepController client)
+        public AdminPanelLockstep(LockstepClient client)
         {
             _client = client;
         }
 
-        public void RegisterServer(ServerLockstepNetworkController server)
+        public void RegisterServer(LockstepNetworkServer server)
         {
             _server = server;
         }

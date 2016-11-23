@@ -6,7 +6,7 @@ using SocialPoint.WebSockets;
 using SocialPoint.Login;
 using SocialPoint.Utils;
 using SocialPoint.Attributes;
-using SocialPoint.Lockstep.Network;
+using SocialPoint.Lockstep;
 using System;
 
 public class MatchmakingInstaller : Installer
@@ -17,7 +17,7 @@ public class MatchmakingInstaller : Installer
         const string DefaultBaseUrl = "http://int-lod.socialpointgames.es";
         const string DefaultWebsocketUrl = "ws://int-lod.socialpointgames.com:8001/find_opponent";
         public string BaseUrl = DefaultBaseUrl;
-        public string WebsocketUrl = DefaultWebsocketUrl;
+        public string[] WebsocketUrls = new string[] { DefaultWebsocketUrl };
     }
 
     public SettingsData Settings = new SettingsData();
@@ -36,7 +36,7 @@ public class MatchmakingInstaller : Installer
     LockstepMatchmakingClientDelegate CreateLockstepDelegate()
     {
         return new LockstepMatchmakingClientDelegate(
-            Container.Resolve<ClientLockstepNetworkController>(),
+            Container.Resolve<LockstepNetworkClient>(),
             Container.Resolve<IMatchmakingClient>());
     }
 
@@ -68,13 +68,13 @@ public class MatchmakingInstaller : Installer
         return new StoredMatchmakingClient(
             new WebsocketMatchmakingClient(
                 Container.Resolve<ILoginData>(),
-                new WebSocketSharpClient(
-                    Settings.WebsocketUrl,
+                new WebSocketClient(
+                    Settings.WebsocketUrls,
                     Container.Resolve<IUpdateScheduler>()
                 )
             ), new AttrMatchStorage(
-                Container.Resolve<IAttrStorage>("volatile")
-            )
+            Container.Resolve<IAttrStorage>("volatile")
+        )
         );
     }
 

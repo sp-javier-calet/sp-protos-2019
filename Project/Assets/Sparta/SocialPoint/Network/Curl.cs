@@ -371,7 +371,7 @@ namespace SocialPoint.Network
         };
 
         /// <summary>
-        /// Curl errors. This is tied to the native Curl library.s
+        /// Curl errors. This is tied to the native Curl library.
         /// </summary>
         enum CurlError
         {

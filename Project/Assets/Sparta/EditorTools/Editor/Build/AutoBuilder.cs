@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-
 namespace SpartaTools.Editor.Build
 {
     public static class AutoBuilder
@@ -191,7 +190,7 @@ namespace SpartaTools.Editor.Build
             /*
              * Settings Override
              */ 
-            if(!buildSet.Android.ForceBundleVersionCode)
+            if(!buildSet.App.OverrideBuild)
             {
                 OverrideBuildNumber(versionNumber);
             }
@@ -225,34 +224,6 @@ namespace SpartaTools.Editor.Build
             {
                 throw new CompilerErrorException(result);
             }
-        }
-
-        #endregion
-
-        #region Editor options
-
-        [MenuItem("Sparta/Build/Player/Android Release", false, 101)]
-        public static void BuildAndroidRelease()
-        {
-            AutoBuilder.Build(BuildTarget.Android, BuildSet.ReleaseConfigName);
-        }
-
-        [MenuItem("Sparta/Build/Player/Android Debug", false, 102)]
-        public static void BuildAndroidDebug()
-        {
-            AutoBuilder.Build(BuildTarget.Android, BuildSet.DebugConfigName);
-        }
-
-        [MenuItem("Sparta/Build/Player/Ios Release", false, 201)]
-        public static void BuildIosRelease()
-        {
-            AutoBuilder.Build(BuildTarget.iOS, BuildSet.ReleaseConfigName);
-        }
-
-        [MenuItem("Sparta/Build/Player/Ios Debug", false, 202)]
-        public static void BuildIosDebug()
-        {
-            AutoBuilder.Build(BuildTarget.iOS, BuildSet.DebugConfigName);
         }
 
         #endregion

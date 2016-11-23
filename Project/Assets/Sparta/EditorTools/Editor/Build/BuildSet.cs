@@ -51,6 +51,9 @@ namespace SpartaTools.Editor.Build
         public struct AppConfiguration
         {
             public string ProductName;
+            public string Version;
+            public int BuildNumber;
+            public bool OverrideBuild;
             public Texture2D IconTexture;
             public bool OverrideIcon;
         }
@@ -104,8 +107,6 @@ namespace SpartaTools.Editor.Build
         public struct AndroidConfiguration
         {
             public string BundleIdentifier;
-            public int BundleVersionCode;
-            public bool ForceBundleVersionCode;
             public string Flags;
             public string RemovedResources;
             public bool UseKeystore;
@@ -199,8 +200,8 @@ namespace SpartaTools.Editor.Build
                 ErrorMessage = "Shipping Build Set cannot be set as a Development Build"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.Android.ForceBundleVersionCode,
-                ErrorMessage = "Shipping Build Set cannot force bundle version code"
+                Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.App.OverrideBuild,
+                ErrorMessage = "Shipping Build Set cannot override bundle number"
             },
             new Validator {
                 Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.Common.EnableAdminPanel,
@@ -301,6 +302,11 @@ namespace SpartaTools.Editor.Build
                 PlayerSettings.productName = App.ProductName;
             }
 
+            if(!string.IsNullOrEmpty(App.Version))
+            {
+                PlayerSettings.bundleVersion = App.Version;
+            }
+
             if(App.OverrideIcon)
             {
                 PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new Texture2D[] {
@@ -323,6 +329,12 @@ namespace SpartaTools.Editor.Build
                 });
             }
 
+            if(App.OverrideBuild)
+            {
+                PlayerSettings.Android.bundleVersionCode = App.BuildNumber;
+                PlayerSettings.iOS.buildNumber = App.BuildNumber.ToString();
+            }
+
             SelectScenes(Common.IncludeDebugScenes);
 
             /* 
@@ -340,10 +352,6 @@ namespace SpartaTools.Editor.Build
             /*
              * Android-only configuration
              */
-            if(Android.ForceBundleVersionCode)
-            {
-                PlayerSettings.Android.bundleVersionCode = Android.BundleVersionCode;
-            }
 
             // Android Keystore
             if(Android.UseKeystore && !string.IsNullOrEmpty(Android.Keystore.Path))
@@ -383,8 +391,8 @@ namespace SpartaTools.Editor.Build
 
         string GetLogLevelFlag(BaseSettings baseSettings)
         {
-            LogLevel level = LogLevel.Info;
-            if(Common.LogLevel == LogLevel.Default)
+            LogLevel level = Common.LogLevel;
+            if(level == LogLevel.Default)
             {
                 level = baseSettings.Common.LogLevel;
             }

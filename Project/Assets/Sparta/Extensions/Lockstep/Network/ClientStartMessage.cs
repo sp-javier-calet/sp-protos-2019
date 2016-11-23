@@ -1,7 +1,7 @@
 ﻿using SocialPoint.IO;
 using System.Collections.Generic;
 
-namespace SocialPoint.Lockstep.Network
+namespace SocialPoint.Lockstep
 {
     public sealed class ClientStartMessage : INetworkShareable
     {

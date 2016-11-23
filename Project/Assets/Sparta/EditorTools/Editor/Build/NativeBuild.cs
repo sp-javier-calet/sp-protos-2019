@@ -3,12 +3,15 @@ using UnityEditor;
 using System;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 using SpartaTools.Editor.Utils;
 
 namespace SpartaTools.Editor.Build
 {
     public static class NativeBuild
     {
+        static readonly List<string> IgnoredAndroidNativeModules = new List<string>{ "lib" };
+
         static string SourcesDirectoryPath
         {
             get
@@ -59,10 +62,12 @@ namespace SpartaTools.Editor.Build
             }
         }
 
-        #region Editor options
-
-        [MenuItem("Sparta/Build/Plugins/Android Java Plugins", false, 101)]
         public static void CompileAndroid()
+        {
+            CompileAndroid(null, null);
+        }
+
+        public static void CompileAndroid(Action<string> onBuildStart, Action onBuildEnd)
         {
             var commandOutput = new StringBuilder("Compile SPUnityPlugins for Android");
             var path = Path.Combine(SourcesDirectoryPath, "Android/sp_unity_plugins");
@@ -84,20 +89,31 @@ namespace SpartaTools.Editor.Build
             Debug.Log(msg);
             commandOutput.AppendLine(msg);
 
-            EditorUtility.DisplayProgressBar("Compiling Android plugin", msg, 0.1f);
+            if(onBuildStart != null)
+            {
+                onBuildStart(path);
+            }
 
             var result = NativeConsole.RunProcess(path + "/gradlew", string.Format("generateUnityPlugin -PunityInstallationPath='{0}'", unityPath), path);
 
             commandOutput.AppendLine(result.Output);
             Debug.Log(commandOutput.ToString());
 
-            EditorUtility.ClearProgressBar();
+            if(onBuildEnd != null)
+            {
+                onBuildEnd();
+            }
 
             ValidateResult(result);
         }
 
-        [MenuItem("Sparta/Build/Plugins/Android Native Plugins", false, 102)]
+
         public static void CompileAndroidNative()
+        {
+            CompileAndroidNative(null, null);
+        }
+
+        public static void CompileAndroidNative(Action<float, string> onProgress, Action onModuleEnd)
         {
             if(string.IsNullOrEmpty(AndroidNDKPath))
             {
@@ -116,51 +132,49 @@ namespace SpartaTools.Editor.Build
             foreach(var plugin in dirs)
             {
                 var pluginDir = Path.GetFileName(plugin);
+                if(IgnoredAndroidNativeModules.Contains(pluginDir))
+                {
+                    continue;
+                }
+
                 var msg = string.Format("Compiling native plugin {0}", pluginDir);
                 Debug.Log(msg);
                 commandOutput.AppendLine(msg);
 
-                EditorUtility.DisplayProgressBar("Compiling native plugin", msg, currentStep);
+                if(onProgress != null)
+                {
+                    onProgress(currentStep, msg);
+                }
                 currentStep += step;
 
                 var result = NativeConsole.RunProcess(Path.Combine(path, "build_native_plugin.sh"), string.Format("{0} {1}", pluginDir, AndroidNDKPath), path);
                 commandOutput.AppendLine(result.Output);
 
-                EditorUtility.ClearProgressBar();
+                if(onModuleEnd != null)
+                {
+                    onModuleEnd();
+                }
 
                 ValidateResult(result);
             }
             Debug.Log(commandOutput.ToString());
         }
 
-        [MenuItem("Sparta/Build/Plugins/iOS Plugins", false, 201)]
         public static void CompileIOS()
         {
             CompileAppleProjectTarget("generateUnityPlugin");
         }
 
-        [MenuItem("Sparta/Build/Plugins/tvOS Plugins", false, 202)]
         public static void CompileTVOS()
         {
             CompileAppleProjectTarget("generateUnityPlugin_tvOS");
         }
 
-        [MenuItem("Sparta/Build/Plugins/OSX Plugins", false, 202)]
         public static void CompileOSX()
         {
             CompileAppleProjectTarget("generateUnityPlugin_macOS");
-
-            // Show prompt to restart editor in order to reload native librariess
-            if(EditorUtility.DisplayDialog("Restart required", "Editor must be restarted to apply changes in native plugins", "Restart Now", "Continue without restart"))
-            {
-                if(UnityEditor.SceneManagement.EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
-                {
-                    EditorApplication.OpenProject(Path.Combine(Application.dataPath, ".."));
-                }
-            }
         }
 
-        [MenuItem("Sparta/Build/Plugins/Build All", false, 500)]
         public static void CompileAll()
         {
             CompileAndroid();
@@ -199,7 +213,5 @@ namespace SpartaTools.Editor.Build
 
             ValidateResult(result);
         }
-
-        #endregion
     }
 }

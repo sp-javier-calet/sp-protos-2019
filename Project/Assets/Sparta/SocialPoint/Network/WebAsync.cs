@@ -39,10 +39,10 @@ namespace SocialPoint.Network
             {
                 asyncResult = (IAsyncResult)webRequest.BeginGetRequestStream(new AsyncCallback(GetRequestStreamCallback), webRequest);
             }
-            catch(WebException webException)
+            catch(Exception exception)
             {
-                Log.e("[WebAsync] Error message while getting stream from request '" + webRequest.RequestUri.ToString() + "': " + webException.Message);
-                ErrorMessage = webException.Message;
+                Log.e("[WebAsync] Error message while getting stream from request '" + webRequest.RequestUri.ToString() + "': " + exception.Message);
+                ErrorMessage = exception.Message;
                 yield break;
             }
 

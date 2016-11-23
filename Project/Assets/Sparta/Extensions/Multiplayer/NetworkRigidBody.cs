@@ -1,4 +1,5 @@
 ﻿using SocialPoint.Physics;
+using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
@@ -64,11 +65,13 @@ namespace SocialPoint.Multiplayer
             }
 
             _rigidBody.Position = NetworkGameObject.Transform.Position;
+            _rigidBody.Orientation = JMatrix.CreateFromQuaternion(NetworkGameObject.Transform.Rotation);
         }
 
         void UpdateTransformFromPhysicsObject()
         {
             NetworkGameObject.Transform.Position = _rigidBody.Position;
+            NetworkGameObject.Transform.Rotation = JQuaternion.CreateFromMatrix(_rigidBody.Orientation);
         }
     }
 }
