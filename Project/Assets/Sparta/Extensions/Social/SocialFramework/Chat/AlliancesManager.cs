@@ -102,20 +102,21 @@ namespace SocialPoint.Social
 
         public ILoginData LoginData { private get; set; }
 
-        public AllianceDataFactory Factory { private get; set; }
-
         public uint MaxPendingJoinRequests { get; set; }
 
         public IRankManager Ranks { get; set; }
 
         public IAccessTypeManager AccessTypes { get; set; }
 
+        readonly AllianceDataFactory _factory;
+
         readonly ConnectionManager _connection;
 
         public AlliancesManager(ConnectionManager connection, AllianceDataFactory factory)
         {
-            Factory = factory;
-            AlliancePlayerInfo = Factory.CreatePlayerInfo();
+            _factory = factory;
+            AlliancePlayerInfo = _factory.CreatePlayerInfo();
+
             _connection = connection;
             _connection.AlliancesManager = this;
             _connection.OnNotificationReceived += OnNotificationReceived;
@@ -130,7 +131,7 @@ namespace SocialPoint.Social
 
         public AllianceBasicData GetBasicDataFromAlliance(Alliance alliance)
         {
-            return Factory.CreateBasicData(alliance);
+            return _factory.CreateBasicData(alliance);
         }
 
         public WAMPRequest LoadAllianceInfo(string allianceId, Action<Error, Alliance> callback)
@@ -145,7 +146,7 @@ namespace SocialPoint.Social
                 {
                     DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
                     var result = rDic.Get(OperationResultKey).AsDic;
-                    alliance = Factory.CreateAlliance(allianceId, AccessTypes.DefaultAccessType, result);
+                    alliance = _factory.CreateAlliance(allianceId, AccessTypes.DefaultAccessType, result);
                 }
                 if(callback != null)
                 {
@@ -165,7 +166,7 @@ namespace SocialPoint.Social
                 {
                     DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
                     var result = rDic.Get(OperationResultKey).AsDic;
-                    member = Factory.CreateMember(result);
+                    member = _factory.CreateMember(result);
                 }
                 if(callback != null)
                 {
@@ -191,7 +192,7 @@ namespace SocialPoint.Social
                 {
                     DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
                     var result = rDic.Get(OperationResultKey).AsDic;
-                    ranking = Factory.CreateRankingData(result);
+                    ranking = _factory.CreateRankingData(result);
                 }
                 if(callback != null)
                 {
@@ -202,7 +203,7 @@ namespace SocialPoint.Social
 
         public WAMPRequest LoadSearch(AlliancesSearch data, Action<Error, AlliancesSearchResult> callback)
         {
-            var dic = Factory.SerializeSearchData(data);
+            var dic = _factory.SerializeSearchData(data);
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
 
             return _connection.Call(AllianceSearchMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
@@ -211,7 +212,7 @@ namespace SocialPoint.Social
                 {
                     DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
                     var result = rDic.Get(OperationResultKey).AsDic;
-                    searchData = Factory.CreateSearchResultData(result);
+                    searchData = _factory.CreateSearchResultData(result);
                 }
                 if(callback != null)
                 {
@@ -272,7 +273,7 @@ namespace SocialPoint.Social
 
         public WAMPRequest CreateAlliance(Alliance data, Action<Error> callback)
         {
-            var dic = Factory.SerializeAlliance(data);
+            var dic = _factory.SerializeAlliance(data);
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
 
             return _connection.Call(AllianceCreateMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
@@ -287,7 +288,7 @@ namespace SocialPoint.Social
 
                 DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
                 var result = rDic.Get(OperationResultKey).AsDic;
-                Factory.OnAllianceCreated(AlliancePlayerInfo, data, result);
+                _factory.OnAllianceCreated(AlliancePlayerInfo, data, result);
 
                 UpdateChatServices(rDic);
 
@@ -303,7 +304,7 @@ namespace SocialPoint.Social
         public WAMPRequest EditAlliance(Alliance current, Alliance data, Action<Error> callback)
         {
             var dic = new AttrDic();
-            var dicProperties = Factory.SerializeAlliance(current, data);
+            var dicProperties = _factory.SerializeAlliance(current, data);
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
             dic.Set(AlliancePropertiesKey, dicProperties);
 
@@ -434,7 +435,7 @@ namespace SocialPoint.Social
 
         public void ParseAllianceInfo(AttrDic dic)
         {
-            AlliancePlayerInfo = Factory.CreatePlayerInfo(MaxPendingJoinRequests, dic);
+            AlliancePlayerInfo = _factory.CreatePlayerInfo(MaxPendingJoinRequests, dic);
             NotifyAllianceEvent(AllianceAction.OnPlayerAllianceInfoParsed, dic);
         }
 
@@ -471,7 +472,7 @@ namespace SocialPoint.Social
                     return;
                 }
 
-                Factory.OnAllianceJoined(AlliancePlayerInfo, alliance, data);
+                _factory.OnAllianceJoined(AlliancePlayerInfo, alliance, data);
                 UpdateChatServices(rDic);
 
                 if(callback != null)
@@ -630,7 +631,7 @@ namespace SocialPoint.Social
 
         void OnRequestAccepted(AttrDic dic)
         {
-            Factory.OnAllianceRequestAccepted(AlliancePlayerInfo, dic);
+            _factory.OnAllianceRequestAccepted(AlliancePlayerInfo, dic);
 
             UpdateChatServices(dic);
 
