@@ -1,4 +1,4 @@
-
+using NSubstitute;
 using NUnit.Framework;
 using System;
 
@@ -59,6 +59,14 @@ namespace SocialPoint.Dependency
 
     class TestBinding : IBinding
     {
+        public BindingKey Key 
+        {
+            get
+            {
+                return new BindingKey(typeof(TestBinding), null);
+            }
+        }
+
         public object Resolve()
         {
             return new TestService();
@@ -330,6 +338,33 @@ namespace SocialPoint.Dependency
             container.Bind<TestDisposable>().ToSingle<TestDisposable>();
             container.Remove<TestDisposable>();
             Assert.AreEqual(1, TestDisposable.Count);
+        }
+
+        [Test]
+        public void AddListener()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
+
+            var setupCallback = Substitute.For<Action<TestDisposable>>();
+            container.Listen<TestDisposable>().WhenResolved(setupCallback);
+            container.Resolve<TestDisposable>();
+
+            setupCallback.Received().Invoke(Arg.Any<TestDisposable>());
+        }
+
+        [Test]
+        public void AddListenerWithLookup()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
+            container.Bind<IDisposable>().ToLookup<TestDisposable>();
+
+            var setupCallback = Substitute.For<Action<IDisposable>>();
+            container.Listen<IDisposable>().WhenResolved(setupCallback);
+            container.Resolve<TestDisposable>();
+
+            setupCallback.Received().Invoke(Arg.Any<IDisposable>());
         }
     }
 }

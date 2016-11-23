@@ -40,7 +40,7 @@ public class GameServicesInstaller : Installer
     public override void InstallBindings()
     {
         // CrossPromotion
-        Container.Bind<GameCrossPromotionManager>().ToMethod<GameCrossPromotionManager>(CreateManager, SetupManager);
+        Container.Bind<GameCrossPromotionManager>().ToMethod<GameCrossPromotionManager>(CreateManager);
         Container.Bind<CrossPromotionManager>().ToLookup<GameCrossPromotionManager>();
         Container.Bind<IDisposable>().ToLookup<CrossPromotionManager>();
 
@@ -60,15 +60,6 @@ public class GameServicesInstaller : Installer
     GameCrossPromotionManager CreateManager()
     {
         return new GameCrossPromotionManager(Container.Resolve<ICoroutineRunner>(), Container.Resolve<PopupsController>());
-    }
-
-    void SetupManager(CrossPromotionManager mng)
-    {
-        // TODO how to move to sparta?
-        var eventTracker = Container.Resolve<IEventTracker>();
-        mng.TrackSystemEvent = eventTracker.TrackSystemEvent;
-        mng.TrackUrgentSystemEvent = eventTracker.TrackUrgentSystemEvent;
-        mng.AppEvents = Container.Resolve<IAppEvents>();
     }
 
     GameNotificationManager CreateNotificationManager()
