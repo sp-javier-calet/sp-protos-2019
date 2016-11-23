@@ -276,8 +276,6 @@ namespace SocialPoint.Social
             info.TotalMembers = 1;
             info.JoinTimestamp = TimeUtils.Timestamp;
             info.ClearRequests();
-
-            OnCustomAllianceCreated(info, data, result);
         }
 
         public void OnAllianceJoined(AlliancePlayerInfo info, AllianceBasicData data, JoinExtraData extra)
@@ -289,8 +287,6 @@ namespace SocialPoint.Social
             info.TotalMembers = data.Members;
             info.JoinTimestamp = extra.Timestamp;
             info.ClearRequests();
-
-            OnCustomAllianceJoined(info, data, extra);
         }
 
         public void OnAllianceRequestAccepted(AlliancePlayerInfo info, AttrDic dic)
@@ -314,8 +310,6 @@ namespace SocialPoint.Social
             info.TotalMembers = totalMembers;
             info.JoinTimestamp = joinTs;
             info.ClearRequests();
-
-            OnCustomAllianceRequestAccepted(info, dic);
         }
 
         public AlliancesRanking CreateRankingData(AttrDic dic)
@@ -432,18 +426,6 @@ namespace SocialPoint.Social
         }
 
         protected virtual void ParseCustomPlayerInfo(AlliancePlayerInfo info, AttrDic dic)
-        {
-        }
-
-        protected virtual void OnCustomAllianceCreated(AlliancePlayerInfo info, Alliance data, AttrDic result)
-        {
-        }
-
-        protected virtual void OnCustomAllianceJoined(AlliancePlayerInfo info, AllianceBasicData data, JoinExtraData extra)
-        {
-        }
-
-        protected virtual void OnCustomAllianceRequestAccepted(AlliancePlayerInfo info, AttrDic dic)
         {
         }
 
