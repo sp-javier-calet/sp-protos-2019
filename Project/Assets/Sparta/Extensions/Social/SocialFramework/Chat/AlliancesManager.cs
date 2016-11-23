@@ -112,10 +112,8 @@ namespace SocialPoint.Social
 
         readonly ConnectionManager _connection;
 
-        public AlliancesManager(ConnectionManager connection, AllianceDataFactory factory)
+        public AlliancesManager(ConnectionManager connection)
         {
-            Factory = factory;
-            AlliancePlayerInfo = Factory.CreatePlayerInfo();
             _connection = connection;
             _connection.AlliancesManager = this;
             _connection.OnNotificationReceived += OnNotificationReceived;
@@ -434,6 +432,8 @@ namespace SocialPoint.Social
 
         public void ParseAllianceInfo(AttrDic dic)
         {
+            DebugUtils.Assert(Factory != null, "AlliancesDataFactory is require to create an AlliancePlayerInfo");
+
             AlliancePlayerInfo = Factory.CreatePlayerInfo(MaxPendingJoinRequests, dic);
             NotifyAllianceEvent(AllianceAction.OnPlayerAllianceInfoParsed, dic);
         }

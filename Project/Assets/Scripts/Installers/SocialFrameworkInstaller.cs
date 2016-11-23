@@ -144,12 +144,12 @@ public class SocialFrameworkInstaller : Installer
     AlliancesManager CreateAlliancesManager()
     {
         return new AlliancesManager(
-            Container.Resolve<ConnectionManager>(),
-            Container.Resolve<AllianceDataFactory>());
+            Container.Resolve<ConnectionManager>());
     }
 
     void SetupAlliancesManager(AlliancesManager manager)
     {
+        manager.Factory = Container.Resolve<AllianceDataFactory>();
         manager.LoginData = Container.Resolve<ILoginData>();
         manager.Ranks = Container.Resolve<IRankManager>();
         manager.AccessTypes = Container.Resolve<IAccessTypeManager>();
