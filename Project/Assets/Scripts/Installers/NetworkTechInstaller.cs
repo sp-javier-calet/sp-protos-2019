@@ -1,0 +1,47 @@
+﻿using System;
+using SocialPoint.Dependency;
+using SocialPoint.Network;
+
+public class NetworkTechInstaller : Installer
+{
+    public enum NetworkTech
+    {
+        Local,
+        Unet,
+        Photon
+    }
+
+    [Serializable]
+    public class SettingsData
+    {
+        public NetworkTech Tech = NetworkTech.Local;
+        public UnetNetworkInstaller.SettingsData Unet = new UnetNetworkInstaller.SettingsData();
+        public PhotonNetworkInstaller.SettingsData Photon = new PhotonNetworkInstaller.SettingsData();
+    }
+
+    public SettingsData Settings = new SettingsData();
+
+    public override void InstallBindings()
+    {
+        SubInstaller techInstaller;
+        switch(Settings.Tech)
+        {
+        case NetworkTech.Unet:
+            var unet = new UnetNetworkInstaller();
+            unet.Settings = Settings.Unet;
+            techInstaller = unet;
+            break;
+        case NetworkTech.Photon:
+            var photon = new PhotonNetworkInstaller();
+            photon.Settings = Settings.Photon;
+            techInstaller = photon;
+            break;
+        default:
+            techInstaller = new LocalNetworkInstaller();
+            break;
+        }
+
+        Container.Install(techInstaller);
+        Container.Install(new NetworkInstaller());
+    }
+}
