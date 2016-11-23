@@ -53,7 +53,9 @@ namespace SpartaTools.Editor.View
 
         static BuildSetApplier()
         {
-            if(AutoApply)
+            var playing = EditorApplication.isPlayingOrWillChangePlaymode;
+            var compiling = EditorApplication.isCompiling;
+            if(AutoApply && !playing && !compiling)
             {
                 ApplyConfig(CurrentMode);
             }
