@@ -177,15 +177,6 @@ namespace SocialPoint.Utils
             _elementsToRemove.Clear();
         }
 
-        bool Contains(IUpdateable elm)
-        {
-            if(_elements.Contains(elm))
-            {
-                return true;
-            }
-            return _intervalTimeScaleDependantElements.ContainsKey(elm) || _intervalTimeScaleNonDependantElements.ContainsKey(elm);
-        }
-
         public void Update(float deltaTime)
         {
             DoRemove();
