@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -45,12 +44,17 @@ namespace SocialPoint.GUIAnimation
 
         bool TryDeleteSelectedAnimationItems()
         {
-            if(Event.current.type == EventType.KeyUp && Event.current.keyCode == KeyCode.Delete
-            && !GUIAnimationTool.Blackboard.CompareValue(AnimationBlackboardKey.FocusPanelKey, AnimationBlackboardValue.EasingGridPanel)
-            && BoxEditorContainer.SelectedStep != null)
+            if(Event.current.type == EventType.keyDown)
             {
-                BoxEditorContainer.RemoveSelectedAnimationItems();
-                return true;
+                bool isCommandPressed = (GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand) || GUIAnimationTool.KeyController.IsPressed(KeyCode.RightCommand));
+
+                if((GUIAnimationTool.KeyController.IsPressed(KeyCode.Delete) || (isCommandPressed && Event.current.keyCode == KeyCode.Backspace))
+                   && !GUIAnimationTool.Blackboard.CompareValue(AnimationBlackboardKey.FocusPanelKey, AnimationBlackboardValue.EasingGridPanel)
+                   && BoxEditorContainer.SelectedStep != null)
+                {
+                    BoxEditorContainer.RemoveSelectedAnimationItems();
+                    return true;
+                }
             }
 
             return false;
@@ -59,9 +63,9 @@ namespace SocialPoint.GUIAnimation
         bool TryDuplicateSelectedAnimationItems()
         {
             if(Event.current.type == EventType.keyDown
-            && (GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftControl) || GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand))
-            && GUIAnimationTool.KeyController.IsPressed(KeyCode.D)
-            && BoxEditorContainer.SelectedStep != null)
+               && (GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftControl) || GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand))
+               && GUIAnimationTool.KeyController.IsPressed(KeyCode.D)
+               && BoxEditorContainer.SelectedStep != null)
             {
                 BoxEditorContainer.DuplicateSelectedAnimationItems();
                 return true;
@@ -73,9 +77,9 @@ namespace SocialPoint.GUIAnimation
         bool TryGroupAnimationItems()
         {
             if(Event.current.type == EventType.keyDown
-            && (GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftControl) || GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand))
-            && GUIAnimationTool.KeyController.IsPressed(KeyCode.G)
-            && BoxEditorContainer.SelectedStep != null)
+               && (GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftControl) || GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand))
+               && GUIAnimationTool.KeyController.IsPressed(KeyCode.G)
+               && BoxEditorContainer.SelectedStep != null)
             {
                 BoxEditorContainer.GroupSelection();
                 return true;
@@ -87,9 +91,9 @@ namespace SocialPoint.GUIAnimation
         bool TryUngroupAnimationItems()
         {
             if(Event.current.type == EventType.keyDown
-            && (GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftControl) || GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand))
-            && GUIAnimationTool.KeyController.IsPressed(KeyCode.U)
-            && BoxEditorContainer.SelectedStep != null)
+               && (GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftControl) || GUIAnimationTool.KeyController.IsPressed(KeyCode.LeftCommand))
+               && GUIAnimationTool.KeyController.IsPressed(KeyCode.U)
+               && BoxEditorContainer.SelectedStep != null)
             {
                 BoxEditorContainer.UngroupSelection();
                 return true;

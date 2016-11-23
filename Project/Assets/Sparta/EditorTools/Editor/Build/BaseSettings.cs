@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using System;
 using System.IO;
 using System.Collections.Generic;
 
@@ -69,6 +70,17 @@ namespace SpartaTools.Editor.Build
         static void ImportConfig(BaseSettings config)
         {
             config.App.ProductName = PlayerSettings.productName;
+            config.App.Version = PlayerSettings.bundleVersion;
+
+            var buildNumber = 1;
+            try
+            {
+                buildNumber = int.Parse(PlayerSettings.iOS.buildNumber);
+            }
+            catch(Exception)
+            {
+            }
+            config.App.BuildNumber = buildNumber;
 
             var icons = PlayerSettings.GetIconsForTargetGroup(BuildTargetGroup.iOS);
             if(icons != null && icons.Length > 0)
@@ -81,7 +93,6 @@ namespace SpartaTools.Editor.Build
 
             config.Android.BundleIdentifier = PlayerSettings.bundleIdentifier;
             config.Android.Flags = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android);
-            config.Android.BundleVersionCode = PlayerSettings.Android.bundleVersionCode;
             config.Android.Keystore.Path = PlayerSettings.Android.keystoreName;
             config.Android.Keystore.FilePassword = PlayerSettings.keystorePass;
             config.Android.Keystore.Alias = PlayerSettings.Android.keyaliasName;
@@ -110,6 +121,9 @@ namespace SpartaTools.Editor.Build
             Validate();
 
             PlayerSettings.productName = App.ProductName;
+            PlayerSettings.bundleVersion = App.Version;
+            PlayerSettings.Android.bundleVersionCode = App.BuildNumber;
+            PlayerSettings.iOS.buildNumber = App.BuildNumber.ToString();
 
             // Always override Icon
             PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new Texture2D[] {
@@ -144,7 +158,6 @@ namespace SpartaTools.Editor.Build
             // Flags
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, Common.Flags + ";" + Android.Flags);
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, Common.Flags + ";" + Ios.Flags);
-            PlayerSettings.Android.bundleVersionCode = Android.BundleVersionCode;
 
             // Android Keystore
             PlayerSettings.Android.keystoreName = Android.Keystore.Path;

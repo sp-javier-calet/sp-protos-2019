@@ -110,13 +110,13 @@ public class NetworkInstaller : Installer
     /*
     void SetupPhotonServer(PhotonNetworkServer server)
     {
-        server.Init(Settings.PhotonConfig);
+        server.Config = Settings.PhotonConfig;
         SetupServer(server);
     }
 
     void SetupPhotonClient(PhotonNetworkClient client)
     {
-        client.Init(Settings.PhotonConfig);
+        client.Config = Settings.PhotonConfig;
         SetupClient(client);
     }*/
 }

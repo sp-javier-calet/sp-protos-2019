@@ -1,6 +1,5 @@
-using UnityEngine;
-using System.Collections.Generic;
 using SocialPoint.Base;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {

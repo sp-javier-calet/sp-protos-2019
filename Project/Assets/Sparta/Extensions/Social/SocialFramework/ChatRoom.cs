@@ -132,7 +132,7 @@ namespace SocialPoint.Social
             if(dic.ContainsKey(ConnectionManager.HistoryTopicKey))
             {
                 var list = dic.Get(ConnectionManager.HistoryTopicKey).AsList;
-                AddHistoricMessages(list);
+                SetHistory(list);
             }
 
             Id = dic.GetValue(ConnectionManager.IdTopicKey).ToString();
@@ -159,7 +159,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public void AddHistoricMessages(AttrList list)
+        void SetHistory(AttrList list)
         {
             var history = new List<MessageType>();
             for(int i = 0; i < list.Count; ++i)
@@ -202,11 +202,11 @@ namespace SocialPoint.Social
 
             if(ChatManager.Connection.AlliancesManager != null)
             {
-                var member = ChatManager.Connection.AlliancesManager.Player;
+                var member = ChatManager.Connection.AlliancesManager.AlliancePlayerInfo;
                 message.HasAlliance = member.IsInAlliance;
                 message.AllianceName = member.Name;
                 message.AllianceId = member.Id;
-                message.AllianceAvatarId = member.AvatarId;
+                message.AllianceAvatarId = member.Avatar;
                 message.RankInAlliance = member.Rank;
             }
 

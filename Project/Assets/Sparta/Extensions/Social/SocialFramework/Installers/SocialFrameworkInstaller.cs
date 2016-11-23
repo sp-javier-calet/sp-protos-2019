@@ -15,12 +15,12 @@ public class SocialFrameworkInstaller : Installer
     const string SocialFrameworkTag = "social_framework";
 
     const string DefaultWAMPProtocol = "wamp.2.json";
-    const string DefaultEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8001/ws";
+    const string DefaultEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8002/ws";
 
     [Serializable]
     public class SettingsData
     {
-        public string Endpoint = DefaultEndpoint;
+        public string[] Endpoints = new string[] { DefaultEndpoint };
         public string[] Protocols = new string[] { DefaultWAMPProtocol };
     }
 
@@ -35,15 +35,18 @@ public class SocialFrameworkInstaller : Installer
         _deviceInfo = Container.Resolve<IDeviceInfo>();
 
         // Service Installer
-        Container.Rebind<WebSocketSharpClient>().ToMethod<WebSocketSharpClient>(CreateWebSocket, SetupWebSocket);
-        Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketSharpClient>();
-        Container.Bind<IDisposable>().ToLookup<WebSocketSharpClient>();
+        Container.Rebind<WebSocketClient>().ToMethod<WebSocketClient>(CreateWebSocket, SetupWebSocket);
+        Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketClient>();
+        Container.Bind<IDisposable>().ToLookup<WebSocketClient>();
 
         Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);    
         Container.Bind<IDisposable>().ToLookup<ConnectionManager>();
 
         Container.Bind<ChatManager>().ToMethod<ChatManager>(CreateChatManager, SetupChatManager);
         Container.Bind<IDisposable>().ToLookup<ChatManager>();
+
+        Container.Bind<AlliancesManager>().ToMethod<AlliancesManager>(CreateAlliancesManager, SetupAlliancesManager);
+        Container.Bind<IDisposable>().ToLookup<AlliancesManager>();
 
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWebSockets>(CreateAdminPanelWebSockets);
@@ -85,12 +88,12 @@ public class SocialFrameworkInstaller : Installer
         room.SerializeExtraInfo = AllianceChatMessage.SerializeExtraInfo;
     }
 
-    WebSocketSharpClient CreateWebSocket()
+    WebSocketClient CreateWebSocket()
     {
-        return new WebSocketSharpClient(Settings.Endpoint, Settings.Protocols, Container.Resolve<ICoroutineRunner>());
+        return new WebSocketClient(Settings.Endpoints, Settings.Protocols, Container.Resolve<IUpdateScheduler>());
     }
 
-    void SetupWebSocket(WebSocketSharpClient client)
+    void SetupWebSocket(WebSocketClient client)
     {
         if(!string.IsNullOrEmpty(_httpProxy))
         {
@@ -128,11 +131,28 @@ public class SocialFrameworkInstaller : Installer
         manager.Register(Container.ResolveList<IChatRoom>());
     }
 
+    AlliancesManager CreateAlliancesManager()
+    {
+        return new AlliancesManager(
+            Container.Resolve<ConnectionManager>());
+    }
+
+    void SetupAlliancesManager(AlliancesManager manager)
+    {
+        manager.LoginData = Container.Resolve<ILoginData>();
+
+        if(Container.HasBinding<AllianceDataFactory>())
+        {
+            manager.Factory = Container.Resolve<AllianceDataFactory>();
+        }
+    }
+
     AdminPanelSocialFramework CreateAdminPanelSocialFramework()
     {
         return new AdminPanelSocialFramework(
             Container.Resolve<ConnectionManager>(),
-            Container.Resolve<ChatManager>());
+            Container.Resolve<ChatManager>(),
+            Container.Resolve<AlliancesManager>());
     }
 
     AdminPanelWebSockets CreateAdminPanelWebSockets()

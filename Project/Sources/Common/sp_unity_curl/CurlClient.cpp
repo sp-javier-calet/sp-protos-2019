@@ -15,7 +15,7 @@
 #include <cassert>
 
 extern "C" {
-    #include "curl.h"
+#include <curl/curl.h>
 }
 
 namespace
@@ -44,27 +44,27 @@ namespace
         }
         return tokens;
     }
-    
+
     static size_t write_to_string(void* contents, size_t size, size_t nmemb, void* userp)
     {
         size_t totalBytes = size * nmemb;
         ((std::string*)userp)->append((char*)contents, totalBytes);
-        
+
         return totalBytes;
     }
-    
+
     static size_t message_receive_callback(char* ptr, size_t size, size_t nmemb, void* userdata)
     {
         CurlConnection* conn = (CurlConnection*)userdata;
-        
+
         size_t totalBytes = size * nmemb;
         std::string data(ptr, totalBytes);
-        
+
         conn->messages.incoming.append(ptr, size * nmemb);
-        
+
         return totalBytes;
     }
-    
+
     static size_t message_send_callback(char* buffer, size_t size, size_t nmemb, void* userdata)
     {
         CurlConnection* conn = (CurlConnection*)userdata;
@@ -72,7 +72,7 @@ namespace
         size_t msgLength = conn->messages.outcoming.length();
         size_t msgSize = msgLength * sizeof(char);
         size_t bytesWritten = 0;
-        
+
         if(msgSize < bufferSize)
         {
             bytesWritten = msgSize;
@@ -81,18 +81,18 @@ namespace
         {
             bytesWritten = bufferSize;
         }
-        
+
         if(!msgLength)
         {
             return CURL_READFUNC_PAUSE;
         }
-        
+
         memcpy(buffer, &conn->messages.outcoming, bytesWritten);
         conn->messages.outcoming = conn->messages.outcoming.substr(bytesWritten / sizeof(char));
-        
+
         return CURLE_OK;
     }
-    
+
     static int server_push_callback(CURL* parent, CURL* easy, size_t num_headers, struct curl_pushheaders* headers, void* userp)
     {
         /* TODO:
@@ -112,7 +112,7 @@ CurlClient::CurlClient(bool enableHttp2)
 , _pinnedPublicKeySize(0)
 {
     _multi = curl_multi_init();
-    
+
     if(_supportsHttp2)
     {
         curl_multi_setopt(_multi, CURLMOPT_PIPELINING, CURLPIPE_MULTIPLEX);
@@ -136,7 +136,7 @@ CurlClient::~CurlClient()
             curl_multi_remove_handle(_multi, easy);
             curl_easy_cleanup(easy);
         }
-        
+
         curl_multi_cleanup(_multi);
         _multi = nullptr;
     }
@@ -159,15 +159,15 @@ CURL* CurlClient::create(CurlRequest req)
     {
         return curl;
     }
-    
+
     std::string url = (std::string(req.url) + "?" + std::string(req.query)).c_str();
-    
+
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    
+
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
     curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 10);
-    
+
     if(strcmp(req.method, "GET") == 0)// method
     {
         curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
@@ -193,19 +193,19 @@ CURL* CurlClient::create(CurlRequest req)
         assert(false);
         curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
     }
-    
+
     if(req.timeout > 0)
     {
         curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, req.activityTimeout);
         curl_easy_setopt(curl, CURLOPT_TIMEOUT, req.timeout);
     }
-    
+
     if(req.proxy != nullptr && strlen(req.proxy) > 0)
     {
         curl_easy_setopt(curl, CURLOPT_PROXY, req.proxy);
         curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
     }
-    
+
     uint8_t* pinnedKey = nullptr;
     if(_certificate.getPinnedKey(&pinnedKey))
     {
@@ -218,13 +218,13 @@ CURL* CurlClient::create(CurlRequest req)
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
     }
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
-    
+
     if(req.bodyLength > 0)
     {
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, req.body);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, req.bodyLength);
     }
-    
+
     if(req.headers != nullptr)
     {
         std::vector<std::string> headersData = split(req.headers, "\n");
@@ -235,67 +235,67 @@ CURL* CurlClient::create(CurlRequest req)
         }
         curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     }
-    
+
     // setting to print details about this
     if(_verbose)
     {
         curl_easy_setopt(curl, CURLOPT_VERBOSE, true);
     }
-    
+
     return curl;
 }
 
 bool CurlClient::send(CurlRequest req)
 {
     CurlConnection& conn = _connections.get(req.id);
-    
+
     if(!conn.isValid)
     {
         return false;
     }
-    
+
     conn.easy = create(req);
     if(!conn.easy)
     {
         return false;
     }
-    
+
     curl_easy_setopt(conn.easy, CURLOPT_HEADERFUNCTION, write_to_string);
     curl_easy_setopt(conn.easy, CURLOPT_HEADERDATA, &conn.headersBuffer);
     curl_easy_setopt(conn.easy, CURLOPT_PRIVATE, &conn);
-    
+
     if(_supportsHttp2)
     {
         curl_easy_setopt(conn.easy, CURLOPT_WRITEFUNCTION, message_receive_callback);
         curl_easy_setopt(conn.easy, CURLOPT_WRITEDATA, &conn);
         curl_easy_setopt(conn.easy, CURLOPT_READFUNCTION, message_send_callback);
         curl_easy_setopt(conn.easy, CURLOPT_READDATA, &conn);
-        
+
         /* Upgrade requests to http2 if possible */
         curl_easy_setopt(conn.easy, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
-        
+
         /* Wait for pipe connection to confirm. Works together with CURLMOPT_PIPELINING option in the multi handle */
         curl_easy_setopt(conn.easy, CURLOPT_PIPEWAIT, 1L);
     }
     else
     {
         curl_easy_setopt(conn.easy, CURLOPT_WRITEFUNCTION, write_to_string);
-        
+
         curl_easy_setopt(conn.easy, CURLOPT_WRITEDATA, &conn.bodyBuffer);
     }
-    
+
     conn.bodyBuffer.clear();
     conn.headersBuffer.clear();
     CURLMcode rc = curl_multi_add_handle(_multi, conn.easy);
-    
+
     if(rc != CURLM_OK)
     {
         conn.errorBuffer = curl_multi_strerror(rc);
         return false;
     }
-    
+
     _running++;
-    
+
     return true;
 }
 
@@ -303,21 +303,21 @@ void CurlClient::update()
 {
     CURLMcode mc;
     CurlConnection* conn = nullptr;
-    
+
     curlUpdateLock.lock();
     mc = curl_multi_perform(_multi, &_running);
-    
+
     int msgs_left = 0;
     while(auto res_msg = curl_multi_info_read(_multi, &msgs_left))
     {
         CURL* easy = res_msg->easy_handle;
         CURLMsg* msg = (CURLMsg*)res_msg;
-        
+
         if(msg->msg == CURLMSG_DONE)
         {
             curl_easy_getinfo(easy, CURLINFO_PRIVATE, &conn);
             assert(conn && "Could not access to curl connection data");
-            
+
             if(msg->data.result != CURLE_OK)
             {
                 conn->errorBuffer = curl_easy_strerror(msg->data.result);
@@ -329,18 +329,18 @@ void CurlClient::update()
                 curl_easy_getinfo(easy, CURLINFO_RESPONSE_CODE, &code);
                 conn->responseCode = (int)code;
             }
-            
+
             curl_easy_getinfo(easy, CURLINFO_CONNECT_TIME, &conn->connectTime);
             curl_easy_getinfo(easy, CURLINFO_TOTAL_TIME, &conn->totalTime);
             curl_easy_getinfo(easy, CURLINFO_SIZE_DOWNLOAD, &conn->downloadSize);
             curl_easy_getinfo(easy, CURLINFO_SPEED_DOWNLOAD, &conn->downloadSpeed);
-            
+
             curl_multi_remove_handle(_multi, easy);
             curl_easy_cleanup(easy);
             conn->isActive = false;
         }
     }
-    
+
     curlUpdateLock.unlock();
 }
 
@@ -360,7 +360,7 @@ bool CurlClient::isFinished(int id)
     {
         return true;
     }
-    
+
     return false;
 }
 
@@ -378,7 +378,7 @@ bool CurlClient::destroyConnection(int id)
         curl_easy_cleanup(conn.easy);
         conn.isActive = false;
     }
-    
+
     return _connections.remove(id);
 }
 
@@ -391,7 +391,7 @@ bool CurlClient::sendStreamMessage(int id, CurlMessage data)
         {
             curl_easy_pause(conn.easy, CURLPAUSE_CONT);
         }
-        
+
         conn.messages.outcoming.append((char*)data.message, data.messageLength * sizeof(char));
         return true;
     }
@@ -414,7 +414,7 @@ void CurlClient::getStreamMessage(int id, char* data)
     if(conn.isValid)
     {
         memcpy(data, conn.messages.incoming.c_str(), conn.messages.incoming.length() * sizeof(char));
-        
+
         // Clear message after retrieve it
         conn.messages.incoming.clear();
     }
@@ -557,7 +557,7 @@ int CurlClient::getVersionInfoLength()
     return (int)versionInfo.length();
 }
 
-void CurlClient::setConfig(const std::string &name)
+void CurlClient::setConfig(const std::string& name)
 {
     _certificate = Certificate(name);
 }

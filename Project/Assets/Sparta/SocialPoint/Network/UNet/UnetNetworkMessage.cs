@@ -1,8 +1,20 @@
 ﻿using UnityEngine.Networking;
 using SocialPoint.IO;
+using System;
 
 namespace SocialPoint.Network
 {
+    public static class UnetMsgType
+    {
+        public const short Fail = UnityEngine.Networking.MsgType.Highest + 1;
+        public const short Highest = Fail;
+
+        public static byte ConvertType(short type)
+        {
+            return (byte)(type - 1 - UnetMsgType.Highest);
+        }
+    }
+
     class UnetNetworkMessage : INetworkMessage
     {
         public IWriter Writer{ get; private set; }
@@ -13,16 +25,15 @@ namespace SocialPoint.Network
 
         public UnetNetworkMessage(NetworkMessageData data, NetworkConnection[] conns)
         {
+            if(data.MessageType > byte.MaxValue - UnetMsgType.Highest)
+            {
+                throw new ArgumentException("Message type is too big.");
+            }
             _channelId = data.Unreliable ? Channels.DefaultUnreliable : Channels.DefaultReliable;
             _conns = conns;
             _writer = new NetworkWriter();
-            _writer.StartMessage((short)(UnityEngine.Networking.MsgType.Highest + 1 + data.MessageType));
+            _writer.StartMessage((short)(UnetMsgType.Highest + 1 + data.MessageType));
             Writer = new UnetNetworkWriter(_writer);
-        }
-
-        public static byte ConvertType(short type)
-        {
-            return (byte)(type - 1 - UnityEngine.Networking.MsgType.Highest);
         }
 
         public void Send()

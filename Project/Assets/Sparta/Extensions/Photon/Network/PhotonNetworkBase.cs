@@ -29,14 +29,14 @@ namespace SocialPoint.Network
         public RoomOptions ToPhoton()
         {
             return new RoomOptions {
-                isVisible = IsVisible,
-                isOpen = IsOpen,
-                maxPlayers = MaxPlayers,
+                IsVisible = IsVisible,
+                IsOpen = IsOpen,
+                MaxPlayers = MaxPlayers,
                 PlayerTtl = PlayerTtl,
-                cleanupCacheOnLeave = CleanupCache,
-                customRoomPropertiesForLobby = CustomLobbyProperties,
-                plugins = Plugins,
-                publishUserId = PublishUserId
+                CleanupCacheOnLeave = CleanupCache,
+                CustomRoomPropertiesForLobby = CustomLobbyProperties,
+                Plugins = Plugins,
+                PublishUserId = PublishUserId
             };
         }
     }
@@ -46,38 +46,55 @@ namespace SocialPoint.Network
     {
         public string GameVersion;
         public string RoomName;
+        public CustomPhotonConfig CustomPhotonConfig = new CustomPhotonConfig();
         public PhotonNetworkRoomConfig RoomOptions = new PhotonNetworkRoomConfig();
     }
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
     {
-        PhotonNetworkConfig _config;
+        public PhotonNetworkConfig Config;
+        bool _disconnecting;
 
         const int ConnectionError = 1;
         const int CreateRoomError = 2;
         const int CustomAuthError = 3;
 
+        [Obsolete("Use the Config property")]
         public void Init(PhotonNetworkConfig config)
         {
-            _config = config;
+            Config = config;
         }
 
         void Awake()
         {
-            if(_config == null)
+            if(Config == null)
             {
-                _config = new PhotonNetworkConfig();
+                Config = new PhotonNetworkConfig();
             }
+        }
+
+        void Update()
+        {
+            Config.CustomPhotonConfig.SendOutgoingCommands();
         }
 
         protected void DoConnect()
         {
-            PhotonNetwork.ConnectUsingSettings(_config.GameVersion);
+            if(!PhotonNetwork.connecting)
+            {
+                DoDisconnect();
+                Config.CustomPhotonConfig.SetConfigBeforeConnection();
+                PhotonNetwork.ConnectUsingSettings(Config.GameVersion);
+            }
         }
 
         protected void DoDisconnect()
         {
-            PhotonNetwork.Disconnect();
+            if(PhotonNetwork.connected || PhotonNetwork.connecting)
+            {
+                _disconnecting = true;
+                PhotonNetwork.Disconnect();
+            }
         }
 
         public void Dispose()
@@ -90,19 +107,19 @@ namespace SocialPoint.Network
         {
             get
             {
-                return _config.RoomOptions == null ? null : _config.RoomOptions.ToPhoton();
+                return Config.RoomOptions == null ? null : Config.RoomOptions.ToPhoton();
             }
         }
 
         void JoinOrCreateRoom()
         {
-            if(string.IsNullOrEmpty(_config.RoomName))
+            if(string.IsNullOrEmpty(Config.RoomName))
             {
-                PhotonNetwork.CreateRoom(_config.RoomName, PhotonRoomOptions, null);
+                PhotonNetwork.CreateRoom(Config.RoomName, PhotonRoomOptions, null);
             }
             else
             {
-                PhotonNetwork.JoinOrCreateRoom(_config.RoomName, PhotonRoomOptions, null);
+                PhotonNetwork.JoinOrCreateRoom(Config.RoomName, PhotonRoomOptions, null);
             }
         }
 
@@ -126,7 +143,7 @@ namespace SocialPoint.Network
 
         void OnJoinedLobby()
         {
-            if(string.IsNullOrEmpty(_config.RoomName))
+            if(string.IsNullOrEmpty(Config.RoomName))
             {
                 PhotonNetwork.JoinRandomRoom();
             }
@@ -138,7 +155,10 @@ namespace SocialPoint.Network
 
         void OnPhotonRandomJoinFailed()
         {
-            JoinOrCreateRoom();
+            if(!_disconnecting)
+            {
+                JoinOrCreateRoom();
+            }
         }
 
         public void OnPhotonJoinRoomFailed(object[] codeAndMsg)
@@ -157,11 +177,14 @@ namespace SocialPoint.Network
         {
             var err = new Error(CreateRoomError, "Failed to create room: " + StringUtils.Join(codeAndMsg, " "));
             OnNetworkError(err);
+            DoDisconnect();
+            OnDisconnected();
         }
 
         void OnJoinedRoom()
         {
             PhotonNetwork.OnEventCall += OnEventReceived;
+            Config.CustomPhotonConfig.SetConfigOnJoinedRoom();
             OnConnected();
         }
 
@@ -173,19 +196,25 @@ namespace SocialPoint.Network
         void OnDisconnectedFromPhoton()
         {
             PhotonNetwork.OnEventCall -= OnEventReceived;
+            _disconnecting = false;
+            Config.CustomPhotonConfig.RestorePhotonConfig();
             OnDisconnected();
         }
 
         void OnConnectionFail(DisconnectCause cause)
         {
             var err = new Error(ConnectionError, "Failed to connect: " + cause);
+            _disconnecting = false;
             OnNetworkError(err);
+            OnDisconnected();
         }
 
         void OnCustomAuthenticationFailed(string debugMessage)
         {
             var err = new Error(CustomAuthError, "Custom Authentication failed: " + debugMessage);
+            _disconnecting = false;
             OnNetworkError(err);
+            OnDisconnected();
         }
 
         #endregion
@@ -238,10 +267,19 @@ namespace SocialPoint.Network
                 options.TargetActors = new int[]{ player.ID };
             }
             PhotonNetwork.RaiseEvent(info.MessageType, data, !info.Unreliable, options);
+            Config.CustomPhotonConfig.RegisterOnGoingCommand();
         }
 
         void OnEventReceived(byte eventcode, object content, int senderid)
         {
+            if(eventcode == EventCode.ErrorInfo || eventcode == PhotonMsgType.Fail)
+            {
+                var err = new Error((string)content);
+                OnNetworkError(err);
+                DoDisconnect();
+                return;
+            }
+
             byte clientId = 0;
             var serverId = PhotonNetworkServer.PhotonPlayerId;
             if(senderid != serverId)

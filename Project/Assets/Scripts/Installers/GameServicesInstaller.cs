@@ -26,9 +26,9 @@ public class GameServicesInstaller : Installer
     {
         public EnvironmentID EnvironmentId = EnvironmentID.prod;
         public string ProjectId = GameLocalizationManager.LocationData.DefaultProjectId;
-        public string SecretKeyDev = GameLocalizationManager.LocationData.DefaultSecretKey;
-        public string SecretKeyLoc = GameLocalizationManager.LocationData.DefaultSecretKey;
-        public string SecretKeyProd = GameLocalizationManager.LocationData.DefaultSecretKey;
+        public string SecretKeyDev = GameLocalizationManager.LocationData.DefaultDevSecretKey;
+        public string SecretKeyLoc = GameLocalizationManager.LocationData.DefaultDevSecretKey;
+        public string SecretKeyProd = GameLocalizationManager.LocationData.DefaultProdSecretKey;
         public string BundleDir = GameLocalizationManager.DefaultBundleDir;
         public string[] SupportedLanguages = GameLocalizationManager.DefaultSupportedLanguages;
         public float Timeout = GameLocalizationManager.DefaultTimeout;

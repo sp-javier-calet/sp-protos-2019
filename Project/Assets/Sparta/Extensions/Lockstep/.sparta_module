@@ -1,3 +1,4 @@
 type extension
 desc Lockstep implementation for sparta
 name Extension/Lockstep
+depends_on Assets/Sparta/Extensions/Matchmaking

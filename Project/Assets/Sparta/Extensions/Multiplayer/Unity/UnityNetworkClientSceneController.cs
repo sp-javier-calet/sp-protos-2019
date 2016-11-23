@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using SocialPoint.Pooling;
 using SocialPoint.Network;
+using SocialPoint.Physics;
 
 namespace SocialPoint.Multiplayer
 {
@@ -69,6 +70,11 @@ namespace SocialPoint.Multiplayer
                 ObjectPool.Recycle(go);
                 _objects.Remove(ev.ObjectId);
             }
+        }
+
+        protected override void OnError(SocialPoint.Base.Error err)
+        {
+            Debug.LogError(err.Msg);
         }
     }
 }

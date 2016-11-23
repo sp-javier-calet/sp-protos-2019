@@ -280,6 +280,67 @@ namespace SocialPoint.AdminPanel
         }
 
         /*
+         * Foldout Button
+         */
+
+        Toggle CreateFoldoutButton(string label, bool status, Action<bool> onToggle, bool enabled = true)
+        {
+            return CreateFoldoutButton(label, status, ButtonColor.Default, onToggle, enabled);
+        }
+
+        Toggle CreateFoldoutButton(string label, bool status, ButtonColor buttonColor, Action<bool> onToggle, bool enabled = true)
+        {
+            var rectTransform = CreateUIObject("Admin Panel - Foldout Button", Parent);
+
+            var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
+            layoutElement.preferredHeight = DefaultLabelHeight;
+            layoutElement.flexibleWidth = 1;
+
+            var toggleBackground = CreateUIObject("Admin Panel - Foldout Background", rectTransform);
+            var image = toggleBackground.gameObject.AddComponent<Image>();
+            image.color = enabled ? buttonColor.Color : ButtonColor.Disabled.Color;
+
+            // Status indicators parameters
+            var anchorMin = new Vector2(0, 0.04f);
+            var anchorMax = new Vector2(1, 0.06f);
+            var anchoredPosition = Vector2.zero;
+
+            // Disabled indicator
+            var disableIndicator = CreateUIObject("Admin Panel - Foldout Closed Graphic", rectTransform);
+            disableIndicator.anchorMin = anchorMin;
+            disableIndicator.anchorMax = anchorMax;
+            disableIndicator.anchoredPosition = anchoredPosition;
+
+            var disImage = disableIndicator.gameObject.AddComponent<Image>();
+            disImage.color = Color.white;
+
+            // Enabled indicator
+            var toggleIndicator = CreateUIObject("Admin Panel - Foldout Opened Graphic", rectTransform);
+            toggleIndicator.anchorMin = anchorMin;
+            toggleIndicator.anchorMax = anchorMax;
+            toggleIndicator.anchoredPosition = anchoredPosition;
+
+            var indImage = toggleIndicator.gameObject.AddComponent<Image>();
+            indImage.color = DisabledColor;
+
+            // Toggle button
+            var toggle = rectTransform.gameObject.AddComponent<Toggle>();
+            toggle.targetGraphic = image;
+            toggle.graphic = indImage;
+            toggle.enabled = enabled;
+            toggle.isOn = status;
+
+            if(enabled)
+            {
+                toggle.onValueChanged.AddListener(value => onToggle(value));
+            }
+
+            CreateButtonLabel(label, rectTransform, FontStyle.Normal, enabled);
+
+            return toggle;
+        }
+
+        /*
          * Internal
          */
 

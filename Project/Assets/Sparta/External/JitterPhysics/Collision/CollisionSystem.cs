@@ -40,6 +40,8 @@ namespace Jitter.Collision
 
         bool IsStaticOrInactive{ get; }
 
+        bool IsStaticNonKinematicOrInactive { get; }
+
         bool IsStaticNonKinematic { get; }
 
         int LayerIndex // 0-31 (int)
@@ -679,9 +681,9 @@ namespace Jitter.Collision
             return (entity1.IsStaticOrInactive && entity2.IsStaticOrInactive);
         }
 
-        public bool CheckBothStaticNonKinematic(IBroadphaseEntity entity1, IBroadphaseEntity entity2)
+        public bool CheckBothStaticNonKinematicOrInactive(IBroadphaseEntity entity1, IBroadphaseEntity entity2)
         {
-            return entity1.IsStaticNonKinematic && entity2.IsStaticNonKinematic;
+            return entity1.IsStaticNonKinematicOrInactive && entity2.IsStaticNonKinematicOrInactive;
         }
 
         /// <summary>

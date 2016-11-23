@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
 
 namespace SocialPoint.AssetVersioning
 {
@@ -52,7 +53,7 @@ namespace SocialPoint.AssetVersioning
                     reader.Read();
                     if (!reader.CheckVersion(key, version))
                     {
-                        reader.SkipToObjectEnd();
+                        reader.SkipElement();
                         return;
                     }
                     switch(key)
@@ -98,6 +99,47 @@ namespace SocialPoint.AssetVersioning
                     assetVersioning.Add(name, result);
                 }
             }
+        }
+    }
+
+    public static class AssetVersioningStreamParserExtensions
+    {
+        const string kMinVersionKey = "MinV";
+        const string kMaxVersionKey = "MaxV";
+
+        static AppVersion _versionComparer;
+        public static bool CheckVersion(this JsonStreamReader reader, string key, string version)
+        {
+            if(string.IsNullOrEmpty(version))
+                return true;
+
+            if (_versionComparer == null)
+            {
+                _versionComparer = new AppVersion(version);
+            }
+
+            if(key == kMinVersionKey)
+            {
+                if(reader.Token != StreamToken.Null)
+                {
+                    string minVersionStr = reader.Value.ToString();
+
+                    return _versionComparer >= minVersionStr;
+                }
+            }
+
+            if(key == kMaxVersionKey)
+            {
+                if(reader.Token != StreamToken.Null)
+                {
+                    var maxVersionStr = reader.Value.ToString();
+
+                    return _versionComparer <= maxVersionStr;
+                }
+
+            }
+
+            return true;
         }
     }
 }

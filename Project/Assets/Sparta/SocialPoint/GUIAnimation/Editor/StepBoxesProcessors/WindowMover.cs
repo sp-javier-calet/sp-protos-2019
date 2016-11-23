@@ -1,6 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
-using System;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -9,10 +7,10 @@ namespace SocialPoint.GUIAnimation
         public delegate void DeltaMomement(Vector2 delta);
 
         public Vector2 GrabSize = Vector2.zero;
-		
-        private Vector2 _prevMousePos;
-		
-        bool _isMoving = false;
+
+        Vector2 _prevMousePos;
+
+        bool _isMoving;
 
         public bool IsMoving { get { return _isMoving; } }
 
@@ -32,21 +30,21 @@ namespace SocialPoint.GUIAnimation
         {
             Rect expandedWindow = window;
             expandedWindow.size += GrabSize;
-			
+
             if(Event.current.type == EventType.mouseUp)
             {
                 _isMoving = false;
                 return;
             }
-			
-            if(_isMoving == false && Event.current.type == EventType.mouseDown &&
-            expandedWindow.Contains(Event.current.mousePosition))
+
+            if(!_isMoving && Event.current.type == EventType.mouseDown &&
+               expandedWindow.Contains(Event.current.mousePosition))
             {
                 _isMoving = true;
                 Delta = Vector2.zero;
                 _prevMousePos = Event.current.mousePosition;
             }
-			
+
             if(_isMoving)
             {
                 Vector2 currentMousePos = Event.current.mousePosition;

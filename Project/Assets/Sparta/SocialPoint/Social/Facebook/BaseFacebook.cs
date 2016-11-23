@@ -1,11 +1,5 @@
-using System;
-using System.Text;
 using System.Collections.Generic;
-using System.Collections.Specialized;
-using UnityEngine;
 using SocialPoint.Base;
-using SocialPoint.Utils;
-using SocialPoint.Attributes;
 
 namespace SocialPoint.Social
 {
@@ -68,7 +62,7 @@ namespace SocialPoint.Social
 
         public void AskForPermission(string permission, FacebookPermissionsDelegate cbk = null)
         {
-            AskForPermissions(new List<string>(){ permission }, cbk);
+            AskForPermissions(new List<string>{ permission }, cbk);
         }
 
         public abstract void SendAppRequest(FacebookAppRequest req, FacebookAppRequestDelegate cbk = null);

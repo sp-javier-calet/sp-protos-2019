@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-
+﻿
 namespace SocialPoint.GUIAnimation
 {
     public enum AnimTimeMode

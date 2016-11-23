@@ -1,5 +1,6 @@
 ﻿using SocialPoint.Network;
 using SocialPoint.Multiplayer;
+using SocialPoint.Physics;
 using SocialPoint.IO;
 using Jitter.LinearMath;
 
@@ -17,7 +18,7 @@ public class MovementAction : INetworkShareable
         JVectorSerializer.Instance.Serialize(Movement, writer);
     }
 
-    public static void Apply(MovementAction action, NetworkScene scene)
+    public static void Apply(NetworkScene scene, MovementAction action)
     {
         var go = scene.FindObject(1);
         if(go != null)
