@@ -49,7 +49,7 @@ namespace Photon.Hive.Plugin.Lockstep
         LockstepNetworkServer _netServer;
         HttpMatchmakingServer _matchmaking;
         object _game;
-        
+
         public LockstepPlugin():base()
         {
             _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient());
@@ -87,17 +87,14 @@ namespace Photon.Hive.Plugin.Lockstep
             {
                 _matchmaking.BaseUrl = baseUrl;
             }
-            string gameAssemblyName;
-            string gameTypeName;
-            if (config.TryGetValue(GameAssemblyNameConfig, out gameAssemblyName) &&
-                config.TryGetValue(GameTypeConfig, out gameTypeName))
+            string gameAssembly;
+            string gameType;
+            if (config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) &&
+                config.TryGetValue(GameTypeConfig, out gameType))
             {
                 try
                 {
-                    var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                    var path = Path.Combine(dir, gameAssemblyName);
-                    var gameType = Assembly.LoadFile(path).GetType(gameTypeName);
-                    var factory = (INetworkServerGameFactory)Activator.CreateInstance(gameType);
+                    var factory = (INetworkServerGameFactory)CreateInstanceFromAssembly(gameAssembly, gameType);
                     _game = factory.Create(_netServer, config);
                 }
                 catch(Exception e)
