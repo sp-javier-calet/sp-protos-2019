@@ -102,13 +102,30 @@ namespace SocialPoint.Social
 
         public ILoginData LoginData { private get; set; }
 
-        public AllianceDataFactory Factory { private get; set; }
-
         public uint MaxPendingJoinRequests { get; set; }
 
         public IRankManager Ranks { get; set; }
 
         public IAccessTypeManager AccessTypes { get; set; }
+
+        AllianceDataFactory _factory;
+
+        public AllianceDataFactory Factory
+        { 
+            private get
+            {
+                return _factory;
+            }
+            set
+            {
+                _factory = value;
+                if(AlliancePlayerInfo == null && _factory != null)
+                {
+                    AlliancePlayerInfo = _factory.CreatePlayerInfo();
+                }
+            }
+        }
+
 
         readonly ConnectionManager _connection;
 
