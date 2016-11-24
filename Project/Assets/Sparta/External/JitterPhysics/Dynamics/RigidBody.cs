@@ -619,6 +619,19 @@ namespace Jitter.Dynamics
         }
 
         /// <summary>
+        /// Updates the position and orientation at once. 
+        /// More efficient that setting Position and Orientation properties individually.
+        /// </summary>
+        /// <param name="pos">Position.</param>
+        /// <param name="rot">Orientation.</param>
+        public void UpdateTransform(JVector pos, JMatrix rot)
+        {
+            position = pos;
+            orientation = rot;
+            Update();
+        }
+
+        /// <summary>
         /// Recalculates the axis aligned bounding box and the inertia
         /// values in world space.
         /// </summary>

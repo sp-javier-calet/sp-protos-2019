@@ -58,14 +58,16 @@ namespace SocialPoint.Multiplayer
             if(!_rigidBody.IsActive)
             {
                 bool moved = (_rigidBody.Position != NetworkGameObject.Transform.Position);
-                if(moved)
+                bool rotated = moved ? true : //If moved, we can avoid to check if rotated
+                    (JQuaternion.CreateFromMatrix(_rigidBody.Orientation) != NetworkGameObject.Transform.Rotation);
+                if(moved || rotated)
                 {
                     _rigidBody.IsActive = true;
                 }
             }
 
-            _rigidBody.Position = NetworkGameObject.Transform.Position;
-            _rigidBody.Orientation = JMatrix.CreateFromQuaternion(NetworkGameObject.Transform.Rotation);
+            _rigidBody.UpdateTransform(NetworkGameObject.Transform.Position, 
+                JMatrix.CreateFromQuaternion(NetworkGameObject.Transform.Rotation));
         }
 
         void UpdateTransformFromPhysicsObject()
