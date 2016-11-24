@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Name: AlertInstaller
   m_EditorClassIdentifier: 
   Settings:
-    UseNativeAlert: 0
+    UseNativeAlert: 1
     UnityAlertViewPrefab: {fileID: 0}

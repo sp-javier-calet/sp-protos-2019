@@ -15,6 +15,7 @@ MonoBehaviour:
     Config:
       SimulationStepDuration: 10
       CommandStepDuration: 100
+      MaxSkippedEmptyTurns: 0
     ServerConfig:
       MaxPlayers: 2
       ClientStartDelay: 3000

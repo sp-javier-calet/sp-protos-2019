@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Name: AppsFlyerInstaller
   m_EditorClassIdentifier: 
   Settings:
-    ActiveOnIOS: 0
+    ActiveOnIOS: 1
     IOsAppsFlyerKey: 
     IOsAppID: 
-    ActiveOnAndroid: 0
+    ActiveOnAndroid: 1
     AndroidAppsFlyerKey: 
     AndroidAppID: 
