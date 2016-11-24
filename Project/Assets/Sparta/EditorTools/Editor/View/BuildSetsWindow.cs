@@ -12,6 +12,7 @@ namespace SpartaTools.Editor.View
     {
         const string CurrentModeKey = "SpartaCurrentBuildSet";
         const string AutoApplyKey = "SpartaAutoApplyBuildSetEnabled";
+        const string AutoApplyLastTimeKey = "SpartaAutoApplyLastTime";
 
         static bool? _autoApply;
 
@@ -51,13 +52,35 @@ namespace SpartaTools.Editor.View
             }
         }
 
+        static float AutoApplyLastTime
+        {
+            get
+            {
+                return EditorPrefs.GetFloat(AutoApplyLastTimeKey, float.MaxValue);
+            }
+            set
+            {
+                EditorPrefs.SetFloat(AutoApplyLastTimeKey, value);
+            }
+        }
+
         static BuildSetApplier()
         {
             var playing = EditorApplication.isPlayingOrWillChangePlaymode;
             var compiling = EditorApplication.isCompiling;
             if(AutoApply && !playing && !compiling)
             {
-                ApplyConfig(CurrentMode);
+                float currentTime = (float)EditorApplication.timeSinceStartup;
+                var requiresApply = currentTime <= AutoApplyLastTime;
+
+                if(requiresApply)
+                {
+                    var config = CurrentMode;
+                    Debug.Log(string.Format("Auto Applying BuildSet '{0}'", config));
+                    ApplyConfig(config);
+                }
+
+                AutoApplyLastTime = currentTime;
             }
         }
 
