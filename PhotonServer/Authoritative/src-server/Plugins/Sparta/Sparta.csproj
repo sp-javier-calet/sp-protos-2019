@@ -38,6 +38,9 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\..\..\Project\Assets\Sparta\Extensions\Multiplayer\INetworkServerGameFactory.cs">
+      <Link>Multiplayer\INetworkServerGameFactory.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\..\project\assets\sparta\extensions\multiplayer\MultiplayerModelExtensions.cs">
       <Link>Multiplayer\MultiplayerModelExtensions.cs</Link>
     </Compile>
@@ -617,7 +620,6 @@
     <Compile Include="..\..\..\..\..\project\assets\sparta\socialpoint\utils\UpdateRunner.cs">
       <Link>Utils\UpdateRunner.cs</Link>
     </Compile>
-    <Compile Include="Multiplayer\INetworkServerGameFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
