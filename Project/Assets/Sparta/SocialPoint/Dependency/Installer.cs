@@ -15,10 +15,9 @@ namespace SocialPoint.Dependency
         void InstallBindings();
     }
 
-
     public abstract class SubInstaller : IInstaller
     {
-        public bool Enabled { get; set; }
+        public bool Enabled { get { return true; } set { } }
 
         public ModuleType Type { get; private set; }
 
