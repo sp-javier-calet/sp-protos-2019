@@ -662,6 +662,63 @@ namespace Jitter.LinearMath
 
         #endregion
 
+        /// <summary>
+        /// Tests if an object is equal to this quaternion.
+        /// </summary>
+        /// <param name="obj">The object to test.</param>
+        /// <returns>Returns true if they are euqal, otherwise false.</returns>
+        #region public override bool Equals(object obj)
+        public override bool Equals(object obj)
+        {
+            if(!(obj is JMatrix))
+                return false;
+            JMatrix other = (JMatrix)obj;
+
+            return (Row1 == other.Row1) && (Row2 == other.Row2) && (Row3 == other.Row3);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Tests if two JMatrix are equal.
+        /// </summary>
+        /// <param name="value1">The first value.</param>
+        /// <param name="value2">The second value.</param>
+        /// <returns>Returns true if both values are equal, otherwise false.</returns>
+        #region public static bool operator ==(JQuaternion value1, JQuaternion value2)
+        public static bool operator ==(JMatrix value1, JMatrix value2)
+        {
+            return (value1.Row1 == value2.Row1) && (value1.Row2 == value2.Row2) && (value1.Row3 == value2.Row3);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Tests if two JMatrix are not equal.
+        /// </summary>
+        /// <param name="value1">The first value.</param>
+        /// <param name="value2">The second value.</param>
+        /// <returns>Returns false if both values are equal, otherwise true.</returns>
+        #region public static bool operator !=(JQuaternion value1, JQuaternion value2)
+        public static bool operator !=(JMatrix value1, JMatrix value2)
+        {
+            return !(value1 == value2);
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Gets the hashcode of the matrix.
+        /// </summary>
+        /// <returns>Returns the hashcode of the matrix.</returns>
+        #region public override int GetHashCode()
+        public override int GetHashCode()
+        {
+            return Row1.GetHashCode() ^ Row2.GetHashCode() ^ Row3.GetHashCode();
+        }
+
+        #endregion
+
 
         /// <summary>
         /// Creates a matrix which rotates around the given axis by the given angle.

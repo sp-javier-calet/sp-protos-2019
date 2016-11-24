@@ -624,7 +624,7 @@ namespace Jitter.Dynamics
         /// </summary>
         /// <param name="pos">Position.</param>
         /// <param name="rot">Orientation.</param>
-        public void UpdateTransform(JVector pos, JMatrix rot)
+        public void UpdateTransform(ref JVector pos, ref JMatrix rot)
         {
             position = pos;
             orientation = rot;
