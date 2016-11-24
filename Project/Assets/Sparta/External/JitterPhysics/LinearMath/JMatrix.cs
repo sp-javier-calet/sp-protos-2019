@@ -685,7 +685,7 @@ namespace Jitter.LinearMath
         /// <param name="value1">The first value.</param>
         /// <param name="value2">The second value.</param>
         /// <returns>Returns true if both values are equal, otherwise false.</returns>
-        #region public static bool operator ==(JQuaternion value1, JQuaternion value2)
+        #region public static bool operator ==(JMatrix value1, JMatrix value2)
         public static bool operator ==(JMatrix value1, JMatrix value2)
         {
             return (value1.Row1 == value2.Row1) && (value1.Row2 == value2.Row2) && (value1.Row3 == value2.Row3);
@@ -699,7 +699,7 @@ namespace Jitter.LinearMath
         /// <param name="value1">The first value.</param>
         /// <param name="value2">The second value.</param>
         /// <returns>Returns false if both values are equal, otherwise true.</returns>
-        #region public static bool operator !=(JQuaternion value1, JQuaternion value2)
+        #region public static bool operator !=(JMatrix value1, JMatrix value2)
         public static bool operator !=(JMatrix value1, JMatrix value2)
         {
             return !(value1 == value2);
