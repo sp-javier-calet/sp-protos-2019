@@ -9,11 +9,16 @@ namespace SocialPoint.Dependency
 
         public GlobalDependencyConfigurer() : base(ModuleType.Configurer)
         {
+            Enabled = true;
         }
 
         public override void InstallBindings()
         {
-
+            for(var i = 0; i < Installers.Length; ++i)
+            {
+                var installer = Installers[i];
+                Container.Install(installer);
+            }
         }
     }
 }

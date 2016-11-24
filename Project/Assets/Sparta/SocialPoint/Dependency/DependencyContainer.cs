@@ -95,7 +95,7 @@ namespace SocialPoint.Dependency
         public Binding<F> ToMethod<T>(Func<T> method, Action<T> setup = null) where T : F
         {
             _type = typeof(T);
-            _method = () => method();
+            _method = method;
             _toType = ToType.Method;
 
             _setup = null;
@@ -281,9 +281,12 @@ namespace SocialPoint.Dependency
 
         public void Install(IInstaller installer)
         {
-            installer.Container = this;
-            installer.InstallBindings();
-            _installed.Add(installer);
+            if(installer.Enabled)
+            {
+                installer.Container = this;
+                installer.InstallBindings();
+                _installed.Add(installer);
+            }
         }
 
         public List<T> ResolveList<T>(string tag = null)
