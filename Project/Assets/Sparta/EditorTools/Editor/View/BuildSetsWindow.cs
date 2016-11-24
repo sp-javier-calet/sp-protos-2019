@@ -64,28 +64,12 @@ namespace SpartaTools.Editor.View
             }
         }
 
-        static bool RequiresApply
-        {
-            get
-            {
-                float currentTime = (float)EditorApplication.timeSinceStartup;
-                return (currentTime <= AutoApplyLastTime);
-            }
-            set
-            {
-                if(value)
-                {
-                    AutoApplyLastTime = float.MaxValue;
-                }
-            }
-        }
-
         static BuildSetApplier()
         {
             if(AutoApply)
             {
                 float currentTime = (float)EditorApplication.timeSinceStartup;
-                var requiresApply = currentTime < AutoApplyLastTime;
+                var requiresApply = currentTime <= AutoApplyLastTime;
 
                 if(requiresApply)
                 {
