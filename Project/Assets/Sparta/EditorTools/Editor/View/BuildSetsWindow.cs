@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using SpartaTools.Editor.Build;
-using SocialPoint.Base;
 
 namespace SpartaTools.Editor.View
 {
@@ -70,7 +69,7 @@ namespace SpartaTools.Editor.View
             get
             {
                 float currentTime = (float)EditorApplication.timeSinceStartup;
-                return (currentTime < AutoApplyLastTime);
+                return (currentTime <= AutoApplyLastTime);
             }
             set
             {
@@ -87,13 +86,11 @@ namespace SpartaTools.Editor.View
             {
                 float currentTime = (float)EditorApplication.timeSinceStartup;
                 var requiresApply = currentTime < AutoApplyLastTime;
-                var playing = EditorApplication.isPlayingOrWillChangePlaymode;
-                var compiling = EditorApplication.isCompiling;
 
-                if(requiresApply && !playing && !compiling)
+                if(requiresApply)
                 {
                     var config = CurrentMode;
-                    Log.i(string.Format("Auto Applying BuildSet '{0}'", config));
+                    Debug.Log(string.Format("Auto Applying BuildSet '{0}'", config));
                     ApplyConfig(config);
                 }
 
