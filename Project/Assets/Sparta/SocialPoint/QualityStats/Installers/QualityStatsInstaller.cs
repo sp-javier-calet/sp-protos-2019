@@ -6,7 +6,7 @@ using SocialPoint.Network;
 using SocialPoint.QualityStats;
 using SocialPoint.ServerEvents;
 
-public class QualityStatsInstaller : SubInstaller
+public class QualityStatsInstaller : SubInstaller, IInitializable
 {
     public override void InstallBindings()
     {
@@ -15,8 +15,6 @@ public class QualityStatsInstaller : SubInstaller
         Container.Rebind<IHttpClient>().ToLookup<QualityStatsHttpClient>();
         Container.Rebind<SocialPointQualityStats>().ToMethod<SocialPointQualityStats>(CreateQualityStats, SetupQualityStats);
         Container.Bind<IDisposable>().ToLookup<SocialPointQualityStats>();
-
-        Container.Resolve<SocialPointQualityStats>();
     }
 
     SocialPointQualityStats CreateQualityStats()
@@ -35,5 +33,10 @@ public class QualityStatsInstaller : SubInstaller
     QualityStatsHttpClient CreateHttpClient()
     {
         return new QualityStatsHttpClient(Container.Resolve<IHttpClient>("internal"));
+    }
+
+    public void Initialize()
+    {
+        Container.Resolve<SocialPointQualityStats>();
     }
 }
