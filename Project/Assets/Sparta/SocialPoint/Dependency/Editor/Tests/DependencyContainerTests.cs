@@ -366,5 +366,19 @@ namespace SocialPoint.Dependency
 
             setupCallback.Received().Invoke(Arg.Any<IDisposable>());
         }
+
+        [Test]
+        public void ListenerDontResolvedTwice()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
+
+            var setupCallback = Substitute.For<Action<TestDisposable>>();
+            container.Listen<TestDisposable>().WhenResolved(setupCallback);
+            container.Resolve<TestDisposable>();
+            container.Resolve<TestDisposable>();
+
+            setupCallback.Received(1).Invoke(Arg.Any<TestDisposable>());
+        }
     }
 }

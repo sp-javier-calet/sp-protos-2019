@@ -16,7 +16,22 @@ namespace SocialPoint.Dependency
 
         public Listener<F> WhenResolved(Action<F> onResolved)
         {
-            _onResolved += onResolved;
+            return WhenResolved<F>(onResolved);
+        }
+
+        public Listener<F> WhenResolved<T>(Action<T> onResolved) where T : F
+        {
+            _onResolved += instance => {
+                try
+                {
+                    var casted = (T)instance;
+                    onResolved(casted);
+                }
+                catch(Exception e)
+                {
+                    Log.x(e);
+                }
+            };
             return this;
         }
 
@@ -32,6 +47,8 @@ namespace SocialPoint.Dependency
     public interface IBinding
     {
         BindingKey Key { get; }
+
+        bool Resolved { get; }
 
         object Resolve();
 
@@ -56,13 +73,15 @@ namespace SocialPoint.Dependency
         Func<object, F> _getter;
         DependencyContainer _container;
 
-        public BindingKey Key 
+        public BindingKey Key
         {
             get
             {
                 return new BindingKey(typeof(F), _tag);
             }
         }
+
+        public bool Resolved { get; private set; }
 
         public Binding(DependencyContainer container)
         {
@@ -148,6 +167,8 @@ namespace SocialPoint.Dependency
 
         public void OnResolutionFinished()
         {
+            Resolved = true;
+
             if(_setup != null && _instance != null)
             {
                 // Execute a copy to avoid recursive calls in circular dependencies
@@ -355,21 +376,28 @@ namespace SocialPoint.Dependency
                 for(var i = 0; i < resolved.Length; i++)
                 {
                     var resolvedBinding = resolved[i];
-                    var listeners = FindListeners(resolvedBinding);
-
-                    if(listeners.Count > 0)
+                    if(!binding.Resolved)
                     {
-                        var instance = resolvedBinding.Resolve();
-                        for(var j = 0; j < listeners.Count; ++j)
-                        {
-                            listeners[j].OnResolved(instance);
-                        }
+                        NotifyResolutionFinished(resolvedBinding);
                     }
-
-                    resolvedBinding.OnResolutionFinished();
                 }
             }
             return true;
+        }
+
+        void NotifyResolutionFinished(IBinding binding)
+        {
+            binding.OnResolutionFinished();
+
+            var listeners = FindListeners(binding);
+            if(listeners.Count > 0)
+            {
+                var instance = binding.Resolve();
+                for(var j = 0; j < listeners.Count; ++j)
+                {
+                    listeners[j].OnResolved(instance);
+                }
+            }
         }
 
         public void Clear()
