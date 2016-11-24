@@ -19,6 +19,8 @@ namespace SocialPoint.Dependency
             }
         }
 
+        public bool Resolved { get; private set; }
+
         public UnityComponentBinding(DependencyContainer container)
         {
             _container = container;
@@ -45,6 +47,8 @@ namespace SocialPoint.Dependency
 
         public void OnResolutionFinished()
         {
+            Resolved = true;
+
             if(_setup != null && _instance != null)
             {
                 _setup(_instance);
