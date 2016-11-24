@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using SpartaTools.Editor.Build;
+using SocialPoint.Base;
 
 namespace SpartaTools.Editor.View
 {
@@ -12,6 +13,7 @@ namespace SpartaTools.Editor.View
     {
         const string CurrentModeKey = "SpartaCurrentBuildSet";
         const string AutoApplyKey = "SpartaAutoApplyBuildSetEnabled";
+        const string AutoApplyLastTimeKey = "SpartaAutoApplyLastTime";
 
         static bool? _autoApply;
 
@@ -51,13 +53,51 @@ namespace SpartaTools.Editor.View
             }
         }
 
+        static float AutoApplyLastTime
+        {
+            get
+            {
+                return EditorPrefs.GetFloat(AutoApplyLastTimeKey, float.MaxValue);
+            }
+            set
+            {
+                EditorPrefs.SetFloat(AutoApplyLastTimeKey, value);
+            }
+        }
+
+        static bool RequiresApply
+        {
+            get
+            {
+                float currentTime = (float)EditorApplication.timeSinceStartup;
+                return (currentTime < AutoApplyLastTime);
+            }
+            set
+            {
+                if(value)
+                {
+                    AutoApplyLastTime = float.MaxValue;
+                }
+            }
+        }
+
         static BuildSetApplier()
         {
-            var playing = EditorApplication.isPlayingOrWillChangePlaymode;
-            var compiling = EditorApplication.isCompiling;
-            if(AutoApply && !playing && !compiling)
+            if(AutoApply)
             {
-                ApplyConfig(CurrentMode);
+                float currentTime = (float)EditorApplication.timeSinceStartup;
+                var requiresApply = currentTime < AutoApplyLastTime;
+                var playing = EditorApplication.isPlayingOrWillChangePlaymode;
+                var compiling = EditorApplication.isCompiling;
+
+                if(requiresApply && !playing && !compiling)
+                {
+                    var config = CurrentMode;
+                    Log.i(string.Format("Auto Applying BuildSet '{0}'", config));
+                    ApplyConfig(config);
+                }
+
+                AutoApplyLastTime = currentTime;
             }
         }
 
