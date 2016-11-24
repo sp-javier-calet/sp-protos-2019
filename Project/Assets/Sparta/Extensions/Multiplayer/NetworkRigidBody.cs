@@ -52,7 +52,7 @@ namespace SocialPoint.Multiplayer
             RemoveObjectFromPhysicsWorld();
         }
 
-        Object ICloneable.Clone()
+        public object Clone()
         {
             PhysicsCollisionShape shapeClone = (PhysicsCollisionShape)_collisionShape.Clone();
             var behavior = new NetworkRigidBody(shapeClone, _controlType, _physicsWorld, _debugger);
