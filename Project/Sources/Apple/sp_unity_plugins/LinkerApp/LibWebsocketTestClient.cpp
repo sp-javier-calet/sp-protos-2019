@@ -14,21 +14,34 @@
 #include <iostream>
 #include <thread>
 
+namespace  {
+    std::string DefaultScheme = "ws";
+    std::string DefaultHost = "int-lod.socialpointgames.com";
+    std::string DefaultPath = "/find_opponent?user_id=3177723556229545346&room=BestTestEver";
+    int DefaultPort = 8001;
+}
+
+
 void LibWebsocketTestClient::run()
+{
+    run(DefaultScheme, DefaultHost, DefaultPath, DefaultPort);
+}
+
+void LibWebsocketTestClient::run(const std::string& scheme, const std::string& host, const std::string& path, int port)
 {
     std::atomic_flag running = ATOMIC_FLAG_INIT;
     std::atomic_int pendingMessages(0);
     running.test_and_set();
 
-    WebSocketsManager::get().setProxySettings({"192.168.89.107", 8888});
+    WebSocketsManager::get().setProxySettings({"localhost", 8888});
     WebSocketsManager::get().setLogLevelMax();
 
     auto connection = std::unique_ptr<WebSocketConnection>(new WebSocketConnection());
     WebSocketConnectionInfo info;
-    info.scheme = "wss";
-    info.host = "echo.websocket.org";
-    info.path = "";
-    info.port = 443;
+    info.scheme = scheme;
+    info.host = host;
+    info.path = path;
+    info.port = port;
     connection->setAllowSelfSignedCertificates(true);
     connection->addUrl(info);
 
