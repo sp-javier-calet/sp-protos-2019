@@ -54,7 +54,6 @@ namespace SocialPoint.Network
 
         public void Dispose()
         {
-            throw new NotImplementedException();
         }
 
         public IHttpConnection Send(HttpRequest request, HttpResponseDelegate del = null)
