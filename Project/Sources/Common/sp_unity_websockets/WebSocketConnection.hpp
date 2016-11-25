@@ -113,7 +113,7 @@ class WebSocketConnection
     void setWebsocket(lws* wsi);
     lws* getWebsocket();
 
-    bool onPingError();
+    bool onPingSent();
     void resetPing();
   public:
     /**

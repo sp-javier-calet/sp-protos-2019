@@ -117,7 +117,7 @@ static int callback_websocket(struct lws* wsi, enum lws_callback_reasons reason,
                 }
                 else
                 {
-                    if(connection->onPingError())
+                    if(connection->onPingSent())
                     {
                         connection->resetPing();
                         

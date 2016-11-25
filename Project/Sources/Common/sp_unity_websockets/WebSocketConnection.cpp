@@ -262,7 +262,7 @@ const std::string& WebSocketConnection::getOrigin() const
     return _origin;
 }
 
-bool WebSocketConnection::onPingError()
+bool WebSocketConnection::onPingSent()
 {
     _missingPong++;
     return _missingPong >= kMaxNumberOfPings;
