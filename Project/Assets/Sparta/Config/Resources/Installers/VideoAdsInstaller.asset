@@ -11,6 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01bd266d1570841a9af81934326e0299, type: 3}
   m_Name: VideoAdsInstaller
   m_EditorClassIdentifier: 
+  _enabled: 1
   iOSSettings:
     AppID: 
     SecurityToken: 

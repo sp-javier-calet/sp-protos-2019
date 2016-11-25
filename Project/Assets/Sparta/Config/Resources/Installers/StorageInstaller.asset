@@ -11,6 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b2f08ad7c554439891d27aef2f41e78, type: 3}
   m_Name: StorageInstaller
   m_EditorClassIdentifier: 
+  _enabled: 1
   Settings:
     VolatilePrefix: 
     PersistentPrefix: 

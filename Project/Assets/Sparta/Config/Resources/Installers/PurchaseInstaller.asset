@@ -11,3 +11,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c52cacb19a4f497daa33d49ca12712d, type: 3}
   m_Name: PurchaseInstaller
   m_EditorClassIdentifier: 
+  _enabled: 1

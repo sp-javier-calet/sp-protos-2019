@@ -11,3 +11,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b762528a502f4884808dcf4d04887c1, type: 3}
   m_Name: ConsoleProInstaller
   m_EditorClassIdentifier: 
+  _enabled: 1

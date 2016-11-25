@@ -11,3 +11,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1eea8e50317943e28ff580c6f5059cc, type: 3}
   m_Name: GameMultiplayerServerInstaller
   m_EditorClassIdentifier: 
+  _enabled: 1

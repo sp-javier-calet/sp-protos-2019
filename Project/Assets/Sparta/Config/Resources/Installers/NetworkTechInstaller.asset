@@ -11,6 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acee8b89a0cb64ef08cd5bf77905240d, type: 3}
   m_Name: NetworkTechInstaller
   m_EditorClassIdentifier: 
+  _enabled: 1
   Settings:
     Tech: 0
     Unet:

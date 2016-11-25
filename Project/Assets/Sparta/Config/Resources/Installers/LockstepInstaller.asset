@@ -11,6 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2cf418e947a445e2917c28d24e7af8b, type: 3}
   m_Name: LockstepInstaller
   m_EditorClassIdentifier: 
+  _enabled: 0
   Settings:
     Config:
       SimulationStepDuration: 10

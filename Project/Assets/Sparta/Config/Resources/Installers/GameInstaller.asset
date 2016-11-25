@@ -11,6 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ac7fea94511743b9b2024fd38edee75, type: 3}
   m_Name: GameInstaller
   m_EditorClassIdentifier: 
+  _enabled: 1
   Settings:
     InitialJsonGameResource: game
     InitialJsonPlayerResource: user

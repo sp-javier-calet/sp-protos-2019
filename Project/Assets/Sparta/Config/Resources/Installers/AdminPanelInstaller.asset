@@ -11,3 +11,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9af6017b9d2ff4600b230f084f2dcce8, type: 3}
   m_Name: AdminPanelInstaller
   m_EditorClassIdentifier: 
+  _enabled: 1

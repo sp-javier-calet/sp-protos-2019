@@ -11,5 +11,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43f612f812b174ffbbc795cf9a9cc4d3, type: 3}
   m_Name: GUIInstaller
   m_EditorClassIdentifier: 
+  _enabled: 1
   Settings:
     PopupFadeSpeed: 4

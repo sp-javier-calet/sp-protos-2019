@@ -11,6 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 305f4ae5e39194e188ca04d5b25a7f5f, type: 3}
   m_Name: SocialFrameworkInstaller
   m_EditorClassIdentifier: 
+  _enabled: 1
   Settings:
     Endpoints:
     - ws://sprocket-00.int.lod.laicosp.net:8002/ws
