@@ -32,9 +32,35 @@ namespace SocialPoint.Dependency
     #endif
     IInstaller
     {
-        public bool Enabled { get; set; }
+        [SerializeField]
+        bool _enabled;
 
-        public ModuleType Type { get; private set; }
+        ModuleType _type;
+
+
+        public bool Enabled
+        {
+            get
+            {
+                return _enabled;
+            } 
+            set
+            {
+                _enabled = value;
+            }
+        }
+
+        public ModuleType Type
+        {
+            get
+            {
+                return _type;
+            } 
+            set
+            {
+                _type = value;
+            }
+        }
 
         public DependencyContainer Container{ get; set; }
 
