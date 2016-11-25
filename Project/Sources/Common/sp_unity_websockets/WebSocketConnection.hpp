@@ -55,6 +55,7 @@ class WebSocketConnection
     std::queue<std::string> _incomingQueue;
     std::queue<std::string> _outcomingQueue;
     int _pendingPings;
+    int _missingPong;
 
     int _errorCode;
     std::string _errorMessage;
@@ -112,6 +113,8 @@ class WebSocketConnection
     void setWebsocket(lws* wsi);
     lws* getWebsocket();
 
+    bool onPingError();
+    void resetPing();
   public:
     /**
      * Constructor

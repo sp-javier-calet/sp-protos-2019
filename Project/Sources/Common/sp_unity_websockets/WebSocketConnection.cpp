@@ -12,11 +12,18 @@
 #include <string>
 #include <sstream>
 
+namespace
+{
+    int kMaxNumberOfPings = 3;
+}
+
+
 WebSocketConnection::WebSocketConnection()
 : _allowSelfSignedCertificates(false)
 , _currentUrlIndex(0)
 , _websocket(nullptr)
 , _pendingPings(0)
+, _missingPong(0)
 , _state(State::Closed)
 , _errorCode(0)
 {
@@ -253,4 +260,15 @@ void WebSocketConnection::setOrigin(const std::string& pNewOrigin)
 const std::string& WebSocketConnection::getOrigin() const
 {
     return _origin;
+}
+
+bool WebSocketConnection::onPingError()
+{
+    _missingPong++;
+    return _missingPong >= kMaxNumberOfPings;
+}
+
+void WebSocketConnection::resetPing()
+{
+    _missingPong = 0;
 }
