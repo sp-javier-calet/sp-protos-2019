@@ -51,7 +51,7 @@ namespace SocialPoint.GrayboxLibrary
 
             _dbController = GrayboxLibraryDB.GetInstance();
             _downloadController = GrayboxLibraryDownloader.GetInstance();
-            _dbController.Connect();
+            Connect();
         }
 
 
@@ -477,11 +477,20 @@ namespace SocialPoint.GrayboxLibrary
 
         public void AssignTag(GrayboxAsset asset, GrayboxTag tag)
         {
-            string sql = "INSERT INTO asset_tag VALUES (" + asset.Id + "," + tag.Id + ")";
+            string sql = "SELECT id_asset FROM asset_tag WHERE id_asset = " + asset.Id + " AND id_tag = " + tag.Id ;
 
             MySqlCommand command = new MySqlCommand(sql);
 
-            _dbController.ExecuteSQL(command);
+            ArrayList queryResult = _dbController.ExecuteQuery(command);
+
+            if (queryResult.Count == 0)
+            {
+                sql = "INSERT INTO asset_tag VALUES (" + asset.Id + "," + tag.Id + ")";
+
+                command = new MySqlCommand(sql);
+
+                _dbController.ExecuteSQL(command);
+            }
         }
 
         public void UnassignTag(GrayboxAsset asset, GrayboxTag tag)
@@ -493,6 +502,21 @@ namespace SocialPoint.GrayboxLibrary
             _dbController.ExecuteSQL(command);
         }
 
+
+        public int GetAssetCategoryByPrefix(string fullname)
+        {
+            int category = -1;
+            var enumerator = GrayboxLibraryConfig.CategoryPrefix.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                string prefix = enumerator.Current.Value;
+                if (fullname.Contains(prefix))
+                    category = (int) enumerator.Current.Key;
+            }
+            enumerator.Dispose();
+            
+            return category;
+        }
 
 
         public void DownloadAsset(GrayboxAsset asset)
@@ -509,16 +533,27 @@ namespace SocialPoint.GrayboxLibrary
             return _downloadController.DownloadImage(path);
         }
 
-        public GameObject InstantiateAsset(GrayboxAsset asset)
+        public void FlushImageCache()
         {
+            _downloadController.FlushImageCache();
+        }
+
+        public GameObject InstantiateAsset(GrayboxAsset asset, Transform parent = null)
+        {
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
             GameObject assetGO = (GameObject)AssetDatabase.LoadMainAssetAtPath(asset.MainAssetPath);
             GameObject instance = (GameObject)PrefabUtility.InstantiatePrefab(assetGO);
             instance.name = instance.name.Replace("(Clone)", "");
             if(asset.Category == GrayboxAssetCategory.UI)
             {
-                Canvas canvas = (Canvas) GameObject.FindObjectOfType(typeof(Canvas));
-                instance.transform.SetParent(canvas.transform, false);
+                if(parent == null)
+                    parent = ((Canvas) GameObject.FindObjectOfType(typeof(Canvas))).transform;
+                instance.transform.SetParent(parent, false);
             }
+
+            if (GrayboxLibraryConfig.ScriptOnInstance[asset.Category] != null)
+                instance.AddComponent(GrayboxLibraryConfig.ScriptOnInstance[asset.Category]);
 
             return instance;
         }
@@ -526,6 +561,11 @@ namespace SocialPoint.GrayboxLibrary
         public void Disconnect()
         {
             _dbController.Disconnect();
+        }
+
+        public void Connect()
+        {
+            _dbController.Connect();
         }
     }
 }
