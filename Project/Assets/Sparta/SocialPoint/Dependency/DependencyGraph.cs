@@ -1,5 +1,4 @@
-﻿#define SPARTA_COLLECT_DEPENDENCIES
-using System;
+﻿using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
 

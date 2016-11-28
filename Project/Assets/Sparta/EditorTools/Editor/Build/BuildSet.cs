@@ -25,6 +25,7 @@ namespace SpartaTools.Editor.Build
         const string ProvisioningProfilePrefsKey = "XCodeProvisioningProfileUuid";
 
         const string AdminPanelFlag = "ADMIN_PANEL";
+        const string DependencyInspectionFlag = "SPARTA_COLLECT_DEPENDENCIES";
 
         static readonly char[] ListSeparator = { ';' };
 
@@ -72,6 +73,7 @@ namespace SpartaTools.Editor.Build
             public bool IncludeDebugScenes;
             public LogLevel LogLevel;
             public bool EnableAdminPanel;
+            public bool EnableDependencyInspection;
         }
 
         public CommonConfiguration Common;
@@ -180,6 +182,10 @@ namespace SpartaTools.Editor.Build
                 ErrorMessage = "Admin Panel flag must be enabled using the proper option"
             },
             new Validator {
+                Validate = (BuildSet bs) => !bs.Ios.Flags.Contains(DependencyInspectionFlag) && !bs.Common.Flags.Contains(DependencyInspectionFlag) && !bs.Android.Flags.Contains(DependencyInspectionFlag),
+                ErrorMessage = "Dependency Inspection flag must be enabled using the proper option"
+            },
+            new Validator {
                 Validate = (BuildSet bs) => !bs.IsDebugConfig || bs.Ios.XcodeModSchemes.Contains("debug"),
                 ErrorMessage = "Debug Build Set must define the 'debug' scheme for XcodeMods"
             },
@@ -206,6 +212,10 @@ namespace SpartaTools.Editor.Build
             new Validator {
                 Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.Common.EnableAdminPanel,
                 ErrorMessage = "Shipping Build Set cannot enable Admin Panel features"
+            },
+            new Validator {
+                Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.Common.EnableDependencyInspection,
+                ErrorMessage = "Shipping Build Set cannot enable Dependency Inspection features"
             }
         };
 
@@ -345,9 +355,10 @@ namespace SpartaTools.Editor.Build
             var androidFlags = MergeFlags(Android.Flags, baseSettings.Android.Flags);
             var iosFlags = MergeFlags(Ios.Flags, baseSettings.Ios.Flags);
             var adminFlags = Common.EnableAdminPanel ? AdminPanelFlag : string.Empty;
+            var inspectionFlags = Common.EnableDependencyInspection ? DependencyInspectionFlag : string.Empty;
 
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, string.Format("{0};{1};{2};{3}", commonFlags, androidFlags, logLevelFlag, adminFlags));
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, string.Format("{0};{1};{2};{3}", commonFlags, iosFlags, logLevelFlag, adminFlags));
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, string.Format("{0};{1};{2};{3};{4}", commonFlags, androidFlags, logLevelFlag, adminFlags, inspectionFlags));
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, string.Format("{0};{1};{2};{3};{4}", commonFlags, iosFlags, logLevelFlag, adminFlags, inspectionFlags));
 
             /*
              * Android-only configuration
