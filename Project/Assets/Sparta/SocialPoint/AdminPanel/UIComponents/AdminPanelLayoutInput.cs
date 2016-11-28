@@ -60,7 +60,7 @@ namespace SocialPoint.AdminPanel
             if(onSubmit != null)
             {
                 input.onEndEdit.AddListener(value => {
-                    if(value.Length > 0)
+                    if(value.Length >= 0)
                     {
                         onSubmit(value);
                     }

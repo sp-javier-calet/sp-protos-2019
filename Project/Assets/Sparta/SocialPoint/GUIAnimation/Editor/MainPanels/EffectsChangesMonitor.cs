@@ -1,6 +1,5 @@
-using UnityEngine;
-using UnityEditor;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -49,13 +48,13 @@ namespace SocialPoint.GUIAnimation
         List<Transform> _targets = new List<Transform>();
         List<Effect> _actions = new List<Effect>();
 
-        List<EffectsGroup> _monitors = new List<EffectsGroup>();
+        readonly List<EffectsGroup> _monitors = new List<EffectsGroup>();
 
         public void SetTargets(List<Transform> targets)
         {
             _monitors.Clear();
             _targets.Clear();
-			
+
             for(int i = 0; i < targets.Count; ++i)
             {
                 _targets.Add(targets[i]);
@@ -72,12 +71,11 @@ namespace SocialPoint.GUIAnimation
             for(int i = 0; i < actions.Count; ++i)
             {
                 Component animItem = actions[i];
-                if(animItem is Effect)
+                var effect = animItem as Effect;
+                if(effect != null)
                 {
-                    Effect action = ((Effect)animItem);
-                    if(!_actions.Exists((Effect addedAction) => {
-                        return addedAction.GetType() == action.GetType();
-                    }))
+                    Effect action = effect;
+                    if(!_actions.Exists(addedAction => addedAction.GetType() == action.GetType()))
                     {
                         _actions.Add(action);
                     }
@@ -97,7 +95,7 @@ namespace SocialPoint.GUIAnimation
                     continue;
                 }
 
-                EffectsGroup group = new EffectsGroup();
+                var group = new EffectsGroup();
                 group.Init(_targets[i], _actions);
 
                 _monitors.Add(group);

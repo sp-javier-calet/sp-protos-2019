@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Base;
 using SocialPoint.Console;
 
 namespace SocialPoint.AdminPanel
@@ -15,6 +16,32 @@ namespace SocialPoint.AdminPanel
         public bool Visible { get; private set; }
 
         List<IAdminPanelConfigurer> _configurers = new List<IAdminPanelConfigurer>();
+
+        string _defaultCategory;
+
+        public string DefaultCategory 
+        { 
+            private get
+            {
+                return _defaultCategory;
+            }
+            set
+            {
+                if(!string.IsNullOrEmpty(_defaultCategory))
+                {
+                    Log.w("AdminPanel", string.Format("New default category '{0}' overrides the current '{1}'", value, _defaultCategory));
+                }
+                _defaultCategory = value;
+            }
+        }
+
+        public IAdminPanelGUI DefaultPanel
+        {
+            get
+            {
+                return GetCategoryLayout(_defaultCategory);
+            }
+        }
 
         public AdminPanel(List<IAdminPanelConfigurer> configurers)
         {

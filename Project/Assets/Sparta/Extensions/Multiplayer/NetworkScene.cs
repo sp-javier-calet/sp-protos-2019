@@ -182,7 +182,7 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class NetworkSceneSerializer : IWriteSerializer<NetworkScene>
+    public class NetworkSceneSerializer : IDiffWriteSerializer<NetworkScene>
     {
         public static readonly NetworkSceneSerializer Instance = new NetworkSceneSerializer();
 
@@ -241,7 +241,7 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class NetworkSceneParser : IReadParser<NetworkScene>
+    public class NetworkSceneParser : IDiffReadParser<NetworkScene>
     {
         public static readonly NetworkSceneParser Instance = new NetworkSceneParser();
 

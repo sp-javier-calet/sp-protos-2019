@@ -1,4 +1,3 @@
-using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -25,7 +24,6 @@ namespace SocialPoint.GUIAnimation
                 {
                     continue;
                 }
-				
                 if(step.GetType() == effect.GetType())
                 {
                     step.Copy(effect);

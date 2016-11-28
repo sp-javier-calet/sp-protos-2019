@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
-using SocialPoint.WAMP;
+using SocialPoint.WAMP.Subscriber;
 
 namespace SocialPoint.Social
 {
@@ -24,7 +24,7 @@ namespace SocialPoint.Social
 
         readonly Dictionary<string, IChatRoom> _chatRooms;
 
-        readonly  Dictionary<IChatRoom, WAMPConnection.Subscription> _chatSubscriptions;
+        readonly  Dictionary<IChatRoom, Subscription> _chatSubscriptions;
 
         public IChatRoom AllianceRoom { get; private set; }
 
@@ -33,7 +33,7 @@ namespace SocialPoint.Social
         public ChatManager(ConnectionManager connection)
         {
             _chatRooms = new Dictionary<string, IChatRoom>();
-            _chatSubscriptions = new Dictionary<IChatRoom, WAMPConnection.Subscription>();
+            _chatSubscriptions = new Dictionary<IChatRoom, Subscription>();
 
             _connection = connection;
             _connection.ChatManager = this;
@@ -89,7 +89,7 @@ namespace SocialPoint.Social
             if(_chatRooms.TryGetValue(type, out room))
             {
                 _chatRooms.Remove(type);
-                ClearSubscription(room);
+                DeleteSubscription(room);
 
                 if(room == AllianceRoom)
                 {
@@ -121,22 +121,13 @@ namespace SocialPoint.Social
             for(int i = 0; i < topicsList.Count; ++i)
             {
                 var topicDic = topicsList[i].AsDic;
-                var topic = topicDic.GetValue(ConnectionManager.TypeTopicKey).ToString();
-                ProcessChatTopic(topic, topicDic);
+                ProcessChatTopic(topicDic);
             }
 
             ChatBanEndTimestamp = 0;
             if(dic.ContainsKey("banEndTimestamp"))
             {
                 ChatBanEndTimestamp = dic.GetValue("banEndTimestamp").ToLong();
-            }
-        }
-
-        public void ClearSubscription(IChatRoom room)
-        {
-            if(IsSubscribedToChat(room))
-            {
-                _chatSubscriptions.Remove(room);
             }
         }
 
@@ -169,8 +160,10 @@ namespace SocialPoint.Social
             OnChatBanReceived(ChatBanEndTimestamp);
         }
 
-        void ProcessChatTopic(string topic, AttrDic dic)
+        void ProcessChatTopic(AttrDic dic)
         {
+            var topic = dic.GetValue(ConnectionManager.TypeTopicKey).ToString();
+
             IChatRoom room;
             if(!_chatRooms.TryGetValue(topic, out room))
             {
@@ -180,7 +173,7 @@ namespace SocialPoint.Social
 
             var subscriptionId = dic.GetValue(ConnectionManager.SubscriptionIdTopicKey).ToLong();
             var topicName = dic.GetValue(ConnectionManager.IdTopicKey).ToString();
-            var subscription = new WAMPConnection.Subscription(subscriptionId, topicName);
+            var subscription = new Subscription(subscriptionId, topicName);
             _chatSubscriptions.Add(room, subscription);
 
             _connection.AutosubscribeToTopic(topic, subscription);

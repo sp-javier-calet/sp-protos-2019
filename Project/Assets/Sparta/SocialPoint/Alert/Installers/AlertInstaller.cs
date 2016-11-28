@@ -21,7 +21,7 @@ public class AlertInstaller : Installer
 
     public SettingsData Settings = new SettingsData();
 
-    UIStackController _popups; // TODO Direct ref
+    UIStackController _popups;
 
     static bool IsNativeViewAvailable
     {
@@ -67,7 +67,7 @@ public class AlertInstaller : Installer
         DebugUtils.Assert(ctrl != null, "GameObject doesn't have a viewController");
         if(_popups == null)
         {
-            _popups = GameObject.FindObjectOfType<UIStackController>(); // FIXME Install from game
+            _popups = GameObject.FindObjectOfType<UIStackController>();
         }
         if(_popups != null)
         {

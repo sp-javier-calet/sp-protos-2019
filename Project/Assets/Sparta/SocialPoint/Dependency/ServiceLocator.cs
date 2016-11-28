@@ -11,6 +11,16 @@ namespace SocialPoint.Dependency
         Action<F> _setup;
         F _instance;
 
+        public BindingKey Key 
+        {
+            get
+            {
+                return new BindingKey(typeof(F), null);
+            }
+        }
+
+        public bool Resolved { get; private set; }
+
         public UnityComponentBinding(DependencyContainer container)
         {
             _container = container;
@@ -37,6 +47,8 @@ namespace SocialPoint.Dependency
 
         public void OnResolutionFinished()
         {
+            Resolved = true;
+
             if(_setup != null && _instance != null)
             {
                 _setup(_instance);

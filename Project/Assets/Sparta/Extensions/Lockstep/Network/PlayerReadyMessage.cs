@@ -1,19 +1,19 @@
 ﻿using SocialPoint.IO;
 
-namespace SocialPoint.Lockstep.Network
+namespace SocialPoint.Lockstep
 {
     public sealed class PlayerReadyMessage : INetworkShareable
     {
-        public uint PlayerId { get; private set; }
+        public string PlayerId { get; private set; }
 
-        public PlayerReadyMessage(uint playerId = 0)
+        public PlayerReadyMessage(string playerId = null)
         {
             PlayerId = playerId;
         }
 
         public void Deserialize(IReader reader)
         {
-            PlayerId = reader.ReadUInt32();
+            PlayerId = reader.ReadString();
         }
 
         public void Serialize(IWriter writer)

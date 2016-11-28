@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -8,7 +7,7 @@ namespace SocialPoint.GUIAnimation
     // mouse click or any event only if they are the FocusedPanel
     public sealed class AnimationBlackboard
     {
-        Dictionary<string, string> _blackBoard = new Dictionary<string, string>();
+        readonly Dictionary<string, string> _blackBoard = new Dictionary<string, string>();
 
         public void ResetState()
         {
@@ -21,10 +20,7 @@ namespace SocialPoint.GUIAnimation
             {
                 return false;
             }
-            else
-            {
-                return _blackBoard[key] == value;
-            }
+            return _blackBoard[key] == value;
         }
 
         public void Set(string key, string value)

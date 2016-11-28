@@ -17,7 +17,7 @@ namespace SocialPoint.GUIAnimation
         public static void GetNormalizedPositionSize(Transform trans, ref Vector2 normPos, ref Vector2 normSize)
         {
             #if NGUI
-            GetNormalizedPositionSizeNGUI (trans, ref normPos, ref normSize );
+            GetNormalizedPositionSizeNGUI(trans, ref normPos, ref normSize);
             #else
             #endif
         }
@@ -31,7 +31,7 @@ namespace SocialPoint.GUIAnimation
         public static void SetToAnchoredPosition(Transform trans, Vector2 anchoredPosition)
         {
             #if NGUI
-            SetToAnchoredPositionNGUI (trans, anchoredPosition );
+            SetToAnchoredPositionNGUI(trans, anchoredPosition);
             #else
             #endif
         }
@@ -39,7 +39,7 @@ namespace SocialPoint.GUIAnimation
         public static Vector3 GetNormalizedPosition(Vector3 position, Transform root)
         {
             #if NGUI
-            return GetNormalizedPositionNGUI (position, root );
+            return GetNormalizedPositionNGUI(position, root);
             #else
             return  position;
             #endif
@@ -48,7 +48,7 @@ namespace SocialPoint.GUIAnimation
         public static void Update(Transform trans, bool isRecursive)
         {
             #if NGUI
-            UpdateNGUI (trans, isRecursive);
+            UpdateNGUI(trans, isRecursive);
             #else
             #endif
         }
@@ -56,7 +56,7 @@ namespace SocialPoint.GUIAnimation
         public static Vector2 ToPixels(Vector2 clipSpace)
         {
             #if NGUI
-            return ToPixelsNGUI (clipSpace);
+            return ToPixelsNGUI(clipSpace);
             #else
             throw new System.NotImplementedException();
             #endif
@@ -65,7 +65,7 @@ namespace SocialPoint.GUIAnimation
         public static Vector2 ToClipSpace(Vector2 pixels)
         {
             #if NGUI
-            return ToClipSpaceNGUI (pixels);
+            return ToClipSpaceNGUI(pixels);
             #else
             throw new System.NotImplementedException();
             #endif
@@ -74,7 +74,7 @@ namespace SocialPoint.GUIAnimation
         public static bool CanBeAnchorParent(GameObject go)
         {
             #if NGUI
-            return CanBeAnchorParentNGUI (go);
+            return CanBeAnchorParentNGUI(go);
             #else
             return CanBeAnchorParentNative(go);
             #endif
@@ -88,7 +88,7 @@ namespace SocialPoint.GUIAnimation
         public static Vector2 GetCanvasScale()
         {
             #if NGUI
-            return GetCanvasScaleNGUI ();
+            return GetCanvasScaleNGUI();
             #else
             return GetCanvasScaleNative();
             #endif
@@ -97,7 +97,7 @@ namespace SocialPoint.GUIAnimation
         public static bool CanBeAnchored(GameObject go)
         {
             #if NGUI
-            return CanBeAnchoredNGUI (go);
+            return CanBeAnchoredNGUI(go);
             #else
             return CanBeAnchoredNative(go);
             #endif
@@ -111,9 +111,9 @@ namespace SocialPoint.GUIAnimation
         public static Transform ConvertTransformToRectTransform(Transform trans)
         {
             #if NGUI
-            if (trans.GetComponent<UIWidget> () == null)
+            if(trans.GetComponent<UIWidget>() == null)
             {
-                trans.gameObject.AddComponent<UIWidget> ();
+                trans.gameObject.AddComponent<UIWidget>();
             }
             #else
             if(trans.GetComponent<RectTransform>() == null)
@@ -137,13 +137,13 @@ namespace SocialPoint.GUIAnimation
         public static Transform CreatePivotTransform(string name = "")
         {
             #if NGUI
-            Log.d ("Setting Dimmensions...");
+            Log.d("Setting Dimmensions...");
 
-            GameObject go = new GameObject (name);
-            UIWidget widget = go.AddComponent<UIWidget> ();
-            if (widget != null)
+            GameObject go = new GameObject(name);
+            UIWidget widget = go.AddComponent<UIWidget>();
+            if(widget != null)
             {
-                widget.SetDimensions (1, 1);
+                widget.SetDimensions(1, 1);
             }
             return go.transform;
             #else
@@ -163,7 +163,7 @@ namespace SocialPoint.GUIAnimation
         public static Transform GetAnchorParent(Transform trans)
         {
             #if NGUI
-            return GetAnchorParentNGUI (trans);
+            return GetAnchorParentNGUI(trans);
             #else
             return trans.parent;
             #endif
@@ -172,7 +172,7 @@ namespace SocialPoint.GUIAnimation
         public static Vector2[] SetAnchors(Transform trans, Transform transParent, AnchorMode anchorsMode, bool isRecursive)
         {
             #if NGUI
-            return SetAnchorsNGUI (trans, transParent, anchorsMode, isRecursive);
+            return SetAnchorsNGUI(trans, transParent, anchorsMode, isRecursive);
             #else
             return SetAnchorsNative(trans, anchorsMode);
             #endif
@@ -181,7 +181,7 @@ namespace SocialPoint.GUIAnimation
         public static void SetAnchors(Transform trans, Transform transParent, Vector2 anchorMin, Vector2 anchorMax, bool isRecursive)
         {
             #if NGUI
-            SetAnchorsNGUI (trans, transParent, anchorMin, anchorMax, isRecursive);
+            SetAnchorsNGUI(trans, transParent, anchorMin, anchorMax, isRecursive);
             #else
             SetAnchorsNative(trans, anchorMin, anchorMax);
             #endif
@@ -190,7 +190,7 @@ namespace SocialPoint.GUIAnimation
         public static Vector2[] SetAnchors(Transform trans, Vector2 anchorsMin, Vector2 anchorsMax, Vector2 offsetsMin, Vector2 offsetsMax)
         {
             #if NGUI
-            return SetAnchorsNGUI (trans, anchorsMin, anchorsMax, offsetsMin, offsetsMax);
+            return SetAnchorsNGUI(trans, anchorsMin, anchorsMax, offsetsMin, offsetsMax);
             #else
             return SetAnchorsNative(trans, anchorsMin, anchorsMax, offsetsMin, offsetsMax);
             #endif
@@ -199,7 +199,7 @@ namespace SocialPoint.GUIAnimation
         public static bool IsFullyAnchored(Transform trans)
         {
             #if NGUI
-            return IsFullyAnchoredNGUI (trans);
+            return IsFullyAnchoredNGUI(trans);
             #else
             return true;
             #endif
@@ -208,7 +208,7 @@ namespace SocialPoint.GUIAnimation
         public static void RemoveAnchors(Transform trans, bool isRecursive)
         {
             #if NGUI
-            RemoveAnchorsNGUI (trans, isRecursive);
+            RemoveAnchorsNGUI(trans, isRecursive);
             #else
             #endif
         }
@@ -216,7 +216,7 @@ namespace SocialPoint.GUIAnimation
         public static bool GetAnchors(Transform trans, out Vector2 anchorsMin, out Vector2 anchorsMax, out Vector2 offsetsMin, out Vector2 offsetsMax)
         {
             #if NGUI
-            return GetAnchorsNGUI (trans, out anchorsMin, out anchorsMax, out offsetsMin, out offsetsMax);
+            return GetAnchorsNGUI(trans, out anchorsMin, out anchorsMax, out offsetsMin, out offsetsMax);
             #else
             return GetAnchorsNative(trans, out anchorsMin, out anchorsMax, out offsetsMin, out offsetsMax);
             #endif
@@ -386,36 +386,36 @@ namespace SocialPoint.GUIAnimation
         //----
         //-- NGUI
         //----
-        static void UpdateNGUI (Transform trans, bool isRecursive)
+        static void UpdateNGUI(Transform trans, bool isRecursive)
         {
-            if (isRecursive)
+            if(isRecursive)
             {
-                List<UIRect> rects = new List<UIRect> (trans.GetComponentsInChildren<UIRect> (true));
-                for (int i = 0; i < rects.Count; ++i)
+                List<UIRect> rects = new List<UIRect>(trans.GetComponentsInChildren<UIRect>(true));
+                for(int i = 0; i < rects.Count; ++i)
                 {
-                    rects [i].Update ();
+                    rects[i].Update();
                 }
             }
             else
             {
-                UIRect rect = trans.GetComponent<UIRect> ();
-                if (rect != null)
+                UIRect rect = trans.GetComponent<UIRect>();
+                if(rect != null)
                 {
-                    rect.Update ();
+                    rect.Update();
                 }
             }
 
-            UIPanel panel = trans.GetComponentInParent<UIPanel> ();
-            if (panel != null)
+            UIPanel panel = trans.GetComponentInParent<UIPanel>();
+            if(panel != null)
             {
-                panel.Refresh ();
-                panel.Update ();
+                panel.Refresh();
+                panel.Update();
             }
         }
 
-        static bool CanBeAnchorParentNGUI (GameObject go)
+        static bool CanBeAnchorParentNGUI(GameObject go)
         {
-            if (go.GetComponent<UIRect> () != null)
+            if(go.GetComponent<UIRect>() != null)
             {
                 return true;
             }
@@ -425,10 +425,10 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        static Vector2 GetCanvasScaleNGUI ()
+        static Vector2 GetCanvasScaleNGUI()
         {
-            UIRoot uiRoot = GameObject.FindObjectOfType<UIRoot> ();
-            UICamera uiCamera = uiRoot.GetComponentInChildren<UICamera> ();
+            UIRoot uiRoot = GameObject.FindObjectOfType<UIRoot>();
+            UICamera uiCamera = uiRoot.GetComponentInChildren<UICamera>();
 			
             float camW = (float)uiCamera.cachedCamera.pixelWidth;
             float camH = (float)uiCamera.cachedCamera.pixelHeight;
@@ -437,31 +437,31 @@ namespace SocialPoint.GUIAnimation
             float w = camW;
             float h = camH;
 			
-            if (uiRoot.scalingStyle == UIRoot.Scaling.Constrained
-            || uiRoot.scalingStyle == UIRoot.Scaling.ConstrainedOnMobiles)
+            if(uiRoot.scalingStyle == UIRoot.Scaling.Constrained
+                || uiRoot.scalingStyle == UIRoot.Scaling.ConstrainedOnMobiles)
             {
                 w = uiRoot.manualWidth;
                 h = uiRoot.manualHeight;
 				
-                if (uiRoot.fitHeight)
+                if(uiRoot.fitHeight)
                 {
                     h = uiRoot.manualHeight;
                     w = h * ar;
                 }
-                if (uiRoot.fitWidth)
+                if(uiRoot.fitWidth)
                 {
                     w = uiRoot.manualHeight;
                     h = w / ar;
                 }
             }
 
-            return new Vector2 (w / uiRoot.manualWidth, h / uiRoot.manualHeight);
+            return new Vector2(w / uiRoot.manualWidth, h / uiRoot.manualHeight);
         }
 
-        public static Vector2 GetCanvasSizeNGUI ()
+        public static Vector2 GetCanvasSizeNGUI()
         {
-            UIRoot uiRoot = GameObject.FindObjectOfType<UIRoot> ();
-            UICamera uiCamera = uiRoot.GetComponentInChildren<UICamera> ();
+            UIRoot uiRoot = GameObject.FindObjectOfType<UIRoot>();
+            UICamera uiCamera = uiRoot.GetComponentInChildren<UICamera>();
 			
             float camW = (float)uiCamera.cachedCamera.pixelWidth;
             float camH = (float)uiCamera.cachedCamera.pixelHeight;
@@ -470,25 +470,25 @@ namespace SocialPoint.GUIAnimation
             float w = camW;
             float h = camH;
 			
-            if (uiRoot.scalingStyle == UIRoot.Scaling.Constrained
-            || uiRoot.scalingStyle == UIRoot.Scaling.ConstrainedOnMobiles)
+            if(uiRoot.scalingStyle == UIRoot.Scaling.Constrained
+                || uiRoot.scalingStyle == UIRoot.Scaling.ConstrainedOnMobiles)
             {
                 w = uiRoot.manualWidth;
                 h = uiRoot.manualHeight;
 				
-                if (uiRoot.fitHeight)
+                if(uiRoot.fitHeight)
                 {
                     h = uiRoot.manualHeight;
                     w = h * ar;
                 }
-                if (uiRoot.fitWidth)
+                if(uiRoot.fitWidth)
                 {
                     w = uiRoot.manualHeight;
                     h = w / ar;
                 }
             }
 
-            return new Vector2 (w, h);
+            return new Vector2(w, h);
         }
 
         static Vector2 GetNormalizedPositionNGUI(Vector3 position, Transform root)
@@ -500,17 +500,17 @@ namespace SocialPoint.GUIAnimation
                 parentGraphic = uiRoot.GetComponentInParent<UIRect>();
             }
             Vector3[] parentWC = parentGraphic.worldCorners;
-            Vector2 parentHalfSize = new Vector2((parentWC[2].x-parentWC[1].x)*0.5f, (parentWC[1].y-parentWC[0].y)*0.5f);
-            Vector2 parentPos = new Vector2((parentWC[2].x+parentWC[1].x)*0.5f, (parentWC[1].y+parentWC[0].y)*0.5f);
+            Vector2 parentHalfSize = new Vector2((parentWC[2].x - parentWC[1].x) * 0.5f, (parentWC[1].y - parentWC[0].y) * 0.5f);
+            Vector2 parentPos = new Vector2((parentWC[2].x + parentWC[1].x) * 0.5f, (parentWC[1].y + parentWC[0].y) * 0.5f);
             Vector2 parentPosMin = parentPos - parentHalfSize;
 
-            Vector3 normaPos = new Vector2( (position.x - parentPosMin.x) / parentHalfSize.x , (position.y - parentPosMin.y) / parentHalfSize.y ) / 2f;
+            Vector3 normaPos = new Vector2((position.x - parentPosMin.x) / parentHalfSize.x, (position.y - parentPosMin.y) / parentHalfSize.y) / 2f;
             return normaPos;
         }
 
         static void SetToAnchoredPositionNGUI(Transform trans, Vector2 newAnchoredPos)
         {
-            UIRect graphic = trans.GetComponentInChildren<UIRect> ();
+            UIRect graphic = trans.GetComponentInChildren<UIRect>();
             Vector2 anchorPos = new Vector2(graphic.leftAnchor.relative + graphic.rightAnchor.relative, graphic.topAnchor.relative + graphic.bottomAnchor.relative) * 0.5f;
             Vector2 offsetPos = newAnchoredPos - anchorPos;
 
@@ -521,9 +521,9 @@ namespace SocialPoint.GUIAnimation
             graphic.bottomAnchor.relative += offsetPos.y;
         }
 
-        static Vector2 ToPixelsNGUI (Vector2 screenDelta)
+        static Vector2 ToPixelsNGUI(Vector2 screenDelta)
         {
-            Vector2 cs = GetCanvasSizeNGUI ();
+            Vector2 cs = GetCanvasSizeNGUI();
 
             screenDelta.x *= cs.y * 0.5f;
             screenDelta.y *= cs.y * 0.5f;
@@ -531,9 +531,9 @@ namespace SocialPoint.GUIAnimation
             return screenDelta;
         }
 
-        static Vector2 ToClipSpaceNGUI (Vector2 pixels)
+        static Vector2 ToClipSpaceNGUI(Vector2 pixels)
         {
-            Vector2 cs = GetCanvasSizeNGUI ();
+            Vector2 cs = GetCanvasSizeNGUI();
 			
             pixels.x /= (cs.y * 0.5f);
             pixels.y /= (cs.y * 0.5f);
@@ -541,10 +541,10 @@ namespace SocialPoint.GUIAnimation
             return pixels;
         }
 
-        static bool CanBeAnchoredNGUI (GameObject go)
+        static bool CanBeAnchoredNGUI(GameObject go)
         {
-            UIRect graphic = go.GetComponent<UIRect> ();
-            if (graphic != null && graphic.canBeAnchored)
+            UIRect graphic = go.GetComponent<UIRect>();
+            if(graphic != null && graphic.canBeAnchored)
             {
                 return true;
             }
@@ -552,36 +552,36 @@ namespace SocialPoint.GUIAnimation
             return false;
         }
 
-        static bool IsFullyAnchoredNGUI (Transform trans)
+        static bool IsFullyAnchoredNGUI(Transform trans)
         {
-            UIRect rect = trans.GetComponent<UIRect> ();
+            UIRect rect = trans.GetComponent<UIRect>();
             return rect.leftAnchor.target != null && rect.rightAnchor.target != null && rect.topAnchor.target != null && rect.bottomAnchor != null;
         }
 
-        static void RemoveAnchorsNGUI (Transform trans, bool isRecursive)
+        static void RemoveAnchorsNGUI(Transform trans, bool isRecursive)
         {
-            if (isRecursive)
+            if(isRecursive)
             {
-                List<UIRect> rects = new List<UIRect> (trans.GetComponentsInChildren<UIRect> (true));
-                for (int i = 0; i < rects.Count; ++i)
+                List<UIRect> rects = new List<UIRect>(trans.GetComponentsInChildren<UIRect>(true));
+                for(int i = 0; i < rects.Count; ++i)
                 {
                     if(rects[i].gameObject.tag.CompareTo("Anchored") != 0)
                     {
-                        DoRemoveAnchorsNGUI (rects [i]);
+                        DoRemoveAnchorsNGUI(rects[i]);
                     }
                 }
             }
             else
             {
-                UIRect graphic = trans.GetComponent<UIRect> ();
-                if (graphic != null)
+                UIRect graphic = trans.GetComponent<UIRect>();
+                if(graphic != null)
                 {
-                    DoRemoveAnchorsNGUI (graphic);
+                    DoRemoveAnchorsNGUI(graphic);
                 }
             }
         }
 
-        static void DoRemoveAnchorsNGUI (UIRect graphic)
+        static void DoRemoveAnchorsNGUI(UIRect graphic)
         {
             graphic.leftAnchor.target = null;
             graphic.rightAnchor.target = null;
@@ -589,19 +589,19 @@ namespace SocialPoint.GUIAnimation
             graphic.topAnchor.target = null;
         }
 
-        static bool GetAnchorsNGUI (Transform trans, out Vector2 anchorsMin, out Vector2 anchorsMax, out Vector2 offsetsMin, out Vector2 offsetsMax)
+        static bool GetAnchorsNGUI(Transform trans, out Vector2 anchorsMin, out Vector2 anchorsMax, out Vector2 offsetsMin, out Vector2 offsetsMax)
         {
-            UIRect graphic = trans.GetComponent<UIRect> ();
-            if (graphic != null)
+            UIRect graphic = trans.GetComponent<UIRect>();
+            if(graphic != null)
             {
-                DoGetAnchorsNGUI (graphic, out anchorsMin, out anchorsMax, out offsetsMin, out offsetsMax);
+                DoGetAnchorsNGUI(graphic, out anchorsMin, out anchorsMax, out offsetsMin, out offsetsMax);
                 return true;
             }
             anchorsMin = anchorsMax = offsetsMin = offsetsMax = Vector2.zero;
             return false;
         }
 
-        static void DoGetAnchorsNGUI (UIRect graphic, out Vector2 anchorsMin, out Vector2 anchorsMax, out Vector2 offsetsMin, out Vector2 offsetsMax)
+        static void DoGetAnchorsNGUI(UIRect graphic, out Vector2 anchorsMin, out Vector2 anchorsMax, out Vector2 offsetsMin, out Vector2 offsetsMax)
         {
             // Anchors
             anchorsMin.x = graphic.leftAnchor.relative;
@@ -642,10 +642,10 @@ namespace SocialPoint.GUIAnimation
 
             public Vector2 parentHalfSize;
 
-            public void Init (Transform trans, Transform transParent)
+            public void Init(Transform trans, Transform transParent)
             {
-                uiRoot = GameObject.FindObjectOfType<UIRoot> ();
-                uiCamera = uiRoot.GetComponentInChildren<UICamera> ();
+                uiRoot = GameObject.FindObjectOfType<UIRoot>();
+                uiCamera = uiRoot.GetComponentInChildren<UICamera>();
 
                 float camW = (float)uiCamera.cachedCamera.pixelWidth;
                 float camH = (float)uiCamera.cachedCamera.pixelHeight;
@@ -654,151 +654,149 @@ namespace SocialPoint.GUIAnimation
                 w = camW;
                 h = camH;
 
-                if (uiRoot.scalingStyle == UIRoot.Scaling.Constrained
-                || uiRoot.scalingStyle == UIRoot.Scaling.ConstrainedOnMobiles)
+                if(uiRoot.scalingStyle == UIRoot.Scaling.Constrained
+                    || uiRoot.scalingStyle == UIRoot.Scaling.ConstrainedOnMobiles)
                 {
                     w = uiRoot.manualWidth;
                     h = uiRoot.manualHeight;
 
-                    if (uiRoot.fitHeight)
+                    if(uiRoot.fitHeight)
                     {
                         h = uiRoot.manualHeight;
                         w = h * ar;
                     }
-                    if (uiRoot.fitWidth)
+                    if(uiRoot.fitWidth)
                     {
                         w = uiRoot.manualHeight;
                         h = w / ar;
                     }
                 }
 				
-                graphic = trans.GetComponent<UIRect> ();
+                graphic = trans.GetComponent<UIRect>();
                 Vector3[] wc = graphic.worldCorners;
-                halfSize = new Vector2 ((wc [2].x - wc [1].x) * 0.5f, (wc [1].y - wc [0].y) * 0.5f);
-                pos = new Vector2 ((wc [2].x + wc [1].x) * 0.5f, (wc [1].y + wc [0].y) * 0.5f);
+                halfSize = new Vector2((wc[2].x - wc[1].x) * 0.5f, (wc[1].y - wc[0].y) * 0.5f);
+                pos = new Vector2((wc[2].x + wc[1].x) * 0.5f, (wc[1].y + wc[0].y) * 0.5f);
                 posMin = pos - halfSize;
                 posMax = pos + halfSize;
 
-                parentHalfSize = new Vector2 (ar, 1f);
+                parentHalfSize = new Vector2(ar, 1f);
                 parentPos = Vector2.zero;
-                parentGraphic = uiRoot.GetComponentInChildren<UIRect> ();
-                if (transParent != null)
+                parentGraphic = uiRoot.GetComponentInChildren<UIRect>();
+                if(transParent != null)
                 {
-                    parentGraphic = transParent.GetComponentInParent<UIRect> ();
+                    parentGraphic = transParent.GetComponentInParent<UIRect>();
                     Vector3[] parentWC = parentGraphic.worldCorners;
-                    parentHalfSize = new Vector2 ((parentWC [2].x - parentWC [1].x) * 0.5f, (parentWC [1].y - parentWC [0].y) * 0.5f);
-                    parentPos = new Vector2 ((parentWC [2].x + parentWC [1].x) * 0.5f, (parentWC [1].y + parentWC [0].y) * 0.5f);
+                    parentHalfSize = new Vector2((parentWC[2].x - parentWC[1].x) * 0.5f, (parentWC[1].y - parentWC[0].y) * 0.5f);
+                    parentPos = new Vector2((parentWC[2].x + parentWC[1].x) * 0.5f, (parentWC[1].y + parentWC[0].y) * 0.5f);
                 }
 
                 parentPosMin = parentPos - parentHalfSize;
                 parentPosMax = parentPos + parentHalfSize;
             }
 
-            public bool HasRect (Transform trans)
+            public bool HasRect(Transform trans)
             {
-                return trans.GetComponent<UIRect> () != null;
+                return trans.GetComponent<UIRect>() != null;
             }
         }
 
-        static Transform GetAnchorParentNGUI (Transform trans)
+        static Transform GetAnchorParentNGUI(Transform trans)
         {
-            UIRect graphic = trans.GetComponent<UIRect> ();
-            if (graphic != null)
+            UIRect graphic = trans.GetComponent<UIRect>();
+            if(graphic != null)
             {
-                if (graphic.leftAnchor != null)
+                if(graphic.leftAnchor != null)
                     return graphic.leftAnchor.target;
-                if (graphic.rightAnchor != null)
+                if(graphic.rightAnchor != null)
                     return graphic.rightAnchor.target;
-                if (graphic.topAnchor != null)
+                if(graphic.topAnchor != null)
                     return graphic.topAnchor.target;
-                if (graphic.bottomAnchor != null)
+                if(graphic.bottomAnchor != null)
                     return graphic.bottomAnchor.target;
             }
             return null;
         }
 
-        static Vector2[] SetAnchorsNGUI (Transform trans, Transform transParent, AnchorMode anchorMode, bool isResursive)
+        static Vector2[] SetAnchorsNGUI(Transform trans, Transform transParent, AnchorMode anchorMode, bool isResursive)
         {
-            DebugUtils.Assert (anchorMode != AnchorMode.Disabled);
+            DebugUtils.Assert(anchorMode != AnchorMode.Disabled);
 
-            Vector2 anchorMin = new Vector2 (0.5f, 0.5f);
-            Vector2 anchorMax = new Vector2 (0.5f, 0.5f);
+            Vector2 anchorMin = new Vector2(0.5f, 0.5f);
+            Vector2 anchorMax = new Vector2(0.5f, 0.5f);
 
-            NGUIAnchorData anchorData = new NGUIAnchorData ();
-            bool hasRect = anchorData.HasRect (trans);
+            NGUIAnchorData anchorData = new NGUIAnchorData();
+            bool hasRect = anchorData.HasRect(trans);
 
-            if (hasRect)
+            if(hasRect)
             {
-                anchorData.Init (trans, transParent);
+                anchorData.Init(trans, transParent);
 
-                if (anchorMode == AnchorMode.CurrentPosition)
+                if(anchorMode == AnchorMode.CurrentPosition)
                 {
-                    anchorMin = new Vector2 ((anchorData.posMin.x - anchorData.parentPosMin.x) / (2f * anchorData.parentHalfSize.x), (anchorData.posMin.y - anchorData.parentPosMin.y) / (2f * anchorData.parentHalfSize.y));
-                    anchorMax = new Vector2 ((anchorData.posMax.x - anchorData.parentPosMin.x) / (2f * anchorData.parentHalfSize.x), (anchorData.posMax.y - anchorData.parentPosMin.y) / (2f * anchorData.parentHalfSize.y));
+                    anchorMin = new Vector2((anchorData.posMin.x - anchorData.parentPosMin.x) / (2f * anchorData.parentHalfSize.x), (anchorData.posMin.y - anchorData.parentPosMin.y) / (2f * anchorData.parentHalfSize.y));
+                    anchorMax = new Vector2((anchorData.posMax.x - anchorData.parentPosMin.x) / (2f * anchorData.parentHalfSize.x), (anchorData.posMax.y - anchorData.parentPosMin.y) / (2f * anchorData.parentHalfSize.y));
                 }
-                else
-                if (anchorMode == AnchorMode.Custom)
+                else if(anchorMode == AnchorMode.Custom)
                 {
                     // Setup the Min X
-                    if (Mathf.Abs (anchorData.posMin.x - anchorData.parentPosMin.x) < Mathf.Abs (anchorData.posMin.x - anchorData.parentPos.x))
+                    if(Mathf.Abs(anchorData.posMin.x - anchorData.parentPosMin.x) < Mathf.Abs(anchorData.posMin.x - anchorData.parentPos.x))
                     {
                         anchorMin.x = 0f;
                     }
-                    if (Mathf.Abs (anchorData.posMin.x - anchorData.parentPosMax.x) < Mathf.Abs (anchorData.posMin.x - anchorData.parentPosMin.x))
+                    if(Mathf.Abs(anchorData.posMin.x - anchorData.parentPosMax.x) < Mathf.Abs(anchorData.posMin.x - anchorData.parentPosMin.x))
                     {
                         anchorMin.x = 1f;
                     }
 					
                     // Setup the Min Y
-                    if (Mathf.Abs (anchorData.posMin.y - anchorData.parentPosMin.y) < Mathf.Abs (anchorData.posMin.y - anchorData.parentPos.y))
+                    if(Mathf.Abs(anchorData.posMin.y - anchorData.parentPosMin.y) < Mathf.Abs(anchorData.posMin.y - anchorData.parentPos.y))
                     {
                         anchorMin.y = 0f;
                     }
-                    if (Mathf.Abs (anchorData.posMin.y - anchorData.parentPosMax.y) < Mathf.Abs (anchorData.posMin.y - anchorData.parentPosMin.y))
+                    if(Mathf.Abs(anchorData.posMin.y - anchorData.parentPosMax.y) < Mathf.Abs(anchorData.posMin.y - anchorData.parentPosMin.y))
                     {
                         anchorMin.y = 1f;
                     }
 
 
                     // Setup the Max X
-                    if (Mathf.Abs (anchorData.posMax.x - anchorData.parentPosMin.x) < Mathf.Abs (anchorData.posMax.x - anchorData.parentPos.x))
+                    if(Mathf.Abs(anchorData.posMax.x - anchorData.parentPosMin.x) < Mathf.Abs(anchorData.posMax.x - anchorData.parentPos.x))
                     {
                         anchorMax.x = 0f;
                     }
-                    if (Mathf.Abs (anchorData.posMax.x - anchorData.parentPosMax.x) < Mathf.Abs (anchorData.posMax.x - anchorData.parentPosMin.x))
+                    if(Mathf.Abs(anchorData.posMax.x - anchorData.parentPosMax.x) < Mathf.Abs(anchorData.posMax.x - anchorData.parentPosMin.x))
                     {
                         anchorMax.x = 1f;
                     }
 					
                     // Setup the Max Y
-                    if (Mathf.Abs (anchorData.posMax.y - anchorData.parentPosMin.y) < Mathf.Abs (anchorData.posMax.y - anchorData.parentPos.y))
+                    if(Mathf.Abs(anchorData.posMax.y - anchorData.parentPosMin.y) < Mathf.Abs(anchorData.posMax.y - anchorData.parentPos.y))
                     {
                         anchorMax.y = 0f;
                     }
-                    if (Mathf.Abs (anchorData.posMax.y - anchorData.parentPosMax.y) < Mathf.Abs (anchorData.posMax.y - anchorData.parentPosMin.y))
+                    if(Mathf.Abs(anchorData.posMax.y - anchorData.parentPosMax.y) < Mathf.Abs(anchorData.posMax.y - anchorData.parentPosMin.y))
                     {
                         anchorMax.y = 1f;
                     }
                 }
-                else
-                if (anchorMode == AnchorMode.ClosestSide)
+                else if(anchorMode == AnchorMode.ClosestSide)
                 {
                     // Setup the Min X
-                    if (Mathf.Abs (anchorData.pos.x - anchorData.parentPosMin.x) < Mathf.Abs (anchorData.pos.x - anchorData.parentPos.x))
+                    if(Mathf.Abs(anchorData.pos.x - anchorData.parentPosMin.x) < Mathf.Abs(anchorData.pos.x - anchorData.parentPos.x))
                     {
                         anchorMin.x = 0f;
                     }
-                    if (Mathf.Abs (anchorData.pos.x - anchorData.parentPosMax.x) < Mathf.Abs (anchorData.pos.x - anchorData.parentPosMin.x))
+                    if(Mathf.Abs(anchorData.pos.x - anchorData.parentPosMax.x) < Mathf.Abs(anchorData.pos.x - anchorData.parentPosMin.x))
                     {
                         anchorMin.x = 1f;
                     }
 
                     // Setup the Min Y
-                    if (Mathf.Abs (anchorData.pos.y - anchorData.parentPosMin.y) < Mathf.Abs (anchorData.pos.y - anchorData.parentPos.y))
+                    if(Mathf.Abs(anchorData.pos.y - anchorData.parentPosMin.y) < Mathf.Abs(anchorData.pos.y - anchorData.parentPos.y))
                     {
                         anchorMin.y = 0f;
                     }
-                    if (Mathf.Abs (anchorData.pos.y - anchorData.parentPosMax.y) < Mathf.Abs (anchorData.pos.y - anchorData.parentPosMin.y))
+                    if(Mathf.Abs(anchorData.pos.y - anchorData.parentPosMax.y) < Mathf.Abs(anchorData.pos.y - anchorData.parentPosMin.y))
                     {
                         anchorMin.y = 1f;
                     }
@@ -807,81 +805,81 @@ namespace SocialPoint.GUIAnimation
                     anchorMax = anchorMin;
                 }
 
-                return DoSetAnchorsNGUI (trans, transParent, anchorMin, anchorMax);
+                return DoSetAnchorsNGUI(trans, transParent, anchorMin, anchorMax);
             }
 
-            if (isResursive)
+            if(isResursive)
             {
-                for (int i = 0; i < trans.childCount; ++i)
+                for(int i = 0; i < trans.childCount; ++i)
                 {
-                    SetAnchorsNGUI (trans.GetChild (i), trans, anchorMode, isResursive);
+                    SetAnchorsNGUI(trans.GetChild(i), trans, anchorMode, isResursive);
                 }
             }
 
             return new Vector2[] {
                 anchorMin,
                 anchorMax,
-                new Vector2 (anchorData.graphic.leftAnchor.absolute, anchorData.graphic.rightAnchor.absolute),
-                new Vector2 (anchorData.graphic.bottomAnchor.absolute, anchorData.graphic.topAnchor.absolute)
+                new Vector2(anchorData.graphic.leftAnchor.absolute, anchorData.graphic.rightAnchor.absolute),
+                new Vector2(anchorData.graphic.bottomAnchor.absolute, anchorData.graphic.topAnchor.absolute)
             };
         }
 
         // Note: It is recomended to Refresh the parent panel of the graphic to avoid weird things after changing the anchor
-        static void SetAnchorsNGUI (Transform trans, Transform transParent, Vector2 anchorMin, Vector2 anchorMax, bool isResursive)
+        static void SetAnchorsNGUI(Transform trans, Transform transParent, Vector2 anchorMin, Vector2 anchorMax, bool isResursive)
         {
-            NGUIAnchorData anchorData = new NGUIAnchorData ();
-            anchorData.Init (trans, transParent);
+            NGUIAnchorData anchorData = new NGUIAnchorData();
+            anchorData.Init(trans, transParent);
 
-            bool hasRect = anchorData.HasRect (trans);
-            if (hasRect)
+            bool hasRect = anchorData.HasRect(trans);
+            if(hasRect)
             {
-                DoSetAnchorsNGUI (trans, transParent, anchorMin, anchorMax);
+                DoSetAnchorsNGUI(trans, transParent, anchorMin, anchorMax);
             }
 
-            if (isResursive)
+            if(isResursive)
             {
-                for (int i = 0; i < trans.childCount; ++i)
+                for(int i = 0; i < trans.childCount; ++i)
                 {
-                    SetAnchorsNGUI (trans.GetChild (i), trans, anchorMin, anchorMax, isResursive);
+                    SetAnchorsNGUI(trans.GetChild(i), trans, anchorMin, anchorMax, isResursive);
                 }
             }
         }
 
-        public static Vector2[] SetAnchorsNGUI (Transform trans, Vector2 relativeMin, Vector2 relativeMax, Vector2 absoluteMin, Vector2 absoluteMax)
+        public static Vector2[] SetAnchorsNGUI(Transform trans, Vector2 relativeMin, Vector2 relativeMax, Vector2 absoluteMin, Vector2 absoluteMax)
         {
-            UIRect graphic = trans.GetComponentInChildren<UIRect> ();
+            UIRect graphic = trans.GetComponentInChildren<UIRect>();
 
-            graphic.leftAnchor.Set (relativeMin.x, absoluteMin.x);
-            graphic.rightAnchor.Set (relativeMax.x, absoluteMax.x);
-            graphic.bottomAnchor.Set (relativeMin.y, absoluteMin.y);
-            graphic.topAnchor.Set (relativeMax.y, absoluteMax.y);
+            graphic.leftAnchor.Set(relativeMin.x, absoluteMin.x);
+            graphic.rightAnchor.Set(relativeMax.x, absoluteMax.x);
+            graphic.bottomAnchor.Set(relativeMin.y, absoluteMin.y);
+            graphic.topAnchor.Set(relativeMax.y, absoluteMax.y);
 
             return new Vector2[] { relativeMin, relativeMax, absoluteMin, absoluteMax };
         }
 
-        static Vector2[] DoSetAnchorsNGUI (Transform trans, Transform transParent, Vector2 anchorMin, Vector2 anchorMax)
+        static Vector2[] DoSetAnchorsNGUI(Transform trans, Transform transParent, Vector2 anchorMin, Vector2 anchorMax)
         {
-            NGUIAnchorData anchorData = new NGUIAnchorData ();
-            anchorData.Init (trans, transParent);
+            NGUIAnchorData anchorData = new NGUIAnchorData();
+            anchorData.Init(trans, transParent);
 			
             // Set the position relative to the anchorPos
-            Vector2 anchorPosMin = new Vector2 (Mathf.LerpUnclamped (anchorData.parentPosMin.x, anchorData.parentPosMax.x, anchorMin.x),
-                              Mathf.LerpUnclamped (anchorData.parentPosMin.y, anchorData.parentPosMax.y, anchorMin.y));
+            Vector2 anchorPosMin = new Vector2(Mathf.LerpUnclamped(anchorData.parentPosMin.x, anchorData.parentPosMax.x, anchorMin.x),
+                                       Mathf.LerpUnclamped(anchorData.parentPosMin.y, anchorData.parentPosMax.y, anchorMin.y));
 			
-            Vector2 anchorPosMax = new Vector2 (Mathf.LerpUnclamped (anchorData.parentPosMin.x, anchorData.parentPosMax.x, anchorMax.x),
-                              Mathf.LerpUnclamped (anchorData.parentPosMin.y, anchorData.parentPosMax.y, anchorMax.y));
+            Vector2 anchorPosMax = new Vector2(Mathf.LerpUnclamped(anchorData.parentPosMin.x, anchorData.parentPosMax.x, anchorMax.x),
+                                       Mathf.LerpUnclamped(anchorData.parentPosMin.y, anchorData.parentPosMax.y, anchorMax.y));
 			
             Vector2 anchoredPosMin = anchorData.posMin - anchorPosMin;
             Vector2 anchoredPosMax = anchorData.posMax - anchorPosMax;
 			
-            Vector2 anchoredPosAbsMin = new Vector2 (anchoredPosMin.x * anchorData.h * 0.5f, anchoredPosMin.y * anchorData.h * 0.5f);
-            Vector2 anchoredPosAbsMax = new Vector2 (anchoredPosMax.x * anchorData.h * 0.5f, anchoredPosMax.y * anchorData.h * 0.5f);
+            Vector2 anchoredPosAbsMin = new Vector2(anchoredPosMin.x * anchorData.h * 0.5f, anchoredPosMin.y * anchorData.h * 0.5f);
+            Vector2 anchoredPosAbsMax = new Vector2(anchoredPosMax.x * anchorData.h * 0.5f, anchoredPosMax.y * anchorData.h * 0.5f);
 			
             // Set Anchors
-            anchorData.graphic.leftAnchor.Set (anchorData.parentGraphic.transform, anchorMin.x, anchoredPosAbsMin.x);
-            anchorData.graphic.rightAnchor.Set (anchorData.parentGraphic.transform, anchorMax.x, anchoredPosAbsMax.x);
-            anchorData.graphic.bottomAnchor.Set (anchorData.parentGraphic.transform, anchorMin.y, anchoredPosAbsMin.y);
-            anchorData.graphic.topAnchor.Set (anchorData.parentGraphic.transform, anchorMax.y, anchoredPosAbsMax.y);
+            anchorData.graphic.leftAnchor.Set(anchorData.parentGraphic.transform, anchorMin.x, anchoredPosAbsMin.x);
+            anchorData.graphic.rightAnchor.Set(anchorData.parentGraphic.transform, anchorMax.x, anchoredPosAbsMax.x);
+            anchorData.graphic.bottomAnchor.Set(anchorData.parentGraphic.transform, anchorMin.y, anchoredPosAbsMin.y);
+            anchorData.graphic.topAnchor.Set(anchorData.parentGraphic.transform, anchorMax.y, anchoredPosAbsMax.y);
 
             return new Vector2[] {
                 anchorMin,

@@ -7,12 +7,12 @@ namespace SocialPoint.AdminPanel
     {
         public HorizontalLayout CreateHorizontalLayout()
         {
-            return new HorizontalLayout(this, Vector2.one);
+            return new HorizontalLayout(this);
         }
 
         public sealed class HorizontalLayout : AdminPanelLayout
         {
-            public HorizontalLayout(AdminPanelLayout parentLayout, Vector2 relativeSize) : base(parentLayout)
+            public HorizontalLayout(AdminPanelLayout parentLayout) : base(parentLayout)
             {
                 var rectTrans = CreateUIObject("Horizontal Layout", parentLayout.Parent);
 
@@ -23,11 +23,6 @@ namespace SocialPoint.AdminPanel
                 layoutGroup.childForceExpandWidth = false;
 
                 Parent = rectTrans;
-            }
-
-            public HorizontalLayout(AdminPanelLayout parentLayout)
-                : this(parentLayout, Vector2.one)
-            {
             }
         }
     }

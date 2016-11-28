@@ -21,15 +21,17 @@ namespace SocialPoint.Network
         void OnNetworkError(Error err);
     }
 
-    public interface INetworkServer
+    public interface INetworkServer : INetworkMessageSender
     {
         bool Running{ get; }
+
+        string Id { get; }
 
         void Start();
 
         void Stop();
 
-        INetworkMessage CreateMessage(NetworkMessageData info);
+        void Fail(string reason);
 
         void AddDelegate(INetworkServerDelegate dlg);
 
@@ -38,15 +40,5 @@ namespace SocialPoint.Network
         void RegisterReceiver(INetworkMessageReceiver receiver);
 
         int GetTimestamp();
-    }
-
-    public static class NetworkServerExtensions
-    {
-        public static void SendMessage(this INetworkServer server, NetworkMessageData data, INetworkShareable obj)
-        {
-            var msg = server.CreateMessage(data);
-            obj.Serialize(msg.Writer);
-            msg.Send();
-        }
     }
 }

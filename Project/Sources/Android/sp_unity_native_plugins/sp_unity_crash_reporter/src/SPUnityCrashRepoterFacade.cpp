@@ -34,6 +34,7 @@ extern "C"{
 
     void SPUnityCrashReporterForceCrash()
     {
-        *((unsigned int*)0) = 0xDEAD;
+        unsigned int* invalidAddress = 0;
+        *(invalidAddress) = 0xDEAD;
     }
 }

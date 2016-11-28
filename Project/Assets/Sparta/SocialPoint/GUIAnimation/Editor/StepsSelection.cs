@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace SocialPoint.GUIAnimation
 {
@@ -20,14 +20,7 @@ namespace SocialPoint.GUIAnimation
         {
             get
             {
-                if(_steps.Count > 0)
-                {
-                    return _steps[_steps.Count - 1];
-                }
-                else
-                {
-                    return null;
-                }
+                return _steps.Count > 0 ? _steps[_steps.Count - 1] : null;
             }
         }
 
@@ -167,11 +160,10 @@ namespace SocialPoint.GUIAnimation
             }
         }
 
-        AnimationStepBox GetBoxFromAnimItemItem(Step animItem, Dictionary<Step, AnimationStepBox> boxes)
+        static AnimationStepBox GetBoxFromAnimItemItem(Step animItem, Dictionary<Step, AnimationStepBox> boxes)
         {
-            AnimationStepBox box = null;
+            AnimationStepBox box;
             boxes.TryGetValue(animItem, out box);
-			
             return box;
         }
     }
