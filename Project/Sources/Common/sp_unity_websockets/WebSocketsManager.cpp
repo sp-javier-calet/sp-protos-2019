@@ -241,7 +241,6 @@ void WebSocketsManager::checkAndCreateContext()
         info.ka_probes = 5;
         info.ka_interval = 5000;
         info.user = this;
-        info.http_proxy_address = "";
 
         _context = lws_create_context(&info);
         _vhost = lws_create_vhost(_context, &info);
