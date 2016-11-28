@@ -6,7 +6,7 @@ using SocialPoint.Marketing;
 using SocialPoint.Dependency;
 using System;
 
-public class MarketingInstaller : Installer
+public class MarketingInstaller : ServiceInstaller
 {
     [Serializable]
     public class SettingsData

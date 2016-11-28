@@ -9,7 +9,7 @@ using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.Notifications;
 
-public class HelpshiftInstaller : Installer
+public class HelpshiftInstaller : ServiceInstaller
 {
     [Serializable]
     public class SettingsData

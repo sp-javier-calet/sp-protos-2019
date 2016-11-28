@@ -2,7 +2,7 @@
 using SocialPoint.Dependency;
 using SocialPoint.Marketing;
 
-public class AppsFlyerInstaller : Installer
+public class AppsFlyerInstaller : ServiceInstaller
 {
     [Serializable]
     public class SettingsData

@@ -3,7 +3,6 @@ using SocialPoint.AppEvents;
 using SocialPoint.CrossPromotion;
 using SocialPoint.Dependency;
 using SocialPoint.ServerSync;
-using SocialPoint.ServerEvents;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Locale;
 using SocialPoint.Notifications;

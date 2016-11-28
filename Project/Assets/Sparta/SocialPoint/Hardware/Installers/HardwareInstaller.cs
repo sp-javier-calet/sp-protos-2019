@@ -4,7 +4,7 @@ using SocialPoint.Dependency;
 using SocialPoint.Hardware;
 using SocialPoint.AdminPanel;
 
-public class HardwareInstaller : Installer
+public class HardwareInstaller : ServiceInstaller
 {
     [Serializable]
     public class SettingsData

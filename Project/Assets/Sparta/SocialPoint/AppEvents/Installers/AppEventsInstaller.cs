@@ -5,7 +5,7 @@ using SocialPoint.AppEvents;
 using SocialPoint.AdminPanel;
 using SocialPoint.ScriptEvents;
 
-public class AppEventsInstaller : Installer
+public class AppEventsInstaller : ServiceInstaller
 {
 	public override void InstallBindings()
 	{

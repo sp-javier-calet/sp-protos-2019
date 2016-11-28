@@ -10,7 +10,7 @@ using SocialPoint.GUIControl;
 using SocialPoint.ScriptEvents;
 using UnityEngine;
 
-public class AlertInstaller : Installer
+public class AlertInstaller : ServiceInstaller
 {
     [Serializable]
     public class SettingsData

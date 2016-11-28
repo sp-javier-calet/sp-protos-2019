@@ -3,9 +3,8 @@ using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.VideoAds;
-using UnityEngine;
 
-public class VideoAdsInstaller : Installer
+public class VideoAdsInstaller : ServiceInstaller
 {
     [Serializable]
     public class SettingsData

@@ -2,13 +2,10 @@
 using UnityEngine;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
-using SocialPoint.Base;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
 
-
-
-public class GUIInstaller : Installer, IInitializable, IDisposable
+public class GUIInstaller : Installer, IDisposable
 {
     const string UIViewControllerSuffix = "Controller";
     const string GUIRootPrefab = "GUI_Root";
@@ -26,10 +23,8 @@ public class GUIInstaller : Installer, IInitializable, IDisposable
     public override void InstallBindings()
     {
         Container.Bind<IDisposable>().ToInstance(this);
-        Container.Bind<IInitializable>().ToInstance(this);
 
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
-        UIViewController.AwakeEvent += OnViewControllerAwake;
 
         Container.BindInstance("popup_fade_speed", Settings.PopupFadeSpeed);
 
@@ -76,19 +71,6 @@ public class GUIInstaller : Installer, IInitializable, IDisposable
         return root;
     }
 
-    public void Initialize()
-    {
-        //Container.InjectGameObject(_root);
-    }
-
-    void OnViewControllerAwake(UIViewController ctrl)
-    {
-        if(ctrl.gameObject.transform.parent == null)
-        {
-            //Container.Inject(ctrl);
-        }
-    }
-
     string GetControllerFactoryPrefabName(Type type)
     {
         var name = type.Name;
@@ -102,8 +84,5 @@ public class GUIInstaller : Installer, IInitializable, IDisposable
     public void Dispose()
     {
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)null);
-        UIViewController.AwakeEvent -= OnViewControllerAwake;
     }
-
-
 }

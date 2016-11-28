@@ -6,7 +6,7 @@ using SocialPoint.Social;
 using SocialPoint.Utils;
 using UnityEngine;
 
-public class GameCenterInstaller : Installer
+public class GameCenterInstaller : ServiceInstaller
 {
     [Serializable]
     public class SettingsData

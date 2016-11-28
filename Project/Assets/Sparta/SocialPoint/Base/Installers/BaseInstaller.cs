@@ -1,10 +1,9 @@
 using SocialPoint.Dependency;
 using SocialPoint.Utils;
-using SocialPoint.Base;
 using SocialPoint.AdminPanel;
 using UnityEngine;
 
-public class BaseInstaller : Installer, IInitializable
+public class BaseInstaller : ServiceInstaller, IInitializable
 {
     public override void InstallBindings()
     {

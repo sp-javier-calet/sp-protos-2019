@@ -85,7 +85,7 @@ namespace SocialPoint.Dependency
         }
     }
 
-    class TestInstaller : Installer
+    class TestInstaller : ServiceInstaller
     {
         public override void InstallBindings()
         {

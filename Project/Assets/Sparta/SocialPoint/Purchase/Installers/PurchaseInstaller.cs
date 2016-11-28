@@ -7,7 +7,7 @@ using SocialPoint.ServerEvents;
 using SocialPoint.ServerSync;
 using SocialPoint.Utils;
 
-public class PurchaseInstaller : Installer
+public class PurchaseInstaller : ServiceInstaller
 {
     public override void InstallBindings()
     {

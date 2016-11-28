@@ -10,7 +10,7 @@ using SocialPoint.Utils;
 using SocialPoint.Social;
 using SocialPoint.WebSockets;
 
-public class SocialFrameworkInstaller : Installer
+public class SocialFrameworkInstaller : ServiceInstaller
 {
     const string SocialFrameworkTag = "social_framework";
 

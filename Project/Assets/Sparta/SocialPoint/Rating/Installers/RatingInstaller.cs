@@ -7,7 +7,7 @@ using SocialPoint.Hardware;
 using SocialPoint.Attributes;
 using SocialPoint.AppEvents;
 
-public class RatingInstaller : Installer, IInitializable
+public class RatingInstaller : ServiceInstaller, IInitializable
 {
     [Serializable]
     public class SettingsData

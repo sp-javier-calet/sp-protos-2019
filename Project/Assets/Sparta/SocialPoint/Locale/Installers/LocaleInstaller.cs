@@ -5,7 +5,7 @@ using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.Utils;
 
-public class LocaleInstaller : Installer
+public class LocaleInstaller : ServiceInstaller
 {
     [Serializable]
     public class SettingsData

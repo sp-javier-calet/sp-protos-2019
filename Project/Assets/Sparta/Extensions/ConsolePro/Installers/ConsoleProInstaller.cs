@@ -1,7 +1,7 @@
 ﻿using FlyingWormConsole3;
 using SocialPoint.Dependency;
 
-public class ConsoleProInstaller : Installer, IInitializable
+public class ConsoleProInstaller : ServiceInstaller, IInitializable
 {
     public override void InstallBindings()
     {
