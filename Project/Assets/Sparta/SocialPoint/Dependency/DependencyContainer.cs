@@ -148,21 +148,26 @@ namespace SocialPoint.Dependency
             else if(_toType == ToType.Single)
             {
                 DependencyGraphBuilder.StartCreation(typeof(F), _tag);
+                DependencyGraphBuilder.StartCreation(_type, null);
                 var construct = _type.GetConstructor(new Type[]{ });
                 _instance = (F)construct.Invoke(new object[]{ });
+                DependencyGraphBuilder.Finalize(_type);
                 DependencyGraphBuilder.Finalize(typeof(F));
-
             }
             else if(_toType == ToType.Lookup)
             {
+                DependencyGraphBuilder.StartCreation(typeof(F), _tag);
                 _instance = (F)_container.Resolve(_type, _tag, null);
+                DependencyGraphBuilder.Finalize(typeof(F));
             }
             else if(_toType == ToType.Method)
             {
                 DependencyGraphBuilder.StartCreation(typeof(F), _tag);
                 if(_method != null)
                 {
+                    DependencyGraphBuilder.StartCreation(_type, _tag);
                     _instance = _method();
+                    DependencyGraphBuilder.Finalize(_type);
                 }
                 else if(_getter != null)
                 {

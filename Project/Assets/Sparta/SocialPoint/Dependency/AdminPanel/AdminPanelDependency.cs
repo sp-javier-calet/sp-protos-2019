@@ -35,25 +35,8 @@ namespace SocialPoint.Dependency
         {
             var graph = DependencyGraphBuilder.Graph;
 
-            // TODO Foldout
-            layout.CreateTextInput(string.IsNullOrEmpty(_filter.Name) ? "Filter" : _filter.Name, 
-                value => {
-                    _filter.Name = string.IsNullOrEmpty(value) ? null : value.ToLower();
-                });
-                
-            var hlayout = layout.CreateHorizontalLayout();
-            hlayout.CreateToggleButton("Root", _filter.Root, ButtonColor.Green, value => {
-                _filter.Root = value;
-            });
-            hlayout.CreateToggleButton("Instantiated", _filter.Instantiated, ButtonColor.Blue, value => {
-                _filter.Instantiated = value;
-            });
-            hlayout.CreateToggleButton("Interface", _filter.Interface, ButtonColor.Yellow, value => {
-                _filter.Interface = value;
-            });
-            layout.CreateButton("Apply Filter", layout.Refresh);
-            layout.CreateMargin();
-                
+            CreateFilterOptions(layout);
+
             var itr = graph.GetEnumerator();
             while(itr.MoveNext())
             {
@@ -67,6 +50,29 @@ namespace SocialPoint.Dependency
                 }
             }
             itr.Dispose();
+        }
+
+        void CreateFilterOptions(AdminPanelLayout layout)
+        {
+            var foldoutLayout = layout.CreateFoldoutLayout("Filter");
+            var contentLayout = foldoutLayout.CreateVerticalLayout();
+            contentLayout.CreateTextInput(string.IsNullOrEmpty(_filter.Name) ? "Filter" : _filter.Name, 
+                value => {
+                    _filter.Name = string.IsNullOrEmpty(value) ? null : value.ToLower();
+                });
+
+            var hlayout = contentLayout.CreateHorizontalLayout();
+            hlayout.CreateToggleButton("Root", _filter.Root, ButtonColor.Green, value => {
+                _filter.Root = value;
+            });
+            hlayout.CreateToggleButton("Instantiated", _filter.Instantiated, ButtonColor.Blue, value => {
+                _filter.Instantiated = value;
+            });
+            hlayout.CreateToggleButton("Interface", _filter.Interface, ButtonColor.Yellow, value => {
+                _filter.Interface = value;
+            });
+            contentLayout.CreateButton("Apply", layout.Refresh);
+            layout.CreateMargin(2);
         }
 
         bool IsFiltered(Node node)
