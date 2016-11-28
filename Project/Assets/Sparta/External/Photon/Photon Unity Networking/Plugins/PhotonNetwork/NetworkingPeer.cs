@@ -196,6 +196,10 @@ public enum ServerConnection
 /// </summary>
 internal class NetworkingPeer : LoadBalancingPeer, IPhotonPeerListener
 {
+    // This parameter disables logic from DeltaCompressionWrite/DeltaCompressionRead
+    // as it does not manage if SerializableValue has been set with sendIfChange = true
+    public bool DeltaCompressionDisabled = false;
+
     /// <summary>Combination of GameVersion+"_"+PunVersion. Separates players per app by version.</summary>
     protected internal string AppVersion
     {
@@ -4131,6 +4135,10 @@ internal class NetworkingPeer : LoadBalancingPeer, IPhotonPeerListener
 
     private object[] DeltaCompressionWrite(object[] previousContent, object[] currentContent)
     {
+        if(DeltaCompressionDisabled)
+        {
+            return currentContent;
+        }
         if (currentContent == null || previousContent == null || previousContent.Length != currentContent.Length)
         {
             return currentContent;  // the current data needs to be sent (which might be null)
@@ -4196,7 +4204,7 @@ internal class NetworkingPeer : LoadBalancingPeer, IPhotonPeerListener
 
     private object[] DeltaCompressionRead(object[] lastOnSerializeDataReceived, object[] incomingData)
     {
-        if ((bool)incomingData[SyncCompressed] == false)
+        if (DeltaCompressionDisabled || (bool)incomingData[SyncCompressed] == false)
         {
             // index 1 marks "compressed" as being true.
             return incomingData;
