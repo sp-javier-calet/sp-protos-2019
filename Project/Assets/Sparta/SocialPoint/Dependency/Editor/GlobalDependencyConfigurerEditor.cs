@@ -62,12 +62,13 @@ namespace SocialPoint.Dependency
 
         static Installer[] Load(GlobalDependencyConfigurer configurer)
         {
+            var installerType = typeof(Installer);
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach(var assembly in assemblies)
             {
                 foreach(var t in assembly.GetTypes())
                 {
-                    if(t.BaseType == typeof(Installer))
+                    if(t.IsSubclassOf(installerType) && !installerType.IsAbstract)
                     {
                         InstallerAssetsManager.Create(t);
                     }
@@ -97,8 +98,9 @@ namespace SocialPoint.Dependency
                 {
                     var installer = data.Installer;
                 
-                    var style = installer.Enabled ? EnabledInstaller : DisabledInstaller;
-                    data.Visible = EditorGUILayout.Foldout(data.Visible, installer.name, style);
+                    var style = installer.IsGlobal ? EnabledInstaller : DisabledInstaller;
+                    var label = string.Format("{0} - {1} installer", installer.name, installer.Type);
+                    data.Visible = EditorGUILayout.Foldout(data.Visible, label, style);
                     if(data.Visible)
                     {
                         var editor = CreateEditor(installer);
@@ -112,11 +114,6 @@ namespace SocialPoint.Dependency
 
         bool IsFiltered(InstallerData data)
         {
-            if(data.Installer.Type != ModuleType.Service)
-            {
-                return true;
-            }
-
             if(string.IsNullOrEmpty(_filter))
             {
                 return false;

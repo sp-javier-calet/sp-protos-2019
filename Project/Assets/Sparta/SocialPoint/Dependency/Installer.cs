@@ -6,7 +6,7 @@ namespace SocialPoint.Dependency
 {
     public interface IInstaller
     {
-        bool Enabled { get; set; }
+        bool IsGlobal { get; }
 
         ModuleType Type { get; }
 
@@ -17,7 +17,7 @@ namespace SocialPoint.Dependency
 
     public abstract class SubInstaller : IInstaller
     {
-        public bool Enabled { get { return true; } set { } }
+        public bool IsGlobal { get { return true; } }
 
         public ModuleType Type { get; private set; }
 
@@ -33,40 +33,27 @@ namespace SocialPoint.Dependency
     IInstaller
     {
         [SerializeField]
-        bool _enabled;
+        bool _isGlobal;
 
-        ModuleType _type;
-
-
-        public bool Enabled
+        public bool IsGlobal
         {
             get
             {
-                return _enabled;
+                return _isGlobal;
             } 
             set
             {
-                _enabled = value;
+                _isGlobal = value;
             }
         }
 
-        public ModuleType Type
-        {
-            get
-            {
-                return _type;
-            } 
-            set
-            {
-                _type = value;
-            }
-        }
+        public ModuleType Type { get; set; }
 
         public DependencyContainer Container{ get; set; }
 
         public abstract void InstallBindings();
 
-        protected Installer() : this(ModuleType.Service)
+        protected Installer() : this(ModuleType.Game)
         {
         }
 
@@ -76,4 +63,10 @@ namespace SocialPoint.Dependency
         }
     }
 
+    public abstract class ServiceInstaller : Installer
+    {
+        protected ServiceInstaller() : base(ModuleType.Service)
+        {
+        }
+    }
 }

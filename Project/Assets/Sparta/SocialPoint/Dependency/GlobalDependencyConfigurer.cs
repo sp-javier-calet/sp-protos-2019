@@ -9,7 +9,7 @@ namespace SocialPoint.Dependency
 
         public GlobalDependencyConfigurer() : base(ModuleType.Configurer)
         {
-            Enabled = true;
+            IsGlobal = true;
         }
 
         public override void InstallBindings()
@@ -17,7 +17,10 @@ namespace SocialPoint.Dependency
             for(var i = 0; i < Installers.Length; ++i)
             {
                 var installer = Installers[i];
-                Container.Install(installer);
+                if(installer.IsGlobal)
+                {
+                    Container.Install(installer);
+                }
             }
         }
     }
