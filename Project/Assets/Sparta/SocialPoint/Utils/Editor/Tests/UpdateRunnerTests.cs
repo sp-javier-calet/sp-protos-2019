@@ -1,7 +1,5 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
-using SocialPoint.AdminPanel;
-using System.Collections.Generic;
 
 namespace SocialPoint.Utils
 {
@@ -18,12 +16,23 @@ namespace SocialPoint.Utils
         }
 
         [Test]
-        public void RemoveBeforeAdd()
+        public void RemoveTwice()
         {
             var updateable = Substitute.For<IUpdateable>();
             _scheduler.Add(updateable);
+
             _scheduler.Remove(updateable);
             _scheduler.Remove(updateable);
+
+            Assert.IsTrue(_scheduler.Contains(updateable));
+            _scheduler.Update(0.1f);
+            Assert.IsFalse(_scheduler.Contains(updateable));
+        }
+
+        [Test]
+        public void UpdateTwice()
+        {
+            var updateable = Substitute.For<IUpdateable>();
             _scheduler.Add(updateable);
 
             _scheduler.Update(0.1f);
@@ -33,18 +42,29 @@ namespace SocialPoint.Utils
         }
 
         [Test]
+        public void RemoveBeforeAdd()
+        {
+            var updateable = Substitute.For<IUpdateable>();
+            _scheduler.Add(updateable);
+            _scheduler.Remove(updateable);
+            _scheduler.Add(updateable);
+
+            _scheduler.Update(0.1f);
+
+            updateable.Received(1).Update();
+        }
+
+        [Test]
         public void RemoveBeforeAddFixed()
         {
             var updateable = Substitute.For<IUpdateable>();
             _scheduler.AddFixed(updateable, 0);
             _scheduler.Remove(updateable);
-            _scheduler.Remove(updateable);
             _scheduler.AddFixed(updateable, 0);
 
             _scheduler.Update(0.1f);
-            _scheduler.Update(0.1f);
 
-            updateable.Received(2).Update();
+            updateable.Received(1).Update();
         }
 
         public void DoRemove(IUpdateable updateable)
@@ -63,7 +83,7 @@ namespace SocialPoint.Utils
             DoRemove(updateable);
         }
 
-        public IUpdateable DoAddTwoTimes()
+        public IUpdateable DoAddTwice()
         {
             var updateable = Substitute.For<IUpdateable>();
             _scheduler.Add(updateable);
@@ -76,7 +96,7 @@ namespace SocialPoint.Utils
             return updateable;
         }
 
-        public IUpdateable DoAddFixedTwoTimes()
+        public IUpdateable DoAddFixedTwice()
         {
             var updateable = Substitute.For<IUpdateable>();
             _scheduler.AddFixed(updateable, 0);
@@ -90,28 +110,28 @@ namespace SocialPoint.Utils
         }
 
         [Test]
-        public void AddTwoTimes()
+        public void AddTwice()
         {
-            DoAddTwoTimes();
+            DoAddTwice();
         }
 
         [Test]
-        public void AddFixedTwoTimes()
+        public void AddFixedTwice()
         {
-            DoAddFixedTwoTimes();
+            DoAddFixedTwice();
         }
 
         [Test]
-        public void AddTwoTimesAndRemove()
+        public void AddTwiceAndRemove()
         {
-            var updateable = DoAddTwoTimes();
+            var updateable = DoAddTwice();
             DoRemove(updateable);
         }
 
         [Test]
-        public void AddFixedTwoTimesAndRemove()
+        public void AddFixedTwiceAndRemove()
         {
-            var updateable = DoAddFixedTwoTimes();
+            var updateable = DoAddFixedTwice();
             DoRemove(updateable);
         }
 
