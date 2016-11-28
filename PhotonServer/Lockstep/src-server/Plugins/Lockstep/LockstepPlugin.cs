@@ -7,6 +7,7 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace Photon.Hive.Plugin.Lockstep
 {
@@ -47,13 +48,12 @@ namespace Photon.Hive.Plugin.Lockstep
 
         LockstepNetworkServer _netServer;
         HttpMatchmakingServer _matchmaking;
-        Examples.Lockstep.ServerBehaviour _game;
-        
+        object _game;
+
         public LockstepPlugin():base()
         {
             _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient());
             _netServer = new LockstepNetworkServer(this, _matchmaking);
-            _game = new Examples.Lockstep.ServerBehaviour(_netServer);
         }
 
         const string CommandStepDurationConfig = "CommandStepDuration";
@@ -62,6 +62,8 @@ namespace Photon.Hive.Plugin.Lockstep
         const string ClientStartDelayConfig = "ClientStartDelay";
         const string ClientSimulationDelayConfig = "ClientSimulationDelay";
         const string BackendBaseUrlConfig = "BackendBaseUrl";
+        const string GameAssemblyNameConfig = "GameAssemblyName";
+        const string GameTypeConfig = "GameType";
 
         public override bool SetupInstance(IPluginHost host, Dictionary<string, string> config, out string errorMsg)
         {
@@ -85,7 +87,22 @@ namespace Photon.Hive.Plugin.Lockstep
             {
                 _matchmaking.BaseUrl = baseUrl;
             }
-            return true;
+            string gameAssembly;
+            string gameType;
+            if (config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) &&
+                config.TryGetValue(GameTypeConfig, out gameType))
+            {
+                try
+                {
+                    var factory = (INetworkServerGameFactory)CreateInstanceFromAssembly(gameAssembly, gameType);
+                    _game = factory.Create(_netServer, config);
+                }
+                catch(Exception e)
+                {
+                    errorMsg = e.Message;
+                }
+            }
+            return string.IsNullOrEmpty(errorMsg);
         }
 
         protected override void Update()

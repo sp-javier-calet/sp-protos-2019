@@ -52,6 +52,11 @@ namespace SocialPoint.Network
 
         public IPluginHost PluginHost;
 
+        public PluginHttpClient(IPluginHost host=null)
+        {
+            PluginHost = null;
+        }
+
         public void Dispose()
         {
         }

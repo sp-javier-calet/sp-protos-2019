@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
@@ -246,7 +247,7 @@ namespace SocialPoint.Network
             PluginHost.LogError(errorMsg);
         }
 
-        void HandleException(Exception e)
+        protected void HandleException(Exception e)
         {
             BroadcastError(e.Message);
         }
@@ -302,6 +303,14 @@ namespace SocialPoint.Network
         int INetworkServer.GetTimestamp()
         {
             return System.Environment.TickCount;
+        }
+
+        protected object CreateInstanceFromAssembly(string assemblyName, string typeName)
+        {
+            var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var path = Path.Combine(dir, assemblyName);
+            var gameType = Assembly.LoadFile(path).GetType(typeName);
+            return Activator.CreateInstance(gameType);
         }
     }
 }

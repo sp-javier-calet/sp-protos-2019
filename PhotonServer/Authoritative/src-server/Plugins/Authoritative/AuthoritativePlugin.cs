@@ -39,7 +39,7 @@ namespace Photon.Hive.Plugin.Authoritative
         {
             get
             {
-                return _gameServer.Full;
+                return PluginHost.GameActorsActive.Count >= MaxPlayers;
             }
         }
 
@@ -47,21 +47,25 @@ namespace Photon.Hive.Plugin.Authoritative
         {
             get
             {
-                return _gameServer.MaxPlayers;
+                return _maxPlayers;
             }
         }
 
         NetworkServerSceneController _netServer;
-        GameMultiplayerServerBehaviour _gameServer;
+        object _game;
+        int _maxPlayers = 4;
+        int _currentPlayers = 0;
         int _lastUpdateTimestamp = 0;
         int _updateInterval = 100;
-        string _navMeshFileLocation = "\\..\\data\\test_navmesh";
 
         public AuthoritativePlugin():base()
         {
             _netServer = new NetworkServerSceneController(this);
-            _gameServer = new GameMultiplayerServerBehaviour(this, _netServer);
         }
+
+        const string MaxPlayersConfig = "MaxPlayers";
+        const string GameAssemblyNameConfig = "GameAssemblyName";
+        const string GameTypeConfig = "GameType";
 
         public override bool SetupInstance(IPluginHost host, Dictionary<string, string> config, out string errorMsg)
         {
@@ -70,14 +74,37 @@ namespace Photon.Hive.Plugin.Authoritative
                 return false;
             }
 
-            string navmeshPath = typeof(AuthoritativePlugin).Assembly.Location + _navMeshFileLocation;
-            if (!_gameServer.LoadNavMesh(navmeshPath, out errorMsg))
+            _maxPlayers = (byte)GetConfigOption(config, MaxPlayersConfig, MaxPlayers);
+
+            string gameAssembly;
+            string gameType;
+            if (config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) &&
+                config.TryGetValue(GameTypeConfig, out gameType))
             {
-                errorMsg = "Error loading NavMesh: " + errorMsg;
-                return false;
+                try
+                {
+                    var factory = (INetworkServerGameFactory)CreateInstanceFromAssembly(gameAssembly, gameType);
+                    _game = factory.Create(this, _netServer, config);
+                }
+                catch (Exception e)
+                {
+                    errorMsg = e.Message;
+                }
             }
 
             return true;
+        }
+
+        override protected void OnClientConnected(byte clientId)
+        {
+            base.OnClientConnected(clientId);
+            _currentPlayers++;
+        }
+
+        override protected void OnClientDisconnected(byte clientId)
+        {
+            _currentPlayers--;
+            base.OnClientDisconnected(clientId);
         }
 
         protected override void Update()
