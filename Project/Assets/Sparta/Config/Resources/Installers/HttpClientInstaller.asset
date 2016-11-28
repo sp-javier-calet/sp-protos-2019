@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc28f5b49b4c747d4a0b3c21259cd14c, type: 3}
   m_Name: HttpClientInstaller
   m_EditorClassIdentifier: 
-  _enabled: 1
+  _isGlobal: 1
   Settings:
     Config: basegame
     EnableHttpStreamPinning: 0

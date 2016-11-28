@@ -11,7 +11,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37f14d3e387cd4c52b6d32da449b4876, type: 3}
   m_Name: GUISceneInstaller
   m_EditorClassIdentifier: 
-  _enabled: 1
+  _enabled: 0
   Settings:
-    InitialScreenPrefab: {fileID: 0}
+    InitialScreenPrefab: {fileID: 189856, guid: d5838d7511bc24545bd432454cfc5365,
+      type: 2}
     InitialScreenAnimation: 0

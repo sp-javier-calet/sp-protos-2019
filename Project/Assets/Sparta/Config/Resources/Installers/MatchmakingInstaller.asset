@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 858d96fbc1983486786e4658bc86920f, type: 3}
   m_Name: MatchmakingInstaller
   m_EditorClassIdentifier: 
-  _enabled: 1
+  _isGlobal: 1
   Settings:
     BaseUrl: http://int-lod.socialpointgames.es
     WebsocketUrls:

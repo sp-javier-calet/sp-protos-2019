@@ -11,4 +11,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e40d14919de1a44c99dc1deea5a47ef6, type: 3}
   m_Name: ScriptEventsInstaller
   m_EditorClassIdentifier: 
-  _enabled: 1
+  _isGlobal: 1

@@ -11,4 +11,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a93a049d7f20401b987930a38900350, type: 3}
   m_Name: BaseInstaller
   m_EditorClassIdentifier: 
-  _enabled: 1
+  _isGlobal: 1

@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b517891fc768478b93e74275a7c9ff3, type: 3}
   m_Name: MobileAppTrackingInstaller
   m_EditorClassIdentifier: 
-  _enabled: 1
+  _isGlobal: 1
   Settings:
     ActiveOnIOS: 0
     AdvertiserID: 

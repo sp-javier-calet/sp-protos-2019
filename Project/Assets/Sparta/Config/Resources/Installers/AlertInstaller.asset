@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c28c24db0dc748b18844b38ee391469, type: 3}
   m_Name: AlertInstaller
   m_EditorClassIdentifier: 
-  _enabled: 1
+  _isGlobal: 1
   Settings:
     UseNativeAlert: 1
     UnityAlertViewPrefab: {fileID: 114444, guid: 4885b1ce6152048a98b26cd8bb651f5f,

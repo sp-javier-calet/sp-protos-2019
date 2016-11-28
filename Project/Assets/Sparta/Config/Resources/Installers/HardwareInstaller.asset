@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b08fb442b9dc8468ba83a768e7cfe525, type: 3}
   m_Name: HardwareInstaller
   m_EditorClassIdentifier: 
-  _enabled: 1
+  _isGlobal: 1
   Settings:
     AppSeedId: 
     AppId: 
