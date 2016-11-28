@@ -10,8 +10,8 @@ namespace SocialPoint.Network
     {
         byte[] _requestBody;
         readonly HttpWebRequest _request;
-    
-        public WebRequestHttpConnection(HttpWebRequest request, HttpResponseDelegate del, byte[] reqBody):base(del)
+
+        public WebRequestHttpConnection(HttpWebRequest request, HttpResponseDelegate del, byte[] reqBody) : base(del)
         {
             _request = request;
             _requestBody = reqBody;
@@ -73,10 +73,10 @@ namespace SocialPoint.Network
                 yield return enumeratorText.Current; 
             }
 
-            var resp = ConvertResponse(response, webAsync.ResponseBody.ToArray());
+            var resp = WebRequestUtils.ConvertResponse(response, webAsync.ResponseBody.ToArray());
             OnResponse(resp);
         }
-        
+
         void NotifyError(HttpResponse.StatusCodeType statusCode, string errorMessage)
         {
             NotifyError((int)statusCode, errorMessage);
@@ -88,32 +88,6 @@ namespace SocialPoint.Network
             resp.Error = new Error(statusCode, errorMessage);
             OnResponse(resp);
         }
-
-
-        private HttpResponse ConvertResponse(HttpWebResponse wresp, byte[] responseBody)
-        {
-            if(wresp == null)
-            {
-                return null;
-            }
-            
-            var list = new Dictionary<string, string>();
-            for(int k = 0; k < wresp.Headers.Count; k++)
-            {
-                list.Add(wresp.Headers.GetKey(k), wresp.Headers.Get(k));
-            }
-
-            int code = (int)wresp.StatusCode;
-            var resp = new HttpResponse(code, list);
-            if(resp.HasError)
-            {
-                resp.Error = new Error(code, wresp.StatusDescription);
-            }
-            resp.OriginalBody = responseBody;
-
-            return resp;
-        }
-
     }
 }
 

@@ -61,8 +61,7 @@ namespace Photon.Hive.Plugin.Lockstep
         {
             UseStrictMode = true;
             _delegates = new List<INetworkServerDelegate>();
-            _matchmaking = new HttpMatchmakingServer(
-                new WebRequestHttpClient(new ImmediateCoroutineRunner()));
+            _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient());
             _netServer = new LockstepNetworkServer(this, _matchmaking);
             _game = new Examples.Lockstep.ServerBehaviour(_netServer);
         }

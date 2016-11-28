@@ -233,6 +233,9 @@
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\IHttpClient.cs">
       <Link>Lib\Network\IHttpClient.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\ImmediateWebRequestHttpClient.cs">
+      <Link>Lib\Network\ImmediateWebRequestHttpClient.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\INetworkClient.cs">
       <Link>Lib\Network\INetworkClient.cs</Link>
     </Compile>
@@ -242,14 +245,8 @@
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\INetworkServer.cs">
       <Link>Lib\Network\INetworkServer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\WebAsync.cs">
-      <Link>Lib\Network\WebAsync.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\WebRequestHttpClient.cs">
-      <Link>Lib\Network\WebRequestHttpClient.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\WebRequestHttpConnection.cs">
-      <Link>Lib\Network\WebRequestHttpConnection.cs</Link>
+    <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Network\WebRequestUtils.cs">
+      <Link>Lib\Network\WebRequestUtils.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\CompareUtils.cs">
       <Link>Lib\Utils\CompareUtils.cs</Link>
@@ -276,6 +273,7 @@
       <Link>Lib\Utils\XRandom.cs</Link>
     </Compile>
     <Compile Include="LockstepPlugin.cs" />
+    <Compile Include="PluginHttpClient.cs" />
     <Compile Include="PluginFactory.cs" />
     <Compile Include="PluginNetworkMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
