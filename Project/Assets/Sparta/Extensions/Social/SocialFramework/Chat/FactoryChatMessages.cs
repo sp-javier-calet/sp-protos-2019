@@ -33,30 +33,29 @@ namespace SocialPoint.Social
 
         public Localization Localization;
 
-        public MessageType Create(string text)
+        public MessageType Create(int type, string text)
         {
             var message = new MessageType();
+            message.Type = type;
             message.Text = text;
             return message;
         }
 
-        public MessageType CreateLocalized(string tid)
+        public MessageType CreateLocalized(int type, string tid)
         {
-            var message = new MessageType();
-            message.Text = Localization.Get(tid);
-            return message;
+            return Create(type, Localization.Get(tid));
         }
 
-        public MessageType CreateWarning(string text)
+        public MessageType CreateWarning(int type, string text)
         {
-            var message = Create(text);
+            var message = Create(type, text);
             message.IsWarning = true;
             return message;
         }
 
-        public MessageType CreateLocalizedWarning(string tid)
+        public MessageType CreateLocalizedWarning(int type, string tid)
         {
-            var message = CreateLocalized(tid);
+            var message = CreateLocalized(type, tid);
             message.IsWarning = true;
             return message;
         }
@@ -90,40 +89,40 @@ namespace SocialPoint.Social
 
             switch(type)
             {
-            case NotificationTypeCode.NotificationAllianceMemberAccept:
-            case NotificationTypeCode.NotificationAllianceMemberKickoff:
-            case NotificationTypeCode.NotificationAllianceMemberPromote:
-            case NotificationTypeCode.NotificationAlliancePlayerAutoPromote:
-            case NotificationTypeCode.NotificationAlliancePlayerAutoDemote:
-            case NotificationTypeCode.BroadcastAllianceEdit:
-            case NotificationTypeCode.BroadcastAllianceOnlineMember:
-            case NotificationTypeCode.NotificationUserChatBan:
+            case NotificationType.NotificationAllianceMemberAccept:
+            case NotificationType.NotificationAllianceMemberKickoff:
+            case NotificationType.NotificationAllianceMemberPromote:
+            case NotificationType.NotificationAlliancePlayerAutoPromote:
+            case NotificationType.NotificationAlliancePlayerAutoDemote:
+            case NotificationType.BroadcastAllianceEdit:
+            case NotificationType.BroadcastAllianceOnlineMember:
+            case NotificationType.NotificationUserChatBan:
                 break;
 
-            case NotificationTypeCode.TextMessage:
-                messages = ParseChatMessage(dic);
+            case NotificationType.TextMessage:
+                messages = ParseChatMessage(type, dic);
                 break;
             
-            case NotificationTypeCode.BroadcastAllianceMemberAccept:
-            case NotificationTypeCode.BroadcastAllianceJoin:
-                messages = ParsePlayerJoinedMessage(dic);
+            case NotificationType.BroadcastAllianceMemberAccept:
+            case NotificationType.BroadcastAllianceJoin:
+                messages = ParsePlayerJoinedMessage(type, dic);
                 break;
 
-            case NotificationTypeCode.BroadcastAllianceMemberKickoff:
-            case NotificationTypeCode.BroadcastAllianceMemberLeave:
-                messages = ParsePlayerLeftMessage(dic);
+            case NotificationType.BroadcastAllianceMemberKickoff:
+            case NotificationType.BroadcastAllianceMemberLeave:
+                messages = ParsePlayerLeftMessage(type, dic);
                 break;
 
-            case NotificationTypeCode.BroadcastAllianceMemberPromote:
-                messages = ParseMemberPromotedMessage(dic);
+            case NotificationType.BroadcastAllianceMemberPromote:
+                messages = ParseMemberPromotedMessage(type, dic);
                 break;
 
-            case NotificationTypeCode.BroadcastAllianceMemberRankChange:
-                messages = ParseTwoMembersAutoPromotedMessage(dic);
+            case NotificationType.BroadcastAllianceMemberRankChange:
+                messages = ParseTwoMembersAutoPromotedMessage(type, dic);
                 break;
 
-            case NotificationTypeCode.NotificationAllianceJoinRequest:
-                messages = ParseJoinRequestMessage(dic);
+            case NotificationType.NotificationAllianceJoinRequest:
+                messages = ParseJoinRequestMessage(type, dic);
                 break;
             default:
                 if(ParseUnknownNotifications != null)
@@ -136,7 +135,7 @@ namespace SocialPoint.Social
             return messages;
         }
 
-        MessageType[] ParseChatMessage(AttrDic dic)
+        MessageType[] ParseChatMessage(int type, AttrDic dic)
         {
             if(!dic.ContainsKey(ConnectionManager.ChatMessageInfoKey))
             {
@@ -161,7 +160,7 @@ namespace SocialPoint.Social
                 return new MessageType[0];
             }
 
-            var message = Create(msgInfo.GetValue(ConnectionManager.ChatMessageTextKey).ToString());
+            var message = Create(type, msgInfo.GetValue(ConnectionManager.ChatMessageTextKey).ToString());
 
             message.PlayerId = msgInfo.GetValue(ConnectionManager.ChatMessageUserIdKey).ToString();
             message.PlayerName = msgInfo.GetValue(ConnectionManager.ChatMessageUserNameKey).ToString();
@@ -182,7 +181,7 @@ namespace SocialPoint.Social
             return new MessageType[]{ message };
         }
 
-        MessageType[] ParsePlayerJoinedMessage(AttrDic dic)
+        MessageType[] ParsePlayerJoinedMessage(int type, AttrDic dic)
         {   
             if(!Validate(dic, UserNameKey))
             {
@@ -191,12 +190,12 @@ namespace SocialPoint.Social
             }
 
             var playerName = dic.GetValue(UserNameKey).ToString();
-            var message = CreateWarning(string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerJoinedKey), playerName));
+            var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerJoinedKey), playerName));
 
             return new MessageType[] { message };
         }
 
-        MessageType[] ParsePlayerLeftMessage(AttrDic dic)
+        MessageType[] ParsePlayerLeftMessage(int type, AttrDic dic)
         {
             if(!Validate(dic, UserNameKey))
             {
@@ -205,12 +204,12 @@ namespace SocialPoint.Social
             }
 
             var playerName = dic.GetValue(UserNameKey).ToString();
-            var message = CreateWarning(string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerLeftKey), playerName));
+            var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerLeftKey), playerName));
 
             return new MessageType[] { message };
         }
 
-        MessageType[] ParseMemberPromotedMessage(AttrDic dic)
+        MessageType[] ParseMemberPromotedMessage(int type, AttrDic dic)
         {
             if(!Validate(dic, new string[] { 
                 UserNameKey, 
@@ -235,11 +234,11 @@ namespace SocialPoint.Social
 
             var oldRankName = Localization.Get(RankManager.GetRankNameTid(oldRank));
             var newRankName = Localization.Get(RankManager.GetRankNameTid(newRank));
-            var message = CreateWarning(string.Format(Localization.Get(messageTid), playerName, oldRankName, newRankName));
+            var message = CreateWarning(type, string.Format(Localization.Get(messageTid), playerName, oldRankName, newRankName));
             return new MessageType[] { message };
         }
 
-        MessageType[] ParseTwoMembersAutoPromotedMessage(AttrDic dic)
+        MessageType[] ParseTwoMembersAutoPromotedMessage(int type, AttrDic dic)
         {
             if(!Validate(dic, new string[] { 
                 RankPromotionKey, 
@@ -260,7 +259,7 @@ namespace SocialPoint.Social
                 var newRank = memberDic.GetValue(NewRoleTwoDaysLaterKey).ToInt();
                 var newRankName = Localization.Get(RankManager.GetRankNameTid(newRank));
 
-                var message = CreateWarning(string.Format(Localization.Get(SocialFrameworkStrings.AllianceMemberAutoPromotionKey), userName, newRankName));
+                var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.AllianceMemberAutoPromotionKey), userName, newRankName));
                 messageList.Add(message);
             }
 
@@ -269,16 +268,16 @@ namespace SocialPoint.Social
             {
                 var memberDic = demotionList[i].AsDic;
                 var userName = memberDic.GetValue(UserNameTwoDaysLaterKey).ToString();
-                var message = CreateWarning(string.Format(Localization.Get(SocialFrameworkStrings.AllianceMemberAutoDemotionKey), userName));
+                var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.AllianceMemberAutoDemotionKey), userName));
                 messageList.Add(message);
             }
 
             return messageList.ToArray();
         }
 
-        MessageType[] ParseJoinRequestMessage(AttrDic dic)
+        MessageType[] ParseJoinRequestMessage(int type, AttrDic dic)
         {
-            var message = CreateWarning(Localization.Get(SocialFrameworkStrings.ChatJoinRequestKey));
+            var message = CreateWarning(type, Localization.Get(SocialFrameworkStrings.ChatJoinRequestKey));
             return new MessageType[] { message };
         }
 

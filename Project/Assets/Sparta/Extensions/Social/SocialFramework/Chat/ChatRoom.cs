@@ -161,7 +161,7 @@ namespace SocialPoint.Social
 
         void ProcessRoomNotifications(int type, AttrDic dic)
         {
-            if(type == NotificationTypeCode.BroadcastAllianceOnlineMember)
+            if(type == NotificationType.BroadcastAllianceOnlineMember)
             {
                 Members = dic.GetValue(ConnectionManager.TopicMembersKey).ToInt();
             }
@@ -178,7 +178,7 @@ namespace SocialPoint.Social
                 history.AddRange(msgs);
             }
 
-            var message = _factory.CreateLocalizedWarning("socialFramework.ChatWarning");
+            var message = _factory.CreateLocalizedWarning(NotificationType.ChatWarning, SocialFrameworkStrings.ChatWarningKey);
             history.Add(message);
 
             _messages.SetHistory(history);
@@ -191,7 +191,7 @@ namespace SocialPoint.Social
             var messageInfo = _factory.SerializeMessage(message);
 
             var args = new AttrDic();
-            args.SetValue(ConnectionManager.NotificationTypeKey, NotificationTypeCode.TextMessage);
+            args.SetValue(ConnectionManager.NotificationTypeKey, NotificationType.TextMessage);
             args.Set(ConnectionManager.ChatMessageInfoKey, messageInfo);
 
             var idx = _messages.Add(message);
@@ -223,7 +223,7 @@ namespace SocialPoint.Social
 
         public void SendDebugMessage(string text)
         {
-            SendMessage(_factory.Create(text));
+            SendMessage(_factory.Create(NotificationType.TextMessage, text));
         }
 
         void OnMessageSent(int index, string originalUuid)

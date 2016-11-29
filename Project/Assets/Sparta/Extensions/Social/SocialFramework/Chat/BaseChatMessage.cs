@@ -5,6 +5,7 @@
         string Uuid { get; set; }
         string PlayerId { get; set; }
         string PlayerName { get; set; }
+        int Type { get; set; }
         string Text { get; set; }
         long Timestamp { get; set; }
 
@@ -24,6 +25,7 @@
         public string Uuid { get; set; }
         public string PlayerId { get; set; }
         public string PlayerName { get; set; }
+        public int Type { get; set; }
         public string Text { get; set; }
         public long Timestamp { get; set; }
 

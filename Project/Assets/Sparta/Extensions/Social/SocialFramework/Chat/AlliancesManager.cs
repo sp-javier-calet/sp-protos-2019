@@ -539,38 +539,38 @@ namespace SocialPoint.Social
         {
             switch(type)
             {
-            case NotificationTypeCode.NotificationAlliancePlayerAutoPromote:
+            case NotificationType.NotificationAlliancePlayerAutoPromote:
                 {
                     var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
                     OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
                 }
-            case NotificationTypeCode.NotificationAlliancePlayerAutoDemote:
+            case NotificationType.NotificationAlliancePlayerAutoDemote:
                 {
                     var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
                     OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
                 }
-            case NotificationTypeCode.BroadcastAllianceMemberPromote:
-            case NotificationTypeCode.BroadcastAllianceMemberRankChange:
+            case NotificationType.BroadcastAllianceMemberPromote:
+            case NotificationType.BroadcastAllianceMemberRankChange:
                 {
                     OnMemberPromoted(dic);
                     break;
                 }
-            case NotificationTypeCode.NotificationAllianceMemberAccept:
-            case NotificationTypeCode.NotificationAllianceMemberKickoff:
-            case NotificationTypeCode.NotificationAllianceMemberPromote:
-            case NotificationTypeCode.NotificationAllianceJoinRequest:
-            case NotificationTypeCode.BroadcastAllianceMemberAccept:
-            case NotificationTypeCode.BroadcastAllianceJoin:
-            case NotificationTypeCode.BroadcastAllianceMemberKickoff:
-            case NotificationTypeCode.BroadcastAllianceMemberLeave:
-            case NotificationTypeCode.BroadcastAllianceEdit:
-            case NotificationTypeCode.TextMessage:
-            case NotificationTypeCode.NotificationUserChatBan:
-            case NotificationTypeCode.BroadcastAllianceOnlineMember:
+            case NotificationType.NotificationAllianceMemberAccept:
+            case NotificationType.NotificationAllianceMemberKickoff:
+            case NotificationType.NotificationAllianceMemberPromote:
+            case NotificationType.NotificationAllianceJoinRequest:
+            case NotificationType.BroadcastAllianceMemberAccept:
+            case NotificationType.BroadcastAllianceJoin:
+            case NotificationType.BroadcastAllianceMemberKickoff:
+            case NotificationType.BroadcastAllianceMemberLeave:
+            case NotificationType.BroadcastAllianceEdit:
+            case NotificationType.TextMessage:
+            case NotificationType.NotificationUserChatBan:
+            case NotificationType.BroadcastAllianceOnlineMember:
                 {
                     break;
                 }
@@ -581,64 +581,64 @@ namespace SocialPoint.Social
         {
             switch(type)
             {
-            case NotificationTypeCode.NotificationAllianceMemberAccept:
+            case NotificationType.NotificationAllianceMemberAccept:
                 {
                     OnRequestAccepted(dic);
                     break;
                 }
-            case NotificationTypeCode.NotificationAllianceMemberKickoff:
+            case NotificationType.NotificationAllianceMemberKickoff:
                 {
                     OnKicked(dic);
                     break;
                 }
-            case NotificationTypeCode.NotificationAllianceMemberPromote:
+            case NotificationType.NotificationAllianceMemberPromote:
                 {
                     OnPromoted(dic);
                     break;
                 }
-            case NotificationTypeCode.NotificationAlliancePlayerAutoPromote:
+            case NotificationType.NotificationAlliancePlayerAutoPromote:
                 {
                     var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
                     OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
                 }
-            case NotificationTypeCode.NotificationAlliancePlayerAutoDemote:
+            case NotificationType.NotificationAlliancePlayerAutoDemote:
                 {
                     var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
                     OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
                 }
-            case NotificationTypeCode.NotificationAllianceJoinRequest:
+            case NotificationType.NotificationAllianceJoinRequest:
                 {
                     OnUserAppliedToPlayerAlliance(dic);
                     break;
                 }
-            case NotificationTypeCode.BroadcastAllianceMemberAccept:
-            case NotificationTypeCode.BroadcastAllianceJoin:
+            case NotificationType.BroadcastAllianceMemberAccept:
+            case NotificationType.BroadcastAllianceJoin:
                 {
                     OnMemberJoined(dic);
                     break;
                 }
-            case NotificationTypeCode.BroadcastAllianceMemberKickoff:
-            case NotificationTypeCode.BroadcastAllianceMemberLeave:
+            case NotificationType.BroadcastAllianceMemberKickoff:
+            case NotificationType.BroadcastAllianceMemberLeave:
                 {
                     OnMemberLeft(dic);
                     break;
                 }
-            case NotificationTypeCode.BroadcastAllianceEdit:
+            case NotificationType.BroadcastAllianceEdit:
                 {
                     OnAllianceEdited(dic);
                     break;
                 }
-            case NotificationTypeCode.BroadcastAllianceMemberPromote:
-            case NotificationTypeCode.BroadcastAllianceMemberRankChange:
+            case NotificationType.BroadcastAllianceMemberPromote:
+            case NotificationType.BroadcastAllianceMemberRankChange:
                 {
                     OnMemberPromoted(dic);
                     break;
                 }
-            case NotificationTypeCode.TextMessage:
+            case NotificationType.TextMessage:
                 {
                     break;
                 }
