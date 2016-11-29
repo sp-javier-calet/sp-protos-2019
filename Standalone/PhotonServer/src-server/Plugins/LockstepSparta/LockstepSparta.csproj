@@ -254,7 +254,6 @@
     <Compile Include="..\..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\XRandom.cs">
       <Link>Utils\XRandom.cs</Link>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

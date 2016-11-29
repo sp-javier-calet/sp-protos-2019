@@ -46,7 +46,6 @@
     <Compile Include="..\..\..\..\..\Project\Assets\Examples\Lockstep\ServerBehaviour.cs">
       <Link>ServerBehaviour.cs</Link>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

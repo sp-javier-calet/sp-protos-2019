@@ -52,7 +52,6 @@
     <Compile Include="..\..\..\..\..\Project\Assets\Examples\Multiplayer\PathEvent.cs">
       <Link>PathEvent.cs</Link>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
