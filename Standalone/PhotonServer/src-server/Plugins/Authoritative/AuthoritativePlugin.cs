@@ -8,17 +8,8 @@ using System.Collections;
 
 namespace Photon.Hive.Plugin.Authoritative
 {
-    /**
-     * more info:
-     * https://doc.photonengine.com/en/onpremise/current/plugins/manual
-     * https://doc.photonengine.com/en/onpremise/current/plugins/plugins-faq
-     * https://doc.photonengine.com/en/onpremise/current/plugins/plugins-upload-guide
-     */
     public class AuthoritativePlugin : NetworkServerPlugin
     {
-        const byte IsOpenKey = 253;
-        const int NoRandomMatchFoundCode = 32760;
-
         public override string Name
         {
             get
