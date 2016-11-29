@@ -5,3 +5,6 @@ Linux/sp_unity_native_plugins/*/obj
 Linux/sp_unity_native_plugins/*/libs
 
 Apple/sp_unity_plugins/build
+xcuserdata/
+*.xcuserstate
+*.xccheckout
