@@ -69,16 +69,20 @@ namespace SocialPoint.Social
                 SerializeExtraInfo(message, msgInfo);
             }
 
+            var data = new MessageData();
+
             msgInfo.SetValue(ConnectionManager.ChatMessageUuidKey, message.Uuid);
-            msgInfo.SetValue(ConnectionManager.ChatMessageUserIdKey, message.PlayerId);
-            msgInfo.SetValue(ConnectionManager.ChatMessageUserNameKey, message.PlayerName);
+            msgInfo.SetValue(ConnectionManager.ChatMessageUserIdKey, data.PlayerId);
+            msgInfo.SetValue(ConnectionManager.ChatMessageUserNameKey, data.PlayerName);
             msgInfo.SetValue(ConnectionManager.ChatMessageTsKey, message.Timestamp);
             msgInfo.SetValue(ConnectionManager.ChatMessageTextKey, message.Text);
-            msgInfo.SetValue(ConnectionManager.ChatMessageLevelKey, message.PlayerLevel);
-            msgInfo.SetValue(ConnectionManager.ChatMessageAllyNameKey, message.AllianceName);
-            msgInfo.SetValue(ConnectionManager.ChatMessageAllyIdKey, message.AllianceId);
-            msgInfo.SetValue(ConnectionManager.ChatMessageAllyAvatarKey, message.AllianceAvatarId);
-            msgInfo.SetValue(ConnectionManager.ChatMessageAllyRoleKey, message.RankInAlliance);
+            msgInfo.SetValue(ConnectionManager.ChatMessageLevelKey, data.PlayerLevel);
+            msgInfo.SetValue(ConnectionManager.ChatMessageAllyNameKey, data.AllianceName);
+            msgInfo.SetValue(ConnectionManager.ChatMessageAllyIdKey, data.AllianceId);
+            msgInfo.SetValue(ConnectionManager.ChatMessageAllyAvatarKey, data.AllianceAvatarId);
+            msgInfo.SetValue(ConnectionManager.ChatMessageAllyRoleKey, data.RankInAlliance);
+
+            message.MessageData = data;
 
             return msgInfo;
         }
@@ -115,10 +119,6 @@ namespace SocialPoint.Social
 
             case NotificationType.BroadcastAllianceMemberPromote:
                 messages = ParseMemberPromotedMessage(type, dic);
-                break;
-
-            case NotificationType.BroadcastAllianceMemberRankChange:
-                messages = ParseTwoMembersAutoPromotedMessage(type, dic);
                 break;
 
             case NotificationType.NotificationAllianceJoinRequest:
@@ -162,16 +162,18 @@ namespace SocialPoint.Social
 
             var message = Create(type, msgInfo.GetValue(ConnectionManager.ChatMessageTextKey).ToString());
 
-            message.PlayerId = msgInfo.GetValue(ConnectionManager.ChatMessageUserIdKey).ToString();
-            message.PlayerName = msgInfo.GetValue(ConnectionManager.ChatMessageUserNameKey).ToString();
-            message.PlayerLevel = msgInfo.GetValue(ConnectionManager.ChatMessageLevelKey).ToInt();
+            var data = new MessageData();
+
+            data.PlayerId = msgInfo.GetValue(ConnectionManager.ChatMessageUserIdKey).ToString();
+            data.PlayerName = msgInfo.GetValue(ConnectionManager.ChatMessageUserNameKey).ToString();
+            data.PlayerLevel = msgInfo.GetValue(ConnectionManager.ChatMessageLevelKey).ToInt();
+            data.AllianceName = msgInfo.GetValue(ConnectionManager.ChatMessageAllyNameKey).ToString();
+            data.AllianceId = msgInfo.GetValue(ConnectionManager.ChatMessageAllyIdKey).ToString();
+            data.AllianceAvatarId = msgInfo.GetValue(ConnectionManager.ChatMessageAllyAvatarKey).ToInt();
+            data.RankInAlliance = msgInfo.GetValue(ConnectionManager.ChatMessageAllyRoleKey).ToInt();
             message.Timestamp = msgInfo.GetValue(ConnectionManager.ChatMessageTsKey).ToLong();
-           
-            message.AllianceName = msgInfo.GetValue(ConnectionManager.ChatMessageAllyNameKey).ToString();
-            message.AllianceId = msgInfo.GetValue(ConnectionManager.ChatMessageAllyIdKey).ToString();
-            message.HasAlliance = !string.IsNullOrEmpty(message.AllianceId);
-            message.AllianceAvatarId = msgInfo.GetValue(ConnectionManager.ChatMessageAllyAvatarKey).ToInt();
-            message.RankInAlliance = msgInfo.GetValue(ConnectionManager.ChatMessageAllyRoleKey).ToInt();
+
+            message.MessageData = data;
 
             if(ParseExtraInfo != null)
             {
@@ -235,44 +237,14 @@ namespace SocialPoint.Social
             var oldRankName = Localization.Get(RankManager.GetRankNameTid(oldRank));
             var newRankName = Localization.Get(RankManager.GetRankNameTid(newRank));
             var message = CreateWarning(type, string.Format(Localization.Get(messageTid), playerName, oldRankName, newRankName));
+
+            var data = new MemberPromotionData();
+            data.PlayerName = playerName;
+            data.OldRank = oldRank;
+            data.NewRank = newRank;
+            message.MemberPromotionData = data;
+
             return new MessageType[] { message };
-        }
-
-        MessageType[] ParseTwoMembersAutoPromotedMessage(int type, AttrDic dic)
-        {
-            if(!Validate(dic, new string[] { 
-                RankPromotionKey, 
-                RankDemotionKey
-            }))
-            {
-                Log.e(Tag, "Received chat message of two members changed rank type does not contain all the mandatory fields");
-                return new MessageType[0];
-            }
-
-            var messageList = new List<MessageType>();
-            var promotionList = dic.Get(RankPromotionKey).AsList;
-            for(var i = 0; i < promotionList.Count; ++i)
-            {
-                var memberDic = promotionList[i].AsDic;
-                var userName = memberDic.GetValue(UserNameTwoDaysLaterKey).ToString();
-
-                var newRank = memberDic.GetValue(NewRoleTwoDaysLaterKey).ToInt();
-                var newRankName = Localization.Get(RankManager.GetRankNameTid(newRank));
-
-                var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.AllianceMemberAutoPromotionKey), userName, newRankName));
-                messageList.Add(message);
-            }
-
-            var demotionList = dic.Get(RankDemotionKey).AsList;
-            for(var i = 0; i < demotionList.Count; ++i)
-            {
-                var memberDic = demotionList[i].AsDic;
-                var userName = memberDic.GetValue(UserNameTwoDaysLaterKey).ToString();
-                var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.AllianceMemberAutoDemotionKey), userName));
-                messageList.Add(message);
-            }
-
-            return messageList.ToArray();
         }
 
         MessageType[] ParseJoinRequestMessage(int type, AttrDic dic)

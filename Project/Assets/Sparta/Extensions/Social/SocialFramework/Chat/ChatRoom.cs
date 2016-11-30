@@ -203,21 +203,22 @@ namespace SocialPoint.Social
             message.Uuid = RandomUtils.GetUuid();
 
             var player = ChatManager.Connection.PlayerData;
-            message.PlayerId = player.Id;
-            message.PlayerName = player.Name;
-            message.PlayerLevel = player.Level;
-            message.Timestamp = TimeUtils.Timestamp;
+            var data = new MessageData();
+            data.PlayerId = player.Id;
+            data.PlayerName = player.Name;
+            data.PlayerLevel = player.Level;
 
             if(ChatManager.Connection.AlliancesManager != null)
             {
                 var member = ChatManager.Connection.AlliancesManager.AlliancePlayerInfo;
-                message.HasAlliance = member.IsInAlliance;
-                message.AllianceName = member.Name;
-                message.AllianceId = member.Id;
-                message.AllianceAvatarId = member.Avatar;
-                message.RankInAlliance = member.Rank;
+                data.AllianceName = member.Name;
+                data.AllianceId = member.Id;
+                data.AllianceAvatarId = member.Avatar;
+                data.RankInAlliance = member.Rank;
             }
 
+            message.MessageData = data;
+            message.Timestamp = TimeUtils.Timestamp;
             message.IsSending = true;
         }
 

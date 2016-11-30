@@ -554,7 +554,6 @@ namespace SocialPoint.Social
                     break;
                 }
             case NotificationType.BroadcastAllianceMemberPromote:
-            case NotificationType.BroadcastAllianceMemberRankChange:
                 {
                     OnMemberPromoted(dic);
                     break;
@@ -633,7 +632,6 @@ namespace SocialPoint.Social
                     break;
                 }
             case NotificationType.BroadcastAllianceMemberPromote:
-            case NotificationType.BroadcastAllianceMemberRankChange:
                 {
                     OnMemberPromoted(dic);
                     break;

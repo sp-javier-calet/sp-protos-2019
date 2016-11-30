@@ -44,7 +44,6 @@ namespace SocialPoint.Social
         public const int BroadcastAllianceMemberLeave = 104;
         public const int BroadcastAllianceEdit = 105;
         public const int BroadcastAllianceMemberPromote = 106;
-        public const int BroadcastAllianceMemberRankChange = 111;
         public const int BroadcastAllianceOnlineMember = 308;
     }
 

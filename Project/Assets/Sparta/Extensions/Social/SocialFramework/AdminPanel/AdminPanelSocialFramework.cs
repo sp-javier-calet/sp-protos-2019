@@ -297,11 +297,12 @@ namespace SocialPoint.Social
                             }
 
                             var allianceText = string.Empty;
-                            if(msg.HasAlliance)
+                            var data = msg.MessageData;
+                            if(data.HasAlliance)
                             {
-                                allianceText = string.Format("[{0}({1})]", msg.AllianceName, msg.AllianceId);
+                                allianceText = string.Format("[{0}({1})]", data.AllianceName, data.AllianceId);
                             }
-                            _content.AppendFormat("{0}({1}) {2}: {3}", msg.PlayerName, msg.PlayerId, allianceText, msg.Text).AppendLine();
+                            _content.AppendFormat("{0}({1}) {2}: {3}", data.PlayerName, data.PlayerId, allianceText, msg.Text).AppendLine();
                         }
                     });
 
