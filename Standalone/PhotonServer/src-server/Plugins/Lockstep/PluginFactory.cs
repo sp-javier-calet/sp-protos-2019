@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Photon.Hive.Plugin;
 
-namespace Photon.Hive.Plugin.Lockstep
+namespace SocialPoint.Lockstep
 {
     public class PluginFactory : IPluginFactory
     {

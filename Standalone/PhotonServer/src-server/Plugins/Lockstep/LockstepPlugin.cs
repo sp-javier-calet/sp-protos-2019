@@ -1,24 +1,24 @@
-﻿using SocialPoint.Utils;
-using SocialPoint.Network;
+﻿using SocialPoint.Network;
 using SocialPoint.Matchmaking;
-using SocialPoint.IO;
 using SocialPoint.Lockstep;
 using System;
-using System.IO;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
+using Photon.Hive.Plugin;
 
-namespace Photon.Hive.Plugin.Lockstep
+namespace SocialPoint.Lockstep
 {
-
+    /*
+     * set the current public server IP address in this file:
+     * deploy/LoadBalancing/GameServer/bin/Photon.LoadBalancing.dll.config
+     */
     public class LockstepPlugin : NetworkServerPlugin
     {
+        string _pluginName = "Lockstep";
         public override string Name
         {
             get
             {
-                return "Lockstep";
+                return _pluginName;
             }
         }
 
@@ -56,6 +56,7 @@ namespace Photon.Hive.Plugin.Lockstep
             _netServer = new LockstepNetworkServer(this, _matchmaking);
         }
 
+        const string PluginNameConfig = "PluginName";
         const string CommandStepDurationConfig = "CommandStepDuration";
         const string SimulationStepDurationConfig = "SimulationStepDuration";
         const string MaxPlayersConfig = "MaxPlayers";
@@ -65,11 +66,20 @@ namespace Photon.Hive.Plugin.Lockstep
         const string GameAssemblyNameConfig = "GameAssemblyName";
         const string GameTypeConfig = "GameType";
 
+        /*
+         * to change the configuration values in the local build, edit:
+         * deploy/LoadBalancing/GameServer/bin/Photon.LoadBalancing.dll.config
+         */
         public override bool SetupInstance(IPluginHost host, Dictionary<string, string> config, out string errorMsg)
         {
             if (!base.SetupInstance(host, config, out errorMsg))
             {
                 return false;
+            }
+            string pluginName;
+            if(config.TryGetValue(PluginNameConfig, out pluginName))
+            {
+                _pluginName = pluginName;
             }
             _netServer.Config.CommandStepDuration = GetConfigOption(config,
                 CommandStepDurationConfig, _netServer.Config.CommandStepDuration);
