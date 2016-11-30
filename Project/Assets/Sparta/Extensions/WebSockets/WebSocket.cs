@@ -187,7 +187,7 @@ namespace SocialPoint.WebSockets
         {
             set
             {
-                if(value.Length != 0)
+                if(!string.IsNullOrEmpty(value))
                 {
                     var uri = new Uri(value);
                     SPUnityWebSocketSetProxy(uri.Host, uri.Port);
