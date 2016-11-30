@@ -89,25 +89,12 @@ namespace SocialPoint.Network
             }
             _disconnecting = false;
             Config.CustomPhotonConfig.SetConfigBeforeConnection();
-            var forceServer = !string.IsNullOrEmpty(Config.ForceServer);
-            var forceAppId = !string.IsNullOrEmpty(Config.ForceAppId);
-            if(forceServer || forceAppId)
+            if(!string.IsNullOrEmpty(Config.ForceServer) || !string.IsNullOrEmpty(Config.ForceAppId))
             {
                 string addr = null;
                 int port = 0;
                 string appId = Config.ForceAppId;
-                if(forceServer)
-                {
-                    var parts = Config.ForceServer.Split(':');
-                    if(parts.Length > 0)
-                    {
-                        addr = parts[0];
-                    }
-                    if(parts.Length > 1)
-                    {
-                        int.TryParse(parts[1], out port);
-                    }
-                }
+                StringUtils.ParseServer(Config.ForceServer, out addr, out port);
                 if(string.IsNullOrEmpty(addr))
                 {
                     addr = PhotonNetwork.PhotonServerSettings.ServerAddress;
