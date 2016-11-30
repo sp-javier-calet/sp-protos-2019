@@ -48,6 +48,9 @@ namespace SocialPoint.Network
         public string RoomName;
         public CustomPhotonConfig CustomPhotonConfig = new CustomPhotonConfig();
         public PhotonNetworkRoomConfig RoomOptions = new PhotonNetworkRoomConfig();
+        public CloudRegionCode ForceRegion = CloudRegionCode.none;
+        public string ForceAppId;
+        public string ForceServer;
     }
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
@@ -80,21 +83,63 @@ namespace SocialPoint.Network
 
         protected void DoConnect()
         {
-            if(!PhotonNetwork.connecting)
+            if(PhotonNetwork.connected)
             {
-                DoDisconnect();
-                Config.CustomPhotonConfig.SetConfigBeforeConnection();
+                return;
+            }
+            _disconnecting = false;
+            Config.CustomPhotonConfig.SetConfigBeforeConnection();
+            var forceServer = !string.IsNullOrEmpty(Config.ForceServer);
+            var forceAppId = !string.IsNullOrEmpty(Config.ForceAppId);
+            if(forceServer || forceAppId)
+            {
+                string addr = null;
+                int port = 0;
+                string appId = Config.ForceAppId;
+                if(forceServer)
+                {
+                    var parts = Config.ForceServer.Split(':');
+                    if(parts.Length > 0)
+                    {
+                        addr = parts[0];
+                    }
+                    if(parts.Length > 1)
+                    {
+                        int.TryParse(parts[1], out port);
+                    }
+                }
+                if(string.IsNullOrEmpty(addr))
+                {
+                    addr = PhotonNetwork.PhotonServerSettings.ServerAddress;
+                }
+                if(port == 0)
+                {
+                    port = PhotonNetwork.PhotonServerSettings.ServerPort;
+                }
+                if(string.IsNullOrEmpty(appId))
+                {
+                    appId = PhotonNetwork.PhotonServerSettings.AppID;
+                }
+                PhotonNetwork.ConnectToMaster(addr, port, appId, Config.GameVersion);
+            }
+            if(Config.ForceRegion != CloudRegionCode.none)
+            {
+                PhotonNetwork.ConnectToRegion(Config.ForceRegion, Config.GameVersion);
+            }
+            else
+            {
                 PhotonNetwork.ConnectUsingSettings(Config.GameVersion);
             }
         }
 
         protected void DoDisconnect()
         {
-            if(PhotonNetwork.connected || PhotonNetwork.connecting)
+            if(!PhotonNetwork.connected)
             {
-                _disconnecting = true;
-                PhotonNetwork.Disconnect();
+                return;
             }
+            _disconnecting = true;
+            PhotonNetwork.Disconnect();
         }
 
         public void Dispose()
