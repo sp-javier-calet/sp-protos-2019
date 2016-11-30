@@ -6,7 +6,7 @@ namespace SocialPoint.GUIAnimation
     {
         GUIAnimationTool _animationTool;
 
-        readonly AnimationTimelinePanel _timelinePanel = new AnimationTimelinePanel();
+        static readonly AnimationTimelinePanel _timelinePanel = new AnimationTimelinePanel();
         readonly AnimationPropertiesPanel _propertiesPanel = new AnimationPropertiesPanel();
 
         bool _isInit;
@@ -22,6 +22,11 @@ namespace SocialPoint.GUIAnimation
             }
 
             DoRender();
+        }
+
+        public static void ResetTimeLine()
+        {
+            _timelinePanel.SetTimeAt(0f);
         }
 
         public void ResetState()
