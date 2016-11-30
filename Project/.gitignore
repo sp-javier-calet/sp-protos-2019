@@ -38,13 +38,3 @@ TEMP_*.meta
 *.psd.meta
 *.PSD
 *.PSD.meta
-
-# Zenject
-Zenject.csproj
-Zenject.csproj.user
-Zenject-editor.csproj
-Zenject-editor.csproj.user
-Zenject-editor.csproj.meta
-Zenject-editor.csproj.user.meta
-Zenject.csproj.meta
-Zenject.csproj.user.meta
