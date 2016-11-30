@@ -141,7 +141,7 @@ namespace SocialPoint.Social
             // Global notifications
             switch(type)
             {
-            case NotificationTypeCode.NotificationUserChatBan:
+            case NotificationType.NotificationUserChatBan:
                 SetChatBan(dic);
                 break;
             }

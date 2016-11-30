@@ -13,7 +13,13 @@ namespace SocialPoint.Social
 
         IEnumerator<IChatMessage> GetMessages();
 
+        IEnumerator<IChatMessage> GetMessagesInRange(int start, int count);
+
+        int Count { get; }
+
         int Add(IChatMessage message);
+
+        IChatMessage GetMessage(int index);
 
         void Edit(int index, Action<IChatMessage> editCallback);
 
@@ -71,6 +77,22 @@ namespace SocialPoint.Social
             }
         }
 
+        public IEnumerator<IChatMessage> GetMessagesInRange(int start, int count)
+        {
+            for(int i = start; i < start + count; ++i)
+            {
+                yield return _messages[i];
+            }
+        }
+
+        public IEnumerator<MessageType> GetCustomMessagesInRange(int start, int count)
+        {
+            for(int i = start; i < start + count; ++i)
+            {
+                yield return _messages[i];
+            }
+        }
+
         public int Add(IChatMessage message)
         {
             var custom = message as MessageType;
@@ -90,6 +112,22 @@ namespace SocialPoint.Social
                 OnMessageAdded(idx);
             }
             return idx;
+        }
+
+        public IChatMessage GetMessage(int index)
+        {
+            return GetMessage(index);
+        }
+
+        public MessageType GetCustomMessage(int index)
+        {
+            if(index < 0 || index >= _messages.Count)
+            {
+                Log.e(string.Format("Invalid index {0} of {1} while accessing a {2}", index, _messages.Count, typeof(MessageType).Name));
+                return null;
+            }
+
+            return _messages[index];
         }
 
         public void Edit(int index, Action<IChatMessage> editCallback)

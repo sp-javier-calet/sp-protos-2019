@@ -76,6 +76,14 @@ namespace SocialPoint.Social
             }
         }
 
+        public IRankManager RankManager
+        {
+            set
+            {
+                _factory.RankManager = value;
+            }
+        }
+
         #endregion
 
         int _members;
@@ -153,7 +161,7 @@ namespace SocialPoint.Social
 
         void ProcessRoomNotifications(int type, AttrDic dic)
         {
-            if(type == NotificationTypeCode.BroadcastAllianceOnlineMember)
+            if(type == NotificationType.BroadcastAllianceOnlineMember)
             {
                 Members = dic.GetValue(ConnectionManager.TopicMembersKey).ToInt();
             }
@@ -170,7 +178,7 @@ namespace SocialPoint.Social
                 history.AddRange(msgs);
             }
 
-            var message = _factory.CreateLocalizedWarning("socialFramework.ChatWarning");
+            var message = _factory.CreateLocalizedWarning(NotificationType.ChatWarning, SocialFrameworkStrings.ChatWarningKey);
             history.Add(message);
 
             _messages.SetHistory(history);
@@ -183,7 +191,7 @@ namespace SocialPoint.Social
             var messageInfo = _factory.SerializeMessage(message);
 
             var args = new AttrDic();
-            args.SetValue(ConnectionManager.NotificationTypeKey, NotificationTypeCode.TextMessage);
+            args.SetValue(ConnectionManager.NotificationTypeKey, NotificationType.TextMessage);
             args.Set(ConnectionManager.ChatMessageInfoKey, messageInfo);
 
             var idx = _messages.Add(message);
@@ -195,27 +203,28 @@ namespace SocialPoint.Social
             message.Uuid = RandomUtils.GetUuid();
 
             var player = ChatManager.Connection.PlayerData;
-            message.PlayerId = player.Id;
-            message.PlayerName = player.Name;
-            message.PlayerLevel = player.Level;
-            message.Timestamp = TimeUtils.Timestamp;
+            var data = new MessageData();
+            data.PlayerId = player.Id;
+            data.PlayerName = player.Name;
+            data.PlayerLevel = player.Level;
 
             if(ChatManager.Connection.AlliancesManager != null)
             {
                 var member = ChatManager.Connection.AlliancesManager.AlliancePlayerInfo;
-                message.HasAlliance = member.IsInAlliance;
-                message.AllianceName = member.Name;
-                message.AllianceId = member.Id;
-                message.AllianceAvatarId = member.Avatar;
-                message.RankInAlliance = member.Rank;
+                data.AllianceName = member.Name;
+                data.AllianceId = member.Id;
+                data.AllianceAvatarId = member.Avatar;
+                data.RankInAlliance = member.Rank;
             }
 
+            message.MessageData = data;
+            message.Timestamp = TimeUtils.Timestamp;
             message.IsSending = true;
         }
 
         public void SendDebugMessage(string text)
         {
-            SendMessage(_factory.Create(text));
+            SendMessage(_factory.Create(NotificationType.TextMessage, text));
         }
 
         void OnMessageSent(int index, string originalUuid)

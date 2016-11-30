@@ -3,23 +3,49 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Social
 {
-    public class Alliance
+    /// <summary>
+    /// Common Alliance data.
+    /// This class is only intended to be inherited by library classes,
+    /// containing the common data for all of them.
+    /// </summary>
+    public abstract class AllianceData
     {
         public string Id;
 
         public string Name;
 
-        public string Description;
+        public int Avatar;
 
         public int Requirement;
 
         public int AccessType;
 
-        public int Avatar;
-
         public int ActivityIndicator;
 
         public bool IsNewAlliance;
+    }
+
+    /// <summary>
+    /// Alliance Basic Data.
+    /// This class represents the minimal Alliance Data, used in list like
+    /// Alliances search or rankings.
+    /// </summary>
+    public class AllianceBasicData : AllianceData
+    {
+        public int Score;
+
+        public int Members;
+
+        public int Candidates;
+    }
+
+    /// <summary>
+    /// Alliance
+    /// Complete Alliance Data
+    /// </summary>
+    public class Alliance : AllianceData
+    {
+        public string Description;
 
         public int Score
         {
@@ -50,27 +76,27 @@ namespace SocialPoint.Social
             }
         }
 
-        readonly List<AllianceMember> _members;
+        readonly List<AllianceMemberBasicData> _members;
 
-        readonly List<AllianceMember> _candidates;
+        readonly List<AllianceMemberBasicData> _candidates;
 
         public Alliance()
         {
-            _members = new List<AllianceMember>();
-            _candidates = new List<AllianceMember>();
+            _members = new List<AllianceMemberBasicData>();
+            _candidates = new List<AllianceMemberBasicData>();
         }
 
-        public void AddMember(AllianceMember member)
+        public void AddMember(AllianceMemberBasicData member)
         {
-            AddMembers(_members, new AllianceMember[]{ member });
+            AddMembers(_members, new AllianceMemberBasicData[]{ member });
         }
 
-        public void AddMembers(IEnumerable<AllianceMember> members)
+        public void AddMembers(IEnumerable<AllianceMemberBasicData> members)
         {
             AddMembers(_members, members);
         }
 
-        public IEnumerator<AllianceMember> GetMembers()
+        public IEnumerator<AllianceMemberBasicData> GetMembers()
         {
             return _members.GetEnumerator();
         }
@@ -95,17 +121,17 @@ namespace SocialPoint.Social
             RemoveMember(_members, id);
         }
 
-        public void AddCandidate(AllianceMember candidate)
+        public void AddCandidate(AllianceMemberBasicData candidate)
         {
-            AddMembers(_candidates, new AllianceMember[]{ candidate });
+            AddMembers(_candidates, new AllianceMemberBasicData[]{ candidate });
         }
 
-        public void AddCandidates(List<AllianceMember> candidates)
+        public void AddCandidates(List<AllianceMemberBasicData> candidates)
         {
             AddMembers(_candidates, candidates);
         }
 
-        public IEnumerator<AllianceMember> GetCandidates()
+        public IEnumerator<AllianceMemberBasicData> GetCandidates()
         {
             return _candidates.GetEnumerator();
         }
@@ -138,7 +164,7 @@ namespace SocialPoint.Social
 
         #region Static methods to manager members lists
 
-        static void SortMembers(List<AllianceMember> members)
+        static void SortMembers(List<AllianceMemberBasicData> members)
         {
             members.Sort((a, b) => {
                 if(a.Score != b.Score)
@@ -153,7 +179,7 @@ namespace SocialPoint.Social
             });
         }
 
-        static AllianceMember GetMember(List<AllianceMember> list, string id)
+        static AllianceMemberBasicData GetMember(List<AllianceMemberBasicData> list, string id)
         {
             for(var i = 0; i < list.Count; ++i)
             {
@@ -166,7 +192,7 @@ namespace SocialPoint.Social
             return null;
         }
 
-        static void AddMembers(List<AllianceMember> list, IEnumerable<AllianceMember> members)
+        static void AddMembers(List<AllianceMemberBasicData> list, IEnumerable<AllianceMemberBasicData> members)
         {
             var itr = members.GetEnumerator();
             while(itr.MoveNext())
@@ -179,7 +205,7 @@ namespace SocialPoint.Social
             SortMembers(list);
         }
 
-        static void RemoveMember(List<AllianceMember> list, string id)
+        static void RemoveMember(List<AllianceMemberBasicData> list, string id)
         {
             var member = GetMember(list, id);
             DebugUtils.Assert(member != null, string.Format("Removing unexistent alliance member {0}", id));

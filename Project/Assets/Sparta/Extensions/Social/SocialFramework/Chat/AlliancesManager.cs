@@ -55,19 +55,15 @@ namespace SocialPoint.Social
         const string MemberIdKey = "player_id";
         const string AllianceIdKey = "alliance_id";
         const string AvatarKey = "avatar";
-        const string AllianceNameKey = "alliance_name";
         const string AllianceDescriptionKey = "description";
         const string AllianceRequirementKey = "minimum_score";
         const string AllianceTypeKey = "type";
-        const string AllianceAvatarKey = "alliance_symbol";
         const string AlliancePropertiesKey = "properties";
         const string AllianceNewMemberKey = "new_member_id";
         const string AllianceDeniedMemberKey = "denied_user_id";
         const string AllianceKickedMemberKey = "kicked_user_id";
         const string AlliancePromotedMemberKey = "promoted_user_id";
         const string AllianceNewRankKey = "new_role";
-        const string AllianceTotalMembersKey = "total_members";
-        const string AllianceJoinTimestampKey = "join_ts";
         const string NotificationTypeKey = "type";
         const string OperationResultKey = "result";
         const string NotificationIdKey = "notification_id";
@@ -106,22 +102,35 @@ namespace SocialPoint.Social
 
         public ILoginData LoginData { private get; set; }
 
-        public AllianceDataFactory Factory { private get; set; }
-
         public uint MaxPendingJoinRequests { get; set; }
 
         public IRankManager Ranks { get; set; }
 
         public IAccessTypeManager AccessTypes { get; set; }
 
+        AllianceDataFactory _factory;
+
+        public AllianceDataFactory Factory
+        { 
+            private get
+            {
+                return _factory;
+            }
+            set
+            {
+                _factory = value;
+                if(AlliancePlayerInfo == null && _factory != null)
+                {
+                    AlliancePlayerInfo = _factory.CreatePlayerInfo();
+                }
+            }
+        }
+
+
         readonly ConnectionManager _connection;
 
         public AlliancesManager(ConnectionManager connection)
         {
-            Ranks = new DefaultRankManager();
-            AccessTypes = new DefaultAccessTypeManager();
-            Factory = new AllianceDataFactory();
-            AlliancePlayerInfo = Factory.CreatePlayerInfo();
             _connection = connection;
             _connection.AlliancesManager = this;
             _connection.OnNotificationReceived += OnNotificationReceived;
@@ -180,7 +189,7 @@ namespace SocialPoint.Social
             });
         }
 
-        public WAMPRequest LoadRanking(Action<Error, AllianceRankingData> callback)
+        public WAMPRequest LoadRanking(Action<Error, AlliancesRanking> callback)
         {
             var dic = new AttrDic();
             if(AlliancePlayerInfo.IsInAlliance)
@@ -192,7 +201,7 @@ namespace SocialPoint.Social
             dic.SetValue("ranking_type", ""); // TODO in use?
 
             return _connection.Call(AllianceRankingMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
-                AllianceRankingData ranking = null;
+                AlliancesRanking ranking = null;
                 if(Error.IsNullOrEmpty(err))
                 {
                     DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
@@ -206,13 +215,13 @@ namespace SocialPoint.Social
             });
         }
 
-        public WAMPRequest LoadSearch(AlliancesSearchData data, Action<Error, AlliancesSearchResultData> callback)
+        public WAMPRequest LoadSearch(AlliancesSearch data, Action<Error, AlliancesSearchResult> callback)
         {
             var dic = Factory.SerializeSearchData(data);
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
 
             return _connection.Call(AllianceSearchMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
-                AlliancesSearchResultData searchData = null;
+                AlliancesSearchResult searchData = null;
                 if(Error.IsNullOrEmpty(err))
                 {
                     DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
@@ -293,17 +302,7 @@ namespace SocialPoint.Social
 
                 DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
                 var result = rDic.Get(OperationResultKey).AsDic;
-
-                DebugUtils.Assert(rDic.Get(AllianceIdKey).IsValue);
-                var id = result.GetValue(AllianceIdKey).ToString();
-
-                AlliancePlayerInfo.Id = id;
-                AlliancePlayerInfo.Avatar = data.Avatar;
-                AlliancePlayerInfo.Name = data.Name;
-                AlliancePlayerInfo.Rank = Ranks.FounderRank;
-                AlliancePlayerInfo.TotalMembers = 1;
-                AlliancePlayerInfo.JoinTimestamp = TimeUtils.Timestamp;
-                AlliancePlayerInfo.ClearRequests();
+                Factory.OnAllianceCreated(AlliancePlayerInfo, data, result);
 
                 UpdateChatServices(rDic);
 
@@ -440,8 +439,6 @@ namespace SocialPoint.Social
                     return;
                 }
 
-                AlliancePlayerInfo.Rank = Ranks.GetPromotedTo(rank); 
-
                 if(callback != null)
                 {
                     callback(null);
@@ -452,6 +449,8 @@ namespace SocialPoint.Social
 
         public void ParseAllianceInfo(AttrDic dic)
         {
+            DebugUtils.Assert(Factory != null, "AlliancesDataFactory is require to create an AlliancePlayerInfo");
+
             AlliancePlayerInfo = Factory.CreatePlayerInfo(MaxPendingJoinRequests, dic);
             NotifyAllianceEvent(AllianceAction.OnPlayerAllianceInfoParsed, dic);
         }
@@ -468,11 +467,6 @@ namespace SocialPoint.Social
 
         #region Private methods
 
-        string GetUrl(string suffix)
-        {
-            return LoginData.BaseUrl + suffix;
-        }
-
         WAMPRequest JoinPublicAlliance(AllianceBasicData alliance, Action<Error> callback, JoinExtraData data)
         {
             DebugUtils.Assert(AccessTypes.IsPublic(alliance.AccessType));
@@ -484,8 +478,6 @@ namespace SocialPoint.Social
             dic.SetValue(JoinOriginKey, data.Origin);
             dic.SetValue(JoinMessageKey, data.Message);
 
-            long joinTs = data.Timestamp;
-
             return _connection.Call(AllianceJoinMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
                 {
@@ -496,14 +488,7 @@ namespace SocialPoint.Social
                     return;
                 }
 
-                AlliancePlayerInfo.Id = alliance.Id;
-                AlliancePlayerInfo.Name = alliance.Name;
-                AlliancePlayerInfo.Avatar = alliance.Avatar;
-                AlliancePlayerInfo.Rank = Ranks.DefaultRank;
-                AlliancePlayerInfo.TotalMembers = alliance.Members;
-                AlliancePlayerInfo.JoinTimestamp = joinTs;
-                AlliancePlayerInfo.ClearRequests();
-
+                Factory.OnAllianceJoined(AlliancePlayerInfo, alliance, data);
                 UpdateChatServices(rDic);
 
                 if(callback != null)
@@ -554,38 +539,37 @@ namespace SocialPoint.Social
         {
             switch(type)
             {
-            case NotificationTypeCode.NotificationAlliancePlayerAutoPromote:
+            case NotificationType.NotificationAlliancePlayerAutoPromote:
                 {
                     var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
                     OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
                 }
-            case NotificationTypeCode.NotificationAlliancePlayerAutoDemote:
+            case NotificationType.NotificationAlliancePlayerAutoDemote:
                 {
                     var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
                     OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
                 }
-            case NotificationTypeCode.BroadcastAllianceMemberPromote:
-            case NotificationTypeCode.BroadcastAllianceMemberRankChange:
+            case NotificationType.BroadcastAllianceMemberPromote:
                 {
                     OnMemberPromoted(dic);
                     break;
                 }
-            case NotificationTypeCode.NotificationAllianceMemberAccept:
-            case NotificationTypeCode.NotificationAllianceMemberKickoff:
-            case NotificationTypeCode.NotificationAllianceMemberPromote:
-            case NotificationTypeCode.NotificationAllianceJoinRequest:
-            case NotificationTypeCode.BroadcastAllianceMemberAccept:
-            case NotificationTypeCode.BroadcastAllianceJoin:
-            case NotificationTypeCode.BroadcastAllianceMemberKickoff:
-            case NotificationTypeCode.BroadcastAllianceMemberLeave:
-            case NotificationTypeCode.BroadcastAllianceEdit:
-            case NotificationTypeCode.TextMessage:
-            case NotificationTypeCode.NotificationUserChatBan:
-            case NotificationTypeCode.BroadcastAllianceOnlineMember:
+            case NotificationType.NotificationAllianceMemberAccept:
+            case NotificationType.NotificationAllianceMemberKickoff:
+            case NotificationType.NotificationAllianceMemberPromote:
+            case NotificationType.NotificationAllianceJoinRequest:
+            case NotificationType.BroadcastAllianceMemberAccept:
+            case NotificationType.BroadcastAllianceJoin:
+            case NotificationType.BroadcastAllianceMemberKickoff:
+            case NotificationType.BroadcastAllianceMemberLeave:
+            case NotificationType.BroadcastAllianceEdit:
+            case NotificationType.TextMessage:
+            case NotificationType.NotificationUserChatBan:
+            case NotificationType.BroadcastAllianceOnlineMember:
                 {
                     break;
                 }
@@ -596,64 +580,63 @@ namespace SocialPoint.Social
         {
             switch(type)
             {
-            case NotificationTypeCode.NotificationAllianceMemberAccept:
+            case NotificationType.NotificationAllianceMemberAccept:
                 {
                     OnRequestAccepted(dic);
                     break;
                 }
-            case NotificationTypeCode.NotificationAllianceMemberKickoff:
+            case NotificationType.NotificationAllianceMemberKickoff:
                 {
                     OnKicked(dic);
                     break;
                 }
-            case NotificationTypeCode.NotificationAllianceMemberPromote:
+            case NotificationType.NotificationAllianceMemberPromote:
                 {
                     OnPromoted(dic);
                     break;
                 }
-            case NotificationTypeCode.NotificationAlliancePlayerAutoPromote:
+            case NotificationType.NotificationAlliancePlayerAutoPromote:
                 {
                     var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
                     OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
                 }
-            case NotificationTypeCode.NotificationAlliancePlayerAutoDemote:
+            case NotificationType.NotificationAlliancePlayerAutoDemote:
                 {
                     var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
                     OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
                 }
-            case NotificationTypeCode.NotificationAllianceJoinRequest:
+            case NotificationType.NotificationAllianceJoinRequest:
                 {
                     OnUserAppliedToPlayerAlliance(dic);
                     break;
                 }
-            case NotificationTypeCode.BroadcastAllianceMemberAccept:
-            case NotificationTypeCode.BroadcastAllianceJoin:
+            case NotificationType.BroadcastAllianceMemberAccept:
+            case NotificationType.BroadcastAllianceJoin:
                 {
                     OnMemberJoined(dic);
                     break;
                 }
-            case NotificationTypeCode.BroadcastAllianceMemberKickoff:
-            case NotificationTypeCode.BroadcastAllianceMemberLeave:
+            case NotificationType.BroadcastAllianceMemberKickoff:
+            case NotificationType.BroadcastAllianceMemberLeave:
                 {
                     OnMemberLeft(dic);
                     break;
                 }
-            case NotificationTypeCode.BroadcastAllianceEdit:
+            case NotificationType.BroadcastAllianceEdit:
                 {
                     OnAllianceEdited(dic);
                     break;
                 }
-            case NotificationTypeCode.BroadcastAllianceMemberPromote:
-            case NotificationTypeCode.BroadcastAllianceMemberRankChange:
+            case NotificationType.BroadcastAllianceMemberPromote:
                 {
                     OnMemberPromoted(dic);
                     break;
                 }
-            case NotificationTypeCode.TextMessage:
+            case NotificationType.TextMessage:
                 {
                     break;
                 }
@@ -662,25 +645,7 @@ namespace SocialPoint.Social
 
         void OnRequestAccepted(AttrDic dic)
         {
-            DebugUtils.Assert(dic.GetValue(AllianceIdKey).IsValue);
-            var allianceId = dic.GetValue(AllianceIdKey).ToString();
-
-            DebugUtils.Assert(dic.GetValue(AllianceNameKey).IsValue);
-            var allianceName = dic.GetValue(AllianceNameKey).ToString();
-
-            DebugUtils.Assert(dic.GetValue(AllianceAvatarKey).IsValue);
-            var avatarId = dic.GetValue(AllianceAvatarKey).ToInt();
-
-            var totalMembers = dic.GetValue(AllianceTotalMembersKey).ToInt();
-            var joinTs = dic.GetValue(AllianceJoinTimestampKey).ToInt();
-
-            AlliancePlayerInfo.Id = allianceId;
-            AlliancePlayerInfo.Name = allianceName;
-            AlliancePlayerInfo.Avatar = avatarId;
-            AlliancePlayerInfo.Rank = Ranks.DefaultRank;
-            AlliancePlayerInfo.TotalMembers = totalMembers;
-            AlliancePlayerInfo.JoinTimestamp = joinTs;
-            AlliancePlayerInfo.ClearRequests();
+            Factory.OnAllianceRequestAccepted(AlliancePlayerInfo, dic);
 
             UpdateChatServices(dic);
 
@@ -708,7 +673,7 @@ namespace SocialPoint.Social
             DebugUtils.Assert(AlliancePlayerInfo.IsInAlliance, "User is not in an alliance");
             var newRank = dic.GetValue(AllianceNewRankKey).ToInt();
             AlliancePlayerInfo.Rank = newRank;
-            NotifyAllianceEvent(AllianceAction.PlayerChangedRank, dic);
+            NotifyAllianceEvent(AllianceAction.PlayerAutoChangedRank, dic);
         }
 
         void OnUserAppliedToPlayerAlliance(AttrDic dic)
@@ -727,7 +692,7 @@ namespace SocialPoint.Social
         void OnMemberLeft(AttrDic dic)
         {
             AlliancePlayerInfo.DecreaseTotalMembers();
-            NotifyAllianceEvent(AllianceAction.MateJoinedPlayerAlliance, dic);
+            NotifyAllianceEvent(AllianceAction.MateLeftPlayerAlliance, dic);
         }
 
         void OnAllianceEdited(AttrDic dic)
