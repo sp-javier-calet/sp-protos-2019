@@ -13,6 +13,10 @@ namespace SocialPoint.Social
 
         IEnumerator<IChatMessage> GetMessages();
 
+        IEnumerator<IChatMessage> GetMessagesInRange(int start, int count);
+
+        int Count { get; }
+
         int Add(IChatMessage message);
 
         IChatMessage GetMessage(int index);
@@ -68,6 +72,22 @@ namespace SocialPoint.Social
         public IEnumerator<MessageType> GetCustomMessages()
         {
             for(int i = 0; i < _messages.Count; ++i)
+            {
+                yield return _messages[i];
+            }
+        }
+
+        public IEnumerator<IChatMessage> GetMessagesInRange(int start, int count)
+        {
+            for(int i = start; i < start + count; ++i)
+            {
+                yield return _messages[i];
+            }
+        }
+
+        public IEnumerator<MessageType> GetCustomMessagesInRange(int start, int count)
+        {
+            for(int i = start; i < start + count; ++i)
             {
                 yield return _messages[i];
             }
