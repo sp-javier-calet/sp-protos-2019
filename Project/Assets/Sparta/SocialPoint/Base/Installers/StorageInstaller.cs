@@ -1,59 +1,72 @@
 ﻿using System;
-using System.IO;
+using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
 using SocialPoint.IO;
-using SocialPoint.Hardware;
 using SocialPoint.Dependency;
 
-public class StorageInstaller : ServiceInstaller
+namespace SocialPoint.Base
 {
-    [Serializable]
-    public class SettingsData
+    public class StorageInstaller : ServiceInstaller
     {
-        public string VolatilePrefix = string.Empty;
-        public string PersistentPrefix = string.Empty;
-    }
-    
-    public SettingsData Settings = new SettingsData();
+        const string VolatileTag = "volatile";
+        const string PersistentTag = "persistent";
 
-	public override void InstallBindings()
-	{		
-        Container.Bind<IAttrStorage>("volatile").ToMethod<PlayerPrefsAttrStorage>(CreateVolatileStorage);
-        Container.Bind<IAttrStorage>("persistent").ToMethod<TransitionAttrStorage>(CreatePersistentStorage);
+        [Serializable]
+        public class SettingsData
+        {
+            public string VolatilePrefix = string.Empty;
+            public string PersistentPrefix = string.Empty;
+        }
 
-        // cannot move this into Initialize as creation of storages depends on it
-        PathsManager.Init();
-	}
+        public SettingsData Settings = new SettingsData();
 
-    PlayerPrefsAttrStorage CreateVolatileStorage()
-    {
-        var vol = new PlayerPrefsAttrStorage();
-        vol.Prefix = Settings.VolatilePrefix;
-        #if UNITY_STANDALONE
+        public override void InstallBindings()
+        {		
+            Container.Bind<IAttrStorage>(VolatileTag).ToMethod<PlayerPrefsAttrStorage>(CreateVolatileStorage);
+            Container.Bind<IAttrStorage>(PersistentTag).ToMethod<TransitionAttrStorage>(CreatePersistentStorage);
+
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelAttrStorage>(() => CreateAdminPanel(VolatileTag));
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelAttrStorage>(() => CreateAdminPanel(PersistentTag));
+
+            // cannot move this into Initialize as creation of storages depends on it
+            PathsManager.Init();
+        }
+
+        PlayerPrefsAttrStorage CreateVolatileStorage()
+        {
+            var vol = new PlayerPrefsAttrStorage();
+            vol.Prefix = Settings.VolatilePrefix;
+            #if UNITY_STANDALONE
         // avoid editor and standalone overwriting
         vol.Prefix += UnityEngine.Application.platform.ToString();
-        #endif
-        return vol;
-    }
+            #endif
+            return vol;
+        }
 
-    TransitionAttrStorage CreatePersistentStorage()
-    {
-        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+        TransitionAttrStorage CreatePersistentStorage()
+        {
+            #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         var persistent = new KeychainAttrStorage(Settings.PersistentPrefix);
-        #elif UNITY_ANDROID && !UNITY_EDITOR
+            #elif UNITY_ANDROID && !UNITY_EDITOR
         var devInfo = Container.Resolve<IDeviceInfo>();
         var persistent = new PersistentAttrStorage(devInfo.Uid, Settings.PersistentPrefix);
         Container.Bind<IDisposable>().ToLookup<PersistentAttrStorage>();
-        #else
-        var path = PathsManager.AppPersistentDataPath;
-        #if UNITY_STANDALONE
+            #else
+            var path = PathsManager.AppPersistentDataPath;
+            #if UNITY_STANDALONE
         // avoid editor and standalone overwriting
         path = Path.Combine(path, UnityEngine.Application.platform.ToString());
-        #endif
-        var persistent = new FileAttrStorage(path); //TODO: doesnt work with prefixes
-        #endif
+            #endif
+            var persistent = new FileAttrStorage(path); //TODO: doesnt work with prefixes
+            #endif
 
-        var vol = Container.Resolve<IAttrStorage>("volatile");
-        return new TransitionAttrStorage(vol, persistent);
+            var vol = Container.Resolve<IAttrStorage>(VolatileTag);
+            return new TransitionAttrStorage(vol, persistent);
+        }
+
+        AdminPanelAttrStorage CreateAdminPanel(string tag)
+        {
+            return new AdminPanelAttrStorage(tag, Container.Resolve<IAttrStorage>(tag));
+        }
     }
 }
