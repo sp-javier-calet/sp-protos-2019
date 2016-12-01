@@ -7,7 +7,7 @@ using SocialPoint.AdminPanel;
 using SocialPoint.Matchmaking;
 using System;
 
-public class LockstepInstaller : Installer
+public class LockstepInstaller : ServiceInstaller
 {
     [Serializable]
     public class SettingsData

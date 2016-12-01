@@ -2,6 +2,7 @@ using System;
 
 namespace SocialPoint.Dependency
 {
+    [UnityEngine.CreateAssetMenu(fileName = "GlobalDependencyConfigurer", menuName = "Sparta/Global Dependency Configurer")]
     public sealed class GlobalDependencyConfigurer : Installer
     {
         [UnityEngine.SerializeField]

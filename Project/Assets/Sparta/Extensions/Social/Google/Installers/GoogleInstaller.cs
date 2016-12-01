@@ -6,7 +6,7 @@ using SocialPoint.Login;
 using SocialPoint.ServerEvents;
 using SocialPoint.AdminPanel;
 
-public class GoogleInstaller : Installer, IInitializable
+public class GoogleInstaller : ServiceInstaller, IInitializable
 {
     [Serializable]
     public class SettingsData

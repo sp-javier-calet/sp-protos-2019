@@ -68,7 +68,7 @@ namespace SocialPoint.Dependency
             {
                 foreach(var t in assembly.GetTypes())
                 {
-                    if(t.IsSubclassOf(installerType) && !installerType.IsAbstract)
+                    if(t.IsSubclassOf(installerType) && !t.IsAbstract)
                     {
                         InstallerAssetsManager.Create(t);
                     }
