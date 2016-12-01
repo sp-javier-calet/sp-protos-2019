@@ -83,7 +83,7 @@ namespace SocialPoint.Network
 
         protected void DoConnect()
         {
-            if(PhotonNetwork.connected)
+            if(PhotonNetwork.connectionState != ConnectionState.Disconnected)
             {
                 return;
             }
@@ -121,7 +121,7 @@ namespace SocialPoint.Network
 
         protected void DoDisconnect()
         {
-            if(!PhotonNetwork.connected)
+            if(PhotonNetwork.connectionState != ConnectionState.Connected)
             {
                 return;
             }
