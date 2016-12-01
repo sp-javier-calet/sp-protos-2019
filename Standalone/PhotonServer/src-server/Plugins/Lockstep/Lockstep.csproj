@@ -7,8 +7,8 @@
     <ProjectGuid>{F292E1D0-0FA8-4CCB-9392-BCFC8F8FF848}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Photon.Hive.Plugin.Lockstep</RootNamespace>
-    <AssemblyName>PhotonHive.LockstepPlugin</AssemblyName>
+    <RootNamespace>SocialPoint.Lockstep</RootNamespace>
+    <AssemblyName>LockstepPlugin</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

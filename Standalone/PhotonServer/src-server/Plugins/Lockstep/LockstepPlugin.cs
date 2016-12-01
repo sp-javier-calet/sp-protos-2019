@@ -13,15 +13,6 @@ namespace SocialPoint.Lockstep
      */
     public class LockstepPlugin : NetworkServerPlugin
     {
-        string _pluginName = "Lockstep";
-        public override string Name
-        {
-            get
-            {
-                return _pluginName;
-            }
-        }
-
         protected override bool Full
         {
             get
@@ -50,13 +41,12 @@ namespace SocialPoint.Lockstep
         HttpMatchmakingServer _matchmaking;
         object _game;
 
-        public LockstepPlugin():base()
+        public LockstepPlugin():base("Lockstep")
         {
             _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient());
             _netServer = new LockstepNetworkServer(this, _matchmaking);
         }
 
-        const string PluginNameConfig = "PluginName";
         const string CommandStepDurationConfig = "CommandStepDuration";
         const string SimulationStepDurationConfig = "SimulationStepDuration";
         const string MaxPlayersConfig = "MaxPlayers";
@@ -66,20 +56,11 @@ namespace SocialPoint.Lockstep
         const string GameAssemblyNameConfig = "GameAssemblyName";
         const string GameTypeConfig = "GameType";
 
-        /*
-         * to change the configuration values in the local build, edit:
-         * deploy/LoadBalancing/GameServer/bin/Photon.LoadBalancing.dll.config
-         */
         public override bool SetupInstance(IPluginHost host, Dictionary<string, string> config, out string errorMsg)
         {
             if (!base.SetupInstance(host, config, out errorMsg))
             {
                 return false;
-            }
-            string pluginName;
-            if(config.TryGetValue(PluginNameConfig, out pluginName))
-            {
-                _pluginName = pluginName;
             }
             _netServer.Config.CommandStepDuration = GetConfigOption(config,
                 CommandStepDurationConfig, _netServer.Config.CommandStepDuration);

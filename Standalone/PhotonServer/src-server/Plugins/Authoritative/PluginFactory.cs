@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Photon.Hive.Plugin;
 
-namespace Photon.Hive.Plugin.Authoritative
+namespace SocialPoint.Multiplayer
 {
     public class PluginFactory : IPluginFactory
     {

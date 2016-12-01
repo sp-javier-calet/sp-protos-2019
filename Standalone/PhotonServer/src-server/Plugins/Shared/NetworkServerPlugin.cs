@@ -16,6 +16,14 @@ namespace SocialPoint.Network
      */
     public abstract class NetworkServerPlugin : PluginBase, INetworkServer
     {
+        string _pluginName;
+        public override string Name
+        {
+            get
+            {
+                return _pluginName;
+            }
+        }
 
         bool INetworkServer.Running
         {
@@ -48,13 +56,35 @@ namespace SocialPoint.Network
         abstract protected bool Full { get; }
         abstract protected int UpdateInterval { get;  }
 
-        public NetworkServerPlugin()
+        public NetworkServerPlugin(string pluginName)
         {
+            _pluginName = pluginName;
             UseStrictMode = true;
             _delegates = new List<INetworkServerDelegate>();
         }
 
-        bool CheckServer(ICallInfo info)
+
+        const string PluginNameConfig = "PluginName";
+
+        /*
+         * to change the configuration values in the local build, edit:
+         * deploy/LoadBalancing/GameServer/bin/Photon.LoadBalancing.dll.config
+         */
+        public override bool SetupInstance(IPluginHost host, Dictionary<string, string> config, out string errorMsg)
+        {
+            if (!base.SetupInstance(host, config, out errorMsg))
+            {
+                return false;
+            }
+            string pluginName;
+            if (config.TryGetValue(PluginNameConfig, out pluginName))
+            {
+                _pluginName = pluginName;
+            }
+            return true;
+        }
+
+            bool CheckServer(ICallInfo info)
         {
             if (Full)
             {

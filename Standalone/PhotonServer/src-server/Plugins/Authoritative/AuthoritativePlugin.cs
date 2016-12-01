@@ -1,23 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.Multiplayer;
 using SocialPoint.Network;
-using SocialPoint.IO;
-using System.IO;
-using System.Collections;
+using Photon.Hive.Plugin;
 
-namespace Photon.Hive.Plugin.Authoritative
+namespace SocialPoint.Multiplayer
 {
     public class AuthoritativePlugin : NetworkServerPlugin
     {
-        public override string Name
-        {
-            get
-            {
-                return "Authoritative";
-            }
-        }
-
         override protected int UpdateInterval
         {
             get
@@ -49,7 +38,7 @@ namespace Photon.Hive.Plugin.Authoritative
         int _lastUpdateTimestamp = 0;
         int _updateInterval = 100;
 
-        public AuthoritativePlugin():base()
+        public AuthoritativePlugin():base("Authoritative")
         {
             _netServer = new NetworkServerSceneController(this);
         }
