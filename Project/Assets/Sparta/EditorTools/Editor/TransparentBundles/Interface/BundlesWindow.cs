@@ -13,6 +13,7 @@ namespace SocialPoint.TransparentBundles
         private static List<Bundle> _chosenList;
         private static bool _selectAllToggle;
         private static bool _allSelected;
+        private static Dictionary<string, Bundle> _selectedList;
         private static BundleSortingMode _sorting;
         private static Vector2 _scrollPos;
         private const int _iconSize = 33;
@@ -20,8 +21,10 @@ namespace SocialPoint.TransparentBundles
         private static float _updateFilterTime;
         private static bool _toSearch = false;
         private const float _searchDelay = 0.5f;
+        private static bool _bundlesInServerShown = true;
+        private static bool _bundlesInBuildShown = true;
 
-        public static GUIStyle HeaderStyle, HeaderStyle2, BodyStyle, BodyTextStyle, BodyTextBoldStyle, BodyLinkStyle, NoButtonStyle;
+        public static GUIStyle HeaderStyle, HeaderStyle2, BodyStyle, BodyTextStyle, BodyTextBoldStyle, BodyLinkStyle, BodySelectedLinkStyle, NoButtonStyle, ROJO;
         private static float[] _columnsSize;
 
         private static void Init()
@@ -30,6 +33,7 @@ namespace SocialPoint.TransparentBundles
             _filter = "";
             _bundleList = _controller.GetBundles(_filter);
             _chosenList = new List<Bundle>();
+            _selectedList = new Dictionary<string, Bundle>();
             _selectAllToggle = false;
             _allSelected = false;
             _sorting = BundleSortingMode.NameAsc;
@@ -69,8 +73,20 @@ namespace SocialPoint.TransparentBundles
                 HeaderStyle.normal.background = tex;
                 HeaderStyle.normal.textColor = Color.black;
                 HeaderStyle.alignment = TextAnchor.MiddleLeft;
-                HeaderStyle.margin = new RectOffset(0, 0, 0, 0);
-                HeaderStyle.border = HeaderStyle.margin;
+                HeaderStyle.margin = new RectOffset(1, 1, 1, 1);
+                HeaderStyle.border = new RectOffset(0, 0, 0, 0);
+            }
+
+            if (ROJO == null)
+            {
+                ROJO = new GUIStyle(GUI.skin.label);
+                Texture2D tex = new Texture2D(1, 1);
+                tex.SetPixel(0, 0, new Color(1f, 0f, 0f, 1f));
+                tex.Apply();
+                ROJO.normal.background = tex;
+                ROJO.margin = new RectOffset(0, 0, 0, 0);
+                ROJO.border = new RectOffset(0, 0, 0, 0);
+                ROJO.padding = new RectOffset(0, 0, 0, 0);
             }
 
             if (HeaderStyle2 == null)
@@ -80,11 +96,11 @@ namespace SocialPoint.TransparentBundles
                 tex.SetPixel(0, 0, new Color(0.33f, 0.33f, 0.33f, 1f));
                 tex.Apply();
                 HeaderStyle2.normal.background = tex;
-                HeaderStyle2.normal.textColor = Color.black;
-                HeaderStyle2.alignment = TextAnchor.MiddleLeft;
-                HeaderStyle2.margin = new RectOffset(1, 0, 0, 5);
-                HeaderStyle2.border = HeaderStyle2.margin;
-                HeaderStyle2.fontStyle = FontStyle.Bold;
+                HeaderStyle2.normal.textColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+                HeaderStyle2.alignment = TextAnchor.LowerLeft;
+                HeaderStyle2.margin = new RectOffset(0, 0, 0, 5);
+                HeaderStyle2.border = new RectOffset(0, 0, 0, 0);
+                //HeaderStyle2.fontStyle = FontStyle.Bold;
             }
 
             if (BodyStyle == null)
@@ -128,18 +144,20 @@ namespace SocialPoint.TransparentBundles
                 BodyLinkStyle.normal.background = Texture2D.blackTexture;
                 BodyLinkStyle.alignment = TextAnchor.MiddleLeft;
                 BodyLinkStyle.margin = new RectOffset(0, 0, 0, 0);
-                BodyLinkStyle.border = BodyTextStyle.margin;
+                BodyLinkStyle.border = BodyLinkStyle.margin;
+            }
+            
+            if (BodySelectedLinkStyle == null)
+            {
+                BodySelectedLinkStyle = new GUIStyle(GUI.skin.label);
                 Texture2D tex = new Texture2D(1, 1);
-                tex.SetPixel(0, 0, new Color(0.3f, 0.3f, 0.3f, 1f));
+                tex.SetPixel(0, 0, new Color(0.24f, 0.37f, 0.58f, 1f));
                 tex.Apply();
-                BodyLinkStyle.hover.textColor = new Color(0.8f, 0.8f, 0.8f, 1f);
-                BodyLinkStyle.hover.background = tex;
-                Texture2D tex2 = new Texture2D(1, 1);
-                tex2.SetPixel(0, 0, new Color(0.27f, 0.27f, 0.27f, 1f));
-                tex2.Apply();
-                BodyLinkStyle.active.textColor = new Color(0.65f, 0.65f, 0.65f, 1f);
-                BodyLinkStyle.active.background = tex2;
-
+                BodySelectedLinkStyle.normal.textColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+                BodySelectedLinkStyle.normal.background = tex;
+                BodySelectedLinkStyle.alignment = TextAnchor.MiddleLeft;
+                BodySelectedLinkStyle.margin = new RectOffset(0, 0, 0, 0);
+                BodySelectedLinkStyle.border = BodySelectedLinkStyle.margin;
             }
 
             if (NoButtonStyle == null)
@@ -198,7 +216,8 @@ namespace SocialPoint.TransparentBundles
             }
             else if(!_selectAllToggle && _allSelected)
             {
-                _chosenList = new List<Bundle>();
+                for(int i = 0; i < _bundleList.Count; i++)
+                    _chosenList.Remove(_bundleList[i]);
                 _allSelected = false;
             }
             string sortingSymbol = "";
@@ -247,37 +266,53 @@ namespace SocialPoint.TransparentBundles
 
             EditorGUILayout.BeginVertical(HeaderStyle2, GUILayout.Height(25));
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("Bundles in Server", GUILayout.ExpandWidth(false));
+            string collapsed = "▼";
+            if (!_bundlesInServerShown)
+                collapsed = "►";
+            if (GUILayout.Button(collapsed+" Bundles in Server", HeaderStyle2, GUILayout.ExpandWidth(false)))
+                _bundlesInServerShown = !_bundlesInServerShown;
             GUILayout.Label("", GUILayout.ExpandWidth(true));
-            GUILayout.Label("", GUILayout.ExpandWidth(false));
+            GUILayout.Label("total size: " + _controller.GetServerBundlesTotalSize() + " MB", GUILayout.ExpandWidth(false));
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndVertical();
 
-            for (int i = 0; i < _bundleList.Count; i++)
+            if (_bundlesInServerShown)
             {
-                Bundle bundle = _bundleList[i];
-                if (!bundle.IsLocal)
-                    DisplayBundleRow(bundle);
+                for (int i = 0; i < _bundleList.Count; i++)
+                {
+                    Bundle bundle = _bundleList[i];
+                    if (!bundle.IsLocal)
+                        DisplayBundleRow(bundle);
+                }
+                GUILayout.Label("", GUILayout.Height(20));
             }
-            GUILayout.Label("", GUILayout.Height(20));
 
             EditorGUILayout.BeginVertical(HeaderStyle2, GUILayout.Height(25));
             EditorGUILayout.BeginHorizontal();
+            collapsed = "▼";
+            if (!_bundlesInBuildShown)
+                collapsed = "►";
+            if(GUILayout.Button(collapsed, HeaderStyle2, GUILayout.ExpandWidth(false)))
+                _bundlesInBuildShown = !_bundlesInBuildShown;
             Rect previewRect = GUILayoutUtility.GetRect(20, 20, GUILayout.ExpandWidth(false));
             GUI.DrawTexture(previewRect, _controller.DownloadImage(Config.IconsPath + "in_build.png"));
-            GUILayout.Label("Bundles in Build", GUILayout.ExpandWidth(false));
+            if (GUILayout.Button("Bundles in Build", HeaderStyle2,  GUILayout.ExpandWidth(false)))
+                _bundlesInBuildShown = !_bundlesInBuildShown;
             GUILayout.Label("", GUILayout.ExpandWidth(true));
             GUILayout.Label("total size: " + _controller.GetLocalBundlesTotalSize() + " MB", GUILayout.ExpandWidth(false));
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndVertical();
-
-            for (int i = 0; i < _bundleList.Count; i++)
+            if (_bundlesInBuildShown)
             {
-                Bundle bundle = _bundleList[i];
-                if (bundle.IsLocal)
-                    DisplayBundleRow(bundle);
+                for (int i = 0; i < _bundleList.Count; i++)
+                {
+                    Bundle bundle = _bundleList[i];
+                    if (bundle.IsLocal)
+                        DisplayBundleRow(bundle);
+                }
+                GUILayout.Label("", GUILayout.Height(20));
             }
-            GUILayout.Label("", GUILayout.Height(20));
+            
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
             GUILayout.Label("", GUILayout.Width(5));
@@ -310,6 +345,7 @@ namespace SocialPoint.TransparentBundles
             {
                 for (int i = 0; i < _chosenList.Count; i++)
                     _controller.CreateOrUpdateBundle(_chosenList[i].Asset);
+                Repaint();
             }
             if (GUILayout.Button(_actionButons[1], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
@@ -329,17 +365,19 @@ namespace SocialPoint.TransparentBundles
                     for (int i = 0; i < _chosenList.Count; i++)
                         _controller.RemoveBundle(_chosenList[i].Asset);
                 }
-                
+                SearchBundles(_filter);
             }
             if (GUILayout.Button(_actionButons[2], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
                 for (int i = 0; i < _chosenList.Count; i++)
                     _controller.BundleIntoBuild(_chosenList[i].Asset);
+                Repaint();
             }
             if (GUILayout.Button(_actionButons[3], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
                 for (int i = 0; i < _chosenList.Count; i++)
                     _controller.BundleOutsideBuild(_chosenList[i].Asset);
+                Repaint();
             }
             GUILayout.Label("", GUILayout.Width(3));
             EditorGUILayout.EndHorizontal();
@@ -374,17 +412,36 @@ namespace SocialPoint.TransparentBundles
 
         private void DisplayBundleRow(Bundle bundle)
         {
-            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.BeginHorizontal(GUILayout.Height(20));
             EditorGUILayout.BeginVertical(GUILayout.Width(_columnsSize[0]));
             GUILayout.Label("", GUILayout.Height(3), GUILayout.Width(_columnsSize[0]));
             bool bundleChosen = _chosenList.Contains(bundle);
             bool updatedBundleChosen = GUILayout.Toggle(bundleChosen, "", GUILayout.Width(_columnsSize[0]), GUILayout.Height(_columnsSize[0]));
 
             if (bundleChosen && !updatedBundleChosen)
-                _chosenList.Remove(bundle);
+            {
+                if (_selectedList.ContainsKey(bundle.Name))
+                {
+                    var enumerator = _selectedList.GetEnumerator();
+                    while (enumerator.MoveNext())
+                        _chosenList.Remove(enumerator.Current.Value);
+                }
+                else
+                    _chosenList.Remove(bundle);
+            }
 
             else if (!bundleChosen && updatedBundleChosen)
-                _chosenList.Add(bundle);
+            {
+                if (_selectedList.ContainsKey(bundle.Name))
+                {
+                    var enumerator = _selectedList.GetEnumerator();
+                    while (enumerator.MoveNext())
+                        _chosenList.Add(enumerator.Current.Value);
+                }
+                else
+                    _chosenList.Add(bundle);
+            }
+                
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.BeginVertical(GUILayout.Width(_columnsSize[1]));
@@ -392,10 +449,54 @@ namespace SocialPoint.TransparentBundles
             GUILayout.Label(AssetPreview.GetMiniThumbnail(bundle.Asset.GetAssetObject()), GUILayout.Width(_columnsSize[1]), GUILayout.Height(_columnsSize[1]));
             EditorGUILayout.EndVertical();
 
-            EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
-            GUILayout.Label("", GUILayout.Height(2));
-            if (GUILayout.Button(bundle.Asset.Name, BodyLinkStyle, GUILayout.ExpandWidth(true), GUILayout.Height(20)))
+            EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
+            GUIStyle bundleStyle = BodyLinkStyle;
+            if (_selectedList.ContainsKey(bundle.Name))
+                bundleStyle = BodySelectedLinkStyle;
+            if (GUILayout.Button(bundle.Asset.Name, bundleStyle, GUILayout.ExpandWidth(true), GUILayout.Height(30)))
             {
+                if (Event.current.control || Event.current.command)
+                {
+                    if (_selectedList.ContainsKey(bundle.Name))
+                        _selectedList.Remove(bundle.Name);
+                    else
+                        _selectedList.Add(bundle.Name, bundle);
+                }
+                    
+                else if (Event.current.shift)
+                {
+                    if(_selectedList.Count > 0)
+                    {
+                        var enumerator = _selectedList.GetEnumerator();
+                        enumerator.MoveNext();
+                        int firstIndex = _bundleList.IndexOf(enumerator.Current.Value);
+                        enumerator.Dispose();
+                        int finalIndex = _bundleList.IndexOf(bundle);
+                        _selectedList = new Dictionary<string, Bundle>();
+                        if (firstIndex < finalIndex)
+                        {
+                            for (int i = firstIndex; i <= finalIndex; i++)
+                            {
+                                Bundle bundleToSelect = _bundleList[i];
+                                _selectedList.Add(bundleToSelect.Name, bundleToSelect);
+                            }
+                        }
+                        else
+                        {
+                            for (int i = firstIndex; i >= finalIndex; i--)
+                            {
+                                Bundle bundleToSelect = _bundleList[i];
+                                _selectedList.Add(bundleToSelect.Name, bundleToSelect);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    _selectedList = new Dictionary<string, Bundle>();
+                    _selectedList.Add(bundle.Name, bundle);
+                }
+                    
                 InspectorDummy inspectorDummy = ScriptableObject.CreateInstance<InspectorDummy>();
                 inspectorDummy.SelectedAsset = bundle.Asset;
                 Selection.activeObject = inspectorDummy;
@@ -433,8 +534,16 @@ namespace SocialPoint.TransparentBundles
                 switch (Event.current.keyCode)
                 {
                     case KeyCode.Return:
-
                         SearchBundles(_filter);
+                        break;
+
+                    case KeyCode.A:
+                        if (Event.current.command || Event.current.control)
+                        {
+                            _selectedList = new Dictionary<string, Bundle>();
+                            for (int i = 0; i < _bundleList.Count; i++)
+                                _selectedList.Add(_bundleList[i].Name, _bundleList[i]);
+                        }
                         break;
                 }
             }

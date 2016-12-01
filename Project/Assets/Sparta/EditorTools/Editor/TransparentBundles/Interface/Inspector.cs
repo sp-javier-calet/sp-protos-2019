@@ -49,8 +49,6 @@ namespace SocialPoint.TransparentBundles
                 }
                 if (_preview == null)
                     _preview = AssetPreview.GetMiniThumbnail(assetObject);
-                
-                
             }
         }
 
@@ -175,6 +173,7 @@ namespace SocialPoint.TransparentBundles
                 return;
 
             EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("", GUILayout.Width(5));
             EditorGUILayout.BeginVertical();
             GUILayout.Label("", GUILayout.Height(3));
             EditorGUILayout.BeginHorizontal();
@@ -220,6 +219,7 @@ namespace SocialPoint.TransparentBundles
                 return;
 
             EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("", GUILayout.Width(5));
             EditorGUILayout.BeginVertical();
             GUILayout.Label("", GUILayout.Height(3));
             EditorGUILayout.BeginHorizontal();

@@ -26,16 +26,30 @@ namespace SocialPoint.TransparentBundles
             return _instance;
         }
 
+        private bool IsValidAsset(Asset asset)
+        {
+            bool valid = true;
+            if (asset.Type.ToString() == "UnityEditor.DefaultAsset")
+            {
+                valid = false;
+                EditorUtility.DisplayDialog("Asset issue","You cannot create a bundle of a folder.\n\nVisit the following link for more info: \n"+Config.HelpUrl, "Close");
+            }
+                
+            return valid;
+        }
 
         public void CreateOrUpdateBundle(Asset asset)
         {
-            //TODO comunication with server
-
-            /*FOR TESTING ONLY*/
-            if (!_bundleDictionary.ContainsKey(asset.Name))
+            if (IsValidAsset(asset))
             {
-                Bundle bundle = new Bundle(1, asset.Name.ToLower(), 1, 2f, false, asset);
-                _bundleDictionary.Add(asset.Name, bundle);
+                //TODO comunication with server
+
+                /*FOR TESTING ONLY*/
+                if (!_bundleDictionary.ContainsKey(asset.Name))
+                {
+                    Bundle bundle = new Bundle(1, asset.Name.ToLower(), 1, 2f, false, asset);
+                    _bundleDictionary.Add(asset.Name, bundle);
+                }
             }
         }
 
@@ -116,6 +130,22 @@ namespace SocialPoint.TransparentBundles
             {
                 Bundle bundle = _bundleDictionary[keys[i]];
                 if (bundle.IsLocal)
+                    totalSize += bundle.Size;
+            }
+            return totalSize;
+        }
+
+        public float GetServerBundlesTotalSize()
+        {
+            //TODO comunication with server
+
+            /*FOR TESTING ONLY*/
+            float totalSize = 0f;
+            List<string> keys = new List<string>(_bundleDictionary.Keys);
+            for (int i = 0; i < keys.Count; i++)
+            {
+                Bundle bundle = _bundleDictionary[keys[i]];
+                if (!bundle.IsLocal)
                     totalSize += bundle.Size;
             }
             return totalSize;
