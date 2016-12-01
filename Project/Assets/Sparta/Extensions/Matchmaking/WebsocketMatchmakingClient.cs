@@ -33,7 +33,8 @@ namespace SocialPoint.Matchmaking
         const string WaitingStatus = "waiting";
         const string WaitingTimeAttrKey = "estimated_time";
         const string MatchIdAttrKey = "match_id";
-        const string MatchInfoAttrKey = "PlayerInfo";
+        const string GameInfoAttrKey = "game_info";
+        const string ServerInfoAttrKey = "server";
         const string PlayerIdAttrKey = "token";
 
         public WebsocketMatchmakingClient(ILoginData loginData, IWebSocketClient websocket)
@@ -124,7 +125,8 @@ namespace SocialPoint.Matchmaking
                 _status = Status.Finished;
                 var match = new Match {
                     Id = attr.GetValue(MatchIdAttrKey).ToString(),
-                    Info = attr.Get(MatchInfoAttrKey),
+                    GameInfo = attr.Get(GameInfoAttrKey),
+                    ServerInfo = attr.Get(ServerInfoAttrKey),
                     PlayerId = attr.GetValue(PlayerIdAttrKey).ToString()
                 };
                 for(var i=0; i<_delegates.Count; i++)

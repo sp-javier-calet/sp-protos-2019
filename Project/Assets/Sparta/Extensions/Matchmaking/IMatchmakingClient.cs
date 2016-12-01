@@ -10,7 +10,17 @@ namespace SocialPoint.Matchmaking
     {
         public string Id;
         public string PlayerId;
-        public Attr Info;
+        public Attr GameInfo;
+        public Attr ServerInfo;
+
+        [Obsolete("Use GameInfo instead")]
+        public Attr Info
+        {
+            get
+            {
+                return GameInfo;
+            }
+        }
     }
 
     public interface IMatchmakingClientDelegate

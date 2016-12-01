@@ -32,25 +32,25 @@ namespace SocialPoint.Matchmaking
         public void OnMatched(Match match)
         {
             _network.Config.RoomName = match.Id;
-            var info = match.Info.AsDic;
-            if(info.ContainsKey(RegionAttrKey))
+            var server = match.ServerInfo.AsDic;
+            if(server.ContainsKey(RegionAttrKey))
             {
                 try
                 {
-                    var region = info.GetValue(RegionAttrKey).ToString();
+                    var region = server.GetValue(RegionAttrKey).ToString();
                     _network.Config.ForceRegion = (CloudRegionCode) Enum.Parse(typeof(CloudRegionCode), region, true);
                 }
                 catch(Exception)
                 {
                 }
             }
-            if(info.ContainsKey(ServerAttrKey))
+            if(server.ContainsKey(ServerAttrKey))
             {
-                _network.Config.ForceServer = info.GetValue(ServerAttrKey).ToString();
+                _network.Config.ForceServer = server.GetValue(ServerAttrKey).ToString();
             }
-            if(info.ContainsKey(AppIdAttrKey))
+            if(server.ContainsKey(AppIdAttrKey))
             {
-                _network.Config.ForceAppId = info.GetValue(AppIdAttrKey).ToString();
+                _network.Config.ForceAppId = server.GetValue(AppIdAttrKey).ToString();
             }
         }
 

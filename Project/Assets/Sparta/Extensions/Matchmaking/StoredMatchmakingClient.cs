@@ -22,7 +22,8 @@ namespace SocialPoint.Matchmaking
         const string DefaultStorageKey = "matchmaking";
         const string MatchIdAttrKey = "match_id";
         const string PlayerIdAttrKey = "player_id";
-        const string MatchInfoAttrKey = "match_info";
+        const string GameInfoAttrKey = "game_info";
+        const string ServerInfoAttrKey = "server_info";
 
         string _storageKey;
         IAttrStorage _storage;
@@ -62,7 +63,8 @@ namespace SocialPoint.Matchmaking
             match = new Match {
                 Id = attrDic.GetValue(MatchIdAttrKey).ToString(),
                 PlayerId = attrDic.GetValue(PlayerIdAttrKey).ToString(),
-                Info = attrDic.Get(MatchInfoAttrKey)
+                GameInfo = attrDic.Get(GameInfoAttrKey),
+                ServerInfo = attrDic.Get(ServerInfoAttrKey),
             };
             return true;
         }
@@ -72,7 +74,8 @@ namespace SocialPoint.Matchmaking
             var attr = new AttrDic();
             attr.SetValue(MatchIdAttrKey, match.Id);
             attr.SetValue(PlayerIdAttrKey, match.PlayerId);
-            attr.Set(MatchInfoAttrKey, match.Info);
+            attr.Set(GameInfoAttrKey, match.GameInfo);
+            attr.Set(ServerInfoAttrKey, match.ServerInfo);
             _storage.Save(_storageKey, attr);
         }
 
