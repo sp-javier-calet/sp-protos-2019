@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Base;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
-using SocialPoint.Social;
 using SocialPoint.AppEvents;
 using SocialPoint.AdminPanel;
 
@@ -17,10 +17,13 @@ public class LoginAdminPanelInstaller : SubInstaller
     {
         var login = Container.Resolve<ILogin>();
         var appEvents = Container.Resolve<IAppEvents>();
+        var environments = Container.Resolve<BackendEnvironment>();
         var envs = new Dictionary<string,string>();
-        foreach(BackendEnvironment env in Enum.GetValues(typeof(BackendEnvironment)))
+
+        for(var i = 0; i < environments.Environments.Length; ++i)
         {
-            envs.Add(env.ToString(), env.GetUrl());
+            var env = environments.Environments[i];
+            envs.Add(env.Name, env.Url);
         }
 
         return new AdminPanelLogin(login, envs, appEvents);

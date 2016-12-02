@@ -12,6 +12,7 @@
         public const string ChatPlayerPromotedKey = "socialFramework.ChatPlayerPromoted";
         public const string ChatPlayerDemotedKey = "socialFramework.ChatPlayerDemoted";
 
+        public const string ChatWarningKey = "socialFramework.ChatWarning";
         public const string ChatPlayerJoinedKey = "socialFramework.ChatPlayerJoined";
         public const string ChatPlayerLeftKey = "socialFramework.ChatPlayerLeft";
         public const string ChatJoinRequestKey = "socialFramework.ChatJoinRequest";

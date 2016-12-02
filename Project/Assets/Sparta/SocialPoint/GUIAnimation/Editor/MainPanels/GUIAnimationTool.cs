@@ -28,7 +28,7 @@ namespace SocialPoint.GUIAnimation
 
         public static AnimationEditorPlayer AnimationEditorPlayer { get { return _animationEditorPlayer; } }
 
-        AnimationEditorContainer _animationEditorContainer = new AnimationEditorContainer();
+        static AnimationEditorContainer _animationEditorContainer = new AnimationEditorContainer();
 
         bool _repaint;
         double _nextRepaintTime;
@@ -53,6 +53,11 @@ namespace SocialPoint.GUIAnimation
         public void Init()
         {
             ResetState();
+        }
+
+        public static void ResetTimeLine()
+        {
+            AnimationEditorContainer.ResetTimeLine();
         }
 
         void ResetState()
@@ -190,6 +195,8 @@ namespace SocialPoint.GUIAnimation
             Animation currentAnimation = _animationModel.GetAnimationByIdx(_currentAnimationIdx);
             if(Event.current.type == EventType.Repaint && currentAnimation != _animationModel.CurrentAnimation)
             {
+                ResetTimeLine();
+
                 _animationModel.SetCurrentAnimation(currentAnimation);
                 _animationEditorContainer.ResetState();
 

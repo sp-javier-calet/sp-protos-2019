@@ -23,8 +23,9 @@ namespace SocialPoint.Social
         public float RPCTimeout = 1.0f;
     }
 
-    public static class NotificationTypeCode
+    public static class NotificationType
     {
+        public const int ChatWarning = 99;
         public const int TextMessage = 100;
 
         // Personal notifications
@@ -43,7 +44,6 @@ namespace SocialPoint.Social
         public const int BroadcastAllianceMemberLeave = 104;
         public const int BroadcastAllianceEdit = 105;
         public const int BroadcastAllianceMemberPromote = 106;
-        public const int BroadcastAllianceMemberRankChange = 111;
         public const int BroadcastAllianceOnlineMember = 308;
     }
 

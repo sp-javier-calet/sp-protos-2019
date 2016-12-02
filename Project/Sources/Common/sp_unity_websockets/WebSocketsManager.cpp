@@ -11,9 +11,6 @@
 #include <sstream>
 #include <cassert>
 
-int WebSocketsManager::pingCounter = 0;
-int WebSocketsManager::maxNumberOfPings = 3;
-
 static int always_true_callback(X509_STORE_CTX* ctx, void* arg)
 {
     return 1;
@@ -23,6 +20,11 @@ static int callback_websocket(struct lws* wsi, enum lws_callback_reasons reason,
 {
     WebSocketsManager& manager = WebSocketsManager::get();
     WebSocketConnection* connection = manager.get(wsi);
+    
+    if(!connection)
+    {
+        return 0;
+    }
 
     int n;
     int pRet = 0;
@@ -42,7 +44,7 @@ static int callback_websocket(struct lws* wsi, enum lws_callback_reasons reason,
         case LWS_CALLBACK_CLIENT_ESTABLISHED:
             lwsl_notice("Client has connected\n");
             connection->connectionEstablished();
-            WebSocketsManager::pingCounter = 0;
+            connection->resetPing();
             break;
 
         case LWS_CALLBACK_CLIENT_RECEIVE:
@@ -58,7 +60,7 @@ static int callback_websocket(struct lws* wsi, enum lws_callback_reasons reason,
         case LWS_CALLBACK_CLIENT_RECEIVE_PONG:
         {
             lwsl_notice("Client RX - PONG\n");
-            WebSocketsManager::pingCounter = 0;
+            connection->resetPing();
             break;
         }
         case LWS_CALLBACK_CLIENT_WRITEABLE:
@@ -120,16 +122,16 @@ static int callback_websocket(struct lws* wsi, enum lws_callback_reasons reason,
                 }
                 else
                 {
-                    ++WebSocketsManager::pingCounter;
-
-                    if(WebSocketsManager::pingCounter >= WebSocketsManager::maxNumberOfPings)
+                    if(connection->onPingSent())
                     {
-                        WebSocketsManager::pingCounter = 0;
+                        connection->resetPing();
+                        
                         lwsl_err("ERROR: MAX PINGS REACHED\n");
                         connection->connectionError((int)WebSocketConnection::Error::MaxPings, "Max pings reached");
                         connection->closeSocket();
                         pRet = -1;
-                    }
+                        
+                    };
                 }
             }
             break;
@@ -241,7 +243,6 @@ void WebSocketsManager::checkAndCreateContext()
         info.ka_probes = 5;
         info.ka_interval = 5000;
         info.user = this;
-        info.http_proxy_address = "";
 
         _context = lws_create_context(&info);
         _vhost = lws_create_vhost(_context, &info);

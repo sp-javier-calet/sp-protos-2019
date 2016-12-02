@@ -31,17 +31,36 @@ namespace SocialPoint.GrayboxLibrary
             if(_downloadCache.ContainsKey(path))
                 return _downloadCache[path];
 
-            Texture2D loadedTexture = new Texture2D(0, 0);
-            loadedTexture.LoadImage(File.ReadAllBytes(path));
-            _downloadCache.Add(path, loadedTexture);
+            if (File.Exists(path))
+            {
+                Texture2D loadedTexture = new Texture2D(0, 0);
 
-            return loadedTexture;
+                loadedTexture.LoadImage(File.ReadAllBytes(path));
+                _downloadCache.Add(path, loadedTexture);
+
+                return loadedTexture;
+            }
+            else
+            {
+                Debug.LogError("Graybox Library --> The asset thumbnail at path '" + path + "' was not found. Please, contact the Tech Art team (" + GrayboxLibraryConfig.ContactMail + ").");
+                return null;
+            }
         }
 
 
         public void ImportPackage(string path)
         {
-            AssetDatabase.ImportPackage(path, false);
+            if (File.Exists(path))
+            {
+                AssetDatabase.ImportPackage(path, false);
+            }
+            else
+                Debug.LogError("Graybox Library --> The asset package at path '"+path+ "' was not found. Please, contact the Tech Art team (" + GrayboxLibraryConfig.ContactMail + ").");
+        }
+
+        public void FlushImageCache()
+        {
+            _downloadCache = new Dictionary<string, Texture2D>();
         }
     }
 }
