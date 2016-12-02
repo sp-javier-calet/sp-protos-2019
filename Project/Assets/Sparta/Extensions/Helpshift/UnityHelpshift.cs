@@ -14,7 +14,7 @@ using SocialPoint.Notifications;
 
 namespace SocialPoint.Extension.Helpshift
 {
-    sealed class UnityHelpshift : IHelpshift
+    public sealed class UnityHelpshift : IHelpshift
     {
         const string ENABLE_IN_APP_NOTIFICATIONS_KEY = "enableInAppNotification";
         const string UNITY_GAMEOBJECT_NAME_KEY = "unityGameObject";
@@ -263,7 +263,7 @@ namespace SocialPoint.Extension.Helpshift
 
 namespace SocialPoint.Extension.Helpshift
 {
-    sealed class UnityHelpshift : EmptyHelpshift
+    public sealed class UnityHelpshift : EmptyHelpshift
     {
         public UnityHelpshift(HelpshiftConfiguration config, ILocalizationManager localizationManager, INotificationServices notificationServices)
         {

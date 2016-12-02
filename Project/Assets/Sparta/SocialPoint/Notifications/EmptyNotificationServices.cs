@@ -18,7 +18,10 @@ namespace SocialPoint.Notifications
 
         public void RegisterForRemoteToken(Action<bool, string> callback)
         {
-            callback(false, "");
+            if(callback != null)
+            {
+                callback(false, "");
+            }
         }
 
         public void RequestPermissions()

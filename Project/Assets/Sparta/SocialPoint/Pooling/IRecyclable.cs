@@ -1,7 +1,7 @@
 
 namespace SocialPoint.Pooling
 {
-    interface IRecyclable
+    public interface IRecyclable
     {
         void OnSpawn();
         void OnRecycle();
