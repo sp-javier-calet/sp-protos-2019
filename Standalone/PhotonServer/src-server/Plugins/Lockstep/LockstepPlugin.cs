@@ -41,7 +41,7 @@ namespace SocialPoint.Lockstep
         HttpMatchmakingServer _matchmaking;
         object _game;
 
-        public LockstepPlugin():base("Lockstep")
+        public LockstepPlugin() : base("Lockstep")
         {
             _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient());
             _netServer = new LockstepNetworkServer(this, _matchmaking);
@@ -58,7 +58,7 @@ namespace SocialPoint.Lockstep
 
         public override bool SetupInstance(IPluginHost host, Dictionary<string, string> config, out string errorMsg)
         {
-            if (!base.SetupInstance(host, config, out errorMsg))
+            if(!base.SetupInstance(host, config, out errorMsg))
             {
                 return false;
             }
@@ -74,13 +74,13 @@ namespace SocialPoint.Lockstep
                 ClientSimulationDelayConfig, _netServer.ServerConfig.ClientSimulationDelay);
 
             string baseUrl;
-            if (_matchmaking != null && config.TryGetValue(BackendBaseUrlConfig, out baseUrl))
+            if(_matchmaking != null && config.TryGetValue(BackendBaseUrlConfig, out baseUrl))
             {
                 _matchmaking.BaseUrl = baseUrl;
             }
             string gameAssembly;
             string gameType;
-            if (config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) &&
+            if(config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) &&
                 config.TryGetValue(GameTypeConfig, out gameType))
             {
                 try

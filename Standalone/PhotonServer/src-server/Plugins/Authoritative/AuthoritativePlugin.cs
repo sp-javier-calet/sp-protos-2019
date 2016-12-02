@@ -38,7 +38,7 @@ namespace SocialPoint.Multiplayer
         int _lastUpdateTimestamp = 0;
         int _updateInterval = 100;
 
-        public AuthoritativePlugin():base("Authoritative")
+        public AuthoritativePlugin() : base("Authoritative")
         {
             _netServer = new NetworkServerSceneController(this);
         }
@@ -49,7 +49,7 @@ namespace SocialPoint.Multiplayer
 
         public override bool SetupInstance(IPluginHost host, Dictionary<string, string> config, out string errorMsg)
         {
-            if (!base.SetupInstance(host, config, out errorMsg))
+            if(!base.SetupInstance(host, config, out errorMsg))
             {
                 return false;
             }
@@ -58,7 +58,7 @@ namespace SocialPoint.Multiplayer
 
             string gameAssembly;
             string gameType;
-            if (config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) &&
+            if(config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) &&
                 config.TryGetValue(GameTypeConfig, out gameType))
             {
                 try
@@ -66,7 +66,7 @@ namespace SocialPoint.Multiplayer
                     var factory = (INetworkServerGameFactory)CreateInstanceFromAssembly(gameAssembly, gameType);
                     _game = factory.Create(this, _netServer, config);
                 }
-                catch (Exception e)
+                catch(Exception e)
                 {
                     errorMsg = e.Message;
                 }

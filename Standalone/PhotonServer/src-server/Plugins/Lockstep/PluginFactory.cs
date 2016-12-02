@@ -8,7 +8,7 @@ namespace SocialPoint.Lockstep
         public IGamePlugin Create(IPluginHost gameHost, string pluginName, Dictionary<string, string> config, out string errorMsg)
         {
             var plugin = new LockstepPlugin();
-            if (plugin.SetupInstance(gameHost, config, out errorMsg))
+            if(plugin.SetupInstance(gameHost, config, out errorMsg))
             {
                 return plugin;
             }
