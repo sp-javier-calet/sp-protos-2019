@@ -933,7 +933,7 @@ namespace SocialPoint.GUIAnimation
         {
             _currentGlobalTime = iGlobalTime;
             _timelinePosition = _gridProperties.GetGridPosFromTimeSlot(iGlobalTime, 0);
-            if(_animationTool)
+            if(_animationTool != null)
             {
                 _animationTool.AnimationModel.CurrentAnimation.PlayAt(iGlobalTime);
                 _animationTool.AnimationModel.RefreshScreen();
