@@ -5,7 +5,7 @@ using ExitGames.Client.Photon;
 
 namespace SocialPoint.Network
 {
-    class PhotonNetworkServer : PhotonNetworkBase, INetworkServer
+    public class PhotonNetworkServer : PhotonNetworkBase, INetworkServer
     {
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         INetworkMessageReceiver _receiver;

@@ -8,8 +8,11 @@
 
 #pragma once
 
+#include <string>
+
 class LibWebsocketTestClient
 {
   public:
+    void run(const std::string& scheme, const std::string& host, const std::string& path, int port);
     void run();
 };

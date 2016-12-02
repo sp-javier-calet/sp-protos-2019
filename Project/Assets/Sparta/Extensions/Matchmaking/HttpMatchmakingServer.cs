@@ -83,7 +83,7 @@ namespace SocialPoint.Matchmaking
             req.AddQueryParam(string.Empty, matchId);
             _httpClient.Send(req);
             req = CreateRequest(ResultUri);
-            req.AddBodyParam(UsersParam, userData);
+            req.AddQueryParam(UsersParam, userData);
             _httpClient.Send(req);
         }
 

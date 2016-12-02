@@ -221,8 +221,10 @@ EXPORT_API bool SPUnityNativeUtilsUserAllowNotification()
 #if !UNITY_TVOS
 EXPORT_API void SPUnitySetForceTouchShortcutItems(ForceTouchShortcutItem* shortcuts, int itemsCount)
 {
-    if(SPUnityNativeUtils::isSystemVersionGreaterThanOrEqualTo(SPUnityNativeUtils::kV9))
+    if(!SPUnityNativeUtils::isSystemVersionGreaterThanOrEqualTo(SPUnityNativeUtils::kV9))
+    {
         return;
+    }
 
     NSMutableArray<UIApplicationShortcutItem*>* items = [NSMutableArray arrayWithCapacity:itemsCount];
 

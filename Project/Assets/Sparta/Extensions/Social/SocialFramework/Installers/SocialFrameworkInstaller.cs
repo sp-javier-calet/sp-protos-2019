@@ -48,6 +48,11 @@ public class SocialFrameworkInstaller : Installer
         Container.Bind<AlliancesManager>().ToMethod<AlliancesManager>(CreateAlliancesManager, SetupAlliancesManager);
         Container.Bind<IDisposable>().ToLookup<AlliancesManager>();
 
+        Container.Bind<IRankManager>().ToMethod<IRankManager>(CreateRankManager);
+        Container.Bind<IAccessTypeManager>().ToMethod<IAccessTypeManager>(CreateAccessTypeManager);
+
+        Container.Bind<AllianceDataFactory>().ToMethod<AllianceDataFactory>(CreateAlliancesDataFactory, SetupAlliancesDataFactory);
+
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWebSockets>(CreateAdminPanelWebSockets);
 
@@ -105,12 +110,30 @@ public class SocialFrameworkInstaller : Installer
 
     void SetupAlliancesManager(AlliancesManager manager)
     {
+        manager.Factory = Container.Resolve<AllianceDataFactory>();
         manager.LoginData = Container.Resolve<ILoginData>();
+        manager.Ranks = Container.Resolve<IRankManager>();
+        manager.AccessTypes = Container.Resolve<IAccessTypeManager>();
+    }
 
-        if(Container.HasBinding<AllianceDataFactory>())
-        {
-            manager.Factory = Container.Resolve<AllianceDataFactory>();
-        }
+    AllianceDataFactory CreateAlliancesDataFactory()
+    {
+        return new AllianceDataFactory();
+    }
+
+    void SetupAlliancesDataFactory(AllianceDataFactory factory)
+    {
+        factory.Ranks = Container.Resolve<IRankManager>(); 
+    }
+
+    IRankManager CreateRankManager()
+    {
+        return new DefaultRankManager();
+    }
+
+    IAccessTypeManager CreateAccessTypeManager()
+    {
+        return new DefaultAccessTypeManager();
     }
 
     AdminPanelSocialFramework CreateAdminPanelSocialFramework()
