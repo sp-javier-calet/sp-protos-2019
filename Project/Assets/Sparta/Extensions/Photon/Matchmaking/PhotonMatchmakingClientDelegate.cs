@@ -9,6 +9,10 @@ namespace SocialPoint.Matchmaking
         IMatchmakingClient _matchmaking;
         PhotonNetworkClient _network;
 
+        const string RegionAttrKey = "region";
+        const string ServerAttrKey = "server";
+        const string AppIdAttrKey = "app_id";
+
         public PhotonMatchmakingClientDelegate(PhotonNetworkClient network, IMatchmakingClient matchmaking)
         {
             _network = network;
@@ -28,6 +32,26 @@ namespace SocialPoint.Matchmaking
         public void OnMatched(Match match)
         {
             _network.Config.RoomName = match.Id;
+            var server = match.ServerInfo.AsDic;
+            if(server.ContainsKey(RegionAttrKey))
+            {
+                try
+                {
+                    var region = server.GetValue(RegionAttrKey).ToString();
+                    _network.Config.ForceRegion = (CloudRegionCode) Enum.Parse(typeof(CloudRegionCode), region, true);
+                }
+                catch(Exception)
+                {
+                }
+            }
+            if(server.ContainsKey(ServerAttrKey))
+            {
+                _network.Config.ForceServer = server.GetValue(ServerAttrKey).ToString();
+            }
+            if(server.ContainsKey(AppIdAttrKey))
+            {
+                _network.Config.ForceAppId = server.GetValue(AppIdAttrKey).ToString();
+            }
         }
 
         public void OnError(Error err)
