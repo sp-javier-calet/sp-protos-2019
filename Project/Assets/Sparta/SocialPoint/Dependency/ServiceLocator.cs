@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using SocialPoint.Base;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Dependency
@@ -51,8 +52,9 @@ namespace SocialPoint.Dependency
 
             if(_setup != null && _instance != null)
             {
-                _setup(_instance);
+                var setup = _setup;
                 _setup = null;
+                setup(_instance);
             }
         }
             
@@ -124,6 +126,10 @@ namespace SocialPoint.Dependency
             if(globalConfig != null)
             {
                 Install(globalConfig);
+            }
+            else
+            {
+                Log.e("GlobalDependencyConfigurer asset not found");
             }
         }
             

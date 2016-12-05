@@ -33,16 +33,20 @@ public class LoginInstaller : SubInstaller
             Container.Install<LoginAdminPanelInstaller>();
         }
 
-        Container.Rebind<SocialPointLogin.LoginConfig>().ToInstance<SocialPointLogin.LoginConfig>(new SocialPointLogin.LoginConfig {
-            BaseUrl = Container.Resolve<BackendEnvironment>().GetUrl(),
-            SecurityTokenErrors = (int)Settings.MaxSecurityTokenErrorRetries,
-            ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
-            EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries
-        });
+        Container.Rebind<SocialPointLogin.LoginConfig>().ToMethod<SocialPointLogin.LoginConfig>(CreateConfig);
 
         Container.Rebind<ILogin>().ToMethod<SocialPointLogin>(CreateLogin, SetupLogin);
         Container.Rebind<ILoginData>().ToLookup<ILogin>();
         Container.Bind<IDisposable>().ToLookup<ILogin>();
+    }
+
+    SocialPointLogin.LoginConfig CreateConfig()
+    {
+        return new SocialPointLogin.LoginConfig {
+            BaseUrl = Container.Resolve<BackendEnvironment>().GetUrl(),
+            SecurityTokenErrors = (int)Settings.MaxSecurityTokenErrorRetries,
+            ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
+            EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries};
     }
 
     SocialPointLogin CreateLogin()

@@ -37,8 +37,8 @@ namespace SocialPoint.Base
             var vol = new PlayerPrefsAttrStorage();
             vol.Prefix = Settings.VolatilePrefix;
             #if UNITY_STANDALONE
-        // avoid editor and standalone overwriting
-        vol.Prefix += UnityEngine.Application.platform.ToString();
+            // avoid editor and standalone overwriting
+            vol.Prefix += UnityEngine.Application.platform.ToString();
             #endif
             return vol;
         }
@@ -46,16 +46,16 @@ namespace SocialPoint.Base
         TransitionAttrStorage CreatePersistentStorage()
         {
             #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
-        var persistent = new KeychainAttrStorage(Settings.PersistentPrefix);
+            var persistent = new KeychainAttrStorage(Settings.PersistentPrefix);
             #elif UNITY_ANDROID && !UNITY_EDITOR
-        var devInfo = Container.Resolve<IDeviceInfo>();
-        var persistent = new PersistentAttrStorage(devInfo.Uid, Settings.PersistentPrefix);
-        Container.Bind<IDisposable>().ToLookup<PersistentAttrStorage>();
+            var devInfo = Container.Resolve<SocialPoint.Hardware.IDeviceInfo>();
+            var persistent = new PersistentAttrStorage(devInfo.Uid, Settings.PersistentPrefix);
+            Container.Bind<IDisposable>().ToLookup<PersistentAttrStorage>();
             #else
             var path = PathsManager.AppPersistentDataPath;
             #if UNITY_STANDALONE
-        // avoid editor and standalone overwriting
-        path = Path.Combine(path, UnityEngine.Application.platform.ToString());
+            // avoid editor and standalone overwriting
+            path = Path.Combine(path, UnityEngine.Application.platform.ToString());
             #endif
             var persistent = new FileAttrStorage(path); //TODO: doesnt work with prefixes
             #endif

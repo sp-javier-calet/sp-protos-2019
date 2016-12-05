@@ -59,7 +59,7 @@ namespace SocialPoint.Dependency
 
     class TestBinding : IBinding
     {
-        public BindingKey Key 
+        public BindingKey Key
         {
             get
             {
@@ -82,14 +82,6 @@ namespace SocialPoint.Dependency
 
         public void OnResolutionFinished()
         {
-        }
-    }
-
-    class TestInstaller : ServiceInstaller
-    {
-        public override void InstallBindings()
-        {
-            Container.Bind<ITestService>().ToInstance(new TestService());
         }
     }
 
