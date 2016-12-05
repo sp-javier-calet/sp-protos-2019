@@ -15,6 +15,14 @@ namespace SocialPoint.Matchmaking
 
         public string BaseUrl;
 
+        public bool Enabled
+        {
+            get
+            {
+                return !string.IsNullOrEmpty(BaseUrl);
+            }
+        }
+
         public HttpMatchmakingServer(IHttpClient httpClient, string baseUrl=null)
         {
             _delegates = new List<IMatchmakingServerDelegate>();

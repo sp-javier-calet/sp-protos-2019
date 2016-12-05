@@ -16,6 +16,14 @@ namespace SocialPoint.Network
      */
     public abstract class NetworkServerPlugin : PluginBase, INetworkServer
     {
+        string _pluginName;
+        public override string Name
+        {
+            get
+            {
+                return _pluginName;
+            }
+        }
 
         bool INetworkServer.Running
         {
@@ -46,17 +54,39 @@ namespace SocialPoint.Network
 
         abstract protected int MaxPlayers { get; }
         abstract protected bool Full { get; }
-        abstract protected int UpdateInterval { get;  }
+        abstract protected int UpdateInterval { get; }
 
-        public NetworkServerPlugin()
+        public NetworkServerPlugin(string pluginName)
         {
+            _pluginName = pluginName;
             UseStrictMode = true;
             _delegates = new List<INetworkServerDelegate>();
         }
 
+
+        const string PluginNameConfig = "PluginName";
+
+        /*
+         * to change the configuration values in the local build, edit:
+         * deploy/LoadBalancing/GameServer/bin/Photon.LoadBalancing.dll.config
+         */
+        public override bool SetupInstance(IPluginHost host, Dictionary<string, string> config, out string errorMsg)
+        {
+            if(!base.SetupInstance(host, config, out errorMsg))
+            {
+                return false;
+            }
+            string pluginName;
+            if(config.TryGetValue(PluginNameConfig, out pluginName))
+            {
+                _pluginName = pluginName;
+            }
+            return true;
+        }
+
         bool CheckServer(ICallInfo info)
         {
-            if (Full)
+            if(Full)
             {
                 info.Fail("Game is full.");
             }
@@ -71,10 +101,10 @@ namespace SocialPoint.Network
         byte GetClientId(string userId)
         {
             var actors = PluginHost.GameActors;
-            for(var i=0; i<actors.Count; i++)
+            for(var i = 0; i < actors.Count; i++)
             {
                 var actor = actors[i];
-                if (actor.UserId == userId)
+                if(actor.UserId == userId)
                 {
                     return GetClientId(actor.ActorNr);
                 }
@@ -89,11 +119,11 @@ namespace SocialPoint.Network
 
         public override void OnCloseGame(ICloseGameCallInfo info)
         {
-            if (_timer != null)
+            if(_timer != null)
             {
                 PluginHost.StopTimer(_timer);
             }
-            for (var i = 0; i < _delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnServerStopped();
             }
@@ -102,7 +132,7 @@ namespace SocialPoint.Network
 
         public override void OnCreateGame(ICreateGameCallInfo info)
         {
-            if (!CheckServer(info))
+            if(!CheckServer(info))
             {
                 return;
             }
@@ -113,13 +143,13 @@ namespace SocialPoint.Network
                 { ServerIdRoomProperty, 0 },
             }, null, false);
 
-            for (var i = 0; i < _delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnServerStarted();
             }
 
             var u = UpdateInterval;
-            if (u > 0)
+            if(u > 0)
             {
                 _timer = PluginHost.CreateTimer(TryUpdate, 0, u);
             }
@@ -129,7 +159,7 @@ namespace SocialPoint.Network
 
         protected virtual void OnClientConnected(byte clientId)
         {
-            for (var i = 0; i < _delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnClientConnected(clientId);
             }
@@ -155,7 +185,7 @@ namespace SocialPoint.Network
 
         protected virtual void OnClientDisconnected(byte clientId)
         {
-            for (var i = 0; i < _delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnClientDisconnected(clientId);
             }
@@ -170,7 +200,7 @@ namespace SocialPoint.Network
 
         public override void OnSetProperties(ISetPropertiesCallInfo info)
         {
-            if (info.Request.Properties.ContainsKey(ServerIdRoomProperty))
+            if(info.Request.Properties.ContainsKey(ServerIdRoomProperty))
             {
                 info.Fail("This room already has a server.");
             }
@@ -183,14 +213,14 @@ namespace SocialPoint.Network
         public override void OnRaiseEvent(IRaiseEventCallInfo info)
         {
             info.Continue();
-            if (_receiver == null)
+            if(_receiver == null)
             {
                 return;
             }
             try
             {
                 var data = info.Request.Data as byte[];
-                if (data != null)
+                if(data != null)
                 {
                     var stream = new MemoryStream(data);
                     var reader = new SystemBinaryReader(stream);
@@ -254,7 +284,7 @@ namespace SocialPoint.Network
 
         void INetworkServer.Start()
         {
-            for (var i = 0; i < _delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnServerStarted();
             }
@@ -262,7 +292,7 @@ namespace SocialPoint.Network
 
         void INetworkServer.Stop()
         {
-            for (var i = 0; i < _delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnServerStopped();
             }

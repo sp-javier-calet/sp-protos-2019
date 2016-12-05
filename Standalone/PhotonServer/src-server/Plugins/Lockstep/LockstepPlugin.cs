@@ -1,27 +1,18 @@
-﻿using SocialPoint.Utils;
-using SocialPoint.Network;
+﻿using SocialPoint.Network;
 using SocialPoint.Matchmaking;
-using SocialPoint.IO;
 using SocialPoint.Lockstep;
 using System;
-using System.IO;
-using System.Collections;
 using System.Collections.Generic;
-using System.Reflection;
+using Photon.Hive.Plugin;
 
-namespace Photon.Hive.Plugin.Lockstep
+namespace SocialPoint.Lockstep
 {
-
+    /*
+     * set the current public server IP address in this file:
+     * deploy/LoadBalancing/GameServer/bin/Photon.LoadBalancing.dll.config
+     */
     public class LockstepPlugin : NetworkServerPlugin
     {
-        public override string Name
-        {
-            get
-            {
-                return "Lockstep";
-            }
-        }
-
         protected override bool Full
         {
             get
@@ -50,7 +41,7 @@ namespace Photon.Hive.Plugin.Lockstep
         HttpMatchmakingServer _matchmaking;
         object _game;
 
-        public LockstepPlugin():base()
+        public LockstepPlugin() : base("Lockstep")
         {
             _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient());
             _netServer = new LockstepNetworkServer(this, _matchmaking);
@@ -67,7 +58,7 @@ namespace Photon.Hive.Plugin.Lockstep
 
         public override bool SetupInstance(IPluginHost host, Dictionary<string, string> config, out string errorMsg)
         {
-            if (!base.SetupInstance(host, config, out errorMsg))
+            if(!base.SetupInstance(host, config, out errorMsg))
             {
                 return false;
             }
@@ -83,13 +74,13 @@ namespace Photon.Hive.Plugin.Lockstep
                 ClientSimulationDelayConfig, _netServer.ServerConfig.ClientSimulationDelay);
 
             string baseUrl;
-            if (_matchmaking != null && config.TryGetValue(BackendBaseUrlConfig, out baseUrl))
+            if(_matchmaking != null && config.TryGetValue(BackendBaseUrlConfig, out baseUrl))
             {
                 _matchmaking.BaseUrl = baseUrl;
             }
             string gameAssembly;
             string gameType;
-            if (config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) &&
+            if(config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) &&
                 config.TryGetValue(GameTypeConfig, out gameType))
             {
                 try

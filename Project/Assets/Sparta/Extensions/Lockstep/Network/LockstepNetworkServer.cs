@@ -497,7 +497,7 @@ namespace SocialPoint.Lockstep
 
         void StartLockstep()
         {
-            if(_matchmaking != null)
+            if(_matchmaking != null && _matchmaking.Enabled)
             {
                 var playerIds = PlayerIds;
                 var matchId = MatchId;
@@ -568,7 +568,7 @@ namespace SocialPoint.Lockstep
         void EndLockstep()
         {
             _serverLockstep.Stop();
-            if(_matchmaking == null)
+            if(_matchmaking == null || !_matchmaking.Enabled)
             {
                 return;
             }

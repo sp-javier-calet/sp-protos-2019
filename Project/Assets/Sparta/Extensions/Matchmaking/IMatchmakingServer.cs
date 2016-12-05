@@ -14,6 +14,8 @@ namespace SocialPoint.Matchmaking
 
     public interface IMatchmakingServer
     {
+        bool Enabled { get; }
+
         void AddDelegate(IMatchmakingServerDelegate dlg);
         void RemoveDelegate(IMatchmakingServerDelegate dlg);
 
