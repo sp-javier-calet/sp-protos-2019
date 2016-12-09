@@ -9,6 +9,7 @@ namespace SocialPoint.Dependency
     public sealed class GlobalDependencyConfigurerEditor : UnityEditor.Editor
     {
         GUIStyle EnabledInstaller { get; set; }
+
         GUIStyle DisabledInstaller { get; set; }
 
         sealed class InstallerData
@@ -67,6 +68,12 @@ namespace SocialPoint.Dependency
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             foreach(var assembly in assemblies)
             {
+                // Ignore Unity-Editor assemblies
+                if(assembly.GetName().Name.Contains("CSharp-Editor"))
+                {
+                    continue;
+                }
+
                 foreach(var t in assembly.GetTypes())
                 {
                     if(t.IsSubclassOf(installerType) && !t.IsAbstract)
