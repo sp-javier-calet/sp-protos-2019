@@ -26,14 +26,18 @@ namespace SocialPoint.Matchmaking
         List<IMatchmakingClientDelegate> _delegates;
         Status _status;
 
-        const string RoomParameter = "room";
-        const string UserParameter = "user_id";
+        public string Room{ get; set; }
 
+        const string UserParameter = "user_id";
+        const string RoomParameter = "room";
+
+        const string ErrorAttrKey = "error";
         const string StatusAttrKey = "status";
         const string WaitingStatus = "waiting";
+        const string TimeoutStatus = "timeout";
         const string WaitingTimeAttrKey = "estimated_time";
         const string MatchIdAttrKey = "match_id";
-        const string GameInfoAttrKey = "game_info";
+        const string GameInfoAttrKey = "PlayerInfo";
         const string ServerInfoAttrKey = "server";
         const string PlayerIdAttrKey = "token";
 
@@ -67,6 +71,7 @@ namespace SocialPoint.Matchmaking
 
         public void Start()
         {
+            _status = Status.Connecting;
             UpdateUrlParameters();
             _websocket.Connect();
         }
@@ -92,8 +97,11 @@ namespace SocialPoint.Matchmaking
                 {
                     _userId = _loginData.UserId;
                 }
-                _status = Status.Connecting;
                 req.AddQueryParam(UserParameter, _userId.ToString());
+                if(!string.IsNullOrEmpty(Room))
+                {
+                    req.AddQueryParam(RoomParameter, Room);
+                }
                 urls[i] = req.Url.ToString();
             }
 
@@ -107,14 +115,20 @@ namespace SocialPoint.Matchmaking
             if(attr.ContainsKey(StatusAttrKey))
             {
                 var status = attr.GetValue(StatusAttrKey).ToString();
+                if(status == TimeoutStatus)
+                {
+
+                    OnError(new Error(MatchmakingClientErrorCode.Timeout, "Match request timed out."));
+                    return;
+                }
                 if(status != WaitingStatus)
                 {
-                    OnError(new Error("Got unknown status: "+data));
+                    OnError(new Error("Got unknown status: " + data));
                     return;
                 }
                 _status = Status.Waiting;
                 var waitTime = attr.GetValue(WaitingTimeAttrKey).ToInt();
-                for(var i=0; i<_delegates.Count; i++)
+                for(var i = 0; i < _delegates.Count; i++)
                 {
                     _delegates[i].OnWaiting(waitTime);
                 }
@@ -129,10 +143,14 @@ namespace SocialPoint.Matchmaking
                     ServerInfo = attr.Get(ServerInfoAttrKey),
                     PlayerId = attr.GetValue(PlayerIdAttrKey).ToString()
                 };
-                for(var i=0; i<_delegates.Count; i++)
+                for(var i = 0; i < _delegates.Count; i++)
                 {
                     _delegates[i].OnMatched(match);
                 }
+            }
+            else if(attr.ContainsKey(ErrorAttrKey))
+            {
+                OnError(new Error("Got error: "+attr.GetValue(ErrorAttrKey).ToString()));
             }
             else
             {
