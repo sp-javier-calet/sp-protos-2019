@@ -15,6 +15,8 @@ public class QualityStatsInstaller : SubInstaller, IInitializable
         Container.Rebind<IHttpClient>().ToLookup<QualityStatsHttpClient>();
         Container.Rebind<SocialPointQualityStats>().ToMethod<SocialPointQualityStats>(CreateQualityStats, SetupQualityStats);
         Container.Bind<IDisposable>().ToLookup<SocialPointQualityStats>();
+
+        Container.Bind<IInitializable>().ToInstance(this);
     }
 
     SocialPointQualityStats CreateQualityStats()
