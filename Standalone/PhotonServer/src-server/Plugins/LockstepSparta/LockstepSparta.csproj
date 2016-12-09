@@ -50,6 +50,9 @@
     <Compile Include="..\..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\LockstepServer.cs">
       <Link>Lockstep\LockstepServer.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\AttrMessage.cs">
+      <Link>Lockstep\Network\AttrMessage.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\ClientStartMessage.cs">
       <Link>Lockstep\Network\ClientStartMessage.cs</Link>
     </Compile>
@@ -61,9 +64,6 @@
     </Compile>
     <Compile Include="..\..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\LockstepNetworkServer.cs">
       <Link>Lockstep\Network\LockstepNetworkServer.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\PlayerFinishedMessage.cs">
-      <Link>Lockstep\Network\PlayerFinishedMessage.cs</Link>
     </Compile>
     <Compile Include="..\..\..\..\..\Project\Assets\Sparta\Extensions\Lockstep\Network\PlayerReadyMessage.cs">
       <Link>Lockstep\Network\PlayerReadyMessage.cs</Link>
