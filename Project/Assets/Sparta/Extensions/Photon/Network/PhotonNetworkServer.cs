@@ -5,7 +5,7 @@ using ExitGames.Client.Photon;
 
 namespace SocialPoint.Network
 {
-    public class PhotonNetworkServer : PhotonNetworkBase, INetworkServer
+    class PhotonNetworkServer : PhotonNetworkBase, INetworkServer
     {
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         INetworkMessageReceiver _receiver;
@@ -20,14 +20,13 @@ namespace SocialPoint.Network
             DoDisconnect();
         }
 
-        public void Fail(string reason)
+        public void Fail(Error err)
         {
             if(!Running)
             {
                 return;
             }
-            var errorMsg = "[Server Error]: " + reason;
-            PhotonNetwork.RaiseEvent(PhotonMsgType.Fail, errorMsg, true, null);
+            PhotonNetwork.RaiseEvent(PhotonMsgType.Fail, err.ToString(), true, null);
         }
 
         public void AddDelegate(INetworkServerDelegate dlg)
@@ -54,7 +53,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                return PhotonNetwork.connected && PhotonNetwork.room != null;
+                return State == ConnState.Connected;
             }
         }
 
