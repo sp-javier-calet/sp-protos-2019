@@ -66,7 +66,7 @@ namespace SocialPoint.Matchmaking
             _wamp.OnNotificationReceived += OnWampNotificationReceived;
             if(!_wamp.IsConnected)
             {
-                _wamp.OnUpdatedConnectivity += OnWampUpdateConnectivity;
+                _wamp.OnConnected += OnWampConnected;
                 _wamp.Connect();
             }
             else
@@ -75,13 +75,10 @@ namespace SocialPoint.Matchmaking
             }
         }
 
-        void OnWampUpdateConnectivity(bool connected)
+        void OnWampConnected()
         {
-            if(connected)
-            {
-                _wamp.OnUpdatedConnectivity -= OnWampUpdateConnectivity;
-                DoStart();
-            }
+            _wamp.OnConnected -= OnWampConnected;
+            DoStart();
         }
 
         void DoStart()

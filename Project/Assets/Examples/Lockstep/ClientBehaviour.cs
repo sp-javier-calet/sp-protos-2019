@@ -267,7 +267,7 @@ namespace Examples.Lockstep
 
         void IMatchmakingClientDelegate.OnMatched(Match match)
         {
-            _fullscreenText.text = match.ToString();
+            _fullscreenText.text = string.Format("match {0} player {1}", match.Id, match.PlayerId);
             StartClient(GameLockstepMode.Client);
         }
 
