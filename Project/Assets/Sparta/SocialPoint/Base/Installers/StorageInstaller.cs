@@ -55,7 +55,7 @@ namespace SocialPoint.Base
             var path = PathsManager.AppPersistentDataPath;
             #if UNITY_STANDALONE
             // avoid editor and standalone overwriting
-            path = Path.Combine(path, UnityEngine.Application.platform.ToString());
+            path = System.IO.Path.Combine(path, UnityEngine.Application.platform.ToString());
             #endif
             var persistent = new FileAttrStorage(path); //TODO: doesnt work with prefixes
             #endif
