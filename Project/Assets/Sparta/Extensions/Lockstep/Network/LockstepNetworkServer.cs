@@ -18,6 +18,7 @@ namespace SocialPoint.Lockstep
         public const byte PlayerReady = 6;
         public const byte ClientStart = 7;
         public const byte PlayerFinish = 8;
+        public const byte ClientEnd = 9;
     }
 
     [Serializable]
@@ -71,6 +72,11 @@ namespace SocialPoint.Lockstep
         public event Action<Error> ErrorProduced;
         public event Action<Error, byte> CommandFailed;
         public event Action<Dictionary<byte, Attr>> MatchFinished;
+
+
+        public const int CommandFailedErrorCode = 300;
+        public const int MatchmakingErrorCode = 301;
+        public const int NetworkErrorCode = 302;
 
         public LockstepConfig Config
         {
@@ -373,9 +379,15 @@ namespace SocialPoint.Lockstep
                 for(var i = 0; i < _clients.Count; i++)
                 {
                     var client = _clients[i];
-                    ids[client.PlayerNumber] = client.PlayerId;
+                    if(client.Ready)
+                    {
+                        ids[client.PlayerNumber] = client.PlayerId;
+                    }
                 }
-                ids[_localClientData.PlayerNumber] = _localClientData.PlayerId;
+                if(_localClientData.Ready)
+                {
+                    ids[_localClientData.PlayerNumber] = _localClientData.PlayerId;
+                }
                 return new List<string>(ids.Values);
             }
         }
@@ -519,9 +531,27 @@ namespace SocialPoint.Lockstep
             DoStartLockstep();
         }
 
-        void IMatchmakingServerDelegate.OnError(Error err)
+        void IMatchmakingServerDelegate.OnError(Error ierr)
         {
-            OnNetworkError(err);
+            var err = new Error(MatchmakingErrorCode,
+                string.Format("Matchmaking: {0}", ierr));
+            OnError(err);
+        }
+
+        void IMatchmakingServerDelegate.OnResultsReceived(AttrDic results)
+        {
+            for(var i = 0; i < _clients.Count; i++)
+            {
+                var client = _clients[i];
+                if(results.ContainsKey(client.PlayerId))
+                {
+                    var result = results[client.PlayerId];
+                    _server.SendMessage(new NetworkMessageData {
+                        MessageType = LockstepMsgType.ClientEnd,
+                        ClientId = client.ClientId
+                    }, new AttrMessage(result));
+                }
+            }
         }
 
         void DoStartLockstep()
@@ -550,10 +580,10 @@ namespace SocialPoint.Lockstep
                 // client sent multiple end messages
                 return;
             }
-            var msg = new PlayerFinishedMessage();
+            var msg = new AttrMessage();
             msg.Deserialize(reader);
             client.Ready = false;
-            PlayerResults[client.PlayerNumber] = msg.Result;
+            PlayerResults[client.PlayerNumber] = msg.Data;
             CheckAllPlayersEnded();
         }
 
@@ -588,11 +618,13 @@ namespace SocialPoint.Lockstep
                 }
             }
             itr.Dispose();
-            _matchmaking.NotifyResult(MatchId, resultsAttr);
+            _matchmaking.NotifyResults(MatchId, resultsAttr);
         }
 
         public void OnServerStarted()
         {
+            _clients.Clear();
+            PlayerResults.Clear();
         }
 
         public void OnServerStopped()
@@ -604,11 +636,18 @@ namespace SocialPoint.Lockstep
         {
         }
 
-        public void OnNetworkError(Error e)
+        public void OnNetworkError(Error ierr)
         {
-            if(ErrorProduced != null)
+            var err = new Error(NetworkErrorCode,
+                string.Format("Network: {0}", ierr));
+            OnError(err);
+        }
+
+        void OnError(Error err)
+        {
+            if (ErrorProduced != null)
             {
-                ErrorProduced(e);
+                ErrorProduced(err);
             }
         }
 
@@ -635,19 +674,17 @@ namespace SocialPoint.Lockstep
 
         public void Stop()
         {
-            if(!Running)
+            if(_serverLockstep.Running)
             {
-                return;
+                EndLockstep();
             }
-            EndLockstep();
-            _clients.Clear();
             _localClientData.Ready = false;
-            PlayerResults.Clear();
         }
 
-        public void Fail(string msg)
+        public void Fail(Error err)
         {
-            _server.Fail(msg);
+            _server.Fail(err);
+            Stop();
         }
 
         public void Dispose()
@@ -732,17 +769,19 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        void OnLocalClientCommandFailed(Error err, ClientCommandData cmd)
+        void OnLocalClientCommandFailed(Error ierr, ClientCommandData cmd)
         {
             byte playerNum;
             _commandSenders.TryGetValue(cmd.Id, out playerNum);
+            var err = new Error(CommandFailedErrorCode,
+                string.Format("Command failed: {0}", ierr));
             if(CommandFailed != null)
             {
                 CommandFailed(err, playerNum);
             }
             else
             {
-                _server.Fail("Command failed: " + err);
+                Fail(err);
             }
         }
 
