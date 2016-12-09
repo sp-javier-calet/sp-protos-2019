@@ -13,9 +13,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    ActiveOnIOS: 1
+    ActiveOnIOS: 0
     IOsAppsFlyerKey: 
     IOsAppID: 
-    ActiveOnAndroid: 1
+    ActiveOnAndroid: 0
     AndroidAppsFlyerKey: 
     AndroidAppID: 

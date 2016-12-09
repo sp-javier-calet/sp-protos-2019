@@ -8,8 +8,8 @@ public class AppsFlyerInstaller : ServiceInstaller
     public class SettingsData
     {
         public bool ActiveOnIOS;
-        public string IOsAppsFlyerKey;
-        public string IOsAppID;
+        public string IosAppsFlyerKey;
+        public string IosAppID;
 
         public bool ActiveOnAndroid;
         public string AndroidAppsFlyerKey;
@@ -39,8 +39,8 @@ public class AppsFlyerInstaller : ServiceInstaller
     {
         var tracker = new SocialPointAppFlyer();
         #if UNITY_IOS
-        tracker.AppsFlyerKey = Settings.IOsAppsFlyerKey;
-        tracker.AppID = Settings.IOsAppID;
+        tracker.AppsFlyerKey = Settings.IosAppsFlyerKey;
+        tracker.AppID = Settings.IosAppID;
         #elif UNITY_ANDROID
         tracker.AppsFlyerKey = Settings.AndroidAppsFlyerKey;
         tracker.AppID = Settings.AndroidAppID;

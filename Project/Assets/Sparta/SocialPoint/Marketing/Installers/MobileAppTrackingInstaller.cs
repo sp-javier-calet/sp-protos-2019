@@ -8,9 +8,9 @@ public class MobileAppTrackingInstaller : ServiceInstaller
     public class SettingsData
     {
         public bool ActiveOnIOS;
+        public bool ActiveOnAndroid;
         public string AdvertiserID;
         public string ConversionKey;
-        public bool ActiveOnAndroid;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -22,6 +22,7 @@ public class MobileAppTrackingInstaller : ServiceInstaller
         #elif UNITY_IOS
         if(!Settings.ActiveOnIOS) return;
         #endif
+
         Container.Bind<IMarketingTracker>().ToMethod<SocialPointMobileAppTracking>(CreateMobileAppTracking);
         Container.Bind<IDisposable>().ToMethod<SocialPointMobileAppTracking>(CreateMobileAppTracking);
     }
