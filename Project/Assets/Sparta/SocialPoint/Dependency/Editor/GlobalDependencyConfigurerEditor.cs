@@ -34,6 +34,7 @@ namespace SocialPoint.Dependency
         {
             var configurer = (GlobalDependencyConfigurer)target;
             var installers = Load(configurer);
+            EditorUtility.SetDirty(configurer);
 
             _installers = new InstallerData[installers.Length];
 
