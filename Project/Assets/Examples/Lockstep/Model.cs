@@ -5,17 +5,29 @@ using System.Collections.Generic;
 
 namespace Examples.Lockstep
 {
+    [Serializable]
+    public class Config
+    {
+        const long DefaultManaSpeed = 2;
+        const long DefaultMaxMana = 10000;
+        const long DefaultGameDuration = 10000;
+        const long DefaultUnitCost = 7000;
+
+        public long ManaSpeed = DefaultManaSpeed;
+        public long MaxMana = DefaultMaxMana;
+        public long Duration = DefaultGameDuration;
+        public long UnitCost = DefaultUnitCost;
+    }
+
     public class Model
     {
         long _mana = 0;
         int _nextObjectId = 0;
-
-        const long ManaSpeed = 2;
-        const long MaxMana = 10000;
-
-        const long UnitCost = 7000;
+        Config _config;
+        long _time;
 
         public event Action<Fix64, Fix64, Fix64> OnInstantiate;
+        public event Action OnDurationEnd;
 
         public Dictionary<byte,Attr> Results{ get; private set; }
 
@@ -23,18 +35,36 @@ namespace Examples.Lockstep
         {
             get
             {
-                return ((float)_mana) / (float)MaxMana;
+                return ((float)_mana) / (float)_config.MaxMana;
             }
         }
 
-        public Model()
+        bool Finished
         {
+            get
+            {
+                return _time > _config.Duration;
+            }
+        }
+
+        public string TimeString
+        {
+            get
+            {
+                var t = (_config.Duration - _time) / 1000;
+                return string.Format("{0:D2}:{1:D2}", t/60, t%60);
+            }
+        }
+
+        public Model(Config config)
+        {
+            _config = config;
             Results = new Dictionary<byte, Attr>();
         }
 
         public bool OnClick(Fix64 x, Fix64 y, Fix64 z, byte playerNum)
         {
-            if (_mana < UnitCost)
+            if (_mana < _config.UnitCost)
             {
                 throw new Exception("Not enough mana");
             }
@@ -43,7 +73,7 @@ namespace Examples.Lockstep
                 OnInstantiate(x, y, z);
             }
             _nextObjectId++;
-            _mana -= UnitCost;
+            _mana -= _config.UnitCost;
 
             int clicks = 0;
             Attr result;
@@ -57,16 +87,30 @@ namespace Examples.Lockstep
 
         public void Simulate(long dt)
         {
-            _mana += dt * ManaSpeed;
-            if (_mana > MaxMana)
+            if(Finished)
             {
-                _mana = MaxMana;
+                return;
+            }
+            _time += dt;
+            if(Finished)
+            {
+                if(OnDurationEnd != null)
+                {
+                    OnDurationEnd();
+                }
+                return;
+            }
+            _mana += dt * _config.ManaSpeed;
+            if (_mana > _config.MaxMana)
+            {
+                _mana = _config.MaxMana;
             }
         }
 
         public void Reset()
         {
             _mana = 0;
+            _time = 0;
             Results.Clear();
         }
 

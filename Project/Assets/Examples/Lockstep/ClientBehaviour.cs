@@ -48,6 +48,12 @@ namespace Examples.Lockstep
         [SerializeField]
         GameObject _setupContainer;
 
+        [SerializeField]
+        Text _timeText;
+
+        [SerializeField]
+        Config _gameConfig;
+
         LockstepClient _lockstep;
         Model _model;
         LockstepClient _lockstepServer;
@@ -60,6 +66,7 @@ namespace Examples.Lockstep
         GameLockstepMode _mode;
         XRandom _random;
         ServerBehaviour _serverBehaviour;
+        CloudRegionCode _photonRegion = CloudRegionCode.none;
 
         FloatingPanelController _clientFloating;
         FloatingPanelController _serverFloating;
@@ -82,8 +89,9 @@ namespace Examples.Lockstep
             _replay = ServiceLocator.Instance.Resolve<LockstepReplay>();
             _lockstep.Simulate += SimulateClient;
 
-            _model = new Model();
+            _model = new Model(_gameConfig);
             _model.OnInstantiate += OnInstantiate;
+            _model.OnDurationEnd += OnDurationEnd;
 
             _lockstep.RegisterCommandLogic<ClickCommand>(new ClickCommandLogic(_model));
             _lockstep.SimulationStarted += OnGameStarted;
@@ -101,8 +109,19 @@ namespace Examples.Lockstep
 
         void OnDestroy()
         {
-            _lockstep.Simulate -= SimulateClient;
-            _model.OnInstantiate -= OnInstantiate;
+            if(_lockstep != null)
+            {
+                _lockstep.Simulate -= SimulateClient;
+            }
+            if(_model != null)
+            {
+                _model.OnInstantiate -= OnInstantiate;
+                _model.OnDurationEnd -= OnDurationEnd;
+            }
+            if(_netLockstepClient != null)
+            {
+                _netLockstepClient.EndReceived -= OnClientEndReceived;
+            }
         }
 
         void OnGameStarted()
@@ -116,6 +135,8 @@ namespace Examples.Lockstep
             {
                 _replay.Record();
             }
+
+            _timeText.text = _model.TimeString;
 
             _random = _lockstep.CreateRandomGenerator();
         }
@@ -158,15 +179,35 @@ namespace Examples.Lockstep
             StartClient(GameLockstepMode.Client);
         }
 
+        void SetupPhoton(PhotonNetworkBase photon)
+        {
+            if(photon != null)
+            {
+                photon.Config.ForceRegion = _photonRegion;
+            }
+        }
+
         void StartClient(GameLockstepMode mode)
         {
             _mode = mode;
             _netClient = ServiceLocator.Instance.Resolve<INetworkClient>();
             _netClient.RemoveDelegate(this);
             _netClient.AddDelegate(this);
+            SetupPhoton(_netClient as PhotonNetworkBase);
             _netLockstepClient = ServiceLocator.Instance.Resolve<LockstepNetworkClient>();
+            _netLockstepClient.EndReceived -= OnClientEndReceived;
+            _netLockstepClient.EndReceived += OnClientEndReceived;
             _netClient.Connect();
             _netLockstepClient.SendPlayerReady();
+        }
+
+        void OnClientEndReceived(Attr result)
+        {
+            _fullscreenText.text = string.Format("match result {0}", result);
+            if(_matchClient != null)
+            {
+                _matchClient.Clear();
+            }
         }
 
         public void OnServerClicked()
@@ -184,8 +225,9 @@ namespace Examples.Lockstep
         void StartServer()
         {
             _netServer = ServiceLocator.Instance.Resolve<INetworkServer>();
+            SetupPhoton(_netServer as PhotonNetworkBase);
             _netLockstepServer = ServiceLocator.Instance.Resolve<LockstepNetworkServer>();
-            _serverBehaviour = new ServerBehaviour(_netLockstepServer);
+            _serverBehaviour = new ServerBehaviour(_netLockstepServer, _gameConfig);
             _netServer.RemoveDelegate(this);
             _netServer.AddDelegate(this);
             _netServer.Start();
@@ -225,7 +267,7 @@ namespace Examples.Lockstep
 
         void IMatchmakingClientDelegate.OnMatched(Match match)
         {
-            _fullscreenText.text = string.Format("match {0} player {1}", match.Id, match.PlayerId);
+            _fullscreenText.text = match.ToString();
             StartClient(GameLockstepMode.Client);
         }
 
@@ -318,13 +360,6 @@ namespace Examples.Lockstep
             _lockstep.Stop();
             _model.Reset();
 
-            if(_netLockstepClient != null)
-            {
-                Attr result;
-                _model.Results.TryGetValue(_netLockstepClient.PlayerNumber, out result);
-                _netLockstepClient.SendPlayerFinish(result);
-            }
-
             if(_netClient != null)
             {
                 _netClient.Disconnect();
@@ -340,7 +375,6 @@ namespace Examples.Lockstep
             if(_matchClient != null)
             {
                 _matchClient.Stop();
-                _matchClient.Clear();
             }
             if(_serverBehaviour != null)
             {
@@ -371,6 +405,7 @@ namespace Examples.Lockstep
         void SimulateClient(int dt)
         {
             _model.Simulate(dt);
+            _timeText.text = _model.TimeString;
         }
 
         static readonly Fix64 InstanceMinScale = (Fix64)0.2f;
@@ -387,6 +422,26 @@ namespace Examples.Lockstep
                            new Vector3((float)x, (float)y * scale.y, (float)z), Quaternion.identity);
             
             unit.transform.localScale = scale;
+        }
+
+        void OnDurationEnd()
+        {
+            Attr result;
+            byte playerNum = 0;
+            if(_netLockstepClient != null)
+            {
+                playerNum = _netLockstepClient.PlayerNumber;
+            }
+            _model.Results.TryGetValue(playerNum, out result);
+            if(_netLockstepClient != null)
+            {
+                _netLockstepClient.SendPlayerFinish(result);
+            }
+            else
+            {
+                _lockstep.Stop();
+                OnClientEndReceived(result);
+            }
         }
 
         void Update()
@@ -415,6 +470,40 @@ namespace Examples.Lockstep
         public void FinishLoading(GameObject loading)
         {
             ObjectPool.Recycle(loading);
+        }
+
+        public void OnRegionValueChanged(int pos)
+        {
+            switch(pos)
+            {
+            case 0:
+                _photonRegion = CloudRegionCode.none;
+                break;
+            case 1:
+                _photonRegion = CloudRegionCode.eu;
+                break;
+            case 2:
+                _photonRegion = CloudRegionCode.us;
+                break;
+            case 3:
+                _photonRegion = CloudRegionCode.asia;
+                break;
+            case 4:
+                _photonRegion = CloudRegionCode.jp;
+                break;
+            case 5:
+                _photonRegion = CloudRegionCode.au;
+                break;
+            case 6:
+                _photonRegion = CloudRegionCode.usw;
+                break;
+            case 7:
+                _photonRegion = CloudRegionCode.sa;
+                break;
+            case 8:
+                _photonRegion = CloudRegionCode.cae;
+                break;
+            }
         }
     }
 }
