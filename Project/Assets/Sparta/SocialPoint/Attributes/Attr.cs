@@ -250,7 +250,7 @@ namespace SocialPoint.Attributes
 
         public virtual int ToInt()
         {
-            return 0;
+            throw new System.InvalidCastException("AttrValue: Can't convert AttrValue to this type, unimplemented method in child class");
         }
 
         public virtual bool ToBool()
@@ -514,6 +514,31 @@ namespace SocialPoint.Attributes
         {
             return string.Empty;
         }
+
+        public override int ToInt()
+        {
+            return 0;
+        }
+
+        public override long ToLong()
+        {
+            return 0L;
+        }
+
+        public override float ToFloat()
+        {
+            return 0.0f;
+        }
+
+        public override double ToDouble()
+        {
+            return 0.0;
+        }
+
+        public override bool ToBool()
+        {
+            return false;
+        }
     }
 
     public sealed class AttrBool : AttrValue
@@ -665,6 +690,20 @@ namespace SocialPoint.Attributes
             return _value.ToString();
         }
 
+        public override float ToFloat()
+        {
+            if(_value > float.MaxValue || _value < float.MinValue)
+            {
+                throw new InvalidCastException("AttrInt: can't cast to float: loosing precision");
+            }
+            return (float)_value;
+        }
+
+        public override long ToLong()
+        {
+            return (long)_value;
+        }
+
         public override int ToInt()
         {
             return _value;
@@ -742,12 +781,12 @@ namespace SocialPoint.Attributes
 
         public override float ToFloat()
         {
-            return (float)_value;
+            throw new System.InvalidCastException("AttrLong: Can't cast from AttrLong to float, losing precission");
         }
 
         public override int ToInt()
         {
-            return (int)_value;
+            throw new System.InvalidCastException("AttrLong: Can't cast from AttrLong to int, losing precission");
         }
 
         public override long ToLong()
@@ -757,12 +796,12 @@ namespace SocialPoint.Attributes
 
         public override double ToDouble()
         {
-            return (double)_value;
+            throw new System.InvalidCastException("AttrLong: Can't cast from AttrLong to double, losing precission");
         }
 
         public override void SetFloat(float val)
         {
-            _value = (long)val;
+            throw new System.InvalidCastException("AttrLong: Can't store float, losing precission");
         }
 
         public override void SetInt(int val)
@@ -777,7 +816,7 @@ namespace SocialPoint.Attributes
 
         public override void SetDouble(double val)
         {
-            _value = (long)val;
+            throw new System.InvalidCastException("AttrLong: Can't store double, losing precission");
         }
 
         public override void SetString(string val)
@@ -996,7 +1035,7 @@ namespace SocialPoint.Attributes
 
         public override int ToInt()
         {
-            return (int)_value;
+            throw new System.InvalidCastException("AttrFloat: Can't cast from AttrFloat to int, losing precission");
         }
 
         public override void SetString(string val)
@@ -1006,7 +1045,7 @@ namespace SocialPoint.Attributes
 
         public override void SetInt(int val)
         {
-            _value = (float)val;
+            throw new System.InvalidCastException("AttrFloat: Can't store int, losing precission");
         }
 
         public override void SetFloat(float val)
@@ -1076,17 +1115,17 @@ namespace SocialPoint.Attributes
 
         public override float ToFloat()
         {
-            return (float)_value;
+            throw new System.InvalidCastException("AttrDouble: Can't cast from AttrDouble to float, losing precission");
         }
 
         public override int ToInt()
         {
-            return (int)_value;
+            throw new System.InvalidCastException("AttrDouble: Can't cast from AttrDouble to int, losing precission");
         }
 
         public override long ToLong()
         {
-            return (long)_value;
+            throw new System.InvalidCastException("AttrDouble: Can't cast from AttrDouble to long, losing precission");
         }
 
         public override double ToDouble()
@@ -1101,12 +1140,12 @@ namespace SocialPoint.Attributes
 
         public override void SetInt(int val)
         {
-            _value = (double)val;
+            throw new System.InvalidCastException("AttrDouble: Can't store int, losing precission");
         }
 
         public override void SetLong(long val)
         {
-            _value = (double)val;
+            throw new System.InvalidCastException("AttrDouble: Can't store long, losing precission");
         }
 
         public override void SetDouble(double val)
