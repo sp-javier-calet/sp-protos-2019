@@ -51,23 +51,39 @@ namespace SpartaTools.Editor.Build
             return value;
         }
 
-        static string GetLocationForTarget(BuildTarget target, string projectName)
+        static string GetDefaultLocationForTarget(BuildTarget target)
         {
+            switch(target)
+            {
+            case BuildTarget.Android: return "Builds/Android";
+            case BuildTarget.iOS: return "Builds/iOS";
+            case BuildTarget.tvOS: return "Builds/tvOS";
+            case BuildTarget.StandaloneOSXIntel: return "Builds/OSX-Intel";
+            default:
+                throw new NotSupportedException("Unsupported platform " + target);
+            }
+        }
+
+        static string GetLocationForTarget(BuildTarget target, string outputPath, string projectName)
+        {
+            if(string.IsNullOrEmpty(outputPath))
+            {
+                outputPath = GetDefaultLocationForTarget(target);
+            }
+
             string path;
 
             switch(target)
             {
             case BuildTarget.Android:
-                path = "Builds/Android/" + projectName + ".apk";
+                path = Path.Combine(outputPath, projectName + ".apk");
                 break;
             case BuildTarget.iOS:
-                path = "Builds/iOS";
-                break;
             case BuildTarget.tvOS:
-                path = "Builds/tvOS";
+                path = outputPath;
                 break;
             case BuildTarget.StandaloneOSXIntel:
-                path = "Builds/OSX-Intel/" + projectName + ".app";
+                path = Path.Combine(outputPath, projectName + ".app");
                 break;
             default:
                 throw new NotSupportedException("Unsupported platform " + target);
@@ -159,9 +175,10 @@ namespace SpartaTools.Editor.Build
             // Parse optional arguments
             var versionName = GetCommandLineArg("version", string.Empty);
             var builSetName = GetCommandLineArg("config", BuildSet.DebugConfigName);
+            var outputPath = GetCommandLineArg("output", string.Empty);
 
             // Launch build
-            Build(EditorUserBuildSettings.activeBuildTarget, builSetName, versionNumber, versionName);
+            Build(EditorUserBuildSettings.activeBuildTarget, builSetName, versionNumber, versionName, outputPath);
         }
 
         /// <summary>
@@ -171,7 +188,8 @@ namespace SpartaTools.Editor.Build
         /// <param name="buildSetName">Build set name to apply before compiling</param>
         /// <param name="versionNumber">Version number. If zero, local current timestamp will be used. If negative, it will use the one defined in Unity Player Settings. </param>
         /// <param name="versionName">Short Version Name. If it is null or empty, it will use the one defined in Unity Player Settings. </param>
-        public static void Build(BuildTarget target, string buildSetName, int versionNumber = -1, string versionName = "")
+        /// <param name="outPath">Output location. </param>
+        public static void Build(BuildTarget target, string buildSetName, int versionNumber = -1, string versionName = null, string outputPath = null)
         {
             Log(string.Format("Starting Build <{0}> for target <{1}> with config set <{2}>", 
                 versionNumber, target, buildSetName));
@@ -203,7 +221,7 @@ namespace SpartaTools.Editor.Build
             string[] activeScenes = ActiveScenes;
             Log(string.Format("Building player with active scenes: '{0}'", string.Join(", ", activeScenes)));
 
-            var location = GetLocationForTarget(target, ProjectName);
+            var location = GetLocationForTarget(target, outputPath, ProjectName);
             Log(string.Format("Building player in path '{0}", location));
 
             var options = buildSet.Options;
