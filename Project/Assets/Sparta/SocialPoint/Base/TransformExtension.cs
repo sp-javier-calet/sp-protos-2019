@@ -139,6 +139,11 @@ namespace SocialPoint.Base
             return componentsList;
         }
 
+        /// <summary>
+        /// Sets the x component of the position to a new value.
+        /// Warning: When there is a modification of the transform of a GameObject, a OnTransformChange method is dispatched to all the components and children of the GameObject. For this reason it's recommended to batch all the changes to the transform and apply them in one operation.
+        /// </summary>
+        /// <param name="value">New value</param>
         public static void SetPositionX(this Transform transform, float value)
         {
             var tmp = transform.position;
@@ -146,6 +151,11 @@ namespace SocialPoint.Base
             transform.position = tmp;
         }
 
+        /// <summary>
+        /// Sets the y component of the position to a new value.
+        /// Warning: When there is a modification of the transform of a GameObject, a OnTransformChange method is dispatched to all the components and children of the GameObject. For this reason it's recommended to batch all the changes to the transform and apply them in one operation.
+        /// </summary>
+        /// <param name="value">New value</param>
         public static void SetPositionY(this Transform transform, float value)
         {
             var tmp = transform.position;
@@ -153,6 +163,11 @@ namespace SocialPoint.Base
             transform.position = tmp;
         }
 
+        /// <summary>
+        /// Sets the z component of the position to a new value.
+        /// Warning: When there is a modification of the transform of a GameObject, a OnTransformChange method is dispatched to all the components and children of the GameObject. For this reason it's recommended to batch all the changes to the transform and apply them in one operation.
+        /// </summary>
+        /// <param name="value">New value</param>
         public static void SetPositionZ(this Transform transform, float value)
         {
             var tmp = transform.position;
@@ -160,6 +175,11 @@ namespace SocialPoint.Base
             transform.position = tmp;
         }
 
+        /// <summary>
+        /// Sets the x component of the local position to a new value.
+        /// Warning: When there is a modification of the transform of a GameObject, a OnTransformChange method is dispatched to all the components and children of the GameObject. For this reason it's recommended to batch all the changes to the transform and apply them in one operation.
+        /// </summary>
+        /// <param name="value">New value</param>
         public static void SetLocalPositionX(this Transform transform, float value)
         {
             var tmp = transform.localPosition;
@@ -167,6 +187,11 @@ namespace SocialPoint.Base
             transform.localPosition = tmp;
         }
 
+        /// <summary>
+        /// Sets the y component of the local position to a new value.
+        /// Warning: When there is a modification of the transform of a GameObject, a OnTransformChange method is dispatched to all the components and children of the GameObject. For this reason it's recommended to batch all the changes to the transform and apply them in one operation.
+        /// </summary>
+        /// <param name="value">New value</param>
         public static void SetLocalPositionY(this Transform transform, float value)
         {
             var tmp = transform.localPosition;
@@ -174,6 +199,11 @@ namespace SocialPoint.Base
             transform.localPosition = tmp;
         }
 
+        /// <summary>
+        /// Sets the z component of the local position to a new value.
+        /// Warning: When there is a modification of the transform of a GameObject, a OnTransformChange method is dispatched to all the components and children of the GameObject. For this reason it's recommended to batch all the changes to the transform and apply them in one operation.
+        /// </summary>
+        /// <param name="value">New value</param>
         public static void SetLocalPositionZ(this Transform transform, float value)
         {
             var tmp = transform.localPosition;
@@ -181,6 +211,11 @@ namespace SocialPoint.Base
             transform.localPosition = tmp;
         }
 
+        /// <summary>
+        /// Sets the x component of the local scale to a new value.
+        /// Warning: When there is a modification of the transform of a GameObject, a OnTransformChange method is dispatched to all the components and children of the GameObject. For this reason it's recommended to batch all the changes to the transform and apply them in one operation.
+        /// </summary>
+        /// <param name="value">New value</param>
         public static void SetLocalScaleX(this Transform transform, float value)
         {
             var tmp = transform.localScale;
@@ -188,6 +223,11 @@ namespace SocialPoint.Base
             transform.localScale = tmp;
         }
 
+        /// <summary>
+        /// Sets the y component of the local scale to a new value.
+        /// Warning: When there is a modification of the transform of a GameObject, a OnTransformChange method is dispatched to all the components and children of the GameObject. For this reason it's recommended to batch all the changes to the transform and apply them in one operation.
+        /// </summary>
+        /// <param name="value">New value</param>
         public static void SetLocalScaleY(this Transform transform, float value)
         {
             var tmp = transform.localScale;
@@ -195,6 +235,11 @@ namespace SocialPoint.Base
             transform.localScale = tmp;
         }
 
+        /// <summary>
+        /// Sets the z component of the local scale to a new value.
+        /// Warning: When there is a modification of the transform of a GameObject, a OnTransformChange method is dispatched to all the components and children of the GameObject. For this reason it's recommended to batch all the changes to the transform and apply them in one operation.
+        /// </summary>
+        /// <param name="value">New value</param>
         public static void SetLocalScaleZ(this Transform transform, float value)
         {
             var tmp = transform.localScale;
@@ -202,6 +247,11 @@ namespace SocialPoint.Base
             transform.localScale = tmp;
         }
 
+        /// <summary>
+        /// Sets the x component of the rotation to a new value.
+        /// Warning: When there is a modification of the transform of a GameObject, a OnTransformChange method is dispatched to all the components and children of the GameObject. For this reason it's recommended to batch all the changes to the transform and apply them in one operation.
+        /// </summary>
+        /// <param name="value">New value</param>
         public static void SetRotationX(this Transform transform, float value)
         {
             var tmp = transform.rotation.eulerAngles;
@@ -209,6 +259,11 @@ namespace SocialPoint.Base
             transform.rotation = Quaternion.Euler(tmp);
         }
 
+        /// <summary>
+        /// Sets the y component of the rotation to a new value.
+        /// Warning: When there is a modification of the transform of a GameObject, a OnTransformChange method is dispatched to all the components and children of the GameObject. For this reason it's recommended to batch all the changes to the transform and apply them in one operation.
+        /// </summary>
+        /// <param name="value">New value</param>
         public static void SetRotationY(this Transform transform, float value)
         {
             var tmp = transform.rotation.eulerAngles;
@@ -216,6 +271,11 @@ namespace SocialPoint.Base
             transform.rotation = Quaternion.Euler(tmp);
         }
 
+        /// <summary>
+        /// Sets the z component of the rotation to a new value.
+        /// Warning: When there is a modification of the transform of a GameObject, a OnTransformChange method is dispatched to all the components and children of the GameObject. For this reason it's recommended to batch all the changes to the transform and apply them in one operation.
+        /// </summary>
+        /// <param name="value">New value</param>
         public static void SetRotationZ(this Transform transform, float value)
         {
             var tmp = transform.rotation.eulerAngles;
@@ -223,6 +283,11 @@ namespace SocialPoint.Base
             transform.rotation = Quaternion.Euler(tmp);
         }
 
+        /// <summary>
+        /// Sets the x component of the local rotation to a new value.
+        /// Warning: When there is a modification of the transform of a GameObject, a OnTransformChange method is dispatched to all the components and children of the GameObject. For this reason it's recommended to batch all the changes to the transform and apply them in one operation.
+        /// </summary>
+        /// <param name="value">New value</param>
         public static void SetLocalRotationX(this Transform transform, float value)
         {
             var tmp = transform.localRotation.eulerAngles;
@@ -230,6 +295,11 @@ namespace SocialPoint.Base
             transform.localRotation = Quaternion.Euler(tmp);
         }
 
+        /// <summary>
+        /// Sets the y component of the local rotation to a new value.
+        /// Warning: When there is a modification of the transform of a GameObject, a OnTransformChange method is dispatched to all the components and children of the GameObject. For this reason it's recommended to batch all the changes to the transform and apply them in one operation.
+        /// </summary>
+        /// <param name="value">New value</param>
         public static void SetLocalRotationY(this Transform transform, float value)
         {
             var tmp = transform.localRotation.eulerAngles;
@@ -237,6 +307,11 @@ namespace SocialPoint.Base
             transform.localRotation = Quaternion.Euler(tmp);
         }
 
+        /// <summary>
+        /// Sets the z component of the local rotation to a new value.
+        /// Warning: When there is a modification of the transform of a GameObject, a OnTransformChange method is dispatched to all the components and children of the GameObject. For this reason it's recommended to batch all the changes to the transform and apply them in one operation.
+        /// </summary>
+        /// <param name="value">New value</param>
         public static void SetLocalRotationZ(this Transform transform, float value)
         {
             var tmp = transform.localRotation.eulerAngles;
