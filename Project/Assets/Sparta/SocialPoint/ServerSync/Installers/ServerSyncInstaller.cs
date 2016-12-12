@@ -10,72 +10,75 @@ using SocialPoint.ServerEvents;
 using SocialPoint.Login;
 using SocialPoint.GameLoading;
 
-public class ServerSyncInstaller : SubInstaller
+namespace SocialPoint.ServerSync
 {
-    [Serializable]
-    public class SettingsData
+    public class ServerSyncInstaller : SubInstaller
     {
-        public bool IgnoreResponses = CommandQueue.DefaultIgnoreResponses;
-        public int SendInterval = CommandQueue.DefaultSendInterval;
-        public int MaxOutOfSyncInterval = CommandQueue.DefaultMaxOutOfSyncInterval;
-        public float Timeout = CommandQueue.DefaultTimeout;
-        public float BackoffMultiplier = CommandQueue.DefaultBackoffMultiplier;
-        public bool PingEnabled = CommandQueue.DefaultPingEnabled;
-    }
+        [Serializable]
+        public class SettingsData
+        {
+            public bool IgnoreResponses = CommandQueue.DefaultIgnoreResponses;
+            public int SendInterval = CommandQueue.DefaultSendInterval;
+            public int MaxOutOfSyncInterval = CommandQueue.DefaultMaxOutOfSyncInterval;
+            public float Timeout = CommandQueue.DefaultTimeout;
+            public float BackoffMultiplier = CommandQueue.DefaultBackoffMultiplier;
+            public bool PingEnabled = CommandQueue.DefaultPingEnabled;
+        }
 
-    public SettingsData Settings = new SettingsData();
+        public SettingsData Settings = new SettingsData();
 
-    public override void InstallBindings()
-    {
-        Container.Rebind<ICommandQueue>().ToMethod<CommandQueue>(CreateCommandQueue, SetupCommandQueue);
-        Container.Bind<IDisposable>().ToLookup<ICommandQueue>();
+        public override void InstallBindings()
+        {
+            Container.Rebind<ICommandQueue>().ToMethod<CommandQueue>(CreateCommandQueue, SetupCommandQueue);
+            Container.Bind<IDisposable>().ToLookup<ICommandQueue>();
 
-        Container.Rebind<ServerSyncBridge>().ToMethod<ServerSyncBridge>(CreateBridge);
-        Container.Bind<IEventsBridge>().ToLookup<ServerSyncBridge>();
-        Container.Bind<IScriptEventsBridge>().ToLookup<ServerSyncBridge>();
+            Container.Rebind<ServerSyncBridge>().ToMethod<ServerSyncBridge>(CreateBridge);
+            Container.Bind<IEventsBridge>().ToLookup<ServerSyncBridge>();
+            Container.Bind<IScriptEventsBridge>().ToLookup<ServerSyncBridge>();
 
-        Container.Rebind<CommandReceiver>().ToSingle<CommandReceiver>();
+            Container.Rebind<CommandReceiver>().ToSingle<CommandReceiver>();
 
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCommandReceiver>(CreateAdminPanelCommandReceiver);
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCommandQueue>(CreateAdminPanelCommandQueue);
-    }
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCommandReceiver>(CreateAdminPanelCommandReceiver);
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCommandQueue>(CreateAdminPanelCommandQueue);
+        }
 
-    CommandQueue CreateCommandQueue()
-    {
-        return new CommandQueue(
-            Container.Resolve<IUpdateScheduler>(),
-            Container.Resolve<IHttpClient>());
-    }
+        CommandQueue CreateCommandQueue()
+        {
+            return new CommandQueue(
+                Container.Resolve<IUpdateScheduler>(),
+                Container.Resolve<IHttpClient>());
+        }
 
-    void SetupCommandQueue(CommandQueue queue)
-    {
-        queue.IgnoreResponses = Settings.IgnoreResponses;
-        queue.SendInterval = Settings.SendInterval;
-        queue.MaxOutOfSyncInterval = Settings.MaxOutOfSyncInterval;
-        queue.Timeout = Settings.Timeout;
-        queue.BackoffMultiplier = Settings.BackoffMultiplier;
-        queue.PingEnabled = Settings.PingEnabled;
-        queue.AppEvents = Container.Resolve<IAppEvents>();
-        queue.TrackEvent = Container.Resolve<IEventTracker>().TrackEvent;
-        queue.LoginData = Container.Resolve<ILoginData>();
-        queue.CommandReceiver = Container.Resolve<CommandReceiver>();
-        Container.Resolve<IGameErrorHandler>().Setup(queue);
-    }
+        void SetupCommandQueue(CommandQueue queue)
+        {
+            queue.IgnoreResponses = Settings.IgnoreResponses;
+            queue.SendInterval = Settings.SendInterval;
+            queue.MaxOutOfSyncInterval = Settings.MaxOutOfSyncInterval;
+            queue.Timeout = Settings.Timeout;
+            queue.BackoffMultiplier = Settings.BackoffMultiplier;
+            queue.PingEnabled = Settings.PingEnabled;
+            queue.AppEvents = Container.Resolve<IAppEvents>();
+            queue.TrackEvent = Container.Resolve<IEventTracker>().TrackEvent;
+            queue.LoginData = Container.Resolve<ILoginData>();
+            queue.CommandReceiver = Container.Resolve<CommandReceiver>();
+            Container.Resolve<IGameErrorHandler>().Setup(queue);
+        }
 
-    ServerSyncBridge CreateBridge()
-    {
-        return new ServerSyncBridge(
-            Container.Resolve<ICommandQueue>());
-    }
+        ServerSyncBridge CreateBridge()
+        {
+            return new ServerSyncBridge(
+                Container.Resolve<ICommandQueue>());
+        }
 
-    AdminPanelCommandReceiver CreateAdminPanelCommandReceiver()
-    {
-        return new AdminPanelCommandReceiver(
-            Container.Resolve<CommandReceiver>());
-    }
+        AdminPanelCommandReceiver CreateAdminPanelCommandReceiver()
+        {
+            return new AdminPanelCommandReceiver(
+                Container.Resolve<CommandReceiver>());
+        }
 
-    AdminPanelCommandQueue CreateAdminPanelCommandQueue()
-    {
-        return new AdminPanelCommandQueue(Container.Resolve<ICommandQueue>());
+        AdminPanelCommandQueue CreateAdminPanelCommandQueue()
+        {
+            return new AdminPanelCommandQueue(Container.Resolve<ICommandQueue>());
+        }
     }
 }

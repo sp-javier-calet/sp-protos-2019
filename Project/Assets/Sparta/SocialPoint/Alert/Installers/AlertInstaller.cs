@@ -3,101 +3,102 @@
 #endif
 
 using System;
-using SocialPoint.Alert;
 using SocialPoint.Base;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.ScriptEvents;
 using UnityEngine;
 
-public class AlertInstaller : ServiceInstaller
+namespace SocialPoint.Alert
 {
-    [Serializable]
-    public class SettingsData
+
+    public class AlertInstaller : ServiceInstaller
     {
-        public bool UseNativeAlert;
-        public GameObject UnityAlertViewPrefab;
-    }
-
-    public SettingsData Settings = new SettingsData();
-
-    UIStackController _popups;
-
-    static bool IsNativeViewAvailable
-    {
-        get
+        [Serializable]
+        public class SettingsData
         {
-            #if NATIVE_ALERTVIEW
+            public bool UseNativeAlert;
+            public GameObject UnityAlertViewPrefab;
+        }
+
+        public SettingsData Settings = new SettingsData();
+
+        UIStackController _popups;
+
+        static bool IsNativeViewAvailable
+        {
+            get
+            {
+                #if NATIVE_ALERTVIEW
             return true;
-            #else
-            return false;
-            #endif 
+                #else
+                return false;
+                #endif 
+            }
         }
-    }
 
-    public override void InstallBindings()
-    {
-        UnityAlertView.ShowDelegate = ShowUnityAlert;
-        UnityAlertView.HideDelegate = HideUnityAlert;
-
-        if(Settings.UseNativeAlert && IsNativeViewAvailable)
+        public override void InstallBindings()
         {
-            Container.Rebind<IAlertView>().ToMethod<AlertView>(CreateAlertView);
+            UnityAlertView.ShowDelegate = ShowUnityAlert;
+            UnityAlertView.HideDelegate = HideUnityAlert;
+
+            if(Settings.UseNativeAlert && IsNativeViewAvailable)
+            {
+                Container.Rebind<IAlertView>().ToMethod<AlertView>(CreateAlertView);
+            }
+            else
+            {
+                var unityAlertView = new UnityAlertView(Settings.UnityAlertViewPrefab);
+                Container.Rebind<IAlertView>().ToInstance(unityAlertView);
+            }
+            Container.Bind<IDisposable>().ToLookup<IAlertView>();
+
+            Container.Bind<AlertBridge>().ToMethod<AlertBridge>(CreateAlertBridge);
+            Container.Bind<IEventsBridge>().ToLookup<AlertBridge>();
+            Container.Bind<IScriptEventsBridge>().ToLookup<AlertBridge>();
         }
-        else
+
+        public AlertBridge CreateAlertBridge()
         {
-            var unityAlertView = new UnityAlertView(Settings.UnityAlertViewPrefab);
-            Container.Rebind<IAlertView>().ToInstance(unityAlertView);
+            return new AlertBridge(Container.Resolve<IAlertView>());
         }
-        Container.Bind<IDisposable>().ToLookup<IAlertView>();
 
-        Container.Bind<AlertBridge>().ToMethod<AlertBridge>(CreateAlertBridge);
-        Container.Bind<IEventsBridge>().ToLookup<AlertBridge>();
-        Container.Bind<IScriptEventsBridge>().ToLookup<AlertBridge>();
-    }
-
-    public AlertBridge CreateAlertBridge()
-    {
-        return new AlertBridge(Container.Resolve<IAlertView>());
-    }
-
-    void ShowUnityAlert(GameObject go)
-    {
-        var ctrl = go.GetComponent<UIViewController>();
-        DebugUtils.Assert(ctrl != null, "GameObject doesn't have a viewController");
-        if(_popups == null)
+        void ShowUnityAlert(GameObject go)
         {
-            _popups = GameObject.FindObjectOfType<UIStackController>();
+            var ctrl = go.GetComponent<UIViewController>();
+            DebugUtils.Assert(ctrl != null, "GameObject doesn't have a viewController");
+            if(_popups == null)
+            {
+                _popups = GameObject.FindObjectOfType<UIStackController>();
+            }
+            if(_popups != null)
+            {
+                _popups.Push(ctrl);
+            }
+            else
+            {
+                ctrl.Show();
+            }
         }
-        if(_popups != null)
-        {
-            _popups.Push(ctrl);
-        }
-        else
-        {
-            ctrl.Show();
-        }
-    }
 
-    AlertView CreateAlertView()
-    {
-        var alert = new AlertView();
+        AlertView CreateAlertView()
+        {
+            var alert = new AlertView();
 
-        #if UNITY_IOS && !UNITY_EDITOR
+            #if UNITY_IOS && !UNITY_EDITOR
         if(alert is IosAlertView)
         {
             (alert as IosAlertView).NativeHandler = Container.Resolve<SocialPoint.Utils.NativeCallsHandler>();
         }
-        #endif
-        return alert;
-    }
+            #endif
+            return alert;
+        }
 
-    static void HideUnityAlert(GameObject go)
-    {
-        var ctrl = go.GetComponent<UIViewController>();
-        DebugUtils.Assert(ctrl != null, "GameObject doesn't have a viewController");
-        ctrl.Hide(true);
+        static void HideUnityAlert(GameObject go)
+        {
+            var ctrl = go.GetComponent<UIViewController>();
+            DebugUtils.Assert(ctrl != null, "GameObject doesn't have a viewController");
+            ctrl.Hide(true);
+        }
     }
 }
-
-

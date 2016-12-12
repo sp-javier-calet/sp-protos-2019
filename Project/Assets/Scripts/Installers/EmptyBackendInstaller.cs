@@ -6,6 +6,8 @@ using SocialPoint.ServerSync;
 using SocialPoint.Crash;
 using SocialPoint.AdminPanel;
 using SocialPoint.ServerMessaging;
+using SocialPoint.Notifications;
+using SocialPoint.CrossPromotion;
 
 public class EmptyBackendInstaller : Installer, IInitializable
 {

@@ -1,18 +1,21 @@
 ﻿using FlyingWormConsole3;
 using SocialPoint.Dependency;
 
-public class ConsoleProInstaller : ServiceInstaller, IInitializable
+namespace SocialPoint.ConsolePro
 {
-    public override void InstallBindings()
+    public class ConsoleProInstaller : ServiceInstaller, IInitializable
     {
-        #if (ADMIN_PANEL && !NO_ADMIN_PANEL) || UNITY_EDITOR
-        Container.Bind<IInitializable>().ToInstance(this);
-        Container.BindUnityComponent<ConsoleProRemoteServer>();
-        #endif
-    }
+        public override void InstallBindings()
+        {
+            #if (ADMIN_PANEL && !NO_ADMIN_PANEL) || UNITY_EDITOR
+            Container.Bind<IInitializable>().ToInstance(this);
+            Container.BindUnityComponent<ConsoleProRemoteServer>();
+            #endif
+        }
 
-    public void Initialize()
-    {   
-        Container.Resolve<ConsoleProRemoteServer>();
+        public void Initialize()
+        {   
+            Container.Resolve<ConsoleProRemoteServer>();
+        }
     }
 }

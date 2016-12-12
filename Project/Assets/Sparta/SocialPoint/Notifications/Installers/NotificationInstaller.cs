@@ -1,24 +1,25 @@
 using System;
 using SocialPoint.Dependency;
 using SocialPoint.AdminPanel;
-using SocialPoint.Notifications;
 
-public class NotificationInstaller : SubInstaller, IInitializable
+namespace SocialPoint.Notifications
 {
-    [Serializable]
-    public class SettingsData
+    public class NotificationInstaller : SubInstaller, IInitializable
     {
-        public bool AutoRegisterForRemote = true;
-    }
+        [Serializable]
+        public class SettingsData
+        {
+            public bool AutoRegisterForRemote = true;
+        }
 
-    public SettingsData Settings = new SettingsData();
+        public SettingsData Settings = new SettingsData();
 
-    public override void InstallBindings()
-    {
-        Container.Bind<IInitializable>().ToInstance(this);
+        public override void InstallBindings()
+        {
+            Container.Bind<IInitializable>().ToInstance(this);
 
 #if UNITY_EDITOR
-        Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
+            Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
 #elif UNITY_ANDROID
         Container.Rebind<INotificationServices>().ToMethod<AndroidNotificationServices>(CreateAndroidNotificationServices);
 #elif UNITY_IOS
@@ -27,17 +28,19 @@ public class NotificationInstaller : SubInstaller, IInitializable
         Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
 #endif
 
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelNotifications>(CreateAdminPanel);
-    }
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelNotifications>(CreateAdminPanel);
+        }
 
-    #if !UNITY_EDITOR
+        #if !UNITY_EDITOR
     
+
 
 #if UNITY_IOS
     IosNotificationServices CreateIosNotificationServices()
     {
         return new IosNotificationServices(Container.Resolve<SocialPoint.Utils.ICoroutineRunner>());
     }
+
 
 
 #elif UNITY_ANDROID
@@ -49,18 +52,19 @@ public class NotificationInstaller : SubInstaller, IInitializable
     
     #endif
 
-    AdminPanelNotifications CreateAdminPanel()
-    {
-        return new AdminPanelNotifications(
-            Container.Resolve<INotificationServices>());
-    }
-
-    public void Initialize()
-    {
-        var services = Container.Resolve<INotificationServices>();
-        if(Settings.AutoRegisterForRemote)
+        AdminPanelNotifications CreateAdminPanel()
         {
-            services.RequestPermissions();
+            return new AdminPanelNotifications(
+                Container.Resolve<INotificationServices>());
+        }
+
+        public void Initialize()
+        {
+            var services = Container.Resolve<INotificationServices>();
+            if(Settings.AutoRegisterForRemote)
+            {
+                services.RequestPermissions();
+            }
         }
     }
 }

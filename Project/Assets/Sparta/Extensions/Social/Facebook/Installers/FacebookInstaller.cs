@@ -2,53 +2,55 @@ using System;
 using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
-using SocialPoint.Social;
 using SocialPoint.Utils;
 
-public class FacebookInstaller : ServiceInstaller
+namespace SocialPoint.Social
 {
-    [Serializable]
-    public class SettingsData
+    public class FacebookInstaller : ServiceInstaller
     {
-        public bool UseEmpty = false;
-        public bool LoginLink = true;
-        public bool LoginWithUi = false;
-    }
-    
-    public SettingsData Settings = new SettingsData();
-
-    public override void InstallBindings()
-    {
-        if(Settings.UseEmpty)
+        [Serializable]
+        public class SettingsData
         {
-            Container.Rebind<IFacebook>().ToSingle<EmptyFacebook>();
+            public bool UseEmpty = false;
+            public bool LoginLink = true;
+            public bool LoginWithUi = false;
         }
-        else
+
+        public SettingsData Settings = new SettingsData();
+
+        public override void InstallBindings()
         {
-            Container.Rebind<IFacebook>().ToMethod<UnityFacebook>(CreateUnityFacebook);
+            if(Settings.UseEmpty)
+            {
+                Container.Rebind<IFacebook>().ToSingle<EmptyFacebook>();
+            }
+            else
+            {
+                Container.Rebind<IFacebook>().ToMethod<UnityFacebook>(CreateUnityFacebook);
+            }
+            if(Settings.LoginLink)
+            {
+                Container.Bind<ILink>().ToMethod<FacebookLink>(CreateLoginLink);
+            }
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelFacebook>(CreateAdminPanel);
         }
-        if(Settings.LoginLink)
+
+        AdminPanelFacebook CreateAdminPanel()
         {
-            Container.Bind<ILink>().ToMethod<FacebookLink>(CreateLoginLink);
+            return new AdminPanelFacebook(
+                Container.Resolve<IFacebook>());
         }
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelFacebook>(CreateAdminPanel);
-    }
 
-    AdminPanelFacebook CreateAdminPanel()
-    {
-        return new AdminPanelFacebook(
-            Container.Resolve<IFacebook>());
-    }
+        UnityFacebook CreateUnityFacebook()
+        {
+            return new UnityFacebook(
+                Container.Resolve<ICoroutineRunner>());
+        }
 
-    UnityFacebook CreateUnityFacebook()
-    {
-        return new UnityFacebook(
-            Container.Resolve<ICoroutineRunner>());
-    }
-
-    FacebookLink CreateLoginLink()
-    {
-        var fb = Container.Resolve<IFacebook>();
-        return new FacebookLink(fb, Settings.LoginWithUi);
+        FacebookLink CreateLoginLink()
+        {
+            var fb = Container.Resolve<IFacebook>();
+            return new FacebookLink(fb, Settings.LoginWithUi);
+        }
     }
 }

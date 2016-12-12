@@ -7,153 +7,155 @@ using SocialPoint.Login;
 using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.Utils;
-using SocialPoint.Social;
 using SocialPoint.WebSockets;
 
-public class SocialFrameworkInstaller : ServiceInstaller
+namespace SocialPoint.Social
 {
-    const string SocialFrameworkTag = "social_framework";
-
-    const string DefaultWAMPProtocol = "wamp.2.json";
-    const string DefaultEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8002/ws";
-
-    [Serializable]
-    public class SettingsData
+    public class SocialFrameworkInstaller : ServiceInstaller
     {
-        public string[] Endpoints = new string[] { DefaultEndpoint };
-        public string[] Protocols = new string[] { DefaultWAMPProtocol };
-    }
+        const string SocialFrameworkTag = "social_framework";
 
-    public SettingsData Settings = new SettingsData();
+        const string DefaultWAMPProtocol = "wamp.2.json";
+        const string DefaultEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8002/ws";
 
-    string _httpProxy;
-    IDeviceInfo _deviceInfo;
-
-    public override void InstallBindings()
-    {
-        _httpProxy = EditorProxy.GetProxy();
-        _deviceInfo = Container.Resolve<IDeviceInfo>();
-
-        // Service Installer
-        Container.Rebind<WebSocketClient>().ToMethod<WebSocketClient>(CreateWebSocket, SetupWebSocket);
-        Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketClient>();
-        Container.Bind<IDisposable>().ToLookup<WebSocketClient>();
-
-        Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);    
-        Container.Bind<IDisposable>().ToLookup<ConnectionManager>();
-
-        Container.Bind<ChatManager>().ToMethod<ChatManager>(CreateChatManager, SetupChatManager);
-        Container.Bind<IDisposable>().ToLookup<ChatManager>();
-
-        Container.Bind<AlliancesManager>().ToMethod<AlliancesManager>(CreateAlliancesManager, SetupAlliancesManager);
-        Container.Bind<IDisposable>().ToLookup<AlliancesManager>();
-
-        Container.Bind<IRankManager>().ToMethod<IRankManager>(CreateRankManager);
-        Container.Bind<IAccessTypeManager>().ToMethod<IAccessTypeManager>(CreateAccessTypeManager);
-
-        Container.Bind<AllianceDataFactory>().ToMethod<AllianceDataFactory>(CreateAlliancesDataFactory, SetupAlliancesDataFactory);
-
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework);
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWebSockets>(CreateAdminPanelWebSockets);
-
-        Container.Listen<IChatRoom>().WhenResolved(SetupChatRoom);
-    }
-
-    WebSocketClient CreateWebSocket()
-    {
-        return new WebSocketClient(Settings.Endpoints, Settings.Protocols, Container.Resolve<IUpdateScheduler>());
-    }
-
-    void SetupWebSocket(WebSocketClient client)
-    {
-        if(!string.IsNullOrEmpty(_httpProxy))
+        [Serializable]
+        public class SettingsData
         {
-            client.Proxy = _httpProxy;
+            public string[] Endpoints = new string[] { DefaultEndpoint };
+            public string[] Protocols = new string[] { DefaultWAMPProtocol };
         }
-        else if(_deviceInfo.NetworkInfo.Proxy != null)
+
+        public SettingsData Settings = new SettingsData();
+
+        string _httpProxy;
+        IDeviceInfo _deviceInfo;
+
+        public override void InstallBindings()
         {
-            client.Proxy = _deviceInfo.NetworkInfo.Proxy.ToString();
+            _httpProxy = EditorProxy.GetProxy();
+            _deviceInfo = Container.Resolve<IDeviceInfo>();
+
+            // Service Installer
+            Container.Rebind<WebSocketClient>().ToMethod<WebSocketClient>(CreateWebSocket, SetupWebSocket);
+            Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketClient>();
+            Container.Bind<IDisposable>().ToLookup<WebSocketClient>();
+
+            Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);    
+            Container.Bind<IDisposable>().ToLookup<ConnectionManager>();
+
+            Container.Bind<ChatManager>().ToMethod<ChatManager>(CreateChatManager, SetupChatManager);
+            Container.Bind<IDisposable>().ToLookup<ChatManager>();
+
+            Container.Bind<AlliancesManager>().ToMethod<AlliancesManager>(CreateAlliancesManager, SetupAlliancesManager);
+            Container.Bind<IDisposable>().ToLookup<AlliancesManager>();
+
+            Container.Bind<IRankManager>().ToMethod<IRankManager>(CreateRankManager);
+            Container.Bind<IAccessTypeManager>().ToMethod<IAccessTypeManager>(CreateAccessTypeManager);
+
+            Container.Bind<AllianceDataFactory>().ToMethod<AllianceDataFactory>(CreateAlliancesDataFactory, SetupAlliancesDataFactory);
+
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework);
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWebSockets>(CreateAdminPanelWebSockets);
+
+            Container.Listen<IChatRoom>().WhenResolved(SetupChatRoom);
         }
-    }
 
-    ConnectionManager CreateConnectionManager()
-    {
-        return new ConnectionManager(Container.Resolve<IWebSocketClient>(SocialFrameworkTag));
-    }
+        WebSocketClient CreateWebSocket()
+        {
+            return new WebSocketClient(Settings.Endpoints, Settings.Protocols, Container.Resolve<IUpdateScheduler>());
+        }
 
-    void SetupConnectionManager(ConnectionManager manager)
-    {
-        manager.AppEvents = Container.Resolve<IAppEvents>();
-        manager.Scheduler = Container.Resolve<IUpdateScheduler>();
-        manager.LoginData = Container.Resolve<ILoginData>();
-        manager.PlayerData = Container.Resolve<IPlayerData>();
-        manager.DeviceInfo = Container.Resolve<IDeviceInfo>();
-        manager.Localization = Container.Resolve<Localization>();
-    }
+        void SetupWebSocket(WebSocketClient client)
+        {
+            if(!string.IsNullOrEmpty(_httpProxy))
+            {
+                client.Proxy = _httpProxy;
+            }
+            else if(_deviceInfo.NetworkInfo.Proxy != null)
+            {
+                client.Proxy = _deviceInfo.NetworkInfo.Proxy.ToString();
+            }
+        }
 
-    ChatManager CreateChatManager()
-    {
-        return new ChatManager(
-            Container.Resolve<ConnectionManager>());
-    }
+        ConnectionManager CreateConnectionManager()
+        {
+            return new ConnectionManager(Container.Resolve<IWebSocketClient>(SocialFrameworkTag));
+        }
 
-    void SetupChatManager(ChatManager manager)
-    {
-        manager.Register(Container.ResolveList<IChatRoom>());
-    }
+        void SetupConnectionManager(ConnectionManager manager)
+        {
+            manager.AppEvents = Container.Resolve<IAppEvents>();
+            manager.Scheduler = Container.Resolve<IUpdateScheduler>();
+            manager.LoginData = Container.Resolve<ILoginData>();
+            manager.PlayerData = Container.Resolve<IPlayerData>();
+            manager.DeviceInfo = Container.Resolve<IDeviceInfo>();
+            manager.Localization = Container.Resolve<Localization>();
+        }
 
-    AlliancesManager CreateAlliancesManager()
-    {
-        return new AlliancesManager(
-            Container.Resolve<ConnectionManager>());
-    }
+        ChatManager CreateChatManager()
+        {
+            return new ChatManager(
+                Container.Resolve<ConnectionManager>());
+        }
 
-    void SetupAlliancesManager(AlliancesManager manager)
-    {
-        manager.Factory = Container.Resolve<AllianceDataFactory>();
-        manager.LoginData = Container.Resolve<ILoginData>();
-        manager.Ranks = Container.Resolve<IRankManager>();
-        manager.AccessTypes = Container.Resolve<IAccessTypeManager>();
-    }
+        void SetupChatManager(ChatManager manager)
+        {
+            manager.Register(Container.ResolveList<IChatRoom>());
+        }
 
-    AllianceDataFactory CreateAlliancesDataFactory()
-    {
-        return new AllianceDataFactory();
-    }
+        AlliancesManager CreateAlliancesManager()
+        {
+            return new AlliancesManager(
+                Container.Resolve<ConnectionManager>());
+        }
 
-    void SetupAlliancesDataFactory(AllianceDataFactory factory)
-    {
-        factory.Ranks = Container.Resolve<IRankManager>(); 
-    }
+        void SetupAlliancesManager(AlliancesManager manager)
+        {
+            manager.Factory = Container.Resolve<AllianceDataFactory>();
+            manager.LoginData = Container.Resolve<ILoginData>();
+            manager.Ranks = Container.Resolve<IRankManager>();
+            manager.AccessTypes = Container.Resolve<IAccessTypeManager>();
+        }
 
-    IRankManager CreateRankManager()
-    {
-        return new DefaultRankManager();
-    }
+        AllianceDataFactory CreateAlliancesDataFactory()
+        {
+            return new AllianceDataFactory();
+        }
 
-    IAccessTypeManager CreateAccessTypeManager()
-    {
-        return new DefaultAccessTypeManager();
-    }
+        void SetupAlliancesDataFactory(AllianceDataFactory factory)
+        {
+            factory.Ranks = Container.Resolve<IRankManager>(); 
+        }
 
-    AdminPanelSocialFramework CreateAdminPanelSocialFramework()
-    {
-        return new AdminPanelSocialFramework(
-            Container.Resolve<ConnectionManager>(),
-            Container.Resolve<ChatManager>(),
-            Container.Resolve<AlliancesManager>());
-    }
+        IRankManager CreateRankManager()
+        {
+            return new DefaultRankManager();
+        }
 
-    AdminPanelWebSockets CreateAdminPanelWebSockets()
-    {
-        return new AdminPanelWebSockets(
-            Container.Resolve<IWebSocketClient>(SocialFrameworkTag),
-            SocialFrameworkTag);
-    }
+        IAccessTypeManager CreateAccessTypeManager()
+        {
+            return new DefaultAccessTypeManager();
+        }
 
-    void SetupChatRoom(IChatRoom room)
-    {
-        room.ChatManager = Container.Resolve<ChatManager>();
-        room.Localization = Container.Resolve<Localization>();
+        AdminPanelSocialFramework CreateAdminPanelSocialFramework()
+        {
+            return new AdminPanelSocialFramework(
+                Container.Resolve<ConnectionManager>(),
+                Container.Resolve<ChatManager>(),
+                Container.Resolve<AlliancesManager>());
+        }
+
+        AdminPanelWebSockets CreateAdminPanelWebSockets()
+        {
+            return new AdminPanelWebSockets(
+                Container.Resolve<IWebSocketClient>(SocialFrameworkTag),
+                SocialFrameworkTag);
+        }
+
+        void SetupChatRoom(IChatRoom room)
+        {
+            room.ChatManager = Container.Resolve<ChatManager>();
+            room.Localization = Container.Resolve<Localization>();
+        }
     }
 }

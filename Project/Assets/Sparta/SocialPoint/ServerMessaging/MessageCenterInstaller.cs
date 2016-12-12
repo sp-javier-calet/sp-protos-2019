@@ -3,30 +3,32 @@ using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
-using SocialPoint.ServerMessaging;
 using SocialPoint.ServerSync;
 
-public class MessageCenterInstaller : SubInstaller
+namespace SocialPoint.ServerMessaging
 {
-    public override void InstallBindings()
+    public class MessageCenterInstaller : SubInstaller
     {
-        Container.Bind<IMessageCenter>().ToMethod<MessageCenter>(CreateMessageCenter);
-        Container.Bind<IDisposable>().ToLookup<IMessageCenter>();
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMessageCenter>(CreateAdminPanel);
-    }
+        public override void InstallBindings()
+        {
+            Container.Bind<IMessageCenter>().ToMethod<MessageCenter>(CreateMessageCenter);
+            Container.Bind<IDisposable>().ToLookup<IMessageCenter>();
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMessageCenter>(CreateAdminPanel);
+        }
 
-    AdminPanelMessageCenter CreateAdminPanel()
-    {
-        return new AdminPanelMessageCenter(
-            Container.Resolve<IMessageCenter>(),
-            Container.Resolve<ILoginData>());
-    }
+        AdminPanelMessageCenter CreateAdminPanel()
+        {
+            return new AdminPanelMessageCenter(
+                Container.Resolve<IMessageCenter>(),
+                Container.Resolve<ILoginData>());
+        }
 
-    MessageCenter CreateMessageCenter()
-    {
-        return new MessageCenter(
-            Container.Resolve<ICommandQueue>(),
-            Container.Resolve<CommandReceiver>(),
-            Container.Resolve<IAppEvents>());
+        MessageCenter CreateMessageCenter()
+        {
+            return new MessageCenter(
+                Container.Resolve<ICommandQueue>(),
+                Container.Resolve<CommandReceiver>(),
+                Container.Resolve<IAppEvents>());
+        }
     }
 }

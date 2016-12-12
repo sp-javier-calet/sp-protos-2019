@@ -1,40 +1,41 @@
 ﻿using System;
 using SocialPoint.Dependency;
-using SocialPoint.Marketing;
 
-public class MobileAppTrackingInstaller : ServiceInstaller
+namespace SocialPoint.Marketing
 {
-    [Serializable]
-    public class SettingsData
+    public class MobileAppTrackingInstaller : ServiceInstaller
     {
-        public bool ActiveOnIOS;
-        public bool ActiveOnAndroid;
-        public string AdvertiserID;
-        public string ConversionKey;
-    }
+        [Serializable]
+        public class SettingsData
+        {
+            public bool ActiveOnIOS;
+            public bool ActiveOnAndroid;
+            public string AdvertiserID;
+            public string ConversionKey;
+        }
 
-    public SettingsData Settings = new SettingsData();
+        public SettingsData Settings = new SettingsData();
 
-    public override void InstallBindings()
-    {
-        #if UNITY_ANDROID
-        if(!Settings.ActiveOnAndroid) return;
-        #elif UNITY_IOS
+        public override void InstallBindings()
+        {
+            #if UNITY_ANDROID
+            if(!Settings.ActiveOnAndroid)
+                return;
+            #elif UNITY_IOS
         if(!Settings.ActiveOnIOS) return;
-        #endif
+            #endif
 
-        Container.Bind<IMarketingTracker>().ToMethod<SocialPointMobileAppTracking>(CreateMobileAppTracking);
-        Container.Bind<IDisposable>().ToMethod<SocialPointMobileAppTracking>(CreateMobileAppTracking);
-    }
+            Container.Bind<IMarketingTracker>().ToMethod<SocialPointMobileAppTracking>(CreateMobileAppTracking);
+            Container.Bind<IDisposable>().ToMethod<SocialPointMobileAppTracking>(CreateMobileAppTracking);
+        }
 
-    SocialPointMobileAppTracking CreateMobileAppTracking()
-    {
-        var tracker = new SocialPointMobileAppTracking();
-        tracker.AdvertiserID = Settings.AdvertiserID;
-        tracker.ConversionKey = Settings.ConversionKey;
-        tracker.Init();
-        return tracker;
+        SocialPointMobileAppTracking CreateMobileAppTracking()
+        {
+            var tracker = new SocialPointMobileAppTracking();
+            tracker.AdvertiserID = Settings.AdvertiserID;
+            tracker.ConversionKey = Settings.ConversionKey;
+            tracker.Init();
+            return tracker;
+        }
     }
 }
-
-
