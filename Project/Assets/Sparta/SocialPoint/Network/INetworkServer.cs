@@ -31,7 +31,7 @@ namespace SocialPoint.Network
 
         void Stop();
 
-        void Fail(string reason);
+        void Fail(Error err);
 
         void AddDelegate(INetworkServerDelegate dlg);
 
