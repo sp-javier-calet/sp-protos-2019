@@ -23,6 +23,9 @@ namespace SocialPoint.TransparentBundles
         private const float _searchDelay = 0.5f;
         private static bool _bundlesInServerShown = true;
         private static bool _bundlesInBuildShown = true;
+        private const int _bundleRowHeight = 30;
+        private const int _visibleRows = 50;
+        private static int _bundlesInBuild = 0;
 
         public static GUIStyle HeaderStyle, HeaderStyle2, BodyStyle, BodyTextStyle, BodyTextBoldStyle, BodyLinkStyle, BodySelectedLinkStyle, NoButtonStyle, ROJO;
         private static float[] _columnsSize;
@@ -31,12 +34,13 @@ namespace SocialPoint.TransparentBundles
         {
             _controller = EditorClientController.GetInstance();
             _filter = "";
-            _bundleList = _controller.GetBundles(_filter);
+            _sorting = BundleSortingMode.NameAsc;
+            SearchBundles(_filter);
             _chosenList = new List<Bundle>();
             _selectedList = new Dictionary<string, Bundle>();
             _selectAllToggle = false;
             _allSelected = false;
-            _sorting = BundleSortingMode.NameAsc;
+            
             ChangeSorting(_sorting);
             _scrollPos = Vector2.zero;
 
@@ -57,9 +61,9 @@ namespace SocialPoint.TransparentBundles
         [MenuItem("Social Point/Bundles")]
         public static void OpenWindow()
         {
-            Init();
             Window = (BundlesWindow)EditorWindow.GetWindow(typeof(BundlesWindow));
             Window.titleContent.text = "Bundles";
+            Init();
         }
 
         public static void InitStyles()
@@ -145,6 +149,8 @@ namespace SocialPoint.TransparentBundles
                 BodyLinkStyle.alignment = TextAnchor.MiddleLeft;
                 BodyLinkStyle.margin = new RectOffset(0, 0, 0, 0);
                 BodyLinkStyle.border = BodyLinkStyle.margin;
+                BodyLinkStyle.hover.textColor = new Color(0.7f, 0.7f, 0.7f, 1f);
+                BodyLinkStyle.hover.background = Texture2D.blackTexture;
             }
             
             if (BodySelectedLinkStyle == null)
@@ -278,13 +284,21 @@ namespace SocialPoint.TransparentBundles
 
             if (_bundlesInServerShown)
             {
-                for (int i = 0; i < _bundleList.Count; i++)
+                int firstIndex = Mathf.Max((int)(_scrollPos.y / _bundleRowHeight) - 5, 0);
+                firstIndex = Mathf.Clamp(firstIndex, 0, Mathf.Max(0, (_bundleList.Count - _bundlesInBuild) - _visibleRows));
+                float firstSpace = firstIndex;
+                GUILayout.Space(firstSpace * _bundleRowHeight);
+                
+                for (int i = firstIndex; i < Mathf.Min(_bundleList.Count, firstIndex + _visibleRows + _bundlesInBuild); i++)
                 {
                     Bundle bundle = _bundleList[i];
                     if (!bundle.IsLocal)
                         DisplayBundleRow(bundle);
                 }
-                GUILayout.Label("", GUILayout.Height(20));
+                GUILayout.Label("", GUILayout.Height(30));
+
+                float lastSpace = (_bundleList.Count - _bundlesInBuild) - firstIndex - _visibleRows;
+                GUILayout.Space(Mathf.Max(0, lastSpace * _bundleRowHeight));
             }
 
             EditorGUILayout.BeginVertical(HeaderStyle2, GUILayout.Height(25));
@@ -312,7 +326,7 @@ namespace SocialPoint.TransparentBundles
                 }
                 GUILayout.Label("", GUILayout.Height(20));
             }
-            
+
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
             GUILayout.Label("", GUILayout.Width(5));
@@ -345,7 +359,7 @@ namespace SocialPoint.TransparentBundles
             {
                 for (int i = 0; i < _chosenList.Count; i++)
                     _controller.CreateOrUpdateBundle(_chosenList[i].Asset);
-                Repaint();
+                SearchBundles(_filter);
             }
             if (GUILayout.Button(_actionButons[1], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
@@ -371,13 +385,13 @@ namespace SocialPoint.TransparentBundles
             {
                 for (int i = 0; i < _chosenList.Count; i++)
                     _controller.BundleIntoBuild(_chosenList[i].Asset);
-                Repaint();
+                SearchBundles(_filter);
             }
             if (GUILayout.Button(_actionButons[3], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
                 for (int i = 0; i < _chosenList.Count; i++)
                     _controller.BundleOutsideBuild(_chosenList[i].Asset);
-                Repaint();
+                SearchBundles(_filter);
             }
             GUILayout.Label("", GUILayout.Width(3));
             EditorGUILayout.EndHorizontal();
@@ -412,7 +426,7 @@ namespace SocialPoint.TransparentBundles
 
         private void DisplayBundleRow(Bundle bundle)
         {
-            EditorGUILayout.BeginHorizontal(GUILayout.Height(20));
+            EditorGUILayout.BeginHorizontal(GUILayout.Height(_bundleRowHeight-10));
             EditorGUILayout.BeginVertical(GUILayout.Width(_columnsSize[0]));
             GUILayout.Label("", GUILayout.Height(3), GUILayout.Width(_columnsSize[0]));
             bool bundleChosen = _chosenList.Contains(bundle);
@@ -450,10 +464,10 @@ namespace SocialPoint.TransparentBundles
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
-            GUIStyle bundleStyle = BodyLinkStyle;
+            GUIStyle bundleStyle = BodyTextStyle;
             if (_selectedList.ContainsKey(bundle.Name))
                 bundleStyle = BodySelectedLinkStyle;
-            if (GUILayout.Button(bundle.Asset.Name, bundleStyle, GUILayout.ExpandWidth(true), GUILayout.Height(30)))
+            if (GUILayout.Button(bundle.Asset.Name, bundleStyle, GUILayout.ExpandWidth(true), GUILayout.Height(_bundleRowHeight)))
             {
                 if (Event.current.control || Event.current.command)
                 {
@@ -469,16 +483,19 @@ namespace SocialPoint.TransparentBundles
                     {
                         var enumerator = _selectedList.GetEnumerator();
                         enumerator.MoveNext();
-                        int firstIndex = _bundleList.IndexOf(enumerator.Current.Value);
+                        Bundle firstSelectedBundle = enumerator.Current.Value;
+                        int firstIndex = _bundleList.IndexOf(firstSelectedBundle);
                         enumerator.Dispose();
                         int finalIndex = _bundleList.IndexOf(bundle);
                         _selectedList = new Dictionary<string, Bundle>();
+                         
                         if (firstIndex < finalIndex)
                         {
                             for (int i = firstIndex; i <= finalIndex; i++)
                             {
                                 Bundle bundleToSelect = _bundleList[i];
-                                _selectedList.Add(bundleToSelect.Name, bundleToSelect);
+                                if(bundleToSelect.IsLocal == firstSelectedBundle.IsLocal)
+                                    _selectedList.Add(bundleToSelect.Name, bundleToSelect);
                             }
                         }
                         else
@@ -486,7 +503,8 @@ namespace SocialPoint.TransparentBundles
                             for (int i = firstIndex; i >= finalIndex; i--)
                             {
                                 Bundle bundleToSelect = _bundleList[i];
-                                _selectedList.Add(bundleToSelect.Name, bundleToSelect);
+                                if (bundleToSelect.IsLocal == firstSelectedBundle.IsLocal)
+                                    _selectedList.Add(bundleToSelect.Name, bundleToSelect);
                             }
                         }
                     }
@@ -514,11 +532,17 @@ namespace SocialPoint.TransparentBundles
             EditorGUILayout.EndHorizontal();
         }
 
-        private void SearchBundles(string filter)
+        private static void SearchBundles(string filter)
         {
             _bundleList = _controller.GetBundles(filter);
             ChangeSorting(_sorting);
-            Repaint();
+            for (int i = 0; i < _bundleList.Count; i++)
+            {
+                Bundle bundle = _bundleList[i];
+                if (bundle.IsLocal)
+                    _bundlesInBuild++;
+            }
+            Window.Repaint();
         }
 
         private static void ChangeSorting(BundleSortingMode mode)
@@ -544,6 +568,7 @@ namespace SocialPoint.TransparentBundles
                             for (int i = 0; i < _bundleList.Count; i++)
                                 _selectedList.Add(_bundleList[i].Name, _bundleList[i]);
                         }
+                        Window.Repaint();
                         break;
                 }
             }

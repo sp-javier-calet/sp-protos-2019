@@ -7,27 +7,92 @@ namespace SocialPoint.TransparentBundles
     [CustomEditor(typeof(InspectorDummy))]
     public class Inspector : UnityEditor.Editor
     {
-        private Asset _selectedAsset;
+        private Asset _selectedAsset, _selectedDependency;
+        private InspectorAsset _inspectorAsset, _inspectorDependency;
         private EditorClientController _controller;
         private InspectorDummy _dummy;
         private float[] _columnsSize;
-        private List<Asset> _dependencies;
-        private Dictionary<string, bool> _sharedDependenciesCache;
-        private List<Asset> _references;
-        private Texture2D _preview;
+        private Vector2 _scrollPos, _scrollPos2;
 
         void OnEnable()
         {
+            EditorApplication.update += Update;
+
             if (target != null)
             {
                 _dummy = (InspectorDummy)target;
                 _selectedAsset = _dummy.SelectedAsset;
+                _selectedDependency = _dummy.SelectedDependency;
             }
 
             if (_selectedAsset != null)
             {
                 _controller = EditorClientController.GetInstance();
                 _columnsSize = new float[] { 20f, 50f, 50f, 100f };
+                _inspectorAsset = new InspectorAsset(_selectedAsset, _controller, _columnsSize);
+                if (_selectedDependency != null)
+                    _inspectorDependency = new InspectorAsset(_selectedDependency, _controller, _columnsSize);
+            }
+
+            _scrollPos = Vector2.zero;
+            _scrollPos2 = Vector2.zero;
+        }
+
+        void OnDisable() { EditorApplication.update -= Update; }
+
+        protected override void OnHeaderGUI(){ }
+
+        public override void OnInspectorGUI()
+        {
+            if(_selectedAsset != null)
+            {
+                BundlesWindow.InitStyles();
+
+                EditorGUILayout.BeginVertical();
+
+                _scrollPos = EditorGUILayout.BeginScrollView(_scrollPos, GUILayout.Height(Screen.height/2 - 30));
+                _inspectorAsset.PrintAssetView();
+                EditorGUILayout.EndScrollView();
+
+                if (_selectedDependency != null)
+                {
+                    GUILayout.Label(" "+_selectedAsset.Name +" > "+ _selectedDependency.Name);
+
+                    _scrollPos2 = EditorGUILayout.BeginScrollView(_scrollPos2, GUILayout.Height(Screen.height / 2 - 30));
+                    _inspectorDependency.PrintAssetView();
+                    EditorGUILayout.EndScrollView();
+                }
+                EditorGUILayout.EndVertical();
+            }
+        }
+
+        void Update()
+        {
+            Repaint();
+        }
+
+
+
+
+
+
+
+        private class InspectorAsset
+        {
+            private Asset _selectedAsset;
+            private EditorClientController _controller;
+            private float[] _columnsSize;
+            private List<Asset> _dependencies;
+            private Dictionary<string, bool> _sharedDependenciesCache;
+            private List<Asset> _references;
+            private Texture2D _preview;
+
+            public InspectorAsset(Asset selectedAsset, EditorClientController controller, float[] columnsSize)
+            {
+                _selectedAsset = selectedAsset;
+                _controller = controller;
+                _columnsSize = columnsSize;
+
                 _dependencies = new List<Asset>();
                 string[] dependencesGuids = AssetDatabase.GetDependencies(AssetDatabase.GUIDToAssetPath(_selectedAsset.Guid));
                 for (int i = 0; i < dependencesGuids.Length; i++)
@@ -50,23 +115,16 @@ namespace SocialPoint.TransparentBundles
                 if (_preview == null)
                     _preview = AssetPreview.GetMiniThumbnail(assetObject);
             }
-        }
 
-        protected override void OnHeaderGUI(){ }
-
-        public override void OnInspectorGUI()
-        {
-            if(_selectedAsset != null)
+            public void PrintAssetView()
             {
-                BundlesWindow.InitStyles();
-
                 EditorGUILayout.BeginVertical();
 
                 GUILayout.Label("", GUILayout.Height(15));
 
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("", GUILayout.Width(1));
-                
+
                 Rect previewRect = GUILayoutUtility.GetRect(150, 150, GUILayout.ExpandWidth(false));
                 GUI.DrawTexture(previewRect, _preview);
                 GUILayout.Label("", GUILayout.Width(10));
@@ -80,7 +138,7 @@ namespace SocialPoint.TransparentBundles
                 Bundle bundle = _controller.GetBundleFromAsset(_selectedAsset);
                 if (bundle != null)
                     size = bundle.Size;
-                GUILayout.Label("size:  "+ size+" MB", BundlesWindow.BodyTextStyle);
+                GUILayout.Label("size:  " + size + " MB", BundlesWindow.BodyTextStyle);
                 EditorGUILayout.BeginHorizontal();
                 EditorGUILayout.BeginVertical();
                 GUILayout.Label("", GUILayout.ExpandHeight(true));
@@ -93,7 +151,7 @@ namespace SocialPoint.TransparentBundles
                     GUI.DrawTexture(Rec, _controller.DownloadImage(Config.IconsPath + "in_build.png"));
                     inBuild = "Asset In Build";
                 }
-                    
+
                 GUILayout.Label(inBuild, BundlesWindow.BodyTextStyle, GUILayout.MinWidth(100), GUILayout.ExpandWidth(true), GUILayout.Height(20));
                 EditorGUILayout.EndHorizontal();
 
@@ -117,7 +175,6 @@ namespace SocialPoint.TransparentBundles
                 GUILayout.Label("", GUILayout.Width(10));
                 EditorGUILayout.EndHorizontal();
 
-                
                 if (_dependencies.Count > 1)
                 {
                     GUILayout.Label("", GUILayout.Height(20));
@@ -134,14 +191,14 @@ namespace SocialPoint.TransparentBundles
                     EditorGUILayout.EndHorizontal();
 
                     for (int i = 0; i < _dependencies.Count; i++)
-                        PrintDependency(_dependencies[i]);
+                        PrintDependency(_dependencies[i], _selectedAsset);
 
                     GUILayout.Label("", GUILayout.Height(20));
                     EditorGUILayout.EndVertical();
                     GUILayout.Label("", GUILayout.Width(10));
                     EditorGUILayout.EndHorizontal();
                 }
-                
+
                 if (_references.Count > 0)
                 {
                     GUILayout.Label("", GUILayout.Height(20));
@@ -155,7 +212,7 @@ namespace SocialPoint.TransparentBundles
                     EditorGUILayout.EndHorizontal();
 
                     for (int i = 0; i < _references.Count; i++)
-                        PrintReference(_references[i]);
+                        PrintReference(_references[i], _selectedAsset);
 
                     GUILayout.Label("", GUILayout.Height(20));
                     EditorGUILayout.EndVertical();
@@ -165,130 +222,147 @@ namespace SocialPoint.TransparentBundles
 
                 EditorGUILayout.EndVertical();
             }
-        }
 
-        private void PrintDependency(Asset dependency)
-        {
-            if (dependency.Guid == _selectedAsset.Guid)
-                return;
 
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("", GUILayout.Width(5));
-            EditorGUILayout.BeginVertical();
-            GUILayout.Label("", GUILayout.Height(3));
-            EditorGUILayout.BeginHorizontal();
-            Bundle bundle = _controller.GetBundleFromAsset(dependency);
-            GUILayout.Label(AssetPreview.GetMiniThumbnail(dependency.GetAssetObject()), GUILayout.Width(_columnsSize[0]), GUILayout.Height(_columnsSize[0]));
-            if (GUILayout.Button(dependency.Name, BundlesWindow.BodyLinkStyle, GUILayout.ExpandWidth(true), GUILayout.Height(20)))
+
+
+            private void PrintDependency(Asset dependency, Asset parent)
             {
-                InspectorDummy inspectorDummy = ScriptableObject.CreateInstance<InspectorDummy>();
-                inspectorDummy.SelectedAsset = dependency;
-                Selection.activeObject = inspectorDummy;
-            }
-            string bundleSize = "0";
-            if (bundle != null)
-                bundleSize = bundle.Size.ToString();
-            GUILayout.Label(bundleSize+" MB", BundlesWindow.BodyTextStyle, GUILayout.Width(_columnsSize[1]));
-            if (IsAssetShared(dependency))
-            {
-                if (GUILayout.Button(_controller.DownloadImage(Config.IconsPath + "shared.png"), BundlesWindow.BodyLinkStyle, GUILayout.Width(_columnsSize[2]), GUILayout.Height(20)))
+                if (dependency.Guid == parent.Guid)
+                    return;
+
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label("", GUILayout.Width(5));
+                EditorGUILayout.BeginVertical();
+                GUILayout.Label("", GUILayout.Height(3));
+                EditorGUILayout.BeginHorizontal();
+                Bundle bundle = _controller.GetBundleFromAsset(dependency);
+                GUILayout.Label(AssetPreview.GetMiniThumbnail(dependency.GetAssetObject()), GUILayout.Width(_columnsSize[0]), GUILayout.Height(_columnsSize[0]));
+                if (GUILayout.Button(dependency.Name, BundlesWindow.BodyLinkStyle, GUILayout.ExpandWidth(true), GUILayout.Height(20)))
                 {
+                    /*SelectedDependency = dependency;
+                    LoadDependencyData();
+                    Repaint();*/
                     InspectorDummy inspectorDummy = ScriptableObject.CreateInstance<InspectorDummy>();
-                    inspectorDummy.SelectedAsset = dependency;
+                    inspectorDummy.SelectedAsset = parent;
+                    inspectorDummy.SelectedDependency = dependency;
                     Selection.activeObject = inspectorDummy;
                 }
-            }
-            else
-                GUILayout.Label("", GUILayout.Width(_columnsSize[2]), GUILayout.Height(20));
-
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.EndVertical();
-
-            if (GUILayout.Button("Find Asset", GUILayout.Height(22), GUILayout.Width(_columnsSize[3])))
-                EditorGUIUtility.PingObject(dependency.GetAssetObject());
-
-            GUILayout.Label("", GUILayout.Width(5));
-            EditorGUILayout.EndHorizontal();
-
-            GUILayout.Label("", GUILayout.Height(5));
-        }
-
-        private void PrintReference(Asset reference)
-        {
-            if (reference.Guid == _selectedAsset.Guid)
-                return;
-
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("", GUILayout.Width(5));
-            EditorGUILayout.BeginVertical();
-            GUILayout.Label("", GUILayout.Height(3));
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Label(AssetPreview.GetMiniThumbnail(reference.GetAssetObject()), GUILayout.Width(_columnsSize[0]), GUILayout.Height(_columnsSize[0]));
-            if (GUILayout.Button(reference.Name, BundlesWindow.BodyLinkStyle, GUILayout.ExpandWidth(true), GUILayout.Height(20)))
-            {
-                InspectorDummy inspectorDummy = ScriptableObject.CreateInstance<InspectorDummy>();
-                inspectorDummy.SelectedAsset = reference;
-                Selection.activeObject = inspectorDummy;
-            }
-            EditorGUILayout.EndHorizontal();
-            EditorGUILayout.EndVertical();
-            if (GUILayout.Button("Find Asset", GUILayout.Height(22), GUILayout.Width(_columnsSize[3])))
-                EditorGUIUtility.PingObject(reference.GetAssetObject());
-
-            GUILayout.Label("", GUILayout.Width(5));
-            EditorGUILayout.EndHorizontal();
-
-            GUILayout.Label("", GUILayout.Height(5));
-        }
-
-        private bool IsAssetShared(Asset asset)
-        {
-            if (_sharedDependenciesCache.ContainsKey(asset.Name))
-                return _sharedDependenciesCache[asset.Name];
-
-            bool shared = SearchReferences(asset, 2).Length > 1;
-            _sharedDependenciesCache.Add(asset.Name, shared);
-            return shared;
-        }
-
-        private Asset[] SearchReferences(Asset asset, int searchLimit = 100)
-        {
-            string assetName = "";
-            Dictionary<string, Asset> matches = new Dictionary<string, Asset>();
-            Object assetObject = asset.GetAssetObject();
-            if (AssetDatabase.IsMainAsset(assetObject))
-            {
-                string path = AssetDatabase.GetAssetPath(assetObject);
-                assetName = System.IO.Path.GetFileNameWithoutExtension(path);
-            }
-            else
-            {
-                Debug.Log("Error Asset not found");
-                return null;
-            }
-
-            Object[] allObjects = Resources.FindObjectsOfTypeAll(typeof(Object));
-            foreach (Object objectToCheck in allObjects)
-            {
-                if (_controller.IsBundle(objectToCheck) && assetName != objectToCheck.name)
+                string bundleSize = "0";
+                if (bundle != null)
+                    bundleSize = bundle.Size.ToString();
+                GUILayout.Label(bundleSize + " MB", BundlesWindow.BodyTextStyle, GUILayout.Width(_columnsSize[1]));
+                if (IsAssetShared(dependency))
                 {
-                    Object[] dependencies = EditorUtility.CollectDependencies(new Object[] { objectToCheck });
-                    for (int i= 0; i < dependencies.Length; i++)
+                    if (GUILayout.Button(_controller.DownloadImage(Config.IconsPath + "shared.png"), BundlesWindow.BodyLinkStyle, GUILayout.Width(_columnsSize[2]), GUILayout.Height(20)))
                     {
-                        Object dependency = dependencies[i];
-                        if (matches.Count == searchLimit)
-                            return new List<Asset>(matches.Values).ToArray();
-                        else if (dependency != null && dependency.name == assetName)
+                        /*_selectedDependency = dependency;
+                        LoadDependencyData();
+                        Repaint();*/
+                        InspectorDummy inspectorDummy = ScriptableObject.CreateInstance<InspectorDummy>();
+                        inspectorDummy.SelectedAsset = parent;
+                        inspectorDummy.SelectedDependency = dependency;
+                        Selection.activeObject = inspectorDummy;
+                    }
+                }
+                else
+                    GUILayout.Label("", GUILayout.Width(_columnsSize[2]), GUILayout.Height(20));
+
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndVertical();
+
+                if (GUILayout.Button("Find Asset", GUILayout.Height(22), GUILayout.Width(_columnsSize[3])))
+                    EditorGUIUtility.PingObject(dependency.GetAssetObject());
+
+                GUILayout.Label("", GUILayout.Width(5));
+                EditorGUILayout.EndHorizontal();
+
+                GUILayout.Label("", GUILayout.Height(5));
+            }
+
+
+
+
+            private void PrintReference(Asset reference, Asset child)
+            {
+                if (reference.Guid == child.Guid)
+                    return;
+
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label("", GUILayout.Width(5));
+                EditorGUILayout.BeginVertical();
+                GUILayout.Label("", GUILayout.Height(3));
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label(AssetPreview.GetMiniThumbnail(reference.GetAssetObject()), GUILayout.Width(_columnsSize[0]), GUILayout.Height(_columnsSize[0]));
+                if (GUILayout.Button(reference.Name, BundlesWindow.BodyLinkStyle, GUILayout.ExpandWidth(true), GUILayout.Height(20)))
+                {
+                    InspectorDummy inspectorDummy = ScriptableObject.CreateInstance<InspectorDummy>();
+                    inspectorDummy.SelectedAsset = reference;
+                    inspectorDummy.SelectedDependency = child;
+                    Selection.activeObject = inspectorDummy;
+                }
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.EndVertical();
+                if (GUILayout.Button("Find Asset", GUILayout.Height(22), GUILayout.Width(_columnsSize[3])))
+                    EditorGUIUtility.PingObject(reference.GetAssetObject());
+
+                GUILayout.Label("", GUILayout.Width(5));
+                EditorGUILayout.EndHorizontal();
+
+                GUILayout.Label("", GUILayout.Height(5));
+            }
+
+
+
+            private bool IsAssetShared(Asset asset)
+            {
+                if (_sharedDependenciesCache.ContainsKey(asset.Name))
+                    return _sharedDependenciesCache[asset.Name];
+
+                bool shared = SearchReferences(asset, 2).Length > 1;
+                _sharedDependenciesCache.Add(asset.Name, shared);
+                return shared;
+            }
+
+            private Asset[] SearchReferences(Asset asset, int searchLimit = 100)
+            {
+                string assetName = "";
+                Dictionary<string, Asset> matches = new Dictionary<string, Asset>();
+                Object assetObject = asset.GetAssetObject();
+                if (AssetDatabase.IsMainAsset(assetObject))
+                {
+                    string path = AssetDatabase.GetAssetPath(assetObject);
+                    assetName = System.IO.Path.GetFileNameWithoutExtension(path);
+                }
+                else
+                {
+                    Debug.Log("Error Asset not found");
+                    return null;
+                }
+
+                Object[] allObjects = Resources.FindObjectsOfTypeAll(typeof(Object));
+                foreach (Object objectToCheck in allObjects)
+                {
+                    if (_controller.IsBundle(objectToCheck) && assetName != objectToCheck.name)
+                    {
+                        Object[] dependencies = EditorUtility.CollectDependencies(new Object[] { objectToCheck });
+                        for (int i = 0; i < dependencies.Length; i++)
                         {
-                            Asset parent = _controller.GetAssetFromObject(objectToCheck);
-                            if (!matches.ContainsKey(parent.Name))
-                                matches.Add(parent.Name, parent);
+                            Object dependency = dependencies[i];
+                            if (matches.Count == searchLimit)
+                                return new List<Asset>(matches.Values).ToArray();
+                            else if (dependency != null && dependency.name == assetName)
+                            {
+                                Asset parent = _controller.GetAssetFromObject(objectToCheck);
+                                if (!matches.ContainsKey(parent.Name))
+                                    matches.Add(parent.Name, parent);
+                            }
                         }
                     }
                 }
-            }
 
-            return new List<Asset>(matches.Values).ToArray();
+                return new List<Asset>(matches.Values).ToArray();
+            }
         }
     }
 }

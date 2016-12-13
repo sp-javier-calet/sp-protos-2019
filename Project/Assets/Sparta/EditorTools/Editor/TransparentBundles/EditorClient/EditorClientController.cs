@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System.IO;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -38,6 +39,31 @@ namespace SocialPoint.TransparentBundles
             return valid;
         }
 
+        private bool HasValidDependencies(Asset asset)
+        {
+            bool valid = true;
+            string[] dependencesPaths = AssetDatabase.GetDependencies(AssetDatabase.GUIDToAssetPath(asset.Guid));
+            for (int i = 0; i < dependencesPaths.Length && valid; i++)
+            {
+                string path = dependencesPaths[i];
+                string simpleFileName = Path.GetFileNameWithoutExtension(path);
+                string fileName = Path.GetFileName(path);
+                
+                string[] matchesGUIDs = AssetDatabase.FindAssets(simpleFileName);
+                for(int j=0; j < matchesGUIDs.Length && valid; j++)
+                {
+                    string matchPath = AssetDatabase.GUIDToAssetPath(matchesGUIDs[j]);
+                    string matchFileName = Path.GetFileName(matchPath);
+                    if (matchFileName == fileName && matchPath != path)
+                    {
+                        valid = false;
+                        EditorUtility.DisplayDialog("Asset issue", "Found a duplicated asset:\n" + path + "\n"+ matchPath + "\n\nYou cannot have duplicated assets in the project.\n\nVisit the following link for more info: \n" + Config.HelpUrl, "Close");
+                    }
+                }
+            }
+            return valid;
+        }
+
         public void CreateOrUpdateBundle(Asset asset)
         {
             if (IsValidAsset(asset))
@@ -45,10 +71,25 @@ namespace SocialPoint.TransparentBundles
                 //TODO comunication with server
 
                 /*FOR TESTING ONLY*/
+
                 if (!_bundleDictionary.ContainsKey(asset.Name))
                 {
+                    if (!HasValidDependencies(asset))
+                        return;
                     Bundle bundle = new Bundle(1, asset.Name.ToLower(), 1, 2f, false, asset);
                     _bundleDictionary.Add(asset.Name, bundle);
+                }
+                else
+                {
+                    Asset serverAsset = _bundleDictionary[asset.Name].Asset;
+                    if(serverAsset.Guid != asset.Guid)
+                    {
+                        EditorUtility.DisplayDialog("Asset issue", "You are trying to create a bundle from an asset with a repeated name in the server. The system does not allow multiple bundles with the same name, so please, rename the asset and try again. \n\nVisit the following link for more info: \n" + Config.HelpUrl, "Close");
+                    }
+                    else
+                    {
+                        //UPDATE
+                    }
                 }
             }
         }
@@ -67,7 +108,7 @@ namespace SocialPoint.TransparentBundles
             //TODO comunication with server
 
             /*FOR TESTING ONLY*/
-            if (_bundleDictionary.ContainsKey(asset.Name))
+            if (_bundleDictionary.ContainsKey(asset.Name) && !_bundleDictionary[asset.Name].IsLocal)
                 _bundleDictionary[asset.Name].IsLocal = true;
         }
 
@@ -76,7 +117,7 @@ namespace SocialPoint.TransparentBundles
             //TODO comunication with server
 
             /*FOR TESTING ONLY*/
-            if (_bundleDictionary.ContainsKey(asset.Name))
+            if (_bundleDictionary.ContainsKey(asset.Name) && _bundleDictionary[asset.Name].IsLocal)
                 _bundleDictionary[asset.Name].IsLocal = false;
         }
 
