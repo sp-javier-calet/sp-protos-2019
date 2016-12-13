@@ -133,6 +133,20 @@ namespace SocialPoint.Dependency
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
+        public static void Finalize(Type type, Object instance)
+        {
+            if(instance == null)
+            {
+                if(_nodeStack.Count > 0)
+                {
+                    var node = _nodeStack.Peek();
+                    node.HasNullValue = true;
+                }
+            }
+            Finalize(type);
+        }
+
+        [System.Diagnostics.Conditional(CollectDependenciesFlag)]
         public static void Finalize(Type type)
         {
             if(_nodeStack.Count > 0)
@@ -284,7 +298,7 @@ namespace SocialPoint.Dependency
             {
                 return _tag;
             }
-        }   
+        }
 
         // Namespace
         public string Namespace
@@ -312,6 +326,8 @@ namespace SocialPoint.Dependency
 
         // Stacktrace for explicit creation
         public string CreationStack;
+
+        public bool HasNullValue;
 
         public bool IsSingle
         {
@@ -388,6 +404,7 @@ namespace SocialPoint.Dependency
             content.AppendLine("Creation:")
             .Append("Root: ").AppendLine(IsRoot.ToString())
             .Append("Instantiated: ").AppendLine(Instantiated.ToString())
+                .Append("Null Values: ").AppendLine(HasNullValue.ToString())
             .Append("Instigator: ").AppendLine(Instigator != null ? Instigator.Class ?? "<none>" : "<none>")
             .AppendLine(CreationStack ?? string.Empty).AppendLine();
             content.AppendLine("History:");

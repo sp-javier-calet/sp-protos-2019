@@ -12,6 +12,7 @@ namespace SocialPoint.Dependency
             public bool Instantiated;
             public bool Root;
             public bool Interface;
+            public bool NullValue;
         }
 
         Filter _filter;
@@ -71,6 +72,9 @@ namespace SocialPoint.Dependency
             hlayout.CreateToggleButton("Interface", _filter.Interface, ButtonColor.Yellow, value => {
                 _filter.Interface = value;
             });
+            hlayout.CreateToggleButton("Null", _filter.NullValue, ButtonColor.Red, value => {
+                _filter.NullValue = value;
+            });
             contentLayout.CreateButton("Apply", layout.Refresh);
             layout.CreateMargin(2);
         }
@@ -82,6 +86,10 @@ namespace SocialPoint.Dependency
             if(_filter.Root)
             {
                 included &= node.IsRoot;
+            }
+            if(_filter.NullValue)
+            {
+                included &= node.HasNullValue;
             }
             if(_filter.Instantiated)
             {
@@ -103,6 +111,10 @@ namespace SocialPoint.Dependency
             if(node.IsRoot)
             {
                 return ButtonColor.Green;
+            }
+            else if(node.HasNullValue)
+            {
+                return ButtonColor.Red;
             }
             else if(node.Instantiated)
             {
@@ -154,6 +166,7 @@ namespace SocialPoint.Dependency
                     .Append("Is Interface: ").AppendLine(Node.IsInterface.ToString())
                     .Append("Is Single: ").AppendLine(Node.IsSingle.ToString())
                     .Append("Instantiated: ").AppendLine(Node.Instantiated.ToString())
+                    .Append("Has Null Value: ").AppendLine(Node.HasNullValue.ToString())
                     .AppendLine();
                 
                 if(Node.IsRoot || Node.Instigator != null)

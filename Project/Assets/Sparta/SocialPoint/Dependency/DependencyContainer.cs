@@ -142,39 +142,36 @@ namespace SocialPoint.Dependency
 
         public object Resolve()
         {
-            if(_instance != null)
-            {
-            }
-            else if(_toType == ToType.Single)
+            if(_instance == null)
             {
                 DependencyGraphBuilder.StartCreation(typeof(F), _tag);
-                DependencyGraphBuilder.StartCreation(_type, null);
-                var construct = _type.GetConstructor(new Type[]{ });
-                _instance = (F)construct.Invoke(new object[]{ });
-                DependencyGraphBuilder.Finalize(_type);
-                DependencyGraphBuilder.Finalize(typeof(F));
-            }
-            else if(_toType == ToType.Lookup)
-            {
-                DependencyGraphBuilder.StartCreation(typeof(F), _tag);
-                _instance = (F)_container.Resolve(_type, _tag, null);
-                DependencyGraphBuilder.Finalize(typeof(F));
-            }
-            else if(_toType == ToType.Method)
-            {
-                DependencyGraphBuilder.StartCreation(typeof(F), _tag);
-                if(_method != null)
+                if(_toType == ToType.Single)
                 {
-                    DependencyGraphBuilder.StartCreation(_type, _tag);
-                    _instance = _method();
-                    DependencyGraphBuilder.Finalize(_type);
+                    DependencyGraphBuilder.StartCreation(_type, null);
+                    var construct = _type.GetConstructor(new Type[]{ });
+                    _instance = (F)construct.Invoke(new object[]{ });
+                    DependencyGraphBuilder.Finalize(_type, _instance);
                 }
-                else if(_getter != null)
+                else if(_toType == ToType.Lookup)
                 {
-                    var param = _container.Resolve(_type, _tag, null);
-                    _instance = _getter(param);
+                    _instance = (F)_container.Resolve(_type, _tag, null);
                 }
-                DependencyGraphBuilder.Finalize(typeof(F));
+                else if(_toType == ToType.Method)
+                {
+                    if(_method != null)
+                    {
+                        DependencyGraphBuilder.StartCreation(_type, _tag);
+                        _instance = _method();
+                        DependencyGraphBuilder.Finalize(_type, _instance);
+                    }
+                    else if(_getter != null)
+                    {
+                        var param = _container.Resolve(_type, _tag, null);
+                        _instance = _getter(param);
+                    }
+
+                }
+                DependencyGraphBuilder.Finalize(typeof(F), _instance);
             }
 
             return _instance;
