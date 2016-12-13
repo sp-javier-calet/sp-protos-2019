@@ -1,5 +1,4 @@
-﻿
-namespace SocialPoint.Geometry
+﻿namespace SocialPoint.Geometry
 {
     public partial struct Vector
     {
@@ -15,7 +14,7 @@ namespace SocialPoint.Geometry
         }
     }
 
-    // UnityVector adapter
+    // Unity Vector3 adapter
     public partial struct Vector
     {
         public static Vector Convert(UnityEngine.Vector3 v)
@@ -34,40 +33,22 @@ namespace SocialPoint.Geometry
         }
     }
 
-
-    // TODO Move to file
-    public partial struct Quat
+    // Unity Vector2 adapter
+    public partial struct Vector
     {
-        float _x;
-        float _y;
-        float _z;
-        float _w;
-
-        public Quat(float x, float y, float z, float w)
+        public static Vector Convert(UnityEngine.Vector2 v)
         {
-            _x = x;
-            _y = y;
-            _z = z;
-            _w = w;
-        }
-    }
-
-    // UnityVector adapter
-    public partial struct Quat
-    {
-        public static Quat Convert(UnityEngine.Quaternion q)
-        {
-            return new Quat(q.x, q.y, q.z, q.w);
+            return new Vector(v.x, v.y, 0);
         }
 
-        public static implicit operator Quat(UnityEngine.Quaternion q)
+        public static implicit operator Vector(UnityEngine.Vector2 v)
         {
-            return new Quat(q.x, q.y, q.z, q.w);
+            return new Vector(v.x, v.y, 0);
         }
 
-        public static implicit operator UnityEngine.Quaternion(Quat q)
+        public static implicit operator UnityEngine.Vector2(Vector v)
         {
-            return new UnityEngine.Quaternion(q._x, q._y, q._z, q._w);
+            return new UnityEngine.Vector2(v._x, v._y);
         }
     }
 }

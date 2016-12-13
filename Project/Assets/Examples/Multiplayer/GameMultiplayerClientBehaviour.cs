@@ -105,7 +105,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
     void ReadExplosionEvent(IReader reader)
     {
         var ev = reader.Read<ExplosionEvent>();
-        ObjectPool.Spawn(_explosionPrefab, transform, ev.Position.ToUnity());
+        ObjectPool.Spawn(_explosionPrefab, transform, Vector.Convert(ev.Position));
     }
 
     void ReadPathEvent(IReader reader)
@@ -120,7 +120,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
         var ev = reader.Read<PathEvent>();
         for(int i = 0; i < ev.Points.Length; i++)
         {
-            var nodeObj = Instantiate(_pathNodePrefab, ev.Points[i].ToUnity(), Quaternion.identity) as GameObject;
+            var nodeObj = Instantiate(_pathNodePrefab, Vector.Convert(ev.Points[i]), Quaternion.identity) as GameObject;
             nodeObj.transform.SetParent(transform);
             _visualPathNodes.Add(nodeObj);
         }
@@ -128,11 +128,11 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
         //Create path edges
         for(int i = 0; i < ev.Points.Length - 1; i++)
         {
-            var point1 = ev.Points[i].ToUnity();
-            var point2 = ev.Points[i + 1].ToUnity();
+            var point1 = Vector.Convert(ev.Points[i]);
+            var point2 = Vector.Convert(ev.Points[i + 1]);
             var edgeObj = Instantiate(_pathEdgePrefab, point1, Quaternion.identity) as GameObject;
             edgeObj.transform.LookAt(point2);
-            edgeObj.transform.localScale = new UnityEngine.Vector3(1, 1, UnityEngine.Vector3.Distance(point1, point2) * 0.5f);
+            edgeObj.transform.localScale = new Vector3(1, 1, Vector3.Distance(point1, point2) * 0.5f);
             _visualPathNodes.Add(edgeObj);
         }
     }

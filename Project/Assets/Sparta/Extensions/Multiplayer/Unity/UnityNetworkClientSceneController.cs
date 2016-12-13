@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using SocialPoint.Pooling;
 using SocialPoint.Network;
+using SocialPoint.Geometry;
 using SocialPoint.Physics;
 
 namespace SocialPoint.Multiplayer
@@ -32,8 +33,8 @@ namespace SocialPoint.Multiplayer
             if(_objects.TryGetValue(objectId, out go))
             {
                 var ut = go.transform;
-                ut.position = t.Position.ToUnity();
-                ut.rotation = t.Rotation.ToUnity();
+                ut.position = Vector.Convert(t.Position);
+                ut.rotation = Quat.Convert(t.Rotation);
             }
         }
 
@@ -58,7 +59,7 @@ namespace SocialPoint.Multiplayer
             }
 
             var go = ObjectPool.Spawn(prefab, parent,
-                         ev.Transform.Position.ToUnity(), ev.Transform.Rotation.ToUnity());
+                         Vector.Convert(ev.Transform.Position), Quat.Convert(ev.Transform.Rotation));
             _objects[ev.ObjectId] = go;
         }
 
