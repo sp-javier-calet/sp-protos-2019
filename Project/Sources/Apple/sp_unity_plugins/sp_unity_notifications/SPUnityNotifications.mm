@@ -84,14 +84,12 @@ EXPORT_API void SPUnityNotificationsClearAllLocalNotifications()
 EXPORT_API void SPUnityNotificationsRegisterForNotifications()
 {
     UIApplication* application = [UIApplication sharedApplication];
-    if([application respondsToSelector:@selector(registerUserNotificationSettings:)])
+    if([application respondsToSelector:@selector(registerUserNotificationSettings:)])// ios8 >=
     {
-#ifdef __IPHONE_8_0
         UIUserNotificationSettings* settings =
-          [UIUserNotificationSettings settingsForTypes:(UIRemoteNotificationTypeBadge | UIRemoteNotificationTypeSound | UIRemoteNotificationTypeAlert)
+          [UIUserNotificationSettings settingsForTypes:(UIUserNotificationTypeBadge | UIUserNotificationTypeSound | UIUserNotificationTypeAlert)
                                             categories:nil];
         [application registerUserNotificationSettings:settings];
-#endif
     }
     else
     {
