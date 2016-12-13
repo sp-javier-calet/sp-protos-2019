@@ -12,10 +12,10 @@ namespace Examples.Lockstep
         LockstepNetworkServer _server;
         LockstepClient _client;
 
-        public ServerBehaviour(LockstepNetworkServer server)
+        public ServerBehaviour(LockstepNetworkServer server, Config config)
         {
             _server = server;
-            _model = new Model();
+            _model = new Model(config);
             _client = new LockstepClient();
 
             var cmdFactory = new LockstepCommandFactory();
@@ -47,12 +47,12 @@ namespace Examples.Lockstep
         {
             // TODO: mark player as a cheater
             _server.PlayerResults[playerNum] = new AttrInt(-1);
-            _server.Fail("Command failed: " + err);
+            _server.Fail(err);
         }
 
         public void OnError(Error err)
         {
-            _server.Fail("Lockstep server failed: " + err);
+            _server.Fail(err);
         }
 
         public void OnMatchFinished(Dictionary<byte, Attr> playerResults)

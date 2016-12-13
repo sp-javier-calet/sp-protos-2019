@@ -63,6 +63,7 @@ namespace SocialPoint.Matchmaking
             match = new Match {
                 Id = attrDic.GetValue(MatchIdAttrKey).ToString(),
                 PlayerId = attrDic.GetValue(PlayerIdAttrKey).ToString(),
+                Running = true,
                 GameInfo = attrDic.Get(GameInfoAttrKey),
                 ServerInfo = attrDic.Get(ServerInfoAttrKey),
             };
@@ -90,6 +91,19 @@ namespace SocialPoint.Matchmaking
         List<IMatchmakingClientDelegate> _delegates;
         IMatchmakingClient _client;
         IMatchStorage _storage;
+
+        public string Room
+        {
+            get
+            {
+                return _client.Room;
+            }
+
+            set
+            {
+                _client.Room = value;
+            }
+        }
 
         public StoredMatchmakingClient(IMatchmakingClient client, IMatchStorage storage=null)
         {

@@ -62,6 +62,7 @@ namespace SocialPoint.Lockstep
             {
                 return false;
             }
+            _matchmaking.Version = AppVersion;
             _netServer.Config.CommandStepDuration = GetConfigOption(config,
                 CommandStepDurationConfig, _netServer.Config.CommandStepDuration);
             _netServer.Config.SimulationStepDuration = GetConfigOption(config,

@@ -10,7 +10,7 @@ namespace SocialPoint.Matchmaking
         PhotonNetworkClient _network;
 
         const string RegionAttrKey = "region";
-        const string ServerAttrKey = "server";
+        const string ServerAttrKey = "addr";
         const string AppIdAttrKey = "app_id";
 
         public PhotonMatchmakingClientDelegate(PhotonNetworkClient network, IMatchmakingClient matchmaking)
@@ -32,6 +32,7 @@ namespace SocialPoint.Matchmaking
         public void OnMatched(Match match)
         {
             _network.Config.RoomName = match.Id;
+            _network.Config.CreateRoom = !match.Running;
             var server = match.ServerInfo.AsDic;
             if(server.ContainsKey(RegionAttrKey))
             {

@@ -10,6 +10,7 @@ namespace SocialPoint.Matchmaking
     {
         public string Id;
         public string PlayerId;
+        public bool Running;
         public Attr GameInfo;
         public Attr ServerInfo;
 
@@ -21,6 +22,14 @@ namespace SocialPoint.Matchmaking
                 return GameInfo;
             }
         }
+
+        public override string ToString()
+        {
+            return string.Format("[Match:{0}\n" +
+                "PlayerId={1} Running={2}\n" +
+                "Game={3} Server={4}]",
+                Id, PlayerId, Running, GameInfo, ServerInfo);
+        }
     }
 
     public interface IMatchmakingClientDelegate
@@ -30,8 +39,15 @@ namespace SocialPoint.Matchmaking
         void OnError(Error err);
     }
 
+    public static class MatchmakingClientErrorCode
+    {
+        public const int Timeout = 301;
+    }
+
     public interface IMatchmakingClient
     {
+        string Room{ get; set; }
+
         void AddDelegate(IMatchmakingClientDelegate dlg);
         void RemoveDelegate(IMatchmakingClientDelegate dlg);
 
