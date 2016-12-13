@@ -15,12 +15,12 @@ public class SocialFrameworkInstaller : Installer
     const string SocialFrameworkTag = "social_framework";
 
     const string DefaultWAMPProtocol = "wamp.2.json";
-    const string DefaultSocketEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8002/ws";
+    const string DefaultEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8002/ws";
 
     [Serializable]
     public class SettingsData
     {
-        public string SocketEndpoint = DefaultSocketEndpoint;
+        public string[] Endpoints = new string[] { DefaultEndpoint };
         public string[] Protocols = new string[] { DefaultWAMPProtocol };
     }
 
@@ -35,9 +35,9 @@ public class SocialFrameworkInstaller : Installer
         _deviceInfo = Container.Resolve<IDeviceInfo>();
 
         // Service Installer
-        Container.Rebind<WebSocketSharpClient>().ToMethod<WebSocketSharpClient>(CreateWebSocket, SetupWebSocket);
-        Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketSharpClient>();
-        Container.Bind<IDisposable>().ToLookup<WebSocketSharpClient>();
+        Container.Rebind<WebSocketClient>().ToMethod<WebSocketClient>(CreateWebSocket, SetupWebSocket);
+        Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketClient>();
+        Container.Bind<IDisposable>().ToLookup<WebSocketClient>();
 
         Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);    
         Container.Bind<IDisposable>().ToLookup<ConnectionManager>();
@@ -47,6 +47,11 @@ public class SocialFrameworkInstaller : Installer
 
         Container.Bind<AlliancesManager>().ToMethod<AlliancesManager>(CreateAlliancesManager, SetupAlliancesManager);
         Container.Bind<IDisposable>().ToLookup<AlliancesManager>();
+
+        Container.Bind<IRankManager>().ToMethod<IRankManager>(CreateRankManager);
+        Container.Bind<IAccessTypeManager>().ToMethod<IAccessTypeManager>(CreateAccessTypeManager);
+
+        Container.Bind<AllianceDataFactory>().ToMethod<AllianceDataFactory>(CreateAlliancesDataFactory, SetupAlliancesDataFactory);
 
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWebSockets>(CreateAdminPanelWebSockets);
@@ -65,6 +70,7 @@ public class SocialFrameworkInstaller : Installer
     {
         room.ChatManager = Container.Resolve<ChatManager>();
         room.Localization = Container.Resolve<Localization>();
+        room.RankManager = Container.Resolve<IRankManager>();
 
         // Configure optional events to manage custom data
         room.ParseUnknownNotifications = PublicChatMessage.ParseUnknownNotifications;
@@ -81,6 +87,7 @@ public class SocialFrameworkInstaller : Installer
     {
         room.ChatManager = Container.Resolve<ChatManager>();
         room.Localization = Container.Resolve<Localization>();
+        room.RankManager = Container.Resolve<IRankManager>();
 
         // Configure optional events to manage custom data
         room.ParseUnknownNotifications = AllianceChatMessage.ParseUnknownNotifications;
@@ -88,15 +95,12 @@ public class SocialFrameworkInstaller : Installer
         room.SerializeExtraInfo = AllianceChatMessage.SerializeExtraInfo;
     }
 
-    WebSocketSharpClient CreateWebSocket()
+    WebSocketClient CreateWebSocket()
     {
-        return new WebSocketSharpClient(
-            Settings.SocketEndpoint,
-            Settings.Protocols,
-            Container.Resolve<IUpdateScheduler>());
+        return new WebSocketClient(Settings.Endpoints, Settings.Protocols, Container.Resolve<IUpdateScheduler>());
     }
 
-    void SetupWebSocket(WebSocketSharpClient client)
+    void SetupWebSocket(WebSocketClient client)
     {
         if(!string.IsNullOrEmpty(_httpProxy))
         {
@@ -142,12 +146,30 @@ public class SocialFrameworkInstaller : Installer
 
     void SetupAlliancesManager(AlliancesManager manager)
     {
+        manager.Factory = Container.Resolve<AllianceDataFactory>();
         manager.LoginData = Container.Resolve<ILoginData>();
+        manager.Ranks = Container.Resolve<IRankManager>();
+        manager.AccessTypes = Container.Resolve<IAccessTypeManager>();
+    }
 
-        if(Container.HasBinding<AllianceDataFactory>())
-        {
-            manager.Factory = Container.Resolve<AllianceDataFactory>();
-        }
+    AllianceDataFactory CreateAlliancesDataFactory()
+    {
+        return new AllianceDataFactory();
+    }
+
+    void SetupAlliancesDataFactory(AllianceDataFactory factory)
+    {
+        factory.Ranks = Container.Resolve<IRankManager>(); 
+    }
+
+    IRankManager CreateRankManager()
+    {
+        return new DefaultRankManager();
+    }
+
+    IAccessTypeManager CreateAccessTypeManager()
+    {
+        return new DefaultAccessTypeManager();
     }
 
     AdminPanelSocialFramework CreateAdminPanelSocialFramework()

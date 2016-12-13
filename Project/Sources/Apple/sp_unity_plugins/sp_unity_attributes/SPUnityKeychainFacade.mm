@@ -42,7 +42,7 @@ EXPORT_API char* SPUnityKeychainGet(SPUnityKeychainItemStruct item)
         return SPUnityKeychainCreateString(nullptr);
     }
     id value = [wrapper objectForKey:(__bridge id)kSecValueData];
-    if(value == nil || ![value isKindOfClass:[NSString class]])
+    if(value == nil || ![value isKindOfClass:[NSString class]] || [value length] == 0)
     {
         return SPUnityKeychainCreateString(nullptr);
     }

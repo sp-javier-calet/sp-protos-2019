@@ -9,14 +9,14 @@ namespace SocialPoint.Lockstep
     [Category("SocialPoint.Lockstep")]
     class LockstepReplayTests
     {
-        ClientLockstepController _client;
+        LockstepClient _client;
         LockstepReplay _replay;
         LockstepCommandFactory _factory;
 
         [SetUp]
         public void SetUp()
         {
-            _client = new ClientLockstepController();
+            _client = new LockstepClient();
             _factory = new LockstepCommandFactory();
             var cmd = Substitute.For<ILockstepCommand>();
             cmd.Clone().Returns(cmd);
@@ -37,7 +37,7 @@ namespace SocialPoint.Lockstep
             Assert.AreEqual(1, _replay.CommandCount);
 
             var itr = _replay.GetTurnsEnumerator();
-            ClientLockstepCommandData cmdData2 = null;
+            ClientCommandData cmdData2 = null;
             while(itr.MoveNext())
             {
                 var turn = itr.Current;
@@ -78,12 +78,12 @@ namespace SocialPoint.Lockstep
         {
             var cmd = Substitute.For<ILockstepCommand>();
             var finish = Substitute.For<ILockstepCommandLogic>();
-            _replay.AddCommand(0, cmd, finish);
+            _replay.AddCommand(0, new ClientCommandData(cmd, finish, _client.PlayerNumber));
             _replay.Replay();
             _client.Start();
-            finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>());
+            finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>(), Arg.Any<byte>());
             _client.Update(2000);
-            finish.Received().Apply(cmd);
+            finish.Received().Apply(cmd, _client.PlayerNumber);
         }
     }
 

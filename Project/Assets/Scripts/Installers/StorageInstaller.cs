@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using SocialPoint.Attributes;
 using SocialPoint.IO;
 using SocialPoint.Hardware;
@@ -28,6 +29,10 @@ public class StorageInstaller : Installer
     {
         var vol = new PlayerPrefsAttrStorage();
         vol.Prefix = Settings.VolatilePrefix;
+        #if UNITY_STANDALONE
+        // avoid editor and standalone overwriting
+        vol.Prefix += UnityEngine.Application.platform.ToString();
+        #endif
         return vol;
     }
 
@@ -40,7 +45,12 @@ public class StorageInstaller : Installer
         var persistent = new PersistentAttrStorage(devInfo.Uid, Settings.PersistentPrefix);
         Container.Bind<IDisposable>().ToLookup<PersistentAttrStorage>();
         #else
-        var persistent = new FileAttrStorage(PathsManager.AppPersistentDataPath); //TODO: doesnt work with prefixes
+        var path = PathsManager.AppPersistentDataPath;
+        #if UNITY_STANDALONE
+        // avoid editor and standalone overwriting
+        path = Path.Combine(path, UnityEngine.Application.platform.ToString());
+        #endif
+        var persistent = new FileAttrStorage(path); //TODO: doesnt work with prefixes
         #endif
 
         var vol = Container.Resolve<IAttrStorage>("volatile");

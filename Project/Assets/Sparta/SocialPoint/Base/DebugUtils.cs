@@ -45,7 +45,10 @@ namespace SocialPoint.Base
                 #if UNITY_EDITOR
                     try
                     {
-                        UnityEditor.EditorApplication.isPlaying &= condition;
+                        if(UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
+                        {
+                            UnityEditor.EditorApplication.isPlaying &= condition;
+                        }
                     }
                     catch(MissingMethodException)
                     {

@@ -7,8 +7,9 @@ public enum BackendEnvironment
     Development,
     Production,
     Test,
-    Docker}
-;
+    Docker,
+    LeagueOfDragons
+}
 
 public static class BackendEnvironmentExtensions
 {
@@ -16,6 +17,7 @@ public static class BackendEnvironmentExtensions
     const string TestUrl = "http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3";
     const string ProductionUrl = "https://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3";
     const string DockerUrl = "http://localhost:4630/api/v3";
+    const string LeagueOfDragonsUrl = "http://int-lod.socialpointgames.com/lod3/web/index.php/api/v3";
 
     static string JenkinsForcedUrl
     {
@@ -46,6 +48,8 @@ public static class BackendEnvironmentExtensions
             return TestUrl;
         case BackendEnvironment.Docker:
             return DockerUrl;
+        case BackendEnvironment.LeagueOfDragons:
+            return LeagueOfDragonsUrl;
         }
         return null;
     }

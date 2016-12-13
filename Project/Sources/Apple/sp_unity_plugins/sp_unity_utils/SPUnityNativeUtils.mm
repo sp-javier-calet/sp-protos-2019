@@ -15,12 +15,11 @@ bool userAllowsNotifications()
 #if UNITY_TVOS
     return false;
 #else
-    if([[UIApplication sharedApplication] respondsToSelector:@selector(currentUserNotificationSettings)])
+    if([[UIApplication sharedApplication] respondsToSelector:@selector(currentUserNotificationSettings)]) // ios8 >=
     {
-        // Ios 8
         UIUserNotificationType notificationSelection = [[[UIApplication sharedApplication] currentUserNotificationSettings] types];
 
-        return notificationSelection & UIRemoteNotificationTypeAlert;
+        return notificationSelection & UIUserNotificationTypeAlert;
     }
     else
     {
@@ -33,13 +32,11 @@ bool userAllowsNotifications()
 
 void onPermissionsGranted()
 {
-#ifdef __IPHONE_8_0
     UIApplication* application = [UIApplication sharedApplication];
-    if([application respondsToSelector:@selector(registerForRemoteNotifications)])
+    if([application respondsToSelector:@selector(registerForRemoteNotifications)]) // ios8 >=
     {
         [application registerForRemoteNotifications];
     }
-#endif
 }
 
 void onRegisterForRemote(const std::string& pushToken)
@@ -221,8 +218,10 @@ EXPORT_API bool SPUnityNativeUtilsUserAllowNotification()
 #if !UNITY_TVOS
 EXPORT_API void SPUnitySetForceTouchShortcutItems(ForceTouchShortcutItem* shortcuts, int itemsCount)
 {
-    if(SPUnityNativeUtils::isSystemVersionGreaterThanOrEqualTo(SPUnityNativeUtils::kV9))
+    if(!SPUnityNativeUtils::isSystemVersionGreaterThanOrEqualTo(SPUnityNativeUtils::kV9))
+    {
         return;
+    }
 
     NSMutableArray<UIApplicationShortcutItem*>* items = [NSMutableArray arrayWithCapacity:itemsCount];
 

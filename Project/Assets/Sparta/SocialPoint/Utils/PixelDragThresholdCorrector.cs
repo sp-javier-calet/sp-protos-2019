@@ -1,20 +1,23 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-[RequireComponent(typeof(EventSystem))]
-public sealed class PixelDragThresholdCorrector : MonoBehaviour
+namespace SocialPoint.Utils
 {
-    const int _baseTH = 6;
-    const int _basePPI = 210;
-
-    void Start()
+    [RequireComponent(typeof(EventSystem))]
+    public sealed class PixelDragThresholdCorrector : MonoBehaviour
     {
-        EventSystem es = GetComponent<EventSystem>();
+        const int _baseTH = 6;
+        const int _basePPI = 210;
 
-        if(es != null)
+        void Start()
         {
-            int dragTH = _baseTH * (int)Screen.dpi / _basePPI;
-            es.pixelDragThreshold = dragTH;
+            EventSystem es = GetComponent<EventSystem>();
+
+            if(es != null)
+            {
+                int dragTH = _baseTH * (int)Screen.dpi / _basePPI;
+                es.pixelDragThreshold = dragTH;
+            }
         }
     }
 }

@@ -1251,11 +1251,6 @@ namespace SocialPoint.Attributes
             return GetEnumerator();
         }
 
-        public KeyValuePair<string, Attr> ElementAt(int index)
-        {
-            return _value.ElementAt(index);
-        }
-
         public override string ToString()
         {
             var b = StringUtils.StartBuilder();

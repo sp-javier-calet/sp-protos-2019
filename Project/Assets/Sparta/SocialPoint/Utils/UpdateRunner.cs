@@ -25,6 +25,8 @@ namespace SocialPoint.Utils
         void AddFixed(IUpdateable elm, double interval, bool usesTimeScale = false);
 
         void Remove(IUpdateable elm);
+
+        bool Contains(IUpdateable elm);
     }
 
     public static class UpdateSchedulerExtension
@@ -115,7 +117,13 @@ namespace SocialPoint.Utils
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                _elements.Add(elm);
+                if(!_elementsToRemove.Remove(elm))
+                {
+                    if(!Contains(elm))
+                    {
+                        _elements.Add(elm);
+                    }
+                }
             }
         }
 
@@ -124,15 +132,12 @@ namespace SocialPoint.Utils
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                if(usesTimeScale)
+                if(!_elementsToRemove.Remove(elm))
                 {
-                    var intervalData = new TimeScaleDependantInterval(interval);
-                    _intervalTimeScaleDependantElements.Add(elm, intervalData);
-                }
-                else
-                {
-                    var intervalData = new TimeScaleNonDependantInterval(interval);
-                    _intervalTimeScaleNonDependantElements.Add(elm, intervalData);
+                    if(!Contains(elm))
+                    {
+                        DoAddFixed(elm, interval, usesTimeScale);
+                    }
                 }
             }
         }
@@ -142,6 +147,29 @@ namespace SocialPoint.Utils
             if(elm != null)
             {
                 _elementsToRemove.Add(elm);
+            }
+        }
+
+        public bool Contains(IUpdateable elm)
+        {
+            if(_elements.Contains(elm))
+            {
+                return true;
+            }
+            return _intervalTimeScaleDependantElements.ContainsKey(elm) || _intervalTimeScaleNonDependantElements.ContainsKey(elm);
+        }
+
+        void DoAddFixed(IUpdateable elm, double interval, bool usesTimeScale = false)
+        {
+            if(usesTimeScale)
+            {
+                var intervalData = new TimeScaleDependantInterval(interval);
+                _intervalTimeScaleDependantElements.Add(elm, intervalData);
+            }
+            else
+            {
+                var intervalData = new TimeScaleNonDependantInterval(interval);
+                _intervalTimeScaleNonDependantElements.Add(elm, intervalData);
             }
         }
 
@@ -241,13 +269,38 @@ namespace SocialPoint.Utils
             var exceptionsCount = _exceptions.Count;
             if(exceptionsCount > 0)
             {
+                throw new AggregateException(_exceptions);
+            }
+        }
+
+        sealed class AggregateException : Exception
+        {
+            static string CreateMessage(IEnumerable<Exception> exceptions)
+            {
                 var sb = new StringBuilder();
-                for(int i = 0; i < exceptionsCount; i++)
+                sb.AppendLine("Multiple Exceptions thrown:");
+                var count = 1;
+                var itr = exceptions.GetEnumerator();
+                while(itr.MoveNext())
                 {
-                    var ex = _exceptions[i];
-                    sb.Append(ex.Message);
+                    var ex = itr.Current;
+                    sb.Append(count++)
+                        .Append(". ")
+                        .Append(ex.GetType().Name)
+                        .Append(": ")
+                        .Append(ex.Message)
+                        .AppendLine(ex.StackTrace);
+                    sb.AppendLine();
                 }
-                throw new Exception(sb.ToString());
+                itr.Dispose();
+                return sb.ToString();
+            }
+
+            public List<Exception> Exceptions { get; private set; }
+
+            public AggregateException(IEnumerable<Exception> exceptions) : base(CreateMessage(exceptions))
+            {
+                Exceptions = new List<Exception>(exceptions);
             }
         }
 

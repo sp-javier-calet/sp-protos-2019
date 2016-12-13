@@ -2,7 +2,7 @@ using SocialPoint.IosKeychain;
 
 namespace SocialPoint.Attributes
 {
-    class KeychainAttrStorage : IAttrStorage
+    public class KeychainAttrStorage : IAttrStorage
     {
         public IAttrSerializer Serializer = new JsonAttrSerializer();
         public IAttrParser Parser = new JsonAttrParser();

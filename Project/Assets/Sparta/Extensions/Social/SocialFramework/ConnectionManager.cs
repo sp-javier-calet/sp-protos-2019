@@ -23,8 +23,9 @@ namespace SocialPoint.Social
         public float RPCTimeout = 1.0f;
     }
 
-    public static class NotificationTypeCode
+    public static class NotificationType
     {
+        public const int ChatWarning = 99;
         public const int TextMessage = 100;
 
         // Personal notifications
@@ -43,7 +44,6 @@ namespace SocialPoint.Social
         public const int BroadcastAllianceMemberLeave = 104;
         public const int BroadcastAllianceEdit = 105;
         public const int BroadcastAllianceMemberPromote = 106;
-        public const int BroadcastAllianceMemberRankChange = 111;
         public const int BroadcastAllianceOnlineMember = 308;
     }
 
@@ -228,12 +228,19 @@ namespace SocialPoint.Social
             }
         }
 
-        public string Url
+        public string[] Urls
         {
             get
             {
-                // TODO Work with multiple Urls
-                return _socket.Url;
+                return _socket.Urls;
+            }
+        }
+
+        public string ConnectedUrl
+        {
+            get
+            {
+                return _socket.ConnectedUrl;
             }
         }
 
@@ -336,7 +343,7 @@ namespace SocialPoint.Social
             if(LoginData != null && LoginData.Data.Social != null)
             {
                 var urls = LoginData.Data.Social.WebSocketUrls;
-                _socket.Url = urls[0]; // TODO Set urls
+                _socket.Urls = urls;
             }
         }
 
