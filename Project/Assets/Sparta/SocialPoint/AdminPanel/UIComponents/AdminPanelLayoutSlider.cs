@@ -8,7 +8,7 @@ namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout
     {
-        Slider CreateSliderComponent(float current, float min, float max, ButtonColor sliderColor, Action<Text, float> onChanged, bool enabled = true)
+        Slider CreateSliderComponent(float current, string currentLabel, float min, float max, ButtonColor sliderColor, Action<Text, float> onChanged, bool enabled = true)
         {
             var rectTransform = CreateUIObject("Admin Panel - Slider", Parent);
 
@@ -46,7 +46,7 @@ namespace SocialPoint.AdminPanel
             labelText.alignment = TextAnchor.MiddleRight;
             labelText.color = Color.white;
             labelText.font = DefaultFont;
-            labelText.text = current.ToString();
+            labelText.text = currentLabel;
 
             // Handler
             var handlerArea = CreateUIObject("Admin Panel - Slider Handler Area", rectTransform);
@@ -77,7 +77,7 @@ namespace SocialPoint.AdminPanel
 
         public Slider CreateSlider(float current, float min, float max, ButtonColor sliderColor, Action<float> onChanged, bool enabled = true)
         {
-            return CreateSliderComponent(current, min, max, sliderColor, (label, value) => {
+            return CreateSliderComponent(current, current.ToString(), min, max, sliderColor, (label, value) => {
                 label.text = value.ToString();
                 onChanged(value);
             }, enabled);
@@ -90,7 +90,7 @@ namespace SocialPoint.AdminPanel
 
         public Slider CreateSliderDiscrete(int current, int min, int max, ButtonColor sliderColor, Action<int> onChanged, bool enabled = true)
         {
-            var slider = CreateSliderComponent((float)current, (float)min, (float)max, sliderColor,
+            var slider = CreateSliderComponent((float)current, current.ToString(), (float)min, (float)max, sliderColor,
                 (label, value) => {
                     label.text = value.ToString();
                     var intValue = (int)value;
@@ -109,7 +109,13 @@ namespace SocialPoint.AdminPanel
         public Slider CreateSlider<T>(T current, IList<T> list, ButtonColor sliderColor, Action<T> onChanged, bool enabled = true)
         {
             var index = list.IndexOf(current);
-            var slider = CreateSliderComponent((float)index, 0, list.Count - 1, sliderColor, 
+            if(index < 0)
+            {
+                index = 0;
+            }
+            var currentElm = list[index];
+
+            var slider = CreateSliderComponent((float)index, currentElm.ToString(), 0, list.Count - 1, sliderColor, 
                 (label, value) => {
                     var elm = list[(int)value];
                     label.text = elm.ToString();
