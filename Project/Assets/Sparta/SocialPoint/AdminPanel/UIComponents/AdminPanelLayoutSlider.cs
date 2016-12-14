@@ -8,7 +8,7 @@ namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout
     {
-        public Slider CreateSlider(float current, float min, float max, ButtonColor sliderColor, Action<float> onChanged, bool enabled = true)
+        Slider CreateSliderComponent(float current, float min, float max, ButtonColor sliderColor, Action<Text, float> onChanged, bool enabled = true)
         {
             var rectTransform = CreateUIObject("Admin Panel - Slider", Parent);
 
@@ -29,7 +29,7 @@ namespace SocialPoint.AdminPanel
             // Fill
             var fillArea = CreateUIObject("Admin Panel - Slider Fill Area", rectTransform);
             fillArea.anchorMin = new Vector2(0.05f, 0.25f);
-            fillArea.anchorMax = new Vector2(0.95f, 0.75f);
+            fillArea.anchorMax = new Vector2(0.94f, 0.75f);
 
             var fill = CreateUIObject("Admin Panel - Slider Fill", fillArea);
             fill.anchorMin = Vector2.zero;
@@ -38,15 +38,25 @@ namespace SocialPoint.AdminPanel
             var fillImage = fill.gameObject.AddComponent<Image>();
             fillImage.color = enabled ? sliderColor.Color : sliderColor.GetDisabled();
 
+            // Value Label
+            var label = CreateUIObject("Admin Panel - Slider Label", rectTransform);
+            label.anchorMin = new Vector2(0.06f, 0.1f);
+            label.anchorMax = new Vector2(0.94f, 0.9f);
+            var labelText = label.gameObject.AddComponent<Text>();
+            labelText.alignment = TextAnchor.MiddleRight;
+            labelText.color = Color.white;
+            labelText.font = DefaultFont;
+            labelText.text = current.ToString();
+
             // Handler
             var handlerArea = CreateUIObject("Admin Panel - Slider Handler Area", rectTransform);
             handlerArea.anchorMin = new Vector2(0.05f, 0.1f);
-            handlerArea.anchorMax = new Vector2(0.95f, 0.9f);
+            handlerArea.anchorMax = new Vector2(0.94f, 0.9f);
 
             var handler = CreateUIObject("Admin Panel - Slider Handler", handlerArea);
             handler.sizeDelta = new Vector2(10.0f, 0);
             var handlerImage = handler.gameObject.AddComponent<Image>();
-            handlerImage.color = enabled ? Color.white : DisabledColor;
+            handlerImage.color = enabled ? ForegroundColor : DisabledColor;
 
             // Configure Slider
             slider.targetGraphic = handlerImage;
@@ -55,26 +65,59 @@ namespace SocialPoint.AdminPanel
             slider.minValue = min;
             slider.maxValue = max;
             slider.value = current;
-            slider.onValueChanged += onChanged;
+            slider.onValueChanged.AddListener(value => onChanged(labelText, value));
 
             return slider;
         }
 
-        public Slider CreateSliderDiscrete(int current, int min, int max, ButtonColor sliderColor ,Action<int> onChanged, bool enabled = true)
+        public Slider CreateSlider(float current, float min, float max, Action<float> onChanged, bool enabled = true)
         {
-            var slider = CreateSlider((float)current, (float)min, (float)max, sliderColor, value => {
-                var intValue = (int)value;
-                onChanged(intValue);
+            return CreateSlider(current, min, max, ButtonColor.Default, onChanged, enabled);
+        }
+
+        public Slider CreateSlider(float current, float min, float max, ButtonColor sliderColor, Action<float> onChanged, bool enabled = true)
+        {
+            return CreateSliderComponent(current, min, max, sliderColor, (label, value) => {
+                label.text = value.ToString();
+                onChanged(value);
             }, enabled);
+        }
+
+        public Slider CreateSliderDiscrete(int current, int min, int max, Action<int> onChanged, bool enabled = true)
+        {
+            return CreateSliderDiscrete(current, min, max, ButtonColor.Default, onChanged, enabled);
+        }
+
+        public Slider CreateSliderDiscrete(int current, int min, int max, ButtonColor sliderColor, Action<int> onChanged, bool enabled = true)
+        {
+            var slider = CreateSliderComponent((float)current, (float)min, (float)max, sliderColor,
+                (label, value) => {
+                    label.text = value.ToString();
+                    var intValue = (int)value;
+                    onChanged(intValue);
+                }, enabled);
 
             slider.wholeNumbers = true;
             return slider;
         }
 
+        public Slider CreateSlider<T>(T current, IList<T> list, Action<T> onChanged, bool enabled = true)
+        {
+            return CreateSlider(current, list, ButtonColor.Default, onChanged, enabled);
+        }
+
         public Slider CreateSlider<T>(T current, IList<T> list, ButtonColor sliderColor, Action<T> onChanged, bool enabled = true)
         {
             var index = list.IndexOf(current);
-            return CreateSliderDiscrete(index, 0, list.Count-1, sliderColor, value => onChanged(list[value]), enabled);
+            var slider = CreateSliderComponent((float)index, 0, list.Count - 1, sliderColor, 
+                (label, value) => {
+                    var elm = list[(int)value];
+                    label.text = elm.ToString();
+                    onChanged(elm);
+                }, enabled);
+
+            slider.wholeNumbers = true;
+            return slider;
         }
     }
 }
