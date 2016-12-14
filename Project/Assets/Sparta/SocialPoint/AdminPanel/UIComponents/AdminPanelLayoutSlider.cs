@@ -1,0 +1,80 @@
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+
+namespace SocialPoint.AdminPanel
+{
+    public partial class AdminPanelLayout
+    {
+        public Slider CreateSlider(float current, float min, float max, ButtonColor sliderColor, Action<float> onChanged, bool enabled = true)
+        {
+            var rectTransform = CreateUIObject("Admin Panel - Slider", Parent);
+
+            var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();
+            layoutElement.preferredHeight = DefaultLabelHeight;
+            layoutElement.flexibleWidth = 1;
+
+            var slider = rectTransform.gameObject.AddComponent<Slider>();
+            slider.enabled = enabled;
+
+            // Background
+            var sliderBackground = CreateUIObject("Admin Panel - Slider Background", rectTransform);
+            sliderBackground.anchorMin = new Vector2(0.05f, 0.25f);
+            sliderBackground.anchorMax = new Vector2(0.95f, 0.75f);
+            var backgroundImage = sliderBackground.gameObject.AddComponent<Image>();
+            backgroundImage.color = enabled ? sliderColor.Color : sliderColor.GetDisabled();
+
+            // Fill
+            var fillArea = CreateUIObject("Admin Panel - Slider Fill Area", rectTransform);
+            fillArea.anchorMin = new Vector2(0.05f, 0.25f);
+            fillArea.anchorMax = new Vector2(0.95f, 0.75f);
+
+            var fill = CreateUIObject("Admin Panel - Slider Fill", fillArea);
+            fill.anchorMin = Vector2.zero;
+            fill.anchorMax = Vector2.zero;
+            fill.sizeDelta = new Vector2(10, 0);
+            var fillImage = fill.gameObject.AddComponent<Image>();
+            fillImage.color = enabled ? sliderColor.Color : sliderColor.GetDisabled();
+
+            // Handler
+            var handlerArea = CreateUIObject("Admin Panel - Slider Handler Area", rectTransform);
+            handlerArea.anchorMin = new Vector2(0.05f, 0.1f);
+            handlerArea.anchorMax = new Vector2(0.95f, 0.9f);
+
+            var handler = CreateUIObject("Admin Panel - Slider Handler", handlerArea);
+            handler.sizeDelta = new Vector2(10.0f, 0);
+            var handlerImage = handler.gameObject.AddComponent<Image>();
+            handlerImage.color = enabled ? Color.white : DisabledColor;
+
+            // Configure Slider
+            slider.targetGraphic = handlerImage;
+            slider.fillRect = fill;
+            slider.handleRect = handler;
+            slider.minValue = min;
+            slider.maxValue = max;
+            slider.value = current;
+            slider.onValueChanged += onChanged;
+
+            return slider;
+        }
+
+        public Slider CreateSliderDiscrete(int current, int min, int max, ButtonColor sliderColor ,Action<int> onChanged, bool enabled = true)
+        {
+            var slider = CreateSlider((float)current, (float)min, (float)max, sliderColor, value => {
+                var intValue = (int)value;
+                onChanged(intValue);
+            }, enabled);
+
+            slider.wholeNumbers = true;
+            return slider;
+        }
+
+        public Slider CreateSlider<T>(T current, IList<T> list, ButtonColor sliderColor, Action<T> onChanged, bool enabled = true)
+        {
+            var index = list.IndexOf(current);
+            return CreateSliderDiscrete(index, 0, list.Count-1, sliderColor, value => onChanged(list[value]), enabled);
+        }
+    }
+}

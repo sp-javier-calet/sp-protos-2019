@@ -16,6 +16,16 @@ namespace SocialPoint.AdminPanel
             Color = new Color(r, g, b, Alpha);
         }
 
+        public Color GetDisabled()
+        {
+            return new Color(Color.r / 2, Color.g / 2, Color.b / 2, Alpha);
+        }
+
+        public Color GetHighlight()
+        {   
+            return new Color(Color.r * 1.2f, Color.g * 1.2f, Color.b * 1.2f, Alpha);
+        }
+
         public static readonly ButtonColor Default = new ButtonColor(.5f, .5f, .5f);
         public static readonly ButtonColor Disabled = new ButtonColor(.2f, .2f, .2f);
         public static readonly ButtonColor Gray = new ButtonColor(.5f, .5f, .5f);
