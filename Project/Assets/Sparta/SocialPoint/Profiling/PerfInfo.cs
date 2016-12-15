@@ -2,8 +2,12 @@
 using System.Collections;
 using System.Runtime.InteropServices;
 using System.Text;
-using UnityEngine;
 using SocialPoint.Hardware;
+using UnityEngine;
+
+#if UNITY_5_5_OR_NEWER
+using UnityEngine.Profiling;
+#endif
 
 namespace SocialPoint.Profiling
 {

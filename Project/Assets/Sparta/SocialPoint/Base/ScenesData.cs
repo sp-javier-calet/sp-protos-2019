@@ -76,15 +76,24 @@ namespace SocialPoint.Base
             return _instance;
         }
 
-        static public void UpdateData()
+        #if UNITY_EDITOR
+        static void CreateAsset()
         {
-            #if UNITY_EDITOR
-            UpdateSceneNames();
-            UpdateAsset();
-            #endif
+            if(!Directory.Exists(ContainerPath))
+            {
+                Directory.CreateDirectory(ContainerPath);
+            }
+
+            AssetDatabase.CreateAsset(Instance, ScenesDataAssetPath);
+            AssetDatabase.SaveAssets();
         }
 
-        #if UNITY_EDITOR
+        static public void UpdateData()
+        {
+            UpdateSceneNames();
+            UpdateAsset();
+        }
+
         static void UpdateSceneNames()
         {
             EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;
@@ -108,17 +117,6 @@ namespace SocialPoint.Base
             EditorUtility.SetDirty(Instance);
         }
 
-        static void CreateAsset()
-        {
-            if(!Directory.Exists(ContainerPath))
-            {
-                Directory.CreateDirectory(ContainerPath);
-            }
-
-            string assetPath = ScenesDataAssetPath;
-            AssetDatabase.CreateAsset(Instance, assetPath);
-            AssetDatabase.SaveAssets();
-        }
         #endif
     }
 }

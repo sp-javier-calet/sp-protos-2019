@@ -1,10 +1,13 @@
 ﻿using System;
-using System.Text;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using SocialPoint.Attributes;
-using SocialPoint.Utils;
-using UnityEngine;
+
+#if UNITY_5_5_OR_NEWER
+using UnityEngine.Profiling;
+#endif
+
 
 namespace SocialPoint.AssetSerializer.Utils.JsonSerialization
 {
