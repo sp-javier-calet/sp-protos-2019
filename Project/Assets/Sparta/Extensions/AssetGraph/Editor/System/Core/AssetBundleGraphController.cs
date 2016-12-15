@@ -17,31 +17,31 @@ namespace AssetBundleGraph {
 		/*
 		 * Verify nodes does not create cycle
 		 */
-		private static void ValidateLoopConnection(SaveData saveData) {
-			var leaf = saveData.CollectAllLeafNodes();
+		private static void ValidateLoopConnection(Graph graph) {
+			var leaf = graph.CollectAllLeafNodes();
 			foreach (var leafNode in leaf) {
-				MarkAndTraverseParent(saveData, leafNode, new List<ConnectionData>(), new List<NodeData>());
+				MarkAndTraverseParent(graph, leafNode, new List<ConnectionData>(), new List<NodeData>());
 			}
 		}
 
-		private static void MarkAndTraverseParent(SaveData saveData, NodeData current, List<ConnectionData> visitedConnections, List<NodeData> visitedNode) {
+		private static void MarkAndTraverseParent(Graph graph, NodeData current, List<ConnectionData> visitedConnections, List<NodeData> visitedNode) {
 
 			// if node is visited from other route, just quit
 			if(visitedNode.Contains(current)) {
 				return;
 			}
 
-			var connectionsToParents = saveData.Connections.FindAll(con => con.ToNodeId == current.Id);
+			var connectionsToParents = graph.Connections.FindAll(con => con.ToNodeId == current.Id);
 			foreach(var c in connectionsToParents) {
 				if(visitedConnections.Contains(c)) {
 					throw new NodeException("Looped connection detected. Please fix connections to avoid loop.", current.Id);
 				}
 
-				var parentNode = saveData.Nodes.Find(node => node.Id == c.FromNodeId);
+				var parentNode = graph.Nodes.Find(node => node.Id == c.FromNodeId);
 				UnityEngine.Assertions.Assert.IsNotNull(parentNode);
 
 				visitedConnections.Add(c);
-				MarkAndTraverseParent(saveData, parentNode, visitedConnections, visitedNode);
+				MarkAndTraverseParent(graph, parentNode, visitedConnections, visitedNode);
 			}
 
 			visitedNode.Add(current);
@@ -52,42 +52,44 @@ namespace AssetBundleGraph {
 		 */
 		public static Dictionary<ConnectionData, Dictionary<string, List<Asset>>> 
 		Perform (
-			SaveData saveData, 
+			Graph graph, 
 			BuildTarget target,
 			bool isRun,
 			Action<NodeException> errorHandler,
-			Action<NodeData, float> updateHandler) 
+			Action<NodeData, float> updateHandler,
+			string preImporter = null) 
 		{
 			bool validateFailed = false;
 			try {
-				ValidateLoopConnection(saveData);
+				ValidateLoopConnection(graph);
 			} catch (NodeException e) {
 				errorHandler(e);
 				validateFailed = true;
 			}
 
 			var resultDict = new Dictionary<ConnectionData, Dictionary<string, List<Asset>>>();
-			var performedIds = new List<string>();
+			var performedIds = new List<string>();  
 			var cacheDict  = new Dictionary<NodeData, List<string>>();
-
+			 
 			// if validation failed, node may contain looped connections, so we are not going to 
 			// go into each operations.
+
 			if(!validateFailed) {
-				var leaf = saveData.CollectAllLeafNodes();
+				var leaf = graph.CollectAllLeafNodes();
 
 				foreach (var leafNode in leaf) {
 					if( leafNode.InputPoints.Count == 0 ) {
-						DoNodeOperation(target, leafNode, null, null, saveData, resultDict, cacheDict, performedIds, isRun, errorHandler, updateHandler);
+						DoNodeOperation(target, leafNode, null, null, graph, resultDict, cacheDict, performedIds, isRun, errorHandler, updateHandler, preImporter);
 					} else {
 						foreach(var inputPoint in leafNode.InputPoints) {
-							DoNodeOperation(target, leafNode, inputPoint, null, saveData, resultDict, cacheDict, performedIds, isRun, errorHandler, updateHandler);
+							DoNodeOperation(target, leafNode, inputPoint, null, graph, resultDict, cacheDict, performedIds, isRun, errorHandler, updateHandler, preImporter);
 						}
 					}
 				}
 			}
 			return resultDict;
-		}
-			
+		}		
+
 		/**
 			Perform Run or Setup from parent of given terminal node recursively.
 		*/
@@ -96,26 +98,27 @@ namespace AssetBundleGraph {
 			NodeData currentNodeData,
 			ConnectionPointData currentInputPoint,
 			ConnectionData connectionToOutput,
-			SaveData saveData,
+			Graph graph,
 			Dictionary<ConnectionData, Dictionary<string, List<Asset>>> resultDict, 
 			Dictionary<NodeData, List<string>> cachedDict,
 			List<string> performedIds,
 			bool isActualRun,
 			Action<NodeException> errorHandler,
-			Action<NodeData, float> updateHandler
+			Action<NodeData, float> updateHandler,
+			string preImporter
 		) {
 			if (performedIds.Contains(currentNodeData.Id) || (currentInputPoint != null && performedIds.Contains(currentInputPoint.Id))) {
 				return;
-			}
+			}           
 
 			/*
 			 * Find connections coming into this node from parent node, and traverse recursively
 			*/
-			var connectionsToParents = saveData.Connections.FindAll(con => con.ToNodeId == currentNodeData.Id);
+			var connectionsToParents = graph.Connections.FindAll(con => con.ToNodeId == currentNodeData.Id);
 
 			foreach (var c in connectionsToParents) {
 
-				var parentNode = saveData.Nodes.Find(node => node.Id == c.FromNodeId);
+				var parentNode = graph.Nodes.Find(node => node.Id == c.FromNodeId);
 				UnityEngine.Assertions.Assert.IsNotNull(parentNode);
 
 				// check if nodes can connect together
@@ -123,12 +126,12 @@ namespace AssetBundleGraph {
 				if( parentNode.InputPoints.Count > 0 ) {
 					// if node has multiple input, node is operated per input
 					foreach(var parentInputPoint in parentNode.InputPoints) {
-						DoNodeOperation(target, parentNode, parentInputPoint, c, saveData, resultDict, cachedDict, performedIds, isActualRun, errorHandler, updateHandler);
+						DoNodeOperation(target, parentNode, parentInputPoint, c, graph, resultDict, cachedDict, performedIds, isActualRun, errorHandler, updateHandler, preImporter);
 					}
 				} 
 				// if parent does not have input point, call with inputPoint==null
 				else {
-					DoNodeOperation(target, parentNode, null, c, saveData, resultDict, cachedDict, performedIds, isActualRun, errorHandler, updateHandler);
+					DoNodeOperation(target, parentNode, null, c, graph, resultDict, cachedDict, performedIds, isActualRun, errorHandler, updateHandler, preImporter);
 				}
 			}
 
@@ -164,7 +167,7 @@ namespace AssetBundleGraph {
 			var inputGroupAssets = new Dictionary<string, List<Asset>>();
 			if(currentInputPoint != null) {
 				// aggregates all input assets coming from current inputPoint
-				var connToParentsFromCurrentInput = saveData.Connections.FindAll(con => con.ToNodeConnectionPointId == currentInputPoint.Id);
+				var connToParentsFromCurrentInput = graph.Connections.FindAll(con => con.ToNodeConnectionPointId == currentInputPoint.Id);
 				foreach (var rCon in connToParentsFromCurrentInput) {
 					if (!resultDict.ContainsKey(rCon)) {
 						continue;
@@ -213,16 +216,19 @@ namespace AssetBundleGraph {
 			};
 
 			try {
-				INodeOperation executor = CreateOperation(saveData, currentNodeData, errorHandler);
+				INodeOperation executor = CreateOperation(graph, currentNodeData, errorHandler);
 				if(executor != null) {
-					if(isActualRun) {
-						executor.Run(target, currentNodeData, currentInputPoint, connectionToOutput, inputGroupAssets, alreadyCachedPaths, Output);
-					}
-					else {
-						executor.Setup(target, currentNodeData, currentInputPoint, connectionToOutput, inputGroupAssets, alreadyCachedPaths, Output);
+					if(executor is IntegratedGUILoader && preImporter != null) {
+						var loader = executor as IntegratedGUILoader;
+						loader.LoadSingleAsset(currentNodeData,connectionToOutput, preImporter, Output);
+					} else {
+						if(isActualRun) {
+							executor.Run(target, currentNodeData, currentInputPoint, connectionToOutput, inputGroupAssets, alreadyCachedPaths, Output);
+						} else {
+							executor.Setup(target, currentNodeData, currentInputPoint, connectionToOutput, inputGroupAssets, alreadyCachedPaths, Output);
+						}
 					}
 				}
-
 			} catch (NodeException e) {
 				errorHandler(e);
 				// since error occured, this node should stop running for other inputpoints. Adding node id to stop.
@@ -236,7 +242,7 @@ namespace AssetBundleGraph {
 			}
 		}
 
-		public static INodeOperation CreateOperation(SaveData saveData, NodeData currentNodeData, Action<NodeException> errorHandler) {
+		public static INodeOperation CreateOperation(Graph graph, NodeData currentNodeData, Action<NodeException> errorHandler) {
 			INodeOperation executor = null;
 
 			try {
@@ -247,7 +253,7 @@ namespace AssetBundleGraph {
 					}
 				case NodeKind.FILTER_GUI: {
 						// Filter requires multiple output connections
-						var connectionsToChild = saveData.Connections.FindAll(c => c.FromNodeId == currentNodeData.Id);
+						var connectionsToChild = graph.Connections.FindAll(c => c.FromNodeId == currentNodeData.Id);
 						executor = new IntegratedGUIFilter(connectionsToChild);
 						break;
 					}
@@ -278,12 +284,22 @@ namespace AssetBundleGraph {
 						executor = new IntegratedGUIBundleBuilder();
 						break;
 					}
-
 				case NodeKind.EXPORTER_GUI: {
 						executor = new IntegratedGUIExporter();
 						break;
 					}
-
+				case NodeKind.WARP_IN: {
+						executor = new IntegratedGUIWarpIn();
+						break;
+					}
+				case NodeKind.WARP_OUT: {
+						executor = new IntegratedGUIWarpOut();
+						break;
+					}
+				case NodeKind.VALIDATOR_GUI: {
+						executor = new IntegratedGUIValidator();
+						break;
+					}
 				default: {
 						Debug.LogError(currentNodeData.Name + " is defined as unknown kind of node. value:" + currentNodeData.Kind);
 						break;
@@ -368,9 +384,9 @@ namespace AssetBundleGraph {
 			return new List<string>();
 		}
 		
-		public static void Postprocess (SaveData saveData, Dictionary<ConnectionData, Dictionary<string, List<Asset>>> result, bool isBuild) 
+		public static void Postprocess (Graph graph, Dictionary<ConnectionData, Dictionary<string, List<Asset>>> result, bool isBuild) 
 		{
-			var nodeResult = CollectNodeGroupAndAssets(saveData, result);
+			var nodeResult = CollectNodeGroupAndAssets(graph, result);
 
 			var postprocessType = typeof(IPostprocess);
 			var ppTypes = Assembly.GetExecutingAssembly().GetTypes().Select(v => v).Where(v => v != postprocessType && postprocessType.IsAssignableFrom(v)).ToList();
@@ -386,13 +402,13 @@ namespace AssetBundleGraph {
 		}
 
 		private static Dictionary<NodeData, Dictionary<string, List<Asset>>> CollectNodeGroupAndAssets (
-			SaveData data,
+			Graph graph,
 			Dictionary<ConnectionData, Dictionary<string, List<Asset>>> result
 		) {
 			var nodeDatas = new Dictionary<NodeData, Dictionary<string, List<Asset>>>();
 
 			foreach (var c in result.Keys) {
-				var targetNode = data.Nodes.Find(node => node.Id == c.FromNodeId);
+				var targetNode = graph.Nodes.Find(node => node.Id == c.FromNodeId);
 				var groupDict = result[c];
 
 				if (!nodeDatas.ContainsKey(targetNode)) {

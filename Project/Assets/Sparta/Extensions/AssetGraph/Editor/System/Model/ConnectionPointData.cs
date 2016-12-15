@@ -15,8 +15,10 @@ namespace AssetBundleGraph {
 
 		private const string ID = "id";
 		private const string LABEL = "label";
+		private const string COLOR = "labelColor";
 		private const string PRIORITY = "orderPriority";
 		private const string SHOWLABEL = "showLabel";
+		private const string HIDDEN = "hidden";
 
 		/**
 		* In order to support Unity serialization for Undo, cyclic reference need to be avoided.
@@ -28,26 +30,32 @@ namespace AssetBundleGraph {
 		[SerializeField] private string parentId;
 		[SerializeField] private bool isInput;
 		[SerializeField] private Rect buttonRect;
+		[SerializeField] private Color labelColor;
+		[SerializeField] private bool hidden;
 
-//		private int orderPriority;
-//		private bool showLabel;
+		//		private int orderPriority;
+		//		private bool showLabel;
 
-		public ConnectionPointData(string id, string label, NodeData parent, bool isInput/*, int orderPriority, bool showLabel */) {
+		public ConnectionPointData(string id, string label, NodeData parent, bool isInput, bool isHidden = false/*, int orderPriority, bool showLabel */) {
 			this.id = id;
 			this.label = label;
 			this.parentId = parent.Id;
 			this.isInput = isInput;
+			labelColor = NodeData.DEFAULT_COLOR;
+			hidden = isHidden;
 					//			this.orderPriority = orderPriority;
 //			this.showLabel = showLabel;
 		}
 
-		public ConnectionPointData(string label, NodeData parent, bool isInput) {
+		public ConnectionPointData(string label, NodeData parent, bool isInput, bool isHidden = false) {
 			this.id = Guid.NewGuid().ToString();
 			this.label = label;
 			this.parentId = parent.Id;
 			this.isInput = isInput;
-//			this.orderPriority = pointGui.orderPriority;
-//			this.showLabel = pointGui.showLabel;
+			labelColor = NodeData.DEFAULT_COLOR;
+			hidden = isHidden;
+			//			this.orderPriority = pointGui.orderPriority;
+			//			this.showLabel = pointGui.showLabel;
 		}
 
 		public ConnectionPointData(Dictionary<string, object> dic, NodeData parent, bool isInput) {
@@ -56,6 +64,12 @@ namespace AssetBundleGraph {
 			this.label = dic[LABEL] as string;
 			this.parentId = parent.Id;
 			this.isInput = isInput;
+			labelColor = NodeData.DEFAULT_COLOR;
+			if(dic.ContainsKey(HIDDEN)) {
+				hidden = Convert.ToBoolean(dic[HIDDEN]);
+			}else {
+				hidden = false;
+			}
 
 			//			this.orderPriority = pointGui.orderPriority;
 			//			this.showLabel = pointGui.showLabel;
@@ -76,6 +90,15 @@ namespace AssetBundleGraph {
 				label = value;
 			}
 		}
+		
+		public Color LabelColor {
+			get {
+				return labelColor;
+			}
+			set {
+				labelColor = value;
+			}
+		}
 
 		public string NodeId {
 			get {
@@ -92,6 +115,12 @@ namespace AssetBundleGraph {
 		public bool IsOutput {
 			get {
 				return !isInput;
+			}
+		}
+
+		public bool IsHidden{
+			get {
+				return hidden;
 			}
 		}
 
@@ -155,24 +184,24 @@ namespace AssetBundleGraph {
 			var parentRegion = node.Region;
 			if(IsInput){
 
-				var initialY = (AssetBundleGraphSettings.GUI.NODE_BASE_HEIGHT - AssetBundleGraphSettings.GUI.INPUT_POINT_HEIGHT) / 2f;
-				var marginY  = initialY + AssetBundleGraphSettings.GUI.FILTER_OUTPUT_SPAN * (index);
+				var initialY = (AssetGraphRelativePaths.NODE_BASE_HEIGHT - AssetGraphRelativePaths.INPUT_POINT_HEIGHT) / 2f;
+				var marginY  = initialY + AssetGraphRelativePaths.FILTER_OUTPUT_SPAN * (index);
 
 				buttonRect = new Rect(
 					0,
 					marginY, 
-					AssetBundleGraphSettings.GUI.INPUT_POINT_WIDTH, 
-					AssetBundleGraphSettings.GUI.INPUT_POINT_HEIGHT);
+					AssetGraphRelativePaths.INPUT_POINT_WIDTH, 
+					AssetGraphRelativePaths.INPUT_POINT_HEIGHT);
 			} else {
 
-				var initialY = (AssetBundleGraphSettings.GUI.NODE_BASE_HEIGHT - AssetBundleGraphSettings.GUI.OUTPUT_POINT_HEIGHT) / 2f;
-				var marginY  = initialY + AssetBundleGraphSettings.GUI.FILTER_OUTPUT_SPAN * (index);
+				var initialY = (AssetGraphRelativePaths.NODE_BASE_HEIGHT - AssetGraphRelativePaths.OUTPUT_POINT_HEIGHT) / 2f;
+				var marginY  = initialY + AssetGraphRelativePaths.FILTER_OUTPUT_SPAN * (index);
 
 				buttonRect = new Rect(
-					parentRegion.width - AssetBundleGraphSettings.GUI.OUTPUT_POINT_WIDTH + 1f, 
+					parentRegion.width - AssetGraphRelativePaths.OUTPUT_POINT_WIDTH + 1f, 
 					marginY, 
-					AssetBundleGraphSettings.GUI.OUTPUT_POINT_WIDTH, 
-					AssetBundleGraphSettings.GUI.OUTPUT_POINT_HEIGHT);
+					AssetGraphRelativePaths.OUTPUT_POINT_WIDTH, 
+					AssetGraphRelativePaths.OUTPUT_POINT_HEIGHT);
 			}
 		}
 
@@ -181,8 +210,8 @@ namespace AssetBundleGraph {
 			return new Rect(
 				baseRect.x + baseRect.width - 8f, 
 				baseRect.y + buttonRect.y + 1f, 
-				AssetBundleGraphSettings.GUI.CONNECTION_POINT_MARK_SIZE, 
-				AssetBundleGraphSettings.GUI.CONNECTION_POINT_MARK_SIZE
+				AssetGraphRelativePaths.CONNECTION_POINT_MARK_SIZE, 
+				AssetGraphRelativePaths.CONNECTION_POINT_MARK_SIZE
 			);
 		}
 
@@ -191,15 +220,16 @@ namespace AssetBundleGraph {
 			return new Rect(
 				baseRect.x - 2f, 
 				baseRect.y + buttonRect.y + 3f, 
-				AssetBundleGraphSettings.GUI.CONNECTION_POINT_MARK_SIZE, 
-				AssetBundleGraphSettings.GUI.CONNECTION_POINT_MARK_SIZE
+				AssetGraphRelativePaths.CONNECTION_POINT_MARK_SIZE, 
+				AssetGraphRelativePaths.CONNECTION_POINT_MARK_SIZE
 			);
 		}
 
 		public Dictionary<string, object> ToJsonDictionary() {
-			return new Dictionary<string, object> () {
+			return new Dictionary<string, object>() {
 				{ID, this.id},
-				{LABEL, this.label}
+				{LABEL, this.label},
+				{HIDDEN, this.hidden}
 			};
 		}
 	}

@@ -12,6 +12,7 @@ namespace AssetBundleGraph {
 		public static void RemakeDirectory (string localFolderPath) {
 			if (Directory.Exists(localFolderPath)) Directory.Delete(localFolderPath, true);
 			Directory.CreateDirectory(localFolderPath);
+			AssetDatabase.Refresh();
 		}
 		
 		public static void CopyFileFromGlobalToLocal (string absoluteSourceFilePath, string localTargetFilePath) {
@@ -60,7 +61,7 @@ namespace AssetBundleGraph {
 			}
 
 			// Directory.GetFiles() returns platform dependent delimiter, so make sure replace with "/"
-			if( Path.DirectorySeparatorChar != AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR ) {
+			if(Path.DirectorySeparatorChar != AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR) {
 				filePaths =	filePaths.Select(filePath => filePath.Replace(Path.DirectorySeparatorChar.ToString(), AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR.ToString()));
 			}
 

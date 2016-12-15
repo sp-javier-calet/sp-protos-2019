@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 
 using System;
@@ -18,7 +18,10 @@ namespace AssetBundleGraph {
 			BuildTargetUtility.DefaultTarget;
 
 		[NonSerialized] private IModifier m_modifier;
+		[NonSerialized] private IValidator m_validator;
 		[NonSerialized] private IPrefabBuilder m_prefabBuilder;
+
+		private Type selectedType;
 
 		public override bool RequiresConstantRepaint() {
 			return true;
@@ -31,6 +34,21 @@ namespace AssetBundleGraph {
 
 			EditorGUILayout.HelpBox("Loader: Load assets in given directory path.", MessageType.Info);
 			UpdateNodeName(node);
+
+			bool newPreProcess = EditorGUILayout.Toggle("Pre-Processing", node.Data.PreProcess);
+
+			if(newPreProcess != node.Data.PreProcess) {
+				using(new RecordUndoScope("PreProcess Changed", node, true)) {
+					node.Data.PreProcess = newPreProcess;
+				}
+			}
+
+			bool newPermanent = EditorGUILayout.Toggle("Permanent Processing", node.Data.Permanent);
+			if(newPermanent != node.Data.Permanent) {
+				using(new RecordUndoScope("Permanent Changed", node, true)) {
+					node.Data.Permanent = newPermanent;
+				}
+			}
 
 			GUILayout.Space(10f);
 
@@ -60,6 +78,12 @@ namespace AssetBundleGraph {
 					}
 				}
 			}
+
+			EditorGUILayout.Space();
+			if(GUILayout.Button("Select Tree")) {
+				AssetBundleGraphEditorWindow.SelectAllRelatedTree(new string[] { node.Id }, false);
+			}
+
 		}
 
 		private void DoInspectorFilterGUI (NodeGUI node) {
@@ -79,13 +103,20 @@ namespace AssetBundleGraph {
 							removing = cond;
 						}
 						else {
+							var newName = cond.Name;
 							var newContainsKeyword = cond.FilterKeyword;
+							bool newIsExclusion = cond.IsExclusion;
 
 							GUIStyle s = new GUIStyle((GUIStyle)"TextFieldDropDownText");
 
 							using (new EditorGUILayout.HorizontalScope()) {
-								newContainsKeyword = EditorGUILayout.TextField(cond.FilterKeyword, s, GUILayout.Width(120));
-								if (GUILayout.Button(cond.FilterKeytype , "Popup")) {
+								EditorGUILayout.LabelField("Name:", GUILayout.MaxWidth(40));
+								newName = EditorGUILayout.TextField(cond.Name, s, GUILayout.MaxWidth(200));
+
+								EditorGUILayout.LabelField("Filter:", GUILayout.MaxWidth(40));
+								newContainsKeyword = EditorGUILayout.TextField(cond.FilterKeyword, s, GUILayout.MaxWidth(200));
+								newIsExclusion = GUILayout.Toggle(cond.IsExclusion, " Negated", GUILayout.MaxWidth(80));
+								if (GUILayout.Button(cond.FilterKeytype , "Popup", GUILayout.MinWidth(220))) {
 									var ind = i;// need this because of closure locality bug in unity C#
 									NodeGUI.ShowFilterKeyTypeMenu(
 										cond.FilterKeytype,
@@ -96,11 +127,25 @@ namespace AssetBundleGraph {
 										} 
 									);
 								}
-							}
 
+							}
+							if(newName != cond.Name) {
+								using(new RecordUndoScope("Modify Filter Name", node, true)) {
+									cond.Name = newName;
+									// event must raise to propagate change to connection associated with point
+									NodeGUIUtility.NodeEventHandler(new NodeEvent(NodeEvent.EventType.EVENT_CONNECTIONPOINT_LABELCHANGED, node, Vector2.zero, cond.ConnectionPoint));
+								}
+							}
 							if (newContainsKeyword != cond.FilterKeyword) {
 								using(new RecordUndoScope("Modify Filter Keyword", node, true)){
 									cond.FilterKeyword = newContainsKeyword;
+									// event must raise to propagate change to connection associated with point
+									NodeGUIUtility.NodeEventHandler(new NodeEvent(NodeEvent.EventType.EVENT_CONNECTIONPOINT_LABELCHANGED, node, Vector2.zero, cond.ConnectionPoint));
+								}
+							}
+							if (newIsExclusion != cond.IsExclusion) {
+								using(new RecordUndoScope("Modify Filter Exclusion", node, true)){
+									cond.IsExclusion = newIsExclusion;
 									// event must raise to propagate change to connection associated with point
 									NodeGUIUtility.NodeEventHandler(new NodeEvent(NodeEvent.EventType.EVENT_CONNECTIONPOINT_LABELCHANGED, node, Vector2.zero, cond.ConnectionPoint));
 								}
@@ -119,8 +164,12 @@ namespace AssetBundleGraph {
 				if (GUILayout.Button("+")) {
 					using(new RecordUndoScope("Add Filter Condition", node)){
 						node.Data.AddFilterCondition(
-							AssetBundleGraphSettings.DEFAULT_FILTER_KEYWORD, 
-							AssetBundleGraphSettings.DEFAULT_FILTER_KEYTYPE);
+							AssetBundleGraphSettings.DEFAULT_FILTER_NAME,
+							AssetBundleGraphSettings.DEFAULT_FILTER_KEYWORD,
+							AssetBundleGraphSettings.DEFAULT_FILTER_KEYTYPE,
+							AssetBundleGraphSettings.DEFAULT_FILTER_EXCLUSION
+							);
+						NodeGUIUtility.NodeEventHandler(new NodeEvent(NodeEvent.EventType.EVENT_CONNECTIONPOINT_ADDED));
 					}
 				}
 
@@ -152,9 +201,21 @@ namespace AssetBundleGraph {
 				if(incomingType == null) {
 					// try to retrieve incoming type from configuration
 					if(status == IntegratedGUIImportSetting.ConfigStatus.GoodSampleFound) {
-						incomingType = IntegratedGUIImportSetting.GetReferenceAssetImporter(node.Data).GetType();
+						incomingType = IntegratedGUIImportSetting.GetReferenceAssetImporter(node.Data.Id).GetType();
 					} else {
 						EditorGUILayout.HelpBox("ImportSetting needs a single type of incoming assets.", MessageType.Info);
+
+
+						if(GUILayout.Button("Select Type", "Popup", GUILayout.MinWidth(220))) {
+							NodeGUI.ShowImportSettingsKeyTypeMenu(
+								"Select Type",
+								(Type selectedTypeStr) => {
+									IntegratedGUIImportSetting.SaveSampleFile(node.Data, selectedTypeStr);
+									status = IntegratedGUIImportSetting.ConfigStatus.GoodSampleFound;
+								}
+							);
+						}
+
 						return;
 					}
 				}
@@ -166,8 +227,12 @@ namespace AssetBundleGraph {
 					break;
 				case IntegratedGUIImportSetting.ConfigStatus.GoodSampleFound:
 					if (GUILayout.Button("Configure Import Setting")) {
-						Selection.activeObject = IntegratedGUIImportSetting.GetReferenceAssetImporter(node.Data);
-					}
+#if UNITY_5_4_OR_NEWER
+							Selection.activeObject = IntegratedGUIImportSetting.GetReferenceAssetImporter(node.Data.Id);
+#else
+							Selection.activeObject = IntegratedGUIImportSetting.GetReferenceAsset(node.Data.Id);
+#endif
+						}
 					if (GUILayout.Button("Reset Import Setting")) {
 						IntegratedGUIImportSetting.ResetConfig(node.Data);
 					}
@@ -197,8 +262,18 @@ namespace AssetBundleGraph {
 					incomingType = ModifierUtility.GetModifierTargetType(node.Data.ScriptClassName);
 
 					if(incomingType == null) {
-						EditorGUILayout.HelpBox("Modifier needs a single type of incoming assets.", MessageType.Info);
-						return;
+						var selected = selectedType == null ? "Select Type" : selectedType.ToString();
+						if(GUILayout.Button(selected, "Popup", GUILayout.MinWidth(220))) {
+							NodeGUI.ShowKeyTypeMenu(selected, x => selectedType = x);
+						}
+						EditorGUILayout.Space();
+
+						incomingType = selectedType;
+
+						if(incomingType == null) {
+							EditorGUILayout.HelpBox("Modifier needs a single type of incoming assets.", MessageType.Info);
+							return;
+						}
 					}
 				}
 
@@ -222,6 +297,8 @@ namespace AssetBundleGraph {
 										}
 									}  
 								);
+							}else {
+								return;
 							}
 						}
 					}
@@ -235,7 +312,8 @@ namespace AssetBundleGraph {
 							"To start, select {0}>{1}>{2} menu and create a new script.",
 							menuNames[1],menuNames[2], menuNames[3], incomingType.FullName
 						), MessageType.Info);
-				}
+					return;
+				}				
 
 				GUILayout.Space(10f);
 
@@ -434,7 +512,7 @@ namespace AssetBundleGraph {
 					}
 				}
 
-				using (new EditorGUI.DisabledScope(newUseGroupAsVariantValue)) {
+				using (new EditorGUI.DisabledGroupScope(newUseGroupAsVariantValue)) {
 					GUILayout.Label("Variants:");
 					var variantNames = node.Data.Variants.Select(v => v.Name).ToList();
 					Variant removing = null;
@@ -548,7 +626,7 @@ namespace AssetBundleGraph {
 							(option.option == BuildAssetBundleOptions.DisableWriteTypeTree  && isIgnoreTypeTreeChangesEnabled) ||
 							(option.option == BuildAssetBundleOptions.IgnoreTypeTreeChanges && isDisableWriteTypeTreeEnabled);
 
-						using(new EditorGUI.DisabledScope(isToggleDisabled)) {
+						using(new EditorGUI.DisabledGroupScope(isToggleDisabled)) {
 							var result = EditorGUILayout.ToggleLeft(option.description, isEnabled);
 							if (result != isEnabled) {
 								using(new RecordUndoScope("Change Bundle Options", node, true)){
@@ -633,11 +711,11 @@ namespace AssetBundleGraph {
 					)) {
 						using (new EditorGUILayout.HorizontalScope()) {
 							GUILayout.FlexibleSpace();
-							#if UNITY_EDITOR_OSX
+#if UNITY_EDITOR_OSX
 							string buttonName = "Reveal in Finder";
-							#else
+#else
 							string buttonName = "Show in Explorer";
-							#endif 
+#endif
 							if(GUILayout.Button(buttonName)) {
 								EditorUtility.RevealInFinder(exporterNodePath);
 							}
@@ -650,6 +728,152 @@ namespace AssetBundleGraph {
 						}
 					}
 				}
+			}
+		}
+
+
+
+		private void DoInspectorWarpInNode(NodeGUI node) {
+			EditorGUILayout.HelpBox("Warp-In: Sends the assets to its Warp-Out match.", MessageType.Info);
+			UpdateNodeName(node);
+
+			if(GUILayout.Button("Select Out")) {
+				AssetBundleGraphEditorWindow.SelectNodeById(node.Data.RelatedNodeId);
+			}
+		}
+
+		private void DoInspectorWarpOutNode(NodeGUI node) {
+			EditorGUILayout.HelpBox("Warp-Out: Receives the input from its Warp-In match.", MessageType.Info);
+			UpdateNodeName(node);
+
+			if(GUILayout.Button("Select In")) {
+				AssetBundleGraphEditorWindow.SelectNodeById(node.Data.RelatedNodeId);
+			}
+		}
+
+		private void DoInspectorValidatorGUI(NodeGUI node) {
+			EditorGUILayout.HelpBox("Validator: Validates assets.", MessageType.Info);
+			UpdateNodeName(node);
+
+			GUILayout.Space(10f);
+
+			using(new EditorGUILayout.VerticalScope(GUI.skin.box)) {
+
+				Type incomingType = FindIncomingAssetType(node.Data.InputPoints[0]);
+
+				if(incomingType == null) {
+					// if there is no asset input to determine incomingType,
+					// retrieve from assigned Validator.
+					incomingType = ValidatorUtility.GetValidatorTargetType(node.Data.ScriptClassName);
+
+					if(incomingType == null) {
+						var selected = selectedType == null ? "Select Type" : selectedType.ToString();
+						if(GUILayout.Button(selected, "Popup", GUILayout.MinWidth(220))) {
+							NodeGUI.ShowKeyTypeMenu(selected, x => selectedType = x);
+						}
+						EditorGUILayout.Space();
+
+						incomingType = selectedType;
+
+						if(incomingType == null) {
+							EditorGUILayout.HelpBox("Validator needs a single type of incoming assets.", MessageType.Info);
+							return;
+						}
+					}
+				}
+
+				var map = ValidatorUtility.GetAttributeClassNameMap(incomingType);
+				if(map.Count > 0) {
+					using(new GUILayout.HorizontalScope()) {
+						GUILayout.Label("Validator");
+						var guiName = ValidatorUtility.GetValidatorGUIName(node.Data.ScriptClassName);
+						if(GUILayout.Button(guiName, "Popup", GUILayout.MinWidth(150f))) {
+							var builders = map.Keys.ToList();
+
+							if(builders.Count > 0) {
+								NodeGUI.ShowTypeNamesMenu(guiName, builders, (string selectedGUIName) => {
+									using(new RecordUndoScope("Change Validator class", node, true)) {
+										m_validator = ValidatorUtility.CreateValidator(selectedGUIName, incomingType);
+										if(m_validator != null) {
+											node.Data.ScriptClassName = ValidatorUtility.GUINameToClassName(selectedGUIName, incomingType);
+											node.Data.InstanceData[currentEditingGroup] = m_validator.Serialize();
+										}
+									}
+								}
+								);
+							} else {
+								return;
+							}
+						}
+					}
+				} else {
+					string[] menuNames = AssetBundleGraphSettings.GUI_TEXT_MENU_GENERATE_VALIDATOR.Split('/');
+					EditorGUILayout.HelpBox(
+						string.Format(
+							"No CustomValidator found for {3} type. \n" +
+							"You need to create at least one Validator script to select script for Validator. " +
+							"To start, select {0}>{1}>{2} menu and create a new script.",
+							menuNames[1], menuNames[2], menuNames[3], incomingType.FullName
+						), MessageType.Info);
+					return;
+				}
+
+				GUILayout.Space(10f);
+
+				if(DrawPlatformSelector(node)) {
+					// if platform tab is changed, renew Validator Instance for that tab.
+					m_validator = null;
+				}
+				using(new EditorGUILayout.VerticalScope()) {
+					var disabledScope = DrawOverrideTargetToggle(node, node.Data.InstanceData.ContainsValueOf(currentEditingGroup), (bool enabled) => {
+						if(enabled) {
+							node.Data.InstanceData[currentEditingGroup] = node.Data.InstanceData.DefaultValue;
+						} else {
+							node.Data.InstanceData.Remove(currentEditingGroup);
+						}
+						m_validator = null;
+					});
+
+					using(disabledScope) {
+						//reload Validator instance from saved Validator data.
+						if(m_validator == null) {
+							m_validator = ValidatorUtility.CreateValidator(node.Data, currentEditingGroup);
+							if(m_validator != null) {
+								node.Data.ScriptClassName = m_validator.GetType().FullName;
+								if(node.Data.InstanceData.ContainsValueOf(currentEditingGroup)) {
+									node.Data.InstanceData[currentEditingGroup] = m_validator.Serialize();
+								}
+							}
+						}
+
+						if(m_validator != null) {
+							Action onChangedAction = () => {
+								using(new RecordUndoScope("Change Validator Setting", node)) {
+									node.Data.ScriptClassName = m_validator.GetType().FullName;
+									if(node.Data.InstanceData.ContainsValueOf(currentEditingGroup)) {
+										node.Data.InstanceData[currentEditingGroup] = m_validator.Serialize();
+									}
+								}
+							};
+
+							m_validator.OnInspectorGUI(onChangedAction);
+						}
+					}
+				}
+			}
+		}
+
+		void OnEnable() {
+			var currentTarget = (NodeGUIInspectorHelper)target;
+			var node = currentTarget.node;
+			if(node == null) return;
+
+			switch(node.Kind) {
+				case NodeKind.MODIFIER_GUI:
+				case NodeKind.VALIDATOR_GUI: {
+						selectedType = null;
+						break;
+					}
 			}
 		}
 
@@ -687,6 +911,16 @@ namespace AssetBundleGraph {
 			case NodeKind.EXPORTER_GUI: 
 				DoInspectorExporterGUI(node);
 				break;
+			case NodeKind.WARP_IN:
+				DoInspectorWarpInNode(node);
+				break;
+			case NodeKind.WARP_OUT:
+				DoInspectorWarpOutNode(node);
+				break;
+			case NodeKind.VALIDATOR_GUI:
+				DoInspectorValidatorGUI(node);
+				break;
+					
 			default: 
 				Debug.LogError(node.Name + " is defined as unknown kind of node. value:" + node.Kind);
 				break;
@@ -698,28 +932,6 @@ namespace AssetBundleGraph {
 					EditorGUILayout.HelpBox(error, MessageType.Error);
 				}
 			}
-		}
-
-		private void ShowFilterKeyTypeMenu (string current, Action<string> ExistSelected) {
-			var menu = new GenericMenu();
-			
-			menu.AddDisabledItem(new GUIContent(current));
-			
-			menu.AddSeparator(string.Empty);
-			
-			for (var i = 0; i < TypeUtility.KeyTypes.Count; i++) {
-				var type = TypeUtility.KeyTypes[i];
-				if (type == current) continue;
-				
-				menu.AddItem(
-					new GUIContent(type),
-					false,
-					() => {
-						ExistSelected(type);
-					}
-				);
-			}
-			menu.ShowAsContext();
 		}
 
 		private Type FindIncomingAssetType(ConnectionPointData inputPoint) {
@@ -793,10 +1005,10 @@ namespace AssetBundleGraph {
 			return editGroupChanged;
 		}
 
-		private EditorGUI.DisabledScope DrawOverrideTargetToggle(NodeGUI node, bool status, Action<bool> onStatusChange) {
+		private EditorGUI.DisabledGroupScope DrawOverrideTargetToggle(NodeGUI node, bool status, Action<bool> onStatusChange) {
 
 			if( currentEditingGroup == BuildTargetUtility.DefaultTarget ) {
-				return new EditorGUI.DisabledScope(false);
+				return new EditorGUI.DisabledGroupScope(false);
 			}
 
 			bool newStatus = GUILayout.Toggle(status, 
@@ -805,7 +1017,7 @@ namespace AssetBundleGraph {
 			if(newStatus != status && onStatusChange != null) {
 				onStatusChange(newStatus);
 			}
-			return new EditorGUI.DisabledScope(!newStatus);
+			return new EditorGUI.DisabledGroupScope(!newStatus);
 		}
 	}
 }

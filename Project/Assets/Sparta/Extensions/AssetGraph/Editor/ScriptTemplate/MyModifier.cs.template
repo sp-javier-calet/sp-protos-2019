@@ -22,7 +22,7 @@ public class MyModifier : AssetBundleGraph.IModifier {
 	public void OnInspectorGUI (Action onValueChanged) {
 		GUILayout.Label("MyModifier!");
 
-		var newValue = GUILayout.Toggle(doSomething, "Do Something");
+		var newValue = EditorGUILayout.Toggle("Do Something", doSomething);
 		if(newValue != doSomething) {
 			doSomething = newValue;
 			onValueChanged();

@@ -124,6 +124,7 @@ namespace AssetBundleGraph {
 			case NodeKind.IMPORTSETTING_GUI:			
 			case NodeKind.MODIFIER_GUI:
 			case NodeKind.PREFABBUILDER_GUI:
+			case NodeKind.VALIDATOR_GUI:
 				{
 					switch (to.Kind) {
 					case NodeKind.BUNDLEBUILDER_GUI:
@@ -137,6 +138,14 @@ namespace AssetBundleGraph {
 					// there is no output from exporter
 					return false;
 				}
+
+			case NodeKind.WARP_IN: {
+					switch(to.Kind) {
+					case NodeKind.WARP_OUT:
+						return true;
+					}
+					return false;
+				}					
 
 			case NodeKind.BUNDLEBUILDER_GUI: 
 				{

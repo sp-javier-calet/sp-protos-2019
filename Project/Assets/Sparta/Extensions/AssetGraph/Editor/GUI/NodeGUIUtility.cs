@@ -8,6 +8,12 @@ using System.Collections.Generic;
 
 
 namespace AssetBundleGraph {
+	public enum StyleType {
+		Selected,
+		UnSelected,
+		Highlighted
+	}
+
 	public class NodeGUIUtility {
 
 		public struct PlatformButton {
@@ -32,7 +38,7 @@ namespace AssetBundleGraph {
 		public static Texture2D inputPointTex {
 			get {
 				if(NodeSingleton.s.inputPointTex == null) {
-					NodeSingleton.s.inputPointTex = AssetBundleGraphEditorWindow.LoadTextureFromFile(AssetBundleGraphSettings.GUI.RESOURCE_INPUT_BG);
+					NodeSingleton.s.inputPointTex = AssetBundleGraphEditorWindow.LoadTextureFromFile(AssetGraphRelativePaths.RESOURCE_INPUT_BG);
 				}
 				return NodeSingleton.s.inputPointTex;
 			}
@@ -41,7 +47,7 @@ namespace AssetBundleGraph {
 		public static Texture2D outputPointTex {
 			get {
 				if(NodeSingleton.s.outputPointTex == null) {
-					NodeSingleton.s.outputPointTex = AssetBundleGraphEditorWindow.LoadTextureFromFile(AssetBundleGraphSettings.GUI.RESOURCE_OUTPUT_BG);
+					NodeSingleton.s.outputPointTex = AssetBundleGraphEditorWindow.LoadTextureFromFile(AssetGraphRelativePaths.RESOURCE_OUTPUT_BG);
 				}
 				return NodeSingleton.s.outputPointTex;
 			}
@@ -50,7 +56,7 @@ namespace AssetBundleGraph {
 		public static Texture2D enablePointMarkTex {
 			get {
 				if(NodeSingleton.s.enablePointMarkTex == null) {
-					NodeSingleton.s.enablePointMarkTex = AssetBundleGraphEditorWindow.LoadTextureFromFile(AssetBundleGraphSettings.GUI.RESOURCE_CONNECTIONPOINT_ENABLE);
+					NodeSingleton.s.enablePointMarkTex = AssetBundleGraphEditorWindow.LoadTextureFromFile(AssetGraphRelativePaths.RESOURCE_CONNECTIONPOINT_ENABLE);
 				}
 				return NodeSingleton.s.enablePointMarkTex;
 			}
@@ -59,7 +65,7 @@ namespace AssetBundleGraph {
 		public static Texture2D inputPointMarkTex {
 			get {
 				if(NodeSingleton.s.inputPointMarkTex == null) {
-					NodeSingleton.s.inputPointMarkTex = AssetBundleGraphEditorWindow.LoadTextureFromFile(AssetBundleGraphSettings.GUI.RESOURCE_CONNECTIONPOINT_INPUT);
+					NodeSingleton.s.inputPointMarkTex = AssetBundleGraphEditorWindow.LoadTextureFromFile(AssetGraphRelativePaths.RESOURCE_CONNECTIONPOINT_INPUT);
 				}
 				return NodeSingleton.s.inputPointMarkTex;
 			}
@@ -68,7 +74,7 @@ namespace AssetBundleGraph {
 		public static Texture2D outputPointMarkTex {
 			get {
 				if(NodeSingleton.s.outputPointMarkTex == null) {
-					NodeSingleton.s.outputPointMarkTex = AssetBundleGraphEditorWindow.LoadTextureFromFile(AssetBundleGraphSettings.GUI.RESOURCE_CONNECTIONPOINT_OUTPUT);
+					NodeSingleton.s.outputPointMarkTex = AssetBundleGraphEditorWindow.LoadTextureFromFile(AssetGraphRelativePaths.RESOURCE_CONNECTIONPOINT_OUTPUT);
 				}
 				return NodeSingleton.s.outputPointMarkTex;
 			}
@@ -77,7 +83,7 @@ namespace AssetBundleGraph {
 		public static Texture2D outputPointMarkConnectedTex {
 			get {
 				if(NodeSingleton.s.outputPointMarkConnectedTex == null) {
-					NodeSingleton.s.outputPointMarkConnectedTex = AssetBundleGraphEditorWindow.LoadTextureFromFile(AssetBundleGraphSettings.GUI.RESOURCE_CONNECTIONPOINT_OUTPUT_CONNECTED);
+					NodeSingleton.s.outputPointMarkConnectedTex = AssetBundleGraphEditorWindow.LoadTextureFromFile(AssetGraphRelativePaths.RESOURCE_CONNECTIONPOINT_OUTPUT_CONNECTED);
 				}
 				return NodeSingleton.s.outputPointMarkConnectedTex;
 			}
@@ -138,46 +144,187 @@ namespace AssetBundleGraph {
 			}
 		}
 
-		public static Dictionary<NodeKind, string> SelectedStyle {
-			get {
-				if(NodeSingleton.s.selectedStyle == null) {
-					NodeSingleton.s.selectedStyle = new Dictionary<NodeKind, string>() {
-						{NodeKind.LOADER_GUI, 			"flow node 0 on"},
-						{NodeKind.EXPORTER_GUI, 		"flow node 0 on"},
-						{NodeKind.FILTER_GUI, 			"flow node 1 on"},
-						{NodeKind.IMPORTSETTING_GUI,	"flow node 2 on"},
-						{NodeKind.GROUPING_GUI, 		"flow node 3 on"},
-						{NodeKind.PREFABBUILDER_GUI, 	"flow node 4 on"},
-						{NodeKind.BUNDLECONFIG_GUI, 		"flow node 5 on"},
-						{NodeKind.BUNDLEBUILDER_GUI, 	"flow node 6 on"},
-						{NodeKind.MODIFIER_GUI, 		"flow node 2 on"}
-					};
-				}
-				return NodeSingleton.s.selectedStyle;
-			}
-		}
 
-		public static Dictionary<NodeKind, string> UnselectedStyle {
-			get {
-				if(NodeSingleton.s.unselectedStyle == null) {
-					NodeSingleton.s.unselectedStyle = new Dictionary<NodeKind, string>() {
-						{NodeKind.LOADER_GUI, 			"flow node 0"},
-						{NodeKind.EXPORTER_GUI, 		"flow node 0"},
-						{NodeKind.FILTER_GUI, 			"flow node 1"},
-						{NodeKind.IMPORTSETTING_GUI,	"flow node 2"},
-						{NodeKind.GROUPING_GUI, 		"flow node 3"},
-						{NodeKind.PREFABBUILDER_GUI, 	"flow node 4"},
-						{NodeKind.BUNDLECONFIG_GUI, 	"flow node 5"},
-						{NodeKind.BUNDLEBUILDER_GUI, 	"flow node 6"},
-						{NodeKind.MODIFIER_GUI, 		"flow node 2"}
-					};
-				}
-				return NodeSingleton.s.unselectedStyle;
+		public static GUIStyle GetStyle(NodeKind kind, StyleType style) {
+			GUIStyle res = new GUIStyle("flow node 0 on");
+			res.border = new RectOffset(13, 13, 13, 13);
+			switch(kind) {
+				case NodeKind.LOADER_GUI:
+				case NodeKind.EXPORTER_GUI: {
+						if(style == StyleType.Highlighted) {
+							if(NodeSingleton.s.nodeGreyHighlight == null) {
+								Debug.LogWarning("Highlight texture not found, showing selected style");
+								style = StyleType.Selected;
+							}else { 
+								res.name = "Grey node Highlight";
+								res.normal.background = NodeSingleton.s.nodeGreyHighlight;
+							}
+						}
+
+						if(style == StyleType.UnSelected) {
+							res.name = "Grey node";
+							res.normal.background = NodeSingleton.s.nodeGrey;
+						}else if(style == StyleType.Selected) {
+							res.name = "Grey node On";
+							res.normal.background = NodeSingleton.s.nodeGreyOn;
+						}
+						break;
+					}
+				case NodeKind.FILTER_GUI: {
+						if(style == StyleType.Highlighted) {
+							if(NodeSingleton.s.nodeBlueHighlight == null) {
+								Debug.LogWarning("Highlight texture not found, showing selected style");
+								style = StyleType.Selected;
+							} else {
+								res.name = "Blue node Highlight";
+								res.normal.background = NodeSingleton.s.nodeBlueHighlight;
+							}
+						}
+						if(style == StyleType.UnSelected) {
+							res.name = "Blue node";
+							res.normal.background = NodeSingleton.s.nodeBlue;
+						} else if(style == StyleType.Selected) {
+							res.name = "Blue node On";
+							res.normal.background = NodeSingleton.s.nodeBlueOn;
+						}
+
+						break;
+					}
+				case NodeKind.IMPORTSETTING_GUI:
+				case NodeKind.GROUPING_GUI: {
+						if(style == StyleType.Highlighted) {
+							if(NodeSingleton.s.nodeAquaHighlight == null) {
+								Debug.LogWarning("Highlight texture not found, showing selected style");
+								style = StyleType.Selected;
+							} else {
+								res.name = "Aqua node Highlight";
+								res.normal.background = NodeSingleton.s.nodeAquaHighlight;
+							}
+						}
+						if(style == StyleType.UnSelected) {
+							res.name = "Aqua node";
+							res.normal.background = NodeSingleton.s.nodeAqua;
+						} else if(style == StyleType.Selected) {
+							res.name = "Aqua node On";
+							res.normal.background = NodeSingleton.s.nodeAquaOn;
+						}
+						break;
+					}
+				case NodeKind.WARP_IN:
+				case NodeKind.WARP_OUT: {
+						if(style == StyleType.Highlighted) {
+							if(NodeSingleton.s.nodeOrangeHighlight == null) {
+								Debug.LogWarning("Highlight texture not found, showing selected style");
+								style = StyleType.Selected;
+							} else {
+								res.name = "Orange node Highlight";
+								res.normal.background = NodeSingleton.s.nodeOrangeHighlight;
+							}
+						}
+
+						if(style == StyleType.UnSelected) {
+							res.name = "Orange node";
+							res.normal.background = NodeSingleton.s.nodeOrange;
+						} else if(style == StyleType.Selected) {
+							res.name = "Orange node On";
+							res.normal.background = NodeSingleton.s.nodeOrangeOn;
+						} 
+						break;
+					} 
+				case NodeKind.PREFABBUILDER_GUI:
+				case NodeKind.BUNDLEBUILDER_GUI: {
+						if(style == StyleType.Highlighted) {
+							if(NodeSingleton.s.nodeRedHighlight == null) {
+								Debug.LogWarning("Highlight texture not found, showing selected style");
+								style = StyleType.Selected;
+							} else {
+								res.name = "Red node Highlight";
+								res.normal.background = NodeSingleton.s.nodeRedHighlight;
+							}
+						}
+
+						if(style == StyleType.UnSelected) {
+							res.name = "Red node";
+							res.normal.background = NodeSingleton.s.nodeRed;
+						} else if(style == StyleType.Selected) {
+							res.name = "Red node On";
+							res.normal.background = NodeSingleton.s.nodeRedOn;
+						}
+						break;
+					}
+				case NodeKind.BUNDLECONFIG_GUI:
+				case NodeKind.MODIFIER_GUI: {
+						if(style == StyleType.Highlighted) {
+							if(NodeSingleton.s.nodeYellowHighlight == null) {
+								Debug.LogWarning("Highlight texture not found, showing selected style");
+								style = StyleType.Selected;
+							} else {
+								res.name = "Yellow node Highlight";
+								res.normal.background = NodeSingleton.s.nodeYellowHighlight;
+							}
+						}
+
+						if(style == StyleType.UnSelected) {
+							res.name = "Yellow node";
+							res.normal.background = NodeSingleton.s.nodeYellow;
+						} else if(style == StyleType.Selected) {
+							res.name = "Yellow node On";
+							res.normal.background = NodeSingleton.s.nodeYellowOn;
+						}
+						break;
+					}
+
+				case NodeKind.VALIDATOR_GUI: {
+						if(style == StyleType.Highlighted) {
+							if(NodeSingleton.s.nodeGreenHighlight == null) {
+								Debug.LogWarning("Highlight texture not found, showing selected style");
+								style = StyleType.Selected;
+							} else {
+								res.name = "Green node Highlight";
+								res.normal.background = NodeSingleton.s.nodeGreenHighlight;
+							}
+						}
+
+						if(style == StyleType.UnSelected) {
+							res.name = "Green node";
+							res.normal.background = NodeSingleton.s.nodeGreen;
+						} else if(style == StyleType.Selected) {
+							res.name = "Green node On";
+							res.normal.background = NodeSingleton.s.nodeGreenOn;
+						}
+
+						break;
+					}
 			}
-		}
+
+			return res;
+		}		
 
 		private class NodeSingleton {
 			public Action<NodeEvent> emitAction;
+
+
+			public Texture2D nodeAqua;
+			public Texture2D nodeAquaOn;
+			public Texture2D nodeAquaHighlight;
+			public Texture2D nodeGrey;
+			public Texture2D nodeGreyOn;
+			public Texture2D nodeGreyHighlight;
+			public Texture2D nodeOrange;
+			public Texture2D nodeOrangeOn;
+			public Texture2D nodeOrangeHighlight;
+			public Texture2D nodeBlue;
+			public Texture2D nodeBlueOn;
+			public Texture2D nodeBlueHighlight;
+			public Texture2D nodeRed;
+			public Texture2D nodeRedOn;
+			public Texture2D nodeRedHighlight;
+			public Texture2D nodeYellow;
+			public Texture2D nodeYellowOn;
+			public Texture2D nodeYellowHighlight;
+			public Texture2D nodeGreen;
+			public Texture2D nodeGreenOn;
+			public Texture2D nodeGreenHighlight;
 
 			public Texture2D inputPointTex;
 			public Texture2D outputPointTex;
@@ -195,9 +342,6 @@ namespace AssetBundleGraph {
 
 			public List<string> allNodeNames;
 
-			public Dictionary<NodeKind, string> selectedStyle;
-			public Dictionary<NodeKind, string> unselectedStyle;
-
 			private static NodeSingleton s_singleton;
 
 			public static NodeSingleton s {
@@ -208,6 +352,34 @@ namespace AssetBundleGraph {
 
 					return s_singleton;
 				}
+			}
+
+
+			public NodeSingleton() {				
+				nodeAqua = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_AQUA);
+				nodeAquaOn = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_AQUA_ON);
+				nodeAquaHighlight = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_AQUA_HIGHLIGHT);
+				nodeGrey = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_GREY);
+				nodeGreyOn = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_GREY_ON);
+				nodeGreyHighlight = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_GREY_HIGHLIGHT);
+				nodeBlue = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_BLUE);
+				nodeBlueOn = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_BLUE_ON);
+				nodeBlueHighlight = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_BLUE_HIGHLIGHT);
+				nodeOrange = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_ORANGE);
+				nodeOrangeOn = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_ORANGE_ON);
+				nodeOrangeHighlight = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_ORANGE_HIGHLIGHT);
+				nodeRed = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_RED);
+				nodeRedOn = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_RED_ON);
+				nodeRedHighlight = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_RED_HIGHLIGHT);
+				nodeRed = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_RED);
+				nodeRedOn = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_RED_ON);
+				nodeRedHighlight = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_RED_HIGHLIGHT);
+				nodeYellow = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_YELLOW);
+				nodeYellowOn = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_YELLOW_ON);
+				nodeYellowHighlight = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_YELLOW_HIGHLIGHT);
+				nodeGreen = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_GREEN);
+				nodeGreenOn = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_GREEN_ON);
+				nodeGreenHighlight = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_NODE_GREEN_HIGHLIGHT);
 			}
 
 			public void SetupPlatformButtons () {

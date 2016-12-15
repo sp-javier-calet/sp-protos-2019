@@ -16,8 +16,8 @@ namespace AssetBundleGraph {
 		[SerializeField] private ConnectionGUIInspectorHelper conInsp;
 
 		[SerializeField] private string connectionButtonStyle;
-
-		public string Label {
+		
+        public string Label {
 			get {
 				return label;
 			}
@@ -56,7 +56,13 @@ namespace AssetBundleGraph {
 			}
 		}
 
-		private Rect buttonRect;
+        public ConnectionGUIInspectorHelper ConnectionInspectorHelper {
+            get {
+                return conInsp;
+            }
+        }
+
+        private Rect buttonRect;
 
 		public static ConnectionGUI LoadConnection (string label, string id, ConnectionPointData output, ConnectionPointData input) {
 			return new ConnectionGUI(
@@ -104,6 +110,10 @@ namespace AssetBundleGraph {
 				return;
 			}
 
+			if(startNode.Kind == NodeKind.WARP_IN) {
+				return;
+			}
+
 			var endNode = nodes.Find(node => node.Id == InputNodeId);
 			if (endNode == null) {
 				return;
@@ -119,7 +129,7 @@ namespace AssetBundleGraph {
 			var centerPointV3 = new Vector3(centerPoint.x, centerPoint.y, 0f);
 
 			var pointDistance = (endPoint.x - startPoint.x) / 3f;
-			if (pointDistance < AssetBundleGraphSettings.GUI.CONNECTION_CURVE_LENGTH) pointDistance = AssetBundleGraphSettings.GUI.CONNECTION_CURVE_LENGTH;
+			if (pointDistance < AssetGraphRelativePaths.CONNECTION_CURVE_LENGTH) pointDistance = AssetGraphRelativePaths.CONNECTION_CURVE_LENGTH;
 
 			var startTan = new Vector3(startPoint.x + pointDistance, startPoint.y, 0f);
 			var endTan = new Vector3(endPoint.x - pointDistance, endPoint.y, 0f);
@@ -131,13 +141,11 @@ namespace AssetBundleGraph {
 				totalGroups = assetGroups.Keys.Count;
 			}
 
-			if(conInsp != null && Selection.activeObject == conInsp && conInsp.connectionGUI == this) {
-				Handles.DrawBezier(startV3, endV3, startTan, endTan, new Color(0.43f, 0.65f, 0.90f, 1.0f), null, 2f);
+			if(conInsp != null && conInsp.isActive && (conInsp.connectionGUI == this || conInsp.connectionGUI == null)) {
+				Handles.DrawBezier(startV3, endV3, startTan, endTan, new Color(0.43f, 0.65f, 0.90f, 1.0f), null, 5f);
 			} else {
 				Handles.DrawBezier(startV3, endV3, startTan, endTan, ((totalAssets > 0) ? Color.white : Color.gray), null, 2f);
 			}
-
-
 
 			// draw connection label if connection's label is not normal.
 			if (NodeGUI.scaleFactor == NodeGUI.SCALE_MAX) {
@@ -149,13 +157,15 @@ namespace AssetBundleGraph {
 					
 					case AssetBundleGraphSettings.BUNDLECONFIG_BUNDLE_OUTPUTPOINT_LABEL: {
 						var labelPointV3 = new Vector3(centerPointV3.x - ((AssetBundleGraphSettings.BUNDLECONFIG_BUNDLE_OUTPUTPOINT_LABEL.Length * 6f) / 2), centerPointV3.y - 24f, 0f) ;
-						Handles.Label(labelPointV3, AssetBundleGraphSettings.BUNDLECONFIG_BUNDLE_OUTPUTPOINT_LABEL, "WhiteMiniLabel");
+						Handles.Label(labelPointV3, AssetBundleGraphSettings.BUNDLECONFIG_BUNDLE_OUTPUTPOINT_LABEL, EditorStyles.whiteMiniLabel);
 						break;
 					}
 
 					default: {
-						var labelPointV3 = new Vector3(centerPointV3.x - ((label.Length * 7f) / 2), centerPointV3.y - 24f, 0f) ;
-						Handles.Label(labelPointV3, label, "WhiteMiniLabel");
+						var labelPointV3 = new Vector3(centerPointV3.x - ((label.Length * 7f) / 2), centerPointV3.y - 24f, 0f);
+						GUIStyle miniLabelStyle = EditorStyles.whiteMiniLabel;
+						miniLabelStyle.normal.textColor = outputPoint.LabelColor*1.2f;
+						Handles.Label(labelPointV3, label, miniLabelStyle);
 						break;
 					}
 				}
@@ -193,7 +203,6 @@ namespace AssetBundleGraph {
 			}
 
 			if (GUI.Button(buttonRect, connectionLabel, style)) {
-				conInsp.UpdateInspector(this, assetGroups);
 				ConnectionGUIUtility.ConnectionEventHandler(new ConnectionEvent(ConnectionEvent.EventType.EVENT_CONNECTION_TAPPED, this));
 			}
 		}
@@ -203,13 +212,15 @@ namespace AssetBundleGraph {
 		}
 		
 		public void SetActive () {
-			Selection.activeObject = conInsp;
 			connectionButtonStyle = "sv_label_1";
+			conInsp.isActive = true;
+			AssetBundleGraphEditorWindow.UpdateConnectionInspector(this);
 		}
 
 		public void SetInactive () {
 			connectionButtonStyle = "sv_label_0";
-		}
+			conInsp.isActive = false;
+        }
 
 		public void Delete () {
 			ConnectionGUIUtility.ConnectionEventHandler(new ConnectionEvent(ConnectionEvent.EventType.EVENT_CONNECTION_DELETED, this));

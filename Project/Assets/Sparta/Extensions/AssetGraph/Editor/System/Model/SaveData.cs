@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using System;
 using System.IO;
@@ -34,28 +34,26 @@ namespace AssetBundleGraph {
 	/*
 	 * Json save data which holds all AssetBundleGraph settings and configurations.
 	 */ 
-	public class SaveData {
-
+	public class SaveData {		
 		public const string LASTMODIFIED 	= "lastModified";
 		public const string NODES 			= "nodes";
 		public const string CONNECTIONS 	= "connections";
 
 		private Dictionary<string, object> m_jsonData;
 
-		private List<NodeData> m_allNodes;
-		private List<ConnectionData> m_allConnections;
+		private Graph m_graph;
 		private DateTime m_lastModified;
+
+		private LoaderSaveData loaderSaveData = new LoaderSaveData();
 
 		public SaveData() {
 			m_lastModified = DateTime.UtcNow;
-			m_allNodes = new List<NodeData>();
-			m_allConnections = new List<ConnectionData>();
+			m_graph = new Graph();
 		}
 
 		public SaveData(Dictionary<string, object> jsonData) {
 			m_jsonData = jsonData;
-			m_allNodes = new List<NodeData>();
-			m_allConnections = new List<ConnectionData>();
+			m_graph = new Graph();
 
 			m_lastModified = Convert.ToDateTime(m_jsonData[LASTMODIFIED] as string);
 
@@ -63,24 +61,20 @@ namespace AssetBundleGraph {
 			var connList = m_jsonData[CONNECTIONS] as List<object>;
 
 			foreach(var n in nodeList) {
-				m_allNodes.Add(new NodeData(n as Dictionary<string, object>));
+				m_graph.Nodes.Add(new NodeData(n as Dictionary<string, object>));
 			}
 
 			foreach(var c in connList) {
-				m_allConnections.Add(new ConnectionData(c as Dictionary<string, object>));
-			}
+				m_graph.Connections.Add(new ConnectionData(c as Dictionary<string, object>));
+			}			
+
 		}
 
 		public SaveData(List<NodeGUI> nodes, List<ConnectionGUI> connections) {
 			m_jsonData = null;
 
 			m_lastModified = DateTime.UtcNow;
-			m_allNodes = nodes.Select(n => n.Data).ToList();
-			m_allConnections = new List<ConnectionData>();
-
-			foreach(var cgui in connections) {
-				m_allConnections.Add(new ConnectionData(cgui));
-			}
+			m_graph = new Graph(nodes, connections);
 		}
 
 		public DateTime LastModified {
@@ -89,28 +83,22 @@ namespace AssetBundleGraph {
 			}
 		}
 
-		public List<NodeData> Nodes {
-			get{ 
-				return m_allNodes;
+		public Graph Graph {
+			get {
+				return m_graph;
 			}
-		}
-
-		public List<ConnectionData> Connections {
-			get{ 
-				return m_allConnections;
-			}
-		}
-
+		}		
+		
 		private Dictionary<string, object> ToJsonDictionary() {
 
 			var nodeList = new List<Dictionary<string, object>>();
 			var connList = new List<Dictionary<string, object>>();
 
-			foreach(NodeData n in m_allNodes) {
+			foreach(NodeData n in m_graph.Nodes) {
 				nodeList.Add(n.ToJsonDictionary());
 			}
 
-			foreach(ConnectionData c in m_allConnections) {
+			foreach(ConnectionData c in m_graph.Connections) {
 				connList.Add(c.ToJsonDictionary());
 			}
 
@@ -120,24 +108,13 @@ namespace AssetBundleGraph {
 				{CONNECTIONS, connList}
 			};
 		}
-
-		public List<NodeData> CollectAllLeafNodes() {
-
-			var nodesWithChild = new List<NodeData>();
-			foreach (var c in m_allConnections) {
-				NodeData n = m_allNodes.Find(v => v.Id == c.FromNodeId);
-				if(n != null) {
-					nodesWithChild.Add(n);
-				}
-			}
-			return m_allNodes.Except(nodesWithChild).ToList();
-		}
-
+		
+		
 		//
 		// Save/Load to disk
 		//
 
-		private static string SaveDataDirectoryPath {
+		public static string SaveDataDirectoryPath {
 			get {
 				return FileUtility.PathCombine(Application.dataPath, AssetBundleGraphSettings.ASSETNBUNDLEGRAPH_DATA_PATH);
 			}
@@ -148,6 +125,7 @@ namespace AssetBundleGraph {
 				return FileUtility.PathCombine(SaveDataDirectoryPath, AssetBundleGraphSettings.ASSETBUNDLEGRAPH_DATA_NAME);
 			}
 		}
+
 
 		public void Save () {
 			var dir = SaveDataDirectoryPath;
@@ -163,13 +141,31 @@ namespace AssetBundleGraph {
 			using (var sw = new StreamWriter(SaveDataPath)) {
 				sw.Write(prettified);
 			}
+			
+			loaderSaveData.UpdateLoaderData(m_graph.CollectAllNodes(x=>x.Kind == NodeKind.LOADER_GUI));
+			loaderSaveData.Save();
+
 			// reflect change of data.
-			AssetDatabase.Refresh();
+			//AssetDatabase.Refresh(); COMMENTED FOR PERFORMANCE PURPOSES, NO DRAWBACK FOUND.
+		}
+
+		private Dictionary<string, object> ToJsonRootNodes() {
+			Dictionary<string, object> res = new Dictionary<string, object>();
+
+			var rootNodes = m_graph.CollectAllNodes(x => x.Kind == NodeKind.LOADER_GUI && x.LoaderLoadPath != null);
+
+			foreach(var loaderNode in rootNodes) {
+				res.Add(loaderNode.Id, loaderNode.LoaderLoadPath.ToJsonDictionary());
+			}
+
+			return res;
 		}
 
 		public static bool IsSaveDataAvailableAtDisk() {
 			return File.Exists(SaveDataPath);
 		}
+
+
 
 		private static SaveData Load() {
 			var dataStr = string.Empty;
@@ -183,6 +179,7 @@ namespace AssetBundleGraph {
 		public static SaveData RecreateDataOnDisk () {
 			SaveData newSaveData = new SaveData();
 			newSaveData.Save();
+			AssetDatabase.Refresh();
 			return newSaveData;
 		}
 			
@@ -223,27 +220,189 @@ namespace AssetBundleGraph {
 			/*
 				delete undetectable node.
 			*/
-			foreach (var n in m_allNodes) {
-				if(!n.Validate(m_allNodes, m_allConnections)) {
+			foreach (var n in m_graph.Nodes) {
+				if(!n.Validate(m_graph.Nodes, m_graph.Connections)) {
 					removingNodes.Add(n);
 					changed = true;
 				}
 			}
 
-			foreach (var c in m_allConnections) {
-				if(!c.Validate(m_allNodes, m_allConnections)) {
+			foreach (var c in m_graph.Connections) {
+				if(!c.Validate(m_graph.Nodes, m_graph.Connections)) {
 					removingConnections.Add(c);
 					changed = true;
 				}
 			}
 
 			if(changed) {
-				Nodes.RemoveAll(n => removingNodes.Contains(n));
-				Connections.RemoveAll(c => removingConnections.Contains(c));
+				m_graph.Nodes.RemoveAll(n => removingNodes.Contains(n));
+				m_graph.Connections.RemoveAll(c => removingConnections.Contains(c));
 				m_lastModified = DateTime.UtcNow;
 			}
 
 			return !changed;
+		}
+	}
+
+	public class LoaderSaveData {
+		private const string LOADER_SAVE_DATA = "loaders";
+		public class LoaderData {
+			private const string LOADER_ID = "id";
+			private const string LOADER_PATH = "path";
+			private const string LOADER_PREPROCESS = "preprocess";
+			private const string LOADER_PERMANENT = "permanent";
+
+			public string id;
+			public SerializableMultiTargetString paths;
+			public bool isPreProcess;
+			public bool isPermanent;
+
+			public LoaderData(string id, SerializableMultiTargetString paths, bool isPreProcess, bool isPermanent) {
+				this.id = id;
+				this.paths = paths;
+				this.isPreProcess = isPreProcess;
+				this.isPermanent = isPermanent;
+			}
+
+			public LoaderData(Dictionary<string, object> rawData) {
+				this.id = rawData[LOADER_ID] as string;
+				this.paths = new SerializableMultiTargetString(rawData[LOADER_PATH] as Dictionary<string, object>);
+				if(rawData.ContainsKey(LOADER_PREPROCESS)) {
+					this.isPreProcess = Convert.ToBoolean(rawData[LOADER_PREPROCESS]);
+				}
+				if(rawData.ContainsKey(LOADER_PERMANENT)) {
+					this.isPermanent = Convert.ToBoolean(rawData[LOADER_PERMANENT]);
+				}
+			}
+
+			public Dictionary<string, object> ToJsonDictionary() {
+				Dictionary<string, object> jsonDict = new Dictionary<string, object>();
+
+				jsonDict.Add(LOADER_ID, id);
+				jsonDict.Add(LOADER_PATH, paths.ToJsonDictionary());
+				jsonDict.Add(LOADER_PREPROCESS, isPreProcess);
+				jsonDict.Add(LOADER_PERMANENT, isPermanent);
+
+				return jsonDict;
+			}
+		}
+
+		private List<LoaderData> loaders;
+		public List<LoaderData> LoaderPaths {
+			get {
+				return loaders;
+			}
+		}
+
+		private static string LoaderSaveDataPath {
+			get {
+				return FileUtility.PathCombine(SaveData.SaveDataDirectoryPath, AssetBundleGraphSettings.ASSETBUNDLEGRAPH_LOADER_DATA_NAME);
+			}
+		}
+
+		public LoaderSaveData() {
+			loaders = new List<LoaderData>();
+		}
+
+
+		public LoaderSaveData(Graph graph) {
+			var fullLoaders = graph.CollectAllNodes(x => x.Kind == NodeKind.LOADER_GUI);
+			UpdateLoaderData(fullLoaders);
+		}
+
+		public LoaderSaveData(Dictionary<string, object> rawData) {
+			var rawLoaders = rawData[LOADER_SAVE_DATA] as List<object>;
+			loaders = new List<LoaderData>();
+
+			foreach(var rawLoader in rawLoaders) {
+				loaders.Add(new LoaderData(rawLoader as Dictionary<string, object>));
+			}
+		}     
+		
+		public void UpdateLoaderData(List<NodeData> fullLoaders) {
+			loaders = fullLoaders.ConvertAll(x => new LoaderData(x.Id, x.LoaderLoadPath, x.PreProcess, x.Permanent));
+		}
+
+		public void Save() {
+			var dir = SaveData.SaveDataDirectoryPath;
+			if(!Directory.Exists(dir)) {
+				Directory.CreateDirectory(dir);
+			}
+
+			var serializedData = Json.Serialize(ToJsonDictionary());
+			var loaderPrettyfied = Json.Prettify(serializedData);
+
+			using(var sw = new StreamWriter(LoaderSaveDataPath)) {
+				sw.Write(loaderPrettyfied);
+			}
+		}
+
+		public Dictionary<string, object> ToJsonDictionary() {
+			Dictionary<string, object> dictionary = new Dictionary<string, object>();
+			List<Dictionary<string, object>> loadersData = new List<Dictionary<string, object>>();
+
+			foreach(var loader in loaders) {
+				loadersData.Add(loader.ToJsonDictionary());
+			}
+
+			dictionary.Add(LOADER_SAVE_DATA, loadersData);
+
+			return dictionary;
+		}
+		
+		/// <summary>
+		/// Finds the best suitable loader for the provided asset path
+		/// </summary>
+		/// <param name="path">Path of the asset</param>
+		/// <returns>LoaderData of the nearest LoaderFolder, null if none are suitable</returns>
+		public LoaderData GetBestLoaderData(string assetPath) {
+			LoaderData res = null;
+			var path = Path.HasExtension(assetPath) ? assetPath : assetPath + "/";
+
+			if(path.Contains(AssetBundleGraphSettings.ASSETBUNDLEGRAPH_PATH)) {
+				return res;
+			}
+			
+			foreach(LoaderData dataPath in loaders) {
+				if(path.Contains(dataPath.paths.CurrentPlatformValue+"/")) {                 
+					if(res == null || res.paths.CurrentPlatformValue.Length < dataPath.paths.CurrentPlatformValue.Length) {
+						res = dataPath;
+					}
+				}
+			}
+
+			return res;
+		}
+
+		public static LoaderSaveData RecreateDataOnDisk() {
+			LoaderSaveData lSaveData = new LoaderSaveData();
+			lSaveData.Save();
+			AssetDatabase.Refresh();
+			return lSaveData;
+		}
+
+		public static LoaderSaveData LoadFromDisk() {
+			if(!IsLoaderDataAvailableAtDisk()) {
+				return RecreateDataOnDisk();
+			}
+
+			try {
+				var dataStr = string.Empty;
+				using(var sr = new StreamReader(LoaderSaveDataPath)) {
+					dataStr = sr.ReadToEnd();
+				}
+				var deserialized = Json.Deserialize(dataStr) as Dictionary<string, object>;
+
+				return new LoaderSaveData(deserialized);
+			} catch(Exception e) {
+				Debug.LogError("Failed to deserialize AssetBundleGraph settings. Error:" + e + " File:" + LoaderSaveDataPath);
+			}
+
+			return new LoaderSaveData();
+		}
+
+		public static bool IsLoaderDataAvailableAtDisk() {
+			return File.Exists(LoaderSaveDataPath);
 		}
 	}
 }

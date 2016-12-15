@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 
 namespace AssetBundleGraph {
@@ -9,25 +10,26 @@ namespace AssetBundleGraph {
 		*/
 		public const bool IGNORE_META = true;
 
-		public const string GUI_TEXT_MENU_OPEN = "Window/AssetBundleGraph/Open Graph Editor";
-		public const string GUI_TEXT_MENU_BUILD = "Window/AssetBundleGraph/Build Bundles for Current Platform";
-		public const string GUI_TEXT_MENU_GENERATE = "Window/AssetBundleGraph/Create Node Script";
+		public const string GUI_TEXT_MENU_OPEN = "Window/AssetGraph/Open Graph Editor";
+		public const string GUI_TEXT_MENU_BUILD = "Window/AssetGraph/Build Bundles for Current Platform";
+		public const string GUI_TEXT_MENU_GENERATE = "Window/AssetGraph/Create Node Script";
 		public const string GUI_TEXT_MENU_GENERATE_MODIFIER = GUI_TEXT_MENU_GENERATE + "/Modifier Script";
 		public const string GUI_TEXT_MENU_GENERATE_PREFABBUILDER = GUI_TEXT_MENU_GENERATE + "/PrefabBuilder Script";
-		public const string GUI_TEXT_MENU_GENERATE_CUITOOL = "Window/AssetBundleGraph/Create CUI Tool";
+		public const string GUI_TEXT_MENU_GENERATE_VALIDATOR = GUI_TEXT_MENU_GENERATE + "/Validator Script";
+		public const string GUI_TEXT_MENU_GENERATE_CUITOOL = "Window/AssetGraph/Create CUI Tool";
 
 		public const string GUI_TEXT_MENU_GENERATE_POSTPROCESS = GUI_TEXT_MENU_GENERATE + "/Postprocess Script";
-		public const string GUI_TEXT_MENU_DELETE_CACHE = "Window/AssetBundleGraph/Clear Build Cache";
+		public const string GUI_TEXT_MENU_DELETE_CACHE = "Window/AssetGraph/Clear Build Cache";
 		
-		public const string GUI_TEXT_MENU_DELETE_IMPORTSETTING_SETTINGS = "Window/AssetBundleGraph/Clear Saved ImportSettings";
+		public const string GUI_TEXT_MENU_DELETE_IMPORTSETTING_SETTINGS = "Window/AssetGraph/Clear Saved ImportSettings";
 
-		public const string ASSETNBUNDLEGRAPH_DATA_PATH = "AssetBundleGraph/SettingFiles";
-		public const string ASSETBUNDLEGRAPH_DATA_NAME = "AssetBundleGraph.json";
-		
+		public const string ASSETNBUNDLEGRAPH_DATA_PATH = "AssetGraph/SettingFiles";
+		public const string ASSETBUNDLEGRAPH_DATA_NAME = "AssetGraph.json";
+		public const string ASSETBUNDLEGRAPH_LOADER_DATA_NAME = "LoaderFolders.json";
+
 		public const string ASSETS_PATH = "Assets/";
-		public const string ASSETBUNDLEGRAPH_PATH = ASSETS_PATH + "AssetBundleGraph/";
+		public const string ASSETBUNDLEGRAPH_PATH = ASSETS_PATH + "AssetGraph/";
 		public const string APPLICATIONDATAPATH_CACHE_PATH = ASSETBUNDLEGRAPH_PATH + "Cache/";
-		public const string SCRIPT_TEMPLATE_PATH = ASSETBUNDLEGRAPH_PATH + "Editor/ScriptTemplate/";
 		public const string USERSPACE_PATH = ASSETBUNDLEGRAPH_PATH + "Generated/Editor/";
 		public const string CUISPACE_PATH = ASSETBUNDLEGRAPH_PATH + "Generated/CUI/";
 
@@ -62,8 +64,10 @@ namespace AssetBundleGraph {
 			new BuildAssetBundleOption("Ignore TypeTree Changes", BuildAssetBundleOptions.IgnoreTypeTreeChanges),
 			new BuildAssetBundleOption("Append Hash To AssetBundle Name", BuildAssetBundleOptions.AppendHashToAssetBundleName),
 			new BuildAssetBundleOption("ChunkBased Compression", BuildAssetBundleOptions.ChunkBasedCompression),
+#if UNITY_5_4_OR_NEWER
 			new BuildAssetBundleOption("Strict Mode", BuildAssetBundleOptions.StrictMode),
 			new BuildAssetBundleOption("Omit Class Versions", BuildAssetBundleOptions.OmitClassVersions)
+#endif
 		};
 
 		//public const string PLATFORM_DEFAULT_NAME = "Default";
@@ -83,17 +87,21 @@ namespace AssetBundleGraph {
 		public const string MENU_BUNDLECONFIG_NAME = "BundleConfig";
 		public const string MENU_BUNDLEBUILDER_NAME = "BundleBuilder";
 		public const string MENU_EXPORTER_NAME = "Exporter";
+		public const string MENU_WARP_NAME = "Warp";
+		public const string MENU_VALIDATOR_NAME = "Validator";
 
 		public static Dictionary<string, NodeKind> GUI_Menu_Item_TargetGUINodeDict = new Dictionary<string, NodeKind>{
 			{"Create " + MENU_LOADER_NAME + " Node", NodeKind.LOADER_GUI},
 			{"Create " + MENU_FILTER_NAME + " Node", NodeKind.FILTER_GUI},
 			{"Create " + MENU_IMPORTSETTING_NAME + " Node", NodeKind.IMPORTSETTING_GUI},
 			{"Create " + MENU_MODIFIER_NAME + " Node", NodeKind.MODIFIER_GUI},
+			{"Create " + MENU_VALIDATOR_NAME + " Node", NodeKind.VALIDATOR_GUI },
 			{"Create " + MENU_GROUPING_NAME + " Node", NodeKind.GROUPING_GUI},
 			{"Create " + MENU_PREFABBUILDER_NAME + " Node", NodeKind.PREFABBUILDER_GUI},
 			{"Create " + MENU_BUNDLECONFIG_NAME + " Node", NodeKind.BUNDLECONFIG_GUI},
 			{"Create " + MENU_BUNDLEBUILDER_NAME + " Node", NodeKind.BUNDLEBUILDER_GUI},
-			{"Create " + MENU_EXPORTER_NAME + " Node", NodeKind.EXPORTER_GUI}
+			{"Create " + MENU_EXPORTER_NAME + " Node", NodeKind.EXPORTER_GUI},
+			{"Create " + MENU_WARP_NAME + " Node", NodeKind.WARP_IN }
 		};
 
 		public static Dictionary<NodeKind, string> DEFAULT_NODE_NAME = new Dictionary<NodeKind, string>{
@@ -105,7 +113,16 @@ namespace AssetBundleGraph {
 			{NodeKind.PREFABBUILDER_GUI, "PrefabBuilder"},
 			{NodeKind.BUNDLECONFIG_GUI, "BundleConfig"},
 			{NodeKind.BUNDLEBUILDER_GUI, "BundleBuilder"},
-			{NodeKind.EXPORTER_GUI, "Exporter"}
+			{NodeKind.EXPORTER_GUI, "Exporter"},
+			{NodeKind.WARP_IN, "In"},
+			{NodeKind.WARP_OUT, "Out"},
+			{NodeKind.VALIDATOR_GUI, "Validator"}
+		};
+
+		public static Dictionary<Type, string> PLACEHOLDER_FILE = new Dictionary<Type, string>{
+			{typeof(TextureImporter),  "config.png"},
+			{typeof(ModelImporter),  "config.fbx"},
+			{typeof(AudioImporter),  "config.wav"}
 		};
 
 		/*
@@ -122,8 +139,10 @@ namespace AssetBundleGraph {
 		public const string BUNDLECONFIG_BUNDLE_OUTPUTPOINT_LABEL = "bundles";
 		public const string BUNDLECONFIG_VARIANTNAME_DEFAULT = "";
 
+		public const string DEFAULT_FILTER_NAME = "";
 		public const string DEFAULT_FILTER_KEYWORD = "";
 		public const string DEFAULT_FILTER_KEYTYPE = "Any";
+		public const bool DEFAULT_FILTER_EXCLUSION = false;
 
 		public const string FILTER_KEYWORD_WILDCARD = "*";
 
@@ -131,42 +150,6 @@ namespace AssetBundleGraph {
 
 		public static NodeKind NodeKindFromString (string val) {
 			return (NodeKind)Enum.Parse(typeof(NodeKind), val);
-		}
-
-		public class GUI {
-			public const string RESOURCE_BASEPATH = "Assets/AssetBundleGraph/Editor/GUI/GraphicResources/";
-
-			public const float NODE_BASE_WIDTH = 120f;
-			public const float NODE_BASE_HEIGHT = 40f;
-
-			public const float CONNECTION_ARROW_WIDTH = 12f;
-			public const float CONNECTION_ARROW_HEIGHT = 15f;
-
-			public const float INPUT_POINT_WIDTH = 21f;
-			public const float INPUT_POINT_HEIGHT = 29f;
-
-			public const float OUTPUT_POINT_WIDTH = 10f;
-			public const float OUTPUT_POINT_HEIGHT = 23f;
-
-			public const float FILTER_OUTPUT_SPAN = 32f;
-
-			public const float CONNECTION_POINT_MARK_SIZE = 19f;
-
-			public const float CONNECTION_CURVE_LENGTH = 10f;
-
-			public const float TOOLBAR_HEIGHT = 20f;
-
-			public const string RESOURCE_ARROW					= RESOURCE_BASEPATH + "AssetGraph_Arrow.png";
-
-			public const string RESOURCE_CONNECTIONPOINT_ENABLE	= RESOURCE_BASEPATH + "AssetGraph_ConnectionPoint_EnableMark.png";
-			public const string RESOURCE_CONNECTIONPOINT_INPUT	= RESOURCE_BASEPATH + "AssetGraph_ConnectionPoint_InputMark.png";
-			public const string RESOURCE_CONNECTIONPOINT_OUTPUT	= RESOURCE_BASEPATH + "AssetGraph_ConnectionPoint_OutputMark.png";
-			public const string RESOURCE_CONNECTIONPOINT_OUTPUT_CONNECTED	= RESOURCE_BASEPATH + "AssetGraph_ConnectionPoint_OutputMark_Connected.png";
-
-			public const string RESOURCE_INPUT_BG				= RESOURCE_BASEPATH + "AssetGraph_InputBG.png";
-			public const string RESOURCE_OUTPUT_BG				= RESOURCE_BASEPATH + "AssetGraph_OutputBG.png";
-
-			public const string RESOURCE_SELECTION				= RESOURCE_BASEPATH + "AssetGraph_Selection.png";
-		}
+		}        
 	}
 }

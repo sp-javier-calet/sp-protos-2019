@@ -49,6 +49,7 @@ namespace AssetBundleGraph {
 			List<string> alreadyCached, 
 			Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output) 
 		{
+
 			var incomingAssets = inputGroupAssets.SelectMany(v => v.Value).ToList();
 
 			var modifier = ModifierUtility.CreateModifier(node, target);
@@ -56,7 +57,14 @@ namespace AssetBundleGraph {
 			bool isAnyAssetModified = false;
 
 			foreach(var asset in incomingAssets) {
-				var loadedAsset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(asset.importFrom);
+				// Modifiers are not supported in preprocessing because any changes would be overwritten
+				if(PreProcessor.isPreProcessing) {
+					PreProcessor.AssetsToPostProcess.Add(asset.importFrom);
+					continue;
+				}
+
+				var loadedAsset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(asset.importFrom);				
+
 				if(modifier.IsModified(loadedAsset)) {
 					modifier.Modify(loadedAsset);
 					isAnyAssetModified = true;

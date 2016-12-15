@@ -53,6 +53,12 @@ namespace AssetBundleGraph {
 			var outputSource = new List<Asset>();
 			var targetFilePaths = FileUtility.GetAllFilePathsInFolder(node.GetLoaderFullLoadPath(target));
 
+			var loaderSaveData = LoaderSaveData.LoadFromDisk();
+			targetFilePaths.RemoveAll(x => {
+				var bestLoader = loaderSaveData.GetBestLoaderData(x);
+				return bestLoader == null || bestLoader.id != node.Id;
+				});
+
 			foreach (var targetFilePath in targetFilePaths) {
 
 				if(targetFilePath.Contains(AssetBundleGraphSettings.ASSETBUNDLEGRAPH_PATH)) {
@@ -82,6 +88,33 @@ namespace AssetBundleGraph {
 
 			Output(connectionToOutput, outputDir, null);
 		}
+
+
+		public void LoadSingleAsset(NodeData node,
+			ConnectionData connectionToOutput,
+			string path,
+			Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output
+			) {
+			var outputSource = new List<Asset>();
+			Asset asset = null;
+			var assetType = TypeUtility.GetTypeOfAsset(path);
+			if(assetType == typeof(object)) {
+				AssetImporter importer = AssetImporter.GetAtPath(path);
+				asset = Asset.CreateNewAssetFromImporter(importer);
+			}else {
+				var absPath = Application.dataPath + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR + path;
+				asset = Asset.CreateNewAssetFromLoader(absPath, path);
+			}
+
+			outputSource.Add(asset);			
+
+			var outputDir = new Dictionary<string, List<Asset>> {
+				{"0", outputSource}
+			};
+
+			Output(connectionToOutput, outputDir, null);
+		}
+
 
 		public static void ValidateLoadPath (string currentLoadPath, string combinedPath, Action NullOrEmpty, Action NotExist) {
 			if (string.IsNullOrEmpty(currentLoadPath)) NullOrEmpty();
