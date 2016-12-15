@@ -180,7 +180,10 @@ namespace SocialPoint.TransparentBundles
 
         void OnGUI()
         {
-            if (_controller == null)
+            if (Window == null)
+                OpenWindow();
+
+            else if (_controller == null)
                 Init();
 
             InitStyles();

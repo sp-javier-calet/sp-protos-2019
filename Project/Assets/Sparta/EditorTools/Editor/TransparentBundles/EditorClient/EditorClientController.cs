@@ -9,12 +9,18 @@ namespace SocialPoint.TransparentBundles
     {
         private static EditorClientController _instance;
         private static Downloader _downloader;
+        public Dictionary<string, List<Asset>> DependenciesCache, ReferencesCache;
+        public Dictionary<string, bool> SharedDependenciesCache;
 
-        /*FOR TESTING ONLY*/ private Dictionary <string, Bundle> _bundleDictionary;
+        /*FOR TESTING ONLY*/
+        private Dictionary <string, Bundle> _bundleDictionary;
 
         /*FOR TESTING ONLY*/
         private EditorClientController()
         {
+            DependenciesCache = new Dictionary<string, List<Asset>>();
+            ReferencesCache = new Dictionary<string, List<Asset>>();
+            SharedDependenciesCache = new Dictionary<string, bool>();
             _bundleDictionary = new Dictionary<string, Bundle>();
             _downloader = Downloader.GetInstance();
         }
