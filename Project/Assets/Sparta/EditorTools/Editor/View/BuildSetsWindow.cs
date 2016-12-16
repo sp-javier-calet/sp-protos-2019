@@ -66,6 +66,10 @@ namespace SpartaTools.Editor.View
 
         static BuildSetApplier()
         {
+            // Remove previous event if exists
+            EditorUserBuildSettings.activeBuildTargetChanged -= OnTargetChanged;
+            EditorUserBuildSettings.activeBuildTargetChanged += OnTargetChanged;
+
             if(AutoApply)
             {
                 float currentTime = (float)EditorApplication.timeSinceStartup;
@@ -129,6 +133,15 @@ namespace SpartaTools.Editor.View
             }
         }
 
+        static void OnTargetChanged()
+        {
+            // Reapply the current config after change target platform
+            if(AutoApply)
+            {
+                BuildSetApplier.Reapply();
+            }
+        }
+
         #endregion
     }
 
@@ -156,19 +169,6 @@ namespace SpartaTools.Editor.View
             {
                 return _editEnabled;
             }
-        }
-
-        public BuildSetsWindow()
-        {
-            // Remove previous event if exists
-            EditorUserBuildSettings.activeBuildTargetChanged -= OnTargetChanged;
-            EditorUserBuildSettings.activeBuildTargetChanged += OnTargetChanged;
-        }
-
-        static void OnTargetChanged()
-        {
-            // Reapply the current config after change target platform
-            BuildSetApplier.Reapply();
         }
 
         #endregion
