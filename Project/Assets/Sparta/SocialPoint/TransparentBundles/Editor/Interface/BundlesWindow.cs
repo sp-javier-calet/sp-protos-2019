@@ -27,7 +27,7 @@ namespace SocialPoint.TransparentBundles
         private const int _visibleRows = 50;
         private static int _bundlesInBuild = 0;
 
-        public static GUIStyle HeaderStyle, HeaderStyle2, BodyStyle, BodyTextStyle, BodyTextBoldStyle, BodyLinkStyle, BodySelectedLinkStyle, NoButtonStyle, ROJO;
+        public static GUIStyle HeaderStyle, HeaderStyle2, BodyStyle, BodyTextStyle, BodyTextBoldStyle, BodyLinkStyle, BodySpecialLinkStyle, BodySelectedLinkStyle, NoButtonStyle;
         private static float[] _columnsSize;
 
         private static void Init()
@@ -56,6 +56,7 @@ namespace SocialPoint.TransparentBundles
             _toSearch = false;
 
             _columnsSize = new float[] { 20f, 20f, 50f, 100f };
+            _controller.FlushCache();
         }
 
         [MenuItem("Social Point/Bundles")]
@@ -81,18 +82,6 @@ namespace SocialPoint.TransparentBundles
                 HeaderStyle.border = new RectOffset(0, 0, 0, 0);
             }
 
-            if (ROJO == null)
-            {
-                ROJO = new GUIStyle(GUI.skin.label);
-                Texture2D tex = new Texture2D(1, 1);
-                tex.SetPixel(0, 0, new Color(1f, 0f, 0f, 1f));
-                tex.Apply();
-                ROJO.normal.background = tex;
-                ROJO.margin = new RectOffset(0, 0, 0, 0);
-                ROJO.border = new RectOffset(0, 0, 0, 0);
-                ROJO.padding = new RectOffset(0, 0, 0, 0);
-            }
-
             if (HeaderStyle2 == null)
             {
                 HeaderStyle2 = new GUIStyle(GUI.skin.label);
@@ -104,7 +93,6 @@ namespace SocialPoint.TransparentBundles
                 HeaderStyle2.alignment = TextAnchor.LowerLeft;
                 HeaderStyle2.margin = new RectOffset(0, 0, 0, 5);
                 HeaderStyle2.border = new RectOffset(0, 0, 0, 0);
-                //HeaderStyle2.fontStyle = FontStyle.Bold;
             }
 
             if (BodyStyle == null)
@@ -149,10 +137,21 @@ namespace SocialPoint.TransparentBundles
                 BodyLinkStyle.alignment = TextAnchor.MiddleLeft;
                 BodyLinkStyle.margin = new RectOffset(0, 0, 0, 0);
                 BodyLinkStyle.border = BodyLinkStyle.margin;
-                BodyLinkStyle.hover.textColor = new Color(0.7f, 0.7f, 0.7f, 1f);
+                BodyLinkStyle.hover.textColor = new Color(0.9f, 0.9f, 0.9f, 1f);
                 BodyLinkStyle.hover.background = Texture2D.blackTexture;
             }
-            
+
+            if (BodySpecialLinkStyle == null)
+            {
+                BodySpecialLinkStyle = new GUIStyle(GUI.skin.label);
+                BodySpecialLinkStyle.normal.textColor = new Color(0f, 0f, 0f, 1f);
+                BodySpecialLinkStyle.normal.background = Texture2D.blackTexture;
+                BodySpecialLinkStyle.alignment = TextAnchor.MiddleLeft;
+                BodySpecialLinkStyle.margin = new RectOffset(0, 0, 0, 0);
+                BodySpecialLinkStyle.border = BodySpecialLinkStyle.margin;
+                BodySpecialLinkStyle.fontStyle = FontStyle.Bold;
+            }
+
             if (BodySelectedLinkStyle == null)
             {
                 BodySelectedLinkStyle = new GUIStyle(GUI.skin.label);
@@ -278,7 +277,11 @@ namespace SocialPoint.TransparentBundles
             string collapsed = "▼";
             if (!_bundlesInServerShown)
                 collapsed = "►";
-            if (GUILayout.Button(collapsed+" Bundles in Server", HeaderStyle2, GUILayout.ExpandWidth(false)))
+            if (GUILayout.Button(collapsed, HeaderStyle2, GUILayout.ExpandWidth(false)))
+                _bundlesInServerShown = !_bundlesInServerShown;
+            Rect iconRect = GUILayoutUtility.GetRect(17, 17, GUILayout.ExpandWidth(false));
+            GUI.DrawTexture(iconRect, _controller.DownloadImage(Config.IconsPath + "in_server.png"));
+            if (GUILayout.Button(" Bundles in Server", HeaderStyle2, GUILayout.ExpandWidth(false)))
                 _bundlesInServerShown = !_bundlesInServerShown;
             GUILayout.Label("", GUILayout.ExpandWidth(true));
             GUILayout.Label("total size: " + _controller.GetServerBundlesTotalSize() + " MB", GUILayout.ExpandWidth(false));
@@ -311,9 +314,9 @@ namespace SocialPoint.TransparentBundles
                 collapsed = "►";
             if(GUILayout.Button(collapsed, HeaderStyle2, GUILayout.ExpandWidth(false)))
                 _bundlesInBuildShown = !_bundlesInBuildShown;
-            Rect previewRect = GUILayoutUtility.GetRect(20, 20, GUILayout.ExpandWidth(false));
-            GUI.DrawTexture(previewRect, _controller.DownloadImage(Config.IconsPath + "in_build.png"));
-            if (GUILayout.Button("Bundles in Build", HeaderStyle2,  GUILayout.ExpandWidth(false)))
+            iconRect = GUILayoutUtility.GetRect(20, 20, GUILayout.ExpandWidth(false));
+            GUI.DrawTexture(iconRect, _controller.DownloadImage(Config.IconsPath + "in_build.png"));
+            if (GUILayout.Button(" Bundles in Build", HeaderStyle2,  GUILayout.ExpandWidth(false)))
                 _bundlesInBuildShown = !_bundlesInBuildShown;
             GUILayout.Label("", GUILayout.ExpandWidth(true));
             GUILayout.Label("total size: " + _controller.GetLocalBundlesTotalSize() + " MB", GUILayout.ExpandWidth(false));

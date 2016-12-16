@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
+using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -82,7 +83,7 @@ namespace SocialPoint.TransparentBundles
                 {
                     if (!HasValidDependencies(asset))
                         return;
-                    Bundle bundle = new Bundle(1, asset.Name.ToLower(), 1, 2f, false, asset);
+                    Bundle bundle = new Bundle(1, asset.Name.ToLower(), 2f, false, asset);
                     _bundleDictionary.Add(asset.Name, bundle);
                 }
                 else
@@ -136,7 +137,7 @@ namespace SocialPoint.TransparentBundles
             List<string> keys = new List<string>(_bundleDictionary.Keys);
             for (int i = 0; i < keys.Count; i++)
             {
-                if (keys[i].Contains(searchText))
+                if (keys[i].IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)
                     bundleList.Add(_bundleDictionary[keys[i]]);
             }
             return bundleList;
@@ -215,19 +216,19 @@ namespace SocialPoint.TransparentBundles
             return GetAssetsFromObjects(Selection.objects);
         }
 
-        public Asset GetAssetFromObject(Object assetObject)
+        public Asset GetAssetFromObject(UnityEngine.Object assetObject)
         {
-            return GetAssetsFromObjects(new Object[] { assetObject })[0];
+            return GetAssetsFromObjects(new UnityEngine.Object[] { assetObject })[0];
         }
 
-        public Asset[] GetAssetsFromObjects(Object[] objects)
+        public Asset[] GetAssetsFromObjects(UnityEngine.Object[] objects)
         {
-            Object[] selectedObjects = objects;
+            UnityEngine.Object[] selectedObjects = objects;
 
             List<Asset> assets = new List<Asset>();
             for (int i = 0; i < selectedObjects.Length; i++)
             {
-                Object selectedObject = selectedObjects[i];
+                UnityEngine.Object selectedObject = selectedObjects[i];
                 string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetOrScenePath(selectedObject));
                 Asset asset = new Asset(guid, selectedObject.name);
                 assets.Add(asset);
@@ -241,7 +242,7 @@ namespace SocialPoint.TransparentBundles
             return GetBundleFromAsset(assetName) != null;
         }
 
-        public bool IsBundle(Object assetObject)
+        public bool IsBundle(UnityEngine.Object assetObject)
         {
             Bundle bundle = GetBundleFromAsset(assetObject.name);
             return (bundle != null && bundle.Asset.Type == assetObject.GetType().ToString());
@@ -300,6 +301,13 @@ namespace SocialPoint.TransparentBundles
                     break;
 
             }
+        }
+
+        public void FlushCache()
+        {
+            DependenciesCache = new Dictionary<string, List<Asset>>();
+            ReferencesCache = new Dictionary<string, List<Asset>>();
+            SharedDependenciesCache = new Dictionary<string, bool>();
         }
     }
 
