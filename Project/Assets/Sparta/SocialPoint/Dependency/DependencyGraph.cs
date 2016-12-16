@@ -46,20 +46,20 @@ namespace SocialPoint.Dependency
             var node = _graph.GetNode(type, tag);
             node.History.Add(Action.Bind);
 
-            var binded = _graph.GetNode(bind, tag);
-            binded.History.Add(Action.Binded);
+            var bound = _graph.GetNode(bind, tag);
+            bound.History.Add(Action.Bound);
 
             if(type != bind)
             {
                 if(type.IsInterface)
                 {
-                    binded.Implements.Add(node);
+                    bound.Implements.Add(node);
                 }
                 else
                 {
-                    binded.Aliases.Add(node);
+                    bound.Aliases.Add(node);
                 }
-                node.Definitions.Add(binded);
+                node.Definitions.Add(bound);
             }
         }
 
@@ -260,7 +260,7 @@ namespace SocialPoint.Dependency
     public enum Action
     {
         Bind,
-        Binded,
+        Bound,
         Resolve,
         Create,
         Setup,
