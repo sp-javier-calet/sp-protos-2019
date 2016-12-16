@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Geometry;
 using SocialPoint.IO;
 using SocialPoint.Network;
 using SocialPoint.Utils;

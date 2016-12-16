@@ -7,6 +7,10 @@ namespace SocialPoint.Pathfinding
     {
         public static readonly NavDetailMeshDataSerializer Instance = new NavDetailMeshDataSerializer();
 
+        NavDetailMeshDataSerializer()
+        {
+        }
+
         public void Serialize(PolyMeshDetail.MeshData value, IWriter writer)
         {
             writer.Write(value.VertexIndex);
@@ -19,6 +23,10 @@ namespace SocialPoint.Pathfinding
     public class NavDetailMeshDataParser : IReadParser<PolyMeshDetail.MeshData>
     {
         public static readonly NavDetailMeshDataParser Instance = new NavDetailMeshDataParser();
+
+        NavDetailMeshDataParser()
+        {
+        }
 
         public PolyMeshDetail.MeshData Parse(IReader reader)
         {

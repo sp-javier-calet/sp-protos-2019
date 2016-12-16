@@ -1,6 +1,5 @@
-﻿using SocialPoint.Network;
+﻿using SocialPoint.Geometry;
 using SocialPoint.Multiplayer;
-using SocialPoint.Physics;
 using SocialPoint.IO;
 using Jitter.LinearMath;
 
@@ -10,12 +9,12 @@ public class MovementAction : INetworkShareable
 
     public void Deserialize(IReader reader)
     {
-        Movement = JVectorParser.Instance.Parse(reader);
+        Movement = VectorParser.Instance.Parse(reader);
     }
 
     public void Serialize(IWriter writer)
     {
-        JVectorSerializer.Instance.Serialize(Movement, writer);
+        VectorSerializer.Instance.Serialize(Movement, writer);
     }
 
     public static void Apply(NetworkScene scene, MovementAction action)

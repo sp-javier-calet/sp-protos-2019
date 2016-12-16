@@ -1,15 +1,16 @@
 ﻿using SocialPoint.IO;
-using SocialPoint.Utils;
-using System;
-using Jitter.LinearMath;
 
-namespace SocialPoint.Physics
+namespace SocialPoint.Geometry
 {
-    public class JQuaternionSerializer : IDiffWriteSerializer<JQuaternion>
+    public class QuatSerializer : IDiffWriteSerializer<Quat>
     {
-        public static readonly JQuaternionSerializer Instance = new JQuaternionSerializer();
+        public static readonly QuatSerializer Instance = new QuatSerializer();
 
-        public void Compare(JQuaternion newObj, JQuaternion oldObj, Bitset dirty)
+        QuatSerializer()
+        {
+        }
+
+        public void Compare(Quat newObj, Quat oldObj, Bitset dirty)
         {
             dirty.Set(newObj.X != oldObj.X);
             dirty.Set(newObj.Y != oldObj.Y);
@@ -17,7 +18,7 @@ namespace SocialPoint.Physics
             dirty.Set(newObj.W != oldObj.W);
         }
 
-        public void Serialize(JQuaternion newObj, IWriter writer)
+        public void Serialize(Quat newObj, IWriter writer)
         {
             writer.Write(newObj.X);
             writer.Write(newObj.Y);
@@ -25,7 +26,7 @@ namespace SocialPoint.Physics
             writer.Write(newObj.W);
         }
 
-        public void Serialize(JQuaternion newObj, JQuaternion oldObj, IWriter writer, Bitset dirty)
+        public void Serialize(Quat newObj, Quat oldObj, IWriter writer, Bitset dirty)
         {
             if(Bitset.NullOrGet(dirty))
             {
@@ -46,13 +47,17 @@ namespace SocialPoint.Physics
         }
     }
 
-    public class JQuaternionParser : IDiffReadParser<JQuaternion>
+    public class QuatParser : IDiffReadParser<Quat>
     {
-        public static readonly JQuaternionParser Instance = new JQuaternionParser();
+        public static readonly QuatParser Instance = new QuatParser();
 
-        public JQuaternion Parse(IReader reader)
+        QuatParser()
         {
-            JQuaternion obj;
+        }
+
+        public Quat Parse(IReader reader)
+        {
+            Quat obj;
             obj.X = reader.ReadSingle();
             obj.Y = reader.ReadSingle();
             obj.Z = reader.ReadSingle();
@@ -60,12 +65,12 @@ namespace SocialPoint.Physics
             return obj;
         }
 
-        public int GetDirtyBitsSize(JQuaternion obj)
+        public int GetDirtyBitsSize(Quat obj)
         {
             return 4;
         }
 
-        public JQuaternion Parse(JQuaternion obj, IReader reader, Bitset dirty)
+        public Quat Parse(Quat obj, IReader reader, Bitset dirty)
         {
             if(Bitset.NullOrGet(dirty))
             {
