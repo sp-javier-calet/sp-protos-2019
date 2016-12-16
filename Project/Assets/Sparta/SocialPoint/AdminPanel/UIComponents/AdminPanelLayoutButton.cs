@@ -18,7 +18,7 @@ namespace SocialPoint.AdminPanel
 
         public Color GetDisabled()
         {
-            return new Color(Color.r / 2, Color.g / 2, Color.b / 2, Alpha);
+            return new Color(Color.r * 0.5f, Color.g * 0.5f, Color.b * 0.5f, Alpha);
         }
 
         public Color GetHighlight()
