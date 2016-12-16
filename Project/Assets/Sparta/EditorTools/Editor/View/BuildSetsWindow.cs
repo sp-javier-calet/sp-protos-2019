@@ -73,9 +73,7 @@ namespace SpartaTools.Editor.View
 
                 if(requiresApply)
                 {
-                    var config = CurrentMode;
-                    Debug.Log(string.Format("Auto Applying BuildSet '{0}'", config));
-                    ApplyConfig(config);
+                    Reapply();
                 }
 
                 AutoApplyLastTime = currentTime;
@@ -112,9 +110,22 @@ namespace SpartaTools.Editor.View
         public static void Reapply()
         {
             var mode = CurrentMode;
-            if(AutoApply && !string.IsNullOrEmpty(mode))
+            try
             {
-                ApplyConfig(mode);
+                if(!string.IsNullOrEmpty(mode))
+                {
+                    Debug.Log(string.Format("Applying BuildSet '{0}'", mode));
+                    ApplyConfig(mode);
+                }
+                else
+                {
+                    Debug.LogWarning("No BuildSet to apply");
+                }
+            }
+            catch(FileNotFoundException e)
+            {
+                Debug.LogError(e.Message);    
+                CurrentMode = string.Empty;
             }
         }
 
