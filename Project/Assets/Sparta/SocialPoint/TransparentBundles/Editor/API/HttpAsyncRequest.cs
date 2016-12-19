@@ -13,32 +13,55 @@ public class HttpAsyncRequest
         DELETE
     }
 
-    class RequestState
+    public class RequestState
     {
         public HttpWebRequest request;
         public string requestData;
-        public Action<ResponseResult> successCallback;
-        public Action<ResponseResult> failedCallback;
-        public ResponseResult rResult;
+        private ResponseResult rResult;
+        private Action<ResponseResult> OnSuccess;
+        private Action<ResponseResult> OnFailed;
 
         public RequestState(HttpWebRequest request, Action<ResponseResult> successCallback, Action<ResponseResult> failedCallback)
         {
             this.request = request;
             this.requestData = null;
-            this.successCallback = successCallback;
-            this.failedCallback = failedCallback;
+            OnSuccess = successCallback;
+            OnFailed = failedCallback;
         }
 
         public RequestState(HttpWebRequest request, string requestData, Action<ResponseResult> successCallback, Action<ResponseResult> failedCallback)
         {
             this.request = request;
             this.requestData = requestData;
-            this.successCallback = successCallback;
-            this.failedCallback = failedCallback;
+            OnSuccess = successCallback;
+            OnFailed = failedCallback;
         }
+
+        public void RaiseCallback()
+        {
+            if(rResult.success)
+            {
+                OnSuccess(rResult);
+            } else
+            {
+                OnFailed(rResult);
+            }
+        }
+
+        public void ConnectionFinished(ResponseResult result)
+        {
+            rResult = result;
+            MainThreadQueue.AddQueueItem(this);
+        }
+
+        public ResponseResult GetResponseResult()
+        {
+            return rResult;
+        }
+
     }
 
-    public const int TIMEOUT_MILLISECONDS = 5000;
+    public const int TIMEOUT_MILLISECONDS = 10000;
 
     public HttpWebRequest Request
     {
@@ -49,7 +72,6 @@ public class HttpAsyncRequest
     }
 
     private RequestState reqState;
-
 
     public HttpAsyncRequest(HttpWebRequest request, Action<ResponseResult> successCallback, Action<ResponseResult> failedCallback)
     {
@@ -92,8 +114,7 @@ public class HttpAsyncRequest
             GetResponseAsync(state);
         } catch(Exception e)
         {
-            state.rResult = new ResponseResult(false, e.Message);
-            state.failedCallback(state.rResult);
+            state.ConnectionFinished(new ResponseResult(false, e.Message));
         }
     }
 
@@ -103,7 +124,8 @@ public class HttpAsyncRequest
         var asyncResult = state.request.BeginGetResponse(new AsyncCallback(GetResponseCallback), state);
 
         // this line implements the timeout, if there is a timeout, the callback fires and the request becomes aborted
-        ThreadPool.RegisterWaitForSingleObject(asyncResult.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback), state, TIMEOUT_MILLISECONDS, true);        
+        ThreadPool.RegisterWaitForSingleObject(asyncResult.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback), state, TIMEOUT_MILLISECONDS, true);
+            
     }
 
     private void TimeoutCallback(object stateObj, bool timeOut)
@@ -111,9 +133,7 @@ public class HttpAsyncRequest
         RequestState state = (RequestState)stateObj;
         if(timeOut)
         {
-            state.rResult = new ResponseResult(false, "The request timed out");
-
-            state.failedCallback(state.rResult);
+            state.ConnectionFinished(new ResponseResult(false, "The request timed out"));
         }
     }
 
@@ -122,6 +142,7 @@ public class HttpAsyncRequest
         RequestState state = (RequestState)asynchronousResult.AsyncState;
         try
         {
+            ResponseResult rResult = null;
             // End the operation
             using(HttpWebResponse response = (HttpWebResponse)state.request.EndGetResponse(asynchronousResult))
             {
@@ -129,16 +150,21 @@ public class HttpAsyncRequest
                 {
                     using(StreamReader streamRead = new StreamReader(streamResponse))
                     {
-                        state.rResult = new ResponseResult();
-                        state.rResult.response = streamRead.ReadToEnd();                              
+                        rResult = new ResponseResult(true, "OK");
+                        rResult.response = streamRead.ReadToEnd();
                     }
                 }
             }
-            state.successCallback(state.rResult);
-        }catch(Exception e)
+
+            if(rResult == null)
+            {
+                throw new Exception("Unable to read response result for url " + state.request.RequestUri);
+            }
+
+            state.ConnectionFinished(rResult);
+        } catch(Exception e)
         {
-            state.rResult = new ResponseResult(false, e.Message);
-            state.failedCallback(state.rResult);
+            state.ConnectionFinished(new ResponseResult(false, e.Message));
         }
     }
 }

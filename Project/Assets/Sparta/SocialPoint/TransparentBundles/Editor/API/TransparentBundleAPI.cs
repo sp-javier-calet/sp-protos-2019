@@ -9,45 +9,80 @@ using UnityEditor;
 public class TransparentBundleAPI
 {
     private static bool isLogged = false;
-    private static System.Action<IRequestArgs> delayedCallback;
-    private static IRequestArgs delayedArguments;
+    private static Action<RequestArgs> delayedCallback = null;
+    private static RequestArgs delayedArguments = null;
 
     public const string SERVER_URL = "http://httpbin.org/post";
-    
+        
+    [MenuItem("SocialPoint/Test Call")]
+    public static void test()
+    {
+        CreateBundle(new CreateBundlesArgs(x=>Debug.Log(x.response), x=>Debug.Log(x.message)));
+    }    
+
+    #region LOGIN
     public static void Login()
     {
         var loginUser = EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY);
 
-        Debug.Log(loginUser);
-
         if(string.IsNullOrEmpty(loginUser))
         {
-            LoginWindow.Open(Login);
+            LoginWindow.Open(Login, () => delayedCallback = null);
         } else
         {
-            HttpAsyncRequest asyncReq = new HttpAsyncRequest(SERVER_URL, HttpAsyncRequest.MethodType.POST, x => { Debug.Log("OK LOGIN"); isLogged = true; delayedCallback(delayedArguments); }, x => Debug.Log(x.message));
+            HttpAsyncRequest asyncReq = new HttpAsyncRequest(SERVER_URL, HttpAsyncRequest.MethodType.POST, OnLoginSuccess, OnLoginFailed);
+
             asyncReq.Send();
         }
     }
     
-    [MenuItem("SocialPoint/Test Call")]
-    public static void test()
+    private static void OnLoginSuccess(ResponseResult result)
     {
-        CreateBundle();
+        Debug.Log("OK LOGIN");
+        isLogged = true;
+        if(delayedCallback != null)
+        {
+            delayedCallback(delayedArguments);
+            delayedCallback = null;
+        }
     }
 
-    public static void CreateBundle(IRequestArgs arguments = null)
+    private static void OnLoginFailed(ResponseResult result)
+    {
+        Debug.Log("FAIL LOGIN");
+        LoginWindow.Open(Login, () => delayedCallback = null, result.message);
+    }
+    #endregion
+
+    #region PUBLIC_METHODS
+    public static void CreateBundle(CreateBundlesArgs arguments)
+    {
+        LoginAndExecuteAction(CreateBundleAction, arguments);
+    }
+
+    #endregion
+
+
+    #region PRIVATE_METHODS
+    private static void LoginAndExecuteAction(Action<RequestArgs> action, RequestArgs arguments)
     {
         if(!isLogged)
         {
             delayedArguments = arguments;
-            delayedCallback = CreateBundle;
+            delayedCallback = action;
             Login();
         } else
         {
-            HttpAsyncRequest asyncReq = new HttpAsyncRequest(SERVER_URL, HttpAsyncRequest.MethodType.POST, x => Debug.Log(x.response), x => Debug.Log(x.message));
-
-            asyncReq.Send();
+            action(arguments);
         }
     }
+
+    private static void CreateBundleAction(RequestArgs arguments)
+    {
+        HttpAsyncRequest asyncReq = new HttpAsyncRequest(SERVER_URL, HttpAsyncRequest.MethodType.POST, arguments.OnSuccessCallback, arguments.OnFailedCallback);
+
+        asyncReq.Send();
+    }
+
+    #endregion
 }

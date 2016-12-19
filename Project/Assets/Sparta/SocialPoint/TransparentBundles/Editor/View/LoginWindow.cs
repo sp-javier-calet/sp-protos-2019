@@ -1,11 +1,13 @@
 using UnityEditor;
 using UnityEngine;
 using System.Collections;
+using System;
 
 public class LoginWindow : EditorWindow{
     public const string LOGIN_PREF_KEY = "TBLoginUser";
-    private System.Action callback;
+    private Action callback, cancelCallback;
     private string loginUser;
+    private string error;
     private bool closedProperly = false;
 
     
@@ -16,23 +18,29 @@ public class LoginWindow : EditorWindow{
         Open(TransparentBundleAPI.Login);
     }
 
-    public static void Open(System.Action callback, string errorMessage = "")
+    public static void Open(Action callback, Action cancelCallback = null, string errorMessage = "")
     {
         var window = GetWindow<LoginWindow>(true,"Transparent Bundles Login",true);
         window.callback = callback;
+        window.cancelCallback = cancelCallback;
         var rect = new Rect(750, 400, 400, 100);
         window.position = rect;
         var size = new Vector2(rect.width, rect.height);
         window.maxSize = size;
         window.minSize = size;
-        window.loginUser = EditorPrefs.GetString(LOGIN_PREF_KEY);        
+        window.loginUser = EditorPrefs.GetString(LOGIN_PREF_KEY);
+        window.error = errorMessage;
     }
-
     
-
     void OnGUI()
     {
-        EditorGUILayout.HelpBox("This is the username for transparent bundles, use your socialpoint email, if you can't access please contact the Tools department", MessageType.Info);
+        if(string.IsNullOrEmpty(error))
+        {
+            EditorGUILayout.HelpBox("This is the username for transparent bundles, use your socialpoint email, if you can't access please contact the Tools department", MessageType.Info);
+        } else
+        {
+            EditorGUILayout.HelpBox("Error found: " + error, MessageType.Error);
+        }
         loginUser = EditorGUILayout.TextField("Login", loginUser);
 
         GUILayout.FlexibleSpace();
@@ -48,13 +56,13 @@ public class LoginWindow : EditorWindow{
             Close();
         }
     }
-
-
+    
     public void OnDestroy()
     {
         if(!closedProperly)
         {
             Debug.LogError("Login cancelled, the process won't continue");
+            cancelCallback();
         }
     }
 
