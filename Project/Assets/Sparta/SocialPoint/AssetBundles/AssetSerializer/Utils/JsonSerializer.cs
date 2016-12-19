@@ -6,6 +6,8 @@ using SocialPoint.Attributes;
 
 #if UNITY_5_5_OR_NEWER
 using UnityEngine.Profiling;
+#else
+using UnityEngine;
 #endif
 
 
@@ -22,18 +24,18 @@ namespace SocialPoint.AssetSerializer.Utils.JsonSerialization
 
         public static JsonData Parse(string data, IAttrParser attrParser=null)
         {
-            UnityEngine.Profiler.BeginSample ("Parse string");
+            Profiler.BeginSample ("Parse string");
 #if ATTR_USING_SIMPLEJSON
             var attParser = attrParser ?? new SimpleJsonAttrParser ();
 #else
             var attParser = attrParser ?? new LitJsonAttrParser ();
 #endif
-            UnityEngine.Profiler.BeginSample ("Parse attr");
+            Profiler.BeginSample ("Parse attr");
             Attr parsedAttr = attParser.ParseString (data);
-            UnityEngine.Profiler.EndSample ();
+            Profiler.EndSample ();
 
             JsonData val = (JsonData)parsedAttr;
-            UnityEngine.Profiler.EndSample ();
+            Profiler.EndSample ();
 
             return val;
         }
@@ -98,7 +100,7 @@ namespace SocialPoint.AssetSerializer.Utils.JsonSerialization
         #region Explicit Conversions
         public static explicit operator Boolean (JsonData data)
         {
-            UnityEngine.Profiler.BeginSample("Bool IC");
+            Profiler.BeginSample("Bool IC");
             if (!data.attr.IsValue || data.attr.AsValue.AttrValueType != AttrValueType.BOOL)
                 throw new InvalidCastException (
                     "Instance of JsonData doesn't hold a boolean");
@@ -106,14 +108,14 @@ namespace SocialPoint.AssetSerializer.Utils.JsonSerialization
             bool val;
 
             val = data.attr.AsValue.ToBool ();
-            UnityEngine.Profiler.EndSample();
+            Profiler.EndSample();
 
             return val;
         }
 
         public static explicit operator String (JsonData data)
         {
-            UnityEngine.Profiler.BeginSample("String IC");
+            Profiler.BeginSample("String IC");
             if (!data.attr.IsValue || data.attr.AsValue.AttrValueType != AttrValueType.STRING)
                 throw new InvalidCastException (
                     "Instance of JsonData doesn't hold a string");
@@ -121,14 +123,14 @@ namespace SocialPoint.AssetSerializer.Utils.JsonSerialization
             string val;
 
             val = data.attr.AsValue.ToString ();
-            UnityEngine.Profiler.EndSample();
+            Profiler.EndSample();
 
             return val;
         }
         
         public static explicit operator Double (JsonData data)
         {
-            UnityEngine.Profiler.BeginSample("Double IC");
+            Profiler.BeginSample("Double IC");
             if (!data.attr.IsValue ||
                 data.attr.AsValue.AttrValueType != AttrValueType.DOUBLE &&
                 data.attr.AsValue.AttrValueType != AttrValueType.FLOAT &&
@@ -146,14 +148,14 @@ namespace SocialPoint.AssetSerializer.Utils.JsonSerialization
             }
             else
                 val = data.attr.AsValue.ToLong ();
-            UnityEngine.Profiler.EndSample();
+            Profiler.EndSample();
 
             return val;
         }
 
         public static explicit operator Int64 (JsonData data)
         {
-            UnityEngine.Profiler.BeginSample("Long IC");
+            Profiler.BeginSample("Long IC");
             if (!data.attr.IsValue ||
                 data.attr.AsValue.AttrValueType != AttrValueType.LONG &&
                 data.attr.AsValue.AttrValueType != AttrValueType.INT &&
@@ -171,14 +173,14 @@ namespace SocialPoint.AssetSerializer.Utils.JsonSerialization
             }
             else
                 val = data.attr.AsValue.ToLong ();
-            UnityEngine.Profiler.EndSample();
+            Profiler.EndSample();
 
             return val;
         }
 
         public static explicit operator Int32 (JsonData data)
         {
-            UnityEngine.Profiler.BeginSample("Int IC");
+            Profiler.BeginSample("Int IC");
             if (!data.attr.IsValue || 
                 data.attr.AsValue.AttrValueType != AttrValueType.INT &&
                 data.attr.AsValue.AttrValueType != AttrValueType.LONG &&
@@ -196,18 +198,18 @@ namespace SocialPoint.AssetSerializer.Utils.JsonSerialization
             }
             else
                 val = data.attr.AsValue.ToInt ();
-            UnityEngine.Profiler.EndSample();
+            Profiler.EndSample();
 
             return val;
         }
 
         public static explicit operator JsonData (Attr data)
         {
-            UnityEngine.Profiler.BeginSample("Jsondata IC");
+            Profiler.BeginSample("Jsondata IC");
             JsonData val;
 
             val = new JsonData(data);
-            UnityEngine.Profiler.EndSample();
+            Profiler.EndSample();
 
             return val;
         }
@@ -215,11 +217,11 @@ namespace SocialPoint.AssetSerializer.Utils.JsonSerialization
         public static explicit operator Attr (JsonData data)
         {
 
-            UnityEngine.Profiler.BeginSample("Attr IC");
+            Profiler.BeginSample("Attr IC");
             Attr val;
 
             val = data.attr;
-            UnityEngine.Profiler.EndSample();
+            Profiler.EndSample();
 
             return val;
         }

@@ -31,29 +31,22 @@ namespace SocialPoint.Base
             }
         }
 
-        [SerializeField]
-        string _environmentUrl = string.Empty;
-
-        public string EnvironmentUrl
-        {
-            get
-            {
-                return _environmentUrl ?? string.Empty;
-            }
-            private set
-            {
-                _environmentUrl = value;
-            }
-        }
-
         #if UNITY_EDITOR
-        //Static constructor needed to run upon editor initialization (UnityEditor.InitializeOnLoad)
         static EnvironmentSettings()
+        {
+            #if !UNITY_5_4_OR_NEWER
+            GetInstance();
+            #endif
+        }
+        #else
+        void OnEnable()
         {
             GetInstance();
         }
         #endif
-
+        #if UNITY_5_4_OR_NEWER && UNITY_EDITOR
+        [InitializeOnLoadMethod]
+        #endif
         static EnvironmentSettings GetInstance()
         {
             if(_instance == null)
@@ -111,5 +104,20 @@ namespace SocialPoint.Base
         }
 
         #endif
+
+        [SerializeField]
+        string _environmentUrl = string.Empty;
+
+        public string EnvironmentUrl
+        {
+            get
+            {
+                return _environmentUrl ?? string.Empty;
+            }
+            private set
+            {
+                _environmentUrl = value;
+            }
+        }
     }
 }

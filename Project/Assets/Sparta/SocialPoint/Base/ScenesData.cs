@@ -30,25 +30,22 @@ namespace SocialPoint.Base
             }
         }
 
-        [SerializeField]
-        string[] _scenesNames = new string[0];
-
-        public string[] ScenesNames
-        {
-            get
-            {
-                return _scenesNames;
-            }
-        }
-
         #if UNITY_EDITOR
-        //Static constructor needed to run upon editor initialization (UnityEditor.InitializeOnLoad)
         static ScenesData()
+        {
+            #if !UNITY_5_4_OR_NEWER
+            GetInstance();
+            #endif
+        }
+        #else
+        void OnEnable()
         {
             GetInstance();
         }
         #endif
-
+        #if UNITY_5_4_OR_NEWER && UNITY_EDITOR
+        [InitializeOnLoadMethod]
+        #endif
         static ScenesData GetInstance()
         {
             if(_instance == null)
@@ -118,5 +115,16 @@ namespace SocialPoint.Base
         }
 
         #endif
+
+        [SerializeField]
+        string[] _scenesNames = new string[0];
+
+        public string[] ScenesNames
+        {
+            get
+            {
+                return _scenesNames;
+            }
+        }
     }
 }
