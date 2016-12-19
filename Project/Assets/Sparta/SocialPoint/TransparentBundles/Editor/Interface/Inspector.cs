@@ -131,7 +131,7 @@ namespace SocialPoint.TransparentBundles
                 string inBuild = "";
                 if (bundle == null)
                 {
-                    Rect RecIcon = GUILayoutUtility.GetRect(20, 20, GUILayout.ExpandWidth(false));
+                    /*Rect RecIcon = */GUILayoutUtility.GetRect(20, 20, GUILayout.ExpandWidth(false));
                     inBuild = "Asset used by Bundle";
                 }
                 else if (bundle.IsLocal)

@@ -3,6 +3,7 @@ using UnityEditor;
 using System;
 using System.IO;
 using System.Collections.Generic;
+using SocialPoint.Attributes;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -12,6 +13,7 @@ namespace SocialPoint.TransparentBundles
         private static Downloader _downloader;
         public Dictionary<string, List<Asset>> DependenciesCache, ReferencesCache;
         public Dictionary<string, bool> SharedDependenciesCache;
+        private string _jsonPath = Application.dataPath + "/Sparta/SocialPoint/TransparentBundles/Editor/TEST_json/test_json.json";
 
         /*FOR TESTING ONLY*/
         private Dictionary <string, Bundle> _bundleDictionary;
@@ -22,8 +24,26 @@ namespace SocialPoint.TransparentBundles
             DependenciesCache = new Dictionary<string, List<Asset>>();
             ReferencesCache = new Dictionary<string, List<Asset>>();
             SharedDependenciesCache = new Dictionary<string, bool>();
-            _bundleDictionary = new Dictionary<string, Bundle>();
+            _bundleDictionary = ReadBundleListFromJSON(File.ReadAllBytes(_jsonPath));//new Dictionary<string, Bundle>();
             _downloader = Downloader.GetInstance();
+        }
+
+        private Dictionary<string, Bundle> ReadBundleListFromJSON(byte[] jsonBytes)
+        {
+            Dictionary<string, Bundle> bundleDictionary = new Dictionary<string, Bundle>();
+
+            JsonAttrParser parser = new JsonAttrParser();
+            Attr jsonParsed = parser.Parse(jsonBytes);
+            AttrList jsonList = jsonParsed.AsList[0].AsList;
+            for(int i = 0; i < jsonList.Count; i++)
+            {
+                AttrList jsonRow = jsonList[i].AsList;
+
+                Asset asset = new Asset(jsonRow[4].AsValue.ToString());
+                Bundle bundle = new Bundle(jsonRow[0].AsValue.ToInt(), jsonRow[1].AsValue.ToString(), jsonRow[2].AsValue.ToFloat(), jsonRow[3].AsValue.ToBool(), asset);
+                bundleDictionary.Add(bundle.Name, bundle);
+            }
+            return bundleDictionary;
         }
 
         public static EditorClientController GetInstance()

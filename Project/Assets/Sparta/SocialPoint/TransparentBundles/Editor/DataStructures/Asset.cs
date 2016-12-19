@@ -6,7 +6,6 @@ namespace SocialPoint.TransparentBundles
 {
     public class Asset
     {
-        public int Id = -1;
         public string Name = "";
         public string Type;
         public string Guid = "";
@@ -14,28 +13,24 @@ namespace SocialPoint.TransparentBundles
 
         public Asset(string guid)
         {
-            Id = -1;
             Guid = guid;
             Name = LoadAssetName();
             Type = LoadAssetType();
         }
         public Asset(string guid, string name)
         {
-            Id = -1;
             Guid = guid;
             Name = name;
             Type = LoadAssetType();
         }
         public Asset(string guid, string name, string type )
         {
-            Id = -1;
             Name = name;
             Type = type;
             Guid = guid;
         }
         public Asset(string guid, string name, string type, int id)
         {
-            Id = id;
             Name = name;
             Type = type;
             Guid = guid;

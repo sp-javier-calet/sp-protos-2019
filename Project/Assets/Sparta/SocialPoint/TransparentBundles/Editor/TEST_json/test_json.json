@@ -1,0 +1,32 @@
+{
+    "bundles": [
+        {
+            "id": 1,
+			"name": "drg_air1_01_evo1_hig.prefab",
+            "size": 1.6,
+            "islocal": false,
+            "assetguid": "c9d8d00196f72fd4d9252b489e17607d"
+        },
+		{
+            "id": 2,
+			"name": "drg_air1_01_evo1_low.prefab",
+            "size": 1.2,
+            "islocal": false,
+            "assetguid": "0f833cc4b3c02ef40b07fcadc5c5f557"
+        },
+		{
+            "id": 3,
+			"name": "drg_air1_01_evo5_hig.prefab",
+            "size": 1.9,
+            "islocal": false,
+            "assetguid": "5f891f5f6a6c37c4d93111c0609cb6f8"
+        },
+		{
+            "id": 4,
+			"name": "drg_air1_01_evo5_low.prefab",
+            "size": 1.7,
+            "islocal": false,
+            "assetguid": "89d1d7d1183be704590ca4ea6832fc0a"
+        }
+    ]
+}
