@@ -51,7 +51,7 @@ public class HttpAsyncRequest
         public void ConnectionFinished(ResponseResult result)
         {
             rResult = result;
-            MainThreadQueue.AddQueueItem(this);
+            MainThreadQueue.Instance.AddQueueItem(this);
         }
 
         public ResponseResult GetResponseResult()
@@ -150,8 +150,7 @@ public class HttpAsyncRequest
                 {
                     using(StreamReader streamRead = new StreamReader(streamResponse))
                     {
-                        rResult = new ResponseResult(true, "OK");
-                        rResult.response = streamRead.ReadToEnd();
+                        rResult = new ResponseResult(true, response.StatusCode + " " + response.StatusDescription, streamRead.ReadToEnd());
                     }
                 }
             }

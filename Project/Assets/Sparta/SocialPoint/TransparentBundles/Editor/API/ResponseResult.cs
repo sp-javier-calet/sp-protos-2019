@@ -9,10 +9,11 @@ public class ResponseResult
 
     public ResponseResult() { }
 
-    public ResponseResult(bool success, string message)
+    public ResponseResult(bool success, string message, string response = "")
     {
         this.success = success;
         this.message = message;
+        this.response = response;
     }
 
 }

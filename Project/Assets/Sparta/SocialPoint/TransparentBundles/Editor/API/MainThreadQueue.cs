@@ -1,29 +1,51 @@
 using UnityEditor;
-using UnityEngine;
-using System.Collections.Generic;
 using System.Collections;
+using System;
 
 [InitializeOnLoad]
-public class MainThreadQueue{    
-	
-    static MainThreadQueue()
+public class MainThreadQueue{
+    // We need this to be singleton to guarantee initialization when accessed.
+    private static Object lockObj = new object();
+    private static MainThreadQueue instance;
+    public static MainThreadQueue Instance
+    {
+        get
+        {
+            //Just to be thread safe
+            lock(lockObj)
+            {
+                if(instance == null)
+                {
+                    instance = new MainThreadQueue();
+                }
+            }
+            return instance;
+        }
+    }
+
+
+
+    private MainThreadQueue()
     {
         EditorApplication.update += WatcherUpdate;
     }
 
-    public static Queue responseQueue = Queue.Synchronized(new Queue());
+    private Queue responseQueue = Queue.Synchronized(new Queue());
 
-    public static void AddQueueItem(object obj)
+    public event Action<object> OnItemQueued;
+
+    public void AddQueueItem(object obj)
     {
         responseQueue.Enqueue(obj);
     }
 
-    static void WatcherUpdate () {
+    void WatcherUpdate () {
         if(responseQueue.Count > 0)
         {
-            var requestFinished = (HttpAsyncRequest.RequestState)responseQueue.Dequeue();
-
-            requestFinished.RaiseCallback();
+            if(OnItemQueued != null)
+            {
+                OnItemQueued(responseQueue.Dequeue());
+            }
         }
 	}
 }
