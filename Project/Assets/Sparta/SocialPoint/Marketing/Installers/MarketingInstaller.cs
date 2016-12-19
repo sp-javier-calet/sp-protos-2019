@@ -19,14 +19,18 @@ namespace SocialPoint.Marketing
 
         public override void InstallBindings()
         {
-            Container.Bind<IMarketingAttributionManager>().ToMethod<IMarketingAttributionManager>(CreateMarketingAttributionManager);
+            Container.Rebind<IMarketingAttributionManager>().ToMethod<IMarketingAttributionManager>(CreateMarketingAttributionManager, SetupMarketingAttributionManager);
             Container.Bind<IDisposable>().ToLookup<IMarketingAttributionManager>();
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMarketing>(CreateAdminPanelMarketing);
         }
 
         public IMarketingAttributionManager CreateMarketingAttributionManager()
         {
-            var manager = new SocialPointMarketingAttributionManager(Container.Resolve<IAppEvents>(), Container.Resolve<IAttrStorage>("persistent"));
+            return new SocialPointMarketingAttributionManager(Container.Resolve<IAppEvents>(), Container.Resolve<IAttrStorage>("persistent"));
+        }
+
+        public void SetupMarketingAttributionManager(IMarketingAttributionManager manager)
+        {
             manager.DebugMode = Settings.DebugMode;
 
             var trackers = Container.ResolveList<IMarketingTracker>();
@@ -36,7 +40,6 @@ namespace SocialPoint.Marketing
             }
 
             manager.LoginData = Container.Resolve<ILoginData>();
-            return manager;
         }
 
         public AdminPanelMarketing CreateAdminPanelMarketing()
