@@ -1,14 +1,14 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using SocialPoint.Base;
-using SocialPoint.Attributes;
-using SocialPoint.Utils;
-using SocialPoint.IO;
 using SocialPoint.AppEvents;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.IO;
+using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.CrossPromotion
 {
@@ -35,10 +35,7 @@ namespace SocialPoint.CrossPromotion
         const string kDefaultAppsToCheck = "dragoncity://,monsterlegends://,dragonland://,restaurantcity://,dragonstadium://";
         #elif UNITY_ANDROID
         const string kDefaultAppsToCheck = "es.socialpoint.DragonCity,es.socialpoint.MonsterLegends,es.parrotgames.restaurantcity,es.socialpoint.dragonland";
-        
-
-
-#else
+        #else
         const string kDefaultAppsToCheck = "";
         #endif
         string _assetsPath;

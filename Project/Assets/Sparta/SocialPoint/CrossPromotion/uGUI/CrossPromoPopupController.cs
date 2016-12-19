@@ -1,8 +1,8 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using System;
+﻿using System;
 using System.Collections;
 using SocialPoint.CrossPromotion;
+using UnityEngine;
+using UnityEngine.UI;
 
 public class CrossPromoPopupController : BaseCrossPromoPopupController
 {
@@ -66,10 +66,10 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
      * initialized in screen by Unity nor set through script,
      * in this case an original estimated size is returned.
      * */
-    private Vector2 GetSize(RectTransform rTransform)
+    Vector2 GetSize(RectTransform rTransform)
     {
-        Vector2 currentSize = new Vector2(rTransform.rect.width, rTransform.rect.height);
-        if(currentSize.x == 0 && currentSize.y == 0)
+        var currentSize = new Vector2(rTransform.rect.width, rTransform.rect.height);
+        if(Math.Abs(currentSize.x) < Single.Epsilon && Math.Abs(currentSize.y) < Single.Epsilon)
         {
             currentSize = GetOriginalSize(rTransform);
         }
@@ -79,7 +79,7 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
     /**
      * Helper function to get original size of some UI elements in the popup.
      * */
-    private Vector2 GetOriginalSize(RectTransform rTransform)
+    Vector2 GetOriginalSize(RectTransform rTransform)
     {
         float widthPercent = rTransform.anchorMax.x - rTransform.anchorMin.x;
         float heightPercent = rTransform.anchorMax.y - rTransform.anchorMin.y;
@@ -117,7 +117,7 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
                                       + (_cellHeight * _separatorCellRatio * (Mathf.CeilToInt(_cpm.Data.PopupHeightFactor) - 1));
         float growFactor = desiredCellAreaHeight / currentCellAreaSize.y;
         Vector2 currentPopupSize = GetPopupSize();
-        Vector2 desiredPopupSize = new Vector2(currentPopupSize.x, currentPopupSize.y * growFactor);
+        var desiredPopupSize = new Vector2(currentPopupSize.x, currentPopupSize.y * growFactor);
         float finalPopupAspectRatio = desiredPopupSize.x / desiredPopupSize.y;
         return finalPopupAspectRatio;
     }
@@ -161,9 +161,9 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
         }
     }
 
-    private static T Clone<T>(T prototype) where T : Component
+    static T Clone<T>(T prototype) where T : Component
     {
-        T newObject = GameObject.Instantiate(prototype) as T;
+        var newObject = UnityEngine.Object.Instantiate(prototype);
         newObject.transform.SetParent(prototype.transform.parent);
         newObject.transform.localScale = prototype.transform.localScale;
         newObject.gameObject.SetActive(true);
@@ -176,7 +176,7 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
         StartCoroutine(SetInitialPosition());
     }
 
-    private IEnumerator SetInitialPosition()
+    IEnumerator SetInitialPosition()
     {
         yield return null;
         ScrollRect scrollRect = _cellContainer.GetComponent<ScrollRect>();
