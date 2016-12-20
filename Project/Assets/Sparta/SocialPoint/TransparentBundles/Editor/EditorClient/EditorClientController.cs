@@ -38,10 +38,9 @@ namespace SocialPoint.TransparentBundles
             for(int i = 0; i < jsonList.Count; i++)
             {
                 AttrList jsonRow = jsonList[i].AsList;
-
-                Asset asset = new Asset(jsonRow[4].AsValue.ToString());
-                Bundle bundle = new Bundle(jsonRow[0].AsValue.ToInt(), jsonRow[1].AsValue.ToString(), jsonRow[2].AsValue.ToFloat(), jsonRow[3].AsValue.ToBool(), asset);
-                bundleDictionary.Add(bundle.Name, bundle);
+                Asset asset = new Asset(jsonRow[3].AsValue.ToString());
+                Bundle bundle = new Bundle(jsonRow[0].AsValue.ToString(), jsonRow[1].AsValue.ToFloat(), jsonRow[2].AsValue.ToBool(), asset);
+                bundleDictionary.Add(asset.Name, bundle);
             }
             return bundleDictionary;
         }
@@ -103,7 +102,7 @@ namespace SocialPoint.TransparentBundles
                 {
                     if (!HasValidDependencies(asset))
                         return;
-                    Bundle bundle = new Bundle(1, asset.Name.ToLower(), 2f, false, asset);
+                    Bundle bundle = new Bundle(asset.Name.ToLower(), 2f, false, asset);
                     _bundleDictionary.Add(asset.Name, bundle);
                 }
                 else
