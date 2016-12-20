@@ -13,7 +13,7 @@ namespace SocialPoint.TransparentBundles
         private static Downloader _downloader;
         public Dictionary<string, List<Asset>> DependenciesCache, ReferencesCache;
         public Dictionary<string, bool> SharedDependenciesCache;
-        private string _jsonPath = Application.dataPath + "/Sparta/SocialPoint/TransparentBundles/Editor/TEST_json/test_json.json";
+        private string _jsonPath = Application.dataPath + "/Sparta/Extensions/TransparentBundles/Editor/TEST_json/test_json.json";
 
         /*FOR TESTING ONLY*/
         private Dictionary <string, Bundle> _bundleDictionary;
