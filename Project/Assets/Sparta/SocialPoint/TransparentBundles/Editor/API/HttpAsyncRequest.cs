@@ -20,34 +20,34 @@ namespace SocialPoint.TransparentBundles
             public HttpWebRequest Request;
             public string RequestData;
             private ResponseResult _rResult;
-            private Action<ResponseResult> _OnSuccess;
-            private Action<ResponseResult> _OnFailed;
+            private Action<ResponseResult> _onSuccess;
+            private Action<ResponseResult> _onFailed;
 
             public RequestState(HttpWebRequest request, Action<ResponseResult> successCallback, Action<ResponseResult> failedCallback)
             {
                 this.Request = request;
                 this.RequestData = null;
-                _OnSuccess = successCallback;
-                _OnFailed = failedCallback;
+                _onSuccess = successCallback;
+                _onFailed = failedCallback;
             }
 
             public RequestState(HttpWebRequest request, string requestData, Action<ResponseResult> successCallback, Action<ResponseResult> failedCallback)
             {
                 this.Request = request;
                 this.RequestData = requestData;
-                _OnSuccess = successCallback;
-                _OnFailed = failedCallback;
+                _onSuccess = successCallback;
+                _onFailed = failedCallback;
             }
 
             public void RaiseCallback()
             {
                 if(_rResult.Success)
                 {
-                    _OnSuccess(_rResult);
+                    _onSuccess(_rResult);
                 }
                 else
                 {
-                    _OnFailed(_rResult);
+                    _onFailed(_rResult);
                 }
             }
 
@@ -130,7 +130,6 @@ namespace SocialPoint.TransparentBundles
 
             // this line implements the timeout, if there is a timeout, the callback fires and the request becomes aborted
             ThreadPool.RegisterWaitForSingleObject(asyncResult.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback), state, TIMEOUT_MILLISECONDS, true);
-
         }
 
         private void TimeoutCallback(object stateObj, bool timeOut)
