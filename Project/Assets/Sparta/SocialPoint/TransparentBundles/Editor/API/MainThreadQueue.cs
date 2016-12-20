@@ -2,49 +2,54 @@ using UnityEditor;
 using System.Collections;
 using System;
 
-[InitializeOnLoad]
-public class MainThreadQueue
+
+
+namespace SocialPoint.TransparentBundles
 {
-    // We need this to be singleton to guarantee initialization when accessed.
-    private static Object _lockObj = new object();
-    private static MainThreadQueue _instance;
-    public static MainThreadQueue Instance
+    [InitializeOnLoad]
+    public class MainThreadQueue
     {
-        get
+        // We need this to be singleton to guarantee initialization when accessed.
+        private static Object _lockObj = new object();
+        private static MainThreadQueue _instance;
+        public static MainThreadQueue Instance
         {
-            //Just to be thread safe
-            lock(_lockObj)
+            get
             {
-                if(_instance == null)
+                //Just to be thread safe
+                lock(_lockObj)
                 {
-                    _instance = new MainThreadQueue();
+                    if(_instance == null)
+                    {
+                        _instance = new MainThreadQueue();
+                    }
                 }
+                return _instance;
             }
-            return _instance;
         }
-    }
 
-    private MainThreadQueue()
-    {
-        EditorApplication.update += WatcherUpdate;
-    }
-
-    private Queue _responseQueue = Queue.Synchronized(new Queue());
-
-    public event Action<object> OnItemQueued;
-
-    public void AddQueueItem(object obj)
-    {
-        _responseQueue.Enqueue(obj);
-    }
-
-    void WatcherUpdate()
-    {
-        if(_responseQueue.Count > 0)
+        private MainThreadQueue()
         {
-            if(OnItemQueued != null)
+            EditorApplication.update += WatcherUpdate;
+        }
+
+        private Queue _responseQueue = Queue.Synchronized(new Queue());
+
+        public event Action<object> OnItemQueued;
+
+        public void AddQueueItem(object obj)
+        {
+            _responseQueue.Enqueue(obj);
+        }
+
+        void WatcherUpdate()
+        {
+            if(_responseQueue.Count > 0)
             {
-                OnItemQueued(_responseQueue.Dequeue());
+                if(OnItemQueued != null)
+                {
+                    OnItemQueued(_responseQueue.Dequeue());
+                }
             }
         }
     }

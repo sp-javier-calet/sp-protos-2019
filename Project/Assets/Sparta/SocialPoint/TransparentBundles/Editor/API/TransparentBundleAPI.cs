@@ -6,7 +6,7 @@ using System.Threading;
 using UnityEngine;
 using UnityEditor;
 
-namespace SocialPointEditor.TransparentBundles
+namespace SocialPoint.TransparentBundles
 {
     public class TransparentBundleAPI
     {

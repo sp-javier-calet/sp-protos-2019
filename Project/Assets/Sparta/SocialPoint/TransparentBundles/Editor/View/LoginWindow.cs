@@ -4,7 +4,7 @@ using System.Collections;
 using System;
 
 
-namespace SocialPointEditor.TransparentBundles
+namespace SocialPoint.TransparentBundles
 {
     public class LoginWindow : EditorWindow
     {
