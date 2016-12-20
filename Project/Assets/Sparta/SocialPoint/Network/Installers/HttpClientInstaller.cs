@@ -53,7 +53,7 @@ namespace SocialPoint.Network
                 Container.Rebind<IHttpClient>("internal").ToLookup<WebRequestHttpClient>();
             }
 
-            Container.Bind<IDisposable>().ToLookup<IHttpClient>();
+            Container.Bind<IDisposable>().ToLookup<IHttpClient>("internal");
 
             // Http Stream Client
             if(Curl.IsSupported)
