@@ -343,7 +343,15 @@ namespace SocialPoint.Dependency
                     }
                 }
             }
-            Log.v(Tag, string.Format("Resolved instance <{0}> for type `{1}`. {2}", tag, type.Name, result == def ? "Default" : "Found"));
+
+            if(result == null)
+            {
+                Log.w(Tag, string.Format("Resolved instance <{0}> for type `{1}`. {2}", tag, type.Name, "Default as null"));
+            }
+            else
+            {
+                Log.v(Tag, string.Format("Resolved instance <{0}> for type `{1}`. {2}", tag, type.Name, result == def ? "Default" : "Found"));
+            }
             return result;
         }
 
