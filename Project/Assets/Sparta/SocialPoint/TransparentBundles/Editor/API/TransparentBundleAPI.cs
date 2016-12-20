@@ -10,16 +10,16 @@ namespace SocialPointEditor.TransparentBundles
 {
     public class TransparentBundleAPI
     {
-        private static bool isLogged = false;
-        private static Action<RequestArgs> delayedCallback = null;
-        private static RequestArgs delayedArguments = null;
+        private static bool _isLogged = false;
+        private static Action<RequestArgs> _delayedCallback = null;
+        private static RequestArgs _delayedArguments = null;
 
         public const string SERVER_URL = "http://httpbin.org/post";
 
         [MenuItem("SocialPoint/Test Call")]
         public static void test()
         {
-            CreateBundle(new CreateBundlesArgs(x => Debug.Log(x.response), x => Debug.Log(x.message)));
+            CreateBundle(new CreateBundlesArgs(x => Debug.Log(x.Response), x => Debug.Log(x.Message)));
         }
 
         #region LOGIN
@@ -29,8 +29,9 @@ namespace SocialPointEditor.TransparentBundles
 
             if(string.IsNullOrEmpty(loginUser))
             {
-                LoginWindow.Open(Login, () => delayedCallback = null);
-            } else
+                LoginWindow.Open(Login, () => _delayedCallback = null);
+            }
+            else
             {
                 HttpAsyncRequest asyncReq = new HttpAsyncRequest(SERVER_URL, HttpAsyncRequest.MethodType.POST, OnLoginSuccess, OnLoginFailed);
 
@@ -40,17 +41,17 @@ namespace SocialPointEditor.TransparentBundles
 
         private static void OnLoginSuccess(ResponseResult result)
         {
-            isLogged = true;
-            if(delayedCallback != null)
+            _isLogged = true;
+            if(_delayedCallback != null)
             {
-                delayedCallback(delayedArguments);
-                delayedCallback = null;
+                _delayedCallback(_delayedArguments);
+                _delayedCallback = null;
             }
         }
 
         private static void OnLoginFailed(ResponseResult result)
         {
-            LoginWindow.Open(Login, () => delayedCallback = null, result.message);
+            LoginWindow.Open(Login, () => _delayedCallback = null, result.Message);
         }
         #endregion
 
@@ -66,12 +67,13 @@ namespace SocialPointEditor.TransparentBundles
         #region PRIVATE_METHODS
         private static void LoginAndExecuteAction(Action<RequestArgs> action, RequestArgs arguments)
         {
-            if(!isLogged)
+            if(!_isLogged)
             {
-                delayedArguments = arguments;
-                delayedCallback = action;
+                _delayedArguments = arguments;
+                _delayedCallback = action;
                 Login();
-            } else
+            }
+            else
             {
                 action(arguments);
             }

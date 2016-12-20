@@ -15,48 +15,48 @@ public class HttpAsyncRequest
 
     public class RequestState
     {
-        public HttpWebRequest request;
-        public string requestData;
-        private ResponseResult rResult;
-        private Action<ResponseResult> OnSuccess;
-        private Action<ResponseResult> OnFailed;
+        public HttpWebRequest Request;
+        public string RequestData;
+        private ResponseResult _rResult;
+        private Action<ResponseResult> _OnSuccess;
+        private Action<ResponseResult> _OnFailed;
 
         public RequestState(HttpWebRequest request, Action<ResponseResult> successCallback, Action<ResponseResult> failedCallback)
         {
-            this.request = request;
-            this.requestData = null;
-            OnSuccess = successCallback;
-            OnFailed = failedCallback;
+            this.Request = request;
+            this.RequestData = null;
+            _OnSuccess = successCallback;
+            _OnFailed = failedCallback;
         }
 
         public RequestState(HttpWebRequest request, string requestData, Action<ResponseResult> successCallback, Action<ResponseResult> failedCallback)
         {
-            this.request = request;
-            this.requestData = requestData;
-            OnSuccess = successCallback;
-            OnFailed = failedCallback;
+            this.Request = request;
+            this.RequestData = requestData;
+            _OnSuccess = successCallback;
+            _OnFailed = failedCallback;
         }
 
         public void RaiseCallback()
         {
-            if(rResult.success)
+            if(_rResult.Success)
             {
-                OnSuccess(rResult);
+                _OnSuccess(_rResult);
             } else
             {
-                OnFailed(rResult);
+                _OnFailed(_rResult);
             }
         }
 
         public void ConnectionFinished(ResponseResult result)
         {
-            rResult = result;
+            _rResult = result;
             MainThreadQueue.Instance.AddQueueItem(this);
         }
 
         public ResponseResult GetResponseResult()
         {
-            return rResult;
+            return _rResult;
         }
 
     }
@@ -67,32 +67,32 @@ public class HttpAsyncRequest
     {
         get
         {
-            return reqState.request;
+            return _reqState.Request;
         }
     }
 
-    private RequestState reqState;
+    private RequestState _reqState;
 
     public HttpAsyncRequest(HttpWebRequest request, Action<ResponseResult> successCallback, Action<ResponseResult> failedCallback)
     {
-        reqState = new RequestState(request, successCallback, failedCallback);
+        _reqState = new RequestState(request, successCallback, failedCallback);
     }
 
     public HttpAsyncRequest(string url, MethodType method, Action<ResponseResult> successCallback, Action<ResponseResult> failedCallback)
     {
         var request = (HttpWebRequest)WebRequest.Create(url);
         request.Method = method.ToString();
-        reqState = new RequestState(request, successCallback, failedCallback);
+        _reqState = new RequestState(request, successCallback, failedCallback);
     }    
 
     public void Send()
     {
-        if(reqState.requestData != null)
+        if(_reqState.RequestData != null)
         {            
-            reqState.request.BeginGetRequestStream(new AsyncCallback(GetRequestStreamCallback), reqState);
+            _reqState.Request.BeginGetRequestStream(new AsyncCallback(GetRequestStreamCallback), _reqState);
         }else
         {
-            GetResponseAsync(reqState);
+            GetResponseAsync(_reqState);
         }
     }
 
@@ -102,12 +102,12 @@ public class HttpAsyncRequest
         try
         {
             // End the operation
-            Stream postStream = state.request.EndGetRequestStream(asynchronousResult);
+            Stream postStream = state.Request.EndGetRequestStream(asynchronousResult);
 
-            if(state.requestData != string.Empty)
+            if(state.RequestData != string.Empty)
             {
                 // Write to the request stream.
-                postStream.Write(Encoding.UTF8.GetBytes(state.requestData), 0, state.requestData.Length);
+                postStream.Write(Encoding.UTF8.GetBytes(state.RequestData), 0, state.RequestData.Length);
                 postStream.Close();
             }
 
@@ -121,7 +121,7 @@ public class HttpAsyncRequest
     private void GetResponseAsync(RequestState state)
     {
         // Start the asynchronous operation to get the response
-        var asyncResult = state.request.BeginGetResponse(new AsyncCallback(GetResponseCallback), state);
+        var asyncResult = state.Request.BeginGetResponse(new AsyncCallback(GetResponseCallback), state);
 
         // this line implements the timeout, if there is a timeout, the callback fires and the request becomes aborted
         ThreadPool.RegisterWaitForSingleObject(asyncResult.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback), state, TIMEOUT_MILLISECONDS, true);
@@ -144,7 +144,7 @@ public class HttpAsyncRequest
         {
             ResponseResult rResult = null;
             // End the operation
-            using(HttpWebResponse response = (HttpWebResponse)state.request.EndGetResponse(asynchronousResult))
+            using(HttpWebResponse response = (HttpWebResponse)state.Request.EndGetResponse(asynchronousResult))
             {
                 using(Stream streamResponse = response.GetResponseStream())
                 {
@@ -157,7 +157,7 @@ public class HttpAsyncRequest
 
             if(rResult == null)
             {
-                throw new Exception("Unable to read response result for url " + state.request.RequestUri);
+                throw new Exception("Unable to read response result for url " + state.Request.RequestUri);
             }
 
             state.ConnectionFinished(rResult);

@@ -3,17 +3,17 @@ using System.Collections;
 
 public class ResponseResult
 {
-    public bool success;
-    public string response;
-    public string message;
+    public bool Success;
+    public string Response;
+    public string Message;
 
     public ResponseResult() { }
 
     public ResponseResult(bool success, string message, string response = "")
     {
-        this.success = success;
-        this.message = message;
-        this.response = response;
+        this.Success = success;
+        this.Message = message;
+        this.Response = response;
     }
 
 }

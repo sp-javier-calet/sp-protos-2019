@@ -3,49 +3,49 @@ using System.Collections;
 using System;
 
 [InitializeOnLoad]
-public class MainThreadQueue{
+public class MainThreadQueue
+{
     // We need this to be singleton to guarantee initialization when accessed.
-    private static Object lockObj = new object();
-    private static MainThreadQueue instance;
+    private static Object _lockObj = new object();
+    private static MainThreadQueue _instance;
     public static MainThreadQueue Instance
     {
         get
         {
             //Just to be thread safe
-            lock(lockObj)
+            lock(_lockObj)
             {
-                if(instance == null)
+                if(_instance == null)
                 {
-                    instance = new MainThreadQueue();
+                    _instance = new MainThreadQueue();
                 }
             }
-            return instance;
+            return _instance;
         }
     }
-
-
 
     private MainThreadQueue()
     {
         EditorApplication.update += WatcherUpdate;
     }
 
-    private Queue responseQueue = Queue.Synchronized(new Queue());
+    private Queue _responseQueue = Queue.Synchronized(new Queue());
 
     public event Action<object> OnItemQueued;
 
     public void AddQueueItem(object obj)
     {
-        responseQueue.Enqueue(obj);
+        _responseQueue.Enqueue(obj);
     }
 
-    void WatcherUpdate () {
-        if(responseQueue.Count > 0)
+    void WatcherUpdate()
+    {
+        if(_responseQueue.Count > 0)
         {
             if(OnItemQueued != null)
             {
-                OnItemQueued(responseQueue.Dequeue());
+                OnItemQueued(_responseQueue.Dequeue());
             }
         }
-	}
+    }
 }
