@@ -69,7 +69,11 @@ namespace SocialPoint.Login
             login.AutoUpdateFriends = Settings.AutoupdateFriends;
             login.AutoUpdateFriendsPhotosSize = Settings.AutoupdateFriendsPhotoSize;
             login.UserMappingsBlock = Settings.UserMappingsBlock;
-            login.Language = Container.Resolve<string>("language", login.Language);
+
+            if(Container.HasBinding<string>("language"))
+            {   
+                login.Language = Container.Resolve<string>("language", login.Language);
+            }
 
             var links = Container.ResolveList<ILink>();
             for(var i = 0; i < links.Count; i++)
