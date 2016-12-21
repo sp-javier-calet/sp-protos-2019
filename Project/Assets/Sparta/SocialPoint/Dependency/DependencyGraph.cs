@@ -107,7 +107,7 @@ namespace SocialPoint.Dependency
                 else
                 {
                     _graph.RootNodes.Add(node);
-                    node.CreationStack = Environment.StackTrace ?? "Unknown stack";
+                    node.CreationStack = System.Environment.StackTrace ?? "Unknown stack";
                 }
 
                 _nodeStack.Push(node);
