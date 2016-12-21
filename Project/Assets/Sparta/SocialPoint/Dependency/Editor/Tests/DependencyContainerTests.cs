@@ -1,4 +1,4 @@
-
+using NSubstitute;
 using NUnit.Framework;
 using System;
 
@@ -59,6 +59,14 @@ namespace SocialPoint.Dependency
 
     class TestBinding : IBinding
     {
+        public BindingKey Key
+        {
+            get
+            {
+                return new BindingKey(typeof(TestBinding), null);
+            }
+        }
+
         public object Resolve()
         {
             return new TestService();
@@ -74,14 +82,6 @@ namespace SocialPoint.Dependency
 
         public void OnResolutionFinished()
         {
-        }
-    }
-
-    class TestInstaller : Installer
-    {
-        public override void InstallBindings()
-        {
-            Container.Bind<ITestService>().ToInstance(new TestService());
         }
     }
 
@@ -330,6 +330,86 @@ namespace SocialPoint.Dependency
             container.Bind<TestDisposable>().ToSingle<TestDisposable>();
             container.Remove<TestDisposable>();
             Assert.AreEqual(1, TestDisposable.Count);
+        }
+
+        [Test]
+        public void RebindDisposableTest()
+        {
+            TestDisposable.Count = 0;
+            var container = new DependencyContainer();
+            container.Rebind<TestDisposable>().ToSingle<TestDisposable>();
+            container.Bind<IDisposable>().ToGetter<TestDisposable>((service) => {
+                return new TestDisposable();
+            });
+
+            container.Rebind<TestDisposable>().ToSingle<TestDisposable>();
+            Assert.AreEqual(0, TestDisposable.Count);
+            container.Resolve<IDisposable>();
+            container.Rebind<TestDisposable>().ToSingle<TestDisposable>();
+            Assert.AreEqual(1, TestDisposable.Count);
+        }
+
+        [Test]
+        public void RebindTaggedDisposableTest()
+        {
+            TestDisposable.Count = 0;
+            var container = new DependencyContainer();
+            Func<TestDisposable> createDisposable = () => { return new TestDisposable(); };
+
+            container.Rebind<TestDisposable>().ToMethod<TestDisposable>(createDisposable);
+            container.Bind<IDisposable>().ToLookup<TestDisposable>();
+            container.Rebind<TestDisposable>("tag").ToMethod<TestDisposable>(createDisposable);
+            container.Bind<IDisposable>().ToLookup<TestDisposable>("tag");
+
+            container.Resolve<TestDisposable>();
+            container.Resolve<TestDisposable>("tag");
+
+            container.Rebind<TestDisposable>().ToMethod<TestDisposable>(createDisposable);
+            Assert.AreEqual(1, TestDisposable.Count);
+
+            container.Rebind<TestDisposable>("tag").ToMethod<TestDisposable>(createDisposable);
+            Assert.AreEqual(2, TestDisposable.Count);
+        }
+
+        [Test]
+        public void AddListener()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
+
+            var setupCallback = Substitute.For<Action<TestDisposable>>();
+            container.Listen<TestDisposable>().WhenResolved(setupCallback);
+            container.Resolve<TestDisposable>();
+
+            setupCallback.Received().Invoke(Arg.Any<TestDisposable>());
+        }
+
+        [Test]
+        public void AddListenerWithLookup()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
+            container.Bind<IDisposable>().ToLookup<TestDisposable>();
+
+            var setupCallback = Substitute.For<Action<IDisposable>>();
+            container.Listen<IDisposable>().WhenResolved(setupCallback);
+            container.Resolve<TestDisposable>();
+
+            setupCallback.Received().Invoke(Arg.Any<IDisposable>());
+        }
+
+        [Test]
+        public void ListenerDontResolvedTwice()
+        {
+            var container = new DependencyContainer();
+            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
+
+            var setupCallback = Substitute.For<Action<TestDisposable>>();
+            container.Listen<TestDisposable>().WhenResolved(setupCallback);
+            container.Resolve<TestDisposable>();
+            container.Resolve<TestDisposable>();
+
+            setupCallback.Received(1).Invoke(Arg.Any<TestDisposable>());
         }
     }
 }

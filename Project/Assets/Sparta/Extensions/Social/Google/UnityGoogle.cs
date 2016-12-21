@@ -7,12 +7,13 @@ using GooglePlayGames.BasicApi;
 using GooglePlayGames.BasicApi.Quests;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 namespace SocialPoint.Social
 {
-    public sealed class UnityGoogle : MonoBehaviour, IGoogle
+    public sealed class UnityGoogle : IUpdateable, IDisposable, IGoogle
     {
         [System.Diagnostics.Conditional("DEBUG_GOOGLEPLAY")]
         void DebugLog(string msg)
@@ -46,6 +47,24 @@ namespace SocialPoint.Social
             get
             {
                 return _friends;
+            }
+        }
+
+        IUpdateScheduler _scheduler;
+
+        public IUpdateScheduler Scheduler
+        {
+            set
+            {
+                if(_scheduler != null)
+                {
+                    _scheduler.Remove(this);
+                }
+                _scheduler = value;
+                if(_scheduler != null)
+                {
+                    _scheduler.Add(this);
+                }
             }
         }
 
@@ -241,6 +260,11 @@ namespace SocialPoint.Social
             {
                 return _connecting;
             }
+        }
+
+        public void Dispose()
+        {
+            _scheduler.Remove(this);
         }
 
         #region Achievements
@@ -670,12 +694,11 @@ namespace SocialPoint.Social
 
         Action _dispatched;
 
-        void LateUpdate()
+        public void Update()
         {
             DispatchPending();
         }
 
-        
         void DispatchPending()
         {
             if(_dispatched != null)

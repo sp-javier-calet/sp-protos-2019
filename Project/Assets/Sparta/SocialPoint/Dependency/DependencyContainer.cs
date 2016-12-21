@@ -5,8 +5,51 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Dependency
 {
+    public interface IListener
+    {
+        void OnResolved(object instance);
+    }
+
+    public sealed class Listener<F> : IListener
+    {
+        event Action<F> _onResolved;
+
+        public Listener<F> WhenResolved(Action<F> onResolved)
+        {
+            return WhenResolved<F>(onResolved);
+        }
+
+        public Listener<F> WhenResolved<T>(Action<T> onResolved) where T : F
+        {
+            _onResolved += instance => {
+                try
+                {
+                    var casted = (T)instance;
+                    onResolved(casted);
+                }
+                catch(Exception e)
+                {
+                    Log.x(e);
+                }
+            };
+            return this;
+        }
+
+        public void OnResolved(object instance)
+        {
+            if(_onResolved != null)
+            {
+                _onResolved((F)instance);
+            }
+        }
+    }
+
     public interface IBinding
     {
+        BindingKey Key { get; }
+
+        bool Resolved { get; }
+
         object Resolve();
 
         void OnResolutionFinished();
@@ -30,6 +73,16 @@ namespace SocialPoint.Dependency
         Func<object, F> _getter;
         DependencyContainer _container;
 
+        public BindingKey Key
+        {
+            get
+            {
+                return new BindingKey(typeof(F), _tag);
+            }
+        }
+
+        public bool Resolved { get; private set; }
+
         public Binding(DependencyContainer container)
         {
             _container = container;
@@ -37,6 +90,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToSingle<T>() where T : F, new()
         {
+            DependencyGraphBuilder.Bind(typeof(F), typeof(T), _tag);
             _toType = ToType.Single;
             _type = typeof(T);
             return this;
@@ -44,6 +98,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToInstance<T>(T instance) where T : F
         {
+            DependencyGraphBuilder.Bind(typeof(F), typeof(T), _tag);
             _toType = ToType.Single;
             _instance = instance;
             return this;
@@ -51,6 +106,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToLookup<T>(string tag = null) where T : F
         {
+            DependencyGraphBuilder.Alias(typeof(F), _tag, typeof(T), tag);
             _toType = ToType.Lookup;
             _type = typeof(T);
             _tag = tag;
@@ -60,6 +116,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToMethod<T>(Func<T> method, Action<T> setup = null) where T : F
         {
+            DependencyGraphBuilder.Bind(typeof(F), typeof(T), _tag);
             _type = typeof(T);
             _method = () => method();
             _toType = ToType.Method;
@@ -74,6 +131,7 @@ namespace SocialPoint.Dependency
 
         public Binding<F> ToGetter<T>(Func<T,F> method, string tag = null)
         {
+            DependencyGraphBuilder.Bind(typeof(F), typeof(T), tag);
             _type = typeof(T);
             _getter = t => method((T)t);
             _toType = ToType.Method;
@@ -84,41 +142,51 @@ namespace SocialPoint.Dependency
 
         public object Resolve()
         {
-            if(_instance != null)
+            if(_instance == null)
             {
-            }
-            else if(_toType == ToType.Single)
-            {
-                var construct = _type.GetConstructor(new Type[]{ });
-                _instance = (F)construct.Invoke(new object[]{ });
+                DependencyGraphBuilder.StartCreation(typeof(F), _tag);
+                if(_toType == ToType.Single)
+                {
+                    DependencyGraphBuilder.StartCreation(_type, null);
+                    var construct = _type.GetConstructor(new Type[]{ });
+                    _instance = (F)construct.Invoke(new object[]{ });
+                    DependencyGraphBuilder.Finalize(_type, _instance);
+                }
+                else if(_toType == ToType.Lookup)
+                {
+                    _instance = (F)_container.Resolve(_type, _tag, null);
+                }
+                else if(_toType == ToType.Method)
+                {
+                    if(_method != null)
+                    {
+                        DependencyGraphBuilder.StartCreation(_type, _tag);
+                        _instance = _method();
+                        DependencyGraphBuilder.Finalize(_type, _instance);
+                    }
+                    else if(_getter != null)
+                    {
+                        var param = _container.Resolve(_type, _tag, null);
+                        _instance = _getter(param);
+                    }
 
-            }
-            else if(_toType == ToType.Lookup)
-            {
-                _instance = (F)_container.Resolve(_type, _tag, null);
-            }
-            else if(_toType == ToType.Method)
-            {
-                if(_method != null)
-                {
-                    _instance = _method();
                 }
-                else if(_getter != null)
-                {
-                    var param = _container.Resolve(_type, _tag, null);
-                    _instance = _getter(param);
-                }
+                DependencyGraphBuilder.Finalize(typeof(F), _instance);
             }
+
             return _instance;
         }
 
         public void OnResolutionFinished()
         {
+            Resolved = true;
+
             if(_setup != null && _instance != null)
             {
                 // Execute a copy to avoid recursive calls in circular dependencies
                 var setup = _setup;
                 _setup = null;
+                DependencyGraphBuilder.StartSetup(_type, _tag);
                 setup(_instance);
             }
         }
@@ -151,6 +219,8 @@ namespace SocialPoint.Dependency
         List<IBinding> _resolved;
         Dictionary<IBinding, HashSet<object>> _instances;
         Dictionary<BindingKey, List<IBinding>> _lookups;
+        Dictionary<BindingKey, List<BindingKey>> _aliases;
+        Dictionary<BindingKey, List<IListener>> _listeners;
 
         public DependencyContainer()
         {
@@ -161,6 +231,8 @@ namespace SocialPoint.Dependency
             var comparer = new ReferenceComparer<IBinding>();
             _instances = new Dictionary<IBinding, HashSet<object>>(comparer);
             _lookups = new Dictionary<BindingKey, List<IBinding>>();
+            _aliases = new Dictionary<BindingKey, List<BindingKey>>();
+            _listeners = new Dictionary<BindingKey, List<IListener>>();
         }
 
         public void AddBinding(IBinding binding, Type type, string tag = null)
@@ -178,15 +250,40 @@ namespace SocialPoint.Dependency
 
         public void AddLookup(IBinding binding, Type type, string tag = null)
         {
-            List<IBinding> list;
             var key = new BindingKey(type, tag);
-            if(!_lookups.TryGetValue(key, out list))
+
+            // Add Lookup
+            List<IBinding> lookupsList;
+            if(!_lookups.TryGetValue(key, out lookupsList))
             {
-                list = new List<IBinding>();
-                _lookups.Add(key, list);
+                lookupsList = new List<IBinding>();
+                _lookups.Add(key, lookupsList);
             }
-            list.Add(binding);
+            lookupsList.Add(binding);
+
+            // Add alias
+            List<BindingKey> aliasesList;
+            if(!_aliases.TryGetValue(key, out aliasesList))
+            {
+                aliasesList = new List<BindingKey>();
+                _aliases.Add(key, aliasesList);
+            }
+            aliasesList.Add(binding.Key);
+
             Log.v(Tag, string.Format("Added lookup <{0}> for type `{1}`", tag, type.Name));
+        }
+
+        public void AddListener(IListener listener, Type type, string tag = null)
+        {
+            List<IListener> list;
+            var key = new BindingKey(type, tag);
+            if(!_listeners.TryGetValue(key, out list))
+            {
+                list = new List<IListener>();
+                _listeners.Add(key, list);
+            }
+            list.Add(listener);
+            Log.v(Tag, string.Format("Added binding <{0}> for type `{1}`", tag, type.Name));
         }
 
         public bool Remove<T>(string tag = null)
@@ -194,6 +291,7 @@ namespace SocialPoint.Dependency
             var key = new BindingKey(typeof(T), tag);
             DisposeInstances(key);
             var removed = _bindings.Remove(key);
+            DependencyGraphBuilder.Remove(typeof(T), tag);
             Log.v(Tag, string.Format("Removed binding <{0}> for type `{1}`. {2}", tag, typeof(T).Name, removed ? "Success" : "Failed"));
             return removed;
         }
@@ -259,7 +357,15 @@ namespace SocialPoint.Dependency
                     }
                 }
             }
-            Log.v(Tag, string.Format("Resolved instance <{0}> for type `{1}`. {2}", tag, type.Name, result == def ? "Default" : "Found"));
+
+            if(result == null)
+            {
+                Log.w(Tag, string.Format("Resolved instance <{0}> for type `{1}`. {2}", tag, type.Name, "Default as null"));
+            }
+            else
+            {
+                Log.v(Tag, string.Format("Resolved instance <{0}> for type `{1}`. {2}", tag, type.Name, result == def ? "Default" : "Found"));
+            }
             return result;
         }
 
@@ -291,10 +397,29 @@ namespace SocialPoint.Dependency
                 _resolved.Clear();
                 for(var i = 0; i < resolved.Length; i++)
                 {
-                    resolved[i].OnResolutionFinished();
+                    var resolvedBinding = resolved[i];
+                    if(!binding.Resolved)
+                    {
+                        NotifyResolutionFinished(resolvedBinding);
+                    }
                 }
             }
             return true;
+        }
+
+        void NotifyResolutionFinished(IBinding binding)
+        {
+            binding.OnResolutionFinished();
+
+            var listeners = FindListeners(binding);
+            if(listeners.Count > 0)
+            {
+                var instance = binding.Resolve();
+                for(var j = 0; j < listeners.Count; ++j)
+                {
+                    listeners[j].OnResolved(instance);
+                }
+            }
         }
 
         public void Clear()
@@ -305,7 +430,36 @@ namespace SocialPoint.Dependency
             _resolved.Clear();
             _resolving.Clear();
             _lookups.Clear();
+            _aliases.Clear();
+            _listeners.Clear();
             Log.v(Tag, "Depencency Container Cleared");
+        }
+
+        List<IListener> FindListeners(IBinding binding)
+        {
+            var listeners = new List<IListener>();
+
+            // Look for direct bindings
+            List<IListener> keyListeners;
+            if(_listeners.TryGetValue(binding.Key, out keyListeners))
+            {
+                listeners.AddRange(keyListeners);
+            }
+
+            // Look for aliased bindings
+            List<BindingKey> list;
+            if(_aliases.TryGetValue(binding.Key, out list))
+            {
+                for(var i = 0; i < list.Count; i++)
+                {
+                    var key = list[i];
+                    if(_listeners.TryGetValue(key, out keyListeners))
+                    {
+                        listeners.AddRange(keyListeners);
+                    }
+                } 
+            }
+            return listeners;
         }
 
         BindingKey FindBindingKey(IBinding binding)
@@ -346,7 +500,7 @@ namespace SocialPoint.Dependency
             return false;
         }
 
-        HashSet<object> FindInstances(BindingKey fromKey, BindingKey filterKey, bool remove=false)
+        HashSet<object> FindInstances(BindingKey fromKey, BindingKey filterKey, bool remove = false)
         {
             var instances = new HashSet<object>();
             var itr = _bindings.GetEnumerator();
@@ -428,6 +582,13 @@ namespace SocialPoint.Dependency
         public static void BindInstance<T>(this DependencyContainer container, string tag, T instance)
         {
             container.Bind<T>(tag).ToInstance(instance);
+        }
+
+        public static Listener<T> Listen<T>(this DependencyContainer container, string tag = null)
+        {
+            var listener = new Listener<T>();
+            container.AddListener(listener, typeof(T), tag);
+            return listener;
         }
 
         public static void Install(this DependencyContainer container, IInstaller[] installers)

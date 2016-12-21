@@ -9,6 +9,7 @@ using SocialPoint.Alert;
 using SocialPoint.Locale;
 using SocialPoint.AppEvents;
 using SocialPoint.ScriptEvents;
+using SocialPoint.ServerSync;
 using SocialPoint.Social;
 using SocialPoint.Login;
 
@@ -36,7 +37,7 @@ public class GameInstaller : Installer
         Container.Rebind<IGameErrorHandler>().ToMethod<GameErrorHandler>(CreateErrorHandler);
         Container.Bind<IDisposable>().ToLookup<IGameErrorHandler>();
 
-        Container.Rebind<IGameLoader>().ToMethod<GameLoader>(CreateGameLoader);
+        Container.Rebind<IGameLoader>().ToMethod<GameLoader>(CreateGameLoader, SetupGameLoader);
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGame>(CreateAdminPanel);
 
         Container.Rebind<IPlayerData>().ToMethod<PlayerDataProvider>(CreatePlayerData);
@@ -64,6 +65,11 @@ public class GameInstaller : Installer
             Container.Resolve<IAttrObjSerializer<PlayerModel>>(),
             Container.Resolve<GameModel>(),
             Container.Resolve<ILogin>());
+    }
+
+    void SetupGameLoader(GameLoader loader)
+    {
+        Container.Resolve<ICommandQueue>().AutoSync = loader.OnAutoSync;
     }
 
     GameErrorHandler CreateErrorHandler()

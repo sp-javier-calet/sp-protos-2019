@@ -11,6 +11,7 @@ using SharpNav.Pathfinding;
 using SocialPoint.Attributes;
 using SocialPoint.IO;
 using SocialPoint.Pathfinding;
+using SocialPoint.Geometry;
 
 public class PathfindingTest : MonoBehaviour, IPointerClickHandler
 {
@@ -92,17 +93,16 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
         UnityEngine.RaycastHit hit;
         if(Physics.Raycast(clickRay, out hit, float.MaxValue))
         {
+            Vector hitPoint = hit.point;
             if(_started)
             {
-                var endPoint = hit.point.ToPathfinding();
                 var extents = SharpNav.Geometry.Vector3.One;
-
-                _pathfinder.TryGetPath(_startPoint, endPoint, extents, out _straightPath);
+                _pathfinder.TryGetPath(_startPoint, hitPoint, extents, out _straightPath);
 
                 UpdateVisualPath();
             }
             _started = true;
-            _startPoint = hit.point.ToPathfinding();
+            _startPoint = hitPoint;
         }
     }
 
@@ -135,16 +135,16 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
         for(int i = 0; i < _straightPath.Count; i++)
         {
             var pathVert = _straightPath[i];
-            var point = pathVert.Point;
-            _visualPathNodes.Add(Instantiate(PathNodePrefab, point.Position.ToUnity(), Quaternion.identity) as GameObject);
+            Vector point = pathVert.Point;
+            _visualPathNodes.Add(Instantiate(PathNodePrefab, point, Quaternion.identity) as GameObject);
         }
 
         for(int i = 0; i < _straightPath.Count - 1; i++)
         {
             var pathVert1 = _straightPath[i];
             var pathVert2 = _straightPath[i + 1];
-            var point1 = pathVert1.Point.Position.ToUnity();
-            var point2 = pathVert2.Point.Position.ToUnity();
+            Vector point1 = pathVert1.Point.Position;
+            Vector point2 = pathVert2.Point.Position;
             var edge = Instantiate(PathEdgePrefab, point1, Quaternion.identity) as GameObject;
             edge.transform.LookAt(point2);
             edge.transform.localScale = new UnityEngine.Vector3(1, 1, UnityEngine.Vector3.Distance(point1, point2) * 0.5f);

@@ -143,7 +143,7 @@ namespace SocialPoint.Social
             {
                 if(_chatManager != null && _chatManager != null && _chatManager != value)
                 {
-                    throw new Exception("ConnectionManager is already binded to a different instance of Chat Manager");
+                    throw new Exception("ConnectionManager is already bound to a different instance of Chat Manager");
 
                 }
                 _chatManager = value;
@@ -280,6 +280,7 @@ namespace SocialPoint.Social
 
         public ConnectionManager(IWebSocketClient client)
         {
+            DebugUtils.Assert(client != null, "IWebsocketClient is required");
             _socket = client;
             _socket.AddDelegate(this);
             _connection = new WAMPConnection(client);
@@ -340,7 +341,7 @@ namespace SocialPoint.Social
 
         void OnGameWasLoaded()
         {
-            if(LoginData != null && LoginData.Data.Social != null)
+            if(LoginData != null && LoginData.Data != null && LoginData.Data.Social != null)
             {
                 var urls = LoginData.Data.Social.WebSocketUrls;
                 _socket.Urls = urls;
