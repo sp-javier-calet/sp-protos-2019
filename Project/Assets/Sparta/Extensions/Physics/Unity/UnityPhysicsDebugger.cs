@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections;
-using Jitter.LinearMath;
+﻿using Jitter.LinearMath;
+using SocialPoint.Geometry;
 
 namespace SocialPoint.Physics
 {
@@ -27,15 +26,15 @@ namespace SocialPoint.Physics
         public void DrawLine(JVector from, JVector to, JVector color)
         {
             UnityEngine.Color ucolor = ColorFromVector(color);
-            UnityEngine.Debug.DrawLine(from.ToUnity(), to.ToUnity(), ucolor);
+            UnityEngine.Debug.DrawLine(Vector.Convert(from), Vector.Convert(to), ucolor);
         }
 
         public void DrawBox(JVector position, JQuaternion rotation, JVector size, JVector color)
         {
-            UnityEngine.Vector3 pos = position.ToUnity();
-            UnityEngine.Quaternion rot = rotation.ToUnity();
-            UnityEngine.Vector3 scale = JVector.One.ToUnity();
-            UnityEngine.Vector3 dimensions = size.ToUnity();
+            UnityEngine.Vector3 pos = Vector.Convert(position);
+            UnityEngine.Quaternion rot = Quat.Convert(rotation);
+            UnityEngine.Vector3 scale = Vector.Convert(JVector.One);
+            UnityEngine.Vector3 dimensions = Vector.Convert(size);
             UnityEngine.Color ucolor = ColorFromVector(color);
             UnityPhysicsDebuggerUtility.DebugDrawBox(pos, rot, scale, dimensions, ucolor);
         }
@@ -43,60 +42,60 @@ namespace SocialPoint.Physics
         public void DrawSphere(JVector p, float radius, JVector color)
         {
             UnityEngine.Color ucolor = ColorFromVector(color);
-            UnityPhysicsDebuggerUtility.DebugDrawSphere(p.ToUnity(), UnityEngine.Quaternion.identity, UnityEngine.Vector3.one, UnityEngine.Vector3.one * radius, ucolor);
+            UnityPhysicsDebuggerUtility.DebugDrawSphere(Vector.Convert(p), UnityEngine.Quaternion.identity, UnityEngine.Vector3.one, UnityEngine.Vector3.one * radius, ucolor);
         }
 
         public void DrawTriangle(JVector v0, JVector v1, JVector v2, JVector n0, JVector n1, JVector n2, JVector color, float alpha)
         {
             UnityEngine.Color ucolor = ColorFromVector(color);
-            UnityEngine.Debug.DrawLine(v0.ToUnity(), v1.ToUnity(), ucolor);
-            UnityEngine.Debug.DrawLine(v1.ToUnity(), v2.ToUnity(), ucolor);
-            UnityEngine.Debug.DrawLine(v2.ToUnity(), v0.ToUnity(), ucolor);
+            UnityEngine.Debug.DrawLine(Vector.Convert(v0), Vector.Convert(v1), ucolor);
+            UnityEngine.Debug.DrawLine(Vector.Convert(v1), Vector.Convert(v2), ucolor);
+            UnityEngine.Debug.DrawLine(Vector.Convert(v2), Vector.Convert(v0), ucolor);
 
         }
 
         public void DrawTriangle(JVector v0, JVector v1, JVector v2, JVector color)
         {
             UnityEngine.Color ucolor = ColorFromVector(color);
-            UnityEngine.Debug.DrawLine(v0.ToUnity(), v1.ToUnity(), ucolor);
-            UnityEngine.Debug.DrawLine(v1.ToUnity(), v2.ToUnity(), ucolor);
-            UnityEngine.Debug.DrawLine(v2.ToUnity(), v0.ToUnity(), ucolor);
+            UnityEngine.Debug.DrawLine(Vector.Convert(v0), Vector.Convert(v1), ucolor);
+            UnityEngine.Debug.DrawLine(Vector.Convert(v1), Vector.Convert(v2), ucolor);
+            UnityEngine.Debug.DrawLine(Vector.Convert(v2), Vector.Convert(v0), ucolor);
         }
 
         public void DrawCapsule(float radius, float halfHeight, int upAxis, JVector position, JQuaternion rotation, JVector color)
         {
-            UnityEngine.Vector3 pos = position.ToUnity();
-            UnityEngine.Quaternion rot = rotation.ToUnity();
-            UnityEngine.Vector3 scale = JVector.One.ToUnity();
+            UnityEngine.Vector3 pos = Vector.Convert(position);
+            UnityEngine.Quaternion rot = Quat.Convert(rotation);
+            UnityEngine.Vector3 scale = Vector.Convert(JVector.One);
             UnityEngine.Color ucolor = ColorFromVector(color);
             UnityPhysicsDebuggerUtility.DebugDrawCapsule(pos, rot, scale, radius, halfHeight, upAxis, ucolor);
         }
 
         public void DrawCylinder(float radius, float halfHeight, int upAxis, JVector position, JQuaternion rotation, JVector color)
         {
-            UnityEngine.Vector3 pos = position.ToUnity();
-            UnityEngine.Quaternion rot = rotation.ToUnity();
-            UnityEngine.Vector3 scale = JVector.One.ToUnity();
+            UnityEngine.Vector3 pos = Vector.Convert(position);
+            UnityEngine.Quaternion rot = Quat.Convert(rotation);
+            UnityEngine.Vector3 scale = Vector.Convert(JVector.One);
             UnityEngine.Color ucolor = ColorFromVector(color);
             UnityPhysicsDebuggerUtility.DebugDrawCylinder(pos, rot, scale, radius, halfHeight, upAxis, ucolor);
         }
 
         public void DrawCone(float radius, float height, int upAxis, JVector position, JQuaternion rotation, JVector color)
         {
-            UnityEngine.Vector3 pos = position.ToUnity();
-            UnityEngine.Quaternion rot = rotation.ToUnity();
-            UnityEngine.Vector3 scale = JVector.One.ToUnity();
+            UnityEngine.Vector3 pos = Vector.Convert(position);
+            UnityEngine.Quaternion rot = Quat.Convert(rotation);
+            UnityEngine.Vector3 scale = Vector.Convert(JVector.One);
             UnityEngine.Color ucolor = ColorFromVector(color);
             UnityPhysicsDebuggerUtility.DebugDrawCone(pos, rot, scale, radius, height, upAxis, ucolor);
         }
 
         public void DrawPlane(JVector planeNormal, float planeConst, JVector position, JQuaternion rotation, JVector color)
         {
-            UnityEngine.Vector3 pos = position.ToUnity();
-            UnityEngine.Quaternion rot = rotation.ToUnity();
-            UnityEngine.Vector3 scale = JVector.One.ToUnity();
+            UnityEngine.Vector3 pos = Vector.Convert(position);
+            UnityEngine.Quaternion rot = Quat.Convert(rotation);
+            UnityEngine.Vector3 scale = Vector.Convert(JVector.One);
             UnityEngine.Color ucolor = ColorFromVector(color);
-            UnityPhysicsDebuggerUtility.DebugDrawPlane(pos, rot, scale, planeNormal.ToUnity(), planeConst, ucolor);
+            UnityPhysicsDebuggerUtility.DebugDrawPlane(pos, rot, scale, Vector.Convert(planeNormal), planeConst, ucolor);
         }
 
         UnityEngine.Color ColorFromVector(JVector v)

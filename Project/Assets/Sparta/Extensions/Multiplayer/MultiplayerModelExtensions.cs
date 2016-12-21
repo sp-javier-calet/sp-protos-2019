@@ -1,22 +1,9 @@
-﻿using PathVector = SharpNav.Geometry.Vector3;
-using PhysicsVector = Jitter.LinearMath.JVector;
+﻿using PhysicsVector = Jitter.LinearMath.JVector;
 using SharpNav.Pathfinding;
+using SocialPoint.Geometry;
 
 namespace SocialPoint.Multiplayer
 {
-    public static class MultiplayerModelExtensions
-    {
-        public static PhysicsVector ToPhysics(this PathVector v)
-        {
-            return new PhysicsVector(v.X, v.Y, v.Z);
-        }
-
-        public static PathVector ToPathfinding(this PhysicsVector v)
-        {
-            return new PathVector(v.X, v.Y, v.Z);
-        }
-    }
-
     public static class MultiplayerExtensionsBridge
     {
         public static PhysicsVector[] StraightPathToVectors(StraightPath straightPath)
@@ -27,7 +14,7 @@ namespace SocialPoint.Multiplayer
             {
                 var pathVert = straightPath[i];
                 var point = pathVert.Point;
-                navVectors[i] = point.Position.ToPhysics();
+                navVectors[i] = Vector.Convert(point.Position);
             }
 
             return navVectors;
