@@ -58,13 +58,8 @@ namespace SocialPoint.TransparentBundles
         {
             Repaint();
         }
-
-
-
+        
         private enum InspectorAssetType { Dependency, Reference}
-
-
-
 
         private class InspectorAsset
         {

@@ -30,23 +30,25 @@ namespace SocialPoint.TransparentBundles
                     process.WindowStyle = ProcessWindowStyle.Hidden;
                     process.FileName = "mkdir";
                     process.Arguments = Config.VolumePath;
-                    Process.Start(process);
+                    Process proc = Process.Start(process);
+                    if (!proc.WaitForExit(10000))
+                    {
+                        if (EditorUtility.DisplayDialog("Transparent Bundles", "The folder '"+Config.VolumePath+"' was not able to be created. Please, contact the Transparent Bundles developers: "+Config.ContactUrl, "Close"))
+                        {
+                            BundlesWindow.Window.Close();
+                        }
+                    }
 
                     process = new ProcessStartInfo();
                     process.WindowStyle = ProcessWindowStyle.Hidden;
                     process.FileName = "mount_smbfs";
                     process.Arguments = Config.SmbConnectionUrl + " " + Config.VolumePath;
-                    Process.Start(process);
-
-                    for(int i = 0; !Directory.Exists(Config.IconsPath) && i < 100; i ++)
+                    proc = Process.Start(process);
+                    if (!proc.WaitForExit(10000))
                     {
-                        Thread.Sleep(100);
-                        if (i == 99)
+                        if (EditorUtility.DisplayDialog("Transparent Bundles", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE'", "Close"))
                         {
-                            if (EditorUtility.DisplayDialog("Transparent Bundles", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE'", "Close"))
-                            {
-                                BundlesWindow.Window.Close();
-                            }
+                            BundlesWindow.Window.Close();
                         }
                     }
                 }
@@ -60,8 +62,7 @@ namespace SocialPoint.TransparentBundles
             _downloader = Downloader.GetInstance();
             ServerInfo = ReadServerInfoFromJSON(jsonBytes);
     }
-
-
+        
 
         private Dictionary<string, Bundle> ReadBundleListFromJSON(byte[] jsonBytes)
         {

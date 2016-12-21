@@ -668,14 +668,14 @@ namespace SocialPoint.TransparentBundles
                         icon = _controller.DownloadImage(Config.IconsPath + "remove_queued.png");
                     break;
 
-                case BundleOperation.InBuild:
+                case BundleOperation.AddToBuild:
                     if (processing)
                         icon = _controller.DownloadImage(Config.IconsPath + "in_build.png");
                     else
                         icon = _controller.DownloadImage(Config.IconsPath + "in_build_queued.png");
                     break;
 
-                case BundleOperation.OutsideBuild:
+                case BundleOperation.RemoveFromBuild:
                     if (processing)
                         icon = _controller.DownloadImage(Config.IconsPath + "out_build.png");
                     else

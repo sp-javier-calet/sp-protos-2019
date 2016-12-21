@@ -25,5 +25,5 @@ namespace SocialPoint.TransparentBundles
     }
 
     public enum BundleStatus { Deployed, Queued, Processing, Warning, Error };
-    public enum BundleOperation { Create, Update, Remove, InBuild, OutsideBuild };
+    public enum BundleOperation { Create, Update, Remove, AddToBuild, RemoveFromBuild };
 }

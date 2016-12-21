@@ -66,7 +66,7 @@
             "islocal": false,
             "assetguid": "656d20d3065882449bbea6d7b8d19ae2",
 			"status": "Processing",
-			"queue": [{"operation": "Update"}, {"operation": "InBuild"}],
+			"queue": [{"operation": "Update"}, {"operation": "AddToBuild"}],
 			"log": ""
         },
 		{
@@ -75,12 +75,12 @@
             "islocal": false,
             "assetguid": "b195b3e514c9f2949a6b0439fff35895",
 			"status": "Queued",
-			"queue": [{"operation": "OutsideBuild"}],
+			"queue": [{"operation": "RemoveFromBuild"}],
 			"log": ""
         },
 		{
             "name": "drg_air1_01_evo5_hig_prefab",
-            "size": 1.9,
+            "size": 0,
             "islocal": false,
             "assetguid": "5f891f5f6a6c37c4d93111c0609cb6f8",
 			"status": "Queued",
