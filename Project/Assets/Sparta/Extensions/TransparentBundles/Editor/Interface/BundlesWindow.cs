@@ -686,7 +686,7 @@ namespace SocialPoint.TransparentBundles
 
             GUIContent iconContent = new GUIContent(icon, operation.ToString());
 
-            float iconSize = 25;
+            float iconSize = 23;
             if (processing)
                 iconSize = iconSize * iconsProcessCurrentSize;
             GUILayout.Label(iconContent, GUILayout.Height(iconSize), GUILayout.Width(iconSize));

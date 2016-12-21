@@ -26,7 +26,6 @@ namespace SocialPoint.TransparentBundles
             FullName = LoadAssetFullName();
             Type = LoadAssetType();
         }
-
         public Object GetAssetObject()
         {
             if (_assetObject == null && Guid.Length > 0)
@@ -34,12 +33,10 @@ namespace SocialPoint.TransparentBundles
 
             return _assetObject;
         }
-
         public string LoadAssetType()
         {
             return GetAssetObject().GetType().ToString();
         }
-
         public string LoadAssetName()
         {
             Name = Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(Guid));
@@ -47,8 +44,8 @@ namespace SocialPoint.TransparentBundles
         }
         public string LoadAssetFullName()
         {
-            Name = Path.GetFileName(AssetDatabase.GUIDToAssetPath(Guid));
-            return Name;
+            FullName = Path.GetFileName(AssetDatabase.GUIDToAssetPath(Guid));
+            return FullName;
         }
     }
 }
