@@ -9,13 +9,16 @@ namespace SocialPoint.Utils
     [InitializeOnLoad]
     public class CleanEmptyDirs : UnityEditor.AssetModificationProcessor
     {
+        static DirectoryInfo _assetDir = new DirectoryInfo(Application.dataPath);
+        static List<DirectoryInfo> _emptyDirs = new List<DirectoryInfo>();
+        static List<FileInfo> _filesList = new List<FileInfo>();
+
         public static string[] OnWillSaveAssets(string[] paths)
         {
-            List<DirectoryInfo> emptyDirs;
-            FillEmptyDirList(out emptyDirs);
-            if(emptyDirs != null && emptyDirs.Count > 0)
+            FillEmptyDirList();
+            if(_emptyDirs != null && _emptyDirs.Count > 0)
             {
-                DeleteAllEmptyDirAndMeta(ref emptyDirs);
+                DeleteAllEmptyDirAndMeta();
 
                 Debug.Log("[Clean] Cleaned Empty Directories on Save");
             }
@@ -23,28 +26,24 @@ namespace SocialPoint.Utils
             return paths;
         }
 
-        public static void DeleteAllEmptyDirAndMeta(ref List<DirectoryInfo> emptyDirs)
+        public static void DeleteAllEmptyDirAndMeta()
         {
-            for(int i = 0, emptyDirsCount = emptyDirs.Count; i < emptyDirsCount; i++)
+            for(int i = 0, emptyDirsCount = _emptyDirs.Count; i < emptyDirsCount; i++)
             {
-                var dirInfo = emptyDirs[i];
-                AssetDatabase.MoveAssetToTrash(GetRelativePathFromCd(dirInfo.FullName));
+                var dirInfo = _emptyDirs[i];
+                AssetDatabase.MoveAssetToTrash(FileUtil.GetProjectRelativePath(dirInfo.FullName));
             }
-            emptyDirs = null;
         }
 
-        public static void FillEmptyDirList(out List<DirectoryInfo> emptyDirs)
+        public static void FillEmptyDirList()
         {
-            var newEmptyDirs = new List<DirectoryInfo>();
-            emptyDirs = newEmptyDirs;
+            _emptyDirs.Clear();
 
-            var assetDir = new DirectoryInfo(Application.dataPath);
-
-            WalkDirectoryTree(assetDir, (dirInfo, areSubDirsEmpty) => {
+            WalkDirectoryTree(_assetDir, (dirInfo, areSubDirsEmpty) => {
                 bool isDirEmpty = areSubDirsEmpty && DirHasNoFile(dirInfo);
                 if(isDirEmpty)
                 {
-                    newEmptyDirs.Add(dirInfo);
+                    _emptyDirs.Add(dirInfo);
                 } 
                 return isDirEmpty;
             });
@@ -72,7 +71,7 @@ namespace SocialPoint.Utils
         static bool DirHasNoFile(DirectoryInfo dirInfo)
         {
             FileInfo[] files = null;
-            var filesList = new List<FileInfo>();
+            _filesList.Clear();
 
             try
             {
@@ -80,40 +79,28 @@ namespace SocialPoint.Utils
                 for(int i = 0, filesLength = files.Length; i < filesLength; i++)
                 {
                     var f = files[i];
-                    if(!IsMetaFile(f.Name))
+                    if(!IsMetaFile(f.Name) && !IsDSStoreFile(f.Name))
                     {
-                        filesList.Add(f);
+                        _filesList.Add(f);
                     }
                 }
-                files = filesList.ToArray();
+                files = _filesList.ToArray();
             }
             catch(Exception)
             {
-            } 
+            }
 
             return files == null || files.Length == 0;
-        }
-
-        static string GetRelativePathFromCd(string filespec)
-        {
-            return GetRelativePath(filespec, Directory.GetCurrentDirectory());
-        }
-
-        public static string GetRelativePath(string filespec, string folder)
-        {
-            var pathUri = new Uri(filespec);
-            // Folders must end in a slash
-            if(!folder.EndsWith(Path.DirectorySeparatorChar.ToString()))
-            {
-                folder += Path.DirectorySeparatorChar;
-            }
-            var folderUri = new Uri(folder);
-            return Uri.UnescapeDataString(folderUri.MakeRelativeUri(pathUri).ToString().Replace('/', Path.DirectorySeparatorChar));
         }
 
         static bool IsMetaFile(string path)
         {
             return path.EndsWith(".meta");
+        }
+
+        static bool IsDSStoreFile(string path)
+        {
+            return path.EndsWith(".DS_Store");
         }
     }
 }
