@@ -66,8 +66,13 @@ namespace SpartaTools.Editor.View
 
         static BuildSetApplier()
         {
+            // Remove previous event if exists
+            EditorUserBuildSettings.activeBuildTargetChanged -= OnTargetChanged;
+            EditorUserBuildSettings.activeBuildTargetChanged += OnTargetChanged;
+
             var playing = EditorApplication.isPlayingOrWillChangePlaymode;
             var compiling = EditorApplication.isCompiling;
+
             if(AutoApply && !playing && !compiling)
             {
                 float currentTime = (float)EditorApplication.timeSinceStartup;
@@ -75,9 +80,7 @@ namespace SpartaTools.Editor.View
 
                 if(requiresApply)
                 {
-                    var config = CurrentMode;
-                    Debug.Log(string.Format("Auto Applying BuildSet '{0}'", config));
-                    ApplyConfig(config);
+                    Reapply();
                 }
 
                 AutoApplyLastTime = currentTime;
@@ -114,9 +117,31 @@ namespace SpartaTools.Editor.View
         public static void Reapply()
         {
             var mode = CurrentMode;
-            if(AutoApply && !string.IsNullOrEmpty(mode))
+            try
             {
-                ApplyConfig(mode);
+                if(!string.IsNullOrEmpty(mode))
+                {
+                    Debug.Log(string.Format("Applying BuildSet '{0}'", mode));
+                    ApplyConfig(mode);
+                }
+                else
+                {
+                    Debug.LogWarning("No BuildSet to apply");
+                }
+            }
+            catch(FileNotFoundException e)
+            {
+                Debug.LogError(e.Message);    
+                CurrentMode = string.Empty;
+            }
+        }
+
+        static void OnTargetChanged()
+        {
+            // Reapply the current config after change target platform
+            if(AutoApply)
+            {
+                BuildSetApplier.Reapply();
             }
         }
 
@@ -147,19 +172,6 @@ namespace SpartaTools.Editor.View
             {
                 return _editEnabled;
             }
-        }
-
-        public BuildSetsWindow()
-        {
-            // Remove previous event if exists
-            EditorUserBuildSettings.activeBuildTargetChanged -= OnTargetChanged;
-            EditorUserBuildSettings.activeBuildTargetChanged += OnTargetChanged;
-        }
-
-        static void OnTargetChanged()
-        {
-            // Reapply the current config after change target platform
-            BuildSetApplier.Reapply();
         }
 
         #endregion
