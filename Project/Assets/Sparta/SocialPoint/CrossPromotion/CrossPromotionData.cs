@@ -1,5 +1,5 @@
-﻿using SocialPoint.Attributes;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using SocialPoint.Attributes;
 using SocialPoint.Base;
 
 namespace SocialPoint.CrossPromotion

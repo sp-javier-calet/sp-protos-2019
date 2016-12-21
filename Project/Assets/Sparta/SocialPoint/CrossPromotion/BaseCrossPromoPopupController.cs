@@ -1,8 +1,7 @@
-using UnityEngine;
-using System.Collections;
 using System;
 using SocialPoint.GUIControl;
 using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.CrossPromotion
 {
@@ -24,7 +23,7 @@ namespace SocialPoint.CrossPromotion
         protected float _cellWidth;
         protected float _cellHeight;
 
-        Action _closeCallback = null;
+        Action _closeCallback;
         long _timeOpened;
 
         public virtual void Init(CrossPromotionManager crossPromoManager, Action closeCallback)
@@ -37,7 +36,7 @@ namespace SocialPoint.CrossPromotion
 
             //Set desired margins for screen
             Vector2 screenSize = GetScreenSize();
-            float ratioIphone = 960f / 640f;
+            const float ratioIphone = 960f / 640f;
             float currentRatio = screenSize.x / screenSize.y;
             if(Mathf.Approximately(ratioIphone, currentRatio))
             {

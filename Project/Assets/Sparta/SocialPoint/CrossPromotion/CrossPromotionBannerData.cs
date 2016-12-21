@@ -36,7 +36,7 @@ namespace SocialPoint.CrossPromotion
             IconImage = config.GetValue("icon").ToString();
             Game = config.GetValue("game").ToString();
             ShowRibbon = config.GetValue("ribbon").ToBool();
-            CurrentGame = config.ContainsKey("current") ? config.GetValue("current").ToBool() : false;
+            CurrentGame = config.ContainsKey("current") && config.GetValue("current").ToBool();
         }
     }
 }

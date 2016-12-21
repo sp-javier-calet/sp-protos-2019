@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 namespace SocialPoint.CrossPromotion
 {
@@ -16,7 +15,7 @@ namespace SocialPoint.CrossPromotion
 
         protected CrossPromotionManager _cpm;
         protected BaseCrossPromoPopupController _pc;
-        protected bool _sentTrack = false;
+        protected bool _sentTrack;
 
         public virtual void InitCell(CrossPromotionManager crossPromoManager, BaseCrossPromoPopupController popupController, int bannerId, int position)
         {
@@ -41,12 +40,10 @@ namespace SocialPoint.CrossPromotion
         {
             bool isUrgent = !_selfGame;
             _pc.SetActivityView(isUrgent);
-            _cpm.SendBannerClickedEvent(_bannerId, _position, isUrgent, _selfGame, () => {
-                _pc.OnClose();
-            });
+            _cpm.SendBannerClickedEvent(_bannerId, _position, isUrgent, _selfGame, _pc.OnClose);
         }
 
-        private void Update()
+        void Update()
         {
             CheckVisibility();
         }
