@@ -38,17 +38,19 @@ namespace SocialPoint.TransparentBundles
                             BundlesWindow.Window.Close();
                         }
                     }
-
-                    process = new ProcessStartInfo();
-                    process.WindowStyle = ProcessWindowStyle.Hidden;
-                    process.FileName = "mount_smbfs";
-                    process.Arguments = Config.SmbConnectionUrl + " " + Config.VolumePath;
-                    proc = Process.Start(process);
-                    if (!proc.WaitForExit(10000))
+                    else
                     {
-                        if (EditorUtility.DisplayDialog("Transparent Bundles", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE'", "Close"))
+                        process = new ProcessStartInfo();
+                        process.WindowStyle = ProcessWindowStyle.Hidden;
+                        process.FileName = "mount_smbfs";
+                        process.Arguments = Config.SmbConnectionUrl + " " + Config.VolumePath;
+                        proc = Process.Start(process);
+                        if (!proc.WaitForExit(10000))
                         {
-                            BundlesWindow.Window.Close();
+                            if (EditorUtility.DisplayDialog("Transparent Bundles", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE'", "Close"))
+                            {
+                                BundlesWindow.Window.Close();
+                            }
                         }
                     }
                 }
