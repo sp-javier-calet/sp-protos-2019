@@ -62,7 +62,7 @@ namespace SocialPoint.Multiplayer
 
         void UpdateTransformFromGameObject()
         {
-            var newPos = NetworkGameObject.Transform.Position;
+            JVector newPos = NetworkGameObject.Transform.Position;
             var newRot = JMatrix.CreateFromQuaternion(NetworkGameObject.Transform.Rotation);
 
             bool moved = (_rigidBody.Position != newPos);

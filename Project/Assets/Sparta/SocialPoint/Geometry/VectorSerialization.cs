@@ -1,29 +1,31 @@
-﻿using SocialPoint.IO;
-using SocialPoint.Utils;
-using System;
-using Jitter.LinearMath;
+﻿using System;
+using SocialPoint.IO;
 
-namespace SocialPoint.Physics
+namespace SocialPoint.Geometry
 {
-    public class JVectorSerializer : IDiffWriteSerializer<JVector>
+    public class VectorSerializer : IDiffWriteSerializer<Vector>
     {
-        public static readonly JVectorSerializer Instance = new JVectorSerializer();
+        public static readonly VectorSerializer Instance = new VectorSerializer();
 
-        public void Compare(JVector newObj, JVector oldObj, Bitset dirty)
+        VectorSerializer()
         {
-            dirty.Set(newObj.X != oldObj.X);
-            dirty.Set(newObj.Y != oldObj.Y);
-            dirty.Set(newObj.Z != oldObj.Z);
         }
 
-        public void Serialize(JVector newObj, IWriter writer)
+        public void Compare(Vector newObj, Vector oldObj, Bitset dirty)
+        {
+            dirty.Set(Math.Abs(newObj.X - oldObj.X) > float.Epsilon);
+            dirty.Set(Math.Abs(newObj.Y - oldObj.Y) > float.Epsilon);
+            dirty.Set(Math.Abs(newObj.Z - oldObj.Z) > float.Epsilon);
+        }
+
+        public void Serialize(Vector newObj, IWriter writer)
         {
             writer.Write(newObj.X);
             writer.Write(newObj.Y);
             writer.Write(newObj.Z);
         }
 
-        public void Serialize(JVector newObj, JVector oldObj, IWriter writer, Bitset dirty)
+        public void Serialize(Vector newObj, Vector oldObj, IWriter writer, Bitset dirty)
         {
             if(Bitset.NullOrGet(dirty))
             {
@@ -40,25 +42,29 @@ namespace SocialPoint.Physics
         }
     }
 
-    public class JVectorParser : IDiffReadParser<JVector>
+    public class VectorParser : IDiffReadParser<Vector>
     {
-        public static readonly JVectorParser Instance = new JVectorParser();
+        public static readonly VectorParser Instance = new VectorParser();
 
-        public JVector Parse(IReader reader)
+        VectorParser()
         {
-            JVector obj;
+        }
+
+        public Vector Parse(IReader reader)
+        {
+            Vector obj;
             obj.X = reader.ReadSingle();
             obj.Y = reader.ReadSingle();
             obj.Z = reader.ReadSingle();
             return obj;
         }
 
-        public int GetDirtyBitsSize(JVector obj)
+        public int GetDirtyBitsSize(Vector obj)
         {
             return 3;
         }
 
-        public JVector Parse(JVector obj, IReader reader, Bitset dirty)
+        public Vector Parse(Vector obj, IReader reader, Bitset dirty)
         {
             if(Bitset.NullOrGet(dirty))
             {

@@ -1,16 +1,72 @@
-﻿namespace SocialPoint.Geometry
+﻿using System;
+using SocialPoint.Utils;
+
+namespace SocialPoint.Geometry
 {
     public partial struct Vector
     {
-        float _x;
-        float _y;
-        float _z;
+        #region Static readonly variables
+
+        /// <summary>
+        /// A vector with components (0,0,0);
+        /// </summary>
+        public static readonly Vector Zero;
+
+        /// <summary>
+        /// A vector with components (1,1,1);
+        /// </summary>
+        public static readonly Vector One;
+
+        static Vector()
+        {
+            One = new Vector(1, 1, 1);
+            Zero = new Vector(0, 0, 0);
+        }
+
+        #endregion
+
+        public float X;
+        public float Y;
+        public float Z;
 
         public Vector(float x, float y, float z)
         {
-            _x = x;
-            _y = y;
-            _z = z;
+            X = x;
+            Y = y;
+            Z = z;
+        }
+
+        public override int GetHashCode()
+        {
+            var hash = X.GetHashCode();
+            CryptographyUtils.HashCombine(hash, Y.GetHashCode());
+            CryptographyUtils.HashCombine(hash, Z.GetHashCode());
+            return hash;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if(!(obj is Vector))
+            {
+                return false;
+            }
+            var other = (Vector)obj;
+            return (Math.Abs(X - other.X) <= float.Epsilon) && (Math.Abs(Y - other.Y) <= float.Epsilon) && (Math.Abs(Z - other.Z) <= float.Epsilon);
+        }
+
+        public static bool operator ==(Vector value1, Vector value2)
+        {
+            return (Math.Abs(value1.X - value2.X) <= float.Epsilon) && (Math.Abs(value1.Y - value2.Y) <= float.Epsilon) && (Math.Abs(value1.Z - value2.Z) <= float.Epsilon);
+        }
+
+        public static bool operator !=(Vector value1, Vector value2)
+        {
+            return (Math.Abs(value1.X - value2.X) > float.Epsilon) || (Math.Abs(value1.Y - value2.Y) > float.Epsilon) || (Math.Abs(value1.Z - value2.Z) > float.Epsilon);
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[{0},{1},{2}]", X, Y, Z);
         }
     }
 
@@ -29,7 +85,7 @@
 
         public static implicit operator UnityEngine.Vector3(Vector v)
         {
-            return new UnityEngine.Vector3(v._x, v._y, v._z);
+            return new UnityEngine.Vector3(v.X, v.Y, v.Z);
         }
     }
 
@@ -48,7 +104,7 @@
 
         public static implicit operator UnityEngine.Vector2(Vector v)
         {
-            return new UnityEngine.Vector2(v._x, v._y);
+            return new UnityEngine.Vector2(v.X, v.Y);
         }
     }
 }

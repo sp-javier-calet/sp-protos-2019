@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using SocialPoint.Pooling;
 using SocialPoint.Network;
 using SocialPoint.Geometry;
-using SocialPoint.Physics;
 
 namespace SocialPoint.Multiplayer
 {
@@ -27,14 +26,14 @@ namespace SocialPoint.Multiplayer
             _parentTag = parentTag;
         }
 
-        protected override void UpdateObjectView(int objectId, Transform t)
+        protected override void UpdateObjectView(int objectId, Geometry.Transform t)
         {
             GameObject go;
             if(_objects.TryGetValue(objectId, out go))
             {
                 var ut = go.transform;
-                ut.position = Vector.Convert(t.Position);
-                ut.rotation = Quat.Convert(t.Rotation);
+                ut.position = t.Position;
+                ut.rotation = t.Rotation;
             }
         }
 
@@ -58,8 +57,7 @@ namespace SocialPoint.Multiplayer
                 }
             }
 
-            var go = ObjectPool.Spawn(prefab, parent,
-                         Vector.Convert(ev.Transform.Position), Quat.Convert(ev.Transform.Rotation));
+            var go = ObjectPool.Spawn(prefab, parent, ev.Transform.Position, ev.Transform.Rotation);
             _objects[ev.ObjectId] = go;
         }
 
