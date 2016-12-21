@@ -9,7 +9,6 @@ namespace SocialPoint.TransparentBundles
         public string RequestData;
         private ResponseResult _rResult;
         private Action<ResponseResult> _finishedCallback;
-        private Action<ResponseResult> _onFailed;
 
         public AsyncRequestState(HttpWebRequest request, Action<ResponseResult> finishedCallback)
         {
