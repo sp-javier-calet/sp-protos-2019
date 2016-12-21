@@ -60,9 +60,8 @@ namespace SocialPoint.Network
             }
         }
 
-        public void Fail(string reason)
+        public void Fail(Error err)
         {
-            var err = new Error(reason);
             _clientList.Clear();
             _clientList.AddRange(_clients.Keys);
             for(var i=0; i<_clientList.Count; i++)

@@ -48,9 +48,9 @@ namespace SocialPoint.Network
             _server.Stop();
         }
 
-        public void Fail(string msg)
+        public void Fail(Error err)
         {
-            _server.Fail(msg);
+            _server.Fail(err);
         }
 
         public void AddDelegate(INetworkServerDelegate dlg)

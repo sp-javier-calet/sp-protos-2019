@@ -52,7 +52,7 @@ namespace SocialPoint.Network
 
         public IPluginHost PluginHost;
 
-        public PluginHttpClient(IPluginHost host=null)
+        public PluginHttpClient(IPluginHost host = null)
         {
             PluginHost = null;
         }
@@ -72,7 +72,7 @@ namespace SocialPoint.Network
                 throw new InvalidOperationException("No plugin host specified.");
             }
             var stream = new MemoryStream();
-            if (request.Body != null)
+            if(request.Body != null)
             {
                 stream.Write(request.Body, 0, request.Body.Length);
             }

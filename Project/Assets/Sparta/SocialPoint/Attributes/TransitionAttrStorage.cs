@@ -17,14 +17,14 @@ namespace SocialPoint.Attributes
         public Attr Load(string key)
         {
             var attr = From.Load(key);
-            if(attr != null)
+            if(!Attr.IsNullOrEmpty(attr))
             {
                 To.Save(key, attr);
             }
             else
             {
                 attr = To.Load(key);
-                if(attr != null)
+                if(!Attr.IsNullOrEmpty(attr))
                 {
                     From.Save(key, attr);
                 }
@@ -47,7 +47,7 @@ namespace SocialPoint.Attributes
             }
             catch(Exception e)
             {
-                if(old == null)
+                if(Attr.IsNullOrEmpty(old))
                 {
                     From.Remove(key);
                 }
@@ -69,7 +69,7 @@ namespace SocialPoint.Attributes
             }
             catch(Exception e)
             {
-                if(old != null)
+                if(!Attr.IsNullOrEmpty(old))
                 {
                     From.Save(key, old);
                 }

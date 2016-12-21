@@ -21,7 +21,7 @@ namespace SocialPoint.CrossPromotion
         }
 
         [SerializeField]
-        float _startDelay = 0.0f;
+        float _startDelay;
 
         public float StartDelay
         {
