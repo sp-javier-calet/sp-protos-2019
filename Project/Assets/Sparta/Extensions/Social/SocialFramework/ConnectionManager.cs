@@ -143,7 +143,7 @@ namespace SocialPoint.Social
             {
                 if(_chatManager != null && _chatManager != null && _chatManager != value)
                 {
-                    throw new Exception("ConnectionManager is already binded to a different instance of Chat Manager");
+                    throw new Exception("ConnectionManager is already bound to a different instance of Chat Manager");
 
                 }
                 _chatManager = value;

@@ -15,6 +15,7 @@ namespace SocialPoint.Base
             Container.Rebind<IUpdateScheduler>().ToLookup<UnityUpdateRunner>();
             Container.Bind<NativeCallsHandler>().ToMethod<NativeCallsHandler>(CreateNativeCallsHandler);
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelNativeCallsHandler>(CreateAdminPanel);
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelDependency>(CreateAdminPanelDependency);
         }
 
         public void Initialize()
@@ -40,6 +41,11 @@ namespace SocialPoint.Base
         {
             return new AdminPanelNativeCallsHandler(
                 Container.Resolve<NativeCallsHandler>());
+        }
+
+        AdminPanelDependency CreateAdminPanelDependency()
+        {
+            return new AdminPanelDependency();
         }
     }
 }
