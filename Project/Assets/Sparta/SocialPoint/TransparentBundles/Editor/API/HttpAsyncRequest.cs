@@ -15,55 +15,6 @@ namespace SocialPoint.TransparentBundles
             DELETE
         }
 
-        public class RequestState
-        {
-            public HttpWebRequest Request;
-            public string RequestData;
-            private ResponseResult _rResult;
-            private Action<ResponseResult> _onSuccess;
-            private Action<ResponseResult> _onFailed;
-
-            public RequestState(HttpWebRequest request, Action<ResponseResult> successCallback, Action<ResponseResult> failedCallback)
-            {
-                this.Request = request;
-                this.RequestData = null;
-                _onSuccess = successCallback;
-                _onFailed = failedCallback;
-            }
-
-            public RequestState(HttpWebRequest request, string requestData, Action<ResponseResult> successCallback, Action<ResponseResult> failedCallback)
-            {
-                this.Request = request;
-                this.RequestData = requestData;
-                _onSuccess = successCallback;
-                _onFailed = failedCallback;
-            }
-
-            public void RaiseCallback()
-            {
-                if(_rResult.Success)
-                {
-                    _onSuccess(_rResult);
-                }
-                else
-                {
-                    _onFailed(_rResult);
-                }
-            }
-
-            public void ConnectionFinished(ResponseResult result)
-            {
-                _rResult = result;
-                MainThreadQueue.Instance.AddQueueItem(this);
-            }
-
-            public ResponseResult GetResponseResult()
-            {
-                return _rResult;
-            }
-
-        }
-
         public const int TIMEOUT_MILLISECONDS = 10000;
 
         public HttpWebRequest Request
@@ -74,18 +25,18 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        private RequestState _reqState;
+        private AsyncRequestState _reqState;
 
-        public HttpAsyncRequest(HttpWebRequest request, Action<ResponseResult> successCallback, Action<ResponseResult> failedCallback)
+        public HttpAsyncRequest(HttpWebRequest request, Action<ResponseResult> finishedCallback)
         {
-            _reqState = new RequestState(request, successCallback, failedCallback);
+            _reqState = new AsyncRequestState(request, finishedCallback);
         }
 
-        public HttpAsyncRequest(string url, MethodType method, Action<ResponseResult> successCallback, Action<ResponseResult> failedCallback)
+        public HttpAsyncRequest(string url, MethodType method, Action<ResponseResult> finishedCallback)
         {
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = method.ToString();
-            _reqState = new RequestState(request, successCallback, failedCallback);
+            _reqState = new AsyncRequestState(request, finishedCallback);
         }
 
         public void Send()
@@ -102,7 +53,7 @@ namespace SocialPoint.TransparentBundles
 
         private void GetRequestStreamCallback(IAsyncResult asynchronousResult)
         {
-            RequestState state = (RequestState)asynchronousResult.AsyncState;
+            var state = (AsyncRequestState)asynchronousResult.AsyncState;
             try
             {
                 // End the operation
@@ -123,7 +74,7 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        private void GetResponseAsync(RequestState state)
+        private void GetResponseAsync(AsyncRequestState state)
         {
             // Start the asynchronous operation to get the response
             var asyncResult = state.Request.BeginGetResponse(new AsyncCallback(GetResponseCallback), state);
@@ -134,7 +85,7 @@ namespace SocialPoint.TransparentBundles
 
         private void TimeoutCallback(object stateObj, bool timeOut)
         {
-            RequestState state = (RequestState)stateObj;
+            var state = (AsyncRequestState)stateObj;
             if(timeOut)
             {
                 state.ConnectionFinished(new ResponseResult(false, "The request timed out"));
@@ -143,7 +94,7 @@ namespace SocialPoint.TransparentBundles
 
         private void GetResponseCallback(IAsyncResult asynchronousResult)
         {
-            RequestState state = (RequestState)asynchronousResult.AsyncState;
+            var state = (AsyncRequestState)asynchronousResult.AsyncState;
             try
             {
                 ResponseResult rResult = null;

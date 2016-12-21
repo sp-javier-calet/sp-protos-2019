@@ -9,17 +9,17 @@ namespace SocialPoint.TransparentBundles
     public class LoginWindow : EditorWindow
     {
         public const string LOGIN_PREF_KEY = "TBLoginUser";
-        private Action _callback, _cancelCallback;
+        private Action _callback;
+        private Action _cancelCallback;
         private string _loginUser;
         private string _error;
         private bool _closedProperly = false;
-
 
         [MenuItem("SocialPoint/Change Login")]
         public static void ChangeLogin()
         {
             //We just login
-            Open(TransparentBundleAPI.Login);
+            Open(()=>TransparentBundleAPI.Login());
         }
 
         public static void Open(Action callback, Action cancelCallback = null, string errorMessage = "")
@@ -66,7 +66,6 @@ namespace SocialPoint.TransparentBundles
         {
             if(!_closedProperly)
             {
-                Debug.LogError("Login cancelled, the process won't continue");
                 _cancelCallback();
             }
         }

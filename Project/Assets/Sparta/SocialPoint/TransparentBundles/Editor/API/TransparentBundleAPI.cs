@@ -10,78 +10,125 @@ namespace SocialPoint.TransparentBundles
 {
     public class TransparentBundleAPI
     {
+        public class LoginOptions
+        {
+            public bool Autologin = true;
+            public Action<RequestReport> LoginOk = null;
+            public Action<RequestReport> LoginFailed = null;
+        }
+
         private static bool _isLogged = false;
-        private static Action<RequestArgs> _delayedCallback = null;
-        private static RequestArgs _delayedArguments = null;
 
         public const string SERVER_URL = "http://httpbin.org/post";
 
         [MenuItem("SocialPoint/Test Call")]
         public static void test()
         {
-            CreateBundle(new CreateBundlesArgs(x => Debug.Log(x.Response), x => Debug.Log(x.Message)));
+            CreateBundle(new CreateBundlesArgs(x => Debug.Log(x.ResponseRes.Response), x => Debug.Log(x.LoginCancelled)));
         }
 
         #region LOGIN
-        public static void Login()
+        public static void Login(LoginOptions loginOptions = null)
         {
+            if(loginOptions == null)
+            {
+                loginOptions = new LoginOptions();
+            }
+
             var loginUser = EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY);
 
             if(string.IsNullOrEmpty(loginUser))
             {
-                LoginWindow.Open(Login, () => _delayedCallback = null);
+                if(loginOptions.Autologin)
+                {
+                    LoginWindow.Open(() => Login(loginOptions), () => OnLoginCancelled(loginOptions));
+                }
+                else
+                {
+                    loginOptions.LoginFailed(new RequestReport(true, false, "No username found"));
+                }
             }
             else
             {
-                HttpAsyncRequest asyncReq = new HttpAsyncRequest(SERVER_URL, HttpAsyncRequest.MethodType.POST, OnLoginSuccess, OnLoginFailed);
+                HttpAsyncRequest asyncReq = new HttpAsyncRequest(SERVER_URL, HttpAsyncRequest.MethodType.POST, x => HandleLoginResponse(x, loginOptions));
 
                 asyncReq.Send();
             }
         }
 
-        private static void OnLoginSuccess(ResponseResult result)
+        private static void HandleLoginResponse(ResponseResult result, LoginOptions loginOptions)
         {
-            _isLogged = true;
-            if(_delayedCallback != null)
+            if(result != null && result.Success)
             {
-                _delayedCallback(_delayedArguments);
-                _delayedCallback = null;
+                _isLogged = true;
+                if(loginOptions.LoginOk != null)
+                {
+                    loginOptions.LoginOk(new RequestReport(true, false));
+                }
+            }
+            else
+            {
+                if(loginOptions.Autologin)
+                {
+                    LoginWindow.Open(() => Login(loginOptions), () => OnLoginCancelled(loginOptions), result.Message);
+                }
+                else
+                {
+                    if(loginOptions.LoginFailed != null)
+                    {
+                        loginOptions.LoginFailed(new RequestReport(true, false, result));
+                    }
+                }
             }
         }
 
-        private static void OnLoginFailed(ResponseResult result)
+        private static void OnLoginCancelled(LoginOptions loginOptions)
         {
-            LoginWindow.Open(Login, () => _delayedCallback = null, result.Message);
+            if(loginOptions.LoginFailed != null)
+            {                
+                loginOptions.LoginFailed(new RequestReport(true, true, "Login cancelled by user"));
+            }
         }
         #endregion
 
         #region PUBLIC_METHODS
-        public static void CreateBundle(CreateBundlesArgs arguments)
+        public static void CreateBundle(CreateBundlesArgs arguments, bool autoLogin = true)
         {
-            LoginAndExecuteAction(CreateBundleAction, arguments);
-        }
+            var options = new LoginOptions();
 
+            options.Autologin = autoLogin;
+            options.LoginOk = (report) =>
+            {
+                arguments.SetRequestReport(report);
+                CreateBundleAction(arguments);
+            };
+
+            options.LoginFailed = (report) =>
+            {
+                arguments.SetRequestReport(report);
+                arguments.OnFailedCallback(report);
+            };
+
+            LoginAndExecuteAction(options);
+        }
         #endregion
 
-
         #region PRIVATE_METHODS
-        private static void LoginAndExecuteAction(Action<RequestArgs> action, RequestArgs arguments)
+        private static void LoginAndExecuteAction(LoginOptions loginOptions)
         {
             if(!_isLogged)
             {
-                _delayedArguments = arguments;
-                _delayedCallback = action;
-                Login();
+                Login(loginOptions);
             }
             else
             {
-                action(arguments);
+                loginOptions.LoginOk(new RequestReport(false, false));
             }
         }
 
         private static void CreateBundleAction(RequestArgs arguments)
         {
-            HttpAsyncRequest asyncReq = new HttpAsyncRequest(SERVER_URL, HttpAsyncRequest.MethodType.POST, arguments.OnSuccessCallback, arguments.OnFailedCallback);
+            HttpAsyncRequest asyncReq = new HttpAsyncRequest(SERVER_URL, HttpAsyncRequest.MethodType.POST, arguments.UpdateReportAndCallback);
 
             asyncReq.Send();
         }

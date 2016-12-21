@@ -5,6 +5,7 @@ public class ResponseResult
 {
     public bool Success;
     public string Response;
+    public int StatusCode;
     public string Message;
 
     public ResponseResult() { }

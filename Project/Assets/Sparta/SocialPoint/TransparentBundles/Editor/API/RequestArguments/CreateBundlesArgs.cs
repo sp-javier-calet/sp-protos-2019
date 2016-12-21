@@ -2,8 +2,12 @@ using UnityEngine;
 using System.Collections;
 using System;
 
-public class CreateBundlesArgs : RequestArgs {
-    public string AssetGUID;
+namespace SocialPoint.TransparentBundles
+{
+    public class CreateBundlesArgs : RequestArgs
+    {
+        public string AssetGUID;
 
-    public CreateBundlesArgs(Action<ResponseResult> SuccessCallback, Action<ResponseResult> FailedCallback) : base(SuccessCallback, FailedCallback) { }
+        public CreateBundlesArgs(Action<RequestReport> SuccessCallback, Action<RequestReport> FailedCallback) : base(SuccessCallback, FailedCallback) { }
+    }
 }
