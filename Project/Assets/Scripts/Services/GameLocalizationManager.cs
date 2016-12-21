@@ -9,8 +9,7 @@ public class GameLocalizationManager : LocalizationManager
     readonly IEventDispatcher _dispatcher;
     LocalizeAttributeConfiguration _localizeAttributeConfig;
 
-    public GameLocalizationManager(IHttpClient client, IAppInfo appInfo, Localization locale, LocalizeAttributeConfiguration attrConfig, IEventDispatcher dispatcher) :
-        base(client, appInfo, locale)
+    public GameLocalizationManager(LocalizeAttributeConfiguration attrConfig, IEventDispatcher dispatcher)
     {
         _localizeAttributeConfig = attrConfig;
         _dispatcher = dispatcher;

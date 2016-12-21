@@ -1,8 +1,9 @@
 ﻿using System;
+using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
+using SocialPoint.Utils;
 using SocialPoint.ServerEvents;
-using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Social
 {
@@ -29,17 +30,29 @@ namespace SocialPoint.Social
             {
                 Container.Bind<IInitializable>().ToInstance(this);
 
-                Container.RebindUnityComponent<UnityGoogle>();
+                Container.Rebind<UnityGoogle>().ToMethod<UnityGoogle>(CreateUnityGoogle, SetupUnityGoogle);
                 Container.Rebind<IGoogle>().ToLookup<UnityGoogle>();
+                Container.Bind<IDisposable>().ToLookup<UnityGoogle>();
             }
             if(Settings.LoginLink)
             {
                 Container.Bind<ILink>().ToMethod<GooglePlayLink>(CreateLoginLink);
+                Container.Bind<IDisposable>().ToLookup<GooglePlayLink>();
             }
             #else
             Container.Rebind<IGoogle>().ToSingle<EmptyGoogle>();
             #endif
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGoogle>(CreateAdminPanel);
+        }
+
+        UnityGoogle CreateUnityGoogle()
+        {
+            return new UnityGoogle();
+        }
+
+        void SetupUnityGoogle(UnityGoogle google)
+        {
+            google.Scheduler = Container.Resolve<IUpdateScheduler>();
         }
 
         AdminPanelGoogle CreateAdminPanel()

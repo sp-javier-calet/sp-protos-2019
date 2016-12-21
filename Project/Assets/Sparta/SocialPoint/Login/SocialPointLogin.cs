@@ -489,6 +489,11 @@ namespace SocialPoint.Login
         public void Dispose()
         {
             ClearUsersCache();
+            for(var i = 0; i < _links.Count; ++i)
+            {
+                var info = _links[i];
+                info.Link.ClearStateChangeDelegate();
+            }
             _links.Clear();
             Friends.Clear();
             _pendingLinkConfirms.Clear();

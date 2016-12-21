@@ -27,13 +27,13 @@ namespace SocialPoint.Purchase
         SocialPointPurchaseStore CreatePurchaseStore()
         {
             return new SocialPointPurchaseStore(
-                Container.Resolve<IHttpClient>(),
-                Container.Resolve<ICommandQueue>(),
                 Container.Resolve<NativeCallsHandler>());
         }
 
         void SetupPurchaseStore(SocialPointPurchaseStore store)
         {
+            store.HttpClient = Container.Resolve<IHttpClient>();
+            store.CommandQueue = Container.Resolve<ICommandQueue>();
             store.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
             store.LoginData = Container.Resolve<ILoginData>();
         }

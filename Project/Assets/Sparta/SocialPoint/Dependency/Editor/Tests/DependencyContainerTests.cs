@@ -333,6 +333,45 @@ namespace SocialPoint.Dependency
         }
 
         [Test]
+        public void RebindDisposableTest()
+        {
+            TestDisposable.Count = 0;
+            var container = new DependencyContainer();
+            container.Rebind<TestDisposable>().ToSingle<TestDisposable>();
+            container.Bind<IDisposable>().ToGetter<TestDisposable>((service) => {
+                return new TestDisposable();
+            });
+
+            container.Rebind<TestDisposable>().ToSingle<TestDisposable>();
+            Assert.AreEqual(0, TestDisposable.Count);
+            container.Resolve<IDisposable>();
+            container.Rebind<TestDisposable>().ToSingle<TestDisposable>();
+            Assert.AreEqual(1, TestDisposable.Count);
+        }
+
+        [Test]
+        public void RebindTaggedDisposableTest()
+        {
+            TestDisposable.Count = 0;
+            var container = new DependencyContainer();
+            Func<TestDisposable> createDisposable = () => { return new TestDisposable(); };
+
+            container.Rebind<TestDisposable>().ToMethod<TestDisposable>(createDisposable);
+            container.Bind<IDisposable>().ToLookup<TestDisposable>();
+            container.Rebind<TestDisposable>("tag").ToMethod<TestDisposable>(createDisposable);
+            container.Bind<IDisposable>().ToLookup<TestDisposable>("tag");
+
+            container.Resolve<TestDisposable>();
+            container.Resolve<TestDisposable>("tag");
+
+            container.Rebind<TestDisposable>().ToMethod<TestDisposable>(createDisposable);
+            Assert.AreEqual(1, TestDisposable.Count);
+
+            container.Rebind<TestDisposable>("tag").ToMethod<TestDisposable>(createDisposable);
+            Assert.AreEqual(2, TestDisposable.Count);
+        }
+
+        [Test]
         public void AddListener()
         {
             var container = new DependencyContainer();

@@ -46,16 +46,14 @@ namespace SocialPoint.Network
             {
                 Container.Rebind<CurlHttpClient>().ToMethod<CurlHttpClient>(CreateCurlHttpClient);
                 Container.Rebind<IHttpClient>("internal").ToLookup<CurlHttpClient>();
-                Container.Rebind<IHttpClient>().ToLookup<CurlHttpClient>();
             }
             else
             {
                 Container.Rebind<WebRequestHttpClient>().ToMethod<WebRequestHttpClient>(CreateWebRequestHttpClient);
                 Container.Rebind<IHttpClient>("internal").ToLookup<WebRequestHttpClient>();
-                Container.Rebind<IHttpClient>().ToLookup<WebRequestHttpClient>(); 
             }
 
-            Container.Bind<IDisposable>().ToLookup<IHttpClient>();
+            Container.Bind<IDisposable>().ToLookup<IHttpClient>("internal");
 
             // Http Stream Client
             if(Curl.IsSupported)

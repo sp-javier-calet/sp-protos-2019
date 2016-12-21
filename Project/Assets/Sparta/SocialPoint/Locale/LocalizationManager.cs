@@ -91,8 +91,6 @@ namespace SocialPoint.Locale
 
         string _cachePath;
         string _bundlePath;
-        IHttpClient _httpClient;
-        IAppInfo _appInfo;
         bool _running;
         IHttpConnection _httpConn;
         bool _writeCsv = true;
@@ -175,6 +173,10 @@ namespace SocialPoint.Locale
         public delegate void CsvLoadedDelegate(byte[] bytes);
 
         CsvLoadedDelegate CsvLoaded;
+
+        public IHttpClient HttpClient { get; set; }
+
+        public IAppInfo AppInfo { get; set; }
 
         LocationData _location;
 
@@ -272,33 +274,25 @@ namespace SocialPoint.Locale
 
         public bool CopyAllFilesToBundleFolder{ get; set; }
 
-        public LocalizationManager(IHttpClient httpClient, IAppInfo appInfo, Localization locale = null, CsvMode csvMode = CsvMode.WriteCsvWithAllSupportedLanguages, CsvLoadedDelegate csvLoaded = null)
+        public LocalizationManager(CsvMode csvMode = CsvMode.WriteCsvWithAllSupportedLanguages, CsvLoadedDelegate csvLoaded = null)
         {
-            _httpClient = httpClient;
-            _appInfo = appInfo;
             _writeCsv = csvMode == CsvMode.WriteCsv || csvMode == CsvMode.WriteCsvWithAllSupportedLanguages;
             _loadAllSupportedLanguagesCsv = csvMode == CsvMode.WriteCsvWithAllSupportedLanguages;
+            _localization = Localization.Default;
+
             CsvLoaded = csvLoaded;
 
-            if(_httpClient == null)
-            {
-                throw new ArgumentNullException("httpClient", "httpClient cannot be null or empty!");
-            }
-            if(_appInfo == null)
-            {
-                throw new ArgumentNullException("appInfo", "appInfo cannot be null or empty!");
-            }
-            _localization = locale;
-            if(_localization == null)
-            {
-                _localization = Localization.Default;
-            }
             SupportedLanguages = DefaultSupportedLanguages; 
 
             _currentLanguage = GetSupportedLanguage(_currentLanguage);
             PathsManager.CallOnLoaded(Init);
 
             LoadCurrentLanguage();
+        }
+
+        public void UpdateDefaultLanguage()
+        {
+            _currentLanguage = GetSupportedLanguage(_currentLanguage);
         }
 
         void OnGameWasLoaded()
@@ -660,7 +654,7 @@ namespace SocialPoint.Locale
             request.AcceptCompressed = true;
             request.Timeout = Timeout;
 
-            _httpConn = _httpClient.Send(request, resp => OnLocalizationDownload(resp, lang, etag, finish));
+            _httpConn = HttpClient.Send(request, resp => OnLocalizationDownload(resp, lang, etag, finish));
         }
 
         void OnLocalizationDownload(HttpResponse resp, string lang, string oldEtag, Action finish)
@@ -735,11 +729,18 @@ namespace SocialPoint.Locale
 
             if(string.IsNullOrEmpty(lang))
             {
-                lang = _appInfo.Language;
-                country = _appInfo.Country;
-                if(!string.IsNullOrEmpty(country))
+                if(AppInfo != null)
                 {
-                    lang = lang + "-" + country;
+                    lang = AppInfo.Language;
+                    country = AppInfo.Country;
+                    if(!string.IsNullOrEmpty(country))
+                    {
+                        lang = lang + "-" + country;
+                    }
+                }
+                else
+                {
+                    return string.Empty;
                 }
             }
 

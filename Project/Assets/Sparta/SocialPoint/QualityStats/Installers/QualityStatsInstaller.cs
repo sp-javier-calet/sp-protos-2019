@@ -13,7 +13,7 @@ namespace SocialPoint.QualityStats
         {
             Container.Rebind<QualityStatsHttpClient>().ToMethod<QualityStatsHttpClient>(CreateHttpClient);
             Container.Bind<IDisposable>().ToLookup<QualityStatsHttpClient>();
-            Container.Rebind<IHttpClient>().ToLookup<QualityStatsHttpClient>();
+            Container.Rebind<IHttpClient>().ToLookup<QualityStatsHttpClient>(); //Dispose "internal"??? FIXME
             Container.Rebind<SocialPointQualityStats>().ToMethod<SocialPointQualityStats>(CreateQualityStats, SetupQualityStats);
             Container.Bind<IDisposable>().ToLookup<SocialPointQualityStats>();
 
