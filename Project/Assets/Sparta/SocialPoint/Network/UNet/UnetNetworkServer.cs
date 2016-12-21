@@ -86,7 +86,7 @@ namespace SocialPoint.Network
             }
         }
 
-        public void Fail(string msg)
+        public void Fail(Error err)
         {
             if(!Running)
             {
@@ -94,7 +94,7 @@ namespace SocialPoint.Network
             }
             var writer = new NetworkWriter();
             writer.StartMessage(UnetMsgType.Fail);
-            writer.Write(msg);
+            writer.Write(err.ToString());
             writer.FinishMessage();
             for(var i = 0; i < _server.connections.Count; i++)
             {

@@ -54,6 +54,7 @@ namespace SocialPoint.Lockstep
         public event Action<int> StartScheduled;
         public event Action PlayerReadySent;
         public event Action<Attr> PlayerFinishSent;
+        public event Action<Attr> EndReceived;
         public event Action<Error> ErrorProduced;
 
         public LockstepNetworkClient(INetworkClient client, LockstepClient clientLockstep, LockstepCommandFactory factory)
@@ -112,6 +113,9 @@ namespace SocialPoint.Lockstep
             case LockstepMsgType.ClientStart:
                 OnClientStartReceived(reader);
                 break;
+            case LockstepMsgType.ClientEnd:
+                OnClientEndReceived(reader);
+                break;
             default:
                 if(_receiver != null)
                 {
@@ -163,6 +167,17 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        void OnClientEndReceived(IReader reader)
+        {
+            var msg = new AttrMessage();
+            msg.Deserialize(reader);
+            if(EndReceived != null)
+            {
+                EndReceived(msg.Data);
+            }
+            _clientLockstep.Stop();
+        }
+
         public void SendPlayerReady()
         {
             _sendPlayerReadyPending = true;
@@ -196,7 +211,7 @@ namespace SocialPoint.Lockstep
             }
             _client.SendMessage(new NetworkMessageData{
                 MessageType = LockstepMsgType.PlayerFinish
-            }, new PlayerFinishedMessage(data));
+            }, new AttrMessage(data));
             if(PlayerFinishSent != null)
             {
                 PlayerFinishSent(data);

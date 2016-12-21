@@ -282,5 +282,26 @@ namespace SocialPoint.Utils
             }
             return (bp == bLen && aLen >= bLen) || (ap == aLen && bLen >= aLen);
         }
+
+        const char ServerSeparator = ':';
+
+        public static void ParseServer(string input, out string addr, out int port)
+        {
+            addr = null;
+            port = 0;
+            if(string.IsNullOrEmpty(input))
+            {
+                return;
+            }
+            var parts = input.Split(ServerSeparator);
+            if(parts.Length > 0)
+            {
+                addr = parts[0];
+            }
+            if(parts.Length > 1)
+            {
+                int.TryParse(parts[1], out port);
+            }
+        }
     }
 }

@@ -1,23 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.Multiplayer;
 using SocialPoint.Network;
-using SocialPoint.IO;
-using System.IO;
-using System.Collections;
+using Photon.Hive.Plugin;
 
-namespace Photon.Hive.Plugin.Authoritative
+namespace SocialPoint.Multiplayer
 {
     public class AuthoritativePlugin : NetworkServerPlugin
     {
-        public override string Name
-        {
-            get
-            {
-                return "Authoritative";
-            }
-        }
-
         override protected int UpdateInterval
         {
             get
@@ -49,7 +38,7 @@ namespace Photon.Hive.Plugin.Authoritative
         int _lastUpdateTimestamp = 0;
         int _updateInterval = 100;
 
-        public AuthoritativePlugin():base()
+        public AuthoritativePlugin() : base("Authoritative")
         {
             _netServer = new NetworkServerSceneController(this);
         }
@@ -60,7 +49,7 @@ namespace Photon.Hive.Plugin.Authoritative
 
         public override bool SetupInstance(IPluginHost host, Dictionary<string, string> config, out string errorMsg)
         {
-            if (!base.SetupInstance(host, config, out errorMsg))
+            if(!base.SetupInstance(host, config, out errorMsg))
             {
                 return false;
             }
@@ -69,7 +58,7 @@ namespace Photon.Hive.Plugin.Authoritative
 
             string gameAssembly;
             string gameType;
-            if (config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) &&
+            if(config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) &&
                 config.TryGetValue(GameTypeConfig, out gameType))
             {
                 try
@@ -77,7 +66,7 @@ namespace Photon.Hive.Plugin.Authoritative
                     var factory = (INetworkServerGameFactory)CreateInstanceFromAssembly(gameAssembly, gameType);
                     _game = factory.Create(this, _netServer, config);
                 }
-                catch (Exception e)
+                catch(Exception e)
                 {
                     errorMsg = e.Message;
                 }

@@ -42,6 +42,17 @@ namespace SocialPoint.GUIControl
             public int Layer { get; set; }
         };
 
+        public static readonly string[] LayerNames = {"UI",
+            "GUILevel1",
+            "GUILevel2",
+            "GUILevel3",
+            "GUILevel4",
+            "GUILevel5",
+            "GUILevel6",
+            "GUILevel7",
+            "GUILevel8"
+        };
+
         [SerializeField]
         List<UICameraData> _cameras = new List<UICameraData>();
 
