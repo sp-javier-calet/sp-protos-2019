@@ -21,13 +21,12 @@ namespace SocialPoint.Network
         {
             get
             {
-                return PhotonNetwork.connected;
+                return State == ConnState.Connected;
             }
         }
 
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
         INetworkMessageReceiver _receiver;
-
 
         public void Connect()
         {
@@ -56,13 +55,7 @@ namespace SocialPoint.Network
 
         public int GetDelay(int networkTimestamp)
         {
-            var realTs = PhotonNetwork.ServerTimestamp;
-            var delay = realTs - networkTimestamp;
-            if(delay < 0)
-            {
-                delay = Int32.MaxValue - networkTimestamp + realTs;
-            }
-            return delay;
+            return PhotonNetwork.ServerTimestamp - networkTimestamp;
         }
 
         protected override void OnConnected()

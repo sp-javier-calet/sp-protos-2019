@@ -38,33 +38,10 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     NetworkPhysicsWorld _physicsWorld;
     IPhysicsDebugger _physicsDebugger;
 
-    int _maxPlayers = 4;
-    int _currentPlayers = 0;
-
     TiledNavMesh _navMesh;
     Pathfinder _pathfinder;
 
     List<int> _toDestroy = new List<int>();
-
-    public int MaxPlayers
-    {
-        get
-        {
-            return _maxPlayers;
-        }
-        private set
-        {
-            _maxPlayers = value;
-        }
-    }
-
-    public bool Full
-    {
-        get
-        {
-            return (_currentPlayers >= _maxPlayers);
-        }
-    }
 
     public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl, IPhysicsDebugger physicsDebugger = null)
     {
@@ -222,16 +199,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         }
     }
 
-    void INetworkServerSceneBehaviour.OnClientConnected(byte clientId)
-    {
-        _currentPlayers++;
-    }
-
-    void INetworkServerSceneBehaviour.OnClientDisconnected(byte clientId)
-    {
-        _currentPlayers--;
-    }
-
     void AddPhysicsWorld()
     {
         _physicsWorld = new NetworkPhysicsWorld(true);
@@ -319,5 +286,13 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
             return MultiplayerObjectType.NPC;
         }
         return MultiplayerObjectType.Pickup;
+    }
+
+    void INetworkServerSceneBehaviour.OnClientConnected(byte clientId)
+    {
+    }
+
+    void INetworkServerSceneBehaviour.OnClientDisconnected(byte clientId)
+    {
     }
 }

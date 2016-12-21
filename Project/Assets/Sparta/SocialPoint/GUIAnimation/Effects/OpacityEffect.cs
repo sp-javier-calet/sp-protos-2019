@@ -29,14 +29,14 @@ namespace SocialPoint.GUIAnimation
             public override bool HasChanged()
             {
                 float original = Alpha;
-				
+
                 float newAlpha = original;
                 IGraphicObject widget = GetWidget();
                 if(widget != null)
                 {
                     newAlpha = widget.Alpha;
                 }
-				
+
                 return Math.Abs(newAlpha - Alpha) > Single.Epsilon;
             }
         }

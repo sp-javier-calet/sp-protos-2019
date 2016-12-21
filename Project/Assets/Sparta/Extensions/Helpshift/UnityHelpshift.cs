@@ -14,7 +14,7 @@ using SocialPoint.Notifications;
 
 namespace SocialPoint.Extension.Helpshift
 {
-    sealed class UnityHelpshift : IHelpshift
+    public sealed class UnityHelpshift : IHelpshift
     {
         const string ENABLE_IN_APP_NOTIFICATIONS_KEY = "enableInAppNotification";
         const string UNITY_GAMEOBJECT_NAME_KEY = "unityGameObject";
@@ -150,13 +150,19 @@ namespace SocialPoint.Extension.Helpshift
                 return;
             }
 
+            #if UNITY_IOS
+            _helpshift.registerForLocalNotifications();
+            #elif UNITY_ANDROID
+            _helpshift.registerSessionDelegates();
+            #endif
+
             if(validToken)
             {
                 _helpshift.registerDeviceToken(deviceToken);
             }
         }
 
-#region IHelpshift implementation
+        #region IHelpshift implementation
 
         public HelpshiftConfiguration Configuration
         {
@@ -197,13 +203,7 @@ namespace SocialPoint.Extension.Helpshift
                     return;
                 }
 
-#if UNITY_IOS
-                _helpshift.registerForLocalNotifications();
-#elif UNITY_ANDROID
-                _helpshift.registerSessionDelegates();
-#endif
-
-                // Listen push notification token and set selected language
+                // Listen push notification token
                 _notificationServices.RegisterForRemoteToken(OnDeviceTokenReceived);
 
                 UpdateLanguage();
@@ -255,7 +255,7 @@ namespace SocialPoint.Extension.Helpshift
             _helpshift.handlePushNotification(issueId);
         }
 
-#endregion
+        #endregion
     }
 }
 
@@ -263,7 +263,7 @@ namespace SocialPoint.Extension.Helpshift
 
 namespace SocialPoint.Extension.Helpshift
 {
-    sealed class UnityHelpshift : EmptyHelpshift
+    public sealed class UnityHelpshift : EmptyHelpshift
     {
         public UnityHelpshift(HelpshiftConfiguration config, ILocalizationManager localizationManager, INotificationServices notificationServices)
         {

@@ -1,52 +1,78 @@
-﻿using SocialPoint.Base;
+﻿using System;
+using System.Collections.Generic;
+using SocialPoint.Base;
 
-public enum BackendEnvironment
+namespace SocialPoint.Base
 {
-    None,
-    JenkinsForced,
-    Development,
-    Production,
-    Test,
-    Docker
-}
-
-public static class BackendEnvironmentExtensions
-{
-    const string DevelopmentUrl = "http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3";
-    const string TestUrl = "http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3";
-    const string ProductionUrl = "https://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3";
-    const string DockerUrl = "http://localhost:4630/api/v3";
-
-    static string JenkinsForcedUrl
+    public enum EnvironmentType
     {
-        get
-        {
-            var environmentUrl = EnvironmentSettings.Instance.EnvironmentUrl;
-            if(!string.IsNullOrEmpty(environmentUrl))
-            {
-                return environmentUrl;
-            }
-            return DebugUtils.IsDebugBuild ? DevelopmentUrl : ProductionUrl;
-        }
+        Production,
+        QA,
+        Development,
+        Default
     }
 
-    public static string GetUrl(this BackendEnvironment env)
+    [Serializable]
+    public struct Environment
     {
-        switch(env)
+        public string Name;
+        public string Url;
+        public EnvironmentType Type;
+    }
+
+    public class BackendEnvironment
+    {
+        public readonly Environment[] Environments;
+        readonly Dictionary<string, Environment> _map;
+        readonly Environment _defaultEnvironment;
+        readonly Environment _productionEnvironment;
+
+        public BackendEnvironment(Environment[] envs)
         {
-        case BackendEnvironment.None:
-            return null;
-        case BackendEnvironment.JenkinsForced:
-            return JenkinsForcedUrl;
-        case BackendEnvironment.Development:
-            return DevelopmentUrl;
-        case BackendEnvironment.Production:
-            return ProductionUrl;
-        case BackendEnvironment.Test:
-            return TestUrl;
-        case BackendEnvironment.Docker:
-            return DockerUrl;
+            Environments = envs;
+            _map = new Dictionary<string, Environment>();
+            for(var i = 0; i < Environments.Length; ++i)
+            {
+                var env = Environments[i];
+                _map.Add(env.Name, env);
+
+                if(env.Type == EnvironmentType.Default)
+                {
+                    _defaultEnvironment = env;
+                }
+                else if(env.Type == EnvironmentType.Production)
+                {
+                    _productionEnvironment = env;
+                }
+            }
         }
-        return null;
+
+        string JenkinsForcedUrl
+        {
+            get
+            {
+                var environmentUrl = EnvironmentSettings.Instance.EnvironmentUrl;
+                if(!string.IsNullOrEmpty(environmentUrl))
+                {
+                    return environmentUrl;
+                }
+                return DebugUtils.IsDebugBuild ? _defaultEnvironment.Url : _productionEnvironment.Url;
+            }
+        }
+
+        public string GetUrl()
+        {
+            return JenkinsForcedUrl;
+        }
+
+        public string GetUrl(string name)
+        {
+            Environment env;
+            if(_map.TryGetValue(name, out env))
+            {
+                return env.Url;
+            }
+            return null;
+        }
     }
 }

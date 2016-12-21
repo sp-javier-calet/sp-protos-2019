@@ -219,6 +219,14 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public int CurrentSimulationStep
+        {
+            get
+            {
+                return _time / Config.SimulationStepDuration;
+            }
+        }
+
         public byte PlayerNumber;
 
         bool _externalUpdate;

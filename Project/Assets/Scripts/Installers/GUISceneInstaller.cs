@@ -2,9 +2,6 @@
 using UnityEngine;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
-using SocialPoint.Base;
-using SocialPoint.ScriptEvents;
-
 
 public class GUISceneInstaller : Installer, IInitializable
 {
@@ -16,6 +13,11 @@ public class GUISceneInstaller : Installer, IInitializable
     }
 
     public SettingsData Settings = new SettingsData();
+
+
+    public GUISceneInstaller() : base(ModuleType.Game)
+    {
+    }
 
     public override void InstallBindings()
     {

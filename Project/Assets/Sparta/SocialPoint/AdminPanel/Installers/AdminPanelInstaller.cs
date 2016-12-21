@@ -4,7 +4,7 @@ using SocialPoint.Utils;
 using SocialPoint.Profiling;
 using SocialPoint.Attributes;
 
-public class AdminPanelInstaller : Installer
+public class AdminPanelInstaller : ServiceInstaller
 {
     public override void InstallBindings()
     {

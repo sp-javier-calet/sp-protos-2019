@@ -1,7 +1,7 @@
 ﻿
 namespace SocialPoint.Extension.Helpshift
 {
-    class EmptyHelpshift : IHelpshift
+    public class EmptyHelpshift : IHelpshift
     {
         #region IHelpshift implementation
 

@@ -1,8 +1,13 @@
-using System.Collections.Generic;
+#if UNITY_ANDROID && !UNITY_EDITOR
+#define ANDROID_DEVICE
+#endif
+
+#if UNITY_ANDROID
 using System.Collections;
-using SocialPoint.ServerSync;
+using System.Collections.Generic;
 using SocialPoint.Utils;
 using UnityEngine;
+#endif
 
 namespace SocialPoint.Notifications
 {
@@ -19,9 +24,9 @@ namespace SocialPoint.Notifications
         public AndroidNotificationServices(ICoroutineRunner runner)
             : base(runner)
         {
-#if !UNITY_EDITOR
+            #if ANDROID_DEVICE
             _notifClass = new AndroidJavaClass(FullClassName);
-#endif
+            #endif
         }
 
         public override void Dispose()
@@ -73,13 +78,14 @@ namespace SocialPoint.Notifications
             {
                 float startTime = Time.unscaledTime;
                 float currentTime = startTime;
-                string pushToken = null;
-                string pushTokenError = null;
+                string pushToken = string.Empty;
+                string pushTokenError = string.Empty;
+                var delay = new WaitForSeconds(1.0f);
                 while(string.IsNullOrEmpty(pushToken) && string.IsNullOrEmpty(pushTokenError) && (currentTime - startTime) < PushTokenTimeout)
                 {
                     pushToken = _notifClass.CallStatic<string>("getNotificationToken");
                     pushTokenError = _notifClass.CallStatic<string>("getNotificationTokenError");
-                    yield return new WaitForSeconds(1.0f);
+                    yield return delay;
                     currentTime = Time.unscaledTime;
                 }
 
@@ -104,5 +110,6 @@ namespace SocialPoint.Notifications
     {
     }
 
-    #endif // UNITY_ANDROID
+    #endif
+
 }

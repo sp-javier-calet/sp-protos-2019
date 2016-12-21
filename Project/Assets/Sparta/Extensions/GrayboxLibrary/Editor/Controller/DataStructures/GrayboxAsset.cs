@@ -36,17 +36,5 @@ namespace SocialPoint.GrayboxLibrary
             this.Thumbnail = thumbnail;
             this.CreationDate = creationDate;
         }
-
     }
-
-    public enum GrayboxAssetCategory
-    {
-        Buildings,
-        Props,
-        Fx,
-        Characters,
-        Vehicles,
-        UI}
-
-    ;
 }

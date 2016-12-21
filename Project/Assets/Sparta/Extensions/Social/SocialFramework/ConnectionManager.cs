@@ -23,8 +23,9 @@ namespace SocialPoint.Social
         public float RPCTimeout = 1.0f;
     }
 
-    public static class NotificationTypeCode
+    public static class NotificationType
     {
+        public const int ChatWarning = 99;
         public const int TextMessage = 100;
 
         // Personal notifications
@@ -43,7 +44,6 @@ namespace SocialPoint.Social
         public const int BroadcastAllianceMemberLeave = 104;
         public const int BroadcastAllianceEdit = 105;
         public const int BroadcastAllianceMemberPromote = 106;
-        public const int BroadcastAllianceMemberRankChange = 111;
         public const int BroadcastAllianceOnlineMember = 308;
     }
 
@@ -280,6 +280,7 @@ namespace SocialPoint.Social
 
         public ConnectionManager(IWebSocketClient client)
         {
+            DebugUtils.Assert(client != null, "IWebsocketClient is required");
             _socket = client;
             _socket.AddDelegate(this);
             _connection = new WAMPConnection(client);
@@ -340,7 +341,7 @@ namespace SocialPoint.Social
 
         void OnGameWasLoaded()
         {
-            if(LoginData != null && LoginData.Data.Social != null)
+            if(LoginData != null && LoginData.Data != null && LoginData.Data.Social != null)
             {
                 var urls = LoginData.Data.Social.WebSocketUrls;
                 _socket.Urls = urls;

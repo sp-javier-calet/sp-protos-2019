@@ -3,7 +3,6 @@ using SocialPoint.AppEvents;
 using SocialPoint.CrossPromotion;
 using SocialPoint.Dependency;
 using SocialPoint.ServerSync;
-using SocialPoint.ServerEvents;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Locale;
 using SocialPoint.Notifications;
@@ -79,15 +78,16 @@ public class GameServicesInstaller : Installer
     GameLocalizationManager CreateLocalizationManager()
     {
         return new GameLocalizationManager(
-            Container.Resolve<IHttpClient>(),
-            Container.Resolve<IAppInfo>(),
-            Container.Resolve<Localization>(),
             Container.Resolve<LocalizeAttributeConfiguration>(),
             Container.Resolve<IEventDispatcher>());
     }
 
     void SetupLocalizationManager(GameLocalizationManager mng)
     {
+        mng.HttpClient = Container.Resolve<IHttpClient>();
+        mng.AppInfo = Container.Resolve<IAppInfo>();
+        mng.Localization = Container.Resolve<Localization>();
+
         string secretKey;
         if(Settings.EnvironmentId == EnvironmentID.dev)
         {
@@ -106,6 +106,8 @@ public class GameServicesInstaller : Installer
         mng.Location.SecretKey = secretKey;
         mng.Timeout = Settings.Timeout;
         mng.BundleDir = Settings.BundleDir;
+
+        mng.UpdateDefaultLanguage();
     }
 
     ChatRoom<PublicChatMessage> CreatePublicChatRoom()

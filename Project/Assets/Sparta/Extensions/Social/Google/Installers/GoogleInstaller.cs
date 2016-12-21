@@ -1,65 +1,79 @@
-﻿
-using System;
-using SocialPoint.Dependency;
-using SocialPoint.Social;
-using SocialPoint.Login;
-using SocialPoint.ServerEvents;
+﻿using System;
 using SocialPoint.AdminPanel;
+using SocialPoint.Dependency;
+using SocialPoint.Login;
+using SocialPoint.Utils;
+using SocialPoint.ServerEvents;
 
-public class GoogleInstaller : Installer, IInitializable
+namespace SocialPoint.Social
 {
-    [Serializable]
-    public class SettingsData
+    public class GoogleInstaller : ServiceInstaller, IInitializable
     {
-        public bool UseEmpty = false;
-        public bool LoginLink = true;
-        public bool LoginWithUi = true;
-    }
-
-    public SettingsData Settings = new SettingsData();
-
-    public override void InstallBindings()
-    {
-        #if UNITY_ANDROID
-        if(Settings.UseEmpty)
+        [Serializable]
+        public class SettingsData
         {
+            public bool UseEmpty = false;
+            public bool LoginLink = true;
+            public bool LoginWithUi = true;
+        }
+
+        public SettingsData Settings = new SettingsData();
+
+        public override void InstallBindings()
+        {
+            #if UNITY_ANDROID
+            if(Settings.UseEmpty)
+            {
+                Container.Rebind<IGoogle>().ToSingle<EmptyGoogle>();
+            }
+            else
+            {
+                Container.Bind<IInitializable>().ToInstance(this);
+
+                Container.Rebind<UnityGoogle>().ToMethod<UnityGoogle>(CreateUnityGoogle, SetupUnityGoogle);
+                Container.Rebind<IGoogle>().ToLookup<UnityGoogle>();
+                Container.Bind<IDisposable>().ToLookup<UnityGoogle>();
+            }
+            if(Settings.LoginLink)
+            {
+                Container.Bind<ILink>().ToMethod<GooglePlayLink>(CreateLoginLink);
+                Container.Bind<IDisposable>().ToLookup<GooglePlayLink>();
+            }
+            #else
             Container.Rebind<IGoogle>().ToSingle<EmptyGoogle>();
+            #endif
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGoogle>(CreateAdminPanel);
         }
-        else
-        {
-            Container.Bind<IInitializable>().ToInstance(this);
 
-            Container.RebindUnityComponent<UnityGoogle>();
-            Container.Rebind<IGoogle>().ToLookup<UnityGoogle>();
+        UnityGoogle CreateUnityGoogle()
+        {
+            return new UnityGoogle();
         }
-        if(Settings.LoginLink)
+
+        void SetupUnityGoogle(UnityGoogle google)
         {
-            Container.Bind<ILink>().ToMethod<GooglePlayLink>(CreateLoginLink);
+            google.Scheduler = Container.Resolve<IUpdateScheduler>();
         }
-        #else
-        Container.Rebind<IGoogle>().ToSingle<EmptyGoogle>();
-        #endif
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGoogle>(CreateAdminPanel);
-    }
 
-    AdminPanelGoogle CreateAdminPanel()
-    {
-        return new AdminPanelGoogle(
-            Container.Resolve<IGoogle>());
-    }
-
-    GooglePlayLink CreateLoginLink()
-    {
-        var google = Container.Resolve<IGoogle>();
-        return new GooglePlayLink(google, !Settings.LoginWithUi);
-    }        
-
-    public void Initialize()
-    { 
-        var google = Container.Resolve<IGoogle>();
-        if(google != null)
+        AdminPanelGoogle CreateAdminPanel()
         {
-            google.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;            
+            return new AdminPanelGoogle(
+                Container.Resolve<IGoogle>());
+        }
+
+        GooglePlayLink CreateLoginLink()
+        {
+            var google = Container.Resolve<IGoogle>();
+            return new GooglePlayLink(google, !Settings.LoginWithUi);
+        }
+
+        public void Initialize()
+        { 
+            var google = Container.Resolve<IGoogle>();
+            if(google != null)
+            {
+                google.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;            
+            }
         }
     }
 }
