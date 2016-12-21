@@ -1,7 +1,6 @@
-﻿using UnityEngine;
+﻿using SocialPoint.CrossPromotion;
+using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
-using SocialPoint.CrossPromotion;
 
 public class CrossPromoCellController : BaseCrossPromoCellController
 {
@@ -28,8 +27,8 @@ public class CrossPromoCellController : BaseCrossPromoCellController
     protected static float _buttonLeftMarginToCenterPercent = 0.73f;
     protected static float _buttonBottomMarginToCenterPercent = 0.2f;
 
-    private float _visibilityPointInScroll = 0.0f;
-    private float _separatorRatio = 0.0f;
+    float _visibilityPointInScroll;
+    float _separatorRatio;
 
     public override void InitCell(SocialPoint.CrossPromotion.CrossPromotionManager crossPromoManager, BaseCrossPromoPopupController popupController, int bannerId, int position)
     {
@@ -50,9 +49,7 @@ public class CrossPromoCellController : BaseCrossPromoCellController
         {
             Button button = _buttons[i];
             button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => {
-                OnClickBanner();
-            });
+            button.onClick.AddListener(OnClickBanner);
         }
     }
 
@@ -60,7 +57,7 @@ public class CrossPromoCellController : BaseCrossPromoCellController
     {
         _separatorRatio = separatorRatio;
 
-        LayoutElement cellLayout = this.GetComponent<LayoutElement>();
+        LayoutElement cellLayout = GetComponent<LayoutElement>();
         cellLayout.preferredWidth = cellLayout.minWidth = width;
         cellLayout.preferredHeight = cellLayout.minHeight = height;
 
