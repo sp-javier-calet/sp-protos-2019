@@ -2,8 +2,6 @@ using UnityEditor;
 using System.Collections;
 using System;
 
-
-
 namespace SocialPoint.TransparentBundles
 {
     [InitializeOnLoad]

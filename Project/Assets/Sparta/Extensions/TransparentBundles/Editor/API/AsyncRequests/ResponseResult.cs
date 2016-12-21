@@ -1,0 +1,22 @@
+using UnityEngine;
+using System.Collections;
+
+namespace SocialPoint.TransparentBundles
+{
+    public class ResponseResult
+    {
+        public bool Success;
+        public string Response;
+        public int StatusCode;
+        public string Message;
+
+        public ResponseResult() { }
+
+        public ResponseResult(bool success, string message, string response = "")
+        {
+            this.Success = success;
+            this.Message = message;
+            this.Response = response;
+        }
+    }
+}
