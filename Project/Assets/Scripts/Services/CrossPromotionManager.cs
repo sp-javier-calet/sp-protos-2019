@@ -19,12 +19,12 @@ public class CrossPromotionManager : SocialPoint.CrossPromotion.CrossPromotionMa
 
     private void CreateButtonCrossPromo()
     {
-        BaseCrossPromoButtonController.Create(this, "CrossPromotion/CrossPromoButton", GameObject.Find("HUD").transform);
+        BaseCrossPromoButtonController.Create(this, "uGUI/CrossPromoButton", GameObject.Find("HUD").transform);
     }
 
     private void CreatePopupCrossPromo()
     {
-        GameObject prefab = Resources.Load("CrossPromotion/PopupCrossPromo") as GameObject;
+        GameObject prefab = Resources.Load("uGUI/PopupCrossPromo") as GameObject;
         GameObject obj = GameObject.Instantiate(prefab) as GameObject;
         BaseCrossPromoPopupController crossPromoPopupController = obj.GetComponent<BaseCrossPromoPopupController>();
         _popupsController.Push(crossPromoPopupController);

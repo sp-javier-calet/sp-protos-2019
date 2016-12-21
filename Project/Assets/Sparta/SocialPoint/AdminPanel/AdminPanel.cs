@@ -39,6 +39,11 @@ namespace SocialPoint.AdminPanel
         {
             get
             {
+                if(string.IsNullOrEmpty(_defaultCategory))
+                {
+                    return null;
+                }
+
                 return GetCategoryLayout(_defaultCategory);
             }
         }
