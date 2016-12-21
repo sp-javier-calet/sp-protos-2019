@@ -66,7 +66,10 @@ namespace SocialPoint.TransparentBundles
         {
             if(!_closedProperly)
             {
-                _cancelCallback();
+                if(_cancelCallback != null)
+                {
+                    _cancelCallback();
+                }
             }
         }
 
