@@ -19,13 +19,13 @@ namespace SocialPoint.TransparentBundles
         {
             EditorApplication.update += Update;
 
-            if (target != null)
+            if(target != null)
             {
                 _dummy = (InspectorDummy)target;
                 _selectedAsset = _dummy.SelectedAsset;
             }
 
-            if (_selectedAsset != null)
+            if(_selectedAsset != null)
             {
                 _controller = EditorClientController.GetInstance();
                 _columnsSize = new float[] { 20f, 50f, 50f, 100f };
@@ -35,9 +35,14 @@ namespace SocialPoint.TransparentBundles
             _scrollPos = Vector2.zero;
         }
 
-        void OnDisable() { EditorApplication.update -= Update; }
+        void OnDisable()
+        {
+            EditorApplication.update -= Update;
+        }
 
-        protected override void OnHeaderGUI(){ }
+        protected override void OnHeaderGUI()
+        {
+        }
 
         public override void OnInspectorGUI()
         {
@@ -58,8 +63,13 @@ namespace SocialPoint.TransparentBundles
         {
             Repaint();
         }
-        
-        private enum InspectorAssetType { Dependency, Reference}
+
+        private enum InspectorAssetType
+        {
+            Dependency,
+            Reference
+
+        }
 
         private class InspectorAsset
         {
@@ -79,19 +89,23 @@ namespace SocialPoint.TransparentBundles
 
                 _references = GetAssetReferences(_selectedAsset);
                 if(_references.Count == 0)
+                {
                     _references.Add(selectedAsset);
+                }
                 _controller.SortAssets(AssetSortingMode.TypeAsc, _references);
 
                 Object assetObject = _selectedAsset.GetAssetObject();
                 _typeIcon = AssetPreview.GetMiniThumbnail(assetObject);
                 _preview = AssetPreview.GetAssetPreview(assetObject);
-                for (int counter = 0; _preview == null && counter < 10; counter++)
+                for(int counter = 0; _preview == null && counter < 10; counter++)
                 {
                     _preview = AssetPreview.GetAssetPreview(assetObject);
                     System.Threading.Thread.Sleep(20);
                 }
-                if (_preview == null)
+                if(_preview == null)
+                {
                     _preview = _typeIcon;
+                }
 
                 _shownHierarchy = new List<string>();
             }
@@ -124,12 +138,12 @@ namespace SocialPoint.TransparentBundles
                 EditorGUILayout.BeginHorizontal();
                 Bundle bundle = _controller.GetBundleFromAsset(_selectedAsset);
                 string inBuild = "";
-                if (bundle == null)
+                if(bundle == null)
                 {
                     GUILayoutUtility.GetRect(20, 20, GUILayout.ExpandWidth(false));
                     inBuild = "Asset used by Bundle";
                 }
-                else if (bundle.IsLocal)
+                else if(bundle.IsLocal)
                 {
                     Rect RecIcon = GUILayoutUtility.GetRect(20, 20, GUILayout.ExpandWidth(false));
                     GUI.DrawTexture(RecIcon, _controller.DownloadImage(Config.IconsPath + "in_build.png"));
@@ -149,8 +163,10 @@ namespace SocialPoint.TransparentBundles
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Label("", GUILayout.Width(25));
                 string size = "";
-                if (bundle != null)
+                if(bundle != null)
+                {
                     size = "Bundle Size:  " + bundle.Size + " MB";
+                }
                 GUILayout.Label(size, BundlesWindow.BodyTextStyle);
                 EditorGUILayout.EndHorizontal();
 
@@ -158,12 +174,18 @@ namespace SocialPoint.TransparentBundles
                 GUILayout.Label("", GUILayout.ExpandWidth(true));
                 EditorGUILayout.BeginVertical(GUILayout.Width(_columnsSize[3]), GUILayout.ExpandWidth(false));
                 GUILayout.Label("", GUILayout.ExpandHeight(true));
-                if (bundle == null)
+                if(bundle == null)
+                {
                     GUILayout.Label("", GUILayout.Height(22), GUILayout.Width(_columnsSize[3]));
-                else if (GUILayout.Button("↧ Download", GUILayout.Height(22), GUILayout.Width(_columnsSize[3])))
+                }
+                else if(GUILayout.Button("↧ Download", GUILayout.Height(22), GUILayout.Width(_columnsSize[3])))
+                {
                     _controller.InstanciateBundle(bundle);
-                if (GUILayout.Button("Find Asset", GUILayout.Height(22), GUILayout.Width(_columnsSize[3])))
+                }
+                if(GUILayout.Button("Find Asset", GUILayout.Height(22), GUILayout.Width(_columnsSize[3])))
+                {
                     EditorGUIUtility.PingObject(_selectedAsset.GetAssetObject());
+                }
                 GUILayout.Label("", GUILayout.Height(10));
                 EditorGUILayout.EndVertical();
                 EditorGUILayout.EndHorizontal();
@@ -175,7 +197,7 @@ namespace SocialPoint.TransparentBundles
                 GUILayout.Label("", GUILayout.Width(2));
                 EditorGUILayout.EndHorizontal();
 
-                if (_references.Count > 0)
+                if(_references.Count > 0)
                 {
                     GUILayout.Label("", GUILayout.Height(20));
 
@@ -201,16 +223,16 @@ namespace SocialPoint.TransparentBundles
 
             private void PrintHierarchy(Asset selectedAsset, List<Asset> assets, int margin = 0)
             {
-                for (int i = 0; i < assets.Count; i++)
+                for(int i = 0; i < assets.Count; i++)
                 {
                     bool isChild = IsDependencyOf(selectedAsset, assets[i]) && assets[i].Guid != selectedAsset.Guid;
                     bool isParent = IsDependencyOf(assets[i], selectedAsset);
 
-                    if (isChild || isParent)
+                    if(isChild || isParent)
                     {
                         PrintAsset(assets[i], selectedAsset, isChild, margin);
 
-                        if (!isChild || _shownHierarchy.Contains(assets[i].Name))
+                        if(!isChild || _shownHierarchy.Contains(assets[i].Name))
                         {
                             List<Asset> dependencies = GetAssetDependencies(assets[i]);
                             _controller.SortAssets(AssetSortingMode.TypeAsc, dependencies);
@@ -219,7 +241,7 @@ namespace SocialPoint.TransparentBundles
                     }
                 }
             }
-            
+
 
             private void PrintAsset(Asset asset, Asset currentAsset, bool showCollapseButton, int margin = 0)
             {
@@ -230,15 +252,21 @@ namespace SocialPoint.TransparentBundles
                 EditorGUILayout.BeginHorizontal();
 
                 if(showCollapseButton)
+                {
                     PrintCollapseButton(asset);
+                }
                 else
+                {
                     GUILayout.Label("", GUILayout.Width(15), GUILayout.Height(15));
+                }
 
                 GUILayout.Label(AssetPreview.GetMiniThumbnail(asset.GetAssetObject()), GUILayout.Width(_columnsSize[0]), GUILayout.Height(_columnsSize[0]));
                 GUIStyle buttonStyle = BundlesWindow.BodyLinkStyle;
-                if (asset.Guid == currentAsset.Guid)
+                if(asset.Guid == currentAsset.Guid)
+                {
                     buttonStyle = BundlesWindow.BodySpecialLinkStyle;
-                if (GUILayout.Button(asset.Name, buttonStyle, GUILayout.ExpandWidth(true), GUILayout.Height(20)))
+                }
+                if(GUILayout.Button(asset.Name, buttonStyle, GUILayout.ExpandWidth(true), GUILayout.Height(20)))
                 {
                     InspectorDummy inspectorDummy = ScriptableObject.CreateInstance<InspectorDummy>();
                     inspectorDummy.SelectedAsset = asset;
@@ -253,25 +281,33 @@ namespace SocialPoint.TransparentBundles
 
                 GUILayout.Label("", GUILayout.Height(1));
             }
-            
+
 
             private void PrintCollapseButton(Asset asset, Asset assetToSkip = null)
             {
                 int dependencyCount = GetAssetDependencyCount(asset, assetToSkip);
                 string collapseSymbol = "▼";
-                if (dependencyCount == 0)
+                if(dependencyCount == 0)
+                {
                     GUILayout.Label("", GUILayout.Width(15), GUILayout.Height(15));
+                }
                 else
                 {
                     bool collapsed = !_shownHierarchy.Contains(asset.Name);
-                    if (collapsed)
-                        collapseSymbol = "►";
-                    if (GUILayout.Button(collapseSymbol, BundlesWindow.NoButtonStyle, GUILayout.Width(15), GUILayout.Height(15)))
+                    if(collapsed)
                     {
-                        if (collapsed)
+                        collapseSymbol = "►";
+                    }
+                    if(GUILayout.Button(collapseSymbol, BundlesWindow.NoButtonStyle, GUILayout.Width(15), GUILayout.Height(15)))
+                    {
+                        if(collapsed)
+                        {
                             _shownHierarchy.Add(asset.Name);
+                        }
                         else
+                        {
                             _shownHierarchy.Remove(asset.Name);
+                        }
                     }
                 }
             }
@@ -281,19 +317,23 @@ namespace SocialPoint.TransparentBundles
 
             private List<Asset> GetAssetDependencies(Asset asset)
             {
-                if (_controller.DependenciesCache.ContainsKey(asset.Name))
+                if(_controller.DependenciesCache.ContainsKey(asset.Name))
+                {
                     return _controller.DependenciesCache[asset.Name];
+                }
 
                 List<Asset> dependencies = new List<Asset>();
                 string selectedAssetPath = AssetDatabase.GUIDToAssetPath(asset.Guid);
                 string[] dependencesPaths = AssetDatabase.GetDependencies(selectedAssetPath, true);
-                for (int i = 0; i < dependencesPaths.Length; i++)
+                for(int i = 0; i < dependencesPaths.Length; i++)
                 {
-                    if (selectedAssetPath != dependencesPaths[i])
+                    if(selectedAssetPath != dependencesPaths[i])
                     {
                         bool isSubDependency = IsDependency(dependencesPaths[i], dependencesPaths, selectedAssetPath);
-                        if (!isSubDependency)
+                        if(!isSubDependency)
+                        {
                             dependencies.Add(new Asset(AssetDatabase.AssetPathToGUID(dependencesPaths[i])));
+                        }
                     }
                 }
                 _controller.DependenciesCache.Add(asset.Name, dependencies);
@@ -305,12 +345,14 @@ namespace SocialPoint.TransparentBundles
             {
                 List<Asset> dependencies = GetAssetDependencies(asset);
                 int count = dependencies.Count;
-                if (assetToSkip != null)
+                if(assetToSkip != null)
                 {
-                    for (int i = 0; i < dependencies.Count; i++)
+                    for(int i = 0; i < dependencies.Count; i++)
                     {
-                        if (dependencies[i].Guid == assetToSkip.Guid)
+                        if(dependencies[i].Guid == assetToSkip.Guid)
+                        {
                             count--;
+                        }
                     }
                 }
                 return count;
@@ -319,13 +361,15 @@ namespace SocialPoint.TransparentBundles
             private bool IsDependency(string assetPath, string[] assetListPaths, string assetPathToSkip = "")
             {
                 bool isDependency = false;
-                for (int j = 0; j < assetListPaths.Length; j++)
+                for(int j = 0; j < assetListPaths.Length; j++)
                 {
-                    if (assetListPaths[j] != assetPath && assetListPaths[j] != assetPathToSkip)
+                    if(assetListPaths[j] != assetPath && assetListPaths[j] != assetPathToSkip)
                     {
                         string[] subDependencesPaths = AssetDatabase.GetDependencies(assetListPaths[j]);
-                        if (ArrayUtility.Contains(subDependencesPaths, assetPath))
+                        if(ArrayUtility.Contains(subDependencesPaths, assetPath))
+                        {
                             isDependency = true;
+                        }
                     }
                 }
                 return isDependency;
@@ -335,11 +379,15 @@ namespace SocialPoint.TransparentBundles
             {
                 string assetPath = AssetDatabase.GUIDToAssetPath(asset.Guid);
                 string[] assetListPaths = new string[assetList.Count];
-                for (int i = 0; i < assetList.Count; i++)
+                for(int i = 0; i < assetList.Count; i++)
+                {
                     assetListPaths[i] = AssetDatabase.GUIDToAssetPath(assetList[i].Guid);
+                }
                 string assetPathToSkip = "";
-                if (assetToSkip != null)
+                if(assetToSkip != null)
+                {
                     assetPathToSkip = AssetDatabase.GUIDToAssetPath(assetToSkip.Guid);
+                }
 
                 return IsDependency(assetPath, assetListPaths, assetPathToSkip);
             }
@@ -351,20 +399,22 @@ namespace SocialPoint.TransparentBundles
 
                 string[] dependencesPaths = AssetDatabase.GetDependencies(assetPath, true);
 
-                return ArrayUtility.Contains(dependencesPaths,dependencyPath);
+                return ArrayUtility.Contains(dependencesPaths, dependencyPath);
             }
 
 
 
             private List<Asset> GetAssetReferences(Asset asset, int searchLimit = 100)
             {
-                if (_controller.ReferencesCache.ContainsKey(asset.Name))
+                if(_controller.ReferencesCache.ContainsKey(asset.Name))
+                {
                     return _controller.ReferencesCache[asset.Name];
+                }
 
                 string assetName = "";
                 Dictionary<string, Asset> matches = new Dictionary<string, Asset>();
                 Object assetObject = asset.GetAssetObject();
-                if (AssetDatabase.IsMainAsset(assetObject))
+                if(AssetDatabase.IsMainAsset(assetObject))
                 {
                     string path = AssetDatabase.GetAssetPath(assetObject);
                     assetName = Path.GetFileNameWithoutExtension(path);
@@ -376,23 +426,23 @@ namespace SocialPoint.TransparentBundles
                 }
 
                 string[] allObjects = GetAllObjectsInBundles();
-                foreach (string objectToCheck in allObjects)
+                foreach(string objectToCheck in allObjects)
                 {
-                    if (assetName != objectToCheck)
+                    if(assetName != objectToCheck)
                     {
                         string[] dependencies = AssetDatabase.GetDependencies(objectToCheck);
 
-                        for (int i = 0; i < dependencies.Length; i++)
+                        for(int i = 0; i < dependencies.Length; i++)
                         {
                             string dependencyPath = dependencies[i];
-                            if (matches.Count == searchLimit)
+                            if(matches.Count == searchLimit)
                             {
                                 return new List<Asset>(matches.Values);
                             }
-                            else if (dependencyPath != null && dependencyPath.Length > 0 && Path.GetFileNameWithoutExtension(dependencyPath) == assetName)
+                            else if(dependencyPath != null && dependencyPath.Length > 0 && Path.GetFileNameWithoutExtension(dependencyPath) == assetName)
                             {
                                 Asset parent = _controller.GetAssetFromObject(AssetDatabase.LoadMainAssetAtPath(objectToCheck));
-                                if (!matches.ContainsKey(parent.Name))
+                                if(!matches.ContainsKey(parent.Name))
                                 {
                                     matches.Add(parent.Name, parent);
                                 }
@@ -411,18 +461,23 @@ namespace SocialPoint.TransparentBundles
             {
                 List<string> filteredArray = new List<string>();
                 string[] allObjects = AssetDatabase.GetAllAssetPaths();
-                foreach (string objectToCheck in allObjects)
+                for(int i = 0; i < allObjects.Length; i++)
                 {
-                    if (_controller.IsBundle(Path.GetFileNameWithoutExtension(objectToCheck)))
+                    string objectToCheck = allObjects[i];
+                    if(_controller.IsBundle(Path.GetFileNameWithoutExtension(objectToCheck)))
+                    {
                         filteredArray.Add(objectToCheck);
+                    }
                 }
                 return filteredArray.ToArray();
             }
 
             private bool IsAssetShared(Asset asset)
             {
-                if (_controller.SharedDependenciesCache.ContainsKey(asset.Name))
+                if(_controller.SharedDependenciesCache.ContainsKey(asset.Name))
+                {
                     return _controller.SharedDependenciesCache[asset.Name];
+                }
 
                 bool shared = GetAssetReferences(asset, 2).Count > 1;
                 _controller.SharedDependenciesCache.Add(asset.Name, shared);
@@ -432,10 +487,12 @@ namespace SocialPoint.TransparentBundles
             private List<Asset> GetRootParentsOnly(List<Asset> originalList, Asset assetToSkip = null)
             {
                 List<Asset> matchesFiltered = new List<Asset>();
-                for (int i = 0; i < originalList.Count; i++)
+                for(int i = 0; i < originalList.Count; i++)
                 {
-                    if (!IsDependency(originalList[i], originalList, assetToSkip))
+                    if(!IsDependency(originalList[i], originalList, assetToSkip))
+                    {
                         matchesFiltered.Add(originalList[i]);
+                    }
                 }
                 return matchesFiltered;
             }

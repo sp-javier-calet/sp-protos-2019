@@ -20,7 +20,9 @@ namespace SocialPoint.TransparentBundles
         public static Downloader GetInstance()
         {
             if(_instance == null)
+            {
                 _instance = new Downloader();
+            }
 
             return _instance;
         }
@@ -29,7 +31,9 @@ namespace SocialPoint.TransparentBundles
         public Texture2D DownloadImage(string path)
         {
             if(_downloadCache.ContainsKey(path))
+            {
                 return _downloadCache[path];
+            }
 
             Texture2D loadedTexture = new Texture2D(0, 0);
             loadedTexture.LoadImage(File.ReadAllBytes(path));

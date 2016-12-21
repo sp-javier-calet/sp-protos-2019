@@ -14,5 +14,11 @@ namespace SocialPoint.TransparentBundles
         }
     }
 
-    public enum ServerStatus { Ok, Warning, Error };
+    public enum ServerStatus
+    {
+        Ok,
+        Warning,
+        Error}
+
+    ;
 }
