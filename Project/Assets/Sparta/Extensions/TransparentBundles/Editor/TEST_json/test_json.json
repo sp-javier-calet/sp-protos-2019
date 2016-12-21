@@ -1,0 +1,100 @@
+{
+    "server":[
+		{
+			"status": "Ok",
+			"log": ""
+		}
+	],
+	"bundles": [
+        {
+            "name": "drg_air1_01_evo1_hig_prefab",
+            "size": 1.6,
+            "islocal": false,
+            "assetguid": "c9d8d00196f72fd4d9252b489e17607d",
+			"status": "Deployed",
+			"queue": [],
+			"log": ""
+        },
+		{
+            "name": "drg_air1_01_evo1_low_prefab",
+            "size": 1.2,
+            "islocal": false,
+            "assetguid": "0f833cc4b3c02ef40b07fcadc5c5f557",
+			"status": "Warning",
+			"queue": [{"operation": "Update"}],
+			"log": "The bundle has been updated because the shared asset 'DRG_Air1_01_EVO12_HIG_D' has been updated"
+        },
+		{
+            "name": "drg_air1_01_evo2_hig_prefab",
+            "size": 1.6,
+            "islocal": false,
+            "assetguid": "c4b93771f5c3cf445a022325c0dfc3f5",
+			"status": "Error",
+			"queue": [{"operation": "Create"}],
+			"log": "Bundle failed creating. Please, check that you have commited the asset to GIT."
+        },
+		{
+            "name": "drg_air1_01_evo2_low_prefab",
+            "size": 1.2,
+            "islocal": false,
+            "assetguid": "c7481322185dcf242b60ad24e0554286",
+			"status": "Processing",
+			"queue": [{"operation": "Update"}],
+			"log": ""
+        },
+		{
+            "name": "drg_air1_01_evo3_hig_prefab",
+            "size": 1.6,
+            "islocal": false,
+            "assetguid": "630ed15e1345b544a9108ecc21b63f0e",
+			"status": "Processing",
+			"queue": [{"operation": "Update"}],
+			"log": ""
+        },
+		{
+            "name": "drg_air1_01_evo3_low_prefab",
+            "size": 1.2,
+            "islocal": false,
+            "assetguid": "f6b5df65c4710c544ad34649cfa4ac87",
+			"status": "Queued",
+			"queue": [{"operation": "Remove"}],
+			"log": ""
+        },
+		{
+            "name": "drg_air1_01_evo4_hig_prefab",
+            "size": 1.6,
+            "islocal": false,
+            "assetguid": "656d20d3065882449bbea6d7b8d19ae2",
+			"status": "Processing",
+			"queue": [{"operation": "Update"}, {"operation": "AddToBuild"}],
+			"log": ""
+        },
+		{
+            "name": "drg_air1_01_evo4_low_prefab",
+            "size": 1.2,
+            "islocal": false,
+            "assetguid": "b195b3e514c9f2949a6b0439fff35895",
+			"status": "Queued",
+			"queue": [{"operation": "RemoveFromBuild"}],
+			"log": ""
+        },
+		{
+            "name": "drg_air1_01_evo5_hig_prefab",
+            "size": 0,
+            "islocal": false,
+            "assetguid": "5f891f5f6a6c37c4d93111c0609cb6f8",
+			"status": "Queued",
+			"queue": [{"operation": "Create"}],
+			"log": ""
+        },
+		{
+            "name": "drg_air1_01_evo5_low_prefab",
+            "size": 1.7,
+            "islocal": false,
+            "assetguid": "89d1d7d1183be704590ca4ea6832fc0a",
+			"status": "Deployed",
+			"queue": [],
+			"log": ""
+        }
+    ]
+}

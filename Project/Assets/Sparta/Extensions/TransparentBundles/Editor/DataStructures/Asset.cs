@@ -6,45 +6,34 @@ namespace SocialPoint.TransparentBundles
 {
     public class Asset
     {
-        public int Id = -1;
         public string Name = "";
+        public string FullName = "";
         public string Type;
         public string Guid = "";
         private Object _assetObject;
 
         public Asset(string guid)
         {
-            Id = -1;
             Guid = guid;
             Name = LoadAssetName();
+            FullName = LoadAssetFullName();
             Type = LoadAssetType();
         }
+
         public Asset(string guid, string name)
         {
-            Id = -1;
             Guid = guid;
             Name = name;
+            FullName = LoadAssetFullName();
             Type = LoadAssetType();
-        }
-        public Asset(string guid, string name, string type )
-        {
-            Id = -1;
-            Name = name;
-            Type = type;
-            Guid = guid;
-        }
-        public Asset(string guid, string name, string type, int id)
-        {
-            Id = id;
-            Name = name;
-            Type = type;
-            Guid = guid;
         }
 
         public Object GetAssetObject()
         {
-            if (_assetObject == null && Guid.Length > 0)
+            if(_assetObject == null && Guid.Length > 0)
+            {
                 _assetObject = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GUIDToAssetPath(Guid));
+            }
 
             return _assetObject;
         }
@@ -58,6 +47,12 @@ namespace SocialPoint.TransparentBundles
         {
             Name = Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(Guid));
             return Name;
+        }
+
+        public string LoadAssetFullName()
+        {
+            FullName = Path.GetFileName(AssetDatabase.GUIDToAssetPath(Guid));
+            return FullName;
         }
     }
 }
