@@ -7,32 +7,33 @@ using SocialPoint.Login;
 using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.Utils;
-using SocialPoint.Social;
 using SocialPoint.WebSockets;
 
-public class SocialFrameworkInstaller : Installer
+namespace SocialPoint.Social
 {
-    const string SocialFrameworkTag = "social_framework";
-
-    const string DefaultWAMPProtocol = "wamp.2.json";
-    const string DefaultEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8002/ws";
-
-    [Serializable]
-    public class SettingsData
+    public class SocialFrameworkInstaller : ServiceInstaller
     {
-        public string[] Endpoints = new string[] { DefaultEndpoint };
-        public string[] Protocols = new string[] { DefaultWAMPProtocol };
-    }
+        const string SocialFrameworkTag = "social_framework";
 
-    public SettingsData Settings = new SettingsData();
+        const string DefaultWAMPProtocol = "wamp.2.json";
+        const string DefaultEndpoint = "ws://sprocket-00.int.lod.laicosp.net:8002/ws";
 
-    string _httpProxy;
-    IDeviceInfo _deviceInfo;
+        [Serializable]
+        public class SettingsData
+        {
+            public string[] Endpoints = new string[] { DefaultEndpoint };
+            public string[] Protocols = new string[] { DefaultWAMPProtocol };
+        }
 
-    public override void InstallBindings()
-    {
-        _httpProxy = EditorProxy.GetProxy();
-        _deviceInfo = Container.Resolve<IDeviceInfo>();
+        public SettingsData Settings = new SettingsData();
+
+        string _httpProxy;
+        IDeviceInfo _deviceInfo;
+
+        public override void InstallBindings()
+        {
+            _httpProxy = EditorProxy.GetProxy();
+            _deviceInfo = Container.Resolve<IDeviceInfo>();
 
         // Service Installer
         if(WebSocket.IsSupported)
@@ -48,30 +49,30 @@ public class SocialFrameworkInstaller : Installer
             Container.Bind<IDisposable>().ToLookup<WebSocketSharpClient>();
         }
 
-        Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);    
-        Container.Bind<IDisposable>().ToLookup<ConnectionManager>();
+            Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);    
+            Container.Bind<IDisposable>().ToLookup<ConnectionManager>();
 
-        Container.Bind<ChatManager>().ToMethod<ChatManager>(CreateChatManager, SetupChatManager);
-        Container.Bind<IDisposable>().ToLookup<ChatManager>();
+            Container.Bind<ChatManager>().ToMethod<ChatManager>(CreateChatManager, SetupChatManager);
+            Container.Bind<IDisposable>().ToLookup<ChatManager>();
 
-        Container.Bind<AlliancesManager>().ToMethod<AlliancesManager>(CreateAlliancesManager, SetupAlliancesManager);
-        Container.Bind<IDisposable>().ToLookup<AlliancesManager>();
+            Container.Bind<AlliancesManager>().ToMethod<AlliancesManager>(CreateAlliancesManager, SetupAlliancesManager);
+            Container.Bind<IDisposable>().ToLookup<AlliancesManager>();
 
-        Container.Bind<IRankManager>().ToMethod<IRankManager>(CreateRankManager);
-        Container.Bind<IAccessTypeManager>().ToMethod<IAccessTypeManager>(CreateAccessTypeManager);
+            Container.Bind<IRankManager>().ToMethod<IRankManager>(CreateRankManager);
+            Container.Bind<IAccessTypeManager>().ToMethod<IAccessTypeManager>(CreateAccessTypeManager);
 
-        Container.Bind<AllianceDataFactory>().ToMethod<AllianceDataFactory>(CreateAlliancesDataFactory, SetupAlliancesDataFactory);
+            Container.Bind<AllianceDataFactory>().ToMethod<AllianceDataFactory>(CreateAlliancesDataFactory, SetupAlliancesDataFactory);
 
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework);
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWebSockets>(CreateAdminPanelWebSockets);
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework);
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWebSockets>(CreateAdminPanelWebSockets);
 
-        Container.Listen<IChatRoom>().WhenResolved(SetupChatRoom);
-    }
+            Container.Listen<IChatRoom>().WhenResolved(SetupChatRoom);
+        }
 
-    WebSocketClient CreateWebSocket()
-    {
-        return new WebSocketClient(Settings.Endpoints, Settings.Protocols, Container.Resolve<IUpdateScheduler>());
-    }
+        WebSocketClient CreateWebSocket()
+        {
+            return new WebSocketClient(Settings.Endpoints, Settings.Protocols, Container.Resolve<IUpdateScheduler>());
+        }
 
     WebSocketSharpClient CreateWebSocketSharp()
     {
@@ -90,84 +91,85 @@ public class SocialFrameworkInstaller : Installer
         }
     }
 
-    ConnectionManager CreateConnectionManager()
-    {
-        return new ConnectionManager(Container.Resolve<IWebSocketClient>(SocialFrameworkTag));
-    }
+        ConnectionManager CreateConnectionManager()
+        {
+            return new ConnectionManager(Container.Resolve<IWebSocketClient>(SocialFrameworkTag));
+        }
 
-    void SetupConnectionManager(ConnectionManager manager)
-    {
-        manager.AppEvents = Container.Resolve<IAppEvents>();
-        manager.Scheduler = Container.Resolve<IUpdateScheduler>();
-        manager.LoginData = Container.Resolve<ILoginData>();
-        manager.PlayerData = Container.Resolve<IPlayerData>();
-        manager.DeviceInfo = Container.Resolve<IDeviceInfo>();
-        manager.Localization = Container.Resolve<Localization>();
-    }
+        void SetupConnectionManager(ConnectionManager manager)
+        {
+            manager.AppEvents = Container.Resolve<IAppEvents>();
+            manager.Scheduler = Container.Resolve<IUpdateScheduler>();
+            manager.LoginData = Container.Resolve<ILoginData>();
+            manager.PlayerData = Container.Resolve<IPlayerData>();
+            manager.DeviceInfo = Container.Resolve<IDeviceInfo>();
+            manager.Localization = Container.Resolve<Localization>();
+        }
 
-    ChatManager CreateChatManager()
-    {
-        return new ChatManager(
-            Container.Resolve<ConnectionManager>());
-    }
+        ChatManager CreateChatManager()
+        {
+            return new ChatManager(
+                Container.Resolve<ConnectionManager>());
+        }
 
-    void SetupChatManager(ChatManager manager)
-    {
-        manager.Register(Container.ResolveList<IChatRoom>());
-    }
+        void SetupChatManager(ChatManager manager)
+        {
+            manager.Register(Container.ResolveList<IChatRoom>());
+        }
 
-    AlliancesManager CreateAlliancesManager()
-    {
-        return new AlliancesManager(
-            Container.Resolve<ConnectionManager>());
-    }
+        AlliancesManager CreateAlliancesManager()
+        {
+            return new AlliancesManager(
+                Container.Resolve<ConnectionManager>());
+        }
 
-    void SetupAlliancesManager(AlliancesManager manager)
-    {
-        manager.Factory = Container.Resolve<AllianceDataFactory>();
-        manager.LoginData = Container.Resolve<ILoginData>();
-        manager.Ranks = Container.Resolve<IRankManager>();
-        manager.AccessTypes = Container.Resolve<IAccessTypeManager>();
-    }
+        void SetupAlliancesManager(AlliancesManager manager)
+        {
+            manager.Factory = Container.Resolve<AllianceDataFactory>();
+            manager.LoginData = Container.Resolve<ILoginData>();
+            manager.Ranks = Container.Resolve<IRankManager>();
+            manager.AccessTypes = Container.Resolve<IAccessTypeManager>();
+        }
 
-    AllianceDataFactory CreateAlliancesDataFactory()
-    {
-        return new AllianceDataFactory();
-    }
+        AllianceDataFactory CreateAlliancesDataFactory()
+        {
+            return new AllianceDataFactory();
+        }
 
-    void SetupAlliancesDataFactory(AllianceDataFactory factory)
-    {
-        factory.Ranks = Container.Resolve<IRankManager>(); 
-    }
+        void SetupAlliancesDataFactory(AllianceDataFactory factory)
+        {
+            factory.Ranks = Container.Resolve<IRankManager>(); 
+        }
 
-    IRankManager CreateRankManager()
-    {
-        return new DefaultRankManager();
-    }
+        IRankManager CreateRankManager()
+        {
+            return new DefaultRankManager();
+        }
 
-    IAccessTypeManager CreateAccessTypeManager()
-    {
-        return new DefaultAccessTypeManager();
-    }
+        IAccessTypeManager CreateAccessTypeManager()
+        {
+            return new DefaultAccessTypeManager();
+        }
 
-    AdminPanelSocialFramework CreateAdminPanelSocialFramework()
-    {
-        return new AdminPanelSocialFramework(
-            Container.Resolve<ConnectionManager>(),
-            Container.Resolve<ChatManager>(),
-            Container.Resolve<AlliancesManager>());
-    }
+        AdminPanelSocialFramework CreateAdminPanelSocialFramework()
+        {
+            return new AdminPanelSocialFramework(
+                Container.Resolve<ConnectionManager>(),
+                Container.Resolve<ChatManager>(),
+                Container.Resolve<AlliancesManager>());
+        }
 
-    AdminPanelWebSockets CreateAdminPanelWebSockets()
-    {
-        return new AdminPanelWebSockets(
-            Container.Resolve<IWebSocketClient>(SocialFrameworkTag),
-            SocialFrameworkTag);
-    }
+        AdminPanelWebSockets CreateAdminPanelWebSockets()
+        {
+            return new AdminPanelWebSockets(
+                Container.Resolve<IWebSocketClient>(SocialFrameworkTag),
+                SocialFrameworkTag);
+        }
 
-    void SetupChatRoom(IChatRoom room)
-    {
-        room.ChatManager = Container.Resolve<ChatManager>();
-        room.Localization = Container.Resolve<Localization>();
+        void SetupChatRoom(IChatRoom room)
+        {
+            room.ChatManager = Container.Resolve<ChatManager>();
+            room.Localization = Container.Resolve<Localization>();
+        }
     }
 }

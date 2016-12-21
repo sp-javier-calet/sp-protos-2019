@@ -4,6 +4,7 @@ namespace SocialPoint.Dependency
 {
     public sealed class DependencyConfigurer : MonoBehaviour
     {
+        [SerializeField]
         public Installer[] Installers;
 
         void Awake()

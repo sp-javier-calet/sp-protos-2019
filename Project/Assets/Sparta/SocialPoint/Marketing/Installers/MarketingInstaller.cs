@@ -2,46 +2,51 @@
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Login;
-using SocialPoint.Marketing;
 using SocialPoint.Dependency;
 using System;
 
-public class MarketingInstaller : Installer
+namespace SocialPoint.Marketing
 {
-    [Serializable]
-    public class SettingsData
+    public class MarketingInstaller : ServiceInstaller
     {
-        public bool DebugMode;
-    }
-
-    public SettingsData Settings;
-
-    public override void InstallBindings()
-    {
-        Container.Bind<IMarketingAttributionManager>().ToMethod<IMarketingAttributionManager>(CreateMarketingAttributionManager);
-        Container.Bind<IDisposable>().ToLookup<IMarketingAttributionManager>();
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMarketing>(CreateAdminPanelMarketing);
-    }
-
-    public IMarketingAttributionManager CreateMarketingAttributionManager()
-    {
-        var manager = new SocialPointMarketingAttributionManager(Container.Resolve<IAppEvents>(), Container.Resolve<IAttrStorage>("persistent"));
-        manager.DebugMode = Settings.DebugMode;
-
-        var trackers = Container.ResolveList<IMarketingTracker>();
-        for(int i = 0; i < trackers.Count; i++)
+        [Serializable]
+        public class SettingsData
         {
-            manager.AddTracker(trackers[i]);
+            public bool DebugMode;
         }
 
-        manager.LoginData = Container.Resolve<ILoginData>();
-        return manager;
-    }
+        public SettingsData Settings;
 
-    public AdminPanelMarketing CreateAdminPanelMarketing()
-    {
-        var adminPanel = new AdminPanelMarketing(Container.Resolve<IMarketingAttributionManager>(), Container.Resolve<IAttrStorage>("persistent"));
-        return adminPanel;
+        public override void InstallBindings()
+        {
+            Container.Rebind<IMarketingAttributionManager>().ToMethod<IMarketingAttributionManager>(CreateMarketingAttributionManager, SetupMarketingAttributionManager);
+            Container.Bind<IDisposable>().ToLookup<IMarketingAttributionManager>();
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMarketing>(CreateAdminPanelMarketing);
+        }
+
+        public IMarketingAttributionManager CreateMarketingAttributionManager()
+        {
+            return new SocialPointMarketingAttributionManager(Container.Resolve<IAppEvents>(), Container.Resolve<IAttrStorage>("persistent"));
+        }
+
+        public void SetupMarketingAttributionManager(IMarketingAttributionManager manager)
+        {
+            manager.DebugMode = Settings.DebugMode;
+
+            var trackers = Container.ResolveList<IMarketingTracker>();
+            for(int i = 0; i < trackers.Count; i++)
+            {
+                manager.AddTracker(trackers[i]);
+            }
+
+            manager.LoginData = Container.Resolve<ILoginData>();
+        }
+
+        public AdminPanelMarketing CreateAdminPanelMarketing()
+        {
+            var adminPanel = new AdminPanelMarketing(Container.Resolve<IMarketingAttributionManager>(), Container.Resolve<IAttrStorage>("persistent"));
+            return adminPanel;
+        }
     }
 }
 

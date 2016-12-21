@@ -6,6 +6,9 @@ using SocialPoint.ServerSync;
 using SocialPoint.Crash;
 using SocialPoint.AdminPanel;
 using SocialPoint.ServerMessaging;
+using SocialPoint.Notifications;
+using SocialPoint.CrossPromotion;
+using SocialPoint.Network;
 
 public class EmptyBackendInstaller : Installer, IInitializable
 {
@@ -20,6 +23,7 @@ public class EmptyBackendInstaller : Installer, IInitializable
         {
             Container.Bind<IInitializable>().ToInstance(this);
             Container.Bind<ILogin>().ToMethod<EmptyLogin>(CreateEmptyLogin);
+            Container.Bind<ILoginData>().ToLookup<ILogin>();
             Container.Bind<IDisposable>().ToLookup<ILogin>();
         }
         if(!Container.HasInstalled<LoginAdminPanelInstaller>())
@@ -54,6 +58,10 @@ public class EmptyBackendInstaller : Installer, IInitializable
         if(!Container.HasBinding<GameCrossPromotionManager>())
         {
             Container.Install<CrossPromotionInstaller>();
+        }
+        if(!Container.HasBinding<IHttpClient>())
+        {
+            Container.Bind<IHttpClient>().ToLookup<IHttpClient>("internal");
         }
     }
 

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using SocialPoint.Base;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Dependency
@@ -51,8 +52,9 @@ namespace SocialPoint.Dependency
 
             if(_setup != null && _instance != null)
             {
-                _setup(_instance);
+                var setup = _setup;
                 _setup = null;
+                setup(_instance);
             }
         }
             
@@ -108,7 +110,7 @@ namespace SocialPoint.Dependency
             _initializables.Initialize();
         }
 
-        const string GlobalInstallersResource = "GlobalInstallers";
+        const string GlobalInstallersResource = "Installers/GlobalDependencyConfigurer";
 
         override protected void SingletonAwakened()
         {
@@ -123,7 +125,11 @@ namespace SocialPoint.Dependency
             var globalConfig = Resources.Load<GlobalDependencyConfigurer>(GlobalInstallersResource);
             if(globalConfig != null)
             {
-                Install(globalConfig.Installers);
+                Install(globalConfig);
+            }
+            else
+            {
+                Log.e("GlobalDependencyConfigurer asset not found");
             }
         }
             

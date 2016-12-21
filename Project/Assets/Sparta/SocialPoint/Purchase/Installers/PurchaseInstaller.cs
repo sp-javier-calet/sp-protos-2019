@@ -2,38 +2,40 @@
 using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.Network;
-using SocialPoint.Purchase;
 using SocialPoint.ServerEvents;
 using SocialPoint.ServerSync;
 using SocialPoint.Utils;
 
-public class PurchaseInstaller : Installer
+namespace SocialPoint.Purchase
 {
-    public override void InstallBindings()
+    public class PurchaseInstaller : ServiceInstaller
     {
-        Container.Rebind<IGamePurchaseStore>().ToMethod<SocialPointPurchaseStore>(CreatePurchaseStore, SetupPurchaseStore);
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelPurchase>(CreateAdminPanel);
-    }
+        public override void InstallBindings()
+        {
+            Container.Rebind<IGamePurchaseStore>().ToMethod<SocialPointPurchaseStore>(CreatePurchaseStore, SetupPurchaseStore);
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelPurchase>(CreateAdminPanel);
+        }
 
-    AdminPanelPurchase CreateAdminPanel()
-    {
-        return new AdminPanelPurchase(
-            Container.Resolve<IStoreProductSource>(),
-            Container.Resolve<IGamePurchaseStore>(),
-            Container.Resolve<ICommandQueue>());
-    }
+        AdminPanelPurchase CreateAdminPanel()
+        {
+            return new AdminPanelPurchase(
+                Container.Resolve<IStoreProductSource>(),
+                Container.Resolve<IGamePurchaseStore>(),
+                Container.Resolve<ICommandQueue>());
+        }
 
-    SocialPointPurchaseStore CreatePurchaseStore()
-    {
-        return new SocialPointPurchaseStore(
-            Container.Resolve<IHttpClient>(),
-            Container.Resolve<ICommandQueue>(),
-            Container.Resolve<NativeCallsHandler>());
-    }
+        SocialPointPurchaseStore CreatePurchaseStore()
+        {
+            return new SocialPointPurchaseStore(
+                Container.Resolve<NativeCallsHandler>());
+        }
 
-    void SetupPurchaseStore(SocialPointPurchaseStore store)
-    {
-        store.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
-        store.LoginData = Container.Resolve<ILoginData>();
+        void SetupPurchaseStore(SocialPointPurchaseStore store)
+        {
+            store.HttpClient = Container.Resolve<IHttpClient>();
+            store.CommandQueue = Container.Resolve<ICommandQueue>();
+            store.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
+            store.LoginData = Container.Resolve<ILoginData>();
+        }
     }
 }

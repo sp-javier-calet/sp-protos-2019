@@ -3,37 +3,44 @@ using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.Hardware;
 using SocialPoint.Network;
-using SocialPoint.QualityStats;
 using SocialPoint.ServerEvents;
 
-public class QualityStatsInstaller : SubInstaller
+namespace SocialPoint.QualityStats
 {
-    public override void InstallBindings()
+    public class QualityStatsInstaller : SubInstaller, IInitializable
     {
-        Container.Rebind<QualityStatsHttpClient>().ToMethod<QualityStatsHttpClient>(CreateHttpClient);
-        Container.Bind<IDisposable>().ToLookup<QualityStatsHttpClient>();
-        Container.Rebind<IHttpClient>().ToLookup<QualityStatsHttpClient>();
-        Container.Rebind<SocialPointQualityStats>().ToMethod<SocialPointQualityStats>(CreateQualityStats, SetupQualityStats);
-        Container.Bind<IDisposable>().ToLookup<SocialPointQualityStats>();
+        public override void InstallBindings()
+        {
+            Container.Rebind<QualityStatsHttpClient>().ToMethod<QualityStatsHttpClient>(CreateHttpClient);
+            Container.Bind<IDisposable>().ToLookup<QualityStatsHttpClient>();
+            Container.Rebind<IHttpClient>().ToLookup<QualityStatsHttpClient>(); //Dispose "internal"??? FIXME
+            Container.Rebind<SocialPointQualityStats>().ToMethod<SocialPointQualityStats>(CreateQualityStats, SetupQualityStats);
+            Container.Bind<IDisposable>().ToLookup<SocialPointQualityStats>();
 
-        Container.Resolve<SocialPointQualityStats>();
-    }
+            Container.Bind<IInitializable>().ToInstance(this);
+        }
 
-    SocialPointQualityStats CreateQualityStats()
-    {
-        return new SocialPointQualityStats(
-            Container.Resolve<IDeviceInfo>(),
-            Container.Resolve<IAppEvents>());
-    }
+        SocialPointQualityStats CreateQualityStats()
+        {
+            return new SocialPointQualityStats(
+                Container.Resolve<IDeviceInfo>(),
+                Container.Resolve<IAppEvents>());
+        }
 
-    void SetupQualityStats(SocialPointQualityStats stats)
-    {
-        stats.AddQualityStatsHttpClient(Container.Resolve<QualityStatsHttpClient>());
-        stats.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
-    }
+        void SetupQualityStats(SocialPointQualityStats stats)
+        {
+            stats.AddQualityStatsHttpClient(Container.Resolve<QualityStatsHttpClient>());
+            stats.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
+        }
 
-    QualityStatsHttpClient CreateHttpClient()
-    {
-        return new QualityStatsHttpClient(Container.Resolve<IHttpClient>("internal"));
+        QualityStatsHttpClient CreateHttpClient()
+        {
+            return new QualityStatsHttpClient(Container.Resolve<IHttpClient>("internal"));
+        }
+
+        public void Initialize()
+        {
+            Container.Resolve<SocialPointQualityStats>();
+        }
     }
 }
