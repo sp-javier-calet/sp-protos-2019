@@ -1,4 +1,7 @@
-﻿namespace SocialPoint.Geometry
+﻿using System;
+using SocialPoint.Utils;
+
+namespace SocialPoint.Geometry
 {
     public partial struct Vector
     {
@@ -71,29 +74,30 @@
 
         public override int GetHashCode()
         {
-            return X.GetHashCode() ^ Y.GetHashCode() ^ Z.GetHashCode();
+            var hash = X.GetHashCode();
+            CryptographyUtils.HashCombine(hash, Y.GetHashCode());
+            CryptographyUtils.HashCombine(hash, Z.GetHashCode());
+            return hash;
         }
 
         public override bool Equals(object obj)
         {
-            if (!(obj is Vector)) return false;
-            Vector other = (Vector)obj;
-
-            return (((X == other.X) && (Y == other.Y)) && (Z == other.Z));
+            if(!(obj is Vector))
+            {
+                return false;
+            }
+            var other = (Vector)obj;
+            return (Math.Abs(X - other.X) <= float.Epsilon) && (Math.Abs(Y - other.Y) <= float.Epsilon) && (Math.Abs(Z - other.Z) <= float.Epsilon);
         }
 
         public static bool operator ==(Vector value1, Vector value2)
         {
-            return (((value1.X == value2.X) && (value1.Y == value2.Y)) && (value1.Z == value2.Z));
+            return (Math.Abs(value1.X - value2.X) <= float.Epsilon) && (Math.Abs(value1.Y - value2.Y) <= float.Epsilon) && (Math.Abs(value1.Z - value2.Z) <= float.Epsilon);
         }
 
         public static bool operator !=(Vector value1, Vector value2)
         {
-            if ((value1.X == value2.X) && (value1.Y == value2.Y))
-            {
-                return (value1.Z != value2.Z);
-            }
-            return true;
+            return (Math.Abs(value1.X - value2.X) > float.Epsilon) || (Math.Abs(value1.Y - value2.Y) > float.Epsilon) || (Math.Abs(value1.Z - value2.Z) > float.Epsilon);
         }
 
         public override string ToString()

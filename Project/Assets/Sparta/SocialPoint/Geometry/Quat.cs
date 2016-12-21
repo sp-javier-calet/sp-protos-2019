@@ -1,4 +1,7 @@
-﻿namespace SocialPoint.Geometry
+﻿using System;
+using SocialPoint.Utils;
+
+namespace SocialPoint.Geometry
 {
     public partial struct Quat
     {
@@ -31,25 +34,32 @@
 
         public override int GetHashCode()
         {
-            return X.GetHashCode() ^ Y.GetHashCode() ^ Z.GetHashCode() ^ W.GetHashCode();
+            var hash = X.GetHashCode();
+            CryptographyUtils.HashCombine(hash, Y.GetHashCode());
+            CryptographyUtils.HashCombine(hash, Z.GetHashCode());
+            CryptographyUtils.HashCombine(hash, W.GetHashCode());
+            return hash;
         }
 
         public override bool Equals(object obj)
         {
             if(!(obj is Quat))
+            {
                 return false;
-            Quat other = (Quat)obj;
+            }
 
-            return (((X == other.X) && (Y == other.Y)) && (Z == other.Z) && (W == other.W));
+            var other = (Quat)obj;
+            return (Math.Abs(X - other.X) <= float.Epsilon) && (Math.Abs(Y - other.Y) <= float.Epsilon) && (Math.Abs(Z - other.Z) <= float.Epsilon) && (Math.Abs(W - other.W) <= float.Epsilon);
         }
+
         public static bool operator ==(Quat value1, Quat value2)
         {
-            return (((value1.X == value2.X) && (value1.Y == value2.Y)) && (value1.Z == value2.Z) && (value1.W == value2.W));
+            return (Math.Abs(value1.X - value2.X) <= float.Epsilon) && (Math.Abs(value1.Y - value2.Y) <= float.Epsilon) && (Math.Abs(value1.Z - value2.Z) <= float.Epsilon) && (Math.Abs(value1.W - value2.W) <= float.Epsilon);
         }
 
         public static bool operator !=(Quat value1, Quat value2)
         {
-            return !(value1 == value2);
+            return (Math.Abs(value1.X - value2.X) > float.Epsilon) || (Math.Abs(value1.Y - value2.Y) > float.Epsilon) || (Math.Abs(value1.Z - value2.Z) > float.Epsilon) || (Math.Abs(value1.W - value2.W) > float.Epsilon);
         }
 
         public override string ToString()
