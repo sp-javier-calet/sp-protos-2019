@@ -4,6 +4,8 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
+using System.Diagnostics;
+using System.Threading;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -14,19 +16,52 @@ namespace SocialPoint.TransparentBundles
         public Dictionary<string, List<Asset>> DependenciesCache, ReferencesCache;
         public Dictionary<string, bool> SharedDependenciesCache;
         private string _jsonPath = Application.dataPath + "/Sparta/Extensions/TransparentBundles/Editor/TEST_json/test_json.json";
-
-        /*FOR TESTING ONLY*/
         private Dictionary <string, Bundle> _bundleDictionary;
+        public ServerInfo ServerInfo;
 
         /*FOR TESTING ONLY*/
         private EditorClientController()
         {
+            //Mounts the smb folder
+            #if UNITY_EDITOR_OSX
+                if(!Directory.Exists(Config.IconsPath))
+                {
+                    ProcessStartInfo process = new ProcessStartInfo();
+                    process.WindowStyle = ProcessWindowStyle.Hidden;
+                    process.FileName = "mkdir";
+                    process.Arguments = Config.VolumePath;
+                    Process.Start(process);
+
+                    process = new ProcessStartInfo();
+                    process.WindowStyle = ProcessWindowStyle.Hidden;
+                    process.FileName = "mount_smbfs";
+                    process.Arguments = Config.SmbConnectionUrl + " " + Config.VolumePath;
+                    Process.Start(process);
+
+                    for(int i = 0; !Directory.Exists(Config.IconsPath) && i < 100; i ++)
+                    {
+                        Thread.Sleep(100);
+                        if (i == 99)
+                        {
+                            if (EditorUtility.DisplayDialog("Transparent Bundles", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE'", "Close"))
+                            {
+                                BundlesWindow.Window.Close();
+                            }
+                        }
+                    }
+                }
+            #endif
+
             DependenciesCache = new Dictionary<string, List<Asset>>();
             ReferencesCache = new Dictionary<string, List<Asset>>();
             SharedDependenciesCache = new Dictionary<string, bool>();
-            _bundleDictionary = ReadBundleListFromJSON(File.ReadAllBytes(_jsonPath));//new Dictionary<string, Bundle>();
+            byte[] jsonBytes = File.ReadAllBytes(_jsonPath);
+            _bundleDictionary = ReadBundleListFromJSON(jsonBytes);
             _downloader = Downloader.GetInstance();
-        }
+            ServerInfo = ReadServerInfoFromJSON(jsonBytes);
+    }
+
+
 
         private Dictionary<string, Bundle> ReadBundleListFromJSON(byte[] jsonBytes)
         {
@@ -34,15 +69,39 @@ namespace SocialPoint.TransparentBundles
 
             JsonAttrParser parser = new JsonAttrParser();
             Attr jsonParsed = parser.Parse(jsonBytes);
-            AttrList jsonList = jsonParsed.AsList[0].AsList;
+            AttrList jsonList = jsonParsed.AsList[1].AsList;
             for(int i = 0; i < jsonList.Count; i++)
             {
                 AttrList jsonRow = jsonList[i].AsList;
                 Asset asset = new Asset(jsonRow[3].AsValue.ToString());
-                Bundle bundle = new Bundle(jsonRow[0].AsValue.ToString(), jsonRow[1].AsValue.ToFloat(), jsonRow[2].AsValue.ToBool(), asset);
+                List<BundleOperation> operationQueue = new List<BundleOperation>();
+                AttrList jsonOperations = jsonRow[5].AsList;
+                for(int j = 0; j < jsonOperations.Count; j++)
+                {
+                    operationQueue.Add((BundleOperation)Enum.Parse(typeof(BundleOperation), jsonOperations[j].AsList[0].AsValue.ToString()));
+                }
+
+                Bundle bundle = new Bundle(jsonRow[0].AsValue.ToString(), 
+                    jsonRow[1].AsValue.ToFloat(), 
+                    jsonRow[2].AsValue.ToBool(), 
+                    asset, 
+                    (BundleStatus) Enum.Parse(typeof(BundleStatus), jsonRow[4].AsValue.ToString()),
+                    operationQueue,
+                    jsonRow[6].AsValue.ToString()
+                    );
                 bundleDictionary.Add(asset.Name, bundle);
             }
             return bundleDictionary;
+        }
+
+        private ServerInfo ReadServerInfoFromJSON(byte[] jsonBytes)
+        {
+            JsonAttrParser parser = new JsonAttrParser();
+            Attr jsonParsed = parser.Parse(jsonBytes);
+            AttrList jsonList = jsonParsed.AsList[0].AsList;
+            AttrList jsonRow = jsonList[0].AsList;
+
+            return new ServerInfo((ServerStatus) Enum.Parse(typeof(ServerStatus), jsonRow[0].AsValue.ToString()), jsonRow[1].AsValue.ToString());
         }
 
         public static EditorClientController GetInstance()
@@ -102,7 +161,7 @@ namespace SocialPoint.TransparentBundles
                 {
                     if (!HasValidDependencies(asset))
                         return;
-                    Bundle bundle = new Bundle(asset.Name.ToLower(), 2f, false, asset);
+                    Bundle bundle = new Bundle(asset.Name.ToLower(), 2f, false, asset, BundleStatus.Deployed, new List<BundleOperation>(), "");
                     _bundleDictionary.Add(asset.Name, bundle);
                 }
                 else

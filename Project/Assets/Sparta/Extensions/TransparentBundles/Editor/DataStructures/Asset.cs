@@ -7,6 +7,7 @@ namespace SocialPoint.TransparentBundles
     public class Asset
     {
         public string Name = "";
+        public string FullName = "";
         public string Type;
         public string Guid = "";
         private Object _assetObject;
@@ -15,25 +16,15 @@ namespace SocialPoint.TransparentBundles
         {
             Guid = guid;
             Name = LoadAssetName();
+            FullName = LoadAssetFullName();
             Type = LoadAssetType();
         }
         public Asset(string guid, string name)
         {
             Guid = guid;
             Name = name;
+            FullName = LoadAssetFullName();
             Type = LoadAssetType();
-        }
-        public Asset(string guid, string name, string type )
-        {
-            Name = name;
-            Type = type;
-            Guid = guid;
-        }
-        public Asset(string guid, string name, string type, int id)
-        {
-            Name = name;
-            Type = type;
-            Guid = guid;
         }
 
         public Object GetAssetObject()
@@ -52,6 +43,11 @@ namespace SocialPoint.TransparentBundles
         public string LoadAssetName()
         {
             Name = Path.GetFileNameWithoutExtension(AssetDatabase.GUIDToAssetPath(Guid));
+            return Name;
+        }
+        public string LoadAssetFullName()
+        {
+            Name = Path.GetFileName(AssetDatabase.GUIDToAssetPath(Guid));
             return Name;
         }
     }
