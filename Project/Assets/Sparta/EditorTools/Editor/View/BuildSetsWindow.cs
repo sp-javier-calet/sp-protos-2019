@@ -66,7 +66,9 @@ namespace SpartaTools.Editor.View
 
         static BuildSetApplier()
         {
-            if(AutoApply)
+            var playing = EditorApplication.isPlayingOrWillChangePlaymode;
+            var compiling = EditorApplication.isCompiling;
+            if(AutoApply && !playing && !compiling)
             {
                 float currentTime = (float)EditorApplication.timeSinceStartup;
                 var requiresApply = currentTime <= AutoApplyLastTime;
@@ -318,6 +320,7 @@ namespace SpartaTools.Editor.View
                 if(!data.IsBase)
                 {
                     config.Common.EnableAdminPanel = EditorGUILayout.Toggle(new GUIContent("Enable Admin Panel", "Enable Admin Panel features"), config.Common.EnableAdminPanel);
+                    config.Common.EnableDependencyInspection = EditorGUILayout.Toggle(new GUIContent("Enable Dependency Inspection", "Enable Dependency Inspection features"), config.Common.EnableDependencyInspection);
                     config.Common.RebuildNativePlugins = EditorGUILayout.Toggle(new GUIContent("Rebuild native plugins", "Extended Feature. Build platform plugins before build player"), config.Common.RebuildNativePlugins);
                     config.Common.IsDevelopmentBuild = EditorGUILayout.Toggle(new GUIContent("Development build", "Build as development build"), config.Common.IsDevelopmentBuild);
                     config.Common.IncludeDebugScenes = EditorGUILayout.Toggle(new GUIContent("Include debug scenes", "Include scene files starting with 'Debug'"), config.Common.IncludeDebugScenes);

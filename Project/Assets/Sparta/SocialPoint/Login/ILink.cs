@@ -15,6 +15,8 @@ namespace SocialPoint.Login
 
         void AddStateChangeDelegate(StateChangeDelegate cbk);
 
+        void ClearStateChangeDelegate();
+
         void Login(ErrorDelegate cbk);
 
         void Logout();
