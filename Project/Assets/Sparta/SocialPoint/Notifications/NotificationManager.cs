@@ -72,6 +72,8 @@ namespace SocialPoint.Notifications
             _appEvents.WasCovered += ClearNotifications;
             Services.RegisterForRemoteToken(OnPushTokenReceived);
             Reset();
+
+            DebugLog("Init");
         }
 
         virtual public void Dispose()
@@ -113,6 +115,8 @@ namespace SocialPoint.Notifications
 
         void OnPushTokenReceived(bool valid, string token)
         {
+            DebugLog("OnPushTokenReceived\n\tvalid: " + valid + "\n\ttoken: " + token);
+
             _pushTokenReceived = true;
             _pushToken = token;
             VerifyPushReady();
@@ -120,6 +124,8 @@ namespace SocialPoint.Notifications
 
         void VerifyPushReady()
         {
+            DebugLog("VerifyPushReady\n\tgameLoaded: " + _gameLoaded + "\n\tpushTokenReceived: " + _pushTokenReceived);
+
             if(_gameLoaded && _pushTokenReceived)
             {
                 SendPushToken();
@@ -135,23 +141,30 @@ namespace SocialPoint.Notifications
 
             string currentPushToken = PlayerPrefs.GetString(kPushTokenKey);
             bool userAllowedNotifications = PlayerPrefs.GetInt(kPlayerAllowsNotificationKey, 0) != 0;
+            bool userAllowsNotifications = Services.UserAllowsNofitication;
 
             bool pushTokenChanged = _pushToken != currentPushToken;
-            bool allowNotificationsChanged = userAllowedNotifications != Services.UserAllowsNofitication;
+            bool allowNotificationsChanged = userAllowedNotifications != userAllowsNotifications;
+
+            DebugLog("SendPushToken step1\n\tpushTokenChanged: " + pushTokenChanged + "\n\tallowNotificationsChanged: " + allowNotificationsChanged);
 
             if(pushTokenChanged || allowNotificationsChanged)
             {
-                string pushTokenToSend = Services.UserAllowsNofitication ? _pushToken : currentPushToken;
+                string pushTokenToSend = userAllowsNotifications ? _pushToken : currentPushToken;
+
                 if(string.IsNullOrEmpty(pushTokenToSend))
                 {
                     return;
                 }
 
-                _commandQueue.Add(new PushEnabledCommand(pushTokenToSend, Services.UserAllowsNofitication), (data, err) => {
+                DebugLog("SendPushToken step2\n\tpushToken Sent: " + pushTokenToSend);
+
+                _commandQueue.Add(new PushEnabledCommand(pushTokenToSend, userAllowsNotifications), (data, err) => {
                     if(Error.IsNullOrEmpty(err))
                     {
+                        DebugLog("SendPushToken step3\n\tPushEnabledCommand ACK OK");
                         PlayerPrefs.SetString(kPushTokenKey, _pushToken);
-                        PlayerPrefs.SetInt(kPlayerAllowsNotificationKey, Services.UserAllowsNofitication ? 1 : 0);
+                        PlayerPrefs.SetInt(kPlayerAllowsNotificationKey, userAllowsNotifications ? 1 : 0);
                         PlayerPrefs.Save();
                     }
                 });
@@ -172,6 +185,15 @@ namespace SocialPoint.Notifications
         void ClearNotifications()
         {
             Reset();
+        }
+
+
+
+        [System.Diagnostics.Conditional("DEBUG_SPNOTIFICATIONS")]
+        void DebugLog(string msg)
+        {
+            const string tag = "SocialPoint.Notifications-DebugLog";
+            Log.i(tag, msg);
         }
 
         #endregion

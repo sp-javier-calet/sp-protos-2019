@@ -3,7 +3,6 @@
 #endif
 
 #if UNITY_IOS
-using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 using SocialPoint.Utils;
@@ -128,6 +127,8 @@ namespace SocialPoint.Notifications
 
         public override void RequestPermissions()
         {
+            DebugLog("RequestPermissions");
+
             if(_checkPermissionStatusCoroutine == null)
             {
                 NotificationServices.SPUnityNotificationsRegisterForNotifications();
@@ -139,15 +140,18 @@ namespace SocialPoint.Notifications
         {
             float startTime = Time.unscaledTime;
             float currentTime = startTime;
-            string pushToken = null;
-            string registrationError = null;
+            string pushToken = string.Empty;
+            string registrationError = string.Empty;
+            var delay = new WaitForSeconds(1.0f);
             while(string.IsNullOrEmpty(pushToken) && string.IsNullOrEmpty(registrationError) && (currentTime - startTime) < PushTokenTimeout)
             {
                 pushToken = NotificationServices.SPUnityNotificationsDeviceToken();
                 registrationError = NotificationServices.SPUnityNotificationsRegistrationError();
-                yield return new WaitForSeconds(1.0f);
+                yield return delay;
                 currentTime = Time.unscaledTime;
             }
+
+            DebugLog("CheckPermissionStatus\n\tpushToken: " + pushToken + "\n\tregistrationError: " + registrationError);
 
             if(!string.IsNullOrEmpty(pushToken))
             {
@@ -161,6 +165,13 @@ namespace SocialPoint.Notifications
             }
 
             _checkPermissionStatusCoroutine = null;
+        }
+
+        [System.Diagnostics.Conditional("DEBUG_SPNOTIFICATIONS")]
+        void DebugLog(string msg)
+        {
+            const string tag = "SocialPoint.Notifications-DebugLog";
+            SocialPoint.Base.Log.i(tag, msg);
         }
     }
     

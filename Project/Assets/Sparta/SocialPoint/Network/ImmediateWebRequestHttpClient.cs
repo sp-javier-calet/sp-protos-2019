@@ -49,7 +49,11 @@ namespace SocialPoint.Network
             }
             catch(WebException ex)
             {
-                webResponse = ex.Response as HttpWebResponse; 
+                webResponse = ex.Response as HttpWebResponse;
+                if(webResponse == null)
+                {
+                    throw;
+                }
             }
             if (webResponse == null)
             {

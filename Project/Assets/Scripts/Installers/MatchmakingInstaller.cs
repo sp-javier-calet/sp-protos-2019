@@ -66,12 +66,9 @@ public class MatchmakingInstaller : Installer
     StoredMatchmakingClient CreateClient()
     {
         return new StoredMatchmakingClient(
-            new WebsocketMatchmakingClient(
+            new WampMatchmakingClient(
                 Container.Resolve<ILoginData>(),
-                new WebSocketClient(
-                    Settings.WebsocketUrls,
-                    Container.Resolve<IUpdateScheduler>()
-                )
+                Container.Resolve<SocialPoint.Social.ConnectionManager>()
             ), new AttrMatchStorage(
             Container.Resolve<IAttrStorage>("volatile")
         )

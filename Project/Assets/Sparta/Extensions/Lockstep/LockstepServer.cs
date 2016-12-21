@@ -106,6 +106,11 @@ namespace SocialPoint.Lockstep
             _lastCmdTime = 0;
             _timestamp = TimeUtils.TimestampMilliseconds;
             _turns.Clear();
+
+            if(_localClient != null)
+            {
+                _localClient.ExternalUpdate = true;
+            }
             if(_updateScheduler != null)
             {
                 _updateScheduler.Add(this);
@@ -121,6 +126,7 @@ namespace SocialPoint.Lockstep
             Running = false;
             if(_localClient != null)
             {
+                _localClient.ExternalUpdate = false;
                 _localClient.Stop();
             }
             if(_updateScheduler != null)
@@ -233,7 +239,6 @@ namespace SocialPoint.Lockstep
             if(_localClient != null)
             {
                 _localClient.CommandAdded -= AddPendingLocalClientCommand;
-                _localClient.ExternalUpdate = false;
             }
             _localClient = null;
             _localFactory = null;
@@ -246,7 +251,6 @@ namespace SocialPoint.Lockstep
             _localFactory = factory;
             _localClient.Config = Config;
             _localClient.GameParams = GameParams;
-            _localClient.ExternalUpdate = true;
             _localClient.CommandAdded += AddPendingLocalClientCommand;
         }
 

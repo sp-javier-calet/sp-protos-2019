@@ -55,6 +55,10 @@
       <Project>{4ba8ea51-7fea-4e0f-8103-386ffffd6001}</Project>
       <Name>Sparta</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Lockstep\Lockstep.csproj">
+      <Project>{f292e1d0-0fa8-4ccb-9392-bcfc8f8ff848}</Project>
+      <Name>Lockstep</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

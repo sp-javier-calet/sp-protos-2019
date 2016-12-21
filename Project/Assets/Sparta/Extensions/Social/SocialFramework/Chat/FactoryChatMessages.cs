@@ -69,7 +69,7 @@ namespace SocialPoint.Social
                 SerializeExtraInfo(message, msgInfo);
             }
 
-            var data = new MessageData();
+            var data = message.MessageData;
 
             msgInfo.SetValue(ConnectionManager.ChatMessageUuidKey, message.Uuid);
             msgInfo.SetValue(ConnectionManager.ChatMessageUserIdKey, data.PlayerId);
@@ -81,8 +81,6 @@ namespace SocialPoint.Social
             msgInfo.SetValue(ConnectionManager.ChatMessageAllyIdKey, data.AllianceId);
             msgInfo.SetValue(ConnectionManager.ChatMessageAllyAvatarKey, data.AllianceAvatarId);
             msgInfo.SetValue(ConnectionManager.ChatMessageAllyRoleKey, data.RankInAlliance);
-
-            message.MessageData = data;
 
             return msgInfo;
         }

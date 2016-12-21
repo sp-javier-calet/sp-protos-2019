@@ -13,6 +13,7 @@ namespace SocialPoint.Network
         public const bool DefaultIsOpen = true;
         public const byte DefaultMaxPlayers = 2;
         public const int DefaultPlayerTtl = 0;
+        public const int DefaultEmptyRoomTtl = 0;
         public const bool DefaultCleanupCache = true;
         public const bool DefaultPublishUserId = false;
 
@@ -20,6 +21,7 @@ namespace SocialPoint.Network
         public bool IsOpen = DefaultIsOpen;
         public byte MaxPlayers = DefaultMaxPlayers;
         public int PlayerTtl = DefaultPlayerTtl;
+        public int EmptyRoomTtl = DefaultEmptyRoomTtl;
         public bool CleanupCache = DefaultCleanupCache;
         public bool PublishUserId = DefaultPublishUserId;
         public string[] CustomProperties;
@@ -33,6 +35,7 @@ namespace SocialPoint.Network
                 IsOpen = IsOpen,
                 MaxPlayers = MaxPlayers,
                 PlayerTtl = PlayerTtl,
+                EmptyRoomTtl = EmptyRoomTtl,
                 CleanupCacheOnLeave = CleanupCache,
                 CustomRoomPropertiesForLobby = CustomLobbyProperties,
                 Plugins = Plugins,
@@ -44,16 +47,39 @@ namespace SocialPoint.Network
     [Serializable]
     public class PhotonNetworkConfig
     {
+        public const bool DefaultCreateRoom = true;
+
         public string GameVersion;
         public string RoomName;
+        public bool CreateRoom = DefaultCreateRoom;
         public CustomPhotonConfig CustomPhotonConfig = new CustomPhotonConfig();
         public PhotonNetworkRoomConfig RoomOptions = new PhotonNetworkRoomConfig();
+        public CloudRegionCode ForceRegion = CloudRegionCode.none;
+        public string ForceAppId;
+        public string ForceServer;
     }
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
     {
         public PhotonNetworkConfig Config;
-        bool _disconnecting;
+
+        protected enum ConnState
+        {
+            Disconnected,
+            Connecting,
+            Connected,
+            Disconnecting
+        }
+
+        ConnState _state = ConnState.Disconnected;
+        protected ConnState State
+        {
+            get
+            {
+                return _state;
+            }
+        }
+
 
         const int ConnectionError = 1;
         const int CreateRoomError = 2;
@@ -80,21 +106,50 @@ namespace SocialPoint.Network
 
         protected void DoConnect()
         {
-            if(!PhotonNetwork.connecting)
+            if(PhotonNetwork.connectionState != ConnectionState.Disconnected)
             {
-                DoDisconnect();
-                Config.CustomPhotonConfig.SetConfigBeforeConnection();
+                return;
+            }
+            _state = ConnState.Connecting;
+            Config.CustomPhotonConfig.SetConfigBeforeConnection();
+            if(!string.IsNullOrEmpty(Config.ForceServer) || !string.IsNullOrEmpty(Config.ForceAppId))
+            {
+                string addr = null;
+                int port = 0;
+                string appId = Config.ForceAppId;
+                StringUtils.ParseServer(Config.ForceServer, out addr, out port);
+                if(string.IsNullOrEmpty(addr))
+                {
+                    addr = PhotonNetwork.PhotonServerSettings.ServerAddress;
+                }
+                if(port == 0)
+                {
+                    port = PhotonNetwork.PhotonServerSettings.ServerPort;
+                }
+                if(string.IsNullOrEmpty(appId))
+                {
+                    appId = PhotonNetwork.PhotonServerSettings.AppID;
+                }
+                PhotonNetwork.ConnectToMaster(addr, port, appId, Config.GameVersion);
+            }
+            if(Config.ForceRegion != CloudRegionCode.none)
+            {
+                PhotonNetwork.ConnectToRegion(Config.ForceRegion, Config.GameVersion);
+            }
+            else
+            {
                 PhotonNetwork.ConnectUsingSettings(Config.GameVersion);
             }
         }
 
         protected void DoDisconnect()
         {
-            if(PhotonNetwork.connected || PhotonNetwork.connecting)
+            if(PhotonNetwork.connectionState != ConnectionState.Connected)
             {
-                _disconnecting = true;
-                PhotonNetwork.Disconnect();
+                return;
             }
+            _state = ConnState.Disconnecting;
+            PhotonNetwork.Disconnect();
         }
 
         public void Dispose()
@@ -113,7 +168,11 @@ namespace SocialPoint.Network
 
         void JoinOrCreateRoom()
         {
-            if(string.IsNullOrEmpty(Config.RoomName))
+            if(!Config.CreateRoom)
+            {
+                PhotonNetwork.JoinRoom(Config.RoomName);
+            }
+            else if(string.IsNullOrEmpty(Config.RoomName))
             {
                 PhotonNetwork.CreateRoom(Config.RoomName, PhotonRoomOptions, null);
             }
@@ -135,6 +194,10 @@ namespace SocialPoint.Network
 
         void OnConnectedToMaster()
         {
+            if(State != ConnState.Connecting)
+            {
+                return;
+            }
             if(!PhotonNetwork.autoJoinLobby)
             {
                 PhotonNetwork.JoinLobby();
@@ -143,6 +206,10 @@ namespace SocialPoint.Network
 
         void OnJoinedLobby()
         {
+            if(State != ConnState.Connecting)
+            {
+                return;
+            }
             if(string.IsNullOrEmpty(Config.RoomName))
             {
                 PhotonNetwork.JoinRandomRoom();
@@ -155,26 +222,39 @@ namespace SocialPoint.Network
 
         void OnPhotonRandomJoinFailed()
         {
-            if(!_disconnecting)
+            if(State != ConnState.Connecting)
             {
-                JoinOrCreateRoom();
+                return;
             }
+            JoinOrCreateRoom();
         }
 
         public void OnPhotonJoinRoomFailed(object[] codeAndMsg)
         {
+            if(State != ConnState.Connecting)
+            {
+                return;
+            }
             var err = new Error(ConnectionError, "Failed to join: " + StringUtils.Join(codeAndMsg, " "));
             OnNetworkError(err);
         }
 
         public void OnFailedToConnectToPhoton(DisconnectCause cause)
         {
+            if(State != ConnState.Connecting)
+            {
+                return;
+            }
             var err = new Error(ConnectionError, "Failed to connect: " + cause);
             OnNetworkError(err);
         }
 
         public void OnPhotonCreateRoomFailed(object[] codeAndMsg)
         {
+            if(State != ConnState.Connecting)
+            {
+                return;
+            }
             var err = new Error(CreateRoomError, "Failed to create room: " + StringUtils.Join(codeAndMsg, " "));
             OnNetworkError(err);
             DoDisconnect();
@@ -183,6 +263,11 @@ namespace SocialPoint.Network
 
         void OnJoinedRoom()
         {
+            if(State != ConnState.Connecting)
+            {
+                return;
+            }
+            _state = ConnState.Connected;
             PhotonNetwork.OnEventCall += OnEventReceived;
             Config.CustomPhotonConfig.SetConfigOnJoinedRoom();
             OnConnected();
@@ -190,29 +275,45 @@ namespace SocialPoint.Network
 
         void OnLeftRoom()
         {
+            if(State != ConnState.Connected)
+            {
+                return;
+            }
             PhotonNetwork.Disconnect();
         }
 
         void OnDisconnectedFromPhoton()
         {
+            if(State == ConnState.Disconnected)
+            {
+                return;
+            }
             PhotonNetwork.OnEventCall -= OnEventReceived;
-            _disconnecting = false;
+            _state = ConnState.Disconnected;
             Config.CustomPhotonConfig.RestorePhotonConfig();
             OnDisconnected();
         }
 
         void OnConnectionFail(DisconnectCause cause)
         {
+            if(State != ConnState.Connected)
+            {
+                return;
+            }
             var err = new Error(ConnectionError, "Failed to connect: " + cause);
-            _disconnecting = false;
+            _state = ConnState.Disconnected;
             OnNetworkError(err);
             OnDisconnected();
         }
 
         void OnCustomAuthenticationFailed(string debugMessage)
         {
+            if(State != ConnState.Connected)
+            {
+                return;
+            }
             var err = new Error(CustomAuthError, "Custom Authentication failed: " + debugMessage);
-            _disconnecting = false;
+            _state = ConnState.Disconnected;
             OnNetworkError(err);
             OnDisconnected();
         }
@@ -274,7 +375,7 @@ namespace SocialPoint.Network
         {
             if(eventcode == EventCode.ErrorInfo || eventcode == PhotonMsgType.Fail)
             {
-                var err = new Error((string)content);
+                var err = Error.FromString((string)content);
                 OnNetworkError(err);
                 DoDisconnect();
                 return;

@@ -68,8 +68,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y /Q "$(TargetDir)*.*" "$(SolutionDir)..\..\deploy\Plugins\LockstepPlugin\bin\"
-xcopy /Y /Q "$(TargetDir)*.*" "$(SolutionDir)..\LoadBalancing\Plugins\LockstepPlugin\bin\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y /Q "$(TargetDir)*.*" "$(SolutionDir)..\..\deploy\Plugins\AuthoritativePlugin\bin\"
+xcopy /Y /Q "$(TargetDir)*.*" "$(SolutionDir)..\LoadBalancing\Plugins\AuthoritativePlugin\bin\"</PostBuildEvent>
     <StartAction>Program</StartAction>
     <StartProgram>..\..\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
     <StartWorkingDirectory>

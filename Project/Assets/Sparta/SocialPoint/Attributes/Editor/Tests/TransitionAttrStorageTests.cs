@@ -17,7 +17,7 @@ namespace SocialPoint.Attributes
             var to = Substitute.For<IAttrStorage>();
 
             var key = "test";
-            var value = new AttrEmpty();
+            var value = new AttrString();
             from.Load(key).Returns(value);
 
 
@@ -36,7 +36,7 @@ namespace SocialPoint.Attributes
             var to = Substitute.For<IAttrStorage>();
 
             var key = "test";
-            var value = new AttrEmpty();
+            var value = new AttrString();
             from.Load(key).Returns((x) => null);
             to.Load(key).Returns(value);
             
@@ -70,7 +70,7 @@ namespace SocialPoint.Attributes
             var to = Substitute.For<IAttrStorage>();
             
             var key = "test";
-            var value = new AttrEmpty();
+            var value = new AttrString();
             var storage = new TransitionAttrStorage(from, to);
 
             storage.Save(key, value);
@@ -101,7 +101,7 @@ namespace SocialPoint.Attributes
             var to = Substitute.For<IAttrStorage>();
             
             var key = "test";
-            var value = new AttrEmpty();
+            var value = new AttrString();
             var oldFrom = new AttrInt(5);
             var storage = new TransitionAttrStorage(from, to);
 
@@ -125,7 +125,7 @@ namespace SocialPoint.Attributes
             var to = Substitute.For<IAttrStorage>();
             
             var key = "test";
-            var value = new AttrEmpty();
+            var value = new AttrString();
             var storage = new TransitionAttrStorage(from, to);
             
             from.Load(key).Returns((x) => null);
