@@ -11,13 +11,13 @@ namespace SocialPoint.TransparentBundles
     [InitializeOnLoad]
     public static class DependenciesManifest
     {
-        private static string path = Path.Combine(Application.dataPath, "DependenciesManifest.json");
+        private static string _path = Path.Combine(Application.dataPath, "DependenciesManifest.json");
 
-        public static Dictionary<string, BundleDependenciesData> manifest = new Dictionary<string, BundleDependenciesData>();
+        public static Dictionary<string, BundleDependenciesData> Manifest = new Dictionary<string, BundleDependenciesData>();
 
         static DependenciesManifest()
         {
-            if(File.Exists(path))
+            if(File.Exists(_path))
             {
                 Load();
             }
@@ -25,26 +25,26 @@ namespace SocialPoint.TransparentBundles
 
         public static void Load()
         {
-            manifest = JsonMapper.ToObject<Dictionary<string, BundleDependenciesData>>(File.ReadAllText(path));
+            Manifest = JsonMapper.ToObject<Dictionary<string, BundleDependenciesData>>(File.ReadAllText(_path));
         }
 
         public static void Save()
         {
             JsonWriter writer = new JsonWriter();
             writer.PrettyPrint = true;
-            JsonMapper.ToJson(manifest, writer);
+            JsonMapper.ToJson(Manifest, writer);
             var str = writer.ToString();
-            File.WriteAllText(path, str);
+            File.WriteAllText(_path, str);
         }
 
         public static BundleDependenciesData GetDependencyData(string GUID)
         {
-            return manifest[GUID];
+            return Manifest[GUID];
         }
 
         public static bool HasAsset(string GUID)
         {
-            return manifest.ContainsKey(GUID);
+            return Manifest.ContainsKey(GUID);
         }
 
         #region FullAssets
@@ -57,7 +57,7 @@ namespace SocialPoint.TransparentBundles
 
             if(HasAsset(GUID))
             {
-                dependenciesToRemove.AddRange(manifest[GUID].dependencies);
+                dependenciesToRemove.AddRange(Manifest[GUID].Dependencies);
             }
 
             AssignBundle(AssetDatabase.AssetPathToGUID(objPath), bundleName);
@@ -75,7 +75,7 @@ namespace SocialPoint.TransparentBundles
                 var objPath = AssetDatabase.GUIDToAssetPath(GUID);
                 List<string> dependenciesToInclude = GetListOfDependencies(objPath);
 
-                var dependenciesPropagation = manifest[GUID].dependencies;
+                var dependenciesPropagation = Manifest[GUID].Dependencies;
 
                 RemoveSingleAsset(AssetDatabase.AssetPathToGUID(objPath));
                 foreach(string assetPath in dependenciesToInclude)
@@ -96,8 +96,8 @@ namespace SocialPoint.TransparentBundles
 
             if(HasAsset(GUID))
             {
-                data = manifest[GUID];
-                listDependencies = data.dependencies;
+                data = Manifest[GUID];
+                listDependencies = data.Dependencies;
             }
             else
             {
@@ -110,22 +110,22 @@ namespace SocialPoint.TransparentBundles
                 RemoveAssetWithDependencies(GUID);
             }
 
-            data.assetPath = AssetDatabase.GUIDToAssetPath(GUID);
-            data.bundleName = bundleName;
+            data.AssetPath = AssetDatabase.GUIDToAssetPath(GUID);
+            data.BundleName = bundleName;
 
 
             if(listDependencies.Count == 0 || listDependencies.RemoveAll(x => x == bundleName) != 0)
             {
-                data.dependencies = listDependencies;
+                data.Dependencies = listDependencies;
             }
 
             if(HasAsset(GUID))
             {
-                manifest[GUID] = data;
+                Manifest[GUID] = data;
             }
             else
             {
-                manifest.Add(GUID, data);
+                Manifest.Add(GUID, data);
             }
 
         }
@@ -134,13 +134,13 @@ namespace SocialPoint.TransparentBundles
         {
             if(HasAsset(GUID))
             {
-                if(manifest[GUID].dependencies.Count == 0)
+                if(Manifest[GUID].Dependencies.Count == 0)
                 {
-                    manifest.Remove(GUID);
+                    Manifest.Remove(GUID);
                 }
                 else
                 {
-                    manifest[GUID].bundleName = string.Empty;
+                    Manifest[GUID].BundleName = string.Empty;
                 }
             }
         }
@@ -149,13 +149,13 @@ namespace SocialPoint.TransparentBundles
         {
             List<string> bundles = new List<string>();
 
-            if(manifest[GUID].IsExplicitlyBundled)
+            if(Manifest[GUID].IsExplicitlyBundled)
             {
-                bundles.Add(manifest[GUID].bundleName);
+                bundles.Add(Manifest[GUID].BundleName);
             }
             else
             {
-                foreach(string dep in manifest[GUID].dependencies)
+                foreach(string dep in Manifest[GUID].Dependencies)
                 {
                     bundles.AddRange(GetBundleIDs(dep));
                 }
@@ -169,15 +169,15 @@ namespace SocialPoint.TransparentBundles
         {
             Dictionary<string, BundleDependenciesData> parents = new Dictionary<string, BundleDependenciesData>();
 
-            if(manifest[guid].IsExplicitlyBundled)
+            if(Manifest[guid].IsExplicitlyBundled)
             {
-                parents.Add(guid, manifest[guid]);
+                parents.Add(guid, Manifest[guid]);
             }
             else
             {
-                foreach(string dep in manifest[guid].dependencies)
+                foreach(string dep in Manifest[guid].Dependencies)
                 {
-                    parents.Add(dep, manifest[dep]);
+                    parents.Add(dep, Manifest[dep]);
                 }
             }
 
@@ -195,7 +195,7 @@ namespace SocialPoint.TransparentBundles
             foreach(string str in directDependencies)
             {
                 var dependencyGUID = AssetDatabase.AssetPathToGUID(str);
-                if(!HasAsset(dependencyGUID) || !manifest[dependencyGUID].IsExplicitlyBundled)
+                if(!HasAsset(dependencyGUID) || !Manifest[dependencyGUID].IsExplicitlyBundled)
                 {
                     subdependencies = GetListOfDependencies(str);
                 }
@@ -213,8 +213,8 @@ namespace SocialPoint.TransparentBundles
 
             if(HasAsset(GUID))
             {
-                data = manifest[GUID];
-                listDependencies = data.dependencies;
+                data = Manifest[GUID];
+                listDependencies = data.Dependencies;
             }
             else
             {
@@ -230,17 +230,17 @@ namespace SocialPoint.TransparentBundles
                 listDependencies.RemoveAll(x => dependenciesToRemove.Contains(x));
             }
 
-            data.assetPath = AssetDatabase.GUIDToAssetPath(GUID);
-            data.dependencies = listDependencies;
+            data.AssetPath = AssetDatabase.GUIDToAssetPath(GUID);
+            data.Dependencies = listDependencies;
 
 
             if(HasAsset(GUID))
             {
-                manifest[GUID] = data;
+                Manifest[GUID] = data;
             }
             else
             {
-                manifest.Add(GUID, data);
+                Manifest.Add(GUID, data);
             }
         }
 
@@ -249,16 +249,16 @@ namespace SocialPoint.TransparentBundles
         {
             if(HasAsset(GUID))
             {
-                manifest[GUID].dependencies.Remove(dependency);
+                Manifest[GUID].Dependencies.Remove(dependency);
 
                 if(dependenciesToAdd != null)
                 {
-                    manifest[GUID].dependencies.AddRange(dependenciesToAdd);
+                    Manifest[GUID].Dependencies.AddRange(dependenciesToAdd);
                 }
 
-                if(!manifest[GUID].IsExplicitlyBundled && manifest[GUID].dependencies.Count == 0)
+                if(!Manifest[GUID].IsExplicitlyBundled && Manifest[GUID].Dependencies.Count == 0)
                 {
-                    manifest.Remove(GUID);
+                    Manifest.Remove(GUID);
                 }
             }
         }
@@ -271,9 +271,9 @@ namespace SocialPoint.TransparentBundles
         {
             List<string> childBundles = new List<string>();
 
-            foreach(KeyValuePair<string, BundleDependenciesData> pair in manifest)
+            foreach(KeyValuePair<string, BundleDependenciesData> pair in Manifest)
             {
-                if(pair.Value.bundleName == bundleName)
+                if(pair.Value.BundleName == bundleName)
                 {
                     childBundles.AddRange(GetChildsRecursive(pair.Value));
                 }
@@ -286,15 +286,15 @@ namespace SocialPoint.TransparentBundles
         {
             List<string> childs = new List<string>();
 
-            foreach(string str in dependencyData.dependencies)
+            foreach(string str in dependencyData.Dependencies)
             {
-                if(!manifest[str].IsExplicitlyBundled)
+                if(!Manifest[str].IsExplicitlyBundled)
                 {
-                    childs.AddRange(GetChildsRecursive(manifest[str]));
+                    childs.AddRange(GetChildsRecursive(Manifest[str]));
                 }
                 else
                 {
-                    childs.Add(manifest[str].bundleName);
+                    childs.Add(Manifest[str].BundleName);
                 }
             }
 
@@ -305,9 +305,9 @@ namespace SocialPoint.TransparentBundles
         {
             string parentBundle = "";
 
-            foreach(KeyValuePair<string, BundleDependenciesData> pair in manifest)
+            foreach(KeyValuePair<string, BundleDependenciesData> pair in Manifest)
             {
-                if(pair.Value.bundleName == bundleName)
+                if(pair.Value.BundleName == bundleName)
                 {
                     var dependencies = GetListOfDependencies(AssetDatabase.GUIDToAssetPath(pair.Key));
 
@@ -315,9 +315,9 @@ namespace SocialPoint.TransparentBundles
                     {
                         string GUID = AssetDatabase.AssetPathToGUID(str);
 
-                        if(HasAsset(GUID) && manifest[GUID].IsExplicitlyBundled)
+                        if(HasAsset(GUID) && Manifest[GUID].IsExplicitlyBundled)
                         {
-                            parentBundle = manifest[GUID].bundleName;
+                            parentBundle = Manifest[GUID].BundleName;
                         }
                     }
 
