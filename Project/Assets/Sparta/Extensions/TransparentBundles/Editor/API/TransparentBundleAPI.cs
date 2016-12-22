@@ -8,7 +8,7 @@ using UnityEditor;
 
 namespace SocialPoint.TransparentBundles
 {
-    public class TransparentBundleAPI
+    public static class TransparentBundleAPI
     {
         public class LoginOptions
         {
