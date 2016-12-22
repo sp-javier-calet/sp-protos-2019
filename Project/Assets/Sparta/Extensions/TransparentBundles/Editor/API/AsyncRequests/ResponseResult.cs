@@ -13,7 +13,7 @@ namespace SocialPoint.TransparentBundles
         {
             get
             {
-                if(!IsInternal)
+                if(IsInternal)
                 {
                     throw new System.Exception("Accessing the Status Code of a request with internal error " + Message);
                 }
