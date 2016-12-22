@@ -184,5 +184,63 @@ namespace SocialPoint.Utils
             var updateable = DoAddFixedAndAdd();
             DoRemove(updateable);
         }
+
+        [Test]
+        public void ScaledSlower()
+        {
+            var updateable = Substitute.For<IUpdateable>();
+            _scheduler.Add(updateable, true, 0.1f);
+            _scheduler.Update(0);
+            System.Threading.Thread.Sleep(200);
+            _scheduler.Update(1f);
+            updateable.Received(1).Update();
+        }
+
+        [Test]
+        public void ScaledFaster()
+        {
+            var updateable = Substitute.For<IUpdateable>();
+            _scheduler.Add(updateable, true, 0.1f);
+            _scheduler.Update(0);
+            System.Threading.Thread.Sleep(50);
+            _scheduler.Update(0.1f);
+            updateable.Received(1).Update();
+        }
+
+        [Test]
+        public void NonScaledSlower()
+        {
+            var updateable = Substitute.For<IUpdateable>();
+            _scheduler.Add(updateable, false, 0.1f);
+            _scheduler.Update(0);
+            System.Threading.Thread.Sleep(100);
+            _scheduler.Update(0.05f);
+            updateable.Received(1).Update();
+        }
+
+        [Test]
+        public void NonScaledFaster()
+        {
+            var updateable = Substitute.For<IUpdateable>();
+            _scheduler.Add(updateable, false, 0.1f);
+            _scheduler.Update(0);
+            System.Threading.Thread.Sleep(100);
+            _scheduler.Update(0.2f);
+            updateable.Received(1).Update();
+        }
+
+        [Test]
+        public void ScaledAndNonScaled()
+        {
+            var updateable0 = Substitute.For<IUpdateable>();
+            var updateable1 = Substitute.For<IUpdateable>();
+            _scheduler.Add(updateable0, false, 0.1f);
+            _scheduler.Add(updateable1, true, 0.1f);
+            _scheduler.Update(0);
+            System.Threading.Thread.Sleep(100);
+            _scheduler.Update(0.05f);
+            updateable0.Received(1).Update();
+            updateable1.Received(0).Update();
+        }
     }
 }
