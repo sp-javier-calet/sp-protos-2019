@@ -31,22 +31,37 @@ namespace SocialPoint.TransparentBundles
             EditorApplication.update += WatcherUpdate;
         }
 
-        private Queue _responseQueue = Queue.Synchronized(new Queue());
+        /// <summary>
+        /// Queue that synchronizes objects from other threads to the main thread.
+        /// </summary>
+        private Queue _syncObjectQueue = Queue.Synchronized(new Queue());
 
-        public event Action<object> OnItemQueued;
+        /// <summary>
+        /// You can attach to this event to have your class handle the synced items.
+        /// Be careful and check that the object belongs to your pipeline before using it since other processes may use this queue.
+        /// You should call once to MainThreadQueue.Instance to be sure it is initialized. [InitializeOnLoad] for your class is recommended. 
+        /// </summary>
+        public event Action<object> OnItemDequeued;
 
+        /// <summary>
+        /// Adds an item to the main thread queue
+        /// </summary>
+        /// <param name="obj">object to add to the queue</param>
         public void AddQueueItem(object obj)
         {
-            _responseQueue.Enqueue(obj);
+            _syncObjectQueue.Enqueue(obj);
         }
 
+        /// <summary>
+        /// Update attached to UnityEditor Update that checks the Queue for items and process them.
+        /// </summary>
         void WatcherUpdate()
         {
-            if(_responseQueue.Count > 0)
+            if(_syncObjectQueue.Count > 0)
             {
-                if(OnItemQueued != null)
+                if(OnItemDequeued != null)
                 {
-                    OnItemQueued(_responseQueue.Dequeue());
+                    OnItemDequeued(_syncObjectQueue.Dequeue());
                 }
             }
         }

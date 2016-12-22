@@ -21,11 +21,17 @@ namespace SocialPoint.TransparentBundles
         {
             get
             {
+                if(locked)
+                {
+                    throw new Exception("You are trying to get a Request that is in process, this is not allowed");
+                }
+
                 return _reqState.Request;
             }
         }
 
         private AsyncRequestState _reqState;
+        private bool locked = false;
 
         public HttpAsyncRequest(HttpWebRequest request, Action<ResponseResult> finishedCallback)
         {
@@ -39,8 +45,12 @@ namespace SocialPoint.TransparentBundles
             _reqState = new AsyncRequestState(request, finishedCallback);
         }
 
+        /// <summary>
+        /// Start the process of sending the request and receiving the response asynchronously. No modifications should be made to this request after this call.
+        /// </summary>
         public void Send()
         {
+            locked = true;
             if(_reqState.RequestData != null)
             {
                 _reqState.Request.BeginGetRequestStream(new AsyncCallback(GetRequestStreamCallback), _reqState);
@@ -51,6 +61,9 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
+        /// <summary>
+        /// Ends the RequestStream asynchronous process and starts the GetResponse
+        /// </summary>
         private void GetRequestStreamCallback(IAsyncResult asynchronousResult)
         {
             var state = (AsyncRequestState)asynchronousResult.AsyncState;
@@ -70,10 +83,14 @@ namespace SocialPoint.TransparentBundles
             }
             catch(Exception e)
             {
-                state.ConnectionFinished(new ResponseResult(false, e.Message));
+                EndConnection(state, new ResponseResult(false, e.Message));
             }
         }
 
+        /// <summary>
+        /// Starts the GetResponse asynchronously
+        /// </summary>
+        /// <param name="state">AsyncRequestState context</param>
         private void GetResponseAsync(AsyncRequestState state)
         {
             // Start the asynchronous operation to get the response
@@ -83,15 +100,23 @@ namespace SocialPoint.TransparentBundles
             ThreadPool.RegisterWaitForSingleObject(asyncResult.AsyncWaitHandle, new WaitOrTimerCallback(TimeoutCallback), state, TIMEOUT_MILLISECONDS, true);
         }
 
+        /// <summary>
+        /// Callback in case the get response takes too long
+        /// </summary>
+        /// <param name="stateObj">AsyncRequestState context</param>
+        /// <param name="timeOut">wether or not the request timed out</param>
         private void TimeoutCallback(object stateObj, bool timeOut)
         {
             var state = (AsyncRequestState)stateObj;
             if(timeOut)
             {
-                state.ConnectionFinished(new ResponseResult(false, "The request timed out"));
+                EndConnection(state, new ResponseResult(false, "The request timed out"));
             }
         }
 
+        /// <summary>
+        /// Ends the GetResponse and handles the result
+        /// </summary>
         private void GetResponseCallback(IAsyncResult asynchronousResult)
         {
             var state = (AsyncRequestState)asynchronousResult.AsyncState;
@@ -105,7 +130,8 @@ namespace SocialPoint.TransparentBundles
                     {
                         using(StreamReader streamRead = new StreamReader(streamResponse))
                         {
-                            rResult = new ResponseResult(true, response.StatusCode + " " + response.StatusDescription, streamRead.ReadToEnd());
+                            rResult = new ResponseResult(true, response.StatusDescription, streamRead.ReadToEnd());
+                            rResult.StatusCode = response.StatusCode;
                         }
                     }
                 }
@@ -115,12 +141,23 @@ namespace SocialPoint.TransparentBundles
                     throw new Exception("Unable to read response result for url " + state.Request.RequestUri);
                 }
 
-                state.ConnectionFinished(rResult);
+                EndConnection(state, rResult);
             }
             catch(Exception e)
             {
-                state.ConnectionFinished(new ResponseResult(false, e.Message));
+                EndConnection(state, new ResponseResult(false, e.Message));
             }
+        }
+
+        /// <summary>
+        /// Finishes the connection process for this request
+        /// </summary>
+        /// <param name="state">AsyncRequestState context object</param>
+        /// <param name="result">Result of the connection</param>
+        private void EndConnection(AsyncRequestState state, ResponseResult result)
+        {
+            locked = false;
+            state.ConnectionFinished(result);
         }
     }
 }

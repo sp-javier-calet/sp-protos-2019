@@ -18,10 +18,16 @@ namespace SocialPoint.TransparentBundles
         [MenuItem("SocialPoint/Change Login")]
         public static void ChangeLogin()
         {
-            //We just login
-            Open(()=>TransparentBundleAPI.Login());
+            //We just login without callbacks
+            Open(() => TransparentBundleAPI.Login());
         }
 
+        /// <summary>
+        /// Opens the login window and sets the callbacks
+        /// </summary>
+        /// <param name="callback">Callback executed when the login button is pressed.</param>
+        /// <param name="cancelCallback">Callback executed when exiting the window by closing it without logging</param>
+        /// <param name="errorMessage">Optional error message to display at the top of the window</param>
         public static void Open(Action callback, Action cancelCallback = null, string errorMessage = "")
         {
             var window = GetWindow<LoginWindow>(true, "Transparent Bundles Login", true);
@@ -66,6 +72,7 @@ namespace SocialPoint.TransparentBundles
         {
             if(!_closedProperly)
             {
+                //if this has been destroyed without logging first.
                 if(_cancelCallback != null)
                 {
                     _cancelCallback();
