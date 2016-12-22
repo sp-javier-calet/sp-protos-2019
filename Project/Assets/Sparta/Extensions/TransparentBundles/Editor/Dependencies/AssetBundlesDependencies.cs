@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.TransparentBundles
 {
-    public class AssetBundlesDependencies
+    public static class AssetBundlesDependencies
     {
         public static void AddAssetToBundle(string assetPath, string bundleName)
         {
