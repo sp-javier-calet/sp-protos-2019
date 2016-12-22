@@ -90,6 +90,11 @@ namespace SocialPoint.Login
             _eventStateChange += cbk;
         }
 
+        public void ClearStateChangeDelegate()
+        {
+            _eventStateChange = null;
+        }
+
         void OnStateChanged()
         {
             

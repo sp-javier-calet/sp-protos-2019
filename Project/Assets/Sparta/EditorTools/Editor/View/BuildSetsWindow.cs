@@ -66,16 +66,21 @@ namespace SpartaTools.Editor.View
 
         static BuildSetApplier()
         {
-            if(AutoApply)
+            // Remove previous event if exists
+            EditorUserBuildSettings.activeBuildTargetChanged -= OnTargetChanged;
+            EditorUserBuildSettings.activeBuildTargetChanged += OnTargetChanged;
+
+            var playing = EditorApplication.isPlayingOrWillChangePlaymode;
+            var compiling = EditorApplication.isCompiling;
+
+            if(AutoApply && !playing && !compiling)
             {
                 float currentTime = (float)EditorApplication.timeSinceStartup;
                 var requiresApply = currentTime <= AutoApplyLastTime;
 
                 if(requiresApply)
                 {
-                    var config = CurrentMode;
-                    Debug.Log(string.Format("Auto Applying BuildSet '{0}'", config));
-                    ApplyConfig(config);
+                    Reapply();
                 }
 
                 AutoApplyLastTime = currentTime;
@@ -112,9 +117,31 @@ namespace SpartaTools.Editor.View
         public static void Reapply()
         {
             var mode = CurrentMode;
-            if(AutoApply && !string.IsNullOrEmpty(mode))
+            try
             {
-                ApplyConfig(mode);
+                if(!string.IsNullOrEmpty(mode))
+                {
+                    Debug.Log(string.Format("Applying BuildSet '{0}'", mode));
+                    ApplyConfig(mode);
+                }
+                else
+                {
+                    Debug.LogWarning("No BuildSet to apply");
+                }
+            }
+            catch(FileNotFoundException e)
+            {
+                Debug.LogError(e.Message);    
+                CurrentMode = string.Empty;
+            }
+        }
+
+        static void OnTargetChanged()
+        {
+            // Reapply the current config after change target platform
+            if(AutoApply)
+            {
+                BuildSetApplier.Reapply();
             }
         }
 
@@ -145,19 +172,6 @@ namespace SpartaTools.Editor.View
             {
                 return _editEnabled;
             }
-        }
-
-        public BuildSetsWindow()
-        {
-            // Remove previous event if exists
-            EditorUserBuildSettings.activeBuildTargetChanged -= OnTargetChanged;
-            EditorUserBuildSettings.activeBuildTargetChanged += OnTargetChanged;
-        }
-
-        static void OnTargetChanged()
-        {
-            // Reapply the current config after change target platform
-            BuildSetApplier.Reapply();
         }
 
         #endregion
@@ -318,6 +332,7 @@ namespace SpartaTools.Editor.View
                 if(!data.IsBase)
                 {
                     config.Common.EnableAdminPanel = EditorGUILayout.Toggle(new GUIContent("Enable Admin Panel", "Enable Admin Panel features"), config.Common.EnableAdminPanel);
+                    config.Common.EnableDependencyInspection = EditorGUILayout.Toggle(new GUIContent("Enable Dependency Inspection", "Enable Dependency Inspection features"), config.Common.EnableDependencyInspection);
                     config.Common.RebuildNativePlugins = EditorGUILayout.Toggle(new GUIContent("Rebuild native plugins", "Extended Feature. Build platform plugins before build player"), config.Common.RebuildNativePlugins);
                     config.Common.IsDevelopmentBuild = EditorGUILayout.Toggle(new GUIContent("Development build", "Build as development build"), config.Common.IsDevelopmentBuild);
                     config.Common.IncludeDebugScenes = EditorGUILayout.Toggle(new GUIContent("Include debug scenes", "Include scene files starting with 'Debug'"), config.Common.IncludeDebugScenes);

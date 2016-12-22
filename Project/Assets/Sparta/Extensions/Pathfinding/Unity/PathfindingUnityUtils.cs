@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
 using SharpNav;
-using SharpNav.Pathfinding;
+using SocialPoint.Geometry;
 using SharpNav.Geometry;
 using UnityVector = UnityEngine.Vector3;
 using PathVector = SharpNav.Geometry.Vector3;
@@ -62,7 +61,7 @@ namespace SocialPoint.Pathfinding
             var navVectors = new PathVector[vectors.Length];
             for(int i = 0; i < vectors.Length; i++)
             {
-                navVectors[i] = vectors[i].ToPathfinding();
+                navVectors[i] = Vector.Convert(vectors[i]);
             }
             return navVectors;
         }
@@ -72,7 +71,7 @@ namespace SocialPoint.Pathfinding
             var navVectors = new UnityVector[vectors.Length];
             for(int i = 0; i < vectors.Length; i++)
             {
-                navVectors[i] = vectors[i].ToUnity();
+                navVectors[i] = Vector.Convert(vectors[i]);
             }
             return navVectors;
         }

@@ -90,9 +90,7 @@ namespace Jitter.LinearMath
         /// (float.MaxValue,float.MaxValue,float.MaxValue);
         /// </summary>
         public static readonly JVector MaxValue;
-        #endregion
 
-        #region Private static constructor
         static JVector()
         {
             One = new JVector(1, 1, 1);
@@ -108,6 +106,7 @@ namespace Jitter.LinearMath
             Arbitrary = new JVector(1, 1, 1);
             InternalZero = Zero;
         }
+
         #endregion
 
         /// <summary>

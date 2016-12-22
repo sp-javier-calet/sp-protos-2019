@@ -1,0 +1,4 @@
+name Extension/ConsolePro
+desc ConsolePro plugin adapter
+type extension
+depends_on Assets/Sparta/External/ConsolePro

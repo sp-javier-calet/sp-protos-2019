@@ -1,6 +1,7 @@
 ﻿using SocialPoint.Dependency;
 using SocialPoint.Attributes;
 using SocialPoint.ScriptEvents;
+using SocialPoint.Purchase;
 using System.Collections.Generic;
 
 public class GameModelInstaller : SubInstaller
@@ -88,9 +89,11 @@ public class GameModelInstaller : SubInstaller
 
     StoreParser CreateStoreParser()
     {
+        var storeModel = Container.Resolve<StoreModel>();
+        storeModel.PurchaseStore = Container.Resolve<IGamePurchaseStore>();
         return new StoreParser(
             Container.Resolve<PlayerModel>(),
-            Container.Resolve<StoreModel>(),
+            storeModel,
             Container.Resolve<IAttrObjParser<IDictionary<string, IReward>>>());
     }
 }

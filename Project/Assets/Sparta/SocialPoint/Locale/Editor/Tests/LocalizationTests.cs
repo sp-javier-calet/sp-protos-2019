@@ -18,7 +18,9 @@ namespace SocialPoint.Locale
             HttpClient = Substitute.For<IHttpClient>();
             var DeviceInfo = Substitute.For<UnityDeviceInfo>();
 
-            LocalizationManager = new LocalizationManager(HttpClient, DeviceInfo.AppInfo, null);
+            LocalizationManager = new LocalizationManager();
+            LocalizationManager.HttpClient = HttpClient;
+            LocalizationManager.AppInfo = DeviceInfo.AppInfo;
             LocalizationManager.Location.ProjectId = "ds";
             LocalizationManager.Location.EnvironmentId = "prod";
             LocalizationManager.Location.SecretKey = "4HKu9W2Wv4Ooolrt";
