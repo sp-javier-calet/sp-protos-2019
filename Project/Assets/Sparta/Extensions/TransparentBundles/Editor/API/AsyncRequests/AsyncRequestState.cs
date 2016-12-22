@@ -35,7 +35,7 @@ namespace SocialPoint.TransparentBundles
         }
 
         /// <summary>
-        /// This raises the callback setted when the connection process is finished. 
+        /// This raises the setted callback when the connection process is finished. 
         /// This should only be called from a MainThreadQueue attached class in order to allow Unity API calls. (WebRequestQueueHandler)
         /// </summary>
         public void RaiseCallback()
