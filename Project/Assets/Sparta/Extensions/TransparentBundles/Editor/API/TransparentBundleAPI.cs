@@ -12,11 +12,17 @@ namespace SocialPoint.TransparentBundles
     {
         public class LoginOptions
         {
-            // Wether or not we should ask the user for credentials if login fails.
+            /// <summary>
+            /// Wether or not we should ask the user for credentials if login fails.
+            /// </summary>
             public bool AutoRetryLogin = true;
-            // Callback for login success
+            /// <summary>
+            /// Callback for login success
+            /// </summary>
             public Action<RequestReport> LoginOk = null;
-            // Callback for login failure
+            /// <summary>
+            /// Callback for login failure
+            /// </summary>
             public Action<RequestReport> LoginFailed = null;
         }
 
