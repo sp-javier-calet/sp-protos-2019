@@ -1,13 +1,58 @@
 using System;
 
-public abstract class RequestArgs {
-    public Action<ResponseResult> OnSuccessCallback;
-    public Action<ResponseResult> OnFailedCallback;
-
-    public RequestArgs(Action<ResponseResult> SuccessCallback, Action<ResponseResult> FailedCallback)
+namespace SocialPoint.TransparentBundles
+{
+    public abstract class RequestArgs
     {
-        OnSuccessCallback = SuccessCallback;
-        OnFailedCallback = FailedCallback;
-    }
+        private RequestReport _requestReport;
+        public Action<RequestReport> OnSuccessCallback;
+        public Action<RequestReport> OnFailedCallback;
 
+        public RequestArgs(Action<RequestReport> SuccessCallback, Action<RequestReport> FailedCallback)
+        {
+            OnSuccessCallback = SuccessCallback;
+            OnFailedCallback = FailedCallback;
+        }
+
+        /// <summary>
+        /// Gets the result of the petition
+        /// </summary>
+        /// <returns>RequestReport of the related petition</returns>
+        public RequestReport GetRequestReport()
+        {
+            return _requestReport;
+        }
+
+        /// <summary>
+        /// Sets the result of the petition (This should only be made from the API)
+        /// </summary>
+        /// <param name="report">RequestReport of the related petition</param>
+        public void SetRequestReport(RequestReport report)
+        {
+            _requestReport = report;
+        }
+
+        /// <summary>
+        /// Updates the report with a response from the server and raises the apropriate success or failure callback
+        /// </summary>
+        /// <param name="responseResult">Response of the AsyncRequest</param>
+        public void UpdateReportAndCallback(ResponseResult responseResult)
+        {
+            if(_requestReport == null)
+            {
+                _requestReport = new RequestReport(false, false);
+            }
+
+            _requestReport.ResponseRes = responseResult;
+
+            if(responseResult != null && responseResult.Success)
+            {
+                OnSuccessCallback(_requestReport);
+            }
+            else
+            {
+                OnFailedCallback(_requestReport);
+            }
+        }
+    }
 }
