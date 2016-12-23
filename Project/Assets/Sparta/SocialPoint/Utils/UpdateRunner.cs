@@ -188,6 +188,7 @@ namespace SocialPoint.Utils
 
         public void Remove(IUpdateable elm)
         {
+            DebugUtils.Assert(elm != null);
             if(elm != null)
             {
                 _elementsToRemove.Add(elm);
@@ -196,6 +197,7 @@ namespace SocialPoint.Utils
 
         public void Remove(IDeltaUpdateable elm)
         {
+            DebugUtils.Assert(elm != null);
             if(elm != null)
             {
                 _elementsToRemove.Add(elm);
@@ -203,13 +205,21 @@ namespace SocialPoint.Utils
         }
 
         public bool Contains(IUpdateable elm)
-        {
-            return _elements.ContainsKey(elm);
+        { 
+            DebugUtils.Assert(elm != null);
+            if(elm != null)
+            {
+                return _elements.ContainsKey(elm);
+            }
         }
 
         public bool Contains(IDeltaUpdateable elm)
-        {
-            return _elements.ContainsKey(elm);
+        { 
+            DebugUtils.Assert(elm != null);
+            if(elm != null)
+            {
+                return _elements.ContainsKey(elm);
+            }
         }
 
         void DoRemove()
@@ -217,11 +227,7 @@ namespace SocialPoint.Utils
             var itr = _elementsToRemove.GetEnumerator();
             while(itr.MoveNext())
             {
-                var elm = itr.Current;
-                if(_elements.ContainsKey(elm))
-                {
-                    _elements.Remove(elm);
-                }
+                _elements.Remove(itr.Current);
             }
             itr.Dispose();
             _elementsToRemove.Clear();
