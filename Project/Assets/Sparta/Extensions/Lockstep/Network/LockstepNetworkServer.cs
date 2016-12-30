@@ -379,12 +379,9 @@ namespace SocialPoint.Lockstep
                 for(var i = 0; i < _clients.Count; i++)
                 {
                     var client = _clients[i];
-                    if(client.Ready)
-                    {
-                        ids[client.PlayerNumber] = client.PlayerId;
-                    }
+                    ids[client.PlayerNumber] = client.PlayerId;
                 }
-                if(_localClientData.Ready)
+                if(_localClient != null)
                 {
                     ids[_localClientData.PlayerNumber] = _localClientData.PlayerId;
                 }
