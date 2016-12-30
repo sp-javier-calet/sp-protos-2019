@@ -389,7 +389,11 @@ namespace AssetBundleGraph {
 				Dictionary<BuildTargetGroup, string> icons = new Dictionary<BuildTargetGroup, string> {
 					{BuildTargetGroup.Android, 		"BuildSettings.Android.Small"},
 					{BuildTargetGroup.iOS, 			"BuildSettings.iPhone.Small"},
+                    #if UNITY_5_5_OR_NEWER
+                    {BuildTargetGroup.N3DS,  "BuildSettings.N3DS.Small"},
+                    #else
 					{BuildTargetGroup.Nintendo3DS, 	"BuildSettings.N3DS.Small"},
+                    #endif
 					{BuildTargetGroup.PS3,			"BuildSettings.PS3.Small"},
 					{BuildTargetGroup.PS4, 			"BuildSettings.PS4.Small"},
 					{BuildTargetGroup.PSM, 			"BuildSettings.PSM.Small"},
