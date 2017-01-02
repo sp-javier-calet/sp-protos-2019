@@ -126,13 +126,13 @@ namespace SocialPoint.Console
             Config = config;
         }
 
-        public ConsoleCommandOption withDescription(string desc)
+        public ConsoleCommandOption WithDescription(string desc)
         {
             Description = desc;
             return this;
         }
 
-        public ConsoleCommandOption withDefaultValue(string val)
+        public ConsoleCommandOption WithDefaultValue(string val)
         {
             DefaultValue = val;
             return this;
