@@ -33,6 +33,20 @@ namespace SocialPoint.Dependency
 
         void OnEnable()
         {
+            Reload();
+            try
+            {
+                EnabledInstaller = new GUIStyle(EditorStyles.foldout);
+                DisabledInstaller = new GUIStyle(EditorStyles.foldout);
+                SetStyleColor(DisabledInstaller, Color.gray);
+            }
+            catch(NullReferenceException)
+            {
+            }
+        }
+
+        void Reload()
+        {
             var configurer = (GlobalDependencyConfigurer)target;
             var installers = Load(configurer);
             EditorUtility.SetDirty(configurer);
@@ -44,10 +58,6 @@ namespace SocialPoint.Dependency
                 var data = new InstallerData(installers[i]);
                 _installers[i] = data;
             }
-
-            EnabledInstaller = new GUIStyle(EditorStyles.foldout);
-            DisabledInstaller = new GUIStyle(EditorStyles.foldout);
-            SetStyleColor(DisabledInstaller, Color.gray);
         }
 
         static void SetStyleColor(GUIStyle style, Color color)
@@ -78,7 +88,7 @@ namespace SocialPoint.Dependency
                 {
                     if(t.IsSubclassOf(installerType) && !t.IsAbstract)
                     {
-                        InstallerAssetsManager.Create(t);
+                        InstallerAssetsManager.CreateDefault(t);
                     }
                 }
             }
@@ -87,11 +97,57 @@ namespace SocialPoint.Dependency
             return configurer.Installers;
         }
 
-        public void GUIToolbar()
+        void Duplicate(Installer installer)
+        {
+            if(!InstallerAssetsManager.Duplicate(installer))
+            {
+                Debug.LogWarning(string.Format("Could not duplicate '{0}' installer asset", installer.name));
+            }
+        }
+
+        void Delete(Installer installer)
+        {
+            if(InstallerAssetsManager.Delete(installer))
+            {
+                Reload();
+                Repaint();
+            }
+            else
+            {
+                Debug.LogWarning(string.Format("Could not delete '{0}' installer asset", installer.name));
+            }
+        }
+
+        void GUIToolbar()
         {
             _filter = EditorGUILayout.TextField("Search", _filter);
             _filterString = _filter.ToLower();
             EditorGUILayout.Space();
+        }
+
+        void GUIContextMenu(Installer installer)
+        {
+            var menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Duplicate"), false, a => Duplicate(installer), "Duplicate");
+
+            if(!installer.IsDefault)
+            {
+                menu.AddItem(new GUIContent("Delete"), false, a => Delete(installer), "Delete");
+            }
+            else
+            {
+                menu.AddDisabledItem(new GUIContent("Delete"));
+            }
+
+            menu.ShowAsContext();
+        }
+
+        static Texture ActionsIcon
+        {
+            get
+            {
+                return AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Sparta/EditorTools/Editor/EditorResources/more.icon.png");
+            }
         }
 
         public override void OnInspectorGUI()
@@ -108,7 +164,16 @@ namespace SocialPoint.Dependency
                 
                     var style = installer.IsGlobal ? EnabledInstaller : DisabledInstaller;
                     var label = string.Format("{0} - {1} installer", installer.name, installer.Type);
+
+                    GUILayout.BeginHorizontal();
                     data.Visible = EditorGUILayout.Foldout(data.Visible, label, style);
+                    GUILayout.FlexibleSpace();
+                    if(GUILayout.Button(ActionsIcon, EditorStyles.label, GUILayout.MaxWidth(15.0f)))
+                    {
+                        GUIContextMenu(data.Installer);
+                    }
+                    GUILayout.EndHorizontal();
+
                     if(data.Visible)
                     {
                         var editor = CreateEditor(installer);
