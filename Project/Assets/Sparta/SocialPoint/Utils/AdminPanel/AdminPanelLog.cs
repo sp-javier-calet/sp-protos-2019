@@ -274,6 +274,7 @@ namespace SocialPoint.Utils
         sealed class LogFloatingGUI : IFloatingPanelGUI, IAdminPanelManagedGUI
         {
             Text _textComponent;
+            string _content;
             AdminPanelLog _logPanel;
 
             public LogFloatingGUI(AdminPanelLog panel)
@@ -289,7 +290,7 @@ namespace SocialPoint.Utils
 
             public void OnCreateGUI(AdminPanelLayout layout)
             {
-                _textComponent = layout.CreateTextArea("");
+                _textComponent = layout.CreateTextArea(_content);
             }
 
             public void OnOpened()
@@ -306,7 +307,8 @@ namespace SocialPoint.Utils
             {
                 if(_textComponent != null)
                 {
-                    _textComponent.text = content;
+                    _content = content;
+                    _textComponent.text = _content;
                 }
             }
         }
