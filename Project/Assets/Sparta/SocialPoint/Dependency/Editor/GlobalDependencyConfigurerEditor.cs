@@ -142,11 +142,17 @@ namespace SocialPoint.Dependency
             menu.ShowAsContext();
         }
 
-        static Texture ActionsIcon
+        Texture _actionsIcon;
+
+        Texture ActionsIcon
         {
             get
             {
-                return AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Sparta/EditorTools/Editor/EditorResources/more.icon.png");
+                if(_actionsIcon == null)
+                {
+                    _actionsIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Sparta/EditorTools/Editor/EditorResources/more.icon.png");
+                }
+                return _actionsIcon;
             }
         }
 

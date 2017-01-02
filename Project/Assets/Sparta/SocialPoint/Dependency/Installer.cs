@@ -51,7 +51,8 @@ namespace SocialPoint.Dependency
 
         public DependencyContainer Container{ get; set; }
 
-        public bool IsDefault { 
+        public bool IsDefault
+        {
             get
             {
                 return this.GetType().Name == name;
