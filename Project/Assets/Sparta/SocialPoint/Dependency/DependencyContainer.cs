@@ -126,6 +126,7 @@ namespace SocialPoint.Dependency
             _setup = null;
             if(setup != null)
             {
+                DebugUtils.Assert(!_type.IsValueType, "Setup methods is not supported for value types");
                 _setup = result => setup((T)result);
             }
             return this;
@@ -150,8 +151,11 @@ namespace SocialPoint.Dependency
                 if(_toType == ToType.Single)
                 {
                     DependencyGraphBuilder.StartCreation(_type, null);
-                    var construct = _type.GetConstructor(new Type[]{ });
-                    _instance = (F)construct.Invoke(new object[]{ });
+                    if(!_type.IsValueType)
+                    {
+                        var construct = _type.GetConstructor(new Type[]{ });
+                        _instance = (F)construct.Invoke(new object[]{ });
+                    }
                     DependencyGraphBuilder.Finalize(_type, _instance);
                 }
                 else if(_toType == ToType.Lookup)

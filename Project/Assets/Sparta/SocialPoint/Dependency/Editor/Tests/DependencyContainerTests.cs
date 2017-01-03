@@ -21,6 +21,11 @@ namespace SocialPoint.Dependency
         }
     }
 
+    struct TestStruct
+    {
+        public int Value;
+    }
+
     class DependentService
     {
         ITestService _test;
@@ -202,6 +207,71 @@ namespace SocialPoint.Dependency
         }
 
         [Test]
+        public void ValueTypeResolveSingleTest()
+        {       
+            var container = new DependencyContainer();
+            container.Bind<TestStruct>().ToSingle<TestStruct>();
+            var resolved = container.Resolve<TestStruct>();
+            Assert.AreEqual(0, resolved.Value);
+        }
+
+        [Test]
+        public void ValueTypeResolveInstanceTest()
+        {       
+            var container = new DependencyContainer();
+            const int value = 10;
+            var instance = new TestStruct();
+            instance.Value = value;
+            container.Bind<TestStruct>().ToInstance<TestStruct>(instance);
+            var resolved = container.Resolve<TestStruct>();
+            Assert.AreEqual(value, resolved.Value);
+        }
+
+        [Test]
+        public void ValueTypeResolveMethodTest()
+        {       
+            var container = new DependencyContainer();
+            const int value = 10;
+            container.Bind<TestStruct>().ToMethod<TestStruct>(
+                () => {
+                    var instance = new TestStruct();
+                    instance.Value = value;
+                    return instance;
+                });
+            var resolved = container.Resolve<TestStruct>();
+            Assert.AreEqual(value, resolved.Value);
+        }
+
+        [Test]
+        public void ValueTypeResolveGetterTest()
+        {       
+            var container = new DependencyContainer();
+            const int value = 10;
+            var instance = new TestStruct();
+            instance.Value = value;
+            container.Bind<TestStruct>().ToInstance<TestStruct>(instance);
+            container.Bind<int>().ToGetter<TestStruct>(
+                (x) => {
+                    return x.Value;
+                });
+            var resolved = container.Resolve<int>();
+            Assert.AreEqual(value, resolved);
+        }
+
+        [Test]
+        public void ValueTypeResolveLookupTest()
+        {       
+            var container = new DependencyContainer();
+            const int value = 10;
+            var instance = new TestStruct();
+            instance.Value = value;
+            container.Bind<TestStruct>("tag").ToInstance<TestStruct>(instance);
+            container.Bind<TestStruct>().ToLookup<TestStruct>("tag");
+            var resolved = container.Resolve<TestStruct>();
+            Assert.AreEqual(value, resolved.Value);
+        }
+
+        [Test]
         public void AddBindingTest()
         {
             var container = new DependencyContainer();
@@ -354,7 +424,9 @@ namespace SocialPoint.Dependency
         {
             TestDisposable.Count = 0;
             var container = new DependencyContainer();
-            Func<TestDisposable> createDisposable = () => { return new TestDisposable(); };
+            Func<TestDisposable> createDisposable = () => {
+                return new TestDisposable();
+            };
 
             container.Rebind<TestDisposable>().ToMethod<TestDisposable>(createDisposable);
             container.Bind<IDisposable>().ToLookup<TestDisposable>();
