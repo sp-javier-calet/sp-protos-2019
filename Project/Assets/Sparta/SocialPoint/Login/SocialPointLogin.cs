@@ -639,7 +639,13 @@ namespace SocialPoint.Login
             {
                 err = new Error("Game is under maintenance.");
                 typ = ErrorType.MaintenanceMode;
-                LoadGenericData(json.Get(AttrKeyGenericData));
+
+                Attr genericDataAttr = null;
+                if(json != null)
+                {
+                    genericDataAttr = json.Get(AttrKeyGenericData);
+                }
+                LoadGenericData(genericDataAttr);
             }
             else if(resp.StatusCode == InvalidSessionError)
             {
@@ -804,6 +810,10 @@ namespace SocialPoint.Login
 
         void LoadGenericData(Attr genericData)
         {
+            if(genericData == null)
+            {
+                genericData = new AttrDic();
+            }
             if(Data == null)
             {
                 Data = new GenericData();
