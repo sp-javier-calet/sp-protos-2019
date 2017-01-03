@@ -40,9 +40,6 @@ namespace SocialPoint.IntroAnimation
         [SerializeField]
         float DelaySecsDeleteAfterLoading = 1f;
 
-        // Reference to the ortographic camera used to show the animation on the screen
-        [SerializeField] Camera IntroCamera;
-
         // Spine animation. Should play when this scene starts
         [SerializeField] SkeletonAnimation IntroAnimation;
 
