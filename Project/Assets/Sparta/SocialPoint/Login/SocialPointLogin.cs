@@ -100,6 +100,8 @@ namespace SocialPoint.Login
         const string EventNameLoginError = "errors.login_error";
         const string EventNameLinkError = "errors.link_error";
 
+        const long TrackErrorMinElapsedTime = 60;
+
         const string SignatureSeparator = ":";
         const string SignatureCodeSeparator = "-";
 
@@ -153,6 +155,10 @@ namespace SocialPoint.Login
         string _securityToken;
         bool _linkChange;
         int _linkChangeCode;
+
+        long _lastTrackedErrorTimestamp;
+        int _lastTrackedErrorCode;
+        int _lastTrackedErrorCount;
 
         public event HttpRequestDelegate HttpRequestEvent = null;
         public event NewUserDelegate NewUserEvent = null;
@@ -1449,32 +1455,8 @@ namespace SocialPoint.Login
             var signature = typeCode + SignatureSeparator + SignatureSuffix;
             data.SetValue(AttrKeySignature, signature);
 
-            if(TrackEvent != null)
-            {
-                var evData = new AttrDic();
-                var errData = new AttrDic();
-                evData.Set(AttrKeyEventError, errData);
-                var loginData = new AttrDic();
-                errData.Set(AttrKeyEventLogin, loginData);
-                loginData.SetValue(AttrKeyEventErrorType, (int)type);
-                loginData.SetValue(AttrKeyEventErrorCode, err.Code);
-                loginData.SetValue(AttrKeyEventErrorMessage, err.Msg);
-                var code = 0;
-                if(data.AsDic.ContainsKey(AttrKeyHttpCode))
-                {
-                    code = data.AsDic.GetValue(AttrKeyHttpCode).ToInt();
-                }
-                loginData.SetValue(AttrKeyEventErrorHttpCode, code);
-                loginData.Set(AttrKeyEventErrorData, data);
-                if(type.IsLinkError())
-                {
-                    TrackEvent(EventNameLinkError, evData);
-                }
-                else
-                {
-                    TrackEvent(EventNameLoginError, evData);
-                }
-            }
+            TrackError(type, err, data);
+
             if(!type.IsLinkError())
             {
                 if(ErrorEvent != null)
@@ -1489,7 +1471,58 @@ namespace SocialPoint.Login
                     LinkErrorEvent(type, err, data);
                 }
             }
+        }
 
+        void TrackError(ErrorType type, Error err, AttrDic data)
+        {
+            if(TrackEvent != null && CanTrackLoginError(err.Code))
+            {
+                var evData = new AttrDic();
+                var errData = new AttrDic();
+                evData.Set(AttrKeyEventError, errData);
+                var loginData = new AttrDic();
+                errData.Set(AttrKeyEventLogin, loginData);
+                loginData.SetValue(AttrKeyEventErrorType, (int)type);
+                loginData.SetValue(AttrKeyEventErrorCode, err.Code);
+                loginData.SetValue(AttrKeyEventErrorMessage, err.Msg);
+
+                var code = 0;
+                if(data.AsDic.ContainsKey(AttrKeyHttpCode))
+                {
+                    code = data.AsDic.GetValue(AttrKeyHttpCode).ToInt();
+                }
+                loginData.SetValue(AttrKeyEventErrorHttpCode, code);
+                loginData.Set(AttrKeyEventErrorData, data);
+
+                if(type.IsLinkError())
+                {
+                    TrackEvent(EventNameLinkError, evData);
+                }
+                else
+                {
+                    TrackEvent(EventNameLoginError, evData);
+                }
+            }
+        }
+
+        bool CanTrackLoginError(int code)
+        {
+            var now = TimeUtils.Timestamp;
+            var elapsed = now - _lastTrackedErrorTimestamp;
+            bool isErrorRepeating = (_lastTrackedErrorCode == code);
+
+            // Avoid trackign repeated errors in a defined span of time
+            if(isErrorRepeating && elapsed < TrackErrorMinElapsedTime)
+            {
+                _lastTrackedErrorCount++;
+                return false;
+            }
+
+            _lastTrackedErrorTimestamp = now;
+            _lastTrackedErrorCode = code;
+            _lastTrackedErrorCount = 0;
+
+            return true;
         }
 
         void OnAppRequestResponse(HttpResponse resp, AppRequest req, ErrorDelegate cbk)
