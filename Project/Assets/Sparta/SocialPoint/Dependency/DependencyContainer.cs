@@ -65,6 +65,7 @@ namespace SocialPoint.Dependency
         }
 
         F _instance;
+        bool _validInstance;
         ToType _toType;
         Type _type;
         string _tag;
@@ -101,6 +102,7 @@ namespace SocialPoint.Dependency
             DependencyGraphBuilder.Bind(typeof(F), typeof(T), _tag);
             _toType = ToType.Single;
             _instance = instance;
+            _validInstance = true;
             return this;
         }
 
@@ -142,7 +144,7 @@ namespace SocialPoint.Dependency
 
         public object Resolve()
         {
-            if(_instance == null)
+            if(!_validInstance)
             {
                 DependencyGraphBuilder.StartCreation(typeof(F), _tag);
                 if(_toType == ToType.Single)
@@ -171,6 +173,7 @@ namespace SocialPoint.Dependency
                     }
 
                 }
+                _validInstance = true;
                 DependencyGraphBuilder.Finalize(typeof(F), _instance);
             }
 
