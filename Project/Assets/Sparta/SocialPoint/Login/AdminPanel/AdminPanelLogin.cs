@@ -13,17 +13,22 @@ namespace SocialPoint.Login
         readonly ILogin _login;
         readonly IDictionary<string, string> _environments;
         readonly IAppEvents _appEvents;
+        readonly AdminPanelLoginForcedErrors _forcedErrorPanel;
+        readonly AdminPanelEnvironment _environmentsPanel;
 
         public AdminPanelLogin(ILogin login)
         {
             _login = login;
         }
 
-        public AdminPanelLogin(ILogin login, IDictionary<string, string> envs, IAppEvents appEvents=null):this(login)
+        public AdminPanelLogin(ILogin login, IDictionary<string, string> envs, IAppEvents appEvents = null) : this(login)
         {
             _login = login;
             _appEvents = appEvents;
             _environments = envs;
+
+            _forcedErrorPanel = new AdminPanelLoginForcedErrors(login, appEvents);
+            _environmentsPanel = new AdminPanelEnvironment(_login, _environments, _appEvents);
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -61,10 +66,12 @@ namespace SocialPoint.Login
                 {
                     layout.CreateTextArea(envInfo.ToString());
                 }
-                layout.CreateOpenPanelButton("Change environment", new AdminPanelEnvironment(_login, _environments, _appEvents));
-                layout.CreateMargin();
             }
-            
+
+            layout.CreateOpenPanelButton("Change environment", _environmentsPanel, _environments != null);
+            layout.CreateOpenPanelButton("Force Login Errors", _forcedErrorPanel);
+            layout.CreateMargin();
+
             layout.CreateLabel("Actions");
             
             layout.CreateConfirmButton("Clear Stored User", _login.ClearStoredUser);
@@ -107,10 +114,55 @@ namespace SocialPoint.Login
             layout.CreateTextArea(loginInfo.ToString());
             
             layout.CreateLabel("Link Info");
-            layout.CreateTextArea((links.Length > 0)? links.ToString() : "No links");
+            layout.CreateTextArea((links.Length > 0) ? links.ToString() : "No links");
             
             layout.CreateLabel("Friends");
-            layout.CreateVerticalScrollLayout().CreateTextArea((friends.Length > 0)? friends.ToString() : "No friends");
+            layout.CreateVerticalScrollLayout().CreateTextArea((friends.Length > 0) ? friends.ToString() : "No friends");
+        }
+            
+        public sealed class AdminPanelLoginForcedErrors : IAdminPanelGUI
+        {
+            readonly SocialPointLogin _login;
+            readonly IAppEvents _appEvents;
+
+            public AdminPanelLoginForcedErrors(ILogin login, IAppEvents appEvents)
+            {
+                _login = login as SocialPointLogin;
+                _appEvents = appEvents;
+            }
+
+            public void OnCreateGUI(AdminPanelLayout layout)
+            {
+                if(_login == null)
+                {
+                    layout.CreateLabel("Unsupported ILogin implementation");
+                    return;
+                }
+
+                layout.CreateLabel("Force Login Errors");
+                layout.CreateMargin();
+
+                var hlayout = layout.CreateHorizontalLayout();
+                hlayout.CreateFormLabel("Error Code");
+                var currentCode = _login.GetForcedErrorCode();
+                var code = string.IsNullOrEmpty(currentCode) ? "none" : currentCode;
+                hlayout.CreateTextInput(code, _login.SetForcedErrorCode);
+
+                hlayout = layout.CreateHorizontalLayout();
+                hlayout.CreateFormLabel("Error Type");
+                var currentType = _login.GetForcedErrorType();
+                var type = string.IsNullOrEmpty(currentType) ? "none" : currentType;
+                hlayout.CreateTextInput(type, _login.SetForcedErrorType);
+
+                layout.CreateButton("Clear", () => {
+                    _login.SetForcedErrorCode(null);
+                    _login.SetForcedErrorType(null);
+                    layout.Refresh();
+                });
+                
+                layout.CreateMargin();
+                layout.CreateConfirmButton("Restart Game", () => _appEvents.RestartGame());
+            }
         }
     }
 }

@@ -52,6 +52,9 @@ namespace SocialPoint.Login
         const string HttpParamLinkChange = "link_change";
         const string HttpParamLinkChangeCode = "link_change_code";
 
+        const string HttpParamForcedErrorCode = "fake_error_code";
+        const string HttpParamForcedErrorType = "fake_error_type";
+
         const string HttpParamDeviceTotalMemory = "device_total_memory";
         const string HttpParamDeviceUsedMemory = "device_used_memory";
         const string HttpParamDeviceTotalStorage = "device_total_storage";
@@ -159,6 +162,9 @@ namespace SocialPoint.Login
         long _lastTrackedErrorTimestamp;
         int _lastTrackedErrorCode;
         int _lastTrackedErrorCount;
+
+        string _forcedErrorCode = null;
+        string _forcedErrorType = null;
 
         public event HttpRequestDelegate HttpRequestEvent = null;
         public event NewUserDelegate NewUserEvent = null;
@@ -912,8 +918,8 @@ namespace SocialPoint.Login
         void OnLinkStateChanged(LinkInfo info, LinkState state)
         {
             DebugLog("OnLinkStateChanged");
-            DebugLog("OnLinkStateChanged info: "+ info);
-            DebugLog("OnLinkStateChanged state: "+ state);
+            DebugLog("OnLinkStateChanged info: " + info);
+            DebugLog("OnLinkStateChanged state: " + state);
 
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             if(ImpersonatedUserId != 0)
@@ -2024,7 +2030,48 @@ namespace SocialPoint.Login
             {
                 req.AddParam(HttpParamLinkChangeCode, new AttrInt(_linkChangeCode));
             }
+
+            AddForcedErrorRequestParams(req);
         }
+
+        #region Forced Login Errors
+
+        [System.Diagnostics.Conditional("ADMIN_PANEL")]
+        public void SetForcedErrorCode(string code)
+        {
+            _forcedErrorCode = code;
+        }
+
+        public string GetForcedErrorCode()
+        {
+            return _forcedErrorCode;
+        }
+
+        [System.Diagnostics.Conditional("ADMIN_PANEL")]
+        public void SetForcedErrorType(string type)
+        {
+            _forcedErrorType = type;
+        }
+
+        public string GetForcedErrorType()
+        {
+            return _forcedErrorType;
+        }
+
+        [System.Diagnostics.Conditional("ADMIN_PANEL")]
+        public void AddForcedErrorRequestParams(HttpRequest req)
+        {
+            if(!string.IsNullOrEmpty(_forcedErrorCode))
+            {
+                req.AddParam(HttpParamForcedErrorCode, _forcedErrorCode);
+            }
+            if(!string.IsNullOrEmpty(_forcedErrorType))
+            {
+                req.AddParam(HttpParamForcedErrorType, _forcedErrorType);
+            }
+        }
+
+        #endregion
 
         // PUBLIC
 
