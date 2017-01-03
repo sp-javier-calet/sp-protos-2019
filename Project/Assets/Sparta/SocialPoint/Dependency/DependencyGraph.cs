@@ -201,7 +201,14 @@ namespace SocialPoint.Dependency
                 Bindings.Add(type, instances);
             }
 
-            instances.Add(node.Tag, node);
+            if(!instances.ContainsKey(node.Tag))
+            {
+                instances.Add(node.Tag, node);
+            }
+            else
+            {
+                Log.w(string.Format("Multiple instance for type {0}<{1}>", type.Name, node.Tag));
+            }
         }
 
         public Node TryGetNode(Type type, string tag)
