@@ -2046,7 +2046,7 @@ namespace SocialPoint.Login
 
         #region Forced Login Errors
 
-        [System.Diagnostics.Conditional("ADMIN_PANEL")]
+        [System.Diagnostics.Conditional(AdminPanel.AdminPanel.Flag)]
         public void SetForcedErrorCode(string code)
         {
             _forcedErrorCode = code;
@@ -2057,7 +2057,7 @@ namespace SocialPoint.Login
             return _forcedErrorCode;
         }
 
-        [System.Diagnostics.Conditional("ADMIN_PANEL")]
+        [System.Diagnostics.Conditional(AdminPanel.AdminPanel.Flag)]
         public void SetForcedErrorType(string type)
         {
             _forcedErrorType = type;
@@ -2068,7 +2068,7 @@ namespace SocialPoint.Login
             return _forcedErrorType;
         }
 
-        [System.Diagnostics.Conditional("ADMIN_PANEL")]
+        [System.Diagnostics.Conditional(AdminPanel.AdminPanel.Flag)]
         public void AddForcedErrorRequestParams(HttpRequest req)
         {
             if(!string.IsNullOrEmpty(_forcedErrorCode))

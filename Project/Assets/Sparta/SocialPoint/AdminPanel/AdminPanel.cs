@@ -7,6 +7,27 @@ namespace SocialPoint.AdminPanel
 {
     public sealed class AdminPanel
     {
+        #region static properties to manage Admin Panel availability
+
+        public const string Flag = "ADMIN_PANEL";
+
+        /// <summary>
+        /// Static method to ask if AdminPanel is available
+        /// </summary>
+        public static bool IsActive
+        {
+            get
+            {
+                #if (ADMIN_PANEL && !NO_ADMIN_PANEL) || UNITY_EDITOR
+                return true;
+                #else
+                return false;
+                #endif
+            }
+        }
+
+        #endregion
+
         public Dictionary<string, IAdminPanelGUI> Categories { get; private set; }
 
         public AdminPanelConsole Console { get; private set; }
@@ -19,7 +40,7 @@ namespace SocialPoint.AdminPanel
 
         string _defaultCategory;
 
-        public string DefaultCategory 
+        public string DefaultCategory
         { 
             private get
             {

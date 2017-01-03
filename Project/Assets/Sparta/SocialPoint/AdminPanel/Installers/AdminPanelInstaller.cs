@@ -8,15 +8,16 @@ public class AdminPanelInstaller : ServiceInstaller
 {
     public override void InstallBindings()
     {
-#if (ADMIN_PANEL && !NO_ADMIN_PANEL) || UNITY_EDITOR
-        Container.Rebind<AdminPanel>().ToMethod<AdminPanel>(CreateAdminPanel);
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelSceneSelector>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLog>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelApplication>();
+        if(AdminPanel.IsActive)
+        {
+            Container.Rebind<AdminPanel>().ToMethod<AdminPanel>(CreateAdminPanel);
+            Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelSceneSelector>();
+            Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelLog>();
+            Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelApplication>();
 
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelProfiler>();
-        Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAttributes>();
-#endif
+            Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelProfiler>();
+            Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAttributes>();
+        }
     }
 
     AdminPanel CreateAdminPanel()
