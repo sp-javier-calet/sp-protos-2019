@@ -12,6 +12,8 @@ namespace SocialPoint.Dependency
 
         static Stack<Node> _nodeStack = new Stack<Node>();
 
+        static Phase _currentActionPhase = Phase.GlobalInstall;
+
         public static DependencyGraph Graph
         {
             get
@@ -41,13 +43,13 @@ namespace SocialPoint.Dependency
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
-        public static void Bind(Type type, Type bind, string tag)
+        public static void Bind(Type type, Type bind, TagValue tag)
         {
             var node = _graph.GetNode(type, tag);
-            node.History.Add(Action.Bind);
+            node.History.Add(new HistoryAction(_currentActionPhase, Action.Bind, bind.Name));
 
             var bound = _graph.GetNode(bind, tag);
-            bound.History.Add(Action.Bound);
+            bound.History.Add(new HistoryAction(_currentActionPhase, Action.Bound, type.Name));
 
             if(type != bind)
             {
@@ -64,10 +66,10 @@ namespace SocialPoint.Dependency
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
-        public static void Remove(Type type, string tag)
+        public static void Remove(Type type, TagValue tag)
         {
             var node = _graph.GetNode(type, tag);
-            node.History.Add(Action.Remove);
+            node.History.Add(new HistoryAction(_currentActionPhase, Action.Remove));
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
@@ -76,7 +78,10 @@ namespace SocialPoint.Dependency
             if(fromType != toType)
             {
                 var fromNode = _graph.GetNode(fromType, fromTag);
+                fromNode.History.Add(new HistoryAction(_currentActionPhase, Action.Lookup, toType.Name));
+
                 var toNode = _graph.GetNode(toType, toTag);
+                fromNode.History.Add(new HistoryAction(_currentActionPhase, Action.Aliased, fromNode.Name));
 
                 if(fromType.IsInterface)
                 {
@@ -91,21 +96,27 @@ namespace SocialPoint.Dependency
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
-        public static void StartCreation(Type type, string tag)
+        public static void StartCreation(Type type, TagValue tag)
         {
             var node = _graph.TryGetNode(type, tag);
             if(node != null)
             {
-                node.History.Add(Action.Create);
-
                 if(_nodeStack.Count > 0)
                 {
-                    node.Instigator = Current;
-                    Current.Outcoming.Add(node);
-                    node.Incoming.Add(Current);
+                    var current = Current;
+                    // Avoid adding circular references for the same node when bound to itself
+                    if(current.Class != type.Name || current.Tag != tag)
+                    {
+                        node.History.Add(new HistoryAction(_currentActionPhase, Action.Create));
+                    
+                        node.Instigator = current;
+                        current.Outcoming.Add(node);
+                        node.Incoming.Add(Current);
+                    }
                 }
                 else
                 {
+                    node.History.Add(new HistoryAction(_currentActionPhase, Action.Create, "Root"));
                     _graph.RootNodes.Add(node);
                     node.CreationStack = System.Environment.StackTrace ?? "Unknown stack";
                 }
@@ -119,12 +130,12 @@ namespace SocialPoint.Dependency
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
-        public static void StartSetup(Type type, string tag)
+        public static void StartSetup(Type type, TagValue tag)
         {
             var node = _graph.TryGetNode(type, tag);
             if(node != null)
             {
-                node.History.Add(Action.Setup);
+                node.History.Add(new HistoryAction(_currentActionPhase, Action.Setup));
             }
             else
             {
@@ -164,12 +175,12 @@ namespace SocialPoint.Dependency
         }
 
         [System.Diagnostics.Conditional(CollectDependenciesFlag)]
-        public static void Resolve(Type type, string tag)
+        public static void Resolve(Type type, TagValue tag)
         {
             var node = _graph.TryGetNode(type, tag);
             if(node != null)
             {
-                node.History.Add(Action.Resolve);
+                node.History.Add(new HistoryAction(_currentActionPhase, Action.Resolve));
             }
         }
 
@@ -178,6 +189,29 @@ namespace SocialPoint.Dependency
         {
             _graph = new DependencyGraph();
             _nodeStack = new Stack<Node>();
+        }
+
+        [System.Diagnostics.Conditional(CollectDependenciesFlag)]
+        public static void StartGlobalInstall()
+        {
+            _currentActionPhase = Phase.GlobalInstall;
+        }
+
+        [System.Diagnostics.Conditional(CollectDependenciesFlag)]
+        public static void StartInstall()
+        {
+            _currentActionPhase = Phase.Install;
+        }
+
+        [System.Diagnostics.Conditional(CollectDependenciesFlag)]
+        public static void StartInitialization()
+        {
+            _currentActionPhase = Phase.Initialization;
+        }
+
+        [System.Diagnostics.Conditional(CollectDependenciesFlag)]
+        public static void EndPhase()
+        {
         }
     }
 
@@ -204,13 +238,13 @@ namespace SocialPoint.Dependency
             instances.Add(node.Tag, node);
         }
 
-        public Node TryGetNode(Type type, string tag)
+        public Node TryGetNode(Type type, TagValue tag)
         {
             Dictionary<string, Node> instances = null;
             if(Bindings.TryGetValue(type, out instances))
             {
                 Node n = null;
-                if(instances.TryGetValue(tag ?? string.Empty, out n))
+                if(instances.TryGetValue(tag, out n))
                 {
                     return n;
                 }
@@ -218,7 +252,7 @@ namespace SocialPoint.Dependency
             return null;
         }
 
-        public Node GetNode(Type type, string tag)
+        public Node GetNode(Type type, TagValue tag)
         {
             var node = TryGetNode(type, tag);
             if(node == null)
@@ -250,23 +284,108 @@ namespace SocialPoint.Dependency
         #endregion
     }
 
-    public enum Origin
+    public enum Phase
     {
-        Explicit,
-        Creation,
-        Setup
+        GlobalInstall,
+        Install,
+        Initialization
     }
 
     public enum Action
     {
         Bind,
         Bound,
+        Lookup,
+        Aliased,
         Resolve,
         Create,
         Setup,
         Remove
     }
 
+    public struct HistoryAction
+    {
+        public readonly Phase Phase;
+        public readonly Action Action;
+        public readonly string Data;
+
+        public HistoryAction(Phase phase, Action action)
+        {
+            Phase = phase;
+            Action = action;
+            Data = string.Empty;
+        }
+
+        public HistoryAction(Phase phase, Action action, string data)
+        {
+            Phase = phase;
+            Action = action;
+            Data = data;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0} {1} on {2}", Action, Data, Phase);
+        }
+    }
+
+    /// <summary>
+    /// Tag value.
+    /// Encapsulates the actual Tag string to avoid null values.
+    /// </summary>
+    public struct TagValue
+    {
+        string _value;
+
+        public TagValue(string tag)
+        {
+            _value = tag ?? string.Empty;
+        }
+
+        public static implicit operator TagValue(string tag)
+        {
+            return new TagValue(tag);
+        }
+
+        public static implicit operator string(TagValue tag)
+        {
+            return tag._value;
+        }
+
+        public override int GetHashCode()
+        {
+            return _value.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if(!(obj is TagValue))
+            {
+                return false;
+            }
+            var other = (TagValue)obj;
+            return _value == other._value;
+        }
+
+        public override string ToString()
+        {
+            return _value;
+        }
+
+        public static bool operator ==(TagValue value1, TagValue value2)
+        {
+            return value1._value == value2._value;
+        }
+
+        public static bool operator !=(TagValue value1, TagValue value2)
+        {
+            return value1._value != value2._value;
+        }
+    }
+
+    /// <summary>
+    /// Dependency graph Node.
+    /// </summary>
     public class Node
     {
         // Incoming edges.
@@ -285,14 +404,14 @@ namespace SocialPoint.Dependency
         public HashSet<Node> Definitions;
 
         // Historic
-        public List<Action> History;
+        public List<HistoryAction> History;
 
         readonly Type _type;
 
-        readonly string _tag;
+        readonly TagValue _tag;
 
         // Dependency Tag
-        public string Tag
+        public TagValue Tag
         {
             get
             {
@@ -320,9 +439,6 @@ namespace SocialPoint.Dependency
 
         // Creator node
         public Node Instigator;
-
-        // Origin type
-        public Origin Origin;
 
         // Stacktrace for explicit creation
         public string CreationStack;
@@ -380,16 +496,14 @@ namespace SocialPoint.Dependency
             Implements = new HashSet<Node>();
             Aliases = new HashSet<Node>();
             Definitions = new HashSet<Node>();
-            History = new List<Action>();
-
-            Origin = Origin.Explicit;
+            History = new List<HistoryAction>();
             CreationStack = string.Empty;
         }
 
         public Node(Type type, string tag = "") : this()
         {
             _type = type;
-            _tag = tag ?? string.Empty;
+            _tag = tag;
         }
 
         public override string ToString()
