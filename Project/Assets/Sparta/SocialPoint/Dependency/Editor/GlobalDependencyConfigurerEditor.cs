@@ -182,9 +182,16 @@ namespace SocialPoint.Dependency
 
                     if(data.Visible)
                     {
+                        EditorGUILayout.BeginHorizontal();
+                        GUILayout.Space(10);
+                        EditorGUILayout.BeginVertical();
+
                         var editor = CreateEditor(installer);
                         editor.OnInspectorGUI();
                         EditorUtility.SetDirty(installer);
+
+                        EditorGUILayout.EndVertical();
+                        EditorGUILayout.EndHorizontal();
                     }
                 }
             }
