@@ -10,33 +10,45 @@ public class HUDSyncIndicator : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     void Start()
     {
         _commandQueue = ServiceLocator.Instance.Resolve<ICommandQueue>();
-        _commandQueue.SyncChange += OnCommandQueueSyncChange;
+        if(_commandQueue != null)
+        {
+            _commandQueue.SyncChange += OnCommandQueueSyncChange;
+        }
         gameObject.SetActive(false);
     }
 
     void OnDestroy()
     {
-        _commandQueue.SyncChange -= OnCommandQueueSyncChange;
+        if(_commandQueue != null)
+        {
+            _commandQueue.SyncChange -= OnCommandQueueSyncChange;
+        }
     }
 
     void OnCommandQueueSyncChange()
     {
-        gameObject.SetActive(!_commandQueue.Synced);
+        if(_commandQueue != null)
+        {
+            gameObject.SetActive(!_commandQueue.Synced);
+        }
     }
 
     #region IPointerDownHandler implementation
-    
+
     public void OnPointerDown(PointerEventData eventData)
     {
     }
-    
+
     #endregion
-		
+
     #region IPointerUpHandler implementation
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        _commandQueue.Send();
+        if(_commandQueue != null)
+        {
+            _commandQueue.Send();
+        }
     }
 
     #endregion

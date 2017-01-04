@@ -69,7 +69,11 @@ public class GameInstaller : Installer
 
     void SetupGameLoader(GameLoader loader)
     {
-        Container.Resolve<ICommandQueue>().AutoSync = loader.OnAutoSync;
+        var commandQueue = Container.Resolve<ICommandQueue>();
+        if(commandQueue != null)
+        {
+            commandQueue.AutoSync = loader.OnAutoSync;
+        }
     }
 
     GameErrorHandler CreateErrorHandler()
