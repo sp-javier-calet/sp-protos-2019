@@ -116,12 +116,8 @@ namespace SocialPoint.Dependency
             _container.OnPhaseEnd();
         }
 
-        const string GlobalInstallersResource = "Installers/GlobalDependencyConfigurer";
-
-        override protected void SingletonAwakened()
+        public void InstallGlobalDependencies()
         {
-            base.SingletonAwakened();
-
             _container = new DependencyContainer();
             _initializables = new InitializableManager(_container);
 
@@ -129,7 +125,7 @@ namespace SocialPoint.Dependency
             _container.Bind<GameObject>().ToInstance(gameObject);
             _container.Bind<Transform>().ToGetter<GameObject>((go) => go.transform);
 
-            var globalConfig = Resources.Load<GlobalDependencyConfigurer>(GlobalInstallersResource);
+            var globalConfig = GlobalDependencyConfigurer.Load();
             if(globalConfig != null)
             {
                 _container.Install(globalConfig);
@@ -139,6 +135,15 @@ namespace SocialPoint.Dependency
                 Log.e("GlobalDependencyConfigurer asset not found");
             }
             _container.OnPhaseEnd();
+        }
+
+
+        #region Singleton and Monobehaviour events
+
+        protected override void SingletonAwakened()
+        {
+            base.SingletonAwakened();
+            InstallGlobalDependencies();
         }
             
         protected override void SingletonStarted()
@@ -151,5 +156,7 @@ namespace SocialPoint.Dependency
         {
             Initialize();
         }
+
+        #endregion
     }
 }
