@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.Utils;
+using SocialPoint.Dependency.Graph;
 
 namespace SocialPoint.Dependency
 {
