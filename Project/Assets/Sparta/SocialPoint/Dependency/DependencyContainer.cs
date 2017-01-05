@@ -147,7 +147,7 @@ namespace SocialPoint.Dependency
                 DependencyGraphBuilder.StartCreation(typeof(F), _tag);
                 if(_toType == ToType.Single)
                 {
-                    DependencyGraphBuilder.StartCreation(_type, null);
+                    DependencyGraphBuilder.StartCreation(_type, _tag);
                     var construct = _type.GetConstructor(new Type[]{ });
                     _instance = (F)construct.Invoke(new object[]{ });
                     DependencyGraphBuilder.Finalize(_type, _instance);
@@ -433,6 +433,34 @@ namespace SocialPoint.Dependency
             _aliases.Clear();
             _listeners.Clear();
             Log.v(Tag, "Depencency Container Cleared");
+        }
+
+        public enum InstallationPhase
+        {
+            Global,
+            Install,
+            Initialization
+        }
+
+        public void OnPhaseStart(InstallationPhase phase)
+        {
+            switch(phase)
+            {
+            case InstallationPhase.Global:
+                DependencyGraphBuilder.StartGlobalInstall();
+                break;
+            case InstallationPhase.Install:
+                DependencyGraphBuilder.StartInstall();
+                break;
+            case InstallationPhase.Initialization:
+                DependencyGraphBuilder.StartInitialization();
+                break;
+            }
+        }
+
+        public void OnPhaseEnd()
+        {
+            DependencyGraphBuilder.EndPhase();
         }
 
         List<IListener> FindListeners(IBinding binding)

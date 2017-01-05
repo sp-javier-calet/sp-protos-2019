@@ -1,10 +1,18 @@
 using System;
+using UnityEngine;
 
 namespace SocialPoint.Dependency
 {
     [UnityEngine.CreateAssetMenu(fileName = "GlobalDependencyConfigurer", menuName = "Sparta/Global Dependency Configurer")]
     public sealed class GlobalDependencyConfigurer : Installer
     {
+        const string ResourcePath = "Installers/GlobalDependencyConfigurer";
+
+        public static GlobalDependencyConfigurer Load()
+        {
+            return Resources.Load<GlobalDependencyConfigurer>(ResourcePath);
+        }
+
         [UnityEngine.SerializeField]
         public Installer[] Installers;
 

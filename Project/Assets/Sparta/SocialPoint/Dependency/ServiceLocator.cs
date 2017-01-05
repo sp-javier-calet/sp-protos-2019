@@ -97,40 +97,53 @@ namespace SocialPoint.Dependency
 
         public void Install(IInstaller installer)
         {
+            _container.OnPhaseStart(DependencyContainer.InstallationPhase.Install);
             _container.Install(installer);
+            _container.OnPhaseEnd();
         }
 
         public void Install(IInstaller[] installers)
         {
+            _container.OnPhaseStart(DependencyContainer.InstallationPhase.Install);
             _container.Install(installers);
+            _container.OnPhaseEnd();
         }
 
         public void Initialize()
         {
+            _container.OnPhaseStart(DependencyContainer.InstallationPhase.Initialization);
             _initializables.Initialize();
+            _container.OnPhaseEnd();
         }
 
-        const string GlobalInstallersResource = "Installers/GlobalDependencyConfigurer";
-
-        override protected void SingletonAwakened()
+        public void InstallGlobalDependencies()
         {
-            base.SingletonAwakened();
-
             _container = new DependencyContainer();
             _initializables = new InitializableManager(_container);
 
+            _container.OnPhaseStart(DependencyContainer.InstallationPhase.Global);
             _container.Bind<GameObject>().ToInstance(gameObject);
             _container.Bind<Transform>().ToGetter<GameObject>((go) => go.transform);
 
-            var globalConfig = Resources.Load<GlobalDependencyConfigurer>(GlobalInstallersResource);
+            var globalConfig = GlobalDependencyConfigurer.Load();
             if(globalConfig != null)
             {
-                Install(globalConfig);
+                _container.Install(globalConfig);
             }
             else
             {
                 Log.e("GlobalDependencyConfigurer asset not found");
             }
+            _container.OnPhaseEnd();
+        }
+
+
+        #region Singleton and Monobehaviour events
+
+        protected override void SingletonAwakened()
+        {
+            base.SingletonAwakened();
+            InstallGlobalDependencies();
         }
             
         protected override void SingletonStarted()
@@ -143,5 +156,7 @@ namespace SocialPoint.Dependency
         {
             Initialize();
         }
+
+        #endregion
     }
 }
