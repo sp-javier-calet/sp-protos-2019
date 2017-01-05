@@ -43,9 +43,9 @@ namespace SocialPoint.Social
             var cmd = new ConsoleCommand()
                 .WithDescription("do a facebook graph apy query")
                     .WithOption(new ConsoleCommandOption("0|method")
-                                .withDescription("query method"))
+                                .WithDescription("query method"))
                     .WithOption(new ConsoleCommandOption("1|path")
-                                .withDescription("query path"))
+                                .WithDescription("query path"))
                     .WithDelegate(OnQueryCommand);
             adminPanel.RegisterCommand("fb-query", cmd);
         }

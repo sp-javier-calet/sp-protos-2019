@@ -50,6 +50,7 @@ namespace SocialPoint.AdminPanel
             }
             if(_gui != null)
             {
+                NotifyOpenedPanel(_gui);
                 _gui.OnCreateGUI(_mainPanelContent);
             }
         }
