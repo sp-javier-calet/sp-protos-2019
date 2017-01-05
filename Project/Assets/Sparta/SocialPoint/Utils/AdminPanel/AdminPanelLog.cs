@@ -45,7 +45,7 @@ namespace SocialPoint.Utils
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Log", this));
 
             // Bind Log commands. Use anonymous delegates to avoid issues with conditional methods during compilation
-            adminPanel.RegisterCommand("log", CreateLogCommand("default (info)", msg => Log.w(msg), (tag, msg) => Log.w(tag, msg)));
+            adminPanel.RegisterCommand("log", CreateLogCommand("default (info)", msg => Log.i(msg), (tag, msg) => Log.i(tag, msg)));
             adminPanel.RegisterCommand("logv", CreateLogCommand("verbose", msg => Log.v(msg), (tag, msg) => Log.v(tag, msg)));
             adminPanel.RegisterCommand("logd", CreateLogCommand("debug", msg => Log.d(msg), (tag, msg) => Log.d(tag, msg)));
             adminPanel.RegisterCommand("logi", CreateLogCommand("info", msg => Log.i(msg), (tag, msg) => Log.i(tag, msg)));
