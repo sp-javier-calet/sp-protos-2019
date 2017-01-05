@@ -604,8 +604,16 @@ namespace SocialPoint.Dependency
 
         public static Binding<T> Rebind<T>(this DependencyContainer container, string tag = null)
         {
-            container.Remove<T>(tag);
-            return container.Bind<T>(tag);
+            var bind = new Binding<T>(container);
+            if(!container.HasBinding<T>(tag))
+            {
+                container.AddBinding(bind, typeof(T), tag);
+            }
+            else
+            {
+                Log.w("DependencyContainer", string.Format("Skipping binding of {0} <{1}>", typeof(T).Name, tag ?? string.Empty));
+            }
+            return bind;
         }
 
         public static Binding<T> Bind<T>(this DependencyContainer container, string tag = null)

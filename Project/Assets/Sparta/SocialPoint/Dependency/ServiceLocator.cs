@@ -75,8 +75,16 @@ namespace SocialPoint.Dependency
 
         public static UnityComponentBinding<T> RebindUnityComponent<T>(this DependencyContainer container, string tag = null) where T : Component
         {
-            container.Remove<T>(tag);
-            return container.BindUnityComponent<T>(tag);
+            var bind = new UnityComponentBinding<T>(container);
+            if(!container.HasBinding<T>(tag))
+            {
+                container.AddBinding(bind, typeof(T), tag);
+            }
+            else
+            {
+                Log.w("DependencyContainer", string.Format("Skipping binding of {0} <{1}>", typeof(T).Name, tag ?? string.Empty));
+            }
+            return bind;
         }
     }
 
