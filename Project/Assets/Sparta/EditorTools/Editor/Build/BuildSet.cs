@@ -178,43 +178,43 @@ namespace SpartaTools.Editor.Build
 
         readonly List<Validator> _validators = new List<Validator> {
             new Validator {
-                Validate = (BuildSet bs) => !bs.Ios.Flags.Contains(AdminPanelFlag) && !bs.Common.Flags.Contains(AdminPanelFlag) && !bs.Android.Flags.Contains(AdminPanelFlag),
+                Validate = bs => !bs.Ios.Flags.Contains(AdminPanelFlag) && !bs.Common.Flags.Contains(AdminPanelFlag) && !bs.Android.Flags.Contains(AdminPanelFlag),
                 ErrorMessage = "Admin Panel flag must be enabled using the proper option"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.Ios.Flags.Contains(DependencyInspectionFlag) && !bs.Common.Flags.Contains(DependencyInspectionFlag) && !bs.Android.Flags.Contains(DependencyInspectionFlag),
+                Validate = bs => !bs.Ios.Flags.Contains(DependencyInspectionFlag) && !bs.Common.Flags.Contains(DependencyInspectionFlag) && !bs.Android.Flags.Contains(DependencyInspectionFlag),
                 ErrorMessage = "Dependency Inspection flag must be enabled using the proper option"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsDebugConfig || bs.Ios.XcodeModSchemes.Contains("debug"),
+                Validate = bs => !bs.IsDebugConfig || bs.Ios.XcodeModSchemes.Contains("debug"),
                 ErrorMessage = "Debug Build Set must define the 'debug' scheme for XcodeMods"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsReleaseConfig || bs.Ios.XcodeModSchemes.Contains("release"),
+                Validate = bs => !bs.IsReleaseConfig || bs.Ios.XcodeModSchemes.Contains("release"),
                 ErrorMessage = "Release Build Set must define the 'release' scheme for XcodeMods"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsShippingConfig || bs.Ios.XcodeModSchemes.Contains("shipping"),
+                Validate = bs => !bs.IsShippingConfig || bs.Ios.XcodeModSchemes.Contains("shipping"),
                 ErrorMessage = "Shipping Build Set must define the 'shipping' scheme for XcodeMods"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsShippingConfig || bs.Android.UseKeystore,
+                Validate = bs => !bs.IsShippingConfig || bs.Android.UseKeystore,
                 ErrorMessage = "Shipping Build Set must use a release keystore"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.Common.IsDevelopmentBuild,
+                Validate = bs => !bs.IsShippingConfig || !bs.Common.IsDevelopmentBuild,
                 ErrorMessage = "Shipping Build Set cannot be set as a Development Build"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.App.OverrideBuild,
+                Validate = bs => !bs.IsShippingConfig || !bs.App.OverrideBuild,
                 ErrorMessage = "Shipping Build Set cannot override bundle number"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.Common.EnableAdminPanel,
+                Validate = bs => !bs.IsShippingConfig || !bs.Common.EnableAdminPanel,
                 ErrorMessage = "Shipping Build Set cannot enable Admin Panel features"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.Common.EnableDependencyInspection,
+                Validate = bs => !bs.IsShippingConfig || !bs.Common.EnableDependencyInspection,
                 ErrorMessage = "Shipping Build Set cannot enable Dependency Inspection features"
             }
         };
@@ -319,7 +319,7 @@ namespace SpartaTools.Editor.Build
 
             if(App.OverrideIcon)
             {
-                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new Texture2D[] {
+                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new [] {
                     App.IconTexture,
                     App.IconTexture,
                     App.IconTexture,
@@ -327,7 +327,7 @@ namespace SpartaTools.Editor.Build
                     App.IconTexture,
                     App.IconTexture
                 });
-                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.iOS, new Texture2D[] {
+                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.iOS, new [] {
                     App.IconTexture,
                     App.IconTexture,
                     App.IconTexture,
@@ -400,7 +400,7 @@ namespace SpartaTools.Editor.Build
             Platform.OnApply(this);
         }
 
-        string GetLogLevelFlag(BaseSettings baseSettings)
+        string GetLogLevelFlag(BuildSet baseSettings)
         {
             LogLevel level = Common.LogLevel;
             if(level == LogLevel.Default)
@@ -411,8 +411,6 @@ namespace SpartaTools.Editor.Build
             switch(level)
             {
             default:
-            case LogLevel.Default:
-            case LogLevel.None:
                 return string.Empty;
             case LogLevel.Verbose: 
                 return "SPARTA_LOG_VERBOSE";
@@ -427,22 +425,19 @@ namespace SpartaTools.Editor.Build
             }
         }
 
-        string MergeFlags(string configFlags, string baseFlags)
+        static string MergeFlags(string configFlags, string baseFlags)
         {
             if(string.IsNullOrEmpty(configFlags))
             {
                 return baseFlags;
             }
-            else if(configFlags.StartsWith("+"))
+            if(configFlags.StartsWith("+"))
             {
                 // If configuration flags starts with +, merge config and base flags
                 return baseFlags + ";" + configFlags.Substring(1);
             }
-            else
-            {
-                // Overrid
-                return configFlags;
-            }
+            // Overrid
+            return configFlags;
         }
 
         public void ApplyExtended()
@@ -539,14 +534,8 @@ namespace SpartaTools.Editor.Build
         {
             get
             {
-                var processor = PlatformProcessors[EditorUserBuildSettings.activeBuildTarget];
-
-                if(processor == null)
-                {
-                    processor = new PlatformProcessor();
-                }
-
-                return processor;
+                PlatformProcessor processor;
+                return PlatformProcessors.TryGetValue(EditorUserBuildSettings.activeBuildTarget, out processor) ? processor : new PlatformProcessor();
             }
         }
 
