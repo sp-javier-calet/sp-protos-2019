@@ -352,7 +352,9 @@ namespace BuildReportTool
             // ---------------------------------------------------------------
             
             settings.Xbox360BuildSubtarget = EditorUserBuildSettings.xboxBuildSubtarget.ToString();
+            #if !UNITY_5_5_OR_NEWER
             settings.Xbox360RunMethod = EditorUserBuildSettings.xboxRunMethod.ToString();
+            #endif
             
             settings.Xbox360TitleId = PlayerSettings.xboxTitleId;
             settings.Xbox360ImageXexFilePath = PlayerSettings.xboxImageXexFilePath;
@@ -376,8 +378,10 @@ namespace BuildReportTool
             
             // Playstation devices build settings
             // ---------------------------------------------------------------
-            
+
+            #if !UNITY_5_5_OR_NEWER
             settings.SCEBuildSubtarget = EditorUserBuildSettings.sceBuildSubtarget.ToString();
+            #endif
         }
     }
     

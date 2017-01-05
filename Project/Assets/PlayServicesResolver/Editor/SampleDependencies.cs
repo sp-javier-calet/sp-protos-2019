@@ -29,7 +29,9 @@ public static class SampleDependencies
     /// The name of your plugin.  This is used to create a settings file
     /// which contains the dependencies specific to your plugin.
     /// </summary>
+    #if !UNITY_5_5_OR_NEWER
     private static readonly string PluginName = "your_plugin_name";
+    #endif
 
     /// <summary>
     /// Initializes static members of the <see cref="SampleDependencies"/> class.
