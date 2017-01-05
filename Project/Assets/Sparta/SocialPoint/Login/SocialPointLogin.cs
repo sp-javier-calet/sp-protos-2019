@@ -161,7 +161,6 @@ namespace SocialPoint.Login
 
         long _lastTrackedErrorTimestamp;
         int _lastTrackedErrorCode;
-        int _lastTrackedErrorCount;
 
         string _forcedErrorCode = null;
         string _forcedErrorType = null;
@@ -1530,13 +1529,11 @@ namespace SocialPoint.Login
             // Avoid trackign repeated errors in a defined span of time
             if(isErrorRepeating && elapsed < TrackErrorMinElapsedTime)
             {
-                _lastTrackedErrorCount++;
                 return false;
             }
 
             _lastTrackedErrorTimestamp = now;
             _lastTrackedErrorCode = code;
-            _lastTrackedErrorCount = 0;
 
             return true;
         }
