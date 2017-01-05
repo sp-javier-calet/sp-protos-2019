@@ -16,7 +16,7 @@ namespace SocialPoint.Console
         {
             Description = "show help about the console application";
             WithOption(new ConsoleCommandOption("*|command")
-                .withDescription("the command to show help for"));
+                .WithDescription("the command to show help for"));
         }
 
 
