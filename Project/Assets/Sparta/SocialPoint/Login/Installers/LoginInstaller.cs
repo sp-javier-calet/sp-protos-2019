@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.AdminPanel;
 using SocialPoint.Base;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
@@ -15,6 +16,7 @@ namespace SocialPoint.Login
         [Serializable]
         public class SettingsData
         {
+            public bool UseEmpty;
             public float Timeout = SocialPointLogin.DefaultTimeout;
             public float ActivityTimeout = SocialPointLogin.DefaultActivityTimeout;
             public bool AutoupdateFriends = SocialPointLogin.DefaultAutoUpdateFriends;
@@ -29,16 +31,20 @@ namespace SocialPoint.Login
 
         public override void InstallBindings()
         {
-            if(!Container.HasInstalled<LoginAdminPanelInstaller>())
+            if(!Settings.UseEmpty)
             {
-                Container.Install<LoginAdminPanelInstaller>();
+                Container.Rebind<SocialPointLogin.LoginConfig>().ToMethod<SocialPointLogin.LoginConfig>(CreateConfig);
+                Container.Rebind<ILogin>().ToMethod<SocialPointLogin>(CreateLogin, SetupLogin);
+            }
+            else
+            {
+                Container.Rebind<ILogin>().ToMethod<EmptyLogin>(CreateEmptyLogin);
             }
 
-            Container.Rebind<SocialPointLogin.LoginConfig>().ToMethod<SocialPointLogin.LoginConfig>(CreateConfig);
-
-            Container.Rebind<ILogin>().ToMethod<SocialPointLogin>(CreateLogin, SetupLogin);
             Container.Rebind<ILoginData>().ToLookup<ILogin>();
             Container.Bind<IDisposable>().ToLookup<ILogin>();
+
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLogin>(CreateAdminPanel);
         }
 
         SocialPointLogin.LoginConfig CreateConfig()
@@ -49,6 +55,11 @@ namespace SocialPoint.Login
                 ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
                 EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries
             };
+        }
+
+        EmptyLogin CreateEmptyLogin()
+        {
+            return new EmptyLogin(null);
         }
 
         SocialPointLogin CreateLogin()
@@ -80,6 +91,22 @@ namespace SocialPoint.Login
             {
                 login.AddLink(links[i]);
             }
+        }
+
+        AdminPanelLogin CreateAdminPanel()
+        {
+            var login = Container.Resolve<ILogin>();
+            var appEvents = Container.Resolve<IAppEvents>();
+            var environments = Container.Resolve<BackendEnvironment>();
+            var envs = new Dictionary<string,string>();
+
+            for(var i = 0; i < environments.Environments.Length; ++i)
+            {
+                var env = environments.Environments[i];
+                envs.Add(env.Name, env.Url);
+            }
+
+            return new AdminPanelLogin(login, envs, appEvents);
         }
     }
 }
