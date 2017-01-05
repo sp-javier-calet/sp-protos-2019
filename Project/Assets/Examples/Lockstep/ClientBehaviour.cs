@@ -136,7 +136,10 @@ namespace Examples.Lockstep
                 _replay.Record();
             }
 
-            _timeText.text = _model.TimeString;
+            if(_timeText != null)
+            {
+                _timeText.text = _model.TimeString;
+            }
 
             _random = _lockstep.CreateRandomGenerator();
         }
@@ -405,7 +408,10 @@ namespace Examples.Lockstep
         void SimulateClient(int dt)
         {
             _model.Simulate(dt);
-            _timeText.text = _model.TimeString;
+            if(_timeText != null)
+            {
+                _timeText.text = _model.TimeString;
+            }
         }
 
         static readonly Fix64 InstanceMinScale = (Fix64)0.2f;
