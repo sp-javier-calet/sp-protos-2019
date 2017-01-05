@@ -1,10 +1,5 @@
-using UnityEngine;
-using UnityEditor;
-
 using System;
-using System.IO;
-using System.Linq;
-using System.Collections.Generic;
+using UnityEditor;
 
 namespace AssetBundleGraph {
 	public class BuildTargetUtility {
@@ -21,7 +16,11 @@ namespace AssetBundleGraph {
 				return "Android";
 			case BuildTarget.iOS:
 				return "iOS";
+            #if UNITY_5_5_OR_NEWER
+            case BuildTarget.N3DS:
+            #else
 			case BuildTarget.Nintendo3DS:
+            #endif
 				return "Nintendo 3DS";
 			case BuildTarget.PS3:
 				return "PlayStation 3";
@@ -76,7 +75,11 @@ namespace AssetBundleGraph {
 			return "Android";
 			case BuildTarget.iOS:
 			return "iOS";
+            #if UNITY_5_5_OR_NEWER
+            case BuildTarget.N3DS:
+            #else
 			case BuildTarget.Nintendo3DS:
+            #endif
 			return "N3DS";
 			case BuildTarget.PS3:
 			return "PS3";
@@ -128,7 +131,11 @@ namespace AssetBundleGraph {
 				return "Android";
 			case BuildTargetGroup.iOS:
 				return "iOS";
+            #if UNITY_5_5_OR_NEWER
+            case BuildTargetGroup.N3DS:
+            #else
 			case BuildTargetGroup.Nintendo3DS:
+            #endif
 				return "Nintendo 3DS";
 			case BuildTargetGroup.PS3:
 				return "PlayStation 3";
@@ -175,8 +182,13 @@ namespace AssetBundleGraph {
 				return BuildTargetGroup.Android;
 			case BuildTarget.iOS:
 				return BuildTargetGroup.iOS;
+            #if UNITY_5_5_OR_NEWER
+            case BuildTarget.N3DS:
+                return BuildTargetGroup.N3DS;
+            #else
 			case BuildTarget.Nintendo3DS:
 				return BuildTargetGroup.Nintendo3DS;
+            #endif
 			case BuildTarget.PS3:
 				return BuildTargetGroup.PS3;
 			case BuildTarget.PS4:
@@ -222,8 +234,13 @@ namespace AssetBundleGraph {
 				return BuildTarget.Android;
 			case BuildTargetGroup.iOS:
 				return BuildTarget.iOS;
+            #if UNITY_5_5_OR_NEWER
+            case BuildTargetGroup.N3DS:
+                return BuildTarget.N3DS;
+            #else
 			case BuildTargetGroup.Nintendo3DS:
 				return BuildTarget.Nintendo3DS;
+            #endif
 			case BuildTargetGroup.PS3:
 				return BuildTarget.PS3;
 			case BuildTargetGroup.PS4:
@@ -260,18 +277,19 @@ namespace AssetBundleGraph {
 			return (BuildTarget)Enum.Parse(typeof(BuildTarget), val);
 		}
 
-		public static bool IsBuildTargetSupported(BuildTarget t) {
+        public static bool IsBuildTargetSupported(BuildTarget t) {
 
-			//[WrapperlessIcall]
-			//[MethodImpl (MethodImplOptions.InternalCall)]
-			//internal static extern bool IsBuildTargetSupported (BuildTarget target);
+            //[WrapperlessIcall]
+            //[MethodImpl (MethodImplOptions.InternalCall)]
+            //internal static extern bool IsBuildTargetSupported (BuildTarget target);
 
-			var objType = Types.GetType ("UnityEditor.BuildPipeline", "UnityEditor.dll");
-			var method =  objType.GetMethod("IsBuildTargetSupported", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            // Types.GetType is obsolete
+            // var objType = Types.GetType ("UnityEditor.BuildPipeline", "UnityEditor.dll");
 
-			var retval = method.Invoke(null, new object[]{System.Enum.ToObject(typeof(BuildTarget), t)});
-
-			return Convert.ToBoolean(retval);
-		}
+            var objType = typeof(BuildPipeline);
+            var method =  objType.GetMethod("IsBuildTargetSupported", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            var retval = method.Invoke(null, new object[]{System.Enum.ToObject(typeof(BuildTarget), t)});
+            return Convert.ToBoolean(retval);
+        }
 	}
 }

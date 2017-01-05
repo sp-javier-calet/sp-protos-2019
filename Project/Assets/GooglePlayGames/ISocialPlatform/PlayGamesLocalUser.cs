@@ -57,6 +57,13 @@ namespace GooglePlayGames
             mPlatform.Authenticate(callback, silent);
         }
 
+        #if UNITY_5_5_OR_NEWER
+        public void Authenticate(Action<bool, string> callback)
+        {
+            throw new NotImplementedException();
+        }
+        #endif
+
         /// <summary>
         /// Loads all friends of the authenticated user.
         /// </summary>
@@ -127,10 +134,10 @@ namespace GooglePlayGames
             get
             {
                 string retval = string.Empty;
-                if (authenticated)
+                if(authenticated)
                 {
                     retval = mPlatform.GetUserDisplayName();
-                    if (!base.userName.Equals(retval))
+                    if(!base.userName.Equals(retval))
                     {
                         ResetIdentity(retval, mPlatform.GetUserId(), mPlatform.GetUserImageUrl());
                     }
@@ -150,10 +157,10 @@ namespace GooglePlayGames
             get
             {
                 string retval = string.Empty;
-                if (authenticated)
+                if(authenticated)
                 {
                     retval = mPlatform.GetUserId();
-                    if (!base.id.Equals(retval))
+                    if(!base.id.Equals(retval))
                     {
                         ResetIdentity(mPlatform.GetUserDisplayName(), retval, mPlatform.GetUserImageUrl());
                     }
@@ -207,10 +214,10 @@ namespace GooglePlayGames
             get
             {
                 string retval = string.Empty;
-                if (authenticated)
+                if(authenticated)
                 {
                     retval = mPlatform.GetUserImageUrl();
-                    if (!base.id.Equals(retval))
+                    if(!base.id.Equals(retval))
                     {
                         ResetIdentity(mPlatform.GetUserDisplayName(),
                             mPlatform.GetUserId(), retval);
@@ -236,7 +243,7 @@ namespace GooglePlayGames
             {
                 // treat null as unitialized, empty as no email.  This can
                 // happen when the web client is not initialized.
-                if (authenticated && string.IsNullOrEmpty(emailAddress))
+                if(authenticated && string.IsNullOrEmpty(emailAddress))
                 {
                     emailAddress = mPlatform.GetUserEmail();
                     emailAddress = emailAddress ?? string.Empty;
@@ -251,13 +258,12 @@ namespace GooglePlayGames
         /// <param name="callback">Callback when they are available.</param>
         public void GetStats(Action<CommonStatusCodes, PlayerStats> callback)
         {
-            if (mStats == null || !mStats.Valid)
+            if(mStats == null || !mStats.Valid)
             {
-                mPlatform.GetPlayerStats((rc, stats) =>
-                    {
-                        mStats = stats;
-                        callback(rc, stats);
-                    });
+                mPlatform.GetPlayerStats((rc, stats) => {
+                    mStats = stats;
+                    callback(rc, stats);
+                });
             }
             else
             {
