@@ -84,5 +84,6 @@ public class GUIInstaller : Installer, IDisposable
     public void Dispose()
     {
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)null);
+        Destroy(_root);
     }
 }

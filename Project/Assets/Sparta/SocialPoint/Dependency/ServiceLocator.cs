@@ -12,7 +12,7 @@ namespace SocialPoint.Dependency
         Action<F> _setup;
         F _instance;
 
-        public BindingKey Key 
+        public BindingKey Key
         {
             get
             {
@@ -57,7 +57,7 @@ namespace SocialPoint.Dependency
                 setup(_instance);
             }
         }
-            
+
         public override string ToString()
         {
             return string.Format("[UnityComponentBinding {0}]", typeof(F));
@@ -92,19 +92,21 @@ namespace SocialPoint.Dependency
     {
         DependencyContainer _container;
         InitializableManager _initializables;
+        bool _requiresGlobalInstall = true;
 
-        public T Resolve<T>(string tag=null, T def=default(T))
+        public T Resolve<T>(string tag = null, T def = default(T))
         {
             return _container.Resolve<T>(tag, def);
         }
 
-        public List<T> ResolveList<T>(string tag=null)
+        public List<T> ResolveList<T>(string tag = null)
         {
             return _container.ResolveList<T>(tag);
         }
 
         public void Install(IInstaller installer)
         {
+            CheckInitialization();
             _container.OnPhaseStart(DependencyContainer.InstallationPhase.Install);
             _container.Install(installer);
             _container.OnPhaseEnd();
@@ -112,6 +114,7 @@ namespace SocialPoint.Dependency
 
         public void Install(IInstaller[] installers)
         {
+            CheckInitialization();
             _container.OnPhaseStart(DependencyContainer.InstallationPhase.Install);
             _container.Install(installers);
             _container.OnPhaseEnd();
@@ -119,6 +122,7 @@ namespace SocialPoint.Dependency
 
         public void Initialize()
         {
+            CheckInitialization();
             _container.OnPhaseStart(DependencyContainer.InstallationPhase.Initialization);
             _initializables.Initialize();
             _container.OnPhaseEnd();
@@ -143,17 +147,51 @@ namespace SocialPoint.Dependency
                 Log.e("GlobalDependencyConfigurer asset not found");
             }
             _container.OnPhaseEnd();
+            _requiresGlobalInstall = false;
         }
 
+        public void Clear()
+        {
+            _requiresGlobalInstall = true;
+        }
+
+        void CheckInitialization()
+        {
+            if(_requiresGlobalInstall)
+            {
+                Dispose();
+                InstallGlobalDependencies();
+            }
+        }
+
+        void Dispose()
+        {
+            if(_container != null)
+            {
+                _container.Dispose();
+            }
+
+            _container = null;
+            _initializables = null;
+
+            foreach(var mb in gameObject.GetComponents<MonoBehaviour>())
+            {
+                if(!(mb is ServiceLocator))
+                {
+                    mb.Destroy();
+                }
+            }
+            gameObject.RemoveChildren();
+        }
 
         #region Singleton and Monobehaviour events
 
         protected override void SingletonAwakened()
         {
             base.SingletonAwakened();
-            InstallGlobalDependencies();
+            CheckInitialization();
         }
-            
+
         protected override void SingletonStarted()
         {
             base.SingletonStarted();
@@ -162,7 +200,11 @@ namespace SocialPoint.Dependency
 
         void OnLevelWasLoaded(int level)
         {
-            Initialize();
+            // After a Clear, wait to Initialize in a scene with a DependencyConfigurer.
+            if(!_requiresGlobalInstall)
+            {
+                Initialize();
+            }
         }
 
         #endregion
