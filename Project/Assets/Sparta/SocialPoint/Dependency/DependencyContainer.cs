@@ -65,6 +65,7 @@ namespace SocialPoint.Dependency
         }
 
         F _instance;
+        bool _validInstance;
         ToType _toType;
         Type _type;
         string _tag;
@@ -101,6 +102,7 @@ namespace SocialPoint.Dependency
             DependencyGraphBuilder.Bind(typeof(F), typeof(T), _tag);
             _toType = ToType.Single;
             _instance = instance;
+            _validInstance = true;
             return this;
         }
 
@@ -124,6 +126,7 @@ namespace SocialPoint.Dependency
             _setup = null;
             if(setup != null)
             {
+                DebugUtils.Assert(!_type.IsValueType, "Setup methods is not supported for value types");
                 _setup = result => setup((T)result);
             }
             return this;
@@ -142,14 +145,17 @@ namespace SocialPoint.Dependency
 
         public object Resolve()
         {
-            if(_instance == null)
+            if(!_validInstance)
             {
                 DependencyGraphBuilder.StartCreation(typeof(F), _tag);
                 if(_toType == ToType.Single)
                 {
                     DependencyGraphBuilder.StartCreation(_type, _tag);
-                    var construct = _type.GetConstructor(new Type[]{ });
-                    _instance = (F)construct.Invoke(new object[]{ });
+                    if(!_type.IsValueType)
+                    {
+                        var construct = _type.GetConstructor(new Type[]{ });
+                        _instance = (F)construct.Invoke(new object[]{ });
+                    }
                     DependencyGraphBuilder.Finalize(_type, _instance);
                 }
                 else if(_toType == ToType.Lookup)
@@ -171,6 +177,7 @@ namespace SocialPoint.Dependency
                     }
 
                 }
+                _validInstance = true;
                 DependencyGraphBuilder.Finalize(typeof(F), _instance);
             }
 
