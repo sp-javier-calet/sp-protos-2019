@@ -24,7 +24,7 @@ namespace SocialPoint.Utils
             {
                 var name = scenes[i];
                 layout.CreateButton(name, () => {
-                    ServiceLocator.Instance.Clear();
+                    Services.Instance.Clear();
                     SceneManager.LoadScene(name);
                 });
             }

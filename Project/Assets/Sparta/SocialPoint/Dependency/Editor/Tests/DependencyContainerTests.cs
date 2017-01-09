@@ -351,6 +351,17 @@ namespace SocialPoint.Dependency
         }
 
         [Test]
+        public void DisposeInstanceTest()
+        {
+            TestDisposable.Count = 0;
+            var container = new DependencyContainer();
+            var instance = new TestDisposable();
+            container.Bind<IDisposable>().ToInstance<TestDisposable>(instance);
+            container.Dispose();
+            Assert.AreEqual(1, TestDisposable.Count);
+        }
+
+        [Test]
         public void RemoveDisposableTest()
         {
             TestDisposable.Count = 0;
