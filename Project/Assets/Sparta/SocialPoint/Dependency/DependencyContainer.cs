@@ -32,6 +32,12 @@ namespace SocialPoint.Dependency
             _listeners = new Dictionary<BindingKey, List<IListener>>();
         }
 
+        public void AddBindingWithInstance<T>(IBinding binding, Type type, T instance, string tag = null)
+        {
+            AddBinding(binding, type, tag);
+            AddInstance(binding, instance);
+        }
+
         public void AddBinding(IBinding binding, Type type, string tag = null)
         {
             List<IBinding> list;
@@ -41,6 +47,7 @@ namespace SocialPoint.Dependency
                 list = new List<IBinding>();
                 _bindings.Add(key, list);
             }
+
             list.Add(binding);
             Log.v(Tag, string.Format("Added binding <{0}> for type `{1}`", tag, type.Name));
         }
@@ -166,6 +173,17 @@ namespace SocialPoint.Dependency
             return result;
         }
 
+        void AddInstance(IBinding binding, object instance)
+        {
+            HashSet<object> instances;
+            if(!_instances.TryGetValue(binding, out instances))
+            {
+                instances = new HashSet<object>();
+                _instances[binding] = instances;
+            }
+            instances.Add(instance); 
+        }
+
         bool TryResolve(IBinding binding, out object result)
         {
             if(_resolving.Contains(binding))
@@ -176,14 +194,7 @@ namespace SocialPoint.Dependency
 
             _resolving.Add(binding);
             result = binding.Resolve();
-
-            HashSet<object> instances;
-            if(!_instances.TryGetValue(binding, out instances))
-            {
-                instances = new HashSet<object>();
-                _instances[binding] = instances;
-            }
-            instances.Add(result);
+            AddInstance(binding, result);
 
             _resolving.Remove(binding);
             _resolved.Add(binding);
@@ -270,7 +281,7 @@ namespace SocialPoint.Dependency
             {
                 listeners.AddRange(keyListeners);
             }
-
+                
             // Look for aliased bindings
             List<BindingKey> list;
             if(_aliases.TryGetValue(binding.Key, out list))
@@ -340,22 +351,24 @@ namespace SocialPoint.Dependency
                     {
                         continue;
                     }
-                    if(!IsLookup(fromKey, key))
-                    {
-                        continue;
-                    }
                     var binding = bindings[i];
-                    if(_instances.TryGetValue(binding, out bindingInstances))
+                    var bindingKey = binding.Key;
+                    bool isInstanceBinding = fromKey.Type == bindingKey.Type && fromKey.Tag == bindingKey.Tag;
+
+                    if(isInstanceBinding || IsLookup(fromKey, key))
                     {
-                        var itr2 = bindingInstances.GetEnumerator();
-                        while(itr2.MoveNext())
+                        if(_instances.TryGetValue(binding, out bindingInstances))
                         {
-                            instances.Add(itr2.Current);
-                        }
-                        itr2.Dispose();
-                        if(remove)
-                        {
-                            _instances.Remove(binding);
+                            var itr2 = bindingInstances.GetEnumerator();
+                            while(itr2.MoveNext())
+                            {
+                                instances.Add(itr2.Current);
+                            }
+                            itr2.Dispose();
+                            if(remove)
+                            {
+                                _instances.Remove(binding);
+                            }
                         }
                     }
                 }
@@ -378,63 +391,18 @@ namespace SocialPoint.Dependency
             var itr = disposables.GetEnumerator();
             while(itr.MoveNext())
             {
-                ((IDisposable)itr.Current).Dispose();
+                Log.w("Disposing Container Instance: " + itr.Current.GetType().Name);
+                var disposable = itr.Current as IDisposable;
+                if(disposable != null)
+                {
+                    disposable.Dispose();
+                }
+                else
+                {
+                    Log.e(string.Format("Type {0} does not implement IDisposable", itr.Current.GetType().Name));
+                }
             }
             itr.Dispose();
-        }
-    }
-
-    public static class DependencyContainerExtensions
-    {
-        public static void Install<T>(this DependencyContainer container) where T : IInstaller, new()
-        {
-            container.Install(new T());
-        }
-
-        public static Binding<T> Rebind<T>(this DependencyContainer container, string tag = null)
-        {
-            var bind = new Binding<T>(container);
-            if(!container.HasBinding<T>(tag))
-            {
-                container.AddBinding(bind, typeof(T), tag);
-            }
-            else
-            {
-                Log.w("DependencyContainer", string.Format("Skipping binding of {0} <{1}>", typeof(T).Name, tag ?? string.Empty));
-            }
-            return bind;
-        }
-
-        public static Binding<T> Bind<T>(this DependencyContainer container, string tag = null)
-        {
-            var bind = new Binding<T>(container);
-            container.AddBinding(bind, typeof(T), tag);
-            return bind;
-        }
-
-        public static void BindInstance<T>(this DependencyContainer container, string tag, T instance)
-        {
-            container.Bind<T>(tag).ToInstance(instance);
-        }
-
-        public static Listener<T> Listen<T>(this DependencyContainer container, string tag = null)
-        {
-            var listener = new Listener<T>();
-            container.AddListener(listener, typeof(T), tag);
-            return listener;
-        }
-
-        public static void Install(this DependencyContainer container, IInstaller[] installers)
-        {
-            for(var i = 0; i < installers.Length; i++)
-            {
-                container.Install(installers[i]);
-            }
-        }
-
-        public static T Resolve<T>(this DependencyContainer container, string tag = null, T def = default(T))
-        {
-            return (T)container.Resolve(typeof(T), tag, def);
         }
     }
 }

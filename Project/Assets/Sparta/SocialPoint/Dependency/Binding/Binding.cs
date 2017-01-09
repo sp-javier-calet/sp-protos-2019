@@ -155,15 +155,64 @@ namespace SocialPoint.Dependency
         }
     }
 
-    public struct BindingKey
+    public static class DependencyContainerExtensions
     {
-        public Type Type;
-        public string Tag;
-
-        public BindingKey(Type type, string tag)
+        public static void Add<F, T>(this DependencyContainer container, T instance, string tag = null) where T : F
         {
-            Type = type;
-            Tag = tag;
+            var bind = new Binding<F>(container);
+            bind.ToInstance(instance);
+            container.AddBindingWithInstance(bind, typeof(F), instance, tag);
+        }
+
+        public static void Install<T>(this DependencyContainer container) where T : IInstaller, new()
+        {
+            container.Install(new T());
+        }
+
+        public static Binding<T> Rebind<T>(this DependencyContainer container, string tag = null)
+        {
+            var bind = new Binding<T>(container);
+            if(!container.HasBinding<T>(tag))
+            {
+                container.AddBinding(bind, typeof(T), tag);
+            }
+            else
+            {
+                Log.w("DependencyContainer", string.Format("Skipping binding of {0} <{1}>", typeof(T).Name, tag ?? string.Empty));
+            }
+            return bind;
+        }
+
+        public static Binding<T> Bind<T>(this DependencyContainer container, string tag = null)
+        {
+            var bind = new Binding<T>(container);
+            container.AddBinding(bind, typeof(T), tag);
+            return bind;
+        }
+
+        public static void BindInstance<T>(this DependencyContainer container, string tag, T instance)
+        {
+            container.Bind<T>(tag).ToInstance(instance);
+        }
+
+        public static Listener<T> Listen<T>(this DependencyContainer container, string tag = null)
+        {
+            var listener = new Listener<T>();
+            container.AddListener(listener, typeof(T), tag);
+            return listener;
+        }
+
+        public static void Install(this DependencyContainer container, IInstaller[] installers)
+        {
+            for(var i = 0; i < installers.Length; i++)
+            {
+                container.Install(installers[i]);
+            }
+        }
+
+        public static T Resolve<T>(this DependencyContainer container, string tag = null, T def = default(T))
+        {
+            return (T)container.Resolve(typeof(T), tag, def);
         }
     }
 }
