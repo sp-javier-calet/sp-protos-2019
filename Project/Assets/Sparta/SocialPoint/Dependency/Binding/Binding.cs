@@ -190,11 +190,6 @@ namespace SocialPoint.Dependency
             return bind;
         }
 
-        public static void BindInstance<T>(this DependencyContainer container, string tag, T instance)
-        {
-            container.Bind<T>(tag).ToInstance(instance);
-        }
-
         public static Listener<T> Listen<T>(this DependencyContainer container, string tag = null)
         {
             var listener = new Listener<T>();
