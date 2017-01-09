@@ -37,7 +37,7 @@ namespace SocialPoint.Social
         const string SearchScoreKey = "monster_power";
         const string SearchFilterKey = "filter_name";
 
-        const string AllianceInfoKey = "alliance_info";
+        protected const string AllianceInfoKey = "alliance_info";
         const string AllianceIdKey = "id";
         const string AllianceNameKey = "name";
         const string AllianceDescriptionKey = "description";
@@ -273,6 +273,7 @@ namespace SocialPoint.Social
 
         public void OnAllianceCreated(AlliancePlayerInfo info, Alliance data, AttrDic result)
         {
+
             DebugUtils.Assert(result.Get(AllianceIdKey).IsValue);
             var id = result.GetValue(AllianceIdKey).ToString();
 

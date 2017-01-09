@@ -52,6 +52,7 @@ namespace SocialPoint.Lockstep
             public bool Ready;
             public string PlayerId;
             public byte PlayerNumber;
+            public string BackendEnv;
         }
 
         IMatchmakingServer _matchmaking;
@@ -68,7 +69,8 @@ namespace SocialPoint.Lockstep
 
         public LockstepServerConfig ServerConfig{ get; set; }
 
-        public event Action<Attr> MatchStarted;
+        public event Action BeforeMatchStarts;
+        public event Action<byte[]> MatchStarted;
         public event Action<Error> ErrorProduced;
         public event Action<Error, byte> CommandFailed;
         public event Action<Dictionary<byte, Attr>> MatchFinished;
@@ -96,6 +98,27 @@ namespace SocialPoint.Lockstep
             get
             {
                 return _serverLockstep.GameParams;
+            }
+        }
+        
+        public string ClientsEnvironment
+        {
+            get
+            {
+                string environment = string.Empty;
+
+                for(int i = 0; i < _clients.Count; i++)
+                {
+                    if(string.IsNullOrEmpty(environment) || string.Equals(environment, _clients[i].BackendEnv, StringComparison.OrdinalIgnoreCase))
+                    {
+                        environment = _clients[i].BackendEnv;
+                    }
+                    else
+                    {
+                        throw new Exception("Clients are in different environments. Make sure both are in the same.");
+                    }
+                }
+                return environment;
             }
         }
 
@@ -457,7 +480,8 @@ namespace SocialPoint.Lockstep
                 // new client
                 client = new ClientData {
                     PlayerId = msg.PlayerId,
-                    PlayerNumber = FreePlayerNumber
+                    PlayerNumber = FreePlayerNumber,
+                    BackendEnv = msg.BackendEnv
                 };
                 _clients.Add(client);
             }
@@ -506,6 +530,10 @@ namespace SocialPoint.Lockstep
 
         void StartLockstep()
         {
+            if(BeforeMatchStarts != null)
+            {
+                BeforeMatchStarts();
+            }
             if(_matchmaking != null && _matchmaking.Enabled)
             {
                 var playerIds = PlayerIds;
@@ -519,7 +547,7 @@ namespace SocialPoint.Lockstep
             DoStartLockstep();
         }
 
-        void IMatchmakingServerDelegate.OnMatchInfoReceived(Attr info)
+        void IMatchmakingServerDelegate.OnMatchInfoReceived(byte[] info)
         {
             if(MatchStarted != null)
             {
@@ -579,7 +607,6 @@ namespace SocialPoint.Lockstep
             }
             var msg = new AttrMessage();
             msg.Deserialize(reader);
-            client.Ready = false;
             PlayerResults[client.PlayerNumber] = msg.Data;
             CheckAllPlayersEnded();
         }

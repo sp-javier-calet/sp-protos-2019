@@ -25,6 +25,8 @@ namespace SocialPoint.Network
             }
         }
 
+        public string BackendEnv;
+
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
         INetworkMessageReceiver _receiver;
 
@@ -60,6 +62,12 @@ namespace SocialPoint.Network
 
         protected override void OnConnected()
         {
+            if(!string.IsNullOrEmpty(BackendEnv))
+            {
+                var options = new RaiseEventOptions();
+                options.Receivers = ReceiverGroup.Others;
+                PhotonNetwork.RaiseEvent(PhotonMsgType.BackendEnv, System.Text.Encoding.ASCII.GetBytes(BackendEnv), true, options);
+            }
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnClientConnected();

@@ -186,18 +186,23 @@ namespace SocialPoint.Social
             _messages.SetHistory(history);
         }
 
-        public void SendMessage(MessageType message)
+        public void SendMessage(int type, MessageType message)
         {
             SetupMessage(message);
 
             var messageInfo = _factory.SerializeMessage(message);
 
             var args = new AttrDic();
-            args.SetValue(ConnectionManager.NotificationTypeKey, NotificationType.TextMessage);
+            args.SetValue(ConnectionManager.NotificationTypeKey, type);
             args.Set(ConnectionManager.ChatMessageInfoKey, messageInfo);
 
             var idx = _messages.Add(message);
             ChatManager.Connection.Publish(Id, null, args, (err, pub) => OnMessageSent(idx, message.Uuid));
+        }
+
+        public void SendMessage(MessageType message)
+        {
+            SendMessage(NotificationType.TextMessage, message);
         }
 
         void SetupMessage(MessageType message)

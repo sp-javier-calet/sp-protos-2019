@@ -51,6 +51,8 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public string Environment { get; set; }
+
         public event Action<int> StartScheduled;
         public event Action PlayerReadySent;
         public event Action<Attr> PlayerFinishSent;
@@ -195,7 +197,7 @@ namespace SocialPoint.Lockstep
                 _sendPlayerReadyPending = false;
                 _client.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.PlayerReady,
-                }, new PlayerReadyMessage(PlayerId));
+                }, new PlayerReadyMessage(PlayerId, Environment));
                 if(PlayerReadySent != null)
                 {
                     PlayerReadySent();

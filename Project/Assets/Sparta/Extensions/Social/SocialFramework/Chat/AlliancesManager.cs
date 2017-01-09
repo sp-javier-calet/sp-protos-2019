@@ -18,6 +18,7 @@ namespace SocialPoint.Social
         AllianceAvatarEdited,
         AllianceTypeEdited,
         AllianceRequirementEdited,
+        AllianceDataEdited,
         PlayerChangedRank,
         PlayerAutoChangedRank,
         MateJoinedPlayerAlliance,
@@ -37,6 +38,8 @@ namespace SocialPoint.Social
 
         public JoinExtraData()
         {
+            Message = string.Empty;
+            Timestamp = TimeUtils.Timestamp;
         }
 
         public JoinExtraData(string origin)
@@ -51,21 +54,21 @@ namespace SocialPoint.Social
     {
         #region Attr keys
 
-        const string UserIdKey = "user_id";
+        public const string UserIdKey = "user_id";
         const string MemberIdKey = "player_id";
         const string AllianceIdKey = "alliance_id";
-        const string AvatarKey = "avatar";
-        const string AllianceDescriptionKey = "description";
-        const string AllianceRequirementKey = "minimum_score";
-        const string AllianceTypeKey = "type";
-        const string AlliancePropertiesKey = "properties";
+        public const string AvatarKey = "avatar";
+        public const string AllianceDescriptionKey = "description";
+        public const string AllianceRequirementKey = "minimum_score";
+        public const string AllianceTypeKey = "type";
+        public const string AlliancePropertiesKey = "properties";
         const string AllianceNewMemberKey = "new_member_id";
         const string AllianceDeniedMemberKey = "denied_user_id";
         const string AllianceKickedMemberKey = "kicked_user_id";
         const string AlliancePromotedMemberKey = "promoted_user_id";
-        const string AllianceNewRankKey = "new_role";
-        const string NotificationTypeKey = "type";
-        const string OperationResultKey = "result";
+        public const string AllianceNewRankKey = "new_role";
+        public const string NotificationTypeKey = "type";
+        public const string OperationResultKey = "result";
         const string NotificationIdKey = "notification_id";
         const string JoinTimestampKey = "timestamp";
         const string JoinOriginKey = "origin";
@@ -97,6 +100,7 @@ namespace SocialPoint.Social
         public delegate void AllianceEventDelegate(AllianceAction action, AttrDic dic);
 
         public event AllianceEventDelegate AllianceEvent;
+        public event AllianceEventDelegate AllianceCustomEvent;
 
         public AlliancePlayerInfo AlliancePlayerInfo { get; private set; }
 
@@ -362,6 +366,8 @@ namespace SocialPoint.Social
                     current.Requirement = data.Requirement;
                     NotifyAllianceEvent(AllianceAction.AllianceRequirementEdited, rDic);
                 }
+
+                NotifyCustomAllianceEvent(AllianceAction.AllianceDataEdited, rDic);
             });
         }
 
@@ -554,6 +560,7 @@ namespace SocialPoint.Social
                     break;
                 }
             case NotificationType.BroadcastAllianceMemberPromote:
+            case NotificationType.BroadcastAllianceMemberRankChange:
                 {
                     OnMemberPromoted(dic);
                     break;
@@ -632,6 +639,7 @@ namespace SocialPoint.Social
                     break;
                 }
             case NotificationType.BroadcastAllianceMemberPromote:
+            case NotificationType.BroadcastAllianceMemberRankChange:
                 {
                     OnMemberPromoted(dic);
                     break;
@@ -722,6 +730,8 @@ namespace SocialPoint.Social
             {
                 NotifyAllianceEvent(AllianceAction.AllianceRequirementEdited, dic);
             }
+
+            NotifyCustomAllianceEvent(AllianceAction.AllianceDataEdited, dic);
         }
 
         void OnMemberPromoted(AttrDic dic)
@@ -734,6 +744,15 @@ namespace SocialPoint.Social
             if(AllianceEvent != null)
             {
                 AllianceEvent(action, dic);
+            }
+        }
+
+
+        void NotifyCustomAllianceEvent(AllianceAction action, AttrDic dic)
+        {
+            if(AllianceCustomEvent != null)
+            {
+                AllianceCustomEvent(action, dic);
             }
         }
 
