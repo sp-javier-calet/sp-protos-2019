@@ -57,8 +57,8 @@ namespace SocialPoint.WebSockets
         {
             get
             {
-				if (!IsSupported)
-					return default(UIntPtr);	
+                if(!IsSupported)
+                    return default(UIntPtr);	
 		
                 if(!IsValidInstance)
                 {
@@ -80,8 +80,8 @@ namespace SocialPoint.WebSockets
         public WebSocket(string[] urls, string[] protocols)
         {
 
-			if (!IsSupported)
-				return;
+            if(!IsSupported)
+                return;
 			
             _nativeSocket = SPUnityWebSocketsCreate();
             _lastState = WebSocketState.Closed;
@@ -106,8 +106,8 @@ namespace SocialPoint.WebSockets
 
         public void Connect()
         {
-			if (!IsSupported)
-				return;
+            if(!IsSupported)
+                return;
 
             SPUnityWebSocketConnect(NativeSocket);
         }
@@ -178,8 +178,8 @@ namespace SocialPoint.WebSockets
         {
             get
             {
-				if (!IsSupported)
-					return false;
+                if(!IsSupported)
+                    return false;
 
                 return SPUnityWebSocketGetState(NativeSocket) == (int)WebSocketState.Connecting;
             }
@@ -206,7 +206,7 @@ namespace SocialPoint.WebSockets
         {
             set
             {
-                if( !IsSupported )
+                if(!IsSupported)
                     return;
                 
                 if(!string.IsNullOrEmpty(value))
