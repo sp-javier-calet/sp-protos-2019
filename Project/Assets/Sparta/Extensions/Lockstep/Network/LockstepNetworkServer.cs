@@ -101,27 +101,6 @@ namespace SocialPoint.Lockstep
             }
         }
         
-        public string ClientsEnvironment
-        {
-            get
-            {
-                string environment = string.Empty;
-
-                for(int i = 0; i < _clients.Count; i++)
-                {
-                    if(string.IsNullOrEmpty(environment) || string.Equals(environment, _clients[i].BackendEnv, StringComparison.OrdinalIgnoreCase))
-                    {
-                        environment = _clients[i].BackendEnv;
-                    }
-                    else
-                    {
-                        throw new Exception("Clients are in different environments. Make sure both are in the same.");
-                    }
-                }
-                return environment;
-            }
-        }
-
         public LockstepNetworkServer(INetworkServer server, IMatchmakingServer matchmaking = null, IUpdateScheduler scheduler = null)
         {
             ServerConfig = new LockstepServerConfig();
