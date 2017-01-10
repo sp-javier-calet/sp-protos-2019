@@ -115,8 +115,7 @@ namespace SocialPoint.Network
 
         void OnFailReceived(NetworkMessage umsg)
         {
-            var errMsg = umsg.reader.ReadString();
-            var err = new Error(errMsg);
+            var err = Error.FromString(umsg.reader.ReadString());
             OnNetworkError(err);
             Disconnect();
         }

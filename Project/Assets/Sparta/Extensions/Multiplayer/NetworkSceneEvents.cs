@@ -1,6 +1,5 @@
 ﻿using SocialPoint.IO;
-using SocialPoint.Network;
-using System;
+using SocialPoint.Geometry;
 
 namespace SocialPoint.Multiplayer
 {

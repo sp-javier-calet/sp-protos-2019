@@ -1,14 +1,14 @@
 using System;
 using SocialPoint.Dependency;
-using SocialPoint.Attributes;
 using SocialPoint.ServerEvents;
 using SocialPoint.Login;
 using SocialPoint.ServerSync;
 using SocialPoint.Crash;
 using SocialPoint.AdminPanel;
-using SocialPoint.AppEvents;
 using SocialPoint.ServerMessaging;
-using System.Text;
+using SocialPoint.Notifications;
+using SocialPoint.CrossPromotion;
+using SocialPoint.Network;
 
 public class EmptyBackendInstaller : Installer, IInitializable
 {
@@ -23,6 +23,7 @@ public class EmptyBackendInstaller : Installer, IInitializable
         {
             Container.Bind<IInitializable>().ToInstance(this);
             Container.Bind<ILogin>().ToMethod<EmptyLogin>(CreateEmptyLogin);
+            Container.Bind<ILoginData>().ToLookup<ILogin>();
             Container.Bind<IDisposable>().ToLookup<ILogin>();
         }
         if(!Container.HasInstalled<LoginAdminPanelInstaller>())
@@ -50,13 +51,17 @@ public class EmptyBackendInstaller : Installer, IInitializable
             Container.Bind<IDisposable>().ToLookup<IMessageCenter>();
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMessageCenter>(CreateAdminPanelMessageCenter);
         }
-        if(!Container.HasBinding<NotificationManager>())
+        if(!Container.HasBinding<GameNotificationManager>())
         {
             Container.Install<NotificationInstaller>();
         }
-        if(!Container.HasBinding<CrossPromotionManager>())
+        if(!Container.HasBinding<GameCrossPromotionManager>())
         {
             Container.Install<CrossPromotionInstaller>();
+        }
+        if(!Container.HasBinding<IHttpClient>())
+        {
+            Container.Bind<IHttpClient>().ToLookup<IHttpClient>("internal");
         }
     }
 

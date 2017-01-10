@@ -6,15 +6,15 @@ namespace SocialPoint.Lockstep
 {
     public class LockstepReplay : IDisposable, INetworkShareable
     {
-        ClientLockstepController _client;
+        LockstepClient _client;
         LockstepCommandFactory _commandFactory;
-        Dictionary<int, ClientLockstepTurnData> _turns;
+        Dictionary<int, ClientTurnData> _turns;
         LockstepConfig _config;
         LockstepGameParams _gameParams;
 
-        public LockstepReplay(ClientLockstepController clientLockstep, LockstepCommandFactory commandFactory)
+        public LockstepReplay(LockstepClient clientLockstep, LockstepCommandFactory commandFactory)
         {
-            _turns = new Dictionary<int, ClientLockstepTurnData>();
+            _turns = new Dictionary<int, ClientTurnData>();
             _client = clientLockstep;
             _commandFactory = commandFactory;
         }
@@ -71,7 +71,7 @@ namespace SocialPoint.Lockstep
             itr.Dispose();
         }
 
-        public IEnumerator<ClientLockstepTurnData> GetTurnsEnumerator()
+        public IEnumerator<ClientTurnData> GetTurnsEnumerator()
         {
             var t = 0;
             var itr = _turns.GetEnumerator();
@@ -79,7 +79,7 @@ namespace SocialPoint.Lockstep
             {
                 while(t < itr.Current.Key)
                 {
-                    yield return ClientLockstepTurnData.Empty;
+                    yield return ClientTurnData.Empty;
                     t++;
                 }
                 yield return itr.Current.Value;
@@ -93,28 +93,23 @@ namespace SocialPoint.Lockstep
             _config = null;
         }
 
-        public void AddTurn(int num, ClientLockstepTurnData turn)
+        public void AddTurn(int num, ClientTurnData turn)
         {
             _turns[num] = turn;
         }
 
-        public void AddCommand(int turnNum, ClientLockstepCommandData data)
+        public void AddCommand(int turnNum, ClientCommandData data)
         {
-            ClientLockstepTurnData turn;
+            ClientTurnData turn;
             if(!_turns.TryGetValue(turnNum, out turn))
             {
-                turn = new ClientLockstepTurnData();
+                turn = new ClientTurnData();
                 _turns[turnNum] = turn;
             }
             turn.AddCommand(data);
         }
 
-        public void AddCommand(int turnNum, ILockstepCommand cmd, ILockstepCommandLogic finish = null)
-        {
-            AddCommand(turnNum, new ClientLockstepCommandData(cmd, finish));
-        }
-
-        void OnTurnApplied(ClientLockstepTurnData turn)
+        void OnTurnApplied(ClientTurnData turn)
         {
             if(_config == null)
             {
@@ -124,7 +119,7 @@ namespace SocialPoint.Lockstep
             {
                 _gameParams = _client.GameParams;
             }
-            if(!ClientLockstepTurnData.IsNullOrEmpty(turn))
+            if(!ClientTurnData.IsNullOrEmpty(turn))
             {
                 _turns[_client.CurrentTurnNumber] = turn;
             }
@@ -161,7 +156,7 @@ namespace SocialPoint.Lockstep
             for(int i = 0; i < count; ++i)
             {
                 var num = reader.ReadInt32();
-                var turn = new ClientLockstepTurnData();
+                var turn = new ClientTurnData();
                 turn.Deserialize(_commandFactory, reader);
                 _turns[num] = turn;
             }

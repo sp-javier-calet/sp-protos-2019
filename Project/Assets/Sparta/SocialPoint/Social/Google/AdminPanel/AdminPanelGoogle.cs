@@ -50,10 +50,7 @@ namespace SocialPoint.Social
                     {
                         return;
                     }
-                    if(_console != null)
-                    {
-                        _console.Print("Logging in to Google Play Games");
-                    }
+                    ConsolePrint("Logging in to Google Play Games");
                     _google.Login(err => {
                         _toggleLogin.isOn = (err == null);
                         ConsolePrint("Login finished." + err);
@@ -108,7 +105,7 @@ namespace SocialPoint.Social
             var eventIdField = groupLayout.CreateTextInput("Event id", connected);
             groupLayout.CreateButton("+", () => _google.IncrementEvent(eventIdField.text), connected);
 
-            layout.CreateConfirmButton("Show Quests UI", () => _google.ShowViewQuestsUI((evt, err) => _console.Print("Event " + evt + ". " + err)), connected);
+            layout.CreateConfirmButton("Show Quests UI", () => _google.ShowViewQuestsUI((evt, err) => ConsolePrint("Event " + evt + ". " + err)), connected);
         }
 
         #region Achievements panels

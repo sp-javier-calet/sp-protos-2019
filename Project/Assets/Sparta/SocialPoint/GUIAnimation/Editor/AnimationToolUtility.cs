@@ -61,7 +61,6 @@ namespace SocialPoint.GUIAnimation
                 style.fontStyle = FontStyle.Normal;
                 break;
             }
-			
             return style;
         }
     }

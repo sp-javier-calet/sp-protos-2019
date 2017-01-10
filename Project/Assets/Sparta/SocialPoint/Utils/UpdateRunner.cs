@@ -25,6 +25,8 @@ namespace SocialPoint.Utils
         void AddFixed(IUpdateable elm, double interval, bool usesTimeScale = false);
 
         void Remove(IUpdateable elm);
+
+        bool Contains(IUpdateable elm);
     }
 
     public static class UpdateSchedulerExtension
@@ -44,40 +46,52 @@ namespace SocialPoint.Utils
         }
     }
 
-    public sealed class TimeScaleDependantInterval
+    public sealed class ScheduledAction : IUpdateable, IDisposable
     {
-        public readonly double Interval;
-        public double AccumTime;
+        Action _action;
+        IUpdateScheduler _scheduler;
+        bool _started;
 
-        public TimeScaleDependantInterval(double interval)
+        public ScheduledAction(IUpdateScheduler scheduler, Action action)
         {
-            Interval = interval;
-            AccumTime = 0.0;
-        }
-    }
-
-    public sealed class TimeScaleNonDependantInterval
-    {
-        public readonly double Interval;
-        public double CurrentTimeStamp;
-
-        public TimeScaleNonDependantInterval(double interval)
-        {
-            Interval = interval;
-            CurrentTimeStamp = TimeUtils.GetTimestampDouble(DateTime.Now);
-        }
-    }
-
-    public sealed class ReferenceComparer<T> : IEqualityComparer<T>
-    {
-        public bool Equals(T x, T y)
-        {
-            return ReferenceEquals(x, y);
+            _scheduler = scheduler;
+            _action = action;
         }
 
-        public int GetHashCode(T obj)
+        public void Start(double interval = 0)
         {
-            return obj.GetType().GetHashCode();
+            if(_started)
+            {
+                Stop();
+            }
+
+            _started = true;
+            if(interval <= 0)
+            {
+                _scheduler.Add(this);
+            }
+            else
+            {
+                _scheduler.AddFixed(this, interval);
+            }
+        }
+
+        public void Update()
+        {
+            _action();
+        }
+
+        public void Stop()
+        {
+            _started = false;
+            _scheduler.Remove(this);
+        }
+
+        public void Dispose()
+        {
+            Stop();
+            _scheduler = null;
+            _action = null;
         }
     }
 
@@ -103,7 +117,13 @@ namespace SocialPoint.Utils
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                _elements.Add(elm);
+                if(!_elementsToRemove.Remove(elm))
+                {
+                    if(!Contains(elm))
+                    {
+                        _elements.Add(elm);
+                    }
+                }
             }
         }
 
@@ -112,15 +132,12 @@ namespace SocialPoint.Utils
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                if(usesTimeScale)
+                if(!_elementsToRemove.Remove(elm))
                 {
-                    var intervalData = new TimeScaleDependantInterval(interval);
-                    _intervalTimeScaleDependantElements.Add(elm, intervalData);
-                }
-                else
-                {
-                    var intervalData = new TimeScaleNonDependantInterval(interval);
-                    _intervalTimeScaleNonDependantElements.Add(elm, intervalData);
+                    if(!Contains(elm))
+                    {
+                        DoAddFixed(elm, interval, usesTimeScale);
+                    }
                 }
             }
         }
@@ -130,6 +147,29 @@ namespace SocialPoint.Utils
             if(elm != null)
             {
                 _elementsToRemove.Add(elm);
+            }
+        }
+
+        public bool Contains(IUpdateable elm)
+        {
+            if(_elements.Contains(elm))
+            {
+                return true;
+            }
+            return _intervalTimeScaleDependantElements.ContainsKey(elm) || _intervalTimeScaleNonDependantElements.ContainsKey(elm);
+        }
+
+        void DoAddFixed(IUpdateable elm, double interval, bool usesTimeScale = false)
+        {
+            if(usesTimeScale)
+            {
+                var intervalData = new TimeScaleDependantInterval(interval);
+                _intervalTimeScaleDependantElements.Add(elm, intervalData);
+            }
+            else
+            {
+                var intervalData = new TimeScaleNonDependantInterval(interval);
+                _intervalTimeScaleNonDependantElements.Add(elm, intervalData);
             }
         }
 
@@ -229,13 +269,62 @@ namespace SocialPoint.Utils
             var exceptionsCount = _exceptions.Count;
             if(exceptionsCount > 0)
             {
+                throw new AggregateException(_exceptions);
+            }
+        }
+
+        sealed class AggregateException : Exception
+        {
+            static string CreateMessage(IEnumerable<Exception> exceptions)
+            {
                 var sb = new StringBuilder();
-                for(int i = 0; i < exceptionsCount; i++)
+                sb.AppendLine("Multiple Exceptions thrown:");
+                var count = 1;
+                var itr = exceptions.GetEnumerator();
+                while(itr.MoveNext())
                 {
-                    var ex = _exceptions[i];
-                    sb.Append(ex.Message);
+                    var ex = itr.Current;
+                    sb.Append(count++)
+                        .Append(". ")
+                        .Append(ex.GetType().Name)
+                        .Append(": ")
+                        .Append(ex.Message)
+                        .AppendLine(ex.StackTrace);
+                    sb.AppendLine();
                 }
-                throw new Exception(sb.ToString());
+                itr.Dispose();
+                return sb.ToString();
+            }
+
+            public List<Exception> Exceptions { get; private set; }
+
+            public AggregateException(IEnumerable<Exception> exceptions) : base(CreateMessage(exceptions))
+            {
+                Exceptions = new List<Exception>(exceptions);
+            }
+        }
+
+        sealed class TimeScaleDependantInterval
+        {
+            public readonly double Interval;
+            public double AccumTime;
+
+            public TimeScaleDependantInterval(double interval)
+            {
+                Interval = interval;
+                AccumTime = 0.0;
+            }
+        }
+
+        sealed class TimeScaleNonDependantInterval
+        {
+            public readonly double Interval;
+            public double CurrentTimeStamp;
+
+            public TimeScaleNonDependantInterval(double interval)
+            {
+                Interval = interval;
+                CurrentTimeStamp = TimeUtils.GetTimestampDouble(DateTime.Now);
             }
         }
     }

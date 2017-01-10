@@ -45,14 +45,13 @@ namespace SocialPoint.GUIAnimation
             get
             {
                 return SubWidget ? SubWidget.color : Color.white;
-
             }
             set
             {
                 if(SubWidget)
                 {
                     SubWidget.color = value;
-//					Refresh();
+                    Refresh();
                 }
             }
         }
@@ -66,7 +65,7 @@ namespace SocialPoint.GUIAnimation
             set
             {
                 _graphic.alpha = value;
-//				Refresh();
+                Refresh();
             }
         }
 

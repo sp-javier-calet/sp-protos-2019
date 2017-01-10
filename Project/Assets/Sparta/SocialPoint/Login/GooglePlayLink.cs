@@ -66,6 +66,11 @@ namespace SocialPoint.Login
             _eventStateChange += cbk;
         }
 
+        public void ClearStateChangeDelegate()
+        {
+            _eventStateChange = null;
+        }
+
         void OnStateChanged()
         {
             _state = _googlePlay.IsConnected ? LinkState.Connected : LinkState.Disconnected;

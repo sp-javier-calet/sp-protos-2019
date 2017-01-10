@@ -7,7 +7,7 @@ namespace SocialPoint.GUIAnimation
     [System.Serializable]
     public sealed class ColorEffect : BlendEffect
     {
-        public class TargetValueMonitor : StepMonitor
+        public sealed class TargetValueMonitor : StepMonitor
         {
             public Color Color;
 
@@ -76,8 +76,7 @@ namespace SocialPoint.GUIAnimation
         public override void Copy(Step other)
         {
             base.Copy(other);
-
-            CopyActionValues((Effect)other);
+            CopyActionValues((ColorEffect)other);
         }
 
         public override void CopyActionValues(Effect other)

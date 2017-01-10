@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using SocialPoint.Geometry;
 using SocialPoint.IO;
 using SocialPoint.Utils;
 using Jitter.LinearMath;
@@ -93,7 +93,7 @@ namespace SocialPoint.Physics
 
         public void Serialize(Ray newObj, IWriter writer)
         {
-            var vs = JVectorSerializer.Instance;
+            var vs = VectorSerializer.Instance;
             vs.Serialize(newObj.Origin, writer);
             vs.Serialize(newObj.Direction, writer);
             writer.Write(newObj.LayerMask);
@@ -101,7 +101,7 @@ namespace SocialPoint.Physics
 
         public void Serialize(Ray newObj, Ray oldObj, IWriter writer, Bitset dirty)
         {
-            var vs = JVectorSerializer.Instance;
+            var vs = VectorSerializer.Instance;
             if(Bitset.NullOrGet(dirty))
             {
                 vs.Serialize(newObj.Origin, oldObj.Origin, writer);
@@ -124,7 +124,7 @@ namespace SocialPoint.Physics
 
         public Ray Parse(IReader reader)
         {
-            var vp = JVectorParser.Instance;
+            var vp = VectorParser.Instance;
             var obj = new Ray();
             obj.Origin = vp.Parse(reader);
             obj.Direction = vp.Parse(reader);
@@ -139,7 +139,7 @@ namespace SocialPoint.Physics
 
         public Ray Parse(Ray obj, IReader reader, Bitset dirty)
         {
-            var vp = JVectorParser.Instance;
+            var vp = VectorParser.Instance;
             if(Bitset.NullOrGet(dirty))
             {
                 obj.Origin = vp.Parse(obj.Origin, reader);

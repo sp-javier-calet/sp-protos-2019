@@ -261,7 +261,7 @@ namespace SocialPoint.Utils
         }
     }
         
-    public sealed class StateMachine<Transition> : StateMachine<Transition, IState>
+    public class StateMachine<Transition> : StateMachine<Transition, IState>
     {
     }
 }

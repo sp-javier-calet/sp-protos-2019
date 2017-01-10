@@ -95,12 +95,9 @@ public class BasicColorsButtonsDrawer : MaterialPropertyDrawer
         m_colorButtonsStyle.hover.background = focusedButtonImg;
         m_colorButtonsStyle.active.background = focusedButtonImg;
         m_colorButtonsStyle.focused.background = focusedButtonImg;
-        m_colorButtonsStyle.fixedHeight = 10f;
-        m_colorButtonsStyle.alignment = TextAnchor.MiddleCenter;
-        m_colorButtonsStyle.border = new RectOffset(16, 16, 0, 0);
+        m_colorButtonsStyle.fixedHeight = 16f;
+        m_colorButtonsStyle.fixedWidth = 16f;
         m_colorButtonsStyle.margin = new RectOffset(2, 2, 2, 8);
-        m_colorButtonsStyle.stretchWidth = true;
-        m_colorButtonsStyle.stretchHeight = true;
 
         m_paletteButtonStyle = new GUIStyle();
         string paletteIconPath = AssetDatabase.GUIDToAssetPath(AssetDatabase.FindAssets("editorResource_icon_palettePainBrush")[0]);
@@ -111,11 +108,7 @@ public class BasicColorsButtonsDrawer : MaterialPropertyDrawer
         m_paletteButtonStyle.focused.background = paletteTexture;
         m_paletteButtonStyle.fixedHeight = 16f;
         m_paletteButtonStyle.fixedWidth = 16f;
-        m_paletteButtonStyle.alignment = TextAnchor.MiddleCenter;
-        //m_paletteButtonStyle.border = new RectOffset(16, 16, 0, 0);
-        m_paletteButtonStyle.margin = new RectOffset(2, 2, 2, 8);
-        m_paletteButtonStyle.stretchWidth = false;
-        m_paletteButtonStyle.stretchHeight = false;
+        m_paletteButtonStyle.margin = new RectOffset(12, 2, 2, 8);
     }
 
 
@@ -128,6 +121,10 @@ public class BasicColorsButtonsDrawer : MaterialPropertyDrawer
         Color[] palette = basicColorPalettes[m_paletteIndex];
 
         GUILayout.BeginHorizontal();
+
+        // Add this to justify the buttons to the right.
+        GUILayout.FlexibleSpace(); 
+
         foreach (Color c in palette)
         {
             GUI.backgroundColor = c;

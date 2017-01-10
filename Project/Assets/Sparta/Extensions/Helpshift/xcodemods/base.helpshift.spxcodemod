@@ -1,0 +1,17 @@
+{
+    "frameworks":[
+        "CoreTelephony.framework:weak",
+        "MobileCoreServices.framework:weak",
+        "Security.framework:weak",
+        "QuickLook.framework:weak"
+    ],
+    "libs":[
+        "libsqlite3.dylib:weak",
+        "libz.dylib:weak"
+    ],
+    "folders":[
+      "{ROOT_PATH}/Assets/Sparta/External/Helpshift/Plugins/iOS/HSLocalization",
+      "{ROOT_PATH}/Assets/Sparta/External/Helpshift/Plugins/iOS/HSResources",
+      "{ROOT_PATH}/Assets/Sparta/External/Helpshift/Plugins/iOS/HSThemes"
+    ]
+}
