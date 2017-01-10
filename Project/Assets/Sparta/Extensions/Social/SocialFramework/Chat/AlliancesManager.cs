@@ -14,10 +14,6 @@ namespace SocialPoint.Social
         JoinPublicAlliance,
         JoinPrivateAlliance,
         LeaveAlliance,
-        AllianceDescriptionEdited,
-        AllianceAvatarEdited,
-        AllianceTypeEdited,
-        AllianceRequirementEdited,
         AllianceDataEdited,
         PlayerChangedRank,
         PlayerAutoChangedRank,
@@ -100,7 +96,6 @@ namespace SocialPoint.Social
         public delegate void AllianceEventDelegate(AllianceAction action, AttrDic dic);
 
         public event AllianceEventDelegate AllianceEvent;
-        public event AllianceEventDelegate AllianceCustomEvent;
 
         public AlliancePlayerInfo AlliancePlayerInfo { get; private set; }
 
@@ -343,31 +338,12 @@ namespace SocialPoint.Social
                     callback(null);
                 }
 
-                if(current.Description != data.Description)
-                {
-                    current.Description = data.Description;
-                    NotifyAllianceEvent(AllianceAction.AllianceDescriptionEdited, rDic);
-                }
+                current.Description = data.Description;
+                current.Avatar = data.Avatar;
+                current.AccessType = data.AccessType;
+                current.Requirement = data.Requirement;
 
-                if(current.Avatar != data.Avatar)
-                {
-                    current.Avatar = data.Avatar;
-                    NotifyAllianceEvent(AllianceAction.AllianceAvatarEdited, rDic);
-                }
-
-                if(current.AccessType != data.AccessType)
-                {
-                    current.AccessType = data.AccessType;
-                    NotifyAllianceEvent(AllianceAction.AllianceTypeEdited, rDic);
-                }
-
-                if(current.Requirement != data.Requirement)
-                {
-                    current.Requirement = data.Requirement;
-                    NotifyAllianceEvent(AllianceAction.AllianceRequirementEdited, rDic);
-                }
-
-                NotifyCustomAllianceEvent(AllianceAction.AllianceDataEdited, rDic);
+                NotifyAllianceEvent(AllianceAction.AllianceDataEdited, rDic);
             });
         }
 
@@ -709,29 +685,13 @@ namespace SocialPoint.Social
             DebugUtils.Assert(dic.Get(AlliancePropertiesKey).IsDic);
             var changesDic = dic.Get(AlliancePropertiesKey).AsDic;
 
-            if(changesDic.ContainsKey(AllianceDescriptionKey))
-            {
-                NotifyAllianceEvent(AllianceAction.AllianceDescriptionEdited, dic);
-            }
-
             if(changesDic.ContainsKey(AvatarKey))
             {
                 var newAvatar = changesDic.GetValue(AvatarKey).ToInt();
                 AlliancePlayerInfo.Avatar = newAvatar;
-                NotifyAllianceEvent(AllianceAction.AllianceAvatarEdited, dic);
             }
 
-            if(changesDic.ContainsKey(AllianceTypeKey))
-            {
-                NotifyAllianceEvent(AllianceAction.AllianceTypeEdited, dic);
-            }
-
-            if(changesDic.ContainsKey(AllianceRequirementKey))
-            {
-                NotifyAllianceEvent(AllianceAction.AllianceRequirementEdited, dic);
-            }
-
-            NotifyCustomAllianceEvent(AllianceAction.AllianceDataEdited, dic);
+            NotifyAllianceEvent(AllianceAction.AllianceDataEdited, dic);
         }
 
         void OnMemberPromoted(AttrDic dic)
@@ -746,16 +706,7 @@ namespace SocialPoint.Social
                 AllianceEvent(action, dic);
             }
         }
-
-
-        void NotifyCustomAllianceEvent(AllianceAction action, AttrDic dic)
-        {
-            if(AllianceCustomEvent != null)
-            {
-                AllianceCustomEvent(action, dic);
-            }
-        }
-
+            
         void LeaveAllianceChat()
         {
             var chatManager = _connection.ChatManager;
