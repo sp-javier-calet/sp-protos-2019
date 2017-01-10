@@ -27,9 +27,9 @@ public class GameInstaller : Installer, IInitializable
         Container.Bind<IInitializable>().ToInstance(this);
 
 #if UNITY_EDITOR
-        Container.BindInstance("game_debug", Settings.EditorDebug);
+        Container.Bind<bool>("game_debug").ToInstance(Settings.EditorDebug);
 #else
-        Container.BindInstance("game_debug", UnityEngine.Debug.isDebugBuild);
+        Container.Bind<bool>("game_debug").ToInstance(UnityEngine.Debug.isDebugBuild);
 #endif
         Container.Install<GameModelInstaller>();
 

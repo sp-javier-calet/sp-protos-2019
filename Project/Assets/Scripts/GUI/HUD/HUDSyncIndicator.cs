@@ -9,7 +9,7 @@ public class HUDSyncIndicator : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 
     void Start()
     {
-        _commandQueue = ServiceLocator.Instance.Resolve<ICommandQueue>();
+        _commandQueue = Services.Instance.Resolve<ICommandQueue>();
         if(_commandQueue != null)
         {
             _commandQueue.SyncChange += OnCommandQueueSyncChange;

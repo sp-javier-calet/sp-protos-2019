@@ -47,7 +47,7 @@ public class GameServicesInstaller : Installer
         // Notifications
         Container.Rebind<GameNotificationManager>().ToMethod<GameNotificationManager>(CreateNotificationManager);
         Container.Rebind<NotificationManager>().ToLookup<GameNotificationManager>();
-        Container.Bind<IDisposable>().ToMethod<GameNotificationManager>(CreateNotificationManager);
+        Container.Bind<IDisposable>().ToLookup<GameNotificationManager>();
 
         // Localization
         Container.Rebind<ILocalizationManager>().ToMethod<GameLocalizationManager>(CreateLocalizationManager, SetupLocalizationManager);

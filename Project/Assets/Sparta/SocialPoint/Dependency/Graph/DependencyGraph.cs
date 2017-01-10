@@ -236,7 +236,10 @@ namespace SocialPoint.Dependency.Graph
                 Bindings.Add(type, instances);
             }
 
-            instances.Add(node.Tag, node);
+            if(!instances.ContainsKey(node.Tag))
+            {
+                instances.Add(node.Tag, node);
+            }
         }
 
         public Node TryGetNode(Type type, TagValue tag)

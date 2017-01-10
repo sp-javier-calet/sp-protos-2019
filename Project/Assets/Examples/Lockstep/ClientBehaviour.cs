@@ -84,9 +84,9 @@ namespace Examples.Lockstep
 
         void Start()
         {
-            _lockstep = ServiceLocator.Instance.Resolve<LockstepClient>();
+            _lockstep = Services.Instance.Resolve<LockstepClient>();
             _lockstep.ClientConfig.LocalSimulationDelay = 500;
-            _replay = ServiceLocator.Instance.Resolve<LockstepReplay>();
+            _replay = Services.Instance.Resolve<LockstepReplay>();
             _lockstep.Simulate += SimulateClient;
 
             _model = new Model(_gameConfig);
@@ -95,7 +95,7 @@ namespace Examples.Lockstep
 
             _lockstep.RegisterCommandLogic<ClickCommand>(new ClickCommandLogic(_model));
             _lockstep.SimulationStarted += OnGameStarted;
-            var factory = ServiceLocator.Instance.Resolve<LockstepCommandFactory>();
+            var factory = Services.Instance.Resolve<LockstepCommandFactory>();
             CommandType.Setup(_model, factory, _lockstep);
 
 
@@ -193,11 +193,11 @@ namespace Examples.Lockstep
         void StartClient(GameLockstepMode mode)
         {
             _mode = mode;
-            _netClient = ServiceLocator.Instance.Resolve<INetworkClient>();
+            _netClient = Services.Instance.Resolve<INetworkClient>();
             _netClient.RemoveDelegate(this);
             _netClient.AddDelegate(this);
             SetupPhoton(_netClient as PhotonNetworkBase);
-            _netLockstepClient = ServiceLocator.Instance.Resolve<LockstepNetworkClient>();
+            _netLockstepClient = Services.Instance.Resolve<LockstepNetworkClient>();
             _netLockstepClient.EndReceived -= OnClientEndReceived;
             _netLockstepClient.EndReceived += OnClientEndReceived;
             _netClient.Connect();
@@ -219,17 +219,17 @@ namespace Examples.Lockstep
             _mode = GameLockstepMode.Server;
             StartServer();
             _netLockstepServer.RegisterLocalClient(
-                ServiceLocator.Instance.Resolve<LockstepClient>(),
-                ServiceLocator.Instance.Resolve<LockstepCommandFactory>()
+                Services.Instance.Resolve<LockstepClient>(),
+                Services.Instance.Resolve<LockstepCommandFactory>()
             );
             _netLockstepServer.LocalPlayerReady();
         }
 
         void StartServer()
         {
-            _netServer = ServiceLocator.Instance.Resolve<INetworkServer>();
+            _netServer = Services.Instance.Resolve<INetworkServer>();
             SetupPhoton(_netServer as PhotonNetworkBase);
-            _netLockstepServer = ServiceLocator.Instance.Resolve<LockstepNetworkServer>();
+            _netLockstepServer = Services.Instance.Resolve<LockstepNetworkServer>();
             _serverBehaviour = new ServerBehaviour(_netLockstepServer, _gameConfig);
             _netServer.RemoveDelegate(this);
             _netServer.AddDelegate(this);
@@ -254,7 +254,7 @@ namespace Examples.Lockstep
         public void OnMatchClicked()
         {
             SetupGameScreen();
-            _matchClient = ServiceLocator.Instance.Resolve<IMatchmakingClient>();
+            _matchClient = Services.Instance.Resolve<IMatchmakingClient>();
             _matchClient.RemoveDelegate(this);
             _matchClient.AddDelegate(this);
             _fullscreenText.text = "connecting to matchmaker...";
