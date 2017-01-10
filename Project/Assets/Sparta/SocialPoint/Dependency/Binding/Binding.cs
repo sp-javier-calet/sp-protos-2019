@@ -99,8 +99,9 @@ namespace SocialPoint.Dependency
             if(!_validInstance)
             {
                 DependencyGraphBuilder.StartCreation(typeof(F), _tag);
-                if(_toType == ToType.Single)
+                switch(_toType)
                 {
+                case ToType.Single:
                     DependencyGraphBuilder.StartCreation(_type, _tag);
                     if(!_type.IsValueType)
                     {
@@ -108,13 +109,13 @@ namespace SocialPoint.Dependency
                         _instance = (F)construct.Invoke(new object[]{ });
                     }
                     DependencyGraphBuilder.Finalize(_type, _instance);
-                }
-                else if(_toType == ToType.Lookup)
-                {
+                    break;
+
+                case ToType.Lookup:
                     _instance = (F)_container.Resolve(_type, _tag, null);
-                }
-                else if(_toType == ToType.Method)
-                {
+                    break;
+
+                case ToType.Method:
                     if(_method != null)
                     {
                         DependencyGraphBuilder.StartCreation(_type, _tag);
@@ -126,7 +127,7 @@ namespace SocialPoint.Dependency
                         var param = _container.Resolve(_type, _tag, null);
                         _instance = _getter(param);
                     }
-
+                    break;
                 }
                 _validInstance = true;
                 DependencyGraphBuilder.Finalize(typeof(F), _instance);
