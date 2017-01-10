@@ -1,6 +1,4 @@
-
 using System;
-using System.Collections.Generic;
 using SocialPoint.Dependency;
 using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
@@ -8,12 +6,11 @@ using SocialPoint.GameLoading;
 using SocialPoint.Alert;
 using SocialPoint.Locale;
 using SocialPoint.AppEvents;
-using SocialPoint.ScriptEvents;
 using SocialPoint.ServerSync;
 using SocialPoint.Social;
 using SocialPoint.Login;
 
-public class GameInstaller : Installer
+public class GameInstaller : Installer, IInitializable
 {
     [Serializable]
     public class SettingsData
@@ -27,10 +24,12 @@ public class GameInstaller : Installer
 
     public override void InstallBindings()
     {
+        Container.Bind<IInitializable>().ToInstance(this);
+
 #if UNITY_EDITOR
-        Container.BindInstance("game_debug", Settings.EditorDebug);
+        Container.Bind<bool>("game_debug").ToInstance(Settings.EditorDebug);
 #else
-        Container.BindInstance("game_debug", UnityEngine.Debug.isDebugBuild);
+        Container.Bind<bool>("game_debug").ToInstance(UnityEngine.Debug.isDebugBuild);
 #endif
         Container.Install<GameModelInstaller>();
 
@@ -43,6 +42,15 @@ public class GameInstaller : Installer
         Container.Rebind<IPlayerData>().ToMethod<PlayerDataProvider>(CreatePlayerData);
 
         Container.Install<EconomyInstaller>();
+    }
+
+    public void Initialize()
+    {
+        var loader = Container.Resolve<IGameLoader>();
+        if(loader != null)
+        {
+            loader.Load(null);
+        }
     }
 
     AdminPanelGame CreateAdminPanel()
@@ -69,7 +77,11 @@ public class GameInstaller : Installer
 
     void SetupGameLoader(GameLoader loader)
     {
-        Container.Resolve<ICommandQueue>().AutoSync = loader.OnAutoSync;
+        var commandQueue = Container.Resolve<ICommandQueue>();
+        if(commandQueue != null)
+        {
+            commandQueue.AutoSync = loader.OnAutoSync;
+        }
     }
 
     GameErrorHandler CreateErrorHandler()

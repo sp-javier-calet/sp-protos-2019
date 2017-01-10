@@ -15,9 +15,9 @@ public class TestMultiplayerBehaviour : MonoBehaviour
     {
         if (CreateServer)
         {
-            _server = ServiceLocator.Instance.Resolve<INetworkServer>();
+            _server = Services.Instance.Resolve<INetworkServer>();
         }
-        _client = ServiceLocator.Instance.Resolve<INetworkClient>();
+        _client = Services.Instance.Resolve<INetworkClient>();
 
         if(_server != null)
         {
