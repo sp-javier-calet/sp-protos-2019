@@ -85,7 +85,7 @@ namespace SocialPoint.Dependency
             }
         }
 
-        public void OnResolutionFinished()
+        public void OnResolved()
         {
         }
     }

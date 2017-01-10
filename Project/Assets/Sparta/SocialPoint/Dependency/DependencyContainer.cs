@@ -217,7 +217,7 @@ namespace SocialPoint.Dependency
 
         void NotifyResolutionFinished(IBinding binding)
         {
-            binding.OnResolutionFinished();
+            binding.OnResolved();
 
             var listeners = FindListeners(binding);
             if(listeners.Count > 0)

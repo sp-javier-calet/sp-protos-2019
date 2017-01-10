@@ -11,6 +11,6 @@ namespace SocialPoint.Dependency
 
         object Resolve();
 
-        void OnResolutionFinished();
+        void OnResolved();
     }
 }

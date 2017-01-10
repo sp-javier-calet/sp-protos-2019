@@ -136,7 +136,7 @@ namespace SocialPoint.Dependency
             return _instance;
         }
 
-        public void OnResolutionFinished()
+        public void OnResolved()
         {
             Resolved = true;
 
