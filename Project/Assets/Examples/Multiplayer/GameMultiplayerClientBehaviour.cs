@@ -28,8 +28,8 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
 
     public void Start()
     {
-        _client = ServiceLocator.Instance.Resolve<INetworkClient>();
-        _controller = ServiceLocator.Instance.Resolve<NetworkClientSceneController>();
+        _client = Services.Instance.Resolve<INetworkClient>();
+        _controller = Services.Instance.Resolve<NetworkClientSceneController>();
         _controller.RegisterReceiver(this);
 
         _controller.RegisterAction<ClickAction>(GameMsgType.ClickAction);

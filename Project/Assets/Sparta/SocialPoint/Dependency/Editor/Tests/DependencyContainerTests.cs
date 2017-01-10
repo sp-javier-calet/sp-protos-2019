@@ -85,7 +85,7 @@ namespace SocialPoint.Dependency
             }
         }
 
-        public void OnResolutionFinished()
+        public void OnResolved()
         {
         }
     }
@@ -156,6 +156,16 @@ namespace SocialPoint.Dependency
             var container = new DependencyContainer();
             var instance = new TestService();
             container.Bind<ITestService>().ToInstance(instance);
+            var service = container.Resolve<ITestService>();
+            Assert.AreEqual(instance, service);
+        }
+
+        [Test]
+        public void ResolveAddedInstanceTest()
+        {
+            var container = new DependencyContainer();
+            var instance = new TestService();
+            container.Add<ITestService, TestService>(instance);
             var service = container.Resolve<ITestService>();
             Assert.AreEqual(instance, service);
         }
@@ -343,9 +353,36 @@ namespace SocialPoint.Dependency
             var container = new DependencyContainer();
             container.Bind<TestDisposable>().ToSingle<TestDisposable>();
             container.Bind<IDisposable>().ToLookup<TestDisposable>();
+            // Tagged instance shouldn't be disposed
+            container.Bind<TestDisposable>("tag").ToSingle<TestDisposable>();
             container.Dispose();
             Assert.AreEqual(0, TestDisposable.Count);
             container.Resolve<TestDisposable>();
+            container.Dispose();
+            Assert.AreEqual(1, TestDisposable.Count);
+        }
+
+        [Test]
+        public void DisposeInstanceTest()
+        {
+            TestDisposable.Count = 0;
+            var container = new DependencyContainer();
+            var instance = new TestDisposable();
+            container.Bind<IDisposable>().ToInstance(instance);
+            container.Dispose();
+            Assert.AreEqual(0, TestDisposable.Count);
+            container.Resolve<IDisposable>();
+            container.Dispose();
+            Assert.AreEqual(1, TestDisposable.Count);
+        }
+
+        [Test]
+        public void DisposeAddedInstanceTest()
+        {
+            TestDisposable.Count = 0;
+            var container = new DependencyContainer();
+            var instance = new TestDisposable();
+            container.Add<IDisposable, TestDisposable>(instance);
             container.Dispose();
             Assert.AreEqual(1, TestDisposable.Count);
         }
@@ -403,7 +440,7 @@ namespace SocialPoint.Dependency
         }
 
         [Test]
-        public void RebindDisposableTest()
+        public void IgnoreRebindDisposableTest()
         {
             TestDisposable.Count = 0;
             var container = new DependencyContainer();
@@ -416,31 +453,7 @@ namespace SocialPoint.Dependency
             Assert.AreEqual(0, TestDisposable.Count);
             container.Resolve<IDisposable>();
             container.Rebind<TestDisposable>().ToSingle<TestDisposable>();
-            Assert.AreEqual(1, TestDisposable.Count);
-        }
-
-        [Test]
-        public void RebindTaggedDisposableTest()
-        {
-            TestDisposable.Count = 0;
-            var container = new DependencyContainer();
-            Func<TestDisposable> createDisposable = () => {
-                return new TestDisposable();
-            };
-
-            container.Rebind<TestDisposable>().ToMethod<TestDisposable>(createDisposable);
-            container.Bind<IDisposable>().ToLookup<TestDisposable>();
-            container.Rebind<TestDisposable>("tag").ToMethod<TestDisposable>(createDisposable);
-            container.Bind<IDisposable>().ToLookup<TestDisposable>("tag");
-
-            container.Resolve<TestDisposable>();
-            container.Resolve<TestDisposable>("tag");
-
-            container.Rebind<TestDisposable>().ToMethod<TestDisposable>(createDisposable);
-            Assert.AreEqual(1, TestDisposable.Count);
-
-            container.Rebind<TestDisposable>("tag").ToMethod<TestDisposable>(createDisposable);
-            Assert.AreEqual(2, TestDisposable.Count);
+            Assert.AreEqual(0, TestDisposable.Count);
         }
 
         [Test]

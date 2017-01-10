@@ -22,11 +22,11 @@ public class GUIInstaller : Installer, IDisposable
 
     public override void InstallBindings()
     {
-        Container.Bind<IDisposable>().ToInstance(this);
+        Container.Add<IDisposable, GUIInstaller>(this);
 
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
 
-        Container.BindInstance("popup_fade_speed", Settings.PopupFadeSpeed);
+        Container.Bind<float>("popup_fade_speed").ToInstance(Settings.PopupFadeSpeed);
 
         _root = CreateRoot();
         var popups = _root.GetComponentInChildren<PopupsController>();
