@@ -8,7 +8,8 @@ public class AdminPanelInstaller : ServiceInstaller
 {
     public override void InstallBindings()
     {
-        if(AdminPanel.IsActive)
+        #pragma warning disable 0162
+        if(AdminPanel.IsAvailable)
         {
             Container.Rebind<AdminPanel>().ToMethod<AdminPanel>(CreateAdminPanel);
             Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelSceneSelector>();
@@ -18,6 +19,7 @@ public class AdminPanelInstaller : ServiceInstaller
             Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelProfiler>();
             Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAttributes>();
         }
+        #pragma warning restore 0162
     }
 
     AdminPanel CreateAdminPanel()

@@ -7,10 +7,13 @@ namespace SocialPoint.ConsolePro
     {
         public override void InstallBindings()
         {
-            #if (ADMIN_PANEL && !NO_ADMIN_PANEL) || UNITY_EDITOR
-            Container.Bind<IInitializable>().ToInstance(this);
-            Container.BindUnityComponent<ConsoleProRemoteServer>();
-            #endif
+            #pragma warning disable 0162
+            if(AdminPanel.AdminPanel.IsAvailable)
+            {
+                Container.Bind<IInitializable>().ToInstance(this);
+                Container.BindUnityComponent<ConsoleProRemoteServer>();
+            }
+            #pragma warning restore 0162
         }
 
         public void Initialize()

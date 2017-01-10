@@ -2043,7 +2043,6 @@ namespace SocialPoint.Login
 
         #region Forced Login Errors
 
-        [System.Diagnostics.Conditional(AdminPanel.AdminPanel.Flag)]
         public void SetForcedErrorCode(string code)
         {
             _forcedErrorCode = code;
@@ -2054,7 +2053,6 @@ namespace SocialPoint.Login
             return _forcedErrorCode;
         }
 
-        [System.Diagnostics.Conditional(AdminPanel.AdminPanel.Flag)]
         public void SetForcedErrorType(string type)
         {
             _forcedErrorType = type;
@@ -2065,17 +2063,21 @@ namespace SocialPoint.Login
             return _forcedErrorType;
         }
 
-        [System.Diagnostics.Conditional(AdminPanel.AdminPanel.Flag)]
         public void AddForcedErrorRequestParams(HttpRequest req)
         {
-            if(!string.IsNullOrEmpty(_forcedErrorCode))
+            #pragma warning disable 0162
+            if(AdminPanel.AdminPanel.IsAvailable)
             {
-                req.AddParam(HttpParamForcedErrorCode, _forcedErrorCode);
+                if(!string.IsNullOrEmpty(_forcedErrorCode))
+                {
+                    req.AddParam(HttpParamForcedErrorCode, _forcedErrorCode);
+                }
+                if(!string.IsNullOrEmpty(_forcedErrorType))
+                {
+                    req.AddParam(HttpParamForcedErrorType, _forcedErrorType);
+                }
             }
-            if(!string.IsNullOrEmpty(_forcedErrorType))
-            {
-                req.AddParam(HttpParamForcedErrorType, _forcedErrorType);
-            }
+            #pragma warning restore 0162
         }
 
         #endregion
