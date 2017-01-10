@@ -25,6 +25,7 @@ MonoBehaviour:
     IncludeDebugScenes: 0
     LogLevel: 1
     EnableAdminPanel: 0
+    EnableDependencyInspection: 0
   Ios:
     BundleIdentifier: 
     Flags: 
