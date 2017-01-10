@@ -1,11 +1,10 @@
 ﻿using SocialPoint.Base;
-using SocialPoint.Utils;
 using SocialPoint.Attributes;
 using SocialPoint.Marketing;
 using System;
 using UnityEngine;
 
-public sealed class SocialPointAppFlyer : IMarketingTracker
+public sealed class SocialPointAppsFlyer : IMarketingTracker
 {
     const string TrackerName = "appsflyer";
     AppsFlyerTrackerCallbacks _trackerDelegate;

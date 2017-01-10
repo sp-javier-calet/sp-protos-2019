@@ -92,8 +92,10 @@ namespace SocialPoint.Dependency
             _container = null;
             _initializables = null;
 
-            foreach(var mb in gameObject.GetComponents<MonoBehaviour>())
+            var behaviours = gameObject.GetComponents<MonoBehaviour>();
+            for(var i = 0; i < behaviours.Length; ++i)
             {
+                var mb = behaviours[i];
                 if(!(mb is Services))
                 {
                     mb.Destroy();
