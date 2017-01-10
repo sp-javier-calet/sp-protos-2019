@@ -42,16 +42,6 @@ struct CurlMessage
 class CurlClient
 {
 private:
-    
-    class CurlHttpClientGlobal
-    {
-    public:
-        CurlHttpClientGlobal();
-        ~CurlHttpClientGlobal();
-    };
-    
-    static CurlHttpClientGlobal global;
-    
     Mutex curlUpdateLock;
     ConnectionManager _connections;
     Certificate _certificate;
