@@ -811,7 +811,7 @@ namespace SocialPoint.Login
         {
             if(genericData == null)
             {
-                genericData = new AttrDic();
+                genericData = Attr.InvalidDic;
             }
             if(Data == null)
             {
