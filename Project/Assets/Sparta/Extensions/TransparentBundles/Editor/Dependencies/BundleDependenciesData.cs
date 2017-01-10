@@ -8,14 +8,8 @@ namespace SocialPoint.TransparentBundles
     {
         public string AssetPath;
         public string BundleName = "";
-        public List<string> Dependencies = null;
-        public bool IsExplicitlyBundled
-        {
-            get
-            {
-                return !string.IsNullOrEmpty(BundleName);
-            }
-            private set { }
-        }
+        public List<string> Dependants = new List<string>();
+        public List<string> Dependencies = new List<string>();
+        public bool IsExplicitlyBundled;
     }
 }
