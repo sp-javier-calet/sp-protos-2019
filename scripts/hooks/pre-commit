@@ -12,8 +12,9 @@ PROJECT_NAME="$(basename $(dirname "$ASSETS_DIR_NAME"))"
 PROJECT_DIR=$(cd "$PROJECT_NAME" && pwd)
 
 # Remove empty directories
-find $PROJECT_DIR -name '*.DS_Store' -type f -delete
-find $PROJECT_DIR -depth -type d -empty -delete
+ASSETS_DIR=$(cd "$PROJECT_DIR/Assets" && pwd)
+find $ASSETS_DIR -name '*.DS_Store' -type f -delete
+find $ASSETS_DIR -type d -depth -empty -exec echo "Removing "{} \; -exec rmdir {} \; -exec rm {}.meta \;
 
 # Reorder XCode project
 export PATH=/usr/local/bin:$PATH

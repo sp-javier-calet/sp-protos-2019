@@ -287,6 +287,16 @@ namespace SocialPoint.Network
             return Headers.ContainsKey(key) && Headers[key] != null;
         }
 
+        public string GetHeader(string key)
+        {
+            string value;
+            if(Headers.TryGetValue(key, out value))
+            {
+                return value;
+            }
+            return null;
+        }
+
         public void RemoveHeader(string key)
         {
             Headers.Remove(key);

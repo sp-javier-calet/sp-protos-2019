@@ -25,6 +25,7 @@ namespace SpartaTools.Editor.Build
         const string ProvisioningProfilePrefsKey = "XCodeProvisioningProfileUuid";
 
         const string AdminPanelFlag = "ADMIN_PANEL";
+        const string DependencyInspectionFlag = "SPARTA_COLLECT_DEPENDENCIES";
 
         static readonly char[] ListSeparator = { ';' };
 
@@ -51,6 +52,9 @@ namespace SpartaTools.Editor.Build
         public struct AppConfiguration
         {
             public string ProductName;
+            public string Version;
+            public int BuildNumber;
+            public bool OverrideBuild;
             public Texture2D IconTexture;
             public bool OverrideIcon;
         }
@@ -69,6 +73,7 @@ namespace SpartaTools.Editor.Build
             public bool IncludeDebugScenes;
             public LogLevel LogLevel;
             public bool EnableAdminPanel;
+            public bool EnableDependencyInspection;
         }
 
         public CommonConfiguration Common;
@@ -104,8 +109,6 @@ namespace SpartaTools.Editor.Build
         public struct AndroidConfiguration
         {
             public string BundleIdentifier;
-            public int BundleVersionCode;
-            public bool ForceBundleVersionCode;
             public string Flags;
             public string RemovedResources;
             public bool UseKeystore;
@@ -175,36 +178,44 @@ namespace SpartaTools.Editor.Build
 
         readonly List<Validator> _validators = new List<Validator> {
             new Validator {
-                Validate = (BuildSet bs) => !bs.Ios.Flags.Contains(AdminPanelFlag) && !bs.Common.Flags.Contains(AdminPanelFlag) && !bs.Android.Flags.Contains(AdminPanelFlag),
+                Validate = bs => !bs.Ios.Flags.Contains(AdminPanelFlag) && !bs.Common.Flags.Contains(AdminPanelFlag) && !bs.Android.Flags.Contains(AdminPanelFlag),
                 ErrorMessage = "Admin Panel flag must be enabled using the proper option"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsDebugConfig || bs.Ios.XcodeModSchemes.Contains("debug"),
+                Validate = bs => !bs.Ios.Flags.Contains(DependencyInspectionFlag) && !bs.Common.Flags.Contains(DependencyInspectionFlag) && !bs.Android.Flags.Contains(DependencyInspectionFlag),
+                ErrorMessage = "Dependency Inspection flag must be enabled using the proper option"
+            },
+            new Validator {
+                Validate = bs => !bs.IsDebugConfig || bs.Ios.XcodeModSchemes.Contains("debug"),
                 ErrorMessage = "Debug Build Set must define the 'debug' scheme for XcodeMods"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsReleaseConfig || bs.Ios.XcodeModSchemes.Contains("release"),
+                Validate = bs => !bs.IsReleaseConfig || bs.Ios.XcodeModSchemes.Contains("release"),
                 ErrorMessage = "Release Build Set must define the 'release' scheme for XcodeMods"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsShippingConfig || bs.Ios.XcodeModSchemes.Contains("shipping"),
+                Validate = bs => !bs.IsShippingConfig || bs.Ios.XcodeModSchemes.Contains("shipping"),
                 ErrorMessage = "Shipping Build Set must define the 'shipping' scheme for XcodeMods"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsShippingConfig || bs.Android.UseKeystore,
+                Validate = bs => !bs.IsShippingConfig || bs.Android.UseKeystore,
                 ErrorMessage = "Shipping Build Set must use a release keystore"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.Common.IsDevelopmentBuild,
+                Validate = bs => !bs.IsShippingConfig || !bs.Common.IsDevelopmentBuild,
                 ErrorMessage = "Shipping Build Set cannot be set as a Development Build"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.Android.ForceBundleVersionCode,
-                ErrorMessage = "Shipping Build Set cannot force bundle version code"
+                Validate = bs => !bs.IsShippingConfig || !bs.App.OverrideBuild,
+                ErrorMessage = "Shipping Build Set cannot override bundle number"
             },
             new Validator {
-                Validate = (BuildSet bs) => !bs.IsShippingConfig || !bs.Common.EnableAdminPanel,
+                Validate = bs => !bs.IsShippingConfig || !bs.Common.EnableAdminPanel,
                 ErrorMessage = "Shipping Build Set cannot enable Admin Panel features"
+            },
+            new Validator {
+                Validate = bs => !bs.IsShippingConfig || !bs.Common.EnableDependencyInspection,
+                ErrorMessage = "Shipping Build Set cannot enable Dependency Inspection features"
             }
         };
 
@@ -301,9 +312,14 @@ namespace SpartaTools.Editor.Build
                 PlayerSettings.productName = App.ProductName;
             }
 
+            if(!string.IsNullOrEmpty(App.Version))
+            {
+                PlayerSettings.bundleVersion = App.Version;
+            }
+
             if(App.OverrideIcon)
             {
-                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new Texture2D[] {
+                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new [] {
                     App.IconTexture,
                     App.IconTexture,
                     App.IconTexture,
@@ -311,7 +327,7 @@ namespace SpartaTools.Editor.Build
                     App.IconTexture,
                     App.IconTexture
                 });
-                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.iOS, new Texture2D[] {
+                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.iOS, new [] {
                     App.IconTexture,
                     App.IconTexture,
                     App.IconTexture,
@@ -321,6 +337,12 @@ namespace SpartaTools.Editor.Build
                     App.IconTexture,
                     App.IconTexture
                 });
+            }
+
+            if(App.OverrideBuild)
+            {
+                PlayerSettings.Android.bundleVersionCode = App.BuildNumber;
+                PlayerSettings.iOS.buildNumber = App.BuildNumber.ToString();
             }
 
             SelectScenes(Common.IncludeDebugScenes);
@@ -333,17 +355,14 @@ namespace SpartaTools.Editor.Build
             var androidFlags = MergeFlags(Android.Flags, baseSettings.Android.Flags);
             var iosFlags = MergeFlags(Ios.Flags, baseSettings.Ios.Flags);
             var adminFlags = Common.EnableAdminPanel ? AdminPanelFlag : string.Empty;
+            var inspectionFlags = Common.EnableDependencyInspection ? DependencyInspectionFlag : string.Empty;
 
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, string.Format("{0};{1};{2};{3}", commonFlags, androidFlags, logLevelFlag, adminFlags));
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, string.Format("{0};{1};{2};{3}", commonFlags, iosFlags, logLevelFlag, adminFlags));
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, string.Format("{0};{1};{2};{3};{4}", commonFlags, androidFlags, logLevelFlag, adminFlags, inspectionFlags));
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, string.Format("{0};{1};{2};{3};{4}", commonFlags, iosFlags, logLevelFlag, adminFlags, inspectionFlags));
 
             /*
              * Android-only configuration
              */
-            if(Android.ForceBundleVersionCode)
-            {
-                PlayerSettings.Android.bundleVersionCode = Android.BundleVersionCode;
-            }
 
             // Android Keystore
             if(Android.UseKeystore && !string.IsNullOrEmpty(Android.Keystore.Path))
@@ -381,10 +400,10 @@ namespace SpartaTools.Editor.Build
             Platform.OnApply(this);
         }
 
-        string GetLogLevelFlag(BaseSettings baseSettings)
+        string GetLogLevelFlag(BuildSet baseSettings)
         {
-            LogLevel level = LogLevel.Info;
-            if(Common.LogLevel == LogLevel.Default)
+            LogLevel level = Common.LogLevel;
+            if(level == LogLevel.Default)
             {
                 level = baseSettings.Common.LogLevel;
             }
@@ -392,8 +411,6 @@ namespace SpartaTools.Editor.Build
             switch(level)
             {
             default:
-            case LogLevel.Default:
-            case LogLevel.None:
                 return string.Empty;
             case LogLevel.Verbose: 
                 return "SPARTA_LOG_VERBOSE";
@@ -408,22 +425,19 @@ namespace SpartaTools.Editor.Build
             }
         }
 
-        string MergeFlags(string configFlags, string baseFlags)
+        static string MergeFlags(string configFlags, string baseFlags)
         {
             if(string.IsNullOrEmpty(configFlags))
             {
                 return baseFlags;
             }
-            else if(configFlags.StartsWith("+"))
+            if(configFlags.StartsWith("+"))
             {
                 // If configuration flags starts with +, merge config and base flags
                 return baseFlags + ";" + configFlags.Substring(1);
             }
-            else
-            {
-                // Overrid
-                return configFlags;
-            }
+            // Overrid
+            return configFlags;
         }
 
         public void ApplyExtended()
@@ -520,14 +534,8 @@ namespace SpartaTools.Editor.Build
         {
             get
             {
-                var processor = PlatformProcessors[EditorUserBuildSettings.activeBuildTarget];
-
-                if(processor == null)
-                {
-                    processor = new PlatformProcessor();
-                }
-
-                return processor;
+                PlatformProcessor processor;
+                return PlatformProcessors.TryGetValue(EditorUserBuildSettings.activeBuildTarget, out processor) ? processor : new PlatformProcessor();
             }
         }
 

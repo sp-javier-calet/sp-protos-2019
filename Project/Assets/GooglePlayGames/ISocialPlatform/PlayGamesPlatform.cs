@@ -115,7 +115,7 @@ namespace GooglePlayGames
         {
             get
             {
-                if (sInstance == null)
+                if(sInstance == null)
                 {
                     GooglePlayGames.OurUtils.Logger.d(
                         "Instance was not initialized, using default configuration.");
@@ -136,7 +136,7 @@ namespace GooglePlayGames
         {
             get
             {
-                if (sNearbyConnectionClient == null && !sNearbyInitializePending)
+                if(sNearbyConnectionClient == null && !sNearbyInitializePending)
                 {
                     sNearbyInitializePending = true;
                     InitializeNearby(null);
@@ -217,7 +217,7 @@ namespace GooglePlayGames
         /// <param name="configuration">Configuration to use when initializing.</param>
         public static void InitializeInstance(PlayGamesClientConfiguration configuration)
         {
-            if (sInstance != null)
+            if(sInstance != null)
             {
                 GooglePlayGames.OurUtils.Logger.w(
                     "PlayGamesPlatform already initialized. Ignoring this call.");
@@ -238,7 +238,7 @@ namespace GooglePlayGames
         public static void InitializeNearby(Action<INearbyConnectionClient> callback)
         {
             Debug.Log("Calling InitializeNearby!");
-            if (sNearbyConnectionClient == null)
+            if(sNearbyConnectionClient == null)
             {
 #if UNITY_ANDROID && !UNITY_EDITOR
                 NearbyConnectionClientFactory.Create(client => {
@@ -253,14 +253,14 @@ namespace GooglePlayGames
                 });
 #else
                 sNearbyConnectionClient = new DummyNearbyConnectionClient();
-                if (callback != null)
+                if(callback != null)
                 {
                     callback.Invoke(sNearbyConnectionClient);
                 }
 
 #endif
             }
-            else if (callback != null)
+            else if(callback != null)
             {
                 Debug.Log("Nearby Already initialized: calling callback directly");
                 callback.Invoke(sNearbyConnectionClient);
@@ -356,7 +356,7 @@ namespace GooglePlayGames
         public void Authenticate(Action<bool> callback, bool silent)
         {
             // make a platform-specific Play Games client
-            if (mClient == null)
+            if(mClient == null)
             {
                 GooglePlayGames.OurUtils.Logger.d(
                     "Creating platform-specific Play Games client.");
@@ -389,12 +389,19 @@ namespace GooglePlayGames
             return mClient != null && mClient.IsAuthenticated();
         }
 
+        #if UNITY_5_5_OR_NEWER
+        public void Authenticate(ILocalUser user, Action<bool, string> callback)
+        {
+            throw new NotImplementedException();
+        }
+        #endif
+
         /// <summary>Sign out. After signing out,
         /// Authenticate must be called again to sign back in.
         /// </summary>
         public void SignOut()
         {
-            if (mClient != null)
+            if(mClient != null)
             {
                 mClient.SignOut();
             }
@@ -409,7 +416,7 @@ namespace GooglePlayGames
         /// <param name="callback">Callback invoked when complete.</param>
         public void LoadUsers(string[] userIds, Action<IUserProfile[]> callback)
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e(
                     "GetUserId() can only be called after authentication.");
@@ -428,7 +435,7 @@ namespace GooglePlayGames
         /// </returns>
         public string GetUserId()
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e(
                     "GetUserId() can only be called after authentication.");
@@ -445,7 +452,7 @@ namespace GooglePlayGames
         /// on failure. </param>
         public void GetIdToken(Action<string> idTokenCallback)
         {
-            if (mClient != null)
+            if(mClient != null)
             {
                 mClient.GetIdToken(idTokenCallback);
             }
@@ -465,7 +472,7 @@ namespace GooglePlayGames
         /// </returns>
         public string GetAccessToken()
         {
-            if (mClient != null)
+            if(mClient != null)
             {
                 Debug.Log("access token is null: " + String.IsNullOrEmpty(mClient.GetAccessToken()));
                 return mClient.GetAccessToken();
@@ -484,9 +491,9 @@ namespace GooglePlayGames
         /// <param name="callback">Callback.</param>
         public void GetServerAuthCode(Action<CommonStatusCodes, string> callback)
         {
-            if (mClient != null && mClient.IsAuthenticated())
+            if(mClient != null && mClient.IsAuthenticated())
             {
-                if (GameInfo.WebClientIdInitialized())
+                if(GameInfo.WebClientIdInitialized())
                 {
                     mClient.GetServerAuthCode(GameInfo.WebClientId, callback);
                 }
@@ -514,7 +521,7 @@ namespace GooglePlayGames
         /// <returns>The user email.</returns>
         public string GetUserEmail()
         {
-            if (mClient != null)
+            if(mClient != null)
             {
                 return mClient.GetUserEmail();
             }
@@ -528,7 +535,7 @@ namespace GooglePlayGames
         /// <param name="callback">Callback invoked when completed.</param>
         public void GetPlayerStats(Action<CommonStatusCodes, PlayerStats> callback)
         {
-            if (mClient != null && mClient.IsAuthenticated())
+            if(mClient != null && mClient.IsAuthenticated())
             {
                 mClient.GetPlayerStats(callback);
             }
@@ -553,7 +560,7 @@ namespace GooglePlayGames
         /// </param>
         public Achievement GetAchievement(string achievementId)
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e(
                     "GetAchievement can only be called after authentication.");
@@ -571,7 +578,7 @@ namespace GooglePlayGames
         /// </returns>
         public string GetUserDisplayName()
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e(
                     "GetUserDisplayName can only be called after authentication.");
@@ -590,7 +597,7 @@ namespace GooglePlayGames
         /// </returns>
         public string GetUserImageUrl()
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e(
                     "GetUserImageUrl can only be called after authentication.");
@@ -630,11 +637,11 @@ namespace GooglePlayGames
         /// </param>
         public void ReportProgress(string achievementID, double progress, Action<bool> callback)
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e(
                     "ReportProgress can only be called after authentication.");
-                if (callback != null)
+                if(callback != null)
                 {
                     callback.Invoke(false);
                 }
@@ -648,7 +655,7 @@ namespace GooglePlayGames
             achievementID = MapId(achievementID);
 
             // if progress is 0.0, we just want to reveal it
-            if (progress < 0.000001)
+            if(progress < 0.000001)
             {
                 GooglePlayGames.OurUtils.Logger.d(
                     "Progress 0.00 interpreted as request to reveal.");
@@ -660,7 +667,7 @@ namespace GooglePlayGames
             bool isIncremental = false;
             int curSteps = 0, totalSteps = 0;
             Achievement ach = mClient.GetAchievement(achievementID);
-            if (ach == null)
+            if(ach == null)
             {
                 GooglePlayGames.OurUtils.Logger.w(
                     "Unable to locate achievement " + achievementID);
@@ -675,7 +682,7 @@ namespace GooglePlayGames
                 totalSteps = ach.TotalSteps;
                 GooglePlayGames.OurUtils.Logger.d(
                     "Achievement is " + (isIncremental ? "INCREMENTAL" : "STANDARD"));
-                if (isIncremental)
+                if(isIncremental)
                 {
                     GooglePlayGames.OurUtils.Logger.d(
                         "Current steps: " + curSteps + "/" + totalSteps);
@@ -683,12 +690,12 @@ namespace GooglePlayGames
             }
 
             // do the right thing depending on the achievement type
-            if (isIncremental)
+            if(isIncremental)
             {
                 // increment it to the target percentage (approximate)
                 GooglePlayGames.OurUtils.Logger.d("Progress " + progress +
-                    " interpreted as incremental target (approximate).");
-                if (progress >= 0.0 && progress <= 1.0)
+                " interpreted as incremental target (approximate).");
+                if(progress >= 0.0 && progress <= 1.0)
                 {
                     // in a previous version, incremental progress was reported by using the range [0-1]
                     GooglePlayGames.OurUtils.Logger.w(
@@ -699,17 +706,17 @@ namespace GooglePlayGames
                 int targetSteps = (int)((progress / 100) * totalSteps);
                 int numSteps = targetSteps - curSteps;
                 GooglePlayGames.OurUtils.Logger.d("Target steps: " +
-                    targetSteps + ", cur steps:" + curSteps);
+                targetSteps + ", cur steps:" + curSteps);
                 GooglePlayGames.OurUtils.Logger.d("Steps to increment: " +
-                    numSteps);
+                numSteps);
 
                 // handle incremental achievements with 0 steps
-                if (numSteps >= 0)
+                if(numSteps >= 0)
                 {
                     mClient.IncrementAchievement(achievementID, numSteps, callback);
                 }
             }
-            else if (progress >= 100)
+            else if(progress >= 100)
             {
                 // unlock it!
                 GooglePlayGames.OurUtils.Logger.d(
@@ -720,7 +727,7 @@ namespace GooglePlayGames
             {
                 // not enough to unlock
                 GooglePlayGames.OurUtils.Logger.d("Progress " + progress +
-                    " not enough to unlock non-incremental achievement.");
+                " not enough to unlock non-incremental achievement.");
             }
         }
 
@@ -741,11 +748,11 @@ namespace GooglePlayGames
         /// </param>
         public void IncrementAchievement(string achievementID, int steps, Action<bool> callback)
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e(
                     "IncrementAchievement can only be called after authentication.");
-                if (callback != null)
+                if(callback != null)
                 {
                     callback.Invoke(false);
                 }
@@ -781,11 +788,11 @@ namespace GooglePlayGames
         /// </param>
         public void SetStepsAtLeast(string achievementID, int steps, Action<bool> callback)
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e(
                     "SetStepsAtLeast can only be called after authentication.");
-                if (callback != null)
+                if(callback != null)
                 {
                     callback.Invoke(false);
                 }
@@ -806,23 +813,22 @@ namespace GooglePlayGames
         /// <param name="callback">The callback to receive the descriptions</param>
         public void LoadAchievementDescriptions(Action<IAchievementDescription[]> callback)
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e(
                     "LoadAchievementDescriptions can only be called after authentication.");
                 callback.Invoke(null);
             }
 
-            mClient.LoadAchievements(ach =>
+            mClient.LoadAchievements(ach => {
+                IAchievementDescription[] data = new IAchievementDescription[ach.Length];
+                for(int i = 0; i < data.Length; i++)
                 {
-                    IAchievementDescription[] data = new IAchievementDescription[ach.Length];
-                    for (int i = 0; i < data.Length; i++)
-                    {
-                        data[i] = new PlayGamesAchievement(ach[i]);
-                    }
+                    data[i] = new PlayGamesAchievement(ach[i]);
+                }
 
-                    callback.Invoke(data);
-                });
+                callback.Invoke(data);
+            });
         }
 
         /// <summary>
@@ -831,22 +837,21 @@ namespace GooglePlayGames
         /// <param name="callback">The callback to receive the achievements</param>
         public void LoadAchievements(Action<IAchievement[]> callback)
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e("LoadAchievements can only be called after authentication.");
                 callback.Invoke(null);
             }
 
-            mClient.LoadAchievements(ach =>
+            mClient.LoadAchievements(ach => {
+                IAchievement[] data = new IAchievement[ach.Length];
+                for(int i = 0; i < data.Length; i++)
                 {
-                    IAchievement[] data = new IAchievement[ach.Length];
-                    for (int i = 0; i < data.Length; i++)
-                    {
-                        data[i] = new PlayGamesAchievement(ach[i]);
-                    }
+                    data[i] = new PlayGamesAchievement(ach[i]);
+                }
 
-                    callback.Invoke(data);
-                });
+                callback.Invoke(data);
+            });
         }
 
         /// <summary>
@@ -878,10 +883,10 @@ namespace GooglePlayGames
         /// </param>
         public void ReportScore(long score, string board, Action<bool> callback)
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e("ReportScore can only be called after authentication.");
-                if (callback != null)
+                if(callback != null)
                 {
                     callback.Invoke(false);
                 }
@@ -905,10 +910,10 @@ namespace GooglePlayGames
         /// <param name="callback">Callback invoked upon completion.</param>
         public void ReportScore(long score, string board, string metadata, Action<bool> callback)
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e("ReportScore can only be called after authentication.");
-                if (callback != null)
+                if(callback != null)
                 {
                     callback.Invoke(false);
                 }
@@ -917,8 +922,8 @@ namespace GooglePlayGames
             }
 
             GooglePlayGames.OurUtils.Logger.d("ReportScore: score=" + score +
-                ", board=" + board +
-                " metadata=" + metadata);
+            ", board=" + board +
+            " metadata=" + metadata);
             string leaderboardId = MapId(board);
             mClient.SubmitScore(leaderboardId, score, metadata, callback);
         }
@@ -960,7 +965,7 @@ namespace GooglePlayGames
             LeaderboardTimeSpan timeSpan,
             Action<LeaderboardScoreData> callback)
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e("LoadScores can only be called after authentication.");
                 callback(new LeaderboardScoreData(
@@ -990,13 +995,13 @@ namespace GooglePlayGames
             int rowCount,
             Action<LeaderboardScoreData> callback)
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e("LoadMoreScores can only be called after authentication.");
                 callback(
                     new LeaderboardScoreData(
-                    token.LeaderboardId,
-                    ResponseStatus.NotAuthorized));
+                        token.LeaderboardId,
+                        ResponseStatus.NotAuthorized));
                 return;
             }
 
@@ -1030,13 +1035,13 @@ namespace GooglePlayGames
         /// the achievement UI is dismissed</param>
         public void ShowAchievementsUI(Action<UIStatus> callback)
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e("ShowAchievementsUI can only be called after authentication.");
                 return;
             }
 
-            GooglePlayGames.OurUtils.Logger.d("ShowAchievementsUI callback is "  + callback);
+            GooglePlayGames.OurUtils.Logger.d("ShowAchievementsUI callback is " + callback);
             mClient.ShowAchievementsUI(callback);
         }
 
@@ -1065,7 +1070,7 @@ namespace GooglePlayGames
         /// </param>
         public void ShowLeaderboardUI(string leaderboardId)
         {
-            if (leaderboardId != null)
+            if(leaderboardId != null)
             {
                 leaderboardId = MapId(leaderboardId);
             }
@@ -1096,7 +1101,7 @@ namespace GooglePlayGames
             LeaderboardTimeSpan span,
             Action<UIStatus> callback)
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e("ShowLeaderboardUI can only be called after authentication.");
                 callback(UIStatus.NotAuthorized);
@@ -1104,7 +1109,7 @@ namespace GooglePlayGames
             }
 
             GooglePlayGames.OurUtils.Logger.d("ShowLeaderboardUI, lbId=" +
-                leaderboardId + " callback is " + callback);
+            leaderboardId + " callback is " + callback);
             mClient.ShowLeaderboardUI(leaderboardId, span, callback);
         }
 
@@ -1121,7 +1126,7 @@ namespace GooglePlayGames
         public void SetDefaultLeaderboardForUI(string lbid)
         {
             GooglePlayGames.OurUtils.Logger.d("SetDefaultLeaderboardForUI: " + lbid);
-            if (lbid != null)
+            if(lbid != null)
             {
                 lbid = MapId(lbid);
             }
@@ -1129,22 +1134,22 @@ namespace GooglePlayGames
             mDefaultLbUi = lbid;
         }
 
-       /// <summary>
-       /// Loads the friends that also play this game.  See loadConnectedPlayers.
-       /// </summary>
+        /// <summary>
+        /// Loads the friends that also play this game.  See loadConnectedPlayers.
+        /// </summary>
         /// <remarks>This is a callback variant of LoadFriends.  When completed,
         /// the friends list set in the user object, so they can accessed via the
         /// friends property as needed.
         /// </remarks>
         /// <param name="user">The current local user</param>
-       /// <param name="callback">Callback invoked when complete.</param>
+        /// <param name="callback">Callback invoked when complete.</param>
         public void LoadFriends(ILocalUser user, Action<bool> callback)
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e(
                     "LoadScores can only be called after authentication.");
-                if (callback != null)
+                if(callback != null)
                 {
                     callback(false);
                 }
@@ -1162,35 +1167,35 @@ namespace GooglePlayGames
         /// <param name="callback">Callback invoked when complete.</param>
         public void LoadScores(ILeaderboard board, Action<bool> callback)
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.e("LoadScores can only be called after authentication.");
-                if (callback != null)
+                if(callback != null)
                 {
                     callback(false);
                 }
             }
 
             LeaderboardTimeSpan timeSpan;
-            switch (board.timeScope)
+            switch(board.timeScope)
             {
-                case TimeScope.AllTime:
-                    timeSpan = LeaderboardTimeSpan.AllTime;
-                    break;
-                case TimeScope.Week:
-                    timeSpan = LeaderboardTimeSpan.Weekly;
-                    break;
-                case TimeScope.Today:
-                    timeSpan = LeaderboardTimeSpan.Daily;
-                    break;
-                default:
-                    timeSpan = LeaderboardTimeSpan.AllTime;
-                    break;
+            case TimeScope.AllTime:
+                timeSpan = LeaderboardTimeSpan.AllTime;
+                break;
+            case TimeScope.Week:
+                timeSpan = LeaderboardTimeSpan.Weekly;
+                break;
+            case TimeScope.Today:
+                timeSpan = LeaderboardTimeSpan.Daily;
+                break;
+            default:
+                timeSpan = LeaderboardTimeSpan.AllTime;
+                break;
             }
 
             ((PlayGamesLeaderboard)board).loading = true;
             GooglePlayGames.OurUtils.Logger.d("LoadScores, board=" + board +
-                " callback is " + callback);
+            " callback is " + callback);
             mClient.LoadScores(
                 board.id,
                 LeaderboardStart.PlayerCentered,
@@ -1242,7 +1247,7 @@ namespace GooglePlayGames
             Action<bool> callback)
         {
             bool ok = board.SetFromData(scoreData);
-            if (ok && !board.HasAllScores() && scoreData.NextPageToken != null)
+            if(ok && !board.HasAllScores() && scoreData.NextPageToken != null)
             {
                 int rowCount = board.range.count - board.ScoreCount;
 
@@ -1265,7 +1270,7 @@ namespace GooglePlayGames
         /// <returns>The friends.</returns>
         internal IUserProfile[] GetFriends()
         {
-            if (!IsAuthenticated())
+            if(!IsAuthenticated())
             {
                 GooglePlayGames.OurUtils.Logger.d("Cannot get friends when not authenticated!");
                 return new IUserProfile[0];
@@ -1285,12 +1290,12 @@ namespace GooglePlayGames
         /// <param name="id">Alias to map</param>
         private string MapId(string id)
         {
-            if (id == null)
+            if(id == null)
             {
                 return null;
             }
 
-            if (mIdMap.ContainsKey(id))
+            if(mIdMap.ContainsKey(id))
             {
                 string result = mIdMap[id];
                 GooglePlayGames.OurUtils.Logger.d("Mapping alias " + id + " to ID " + result);

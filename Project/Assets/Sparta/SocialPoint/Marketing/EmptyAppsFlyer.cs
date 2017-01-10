@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-using SocialPoint.Marketing;
+﻿using SocialPoint.Marketing;
 
 public sealed class EmptyAppsFlyer : IMarketingTracker
 {
@@ -23,6 +21,15 @@ public sealed class EmptyAppsFlyer : IMarketingTracker
     }
 
     public event System.Action<TrackerAttributionData> OnDataReceived;
+
+    void DataReceived(TrackerAttributionData obj)
+    {
+        var handler = OnDataReceived;
+        if(handler != null)
+        {
+            handler(obj);
+        }
+    }
 
     #endregion
 

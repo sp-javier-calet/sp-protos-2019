@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 namespace SocialPoint.CrossPromotion
 {
@@ -9,7 +8,7 @@ namespace SocialPoint.CrossPromotion
 
         public static BaseCrossPromoButtonController Create(CrossPromotionManager crossManager, string prefab, Transform parent, bool rescale = false)
         {
-            GameObject cpObj = GameObject.Instantiate(Resources.Load(prefab) as GameObject);
+            GameObject cpObj = Object.Instantiate(Resources.Load(prefab) as GameObject);
             cpObj.transform.SetParent(parent, false);
             cpObj.transform.localPosition = Vector3.zero;
             cpObj.transform.localScale = Vector3.one;

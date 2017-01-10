@@ -80,6 +80,11 @@ namespace SocialPoint.Login
             _eventStateChange += cbk;
         }
 
+        public void ClearStateChangeDelegate()
+        {
+            _eventStateChange = null;
+        }
+
         void OnStateChanged()
         {
             if(_eventStateChange != null && _facebook != null && !_facebook.IsConnecting)

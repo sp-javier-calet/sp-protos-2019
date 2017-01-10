@@ -10,6 +10,10 @@ using SocialPoint.Attributes;
 using SocialPoint.Base;
 using UnityEngine;
 
+#if UNITY_5_5_OR_NEWER
+using UnityEngine.Profiling;
+#endif
+
 namespace SocialPoint.AssetSerializer.Helpers
 {
     public static class ComponentHelper

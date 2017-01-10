@@ -1,9 +1,9 @@
 *.cs diff=csharp
-*.unity binary
-*.prefab binary
-*.anim binary
-*.controller binary
-*.meta binary
+*.unity -diff
+*.prefab -diff
+*.anim -diff
+*.controller -diff
+*.meta -diff
 *.a binary
 *.so binary
 *.aar binary

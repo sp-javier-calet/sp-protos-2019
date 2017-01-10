@@ -59,6 +59,31 @@ namespace SocialPoint.Base
         {
             return err == null || !err.HasError;
         }
+
+        const char Separator = ':';
+
+        public static Error FromString(string str)
+        {
+            var err = new Error();
+            if(!string.IsNullOrEmpty(str))
+            {
+                var i = str.IndexOf(Separator);
+                if(i >= 0)
+                {
+                    int code = 0;
+                    if(int.TryParse(str.Substring(0, i), out code))
+                    {
+                        err.Code = code;
+                    }
+                    err.Msg = str.Substring(i + 1);
+                }
+                else
+                {
+                    err.Msg = str;
+                }
+            }
+            return err;
+        }
     }
 
     public delegate void ErrorDelegate(Error err);

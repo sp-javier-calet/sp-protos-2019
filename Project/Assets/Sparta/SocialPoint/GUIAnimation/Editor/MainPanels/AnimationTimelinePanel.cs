@@ -933,8 +933,11 @@ namespace SocialPoint.GUIAnimation
         {
             _currentGlobalTime = iGlobalTime;
             _timelinePosition = _gridProperties.GetGridPosFromTimeSlot(iGlobalTime, 0);
-            _animationTool.AnimationModel.CurrentAnimation.PlayAt(iGlobalTime);
-            _animationTool.AnimationModel.RefreshScreen();
+            if(_animationTool != null)
+            {
+                _animationTool.AnimationModel.CurrentAnimation.PlayAt(iGlobalTime);
+                _animationTool.AnimationModel.RefreshScreen();
+            }
         }
 
         public void SaveValuesAt(float localTimeNormalized)

@@ -169,8 +169,6 @@ public sealed class BuildConfiger
                 {
                     return BuildTarget.StandaloneWindows;
                 }
-            case BuildPlatform.WebPlayer:
-                return BuildTarget.WebPlayer;
             case BuildPlatform.IOS:
 #if UNITY_5
                 return BuildTarget.iOS;
@@ -197,10 +195,6 @@ public sealed class BuildConfiger
             case BuildTarget.StandaloneWindows:
             case BuildTarget.StandaloneWindows64:
                 BundleBuildTarget = BuildPlatform.Standalones;
-                break;
-            case BuildTarget.WebPlayer:
-            case BuildTarget.WebPlayerStreamed:
-                BundleBuildTarget = BuildPlatform.WebPlayer;
                 break;
             case BuildTarget.iOS:
             case BuildTarget.tvOS:

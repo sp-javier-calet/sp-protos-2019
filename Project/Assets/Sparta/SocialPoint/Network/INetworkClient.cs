@@ -1,5 +1,4 @@
 ﻿using SocialPoint.Base;
-using SocialPoint.IO;
 
 namespace SocialPoint.Network
 {

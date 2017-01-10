@@ -33,6 +33,11 @@ namespace SocialPoint.Utils
             _scheduler.Remove(elm);
         }
 
+        public bool Contains(IUpdateable elm)
+        {
+            return _scheduler.Contains(elm);
+        }
+
         IEnumerator ICoroutineRunner.StartCoroutine(IEnumerator enumerator)
         {
             if(enumerator != null)
