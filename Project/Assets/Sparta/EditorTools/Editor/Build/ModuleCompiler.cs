@@ -643,6 +643,7 @@ namespace SpartaTools.Editor.Build
             public void Configure(ModuleCompiler compiler)
             {
                 compiler.AddReference("UnityEditor.dll");
+                compiler.AddReference("UnityEditor.Graphs.dll");
 
                 compiler.AddDefinedSymbol("UNITY_EDITOR");
                 compiler.SetEditorAssembly(true);
