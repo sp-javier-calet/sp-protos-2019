@@ -6,9 +6,9 @@ namespace SocialPoint.Multiplayer
 {
     public static class MultiplayerExtensionsBridge
     {
-        public static Vector[] StraightPathToVectors(StraightPath straightPath)
+        public static PhysicsVector[] StraightPathToVectors(StraightPath straightPath)
         {
-            var navVectors = new Vector[straightPath.Count];
+            var navVectors = new PhysicsVector[straightPath.Count];
 
             for(int i = 0; i < straightPath.Count; i++)
             {

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using SocialPoint.Dependency;
 using SocialPoint.Multiplayer;
 using SocialPoint.Network;
+using SocialPoint.Physics;
 using SocialPoint.IO;
 using SocialPoint.Pooling;
 using SocialPoint.Geometry;
@@ -78,7 +79,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
         }
     }
 
-    void INetworkClientSceneBehaviour.OnInstantiateObject(int id, SocialPoint.Geometry.Transform t)
+    void INetworkClientSceneBehaviour.OnInstantiateObject(int id, SocialPoint.Multiplayer.Transform t)
     {
     }
 
@@ -119,7 +120,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
         var ev = reader.Read<PathEvent>();
         for(int i = 0; i < ev.Points.Length; i++)
         {
-            var nodeObj = Instantiate(_pathNodePrefab, ev.Points[i], Quaternion.identity) as GameObject;
+            var nodeObj = Instantiate(_pathNodePrefab, Vector.Convert(ev.Points[i]), Quaternion.identity) as GameObject;
             nodeObj.transform.SetParent(transform);
             _visualPathNodes.Add(nodeObj);
         }
@@ -127,8 +128,8 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
         //Create path edges
         for(int i = 0; i < ev.Points.Length - 1; i++)
         {
-            var point1 = ev.Points[i];
-            var point2 = ev.Points[i + 1];
+            var point1 = Vector.Convert(ev.Points[i]);
+            var point2 = Vector.Convert(ev.Points[i + 1]);
             var edgeObj = Instantiate(_pathEdgePrefab, point1, Quaternion.identity) as GameObject;
             edgeObj.transform.LookAt(point2);
             edgeObj.transform.localScale = new Vector3(1, 1, Vector3.Distance(point1, point2) * 0.5f);

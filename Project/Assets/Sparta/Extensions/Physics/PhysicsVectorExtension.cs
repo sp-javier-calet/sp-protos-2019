@@ -17,7 +17,7 @@ namespace SocialPoint.Geometry
 
         public static implicit operator PhysicsVector(Vector v)
         {
-            return new PhysicsVector(v.X, v.Y, v.Z);
+            return new PhysicsVector(v._x, v._y, v._z);
         }
     }
 }

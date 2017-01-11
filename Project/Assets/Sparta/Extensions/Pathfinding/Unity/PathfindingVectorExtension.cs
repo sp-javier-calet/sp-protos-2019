@@ -18,7 +18,7 @@ namespace SocialPoint.Geometry
 
         public static implicit operator PathVector(Vector v)
         {
-            return new PathVector(v.X, v.Y, v.Z);
+            return new PathVector(v._x, v._y, v._z);
         }
 
         public static Vector Convert(PathPoint v)

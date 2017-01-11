@@ -16,7 +16,7 @@ namespace SocialPoint.Geometry
 
         public static implicit operator PhysicsQuaternion(Quat q)
         {
-            return new PhysicsQuaternion(q.X, q.Y, q.Z, q.W);
+            return new PhysicsQuaternion(q._x, q._y, q._z, q._w);
         }
     }
 }
