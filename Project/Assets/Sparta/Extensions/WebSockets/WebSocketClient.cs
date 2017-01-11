@@ -36,7 +36,7 @@ namespace SocialPoint.WebSockets
         }
 
         public void Dispose()
-        {	
+        {
             Disconnect();
             DestroySocket();
         }
