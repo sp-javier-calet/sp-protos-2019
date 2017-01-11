@@ -7,7 +7,6 @@ using SocialPoint.Network;
 using SocialPoint.Physics;
 using SocialPoint.IO;
 using SocialPoint.Pooling;
-using SocialPoint.Geometry;
 using Jitter.LinearMath;
 
 public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientSceneReceiver, IPointerClickHandler
@@ -73,7 +72,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
             _client.SendMessage(new NetworkMessageData {
                 MessageType = GameMsgType.ClickAction
             }, new ClickAction {
-                Position = Vector.Convert(eventData.pointerPressRaycast.worldPosition),
+                Position = eventData.pointerPressRaycast.worldPosition.ToPhysics(),
                 Ray = new SocialPoint.Physics.Ray(clickRay.origin.ToPhysics(), clickRay.direction.ToPhysics())
             });
         }

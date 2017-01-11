@@ -22,6 +22,11 @@ namespace SocialPoint.Geometry
             return new PathVector(v._x, v._y, v._z);
         }
 
+        public PathVector ToPathfinding()
+        {
+            return this;
+        }
+
         public static Vector Convert(PathPoint v)
         {
             return v;
