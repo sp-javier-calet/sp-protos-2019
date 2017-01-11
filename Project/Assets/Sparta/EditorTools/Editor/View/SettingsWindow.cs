@@ -1,13 +1,10 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System.IO;
-using SpartaTools.Editor.Build;
+﻿using UnityEditor;
 
 namespace SpartaTools.Editor.View
 {
     public sealed class SettingsWindow : ComposedWindow
     {
-        [MenuItem("Sparta/Settings...", false, 300)]
+        [MenuItem("Sparta/Settings...", false, 700)]
         public static void OpenProxySettings()
         {
             EditorWindow.GetWindow(typeof(SettingsWindow), false, "Settings", true);

@@ -98,6 +98,17 @@ namespace SpartaTools.Editor.View
             var disabled = EditorGUILayout.TextField("Disabled Warnings", CurrentSettings.DisabledWarnings);
             var symbols = EditorGUILayout.TextField("Defined symbols", CurrentSettings.DefinedSymbols);
 
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if(GUILayout.Button("Set Default", EditorStyles.miniButton))
+            {
+                globalWarningAsError = true;
+                enabled = string.Empty;
+                disabled = "618";
+                symbols = string.Empty;
+            }
+            GUILayout.EndHorizontal();
+
             var statusChanged = CurrentSettings.EnabledWarningAsErrors != globalWarningAsError;
 
             if(statusChanged ||
