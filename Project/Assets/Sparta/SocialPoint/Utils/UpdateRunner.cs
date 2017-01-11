@@ -180,13 +180,8 @@ namespace SocialPoint.Utils
 
         void DoAdd(Object elm, IUpdateableHandler handler)
         {
-            if(!_elementsToRemove.Remove(elm))
-            {
-                if(!_elements.ContainsKey(elm))
-                {
-                    _elements.Add(elm, handler);
-                }
-            }
+            _elementsToRemove.Remove(elm);
+            _elements[elm] = handler;
         }
 
         public void Remove(IUpdateable elm)

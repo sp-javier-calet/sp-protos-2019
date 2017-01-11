@@ -242,5 +242,21 @@ namespace SocialPoint.Utils
             updateable0.Received(1).Update();
             updateable1.Received(0).Update();
         }
+
+        [Test]
+        public void DeleteAndAddWithDifferentConfig()
+        {
+            var updateable0 = Substitute.For<IUpdateable>();
+            var updateable1 = Substitute.For<IUpdateable>();
+            _scheduler.Add(updateable0, true, 0.1f);
+            _scheduler.Add(updateable1, true, 0.05f);
+            _scheduler.Remove(updateable0);
+            _scheduler.Remove(updateable1);
+            _scheduler.Add(updateable0, true, 0.05f);
+            _scheduler.Add(updateable1, true, 0.1f);
+            _scheduler.Update(0.05f);
+            updateable0.Received(1).Update();
+            updateable1.Received(0).Update();
+        }
     }
 }
