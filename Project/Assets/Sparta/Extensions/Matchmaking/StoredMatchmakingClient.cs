@@ -21,9 +21,9 @@ namespace SocialPoint.Matchmaking
     {
         const string DefaultStorageKey = "matchmaking";
         const string MatchIdAttrKey = "match_id";
-        const string PlayerIdAttrKey = "player_id";
+        const string PlayerIdAttrKey = "token";
         const string GameInfoAttrKey = "game_info";
-        const string ServerInfoAttrKey = "server_info";
+        const string ServerInfoAttrKey = "server";
 
         string _storageKey;
         IAttrStorage _storage;

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using SocialPoint.Network;
-using SocialPoint.IO;
-using SocialPoint.Utils;
-using SocialPoint.Base;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.IO;
+using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep
 {
@@ -196,7 +196,7 @@ namespace SocialPoint.Lockstep
                 _client.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.PlayerReady,
                 }, new PlayerReadyMessage(PlayerId));
-                if(PlayerReadySent != null)
+              if(PlayerReadySent != null)
                 {
                     PlayerReadySent();
                 }

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.Network;
-using SocialPoint.IO;
-using SocialPoint.Base;
-using SocialPoint.Utils;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.IO;
 using SocialPoint.Matchmaking;
+using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep
 {
@@ -68,7 +68,8 @@ namespace SocialPoint.Lockstep
 
         public LockstepServerConfig ServerConfig{ get; set; }
 
-        public event Action<Attr> MatchStarted;
+        public event Action BeforeMatchStarts;
+        public event Action<byte[]> MatchStarted;
         public event Action<Error> ErrorProduced;
         public event Action<Error, byte> CommandFailed;
         public event Action<Dictionary<byte, Attr>> MatchFinished;
@@ -98,7 +99,7 @@ namespace SocialPoint.Lockstep
                 return _serverLockstep.GameParams;
             }
         }
-
+        
         public LockstepNetworkServer(INetworkServer server, IMatchmakingServer matchmaking = null, IUpdateScheduler scheduler = null)
         {
             ServerConfig = new LockstepServerConfig();
@@ -506,6 +507,10 @@ namespace SocialPoint.Lockstep
 
         void StartLockstep()
         {
+            if(BeforeMatchStarts != null)
+            {
+                BeforeMatchStarts();
+            }
             if(_matchmaking != null && _matchmaking.Enabled)
             {
                 var playerIds = PlayerIds;
@@ -519,7 +524,7 @@ namespace SocialPoint.Lockstep
             DoStartLockstep();
         }
 
-        void IMatchmakingServerDelegate.OnMatchInfoReceived(Attr info)
+        void IMatchmakingServerDelegate.OnMatchInfoReceived(byte[] info)
         {
             if(MatchStarted != null)
             {
@@ -579,7 +584,6 @@ namespace SocialPoint.Lockstep
             }
             var msg = new AttrMessage();
             msg.Deserialize(reader);
-            client.Ready = false;
             PlayerResults[client.PlayerNumber] = msg.Data;
             CheckAllPlayersEnded();
         }

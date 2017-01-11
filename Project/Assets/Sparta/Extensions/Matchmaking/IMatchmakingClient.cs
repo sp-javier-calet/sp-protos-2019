@@ -10,6 +10,7 @@ namespace SocialPoint.Matchmaking
     {
         public string Id;
         public string PlayerId;
+
         public bool Running;
         public Attr GameInfo;
         public Attr ServerInfo;

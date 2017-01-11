@@ -53,6 +53,7 @@ namespace SocialPoint.Lockstep
             }
             builder.AppendLine("TurnBuffer: " + _client.TurnBuffer);
             builder.AppendLine("Time: " + _client.UpdateTime + " sim:" + _client.SimulationDeltaTime + " cmd:" + _client.CommandDeltaTime);
+            builder.AppendLine("Ping: " + PhotonNetwork.GetPing());
             return builder.ToString();
         }
 
