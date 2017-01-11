@@ -485,10 +485,10 @@ namespace SpartaTools.Editor.Build
             compiler.AddReference("GUISystem/UnityEngine.UI.dll");
             compiler.AddReference("Networking/UnityEngine.Networking.dll");
 
-            // FIXME Read default symbols from unity
+            var unityMinorVersion = Convert.ToInt32(Application.unityVersion.Split('.')[1]);
             compiler.AddDefinedSymbol("UNITY_5");
-            compiler.AddDefinedSymbol("UNITY_5_3");
-            compiler.AddDefinedSymbol("UNITY_5_3_OR_NEWER");
+            compiler.AddDefinedSymbol(string.Format("UNITY_5_{0}", unityMinorVersion));
+            compiler.AddDefinedSymbol(string.Format("UNITY_5_{0}_OR_NEWER", unityMinorVersion));
 
             /* Platform configuration */
             if(editorAssembly)
