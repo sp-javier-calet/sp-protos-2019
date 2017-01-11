@@ -1,9 +1,7 @@
-using Photon;
-using SocialPoint.Base;
-using SocialPoint.Utils;
-using SocialPoint.IO;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using SocialPoint.Base;
+using SocialPoint.IO;
 
 namespace SocialPoint.Network
 {
@@ -66,7 +64,7 @@ namespace SocialPoint.Network
             {
                 var options = new RaiseEventOptions();
                 options.Receivers = ReceiverGroup.Others;
-                PhotonNetwork.RaiseEvent(PhotonMsgType.BackendEnv, System.Text.Encoding.ASCII.GetBytes(BackendEnv), true, options);
+                PhotonNetwork.RaiseEvent(PhotonMsgType.BackendEnv, BackendEnv, true, options);
             }
             for(var i = 0; i < _delegates.Count; i++)
             {

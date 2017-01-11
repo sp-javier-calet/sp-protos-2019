@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.Network;
-using SocialPoint.IO;
-using SocialPoint.Base;
-using SocialPoint.Utils;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.IO;
 using SocialPoint.Matchmaking;
+using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep
 {
@@ -52,7 +52,6 @@ namespace SocialPoint.Lockstep
             public bool Ready;
             public string PlayerId;
             public byte PlayerNumber;
-            public string BackendEnv;
         }
 
         IMatchmakingServer _matchmaking;
@@ -459,8 +458,7 @@ namespace SocialPoint.Lockstep
                 // new client
                 client = new ClientData {
                     PlayerId = msg.PlayerId,
-                    PlayerNumber = FreePlayerNumber,
-                    BackendEnv = msg.BackendEnv
+                    PlayerNumber = FreePlayerNumber
                 };
                 _clients.Add(client);
             }

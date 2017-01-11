@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using SocialPoint.Network;
-using SocialPoint.IO;
-using SocialPoint.Utils;
-using SocialPoint.Base;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.IO;
+using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep
 {
@@ -50,8 +50,6 @@ namespace SocialPoint.Lockstep
                 return _playerIds.AsReadOnly();
             }
         }
-
-        public string Environment { get; set; }
 
         public event Action<int> StartScheduled;
         public event Action PlayerReadySent;
@@ -197,8 +195,8 @@ namespace SocialPoint.Lockstep
                 _sendPlayerReadyPending = false;
                 _client.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.PlayerReady,
-                }, new PlayerReadyMessage(PlayerId, Environment));
-                if(PlayerReadySent != null)
+                }, new PlayerReadyMessage(PlayerId));
+              if(PlayerReadySent != null)
                 {
                     PlayerReadySent();
                 }
