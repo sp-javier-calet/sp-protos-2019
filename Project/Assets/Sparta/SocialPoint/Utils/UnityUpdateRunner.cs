@@ -48,11 +48,6 @@ namespace SocialPoint.Utils
             return _scheduler.Contains(elm);
         }
 
-        public void AddFixed(IUpdateable elm, double interval, bool usesTimeScale = false)
-        {
-            _scheduler.AddFixed(elm, interval, usesTimeScale);
-        }
-
         IEnumerator ICoroutineRunner.StartCoroutine(IEnumerator enumerator)
         {
             if(enumerator != null)

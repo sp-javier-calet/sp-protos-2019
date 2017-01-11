@@ -25,16 +25,13 @@ namespace SocialPoint.Utils
 
     public interface IUpdateScheduler
     {
-        [Obsolete("Use Add instead")]
-        void AddFixed(IUpdateable elm, double interval, bool usesTimeScale = false);
-
-        void Add(IUpdateable elm, bool timeScaled = false, float interval = -1);
+        void Add(IUpdateable elm, bool timeScaled, float interval);
 
         void Remove(IUpdateable elm);
 
         bool Contains(IUpdateable elm);
 
-        void Add(IDeltaUpdateable elm, bool timeScaled = false, float interval = -1);
+        void Add(IDeltaUpdateable elm, bool timeScaled, float interval);
 
         void Remove(IDeltaUpdateable elm);
 
@@ -55,6 +52,17 @@ namespace SocialPoint.Utils
                 }
                 itr.Dispose();
             }
+        }
+
+        [Obsolete("Use Add instead")]
+        public static void AddFixed(this IUpdateScheduler scheduler, IUpdateable elm, double interval, bool usesTimeScale = false)
+        {
+            scheduler.Add(elm, usesTimeScale, (float)interval);
+        }
+
+        public static void Add(this IUpdateScheduler scheduler, IUpdateable elm)
+        {
+            scheduler.Add(elm, false, -1);
         }
     }
 
@@ -170,11 +178,6 @@ namespace SocialPoint.Utils
             }
         }
 
-        public void AddFixed(IUpdateable elm, double interval, bool usesTimeScale = false)
-        {
-            Add(elm, usesTimeScale, (float)interval);
-        }
-
         void DoAdd(Object elm, IUpdateableHandler handler)
         {
             if(!_elementsToRemove.Remove(elm))
@@ -211,6 +214,7 @@ namespace SocialPoint.Utils
             {
                 return _elements.ContainsKey(elm);
             }
+            return false;
         }
 
         public bool Contains(IDeltaUpdateable elm)
@@ -220,6 +224,7 @@ namespace SocialPoint.Utils
             {
                 return _elements.ContainsKey(elm);
             }
+            return false;
         }
 
         void DoRemove()
