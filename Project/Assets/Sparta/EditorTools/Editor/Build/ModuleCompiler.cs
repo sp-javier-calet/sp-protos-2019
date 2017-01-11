@@ -90,6 +90,7 @@ namespace SpartaTools.Editor.Build
         const string EditorFilter = "Editor";
         const string TestsFilter = "Tests";
         const string PlatformWSAFilter = "Plugins/WSA";
+        const string PlatformUwpFilter = "Plugins/Uwp";
         const string PlatformAndroidFilter = "Plugins/Android";
         const string PlatformIosFilter = "Plugins/Ios";
 
@@ -130,6 +131,7 @@ namespace SpartaTools.Editor.Build
             _filters.Add(EditorFilter, new FilterData(EditorFilter));
             _filters.Add(TestsFilter, new FilterData(TestsFilter));
             _filters.Add(PlatformWSAFilter, new FilterData(PlatformWSAFilter));
+            _filters.Add(PlatformUwpFilter, new FilterData(PlatformUwpFilter));
             _filters.Add(PlatformAndroidFilter, new FilterData(PlatformAndroidFilter));
             _filters.Add(PlatformIosFilter, new FilterData(PlatformIosFilter));
 
