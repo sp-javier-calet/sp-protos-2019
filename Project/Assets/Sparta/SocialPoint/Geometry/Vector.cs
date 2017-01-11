@@ -13,6 +13,36 @@ namespace SocialPoint.Geometry
         public static readonly Vector Zero;
 
         /// <summary>
+        /// A vector with components (1,0,0);
+        /// </summary>
+        public static readonly Vector Left;
+
+        /// <summary>
+        /// A vector with components (-1,0,0);
+        /// </summary>
+        public static readonly Vector Right;
+
+        /// <summary>
+        /// A vector with components (0,1,0);
+        /// </summary>
+        public static readonly Vector Up;
+
+        /// <summary>
+        /// A vector with components (0,-1,0);
+        /// </summary>
+        public static readonly Vector Down;
+
+        /// <summary>
+        /// A vector with components (0,0,1);
+        /// </summary>
+        public static readonly Vector Backward;
+
+        /// <summary>
+        /// A vector with components (0,0,-1);
+        /// </summary>
+        public static readonly Vector Forward;
+
+        /// <summary>
         /// A vector with components (1,1,1);
         /// </summary>
         public static readonly Vector One;
@@ -21,6 +51,12 @@ namespace SocialPoint.Geometry
         {
             One = new Vector(1, 1, 1);
             Zero = new Vector(0, 0, 0);
+            Left = new Vector(1, 0, 0);
+            Right = new Vector(-1, 0, 0);
+            Up = new Vector(0, 1, 0);
+            Down = new Vector(0, -1, 0);
+            Backward = new Vector(0, 0, 1);
+            Forward = new Vector(0, 0, -1);
         }
 
         #endregion
