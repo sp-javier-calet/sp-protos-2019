@@ -32,9 +32,6 @@ namespace SocialPoint.WebSockets
 
         public void Update()
         {
-			if (!WebSocket.IsSupported)
-				return;
-			
             _socket.Update();
         }
 
