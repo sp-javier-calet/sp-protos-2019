@@ -20,11 +20,6 @@ namespace SocialPoint.Geometry
     // UnityVector adapter
     public partial struct Vector
     {
-        public static Vector Convert(UnityEngine.Vector3 v)
-        {
-            return new Vector(v.x, v.y, v.z);
-        }
-
         public static implicit operator Vector(UnityEngine.Vector3 v)
         {
             return new Vector(v.x, v.y, v.z);

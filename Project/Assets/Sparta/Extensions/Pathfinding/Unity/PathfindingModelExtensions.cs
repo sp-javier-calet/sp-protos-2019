@@ -1,40 +1,19 @@
 ﻿using UnityVector = UnityEngine.Vector3;
 using PathVector = SharpNav.Geometry.Vector3;
-using PathPoint = SharpNav.Pathfinding.NavPoint;
+using SocialPoint.Attributes;
 
-namespace SocialPoint.Geometry
+namespace SocialPoint.Pathfinding
 {
-    // PathVector adapter
-    public partial struct Vector
+    public static class UnityModelExtensions
     {
-        public static Vector Convert(PathVector v)
+        public static UnityVector ToUnity(this PathVector v)
         {
-            return v;
+            return new UnityVector(v.X, v.Y, v.Z);
         }
 
-        public static implicit operator Vector(PathVector v)
+        public static PathVector ToPathfinding(this UnityVector v)
         {
-            return new Vector(v.X, v.Y, v.Z);
-        }
-
-        public static implicit operator PathVector(Vector v)
-        {
-            return new PathVector(v._x, v._y, v._z);
-        }
-
-        public PathVector ToPathfinding()
-        {
-            return this;
-        }
-
-        public static Vector Convert(PathPoint v)
-        {
-            return v;
-        }
-
-        public static implicit operator Vector(PathPoint v)
-        {
-            return v.Position;
+            return new PathVector(v.x, v.y, v.z);
         }
     }
 }
