@@ -12,21 +12,40 @@ namespace SocialPoint.Dependency
         public const string FileExtension = ".asset";
         public const string AssetPattern = "*.asset";
 
-        public static void Create(Type t)
+        public static bool CreateDefault(Type t)
         {
+            return Create(t, string.Empty, false);
+        }
+
+        public static bool Create(Type t, string tag, bool focus)
+        {
+            if(!typeof(Installer).IsAssignableFrom(t))
+            {
+                throw new InvalidCastException(string.Format("Invalid type '{0}' when creating an Installer instance", t.Name));
+            }
+
             if(!Directory.Exists(ContainerPath))
             {
                 Directory.CreateDirectory(ContainerPath);
             }
 
-            var path = GetInstallerPath(t);
+            var path = GetInstallerPath(t, tag);
             if(!File.Exists(path))
             {
-                var asset = ScriptableObject.CreateInstance(t);
+                var asset = (Installer)ScriptableObject.CreateInstance(t);
                 string assetPath = AssetDatabase.GenerateUniqueAssetPath(path);
                 AssetDatabase.CreateAsset(asset, assetPath);
                 AssetDatabase.SaveAssets();
+
+                if(focus)
+                {
+                    ProjectWindowUtil.ShowCreatedAsset(asset);
+                    EditorUtility.FocusProjectWindow();
+                }
+                return true;
             }
+
+            return false;
         }
 
         static Installer Open(string path)
@@ -36,12 +55,38 @@ namespace SocialPoint.Dependency
 
         static string GetInstallerPath(Type t)
         {
-            return ContainerPath + "/" + t.Name + FileExtension;
+            return GetInstallerPath(t.Name);
         }
 
-        static bool Delete(Type t)
+        static string GetInstallerPath(Type t, string tag)
         {
-            return AssetDatabase.DeleteAsset(GetInstallerPath(t));
+            var name = t.Name;
+            if(!string.IsNullOrEmpty(tag))
+            {
+                name = string.Format("{0} - {1}", name, tag);
+            }
+            return GetInstallerPath(name);
+        }
+
+        static string GetInstallerPath(string name)
+        {
+            return ContainerPath + "/" + name + FileExtension;
+        }
+
+        public static bool Duplicate(Installer installer)
+        {
+            return Create(installer.GetType(), "Copy", true);
+        }
+
+        public static bool Delete(Installer installer)
+        {
+            var deleted = AssetDatabase.DeleteAsset(GetInstallerPath(installer.name));
+            if(deleted)
+            {
+                AssetDatabase.SaveAssets();
+            }
+
+            return deleted;
         }
 
         public static Installer[] Installers

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
@@ -12,7 +12,7 @@ namespace SocialPoint.Dependency
         Action<F> _setup;
         F _instance;
 
-        public BindingKey Key 
+        public BindingKey Key
         {
             get
             {
@@ -46,7 +46,7 @@ namespace SocialPoint.Dependency
             return _instance;
         }
 
-        public void OnResolutionFinished()
+        public void OnResolved()
         {
             Resolved = true;
 
@@ -57,7 +57,7 @@ namespace SocialPoint.Dependency
                 setup(_instance);
             }
         }
-            
+
         public override string ToString()
         {
             return string.Format("[UnityComponentBinding {0}]", typeof(F));
@@ -75,73 +75,16 @@ namespace SocialPoint.Dependency
 
         public static UnityComponentBinding<T> RebindUnityComponent<T>(this DependencyContainer container, string tag = null) where T : Component
         {
-            container.Remove<T>(tag);
-            return container.BindUnityComponent<T>(tag);
-        }
-    }
-
-    public sealed class ServiceLocator : MonoBehaviourSingleton<ServiceLocator>
-    {
-        DependencyContainer _container;
-        InitializableManager _initializables;
-
-        public T Resolve<T>(string tag=null, T def=default(T))
-        {
-            return _container.Resolve<T>(tag, def);
-        }
-
-        public List<T> ResolveList<T>(string tag=null)
-        {
-            return _container.ResolveList<T>(tag);
-        }
-
-        public void Install(IInstaller installer)
-        {
-            _container.Install(installer);
-        }
-
-        public void Install(IInstaller[] installers)
-        {
-            _container.Install(installers);
-        }
-
-        public void Initialize()
-        {
-            _initializables.Initialize();
-        }
-
-        const string GlobalInstallersResource = "Installers/GlobalDependencyConfigurer";
-
-        override protected void SingletonAwakened()
-        {
-            base.SingletonAwakened();
-
-            _container = new DependencyContainer();
-            _initializables = new InitializableManager(_container);
-
-            _container.Bind<GameObject>().ToInstance(gameObject);
-            _container.Bind<Transform>().ToGetter<GameObject>((go) => go.transform);
-
-            var globalConfig = Resources.Load<GlobalDependencyConfigurer>(GlobalInstallersResource);
-            if(globalConfig != null)
+            var bind = new UnityComponentBinding<T>(container);
+            if(!container.HasBinding<T>(tag))
             {
-                Install(globalConfig);
+                container.AddBinding(bind, typeof(T), tag);
             }
             else
             {
-                Log.e("GlobalDependencyConfigurer asset not found");
+                Log.w("DependencyContainer", string.Format("Skipping binding of {0} <{1}>", typeof(T).Name, tag ?? string.Empty));
             }
-        }
-            
-        protected override void SingletonStarted()
-        {
-            base.SingletonStarted();
-            Initialize();
-        }
-
-        void OnLevelWasLoaded(int level)
-        {
-            Initialize();
+            return bind;
         }
     }
 }

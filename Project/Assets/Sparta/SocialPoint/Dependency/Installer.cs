@@ -51,6 +51,14 @@ namespace SocialPoint.Dependency
 
         public DependencyContainer Container{ get; set; }
 
+        public bool IsDefault
+        {
+            get
+            {
+                return this.GetType().Name == name;
+            }
+        }
+
         public abstract void InstallBindings();
 
         protected Installer() : this(ModuleType.Game)

@@ -288,11 +288,6 @@ public sealed class DownloadManager : MonoBehaviour
         {
             return BuildPlatform.Standalones;
         }
-        if(Application.platform == RuntimePlatform.OSXWebPlayer ||
-           Application.platform == RuntimePlatform.WindowsWebPlayer)
-        {
-            return BuildPlatform.WebPlayer;
-        }
         if(Application.platform == RuntimePlatform.IPhonePlayer || Application.platform == RuntimePlatform.tvOS)
         {
             return BuildPlatform.IOS;
