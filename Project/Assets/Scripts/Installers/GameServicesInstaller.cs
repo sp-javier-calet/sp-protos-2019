@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 using SocialPoint.AppEvents;
 using SocialPoint.CrossPromotion;
 using SocialPoint.Dependency;
@@ -24,6 +25,13 @@ public class GameServicesInstaller : Installer
     [Serializable]
     public class SettingsData
     {
+        public LocalizationSettings Localization;
+        public CrossPromotionSettings CrossPromotion;
+    }
+
+    [Serializable]
+    public class LocalizationSettings
+    {
         public EnvironmentID EnvironmentId = EnvironmentID.prod;
         public string ProjectId = GameLocalizationManager.LocationData.DefaultProjectId;
         public string SecretKeyDev = GameLocalizationManager.LocationData.DefaultDevSecretKey;
@@ -34,13 +42,20 @@ public class GameServicesInstaller : Installer
         public float Timeout = GameLocalizationManager.DefaultTimeout;
     }
 
+    [Serializable]
+    public class CrossPromotionSettings
+    {
+        public GameObject ButtonPrefab;
+        public GameObject PopupPrefab;
+    }
+
     public SettingsData Settings = new SettingsData();
 
 
     public override void InstallBindings()
     {
         // CrossPromotion
-        Container.Bind<GameCrossPromotionManager>().ToMethod<GameCrossPromotionManager>(CreateManager);
+        Container.Bind<GameCrossPromotionManager>().ToMethod<GameCrossPromotionManager>(CreateManager, SetupManager);
         Container.Bind<CrossPromotionManager>().ToLookup<GameCrossPromotionManager>();
         Container.Bind<IDisposable>().ToLookup<CrossPromotionManager>();
 
@@ -66,6 +81,12 @@ public class GameServicesInstaller : Installer
         return new GameCrossPromotionManager(Container.Resolve<ICoroutineRunner>(), Container.Resolve<PopupsController>());
     }
 
+    void SetupManager(GameCrossPromotionManager manager)
+    {
+        manager.ButtonPrefab = Settings.CrossPromotion.ButtonPrefab;
+        manager.PopupPrefab = Settings.CrossPromotion.PopupPrefab;
+    }
+
     GameNotificationManager CreateNotificationManager()
     {
         return new GameNotificationManager(
@@ -89,23 +110,23 @@ public class GameServicesInstaller : Installer
         mng.Localization = Container.Resolve<Localization>();
 
         string secretKey;
-        if(Settings.EnvironmentId == EnvironmentID.dev)
+        if(Settings.Localization.EnvironmentId == EnvironmentID.dev)
         {
-            secretKey = Settings.SecretKeyDev;
+            secretKey = Settings.Localization.SecretKeyDev;
         }
-        else if(Settings.EnvironmentId == EnvironmentID.loc)
+        else if(Settings.Localization.EnvironmentId == EnvironmentID.loc)
         {
-            secretKey = Settings.SecretKeyLoc;
+            secretKey = Settings.Localization.SecretKeyLoc;
         }
         else
         {
-            secretKey = Settings.SecretKeyProd;
+            secretKey = Settings.Localization.SecretKeyProd;
         }
-        mng.Location.ProjectId = Settings.ProjectId;
-        mng.Location.EnvironmentId = Settings.EnvironmentId.ToString();
+        mng.Location.ProjectId = Settings.Localization.ProjectId;
+        mng.Location.EnvironmentId = Settings.Localization.EnvironmentId.ToString();
         mng.Location.SecretKey = secretKey;
-        mng.Timeout = Settings.Timeout;
-        mng.BundleDir = Settings.BundleDir;
+        mng.Timeout = Settings.Localization.Timeout;
+        mng.BundleDir = Settings.Localization.BundleDir;
 
         mng.UpdateDefaultLanguage();
     }
