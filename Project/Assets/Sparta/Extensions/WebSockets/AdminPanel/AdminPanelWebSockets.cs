@@ -29,6 +29,8 @@ namespace SocialPoint.WebSockets
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
+            layout.CreateLabel(_socket.GetType().Name);
+
             layout.CreateToggleButton("Connect", _socket.Connected, (value) => {
                 if(value)
                 {
