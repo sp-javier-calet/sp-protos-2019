@@ -1,18 +1,45 @@
 using System;
+using System.Net;
 
 namespace SocialPoint.TransparentBundles
 {
     public abstract class RequestArgs
     {
         private RequestReport _requestReport;
+        public bool AutoRetryLogin = true;
+        //public AsyncRequestData RequestData;
         public Action<RequestReport> OnSuccessCallback;
         public Action<RequestReport> OnFailedCallback;
 
-        public RequestArgs(Action<RequestReport> SuccessCallback, Action<RequestReport> FailedCallback)
+        public RequestArgs(Action<RequestReport> SuccessCallback, Action<RequestReport> FailedCallback, bool autoRetryLogin = true)
         {
             OnSuccessCallback = SuccessCallback;
             OnFailedCallback = FailedCallback;
+            this.AutoRetryLogin = autoRetryLogin;
         }
+
+        ///// <summary>
+        ///// Sets the HttpRequest
+        ///// </summary>
+        ///// <param name="request"></param>
+        ///// <param name="doneCallback"></param>
+        //public void SetRequest(HttpWebRequest request, Action<ResponseResult, RequestArgs> doneCallback)
+        //{
+        //    Action<ResponseResult> reqCallback = x => doneCallback(x, this);
+
+        //    if(doneCallback == null)
+        //    {
+        //        reqCallback = UpdateReportAndCallback;
+        //    }
+
+        //    RequestData = new AsyncRequestData(request, reqCallback);
+        //    isReady = true;
+        //}
+
+        //public void SetBodyPayload(string body)
+        //{
+        //    RequestData.RequestBody = body;
+        //}
 
         /// <summary>
         /// Gets the result of the petition
@@ -40,7 +67,7 @@ namespace SocialPoint.TransparentBundles
         {
             if(_requestReport == null)
             {
-                _requestReport = new RequestReport(false, false);
+                _requestReport = new RequestReport(false);
             }
 
             _requestReport.ResponseRes = responseResult;

@@ -24,16 +24,20 @@ namespace SocialPoint.TransparentBundles
             /// Callback for login failure
             /// </summary>
             public Action<RequestReport> LoginFailed = null;
+            /// <summary>
+            /// Logins with this username instead of the one stored in EditorPrefs
+            /// </summary>
+            public string OverwriteLoginUsername = "";
         }
 
         private static bool _isLogged = false;
 
-        public const string SERVER_URL = "http://httpbin.org/post";
+        public const string SERVER_URL = "https://transparentbundles.socialpoint.es/transparent_bundles/asset_request/?user_email=";
 
         [MenuItem("SocialPoint/Test Call")]
         public static void test()
         {
-            CreateBundle(new CreateBundlesArgs(x => Debug.Log(x.ResponseRes.Response), x => Debug.Log(x.LoginCancelled)));
+            CreateBundle(new CreateBundlesArgs(x => Debug.Log(x.ResponseRes.Response), x => Debug.Log(x.RequestCancelled)));
         }
 
         #region LOGIN
@@ -49,7 +53,7 @@ namespace SocialPoint.TransparentBundles
             }
 
             // Gets the previously stored login info
-            var loginUser = EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY);
+            var loginUser = string.IsNullOrEmpty(loginOptions.OverwriteLoginUsername) ? EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY) : loginOptions.OverwriteLoginUsername;
 
             // If there is no info stored
             if(string.IsNullOrEmpty(loginUser))
@@ -62,13 +66,13 @@ namespace SocialPoint.TransparentBundles
                 else
                 {
                     // Else, fires the login failed report.
-                    loginOptions.LoginFailed(new RequestReport(true, false, "No username found"));
+                    loginOptions.LoginFailed(new RequestReport());
                 }
             }
             else
             {
                 // Create and configure the request
-                HttpAsyncRequest asyncReq = new HttpAsyncRequest(SERVER_URL, HttpAsyncRequest.MethodType.POST, x => HandleLoginResponse(x, loginOptions));
+                HttpAsyncRequest asyncReq = new HttpAsyncRequest(GetLoginUrl(), HttpAsyncRequest.MethodType.POST, x => HandleLoginResponse(x, loginOptions));
 
                 // Send the request
                 asyncReq.Send();
@@ -88,11 +92,12 @@ namespace SocialPoint.TransparentBundles
                 if(loginOptions.LoginOk != null)
                 {
                     // fires the login success callback.
-                    loginOptions.LoginOk(new RequestReport(true, false));
+                    loginOptions.LoginOk(new RequestReport());
                 }
             }
             else
             {
+                _isLogged = false;
                 // if the request has failed and the autoretry is enabled
                 if(loginOptions.AutoRetryLogin)
                 {
@@ -104,7 +109,7 @@ namespace SocialPoint.TransparentBundles
                     // fires the failed callback
                     if(loginOptions.LoginFailed != null)
                     {
-                        loginOptions.LoginFailed(new RequestReport(true, false, result));
+                        loginOptions.LoginFailed(new RequestReport(result));
                     }
                 }
             }
@@ -119,9 +124,15 @@ namespace SocialPoint.TransparentBundles
             if(loginOptions.LoginFailed != null)
             {
                 // Fires the provided failed callback with a report of login cancelled
-                loginOptions.LoginFailed(new RequestReport(true, true, "Login cancelled by user"));
+                loginOptions.LoginFailed(new RequestReport(true));
             }
         }
+
+        private static string GetLoginUrl()
+        {
+            return SERVER_URL + EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY);
+        }
+
         #endregion
 
         #region PUBLIC_METHODS
@@ -130,16 +141,19 @@ namespace SocialPoint.TransparentBundles
         /// </summary>
         /// <param name="arguments">Arguments needed for this type of request</param>
         /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
-        public static void CreateBundle(CreateBundlesArgs arguments, bool autoRetryLogin = true)
+        public static void CreateBundle(CreateBundlesArgs arguments)
         {
             // Build up the Login Options with callbacks and options
             var options = new LoginOptions();
 
-            options.AutoRetryLogin = autoRetryLogin;
+            options.AutoRetryLogin = arguments.AutoRetryLogin;
             options.LoginOk = (report) =>
             {
+                var request = (HttpWebRequest)HttpWebRequest.Create(GetLoginUrl());
+                request.Method = "POST";
+                var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, CreateBundle));
                 arguments.SetRequestReport(report);
-                CreateBundleAction(arguments);
+                ActionRequest(arguments, requestData);
             };
 
             options.LoginFailed = (report) =>
@@ -160,13 +174,13 @@ namespace SocialPoint.TransparentBundles
         /// <param name="loginOptions">The arguments for the login process that contains callbacks and login settings</param>
         private static void LoginAndExecuteAction(LoginOptions loginOptions)
         {
-            if(!_isLogged)
+            if(!_isLogged || !string.IsNullOrEmpty(loginOptions.OverwriteLoginUsername))
             {
                 Login(loginOptions);
             }
             else
             {
-                loginOptions.LoginOk(new RequestReport(false, false));
+                loginOptions.LoginOk(new RequestReport());
             }
         }
 
@@ -174,11 +188,28 @@ namespace SocialPoint.TransparentBundles
         /// Single encapsulated action for creating a bundle request
         /// </summary>
         /// <param name="arguments">Create Bundle Request Arguments as RequestArgs generic class</param>
-        private static void CreateBundleAction(RequestArgs arguments)
+        private static void ActionRequest<T>(T arguments, AsyncRequestData requestData) where T : RequestArgs
         {
-            HttpAsyncRequest asyncReq = new HttpAsyncRequest(SERVER_URL, HttpAsyncRequest.MethodType.POST, arguments.UpdateReportAndCallback);
+            HttpAsyncRequest asyncReq = new HttpAsyncRequest(requestData);
 
             asyncReq.Send();
+        }
+
+        private static void HandleActionResponse<T>(ResponseResult responseResult, T arguments, Action<T> retryRequest) where T : RequestArgs
+        {
+            if(responseResult.StatusCode == HttpStatusCode.Forbidden)
+            {
+                _isLogged = false;
+
+                if(arguments.AutoRetryLogin)
+                {
+                    retryRequest(arguments);
+                }
+            }
+            else
+            {
+                arguments.UpdateReportAndCallback(responseResult);
+            }
         }
 
         #endregion

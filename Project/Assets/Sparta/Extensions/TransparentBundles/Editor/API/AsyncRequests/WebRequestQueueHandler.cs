@@ -21,9 +21,9 @@ namespace SocialPoint.TransparentBundles
         /// <param name="obj">Dequeued object</param>
         static void HandleQueuedItem(object obj)
         {
-            if(obj is AsyncRequestState)
+            if(obj is AsyncRequestData)
             {
-                var response = (AsyncRequestState)obj;
+                var response = (AsyncRequestData)obj;
 
                 response.RaiseCallback();
             }
