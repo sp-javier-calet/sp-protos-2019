@@ -9,7 +9,7 @@ namespace SocialPoint.TransparentBundles
     {
         public static void AddAssetToBundle(string assetPath)
         {
-            DependenciesManifest.AddAssetsWithDependencies(AssetDatabase.AssetPathToGUID(assetPath));
+            DependenciesManifest.RegisterManualBundledAsset(AssetDatabase.AssetPathToGUID(assetPath));
 
             DependenciesManifest.Save();
         }
