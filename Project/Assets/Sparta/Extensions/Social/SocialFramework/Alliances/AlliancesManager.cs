@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Login;
@@ -14,10 +14,7 @@ namespace SocialPoint.Social
         JoinPublicAlliance,
         JoinPrivateAlliance,
         LeaveAlliance,
-        AllianceDescriptionEdited,
-        AllianceAvatarEdited,
-        AllianceTypeEdited,
-        AllianceRequirementEdited,
+        AllianceDataEdited,
         PlayerChangedRank,
         PlayerAutoChangedRank,
         MateJoinedPlayerAlliance,
@@ -37,6 +34,8 @@ namespace SocialPoint.Social
 
         public JoinExtraData()
         {
+            Message = string.Empty;
+            Timestamp = TimeUtils.Timestamp;
         }
 
         public JoinExtraData(string origin)
@@ -51,21 +50,21 @@ namespace SocialPoint.Social
     {
         #region Attr keys
 
-        const string UserIdKey = "user_id";
+        public const string UserIdKey = "user_id";
         const string MemberIdKey = "player_id";
         const string AllianceIdKey = "alliance_id";
-        const string AvatarKey = "avatar";
-        const string AllianceDescriptionKey = "description";
-        const string AllianceRequirementKey = "minimum_score";
-        const string AllianceTypeKey = "type";
-        const string AlliancePropertiesKey = "properties";
+        public const string AvatarKey = "avatar";
+        public const string AllianceDescriptionKey = "description";
+        public const string AllianceRequirementKey = "minimum_score";
+        public const string AllianceTypeKey = "type";
+        public const string AlliancePropertiesKey = "properties";
         const string AllianceNewMemberKey = "new_member_id";
         const string AllianceDeniedMemberKey = "denied_user_id";
         const string AllianceKickedMemberKey = "kicked_user_id";
         const string AlliancePromotedMemberKey = "promoted_user_id";
-        const string AllianceNewRankKey = "new_role";
-        const string NotificationTypeKey = "type";
-        const string OperationResultKey = "result";
+        public const string AllianceNewRankKey = "new_role";
+        public const string NotificationTypeKey = "type";
+        public const string OperationResultKey = "result";
         const string NotificationIdKey = "notification_id";
         const string JoinTimestampKey = "timestamp";
         const string JoinOriginKey = "origin";
@@ -350,29 +349,12 @@ namespace SocialPoint.Social
                     callback(null);
                 }
 
-                if(current.Description != data.Description)
-                {
-                    current.Description = data.Description;
-                    NotifyAllianceEvent(AllianceAction.AllianceDescriptionEdited, rDic);
-                }
+                current.Description = data.Description;
+                current.Avatar = data.Avatar;
+                current.AccessType = data.AccessType;
+                current.Requirement = data.Requirement;
 
-                if(current.Avatar != data.Avatar)
-                {
-                    current.Avatar = data.Avatar;
-                    NotifyAllianceEvent(AllianceAction.AllianceAvatarEdited, rDic);
-                }
-
-                if(current.AccessType != data.AccessType)
-                {
-                    current.AccessType = data.AccessType;
-                    NotifyAllianceEvent(AllianceAction.AllianceTypeEdited, rDic);
-                }
-
-                if(current.Requirement != data.Requirement)
-                {
-                    current.Requirement = data.Requirement;
-                    NotifyAllianceEvent(AllianceAction.AllianceRequirementEdited, rDic);
-                }
+                NotifyAllianceEvent(AllianceAction.AllianceDataEdited, rDic);
             });
         }
 
@@ -567,6 +549,7 @@ namespace SocialPoint.Social
                     break;
                 }
             case NotificationType.BroadcastAllianceMemberPromote:
+            case NotificationType.BroadcastAllianceMemberRankChange:
                 {
                     OnMemberPromoted(dic);
                     break;
@@ -645,6 +628,7 @@ namespace SocialPoint.Social
                     break;
                 }
             case NotificationType.BroadcastAllianceMemberPromote:
+            case NotificationType.BroadcastAllianceMemberRankChange:
                 {
                     OnMemberPromoted(dic);
                     break;
@@ -714,27 +698,13 @@ namespace SocialPoint.Social
             DebugUtils.Assert(dic.Get(AlliancePropertiesKey).IsDic);
             var changesDic = dic.Get(AlliancePropertiesKey).AsDic;
 
-            if(changesDic.ContainsKey(AllianceDescriptionKey))
-            {
-                NotifyAllianceEvent(AllianceAction.AllianceDescriptionEdited, dic);
-            }
-
             if(changesDic.ContainsKey(AvatarKey))
             {
                 var newAvatar = changesDic.GetValue(AvatarKey).ToInt();
                 GetLocalBasicData().Avatar = newAvatar;
-                NotifyAllianceEvent(AllianceAction.AllianceAvatarEdited, dic);
             }
 
-            if(changesDic.ContainsKey(AllianceTypeKey))
-            {
-                NotifyAllianceEvent(AllianceAction.AllianceTypeEdited, dic);
-            }
-
-            if(changesDic.ContainsKey(AllianceRequirementKey))
-            {
-                NotifyAllianceEvent(AllianceAction.AllianceRequirementEdited, dic);
-            }
+            NotifyAllianceEvent(AllianceAction.AllianceDataEdited, dic);
         }
 
         void OnMemberPromoted(AttrDic dic)
@@ -749,7 +719,7 @@ namespace SocialPoint.Social
                 AllianceEvent(action, dic);
             }
         }
-
+            
         void LeaveAllianceChat()
         {
             var chatManager = _connection.ChatManager;

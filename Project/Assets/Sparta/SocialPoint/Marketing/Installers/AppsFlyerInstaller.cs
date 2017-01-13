@@ -36,17 +36,19 @@ namespace  SocialPoint.Marketing
             #endif
 
             #if ANDROID_DEVICE || IOS_DEVICE
-            Container.Bind<IMarketingTracker>().ToMethod<SocialPointAppFlyer>(CreateMobileAppTracking);
-            Container.Bind<IDisposable>().ToMethod<SocialPointAppFlyer>(CreateMobileAppTracking);
+            Container.Rebind<SocialPointAppsFlyer>().ToMethod<SocialPointAppsFlyer>(CreateMobileAppTracking);
+            Container.Bind<IMarketingTracker>().ToLookup<SocialPointAppsFlyer>();
+            Container.Bind<IDisposable>().ToLookup<SocialPointAppsFlyer>();
             #else
-            Container.Bind<IMarketingTracker>().ToSingle<EmptyAppsFlyer>();
-            Container.Bind<IDisposable>().ToSingle<EmptyAppsFlyer>();
+            Container.Rebind<EmptyAppsFlyer>().ToSingle<EmptyAppsFlyer>();
+            Container.Bind<IMarketingTracker>().ToLookup<EmptyAppsFlyer>();
+            Container.Bind<IDisposable>().ToLookup<EmptyAppsFlyer>();
             #endif
         }
 
-        SocialPointAppFlyer CreateMobileAppTracking()
+        SocialPointAppsFlyer CreateMobileAppTracking()
         {
-            var tracker = new SocialPointAppFlyer();
+            var tracker = new SocialPointAppsFlyer();
             #if IOS_DEVICE
             tracker.AppsFlyerKey = Settings.IosAppsFlyerKey;
             tracker.AppID = Settings.IosAppID;

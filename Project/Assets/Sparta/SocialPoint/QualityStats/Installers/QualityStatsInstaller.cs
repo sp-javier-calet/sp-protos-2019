@@ -9,15 +9,26 @@ namespace SocialPoint.QualityStats
 {
     public class QualityStatsInstaller : SubInstaller, IInitializable
     {
+        [Serializable]
+        public class SettingsData
+        {
+            public bool UseEmpty;
+        }
+
+        public SettingsData Settings = new SettingsData();
+
         public override void InstallBindings()
         {
-            Container.Rebind<QualityStatsHttpClient>().ToMethod<QualityStatsHttpClient>(CreateHttpClient);
-            Container.Bind<IDisposable>().ToLookup<QualityStatsHttpClient>();
-            Container.Rebind<IHttpClient>().ToLookup<QualityStatsHttpClient>(); //Dispose "internal"??? FIXME
-            Container.Rebind<SocialPointQualityStats>().ToMethod<SocialPointQualityStats>(CreateQualityStats, SetupQualityStats);
-            Container.Bind<IDisposable>().ToLookup<SocialPointQualityStats>();
+            if(!Settings.UseEmpty)
+            {
+                Container.Rebind<QualityStatsHttpClient>().ToMethod<QualityStatsHttpClient>(CreateHttpClient);
+                Container.Bind<IDisposable>().ToLookup<QualityStatsHttpClient>();
+                Container.Rebind<IHttpClient>().ToLookup<QualityStatsHttpClient>(); //Dispose "internal"??? FIXME
+                Container.Rebind<SocialPointQualityStats>().ToMethod<SocialPointQualityStats>(CreateQualityStats, SetupQualityStats);
+                Container.Bind<IDisposable>().ToLookup<SocialPointQualityStats>();
 
-            Container.Bind<IInitializable>().ToInstance(this);
+                Container.Bind<IInitializable>().ToInstance(this);
+            }
         }
 
         SocialPointQualityStats CreateQualityStats()

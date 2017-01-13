@@ -364,7 +364,7 @@ namespace SocialPoint.Network
             {
                 _container.Rebind<UnetNetworkServer>().ToInstance(server);
                 _container.Rebind<INetworkServer>().ToLookup<UnetNetworkServer>();
-                _container.Bind<IDisposable>().ToInstance(server);
+                _container.Bind<IDisposable>().ToLookup<UnetNetworkServer>();
             }
             _parent.StartServer(server);
         }
@@ -381,7 +381,7 @@ namespace SocialPoint.Network
             {
                 _container.Rebind<UnetNetworkClient>().ToInstance(client);
                 _container.Rebind<INetworkClient>().ToLookup<UnetNetworkClient>();
-                _container.Bind<IDisposable>().ToInstance(client);
+                _container.Bind<IDisposable>().ToLookup<UnetNetworkClient>();
             }
             _parent.StartClient(client);
         }

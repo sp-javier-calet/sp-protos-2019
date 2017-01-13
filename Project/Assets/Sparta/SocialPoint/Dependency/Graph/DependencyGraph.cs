@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using SocialPoint.Base;
 
-namespace SocialPoint.Dependency
+namespace SocialPoint.Dependency.Graph
 {
     public static class DependencyGraphBuilder
     {
@@ -125,7 +125,8 @@ namespace SocialPoint.Dependency
             }
             else
             {
-                throw new Exception(string.Format("Start creation with undefined type {0}", type.Name));
+                _nodeStack.Push(new Node());
+                Log.e(string.Format("Start creation with undefined type {0}", type.Name));
             }
         }
 
@@ -163,7 +164,7 @@ namespace SocialPoint.Dependency
             if(_nodeStack.Count > 0)
             {
                 var node = _nodeStack.Pop();
-                if(node.Class != type.Name)
+                if(node.Valid && node.Class != type.Name)
                 {
                     throw new Exception("Invalid type");
                 }
@@ -235,7 +236,10 @@ namespace SocialPoint.Dependency
                 Bindings.Add(type, instances);
             }
 
-            instances.Add(node.Tag, node);
+            if(!instances.ContainsKey(node.Tag))
+            {
+                instances.Add(node.Tag, node);
+            }
         }
 
         public Node TryGetNode(Type type, TagValue tag)
@@ -406,6 +410,8 @@ namespace SocialPoint.Dependency
         // Historic
         public List<HistoryAction> History;
 
+        public readonly bool Valid;
+
         readonly Type _type;
 
         readonly TagValue _tag;
@@ -489,6 +495,10 @@ namespace SocialPoint.Dependency
             }
         }
 
+        internal class UndefinedType
+        {
+        }
+
         public Node()
         {
             Incoming = new HashSet<Node>();
@@ -498,12 +508,17 @@ namespace SocialPoint.Dependency
             Definitions = new HashSet<Node>();
             History = new List<HistoryAction>();
             CreationStack = string.Empty;
+             
+            _type = typeof(UndefinedType);
+            _tag = string.Empty;
+            Valid = false;
         }
 
         public Node(Type type, string tag = "") : this()
         {
             _type = type;
             _tag = tag;
+            Valid = true;
         }
 
         public override string ToString()

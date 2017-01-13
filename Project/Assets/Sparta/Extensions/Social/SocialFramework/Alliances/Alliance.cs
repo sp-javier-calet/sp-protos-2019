@@ -101,6 +101,11 @@ namespace SocialPoint.Social
             return _members.GetEnumerator();
         }
 
+        public List<SocialPlayer> GetMembersList()
+        {
+            return new List<SocialPlayer> (_members);
+        }
+
         public bool HasMember(string id)
         {
             return GetMember(_members, id) != null;

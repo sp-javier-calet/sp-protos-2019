@@ -8,12 +8,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5396a4468985b4bb9b353c5d1c9b2af8, type: 3}
-  m_Name: RealBackendInstaller
+  m_Script: {fileID: 11500000, guid: ecd85d1992203410e8995420a693b61c, type: 3}
+  m_Name: BackendServicesInstaller - Empty
   m_EditorClassIdentifier: 
-  _enabled: 0
+  _isGlobal: 0
   Settings:
     Sync:
+      UseEmpty: 1
       IgnoreResponses: 0
       SendInterval: 20
       MaxOutOfSyncInterval: 0
@@ -21,7 +22,7 @@ MonoBehaviour:
       BackoffMultiplier: 1.1
       PingEnabled: 1
     Login:
-      Environment: 2
+      UseEmpty: 1
       Timeout: 120
       ActivityTimeout: 15
       AutoupdateFriends: 1
@@ -31,6 +32,7 @@ MonoBehaviour:
       EnableLinkConfirmRetries: 0
       UserMappingsBlock: 50
     Events:
+      UseEmpty: 1
       MaxOutOfSyncInterval: 0
       SendInterval: 5
       Timeout: 30
@@ -38,8 +40,13 @@ MonoBehaviour:
     Notifications:
       AutoRegisterForRemote: 1
     Crashes:
+      UseEmpty: 1
       SendInterval: 20
       ErrorLogActive: 1
       ExceptionLogActive: 1
       EnableSendingCrashesBeforeLogin: 0
       NumRetriesBeforeSendingCrashBeforeLogin: 3
+    QualityStats:
+      UseEmpty: 1
+    MessageCenter:
+      UseEmpty: 1

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
@@ -20,7 +20,7 @@ namespace SocialPoint.Social
         const string SearchScoreKey = "monster_power";
         const string SearchFilterKey = "filter_name";
 
-        const string AllianceInfoKey = "alliance_info";
+        protected const string AllianceInfoKey = "alliance_info";
         const string AllianceIdKey = "id";
         const string AllianceNameKey = "name";
         const string AllianceDescriptionKey = "description";

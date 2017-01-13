@@ -33,17 +33,17 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     protected override void OnLoad()
     {
-        Login = ServiceLocator.Instance.Resolve<ILogin>();
-        CrashReporter = ServiceLocator.Instance.Resolve<ICrashReporter>();
-        Localization = ServiceLocator.Instance.Resolve<Localization>();
-        AppEvents = ServiceLocator.Instance.Resolve<IAppEvents>();
-        ErrorHandler = ServiceLocator.Instance.Resolve<IGameErrorHandler>();
-        _alliances = ServiceLocator.Instance.Resolve<AlliancesManager>();
-        _coroutineRunner = ServiceLocator.Instance.Resolve<ICoroutineRunner>();
-        _gameLoader = ServiceLocator.Instance.Resolve<IGameLoader>();
+        Login = Services.Instance.Resolve<ILogin>();
+        CrashReporter = Services.Instance.Resolve<ICrashReporter>();
+        Localization = Services.Instance.Resolve<Localization>();
+        AppEvents = Services.Instance.Resolve<IAppEvents>();
+        ErrorHandler = Services.Instance.Resolve<IGameErrorHandler>();
+        _alliances = Services.Instance.Resolve<AlliancesManager>();
+        _coroutineRunner = Services.Instance.Resolve<ICoroutineRunner>();
+        _gameLoader = Services.Instance.Resolve<IGameLoader>();
 
         #if ADMIN_PANEL
-        _adminPanel = ServiceLocator.Instance.Resolve<AdminPanel>();
+        _adminPanel = Services.Instance.Resolve<AdminPanel>();
         #else
         _adminPanel = null;
         #endif

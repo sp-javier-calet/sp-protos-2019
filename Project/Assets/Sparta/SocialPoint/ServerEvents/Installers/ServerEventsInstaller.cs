@@ -18,6 +18,7 @@ namespace SocialPoint.ServerEvents
         [Serializable]
         public class SettingsData
         {
+            public bool UseEmpty;
             public int MaxOutOfSyncInterval = SocialPointEventTracker.DefaultMaxOutOfSyncInterval;
             public int SendInterval = SocialPointEventTracker.DefaultSendInterval;
             public float Timeout = SocialPointEventTracker.DefaultTimeout;
@@ -28,14 +29,23 @@ namespace SocialPoint.ServerEvents
 
         public override void InstallBindings()
         {
-            Container.Rebind<SocialPointEventTracker>()
-            .ToMethod<SocialPointEventTracker>(CreateEventTracker, SetupEventTracker);
-            Container.Rebind<IEventTracker>().ToLookup<SocialPointEventTracker>();
-            Container.Bind<IDisposable>().ToLookup<IEventTracker>();
+            if(!Settings.UseEmpty)
+            {
+                Container.Rebind<SocialPointEventTracker>()
+                    .ToMethod<SocialPointEventTracker>(CreateEventTracker, SetupEventTracker);
+                Container.Rebind<IEventTracker>().ToLookup<SocialPointEventTracker>();
 
-            Container.Rebind<ServerEventsBridge>().ToMethod<ServerEventsBridge>(CreateBridge);
-            Container.Bind<IEventsBridge>().ToLookup<ServerEventsBridge>();
-            Container.Bind<IScriptEventsBridge>().ToLookup<ServerEventsBridge>();
+                Container.Rebind<ServerEventsBridge>().ToMethod<ServerEventsBridge>(CreateBridge);
+                Container.Bind<IEventsBridge>().ToLookup<ServerEventsBridge>();
+                Container.Bind<IScriptEventsBridge>().ToLookup<ServerEventsBridge>();
+            }
+            else
+            {
+                Container.Bind<IEventTracker>().ToSingle<EmptyEventTracker>();
+
+            }
+
+            Container.Bind<IDisposable>().ToLookup<IEventTracker>();
         }
 
         ServerEventsBridge CreateBridge()
