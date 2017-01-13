@@ -52,6 +52,8 @@ namespace SocialPoint.Social
             Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);    
             Container.Bind<IDisposable>().ToLookup<ConnectionManager>();
 
+            Container.Bind<SocialManager>().ToMethod<SocialManager>(CreateSocialManager);
+
             Container.Bind<ChatManager>().ToMethod<ChatManager>(CreateChatManager, SetupChatManager);
             Container.Bind<IDisposable>().ToLookup<ChatManager>();
 
@@ -106,10 +108,15 @@ namespace SocialPoint.Social
             manager.Localization = Container.Resolve<Localization>();
         }
 
+        SocialManager CreateSocialManager()
+        {
+            return new SocialManager(Container.Resolve<ConnectionManager>());
+        }
+
         ChatManager CreateChatManager()
         {
             return new ChatManager(
-                Container.Resolve<ConnectionManager>());
+                Container.Resolve<ConnectionManager>(), Container.Resolve<SocialManager>());
         }
 
         void SetupChatManager(ChatManager manager)
@@ -120,7 +127,7 @@ namespace SocialPoint.Social
         AlliancesManager CreateAlliancesManager()
         {
             return new AlliancesManager(
-                Container.Resolve<ConnectionManager>());
+                Container.Resolve<ConnectionManager>(), Container.Resolve<SocialManager>());
         }
 
         void SetupAlliancesManager(AlliancesManager manager)
@@ -156,7 +163,8 @@ namespace SocialPoint.Social
             return new AdminPanelSocialFramework(
                 Container.Resolve<ConnectionManager>(),
                 Container.Resolve<ChatManager>(),
-                Container.Resolve<AlliancesManager>());
+                Container.Resolve<AlliancesManager>(),
+                Container.Resolve<SocialManager>());
         }
 
         AdminPanelWebSockets CreateAdminPanelWebSockets()

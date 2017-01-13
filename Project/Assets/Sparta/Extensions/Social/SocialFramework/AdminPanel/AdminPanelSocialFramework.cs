@@ -13,6 +13,7 @@ namespace SocialPoint.Social
         readonly ConnectionManager _connection;
         readonly ChatManager _chat;
         readonly AlliancesManager _alliances;
+        readonly SocialManager _socialManager;
         readonly StringBuilder _content;
 
         AdminPanelLayout _layout;
@@ -22,11 +23,12 @@ namespace SocialPoint.Social
         AdminPanelSocialFrameworkChat _chatPanel;
         AdminPanelSocialFrameworkAlliance _alliancesPanel;
 
-        public AdminPanelSocialFramework(ConnectionManager connection, ChatManager chat, AlliancesManager alliances)
+        public AdminPanelSocialFramework(ConnectionManager connection, ChatManager chat, AlliancesManager alliances, SocialManager socialManager)
         {
             _connection = connection;
             _chat = chat;
             _alliances = alliances;
+            _socialManager = socialManager;
             _content = new StringBuilder();
         }
 
@@ -38,7 +40,7 @@ namespace SocialPoint.Social
             // Cache nested panel
             _userPanel = new AdminPanelSocialFrameworkUser(_connection);
             _chatPanel = new AdminPanelSocialFrameworkChat(_chat);
-            _alliancesPanel = new AdminPanelSocialFrameworkAlliance(_alliances, _console);
+            _alliancesPanel = new AdminPanelSocialFrameworkAlliance(_alliances, _socialManager, _console);
         }
 
         public void OnOpened()
@@ -324,15 +326,17 @@ namespace SocialPoint.Social
         {
             readonly AdminPanelConsole _console;
             readonly AlliancesManager _alliances;
+            readonly SocialManager _socialManager;
 
             readonly AdminPanelAllianceCreate _createPanel;
             readonly AdminPanelAllianceInfo _infoPanel;
             readonly AdminPanelAllianceSearch _searchPanel;
             readonly AdminPanelAllianceRanking _rankingPanel;
 
-            public AdminPanelSocialFrameworkAlliance(AlliancesManager alliances, AdminPanelConsole console)
+            public AdminPanelSocialFrameworkAlliance(AlliancesManager alliances, SocialManager socialManager, AdminPanelConsole console)
             {
                 _alliances = alliances;
+                _socialManager = socialManager;
                 _console = console;
 
                 _createPanel = new AdminPanelAllianceCreate(alliances, console);
@@ -345,7 +349,8 @@ namespace SocialPoint.Social
             {
                 layout.CreateLabel("Alliance");
                 layout.CreateMargin();
-                if(_alliances.AlliancePlayerInfo != null)
+
+                if(_socialManager.LocalPlayer.HasComponent<AlliancePlayerBasic>())
                 {
                     CreateOwnAlliancePanel(layout);
                     layout.CreateMargin();
@@ -363,8 +368,8 @@ namespace SocialPoint.Social
 
             void CreateOwnAlliancePanel(AdminPanelLayout layout)
             {
-                var info = _alliances.AlliancePlayerInfo;
-                if(info.IsInAlliance)
+                var info = _alliances.GetLocalBasicData();
+                if(info.IsInAlliance())
                 {
                     _infoPanel.AllianceId = info.Id;
                     layout.CreateOpenPanelButton(info.Name, _infoPanel);
@@ -719,13 +724,19 @@ namespace SocialPoint.Social
                     }
                 }
 
-                void CreateMembersList(AdminPanelLayout layout, string label, Alliance alliance, IEnumerator<AllianceMemberBasicData> members, int count)
+                void CreateMembersList(AdminPanelLayout layout, string label, Alliance alliance, IEnumerator<SocialPlayer> members, int count)
                 {
                     var foldout = layout.CreateFoldoutLayout(string.Format("{0} ({1})", label, count));
                     while(members.MoveNext())
                     {
                         var member = members.Current;
-                        var userLabel = string.Format("[{0}]: Lvl: {1} - S: {2} -- {3}", member.Name, member.Level, member.Score, member.Rank);
+                        int rank = 0;
+                        if(member.HasComponent<AlliancePlayerBasic>())
+                        {
+                            var basicAllianceComponent = member.GetComponent<AlliancePlayerBasic>();
+                            rank = basicAllianceComponent.Rank;
+                        }
+                        var userLabel = string.Format("[{0}]: Lvl: {1} - S: {2} -- {3}", member.Name, member.Level, member.Score, rank);
                         foldout.CreateButton(userLabel, () => {
                             _userPanel.Alliance = alliance;
                             _userPanel.UserId = member.Uid;
@@ -738,8 +749,8 @@ namespace SocialPoint.Social
 
                 void CreateAllianceActions(AdminPanelLayout layout)
                 {
-                    var ownAlliance = _alliances.AlliancePlayerInfo;
-                    bool isInAlliance = ownAlliance.IsInAlliance;
+                    var ownAlliance = _alliances.GetLocalBasicData();
+                    bool isInAlliance = ownAlliance.IsInAlliance();
                     var canEditAlliance = _alliances.Ranks.HasPermission(ownAlliance.Rank, RankPermission.EditAlliance) && ownAlliance.Id == Alliance.Id;
                     var isOpenAlliance = _alliances.AccessTypes.IsPublic(Alliance.AccessType);
                     var canJoinAlliance = !isInAlliance && (isOpenAlliance || !Alliance.HasCandidate(ownAlliance.Id)); // TODO Use Member id instead of alliance
@@ -775,7 +786,7 @@ namespace SocialPoint.Social
 
             class AdminPanelAllianceUserInfo : BaseRequestAlliancePanel
             {
-                AllianceMember _member;
+                SocialPlayer _member;
 
                 public string UserId;
                 public Alliance Alliance;
@@ -805,11 +816,16 @@ namespace SocialPoint.Social
                             .Append("Id: ").AppendLine(_member.Uid)
                             .Append("Name: ").AppendLine(_member.Name)
                             .Append("Level: ").AppendLine(_member.Level.ToString())
-                            .Append("Score: ").AppendLine(_member.Score.ToString())
-                            .Append("Alliance: ").AppendLine(_member.AllianceName)
-                            .Append("Alliance Id: ").AppendLine(_member.AllianceId)
-                            .Append("Avatar: ").AppendLine(_member.AllianceAvatar.ToString())
-                            .Append("Rank: ").AppendLine(_member.Rank.ToString());
+                            .Append("Score: ").AppendLine(_member.Score.ToString());
+                        if(_member.HasComponent<AlliancePlayerBasic>())
+                        {
+                            var componenet = _member.GetComponent<AlliancePlayerBasic>();
+                            _content
+                                .Append("Alliance: ").AppendLine(componenet.Name)
+                                .Append("Alliance Id: ").AppendLine(componenet.Id)
+                                .Append("Avatar: ").AppendLine(componenet.Avatar.ToString())
+                                .Append("Rank: ").AppendLine(componenet.Rank.ToString());
+                        }
                         layout.CreateVerticalLayout().CreateTextArea(_content.ToString());
                         layout.CreateMargin();
 
@@ -860,9 +876,13 @@ namespace SocialPoint.Social
                 void CreateAllianceActions(AdminPanelLayout layout)
                 {
                     var memberId = UserId;
-                    var memberRank = _member != null ? _member.Rank : 0;
+                    var memberRank = 0;
+                    if(_member != null)
+                    {
+                        memberRank = _member.GetComponent<AlliancePlayerBasic>().Rank;
+                    }
 
-                    var ownAlliance = _alliances.AlliancePlayerInfo;
+                    var ownAlliance = _alliances.GetLocalBasicData();
                     bool isOwnAlliance = ownAlliance.Id == Alliance.Id;
 
                     var hasMemberManagementPermissions = _alliances.Ranks.HasPermission(ownAlliance.Rank, RankPermission.Members);
@@ -876,12 +896,12 @@ namespace SocialPoint.Social
 
                     // Rank actions
                     layout.CreateButton("Promote", () => {
-                        var newRank = _alliances.Ranks.GetPromoted(_member.Rank);
+                        var newRank = _alliances.Ranks.GetPromoted(_member.GetComponent<AlliancePlayerBasic>().Rank);
                         _alliances.PromoteMember(memberId, newRank, err => OnResponse(layout, err, "Promotion", () => Alliance.SetMemberRank(memberId, newRank)));
                     }, rankActionsEnabled && playerHasHigherRank);
 
                     layout.CreateButton("Demote", () => {
-                        var newRank = _alliances.Ranks.GetDemoted(_member.Rank);
+                        var newRank = _alliances.Ranks.GetDemoted(_member.GetComponent<AlliancePlayerBasic>().Rank);
                         _alliances.PromoteMember(memberId, newRank, err => OnResponse(layout, err, "Demotion", () => Alliance.SetMemberRank(memberId, newRank)));
                     }, rankActionsEnabled && playerHasHigherRank);
 

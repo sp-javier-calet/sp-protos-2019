@@ -98,11 +98,9 @@ namespace SocialPoint.Social
 
         public event AllianceEventDelegate AllianceEvent;
 
-        public AlliancePlayerInfo AlliancePlayerInfo { get; private set; }
-
         public ILoginData LoginData { private get; set; }
 
-        public uint MaxPendingJoinRequests { get; set; }
+        public int MaxPendingJoinRequests { get; set; }
 
         public IRankManager Ranks { get; set; }
 
@@ -119,18 +117,20 @@ namespace SocialPoint.Social
             set
             {
                 _factory = value;
-                if(AlliancePlayerInfo == null && _factory != null)
-                {
-                    AlliancePlayerInfo = _factory.CreatePlayerInfo();
-                }
+                _factory.PlayerFactory = _socialManager.PlayerFactory;
             }
         }
 
 
         readonly ConnectionManager _connection;
+        readonly SocialManager _socialManager;
 
-        public AlliancesManager(ConnectionManager connection)
+        public AlliancesManager(ConnectionManager connection, SocialManager socialManager)
         {
+            _socialManager = socialManager;
+            _socialManager.PlayerFactory.AddFactory(new AlliancePlayerBasicFactory());
+            _socialManager.PlayerFactory.AddFactory(new AlliancePlayerPrivateFactory());
+
             _connection = connection;
             _connection.AlliancesManager = this;
             _connection.OnNotificationReceived += OnNotificationReceived;
@@ -141,6 +141,16 @@ namespace SocialPoint.Social
         {
             _connection.OnNotificationReceived -= OnNotificationReceived;
             _connection.OnPendingNotification -= OnPendingNotificationReceived;
+        }
+
+        public AlliancePlayerBasic GetLocalBasicData()
+        {
+            return _socialManager.LocalPlayer.GetComponent<AlliancePlayerBasic>();
+        }
+
+        public AlliancePlayerPrivate GetLocalPrivateData()
+        {
+            return _socialManager.LocalPlayer.GetComponent<AlliancePlayerPrivate>();
         }
 
         public AllianceBasicData GetBasicDataFromAlliance(Alliance alliance)
@@ -169,18 +179,18 @@ namespace SocialPoint.Social
             });
         }
 
-        public WAMPRequest LoadUserInfo(string userId, Action<Error, AllianceMember> callback)
+        public WAMPRequest LoadUserInfo(string userId, Action<Error, SocialPlayer> callback)
         {
             var dic = new AttrDic();
             dic.SetValue(MemberIdKey, userId);
 
             return _connection.Call(AllianceMemberInfoMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
-                AllianceMember member = null;
+                SocialPlayer member = null;
                 if(Error.IsNullOrEmpty(err))
                 {
                     DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
                     var result = rDic.Get(OperationResultKey).AsDic;
-                    member = Factory.CreateMember(result);
+                    member = _socialManager.PlayerFactory.CreateSocialPlayer(result);
                 }
                 if(callback != null)
                 {
@@ -192,9 +202,10 @@ namespace SocialPoint.Social
         public WAMPRequest LoadRanking(Action<Error, AlliancesRanking> callback)
         {
             var dic = new AttrDic();
-            if(AlliancePlayerInfo.IsInAlliance)
+            var allianceComponenet = GetLocalBasicData();
+            if(allianceComponenet.IsInAlliance())
             {
-                dic.SetValue(AllianceIdKey, AlliancePlayerInfo.Id);
+                dic.SetValue(AllianceIdKey, allianceComponenet.Id);
             }
 
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
@@ -239,7 +250,7 @@ namespace SocialPoint.Social
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
-            dic.SetValue(AllianceIdKey, AlliancePlayerInfo.Id);
+            dic.SetValue(AllianceIdKey, GetLocalBasicData().Id);
 
             return _connection.Call(AllianceLeaveMethod, Attr.InvalidList, dic, (err, EventArgs, kwargs) => {
                 if(!Error.IsNullOrEmpty(err))
@@ -302,7 +313,7 @@ namespace SocialPoint.Social
 
                 DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
                 var result = rDic.Get(OperationResultKey).AsDic;
-                Factory.OnAllianceCreated(AlliancePlayerInfo, data, result);
+                Factory.OnAllianceCreated(_socialManager.LocalPlayer, data, result);
 
                 UpdateChatServices(rDic);
 
@@ -332,7 +343,7 @@ namespace SocialPoint.Social
                     return;
                 }
 
-                AlliancePlayerInfo.Avatar = data.Avatar;
+                GetLocalBasicData().Avatar = data.Avatar;
 
                 if(callback != null)
                 {
@@ -402,7 +413,7 @@ namespace SocialPoint.Social
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
             dic.SetValue(AllianceKickedMemberKey, memberUid);
-            dic.SetValue(AllianceIdKey, AlliancePlayerInfo.Id);
+            dic.SetValue(AllianceIdKey, GetLocalBasicData().Id);
 
             return _connection.Call(AllianceMemberKickMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 if(!Error.IsNullOrEmpty(err))
@@ -451,7 +462,8 @@ namespace SocialPoint.Social
         {
             DebugUtils.Assert(Factory != null, "AlliancesDataFactory is require to create an AlliancePlayerInfo");
 
-            AlliancePlayerInfo = Factory.CreatePlayerInfo(MaxPendingJoinRequests, dic);
+            _socialManager.SetLocalPlayerData(dic);
+            _socialManager.LocalPlayer.GetComponent<AlliancePlayerPrivate>().MaxRequests = MaxPendingJoinRequests;
             NotifyAllianceEvent(AllianceAction.OnPlayerAllianceInfoParsed, dic);
         }
 
@@ -488,7 +500,7 @@ namespace SocialPoint.Social
                     return;
                 }
 
-                Factory.OnAllianceJoined(AlliancePlayerInfo, alliance, data);
+                Factory.OnAllianceJoined(_socialManager.LocalPlayer, alliance, data);
                 UpdateChatServices(rDic);
 
                 if(callback != null)
@@ -520,7 +532,7 @@ namespace SocialPoint.Social
                     return;
                 }
 
-                AlliancePlayerInfo.AddRequest(alliance.Id, MaxPendingJoinRequests);
+                GetLocalPrivateData().AddRequest(alliance.Id);
                 if(callback != null)
                 {
                     callback(null);
@@ -531,7 +543,8 @@ namespace SocialPoint.Social
 
         void ClearPlayerAllianceInfo()
         {
-            AlliancePlayerInfo.ClearInfo();
+            GetLocalBasicData().ClearInfo();
+            GetLocalPrivateData().ClearInfo();
             NotifyAllianceEvent(AllianceAction.OnPlayerAllianceInfoCleared, Attr.InvalidDic);
         }
 
@@ -645,7 +658,7 @@ namespace SocialPoint.Social
 
         void OnRequestAccepted(AttrDic dic)
         {
-            Factory.OnAllianceRequestAccepted(AlliancePlayerInfo, dic);
+            Factory.OnAllianceRequestAccepted(_socialManager.LocalPlayer, dic);
 
             UpdateChatServices(dic);
 
@@ -661,43 +674,43 @@ namespace SocialPoint.Social
 
         void OnPromoted(AttrDic dic)
         {
-            DebugUtils.Assert(AlliancePlayerInfo.IsInAlliance, "Trying to promote a user which is not in an alliance");
+            DebugUtils.Assert(GetLocalBasicData().IsInAlliance, "Trying to promote a user which is not in an alliance");
             DebugUtils.Assert(dic.Get(AllianceNewRankKey).IsValue);
             var newRank = dic.GetValue(AllianceNewRankKey).ToInt();
-            AlliancePlayerInfo.Rank = newRank;
+            GetLocalBasicData().Rank = newRank;
             NotifyAllianceEvent(AllianceAction.PlayerChangedRank, dic);
         }
 
         void OnPlayerAutoChangedRank(AttrDic dic)
         {
-            DebugUtils.Assert(AlliancePlayerInfo.IsInAlliance, "User is not in an alliance");
+            DebugUtils.Assert(GetLocalBasicData().IsInAlliance, "User is not in an alliance");
             var newRank = dic.GetValue(AllianceNewRankKey).ToInt();
-            AlliancePlayerInfo.Rank = newRank;
+            GetLocalBasicData().Rank = newRank;
             NotifyAllianceEvent(AllianceAction.PlayerAutoChangedRank, dic);
         }
 
         void OnUserAppliedToPlayerAlliance(AttrDic dic)
         {
-            DebugUtils.Assert(AlliancePlayerInfo.IsInAlliance, "User is not in an alliance");
-            DebugUtils.Assert(Ranks.HasPermission(AlliancePlayerInfo.Rank, RankPermission.Members));
+            DebugUtils.Assert(GetLocalBasicData().IsInAlliance, "User is not in an alliance");
+            DebugUtils.Assert(Ranks.HasPermission(GetLocalBasicData().Rank, RankPermission.Members));
             NotifyAllianceEvent(AllianceAction.UserAppliedToPlayerAlliance, dic);
         }
 
         void OnMemberJoined(AttrDic dic)
         {
-            AlliancePlayerInfo.IncreaseTotalMembers();
+            GetLocalPrivateData().IncreaseTotalMembers();
             NotifyAllianceEvent(AllianceAction.MateJoinedPlayerAlliance, dic);
         }
 
         void OnMemberLeft(AttrDic dic)
         {
-            AlliancePlayerInfo.DecreaseTotalMembers();
+            GetLocalPrivateData().DecreaseTotalMembers();
             NotifyAllianceEvent(AllianceAction.MateLeftPlayerAlliance, dic);
         }
 
         void OnAllianceEdited(AttrDic dic)
         {
-            DebugUtils.Assert(AlliancePlayerInfo.IsInAlliance, "User is not in an alliance");
+            DebugUtils.Assert(GetLocalBasicData().IsInAlliance, "User is not in an alliance");
             DebugUtils.Assert(dic.Get(AlliancePropertiesKey).IsDic);
             var changesDic = dic.Get(AlliancePropertiesKey).AsDic;
 
@@ -709,7 +722,7 @@ namespace SocialPoint.Social
             if(changesDic.ContainsKey(AvatarKey))
             {
                 var newAvatar = changesDic.GetValue(AvatarKey).ToInt();
-                AlliancePlayerInfo.Avatar = newAvatar;
+                GetLocalBasicData().Avatar = newAvatar;
                 NotifyAllianceEvent(AllianceAction.AllianceAvatarEdited, dic);
             }
 
