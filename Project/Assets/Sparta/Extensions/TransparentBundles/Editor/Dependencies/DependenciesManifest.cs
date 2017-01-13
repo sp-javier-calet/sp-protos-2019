@@ -37,9 +37,9 @@ namespace SocialPoint.TransparentBundles
             File.WriteAllText(_path, str);
         }
 
-        public static BundleDependenciesData GetDependencyData(string GUID)
+        public static BundleDependenciesData GetDependencyDataCopy(string GUID)
         {
-            return Manifest[GUID];
+            return (BundleDependenciesData)Manifest[GUID].Clone();
         }
 
         public static bool HasAsset(string GUID)
@@ -106,15 +106,15 @@ namespace SocialPoint.TransparentBundles
                 RemoveDependant(oldDependency, GUID);
             }
 
+            // Adds the dependant in case there is not already included
+            if(!string.IsNullOrEmpty(parent) && !data.Dependants.Contains(parent))
+            {
+                data.Dependants.Add(parent);
+            }
+
             if(!data.IsExplicitlyBundled)
             {
-                // Adds the dependant in case there is not already included
-                if(!data.Dependants.Contains(parent) && !string.IsNullOrEmpty(parent))
-                {
-                    data.Dependants.Add(parent);
-                }
-
-                HandleAutoBundling(data, objPath, parent);
+                HandleAutoBundling(data);
             }
             else
             {
@@ -135,14 +135,20 @@ namespace SocialPoint.TransparentBundles
             BundleDependenciesData data = Manifest[GUID];
 
             data.IsExplicitlyBundled = false;
-            foreach(string dependency in data.Dependencies)
+
+            if(data.Dependants.Count == 0)
             {
-                RemoveDependant(dependency, GUID);
+                foreach(string dependency in data.Dependencies)
+                {
+                    RemoveDependant(dependency, GUID);
+                }
+
+                Manifest.Remove(GUID);
             }
-
-            var importer = AssetImporter.GetAtPath(AssetDatabase.GUIDToAssetPath(GUID));
-            importer.assetBundleName = data.BundleName;
-
+            else
+            {
+                HandleAutoBundling(data);
+            }
         }
 
         private static void RemoveDependant(string GUID, string dependantToRemove)
@@ -182,12 +188,12 @@ namespace SocialPoint.TransparentBundles
         }
 
 
-        private static void HandleAutoBundling(BundleDependenciesData data, string objPath, string parent)
+        private static void HandleAutoBundling(BundleDependenciesData data)
         {
             // If is manual or have more than one dependant bundle it.
             if(data.Dependants.Count > 1)
             {
-                data.BundleName = GetAutoBundleName(objPath);
+                data.BundleName = GetAutoBundleName(data.AssetPath);
             }
             else
             {
