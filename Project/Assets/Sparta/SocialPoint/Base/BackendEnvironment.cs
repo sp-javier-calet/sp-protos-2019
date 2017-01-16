@@ -4,32 +4,19 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Base
 {
-    public enum EnvironmentType
+    public class BackendEnvironment : IBackendEnvironment
     {
-        Production,
-        PreProduction,
-        QA,
-        Development
-    }
+        public readonly Environment[] _environments;
 
-    [Serializable]
-    public struct Environment
-    {
-        public string Name;
-        public string Url;
-        public EnvironmentType Type;
-    }
-
-    public class BackendEnvironment
-    {
-        public readonly Environment[] Environments;
         readonly Dictionary<string, Environment> _map;
         readonly Environment _defaultEnvironment;
         readonly Environment _productionEnvironment;
 
+
+
         public BackendEnvironment(Environment[] envs, string defaultProduction, string defaultDevelopment)
         {
-            Environments = envs;
+            _environments = envs;
             _map = new Dictionary<string, Environment>();
             for(var i = 0; i < Environments.Length; ++i)
             {
@@ -68,6 +55,16 @@ namespace SocialPoint.Base
             }
         }
 
+        #region IBackendEnvironment implementation
+
+        public Environment[] Environments
+        {
+            get
+            {
+                return _environments;
+            }
+        }
+
         public string GetUrl()
         {
             return CurrentEnvironment.Url;
@@ -93,5 +90,8 @@ namespace SocialPoint.Base
             }
             return null;
         }
+
+
+        #endregion
     }
 }

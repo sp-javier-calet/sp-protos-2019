@@ -44,6 +44,7 @@ namespace SocialPoint.Base
         public override void InstallBindings()
         {
             Container.Bind<BackendEnvironment>().ToMethod<BackendEnvironment>(CreateEnvironments);
+            Container.Bind<IBackendEnvironment>().ToLookup<BackendEnvironment>();
         }
 
         BackendEnvironment CreateEnvironments()
