@@ -4,7 +4,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Social
 {
-    public class SocialPlayer
+    public sealed class SocialPlayer
     {
         public interface IComponent
         {

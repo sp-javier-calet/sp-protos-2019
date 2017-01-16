@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Social
 {
-    public class SocialPlayerFactory
+    public sealed class SocialPlayerFactory
     {
         public interface IFactory
         {

@@ -8,7 +8,7 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.Social
 {
-    public class SocialManager
+    public sealed class SocialManager
     {
         public class PlayersRanking : IEnumerable<SocialPlayer>
         {
