@@ -7,7 +7,7 @@ namespace SocialPoint.TransparentBundles
     public class ResponseResult
     {
         public bool Success = false, IsInternal = true;
-        public string Response = string.Empty, Message = string.Empty;
+        public string Response = string.Empty;
         private HttpStatusCode _statusCode;
         public HttpStatusCode StatusCode
         {
@@ -15,7 +15,7 @@ namespace SocialPoint.TransparentBundles
             {
                 if(IsInternal)
                 {
-                    throw new System.Exception("Accessing the Status Code of a request with internal error " + Message);
+                    throw new System.Exception("Accessing the Status Code of a request with internal error " + Response);
                 }
 
                 return _statusCode;
@@ -30,12 +30,12 @@ namespace SocialPoint.TransparentBundles
         {
         }
 
-        public ResponseResult(bool success, string message, HttpStatusCode statusCode = 0, string response = "")
+        public ResponseResult(bool success, string response, HttpStatusCode statusCode = 0)
         {
             this.Success = success;
-            this.Message = message;
+            this.Response = response;
 
-            if(statusCode == 0 && response == "")
+            if(statusCode == 0)
             {
                 IsInternal = true;
             }
