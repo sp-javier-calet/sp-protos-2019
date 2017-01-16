@@ -3,24 +3,24 @@ using System.Net;
 
 namespace SocialPoint.TransparentBundles
 {
-    public class AsyncRequestState
+    public class AsyncRequestData
     {
         public HttpWebRequest Request;
-        public string RequestData;
+        public string RequestBody;
         private ResponseResult _rResult;
         private Action<ResponseResult> _finishedCallback;
 
-        public AsyncRequestState(HttpWebRequest request, Action<ResponseResult> finishedCallback)
+        public AsyncRequestData(HttpWebRequest request, Action<ResponseResult> finishedCallback)
         {
             this.Request = request;
-            this.RequestData = null;
+            this.RequestBody = null;
             _finishedCallback = finishedCallback;
         }
 
-        public AsyncRequestState(HttpWebRequest request, string requestData, Action<ResponseResult> finishedCallback)
+        public AsyncRequestData(HttpWebRequest request, string requestBody, Action<ResponseResult> finishedCallback)
         {
             this.Request = request;
-            this.RequestData = requestData;
+            this.RequestBody = requestBody;
             _finishedCallback = finishedCallback;
         }
 

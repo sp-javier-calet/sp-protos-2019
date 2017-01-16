@@ -5,22 +5,17 @@ namespace SocialPoint.TransparentBundles
 {
     public class RequestReport
     {
-        public bool TriedToLogin = false;
-        public bool LoginCancelled = false;
-        public string LoginMessage = "";
+        public bool RequestCancelled = false;
         public ResponseResult ResponseRes;
 
-        public RequestReport(bool triedToLogin, bool loginCancelled, string loginMessage = "")
+        public RequestReport(bool requestCancelled = false)
         {
-            TriedToLogin = triedToLogin;
-            LoginCancelled = loginCancelled;
-            LoginMessage = loginMessage;
+            this.RequestCancelled = requestCancelled;
         }
 
-        public RequestReport(bool triedToLogin, bool loginCancelled, ResponseResult loginResult)
+        public RequestReport(ResponseResult loginResult, bool requestCancelled = false)
         {
-            TriedToLogin = triedToLogin;
-            LoginCancelled = loginCancelled;
+            RequestCancelled = requestCancelled;
             ResponseRes = loginResult;
         }
     }

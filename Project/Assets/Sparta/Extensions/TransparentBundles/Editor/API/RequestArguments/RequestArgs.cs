@@ -1,17 +1,18 @@
 using System;
-
 namespace SocialPoint.TransparentBundles
 {
     public abstract class RequestArgs
     {
         private RequestReport _requestReport;
+        public bool AutoRetryLogin = true;
         public Action<RequestReport> OnSuccessCallback;
         public Action<RequestReport> OnFailedCallback;
 
-        public RequestArgs(Action<RequestReport> SuccessCallback, Action<RequestReport> FailedCallback)
+        public RequestArgs(Action<RequestReport> SuccessCallback, Action<RequestReport> FailedCallback, bool autoRetryLogin = true)
         {
             OnSuccessCallback = SuccessCallback;
             OnFailedCallback = FailedCallback;
+            this.AutoRetryLogin = autoRetryLogin;
         }
 
         /// <summary>
@@ -40,7 +41,7 @@ namespace SocialPoint.TransparentBundles
         {
             if(_requestReport == null)
             {
-                _requestReport = new RequestReport(false, false);
+                _requestReport = new RequestReport(false);
             }
 
             _requestReport.ResponseRes = responseResult;
