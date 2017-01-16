@@ -89,10 +89,10 @@ namespace SocialPoint.Alert
             var alert = new AlertView();
 
             #if UNITY_IOS && !UNITY_EDITOR
-        if(alert is IosAlertView)
-        {
-            (alert as IosAlertView).NativeHandler = Container.Resolve<SocialPoint.Utils.NativeCallsHandler>();
-        }
+            if(alert is IosAlertView)
+            {
+                (alert as IosAlertView).NativeHandler = Container.Resolve<SocialPoint.Utils.NativeCallsHandler>();
+            }
             #endif
             return alert;
         }

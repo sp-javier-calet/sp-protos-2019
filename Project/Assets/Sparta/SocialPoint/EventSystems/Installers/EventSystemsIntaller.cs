@@ -38,7 +38,15 @@ namespace SocialPoint.EventSystems
         {
             _eventSystem = GameObject.Instantiate(Settings.EventSystemPrefab);
             _eventSystem.name = Settings.EventSystemPrefab.name;
-            DontDestroyOnLoad(_eventSystem);
+            var parent = Container.Resolve<Transform>();
+            if(parent != null)
+            {
+                _eventSystem.transform.SetParent(parent);
+            }
+            else
+            {
+                DontDestroyOnLoad(_eventSystem);
+            }
             return _eventSystem;
         }
 
