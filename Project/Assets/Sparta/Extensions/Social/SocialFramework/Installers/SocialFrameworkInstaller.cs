@@ -54,6 +54,8 @@ namespace SocialPoint.Social
 
             Container.Bind<SocialManager>().ToMethod<SocialManager>(CreateSocialManager);
 
+            Container.Bind<PlayersManager>().ToMethod<PlayersManager>(CreatePlayersManager, SetupPlayersManager);
+
             Container.Bind<ChatManager>().ToMethod<ChatManager>(CreateChatManager, SetupChatManager);
             Container.Bind<IDisposable>().ToLookup<ChatManager>();
 
@@ -62,6 +64,8 @@ namespace SocialPoint.Social
 
             Container.Bind<IRankManager>().ToMethod<IRankManager>(CreateRankManager);
             Container.Bind<IAccessTypeManager>().ToMethod<IAccessTypeManager>(CreateAccessTypeManager);
+
+            Container.Bind<PlayersDataFactory>().ToMethod<PlayersDataFactory>(CreatePlayersDataFactory);
 
             Container.Bind<AllianceDataFactory>().ToMethod<AllianceDataFactory>(CreateAlliancesDataFactory, SetupAlliancesDataFactory);
 
@@ -110,7 +114,17 @@ namespace SocialPoint.Social
 
         SocialManager CreateSocialManager()
         {
-            return new SocialManager(Container.Resolve<ConnectionManager>());
+            return new SocialManager();
+        }
+
+        PlayersManager CreatePlayersManager()
+        {
+            return new PlayersManager(Container.Resolve<ConnectionManager>(), Container.Resolve<SocialManager>());
+        }
+
+        void SetupPlayersManager(PlayersManager manager)
+        {
+            manager.Factory = Container.Resolve<PlayersDataFactory>();
         }
 
         ChatManager CreateChatManager()
@@ -136,6 +150,11 @@ namespace SocialPoint.Social
             manager.LoginData = Container.Resolve<ILoginData>();
             manager.Ranks = Container.Resolve<IRankManager>();
             manager.AccessTypes = Container.Resolve<IAccessTypeManager>();
+        }
+
+        PlayersDataFactory CreatePlayersDataFactory()
+        {
+            return new PlayersDataFactory();
         }
 
         AllianceDataFactory CreateAlliancesDataFactory()
