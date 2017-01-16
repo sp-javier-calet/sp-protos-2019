@@ -3,6 +3,8 @@ using System.Threading;
 using System.Text;
 using System;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
+using System.Net.Security;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -12,7 +14,11 @@ namespace SocialPoint.TransparentBundles
         {
             GET,
             POST,
-            DELETE
+            DELETE,
+            HEAD,
+            OPTIONS,
+            PUT,
+            TRACE
         }
 
         public const int TIMEOUT_MILLISECONDS = 10000;
@@ -30,28 +36,39 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        private AsyncRequestState _reqState;
+        private AsyncRequestData _reqState;
         private bool locked = false;
 
-        public HttpAsyncRequest(HttpWebRequest request, Action<ResponseResult> finishedCallback)
+        public HttpAsyncRequest(AsyncRequestData requestData)
         {
-            _reqState = new AsyncRequestState(request, finishedCallback);
+            _reqState = requestData;
         }
+
+        public HttpAsyncRequest(HttpWebRequest request, Action<ResponseResult> finishedCallback) : this(new AsyncRequestData(request, finishedCallback)) { }
+
+        public HttpAsyncRequest(HttpWebRequest request, string requestBody, Action<ResponseResult> finishedCallback) : this(new AsyncRequestData(request, requestBody, finishedCallback)) { }
 
         public HttpAsyncRequest(string url, MethodType method, Action<ResponseResult> finishedCallback)
         {
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = method.ToString();
-            _reqState = new AsyncRequestState(request, finishedCallback);
+            _reqState = new AsyncRequestData(request, finishedCallback);
         }
 
+        public bool CertificateValidation(System.Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            return true;
+        }
         /// <summary>
         /// Start the process of sending the request and receiving the response asynchronously. No modifications should be made to this request after this call.
         /// </summary>
         public void Send()
         {
             locked = true;
-            if(_reqState.RequestData != null)
+
+            ServicePointManager.ServerCertificateValidationCallback += CertificateValidation;
+
+            if(_reqState.RequestBody != null)
             {
                 _reqState.Request.BeginGetRequestStream(new AsyncCallback(GetRequestStreamCallback), _reqState);
             }
@@ -66,16 +83,16 @@ namespace SocialPoint.TransparentBundles
         /// </summary>
         private void GetRequestStreamCallback(IAsyncResult asynchronousResult)
         {
-            var state = (AsyncRequestState)asynchronousResult.AsyncState;
+            var state = (AsyncRequestData)asynchronousResult.AsyncState;
             try
             {
                 // End the operation
                 Stream postStream = state.Request.EndGetRequestStream(asynchronousResult);
 
-                if(state.RequestData != string.Empty)
+                if(state.RequestBody != string.Empty)
                 {
                     // Write to the request stream.
-                    postStream.Write(Encoding.UTF8.GetBytes(state.RequestData), 0, state.RequestData.Length);
+                    postStream.Write(Encoding.UTF8.GetBytes(state.RequestBody), 0, state.RequestBody.Length);
                     postStream.Close();
                 }
 
@@ -91,7 +108,7 @@ namespace SocialPoint.TransparentBundles
         /// Starts the GetResponse asynchronously
         /// </summary>
         /// <param name="state">AsyncRequestState context</param>
-        private void GetResponseAsync(AsyncRequestState state)
+        private void GetResponseAsync(AsyncRequestData state)
         {
             // Start the asynchronous operation to get the response
             var asyncResult = state.Request.BeginGetResponse(new AsyncCallback(GetResponseCallback), state);
@@ -107,10 +124,10 @@ namespace SocialPoint.TransparentBundles
         /// <param name="timeOut">wether or not the request timed out</param>
         private void TimeoutCallback(object stateObj, bool timeOut)
         {
-            var state = (AsyncRequestState)stateObj;
+            var state = (AsyncRequestData)stateObj;
             if(timeOut)
             {
-                EndConnection(state, new ResponseResult(false, "The request timed out"));
+                EndConnection(state, new ResponseResult(false, "The request timed out", HttpStatusCode.RequestTimeout, "Request Timeout"));
             }
         }
 
@@ -119,7 +136,7 @@ namespace SocialPoint.TransparentBundles
         /// </summary>
         private void GetResponseCallback(IAsyncResult asynchronousResult)
         {
-            var state = (AsyncRequestState)asynchronousResult.AsyncState;
+            var state = (AsyncRequestData)asynchronousResult.AsyncState;
             try
             {
                 ResponseResult rResult = null;
@@ -130,7 +147,7 @@ namespace SocialPoint.TransparentBundles
                     {
                         using(StreamReader streamRead = new StreamReader(streamResponse))
                         {
-                            rResult = new ResponseResult(true, response.StatusDescription, streamRead.ReadToEnd());
+                            rResult = new ResponseResult(true, response.StatusDescription, response.StatusCode, streamRead.ReadToEnd());
                             rResult.StatusCode = response.StatusCode;
                         }
                     }
@@ -143,10 +160,15 @@ namespace SocialPoint.TransparentBundles
 
                 EndConnection(state, rResult);
             }
+            catch(WebException e)
+            {
+                EndConnection(state, new ResponseResult(false, e.Message, ((HttpWebResponse)e.Response).StatusCode, ((HttpWebResponse)e.Response).StatusDescription));
+            }
             catch(Exception e)
             {
                 EndConnection(state, new ResponseResult(false, e.Message));
             }
+
         }
 
         /// <summary>
@@ -154,9 +176,10 @@ namespace SocialPoint.TransparentBundles
         /// </summary>
         /// <param name="state">AsyncRequestState context object</param>
         /// <param name="result">Result of the connection</param>
-        private void EndConnection(AsyncRequestState state, ResponseResult result)
+        private void EndConnection(AsyncRequestData state, ResponseResult result)
         {
             locked = false;
+            ServicePointManager.ServerCertificateValidationCallback -= CertificateValidation;
             state.ConnectionFinished(result);
         }
     }
