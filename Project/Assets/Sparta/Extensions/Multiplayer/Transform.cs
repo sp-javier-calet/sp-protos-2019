@@ -1,33 +1,36 @@
 ﻿using SocialPoint.IO;
 using SocialPoint.Utils;
+using SocialPoint.Network;
+using SocialPoint.Physics;
 using System;
+using Jitter.LinearMath;
 
-namespace SocialPoint.Geometry
+namespace SocialPoint.Multiplayer
 {
     public class Transform : IEquatable<Transform>, ICloneable
     {
-        public Vector Position;
+        public JVector Position;
 
-        public Quat Rotation;
+        public JQuaternion Rotation;
 
-        public Vector Scale;
+        public JVector Scale;
 
-        public Transform(Vector p, Quat r, Vector s)
+        public Transform(JVector p, JQuaternion r, JVector s)
         {
             Position = p;
             Rotation = r;
             Scale = s;
         }
 
-        public Transform(Vector p, Quat r) : this(p, r, Vector.One)
+        public Transform(JVector p, JQuaternion r) : this(p, r, JVector.One)
         {
         }
 
-        public Transform(Vector p) : this(p, Quat.Identity)
+        public Transform(JVector p) : this(p, JQuaternion.Identity)
         {
         }
 
-        public Transform() : this(Vector.Zero)
+        public Transform() : this(JVector.Zero)
         {
         }
 
@@ -102,7 +105,7 @@ namespace SocialPoint.Geometry
         {
             get
             {
-                return new Transform(Vector.Zero);
+                return new Transform(JVector.Zero);
             }
         }
 
@@ -125,24 +128,24 @@ namespace SocialPoint.Geometry
 
         public void Serialize(Transform newObj, IWriter writer)
         {
-            VectorSerializer.Instance.Serialize(newObj.Position, writer);
-            QuatSerializer.Instance.Serialize(newObj.Rotation, writer);
-            VectorSerializer.Instance.Serialize(newObj.Scale, writer);
+            JVectorSerializer.Instance.Serialize(newObj.Position, writer);
+            JQuaternionSerializer.Instance.Serialize(newObj.Rotation, writer);
+            JVectorSerializer.Instance.Serialize(newObj.Scale, writer);
         }
 
         public void Serialize(Transform newObj, Transform oldObj, IWriter writer, Bitset dirty)
         {
             if(Bitset.NullOrGet(dirty))
             {
-                VectorSerializer.Instance.Serialize(newObj.Position, oldObj.Position, writer);
+                JVectorSerializer.Instance.Serialize(newObj.Position, oldObj.Position, writer);
             }
             if(Bitset.NullOrGet(dirty))
             {
-                QuatSerializer.Instance.Serialize(newObj.Rotation, oldObj.Rotation, writer);
+                JQuaternionSerializer.Instance.Serialize(newObj.Rotation, oldObj.Rotation, writer);
             }
             if(Bitset.NullOrGet(dirty))
             {
-                VectorSerializer.Instance.Serialize(newObj.Scale, oldObj.Scale, writer);
+                JVectorSerializer.Instance.Serialize(newObj.Scale, oldObj.Scale, writer);
             }
         }
     }
@@ -154,9 +157,9 @@ namespace SocialPoint.Geometry
         public Transform Parse(IReader reader)
         {
             var obj = new Transform();
-            obj.Position = VectorParser.Instance.Parse(reader);
-            obj.Rotation = QuatParser.Instance.Parse(reader);
-            obj.Scale = VectorParser.Instance.Parse(reader);
+            obj.Position = JVectorParser.Instance.Parse(reader);
+            obj.Rotation = JQuaternionParser.Instance.Parse(reader);
+            obj.Scale = JVectorParser.Instance.Parse(reader);
             return obj;
         }
 
@@ -169,15 +172,15 @@ namespace SocialPoint.Geometry
         {
             if(Bitset.NullOrGet(dirty))
             {
-                obj.Position = VectorParser.Instance.Parse(obj.Position, reader);
+                obj.Position = JVectorParser.Instance.Parse(obj.Position, reader);
             }
             if(Bitset.NullOrGet(dirty))
             {
-                obj.Rotation = QuatParser.Instance.Parse(obj.Rotation, reader);
+                obj.Rotation = JQuaternionParser.Instance.Parse(obj.Rotation, reader);
             }
             if(Bitset.NullOrGet(dirty))
             {
-                obj.Scale = VectorParser.Instance.Parse(obj.Scale, reader);
+                obj.Scale = JVectorParser.Instance.Parse(obj.Scale, reader);
             }
             return obj;
         }

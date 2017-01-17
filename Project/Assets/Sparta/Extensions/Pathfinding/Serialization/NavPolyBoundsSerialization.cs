@@ -7,10 +7,6 @@ namespace SocialPoint.Pathfinding
     {
         public static readonly NavPolyBoundsSerializer Instance = new NavPolyBoundsSerializer();
 
-        NavPolyBoundsSerializer()
-        {
-        }
-
         public void Serialize(PolyBounds value, IWriter writer)
         {
             NavPolyVertexSerializer.Instance.Serialize(value.Min, writer);
@@ -21,10 +17,6 @@ namespace SocialPoint.Pathfinding
     public class NavPolyBoundsParser : IReadParser<PolyBounds>
     {
         public static readonly NavPolyBoundsParser Instance = new NavPolyBoundsParser();
-
-        NavPolyBoundsParser()
-        {
-        }
 
         public PolyBounds Parse(IReader reader)
         {
