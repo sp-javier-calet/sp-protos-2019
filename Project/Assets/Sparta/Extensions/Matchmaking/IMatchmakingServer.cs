@@ -8,7 +8,7 @@ namespace SocialPoint.Matchmaking
 {
     public interface IMatchmakingServerDelegate
     {
-        void OnMatchInfoReceived(Attr matchInfo);
+        void OnMatchInfoReceived(byte[] matchInfo);
         void OnResultsReceived(AttrDic result);
         void OnError(Error err);
     }

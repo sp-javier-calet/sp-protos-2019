@@ -77,7 +77,7 @@ namespace Examples.Lockstep
             itr.Dispose();
         }
 
-        public void OnMatchStarted(Attr data)
+        public void OnMatchStarted(byte[] data)
         {
             // TODO: game specific model setup
         }
