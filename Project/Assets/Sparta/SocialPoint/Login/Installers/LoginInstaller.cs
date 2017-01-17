@@ -51,7 +51,7 @@ namespace SocialPoint.Login
         SocialPointLogin.LoginConfig CreateConfig()
         {
             return new SocialPointLogin.LoginConfig {
-                BaseUrl = Container.Resolve<BackendEnvironment>().GetUrl(),
+                BaseUrl = Container.Resolve<IBackendEnvironment>().GetUrl(),
                 SecurityTokenErrors = (int)Settings.MaxSecurityTokenErrorRetries,
                 ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
                 EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries
@@ -94,13 +94,17 @@ namespace SocialPoint.Login
         {
             var login = Container.Resolve<ILogin>();
             var appEvents = Container.Resolve<IAppEvents>();
-            var environments = Container.Resolve<BackendEnvironment>();
+
             var envs = new Dictionary<string,string>();
 
-            for(var i = 0; i < environments.Environments.Length; ++i)
+            var environments = Container.Resolve<IBackendEnvironment>();
+            if(environments != null)
             {
-                var env = environments.Environments[i];
-                envs.Add(env.Name, env.Url);
+                for(var i = 0; i < environments.Environments.Length; ++i)
+                {
+                    var env = environments.Environments[i];
+                    envs.Add(env.Name, env.Url);
+                }
             }
 
             return new AdminPanelLogin(login, envs, appEvents);

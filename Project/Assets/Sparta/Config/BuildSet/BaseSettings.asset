@@ -25,6 +25,7 @@ MonoBehaviour:
     IncludeDebugScenes: 0
     LogLevel: 0
     EnableAdminPanel: 0
+    EnableDependencyInspection: 0
   Ios:
     BundleIdentifier: es.socialpoint.basegame
     Flags: NO_GPGS
