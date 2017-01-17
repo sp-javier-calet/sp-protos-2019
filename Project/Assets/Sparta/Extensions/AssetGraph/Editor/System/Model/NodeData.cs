@@ -2,11 +2,9 @@ using UnityEngine;
 using UnityEditor;
 
 using System;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 
 namespace AssetBundleGraph {
 
@@ -210,8 +208,6 @@ namespace AssetBundleGraph {
 		[SerializeField] private bool m_bundleConfigUseGroupAsVariants;
 		[SerializeField] private SerializableMultiTargetInt m_bundleBuilderEnabledBundleOptions;
 		[SerializeField] private SerializableMultiTargetInt m_exporterExportOption;
-
-		[SerializeField] private bool m_isNodeOperationPerformed;
 
 		[SerializeField] private Color m_name_color;
 

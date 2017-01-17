@@ -94,7 +94,10 @@ namespace SpartaTools.Editor.Build
                 onBuildStart(path);
             }
 
-            var result = NativeConsole.RunProcess(path + "/gradlew", string.Format("generateUnityPlugin -PunityInstallationPath='{0}'", unityPath), path);
+            var bin = path + "/gradlew";
+            var param = string.Format("generateUnityPlugin -PunityInstallationPath='{0}'", unityPath);
+            Debug.Log(string.Format("Running build command: {0} {1}", bin, param)); 
+            var result = NativeConsole.RunProcess(bin, param, path);
 
             commandOutput.AppendLine(result.Output);
             Debug.Log(commandOutput.ToString());
@@ -147,7 +150,10 @@ namespace SpartaTools.Editor.Build
                 }
                 currentStep += step;
 
-                var result = NativeConsole.RunProcess(Path.Combine(path, "build_native_plugin.sh"), string.Format("{0} {1}", pluginDir, AndroidNDKPath), path);
+                var bin = Path.Combine(path, "build_native_plugin.sh");
+                var param = string.Format("{0} {1}", pluginDir, AndroidNDKPath);
+                Debug.Log(string.Format("Running build command: {0} {1}", bin, param)); 
+                var result = NativeConsole.RunProcess(bin, param, path);
                 commandOutput.AppendLine(result.Output);
 
                 if(onModuleEnd != null)
@@ -204,7 +210,10 @@ namespace SpartaTools.Editor.Build
             commandOutput.AppendLine(msg);
             EditorUtility.DisplayProgressBar("Compiling native plugin", msg, 0.1f);
 
-            var result = NativeConsole.RunProcess("xcodebuild", paramsBuilder.ToString(), path);
+            var bin = "xcodebuild";
+            var param = paramsBuilder.ToString();
+            Debug.Log(string.Format("Running build command: {0} {1}", bin, param)); 
+            var result = NativeConsole.RunProcess(bin, param, path);
             commandOutput.AppendLine(result.Output);
 
             Debug.Log(commandOutput.ToString());
