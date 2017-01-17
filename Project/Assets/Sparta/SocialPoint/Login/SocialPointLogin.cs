@@ -4,6 +4,7 @@ using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Hardware;
+using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 
@@ -249,6 +250,8 @@ namespace SocialPoint.Login
 
         public IAttrStorage Storage { get; set; }
 
+        public ILocalizationManager Localization { get; set; }
+
         public float Timeout { get; set; }
 
         public float ActivityTimeout { get; set; }
@@ -259,7 +262,6 @@ namespace SocialPoint.Login
 
         public uint UserMappingsBlock { get; set; }
 
-        public string Language { get; set; }
 
         public GenericData Data { get; private set; }
 
@@ -404,6 +406,14 @@ namespace SocialPoint.Login
             }
         }
 
+        public string Language
+        {
+            get
+            {
+                return Localization != null ? Localization.CurrentLanguage : null;
+            }
+        }
+
         public void SetBaseUrl(string url)
         {
             var baseurl = StringUtils.FixBaseUri(url);
@@ -470,7 +480,6 @@ namespace SocialPoint.Login
             AutoUpdateFriendsPhotosSize = DefaultAutoUpdateFriendsPhotoSize;
             UserMappingsBlock = DefaultUserMappingsBlock;
             SecurityToken = string.Empty;
-            Language = null;
             User = new LocalUser();
             _users = new List<User>();
             _links = new List<LinkInfo>();

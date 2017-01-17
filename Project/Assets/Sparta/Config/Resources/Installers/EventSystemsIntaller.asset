@@ -8,13 +8,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 305f4ae5e39194e188ca04d5b25a7f5f, type: 3}
-  m_Name: SocialFrameworkInstaller
+  m_Script: {fileID: 11500000, guid: a2c4562d98b4041739cfeba4ad0c9b18, type: 3}
+  m_Name: EventSystemsIntaller
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    Endpoints:
-    - ws://sprocket-00.int.lod.laicosp.net:8002/ws
-    Protocols:
-    - wamp.2.json
-    UseNativeWebsocketIfSupported: 1
+    CreateAlways: 1
+    EventSystemPrefab: {fileID: 11431642, guid: 35a6593b317e1438dbd373387966e8f5,
+      type: 2}
