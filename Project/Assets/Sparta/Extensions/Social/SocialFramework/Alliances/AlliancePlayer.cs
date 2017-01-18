@@ -44,16 +44,16 @@ namespace SocialPoint.Social
 
     public class AlliancePlayerBasicFactory : SocialPlayerFactory.IFactory
     {
-        const string MemberTypeKey = "memberType";
-        const string MemberAllianceIdKey = "allianceId";
-        const string MemberAllianceNameKey = "allianceName";
-        const string MemberAllianceAvatarKey = "allianceAvatarId";
-
-        // TODO: Duplicated ones used for parsing the old AlliancePlayerInfo
         const string AlliancePlayerIdKey = "id";
         const string AlliancePlayerNameKey = "name";
         const string AlliancePlayerAvatarKey = "avatar";
         const string AlliancePlayerRoleKey = "role";
+
+        // TODO: Duplicated ones used for parsing the old AlliancePlayerInfo
+        const string MemberTypeKey = "memberType";
+        const string MemberAllianceIdKey = "allianceId";
+        const string MemberAllianceNameKey = "allianceName";
+        const string MemberAllianceAvatarKey = "allianceAvatarId";
 
         public SocialPlayer.IComponent CreateElement(AttrDic dic)
         {
