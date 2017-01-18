@@ -8,10 +8,12 @@ namespace SocialPoint.Social
     public class AdminPanelSocialFrameworkPlayers : IAdminPanelGUI
     {
         readonly AdminPanelPlayersRanking _rankingPanel;
+        readonly AdminPanelLocalPlayerInfo _localPlayerPanel;
 
-        public AdminPanelSocialFrameworkPlayers(PlayersManager playersManager, AdminPanelConsole console)
+        public AdminPanelSocialFrameworkPlayers(PlayersManager playersManager, SocialManager socialManager, AdminPanelConsole console)
         {
             _rankingPanel = new AdminPanelPlayersRanking(playersManager, console);
+            _localPlayerPanel = new AdminPanelLocalPlayerInfo(playersManager, socialManager, console);
         }
         
 
@@ -19,14 +21,12 @@ namespace SocialPoint.Social
         {
             layout.CreateLabel("Players");
             layout.CreateMargin();
+            layout.CreateOpenPanelButton("Local Player Info", _localPlayerPanel);
             layout.CreateOpenPanelButton("Ranking", _rankingPanel);
         }
 
         #region Base Panels
 
-        /// <summary>
-        /// Base alliance panel.
-        /// </summary>
         abstract class BasePlayersPanel : AdminPanelSocialFramework.BaseRequestPanel
         {
             protected readonly PlayersManager _playersManager;
@@ -40,6 +40,23 @@ namespace SocialPoint.Social
         }
 
         #endregion
+
+        class AdminPanelLocalPlayerInfo : BasePlayersPanel
+        {
+            readonly SocialManager _socialManager;
+
+            public AdminPanelLocalPlayerInfo(PlayersManager players, SocialManager socialManager, AdminPanelConsole console) : base(players, console)
+            {
+                _socialManager = socialManager;
+            }
+
+            public override void OnCreateGUI(AdminPanelLayout layout)
+            {
+                layout.CreateLabel("Local Player Info");
+                layout.CreateMargin();
+                layout.CreateTextArea(_socialManager.LocalPlayer.ToString());;
+            }
+        }
 
         class AdminPanelPlayersRanking : BasePlayersPanel
         {

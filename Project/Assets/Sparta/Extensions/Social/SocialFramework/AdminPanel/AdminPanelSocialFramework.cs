@@ -43,7 +43,7 @@ namespace SocialPoint.Social
             _userPanel = new AdminPanelSocialFrameworkUser(_connection);
             _chatPanel = new AdminPanelSocialFrameworkChat(_chat);
             _alliancesPanel = new AdminPanelSocialFrameworkAlliances(_alliances, _playersManager, _socialManager, _console);
-            _playersPanel = new AdminPanelSocialFrameworkPlayers(_playersManager, _console);
+            _playersPanel = new AdminPanelSocialFrameworkPlayers(_playersManager, _socialManager, _console);
         }
 
         public void OnOpened()
@@ -110,9 +110,9 @@ namespace SocialPoint.Social
             });
             layout.CreateMargin();
 
+            layout.CreateOpenPanelButton("Players", _playersPanel, _playersPanel != null && connected);
             layout.CreateOpenPanelButton("Chat", _chatPanel, _chat != null && connected);
             layout.CreateOpenPanelButton("Alliances", _alliancesPanel, _alliances != null && connected);
-            layout.CreateOpenPanelButton("Players", _playersPanel, _playersPanel != null && connected);
         }
 
         void OnConnected()
@@ -178,13 +178,10 @@ namespace SocialPoint.Social
 
             public string UserId;
 
-            protected readonly StringBuilder _content;
-
             public BaseUserInfoPanel(PlayersManager playersManager, AdminPanelConsole console)
             {
                 _playersManager = playersManager;
                 _console = console;
-                _content = new StringBuilder();
             }
 
             public override void OnOpened()
@@ -205,22 +202,7 @@ namespace SocialPoint.Social
 
                 if(_member != null)
                 {
-                    _content.Length = 0;
-                    _content
-                        .Append("Id: ").AppendLine(_member.Uid)
-                        .Append("Name: ").AppendLine(_member.Name)
-                        .Append("Level: ").AppendLine(_member.Level.ToString())
-                        .Append("Score: ").AppendLine(_member.Score.ToString());
-                    if(_member.HasComponent<AlliancePlayerBasic>())
-                    {
-                        var componenet = _member.GetComponent<AlliancePlayerBasic>();
-                        _content
-                            .Append("Alliance: ").AppendLine(componenet.Name)
-                            .Append("Alliance Id: ").AppendLine(componenet.Id)
-                            .Append("Avatar: ").AppendLine(componenet.Avatar.ToString())
-                            .Append("Rank: ").AppendLine(componenet.Rank.ToString());
-                    }
-                    layout.CreateVerticalLayout().CreateTextArea(_content.ToString());
+                    layout.CreateVerticalLayout().CreateTextArea(_member.ToString());
                     layout.CreateMargin();
 
                     OnInfoLoaded(layout);

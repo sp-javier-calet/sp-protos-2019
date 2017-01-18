@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using SocialPoint.Attributes;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
@@ -26,6 +27,18 @@ namespace SocialPoint.Social
             Name = string.Empty;
             Avatar = 0;
             Rank = 0;
+        }
+
+        public override string ToString()
+        {
+            var builder = StringUtils.StartBuilder();
+            builder
+                .AppendLine("AllianceBasicData:")
+                .Append("\tId: ").AppendLine(Id)
+                .Append("\tName: ").AppendLine(Name)
+                .Append("\tAvatar: ").AppendLine(Avatar.ToString())
+                .Append("\tRank: ").AppendLine(Rank.ToString());
+            return builder.ToString();
         }
     }
 
@@ -118,6 +131,23 @@ namespace SocialPoint.Social
         public void DecreaseTotalMembers()
         {
             TotalMembers--;
+        }
+
+        public override string ToString()
+        {
+            var builder = StringUtils.StartBuilder();
+            builder
+                .AppendLine("AlliancePrivateData:")
+                .Append("\tTotalMembers: ").AppendLine(TotalMembers.ToString())
+                .Append("\tJoinTimestamp: ").AppendLine(JoinTimestamp.ToString())
+                .Append("\tMaxRequests: ").AppendLine(MaxRequests.ToString())
+                .AppendLine("\tRequests:");
+            var itr = _alliancesRequests.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                builder.Append("\t\t").AppendLine(itr.Current);
+            }
+            return builder.ToString();
         }
     }
 
