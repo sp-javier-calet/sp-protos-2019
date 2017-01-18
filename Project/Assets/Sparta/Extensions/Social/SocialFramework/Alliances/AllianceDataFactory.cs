@@ -133,6 +133,9 @@ namespace SocialPoint.Social
                     if(component != null)
                     {
                         component.Rank = defaultMemberRank;
+                        component.Id = alliance.Id;
+                        component.Name = alliance.Name;
+                        component.Avatar = alliance.Avatar;
                     }
 
                     candidates.Add(candidate);
@@ -149,6 +152,13 @@ namespace SocialPoint.Social
             {
                 var memberDic = membersList[i].AsDic;
                 var member = PlayerFactory.CreateSocialPlayer(memberDic);
+                var component = member.GetComponent<AlliancePlayerBasic>();
+                if(component != null)
+                {
+                    component.Id = alliance.Id;
+                    component.Name = alliance.Name;
+                    component.Avatar = alliance.Avatar;
+                }
                 members.Add(member);
             }
             alliance.AddMembers(members);

@@ -29,7 +29,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     const float ExpectedLoadModelDuration = 1.0f;
     const float ExpectedLoadSceneDuration = 2.0f;
 
-    AlliancesManager _alliances;
+    SocialManager _socialManager;
 
     protected override void OnLoad()
     {
@@ -38,7 +38,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         Localization = Services.Instance.Resolve<Localization>();
         AppEvents = Services.Instance.Resolve<IAppEvents>();
         ErrorHandler = Services.Instance.Resolve<IGameErrorHandler>();
-        _alliances = Services.Instance.Resolve<AlliancesManager>();
+        _socialManager = Services.Instance.Resolve<SocialManager>();
         _coroutineRunner = Services.Instance.Resolve<ICoroutineRunner>();
         _gameLoader = Services.Instance.Resolve<IGameLoader>();
 
@@ -94,12 +94,13 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     {
         var data = reader.ParseElement();
 
-        if(_alliances != null)
+        _gameLoader.Load(data);
+
+        if(_socialManager != null)
         {
-            _alliances.ParseAllianceInfo(data.AsDic.Get("alliance").AsDic);
+            _socialManager.SetLocalPlayerData(data.AsDic, Services.Instance.Resolve<IPlayerData>());
         }
 
-        _gameLoader.Load(data);
         _loadModelOperation.Finish("game model loaded");
         return true;
     }

@@ -18,16 +18,16 @@ namespace SocialPoint.Social
         readonly AdminPanelAllianceSearch _searchPanel;
         readonly AdminPanelAllianceRanking _rankingPanel;
 
-        public AdminPanelSocialFrameworkAlliances(AlliancesManager alliances, SocialManager socialManager, AdminPanelConsole console)
+        public AdminPanelSocialFrameworkAlliances(AlliancesManager alliances, PlayersManager playersManager, SocialManager socialManager, AdminPanelConsole console)
         {
             _alliances = alliances;
             _socialManager = socialManager;
             _console = console;
 
             _createPanel = new AdminPanelAllianceCreate(alliances, console);
-            _infoPanel = new AdminPanelAllianceInfo(alliances, console);
-            _searchPanel = new AdminPanelAllianceSearch(alliances, console);
-            _rankingPanel = new AdminPanelAllianceRanking(alliances, console);
+            _infoPanel = new AdminPanelAllianceInfo(alliances, playersManager, console);
+            _searchPanel = new AdminPanelAllianceSearch(alliances, playersManager, console);
+            _rankingPanel = new AdminPanelAllianceRanking(alliances, playersManager, console);
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -81,7 +81,7 @@ namespace SocialPoint.Social
         /// <summary>
         /// Base alliance panel.
         /// </summary>
-        abstract class BaseAlliancePanel : IAdminPanelManagedGUI
+        abstract class BaseAlliancePanel : AdminPanelSocialFramework.BaseRequestPanel
         {
             protected readonly AlliancesManager _alliances;
             protected readonly AdminPanelConsole _console;
@@ -91,54 +91,8 @@ namespace SocialPoint.Social
                 _alliances = alliances;
                 _console = console;
             }
-
-            public virtual void OnOpened()
-            {
-            }
-
-            public virtual void OnClosed()
-            {
-            }
-
-            public abstract void OnCreateGUI(AdminPanelLayout layout);
         }
-
-        /// <summary>
-        /// Base alliance panel with http connection management
-        /// </summary>
-        abstract class BaseRequestAlliancePanel : BaseAlliancePanel
-        {
-            protected WAMPRequest _wampRequest;
-            protected Error _wampRequestError;
-
-            public BaseRequestAlliancePanel(AlliancesManager alliances, AdminPanelConsole console) : base(alliances, console)
-            {
-            }
-
-            protected void Cancel()
-            {
-                if(_wampRequest != null)
-                {
-                    _wampRequest.Dispose();
-                }
-                _wampRequest = null;
-                _wampRequestError = null;
-            }
-
-            public override void OnOpened()
-            {
-                _wampRequest = null;
-                _wampRequestError = null;
-            }
-
-            public override void OnClosed()
-            {
-                _wampRequest = null;
-                _wampRequestError = null;
-            }
-
-        }
-
+ 
         #endregion
 
         class AdminPanelAllianceCreate : BaseAlliancePanel
@@ -327,7 +281,7 @@ namespace SocialPoint.Social
             }
         }
 
-        class AdminPanelAllianceInfo : BaseRequestAlliancePanel
+        class AdminPanelAllianceInfo : BaseAlliancePanel
         {
             public Alliance Alliance;
 
@@ -337,10 +291,10 @@ namespace SocialPoint.Social
             readonly AdminPanelAllianceUserInfo _userPanel;
             readonly AdminPanelAllianceCreate _editPanel;
 
-            public AdminPanelAllianceInfo(AlliancesManager alliances, AdminPanelConsole console) : base(alliances, console)
+            public AdminPanelAllianceInfo(AlliancesManager alliances, PlayersManager playersManager, AdminPanelConsole console) : base(alliances, console)
             {
                 _content = new StringBuilder();
-                _userPanel = new AdminPanelAllianceUserInfo(alliances, console);
+                _userPanel = new AdminPanelAllianceUserInfo(alliances, playersManager, console);
                 _editPanel = new AdminPanelAllianceCreate(alliances, console);
             }
 
@@ -469,93 +423,19 @@ namespace SocialPoint.Social
             }
         }
 
-        class AdminPanelAllianceUserInfo : BaseRequestAlliancePanel
+        class AdminPanelAllianceUserInfo : AdminPanelSocialFramework.BaseUserInfoPanel
         {
-            SocialPlayer _member;
-
-            public string UserId;
             public Alliance Alliance;
+            private readonly AlliancesManager _alliances;
 
-            readonly StringBuilder _content;
-
-            public AdminPanelAllianceUserInfo(AlliancesManager alliances, AdminPanelConsole console) : base(alliances, console)
+            public AdminPanelAllianceUserInfo(AlliancesManager alliances, PlayersManager playersManager, AdminPanelConsole console) : base(playersManager, console)
             {
-                _content = new StringBuilder();
+                _alliances = alliances;
             }
 
-            public override void OnOpened()
+            void OnInfoLoaded(AdminPanelLayout layout)
             {
-                base.OnOpened();
-                _member = null;
-            }
-
-            public override void OnCreateGUI(AdminPanelLayout layout)
-            {
-                layout.CreateLabel("User Info");
-                layout.CreateMargin();
-
-                if(_member != null)
-                {
-                    _content.Length = 0;
-                    _content
-                        .Append("Id: ").AppendLine(_member.Uid)
-                        .Append("Name: ").AppendLine(_member.Name)
-                        .Append("Level: ").AppendLine(_member.Level.ToString())
-                        .Append("Score: ").AppendLine(_member.Score.ToString());
-                    if(_member.HasComponent<AlliancePlayerBasic>())
-                    {
-                        var componenet = _member.GetComponent<AlliancePlayerBasic>();
-                        _content
-                            .Append("Alliance: ").AppendLine(componenet.Name)
-                            .Append("Alliance Id: ").AppendLine(componenet.Id)
-                            .Append("Avatar: ").AppendLine(componenet.Avatar.ToString())
-                            .Append("Rank: ").AppendLine(componenet.Rank.ToString());
-                    }
-                    layout.CreateVerticalLayout().CreateTextArea(_content.ToString());
-                    layout.CreateMargin();
-
-                    CreateAllianceActions(layout);
-                }
-                else
-                {
-                    if(_wampRequest == null)
-                    {
-                        _wampRequest = _alliances.LoadUserInfo(UserId, 
-                            (err, member) => {
-                                if(Error.IsNullOrEmpty(err))
-                                {
-                                    _member = member;
-                                    _console.Print(string.Format("User {0} loaded successfully", member.Uid));
-                                    Cancel();
-                                    layout.Refresh();
-                                }
-                                else
-                                {
-                                    _console.Print(string.Format("Error loading user: {0} ", err));
-                                    _wampRequestError = err;
-                                    layout.Refresh();
-                                }
-                            });
-                    } 
-                    if(Error.IsNullOrEmpty(_wampRequestError))
-                    {
-                        layout.CreateLabel(string.Format("Loading user {0}...", UserId));
-                    }
-                    else
-                    {
-                        layout.CreateLabel("Load user request failed");
-                        layout.CreateTextArea(_wampRequestError.ToString());
-                        layout.CreateButton("Retry", () => {
-                            Cancel();
-                            layout.Refresh();
-                        });
-
-                        layout.CreateMargin();
-
-                        // Add action buttons even if the member info cannot be loaded
-                        CreateAllianceActions(layout);
-                    }
-                }
+                CreateAllianceActions(layout);
             }
 
             void CreateAllianceActions(AdminPanelLayout layout)
@@ -619,15 +499,15 @@ namespace SocialPoint.Social
             }
         }
 
-        class AdminPanelAllianceRanking : BaseRequestAlliancePanel
+        class AdminPanelAllianceRanking : BaseAlliancePanel
         {
             AlliancesRanking _ranking;
 
             readonly AdminPanelAllianceInfo _infoPanel;
 
-            public AdminPanelAllianceRanking(AlliancesManager alliances, AdminPanelConsole console) : base(alliances, console)
+            public AdminPanelAllianceRanking(AlliancesManager alliances, PlayersManager playersManager, AdminPanelConsole console) : base(alliances, console)
             {
-                _infoPanel = new AdminPanelAllianceInfo(alliances, console);
+                _infoPanel = new AdminPanelAllianceInfo(alliances, playersManager, console);
             }
 
             public override void OnOpened()
@@ -694,7 +574,7 @@ namespace SocialPoint.Social
             }
         }
 
-        class AdminPanelAllianceSearch : BaseRequestAlliancePanel
+        class AdminPanelAllianceSearch : BaseAlliancePanel
         {
             public string Filter;
 
@@ -702,9 +582,9 @@ namespace SocialPoint.Social
 
             readonly AdminPanelAllianceInfo _infoPanel;
 
-            public AdminPanelAllianceSearch(AlliancesManager alliances, AdminPanelConsole console) : base(alliances, console)
+            public AdminPanelAllianceSearch(AlliancesManager alliances, PlayersManager playersManager, AdminPanelConsole console) : base(alliances, console)
             {
-                _infoPanel = new AdminPanelAllianceInfo(alliances, console);
+                _infoPanel = new AdminPanelAllianceInfo(alliances, playersManager, console);
             }
 
             public override void OnOpened()

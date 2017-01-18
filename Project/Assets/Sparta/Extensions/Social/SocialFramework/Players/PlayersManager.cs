@@ -11,6 +11,7 @@ namespace SocialPoint.Social
         #region Attr keys
 
         const string UserIdKey = "user_id";
+        const string MemberIdKey = "player_id";
 
         const string OperationResultKey = "result";
 
@@ -19,6 +20,7 @@ namespace SocialPoint.Social
         #region RPC methods
 
         const string PlayersRankinsMethod = "players.ranking";
+        const string PlayerInfoMethod = "alliance.member.info";
 
         #endregion
 
@@ -44,6 +46,26 @@ namespace SocialPoint.Social
         {
             _connection = connection;
             _socialManager = socialManager;
+        }
+
+        public WAMPRequest LoadUserInfo(string userId, Action<Error, SocialPlayer> callback)
+        {
+            var dic = new AttrDic();
+            dic.SetValue(MemberIdKey, userId);
+
+            return _connection.Call(PlayerInfoMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
+                SocialPlayer member = null;
+                if(Error.IsNullOrEmpty(err))
+                {
+                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
+                    var result = rDic.Get(OperationResultKey).AsDic;
+                    member = _socialManager.PlayerFactory.CreateSocialPlayer(result);
+                }
+                if(callback != null)
+                {
+                    callback(err, member);
+                }
+            });
         }
 
         public WAMPRequest LoadPlayersRanking(Action<Error, PlayersRanking> callback)

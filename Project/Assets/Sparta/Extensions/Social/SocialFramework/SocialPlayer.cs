@@ -11,10 +11,45 @@ namespace SocialPoint.Social
 
         }
 
-        public string Uid;
-        public string Name;
-        public int Level;
-        public int Score;
+        public sealed class BasicData : IComponent
+        {
+            public string Uid;
+            public string Name;
+            public int Level;
+            public int Score;
+        }
+
+        public string Uid
+        { 
+            get
+            { 
+                return GetComponent<BasicData>().Uid;
+            } 
+        }
+
+        public string Name
+        { 
+            get
+            { 
+                return GetComponent<BasicData>().Name;
+            } 
+        }
+
+        public int Level
+        { 
+            get
+            { 
+                return GetComponent<BasicData>().Level;
+            } 
+        }
+
+        public int Score
+        { 
+            get
+            { 
+                return GetComponent<BasicData>().Score;
+            } 
+        }
 
         readonly Dictionary<RuntimeTypeHandle, IComponent> _components;
 
@@ -25,7 +60,6 @@ namespace SocialPoint.Social
 
         public void AddComponent(IComponent component)
         {
-            DebugUtils.Assert(!_components.ContainsKey(Type.GetTypeHandle(component)), "Adding a Component to SocialPlayer that already exists");
             _components[Type.GetTypeHandle(component)] = component;
         }
 

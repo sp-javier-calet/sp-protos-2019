@@ -183,6 +183,7 @@ namespace SocialPoint.Social
                 Container.Resolve<ConnectionManager>(),
                 Container.Resolve<ChatManager>(),
                 Container.Resolve<AlliancesManager>(),
+                Container.Resolve<PlayersManager>(),
                 Container.Resolve<SocialManager>());
         }
 

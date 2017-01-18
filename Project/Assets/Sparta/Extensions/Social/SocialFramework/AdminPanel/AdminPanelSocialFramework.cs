@@ -3,7 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
 using SocialPoint.Base;
-using UnityEngine.UI;
+using SocialPoint.WAMP;
 
 namespace SocialPoint.Social
 {
@@ -12,6 +12,7 @@ namespace SocialPoint.Social
         readonly ConnectionManager _connection;
         readonly ChatManager _chat;
         readonly AlliancesManager _alliances;
+        readonly PlayersManager _playersManager;
         readonly SocialManager _socialManager;
         readonly StringBuilder _content;
 
@@ -21,12 +22,14 @@ namespace SocialPoint.Social
         AdminPanelSocialFrameworkUser _userPanel;
         AdminPanelSocialFrameworkChat _chatPanel;
         AdminPanelSocialFrameworkAlliances _alliancesPanel;
+        AdminPanelSocialFrameworkPlayers _playersPanel;
 
-        public AdminPanelSocialFramework(ConnectionManager connection, ChatManager chat, AlliancesManager alliances, SocialManager socialManager)
+        public AdminPanelSocialFramework(ConnectionManager connection, ChatManager chat, AlliancesManager alliances, PlayersManager playersManager, SocialManager socialManager)
         {
             _connection = connection;
             _chat = chat;
             _alliances = alliances;
+            _playersManager = playersManager;
             _socialManager = socialManager;
             _content = new StringBuilder();
         }
@@ -39,7 +42,8 @@ namespace SocialPoint.Social
             // Cache nested panel
             _userPanel = new AdminPanelSocialFrameworkUser(_connection);
             _chatPanel = new AdminPanelSocialFrameworkChat(_chat);
-            _alliancesPanel = new AdminPanelSocialFrameworkAlliances(_alliances, _socialManager, _console);
+            _alliancesPanel = new AdminPanelSocialFrameworkAlliances(_alliances, _playersManager, _socialManager, _console);
+            _playersPanel = new AdminPanelSocialFrameworkPlayers(_playersManager, _console);
         }
 
         public void OnOpened()
@@ -108,6 +112,7 @@ namespace SocialPoint.Social
 
             layout.CreateOpenPanelButton("Chat", _chatPanel, _chat != null && connected);
             layout.CreateOpenPanelButton("Alliances", _alliancesPanel, _alliances != null && connected);
+            layout.CreateOpenPanelButton("Players", _playersPanel, _playersPanel != null && connected);
         }
 
         void OnConnected()
@@ -128,6 +133,139 @@ namespace SocialPoint.Social
             _layout.Refresh();
         }
 
+        #region Base Panels
+
+        /// <summary>
+        /// Base panel with connection management
+        /// </summary>
+        public abstract class BaseRequestPanel : IAdminPanelManagedGUI
+        {
+            protected WAMPRequest _wampRequest;
+            protected Error _wampRequestError;
+
+            public BaseRequestPanel()
+            {
+            }
+
+            protected void Cancel()
+            {
+                if(_wampRequest != null)
+                {
+                    _wampRequest.Dispose();
+                }
+                _wampRequest = null;
+                _wampRequestError = null;
+            }
+
+            public virtual void OnOpened()
+            {
+                Cancel();
+            }
+
+            public virtual void OnClosed()
+            {
+                Cancel();
+            }
+
+            public abstract void OnCreateGUI(AdminPanelLayout layout);
+        }
+
+        public class BaseUserInfoPanel : BaseRequestPanel
+        {
+            protected SocialPlayer _member;
+            protected readonly PlayersManager _playersManager;
+            protected readonly AdminPanelConsole _console;
+
+            public string UserId;
+
+            protected readonly StringBuilder _content;
+
+            public BaseUserInfoPanel(PlayersManager playersManager, AdminPanelConsole console)
+            {
+                _playersManager = playersManager;
+                _console = console;
+                _content = new StringBuilder();
+            }
+
+            public override void OnOpened()
+            {
+                base.OnOpened();
+                _member = null;
+            }
+
+            void OnInfoLoaded(AdminPanelLayout layout)
+            {
+
+            }
+
+            public override void OnCreateGUI(AdminPanelLayout layout)
+            {
+                layout.CreateLabel("User Info");
+                layout.CreateMargin();
+
+                if(_member != null)
+                {
+                    _content.Length = 0;
+                    _content
+                        .Append("Id: ").AppendLine(_member.Uid)
+                        .Append("Name: ").AppendLine(_member.Name)
+                        .Append("Level: ").AppendLine(_member.Level.ToString())
+                        .Append("Score: ").AppendLine(_member.Score.ToString());
+                    if(_member.HasComponent<AlliancePlayerBasic>())
+                    {
+                        var componenet = _member.GetComponent<AlliancePlayerBasic>();
+                        _content
+                            .Append("Alliance: ").AppendLine(componenet.Name)
+                            .Append("Alliance Id: ").AppendLine(componenet.Id)
+                            .Append("Avatar: ").AppendLine(componenet.Avatar.ToString())
+                            .Append("Rank: ").AppendLine(componenet.Rank.ToString());
+                    }
+                    layout.CreateVerticalLayout().CreateTextArea(_content.ToString());
+                    layout.CreateMargin();
+
+                    OnInfoLoaded(layout);
+                }
+                else
+                {
+                    if(_wampRequest == null)
+                    {
+                        _wampRequest = _playersManager.LoadUserInfo(UserId, 
+                            (err, member) => {
+                                if(Error.IsNullOrEmpty(err))
+                                {
+                                    _member = member;
+                                    _console.Print(string.Format("User {0} loaded successfully", member.Uid));
+                                    Cancel();
+                                    layout.Refresh();
+                                }
+                                else
+                                {
+                                    _console.Print(string.Format("Error loading user: {0} ", err));
+                                    _wampRequestError = err;
+                                    layout.Refresh();
+                                }
+                            });
+                    } 
+                    if(Error.IsNullOrEmpty(_wampRequestError))
+                    {
+                        layout.CreateLabel(string.Format("Loading user {0}...", UserId));
+                    }
+                    else
+                    {
+                        layout.CreateLabel("Load user request failed");
+                        layout.CreateTextArea(_wampRequestError.ToString());
+                        layout.CreateButton("Retry", () => {
+                            Cancel();
+                            layout.Refresh();
+                        });
+
+                        layout.CreateMargin();
+                    }
+                }
+            }
+        }
+
+        #endregion
 
         #region User
 

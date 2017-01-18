@@ -44,29 +44,24 @@ namespace SocialPoint.Social
 
         public SocialPlayer.IComponent CreateElement(AttrDic dic)
         {
-            var component = new AlliancePlayerBasic();
-            component.Rank = dic.GetValue(MemberTypeKey).ToInt();
-            component.Id = dic.GetValue(MemberAllianceIdKey).ToString();
-            component.Avatar = dic.GetValue(MemberAllianceAvatarKey).ToInt();
-            component.Name = dic.GetValue(MemberAllianceNameKey).ToString();
+            var alliancesDic = dic.Get("alliance").AsDic;
 
-            //TODO Temporal code to parse the old values
-            if(dic.ContainsKey(AlliancePlayerIdKey))
+            var component = new AlliancePlayerBasic();
+
+            component.Id = alliancesDic.GetValue(AlliancePlayerIdKey).ToString();
+            component.Name = alliancesDic.GetValue(AlliancePlayerNameKey).ToString();
+            component.Avatar = alliancesDic.GetValue(AlliancePlayerAvatarKey).ToInt();
+            component.Rank = alliancesDic.GetValue(AlliancePlayerRoleKey).ToInt();
+
+            //TODO: Temporal fix to read data from outside the "alliance" child
+            if(alliancesDic.Count == 0)
             {
-                component.Id = dic.GetValue(AlliancePlayerIdKey).ToString();
+                component.Rank = dic.GetValue(MemberTypeKey).ToInt();
+                component.Id = dic.GetValue(MemberAllianceIdKey).ToString();
+                component.Avatar = dic.GetValue(MemberAllianceAvatarKey).ToInt();
+                component.Name = dic.GetValue(MemberAllianceNameKey).ToString();
             }
-            if(dic.ContainsKey(AlliancePlayerNameKey))
-            {
-                component.Name = dic.GetValue(AlliancePlayerNameKey).ToString();
-            }
-            if(dic.ContainsKey(AlliancePlayerAvatarKey))
-            {
-                component.Avatar = dic.GetValue(AlliancePlayerAvatarKey).ToInt();
-            }
-            if(dic.ContainsKey(AlliancePlayerRoleKey))
-            {
-                component.Rank = dic.GetValue(AlliancePlayerRoleKey).ToInt();
-            }
+
             return component;
         }
     }
@@ -77,7 +72,9 @@ namespace SocialPoint.Social
     public class AlliancePlayerPrivate : SocialPlayer.IComponent
     {
         public int TotalMembers { get; set; }
+
         public long JoinTimestamp { get; set; }
+
         public int MaxRequests { get; set; }
 
         readonly Queue<string> _alliancesRequests;
@@ -132,14 +129,16 @@ namespace SocialPoint.Social
 
         public SocialPlayer.IComponent CreateElement(AttrDic dic)
         {
+            var alliancesDic = dic.Get("alliance").AsDic;
+
             var component = new AlliancePlayerPrivate();
 
-            component.TotalMembers = dic.GetValue(AlliancePlayerTotalMembersKey).ToInt();
-            component.JoinTimestamp = dic.GetValue(AlliancePlayerJoinTimestampKey).ToLong();
+            component.TotalMembers = alliancesDic.GetValue(AlliancePlayerTotalMembersKey).ToInt();
+            component.JoinTimestamp = alliancesDic.GetValue(AlliancePlayerJoinTimestampKey).ToLong();
 
-            if(dic.ContainsKey(AlliancePlayerRequestsKey))
+            if(alliancesDic.ContainsKey(AlliancePlayerRequestsKey))
             {
-                var list = dic.Get(AlliancePlayerRequestsKey).AsList;
+                var list = alliancesDic.Get(AlliancePlayerRequestsKey).AsList;
                 for(var i = 0; i < list.Count; ++i)
                 {
                     var req = list[i].AsValue.ToString();
