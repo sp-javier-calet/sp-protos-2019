@@ -8,6 +8,7 @@ namespace SocialPoint.Social
 
         const string RankingKey = "ranking";
         const string RankingRankKey = "my_rank";
+        const string RankingMeKey = "me";
 
         #endregion
 
@@ -32,7 +33,12 @@ namespace SocialPoint.Social
             }
             itr.Dispose();
 
-            ranking.PlayerPosition = dic.GetValue(RankingRankKey).ToInt();
+            if(dic.ContainsKey(RankingMeKey) && dic.ContainsKey(RankingRankKey))
+            {
+                int myRank = dic.GetValue(RankingRankKey).ToInt();
+                var myData = PlayerFactory.CreateSocialPlayer(dic.Get(RankingMeKey).AsDic);
+                ranking.InsertLocalPlayerInRanking(myData, myRank);
+            }
         }
 
         #region Extensible methods

@@ -68,10 +68,14 @@ namespace SocialPoint.Social
             });
         }
 
-        public WAMPRequest LoadPlayersRanking(Action<Error, PlayersRanking> callback)
+        public WAMPRequest LoadPlayersRanking(AttrDic extraData, Action<Error, PlayersRanking> callback)
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, _socialManager.LocalPlayer.Uid);
+            if(extraData != null)
+            {
+                dic.Set("extra_data", extraData);
+            }
 
             return _connection.Call(PlayersRankinsMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 PlayersRanking ranking = null;

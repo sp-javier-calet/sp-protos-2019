@@ -15,7 +15,6 @@ namespace SocialPoint.Social
             _rankingPanel = new AdminPanelPlayersRanking(playersManager, console);
             _localPlayerPanel = new AdminPanelLocalPlayerInfo(playersManager, socialManager, console);
         }
-        
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
@@ -54,7 +53,7 @@ namespace SocialPoint.Social
             {
                 layout.CreateLabel("Local Player Info");
                 layout.CreateMargin();
-                layout.CreateTextArea(_socialManager.LocalPlayer.ToString());;
+                layout.CreateTextArea(_socialManager.LocalPlayer.ToString());
             }
         }
 
@@ -96,7 +95,7 @@ namespace SocialPoint.Social
                 {
                     if(_wampRequest == null)
                     {
-                        _wampRequest = _playersManager.LoadPlayersRanking(
+                        _wampRequest = _playersManager.LoadPlayersRanking(null,
                             (err, ranking) => {
                                 if(Error.IsNullOrEmpty(err))
                                 {

@@ -423,7 +423,7 @@ namespace SocialPoint.Social
 
         public void OnLocalPlayerLoaded(AttrDic dic)
         {
-            _socialManager.LocalPlayer.GetComponent<AlliancePlayerPrivate>().MaxRequests = MaxPendingJoinRequests;
+            GetLocalPrivateData().MaxRequests = MaxPendingJoinRequests;
             NotifyAllianceEvent(AllianceAction.OnPlayerAllianceInfoParsed, dic);
         }
 
