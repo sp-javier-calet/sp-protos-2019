@@ -48,10 +48,14 @@ namespace SocialPoint.Social
             _socialManager = socialManager;
         }
 
-        public WAMPRequest LoadUserInfo(string userId, Action<Error, SocialPlayer> callback)
+        public WAMPRequest LoadUserInfo(string userId, AttrDic extraData, Action<Error, SocialPlayer> callback)
         {
             var dic = new AttrDic();
             dic.SetValue(MemberIdKey, userId);
+            if(extraData != null)
+            {
+                dic.Set("extra_data", extraData);
+            }
 
             return _connection.Call(PlayerInfoMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
                 SocialPlayer member = null;

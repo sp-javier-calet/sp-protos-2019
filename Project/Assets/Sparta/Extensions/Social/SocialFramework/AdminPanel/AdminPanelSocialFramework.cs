@@ -211,7 +211,7 @@ namespace SocialPoint.Social
                 {
                     if(_wampRequest == null)
                     {
-                        _wampRequest = _playersManager.LoadUserInfo(UserId, 
+                        _wampRequest = _playersManager.LoadUserInfo(UserId, null,
                             (err, member) => {
                                 if(Error.IsNullOrEmpty(err))
                                 {
