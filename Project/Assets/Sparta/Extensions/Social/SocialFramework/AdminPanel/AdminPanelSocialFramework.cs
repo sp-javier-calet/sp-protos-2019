@@ -41,7 +41,7 @@ namespace SocialPoint.Social
 
             // Cache nested panel
             _userPanel = new AdminPanelSocialFrameworkUser(_connection);
-            _chatPanel = new AdminPanelSocialFrameworkChat(_chat);
+            _chatPanel = new AdminPanelSocialFrameworkChat(_chat, _console);
             _alliancesPanel = new AdminPanelSocialFrameworkAlliances(_alliances, _playersManager, _socialManager, _console);
             _playersPanel = new AdminPanelSocialFrameworkPlayers(_playersManager, _socialManager, _console);
         }
