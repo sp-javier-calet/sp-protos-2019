@@ -188,7 +188,7 @@ namespace SocialPoint.Social
             OnChatBanReceived(ChatBanEndTimestamp);
         }
 
-        void ReportChatMessage(BaseChatMessage message, AttrDic extraData)
+        public void ReportChatMessage(BaseChatMessage message, AttrDic extraData)
         {
             var report = new ChatReport(message, extraData);
             _reports.Add(report);

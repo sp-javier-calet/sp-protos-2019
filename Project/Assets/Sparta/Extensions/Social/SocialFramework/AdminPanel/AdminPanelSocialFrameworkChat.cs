@@ -2,6 +2,8 @@
 using System.Text;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
+using SocialPoint.Utils;
+using SocialPoint.Attributes;
 using UnityEngine.UI;
 
 namespace SocialPoint.Social
@@ -31,6 +33,40 @@ namespace SocialPoint.Social
             layout.CreateMargin();
             layout.CreateLabel("Ban info:");
             layout.CreateLabel(GetBanInfo());
+            layout.CreateMargin();
+
+            layout.CreateMargin();
+            layout.CreateLabel("Reporting");
+            layout.CreateMargin();
+            {
+                var hLayout = layout.CreateHorizontalLayout();
+                hLayout.CreateFormLabel("Report User:");
+                hLayout.CreateTextInput("Insert reported User ID", (insertedText) => {
+                    var fakeMessage = new BaseChatMessage();
+                    fakeMessage.Text = "Fake text with a lot of swearing";
+                    fakeMessage.Uuid = "2f68cf8f-039a-4308-95d2-fc430ac5ebbb";
+                    fakeMessage.MessageData = new MessageData();
+                    fakeMessage.MessageData.PlayerId = insertedText;
+
+                    var extraData = new AttrDic();
+                    extraData.SetValue("extra_variable", "extra_value");
+                    _chat.ReportChatMessage(fakeMessage, extraData);
+
+                    layout.Refresh();
+                });
+            }
+            layout.CreateMargin();
+
+            layout.CreateLabel("Current Reports");
+            var builder = StringUtils.StartBuilder();
+            var itrReports = _chat.Reports.GetEnumerator();
+            while(itrReports.MoveNext())
+            {
+                builder.AppendLine(itrReports.Current.ToString());
+            }
+            itr.Dispose();
+
+            layout.CreateVerticalScrollLayout().CreateTextArea(builder.ToString());
             layout.CreateMargin();
         }
 

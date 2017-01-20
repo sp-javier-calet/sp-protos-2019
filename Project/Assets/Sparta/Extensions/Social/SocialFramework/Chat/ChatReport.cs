@@ -60,5 +60,10 @@ namespace SocialPoint.Social
 
             return data;
         }
+
+        public override string ToString()
+        {
+            return string.Format("[ChatReport: ReportedUid={0}, Ts={1}, MessageId={2}, MessageText={3}, ExtraData={4}]", ReportedUid, Ts, MessageId, MessageText, ExtraData);
+        }
     }
 }
