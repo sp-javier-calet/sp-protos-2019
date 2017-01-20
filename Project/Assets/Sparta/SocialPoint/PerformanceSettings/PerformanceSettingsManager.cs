@@ -1,20 +1,31 @@
 ﻿using UnityEngine;
 using System;
+using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Login;
+using SocialPoint.Dependency;
 
 namespace SocialPoint.PerformanceSettings
 {
     public class PerformanceSettingsManager : IDisposable
     {
+        interface IExtraPerformanceSettingsApplier
+        {
+            void Apply(AttrDic extraSettings);
+        }
+
         ILogin _login;
 
-        PerformanceSettingsData _data;
+        Dictionary<string, PerformanceSettingsData> _data;
 
         IAttrStorage _storage;
 
+        IExtraPerformanceSettingsApplier _extraApplier;
+
         const string kscreenRatio = "screen_ratio";
         const string kPerformancesettings = "performance_settings";
+        const string kPerformancesettingsMulti = "performance_settings_multi";
+        const string kDefaultSettings = "default";
 
         static bool _screenRatioApplied;
 
@@ -36,7 +47,11 @@ namespace SocialPoint.PerformanceSettings
 
             _storage = storage;
 
+            _data = new Dictionary<string, PerformanceSettingsData>();
+
             InitLoginServices();
+
+            _extraApplier = Services.Instance.Resolve<IExtraPerformanceSettingsApplier>();
 
             ApplyInitialPerformanceSettings();
         }
@@ -70,34 +85,61 @@ namespace SocialPoint.PerformanceSettings
         {
             AttrDic dic = data.AsDic;
           
-            if(dic.ContainsKey(kPerformancesettings))
+            if(dic.ContainsKey(kPerformancesettingsMulti))
+            {
+                InitMulti(dic.Get(kPerformancesettingsMulti).AsDic);
+            }
+            else if(dic.ContainsKey(kPerformancesettings))
             {
                 Init(dic.Get(kPerformancesettings).AsDic);
             }
         }
 
-        public virtual void Init(AttrDic config)
+        void Init(AttrDic config)
         {
-            _data = new PerformanceSettingsData(config);
+            _data.Add(kDefaultSettings, new PerformanceSettingsData(config));
 
-            ApplyPerformanceSettings();	
+            ApplyPerformanceSettings(kDefaultSettings);	
         }
 
-        void ApplyPerformanceSettings()
+        void InitMulti(AttrDic config)
         {
-            if(Application.targetFrameRate != _data.FrameRate)
+            var itr = config.GetEnumerator();
+            while(itr.MoveNext())
             {
-                Application.targetFrameRate = _data.FrameRate;
+                var pair = itr.Current;
+                _data.Add(pair.Key, new PerformanceSettingsData(pair.Value.AsDic));
             }
-            
-            if(Time.fixedDeltaTime != _data.FixedTimestep)
+            itr.Dispose();
+
+            if(_data.ContainsKey(kDefaultSettings))
             {
-                Time.fixedDeltaTime = _data.FixedTimestep;
+                ApplyPerformanceSettings(kDefaultSettings);
+            }
+        }
+
+        public void ApplyPerformanceSettings(string settingsId)
+        {
+            if(_data.ContainsKey(settingsId) == false)
+            {
+                return;
             }
 
-            if(_data.ScreenRatio != 1)
+            var settings = _data[settingsId];
+
+            if(Application.targetFrameRate != settings.FrameRate)
             {
-                _storage.Save(kscreenRatio, new AttrFloat(_data.ScreenRatio));
+                Application.targetFrameRate = settings.FrameRate;
+            }
+            
+            if(Time.fixedDeltaTime != settings.FixedTimestep)
+            {
+                Time.fixedDeltaTime = settings.FixedTimestep;
+            }
+
+            if(settings.ScreenRatio != 1)
+            {
+                _storage.Save(kscreenRatio, new AttrFloat(settings.ScreenRatio));
             }
             else
             {
@@ -107,45 +149,50 @@ namespace SocialPoint.PerformanceSettings
                 }
             }
 
-            if(Shader.globalMaximumLOD != _data.MaxShaderLod)
+            if(Shader.globalMaximumLOD != settings.MaxShaderLod)
             {
-                Shader.globalMaximumLOD = _data.MaxShaderLod;
+                Shader.globalMaximumLOD = settings.MaxShaderLod;
             }
 
-            QualitySettings.antiAliasing = _data.AntiAliasing ? 1 : 0;
+            QualitySettings.antiAliasing = settings.AntiAliasing ? 1 : 0;
 
-            if(QualitySettings.asyncUploadBufferSize != _data.AsyncUploadBufferSize)
+            if(QualitySettings.asyncUploadBufferSize != settings.AsyncUploadBufferSize)
             {
-                QualitySettings.asyncUploadBufferSize = _data.AsyncUploadBufferSize;
+                QualitySettings.asyncUploadBufferSize = settings.AsyncUploadBufferSize;
             }
 
-            if(QualitySettings.asyncUploadTimeSlice != _data.AsyncUploadTimeSlice)
+            if(QualitySettings.asyncUploadTimeSlice != settings.AsyncUploadTimeSlice)
             {
-                QualitySettings.asyncUploadTimeSlice = _data.AsyncUploadTimeSlice;
+                QualitySettings.asyncUploadTimeSlice = settings.AsyncUploadTimeSlice;
             }
 
-            if(QualitySettings.blendWeights != (BlendWeights)_data.BlendWeights)
+            if(QualitySettings.blendWeights != (BlendWeights)settings.BlendWeights)
             {
-                QualitySettings.blendWeights = (BlendWeights)_data.BlendWeights;
+                QualitySettings.blendWeights = (BlendWeights)settings.BlendWeights;
             }
 
-            if(QualitySettings.lodBias != _data.LodBias)
+            if(QualitySettings.lodBias != settings.LodBias)
             {
-                QualitySettings.lodBias = _data.LodBias;
+                QualitySettings.lodBias = settings.LodBias;
             }
 
-            if(QualitySettings.masterTextureLimit != _data.MasterTextureLimit)
+            if(QualitySettings.masterTextureLimit != settings.MasterTextureLimit)
             {
-                QualitySettings.masterTextureLimit = _data.MasterTextureLimit;
+                QualitySettings.masterTextureLimit = settings.MasterTextureLimit;
             }
 
-            if(QualitySettings.maximumLODLevel != _data.MaxLodLevel)
+            if(QualitySettings.maximumLODLevel != settings.MaxLodLevel)
             {
-                QualitySettings.maximumLODLevel = _data.MaxLodLevel;
+                QualitySettings.maximumLODLevel = settings.MaxLodLevel;
             }
 
-            QualitySettings.vSyncCount = _data.Vsync ? 1 : 0;
-        }
+            QualitySettings.vSyncCount = settings.Vsync ? 1 : 0;
+
+            if(_extraApplier != null)
+            {
+                _extraApplier.Apply(settings.Settings);
+            }
+       }
 
         public void Dispose()
         {
@@ -158,6 +205,4 @@ namespace SocialPoint.PerformanceSettings
             _login = null;
         }
     }
-
-      
 }
