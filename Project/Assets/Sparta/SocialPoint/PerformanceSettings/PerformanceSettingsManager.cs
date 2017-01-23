@@ -3,13 +3,12 @@ using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Login;
-using SocialPoint.Dependency;
 
 namespace SocialPoint.PerformanceSettings
 {
     public class PerformanceSettingsManager : IDisposable
     {
-        interface IExtraPerformanceSettingsApplier
+        public interface IExtraPerformanceSettingsApplier
         {
             void Apply(AttrDic extraSettings);
         }
@@ -20,7 +19,7 @@ namespace SocialPoint.PerformanceSettings
 
         IAttrStorage _storage;
 
-        IExtraPerformanceSettingsApplier _extraApplier;
+        public IExtraPerformanceSettingsApplier ExtraApplier { private get; set; }
 
         const string kscreenRatio = "screen_ratio";
         const string kPerformancesettings = "performance_settings";
@@ -50,8 +49,6 @@ namespace SocialPoint.PerformanceSettings
             _data = new Dictionary<string, PerformanceSettingsData>();
 
             InitLoginServices();
-
-            _extraApplier = Services.Instance.Resolve<IExtraPerformanceSettingsApplier>();
 
             ApplyInitialPerformanceSettings();
         }
@@ -188,9 +185,9 @@ namespace SocialPoint.PerformanceSettings
 
             QualitySettings.vSyncCount = settings.Vsync ? 1 : 0;
 
-            if(_extraApplier != null)
+            if(ExtraApplier != null)
             {
-                _extraApplier.Apply(settings.Settings);
+                ExtraApplier.Apply(settings.Settings);
             }
        }
 
