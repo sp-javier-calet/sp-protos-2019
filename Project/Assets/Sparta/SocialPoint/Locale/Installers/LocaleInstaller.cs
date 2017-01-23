@@ -1,59 +1,130 @@
 using System;
-using SocialPoint.Locale;
 using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
+using SocialPoint.Hardware;
+using SocialPoint.Locale;
+using SocialPoint.Network;
+using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
 
-public class LocaleInstaller : ServiceInstaller
+namespace SocialPoint.Locale
 {
-    [Serializable]
-    public class SettingsData
+    public sealed class LocaleInstaller : ServiceInstaller, IInitializable
     {
-        public bool EditorDebug = true;
-    }
-
-    public SettingsData Settings = new SettingsData();
-
-    public override void InstallBindings()
-    {
-        Container.Rebind<Localization>().ToMethod<Localization>(CreateLocalization);
-         
-        Container.Rebind<LocalizeAttributeConfiguration>().ToMethod<LocalizeAttributeConfiguration>(CreateLocalizeAttributeConfiguration);
-
-        Container.Listen<ILocalizationManager>().WhenResolved(SetupLocalizationManager);
-
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLocale>(CreateAdminPanel);
-    }
-
-    LocalizeAttributeConfiguration CreateLocalizeAttributeConfiguration()
-    {
-        return new LocalizeAttributeConfiguration(
-            Container.Resolve<Localization>(),
-            Container.ResolveList<IMemberAttributeObserver<LocalizeAttribute>>());
-    }
-
-    AdminPanelLocale CreateAdminPanel()
-    {
-        return new AdminPanelLocale(
-            Container.Resolve<ILocalizationManager>());
-    }
-
-    Localization CreateLocalization()
-    {
-        var locale = new Localization();
-#if UNITY_EDITOR
-        locale.Debug = Settings.EditorDebug;
-#endif
-        return locale;
-    }
-
-    void SetupLocalizationManager(ILocalizationManager mng)
-    {
-        var manager = mng as LocalizationManager;
-        if(manager != null)
+        public enum LocalizationEnvironment
         {
-            manager.AppEvents = Container.Resolve<IAppEvents>();
+            Development,
+            Localization,
+            Production
+        }
+
+        [Serializable]
+        public class SettingsData
+        {
+            public bool EditorDebug = true;
+            public bool EnableViewLocalization = true;
+            public LocalizationSettings Localization;
+        }
+
+        [Serializable]
+        public class LocalizationSettings
+        {
+            public LocalizationEnvironment EnvironmentId = LocalizationEnvironment.Production;
+            public string ProjectId = LocalizationManager.LocationData.DefaultProjectId;
+            public string SecretKeyDev = LocalizationManager.LocationData.DefaultDevSecretKey;
+            public string SecretKeyLoc = LocalizationManager.LocationData.DefaultDevSecretKey;
+            public string SecretKeyProd = LocalizationManager.LocationData.DefaultProdSecretKey;
+            public string BundleDir = LocalizationManager.DefaultBundleDir;
+            public string[] SupportedLanguages = LocalizationManager.DefaultSupportedLanguages;
+            public float Timeout = LocalizationManager.DefaultTimeout;
+        }
+
+        public SettingsData Settings = new SettingsData();
+
+        public override void InstallBindings()
+        {
+            Container.Rebind<Localization>().ToMethod<Localization>(CreateLocalization);
+            Container.Rebind<LocalizeAttributeConfiguration>().ToMethod<LocalizeAttributeConfiguration>(CreateLocalizeAttributeConfiguration);
+
+            Container.Rebind<UILocalizationUpdater>().ToMethod<UILocalizationUpdater>(CreateViewLocalizer);
+            Container.Bind<IDisposable>().ToLookup<UILocalizationUpdater>();
+
+            Container.Rebind<ILocalizationManager>().ToMethod<LocalizationManager>(CreateLocalizationManager, SetupLocalizationManager);
+            Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();    
+
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLocale>(CreateAdminPanel);
+        }
+
+        public void Initialize()
+        {
+            if(Settings.EnableViewLocalization)
+            {
+                Container.Resolve<UILocalizationUpdater>();
+            }
+        }
+
+        LocalizeAttributeConfiguration CreateLocalizeAttributeConfiguration()
+        {
+            return new LocalizeAttributeConfiguration(
+                Container.Resolve<Localization>(),
+                Container.ResolveList<IMemberAttributeObserver<LocalizeAttribute>>());
+        }
+
+        AdminPanelLocale CreateAdminPanel()
+        {
+            return new AdminPanelLocale(
+                Container.Resolve<ILocalizationManager>());
+        }
+
+        Localization CreateLocalization()
+        {
+            var locale = new Localization();
+#if UNITY_EDITOR
+            locale.Debug = Settings.EditorDebug;
+#endif
+            return locale;
+        }
+
+        UILocalizationUpdater CreateViewLocalizer()
+        {
+            return new UILocalizationUpdater(
+                Container.Resolve<LocalizeAttributeConfiguration>(),
+                Container.Resolve<IEventDispatcher>());
+        }
+
+        LocalizationManager CreateLocalizationManager()
+        {
+            return new LocalizationManager();
+        }
+
+        void SetupLocalizationManager(LocalizationManager mng)
+        {
+            mng.HttpClient = Container.Resolve<IHttpClient>();
+            mng.AppInfo = Container.Resolve<IAppInfo>();
+            mng.Localization = Container.Resolve<Localization>();
+            mng.AppEvents = Container.Resolve<IAppEvents>();
+
+            string secretKey;
+            if(Settings.Localization.EnvironmentId == LocalizationEnvironment.Development)
+            {
+                secretKey = Settings.Localization.SecretKeyDev;
+            }
+            else if(Settings.Localization.EnvironmentId == LocalizationEnvironment.Localization)
+            {
+                secretKey = Settings.Localization.SecretKeyLoc;
+            }
+            else
+            {
+                secretKey = Settings.Localization.SecretKeyProd;
+            }
+            mng.Location.ProjectId = Settings.Localization.ProjectId;
+            mng.Location.EnvironmentId = Settings.Localization.EnvironmentId.ToString();
+            mng.Location.SecretKey = secretKey;
+            mng.Timeout = Settings.Localization.Timeout;
+            mng.BundleDir = Settings.Localization.BundleDir;
+
+            mng.UpdateDefaultLanguage();
         }
     }
 }
