@@ -13,7 +13,7 @@ namespace SocialPoint.Base
 
     public class EnvironmentSettings : ScriptableObject
     {
-        const string EnvironmentUrlEnvironmentKey = "SP_ENVIRONMENT_URL";
+        const string EnvironmentUrlEnvironmentKey = "SP_DEFAULT_ENVIRONMENT";
 
         const string FileName = "Environment";
         const string FileExtension = ".asset";
