@@ -9,20 +9,35 @@ using LitJson;
 namespace SocialPoint.TransparentBundles
 {
     [InitializeOnLoad]
-    public static class DependenciesManifest
+    public static class DependencySystem
     {
+        public enum Severity
+        {
+            MESSAGE = 0,
+            WARNING,
+            ERROR
+        }
+
+        public static event System.Action<BundleDependenciesData> OnBundleAdded;
+        public static event System.Action<string, BundleDependenciesData> OnBundleDeletedFromProject;
+        public static event System.Action<BundleDependenciesData> OnBundleRemoved;
+        public static event System.Action<string, Severity> LogMessage;
+
         private static string _path = Path.Combine(Application.dataPath, "DependenciesManifest.json");
 
-        public static Dictionary<string, BundleDependenciesData> Manifest = new Dictionary<string, BundleDependenciesData>();
+        private static Dictionary<string, BundleDependenciesData> Manifest = new Dictionary<string, BundleDependenciesData>();
 
-        static DependenciesManifest()
+        static DependencySystem()
         {
             if(File.Exists(_path))
             {
                 Load();
             }
+
+            LogMessage += LogMessageHandler;
         }
 
+        #region JSON
         public static void Load()
         {
             Manifest = JsonMapper.ToObject<Dictionary<string, BundleDependenciesData>>(File.ReadAllText(_path));
@@ -36,6 +51,29 @@ namespace SocialPoint.TransparentBundles
             var str = writer.ToString();
             File.WriteAllText(_path, str);
         }
+        #endregion
+
+        #region APICalls        
+
+        public static Dictionary<string, BundleDependenciesData> GetManifest()
+        {
+            return Manifest;
+        }
+
+        public static List<BundleDependenciesData> GetUserBundles()
+        {
+            List<BundleDependenciesData> userBundles = new List<BundleDependenciesData>();
+            foreach(var pair in Manifest)
+            {
+                if(pair.Value.IsExplicitlyBundled)
+                {
+                    userBundles.Add((BundleDependenciesData)pair.Value.Clone());
+                }
+            }
+
+            return userBundles;
+        }
+
 
         /// <summary>
         /// Gets a copy of the dependencies data stored for this asset
@@ -57,8 +95,6 @@ namespace SocialPoint.TransparentBundles
             return Manifest.ContainsKey(GUID);
         }
 
-        #region FullAssets
-
         /// <summary>
         /// Registers or refresh an asset as a manual bundled
         /// </summary>
@@ -66,6 +102,7 @@ namespace SocialPoint.TransparentBundles
         public static void RegisterManualBundledAsset(string GUID)
         {
             AddOrUpdateAsset(GUID, true);
+            Save();
         }
 
 
@@ -77,21 +114,25 @@ namespace SocialPoint.TransparentBundles
         /// <param name="userBundles"></param>
         public static void UpdateManifest(List<string> userBundles)
         {
-            var oldBundles = Manifest.Where(x => x.Value.IsExplicitlyBundled && !userBundles.Contains(x.Key));
+            var oldBundles = Manifest.Values.Where(x => x.IsExplicitlyBundled && !userBundles.Contains(x.GUID)).ToList();
 
             // Adds or Refreshes all the bundles.
             foreach(string guid in userBundles)
             {
-                RegisterManualBundledAsset(guid);
+                AddOrUpdateAsset(guid, true);
             }
 
-            foreach(var pair in oldBundles)
+            foreach(var bundleData in oldBundles)
             {
-                var path = AssetDatabase.GUIDToAssetPath(pair.Key);
-                Debug.LogError("Old asset will no longer be a user defined Bundle: " + pair.Key + " Old Path: " + pair.Value.AssetPath);
+                if(LogMessage != null)
+                {
+                    LogMessage("Old asset will no longer be a user defined Bundle: " + bundleData.GUID + " Old Path: " + bundleData.AssetPath, Severity.WARNING);
+                }
                 // remove its condition of bundled asset and remove it if it is not a dependency
-                RemoveAsset(pair.Key);
+                RemoveAsset(bundleData.GUID);
             }
+
+            Save();
         }
 
 
@@ -104,56 +145,91 @@ namespace SocialPoint.TransparentBundles
 
             foreach(var pair in explicitBundles)
             {
-                var path = AssetDatabase.GUIDToAssetPath(pair.Key);
-
-                if(string.IsNullOrEmpty(path))
-                {
-                    Debug.LogError("Deleted file GUID: " + pair.Key + " Old Path: " + pair.Value.AssetPath);
-                    // remove its condition of bundled asset and remove it if it is not a dependency
-                    RemoveAsset(pair.Key);
-                }
-                else
-                {
-                    AddOrUpdateAsset(pair.Key);
-                }
+                AddOrUpdateAsset(pair.Key);
             }
+
+            Save();
         }
+
+
+        /// <summary>
+        /// Removes an asset from the manually bundled assets. 
+        /// The asset may still be in the registry if another asset has it as a dependency and may still
+        /// be a bundle depending on the AutoBundle policy
+        /// </summary>
+        /// <param name="GUID">GUID of the asset to remove</param>
+        public static void RemoveBundle(string guid)
+        {
+            RemoveAsset(guid);
+            Save();
+        }
+
         #endregion
 
-        #region SingleAssets
+        #region PrivateMethods
         /// <summary>
         /// Adds or updates an asset and all its dependencies to the manifest
         /// </summary>
-        /// <param name="GUID">GUID of the asset to add or update</param>
+        /// <param name="guid">GUID of the asset to add or update</param>
         /// <param name="isManual">If the asset is explicitly bundled by the user or not</param>
         /// <param name="parent">GUID of the asset to which GUID param is a dependency</param>
-        private static void AddOrUpdateAsset(string GUID, bool isManual = false, string parent = "")
+        private static void AddOrUpdateAsset(string guid, bool isManual = false, string parent = "")
         {
             BundleDependenciesData data = null;
-            var objPath = AssetDatabase.GUIDToAssetPath(GUID);
+            var objPath = AssetDatabase.GUIDToAssetPath(guid);
+
+            if(string.IsNullOrEmpty(objPath))
+            {
+                if(HasAsset(guid))
+                {
+                    data = Manifest[guid];
+
+                    if(LogMessage != null)
+                    {
+                        LogMessage("Deleted file GUID: " + guid + " Old Path: " + data.AssetPath, Severity.WARNING);
+                    }
+                }
+                else
+                {
+                    if(LogMessage != null)
+                    {
+                        LogMessage("The following file GUID: " + guid + " couldn't be added because doesn't exist", Severity.ERROR);
+                    }
+                }
+
+                // Remove the asset
+                RemoveAsset(guid);
+
+                if(OnBundleDeletedFromProject != null)
+                {
+                    OnBundleDeletedFromProject(guid, data);
+                }
+
+                return;
+            }
+
             List<string> directDependencies = new List<string>(AssetDatabase.GetDependencies(objPath, false)).ConvertAll(x => AssetDatabase.AssetPathToGUID(x));
             List<string> oldDependencies = new List<string>();
 
-            if(HasAsset(GUID))
+            if(HasAsset(guid))
             {
-                data = Manifest[GUID];
+                data = Manifest[guid];
                 oldDependencies.AddRange(data.Dependencies.FindAll(x => !directDependencies.Contains(x)));
             }
             else
             {
-                Manifest.Add(GUID, new BundleDependenciesData());
-                data = Manifest[GUID];
+                data = new BundleDependenciesData(guid);
+                Manifest.Add(guid, data);
             }
 
             // If it was explicit previously but we are updating dependencies we don't want to cancel manual bundle status
             data.IsExplicitlyBundled = data.IsExplicitlyBundled || isManual;
-            data.AssetPath = objPath;
             data.Dependencies = directDependencies;
 
             // Removes all old dependencies references to this asset
             foreach(string oldDependency in oldDependencies)
             {
-                RemoveDependant(oldDependency, GUID);
+                RemoveDependant(oldDependency, guid);
             }
 
             // Adds the dependant in case there is not already included
@@ -169,23 +245,28 @@ namespace SocialPoint.TransparentBundles
             else
             {
                 data.BundleName = GetBundleName(objPath);
-                var importer = AssetImporter.GetAtPath(objPath);
-                importer.assetBundleName = data.BundleName;
+                AssetImporter.GetAtPath(objPath).assetBundleName = data.BundleName;
+
+
+                if(OnBundleAdded != null)
+                {
+                    OnBundleAdded(data);
+                }
             }
 
             foreach(string dependency in directDependencies)
             {
-                AddOrUpdateAsset(dependency, false, GUID);
+                AddOrUpdateAsset(dependency, false, guid);
             }
         }
 
         /// <summary>
-        /// Removes an asset from the manually bundled assets. 
+        /// Removes an asset from bundled assets and cleans it if it is not neede anymore. 
         /// The asset may still be in the registry if another asset has it as a dependency and may still
         /// be a bundle depending on the AutoBundle policy
         /// </summary>
         /// <param name="GUID">GUID of the asset to remove</param>
-        public static void RemoveAsset(string GUID)
+        private static void RemoveAsset(string GUID)
         {
             if(HasAsset(GUID))
             {
@@ -203,8 +284,12 @@ namespace SocialPoint.TransparentBundles
                         RemoveDependant(dependency, GUID);
                     }
 
-                    var importer = AssetImporter.GetAtPath(data.AssetPath);
-                    importer.assetBundleName = "";
+                    AssetImporter.GetAtPath(data.AssetPath).assetBundleName = string.Empty;
+
+                    if(OnBundleRemoved != null)
+                    {
+                        OnBundleRemoved(data);
+                    }
 
                     Manifest.Remove(GUID);
                 }
@@ -215,9 +300,13 @@ namespace SocialPoint.TransparentBundles
             }
             else
             {
-                Debug.LogError("The asset was not found in the manifest.");
+                if(LogMessage != null)
+                {
+                    LogMessage("The asset was not found in the manifest for removal.", Severity.ERROR);
+                }
             }
         }
+
 
         /// <summary>
         /// Removes the link of a child dependency to its parent so that the child asset doesn't depend on the parent anymore
@@ -252,9 +341,34 @@ namespace SocialPoint.TransparentBundles
                 Debug.LogError("Dependency not found to update");
             }
         }
+
+        public static void ValidateAllBundles()
+        {
+            var bundledAssets = GetBundledAsset();
+
+            AssetDatabase.RemoveUnusedAssetBundleNames();
+            foreach(var bundle in AssetDatabase.GetAllAssetBundleNames())
+            {
+                if(bundledAssets.Find(x => x.BundleName == bundle) == null)
+                {
+                    LogMessage("Old bundle found: " + bundle + ". Removing...", Severity.WARNING);
+                    foreach(var asset in AssetDatabase.GetAssetPathsFromAssetBundle(bundle))
+                    {
+                        AssetImporter.GetAtPath(asset).assetBundleName = string.Empty;
+                    }
+                }
+            }
+        }
+
+
+        private static List<BundleDependenciesData> GetBundledAsset()
+        {
+            return Manifest.Values.Where(x => !string.IsNullOrEmpty(x.BundleName)).ToList();
+        }
+
         #endregion
 
-        #region Bundles
+        #region BundlesPolicies
         /// <summary>
         /// Gets the name of a user defined bundle
         /// </summary>
@@ -283,19 +397,49 @@ namespace SocialPoint.TransparentBundles
         /// <param name="data">Registry info of the asset</param>
         private static void HandleAutoBundling(BundleDependenciesData data)
         {
+            var wasBundled = !string.IsNullOrEmpty(data.BundleName);
+
             // If is manual or have more than one dependant bundle it.
             if(data.Dependants.Count > 1)
             {
+                if(!wasBundled && OnBundleAdded != null)
+                {
+                    OnBundleAdded(data);
+                }
                 data.BundleName = GetAutoBundleName(data.AssetPath);
             }
             else
             {
+                if(wasBundled && OnBundleRemoved != null)
+                {
+                    OnBundleRemoved(data);
+                }
                 data.BundleName = "";
             }
 
-            var importer = AssetImporter.GetAtPath(data.AssetPath);
-            importer.assetBundleName = data.BundleName;
+            AssetImporter.GetAtPath(data.AssetPath).assetBundleName = data.BundleName;
         }
+        #endregion
+
+        #region Log
+        private static void LogMessageHandler(string message, Severity severity)
+        {
+            switch(severity)
+            {
+                case Severity.ERROR:
+                    Debug.LogError(message);
+                    break;
+
+                case Severity.MESSAGE:
+                    Debug.Log(message);
+                    break;
+
+                case Severity.WARNING:
+                    Debug.LogWarning(message);
+                    break;
+            }
+        }
+
         #endregion
 
     }

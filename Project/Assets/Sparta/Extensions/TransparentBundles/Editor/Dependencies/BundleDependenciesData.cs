@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 using System;
@@ -7,19 +8,32 @@ namespace SocialPoint.TransparentBundles
 {
     public class BundleDependenciesData : ICloneable
     {
+        public string GUID;
         public string AssetPath;
-        public string BundleName = "";
+        public string BundleName = null;
         public List<string> Dependants = new List<string>();
         public List<string> Dependencies = new List<string>();
-        public bool IsExplicitlyBundled;
+        public bool isLocal = false;
+        public bool IsExplicitlyBundled = false;
+
+        public BundleDependenciesData()
+        {
+        }
+
+        public BundleDependenciesData(string GUID)
+        {
+            this.GUID = GUID;
+            AssetPath = AssetDatabase.GUIDToAssetPath(GUID);
+        }
+
 
         public object Clone()
         {
-            var clone =  new BundleDependenciesData();
-            clone.AssetPath = AssetPath;
+            var clone = new BundleDependenciesData(GUID);
             clone.BundleName = BundleName;
             clone.Dependants = new List<string>(Dependants);
             clone.Dependencies = new List<string>(Dependencies);
+            clone.isLocal = isLocal;
             clone.IsExplicitlyBundled = IsExplicitlyBundled;
 
             return clone;
