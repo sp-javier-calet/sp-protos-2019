@@ -4,7 +4,6 @@ using System;
 
 namespace SocialPoint.TransparentBundles
 {
-    [InitializeOnLoad]
     public class MainThreadQueue
     {
         // We need this to be singleton to guarantee initialization when accessed.

@@ -7,24 +7,23 @@ namespace SocialPoint.TransparentBundles
 {
     public static class AssetBundlesDependencies
     {
-        public static void AddAssetToBundle(string assetPath, string bundleName)
+        public static void AddAssetToBundle(string assetPath)
         {
-            var importer = AssetImporter.GetAtPath(assetPath);
-
-            importer.assetBundleName = bundleName;
-
-            DependenciesManifest.AddAssetsWithDependencies(AssetDatabase.AssetPathToGUID(assetPath), bundleName);
+            DependenciesManifest.RegisterManualBundledAsset(AssetDatabase.AssetPathToGUID(assetPath));
 
             DependenciesManifest.Save();
         }
 
-        public static void RemoveBundleFromAsset(string assetPath)
+        public static void RefreshAllDependencies()
         {
-            var importer = AssetImporter.GetAtPath(assetPath);
+            DependenciesManifest.RefreshAll();
 
-            importer.assetBundleName = "";
+            DependenciesManifest.Save();
+        }
 
-            DependenciesManifest.RemoveAssetWithDependencies(AssetDatabase.AssetPathToGUID(assetPath));
+        public static void RemoveManualBundle(string assetPath)
+        {
+            DependenciesManifest.RemoveAsset(AssetDatabase.AssetPathToGUID(assetPath));
 
             DependenciesManifest.Save();
         }

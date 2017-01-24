@@ -37,11 +37,21 @@ namespace SocialPoint.TransparentBundles
             File.WriteAllText(_path, str);
         }
 
-        public static BundleDependenciesData GetDependencyData(string GUID)
+        /// <summary>
+        /// Gets a copy of the dependencies data stored for this asset
+        /// </summary>
+        /// <param name="GUID">GUID of the asset to search</param>
+        /// <returns>BundleDependenciesData if the asset is in the manifest and null if it isn't</returns>
+        public static BundleDependenciesData GetDependencyDataCopy(string GUID)
         {
-            return Manifest[GUID];
+            return Manifest.ContainsKey(GUID) ? (BundleDependenciesData)Manifest[GUID].Clone() : null;
         }
 
+        /// <summary>
+        /// Checks if the asset is registered in the manifest
+        /// </summary>
+        /// <param name="GUID"></param>
+        /// <returns></returns>
         public static bool HasAsset(string GUID)
         {
             return Manifest.ContainsKey(GUID);
@@ -49,287 +59,244 @@ namespace SocialPoint.TransparentBundles
 
         #region FullAssets
 
-        public static void AddAssetsWithDependencies(string GUID, string bundleName)
+        /// <summary>
+        /// Registers or refresh an asset as a manual bundled
+        /// </summary>
+        /// <param name="GUID">GUID of the asset to include</param>
+        public static void RegisterManualBundledAsset(string GUID)
         {
-            var objPath = AssetDatabase.GUIDToAssetPath(GUID);
-            List<string> dependendantAsset = GetListOfDependencies(objPath);
-            List<string> dependenciesToRemove = new List<string>();
+            AddOrUpdateAsset(GUID, true);
+        }
 
-            if(HasAsset(GUID))
+
+        /// <summary>
+        /// Updates the manifest with the guids passed by parameters. if there are guids 
+        /// in the manifest that are not in the collection parameter, they'll be removed
+        /// as user defined bundles.
+        /// </summary>
+        /// <param name="userBundles"></param>
+        public static void UpdateManifest(List<string> userBundles)
+        {
+            var oldBundles = Manifest.Where(x => x.Value.IsExplicitlyBundled && !userBundles.Contains(x.Key));
+
+            // Adds or Refreshes all the bundles.
+            foreach(string guid in userBundles)
             {
-                dependenciesToRemove.AddRange(Manifest[GUID].Dependencies);
+                RegisterManualBundledAsset(guid);
             }
 
-            AssignBundle(AssetDatabase.AssetPathToGUID(objPath), bundleName);
-            foreach(string assetPath in dependendantAsset)
+            foreach(var pair in oldBundles)
             {
-                AddAssetDependency(AssetDatabase.AssetPathToGUID(assetPath), AssetDatabase.AssetPathToGUID(objPath), dependenciesToRemove);
+                var path = AssetDatabase.GUIDToAssetPath(pair.Key);
+                Debug.LogError("Old asset will no longer be a user defined Bundle: " + pair.Key + " Old Path: " + pair.Value.AssetPath);
+                // remove its condition of bundled asset and remove it if it is not a dependency
+                RemoveAsset(pair.Key);
             }
         }
 
 
-        public static void RemoveAssetWithDependencies(string GUID)
+        /// <summary>
+        /// Refreshes all the manifest and updates all the dependencies with the current project
+        /// </summary>
+        public static void RefreshAll()
         {
-            if(HasAsset(GUID))
+            var explicitBundles = Manifest.Where(x => x.Value.IsExplicitlyBundled);
+
+            foreach(var pair in explicitBundles)
             {
-                var objPath = AssetDatabase.GUIDToAssetPath(GUID);
-                List<string> dependenciesToInclude = GetListOfDependencies(objPath);
+                var path = AssetDatabase.GUIDToAssetPath(pair.Key);
 
-                var dependenciesPropagation = Manifest[GUID].Dependencies;
-
-                RemoveSingleAsset(AssetDatabase.AssetPathToGUID(objPath));
-                foreach(string assetPath in dependenciesToInclude)
+                if(string.IsNullOrEmpty(path))
                 {
-                    RemoveDependency(AssetDatabase.AssetPathToGUID(assetPath), GUID, dependenciesPropagation);
+                    Debug.LogError("Deleted file GUID: " + pair.Key + " Old Path: " + pair.Value.AssetPath);
+                    // remove its condition of bundled asset and remove it if it is not a dependency
+                    RemoveAsset(pair.Key);
+                }
+                else
+                {
+                    AddOrUpdateAsset(pair.Key);
                 }
             }
         }
-
         #endregion
 
         #region SingleAssets
-
-        public static void AssignBundle(string GUID, string bundleName)
+        /// <summary>
+        /// Adds or updates an asset and all its dependencies to the manifest
+        /// </summary>
+        /// <param name="GUID">GUID of the asset to add or update</param>
+        /// <param name="isManual">If the asset is explicitly bundled by the user or not</param>
+        /// <param name="parent">GUID of the asset to which GUID param is a dependency</param>
+        private static void AddOrUpdateAsset(string GUID, bool isManual = false, string parent = "")
         {
             BundleDependenciesData data = null;
-            List<string> listDependencies = null;
+            var objPath = AssetDatabase.GUIDToAssetPath(GUID);
+            List<string> directDependencies = new List<string>(AssetDatabase.GetDependencies(objPath, false)).ConvertAll(x => AssetDatabase.AssetPathToGUID(x));
+            List<string> oldDependencies = new List<string>();
 
             if(HasAsset(GUID))
             {
                 data = Manifest[GUID];
-                listDependencies = data.Dependencies;
+                oldDependencies.AddRange(data.Dependencies.FindAll(x => !directDependencies.Contains(x)));
             }
             else
             {
-                data = new BundleDependenciesData();
-                listDependencies = new List<string>();
-            }
-
-            if(data.IsExplicitlyBundled)
-            {
-                RemoveAssetWithDependencies(GUID);
-            }
-
-            data.AssetPath = AssetDatabase.GUIDToAssetPath(GUID);
-            data.BundleName = bundleName;
-
-
-            if(listDependencies.Count == 0 || listDependencies.RemoveAll(x => x == bundleName) != 0)
-            {
-                data.Dependencies = listDependencies;
-            }
-
-            if(HasAsset(GUID))
-            {
-                Manifest[GUID] = data;
-            }
-            else
-            {
-                Manifest.Add(GUID, data);
-            }
-
-        }
-
-        public static void RemoveSingleAsset(string GUID)
-        {
-            if(HasAsset(GUID))
-            {
-                if(Manifest[GUID].Dependencies.Count == 0)
-                {
-                    Manifest.Remove(GUID);
-                }
-                else
-                {
-                    Manifest[GUID].BundleName = string.Empty;
-                }
-            }
-        }
-
-        public static List<string> GetBundleIDs(string GUID)
-        {
-            List<string> bundles = new List<string>();
-
-            if(Manifest[GUID].IsExplicitlyBundled)
-            {
-                bundles.Add(Manifest[GUID].BundleName);
-            }
-            else
-            {
-                foreach(string dep in Manifest[GUID].Dependencies)
-                {
-                    bundles.AddRange(GetBundleIDs(dep));
-                }
-            }
-
-            return bundles;
-        }
-
-
-        public static Dictionary<string, BundleDependenciesData> GetAllParentsBundled(string guid)
-        {
-            Dictionary<string, BundleDependenciesData> parents = new Dictionary<string, BundleDependenciesData>();
-
-            if(Manifest[guid].IsExplicitlyBundled)
-            {
-                parents.Add(guid, Manifest[guid]);
-            }
-            else
-            {
-                foreach(string dep in Manifest[guid].Dependencies)
-                {
-                    parents.Add(dep, Manifest[dep]);
-                }
-            }
-
-            return parents;
-        }
-        #endregion
-
-        #region Dependencies
-        public static List<string> GetListOfDependencies(string objPath)
-        {
-            List<string> directDependencies = new List<string>(AssetDatabase.GetDependencies(objPath, false));
-            List<string> subdependencies = new List<string>();
-
-
-            foreach(string str in directDependencies)
-            {
-                var dependencyGUID = AssetDatabase.AssetPathToGUID(str);
-                if(!HasAsset(dependencyGUID) || !Manifest[dependencyGUID].IsExplicitlyBundled)
-                {
-                    subdependencies = GetListOfDependencies(str);
-                }
-            }
-
-            directDependencies.AddRange(subdependencies);
-            return directDependencies;
-        }
-
-
-        public static void AddAssetDependency(string GUID, string dependency, List<string> dependenciesToRemove = null)
-        {
-            BundleDependenciesData data = null;
-            List<string> listDependencies = null;
-
-            if(HasAsset(GUID))
-            {
+                Manifest.Add(GUID, new BundleDependenciesData());
                 data = Manifest[GUID];
-                listDependencies = data.Dependencies;
+            }
+
+            // If it was explicit previously but we are updating dependencies we don't want to cancel manual bundle status
+            data.IsExplicitlyBundled = data.IsExplicitlyBundled || isManual;
+            data.AssetPath = objPath;
+            data.Dependencies = directDependencies;
+
+            // Removes all old dependencies references to this asset
+            foreach(string oldDependency in oldDependencies)
+            {
+                RemoveDependant(oldDependency, GUID);
+            }
+
+            // Adds the dependant in case there is not already included
+            if(!string.IsNullOrEmpty(parent) && !data.Dependants.Contains(parent))
+            {
+                data.Dependants.Add(parent);
+            }
+
+            if(!data.IsExplicitlyBundled)
+            {
+                HandleAutoBundling(data);
             }
             else
             {
-                data = new BundleDependenciesData();
-                listDependencies = new List<string>();
+                data.BundleName = GetBundleName(objPath);
+                var importer = AssetImporter.GetAtPath(objPath);
+                importer.assetBundleName = data.BundleName;
             }
 
-
-            listDependencies.Add(dependency);
-
-            if(dependenciesToRemove != null)
+            foreach(string dependency in directDependencies)
             {
-                listDependencies.RemoveAll(x => dependenciesToRemove.Contains(x));
-            }
-
-            data.AssetPath = AssetDatabase.GUIDToAssetPath(GUID);
-            data.Dependencies = listDependencies;
-
-
-            if(HasAsset(GUID))
-            {
-                Manifest[GUID] = data;
-            }
-            else
-            {
-                Manifest.Add(GUID, data);
+                AddOrUpdateAsset(dependency, false, GUID);
             }
         }
 
-
-        public static void RemoveDependency(string GUID, string dependency, List<string> dependenciesToAdd = null)
+        /// <summary>
+        /// Removes an asset from the manually bundled assets. 
+        /// The asset may still be in the registry if another asset has it as a dependency and may still
+        /// be a bundle depending on the AutoBundle policy
+        /// </summary>
+        /// <param name="GUID">GUID of the asset to remove</param>
+        public static void RemoveAsset(string GUID)
         {
             if(HasAsset(GUID))
             {
-                Manifest[GUID].Dependencies.Remove(dependency);
+                BundleDependenciesData data = Manifest[GUID];
 
-                if(dependenciesToAdd != null)
+                var path = AssetDatabase.GUIDToAssetPath(GUID);
+
+                data.IsExplicitlyBundled = false;
+
+                // If no assets depends on this one or this asset is no longer in the project we need to remove it completely
+                if(data.Dependants.Count == 0 || string.IsNullOrEmpty(path))
                 {
-                    Manifest[GUID].Dependencies.AddRange(dependenciesToAdd);
-                }
-
-                if(!Manifest[GUID].IsExplicitlyBundled && Manifest[GUID].Dependencies.Count == 0)
-                {
-                    Manifest.Remove(GUID);
-                }
-            }
-        }
-        #endregion
-
-        #region Parenthood
-
-
-        public static List<string> GetBundleChildren(string bundleName)
-        {
-            List<string> childBundles = new List<string>();
-
-            foreach(KeyValuePair<string, BundleDependenciesData> pair in Manifest)
-            {
-                if(pair.Value.BundleName == bundleName)
-                {
-                    childBundles.AddRange(GetChildsRecursive(pair.Value));
-                }
-            }
-
-            return childBundles;
-        }
-
-        static List<string> GetChildsRecursive(BundleDependenciesData dependencyData)
-        {
-            List<string> childs = new List<string>();
-
-            foreach(string str in dependencyData.Dependencies)
-            {
-                if(!Manifest[str].IsExplicitlyBundled)
-                {
-                    childs.AddRange(GetChildsRecursive(Manifest[str]));
-                }
-                else
-                {
-                    childs.Add(Manifest[str].BundleName);
-                }
-            }
-
-            return childs;
-        }
-
-        public static string GetBundleParent(string bundleName)
-        {
-            string parentBundle = "";
-
-            foreach(KeyValuePair<string, BundleDependenciesData> pair in Manifest)
-            {
-                if(pair.Value.BundleName == bundleName)
-                {
-                    var dependencies = GetListOfDependencies(AssetDatabase.GUIDToAssetPath(pair.Key));
-
-                    foreach(string str in dependencies)
+                    foreach(string dependency in data.Dependencies)
                     {
-                        string GUID = AssetDatabase.AssetPathToGUID(str);
+                        RemoveDependant(dependency, GUID);
+                    }
 
-                        if(HasAsset(GUID) && Manifest[GUID].IsExplicitlyBundled)
+                    var importer = AssetImporter.GetAtPath(data.AssetPath);
+                    importer.assetBundleName = "";
+
+                    Manifest.Remove(GUID);
+                }
+                else
+                {
+                    HandleAutoBundling(data);
+                }
+            }
+            else
+            {
+                Debug.LogError("The asset was not found in the manifest.");
+            }
+        }
+
+        /// <summary>
+        /// Removes the link of a child dependency to its parent so that the child asset doesn't depend on the parent anymore
+        /// </summary>
+        /// <param name="GUID">GUID of the asset</param>
+        /// <param name="dependantToRemove">GUID of the asset that used to have the child as a dependency</param>
+        private static void RemoveDependant(string GUID, string dependantToRemove)
+        {
+            if(HasAsset(GUID))
+            {
+                var data = Manifest[GUID];
+                if(data.Dependants.Contains(dependantToRemove))
+                {
+                    data.Dependants.Remove(dependantToRemove);
+
+                    if(!data.IsExplicitlyBundled)
+                    {
+                        if(data.Dependants.Count == 0)
                         {
-                            parentBundle = Manifest[GUID].BundleName;
+                            // This asset is not used anymore in any bundle and is not manually bundled
+                            RemoveAsset(GUID);
+                        }
+                        else
+                        {
+                            HandleAutoBundling(data);
                         }
                     }
-
-                    if(!string.IsNullOrEmpty(parentBundle))
-                    {
-                        break;
-                    }
                 }
             }
-
-            return parentBundle;
+            else
+            {
+                Debug.LogError("Dependency not found to update");
+            }
         }
         #endregion
+
+        #region Bundles
+        /// <summary>
+        /// Gets the name of a user defined bundle
+        /// </summary>
+        /// <param name="path">Path of the asset</param>
+        /// <returns>Bundle name</returns>
+        private static string GetBundleName(string path)
+        {
+            var name = Path.GetFileNameWithoutExtension(path).Replace(" ", "_") + "_" + Path.GetExtension(path).Replace(".", "");
+
+            return name.ToLowerInvariant();
+        }
+
+        /// <summary>
+        /// Gets the name of a automatic bundle
+        /// </summary>
+        /// <param name="path">Path of the asset</param>
+        /// <returns>Bundle name</returns>
+        private static string GetAutoBundleName(string path)
+        {
+            return GetBundleName(path);
+        }
+
+        /// <summary>
+        /// Defines the bundle policy of the assets that are not manually bundled
+        /// </summary>
+        /// <param name="data">Registry info of the asset</param>
+        private static void HandleAutoBundling(BundleDependenciesData data)
+        {
+            // If is manual or have more than one dependant bundle it.
+            if(data.Dependants.Count > 1)
+            {
+                data.BundleName = GetAutoBundleName(data.AssetPath);
+            }
+            else
+            {
+                data.BundleName = "";
+            }
+
+            var importer = AssetImporter.GetAtPath(data.AssetPath);
+            importer.assetBundleName = data.BundleName;
+        }
+        #endregion
+
     }
 }
