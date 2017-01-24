@@ -88,13 +88,10 @@ namespace SocialPoint.TransparentBundles
             {
                 // End the operation
                 Stream postStream = state.Request.EndGetRequestStream(asynchronousResult);
-
-                if(state.RequestBody != string.Empty)
-                {
-                    // Write to the request stream.
-                    postStream.Write(Encoding.UTF8.GetBytes(state.RequestBody), 0, state.RequestBody.Length);
-                    postStream.Close();
-                }
+                
+                // Write to the request stream.
+                postStream.Write(Encoding.UTF8.GetBytes(state.RequestBody), 0, state.RequestBody.Length);
+                postStream.Close();
 
                 GetResponseAsync(state);
             }
@@ -127,7 +124,7 @@ namespace SocialPoint.TransparentBundles
             var state = (AsyncRequestData)stateObj;
             if(timeOut)
             {
-                EndConnection(state, new ResponseResult(false, "The request timed out", HttpStatusCode.RequestTimeout, "Request Timeout"));
+                EndConnection(state, new ResponseResult(false, "The request timed out", HttpStatusCode.RequestTimeout));
             }
         }
 
@@ -147,7 +144,7 @@ namespace SocialPoint.TransparentBundles
                     {
                         using(StreamReader streamRead = new StreamReader(streamResponse))
                         {
-                            rResult = new ResponseResult(true, response.StatusDescription, response.StatusCode, streamRead.ReadToEnd());
+                            rResult = new ResponseResult(true, streamRead.ReadToEnd(), response.StatusCode);
                             rResult.StatusCode = response.StatusCode;
                         }
                     }
@@ -162,7 +159,8 @@ namespace SocialPoint.TransparentBundles
             }
             catch(WebException e)
             {
-                EndConnection(state, new ResponseResult(false, e.Message, ((HttpWebResponse)e.Response).StatusCode, ((HttpWebResponse)e.Response).StatusDescription));
+                var resp = new StreamReader(e.Response.GetResponseStream()).ReadToEnd();
+                EndConnection(state, new ResponseResult(false, e.Message + " - " + LitJson.JsonMapper.ToObject(resp)[0], ((HttpWebResponse)e.Response).StatusCode));
             }
             catch(Exception e)
             {

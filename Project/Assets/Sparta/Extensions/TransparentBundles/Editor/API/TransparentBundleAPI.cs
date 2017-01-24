@@ -102,7 +102,7 @@ namespace SocialPoint.TransparentBundles
                 if(loginOptions.AutoRetryLogin)
                 {
                     // We open the login window with the encountered error giving the user the possibility to change the login info
-                    LoginWindow.Open(() => Login(loginOptions), () => OnLoginCancelled(loginOptions), result.Message);
+                    LoginWindow.Open(() => Login(loginOptions), () => OnLoginCancelled(loginOptions), result.Response);
                 }
                 else
                 {
