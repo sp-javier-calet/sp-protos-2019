@@ -13,7 +13,7 @@ namespace SocialPoint.TransparentBundles
         public string BundleName = null;
         public List<string> Dependants = new List<string>();
         public List<string> Dependencies = new List<string>();
-        public bool isLocal = false;
+        public bool IsLocal = false;
         public bool IsExplicitlyBundled = false;
 
         public BundleDependenciesData()
@@ -33,7 +33,7 @@ namespace SocialPoint.TransparentBundles
             clone.BundleName = BundleName;
             clone.Dependants = new List<string>(Dependants);
             clone.Dependencies = new List<string>(Dependencies);
-            clone.isLocal = isLocal;
+            clone.IsLocal = IsLocal;
             clone.IsExplicitlyBundled = IsExplicitlyBundled;
 
             return clone;

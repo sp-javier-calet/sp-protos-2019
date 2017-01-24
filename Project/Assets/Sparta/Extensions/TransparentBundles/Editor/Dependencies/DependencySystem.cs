@@ -54,7 +54,7 @@ namespace SocialPoint.TransparentBundles
             OnBundleAdded += x => OnLogMessage("Added new bundle " + x.AssetPath + " GUID: " + x.GUID, Severity.MESSAGE);
             OnBundleRemoved += x => OnLogMessage("Removed bundle " + x.AssetPath + " GUID: " + x.GUID, Severity.MESSAGE);
             OnAssetRemoved += x => OnLogMessage("This asset is no longer part of the manifest because it lost all its dependants: " + x.AssetPath + " GUID: " + x.GUID, Severity.MESSAGE);
-            OnBundleLocalChanged += x => OnLogMessage("Bundle " + x.AssetPath + " changed local status to " + x.isLocal, Severity.MESSAGE);
+            OnBundleLocalChanged += x => OnLogMessage("Bundle " + x.AssetPath + " changed local status to " + x.IsLocal, Severity.MESSAGE);
         }
 
         #region JSON
@@ -292,7 +292,7 @@ namespace SocialPoint.TransparentBundles
                 // This can be optimized by having a cache list of already checked locals in order not to check handleislocal
                 // when the isLocal is confirmed for this run (asset has two dependants one local and one remote and the remote is processed
                 // after, so it has to check the rest of the dependants to see if the autobundle isLocal)
-                if(data.isLocal)
+                if(data.IsLocal)
                 {
                     if(!isLocal)
                     {
@@ -301,21 +301,21 @@ namespace SocialPoint.TransparentBundles
                 }
                 else
                 {
-                    localChanged = data.isLocal != isLocal;
-                    data.isLocal = isLocal;
+                    localChanged = data.IsLocal != isLocal;
+                    data.IsLocal = isLocal;
                 }
             }
             else
             {
                 if(isLocal)
                 {
-                    localChanged = data.isLocal != true;
-                    data.isLocal = true;
+                    localChanged = data.IsLocal != true;
+                    data.IsLocal = true;
                 }
-                else if(data.isLocal && isManual)
+                else if(data.IsLocal && isManual)
                 {
-                    localChanged = data.isLocal != false;
-                    data.isLocal = false;
+                    localChanged = data.IsLocal != false;
+                    data.IsLocal = false;
                 }
 
                 data.BundleName = GetBundleName(objPath);
@@ -340,7 +340,7 @@ namespace SocialPoint.TransparentBundles
 
             foreach(string dependency in directDependencies)
             {
-                AddOrUpdateAsset(dependency, data.isLocal, false, guid);
+                AddOrUpdateAsset(dependency, data.IsLocal, false, guid);
             }
         }
 
@@ -501,9 +501,9 @@ namespace SocialPoint.TransparentBundles
         }
 
         /// <summary>
-        /// Defines the bundle policy of the assets that are not manually bundled
+        /// Defines the bundle policy of the assets that are not manually bundled and updates the bundle status.
         /// </summary>
-        /// <param name="data">Registry info of the asset</param>
+        /// <param name="data">Bundle data of the asset</param>
         private static void HandleAutoBundling(BundleDependenciesData data)
         {
             var wasBundled = !string.IsNullOrEmpty(data.BundleName);
@@ -529,24 +529,27 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-
+        /// <summary>
+        /// Determines if a bundle should be local or not depending on its parent and update the status
+        /// </summary>
+        /// <param name="data">Bundle data</param>
         private static void HandleIsLocal(BundleDependenciesData data)
         {
-            var wasLocal = data.isLocal;
+            var wasLocal = data.IsLocal;
             bool isLocal = false;
 
             foreach(string guid in data.Dependants)
             {
-                if(Manifest[guid].isLocal)
+                if(Manifest[guid].IsLocal)
                 {
                     isLocal = true;
                     break;
                 }
             }
 
-            data.isLocal = isLocal;
+            data.IsLocal = isLocal;
 
-            if(wasLocal != data.isLocal && OnBundleLocalChanged != null)
+            if(wasLocal != data.IsLocal && OnBundleLocalChanged != null)
             {
                 OnBundleLocalChanged(data);
             }
