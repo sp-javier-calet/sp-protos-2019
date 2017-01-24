@@ -10,57 +10,66 @@ namespace SocialPoint.TransparentBundles
 {
     public class TBCLI
     {
+        #region IO_Classes
+        public class OutputCLI
+        {
+            public List<string> log = new List<string>();
+
+            public void Save(string path, bool pretty = true)
+            {
+                JsonWriter writer = new JsonWriter();
+                writer.PrettyPrint = pretty;
+                JsonMapper.ToJson(this, writer);
+                File.WriteAllText(path, writer.ToString());
+            }
+        }
+
+        public class InputCLI<T>
+        {
+            public static T Load(string path)
+            {
+                return JsonMapper.ToObject<T>(File.ReadAllText(path));
+            }
+        }
+
+        public class CalculateBundlesInput : InputCLI<CalculateBundlesInput>
+        {
+            public List<BundleDependenciesData> ManualBundles;
+            public void Save(string path, bool pretty = true)
+            {
+                JsonWriter writer = new JsonWriter();
+                writer.PrettyPrint = pretty;
+                JsonMapper.ToJson(this, writer);
+                File.WriteAllText(path, writer.ToString());
+            }
+        }
+
+        public class CalculateBundlesOutput : OutputCLI
+        {
+            public Dictionary<string, BundleDependenciesData> CurrentBundles;
+        }
+
+        public class BuildBundlesOutput : OutputCLI
+        {
+            public string[] bundles;
+        }
+        #endregion
+
         private const string _inputJson = "-input-json";
         private const string _outputJson = "-output-json";
         private const string _platform = "-platform";
         private const string _textureFormat = "-texture-format";
-        private static readonly string bundlespath = Directory.GetDirectoryRoot(Application.dataPath);
+        private const string _bundlesPath = "-bundles-path";
+        private static readonly string _defaultOutputPath = Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "output.json");
 
-
-        #region CalculateBundles
-        public class CalculateBundlesInput
-        {
-            public List<string> ManualBundles;
-
-            public static CalculateBundlesInput Load(string path)
-            {
-                return JsonMapper.ToObject<CalculateBundlesInput>(File.ReadAllText(path));
-            }
-
-            public void Save(string path, bool pretty = true)
-            {
-                JsonWriter writer = new JsonWriter();
-                writer.PrettyPrint = pretty;
-                JsonMapper.ToJson(this, writer);
-                File.WriteAllText(path, writer.ToString());
-            }
-        }
-
-        public class CalculateBundlesOutput
-        {
-            public Dictionary<string, BundleDependenciesData> CurrentBundles;
-
-            public CalculateBundlesOutput(Dictionary<string, BundleDependenciesData> updatedBundles)
-            {
-                CurrentBundles = updatedBundles;
-            }
-
-            public void Save(string path, bool pretty = true)
-            {
-                JsonWriter writer = new JsonWriter();
-                writer.PrettyPrint = pretty;
-                JsonMapper.ToJson(this, writer);
-                File.WriteAllText(path, writer.ToString());
-            }
-        }
-
-
+        #region CLI_Methods
         public static void CalculateBundles()
         {
+            OutputCLI results = new OutputCLI();
+            string outputPath = _defaultOutputPath;
             try
             {
                 CalculateBundlesInput inputs;
-                string outputPath;
                 // Arguments Parsing
                 try
                 {
@@ -70,41 +79,30 @@ namespace SocialPoint.TransparentBundles
                 }
                 catch(Exception e)
                 {
-                    inputs = CalculateBundlesInput.Load(Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "input.json"));
-                    outputPath = Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "output.json");
+                    inputs = CalculateBundlesInput.Load(Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "input.json")); // TESTING ONLY REMOVE
+                                                                                                                                           //outputPath = Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "output.json");
+                                                                                                                                           //throw new ArgumentException(e.ToString());
                 }
 
+                results = new CalculateBundlesOutput();
+                DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
 
                 // Operations
                 DependencySystem.UpdateManifest(inputs.ManualBundles);
 
+                ((CalculateBundlesOutput)results).CurrentBundles = DependencySystem.GetManifest();
 
-                // Output Saving
-                CalculateBundlesOutput results = new CalculateBundlesOutput(DependencySystem.GetManifest());
-
-                results.Save(outputPath);
+                results.log.Add("OK - Process completed");
             }
             catch(Exception e)
             {
-                Debug.LogError("Exception has been found: " + e);
+                string msg = "CLI RUN ERROR - " + e;
+                results.log.Add(msg);
+                Debug.LogError(msg);
             }
-        }
-        #endregion
-
-        #region BuildBundles
-
-        public class BuildBundlesOutput
-        {
-            public BuildBundlesOutput()
+            finally
             {
-            }
-
-            public void Save(string path, bool pretty = true)
-            {
-                JsonWriter writer = new JsonWriter();
-                writer.PrettyPrint = pretty;
-                JsonMapper.ToJson(this, writer);
-                File.WriteAllText(path, writer.ToString());
+                results.Save(outputPath);
             }
         }
 
@@ -113,14 +111,28 @@ namespace SocialPoint.TransparentBundles
             try
             {
                 // Arguments Parsing
-                var arguments = new List<string>(Environment.GetCommandLineArgs());
-
                 string textureFormat;
+                bool textureFormatSpecified;
+                string platform;
+                string outputPath;
+                string bundlesPath;
 
-                var textureFormatSpecified = GetOptionalArgument(arguments, _textureFormat, out textureFormat);
-                var platform = GetArgument(arguments, _platform);
-                string outputPath = GetArgument(arguments, _outputJson);
-
+                try
+                {
+                    var arguments = new List<string>(Environment.GetCommandLineArgs());
+                    textureFormatSpecified = GetOptionalArgument(arguments, _textureFormat, out textureFormat);
+                    platform = GetArgument(arguments, _platform);
+                    outputPath = GetArgument(arguments, _outputJson);
+                    bundlesPath = GetArgument(arguments, _bundlesPath);
+                }
+                catch(Exception e)
+                {
+                    textureFormatSpecified = false;
+                    platform = EditorUserBuildSettings.activeBuildTarget.ToString();
+                    textureFormat = string.Empty;
+                    outputPath = Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "output.json");
+                    bundlesPath = Directory.GetDirectoryRoot(Application.dataPath);
+                }
                 var targetPlatform = (BuildTarget)Enum.Parse(typeof(BuildTarget), platform);
 
 
@@ -132,12 +144,10 @@ namespace SocialPoint.TransparentBundles
                 }
 
                 DependencySystem.ValidateAllBundles();
-                var manifest = BuildPipeline.BuildAssetBundles(bundlespath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.AppendHashToAssetBundleName, targetPlatform);
-
+                var manifest = BuildPipeline.BuildAssetBundles(bundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.AppendHashToAssetBundleName, targetPlatform);
 
                 // Output Saving
                 BuildBundlesOutput results = new BuildBundlesOutput();
-
                 results.Save(outputPath);
             }
             catch(Exception e)
@@ -148,6 +158,7 @@ namespace SocialPoint.TransparentBundles
 
         #endregion
 
+        #region Helpers
         private static string GetArgument(List<string> arguments, string argument)
         {
             var targetIdx = arguments.IndexOf(argument);
@@ -170,5 +181,6 @@ namespace SocialPoint.TransparentBundles
             value = arguments[targetIdx + 1];
             return true;
         }
+        #endregion
     }
 }
