@@ -118,7 +118,9 @@ namespace SocialPoint.Utils
     public sealed class UpdateScheduler : IUpdateScheduler
     {
         readonly Dictionary<Object, IUpdateableHandler> _elements;
+        readonly Dictionary<Object, IUpdateableHandler> _elementsToAdd;
         readonly List<Object> _elementsToRemove;
+        bool _dirty;
 
         readonly List<Exception> _exceptions = new List<Exception>();
 
@@ -127,6 +129,7 @@ namespace SocialPoint.Utils
         public UpdateScheduler()
         {
             _elements = new Dictionary<Object, IUpdateableHandler>();
+            _elementsToAdd = new Dictionary<Object, IUpdateableHandler>();
             _elementsToRemove = new List<object>();
         }
 
@@ -181,73 +184,120 @@ namespace SocialPoint.Utils
         void DoAdd(Object elm, IUpdateableHandler handler)
         {
             _elementsToRemove.Remove(elm);
-            _elements[elm] = handler;
+            _elementsToAdd[elm] = handler;
+            _dirty = true;
         }
 
         public void Remove(IUpdateable elm)
         {
-            DebugUtils.Assert(elm != null);
-            if(elm != null)
-            {
-                _elementsToRemove.Add(elm);
-            }
+            DoRemove(elm);
         }
 
         public void Remove(IDeltaUpdateable elm)
+        {
+            DoRemove(elm);
+        }
+
+        void DoRemove(object elm)
         {
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
                 _elementsToRemove.Add(elm);
+                _elementsToAdd.Remove(elm);
+                _dirty = true;
             }
         }
 
         public bool Contains(IUpdateable elm)
         { 
-            DebugUtils.Assert(elm != null);
-            if(elm != null)
-            {
-                return _elements.ContainsKey(elm);
-            }
-            return false;
+            return Contains((object)elm);
         }
 
         public bool Contains(IDeltaUpdateable elm)
         { 
+            return Contains((object)elm);
+        }
+
+        bool Contains(object elm)
+        {
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
+                if(_dirty)
+                {
+                    if(_elementsToRemove.Contains(elm))
+                    {
+                        return false;
+                    }
+
+                    if(_elementsToAdd.ContainsKey(elm))
+                    {
+                        return true;
+                    }
+                }
+
                 return _elements.ContainsKey(elm);
             }
+
             return false;
         }
 
-        void DoRemove()
+        void Synchronize()
         {
-            var itr = _elementsToRemove.GetEnumerator();
-            while(itr.MoveNext())
+            if(_dirty)
             {
-                _elements.Remove(itr.Current);
+                // Remove pending elements
+                {
+                    var itr = _elementsToRemove.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        _elements.Remove(itr.Current);
+                    }
+                    itr.Dispose();
+                    _elementsToRemove.Clear();
+                }
+
+                // Add pending elements
+                {
+                    var itr = _elementsToAdd.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        var current = itr.Current;
+                        _elements[current.Key] = current.Value;
+                    }
+                    itr.Dispose();
+                    _elementsToAdd.Clear();
+                }
+
+                _dirty = false;
             }
-            itr.Dispose();
-            _elementsToRemove.Clear();
         }
 
         public void Update(float deltaTime)
         {
-            DoRemove();
+            // Sync for external changes
+            Synchronize();
+
             _exceptions.Clear();
 
-            var currentTimeStamp = TimeUtils.GetTimestampDouble(DateTime.Now);
-            if(_lastUpdateTimestamp == 0)
+            // Update registered elements
+            var time = GetUpdateTime(deltaTime);
+            DoUpdate(time);
+
+            // Check new exceptions
+            var exceptionsCount = _exceptions.Count;
+            if(exceptionsCount > 0)
             {
-                _lastUpdateTimestamp = currentTimeStamp;
+                throw new AggregateException(_exceptions);
             }
-            var nonScaledDeltaTime = currentTimeStamp - _lastUpdateTimestamp;
-            _lastUpdateTimestamp = currentTimeStamp;
 
-            var time = new UpdateableTime(){ DeltaTime = deltaTime, NonScaledDeltaTime = (float)nonScaledDeltaTime };
+            // Sync for internal changes during update
+            Synchronize();
+        }
 
+        void DoUpdate(UpdateableTime time)
+        {
             var itr = _elements.GetEnumerator();
             while(itr.MoveNext())
             {
@@ -262,12 +312,20 @@ namespace SocialPoint.Utils
                 }
             }
             itr.Dispose();
+        }
 
-            var exceptionsCount = _exceptions.Count;
-            if(exceptionsCount > 0)
+        UpdateableTime GetUpdateTime(float deltaTime)
+        {
+            var currentTimeStamp = TimeUtils.GetTimestampDouble(DateTime.Now);
+            if(_lastUpdateTimestamp < float.Epsilon)
             {
-                throw new AggregateException(_exceptions);
+                _lastUpdateTimestamp = currentTimeStamp;
             }
+            var nonScaledDeltaTime = currentTimeStamp - _lastUpdateTimestamp;
+            _lastUpdateTimestamp = currentTimeStamp;
+
+            var time = new UpdateableTime { DeltaTime = deltaTime, NonScaledDeltaTime = (float)nonScaledDeltaTime };
+            return time;
         }
 
         sealed class AggregateException : Exception
@@ -351,8 +409,8 @@ namespace SocialPoint.Utils
 
     public struct FixedTimer : IUpdateableTimer
     {
+        readonly float _interval;
         float _current;
-        float _interval;
 
         public FixedTimer(float interval)
         {
@@ -385,8 +443,8 @@ namespace SocialPoint.Utils
 
     struct ScaledUpdateableHandler : IUpdateableHandler
     {
-        IUpdateableTimer _timer;
-        IUpdateable _updateable;
+        readonly IUpdateableTimer _timer;
+        readonly IUpdateable _updateable;
 
         public ScaledUpdateableHandler(IUpdateable updateable, IUpdateableTimer timer)
         {
@@ -406,8 +464,8 @@ namespace SocialPoint.Utils
 
     struct UpdateableHandler : IUpdateableHandler
     {
-        IUpdateableTimer _timer;
-        IUpdateable _updateable;
+        readonly IUpdateableTimer _timer;
+        readonly IUpdateable _updateable;
 
         public UpdateableHandler(IUpdateable updateable, IUpdateableTimer timer)
         {
@@ -427,8 +485,8 @@ namespace SocialPoint.Utils
 
     struct DeltaUpdateableHandler : IUpdateableHandler
     {
-        IUpdateableTimer _timer;
-        IDeltaUpdateable _updateable;
+        readonly IUpdateableTimer _timer;
+        readonly IDeltaUpdateable _updateable;
 
         public DeltaUpdateableHandler(IDeltaUpdateable updateable, IUpdateableTimer timer)
         {
@@ -448,8 +506,8 @@ namespace SocialPoint.Utils
 
     struct DeltaScaledUpdateableHandler : IUpdateableHandler
     {
-        IUpdateableTimer _timer;
-        IDeltaUpdateable _updateable;
+        readonly IUpdateableTimer _timer;
+        readonly IDeltaUpdateable _updateable;
 
         public DeltaScaledUpdateableHandler(IDeltaUpdateable updateable, IUpdateableTimer timer)
         {
