@@ -13,6 +13,7 @@ namespace SocialPoint.TransparentBundles
         #region IO_Classes
         public class OutputCLI
         {
+            public bool success = false;
             public List<string> log = new List<string>();
 
             public void Save(string path, bool pretty = true)
@@ -34,7 +35,7 @@ namespace SocialPoint.TransparentBundles
 
         public class CalculateBundlesInput : InputCLI<CalculateBundlesInput>
         {
-            public List<BundleDependenciesData> ManualBundles;
+            public List<DependencySystem.BundleInfo> ManualBundles;
             public void Save(string path, bool pretty = true)
             {
                 JsonWriter writer = new JsonWriter();
@@ -79,9 +80,10 @@ namespace SocialPoint.TransparentBundles
                 }
                 catch(Exception e)
                 {
-                    inputs = CalculateBundlesInput.Load(Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "input.json")); // TESTING ONLY REMOVE
-                                                                                                                                           //outputPath = Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "output.json");
-                                                                                                                                           //throw new ArgumentException(e.ToString());
+                    ////**TESTING ONLY** Faking args
+                    //inputs = CalculateBundlesInput.Load(Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "input.json"));
+
+                    throw new ArgumentException(e.ToString());
                 }
 
                 results = new CalculateBundlesOutput();
@@ -92,6 +94,7 @@ namespace SocialPoint.TransparentBundles
 
                 ((CalculateBundlesOutput)results).CurrentBundles = DependencySystem.GetManifest();
 
+                results.success = true;
                 results.log.Add("OK - Process completed");
             }
             catch(Exception e)
@@ -108,13 +111,15 @@ namespace SocialPoint.TransparentBundles
 
         public static void BuildBundles()
         {
+            OutputCLI results = new OutputCLI();
+            string outputPath = _defaultOutputPath;
+
             try
             {
                 // Arguments Parsing
                 string textureFormat;
                 bool textureFormatSpecified;
                 string platform;
-                string outputPath;
                 string bundlesPath;
 
                 try
@@ -127,14 +132,17 @@ namespace SocialPoint.TransparentBundles
                 }
                 catch(Exception e)
                 {
-                    textureFormatSpecified = false;
-                    platform = EditorUserBuildSettings.activeBuildTarget.ToString();
-                    textureFormat = string.Empty;
-                    outputPath = Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "output.json");
-                    bundlesPath = Directory.GetDirectoryRoot(Application.dataPath);
-                }
-                var targetPlatform = (BuildTarget)Enum.Parse(typeof(BuildTarget), platform);
+                    //// **TESTING ONLY** Faking args
+                    //textureFormatSpecified = false;
+                    //platform = EditorUserBuildSettings.activeBuildTarget.ToString();
+                    //textureFormat = string.Empty;
+                    //bundlesPath = Directory.GetDirectoryRoot(Application.dataPath);
+                    //// **END TESTING**
 
+                    throw new ArgumentException(e.ToString());
+                }
+
+                var targetPlatform = (BuildTarget)Enum.Parse(typeof(BuildTarget), platform);
 
                 // Operations
                 if(textureFormatSpecified)
@@ -143,16 +151,28 @@ namespace SocialPoint.TransparentBundles
                     EditorUserBuildSettings.androidBuildSubtarget = textureFormatEnum;
                 }
 
+                results = new BuildBundlesOutput();
+                DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
+
                 DependencySystem.ValidateAllBundles();
                 var manifest = BuildPipeline.BuildAssetBundles(bundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.AppendHashToAssetBundleName, targetPlatform);
 
                 // Output Saving
-                BuildBundlesOutput results = new BuildBundlesOutput();
-                results.Save(outputPath);
+                ((BuildBundlesOutput)results).bundles = manifest.GetAllAssetBundles();
+
+                results.success = true;
+                results.log.Add("OK - Process completed");
+
             }
             catch(Exception e)
             {
-                Debug.LogError("Exception has been found: " + e);
+                string msg = "CLI RUN ERROR - " + e;
+                results.log.Add(msg);
+                Debug.LogError(msg);
+            }
+            finally
+            {
+                results.Save(outputPath);
             }
         }
 
