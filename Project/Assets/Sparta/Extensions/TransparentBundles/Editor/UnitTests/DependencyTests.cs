@@ -1,0 +1,201 @@
+using NUnit.Framework;
+using System.Collections.Generic;
+using UnityEditor;
+using System.Linq;
+using UnityEngine;
+
+namespace SocialPoint.TransparentBundles
+{
+    [TestFixture]
+    [Category("SocialPoint.TransparentBundles")]
+    internal class DependencyTests
+    {
+        private const string _testAssetsFolder = "Assets/Sparta/Extensions/TransparentBundles/Editor/UnitTests/TestAssets/";
+        private const string _prefab1 = "test_prefab_1.prefab";
+        private const string _prefab2 = "test_prefab_2.prefab";
+        private const string _prefab3 = "test_prefab_3.prefab";
+        private const string _texture1 = "texture_1.png";
+
+        private Dictionary<string, BundleDependenciesData> OldBundlesManifest;
+
+        [SetUp]
+        public void SetUp()
+        {
+            OldBundlesManifest = DependencySystem.GetManifest();
+            DependencySystem.SetManifest(new Dictionary<string, BundleDependenciesData>());
+        }
+
+        [Test]
+        public void AddSingleUserBundle()
+        {
+            var path = _testAssetsFolder + _prefab1;
+            var guid = AssetDatabase.AssetPathToGUID(path);
+
+            DependencySystem.RegisterManualBundledAsset(new DependencySystem.BundleInfo(guid));
+
+            var dependencies = new List<string>(AssetDatabase.GetDependencies(path));
+            dependencies.Remove(path);
+
+            //Asset is added and bundled
+            Assert.IsTrue(DependencySystem.HasAsset(guid), "Asset was not included in the manifest");
+            var dependencyData = DependencySystem.GetBundleDependencyDataCopy(guid);
+            Assert.IsTrue(dependencyData.IsExplicitlyBundled, "Asset was not marked as userbundled");
+            Assert.IsFalse(string.IsNullOrEmpty(dependencyData.BundleName), "Asset was not bundled");
+
+            //Checks dependencies were added and not bundled since they are not shared
+            foreach(var dependency in dependencies)
+            {
+                var guidDep = AssetDatabase.AssetPathToGUID(dependency);
+
+                Assert.IsTrue(DependencySystem.HasAsset(guidDep), "Asset was not included in the manifest");
+                Assert.IsTrue(string.IsNullOrEmpty(DependencySystem.GetBundleDependencyDataCopy(guidDep).BundleName), "Asset was incorrectly autobundled");
+            }
+        }
+
+
+        [Test]
+        public void AddLocalBundle()
+        {
+            var path = _testAssetsFolder + _prefab1;
+            var guid = AssetDatabase.AssetPathToGUID(path);
+
+            DependencySystem.RegisterManualBundledAsset(new DependencySystem.BundleInfo(guid, true));
+
+            var dependencies = new List<string>(AssetDatabase.GetDependencies(path));
+            dependencies.Remove(path);
+
+            //Asset is added and bundled
+            Assert.IsTrue(DependencySystem.HasAsset(guid), "Asset was not included in the manifest");
+            var bundleData = DependencySystem.GetBundleDependencyDataCopy(guid);
+            Assert.IsTrue(bundleData.IsExplicitlyBundled, "Asset was not marked as userbundled");
+            Assert.IsFalse(string.IsNullOrEmpty(bundleData.BundleName), "Asset was not bundled");
+            Assert.IsTrue(bundleData.IsLocal, "Asset was not marked as local");
+
+            //Checks dependencies were added and not bundled since they are not shared
+            foreach(var dependency in dependencies)
+            {
+                var guidDep = AssetDatabase.AssetPathToGUID(dependency);
+
+                var dependencyData = DependencySystem.GetBundleDependencyDataCopy(guidDep);
+
+                Assert.IsTrue(DependencySystem.HasAsset(guidDep), "Asset was not included in the manifest");
+                Assert.IsTrue(string.IsNullOrEmpty(dependencyData.BundleName), "Asset was incorrectly autobundled");
+                Assert.IsTrue(dependencyData.IsLocal, "Asset was not marked as local");
+            }
+        }
+
+        [Test]
+        public void RemoveBundle()
+        {
+            var path = _testAssetsFolder + _prefab1;
+            var guid = AssetDatabase.AssetPathToGUID(path);
+
+            AddSingleUserBundle();
+
+            DependencySystem.RemoveBundles(guid);
+
+            var dependencies = new List<string>(AssetDatabase.GetDependencies(path));
+            dependencies.Remove(path);
+
+            //Asset is added and bundled
+            Assert.IsFalse(DependencySystem.HasAsset(guid), "Asset is still included in the manifest");
+
+            //Checks dependencies were added and not bundled since they are not shared
+            foreach(var dependency in dependencies)
+            {
+                var guidDep = AssetDatabase.AssetPathToGUID(dependency);
+
+                Assert.IsFalse(DependencySystem.HasAsset(guidDep), dependency + " dependency was not included in the manifest");
+            }
+        }
+
+        [Test]
+        public void AddTwoUserBundleWithShared()
+        {
+            var path1 = _testAssetsFolder + _prefab1;
+            var path2 = _testAssetsFolder + _prefab2;
+
+            var guid1 = AssetDatabase.AssetPathToGUID(path1);
+            var guid2 = AssetDatabase.AssetPathToGUID(path2);
+
+            var guidShared = AssetDatabase.AssetPathToGUID(_testAssetsFolder + _texture1);
+
+            var userBundles = new List<string>();
+            userBundles.Add(guid1);
+            userBundles.Add(guid2);
+
+            DependencySystem.UpdateManifest(userBundles);
+
+            //Checks Prefab 1
+            Assert.IsTrue(DependencySystem.HasAsset(guid1), "Asset was not included in the manifest");
+            var dependencyData = DependencySystem.GetBundleDependencyDataCopy(guid1);
+            Assert.IsTrue(dependencyData.IsExplicitlyBundled, "Asset was not marked as userbundled");
+            Assert.IsFalse(string.IsNullOrEmpty(dependencyData.BundleName), "Asset was not bundled");
+
+            //Checks Prefab 2
+            Assert.IsTrue(DependencySystem.HasAsset(guid2), "Asset was not included in the manifest");
+            dependencyData = DependencySystem.GetBundleDependencyDataCopy(guid2);
+            Assert.IsTrue(dependencyData.IsExplicitlyBundled, "Asset was not marked as userbundled");
+            Assert.IsFalse(string.IsNullOrEmpty(dependencyData.BundleName), "Asset was not bundled");
+
+            //Checks dependencies of Prefab 1 were added
+            var dependencies1 = new List<string>(AssetDatabase.GetDependencies(path1));
+            dependencies1.Remove(path1);
+            foreach(var dependency in dependencies1)
+            {
+                var guidDep = AssetDatabase.AssetPathToGUID(dependency);
+                Assert.IsTrue(DependencySystem.HasAsset(guidDep), "Asset was not included in the manifest");
+            }
+
+            //Checks dependencies of Prefab 2 were added
+            var dependencies2 = new List<string>(AssetDatabase.GetDependencies(path2));
+            dependencies2.Remove(path2);
+            foreach(var dependency in dependencies2)
+            {
+                var guidDep = AssetDatabase.AssetPathToGUID(dependency);
+                Assert.IsTrue(DependencySystem.HasAsset(guidDep), "Asset was not included in the manifest");
+            }
+
+            //Checks Shared Texture is auto-bundled
+            Assert.IsFalse(string.IsNullOrEmpty(DependencySystem.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected");
+        }
+
+        [Test]
+        public void RemoveAutobundle()
+        {
+
+            var path1 = _testAssetsFolder + _prefab1;
+            var path2 = _testAssetsFolder + _prefab2;
+
+            var guid1 = AssetDatabase.AssetPathToGUID(path1);
+            var guid2 = AssetDatabase.AssetPathToGUID(path2);
+            var guidShared = AssetDatabase.AssetPathToGUID(_testAssetsFolder + _texture1);
+
+            AddTwoUserBundleWithShared();
+
+            DependencySystem.RemoveBundles(guid1);
+
+
+            //Checks Prefab 1
+            Assert.IsFalse(DependencySystem.HasAsset(guid1), "Asset is still included in the manifest");
+
+            //Checks Prefab 2
+            Assert.IsTrue(DependencySystem.HasAsset(guid2), "Asset was not included in the manifest");
+            var bundleData = DependencySystem.GetBundleDependencyDataCopy(guid2);
+            Assert.IsTrue(bundleData.IsExplicitlyBundled, "Asset was not marked as userbundled");
+            Assert.IsFalse(string.IsNullOrEmpty(bundleData.BundleName), "Asset was not bundled");
+
+
+            //Checks Shared Texture is not auto-bundled
+            Assert.IsTrue(string.IsNullOrEmpty(DependencySystem.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected");
+        }
+
+
+        [TearDown]
+        public void TearDown()
+        {
+            DependencySystem.SetManifest(OldBundlesManifest);
+            DependencySystem.Save();
+        }
+    }
+}
