@@ -11,7 +11,6 @@ namespace SocialPoint.TransparentBundles
         private const string _testAssetsFolder = "Assets/Sparta/Extensions/TransparentBundles/Editor/UnitTests/TestAssets/";
         private const string _prefab1 = "test_prefab_1.prefab";
         private const string _prefab2 = "test_prefab_2.prefab";
-        private const string _prefab3 = "test_prefab_3.prefab";
         private const string _texture1 = "texture_1.png";
 
         private Dictionary<string, BundleDependenciesData> OldBundlesManifest;
