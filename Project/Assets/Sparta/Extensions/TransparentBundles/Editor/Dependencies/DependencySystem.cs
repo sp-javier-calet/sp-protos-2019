@@ -80,6 +80,12 @@ namespace SocialPoint.TransparentBundles
             return Manifest;
         }
 
+        public static void SetManifest(Dictionary<string, BundleDependenciesData> manifest)
+        {
+            Manifest = manifest;
+        }
+
+
         public static List<BundleDependenciesData> GetUserBundles()
         {
             List<BundleDependenciesData> userBundles = new List<BundleDependenciesData>();
@@ -99,7 +105,7 @@ namespace SocialPoint.TransparentBundles
         /// </summary>
         /// <param name="GUID">GUID of the asset to search</param>
         /// <returns>BundleDependenciesData if the asset is in the manifest and null if it isn't</returns>
-        public static BundleDependenciesData GetDependencyDataCopy(string GUID)
+        public static BundleDependenciesData GetBundleDependencyDataCopy(string GUID)
         {
             return Manifest.ContainsKey(GUID) ? (BundleDependenciesData)Manifest[GUID].Clone() : null;
         }
@@ -192,7 +198,7 @@ namespace SocialPoint.TransparentBundles
         /// be a bundle depending on the AutoBundle policy
         /// </summary>
         /// <param name="GUID">GUID of the asset to remove</param>
-        public static void RemoveBundles(List<string> guids)
+        public static void RemoveBundles(params string[] guids)
         {
             AssetDatabase.StartAssetEditing();
 
@@ -205,6 +211,36 @@ namespace SocialPoint.TransparentBundles
             Save();
         }
 
+        /// <summary>
+        /// Checks that all the assigned bundles are registered in the manifest and removes all the rest
+        /// </summary>
+        public static void ValidateAllBundles()
+        {
+            AssetDatabase.StartAssetEditing();
+            var bundledAssets = GetBundledAsset();
+
+            AssetDatabase.RemoveUnusedAssetBundleNames();
+            foreach(var bundle in AssetDatabase.GetAllAssetBundleNames())
+            {
+                if(!bundledAssets.Exists(x => x.BundleName == bundle))
+                {
+                    if(OnLogMessage != null)
+                    {
+                        OnLogMessage("Old bundle found: " + bundle + ". Removing tag from asset...", Severity.WARNING);
+                    }
+
+                    foreach(var asset in AssetDatabase.GetAssetPathsFromAssetBundle(bundle))
+                    {
+                        var importer = AssetImporter.GetAtPath(asset);
+                        if(importer.assetBundleName != string.Empty)
+                        {
+                            importer.assetBundleName = string.Empty;
+                        }
+                    }
+                }
+            }
+            AssetDatabase.StopAssetEditing();
+        }
         #endregion
 
         #region PrivateMethods
@@ -364,10 +400,6 @@ namespace SocialPoint.TransparentBundles
                 // If no assets depends on this one or this asset is no longer in the project we need to remove it completely
                 if(data.Dependants.Count == 0 || string.IsNullOrEmpty(path))
                 {
-                    foreach(string dependency in data.Dependencies)
-                    {
-                        RemoveDependant(dependency, GUID);
-                    }
 
                     var importer = AssetImporter.GetAtPath(path);
                     if(importer.assetBundleName != string.Empty)
@@ -383,6 +415,11 @@ namespace SocialPoint.TransparentBundles
                     if(OnAssetRemoved != null)
                     {
                         OnAssetRemoved(data);
+                    }
+
+                    foreach(string dependency in data.Dependencies)
+                    {
+                        RemoveDependant(dependency, GUID);
                     }
 
                     Manifest.Remove(GUID);
@@ -439,35 +476,6 @@ namespace SocialPoint.TransparentBundles
                 }
             }
         }
-
-        public static void ValidateAllBundles()
-        {
-            AssetDatabase.StartAssetEditing();
-            var bundledAssets = GetBundledAsset();
-
-            AssetDatabase.RemoveUnusedAssetBundleNames();
-            foreach(var bundle in AssetDatabase.GetAllAssetBundleNames())
-            {
-                if(!bundledAssets.Exists(x => x.BundleName == bundle))
-                {
-                    if(OnLogMessage != null)
-                    {
-                        OnLogMessage("Old bundle found: " + bundle + ". Removing tag from asset...", Severity.WARNING);
-                    }
-
-                    foreach(var asset in AssetDatabase.GetAssetPathsFromAssetBundle(bundle))
-                    {
-                        var importer = AssetImporter.GetAtPath(asset);
-                        if(importer.assetBundleName != string.Empty)
-                        {
-                            importer.assetBundleName = string.Empty;
-                        }
-                    }
-                }
-            }
-            AssetDatabase.StopAssetEditing();
-        }
-
 
         private static List<BundleDependenciesData> GetBundledAsset()
         {
