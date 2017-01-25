@@ -94,7 +94,6 @@ namespace SocialPoint.TransparentBundles
             return userBundles;
         }
 
-
         /// <summary>
         /// Gets a copy of the dependencies data stored for this asset
         /// </summary>
