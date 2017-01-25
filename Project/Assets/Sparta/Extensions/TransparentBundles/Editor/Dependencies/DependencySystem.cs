@@ -212,7 +212,7 @@ namespace SocialPoint.TransparentBundles
         }
 
         /// <summary>
-        /// Checks that all the assigned bundles are registered in the manifest and removes all the rest
+        /// Makes sure all the bundles have their bundlename assigned and removes the ones that are not in the manifest.
         /// </summary>
         public static void ValidateAllBundles()
         {
@@ -239,6 +239,17 @@ namespace SocialPoint.TransparentBundles
                     }
                 }
             }
+            AssetDatabase.RemoveUnusedAssetBundleNames();
+
+            foreach(var bundleData in Manifest.Values)
+            {
+                var importer = AssetImporter.GetAtPath(bundleData.AssetPath);
+                if(bundleData.BundleName != importer.assetBundleName)
+                {
+                    importer.assetBundleName = bundleData.BundleName;
+                }
+            }
+
             AssetDatabase.StopAssetEditing();
         }
         #endregion
