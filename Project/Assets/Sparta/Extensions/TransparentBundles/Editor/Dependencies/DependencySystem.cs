@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System.IO;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using LitJson;
@@ -32,12 +32,12 @@ namespace SocialPoint.TransparentBundles
             ERROR
         }
 
-        public static event System.Action<BundleDependenciesData> OnBundleAdded;
-        public static event System.Action<string, BundleDependenciesData> OnBundleDeletedFromProject;
-        public static event System.Action<BundleDependenciesData> OnBundleRemoved;
-        public static event System.Action<BundleDependenciesData> OnAssetRemoved;
-        public static event System.Action<BundleDependenciesData> OnBundleLocalChanged;
-        public static event System.Action<string, Severity> OnLogMessage;
+        public static event Action<BundleDependenciesData> OnBundleAdded;
+        public static event Action<string, BundleDependenciesData> OnBundleDeletedFromProject;
+        public static event Action<BundleDependenciesData> OnBundleRemoved;
+        public static event Action<BundleDependenciesData> OnAssetRemoved;
+        public static event Action<BundleDependenciesData> OnBundleLocalChanged;
+        public static event Action<string, Severity> OnLogMessage;
 
         private static string _path = Path.Combine(Application.dataPath, "DependenciesManifest.json");
 
@@ -344,7 +344,7 @@ namespace SocialPoint.TransparentBundles
         }
 
         /// <summary>
-        /// Removes an asset from bundled assets and cleans it if it is not neede anymore. 
+        /// Removes an asset from bundled assets and cleans it if it is not needed anymore. 
         /// The asset may still be in the registry if another asset has it as a dependency and may still
         /// be a bundle depending on the AutoBundle policy
         /// </summary>
