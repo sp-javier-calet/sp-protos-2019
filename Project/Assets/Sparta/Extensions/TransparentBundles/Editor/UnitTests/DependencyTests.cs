@@ -1,8 +1,6 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEditor;
-using System.Linq;
-using UnityEngine;
 
 namespace SocialPoint.TransparentBundles
 {
