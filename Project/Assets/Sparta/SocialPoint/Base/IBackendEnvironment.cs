@@ -18,13 +18,26 @@ namespace SocialPoint.Base
         public EnvironmentType Type;
     }
 
-    public interface IBackendEnvironment 
+    public interface IBackendEnvironmentStorage
+    {
+        string Default { get; }
+
+        string Selected { get; set; }
+    }
+
+    public interface IBackendEnvironment
     {
         /// <summary>
         /// List of available environments
         /// </summary>
         /// <value>Available environments.</value>
         Environment[] Environments { get; }
+
+        /// <summary>
+        /// Backend Enviroment Storage
+        /// </summary>
+        /// <value>Environment storage.</value>
+        IBackendEnvironmentStorage Storage { get; }
 
         /// <summary>
         /// Gets the Current Environment URL.

@@ -46,17 +46,67 @@ namespace SocialPoint.Base
 
         public override void InstallBindings()
         {
+            Container.Bind<IBackendEnvironmentStorage>().ToMethod<DefaultBackendEnvironmentStorage>(CreateStorage);
+
             Container.Bind<BackendEnvironment>().ToMethod<BackendEnvironment>(CreateEnvironments);
             Container.Bind<IBackendEnvironment>().ToLookup<BackendEnvironment>();
+        }
+
+        DefaultBackendEnvironmentStorage CreateStorage()
+        {
+            return new DefaultBackendEnvironmentStorage(
+                Defaults.ProductionEnvironment, 
+                Defaults.DefaultEnvironment
+            );
         }
 
         BackendEnvironment CreateEnvironments()
         {
             return new BackendEnvironment(
                 Settings.Environments, 
-                Defaults.ProductionEnvironment, 
-                Defaults.DefaultEnvironment
+                Container.Resolve<IBackendEnvironmentStorage>()
             );
+        }
+
+        class DefaultBackendEnvironmentStorage : IBackendEnvironmentStorage
+        {
+            const string SelectedBackendEnvPrefsKey = "selected_backend_environment";
+
+            readonly string _default;
+            readonly string _production;
+
+            public DefaultBackendEnvironmentStorage(string productionEnvironment, string defaultEnvironment)
+            {
+                _default = defaultEnvironment;
+                _production = productionEnvironment;
+            }
+
+            public string Default
+            {
+                get
+                {
+                    return DebugUtils.IsDebugBuild ? _default : _production;
+                }
+            }
+
+            public string Selected
+            {
+                set
+                {
+                    if(string.IsNullOrEmpty(value))
+                    {
+                        PlayerPrefs.DeleteKey(SelectedBackendEnvPrefsKey);
+                    }
+                    else
+                    {
+                        PlayerPrefs.SetString(SelectedBackendEnvPrefsKey, value);
+                    }
+                }
+                get
+                {
+                    return PlayerPrefs.GetString(SelectedBackendEnvPrefsKey);
+                }
+            }
         }
     }
 }

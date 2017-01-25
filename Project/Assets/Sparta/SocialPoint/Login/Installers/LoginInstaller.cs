@@ -92,22 +92,10 @@ namespace SocialPoint.Login
 
         AdminPanelLogin CreateAdminPanel()
         {
-            var login = Container.Resolve<ILogin>();
-            var appEvents = Container.Resolve<IAppEvents>();
-
-            var envs = new Dictionary<string,string>();
-
-            var environments = Container.Resolve<IBackendEnvironment>();
-            if(environments != null)
-            {
-                for(var i = 0; i < environments.Environments.Length; ++i)
-                {
-                    var env = environments.Environments[i];
-                    envs.Add(env.Name, env.Url);
-                }
-            }
-
-            return new AdminPanelLogin(login, envs, appEvents);
+            return new AdminPanelLogin(
+                Container.Resolve<ILogin>(), 
+                Container.Resolve<IBackendEnvironment>(),
+                Container.Resolve<IAppEvents>());
         }
     }
 }

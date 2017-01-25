@@ -9,33 +9,47 @@ namespace SocialPoint.Base
         public readonly Environment[] _environments;
 
         readonly Dictionary<string, Environment> _map;
+        readonly IBackendEnvironmentStorage _storage;
         readonly Environment _defaultEnvironment;
-        readonly Environment _productionEnvironment;
 
-        public BackendEnvironment(Environment[] envs, string defaultProduction, string defaultDevelopment)
+        public BackendEnvironment(Environment[] envs, IBackendEnvironmentStorage storage)
         {
             _environments = envs;
+            _storage = storage;
+
             _map = new Dictionary<string, Environment>();
             for(var i = 0; i < Environments.Length; ++i)
             {
                 var env = Environments[i];
                 _map.Add(env.Name, env);
-
-                if(env.Type == EnvironmentType.Development && env.Name == defaultDevelopment)
-                {
-                    _defaultEnvironment = env;
-                }
-                else if(env.Type == EnvironmentType.Production && env.Name == defaultProduction)
-                {
-                    _productionEnvironment = env;
-                }
             }
 
+            bool defaultAssigned = false;
+            var selected = storage.Selected;
+            if(!string.IsNullOrEmpty(selected))
+            {
+                defaultAssigned = _map.TryGetValue(selected, out _defaultEnvironment);
+            }
+
+            var defaultEnv = storage.Default;
+            if(!defaultAssigned && !string.IsNullOrEmpty(defaultEnv))
+            {
+                defaultAssigned = _map.TryGetValue(defaultEnv, out _defaultEnvironment);
+            }
+
+            DebugUtils.Assert(defaultAssigned, "No Default Development assigned");
             DebugUtils.Assert(!string.IsNullOrEmpty(_defaultEnvironment.Url), "No Default Development environment");
-            DebugUtils.Assert(!string.IsNullOrEmpty(_productionEnvironment.Url), "No Default Production environment");
         }
 
-        Environment CurrentEnvironment
+        public IBackendEnvironmentStorage Storage
+        {
+            get
+            {
+                return _storage;
+            }
+        }
+
+        Environment? ForcedEnvironment
         {
             get
             {
@@ -49,7 +63,21 @@ namespace SocialPoint.Base
                     };
                     return forcedEnv;
                 }
-                return DebugUtils.IsDebugBuild ? _defaultEnvironment : _productionEnvironment;
+                return null;
+            }
+        }
+
+        Environment CurrentEnvironment
+        {
+            get
+            {
+                var forced = ForcedEnvironment;
+                if(forced.HasValue)
+                {
+                    return forced.Value;
+                }
+                
+                return _defaultEnvironment;
             }
         }
 

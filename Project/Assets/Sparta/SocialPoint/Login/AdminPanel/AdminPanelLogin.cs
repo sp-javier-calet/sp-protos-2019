@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Base;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
     public sealed class AdminPanelLogin : IAdminPanelGUI, IAdminPanelConfigurer
     {
         readonly ILogin _login;
-        readonly IDictionary<string, string> _environments;
+        readonly IBackendEnvironment _environments;
         readonly IAppEvents _appEvents;
 
         public AdminPanelLogin(ILogin login)
@@ -19,11 +16,11 @@ namespace SocialPoint.Login
             _login = login;
         }
 
-        public AdminPanelLogin(ILogin login, IDictionary<string, string> envs, IAppEvents appEvents=null):this(login)
+        public AdminPanelLogin(ILogin login, IBackendEnvironment environment, IAppEvents appEvents = null) : this(login)
         {
             _login = login;
             _appEvents = appEvents;
-            _environments = envs;
+            _environments = environment;
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -37,9 +34,9 @@ namespace SocialPoint.Login
             layout.CreateLabel("Login");
             layout.CreateMargin();
             
-            if(_environments != null)
-            {                
-                layout.CreateLabel("Backend Environment");
+                          
+            layout.CreateLabel("Backend Environment");
+            /*
                 var envNames = new string[_environments.Count];
                 int i = 0;
                 StringBuilder envInfo = null;
@@ -60,10 +57,9 @@ namespace SocialPoint.Login
                 if(envInfo != null)
                 {
                     layout.CreateTextArea(envInfo.ToString());
-                }
-                layout.CreateOpenPanelButton("Change environment", new AdminPanelEnvironment(_login, _environments, _appEvents));
-                layout.CreateMargin();
-            }
+                }*/
+            layout.CreateOpenPanelButton("Change environment", new AdminPanelEnvironment(_login, _environments, _appEvents), _environments != null);
+            layout.CreateMargin();
             
             layout.CreateLabel("Actions");
             
@@ -107,10 +103,10 @@ namespace SocialPoint.Login
             layout.CreateTextArea(loginInfo.ToString());
             
             layout.CreateLabel("Link Info");
-            layout.CreateTextArea((links.Length > 0)? links.ToString() : "No links");
+            layout.CreateTextArea((links.Length > 0) ? links.ToString() : "No links");
             
             layout.CreateLabel("Friends");
-            layout.CreateVerticalScrollLayout().CreateTextArea((friends.Length > 0)? friends.ToString() : "No friends");
+            layout.CreateVerticalScrollLayout().CreateTextArea((friends.Length > 0) ? friends.ToString() : "No friends");
         }
     }
 }
