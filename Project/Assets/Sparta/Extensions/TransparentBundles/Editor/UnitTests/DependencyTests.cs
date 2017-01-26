@@ -172,7 +172,6 @@ namespace SocialPoint.TransparentBundles
 
             DependencySystem.RemoveBundles(guid1);
 
-
             //Checks Prefab 1
             Assert.IsFalse(DependencySystem.HasAsset(guid1), "Asset is still included in the manifest");
 
@@ -181,7 +180,6 @@ namespace SocialPoint.TransparentBundles
             var bundleData = DependencySystem.GetBundleDependencyDataCopy(guid2);
             Assert.IsTrue(bundleData.IsExplicitlyBundled, "Asset was not marked as userbundled");
             Assert.IsFalse(string.IsNullOrEmpty(bundleData.BundleName), "Asset was not bundled");
-
 
             //Checks Shared Texture is not auto-bundled
             Assert.IsTrue(string.IsNullOrEmpty(DependencySystem.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected, the dependency shouldn't be bundled because it is not shared anymore.");
