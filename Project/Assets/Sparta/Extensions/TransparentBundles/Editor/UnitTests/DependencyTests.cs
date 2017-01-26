@@ -97,7 +97,7 @@ namespace SocialPoint.TransparentBundles
             //Check that the asset is no longer in the manifest
             Assert.IsFalse(DependencySystem.HasAsset(guid), "Asset is still included in the manifest when it should have been removed");
 
-            //Checks dependencies were added and not bundled since they are not shared
+            //Checks dependencies were also removed since their parent is gone.
             foreach(var dependency in dependencies)
             {
                 var guidDep = AssetDatabase.AssetPathToGUID(dependency);
