@@ -131,9 +131,9 @@ namespace SocialPoint.TransparentBundles
 
             //Checks Prefab 2
             Assert.IsTrue(DependencySystem.HasAsset(guid2), "Asset was not included in the manifest");
-            dependencyData = DependencySystem.GetBundleDependencyDataCopy(guid2);
-            Assert.IsTrue(dependencyData.IsExplicitlyBundled, "Asset was not marked as userbundled");
-            Assert.IsFalse(string.IsNullOrEmpty(dependencyData.BundleName), "Asset was not bundled");
+            var dependencyData2 = DependencySystem.GetBundleDependencyDataCopy(guid2);
+            Assert.IsTrue(dependencyData2.IsExplicitlyBundled, "Asset was not marked as userbundled");
+            Assert.IsFalse(string.IsNullOrEmpty(dependencyData2.BundleName), "Asset was not bundled");
 
             //Checks dependencies of Prefab 1 were added
             var dependencies1 = new List<string>(AssetDatabase.GetDependencies(path1));
@@ -154,7 +154,7 @@ namespace SocialPoint.TransparentBundles
             }
 
             //Checks Shared Texture is auto-bundled
-            Assert.IsFalse(string.IsNullOrEmpty(DependencySystem.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected. The dependency should be bundled.");
+            Assert.IsFalse(string.IsNullOrEmpty(DependencySystem.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected. The dependency should be bundled because it is shared.");
         }
 
         [Test]
@@ -184,7 +184,7 @@ namespace SocialPoint.TransparentBundles
 
 
             //Checks Shared Texture is not auto-bundled
-            Assert.IsTrue(string.IsNullOrEmpty(DependencySystem.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected, the dependency shouldn't be bundled");
+            Assert.IsTrue(string.IsNullOrEmpty(DependencySystem.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected, the dependency shouldn't be bundled because it is not shared anymore.");
         }
 
 
