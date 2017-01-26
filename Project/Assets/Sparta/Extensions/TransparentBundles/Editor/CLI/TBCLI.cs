@@ -40,11 +40,12 @@ namespace SocialPoint.TransparentBundles
 
         public class CalculateBundlesOutput : OutputCLI
         {
-            public Dictionary<string, BundleDependenciesData> CurrentBundles;
+            public BundlesManifest BundlesManifest;
         }
 
         public class BuildBundlesInput : InputCLI<BuildBundlesInput>
         {
+            public BundlesManifest BundlesManifest;
             public MobileTextureSubtarget TextureFormat = MobileTextureSubtarget.Generic;
             public string BundlesPath;
         }
@@ -88,7 +89,7 @@ namespace SocialPoint.TransparentBundles
 
                 DependencySystem.UpdateManifest(inputs.ManualBundles);
 
-                ((CalculateBundlesOutput)results).CurrentBundles = DependencySystem.GetManifest();
+                ((CalculateBundlesOutput)results).BundlesManifest = DependencySystem.GetManifest();
 
                 results.success = true;
                 results.log.Add("OK - Process completed");
@@ -138,8 +139,8 @@ namespace SocialPoint.TransparentBundles
 
                 results = new BuildBundlesOutput();
                 DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
-
-                DependencySystem.ValidateAllBundles();
+                
+                DependencySystem.PrepareForBuild(inputs.BundlesManifest);
                 var manifest = BuildPipeline.BuildAssetBundles(inputs.BundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.AppendHashToAssetBundleName, EditorUserBuildSettings.activeBuildTarget);
 
                 ((BuildBundlesOutput)results).bundles = manifest.GetAllAssetBundles();

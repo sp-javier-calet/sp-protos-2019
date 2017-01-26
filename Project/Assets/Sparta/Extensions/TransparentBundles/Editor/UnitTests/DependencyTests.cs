@@ -13,13 +13,15 @@ namespace SocialPoint.TransparentBundles
         private const string _prefab2 = "test_prefab_2.prefab";
         private const string _texture1 = "texture_1.png";
 
-        private Dictionary<string, BundleDependenciesData> OldBundlesManifest;
+        private BundlesManifest OldBundlesManifest;
+        private BundlesManifest testManifest;
 
         [SetUp]
         public void SetUp()
         {
             OldBundlesManifest = DependencySystem.GetManifest();
-            DependencySystem.SetManifest(new Dictionary<string, BundleDependenciesData>());
+            testManifest = new BundlesManifest();
+            DependencySystem.SetManifest(testManifest);
         }
 
         [Test]
@@ -34,8 +36,8 @@ namespace SocialPoint.TransparentBundles
             dependencies.Remove(path);
 
             //Asset is added and bundled
-            Assert.IsTrue(DependencySystem.HasAsset(guid), "Asset was not included in the manifest");
-            var dependencyData = DependencySystem.GetBundleDependencyDataCopy(guid);
+            Assert.IsTrue(testManifest.HasAsset(guid), "Asset was not included in the manifest");
+            var dependencyData = testManifest.GetBundleDependencyDataCopy(guid);
             Assert.IsTrue(dependencyData.IsExplicitlyBundled, "Asset was not marked as userbundled");
             Assert.IsFalse(string.IsNullOrEmpty(dependencyData.BundleName), "Asset was not bundled");
 
@@ -44,8 +46,8 @@ namespace SocialPoint.TransparentBundles
             {
                 var guidDep = AssetDatabase.AssetPathToGUID(dependency);
 
-                Assert.IsTrue(DependencySystem.HasAsset(guidDep), "Asset was not included in the manifest");
-                Assert.IsTrue(string.IsNullOrEmpty(DependencySystem.GetBundleDependencyDataCopy(guidDep).BundleName), "Asset was incorrectly autobundled");
+                Assert.IsTrue(testManifest.HasAsset(guidDep), "Asset was not included in the manifest");
+                Assert.IsTrue(string.IsNullOrEmpty(testManifest.GetBundleDependencyDataCopy(guidDep).BundleName), "Asset was incorrectly autobundled");
             }
         }
 
@@ -62,8 +64,8 @@ namespace SocialPoint.TransparentBundles
             dependencies.Remove(path);
 
             //Asset is added and bundled
-            Assert.IsTrue(DependencySystem.HasAsset(guid), "Asset was not included in the manifest");
-            var bundleData = DependencySystem.GetBundleDependencyDataCopy(guid);
+            Assert.IsTrue(testManifest.HasAsset(guid), "Asset was not included in the manifest");
+            var bundleData = testManifest.GetBundleDependencyDataCopy(guid);
             Assert.IsTrue(bundleData.IsExplicitlyBundled, "Asset was not marked as userbundled");
             Assert.IsFalse(string.IsNullOrEmpty(bundleData.BundleName), "Asset was not bundled");
             Assert.IsTrue(bundleData.IsLocal, "Asset was not marked as local");
@@ -73,9 +75,9 @@ namespace SocialPoint.TransparentBundles
             {
                 var guidDep = AssetDatabase.AssetPathToGUID(dependency);
 
-                var dependencyData = DependencySystem.GetBundleDependencyDataCopy(guidDep);
+                var dependencyData = testManifest.GetBundleDependencyDataCopy(guidDep);
 
-                Assert.IsTrue(DependencySystem.HasAsset(guidDep), "Asset was not included in the manifest");
+                Assert.IsTrue(testManifest.HasAsset(guidDep), "Asset was not included in the manifest");
                 Assert.IsTrue(string.IsNullOrEmpty(dependencyData.BundleName), "Asset was incorrectly autobundled");
                 Assert.IsTrue(dependencyData.IsLocal, "Asset was not marked as local");
             }
@@ -95,14 +97,14 @@ namespace SocialPoint.TransparentBundles
             dependencies.Remove(path);
 
             //Asset is added and bundled
-            Assert.IsFalse(DependencySystem.HasAsset(guid), "Asset is still included in the manifest");
+            Assert.IsFalse(testManifest.HasAsset(guid), "Asset is still included in the manifest");
 
             //Checks dependencies were added and not bundled since they are not shared
             foreach(var dependency in dependencies)
             {
                 var guidDep = AssetDatabase.AssetPathToGUID(dependency);
 
-                Assert.IsFalse(DependencySystem.HasAsset(guidDep), dependency + " dependency was not included in the manifest");
+                Assert.IsFalse(testManifest.HasAsset(guidDep), dependency + " dependency was not included in the manifest");
             }
         }
 
@@ -124,14 +126,14 @@ namespace SocialPoint.TransparentBundles
             DependencySystem.UpdateManifest(userBundles);
 
             //Checks Prefab 1
-            Assert.IsTrue(DependencySystem.HasAsset(guid1), "Asset was not included in the manifest");
-            var dependencyData = DependencySystem.GetBundleDependencyDataCopy(guid1);
+            Assert.IsTrue(testManifest.HasAsset(guid1), "Asset was not included in the manifest");
+            var dependencyData = testManifest.GetBundleDependencyDataCopy(guid1);
             Assert.IsTrue(dependencyData.IsExplicitlyBundled, "Asset was not marked as userbundled");
             Assert.IsFalse(string.IsNullOrEmpty(dependencyData.BundleName), "Asset was not bundled");
 
             //Checks Prefab 2
-            Assert.IsTrue(DependencySystem.HasAsset(guid2), "Asset was not included in the manifest");
-            dependencyData = DependencySystem.GetBundleDependencyDataCopy(guid2);
+            Assert.IsTrue(testManifest.HasAsset(guid2), "Asset was not included in the manifest");
+            dependencyData = testManifest.GetBundleDependencyDataCopy(guid2);
             Assert.IsTrue(dependencyData.IsExplicitlyBundled, "Asset was not marked as userbundled");
             Assert.IsFalse(string.IsNullOrEmpty(dependencyData.BundleName), "Asset was not bundled");
 
@@ -141,7 +143,7 @@ namespace SocialPoint.TransparentBundles
             foreach(var dependency in dependencies1)
             {
                 var guidDep = AssetDatabase.AssetPathToGUID(dependency);
-                Assert.IsTrue(DependencySystem.HasAsset(guidDep), "Asset was not included in the manifest");
+                Assert.IsTrue(testManifest.HasAsset(guidDep), "Asset was not included in the manifest");
             }
 
             //Checks dependencies of Prefab 2 were added
@@ -150,11 +152,11 @@ namespace SocialPoint.TransparentBundles
             foreach(var dependency in dependencies2)
             {
                 var guidDep = AssetDatabase.AssetPathToGUID(dependency);
-                Assert.IsTrue(DependencySystem.HasAsset(guidDep), "Asset was not included in the manifest");
+                Assert.IsTrue(testManifest.HasAsset(guidDep), "Asset was not included in the manifest");
             }
 
             //Checks Shared Texture is auto-bundled
-            Assert.IsFalse(string.IsNullOrEmpty(DependencySystem.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected");
+            Assert.IsFalse(string.IsNullOrEmpty(testManifest.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected");
         }
 
         [Test]
@@ -174,17 +176,17 @@ namespace SocialPoint.TransparentBundles
 
 
             //Checks Prefab 1
-            Assert.IsFalse(DependencySystem.HasAsset(guid1), "Asset is still included in the manifest");
+            Assert.IsFalse(testManifest.HasAsset(guid1), "Asset is still included in the manifest");
 
             //Checks Prefab 2
-            Assert.IsTrue(DependencySystem.HasAsset(guid2), "Asset was not included in the manifest");
-            var bundleData = DependencySystem.GetBundleDependencyDataCopy(guid2);
+            Assert.IsTrue(testManifest.HasAsset(guid2), "Asset was not included in the manifest");
+            var bundleData = testManifest.GetBundleDependencyDataCopy(guid2);
             Assert.IsTrue(bundleData.IsExplicitlyBundled, "Asset was not marked as userbundled");
             Assert.IsFalse(string.IsNullOrEmpty(bundleData.BundleName), "Asset was not bundled");
 
 
             //Checks Shared Texture is not auto-bundled
-            Assert.IsTrue(string.IsNullOrEmpty(DependencySystem.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected");
+            Assert.IsTrue(string.IsNullOrEmpty(testManifest.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected");
         }
 
 
