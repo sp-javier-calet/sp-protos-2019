@@ -19,16 +19,16 @@ namespace SocialPoint.Login
             _environments = envs;
         }
 
-        public void OnCreateGUI( AdminPanelLayout layout )
+        public void OnCreateGUI(AdminPanelLayout layout)
         {   
-            layout.CreateLabel( "Environments" );
-            layout.CreateMargin( 2 );
+            layout.CreateLabel("Environments");
+            layout.CreateMargin(2);
 
             var itr = _environments.GetEnumerator();
             while(itr.MoveNext())
             {
                 var kvp = itr.Current;
-                layout.CreateButton(kvp.Key, () => OnEnvironmentChange(kvp.Key) );
+                layout.CreateButton(kvp.Key, () => OnEnvironmentChange(kvp.Key));
             }
             itr.Dispose();
 
