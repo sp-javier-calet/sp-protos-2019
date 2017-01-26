@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Base;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
     public sealed class AdminPanelLogin : IAdminPanelGUI, IAdminPanelConfigurer
     {
         readonly ILogin _login;
-        readonly IDictionary<string, string> _environments;
+        readonly IBackendEnvironment _environments;
         readonly IAppEvents _appEvents;
         readonly AdminPanelLoginForcedErrors _forcedErrorPanel;
         readonly AdminPanelEnvironment _environmentsPanel;
@@ -21,11 +18,11 @@ namespace SocialPoint.Login
             _login = login;
         }
 
-        public AdminPanelLogin(ILogin login, IDictionary<string, string> envs, IAppEvents appEvents = null) : this(login)
+        public AdminPanelLogin(ILogin login, IBackendEnvironment environment, IAppEvents appEvents = null) : this(login)
         {
             _login = login;
             _appEvents = appEvents;
-            _environments = envs;
+            _environments = environment;
 
             _forcedErrorPanel = new AdminPanelLoginForcedErrors(login, appEvents);
             _environmentsPanel = new AdminPanelEnvironment(_login, _environments, _appEvents);
@@ -42,31 +39,7 @@ namespace SocialPoint.Login
             layout.CreateLabel("Login");
             layout.CreateMargin();
             
-            if(_environments != null)
-            {                
-                layout.CreateLabel("Backend Environment");
-                var envNames = new string[_environments.Count];
-                int i = 0;
-                StringBuilder envInfo = null;
-                var itr = _environments.GetEnumerator();
-                while(itr.MoveNext())
-                {
-                    var kvp = itr.Current;
-                    envNames[i++] = kvp.Key;
-                    var envUrl = StringUtils.FixBaseUri(kvp.Value);
-                    if(envInfo == null && _login.BaseUrl == envUrl)
-                    {
-                        envInfo = new StringBuilder();
-                        envInfo.Append("Name: ").AppendLine(kvp.Key);
-                        envInfo.Append("URL: ").AppendLine(kvp.Value);
-                    }
-                }
-                itr.Dispose();
-                if(envInfo != null)
-                {
-                    layout.CreateTextArea(envInfo.ToString());
-                }
-            }
+            layout.CreateLabel("Backend Environment");
 
             layout.CreateOpenPanelButton("Change environment", _environmentsPanel, _environments != null);
             layout.CreateOpenPanelButton("Force Login Errors", _forcedErrorPanel);

@@ -1,48 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
-using SocialPoint.AdminPanel;
+﻿using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
+using SocialPoint.Base;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
     public sealed class AdminPanelEnvironment : IAdminPanelGUI
     {
         readonly ILogin _login;
-        readonly IDictionary<string, string> _environments;
+        readonly IBackendEnvironment _environments;
         readonly IAppEvents _appEvents;
         AdminPanelLayout _layout;
 
-        public AdminPanelEnvironment(ILogin login, IDictionary<string, string> envs, IAppEvents appEvents)
+        public AdminPanelEnvironment(ILogin login, IBackendEnvironment environment, IAppEvents appEvents)
         {
             _login = login;
             _appEvents = appEvents;
-            _environments = envs;
+            _environments = environment;
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {   
+            var currentUrl = _login.BaseUrl;
             layout.CreateLabel("Environments");
             layout.CreateMargin(2);
-
-            var itr = _environments.GetEnumerator();
-            while(itr.MoveNext())
+            for(var i = 0; i < _environments.Environments.Length; ++i)
             {
-                var kvp = itr.Current;
-                layout.CreateButton(kvp.Key, () => OnEnvironmentChange(kvp.Key));
+                var current = _environments.Environments[i];
+                var baseUrl = StringUtils.FixBaseUri(current.Url);
+                layout.CreateButton(current.Name, () => OnEnvironmentChange(current), currentUrl != baseUrl);
             }
-            itr.Dispose();
+
+            layout.CreateMargin();
+            layout.CreateButton("Clear Stored", ClearSelected, !string.IsNullOrEmpty(_environments.Storage.Selected));
 
             _layout = layout;
         }
 
-        void OnEnvironmentChange(string name)
+        void OnEnvironmentChange(Environment env)
         {
-            string url;
-            if(!_environments.TryGetValue(name, out url))
-            {
-                throw new InvalidOperationException(string.Format("Could not find url for env '{0}'", name));
-            }
-            _login.SetBaseUrl(url);
+            _environments.Storage.Selected = env.Name;
+            _login.SetBaseUrl(env.Url);
+            Restart();
+        }
+
+        void ClearSelected()
+        {
+            _environments.Storage.Selected = null;
+            _login.SetBaseUrl(_environments.GetUrl());
+            Restart();
+        }
+
+        void Restart()
+        {
             if(_layout != null)
             {
                 _layout.Refresh();

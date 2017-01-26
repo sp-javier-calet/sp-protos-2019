@@ -15,6 +15,7 @@ namespace SocialPoint.Base
         [Serializable]
         public class SettingsData
         {
+            public bool PersistsSelection;
             public Environment[] Environments = new Environment[] { 
                 new Environment { 
                     Name = DefaultDevelopmentName, 
@@ -46,16 +47,40 @@ namespace SocialPoint.Base
 
         public override void InstallBindings()
         {
+            if(Settings.PersistsSelection)
+            {
+                Container.Bind<IBackendEnvironmentStorage>().ToMethod<PersistentBackendEnvironmentStorage>(CreatePersistentStorage);
+            }
+            else
+            {
+                Container.Bind<IBackendEnvironmentStorage>().ToMethod<DefaultBackendEnvironmentStorage>(CreateStorage);
+            }
+
             Container.Bind<BackendEnvironment>().ToMethod<BackendEnvironment>(CreateEnvironments);
             Container.Bind<IBackendEnvironment>().ToLookup<BackendEnvironment>();
+        }
+
+        PersistentBackendEnvironmentStorage CreatePersistentStorage()
+        {
+            return new PersistentBackendEnvironmentStorage(
+                Defaults.ProductionEnvironment, 
+                Defaults.DefaultEnvironment
+            );
+        }
+
+        DefaultBackendEnvironmentStorage CreateStorage()
+        {
+            return new DefaultBackendEnvironmentStorage(
+                Defaults.ProductionEnvironment, 
+                Defaults.DefaultEnvironment
+            );
         }
 
         BackendEnvironment CreateEnvironments()
         {
             return new BackendEnvironment(
                 Settings.Environments, 
-                Defaults.ProductionEnvironment, 
-                Defaults.DefaultEnvironment
+                Container.Resolve<IBackendEnvironmentStorage>()
             );
         }
     }

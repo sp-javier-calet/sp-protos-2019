@@ -9,33 +9,24 @@ namespace SocialPoint.Base
         public readonly Environment[] _environments;
 
         readonly Dictionary<string, Environment> _map;
-        readonly Environment _defaultEnvironment;
-        readonly Environment _productionEnvironment;
+        readonly IBackendEnvironmentStorage _storage;
 
-        public BackendEnvironment(Environment[] envs, string defaultProduction, string defaultDevelopment)
+        public BackendEnvironment(Environment[] envs, IBackendEnvironmentStorage storage)
         {
             _environments = envs;
+            _storage = storage;
+
             _map = new Dictionary<string, Environment>();
             for(var i = 0; i < Environments.Length; ++i)
             {
                 var env = Environments[i];
                 _map.Add(env.Name, env);
-
-                if(env.Type == EnvironmentType.Development && env.Name == defaultDevelopment)
-                {
-                    _defaultEnvironment = env;
-                }
-                else if(env.Type == EnvironmentType.Production && env.Name == defaultProduction)
-                {
-                    _productionEnvironment = env;
-                }
             }
 
-            DebugUtils.Assert(!string.IsNullOrEmpty(_defaultEnvironment.Url), "No Default Development environment");
-            DebugUtils.Assert(!string.IsNullOrEmpty(_productionEnvironment.Url), "No Default Production environment");
+            DebugUtils.Assert(!string.IsNullOrEmpty(DefaultEnvironment.Url), "No Default Development environment");
         }
 
-        Environment CurrentEnvironment
+        Environment? ForcedEnvironment
         {
             get
             {
@@ -49,11 +40,56 @@ namespace SocialPoint.Base
                     };
                     return forcedEnv;
                 }
-                return DebugUtils.IsDebugBuild ? _defaultEnvironment : _productionEnvironment;
+                return null;
+            }
+        }
+
+        Environment DefaultEnvironment
+        {
+            get
+            {
+                var defaultEnvironment = new Environment();
+                bool defaultAssigned = false;
+                var selected = _storage.Selected;
+                var defaultEnv = _storage.Default;
+
+                if(!string.IsNullOrEmpty(selected))
+                {
+                    defaultAssigned = _map.TryGetValue(selected, out defaultEnvironment);
+                }
+
+                if(!defaultAssigned && !string.IsNullOrEmpty(defaultEnv))
+                {
+                    _map.TryGetValue(defaultEnv, out defaultEnvironment);
+                }
+
+                return defaultEnvironment;
+            }
+        }
+
+        Environment CurrentEnvironment
+        {
+            get
+            {
+                var forced = ForcedEnvironment;
+                if(forced.HasValue)
+                {
+                    return forced.Value;
+                }
+                
+                return DefaultEnvironment;
             }
         }
 
         #region IBackendEnvironment implementation
+
+        public IBackendEnvironmentStorage Storage
+        {
+            get
+            {
+                return _storage;
+            }
+        }
 
         public Environment[] Environments
         {
