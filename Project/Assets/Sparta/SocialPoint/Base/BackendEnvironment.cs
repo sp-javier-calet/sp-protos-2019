@@ -10,7 +10,6 @@ namespace SocialPoint.Base
 
         readonly Dictionary<string, Environment> _map;
         readonly IBackendEnvironmentStorage _storage;
-        readonly Environment _defaultEnvironment;
 
         public BackendEnvironment(Environment[] envs, IBackendEnvironmentStorage storage)
         {
@@ -24,21 +23,7 @@ namespace SocialPoint.Base
                 _map.Add(env.Name, env);
             }
 
-            bool defaultAssigned = false;
-            var selected = storage.Selected;
-            if(!string.IsNullOrEmpty(selected))
-            {
-                defaultAssigned = _map.TryGetValue(selected, out _defaultEnvironment);
-            }
-
-            var defaultEnv = storage.Default;
-            if(!defaultAssigned && !string.IsNullOrEmpty(defaultEnv))
-            {
-                defaultAssigned = _map.TryGetValue(defaultEnv, out _defaultEnvironment);
-            }
-
-            DebugUtils.Assert(defaultAssigned, "No Default Development assigned");
-            DebugUtils.Assert(!string.IsNullOrEmpty(_defaultEnvironment.Url), "No Default Development environment");
+            DebugUtils.Assert(!string.IsNullOrEmpty(DefaultEnvironment.Url), "No Default Development environment");
         }
 
         public IBackendEnvironmentStorage Storage
@@ -67,6 +52,29 @@ namespace SocialPoint.Base
             }
         }
 
+        Environment DefaultEnvironment
+        {
+            get
+            {
+                var defaultEnvironment = new Environment();
+                bool defaultAssigned = false;
+                var selected = _storage.Selected;
+                var defaultEnv = _storage.Default;
+
+                if(!string.IsNullOrEmpty(selected))
+                {
+                    defaultAssigned = _map.TryGetValue(selected, out defaultEnvironment);
+                }
+
+                if(!defaultAssigned && !string.IsNullOrEmpty(defaultEnv))
+                {
+                    _map.TryGetValue(defaultEnv, out defaultEnvironment);
+                }
+
+                return defaultEnvironment;
+            }
+        }
+
         Environment CurrentEnvironment
         {
             get
@@ -77,7 +85,7 @@ namespace SocialPoint.Base
                     return forced.Value;
                 }
                 
-                return _defaultEnvironment;
+                return DefaultEnvironment;
             }
         }
 

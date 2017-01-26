@@ -15,7 +15,7 @@ namespace SocialPoint.Base
         [Serializable]
         public class SettingsData
         {
-            public bool PersistentEnvironmentStorage;
+            public bool PersistsSelection;
             public Environment[] Environments = new Environment[] { 
                 new Environment { 
                     Name = DefaultDevelopmentName, 
@@ -47,7 +47,7 @@ namespace SocialPoint.Base
 
         public override void InstallBindings()
         {
-            if(Settings.PersistentEnvironmentStorage)
+            if(Settings.PersistsSelection)
             {
                 Container.Bind<IBackendEnvironmentStorage>().ToMethod<PersistentBackendEnvironmentStorage>(CreatePersistentStorage);
             }

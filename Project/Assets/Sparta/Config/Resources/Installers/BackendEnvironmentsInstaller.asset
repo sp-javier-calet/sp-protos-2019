@@ -13,6 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
+    PersistsSelection: 1
     Environments:
     - Name: Production
       Url: https://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3

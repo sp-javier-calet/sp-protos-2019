@@ -23,22 +23,27 @@ namespace SocialPoint.Base
             }
         }
 
+        // Environment selection should be disabled in production builds
         public string Selected
         {
             set
             {
-                if(string.IsNullOrEmpty(value))
+                if(DebugUtils.IsDebugBuild)
                 {
-                    PlayerPrefs.DeleteKey(SelectedBackendEnvPrefsKey);
-                }
-                else
-                {
-                    PlayerPrefs.SetString(SelectedBackendEnvPrefsKey, value);
+                    if(string.IsNullOrEmpty(value))
+                    {
+                        PlayerPrefs.DeleteKey(SelectedBackendEnvPrefsKey);
+                    }
+                    else
+                    {
+                        PlayerPrefs.SetString(SelectedBackendEnvPrefsKey, value);
+                    }
                 }
             }
             get
             {
-                return PlayerPrefs.GetString(SelectedBackendEnvPrefsKey);
+                var stored = PlayerPrefs.GetString(SelectedBackendEnvPrefsKey);
+                return DebugUtils.IsDebugBuild ? stored : _production;
             }
         }
     }
