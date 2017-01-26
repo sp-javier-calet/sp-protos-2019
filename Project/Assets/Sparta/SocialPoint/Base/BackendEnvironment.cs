@@ -26,14 +26,6 @@ namespace SocialPoint.Base
             DebugUtils.Assert(!string.IsNullOrEmpty(DefaultEnvironment.Url), "No Default Development environment");
         }
 
-        public IBackendEnvironmentStorage Storage
-        {
-            get
-            {
-                return _storage;
-            }
-        }
-
         Environment? ForcedEnvironment
         {
             get
@@ -90,6 +82,14 @@ namespace SocialPoint.Base
         }
 
         #region IBackendEnvironment implementation
+
+        public IBackendEnvironmentStorage Storage
+        {
+            get
+            {
+                return _storage;
+            }
+        }
 
         public Environment[] Environments
         {
