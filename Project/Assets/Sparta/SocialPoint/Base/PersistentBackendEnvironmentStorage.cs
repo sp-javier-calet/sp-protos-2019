@@ -4,7 +4,7 @@ namespace SocialPoint.Base
 {
     public sealed class PersistentBackendEnvironmentStorage : IBackendEnvironmentStorage
     {
-        const string SelectedBackendEnvPrefsKey = "selected_backend_environment";
+        const string SelectedBackendEnvPrefsKey = "sparta_selected_backend_environment";
 
         readonly string _default;
         readonly string _production;
