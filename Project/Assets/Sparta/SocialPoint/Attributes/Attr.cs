@@ -1133,7 +1133,7 @@ namespace SocialPoint.Attributes
 
         public override float ToFloat()
         {
-            DebugUtils.Assert(false, "AttrDouble: Can't cast from AttrDouble to float, losing precision");
+            DebugUtils.Assert(_value > float.MaxValue || _value < float.MinValue,"AttrDouble: can't cast to float: value overflow");
             return (float)_value;
         }
 

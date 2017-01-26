@@ -31,7 +31,8 @@ namespace SocialPoint.Base
 
         /// Uses custom editor to modify Defaults
         /// See BackendEnvironmentsInstallerEditor
-        [HideInInspector]
+
+        [Serializable]
         public class DefaultEnvironmentsData
         {
             public string ProductionEnvironment = DefaultProductionName;
@@ -39,6 +40,8 @@ namespace SocialPoint.Base
         }
 
         public SettingsData Settings = new SettingsData();
+
+        [HideInInspector]
         public DefaultEnvironmentsData Defaults = new DefaultEnvironmentsData();
 
         public override void InstallBindings()

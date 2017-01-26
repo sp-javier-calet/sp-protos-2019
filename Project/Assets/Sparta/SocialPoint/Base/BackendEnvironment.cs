@@ -12,8 +12,6 @@ namespace SocialPoint.Base
         readonly Environment _defaultEnvironment;
         readonly Environment _productionEnvironment;
 
-
-
         public BackendEnvironment(Environment[] envs, string defaultProduction, string defaultDevelopment)
         {
             _environments = envs;

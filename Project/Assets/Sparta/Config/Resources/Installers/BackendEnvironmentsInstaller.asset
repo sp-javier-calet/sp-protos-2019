@@ -29,3 +29,6 @@ MonoBehaviour:
     - Name: Docker
       Url: http://localhost:4630/api/v3
       Type: 3
+  Defaults:
+    ProductionEnvironment: Production
+    DefaultEnvironment: Development
