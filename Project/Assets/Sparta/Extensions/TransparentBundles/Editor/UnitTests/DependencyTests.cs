@@ -94,15 +94,15 @@ namespace SocialPoint.TransparentBundles
             var dependencies = new List<string>(AssetDatabase.GetDependencies(path));
             dependencies.Remove(path);
 
-            //Asset is added and bundled
-            Assert.IsFalse(DependencySystem.HasAsset(guid), "Asset is still included in the manifest");
+            //Check that the asset is no longer in the manifest
+            Assert.IsFalse(DependencySystem.HasAsset(guid), "Asset is still included in the manifest when it should have been removed");
 
             //Checks dependencies were added and not bundled since they are not shared
             foreach(var dependency in dependencies)
             {
                 var guidDep = AssetDatabase.AssetPathToGUID(dependency);
 
-                Assert.IsFalse(DependencySystem.HasAsset(guidDep), dependency + " dependency was not included in the manifest");
+                Assert.IsFalse(DependencySystem.HasAsset(guidDep), dependency + " dependency is still included in the manifest when it should have been removed");
             }
         }
 
@@ -141,7 +141,7 @@ namespace SocialPoint.TransparentBundles
             foreach(var dependency in dependencies1)
             {
                 var guidDep = AssetDatabase.AssetPathToGUID(dependency);
-                Assert.IsTrue(DependencySystem.HasAsset(guidDep), "Asset was not included in the manifest");
+                Assert.IsTrue(DependencySystem.HasAsset(guidDep), "Dependency was not included in the manifest");
             }
 
             //Checks dependencies of Prefab 2 were added
@@ -150,11 +150,11 @@ namespace SocialPoint.TransparentBundles
             foreach(var dependency in dependencies2)
             {
                 var guidDep = AssetDatabase.AssetPathToGUID(dependency);
-                Assert.IsTrue(DependencySystem.HasAsset(guidDep), "Asset was not included in the manifest");
+                Assert.IsTrue(DependencySystem.HasAsset(guidDep), "Dependency was not included in the manifest");
             }
 
             //Checks Shared Texture is auto-bundled
-            Assert.IsFalse(string.IsNullOrEmpty(DependencySystem.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected");
+            Assert.IsFalse(string.IsNullOrEmpty(DependencySystem.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected. The dependency should be bundled.");
         }
 
         [Test]
@@ -184,7 +184,7 @@ namespace SocialPoint.TransparentBundles
 
 
             //Checks Shared Texture is not auto-bundled
-            Assert.IsTrue(string.IsNullOrEmpty(DependencySystem.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected");
+            Assert.IsTrue(string.IsNullOrEmpty(DependencySystem.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected, the dependency shouldn't be bundled");
         }
 
 
