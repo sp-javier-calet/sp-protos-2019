@@ -20,8 +20,16 @@ namespace SocialPoint.Base
 
     public interface IBackendEnvironmentStorage
     {
+        /// <summary>
+        /// Gets the default environment for the current configuration
+        /// </summary>
+        /// <value>The name of the default environment</value>
         string Default { get; }
 
+        /// <summary>
+        /// Gets or sets the selected environment name.
+        /// </summary>
+        /// <value>The selected environment name. Null if there is no selected environment.</value>
         string Selected { get; set; }
     }
 

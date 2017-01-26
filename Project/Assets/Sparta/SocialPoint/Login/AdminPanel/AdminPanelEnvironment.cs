@@ -1,7 +1,7 @@
-﻿
-using SocialPoint.AdminPanel;
+﻿using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
@@ -21,16 +21,18 @@ namespace SocialPoint.Login
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {   
+            var currentUrl = _login.BaseUrl;
             layout.CreateLabel("Environments");
             layout.CreateMargin(2);
             for(var i = 0; i < _environments.Environments.Length; ++i)
             {
                 var current = _environments.Environments[i];
-                layout.CreateButton(current.Name, () => OnEnvironmentChange(current));
+                var baseUrl = StringUtils.FixBaseUri(current.Url);
+                layout.CreateButton(current.Name, () => OnEnvironmentChange(current), currentUrl != baseUrl);
             }
 
             layout.CreateMargin();
-            layout.CreateButton("Clear Stored", ClearSelected);
+            layout.CreateButton("Clear Stored", ClearSelected, !string.IsNullOrEmpty(_environments.Storage.Selected));
 
             _layout = layout;
         }

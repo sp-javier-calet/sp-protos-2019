@@ -26,7 +26,7 @@
             }
             get
             {
-                return Default;
+                return null;
             }
         }
     }

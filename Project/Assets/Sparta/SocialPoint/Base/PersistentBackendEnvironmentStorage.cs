@@ -43,7 +43,7 @@ namespace SocialPoint.Base
             get
             {
                 var stored = PlayerPrefs.GetString(SelectedBackendEnvPrefsKey);
-                return DebugUtils.IsDebugBuild ? stored : _production;
+                return DebugUtils.IsDebugBuild ? stored : null;
             }
         }
     }
