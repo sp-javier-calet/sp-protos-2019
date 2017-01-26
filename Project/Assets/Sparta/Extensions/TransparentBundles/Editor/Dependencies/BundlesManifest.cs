@@ -7,6 +7,8 @@ namespace SocialPoint.TransparentBundles
     {
         private Dictionary<string, BundleDependenciesData> _manifest = new Dictionary<string, BundleDependenciesData>();
 
+        #region Getters_Setters
+
         public BundleDependenciesData this[string guid]
         {
             get
@@ -56,8 +58,12 @@ namespace SocialPoint.TransparentBundles
             _manifest = manifest;
         }
 
+        #endregion
+
+        #region Methods
+
         /// <summary>
-        /// Gets a copy of the dependencies data stored for this asset
+        /// Gets the Bundle Dependency Data stored for this asset as **VALUE**
         /// </summary>
         /// <param name="GUID">GUID of the asset to search</param>
         /// <returns>BundleDependenciesData if the asset is in the manifest and null if it isn't</returns>
@@ -76,7 +82,11 @@ namespace SocialPoint.TransparentBundles
             return _manifest.ContainsKey(GUID);
         }
 
-        public List<BundleDependenciesData> GetUserBundles()
+        /// <summary>
+        /// Returns a copy of all the bundles that are userBundled as **VALUE**
+        /// </summary>
+        /// <returns>Copy of all the User Bundles</returns>
+        public List<BundleDependenciesData> GetUserBundlesCopy()
         {
             List<BundleDependenciesData> userBundles = new List<BundleDependenciesData>();
             foreach(var pair in _manifest)
@@ -89,5 +99,7 @@ namespace SocialPoint.TransparentBundles
 
             return userBundles;
         }
+
+        #endregion
     }
 }
