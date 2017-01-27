@@ -84,22 +84,24 @@ namespace SocialPoint.TransparentBundles
             try
             {
                 InputCLI inputs;
+                //string methodName = "";
                 //try
                 //{
-                var arguments = new List<string>(Environment.GetCommandLineArgs());
-                var jsonPath = GetArgument(arguments, _inputJson);
-                var methodName = GetArgument(arguments, _methodName);
-                inputs = InputCLI.Load(jsonPath, methodName + "Input");
-                outputPath = GetArgument(arguments, _outputJson);
-                //}catch(Exception e)
+                    var arguments = new List<string>(Environment.GetCommandLineArgs());
+                    var jsonPath = GetArgument(arguments, _inputJson);
+                    var methodName = GetArgument(arguments, _methodName);
+                    inputs = InputCLI.Load(jsonPath, methodName + "Input");
+                    outputPath = GetArgument(arguments, _outputJson);
+                //}
+                //catch(Exception e)
                 //{
+                //    methodName = "CalculateBundles";
                 //    var jsonPath = Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "input.json");
-                //    inputs = InputCLI.LoadCommon(jsonPath);
-                //    inputs = InputCLI.Load(jsonPath, inputs.MethodName + "Input");
+                //    inputs = InputCLI.Load(jsonPath, methodName + "Input");
                 //    outputPath = Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "output.json");
-                //}                
+                //}
 
-                typeof(TBCLI).GetMethod(methodName).Invoke(null, new object[] { inputs });
+                output = (OutputCLI) typeof(TBCLI).GetMethod(methodName).Invoke(null, new object[] { inputs });
 
                 output.success = true;
                 output.log.Add("OK - Process completed");
