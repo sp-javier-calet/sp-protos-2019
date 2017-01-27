@@ -41,7 +41,7 @@ namespace SocialPoint.TransparentBundles
 
         private static string _path = Path.Combine(Application.dataPath, "DependenciesManifest.json");
 
-        private static BundlesManifest _manifest = new BundlesManifest();
+        public static BundlesManifest Manifest = new BundlesManifest();
 
         static DependencySystem()
         {
@@ -65,30 +65,21 @@ namespace SocialPoint.TransparentBundles
                 path = _path;
             }
 
-            _manifest = JsonMapper.ToObject<BundlesManifest>(File.ReadAllText(path));
+            Manifest = BundlesManifest.Load(path);
         }
 
-        public static void Save()
+        public static void Save(string path = "")
         {
-            JsonWriter writer = new JsonWriter();
-            writer.PrettyPrint = true;
-            JsonMapper.ToJson(_manifest, writer);
-            var str = writer.ToString();
-            File.WriteAllText(_path, str);
+            if(string.IsNullOrEmpty(path))
+            {
+                path = _path;
+            }
+
+            Manifest.Save(path);
         }
         #endregion
 
-        #region APICalls        
-
-        public static BundlesManifest GetManifest()
-        {
-            return _manifest;
-        }
-
-        public static void SetManifest(BundlesManifest manifest)
-        {
-            _manifest = manifest;
-        }
+        #region APICalls               
 
         /// <summary>
         /// Registers or refresh an asset as a manual bundled
@@ -118,7 +109,7 @@ namespace SocialPoint.TransparentBundles
         /// <param name="userBundles">List of the guids of the assets to be user downloadable</param>
         public static void UpdateManifest(List<BundleInfo> userBundles)
         {
-            var oldBundles = _manifest.Values.Where(x => x.IsExplicitlyBundled && !userBundles.Exists(y => y.Guid == x.GUID)).ToList();
+            var oldBundles = Manifest.GetValues().Where(x => x.IsExplicitlyBundled && !userBundles.Exists(y => y.Guid == x.GUID)).ToList();
 
             foreach(var bundleData in oldBundles)
             {
@@ -145,7 +136,7 @@ namespace SocialPoint.TransparentBundles
         /// </summary>
         public static void RefreshAll()
         {
-            var explicitBundles = _manifest.GetDictionary().Where(x => x.Value.IsExplicitlyBundled);
+            var explicitBundles = Manifest.GetDictionary().Where(x => x.Value.IsExplicitlyBundled);
 
             foreach(var pair in explicitBundles)
             {
@@ -177,11 +168,11 @@ namespace SocialPoint.TransparentBundles
         /// Assigns all the bundles in the asset .meta files and removes the ones that are not in the manifest.
         /// </summary>
         /// <param name="bundleManifest">Optional manifest to use to assign the bundles. If none is provided, it will use the last one produced by the DependencySystem</param>
-        public static void PrepareForBuild(BundlesManifest bundleManifest = null)
+        public static void PrepareForBuild(Dictionary<string, BundleDependenciesData> bundleManifest = null)
         {
             if(bundleManifest == null)
             {
-                bundleManifest = _manifest;
+                bundleManifest = Manifest.GetDictionary();
             }
 
             AssetDatabase.StartAssetEditing();
@@ -237,9 +228,9 @@ namespace SocialPoint.TransparentBundles
 
             if(string.IsNullOrEmpty(objPath))
             {
-                if(_manifest.HasAsset(guid))
+                if(Manifest.HasAsset(guid))
                 {
-                    data = _manifest[guid];
+                    data = Manifest[guid];
 
                     if(OnLogMessage != null)
                     {
@@ -268,15 +259,15 @@ namespace SocialPoint.TransparentBundles
             List<string> directDependencies = new List<string>(AssetDatabase.GetDependencies(objPath, false)).ConvertAll(x => AssetDatabase.AssetPathToGUID(x));
             List<string> oldDependencies = new List<string>();
 
-            if(_manifest.HasAsset(guid))
+            if(Manifest.HasAsset(guid))
             {
-                data = _manifest[guid];
+                data = Manifest[guid];
                 oldDependencies.AddRange(data.Dependencies.FindAll(x => !directDependencies.Contains(x)));
             }
             else
             {
                 data = new BundleDependenciesData(guid);
-                _manifest.Add(guid, data);
+                Manifest.Add(guid, data);
                 isNew = true;
             }
 
@@ -359,9 +350,9 @@ namespace SocialPoint.TransparentBundles
         /// <param name="GUID">GUID of the asset to remove</param>
         private static void RemoveAsset(string GUID)
         {
-            if(_manifest.HasAsset(GUID))
+            if(Manifest.HasAsset(GUID))
             {
-                BundleDependenciesData data = _manifest[GUID];
+                BundleDependenciesData data = Manifest[GUID];
 
                 var path = AssetDatabase.GUIDToAssetPath(GUID);
 
@@ -387,7 +378,7 @@ namespace SocialPoint.TransparentBundles
                         RemoveDependant(dependency, GUID);
                     }
 
-                    _manifest.Remove(GUID);
+                    Manifest.Remove(GUID);
                 }
                 else
                 {
@@ -411,9 +402,9 @@ namespace SocialPoint.TransparentBundles
         /// <param name="dependantToRemove">GUID of the asset that used to have the child as a dependency</param>
         private static void RemoveDependant(string GUID, string dependantToRemove)
         {
-            if(_manifest.HasAsset(GUID))
+            if(Manifest.HasAsset(GUID))
             {
-                var data = _manifest[GUID];
+                var data = Manifest[GUID];
                 if(data.Dependants.Contains(dependantToRemove))
                 {
                     data.Dependants.Remove(dependantToRemove);
@@ -444,7 +435,7 @@ namespace SocialPoint.TransparentBundles
 
         private static List<BundleDependenciesData> GetBundledAsset()
         {
-            return _manifest.Values.Where(x => !string.IsNullOrEmpty(x.BundleName)).ToList();
+            return Manifest.GetValues().Where(x => !string.IsNullOrEmpty(x.BundleName)).ToList();
         }
 
         #endregion
@@ -512,7 +503,7 @@ namespace SocialPoint.TransparentBundles
 
             foreach(string guid in data.Dependants)
             {
-                if(_manifest[guid].IsLocal)
+                if(Manifest[guid].IsLocal)
                 {
                     isLocal = true;
                     break;

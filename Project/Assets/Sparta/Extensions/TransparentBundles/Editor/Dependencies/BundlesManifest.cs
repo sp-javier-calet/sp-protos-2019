@@ -1,11 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.IO;
+using LitJson;
 
 namespace SocialPoint.TransparentBundles
 {
     public class BundlesManifest
     {
-        private Dictionary<string, BundleDependenciesData> _manifest = new Dictionary<string, BundleDependenciesData>();
+        private Dictionary<string, BundleDependenciesData> _dictionary = new Dictionary<string, BundleDependenciesData>();
 
         #region Getters_Setters
 
@@ -13,52 +15,74 @@ namespace SocialPoint.TransparentBundles
         {
             get
             {
-                return _manifest[guid];
+                return _dictionary[guid];
             }
             set
             {
-                _manifest[guid] = value;
+                _dictionary[guid] = value;
             }
         }
 
-        public IEnumerable<BundleDependenciesData> Values
+        public IEnumerable<BundleDependenciesData> GetValues() 
         {
-            get
-            {
-                return _manifest.Values;
-            }
+            return _dictionary.Values;
         }
 
-        public IEnumerable<string> Keys
+        
+        public IEnumerable<string> GetKeys()
         {
-            get
-            {
-                return _manifest.Keys;
-            }
+            return _dictionary.Keys;           
         }
 
         public void Add(string guid, BundleDependenciesData bundleData)
         {
-            _manifest.Add(guid, bundleData);
+            _dictionary.Add(guid, bundleData);
         }
 
         public bool Remove(string guid)
         {
-            return _manifest.Remove(guid);
+            return _dictionary.Remove(guid);
         }
 
 
         public Dictionary<string, BundleDependenciesData> GetDictionary()
         {
-            return _manifest;
+            return _dictionary;
         }
 
         public void SetDictionary(Dictionary<string, BundleDependenciesData> manifest)
         {
-            _manifest = manifest;
+            _dictionary = manifest;
         }
 
         #endregion
+
+        public BundlesManifest()
+        {
+        }
+
+        public BundlesManifest(Dictionary<string, BundleDependenciesData> dictionary)
+        {
+            _dictionary = dictionary;
+        }
+
+
+        public static BundlesManifest Load(string path)
+        {
+            BundlesManifest bManifest = new BundlesManifest(); 
+            bManifest._dictionary = JsonMapper.ToObject<Dictionary<string, BundleDependenciesData>>(File.ReadAllText(path));
+
+            return bManifest;
+        }
+
+        public void Save(string path)
+        {
+            JsonWriter writer = new JsonWriter();
+            writer.PrettyPrint = true;
+            JsonMapper.ToJson(_dictionary, writer);
+            var str = writer.ToString();
+            File.WriteAllText(path, str);
+        }
 
         #region Methods
 
@@ -69,7 +93,7 @@ namespace SocialPoint.TransparentBundles
         /// <returns>BundleDependenciesData if the asset is in the manifest and null if it isn't</returns>
         public BundleDependenciesData GetBundleDependencyDataCopy(string GUID)
         {
-            return _manifest.ContainsKey(GUID) ? (BundleDependenciesData)_manifest[GUID].Clone() : null;
+            return _dictionary.ContainsKey(GUID) ? (BundleDependenciesData)_dictionary[GUID].Clone() : null;
         }
 
         /// <summary>
@@ -79,7 +103,7 @@ namespace SocialPoint.TransparentBundles
         /// <returns></returns>
         public bool HasAsset(string GUID)
         {
-            return _manifest.ContainsKey(GUID);
+            return _dictionary.ContainsKey(GUID);
         }
 
         /// <summary>
@@ -89,7 +113,7 @@ namespace SocialPoint.TransparentBundles
         public List<BundleDependenciesData> GetUserBundlesCopy()
         {
             List<BundleDependenciesData> userBundles = new List<BundleDependenciesData>();
-            foreach(var pair in _manifest)
+            foreach(var pair in _dictionary)
             {
                 if(pair.Value.IsExplicitlyBundled)
                 {

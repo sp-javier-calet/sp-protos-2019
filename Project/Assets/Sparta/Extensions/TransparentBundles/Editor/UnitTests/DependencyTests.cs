@@ -19,9 +19,9 @@ namespace SocialPoint.TransparentBundles
         [SetUp]
         public void SetUp()
         {
-            _oldBundlesManifest = DependencySystem.GetManifest();
+            _oldBundlesManifest = DependencySystem.Manifest;
             _testManifest = new BundlesManifest();
-            DependencySystem.SetManifest(_testManifest);
+            DependencySystem.Manifest = _testManifest;
         }
 
         [Test]
@@ -187,11 +187,10 @@ namespace SocialPoint.TransparentBundles
             Assert.IsTrue(string.IsNullOrEmpty(_testManifest.GetBundleDependencyDataCopy(guidShared).BundleName), "Autobundle didn't behave as expected, the dependency shouldn't be bundled because it is not shared anymore.");
         }
 
-
         [TearDown]
         public void TearDown()
         {
-            DependencySystem.SetManifest(_oldBundlesManifest);
+            DependencySystem.Manifest = _oldBundlesManifest;
             DependencySystem.Save();
         }
     }
