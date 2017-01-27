@@ -18,11 +18,28 @@ extern "C" {
 #include <curl/curl.h>
 }
 
+/*
+ * CurlClient Global initialization as a static instance
+ */
+
+CurlClient::CurlHttpClientGlobal CurlClient::global;
+
+CurlClient::CurlHttpClientGlobal::CurlHttpClientGlobal()
+{
+    curl_global_init(CURL_GLOBAL_ALL);
+}
+
+CurlClient::CurlHttpClientGlobal::~CurlHttpClientGlobal()
+{
+    curl_global_cleanup();
+}
+
+/*
+ * CurlClient implementation
+ */
 
 namespace
 {
-    static bool kCurlInitialized = false;
-    
     std::vector<std::string> split(const std::string& str, const std::string& sep, size_t max = std::string::npos)
     {
         std::vector<std::string> tokens;
@@ -114,13 +131,6 @@ CurlClient::CurlClient(bool enableHttp2)
 , _pinnedPublicKey(nullptr)
 , _pinnedPublicKeySize(0)
 {
-    // Do Global initialization when CurlClient is intantiated
-    if(!kCurlInitialized)
-    {
-        curl_global_init(CURL_GLOBAL_ALL);
-        kCurlInitialized = true;
-    }
-    
     _multi = curl_multi_init();
 
     if(_supportsHttp2)
