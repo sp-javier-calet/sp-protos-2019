@@ -1,0 +1,11 @@
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\GameLogic\AuthoritativeGameLogic\bin\GameLogic.dll
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\GameLogic\AuthoritativeGameLogic\bin\GameLogic.pdb
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\GameLogic\AuthoritativeGameLogic\bin\AuthoritativePlugin.dll
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\GameLogic\AuthoritativeGameLogic\bin\Sparta.dll
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\GameLogic\AuthoritativeGameLogic\bin\PhotonHivePlugin.dll
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\GameLogic\AuthoritativeGameLogic\bin\log4net.dll
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\GameLogic\AuthoritativeGameLogic\bin\Sparta.pdb
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\GameLogic\AuthoritativeGameLogic\bin\AuthoritativePlugin.pdb
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\GameLogic\AuthoritativeGameLogic\obj\Debug\AuthoritativeGameLogic.csprojResolveAssemblyReference.cache
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\GameLogic\AuthoritativeGameLogic\obj\Debug\GameLogic.dll
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\GameLogic\AuthoritativeGameLogic\obj\Debug\GameLogic.pdb

@@ -1,0 +1,6 @@
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins\AuthoritativeSparta\bin\Sparta.dll
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins\AuthoritativeSparta\bin\Sparta.pdb
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins\AuthoritativeSparta\bin\Ionic.Zlib.CF.dll
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins\AuthoritativeSparta\obj\Debug\AuthoritativeSparta.csprojResolveAssemblyReference.cache
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins\AuthoritativeSparta\obj\Debug\Sparta.dll
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins\AuthoritativeSparta\obj\Debug\Sparta.pdb
