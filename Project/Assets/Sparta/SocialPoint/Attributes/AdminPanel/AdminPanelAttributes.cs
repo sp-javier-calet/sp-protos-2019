@@ -1,12 +1,11 @@
 using System;
 using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
+using UnityEngine;
 using UnityEngine.UI;
 
 #if UNITY_5_5_OR_NEWER
 using UnityEngine.Profiling;
-#else
-using UnityEngine;
 #endif
 
 namespace SocialPoint.Attributes
@@ -34,14 +33,14 @@ namespace SocialPoint.Attributes
         void OnParseBigFile()
         {
             var sb = StringUtils.StartBuilder();
-            string jsonPath = UnityEngine.Application.streamingAssetsPath + "/BigJsonFile.json";
+            string jsonPath = Application.streamingAssetsPath + "/BigJsonFile.json";
             string json = SocialPoint.IO.FileUtils.ReadAllText(jsonPath);
-            long startTS = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
+            long startTS = TimeUtils.TimestampMilliseconds;
             Profiler.BeginSample("LitJson Parsing");
             var litJsonParser = new LitJsonAttrParser();
             Attr resultLitJson = litJsonParser.ParseString(json);
             Profiler.EndSample();
-            long litJsonTS = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
+            long litJsonTS = TimeUtils.TimestampMilliseconds;
             if(resultLitJson != null)
             {
                 sb.AppendLine(string.Format("LitJson parsing time: {0}ms", litJsonTS - startTS));
@@ -56,7 +55,7 @@ namespace SocialPoint.Attributes
             var fastJsonParser = new FastJsonAttrParser();
             Attr resultFastJson = fastJsonParser.ParseString(json);
             Profiler.EndSample();
-            long fastJsonTS = SocialPoint.Utils.TimeUtils.TimestampMilliseconds;
+            long fastJsonTS = TimeUtils.TimestampMilliseconds;
             if(resultFastJson != null)
             {
                 sb.AppendLine(string.Format("FastJson parsing time: {0}ms", fastJsonTS - litJsonTS));
