@@ -75,8 +75,11 @@ namespace SocialPoint.Extension.Helpshift
             var hs = new UnityHelpshift(hsconfig, Container.Resolve<ILocalizationManager>(), Container.Resolve<INotificationServices>());
 
             var login = Container.Resolve<ILogin>();
-            login.NewGenericDataEvent -= OnNewGenericData;
-            login.NewGenericDataEvent += OnNewGenericData;
+            if(login != null)
+            {
+                login.NewGenericDataEvent -= OnNewGenericData;
+                login.NewGenericDataEvent += OnNewGenericData;
+            }
 
             hs.Enable();
 

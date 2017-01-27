@@ -9,9 +9,25 @@ namespace SocialPoint.ServerMessaging
 {
     public class MessageCenterInstaller : SubInstaller
     {
+        [Serializable]
+        public class SettingsData
+        {
+            public bool UseEmpty;
+        }
+
+        public SettingsData Settings = new SettingsData();
+
         public override void InstallBindings()
         {
-            Container.Bind<IMessageCenter>().ToMethod<MessageCenter>(CreateMessageCenter);
+            if(!Settings.UseEmpty)
+            {
+                Container.Bind<IMessageCenter>().ToMethod<MessageCenter>(CreateMessageCenter);
+            }
+            else
+            {
+                Container.Bind<IMessageCenter>().ToSingle<EmptyMessageCenter>();
+            }
+
             Container.Bind<IDisposable>().ToLookup<IMessageCenter>();
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMessageCenter>(CreateAdminPanel);
         }

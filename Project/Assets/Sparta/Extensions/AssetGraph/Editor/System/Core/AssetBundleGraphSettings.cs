@@ -66,7 +66,9 @@ namespace AssetBundleGraph {
 			new BuildAssetBundleOption("ChunkBased Compression", BuildAssetBundleOptions.ChunkBasedCompression),
 #if UNITY_5_4_OR_NEWER
 			new BuildAssetBundleOption("Strict Mode", BuildAssetBundleOptions.StrictMode),
+#if !UNITY_5_5_OR_NEWER
 			new BuildAssetBundleOption("Omit Class Versions", BuildAssetBundleOptions.OmitClassVersions)
+#endif
 #endif
 		};
 

@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
+using SocialPoint.Dependency.Graph;
 
 namespace SocialPoint.Dependency
 {
@@ -133,10 +134,12 @@ namespace SocialPoint.Dependency
             public Node Node;
 
             readonly StringBuilder _content;
+            readonly StringBuilder _history;
 
             public AdminPanelDependencyNode()
             {
                 _content = new StringBuilder();
+                _history = new StringBuilder();
             }
 
             public void OnCreateGUI(AdminPanelLayout layout)
@@ -144,12 +147,17 @@ namespace SocialPoint.Dependency
                 layout.CreateLabel(Node.Name);
                 layout.CreateMargin();
                 layout.CreateTextArea(CollectNodeContent());
+
                 if(!string.IsNullOrEmpty(Node.CreationStack))
                 {
                     layout.CreateLabel("Creation Stack");
                     layout.CreateVerticalScrollLayout().CreateTextArea(Node.CreationStack);
                 }
+
+                layout.CreateLabel("History");
+                layout.CreateVerticalScrollLayout().CreateTextArea(CollectNodeHistory());
                 layout.CreateMargin();
+
                 CreateNodeLinkList(layout, "Implements", Node.Implements);
                 CreateNodeLinkList(layout, "Aliases", Node.Aliases);
                 CreateNodeLinkList(layout, "Definitions", Node.Definitions);
@@ -176,15 +184,19 @@ namespace SocialPoint.Dependency
                         .Append("Instigator: ").AppendLine(Node.Instigator != null ? Node.Instigator.Class ?? "<none>" : "<none>")
                         .AppendLine();
                 }
-                
-                _content.AppendLine("History:");
+
+                return _content.ToString();
+            }
+
+            public string CollectNodeHistory()
+            {
+                _history.Length = 0;
                 for(var i = 0; i < Node.History.Count; ++i)
                 {
                     var action = Node.History[i];
-                    _content.Append(" - ").AppendLine(action.ToString());
+                    _history.Append(" - ").AppendLine(action.ToString());
                 }
-
-                return _content.ToString();
+                return _history.ToString();
             }
 
             public void CreateNodeLinkList(AdminPanelLayout layout, string label, HashSet<Node> nodes)

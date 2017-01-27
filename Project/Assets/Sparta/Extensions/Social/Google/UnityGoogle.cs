@@ -15,6 +15,8 @@ namespace SocialPoint.Social
 {
     public sealed class UnityGoogle : IUpdateable, IDisposable, IGoogle
     {
+        const string GooglePlayLoginCancelledKey = "google_play_login_cancelled";
+
         [System.Diagnostics.Conditional("DEBUG_GOOGLEPLAY")]
         void DebugLog(string msg)
         {
@@ -159,6 +161,10 @@ namespace SocialPoint.Social
         void OnLoginEnd(Error err)
         {
             DebugLog("OnLoginEnd - Error: " + err);
+            if(!Error.IsNullOrEmpty(err))
+            {
+                HasCancelledLogin = true;    
+            }
 
             _connecting = false;
             NotifyStateChanged();
@@ -259,6 +265,24 @@ namespace SocialPoint.Social
             get
             {
                 return _connecting;
+            }
+        }
+
+        public bool HasCancelledLogin {
+            get
+            {
+                return PlayerPrefs.HasKey(GooglePlayLoginCancelledKey);
+            }
+            private set
+            {
+                if(value)
+                {
+                    PlayerPrefs.SetInt(GooglePlayLoginCancelledKey, 1);
+                }
+                else
+                {
+                    PlayerPrefs.DeleteKey(GooglePlayLoginCancelledKey);
+                }
             }
         }
 

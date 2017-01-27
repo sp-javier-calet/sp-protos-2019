@@ -47,13 +47,17 @@ namespace SocialPoint.Network
         INetworkMessageReceiver _receiver;
         ILog _log;
         object _timer;
+        protected string BackendEnv { get; private set; }
 
         const byte FailEventCode = 199;
         const byte EventContentParam = 245;
         const byte MaxPlayersKey = 255;
         const byte IsOpenKey = 253;
-        const string ServerIdRoomProperty = "server";
         const byte MasterClientIdKey = 248;
+
+        const string ServerIdRoomProperty = "server";
+        const byte BackendEnvMessageType = 198;
+        const byte DifferentBackendEnvErrorCode = 252;
 
         const string LoggerNameConfig = "LoggerName";
         const string PluginNameConfig = "PluginName";
@@ -261,6 +265,18 @@ namespace SocialPoint.Network
         public override void OnRaiseEvent(IRaiseEventCallInfo info)
         {
             info.Continue();
+            if (info.Request.EvCode == BackendEnvMessageType)
+            {
+                var backendEnv = info.Request.Data as String;
+
+                if (BackendEnv != null && BackendEnv != backendEnv)
+                {
+                    Fail(new Error(DifferentBackendEnvErrorCode, "Trying to set different backend environments."));
+                }
+                BackendEnv = backendEnv;
+                return;
+            }
+
             if(_receiver == null)
             {
                 return;

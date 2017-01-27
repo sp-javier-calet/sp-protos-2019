@@ -112,7 +112,7 @@ namespace SocialPoint.Network
             }
             _state = ConnState.Connecting;
             Config.CustomPhotonConfig.SetConfigBeforeConnection();
-            if(!string.IsNullOrEmpty(Config.ForceServer) || !string.IsNullOrEmpty(Config.ForceAppId))
+            if(!string.IsNullOrEmpty(Config.ForceServer) && !string.IsNullOrEmpty(Config.ForceAppId))
             {
                 string addr = null;
                 int port = 0;
@@ -132,8 +132,12 @@ namespace SocialPoint.Network
                 }
                 PhotonNetwork.ConnectToMaster(addr, port, appId, Config.GameVersion);
             }
-            if(Config.ForceRegion != CloudRegionCode.none)
+            else if(Config.ForceRegion != CloudRegionCode.none)
             {
+                if(!string.IsNullOrEmpty(Config.ForceAppId))
+                {
+                    PhotonNetwork.PhotonServerSettings.AppID = Config.ForceAppId;
+                }
                 PhotonNetwork.ConnectToRegion(Config.ForceRegion, Config.GameVersion);
             }
             else
@@ -378,6 +382,10 @@ namespace SocialPoint.Network
                 var err = Error.FromString((string)content);
                 OnNetworkError(err);
                 DoDisconnect();
+                return;
+            }
+            if(eventcode == PhotonMsgType.BackendEnv)
+            {
                 return;
             }
 

@@ -18,14 +18,14 @@ namespace SocialPoint.Utils
     {
         readonly UpdateScheduler _scheduler = new UpdateScheduler();
 
-        public void Add(IUpdateable elm)
+        public void Add(IUpdateable elm, bool timeScaled = false, float interval = -1)
         {
-            _scheduler.Add(elm);
+            _scheduler.Add(elm, timeScaled, interval);
         }
 
-        public void AddFixed(IUpdateable elm, double interval, bool usesTimeScale = false)
+        public void Add(IDeltaUpdateable elm, bool timeScaled = false, float interval = -1)
         {
-            _scheduler.AddFixed(elm, interval, usesTimeScale);
+            _scheduler.Add(elm, timeScaled, interval);
         }
 
         public void Remove(IUpdateable elm)
@@ -33,7 +33,17 @@ namespace SocialPoint.Utils
             _scheduler.Remove(elm);
         }
 
+        public void Remove(IDeltaUpdateable elm)
+        {
+            _scheduler.Remove(elm);
+        }
+
         public bool Contains(IUpdateable elm)
+        {
+            return _scheduler.Contains(elm);
+        }
+
+        public bool Contains(IDeltaUpdateable elm)
         {
             return _scheduler.Contains(elm);
         }

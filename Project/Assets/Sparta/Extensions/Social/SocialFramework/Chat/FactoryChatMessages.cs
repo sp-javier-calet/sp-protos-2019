@@ -13,6 +13,7 @@ namespace SocialPoint.Social
 
         #region Attr keys
 
+        const string UserIdKey = "user_id";
         const string UserNameKey = "user_name";
         const string UserNameTwoDaysLaterKey = "UserName";
         const string OldRoleKey = "old_role";
@@ -247,7 +248,19 @@ namespace SocialPoint.Social
 
         MessageType[] ParseJoinRequestMessage(int type, AttrDic dic)
         {
+
+            var playerId = dic.GetValue(UserIdKey).ToString();
             var message = CreateWarning(type, Localization.Get(SocialFrameworkStrings.ChatJoinRequestKey));
+
+            var data = new RequestJoinData();
+            data.PlayerId = playerId;
+            message.RequestJoinData = data;
+
+            if(ParseExtraInfo != null)
+            {
+                ParseExtraInfo(message, dic);
+            }
+
             return new MessageType[] { message };
         }
 

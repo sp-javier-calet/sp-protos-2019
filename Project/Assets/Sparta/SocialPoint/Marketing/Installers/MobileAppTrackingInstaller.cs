@@ -25,8 +25,9 @@ namespace SocialPoint.Marketing
         if(!Settings.ActiveOnIOS) return;
             #endif
 
-            Container.Bind<IMarketingTracker>().ToMethod<SocialPointMobileAppTracking>(CreateMobileAppTracking);
-            Container.Bind<IDisposable>().ToMethod<SocialPointMobileAppTracking>(CreateMobileAppTracking);
+            Container.Rebind<SocialPointMobileAppTracking>().ToMethod<SocialPointMobileAppTracking>(CreateMobileAppTracking);
+            Container.Bind<IMarketingTracker>().ToLookup<SocialPointMobileAppTracking>();
+            Container.Bind<IDisposable>().ToLookup<SocialPointMobileAppTracking>();
         }
 
         SocialPointMobileAppTracking CreateMobileAppTracking()

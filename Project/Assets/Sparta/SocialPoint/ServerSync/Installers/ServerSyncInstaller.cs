@@ -17,6 +17,7 @@ namespace SocialPoint.ServerSync
         [Serializable]
         public class SettingsData
         {
+            public bool UseEmpty;
             public bool IgnoreResponses = CommandQueue.DefaultIgnoreResponses;
             public int SendInterval = CommandQueue.DefaultSendInterval;
             public int MaxOutOfSyncInterval = CommandQueue.DefaultMaxOutOfSyncInterval;
@@ -29,12 +30,20 @@ namespace SocialPoint.ServerSync
 
         public override void InstallBindings()
         {
-            Container.Rebind<ICommandQueue>().ToMethod<CommandQueue>(CreateCommandQueue, SetupCommandQueue);
-            Container.Bind<IDisposable>().ToLookup<ICommandQueue>();
+            if(!Settings.UseEmpty)
+            {
+                Container.Rebind<ICommandQueue>().ToMethod<CommandQueue>(CreateCommandQueue, SetupCommandQueue);
 
-            Container.Rebind<ServerSyncBridge>().ToMethod<ServerSyncBridge>(CreateBridge);
-            Container.Bind<IEventsBridge>().ToLookup<ServerSyncBridge>();
-            Container.Bind<IScriptEventsBridge>().ToLookup<ServerSyncBridge>();
+                Container.Rebind<ServerSyncBridge>().ToMethod<ServerSyncBridge>(CreateBridge);
+                Container.Bind<IEventsBridge>().ToLookup<ServerSyncBridge>();
+                Container.Bind<IScriptEventsBridge>().ToLookup<ServerSyncBridge>();
+            }
+            else
+            {
+                Container.Bind<ICommandQueue>().ToSingle<EmptyCommandQueue>();
+            }
+
+            Container.Bind<IDisposable>().ToLookup<ICommandQueue>();
 
             Container.Rebind<CommandReceiver>().ToSingle<CommandReceiver>();
 

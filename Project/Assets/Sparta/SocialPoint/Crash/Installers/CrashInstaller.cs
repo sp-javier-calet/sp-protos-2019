@@ -17,6 +17,7 @@ namespace SocialPoint.Crash
         [Serializable]
         public class SettingsData
         {
+            public bool UseEmpty;
             public float SendInterval = SocialPointCrashReporter.DefaultSendInterval;
             public bool ErrorLogActive = SocialPointCrashReporter.DefaultErrorLogActive;
             public bool ExceptionLogActive = SocialPointCrashReporter.DefaultExceptionLogActive;
@@ -28,11 +29,19 @@ namespace SocialPoint.Crash
 
         public override void InstallBindings()
         {
-            Container.Rebind<IBreadcrumbManager>().ToMethod<IBreadcrumbManager>(CreateBreadcrumbManager);
-            Container.Rebind<ICrashReporter>().ToMethod<SocialPointCrashReporter>(
-                CreateCrashReporter, SetupCrashReporter);
-            Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
+            if(!Settings.UseEmpty)
+            {
+                Container.Rebind<IBreadcrumbManager>().ToMethod<IBreadcrumbManager>(CreateBreadcrumbManager);
+                Container.Rebind<ICrashReporter>().ToMethod<SocialPointCrashReporter>(
+                    CreateCrashReporter, SetupCrashReporter);
+            }
+            else
+            {
+                Container.Bind<IBreadcrumbManager>().ToSingle<EmptyBreadcrumbManager>();
+                Container.Bind<ICrashReporter>().ToSingle<EmptyCrashReporter>();
+            }
 
+            Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCrashReporter>(CreateAdminPanel);
         }
 
@@ -71,7 +80,7 @@ namespace SocialPoint.Crash
             reporter.EnableSendingCrashesBeforeLogin = Settings.EnableSendingCrashesBeforeLogin;
             reporter.NumRetriesBeforeSendingCrashBeforeLogin = Settings.NumRetriesBeforeSendingCrashBeforeLogin;
             #if (UNITY_IOS || UNITY_ANDROID) && !UNITY_EDITOR
-        reporter.NativeHandler = Container.Resolve<NativeCallsHandler>();
+            reporter.NativeHandler = Container.Resolve<NativeCallsHandler>();
             #endif
         }
 

@@ -45,6 +45,16 @@ namespace SocialPoint.Lockstep
         {
             _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient());
             _netServer = new LockstepNetworkServer(this, _matchmaking);
+            _netServer.BeforeMatchStarts += OnBeforeMatchStarts;
+        }
+
+        void OnBeforeMatchStarts()
+        {
+            var backendEnv = BackendEnv;
+            if(!string.IsNullOrEmpty(backendEnv))
+            {
+                _matchmaking.BaseUrl = string.Format(_matchmaking.BaseUrl, backendEnv);
+            }
         }
 
         const string CommandStepDurationConfig = "CommandStepDuration";
@@ -79,6 +89,7 @@ namespace SocialPoint.Lockstep
             {
                 _matchmaking.BaseUrl = baseUrl;
             }
+
             string gameAssembly;
             string gameType;
             if(config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) &&

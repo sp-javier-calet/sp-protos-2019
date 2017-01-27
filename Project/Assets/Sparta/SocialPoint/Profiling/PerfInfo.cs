@@ -2,8 +2,12 @@
 using System.Collections;
 using System.Runtime.InteropServices;
 using System.Text;
-using UnityEngine;
 using SocialPoint.Hardware;
+using UnityEngine;
+
+#if UNITY_5_5_OR_NEWER
+using UnityEngine.Profiling;
+#endif
 
 namespace SocialPoint.Profiling
 {
@@ -323,7 +327,11 @@ namespace SocialPoint.Profiling
         public static GarbageInfo SPUnityProfilerGetGarbageInfo()
         {
             var stats = new GarbageInfo();
+        #if UNITY_5_6
+            stats.AllocatedHeap = (uint)Profiler.GetMonoHeapSize();
+        #else
             stats.AllocatedHeap = Profiler.GetMonoHeapSize();
+        #endif
             stats.UsedHeap = Profiler.usedHeapSize;
             return stats;
         }

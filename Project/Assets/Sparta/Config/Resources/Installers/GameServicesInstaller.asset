@@ -13,27 +13,31 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    EnvironmentId: 2
-    ProjectId: dc
-    SecretKeyDev: wetd46pWuR8J5CmS
-    SecretKeyLoc: wetd46pWuR8J5CmS
-    SecretKeyProd: wetd46pWuR8J5CmS
-    BundleDir: localization
-    SupportedLanguages:
-    - en
-    - es
-    - de
-    - fr
-    - tr
-    - it
-    - pt
-    - ru
-    - ja
-    - ko
-    - br
-    - gl
-    - eu
-    - ca
-    - zh-Hans
-    - zh-Hant
-    Timeout: 20
+    Localization:
+      EnvironmentId: 2
+      ProjectId: lod
+      SecretKeyDev: AE7ffBEUZXNzfTe0
+      SecretKeyLoc: AE7ffBEUZXNzfTe0
+      SecretKeyProd: GpfC4F40mwkX0jBX
+      BundleDir: localization
+      SupportedLanguages:
+      - en
+      - es
+      - de
+      - fr
+      - tr
+      - it
+      - pt
+      - ru
+      - ja
+      - ko
+      - br
+      - gl
+      - eu
+      - ca
+      - zh-Hans
+      - zh-Hant
+      Timeout: 20
+    CrossPromotion:
+      ButtonPrefab: {fileID: 169414, guid: c708cb2176ced4497b6b8bae31a93f62, type: 2}
+      PopupPrefab: {fileID: 198162, guid: 777c79b6fceac4174bf5ede41e4c3e70, type: 2}

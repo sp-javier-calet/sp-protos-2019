@@ -43,7 +43,14 @@ namespace SocialPoint.WebSockets
 
         public void SendNetworkMessage(NetworkMessageData info, string data)
         {
-            _socket.Send(data);
+            if(_socket != null && _socket.IsConnected)
+            {
+                _socket.Send(data);
+            }
+            else
+            {
+                DebugUtils.Assert(false, "Message could not be sent. Socket is not connected");
+            }
         }
 
         void OnSocketStateChanged(bool connected)

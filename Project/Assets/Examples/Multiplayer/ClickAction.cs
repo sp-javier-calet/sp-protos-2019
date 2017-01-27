@@ -1,4 +1,5 @@
-﻿using SocialPoint.Geometry;
+﻿using SocialPoint.Network;
+using SocialPoint.Multiplayer;
 using SocialPoint.Physics;
 using SocialPoint.IO;
 using Jitter.LinearMath;
@@ -10,13 +11,13 @@ public class ClickAction : INetworkShareable
 
     public void Deserialize(IReader reader)
     {
-        Position = VectorParser.Instance.Parse(reader);
+        Position = JVectorParser.Instance.Parse(reader);
         Ray = RayParser.Instance.Parse(reader);
     }
 
     public void Serialize(IWriter writer)
     {
-        VectorSerializer.Instance.Serialize(Position, writer);
+        JVectorSerializer.Instance.Serialize(Position, writer);
         RaySerializer.Instance.Serialize(Ray, writer);
     }
 }

@@ -34,8 +34,12 @@ namespace SocialPoint.Purchase
         {
             store.HttpClient = Container.Resolve<IHttpClient>();
             store.CommandQueue = Container.Resolve<ICommandQueue>();
-            store.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
             store.LoginData = Container.Resolve<ILoginData>();
+            var tracker = Container.Resolve<IEventTracker>();
+            if(tracker != null)
+            {
+                store.TrackEvent = tracker.TrackSystemEvent;
+            }
         }
     }
 }
