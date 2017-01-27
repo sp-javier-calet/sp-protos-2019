@@ -73,14 +73,17 @@ namespace SocialPoint.TransparentBundles
                 outputPath = GetArgument(arguments, _outputJson);
 
                 output = (OutputCLI) typeof(TBCLI).GetMethod(inputs.MethodName).Invoke(null, new object[] { inputs });
+
+                output.success = true;
+                output.log.Add("OK - Process completed");
             }
             catch(Exception e)
             {
+                output.success = false;
                 string msg = "CLI RUN ERROR - " + e;
                 output.log.Add(msg);
                 Debug.LogError(msg);
             }
-
 
             if(outputPath != string.Empty)
             {
@@ -98,10 +101,7 @@ namespace SocialPoint.TransparentBundles
             DependencySystem.UpdateManifest(input.ManualBundles);
 
             ((CalculateBundlesOutput)results).CurrentBundles = DependencySystem.GetManifest();
-
-            results.success = true;
-            results.log.Add("OK - Process completed");
-
+            
             return results;
             
         }
@@ -117,9 +117,6 @@ namespace SocialPoint.TransparentBundles
             var manifest = BuildPipeline.BuildAssetBundles(input.BundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.AppendHashToAssetBundleName, EditorUserBuildSettings.activeBuildTarget);
 
             ((BuildBundlesOutput)results).bundles = manifest.GetAllAssetBundles();
-
-            results.success = true;
-            results.log.Add("OK - Process completed");
 
             return results;
         }
