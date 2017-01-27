@@ -6,6 +6,7 @@ using LitJson;
 using System.IO;
 using UnityEditor;
 using System.Reflection;
+using System.Linq;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -28,11 +29,24 @@ namespace SocialPoint.TransparentBundles
 
         public class InputCLI
         {
-            public string MethodName;
-
-            public static InputCLI Load(string path)
+            public static InputCLI Load(string path, string type)
             {
-                return JsonMapper.ToObject<InputCLI>(File.ReadAllText(path));
+                Assembly currentAssembly = Assembly.GetExecutingAssembly();
+                Type currentType = currentAssembly.GetTypes().SingleOrDefault(t => t.Name == type);
+
+                if(currentType == null)
+                {
+                    currentType = typeof(InputCLI);
+                }
+                return (InputCLI) TBUtils.GetJsonMapperToObjGeneric(currentType).Invoke(null, new object[] { File.ReadAllText(path) });
+            }
+
+            public void Save(string path, bool pretty = true)
+            {
+                JsonWriter writer = new JsonWriter();
+                writer.PrettyPrint = pretty;
+                JsonMapper.ToJson(this, writer);
+                File.WriteAllText(path, writer.ToString());
             }
         }
 
@@ -60,6 +74,7 @@ namespace SocialPoint.TransparentBundles
 
         private const string _inputJson = "-input-json";
         private const string _outputJson = "-output-json";
+        private const string _methodName = "-method-name";
 
         #region CLI_Methods
         public static void Run()
@@ -68,11 +83,23 @@ namespace SocialPoint.TransparentBundles
             var outputPath = string.Empty;
             try
             {
+                InputCLI inputs;
+                //try
+                //{
                 var arguments = new List<string>(Environment.GetCommandLineArgs());
-                var inputs = InputCLI.Load(GetArgument(arguments, _inputJson));
+                var jsonPath = GetArgument(arguments, _inputJson);
+                var methodName = GetArgument(arguments, _methodName);
+                inputs = InputCLI.Load(jsonPath, methodName + "Input");
                 outputPath = GetArgument(arguments, _outputJson);
+                //}catch(Exception e)
+                //{
+                //    var jsonPath = Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "input.json");
+                //    inputs = InputCLI.LoadCommon(jsonPath);
+                //    inputs = InputCLI.Load(jsonPath, inputs.MethodName + "Input");
+                //    outputPath = Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "output.json");
+                //}                
 
-                output = (OutputCLI) typeof(TBCLI).GetMethod(inputs.MethodName).Invoke(null, new object[] { inputs });
+                typeof(TBCLI).GetMethod(methodName).Invoke(null, new object[] { inputs });
 
                 output.success = true;
                 output.log.Add("OK - Process completed");
@@ -92,15 +119,14 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-
         public static OutputCLI CalculateBundles(CalculateBundlesInput input)
         {
-            OutputCLI results = new CalculateBundlesOutput();
+            CalculateBundlesOutput results = new CalculateBundlesOutput();
             DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
 
             DependencySystem.UpdateManifest(input.ManualBundles);
 
-            ((CalculateBundlesOutput)results).CurrentBundles = DependencySystem.GetManifest();
+            results.CurrentBundles = DependencySystem.GetManifest();
             
             return results;
             
@@ -116,7 +142,7 @@ namespace SocialPoint.TransparentBundles
             DependencySystem.ValidateAllBundles();
             var manifest = BuildPipeline.BuildAssetBundles(input.BundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.AppendHashToAssetBundleName, EditorUserBuildSettings.activeBuildTarget);
 
-            ((BuildBundlesOutput)results).bundles = manifest.GetAllAssetBundles();
+            results.bundles = manifest.GetAllAssetBundles();
 
             return results;
         }
