@@ -118,7 +118,7 @@ namespace SocialPoint.TransparentBundles
 
             DependencySystem.UpdateManifest(input.ManualBundles);
 
-            results.CurrentBundles = DependencySystem.GetManifest();
+            results.BundlesDictionary = DependencySystem.Manifest.GetDictionary();
             
             return results;
             
@@ -131,8 +131,8 @@ namespace SocialPoint.TransparentBundles
             var results = new BuildBundlesOutput();
             DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
                 
-                DependencySystem.PrepareForBuild(inputs.BundlesDictionary);
-                var manifest = BuildPipeline.BuildAssetBundles(inputs.BundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.AppendHashToAssetBundleName, EditorUserBuildSettings.activeBuildTarget);
+                DependencySystem.PrepareForBuild(input.BundlesDictionary);
+                var manifest = BuildPipeline.BuildAssetBundles(input.BundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.AppendHashToAssetBundleName, EditorUserBuildSettings.activeBuildTarget);
 
             results.bundles = manifest.GetAllAssetBundles();
 
