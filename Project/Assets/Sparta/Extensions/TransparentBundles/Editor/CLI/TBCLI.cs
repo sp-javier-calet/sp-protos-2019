@@ -83,23 +83,12 @@ namespace SocialPoint.TransparentBundles
             var outputPath = string.Empty;
             try
             {
-                InputCLI inputs;
-                //string methodName = "";
-                //try
-                //{
-                    var arguments = new List<string>(Environment.GetCommandLineArgs());
-                    var jsonPath = GetArgument(arguments, _inputJson);
-                    var methodName = GetArgument(arguments, _methodName);
-                    inputs = InputCLI.Load(jsonPath, methodName + "Input");
-                    outputPath = GetArgument(arguments, _outputJson);
-                //}
-                //catch(Exception e)
-                //{
-                //    methodName = "CalculateBundles";
-                //    var jsonPath = Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "input.json");
-                //    inputs = InputCLI.Load(jsonPath, methodName + "Input");
-                //    outputPath = Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "output.json");
-                //}
+                var arguments = new List<string>(Environment.GetCommandLineArgs());
+                var jsonPath = GetArgument(arguments, _inputJson);
+                var methodName = GetArgument(arguments, _methodName);
+                outputPath = GetArgument(arguments, _outputJson);
+
+                InputCLI inputs = InputCLI.Load(jsonPath, methodName + "Input");
 
                 output = (OutputCLI) typeof(TBCLI).GetMethod(methodName).Invoke(null, new object[] { inputs });
 
