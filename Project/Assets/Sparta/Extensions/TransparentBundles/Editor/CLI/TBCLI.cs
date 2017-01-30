@@ -132,7 +132,7 @@ namespace SocialPoint.TransparentBundles
             DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
                 
                 DependencySystem.PrepareForBuild(input.BundlesDictionary);
-                var manifest = BuildPipeline.BuildAssetBundles(input.BundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.AppendHashToAssetBundleName, EditorUserBuildSettings.activeBuildTarget);
+                var manifest = BuildPipeline.BuildAssetBundles(input.BundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle, EditorUserBuildSettings.activeBuildTarget);
 
             results.bundles = manifest.GetAllAssetBundles();
 
