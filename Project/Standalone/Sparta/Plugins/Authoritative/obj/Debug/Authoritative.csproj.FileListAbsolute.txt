@@ -1,9 +1,0 @@
-C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins\Authoritative\bin\AuthoritativePlugin.dll
-C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins\Authoritative\bin\AuthoritativePlugin.pdb
-C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins\Authoritative\bin\log4net.dll
-C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins\Authoritative\bin\PhotonHivePlugin.dll
-C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins\Authoritative\bin\Sparta.dll
-C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins\Authoritative\bin\Sparta.pdb
-C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins\Authoritative\obj\Debug\Authoritative.csprojResolveAssemblyReference.cache
-C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins\Authoritative\obj\Debug\AuthoritativePlugin.dll
-C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins\Authoritative\obj\Debug\AuthoritativePlugin.pdb
