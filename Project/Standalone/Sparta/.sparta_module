@@ -1,2 +1,3 @@
-name Sparta
+name Server/Extension/Standalone
 type extension
+depends_on Standalone/PhotonServer
