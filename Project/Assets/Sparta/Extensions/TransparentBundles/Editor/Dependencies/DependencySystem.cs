@@ -11,11 +11,16 @@ namespace SocialPoint.TransparentBundles
     [InitializeOnLoad]
     public static class DependencySystem
     {
-        public struct BundleInfo
+        public class BundleInfo
         {
             public string Guid;
-            public string Path;
+            public string Path = string.Empty;
             public bool IsLocal;
+
+            public BundleInfo()
+            {
+                Path = string.Empty;
+            }
 
             public BundleInfo(string guid, bool isLocal = false)
             {

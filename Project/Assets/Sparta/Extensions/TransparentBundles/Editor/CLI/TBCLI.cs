@@ -5,6 +5,8 @@ using System;
 using LitJson;
 using System.IO;
 using UnityEditor;
+using System.Reflection;
+using System.Linq;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -25,15 +27,30 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        public class InputCLI<T>
+        public class InputCLI
         {
-            public static T Load(string path)
+            public static InputCLI Load(string path, string type)
             {
-                return JsonMapper.ToObject<T>(File.ReadAllText(path));
+                Assembly currentAssembly = Assembly.GetExecutingAssembly();
+                Type currentType = currentAssembly.GetTypes().SingleOrDefault(t => t.Name == type);
+
+                if(currentType == null)
+                {
+                    currentType = typeof(InputCLI);
+                }
+                return (InputCLI) TBUtils.GetJsonMapperToObjGeneric(currentType).Invoke(null, new object[] { File.ReadAllText(path) });
+            }
+
+            public void Save(string path, bool pretty = true)
+            {
+                JsonWriter writer = new JsonWriter();
+                writer.PrettyPrint = pretty;
+                JsonMapper.ToJson(this, writer);
+                File.WriteAllText(path, writer.ToString());
             }
         }
 
-        public class CalculateBundlesInput : InputCLI<CalculateBundlesInput>
+        public class CalculateBundlesInput : InputCLI
         {
             public List<DependencySystem.BundleInfo> ManualBundles;
         }
@@ -43,7 +60,7 @@ namespace SocialPoint.TransparentBundles
             public Dictionary<string, BundleDependenciesData> BundlesDictionary;
         }
 
-        public class BuildBundlesInput : InputCLI<BuildBundlesInput>
+        public class BuildBundlesInput : InputCLI
         {
             public Dictionary<string, BundleDependenciesData> BundlesDictionary;
             public MobileTextureSubtarget TextureFormat = MobileTextureSubtarget.Generic;
@@ -58,107 +75,68 @@ namespace SocialPoint.TransparentBundles
 
         private const string _inputJson = "-input-json";
         private const string _outputJson = "-output-json";
+        private const string _methodName = "-method-name";
 
         #region CLI_Methods
-        public static void CalculateBundles()
+        public static void Run()
         {
-            CalculateBundlesInput inputs;
-            OutputCLI results = new OutputCLI();
-            string outputPath;
-
-            // Arguments Parsing
+            OutputCLI output = new OutputCLI();
+            var outputPath = string.Empty;
             try
             {
                 var arguments = new List<string>(Environment.GetCommandLineArgs());
-                inputs = CalculateBundlesInput.Load(GetArgument(arguments, _inputJson));
+                var jsonPath = GetArgument(arguments, _inputJson);
+                var methodName = GetArgument(arguments, _methodName);
                 outputPath = GetArgument(arguments, _outputJson);
+
+                InputCLI inputs = InputCLI.Load(jsonPath, methodName + "Input");
+
+                output = (OutputCLI) typeof(TBCLI).GetMethod(methodName).Invoke(null, new object[] { inputs });
+
+                output.success = true;
+                output.log.Add("OK - Process completed");
             }
             catch(Exception e)
             {
-                ////**TESTING ONLY** Faking args
-                //inputs = CalculateBundlesInput.Load(Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "input.json"));
-
-                throw new ArgumentException(e.ToString());
-            }
-
-            // Operations
-            try
-            {
-                results = new CalculateBundlesOutput();
-                DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
-
-                DependencySystem.UpdateManifest(inputs.ManualBundles);
-
-                ((CalculateBundlesOutput)results).BundlesDictionary = DependencySystem.Manifest.GetDictionary();
-
-                results.success = true;
-                results.log.Add("OK - Process completed");
-            }
-            catch(Exception e)
-            {
+                output.success = false;
                 string msg = "CLI RUN ERROR - " + e;
-                results.log.Add(msg);
+                output.log.Add(msg);
                 Debug.LogError(msg);
             }
-            finally
+
+            if(outputPath != string.Empty)
             {
                 // Output Saving
-                results.Save(outputPath);
+                output.Save(outputPath);
             }
         }
 
-        public static void BuildBundles()
+        public static OutputCLI CalculateBundles(CalculateBundlesInput input)
         {
-            BuildBundlesInput inputs;
-            OutputCLI results = new OutputCLI();
-            string outputPath;
+            CalculateBundlesOutput results = new CalculateBundlesOutput();
+            DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
 
-            // Arguments Parsing
-            try
-            {
-                var arguments = new List<string>(Environment.GetCommandLineArgs());
-                inputs = BuildBundlesInput.Load(GetArgument(arguments, _inputJson));
-                outputPath = GetArgument(arguments, _outputJson);
-            }
-            catch(Exception e)
-            {
-                //// **TESTING ONLY** Faking args
-                //textureFormatSpecified = false;
-                //platform = EditorUserBuildSettings.activeBuildTarget.ToString();
-                //textureFormat = string.Empty;
-                //bundlesPath = Directory.GetDirectoryRoot(Application.dataPath);
-                //// **END TESTING**
+            DependencySystem.UpdateManifest(input.ManualBundles);
 
-                throw new ArgumentException(e.ToString());
-            }
+            results.CurrentBundles = DependencySystem.GetManifest();
+            
+            return results;
+            
+        }
 
-            // Operations
-            try
-            {
-                EditorUserBuildSettings.androidBuildSubtarget = inputs.TextureFormat;
+        public static OutputCLI BuildBundles(BuildBundlesInput input)
+        {                      
+            EditorUserBuildSettings.androidBuildSubtarget = input.TextureFormat;
 
-                results = new BuildBundlesOutput();
-                DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
+            var results = new BuildBundlesOutput();
+            DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
                 
                 DependencySystem.PrepareForBuild(inputs.BundlesDictionary);
                 var manifest = BuildPipeline.BuildAssetBundles(inputs.BundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle | BuildAssetBundleOptions.AppendHashToAssetBundleName, EditorUserBuildSettings.activeBuildTarget);
 
-                ((BuildBundlesOutput)results).bundles = manifest.GetAllAssetBundles();
+            results.bundles = manifest.GetAllAssetBundles();
 
-                results.success = true;
-                results.log.Add("OK - Process completed");
-            }
-            catch(Exception e)
-            {
-                string msg = "CLI RUN ERROR - " + e;
-                results.log.Add(msg);
-                Debug.LogError(msg);
-            }
-            finally
-            {
-                // Output Saving
-                results.Save(outputPath);
-            }
+            return results;
         }
 
         #endregion
