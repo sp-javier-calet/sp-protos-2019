@@ -93,7 +93,7 @@ namespace SocialPoint.TransparentBundles
 
                 InputCLI inputs = InputCLI.Load(jsonPath, methodName + "Input");
 
-                args = new object[] { inputs, output, null };
+                args = new object[] { inputs, output };
                 typeof(TBCLI).GetMethod(methodName).Invoke(null, args);
 
                 output.success = true;
