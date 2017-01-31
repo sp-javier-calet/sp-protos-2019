@@ -56,7 +56,7 @@ namespace SocialPoint.TransparentBundles
             _reqState = new AsyncRequestData(request, finishedCallback);
         }
         /// <summary>
-        /// Given an base URL and a dictionary of params, appends params to the url string into the query
+        /// Given a base URL and a dictionary of params, appends params to the url string into the query
         /// </summary>
         /// <param name="url">Base url</param>
         /// <param name="queryParams">query params to append</param>
