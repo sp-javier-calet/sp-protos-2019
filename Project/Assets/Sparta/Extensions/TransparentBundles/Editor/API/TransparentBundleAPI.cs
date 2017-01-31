@@ -32,9 +32,11 @@ namespace SocialPoint.TransparentBundles
         private const string _loginUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/login/";
         private const string _requestUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/asset_request/";
         private const string _localBundleUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/local_asset/";
+
         private const string _queryLogin = "user_email";
         private const string _queryProject = "project";
-        private const string _configDefaultPath = "Assets/Sparta/Config/Transparent Bundles/TBConfig.asset";
+
+        private const string _configDefaultPath = "Assets/Sparta/Config/TransparentBundles/TBConfig.asset";
 
         private static bool _isLogged = false;
 
