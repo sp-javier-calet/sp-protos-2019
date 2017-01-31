@@ -38,7 +38,7 @@ namespace SocialPoint.Social
                 .Append("\tName: ").AppendLine(Name)
                 .Append("\tAvatar: ").AppendLine(Avatar.ToString())
                 .Append("\tRank: ").AppendLine(Rank.ToString());
-            return builder.ToString();
+            return StringUtils.FinishBuilder(builder);
         }
     }
 
@@ -147,7 +147,7 @@ namespace SocialPoint.Social
             {
                 builder.Append("\t\t").AppendLine(itr.Current);
             }
-            return builder.ToString();
+            return StringUtils.FinishBuilder(builder);
         }
     }
 

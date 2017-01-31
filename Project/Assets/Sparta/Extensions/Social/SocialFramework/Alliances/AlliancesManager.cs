@@ -182,10 +182,10 @@ namespace SocialPoint.Social
         public WAMPRequest LoadRanking(Action<Error, AlliancesRanking> callback)
         {
             var dic = new AttrDic();
-            var allianceComponenet = GetLocalBasicData();
-            if(allianceComponenet.IsInAlliance())
+            var allianceComponent = GetLocalBasicData();
+            if(allianceComponent.IsInAlliance())
             {
-                dic.SetValue(AllianceIdKey, allianceComponenet.Id);
+                dic.SetValue(AllianceIdKey, allianceComponent.Id);
             }
 
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
