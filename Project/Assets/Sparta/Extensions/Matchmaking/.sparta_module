@@ -1,4 +1,8 @@
 type extension
 desc Matchmaking implementation for sparta
 name Extension/Matchmaking
+depends_on Assets/Sparta/Extensions/WAMP
 depends_on Assets/Sparta/Extensions/Websockets
+depends_on Assets/Sparta/Extensions/Social/SocialFramework
+depends_on Assets/Sparta/External/Photon/Plugins/WebSocket/websocket-sharp.dll
+

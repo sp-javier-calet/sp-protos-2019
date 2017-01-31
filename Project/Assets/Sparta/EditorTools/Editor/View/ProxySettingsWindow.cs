@@ -4,7 +4,7 @@ using System.IO;
 
 namespace SpartaTools.Editor.View
 {
-    public class ProxySettingsWindow : EditorWindow
+    public class ProxySettingsWindow : ISubWindow
     {
         const string ProxyEnabledKey = "SpartaEditorProxyEnabled";
         const string ProxyAddressKey = "SpartaEditorProxyAddress";
@@ -13,12 +13,6 @@ namespace SpartaTools.Editor.View
         const string ProxySettingsFile = ".proxy";
         const string DefaultAddress = "http://localhost";
         const string DefaultPort = "8888";
-
-        [MenuItem("Sparta/Editor proxy...", false, 300)]
-        public static void OpenProxySettings()
-        {
-            EditorWindow.GetWindow(typeof(ProxySettingsWindow), false, "Proxy", true);
-        }
 
         class ProxyData
         {
@@ -33,7 +27,6 @@ namespace SpartaTools.Editor.View
         }
 
         ProxyData CurrentProxy;
-        Vector2 _scrollPosition;
 
         ProxyData Load()
         {
@@ -67,15 +60,8 @@ namespace SpartaTools.Editor.View
 
         #region Draw GUI
 
-        void OnFocus()
+        public void OnGUI()
         {
-            Sparta.SetIcon(this, "Proxy", "Sparta Proxy settings");
-        }
-
-        void OnGUI()
-        {
-            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
-
             if(CurrentProxy == null)
             {
                 CurrentProxy = Load();
@@ -97,8 +83,6 @@ namespace SpartaTools.Editor.View
                 Save(CurrentProxy);
                 SetProxy(CurrentProxy);
             }
-
-            EditorGUILayout.EndScrollView();
         }
 
         #endregion

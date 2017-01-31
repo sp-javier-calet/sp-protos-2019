@@ -3,15 +3,20 @@ using System.Text;
 using SocialPoint.IO;
 using SocialPoint.AdminPanel;
 using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.WebSockets
 {
-    public class AdminPanelWebSockets : IAdminPanelConfigurer, IAdminPanelGUI, INetworkClientDelegate, INetworkMessageReceiver
+    public class AdminPanelWebSockets : IAdminPanelConfigurer, IAdminPanelGUI, IUpdateable, INetworkClientDelegate, INetworkMessageReceiver
     {
+        const long AutoSendInterval = 3;
+
         readonly string _name;
         readonly IWebSocketClient _socket;
         readonly StringBuilder _content;
         Text _text;
+        bool _autoSend;
+        long _lastAutoSend;
 
         public AdminPanelWebSockets(IWebSocketClient client, string name)
         {
@@ -29,6 +34,8 @@ namespace SocialPoint.WebSockets
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
+            layout.CreateLabel(_socket.GetType().Name);
+
             layout.CreateToggleButton("Connect", _socket.Connected, (value) => {
                 if(value)
                 {
@@ -53,14 +60,32 @@ namespace SocialPoint.WebSockets
             }
             layout.CreateButton("Ping", _socket.Ping);
 
-            layout.CreateButton("Send", () => {
-                var data = new NetworkMessageData();
-                var msg = _socket.CreateMessage(data);
-                msg.Writer.Write("hello");
-                msg.Send();
-            }, _socket.Connected);
+            layout.CreateButton("Send", SendDefaultMessage, _socket.Connected);
+
+            layout.CreateToggleButton("Send periodically", _autoSend, value => 
+                {
+                    _autoSend = value;
+                    if(value)
+                    {
+                        layout.RegisterUpdateable(this);
+                    }
+                    else
+                    {
+                        layout.UnregisterUpdateable(this);
+                    }
+                });
 
             _text = layout.CreateVerticalScrollLayout().CreateTextArea(_content.ToString());
+        }
+
+        public void Update()
+        {
+            var now = TimeUtils.Timestamp;
+            if(now - _lastAutoSend > AutoSendInterval)
+            {
+                SendDefaultMessage();
+                _lastAutoSend = now;
+            }
         }
 
         void RefreshText()
@@ -69,6 +94,14 @@ namespace SocialPoint.WebSockets
             {
                 _text.text = _content.ToString();
             }
+        }
+
+        void SendDefaultMessage()
+        {
+            var data = new NetworkMessageData();
+            var msg = _socket.CreateMessage(data);
+            msg.Writer.Write("hello");
+            msg.Send();
         }
 
         #region INetworkClientDelegate implementation

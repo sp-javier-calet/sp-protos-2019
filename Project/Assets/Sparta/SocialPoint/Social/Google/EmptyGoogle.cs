@@ -125,6 +125,14 @@ namespace SocialPoint.Social
             }
         }
 
+        public bool HasCancelledLogin
+        {
+            get
+            {
+                return false;
+            }
+        }
+
         public IEnumerable<GoogleAchievement> Achievements
         {
             get

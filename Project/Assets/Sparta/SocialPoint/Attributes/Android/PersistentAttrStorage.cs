@@ -9,6 +9,15 @@ namespace SocialPoint.Attributes
     {
         public event Action<Exception> ExceptionThrown;
 
+        void OnExceptionThrown(Exception ex)
+        {
+            var handler = ExceptionThrown;
+            if(handler != null)
+            {
+                handler(ex);
+            }
+        }
+
         readonly string _prefix;
         IAttrSerializer _serializer;
         IAttrParser _parser;

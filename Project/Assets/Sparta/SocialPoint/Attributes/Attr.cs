@@ -81,7 +81,7 @@ namespace SocialPoint.Attributes
             case AttrType.VALUE:
                 return (AttrValue)la == (AttrValue)ra;
             }
-            
+
             return false;
         }
 
@@ -250,6 +250,7 @@ namespace SocialPoint.Attributes
 
         public virtual int ToInt()
         {
+            DebugUtils.Assert(false, "AttrValue: Can't convert AttrValue to this type, unimplemented method in child class");
             return 0;
         }
 
@@ -377,7 +378,7 @@ namespace SocialPoint.Attributes
             {
                 return false;
             }
-            
+
             switch(la.AttrValueType)
             {
             case AttrValueType.EMPTY:
@@ -395,7 +396,7 @@ namespace SocialPoint.Attributes
             case AttrValueType.STRING:
                 return (AttrString)la == (AttrString)ra;
             }
-            
+
             return false;
         }
 
@@ -410,13 +411,13 @@ namespace SocialPoint.Attributes
             {
                 return false;
             }
-            
+
             var p = obj as AttrValue;
             if((object)p == null)
             {
                 return false;
             }
-            
+
             return this == p;
         }
 
@@ -513,6 +514,31 @@ namespace SocialPoint.Attributes
         public override string ToString()
         {
             return string.Empty;
+        }
+
+        public override int ToInt()
+        {
+            return 0;
+        }
+
+        public override long ToLong()
+        {
+            return 0L;
+        }
+
+        public override float ToFloat()
+        {
+            return 0.0f;
+        }
+
+        public override double ToDouble()
+        {
+            return 0.0;
+        }
+
+        public override bool ToBool()
+        {
+            return false;
         }
     }
 
@@ -620,13 +646,13 @@ namespace SocialPoint.Attributes
             {
                 return false;
             }
-            
+
             var p = obj as AttrBool;
             if((object)p == null)
             {
                 return false;
             }
-            
+
             return this == p;
         }
 
@@ -665,6 +691,17 @@ namespace SocialPoint.Attributes
             return _value.ToString();
         }
 
+        public override float ToFloat()
+        {
+            DebugUtils.Assert(_value <= float.MaxValue && _value >= float.MinValue, "AttrInt: can't cast to float: losing precision");
+            return (float)_value;
+        }
+
+        public override long ToLong()
+        {
+            return (long)_value;
+        }
+
         public override int ToInt()
         {
             return _value;
@@ -696,13 +733,13 @@ namespace SocialPoint.Attributes
             {
                 return false;
             }
-            
+
             var p = obj as AttrInt;
             if((object)p == null)
             {
                 return false;
             }
-            
+
             return this == p;
         }
 
@@ -747,6 +784,7 @@ namespace SocialPoint.Attributes
 
         public override int ToInt()
         {
+            DebugUtils.Assert(_value <= int.MaxValue && _value >= int.MinValue, "AttrLong: Can't cast from AttrLong to int, losing precision");
             return (int)_value;
         }
 
@@ -762,6 +800,7 @@ namespace SocialPoint.Attributes
 
         public override void SetFloat(float val)
         {
+            DebugUtils.Assert(false, "AttrLong: Can't store float, losing precision");
             _value = (long)val;
         }
 
@@ -777,6 +816,7 @@ namespace SocialPoint.Attributes
 
         public override void SetDouble(double val)
         {
+            DebugUtils.Assert(false, "AttrLong: Can't store double, losing precision");
             _value = (long)val;
         }
 
@@ -801,13 +841,13 @@ namespace SocialPoint.Attributes
             {
                 return false;
             }
-            
+
             var p = obj as AttrLong;
             if((object)p == null)
             {
                 return false;
             }
-            
+
             return this == p;
         }
 
@@ -951,7 +991,7 @@ namespace SocialPoint.Attributes
             {
                 return false;
             }
-            
+
             return this == p;
         }
 
@@ -996,7 +1036,19 @@ namespace SocialPoint.Attributes
 
         public override int ToInt()
         {
+            DebugUtils.Assert(false, "AttrFloat: Can't cast from AttrFloat to int, losing precision");
             return (int)_value;
+        }
+
+        public override double ToDouble()
+        {
+            return (double)_value;
+        }
+
+        public override long ToLong()
+        {
+            DebugUtils.Assert(false, "AttrFloat: Can't cast from AttrFloat to long, losing precision");
+            return (long)_value;
         }
 
         public override void SetString(string val)
@@ -1005,6 +1057,11 @@ namespace SocialPoint.Attributes
         }
 
         public override void SetInt(int val)
+        {
+            _value = (float)val;
+        }
+
+        public override void SetLong(long val)
         {
             _value = (float)val;
         }
@@ -1030,13 +1087,13 @@ namespace SocialPoint.Attributes
             {
                 return false;
             }
-            
+
             var p = obj as AttrFloat;
             if((object)p == null)
             {
                 return false;
             }
-            
+
             return this == p;
         }
 
@@ -1076,16 +1133,19 @@ namespace SocialPoint.Attributes
 
         public override float ToFloat()
         {
+            DebugUtils.Assert(_value <= float.MaxValue && _value >= float.MinValue, "AttrDouble: can't cast to float: value overflow");
             return (float)_value;
         }
 
         public override int ToInt()
         {
+            DebugUtils.Assert(false, "AttrDouble: Can't cast from AttrDouble to int, losing precision");
             return (int)_value;
         }
 
         public override long ToLong()
         {
+            DebugUtils.Assert(false, "AttrDouble: Can't cast from AttrDouble to long, losing precision");
             return (long)_value;
         }
 
@@ -1135,13 +1195,13 @@ namespace SocialPoint.Attributes
             {
                 return false;
             }
-            
+
             var p = obj as AttrDouble;
             if((object)p == null)
             {
                 return false;
             }
-            
+
             return this == p;
         }
 
@@ -1390,7 +1450,7 @@ namespace SocialPoint.Attributes
             {
                 return false;
             }
-            
+
             if(la.Count != ra.Count)
             {
                 return false;
@@ -1407,7 +1467,7 @@ namespace SocialPoint.Attributes
                 }
             }
             itr.Dispose();
-            
+
             return true;
         }
 
@@ -1422,13 +1482,13 @@ namespace SocialPoint.Attributes
             {
                 return false;
             }
-            
+
             var p = obj as AttrDic;
             if((object)p == null)
             {
                 return false;
             }
-            
+
             return this == p;
         }
 
@@ -1438,7 +1498,7 @@ namespace SocialPoint.Attributes
             {
                 return false;
             }
-                        
+
             return this == dic;
         }
 
@@ -1858,13 +1918,13 @@ namespace SocialPoint.Attributes
             {
                 return false;
             }
-            
+
             var p = obj as AttrList;
             if((object)p == null)
             {
                 return false;
             }
-            
+
             return this == p;
         }
 

@@ -18,6 +18,7 @@ public class GameInstaller : Installer, IInitializable
         public string InitialJsonGameResource = "game";
         public string InitialJsonPlayerResource = "user";
         public bool EditorDebug = true;
+        public bool LoadLocalJson;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -46,10 +47,13 @@ public class GameInstaller : Installer, IInitializable
 
     public void Initialize()
     {
-        var loader = Container.Resolve<IGameLoader>();
-        if(loader != null)
+        if(Settings.LoadLocalJson)
         {
-            loader.Load(null);
+            var loader = Container.Resolve<IGameLoader>();
+            if(loader != null)
+            {
+                loader.Load(null);
+            }
         }
     }
 

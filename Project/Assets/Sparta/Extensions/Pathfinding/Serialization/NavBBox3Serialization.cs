@@ -1,5 +1,4 @@
 ﻿using SharpNav.Geometry;
-using SocialPoint.Geometry;
 using SocialPoint.IO;
 
 namespace SocialPoint.Pathfinding
@@ -8,14 +7,10 @@ namespace SocialPoint.Pathfinding
     {
         public static readonly NavBBox3Serializer Instance = new NavBBox3Serializer();
 
-        NavBBox3Serializer()
-        {
-        }
-
         public void Serialize(BBox3 value, IWriter writer)
         {
-            VectorSerializer.Instance.Serialize(value.Min, writer);
-            VectorSerializer.Instance.Serialize(value.Max, writer);
+            NavVector3Serializer.Instance.Serialize(value.Min, writer);
+            NavVector3Serializer.Instance.Serialize(value.Max, writer);
         }
     }
 
@@ -23,14 +18,10 @@ namespace SocialPoint.Pathfinding
     {
         public static readonly NavBBox3Parser Instance = new NavBBox3Parser();
 
-        NavBBox3Parser()
-        {
-        }
-
         public BBox3 Parse(IReader reader)
         {
-            var min = VectorParser.Instance.Parse(reader);
-            var max = VectorParser.Instance.Parse(reader);
+            Vector3 min = NavVector3Parser.Instance.Parse(reader);
+            Vector3 max = NavVector3Parser.Instance.Parse(reader);
             return new BBox3(min, max);
         }
     }

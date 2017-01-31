@@ -1,5 +1,6 @@
 ﻿using SocialPoint.IO;
-using SocialPoint.Geometry;
+using SocialPoint.Utils;
+using System;
 using Jitter.LinearMath;
 
 namespace SocialPoint.Physics
@@ -17,7 +18,7 @@ namespace SocialPoint.Physics
 
         public void Serialize(JMatrix newObj, IWriter writer)
         {
-            var vs = VectorSerializer.Instance;
+            var vs = JVectorSerializer.Instance;
             vs.Serialize(newObj.Row1, writer);
             vs.Serialize(newObj.Row2, writer);
             vs.Serialize(newObj.Row3, writer);
@@ -25,7 +26,7 @@ namespace SocialPoint.Physics
 
         public void Serialize(JMatrix newObj, JMatrix oldObj, IWriter writer, Bitset dirty)
         {
-            var vs = VectorSerializer.Instance;
+            var vs = JVectorSerializer.Instance;
             if(Bitset.NullOrGet(dirty))
             {
                 vs.Serialize(newObj.Row1, oldObj.Row1, writer);
@@ -47,7 +48,7 @@ namespace SocialPoint.Physics
 
         public JMatrix Parse(IReader reader)
         {
-            var vp = VectorParser.Instance;
+            var vp = JVectorParser.Instance;
             var obj = new JMatrix();
             obj.Row1 = vp.Parse(reader);
             obj.Row2 = vp.Parse(reader);
@@ -62,7 +63,7 @@ namespace SocialPoint.Physics
 
         public JMatrix Parse(JMatrix obj, IReader reader, Bitset dirty)
         {
-            var vp = VectorParser.Instance;
+            var vp = JVectorParser.Instance;
             if(Bitset.NullOrGet(dirty))
             {
                 obj.Row1 = vp.Parse(obj.Row1, reader);

@@ -72,7 +72,11 @@ namespace SocialPoint.ServerEvents
             tracker.BreadcrumbManager = Container.Resolve<IBreadcrumbManager>();
             tracker.AppEvents = Container.Resolve<IAppEvents>();
             tracker.LoginData = Container.Resolve<ILoginData>();
-            Container.Resolve<IGameErrorHandler>().Setup(tracker);
+
+            if(Container.HasBinding<IGameErrorHandler>())
+            {
+                Container.Resolve<IGameErrorHandler>().Setup(tracker);
+            }
         }
     }
 }
