@@ -38,8 +38,8 @@ namespace SocialPoint.Pathfinding
             GenericTest(
                 new Vector3(1.0f, 2.3f, 4.2f),
                 new Vector3(1.0f, 4.2f, 2.3f),
-                NavVector3Serializer.Instance,
-                NavVector3Parser.Instance);
+                new NavVector3Serializer(),
+                new NavVector3Parser());
         }
 
         [Test]
@@ -48,8 +48,8 @@ namespace SocialPoint.Pathfinding
             GenericTest(
                 new Vector2i(1, 2),
                 new Vector2i(2, 1),
-                NavVector2iSerializer.Instance,
-                NavVector2iParser.Instance);
+                new NavVector2iSerializer(),
+                new NavVector2iParser());
         }
 
         [Test]
@@ -58,8 +58,8 @@ namespace SocialPoint.Pathfinding
             GenericTest(
                 new PolyVertex(1, 2, 3),
                 new PolyVertex(1, 3, 2),
-                NavPolyVertexSerializer.Instance,
-                NavPolyVertexParser.Instance);
+                new NavPolyVertexSerializer(),
+                new NavPolyVertexParser());
         }
 
         [Test]
@@ -72,8 +72,8 @@ namespace SocialPoint.Pathfinding
             GenericTest(
                 new BBox3(vMin1, vMax1),
                 new BBox3(vMin2, vMax2),
-                NavBBox3Serializer.Instance,
-                NavBBox3Parser.Instance);
+                new NavBBox3Serializer(),
+                new NavBBox3Parser());
         }
 
         [Test]
@@ -86,8 +86,8 @@ namespace SocialPoint.Pathfinding
             GenericTest(
                 new PolyBounds(vMin1, vMax1),
                 new PolyBounds(vMin2, vMax2),
-                NavPolyBoundsSerializer.Instance,
-                NavPolyBoundsParser.Instance);
+                new NavPolyBoundsSerializer(),
+                new NavPolyBoundsParser());
         }
 
         [Test]
@@ -111,8 +111,8 @@ namespace SocialPoint.Pathfinding
             GenericTest(
                 value1,
                 value2,
-                NavBVTreeNodeSerializer.Instance,
-                NavBVTreeNodeParser.Instance);
+                new NavBVTreeNodeSerializer(),
+                new NavBVTreeNodeParser());
         }
 
         [Test]
@@ -142,8 +142,8 @@ namespace SocialPoint.Pathfinding
             GenericTest(
                 value1,
                 value2,
-                NavDetailMeshDataSerializer.Instance,
-                NavDetailMeshDataParser.Instance);
+                new NavDetailMeshDataSerializer(),
+                new NavDetailMeshDataParser());
         }
 
         [Test]
@@ -173,8 +173,8 @@ namespace SocialPoint.Pathfinding
             GenericTest(
                 value1,
                 value2,
-                NavDetailTriangleDataSerializer.Instance,
-                NavDetailTriangleDataParser.Instance);
+                new NavDetailTriangleDataSerializer(),
+                new NavDetailTriangleDataParser());
         }
 
         //TODO: implement IEquatable interfaces for other classes we require to Test here

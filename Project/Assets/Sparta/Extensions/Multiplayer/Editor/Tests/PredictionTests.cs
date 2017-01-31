@@ -1,7 +1,8 @@
 ﻿using NUnit.Framework;
-using SocialPoint.Geometry;
+using System.IO;
 using SocialPoint.IO;
 using SocialPoint.Network;
+using SocialPoint.Physics;
 using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
@@ -172,16 +173,16 @@ namespace SocialPoint.Multiplayer
 
         class TestInstatiateAction : INetworkShareable
         {
-            public Vector Position;
+            public JVector Position;
 
             public void Deserialize(IReader reader)
             {
-                Position = VectorParser.Instance.Parse(reader);
+                Position = JVectorParser.Instance.Parse(reader);
             }
 
             public void Serialize(IWriter writer)
             {
-                VectorSerializer.Instance.Serialize(Position, writer);
+                JVectorSerializer.Instance.Serialize(Position, writer);
             }
 
             public static void Apply(NetworkScene scene, TestInstatiateAction action)
@@ -195,16 +196,16 @@ namespace SocialPoint.Multiplayer
 
         class TestMovementAction : INetworkShareable, INetworkSceneAction
         {
-            public Vector Movement;
+            public JVector Movement;
 
             public void Deserialize(IReader reader)
             {
-                Movement = VectorParser.Instance.Parse(reader);
+                Movement = JVectorParser.Instance.Parse(reader);
             }
 
             public void Serialize(IWriter writer)
             {
-                VectorSerializer.Instance.Serialize(Movement, writer);
+                JVectorSerializer.Instance.Serialize(Movement, writer);
             }
 
             public void Apply(NetworkScene scene)
@@ -213,9 +214,7 @@ namespace SocialPoint.Multiplayer
                 while(itr.MoveNext())
                 {
                     var go = itr.Current;
-                    JVector pos = go.Transform.Position;
-                    pos += Movement;
-                    go.Transform.Position = pos;
+                    go.Transform.Position += Movement;
                 }
                 itr.Dispose();
             }

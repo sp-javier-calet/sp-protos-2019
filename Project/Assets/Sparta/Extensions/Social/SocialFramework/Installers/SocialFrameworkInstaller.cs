@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SocialPoint.AppEvents;
 using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
@@ -23,6 +23,7 @@ namespace SocialPoint.Social
         {
             public string[] Endpoints = new string[] { DefaultEndpoint };
             public string[] Protocols = new string[] { DefaultWAMPProtocol };
+            public bool UseNativeWebsocketIfSupported = true;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -35,8 +36,7 @@ namespace SocialPoint.Social
             _httpProxy = EditorProxy.GetProxy();
             _deviceInfo = Container.Resolve<IDeviceInfo>();
 
-            // Service Installer
-            if(WebSocket.IsSupported)
+            if(Settings.UseNativeWebsocketIfSupported && WebSocket.IsSupported)
             {
                 Container.Rebind<WebSocketClient>().ToMethod<WebSocketClient>(CreateWebSocket, SetupWebSocket);
                 Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketClient>();

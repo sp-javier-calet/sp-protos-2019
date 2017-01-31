@@ -15,7 +15,6 @@ using Jitter.Collision;
 using SharpNav;
 using SharpNav.Geometry;
 using SharpNav.Pathfinding;
-using SocialPoint.Geometry;
 
 public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisposable
 {
@@ -265,8 +264,8 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
     {
         if(_playerCube != null && _pathfinder != null)
         {
-            Vector startPoint = _playerCube.Transform.Position;
-            Vector endPoint = target;
+            Vector3 startPoint = _playerCube.Transform.Position.ToPathfinding();
+            Vector3 endPoint = target.ToPathfinding();
             var extents = Vector3.One;
             StraightPath straightPath;
             if(_pathfinder.TryGetPath(startPoint, endPoint, extents, out straightPath))
