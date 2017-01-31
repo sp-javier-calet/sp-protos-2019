@@ -78,7 +78,7 @@ namespace SocialPoint.Utils
             _action = action;
         }
 
-        public void Start(double interval = 0)
+        public void Start(float interval = 0)
         {
             if(_started)
             {
@@ -92,7 +92,7 @@ namespace SocialPoint.Utils
             }
             else
             {
-                _scheduler.AddFixed(this, interval);
+                _scheduler.Add(this, false, interval);
             }
         }
 

@@ -15,7 +15,7 @@ namespace SpartaTools.Editor.View
             Views = new ISubWindow[] { new CompilerSettingsWindow(), new ProxySettingsWindow() };
         }
 
-        protected void OnFocus()
+        void OnFocus()
         {
             Sparta.SetIcon(this, "Settings", "Sparta Editor Settings");
         }
