@@ -148,7 +148,7 @@ namespace SocialPoint.TransparentBundles
                     directory.Create();
                 }
 
-                config = new TBConfig();
+                config = ScriptableObject.CreateInstance<TBConfig>();
 
                 AssetDatabase.CreateAsset(config, configDefaultPath);
 
