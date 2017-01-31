@@ -70,19 +70,18 @@ namespace SocialPoint.TransparentBundles
         public class BuildBundlesOutput : OutputCLI
         {
             public string[] bundles;
+            public List<string> BuildLog;
         }
         #endregion
 
         private const string _inputJson = "-input-json";
         private const string _outputJson = "-output-json";
         private const string _methodName = "-method-name";
-
-        private static OutputCLI currentOutput = null;
-
+        
         #region CLI_Methods
         public static void Run()
         {
-            currentOutput = new OutputCLI();
+            OutputCLI output = new OutputCLI();
             var outputPath = string.Empty;
             try
             {
@@ -93,69 +92,69 @@ namespace SocialPoint.TransparentBundles
 
                 InputCLI inputs = InputCLI.Load(jsonPath, methodName + "Input");
 
-                currentOutput = (OutputCLI) typeof(TBCLI).GetMethod(methodName).Invoke(null, new object[] { inputs });
+                output = (OutputCLI) typeof(TBCLI).GetMethod(methodName).Invoke(null, new object[] { inputs });
 
-                currentOutput.success = true;
-                currentOutput.log.Add("OK - Process completed");
+                output.success = true;
+                output.log.Add("OK - Process completed");
             }
             catch(Exception e)
             {
-                currentOutput.success = false;
+                output.success = false;
                 string msg = "CLI RUN ERROR - " + e;
-                currentOutput.log.Add(msg);
+                output.log.Add(msg);
                 Debug.LogError(msg);
             }
 
             if(outputPath != string.Empty)
             {
                 // Output Saving
-                currentOutput.Save(outputPath);
+                output.Save(outputPath);
             }
-
-            currentOutput = null;
         }
 
         public static OutputCLI CalculateBundles(CalculateBundlesInput input)
         {
-            CalculateBundlesOutput results = new CalculateBundlesOutput();
+
+            var results = new CalculateBundlesOutput();
             DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
 
             DependencySystem.UpdateManifest(input.ManualBundles);
 
             results.BundlesDictionary = DependencySystem.Manifest.GetDictionary();
             
-            return results;
-            
+            return results;            
         }
 
         public static OutputCLI BuildBundles(BuildBundlesInput input)
         {
             EditorUserBuildSettings.androidBuildSubtarget = (MobileTextureSubtarget)Enum.Parse(typeof(MobileTextureSubtarget), input.TextureFormat);
 
-            currentOutput = new BuildBundlesOutput();
-            var typedOutput = (BuildBundlesOutput)currentOutput;
-            DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y.ToString() + " - " + x);
+            var results = new BuildBundlesOutput();
+            DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
 
             DependencySystem.PrepareForBuild(input.BundlesDictionary);
 
-            Application.logMessageReceived += HandleLog;
+            Application.LogCallback Callback = (msg, stack, type) =>
+            {
+                if(type == LogType.Error || type == LogType.Exception || type == LogType.Warning)
+                {
+                    results.BuildLog.Add(type + " - " + msg + "\n" + stack);
+                }
+            };
+
+            Application.logMessageReceived += Callback;
             var manifest = BuildPipeline.BuildAssetBundles(input.BundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle, EditorUserBuildSettings.activeBuildTarget);
-            Application.logMessageReceived -= HandleLog;
+            Application.logMessageReceived -= Callback;
             if(manifest != null)
             {
-                typedOutput.bundles = manifest.GetAllAssetBundles();
+                results.bundles = manifest.GetAllAssetBundles();
             }
             else
             {
-                typedOutput.success = false;
+                throw new Exception("Error during building process");
             }
 
-            return typedOutput;
-        }
-
-        private static void HandleLog(string condition, string stackTrace, LogType type)
-        {
-            currentOutput.log.Add(condition + " " + stackTrace);
+            return results;
         }
 
         #endregion
