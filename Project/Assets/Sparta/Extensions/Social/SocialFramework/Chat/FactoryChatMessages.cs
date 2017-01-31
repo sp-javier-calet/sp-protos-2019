@@ -34,8 +34,27 @@ namespace SocialPoint.Social
 
         public Localization Localization;
 
+        readonly HashSet<int> _filteredMessageTypes;
+
+        public HashSet<int> FilteredMessageTypes
+        {
+            get
+            {
+                return _filteredMessageTypes;
+            }
+        }
+
+        public FactoryChatMessages()
+        {
+            _filteredMessageTypes = new HashSet<int>();
+        }
+
         public MessageType Create(int type, string text)
         {
+            if(_filteredMessageTypes.Contains(type))
+            {
+                return null;
+            }
             var message = new MessageType();
             message.Type = type;
             message.Text = text;
@@ -50,14 +69,20 @@ namespace SocialPoint.Social
         public MessageType CreateWarning(int type, string text)
         {
             var message = Create(type, text);
-            message.IsWarning = true;
+            if(message != null)
+            {
+                message.IsWarning = true;
+            }
             return message;
         }
 
         public MessageType CreateLocalizedWarning(int type, string tid)
         {
             var message = CreateLocalized(type, tid);
-            message.IsWarning = true;
+            if(message != null)
+            {
+                message.IsWarning = true;
+            }
             return message;
         }
 
@@ -160,6 +185,10 @@ namespace SocialPoint.Social
             }
 
             var message = Create(type, msgInfo.GetValue(ConnectionManager.ChatMessageTextKey).ToString());
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
 
             var data = new MessageData();
 
@@ -192,8 +221,14 @@ namespace SocialPoint.Social
 
             var playerName = dic.GetValue(UserNameKey).ToString();
             var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerJoinedKey), playerName));
-
-            return new MessageType[] { message };
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
+            else
+            {
+                return new MessageType[] { message };
+            }
         }
 
         MessageType[] ParsePlayerLeftMessage(int type, AttrDic dic)
@@ -206,8 +241,14 @@ namespace SocialPoint.Social
 
             var playerName = dic.GetValue(UserNameKey).ToString();
             var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerLeftKey), playerName));
-
-            return new MessageType[] { message };
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
+            else
+            {
+                return new MessageType[] { message };
+            }
         }
 
         MessageType[] ParseMemberPromotedMessage(int type, AttrDic dic)
@@ -236,6 +277,10 @@ namespace SocialPoint.Social
             var oldRankName = Localization.Get(RankManager.GetRankNameTid(oldRank));
             var newRankName = Localization.Get(RankManager.GetRankNameTid(newRank));
             var message = CreateWarning(type, string.Format(Localization.Get(messageTid), playerName, oldRankName, newRankName));
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
 
             var data = new MemberPromotionData();
             data.PlayerName = playerName;
@@ -251,6 +296,10 @@ namespace SocialPoint.Social
 
             var playerId = dic.GetValue(UserIdKey).ToString();
             var message = CreateWarning(type, Localization.Get(SocialFrameworkStrings.ChatJoinRequestKey));
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
 
             var data = new RequestJoinData();
             data.PlayerId = playerId;

@@ -10,6 +10,8 @@ namespace SocialPoint.Social
     {
         IMessageList Messages { get; }
 
+        HashSet<int> FilteredMessageTypes { get; }
+
         string Type { get; }
 
         int Members { get; }
@@ -122,6 +124,14 @@ namespace SocialPoint.Social
             }
         }
 
+        public HashSet<int> FilteredMessageTypes
+        {
+            get
+            {
+                return _factory.FilteredMessageTypes;
+            }
+        }
+
         public bool Subscribed
         {
             get
@@ -181,7 +191,10 @@ namespace SocialPoint.Social
             }
 
             var message = _factory.CreateLocalizedWarning(NotificationType.ChatWarning, SocialFrameworkStrings.ChatWarningKey);
-            history.Add(message);
+            if(message != null)
+            {
+                history.Add(message);
+            }
 
             _messages.SetHistory(history);
         }
@@ -226,7 +239,11 @@ namespace SocialPoint.Social
 
         public void SendDebugMessage(string text)
         {
-            SendMessage(_factory.Create(NotificationType.TextMessage, text));
+            var message = _factory.Create(NotificationType.TextMessage, text);
+            if(message != null)
+            {
+                SendMessage(message);
+            }
         }
 
         void OnMessageSent(int index, string originalUuid)
