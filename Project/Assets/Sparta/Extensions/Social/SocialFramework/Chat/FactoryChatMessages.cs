@@ -15,6 +15,8 @@ namespace SocialPoint.Social
 
         const string UserIdKey = "user_id";
         const string UserNameKey = "user_name";
+        const string KickedUserNameKey = "kicked_user_name";
+        const string AdminUserNameKey = "admin_user_name";
         const string UserNameTwoDaysLaterKey = "UserName";
         const string OldRoleKey = "old_role";
         const string NewRoleKey = "new_role";
@@ -137,6 +139,9 @@ namespace SocialPoint.Social
                 break;
 
             case NotificationType.BroadcastAllianceMemberKickoff:
+                messages = ParsePlayerKickedMessage(type, dic);
+                break;
+
             case NotificationType.BroadcastAllianceMemberLeave:
                 messages = ParsePlayerLeftMessage(type, dic);
                 break;
@@ -168,17 +173,17 @@ namespace SocialPoint.Social
             }
 
             var msgInfo = dic.Get(ConnectionManager.ChatMessageInfoKey).AsDic;
-            if(!Validate(msgInfo, new string[] {
-                ConnectionManager.ChatMessageUserIdKey,
-                ConnectionManager.ChatMessageUserNameKey,
-                ConnectionManager.ChatMessageTsKey,
-                ConnectionManager.ChatMessageTextKey,
-                ConnectionManager.ChatMessageLevelKey,
-                ConnectionManager.ChatMessageAllyNameKey,
-                ConnectionManager.ChatMessageAllyIdKey,
-                ConnectionManager.ChatMessageAllyAvatarKey,
-                ConnectionManager.ChatMessageAllyRoleKey
-            }))
+            if(!Validate(msgInfo, 
+                   ConnectionManager.ChatMessageUserIdKey,
+                   ConnectionManager.ChatMessageUserNameKey,
+                   ConnectionManager.ChatMessageTsKey,
+                   ConnectionManager.ChatMessageTextKey,
+                   ConnectionManager.ChatMessageLevelKey,
+                   ConnectionManager.ChatMessageAllyNameKey,
+                   ConnectionManager.ChatMessageAllyIdKey,
+                   ConnectionManager.ChatMessageAllyAvatarKey,
+                   ConnectionManager.ChatMessageAllyRoleKey
+               ))
             {
                 Log.e(Tag, "Received chat message of text type does not contain all the mandatory fields");
                 return new MessageType[0];
@@ -251,13 +256,30 @@ namespace SocialPoint.Social
             }
         }
 
+        MessageType[] ParsePlayerKickedMessage(int type, AttrDic dic)
+        {
+            if(!Validate(dic, KickedUserNameKey, AdminUserNameKey))
+            {
+                Log.e(Tag, "Received chat message of player left type does not contain all the mandatory fields");
+                return new MessageType[0];
+            }
+
+            var kickedPlayerName = dic.GetValue(KickedUserNameKey).ToString();
+            var adminPlayerName = dic.GetValue(AdminUserNameKey).ToString();
+            var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerKickedKey), kickedPlayerName, adminPlayerName));
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
+            else
+            {
+                return new MessageType[] { message };
+            }
+        }
+
         MessageType[] ParseMemberPromotedMessage(int type, AttrDic dic)
         {
-            if(!Validate(dic, new string[] { 
-                UserNameKey, 
-                OldRoleKey, 
-                NewRoleKey 
-            }))
+            if(!Validate(dic, UserNameKey, OldRoleKey, NewRoleKey))
             {
                 Log.e(Tag, "Received chat message of member promoted type does not contain all the mandatory fields");
                 return new MessageType[0];
@@ -313,12 +335,7 @@ namespace SocialPoint.Social
             return new MessageType[] { message };
         }
 
-        bool Validate(AttrDic dic, string requiredValue)
-        {
-            return Validate(dic, new string[]{ requiredValue });
-        }
-
-        bool Validate(AttrDic dic, string[] requiredValues)
+        bool Validate(AttrDic dic, params string[] requiredValues)
         {
             for(int i = 0; i < requiredValues.Length; ++i)
             {

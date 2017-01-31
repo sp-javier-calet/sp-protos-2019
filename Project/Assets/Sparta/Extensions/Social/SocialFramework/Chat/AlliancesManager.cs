@@ -19,6 +19,7 @@ namespace SocialPoint.Social
         PlayerAutoChangedRank,
         MateJoinedPlayerAlliance,
         MateLeftPlayerAlliance,
+        MateKickedFromPlayerAlliance,
         MateChangedRank,
         UserAppliedToPlayerAlliance,
         KickedFromAlliance,
@@ -604,6 +605,10 @@ namespace SocialPoint.Social
                     break;
                 }
             case NotificationType.BroadcastAllianceMemberKickoff:
+                {
+                    OnMemberKickoff(dic);
+                    break;
+                }
             case NotificationType.BroadcastAllianceMemberLeave:
                 {
                     OnMemberLeft(dic);
@@ -671,6 +676,12 @@ namespace SocialPoint.Social
         {
             AlliancePlayerInfo.IncreaseTotalMembers();
             NotifyAllianceEvent(AllianceAction.MateJoinedPlayerAlliance, dic);
+        }
+
+        void OnMemberKickoff(AttrDic dic)
+        {
+            AlliancePlayerInfo.DecreaseTotalMembers();
+            NotifyAllianceEvent(AllianceAction.MateKickedFromPlayerAlliance, dic);
         }
 
         void OnMemberLeft(AttrDic dic)
