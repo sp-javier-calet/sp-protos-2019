@@ -129,23 +129,28 @@ namespace SocialPoint.TransparentBundles
         }
 
         public static OutputCLI BuildBundles(BuildBundlesInput input)
-        {                      
+        {
             EditorUserBuildSettings.androidBuildSubtarget = (MobileTextureSubtarget)Enum.Parse(typeof(MobileTextureSubtarget), input.TextureFormat);
 
-            var results = new BuildBundlesOutput();
-            DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
+            currentOutput = new BuildBundlesOutput();
+            var typedOutput = (BuildBundlesOutput)currentOutput;
+            DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y.ToString() + " - " + x);
 
             DependencySystem.PrepareForBuild(input.BundlesDictionary);
-            
+
             Application.logMessageReceived += HandleLog;
             var manifest = BuildPipeline.BuildAssetBundles(input.BundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle, EditorUserBuildSettings.activeBuildTarget);
             Application.logMessageReceived -= HandleLog;
             if(manifest != null)
             {
-                results.bundles = manifest.GetAllAssetBundles();
+                typedOutput.bundles = manifest.GetAllAssetBundles();
+            }
+            else
+            {
+                typedOutput.success = false;
             }
 
-            return results;
+            return typedOutput;
         }
 
         private static void HandleLog(string condition, string stackTrace, LogType type)
