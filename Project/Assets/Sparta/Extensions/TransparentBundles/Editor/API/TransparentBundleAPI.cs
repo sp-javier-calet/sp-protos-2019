@@ -29,16 +29,14 @@ namespace SocialPoint.TransparentBundles
             public string OverwriteLoginUsername = "";
         }
 
+        private const string _loginUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/login/";
+        private const string _requestUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/asset_request/";
+        private const string _localBundleUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/local_asset/";
+        private const string _queryLogin = "user_email";
+        private const string _queryProject = "project";
+        private const string _configDefaultPath = "Assets/Sparta/Config/Transparent Bundles/TBConfig.asset";
+
         private static bool _isLogged = false;
-
-        private const string LOGIN_URL = "https://transparentbundles.socialpoint.es/transparent_bundles/login/";
-        private const string REQUEST_URL = "https://transparentbundles.socialpoint.es/transparent_bundles/asset_request/";
-        private const string LOCAL_BUNDLE_URL = "https://transparentbundles.socialpoint.es/transparent_bundles/local_asset/";
-
-        private const string qLogin = "user_email";
-        private const string qProject = "project";
-
-        private const string configDefaultPath = "Assets/Sparta/Config/Transparent Bundles/TBConfig.asset";
 
         [MenuItem("SocialPoint/Test Call")]
         public static void test()
@@ -78,7 +76,7 @@ namespace SocialPoint.TransparentBundles
             else
             {
                 // Create and configure the request
-                HttpAsyncRequest asyncReq = new HttpAsyncRequest(HttpAsyncRequest.GetURLWithQuery(LOGIN_URL, GetBaseQueryArgs()), HttpAsyncRequest.MethodType.GET, x => HandleLoginResponse(x, loginOptions));
+                HttpAsyncRequest asyncReq = new HttpAsyncRequest(HttpAsyncRequest.GetURLWithQuery(_loginUrl, GetBaseQueryArgs()), HttpAsyncRequest.MethodType.GET, x => HandleLoginResponse(x, loginOptions));
 
                 // Send the request
                 asyncReq.Send();
@@ -142,7 +140,7 @@ namespace SocialPoint.TransparentBundles
 
             if(file.Length == 0)
             {
-                var directory = Directory.GetParent(configDefaultPath);
+                var directory = Directory.GetParent(_configDefaultPath);
                 if(!directory.Exists)
                 {
                     directory.Create();
@@ -150,11 +148,11 @@ namespace SocialPoint.TransparentBundles
 
                 config = ScriptableObject.CreateInstance<TBConfig>();
 
-                AssetDatabase.CreateAsset(config, configDefaultPath);
+                AssetDatabase.CreateAsset(config, _configDefaultPath);
 
                 Selection.activeObject = config;
 
-                throw new Exception("There was no TBConfig file, one has been created at " + configDefaultPath + " configure it please.");
+                throw new Exception("There was no TBConfig file, one has been created at " + _configDefaultPath + " configure it please.");
             }
             else if(file.Length > 1)
             {
@@ -180,8 +178,8 @@ namespace SocialPoint.TransparentBundles
         private static Dictionary<string,string> GetBaseQueryArgs()
         {
             var queryVars = new Dictionary<string, string>();
-            queryVars.Add(qLogin, EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY));
-            queryVars.Add(qProject, GetProject());
+            queryVars.Add(_queryLogin, EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY));
+            queryVars.Add(_queryProject, GetProject());
 
             return queryVars;
         }
@@ -203,7 +201,7 @@ namespace SocialPoint.TransparentBundles
             options.AutoRetryLogin = arguments.AutoRetryLogin;
             options.LoginOk = (report) =>
             {
-                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(REQUEST_URL, GetBaseQueryArgs()));
+                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_requestUrl, GetBaseQueryArgs()));
                 request.Method = "POST";
                 var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, CreateBundle));
                 arguments.SetRequestReport(report);
