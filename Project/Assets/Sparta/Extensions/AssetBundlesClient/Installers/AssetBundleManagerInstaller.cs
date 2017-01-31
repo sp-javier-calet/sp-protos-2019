@@ -1,6 +1,5 @@
 ﻿using System;
 using SocialPoint.AdminPanel;
-using SocialPoint.Attributes;
 using SocialPoint.Dependency;
 using SocialPoint.Utils;
 
@@ -43,26 +42,6 @@ namespace SocialPoint.AssetBundlesClient
 
             mng.Scheduler = Container.Resolve<IUpdateScheduler>();
             mng.CoroutineRunner = Container.Resolve<ICoroutineRunner>();
-
-            mng.Init(GetBundleDataAttrList());
-        }
-
-        static AttrList GetBundleDataAttrList()
-        {
-            const string bundleDataJsonId = "bundle_data";
-            var bundleDataAttrList = new AttrList();
-            var resource = UnityEngine.Resources.Load(bundleDataJsonId);
-            if(resource != null)
-            {
-                var textAsset = resource as UnityEngine.TextAsset;
-                if(textAsset != null)
-                {
-                    var json = textAsset.text;
-                    var bundlesAttrDic = new JsonAttrParser().ParseString(json).AssertDic;
-                    bundleDataAttrList = bundlesAttrDic.Get(bundleDataJsonId).AssertList;
-                }
-            }
-            return bundleDataAttrList;
         }
     }
 }

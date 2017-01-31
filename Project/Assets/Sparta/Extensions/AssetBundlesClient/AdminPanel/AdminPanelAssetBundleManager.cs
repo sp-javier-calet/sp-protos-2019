@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using SocialPoint.AdminPanel;
+using SocialPoint.Attributes;
 using UnityEngine;
 
 namespace SocialPoint.AssetBundlesClient
@@ -11,6 +12,15 @@ namespace SocialPoint.AssetBundlesClient
         readonly AssetBundleManager _assetBundleManager;
         AdminPanelConsole _console;
         AdminPanelLayout _layout;
+
+        List<string> _scenes = new List<string>();
+        List<string> _prefabs = new List<string>();
+
+        const string _sceneSuffix = "_unity";
+        const string _prefabSuffix = "_prefab";
+
+        char[] _sceneSuffixCharArray = _sceneSuffix.ToCharArray();
+        char[] _prefabSuffixCharArray = _prefabSuffix.ToCharArray();
 
         public AdminPanelAssetBundleManager(AssetBundleManager assetBundleManager)
         {
@@ -33,70 +43,165 @@ namespace SocialPoint.AssetBundlesClient
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
+            FillFoldoutLists();
+
             _layout = layout;
 
-            layout.CreateLabel("Info");
+            _layout.CreateLabel("AssetBundleManager");
+
+            AddBasicInfo();
+
+            _layout.CreateMargin();
+
+            DownloadSceneFoldoutGUI(_layout.CreateFoldoutLayout("DownloadScene"));
+            DownloadAssetFoldoutGUI(_layout.CreateFoldoutLayout("DownloadAsset"));
+
+            _layout.CreateMargin();
+
+            AddAssetBundlesParsedDataPanel();
+            AddLoadedAssetBundlesPanel();
+            AddDownloadingErrorsPanel();
+        }
+
+
+        static AttrList GetBundleDataAttrList()
+        {
+            const string bundleDataJsonId = "bundle_data";
+            var bundleDataAttrList = new AttrList();
+            var resource = UnityEngine.Resources.Load(bundleDataJsonId);
+            if(resource != null)
+            {
+                var textAsset = resource as UnityEngine.TextAsset;
+                if(textAsset != null)
+                {
+                    var json = textAsset.text;
+                    var bundlesAttrDic = new JsonAttrParser().ParseString(json).AssertDic;
+                    bundleDataAttrList = bundlesAttrDic.Get(bundleDataJsonId).AssertList;
+                }
+            }
+            return bundleDataAttrList;
+        }
+
+        AssetBundlesParsedData GetAssetBundlesParsedDataReflection()
+        {
+            return Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_assetBundlesParsedData");
+        }
+
+        void FillFoldoutLists()
+        {
+            if(_scenes.Count > 0 || _prefabs.Count > 0)
+            {
+                return;
+            }
+
+            var assetBundlesParsedData = GetAssetBundlesParsedDataReflection();
+            if(assetBundlesParsedData.Count == 0)
+            {
+                // init assetBundleManager with fake data from resources folder
+                _assetBundleManager.Init(GetBundleDataAttrList());
+            }
+
+            // request for assetBundlesParsedData again
+            assetBundlesParsedData = GetAssetBundlesParsedDataReflection();
+            foreach(var item in assetBundlesParsedData)
+            {
+                var itemName = item.Value.Name;
+                if(itemName.EndsWith(_sceneSuffix))
+                {
+                    _scenes.Add(itemName.TrimEnd(_sceneSuffixCharArray));
+                }
+                else if(itemName.EndsWith(_prefabSuffix))
+                {
+                    _prefabs.Add(itemName.TrimEnd(_prefabSuffixCharArray));
+                }
+            }
+        }
+
+        void AddBasicInfo()
+        {
             var content = new StringBuilder();
             content.AppendLine("Server: " + _assetBundleManager.Server);
             content.AppendLine("Game: " + _assetBundleManager.Game);
             content.AppendLine("Platorm: " + Utility.GetPlatformName());
+            _layout.CreateVerticalLayout().CreateTextArea(content.ToString());
+        }
 
-            layout.CreateVerticalLayout().CreateTextArea(content.ToString());
+        public void DownloadSceneFoldoutGUI(AdminPanelLayout layout)
+        {
+            // Each lambda must capture a diferent reference, so it has to be a local variable
+            foreach(var item in _scenes)
+            {
+                var localString = item;
+                layout.CreateButton(item, () => DownloadScene(localString));
+            }
+            _layout.CreateMargin();
+        }
 
-            layout.CreateMargin();
+        public void DownloadAssetFoldoutGUI(AdminPanelLayout layout)
+        {
+            // Each lambda must capture a diferent reference, so it has to be a local variable
+            foreach(var item in _prefabs)
+            {
+                var localString = item;
+                layout.CreateButton(item, () => DownloadAsset(localString));
+            }
+            _layout.CreateMargin();
+        }
 
-            var assetBundlesParsedData = Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_assetBundlesParsedData");
-            var loadedAssetBundles = Reflection.GetPrivateField<AssetBundleManager, Dictionary<string, LoadedAssetBundle>>(_assetBundleManager, "_loadedAssetBundles");
-            var downloadingErrors = Reflection.GetPrivateField<AssetBundleManager, Dictionary<string, string>>(_assetBundleManager, "_downloadingErrors");
-
+        void AddAssetBundlesParsedDataPanel()
+        {
+            var assetBundlesParsedData = GetAssetBundlesParsedDataReflection();
             if(assetBundlesParsedData.Count > 0)
             {
-                layout.CreateLabel("AssetBundlesParsedData");
-                content = new StringBuilder();
+                _layout.CreateLabel("AssetBundlesParsedData");
+                var content = new StringBuilder();
                 foreach(var item in assetBundlesParsedData)
                 {
                     content.AppendLine(item.Value.ToString());
                 }
-                layout.CreateVerticalScrollLayout().CreateTextArea(content.ToString());
+                _layout.CreateVerticalScrollLayout().CreateTextArea(content.ToString());
             }
+        }
 
+        void AddLoadedAssetBundlesPanel()
+        {
+            var loadedAssetBundles = Reflection.GetPrivateField<AssetBundleManager, Dictionary<string, LoadedAssetBundle>>(_assetBundleManager, "_loadedAssetBundles");
             if(loadedAssetBundles.Count > 0)
             {
-                layout.CreateLabel("LoadedAssetBundles");
-                content = new StringBuilder();
+                _layout.CreateLabel("LoadedAssetBundles");
+                var content = new StringBuilder();
                 foreach(var item in loadedAssetBundles)
                 {
                     content.AppendLine(item.Key + " References: " + item.Value._referencedCount);
                 }
-                layout.CreateVerticalScrollLayout().CreateTextArea(content.ToString());
+                _layout.CreateVerticalScrollLayout().CreateTextArea(content.ToString());
             }
+        }
 
+        void AddDownloadingErrorsPanel()
+        {
+            var downloadingErrors = Reflection.GetPrivateField<AssetBundleManager, Dictionary<string, string>>(_assetBundleManager, "_downloadingErrors");
             if(downloadingErrors.Count > 0)
             {
-                layout.CreateLabel("DownloadingErrors");
-                content = new StringBuilder();
+                _layout.CreateLabel("DownloadingErrors");
+                var content = new StringBuilder();
                 foreach(var item in downloadingErrors)
                 {
                     content.AppendLine(item.Key);
                     content.AppendLine(item.Value);
                 }
-                layout.CreateTextArea(content.ToString());
+                _layout.CreateVerticalScrollLayout().CreateTextArea(content.ToString());
             }
-
-            layout.CreateMargin();
-
-            layout.CreateButton("DownloadScene", DownloadScene);
-            layout.CreateButton("DownloadAsset", DownloadAsset);
         }
 
-        void DownloadScene()
+        void DownloadScene(string sceneName)
         {
-            _assetBundleManager.CoroutineRunner.StartCoroutine(InitializeLevelAsync("test_scene_unity", "test_scene", true));
+            _assetBundleManager.CoroutineRunner.StartCoroutine(InitializeLevelAsync(sceneName + _sceneSuffix, sceneName, true));
         }
 
-        void DownloadAsset()
+        void DownloadAsset(string prefabName)
         {
-            _assetBundleManager.CoroutineRunner.StartCoroutine(InstantiateGameObjectAsync("prefab_1_prefab", "prefab_1"));
+            _assetBundleManager.CoroutineRunner.StartCoroutine(InstantiateGameObjectAsync(prefabName + _prefabSuffix, prefabName));
         }
 
         IEnumerator InitializeLevelAsync(string sceneAssetBundleName, string sceneName, bool isAdditive)

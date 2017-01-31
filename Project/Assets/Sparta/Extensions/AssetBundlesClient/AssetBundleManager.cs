@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 using UnityEngine;
-using SocialPoint.Attributes;
 
 namespace SocialPoint.AssetBundlesClient
 {
@@ -88,7 +88,6 @@ namespace SocialPoint.AssetBundlesClient
 
             _assetBundlesParsedData = LoadBundleData(bundlesAttrList);
         }
-
 
         static AssetBundlesParsedData LoadBundleData(AttrList bundlesAttrList)
         {
@@ -187,6 +186,10 @@ namespace SocialPoint.AssetBundlesClient
             if(_assetBundlesParsedData.TryGetValue(assetBundleName, out assetBundleData))
             {
                 var dependencies = assetBundleData.Dependencies;
+                if(dependencies.Count == 0)
+                {
+                    return null;
+                }
                 var iter = dependencies.GetEnumerator();
                 while(iter.MoveNext())
                 {
@@ -261,12 +264,10 @@ namespace SocialPoint.AssetBundlesClient
                 return false;
             }
 
-            WWW download;
-
             const string slash = "/";
             string url = _baseDownloadingURL + assetBundleData.Version + slash + assetBundleName;
 
-            download = WWW.LoadFromCacheOrDownload(url, assetBundleData.Version);
+            var download = WWW.LoadFromCacheOrDownload(url, assetBundleData.Version);
 
             _inProgressOperations.Add(new AssetBundleDownloadFromWebOperation(assetBundleName, download));
             _downloadingBundles.Add(assetBundleName);
@@ -290,26 +291,19 @@ namespace SocialPoint.AssetBundlesClient
             }
 
             // Record and load all dependencies.
-            var dependenciesArray = new AssetBundleParsedData[dependencies.Count];
-            dependencies.CopyTo(dependenciesArray);
-
             var itr = dependencies.GetEnumerator();
             while(itr.MoveNext())
             {
                 var item = itr.Current;
                 LoadAssetBundleInternal(item.Name);
             }
+            itr.Dispose();
         }
 
         /// <summary>
         /// Unloads assetbundle and its dependencies.
         /// </summary>
         public static void UnloadAssetBundle(string assetBundleName)
-        {
-            UnloadAssetBundleInternal(assetBundleName);
-        }
-
-        protected static void UnloadAssetBundleInternal(string assetBundleName)
         {
             string error;
             LoadedAssetBundle bundle = GetLoadedAssetBundle(assetBundleName, out error);
@@ -326,6 +320,15 @@ namespace SocialPoint.AssetBundlesClient
                 DebugLog(assetBundleName + " has been unloaded successfully");
             }
         }
+
+        #region IDisposable implementation
+
+        public void Dispose()
+        {
+            _scheduler.Remove(this);
+        }
+
+        #endregion
 
         #region IUpdateable implementation
 
@@ -345,15 +348,6 @@ namespace SocialPoint.AssetBundlesClient
                     ProcessFinishedOperation(operation);
                 }
             }
-        }
-
-        #endregion
-
-        #region IDisposable implementation
-
-        public void Dispose()
-        {
-            _scheduler.Remove(this);
         }
 
         #endregion

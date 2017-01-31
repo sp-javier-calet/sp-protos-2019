@@ -6,10 +6,10 @@ namespace SocialPoint.AdminPanel
 {
     public static class Reflection
     {
+        const BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static;
+
         public static R GetPrivateField<T, R>(object instance, string fieldName)
         {
-            BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.NonPublic;
-            
             FieldInfo field = typeof(T).GetField(fieldName, bindFlags);
             if(field == null)
             {
@@ -22,7 +22,6 @@ namespace SocialPoint.AdminPanel
         static MethodInfo GetMethod<T>(string methodName)
         {
             // FIXME Does not work for overloaded methods
-            BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static;
             MethodInfo method = typeof(T).GetMethod(methodName, bindFlags);
 
             if(method == null)
