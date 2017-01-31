@@ -38,6 +38,9 @@ namespace SocialPoint.Social
 
         public ReadOnlyCollection<ChatReport> Reports{ get { return _reports.AsReadOnly();} }
 
+
+        public const long DefaultReportUserCooldown = 60 * 60 * 24;
+
         public long ReportUserCooldown{ get; set; }
 
         readonly Dictionary<string, IChatRoom> _chatRooms;
@@ -60,7 +63,7 @@ namespace SocialPoint.Social
 
             _reports = new List<ChatReport>();
 
-            ReportUserCooldown = 60 * 60 * 24;
+            ReportUserCooldown = DefaultReportUserCooldown;
         }
 
         public void Dispose()
