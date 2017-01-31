@@ -95,6 +95,7 @@ namespace SocialPoint.TransparentBundles
 
                 args = new object[] { inputs, output };
                 typeof(TBCLI).GetMethod(methodName).Invoke(null, args);
+                output = (OutputCLI)args[1];
 
                 output.success = true;
                 output.log.Add("OK - Process completed");
