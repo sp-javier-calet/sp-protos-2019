@@ -83,6 +83,7 @@ namespace SocialPoint.TransparentBundles
         {
             OutputCLI output = new OutputCLI();
             var outputPath = string.Empty;
+            object[] args = null;
             try
             {
                 var arguments = new List<string>(Environment.GetCommandLineArgs());
@@ -92,13 +93,18 @@ namespace SocialPoint.TransparentBundles
 
                 InputCLI inputs = InputCLI.Load(jsonPath, methodName + "Input");
 
-                typeof(TBCLI).GetMethod(methodName).Invoke(null, new object[] { inputs, output });
+                args = new object[] { inputs, output, null };
+                typeof(TBCLI).GetMethod(methodName).Invoke(null, args);
 
                 output.success = true;
                 output.log.Add("OK - Process completed");
             }
             catch(Exception e)
             {
+                if(args != null)
+                {
+                    output = (OutputCLI)args[2];
+                }
                 output.success = false;
                 string msg = "CLI RUN ERROR - " + e;
                 output.log.Add(msg);
