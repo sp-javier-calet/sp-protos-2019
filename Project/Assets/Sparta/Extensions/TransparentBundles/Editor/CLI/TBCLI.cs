@@ -92,7 +92,7 @@ namespace SocialPoint.TransparentBundles
 
                 InputCLI inputs = InputCLI.Load(jsonPath, methodName + "Input");
 
-                output = (OutputCLI) typeof(TBCLI).GetMethod(methodName).Invoke(null, new object[] { inputs });
+                typeof(TBCLI).GetMethod(methodName).Invoke(null, new object[] { inputs, output });
 
                 output.success = true;
                 output.log.Add("OK - Process completed");
@@ -112,25 +112,26 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        public static OutputCLI CalculateBundles(CalculateBundlesInput input)
+        public static void CalculateBundles(CalculateBundlesInput input, ref OutputCLI output)
         {
+            output = new CalculateBundlesOutput();
+            var typedOutput = (CalculateBundlesOutput)output;
 
-            var results = new CalculateBundlesOutput();
-            DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
+            DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y.ToString() + " - " + x);
 
             DependencySystem.UpdateManifest(input.ManualBundles);
 
-            results.BundlesDictionary = DependencySystem.Manifest.GetDictionary();
-            
-            return results;            
+            typedOutput.BundlesDictionary = DependencySystem.Manifest.GetDictionary();            
         }
 
-        public static OutputCLI BuildBundles(BuildBundlesInput input)
+        public static void BuildBundles(BuildBundlesInput input, ref OutputCLI output)
         {
-            EditorUserBuildSettings.androidBuildSubtarget = (MobileTextureSubtarget)Enum.Parse(typeof(MobileTextureSubtarget), input.TextureFormat);
+            output = new BuildBundlesOutput();
+            var typedOutput = (BuildBundlesOutput)output;
 
-            var results = new BuildBundlesOutput();
-            DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
+            EditorUserBuildSettings.androidBuildSubtarget = (MobileTextureSubtarget)Enum.Parse(typeof(MobileTextureSubtarget), input.TextureFormat);
+            
+            DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y.ToString() + " - " + x);
 
             DependencySystem.PrepareForBuild(input.BundlesDictionary);
 
@@ -138,7 +139,7 @@ namespace SocialPoint.TransparentBundles
             {
                 if(type == LogType.Error || type == LogType.Exception || type == LogType.Warning)
                 {
-                    results.BuildLog.Add(type + " - " + msg + "\n" + stack);
+                    typedOutput.BuildLog.Add(type + " - " + msg + "\n" + stack);
                 }
             };
 
@@ -147,14 +148,12 @@ namespace SocialPoint.TransparentBundles
             Application.logMessageReceived -= Callback;
             if(manifest != null)
             {
-                results.bundles = manifest.GetAllAssetBundles();
+                typedOutput.bundles = manifest.GetAllAssetBundles();
             }
             else
             {
                 throw new Exception("Error during building process");
             }
-
-            return results;
         }
 
         #endregion
