@@ -1,10 +1,9 @@
 using System;
 using System.IO;
 using System.Net;
-using System.Text;
-using System.Threading;
 using UnityEngine;
 using UnityEditor;
+using System.Collections.Generic;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -32,12 +31,19 @@ namespace SocialPoint.TransparentBundles
 
         private static bool _isLogged = false;
 
-        public const string SERVER_URL = "https://transparentbundles.socialpoint.es/transparent_bundles/asset_request/?user_email=";
+        private const string LOGIN_URL = "https://transparentbundles.socialpoint.es/transparent_bundles/login/";
+        private const string REQUEST_URL = "https://transparentbundles.socialpoint.es/transparent_bundles/asset_request/";
+        private const string LOCAL_BUNDLE_URL = "https://transparentbundles.socialpoint.es/transparent_bundles/local_asset/";
+
+        private const string qLogin = "user_email";
+        private const string qProject = "project";
+
+        private const string configDefaultPath = "Assets/Sparta/Config/Transparent Bundles/TBConfig.asset";
 
         [MenuItem("SocialPoint/Test Call")]
         public static void test()
         {
-            CreateBundle(new CreateBundlesArgs(x => Debug.Log(x.ResponseRes.Response), x => Debug.Log(x.RequestCancelled)));
+            CreateBundle(new CreateBundlesArgs(x => Debug.Log(x.ResponseRes.Response), x => Debug.LogError(x.RequestCancelled)));
         }
 
         #region LOGIN
@@ -72,7 +78,7 @@ namespace SocialPoint.TransparentBundles
             else
             {
                 // Create and configure the request
-                HttpAsyncRequest asyncReq = new HttpAsyncRequest(GetLoginUrl(), HttpAsyncRequest.MethodType.POST, x => HandleLoginResponse(x, loginOptions));
+                HttpAsyncRequest asyncReq = new HttpAsyncRequest(HttpAsyncRequest.GetURLWithQuery(LOGIN_URL, GetBaseQueryArgs()), HttpAsyncRequest.MethodType.GET, x => HandleLoginResponse(x, loginOptions));
 
                 // Send the request
                 asyncReq.Send();
@@ -128,14 +134,62 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        private static string GetLoginUrl()
+        private static string GetProject()
         {
-            return SERVER_URL + EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY);
-        }
+            string project = string.Empty;
+            var file = AssetDatabase.FindAssets("t:TBConfig");
+            TBConfig config;
 
+            if(file.Length == 0)
+            {
+                var directory = Directory.GetParent(configDefaultPath);
+                if(!directory.Exists)
+                {
+                    directory.Create();
+                }
+
+                config = new TBConfig();
+
+                AssetDatabase.CreateAsset(config, configDefaultPath);
+
+                Selection.activeObject = config;
+
+                throw new Exception("There was no TBConfig file, one has been created at " + configDefaultPath + " configure it please.");
+            }
+            else if(file.Length > 1)
+            {
+                throw new Exception("More than one config file found, please have only one.");
+            }
+            else
+            {
+                config = AssetDatabase.LoadAssetAtPath<TBConfig>(AssetDatabase.GUIDToAssetPath(file[0]));
+            }
+
+            project = config.project;
+
+            if(string.IsNullOrEmpty(project))
+            {
+                Selection.activeObject = config;
+
+                throw new Exception("Project config is empty, please configure it");
+            }
+
+            return project;
+        }        
+
+        private static Dictionary<string,string> GetBaseQueryArgs()
+        {
+            var queryVars = new Dictionary<string, string>();
+            queryVars.Add(qLogin, EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY));
+            queryVars.Add(qProject, GetProject());
+
+            return queryVars;
+        }
         #endregion
 
         #region PUBLIC_METHODS
+      
+
         /// <summary>
         /// Entry point for CreateBundle request. It will trigger a login if not previously logged for this session and then send the request
         /// </summary>
@@ -149,7 +203,7 @@ namespace SocialPoint.TransparentBundles
             options.AutoRetryLogin = arguments.AutoRetryLogin;
             options.LoginOk = (report) =>
             {
-                var request = (HttpWebRequest)HttpWebRequest.Create(GetLoginUrl());
+                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(REQUEST_URL, GetBaseQueryArgs()));
                 request.Method = "POST";
                 var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, CreateBundle));
                 arguments.SetRequestReport(report);
