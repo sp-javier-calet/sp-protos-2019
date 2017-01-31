@@ -103,8 +103,9 @@ namespace SocialPoint.TransparentBundles
             {
                 if(args != null)
                 {
-                    output = (OutputCLI)args[2];
+                    output = (OutputCLI)args[1];
                 }
+                Debug.Log(e);
                 output.success = false;
                 string msg = "CLI RUN ERROR - " + e;
                 output.log.Add(msg);
