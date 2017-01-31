@@ -14,8 +14,6 @@ namespace SocialPoint.Utils
         readonly List<LogEntry> _entries;
         readonly HashSet<string> _availableTags;
         readonly HashSet<string> _selectedTags;
-        bool _showLogLevels;
-        bool _showTags;
         Text _textComponent;
         LogConfig _config;
 

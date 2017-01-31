@@ -1,7 +1,8 @@
 ﻿using SocialPoint.IO;
 using SocialPoint.Utils;
-using SocialPoint.Geometry;
+using SocialPoint.Network;
 using System;
+using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {

@@ -1,5 +1,7 @@
-﻿using SocialPoint.Geometry;
-using SocialPoint.IO;
+﻿using SocialPoint.IO;
+using SocialPoint.Multiplayer;
+using SocialPoint.Network;
+using SocialPoint.Physics;
 using Jitter.LinearMath;
 
 public class ExplosionEvent : INetworkShareable
@@ -8,11 +10,11 @@ public class ExplosionEvent : INetworkShareable
 
     public void Deserialize(IReader reader)
     {
-        Position = VectorParser.Instance.Parse(reader);
+        Position = JVectorParser.Instance.Parse(reader);
     }
 
     public void Serialize(IWriter writer)
     {
-        VectorSerializer.Instance.Serialize(Position, writer);
+        JVectorSerializer.Instance.Serialize(Position, writer);
     }
 }

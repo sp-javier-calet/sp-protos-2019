@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
+using SocialPoint.AppEvents;
+using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Dependency;
-using SocialPoint.Network;
 using SocialPoint.Hardware;
-using SocialPoint.AppEvents;
+using SocialPoint.Locale;
+using SocialPoint.Network;
 using SocialPoint.ServerEvents;
-using SocialPoint.Attributes;
 
 namespace SocialPoint.Login
 {
@@ -50,7 +51,7 @@ namespace SocialPoint.Login
         SocialPointLogin.LoginConfig CreateConfig()
         {
             return new SocialPointLogin.LoginConfig {
-                BaseUrl = Container.Resolve<BackendEnvironment>().GetUrl(),
+                BaseUrl = Container.Resolve<IBackendEnvironment>().GetUrl(),
                 SecurityTokenErrors = (int)Settings.MaxSecurityTokenErrorRetries,
                 ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
                 EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries
@@ -75,16 +76,12 @@ namespace SocialPoint.Login
             login.AppEvents = Container.Resolve<IAppEvents>();
             login.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
             login.Storage = Container.Resolve<IAttrStorage>("persistent");
+            login.Localization = Container.Resolve<ILocalizationManager>();
             login.Timeout = Settings.Timeout;
             login.ActivityTimeout = Settings.ActivityTimeout;
             login.AutoUpdateFriends = Settings.AutoupdateFriends;
             login.AutoUpdateFriendsPhotosSize = Settings.AutoupdateFriendsPhotoSize;
             login.UserMappingsBlock = Settings.UserMappingsBlock;
-
-            if(Container.HasBinding<string>("language"))
-            {   
-                login.Language = Container.Resolve<string>("language", login.Language);
-            }
 
             var links = Container.ResolveList<ILink>();
             for(var i = 0; i < links.Count; i++)
@@ -95,18 +92,10 @@ namespace SocialPoint.Login
 
         AdminPanelLogin CreateAdminPanel()
         {
-            var login = Container.Resolve<ILogin>();
-            var appEvents = Container.Resolve<IAppEvents>();
-            var environments = Container.Resolve<BackendEnvironment>();
-            var envs = new Dictionary<string,string>();
-
-            for(var i = 0; i < environments.Environments.Length; ++i)
-            {
-                var env = environments.Environments[i];
-                envs.Add(env.Name, env.Url);
-            }
-
-            return new AdminPanelLogin(login, envs, appEvents);
+            return new AdminPanelLogin(
+                Container.Resolve<ILogin>(), 
+                Container.Resolve<IBackendEnvironment>(),
+                Container.Resolve<IAppEvents>());
         }
     }
 }

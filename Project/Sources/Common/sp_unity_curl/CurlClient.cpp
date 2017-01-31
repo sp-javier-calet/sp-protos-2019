@@ -18,6 +18,26 @@ extern "C" {
 #include <curl/curl.h>
 }
 
+/*
+ * CurlClient Global initialization as a static instance
+ */
+
+CurlClient::CurlHttpClientGlobal CurlClient::global;
+
+CurlClient::CurlHttpClientGlobal::CurlHttpClientGlobal()
+{
+    curl_global_init(CURL_GLOBAL_ALL);
+}
+
+CurlClient::CurlHttpClientGlobal::~CurlHttpClientGlobal()
+{
+    curl_global_cleanup();
+}
+
+/*
+ * CurlClient implementation
+ */
+
 namespace
 {
     std::vector<std::string> split(const std::string& str, const std::string& sep, size_t max = std::string::npos)
