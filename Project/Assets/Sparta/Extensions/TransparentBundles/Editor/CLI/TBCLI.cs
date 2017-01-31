@@ -77,10 +77,12 @@ namespace SocialPoint.TransparentBundles
         private const string _outputJson = "-output-json";
         private const string _methodName = "-method-name";
 
+        private static OutputCLI currentOutput = null;
+
         #region CLI_Methods
         public static void Run()
         {
-            OutputCLI output = new OutputCLI();
+            currentOutput = new OutputCLI();
             var outputPath = string.Empty;
             try
             {
@@ -91,24 +93,26 @@ namespace SocialPoint.TransparentBundles
 
                 InputCLI inputs = InputCLI.Load(jsonPath, methodName + "Input");
 
-                output = (OutputCLI) typeof(TBCLI).GetMethod(methodName).Invoke(null, new object[] { inputs });
+                currentOutput = (OutputCLI) typeof(TBCLI).GetMethod(methodName).Invoke(null, new object[] { inputs });
 
-                output.success = true;
-                output.log.Add("OK - Process completed");
+                currentOutput.success = true;
+                currentOutput.log.Add("OK - Process completed");
             }
             catch(Exception e)
             {
-                output.success = false;
+                currentOutput.success = false;
                 string msg = "CLI RUN ERROR - " + e;
-                output.log.Add(msg);
+                currentOutput.log.Add(msg);
                 Debug.LogError(msg);
             }
 
             if(outputPath != string.Empty)
             {
                 // Output Saving
-                output.Save(outputPath);
+                currentOutput.Save(outputPath);
             }
+
+            currentOutput = null;
         }
 
         public static OutputCLI CalculateBundles(CalculateBundlesInput input)
@@ -130,13 +134,23 @@ namespace SocialPoint.TransparentBundles
 
             var results = new BuildBundlesOutput();
             DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
-                
-                DependencySystem.PrepareForBuild(input.BundlesDictionary);
-                var manifest = BuildPipeline.BuildAssetBundles(input.BundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle, EditorUserBuildSettings.activeBuildTarget);
 
-            results.bundles = manifest.GetAllAssetBundles();
+            DependencySystem.PrepareForBuild(input.BundlesDictionary);
+            
+            Application.logMessageReceived += HandleLog;
+            var manifest = BuildPipeline.BuildAssetBundles(input.BundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle, EditorUserBuildSettings.activeBuildTarget);
+            Application.logMessageReceived -= HandleLog;
+            if(manifest != null)
+            {
+                results.bundles = manifest.GetAllAssetBundles();
+            }
 
             return results;
+        }
+
+        private static void HandleLog(string condition, string stackTrace, LogType type)
+        {
+            currentOutput.log.Add(condition + " " + stackTrace);
         }
 
         #endregion
