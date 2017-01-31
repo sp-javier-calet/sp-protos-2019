@@ -28,7 +28,7 @@ namespace SocialPoint.Social
                     .Append("\tName: ").AppendLine(Name)
                     .Append("\tLevel: ").AppendLine(Level.ToString())
                     .Append("\tScore: ").AppendLine(Score.ToString());
-                return builder.ToString();
+                return StringUtils.FinishBuilder(builder);
             }
         }
 
@@ -97,7 +97,7 @@ namespace SocialPoint.Social
             {
                 builder.Append(itr.Current.Value.ToString());
             }
-            return builder.ToString();
+            return StringUtils.FinishBuilder(builder);
         }
     }
 }

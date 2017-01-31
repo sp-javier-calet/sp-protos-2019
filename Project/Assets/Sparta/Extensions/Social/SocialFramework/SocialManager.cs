@@ -18,7 +18,7 @@ namespace SocialPoint.Social
 
         /// <summary>
         /// Method to parse the local player info about the SocialFeature
-        /// It expects a dictionary with the data of the different componenets
+        /// It expects a dictionary with the data of the different components
         /// in subdictionaries 
         /// (For example: {"alliances":{...}, "game_feature":{...}})
         /// </summary>
@@ -26,12 +26,12 @@ namespace SocialPoint.Social
         {
             LocalPlayer = PlayerFactory.CreateSocialPlayer(data);
 
-            var basicDataComponenet = new SocialPlayer.BasicData();
-            basicDataComponenet.Uid = basicData.Id;
-            basicDataComponenet.Level = (int)basicData.Level;
-            basicDataComponenet.Name = basicData.Name;
+            var basicDataComponent = new SocialPlayer.BasicData();
+            basicDataComponent.Uid = basicData.Id;
+            basicDataComponent.Level = basicData.Level;
+            basicDataComponent.Name = basicData.Name;
 
-            LocalPlayer.AddComponent(basicDataComponenet);
+            LocalPlayer.AddComponent(basicDataComponent);
 
             OnLocalPlayerLoaded(data);
         }
@@ -39,7 +39,7 @@ namespace SocialPoint.Social
         /// <summary>
         /// Method to parse the local player info about the SocialFeature
         /// It expects a dictionary with the basic player data and the data
-        /// of the different componenets in subdictionaries
+        /// of the different components in subdictionaries
         /// (For example: {"id":123, "name":"Pepito", "alliances":{...}, "game_feature":{...}})
         /// </summary>
         public void SetLocalPlayerData(AttrDic data)
