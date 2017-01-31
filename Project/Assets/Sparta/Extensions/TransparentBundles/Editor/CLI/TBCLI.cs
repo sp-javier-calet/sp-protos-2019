@@ -70,7 +70,7 @@ namespace SocialPoint.TransparentBundles
         public class BuildBundlesOutput : OutputCLI
         {
             public string[] bundles;
-            public List<string> BuildLog;
+            public List<string> BuildLog = new List<string>();
         }
         #endregion
 
