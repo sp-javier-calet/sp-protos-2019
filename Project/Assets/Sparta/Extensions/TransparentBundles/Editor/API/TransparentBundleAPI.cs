@@ -188,10 +188,10 @@ namespace SocialPoint.TransparentBundles
         #endregion
 
         #region PUBLIC_METHODS
-      
+
 
         /// <summary>
-        /// Entry point for CreateBundle request. It will trigger a login if not previously logged for this session and then send the request
+        /// Sends a CreateBundle request. It will trigger a login if not previously logged for this session and then sends the request
         /// </summary>
         /// <param name="arguments">Arguments needed for this type of request</param>
         /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
@@ -219,6 +219,98 @@ namespace SocialPoint.TransparentBundles
             // Triggers login process
             LoginAndExecuteAction(options);
         }
+
+        /// <summary>
+        /// Sends a RemoveBundle request. It will trigger a login if not previously logged for this session and then sends the request
+        /// </summary>
+        /// <param name="arguments">Arguments needed for this type of request</param>
+        /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
+        public static void RemoveBundle(RemoveBundlesArgs arguments)
+        {
+            // Build up the Login Options with callbacks and options
+            var options = new LoginOptions();
+
+            options.AutoRetryLogin = arguments.AutoRetryLogin;
+            options.LoginOk = (report) =>
+            {
+                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_requestUrl, GetBaseQueryArgs()));
+                request.Method = "DELETE";
+                var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, RemoveBundle));
+                arguments.SetRequestReport(report);
+                ActionRequest(arguments, requestData);
+            };
+
+            options.LoginFailed = (report) =>
+            {
+                arguments.SetRequestReport(report);
+                arguments.OnFailedCallback(report);
+            };
+
+            // Triggers login process
+            LoginAndExecuteAction(options);
+        }
+
+
+        /// <summary>
+        /// Sends a MakeLocalBundle request. It will trigger a login if not previously logged for this session and then sends the request
+        /// </summary>
+        /// <param name="arguments">Arguments needed for this type of request</param>
+        /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
+        public static void MakeLocalBundle(MakeLocalBundlesArgs arguments)
+        {
+            // Build up the Login Options with callbacks and options
+            var options = new LoginOptions();
+
+            options.AutoRetryLogin = arguments.AutoRetryLogin;
+            options.LoginOk = (report) =>
+            {
+                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_localBundleUrl, GetBaseQueryArgs()));
+                request.Method = "POST";
+                var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, MakeLocalBundle));
+                arguments.SetRequestReport(report);
+                ActionRequest(arguments, requestData);
+            };
+
+            options.LoginFailed = (report) =>
+            {
+                arguments.SetRequestReport(report);
+                arguments.OnFailedCallback(report);
+            };
+
+            // Triggers login process
+            LoginAndExecuteAction(options);
+        }
+
+        /// <summary>
+        /// Sends a RemoveLocalBundle request. It will trigger a login if not previously logged for this session and then sends the request
+        /// </summary>
+        /// <param name="arguments">Arguments needed for this type of request</param>
+        /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
+        public static void RemoveLocalBundle(RemoveLocalBundlesArgs arguments)
+        {
+            // Build up the Login Options with callbacks and options
+            var options = new LoginOptions();
+
+            options.AutoRetryLogin = arguments.AutoRetryLogin;
+            options.LoginOk = (report) =>
+            {
+                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_localBundleUrl, GetBaseQueryArgs()));
+                request.Method = "DELETE";
+                var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, RemoveLocalBundle));
+                arguments.SetRequestReport(report);
+                ActionRequest(arguments, requestData);
+            };
+
+            options.LoginFailed = (report) =>
+            {
+                arguments.SetRequestReport(report);
+                arguments.OnFailedCallback(report);
+            };
+
+            // Triggers login process
+            LoginAndExecuteAction(options);
+        }
+
         #endregion
 
         #region PRIVATE_METHODS
