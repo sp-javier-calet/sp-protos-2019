@@ -63,25 +63,27 @@ namespace SocialPoint.TransparentBundles
         public class BuildBundlesInput : InputCLI
         {
             public Dictionary<string, BundleDependenciesData> BundlesDictionary;
-            public MobileTextureSubtarget TextureFormat = MobileTextureSubtarget.Generic;
+            public string TextureFormat = "Generic";
             public string BundlesPath;
         }
 
         public class BuildBundlesOutput : OutputCLI
         {
             public string[] bundles;
+            public List<string> BuildLog = new List<string>();
         }
         #endregion
 
         private const string _inputJson = "-input-json";
         private const string _outputJson = "-output-json";
         private const string _methodName = "-method-name";
-
+        
         #region CLI_Methods
         public static void Run()
         {
             OutputCLI output = new OutputCLI();
             var outputPath = string.Empty;
+            object[] args = null;
             try
             {
                 var arguments = new List<string>(Environment.GetCommandLineArgs());
@@ -91,13 +93,20 @@ namespace SocialPoint.TransparentBundles
 
                 InputCLI inputs = InputCLI.Load(jsonPath, methodName + "Input");
 
-                output = (OutputCLI) typeof(TBCLI).GetMethod(methodName).Invoke(null, new object[] { inputs });
+                args = new object[] { inputs, output };
+                typeof(TBCLI).GetMethod(methodName).Invoke(null, args);
+                output = (OutputCLI)args[1];
 
                 output.success = true;
                 output.log.Add("OK - Process completed");
             }
             catch(Exception e)
             {
+                if(args != null)
+                {
+                    output = (OutputCLI)args[1];
+                }
+                Debug.Log(e);
                 output.success = false;
                 string msg = "CLI RUN ERROR - " + e;
                 output.log.Add(msg);
@@ -111,32 +120,48 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        public static OutputCLI CalculateBundles(CalculateBundlesInput input)
+        public static void CalculateBundles(CalculateBundlesInput input, ref OutputCLI output)
         {
-            CalculateBundlesOutput results = new CalculateBundlesOutput();
-            DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
+            output = new CalculateBundlesOutput();
+            var typedOutput = (CalculateBundlesOutput)output;
+
+            DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y.ToString() + " - " + x);
 
             DependencySystem.UpdateManifest(input.ManualBundles);
 
-            results.BundlesDictionary = DependencySystem.Manifest.GetDictionary();
-            
-            return results;
-            
+            typedOutput.BundlesDictionary = DependencySystem.Manifest.GetDictionary();            
         }
 
-        public static OutputCLI BuildBundles(BuildBundlesInput input)
-        {                      
-            EditorUserBuildSettings.androidBuildSubtarget = input.TextureFormat;
+        public static void BuildBundles(BuildBundlesInput input, ref OutputCLI output)
+        {
+            output = new BuildBundlesOutput();
+            var typedOutput = (BuildBundlesOutput)output;
 
-            var results = new BuildBundlesOutput();
-            DependencySystem.OnLogMessage += (x, y) => results.log.Add(y.ToString() + " - " + x);
-                
-                DependencySystem.PrepareForBuild(input.BundlesDictionary);
-                var manifest = BuildPipeline.BuildAssetBundles(input.BundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle, EditorUserBuildSettings.activeBuildTarget);
+            EditorUserBuildSettings.androidBuildSubtarget = (MobileTextureSubtarget)Enum.Parse(typeof(MobileTextureSubtarget), input.TextureFormat);
+            
+            DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y.ToString() + " - " + x);
 
-            results.bundles = manifest.GetAllAssetBundles();
+            DependencySystem.PrepareForBuild(input.BundlesDictionary);
 
-            return results;
+            Application.LogCallback Callback = (msg, stack, type) =>
+            {
+                if(type == LogType.Error || type == LogType.Exception || type == LogType.Warning)
+                {
+                    typedOutput.BuildLog.Add(type + " - " + msg + "\n" + stack);
+                }
+            };
+
+            Application.logMessageReceived += Callback;
+            var manifest = BuildPipeline.BuildAssetBundles(input.BundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle, EditorUserBuildSettings.activeBuildTarget);
+            Application.logMessageReceived -= Callback;
+            if(manifest != null)
+            {
+                typedOutput.bundles = manifest.GetAllAssetBundles();
+            }
+            else
+            {
+                throw new Exception("Error during building process");
+            }
         }
 
         #endregion

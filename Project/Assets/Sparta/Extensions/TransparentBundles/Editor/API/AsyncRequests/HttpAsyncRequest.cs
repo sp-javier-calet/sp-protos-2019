@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
+using System.Collections.Generic;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -53,6 +54,28 @@ namespace SocialPoint.TransparentBundles
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.Method = method.ToString();
             _reqState = new AsyncRequestData(request, finishedCallback);
+        }
+        /// <summary>
+        /// Given a base URL and a dictionary of params, appends params to the url string into the query
+        /// </summary>
+        /// <param name="url">Base url</param>
+        /// <param name="queryParams">query params to append</param>
+        /// <returns>Full url with all the query params</returns>
+        public static string GetURLWithQuery(string url, Dictionary<string, string> queryParams)
+        {
+            if(queryParams.Count > 0)
+            {
+                url += "?";
+
+                foreach(var pair in queryParams)
+                {
+                    url += pair.Key + "=" + pair.Value + "&";
+                }
+
+                url.TrimEnd('&');
+            }
+
+            return url;
         }
 
         public bool CertificateValidation(System.Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
