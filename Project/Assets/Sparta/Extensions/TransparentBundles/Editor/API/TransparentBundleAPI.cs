@@ -134,6 +134,10 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
+        /// <summary>
+        /// Tries to find the TBConfig file in the project, if it doesn't exists it will be created and selected (this cancels the request).
+        /// </summary>
+        /// <returns>string with the project configured in the TBConfig</returns>
         private static string GetProject()
         {
             string project = string.Empty;
@@ -249,8 +253,7 @@ namespace SocialPoint.TransparentBundles
             // Triggers login process
             LoginAndExecuteAction(options);
         }
-
-
+        
         /// <summary>
         /// Sends a MakeLocalBundle request. It will trigger a login if not previously logged for this session and then sends the request
         /// </summary>
