@@ -7,8 +7,8 @@
     <ProjectGuid>{F292E1D0-0FA8-4CCB-9392-BCFC8F8FF848}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SocialPoint.Multiplayer</RootNamespace>
-    <AssemblyName>AuthoritativePlugin</AssemblyName>
+    <RootNamespace>SocialPoint.Lockstep</RootNamespace>
+    <AssemblyName>LockstepPlugin</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\..\..\PhotonServer\lib\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="PhotonHivePlugin">
       <HintPath>..\lib\PhotonHivePlugin.dll</HintPath>
     </Reference>
@@ -45,23 +49,26 @@
     <Compile Include="..\Shared\NetworkServerPlugin.cs">
       <Link>NetworkServerPlugin.cs</Link>
     </Compile>
+    <Compile Include="..\Shared\PluginHttpClient.cs">
+      <Link>PluginHttpClient.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\PluginNetworkMessage.cs">
       <Link>PluginNetworkMessage.cs</Link>
     </Compile>
-    <Compile Include="AuthoritativePlugin.cs" />
+    <Compile Include="LockstepPlugin.cs" />
     <Compile Include="PluginFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AuthoritativeSparta\AuthoritativeSparta.csproj">
+    <ProjectReference Include="..\LockstepSparta\LockstepSparta.csproj">
       <Project>{4ba8ea51-7fea-4e0f-8103-386ffffd6001}</Project>
       <Name>Sparta</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y /Q "$(TargetDir)*.*" "$(SolutionDir)..\..\deploy\Plugins\AuthoritativePlugin\bin\"
-xcopy /Y /Q "$(TargetDir)*.*" "$(SolutionDir)..\LoadBalancing\Plugins\AuthoritativePlugin\bin\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y /Q "$(TargetDir)*.*" "$(SolutionDir)..\..\PhotonServer\deploy\Plugins\LockstepPlugin\bin\"
+xcopy /Y /Q "$(TargetDir)*.*" "$(SolutionDir)..\deploy\Plugins\LockstepPlugin\bin\"</PostBuildEvent>
     <StartAction>Program</StartAction>
     <StartProgram>..\..\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
     <StartWorkingDirectory>

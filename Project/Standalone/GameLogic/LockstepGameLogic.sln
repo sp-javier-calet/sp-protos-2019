@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lockstep", "Lockstep\Lockstep.csproj", "{F292E1D0-0FA8-4CCB-9392-BCFC8F8FF848}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lockstep", "..\Sparta\Plugins\Lockstep\Lockstep.csproj", "{F292E1D0-0FA8-4CCB-9392-BCFC8F8FF848}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sparta", "LockstepSparta\LockstepSparta.csproj", "{4BA8EA51-7FEA-4E0F-8103-386FFFFD6001}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sparta", "..\Sparta\Plugins\LockstepSparta\LockstepSparta.csproj", "{4BA8EA51-7FEA-4E0F-8103-386FFFFD6001}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameLogic", "LockstepGameLogic\LockstepGameLogic.csproj", "{D43E9ADC-17AD-49A3-8931-3FA2247C7F9E}"
 EndProject

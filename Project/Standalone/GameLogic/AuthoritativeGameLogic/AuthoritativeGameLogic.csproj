@@ -7,7 +7,7 @@
     <ProjectGuid>{D43E9ADC-17AD-49A3-8931-3FA2247C7F9E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Examples.Lockstep</RootNamespace>
+    <RootNamespace>Examples.Authoritative</RootNamespace>
     <AssemblyName>GameLogic</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -31,25 +31,25 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\..\..\Project\Assets\Examples\Multiplayer\ClickAction.cs">
+    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\ClickAction.cs">
       <Link>ClickAction.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\..\Project\Assets\Examples\Multiplayer\ExplosionEvent.cs">
+    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\ExplosionEvent.cs">
       <Link>ExplosionEvent.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\..\Project\Assets\Examples\Multiplayer\GameMsgType.cs">
+    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\GameMsgType.cs">
       <Link>GameMsgType.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\..\Project\Assets\Examples\Multiplayer\GameMultiplayerServerBehaviour.cs">
+    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\GameMultiplayerServerBehaviour.cs">
       <Link>GameMultiplayerServerBehaviour.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\..\Project\Assets\Examples\Multiplayer\MovementAction.cs">
+    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\MovementAction.cs">
       <Link>MovementAction.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\..\Project\Assets\Examples\Multiplayer\NetworkServerFactory.cs">
+    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\NetworkServerFactory.cs">
       <Link>NetworkServerFactory.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\..\..\Project\Assets\Examples\Multiplayer\PathEvent.cs">
+    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\PathEvent.cs">
       <Link>PathEvent.cs</Link>
     </Compile>
   </ItemGroup>
@@ -57,19 +57,19 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AuthoritativeSparta\AuthoritativeSparta.csproj">
+    <ProjectReference Include="..\..\Sparta\Plugins\AuthoritativeSparta\AuthoritativeSparta.csproj">
       <Project>{4ba8ea51-7fea-4e0f-8103-386ffffd6001}</Project>
       <Name>Sparta</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Authoritative\Authoritative.csproj">
+    <ProjectReference Include="..\..\Sparta\Plugins\Authoritative\Authoritative.csproj">
       <Project>{f292e1d0-0fa8-4ccb-9392-bcfc8f8ff848}</Project>
       <Name>Authoritative</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y /Q "$(TargetDir)*.*" "$(SolutionDir)..\..\deploy\Plugins\AuthoritativePlugin\bin\"
-xcopy /Y /Q "$(TargetDir)*.*" "$(SolutionDir)..\LoadBalancing\Plugins\AuthoritativePlugin\bin\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y /Q "$(TargetDir)*.*" "$(SolutionDir)..\PhotonServer\deploy\Plugins\AuthoritativePlugin\bin\"
+xcopy /Y /Q "$(TargetDir)*.*" "$(SolutionDir)..\deploy\Plugins\AuthoritativePlugin\bin\"</PostBuildEvent>
     <StartAction>Program</StartAction>
     <StartProgram>..\..\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
     <StartWorkingDirectory>

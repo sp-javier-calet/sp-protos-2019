@@ -271,7 +271,8 @@ namespace SocialPoint.Network
 
                 if (BackendEnv != null && BackendEnv != backendEnv)
                 {
-                    Fail(new Error(DifferentBackendEnvErrorCode, "Trying to set different backend environments."));
+                    var exp = (INetworkServer)this;
+                    exp.Fail(new Error(DifferentBackendEnvErrorCode, "Trying to set different backend environments."));
                 }
                 BackendEnv = backendEnv;
                 return;
