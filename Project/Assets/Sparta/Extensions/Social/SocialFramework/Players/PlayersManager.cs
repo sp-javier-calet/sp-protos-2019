@@ -1,8 +1,9 @@
 ﻿using System;
+using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Connection;
 using SocialPoint.Social;
 using SocialPoint.WAMP;
-using SocialPoint.Attributes;
 
 namespace SocialPoint.Social
 {

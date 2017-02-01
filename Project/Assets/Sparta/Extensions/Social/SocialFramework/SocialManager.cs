@@ -3,6 +3,31 @@ using System;
 
 namespace SocialPoint.Social
 {
+    public static class NotificationType
+    {
+        public const int ChatWarning = 99;
+        public const int TextMessage = 100;
+
+        // Personal notifications
+        public const int NotificationAllianceMemberAccept = 1;
+        public const int NotificationAllianceMemberKickoff = 2;
+        public const int NotificationAllianceMemberPromote = 3;
+        public const int NotificationAllianceJoinRequest = 4;
+        public const int NotificationAlliancePlayerAutoPromote = 109;
+        public const int NotificationAlliancePlayerAutoDemote = 110;
+        public const int NotificationUserChatBan = 307;
+
+        // Alliance notifications
+        public const int BroadcastAllianceMemberAccept = 101;
+        public const int BroadcastAllianceJoin = 102;
+        public const int BroadcastAllianceMemberKickoff = 103;
+        public const int BroadcastAllianceMemberLeave = 104;
+        public const int BroadcastAllianceEdit = 105;
+        public const int BroadcastAllianceMemberPromote = 106;
+        public const int BroadcastAllianceMemberRankChange = 111;
+        public const int BroadcastAllianceOnlineMember = 308;
+    }
+
     public sealed class SocialManager
     {
         public SocialPlayerFactory PlayerFactory{ get; private set; }

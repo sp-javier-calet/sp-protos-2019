@@ -6,6 +6,7 @@ using SocialPoint.IO;
 using SocialPoint.Utils;
 using SocialPoint.Social;
 using SocialPoint.WAMP.Caller;
+using SocialPoint.Connection;
 using System;
 using System.Collections.Generic;
 

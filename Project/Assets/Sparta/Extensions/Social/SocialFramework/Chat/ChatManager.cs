@@ -5,12 +5,21 @@ using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.WAMP.Subscriber;
 using SocialPoint.Utils;
+using SocialPoint.Connection;
 
 namespace SocialPoint.Social
 {
     public sealed class ChatManager : IDisposable
     {
+        const string ChatServiceKey = "chat";
         const string AllianceRoomType = "alliance";
+
+        public const string IdTopicKey = "id";
+        public const string TypeTopicKey = "type";
+        public const string NameTopicKey = "name";
+        public const string HistoryTopicKey = "history";
+        public const string TopicMembersKey = "topic_members";
+        public const string ChatMessageInfoKey = "message_info";
 
         public event Action<long> OnChatBanReceived;
 
@@ -36,7 +45,7 @@ namespace SocialPoint.Social
 
         readonly List<ChatReport> _reports;
 
-        public ReadOnlyCollection<ChatReport> Reports{ get { return _reports.AsReadOnly();} }
+        public ReadOnlyCollection<ChatReport> Reports{ get { return _reports.AsReadOnly(); } }
 
 
         public const long DefaultReportUserCooldown = 60 * 60 * 24;
@@ -58,8 +67,9 @@ namespace SocialPoint.Social
 
             _socialManager = socialManager;
             _connection = connection;
-            _connection.ChatManager = this;
+            _connection.OnClosed += OnConnectionClosed;
             _connection.OnNotificationReceived += ProcessNotificationMessage;
+            _connection.OnProcessServices += ProcessChatServices;
 
             _reports = new List<ChatReport>();
 
@@ -69,7 +79,9 @@ namespace SocialPoint.Social
         public void Dispose()
         {
             UnregisterAll();
+            _connection.OnClosed -= OnConnectionClosed;
             _connection.OnNotificationReceived -= ProcessNotificationMessage;
+            _connection.OnProcessServices -= ProcessChatServices;
         }
 
         public IEnumerator<IChatRoom> GetRooms()
@@ -141,9 +153,11 @@ namespace SocialPoint.Social
             return AllianceRoom == room; 
         }
 
-        public void ProcessChatServices(AttrDic dic)
+        public void ProcessChatServices(AttrDic servicesDic)
         {
-            var topicsList = dic.Get(ConnectionManager.TopicsKey).AsList;
+            var chatServiceDic = servicesDic.Get(ChatServiceKey).AsDic;
+
+            var topicsList = chatServiceDic.Get(ConnectionManager.TopicsKey).AsList;
             for(int i = 0; i < topicsList.Count; ++i)
             {
                 var topicDic = topicsList[i].AsDic;
@@ -151,14 +165,14 @@ namespace SocialPoint.Social
             }
 
             ChatBanEndTimestamp = 0;
-            if(dic.ContainsKey("banEndTimestamp"))
+            if(chatServiceDic.ContainsKey("banEndTimestamp"))
             {
-                ChatBanEndTimestamp = dic.GetValue("banEndTimestamp").ToLong();
+                ChatBanEndTimestamp = chatServiceDic.GetValue("banEndTimestamp").ToLong();
             }
 
-            if(dic.ContainsKey("reports"))
+            if(chatServiceDic.ContainsKey("reports"))
             {
-                ProcessReports(dic.GetValue("reports").AsList);
+                ProcessReports(chatServiceDic.GetValue("reports").AsList);
             }
         }
 
@@ -217,10 +231,10 @@ namespace SocialPoint.Social
             var vigentReport = _reports.Find((ChatReport report) => (report.ReportedUid == userId) && (TimeUtils.Timestamp < report.Ts + ReportUserCooldown));
             return (vigentReport == null);
         }
-            
+
         void ProcessChatTopic(AttrDic dic)
         {
-            var topic = dic.GetValue(ConnectionManager.TypeTopicKey).ToString();
+            var topic = dic.GetValue(TypeTopicKey).ToString();
 
             IChatRoom room;
             if(!_chatRooms.TryGetValue(topic, out room))
@@ -230,12 +244,17 @@ namespace SocialPoint.Social
             }
 
             var subscriptionId = dic.GetValue(ConnectionManager.SubscriptionIdTopicKey).ToLong();
-            var topicName = dic.GetValue(ConnectionManager.IdTopicKey).ToString();
+            var topicName = dic.GetValue(IdTopicKey).ToString();
             var subscription = new Subscription(subscriptionId, topicName);
             _chatSubscriptions.Add(room, subscription);
 
             _connection.AutosubscribeToTopic(topic, subscription);
             room.ParseInitialInfo(dic);
+        }
+
+        void OnConnectionClosed()
+        {
+            ClearAllSubscriptions();
         }
     }
 }
