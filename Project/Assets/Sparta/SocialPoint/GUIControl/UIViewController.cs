@@ -416,6 +416,11 @@ namespace SocialPoint.GUIControl
             OnStart();
         }
 
+        public void ResetState()
+        {
+            _viewState = ViewState.Initial;
+        }
+
         void OnDestroy()
         {
             if(_loaded)

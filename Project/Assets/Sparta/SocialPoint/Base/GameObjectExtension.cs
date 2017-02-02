@@ -313,5 +313,18 @@ namespace SocialPoint.Base
                 GetChildrenWithTagRecursive(gameObject.transform.GetChild(k).gameObject, tag, outList);
             }
         }
+
+        public static T GetChildComponent<T> (this GameObject gameObject, string name)
+        {
+            Transform child = gameObject.transform.Find(name);
+            if(child != null)
+            {
+                return child.GetComponent<T>();
+            }
+            else
+            {
+                return default(T);
+            }
+        }
     }
 }
