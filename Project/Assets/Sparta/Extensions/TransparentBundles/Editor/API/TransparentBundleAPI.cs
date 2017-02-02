@@ -181,6 +181,10 @@ namespace SocialPoint.TransparentBundles
             return project;
         }        
 
+        /// <summary>
+        /// Gets a dictionary with the two required query arguments "project" and "user_email"
+        /// </summary>
+        /// <returns>Dictionary with the two initialized parameters</returns>
         private static Dictionary<string,string> GetBaseQueryArgs()
         {
             var queryVars = new Dictionary<string, string>();
