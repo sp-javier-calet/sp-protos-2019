@@ -282,8 +282,9 @@ namespace SocialPoint.Pooling
 
         public static void Recycle(GameObject obj)
         {
-            if(!Instance)
+            if(!Instance || obj == null)
             {           
+                SocialPoint.Base.DebugUtils.Assert(obj != null, "ObjectPool: Trying to recycle null object");
                 return;
             }
 
