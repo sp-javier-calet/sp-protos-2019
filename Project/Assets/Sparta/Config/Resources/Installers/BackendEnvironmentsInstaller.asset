@@ -13,19 +13,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
+    PersistsSelection: 1
     Environments:
     - Name: Production
       Url: https://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3
       Type: 0
     - Name: Test
       Url: http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3
-      Type: 1
+      Type: 2
     - Name: Development
       Url: http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3
       Type: 3
     - Name: League Of Dragons
       Url: http://int-lod.socialpointgames.com/lod3/web/index.php/api/v3
-      Type: 2
+      Type: 3
     - Name: Docker
       Url: http://localhost:4630/api/v3
-      Type: 2
+      Type: 3
+  Defaults:
+    ProductionEnvironment: Production
+    DefaultEnvironment: Development

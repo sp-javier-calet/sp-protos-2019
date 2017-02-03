@@ -12,7 +12,7 @@ public class HUDPlayerLevel: MonoBehaviour, IPointerClickHandler
 
     void Start()
     {
-        _player = ServiceLocator.Instance.Resolve<PlayerModel>();
+        _player = Services.Instance.Resolve<PlayerModel>();
         _level.text = _player.Level.ToString();
     }
 

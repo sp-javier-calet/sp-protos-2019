@@ -3,11 +3,6 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Dependency
 {
-    public interface IInitializable
-    {
-        void Initialize();
-    }
-
     public sealed class InitializableManager
     {
         readonly Dictionary<IInitializable,int> _initialized;

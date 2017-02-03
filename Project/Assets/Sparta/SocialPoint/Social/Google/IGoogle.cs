@@ -192,6 +192,8 @@ namespace SocialPoint.Social
 
         bool IsConnecting{ get; }
 
+        bool HasCancelledLogin { get; }
+
         string AccessToken{ get; }
 
         List<GoogleUser> Friends { get; }

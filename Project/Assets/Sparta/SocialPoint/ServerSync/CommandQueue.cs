@@ -344,7 +344,7 @@ namespace SocialPoint.ServerSync
             }
             if(_updateScheduler != null)
             {
-                _updateScheduler.AddFixed(this, SendInterval);
+                _updateScheduler.Add(this, false, SendInterval);
                 _running = true;
             }
         }

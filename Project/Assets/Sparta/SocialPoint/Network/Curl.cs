@@ -22,17 +22,12 @@ namespace SocialPoint.Network
         /// <summary>
         /// Static method to ask if Curl implementation is available in the current platform
         /// </summary>
-        public static bool IsSupported
-        {
-            get
-            {
-                #if CURL_SUPPORTED
-                return true;
-                #else
-                return false;
-                #endif
-            }
-        }
+        public const bool IsSupported
+        #if CURL_SUPPORTED
+        = true;
+        #else
+        = false;
+        #endif
 
         UIntPtr _nativeClient;
 

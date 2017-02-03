@@ -77,6 +77,7 @@ namespace SpartaTools.Editor.SpartaProject
             var line = file.ReadLine();
             while(line != null)
             {
+                line = line.Trim();
                 ParseLine(line);
                 line = file.ReadLine();
             }
@@ -86,6 +87,11 @@ namespace SpartaTools.Editor.SpartaProject
 
         void ParseLine(string line)
         {
+            if(string.IsNullOrEmpty(line))
+            {
+                return;
+            }
+
             string[] parts = line.Split(null, 2);
             if(parts.Length != 2)
             {

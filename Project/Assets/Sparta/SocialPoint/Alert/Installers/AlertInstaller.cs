@@ -3,6 +3,7 @@
 #endif
 
 using System;
+using SocialPoint.AdminPanel;
 using SocialPoint.Base;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
@@ -30,7 +31,7 @@ namespace SocialPoint.Alert
             get
             {
                 #if NATIVE_ALERTVIEW
-            return true;
+                return true;
                 #else
                 return false;
                 #endif 
@@ -56,6 +57,8 @@ namespace SocialPoint.Alert
             Container.Bind<AlertBridge>().ToMethod<AlertBridge>(CreateAlertBridge);
             Container.Bind<IEventsBridge>().ToLookup<AlertBridge>();
             Container.Bind<IScriptEventsBridge>().ToLookup<AlertBridge>();
+
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelAlert>(CreateAdminPanel);
         }
 
         public AlertBridge CreateAlertBridge()
@@ -69,7 +72,7 @@ namespace SocialPoint.Alert
             DebugUtils.Assert(ctrl != null, "GameObject doesn't have a viewController");
             if(_popups == null)
             {
-                _popups = GameObject.FindObjectOfType<UIStackController>();
+                _popups = Container.Resolve<UIStackController>();
             }
             if(_popups != null)
             {
@@ -86,10 +89,10 @@ namespace SocialPoint.Alert
             var alert = new AlertView();
 
             #if UNITY_IOS && !UNITY_EDITOR
-        if(alert is IosAlertView)
-        {
-            (alert as IosAlertView).NativeHandler = Container.Resolve<SocialPoint.Utils.NativeCallsHandler>();
-        }
+            if(alert is IosAlertView)
+            {
+                (alert as IosAlertView).NativeHandler = Container.Resolve<SocialPoint.Utils.NativeCallsHandler>();
+            }
             #endif
             return alert;
         }
@@ -99,6 +102,11 @@ namespace SocialPoint.Alert
             var ctrl = go.GetComponent<UIViewController>();
             DebugUtils.Assert(ctrl != null, "GameObject doesn't have a viewController");
             ctrl.Hide(true);
+        }
+
+        AdminPanelAlert CreateAdminPanel()
+        {
+            return new AdminPanelAlert(Container.Resolve<IAlertView>());
         }
     }
 }

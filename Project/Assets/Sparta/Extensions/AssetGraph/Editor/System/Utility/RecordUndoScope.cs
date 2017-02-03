@@ -1,12 +1,9 @@
 ﻿using UnityEngine;
-using UnityEditor;
-using System.Collections;
 using AssetBundleGraph;
 
 namespace AssetBundleGraph {
 	public class RecordUndoScope : GUI.Scope {
 
-		private string message;
 		private NodeGUI node;
 		private bool saveOnScopeEnd;
 

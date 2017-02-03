@@ -73,14 +73,10 @@ namespace SocialPoint.Matchmaking
                 OnError(resp.Error);
                 return;
             }
-            Attr attr = null;
-            if(resp.Body != null)
-            {
-                attr = _parser.Parse(resp.Body);
-            }
+
             for(var i = 0; i < _delegates.Count; i++)
             {
-                _delegates[i].OnMatchInfoReceived(attr);
+                _delegates[i].OnMatchInfoReceived(resp.Body);
             }
         }
 

@@ -8,7 +8,7 @@ public class PopupsController : UIStackController
 
     override protected void OnLoad()
     {
-        FadeSpeed = ServiceLocator.Instance.Resolve("popup_fade_speed", DefaultFadeSpeed);
+        FadeSpeed = Services.Instance.Resolve("popup_fade_speed", DefaultFadeSpeed);
         ChildAnimation = new FadeAnimation(FadeSpeed);
         base.OnLoad();
     }
