@@ -1,6 +1,5 @@
-﻿using System;
+﻿using SocialPoint.Attributes;
 using SocialPoint.Utils;
-using SocialPoint.Attributes;
 
 namespace SocialPoint.ServerMessaging
 {
@@ -42,23 +41,27 @@ namespace SocialPoint.ServerMessaging
         }
     }
 
-    public sealed class Message
+    public class Message
     {
-        const string MessageIdKey = "id";
+        protected const string MessageIdKey = "id";
         const string MessageTypeKey = "type";
         const string MessageOriginKey = "origin";
-        const string MessageParamsKey = "params";
+        protected const string MessageParamsKey = "params" ;
         const string MessageDestinationKey = "destination";
 
-        public string Id { get; private set; }
+        public string Id { get; protected set; }
 
-        public string Type { get; private set; }
+        public string Type { get; protected set; }
 
         public Origin Origin { get; private set; }
 
-        public AttrDic Params { get; private set; }
+        public AttrDic Params { get; protected set; }
 
         public string Destination { get; private set; }
+
+        public Message()
+        {
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SocialPoint.ServerMessaging.Message"/> class to be sended.

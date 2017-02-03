@@ -33,8 +33,8 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 
     void Start()
     {
-        _adminPanel = ServiceLocator.Instance.Resolve<AdminPanel>();
-        _configurers = ServiceLocator.Instance.ResolveList<IAdminPanelConfigurer>();
+        _adminPanel = Services.Instance.Resolve<AdminPanel>();
+        _configurers = Services.Instance.ResolveList<IAdminPanelConfigurer>();
         if(_adminPanel != null)
         {
             _adminPanel.RegisterConfigurers(_configurers);

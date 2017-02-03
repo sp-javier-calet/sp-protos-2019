@@ -12,56 +12,47 @@ namespace SocialPoint.PerformanceSettings
         const string kMaxshaderlod = "max_shader_lod";
         const string kAntialiasing = "anti_aliasing";
         const string kAsyncuploadbuffersize = "async_upload_buffer_size";
+        const string kAsyncuploadtimeslice = "async_upload_time_slice";
         const string kBlendWeights = "blend_weights";
         const string kLodBias = "lod_bias";
         const string kMasterTextureLimit = "master_texture_limit";
         const string kMaxLodLevel = "max_lod_level";
         const string kVsync = "vsync";
 
-        public int FrameRate { get; private set; }
+        public AttrDic Settings { get; private set; }
 
-        public float FixedTimestep { get; private set; }
+        public int FrameRate { get { return Settings.GetValue(kFramerate).ToInt(); } }
 
-        public string AssetQuality { get; private set; }
+        public float FixedTimestep { get { return Settings.GetValue(kFixedtimestep).ToFloat(); } }
 
-        public float ScreenRatio { get; private set; }
+        public string AssetQuality { get { return Settings.GetValue(kAssetquality).ToString(); } }
 
-        public float Culling { get; private set; }
+        public float ScreenRatio { get { return Settings.GetValue(kScreenratio).ToFloat(); } }
 
-        public int MaxShaderLod { get; private set; }
+        public float Culling { get { return Settings.GetValue(kCulling).ToFloat(); } }
 
-        public bool AntiAliasing { get; private set; }
+        public int MaxShaderLod { get { return Settings.GetValue(kMaxshaderlod).ToInt(); } }
 
-        public int AsyncUploadBufferSize { get; private set; }
+        public bool AntiAliasing { get { return Settings.GetValue(kAntialiasing).ToBool(); } }
 
-        public int AsyncUploadTimeSlice { get; private set; }
+        public int AsyncUploadBufferSize { get { return Settings.GetValue(kAsyncuploadbuffersize).ToInt(); } }
 
-        public int BlendWeights { get; private set; }
+        public int AsyncUploadTimeSlice { get { return Settings.GetValue(kAsyncuploadtimeslice).ToInt(); } }
 
-        public float LodBias { get; private set; }
+        public int BlendWeights { get { return Settings.GetValue(kBlendWeights).ToInt(); } }
 
-        public int MasterTextureLimit { get; private set; }
+        public float LodBias { get { return Settings.GetValue(kLodBias).ToFloat(); } }
 
-        public int MaxLodLevel { get; private set; }
+        public int MasterTextureLimit { get { return Settings.GetValue(kMasterTextureLimit).ToInt(); } }
 
-        public bool Vsync { get; private set; }
+        public int MaxLodLevel { get { return Settings.GetValue(kMaxLodLevel).ToInt(); } }
+
+        public bool Vsync { get { return Settings.GetValue(kVsync).ToBool(); } }
+
 
         public PerformanceSettingsData(AttrDic config)
         {
-            FrameRate = config.GetValue(kFramerate).ToInt();
-            FixedTimestep = config.GetValue(kFixedtimestep).ToFloat();
-            AssetQuality = config.GetValue(kAssetquality).ToString();
-            ScreenRatio = config.GetValue(kScreenratio).ToFloat();
-            Culling = config.GetValue(kCulling).ToFloat();
-            MaxShaderLod = config.GetValue(kMaxshaderlod).ToInt();
-            AntiAliasing = config.GetValue(kAntialiasing).ToBool();
-            AsyncUploadBufferSize = config.GetValue(kAsyncuploadbuffersize).ToInt();
-            AsyncUploadTimeSlice = config.GetValue(kAsyncuploadbuffersize).ToInt();
-            BlendWeights = config.GetValue(kBlendWeights).ToInt();
-            LodBias = config.GetValue(kLodBias).ToFloat();
-            MasterTextureLimit = config.GetValue(kMasterTextureLimit).ToInt();
-            MaxLodLevel = config.GetValue(kMaxLodLevel).ToInt();
-            Vsync = config.GetValue(kVsync).ToBool();
+            Settings = new AttrDic(config);
         }
     }
 }

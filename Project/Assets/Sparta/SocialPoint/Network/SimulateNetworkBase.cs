@@ -86,7 +86,6 @@ namespace SocialPoint.Network
         List<MessageInfo> _receivedMessages;
         List<MessageInfo> _sentMessages;
         INetworkMessageSender _sender;
-        List<INetworkClientDelegate> _delegates;
         INetworkMessageReceiver _receiver;
 
         public SimulateNetworkBase(INetworkMessageSender sender)

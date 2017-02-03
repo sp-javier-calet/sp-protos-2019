@@ -23,6 +23,7 @@ namespace SocialPoint.Social
         {
             public string[] Endpoints = new string[] { DefaultEndpoint };
             public string[] Protocols = new string[] { DefaultWAMPProtocol };
+            public bool UseNativeWebsocketIfSupported = true;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -35,19 +36,19 @@ namespace SocialPoint.Social
             _httpProxy = EditorProxy.GetProxy();
             _deviceInfo = Container.Resolve<IDeviceInfo>();
 
-        // Service Installer
-        if(WebSocket.IsSupported)
-        {
-            Container.Rebind<WebSocketClient>().ToMethod<WebSocketClient>(CreateWebSocket, SetupWebSocket);
-            Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketClient>();
-            Container.Bind<IDisposable>().ToLookup<WebSocketClient>();
-        }
-        else
-        {
-            Container.Rebind<WebSocketSharpClient>().ToMethod<WebSocketSharpClient>(CreateWebSocketSharp, SetupWebSocket);
-            Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketSharpClient>();
-            Container.Bind<IDisposable>().ToLookup<WebSocketSharpClient>();
-        }
+            // Service Installer
+            if(Settings.UseNativeWebsocketIfSupported && WebSocket.IsSupported)
+            {
+                Container.Rebind<WebSocketClient>().ToMethod<WebSocketClient>(CreateWebSocket, SetupWebSocket);
+                Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketClient>();
+                Container.Bind<IDisposable>().ToLookup<WebSocketClient>();
+            }
+            else
+            {
+                Container.Rebind<WebSocketSharpClient>().ToMethod<WebSocketSharpClient>(CreateWebSocketSharp, SetupWebSocket);
+                Container.Rebind<IWebSocketClient>(SocialFrameworkTag).ToLookup<WebSocketSharpClient>();
+                Container.Bind<IDisposable>().ToLookup<WebSocketSharpClient>();
+            }
 
             Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);    
             Container.Bind<IDisposable>().ToLookup<ConnectionManager>();
@@ -74,22 +75,22 @@ namespace SocialPoint.Social
             return new WebSocketClient(Settings.Endpoints, Settings.Protocols, Container.Resolve<IUpdateScheduler>());
         }
 
-    WebSocketSharpClient CreateWebSocketSharp()
-    {
-        return new WebSocketSharpClient(Settings.Endpoints, Settings.Protocols, Container.Resolve<IUpdateScheduler>());
-    }
+        WebSocketSharpClient CreateWebSocketSharp()
+        {
+            return new WebSocketSharpClient(Settings.Endpoints, Settings.Protocols, Container.Resolve<IUpdateScheduler>());
+        }
 
-    void SetupWebSocket(IWebSocketClient client)
-    {
-        if(!string.IsNullOrEmpty(_httpProxy))
+        void SetupWebSocket(IWebSocketClient client)
         {
-            client.Proxy = _httpProxy;
+            if(!string.IsNullOrEmpty(_httpProxy))
+            {
+                client.Proxy = _httpProxy;
+            }
+            else if(_deviceInfo.NetworkInfo.Proxy != null)
+            {
+                client.Proxy = _deviceInfo.NetworkInfo.Proxy.ToString();
+            }
         }
-        else if(_deviceInfo.NetworkInfo.Proxy != null)
-        {
-            client.Proxy = _deviceInfo.NetworkInfo.Proxy.ToString();
-        }
-    }
 
         ConnectionManager CreateConnectionManager()
         {

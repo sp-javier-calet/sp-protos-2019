@@ -1,4 +1,5 @@
-﻿#if (UNITY_ANDROID || UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+﻿
+#if (UNITY_ANDROID || UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
 #define UNITY_DEVICE
 #endif 
 #if UNITY_DEVICE || UNITY_STANDALONE_OSX || UNITY_EDITOR_OSX || UNITY_STANDALONE_LINUX || UNITY_EDITOR_LINUX
@@ -116,19 +117,24 @@ namespace SocialPoint.WebSockets
             // Update service
             SPUnityWebSocketUpdate(NativeSocket);
 
-            // Update Connection state
-            var newState = State;
-            if(newState != _lastState)
-            {
-                _lastState = newState;
-                NotifyConnectionState(newState);
-            }
+            // Changed the order of the processing of the message and the change of state because
+            // it was very common that the connection would close (sending a callback) before the
+            // Message was processed. The listener would not receive the expected message or (if it
+            // did not unregister) would receive it after the disconnection response was received.
 
             // Check incoming messages
             var msg = NextMessage();
             if(!string.IsNullOrEmpty(msg) && MessageReceived != null)
             {
                 MessageReceived(msg);
+            }
+
+            // Update Connection state
+            var newState = State;
+            if(newState != _lastState)
+            {
+                _lastState = newState;
+                NotifyConnectionState(newState);
             }
 
             // Check error
@@ -223,7 +229,7 @@ namespace SocialPoint.WebSockets
             {
                 var bytes = new byte[msgLength];
                 SPUnityWebSocketGetMessage(NativeSocket, bytes);
-                message = System.Text.Encoding.ASCII.GetString(bytes);
+                message = System.Text.Encoding.UTF8.GetString(bytes);
             }
             return message;
         }
@@ -246,7 +252,7 @@ namespace SocialPoint.WebSockets
                 {
                     var bytes = new byte[errorLength];
                     SPUnityWebSocketGetError(NativeSocket, bytes);
-                    error = System.Text.Encoding.ASCII.GetString(bytes);
+                    error = System.Text.Encoding.UTF8.GetString(bytes);
                 }
                 return error;
             }

@@ -4,6 +4,7 @@ using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Hardware;
+using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 
@@ -52,6 +53,9 @@ namespace SocialPoint.Login
         const string HttpParamLinkChange = "link_change";
         const string HttpParamLinkChangeCode = "link_change_code";
 
+        const string HttpParamForcedErrorCode = "fake_error_code";
+        const string HttpParamForcedErrorType = "fake_error_type";
+
         const string HttpParamDeviceTotalMemory = "device_total_memory";
         const string HttpParamDeviceUsedMemory = "device_used_memory";
         const string HttpParamDeviceTotalStorage = "device_total_storage";
@@ -99,6 +103,8 @@ namespace SocialPoint.Login
         const string EventNameLogin = "game.login";
         const string EventNameLoginError = "errors.login_error";
         const string EventNameLinkError = "errors.link_error";
+
+        const long TrackErrorMinElapsedTime = 60;
 
         const string SignatureSeparator = ":";
         const string SignatureCodeSeparator = "-";
@@ -153,6 +159,12 @@ namespace SocialPoint.Login
         string _securityToken;
         bool _linkChange;
         int _linkChangeCode;
+
+        long _lastTrackedErrorTimestamp;
+        int _lastTrackedErrorCode;
+
+        string _forcedErrorCode = null;
+        string _forcedErrorType = null;
 
         public event HttpRequestDelegate HttpRequestEvent = null;
         public event NewUserDelegate NewUserEvent = null;
@@ -249,6 +261,8 @@ namespace SocialPoint.Login
 
         public IAttrStorage Storage { get; set; }
 
+        public ILocalizationManager Localization { get; set; }
+
         public float Timeout { get; set; }
 
         public float ActivityTimeout { get; set; }
@@ -259,7 +273,6 @@ namespace SocialPoint.Login
 
         public uint UserMappingsBlock { get; set; }
 
-        public string Language { get; set; }
 
         public GenericData Data { get; private set; }
 
@@ -404,6 +417,14 @@ namespace SocialPoint.Login
             }
         }
 
+        public string Language
+        {
+            get
+            {
+                return Localization != null ? Localization.CurrentLanguage : null;
+            }
+        }
+
         public void SetBaseUrl(string url)
         {
             var baseurl = StringUtils.FixBaseUri(url);
@@ -470,7 +491,6 @@ namespace SocialPoint.Login
             AutoUpdateFriendsPhotosSize = DefaultAutoUpdateFriendsPhotoSize;
             UserMappingsBlock = DefaultUserMappingsBlock;
             SecurityToken = string.Empty;
-            Language = null;
             User = new LocalUser();
             _users = new List<User>();
             _links = new List<LinkInfo>();
@@ -627,7 +647,13 @@ namespace SocialPoint.Login
             {
                 err = new Error("Game is under maintenance.");
                 typ = ErrorType.MaintenanceMode;
-                LoadGenericData(json.Get(AttrKeyGenericData));
+
+                Attr genericDataAttr = null;
+                if(json != null)
+                {
+                    genericDataAttr = json.Get(AttrKeyGenericData);
+                }
+                LoadGenericData(genericDataAttr);
             }
             else if(resp.StatusCode == InvalidSessionError)
             {
@@ -792,6 +818,10 @@ namespace SocialPoint.Login
 
         void LoadGenericData(Attr genericData)
         {
+            if(genericData == null)
+            {
+                genericData = Attr.InvalidDic;
+            }
             if(Data == null)
             {
                 Data = new GenericData();
@@ -906,8 +936,8 @@ namespace SocialPoint.Login
         void OnLinkStateChanged(LinkInfo info, LinkState state)
         {
             DebugLog("OnLinkStateChanged");
-            DebugLog("OnLinkStateChanged info: "+ info);
-            DebugLog("OnLinkStateChanged state: "+ state);
+            DebugLog("OnLinkStateChanged info: " + info);
+            DebugLog("OnLinkStateChanged state: " + state);
 
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             if(ImpersonatedUserId != 0)
@@ -1449,32 +1479,8 @@ namespace SocialPoint.Login
             var signature = typeCode + SignatureSeparator + SignatureSuffix;
             data.SetValue(AttrKeySignature, signature);
 
-            if(TrackEvent != null)
-            {
-                var evData = new AttrDic();
-                var errData = new AttrDic();
-                evData.Set(AttrKeyEventError, errData);
-                var loginData = new AttrDic();
-                errData.Set(AttrKeyEventLogin, loginData);
-                loginData.SetValue(AttrKeyEventErrorType, (int)type);
-                loginData.SetValue(AttrKeyEventErrorCode, err.Code);
-                loginData.SetValue(AttrKeyEventErrorMessage, err.Msg);
-                var code = 0;
-                if(data.AsDic.ContainsKey(AttrKeyHttpCode))
-                {
-                    code = data.AsDic.GetValue(AttrKeyHttpCode).ToInt();
-                }
-                loginData.SetValue(AttrKeyEventErrorHttpCode, code);
-                loginData.Set(AttrKeyEventErrorData, data);
-                if(type.IsLinkError())
-                {
-                    TrackEvent(EventNameLinkError, evData);
-                }
-                else
-                {
-                    TrackEvent(EventNameLoginError, evData);
-                }
-            }
+            TrackError(type, err, data);
+
             if(!type.IsLinkError())
             {
                 if(ErrorEvent != null)
@@ -1489,7 +1495,56 @@ namespace SocialPoint.Login
                     LinkErrorEvent(type, err, data);
                 }
             }
+        }
 
+        void TrackError(ErrorType type, Error err, AttrDic data)
+        {
+            if(TrackEvent != null && CanTrackLoginError(err.Code))
+            {
+                var evData = new AttrDic();
+                var errData = new AttrDic();
+                evData.Set(AttrKeyEventError, errData);
+                var loginData = new AttrDic();
+                errData.Set(AttrKeyEventLogin, loginData);
+                loginData.SetValue(AttrKeyEventErrorType, (int)type);
+                loginData.SetValue(AttrKeyEventErrorCode, err.Code);
+                loginData.SetValue(AttrKeyEventErrorMessage, err.Msg);
+
+                var code = 0;
+                if(data.AsDic.ContainsKey(AttrKeyHttpCode))
+                {
+                    code = data.AsDic.GetValue(AttrKeyHttpCode).ToInt();
+                }
+                loginData.SetValue(AttrKeyEventErrorHttpCode, code);
+                loginData.Set(AttrKeyEventErrorData, data);
+
+                if(type.IsLinkError())
+                {
+                    TrackEvent(EventNameLinkError, evData);
+                }
+                else
+                {
+                    TrackEvent(EventNameLoginError, evData);
+                }
+            }
+        }
+
+        bool CanTrackLoginError(int code)
+        {
+            var now = TimeUtils.Timestamp;
+            var elapsed = now - _lastTrackedErrorTimestamp;
+            bool isErrorRepeating = (_lastTrackedErrorCode == code);
+
+            // Avoid trackign repeated errors in a defined span of time
+            if(isErrorRepeating && elapsed < TrackErrorMinElapsedTime)
+            {
+                return false;
+            }
+
+            _lastTrackedErrorTimestamp = now;
+            _lastTrackedErrorCode = code;
+
+            return true;
         }
 
         void OnAppRequestResponse(HttpResponse resp, AppRequest req, ErrorDelegate cbk)
@@ -1991,7 +2046,50 @@ namespace SocialPoint.Login
             {
                 req.AddParam(HttpParamLinkChangeCode, new AttrInt(_linkChangeCode));
             }
+
+            AddForcedErrorRequestParams(req);
         }
+
+        #region Forced Login Errors
+
+        public void SetForcedErrorCode(string code)
+        {
+            _forcedErrorCode = code;
+        }
+
+        public string GetForcedErrorCode()
+        {
+            return _forcedErrorCode;
+        }
+
+        public void SetForcedErrorType(string type)
+        {
+            _forcedErrorType = type;
+        }
+
+        public string GetForcedErrorType()
+        {
+            return _forcedErrorType;
+        }
+
+        public void AddForcedErrorRequestParams(HttpRequest req)
+        {
+            #pragma warning disable 0162
+            if(AdminPanel.AdminPanel.IsAvailable)
+            {
+                if(!string.IsNullOrEmpty(_forcedErrorCode))
+                {
+                    req.AddParam(HttpParamForcedErrorCode, _forcedErrorCode);
+                }
+                if(!string.IsNullOrEmpty(_forcedErrorType))
+                {
+                    req.AddParam(HttpParamForcedErrorType, _forcedErrorType);
+                }
+            }
+            #pragma warning restore 0162
+        }
+
+        #endregion
 
         // PUBLIC
 

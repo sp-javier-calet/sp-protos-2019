@@ -7,10 +7,6 @@ namespace SocialPoint.Pathfinding
     {
         public static readonly NavVector2iSerializer Instance = new NavVector2iSerializer();
 
-        NavVector2iSerializer()
-        {
-        }
-
         public void Serialize(Vector2i value, IWriter writer)
         {
             writer.Write(value.X);
@@ -21,10 +17,6 @@ namespace SocialPoint.Pathfinding
     public class NavVector2iParser : IReadParser<Vector2i>
     {
         public static readonly NavVector2iParser Instance = new NavVector2iParser();
-
-        NavVector2iParser()
-        {
-        }
 
         public Vector2i Parse(IReader reader)
         {

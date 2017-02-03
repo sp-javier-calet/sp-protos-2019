@@ -391,8 +391,7 @@ namespace SpartaTools.Editor.Build
             SetXcodeModSchemes(Ios.XcodeModSchemes);
 
             // Try to set the Provisioning Profile defined by a environment variable.
-            var globalProvisioningUuid = Ios.UseEnvironmentProvisioningUuid ? BuildSet.EnvironmentProvisioningUuid : null;
-            SetXcodeProvisioningProfileUuid(globalProvisioningUuid);
+            UpdateEnvironmentProvisioning();
 
             /*
              * Override shared configuration for the active target platform
@@ -438,6 +437,20 @@ namespace SpartaTools.Editor.Build
             }
             // Overrid
             return configFlags;
+        }
+
+        void UpdateEnvironmentProvisioning()
+        {
+            string globalProvisioningUuid = null;
+            if(Ios.UseEnvironmentProvisioningUuid)
+            {
+                globalProvisioningUuid = BuildSet.EnvironmentProvisioningUuid;
+                if(string.IsNullOrEmpty(globalProvisioningUuid))
+                {
+                    Debug.LogWarning(string.Format("No Environment Provisioning UUID defined ('{0}')", ProvisioningProfileEnvironmentKey));
+                }
+            }
+            SetXcodeProvisioningProfileUuid(globalProvisioningUuid);
         }
 
         public void ApplyExtended()

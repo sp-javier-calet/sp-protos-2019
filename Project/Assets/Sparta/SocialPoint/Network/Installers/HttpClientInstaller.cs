@@ -41,6 +41,8 @@ namespace SocialPoint.Network
             _httpProxy = EditorProxy.GetProxy();
             _deviceInfo = Container.Resolve<IDeviceInfo>();
 
+            #pragma warning disable 0162
+
             // Http Client
             if(Curl.IsSupported)
             {
@@ -64,6 +66,8 @@ namespace SocialPoint.Network
 
                 Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelHttpStream>(CreateAdminPanel);
             }
+
+            #pragma warning restore 0162
         }
 
         CurlHttpClient CreateCurlHttpClient()
