@@ -35,9 +35,7 @@ namespace SocialPoint.TransparentBundles
 
         private const string _queryLogin = "user_email";
         private const string _queryProject = "project";
-
-        private const string _configDefaultPath = "Assets/Sparta/Config/TransparentBundles/TBConfig.asset";
-
+        
         private static bool _isLogged = false;
 
         [MenuItem("SocialPoint/Test Call")]
@@ -134,64 +132,25 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        private static string GetProject()
-        {
-            string project = string.Empty;
-            var file = AssetDatabase.FindAssets("t:TBConfig");
-            TBConfig config;
-
-            if(file.Length == 0)
-            {
-                var directory = Directory.GetParent(_configDefaultPath);
-                if(!directory.Exists)
-                {
-                    directory.Create();
-                }
-
-                config = ScriptableObject.CreateInstance<TBConfig>();
-
-                AssetDatabase.CreateAsset(config, _configDefaultPath);
-
-                Selection.activeObject = config;
-
-                throw new Exception("There was no TBConfig file, one has been created at " + _configDefaultPath + " configure it please.");
-            }
-            else if(file.Length > 1)
-            {
-                throw new Exception("More than one config file found, please have only one.");
-            }
-            else
-            {
-                config = AssetDatabase.LoadAssetAtPath<TBConfig>(AssetDatabase.GUIDToAssetPath(file[0]));
-            }
-
-            project = config.project;
-
-            if(string.IsNullOrEmpty(project))
-            {
-                Selection.activeObject = config;
-
-                throw new Exception("Project config is empty, please configure it");
-            }
-
-            return project;
-        }        
-
+        /// <summary>
+        /// Gets a dictionary with the two required query arguments "project" and "user_email"
+        /// </summary>
+        /// <returns>Dictionary with the two initialized parameters</returns>
         private static Dictionary<string,string> GetBaseQueryArgs()
         {
             var queryVars = new Dictionary<string, string>();
             queryVars.Add(_queryLogin, EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY));
-            queryVars.Add(_queryProject, GetProject());
+            queryVars.Add(_queryProject, TBConfig.GetProject());
 
             return queryVars;
         }
         #endregion
 
         #region PUBLIC_METHODS
-      
+
 
         /// <summary>
-        /// Entry point for CreateBundle request. It will trigger a login if not previously logged for this session and then send the request
+        /// Sends a CreateBundle request. It will trigger a login if not previously logged for this session and then sends the request
         /// </summary>
         /// <param name="arguments">Arguments needed for this type of request</param>
         /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
@@ -219,6 +178,97 @@ namespace SocialPoint.TransparentBundles
             // Triggers login process
             LoginAndExecuteAction(options);
         }
+
+        /// <summary>
+        /// Sends a RemoveBundle request. It will trigger a login if not previously logged for this session and then sends the request
+        /// </summary>
+        /// <param name="arguments">Arguments needed for this type of request</param>
+        /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
+        public static void RemoveBundle(RemoveBundlesArgs arguments)
+        {
+            // Build up the Login Options with callbacks and options
+            var options = new LoginOptions();
+
+            options.AutoRetryLogin = arguments.AutoRetryLogin;
+            options.LoginOk = (report) =>
+            {
+                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_requestUrl, GetBaseQueryArgs()));
+                request.Method = "DELETE";
+                var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, RemoveBundle));
+                arguments.SetRequestReport(report);
+                ActionRequest(arguments, requestData);
+            };
+
+            options.LoginFailed = (report) =>
+            {
+                arguments.SetRequestReport(report);
+                arguments.OnFailedCallback(report);
+            };
+
+            // Triggers login process
+            LoginAndExecuteAction(options);
+        }
+        
+        /// <summary>
+        /// Sends a MakeLocalBundle request. It will trigger a login if not previously logged for this session and then sends the request
+        /// </summary>
+        /// <param name="arguments">Arguments needed for this type of request</param>
+        /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
+        public static void MakeLocalBundle(MakeLocalBundlesArgs arguments)
+        {
+            // Build up the Login Options with callbacks and options
+            var options = new LoginOptions();
+
+            options.AutoRetryLogin = arguments.AutoRetryLogin;
+            options.LoginOk = (report) =>
+            {
+                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_localBundleUrl, GetBaseQueryArgs()));
+                request.Method = "POST";
+                var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, MakeLocalBundle));
+                arguments.SetRequestReport(report);
+                ActionRequest(arguments, requestData);
+            };
+
+            options.LoginFailed = (report) =>
+            {
+                arguments.SetRequestReport(report);
+                arguments.OnFailedCallback(report);
+            };
+
+            // Triggers login process
+            LoginAndExecuteAction(options);
+        }
+
+        /// <summary>
+        /// Sends a RemoveLocalBundle request. It will trigger a login if not previously logged for this session and then sends the request
+        /// </summary>
+        /// <param name="arguments">Arguments needed for this type of request</param>
+        /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
+        public static void RemoveLocalBundle(RemoveLocalBundlesArgs arguments)
+        {
+            // Build up the Login Options with callbacks and options
+            var options = new LoginOptions();
+
+            options.AutoRetryLogin = arguments.AutoRetryLogin;
+            options.LoginOk = (report) =>
+            {
+                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_localBundleUrl, GetBaseQueryArgs()));
+                request.Method = "DELETE";
+                var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, RemoveLocalBundle));
+                arguments.SetRequestReport(report);
+                ActionRequest(arguments, requestData);
+            };
+
+            options.LoginFailed = (report) =>
+            {
+                arguments.SetRequestReport(report);
+                arguments.OnFailedCallback(report);
+            };
+
+            // Triggers login process
+            LoginAndExecuteAction(options);
+        }
+
         #endregion
 
         #region PRIVATE_METHODS
@@ -249,6 +299,13 @@ namespace SocialPoint.TransparentBundles
             asyncReq.Send();
         }
 
+        /// <summary>
+        /// Generic response handler for all the requests
+        /// </summary>
+        /// <typeparam name="T">Type of arguments for the requets</typeparam>
+        /// <param name="responseResult">Response result received by the requests</param>
+        /// <param name="arguments">Arguments that were passed to the request</param>
+        /// <param name="retryRequest">Method to retry the request in case of login failure</param>
         private static void HandleActionResponse<T>(ResponseResult responseResult, T arguments, Action<T> retryRequest) where T : RequestArgs
         {
             if(responseResult.StatusCode == HttpStatusCode.Forbidden)
