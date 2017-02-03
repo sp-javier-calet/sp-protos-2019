@@ -103,8 +103,10 @@ namespace SocialPoint.AssetBundlesClient
 
             // request for assetBundlesParsedData again
             assetBundlesParsedData = GetAssetBundlesParsedDataReflection();
-            foreach(var item in assetBundlesParsedData)
+            var iter = assetBundlesParsedData.GetEnumerator();
+            while(iter.MoveNext())
             {
+                var item = iter.Current;
                 var itemName = item.Value.Name;
                 if(itemName.EndsWith(_sceneSuffix))
                 {
@@ -115,6 +117,7 @@ namespace SocialPoint.AssetBundlesClient
                     _prefabs.Add(itemName.TrimEnd(_prefabSuffixCharArray));
                 }
             }
+            iter.Dispose();
         }
 
         void AddBasicInfo()
@@ -129,8 +132,9 @@ namespace SocialPoint.AssetBundlesClient
         public void DownloadSceneFoldoutGUI(AdminPanelLayout layout)
         {
             // Each lambda must capture a diferent reference, so it has to be a local variable
-            foreach(var item in _scenes)
+            for(int i = 0, _scenesCount = _scenes.Count; i < _scenesCount; i++)
             {
+                var item = _scenes[i];
                 var localString = item;
                 layout.CreateButton(item, () => DownloadScene(localString));
             }
@@ -140,8 +144,9 @@ namespace SocialPoint.AssetBundlesClient
         public void DownloadAssetFoldoutGUI(AdminPanelLayout layout)
         {
             // Each lambda must capture a diferent reference, so it has to be a local variable
-            foreach(var item in _prefabs)
+            for(int i = 0, _prefabsCount = _prefabs.Count; i < _prefabsCount; i++)
             {
+                var item = _prefabs[i];
                 var localString = item;
                 layout.CreateButton(item, () => DownloadAsset(localString));
             }
@@ -155,10 +160,13 @@ namespace SocialPoint.AssetBundlesClient
             {
                 _layout.CreateLabel("AssetBundlesParsedData");
                 var content = new StringBuilder();
-                foreach(var item in assetBundlesParsedData)
+                var iter = assetBundlesParsedData.GetEnumerator();
+                while(iter.MoveNext())
                 {
+                    var item = iter.Current;
                     content.AppendLine(item.Value.ToString());
                 }
+                iter.Dispose();
                 _layout.CreateVerticalScrollLayout().CreateTextArea(content.ToString());
             }
         }
@@ -170,10 +178,13 @@ namespace SocialPoint.AssetBundlesClient
             {
                 _layout.CreateLabel("LoadedAssetBundles");
                 var content = new StringBuilder();
-                foreach(var item in loadedAssetBundles)
+                var iter = loadedAssetBundles.GetEnumerator();
+                while(iter.MoveNext())
                 {
+                    var item = iter.Current;
                     content.AppendLine(item.Key + " References: " + item.Value._referencedCount);
                 }
+                iter.Dispose();
                 _layout.CreateVerticalScrollLayout().CreateTextArea(content.ToString());
             }
         }
@@ -185,11 +196,14 @@ namespace SocialPoint.AssetBundlesClient
             {
                 _layout.CreateLabel("DownloadingErrors");
                 var content = new StringBuilder();
-                foreach(var item in downloadingErrors)
+                var iter = downloadingErrors.GetEnumerator();
+                while(iter.MoveNext())
                 {
+                    var item = iter.Current;
                     content.AppendLine(item.Key);
                     content.AppendLine(item.Value);
                 }
+                iter.Dispose();
                 _layout.CreateVerticalScrollLayout().CreateTextArea(content.ToString());
             }
         }
