@@ -73,9 +73,10 @@ namespace SocialPoint.TransparentBundles
             {
                 public string Name;
                 public uint CRC;
+                public long Size;
             }
 
-            public List<BundleInfoOutput> Bundles;
+            public List<BundleInfoOutput> Bundles = new List<BundleInfoOutput>();
             public List<string> BuildLog = new List<string>();
         }
         #endregion
@@ -162,23 +163,38 @@ namespace SocialPoint.TransparentBundles
             Application.logMessageReceived -= Callback;
             if(manifest != null)
             {
-                var bundleInfo = new BuildBundlesOutput.BundleInfoOutput();
-                typedOutput.Bundles.Add(bundleInfo);
-
                 foreach(string bundleName in manifest.GetAllAssetBundles())
                 {
-                    var bundleManifestPath = Path.Combine(input.BundlesPath, bundleName + ".manifest");
+                    var bundlePath = Path.Combine(input.BundlesPath, bundleName);
+                    var bundleManifestPath = bundlePath + ".manifest";
 
-                    var reader = File.OpenText(bundleManifestPath);
+                    var bundleInfo = new BuildBundlesOutput.BundleInfoOutput();
+                    typedOutput.Bundles.Add(bundleInfo);
 
+                    bundleInfo.Name = bundleName;
+                    var fileInfo = new FileInfo(bundlePath);
+                    bundleInfo.Size = fileInfo.Length;
+
+                    using(var reader = File.OpenText(bundleManifestPath))
+                    {
+                        bool keepReading = true;
+
+                        while(keepReading)
+                        {
+                            var line = reader.ReadLine();
+
+                            if(line == null)
+                            {
+                                keepReading = false;
+                            }
+                            else if(line.Contains("CRC: "))
+                            {
+                                bundleInfo.CRC = uint.Parse(line.Replace("CRC: ", ""));
+                                keepReading = false;
+                            }
+                        }
+                    }
                 }
-
-                typedOutput.bundles = manifest.GetAllAssetBundles();
-
-
-
-
-
             }
             else
             {
