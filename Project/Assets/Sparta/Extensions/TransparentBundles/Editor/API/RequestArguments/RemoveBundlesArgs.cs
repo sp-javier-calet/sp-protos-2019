@@ -1,13 +1,16 @@
 using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using System;
 
 namespace SocialPoint.TransparentBundles
 {
     public class RemoveBundlesArgs : RequestArgs
     {
-        public string AssetGUID;
+        public List<string> AssetGUIDs;
 
-        public RemoveBundlesArgs(Action<RequestReport> SuccessCallback, Action<RequestReport> FailedCallback) : base(SuccessCallback, FailedCallback) { }
+        public RemoveBundlesArgs(List<string> assetGUIDs, Action<RequestReport> SuccessCallback, Action<RequestReport> FailedCallback) : base(SuccessCallback, FailedCallback)
+        {
+            this.AssetGUIDs = assetGUIDs;
+        }
     }
 }

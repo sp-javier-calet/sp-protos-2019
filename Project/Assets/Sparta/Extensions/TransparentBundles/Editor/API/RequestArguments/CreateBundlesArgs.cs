@@ -1,13 +1,16 @@
 using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using System;
 
 namespace SocialPoint.TransparentBundles
 {
     public class CreateBundlesArgs : RequestArgs
     {
-        public string AssetGUID;
+        public List<string> AssetGUIDs;
 
-        public CreateBundlesArgs(Action<RequestReport> SuccessCallback, Action<RequestReport> FailedCallback) : base(SuccessCallback, FailedCallback) { }
+        public CreateBundlesArgs(List<string> assetGUIDs, Action<RequestReport> SuccessCallback, Action<RequestReport> FailedCallback) : base(SuccessCallback, FailedCallback)
+        {
+            this.AssetGUIDs = assetGUIDs;
+        }
     }
 }
