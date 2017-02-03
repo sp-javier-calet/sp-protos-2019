@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Net;
+using LitJson;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -45,6 +46,16 @@ namespace SocialPoint.TransparentBundles
                 this.Response = response;
                 this.StatusCode = statusCode;
             }
+        }
+
+        public T ParseResponseAsJson<T>()
+        {
+            return JsonMapper.ToObject<T>(Response);
+        }
+        
+        public JsonData ParseResponseAsJsonGeneric()
+        {
+            return JsonMapper.ToObject(Response);
         }
     }
 }

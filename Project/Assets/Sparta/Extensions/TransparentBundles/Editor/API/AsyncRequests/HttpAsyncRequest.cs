@@ -72,7 +72,7 @@ namespace SocialPoint.TransparentBundles
                     url += pair.Key + "=" + pair.Value + "&";
                 }
 
-                url.TrimEnd('&');
+                url = url.TrimEnd('&');
             }
 
             return url;
