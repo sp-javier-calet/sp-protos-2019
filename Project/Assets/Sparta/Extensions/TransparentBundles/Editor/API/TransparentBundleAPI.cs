@@ -4,6 +4,7 @@ using System.Net;
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using LitJson;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -164,7 +165,7 @@ namespace SocialPoint.TransparentBundles
             {
                 var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_requestUrl, GetBaseQueryArgs()));
                 request.Method = "POST";
-                var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, CreateBundle));
+                var requestData = new AsyncRequestData(request, JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, CreateBundle));
                 arguments.SetRequestReport(report);
                 ActionRequest(arguments, requestData);
             };
@@ -194,7 +195,7 @@ namespace SocialPoint.TransparentBundles
             {
                 var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_requestUrl, GetBaseQueryArgs()));
                 request.Method = "DELETE";
-                var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, RemoveBundle));
+                var requestData = new AsyncRequestData(request, JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, RemoveBundle));
                 arguments.SetRequestReport(report);
                 ActionRequest(arguments, requestData);
             };
@@ -224,7 +225,7 @@ namespace SocialPoint.TransparentBundles
             {
                 var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_localBundleUrl, GetBaseQueryArgs()));
                 request.Method = "POST";
-                var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, MakeLocalBundle));
+                var requestData = new AsyncRequestData(request, JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, MakeLocalBundle));
                 arguments.SetRequestReport(report);
                 ActionRequest(arguments, requestData);
             };
@@ -254,7 +255,7 @@ namespace SocialPoint.TransparentBundles
             {
                 var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_localBundleUrl, GetBaseQueryArgs()));
                 request.Method = "DELETE";
-                var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, RemoveLocalBundle));
+                var requestData = new AsyncRequestData(request, JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, RemoveLocalBundle));
                 arguments.SetRequestReport(report);
                 ActionRequest(arguments, requestData);
             };
