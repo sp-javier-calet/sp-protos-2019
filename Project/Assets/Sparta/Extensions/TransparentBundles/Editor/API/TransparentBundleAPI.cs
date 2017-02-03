@@ -43,7 +43,7 @@ namespace SocialPoint.TransparentBundles
         [MenuItem("SocialPoint/Test Call")]
         public static void test()
         {
-            CreateBundle(new CreateBundlesArgs(x => Debug.Log(x.ResponseRes.Response), x => Debug.LogError(x.RequestCancelled)));
+            CreateBundle(new CreateBundlesArgs(new List<string>(), x => Debug.Log(x.ResponseRes.Response), x => Debug.LogError(x.RequestCancelled)));
         }
 
         #region LOGIN

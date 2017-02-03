@@ -4,11 +4,11 @@ using System;
 
 namespace SocialPoint.TransparentBundles
 {
-    public class CreateBundlesArgs : RequestArgs
+    public class RemoveBundlesArgs : RequestArgs
     {
         public List<string> AssetGUIDs;
 
-        public CreateBundlesArgs(List<string> assetGUIDs, Action<RequestReport> SuccessCallback, Action<RequestReport> FailedCallback) : base(SuccessCallback, FailedCallback)
+        public RemoveBundlesArgs(List<string> assetGUIDs, Action<RequestReport> SuccessCallback, Action<RequestReport> FailedCallback) : base(SuccessCallback, FailedCallback)
         {
             this.AssetGUIDs = assetGUIDs;
         }
