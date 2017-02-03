@@ -69,7 +69,13 @@ namespace SocialPoint.TransparentBundles
 
         public class BuildBundlesOutput : OutputCLI
         {
-            public string[] bundles;
+            public class BundleInfoOutput
+            {
+                public string Name;
+                public uint CRC;
+            }
+
+            public List<BundleInfoOutput> Bundles;
             public List<string> BuildLog = new List<string>();
         }
         #endregion
@@ -156,7 +162,23 @@ namespace SocialPoint.TransparentBundles
             Application.logMessageReceived -= Callback;
             if(manifest != null)
             {
+                var bundleInfo = new BuildBundlesOutput.BundleInfoOutput();
+                typedOutput.Bundles.Add(bundleInfo);
+
+                foreach(string bundleName in manifest.GetAllAssetBundles())
+                {
+                    var bundleManifestPath = Path.Combine(input.BundlesPath, bundleName + ".manifest");
+
+                    var reader = File.OpenText(bundleManifestPath);
+
+                }
+
                 typedOutput.bundles = manifest.GetAllAssetBundles();
+
+
+
+
+
             }
             else
             {
