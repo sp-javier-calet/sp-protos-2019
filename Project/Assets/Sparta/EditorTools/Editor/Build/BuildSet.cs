@@ -319,24 +319,7 @@ namespace SpartaTools.Editor.Build
 
             if(App.OverrideIcon)
             {
-                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new [] {
-                    App.IconTexture,
-                    App.IconTexture,
-                    App.IconTexture,
-                    App.IconTexture,
-                    App.IconTexture,
-                    App.IconTexture
-                });
-                PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.iOS, new [] {
-                    App.IconTexture,
-                    App.IconTexture,
-                    App.IconTexture,
-                    App.IconTexture,
-                    App.IconTexture,
-                    App.IconTexture,
-                    App.IconTexture,
-                    App.IconTexture
-                });
+                SetIcon(App.IconTexture);
             }
 
             if(App.OverrideBuild)
@@ -356,9 +339,11 @@ namespace SpartaTools.Editor.Build
             var iosFlags = MergeFlags(Ios.Flags, baseSettings.Ios.Flags);
             var adminFlags = Common.EnableAdminPanel ? AdminPanelFlag : string.Empty;
             var inspectionFlags = Common.EnableDependencyInspection ? DependencyInspectionFlag : string.Empty;
+            Func<string, string> buildFlags = platformFlags => string.Format("{0};{1};{2};{3};{4}", commonFlags, platformFlags, logLevelFlag, adminFlags, inspectionFlags);
 
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, string.Format("{0};{1};{2};{3};{4}", commonFlags, androidFlags, logLevelFlag, adminFlags, inspectionFlags));
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, string.Format("{0};{1};{2};{3};{4}", commonFlags, iosFlags, logLevelFlag, adminFlags, inspectionFlags));
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, buildFlags(androidFlags));
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, buildFlags(iosFlags));
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, buildFlags(string.Empty));
 
             /*
              * Android-only configuration
@@ -397,6 +382,36 @@ namespace SpartaTools.Editor.Build
              * Override shared configuration for the active target platform
              */
             Platform.OnApply(this);
+        }
+
+        protected void SetIcon(Texture2D texture)
+        {
+            PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new [] {
+                texture,
+                texture,
+                texture,
+                texture,
+                texture,
+                texture
+            });
+            PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.iOS, new [] {
+                texture,
+                texture,
+                texture,
+                texture,
+                texture,
+                texture,
+                texture,
+                texture
+            });
+            PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Standalone, new [] {
+                texture,
+                texture,
+                texture,
+                texture,
+                texture,
+                texture
+            });
         }
 
         string GetLogLevelFlag(BuildSet baseSettings)
