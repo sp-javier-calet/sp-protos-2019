@@ -31,7 +31,6 @@ namespace SocialPoint.TransparentBundles
         }
 
         private const string _loginUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/login/";
-        private const string _getBundlesUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/login/";
         private const string _requestUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/asset_request/";
         private const string _localBundleUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/local_asset/";
 
@@ -162,7 +161,7 @@ namespace SocialPoint.TransparentBundles
             options.AutoRetryLogin = arguments.AutoRetryLogin;
             options.LoginOk = (report) =>
             {
-                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_getBundlesUrl, GetBaseQueryArgs()));
+                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_requestUrl, GetBaseQueryArgs()));
                 request.Method = "GET";
                 var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, GetBundles));
                 arguments.SetRequestReport(report);
