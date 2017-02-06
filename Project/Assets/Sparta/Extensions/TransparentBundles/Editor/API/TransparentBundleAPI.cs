@@ -163,7 +163,7 @@ namespace SocialPoint.TransparentBundles
             options.LoginOk = (report) =>
             {
                 var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_getBundlesUrl, GetBaseQueryArgs()));
-                request.Method = "POST";
+                request.Method = "GET";
                 var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, GetBundles));
                 arguments.SetRequestReport(report);
                 ActionRequest(arguments, requestData);
