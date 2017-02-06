@@ -91,7 +91,7 @@ namespace SocialPoint.TransparentBundles
 
             ServicePointManager.ServerCertificateValidationCallback += CertificateValidation;
 
-            if(_reqState.RequestBody != null)
+            if(!string.IsNullOrEmpty(_reqState.RequestBody))
             {
                 _reqState.Request.BeginGetRequestStream(new AsyncCallback(GetRequestStreamCallback), _reqState);
             }
@@ -183,7 +183,13 @@ namespace SocialPoint.TransparentBundles
             catch(WebException e)
             {
                 var resp = new StreamReader(e.Response.GetResponseStream()).ReadToEnd();
-                EndConnection(state, new ResponseResult(false, e.Message + " - " + LitJson.JsonMapper.ToObject(resp)[0], ((HttpWebResponse)e.Response).StatusCode));
+                try
+                {
+                    EndConnection(state, new ResponseResult(false, e.Message + " - " + LitJson.JsonMapper.ToObject(resp)[0], ((HttpWebResponse)e.Response).StatusCode));
+                }catch(Exception ex)
+                {
+                    EndConnection(state, new ResponseResult(false, e.Message, ((HttpWebResponse)e.Response).StatusCode));
+                }
             }
             catch(Exception e)
             {
