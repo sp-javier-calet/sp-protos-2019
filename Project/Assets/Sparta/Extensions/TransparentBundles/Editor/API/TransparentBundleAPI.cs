@@ -148,7 +148,35 @@ namespace SocialPoint.TransparentBundles
         #endregion
 
         #region PUBLIC_METHODS
+        /// <summary>
+        /// Sends a GetBundles request. It will trigger a login if not previously logged for this session and then sends the request
+        /// </summary>
+        /// <param name="arguments">Arguments needed for this type of request</param>
+        /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
+        public static void GetBundles(GetBundlesArgs arguments)
+        {
+            // Build up the Login Options with callbacks and options
+            var options = new LoginOptions();
 
+            options.AutoRetryLogin = arguments.AutoRetryLogin;
+            options.LoginOk = (report) =>
+            {
+                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_requestUrl, GetBaseQueryArgs()));
+                request.Method = "GET";
+                var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, GetBundles));
+                arguments.SetRequestReport(report);
+                ActionRequest(arguments, requestData);
+            };
+
+            options.LoginFailed = (report) =>
+            {
+                arguments.SetRequestReport(report);
+                arguments.OnFailedCallback(report);
+            };
+
+            // Triggers login process
+            LoginAndExecuteAction(options);
+        }
 
         /// <summary>
         /// Sends a CreateBundle request. It will trigger a login if not previously logged for this session and then sends the request
