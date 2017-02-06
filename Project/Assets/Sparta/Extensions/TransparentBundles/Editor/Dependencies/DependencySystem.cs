@@ -30,19 +30,12 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        public enum Severity
-        {
-            MESSAGE = 0,
-            WARNING,
-            ERROR
-        }
-
         public static event Action<BundleDependenciesData> OnBundleAdded;
         public static event Action<string, BundleDependenciesData> OnBundleDeletedFromProject;
         public static event Action<BundleDependenciesData> OnBundleRemoved;
         public static event Action<BundleDependenciesData> OnAssetRemoved;
         public static event Action<BundleDependenciesData> OnBundleLocalChanged;
-        public static event Action<string, Severity> OnLogMessage;
+        public static event Action<string, LogType> OnLogMessage;
 
         private static string _path = Path.Combine(Application.dataPath, "DependenciesManifest.json");
 
@@ -56,10 +49,10 @@ namespace SocialPoint.TransparentBundles
             }
 
             OnLogMessage += LogMessageHandler;
-            OnBundleAdded += x => OnLogMessage("Added new bundle " + x.AssetPath + " GUID: " + x.GUID, Severity.MESSAGE);
-            OnBundleRemoved += x => OnLogMessage("Removed bundle " + x.AssetPath + " GUID: " + x.GUID, Severity.MESSAGE);
-            OnAssetRemoved += x => OnLogMessage("This asset is no longer part of the manifest because it lost all its dependants: " + x.AssetPath + " GUID: " + x.GUID, Severity.MESSAGE);
-            OnBundleLocalChanged += x => OnLogMessage("Bundle " + x.AssetPath + " changed local status to " + x.IsLocal, Severity.MESSAGE);
+            OnBundleAdded += x => OnLogMessage("Added new bundle " + x.AssetPath + " GUID: " + x.GUID, LogType.Log);
+            OnBundleRemoved += x => OnLogMessage("Removed bundle " + x.AssetPath + " GUID: " + x.GUID, LogType.Log);
+            OnAssetRemoved += x => OnLogMessage("This asset is no longer part of the manifest because it lost all its dependants: " + x.AssetPath + " GUID: " + x.GUID, LogType.Log);
+            OnBundleLocalChanged += x => OnLogMessage("Bundle " + x.AssetPath + " changed local status to " + x.IsLocal, LogType.Log);
         }
 
         #region JSON
@@ -120,7 +113,7 @@ namespace SocialPoint.TransparentBundles
             {
                 if(OnLogMessage != null)
                 {
-                    OnLogMessage("Old assetbundle will no longer be a user defined Bundle since is not included in the input bundles: " + bundleData.GUID + " Old Path: " + bundleData.AssetPath, Severity.WARNING);
+                    OnLogMessage("Old assetbundle will no longer be a user defined Bundle since is not included in the input bundles: " + bundleData.GUID + " Old Path: " + bundleData.AssetPath, LogType.Warning);
                 }
                 // remove its condition of bundled asset and remove it if it is not a dependency
                 RemoveAsset(bundleData.GUID);
@@ -190,7 +183,7 @@ namespace SocialPoint.TransparentBundles
                 {
                     if(OnLogMessage != null)
                     {
-                        OnLogMessage("Old bundle found: " + bundle + ". Removing tag from assets...", Severity.WARNING);
+                        OnLogMessage("Old bundle found: " + bundle + ". Removing tag from assets...", LogType.Warning);
                     }
 
                     foreach(var asset in AssetDatabase.GetAssetPathsFromAssetBundle(bundle))
@@ -239,7 +232,7 @@ namespace SocialPoint.TransparentBundles
 
                     if(OnLogMessage != null)
                     {
-                        OnLogMessage("Deleted file from the project, removing it from the manifest... GUID: " + guid + " Old Path: " + data.AssetPath, Severity.WARNING);
+                        OnLogMessage("Deleted file from the project, removing it from the manifest... GUID: " + guid + " Old Path: " + data.AssetPath, LogType.Warning);
                     }
 
                     // Remove the asset
@@ -249,7 +242,7 @@ namespace SocialPoint.TransparentBundles
                 {
                     if(OnLogMessage != null)
                     {
-                        OnLogMessage("The following file GUID: " + guid + " couldn't be added because doesn't exist in the project", Severity.ERROR);
+                        OnLogMessage("The following file GUID: " + guid + " couldn't be added because doesn't exist in the project", LogType.Error);
                     }
                 }
 
@@ -395,7 +388,7 @@ namespace SocialPoint.TransparentBundles
             {
                 if(OnLogMessage != null)
                 {
-                    OnLogMessage("The asset " + GUID + " was not found in the manifest for removal.", Severity.ERROR);
+                    OnLogMessage("The asset " + GUID + " was not found in the manifest for removal.", LogType.Error);
                 }
             }
         }
@@ -433,7 +426,7 @@ namespace SocialPoint.TransparentBundles
             {
                 if(OnLogMessage != null)
                 {
-                    OnLogMessage("Dependency not found to remove relationship " + GUID + ". Removed parent was " + dependantToRemove, Severity.WARNING);
+                    OnLogMessage("Dependency not found to remove relationship " + GUID + ". Removed parent was " + dependantToRemove, LogType.Warning);
                 }
             }
         }
@@ -525,22 +518,9 @@ namespace SocialPoint.TransparentBundles
         #endregion
 
         #region Log
-        private static void LogMessageHandler(string message, Severity severity)
+        private static void LogMessageHandler(string message, LogType severity)
         {
-            switch(severity)
-            {
-                case Severity.ERROR:
-                    Debug.LogError(message);
-                    break;
-
-                case Severity.MESSAGE:
-                    Debug.Log(message);
-                    break;
-
-                case Severity.WARNING:
-                    Debug.LogWarning(message);
-                    break;
-            }
+            Debug.logger.Log(severity, message);            
         }
         #endregion
     }
