@@ -10,7 +10,6 @@ namespace AssetBundleGraph {
 		public readonly string assetDatabaseId;
 		public readonly string absoluteAssetPath;
 		public readonly string sourceBasePath;
-		//		public readonly string pathUnderSourceBase;
 		public readonly string importFrom;
 		public readonly string exportTo;
 		public readonly Type assetType;
@@ -188,8 +187,6 @@ namespace AssetBundleGraph {
 			string assetDatabaseId = null,
 			string absoluteAssetPath = null,
 			string sourceBasePath = null,
-			//			string fileNameAndExtension = null,
-			//			string pathUnderSourceBase = null,
 			string importFrom = null,
 			string exportTo = null,
 			Type assetType = null,
@@ -204,8 +201,6 @@ namespace AssetBundleGraph {
 			this.guid = guid;
 			this.absoluteAssetPath = absoluteAssetPath;
 			this.sourceBasePath = sourceBasePath;
-			//			this.fileNameAndExtension = fileNameAndExtension;
-			//			this.pathUnderSourceBase = pathUnderSourceBase;
 			this.importFrom = importFrom;
 			this.exportTo = exportTo;
 			this.assetDatabaseId = assetDatabaseId;
@@ -214,13 +209,7 @@ namespace AssetBundleGraph {
 			this.isBundled = isBundled;
 			this.variantName = variantName;
 		}
-/*		
-		public static string GetPathWithoutBasePath (string localPathWithBasePath, string basePath) {
-			var replaced = localPathWithBasePath.Replace(basePath, string.Empty);
-			if (replaced.StartsWith(AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR.ToString())) return replaced.Substring(1);
-			return replaced;
-		}
-*/
+
 		public string GetAbsolutePathOrImportedPath () {
 			if (absoluteAssetPath != null) {
 				return absoluteAssetPath;
