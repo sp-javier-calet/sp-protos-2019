@@ -69,7 +69,14 @@ namespace SocialPoint.TransparentBundles
 
         public class BuildBundlesOutput : OutputCLI
         {
-            public string[] bundles;
+            public class BundleInfoOutput
+            {
+                public string Name;
+                public uint CRC;
+                public long Size;
+            }
+
+            public List<BundleInfoOutput> Bundles = new List<BundleInfoOutput>();
             public List<string> BuildLog = new List<string>();
         }
         #endregion
@@ -156,7 +163,38 @@ namespace SocialPoint.TransparentBundles
             Application.logMessageReceived -= Callback;
             if(manifest != null)
             {
-                typedOutput.bundles = manifest.GetAllAssetBundles();
+                foreach(string bundleName in manifest.GetAllAssetBundles())
+                {
+                    var bundlePath = Path.Combine(input.BundlesPath, bundleName);
+                    var bundleManifestPath = bundlePath + ".manifest";
+
+                    var bundleInfo = new BuildBundlesOutput.BundleInfoOutput();
+                    typedOutput.Bundles.Add(bundleInfo);
+
+                    bundleInfo.Name = bundleName;
+                    var fileInfo = new FileInfo(bundlePath);
+                    bundleInfo.Size = fileInfo.Length;
+
+                    using(var reader = File.OpenText(bundleManifestPath))
+                    {
+                        bool keepReading = true;
+
+                        while(keepReading)
+                        {
+                            var line = reader.ReadLine();
+
+                            if(line == null)
+                            {
+                                keepReading = false;
+                            }
+                            else if(line.Contains("CRC: "))
+                            {
+                                bundleInfo.CRC = uint.Parse(line.Replace("CRC: ", ""));
+                                keepReading = false;
+                            }
+                        }
+                    }
+                }
             }
             else
             {
