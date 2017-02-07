@@ -230,7 +230,6 @@ namespace SocialPoint.TransparentBundles
             EditorGUILayout.BeginHorizontal();
 
             GUILayout.Label("", GUILayout.Width(7));
-
             
             GUIContent buttonContent = null;
             if(_controller.ServerInfo.Status == ServerStatus.Warning)
@@ -718,7 +717,7 @@ namespace SocialPoint.TransparentBundles
 
             if(GUILayout.Button("↧ Download", GUILayout.Width(_columnsSize[3]), GUILayout.Height(22)))
             {
-                _controller.InstanciateBundle(bundle);
+                _controller.DownloadBundle(bundle);
             }
 
             EditorGUILayout.EndHorizontal();

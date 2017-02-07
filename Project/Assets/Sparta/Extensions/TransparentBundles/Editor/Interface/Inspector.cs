@@ -180,7 +180,7 @@ namespace SocialPoint.TransparentBundles
                 }
                 else if(GUILayout.Button("↧ Download", GUILayout.Height(22), GUILayout.Width(_columnsSize[3])))
                 {
-                    _controller.InstanciateBundle(bundle);
+                    _controller.DownloadBundle(bundle);
                 }
                 if(GUILayout.Button("Find Asset", GUILayout.Height(22), GUILayout.Width(_columnsSize[3])))
                 {

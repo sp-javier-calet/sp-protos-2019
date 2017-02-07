@@ -15,11 +15,9 @@ namespace SocialPoint.TransparentBundles
         private static Downloader _downloader;
         public Dictionary<string, List<Asset>> DependenciesCache, ReferencesCache;
         public Dictionary<string, bool> SharedDependenciesCache;
-        private string _jsonPath = Application.dataPath + "/Sparta/Extensions/TransparentBundles/Editor/TEST_json/test_json.json";
         private Dictionary <string, Bundle> _bundleDictionary;
         public ServerInfo ServerInfo;
 
-        /*FOR TESTING ONLY*/
         private EditorClientController()
         {
             //Mounts the smb folder
@@ -56,13 +54,22 @@ namespace SocialPoint.TransparentBundles
             }
             #endif
 
-            DependenciesCache = new Dictionary<string, List<Asset>>();
-            ReferencesCache = new Dictionary<string, List<Asset>>();
-            SharedDependenciesCache = new Dictionary<string, bool>();
-            byte[] jsonBytes = File.ReadAllBytes(_jsonPath);
-            _bundleDictionary = ReadBundleListFromJSON(jsonBytes);
-            _downloader = Downloader.GetInstance();
-            ServerInfo = ReadServerInfoFromJSON(jsonBytes);
+            /*string response = "";
+            TransparentBundleAPI.GetBundles(new GetBundlesArgs(x => response = x.ResponseRes.Response, x => UnityEngine.Debug.LogError(x.RequestCancelled)));
+
+            if(response.Length > 0)
+            {*/
+                DependenciesCache = new Dictionary<string, List<Asset>>();
+                ReferencesCache = new Dictionary<string, List<Asset>>();
+                SharedDependenciesCache = new Dictionary<string, bool>();
+
+                byte[] jsonBytes = File.ReadAllBytes(Application.dataPath + "/Sparta/Extensions/TransparentBundles/Editor/TEST_json/test_json.json"); //Encoding.ASCII.GetBytes(response);
+
+                _bundleDictionary = ReadBundleListFromJSON(jsonBytes);
+                _downloader = Downloader.GetInstance();
+                ServerInfo = ReadServerInfoFromJSON(jsonBytes);
+            //}
+            
         }
 
 
@@ -78,7 +85,7 @@ namespace SocialPoint.TransparentBundles
                 AttrList jsonRow = jsonList[i].AsList;
                 Asset asset = new Asset(jsonRow[3].AsValue.ToString());
                 List<BundleOperation> operationQueue = new List<BundleOperation>();
-                AttrList jsonOperations = jsonRow[5].AsList;
+                AttrList jsonOperations = jsonRow[7].AsList;
                 for(int j = 0; j < jsonOperations.Count; j++)
                 {
                     operationQueue.Add((BundleOperation)Enum.Parse(typeof(BundleOperation), jsonOperations[j].AsList[0].AsValue.ToString()));
@@ -88,12 +95,41 @@ namespace SocialPoint.TransparentBundles
                                     jsonRow[1].AsValue.ToFloat(), 
                                     jsonRow[2].AsValue.ToBool(), 
                                     asset, 
-                                    (BundleStatus)Enum.Parse(typeof(BundleStatus), jsonRow[4].AsValue.ToString()),
+                                    new List<Bundle>(),
+                                    jsonRow[5].AsValue.ToString(),
+                                    (BundleStatus)Enum.Parse(typeof(BundleStatus), jsonRow[6].AsValue.ToString()),
                                     operationQueue,
-                                    jsonRow[6].AsValue.ToString()
+                                    jsonRow[8].AsValue.ToString()
                                 );
                 bundleDictionary.Add(asset.Name, bundle);
             }
+
+            //Get Parent Bundles
+            for (int i = 0; i < jsonList.Count; i++)
+            {
+                AttrList jsonRow = jsonList[i].AsList;
+                string childBundleName = jsonRow[0].AsValue.ToString();
+                string childAssetName = childBundleName.Substring(0, childBundleName.LastIndexOf("_"));
+
+                AttrList jsonParents = jsonRow[4].AsList;
+
+                for (int j = 0; j < jsonParents.Count; j++)
+                {
+                    string parentBundleName = jsonParents[j].AsList[0].AsValue.ToString();
+                    string parentAssetName = parentBundleName.Substring(0, parentBundleName.LastIndexOf("_"));
+
+                    if (bundleDictionary.ContainsKey(parentAssetName))
+                    {
+                        bundleDictionary[childAssetName].Parents.Add(bundleDictionary[parentAssetName]);
+                    }
+                    else
+                    {
+                        UnityEngine.Debug.LogError("Transparent Bundles - Error - The parent bundle '"+ parentBundleName + "' was not found in the bundle list. Please, contact the transparent bundles team: "+Config.ContactUrl);
+                    }
+                }
+            }
+
+
             return bundleDictionary;
         }
 
@@ -156,20 +192,13 @@ namespace SocialPoint.TransparentBundles
 
         public void CreateOrUpdateBundle(Asset asset)
         {
+            bool valid = true;
+
             if(IsValidAsset(asset))
             {
-                //TODO comunication with server
-
-                /*FOR TESTING ONLY*/
-
                 if(!_bundleDictionary.ContainsKey(asset.Name))
                 {
-                    if(!HasValidDependencies(asset))
-                    {
-                        return;
-                    }
-                    Bundle bundle = new Bundle(asset.Name.ToLower(), 2f, false, asset, BundleStatus.Deployed, new List<BundleOperation>(), "");
-                    _bundleDictionary.Add(asset.Name, bundle);
+                    valid = HasValidDependencies(asset);
                 }
                 else
                 {
@@ -177,53 +206,155 @@ namespace SocialPoint.TransparentBundles
                     if(serverAsset.Guid != asset.Guid)
                     {
                         EditorUtility.DisplayDialog("Asset issue", "You are trying to create a bundle from an asset with a repeated name in the server. The system does not allow multiple bundles with the same name, so please, rename the asset and try again. \n\nVisit the following link for more info: \n" + Config.HelpUrl, "Close");
-                    }
-                    else
-                    {
-                        //UPDATE
+                        valid = false;
                     }
                 }
             }
+            else
+            {
+                valid = false;
+            }
+                
+
+            if (valid)
+            {
+                TransparentBundleAPI.CreateBundle(new CreateBundlesArgs(new List<string> { asset.Guid }, x => UnityEngine.Debug.Log(x.ResponseRes.Response), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
+            }
+
         }
+
+        public void CreateOrUpdateBundles(List<Asset> assets)
+        {
+            bool valid = true;
+
+            for (int i = 0; i < assets.Count; i++)
+            {
+                Asset asset = assets[i];
+
+                if (IsValidAsset(asset))
+                {
+                    if (!_bundleDictionary.ContainsKey(asset.Name))
+                    {
+                        valid &= HasValidDependencies(asset);
+                    }
+                    else
+                    {
+                        Asset serverAsset = _bundleDictionary[asset.Name].Asset;
+                        if (serverAsset.Guid != asset.Guid)
+                        {
+                            EditorUtility.DisplayDialog("Asset issue", "You are trying to create a bundle from an asset with a repeated name in the server. The system does not allow multiple bundles with the same name, so please, rename the asset and try again. \n\nVisit the following link for more info: \n" + Config.HelpUrl, "Close");
+                            valid = false;
+                        }
+                    }
+                }
+                else
+                {
+                    valid = false;
+                }
+            }
+
+            if (valid)
+            {
+                List<string> guids = new List<string>();
+                for (int i = 0; i < assets.Count; i++)
+                {
+                    guids.Add(assets[i].Guid);
+                }
+                TransparentBundleAPI.CreateBundle(new CreateBundlesArgs(guids, x => UnityEngine.Debug.Log(x.ResponseRes.Response), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
+            }
+        }
+
+
 
         public void RemoveBundle(Asset asset)
         {
-            //TODO comunication with server
-
-            /*FOR TESTING ONLY*/
             if(_bundleDictionary.ContainsKey(asset.Name))
             {
-                _bundleDictionary.Remove(asset.Name);
+                TransparentBundleAPI.RemoveBundle(new RemoveBundlesArgs(new List<string> { asset.Guid }, x => UnityEngine.Debug.Log(x.ResponseRes.Response), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
+            }
+        }
+
+        public void RemoveBundles(List<Asset> assets)
+        {
+            bool valid = true;
+
+            for (int i = 0; i < assets.Count; i++)
+            {
+                Asset asset = assets[i];
+                valid &= _bundleDictionary.ContainsKey(asset.Name);
+            }
+
+            if (valid)
+            {
+                List<string> guids = new List<string>();
+                for (int i = 0; i < assets.Count; i++)
+                {
+                    guids.Add(assets[i].Guid);
+                }
+                TransparentBundleAPI.RemoveBundle(new RemoveBundlesArgs(guids, x => UnityEngine.Debug.Log(x.ResponseRes.Response), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
             }
         }
 
         public void BundleIntoBuild(Asset asset)
         {
-            //TODO comunication with server
-
-            /*FOR TESTING ONLY*/
             if(_bundleDictionary.ContainsKey(asset.Name) && !_bundleDictionary[asset.Name].IsLocal)
             {
-                _bundleDictionary[asset.Name].IsLocal = true;
+                TransparentBundleAPI.MakeLocalBundle(new MakeLocalBundlesArgs(new List<string> { asset.Guid }, x => UnityEngine.Debug.Log(x.ResponseRes.Response), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
+            }
+        }
+
+        public void BundlesIntoBuild(List<Asset> assets)
+        {
+            bool valid = true;
+
+            for (int i = 0; i < assets.Count; i++)
+            {
+                Asset asset = assets[i];
+                valid &= _bundleDictionary.ContainsKey(asset.Name);
+            }
+
+            if (valid)
+            {
+                List<string> guids = new List<string>();
+                for (int i = 0; i < assets.Count; i++)
+                {
+                    guids.Add(assets[i].Guid);
+                }
+                TransparentBundleAPI.MakeLocalBundle(new MakeLocalBundlesArgs(guids, x => UnityEngine.Debug.Log(x.ResponseRes.Response), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
             }
         }
 
         public void BundleOutsideBuild(Asset asset)
         {
-            //TODO comunication with server
-
-            /*FOR TESTING ONLY*/
             if(_bundleDictionary.ContainsKey(asset.Name) && _bundleDictionary[asset.Name].IsLocal)
             {
-                _bundleDictionary[asset.Name].IsLocal = false;
+                TransparentBundleAPI.RemoveLocalBundle(new RemoveLocalBundlesArgs(new List<string> { asset.Guid }, x => UnityEngine.Debug.Log(x.ResponseRes.Response), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
+            }
+        }
+
+        public void BundlesOutsideBuild(List<Asset> assets)
+        {
+            bool valid = true;
+
+            for (int i = 0; i < assets.Count; i++)
+            {
+                Asset asset = assets[i];
+                valid &= _bundleDictionary.ContainsKey(asset.Name);
+            }
+
+            if (valid)
+            {
+                List<string> guids = new List<string>();
+                for (int i = 0; i < assets.Count; i++)
+                {
+                    guids.Add(assets[i].Guid);
+                }
+                TransparentBundleAPI.RemoveLocalBundle(new RemoveLocalBundlesArgs(guids, x => UnityEngine.Debug.Log(x.ResponseRes.Response), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
             }
         }
 
         public List<Bundle> GetBundles(string searchText)
         {
-            //TODO comunication with server
-
-            /*FOR TESTING ONLY*/
             List<Bundle> bundleList = new List<Bundle>();
             List<string> keys = new List<string>(_bundleDictionary.Keys);
             for(int i = 0; i < keys.Count; i++)
@@ -238,9 +369,6 @@ namespace SocialPoint.TransparentBundles
 
         public Bundle GetBundleFromAsset(Asset asset)
         {
-            //TODO comunication with server
-
-            /*FOR TESTING ONLY*/
             if(_bundleDictionary.ContainsKey(asset.Name))
             {
                 return _bundleDictionary[asset.Name];
@@ -254,9 +382,6 @@ namespace SocialPoint.TransparentBundles
 
         public Bundle GetBundleFromAsset(string assetName)
         {
-            //TODO comunication with server
-
-            /*FOR TESTING ONLY*/
             if(_bundleDictionary.ContainsKey(assetName))
             {
                 return _bundleDictionary[assetName];
@@ -270,9 +395,6 @@ namespace SocialPoint.TransparentBundles
 
         public float GetLocalBundlesTotalSize()
         {
-            //TODO comunication with server
-
-            /*FOR TESTING ONLY*/
             float totalSize = 0f;
             List<string> keys = new List<string>(_bundleDictionary.Keys);
             for(int i = 0; i < keys.Count; i++)
@@ -288,9 +410,6 @@ namespace SocialPoint.TransparentBundles
 
         public float GetServerBundlesTotalSize()
         {
-            //TODO comunication with server
-
-            /*FOR TESTING ONLY*/
             float totalSize = 0f;
             List<string> keys = new List<string>(_bundleDictionary.Keys);
             for(int i = 0; i < keys.Count; i++)
@@ -304,11 +423,14 @@ namespace SocialPoint.TransparentBundles
             return totalSize;
         }
 
-        public void InstanciateBundle(Bundle bundle)
+        public void DownloadBundle(Bundle bundle)
         {
-            //TODO
-            /*FOR TESTING ONLY*/
-            UnityEngine.Debug.Log("DOWNLOADED " + bundle);
+            _downloader.DownloadBundle(bundle);
+        }
+
+        public int InstantiateDownloadedBundles()
+        {
+            return _downloader.InstantiateDownloadedBundles();
         }
 
         public Texture2D DownloadImage(string path)
@@ -352,8 +474,6 @@ namespace SocialPoint.TransparentBundles
             Bundle bundle = GetBundleFromAsset(assetObject.name);
             return (bundle != null && bundle.Asset.Type == assetObject.GetType().ToString());
         }
-
-        
 
         public void SortBundles(BundleSortingMode mode, List<Bundle> bundleList)
         {
