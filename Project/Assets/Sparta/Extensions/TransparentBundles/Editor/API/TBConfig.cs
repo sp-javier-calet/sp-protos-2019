@@ -15,7 +15,6 @@ namespace SocialPoint.TransparentBundles
         /// <returns>TBConfig scriptable object reference</returns>
         public static TBConfig GetConfig()
         {
-            string project = string.Empty;
             var file = AssetDatabase.FindAssets("t:TBConfig");
             TBConfig config;
 
@@ -50,7 +49,6 @@ namespace SocialPoint.TransparentBundles
         /// <returns>string with the project configured in the TBConfig</returns>
         public static string GetProject()
         {
-            string project = string.Empty;
             var file = AssetDatabase.FindAssets("t:TBConfig");
             TBConfig config;
 
