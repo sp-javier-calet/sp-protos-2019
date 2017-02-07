@@ -55,7 +55,7 @@ namespace AssetBundleGraph {
 				var output = new Dictionary<string, List<Asset>>();
 
 				foreach(var groupKey in inputGroupAssets.Keys) {
-					var filteringKeyword = string.IsNullOrEmpty(filter.FilterKeyword) ? "*" : filter.FilterKeyword;
+					var filteringKeyword = string.IsNullOrEmpty(filter.FilterKeyword) ? WildcardDeep : filter.FilterKeyword;
 					var assets = inputGroupAssets[groupKey];
 					var filteringAssets = new List<FilterableAsset>();
 					assets.ForEach(a => filteringAssets.Add(new FilterableAsset(a)));
@@ -65,7 +65,7 @@ namespace AssetBundleGraph {
 					List<FilterableAsset> keywordContainsAssets = filteringAssets.Where(
 						assetData => 
 						!assetData.isFiltered && 
-						(filter.IsExclusion ^ GlobMatch(filteringKeyword, assetData.asset.importFrom))
+						(filter.IsExclusion ^ GlobMatch(filteringKeyword, assetData.asset.importFrom.Replace(assetData.asset.sourceBasePath, string.Empty)))
 					).ToList();
 
 					List<FilterableAsset> finalFilteredAsset = new List<FilterableAsset>();
@@ -92,16 +92,16 @@ namespace AssetBundleGraph {
 				Output(connToChild, output, null);
 			}
 		}
-
-		private const char WildcardMultiChar = '*';
-		private const string WildcardDeep = "**";
-		private const char WildcardOneChar = '?';
+		
+		public const char WildcardMultiChar = '*';
+		public const string WildcardDeep = "**";
+		public const char WildcardOneChar = '?';
 
 		private static bool GlobMatch(string pattern, string value) {    
 			bool deep = pattern.Contains(WildcardDeep);
 			if(deep) {
 				pattern = pattern.Replace(WildcardDeep, WildcardMultiChar.ToString());
-			} else if(value.Split(Path.DirectorySeparatorChar).Length != pattern.Split(Path.DirectorySeparatorChar).Length) {
+			} else if(value.Split(AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR).Length != pattern.Split(AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR).Length) {
 				return false;
 			}
 
