@@ -15,6 +15,7 @@ namespace SocialPoint.TransparentBundles
         private string _error;
         private bool _closedProperly = false;
         private TBConfig _config;
+        private string _project;
 
         [MenuItem("SocialPoint/Change Login")]
         public static void ChangeLogin()
@@ -42,6 +43,7 @@ namespace SocialPoint.TransparentBundles
             window._loginUser = EditorPrefs.GetString(LOGIN_PREF_KEY);
             window._error = errorMessage;
             window._config = TBConfig.GetConfig();
+            window._project = window._config.project;
         }
 
         void OnGUI()
@@ -55,7 +57,7 @@ namespace SocialPoint.TransparentBundles
                 EditorGUILayout.HelpBox("Error found: " + _error, MessageType.Error);
             }
             _loginUser = EditorGUILayout.TextField("Login", _loginUser);
-            _config.project = EditorGUILayout.TextField("Project", _config.project);
+            _project = EditorGUILayout.TextField("Project", _project);
 
             GUILayout.FlexibleSpace();
 
@@ -63,7 +65,12 @@ namespace SocialPoint.TransparentBundles
 
             if(GUILayout.Button("Save And Login"))
             {
-                AssetDatabase.SaveAssets();
+                if(_config.project != _project)
+                {
+                    _config.project = _project;
+                    AssetDatabase.SaveAssets();
+                }
+
                 EditorPrefs.SetString(LOGIN_PREF_KEY, _loginUser);
                 _closedProperly = true;
 

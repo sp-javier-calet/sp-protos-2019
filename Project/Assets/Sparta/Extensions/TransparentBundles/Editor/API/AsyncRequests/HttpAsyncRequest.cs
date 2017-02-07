@@ -159,36 +159,44 @@ namespace SocialPoint.TransparentBundles
             var state = (AsyncRequestData)asynchronousResult.AsyncState;
             try
             {
-                ResponseResult rResult = null;
-                // End the operation
-                using(HttpWebResponse response = (HttpWebResponse)state.Request.EndGetResponse(asynchronousResult))
-                {
-                    using(Stream streamResponse = response.GetResponseStream())
-                    {
-                        using(StreamReader streamRead = new StreamReader(streamResponse))
-                        {
-                            rResult = new ResponseResult(true, streamRead.ReadToEnd(), response.StatusCode);
-                            rResult.StatusCode = response.StatusCode;
-                        }
-                    }
-                }
-
-                if(rResult == null)
-                {
-                    throw new Exception("Unable to read response result for url " + state.Request.RequestUri);
-                }
-
-                EndConnection(state, rResult);
-            }
-            catch(WebException e)
-            {
-                var resp = new StreamReader(e.Response.GetResponseStream()).ReadToEnd();
                 try
                 {
-                    EndConnection(state, new ResponseResult(false, e.Message + " - " + LitJson.JsonMapper.ToObject(resp)[0], ((HttpWebResponse)e.Response).StatusCode));
-                }catch(Exception ex)
+                    ResponseResult rResult = null;
+                    // End the operation
+                    using(HttpWebResponse response = (HttpWebResponse)state.Request.EndGetResponse(asynchronousResult))
+                    {
+                        using(Stream streamResponse = response.GetResponseStream())
+                        {
+                            using(StreamReader streamRead = new StreamReader(streamResponse))
+                            {
+                                rResult = new ResponseResult(true, streamRead.ReadToEnd(), response.StatusCode);
+                                rResult.StatusCode = response.StatusCode;
+                            }
+                        }
+                    }
+
+                    if(rResult == null)
+                    {
+                        throw new Exception("Unable to read response result for url " + state.Request.RequestUri);
+                    }
+
+                    EndConnection(state, rResult);
+                }
+                catch(WebException e)
                 {
-                    EndConnection(state, new ResponseResult(false, e.Message, ((HttpWebResponse)e.Response).StatusCode));
+                    var resp = new StreamReader(e.Response.GetResponseStream()).ReadToEnd();
+                    string jsonMsg = string.Empty;
+                    try
+                    {
+                        jsonMsg = LitJson.JsonMapper.ToObject(resp)[0].ToString();
+                    }
+                    catch(Exception ex)
+                    {
+                        UnityEngine.Debug.LogError(ex);
+                        jsonMsg = resp;
+                    }
+
+                    EndConnection(state, new ResponseResult(false, e.Message + " - " + jsonMsg, ((HttpWebResponse)e.Response).StatusCode));
                 }
             }
             catch(Exception e)
