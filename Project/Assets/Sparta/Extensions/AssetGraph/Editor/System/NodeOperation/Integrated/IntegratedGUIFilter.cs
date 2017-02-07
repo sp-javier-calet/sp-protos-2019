@@ -92,10 +92,10 @@ namespace AssetBundleGraph {
 				Output(connToChild, output, null);
 			}
 		}
-		
-		public const char WildcardMultiChar = '*';
-		public const string WildcardDeep = "**";
-		public const char WildcardOneChar = '?';
+
+		private const char WildcardMultiChar = '*';
+		private const string WildcardDeep = "**";
+		private const char WildcardOneChar = '?';
 
 		private static bool GlobMatch(string pattern, string value) {    
 			bool deep = pattern.Contains(WildcardDeep);
