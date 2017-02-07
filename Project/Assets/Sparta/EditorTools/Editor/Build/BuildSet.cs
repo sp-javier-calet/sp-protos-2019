@@ -339,11 +339,13 @@ namespace SpartaTools.Editor.Build
             var iosFlags = MergeFlags(Ios.Flags, baseSettings.Ios.Flags);
             var adminFlags = Common.EnableAdminPanel ? AdminPanelFlag : string.Empty;
             var inspectionFlags = Common.EnableDependencyInspection ? DependencyInspectionFlag : string.Empty;
-            Func<string, string> buildFlags = platformFlags => string.Format("{0};{1};{2};{3};{4}", commonFlags, platformFlags, logLevelFlag, adminFlags, inspectionFlags);
 
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, buildFlags(androidFlags));
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, buildFlags(iosFlags));
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, buildFlags(string.Empty));
+            const string flagsPattern = "{0};{1}";
+            var sharedFlags = string.Format("{0};{1};{2};{3}", commonFlags, logLevelFlag, adminFlags, inspectionFlags);
+
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, string.Format(flagsPattern, sharedFlags, androidFlags));
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS,string.Format(flagsPattern, sharedFlags, iosFlags));
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, sharedFlags);
 
             /*
              * Android-only configuration
