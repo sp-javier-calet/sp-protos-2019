@@ -6,7 +6,7 @@
         //Should be an image in a web server
         public static string MacVolumePath = "/Volumes/3dshare/";
 
-        public static string WinVolumePath = "//spserver/3dshare/";
+        public static string WinVolumePath = "//spserver.spoint.es/3dshare/";
 
         #if UNITY_EDITOR_OSX
         public static string VolumePath = MacVolumePath;
