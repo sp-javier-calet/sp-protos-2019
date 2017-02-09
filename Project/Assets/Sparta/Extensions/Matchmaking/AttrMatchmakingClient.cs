@@ -1,98 +1,59 @@
-﻿using SocialPoint.Base;
-using SocialPoint.Attributes;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
 
 namespace SocialPoint.Matchmaking
 {
-    public interface IMatchStorage
+    public class LogicGenericDataMatchStorage : IMatchStorage
     {
-        bool Stored{ get; }
-        bool Load(out Match match);
-        void Save(Match match);
-        void Clear();
-    }
+        AttrDic _matchData;
 
-    public class AttrMatchStorage : IMatchStorage
-    {
-        const string DefaultStorageKey = "matchmaking";
-
-        string _storageKey;
-        IAttrStorage _storage;
-
-        public AttrMatchStorage(IAttrStorage storage, string storageKey=null)
+        public LogicGenericDataMatchStorage(AttrDic matchData)
         {
-            if(string.IsNullOrEmpty(storageKey))
-            {
-                storageKey = DefaultStorageKey;
-            }
-            _storageKey = storageKey;
-            _storage = storage;
+            _matchData = matchData;
         }
 
         public bool Stored
         {
             get
             {
-                return _storage.Has(_storageKey);
+                return _matchData != null;
             }
         }
 
         public bool Load(out Match match)
         {
             match = new Match();
-            if(!_storage.Has(_storageKey))
-            {
-                return false;
-            }
-            var attr = _storage.Load(_storageKey);
-            if(attr == null)
+            if(_matchData == null)
             {
                 return false;
             }
 
-            var attrDic = attr.AsDic;
-            match.ParseAttrDic(attrDic);
-                
+            match.ParseAttrDic(_matchData);
             return true;
         }
 
         public void Save(Match match)
         {
-            _storage.Save(_storageKey, match.ToAttrDic());
         }
 
         public void Clear()
         {
-            _storage.Remove(_storageKey);
         }
     }
 
-    public class StoredMatchmakingClient : IMatchmakingClient, IMatchmakingClientDelegate
+    public class AttrMatchmakingClient : IMatchmakingClient, IMatchmakingClientDelegate
     {
         List<IMatchmakingClientDelegate> _delegates;
-        IMatchmakingClient _client;
         IMatchStorage _storage;
 
-        public string Room
-        {
-            get
-            {
-                return _client.Room;
-            }
+        public string Room{ get; set; }
 
-            set
-            {
-                _client.Room = value;
-            }
-        }
-
-        public StoredMatchmakingClient(IMatchmakingClient client, IMatchStorage storage=null)
+        public AttrMatchmakingClient(IMatchStorage storage=null)
         {
-            _client = client;
-            _storage = storage;
-            _client.AddDelegate(this);
             _delegates = new List<IMatchmakingClientDelegate>();
+            _storage = storage;
         }
 
         public bool Stored
@@ -119,19 +80,15 @@ namespace SocialPoint.Matchmaking
             if(_storage.Load(out match))
             {
                 OnMatched(match);
-                return;
             }
-            _client.Start();
         }
 
         public void Stop()
         {
-            _client.Stop();
         }
 
         public void Clear()
         {
-            _client.Clear();
             _storage.Clear();
         }
 
@@ -166,5 +123,4 @@ namespace SocialPoint.Matchmaking
         }
 
     }
-
 }

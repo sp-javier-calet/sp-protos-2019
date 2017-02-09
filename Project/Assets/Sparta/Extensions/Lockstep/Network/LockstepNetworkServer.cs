@@ -19,6 +19,7 @@ namespace SocialPoint.Lockstep
         public const byte ClientStart = 7;
         public const byte PlayerFinish = 8;
         public const byte ClientEnd = 9;
+        public const byte ClientConnectionStatus = 10;
     }
 
     [Serializable]
@@ -380,9 +381,12 @@ namespace SocialPoint.Lockstep
                 for(var i = 0; i < _clients.Count; i++)
                 {
                     var client = _clients[i];
-                    ids[client.PlayerNumber] = client.PlayerId;
+                    if(client.Ready)
+                    {
+                        ids[client.PlayerNumber] = client.PlayerId;
+                    }
                 }
-                if(_localClient != null)
+                if(_localClient != null && _localClientData.Ready)
                 {
                     ids[_localClientData.PlayerNumber] = _localClientData.PlayerId;
                 }
@@ -461,6 +465,10 @@ namespace SocialPoint.Lockstep
                     PlayerNumber = FreePlayerNumber
                 };
                 _clients.Add(client);
+            }
+            else
+            {
+                SendClientStatusMessage(client, true);
             }
             client.ClientId = clientId;
             if(client.Ready)
@@ -669,8 +677,9 @@ namespace SocialPoint.Lockstep
             if(client != null)
             {
                 client.Ready = false;
+
+                SendClientStatusMessage(client, false);
             }
-            CheckAllPlayersEnded();
         }
 
         public void Stop()
@@ -710,6 +719,26 @@ namespace SocialPoint.Lockstep
                 client.AddConfirmedTurn(turn);
             }
             itr.Dispose();
+        }
+
+        void SendClientStatusMessage(ClientData client, bool connected)
+        {
+            if(!Running)
+            {
+                return;
+            }
+
+            for(var i = 0; i < _clients.Count; i++)
+            {
+                var other = _clients[i];
+                if(other.Ready && !string.Equals(other.PlayerId, client.PlayerId, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    _server.SendMessage(new NetworkMessageData {
+                        MessageType = LockstepMsgType.ClientConnectionStatus,
+                        ClientId = other.ClientId
+                    }, new ClientChangedConnectionStatusMessage(client.ClientId, connected));
+                }
+            }
         }
 
         #region local client
@@ -834,6 +863,11 @@ namespace SocialPoint.Lockstep
             {
                 _localClient.Start(ClientUpdateTime);
             }
+        }
+
+        public void OnClientMatchEnd()
+        {
+            CheckAllPlayersEnded();
         }
 
         #endregion

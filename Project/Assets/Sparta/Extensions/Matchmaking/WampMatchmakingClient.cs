@@ -25,10 +25,6 @@ namespace SocialPoint.Matchmaking
         const string StatusAttrKey = "status";
         const string WaitingStatus = "waiting";
         const string WaitingTimeAttrKey = "estimated_time";
-        const string MatchIdAttrKey = "match_id";
-        const string GameInfoAttrKey = "game_info";
-        const string ServerInfoAttrKey = "server";
-        const string PlayerIdAttrKey = "token";
         const string ResultAttrKey = "result";
 
         const int SuccessNotification = 502;
@@ -139,12 +135,8 @@ namespace SocialPoint.Matchmaking
         {
             if(type == SuccessNotification)
             {
-                var match = new Match {
-                    Id = attr.GetValue(MatchIdAttrKey).ToString(),
-                    GameInfo = attr.Get(GameInfoAttrKey),
-                    ServerInfo = attr.Get(ServerInfoAttrKey),
-                    PlayerId = attr.GetValue(PlayerIdAttrKey).ToString()
-                };
+                var match = new Match();
+                match.ParseAttrDic(attr);
                 for(var i = 0; i < _delegates.Count; i++)
                 {
                     _delegates[i].OnMatched(match);
