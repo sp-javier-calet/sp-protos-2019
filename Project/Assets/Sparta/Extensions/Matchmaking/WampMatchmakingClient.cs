@@ -28,7 +28,7 @@ namespace SocialPoint.Matchmaking
         const string ResultAttrKey = "result";
 
         const int SuccessNotification = 502;
-        const int TimoutNotification = 503;
+        const int TimeoutNotification = 503;
 
         public string Room{ get; set; }
 
@@ -142,7 +142,7 @@ namespace SocialPoint.Matchmaking
                     _delegates[i].OnMatched(match);
                 }
             }
-            else if(type == TimoutNotification)
+            else if(type == TimeoutNotification)
             {
                 OnError(new Error(MatchmakingClientErrorCode.Timeout, "Timeout"));
             }

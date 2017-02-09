@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
@@ -19,6 +20,13 @@ namespace SocialPoint.Locale
             Production
         }
 
+        // Environment Ids mapping
+        static readonly Dictionary<LocalizationEnvironment, string> EnvironmentIds = new Dictionary<LocalizationEnvironment, string>() {
+            { LocalizationEnvironment.Development,  "dev"  },
+            { LocalizationEnvironment.Localization, "loc"  },
+            { LocalizationEnvironment.Production,   "prod" }
+        };
+
         [Serializable]
         public class SettingsData
         {
@@ -30,7 +38,7 @@ namespace SocialPoint.Locale
         [Serializable]
         public class LocalizationSettings
         {
-            public LocalizationEnvironment EnvironmentId = LocalizationEnvironment.Production;
+            public LocalizationEnvironment Environment = LocalizationEnvironment.Production;
             public string ProjectId = LocalizationManager.LocationData.DefaultProjectId;
             public string SecretKeyDev = LocalizationManager.LocationData.DefaultDevSecretKey;
             public string SecretKeyLoc = LocalizationManager.LocationData.DefaultDevSecretKey;
@@ -106,11 +114,11 @@ namespace SocialPoint.Locale
             mng.AppEvents = Container.Resolve<IAppEvents>();
 
             string secretKey;
-            if(Settings.Localization.EnvironmentId == LocalizationEnvironment.Development)
+            if(Settings.Localization.Environment == LocalizationEnvironment.Development)
             {
                 secretKey = Settings.Localization.SecretKeyDev;
             }
-            else if(Settings.Localization.EnvironmentId == LocalizationEnvironment.Localization)
+            else if(Settings.Localization.Environment == LocalizationEnvironment.Localization)
             {
                 secretKey = Settings.Localization.SecretKeyLoc;
             }
@@ -118,8 +126,9 @@ namespace SocialPoint.Locale
             {
                 secretKey = Settings.Localization.SecretKeyProd;
             }
+
             mng.Location.ProjectId = Settings.Localization.ProjectId;
-            mng.Location.EnvironmentId = Settings.Localization.EnvironmentId.ToString();
+            mng.Location.EnvironmentId = EnvironmentIds[Settings.Localization.Environment];
             mng.Location.SecretKey = secretKey;
             mng.Timeout = Settings.Localization.Timeout;
             mng.BundleDir = Settings.Localization.BundleDir;
