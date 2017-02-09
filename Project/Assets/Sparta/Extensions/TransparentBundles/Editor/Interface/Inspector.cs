@@ -124,7 +124,7 @@ namespace SocialPoint.TransparentBundles
 
                 EditorGUILayout.BeginHorizontal(BundlesWindow.BodyStyle, GUILayout.ExpandWidth(true), GUILayout.Height(150));
                 GUILayout.Label("", GUILayout.Width(10));
-                
+
                 EditorGUILayout.BeginVertical();
                 GUILayout.Label("", GUILayout.Height(10));
                 EditorGUILayout.BeginHorizontal();

@@ -89,7 +89,7 @@ namespace SocialPoint.TransparentBundles
                 }
                 else
                 {
-                    InstantiateBundle(_requests[i].assetBundle);  
+                    InstantiateBundle(_requests[i].assetBundle);
                 }
             }
         }
@@ -99,19 +99,19 @@ namespace SocialPoint.TransparentBundles
             var objects = bundle.LoadAllAssets();
             var assetType = objects[0].GetType().ToString();
 
-            switch (assetType)
+            switch(assetType)
             {
                 case "UnityEngine.GameObject":
 
                     GameObject instanceGO = GameObject.Instantiate((GameObject)objects[0]);
                     instanceGO.name = "[BUNDLE] " + objects[0].name;
                     Component[] renderers = instanceGO.GetComponentsInChildren(typeof(Renderer));
-                    foreach (Component component in renderers)
+                    foreach(Component component in renderers)
                     {
                         Renderer renderer = (Renderer)component;
-                        foreach (Material material in renderer.sharedMaterials)
+                        foreach(Material material in renderer.sharedMaterials)
                         {
-                            if (material.shader != null)
+                            if(material.shader != null)
                             {
                                 material.shader = Shader.Find(material.shader.name);
                             }
@@ -137,7 +137,7 @@ namespace SocialPoint.TransparentBundles
 
         public void DownloadBundle(Bundle bundle)
         {
-            if (!_downloadingBundle)
+            if(!_downloadingBundle)
             {
                 _downloadingBundle = true;
 
@@ -147,14 +147,14 @@ namespace SocialPoint.TransparentBundles
 
         public void DownloadBundleRecursive(Bundle bundle, Bundle mainBundle)
         {
-            if (!_requests.Any(x => x.url == bundle.Url))
+            if(!_requests.Any(x => x.url == bundle.Url))
             {
-                for (int i = 0; i < bundle.Parents.Count; i++)
+                for(int i = 0; i < bundle.Parents.Count; i++)
                 {
                     Bundle parent = bundle.Parents[i];
-                    if (!_requests.Any(x => x.url == parent.Url))
+                    if(!_requests.Any(x => x.url == parent.Url))
                     {
-                        if (parent.Url.Length > 0 && parent.Asset.Name.Length > 0)
+                        if(parent.Url.Length > 0 && parent.Asset.Name.Length > 0)
                         {
                             DownloadBundleRecursive(parent, mainBundle);
                         }
@@ -165,7 +165,7 @@ namespace SocialPoint.TransparentBundles
                     }
                 }
 
-                if (bundle.Url.Length > 0 && bundle.Asset.Name.Length > 0)
+                if(bundle.Url.Length > 0 && bundle.Asset.Name.Length > 0)
                 {
                     if(bundle.Name == mainBundle.Name)
                     {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.TransparentBundles
 {
-    public class BundlesWindow: EditorWindow
+    public class BundlesWindow : EditorWindow
     {
         public static BundlesWindow Window;
         private static EditorClientController _controller;
@@ -29,9 +29,9 @@ namespace SocialPoint.TransparentBundles
         private static float iconsProcessCurrentSize = 1f;
         public static BundlePlaform CurrentPlatform;
 
-        public static GUIStyle HeaderStyle, HeaderStyle2, 
-            BodyStyle, BodyTextStyle, BodyTextStyleProcessing, BodyTextStyleWarning, BodyTextStyleError, 
-            BodyTextBoldStyle, BodyLinkStyle, BodySpecialLinkStyle, 
+        public static GUIStyle HeaderStyle, HeaderStyle2,
+            BodyStyle, BodyTextStyle, BodyTextStyleProcessing, BodyTextStyleWarning, BodyTextStyleError,
+            BodyTextBoldStyle, BodyLinkStyle, BodySpecialLinkStyle,
             BodySelectedLinkStyle, BodySelectedLinkStyleWarning, BodySelectedLinkStyleError,
             NoButtonStyle;
         private static float[] _columnsSize;
@@ -46,7 +46,7 @@ namespace SocialPoint.TransparentBundles
             _selectedList = new Dictionary<string, Bundle>();
             _selectAllToggle = false;
             _allSelected = false;
-            
+
             ChangeSorting(_sorting);
             _scrollPos = Vector2.zero;
 
@@ -234,7 +234,7 @@ namespace SocialPoint.TransparentBundles
             EditorGUILayout.BeginHorizontal();
 
             GUILayout.Label("", GUILayout.Width(7));
-            
+
             GUIContent buttonContent = null;
             if(_controller.ServerInfo.Status == ServerStatus.Warning)
             {
@@ -387,7 +387,7 @@ namespace SocialPoint.TransparentBundles
                 firstIndex = Mathf.Clamp(firstIndex, 0, Mathf.Max(0, (_bundleList.Count - _bundlesInBuild) - _visibleRows));
                 float firstSpace = firstIndex;
                 GUILayout.Space(firstSpace * _bundleRowHeight);
-                
+
                 for(int i = firstIndex; i < Mathf.Min(_bundleList.Count, firstIndex + _visibleRows + _bundlesInBuild); i++)
                 {
                     Bundle bundle = _bundleList[i];
@@ -533,7 +533,7 @@ namespace SocialPoint.TransparentBundles
             EditorGUILayout.EndVertical();
             GUILayout.Label("", GUILayout.Width(2));
             EditorGUILayout.EndHorizontal();
-            
+
             EditorGUILayout.EndVertical();
 
             ManageKeyInputs();
@@ -541,7 +541,7 @@ namespace SocialPoint.TransparentBundles
             ManageAutoSearch();
         }
 
-        
+
 
 
         private void DisplayBundleRow(Bundle bundle)
@@ -580,7 +580,7 @@ namespace SocialPoint.TransparentBundles
                     _chosenList.Add(bundle);
                 }
             }
-                
+
             EditorGUILayout.EndVertical();
 
             EditorGUILayout.BeginVertical(GUILayout.Width(_columnsSize[1]));
@@ -588,7 +588,7 @@ namespace SocialPoint.TransparentBundles
             GUILayout.Label(AssetPreview.GetMiniThumbnail(bundle.Asset.GetAssetObject()), GUILayout.Width(_columnsSize[1]), GUILayout.Height(_columnsSize[1]));
             EditorGUILayout.EndVertical();
 
-            
+
             if(bundle.Status == BundleStatus.Warning || bundle.Status == BundleStatus.Error)
             {
                 EditorGUILayout.BeginVertical(GUILayout.Width(20));
@@ -608,7 +608,7 @@ namespace SocialPoint.TransparentBundles
                 }
                 EditorGUILayout.EndVertical();
             }
-            
+
 
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
             GUIStyle bundleStyle = BodyTextStyle;
@@ -667,7 +667,7 @@ namespace SocialPoint.TransparentBundles
                         enumerator.Dispose();
                         int finalIndex = _bundleList.IndexOf(bundle);
                         _selectedList = new Dictionary<string, Bundle>();
-                         
+
                         if(firstIndex < finalIndex)
                         {
                             for(int i = firstIndex; i <= finalIndex; i++)
@@ -697,13 +697,13 @@ namespace SocialPoint.TransparentBundles
                     _selectedList = new Dictionary<string, Bundle>();
                     _selectedList.Add(bundle.Name, bundle);
                 }
-                    
+
                 InspectorDummy inspectorDummy = ScriptableObject.CreateInstance<InspectorDummy>();
                 inspectorDummy.SelectedAsset = bundle.Asset;
                 Selection.activeObject = inspectorDummy;
             }
             EditorGUILayout.EndVertical();
-            
+
             if(bundle.Status == BundleStatus.Processing || bundle.Status == BundleStatus.Queued)
             {
                 for(int i = 0; i < bundle.OperationQueue.Count; i++)
@@ -733,56 +733,56 @@ namespace SocialPoint.TransparentBundles
 
             switch(operation)
             {
-            case BundleOperation.Create:
-                if(processing)
-                {
-                    icon = _controller.DownloadImage(Config.IconsPath + "create.png");
-                }
-                else
-                {
-                    icon = _controller.DownloadImage(Config.IconsPath + "create_queued.png");
-                }
-                break;
+                case BundleOperation.Create:
+                    if(processing)
+                    {
+                        icon = _controller.DownloadImage(Config.IconsPath + "create.png");
+                    }
+                    else
+                    {
+                        icon = _controller.DownloadImage(Config.IconsPath + "create_queued.png");
+                    }
+                    break;
 
-            case BundleOperation.Update:
-                if(processing)
-                {
-                    icon = _controller.DownloadImage(Config.IconsPath + "update.png");
-                }
-                else
-                {
-                    icon = _controller.DownloadImage(Config.IconsPath + "update_queued.png");
-                }
-                break;
+                case BundleOperation.Update:
+                    if(processing)
+                    {
+                        icon = _controller.DownloadImage(Config.IconsPath + "update.png");
+                    }
+                    else
+                    {
+                        icon = _controller.DownloadImage(Config.IconsPath + "update_queued.png");
+                    }
+                    break;
 
-            case BundleOperation.Remove:
-                if(processing)
-                    icon = _controller.DownloadImage(Config.IconsPath + "remove.png");
-                else
-                    icon = _controller.DownloadImage(Config.IconsPath + "remove_queued.png");
-                break;
+                case BundleOperation.Remove:
+                    if(processing)
+                        icon = _controller.DownloadImage(Config.IconsPath + "remove.png");
+                    else
+                        icon = _controller.DownloadImage(Config.IconsPath + "remove_queued.png");
+                    break;
 
-            case BundleOperation.AddToBuild:
-                if(processing)
-                {
-                    icon = _controller.DownloadImage(Config.IconsPath + "in_build.png");
-                }
-                else
-                {
-                    icon = _controller.DownloadImage(Config.IconsPath + "in_build_queued.png");
-                }
-                break;
+                case BundleOperation.AddToBuild:
+                    if(processing)
+                    {
+                        icon = _controller.DownloadImage(Config.IconsPath + "in_build.png");
+                    }
+                    else
+                    {
+                        icon = _controller.DownloadImage(Config.IconsPath + "in_build_queued.png");
+                    }
+                    break;
 
-            case BundleOperation.RemoveFromBuild:
-                if(processing)
-                {
-                    icon = _controller.DownloadImage(Config.IconsPath + "out_build.png");
-                }
-                else
-                {
-                    icon = _controller.DownloadImage(Config.IconsPath + "out_build_queued.png");
-                }
-                break;
+                case BundleOperation.RemoveFromBuild:
+                    if(processing)
+                    {
+                        icon = _controller.DownloadImage(Config.IconsPath + "out_build.png");
+                    }
+                    else
+                    {
+                        icon = _controller.DownloadImage(Config.IconsPath + "out_build_queued.png");
+                    }
+                    break;
 
             }
 
@@ -825,21 +825,21 @@ namespace SocialPoint.TransparentBundles
             {
                 switch(Event.current.keyCode)
                 {
-                case KeyCode.Return:
-                    SearchBundles(_filter);
-                    break;
+                    case KeyCode.Return:
+                        SearchBundles(_filter);
+                        break;
 
-                case KeyCode.A:
-                    if(Event.current.command || Event.current.control)
-                    {
-                        _selectedList = new Dictionary<string, Bundle>();
-                        for(int i = 0; i < _bundleList.Count; i++)
+                    case KeyCode.A:
+                        if(Event.current.command || Event.current.control)
                         {
-                            _selectedList.Add(_bundleList[i].Name, _bundleList[i]);
+                            _selectedList = new Dictionary<string, Bundle>();
+                            for(int i = 0; i < _bundleList.Count; i++)
+                            {
+                                _selectedList.Add(_bundleList[i].Name, _bundleList[i]);
+                            }
                         }
-                    }
-                    Window.Repaint();
-                    break;
+                        Window.Repaint();
+                        break;
                 }
             }
         }

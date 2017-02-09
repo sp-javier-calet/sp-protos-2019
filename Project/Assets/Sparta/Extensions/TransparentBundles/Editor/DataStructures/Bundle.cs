@@ -38,7 +38,8 @@ namespace SocialPoint.TransparentBundles
         Queued,
         Processing,
         Warning,
-        Error}
+        Error
+    }
 
     ;
 
@@ -48,11 +49,13 @@ namespace SocialPoint.TransparentBundles
         Update,
         Remove,
         AddToBuild,
-        RemoveFromBuild}
+        RemoveFromBuild
+    }
 
     public enum BundlePlaform
     {
         ios,
-        android}
+        android
+    }
     ;
 }
