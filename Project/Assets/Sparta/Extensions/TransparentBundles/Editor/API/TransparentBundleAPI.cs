@@ -155,27 +155,7 @@ namespace SocialPoint.TransparentBundles
         /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
         public static void GetBundles(GetBundlesArgs arguments)
         {
-            // Build up the Login Options with callbacks and options
-            var options = new LoginOptions();
-
-            options.AutoRetryLogin = arguments.AutoRetryLogin;
-            options.LoginOk = (report) =>
-            {
-                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_requestUrl, GetBaseQueryArgs()));
-                request.Method = "GET";
-                var requestData = new AsyncRequestData(request, x => HandleActionResponse(x, arguments, GetBundles));
-                arguments.SetRequestReport(report);
-                ActionRequest(arguments, requestData);
-            };
-
-            options.LoginFailed = (report) =>
-            {
-                arguments.SetRequestReport(report);
-                arguments.OnFailedCallback(report);
-            };
-
-            // Triggers login process
-            LoginAndExecuteAction(options);
+            GenericRequest(arguments, _requestUrl, "GET", null, x => HandleActionResponse(x, arguments, GetBundles));
         }
 
         /// <summary>
@@ -185,27 +165,7 @@ namespace SocialPoint.TransparentBundles
         /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
         public static void CreateBundle(CreateBundlesArgs arguments)
         {
-            // Build up the Login Options with callbacks and options
-            var options = new LoginOptions();
-
-            options.AutoRetryLogin = arguments.AutoRetryLogin;
-            options.LoginOk = (report) =>
-            {
-                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_requestUrl, GetBaseQueryArgs()));
-                request.Method = "POST";
-                var requestData = new AsyncRequestData(request, JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, CreateBundle));
-                arguments.SetRequestReport(report);
-                ActionRequest(arguments, requestData);
-            };
-
-            options.LoginFailed = (report) =>
-            {
-                arguments.SetRequestReport(report);
-                arguments.OnFailedCallback(report);
-            };
-
-            // Triggers login process
-            LoginAndExecuteAction(options);
+            GenericRequest(arguments, _requestUrl, "POST", JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, CreateBundle));
         }
 
         /// <summary>
@@ -215,27 +175,7 @@ namespace SocialPoint.TransparentBundles
         /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
         public static void RemoveBundle(RemoveBundlesArgs arguments)
         {
-            // Build up the Login Options with callbacks and options
-            var options = new LoginOptions();
-
-            options.AutoRetryLogin = arguments.AutoRetryLogin;
-            options.LoginOk = (report) =>
-            {
-                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_requestUrl, GetBaseQueryArgs()));
-                request.Method = "DELETE";
-                var requestData = new AsyncRequestData(request, JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, RemoveBundle));
-                arguments.SetRequestReport(report);
-                ActionRequest(arguments, requestData);
-            };
-
-            options.LoginFailed = (report) =>
-            {
-                arguments.SetRequestReport(report);
-                arguments.OnFailedCallback(report);
-            };
-
-            // Triggers login process
-            LoginAndExecuteAction(options);
+            GenericRequest(arguments, _requestUrl, "DELETE", JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, RemoveBundle));
         }
         
         /// <summary>
@@ -245,27 +185,7 @@ namespace SocialPoint.TransparentBundles
         /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
         public static void MakeLocalBundle(MakeLocalBundlesArgs arguments)
         {
-            // Build up the Login Options with callbacks and options
-            var options = new LoginOptions();
-
-            options.AutoRetryLogin = arguments.AutoRetryLogin;
-            options.LoginOk = (report) =>
-            {
-                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_localBundleUrl, GetBaseQueryArgs()));
-                request.Method = "POST";
-                var requestData = new AsyncRequestData(request, JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, MakeLocalBundle));
-                arguments.SetRequestReport(report);
-                ActionRequest(arguments, requestData);
-            };
-
-            options.LoginFailed = (report) =>
-            {
-                arguments.SetRequestReport(report);
-                arguments.OnFailedCallback(report);
-            };
-
-            // Triggers login process
-            LoginAndExecuteAction(options);
+            GenericRequest(arguments, _localBundleUrl, "POST", JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, MakeLocalBundle));
         }
 
         /// <summary>
@@ -275,15 +195,21 @@ namespace SocialPoint.TransparentBundles
         /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
         public static void RemoveLocalBundle(RemoveLocalBundlesArgs arguments)
         {
+            GenericRequest(arguments, _localBundleUrl, "DELETE", JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, RemoveLocalBundle));
+        }
+
+
+        private static void GenericRequest(RequestArgs arguments, string url, string method, string body, Action<ResponseResult> finishedCallback)
+        {
             // Build up the Login Options with callbacks and options
             var options = new LoginOptions();
 
             options.AutoRetryLogin = arguments.AutoRetryLogin;
             options.LoginOk = (report) =>
             {
-                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(_localBundleUrl, GetBaseQueryArgs()));
-                request.Method = "DELETE";
-                var requestData = new AsyncRequestData(request, JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, RemoveLocalBundle));
+                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(url, GetBaseQueryArgs()));
+                request.Method = method;
+                var requestData = new AsyncRequestData(request, body, finishedCallback);
                 arguments.SetRequestReport(report);
                 ActionRequest(arguments, requestData);
             };
@@ -297,7 +223,6 @@ namespace SocialPoint.TransparentBundles
             // Triggers login process
             LoginAndExecuteAction(options);
         }
-
         #endregion
 
         #region PRIVATE_METHODS

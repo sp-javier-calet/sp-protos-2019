@@ -13,6 +13,9 @@ namespace SocialPoint.TransparentBundles
     public class TBCLI
     {
         #region IO_Classes
+        /// <summary>
+        /// Generic output for any CLI function (All outputs need to inherit this)
+        /// </summary>
         public class OutputCLI
         {
             public bool success = false;
@@ -27,8 +30,17 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
+        /// <summary>
+        /// Generic input for any CLI function (All input need to inherit this)
+        /// </summary>
         public class InputCLI
         {
+            /// <summary>
+            /// Loads the input as the type provided
+            /// </summary>
+            /// <param name="path">path to the input json</param>
+            /// <param name="type">Subclass of InputCLI type that is contained in the json. If type is not found, InputCLI will be used</param>
+            /// <returns>Instance parsed from the json contained in InputCLI superclass</returns>
             public static InputCLI Load(string path, string type)
             {
                 Assembly currentAssembly = Assembly.GetExecutingAssembly();
@@ -50,16 +62,25 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
+        /// <summary>
+        /// Inputs for CalculateBundles CLI call
+        /// </summary>
         public class CalculateBundlesInput : InputCLI
         {
             public List<DependencySystem.BundleInfo> ManualBundles;
         }
 
+        /// <summary>
+        /// Outputs for CalculateBundles CLI call
+        /// </summary>
         public class CalculateBundlesOutput : OutputCLI
         {
             public Dictionary<string, BundleDependenciesData> BundlesDictionary;
         }
 
+        /// <summary>
+        /// Inputs for BuildBundles CLI call
+        /// </summary>
         public class BuildBundlesInput : InputCLI
         {
             public Dictionary<string, BundleDependenciesData> BundlesDictionary;
@@ -67,6 +88,9 @@ namespace SocialPoint.TransparentBundles
             public string BundlesPath;
         }
 
+        /// <summary>
+        /// Outputs for BuildBundles CLI call
+        /// </summary>
         public class BuildBundlesOutput : OutputCLI
         {
             public class BundleInfoOutput
@@ -86,6 +110,10 @@ namespace SocialPoint.TransparentBundles
         private const string _methodName = "-method-name";
         
         #region CLI_Methods
+        /// <summary>
+        /// Common entry point for all CLI calls, the method name will come as an argument and will be called via reflection with the appropriate input
+        /// Run will also write the results in the provided output path even if the CLI call fails.
+        /// </summary>
         public static void Run()
         {
             OutputCLI output = new OutputCLI();
@@ -113,7 +141,6 @@ namespace SocialPoint.TransparentBundles
                 {
                     output = (OutputCLI)args[1];
                 }
-                Debug.Log(e);
                 output.success = false;
                 string msg = "CLI RUN ERROR - " + e;
                 output.log.Add(msg);
@@ -127,6 +154,11 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
+        /// <summary>
+        /// Calculates the bundles and its dependencies using the DependencySystem
+        /// </summary>
+        /// <param name="input">Input for the CLI call</param>
+        /// <param name="output">Output ref to write the results</param>
         public static void CalculateBundles(CalculateBundlesInput input, ref OutputCLI output)
         {
             output = new CalculateBundlesOutput();
@@ -139,6 +171,11 @@ namespace SocialPoint.TransparentBundles
             typedOutput.BundlesDictionary = DependencySystem.Manifest.GetDictionary();            
         }
 
+        /// <summary>
+        /// Builds the bundles previously calculated by Calculate bundles
+        /// </summary>
+        /// <param name="input">Input for the CLI call</param>
+        /// <param name="output">Output ref to write the results</param>
         public static void BuildBundles(BuildBundlesInput input, ref OutputCLI output)
         {
             output = new BuildBundlesOutput();
@@ -205,6 +242,12 @@ namespace SocialPoint.TransparentBundles
         #endregion
 
         #region Helpers
+        /// <summary>
+        /// Given a key, gets an argument from the command line, throws an exception if key is not found
+        /// </summary>
+        /// <param name="arguments">Whole list of arguments</param>
+        /// <param name="argument">Key of the desired argument</param>
+        /// <returns>Argument value</returns>
         private static string GetArgument(List<string> arguments, string argument)
         {
             var targetIdx = arguments.IndexOf(argument);
@@ -216,6 +259,12 @@ namespace SocialPoint.TransparentBundles
             return arguments[targetIdx + 1];
         }
 
+        /// <summary>
+        /// Given a key, gets an argument from the command line, returns null if not found
+        /// </summary>
+        /// <param name="arguments">Whole list of arguments</param>
+        /// <param name="argument">Key of the desired argument</param>
+        /// <returns>Argument value if found, null if not found</returns>
         private static bool GetOptionalArgument(List<string> arguments, string argument, out string value)
         {
             var targetIdx = arguments.IndexOf(argument);

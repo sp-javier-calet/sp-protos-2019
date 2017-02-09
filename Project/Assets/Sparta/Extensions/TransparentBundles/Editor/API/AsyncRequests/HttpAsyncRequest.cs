@@ -91,7 +91,7 @@ namespace SocialPoint.TransparentBundles
 
             ServicePointManager.ServerCertificateValidationCallback += CertificateValidation;
 
-            if(_reqState.RequestBody != null)
+            if(!string.IsNullOrEmpty(_reqState.RequestBody))
             {
                 _reqState.Request.BeginGetRequestStream(new AsyncCallback(GetRequestStreamCallback), _reqState);
             }
@@ -159,31 +159,45 @@ namespace SocialPoint.TransparentBundles
             var state = (AsyncRequestData)asynchronousResult.AsyncState;
             try
             {
-                ResponseResult rResult = null;
-                // End the operation
-                using(HttpWebResponse response = (HttpWebResponse)state.Request.EndGetResponse(asynchronousResult))
+                try
                 {
-                    using(Stream streamResponse = response.GetResponseStream())
+                    ResponseResult rResult = null;
+                    // End the operation
+                    using(HttpWebResponse response = (HttpWebResponse)state.Request.EndGetResponse(asynchronousResult))
                     {
-                        using(StreamReader streamRead = new StreamReader(streamResponse))
+                        using(Stream streamResponse = response.GetResponseStream())
                         {
-                            rResult = new ResponseResult(true, streamRead.ReadToEnd(), response.StatusCode);
-                            rResult.StatusCode = response.StatusCode;
+                            using(StreamReader streamRead = new StreamReader(streamResponse))
+                            {
+                                rResult = new ResponseResult(true, streamRead.ReadToEnd(), response.StatusCode);
+                                rResult.StatusCode = response.StatusCode;
+                            }
                         }
                     }
-                }
 
-                if(rResult == null)
+                    if(rResult == null)
+                    {
+                        throw new Exception("Unable to read response result for url " + state.Request.RequestUri);
+                    }
+
+                    EndConnection(state, rResult);
+                }
+                catch(WebException e)
                 {
-                    throw new Exception("Unable to read response result for url " + state.Request.RequestUri);
-                }
+                    var resp = new StreamReader(e.Response.GetResponseStream()).ReadToEnd();
+                    string jsonMsg = string.Empty;
+                    try
+                    {
+                        jsonMsg = LitJson.JsonMapper.ToObject(resp)[0].ToString();
+                    }
+                    catch(Exception ex)
+                    {
+                        UnityEngine.Debug.LogError(ex);
+                        jsonMsg = resp;
+                    }
 
-                EndConnection(state, rResult);
-            }
-            catch(WebException e)
-            {
-                var resp = new StreamReader(e.Response.GetResponseStream()).ReadToEnd();
-                EndConnection(state, new ResponseResult(false, e.Message + " - " + LitJson.JsonMapper.ToObject(resp)[0], ((HttpWebResponse)e.Response).StatusCode));
+                    EndConnection(state, new ResponseResult(false, e.Message + " - " + jsonMsg, ((HttpWebResponse)e.Response).StatusCode));
+                }
             }
             catch(Exception e)
             {
