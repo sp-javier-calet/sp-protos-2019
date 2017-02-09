@@ -134,24 +134,21 @@ namespace SocialPoint.TransparentBundles
 
         public void DownloadBundleRecursive(Bundle bundle)
         {
+            for(int i = 0; i < bundle.Parents.Count; i++)
+            {
+                Bundle parent = bundle.Parents[i];
+                if(parent.Url.Length > 0 && parent.Asset.Name.Length > 0)
+                {
+                    DownloadBundleRecursive(parent);
+                }
+                else
+                {
+                    Debug.LogError("Transparent Bundles - Error - The bundle '" + parent.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactUrl);
+                }
+            }
+
             if(!_requests.Any(x => x.url == bundle.Url))
             {
-                for(int i = 0; i < bundle.Parents.Count; i++)
-                {
-                    Bundle parent = bundle.Parents[i];
-                    if(!_requests.Any(x => x.url == parent.Url))
-                    {
-                        if(parent.Url.Length > 0 && parent.Asset.Name.Length > 0)
-                        {
-                            DownloadBundleRecursive(parent);
-                        }
-                        else
-                        {
-                            Debug.LogError("Transparent Bundles - Error - The bundle '" + parent.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactUrl);
-                        }
-                    }
-                }
-
                 if(bundle.Url.Length > 0 && bundle.Asset.Name.Length > 0)
                 {
                     var request = UnityWebRequest.GetAssetBundle(bundle.Url);
