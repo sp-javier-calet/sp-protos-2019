@@ -428,10 +428,6 @@ namespace SocialPoint.TransparentBundles
             _downloader.DownloadBundle(bundle);
         }
 
-        public int InstantiateDownloadedBundles()
-        {
-            return _downloader.InstantiateDownloadedBundles();
-        }
 
         public Texture2D DownloadImage(string path)
         {
