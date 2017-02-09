@@ -43,6 +43,23 @@ namespace SocialPoint.TransparentBundles
         }
 
 
+        public static bool IsValid()
+        {
+            var file = AssetDatabase.FindAssets("t:TBConfig");
+            TBConfig config = null;
+
+            if(file.Length == 1)
+            {
+                config = AssetDatabase.LoadAssetAtPath<TBConfig>(AssetDatabase.GUIDToAssetPath(file[0]));
+            }
+            else if(file.Length > 1)
+            {
+                throw new System.Exception("More than one TBConfig found, remove one.");
+            }
+
+            return file.Length == 1 && !string.IsNullOrEmpty(config.project);
+        }
+
         /// <summary>
         /// Gets the project set in the TBConfig File.
         /// </summary>
@@ -50,16 +67,7 @@ namespace SocialPoint.TransparentBundles
         public static string GetProject()
         {
             var file = AssetDatabase.FindAssets("t:TBConfig");
-            TBConfig config;
-
-            if(file.Length != 1)
-            {
-                throw new System.Exception("No single TBConfig found, try logging in manually.");
-            }
-            else
-            {
-                config = AssetDatabase.LoadAssetAtPath<TBConfig>(AssetDatabase.GUIDToAssetPath(file[0]));
-            }
+            TBConfig config = AssetDatabase.LoadAssetAtPath<TBConfig>(AssetDatabase.GUIDToAssetPath(file[0]));            
 
             return config.project;
         }

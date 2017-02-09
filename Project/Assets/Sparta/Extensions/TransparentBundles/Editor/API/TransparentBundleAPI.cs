@@ -61,7 +61,7 @@ namespace SocialPoint.TransparentBundles
             var loginUser = string.IsNullOrEmpty(loginOptions.OverwriteLoginUsername) ? EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY) : loginOptions.OverwriteLoginUsername;
 
             // If there is no info stored
-            if(string.IsNullOrEmpty(loginUser))
+            if(string.IsNullOrEmpty(loginUser) || !TBConfig.IsValid())
             {
                 if(loginOptions.AutoRetryLogin)
                 {
