@@ -27,6 +27,7 @@ namespace SocialPoint.TransparentBundles
         private const int _visibleRows = 50;
         private static int _bundlesInBuild = 0;
         private static float iconsProcessCurrentSize = 1f;
+        public static BundlePlaform CurrentPlatform;
 
         public static GUIStyle HeaderStyle, HeaderStyle2, 
             BodyStyle, BodyTextStyle, BodyTextStyleProcessing, BodyTextStyleWarning, BodyTextStyleError, 
@@ -61,6 +62,9 @@ namespace SocialPoint.TransparentBundles
 
             _columnsSize = new float[] { 20f, 20f, 50f, 100f };
             _controller.FlushCache();
+
+            //TODO: Get ios/android bundle platform from build platform
+            CurrentPlatform = BundlePlaform.ios;
         }
 
         [MenuItem("Social Point/Bundles")]
@@ -373,7 +377,7 @@ namespace SocialPoint.TransparentBundles
                 _bundlesInServerShown = !_bundlesInServerShown;
             }
             GUILayout.Label("", GUILayout.ExpandWidth(true));
-            GUILayout.Label("total size: " + _controller.GetServerBundlesTotalSize() + " MB", GUILayout.ExpandWidth(false));
+            GUILayout.Label("total size: " + _controller.GetServerBundlesTotalSize(CurrentPlatform) + " MB", GUILayout.ExpandWidth(false));
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndVertical();
 
@@ -416,7 +420,7 @@ namespace SocialPoint.TransparentBundles
                 _bundlesInBuildShown = !_bundlesInBuildShown;
             }
             GUILayout.Label("", GUILayout.ExpandWidth(true));
-            GUILayout.Label("total size: " + _controller.GetLocalBundlesTotalSize() + " MB", GUILayout.ExpandWidth(false));
+            GUILayout.Label("total size: " + _controller.GetLocalBundlesTotalSize(CurrentPlatform) + " MB", GUILayout.ExpandWidth(false));
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndVertical();
             if(_bundlesInBuildShown)
@@ -456,7 +460,7 @@ namespace SocialPoint.TransparentBundles
             GUILayout.Label("", GUILayout.Height(5));
             float totalSelectedSize = 0f;
             for(int i = 0; i < _chosenList.Count; i++)
-                totalSelectedSize += _chosenList[i].Size;
+                totalSelectedSize += _chosenList[i].Size[CurrentPlatform];
             GUILayout.Label(totalSelectedSize + " MB", BodyTextStyle, GUILayout.Width(50));
             EditorGUILayout.EndVertical();
 
@@ -712,7 +716,7 @@ namespace SocialPoint.TransparentBundles
 
             EditorGUILayout.BeginVertical(GUILayout.Width(_columnsSize[2]));
             GUILayout.Label("", GUILayout.Height(2));
-            GUILayout.Label(bundle.Size + " MB", BodyTextStyle, GUILayout.Height(20));
+            GUILayout.Label(bundle.Size[CurrentPlatform] + " MB", BodyTextStyle, GUILayout.Height(20));
             EditorGUILayout.EndVertical();
 
             if(GUILayout.Button("↧ Download", GUILayout.Width(_columnsSize[3]), GUILayout.Height(22)))
@@ -812,7 +816,7 @@ namespace SocialPoint.TransparentBundles
         private static void ChangeSorting(BundleSortingMode mode)
         {
             _sorting = mode;
-            _controller.SortBundles(_sorting, _bundleList);
+            _controller.SortBundles(_sorting, _bundleList, CurrentPlatform);
         }
 
         private void ManageKeyInputs()

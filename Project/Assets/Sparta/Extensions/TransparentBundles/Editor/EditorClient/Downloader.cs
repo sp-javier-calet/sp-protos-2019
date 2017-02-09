@@ -96,21 +96,38 @@ namespace SocialPoint.TransparentBundles
 
         private void InstantiateBundle(AssetBundle bundle)
         {
-            //TODO: handle different types of bundles.
             var objects = bundle.LoadAllAssets();
-            GameObject instanceGO = GameObject.Instantiate((GameObject)objects[0]);
-            instanceGO.name = "[BUNDLE] " + objects[0].name;
-            Component[] renderers = instanceGO.GetComponentsInChildren(typeof(Renderer));
-            foreach(Component component in renderers)
+            var assetType = objects[0].GetType().ToString();
+
+            switch (assetType)
             {
-                Renderer renderer = (Renderer)component;
-                foreach(Material material in renderer.sharedMaterials)
-                {
-                    if(material.shader != null)
+                case "UnityEngine.GameObject":
+
+                    GameObject instanceGO = GameObject.Instantiate((GameObject)objects[0]);
+                    instanceGO.name = "[BUNDLE] " + objects[0].name;
+                    Component[] renderers = instanceGO.GetComponentsInChildren(typeof(Renderer));
+                    foreach (Component component in renderers)
                     {
-                        material.shader = Shader.Find(material.shader.name);
+                        Renderer renderer = (Renderer)component;
+                        foreach (Material material in renderer.sharedMaterials)
+                        {
+                            if (material.shader != null)
+                            {
+                                material.shader = Shader.Find(material.shader.name);
+                            }
+                        }
                     }
-                }
+                    break;
+
+                case "UnityEngine.Texture2D":
+
+                    GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    cube.name = "[BUNDLE] " + objects[0].name;
+                    Renderer rend = cube.GetComponent<Renderer>();
+                    Material mat = new Material(Shader.Find("Standard"));
+                    rend.material = mat;
+                    mat.mainTexture = (Texture2D)objects[0];
+                    break;
             }
 
             _requests.ForEach(x => x.assetBundle.Unload(false));
@@ -123,36 +140,48 @@ namespace SocialPoint.TransparentBundles
             if (!_downloadingBundle)
             {
                 _downloadingBundle = true;
-                if (!_requests.Any(x=>x.url == bundle.Url))
+
+                DownloadBundleRecursive(bundle, bundle);
+            }
+        }
+
+        public void DownloadBundleRecursive(Bundle bundle, Bundle mainBundle)
+        {
+            if (!_requests.Any(x => x.url == bundle.Url))
+            {
+                for (int i = 0; i < bundle.Parents.Count; i++)
                 {
-                    for (int i = 0; i < bundle.Parents.Count; i++)
+                    Bundle parent = bundle.Parents[i];
+                    if (!_requests.Any(x => x.url == parent.Url))
                     {
-                        Bundle parent = bundle.Parents[i];
-                        if (!_requests.Any(x => x.url == parent.Url))
+                        if (parent.Url.Length > 0 && parent.Asset.Name.Length > 0)
                         {
-                            if (parent.Url.Length > 0 && parent.Asset.Name.Length > 0)
-                            {
-                                _requests.Add(new WWW(parent.Url));
-                            }
-                            else
-                            {
-                                Debug.LogError("Transparent Bundles - Error - The bundle '" + parent.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactUrl);
-                            }
+                            DownloadBundleRecursive(parent, mainBundle);
+                        }
+                        else
+                        {
+                            Debug.LogError("Transparent Bundles - Error - The bundle '" + parent.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactUrl);
                         }
                     }
+                }
 
-                    if (bundle.Url.Length > 0 && bundle.Asset.Name.Length > 0)
+                if (bundle.Url.Length > 0 && bundle.Asset.Name.Length > 0)
+                {
+                    if(bundle.Name == mainBundle.Name)
                     {
                         _mainRequest = new WWW(bundle.Url);
                         _requests.Add(_mainRequest);
                     }
                     else
                     {
-                        Debug.LogError("Transparent Bundles - Error - The bundle '" + bundle.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactUrl);
+                        _requests.Add(new WWW(bundle.Url));
                     }
                 }
-
+                else
+                {
+                    Debug.LogError("Transparent Bundles - Error - The bundle '" + bundle.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactUrl);
+                }
             }
-        }        
+        }
     }
 }

@@ -69,7 +69,7 @@ namespace SocialPoint.TransparentBundles
                 _downloader = Downloader.GetInstance();
                 ServerInfo = ReadServerInfoFromJSON(jsonBytes);
             //}
-            
+
         }
 
 
@@ -83,23 +83,34 @@ namespace SocialPoint.TransparentBundles
             for(int i = 0; i < jsonList.Count; i++)
             {
                 AttrList jsonRow = jsonList[i].AsList;
-                Asset asset = new Asset(jsonRow[3].AsValue.ToString());
+                Asset asset = new Asset(jsonRow[4].AsValue.ToString());
+
+                var sizesDict = new Dictionary<BundlePlaform, float>();
+                AttrList jsonSizes = jsonRow[1].AsList;
+                for (int j = 0; j < jsonSizes.Count; j++)
+                {
+                    var key = jsonSizes[j].AsDic.Keys.GetEnumerator();
+                    key.MoveNext();
+                    sizesDict.Add((BundlePlaform)Enum.Parse(typeof(BundlePlaform), key.Current.ToString()), jsonSizes[j].AsList[0].AsValue.ToFloat());
+                }
+
                 List<BundleOperation> operationQueue = new List<BundleOperation>();
-                AttrList jsonOperations = jsonRow[7].AsList;
-                for(int j = 0; j < jsonOperations.Count; j++)
+                AttrList jsonOperations = jsonRow[8].AsList;
+                for (int j = 0; j < jsonOperations.Count; j++)
                 {
                     operationQueue.Add((BundleOperation)Enum.Parse(typeof(BundleOperation), jsonOperations[j].AsList[0].AsValue.ToString()));
                 }
 
-                Bundle bundle = new Bundle(jsonRow[0].AsValue.ToString(), 
-                                    jsonRow[1].AsValue.ToFloat(), 
-                                    jsonRow[2].AsValue.ToBool(), 
+                Bundle bundle = new Bundle(jsonRow[0].AsValue.ToString(),
+                                    sizesDict,
+                                    jsonRow[2].AsValue.ToBool(),
+                                    jsonRow[3].AsValue.ToBool(), 
                                     asset, 
                                     new List<Bundle>(),
-                                    jsonRow[5].AsValue.ToString(),
-                                    (BundleStatus)Enum.Parse(typeof(BundleStatus), jsonRow[6].AsValue.ToString()),
+                                    jsonRow[6].AsValue.ToString(),
+                                    (BundleStatus)Enum.Parse(typeof(BundleStatus), jsonRow[7].AsValue.ToString()),
                                     operationQueue,
-                                    jsonRow[8].AsValue.ToString()
+                                    jsonRow[9].AsValue.ToString()
                                 );
                 bundleDictionary.Add(asset.Name, bundle);
             }
@@ -111,7 +122,7 @@ namespace SocialPoint.TransparentBundles
                 string childBundleName = jsonRow[0].AsValue.ToString();
                 string childAssetName = childBundleName.Substring(0, childBundleName.LastIndexOf("_"));
 
-                AttrList jsonParents = jsonRow[4].AsList;
+                AttrList jsonParents = jsonRow[5].AsList;
 
                 for (int j = 0; j < jsonParents.Count; j++)
                 {
@@ -128,7 +139,6 @@ namespace SocialPoint.TransparentBundles
                     }
                 }
             }
-
 
             return bundleDictionary;
         }
@@ -359,7 +369,7 @@ namespace SocialPoint.TransparentBundles
             List<string> keys = new List<string>(_bundleDictionary.Keys);
             for(int i = 0; i < keys.Count; i++)
             {
-                if(keys[i].IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)
+                if(_bundleDictionary[keys[i]].Autogerated == false && keys[i].IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     bundleList.Add(_bundleDictionary[keys[i]]);
                 }
@@ -393,7 +403,7 @@ namespace SocialPoint.TransparentBundles
 
         }
 
-        public float GetLocalBundlesTotalSize()
+        public float GetLocalBundlesTotalSize(BundlePlaform platform)
         {
             float totalSize = 0f;
             List<string> keys = new List<string>(_bundleDictionary.Keys);
@@ -402,13 +412,13 @@ namespace SocialPoint.TransparentBundles
                 Bundle bundle = _bundleDictionary[keys[i]];
                 if(bundle.IsLocal)
                 {
-                    totalSize += bundle.Size;
+                    totalSize += bundle.Size[platform];
                 }
             }
             return totalSize;
         }
 
-        public float GetServerBundlesTotalSize()
+        public float GetServerBundlesTotalSize(BundlePlaform platform)
         {
             float totalSize = 0f;
             List<string> keys = new List<string>(_bundleDictionary.Keys);
@@ -417,7 +427,7 @@ namespace SocialPoint.TransparentBundles
                 Bundle bundle = _bundleDictionary[keys[i]];
                 if(!bundle.IsLocal)
                 {
-                    totalSize += bundle.Size;
+                    totalSize += bundle.Size[platform];
                 }
             }
             return totalSize;
@@ -471,7 +481,7 @@ namespace SocialPoint.TransparentBundles
             return (bundle != null && bundle.Asset.Type == assetObject.GetType().ToString());
         }
 
-        public void SortBundles(BundleSortingMode mode, List<Bundle> bundleList)
+        public void SortBundles(BundleSortingMode mode, List<Bundle> bundleList, BundlePlaform platform)
         {
             switch(mode)
             {
@@ -501,13 +511,13 @@ namespace SocialPoint.TransparentBundles
 
             case BundleSortingMode.SizeDesc:
                 bundleList.Sort(delegate (Bundle b1, Bundle b2) {
-                    return (b2.Size.ToString() + b1.Asset.Name).CompareTo(b1.Size.ToString() + b2.Asset.Name);
+                    return (b2.Size[platform].ToString() + b1.Asset.Name).CompareTo(b1.Size[platform].ToString() + b2.Asset.Name);
                 });
                 break;
 
             case BundleSortingMode.SizeAsc:
                 bundleList.Sort(delegate (Bundle b1, Bundle b2) {
-                    return (b1.Size.ToString() + b1.Asset.Name).CompareTo(b2.Size.ToString() + b2.Asset.Name);
+                    return (b1.Size[platform].ToString() + b1.Asset.Name).CompareTo(b2.Size[platform].ToString() + b2.Asset.Name);
                 });
                 break;
             }
@@ -569,6 +579,7 @@ namespace SocialPoint.TransparentBundles
         TypeDesc,
         NameAsc,
         NameDesc
-
     }
+
+    
 }

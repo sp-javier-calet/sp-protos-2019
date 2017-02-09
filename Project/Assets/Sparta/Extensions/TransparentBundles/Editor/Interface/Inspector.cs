@@ -165,7 +165,7 @@ namespace SocialPoint.TransparentBundles
                 string size = "";
                 if(bundle != null)
                 {
-                    size = "Bundle Size:  " + bundle.Size + " MB";
+                    size = "Bundle Size:  " + bundle.Size[BundlesWindow.CurrentPlatform] + " MB";
                 }
                 GUILayout.Label(size, BundlesWindow.BodyTextStyle);
                 EditorGUILayout.EndHorizontal();
