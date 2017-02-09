@@ -4,19 +4,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEngine.Experimental.Networking;
 
 namespace SocialPoint.TransparentBundles
 {
-    //Dummy window to fix the WWWs never ending in Editor.
-    public class DownloadWindow : EditorWindow { }
     public class Downloader
     {
 
         private static Downloader _instance;
         private static Dictionary<string, Texture2D> _downloadCache;
         private static bool _downloadingBundle = false;
-        private List<WWW> _requests = new List<WWW>();
-        private WWW _mainRequest;
+        private List<UnityWebRequest> _requests = new List<UnityWebRequest>();
         private EditorWindow _sender;
         private List<AssetBundle> _bundlesCache;
         private const float _downloadTimeout = 10f;
@@ -63,20 +61,9 @@ namespace SocialPoint.TransparentBundles
 
             if(_requests.Any(x => !x.isDone))
             {
-                if(_requests.TrueForAll(x => x.progress == 1))
-                {
-                    EditorUtility.ClearProgressBar();
-                    var win = EditorWindow.GetWindow<DownloadWindow>();
-                    win.minSize = new Vector2(1, 1);
-                    win.position = new Rect(0, 0, 1, 1);
-                    win.Close();
-                }
-                else
-                {
-                    float progress = 0;
-                    _requests.ForEach(x => progress += x.progress);
-                    EditorUtility.DisplayProgressBar("Download", "Downloading Bundles", progress / _requests.Count);
-                }
+                float progress = 0;
+                _requests.ForEach(x => progress += x.downloadProgress);
+                EditorUtility.DisplayProgressBar("Download", "Downloading Bundles", progress / _requests.Count);
                 return;
             }
             EditorUtility.ClearProgressBar();
@@ -85,11 +72,11 @@ namespace SocialPoint.TransparentBundles
             {
                 if(i < _requests.Count - 1)
                 {
-                    _requests[i].assetBundle.LoadAllAssets();
+                    ((DownloadHandlerAssetBundle)_requests[i].downloadHandler).assetBundle.LoadAllAssets();
                 }
                 else
                 {
-                    InstantiateBundle(_requests[i].assetBundle);
+                    InstantiateBundle(((DownloadHandlerAssetBundle)_requests[i].downloadHandler).assetBundle);
                 }
             }
         }
@@ -130,7 +117,7 @@ namespace SocialPoint.TransparentBundles
                     break;
             }
 
-            _requests.ForEach(x => x.assetBundle.Unload(false));
+            _requests.ForEach(x => ((DownloadHandlerAssetBundle)x.downloadHandler).assetBundle.Unload(false));
             _downloadingBundle = false;
             _requests.Clear();
         }
@@ -141,11 +128,11 @@ namespace SocialPoint.TransparentBundles
             {
                 _downloadingBundle = true;
 
-                DownloadBundleRecursive(bundle, bundle);
+                DownloadBundleRecursive(bundle);
             }
         }
 
-        public void DownloadBundleRecursive(Bundle bundle, Bundle mainBundle)
+        public void DownloadBundleRecursive(Bundle bundle)
         {
             if(!_requests.Any(x => x.url == bundle.Url))
             {
@@ -156,7 +143,7 @@ namespace SocialPoint.TransparentBundles
                     {
                         if(parent.Url.Length > 0 && parent.Asset.Name.Length > 0)
                         {
-                            DownloadBundleRecursive(parent, mainBundle);
+                            DownloadBundleRecursive(parent);
                         }
                         else
                         {
@@ -167,15 +154,9 @@ namespace SocialPoint.TransparentBundles
 
                 if(bundle.Url.Length > 0 && bundle.Asset.Name.Length > 0)
                 {
-                    if(bundle.Name == mainBundle.Name)
-                    {
-                        _mainRequest = new WWW(bundle.Url);
-                        _requests.Add(_mainRequest);
-                    }
-                    else
-                    {
-                        _requests.Add(new WWW(bundle.Url));
-                    }
+                    var request = UnityWebRequest.GetAssetBundle(bundle.Url);
+                    request.Send();
+                    _requests.Add(request);
                 }
                 else
                 {
