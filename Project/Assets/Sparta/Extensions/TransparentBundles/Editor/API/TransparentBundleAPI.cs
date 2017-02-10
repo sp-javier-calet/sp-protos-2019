@@ -209,6 +209,7 @@ namespace SocialPoint.TransparentBundles
             {
                 var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(url, GetBaseQueryArgs()));
                 request.Method = method;
+                request.Headers.Add(HttpRequestHeader.ContentType, "application/json");
                 var requestData = new AsyncRequestData(request, body, finishedCallback);
                 arguments.SetRequestReport(report);
                 ActionRequest(arguments, requestData);
