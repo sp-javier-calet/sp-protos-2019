@@ -53,14 +53,14 @@ namespace SocialPoint.AssetBundlesClient
 
             _layout.CreateMargin();
 
-            DownloadSceneFoldoutGUI(_layout.CreateFoldoutLayout("DownloadScene"));
-            DownloadAssetFoldoutGUI(_layout.CreateFoldoutLayout("DownloadAsset"));
+            DownloadSceneFoldoutGUI(_layout.CreateFoldoutLayout("DownloadScene", true));
+            DownloadAssetFoldoutGUI(_layout.CreateFoldoutLayout("DownloadAsset", true));
 
             _layout.CreateMargin();
 
-            AddAssetBundlesParsedDataPanel();
-            AddLoadedAssetBundlesPanel();
             AddDownloadingErrorsPanel();
+            AddLoadedAssetBundlesPanel();
+            AddAssetBundlesParsedDataPanel();
         }
 
 
@@ -68,10 +68,10 @@ namespace SocialPoint.AssetBundlesClient
         {
             const string bundleDataJsonId = "bundle_data";
             var bundleDataAttrList = new AttrList();
-            var resource = UnityEngine.Resources.Load(bundleDataJsonId);
+            var resource = Resources.Load(bundleDataJsonId);
             if(resource != null)
             {
-                var textAsset = resource as UnityEngine.TextAsset;
+                var textAsset = resource as TextAsset;
                 if(textAsset != null)
                 {
                     var json = textAsset.text;
@@ -182,7 +182,7 @@ namespace SocialPoint.AssetBundlesClient
                 while(iter.MoveNext())
                 {
                     var item = iter.Current;
-                    content.AppendLine(item.Key + " References: " + item.Value._referencedCount);
+                    content.AppendLine(item.Key + " - References: " + item.Value._referencedCount);
                 }
                 iter.Dispose();
                 _layout.CreateVerticalScrollLayout().CreateTextArea(content.ToString());
@@ -210,7 +210,7 @@ namespace SocialPoint.AssetBundlesClient
 
         void DownloadScene(string sceneName)
         {
-            _assetBundleManager.CoroutineRunner.StartCoroutine(InitializeLevelAsync(sceneName + _sceneSuffix, sceneName, true));
+            _assetBundleManager.CoroutineRunner.StartCoroutine(InitializeLevelAsync(sceneName + _sceneSuffix, sceneName, AssetBundleLoadLevelOperation.LoadSceneBundleMode.Additive));
         }
 
         void DownloadAsset(string prefabName)
@@ -218,22 +218,17 @@ namespace SocialPoint.AssetBundlesClient
             _assetBundleManager.CoroutineRunner.StartCoroutine(InstantiateGameObjectAsync(prefabName + _prefabSuffix, prefabName));
         }
 
-        IEnumerator InitializeLevelAsync(string sceneAssetBundleName, string sceneName, bool isAdditive)
+        IEnumerator InitializeLevelAsync(string sceneAssetBundleName, string sceneName, AssetBundleLoadLevelOperation.LoadSceneBundleMode loadSceneMode)
         {
             // This is simply to get the elapsed time for this phase of AssetLoading.
             float startTime = Time.realtimeSinceStartup;
 
-            // Load level from assetBundle.
-            AssetBundleLoadOperation request = AssetBundleManager.LoadLevelAsync(sceneAssetBundleName, sceneName, isAdditive);
-            if(request == null)
-            {
-                yield break;
-            }
-            yield return _assetBundleManager.CoroutineRunner.StartCoroutine(request);
+            AssetBundleLoadLevelOperation request = null;
+            yield return _assetBundleManager.LoadLevelAsyncRequest(sceneAssetBundleName, sceneName, loadSceneMode, req => request = req);
 
             // Calculate and display the elapsed time.
             float elapsedTime = Time.realtimeSinceStartup - startTime;
-            ConsolePrint("Finished loading scene " + sceneName + " in " + elapsedTime + " seconds");
+            ConsolePrint(string.Format("Scene - {0} - {1} - Time: {2} seconds", sceneName, string.IsNullOrEmpty(request.Error) ? " OK" : request.Error, elapsedTime));
 
             _layout.Refresh();
         }
@@ -243,28 +238,25 @@ namespace SocialPoint.AssetBundlesClient
             // This is simply to get the elapsed time for this phase of AssetLoading.
             float startTime = Time.realtimeSinceStartup;
 
-            // Load asset from assetBundle.
-            AssetBundleLoadAssetOperation request = AssetBundleManager.LoadAssetAsync(assetBundleName, assetName, typeof(GameObject));
-            if(request == null)
-            {
-                yield break;
-            }
-            yield return _assetBundleManager.CoroutineRunner.StartCoroutine(request);
+            AssetBundleLoadAssetOperation request = null;
+            yield return _assetBundleManager.LoadAssetAsyncRequest(assetBundleName, assetName, typeof(GameObject), req => request = req);
 
             // Get the asset.
-            GameObject prefab = request.GetAsset<GameObject>();
-
-            if(prefab != null)
+            GameObject prefab = null;
+            if(request != null)
             {
-                Object.Instantiate(prefab);
+                prefab = request.GetAsset<GameObject>();
+                if(prefab != null)
+                {
+                    Object.Instantiate(prefab);
+                }
             }
 
             // Calculate and display the elapsed time.
             float elapsedTime = Time.realtimeSinceStartup - startTime;
-            ConsolePrint(assetName + (prefab == null ? " was not" : " was") + " loaded successfully in " + elapsedTime + " seconds");
+            ConsolePrint(string.Format("Prefab - {0} - {1} - Time: {2} seconds", assetName, prefab != null ? " OK" : request.Error, elapsedTime));
 
             _layout.Refresh();
-
         }
     }
 }

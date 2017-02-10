@@ -37,7 +37,6 @@ namespace SocialPoint.AppEvents
             UnityAppEvent.WasCovered += action;
             SendMessage(UnityAppEvent, "OnApplicationFocus", true);
             action.ReceivedWithAnyArgs(1).Invoke();
-
         }
 
         [Test]

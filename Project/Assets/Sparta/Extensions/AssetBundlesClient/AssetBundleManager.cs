@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using SocialPoint.Attributes;
@@ -42,7 +43,7 @@ namespace SocialPoint.AssetBundlesClient
     {
         static Dictionary<string, LoadedAssetBundle> _loadedAssetBundles = new Dictionary<string, LoadedAssetBundle>();
         static Dictionary<string, string> _downloadingErrors = new Dictionary<string, string>();
-        static List<string> _downloadingBundles = new List<string>();
+        static readonly List<string> _downloadingBundles = new List<string>();
         static readonly List<AssetBundleLoadOperation> _inProgressOperations = new List<AssetBundleLoadOperation>();
         static AssetBundlesParsedData _assetBundlesParsedData = new AssetBundlesParsedData();
 
@@ -51,14 +52,16 @@ namespace SocialPoint.AssetBundlesClient
         [System.Diagnostics.Conditional("DEBUG_BUNDLES")]
         static void DebugLog(string msg)
         {
-            Log.i(string.Format("[AssetBundleManager] {0}", msg));
+            Log.i("AssetBundleManager", msg);
         }
 
         public const string DefaultServer = "http://s3.amazonaws.com/int-sp-static-content/static";
         public const string DefaultGame = "basegame";
+        public const int DefaultMaxConcurrentDownloads = 2;
 
         public string Server = DefaultServer;
         public string Game = DefaultGame;
+        public int MaxConcurrentDownloads = DefaultMaxConcurrentDownloads;
 
         public ICoroutineRunner CoroutineRunner{ get; set; }
 
@@ -100,9 +103,17 @@ namespace SocialPoint.AssetBundlesClient
                 var itemName = item.Get("name").AsValue.ToString();
                 var itemVersion = item.Get("version").AsValue.ToInt();
 
-                var dependenciesArray = item.Get("dependencies").AsValue.ToString().Split(',');
-                var itemDependencies = (dependenciesArray.Length == 0 || dependenciesArray[0].Equals("null")) ? new List <string>() : new List <string>(dependenciesArray);
-                dependencies.Add(itemName, itemDependencies);
+                var dependenciesList = item.Get("dependencies").AssertList;
+                if(dependenciesList.Count > 0)
+                {
+                    var dependenciesArray = new string[dependenciesList.Count];
+                    for(int j = 0, dependenciesListCount = dependenciesList.Count; j < dependenciesListCount; j++)
+                    {
+                        var dep = dependenciesList[j].AsValue.ToString();
+                        dependenciesArray[j] = dep;
+                    }
+                    dependencies.Add(itemName, new List <string>(dependenciesArray));
+                }
 
                 var assetBundleData = new AssetBundleParsedData(itemName, itemVersion);
                 assetBundlesParsedData.Add(itemName, assetBundleData);
@@ -181,19 +192,21 @@ namespace SocialPoint.AssetBundlesClient
                 return null;
             }
 
-            // No dependencies are recorded, only the bundle itself is required.
             AssetBundleParsedData assetBundleData;
             if(_assetBundlesParsedData.TryGetValue(assetBundleName, out assetBundleData))
             {
                 var dependencies = assetBundleData.Dependencies;
+
+                // No dependencies are recorded, only the bundle itself is required.
                 if(dependencies.Count == 0)
                 {
-                    return null;
+                    return bundle;
                 }
                 var iter = dependencies.GetEnumerator();
                 while(iter.MoveNext())
                 {
                     var dependency = iter.Current;
+
                     if(_downloadingErrors.TryGetValue(dependency.Name, out error))
                     {
                         iter.Dispose();
@@ -251,7 +264,7 @@ namespace SocialPoint.AssetBundlesClient
             }
 
             // @TODO: Do we need to consider the referenced count of WWWs?
-            // In the demo, we never have duplicate WWWs as we wait LoadAssetAsync()/LoadLevelAsync() to be finished before calling another LoadAssetAsync()/LoadLevelAsync().
+            // In the demo, unity never have duplicate WWWs as we wait LoadAssetAsync()/LoadLevelAsync() to be finished before calling another LoadAssetAsync()/LoadLevelAsync().
             // But in the real case, users can call LoadAssetAsync()/LoadLevelAsync() several times then wait them to be finished which might have duplicate WWWs.
             if(_downloadingBundles.Contains(assetBundleName))
             {
@@ -267,6 +280,9 @@ namespace SocialPoint.AssetBundlesClient
             const string slash = "/";
             string url = _baseDownloadingURL + assetBundleData.Version + slash + assetBundleName;
 
+            //@TODO: replace with DownloadHandlerAssetBundle when we all upgrade to unity 5.5
+            // we will need to provide the CRC also..
+            // https://unity3d.com/es/learn/tutorials/topics/best-practices/assetbundle-fundamentals#AssetBundleDownloadHandler
             var download = WWW.LoadFromCacheOrDownload(url, assetBundleData.Version);
 
             _inProgressOperations.Add(new AssetBundleDownloadFromWebOperation(assetBundleName, download));
@@ -366,18 +382,70 @@ namespace SocialPoint.AssetBundlesClient
             }
             else
             {
-                string msg = string.Format("Failed downloading bundle {0} from {1}: {2}",
-                                 download.AssetBundleName, download.GetSourceURL(), download.Error);
-                _downloadingErrors.Add(download.AssetBundleName, msg);
+                if(!_downloadingErrors.ContainsKey(download.AssetBundleName))
+                {
+                    string msg = string.Format("Failed downloading bundle {0} from {1}: {2}",
+                                     download.AssetBundleName, download.GetSourceURL(), download.Error);
+                    _downloadingErrors.Add(download.AssetBundleName, msg);
+                }
             }
 
             _downloadingBundles.Remove(download.AssetBundleName);
         }
 
+        IEnumerator WaitForReady()
+        {
+            while(!Caching.ready)
+            {
+                yield return null;
+            }
+
+            if(_downloadingBundles.Count > MaxConcurrentDownloads)
+            {
+                yield return null;
+            }
+        }
+
+        public IEnumerator LoadAssetAsyncRequest(string assetBundleName, string assetName, Type type, Action<AssetBundleLoadAssetOperation> onRequestChanged)
+        {
+            yield return WaitForReady();
+
+            // Load asset from assetBundle.
+            AssetBundleLoadAssetOperation request = LoadAssetAsync(assetBundleName, assetName, type);
+            if(request == null)
+            {
+                yield break;
+            }
+            yield return CoroutineRunner.StartCoroutine(request);
+
+            if(onRequestChanged != null)
+            {
+                onRequestChanged(request);
+            }
+        }
+
+        public IEnumerator LoadLevelAsyncRequest(string assetBundleName, string levelName, AssetBundleLoadLevelOperation.LoadSceneBundleMode loadSceneMode, Action<AssetBundleLoadLevelOperation> onRequestChanged)
+        {
+            yield return WaitForReady();
+
+            // Load level from assetBundle.
+            AssetBundleLoadLevelOperation request = LoadLevelAsync(assetBundleName, levelName, loadSceneMode);
+            if(request == null)
+            {
+                yield break;
+            }
+            yield return CoroutineRunner.StartCoroutine(request);
+
+            if(onRequestChanged != null)
+            {
+                onRequestChanged(request);
+            }
+        }
+
         /// <summary>
         /// Starts a load operation for an asset from the given asset bundle.
         /// </summary>
-        public static AssetBundleLoadAssetOperation LoadAssetAsync(string assetBundleName, string assetName, Type type)
+        static AssetBundleLoadAssetOperation LoadAssetAsync(string assetBundleName, string assetName, Type type)
         {
             DebugLog("Loading " + assetName + " from " + assetBundleName + " bundle");
 
@@ -392,12 +460,12 @@ namespace SocialPoint.AssetBundlesClient
         /// <summary>
         /// Starts a load operation for a level from the given asset bundle.
         /// </summary>
-        public static AssetBundleLoadOperation LoadLevelAsync(string assetBundleName, string levelName, bool isAdditive)
+        static AssetBundleLoadLevelOperation LoadLevelAsync(string assetBundleName, string levelName, AssetBundleLoadLevelOperation.LoadSceneBundleMode loadSceneMode)
         {
             DebugLog("Loading " + levelName + " from " + assetBundleName + " bundle");
 
             LoadAssetBundle(assetBundleName);
-            var operation = new AssetBundleLoadLevelOperation(assetBundleName, levelName, isAdditive);
+            var operation = new AssetBundleLoadLevelOperation(assetBundleName, levelName, loadSceneMode);
 
             _inProgressOperations.Add(operation);
 
