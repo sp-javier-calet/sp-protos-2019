@@ -61,7 +61,7 @@ namespace SocialPoint.TransparentBundles
 
             GUILayout.FlexibleSpace();
 
-            GUI.enabled = !string.IsNullOrEmpty(_loginUser) && !string.IsNullOrEmpty(_config.project);
+            GUI.enabled = !string.IsNullOrEmpty(_loginUser) && !string.IsNullOrEmpty(_project);
 
             if(GUILayout.Button("Save And Login"))
             {
