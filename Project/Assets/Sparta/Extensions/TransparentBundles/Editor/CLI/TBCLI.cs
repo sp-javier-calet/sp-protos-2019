@@ -96,6 +96,7 @@ namespace SocialPoint.TransparentBundles
             public class BundleInfoOutput
             {
                 public string Name;
+                public uint CRC;
                 public long Size;
                 public string Hash;
             }
@@ -203,6 +204,7 @@ namespace SocialPoint.TransparentBundles
                 foreach(string bundleName in manifest.GetAllAssetBundles())
                 {
                     var bundlePath = Path.Combine(input.BundlesPath, bundleName);
+                    var bundleManifestPath = bundlePath + ".manifest";
 
                     var bundleInfo = new BuildBundlesOutput.BundleInfoOutput();
                     typedOutput.Bundles.Add(bundleInfo);
@@ -211,6 +213,26 @@ namespace SocialPoint.TransparentBundles
                     var fileInfo = new FileInfo(bundlePath);
                     bundleInfo.Size = fileInfo.Length;
                     bundleInfo.Hash = manifest.GetAssetBundleHash(bundleName).ToString();
+
+                    using(var reader = File.OpenText(bundleManifestPath))
+                    {
+                        bool keepReading = true;
+
+                        while(keepReading)
+                        {
+                            var line = reader.ReadLine();
+
+                            if(line == null)
+                            {
+                                keepReading = false;
+                            }
+                            else if(line.Contains("CRC: "))
+                            {
+                                bundleInfo.CRC = uint.Parse(line.Replace("CRC: ", ""));
+                                keepReading = false;
+                            }
+                        }
+                    }
                 }
             }
             else
