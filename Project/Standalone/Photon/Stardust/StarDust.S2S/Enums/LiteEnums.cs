@@ -74,5 +74,7 @@ namespace Photon.Stardust.S2S.Server.Enums
         public const byte SuppressRoomEvents = 237;
 
         public const byte JoinMode = 215;
+
+        public const byte Plugin = 204;
     }
 }

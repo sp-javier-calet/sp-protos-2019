@@ -7,5 +7,6 @@ C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\Plugins
 C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\LockstepSparta\bin\Sparta.dll
 C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\LockstepSparta\bin\Sparta.pdb
 C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\LockstepSparta\bin\Ionic.Zlib.CF.dll
+C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\LockstepSparta\obj\Debug\LockstepSparta.csprojResolveAssemblyReference.cache
 C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\LockstepSparta\obj\Debug\Sparta.dll
 C:\Users\ihernadez\Documents\sp-unity-BaseGame\Project\Standalone\Sparta\LockstepSparta\obj\Debug\Sparta.pdb

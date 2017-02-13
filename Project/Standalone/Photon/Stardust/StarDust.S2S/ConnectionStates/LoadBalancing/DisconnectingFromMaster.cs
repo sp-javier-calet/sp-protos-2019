@@ -101,7 +101,7 @@ namespace Photon.Stardust.S2S.Server.ConnectionStates.LoadBalancing
             }
         }
 
-        public override void OnUpdate(ClientConnection client)
+        public override void OnUpdate(ClientConnection client, int elapsedMiliSeconds)
         {
             client.EnqueueUpdate();
         }

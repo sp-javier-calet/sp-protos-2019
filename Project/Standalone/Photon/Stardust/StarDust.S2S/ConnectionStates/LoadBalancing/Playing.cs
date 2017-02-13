@@ -146,10 +146,14 @@ namespace Photon.Stardust.S2S.Server.ConnectionStates.LoadBalancing
         /// <param name = "client">
         ///   The client.
         /// </param>
-        public override void OnUpdate(ClientConnection client)
+        public override void OnUpdate(ClientConnection client, int elapsedMiliSeconds)
         {
             // client.PeerService();
             client.EnqueueUpdate();
+            if (client.GameClient != null)
+            {
+                client.GameClient.Update(elapsedMiliSeconds);
+            }
         }
 
         #endregion

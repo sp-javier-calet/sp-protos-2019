@@ -72,13 +72,16 @@ namespace Photon.Stardust.S2S.Server.ConnectionStates.LoadBalancing
         public void OpCreateGame(ClientConnection client)
         {
             var gameProperties = new Hashtable();
-            gameProperties[(byte)LoadBalancingGameCode.MaxPlayer] = Settings.NumClientsPerGame; 
+            gameProperties[(byte)LoadBalancingGameCode.MaxPlayer] = Settings.NumClientsPerGame;
+
+            var plugin = new string[] { Settings.PluginName };
 
             var data = new Dictionary<byte, object>
                 {
                     { (byte)LoadBalancingParameterCode.GameId, client.GameName },
                     { (byte)LiteOpKey.GameProperties, gameProperties },
-                    { (byte)LiteOpKey.JoinMode, (byte)1}
+                    { (byte)LiteOpKey.JoinMode, (byte)1},
+                    { (byte)LiteOpKey.Plugin, plugin}
                 };
 
             client.Peer.SendOperationRequest(new OperationRequest(
@@ -98,11 +101,14 @@ namespace Photon.Stardust.S2S.Server.ConnectionStates.LoadBalancing
             var gameProperties = new Hashtable();
             gameProperties[(byte)LoadBalancingGameCode.MaxPlayer] = Settings.NumClientsPerGame;
 
+            var plugin = new string[] { Settings.PluginName };
+
             var data = new Dictionary<byte, object>
                 {
                     { (byte)LoadBalancingParameterCode.GameId, client.GameName },
                     { (byte)LiteOpKey.GameProperties, gameProperties },
-                    { (byte)LiteOpKey.JoinMode, (byte)1}
+                    { (byte)LiteOpKey.JoinMode, (byte)1},
+                    { (byte)LiteOpKey.Plugin, plugin}
                 };
 
             client.Peer.SendOperationRequest(new OperationRequest(
@@ -156,7 +162,7 @@ namespace Photon.Stardust.S2S.Server.ConnectionStates.LoadBalancing
         /// <param name="client">
         /// The client.
         /// </param>
-        public override void OnUpdate(ClientConnection client)
+        public override void OnUpdate(ClientConnection client, int elapsedMiliSeconds)
         {
             client.EnqueueUpdate();
         }

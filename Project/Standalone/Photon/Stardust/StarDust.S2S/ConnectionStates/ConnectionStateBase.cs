@@ -9,6 +9,7 @@
 
 namespace Photon.Stardust.S2S.Server.ConnectionStates
 {
+    using System;
     using ExitGames.Logging;
 
     using Photon.SocketServer;
@@ -38,7 +39,7 @@ namespace Photon.Stardust.S2S.Server.ConnectionStates
 
         
 
-        public virtual void OnUpdate(ClientConnection client)
+        public virtual void OnUpdate(ClientConnection client, int elapsedMiliSeconds)
         {
 
         }

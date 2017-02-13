@@ -20,7 +20,7 @@ namespace Photon.Stardust.S2S.Server.ConnectionStates
 
         void OnPeerStatusCallback(ClientConnection client, DisconnectReason returnCode);
 
-        void OnUpdate(ClientConnection client);
+        void OnUpdate(ClientConnection client, int elapsedMiliSeconds);
 
         ///<summary>
         /// Tear down the application and stop all clients. 

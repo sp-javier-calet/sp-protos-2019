@@ -69,6 +69,8 @@ namespace Photon.Stardust.S2S.Server
 
         public static string ApplicationId = ConfigurationManager.AppSettings["ApplicationId"];
 
+        public static string PluginName = ConfigurationManager.AppSettings["PluginName"];
+
         public static int StartupInterval = int.Parse(ConfigurationManager.AppSettings["StartupInterval"]);
         
         public static int UnreliableDataSendInterval =

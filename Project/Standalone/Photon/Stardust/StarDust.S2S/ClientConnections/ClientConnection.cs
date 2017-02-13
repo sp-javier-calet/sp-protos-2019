@@ -25,11 +25,14 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
     using Photon.Stardust.S2S.Server.ConnectionStates.LoadBalancing;
     using Photon.Stardust.S2S.Server.Diagnostics;
     using Photon.Stardust.S2S.Server.Enums;
+    using SocialPoint.Network;
 
     public class ClientConnection 
     {
         #region Constants and Fields
-        
+
+        public const int UpdateMS = 5;
+
         public const int MaxMatchmakingRetries = 10;
 
         public int MatchmakingRetryCount = 0;
@@ -66,6 +69,10 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
 
         protected Random random = new Random();
 
+        private INetworkClient _stardutsClient;
+
+        public IGameClient GameClient;
+
         #endregion
 
         #region Constructors and Destructors
@@ -88,6 +95,13 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
             this.State = Disconnected.Instance;
             this.Fiber = new PoolFiber(new FailSafeBatchExecutor());
             this.Fiber.Start();
+            //TODO: create GameClient
+            //GameClient = new DragonStadiumClient();
+            if (GameClient != null)
+            {
+                _stardutsClient = new StardustNetworkClient(this);
+                GameClient.SetUp(_stardutsClient);
+            }
         }
 
         #endregion
@@ -137,7 +151,7 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
 
         public void EnqueueUpdate()
         {
-            this.Fiber.Schedule(this.Update, 5);
+            this.Fiber.Schedule(this.Update, UpdateMS);
         }
 
         public void OnEncryptionEstablished()
@@ -223,7 +237,7 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
         /// </summary>
         public void Update()
         {
-            this.State.OnUpdate(this);
+            this.State.OnUpdate(this, UpdateMS);
         }
         #endregion
 
