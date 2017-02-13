@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -26,6 +27,8 @@ namespace SocialPoint.AssetBundlesClient
         public abstract bool Update();
 
         public abstract bool IsDone();
+
+        public string Error { get; protected set; }
     }
 
     public abstract class AssetBundleDownloadOperation : AssetBundleLoadOperation
@@ -35,8 +38,6 @@ namespace SocialPoint.AssetBundlesClient
         public string AssetBundleName { get; private set; }
 
         public LoadedAssetBundle AssetBundle { get; protected set; }
-
-        public string Error { get; protected set; }
 
         protected abstract bool downloadIsDone { get; }
 
@@ -75,7 +76,7 @@ namespace SocialPoint.AssetBundlesClient
         {
             if(www == null)
             {
-                throw new System.ArgumentNullException("www");
+                throw new ArgumentNullException("www");
             }
             _Url = www.url;
             _WWW = www;
@@ -113,17 +114,27 @@ namespace SocialPoint.AssetBundlesClient
 
     public class AssetBundleLoadLevelOperation : AssetBundleLoadOperation
     {
+        public enum LoadSceneBundleMode
+        {
+            OnlyDownload,
+            Single,
+            Additive
+        }
+
+        const string LoadingErrorDescription = "LoadSceneAsync loading failed.";
+
         protected string _assetBundleName;
         protected string _levelName;
-        protected bool _isAdditive;
+        protected LoadSceneBundleMode _loadSceneMode;
         protected string _downloadingError;
+        protected string _loadingError;
         protected AsyncOperation _request;
 
-        public AssetBundleLoadLevelOperation(string assetbundleName, string levelName, bool isAdditive)
+        public AssetBundleLoadLevelOperation(string assetbundleName, string levelName, LoadSceneBundleMode loadSceneMode)
         {
             _assetBundleName = assetbundleName;
             _levelName = levelName;
-            _isAdditive = isAdditive;
+            _loadSceneMode = loadSceneMode;
         }
 
         public override bool Update()
@@ -134,9 +145,27 @@ namespace SocialPoint.AssetBundlesClient
             }
 
             LoadedAssetBundle bundle = AssetBundleManager.GetLoadedAssetBundle(_assetBundleName, out _downloadingError);
+            if(!string.IsNullOrEmpty(_downloadingError))
+            {
+                Error = _downloadingError;
+                return false;
+            }
             if(bundle != null)
             {
-                _request = SceneManager.LoadSceneAsync(_levelName, _isAdditive ? LoadSceneMode.Additive : LoadSceneMode.Single);
+                switch(_loadSceneMode)
+                {
+                case LoadSceneBundleMode.Additive:
+                    _request = SceneManager.LoadSceneAsync(_levelName, LoadSceneMode.Additive);
+                    break;
+                case LoadSceneBundleMode.Single:
+                    _request = SceneManager.LoadSceneAsync(_levelName, LoadSceneMode.Single);
+                    break;
+                }
+                if(_request == null)
+                {
+                    _loadingError = LoadingErrorDescription;
+                    Error = _loadingError;
+                }
                 return false;
             }
             return true;
@@ -146,9 +175,8 @@ namespace SocialPoint.AssetBundlesClient
         {
             // Return if meeting downloading error.
             // _downloadingError might come from the dependency downloading.
-            if(_request == null && _downloadingError != null)
+            if(_request == null && Error != null)
             {
-                Debug.LogError(_downloadingError);
                 return true;
             }
 
@@ -158,18 +186,21 @@ namespace SocialPoint.AssetBundlesClient
 
     public abstract class AssetBundleLoadAssetOperation : AssetBundleLoadOperation
     {
-        public abstract T GetAsset<T>() where T: Object;
+        public abstract T GetAsset<T>() where T: UnityEngine.Object;
     }
 
     public class AssetBundleLoadAssetOperationFull : AssetBundleLoadAssetOperation
     {
+        const string LoadingErrorDescription = "LoadAssetAsync loading failed.";
+
         protected string _assetBundleName;
         protected string _assetName;
         protected string _downloadingError;
-        protected System.Type _type;
+        protected string _loadingError;
+        protected Type _type;
         protected AssetBundleRequest _request;
 
-        public AssetBundleLoadAssetOperationFull(string bundleName, string assetName, System.Type type)
+        public AssetBundleLoadAssetOperationFull(string bundleName, string assetName, Type type)
         {
             _assetBundleName = bundleName;
             _assetName = assetName;
@@ -194,10 +225,19 @@ namespace SocialPoint.AssetBundlesClient
             }
 
             LoadedAssetBundle bundle = AssetBundleManager.GetLoadedAssetBundle(_assetBundleName, out _downloadingError);
+            if(!string.IsNullOrEmpty(_downloadingError))
+            {
+                Error = _downloadingError;
+                return false;
+            }
             if(bundle != null)
             {
-                ///@TODO: When asset bundle download fails this throws an exception...
                 _request = bundle._assetBundle.LoadAssetAsync(_assetName, _type);
+                if(_request == null)
+                {
+                    _loadingError = LoadingErrorDescription;
+                    Error = _loadingError;
+                }
                 return false;
             }
             return true;
@@ -207,11 +247,11 @@ namespace SocialPoint.AssetBundlesClient
         {
             // Return if meeting downloading error.
             // _downloadingError might come from the dependency downloading.
-            if(_request == null && _downloadingError != null)
+            if(_request == null && Error != null)
             {
-                Debug.LogError(_downloadingError);
                 return true;
             }
+
             return _request != null && _request.isDone;
         }
     }

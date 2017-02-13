@@ -3,22 +3,22 @@
         {
             "name": "prefab_1_prefab",
             "version": 1,
-            "dependencies": "texture_1_png"
+            "dependencies": ["texture_1_png"]
         },
         {
             "name": "texture_1_png",
             "version": 1,
-            "dependencies": "null"
+            "dependencies": []
         },
         {
             "name": "test_scene_unity",
             "version": 1,
-            "dependencies": "prefab_1_prefab"
+            "dependencies": ["prefab_1_prefab", "texture_1_png"]
         },
         {
             "name": "test_scene_2_unity",
             "version": 1,
-            "dependencies": "prefab_1_prefab"
+            "dependencies": ["prefab_1_prefab"]
         }
     ]
 }
