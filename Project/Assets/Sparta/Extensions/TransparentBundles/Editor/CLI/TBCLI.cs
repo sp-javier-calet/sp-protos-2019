@@ -98,6 +98,7 @@ namespace SocialPoint.TransparentBundles
                 public string Name;
                 public uint CRC;
                 public long Size;
+                public string Hash;
             }
 
             public List<BundleInfoOutput> Bundles = new List<BundleInfoOutput>();
@@ -211,6 +212,7 @@ namespace SocialPoint.TransparentBundles
                     bundleInfo.Name = bundleName;
                     var fileInfo = new FileInfo(bundlePath);
                     bundleInfo.Size = fileInfo.Length;
+                    bundleInfo.Hash = manifest.GetAssetBundleHash(bundleName).ToString();
 
                     using(var reader = File.OpenText(bundleManifestPath))
                     {
