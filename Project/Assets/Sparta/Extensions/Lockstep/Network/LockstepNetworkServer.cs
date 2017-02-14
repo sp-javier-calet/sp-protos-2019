@@ -28,10 +28,12 @@ namespace SocialPoint.Lockstep
         public const byte DefaultMaxPlayers = 2;
         public const int DefaultClientStartDelay = 3000;
         public const int DefaultClientSimulationDelay = 1000;
+        public const bool DefaultFinishOnClientDisconnection = true;
 
         public byte MaxPlayers = DefaultMaxPlayers;
         public int ClientStartDelay = DefaultClientStartDelay;
         public int ClientSimulationDelay = DefaultClientSimulationDelay;
+        public bool FinishOnClientDisconnection = DefaultFinishOnClientDisconnection;
 
         public override string ToString()
         {
@@ -381,10 +383,7 @@ namespace SocialPoint.Lockstep
                 for(var i = 0; i < _clients.Count; i++)
                 {
                     var client = _clients[i];
-                    if(client.Ready)
-                    {
-                        ids[client.PlayerNumber] = client.PlayerId;
-                    }
+                    ids[client.PlayerNumber] = client.PlayerId;
                 }
                 if(_localClient != null && _localClientData.Ready)
                 {
@@ -679,6 +678,10 @@ namespace SocialPoint.Lockstep
                 client.Ready = false;
 
                 SendClientStatusMessage(client, false);
+            }
+            if(ServerConfig.FinishOnClientDisconnection)
+            {
+                CheckAllPlayersEnded();
             }
         }
 
