@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
+using SocialPoint.IO;
 using UnityEngine;
 
 namespace SocialPoint.AssetBundlesClient
@@ -66,19 +68,14 @@ namespace SocialPoint.AssetBundlesClient
 
         static AttrList GetBundleDataAttrList()
         {
-            const string bundleDataJsonId = "bundle_data";
-            var bundleDataAttrList = new AttrList();
-            var resource = Resources.Load(bundleDataJsonId);
-            if(resource != null)
-            {
-                var textAsset = resource as TextAsset;
-                if(textAsset != null)
-                {
-                    var json = textAsset.text;
-                    var bundlesAttrDic = new JsonAttrParser().ParseString(json).AssertDic;
-                    bundleDataAttrList = bundlesAttrDic.Get(bundleDataJsonId).AssertList;
-                }
-            }
+            const string bundleDataFile = "bundle_data.json";
+            const string bundleDataKey = "bundle_data";
+
+            string jsonPath = Path.Combine(Application.streamingAssetsPath, bundleDataFile);
+            string json = FileUtils.ReadAllText(jsonPath);
+
+            var bundlesAttrDic = new JsonAttrParser().ParseString(json).AssertDic;
+            var bundleDataAttrList = bundlesAttrDic.Get(bundleDataKey).AssertList;
             return bundleDataAttrList;
         }
 
