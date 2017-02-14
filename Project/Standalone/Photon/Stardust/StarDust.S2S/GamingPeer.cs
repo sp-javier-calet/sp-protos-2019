@@ -80,7 +80,10 @@ namespace Photon.Stardust.S2S.Server
             if (eventData.Parameters.ContainsKey(LiteOpKey.Data))
             {
                 var stream = new MemoryStream((byte[])eventData.Parameters[LiteOpKey.Data]);
-                _receiver.OnMessageReceived(new NetworkMessageData { MessageType = eventData.Code }, new SystemBinaryReader(stream));
+                if (_receiver != null)
+                {
+                    _receiver.OnMessageReceived(new NetworkMessageData { MessageType = eventData.Code }, new SystemBinaryReader(stream));
+                }
             }
         }
 

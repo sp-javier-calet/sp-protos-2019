@@ -26,6 +26,9 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
     using Photon.Stardust.S2S.Server.Diagnostics;
     using Photon.Stardust.S2S.Server.Enums;
     using SocialPoint.Network;
+    using SocialPoint.Utils;
+    using System.IO;
+    using System.Reflection;
 
     public class ClientConnection 
     {
@@ -69,10 +72,11 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
 
         protected Random random = new Random();
 
-        private INetworkClient _stardutsClient;
+        INetworkClient _stardutsClient;
 
         public IGameClient GameClient;
 
+        public UpdateScheduler Scheduler;
         #endregion
 
         #region Constructors and Destructors
@@ -95,12 +99,22 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
             this.State = Disconnected.Instance;
             this.Fiber = new PoolFiber(new FailSafeBatchExecutor());
             this.Fiber.Start();
-            //TODO: create GameClient
-            //GameClient = new DragonStadiumClient();
-            if (GameClient != null)
+            if (Settings.GameType != string.Empty && Settings.GameAssembly != string.Empty)
             {
-                _stardutsClient = new StardustNetworkClient(this);
-                GameClient.SetUp(_stardutsClient);
+                try
+                {
+                    GameClient = (IGameClient)CreateInstanceFromAssembly(Settings.GameAssembly, Settings.GameType);
+                    if (GameClient != null)
+                    {
+                        _stardutsClient = new StardustNetworkClient(this);
+                        Scheduler = new UpdateScheduler();
+                        GameClient.SetUp(_stardutsClient, Scheduler);
+                    }
+                }
+                catch (Exception e)
+                {
+
+                }
             }
         }
 
@@ -537,6 +551,14 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
                 this.counterTimer.Dispose();
                 this.counterTimer = null;
             }
+        }
+
+        protected object CreateInstanceFromAssembly(string assemblyName, string typeName)
+        {
+            var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var path = Path.Combine(dir, assemblyName);
+            var gameType = Assembly.LoadFile(path).GetType(typeName);
+            return Activator.CreateInstance(gameType);
         }
 
         #endregion

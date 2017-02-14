@@ -7,9 +7,9 @@ using System.Text;
 
 namespace Photon.Stardust.S2S.Server
 {
-    public interface IGameClient : IDeltaUpdateable
+    public interface IGameClient
     {
-        void SetUp(INetworkClient client);
+        void SetUp(INetworkClient client, IUpdateScheduler scheduler);
         void Start();
     }
 }

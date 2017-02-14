@@ -79,6 +79,10 @@ namespace Photon.Stardust.S2S.Server
 
         public static byte LobbyType = byte.Parse(ConfigurationManager.AppSettings["LobbyType"]);
 
+        public static string GameAssembly = ConfigurationManager.AppSettings["GameAssembly"];
+
+        public static string GameType = ConfigurationManager.AppSettings["GameType"];
+
         #endregion
     }
 }

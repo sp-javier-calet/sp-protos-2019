@@ -152,7 +152,7 @@ namespace Photon.Stardust.S2S.Server.ConnectionStates.LoadBalancing
             client.EnqueueUpdate();
             if (client.GameClient != null)
             {
-                client.GameClient.Update(elapsedMiliSeconds);
+                client.Scheduler.Update(elapsedMiliSeconds / 1000f);
             }
         }
 
