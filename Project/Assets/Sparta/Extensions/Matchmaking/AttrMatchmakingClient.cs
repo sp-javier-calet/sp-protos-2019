@@ -8,7 +8,6 @@ namespace SocialPoint.Matchmaking
     public class LogicGenericDataMatchStorage : IMatchStorage
     {
         AttrDic _matchData;
-        Match _match;
 
         public LogicGenericDataMatchStorage(AttrDic matchData)
         {
@@ -37,13 +36,11 @@ namespace SocialPoint.Matchmaking
 
         public void Save(Match match)
         {
-            _match = match;
         }
 
         public void Clear()
         {
             _matchData = null;
-            _match = default(Match);
         }
     }
 
