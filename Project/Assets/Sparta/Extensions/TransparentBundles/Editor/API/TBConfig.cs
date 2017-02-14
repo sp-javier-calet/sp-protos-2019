@@ -4,9 +4,10 @@ using UnityEngine;
 
 namespace SocialPoint.TransparentBundles
 {
+    [System.Serializable]
     public class TBConfig : ScriptableObject
     {
-        public string project = null;
+        public string project = "";
         private const string _configDefaultPath = "Assets/Sparta/Config/TransparentBundles/TBConfig.asset";
 
         /// <summary>

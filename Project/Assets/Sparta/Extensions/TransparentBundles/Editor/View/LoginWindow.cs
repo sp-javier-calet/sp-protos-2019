@@ -68,7 +68,8 @@ namespace SocialPoint.TransparentBundles
                 if(_config.project != _project)
                 {
                     _config.project = _project;
-                    AssetDatabase.SaveAssets();
+                    EditorUtility.SetDirty(_config);
+                    AssetDatabase.Refresh();
                 }
 
                 EditorPrefs.SetString(LOGIN_PREF_KEY, _loginUser);
