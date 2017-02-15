@@ -1,13 +1,10 @@
-﻿using SocialPoint.Login;
-using SocialPoint.Network;
-using SocialPoint.Base;
-using SocialPoint.Attributes;
-using SocialPoint.IO;
-using SocialPoint.Utils;
-using SocialPoint.Social;
-using SocialPoint.WAMP.Caller;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.Connection;
+using SocialPoint.Login;
+using SocialPoint.WAMP.Caller;
 
 namespace SocialPoint.Matchmaking
 {
@@ -137,7 +134,7 @@ namespace SocialPoint.Matchmaking
 
         void OnWampNotificationReceived(int type, string topic, AttrDic attr)
         {
-            if(type == SuccessNotification)
+            if(type == NotificationType.MatchmakingSuccessNotification)
             {
                 var match = new Match {
                     Id = attr.GetValue(MatchIdAttrKey).ToString(),

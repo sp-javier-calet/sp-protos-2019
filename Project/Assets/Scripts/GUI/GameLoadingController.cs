@@ -7,6 +7,7 @@ using SocialPoint.Dependency;
 using SocialPoint.GameLoading;
 using SocialPoint.Locale;
 using SocialPoint.Login;
+using SocialPoint.Social;
 using SocialPoint.Utils;
 using UnityEngine;
 
@@ -30,6 +31,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     const float ExpectedLoadSceneDuration = 2.0f;
 
     AssetBundleManager _assetBundleManager;
+    SocialManager _socialManager;
 
     protected override void OnLoad()
     {
@@ -38,10 +40,10 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         Localization = Services.Instance.Resolve<Localization>();
         AppEvents = Services.Instance.Resolve<IAppEvents>();
         ErrorHandler = Services.Instance.Resolve<IGameErrorHandler>();
+        _assetBundleManager = Services.Instance.Resolve<AssetBundleManager>();
+        _socialManager = Services.Instance.Resolve<SocialManager>();
         _coroutineRunner = Services.Instance.Resolve<ICoroutineRunner>();
         _gameLoader = Services.Instance.Resolve<IGameLoader>();
-
-        _assetBundleManager = Services.Instance.Resolve<AssetBundleManager>();
 
         #if ADMIN_PANEL
         _adminPanel = Services.Instance.Resolve<AdminPanel>();
@@ -96,10 +98,19 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         var data = reader.ParseElement();
         _gameLoader.Load(data);
 
+        ParseSFLocalPlayerData(data);
         ParseBundleData(data);
 
         _loadModelOperation.Finish("game model loaded");
         return true;
+    }
+
+    void ParseSFLocalPlayerData(Attr data)
+    {
+        if(_socialManager != null)
+        {
+            _socialManager.SetLocalPlayerData(data.AsDic, Services.Instance.Resolve<IPlayerData>());
+        }
     }
 
     void ParseBundleData(Attr data)

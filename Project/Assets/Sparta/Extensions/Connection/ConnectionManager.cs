@@ -12,17 +12,8 @@ using SocialPoint.WAMP.Caller;
 using SocialPoint.WAMP.Publisher;
 using SocialPoint.WAMP.Subscriber;
 
-namespace SocialPoint.Social
+namespace SocialPoint.Connection
 {
-    public class ConnectionManagerConfig
-    {
-        public float PingInterval = 10.0f;
-        public float ReconnectInterval = 10.0f;
-
-        public int RPCRetries = 1;
-        public float RPCTimeout = 1.0f;
-    }
-
     public static class NotificationType
     {
         public const int ChatWarning = 99;
@@ -36,7 +27,7 @@ namespace SocialPoint.Social
         public const int NotificationAlliancePlayerAutoPromote = 109;
         public const int NotificationAlliancePlayerAutoDemote = 110;
         public const int NotificationUserChatBan = 307;
-        
+
         // Alliance notifications
         public const int BroadcastAllianceMemberAccept = 101;
         public const int BroadcastAllianceJoin = 102;
@@ -46,45 +37,40 @@ namespace SocialPoint.Social
         public const int BroadcastAllianceMemberPromote = 106;
         public const int BroadcastAllianceMemberRankChange = 111;
         public const int BroadcastAllianceOnlineMember = 308;
+
+        //Matchmaking notifications
+        public const int MatchmakingSuccessNotification = 502;
+        public const int MatchmakingTimeoutNotification = 503;
+
+        public const int MaxValue = 1000;
+    }
+
+    public class ConnectionManagerConfig
+    {
+        public float PingInterval = 10.0f;
+        public float ReconnectInterval = 10.0f;
+
+        public int RPCRetries = 1;
+        public float RPCTimeout = 1.0f;
     }
 
     public class ConnectionManager : INetworkClientDelegate, IDisposable
     {
         #region Attr keys
 
-        public const string ResultKey = "result";
+        //Alliances & Connection
         public const string ServicesKey = "services";
-        public const string ChatServiceKey = "chat";
-        public const string NotificationsServiceKey = "notification";
-        public const string MatchmakingServicesKey = "matchmaking";
-        public const string TeamWarKey = "team_war";
+
+        //Chat & Connection
         public const string TopicsKey = "topics";
-        public const string PendingKey = "pending";
-
-        public const string IdTopicKey = "id";
         public const string SubscriptionIdTopicKey = "subscription_id";
-        public const string TypeTopicKey = "type";
-        public const string NameTopicKey = "name";
-        public const string HistoryTopicKey = "history";
-        public const string TopicMembersKey = "topic_members";
-        public const string TopicTotalMembersKey = "total_members";
-
         public const string NotificationTypeKey = "type";
+
+        //Connection
+        public const string NotificationsServiceKey = "notification";
+        public const string PendingKey = "pending";
         public const string NotificationPayloadKey = "payload";
-        public const string ChatMessageInfoKey = "message_info";
-        public const string NotificationIdKey = "notification_id";
-
-        public const string ChatMessageUuidKey = "id";
-        public const string ChatMessageUserIdKey = "uid";
-        public const string ChatMessageUserNameKey = "uname";
-        public const string ChatMessageTsKey = "ts";
-        public const string ChatMessageTextKey = "msg";
-        public const string ChatMessageLevelKey = "lvl";
-        public const string ChatMessageAllyNameKey = "ally_name";
-        public const string ChatMessageAllyIdKey = "ally_id";
-        public const string ChatMessageAllyAvatarKey = "ally_avatar";
-        public const string ChatMessageAllyRoleKey = "ally_role";
-
+       
         #endregion
 
         const string NotificationTopicType = "notification";
@@ -131,25 +117,6 @@ namespace SocialPoint.Social
         public event Action<Error> OnRPCError;
         public event NotificationReceivedDelegate OnNotificationReceived;
         public event NotificationReceivedDelegate OnPendingNotification;
-
-        ChatManager _chatManager;
-
-        public ChatManager ChatManager
-        {
-            get
-            {
-                return _chatManager;
-            }
-            set
-            {
-                if(_chatManager != null && _chatManager != null && _chatManager != value)
-                {
-                    throw new Exception("ConnectionManager is already bound to a different instance of Chat Manager");
-
-                }
-                _chatManager = value;
-            }
-        }
 
         ConnectionManagerConfig _config;
 
@@ -259,12 +226,10 @@ namespace SocialPoint.Social
                 _connection.Debug = value;
             }
         }
-
-        public AlliancesManager AlliancesManager { get; set; }
-
+            
         public ILoginData LoginData { get; set; }
 
-        public IPlayerData PlayerData { get; set; }
+        public SocialPoint.Social.IPlayerData PlayerData { get; set; }
 
         public Localization Localization { get; set; }
 
@@ -360,11 +325,6 @@ namespace SocialPoint.Social
                 _connection.AbortJoining();
             }
 
-            if(_chatManager != null)
-            {
-                _chatManager.ClearAllSubscriptions();
-            }
-
             UnschedulePing();
             _state = ConnectionState.Disconnected;
         }
@@ -372,10 +332,6 @@ namespace SocialPoint.Social
         void ResetState()
         {
             _state = ConnectionState.Disconnected;
-            if(_chatManager != null)
-            {
-                _chatManager.ClearAllSubscriptions();
-            }
         }
 
         void SchedulePing()
@@ -512,11 +468,6 @@ namespace SocialPoint.Social
             }
 
             var servicesDic = dic.Get(ServicesKey).AsDic;
-
-            if(_chatManager != null && servicesDic.ContainsKey(ChatServiceKey))
-            {
-                _chatManager.ProcessChatServices(servicesDic.Get(ChatServiceKey).AsDic);
-            }
 
             if(servicesDic.ContainsKey(NotificationsServiceKey))
             {
