@@ -43,6 +43,7 @@ namespace AssetBundleGraph {
 			var validator = ValidatorUtility.CreateValidator(node, target);
 			UnityEngine.Assertions.Assert.IsNotNull(validator);
 
+			List<Asset> assetsToRemove = new List<Asset>();
 			foreach(var asset in incomingAssets) {
 				// Validations are performed only on PostProcessing
 				if(PreProcessor.isPreProcessing) {
@@ -57,11 +58,12 @@ namespace AssetBundleGraph {
 							Debug.LogWarning("Asset " + loadedAsset.name + " validation failed but has been recovered - Validator Node: " + node.Name);
 						} else {
 							Debug.LogError(validator.ValidationFailed(loadedAsset) + " - Validator Node: " + node.Name);
-							incomingAssets.Remove(asset);
+							assetsToRemove.Add(asset);
 						}
 					}
 				}
 			}
+			incomingAssets.RemoveAll(x => assetsToRemove.Contains(x));
 
 			// Modifier does not add, filter or change structure of group, so just pass given group of assets
 			Output(connectionToOutput, inputGroupAssets, null);
