@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using SocialPoint.AdminPanel;
 using SocialPoint.Base;
 using SocialPoint.WAMP;
+using SocialPoint.Connection;
 
 namespace SocialPoint.Social
 {
