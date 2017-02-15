@@ -28,6 +28,9 @@ namespace SocialPoint.Matchmaking
         const string PlayerIdAttrKey = "token";
         const string ResultAttrKey = "result";
 
+        const int SuccessNotification = 502;
+        const int TimeoutNotification = 503;
+
         public string Room{ get; set; }
 
         public WampMatchmakingClient(ILoginData login, ConnectionManager wamp)
@@ -144,7 +147,7 @@ namespace SocialPoint.Matchmaking
                     _delegates[i].OnMatched(match);
                 }
             }
-            else if(type == NotificationType.MatchmakingTimeoutNotification)
+            else if(type == TimeoutNotification)
             {
                 OnError(new Error(MatchmakingClientErrorCode.Timeout, "Timeout"));
             }
