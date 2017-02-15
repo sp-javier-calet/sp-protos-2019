@@ -4,6 +4,7 @@ using SocialPoint.Base;
 using SocialPoint.Login;
 using SocialPoint.Utils;
 using SocialPoint.WAMP;
+using SocialPoint.Connection;
 
 namespace SocialPoint.Social
 {
@@ -50,6 +51,8 @@ namespace SocialPoint.Social
     public class AlliancesManager : IDisposable
     {
         #region Attr keys
+
+        public const string NotificationReceivedIdKey = "notification_id";
 
         public const string UserIdKey = "user_id";
 
@@ -123,8 +126,9 @@ namespace SocialPoint.Social
 
         readonly ConnectionManager _connection;
         readonly SocialManager _socialManager;
+        readonly ChatManager _chatManager;
 
-        public AlliancesManager(ConnectionManager connection, SocialManager socialManager)
+        public AlliancesManager(ConnectionManager connection, SocialManager socialManager, ChatManager chatManager)
         {
             _socialManager = socialManager;
             _socialManager.OnLocalPlayerLoaded += OnLocalPlayerLoaded;
@@ -132,9 +136,10 @@ namespace SocialPoint.Social
             _socialManager.PlayerFactory.AddFactory(new AlliancePlayerPrivateFactory());
 
             _connection = connection;
-            _connection.AlliancesManager = this;
             _connection.OnNotificationReceived += OnNotificationReceived;
             _connection.OnPendingNotification += OnPendingNotificationReceived;
+
+            _chatManager = chatManager;
         }
 
         public void Dispose()
@@ -515,14 +520,14 @@ namespace SocialPoint.Social
             {
             case NotificationType.NotificationAlliancePlayerAutoPromote:
                 {
-                    var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
+                    var notificationId = dic.GetValue(NotificationReceivedIdKey).ToString();
                     OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
                 }
             case NotificationType.NotificationAlliancePlayerAutoDemote:
                 {
-                    var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
+                    var notificationId = dic.GetValue(NotificationReceivedIdKey).ToString();
                     OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
@@ -572,14 +577,14 @@ namespace SocialPoint.Social
                 }
             case NotificationType.NotificationAlliancePlayerAutoPromote:
                 {
-                    var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
+                    var notificationId = dic.GetValue(NotificationReceivedIdKey).ToString();
                     OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
                 }
             case NotificationType.NotificationAlliancePlayerAutoDemote:
                 {
-                    var notificationId = dic.GetValue(ConnectionManager.NotificationIdKey).ToString();
+                    var notificationId = dic.GetValue(NotificationReceivedIdKey).ToString();
                     OnPlayerAutoChangedRank(dic);
                     SendNotificationAck(type, notificationId);
                     break;
@@ -597,7 +602,7 @@ namespace SocialPoint.Social
                 }
             case NotificationType.BroadcastAllianceMemberKickoff:
                 {
-                    OnMemberKickoff(dic);
+                    OnMemberKicked(dic);
                     break;
                 }
             case NotificationType.BroadcastAllianceMemberLeave:
@@ -669,9 +674,9 @@ namespace SocialPoint.Social
             NotifyAllianceEvent(AllianceAction.MateJoinedPlayerAlliance, dic);
         }
 
-        void OnMemberKickoff(AttrDic dic)
+        void OnMemberKicked(AttrDic dic)
         {
-            AlliancePlayerInfo.DecreaseTotalMembers();
+            GetLocalPrivateData().DecreaseTotalMembers();
             NotifyAllianceEvent(AllianceAction.MateKickedFromPlayerAlliance, dic);
         }
 
@@ -711,23 +716,20 @@ namespace SocialPoint.Social
             
         void LeaveAllianceChat()
         {
-            var chatManager = _connection.ChatManager;
-            if(chatManager != null)
+            if(_chatManager != null)
             {
-                chatManager.DeleteSubscription(chatManager.AllianceRoom);
+                _chatManager.DeleteSubscription(_chatManager.AllianceRoom);
             }
         }
 
         void UpdateChatServices(AttrDic dic)
         {
-            var chatManager = _connection.ChatManager;
-            if(chatManager != null)
+            if(_chatManager != null)
             {
                 DebugUtils.Assert(dic.Get(ConnectionManager.ServicesKey).IsDic);
                 var servicesDic = dic.Get(ConnectionManager.ServicesKey).AsDic;
 
-                DebugUtils.Assert(servicesDic.Get(ConnectionManager.ChatServiceKey).IsDic);
-                chatManager.ProcessChatServices(servicesDic.Get(ConnectionManager.ChatServiceKey).AsDic);
+                _chatManager.ProcessChatServices(servicesDic);
             }
         }
 

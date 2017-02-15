@@ -2,7 +2,5 @@ type extension
 desc Photon implementations of sparta interfaces
 name Extension/Photon
 depends_on Assets/Sparta/External/Photon
-depends_on Assets/Sparta/Extensions/WAMP
-depends_on Assets/Sparta/Extensions/WebSockets
 depends_on Assets/Sparta/Extensions/Matchmaking
-depends_on Assets/Sparta/Extensions/Social/SocialFramework
+depends_on Assets/Sparta/Extensions/Connection

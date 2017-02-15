@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
+using SocialPoint.Connection;
 using SocialPoint.Locale;
 using SocialPoint.Utils;
 
@@ -149,15 +150,15 @@ namespace SocialPoint.Social
 
         public void ParseInitialInfo(AttrDic dic)
         {
-            if(dic.ContainsKey(ConnectionManager.HistoryTopicKey))
+            if(dic.ContainsKey(ChatManager.HistoryTopicKey))
             {
-                var list = dic.Get(ConnectionManager.HistoryTopicKey).AsList;
+                var list = dic.Get(ChatManager.HistoryTopicKey).AsList;
                 SetHistory(list);
             }
 
-            Id = dic.GetValue(ConnectionManager.IdTopicKey).ToString();
-            Name = dic.GetValue(ConnectionManager.NameTopicKey).ToString();
-            Members = dic.GetValue(ConnectionManager.TopicMembersKey).ToInt();
+            Id = dic.GetValue(ChatManager.IdTopicKey).ToString();
+            Name = dic.GetValue(ChatManager.NameTopicKey).ToString();
+            Members = dic.GetValue(ChatManager.TopicMembersKey).ToInt();
         }
 
         public void AddNotificationMessage(int type, AttrDic dic)
@@ -175,7 +176,7 @@ namespace SocialPoint.Social
         {
             if(type == NotificationType.BroadcastAllianceOnlineMember)
             {
-                Members = dic.GetValue(ConnectionManager.TopicMembersKey).ToInt();
+                Members = dic.GetValue(ChatManager.TopicMembersKey).ToInt();
             }
         }
 
@@ -207,7 +208,7 @@ namespace SocialPoint.Social
 
             var args = new AttrDic();
             args.SetValue(ConnectionManager.NotificationTypeKey, NotificationType.TextMessage);
-            args.Set(ConnectionManager.ChatMessageInfoKey, messageInfo);
+            args.Set(ChatManager.ChatMessageInfoKey, messageInfo);
 
             var idx = _messages.Add(message);
             ChatManager.Connection.Publish(Id, null, args, (err, pub) => OnMessageSent(idx, message.Uuid));
@@ -223,7 +224,7 @@ namespace SocialPoint.Social
             data.PlayerName = player.Name;
             data.PlayerLevel = player.Level;
 
-            if(ChatManager.Connection.AlliancesManager != null)
+            if(ChatManager.SocialManager.LocalPlayer.HasComponent<AlliancePlayerBasic>())
             {
                 var member = ChatManager.SocialManager.LocalPlayer.GetComponent<AlliancePlayerBasic>();
                 data.AllianceName = member.Name;
