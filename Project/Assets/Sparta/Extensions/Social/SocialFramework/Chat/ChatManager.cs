@@ -22,6 +22,16 @@ namespace SocialPoint.Social
             }
         }
 
+        readonly SocialManager _socialManager;
+
+        public SocialManager SocialManager
+        {
+            get
+            {
+                return _socialManager;
+            }
+        }
+
         readonly Dictionary<string, IChatRoom> _chatRooms;
 
         readonly  Dictionary<IChatRoom, Subscription> _chatSubscriptions;
@@ -30,11 +40,12 @@ namespace SocialPoint.Social
 
         public long ChatBanEndTimestamp { get; private set; }
 
-        public ChatManager(ConnectionManager connection)
+        public ChatManager(ConnectionManager connection, SocialManager socialManager)
         {
             _chatRooms = new Dictionary<string, IChatRoom>();
             _chatSubscriptions = new Dictionary<IChatRoom, Subscription>();
 
+            _socialManager = socialManager;
             _connection = connection;
             _connection.ChatManager = this;
             _connection.OnNotificationReceived += ProcessNotificationMessage;

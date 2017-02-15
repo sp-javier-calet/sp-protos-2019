@@ -7,6 +7,7 @@ using SocialPoint.GameLoading;
 using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.Utils;
+using SocialPoint.Social;
 using UnityEngine;
 
 public class GameLoadingController : SocialPoint.GameLoading.GameLoadingController
@@ -28,6 +29,8 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     const float ExpectedLoadModelDuration = 1.0f;
     const float ExpectedLoadSceneDuration = 2.0f;
 
+    AlliancesManager _alliances;
+
     protected override void OnLoad()
     {
         Login = Services.Instance.Resolve<ILogin>();
@@ -35,6 +38,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         Localization = Services.Instance.Resolve<Localization>();
         AppEvents = Services.Instance.Resolve<IAppEvents>();
         ErrorHandler = Services.Instance.Resolve<IGameErrorHandler>();
+        _alliances = Services.Instance.Resolve<AlliancesManager>();
         _coroutineRunner = Services.Instance.Resolve<ICoroutineRunner>();
         _gameLoader = Services.Instance.Resolve<IGameLoader>();
 
@@ -89,6 +93,12 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     bool OnLoginNewUser(IStreamReader reader)
     {
         var data = reader.ParseElement();
+
+        if(_alliances != null)
+        {
+            _alliances.ParseAllianceInfo(data.AsDic.Get("alliance").AsDic);
+        }
+
         _gameLoader.Load(data);
         _loadModelOperation.Finish("game model loaded");
         return true;
