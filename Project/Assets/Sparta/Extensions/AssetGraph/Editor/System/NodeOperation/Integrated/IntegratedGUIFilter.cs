@@ -55,7 +55,7 @@ namespace AssetBundleGraph {
 				var output = new Dictionary<string, List<Asset>>();
 
 				foreach(var groupKey in inputGroupAssets.Keys) {
-					var filteringKeyword = string.IsNullOrEmpty(filter.FilterKeyword) ? "*" : filter.FilterKeyword;
+					var filteringKeyword = string.IsNullOrEmpty(filter.FilterKeyword) ? WildcardDeep : filter.FilterKeyword;
 					var assets = inputGroupAssets[groupKey];
 					var filteringAssets = new List<FilterableAsset>();
 					assets.ForEach(a => filteringAssets.Add(new FilterableAsset(a)));
@@ -65,7 +65,7 @@ namespace AssetBundleGraph {
 					List<FilterableAsset> keywordContainsAssets = filteringAssets.Where(
 						assetData => 
 						!assetData.isFiltered && 
-						(filter.IsExclusion ^ GlobMatch(filteringKeyword, assetData.asset.importFrom))
+						(filter.IsExclusion ^ GlobMatch(filteringKeyword, assetData.asset.importFrom.Replace(assetData.asset.sourceBasePath, string.Empty)))
 					).ToList();
 
 					List<FilterableAsset> finalFilteredAsset = new List<FilterableAsset>();
@@ -101,7 +101,7 @@ namespace AssetBundleGraph {
 			bool deep = pattern.Contains(WildcardDeep);
 			if(deep) {
 				pattern = pattern.Replace(WildcardDeep, WildcardMultiChar.ToString());
-			} else if(value.Split(Path.DirectorySeparatorChar).Length != pattern.Split(Path.DirectorySeparatorChar).Length) {
+			} else if(value.Split(AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR).Length != pattern.Split(AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR).Length) {
 				return false;
 			}
 
