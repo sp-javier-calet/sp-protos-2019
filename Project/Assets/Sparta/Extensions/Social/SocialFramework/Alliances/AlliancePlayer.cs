@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using SocialPoint.Attributes;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
@@ -27,46 +28,53 @@ namespace SocialPoint.Social
             Avatar = 0;
             Rank = 0;
         }
+
+        public override string ToString()
+        {
+            var builder = StringUtils.StartBuilder();
+            builder
+                .AppendLine("AllianceBasicData:")
+                .Append("\tId: ").AppendLine(Id)
+                .Append("\tName: ").AppendLine(Name)
+                .Append("\tAvatar: ").AppendLine(Avatar.ToString())
+                .Append("\tRank: ").AppendLine(Rank.ToString());
+            return StringUtils.FinishBuilder(builder);
+        }
     }
 
     public class AlliancePlayerBasicFactory : SocialPlayerFactory.IFactory
     {
-        const string MemberTypeKey = "memberType";
-        const string MemberAllianceIdKey = "allianceId";
-        const string MemberAllianceNameKey = "allianceName";
-        const string MemberAllianceAvatarKey = "allianceAvatarId";
-
-        // TODO: Duplicated ones used for parsing the old AlliancePlayerInfo
         const string AlliancePlayerIdKey = "id";
         const string AlliancePlayerNameKey = "name";
         const string AlliancePlayerAvatarKey = "avatar";
         const string AlliancePlayerRoleKey = "role";
 
+        // TODO: Duplicated ones used for parsing the old AlliancePlayerInfo
+        const string MemberTypeKey = "memberType";
+        const string MemberAllianceIdKey = "allianceId";
+        const string MemberAllianceNameKey = "allianceName";
+        const string MemberAllianceAvatarKey = "allianceAvatarId";
+
         public SocialPlayer.IComponent CreateElement(AttrDic dic)
         {
-            var component = new AlliancePlayerBasic();
-            component.Rank = dic.GetValue(MemberTypeKey).ToInt();
-            component.Id = dic.GetValue(MemberAllianceIdKey).ToString();
-            component.Avatar = dic.GetValue(MemberAllianceAvatarKey).ToInt();
-            component.Name = dic.GetValue(MemberAllianceNameKey).ToString();
+            var alliancesDic = dic.Get("alliance").AsDic;
 
-            //TODO Temporal code to parse the old values
-            if(dic.ContainsKey(AlliancePlayerIdKey))
+            var component = new AlliancePlayerBasic();
+
+            component.Id = alliancesDic.GetValue(AlliancePlayerIdKey).ToString();
+            component.Name = alliancesDic.GetValue(AlliancePlayerNameKey).ToString();
+            component.Avatar = alliancesDic.GetValue(AlliancePlayerAvatarKey).ToInt();
+            component.Rank = alliancesDic.GetValue(AlliancePlayerRoleKey).ToInt();
+
+            //TODO: Temporal fix to read data from outside the "alliance" child
+            if(alliancesDic.Count == 0)
             {
-                component.Id = dic.GetValue(AlliancePlayerIdKey).ToString();
+                component.Rank = dic.GetValue(MemberTypeKey).ToInt();
+                component.Id = dic.GetValue(MemberAllianceIdKey).ToString();
+                component.Avatar = dic.GetValue(MemberAllianceAvatarKey).ToInt();
+                component.Name = dic.GetValue(MemberAllianceNameKey).ToString();
             }
-            if(dic.ContainsKey(AlliancePlayerNameKey))
-            {
-                component.Name = dic.GetValue(AlliancePlayerNameKey).ToString();
-            }
-            if(dic.ContainsKey(AlliancePlayerAvatarKey))
-            {
-                component.Avatar = dic.GetValue(AlliancePlayerAvatarKey).ToInt();
-            }
-            if(dic.ContainsKey(AlliancePlayerRoleKey))
-            {
-                component.Rank = dic.GetValue(AlliancePlayerRoleKey).ToInt();
-            }
+
             return component;
         }
     }
@@ -77,7 +85,9 @@ namespace SocialPoint.Social
     public class AlliancePlayerPrivate : SocialPlayer.IComponent
     {
         public int TotalMembers { get; set; }
+
         public long JoinTimestamp { get; set; }
+
         public int MaxRequests { get; set; }
 
         readonly Queue<string> _alliancesRequests;
@@ -122,6 +132,23 @@ namespace SocialPoint.Social
         {
             TotalMembers--;
         }
+
+        public override string ToString()
+        {
+            var builder = StringUtils.StartBuilder();
+            builder
+                .AppendLine("AlliancePrivateData:")
+                .Append("\tTotalMembers: ").AppendLine(TotalMembers.ToString())
+                .Append("\tJoinTimestamp: ").AppendLine(JoinTimestamp.ToString())
+                .Append("\tMaxRequests: ").AppendLine(MaxRequests.ToString())
+                .AppendLine("\tRequests:");
+            var itr = _alliancesRequests.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                builder.Append("\t\t").AppendLine(itr.Current);
+            }
+            return StringUtils.FinishBuilder(builder);
+        }
     }
 
     public class AlliancePlayerPrivateFactory : SocialPlayerFactory.IFactory
@@ -132,14 +159,16 @@ namespace SocialPoint.Social
 
         public SocialPlayer.IComponent CreateElement(AttrDic dic)
         {
+            var alliancesDic = dic.Get("alliance").AsDic;
+
             var component = new AlliancePlayerPrivate();
 
-            component.TotalMembers = dic.GetValue(AlliancePlayerTotalMembersKey).ToInt();
-            component.JoinTimestamp = dic.GetValue(AlliancePlayerJoinTimestampKey).ToLong();
+            component.TotalMembers = alliancesDic.GetValue(AlliancePlayerTotalMembersKey).ToInt();
+            component.JoinTimestamp = alliancesDic.GetValue(AlliancePlayerJoinTimestampKey).ToLong();
 
-            if(dic.ContainsKey(AlliancePlayerRequestsKey))
+            if(alliancesDic.ContainsKey(AlliancePlayerRequestsKey))
             {
-                var list = dic.Get(AlliancePlayerRequestsKey).AsList;
+                var list = alliancesDic.Get(AlliancePlayerRequestsKey).AsList;
                 for(var i = 0; i < list.Count; ++i)
                 {
                     var req = list[i].AsValue.ToString();

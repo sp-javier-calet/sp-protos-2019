@@ -51,7 +51,7 @@ namespace SocialPoint.Social
         #region Attr keys
 
         public const string UserIdKey = "user_id";
-        const string MemberIdKey = "player_id";
+
         const string AllianceIdKey = "alliance_id";
         public const string AvatarKey = "avatar";
         public const string AllianceDescriptionKey = "description";
@@ -84,7 +84,6 @@ namespace SocialPoint.Social
         const string AllianceMemberKickMethod = "alliance.member.kickoff";
         const string AllianceMemberPromoteMethod = "alliance.member.promote";
         const string AllianceInfoMethod = "alliance.info";
-        const string AllianceMemberInfoMethod = "alliance.member.info";
         const string AllianceRankingMethod = "alliance.ranking";
         const string AllianceSearchMethod = "alliance.search";
         const string NotificationReceivedMethod = "notification.received";
@@ -127,6 +126,7 @@ namespace SocialPoint.Social
         public AlliancesManager(ConnectionManager connection, SocialManager socialManager)
         {
             _socialManager = socialManager;
+            _socialManager.OnLocalPlayerLoaded += OnLocalPlayerLoaded;
             _socialManager.PlayerFactory.AddFactory(new AlliancePlayerBasicFactory());
             _socialManager.PlayerFactory.AddFactory(new AlliancePlayerPrivateFactory());
 
@@ -138,6 +138,7 @@ namespace SocialPoint.Social
 
         public void Dispose()
         {
+            _socialManager.OnLocalPlayerLoaded -= OnLocalPlayerLoaded;
             _connection.OnNotificationReceived -= OnNotificationReceived;
             _connection.OnPendingNotification -= OnPendingNotificationReceived;
         }
@@ -178,33 +179,13 @@ namespace SocialPoint.Social
             });
         }
 
-        public WAMPRequest LoadUserInfo(string userId, Action<Error, SocialPlayer> callback)
-        {
-            var dic = new AttrDic();
-            dic.SetValue(MemberIdKey, userId);
-
-            return _connection.Call(AllianceMemberInfoMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
-                SocialPlayer member = null;
-                if(Error.IsNullOrEmpty(err))
-                {
-                    DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
-                    var result = rDic.Get(OperationResultKey).AsDic;
-                    member = _socialManager.PlayerFactory.CreateSocialPlayer(result);
-                }
-                if(callback != null)
-                {
-                    callback(err, member);
-                }
-            });
-        }
-
         public WAMPRequest LoadRanking(Action<Error, AlliancesRanking> callback)
         {
             var dic = new AttrDic();
-            var allianceComponenet = GetLocalBasicData();
-            if(allianceComponenet.IsInAlliance())
+            var allianceComponent = GetLocalBasicData();
+            if(allianceComponent.IsInAlliance())
             {
-                dic.SetValue(AllianceIdKey, allianceComponenet.Id);
+                dic.SetValue(AllianceIdKey, allianceComponent.Id);
             }
 
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
@@ -440,12 +421,9 @@ namespace SocialPoint.Social
             });
         }
 
-        public void ParseAllianceInfo(AttrDic dic)
+        public void OnLocalPlayerLoaded(AttrDic dic)
         {
-            DebugUtils.Assert(Factory != null, "AlliancesDataFactory is require to create an AlliancePlayerInfo");
-
-            _socialManager.SetLocalPlayerData(dic);
-            _socialManager.LocalPlayer.GetComponent<AlliancePlayerPrivate>().MaxRequests = MaxPendingJoinRequests;
+            GetLocalPrivateData().MaxRequests = MaxPendingJoinRequests;
             NotifyAllianceEvent(AllianceAction.OnPlayerAllianceInfoParsed, dic);
         }
 
