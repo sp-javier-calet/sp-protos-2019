@@ -86,7 +86,6 @@ namespace AssetBundleGraph {
 
 			if(!string.IsNullOrEmpty(node.Data.LoaderLoadPath.CurrentPlatformValue) && GUILayout.Button("Select Folder in Project"))
 			{
-				Debug.Log(node.Data.LoaderLoadPath.CurrentPlatformValue);
 				Selection.activeObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>("Assets/"+node.Data.LoaderLoadPath.CurrentPlatformValue);
 			}
 
