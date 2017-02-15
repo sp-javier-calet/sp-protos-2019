@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.WAMP.Subscriber;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
@@ -22,6 +24,25 @@ namespace SocialPoint.Social
             }
         }
 
+        readonly SocialManager _socialManager;
+
+        public SocialManager SocialManager
+        {
+            get
+            {
+                return _socialManager;
+            }
+        }
+
+        readonly List<ChatReport> _reports;
+
+        public ReadOnlyCollection<ChatReport> Reports{ get { return _reports.AsReadOnly();} }
+
+
+        public const long DefaultReportUserCooldown = 60 * 60 * 24;
+
+        public long ReportUserCooldown{ get; set; }
+
         readonly Dictionary<string, IChatRoom> _chatRooms;
 
         readonly  Dictionary<IChatRoom, Subscription> _chatSubscriptions;
@@ -30,14 +51,19 @@ namespace SocialPoint.Social
 
         public long ChatBanEndTimestamp { get; private set; }
 
-        public ChatManager(ConnectionManager connection)
+        public ChatManager(ConnectionManager connection, SocialManager socialManager)
         {
             _chatRooms = new Dictionary<string, IChatRoom>();
             _chatSubscriptions = new Dictionary<IChatRoom, Subscription>();
 
+            _socialManager = socialManager;
             _connection = connection;
             _connection.ChatManager = this;
             _connection.OnNotificationReceived += ProcessNotificationMessage;
+
+            _reports = new List<ChatReport>();
+
+            ReportUserCooldown = DefaultReportUserCooldown;
         }
 
         public void Dispose()
@@ -129,6 +155,11 @@ namespace SocialPoint.Social
             {
                 ChatBanEndTimestamp = dic.GetValue("banEndTimestamp").ToLong();
             }
+
+            if(dic.ContainsKey("reports"))
+            {
+                ProcessReports(dic.GetValue("reports").AsList);
+            }
         }
 
         public void ClearAllSubscriptions()
@@ -160,6 +191,33 @@ namespace SocialPoint.Social
             OnChatBanReceived(ChatBanEndTimestamp);
         }
 
+        public void ReportChatMessage(BaseChatMessage message, AttrDic extraData)
+        {
+            var report = new ChatReport(message, extraData);
+            _reports.Add(report);
+
+            var dicData = report.Serialize();
+            dicData.SetValue("user_id", _socialManager.LocalPlayer.Uid);
+
+            _connection.Call("chat.report.user", null, dicData, null);
+        }
+
+        void ProcessReports(AttrList listReports)
+        {
+            var itr = listReports.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                _reports.Add(ChatReport.Parse(itr.Current.AsDic));
+            }
+            itr.Dispose();
+        }
+
+        public bool CanReportUser(string userId)
+        {
+            var vigentReport = _reports.Find((ChatReport report) => (report.ReportedUid == userId) && (TimeUtils.Timestamp < report.Ts + ReportUserCooldown));
+            return (vigentReport == null);
+        }
+            
         void ProcessChatTopic(AttrDic dic)
         {
             var topic = dic.GetValue(ConnectionManager.TypeTopicKey).ToString();

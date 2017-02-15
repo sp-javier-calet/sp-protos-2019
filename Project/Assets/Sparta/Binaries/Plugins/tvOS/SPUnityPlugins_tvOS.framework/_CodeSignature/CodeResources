@@ -14,7 +14,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		4wVZsnLyld5lV33cpkfhfMAqu3w=
+		+SxE7VxuwwVGuUcdqp7ESPKXCq4=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -24,38 +24,17 @@
 	<key>files2</key>
 	<dict>
 		<key>Headers/SPUnityNativeUtils.h</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			ww4zYT1Q/WHJuM5F5uzdP91Wecc=
-			</data>
-			<key>hash2</key>
-			<data>
-			caRn8a2vorjo1fsMV/cFNIxUlSC7aNgT1Zg14q9Fgp0=
-			</data>
-		</dict>
+		<data>
+		ww4zYT1Q/WHJuM5F5uzdP91Wecc=
+		</data>
 		<key>Headers/UnityGameObject.h</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			m78W3PPIMN+NbOdc2Jt36l7Agi4=
-			</data>
-			<key>hash2</key>
-			<data>
-			FcGJyLs5jfA5V46J1TC5fvasudTaFyBTZOLy/U8kFc4=
-			</data>
-		</dict>
+		<data>
+		m78W3PPIMN+NbOdc2Jt36l7Agi4=
+		</data>
 		<key>Modules/module.modulemap</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			5gEf2z95peYmCYB36mBd+2hhLKM=
-			</data>
-			<key>hash2</key>
-			<data>
-			bO7D5CzTd1viwXDQqKnQ3ORmLj0vvBZdF5SIh9W/0T4=
-			</data>
-		</dict>
+		<data>
+		5gEf2z95peYmCYB36mBd+2hhLKM=
+		</data>
 	</dict>
 	<key>rules</key>
 	<dict>

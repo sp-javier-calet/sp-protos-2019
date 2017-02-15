@@ -225,7 +225,7 @@ namespace SocialPoint.Social
 
             if(ChatManager.Connection.AlliancesManager != null)
             {
-                var member = ChatManager.Connection.AlliancesManager.AlliancePlayerInfo;
+                var member = ChatManager.SocialManager.LocalPlayer.GetComponent<AlliancePlayerBasic>();
                 data.AllianceName = member.Name;
                 data.AllianceId = member.Id;
                 data.AllianceAvatarId = member.Avatar;
