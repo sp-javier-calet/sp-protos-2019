@@ -29,13 +29,12 @@ public class TriCountValidator : AssetBundleGraph.IValidator {
 	// Validate things. 
 	public bool Validate (object asset) {
 		var target = (GameObject)asset;
-		bool exceedsMaximum = false;
 		offendingMeshes.Clear();
 
 		if(isSkinned) {
 			foreach(SkinnedMeshRenderer skinnedMesh in target.GetComponentsInChildren<SkinnedMeshRenderer>()) {
 				triangleCount = skinnedMesh.sharedMesh.triangles.Length / 3;
-				exceedsMaximum = triangleCount > maxTriangleCount;
+				var exceedsMaximum = triangleCount > maxTriangleCount;
 
 				if(exceedsMaximum) {
 					offendingMeshes.Add(skinnedMesh.name);					
@@ -44,16 +43,15 @@ public class TriCountValidator : AssetBundleGraph.IValidator {
 		} else {
 			foreach(MeshFilter skinnedMesh in target.GetComponentsInChildren<MeshFilter>()) {
 				triangleCount = skinnedMesh.sharedMesh.triangles.Length / 3;
-				exceedsMaximum = triangleCount > maxTriangleCount;
+				var exceedsMaximum = triangleCount > maxTriangleCount;
 
 				if(exceedsMaximum) {
-					offendingMeshes.Add(skinnedMesh.name);
-					
+					offendingMeshes.Add(skinnedMesh.name);					
 				}
 			}
 		}
 
-		return !exceedsMaximum;
+		return offendingMeshes.Count == 0;
 	}
 
 	
