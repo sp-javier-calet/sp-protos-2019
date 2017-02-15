@@ -2,6 +2,8 @@
 using System.Text;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
+using SocialPoint.Utils;
+using SocialPoint.Attributes;
 using UnityEngine.UI;
 
 namespace SocialPoint.Social
@@ -9,10 +11,12 @@ namespace SocialPoint.Social
     public class AdminPanelSocialFrameworkChat : IAdminPanelGUI
     {
         readonly ChatManager _chat;
+        readonly AdminPanelConsole _console;
 
-        public AdminPanelSocialFrameworkChat(ChatManager chat)
+        public AdminPanelSocialFrameworkChat(ChatManager chat, AdminPanelConsole console)
         {
             _chat = chat;
+            _console = console;
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -31,6 +35,62 @@ namespace SocialPoint.Social
             layout.CreateMargin();
             layout.CreateLabel("Ban info:");
             layout.CreateLabel(GetBanInfo());
+            layout.CreateMargin();
+
+            layout.CreateMargin();
+            layout.CreateLabel("Reporting");
+            layout.CreateMargin();
+            {
+                var hLayout = layout.CreateHorizontalLayout();
+                hLayout.CreateFormLabel("Report User:");
+                hLayout.CreateTextInput("Insert reported User ID", (insertedText) => {
+                    if(!_chat.CanReportUser(insertedText))
+                    {
+                        _console.Print(string.Format("You cannot report more times the user {0}", insertedText));
+                        return;
+                    }
+
+                    var fakeMessage = new BaseChatMessage();
+                    fakeMessage.Text = "Fake text with a lot of swearing";
+                    fakeMessage.Uuid = "2f68cf8f-039a-4308-95d2-fc430ac5ebbb";
+                    fakeMessage.MessageData = new MessageData();
+                    fakeMessage.MessageData.PlayerId = insertedText;
+
+                    var extraData = new AttrDic();
+                    extraData.SetValue("extra_variable", "extra_value");
+                    _chat.ReportChatMessage(fakeMessage, extraData);
+
+                    layout.Refresh();
+                });
+            }
+            layout.CreateMargin();
+            {
+                layout.CreateLabel(string.Format("Current report cooldown {0}", _chat.ReportUserCooldown));
+                var hLayout = layout.CreateHorizontalLayout();
+                hLayout.CreateFormLabel("Change report cooldown");
+                hLayout.CreateTextInput("Insert new cooldown", (insertedText) => {
+                    var newCooldown = 0;
+                    if(!Int32.TryParse(insertedText, out newCooldown))
+                    {
+                        _console.Print(string.Format("Invalid cooldown value: {0}", insertedText));
+                        return;
+                    }
+                    _chat.ReportUserCooldown = newCooldown;
+
+                    layout.Refresh();
+                });
+            }
+
+            layout.CreateLabel("Current Reports");
+            var builder = StringUtils.StartBuilder();
+            var itrReports = _chat.Reports.GetEnumerator();
+            while(itrReports.MoveNext())
+            {
+                builder.AppendLine(itrReports.Current.ToString());
+            }
+            itr.Dispose();
+
+            layout.CreateVerticalScrollLayout().CreateTextArea(builder.ToString());
             layout.CreateMargin();
         }
 
