@@ -84,11 +84,11 @@ namespace AssetBundleGraph {
 				AssetBundleGraphEditorWindow.SelectAllRelatedTree(new string[] { node.Id }, false);
 			}
 
-            if(!string.IsNullOrEmpty(node.Data.LoaderLoadPath.CurrentPlatformValue) && GUILayout.Button("Select Folder in Project"))
-            {
-                Debug.Log(node.Data.LoaderLoadPath.CurrentPlatformValue);
-                Selection.activeObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>("Assets/"+node.Data.LoaderLoadPath.CurrentPlatformValue);
-            }
+			if(!string.IsNullOrEmpty(node.Data.LoaderLoadPath.CurrentPlatformValue) && GUILayout.Button("Select Folder in Project"))
+			{
+				Debug.Log(node.Data.LoaderLoadPath.CurrentPlatformValue);
+				Selection.activeObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>("Assets/"+node.Data.LoaderLoadPath.CurrentPlatformValue);
+			}
 
 		}
 
