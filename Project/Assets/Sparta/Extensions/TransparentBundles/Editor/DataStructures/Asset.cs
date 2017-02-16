@@ -40,7 +40,13 @@ namespace SocialPoint.TransparentBundles
 
         public string LoadAssetType()
         {
-            return GetAssetObject().GetType().ToString();
+            Object asset = GetAssetObject();
+            if (asset != null)
+            {
+                return asset.GetType().ToString();
+            }
+            
+            return "";
         }
 
         public string LoadAssetName()

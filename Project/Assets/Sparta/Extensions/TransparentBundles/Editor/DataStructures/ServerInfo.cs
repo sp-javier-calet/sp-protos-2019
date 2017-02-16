@@ -6,11 +6,13 @@ namespace SocialPoint.TransparentBundles
     {
         public ServerStatus Status;
         public string Log;
+        public Dictionary<int, BundleOperation> ProcessingQueue;
 
-        public ServerInfo(ServerStatus status, string log)
+        public ServerInfo(ServerStatus status, string log, Dictionary<int, BundleOperation> processingQueue)
         {
             Status = status;
             Log = log;
+            ProcessingQueue = processingQueue;
         }
     }
 

@@ -4,26 +4,26 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEngine.Experimental.Networking;
 
 namespace SocialPoint.TransparentBundles
 {
+    //Dummy window to fix the WWWs never ending in Editor.
+    public class DownloadWindow : EditorWindow { }
     public class Downloader
     {
 
         private static Downloader _instance;
         private static Dictionary<string, Texture2D> _downloadCache;
         private static bool _downloadingBundle = false;
-        private List<UnityWebRequest> _requests = new List<UnityWebRequest>();
+        private List<WWW> _requests = new List<WWW>();
+        private WWW _mainRequest;
         private EditorWindow _sender;
-        private List<AssetBundle> _bundlesCache;
         private const float _downloadTimeout = 10f;
 
         private Downloader()
         {
             _downloadCache = new Dictionary<string, Texture2D>();
             _downloadingBundle = false;
-            _bundlesCache = new List<AssetBundle>();
             EditorApplication.update += Update;
         }
 
@@ -52,6 +52,11 @@ namespace SocialPoint.TransparentBundles
             return loadedTexture;
         }
 
+        public void FlushImagesCache()
+        {
+            _downloadCache = new Dictionary<string, Texture2D>();
+        }
+
         void Update()
         {
             if(_requests.Count == 0)
@@ -61,9 +66,20 @@ namespace SocialPoint.TransparentBundles
 
             if(_requests.Any(x => !x.isDone))
             {
-                float progress = 0;
-                _requests.ForEach(x => progress += x.downloadProgress);
-                EditorUtility.DisplayProgressBar("Download", "Downloading Bundles", progress / _requests.Count);
+                if(_requests.TrueForAll(x => x.progress == 1))
+                {
+                    EditorUtility.ClearProgressBar();
+                    var win = EditorWindow.GetWindow<DownloadWindow>();
+                    win.minSize = new Vector2(1, 1);
+                    win.position = new Rect(0, 0, 1, 1);
+                    win.Close();
+                }
+                else
+                {
+                    float progress = 0;
+                    _requests.ForEach(x => progress += x.progress);
+                    EditorUtility.DisplayProgressBar("Download", "Downloading Bundles", progress / _requests.Count);
+                }
                 return;
             }
             EditorUtility.ClearProgressBar();
@@ -72,11 +88,11 @@ namespace SocialPoint.TransparentBundles
             {
                 if(i < _requests.Count - 1)
                 {
-                    ((DownloadHandlerAssetBundle)_requests[i].downloadHandler).assetBundle.LoadAllAssets();
+                    _requests[i].assetBundle.LoadAllAssets();
                 }
                 else
                 {
-                    InstantiateBundle(((DownloadHandlerAssetBundle)_requests[i].downloadHandler).assetBundle);
+                    InstantiateBundle(_requests[i].assetBundle);
                 }
             }
         }
@@ -117,47 +133,56 @@ namespace SocialPoint.TransparentBundles
                     break;
             }
 
-            _requests.ForEach(x => ((DownloadHandlerAssetBundle)x.downloadHandler).assetBundle.Unload(false));
+            _requests.ForEach(x => x.assetBundle.Unload(false));
             _downloadingBundle = false;
             _requests.Clear();
         }
 
-        public void DownloadBundle(Bundle bundle)
+        public void DownloadBundle(Bundle bundle, BundlePlaform platform)
         {
             if(!_downloadingBundle)
             {
                 _downloadingBundle = true;
 
-                DownloadBundleRecursive(bundle);
+                DownloadBundleRecursive(bundle, bundle, platform);
             }
         }
 
-        public void DownloadBundleRecursive(Bundle bundle)
+        public void DownloadBundleRecursive(Bundle bundle, Bundle mainBundle, BundlePlaform platform)
         {
-            for(int i = 0; i < bundle.Parents.Count; i++)
+            if(!_requests.Any(x => x.url == bundle.Url[platform]))
             {
-                Bundle parent = bundle.Parents[i];
-                if(parent.Url.Length > 0 && parent.Asset.Name.Length > 0)
+                for(int i = 0; i < bundle.Parents.Count; i++)
                 {
-                    DownloadBundleRecursive(parent);
+                    Bundle parent = bundle.Parents[i];
+                    if(!_requests.Any(x => x.url == parent.Url[platform]))
+                    {
+                        if(parent.Url[platform].Length > 0 && parent.Asset.Name.Length > 0)
+                        {
+                            DownloadBundleRecursive(parent, mainBundle, platform);
+                        }
+                        else
+                        {
+                            Debug.LogError("Transparent Bundles - Error - The bundle '" + parent.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactMail);
+                        }
+                    }
                 }
-                else
-                {
-                    Debug.LogError("Transparent Bundles - Error - The bundle '" + parent.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactUrl);
-                }
-            }
 
-            if(!_requests.Any(x => x.url == bundle.Url))
-            {
-                if(bundle.Url.Length > 0 && bundle.Asset.Name.Length > 0)
+                if(bundle.Url[platform].Length > 0 && bundle.Asset.Name.Length > 0)
                 {
-                    var request = UnityWebRequest.GetAssetBundle(bundle.Url);
-                    request.Send();
-                    _requests.Add(request);
+                    if(bundle.Name == mainBundle.Name)
+                    {
+                        _mainRequest = new WWW(bundle.Url[platform]);
+                        _requests.Add(_mainRequest);
+                    }
+                    else
+                    {
+                        _requests.Add(new WWW(bundle.Url[platform]));
+                    }
                 }
                 else
                 {
-                    Debug.LogError("Transparent Bundles - Error - The bundle '" + bundle.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactUrl);
+                    Debug.LogError("Transparent Bundles - Error - The bundle '" + bundle.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactMail);
                 }
             }
         }
