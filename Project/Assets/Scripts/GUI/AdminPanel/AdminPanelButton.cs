@@ -98,10 +98,15 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
 }
 
 
+
 #else
 
 public class AdminPanelButton : MonoBehaviour
 {
+    void Start()
+    {
+        gameObject.SetActive(false);
+    }
 }
 
 #endif

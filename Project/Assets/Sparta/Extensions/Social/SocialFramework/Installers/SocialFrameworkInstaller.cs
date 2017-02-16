@@ -14,7 +14,7 @@ namespace SocialPoint.Social
     {
         public override void InstallBindings()
         {
-            Container.Bind<SocialManager>().ToMethod<SocialManager>(CreateSocialManager);
+            Container.Bind<SocialManager>().ToMethod<SocialManager>(CreateSocialManager, SetupSocialManager);
 
             Container.Bind<PlayersManager>().ToMethod<PlayersManager>(CreatePlayersManager, SetupPlayersManager);
 
@@ -41,6 +41,12 @@ namespace SocialPoint.Social
         SocialManager CreateSocialManager()
         {
             return new SocialManager();
+        }
+
+        void SetupSocialManager(SocialManager socialManager)
+        {
+            Container.Resolve<AlliancesManager>();
+            Container.Resolve<PlayersManager>();
         }
 
         PlayersManager CreatePlayersManager()
