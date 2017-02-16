@@ -263,7 +263,7 @@ namespace SocialPoint.TransparentBundles
         /// <param name="retryRequest">Method to retry the request in case of login failure</param>
         private static void HandleActionResponse<T>(ResponseResult responseResult, T arguments, Action<T> retryRequest) where T : RequestArgs
         {
-            if(responseResult.StatusCode == HttpStatusCode.Forbidden)
+            if(!responseResult.IsInternal && responseResult.StatusCode == HttpStatusCode.Forbidden)
             {
                 _isLogged = false;
 
