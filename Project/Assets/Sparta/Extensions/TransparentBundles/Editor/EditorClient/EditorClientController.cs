@@ -137,8 +137,6 @@ namespace SocialPoint.TransparentBundles
                 AttrDic jsonRow = jsonList[i].AsDic;
                 string bundleName = jsonRow["name"].AsValue.ToString();
 
-                
-
                 Asset asset = new Asset(jsonRow["assetguid"].AsValue.ToString());
 
                 var sizesDict = new Dictionary<BundlePlaform, int>();
@@ -177,7 +175,7 @@ namespace SocialPoint.TransparentBundles
                                     operationDict,
                                     jsonRow["log"].AsValue.ToString()
                                 );
-                bundleDictionary.Add(asset.Name.ToLower(), bundle);
+                bundleDictionary.Add(GetFixedAssetName(asset.Name), bundle);
 
                 //TEMPORARY
                 if (NewBundles.ContainsKey(bundleName))
@@ -191,14 +189,14 @@ namespace SocialPoint.TransparentBundles
             {
                 AttrDic jsonRow = jsonList[i].AsDic;
                 string childBundleName = jsonRow["name"].AsValue.ToString();
-                string childAssetName = childBundleName.Substring(0, childBundleName.LastIndexOf("_"));
+                string childAssetName = GetFixedAssetName(childBundleName.Substring(0, childBundleName.LastIndexOf("_")));
 
                 AttrList jsonParents = jsonRow["parents"].AsList;
 
                 for(int j = 0; j < jsonParents.Count; j++)
                 {
                     string parentBundleName = jsonParents[j].AsValue.ToString();
-                    string parentAssetName = parentBundleName.Substring(0, parentBundleName.LastIndexOf("_"));
+                    string parentAssetName = GetFixedAssetName(parentBundleName.Substring(0, parentBundleName.LastIndexOf("_")));
 
                     if(bundleDictionary.ContainsKey(parentAssetName))
                     {
@@ -216,7 +214,10 @@ namespace SocialPoint.TransparentBundles
             while(newBundleEnum.MoveNext())
             {
                 Bundle newBundle = newBundleEnum.Current.Value;
-                bundleDictionary.Add(newBundle.Asset.Name.ToLower(), newBundle);
+                if (!bundleDictionary.ContainsKey(GetFixedAssetName(newBundle.Asset.Name)))
+                {
+                    bundleDictionary.Add(GetFixedAssetName(newBundle.Asset.Name), newBundle);
+                }
             }
 
             return bundleDictionary;
@@ -294,13 +295,13 @@ namespace SocialPoint.TransparentBundles
 
             if(IsValidAsset(asset))
             {
-                if(!_bundleDictionary.ContainsKey(asset.Name.ToLower()))
+                if(!_bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)))
                 {
                     valid = HasValidDependencies(asset);
                 }
                 else
                 {
-                    Asset serverAsset = _bundleDictionary[asset.Name.ToLower()].Asset;
+                    Asset serverAsset = _bundleDictionary[GetFixedAssetName(asset.Name)].Asset;
                     if(serverAsset.Guid != asset.Guid)
                     {
                         EditorUtility.DisplayDialog("Asset issue", "You are trying to create a bundle from an asset with a repeated name in the server. The system does not allow multiple bundles with the same name, so please, rename the asset and try again. \n\nVisit the following link for more info: \n" + Config.HelpUrl, "Close");
@@ -327,7 +328,7 @@ namespace SocialPoint.TransparentBundles
         //TEMPORARY
         private void AddNewBundle(Asset asset)
         {
-            if (!_bundleDictionary.ContainsKey(asset.Name.ToLower()) && !NewBundles.ContainsKey(asset.FullName.ToLower().Replace(".", "_")))
+            if (!_bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)) && !NewBundles.ContainsKey(asset.FullName.ToLower().Replace(".", "_").Replace(" ", "_")))
             {
                 var sizeDict = new Dictionary<BundlePlaform, int>();
                 sizeDict.Add(BundlePlaform.android_etc, 0);
@@ -352,13 +353,13 @@ namespace SocialPoint.TransparentBundles
 
                 if(IsValidAsset(asset))
                 {
-                    if(!_bundleDictionary.ContainsKey(asset.Name.ToLower()))
+                    if(!_bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)))
                     {
                         valid &= HasValidDependencies(asset);
                     }
                     else
                     {
-                        Asset serverAsset = _bundleDictionary[asset.Name.ToLower()].Asset;
+                        Asset serverAsset = _bundleDictionary[GetFixedAssetName(asset.Name)].Asset;
                         if(serverAsset.Guid != asset.Guid)
                         {
                             EditorUtility.DisplayDialog("Asset issue", "You are trying to create a bundle from an asset with a repeated name in the server. The system does not allow multiple bundles with the same name, so please, rename the asset and try again. \n\nVisit the following link for more info: \n" + Config.HelpUrl, "Close");
@@ -390,7 +391,7 @@ namespace SocialPoint.TransparentBundles
 
         public void RemoveBundle(Asset asset)
         {
-            if(_bundleDictionary.ContainsKey(asset.Name.ToLower()))
+            if(_bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)))
             {
                 TransparentBundleAPI.RemoveBundle(new RemoveBundlesArgs(new List<string> { asset.Guid }, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
             }
@@ -403,7 +404,7 @@ namespace SocialPoint.TransparentBundles
             for(int i = 0; i < assets.Count; i++)
             {
                 Asset asset = assets[i];
-                valid &= _bundleDictionary.ContainsKey(asset.Name.ToLower());
+                valid &= _bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name));
             }
 
             if(valid)
@@ -419,7 +420,7 @@ namespace SocialPoint.TransparentBundles
 
         public void BundleIntoBuild(Asset asset)
         {
-            if(_bundleDictionary.ContainsKey(asset.Name.ToLower()) && !_bundleDictionary[asset.Name.ToLower()].IsLocal)
+            if(_bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)) && !_bundleDictionary[GetFixedAssetName(asset.Name)].IsLocal)
             {
                 TransparentBundleAPI.MakeLocalBundle(new MakeLocalBundlesArgs(new List<string> { asset.Guid }, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
             }
@@ -432,7 +433,7 @@ namespace SocialPoint.TransparentBundles
             for(int i = 0; i < assets.Count; i++)
             {
                 Asset asset = assets[i];
-                valid &= _bundleDictionary.ContainsKey(asset.Name.ToLower());
+                valid &= _bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name));
             }
 
             if(valid)
@@ -448,7 +449,7 @@ namespace SocialPoint.TransparentBundles
 
         public void BundleOutsideBuild(Asset asset)
         {
-            if(_bundleDictionary.ContainsKey(asset.Name.ToLower()) && _bundleDictionary[asset.Name.ToLower()].IsLocal)
+            if(_bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)) && _bundleDictionary[GetFixedAssetName(asset.Name)].IsLocal)
             {
                 TransparentBundleAPI.RemoveLocalBundle(new RemoveLocalBundlesArgs(new List<string> { asset.Guid }, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
             }
@@ -461,7 +462,7 @@ namespace SocialPoint.TransparentBundles
             for(int i = 0; i < assets.Count; i++)
             {
                 Asset asset = assets[i];
-                valid &= _bundleDictionary.ContainsKey(asset.Name.ToLower());
+                valid &= _bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name));
             }
 
             if(valid)
@@ -473,6 +474,11 @@ namespace SocialPoint.TransparentBundles
                 }
                 TransparentBundleAPI.RemoveLocalBundle(new RemoveLocalBundlesArgs(guids, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
             }
+        }
+
+        public string GetFixedAssetName(string assetName)
+        {
+            return assetName.ToLower().Replace(" ", "_");
         }
 
         public List<Bundle> GetBundles(string searchText)
@@ -491,9 +497,9 @@ namespace SocialPoint.TransparentBundles
 
         public Bundle GetBundleFromAsset(Asset asset)
         {
-            if(_bundleDictionary.ContainsKey(asset.Name.ToLower()))
+            if(_bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)))
             {
-                return _bundleDictionary[asset.Name.ToLower()];
+                return _bundleDictionary[GetFixedAssetName(asset.Name)];
             }
             else
             {
@@ -504,9 +510,9 @@ namespace SocialPoint.TransparentBundles
 
         public Bundle GetBundleFromAsset(string assetName)
         {
-            if(_bundleDictionary.ContainsKey(assetName.ToLower()))
+            if(_bundleDictionary.ContainsKey(GetFixedAssetName(assetName)))
             {
-                return _bundleDictionary[assetName.ToLower()];
+                return _bundleDictionary[GetFixedAssetName(assetName)];
             }
             else
             {
