@@ -154,7 +154,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\PhotonGame\LockStepClientBot\LockStepClientBot.csproj">
+      <Project>{c2d0cfae-e9e1-4487-b827-4907c6fbf956}</Project>
+      <Name>LockStepClientBot</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy /Y /Q "$(TargetDir)*.*" "$(SolutionDir)..\Server\deploy\Stardust\StarDust.S2S\bin\"</PostBuildEvent>
