@@ -18,6 +18,7 @@ namespace SocialPoint.TransparentBundles
         public Dictionary<string, bool> SharedDependenciesCache;
         private Dictionary<string, Bundle> _bundleDictionary;
         public ServerInfo ServerInfo;
+        private bool _requestPending = false;
 
         //TEMPORARY
         public Dictionary<string, Bundle> NewBundles;
@@ -71,11 +72,16 @@ namespace SocialPoint.TransparentBundles
 
         public void LoadBundleDataFromServer(Action SuccessCallback = null)
         {
-            TransparentBundleAPI.GetBundles(new GetBundlesArgs(x => ImportBundleData(x.ResponseRes.Response, SuccessCallback), x => UnityEngine.Debug.LogError(x.ResponseRes.Response)));
+            if (!_requestPending)
+            {
+                _requestPending = true;
+                TransparentBundleAPI.GetBundles(new GetBundlesArgs(x => ImportBundleData(x.ResponseRes.Response, SuccessCallback), x => UnityEngine.Debug.LogError(x.ResponseRes.Response)));
+            }
         }
 
         private void ImportBundleData(string bundleJsonString, Action SuccessCallback = null )
         {
+            _requestPending = false;
             if (bundleJsonString.Length > 0)
             {
                 byte[] jsonBytes = Encoding.ASCII.GetBytes(bundleJsonString);
