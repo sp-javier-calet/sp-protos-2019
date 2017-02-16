@@ -236,6 +236,7 @@ namespace SocialPoint.TransparentBundles
         /// <param name="result">Result of the connection</param>
         private void EndConnection(AsyncRequestData state, ResponseResult result)
         {
+            timeout = false;
             locked = false;
             ServicePointManager.ServerCertificateValidationCallback -= CertificateValidation;
             state.ConnectionFinished(result);
