@@ -1,9 +1,12 @@
-﻿using SocialPoint.AdminPanel;
-using SocialPoint.AppEvents;
+﻿using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Login;
 using SocialPoint.Dependency;
 using System;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Marketing
 {
@@ -21,7 +24,10 @@ namespace SocialPoint.Marketing
         {
             Container.Rebind<IMarketingAttributionManager>().ToMethod<IMarketingAttributionManager>(CreateMarketingAttributionManager, SetupMarketingAttributionManager);
             Container.Bind<IDisposable>().ToLookup<IMarketingAttributionManager>();
+
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMarketing>(CreateAdminPanelMarketing);
+            #endif
         }
 
         public IMarketingAttributionManager CreateMarketingAttributionManager()
@@ -42,11 +48,13 @@ namespace SocialPoint.Marketing
             manager.LoginData = Container.Resolve<ILoginData>();
         }
 
+        #if ADMIN_PANEL
         public AdminPanelMarketing CreateAdminPanelMarketing()
         {
             var adminPanel = new AdminPanelMarketing(Container.Resolve<IMarketingAttributionManager>(), Container.Resolve<IAttrStorage>("persistent"));
             return adminPanel;
         }
+        #endif
     }
 }
 

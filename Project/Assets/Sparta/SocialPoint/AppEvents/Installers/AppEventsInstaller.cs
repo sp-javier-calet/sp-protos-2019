@@ -2,8 +2,11 @@ using System;
 using UnityEngine;
 using SocialPoint.Dependency;
 using SocialPoint.AppEvents;
-using SocialPoint.AdminPanel;
 using SocialPoint.ScriptEvents;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 public class AppEventsInstaller : ServiceInstaller
 {
@@ -12,7 +15,9 @@ public class AppEventsInstaller : ServiceInstaller
         Container.Rebind<IAppEvents>().ToMethod<SocialPointAppEvents>(CreateAppEvents);
         Container.Bind<IDisposable>().ToLookup<IAppEvents>();
 
+        #if ADMIN_PANEL
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelAppEvents>(CreateAdminPanelAppEvents);
+        #endif
 
         Container.Bind<AppEventsBridge>().ToMethod<AppEventsBridge>(CreateAppEventsBridge);
         Container.Bind<IEventsBridge>().ToLookup<AppEventsBridge>();
@@ -24,10 +29,12 @@ public class AppEventsInstaller : ServiceInstaller
         return new SocialPointAppEvents(Container.Resolve<Transform>());
     }
 
+    #if ADMIN_PANEL
     AdminPanelAppEvents CreateAdminPanelAppEvents()
     {
         return new AdminPanelAppEvents(Container.Resolve<IAppEvents>());
     }
+    #endif
 
     AppEventsBridge CreateAppEventsBridge()
     {

@@ -1,14 +1,12 @@
-﻿using SocialPoint.AdminPanel;
-using SocialPoint.EventSystems;
-using SocialPoint.GUIControl;
-using SocialPoint.Dependency;
+﻿using UnityEngine;
 
-using UnityEngine;
-using UnityEngine.EventSystems;
+#if ADMIN_PANEL
 
-using System.Collections;
+using SocialPoint.AdminPanel;
 using System.Collections.Generic;
-using System;
+using SocialPoint.Dependency;
+using SocialPoint.GUIControl;
+using UnityEngine.EventSystems;
 
 public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
@@ -16,9 +14,9 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     List<IAdminPanelConfigurer> _configurers;
 
     public float WaitTime = 1.0f;
-    private bool _down = false;
-    private float _timeSinceDown = 0.0f;
-    private AdminPanelController _adminPanelController;
+    bool _down;
+    float _timeSinceDown;
+    AdminPanelController _adminPanelController;
 
     public void OnPointerUp(PointerEventData data)
     {
@@ -87,7 +85,7 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         }
     }
 
-    private void OnActivation()
+    void OnActivation()
     {
         if(_adminPanelController == null)
         {
@@ -98,3 +96,12 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         _adminPanelController.Show();
     }
 }
+
+
+#else
+
+public class AdminPanelButton : MonoBehaviour
+{
+}
+
+#endif

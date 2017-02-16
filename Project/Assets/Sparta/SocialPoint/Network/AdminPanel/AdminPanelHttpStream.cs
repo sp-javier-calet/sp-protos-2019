@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿#if ADMIN_PANEL 
+
+using System.Text;
 using SocialPoint.AdminPanel;
 using SocialPoint.Base;
 using SocialPoint.Network;
@@ -189,3 +191,5 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
         _console.Print(msg);
     }
 }
+
+#endif

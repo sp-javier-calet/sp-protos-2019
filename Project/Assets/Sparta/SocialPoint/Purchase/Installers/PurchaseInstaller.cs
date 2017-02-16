@@ -1,10 +1,13 @@
-﻿using SocialPoint.AdminPanel;
-using SocialPoint.Dependency;
+﻿using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.Network;
 using SocialPoint.ServerEvents;
 using SocialPoint.ServerSync;
 using SocialPoint.Utils;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Purchase
 {
@@ -13,9 +16,13 @@ namespace SocialPoint.Purchase
         public override void InstallBindings()
         {
             Container.Rebind<IGamePurchaseStore>().ToMethod<SocialPointPurchaseStore>(CreatePurchaseStore, SetupPurchaseStore);
+
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelPurchase>(CreateAdminPanel);
+            #endif
         }
 
+        #if ADMIN_PANEL
         AdminPanelPurchase CreateAdminPanel()
         {
             return new AdminPanelPurchase(
@@ -23,6 +30,7 @@ namespace SocialPoint.Purchase
                 Container.Resolve<IGamePurchaseStore>(),
                 Container.Resolve<ICommandQueue>());
         }
+        #endif
 
         SocialPointPurchaseStore CreatePurchaseStore()
         {

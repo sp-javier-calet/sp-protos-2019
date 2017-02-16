@@ -1,4 +1,3 @@
-using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Crash;
@@ -10,13 +9,19 @@ using SocialPoint.Utils;
 using SocialPoint.Social;
 using UnityEngine;
 
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
+
 public class GameLoadingController : SocialPoint.GameLoading.GameLoadingController
 {
     IGameLoader _gameLoader;
     ICoroutineRunner _coroutineRunner;
 
+    #if ADMIN_PANEL
     // Explicit assignation to avoid warnings when ADMIN_PANEL is not enabled
     AdminPanel _adminPanel = null;
+    #endif
 
     [SerializeField]
     string _sceneToLoad = "Main";
@@ -44,8 +49,6 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
         #if ADMIN_PANEL
         _adminPanel = Services.Instance.Resolve<AdminPanel>();
-        #else
-        _adminPanel = null;
         #endif
 
         base.OnLoad();
@@ -63,10 +66,12 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
         Login.NewUserStreamEvent += OnLoginNewUser;
         Login.ConfirmLinkEvent += OnConfirmLinkEvent;
+        #if ADMIN_PANEL
         if(_adminPanel != null)
         {
             _adminPanel.ChangedVisibility += OnAdminPanelChange;
         }
+        #endif
     }
 
     void OnLoadSceneStart()
@@ -84,10 +89,12 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     void OnAdminPanelChange()
     {
+        #if ADMIN_PANEL
         if(_adminPanel != null)
         {
             Paused = _adminPanel.Visible;
         }
+        #endif
     }
 
     bool OnLoginNewUser(IStreamReader reader)
@@ -113,10 +120,12 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     override protected void OnDisappearing()
     {
         Login.NewUserStreamEvent -= OnLoginNewUser;
+        #if ADMIN_PANEL
         if(_adminPanel != null)
         {
             _adminPanel.ChangedVisibility -= OnAdminPanelChange;
         }
+        #endif
         base.OnDisappearing();
     }
 

@@ -1,16 +1,19 @@
 using SocialPoint.Dependency;
-using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
 using SocialPoint.Profiling;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using UnityEngine.EventSystems;
 
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
+
 public class AdminPanelInstaller : ServiceInstaller, IInitializable
 {
     public override void InstallBindings()
     {
-        #pragma warning disable 0162
+        #if ADMIN_PANEL
         if(AdminPanel.IsAvailable)
         {
             Container.Bind<IInitializable>().ToInstance(this);
@@ -23,14 +26,16 @@ public class AdminPanelInstaller : ServiceInstaller, IInitializable
             Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelProfiler>();
             Container.Bind<IAdminPanelConfigurer>().ToSingle<AdminPanelAttributes>();
         }
-        #pragma warning restore 0162
+        #endif
     }
 
+    #if ADMIN_PANEL
     AdminPanel CreateAdminPanel()
     {
         return new AdminPanel(
             Container.ResolveList<IAdminPanelConfigurer>());
     }
+    #endif
 
     public void Initialize()
     {

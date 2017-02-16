@@ -1,3 +1,5 @@
+#if ADMIN_PANEL
+
 using System;
 using System.Collections;
 using SocialPoint.AdminPanel;
@@ -145,3 +147,5 @@ namespace SocialPoint.AppEvents
         }
     }
 }
+
+#endif

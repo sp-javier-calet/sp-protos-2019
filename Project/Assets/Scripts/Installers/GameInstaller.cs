@@ -1,6 +1,5 @@
 using System;
 using SocialPoint.Dependency;
-using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
 using SocialPoint.GameLoading;
 using SocialPoint.Alert;
@@ -9,6 +8,10 @@ using SocialPoint.AppEvents;
 using SocialPoint.ServerSync;
 using SocialPoint.Social;
 using SocialPoint.Login;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 public class GameInstaller : Installer, IInitializable
 {
@@ -38,7 +41,10 @@ public class GameInstaller : Installer, IInitializable
         Container.Bind<IDisposable>().ToLookup<IGameErrorHandler>();
 
         Container.Rebind<IGameLoader>().ToMethod<GameLoader>(CreateGameLoader, SetupGameLoader);
+
+        #if ADMIN_PANEL
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGame>(CreateAdminPanel);
+        #endif
 
         Container.Rebind<IPlayerData>().ToMethod<PlayerDataProvider>(CreatePlayerData);
 
@@ -57,6 +63,7 @@ public class GameInstaller : Installer, IInitializable
         }
     }
 
+    #if ADMIN_PANEL
     AdminPanelGame CreateAdminPanel()
     {
         return new AdminPanelGame(
@@ -64,6 +71,7 @@ public class GameInstaller : Installer, IInitializable
             Container.Resolve<IGameLoader>(),
             Container.Resolve<GameModel>());
     }
+    #endif
 
     GameLoader CreateGameLoader()
     {
