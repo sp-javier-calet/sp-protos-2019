@@ -1,27 +1,32 @@
-﻿using Examples.Lockstep;
-using FixMath.NET;
-using Photon.Stardust.S2S.Server;
-using SocialPoint.Lockstep;
+﻿
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using FixMath.NET;
+using SocialPoint.Lockstep;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 
-namespace LockStepClientBot
+namespace Examples.Lockstep
 {
-    public class ClientBot : IGameClient
+    public class ClientBotGameFactory : INetworkClientGameFactory
+    {
+        public object Create(INetworkClient client, IUpdateScheduler scheduler, Dictionary<string, string> config)
+        {
+            var bot = new ClientBot(client);
+            bot.Start();
+            return bot;
+        }
+    }
+
+    public class ClientBot
     {
         LockstepClient _lockClient;
         LockstepNetworkClient _lockNetClient;
         Model _model;
-        IUpdateScheduler _scheduler;
 
         bool _clicked = false;
 
-        public ClientBot()
+        public ClientBot(INetworkClient client)
         {
             var config = new Config();
             _model = new Model(config);
@@ -29,6 +34,10 @@ namespace LockStepClientBot
 
             _lockClient.Simulate += OnSimulate;
             _lockClient.RegisterCommandLogic<ClickCommand>(new ClickCommandLogic(_model));
+
+            var factory = new LockstepCommandFactory();
+            factory.Register<ClickCommand>(1);
+            _lockNetClient = new LockstepNetworkClient(client, _lockClient, factory);
         }
 
         void OnSimulate(int dt)
@@ -40,22 +49,14 @@ namespace LockStepClientBot
                 {
                     var cmd = new ClickCommand((Fix64)1, (Fix64)0, (Fix64)1);
                     _clicked = true;
-                    _lockClient.AddPendingCommand<ClickCommand>(cmd, onClickCommand);
+                    _lockClient.AddPendingCommand<ClickCommand>(cmd, OnClickCommand);
                 }
             }
         }
 
-        void onClickCommand()
+        void OnClickCommand()
         {
             _clicked = false;
-        }
-
-        public void SetUp(INetworkClient client, IUpdateScheduler scheduler)
-        {
-            var factory = new LockstepCommandFactory();
-            factory.Register<ClickCommand>(1);
-            _lockNetClient = new LockstepNetworkClient(client , _lockClient, factory);
-            scheduler.Add(_lockClient);
         }
 
         public void Start()

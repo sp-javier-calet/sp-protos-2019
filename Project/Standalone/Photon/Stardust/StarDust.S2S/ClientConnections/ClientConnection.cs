@@ -74,7 +74,7 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
 
         INetworkClient _stardutsClient;
 
-        public IGameClient GameClient;
+        public object GameClient;
 
         public UpdateScheduler Scheduler;
         #endregion
@@ -103,12 +103,15 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
             {
                 try
                 {
-                    GameClient = (IGameClient)CreateInstanceFromAssembly(Settings.GameAssembly, Settings.GameType);
-                    if (GameClient != null)
+                    var factory = (INetworkClientGameFactory)CreateInstanceFromAssembly(Settings.GameAssembly, Settings.GameType);
+                    if (factory != null)
                     {
                         _stardutsClient = new StardustNetworkClient(this);
                         Scheduler = new UpdateScheduler();
-                        GameClient.SetUp(_stardutsClient, Scheduler);
+                        var dict = new Dictionary<string, string>();
+                        // System.Configuration.ConfigurationManager.AppSettings)
+                        GameClient = factory.Create(_stardutsClient, Scheduler, dict);
+                        
                     }
                 }
                 catch (Exception e)
