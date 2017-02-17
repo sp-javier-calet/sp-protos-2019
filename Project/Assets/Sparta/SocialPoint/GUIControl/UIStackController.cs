@@ -623,7 +623,7 @@ namespace SocialPoint.GUIControl
 
         private delegate bool PopCondition(UIViewController ctrl);
 
-        IEnumerator DoPopUntilCondition(PopCondition cond, ActionType act, bool checkTop = false)
+        IEnumerator DoPopUntilCondition(PopCondition cond, ActionType act)
         {
             UIViewController top = null;
             UIViewController ctrl = null;
