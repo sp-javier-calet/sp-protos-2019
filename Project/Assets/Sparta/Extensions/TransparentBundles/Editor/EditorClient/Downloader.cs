@@ -114,7 +114,7 @@ namespace SocialPoint.TransparentBundles
                         Renderer renderer = (Renderer)component;
                         foreach(Material material in renderer.sharedMaterials)
                         {
-                            if(material.shader != null)
+                            if(material!= null && material.shader != null)
                             {
                                 material.shader = Shader.Find(material.shader.name);
                             }
