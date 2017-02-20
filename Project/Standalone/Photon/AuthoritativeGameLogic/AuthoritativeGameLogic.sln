@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authoritative", "..\Photon\AuthoritativePlugin\AuthoritativePlugin.csproj", "{F292E1D0-0FA8-4CCB-9392-BCFC8F8FF848}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authoritative", "..\AuthoritativePlugin\AuthoritativePlugin.csproj", "{F292E1D0-0FA8-4CCB-9392-BCFC8F8FF848}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthoritativeSparta", "..\Sparta\AuthoritativeSparta\AuthoritativeSparta.csproj", "{4BA8EA51-7FEA-4E0F-8103-386FFFFD6001}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthoritativeGameLogic", "AuthoritativeGameLogic\AuthoritativeGameLogic.csproj", "{D43E9ADC-17AD-49A3-8931-3FA2247C7F9E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthoritativeGameLogic", "AuthoritativeGameLogic.csproj", "{D43E9ADC-17AD-49A3-8931-3FA2247C7F9E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

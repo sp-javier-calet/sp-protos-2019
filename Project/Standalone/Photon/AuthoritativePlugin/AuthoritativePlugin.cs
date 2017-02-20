@@ -69,6 +69,7 @@ namespace SocialPoint.Multiplayer
                 catch(Exception e)
                 {
                     errorMsg = e.Message;
+                    return false;
                 }
             }
 

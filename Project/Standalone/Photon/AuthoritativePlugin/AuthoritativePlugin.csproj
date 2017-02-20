@@ -32,10 +32,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net">
-      <HintPath>..\..\..\PhotonServer\lib\log4net.dll</HintPath>
+      <HintPath>..\Server\lib\log4net.dll</HintPath>
     </Reference>
     <Reference Include="PhotonHivePlugin">
-      <HintPath>..\lib\PhotonHivePlugin.dll</HintPath>
+      <HintPath>..\Server\lib\PhotonHivePlugin.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
