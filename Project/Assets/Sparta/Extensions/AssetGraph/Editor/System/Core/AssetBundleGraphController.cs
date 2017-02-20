@@ -222,7 +222,7 @@ namespace AssetBundleGraph {
 				if(executor != null) {
 					if(executor is IntegratedGUILoader && preImporter != null) {
 						var loader = executor as IntegratedGUILoader;
-						loader.LoadSingleAsset(target, currentNodeData,connectionToOutput, preImporter, Output);
+						loader.LoadSingleAsset(target, currentNodeData, connectionToOutput, preImporter, Output);
 					} else {
 						if(isActualRun) {
 							executor.Run(target, currentNodeData, currentInputPoint, connectionToOutput, inputGroupAssets, alreadyCachedPaths, Output);
@@ -231,8 +231,12 @@ namespace AssetBundleGraph {
 						}
 					}
 				}
-			} catch (NodeException e) {
-				errorHandler(e);
+			} catch(Exception e) {
+				if(e is NodeException) {
+					errorHandler((NodeException)e);
+				} else {
+					Debug.LogError(e);
+				}
 				// since error occured, this node should stop running for other inputpoints. Adding node id to stop.
 				if(!performedIds.Contains(currentNodeData.Id)) {
 					performedIds.Add(currentNodeData.Id);
