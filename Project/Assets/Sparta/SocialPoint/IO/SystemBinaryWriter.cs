@@ -90,5 +90,10 @@ namespace SocialPoint.IO
         {
             _writer.Write(value);
         }
+
+        public void Flush()
+        {
+            _writer.Flush();
+        }
     }
 }

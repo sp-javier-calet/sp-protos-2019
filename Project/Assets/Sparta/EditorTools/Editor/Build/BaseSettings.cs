@@ -126,24 +126,7 @@ namespace SpartaTools.Editor.Build
             PlayerSettings.iOS.buildNumber = App.BuildNumber.ToString();
 
             // Always override Icon
-            PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new Texture2D[] {
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture
-            });
-            PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.iOS, new Texture2D[] {
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture
-            });
+            SetIcon(App.IconTexture);
                 
             // Bundle Identifier
             if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.iOS)

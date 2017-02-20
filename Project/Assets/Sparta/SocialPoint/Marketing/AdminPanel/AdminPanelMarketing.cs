@@ -2,14 +2,13 @@
 
 using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
-using System;
 
 namespace SocialPoint.Marketing
 {
     public sealed class AdminPanelMarketing : IAdminPanelGUI, IAdminPanelConfigurer
     {
-        IMarketingAttributionManager _manager;
-        IAttrStorage _storage;
+        readonly IMarketingAttributionManager _manager;
+        readonly IAttrStorage _storage;
 
         public AdminPanelMarketing(IMarketingAttributionManager manager, IAttrStorage persistentStorage)
         {
@@ -32,7 +31,7 @@ namespace SocialPoint.Marketing
         {
             layout.CreateLabel("Marketing");
             layout.CreateMargin();
-            layout.CreateToggleButton("Debug Mode", _manager.DebugMode, (debug) => {
+            layout.CreateToggleButton("Debug Mode", _manager.DebugMode, debug => {
                 _manager.DebugMode = debug;
             });
             layout.CreateButton("Delete AppPreviouslyInstalledForMarketing", () => {
@@ -41,7 +40,7 @@ namespace SocialPoint.Marketing
                     _storage.Remove(SocialPointMarketingAttributionManager.AppPreviouslyInstalledForMarketing);
                     layout.Refresh();
                 }
-            },_storage.Has(SocialPointMarketingAttributionManager.AppPreviouslyInstalledForMarketing));
+            }, _storage.Has(SocialPointMarketingAttributionManager.AppPreviouslyInstalledForMarketing));
         }
 
         #endregion

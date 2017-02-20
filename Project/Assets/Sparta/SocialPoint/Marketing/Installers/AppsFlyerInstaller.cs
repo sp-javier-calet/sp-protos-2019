@@ -36,7 +36,7 @@ namespace  SocialPoint.Marketing
             #endif
 
             #if ANDROID_DEVICE || IOS_DEVICE
-            Container.Rebind<SocialPointAppsFlyer>().ToMethod<SocialPointAppsFlyer>(CreateMobileAppTracking);
+            Container.Rebind<SocialPointAppsFlyer>().ToMethod<SocialPointAppsFlyer>(CreateAppsFlyer);
             Container.Bind<IMarketingTracker>().ToLookup<SocialPointAppsFlyer>();
             Container.Bind<IDisposable>().ToLookup<SocialPointAppsFlyer>();
             #else
@@ -46,7 +46,7 @@ namespace  SocialPoint.Marketing
             #endif
         }
 
-        SocialPointAppsFlyer CreateMobileAppTracking()
+        SocialPointAppsFlyer CreateAppsFlyer()
         {
             var tracker = new SocialPointAppsFlyer();
             #if IOS_DEVICE
