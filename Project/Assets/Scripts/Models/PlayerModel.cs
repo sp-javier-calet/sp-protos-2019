@@ -2,7 +2,7 @@
 
 public class PlayerModel : IDisposable
 {
-    public long Level{ get; private set; }
+    public int Level{ get; private set; }
 
     public ResourcePool Resources{ get; private set; }
 
@@ -15,7 +15,7 @@ public class PlayerModel : IDisposable
         Goals = new GoalsModel();
     }
 
-    public PlayerModel Init(long level, ResourcePool resources)
+    public PlayerModel Init(int level, ResourcePool resources)
     {
         Level = level;
 
