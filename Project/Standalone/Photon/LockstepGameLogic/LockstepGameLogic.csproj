@@ -46,13 +46,12 @@
     <Compile Include="..\..\..\..\Project\Assets\Examples\Lockstep\ServerBehaviour.cs">
       <Link>ServerBehaviour.cs</Link>
     </Compile>
-    <Compile Include="ClientBot.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Sparta\LockstepSparta\LockstepSparta.csproj">
+    <ProjectReference Include="..\LockstepPlugin\LockstepSparta.csproj">
       <Project>{4ba8ea51-7fea-4e0f-8103-386ffffd6001}</Project>
       <Name>Sparta</Name>
     </ProjectReference>

@@ -57,7 +57,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Sparta\AuthoritativeSparta\AuthoritativeSparta.csproj">
+    <ProjectReference Include="..\AuthoritativePlugin\AuthoritativeSparta.csproj">
       <Project>{4ba8ea51-7fea-4e0f-8103-386ffffd6001}</Project>
       <Name>Sparta</Name>
     </ProjectReference>

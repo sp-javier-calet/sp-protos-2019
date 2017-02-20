@@ -46,13 +46,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Shared\NetworkServerPlugin.cs">
+    <Compile Include="..\Server\Shared\NetworkServerPlugin.cs">
       <Link>NetworkServerPlugin.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\PluginHttpClient.cs">
+    <Compile Include="..\Server\Shared\PluginHttpClient.cs">
       <Link>PluginHttpClient.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\PluginNetworkMessage.cs">
+    <Compile Include="..\Server\Shared\PluginNetworkMessage.cs">
       <Link>PluginNetworkMessage.cs</Link>
     </Compile>
     <Compile Include="LockstepPlugin.cs" />
@@ -60,7 +60,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Sparta\LockstepSparta\LockstepSparta.csproj">
+    <ProjectReference Include="LockstepSparta.csproj">
       <Project>{4ba8ea51-7fea-4e0f-8103-386ffffd6001}</Project>
       <Name>Sparta</Name>
     </ProjectReference>

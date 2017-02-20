@@ -45,10 +45,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Shared\NetworkServerPlugin.cs">
+    <Compile Include="..\Server\Shared\NetworkServerPlugin.cs">
       <Link>NetworkServerPlugin.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\PluginNetworkMessage.cs">
+    <Compile Include="..\Server\Shared\PluginNetworkMessage.cs">
       <Link>PluginNetworkMessage.cs</Link>
     </Compile>
     <Compile Include="AuthoritativePlugin.cs" />
@@ -56,7 +56,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Sparta\AuthoritativeSparta\AuthoritativeSparta.csproj">
+    <ProjectReference Include="AuthoritativeSparta.csproj">
       <Project>{4ba8ea51-7fea-4e0f-8103-386ffffd6001}</Project>
       <Name>Sparta</Name>
     </ProjectReference>
