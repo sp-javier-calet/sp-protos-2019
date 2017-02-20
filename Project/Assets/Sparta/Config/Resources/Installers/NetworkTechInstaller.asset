@@ -13,7 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    Tech: 0
+    Tech: 2
     Unet:
       Config:
         ServerAddress: localhost
@@ -22,6 +22,7 @@ MonoBehaviour:
       Config:
         GameVersion: 
         RoomName: 
+        CreateRoom: 1
         CustomPhotonConfig:
           Enabled: 0
           UpdateInterval: 100000
@@ -34,8 +35,13 @@ MonoBehaviour:
           IsOpen: 1
           MaxPlayers: 2
           PlayerTtl: 0
+          EmptyRoomTtl: 0
           CleanupCache: 1
           PublishUserId: 0
           CustomProperties: []
           CustomLobbyProperties: []
-          Plugins: []
+          Plugins:
+          - Lockstep
+        ForceRegion: 4
+        ForceAppId: 
+        ForceServer: 
