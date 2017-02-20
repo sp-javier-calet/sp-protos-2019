@@ -53,6 +53,9 @@
     <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\AttrMessage.cs">
       <Link>Lockstep\Network\AttrMessage.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\ClientChangedConnectionStatusMessage.cs">
+      <Link>Lockstep\Network\ClientChangedConnectionStatusMessage.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\ClientStartMessage.cs">
       <Link>Lockstep\Network\ClientStartMessage.cs</Link>
     </Compile>
