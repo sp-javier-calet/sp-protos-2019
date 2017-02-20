@@ -87,15 +87,15 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         });
     }
 
+    #if ADMIN_PANEL
     void OnAdminPanelChange()
     {
-        #if ADMIN_PANEL
         if(_adminPanel != null)
         {
             Paused = _adminPanel.Visible;
         }
-        #endif
     }
+    #endif
 
     bool OnLoginNewUser(IStreamReader reader)
     {
