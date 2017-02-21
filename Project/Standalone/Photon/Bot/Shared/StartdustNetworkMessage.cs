@@ -1,15 +1,13 @@
 ﻿using SocialPoint.Network;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using SocialPoint.IO;
+using Photon.Stardust.S2S.Server;
 using Photon.SocketServer.ServerToServer;
 using System.IO;
 
-namespace Photon.Stardust.S2S.Server
+namespace SocialPoint.Network
 {
-    class PeerMessage : INetworkMessage
+    class StardustNetworkMessage : INetworkMessage
     {
         S2SPeerBase _peer;
         NetworkMessageData _data;
@@ -21,7 +19,7 @@ namespace Photon.Stardust.S2S.Server
 
         Action<byte, byte[]> _doSend;
 
-        public PeerMessage(S2SPeerBase peer, NetworkMessageData data, Action<byte, byte[]> sendDelegate)
+        public StardustNetworkMessage(S2SPeerBase peer, NetworkMessageData data, Action<byte, byte[]> sendDelegate)
         {
             _peer = peer;
             _data = data;

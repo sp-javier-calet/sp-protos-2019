@@ -214,7 +214,7 @@
                 fiber.Schedule(
                     () =>
                         {
-                            var client = new ClientConnection(gameName, lobbyName, x, false, this);
+                            var client = CreateClientConnection(gameName, lobbyName, x);
 
                             client.Start();
                             clients.Add(client);
@@ -228,6 +228,11 @@
             {
                 fiber.Schedule(() => this.StopGame(gameName), (Settings.StartupInterval * clientCounter) + (long)TimeSpan.FromSeconds(Settings.TimeInGame).TotalMilliseconds);
             }
+        }
+
+        protected virtual ClientConnection CreateClientConnection(string gameName, string lobbyName, int num)
+        {
+            return new ClientConnection(gameName, lobbyName, num, false, this);
         }
 
         /// <summary>

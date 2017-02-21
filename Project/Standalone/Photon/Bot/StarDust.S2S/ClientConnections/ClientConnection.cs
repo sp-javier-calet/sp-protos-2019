@@ -25,17 +25,11 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
     using Photon.Stardust.S2S.Server.ConnectionStates.LoadBalancing;
     using Photon.Stardust.S2S.Server.Diagnostics;
     using Photon.Stardust.S2S.Server.Enums;
-    using SocialPoint.Network;
-    using SocialPoint.Utils;
-    using System.IO;
-    using System.Reflection;
 
     public class ClientConnection 
     {
         #region Constants and Fields
-
-        public const int UpdateMS = 5;
-
+        
         public const int MaxMatchmakingRetries = 10;
 
         public int MatchmakingRetryCount = 0;
@@ -72,11 +66,6 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
 
         protected Random random = new Random();
 
-        INetworkClient _stardutsClient;
-
-        public object GameClient;
-
-        public UpdateScheduler Scheduler;
         #endregion
 
         #region Constructors and Destructors
@@ -99,26 +88,6 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
             this.State = Disconnected.Instance;
             this.Fiber = new PoolFiber(new FailSafeBatchExecutor());
             this.Fiber.Start();
-            if (Settings.GameType != string.Empty && Settings.GameAssembly != string.Empty)
-            {
-                try
-                {
-                    var factory = (INetworkClientGameFactory)CreateInstanceFromAssembly(Settings.GameAssembly, Settings.GameType);
-                    if (factory != null)
-                    {
-                        _stardutsClient = new StardustNetworkClient(this);
-                        Scheduler = new UpdateScheduler();
-                        var dict = new Dictionary<string, string>();
-                        // System.Configuration.ConfigurationManager.AppSettings)
-                        GameClient = factory.Create(_stardutsClient, Scheduler, dict);
-                        
-                    }
-                }
-                catch (Exception e)
-                {
-
-                }
-            }
         }
 
         #endregion
@@ -146,7 +115,7 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
             string ip = address.Split(':')[0];
             string port = address.Split(':')[1];
 
-            var gamingPeer = new GamingPeer(this, this.Application); 
+            var gamingPeer = CreateGamingPeer(); 
 
             var endpoint = new IPEndPoint(IPAddress.Parse(ip), int.Parse(port));
             if (protocol == NetworkProtocolType.Udp)
@@ -165,10 +134,16 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
             return result;
         }
 
+        protected virtual GamingPeer CreateGamingPeer()
+        {
+            return new GamingPeer(this, this.Application);
+        }
+
+        protected const int UpdateIntervalMillis = 5;
 
         public void EnqueueUpdate()
         {
-            this.Fiber.Schedule(this.Update, UpdateMS);
+            this.Fiber.Schedule(this.Update, UpdateIntervalMillis);
         }
 
         public void OnEncryptionEstablished()
@@ -252,9 +227,9 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
         /// <summary>
         ///   The update.
         /// </summary>
-        public void Update()
+        public virtual void Update()
         {
-            this.State.OnUpdate(this, UpdateMS);
+            this.State.OnUpdate(this);
         }
         #endregion
 
@@ -554,14 +529,6 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
                 this.counterTimer.Dispose();
                 this.counterTimer = null;
             }
-        }
-
-        protected object CreateInstanceFromAssembly(string assemblyName, string typeName)
-        {
-            var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var path = Path.Combine(dir, assemblyName);
-            var gameType = Assembly.LoadFile(path).GetType(typeName);
-            return Activator.CreateInstance(gameType);
         }
 
         #endregion

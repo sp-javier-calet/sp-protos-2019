@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{4C79C300-BAD3-465D-B591-AE5E5E4F16E3}</ProjectGuid>
+    <ProjectGuid>{A8CD69C4-6329-4466-8C77-18CBD1D4F162}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Photon.Stardust.S2S.Server</RootNamespace>
@@ -36,20 +36,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ExitGames.Logging.Log4Net">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\PhotonServer\lib\ExitGames.Logging.Log4Net.dll</HintPath>
+      <HintPath>..\..\Server\lib\ExitGames.Logging.Log4Net.dll</HintPath>
     </Reference>
     <Reference Include="ExitGamesLibs">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\PhotonServer\lib\ExitGamesLibs.dll</HintPath>
+      <HintPath>..\..\Server\lib\ExitGamesLibs.dll</HintPath>
     </Reference>
-    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\PhotonServer\lib\log4net.dll</HintPath>
+    <Reference Include="log4net">
+      <HintPath>..\..\Server\lib\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Photon.SocketServer, Version=4.1.10.9615, Culture=neutral, PublicKeyToken=48c2fa3b6988090e, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\PhotonServer\lib\Photon.SocketServer.dll</HintPath>
+    <Reference Include="Photon.SocketServer">
+      <HintPath>..\..\Server\lib\Photon.SocketServer.dll</HintPath>
     </Reference>
     <Reference Include="PhotonHostRuntimeInterfaces">
       <HintPath>..\..\Server\lib\PhotonHostRuntimeInterfaces.dll</HintPath>
@@ -88,10 +84,8 @@
     <Compile Include="GamingPeer.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="PeerMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs" />
-    <Compile Include="StardustNetworkClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -102,16 +96,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Sparta\LockstepSparta\LockstepSparta.csproj">
-      <Project>{4ba8ea51-7fea-4e0f-8103-386ffffd6001}</Project>
-      <Name>LockstepSparta</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\..\Server\deploy\Stardust\StarDust.S2S\bin\"</PostBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

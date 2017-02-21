@@ -38,7 +38,7 @@ namespace Photon.Stardust.S2S.Server.ConnectionStates.LoadBalancing
                 if (client.ConnectToServer(gameServerAddress, Settings.Protocol, "Game"))
                 {
                     log.InfoFormat("Connecting to " + gameServerAddress);
-                    this.OnUpdate(client, 0);
+                    this.OnUpdate(client);
                 }
                 else
                 {
@@ -64,7 +64,7 @@ namespace Photon.Stardust.S2S.Server.ConnectionStates.LoadBalancing
         /// <param name="client">
         /// The client.
         /// </param>
-        public override void OnUpdate(ClientConnection client, int elapsedMiliSeconds)
+        public override void OnUpdate(ClientConnection client)
         {
             client.EnqueueUpdate();
         }
