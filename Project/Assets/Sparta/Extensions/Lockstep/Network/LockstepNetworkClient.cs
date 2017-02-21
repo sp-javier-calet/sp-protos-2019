@@ -82,7 +82,6 @@ namespace SocialPoint.Lockstep
         public void OnClientDisconnected()
         {
             _clientSetupReceived = false;
-            _clientLockstep.Stop();
         }
 
         public void OnMessageReceived(NetworkMessageData data)
@@ -161,6 +160,7 @@ namespace SocialPoint.Lockstep
             PlayerNumber =  (byte)_playerIds.IndexOf(PlayerId);
 
             _clientLockstep.Start(time);
+
             if(StartScheduled != null)
             {
                 StartScheduled(time);
@@ -195,7 +195,7 @@ namespace SocialPoint.Lockstep
                 _sendPlayerReadyPending = false;
                 _client.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.PlayerReady,
-                }, new PlayerReadyMessage(PlayerId));
+                }, new PlayerReadyMessage(PlayerId, _clientLockstep.CurrentTurnNumber));
               if(PlayerReadySent != null)
                 {
                     PlayerReadySent();
