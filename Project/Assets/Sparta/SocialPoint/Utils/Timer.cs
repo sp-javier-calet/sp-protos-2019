@@ -8,6 +8,7 @@ namespace SocialPoint.Utils
         float _startTime = 0f;
         float _endTime = 0f;
         bool _isCanceled = false;
+        bool _ignoreTimeScale = false;
 
         public Timer()
         {
@@ -15,9 +16,14 @@ namespace SocialPoint.Utils
             _endTime = 0f;
         }
 
+        float GetCurrentTime()
+        {
+            return _ignoreTimeScale ? Time.unscaledTime : Time.time;
+        }
+
         public void Wait(float waitTime)
         {
-            _startTime = Time.timeSinceLevelLoad;
+            _startTime = GetCurrentTime();
             _endTime = _startTime + waitTime;
             _isCanceled = false;
         }
@@ -30,7 +36,7 @@ namespace SocialPoint.Utils
                 {
                     return false;
                 }
-                return Time.timeSinceLevelLoad < _endTime;
+                return !IsFinished;
             }
         }
 
@@ -42,7 +48,15 @@ namespace SocialPoint.Utils
                 {
                     return false;
                 }
-                return Time.timeSinceLevelLoad >= _endTime;
+                return GetCurrentTime() >= _endTime;
+            }
+        }
+
+        public float Duration
+        {
+            get
+            {
+                return _endTime - _startTime;
             }
         }
 
@@ -55,7 +69,7 @@ namespace SocialPoint.Utils
         {
             get
             {
-                return Time.timeSinceLevelLoad - _startTime;
+                return Mathf.Max(GetCurrentTime() - _startTime, 0f);
             }
         }
 
@@ -66,6 +80,18 @@ namespace SocialPoint.Utils
                 float dt = Delta / (_endTime - _startTime);
 
                 return Mathf.Clamp(dt, 0f, 1f);
+            }
+        }
+
+        public bool IgnoreTimeScale
+        {
+            get
+            {
+                return _ignoreTimeScale;
+            }
+            set
+            {
+                _ignoreTimeScale = value;
             }
         }
     }
