@@ -25,7 +25,7 @@ namespace SocialPoint.Network
     }
     #endif
 
-    public class HttpClientInstaller : ServiceInstaller
+    public class HttpClientInstaller : ServiceInstaller, IInitializable
     {
         [Serializable]
         public class SettingsData
@@ -42,7 +42,6 @@ namespace SocialPoint.Network
         public override void InstallBindings()
         {
             _httpProxy = EditorProxy.GetProxy();
-            _deviceInfo = Container.Resolve<IDeviceInfo>();
 
             #pragma warning disable 0162
 
@@ -73,6 +72,11 @@ namespace SocialPoint.Network
             }
 
             #pragma warning restore 0162
+        }
+
+        public void Initialize()
+        {
+            _deviceInfo = Container.Resolve<IDeviceInfo>();
         }
 
         CurlHttpClient CreateCurlHttpClient()
