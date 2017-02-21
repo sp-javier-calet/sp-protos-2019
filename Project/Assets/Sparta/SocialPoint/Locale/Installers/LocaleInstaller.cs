@@ -55,6 +55,8 @@ namespace SocialPoint.Locale
 
         public override void InstallBindings()
         {
+            Container.Bind<IInitializable>().ToInstance(this);
+
             Container.Rebind<Localization>().ToMethod<Localization>(CreateLocalization);
             Container.Rebind<LocalizeAttributeConfiguration>().ToMethod<LocalizeAttributeConfiguration>(CreateLocalizeAttributeConfiguration);
 
