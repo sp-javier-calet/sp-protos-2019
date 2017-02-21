@@ -7,7 +7,7 @@ using System.IO;
 
 namespace SocialPoint.Network
 {
-    class StardustNetworkMessage : INetworkMessage
+    public class StardustNetworkMessage : INetworkMessage
     {
         S2SPeerBase _peer;
         NetworkMessageData _data;

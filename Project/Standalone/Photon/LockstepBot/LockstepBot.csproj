@@ -8,8 +8,8 @@
     <ProjectGuid>{4C79C300-BAD3-465D-B591-AE5E5E4F16E3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Photon.Stardust.S2S.Server</RootNamespace>
-    <AssemblyName>Stardust.S2S.Server</AssemblyName>
+    <RootNamespace>SocialPoint.Network</RootNamespace>
+    <AssemblyName>LockstepBot</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -61,6 +61,7 @@
     <Compile Include="..\Bot\Shared\StartdustNetworkMessage.cs">
       <Link>StartdustNetworkMessage.cs</Link>
     </Compile>
+    <Compile Include="LockstepApplication.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="ExitGames.Logging.Log4Net, Version=1.0.4.0, Culture=neutral, PublicKeyToken=eac0edd9746a4aa0, processorArchitecture=MSIL">
@@ -80,6 +81,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
   </ItemGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

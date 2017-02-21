@@ -62,6 +62,9 @@
     <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\EmptyTurnsMessage.cs">
       <Link>Lockstep\Network\EmptyTurnsMessage.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\INetworkClientGameFactory.cs">
+      <Link>Lockstep\Network\INetworkClientGameFactory.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\Network\INetworkServerGameFactory.cs">
       <Link>Lockstep\Network\INetworkServerGameFactory.cs</Link>
     </Compile>
@@ -223,9 +226,6 @@
     </Compile>
     <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\INetworkClient.cs">
       <Link>Network\INetworkClient.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\INetworkClientGameFactory.cs">
-      <Link>Network\INetworkClientGameFactory.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\INetworkMessage.cs">
       <Link>Network\INetworkMessage.cs</Link>

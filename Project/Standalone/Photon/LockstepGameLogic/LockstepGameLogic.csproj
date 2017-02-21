@@ -46,6 +46,9 @@
     <Compile Include="..\..\..\..\Project\Assets\Examples\Lockstep\ServerBehaviour.cs">
       <Link>ServerBehaviour.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Examples\Lockstep\NetworkClientFactory.cs">
+      <Link>NetworkClientFactory.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System" />

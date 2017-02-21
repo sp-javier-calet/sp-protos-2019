@@ -10,7 +10,7 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Network
 {
-    class StardustNetworkClient : GamingPeer, INetworkClient
+    public class StardustNetworkClient : GamingPeer, INetworkClient
     {
         ClientConnection _clientConnection;
         public bool SendReliable = true;

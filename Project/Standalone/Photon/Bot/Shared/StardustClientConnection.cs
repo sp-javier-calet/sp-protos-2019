@@ -14,34 +14,37 @@ namespace SocialPoint.Network
     public class StardustClientConnection : ClientConnection
     {
         object _gameClient;
-        UpdateScheduler _updateScheduler;
+        StardustApplication _app;
+        public UpdateScheduler Scheduler { get; private set; }
+        public StardustNetworkClient NetworkClient { get; private set; }
         const float UpdateInterval = ((float)UpdateIntervalMillis) / 1000.0f;
 
         private static readonly ILogger log = LogManager.GetCurrentClassLogger();
 
-        public StardustClientConnection(string gameName, string lobbyName, int number, bool stayInLobby, Application application)
+        public StardustClientConnection(string gameName, string lobbyName, int number, bool stayInLobby, StardustApplication application)
             : base(gameName, lobbyName, number, stayInLobby, application)
         {
-            _updateScheduler = new UpdateScheduler();
+            _app = application;
+            Scheduler = new UpdateScheduler();
         }
 
         public override void Update()
         {
             base.Update();
-            _updateScheduler.Update(UpdateInterval);
+            Scheduler.Update(UpdateInterval);
         }
 
         protected override GamingPeer CreateGamingPeer()
         {
-            var peer = new StardustNetworkClient(this, Application);
-            _gameClient = CreateGameClient(peer);
-            return peer;
+            NetworkClient = new StardustNetworkClient(this, Application);
+            _gameClient = CreateGameClient();
+            return NetworkClient;
         }
 
         const string GameTypeSetting = "GameType";
         const string GameAssemblySetting = "GameAssembly";
 
-        object CreateGameClient(INetworkClient netClient)
+        object CreateGameClient()
         {
             var config = new Dictionary<string, string>();
             var keys = ConfigurationManager.AppSettings.AllKeys;
@@ -64,9 +67,8 @@ namespace SocialPoint.Network
 
             try
             {
-                var factory = (INetworkClientGameFactory)CreateInstanceFromAssembly(
-                    gameAssembly, gameType);
-                return factory.Create(netClient, _updateScheduler, config);
+                var factory = CreateInstanceFromAssembly(gameAssembly, gameType);
+                return _app.CreateGameClient(factory, this, config);
             }
             catch(Exception e)
             {
