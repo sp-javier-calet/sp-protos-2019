@@ -26,6 +26,7 @@ namespace SocialPoint.AppEvents
             AfterGameWasLoaded = new PriorityCoroutineAction(this);
             GameWillRestart = new PriorityAction();
             WillGoBackground = new PriorityAction();
+            WasOnBackground = new PriorityAction();
         }
 
         public void Dispose()
