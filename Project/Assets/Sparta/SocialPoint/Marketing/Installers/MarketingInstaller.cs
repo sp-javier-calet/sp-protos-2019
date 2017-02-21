@@ -10,7 +10,7 @@ using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Marketing
 {
-    public class MarketingInstaller : ServiceInstaller
+    public class MarketingInstaller : ServiceInstaller, IInitializable
     {
         [Serializable]
         public class SettingsData
@@ -28,6 +28,11 @@ namespace SocialPoint.Marketing
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMarketing>(CreateAdminPanelMarketing);
             #endif
+        }
+
+        public void Initialize()
+        {
+            Container.Bind<IInitializable>().ToInstance(this);
         }
 
         public IMarketingAttributionManager CreateMarketingAttributionManager()
