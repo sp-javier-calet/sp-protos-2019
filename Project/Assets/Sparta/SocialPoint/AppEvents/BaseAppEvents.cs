@@ -12,11 +12,13 @@ namespace SocialPoint.AppEvents
     {
         public PriorityAction GameWasLoaded { get; private set; }
 
-        public PriorityCoroutineAction AfterGameWasLoaded{ get; private set;}
+        public PriorityCoroutineAction AfterGameWasLoaded{ get; private set; }
 
         public PriorityAction GameWillRestart { get; private set; }
 
         public PriorityAction WillGoBackground { get; private set; }
+
+        public PriorityAction WasOnBackground { get; private set; }
 
         protected BaseAppEvents()
         {
@@ -32,7 +34,7 @@ namespace SocialPoint.AppEvents
             AfterGameWasLoaded.Clear();
             GameWillRestart.Clear();
             WillGoBackground.Clear();
-            WasOnBackground = null;
+            WasOnBackground.Clear();
             WasCovered = null;
             ReceivedMemoryWarning = null;
             OpenedFromSource = null;
@@ -74,20 +76,19 @@ namespace SocialPoint.AppEvents
             WillGoBackground.Run();
         }
 
-        public void TriggerApplicationQuit()
+        public void TriggerWasOnBackground()
         {
-            OnApplicationQuit();
+            OnWasOnBackground();
         }
-
-        public event Action WasOnBackground;
 
         protected void OnWasOnBackground()
         {
-            var handler = WasOnBackground;
-            if(handler != null)
-            {
-                handler();
-            }
+            WasOnBackground.Run();
+        }
+
+        public void TriggerApplicationQuit()
+        {
+            OnApplicationQuit();
         }
 
         public event Action WasCovered;
