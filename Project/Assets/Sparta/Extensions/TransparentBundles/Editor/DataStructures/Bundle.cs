@@ -41,8 +41,6 @@ namespace SocialPoint.TransparentBundles
         Error
     }
 
-    ;
-
     public enum BundleOperation
     {
         create_asset_bundles,
@@ -56,5 +54,4 @@ namespace SocialPoint.TransparentBundles
         ios,
         android_etc
     }
-    ;
 }
