@@ -18,7 +18,7 @@ namespace SocialPoint.Multiplayer
         public override void InstallBindings()
         {
             Container.Rebind<NetworkServerSceneController>()
-            .ToMethod<NetworkServerSceneController>(CreateServerSceneController, SetupServerSceneController);        
+            .ToMethod<NetworkServerSceneController>(CreateServerSceneController, SetupServerSceneController);
             Container.Rebind<NetworkClientSceneController>()
             .ToMethod<NetworkClientSceneController>(CreateClientSceneController, SetupClientSceneController);
         }

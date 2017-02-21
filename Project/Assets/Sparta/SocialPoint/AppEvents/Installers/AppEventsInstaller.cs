@@ -10,8 +10,8 @@ using SocialPoint.AdminPanel;
 
 public class AppEventsInstaller : ServiceInstaller
 {
-	public override void InstallBindings()
-	{
+    public override void InstallBindings()
+    {
         Container.Rebind<IAppEvents>().ToMethod<SocialPointAppEvents>(CreateAppEvents);
         Container.Bind<IDisposable>().ToLookup<IAppEvents>();
 
@@ -22,7 +22,7 @@ public class AppEventsInstaller : ServiceInstaller
         Container.Bind<AppEventsBridge>().ToMethod<AppEventsBridge>(CreateAppEventsBridge);
         Container.Bind<IEventsBridge>().ToLookup<AppEventsBridge>();
         Container.Bind<IScriptEventsBridge>().ToLookup<AppEventsBridge>();
-	}
+    }
 
     SocialPointAppEvents CreateAppEvents()
     {

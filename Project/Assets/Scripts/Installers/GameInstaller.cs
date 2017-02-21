@@ -120,7 +120,7 @@ public class GameInstaller : Installer, IInitializable
     class PlayerDataProvider : IPlayerData
     {
         ILoginData _loginData;
-        PlayerModel _playerModel;
+        readonly PlayerModel _playerModel;
 
         public PlayerDataProvider(ILoginData loginData, PlayerModel playerModel)
         {

@@ -38,7 +38,7 @@ namespace SocialPoint.Base
         {
             var trans = Container.Resolve<Transform>();
             var go = new GameObject();
-            UnityEngine.Object.DontDestroyOnLoad(go);
+            Object.DontDestroyOnLoad(go);
             go.transform.SetParent(trans);
             return go.AddComponent<NativeCallsHandler>();
         }

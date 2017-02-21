@@ -24,7 +24,7 @@ namespace SocialPoint.Base
         public SettingsData Settings = new SettingsData();
 
         public override void InstallBindings()
-        {		
+        {
             Container.Bind<IAttrStorage>(VolatileTag).ToMethod<PlayerPrefsAttrStorage>(CreateVolatileStorage);
             Container.Bind<IAttrStorage>(PersistentTag).ToMethod<TransitionAttrStorage>(CreatePersistentStorage);
 

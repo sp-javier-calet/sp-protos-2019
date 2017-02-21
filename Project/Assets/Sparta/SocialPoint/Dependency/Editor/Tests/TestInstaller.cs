@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-
+﻿
 namespace SocialPoint.Dependency
 {
     public class TestInstaller : Installer

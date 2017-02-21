@@ -1,12 +1,12 @@
-using SocialPoint.Dependency;
-using SocialPoint.Utils;
-using SocialPoint.Profiling;
-using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Dependency;
 using UnityEngine.EventSystems;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
+using SocialPoint.Attributes;
+using SocialPoint.Profiling;
+using SocialPoint.Utils;
 #endif
 
 public class AdminPanelInstaller : ServiceInstaller, IInitializable

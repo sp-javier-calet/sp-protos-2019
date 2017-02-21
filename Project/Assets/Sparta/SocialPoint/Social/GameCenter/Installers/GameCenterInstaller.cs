@@ -15,7 +15,7 @@ namespace SocialPoint.Social
         [Serializable]
         public class SettingsData
         {
-            public bool UseEmpty = false;
+            public bool UseEmpty;
             public bool LoginLink = true;
         }
 
