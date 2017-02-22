@@ -56,16 +56,13 @@
   <ItemGroup>
     <ProjectReference Include="..\LockstepPlugin\LockstepSparta.csproj">
       <Project>{4ba8ea51-7fea-4e0f-8103-386ffffd6001}</Project>
-      <Name>Sparta</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Photon\LockstepPlugin\LockstepPlugin.csproj">
-      <Project>{f292e1d0-0fa8-4ccb-9392-bcfc8f8ff848}</Project>
-      <Name>Lockstep</Name>
+      <Name>LockstepSparta</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\..\Photon\Server\deploy\Plugins\LockstepPlugin\bin\"</PostBuildEvent>
+    <PostBuildEvent>xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\..\Photon\Server\deploy\Plugins\LockstepPlugin\bin\"
+xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\..\Photon\LockstepBot\bin\"</PostBuildEvent>
     <StartAction>Program</StartAction>
     <StartProgram>..\..\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
     <StartWorkingDirectory>

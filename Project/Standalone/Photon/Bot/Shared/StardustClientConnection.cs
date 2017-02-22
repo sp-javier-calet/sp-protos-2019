@@ -82,7 +82,7 @@ namespace SocialPoint.Network
         {
             var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var path = Path.Combine(dir, assemblyName);
-            var gameType = Assembly.LoadFile(path).GetType(typeName);
+            var gameType = Assembly.LoadFrom(path).GetType(typeName);
             return Activator.CreateInstance(gameType);
         }
     }

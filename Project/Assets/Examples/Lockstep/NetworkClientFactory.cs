@@ -1,10 +1,7 @@
 
-using System;
 using System.Collections.Generic;
 using FixMath.NET;
 using SocialPoint.Lockstep;
-using SocialPoint.Network;
-using SocialPoint.Utils;
 
 namespace Examples.Lockstep
 {
