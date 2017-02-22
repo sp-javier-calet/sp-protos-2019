@@ -38,6 +38,9 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\INetworkClientGameFactory.cs">
+      <Link>Multiplayer\INetworkClientGameFactory.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\INetworkServerGameFactory.cs">
       <Link>Multiplayer\INetworkServerGameFactory.cs</Link>
     </Compile>

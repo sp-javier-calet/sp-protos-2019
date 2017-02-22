@@ -64,7 +64,7 @@ namespace SocialPoint.Multiplayer
                 try
                 {
                     var factory = (INetworkServerGameFactory)CreateInstanceFromAssembly(gameAssembly, gameType);
-                    _game = factory.Create(this, _netServer, config);
+                    _game = factory.Create(_netServer, config);
                 }
                 catch(Exception e)
                 {
