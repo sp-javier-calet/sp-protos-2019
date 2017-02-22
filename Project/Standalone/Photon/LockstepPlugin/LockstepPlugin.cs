@@ -1,5 +1,5 @@
 ﻿using SocialPoint.Network;
-using SocialPoint.Matchmaking;s
+using SocialPoint.Matchmaking;
 using System;
 using System.Collections.Generic;
 using Photon.Hive.Plugin;

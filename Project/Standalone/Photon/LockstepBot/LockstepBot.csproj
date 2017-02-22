@@ -22,9 +22,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <StartAction>Program</StartAction>
-    <StartProgram>..\..\deploy\bin_Win64\PhotonSocketServer.exe</StartProgram>
-    <StartWorkingDirectory>..\..</StartWorkingDirectory>
-    <StartArguments>/debug StardustS2S /config PhotonServer.StardustS2S.config</StartArguments>
+    <StartProgram>..\Server\deploy\bin_Win64\PhotonSocketServer.exe</StartProgram>
+    <StartArguments>/debug StardustS2S /config ../LockstepBot.config</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
