@@ -72,13 +72,14 @@ namespace Photon.Stardust.S2S.Server.ConnectionStates.LoadBalancing
         public void OpCreateGame(ClientConnection client)
         {
             var gameProperties = new Hashtable();
-            gameProperties[(byte)LoadBalancingGameCode.MaxPlayer] = Settings.NumClientsPerGame; 
+            gameProperties[(byte)LoadBalancingGameCode.MaxPlayer] = Settings.NumClientsPerGame;
 
             var data = new Dictionary<byte, object>
                 {
                     { (byte)LoadBalancingParameterCode.GameId, client.GameName },
                     { (byte)LiteOpKey.GameProperties, gameProperties },
-                    { (byte)LiteOpKey.JoinMode, (byte)1}
+                    { (byte)LiteOpKey.JoinMode, (byte)1 },
+                    { (byte)LiteOpKey.Plugins, Settings.Plugins }
                 };
 
             client.Peer.SendOperationRequest(new OperationRequest(

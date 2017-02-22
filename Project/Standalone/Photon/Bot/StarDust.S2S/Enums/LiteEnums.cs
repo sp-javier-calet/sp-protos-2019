@@ -37,7 +37,7 @@ namespace Photon.Stardust.S2S.Server.Enums
 
     public class LiteOpKey
     {
-         public const byte GameId = 255; 
+        public const byte GameId = 255; 
 
         public const byte ActorNr = 254; 
 
@@ -74,5 +74,7 @@ namespace Photon.Stardust.S2S.Server.Enums
         public const byte SuppressRoomEvents = 237;
 
         public const byte JoinMode = 215;
+
+        public const byte Plugins = 204;
     }
 }

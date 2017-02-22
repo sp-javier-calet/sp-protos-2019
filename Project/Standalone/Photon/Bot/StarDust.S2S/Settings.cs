@@ -77,6 +77,8 @@ namespace Photon.Stardust.S2S.Server
 
         public static byte LobbyType = byte.Parse(ConfigurationManager.AppSettings["LobbyType"]);
 
+        public static string[] Plugins = ConfigurationManager.AppSettings["Plugins"].Split(',');
+
         #endregion
     }
 }
