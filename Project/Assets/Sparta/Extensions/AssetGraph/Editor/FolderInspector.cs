@@ -7,77 +7,94 @@ using System.Linq;
 using System;
 
 [CustomEditor(typeof(DefaultAsset))]
-public class FolderInspector : Editor {
+public class FolderInspector : Editor
+{
 
-	private string path = null;
-	private LoaderSaveData.LoaderData loader = null;
+    private string path = null;
+    private LoaderSaveData.LoaderData loader = null;
 
-	private bool IsValid {
-		get {
+    private bool IsValid
+    {
+        get
+        {
 
-			bool shouldPaintInspector = false;
-			var currentPath = AssetDatabase.GetAssetPath(target);
-			if(Directory.Exists(currentPath)) {
-				if(currentPath != path) {
-					path = currentPath;
-					CheckForLoader();
-				}
-				
-				shouldPaintInspector = !(path + "/").Contains(AssetBundleGraphSettings.ASSETBUNDLEGRAPH_PATH);
-			}
-			return shouldPaintInspector;
-		}
-	}
+            bool shouldPaintInspector = false;
+            var currentPath = AssetDatabase.GetAssetPath(target);
+            if(Directory.Exists(currentPath))
+            {
+                if(currentPath != path)
+                {
+                    path = currentPath;
+                    CheckForLoader();
+                }
 
-	private void CheckForLoader() {
-		if(!LoaderSaveData.IsLoaderDataAvailableAtDisk()) {
-			return;
-		}
-		LoaderSaveData loaderSaveData = LoaderSaveData.LoadFromDisk();
-		loader = loaderSaveData.GetBestLoaderData(path);
-	}
+                shouldPaintInspector = !(path + "/").Contains(AssetBundleGraphSettings.ASSETBUNDLEGRAPH_PATH);
+            }
+            return shouldPaintInspector;
+        }
+    }
 
-	public override void OnInspectorGUI() {
-		base.OnInspectorGUI();
-		if(IsValid) {
-			GUI.enabled = true;
-			bool perfectMatch = false;
+    private void CheckForLoader()
+    {
+        if(!LoaderSaveData.IsLoaderDataAvailableAtDisk())
+        {
+            return;
+        }
+        LoaderSaveData loaderSaveData = LoaderSaveData.LoadFromDisk();
+        loader = loaderSaveData.GetBestLoaderData(path);
+    }
 
-			if(loader != null) {
-				var folderConfigured = loader.paths.CurrentPlatformValue;
-				if(folderConfigured == string.Empty) {
-					folderConfigured = "Global";
-				} else {
-					folderConfigured = "Assets/" + folderConfigured;
-				}
+    public override void OnInspectorGUI()
+    {
+        base.OnInspectorGUI();
+        if(IsValid)
+        {
+            GUI.enabled = true;
+            bool perfectMatch = false;
 
-				perfectMatch = folderConfigured == path;
+            if(loader != null)
+            {
+                var folderConfigured = loader.paths.CurrentPlatformValue;
+                if(folderConfigured == string.Empty)
+                {
+                    folderConfigured = "Global";
+                }
+                else
+                {
+                    folderConfigured = "Assets/" + folderConfigured;
+                }
 
-				string message = perfectMatch ? "This folder is configured to use the Graph Importer" : "This folder is inheriting a Graph Importer configuration from " + folderConfigured;
-				string buttonMsg = perfectMatch ? "Open Folder Graph" : "Open Inherited graph from " + folderConfigured;
+                perfectMatch = folderConfigured == path;
 
-				EditorGUILayout.HelpBox(message, MessageType.Info);
-				EditorGUILayout.Space();
+                string message = perfectMatch ? "This folder is configured to use the Graph Importer" : "This folder is inheriting a Graph Importer configuration from " + folderConfigured;
+                string buttonMsg = perfectMatch ? "Open Folder Graph" : "Open Inherited graph from " + folderConfigured;
+
+                EditorGUILayout.HelpBox(message, MessageType.Info);
+                EditorGUILayout.Space();
 
 
-				if(GUILayout.Button(buttonMsg)) {
-					AssetBundleGraphEditorWindow.SelectAllRelatedTree(new string[] { loader.id });
-				}
+                if(GUILayout.Button(buttonMsg))
+                {
+                    AssetBundleGraphEditorWindow.SelectAllRelatedTree(new string[] { loader.id });
+                }
 
-				if(GUILayout.Button("Run this Subgraph")) {
-					var nodeIDs = new List<string>();
-					nodeIDs.Add(loader.id);
-					AssetBundleGraphEditorWindow.OpenAndRunSelected(new string[] { loader.id });
-				}
+                if(GUILayout.Button("Run this Subgraph"))
+                {
+                    var nodeIDs = new List<string>();
+                    nodeIDs.Add(loader.id);
+                    AssetBundleGraphEditorWindow.OpenAndRunSelected(new string[] { loader.id });
+                }
 
-			}
+            }
 
-			if(!perfectMatch) {
-				if(GUILayout.Button("Setup Graph Loader for this folder")){
-					AssetBundleGraphEditorWindow.OpenAndCreateLoader(path);
-					CheckForLoader();
-				}
-			}
-		}		
-	}
+            if(!perfectMatch)
+            {
+                if(GUILayout.Button("Setup Graph Loader for this folder"))
+                {
+                    AssetBundleGraphEditorWindow.OpenAndCreateLoader(path);
+                    CheckForLoader();
+                }
+            }
+        }
+    }
 }

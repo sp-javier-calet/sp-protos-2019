@@ -3,41 +3,47 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace AssetBundleGraph.Modifiers {
+namespace AssetBundleGraph.Modifiers
+{
 
-	/*
+    /*
 	 * Code template for PhysicMaterial modifier.
 	 * You can copy and create your CustomModifier.
-	 */ 
+	 */
 
-	[Serializable] 
-	[CustomModifier("Default Modifier(PhysicMaterial)", typeof(PhysicMaterial))]
-	public class PhysicMaterialModifier : IModifier {
-		
-		public PhysicMaterialModifier () {}
+    [Serializable]
+    [CustomModifier("Default Modifier(PhysicMaterial)", typeof(PhysicMaterial))]
+    public class PhysicMaterialModifier : IModifier
+    {
 
-		public bool IsModified (object asset) {
-			//var anim = asset as PhysicMaterial;
+        public PhysicMaterialModifier() { }
 
-			// Do your work here
+        public bool IsModified(object asset)
+        {
+            //var anim = asset as PhysicMaterial;
 
-			var changed = false;
-			return changed; 
-		}
+            // Do your work here
 
-		public void Modify (object asset) {
-			//var anim = asset as PhysicMaterial;
+            var changed = false;
+            return changed;
+        }
 
-			// Do your work here
-		}
+        public void Modify(object asset)
+        {
+            //var anim = asset as PhysicMaterial;
 
-		public void OnInspectorGUI (Action onValueChanged) {
-			GUILayout.Label("Implement your modifier for this type.");
-		}
+            // Do your work here
+        }
 
-		public string Serialize() {
-			return JsonUtility.ToJson(this);
-		}
-	}
+        public void OnInspectorGUI(Action onValueChanged)
+        {
+            GUILayout.Label("Implement your modifier for this type.");
+        }
+
+        public string Serialize()
+        {
+            return JsonUtility.ToJson(this);
+        }
+    }
 
 }
