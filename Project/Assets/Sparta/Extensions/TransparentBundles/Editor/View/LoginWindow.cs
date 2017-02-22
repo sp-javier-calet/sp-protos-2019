@@ -17,13 +17,6 @@ namespace SocialPoint.TransparentBundles
         private TBConfig _config;
         private string _project;
 
-        [MenuItem("SocialPoint/Change Login")]
-        public static void ChangeLogin()
-        {
-            //We just login without callbacks
-            Open(() => TransparentBundleAPI.Login());
-        }
-
         /// <summary>
         /// Opens the login window and sets the callbacks
         /// </summary>

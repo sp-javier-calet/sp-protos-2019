@@ -39,12 +39,6 @@ namespace SocialPoint.TransparentBundles
         
         private static bool _isLogged = false;
 
-        [MenuItem("SocialPoint/Test Call")]
-        public static void test()
-        {
-            CreateBundle(new CreateBundlesArgs(new List<string>(), x => Debug.Log(x.ResponseRes.Response), x => Debug.LogError(x.RequestCancelled)));
-        }
-
         #region LOGIN
         /// <summary>
         /// Entry point for standalone Login
