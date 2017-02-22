@@ -124,7 +124,7 @@ namespace SocialPoint.TransparentBundles
 
                 EditorGUILayout.BeginHorizontal(BundlesWindow.BodyStyle, GUILayout.ExpandWidth(true), GUILayout.Height(150));
                 GUILayout.Label("", GUILayout.Width(10));
-                
+
                 EditorGUILayout.BeginVertical();
                 GUILayout.Label("", GUILayout.Height(10));
                 EditorGUILayout.BeginHorizontal();
@@ -165,7 +165,7 @@ namespace SocialPoint.TransparentBundles
                 string size = "";
                 if(bundle != null)
                 {
-                    size = "Bundle Size:  " + bundle.Size + " MB";
+                    size = "Bundle Size:  " + BundlesWindow.PrintProperSize(bundle.Size[BundlesWindow.CurrentPlatform]);
                 }
                 GUILayout.Label(size, BundlesWindow.BodyTextStyle);
                 EditorGUILayout.EndHorizontal();
@@ -180,7 +180,7 @@ namespace SocialPoint.TransparentBundles
                 }
                 else if(GUILayout.Button("↧ Download", GUILayout.Height(22), GUILayout.Width(_columnsSize[3])))
                 {
-                    _controller.InstanciateBundle(bundle);
+                    _controller.DownloadBundle(bundle, BundlesWindow.CurrentPlatform);
                 }
                 if(GUILayout.Button("Find Asset", GUILayout.Height(22), GUILayout.Width(_columnsSize[3])))
                 {
