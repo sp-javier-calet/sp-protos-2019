@@ -21,7 +21,7 @@ namespace SocialPoint.TransparentBundles
 
                 return _statusCode;
             }
-            set
+            private set
             {
                 _statusCode = value;
             }

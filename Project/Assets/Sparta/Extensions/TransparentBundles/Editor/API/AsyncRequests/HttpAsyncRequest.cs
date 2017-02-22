@@ -39,6 +39,7 @@ namespace SocialPoint.TransparentBundles
 
         private AsyncRequestData _reqState;
         private bool locked = false;
+        private bool timeout = false;
 
         public HttpAsyncRequest(AsyncRequestData requestData)
         {
@@ -147,7 +148,8 @@ namespace SocialPoint.TransparentBundles
             var state = (AsyncRequestData)stateObj;
             if(timeOut)
             {
-                EndConnection(state, new ResponseResult(false, "The request timed out", HttpStatusCode.RequestTimeout));
+                timeout = true;
+                state.Request.Abort();
             }
         }
 
@@ -170,7 +172,6 @@ namespace SocialPoint.TransparentBundles
                             using(StreamReader streamRead = new StreamReader(streamResponse))
                             {
                                 rResult = new ResponseResult(true, streamRead.ReadToEnd(), response.StatusCode);
-                                rResult.StatusCode = response.StatusCode;
                             }
                         }
                     }
@@ -184,23 +185,45 @@ namespace SocialPoint.TransparentBundles
                 }
                 catch(WebException e)
                 {
-                    var resp = new StreamReader(e.Response.GetResponseStream()).ReadToEnd();
-                    string jsonMsg = string.Empty;
-                    try
-                    {
-                        jsonMsg = LitJson.JsonMapper.ToObject(resp)[0].ToString();
-                    }
-                    catch(Exception ex)
-                    {
-                        UnityEngine.Debug.LogError(ex);
-                        jsonMsg = resp;
-                    }
+                    string message = e.Message;
+                    HttpStatusCode code = 0;
 
-                    EndConnection(state, new ResponseResult(false, e.Message + " - " + jsonMsg, ((HttpWebResponse)e.Response).StatusCode));
+                    if(e.Response != null)
+                    {
+                        var resp = new StreamReader(e.Response.GetResponseStream()).ReadToEnd();
+                        string jsonMsg = string.Empty;
+                        try
+                        {
+                            jsonMsg = LitJson.JsonMapper.ToObject(resp)[0].ToString();
+                        }
+                        catch(Exception ex)
+                        {
+                            UnityEngine.Debug.LogError(ex);
+                            jsonMsg = resp;
+                        }
+
+                        message += " - " + jsonMsg;
+
+                        code = ((HttpWebResponse)e.Response).StatusCode;
+
+                    }else
+                    {
+                        if(timeout)
+                        {
+                            code = HttpStatusCode.RequestTimeout;
+                            message += " Timeout exceeded";
+                        }
+                        else
+                        {
+                            message += " - " + e.Status;
+                        }
+                    }
+                    EndConnection(state, new ResponseResult(false, message, code));
                 }
             }
             catch(Exception e)
             {
+                UnityEngine.Debug.LogError(e);
                 EndConnection(state, new ResponseResult(false, e.Message));
             }
 
@@ -213,6 +236,7 @@ namespace SocialPoint.TransparentBundles
         /// <param name="result">Result of the connection</param>
         private void EndConnection(AsyncRequestData state, ResponseResult result)
         {
+            timeout = false;
             locked = false;
             ServicePointManager.ServerCertificateValidationCallback -= CertificateValidation;
             state.ConnectionFinished(result);
