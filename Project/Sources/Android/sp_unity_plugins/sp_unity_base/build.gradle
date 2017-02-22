@@ -9,9 +9,7 @@ android {
     }
 }
 dependencies {
-    compile 'com.android.support:support-v4:23.0.0'
+    compile 'com.android.support:support-v4:24.0.0'
     provided files("../../../../Assets/Sparta/External/AppsFlyer/Plugins/Android/AppsFlyerAndroidPlugin.jar")
     provided files("../../../../Assets/Sparta/External/AppsFlyer/Plugins/Android/AF-Android-SDK.jar")
-    provided files("../../../../Assets/Sparta/External/MobileAppTracking/Plugins/Android/MobileAppTracker-3.11.4.jar")
-    provided files("../../../../Assets/Sparta/External/MobileAppTracking/Plugins/Android/TUNEUnityUtils.jar")
 }
