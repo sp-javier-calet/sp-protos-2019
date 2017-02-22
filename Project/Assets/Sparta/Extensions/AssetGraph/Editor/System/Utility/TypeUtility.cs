@@ -36,6 +36,7 @@ namespace AssetBundleGraph {
 			// typeof(SceneAsset).ToString(),
 			typeof(Shader),
 			typeof(Scene),
+			typeof(GameObject)
 		};
 
 
@@ -64,6 +65,7 @@ namespace AssetBundleGraph {
 			// typeof(SceneAsset).ToString(),
 			typeof(Shader).ToString(),
 			typeof(Scene).ToString(),
+			typeof(GameObject).ToString()
 		};
 		
 		public static readonly Dictionary<string, Type> AssumeTypeBindingByExtension = new Dictionary<string, Type>{
@@ -83,7 +85,7 @@ namespace AssetBundleGraph {
 			// typeof(SceneAsset).ToString(),
 			{".shader", typeof(Shader)},
 			{".unity", typeof(Scene)},
-			{".prefab", typeof(UnityEngine.Object)}
+			{".prefab", typeof(GameObject)}
 
 			// {"", typeof(Sprite)},
 		};
