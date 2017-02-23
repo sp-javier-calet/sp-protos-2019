@@ -1,11 +1,11 @@
 package es.socialpoint.unity.permissions;
 
-import es.socialpoint.unity.configuration.Metadata;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+
+import es.socialpoint.unity.configuration.Metadata;
 
 public class PermissionsActivity extends Activity {
 
