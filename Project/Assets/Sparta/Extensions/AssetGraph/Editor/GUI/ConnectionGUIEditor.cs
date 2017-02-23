@@ -1,72 +1,83 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 
 using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace AssetBundleGraph {
-	/**
+namespace AssetBundleGraph
+{
+    /**
 		GUI Inspector to ConnectionGUI (Through ConnectionGUIInspectorHelper)
 	*/
-	[CustomEditor(typeof(ConnectionGUIInspectorHelper))]
-	public class ConnectionGUIEditor : Editor {
-		
-		public override bool RequiresConstantRepaint() {
-			return true;
-		}
+    [CustomEditor(typeof(ConnectionGUIInspectorHelper))]
+    public class ConnectionGUIEditor : Editor
+    {
 
-		public override void OnInspectorGUI () {
+        public override bool RequiresConstantRepaint()
+        {
+            return true;
+        }
 
-			ConnectionGUIInspectorHelper helper = target as ConnectionGUIInspectorHelper;
+        public override void OnInspectorGUI()
+        {
 
-			var con = helper.connectionGUI;
-			if (con == null) {
-				return;
-			}
+            ConnectionGUIInspectorHelper helper = target as ConnectionGUIInspectorHelper;
 
-			var foldouts = helper.foldouts;
+            var con = helper.connectionGUI;
+            if(con == null)
+            {
+                return;
+            }
 
-			var count = 0;
-			var assetGroups = helper.assetGroups;
-			if (assetGroups == null)  {
-				return;
-			}
+            var foldouts = helper.foldouts;
 
-			foreach (var assets in assetGroups.Values) {
-				count += assets.Count;
-			}
+            var count = 0;
+            var assetGroups = helper.assetGroups;
+            if(assetGroups == null)
+            {
+                return;
+            }
 
-			EditorGUILayout.LabelField("Total", count.ToString());
+            foreach(var assets in assetGroups.Values)
+            {
+                count += assets.Count;
+            }
 
-			var redColor = new GUIStyle(EditorStyles.label);
-			redColor.normal.textColor = Color.gray;
+            EditorGUILayout.LabelField("Total", count.ToString());
 
-			var index = 0;
-			foreach (var groupKey in assetGroups.Keys) {
-				var assets = assetGroups[groupKey];
+            var redColor = new GUIStyle(EditorStyles.label);
+            redColor.normal.textColor = Color.gray;
 
-				var foldout = foldouts[index];
+            var index = 0;
+            foreach(var groupKey in assetGroups.Keys)
+            {
+                var assets = assetGroups[groupKey];
 
-				foldout = EditorGUILayout.Foldout(foldout, "Group Key:" + groupKey);
-				if (foldout) {
-					EditorGUI.indentLevel = 1;
-					for (var i = 0; i < assets.Count; i++) {
-						var sourceStr = assets[i].path;
-						var variantName = assets[i].variantName;
+                var foldout = foldouts[index];
 
-						if(!string.IsNullOrEmpty(variantName))
-							EditorGUILayout.LabelField(string.Format("{0}[{1}]", sourceStr, variantName));
-						else {
-							EditorGUILayout.LabelField(sourceStr);
-						}
-					}
-					EditorGUI.indentLevel = 0;
-				}
-				foldouts[index] = foldout;
+                foldout = EditorGUILayout.Foldout(foldout, "Group Key:" + groupKey);
+                if(foldout)
+                {
+                    EditorGUI.indentLevel = 1;
+                    for(var i = 0; i < assets.Count; i++)
+                    {
+                        var sourceStr = assets[i].path;
+                        var variantName = assets[i].variantName;
 
-				index++;
-			}
-		}
-	}
+                        if(!string.IsNullOrEmpty(variantName))
+                            EditorGUILayout.LabelField(string.Format("{0}[{1}]", sourceStr, variantName));
+                        else
+                        {
+                            EditorGUILayout.LabelField(sourceStr);
+                        }
+                    }
+                    EditorGUI.indentLevel = 0;
+                }
+                foldouts[index] = foldout;
+
+                index++;
+            }
+        }
+    }
 }
