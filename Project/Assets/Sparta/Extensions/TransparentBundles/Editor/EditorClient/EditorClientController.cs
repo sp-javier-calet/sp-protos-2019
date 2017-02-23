@@ -181,7 +181,16 @@ namespace SocialPoint.TransparentBundles
                                     operationDict,
                                     jsonRow["log"].AsValue.ToString()
                                 );
-                bundleDictionary.Add(GetFixedAssetName(asset.Name), bundle);
+
+                if (asset.Name.Length == 0)
+                {
+                    string errorText = "Transparent Bundles - Error - The bundle '" + bundleName + "' have an asset with the following GUID: '"+asset.Guid+"' that was not found in the project. Please, make sure your project is up-to-date. If the issue persists, please, contact the transparent bundles team: " + Config.ContactMail;
+                    UnityEngine.Debug.LogError(errorText);
+                }
+                else
+                {
+                    bundleDictionary.Add(GetFixedAssetName(asset.Name), bundle);
+                }
 
                 //TEMPORARY
                 if (NewBundles.ContainsKey(bundleName))
@@ -196,21 +205,23 @@ namespace SocialPoint.TransparentBundles
                 AttrDic jsonRow = jsonList[i].AsDic;
                 string childBundleName = jsonRow["name"].AsValue.ToString();
                 string childAssetName = GetFixedAssetName(childBundleName.Substring(0, childBundleName.LastIndexOf("_")));
-
-                AttrList jsonParents = jsonRow["parents"].AsList;
-
-                for(int j = 0; j < jsonParents.Count; j++)
+                if (bundleDictionary.ContainsKey(childAssetName))
                 {
-                    string parentBundleName = jsonParents[j].AsValue.ToString();
-                    string parentAssetName = GetFixedAssetName(parentBundleName.Substring(0, parentBundleName.LastIndexOf("_")));
+                    AttrList jsonParents = jsonRow["parents"].AsList;
 
-                    if(bundleDictionary.ContainsKey(parentAssetName))
+                    for (int j = 0; j < jsonParents.Count; j++)
                     {
-                        bundleDictionary[childAssetName].Parents.Add(bundleDictionary[parentAssetName]);
-                    }
-                    else
-                    {
-                        UnityEngine.Debug.LogError("Transparent Bundles - Error - The parent bundle '" + parentBundleName + "' was not found in the bundle list. Please, contact the transparent bundles team: " + Config.ContactMail);
+                        string parentBundleName = jsonParents[j].AsValue.ToString();
+                        string parentAssetName = GetFixedAssetName(parentBundleName.Substring(0, parentBundleName.LastIndexOf("_")));
+
+                        if (bundleDictionary.ContainsKey(parentAssetName))
+                        {
+                            bundleDictionary[childAssetName].Parents.Add(bundleDictionary[parentAssetName]);
+                        }
+                        else
+                        {
+                            UnityEngine.Debug.LogError("Transparent Bundles - Error - The parent bundle '" + parentBundleName + "' was not found in the bundle list. Please, contact the transparent bundles team: " + Config.ContactMail);
+                        }
                     }
                 }
             }
