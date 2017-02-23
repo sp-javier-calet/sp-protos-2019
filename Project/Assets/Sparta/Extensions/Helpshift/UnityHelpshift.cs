@@ -150,7 +150,9 @@ namespace SocialPoint.Extension.Helpshift
                 return;
             }
 
+            #if UNITY_ANDROID
             _helpshift.registerDelegates();
+            #endif
 
             if(validToken)
             {
