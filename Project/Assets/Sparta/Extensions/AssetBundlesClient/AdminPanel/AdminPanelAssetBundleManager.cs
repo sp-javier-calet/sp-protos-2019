@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿#if ADMIN_PANEL
+
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -257,3 +259,5 @@ namespace SocialPoint.AssetBundlesClient
         }
     }
 }
+
+#endif

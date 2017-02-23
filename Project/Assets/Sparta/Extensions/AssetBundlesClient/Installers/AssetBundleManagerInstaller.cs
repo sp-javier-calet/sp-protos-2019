@@ -1,7 +1,10 @@
 ﻿using System;
-using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
 using SocialPoint.Utils;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.AssetBundlesClient
 {
@@ -22,13 +25,17 @@ namespace SocialPoint.AssetBundlesClient
             Container.Rebind<AssetBundleManager>().ToMethod<AssetBundleManager>(CreateAssetBundleManager, SetupAssetBundleManager);
             Container.Bind<IDisposable>().ToLookup<AssetBundleManager>();
 
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelAssetBundleManager>(CreateAdminPanel);
+            #endif
         }
 
+        #if ADMIN_PANEL
         AdminPanelAssetBundleManager CreateAdminPanel()
         {
             return new AdminPanelAssetBundleManager(Container.Resolve<AssetBundleManager>());
         }
+        #endif
 
         AssetBundleManager CreateAssetBundleManager()
         {
