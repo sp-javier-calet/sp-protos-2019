@@ -17,7 +17,7 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        
+
 
         [MenuItem("Assets/Bundles/Create or Update Bundle")]
         public static void CreateOrUpdate()
