@@ -150,11 +150,7 @@ namespace SocialPoint.Extension.Helpshift
                 return;
             }
 
-            #if UNITY_IOS
-            _helpshift.registerForLocalNotifications();
-            #elif UNITY_ANDROID
-            _helpshift.registerSessionDelegates();
-            #endif
+            _helpshift.registerDelegates();
 
             if(validToken)
             {
