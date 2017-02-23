@@ -59,7 +59,7 @@ namespace SocialPoint.Utils
                 .WithDelegate(command => LogBreadcrumbCommand(msg => Log.b(msg), command)));
         }
 
-        ConsoleCommand CreateLogCommand(string level, Action<string> dlg, Action<string, string> taggedDlg)
+        static ConsoleCommand CreateLogCommand(string level, Action<string> dlg, Action<string, string> taggedDlg)
         {
             return new ConsoleCommand()
                 .WithDescription("log a message as " + level)
@@ -68,7 +68,7 @@ namespace SocialPoint.Utils
                 .WithDelegate(command => LogCommand(dlg, taggedDlg, command));
         }
 
-        void LogCommand(Action<string> dlg, Action<string, string> taggedDlg, ConsoleCommand cmd)
+        static void LogCommand(Action<string> dlg, Action<string, string> taggedDlg, ConsoleCommand cmd)
         {
             var content = GetContent(cmd);
             var tag = cmd["tag"];
@@ -82,17 +82,17 @@ namespace SocialPoint.Utils
             } 
         }
 
-        void LogExceptionCommand(Action<Exception> dlg, ConsoleCommand cmd)
+        static void LogExceptionCommand(Action<Exception> dlg, ConsoleCommand cmd)
         {
             dlg(new Exception(GetContent(cmd)));
         }
 
-        void LogBreadcrumbCommand(Action<string> dlg, ConsoleCommand cmd)
+        static void LogBreadcrumbCommand(Action<string> dlg, ConsoleCommand cmd)
         {
             dlg(GetContent(cmd));
         }
 
-        string GetContent(ConsoleCommand cmd)
+        static string GetContent(ConsoleCommand cmd)
         {
             var list = new List<string>(cmd.Arguments);
             if(list.Count == 0)
@@ -186,8 +186,10 @@ namespace SocialPoint.Utils
             var vlayout = layout.CreateVerticalLayout().CreateVerticalScrollLayout();
             if(_availableTags.Count > 0)
             {
-                foreach(var tagFilter in _availableTags)
+                var itr = _availableTags.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var tagFilter = itr.Current;
                     vlayout.CreateToggleButton(tagFilter, _selectedTags.Contains(tagFilter), value => {
                         if(value)
                         {
@@ -204,6 +206,7 @@ namespace SocialPoint.Utils
                         }
                     });
                 }
+                itr.Dispose();
             }
             else
             {
