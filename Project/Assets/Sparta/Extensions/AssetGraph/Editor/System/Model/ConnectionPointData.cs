@@ -8,229 +8,277 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 
-namespace AssetBundleGraph {
+namespace AssetBundleGraph
+{
 
-	[Serializable]
-	public class ConnectionPointData {
+    [Serializable]
+    public class ConnectionPointData
+    {
 
-		private const string ID = "id";
-		private const string LABEL = "label";
-		private const string COLOR = "labelColor";
-		private const string PRIORITY = "orderPriority";
-		private const string SHOWLABEL = "showLabel";
-		private const string HIDDEN = "hidden";
+        private const string ID = "id";
+        private const string LABEL = "label";
+        private const string COLOR = "labelColor";
+        private const string PRIORITY = "orderPriority";
+        private const string SHOWLABEL = "showLabel";
+        private const string HIDDEN = "hidden";
 
-		/**
+        /**
 		* In order to support Unity serialization for Undo, cyclic reference need to be avoided.
 		* For that reason, we are storing parentId instead of pointer to parent NodeData
 		*/
 
-		[SerializeField] private string id;
-		[SerializeField] private string label;
-		[SerializeField] private string parentId;
-		[SerializeField] private bool isInput;
-		[SerializeField] private Rect buttonRect;
-		[SerializeField] private Color labelColor;
-		[SerializeField] private bool hidden;
+        [SerializeField]
+        private string id;
+        [SerializeField]
+        private string label;
+        [SerializeField]
+        private string parentId;
+        [SerializeField]
+        private bool isInput;
+        [SerializeField]
+        private Rect buttonRect;
+        [SerializeField]
+        private Color labelColor;
+        [SerializeField]
+        private bool hidden;
 
-		//		private int orderPriority;
-		//		private bool showLabel;
+        //		private int orderPriority;
+        //		private bool showLabel;
 
-		public ConnectionPointData(string id, string label, NodeData parent, bool isInput, bool isHidden = false/*, int orderPriority, bool showLabel */) {
-			this.id = id;
-			this.label = label;
-			this.parentId = parent.Id;
-			this.isInput = isInput;
-			labelColor = NodeData.DEFAULT_COLOR;
-			hidden = isHidden;
-					//			this.orderPriority = orderPriority;
-//			this.showLabel = showLabel;
-		}
+        public ConnectionPointData(string id, string label, NodeData parent, bool isInput, bool isHidden = false/*, int orderPriority, bool showLabel */)
+        {
+            this.id = id;
+            this.label = label;
+            this.parentId = parent.Id;
+            this.isInput = isInput;
+            labelColor = NodeData.DEFAULT_COLOR;
+            hidden = isHidden;
+            //			this.orderPriority = orderPriority;
+            //			this.showLabel = showLabel;
+        }
 
-		public ConnectionPointData(string label, NodeData parent, bool isInput, bool isHidden = false) {
-			this.id = Guid.NewGuid().ToString();
-			this.label = label;
-			this.parentId = parent.Id;
-			this.isInput = isInput;
-			labelColor = NodeData.DEFAULT_COLOR;
-			hidden = isHidden;
-			//			this.orderPriority = pointGui.orderPriority;
-			//			this.showLabel = pointGui.showLabel;
-		}
+        public ConnectionPointData(string label, NodeData parent, bool isInput, bool isHidden = false)
+        {
+            this.id = Guid.NewGuid().ToString();
+            this.label = label;
+            this.parentId = parent.Id;
+            this.isInput = isInput;
+            labelColor = NodeData.DEFAULT_COLOR;
+            hidden = isHidden;
+            //			this.orderPriority = pointGui.orderPriority;
+            //			this.showLabel = pointGui.showLabel;
+        }
 
-		public ConnectionPointData(Dictionary<string, object> dic, NodeData parent, bool isInput) {
+        public ConnectionPointData(Dictionary<string, object> dic, NodeData parent, bool isInput)
+        {
 
-			this.id = dic[ID] as string;
-			this.label = dic[LABEL] as string;
-			this.parentId = parent.Id;
-			this.isInput = isInput;
-			labelColor = NodeData.DEFAULT_COLOR;
-			if(dic.ContainsKey(HIDDEN)) {
-				hidden = Convert.ToBoolean(dic[HIDDEN]);
-			}else {
-				hidden = false;
-			}
+            this.id = dic[ID] as string;
+            this.label = dic[LABEL] as string;
+            this.parentId = parent.Id;
+            this.isInput = isInput;
+            labelColor = NodeData.DEFAULT_COLOR;
+            if(dic.ContainsKey(HIDDEN))
+            {
+                hidden = Convert.ToBoolean(dic[HIDDEN]);
+            }
+            else
+            {
+                hidden = false;
+            }
 
-			//			this.orderPriority = pointGui.orderPriority;
-			//			this.showLabel = pointGui.showLabel;
-		}
+            //			this.orderPriority = pointGui.orderPriority;
+            //			this.showLabel = pointGui.showLabel;
+        }
 
 
-		public string Id {
-			get {
-				return id;
-			}
-		}
+        public string Id
+        {
+            get
+            {
+                return id;
+            }
+        }
 
-		public string Label {
-			get {
-				return label;
-			}
-			set {
-				label = value;
-			}
-		}
-		
-		public Color LabelColor {
-			get {
-				return labelColor;
-			}
-			set {
-				labelColor = value;
-			}
-		}
+        public string Label
+        {
+            get
+            {
+                return label;
+            }
+            set
+            {
+                label = value;
+            }
+        }
 
-		public string NodeId {
-			get {
-				return parentId;
-			}
-		}
+        public Color LabelColor
+        {
+            get
+            {
+                return labelColor;
+            }
+            set
+            {
+                labelColor = value;
+            }
+        }
 
-		public bool IsInput {
-			get {
-				return isInput;
-			}
-		}
+        public string NodeId
+        {
+            get
+            {
+                return parentId;
+            }
+        }
 
-		public bool IsOutput {
-			get {
-				return !isInput;
-			}
-		}
+        public bool IsInput
+        {
+            get
+            {
+                return isInput;
+            }
+        }
 
-		public bool IsHidden{
-			get {
-				return hidden;
-			}
-		}
+        public bool IsOutput
+        {
+            get
+            {
+                return !isInput;
+            }
+        }
 
-		public Rect Region {
-			get {
-				return buttonRect;
-			}
-		}
+        public bool IsHidden
+        {
+            get
+            {
+                return hidden;
+            }
+        }
 
-//		public int OrderPriority {
-//			get {
-//				return orderPriority;
-//			}
-//		}
-//		public bool ShowLabel {
-//			get {
-//				return showLabel;
-//			}
-//		}
+        public Rect Region
+        {
+            get
+            {
+                return buttonRect;
+            }
+        }
 
-		// returns rect for outside marker
-		public Rect GetGlobalRegion(NodeGUI node) {
-			var baseRect = node.Region;
-			return new Rect(
-				baseRect.x + buttonRect.x,
-				baseRect.y + buttonRect.y,
-				buttonRect.width,
-				buttonRect.height
-			);
-		}
+        //		public int OrderPriority {
+        //			get {
+        //				return orderPriority;
+        //			}
+        //		}
+        //		public bool ShowLabel {
+        //			get {
+        //				return showLabel;
+        //			}
+        //		}
 
-		// returns rect for connection dot
-		public Rect GetGlobalPointRegion(NodeGUI node) {
-			if(IsInput) {
-				return GetInputPointRect(node);
-			} else {
-				return GetOutputPointRect(node);
-			}
-		}
+        // returns rect for outside marker
+        public Rect GetGlobalRegion(NodeGUI node)
+        {
+            var baseRect = node.Region;
+            return new Rect(
+                baseRect.x + buttonRect.x,
+                baseRect.y + buttonRect.y,
+                buttonRect.width,
+                buttonRect.height
+            );
+        }
 
-		public Vector2 GetGlobalPosition(NodeGUI node) {
-			var x = 0f;
-			var y = 0f;
+        // returns rect for connection dot
+        public Rect GetGlobalPointRegion(NodeGUI node)
+        {
+            if(IsInput)
+            {
+                return GetInputPointRect(node);
+            }
+            else
+            {
+                return GetOutputPointRect(node);
+            }
+        }
 
-			var baseRect = node.Region;
+        public Vector2 GetGlobalPosition(NodeGUI node)
+        {
+            var x = 0f;
+            var y = 0f;
 
-			if (IsInput) {
-				x = baseRect.x;
-				y = baseRect.y + buttonRect.y + (buttonRect.height / 2f) - 1f;
-			}
+            var baseRect = node.Region;
 
-			if (IsOutput) {
-				x = baseRect.x + baseRect.width;
-				y = baseRect.y + buttonRect.y + (buttonRect.height / 2f) - 1f;
-			}
+            if(IsInput)
+            {
+                x = baseRect.x;
+                y = baseRect.y + buttonRect.y + (buttonRect.height / 2f) - 1f;
+            }
 
-			return new Vector2(x, y);
-		}
+            if(IsOutput)
+            {
+                x = baseRect.x + baseRect.width;
+                y = baseRect.y + buttonRect.y + (buttonRect.height / 2f) - 1f;
+            }
 
-		public void UpdateRegion (NodeGUI node, int index, int max) {
-			var parentRegion = node.Region;
-			if(IsInput){
+            return new Vector2(x, y);
+        }
 
-				var initialY = (AssetGraphRelativePaths.NODE_BASE_HEIGHT - AssetGraphRelativePaths.INPUT_POINT_HEIGHT) / 2f;
-				var marginY  = initialY + AssetGraphRelativePaths.FILTER_OUTPUT_SPAN * (index);
+        public void UpdateRegion(NodeGUI node, int index, int max)
+        {
+            var parentRegion = node.Region;
+            if(IsInput)
+            {
 
-				buttonRect = new Rect(
-					0,
-					marginY, 
-					AssetGraphRelativePaths.INPUT_POINT_WIDTH, 
-					AssetGraphRelativePaths.INPUT_POINT_HEIGHT);
-			} else {
+                var initialY = (AssetGraphRelativePaths.NODE_BASE_HEIGHT - AssetGraphRelativePaths.INPUT_POINT_HEIGHT) / 2f;
+                var marginY = initialY + AssetGraphRelativePaths.FILTER_OUTPUT_SPAN * (index);
 
-				var initialY = (AssetGraphRelativePaths.NODE_BASE_HEIGHT - AssetGraphRelativePaths.OUTPUT_POINT_HEIGHT) / 2f;
-				var marginY  = initialY + AssetGraphRelativePaths.FILTER_OUTPUT_SPAN * (index);
+                buttonRect = new Rect(
+                    0,
+                    marginY,
+                    AssetGraphRelativePaths.INPUT_POINT_WIDTH,
+                    AssetGraphRelativePaths.INPUT_POINT_HEIGHT);
+            }
+            else
+            {
 
-				buttonRect = new Rect(
-					parentRegion.width - AssetGraphRelativePaths.OUTPUT_POINT_WIDTH + 1f, 
-					marginY, 
-					AssetGraphRelativePaths.OUTPUT_POINT_WIDTH, 
-					AssetGraphRelativePaths.OUTPUT_POINT_HEIGHT);
-			}
-		}
+                var initialY = (AssetGraphRelativePaths.NODE_BASE_HEIGHT - AssetGraphRelativePaths.OUTPUT_POINT_HEIGHT) / 2f;
+                var marginY = initialY + AssetGraphRelativePaths.FILTER_OUTPUT_SPAN * (index);
 
-		private Rect GetOutputPointRect (NodeGUI node) {
-			var baseRect = node.Region;
-			return new Rect(
-				baseRect.x + baseRect.width - 8f, 
-				baseRect.y + buttonRect.y + 1f, 
-				AssetGraphRelativePaths.CONNECTION_POINT_MARK_SIZE, 
-				AssetGraphRelativePaths.CONNECTION_POINT_MARK_SIZE
-			);
-		}
+                buttonRect = new Rect(
+                    parentRegion.width - AssetGraphRelativePaths.OUTPUT_POINT_WIDTH + 1f,
+                    marginY,
+                    AssetGraphRelativePaths.OUTPUT_POINT_WIDTH,
+                    AssetGraphRelativePaths.OUTPUT_POINT_HEIGHT);
+            }
+        }
 
-		private Rect GetInputPointRect (NodeGUI node) {
-			var baseRect = node.Region;
-			return new Rect(
-				baseRect.x - 2f, 
-				baseRect.y + buttonRect.y + 3f, 
-				AssetGraphRelativePaths.CONNECTION_POINT_MARK_SIZE, 
-				AssetGraphRelativePaths.CONNECTION_POINT_MARK_SIZE
-			);
-		}
+        private Rect GetOutputPointRect(NodeGUI node)
+        {
+            var baseRect = node.Region;
+            return new Rect(
+                baseRect.x + baseRect.width - 8f,
+                baseRect.y + buttonRect.y + 1f,
+                AssetGraphRelativePaths.CONNECTION_POINT_MARK_SIZE,
+                AssetGraphRelativePaths.CONNECTION_POINT_MARK_SIZE
+            );
+        }
 
-		public Dictionary<string, object> ToJsonDictionary() {
-			return new Dictionary<string, object>() {
-				{ID, this.id},
-				{LABEL, this.label},
-				{HIDDEN, this.hidden}
-			};
-		}
-	}
+        private Rect GetInputPointRect(NodeGUI node)
+        {
+            var baseRect = node.Region;
+            return new Rect(
+                baseRect.x - 2f,
+                baseRect.y + buttonRect.y + 3f,
+                AssetGraphRelativePaths.CONNECTION_POINT_MARK_SIZE,
+                AssetGraphRelativePaths.CONNECTION_POINT_MARK_SIZE
+            );
+        }
+
+        public Dictionary<string, object> ToJsonDictionary()
+        {
+            return new Dictionary<string, object>() {
+                {ID, this.id},
+                {LABEL, this.label},
+                {HIDDEN, this.hidden}
+            };
+        }
+    }
 }

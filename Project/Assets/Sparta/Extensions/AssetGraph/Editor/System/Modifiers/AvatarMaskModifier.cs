@@ -4,39 +4,45 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
-namespace AssetBundleGraph.Modifiers {
-	
-	/*
+namespace AssetBundleGraph.Modifiers
+{
+
+    /*
 	 * Code template for Animation modifier.
 	 * You can copy and create your CustomModifier.
-	 */ 
-	[Serializable] 
-	[CustomModifier("Default Modifier(AvatarMask)", typeof(AvatarMask))]
-	public class AvatarMaskModifier : IModifier {
-		
-		public AvatarMaskModifier () {}
+	 */
+    [Serializable]
+    [CustomModifier("Default Modifier(AvatarMask)", typeof(AvatarMask))]
+    public class AvatarMaskModifier : IModifier
+    {
 
-		public bool IsModified (object asset) {
-			//var anim = asset as AvatarMask;
+        public AvatarMaskModifier() { }
 
-			// Do your work here
+        public bool IsModified(object asset)
+        {
+            //var anim = asset as AvatarMask;
 
-			var changed = false;
-			return changed; 
-		}
+            // Do your work here
 
-		public void Modify (object asset) {
-			//var anim = asset as AvatarMask;
+            var changed = false;
+            return changed;
+        }
 
-			// Do your work here
-		}
+        public void Modify(object asset)
+        {
+            //var anim = asset as AvatarMask;
 
-		public void OnInspectorGUI (Action onValueChanged) {
-			GUILayout.Label("Implement your modifier for this type.");
-		}
+            // Do your work here
+        }
 
-		public string Serialize() {
-			return JsonUtility.ToJson(this);
-		}
-	}
+        public void OnInspectorGUI(Action onValueChanged)
+        {
+            GUILayout.Label("Implement your modifier for this type.");
+        }
+
+        public string Serialize()
+        {
+            return JsonUtility.ToJson(this);
+        }
+    }
 }
