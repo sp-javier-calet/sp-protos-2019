@@ -4,19 +4,21 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+#if UNITY_5_4_OR_NEWER
+using UnityEngine.Networking;
+#else
+using UnityEngine.Experimental.Networking;
+#endif
 
 namespace SocialPoint.TransparentBundles
 {
-    //Dummy window to fix the WWWs never ending in Editor.
-    public class DownloadWindow : EditorWindow { }
     public class Downloader
     {
 
         private static Downloader _instance;
         private static Dictionary<string, Texture2D> _downloadCache;
         private static bool _downloadingBundle = false;
-        private List<WWW> _requests = new List<WWW>();
-        private WWW _mainRequest;
+        private List<UnityWebRequest> _requests = new List<UnityWebRequest>();
         private EditorWindow _sender;
         private const float _downloadTimeout = 10f;
 
@@ -66,20 +68,9 @@ namespace SocialPoint.TransparentBundles
 
             if(_requests.Any(x => !x.isDone))
             {
-                if(_requests.TrueForAll(x => x.progress == 1))
-                {
-                    EditorUtility.ClearProgressBar();
-                    var win = EditorWindow.GetWindow<DownloadWindow>();
-                    win.minSize = new Vector2(1, 1);
-                    win.position = new Rect(0, 0, 1, 1);
-                    win.Close();
-                }
-                else
-                {
-                    float progress = 0;
-                    _requests.ForEach(x => progress += x.progress);
-                    EditorUtility.DisplayProgressBar("Download", "Downloading Bundles", progress / _requests.Count);
-                }
+                float progress = 0;
+                _requests.ForEach(x => progress += x.downloadProgress);
+                EditorUtility.DisplayProgressBar("Download", "Downloading Bundles", progress / _requests.Count);
                 return;
             }
             EditorUtility.ClearProgressBar();
@@ -88,11 +79,11 @@ namespace SocialPoint.TransparentBundles
             {
                 if(i < _requests.Count - 1)
                 {
-                    _requests[i].assetBundle.LoadAllAssets();
+                    ((DownloadHandlerAssetBundle)_requests[i].downloadHandler).assetBundle.LoadAllAssets();
                 }
                 else
                 {
-                    InstantiateBundle(_requests[i].assetBundle);
+                    InstantiateBundle(((DownloadHandlerAssetBundle)_requests[i].downloadHandler).assetBundle);
                 }
             }
         }
@@ -133,7 +124,7 @@ namespace SocialPoint.TransparentBundles
                     break;
             }
 
-            _requests.ForEach(x => x.assetBundle.Unload(false));
+            _requests.ForEach(x => ((DownloadHandlerAssetBundle)x.downloadHandler).assetBundle.Unload(false));
             _downloadingBundle = false;
             _requests.Clear();
         }
@@ -144,45 +135,36 @@ namespace SocialPoint.TransparentBundles
             {
                 _downloadingBundle = true;
 
-                DownloadBundleRecursive(bundle, bundle, platform);
+                DownloadBundleRecursive(bundle, platform);
             }
         }
 
-        public void DownloadBundleRecursive(Bundle bundle, Bundle mainBundle, BundlePlaform platform)
+        public void DownloadBundleRecursive(Bundle bundle, BundlePlaform platform)
         {
-            if(!_requests.Any(x => x.url == bundle.Url[platform]))
+            for(int i = 0; i < bundle.Parents.Count; i++)
             {
-                for(int i = 0; i < bundle.Parents.Count; i++)
+                Bundle parent = bundle.Parents[i];
+                if(parent.Url[platform].Length > 0 && parent.Asset.Name.Length > 0)
                 {
-                    Bundle parent = bundle.Parents[i];
-                    if(!_requests.Any(x => x.url == parent.Url[platform]))
-                    {
-                        if(parent.Url[platform].Length > 0 && parent.Asset.Name.Length > 0)
-                        {
-                            DownloadBundleRecursive(parent, mainBundle, platform);
-                        }
-                        else
-                        {
-                            Debug.LogError("Transparent Bundles - Error - The bundle '" + parent.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactMail);
-                        }
-                    }
-                }
-
-                if(bundle.Url[platform].Length > 0 && bundle.Asset.Name.Length > 0)
-                {
-                    if(bundle.Name == mainBundle.Name)
-                    {
-                        _mainRequest = new WWW(bundle.Url[platform]);
-                        _requests.Add(_mainRequest);
-                    }
-                    else
-                    {
-                        _requests.Add(new WWW(bundle.Url[platform]));
-                    }
+                    DownloadBundleRecursive(parent, platform);
                 }
                 else
                 {
-                    Debug.LogError("Transparent Bundles - Error - The bundle '" + bundle.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactMail);
+                    Debug.LogError("Transparent Bundles - Error - The bundle '" + parent.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactUrl);
+                }
+            }
+
+            if(!_requests.Any(x => x.url == bundle.Url[platform]))
+            {
+                if(bundle.Url[platform].Length > 0 && bundle.Asset.Name.Length > 0)
+                {
+                    var request = UnityWebRequest.GetAssetBundle(bundle.Url[platform]);
+                    request.Send();
+                    _requests.Add(request);
+                }
+                else
+                {
+                    Debug.LogError("Transparent Bundles - Error - The bundle '" + bundle.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactUrl);
                 }
             }
         }
