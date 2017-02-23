@@ -19,7 +19,7 @@ namespace SocialPoint.AppEvents
 
             _appEvents.OpenedFromSource += OnOpenedFromSource;
             _appEvents.WasCovered += OnWasCovered;
-            _appEvents.WasOnBackground += OnWasOnBackground;
+            _appEvents.WasOnBackground.Add(0, OnWasOnBackground);
             _appEvents.WillGoBackground.Add(0, OnWillGoBackground);
             _appEvents.GameWillRestart.Add(0, OnGameWillRestart);
             _appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
@@ -90,7 +90,7 @@ namespace SocialPoint.AppEvents
         {
             _appEvents.OpenedFromSource -= OnOpenedFromSource;
             _appEvents.WasCovered -= OnWasCovered;
-            _appEvents.WasOnBackground -= OnWasOnBackground;
+            _appEvents.WasOnBackground.Remove(OnWasOnBackground);
             _appEvents.WillGoBackground.Remove(OnWillGoBackground);
             _appEvents.GameWillRestart.Remove(OnGameWillRestart);
             _appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
@@ -114,6 +114,11 @@ namespace SocialPoint.AppEvents
 
             layout.CreateButton("Trigger Go Background", () => {
                 _appEvents.TriggerWillGoBackground();
+                RefreshContent();
+            });
+
+            layout.CreateButton("Trigger Was On Background", () => {
+                _appEvents.TriggerWasOnBackground();
                 RefreshContent();
             });
 
