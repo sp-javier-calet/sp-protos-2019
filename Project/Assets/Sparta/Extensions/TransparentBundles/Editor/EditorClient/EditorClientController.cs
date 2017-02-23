@@ -72,17 +72,17 @@ namespace SocialPoint.TransparentBundles
 
         public void LoadBundleDataFromServer(Action SuccessCallback = null)
         {
-            if (!_requestPending)
+            if(!_requestPending)
             {
                 _requestPending = true;
                 TransparentBundleAPI.GetBundles(new GetBundlesArgs(x => ImportBundleData(x.ResponseRes.Response, SuccessCallback), x => UnityEngine.Debug.LogError(x.ResponseRes.Response)));
             }
         }
 
-        private void ImportBundleData(string bundleJsonString, Action SuccessCallback = null )
+        private void ImportBundleData(string bundleJsonString, Action SuccessCallback = null)
         {
             _requestPending = false;
-            if (bundleJsonString.Length > 0)
+            if(bundleJsonString.Length > 0)
             {
                 byte[] jsonBytes = Encoding.ASCII.GetBytes(bundleJsonString);
                 ServerInfo = ReadServerInfoFromJSON(jsonBytes);
@@ -94,11 +94,11 @@ namespace SocialPoint.TransparentBundles
 
                 UpdateProcessingBundleStatus();
 
-                if (SuccessCallback != null)
+                if(SuccessCallback != null)
                 {
                     SuccessCallback();
                 }
-                if (BundlesWindow.Window != null)
+                if(BundlesWindow.Window != null)
                 {
                     BundlesWindow.Window.Repaint();
                 }
@@ -109,7 +109,7 @@ namespace SocialPoint.TransparentBundles
         {
             var serverQueue = ServerInfo.ProcessingQueue;
             var bundleEnumerator = _bundleDictionary.GetEnumerator();
-            while (bundleEnumerator.MoveNext())
+            while(bundleEnumerator.MoveNext())
             {
                 Bundle bundle = bundleEnumerator.Current.Value;
                 if(bundle.OperationQueue.Count > 0)
@@ -148,7 +148,7 @@ namespace SocialPoint.TransparentBundles
                 var sizesDict = new Dictionary<BundlePlaform, int>();
                 var jsonSizes = jsonRow["size"].AsDic;
                 var key = jsonSizes.Keys.GetEnumerator();
-                while (key.MoveNext())
+                while(key.MoveNext())
                 {
                     sizesDict.Add((BundlePlaform)Enum.Parse(typeof(BundlePlaform), key.Current.ToString()), jsonSizes[key.Current].AsValue.ToInt());
                 }
@@ -156,14 +156,14 @@ namespace SocialPoint.TransparentBundles
                 var urlDict = new Dictionary<BundlePlaform, string>();
                 var jsonUrls = jsonRow["url"].AsDic;
                 key = jsonUrls.Keys.GetEnumerator();
-                while (key.MoveNext())
+                while(key.MoveNext())
                 {
                     urlDict.Add((BundlePlaform)Enum.Parse(typeof(BundlePlaform), key.Current.ToString()), jsonUrls[key.Current].AsValue.ToString());
                 }
 
                 var operationDict = new Dictionary<int, BundleOperation>();
                 var jsonOperations = jsonRow["queue"].AsList;
-                
+
                 for(int j = 0; j < jsonOperations.Count; j++)
                 {
                     int operationId = jsonOperations[j].AsValue.ToInt();
@@ -182,9 +182,9 @@ namespace SocialPoint.TransparentBundles
                                     jsonRow["log"].AsValue.ToString()
                                 );
 
-                if (asset.Name.Length == 0)
+                if(asset.Name.Length == 0)
                 {
-                    string errorText = "Transparent Bundles - Error - The bundle '" + bundleName + "' have an asset with the following GUID: '"+asset.Guid+"' that was not found in the project. Please, make sure your project is up-to-date. If the issue persists, please, contact the transparent bundles team: " + Config.ContactMail;
+                    string errorText = "Transparent Bundles - Error - The bundle '" + bundleName + "' have an asset with the following GUID: '" + asset.Guid + "' that was not found in the project. Please, make sure your project is up-to-date. If the issue persists, please, contact the transparent bundles team: " + Config.ContactMail;
                     UnityEngine.Debug.LogError(errorText);
                 }
                 else
@@ -193,7 +193,7 @@ namespace SocialPoint.TransparentBundles
                 }
 
                 //TEMPORARY
-                if (NewBundles.ContainsKey(bundleName))
+                if(NewBundles.ContainsKey(bundleName))
                 {
                     NewBundles.Remove(bundleName);
                 }
@@ -205,16 +205,16 @@ namespace SocialPoint.TransparentBundles
                 AttrDic jsonRow = jsonList[i].AsDic;
                 string childBundleName = jsonRow["name"].AsValue.ToString();
                 string childAssetName = GetFixedAssetName(childBundleName.Substring(0, childBundleName.LastIndexOf("_")));
-                if (bundleDictionary.ContainsKey(childAssetName))
+                if(bundleDictionary.ContainsKey(childAssetName))
                 {
                     AttrList jsonParents = jsonRow["parents"].AsList;
 
-                    for (int j = 0; j < jsonParents.Count; j++)
+                    for(int j = 0; j < jsonParents.Count; j++)
                     {
                         string parentBundleName = jsonParents[j].AsValue.ToString();
                         string parentAssetName = GetFixedAssetName(parentBundleName.Substring(0, parentBundleName.LastIndexOf("_")));
 
-                        if (bundleDictionary.ContainsKey(parentAssetName))
+                        if(bundleDictionary.ContainsKey(parentAssetName))
                         {
                             bundleDictionary[childAssetName].Parents.Add(bundleDictionary[parentAssetName]);
                         }
@@ -231,7 +231,7 @@ namespace SocialPoint.TransparentBundles
             while(newBundleEnum.MoveNext())
             {
                 Bundle newBundle = newBundleEnum.Current.Value;
-                if (!bundleDictionary.ContainsKey(GetFixedAssetName(newBundle.Asset.Name)))
+                if(!bundleDictionary.ContainsKey(GetFixedAssetName(newBundle.Asset.Name)))
                 {
                     bundleDictionary.Add(GetFixedAssetName(newBundle.Asset.Name), newBundle);
                 }
@@ -345,7 +345,7 @@ namespace SocialPoint.TransparentBundles
         //TEMPORARY
         private void AddNewBundle(Asset asset)
         {
-            if (!_bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)) && !NewBundles.ContainsKey(asset.FullName.ToLower().Replace(".", "_").Replace(" ", "_")))
+            if(!_bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)) && !NewBundles.ContainsKey(asset.FullName.ToLower().Replace(".", "_").Replace(" ", "_")))
             {
                 var sizeDict = new Dictionary<BundlePlaform, int>();
                 sizeDict.Add(BundlePlaform.android_etc, 0);
@@ -396,7 +396,7 @@ namespace SocialPoint.TransparentBundles
                 for(int i = 0; i < assets.Count; i++)
                 {
                     guids.Add(assets[i].Guid);
-                    
+
                     //TEMPORARY
                     AddNewBundle(assets[i]);
                 }

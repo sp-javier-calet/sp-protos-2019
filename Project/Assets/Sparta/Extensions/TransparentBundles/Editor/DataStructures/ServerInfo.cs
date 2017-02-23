@@ -20,7 +20,6 @@ namespace SocialPoint.TransparentBundles
     {
         Ok,
         Warning,
-        Error}
-
-    ;
+        Error
+    }
 }

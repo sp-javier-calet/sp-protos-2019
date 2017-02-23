@@ -3,7 +3,7 @@ using System.Collections;
 
 namespace SocialPoint.TransparentBundles
 {
-    public class InspectorDummy: ScriptableObject
+    public class InspectorDummy : ScriptableObject
     {
         public Asset SelectedAsset;
     }
