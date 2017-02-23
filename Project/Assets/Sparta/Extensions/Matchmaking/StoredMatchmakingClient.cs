@@ -1,9 +1,5 @@
-﻿using SocialPoint.Login;
-using SocialPoint.Network;
-using SocialPoint.Base;
+﻿using SocialPoint.Base;
 using SocialPoint.Attributes;
-using SocialPoint.IO;
-using SocialPoint.Utils;
 using System;
 using System.Collections.Generic;
 
@@ -20,10 +16,6 @@ namespace SocialPoint.Matchmaking
     public class AttrMatchStorage : IMatchStorage
     {
         const string DefaultStorageKey = "matchmaking";
-        const string MatchIdAttrKey = "match_id";
-        const string PlayerIdAttrKey = "token";
-        const string GameInfoAttrKey = "game_info";
-        const string ServerInfoAttrKey = "server";
 
         string _storageKey;
         IAttrStorage _storage;
@@ -48,36 +40,26 @@ namespace SocialPoint.Matchmaking
 
         public bool Load(out Match match)
         {
+            match = new Match();
             if(!_storage.Has(_storageKey))
             {
-                match = new Match();
                 return false;
             }
             var attr = _storage.Load(_storageKey);
             if(attr == null)
             {
-                match = new Match();
                 return false;
             }
+
             var attrDic = attr.AsDic;
-            match = new Match {
-                Id = attrDic.GetValue(MatchIdAttrKey).ToString(),
-                PlayerId = attrDic.GetValue(PlayerIdAttrKey).ToString(),
-                Running = true,
-                GameInfo = attrDic.Get(GameInfoAttrKey),
-                ServerInfo = attrDic.Get(ServerInfoAttrKey),
-            };
+            match.ParseAttrDic(attrDic);
+                
             return true;
         }
 
         public void Save(Match match)
         {
-            var attr = new AttrDic();
-            attr.SetValue(MatchIdAttrKey, match.Id);
-            attr.SetValue(PlayerIdAttrKey, match.PlayerId);
-            attr.Set(GameInfoAttrKey, match.GameInfo);
-            attr.Set(ServerInfoAttrKey, match.ServerInfo);
-            _storage.Save(_storageKey, attr);
+            _storage.Save(_storageKey, match.ToAttrDic());
         }
 
         public void Clear()

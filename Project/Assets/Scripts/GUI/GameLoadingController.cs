@@ -1,6 +1,5 @@
 using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
-using SocialPoint.AssetBundlesClient;
 using SocialPoint.Attributes;
 using SocialPoint.Crash;
 using SocialPoint.Dependency;
@@ -8,6 +7,7 @@ using SocialPoint.GameLoading;
 using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.Utils;
+using SocialPoint.Social;
 using UnityEngine;
 
 public class GameLoadingController : SocialPoint.GameLoading.GameLoadingController
@@ -29,7 +29,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     const float ExpectedLoadModelDuration = 1.0f;
     const float ExpectedLoadSceneDuration = 2.0f;
 
-    AssetBundleManager _assetBundleManager;
+    SocialManager _socialManager;
 
     protected override void OnLoad()
     {
@@ -38,10 +38,9 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         Localization = Services.Instance.Resolve<Localization>();
         AppEvents = Services.Instance.Resolve<IAppEvents>();
         ErrorHandler = Services.Instance.Resolve<IGameErrorHandler>();
+        _socialManager = Services.Instance.Resolve<SocialManager>();
         _coroutineRunner = Services.Instance.Resolve<ICoroutineRunner>();
         _gameLoader = Services.Instance.Resolve<IGameLoader>();
-
-        _assetBundleManager = Services.Instance.Resolve<AssetBundleManager>();
 
         #if ADMIN_PANEL
         _adminPanel = Services.Instance.Resolve<AdminPanel>();
@@ -94,32 +93,16 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     bool OnLoginNewUser(IStreamReader reader)
     {
         var data = reader.ParseElement();
+
         _gameLoader.Load(data);
 
-        ParseBundleData(data);
+        if(_socialManager != null)
+        {
+            _socialManager.SetLocalPlayerData(data.AsDic, Services.Instance.Resolve<IPlayerData>());
+        }
 
         _loadModelOperation.Finish("game model loaded");
         return true;
-    }
-
-    void ParseBundleData(Attr data)
-    {
-        if(_assetBundleManager != null)
-        {
-            const string configKey = "config";
-            const string bundleDataKey = "bundle_data";
-
-            var dataDic = data.AssertDic;
-            if(dataDic.ContainsKey(configKey))
-            {
-                var configData = dataDic.Get(configKey).AssertDic;
-                if(configData.ContainsKey(bundleDataKey))
-                {
-                    var bundleData = configData.Get(bundleDataKey).AssertDic;
-                    _assetBundleManager.Init(bundleData.Get(bundleDataKey).AssertList);
-                }
-            }
-        }
     }
 
     void OnConfirmLinkEvent(ILink link, LinkConfirmType type, Attr data, ConfirmBackLinkDelegate cbk)

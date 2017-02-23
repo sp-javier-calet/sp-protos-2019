@@ -1,9 +1,9 @@
-﻿using SocialPoint.AppEvents;
+﻿using System;
+using System.Collections.Generic;
+using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Login;
-using System;
-using System.Collections.Generic;
 
 namespace SocialPoint.Marketing
 {
@@ -17,9 +17,9 @@ namespace SocialPoint.Marketing
         readonly IAppEvents _appEvents;
 
         IAttrStorage _storage;
-        bool _appPreviouslyInstalled = false;
+        bool _appPreviouslyInstalled;
         #pragma warning disable 0414
-        bool _tracked = false;
+        bool _tracked;
         //only used on DebugUtils.Assert, disabled warning of "unused" when compiling to iOS
         #pragma warning restore 0414
 

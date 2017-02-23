@@ -138,7 +138,7 @@ public class GameInstaller : Installer, IInitializable
             }
         }
 
-        public long Level
+        public int Level
         {
             get
             {

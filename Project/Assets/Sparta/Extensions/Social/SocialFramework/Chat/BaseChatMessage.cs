@@ -15,7 +15,7 @@
 
         public int RankInAlliance { get; set; }
 
-        public long PlayerLevel { get; set; }
+        public int PlayerLevel { get; set; }
 
         public int AllianceAvatarId { get; set; }
 

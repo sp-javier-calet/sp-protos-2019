@@ -1,13 +1,10 @@
-﻿using SocialPoint.Login;
-using SocialPoint.Network;
-using SocialPoint.Base;
-using SocialPoint.Attributes;
-using SocialPoint.IO;
-using SocialPoint.Utils;
-using SocialPoint.Social;
-using SocialPoint.WAMP.Caller;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.Connection;
+using SocialPoint.Login;
+using SocialPoint.WAMP.Caller;
 
 namespace SocialPoint.Matchmaking
 {
@@ -25,10 +22,6 @@ namespace SocialPoint.Matchmaking
         const string StatusAttrKey = "status";
         const string WaitingStatus = "waiting";
         const string WaitingTimeAttrKey = "estimated_time";
-        const string MatchIdAttrKey = "match_id";
-        const string GameInfoAttrKey = "game_info";
-        const string ServerInfoAttrKey = "server";
-        const string PlayerIdAttrKey = "token";
         const string ResultAttrKey = "result";
 
         const int SuccessNotification = 502;
@@ -137,14 +130,10 @@ namespace SocialPoint.Matchmaking
 
         void OnWampNotificationReceived(int type, string topic, AttrDic attr)
         {
-            if(type == SuccessNotification)
+            if(type == NotificationType.MatchmakingSuccessNotification)
             {
-                var match = new Match {
-                    Id = attr.GetValue(MatchIdAttrKey).ToString(),
-                    GameInfo = attr.Get(GameInfoAttrKey),
-                    ServerInfo = attr.Get(ServerInfoAttrKey),
-                    PlayerId = attr.GetValue(PlayerIdAttrKey).ToString()
-                };
+                var match = new Match();
+                match.ParseAttrDic(attr);
                 for(var i = 0; i < _delegates.Count; i++)
                 {
                     _delegates[i].OnMatched(match);

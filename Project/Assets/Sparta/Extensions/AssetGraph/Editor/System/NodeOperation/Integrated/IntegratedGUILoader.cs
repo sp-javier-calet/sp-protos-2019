@@ -50,8 +50,11 @@ namespace AssetBundleGraph {
 			// SOMEWHERE_FULLPATH/PROJECT_FOLDER/Assets/
 			var assetsFolderPath = Application.dataPath + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR;
 
+			var loaderPath = node.GetLoaderFullLoadPath(target);
+			var relativeLoaderPath = loaderPath.Replace(assetsFolderPath, AssetBundleGraphSettings.ASSETS_PATH) + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR;
+
 			var outputSource = new List<Asset>();
-			var targetFilePaths = FileUtility.GetAllFilePathsInFolder(node.GetLoaderFullLoadPath(target));
+			var targetFilePaths = FileUtility.GetAllFilePathsInFolder(loaderPath);
 
 			var loaderSaveData = LoaderSaveData.LoadFromDisk();
 			targetFilePaths.RemoveAll(x => {
@@ -75,7 +78,7 @@ namespace AssetBundleGraph {
 						continue;
 					}
 
-					outputSource.Add(Asset.CreateNewAssetFromLoader(targetFilePath, relativePath));
+					outputSource.Add(Asset.CreateNewAssetFromLoader(targetFilePath, relativePath, relativeLoaderPath));
 					continue;
 				}
 
@@ -90,7 +93,8 @@ namespace AssetBundleGraph {
 		}
 
 
-		public void LoadSingleAsset(NodeData node,
+		public void LoadSingleAsset(BuildTarget target, 
+			NodeData node,
 			ConnectionData connectionToOutput,
 			string path,
 			Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output
@@ -98,12 +102,15 @@ namespace AssetBundleGraph {
 			var outputSource = new List<Asset>();
 			Asset asset = null;
 			var assetType = TypeUtility.GetTypeOfAsset(path);
+			var loaderPath = node.GetLoaderFullLoadPath(target);
+			var relativeLoaderPath = loaderPath.Replace(Application.dataPath + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR, AssetBundleGraphSettings.ASSETS_PATH) + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR;
+
 			if(assetType == typeof(object)) {
 				AssetImporter importer = AssetImporter.GetAtPath(path);
-				asset = Asset.CreateNewAssetFromImporter(importer);
+				asset = Asset.CreateNewAssetFromImporter(importer, relativeLoaderPath);
 			}else {
 				var absPath = Application.dataPath + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR + path;
-				asset = Asset.CreateNewAssetFromLoader(absPath, path);
+				asset = Asset.CreateNewAssetFromLoader(absPath, path, relativeLoaderPath);
 			}
 
 			outputSource.Add(asset);			
