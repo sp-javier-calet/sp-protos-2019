@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if (UNITY_ANDROID || (UNITY_IPHONE && !NO_GPGS))
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -743,3 +745,4 @@ namespace SocialPoint.Social
         #endregion
     }
 }
+#endif
