@@ -37,7 +37,7 @@ namespace SocialPoint.TransparentBundles
         public static event Action<BundleDependenciesData> OnBundleLocalChanged;
         public static event Action<string, LogType> OnLogMessage;
 
-        private static string _path = Path.Combine(Application.dataPath, "DependenciesManifest.json");
+        private static string _path = Path.Combine(Directory.GetParent(Application.dataPath).ToString(), "DependenciesManifest.json");
 
         public static BundlesManifest Manifest = new BundlesManifest();
 
