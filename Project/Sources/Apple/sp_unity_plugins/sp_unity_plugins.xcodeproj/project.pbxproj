@@ -92,8 +92,8 @@
 		468F9D081D995ABF00EF4AE7 /* SPUnityNotifications.mm in Sources */ = {isa = PBXBuildFile; fileRef = 468F9D071D995ABF00EF4AE7 /* SPUnityNotifications.mm */; };
 		468F9D7A1D9BB52400EF4AE7 /* UnityGameObject.h in Headers */ = {isa = PBXBuildFile; fileRef = FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		468F9D7B1D9BB52500EF4AE7 /* UnityGameObject.h in Headers */ = {isa = PBXBuildFile; fileRef = FEE5C1C01C21AAD80020C4DB /* UnityGameObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		468F9D7C1D9BB56D00EF4AE7 /* SPUnityNativeUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 06D7A68F1C77189500F71393 /* SPUnityNativeUtils.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		468F9D7D1D9BB56E00EF4AE7 /* SPUnityNativeUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 06D7A68F1C77189500F71393 /* SPUnityNativeUtils.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		468F9D7C1D9BB56D00EF4AE7 /* SPUnityNativeUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 06D7A68F1C77189500F71393 /* SPUnityNativeUtils.h */; };
+		468F9D7D1D9BB56E00EF4AE7 /* SPUnityNativeUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 06D7A68F1C77189500F71393 /* SPUnityNativeUtils.h */; };
 		468F9D9E1D9BE56500EF4AE7 /* SPUnityAppControllerSubClass.mm in Sources */ = {isa = PBXBuildFile; fileRef = 468F9D751D9BB44000EF4AE7 /* SPUnityAppControllerSubClass.mm */; };
 		468F9D9F1D9BE56600EF4AE7 /* SPUnityAppControllerSubClass.mm in Sources */ = {isa = PBXBuildFile; fileRef = 468F9D751D9BB44000EF4AE7 /* SPUnityAppControllerSubClass.mm */; };
 		468F9DA01D9BE6B900EF4AE7 /* SPUnityNativeUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = 06D7A6901C77189500F71393 /* SPUnityNativeUtils.mm */; };
@@ -188,6 +188,10 @@
 		FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490231C1F11D900A10FEA /* SPUnityAlertViewFacade.mm */; };
 		FE4490AA1C1F33A400A10FEA /* SPUnityCrashReporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490101C1EF36200A10FEA /* SPUnityCrashReporter.mm */; };
 		FE4490AB1C1F33A800A10FEA /* SPUnityHardwareFacade.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE4490131C1EF36200A10FEA /* SPUnityHardwareFacade.mm */; };
+		FE49342B1E6074E0000D6993 /* SPUnityAppEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = FE4934291E6074E0000D6993 /* SPUnityAppEvents.h */; };
+		FE49342C1E6074E0000D6993 /* SPUnityAppEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = FE4934291E6074E0000D6993 /* SPUnityAppEvents.h */; };
+		FE49342D1E6074E0000D6993 /* SPUnityAppEvents.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE49342A1E6074E0000D6993 /* SPUnityAppEvents.mm */; };
+		FE49342E1E6074E0000D6993 /* SPUnityAppEvents.mm in Sources */ = {isa = PBXBuildFile; fileRef = FE49342A1E6074E0000D6993 /* SPUnityAppEvents.mm */; };
 		FE5A76AE1DC7789700EB3DC6 /* SPUnityWebSockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE5A76AB1DC7789700EB3DC6 /* SPUnityWebSockets.cpp */; };
 		FE5A76AF1DC7789700EB3DC6 /* SPUnityWebSockets.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE5A76AB1DC7789700EB3DC6 /* SPUnityWebSockets.cpp */; };
 		FE6072241DAFBF6D00323426 /* Certificate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE60721C1DAFBF6D00323426 /* Certificate.cpp */; };
@@ -702,6 +706,8 @@
 		FE4490461C1F205800A10FEA /* SPUnityPlugins.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SPUnityPlugins.h; sourceTree = "<group>"; };
 		FE4490481C1F205800A10FEA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FE44907C1C1F20C400A10FEA /* SPUnityPlugins.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SPUnityPlugins.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		FE4934291E6074E0000D6993 /* SPUnityAppEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SPUnityAppEvents.h; sourceTree = "<group>"; };
+		FE49342A1E6074E0000D6993 /* SPUnityAppEvents.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SPUnityAppEvents.mm; sourceTree = "<group>"; };
 		FE5A76AB1DC7789700EB3DC6 /* SPUnityWebSockets.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SPUnityWebSockets.cpp; sourceTree = "<group>"; };
 		FE60721C1DAFBF6D00323426 /* Certificate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Certificate.cpp; sourceTree = "<group>"; };
 		FE60721D1DAFBF6D00323426 /* Certificate.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Certificate.hpp; sourceTree = "<group>"; };
@@ -1685,6 +1691,7 @@
 				460B36111C3EB1B8003E0D9D /* LinkerValidator_tvOS */,
 				FE448F231C1EEA9B00A10FEA /* Products */,
 				FE4490211C1F11D900A10FEA /* sp_unity_alertview */,
+				FE4934281E6074E0000D6993 /* sp_unity_appevents */,
 				FE4490241C1F11D900A10FEA /* sp_unity_attributes */,
 				FE44900F1C1EF36200A10FEA /* sp_unity_crash */,
 				FE448F141C1EE88600A10FEA /* sp_unity_curl */,
@@ -1825,6 +1832,15 @@
 			path = SPUnityPlugins;
 			sourceTree = "<group>";
 		};
+		FE4934281E6074E0000D6993 /* sp_unity_appevents */ = {
+			isa = PBXGroup;
+			children = (
+				FE4934291E6074E0000D6993 /* SPUnityAppEvents.h */,
+				FE49342A1E6074E0000D6993 /* SPUnityAppEvents.mm */,
+			);
+			path = sp_unity_appevents;
+			sourceTree = "<group>";
+		};
 		FE5A76941DC7784B00EB3DC6 /* sp_unity_websockets */ = {
 			isa = PBXGroup;
 			children = (
@@ -1929,6 +1945,7 @@
 				46D2D9F81D086FD400051221 /* PLCrashReportSystemInfo.h in Headers */,
 				46D2D9F91D086FD400051221 /* PLCrashReportTextFormatter.h in Headers */,
 				46D2D9FA1D086FD400051221 /* PLCrashReportThreadInfo.h in Headers */,
+				FE49342C1E6074E0000D6993 /* SPUnityAppEvents.h in Headers */,
 				7B1524321E5F3EA200B42780 /* SPUnityApplication.h in Headers */,
 				468F9D7D1D9BB56E00EF4AE7 /* SPUnityNativeUtils.h in Headers */,
 				46E208D31D251DFB00FB1CEE /* SPUnityPlugins_tvOS.h in Headers */,
@@ -1963,6 +1980,7 @@
 				46F7491D1C60AE77000DB6B1 /* PLCrashReportSystemInfo.h in Headers */,
 				46F7491E1C60AE77000DB6B1 /* PLCrashReportTextFormatter.h in Headers */,
 				46F7491F1C60AE77000DB6B1 /* PLCrashReportThreadInfo.h in Headers */,
+				FE49342B1E6074E0000D6993 /* SPUnityAppEvents.h in Headers */,
 				7B1524311E5F3EA200B42780 /* SPUnityApplication.h in Headers */,
 				468F9D7C1D9BB56D00EF4AE7 /* SPUnityNativeUtils.h in Headers */,
 				46E208D11D251DF000FB1CEE /* SPUnityPlugins.h in Headers */,
@@ -2255,6 +2273,7 @@
 				460EFA981D19303300CDDC48 /* SPNativeCallsSender.cpp in Sources */,
 				46D2D9E21D086F8B00051221 /* SPPurchaseNativeServices.mm in Sources */,
 				46D2D9E01D086F8B00051221 /* SPPurchaseStore.mm in Sources */,
+				FE49342E1E6074E0000D6993 /* SPUnityAppEvents.mm in Sources */,
 				7B1524341E5F3EA200B42780 /* SPUnityApplication.mm in Sources */,
 				460EFA991D19360100CDDC48 /* SPUnityBreadcrumbManager.cpp in Sources */,
 				460EFA9A1D19360600CDDC48 /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
@@ -2286,6 +2305,7 @@
 				F53F90891CC7D1120020C2AC /* SPPurchaseNativeServices.mm in Sources */,
 				F542C21E1CC4E6650045B8A9 /* SPPurchaseStore.mm in Sources */,
 				FE4490A91C1F339B00A10FEA /* SPUnityAlertViewFacade.mm in Sources */,
+				FE49342D1E6074E0000D6993 /* SPUnityAppEvents.mm in Sources */,
 				7B1524331E5F3EA200B42780 /* SPUnityApplication.mm in Sources */,
 				F53B19141CE4DAD20009FCFA /* SPUnityBreadcrumbManager.cpp in Sources */,
 				F53B19181CE4DAD20009FCFA /* SPUnityBreadcrumbManagerFacade.cpp in Sources */,
