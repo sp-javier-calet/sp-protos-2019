@@ -14,6 +14,8 @@
 
 @interface SPUnitySubController : NSObject
 
+// MANU TODO: ORDER THIS LIKE SPUNITYAPPLICATION AND IMPLEMENT MISSING METHODS
+
 - (void)alwaysCallSuper;
 - (BOOL)finish;
 

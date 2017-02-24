@@ -11,6 +11,8 @@
 #import <objc/runtime.h>
 #include <vector>
 
+// MANU TODO: IMPLEMENT MISSING METHODS
+
 @implementation SPUnityApplication
 {
 }
@@ -27,9 +29,20 @@ static std::vector<SPUnitySubController*>* _controllers = nullptr;
     _controllers = new std::vector<SPUnitySubController*>();
     
     // Check for SPUnitySubController subclasses and register the existing ones
+    
+    // MANU TODO: IMPLEMENT SPUnityAppEvents WITH THE CURRENT CODE
+    
     NSArray* extensions = @[ @"SPUnityAppEvents",
                              @"HsUnityAppController"];
     
+//    for(NSString* className in extensions)
+//    {
+//        id objClass = NSClassFromString(className);
+//        if(objClass != nil)
+//        {
+//            [objClass superclass];
+//        }
+//    }
     id parentClass = objc_getClass("SPUnitySubController");
     
     for(NSString* className in extensions)
@@ -72,83 +85,12 @@ static std::vector<SPUnitySubController*>* _controllers = nullptr;
     return callSuper;
 }
 
-+ (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
+#pragma mark - Life Cycle
+
++ (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
     return [self notifyControllers:^(SPUnitySubController* controller){
         [controller application:application didFinishLaunchingWithOptions:launchOptions];
-    }];
-}
-
-+ (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
-{
-    return [self notifyControllers:^(SPUnitySubController* controller){
-        [controller application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
-    }];
-}
-
-+ (BOOL)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo
-{
-    return [self notifyControllers:^(SPUnitySubController* controller){
-        [controller application:application didReceiveRemoteNotification:userInfo];
-    }];
-}
-
-+ (BOOL)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
-{
-    return [self notifyControllers:^(SPUnitySubController* controller){
-        [controller application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-    }];
-}
-
-+ (BOOL)application:(UIApplication*)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void(^)())completionHandler
-{
-    return [self notifyControllers:^(SPUnitySubController* controller){
-        [controller application:application handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
-    }];
-}
-
-+ (BOOL)application:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forRemoteNotification:(NSDictionary*)userInfo completionHandler:(void(^)())completionHandler
-{
-    return [self notifyControllers:^(SPUnitySubController* controller){
-        [controller application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
-    }];
-}
-
-#if !UNITY_TVOS
-+ (BOOL)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification *)notification
-{
-    return [self notifyControllers:^(SPUnitySubController* controller){
-        [controller application:application didReceiveLocalNotification:notification];
-    }];
-}
-
-+ (BOOL)application:(UIApplication *)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void (^)())completionHandler
-{
-    return [self notifyControllers:^(SPUnitySubController* controller){
-        [controller application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
-    }];
-}
-
-#endif
-
-+ (BOOL)applicationDidEnterBackground:(UIApplication *)application
-{
-    return [self notifyControllers:^(SPUnitySubController* controller){
-        [controller applicationDidEnterBackground:application];
-    }];
-}
-
-+ (BOOL)applicationWillEnterForeground:(UIApplication *)application
-{
-    return [self notifyControllers:^(SPUnitySubController* controller){
-        [controller applicationWillEnterForeground:application];
-    }];
-}
-
-+ (BOOL)applicationDidBecomeActive:(UIApplication*)application
-{
-    return [self notifyControllers:^(SPUnitySubController* controller){
-        [controller applicationDidBecomeActive:application];
     }];
 }
 
@@ -159,12 +101,102 @@ static std::vector<SPUnitySubController*>* _controllers = nullptr;
     }];
 }
 
-+(BOOL)applicationDidReceiveMemoryWarning:(UIApplication*)application
++ (BOOL)applicationDidBecomeActive:(UIApplication*)application
+{
+    return [self notifyControllers:^(SPUnitySubController* controller){
+        [controller applicationDidBecomeActive:application];
+    }];
+}
+
++ (BOOL)applicationDidEnterBackground:(UIApplication*)application
+{
+    return [self notifyControllers:^(SPUnitySubController* controller){
+        [controller applicationDidEnterBackground:application];
+    }];
+}
+
++ (BOOL)applicationWillEnterForeground:(UIApplication*)application
+{
+    return [self notifyControllers:^(SPUnitySubController* controller){
+        [controller applicationWillEnterForeground:application];
+    }];
+}
+
++ (void)applicationWillTerminate:(UIApplication*)application
+{
+    
+}
+
+#if !UNITY_TVOS
++ (BOOL)application:(UIApplication*)application openURL:(NSURL*)url sourceApplication:(NSString*)sourceApplication annotation:(id)annotation
+{
+    return [self notifyControllers:^(SPUnitySubController* controller){
+        [controller application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
+    }];
+}
+#endif
+
+// MANU TODO: IMPLEMENT THIS METHOD NEEDED BY APPSFLYER
+
+//+ (BOOL)application:(UIApplication*)application continueUserActivity:(NSUserActivity*)userActivity restorationHandler:(void (^)(NSArray* restorableObjects))restorationHandler
+//{
+//    
+//}
+
+#pragma mark - Memory management
+
++ (BOOL)applicationDidReceiveMemoryWarning:(UIApplication*)application
 {
     return [self notifyControllers:^(SPUnitySubController* controller){
         [controller applicationDidReceiveMemoryWarning:application];
     }];
 }
+
+#pragma mark - Notifications
+
+#if !UNITY_TVOS
++ (void)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings
+{
+    
+}
+#endif
+
++ (BOOL)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken
+{
+    return [self notifyControllers:^(SPUnitySubController* controller){
+        [controller application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+    }];
+}
+
++ (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error
+{
+    
+}
+
++ (BOOL)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo
+{
+    return [self notifyControllers:^(SPUnitySubController* controller){
+        [controller application:application didReceiveRemoteNotification:userInfo];
+    }];
+}
+
+#if !UNITY_TVOS
++ (BOOL)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification*)notification
+{
+    return [self notifyControllers:^(SPUnitySubController* controller){
+        [controller application:application didReceiveLocalNotification:notification];
+    }];
+}
+#endif
+
+#pragma mark - Shortcut items
+
+#if !UNITY_TVOS
++ (void)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem
+{
+    
+}
+#endif
 
 @end
 

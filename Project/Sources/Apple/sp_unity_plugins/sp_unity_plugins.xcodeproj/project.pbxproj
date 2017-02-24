@@ -164,12 +164,12 @@
 		46F7491D1C60AE77000DB6B1 /* PLCrashReportSystemInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749061C60AE77000DB6B1 /* PLCrashReportSystemInfo.h */; };
 		46F7491E1C60AE77000DB6B1 /* PLCrashReportTextFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749071C60AE77000DB6B1 /* PLCrashReportTextFormatter.h */; };
 		46F7491F1C60AE77000DB6B1 /* PLCrashReportThreadInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 46F749081C60AE77000DB6B1 /* PLCrashReportThreadInfo.h */; };
-		7B1524311E5F3EA200B42780 /* SPUnityApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B15242D1E5F3EA200B42780 /* SPUnityApplication.h */; };
-		7B1524321E5F3EA200B42780 /* SPUnityApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B15242D1E5F3EA200B42780 /* SPUnityApplication.h */; };
+		7B1524311E5F3EA200B42780 /* SPUnityApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B15242D1E5F3EA200B42780 /* SPUnityApplication.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7B1524321E5F3EA200B42780 /* SPUnityApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B15242D1E5F3EA200B42780 /* SPUnityApplication.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7B1524331E5F3EA200B42780 /* SPUnityApplication.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B15242E1E5F3EA200B42780 /* SPUnityApplication.mm */; };
 		7B1524341E5F3EA200B42780 /* SPUnityApplication.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B15242E1E5F3EA200B42780 /* SPUnityApplication.mm */; };
-		7B1524351E5F3EA200B42780 /* SPUnitySubController.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B15242F1E5F3EA200B42780 /* SPUnitySubController.h */; };
-		7B1524361E5F3EA200B42780 /* SPUnitySubController.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B15242F1E5F3EA200B42780 /* SPUnitySubController.h */; };
+		7B1524351E5F3EA200B42780 /* SPUnitySubController.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B15242F1E5F3EA200B42780 /* SPUnitySubController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		7B1524361E5F3EA200B42780 /* SPUnitySubController.h in Headers */ = {isa = PBXBuildFile; fileRef = 7B15242F1E5F3EA200B42780 /* SPUnitySubController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		7B1524371E5F3EA200B42780 /* SPUnitySubController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B1524301E5F3EA200B42780 /* SPUnitySubController.mm */; };
 		7B1524381E5F3EA200B42780 /* SPUnitySubController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7B1524301E5F3EA200B42780 /* SPUnitySubController.mm */; };
 		B3524A6D1DD9BBCE008AE6FF /* WebSocketConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FE7056761DC9FBB900CB55E0 /* WebSocketConnection.cpp */; };
