@@ -1,8 +1,8 @@
-﻿using UnityEditor;
-using UnityEngine.SceneManagement;
-using UnityEngine;
+﻿using System;
 using System.Collections.Generic;
-using System;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace SocialPoint.TransparentBundles
 {

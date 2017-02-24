@@ -1,12 +1,11 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using System;
-using LitJson;
+using System.Collections.Generic;
 using System.IO;
-using UnityEditor;
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
+using LitJson;
+using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.TransparentBundles
 {

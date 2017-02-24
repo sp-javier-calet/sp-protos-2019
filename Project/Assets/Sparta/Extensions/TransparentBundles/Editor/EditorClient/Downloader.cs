@@ -1,9 +1,8 @@
-using UnityEngine;
-using UnityEditor;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEditor;
+using UnityEngine;
 
 #if UNITY_5_4_OR_NEWER
 using UnityEngine.Networking;

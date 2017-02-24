@@ -1,6 +1,4 @@
 using UnityEditor;
-using System.Collections;
-
 
 namespace SocialPoint.TransparentBundles
 {
