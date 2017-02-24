@@ -34,9 +34,18 @@
 
 - (void)applicationDidEnterBackground:(UIApplication *)application;
 - (void)applicationWillEnterForeground:(UIApplication *)application;
+- (BOOL)applicationWillTerminate:(UIApplication *)application;
 - (void)applicationDidBecomeActive:(UIApplication*)application;
 - (void)applicationWillResignActive:(UIApplication*)application;
 - (void)applicationDidReceiveMemoryWarning:(UIApplication*)application;
+#if !UNITY_TVOS
+- (BOOL)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings;
+#endif
+- (BOOL)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error;
+
+#if !UNITY_TVOS
+- (BOOL)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem;
+#endif
 
 @end
 

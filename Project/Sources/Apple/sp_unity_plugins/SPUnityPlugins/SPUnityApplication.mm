@@ -11,8 +11,6 @@
 #import <objc/runtime.h>
 #include <vector>
 
-// MANU TODO: IMPLEMENT MISSING METHODS
-
 @implementation SPUnityApplication
 {
 }
@@ -122,9 +120,11 @@ static std::vector<SPUnitySubController*>* _controllers = nullptr;
     }];
 }
 
-+ (void)applicationWillTerminate:(UIApplication*)application
++ (BOOL)applicationWillTerminate:(UIApplication*)application
 {
-    
+    return [self notifyControllers:^(SPUnitySubController* controller){
+        [controller applicationWillTerminate:application];
+    }];
 }
 
 #if !UNITY_TVOS
@@ -155,9 +155,11 @@ static std::vector<SPUnitySubController*>* _controllers = nullptr;
 #pragma mark - Notifications
 
 #if !UNITY_TVOS
-+ (void)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings
++ (BOOL)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings
 {
-    
+    return [self notifyControllers:^(SPUnitySubController* controller){
+        [controller application:application didRegisterUserNotificationSettings:notificationSettings];
+    }];
 }
 #endif
 
@@ -168,9 +170,11 @@ static std::vector<SPUnitySubController*>* _controllers = nullptr;
     }];
 }
 
-+ (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error
++ (BOOL)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error
 {
-    
+    return [self notifyControllers:^(SPUnitySubController* controller){
+        [controller application:application didFailToRegisterForRemoteNotificationsWithError:error];
+    }];
 }
 
 + (BOOL)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo
@@ -192,9 +196,11 @@ static std::vector<SPUnitySubController*>* _controllers = nullptr;
 #pragma mark - Shortcut items
 
 #if !UNITY_TVOS
-+ (void)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem
++ (BOOL)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem
 {
-    
+    return [self notifyControllers:^(SPUnitySubController* controller){
+        [controller application:application performActionForShortcutItem:shortcutItem];
+    }];
 }
 #endif
 

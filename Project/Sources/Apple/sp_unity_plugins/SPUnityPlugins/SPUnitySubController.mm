@@ -54,6 +54,12 @@ BOOL _defaultBehavior = NO;
     _calledSuper = YES;
 }
 
+- (BOOL)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error
+{
+    _calledSuper = YES;
+    return YES;
+}
+
 - (void)application:(UIApplication*)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void(^)())completionHandler
 {
     _calledSuper = YES;
@@ -86,6 +92,12 @@ BOOL _defaultBehavior = NO;
     _calledSuper = YES;
 }
 
+- (BOOL)applicationWillTerminate:(UIApplication*)application
+{
+    _calledSuper = YES;
+    return YES;
+}
+
 - (void)applicationDidBecomeActive:(UIApplication*)application
 {
     _calledSuper = YES;
@@ -100,5 +112,22 @@ BOOL _defaultBehavior = NO;
 {
     _calledSuper = YES;
 }
+
+#if !UNITY_TVOS
+- (BOOL)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings
+{
+    _calledSuper = YES;
+    return YES;
+}
+#endif
+
+#if !UNITY_TVOS
+- (BOOL)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem
+{
+    _calledSuper = YES;
+    return YES;
+}
+#endif
+
 
 @end
