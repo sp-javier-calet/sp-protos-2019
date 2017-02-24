@@ -50,7 +50,7 @@ namespace SocialPoint.TransparentBundles
                 {
                     currentType = typeof(InputCLI);
                 }
-                return (InputCLI) TBUtils.GetJsonMapperToObjGeneric(currentType).Invoke(null, new object[] { File.ReadAllText(path) });
+                return (InputCLI)TBUtils.GetJsonMapperToObjGeneric(currentType).Invoke(null, new object[] { File.ReadAllText(path) });
             }
 
             public void Save(string path, bool pretty = true)
@@ -109,7 +109,7 @@ namespace SocialPoint.TransparentBundles
         private const string _inputJson = "-input-json";
         private const string _outputJson = "-output-json";
         private const string _methodName = "-method-name";
-        
+
         #region CLI_Methods
         /// <summary>
         /// Common entry point for all CLI calls, the method name will come as an argument and will be called via reflection with the appropriate input
@@ -169,7 +169,7 @@ namespace SocialPoint.TransparentBundles
 
             DependencySystem.UpdateManifest(input.ManualBundles);
 
-            typedOutput.BundlesDictionary = DependencySystem.Manifest.GetDictionary();            
+            typedOutput.BundlesDictionary = DependencySystem.Manifest.GetDictionary();
         }
 
         /// <summary>
@@ -183,7 +183,7 @@ namespace SocialPoint.TransparentBundles
             var typedOutput = (BuildBundlesOutput)output;
 
             EditorUserBuildSettings.androidBuildSubtarget = (MobileTextureSubtarget)Enum.Parse(typeof(MobileTextureSubtarget), input.TextureFormat);
-            
+
             DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y.ToString() + " - " + x);
 
             DependencySystem.PrepareForBuild(input.BundlesDictionary);

@@ -1,4 +1,4 @@
-﻿namespace SocialPoint.TransparentBundles
+namespace SocialPoint.TransparentBundles
 {
     public class Config
     {

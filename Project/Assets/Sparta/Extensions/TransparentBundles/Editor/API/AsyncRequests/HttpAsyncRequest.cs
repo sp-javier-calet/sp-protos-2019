@@ -112,7 +112,7 @@ namespace SocialPoint.TransparentBundles
             {
                 // End the operation
                 Stream postStream = state.Request.EndGetRequestStream(asynchronousResult);
-                
+
                 // Write to the request stream.
                 postStream.Write(Encoding.UTF8.GetBytes(state.RequestBody), 0, state.RequestBody.Length);
                 postStream.Close();
@@ -206,7 +206,8 @@ namespace SocialPoint.TransparentBundles
 
                         code = ((HttpWebResponse)e.Response).StatusCode;
 
-                    }else
+                    }
+                    else
                     {
                         if(timeout)
                         {

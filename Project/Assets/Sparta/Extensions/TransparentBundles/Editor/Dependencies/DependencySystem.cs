@@ -86,7 +86,7 @@ namespace SocialPoint.TransparentBundles
         public static void RegisterManualBundledAsset(BundleInfo info)
         {
             AddOrUpdateAsset(info.Guid, info.IsLocal, true);
-            
+
             Save();
         }
 
@@ -124,7 +124,7 @@ namespace SocialPoint.TransparentBundles
             {
                 AddOrUpdateAsset(info.Guid, info.IsLocal, true);
             }
-            
+
             Save();
         }
 
@@ -333,7 +333,7 @@ namespace SocialPoint.TransparentBundles
             {
                 OnBundleLocalChanged(data);
             }
-            
+
             foreach(string dependency in directDependencies)
             {
                 AddOrUpdateAsset(dependency, data.IsLocal, false, guid);
@@ -365,7 +365,7 @@ namespace SocialPoint.TransparentBundles
 
                 // If no assets depends on this one or this asset is no longer in the project we need to remove it completely
                 if(data.Dependants.Count == 0 || string.IsNullOrEmpty(path))
-                {                      
+                {
                     if(OnAssetRemoved != null)
                     {
                         OnAssetRemoved(data);
@@ -520,7 +520,7 @@ namespace SocialPoint.TransparentBundles
         #region Log
         private static void LogMessageHandler(string message, LogType severity)
         {
-            Debug.logger.Log(severity, message);            
+            Debug.logger.Log(severity, message);
         }
         #endregion
     }

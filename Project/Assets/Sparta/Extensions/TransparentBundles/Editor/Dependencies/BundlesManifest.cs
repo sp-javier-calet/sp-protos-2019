@@ -23,15 +23,15 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        public IEnumerable<BundleDependenciesData> GetValues() 
+        public IEnumerable<BundleDependenciesData> GetValues()
         {
             return _dictionary.Values;
         }
 
-        
+
         public IEnumerable<string> GetKeys()
         {
-            return _dictionary.Keys;           
+            return _dictionary.Keys;
         }
 
         public void Add(string guid, BundleDependenciesData bundleData)
@@ -69,7 +69,7 @@ namespace SocialPoint.TransparentBundles
 
         public static BundlesManifest Load(string path)
         {
-            BundlesManifest bManifest = new BundlesManifest(); 
+            BundlesManifest bManifest = new BundlesManifest();
             bManifest._dictionary = JsonMapper.ToObject<Dictionary<string, BundleDependenciesData>>(File.ReadAllText(path));
 
             return bManifest;

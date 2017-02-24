@@ -68,7 +68,7 @@ namespace SocialPoint.TransparentBundles
         public static string GetProject()
         {
             var file = AssetDatabase.FindAssets("t:TBConfig");
-            TBConfig config = AssetDatabase.LoadAssetAtPath<TBConfig>(AssetDatabase.GUIDToAssetPath(file[0]));            
+            TBConfig config = AssetDatabase.LoadAssetAtPath<TBConfig>(AssetDatabase.GUIDToAssetPath(file[0]));
 
             return config.project;
         }

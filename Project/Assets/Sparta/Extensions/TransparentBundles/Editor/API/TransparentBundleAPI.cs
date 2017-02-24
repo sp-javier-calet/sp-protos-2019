@@ -36,7 +36,7 @@ namespace SocialPoint.TransparentBundles
 
         private const string _queryLogin = "user_email";
         private const string _queryProject = "project";
-        
+
         private static bool _isLogged = false;
 
         #region LOGIN
@@ -131,7 +131,7 @@ namespace SocialPoint.TransparentBundles
         /// Gets a dictionary with the two required query arguments "project" and "user_email"
         /// </summary>
         /// <returns>Dictionary with the two initialized parameters</returns>
-        private static Dictionary<string,string> GetBaseQueryArgs()
+        private static Dictionary<string, string> GetBaseQueryArgs()
         {
             var queryVars = new Dictionary<string, string>();
             queryVars.Add(_queryLogin, EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY));
@@ -171,7 +171,7 @@ namespace SocialPoint.TransparentBundles
         {
             GenericRequest(arguments, _requestUrl, "DELETE", JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, RemoveBundle));
         }
-        
+
         /// <summary>
         /// Sends a MakeLocalBundle request. It will trigger a login if not previously logged for this session and then sends the request
         /// </summary>

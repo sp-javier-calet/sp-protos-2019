@@ -52,7 +52,7 @@ namespace SocialPoint.TransparentBundles
         {
             return JsonMapper.ToObject<T>(Response);
         }
-        
+
         public JsonData ParseResponseAsJsonGeneric()
         {
             return JsonMapper.ToObject(Response);
