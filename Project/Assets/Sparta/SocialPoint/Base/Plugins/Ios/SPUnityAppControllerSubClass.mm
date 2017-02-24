@@ -1,13 +1,14 @@
 #import "SPUnityAppControllerSubClass.h"
+
 #import <AdSupport/AdSupport.h>
 #import <UIKit/UIKit.h>
-#import <SPUnityPlugins/SPUnityApplication.h>
+
 #if !UNITY_TVOS
 #import <SPUnityPlugins/UnityGameObject.h>
-#import <SPUnityPlugins/SPUnityNativeUtils.h>
+#import <SPUnityPlugins/SPUnityApplication.h>
 #else
 #import <SPUnityPlugins_tvOS/UnityGameObject.h>
-#import <SPUnityPlugins_tvOS/SPUnityNativeUtils.h>
+#import <SPUnityPlugins_tvOS/SPUnityApplication.h>
 #endif
 
 #include <string>
@@ -38,34 +39,6 @@ extern bool _unityAppReady;
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
-//    [super application:application didFinishLaunchingWithOptions:launchOptions];
-//
-//    [AppSourceUtils clearSource];
-//
-//#if !UNITY_TVOS
-//    UILocalNotification* notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-//    if(notification)
-//    {
-//        /* Notice that all event processing must be synchronous,
-//         * since the Source could change if there are any other notification event
-//         */
-//        [AppSourceUtils storeSourceOptions:notification.userInfo withScheme:@"local"];
-//    }
-//#endif
-//
-//#if !UNITY_TVOS
-//    if(SPUnityNativeUtils::isSystemVersionGreaterThanOrEqualTo(SPUnityNativeUtils::kV9) && launchOptions != nil)
-//    {
-//        UIApplicationShortcutItem* shortcutItem = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
-//
-//        if(shortcutItem != nil)
-//            [self storeForceTouchShortcut:shortcutItem];
-//    }
-//#endif
-//    [AppEventsUtils notifyStatus:kStatusUpdateSource];
-//
-//    return YES;
-    
     if([SPUnityApplication application:application didFinishLaunchingWithOptions:launchOptions])
     {
         [super application:application didFinishLaunchingWithOptions:launchOptions];
@@ -77,14 +50,6 @@ extern bool _unityAppReady;
 #if !UNITY_TVOS
 - (BOOL)application:(UIApplication*)application openURL:(NSURL*)url sourceApplication:(NSString*)sourceApplication annotation:(id)annotation
 {
-//    [super application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
-//
-//    [AppSourceUtils storeSource:url.absoluteString];
-//
-//    [AppEventsUtils notifyStatus:kStatusUpdateSource];
-//
-//    return YES;
-    
     if([SPUnityApplication application:application openURL:url sourceApplication:sourceApplication annotation:annotation])
     {
         [super application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
@@ -99,11 +64,6 @@ extern bool _unityAppReady;
 #if !UNITY_TVOS
 - (void)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings// IOS 8.0
 {
-//    if(userAllowsNotifications())
-//    {
-//        onPermissionsGranted();
-//    }
-    
     if([SPUnityApplication application:application didRegisterUserNotificationSettings:notificationSettings])
     {
         [super application:application didRegisterUserNotificationSettings:notificationSettings];
@@ -113,17 +73,6 @@ extern bool _unityAppReady;
 
 - (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken// IOS 3.0
 {
-//    [super application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-//
-//    NSString* pushToken = [NSString stringWithFormat:@"%@", deviceToken];
-//
-//    // apple sends the token in " <token> " format
-//    pushToken = [pushToken stringByReplacingOccurrencesOfString:@"<" withString:@""];
-//    pushToken = [pushToken stringByReplacingOccurrencesOfString:@">" withString:@""];
-//    pushToken = [pushToken stringByReplacingOccurrencesOfString:@" " withString:@""];
-//
-//    onRegisterForRemote([pushToken UTF8String]);
-    
     if([SPUnityApplication application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken])
     {
         [super application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
@@ -132,10 +81,6 @@ extern bool _unityAppReady;
 
 - (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error// IOS 3.0
 {
-//    [super application:application didFailToRegisterForRemoteNotificationsWithError:error];
-//
-//    onRegisterForRemoteFailed([error.localizedDescription UTF8String]);
-    
     if([SPUnityApplication application:application didFailToRegisterForRemoteNotificationsWithError:error])
     {
         [super application:application didFailToRegisterForRemoteNotificationsWithError:error];
@@ -144,12 +89,6 @@ extern bool _unityAppReady;
 
 - (void)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo// IOS 3.0
 {
-//    [super application:application didReceiveRemoteNotification:userInfo];
-//
-//    [AppSourceUtils storeSourceOptions:userInfo withScheme:@"push"];
-//
-//    [AppEventsUtils notifyStatus:kStatusUpdateSource];
-    
     if([SPUnityApplication application:application didReceiveRemoteNotification:userInfo])
     {
         [super application:application didReceiveRemoteNotification:userInfo];
@@ -159,12 +98,6 @@ extern bool _unityAppReady;
 #if !UNITY_TVOS
 - (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification*)notification// IOS 4.0
 {
-//    [super application:application didReceiveLocalNotification:notification];
-//
-//    [AppSourceUtils storeSourceOptions:notification.userInfo withScheme:@"local"];
-//
-//    [AppEventsUtils notifyStatus:kStatusUpdateSource];
-    
     if([SPUnityApplication application:application didReceiveLocalNotification:notification])
     {
         [super application:application didReceiveLocalNotification:notification];
@@ -173,23 +106,10 @@ extern bool _unityAppReady;
 #endif
 
 #if !UNITY_TVOS
-- (void)storeForceTouchShortcut:(UIApplicationShortcutItem*)shortcut
-{
-    NSDictionary* dictionary = @{kEventTypeKey : [shortcut type]};
-
-    [AppSourceUtils storeSourceOptions:dictionary withScheme:@"appshortcut"];
-}
-
 - (void)application:(UIApplication*)application
   performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem
              completionHandler:(void (^)(BOOL))completionHandler
 {
-//    [self storeForceTouchShortcut:shortcutItem];
-//
-//    [AppEventsUtils notifyStatus:kStatusUpdateSource];
-//
-//    completionHandler(YES);
-    
     __block BOOL completionHandlerCalled = NO;
     
     auto callback = ^(BOOL result) {
@@ -211,10 +131,6 @@ extern bool _unityAppReady;
 
 - (void)applicationDidEnterBackground:(UIApplication*)application
 {
-//    [super applicationDidEnterBackground:application];
-//
-//    [AppEventsUtils notifyStatus:kStatusBackground];
-    
     if([SPUnityApplication applicationDidEnterBackground:application])
     {
         [super applicationDidEnterBackground:application];
@@ -223,16 +139,6 @@ extern bool _unityAppReady;
 
 - (void)applicationWillEnterForeground:(UIApplication*)application
 {
-//#if !UNITY_TVOS
-//    application.applicationIconBadgeNumber = 0;
-//#endif
-//
-//    [super applicationWillEnterForeground:application];
-//
-//    // applicationWillEnterForeground: might sometimes arrive *before* actually
-//    // initing unity (e.g. locking on startup)
-//    [AppEventsUtils notifyStatus:kStatusWillGoForeground];
-    
     if([SPUnityApplication applicationWillEnterForeground:application])
     {
         [super applicationWillEnterForeground:application];
@@ -241,10 +147,6 @@ extern bool _unityAppReady;
 
 - (void)applicationDidBecomeActive:(UIApplication*)application
 {
-//    [super applicationDidBecomeActive:application];
-//
-//    [AppEventsUtils notifyStatus:kStatusActive];
-    
     if([SPUnityApplication applicationDidBecomeActive:application])
     {
         [super applicationDidBecomeActive:application];
@@ -253,13 +155,6 @@ extern bool _unityAppReady;
 
 - (void)applicationWillResignActive:(UIApplication*)application
 {
-//    [AppEventsUtils notifyStatus:kStatusWillGoBackground];
-//
-//    // aditional game loop to allow scripts response before being paused
-//    UnityBatchPlayerLoop();
-//
-//    [super applicationWillResignActive:application];
-    
     BOOL callSuper = [SPUnityApplication applicationWillResignActive:application];
     
     //aditional game loop to allow scripts response before being paused
@@ -273,15 +168,10 @@ extern bool _unityAppReady;
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication*)application
 {
-//    [super applicationDidReceiveMemoryWarning:application];
-//
-//    [AppEventsUtils notifyStatus:kStatusMemoryWarning];
-    
     if([SPUnityApplication applicationDidReceiveMemoryWarning:application])
     {
         [super applicationDidReceiveMemoryWarning:application];
     }
 }
-
 
 @end

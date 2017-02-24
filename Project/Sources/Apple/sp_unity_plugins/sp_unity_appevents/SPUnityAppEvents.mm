@@ -39,9 +39,7 @@ static SPUnityAppEvents* _instance;
          */
         [AppSourceUtils storeSourceOptions:notification.userInfo withScheme:@"local"];
     }
-#endif
     
-#if !UNITY_TVOS
     if(SPUnityNativeUtils::isSystemVersionGreaterThanOrEqualTo(SPUnityNativeUtils::kV9) && launchOptions != nil)
     {
         UIApplicationShortcutItem* shortcutItem = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
@@ -57,6 +55,7 @@ static SPUnityAppEvents* _instance;
     return YES;
 }
 
+#if !UNITY_TVOS
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
     [AppSourceUtils storeSource:url.absoluteString];
@@ -64,6 +63,7 @@ static SPUnityAppEvents* _instance;
 
     return YES;
 }
+#endif
 
 #if !UNITY_TVOS
 -  (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification *)notification
@@ -116,6 +116,11 @@ static SPUnityAppEvents* _instance;
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
 {
+    // Reset notification badge number
+    #if !UNITY_TVOS
+        application.applicationIconBadgeNumber = 0;
+    #endif
+    
     // applicationWillEnterForeground: might sometimes arrive *before* actually
     // initing unity (e.g. locking on startup)
     [AppEventsUtils notifyStatus:kStatusWillGoForeground];
@@ -149,10 +154,7 @@ performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem
   completionHandler:(void (^)(BOOL))completionHandler
 {
     [self storeForceTouchShortcut:shortcutItem];
-    
     [AppEventsUtils notifyStatus:kStatusUpdateSource];
-    
-    completionHandler(YES);
 }
 #endif
 
