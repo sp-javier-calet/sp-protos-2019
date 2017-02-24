@@ -3,12 +3,12 @@ namespace SocialPoint.TransparentBundles
 {
     public class RequestReport
     {
-        public bool RequestCancelled = false;
+        public bool RequestCancelled;
         public ResponseResult ResponseRes;
 
         public RequestReport(bool requestCancelled = false)
         {
-            this.RequestCancelled = requestCancelled;
+            RequestCancelled = requestCancelled;
         }
 
         public RequestReport(ResponseResult loginResult, bool requestCancelled = false)

@@ -8,8 +8,8 @@ namespace SocialPoint.TransparentBundles
     public class TBConfig : ScriptableObject
     {
         public string project = "";
-        private const string _configDefaultPath = "Assets/Sparta/Config/TransparentBundles/TBConfig.asset";
-        private const string _configSearchPattern = "t:TBConfig";
+        const string _configDefaultPath = "Assets/Sparta/Config/TransparentBundles/TBConfig.asset";
+        const string _configSearchPattern = "t:TBConfig";
 
         /// <summary>
         /// Tries to find the TBConfig file in the project, if it doesn't exists it will be created.

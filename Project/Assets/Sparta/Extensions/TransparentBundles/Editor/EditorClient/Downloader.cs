@@ -15,14 +15,13 @@ namespace SocialPoint.TransparentBundles
     public class Downloader
     {
 
-        private static Downloader _instance;
-        private static Dictionary<string, Texture2D> _downloadCache;
-        private static bool _downloadingBundle = false;
-        private List<UnityWebRequest> _requests = new List<UnityWebRequest>();
-        private EditorWindow _sender;
-        private const float _downloadTimeout = 10f;
+        static Downloader _instance;
+        static Dictionary<string, Texture2D> _downloadCache;
+        static bool _downloadingBundle;
+        readonly List<UnityWebRequest> _requests = new List<UnityWebRequest>();
+        const float _downloadTimeout = 10f;
 
-        private Downloader()
+        Downloader()
         {
             _downloadCache = new Dictionary<string, Texture2D>();
             _downloadingBundle = false;
@@ -47,7 +46,7 @@ namespace SocialPoint.TransparentBundles
                 return _downloadCache[path];
             }
 
-            Texture2D loadedTexture = new Texture2D(0, 0);
+            var loadedTexture = new Texture2D(0, 0);
             loadedTexture.LoadImage(File.ReadAllBytes(path));
             _downloadCache.Add(path, loadedTexture);
 
@@ -88,7 +87,7 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        private void InstantiateBundle(AssetBundle bundle)
+        void InstantiateBundle(AssetBundle bundle)
         {
             var objects = bundle.LoadAllAssets();
             var assetType = objects[0].GetType().ToString();
@@ -97,12 +96,12 @@ namespace SocialPoint.TransparentBundles
             {
             case "UnityEngine.GameObject":
 
-                GameObject instanceGO = GameObject.Instantiate((GameObject)objects[0]);
+                GameObject instanceGO = Object.Instantiate((GameObject)objects[0]);
                 instanceGO.name = "[BUNDLE] " + objects[0].name;
                 Component[] renderers = instanceGO.GetComponentsInChildren(typeof(Renderer));
                 foreach(Component component in renderers)
                 {
-                    Renderer renderer = (Renderer)component;
+                    var renderer = (Renderer)component;
                     foreach(Material material in renderer.sharedMaterials)
                     {
                         if(material != null && material.shader != null)
@@ -118,7 +117,7 @@ namespace SocialPoint.TransparentBundles
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 cube.name = "[BUNDLE] " + objects[0].name;
                 Renderer rend = cube.GetComponent<Renderer>();
-                Material mat = new Material(Shader.Find("Standard"));
+                var mat = new Material(Shader.Find("Standard"));
                 rend.material = mat;
                 mat.mainTexture = (Texture2D)objects[0];
                 break;
@@ -154,7 +153,7 @@ namespace SocialPoint.TransparentBundles
                 }
             }
 
-            if(!_requests.Any(x => x.url == bundle.Url[platform]))
+            if(_requests.All(x => x.url != bundle.Url[platform]))
             {
                 if(bundle.Url[platform].Length > 0 && bundle.Asset.Name.Length > 0)
                 {

@@ -7,8 +7,8 @@ namespace SocialPoint.TransparentBundles
     public class MainThreadQueue
     {
         // We need this to be singleton to guarantee initialization when accessed.
-        private static Object _lockObj = new object();
-        private static MainThreadQueue _instance;
+        static Object _lockObj = new object();
+        static MainThreadQueue _instance;
 
         public static MainThreadQueue Instance
         {
@@ -26,7 +26,7 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        private MainThreadQueue()
+        MainThreadQueue()
         {
             EditorApplication.update += WatcherUpdate;
         }
@@ -34,7 +34,7 @@ namespace SocialPoint.TransparentBundles
         /// <summary>
         /// Queue that synchronizes objects from other threads to the main thread.
         /// </summary>
-        private Queue _syncObjectQueue = Queue.Synchronized(new Queue());
+        readonly Queue _syncObjectQueue = Queue.Synchronized(new Queue());
 
         /// <summary>
         /// You can attach to this event to have your class handle the synced items.

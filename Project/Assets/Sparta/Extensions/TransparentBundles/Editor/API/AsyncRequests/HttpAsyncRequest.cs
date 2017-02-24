@@ -37,9 +37,9 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        private AsyncRequestData _reqState;
-        private bool locked = false;
-        private bool timeout = false;
+        AsyncRequestData _reqState;
+        bool locked;
+        bool timeout;
 
         public HttpAsyncRequest(AsyncRequestData requestData)
         {
@@ -84,7 +84,7 @@ namespace SocialPoint.TransparentBundles
             return url;
         }
 
-        public bool CertificateValidation(System.Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        public bool CertificateValidation(Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             return true;
         }
@@ -111,7 +111,7 @@ namespace SocialPoint.TransparentBundles
         /// <summary>
         /// Ends the RequestStream asynchronous process and starts the GetResponse
         /// </summary>
-        private void GetRequestStreamCallback(IAsyncResult asynchronousResult)
+        void GetRequestStreamCallback(IAsyncResult asynchronousResult)
         {
             var state = (AsyncRequestData)asynchronousResult.AsyncState;
             try
@@ -135,7 +135,7 @@ namespace SocialPoint.TransparentBundles
         /// Starts the GetResponse asynchronously
         /// </summary>
         /// <param name="state">AsyncRequestState context</param>
-        private void GetResponseAsync(AsyncRequestData state)
+        void GetResponseAsync(AsyncRequestData state)
         {
             // Start the asynchronous operation to get the response
             var asyncResult = state.Request.BeginGetResponse(new AsyncCallback(GetResponseCallback), state);
@@ -149,7 +149,7 @@ namespace SocialPoint.TransparentBundles
         /// </summary>
         /// <param name="stateObj">AsyncRequestState context</param>
         /// <param name="timeOut">wether or not the request timed out</param>
-        private void TimeoutCallback(object stateObj, bool timeOut)
+        void TimeoutCallback(object stateObj, bool timeOut)
         {
             var state = (AsyncRequestData)stateObj;
             if(timeOut)
@@ -162,20 +162,20 @@ namespace SocialPoint.TransparentBundles
         /// <summary>
         /// Ends the GetResponse and handles the result
         /// </summary>
-        private void GetResponseCallback(IAsyncResult asynchronousResult)
+        void GetResponseCallback(IAsyncResult asynchronousResult)
         {
             var state = (AsyncRequestData)asynchronousResult.AsyncState;
             try
             {
                 try
                 {
-                    ResponseResult rResult = null;
+                    ResponseResult rResult;
                     // End the operation
-                    using(HttpWebResponse response = (HttpWebResponse)state.Request.EndGetResponse(asynchronousResult))
+                    using(var response = (HttpWebResponse)state.Request.EndGetResponse(asynchronousResult))
                     {
                         using(Stream streamResponse = response.GetResponseStream())
                         {
-                            using(StreamReader streamRead = new StreamReader(streamResponse))
+                            using(var streamRead = new StreamReader(streamResponse))
                             {
                                 rResult = new ResponseResult(true, streamRead.ReadToEnd(), response.StatusCode);
                             }
@@ -241,7 +241,7 @@ namespace SocialPoint.TransparentBundles
         /// </summary>
         /// <param name="state">AsyncRequestState context object</param>
         /// <param name="result">Result of the connection</param>
-        private void EndConnection(AsyncRequestData state, ResponseResult result)
+        void EndConnection(AsyncRequestData state, ResponseResult result)
         {
             timeout = false;
             locked = false;

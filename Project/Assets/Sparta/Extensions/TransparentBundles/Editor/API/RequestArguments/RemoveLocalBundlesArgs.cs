@@ -9,7 +9,7 @@ namespace SocialPoint.TransparentBundles
 
         public RemoveLocalBundlesArgs(List<string> assetGUIDs, Action<RequestReport> SuccessCallback, Action<RequestReport> FailedCallback) : base(SuccessCallback, FailedCallback)
         {
-            this.AssetGUIDs = assetGUIDs;
+            AssetGUIDs = assetGUIDs;
         }
     }
 }

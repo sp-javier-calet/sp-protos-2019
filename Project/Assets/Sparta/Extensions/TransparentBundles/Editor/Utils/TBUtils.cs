@@ -4,7 +4,7 @@ using LitJson;
 
 namespace SocialPoint.TransparentBundles
 {
-    public class TBUtils
+    public static class TBUtils
     {
         /**
         * Get the closed generic method 'T ToObj<T> (string content)' for the 

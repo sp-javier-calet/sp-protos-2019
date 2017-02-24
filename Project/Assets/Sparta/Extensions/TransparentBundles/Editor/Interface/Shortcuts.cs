@@ -2,20 +2,17 @@
 
 namespace SocialPoint.TransparentBundles
 {
-    public class Shortcuts
+    public static class Shortcuts
     {
+        static EditorClientController _controller;
 
-        private static EditorClientController _controller;
-
-        private static void Init()
+        static void Init()
         {
             if(_controller == null)
             {
                 _controller = EditorClientController.GetInstance();
             }
         }
-
-
 
         [MenuItem("Assets/Bundles/Create or Update Bundle")]
         public static void CreateOrUpdate()

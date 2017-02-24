@@ -6,7 +6,7 @@ namespace SocialPoint.TransparentBundles
 {
     public class BundlesManifest
     {
-        private Dictionary<string, BundleDependenciesData> _dictionary = new Dictionary<string, BundleDependenciesData>();
+        Dictionary<string, BundleDependenciesData> _dictionary = new Dictionary<string, BundleDependenciesData>();
 
         #region Getters_Setters
 
@@ -67,7 +67,7 @@ namespace SocialPoint.TransparentBundles
 
         public static BundlesManifest Load(string path)
         {
-            BundlesManifest bManifest = new BundlesManifest();
+            var bManifest = new BundlesManifest();
             bManifest._dictionary = JsonMapper.ToObject<Dictionary<string, BundleDependenciesData>>(File.ReadAllText(path));
 
             return bManifest;
@@ -75,7 +75,7 @@ namespace SocialPoint.TransparentBundles
 
         public void Save(string path)
         {
-            JsonWriter writer = new JsonWriter();
+            var writer = new JsonWriter();
             writer.PrettyPrint = true;
             JsonMapper.ToJson(_dictionary, writer);
             var str = writer.ToString();
@@ -110,7 +110,7 @@ namespace SocialPoint.TransparentBundles
         /// <returns>Copy of all the User Bundles</returns>
         public List<BundleDependenciesData> GetUserBundlesCopy()
         {
-            List<BundleDependenciesData> userBundles = new List<BundleDependenciesData>();
+            var userBundles = new List<BundleDependenciesData>();
             foreach(var pair in _dictionary)
             {
                 if(pair.Value.IsExplicitlyBundled)

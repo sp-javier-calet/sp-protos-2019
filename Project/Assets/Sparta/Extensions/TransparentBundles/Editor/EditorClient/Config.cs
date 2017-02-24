@@ -1,6 +1,6 @@
 namespace SocialPoint.TransparentBundles
 {
-    public class Config
+    public static class Config
     {
         /*FOR TESTING ONLY*/
         //Should be an image in a web server

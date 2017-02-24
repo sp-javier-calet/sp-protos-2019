@@ -8,11 +8,11 @@ namespace SocialPoint.TransparentBundles
     {
         public string GUID;
         public string AssetPath;
-        public string BundleName = null;
+        public string BundleName;
         public List<string> Dependants = new List<string>();
         public List<string> Dependencies = new List<string>();
-        public bool IsLocal = false;
-        public bool IsExplicitlyBundled = false;
+        public bool IsLocal;
+        public bool IsExplicitlyBundled;
 
         public BundleDependenciesData()
         {

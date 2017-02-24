@@ -17,25 +17,25 @@ namespace SocialPoint.TransparentBundles
             /// <summary>
             /// Callback for login success
             /// </summary>
-            public Action<RequestReport> LoginOk = null;
+            public Action<RequestReport> LoginOk;
             /// <summary>
             /// Callback for login failure
             /// </summary>
-            public Action<RequestReport> LoginFailed = null;
+            public Action<RequestReport> LoginFailed;
             /// <summary>
             /// Logins with this username instead of the one stored in EditorPrefs
             /// </summary>
             public string OverwriteLoginUsername = "";
         }
 
-        private const string _loginUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/login/";
-        private const string _requestUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/asset_request/";
-        private const string _localBundleUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/local_asset/";
+        const string _loginUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/login/";
+        const string _requestUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/asset_request/";
+        const string _localBundleUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/local_asset/";
 
-        private const string _queryLogin = "user_email";
-        private const string _queryProject = "project";
+        const string _queryLogin = "user_email";
+        const string _queryProject = "project";
 
-        private static bool _isLogged = false;
+        static bool _isLogged;
 
         #region LOGIN
 
@@ -70,7 +70,7 @@ namespace SocialPoint.TransparentBundles
             else
             {
                 // Create and configure the request
-                HttpAsyncRequest asyncReq = new HttpAsyncRequest(HttpAsyncRequest.GetURLWithQuery(_loginUrl, GetBaseQueryArgs()), HttpAsyncRequest.MethodType.GET, x => HandleLoginResponse(x, loginOptions));
+                var asyncReq = new HttpAsyncRequest(HttpAsyncRequest.GetURLWithQuery(_loginUrl, GetBaseQueryArgs()), HttpAsyncRequest.MethodType.GET, x => HandleLoginResponse(x, loginOptions));
 
                 // Send the request
                 asyncReq.Send();
@@ -82,7 +82,7 @@ namespace SocialPoint.TransparentBundles
         /// </summary>
         /// <param name="result">ResponseResult of the petition</param>
         /// <param name="loginOptions">Login options for this login process</param>
-        private static void HandleLoginResponse(ResponseResult result, LoginOptions loginOptions)
+        static void HandleLoginResponse(ResponseResult result, LoginOptions loginOptions)
         {
             if(result != null && result.Success)
             {
@@ -117,7 +117,7 @@ namespace SocialPoint.TransparentBundles
         /// In case the login dialog is closed by the user without logging.
         /// </summary>
         /// <param name="loginOptions">The login options for this login process</param>
-        private static void OnLoginCancelled(LoginOptions loginOptions)
+        static void OnLoginCancelled(LoginOptions loginOptions)
         {
             if(loginOptions.LoginFailed != null)
             {
@@ -130,7 +130,7 @@ namespace SocialPoint.TransparentBundles
         /// Gets a dictionary with the two required query arguments "project" and "user_email"
         /// </summary>
         /// <returns>Dictionary with the two initialized parameters</returns>
-        private static Dictionary<string, string> GetBaseQueryArgs()
+        static Dictionary<string, string> GetBaseQueryArgs()
         {
             var queryVars = new Dictionary<string, string>();
             queryVars.Add(_queryLogin, EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY));
@@ -147,7 +147,6 @@ namespace SocialPoint.TransparentBundles
         /// Sends a GetBundles request. It will trigger a login if not previously logged for this session and then sends the request
         /// </summary>
         /// <param name="arguments">Arguments needed for this type of request</param>
-        /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
         public static void GetBundles(GetBundlesArgs arguments)
         {
             GenericRequest(arguments, _requestUrl, "GET", null, x => HandleActionResponse(x, arguments, GetBundles));
@@ -157,7 +156,6 @@ namespace SocialPoint.TransparentBundles
         /// Sends a CreateBundle request. It will trigger a login if not previously logged for this session and then sends the request
         /// </summary>
         /// <param name="arguments">Arguments needed for this type of request</param>
-        /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
         public static void CreateBundle(CreateBundlesArgs arguments)
         {
             GenericRequest(arguments, _requestUrl, "POST", JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, CreateBundle));
@@ -167,7 +165,6 @@ namespace SocialPoint.TransparentBundles
         /// Sends a RemoveBundle request. It will trigger a login if not previously logged for this session and then sends the request
         /// </summary>
         /// <param name="arguments">Arguments needed for this type of request</param>
-        /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
         public static void RemoveBundle(RemoveBundlesArgs arguments)
         {
             GenericRequest(arguments, _requestUrl, "DELETE", JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, RemoveBundle));
@@ -177,7 +174,6 @@ namespace SocialPoint.TransparentBundles
         /// Sends a MakeLocalBundle request. It will trigger a login if not previously logged for this session and then sends the request
         /// </summary>
         /// <param name="arguments">Arguments needed for this type of request</param>
-        /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
         public static void MakeLocalBundle(MakeLocalBundlesArgs arguments)
         {
             GenericRequest(arguments, _localBundleUrl, "POST", JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, MakeLocalBundle));
@@ -187,20 +183,19 @@ namespace SocialPoint.TransparentBundles
         /// Sends a RemoveLocalBundle request. It will trigger a login if not previously logged for this session and then sends the request
         /// </summary>
         /// <param name="arguments">Arguments needed for this type of request</param>
-        /// <param name="autoRetryLogin">Wether or not the login information should be asked for the user or not in case of failure</param>
         public static void RemoveLocalBundle(RemoveLocalBundlesArgs arguments)
         {
             GenericRequest(arguments, _localBundleUrl, "DELETE", JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, RemoveLocalBundle));
         }
 
 
-        private static void GenericRequest(RequestArgs arguments, string url, string method, string body, Action<ResponseResult> finishedCallback)
+        static void GenericRequest(RequestArgs arguments, string url, string method, string body, Action<ResponseResult> finishedCallback)
         {
             // Build up the Login Options with callbacks and options
             var options = new LoginOptions();
 
             options.AutoRetryLogin = arguments.AutoRetryLogin;
-            options.LoginOk = (report) => {
+            options.LoginOk = report => {
                 var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(url, GetBaseQueryArgs()));
                 request.Method = method;
                 request.ContentType = "application/json";
@@ -209,7 +204,7 @@ namespace SocialPoint.TransparentBundles
                 ActionRequest(arguments, requestData);
             };
 
-            options.LoginFailed = (report) => {
+            options.LoginFailed = report => {
                 arguments.SetRequestReport(report);
                 arguments.OnFailedCallback(report);
             };
@@ -226,7 +221,7 @@ namespace SocialPoint.TransparentBundles
         /// If the editor has never logged in, tries to login and then proceeds with the action
         /// </summary>
         /// <param name="loginOptions">The arguments for the login process that contains callbacks and login settings</param>
-        private static void LoginAndExecuteAction(LoginOptions loginOptions)
+        static void LoginAndExecuteAction(LoginOptions loginOptions)
         {
             if(!_isLogged || !string.IsNullOrEmpty(loginOptions.OverwriteLoginUsername))
             {
@@ -242,9 +237,9 @@ namespace SocialPoint.TransparentBundles
         /// Single encapsulated action for creating a bundle request
         /// </summary>
         /// <param name="arguments">Create Bundle Request Arguments as RequestArgs generic class</param>
-        private static void ActionRequest<T>(T arguments, AsyncRequestData requestData) where T : RequestArgs
+        static void ActionRequest<T>(T arguments, AsyncRequestData requestData) where T : RequestArgs
         {
-            HttpAsyncRequest asyncReq = new HttpAsyncRequest(requestData);
+            var asyncReq = new HttpAsyncRequest(requestData);
 
             asyncReq.Send();
         }
@@ -256,7 +251,7 @@ namespace SocialPoint.TransparentBundles
         /// <param name="responseResult">Response result received by the requests</param>
         /// <param name="arguments">Arguments that were passed to the request</param>
         /// <param name="retryRequest">Method to retry the request in case of login failure</param>
-        private static void HandleActionResponse<T>(ResponseResult responseResult, T arguments, Action<T> retryRequest) where T : RequestArgs
+        static void HandleActionResponse<T>(ResponseResult responseResult, T arguments, Action<T> retryRequest) where T : RequestArgs
         {
             if(!responseResult.IsInternal && responseResult.StatusCode == HttpStatusCode.Forbidden)
             {

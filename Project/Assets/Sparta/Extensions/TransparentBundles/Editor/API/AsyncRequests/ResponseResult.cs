@@ -5,9 +5,9 @@ namespace SocialPoint.TransparentBundles
 {
     public class ResponseResult
     {
-        public bool Success = false, IsInternal = true;
+        public bool Success, IsInternal = true;
         public string Response = string.Empty;
-        private HttpStatusCode _statusCode;
+        HttpStatusCode _statusCode;
 
         public HttpStatusCode StatusCode
         {
@@ -32,8 +32,8 @@ namespace SocialPoint.TransparentBundles
 
         public ResponseResult(bool success, string response, HttpStatusCode statusCode = 0)
         {
-            this.Success = success;
-            this.Response = response;
+            Success = success;
+            Response = response;
 
             if(statusCode == 0)
             {
@@ -42,8 +42,8 @@ namespace SocialPoint.TransparentBundles
             else
             {
                 IsInternal = false;
-                this.Response = response;
-                this.StatusCode = statusCode;
+                Response = response;
+                StatusCode = statusCode;
             }
         }
 

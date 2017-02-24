@@ -10,7 +10,7 @@ namespace SocialPoint.TransparentBundles
         public string FullName = "";
         public string Type;
         public string Guid = "";
-        private Object _assetObject;
+        Object _assetObject;
 
         public Asset(string guid)
         {
@@ -41,12 +41,7 @@ namespace SocialPoint.TransparentBundles
         public string LoadAssetType()
         {
             Object asset = GetAssetObject();
-            if(asset != null)
-            {
-                return asset.GetType().ToString();
-            }
-
-            return "";
+            return asset != null ? asset.GetType().ToString() : "";
         }
 
         public string LoadAssetName()

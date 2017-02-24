@@ -7,13 +7,13 @@ namespace SocialPoint.TransparentBundles
     public class LoginWindow : EditorWindow
     {
         public const string LOGIN_PREF_KEY = "TBLoginUser";
-        private Action _callback;
-        private Action _cancelCallback;
-        private string _loginUser;
-        private string _error;
-        private bool _closedProperly = false;
-        private TBConfig _config;
-        private string _project;
+        Action _callback;
+        Action _cancelCallback;
+        string _loginUser;
+        string _error;
+        bool _closedProperly;
+        TBConfig _config;
+        string _project;
 
         /// <summary>
         /// Opens the login window and sets the callbacks
