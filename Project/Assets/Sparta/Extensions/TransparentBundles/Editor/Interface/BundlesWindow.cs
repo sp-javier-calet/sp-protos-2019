@@ -539,9 +539,9 @@ namespace SocialPoint.TransparentBundles
                     bundlesListString += "... (" + (_chosenList.Count - removeListLimit).ToString() + " more)\n";
                 }
                 if(EditorUtility.DisplayDialog("Removing Bundle",
-                        "You are about to remove " + _chosenList.Count + " bundles from the server." + bundlesListString
-                        + "\nKeep in mind that this operation cannot be undone. Are you sure?",
-                        "Remove", "Cancel"))
+                       "You are about to remove " + _chosenList.Count + " bundles from the server." + bundlesListString
+                       + "\nKeep in mind that this operation cannot be undone. Are you sure?",
+                       "Remove", "Cancel"))
                 {
                     chosenEnum = _chosenList.GetEnumerator();
                     while(chosenEnum.MoveNext())
@@ -823,45 +823,45 @@ namespace SocialPoint.TransparentBundles
 
             switch(operation)
             {
-                case BundleOperation.create_asset_bundles:
-                    if(processing)
-                    {
-                        icon = _controller.DownloadImage(Config.IconsPath + "update.png");
-                    }
-                    else
-                    {
-                        icon = _controller.DownloadImage(Config.IconsPath + "update_queued.png");
-                    }
-                    break;
+            case BundleOperation.create_asset_bundles:
+                if(processing)
+                {
+                    icon = _controller.DownloadImage(Config.IconsPath + "update.png");
+                }
+                else
+                {
+                    icon = _controller.DownloadImage(Config.IconsPath + "update_queued.png");
+                }
+                break;
 
-                case BundleOperation.Remove:
-                    if(processing)
-                        icon = _controller.DownloadImage(Config.IconsPath + "remove.png");
-                    else
-                        icon = _controller.DownloadImage(Config.IconsPath + "remove_queued.png");
-                    break;
+            case BundleOperation.Remove:
+                if(processing)
+                    icon = _controller.DownloadImage(Config.IconsPath + "remove.png");
+                else
+                    icon = _controller.DownloadImage(Config.IconsPath + "remove_queued.png");
+                break;
 
-                case BundleOperation.AddToBuild:
-                    if(processing)
-                    {
-                        icon = _controller.DownloadImage(Config.IconsPath + "in_build.png");
-                    }
-                    else
-                    {
-                        icon = _controller.DownloadImage(Config.IconsPath + "in_build_queued.png");
-                    }
-                    break;
+            case BundleOperation.AddToBuild:
+                if(processing)
+                {
+                    icon = _controller.DownloadImage(Config.IconsPath + "in_build.png");
+                }
+                else
+                {
+                    icon = _controller.DownloadImage(Config.IconsPath + "in_build_queued.png");
+                }
+                break;
 
-                case BundleOperation.RemoveFromBuild:
-                    if(processing)
-                    {
-                        icon = _controller.DownloadImage(Config.IconsPath + "out_build.png");
-                    }
-                    else
-                    {
-                        icon = _controller.DownloadImage(Config.IconsPath + "out_build_queued.png");
-                    }
-                    break;
+            case BundleOperation.RemoveFromBuild:
+                if(processing)
+                {
+                    icon = _controller.DownloadImage(Config.IconsPath + "out_build.png");
+                }
+                else
+                {
+                    icon = _controller.DownloadImage(Config.IconsPath + "out_build_queued.png");
+                }
+                break;
 
             }
 
@@ -910,21 +910,21 @@ namespace SocialPoint.TransparentBundles
             {
                 switch(Event.current.keyCode)
                 {
-                    case KeyCode.Return:
-                        SearchBundles(_filter);
-                        break;
+                case KeyCode.Return:
+                    SearchBundles(_filter);
+                    break;
 
-                    case KeyCode.A:
-                        if(Event.current.command || Event.current.control)
+                case KeyCode.A:
+                    if(Event.current.command || Event.current.control)
+                    {
+                        _selectedList = new Dictionary<string, Bundle>();
+                        for(int i = 0; i < _bundleList.Count; i++)
                         {
-                            _selectedList = new Dictionary<string, Bundle>();
-                            for(int i = 0; i < _bundleList.Count; i++)
-                            {
-                                _selectedList.Add(_bundleList[i].Name, _bundleList[i]);
-                            }
+                            _selectedList.Add(_bundleList[i].Name, _bundleList[i]);
                         }
-                        Window.Repaint();
-                        break;
+                    }
+                    Window.Repaint();
+                    break;
                 }
             }
         }

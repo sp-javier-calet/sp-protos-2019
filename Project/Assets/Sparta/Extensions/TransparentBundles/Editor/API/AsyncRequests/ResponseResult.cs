@@ -10,6 +10,7 @@ namespace SocialPoint.TransparentBundles
         public bool Success = false, IsInternal = true;
         public string Response = string.Empty;
         private HttpStatusCode _statusCode;
+
         public HttpStatusCode StatusCode
         {
             get

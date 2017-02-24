@@ -44,9 +44,9 @@ namespace SocialPoint.TransparentBundles
                     "Close");
             }
             else if(EditorUtility.DisplayDialog("Removing Bundle",
-                         "You are about to remove the bundle of the asset '" + assets[0].Name +
-                         "' from the server. Keep in mind that this operation cannot be undone. Are you sure?",
-                         "Remove it", "Cancel"))
+                        "You are about to remove the bundle of the asset '" + assets[0].Name +
+                        "' from the server. Keep in mind that this operation cannot be undone. Are you sure?",
+                        "Remove it", "Cancel"))
             {
                 _controller.RemoveBundle(assets[0]);
             }

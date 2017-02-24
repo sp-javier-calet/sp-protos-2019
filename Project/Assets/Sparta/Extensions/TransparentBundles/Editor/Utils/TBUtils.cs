@@ -22,13 +22,13 @@ namespace SocialPoint.TransparentBundles
                 MethodInfo method = matchingMethods[i];
                 ParameterInfo[] parameters = method.GetParameters();
                 if(method.Name == "ToObject" &&
-                    parameters.Length == 1 &&
-                    parameters[0].ParameterType == typeof(string) &&
-                    method.IsGenericMethod)
+                   parameters.Length == 1 &&
+                   parameters[0].ParameterType == typeof(string) &&
+                   method.IsGenericMethod)
                 {
                     Type[] genericMethodTypes = method.GetGenericArguments();
                     if(genericMethodTypes.Length == 1 &&
-                        genericMethodTypes[0] == method.ReturnType)
+                       genericMethodTypes[0] == method.ReturnType)
                     {
                         return method.MakeGenericMethod(toObjType);
                     }

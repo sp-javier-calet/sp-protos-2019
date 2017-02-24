@@ -1,4 +1,5 @@
 using System;
+
 namespace SocialPoint.TransparentBundles
 {
     public abstract class RequestArgs

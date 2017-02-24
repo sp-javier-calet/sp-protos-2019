@@ -44,7 +44,6 @@ namespace SocialPoint.TransparentBundles
             return _dictionary.Remove(guid);
         }
 
-
         public Dictionary<string, BundleDependenciesData> GetDictionary()
         {
             return _dictionary;

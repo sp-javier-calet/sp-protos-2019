@@ -46,9 +46,13 @@ namespace SocialPoint.TransparentBundles
             _reqState = requestData;
         }
 
-        public HttpAsyncRequest(HttpWebRequest request, Action<ResponseResult> finishedCallback) : this(new AsyncRequestData(request, finishedCallback)) { }
+        public HttpAsyncRequest(HttpWebRequest request, Action<ResponseResult> finishedCallback) : this(new AsyncRequestData(request, finishedCallback))
+        {
+        }
 
-        public HttpAsyncRequest(HttpWebRequest request, string requestBody, Action<ResponseResult> finishedCallback) : this(new AsyncRequestData(request, requestBody, finishedCallback)) { }
+        public HttpAsyncRequest(HttpWebRequest request, string requestBody, Action<ResponseResult> finishedCallback) : this(new AsyncRequestData(request, requestBody, finishedCallback))
+        {
+        }
 
         public HttpAsyncRequest(string url, MethodType method, Action<ResponseResult> finishedCallback)
         {
@@ -56,6 +60,7 @@ namespace SocialPoint.TransparentBundles
             request.Method = method.ToString();
             _reqState = new AsyncRequestData(request, finishedCallback);
         }
+
         /// <summary>
         /// Given a base URL and a dictionary of params, appends params to the url string into the query
         /// </summary>
@@ -83,6 +88,7 @@ namespace SocialPoint.TransparentBundles
         {
             return true;
         }
+
         /// <summary>
         /// Start the process of sending the request and receiving the response asynchronously. No modifications should be made to this request after this call.
         /// </summary>

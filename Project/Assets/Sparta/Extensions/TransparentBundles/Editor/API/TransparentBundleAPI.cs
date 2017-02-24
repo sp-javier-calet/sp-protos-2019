@@ -40,6 +40,7 @@ namespace SocialPoint.TransparentBundles
         private static bool _isLogged = false;
 
         #region LOGIN
+
         /// <summary>
         /// Entry point for standalone Login
         /// </summary>
@@ -139,9 +140,11 @@ namespace SocialPoint.TransparentBundles
 
             return queryVars;
         }
+
         #endregion
 
         #region PUBLIC_METHODS
+
         /// <summary>
         /// Sends a GetBundles request. It will trigger a login if not previously logged for this session and then sends the request
         /// </summary>
@@ -199,8 +202,7 @@ namespace SocialPoint.TransparentBundles
             var options = new LoginOptions();
 
             options.AutoRetryLogin = arguments.AutoRetryLogin;
-            options.LoginOk = (report) =>
-            {
+            options.LoginOk = (report) => {
                 var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(url, GetBaseQueryArgs()));
                 request.Method = method;
                 request.ContentType = "application/json";
@@ -209,8 +211,7 @@ namespace SocialPoint.TransparentBundles
                 ActionRequest(arguments, requestData);
             };
 
-            options.LoginFailed = (report) =>
-            {
+            options.LoginFailed = (report) => {
                 arguments.SetRequestReport(report);
                 arguments.OnFailedCallback(report);
             };
@@ -218,9 +219,11 @@ namespace SocialPoint.TransparentBundles
             // Triggers login process
             LoginAndExecuteAction(options);
         }
+
         #endregion
 
         #region PRIVATE_METHODS
+
         /// <summary>
         /// If the editor has never logged in, tries to login and then proceeds with the action
         /// </summary>

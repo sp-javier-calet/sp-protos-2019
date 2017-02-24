@@ -620,47 +620,41 @@ namespace SocialPoint.TransparentBundles
         {
             switch(mode)
             {
-                case BundleSortingMode.TypeDesc:
-                    bundleList.Sort(delegate (Bundle b1, Bundle b2)
-                    {
-                        return ((b2.Asset.Type.ToString() + b1.Asset.Name).CompareTo(b1.Asset.Type.ToString() + b2.Asset.Name));
-                    });
-                    break;
+            case BundleSortingMode.TypeDesc:
+                bundleList.Sort(delegate (Bundle b1, Bundle b2) {
+                    return ((b2.Asset.Type.ToString() + b1.Asset.Name).CompareTo(b1.Asset.Type.ToString() + b2.Asset.Name));
+                });
+                break;
 
-                case BundleSortingMode.TypeAsc:
-                    bundleList.Sort(delegate (Bundle b1, Bundle b2)
-                    {
-                        return ((b1.Asset.Type.ToString() + b1.Asset.Name).CompareTo(b2.Asset.Type.ToString() + b2.Asset.Name));
-                    });
-                    break;
+            case BundleSortingMode.TypeAsc:
+                bundleList.Sort(delegate (Bundle b1, Bundle b2) {
+                    return ((b1.Asset.Type.ToString() + b1.Asset.Name).CompareTo(b2.Asset.Type.ToString() + b2.Asset.Name));
+                });
+                break;
 
-                case BundleSortingMode.NameDesc:
-                    bundleList.Sort(delegate (Bundle b1, Bundle b2)
-                    {
-                        return b2.Name.CompareTo(b1.Name);
-                    });
-                    break;
+            case BundleSortingMode.NameDesc:
+                bundleList.Sort(delegate (Bundle b1, Bundle b2) {
+                    return b2.Name.CompareTo(b1.Name);
+                });
+                break;
 
-                case BundleSortingMode.NameAsc:
-                    bundleList.Sort(delegate (Bundle b1, Bundle b2)
-                    {
-                        return b1.Name.CompareTo(b2.Name);
-                    });
-                    break;
+            case BundleSortingMode.NameAsc:
+                bundleList.Sort(delegate (Bundle b1, Bundle b2) {
+                    return b1.Name.CompareTo(b2.Name);
+                });
+                break;
 
-                case BundleSortingMode.SizeDesc:
-                    bundleList.Sort(delegate (Bundle b1, Bundle b2)
-                    {
-                        return (b2.Size[platform].ToString() + b1.Asset.Name).CompareTo(b1.Size[platform].ToString() + b2.Asset.Name);
-                    });
-                    break;
+            case BundleSortingMode.SizeDesc:
+                bundleList.Sort(delegate (Bundle b1, Bundle b2) {
+                    return (b2.Size[platform].ToString() + b1.Asset.Name).CompareTo(b1.Size[platform].ToString() + b2.Asset.Name);
+                });
+                break;
 
-                case BundleSortingMode.SizeAsc:
-                    bundleList.Sort(delegate (Bundle b1, Bundle b2)
-                    {
-                        return (b1.Size[platform].ToString() + b1.Asset.Name).CompareTo(b2.Size[platform].ToString() + b2.Asset.Name);
-                    });
-                    break;
+            case BundleSortingMode.SizeAsc:
+                bundleList.Sort(delegate (Bundle b1, Bundle b2) {
+                    return (b1.Size[platform].ToString() + b1.Asset.Name).CompareTo(b2.Size[platform].ToString() + b2.Asset.Name);
+                });
+                break;
             }
         }
 
@@ -668,33 +662,29 @@ namespace SocialPoint.TransparentBundles
         {
             switch(mode)
             {
-                case AssetSortingMode.TypeDesc:
-                    assetList.Sort(delegate (Asset b1, Asset b2)
-                    {
-                        return ((b2.Type.ToString() + b1.Name).CompareTo(b1.Type.ToString() + b2.Name));
-                    });
-                    break;
+            case AssetSortingMode.TypeDesc:
+                assetList.Sort(delegate (Asset b1, Asset b2) {
+                    return ((b2.Type.ToString() + b1.Name).CompareTo(b1.Type.ToString() + b2.Name));
+                });
+                break;
 
-                case AssetSortingMode.TypeAsc:
-                    assetList.Sort(delegate (Asset b1, Asset b2)
-                    {
-                        return ((b1.Type.ToString() + b1.Name).CompareTo(b2.Type.ToString() + b2.Name));
-                    });
-                    break;
+            case AssetSortingMode.TypeAsc:
+                assetList.Sort(delegate (Asset b1, Asset b2) {
+                    return ((b1.Type.ToString() + b1.Name).CompareTo(b2.Type.ToString() + b2.Name));
+                });
+                break;
 
-                case AssetSortingMode.NameDesc:
-                    assetList.Sort(delegate (Asset b1, Asset b2)
-                    {
-                        return b2.Name.CompareTo(b1.Name);
-                    });
-                    break;
+            case AssetSortingMode.NameDesc:
+                assetList.Sort(delegate (Asset b1, Asset b2) {
+                    return b2.Name.CompareTo(b1.Name);
+                });
+                break;
 
-                case AssetSortingMode.NameAsc:
-                    assetList.Sort(delegate (Asset b1, Asset b2)
-                    {
-                        return b1.Name.CompareTo(b2.Name);
-                    });
-                    break;
+            case AssetSortingMode.NameAsc:
+                assetList.Sort(delegate (Asset b1, Asset b2) {
+                    return b1.Name.CompareTo(b2.Name);
+                });
+                break;
 
             }
         }

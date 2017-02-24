@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+
 #if UNITY_5_4_OR_NEWER
 using UnityEngine.Networking;
 #else
@@ -95,33 +96,33 @@ namespace SocialPoint.TransparentBundles
 
             switch(assetType)
             {
-                case "UnityEngine.GameObject":
+            case "UnityEngine.GameObject":
 
-                    GameObject instanceGO = GameObject.Instantiate((GameObject)objects[0]);
-                    instanceGO.name = "[BUNDLE] " + objects[0].name;
-                    Component[] renderers = instanceGO.GetComponentsInChildren(typeof(Renderer));
-                    foreach(Component component in renderers)
+                GameObject instanceGO = GameObject.Instantiate((GameObject)objects[0]);
+                instanceGO.name = "[BUNDLE] " + objects[0].name;
+                Component[] renderers = instanceGO.GetComponentsInChildren(typeof(Renderer));
+                foreach(Component component in renderers)
+                {
+                    Renderer renderer = (Renderer)component;
+                    foreach(Material material in renderer.sharedMaterials)
                     {
-                        Renderer renderer = (Renderer)component;
-                        foreach(Material material in renderer.sharedMaterials)
+                        if(material != null && material.shader != null)
                         {
-                            if(material != null && material.shader != null)
-                            {
-                                material.shader = Shader.Find(material.shader.name);
-                            }
+                            material.shader = Shader.Find(material.shader.name);
                         }
                     }
-                    break;
+                }
+                break;
 
-                case "UnityEngine.Texture2D":
+            case "UnityEngine.Texture2D":
 
-                    GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    cube.name = "[BUNDLE] " + objects[0].name;
-                    Renderer rend = cube.GetComponent<Renderer>();
-                    Material mat = new Material(Shader.Find("Standard"));
-                    rend.material = mat;
-                    mat.mainTexture = (Texture2D)objects[0];
-                    break;
+                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                cube.name = "[BUNDLE] " + objects[0].name;
+                Renderer rend = cube.GetComponent<Renderer>();
+                Material mat = new Material(Shader.Find("Standard"));
+                rend.material = mat;
+                mat.mainTexture = (Texture2D)objects[0];
+                break;
             }
 
             _requests.ForEach(x => ((DownloadHandlerAssetBundle)x.downloadHandler).assetBundle.Unload(false));

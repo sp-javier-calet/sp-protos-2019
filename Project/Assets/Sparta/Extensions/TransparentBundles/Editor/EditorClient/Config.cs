@@ -8,11 +8,11 @@ namespace SocialPoint.TransparentBundles
 
         public static string WinVolumePath = "//spserver.spoint.es/3dshare/";
 
-#if UNITY_EDITOR_OSX
+        #if UNITY_EDITOR_OSX
         public static string VolumePath = MacVolumePath;
-#else
+        #else
         public static string VolumePath = WinVolumePath;
-#endif
+        #endif
         public static string IconsPath = VolumePath + "TA/TransparentBundles/tool_icons/";
 
         public static string SmbConnectionUrl = "//guest@" + WinVolumePath.Substring(2);

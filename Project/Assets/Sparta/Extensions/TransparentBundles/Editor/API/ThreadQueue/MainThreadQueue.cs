@@ -9,6 +9,7 @@ namespace SocialPoint.TransparentBundles
         // We need this to be singleton to guarantee initialization when accessed.
         private static Object _lockObj = new object();
         private static MainThreadQueue _instance;
+
         public static MainThreadQueue Instance
         {
             get

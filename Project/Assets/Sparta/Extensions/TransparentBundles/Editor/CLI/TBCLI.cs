@@ -13,6 +13,7 @@ namespace SocialPoint.TransparentBundles
     public class TBCLI
     {
         #region IO_Classes
+
         /// <summary>
         /// Generic output for any CLI function (All outputs need to inherit this)
         /// </summary>
@@ -104,6 +105,7 @@ namespace SocialPoint.TransparentBundles
             public List<BundleInfoOutput> Bundles = new List<BundleInfoOutput>();
             public List<string> BuildLog = new List<string>();
         }
+
         #endregion
 
         private const string _inputJson = "-input-json";
@@ -111,6 +113,7 @@ namespace SocialPoint.TransparentBundles
         private const string _methodName = "-method-name";
 
         #region CLI_Methods
+
         /// <summary>
         /// Common entry point for all CLI calls, the method name will come as an argument and will be called via reflection with the appropriate input
         /// Run will also write the results in the provided output path even if the CLI call fails.
@@ -188,8 +191,7 @@ namespace SocialPoint.TransparentBundles
 
             DependencySystem.PrepareForBuild(input.BundlesDictionary);
 
-            Application.LogCallback Callback = (msg, stack, type) =>
-            {
+            Application.LogCallback Callback = (msg, stack, type) => {
                 if(type == LogType.Error || type == LogType.Exception || type == LogType.Warning)
                 {
                     typedOutput.BuildLog.Add(type + " - " + msg + "\n" + stack);
@@ -244,6 +246,7 @@ namespace SocialPoint.TransparentBundles
         #endregion
 
         #region Helpers
+
         /// <summary>
         /// Given a key, gets an argument from the command line, throws an exception if key is not found
         /// </summary>
@@ -278,6 +281,7 @@ namespace SocialPoint.TransparentBundles
             value = arguments[targetIdx + 1];
             return true;
         }
+
         #endregion
     }
 }

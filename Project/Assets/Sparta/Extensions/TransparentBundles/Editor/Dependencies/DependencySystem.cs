@@ -56,6 +56,7 @@ namespace SocialPoint.TransparentBundles
         }
 
         #region JSON
+
         public static void Load(string path = "")
         {
             if(string.IsNullOrEmpty(path))
@@ -75,9 +76,10 @@ namespace SocialPoint.TransparentBundles
 
             Manifest.Save(path);
         }
+
         #endregion
 
-        #region APICalls               
+        #region APICalls
 
         /// <summary>
         /// Registers or refresh an asset as a manual bundled
@@ -209,9 +211,11 @@ namespace SocialPoint.TransparentBundles
 
             AssetDatabase.StopAssetEditing();
         }
+
         #endregion
 
         #region PrivateMethods
+
         /// <summary>
         /// Adds or updates an asset and all its dependencies to the manifest
         /// </summary>
@@ -439,6 +443,7 @@ namespace SocialPoint.TransparentBundles
         #endregion
 
         #region BundlesPolicies
+
         /// <summary>
         /// Gets the name of a user defined bundle
         /// </summary>
@@ -515,13 +520,16 @@ namespace SocialPoint.TransparentBundles
                 OnBundleLocalChanged(data);
             }
         }
+
         #endregion
 
         #region Log
+
         private static void LogMessageHandler(string message, LogType severity)
         {
             Debug.logger.Log(severity, message);
         }
+
         #endregion
     }
 }
