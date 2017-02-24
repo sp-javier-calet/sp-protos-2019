@@ -4,35 +4,38 @@ using System.Reflection;
 using System;
 using LitJson;
 
-public class TBUtils
+namespace SocialPoint.TransparentBundles
 {
-    /**
-    * Get the closed generic method 'T ToObj<T> (string content)' for the 
-    * type T of toObjType.
-    * Allows direct json deserialisation into class toObjType
-    */
-    public static MethodInfo GetJsonMapperToObjGeneric(Type toObjType)
+    public class TBUtils
     {
-        BindingFlags flags = BindingFlags.Static | BindingFlags.Public;
-        MethodInfo[] matchingMethods = typeof(JsonMapper).GetMethods(flags);
-        for(int i = 0; i < matchingMethods.Length; ++i)
+        /**
+        * Get the closed generic method 'T ToObj<T> (string content)' for the 
+        * type T of toObjType.
+        * Allows direct json deserialisation into class toObjType
+        */
+        public static MethodInfo GetJsonMapperToObjGeneric(Type toObjType)
         {
-            MethodInfo method = matchingMethods[i];
-            ParameterInfo[] parameters = method.GetParameters();
-            if(method.Name == "ToObject" &&
-                parameters.Length == 1 &&
-                parameters[0].ParameterType == typeof(string) &&
-                method.IsGenericMethod)
+            BindingFlags flags = BindingFlags.Static | BindingFlags.Public;
+            MethodInfo[] matchingMethods = typeof(JsonMapper).GetMethods(flags);
+            for(int i = 0; i < matchingMethods.Length; ++i)
             {
-                Type[] genericMethodTypes = method.GetGenericArguments();
-                if(genericMethodTypes.Length == 1 &&
-                    genericMethodTypes[0] == method.ReturnType)
+                MethodInfo method = matchingMethods[i];
+                ParameterInfo[] parameters = method.GetParameters();
+                if(method.Name == "ToObject" &&
+                    parameters.Length == 1 &&
+                    parameters[0].ParameterType == typeof(string) &&
+                    method.IsGenericMethod)
                 {
-                    return method.MakeGenericMethod(toObjType);
+                    Type[] genericMethodTypes = method.GetGenericArguments();
+                    if(genericMethodTypes.Length == 1 &&
+                        genericMethodTypes[0] == method.ReturnType)
+                    {
+                        return method.MakeGenericMethod(toObjType);
+                    }
                 }
             }
-        }
 
-        throw new Exception("Could not find a 'public static T JsonMapper.ToObj<T> (string)' definition");
+            throw new Exception("Could not find a 'public static T JsonMapper.ToObj<T> (string)' definition");
+        }
     }
 }

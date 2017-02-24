@@ -55,7 +55,7 @@ namespace SocialPoint.TransparentBundles
             var loginUser = string.IsNullOrEmpty(loginOptions.OverwriteLoginUsername) ? EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY) : loginOptions.OverwriteLoginUsername;
 
             // If there is no info stored
-            if(string.IsNullOrEmpty(loginUser) || !TBConfig.IsValid())
+            if(string.IsNullOrEmpty(loginUser) || string.IsNullOrEmpty(TBConfig.GetConfig().project))
             {
                 if(loginOptions.AutoRetryLogin)
                 {
@@ -135,7 +135,7 @@ namespace SocialPoint.TransparentBundles
         {
             var queryVars = new Dictionary<string, string>();
             queryVars.Add(_queryLogin, EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY));
-            queryVars.Add(_queryProject, TBConfig.GetProject());
+            queryVars.Add(_queryProject, TBConfig.GetConfig().project);
 
             return queryVars;
         }
