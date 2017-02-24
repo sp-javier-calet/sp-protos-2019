@@ -42,6 +42,7 @@ namespace SocialPoint.ServerSync
 
             var appEvents = Substitute.For<IAppEvents>();
             appEvents.WillGoBackground.Returns(new PriorityAction());
+            appEvents.WasOnBackground.Returns(new PriorityAction());
             appEvents.GameWasLoaded.Returns(new PriorityAction());
             appEvents.GameWillRestart.Returns(new PriorityAction());
             CommandQueue.AppEvents = appEvents;
