@@ -51,7 +51,7 @@
 #pragma mark - Shortcut items
 
 #if !UNITY_TVOS
-- (BOOL)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem;
+- (void)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem completionHandler:(void (^)(BOOL))completionHandler;
 #endif
 
 @end

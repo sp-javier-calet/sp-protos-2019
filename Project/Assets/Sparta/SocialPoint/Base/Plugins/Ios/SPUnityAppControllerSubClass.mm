@@ -187,7 +187,7 @@ extern bool _unityAppReady;
         }
     };
     
-    if([SPUnityApplication application:application performActionForShortcutItem:shortcutItem])
+    if([SPUnityApplication application:application performActionForShortcutItem:shortcutItem completionHandler:callback])
     {
         [super application:application performActionForShortcutItem:shortcutItem completionHandler:callback];
     }

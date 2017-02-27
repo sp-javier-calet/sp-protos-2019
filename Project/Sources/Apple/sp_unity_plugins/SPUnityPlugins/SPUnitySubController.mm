@@ -119,10 +119,9 @@ BOOL _defaultBehavior = NO;
 #pragma mark - Shortcut items
 
 #if !UNITY_TVOS
-- (BOOL)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem
+- (void)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem completionHandler:(void (^)(BOOL))completionHandler
 {
     _calledSuper = YES;
-    return YES;
 }
 #endif
 

@@ -196,10 +196,10 @@ static std::vector<SPUnitySubController*>* _controllers = nullptr;
 #pragma mark - Shortcut items
 
 #if !UNITY_TVOS
-+ (BOOL)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem
++ (BOOL)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem completionHandler:(void (^)(BOOL))completionHandler
 {
     return [self notifyControllers:^(SPUnitySubController* controller){
-        [controller application:application performActionForShortcutItem:shortcutItem];
+        [controller application:application performActionForShortcutItem:shortcutItem completionHandler:completionHandler];
     }];
 }
 #endif
