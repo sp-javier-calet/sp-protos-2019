@@ -1,23 +1,18 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System.Collections.Generic;
+﻿using UnityEditor;
 
 namespace SocialPoint.TransparentBundles
 {
-    public class Shortcuts
+    public static class Shortcuts
     {
+        static EditorClientController _controller;
 
-        private static EditorClientController _controller;
-
-        private static void Init()
+        static void Init()
         {
             if(_controller == null)
             {
                 _controller = EditorClientController.GetInstance();
             }
         }
-
-
 
         [MenuItem("Assets/Bundles/Create or Update Bundle")]
         public static void CreateOrUpdate()
@@ -41,9 +36,9 @@ namespace SocialPoint.TransparentBundles
                     "Close");
             }
             else if(EditorUtility.DisplayDialog("Removing Bundle",
-                         "You are about to remove the bundle of the asset '" + assets[0].Name +
-                         "' from the server. Keep in mind that this operation cannot be undone. Are you sure?",
-                         "Remove it", "Cancel"))
+                        "You are about to remove the bundle of the asset '" + assets[0].Name +
+                        "' from the server. Keep in mind that this operation cannot be undone. Are you sure?",
+                        "Remove it", "Cancel"))
             {
                 _controller.RemoveBundle(assets[0]);
             }

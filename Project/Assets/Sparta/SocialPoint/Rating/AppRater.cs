@@ -79,7 +79,7 @@ namespace SocialPoint.Rating
             if(appEvents != null)
             {
                 _appEvents = appEvents;
-                _appEvents.WasOnBackground += OnWasOnBackground;
+                _appEvents.WasOnBackground.Add(0, OnWasOnBackground);
             }
 
             _appRaterInfo = new AttrDic();
@@ -89,7 +89,7 @@ namespace SocialPoint.Rating
         {
             if(_appEvents != null)
             {
-                _appEvents.WasOnBackground -= OnWasOnBackground;
+                _appEvents.WasOnBackground.Remove(OnWasOnBackground);
             }
         }
 

@@ -1,5 +1,3 @@
-using UnityEngine;
-using System.Collections;
 using System.Net;
 using LitJson;
 
@@ -7,9 +5,10 @@ namespace SocialPoint.TransparentBundles
 {
     public class ResponseResult
     {
-        public bool Success = false, IsInternal = true;
+        public bool Success, IsInternal = true;
         public string Response = string.Empty;
-        private HttpStatusCode _statusCode;
+        HttpStatusCode _statusCode;
+
         public HttpStatusCode StatusCode
         {
             get
@@ -33,8 +32,8 @@ namespace SocialPoint.TransparentBundles
 
         public ResponseResult(bool success, string response, HttpStatusCode statusCode = 0)
         {
-            this.Success = success;
-            this.Response = response;
+            Success = success;
+            Response = response;
 
             if(statusCode == 0)
             {
@@ -43,8 +42,8 @@ namespace SocialPoint.TransparentBundles
             else
             {
                 IsInternal = false;
-                this.Response = response;
-                this.StatusCode = statusCode;
+                Response = response;
+                StatusCode = statusCode;
             }
         }
 
@@ -52,7 +51,7 @@ namespace SocialPoint.TransparentBundles
         {
             return JsonMapper.ToObject<T>(Response);
         }
-        
+
         public JsonData ParseResponseAsJsonGeneric()
         {
             return JsonMapper.ToObject(Response);

@@ -1,11 +1,11 @@
-using System.Net;
-using System.Threading;
-using System.Text;
 using System;
-using System.IO;
-using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
 using System.Collections.Generic;
+using System.IO;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -37,18 +37,22 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        private AsyncRequestData _reqState;
-        private bool locked = false;
-        private bool timeout = false;
+        AsyncRequestData _reqState;
+        bool locked;
+        bool timeout;
 
         public HttpAsyncRequest(AsyncRequestData requestData)
         {
             _reqState = requestData;
         }
 
-        public HttpAsyncRequest(HttpWebRequest request, Action<ResponseResult> finishedCallback) : this(new AsyncRequestData(request, finishedCallback)) { }
+        public HttpAsyncRequest(HttpWebRequest request, Action<ResponseResult> finishedCallback) : this(new AsyncRequestData(request, finishedCallback))
+        {
+        }
 
-        public HttpAsyncRequest(HttpWebRequest request, string requestBody, Action<ResponseResult> finishedCallback) : this(new AsyncRequestData(request, requestBody, finishedCallback)) { }
+        public HttpAsyncRequest(HttpWebRequest request, string requestBody, Action<ResponseResult> finishedCallback) : this(new AsyncRequestData(request, requestBody, finishedCallback))
+        {
+        }
 
         public HttpAsyncRequest(string url, MethodType method, Action<ResponseResult> finishedCallback)
         {
@@ -56,21 +60,32 @@ namespace SocialPoint.TransparentBundles
             request.Method = method.ToString();
             _reqState = new AsyncRequestData(request, finishedCallback);
         }
+
         /// <summary>
         /// Given a base URL and a dictionary of params, appends params to the url string into the query
         /// </summary>
         /// <param name="url">Base url</param>
         /// <param name="queryParams">query params to append</param>
         /// <returns>Full url with all the query params</returns>
-        public static string GetURLWithQuery(string url, Dictionary<string, string> queryParams)
+        public static string AppendQueryParams(string url, Dictionary<string, List<string>> queryParams)
         {
             if(queryParams.Count > 0)
             {
-                url += "?";
+                if(url.Contains("?"))
+                {
+                    url += "&";
+                }
+                else
+                {
+                    url += "?";
+                }
 
                 foreach(var pair in queryParams)
                 {
-                    url += pair.Key + "=" + pair.Value + "&";
+                    foreach(var value in pair.Value)
+                    {
+                        url += pair.Key + "=" + value + "&";
+                    }
                 }
 
                 url = url.TrimEnd('&');
@@ -79,10 +94,11 @@ namespace SocialPoint.TransparentBundles
             return url;
         }
 
-        public bool CertificateValidation(System.Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        public bool CertificateValidation(Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             return true;
         }
+
         /// <summary>
         /// Start the process of sending the request and receiving the response asynchronously. No modifications should be made to this request after this call.
         /// </summary>
@@ -105,14 +121,14 @@ namespace SocialPoint.TransparentBundles
         /// <summary>
         /// Ends the RequestStream asynchronous process and starts the GetResponse
         /// </summary>
-        private void GetRequestStreamCallback(IAsyncResult asynchronousResult)
+        void GetRequestStreamCallback(IAsyncResult asynchronousResult)
         {
             var state = (AsyncRequestData)asynchronousResult.AsyncState;
             try
             {
                 // End the operation
                 Stream postStream = state.Request.EndGetRequestStream(asynchronousResult);
-                
+
                 // Write to the request stream.
                 postStream.Write(Encoding.UTF8.GetBytes(state.RequestBody), 0, state.RequestBody.Length);
                 postStream.Close();
@@ -129,7 +145,7 @@ namespace SocialPoint.TransparentBundles
         /// Starts the GetResponse asynchronously
         /// </summary>
         /// <param name="state">AsyncRequestState context</param>
-        private void GetResponseAsync(AsyncRequestData state)
+        void GetResponseAsync(AsyncRequestData state)
         {
             // Start the asynchronous operation to get the response
             var asyncResult = state.Request.BeginGetResponse(new AsyncCallback(GetResponseCallback), state);
@@ -143,7 +159,7 @@ namespace SocialPoint.TransparentBundles
         /// </summary>
         /// <param name="stateObj">AsyncRequestState context</param>
         /// <param name="timeOut">wether or not the request timed out</param>
-        private void TimeoutCallback(object stateObj, bool timeOut)
+        void TimeoutCallback(object stateObj, bool timeOut)
         {
             var state = (AsyncRequestData)stateObj;
             if(timeOut)
@@ -156,20 +172,20 @@ namespace SocialPoint.TransparentBundles
         /// <summary>
         /// Ends the GetResponse and handles the result
         /// </summary>
-        private void GetResponseCallback(IAsyncResult asynchronousResult)
+        void GetResponseCallback(IAsyncResult asynchronousResult)
         {
             var state = (AsyncRequestData)asynchronousResult.AsyncState;
             try
             {
                 try
                 {
-                    ResponseResult rResult = null;
+                    ResponseResult rResult;
                     // End the operation
-                    using(HttpWebResponse response = (HttpWebResponse)state.Request.EndGetResponse(asynchronousResult))
+                    using(var response = (HttpWebResponse)state.Request.EndGetResponse(asynchronousResult))
                     {
                         using(Stream streamResponse = response.GetResponseStream())
                         {
-                            using(StreamReader streamRead = new StreamReader(streamResponse))
+                            using(var streamRead = new StreamReader(streamResponse))
                             {
                                 rResult = new ResponseResult(true, streamRead.ReadToEnd(), response.StatusCode);
                             }
@@ -206,7 +222,8 @@ namespace SocialPoint.TransparentBundles
 
                         code = ((HttpWebResponse)e.Response).StatusCode;
 
-                    }else
+                    }
+                    else
                     {
                         if(timeout)
                         {
@@ -234,7 +251,7 @@ namespace SocialPoint.TransparentBundles
         /// </summary>
         /// <param name="state">AsyncRequestState context object</param>
         /// <param name="result">Result of the connection</param>
-        private void EndConnection(AsyncRequestData state, ResponseResult result)
+        void EndConnection(AsyncRequestData state, ResponseResult result)
         {
             timeout = false;
             locked = false;

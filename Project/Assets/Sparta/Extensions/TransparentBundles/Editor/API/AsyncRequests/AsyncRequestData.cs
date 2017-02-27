@@ -7,20 +7,20 @@ namespace SocialPoint.TransparentBundles
     {
         public HttpWebRequest Request;
         public string RequestBody;
-        private ResponseResult _rResult;
-        private Action<ResponseResult> _finishedCallback;
+        ResponseResult _rResult;
+        readonly Action<ResponseResult> _finishedCallback;
 
         public AsyncRequestData(HttpWebRequest request, Action<ResponseResult> finishedCallback)
         {
-            this.Request = request;
-            this.RequestBody = null;
+            Request = request;
+            RequestBody = null;
             _finishedCallback = finishedCallback;
         }
 
         public AsyncRequestData(HttpWebRequest request, string requestBody, Action<ResponseResult> finishedCallback)
         {
-            this.Request = request;
-            this.RequestBody = requestBody;
+            Request = request;
+            RequestBody = requestBody;
             _finishedCallback = finishedCallback;
         }
 

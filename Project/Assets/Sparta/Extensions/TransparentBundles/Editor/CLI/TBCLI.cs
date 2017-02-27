@@ -1,29 +1,29 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using System;
-using LitJson;
+using System.Collections.Generic;
 using System.IO;
-using UnityEditor;
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
+using LitJson;
+using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.TransparentBundles
 {
-    public class TBCLI
+    public static class TBCLI
     {
         #region IO_Classes
+
         /// <summary>
         /// Generic output for any CLI function (All outputs need to inherit this)
         /// </summary>
         public class OutputCLI
         {
-            public bool success = false;
+            public bool success;
             public List<string> log = new List<string>();
 
             public void Save(string path, bool pretty = true)
             {
-                JsonWriter writer = new JsonWriter();
+                var writer = new JsonWriter();
                 writer.PrettyPrint = pretty;
                 JsonMapper.ToJson(this, writer);
                 File.WriteAllText(path, writer.ToString());
@@ -44,18 +44,14 @@ namespace SocialPoint.TransparentBundles
             public static InputCLI Load(string path, string type)
             {
                 Assembly currentAssembly = Assembly.GetExecutingAssembly();
-                Type currentType = currentAssembly.GetTypes().SingleOrDefault(t => t.Name == type);
+                Type currentType = currentAssembly.GetTypes().SingleOrDefault(t => t.Name == type) ?? typeof(InputCLI);
 
-                if(currentType == null)
-                {
-                    currentType = typeof(InputCLI);
-                }
-                return (InputCLI) TBUtils.GetJsonMapperToObjGeneric(currentType).Invoke(null, new object[] { File.ReadAllText(path) });
+                return (InputCLI)TBUtils.GetJsonMapperToObjGeneric(currentType).Invoke(null, new object[] { File.ReadAllText(path) });
             }
 
             public void Save(string path, bool pretty = true)
             {
-                JsonWriter writer = new JsonWriter();
+                var writer = new JsonWriter();
                 writer.PrettyPrint = pretty;
                 JsonMapper.ToJson(this, writer);
                 File.WriteAllText(path, writer.ToString());
@@ -104,20 +100,22 @@ namespace SocialPoint.TransparentBundles
             public List<BundleInfoOutput> Bundles = new List<BundleInfoOutput>();
             public List<string> BuildLog = new List<string>();
         }
+
         #endregion
 
-        private const string _inputJson = "-input-json";
-        private const string _outputJson = "-output-json";
-        private const string _methodName = "-method-name";
-        
+        const string _inputJson = "-input-json";
+        const string _outputJson = "-output-json";
+        const string _methodName = "-method-name";
+
         #region CLI_Methods
+
         /// <summary>
         /// Common entry point for all CLI calls, the method name will come as an argument and will be called via reflection with the appropriate input
         /// Run will also write the results in the provided output path even if the CLI call fails.
         /// </summary>
         public static void Run()
         {
-            OutputCLI output = new OutputCLI();
+            var output = new OutputCLI();
             var outputPath = string.Empty;
             object[] args = null;
             try
@@ -165,11 +163,11 @@ namespace SocialPoint.TransparentBundles
             output = new CalculateBundlesOutput();
             var typedOutput = (CalculateBundlesOutput)output;
 
-            DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y.ToString() + " - " + x);
+            DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y + " - " + x);
 
             DependencySystem.UpdateManifest(input.ManualBundles);
 
-            typedOutput.BundlesDictionary = DependencySystem.Manifest.GetDictionary();            
+            typedOutput.BundlesDictionary = DependencySystem.Manifest.GetDictionary();
         }
 
         /// <summary>
@@ -183,13 +181,12 @@ namespace SocialPoint.TransparentBundles
             var typedOutput = (BuildBundlesOutput)output;
 
             EditorUserBuildSettings.androidBuildSubtarget = (MobileTextureSubtarget)Enum.Parse(typeof(MobileTextureSubtarget), input.TextureFormat);
-            
-            DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y.ToString() + " - " + x);
+
+            DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y + " - " + x);
 
             DependencySystem.PrepareForBuild(input.BundlesDictionary);
 
-            Application.LogCallback Callback = (msg, stack, type) =>
-            {
+            Application.LogCallback Callback = (msg, stack, type) => {
                 if(type == LogType.Error || type == LogType.Exception || type == LogType.Warning)
                 {
                     typedOutput.BuildLog.Add(type + " - " + msg + "\n" + stack);
@@ -244,13 +241,14 @@ namespace SocialPoint.TransparentBundles
         #endregion
 
         #region Helpers
+
         /// <summary>
         /// Given a key, gets an argument from the command line, throws an exception if key is not found
         /// </summary>
         /// <param name="arguments">Whole list of arguments</param>
         /// <param name="argument">Key of the desired argument</param>
         /// <returns>Argument value</returns>
-        private static string GetArgument(List<string> arguments, string argument)
+        static string GetArgument(List<string> arguments, string argument)
         {
             var targetIdx = arguments.IndexOf(argument);
             if(targetIdx < 0)
@@ -267,7 +265,7 @@ namespace SocialPoint.TransparentBundles
         /// <param name="arguments">Whole list of arguments</param>
         /// <param name="argument">Key of the desired argument</param>
         /// <returns>Argument value if found, null if not found</returns>
-        private static bool GetOptionalArgument(List<string> arguments, string argument, out string value)
+        static bool GetOptionalArgument(List<string> arguments, string argument, out string value)
         {
             var targetIdx = arguments.IndexOf(argument);
             if(targetIdx < 0)
@@ -278,6 +276,7 @@ namespace SocialPoint.TransparentBundles
             value = arguments[targetIdx + 1];
             return true;
         }
+
         #endregion
     }
 }

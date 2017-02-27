@@ -8,7 +8,8 @@ namespace SocialPoint.TransparentBundles
     public class TBConfig : ScriptableObject
     {
         public string project = "";
-        private const string _configDefaultPath = "Assets/Sparta/Config/TransparentBundles/TBConfig.asset";
+        const string _configDefaultPath = "Assets/Sparta/Config/TransparentBundles/TBConfig.asset";
+        const string _configSearchPattern = "t:TBConfig";
 
         /// <summary>
         /// Tries to find the TBConfig file in the project, if it doesn't exists it will be created.
@@ -16,7 +17,7 @@ namespace SocialPoint.TransparentBundles
         /// <returns>TBConfig scriptable object reference</returns>
         public static TBConfig GetConfig()
         {
-            var file = AssetDatabase.FindAssets("t:TBConfig");
+            var file = AssetDatabase.FindAssets(_configSearchPattern);
             TBConfig config;
 
             if(file.Length == 0)
@@ -42,36 +43,5 @@ namespace SocialPoint.TransparentBundles
 
             return config;
         }
-
-
-        public static bool IsValid()
-        {
-            var file = AssetDatabase.FindAssets("t:TBConfig");
-            TBConfig config = null;
-
-            if(file.Length == 1)
-            {
-                config = AssetDatabase.LoadAssetAtPath<TBConfig>(AssetDatabase.GUIDToAssetPath(file[0]));
-            }
-            else if(file.Length > 1)
-            {
-                throw new System.Exception("More than one TBConfig found, remove one.");
-            }
-
-            return file.Length == 1 && !string.IsNullOrEmpty(config.project);
-        }
-
-        /// <summary>
-        /// Gets the project set in the TBConfig File.
-        /// </summary>
-        /// <returns>string with the project configured in the TBConfig</returns>
-        public static string GetProject()
-        {
-            var file = AssetDatabase.FindAssets("t:TBConfig");
-            TBConfig config = AssetDatabase.LoadAssetAtPath<TBConfig>(AssetDatabase.GUIDToAssetPath(file[0]));            
-
-            return config.project;
-        }
-
     }
 }

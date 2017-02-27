@@ -3,40 +3,46 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace AssetBundleGraph.Modifiers {
-	
-	/*
+namespace AssetBundleGraph.Modifiers
+{
+
+    /*
 	 * Code template for Scene modifier.
 	 * You can copy and create your CustomModifier.
-	 */ 
+	 */
 
-	[Serializable] 
-	[CustomModifier("Default Modifier(Scene)", typeof(UnityEngine.SceneManagement.Scene))]
-	public class SceneModifier : IModifier {
-		
-		public SceneModifier () {}
+    [Serializable]
+    [CustomModifier("Default Modifier(Scene)", typeof(UnityEngine.SceneManagement.Scene))]
+    public class SceneModifier : IModifier
+    {
 
-		public bool IsModified (object asset) {
-			//var anim = asset as UnityEngine.SceneManagement.Scene;
+        public SceneModifier() { }
 
-			// Do your work here
+        public bool IsModified(object asset)
+        {
+            //var anim = asset as UnityEngine.SceneManagement.Scene;
 
-			var changed = false;
-			return changed; 
-		}
+            // Do your work here
 
-		public void Modify (object asset) {
-			//var anim = asset as UnityEngine.SceneManagement.Scene;
+            var changed = false;
+            return changed;
+        }
 
-			// Do your work here
-		}
+        public void Modify(object asset)
+        {
+            //var anim = asset as UnityEngine.SceneManagement.Scene;
 
-		public void OnInspectorGUI (Action onValueChanged) {
-			GUILayout.Label("Implement your modifier for this type.");
-		}
+            // Do your work here
+        }
 
-		public string Serialize() {
-			return JsonUtility.ToJson(this);
-		}
-	}	
+        public void OnInspectorGUI(Action onValueChanged)
+        {
+            GUILayout.Label("Implement your modifier for this type.");
+        }
+
+        public string Serialize()
+        {
+            return JsonUtility.ToJson(this);
+        }
+    }
 }
