@@ -271,6 +271,10 @@ namespace SocialPoint.Lockstep
             {
                 return;
             }
+            if(data.ProcessTime >= Config.CommandStepDuration)
+            {
+                SendMetric(new Metric(MetricType.Counter, "photon.turn_processing_time_exceed", 1), null);
+            }
             SendMetric(new Metric(MetricType.Gauge, "photon.turn_processing_time", (int)data.ProcessTime), null);
         }
 
