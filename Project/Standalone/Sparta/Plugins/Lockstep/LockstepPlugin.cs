@@ -1,10 +1,9 @@
 ﻿using SocialPoint.Network;
 using SocialPoint.Matchmaking;
-using SocialPoint.Lockstep;
 using System;
 using System.Collections.Generic;
 using Photon.Hive.Plugin;
-using SocialPoint.ServerEvents;
+using SocialPoint.Photon.ServerEvents;
 
 namespace SocialPoint.Lockstep
 {

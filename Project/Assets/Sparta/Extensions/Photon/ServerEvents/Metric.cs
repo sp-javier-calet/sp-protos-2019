@@ -5,7 +5,7 @@ using SocialPoint.Base;
 using SocialPoint.ServerEvents;
 using SocialPoint.Utils;
 
-namespace SocialPoint.ServerEvents
+namespace SocialPoint.Photon.ServerEvents
 {
     public enum MetricType
     {

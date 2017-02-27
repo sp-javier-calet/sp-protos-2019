@@ -1,17 +1,18 @@
-using System;
-using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Network;
 using SocialPoint.ServerEvents;
 using SocialPoint.Utils;
+using System.Collections.Generic;
 
-namespace SocialPoint.Network
+namespace SocialPoint.Photon.ServerEvents
 {
     public class PluginEventTracker : IUpdateable
     {
         //TODO: specify
         const string MetricUri = "/api/v3/rtmp/metrics";
         const string TrackUri = "/api/v3/rtmp/tracks";
+        const string LogUri = "/api/v3/rtmp/logs";
 
         public const int DefaultSendInterval = 10;
 
@@ -141,6 +142,17 @@ namespace SocialPoint.Network
                     _pendingEvents.Remove(ev);
                 }
             }
+        }
+
+        public void SendLog(Log log, ErrorDelegate del = null)
+        {
+            var req = new HttpRequest();
+            if (SetupRequest != null)
+            {
+                SetupRequest(req, LogUri);
+            }
+            req.Body = new JsonAttrSerializer().Serialize(log.ToAttr());
+            _httpClient.Send(req, r => del(r.Error));
         }
 
     }

@@ -2,7 +2,7 @@
 using System;
 using SocialPoint.Utils;
 using SocialPoint.Base;
-using SocialPoint.ServerEvents;
+using SocialPoint.Photon.ServerEvents;
 
 namespace SocialPoint.Lockstep
 {

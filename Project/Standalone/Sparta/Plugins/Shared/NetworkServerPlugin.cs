@@ -8,6 +8,7 @@ using SocialPoint.IO;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 using log4net;
+using SocialPoint.Photon.ServerEvents;
 
 namespace SocialPoint.Network
 {

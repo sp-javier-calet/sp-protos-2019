@@ -7,6 +7,7 @@ using SocialPoint.Matchmaking;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 using SocialPoint.ServerEvents;
+using SocialPoint.Photon.ServerEvents;
 
 namespace SocialPoint.Lockstep
 {

@@ -4,6 +4,7 @@ using SocialPoint.Utils;
 using SocialPoint.Attributes;
 using System;
 using SocialPoint.ServerEvents;
+using SocialPoint.Photon.ServerEvents;
 
 namespace SocialPoint.Network
 {
@@ -136,6 +137,15 @@ namespace SocialPoint.Network
             HttpClient.Received(1).Send(Arg.Is<HttpRequest>(r => pred(r)), Arg.Any<HttpResponseDelegate>());
             EventTracker.Update();
             HttpClient.Received(1).Send(Arg.Is<HttpRequest>(r => pred(r)), Arg.Any<HttpResponseDelegate>());
+        }
+
+        [Test]
+        public void SendLog()
+        {
+            var errorDel = Substitute.For<Base.ErrorDelegate>();
+            EventTracker.SendLog(new Log(LogLevel.Error, "TestMessage", "someContext"), errorDel);
+            HttpClient.Received(1).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
+            errorDel.Received(1).Invoke(Arg.Any<Base.Error>());
         }
     }
 }

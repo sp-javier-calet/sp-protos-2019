@@ -55,9 +55,6 @@
     <Compile Include="..\Shared\NetworkServerPlugin.cs">
       <Link>NetworkServerPlugin.cs</Link>
     </Compile>
-    <Compile Include="..\Shared\PluginEventTracker.cs">
-      <Link>PluginEventTracker.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\PluginHttpClient.cs">
       <Link>PluginHttpClient.cs</Link>
     </Compile>

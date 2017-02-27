@@ -257,11 +257,17 @@
     <Compile Include="..\..\..\..\Assets\Sparta\Extensions\Lockstep\Network\ClientChangedConnectionStatusMessage.cs">
       <Link>Lockstep\Network\ClientChangedConnectionStatusMessage.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\Assets\Sparta\Extensions\Photon\ServerEvents\Log.cs">
+      <Link>ServerEvents\Log.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Assets\Sparta\Extensions\Photon\ServerEvents\Metric.cs">
+      <Link>ServerEvents\Metric.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Assets\Sparta\Extensions\Photon\ServerEvents\PluginEventTracker.cs">
+      <Link>ServerEvents\PluginEventTracker.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\..\Assets\Sparta\SocialPoint\ServerEvents\Event.cs">
       <Link>ServerEvents\Event.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Assets\Sparta\SocialPoint\ServerEvents\Metric.cs">
-      <Link>ServerEvents\Metric.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup />
