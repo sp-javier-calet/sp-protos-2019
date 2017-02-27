@@ -1,6 +1,7 @@
 //
 //  HsUnityAppController.m
 //
+#import <SPUnityPlugins/SPUnitySubController.h>
 
 #import <Foundation/Foundation.h>
 #import "HelpshiftCore.h"
@@ -90,11 +91,11 @@
 
 
 
-@interface HsUnityAppController : UnityAppController
+@interface HsUnityAppController : SPUnitySubController
 
 @end
 
-@implementation HsUnityAppController : UnityAppController
+@implementation HsUnityAppController : SPUnitySubController
 
 - (BOOL) application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 
@@ -201,4 +202,3 @@
 
 @end
 
-IMPL_APP_CONTROLLER_SUBCLASS(HsUnityAppController)
