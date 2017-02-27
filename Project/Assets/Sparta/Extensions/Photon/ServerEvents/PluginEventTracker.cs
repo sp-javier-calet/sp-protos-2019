@@ -101,9 +101,9 @@ namespace SocialPoint.Photon.ServerEvents
         }
 
         //TODO: ask if there is some server_id required for this tracks
-        public void SendTrack(string eventName, AttrDic data = null)
+        public void SendTrack(string eventName, AttrDic data = null, ErrorDelegate del = null)
         {
-            var ev = new Event(eventName, data);
+            var ev = new Event(eventName, data, del);
             _pendingEvents.Add(ev);
         }
 
@@ -139,6 +139,10 @@ namespace SocialPoint.Photon.ServerEvents
                 for(int i = 0; i < sendEvents.Count; i++)
                 {
                     var ev = sendEvents[i];
+                    if(ev.ResponseDelegate != null)
+                    {
+                        ev.ResponseDelegate(resp.Error);
+                    }
                     _pendingEvents.Remove(ev);
                 }
             }

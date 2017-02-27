@@ -119,7 +119,11 @@ namespace SocialPoint.Lockstep
                 _serverLockstep.SendMetric = SendMetric;
             }
         }
-        
+
+        public Action<Photon.ServerEvents.Log, ErrorDelegate> SendLog;
+
+        public Action<string, AttrDic, ErrorDelegate> SendTrack;
+
         public LockstepNetworkServer(INetworkServer server, IMatchmakingServer matchmaking = null, IUpdateScheduler scheduler = null)
         {
             ServerConfig = new LockstepServerConfig();
@@ -671,6 +675,10 @@ namespace SocialPoint.Lockstep
 
         void OnError(Error err)
         {
+            if(SendLog != null)
+            {
+                SendLog(new Photon.ServerEvents.Log(LogLevel.Error, err.Msg, ""), null);
+            }
             if (ErrorProduced != null)
             {
                 ErrorProduced(err);
