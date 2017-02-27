@@ -5,7 +5,7 @@ using SocialPoint.Base;
 using SocialPoint.ServerEvents;
 using SocialPoint.Utils;
 
-namespace SocialPoint.Network
+namespace SocialPoint.ServerEvents
 {
     public enum MetricType
     {

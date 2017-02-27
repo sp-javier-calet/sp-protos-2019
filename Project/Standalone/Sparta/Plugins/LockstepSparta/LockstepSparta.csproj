@@ -260,6 +260,9 @@
     <Compile Include="..\..\..\..\Assets\Sparta\SocialPoint\ServerEvents\Event.cs">
       <Link>ServerEvents\Event.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\Assets\Sparta\SocialPoint\ServerEvents\Metric.cs">
+      <Link>ServerEvents\Metric.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

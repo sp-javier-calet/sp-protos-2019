@@ -52,9 +52,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Shared\Metric.cs">
-      <Link>Metric.cs</Link>
-    </Compile>
     <Compile Include="..\Shared\NetworkServerPlugin.cs">
       <Link>NetworkServerPlugin.cs</Link>
     </Compile>

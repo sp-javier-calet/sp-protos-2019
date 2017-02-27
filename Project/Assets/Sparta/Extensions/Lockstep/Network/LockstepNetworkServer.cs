@@ -6,6 +6,7 @@ using SocialPoint.IO;
 using SocialPoint.Matchmaking;
 using SocialPoint.Network;
 using SocialPoint.Utils;
+using SocialPoint.ServerEvents;
 
 namespace SocialPoint.Lockstep
 {
@@ -102,6 +103,9 @@ namespace SocialPoint.Lockstep
                 return _serverLockstep.GameParams;
             }
         }
+
+        public delegate void TrackMetricDelegate(Metric metric, ErrorDelegate del = null);
+        public TrackMetricDelegate TrackMetric;
         
         public LockstepNetworkServer(INetworkServer server, IMatchmakingServer matchmaking = null, IUpdateScheduler scheduler = null)
         {
