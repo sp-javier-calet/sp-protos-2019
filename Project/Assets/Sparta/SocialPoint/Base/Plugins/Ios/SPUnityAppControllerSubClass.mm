@@ -37,7 +37,6 @@ extern bool _unityAppReady;
     [SPUnityApplication setupApplication:&_unityAppReady];
 }
 
-
 #pragma region - SubController Life Cycle Implementation
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
@@ -95,7 +94,6 @@ extern bool _unityAppReady;
     }
 }
 
-
 #if !UNITY_TVOS
 - (BOOL)application:(UIApplication*)application openURL:(NSURL*)url sourceApplication:(NSString*)sourceApplication annotation:(id)annotation
 {
@@ -107,6 +105,16 @@ extern bool _unityAppReady;
     return YES;
 }
 #endif
+
+- (BOOL)application:(UIApplication*)application continueUserActivity:(NSUserActivity*)userActivity restorationHandler:(void (^)(NSArray* restorableObjects))restorationHandler
+{
+    if([SPUnityApplication application:application continueUserActivity:userActivity restorationHandler:restorationHandler])
+    {
+        [super application:application continueUserActivity:userActivity restorationHandler:restorationHandler];
+    }
+    
+    return YES;
+}
 
 #pragma mark - Memory management
 
@@ -185,6 +193,32 @@ extern bool _unityAppReady;
     }
     
     callback(YES);
+}
+#endif
+
+- (void)application:(UIApplication*)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void(^)())completionHandler
+{
+    if([SPUnityApplication application:application handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler])
+    {
+        [super application:application handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
+    }
+}
+
+- (void)application:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forRemoteNotification:(NSDictionary*)userInfo completionHandler:(void(^)())completionHandler
+{
+    if([SPUnityApplication application:application handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler])
+    {
+        [super application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
+    }
+}
+
+#if !UNITY_TVOS
+- (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void (^)())completionHandler
+{
+    if([SPUnityApplication application:application handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler])
+    {
+        [super application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
+    }
 }
 #endif
 

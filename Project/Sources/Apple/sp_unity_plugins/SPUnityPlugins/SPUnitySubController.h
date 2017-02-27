@@ -14,37 +14,51 @@
 
 @interface SPUnitySubController : NSObject
 
-// MANU TODO: ORDER THIS LIKE SPUNITYAPPLICATION AND IMPLEMENT MISSING METHODS
+#pragma mark - Controller setup
 
 - (void)alwaysCallSuper;
 - (BOOL)finish;
 
+#pragma mark - Life Cycle
+
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions;
-- (BOOL)application:(UIApplication*)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation;
-- (void)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo;
-- (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
-- (void)application:(UIApplication*)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void(^)())completionHandler;
-- (void)application:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forRemoteNotification:(NSDictionary*)userInfo completionHandler:(void(^)())completionHandler;
-
-
-#if !UNITY_TVOS
-- (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification *)notification;
-- (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void (^)())completionHandler;
-#endif
-
+- (void)applicationWillResignActive:(UIApplication*)application;
+- (void)applicationDidBecomeActive:(UIApplication*)application;
 - (void)applicationDidEnterBackground:(UIApplication *)application;
 - (void)applicationWillEnterForeground:(UIApplication *)application;
 - (BOOL)applicationWillTerminate:(UIApplication *)application;
-- (void)applicationDidBecomeActive:(UIApplication*)application;
-- (void)applicationWillResignActive:(UIApplication*)application;
+#if !UNITY_TVOS
+- (BOOL)application:(UIApplication*)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation;
+#endif
+- (BOOL)application:(UIApplication*)application continueUserActivity:(NSUserActivity*)userActivity restorationHandler:(void (^)(NSArray* restorableObjects))restorationHandler;
+
+#pragma mark - Memory management
+
 - (void)applicationDidReceiveMemoryWarning:(UIApplication*)application;
+
+#pragma mark - Notifications
+
 #if !UNITY_TVOS
 - (BOOL)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings;
 #endif
+- (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
 - (BOOL)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error;
+- (void)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo;
+#if !UNITY_TVOS
+- (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification *)notification;
+#endif
+
+#pragma mark - Shortcut items
 
 #if !UNITY_TVOS
 - (BOOL)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem;
+#endif
+
+
+- (void)application:(UIApplication*)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void(^)())completionHandler;
+- (void)application:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forRemoteNotification:(NSDictionary*)userInfo completionHandler:(void(^)())completionHandler;
+#if !UNITY_TVOS
+- (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void (^)())completionHandler;
 #endif
 
 @end

@@ -136,12 +136,12 @@ static std::vector<SPUnitySubController*>* _controllers = nullptr;
 }
 #endif
 
-// MANU TODO: IMPLEMENT THIS METHOD NEEDED BY APPSFLYER
-
-//+ (BOOL)application:(UIApplication*)application continueUserActivity:(NSUserActivity*)userActivity restorationHandler:(void (^)(NSArray* restorableObjects))restorationHandler
-//{
-//    
-//}
++ (BOOL)application:(UIApplication*)application continueUserActivity:(NSUserActivity*)userActivity restorationHandler:(void (^)(NSArray* restorableObjects))restorationHandler
+{
+    return [self notifyControllers:^(SPUnitySubController* controller){
+        [controller application:application continueUserActivity:userActivity restorationHandler:restorationHandler];
+    }];
+}
 
 #pragma mark - Memory management
 
@@ -200,6 +200,29 @@ static std::vector<SPUnitySubController*>* _controllers = nullptr;
 {
     return [self notifyControllers:^(SPUnitySubController* controller){
         [controller application:application performActionForShortcutItem:shortcutItem];
+    }];
+}
+#endif
+
++ (BOOL)application:(UIApplication*)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void(^)())completionHandler
+{
+    return [self notifyControllers:^(SPUnitySubController* controller){
+        [controller application:application handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
+    }];
+}
+
++ (BOOL)application:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forRemoteNotification:(NSDictionary*)userInfo completionHandler:(void(^)())completionHandler
+{
+    return [self notifyControllers:^(SPUnitySubController* controller){
+        [controller application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
+    }];
+}
+
+#if !UNITY_TVOS
++ (BOOL)application:(UIApplication *)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void (^)())completionHandler
+{
+    return [self notifyControllers:^(SPUnitySubController* controller){
+        [controller application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
     }];
 }
 #endif

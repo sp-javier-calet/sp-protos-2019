@@ -32,55 +32,23 @@ BOOL _defaultBehavior = NO;
     return called;
 }
 
+#pragma mark - Life Cycle
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     _calledSuper = YES;
     return YES;
 }
 
-- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
-{
-    _calledSuper = YES;
-    return YES;
-}
-
-- (void)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo
+- (void)applicationWillResignActive:(UIApplication*)application
 {
     _calledSuper = YES;
 }
 
-- (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+- (void)applicationDidBecomeActive:(UIApplication*)application
 {
     _calledSuper = YES;
 }
-
-- (BOOL)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error
-{
-    _calledSuper = YES;
-    return YES;
-}
-
-- (void)application:(UIApplication*)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void(^)())completionHandler
-{
-    _calledSuper = YES;
-}
-
-- (void)application:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forRemoteNotification:(NSDictionary*)userInfo completionHandler:(void(^)())completionHandler
-{
-    _calledSuper = YES;
-}
-
-#if !UNITY_TVOS
-- (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification *)notification
-{
-    _calledSuper = YES;
-}
-
-- (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void (^)())completionHandler
-{
-    _calledSuper = YES;
-}
-#endif
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
@@ -98,20 +66,26 @@ BOOL _defaultBehavior = NO;
     return YES;
 }
 
-- (void)applicationDidBecomeActive:(UIApplication*)application
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
     _calledSuper = YES;
+    return YES;
 }
 
-- (void)applicationWillResignActive:(UIApplication*)application
+- (BOOL)application:(UIApplication*)application continueUserActivity:(NSUserActivity*)userActivity restorationHandler:(void (^)(NSArray* restorableObjects))restorationHandler;
 {
     _calledSuper = YES;
+    return YES;
 }
+
+#pragma mark - Memory management
 
 - (void)applicationDidReceiveMemoryWarning:(UIApplication*)application
 {
     _calledSuper = YES;
 }
+
+#pragma mark - Notifications
 
 #if !UNITY_TVOS
 - (BOOL)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings
@@ -121,11 +95,53 @@ BOOL _defaultBehavior = NO;
 }
 #endif
 
+- (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+    _calledSuper = YES;
+}
+
+- (BOOL)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error
+{
+    _calledSuper = YES;
+    return YES;
+}
+
+- (void)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo
+{
+    _calledSuper = YES;
+}
+
+#if !UNITY_TVOS
+- (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification *)notification
+{
+    _calledSuper = YES;
+}
+#endif
+
+#pragma mark - Shortcut items
+
 #if !UNITY_TVOS
 - (BOOL)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem
 {
     _calledSuper = YES;
     return YES;
+}
+#endif
+
+- (void)application:(UIApplication*)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void(^)())completionHandler
+{
+    _calledSuper = YES;
+}
+
+- (void)application:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forRemoteNotification:(NSDictionary*)userInfo completionHandler:(void(^)())completionHandler
+{
+    _calledSuper = YES;
+}
+
+#if !UNITY_TVOS
+- (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void (^)())completionHandler
+{
+    _calledSuper = YES;
 }
 #endif
 
