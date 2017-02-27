@@ -33,11 +33,6 @@ namespace SocialPoint.TransparentBundles
         {
             Init();
             var assets = new List<Asset>(_controller.GetAssetsFromSelection());
-            string names = "\n";
-            for(int i = 0; i < assets.Count; i++)
-            {
-                names += "'" + assets[i].Name + "'\n";
-            }
 
             if(assets.Count > 1)
             {
@@ -46,11 +41,11 @@ namespace SocialPoint.TransparentBundles
                     "Close");
             }
             else if(EditorUtility.DisplayDialog("Removing Bundle",
-                         "You are about to remove the bundle of the asset '" + names +
+                         "You are about to remove the bundle of the asset '" + assets[0].Name +
                          "' from the server. Keep in mind that this operation cannot be undone. Are you sure?",
                          "Remove it", "Cancel"))
             {
-                _controller.RemoveBundles(assets);
+                _controller.RemoveBundle(assets[0]);
             }
         }
 
