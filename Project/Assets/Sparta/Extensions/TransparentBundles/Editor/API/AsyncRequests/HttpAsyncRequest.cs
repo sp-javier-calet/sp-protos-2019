@@ -67,15 +67,25 @@ namespace SocialPoint.TransparentBundles
         /// <param name="url">Base url</param>
         /// <param name="queryParams">query params to append</param>
         /// <returns>Full url with all the query params</returns>
-        public static string GetURLWithQuery(string url, Dictionary<string, string> queryParams)
+        public static string AppendQueryParams(string url, Dictionary<string, List<string>> queryParams)
         {
             if(queryParams.Count > 0)
             {
-                url += "?";
+                if(url.Contains("?"))
+                {
+                    url += "&";
+                }
+                else
+                {
+                    url += "?";
+                }
 
                 foreach(var pair in queryParams)
                 {
-                    url += pair.Key + "=" + pair.Value + "&";
+                    foreach(var value in pair.Value)
+                    {
+                        url += pair.Key + "=" + value + "&";
+                    }
                 }
 
                 url = url.TrimEnd('&');

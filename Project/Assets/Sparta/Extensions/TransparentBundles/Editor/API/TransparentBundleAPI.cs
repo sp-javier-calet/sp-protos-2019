@@ -34,6 +34,7 @@ namespace SocialPoint.TransparentBundles
 
         const string _queryLogin = "user_email";
         const string _queryProject = "project";
+        const string _queryGuids = "asset_guids";
 
         static bool _isLogged;
 
@@ -70,7 +71,7 @@ namespace SocialPoint.TransparentBundles
             else
             {
                 // Create and configure the request
-                var asyncReq = new HttpAsyncRequest(HttpAsyncRequest.GetURLWithQuery(_loginUrl, GetBaseQueryArgs()), HttpAsyncRequest.MethodType.GET, x => HandleLoginResponse(x, loginOptions));
+                var asyncReq = new HttpAsyncRequest(HttpAsyncRequest.AppendQueryParams(_loginUrl, GetBaseQueryArgs()), HttpAsyncRequest.MethodType.GET, x => HandleLoginResponse(x, loginOptions));
 
                 // Send the request
                 asyncReq.Send();
@@ -130,11 +131,11 @@ namespace SocialPoint.TransparentBundles
         /// Gets a dictionary with the two required query arguments "project" and "user_email"
         /// </summary>
         /// <returns>Dictionary with the two initialized parameters</returns>
-        static Dictionary<string, string> GetBaseQueryArgs()
+        static Dictionary<string, List<string>> GetBaseQueryArgs()
         {
-            var queryVars = new Dictionary<string, string>();
-            queryVars.Add(_queryLogin, EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY));
-            queryVars.Add(_queryProject, TBConfig.GetConfig().project);
+            var queryVars = new Dictionary<string, List<string>>();
+            queryVars.Add(_queryLogin, new List<string> { EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY) });
+            queryVars.Add(_queryProject, new List<string> { TBConfig.GetConfig().project });
 
             return queryVars;
         }
@@ -167,7 +168,10 @@ namespace SocialPoint.TransparentBundles
         /// <param name="arguments">Arguments needed for this type of request</param>
         public static void RemoveBundle(RemoveBundlesArgs arguments)
         {
-            GenericRequest(arguments, _requestUrl, "DELETE", JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, RemoveBundle));
+            var queryDict = new Dictionary<string, List<string>>();
+            queryDict.Add(_queryGuids, arguments.AssetGUIDs);
+            var url = HttpAsyncRequest.AppendQueryParams(_localBundleUrl, queryDict);
+            GenericRequest(arguments, url, "DELETE", string.Empty, x => HandleActionResponse(x, arguments, RemoveBundle));
         }
 
         /// <summary>
@@ -185,7 +189,11 @@ namespace SocialPoint.TransparentBundles
         /// <param name="arguments">Arguments needed for this type of request</param>
         public static void RemoveLocalBundle(RemoveLocalBundlesArgs arguments)
         {
-            GenericRequest(arguments, _localBundleUrl, "DELETE", JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, RemoveLocalBundle));
+            var queryDict = new Dictionary<string, List<string>>();
+            queryDict.Add(_queryGuids, arguments.AssetGUIDs);
+            var url = HttpAsyncRequest.AppendQueryParams(_localBundleUrl, queryDict);
+            url = HttpAsyncRequest.AppendQueryParams(url, GetBaseQueryArgs());
+            GenericRequest(arguments, url, "DELETE", string.Empty, x => HandleActionResponse(x, arguments, RemoveLocalBundle));
         }
 
 
@@ -196,7 +204,7 @@ namespace SocialPoint.TransparentBundles
 
             options.AutoRetryLogin = arguments.AutoRetryLogin;
             options.LoginOk = report => {
-                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.GetURLWithQuery(url, GetBaseQueryArgs()));
+                var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.AppendQueryParams(url, GetBaseQueryArgs()));
                 request.Method = method;
                 request.ContentType = "application/json";
                 var requestData = new AsyncRequestData(request, body, finishedCallback);
