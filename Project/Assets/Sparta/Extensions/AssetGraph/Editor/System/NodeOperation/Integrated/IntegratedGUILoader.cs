@@ -5,127 +5,141 @@ using System.IO;
 using System.Collections.Generic;
 using UnityEditor;
 
-namespace AssetBundleGraph {
-	public class IntegratedGUILoader : INodeOperation {
-		public void Setup (BuildTarget target, 
-			NodeData node, 
-			ConnectionPointData inputPoint,
-			ConnectionData connectionToOutput, 
-			Dictionary<string, List<Asset>> inputGroupAssets, 
-			List<string> alreadyCached, 
-			Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output) 
-		{
-			ValidateLoadPath(
-				node.LoaderLoadPath[target],
-				node.GetLoaderFullLoadPath(target),
-				() => {
-					//can be empty
-					//throw new NodeException(node.Name + ": Load Path is empty.", node.Id);
-				}, 
-				() => {
-					throw new NodeException(node.Name + ": Directory not found: " + node.GetLoaderFullLoadPath(target), node.Id);
-				}
-			);
+namespace AssetBundleGraph
+{
+    public class IntegratedGUILoader : INodeOperation
+    {
+        public void Setup(BuildTarget target,
+            NodeData node,
+            ConnectionPointData inputPoint,
+            ConnectionData connectionToOutput,
+            Dictionary<string, List<Asset>> inputGroupAssets,
+            List<string> alreadyCached,
+            Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output)
+        {
+            ValidateLoadPath(
+                node.LoaderLoadPath[target],
+                node.GetLoaderFullLoadPath(target),
+                () =>
+                {
+                    //can be empty
+                    //throw new NodeException(node.Name + ": Load Path is empty.", node.Id);
+                },
+                () =>
+                {
+                    throw new NodeException(node.Name + ": Directory not found: " + node.GetLoaderFullLoadPath(target), node.Id);
+                }
+            );
 
-			Load(target, node, connectionToOutput, inputGroupAssets, Output);
-		}
-		
-		public void Run (BuildTarget target, 
-			NodeData node, 
-			ConnectionPointData inputPoint,
-			ConnectionData connectionToOutput, 
-			Dictionary<string, List<Asset>> inputGroupAssets, 
-			List<string> alreadyCached, 
-			Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output) 
-		{
-			Load(target, node, connectionToOutput, inputGroupAssets, Output);
-		}
+            Load(target, node, connectionToOutput, inputGroupAssets, Output);
+        }
 
-		void Load (BuildTarget target, 
-			NodeData node, 
-			ConnectionData connectionToOutput, 
-			Dictionary<string, List<Asset>> inputGroupAssets, 
-			Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output) 
-		{
-			// SOMEWHERE_FULLPATH/PROJECT_FOLDER/Assets/
-			var assetsFolderPath = Application.dataPath + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR;
+        public void Run(BuildTarget target,
+            NodeData node,
+            ConnectionPointData inputPoint,
+            ConnectionData connectionToOutput,
+            Dictionary<string, List<Asset>> inputGroupAssets,
+            List<string> alreadyCached,
+            Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output)
+        {
+            Load(target, node, connectionToOutput, inputGroupAssets, Output);
+        }
 
-			var loaderPath = node.GetLoaderFullLoadPath(target);
-			var relativeLoaderPath = loaderPath.Replace(assetsFolderPath, AssetBundleGraphSettings.ASSETS_PATH) + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR;
+        void Load(BuildTarget target,
+            NodeData node,
+            ConnectionData connectionToOutput,
+            Dictionary<string, List<Asset>> inputGroupAssets,
+            Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output)
+        {
+            // SOMEWHERE_FULLPATH/PROJECT_FOLDER/Assets/
+            var assetsFolderPath = Application.dataPath + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR;
 
-			var outputSource = new List<Asset>();
-			var targetFilePaths = FileUtility.GetAllFilePathsInFolder(loaderPath);
+            var loaderPath = node.GetLoaderFullLoadPath(target);
+            var relativeLoaderPath = loaderPath.Replace(assetsFolderPath, AssetBundleGraphSettings.ASSETS_PATH) + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR;
 
-			var loaderSaveData = LoaderSaveData.LoadFromDisk();
-			targetFilePaths.RemoveAll(x => {
-				var bestLoader = loaderSaveData.GetBestLoaderData(x);
-				return bestLoader == null || bestLoader.id != node.Id;
-				});
+            var outputSource = new List<Asset>();
+            var targetFilePaths = FileUtility.GetAllFilePathsInFolder(loaderPath);
 
-			foreach (var targetFilePath in targetFilePaths) {
+            var loaderSaveData = LoaderSaveData.LoadFromDisk();
+            targetFilePaths.RemoveAll(x =>
+            {
+                var bestLoader = loaderSaveData.GetBestLoaderData(x);
+                return bestLoader == null || bestLoader.id != node.Id;
+            });
 
-				if(targetFilePath.Contains(AssetBundleGraphSettings.ASSETBUNDLEGRAPH_PATH)) {
-					continue;
-				}
+            foreach(var targetFilePath in targetFilePaths)
+            {
 
-				// already contained into Assets/ folder.
-				// imported path is Assets/SOMEWHERE_FILE_EXISTS.
-				if (targetFilePath.StartsWith(assetsFolderPath)) {
-					var relativePath = targetFilePath.Replace(assetsFolderPath, AssetBundleGraphSettings.ASSETS_PATH);
+                if(targetFilePath.Contains(AssetBundleGraphSettings.ASSETBUNDLEGRAPH_PATH))
+                {
+                    continue;
+                }
 
-					var assetType = TypeUtility.GetTypeOfAsset(relativePath);
-					if (assetType == typeof(object)) {
-						continue;
-					}
+                // already contained into Assets/ folder.
+                // imported path is Assets/SOMEWHERE_FILE_EXISTS.
+                if(targetFilePath.StartsWith(assetsFolderPath))
+                {
+                    var relativePath = targetFilePath.Replace(assetsFolderPath, AssetBundleGraphSettings.ASSETS_PATH);
 
-					outputSource.Add(Asset.CreateNewAssetFromLoader(targetFilePath, relativePath, relativeLoaderPath));
-					continue;
-				}
+                    var assetType = TypeUtility.GetTypeOfAsset(relativePath);
+                    if(assetType == typeof(object))
+                    {
+                        continue;
+                    }
 
-				throw new NodeException(node.Name + ": Invalid Load Path. Path must start with Assets/", node.Name);
-			}
+                    outputSource.Add(Asset.CreateNewAssetFromLoader(targetFilePath, relativePath, relativeLoaderPath));
+                    continue;
+                }
 
-			var outputDir = new Dictionary<string, List<Asset>> {
-				{"0", outputSource}
-			};
+                throw new NodeException(node.Name + ": Invalid Load Path. Path must start with Assets/", node.Name);
+            }
 
-			Output(connectionToOutput, outputDir, null);
-		}
+            var outputDir = new Dictionary<string, List<Asset>> {
+                {"0", outputSource}
+            };
 
-
-		public void LoadSingleAsset(BuildTarget target, 
-			NodeData node,
-			ConnectionData connectionToOutput,
-			string path,
-			Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output
-			) {
-			var outputSource = new List<Asset>();
-			Asset asset = null;
-			var assetType = TypeUtility.GetTypeOfAsset(path);
-			var loaderPath = node.GetLoaderFullLoadPath(target);
-			var relativeLoaderPath = loaderPath.Replace(Application.dataPath + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR, AssetBundleGraphSettings.ASSETS_PATH) + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR;
-
-			if(assetType == typeof(object)) {
-				AssetImporter importer = AssetImporter.GetAtPath(path);
-				asset = Asset.CreateNewAssetFromImporter(importer, relativeLoaderPath);
-			}else {
-				var absPath = Application.dataPath + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR + path;
-				asset = Asset.CreateNewAssetFromLoader(absPath, path, relativeLoaderPath);
-			}
-
-			outputSource.Add(asset);			
-
-			var outputDir = new Dictionary<string, List<Asset>> {
-				{"0", outputSource}
-			};
-
-			Output(connectionToOutput, outputDir, null);
-		}
+            Output(connectionToOutput, outputDir, null);
+        }
 
 
-		public static void ValidateLoadPath (string currentLoadPath, string combinedPath, Action NullOrEmpty, Action NotExist) {
-			if (string.IsNullOrEmpty(currentLoadPath)) NullOrEmpty();
-			if (!Directory.Exists(combinedPath)) NotExist();
-		}
-	}
+        public void LoadSingleAsset(BuildTarget target,
+            NodeData node,
+            ConnectionData connectionToOutput,
+            string path,
+            Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output
+            )
+        {
+            var outputSource = new List<Asset>();
+            Asset asset = null;
+            var assetType = TypeUtility.GetTypeOfAsset(path);
+            var loaderPath = node.GetLoaderFullLoadPath(target);
+            var relativeLoaderPath = loaderPath.Replace(Application.dataPath + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR, AssetBundleGraphSettings.ASSETS_PATH) + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR;
+
+            if(assetType == typeof(object))
+            {
+                AssetImporter importer = AssetImporter.GetAtPath(path);
+                asset = Asset.CreateNewAssetFromImporter(importer, relativeLoaderPath);
+            }
+            else
+            {
+                var absPath = Application.dataPath + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR + path;
+                asset = Asset.CreateNewAssetFromLoader(absPath, path, relativeLoaderPath);
+            }
+
+            outputSource.Add(asset);
+
+            var outputDir = new Dictionary<string, List<Asset>> {
+                {"0", outputSource}
+            };
+
+            Output(connectionToOutput, outputDir, null);
+        }
+
+
+        public static void ValidateLoadPath(string currentLoadPath, string combinedPath, Action NullOrEmpty, Action NotExist)
+        {
+            if(string.IsNullOrEmpty(currentLoadPath)) NullOrEmpty();
+            if(!Directory.Exists(combinedPath)) NotExist();
+        }
+    }
 }

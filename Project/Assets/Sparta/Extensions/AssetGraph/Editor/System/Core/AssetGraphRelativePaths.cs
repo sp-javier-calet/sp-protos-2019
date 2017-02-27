@@ -3,9 +3,11 @@ using System.Collections;
 using System.IO;
 using UnityEditor;
 
-namespace AssetBundleGraph {
+namespace AssetBundleGraph
+{
     [InitializeOnLoad]
-    public static class AssetGraphRelativePaths {
+    public static class AssetGraphRelativePaths
+    {
 
         private const string ARROW_NAME = "AssetGraph_Arrow";
         //This asset will be at path *****/Editor/GUI/GraphicResources/AssetGraph_Arrow" so we go three times up to get the Editor/ root folder
