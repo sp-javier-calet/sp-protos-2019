@@ -1,10 +1,7 @@
 ﻿using System;
-using System.IO;
 using NSubstitute;
 using NUnit.Framework;
 using SocialPoint.AdminPanel;
-using SocialPoint.Attributes;
-using SocialPoint.IO;
 using SocialPoint.Utils;
 using UnityEngine;
 
@@ -26,7 +23,7 @@ namespace SocialPoint.AssetBundlesClient
             _assetBundleManager.Scheduler = Substitute.For<IUpdateScheduler>();
             _assetBundleManager.CoroutineRunner = Substitute.For<ICoroutineRunner>();
 
-            _assetBundleManager.Init(GetBundleDataAttrList());
+            _assetBundleManager.Init();
 
             _loadLevelOperation = Substitute.For<Action<AssetBundleLoadLevelOperation>>();
             _loadAssetOperation = Substitute.For<Action<AssetBundleLoadAssetOperation>>();
@@ -70,19 +67,6 @@ namespace SocialPoint.AssetBundlesClient
             _loadLevelOperation.Received();
 
             //@TODO: find a way to test coroutines. The test is a fake now.
-        }
-
-        static AttrList GetBundleDataAttrList()
-        {
-            const string bundleDataFile = "bundle_data.json";
-            const string bundleDataKey = "bundle_data";
-
-            string jsonPath = Path.Combine(Application.streamingAssetsPath, bundleDataFile);
-            string json = FileUtils.ReadAllText(jsonPath);
-
-            var bundlesAttrDic = new JsonAttrParser().ParseString(json).AssertDic;
-            var bundleDataAttrList = bundlesAttrDic.Get(bundleDataKey).AssertList;
-            return bundleDataAttrList;
         }
 
         AssetBundlesParsedData GetAssetBundlesParsedDataReflection()

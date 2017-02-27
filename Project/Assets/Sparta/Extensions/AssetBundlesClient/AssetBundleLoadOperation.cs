@@ -99,7 +99,7 @@ namespace SocialPoint.AssetBundlesClient
             }
             else
             {
-                AssetBundle = new LoadedAssetBundle(_WWW.assetBundle);
+                AssetBundle = new LoadedAssetBundle(bundle);
             }
 
             _WWW.Dispose();
@@ -129,9 +129,11 @@ namespace SocialPoint.AssetBundlesClient
         protected string _downloadingError;
         protected string _loadingError;
         protected AsyncOperation _request;
+        protected AssetBundleManager _bundleMananger;
 
-        public AssetBundleLoadLevelOperation(string assetbundleName, string levelName, LoadSceneBundleMode loadSceneMode)
+        public AssetBundleLoadLevelOperation(AssetBundleManager bundleMananger, string assetbundleName, string levelName, LoadSceneBundleMode loadSceneMode)
         {
+            _bundleMananger = bundleMananger;
             _assetBundleName = assetbundleName;
             _levelName = levelName;
             _loadSceneMode = loadSceneMode;
@@ -144,7 +146,7 @@ namespace SocialPoint.AssetBundlesClient
                 return false;
             }
 
-            LoadedAssetBundle bundle = AssetBundleManager.GetLoadedAssetBundle(_assetBundleName, out _downloadingError);
+            LoadedAssetBundle bundle = _bundleMananger.GetLoadedAssetBundle(_assetBundleName, out _downloadingError);
             if(!string.IsNullOrEmpty(_downloadingError))
             {
                 Error = _downloadingError;
@@ -199,9 +201,11 @@ namespace SocialPoint.AssetBundlesClient
         protected string _loadingError;
         protected Type _type;
         protected AssetBundleRequest _request;
+        protected AssetBundleManager _bundleMananger;
 
-        public AssetBundleLoadAssetOperationFull(string bundleName, string assetName, Type type)
+        public AssetBundleLoadAssetOperationFull(AssetBundleManager bundleMananger, string bundleName, string assetName, Type type)
         {
+            _bundleMananger = bundleMananger;
             _assetBundleName = bundleName;
             _assetName = assetName;
             _type = type;
@@ -224,7 +228,7 @@ namespace SocialPoint.AssetBundlesClient
                 return false;
             }
 
-            LoadedAssetBundle bundle = AssetBundleManager.GetLoadedAssetBundle(_assetBundleName, out _downloadingError);
+            LoadedAssetBundle bundle = _bundleMananger.GetLoadedAssetBundle(_assetBundleName, out _downloadingError);
             if(!string.IsNullOrEmpty(_downloadingError))
             {
                 Error = _downloadingError;

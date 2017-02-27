@@ -55,7 +55,7 @@ namespace SocialPoint.AssetBundlesClient
 
             AddBasicInfo();
 
-            _layout.CreateMargin();
+            AddCleanCacheButton();
 
             DownloadSceneFoldoutGUI(_layout.CreateFoldoutLayout("DownloadScene", true));
             DownloadAssetFoldoutGUI(_layout.CreateFoldoutLayout("DownloadAsset", true));
@@ -67,18 +67,15 @@ namespace SocialPoint.AssetBundlesClient
             AddAssetBundlesParsedDataPanel();
         }
 
-
-        static AttrList GetBundleDataAttrList()
+        void AddCleanCacheButton()
         {
-            const string bundleDataFile = "bundle_data.json";
-            const string bundleDataKey = "bundle_data";
+            _layout.CreateButton("Clean Cache", () => {
+                bool succeeded = Caching.CleanCache();
+                _console.Print("Clean Cache " + (succeeded ? "Succeeded" : "Failed, cache in use"));
+            }
+            );
 
-            string jsonPath = Path.Combine(Application.streamingAssetsPath, bundleDataFile);
-            string json = FileUtils.ReadAllText(jsonPath);
-
-            var bundlesAttrDic = new JsonAttrParser().ParseString(json).AssertDic;
-            var bundleDataAttrList = bundlesAttrDic.Get(bundleDataKey).AssertList;
-            return bundleDataAttrList;
+            _layout.CreateMargin();
         }
 
         AssetBundlesParsedData GetAssetBundlesParsedDataReflection()
@@ -96,8 +93,17 @@ namespace SocialPoint.AssetBundlesClient
             var assetBundlesParsedData = GetAssetBundlesParsedDataReflection();
             if(assetBundlesParsedData.Count == 0)
             {
-                // init assetBundleManager with fake data from resources folder
-                _assetBundleManager.Init(GetBundleDataAttrList());
+                _console.Print("There is no Asset Bundles data parsed from the config manager. Trying to load local bundles instead.");
+                _assetBundleManager.Init();
+                assetBundlesParsedData = GetAssetBundlesParsedDataReflection();
+                if(assetBundlesParsedData.Count == 0)
+                {
+                    _console.Print("There is no Asset Bundles data parsed from the streaming assets folder neither.");
+                }
+                else
+                {
+                    _console.Print("Local Bundles Data loaded from Streaming Assets.");
+                }
             }
 
             // request for assetBundlesParsedData again
@@ -126,6 +132,8 @@ namespace SocialPoint.AssetBundlesClient
             content.AppendLine("Game: " + _assetBundleManager.Game);
             content.AppendLine("Platorm: " + Utility.GetPlatformName());
             _layout.CreateVerticalLayout().CreateTextArea(content.ToString());
+
+            _layout.CreateMargin();
         }
 
         public void DownloadSceneFoldoutGUI(AdminPanelLayout layout)

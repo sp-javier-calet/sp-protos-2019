@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.IO;
 using SocialPoint.Utils;
 using UnityEngine;
 
@@ -36,18 +38,65 @@ namespace SocialPoint.AssetBundlesClient
         }
     }
 
+    public class LocalAssetBundleManager : AssetBundleManager
+    {
+        public override void Init(Attr data = null)
+        {
+            _baseDownloadingURL = Path.Combine(PathsManager.StreamingAssetsPath, Utility.GetPlatformName());
+            _assetBundlesParsedData = LoadBundleData(GetLocalBundlesDataAttrList());
+        }
+
+        public override IEnumerator LoadAssetAsyncRequest(string assetBundleName, string assetName, Type type, Action<AssetBundleLoadAssetOperation> onRequestChanged)
+        {
+            yield return WaitForReady();
+
+            // Load asset from assetBundle.
+            AssetBundleLoadAssetOperation request = LoadAssetAsync(assetBundleName, assetName, type);
+            if(request == null)
+            {
+                yield break;
+            }
+            yield return CoroutineRunner.StartCoroutine(request);
+
+            if(onRequestChanged != null)
+            {
+                onRequestChanged(request);
+            }
+        }
+
+        public override IEnumerator LoadLevelAsyncRequest(string assetBundleName, string levelName, AssetBundleLoadLevelOperation.LoadSceneBundleMode loadSceneMode, Action<AssetBundleLoadLevelOperation> onRequestChanged)
+        {
+            yield return WaitForReady();
+
+            // Load level from assetBundle.
+            AssetBundleLoadLevelOperation request = LoadLevelAsync(assetBundleName, levelName, loadSceneMode);
+            if(request == null)
+            {
+                yield break;
+            }
+            yield return CoroutineRunner.StartCoroutine(request);
+
+            if(onRequestChanged != null)
+            {
+                onRequestChanged(request);
+            }
+        }
+    }
+
     /// <summary>
     /// Class takes care of loading assetBundle and its dependencies automatically
     /// </summary>
     public class AssetBundleManager : IUpdateable, IDisposable
     {
-        static Dictionary<string, LoadedAssetBundle> _loadedAssetBundles = new Dictionary<string, LoadedAssetBundle>();
-        static Dictionary<string, string> _downloadingErrors = new Dictionary<string, string>();
-        static readonly List<string> _downloadingBundles = new List<string>();
-        static readonly List<AssetBundleLoadOperation> _inProgressOperations = new List<AssetBundleLoadOperation>();
-        static AssetBundlesParsedData _assetBundlesParsedData = new AssetBundlesParsedData();
+        Dictionary<string, LoadedAssetBundle> _loadedAssetBundles = new Dictionary<string, LoadedAssetBundle>();
+        Dictionary<string, string> _downloadingErrors = new Dictionary<string, string>();
+        readonly List<string> _downloadingBundles = new List<string>();
+        readonly List<AssetBundleLoadOperation> _inProgressOperations = new List<AssetBundleLoadOperation>();
 
-        static string _baseDownloadingURL;
+        protected AssetBundlesParsedData _assetBundlesParsedData = new AssetBundlesParsedData();
+        protected string _baseDownloadingURL;
+
+        LocalAssetBundleManager _localAssetBundleManager;
 
         [System.Diagnostics.Conditional("DEBUG_BUNDLES")]
         static void DebugLog(string msg)
@@ -81,18 +130,57 @@ namespace SocialPoint.AssetBundlesClient
                     _scheduler.Add(this);
                 }
             }
+
+            protected get
+            {
+                return _scheduler;
+            }
         }
 
-        public void Init(AttrList bundlesAttrList)
+        public virtual void Init(Attr data = null)
         {
             // http://s3.amazonaws.com/int-sp-static-content/static/basegame/android_etc/1/test_scene_unity
             _baseDownloadingURL = string.Format("{0}/{1}/{2}/", Server, Game, Utility.GetPlatformName());
+
             DebugLog("BaseDownloadingURL: " + _baseDownloadingURL);
 
-            _assetBundlesParsedData = LoadBundleData(bundlesAttrList);
+            const string configKey = "config";
+            const string bundleDataKey = "bundle_data";
+
+            var dataDic = data != null ? data.AsDic : null;
+            if(dataDic != null)
+            {
+                if(dataDic.ContainsKey(configKey))
+                {
+                    var configData = dataDic.Get(configKey).AssertDic;
+                    if(configData.ContainsKey(bundleDataKey))
+                    {
+                        var bundleData = configData.Get(bundleDataKey).AssertDic;
+                        _assetBundlesParsedData = LoadBundleData(bundleData.Get(bundleDataKey).AssertList);
+                    }
+                }
+            }
+
+            _localAssetBundleManager = new LocalAssetBundleManager();
+            _localAssetBundleManager.Scheduler = Scheduler;
+            _localAssetBundleManager.CoroutineRunner = CoroutineRunner;
+            _localAssetBundleManager.Init();
         }
 
-        static AssetBundlesParsedData LoadBundleData(AttrList bundlesAttrList)
+        protected static AttrList GetLocalBundlesDataAttrList()
+        {
+            const string bundleDataFile = "local_bundle_data.json";
+            const string bundleDataKey = "local_bundle_data";
+
+            string jsonPath = Path.Combine(PathsManager.StreamingAssetsPath, bundleDataFile);
+            string json = FileUtils.ReadAllText(jsonPath);
+
+            var bundlesAttrDic = new JsonAttrParser().ParseString(json).AssertDic;
+            var bundleDataAttrList = bundlesAttrDic.Get(bundleDataKey).AssertList;
+            return bundleDataAttrList;
+        }
+
+        protected static AssetBundlesParsedData LoadBundleData(AttrList bundlesAttrList)
         {
             var assetBundlesParsedData = new AssetBundlesParsedData();
             var dependencies = new Dictionary<string, List<string>>();
@@ -101,8 +189,11 @@ namespace SocialPoint.AssetBundlesClient
             {
                 var item = bundlesAttrList[i].AssertDic;
                 var itemName = item.Get("name").AsValue.ToString();
+                if(string.IsNullOrEmpty(itemName))
+                {
+                    continue;
+                }
                 var itemVersion = item.Get("version").AsValue.ToInt();
-
                 var dependenciesList = item.Get("dependencies").AssertList;
                 if(dependenciesList.Count > 0)
                 {
@@ -178,7 +269,7 @@ namespace SocialPoint.AssetBundlesClient
         /// Retrieves an asset bundle that has previously been requested via LoadAssetBundle.
         /// Returns null if the asset bundle or one of its dependencies have not been downloaded yet.
         /// </summary>
-        public static LoadedAssetBundle GetLoadedAssetBundle(string assetBundleName, out string error)
+        public LoadedAssetBundle GetLoadedAssetBundle(string assetBundleName, out string error)
         {
             if(_downloadingErrors.TryGetValue(assetBundleName, out error))
             {
@@ -230,14 +321,14 @@ namespace SocialPoint.AssetBundlesClient
         /// Returns true if certain asset bundle has been downloaded without checking
         /// whether the dependencies have been loaded.
         /// </summary>
-        public static bool IsAssetBundleDownloaded(string assetBundleName)
+        public bool IsAssetBundleDownloaded(string assetBundleName)
         {
             return _loadedAssetBundles.ContainsKey(assetBundleName);
         }
 
         // Starts the download of the asset bundle identified by the given name, and asset bundles
         // that this asset bundle depends on.
-        protected static void LoadAssetBundle(string assetBundleName)
+        protected void LoadAssetBundle(string assetBundleName)
         {
             DebugLog("Loading Asset Bundle : " + assetBundleName);
 
@@ -252,7 +343,7 @@ namespace SocialPoint.AssetBundlesClient
         }
 
         // Sets up download operation for the given asset bundle if it's not downloaded already.
-        protected static bool LoadAssetBundleInternal(string assetBundleName)
+        protected bool LoadAssetBundleInternal(string assetBundleName)
         {
             // Already loaded.
             LoadedAssetBundle bundle;
@@ -260,6 +351,7 @@ namespace SocialPoint.AssetBundlesClient
             if(bundle != null)
             {
                 bundle._referencedCount++;
+//                FileUtils.WriteAllBytes(Path.Combine(_localBundlesPath, assetBundleName), (byte[])bundle._assetBundle);
                 return true;
             }
 
@@ -292,7 +384,7 @@ namespace SocialPoint.AssetBundlesClient
         }
 
         // Where we get all the dependencies and load them all.
-        protected static void LoadDependencies(string assetBundleName)
+        protected void LoadDependencies(string assetBundleName)
         {
             AssetBundleParsedData assetBundleData;
             if(!_assetBundlesParsedData.TryGetValue(assetBundleName, out assetBundleData))
@@ -319,7 +411,7 @@ namespace SocialPoint.AssetBundlesClient
         /// <summary>
         /// Unloads assetbundle and its dependencies.
         /// </summary>
-        public static void UnloadAssetBundle(string assetBundleName)
+        public void UnloadAssetBundle(string assetBundleName)
         {
             string error;
             LoadedAssetBundle bundle = GetLoadedAssetBundle(assetBundleName, out error);
@@ -368,7 +460,7 @@ namespace SocialPoint.AssetBundlesClient
 
         #endregion
 
-        static void ProcessFinishedOperation(AssetBundleLoadOperation operation)
+        void ProcessFinishedOperation(AssetBundleLoadOperation operation)
         {
             var download = operation as AssetBundleDownloadOperation;
             if(download == null)
@@ -393,7 +485,7 @@ namespace SocialPoint.AssetBundlesClient
             _downloadingBundles.Remove(download.AssetBundleName);
         }
 
-        IEnumerator WaitForReady()
+        protected IEnumerator WaitForReady()
         {
             while(!Caching.ready)
             {
@@ -406,7 +498,7 @@ namespace SocialPoint.AssetBundlesClient
             }
         }
 
-        public IEnumerator LoadAssetAsyncRequest(string assetBundleName, string assetName, Type type, Action<AssetBundleLoadAssetOperation> onRequestChanged)
+        public virtual IEnumerator LoadAssetAsyncRequest(string assetBundleName, string assetName, Type type, Action<AssetBundleLoadAssetOperation> onRequestChanged)
         {
             yield return WaitForReady();
 
@@ -418,13 +510,20 @@ namespace SocialPoint.AssetBundlesClient
             }
             yield return CoroutineRunner.StartCoroutine(request);
 
+            // if request fails we try with local bundles
+            if(!string.IsNullOrEmpty(request.Error))
+            {
+                request = null;
+                yield return _localAssetBundleManager.LoadAssetAsyncRequest(assetBundleName, assetName, type, req => request = req);
+            }
+
             if(onRequestChanged != null)
             {
                 onRequestChanged(request);
             }
         }
 
-        public IEnumerator LoadLevelAsyncRequest(string assetBundleName, string levelName, AssetBundleLoadLevelOperation.LoadSceneBundleMode loadSceneMode, Action<AssetBundleLoadLevelOperation> onRequestChanged)
+        public virtual IEnumerator LoadLevelAsyncRequest(string assetBundleName, string levelName, AssetBundleLoadLevelOperation.LoadSceneBundleMode loadSceneMode, Action<AssetBundleLoadLevelOperation> onRequestChanged)
         {
             yield return WaitForReady();
 
@@ -436,6 +535,13 @@ namespace SocialPoint.AssetBundlesClient
             }
             yield return CoroutineRunner.StartCoroutine(request);
 
+            // if request fails we try with local bundles
+            if(!string.IsNullOrEmpty(request.Error))
+            {
+                request = null;
+                yield return _localAssetBundleManager.LoadLevelAsyncRequest(assetBundleName, levelName, loadSceneMode, req => request = req);
+            }
+
             if(onRequestChanged != null)
             {
                 onRequestChanged(request);
@@ -445,12 +551,12 @@ namespace SocialPoint.AssetBundlesClient
         /// <summary>
         /// Starts a load operation for an asset from the given asset bundle.
         /// </summary>
-        static AssetBundleLoadAssetOperation LoadAssetAsync(string assetBundleName, string assetName, Type type)
+        protected AssetBundleLoadAssetOperation LoadAssetAsync(string assetBundleName, string assetName, Type type)
         {
             DebugLog("Loading " + assetName + " from " + assetBundleName + " bundle");
 
             LoadAssetBundle(assetBundleName);
-            var operation = new AssetBundleLoadAssetOperationFull(assetBundleName, assetName, type);
+            var operation = new AssetBundleLoadAssetOperationFull(this, assetBundleName, assetName, type);
 
             _inProgressOperations.Add(operation);
 
@@ -460,12 +566,12 @@ namespace SocialPoint.AssetBundlesClient
         /// <summary>
         /// Starts a load operation for a level from the given asset bundle.
         /// </summary>
-        static AssetBundleLoadLevelOperation LoadLevelAsync(string assetBundleName, string levelName, AssetBundleLoadLevelOperation.LoadSceneBundleMode loadSceneMode)
+        protected AssetBundleLoadLevelOperation LoadLevelAsync(string assetBundleName, string levelName, AssetBundleLoadLevelOperation.LoadSceneBundleMode loadSceneMode)
         {
             DebugLog("Loading " + levelName + " from " + assetBundleName + " bundle");
 
             LoadAssetBundle(assetBundleName);
-            var operation = new AssetBundleLoadLevelOperation(assetBundleName, levelName, loadSceneMode);
+            var operation = new AssetBundleLoadLevelOperation(this, assetBundleName, levelName, loadSceneMode);
 
             _inProgressOperations.Add(operation);
 

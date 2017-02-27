@@ -37,7 +37,7 @@ namespace SocialPoint.AssetBundlesClient
         }
         #endif
 
-        AssetBundleManager CreateAssetBundleManager()
+        static AssetBundleManager CreateAssetBundleManager()
         {
             return new AssetBundleManager();
         }
