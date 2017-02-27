@@ -146,13 +146,13 @@ namespace SocialPoint.TransparentBundles
                 else if(bundle.IsLocal)
                 {
                     Rect RecIcon = GUILayoutUtility.GetRect(20, 20, GUILayout.ExpandWidth(false));
-                    GUI.DrawTexture(RecIcon, _controller.DownloadImage(Config.IconsPath + "in_build.png"));
+                    GUI.DrawTexture(RecIcon, _controller.DownloadImage(Config.IconsPath + Config.InBuildImageName));
                     inBuild = "Bundle In Build";
                 }
                 else
                 {
                     Rect RecIcon = GUILayoutUtility.GetRect(20, 20, GUILayout.ExpandWidth(false));
-                    GUI.DrawTexture(RecIcon, _controller.DownloadImage(Config.IconsPath + "in_server.png"));
+                    GUI.DrawTexture(RecIcon, _controller.DownloadImage(Config.IconsPath + Config.InServerImageName));
                     inBuild = "Bundle In Server";
                 }
                 GUILayout.Label("", GUILayout.Width(5));
@@ -369,6 +369,7 @@ namespace SocialPoint.TransparentBundles
                         if(ArrayUtility.Contains(subDependencesPaths, assetPath))
                         {
                             isDependency = true;
+                            break;
                         }
                     }
                 }

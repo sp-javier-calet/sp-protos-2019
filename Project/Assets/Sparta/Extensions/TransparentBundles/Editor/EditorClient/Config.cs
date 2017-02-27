@@ -22,5 +22,19 @@ namespace SocialPoint.TransparentBundles
         public static string ContactUrl = "https://mail.google.com/mail/?view=cm&fs=1&to=" + ContactMail + "&su=Transparent Bundles Contact";
 
         public static string HelpUrl = "https://sites.google.com/a/socialpoint.es/technical-art/07---tools-documentation/transparent-bundles";
+
+        public const string UpdateImageName = "update.png";
+        public const string RemoveImageName = "remove.png";
+        public const string InBuildImageName = "in_build.png";
+        public const string OutBuildImageName = "out_build.png";
+        public const string UpdateQueuedImageName = "update_queued.png";
+        public const string RemoveQueuedImageName = "remove_queued.png";
+        public const string InBuildQueuedImageName = "in_build_queued.png";
+        public const string OutBuildQueuedImageName = "out_build_queued.png";
+        public const string ServerDbImageName = "server_db.png";
+        public const string WarningImageName = "warning.png";
+        public const string ErrorImageName = "error.png";
+        public const string InServerImageName = "in_server.png";
+        public const string HelpImageName = "help.png";
     }
 }

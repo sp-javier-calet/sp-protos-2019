@@ -154,7 +154,6 @@ namespace SocialPoint.TransparentBundles
         /// <param name = "guids"></param>
         public static void RemoveBundles(params string[] guids)
         {
-
             foreach(string guid in guids)
             {
                 RemoveAsset(guid);
