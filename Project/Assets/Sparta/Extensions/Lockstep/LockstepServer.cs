@@ -2,6 +2,7 @@
 using System;
 using SocialPoint.Utils;
 using SocialPoint.Base;
+using SocialPoint.ServerEvents;
 
 namespace SocialPoint.Lockstep
 {
@@ -22,6 +23,8 @@ namespace SocialPoint.Lockstep
 
         public event Action<ServerTurnData> TurnReady;
         public event Action<int> EmptyTurnsReady;
+
+        public Action<Metric, ErrorDelegate> SendMetric;
 
         public int UpdateTime
         {
@@ -252,12 +255,22 @@ namespace SocialPoint.Lockstep
             _localClient.Config = Config;
             _localClient.GameParams = GameParams;
             _localClient.CommandAdded += AddPendingLocalClientCommand;
+            _localClient.TurnApplied += OnLocalClientTurnApplied;
         }
 
         void AddPendingLocalClientCommand(ClientCommandData command)
         {
             var serverCommand = command.ToServer(_localFactory);
             AddCommand(serverCommand);
+        }
+
+        private void OnLocalClientTurnApplied(ClientTurnData data)
+        {
+            if(SendMetric == null)
+            {
+                return;
+            }
+            SendMetric(new Metric(MetricType.Gauge, "photon.turn_processing_time", (int)data.ProcessTime), null);
         }
 
         void ConfirmLocalClientTurn(ServerTurnData turn)

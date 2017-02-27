@@ -414,6 +414,7 @@ namespace SocialPoint.Lockstep
         void ProcessTurn(ClientTurnData turn)
         {
             var itr = turn.GetCommandEnumerator();
+            var processStart = TimeUtils.Timestamp;
             while(itr.MoveNext())
             {
                 var command = FindCommand(itr.Current);
@@ -440,6 +441,7 @@ namespace SocialPoint.Lockstep
                 command.Finish();
             }
             itr.Dispose();
+            turn.ProcessTime = TimeUtils.Timestamp - processStart;
             if(TurnApplied != null)
             {
                 TurnApplied(turn);

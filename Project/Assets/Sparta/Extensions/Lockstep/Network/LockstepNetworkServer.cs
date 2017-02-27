@@ -104,8 +104,20 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public delegate void TrackMetricDelegate(Metric metric, ErrorDelegate del = null);
-        public TrackMetricDelegate TrackMetric;
+        Action<Metric, ErrorDelegate> _sendMetric;
+        public Action<Metric, ErrorDelegate> SendMetric
+        {
+            get
+            {
+                return _sendMetric;
+            }
+
+            set
+            {
+                _sendMetric = value;
+                _serverLockstep.SendMetric = SendMetric;
+            }
+        }
         
         public LockstepNetworkServer(INetworkServer server, IMatchmakingServer matchmaking = null, IUpdateScheduler scheduler = null)
         {
@@ -120,6 +132,7 @@ namespace SocialPoint.Lockstep
 
             _server.RegisterReceiver(this);
             _server.AddDelegate(this);
+
             _serverLockstep.TurnReady += OnServerTurnReady;
             _serverLockstep.EmptyTurnsReady += OnServerEmptyTurnsReady;
             if(_matchmaking != null)

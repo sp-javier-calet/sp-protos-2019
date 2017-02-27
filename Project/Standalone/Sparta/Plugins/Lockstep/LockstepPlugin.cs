@@ -48,7 +48,7 @@ namespace SocialPoint.Lockstep
             _netServer = new LockstepNetworkServer(this, _matchmaking);
             _netServer.BeforeMatchStarts += OnBeforeMatchStarts;
 
-            _netServer.TrackMetric = PluginEventTracker.SendMetric;
+            _netServer.SendMetric = PluginEventTracker.SendMetric;
             _netServer.MatchStarted += OnMatchStarted;
             _netServer.MatchFinished += OnMatchFinished;
         }
