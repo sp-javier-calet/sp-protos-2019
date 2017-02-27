@@ -1,4 +1,5 @@
 ﻿using UnityEditor;
+using System.Collections.Generic;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -18,12 +19,8 @@ namespace SocialPoint.TransparentBundles
         public static void CreateOrUpdate()
         {
             Init();
-            Asset[] assets = _controller.GetAssetsFromSelection();
-            for(int i = 0; i < assets.Length; i++)
-            {
-                _controller.CreateOrUpdateBundle(assets[i]);
-            }
-
+            var assets = new List<Asset>(_controller.GetAssetsFromSelection());
+            _controller.CreateOrUpdateBundles(assets);
             BundlesWindow.OpenWindow();
         }
 
@@ -31,8 +28,9 @@ namespace SocialPoint.TransparentBundles
         public static void Remove()
         {
             Init();
-            Asset[] assets = _controller.GetAssetsFromSelection();
-            if(assets.Length > 1)
+            var assets = new List<Asset>(_controller.GetAssetsFromSelection());
+
+            if(assets.Count > 1)
             {
                 EditorUtility.DisplayDialog("Removing Bundle",
                     "The bundle removal operation can only be done with one asset at a time. If you want to delete multiple bundles open the Bundles Window (Social Point > Bundles)",
@@ -51,22 +49,16 @@ namespace SocialPoint.TransparentBundles
         public static void IntoBuild()
         {
             Init();
-            Asset[] assets = _controller.GetAssetsFromSelection();
-            for(int i = 0; i < assets.Length; i++)
-            {
-                _controller.BundleIntoBuild(assets[i]);
-            }
+            var assets = new List<Asset>(_controller.GetAssetsFromSelection());
+            _controller.PerfomExistingBundleAction(assets, EditorClientController.BundleIntoBuildMode.MakeLocal);
         }
 
         [MenuItem("Assets/Bundles/Remove Bundle from the Build")]
         public static void OutsideBuild()
         {
             Init();
-            Asset[] assets = _controller.GetAssetsFromSelection();
-            for(int i = 0; i < assets.Length; i++)
-            {
-                _controller.BundleOutsideBuild(assets[i]);
-            }
+            var assets = new List<Asset>(_controller.GetAssetsFromSelection());
+            _controller.PerfomExistingBundleAction(assets, EditorClientController.BundleIntoBuildMode.RemoveLocalBundle);
         }
     }
 }

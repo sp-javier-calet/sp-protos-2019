@@ -55,7 +55,7 @@ namespace SocialPoint.TransparentBundles
             ChangeSorting(_sorting);
             _scrollPos = Vector2.zero;
 
-            _actionButons = new [] {
+            _actionButons = new[] {
                 new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.UpdateImageName), "Update Bundle"),
                 new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.RemoveImageName), "Remove bundle"),
                 new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.InBuildImageName), "Add bundle into the Build"),
@@ -65,7 +65,7 @@ namespace SocialPoint.TransparentBundles
             _updateFilterTime = 0f;
             _toSearch = false;
 
-            _columnsSize = new [] { 20f, 20f, 50f, 100f };
+            _columnsSize = new[] { 20f, 20f, 50f, 100f };
             _controller.FlushCache();
 
             _previousScene = SceneManager.GetActiveScene();
@@ -518,10 +518,12 @@ namespace SocialPoint.TransparentBundles
             if(GUILayout.Button(_actionButons[0], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
                 chosenEnum = _chosenList.GetEnumerator();
+                var assetList = new List<Asset>();
                 while(chosenEnum.MoveNext())
                 {
-                    _controller.CreateOrUpdateBundle(chosenEnum.Current.Value.Asset);
+                    assetList.Add(chosenEnum.Current.Value.Asset);
                 }
+                _controller.CreateOrUpdateBundles(assetList);
                 chosenEnum.Dispose();
                 SearchBundles(_filter);
             }
@@ -547,10 +549,12 @@ namespace SocialPoint.TransparentBundles
                        "Remove", "Cancel"))
                 {
                     chosenEnum = _chosenList.GetEnumerator();
+                    var assetList = new List<Asset>();
                     while(chosenEnum.MoveNext())
                     {
-                        _controller.RemoveBundle(chosenEnum.Current.Value.Asset);
+                        assetList.Add(chosenEnum.Current.Value.Asset);
                     }
+                    _controller.PerfomExistingBundleAction(assetList, EditorClientController.BundleIntoBuildMode.RemoveBundle);
                     chosenEnum.Dispose();
                 }
                 SearchBundles(_filter);
@@ -558,20 +562,24 @@ namespace SocialPoint.TransparentBundles
             if(GUILayout.Button(_actionButons[2], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
                 chosenEnum = _chosenList.GetEnumerator();
+                var assetList = new List<Asset>();
                 while(chosenEnum.MoveNext())
                 {
-                    _controller.BundleIntoBuild(chosenEnum.Current.Value.Asset);
+                    assetList.Add(chosenEnum.Current.Value.Asset);
                 }
+                _controller.PerfomExistingBundleAction(assetList, EditorClientController.BundleIntoBuildMode.MakeLocal);
                 chosenEnum.Dispose();
                 SearchBundles(_filter);
             }
             if(GUILayout.Button(_actionButons[3], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
                 chosenEnum = _chosenList.GetEnumerator();
+                var assetList = new List<Asset>();
                 while(chosenEnum.MoveNext())
                 {
-                    _controller.BundleOutsideBuild(chosenEnum.Current.Value.Asset);
+                    assetList.Add(chosenEnum.Current.Value.Asset);
                 }
+                _controller.PerfomExistingBundleAction(assetList, EditorClientController.BundleIntoBuildMode.RemoveLocalBundle);
                 chosenEnum.Dispose();
                 SearchBundles(_filter);
             }

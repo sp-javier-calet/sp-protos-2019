@@ -170,7 +170,7 @@ namespace SocialPoint.TransparentBundles
         {
             var queryDict = new Dictionary<string, List<string>>();
             queryDict.Add(_queryGuids, arguments.AssetGUIDs);
-            var url = HttpAsyncRequest.AppendQueryParams(_localBundleUrl, queryDict);
+            var url = HttpAsyncRequest.AppendQueryParams(_requestUrl, queryDict);
             GenericRequest(arguments, url, "DELETE", string.Empty, x => HandleActionResponse(x, arguments, RemoveBundle));
         }
 

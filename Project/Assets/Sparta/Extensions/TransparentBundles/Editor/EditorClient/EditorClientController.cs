@@ -434,7 +434,7 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        public void BundlesIntoBuild(List<Asset> assets, BundleIntoBuildMode mode)
+        public void PerfomExistingBundleAction(List<Asset> assets, BundleIntoBuildMode mode)
         {
             bool valid = true;
 
@@ -548,7 +548,7 @@ namespace SocialPoint.TransparentBundles
 
         public Asset GetAssetFromObject(UnityEngine.Object assetObject)
         {
-            return GetAssetsFromObjects(new [] { assetObject })[0];
+            return GetAssetsFromObjects(new[] { assetObject })[0];
         }
 
         public Asset[] GetAssetsFromObjects(UnityEngine.Object[] objects)
