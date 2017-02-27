@@ -722,7 +722,11 @@ namespace SocialPoint.Lockstep
             Stop();
             _server.RegisterReceiver(null);
             _server.RemoveDelegate(this);
-            if(_matchmaking != null)
+
+            _serverLockstep.TurnReady -= OnServerTurnReady;
+            _serverLockstep.EmptyTurnsReady -= OnServerEmptyTurnsReady;
+
+            if (_matchmaking != null)
             {
                 _matchmaking.RemoveDelegate(this);
             }

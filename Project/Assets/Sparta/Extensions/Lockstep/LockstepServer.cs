@@ -242,6 +242,7 @@ namespace SocialPoint.Lockstep
             if(_localClient != null)
             {
                 _localClient.CommandAdded -= AddPendingLocalClientCommand;
+                _localClient.TurnApplied -= OnLocalClientTurnApplied;
             }
             _localClient = null;
             _localFactory = null;
