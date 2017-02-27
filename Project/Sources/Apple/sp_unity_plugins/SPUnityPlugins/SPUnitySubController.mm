@@ -13,8 +13,6 @@
 {
 }
 
-// MANU TODO: IMPLEMENT MISSING METHODS (CHECK SPUNITYAPPLICATION)
-
 BOOL _calledSuper;
 BOOL _defaultBehavior = NO;
 
@@ -127,23 +125,5 @@ BOOL _defaultBehavior = NO;
     return YES;
 }
 #endif
-
-- (void)application:(UIApplication*)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void(^)())completionHandler
-{
-    _calledSuper = YES;
-}
-
-- (void)application:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forRemoteNotification:(NSDictionary*)userInfo completionHandler:(void(^)())completionHandler
-{
-    _calledSuper = YES;
-}
-
-#if !UNITY_TVOS
-- (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void (^)())completionHandler
-{
-    _calledSuper = YES;
-}
-#endif
-
 
 @end

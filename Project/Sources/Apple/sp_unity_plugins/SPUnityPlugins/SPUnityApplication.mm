@@ -204,28 +204,5 @@ static std::vector<SPUnitySubController*>* _controllers = nullptr;
 }
 #endif
 
-+ (BOOL)application:(UIApplication*)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void(^)())completionHandler
-{
-    return [self notifyControllers:^(SPUnitySubController* controller){
-        [controller application:application handleEventsForBackgroundURLSession:identifier completionHandler:completionHandler];
-    }];
-}
-
-+ (BOOL)application:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forRemoteNotification:(NSDictionary*)userInfo completionHandler:(void(^)())completionHandler
-{
-    return [self notifyControllers:^(SPUnitySubController* controller){
-        [controller application:application handleActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:completionHandler];
-    }];
-}
-
-#if !UNITY_TVOS
-+ (BOOL)application:(UIApplication *)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void (^)())completionHandler
-{
-    return [self notifyControllers:^(SPUnitySubController* controller){
-        [controller application:application handleActionWithIdentifier:identifier forLocalNotification:notification completionHandler:completionHandler];
-    }];
-}
-#endif
-
 @end
 

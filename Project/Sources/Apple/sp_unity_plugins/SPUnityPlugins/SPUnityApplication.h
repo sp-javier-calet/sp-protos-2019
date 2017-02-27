@@ -11,9 +11,10 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "SPUnitySubController.h"
 
-@interface SPUnityApplication : NSObject<UIApplicationDelegate>
+@class SPUnitySubController;
+
+@interface SPUnityApplication : NSObject
 
 + (void)setupApplication:(const bool*)unityIsReady;
 + (BOOL)isReady;
@@ -52,12 +53,6 @@
 
 #if !UNITY_TVOS
 + (BOOL)application:(UIApplication*)application performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem;// IOS 9.0
-#endif
-
-+ (BOOL)application:(UIApplication*)application handleEventsForBackgroundURLSession:(NSString *)identifier completionHandler:(void(^)())completionHandler;
-+ (BOOL)application:(UIApplication*)application handleActionWithIdentifier:(NSString*)identifier forRemoteNotification:(NSDictionary*)userInfo completionHandler:(void(^)())completionHandler;
-#if !UNITY_TVOS
-+ (BOOL)application:(UIApplication *)application handleActionWithIdentifier:(NSString*)identifier forLocalNotification:(UILocalNotification*)notification completionHandler:(void (^)())completionHandler;
 #endif
 
 @end
