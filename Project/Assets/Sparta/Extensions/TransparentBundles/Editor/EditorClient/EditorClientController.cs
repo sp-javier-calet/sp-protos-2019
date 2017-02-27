@@ -583,7 +583,7 @@ namespace SocialPoint.TransparentBundles
             switch(mode)
             {
             case BundleSortingMode.TypeDesc:
-                bundleList.Sort((b1, b2) => ((b2.Asset.Type + b1.Asset.Name).CompareTo(b1.Asset.Type + b2.Asset.Name)));
+                bundleList.Sort((b1, b2) => ((b2.Asset.Type + b2.Asset.Name).CompareTo(b1.Asset.Type + b1.Asset.Name)));
                 break;
 
             case BundleSortingMode.TypeAsc:
@@ -599,7 +599,7 @@ namespace SocialPoint.TransparentBundles
                 break;
 
             case BundleSortingMode.SizeDesc:
-                bundleList.Sort((b1, b2) => (b2.Size[platform] + b1.Asset.Name).CompareTo(b1.Size[platform] + b2.Asset.Name));
+                bundleList.Sort((b1, b2) => (b2.Size[platform] + b2.Asset.Name).CompareTo(b1.Size[platform] + b1.Asset.Name));
                 break;
 
             case BundleSortingMode.SizeAsc:
@@ -613,7 +613,7 @@ namespace SocialPoint.TransparentBundles
             switch(mode)
             {
             case AssetSortingMode.TypeDesc:
-                assetList.Sort((b1, b2) => ((b2.Type + b1.Name).CompareTo(b1.Type + b2.Name)));
+                assetList.Sort((b1, b2) => ((b2.Type + b2.Name).CompareTo(b1.Type + b1.Name)));
                 break;
 
             case AssetSortingMode.TypeAsc:
