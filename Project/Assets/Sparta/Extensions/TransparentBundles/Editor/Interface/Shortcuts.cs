@@ -1,4 +1,5 @@
 ﻿using UnityEditor;
+using System.Collections.Generic;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -49,7 +50,7 @@ namespace SocialPoint.TransparentBundles
         {
             Init();
             var assets = new List<Asset>(_controller.GetAssetsFromSelection());
-            _controller.BundlesIntoBuild(assets);
+            _controller.PerfomExistingBundleAction(assets, EditorClientController.BundleIntoBuildMode.MakeLocal);
         }
 
         [MenuItem("Assets/Bundles/Remove Bundle from the Build")]
@@ -57,7 +58,7 @@ namespace SocialPoint.TransparentBundles
         {
             Init();
             var assets = new List<Asset>(_controller.GetAssetsFromSelection());
-            _controller.BundlesOutsideBuild(assets);
+            _controller.PerfomExistingBundleAction(assets, EditorClientController.BundleIntoBuildMode.RemoveLocalBundle);
         }
     }
 }
