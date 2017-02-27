@@ -507,22 +507,27 @@ namespace SocialPoint.TransparentBundles
 
         public int GetLocalBundlesTotalSize(BundlePlaform platform)
         {
+            return GetBundlesTotalSize(platform, true);
+        }
+
+        public int GetServerBundlesTotalSize(BundlePlaform platform)
+        {
+            return GetBundlesTotalSize(platform, false);
+        }
+
+        int GetBundlesTotalSize(BundlePlaform platform, bool isLocal)
+        {
             int totalSize = 0;
             var keys = new List<string>(_bundleDictionary.Keys);
             for(int i = 0; i < keys.Count; i++)
             {
                 Bundle bundle = _bundleDictionary[keys[i]];
-                if(bundle.IsLocal)
+                if(bundle.IsLocal == isLocal)
                 {
                     totalSize += bundle.Size[platform];
                 }
             }
             return totalSize;
-        }
-
-        public int GetServerBundlesTotalSize(BundlePlaform platform)
-        {
-            return GetLocalBundlesTotalSize(platform);
         }
 
         public void DownloadBundle(Bundle bundle, BundlePlaform platform)
