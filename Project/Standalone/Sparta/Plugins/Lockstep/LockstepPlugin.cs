@@ -4,6 +4,7 @@ using SocialPoint.Lockstep;
 using System;
 using System.Collections.Generic;
 using Photon.Hive.Plugin;
+using SocialPoint.ServerEvents;
 
 namespace SocialPoint.Lockstep
 {
@@ -46,6 +47,21 @@ namespace SocialPoint.Lockstep
             _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient());
             _netServer = new LockstepNetworkServer(this, _matchmaking);
             _netServer.BeforeMatchStarts += OnBeforeMatchStarts;
+
+            _netServer.MatchStarted += OnMatchStarted;
+            _netServer.MatchFinished += OnMatchFinished;
+
+            
+        }
+
+        private void OnMatchFinished(Dictionary<byte, Attributes.Attr> obj)
+        {
+            PluginEventTracker.SendMetric(new Metric(MetricType.Counter, "photon.match_end", 1));
+        }
+
+        private void OnMatchStarted(byte[] obj)
+        {
+            PluginEventTracker.SendMetric(new Metric(MetricType.Counter, "photon.match_start", 1));
         }
 
         void OnBeforeMatchStarts()
@@ -83,7 +99,7 @@ namespace SocialPoint.Lockstep
                 ClientStartDelayConfig, _netServer.ServerConfig.ClientStartDelay);
             _netServer.ServerConfig.ClientSimulationDelay = GetConfigOption(config,
                 ClientSimulationDelayConfig, _netServer.ServerConfig.ClientSimulationDelay);
-
+            
             string baseUrl;
             if(_matchmaking != null && config.TryGetValue(BackendBaseUrlConfig, out baseUrl))
             {

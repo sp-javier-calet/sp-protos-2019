@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Photon.Hive.Plugin;
 using SocialPoint.IO;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 using log4net;
 
 namespace SocialPoint.Network
@@ -43,8 +44,11 @@ namespace SocialPoint.Network
             }
         }
 
+        public PluginEventTracker PluginEventTracker { get; private set; }
+
         List<INetworkServerDelegate> _delegates;
         INetworkMessageReceiver _receiver;
+        UpdateScheduler _updateScheduler;
         ILog _log;
         object _timer;
         protected string BackendEnv { get; private set; }
@@ -74,6 +78,9 @@ namespace SocialPoint.Network
             _pluginName = pluginName;
             UseStrictMode = true;
             _delegates = new List<INetworkServerDelegate>();
+            var httpServer = new ImmediateWebRequestHttpClient();
+            _updateScheduler = new UpdateScheduler();
+            PluginEventTracker = new PluginEventTracker(_updateScheduler, httpServer);
         }
 
         /*
@@ -333,6 +340,7 @@ namespace SocialPoint.Network
 
         protected virtual void Update()
         {
+            _updateScheduler.Update((float)UpdateInterval/1000.0f);
         }
 
         void BroadcastError(Error err)

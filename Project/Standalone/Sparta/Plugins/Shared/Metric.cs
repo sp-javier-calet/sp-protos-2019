@@ -16,7 +16,7 @@ namespace SocialPoint.Network
         Histogram
     }
 
-    class Metric
+    public class Metric
     {
         const string AttrKeyStat = "stat";
         const string AttrKeyValue = "value";
@@ -39,7 +39,7 @@ namespace SocialPoint.Network
             Stat = stat;
             Value = value;
             Time = TimeUtils.Timestamp;
-            Tags = tags;
+            Tags = tags?? new string[] { };
         }
 
         public Attr ToAttr()
@@ -48,7 +48,12 @@ namespace SocialPoint.Network
             dic.SetValue(AttrKeyStat, Stat);
             dic.SetValue(AttrKeyValue, Value);
             dic.SetValue(AttrKeyTimestamp, Time);
-            dic.Set(AttrKeyTags, new AttrList(Tags));
+            var tagsList = new AttrList();
+            for (int i = 0; i < Tags.Length; i++)
+            {
+                tagsList.Add(new AttrString(Tags[i]));
+            }
+            dic.Set(AttrKeyTags, tagsList);
             return dic;
         }
     }

@@ -7,7 +7,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
-    class PluginEventTracker : IUpdateable
+    public class PluginEventTracker : IUpdateable
     {
         //TODO: specify
         const string MetricUri = "/api/v3/rtmp/metrics";
@@ -24,12 +24,12 @@ namespace SocialPoint.Network
         IHttpClient _httpClient;
         Dictionary<MetricType, List<Metric>> _pendingMetrics;
         List<Event> _pendingEvents;
-        UpdateScheduler _updateScheduler;
+        IUpdateScheduler _updateScheduler;
 
-        public PluginEventTracker(UpdateScheduler updateScheduler)
+        public PluginEventTracker(IUpdateScheduler updateScheduler, IHttpClient httpClient)
         {
             _updateScheduler = updateScheduler;
-            _httpClient = new ImmediateWebRequestHttpClient();
+            _httpClient = httpClient;//new ImmediateWebRequestHttpClient();
             _pendingMetrics = new Dictionary<MetricType, List<Metric>>();
             _pendingEvents = new List<Event>();
         }

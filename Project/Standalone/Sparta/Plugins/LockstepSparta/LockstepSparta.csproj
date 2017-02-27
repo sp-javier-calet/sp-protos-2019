@@ -254,6 +254,12 @@
     <Compile Include="..\..\..\..\..\Project\Assets\Sparta\SocialPoint\Utils\XRandom.cs">
       <Link>Utils\XRandom.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\..\Assets\Sparta\Extensions\Lockstep\Network\ClientChangedConnectionStatusMessage.cs">
+      <Link>Lockstep\Network\ClientChangedConnectionStatusMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\Assets\Sparta\SocialPoint\ServerEvents\Event.cs">
+      <Link>ServerEvents\Event.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

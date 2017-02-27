@@ -35,6 +35,12 @@
       <HintPath>..\..\..\PhotonServer\lib\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="NSubstitute">
+      <HintPath>..\..\..\..\Assets\Sparta\External\UnityTestTools\UnitTesting\Editor\NSubstitute\NSubstitute.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\..\PhotonServer\lib\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="PhotonHivePlugin">
       <HintPath>..\lib\PhotonHivePlugin.dll</HintPath>
     </Reference>
@@ -46,14 +52,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Shared\Metric.cs">
+      <Link>Metric.cs</Link>
+    </Compile>
     <Compile Include="..\Shared\NetworkServerPlugin.cs">
       <Link>NetworkServerPlugin.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\PluginEventTracker.cs">
+      <Link>PluginEventTracker.cs</Link>
     </Compile>
     <Compile Include="..\Shared\PluginHttpClient.cs">
       <Link>PluginHttpClient.cs</Link>
     </Compile>
     <Compile Include="..\Shared\PluginNetworkMessage.cs">
       <Link>PluginNetworkMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\Shared\Tests\PluginEventTrackerTests.cs">
+      <Link>Tests\PluginEventTrackerTests.cs</Link>
     </Compile>
     <Compile Include="LockstepPlugin.cs" />
     <Compile Include="PluginFactory.cs" />
@@ -64,6 +79,9 @@
       <Project>{4ba8ea51-7fea-4e0f-8103-386ffffd6001}</Project>
       <Name>Sparta</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
