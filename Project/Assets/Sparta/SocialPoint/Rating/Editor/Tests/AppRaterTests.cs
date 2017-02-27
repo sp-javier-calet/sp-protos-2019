@@ -4,6 +4,7 @@ using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Rating
 {
@@ -29,6 +30,7 @@ namespace SocialPoint.Rating
             PathsManager.Init();
             storage = new FileAttrStorage(FileUtils.Combine(PathsManager.AppPersistentDataPath, "AppRaterTests"));
             var appEvents = Substitute.For<IAppEvents>();
+            appEvents.WasOnBackground.Returns(new PriorityAction());
             AppRater = new AppRater(deviceInfo, storage, appEvents);
             AppRaterGUI = Substitute.For<IAppRaterGUI>();
             AppRaterGUI.Show(Arg.Any<bool>()).Returns(true);
