@@ -15,13 +15,14 @@
 
 @implementation SPUnityAppControllerSubClass
 
-// MANU TODO: ORDER THIS FILE AS SPUnityApplication
+#pragma region - Controller Initialization
 
 // AppReady flag defined in UnityAppController
 extern bool _unityAppReady;
 
 + (void)load
 {
+    // Set this class as the main Application Controller
     extern const char* AppControllerClassName;
     AppControllerClassName = "SPUnityAppControllerSubClass";
 
@@ -37,6 +38,8 @@ extern bool _unityAppReady;
 }
 
 
+#pragma region - SubController Life Cycle Implementation
+
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
     if([SPUnityApplication application:application didFinishLaunchingWithOptions:launchOptions])
@@ -46,6 +49,52 @@ extern bool _unityAppReady;
     
     return YES;
 }
+
+- (void)applicationWillResignActive:(UIApplication*)application
+{
+    BOOL callSuper = [SPUnityApplication applicationWillResignActive:application];
+    
+    //aditional game loop to allow scripts response before being paused
+    UnityBatchPlayerLoop();
+    
+    if(callSuper)
+    {
+        [super applicationWillResignActive:application];
+    }
+}
+
+- (void)applicationDidBecomeActive:(UIApplication*)application
+{
+    if([SPUnityApplication applicationDidBecomeActive:application])
+    {
+        [super applicationDidBecomeActive:application];
+    }
+}
+
+- (void)applicationDidEnterBackground:(UIApplication*)application
+{
+    if([SPUnityApplication applicationDidEnterBackground:application])
+    {
+        [super applicationDidEnterBackground:application];
+    }
+}
+
+- (void)applicationWillEnterForeground:(UIApplication*)application
+{
+    if([SPUnityApplication applicationWillEnterForeground:application])
+    {
+        [super applicationWillEnterForeground:application];
+    }
+}
+
+- (void)applicationWillTerminate:(UIApplication*)application
+{
+    if([SPUnityApplication applicationWillTerminate:application])
+    {
+        [super applicationWillTerminate:application];
+    }
+}
+
 
 #if !UNITY_TVOS
 - (BOOL)application:(UIApplication*)application openURL:(NSURL*)url sourceApplication:(NSString*)sourceApplication annotation:(id)annotation
@@ -58,6 +107,16 @@ extern bool _unityAppReady;
     return YES;
 }
 #endif
+
+#pragma mark - Memory management
+
+- (void)applicationDidReceiveMemoryWarning:(UIApplication*)application
+{
+    if([SPUnityApplication applicationDidReceiveMemoryWarning:application])
+    {
+        [super applicationDidReceiveMemoryWarning:application];
+    }
+}
 
 #pragma mark - Notifications
 
@@ -128,50 +187,5 @@ extern bool _unityAppReady;
     callback(YES);
 }
 #endif
-
-- (void)applicationDidEnterBackground:(UIApplication*)application
-{
-    if([SPUnityApplication applicationDidEnterBackground:application])
-    {
-        [super applicationDidEnterBackground:application];
-    }
-}
-
-- (void)applicationWillEnterForeground:(UIApplication*)application
-{
-    if([SPUnityApplication applicationWillEnterForeground:application])
-    {
-        [super applicationWillEnterForeground:application];
-    }
-}
-
-- (void)applicationDidBecomeActive:(UIApplication*)application
-{
-    if([SPUnityApplication applicationDidBecomeActive:application])
-    {
-        [super applicationDidBecomeActive:application];
-    }
-}
-
-- (void)applicationWillResignActive:(UIApplication*)application
-{
-    BOOL callSuper = [SPUnityApplication applicationWillResignActive:application];
-    
-    //aditional game loop to allow scripts response before being paused
-    UnityBatchPlayerLoop();
-    
-    if(callSuper)
-    {
-        [super applicationWillResignActive:application];
-    }
-}
-
-- (void)applicationDidReceiveMemoryWarning:(UIApplication*)application
-{
-    if([SPUnityApplication applicationDidReceiveMemoryWarning:application])
-    {
-        [super applicationDidReceiveMemoryWarning:application];
-    }
-}
 
 @end
