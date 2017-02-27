@@ -517,10 +517,12 @@ namespace SocialPoint.TransparentBundles
             if(GUILayout.Button(_actionButons[0], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
                 chosenEnum = _chosenList.GetEnumerator();
+                var assetList = new List<Asset>();
                 while(chosenEnum.MoveNext())
                 {
-                    _controller.CreateOrUpdateBundle(chosenEnum.Current.Value.Asset);
+                    assetList.Add(chosenEnum.Current.Value.Asset);
                 }
+                _controller.CreateOrUpdateBundles(assetList);
                 SearchBundles(_filter);
             }
             if(GUILayout.Button(_actionButons[1], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
@@ -544,29 +546,35 @@ namespace SocialPoint.TransparentBundles
                         "Remove", "Cancel"))
                 {
                     chosenEnum = _chosenList.GetEnumerator();
+                    var assetList = new List<Asset>();
                     while(chosenEnum.MoveNext())
                     {
-                        _controller.RemoveBundle(chosenEnum.Current.Value.Asset);
+                        assetList.Add(chosenEnum.Current.Value.Asset);
                     }
+                    _controller.RemoveBundles(assetList);
                 }
                 SearchBundles(_filter);
             }
             if(GUILayout.Button(_actionButons[2], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
                 chosenEnum = _chosenList.GetEnumerator();
+                var assetList = new List<Asset>();
                 while(chosenEnum.MoveNext())
                 {
-                    _controller.BundleIntoBuild(chosenEnum.Current.Value.Asset);
+                    assetList.Add(chosenEnum.Current.Value.Asset);
                 }
+                _controller.BundlesIntoBuild(assetList);
                 SearchBundles(_filter);
             }
             if(GUILayout.Button(_actionButons[3], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
                 chosenEnum = _chosenList.GetEnumerator();
+                var assetList = new List<Asset>();
                 while(chosenEnum.MoveNext())
                 {
-                    _controller.BundleOutsideBuild(chosenEnum.Current.Value.Asset);
+                    assetList.Add(chosenEnum.Current.Value.Asset);
                 }
+                _controller.BundlesOutsideBuild(assetList);
                 SearchBundles(_filter);
             }
             GUILayout.Label("", GUILayout.Width(3));
