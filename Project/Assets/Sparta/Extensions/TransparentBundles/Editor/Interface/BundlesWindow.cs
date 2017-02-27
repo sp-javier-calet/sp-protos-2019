@@ -826,7 +826,7 @@ namespace SocialPoint.TransparentBundles
                 icon = processing ? _controller.DownloadImage(Config.IconsPath + Config.UpdateImageName) : _controller.DownloadImage(Config.IconsPath + Config.UpdateQueuedImageName);
                 break;
 
-            case BundleOperation.Remove:
+            case BundleOperation.remove_asset_bundles:
                 icon = processing ? _controller.DownloadImage(Config.IconsPath + Config.RemoveImageName) : _controller.DownloadImage(Config.IconsPath + Config.RemoveQueuedImageName);
                 break;
 

@@ -44,7 +44,7 @@ namespace SocialPoint.TransparentBundles
     public enum BundleOperation
     {
         create_asset_bundles,
-        Remove,
+        remove_asset_bundles,
         AddToBuild,
         RemoveFromBuild
     }
