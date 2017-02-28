@@ -113,15 +113,16 @@ namespace SocialPoint.Network
             if(_appEvents != null)
             {
                 _appEvents.WillGoBackground.Add(WillGoBackgroundEventPriority, OnWillGoBackground);
-                _appEvents.WasOnBackground += WasOnBackground;
+                _appEvents.WasOnBackground.Add(0, WasOnBackground);
             }
         }
+
         void DisconnectAppEvents()
         {
             if(_appEvents != null)
             {
                 _appEvents.WillGoBackground.Remove(OnWillGoBackground);
-                _appEvents.WasOnBackground -= WasOnBackground;
+                _appEvents.WasOnBackground.Remove(WasOnBackground);
             }
         }
 

@@ -18,7 +18,8 @@ namespace SocialPoint.Attributes
             }
         }
 
-        readonly string _prefix;
+        readonly string _groupPrefix;
+        readonly string _customPrefix;
         IAttrSerializer _serializer;
         IAttrParser _parser;
         AndroidJavaObject _persistentAttrStorage;
@@ -29,8 +30,8 @@ namespace SocialPoint.Attributes
         /// </summary>
         /// <param name="prefix">Custom Prefix. The plugin uses by default the package name</param>
         /// <param name="deviceUid">Crypto key. used to encrypt the data, use the device UID</param>
-        public PersistentAttrStorage(string deviceUid, string prefix = "")
-            : this(new JsonAttrParser(), new JsonAttrSerializer(), deviceUid, prefix)
+        public PersistentAttrStorage(string deviceUid, string customPrefix = "")
+            : this(new JsonAttrParser(), new JsonAttrSerializer(), deviceUid, "", customPrefix)
         {            
         }
 
@@ -42,11 +43,12 @@ namespace SocialPoint.Attributes
         /// <param name = "serializer"></param>
         /// <param name="prefix">Custom Prefix. The plugin uses by default the package name</param>
         /// <param name="deviceUid">Crypto key. used to encrypt the data, use the device UID</param>
-        public PersistentAttrStorage(IAttrParser parser, IAttrSerializer serializer, string deviceUid, string prefix = "")
+        public PersistentAttrStorage(IAttrParser parser, IAttrSerializer serializer, string deviceUid, string groupPrefix = "", string customPrefix = "")
         {
             _parser = parser;
             _serializer = serializer;
-            _prefix = prefix;
+            _groupPrefix = groupPrefix;
+            _customPrefix = customPrefix;
             _persistentAttrStorage = new AndroidJavaObject("es.socialpoint.unity.base.PersistentAttrStorage", AndroidContext.CurrentActivity, deviceUid);
         }
 
@@ -60,23 +62,23 @@ namespace SocialPoint.Attributes
 
         public Attr Load(string key)
         {
-            var attrString = _persistentAttrStorage.Call<string>("getAttrForKey", _prefix, key, String.Empty);
+            var attrString = _persistentAttrStorage.Call<string>("getAttrForKey", _groupPrefix, _customPrefix, key, String.Empty);
             return _parser.ParseString(attrString);
         }
 
         public void Save(string key, Attr attr)
         {
-            _persistentAttrStorage.Call<bool>("setAttrForKey", _prefix, key, _serializer.SerializeString(attr));
+            _persistentAttrStorage.Call<bool>("setAttrForKey", _groupPrefix, _customPrefix, key, _serializer.SerializeString(attr));
         }
 
         public void Remove(string key)
         {
-            _persistentAttrStorage.Call<bool>("removeAttrForKey", _prefix, key);
+            _persistentAttrStorage.Call<bool>("removeAttrForKey", _groupPrefix, _customPrefix, key);
         }
 
         public bool Has(string key)
         {
-            return _persistentAttrStorage.Call<bool>("contains", _prefix, key);
+            return _persistentAttrStorage.Call<bool>("contains", _groupPrefix, _customPrefix, key);
         }
 
         #endregion

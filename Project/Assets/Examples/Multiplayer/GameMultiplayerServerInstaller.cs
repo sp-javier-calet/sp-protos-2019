@@ -1,7 +1,6 @@
 ﻿using SocialPoint.Dependency;
 using SocialPoint.Multiplayer;
 using SocialPoint.Physics;
-using SocialPoint.Network;
 
 public class GameMultiplayerServerInstaller : Installer, IInitializable
 {
@@ -23,7 +22,6 @@ public class GameMultiplayerServerInstaller : Installer, IInitializable
     GameMultiplayerServerBehaviour CreateServerBehaviour()
     {
         return new GameMultiplayerServerBehaviour(
-            Container.Resolve<INetworkServer>(),
             Container.Resolve<NetworkServerSceneController>(),
             Container.Resolve<IPhysicsDebugger>());
     }

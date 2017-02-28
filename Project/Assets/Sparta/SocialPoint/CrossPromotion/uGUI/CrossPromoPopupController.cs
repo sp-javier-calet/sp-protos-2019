@@ -147,8 +147,10 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
         _cellPrototype.SetElementsSize(_cellWidth, _cellHeight, _separatorPrototype, _separatorCellRatio);
 
         int position = 0;
-        foreach(var keyValue in _cpm.Data.BannerInfo)
+        var iter = _cpm.Data.BannerInfo.GetEnumerator();
+        while(iter.MoveNext())
         {
+            var keyValue = iter.Current;
             if(position > 0)
             {
                 Clone<RectTransform>(_separatorPrototype);
@@ -159,6 +161,7 @@ public class CrossPromoPopupController : BaseCrossPromoPopupController
 
             ++position;
         }
+        iter.Dispose();
     }
 
     static T Clone<T>(T prototype) where T : Component

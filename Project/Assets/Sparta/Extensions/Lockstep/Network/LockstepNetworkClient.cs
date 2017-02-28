@@ -11,9 +11,10 @@ namespace SocialPoint.Lockstep
 {
     public sealed class LockstepNetworkClient : IDisposable, INetworkMessageReceiver, INetworkClientDelegate
     {
-        INetworkClient _client;
-        LockstepCommandFactory _commandFactory;
-        LockstepClient _clientLockstep;
+        public INetworkClient Network { get; private set;  }
+        public LockstepCommandFactory CommandFactory { get;  private set; }
+        public LockstepClient Lockstep { get; private set; }
+
         INetworkMessageReceiver _receiver;
 
         bool _sendPlayerReadyPending;
@@ -23,7 +24,7 @@ namespace SocialPoint.Lockstep
         {
             get
             {
-                return _client.Connected && _clientLockstep.Running;
+                return Network.Connected && Lockstep.Running;
             }
         }
 
@@ -33,12 +34,12 @@ namespace SocialPoint.Lockstep
         {
             get
             {
-                return _clientLockstep.PlayerNumber;
+                return Lockstep.PlayerNumber;
             }
 
             private set
             {
-                _clientLockstep.PlayerNumber = value;
+                Lockstep.PlayerNumber = value;
             }
         }
 
@@ -60,13 +61,13 @@ namespace SocialPoint.Lockstep
         public LockstepNetworkClient(INetworkClient client, LockstepClient clientLockstep, LockstepCommandFactory factory)
         {
             PlayerId = RandomUtils.GenerateSecurityToken();
-            _client = client;
-            _clientLockstep = clientLockstep;
-            _commandFactory = factory;
+            Network = client;
+            Lockstep = clientLockstep;
+            CommandFactory = factory;
 
-            _client.RegisterReceiver(this);
-            _client.AddDelegate(this);
-            _clientLockstep.CommandAdded += OnCommandAdded;
+            Network.RegisterReceiver(this);
+            Network.AddDelegate(this);
+            Lockstep.CommandAdded += OnCommandAdded;
         }
 
         public void RegisterReceiver(INetworkMessageReceiver receiver)
@@ -128,14 +129,14 @@ namespace SocialPoint.Lockstep
         {
             var emptyTurns = new EmptyTurnsMessage();
             emptyTurns.Deserialize(reader);
-            _clientLockstep.AddConfirmedEmptyTurns(emptyTurns);
+            Lockstep.AddConfirmedEmptyTurns(emptyTurns);
         }
 
         void OnTurnReceived(IReader reader)
         {
             var turn = new ClientTurnData();
-            turn.Deserialize(_commandFactory, reader);
-            _clientLockstep.AddConfirmedTurn(turn);
+            turn.Deserialize(CommandFactory, reader);
+            Lockstep.AddConfirmedTurn(turn);
         }
 
         void OnClientSetupReceived(IReader reader)
@@ -143,10 +144,10 @@ namespace SocialPoint.Lockstep
             var msg = new ClientSetupMessage();
             msg.Deserialize(reader);
             _clientSetupReceived = true;
-            if(_clientLockstep != null)
+            if(Lockstep != null)
             {
-                _clientLockstep.Config = msg.Config;
-                _clientLockstep.GameParams = msg.GameParams;
+                Lockstep.Config = msg.Config;
+                Lockstep.GameParams = msg.GameParams;
             }
             TrySendPlayerReady();
         }
@@ -155,11 +156,11 @@ namespace SocialPoint.Lockstep
         {
             var msg = new ClientStartMessage();
             msg.Deserialize(reader);
-            var time = msg.StartTime + _client.GetDelay(msg.ServerTimestamp);
+            var time = msg.StartTime + Network.GetDelay(msg.ServerTimestamp);
             _playerIds = msg.PlayerIds;
             PlayerNumber =  (byte)_playerIds.IndexOf(PlayerId);
 
-            _clientLockstep.Start(time);
+            Lockstep.Start(time);
 
             if(StartScheduled != null)
             {
@@ -175,7 +176,7 @@ namespace SocialPoint.Lockstep
             {
                 EndReceived(msg.Data);
             }
-            _clientLockstep.Stop();
+            Lockstep.Stop();
         }
 
         public void SendPlayerReady()
@@ -186,16 +187,16 @@ namespace SocialPoint.Lockstep
 
         void TrySendPlayerReady()
         {
-            if(!_client.Connected || !_clientSetupReceived)
+            if(!Network.Connected || !_clientSetupReceived)
             {
                 return;
             }
             if(_sendPlayerReadyPending)
             {
                 _sendPlayerReadyPending = false;
-                _client.SendMessage(new NetworkMessageData {
+                Network.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.PlayerReady,
-                }, new PlayerReadyMessage(PlayerId, _clientLockstep.CurrentTurnNumber));
+                }, new PlayerReadyMessage(PlayerId, Lockstep.CurrentTurnNumber));
               if(PlayerReadySent != null)
                 {
                     PlayerReadySent();
@@ -205,11 +206,11 @@ namespace SocialPoint.Lockstep
 
         public void SendPlayerFinish(Attr data)
         {
-            if(!_clientLockstep.Running)
+            if(!Lockstep.Running)
             {
                 return;
             }
-            _client.SendMessage(new NetworkMessageData{
+            Network.SendMessage(new NetworkMessageData{
                 MessageType = LockstepMsgType.PlayerFinish
             }, new AttrMessage(data));
             if(PlayerFinishSent != null)
@@ -220,20 +221,20 @@ namespace SocialPoint.Lockstep
 
         void OnCommandAdded(ClientCommandData command)
         {
-            var msg = _client.CreateMessage(new NetworkMessageData {
+            var msg = Network.CreateMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.Command,
             });
-            command.Serialize(_commandFactory, msg.Writer);
+            command.Serialize(CommandFactory, msg.Writer);
             msg.Send();
         }
 
         public void Dispose()
         {
-            _client.RegisterReceiver(null);
-            _client.RemoveDelegate(this);
-            if(_clientLockstep != null)
+            Network.RegisterReceiver(null);
+            Network.RemoveDelegate(this);
+            if(Lockstep != null)
             {
-                _clientLockstep.CommandAdded -= OnCommandAdded;
+                Lockstep.CommandAdded -= OnCommandAdded;
             }
         }
     }

@@ -10,7 +10,7 @@ namespace SocialPoint.Network
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         INetworkMessageReceiver _receiver;
 
-        public void Start()
+        void INetworkServer.Start()
         {
             DoConnect();
         }

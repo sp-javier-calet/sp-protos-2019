@@ -70,8 +70,9 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
         });
 
         layout.CreateButton("Send message", () => {
-            foreach(var st in _streams)
+            for(int i = 0, _streamsCount = _streams.Count; i < _streamsCount; i++)
             {
+                var st = _streams[i];
                 if(st.Stream.Active)
                 {
                     st.Stream.SendData(Encode("Message"));
@@ -116,9 +117,10 @@ public sealed class AdminPanelHttpStream : IAdminPanelConfigurer, IAdminPanelGUI
 
         layout.CreateLabel("Active streams");
 
-        foreach(var data in _streams)
+        for(int i = 0, _streamsCount = _streams.Count; i < _streamsCount; i++)
         {
-            layout.CreateToggleButton(data.Name, data.Stream.Active, (value) => {
+            var data = _streams[i];
+            layout.CreateToggleButton(data.Name, data.Stream.Active, value =>  {
                 if(!value)
                 {
                     data.Stream.Cancel();
