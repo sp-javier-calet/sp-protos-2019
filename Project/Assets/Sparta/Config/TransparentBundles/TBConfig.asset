@@ -11,4 +11,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31a60a9050e85924f9f89ebc2d51d1da, type: 3}
   m_Name: TBConfig
   m_EditorClassIdentifier: 
-  project: 
+  project: basegame
