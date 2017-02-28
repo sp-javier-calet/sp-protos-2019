@@ -28,8 +28,6 @@ namespace SocialPoint.Base
         {
             set
             {
-                if(DebugUtils.IsDebugBuild)
-                {
                     if(string.IsNullOrEmpty(value))
                     {
                         PlayerPrefs.DeleteKey(SelectedBackendEnvPrefsKey);
@@ -38,12 +36,10 @@ namespace SocialPoint.Base
                     {
                         PlayerPrefs.SetString(SelectedBackendEnvPrefsKey, value);
                     }
-                }
             }
             get
             {
-                var stored = PlayerPrefs.GetString(SelectedBackendEnvPrefsKey);
-                return DebugUtils.IsDebugBuild ? stored : null;
+                return PlayerPrefs.GetString(SelectedBackendEnvPrefsKey);
             }
         }
     }

@@ -42,11 +42,16 @@ namespace SocialPoint.Base
                 }
                 return null;
             }
+<<<<<<< HEAD
+            string savedEnv = EnvironmentSerializer.Load();
+			if(savedEnv.Length > 0 && _map.ContainsKey(savedEnv))
+=======
         }
 
         Environment DefaultEnvironment
         {
             get
+>>>>>>> origin/release/v0.23
             {
                 var defaultEnvironment = new Environment();
                 bool defaultAssigned = false;
@@ -71,6 +76,12 @@ namespace SocialPoint.Base
         {
             get
             {
+                var forced = ForcedEnvironment;
+                if(forced.HasValue)
+                {
+                    return forced.Value;
+                }
+                
                 return DefaultEnvironment;
             }
         }

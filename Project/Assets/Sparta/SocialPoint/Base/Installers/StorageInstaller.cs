@@ -22,6 +22,12 @@ namespace SocialPoint.Base
 
         public override void InstallBindings()
         {		
+            #if ADMIN_PANEL
+            string envName = Services.Instance.Resolve<BackendEnvironment>().GetEnvironment().Name;
+            Settings.VolatilePrefix = envName;
+            Settings.PersistentPrefix = envName;
+            #endif
+
             Container.Bind<IAttrStorage>(VolatileTag).ToMethod<PlayerPrefsAttrStorage>(CreateVolatileStorage);
             Container.Bind<IAttrStorage>(PersistentTag).ToMethod<TransitionAttrStorage>(CreatePersistentStorage);
 
