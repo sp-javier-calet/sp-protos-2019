@@ -50,18 +50,6 @@ namespace SocialPoint.Lockstep
             _netServer.SendMetric = PluginEventTracker.SendMetric;
             _netServer.SendLog = PluginEventTracker.SendLog;
             _netServer.SendTrack = PluginEventTracker.SendTrack;
-            _netServer.MatchStarted += OnMatchStarted;
-            _netServer.MatchFinished += OnMatchFinished;
-        }
-
-        private void OnMatchFinished(Dictionary<byte, Attributes.Attr> obj)
-        {
-            PluginEventTracker.SendMetric(new Metric(MetricType.Counter, "photon.match_end", 1));
-        }
-
-        private void OnMatchStarted(byte[] obj)
-        {
-            PluginEventTracker.SendMetric(new Metric(MetricType.Counter, "photon.match_start", 1));
         }
 
         void OnBeforeMatchStarts()

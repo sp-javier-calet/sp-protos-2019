@@ -588,7 +588,9 @@ namespace SocialPoint.Lockstep
         void DoStartLockstep()
         {
             _serverLockstep.Start(ServerConfig.ClientSimulationDelay - ServerConfig.ClientStartDelay);
-            for(var i = 0; i < _clients.Count; i++)
+            SendMetric(new Metric(MetricType.Counter, "photon.match_start", 1), null);
+            SendTrack("photon.match_start", null, null);
+            for (var i = 0; i < _clients.Count; i++)
             {
                 var client = _clients[i];
                 _server.SendMessage(new NetworkMessageData {
@@ -675,10 +677,6 @@ namespace SocialPoint.Lockstep
 
         void OnError(Error err)
         {
-            if(SendLog != null)
-            {
-                SendLog(new Photon.ServerEvents.Log(LogLevel.Error, err.Msg, ""), null);
-            }
             if (ErrorProduced != null)
             {
                 ErrorProduced(err);

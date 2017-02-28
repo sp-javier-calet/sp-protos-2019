@@ -346,6 +346,7 @@ namespace SocialPoint.Network
 
         void BroadcastError(Error err)
         {
+            PluginEventTracker.SendLog(new Photon.ServerEvents.Log(LogLevel.Error, err.Msg, ""), null);
             var dic = new Dictionary<byte, object>();
             dic.Add(EventContentParam, err.ToString());
             BroadcastEvent(FailEventCode, dic);

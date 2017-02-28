@@ -36,7 +36,7 @@ namespace SocialPoint.Photon.ServerEvents
         public Attr ToAttr()
         {
             var dic = new AttrDic();
-            dic.SetValue(AttrKeyLevel, Level.ToString());
+            dic.SetValue(AttrKeyLevel, Level.ToString().ToLower());
             dic.SetValue(AttrKeyMessage, Message);
             dic.SetValue(AttrKeyContext, Context);
             return dic;

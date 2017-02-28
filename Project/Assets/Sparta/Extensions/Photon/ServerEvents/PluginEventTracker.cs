@@ -64,6 +64,10 @@ namespace SocialPoint.Photon.ServerEvents
 
         void DoSendMetrics()
         {
+            if(_pendingMetrics.Count == 0)
+            {
+                return;
+            }
             var req = new HttpRequest();
             if(SetupRequest != null)
             {
@@ -81,7 +85,8 @@ namespace SocialPoint.Photon.ServerEvents
                     metrics.Add(metric.ToAttr());
                     sendMetrics.Add(metric);
                 }
-                metricsData.Set(key.ToString(), metrics);
+                var dicKey = key.ToString().ToLower() + "s";
+                metricsData.Set(dicKey, metrics);
             }
             req.Body = new JsonAttrSerializer().Serialize(metricsData);
             _httpClient.Send(req, (r) => OnMetricResponse(r, sendMetrics));
@@ -100,10 +105,9 @@ namespace SocialPoint.Photon.ServerEvents
             }
         }
 
-        //TODO: ask if there is some server_id required for this tracks
         public void SendTrack(string eventName, AttrDic data = null, ErrorDelegate del = null)
         {
-            var ev = new Event(eventName, data, del);
+            var ev = new Event(eventName, data?? new AttrDic(), del);
             _pendingEvents.Add(ev);
         }
 
@@ -114,6 +118,10 @@ namespace SocialPoint.Photon.ServerEvents
 
         void DoSendTracks()
         {
+            if(_pendingEvents.Count == 0)
+            {
+                return;
+            }
             var req = new HttpRequest();
             if(SetupRequest != null)
             {
@@ -127,6 +135,10 @@ namespace SocialPoint.Photon.ServerEvents
                 var ev = events[i];
                 eventsAttr.Add(ev.ToAttr());
             }
+            var common = new AttrDic();
+            common.Set("plat", new AttrString("photon"));
+            common.Set("ver", new AttrString("1"));
+            track.Set("common",common);
             track.Set("events", eventsAttr);
             req.Body = new JsonAttrSerializer().Serialize(track);
             _httpClient.Send(req, r => OnSendEventResponse(r, events));
@@ -156,7 +168,15 @@ namespace SocialPoint.Photon.ServerEvents
                 SetupRequest(req, LogUri);
             }
             req.Body = new JsonAttrSerializer().Serialize(log.ToAttr());
-            _httpClient.Send(req, r => del(r.Error));
+            _httpClient.Send(req, r => OnSendLogResponse(r, del));
+        }
+
+        void OnSendLogResponse(HttpResponse resp, ErrorDelegate del)
+        {
+            if(del != null)
+            {
+                del(resp.Error);
+            }
         }
 
     }

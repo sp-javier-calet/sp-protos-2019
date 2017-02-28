@@ -30,7 +30,7 @@ namespace SocialPoint.Network
         void SetupHttpRequest(HttpRequest req, string uri)
         {
             Uri url;
-            Uri.TryCreate("http://example.com" + uri, UriKind.Absolute, out url);
+            Uri.TryCreate("https://lodx.socialpointgames.com" + uri, UriKind.Absolute, out url);
             req.Url = url;
         }
 
@@ -58,8 +58,8 @@ namespace SocialPoint.Network
         public void RequestIsSetUp()
         {
             EventTracker.Update();
-            HttpClient.Received(1).Send(Arg.Is<HttpRequest>(r => r.Url.AbsoluteUri == "http://example.com/api/v3/rtmp/metrics"), Arg.Any<HttpResponseDelegate>());
-            HttpClient.Received(1).Send(Arg.Is<HttpRequest>(r => r.Url.AbsoluteUri == "http://example.com/api/v3/rtmp/tracks"), Arg.Any<HttpResponseDelegate>());
+            HttpClient.Received(1).Send(Arg.Is<HttpRequest>(r => r.Url.AbsoluteUri == "https://lodx.socialpointgames.com/api/v3/rtmp/metrics"), Arg.Any<HttpResponseDelegate>());
+            HttpClient.Received(1).Send(Arg.Is<HttpRequest>(r => r.Url.AbsoluteUri == "https://lodx.socialpointgames.com/api/v3/rtmp/tracks"), Arg.Any<HttpResponseDelegate>());
         }
 
         [Test]
