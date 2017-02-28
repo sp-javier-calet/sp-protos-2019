@@ -103,7 +103,17 @@ namespace SocialPoint.Locale
 
         LocalizationManager CreateLocalizationManager()
         {
+            #if NGUI
+            SocialPoint.Locale.LocalizationManager.CsvLoadedDelegate objectDelegate = new SocialPoint.Locale.LocalizationManager.CsvLoadedDelegate(LoadNGUICSV);
+            return new LocalizationManager(LocalizationManager.CsvMode.WriteCsvWithAllSupportedLanguages,objectDelegate);;
+            #else
             return new LocalizationManager();
+            #endif
+        }
+
+        void LoadNGUICSV(byte[] bytes)
+        {
+            NGUILocalization.LoadCSV(bytes);
         }
 
         void SetupLocalizationManager(LocalizationManager mng)

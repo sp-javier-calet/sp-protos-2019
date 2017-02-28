@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Collections;
 
 namespace SocialPoint.AdminPanel
 {
@@ -46,7 +47,12 @@ namespace SocialPoint.AdminPanel
             return CreateButton(label, ButtonColor.Default, onClick, enabled);
         }
 
-        public Button CreateButton(string label, ButtonColor buttonColor, Action onClick, bool enabled = true)
+        public Button CreateButtonWithIcon(string label, Action onClick, string imagePath, bool enabled = true)
+        {
+            return CreateButton(label, ButtonColor.Default, onClick, enabled, imagePath);
+        }
+
+        public Button CreateButton(string label, ButtonColor buttonColor, Action onClick, bool enabled = true, string imagePath = null)
         {
             var rectTransform = CreateUIObject("Admin Panel - Button", Parent);
           
@@ -55,7 +61,7 @@ namespace SocialPoint.AdminPanel
             layoutElement.flexibleWidth = 1;
 
             var image = rectTransform.gameObject.AddComponent<Image>();
-            image.color = enabled ? buttonColor.Color : ButtonColor.Disabled.Color;
+            SetImageIcon(image, enabled, buttonColor, imagePath);
             
             var button = rectTransform.gameObject.AddComponent<Button>();
             button.targetGraphic = image;
@@ -71,6 +77,24 @@ namespace SocialPoint.AdminPanel
             CreateButtonLabel(label, rectTransform, FontStyle.Normal, enabled);
 
             return button;
+        }
+
+        void LoadAsync(string path, RawImage image)
+        {
+            image.texture = Resources.Load(path) as Texture;
+        }
+
+        void SetImageIcon(Image image, bool enabled, ButtonColor buttonColor, string imagePath)
+        {
+            image.color = enabled ? buttonColor.Color : ButtonColor.Disabled.Color;
+            if(imagePath != null)
+            {
+                var iconImage = new GameObject();
+                iconImage.transform.parent = image.transform;
+                iconImage.transform.localPosition = new Vector3(50, 0, 0);
+                RawImage uitexture = iconImage.AddComponent<RawImage>();
+                uitexture.texture = Resources.Load(imagePath) as Texture;
+            }
         }
 
 
