@@ -271,13 +271,19 @@ namespace SocialPoint.Dependency.Graph
 
         public IEnumerator<Node> GetEnumerator()
         {
-            foreach(var type in Bindings.Values)
+            var itr = Bindings.Values.GetEnumerator();
+            while(itr.MoveNext())
             {
-                foreach(var node in type.Values)
+                var type = itr.Current;
+                var itr2 = type.Values.GetEnumerator();
+                while(itr2.MoveNext())
                 {
+                    var node = itr2.Current;
                     yield return node;
                 }
+                itr2.Dispose();
             }
+            itr.Dispose();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
@@ -537,44 +543,61 @@ namespace SocialPoint.Dependency.Graph
             .Append("Instigator: ").AppendLine(Instigator != null ? Instigator.Class ?? "<none>" : "<none>")
             .AppendLine(CreationStack ?? string.Empty).AppendLine();
             content.AppendLine("History:");
-            foreach(var h in History)
+            for(int i = 0, HistoryCount = History.Count; i < HistoryCount; i++)
             {
+                var h = History[i];
                 content.AppendLine(h.ToString());
             }
             content.AppendLine();
             content.AppendLine("Dependencies:");
-            foreach(var dep in Outcoming)
+
+            var iter = Outcoming.GetEnumerator();
+            while(iter.MoveNext())
             {
+                var dep = iter.Current;
                 content.AppendLine(dep.Class);
             }
+            iter.Dispose();
             content.AppendLine();
 
             content.AppendLine("Needed for;");
-            foreach(var dep in Incoming)
+            iter = Incoming.GetEnumerator();
+            while(iter.MoveNext())
             {
+                var dep = iter.Current;
                 content.AppendLine(dep.Class);
             }
+            iter.Dispose();
             content.AppendLine();
 
             content.AppendLine("Implements:");
-            foreach(var dep in Implements)
+            iter = Implements.GetEnumerator();
+            while(iter.MoveNext())
             {
+                var dep = iter.Current;
                 content.AppendLine(dep.Class);
             }
+            iter.Dispose();
             content.AppendLine();
 
             content.AppendLine("Aliases:");
-            foreach(var dep in Aliases)
+            iter = Aliases.GetEnumerator();
+            while(iter.MoveNext())
             {
+                var dep = iter.Current;
                 content.AppendLine(dep.Class);
             }
+            iter.Dispose();
             content.AppendLine();
 
             content.AppendLine("Defines:");
-            foreach(var dep in Definitions)
+            iter = Definitions.GetEnumerator();
+            while(iter.MoveNext())
             {
+                var dep = iter.Current;
                 content.AppendLine(dep.Class);
             }
+            iter.Dispose();
             content.AppendLine("##########");
             return content.ToString();
         }

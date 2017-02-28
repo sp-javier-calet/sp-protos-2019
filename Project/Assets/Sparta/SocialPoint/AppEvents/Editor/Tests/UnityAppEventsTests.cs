@@ -37,7 +37,6 @@ namespace SocialPoint.AppEvents
             UnityAppEvent.WasCovered += action;
             SendMessage(UnityAppEvent, "OnApplicationFocus", true);
             action.ReceivedWithAnyArgs(1).Invoke();
-
         }
 
         [Test]
@@ -59,7 +58,7 @@ namespace SocialPoint.AppEvents
         [Test]
         public void OnApplicationPause_False_WasOnBackground_Raised()
         {
-            UnityAppEvent.WasOnBackground += action;
+            UnityAppEvent.WasOnBackground.Add(0, action);
             SendMessage(UnityAppEvent, "OnApplicationPause", false);
             action.ReceivedWithAnyArgs(1).Invoke();
         }

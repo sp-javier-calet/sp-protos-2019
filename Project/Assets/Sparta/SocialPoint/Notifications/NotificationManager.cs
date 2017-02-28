@@ -68,7 +68,7 @@ namespace SocialPoint.Notifications
             _appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
             _appEvents.WillGoBackground.Add(-50, ScheduleNotifications);
             _appEvents.ApplicationQuit += ScheduleNotifications;
-            _appEvents.WasOnBackground += ClearNotifications;
+            _appEvents.WasOnBackground.Add(0, ClearNotifications);
             _appEvents.WasCovered += ClearNotifications;
             Services.RegisterForRemoteToken(OnPushTokenReceived);
             Reset();
@@ -81,7 +81,7 @@ namespace SocialPoint.Notifications
             _appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
             _appEvents.WillGoBackground.Remove(ScheduleNotifications);
             _appEvents.ApplicationQuit -= ScheduleNotifications;
-            _appEvents.WasOnBackground -= ClearNotifications;
+            _appEvents.WasOnBackground.Remove(ClearNotifications);
             _appEvents.WasCovered -= ClearNotifications;
         }
 
