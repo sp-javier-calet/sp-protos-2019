@@ -2,11 +2,8 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using SocialPoint.AdminPanel;
-using SocialPoint.Attributes;
-using SocialPoint.IO;
 using UnityEngine;
 
 namespace SocialPoint.AssetBundlesClient
@@ -14,6 +11,8 @@ namespace SocialPoint.AssetBundlesClient
     public sealed class AdminPanelAssetBundleManager : IAdminPanelConfigurer, IAdminPanelGUI
     {
         readonly AssetBundleManager _assetBundleManager;
+        readonly LocalAssetBundleManager _localAssetBundleManager;
+
         AdminPanelConsole _console;
         AdminPanelLayout _layout;
 
@@ -29,6 +28,7 @@ namespace SocialPoint.AssetBundlesClient
         public AdminPanelAssetBundleManager(AssetBundleManager assetBundleManager)
         {
             _assetBundleManager = assetBundleManager;
+            _localAssetBundleManager = Reflection.GetPrivateField<AssetBundleManager, LocalAssetBundleManager>(_assetBundleManager, "_localAssetBundleManager");
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -64,7 +64,9 @@ namespace SocialPoint.AssetBundlesClient
 
             AddDownloadingErrorsPanel();
             AddLoadedAssetBundlesPanel();
-            AddAssetBundlesParsedDataPanel();
+            AddAssetBundlesParsedDataPanel(true);
+            AddAssetBundlesParsedDataPanel(false);
+
         }
 
         void AddCleanCacheButton()
@@ -83,6 +85,11 @@ namespace SocialPoint.AssetBundlesClient
             return Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_assetBundlesParsedData");
         }
 
+        AssetBundlesParsedData GetLocalAssetBundlesParsedDataReflection()
+        {
+            return Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_localAssetBundleManager, "_assetBundlesParsedData");
+        }
+
         void FillFoldoutLists()
         {
             if(_scenes.Count > 0 || _prefabs.Count > 0)
@@ -93,21 +100,11 @@ namespace SocialPoint.AssetBundlesClient
             var assetBundlesParsedData = GetAssetBundlesParsedDataReflection();
             if(assetBundlesParsedData.Count == 0)
             {
-                _console.Print("There is no Asset Bundles data parsed from the config manager. Trying to load local bundles instead.");
-                _assetBundleManager.Init();
-                assetBundlesParsedData = GetAssetBundlesParsedDataReflection();
-                if(assetBundlesParsedData.Count == 0)
-                {
-                    _console.Print("There is no Asset Bundles data parsed from the streaming assets folder neither.");
-                }
-                else
-                {
-                    _console.Print("Local Bundles Data loaded from Streaming Assets.");
-                }
+                _console.Print("There is no Asset Bundles data parsed from the config manager.");
+                _console.Print("Trying to load local bundles instead.");
+                assetBundlesParsedData = GetLocalAssetBundlesParsedDataReflection();
             }
 
-            // request for assetBundlesParsedData again
-            assetBundlesParsedData = GetAssetBundlesParsedDataReflection();
             var iter = assetBundlesParsedData.GetEnumerator();
             while(iter.MoveNext())
             {
@@ -127,12 +124,20 @@ namespace SocialPoint.AssetBundlesClient
 
         void AddBasicInfo()
         {
+            var baseDownloadingURL = Reflection.GetPrivateField<AssetBundleManager, string>(_assetBundleManager, "_baseDownloadingURL");
+
+            var localBaseDownloadingURL = Reflection.GetPrivateField<AssetBundleManager, string>(_localAssetBundleManager, "_baseDownloadingURL");
+
             var content = new StringBuilder();
             content.AppendLine("Server: " + _assetBundleManager.Server);
             content.AppendLine("Game: " + _assetBundleManager.Game);
             content.AppendLine("Platorm: " + Utility.GetPlatformName());
-            _layout.CreateVerticalLayout().CreateTextArea(content.ToString());
+            content.AppendLine("BaseDownloadingURL: " + baseDownloadingURL);
+            content.AppendLine();
+            content.AppendLine("Local BaseDownloadingURL: " + localBaseDownloadingURL);
+            content.AppendLine();
 
+            _layout.CreateVerticalLayout().CreateTextArea(content.ToString());
             _layout.CreateMargin();
         }
 
@@ -160,12 +165,12 @@ namespace SocialPoint.AssetBundlesClient
             _layout.CreateMargin();
         }
 
-        void AddAssetBundlesParsedDataPanel()
+        void AddAssetBundlesParsedDataPanel(bool isLocal)
         {
-            var assetBundlesParsedData = GetAssetBundlesParsedDataReflection();
+            var assetBundlesParsedData = isLocal ? GetLocalAssetBundlesParsedDataReflection() : GetAssetBundlesParsedDataReflection();
             if(assetBundlesParsedData.Count > 0)
             {
-                _layout.CreateLabel("AssetBundlesParsedData");
+                _layout.CreateLabel(isLocal ? "LocalAssetBundlesParsedData" : "AssetBundlesParsedData");
                 var content = new StringBuilder();
                 var iter = assetBundlesParsedData.GetEnumerator();
                 while(iter.MoveNext())

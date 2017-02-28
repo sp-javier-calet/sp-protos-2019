@@ -2,6 +2,7 @@
 using NSubstitute;
 using NUnit.Framework;
 using SocialPoint.AdminPanel;
+using SocialPoint.Attributes;
 using SocialPoint.Utils;
 using UnityEngine;
 
@@ -23,7 +24,8 @@ namespace SocialPoint.AssetBundlesClient
             _assetBundleManager.Scheduler = Substitute.For<IUpdateScheduler>();
             _assetBundleManager.CoroutineRunner = Substitute.For<ICoroutineRunner>();
 
-            _assetBundleManager.Init();
+            var data = new AttrDic();
+            _assetBundleManager.Init(data);
 
             _loadLevelOperation = Substitute.For<Action<AssetBundleLoadLevelOperation>>();
             _loadAssetOperation = Substitute.For<Action<AssetBundleLoadAssetOperation>>();

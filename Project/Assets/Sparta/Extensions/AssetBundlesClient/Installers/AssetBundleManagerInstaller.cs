@@ -49,6 +49,7 @@ namespace SocialPoint.AssetBundlesClient
 
             mng.Scheduler = Container.Resolve<IUpdateScheduler>();
             mng.CoroutineRunner = Container.Resolve<ICoroutineRunner>();
+            mng.Setup();
         }
     }
 }

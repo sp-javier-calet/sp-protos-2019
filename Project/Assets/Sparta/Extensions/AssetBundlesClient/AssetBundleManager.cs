@@ -40,7 +40,7 @@ namespace SocialPoint.AssetBundlesClient
 
     public class LocalAssetBundleManager : AssetBundleManager
     {
-        public override void Init(Attr data = null)
+        public override void Setup()
         {
             _baseDownloadingURL = Path.Combine(PathsManager.StreamingAssetsPath, Utility.GetPlatformName());
             _assetBundlesParsedData = LoadBundleData(GetLocalBundlesDataAttrList());
@@ -137,13 +137,20 @@ namespace SocialPoint.AssetBundlesClient
             }
         }
 
-        public virtual void Init(Attr data = null)
+        public virtual void Setup()
         {
             // http://s3.amazonaws.com/int-sp-static-content/static/basegame/android_etc/1/test_scene_unity
             _baseDownloadingURL = string.Format("{0}/{1}/{2}/", Server, Game, Utility.GetPlatformName());
-
             DebugLog("BaseDownloadingURL: " + _baseDownloadingURL);
 
+            _localAssetBundleManager = new LocalAssetBundleManager();
+            _localAssetBundleManager.Scheduler = Scheduler;
+            _localAssetBundleManager.CoroutineRunner = CoroutineRunner;
+            _localAssetBundleManager.Setup();
+        }
+
+        public void Init(Attr data)
+        {
             const string configKey = "config";
             const string bundleDataKey = "bundle_data";
 
@@ -160,11 +167,6 @@ namespace SocialPoint.AssetBundlesClient
                     }
                 }
             }
-
-            _localAssetBundleManager = new LocalAssetBundleManager();
-            _localAssetBundleManager.Scheduler = Scheduler;
-            _localAssetBundleManager.CoroutineRunner = CoroutineRunner;
-            _localAssetBundleManager.Init();
         }
 
         protected static AttrList GetLocalBundlesDataAttrList()
@@ -313,8 +315,11 @@ namespace SocialPoint.AssetBundlesClient
                     }
                 }
                 iter.Dispose();
+                return bundle;
             }
-            return bundle;
+
+            error = string.Format("Failed parse bundle {0}", assetBundleName);
+            return null;
         }
 
         /// <summary>
