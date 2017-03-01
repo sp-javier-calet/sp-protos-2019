@@ -1,8 +1,10 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System;
 
 
 public class AppsFlyerTrackerCallbacks : MonoBehaviour {
+
+    public Action<string> OnConversionDataReceived;
 	
 	// Use this for initialization
 	void Start () {
@@ -10,13 +12,12 @@ public class AppsFlyerTrackerCallbacks : MonoBehaviour {
 		
 	}
 	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-	
 	public void didReceiveConversionData(string conversionData) {
 		print ("AppsFlyerTrackerCallbacks:: got conversion data = " + conversionData);
+        if(OnConversionDataReceived != null)
+        {
+            OnConversionDataReceived(conversionData);
+        }
 	}
 	
 	public void didReceiveConversionDataWithError(string error) {
