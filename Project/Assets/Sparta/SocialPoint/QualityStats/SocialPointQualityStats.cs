@@ -363,9 +363,9 @@ namespace SocialPoint.QualityStats
             var dict = new AttrDic();
 
             dict.SetValue("max_texture_size", deviceInfo.MaxTextureSize);
-            dict.SetValue("screen_width", deviceInfo.ScreenSize.x);
-            dict.SetValue("screen_height", deviceInfo.ScreenSize.y);
-            dict.SetValue("screen_dpi", deviceInfo.ScreenDpi);
+            dict.SetValue("screen_width", (int)deviceInfo.ScreenSize.x);
+            dict.SetValue("screen_height", (int)deviceInfo.ScreenSize.y);
+            dict.SetValue("screen_dpi", (int)deviceInfo.ScreenDpi);
             dict.SetValue("cpu_cores", deviceInfo.CpuCores);
             dict.SetValue("cpu_freq", deviceInfo.CpuFreq);
             dict.SetValue("cpu_model", deviceInfo.CpuModel);
