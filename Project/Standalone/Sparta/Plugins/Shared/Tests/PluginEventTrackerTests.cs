@@ -23,17 +23,9 @@ namespace SocialPoint.Network
             HttpClient = Substitute.For<IHttpClient>();
             HttpClient.Send(Arg.Any<HttpRequest>(), Arg.InvokeDelegate<HttpResponseDelegate>(new HttpResponse(200)));
             EventTracker = new PluginEventTracker(Scheduler, HttpClient);
-            EventTracker.SetupRequest = SetupHttpRequest;
+            EventTracker.BaseUrl = "https://lodx.socialpointgames.com/api/v3/";
             EventTracker.Start();
         }
-
-        void SetupHttpRequest(HttpRequest req, string uri)
-        {
-            Uri url;
-            Uri.TryCreate("https://lodx.socialpointgames.com" + uri, UriKind.Absolute, out url);
-            req.Url = url;
-        }
-
         [Test]
         public void Start()
         {
@@ -50,13 +42,19 @@ namespace SocialPoint.Network
         [Test]
         public void UpdateCallsSend()
         {
+            EventTracker.SendTrack("Test");
+            var metric = new Metric(MetricType.Counter, "Tests", 1);
+            EventTracker.SendMetric(metric);
             EventTracker.Update();
-            HttpClient.Received(2).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
+            HttpClient.Received(3).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
         }
 
         [Test]
         public void RequestIsSetUp()
         {
+            EventTracker.SendTrack("Test");
+            var metric = new Metric(MetricType.Counter, "Tests", 1);
+            EventTracker.SendMetric(metric);
             EventTracker.Update();
             HttpClient.Received(1).Send(Arg.Is<HttpRequest>(r => r.Url.AbsoluteUri == "https://lodx.socialpointgames.com/api/v3/rtmp/metrics"), Arg.Any<HttpResponseDelegate>());
             HttpClient.Received(1).Send(Arg.Is<HttpRequest>(r => r.Url.AbsoluteUri == "https://lodx.socialpointgames.com/api/v3/rtmp/tracks"), Arg.Any<HttpResponseDelegate>());
@@ -71,7 +69,7 @@ namespace SocialPoint.Network
             Predicate<HttpRequest> pred = delegate (HttpRequest req)
             {
                 var data = new JsonAttrParser().Parse(req.Body).AsDic;
-                return data.ContainsKey(MetricType.Counter.ToString());
+                return data.ContainsKey(MetricType.Counter.ToString().ToLower() + "s");
             };
             HttpClient.Received().Send(Arg.Is<HttpRequest>(r => pred(r)), Arg.Any<HttpResponseDelegate>());
         }
@@ -104,9 +102,9 @@ namespace SocialPoint.Network
             Predicate<HttpRequest> pred = delegate (HttpRequest req)
             {
                 var data = new JsonAttrParser().Parse(req.Body).AsDic;
-                if(data.ContainsKey(MetricType.Counter.ToString()))
+                if(data.ContainsKey(MetricType.Counter.ToString().ToLower() + "s"))
                 {
-                    return data[MetricType.Counter.ToString()].AsList.Count > 0;
+                    return data[MetricType.Counter.ToString().ToLower() + "s"].AsList.Count > 0;
                 }
                 return false;
             };
@@ -140,12 +138,19 @@ namespace SocialPoint.Network
         }
 
         [Test]
+        public void SendLog_Immediate()
+        {
+            EventTracker.SendLog(new Log(LogLevel.Error, "TestMessage"),true);
+            HttpClient.Received(1).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
+        }
+
+        [Test]
         public void SendLog()
         {
-            var errorDel = Substitute.For<Base.ErrorDelegate>();
-            EventTracker.SendLog(new Log(LogLevel.Error, "TestMessage", "someContext"), errorDel);
+            EventTracker.SendLog(new Log(LogLevel.Error, "TestMessage"), false);
+            HttpClient.Received(0).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
+            EventTracker.Update();
             HttpClient.Received(1).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
-            errorDel.Received(1).Invoke(Arg.Any<Base.Error>());
         }
     }
 }

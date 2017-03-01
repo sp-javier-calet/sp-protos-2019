@@ -3,6 +3,7 @@ using SocialPoint.Base;
 using SocialPoint.Network;
 using SocialPoint.ServerEvents;
 using SocialPoint.Utils;
+using System;
 using System.Collections.Generic;
 
 namespace SocialPoint.Photon.ServerEvents
@@ -10,22 +11,24 @@ namespace SocialPoint.Photon.ServerEvents
     public class PluginEventTracker : IUpdateable
     {
         //TODO: specify
-        const string MetricUri = "/api/v3/rtmp/metrics";
-        const string TrackUri = "/api/v3/rtmp/tracks";
-        const string LogUri = "/api/v3/rtmp/logs";
+        const string MetricUri = "rtmp/metrics";
+        const string TrackUri = "rtmp/tracks";
+        const string LogUri = "rtmp/logs";
+
+        public string BaseUrl;
 
         public const int DefaultSendInterval = 10;
 
         public int SendInterval = DefaultSendInterval;
 
-        public delegate void SetupHttpRequestDelegate(HttpRequest req,string uri);
-
-        public SetupHttpRequestDelegate SetupRequest;
-
         IHttpClient _httpClient;
         Dictionary<MetricType, List<Metric>> _pendingMetrics;
         List<Event> _pendingEvents;
         IUpdateScheduler _updateScheduler;
+        List<Log> _pendingLogs;
+        List<Log> _sendingLogs;
+        bool _sending;
+        bool _sendAgain;
 
         public PluginEventTracker(IUpdateScheduler updateScheduler, IHttpClient httpClient)
         {
@@ -33,6 +36,8 @@ namespace SocialPoint.Photon.ServerEvents
             _httpClient = httpClient;//new ImmediateWebRequestHttpClient();
             _pendingMetrics = new Dictionary<MetricType, List<Metric>>();
             _pendingEvents = new List<Event>();
+            _pendingLogs = new List<Log>();
+            _sendingLogs = new List<Log>();
         }
 
         public void Start()
@@ -49,11 +54,12 @@ namespace SocialPoint.Photon.ServerEvents
         {
             DoSendMetrics();
             DoSendTracks();
+            DoSendLogs();
         }
 
         #endregion
 
-        public void SendMetric(Metric metric, ErrorDelegate del = null)
+        public void SendMetric(Metric metric)
         {
             if(!_pendingMetrics.ContainsKey(metric.MetricType))
             {
@@ -69,11 +75,8 @@ namespace SocialPoint.Photon.ServerEvents
                 return;
             }
             var req = new HttpRequest();
-            if(SetupRequest != null)
-            {
-                SetupRequest(req, MetricUri);
-            }
-
+            SetupRequest(req, MetricUri);
+            
             var metricsData = new AttrDic();
             var sendMetrics = new List<Metric>();
             foreach(var key in _pendingMetrics.Keys)
@@ -99,6 +102,10 @@ namespace SocialPoint.Photon.ServerEvents
                 for(int i = 0; i < sendMetrics.Count; i++)
                 {
                     var metric = sendMetrics[i];
+                    if(metric.ResponseDelegate != null)
+                    {
+                        metric.ResponseDelegate(resp.Error);
+                    }
                     _pendingMetrics[metric.MetricType].Remove(metric);
                     //TODO call metric on response delegate?
                 }
@@ -123,10 +130,7 @@ namespace SocialPoint.Photon.ServerEvents
                 return;
             }
             var req = new HttpRequest();
-            if(SetupRequest != null)
-            {
-                SetupRequest(req, TrackUri);
-            }
+            SetupRequest(req, TrackUri);
             var track = new AttrDic();
             var events = new List<Event>(_pendingEvents);
             var eventsAttr = new AttrList();
@@ -160,24 +164,69 @@ namespace SocialPoint.Photon.ServerEvents
             }
         }
 
-        public void SendLog(Log log, ErrorDelegate del = null)
+        public void SendLog(Log log, bool inmediate = false)
         {
+            _pendingLogs.Add(log);
+            if(inmediate)
+            {
+                if(_sending)
+                {
+                    _sendAgain = true;
+                }
+                else
+                {
+                    DoSendLogs();
+                }
+            }
+        }
+
+        void DoSendLogs()
+        {
+            if(_sending)
+            {
+                return;
+            }
             var req = new HttpRequest();
-            if (SetupRequest != null)
+            SetupRequest(req, LogUri);
+            var body = new AttrDic();
+            var logList = new AttrList();
+            for (int i = 0; i < _pendingLogs.Count; i++)
             {
-                SetupRequest(req, LogUri);
+                var log = _pendingLogs[i];
+                logList.Add(log.ToAttr());
+                _sendingLogs.Add(log);
             }
-            req.Body = new JsonAttrSerializer().Serialize(log.ToAttr());
-            _httpClient.Send(req, r => OnSendLogResponse(r, del));
+            _pendingLogs.Clear();
+            body.Set("logs", logList);
+            req.Body = new JsonAttrSerializer().Serialize(body);
+            _sending = true;
+            _httpClient.Send(req, r => OnSendLogResponse(r));
         }
 
-        void OnSendLogResponse(HttpResponse resp, ErrorDelegate del)
+        void OnSendLogResponse(HttpResponse resp)
         {
-            if(del != null)
+            for (int i = 0; i < _sendingLogs.Count; i++)
             {
-                del(resp.Error);
+                var log = _sendingLogs[i];
+                if (log.ResponseDelegate != null)
+                {
+                    log.ResponseDelegate(resp.Error);
+                }
+            }
+            _sending = false;
+            if(_sendAgain)
+            {
+                _sendAgain = false;
+                DoSendLogs();
             }
         }
 
+        void SetupRequest(HttpRequest req, string uri)
+        {
+            req.Method = HttpRequest.MethodType.POST;
+            Uri auxUri;
+            Uri.TryCreate(StringUtils.CombineUri(BaseUrl, uri), UriKind.Absolute, out auxUri);
+            req.Url = auxUri;
+        }
     }
 }

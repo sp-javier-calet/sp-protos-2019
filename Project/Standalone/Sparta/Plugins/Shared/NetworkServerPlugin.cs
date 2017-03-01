@@ -82,6 +82,7 @@ namespace SocialPoint.Network
             var httpServer = new ImmediateWebRequestHttpClient();
             _updateScheduler = new UpdateScheduler();
             PluginEventTracker = new PluginEventTracker(_updateScheduler, httpServer);
+            PluginEventTracker.Start();
         }
 
         /*
@@ -346,7 +347,7 @@ namespace SocialPoint.Network
 
         void BroadcastError(Error err)
         {
-            PluginEventTracker.SendLog(new Photon.ServerEvents.Log(LogLevel.Error, err.Msg, ""), null);
+            PluginEventTracker.SendLog(new Photon.ServerEvents.Log(LogLevel.Error, err.Msg), true);
             var dic = new Dictionary<byte, object>();
             dic.Add(EventContentParam, err.ToString());
             BroadcastEvent(FailEventCode, dic);

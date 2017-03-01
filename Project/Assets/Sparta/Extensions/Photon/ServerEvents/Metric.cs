@@ -23,6 +23,8 @@ namespace SocialPoint.Photon.ServerEvents
         const string AttrKeyTimestamp = "timestamp";
         const string AttrKeyTags = "tags";
 
+        public ErrorDelegate ResponseDelegate;
+
         public MetricType MetricType{ private set; get; }
 
         public string Stat{ private set; get; }
@@ -33,13 +35,14 @@ namespace SocialPoint.Photon.ServerEvents
 
         public string[] Tags{ private set; get; }
 
-        public Metric(MetricType type, string stat, int value, string[] tags = null)
+        public Metric(MetricType type, string stat, int value, string[] tags = null, ErrorDelegate responseDelegate = null)
         {
             MetricType = type;
             Stat = stat;
             Value = value;
             Time = TimeUtils.Timestamp;
             Tags = tags?? new string[] { };
+            ResponseDelegate = responseDelegate;
         }
 
         public Attr ToAttr()

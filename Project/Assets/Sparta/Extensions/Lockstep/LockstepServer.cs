@@ -24,7 +24,7 @@ namespace SocialPoint.Lockstep
         public event Action<ServerTurnData> TurnReady;
         public event Action<int> EmptyTurnsReady;
 
-        public Action<Metric, ErrorDelegate> SendMetric;
+        public Action<Metric> SendMetric;
 
         public int UpdateTime
         {
@@ -273,9 +273,9 @@ namespace SocialPoint.Lockstep
             }
             if(data.ProcessTime >= Config.CommandStepDuration)
             {
-                SendMetric(new Metric(MetricType.Counter, "photon.turn_processing_time_exceed", 1), null);
+                SendMetric(new Metric(MetricType.Counter, "photon.turn_processing_time_exceed", 1));
             }
-            SendMetric(new Metric(MetricType.Gauge, "photon.turn_processing_time", (int)data.ProcessTime), null);
+            SendMetric(new Metric(MetricType.Gauge, "photon.turn_processing_time", (int)data.ProcessTime));
         }
 
         void ConfirmLocalClientTurn(ServerTurnData turn)

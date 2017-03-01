@@ -89,9 +89,14 @@ namespace SocialPoint.Lockstep
                 ClientSimulationDelayConfig, _netServer.ServerConfig.ClientSimulationDelay);
             
             string baseUrl;
-            if(_matchmaking != null && config.TryGetValue(BackendBaseUrlConfig, out baseUrl))
+            config.TryGetValue(BackendBaseUrlConfig, out baseUrl);
+            if (_matchmaking != null && baseUrl != string.Empty)
             {
                 _matchmaking.BaseUrl = baseUrl;
+            }
+            if(PluginEventTracker != null && baseUrl != string.Empty)
+            {
+                PluginEventTracker.BaseUrl = baseUrl;
             }
 
             string gameAssembly;

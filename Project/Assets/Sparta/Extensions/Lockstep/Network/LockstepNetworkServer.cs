@@ -105,8 +105,8 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        Action<Metric, ErrorDelegate> _sendMetric;
-        public Action<Metric, ErrorDelegate> SendMetric
+        Action<Metric> _sendMetric;
+        public Action<Metric> SendMetric
         {
             get
             {
@@ -120,7 +120,7 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public Action<Photon.ServerEvents.Log, ErrorDelegate> SendLog;
+        public Action<Photon.ServerEvents.Log, bool> SendLog;
 
         public Action<string, AttrDic, ErrorDelegate> SendTrack;
 
@@ -588,7 +588,7 @@ namespace SocialPoint.Lockstep
         void DoStartLockstep()
         {
             _serverLockstep.Start(ServerConfig.ClientSimulationDelay - ServerConfig.ClientStartDelay);
-            SendMetric(new Metric(MetricType.Counter, "photon.match_start", 1), null);
+            SendMetric(new Metric(MetricType.Counter, "photon.match_start", 1));
             SendTrack("photon.match_start", null, null);
             for (var i = 0; i < _clients.Count; i++)
             {
