@@ -1,5 +1,4 @@
-#import "SPUnityAppControllerSubClass.h"
-
+#import "UnityAppController.h"
 #import <AdSupport/AdSupport.h>
 #import <UIKit/UIKit.h>
 
@@ -12,6 +11,12 @@
 #endif
 
 #include <string>
+
+@interface SPUnityAppControllerSubClass : UnityAppController
+
++ (void)load;
+
+@end
 
 @implementation SPUnityAppControllerSubClass
 

@@ -352,12 +352,15 @@ namespace SpartaTools.Editor.Build
              */
 
             // Android Keystore
-            if(Android.UseKeystore && !string.IsNullOrEmpty(Android.Keystore.Path))
+            if(Android.UseKeystore)
             {       
-                PlayerSettings.Android.keystoreName = Android.Keystore.Path;
-                PlayerSettings.Android.keystorePass = Android.Keystore.FilePassword;
-                PlayerSettings.Android.keyaliasName = Android.Keystore.Alias;
-                PlayerSettings.Android.keyaliasPass = Android.Keystore.Password;
+                if(!string.IsNullOrEmpty(Android.Keystore.Path))
+                {
+                    PlayerSettings.Android.keystoreName = Android.Keystore.Path;
+                    PlayerSettings.Android.keystorePass = Android.Keystore.FilePassword;
+                    PlayerSettings.Android.keyaliasName = Android.Keystore.Alias;
+                    PlayerSettings.Android.keyaliasPass = Android.Keystore.Password;
+                }
             }
             else
             {

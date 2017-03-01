@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 
 namespace SpartaTools.Editor.Build.XcodeEditor
 {

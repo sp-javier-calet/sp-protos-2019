@@ -9,7 +9,7 @@ import es.socialpoint.unity.notification.IntentParameters.Origin;
 
 public class PushNotificationReceiver extends BroadcastReceiver {
 
-    private static final String TAG = "PushNotificationReceiver";
+    private static final String TAG = "PushReceiver";
     
     @Override
     public void onReceive(Context context, Intent intent) {
