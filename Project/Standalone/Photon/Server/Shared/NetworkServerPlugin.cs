@@ -8,7 +8,7 @@ using SocialPoint.IO;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 using log4net;
-using SocialPoint.Photon.ServerEvents;
+using SocialPoint.Network.ServerEvents;
 
 namespace SocialPoint.Network
 {
@@ -347,7 +347,7 @@ namespace SocialPoint.Network
 
         void BroadcastError(Error err)
         {
-            PluginEventTracker.SendLog(new Photon.ServerEvents.Log(LogLevel.Error, err.Msg), true);
+            PluginEventTracker.SendLog(new Network.ServerEvents.Log(LogLevel.Error, err.Msg), true);
             var dic = new Dictionary<byte, object>();
             dic.Add(EventContentParam, err.ToString());
             BroadcastEvent(FailEventCode, dic);

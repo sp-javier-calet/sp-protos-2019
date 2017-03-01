@@ -1,7 +1,7 @@
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 
-namespace SocialPoint.Photon.ServerEvents
+namespace SocialPoint.Network.ServerEvents
 {
     public enum LogLevel
     {

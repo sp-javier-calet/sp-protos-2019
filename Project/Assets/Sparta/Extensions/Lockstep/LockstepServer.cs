@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System;
 using SocialPoint.Utils;
-using SocialPoint.Base;
-using SocialPoint.Photon.ServerEvents;
+using SocialPoint.Network.ServerEvents;
 
 namespace SocialPoint.Lockstep
 {

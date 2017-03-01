@@ -3,7 +3,7 @@ using SocialPoint.Matchmaking;
 using System;
 using System.Collections.Generic;
 using Photon.Hive.Plugin;
-using SocialPoint.Photon.ServerEvents;
+using SocialPoint.Network.ServerEvents;
 
 namespace SocialPoint.Lockstep
 {

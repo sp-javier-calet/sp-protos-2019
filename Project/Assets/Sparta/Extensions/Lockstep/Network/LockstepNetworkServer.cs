@@ -6,8 +6,7 @@ using SocialPoint.IO;
 using SocialPoint.Matchmaking;
 using SocialPoint.Network;
 using SocialPoint.Utils;
-using SocialPoint.ServerEvents;
-using SocialPoint.Photon.ServerEvents;
+using SocialPoint.Network.ServerEvents;
 
 namespace SocialPoint.Lockstep
 {
@@ -124,7 +123,7 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public Action<Photon.ServerEvents.Log, bool> SendLog;
+        public Action<Network.ServerEvents.Log, bool> SendLog;
 
         public Action<string, AttrDic, ErrorDelegate> SendTrack;
 
@@ -655,17 +654,18 @@ namespace SocialPoint.Lockstep
                 MatchFinished(results);
             }
             var resultsAttr = new AttrDic();
-            var itr = results.GetEnumerator();
-            while(itr.MoveNext())
             {
-                var playerId = FindPlayerId(itr.Current.Key);
-                if(!string.IsNullOrEmpty(playerId))
+                var itr = results.GetEnumerator();
+                while (itr.MoveNext())
                 {
-                    resultsAttr[playerId] = itr.Current.Value;
+                    var playerId = FindPlayerId(itr.Current.Key);
+                    if (!string.IsNullOrEmpty(playerId))
+                    {
+                        resultsAttr[playerId] = itr.Current.Value;
+                    }
                 }
+                itr.Dispose();
             }
-            itr.Dispose();
-
             bool corrected = false;
             var keys = originalResults.Keys.GetEnumerator();
             while(keys.MoveNext())

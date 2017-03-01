@@ -6,7 +6,7 @@ using SocialPoint.Utils;
 using System;
 using System.Collections.Generic;
 
-namespace SocialPoint.Photon.ServerEvents
+namespace SocialPoint.Network.ServerEvents
 {
     public class PluginEventTracker : IUpdateable
     {

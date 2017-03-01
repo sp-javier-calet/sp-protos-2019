@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
-using SocialPoint.ServerEvents;
 using SocialPoint.Utils;
 
-namespace SocialPoint.Photon.ServerEvents
+namespace SocialPoint.Network.ServerEvents
 {
     public enum MetricType
     {
