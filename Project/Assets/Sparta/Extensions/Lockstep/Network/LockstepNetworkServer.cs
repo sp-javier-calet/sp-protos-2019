@@ -59,6 +59,10 @@ namespace SocialPoint.Lockstep
             public byte PlayerNumber;
         }
 
+        const string MatchStartMetricName = "battle.online.photon.match_start";
+        const string MatchEndMetricName = "battle.online.photon.match_end";
+        const string MatchEndCorrectedMetricName = "battle.online.photon.match_corrected";
+
         IMatchmakingServer _matchmaking;
 
         LockstepServer _serverLockstep;
@@ -588,8 +592,8 @@ namespace SocialPoint.Lockstep
         void DoStartLockstep()
         {
             _serverLockstep.Start(ServerConfig.ClientSimulationDelay - ServerConfig.ClientStartDelay);
-            SendMetric(new Metric(MetricType.Counter, "photon.match_start", 1));
-            SendTrack("photon.match_start", null, null);
+            SendMetric(new Metric(MetricType.Counter, MatchStartMetricName, 1));
+            SendTrack(MatchStartMetricName, null, null);
             for (var i = 0; i < _clients.Count; i++)
             {
                 var client = _clients[i];
@@ -682,12 +686,12 @@ namespace SocialPoint.Lockstep
 
             if (SendMetric != null)
             {
-                SendMetric(new Metric(MetricType.Counter, corrected? "photon.match_end_corrected" : "photon.match_end", 1));
+                SendMetric(new Metric(MetricType.Counter, corrected? MatchEndCorrectedMetricName : MatchEndMetricName, 1));
             }
 
             if(SendTrack != null)
             {
-                SendTrack(corrected ? "photon.match_end_corrected" : "photon.match_end", null, null);
+                SendTrack(corrected ? MatchEndCorrectedMetricName : MatchEndMetricName, null, null);
             }
 
             _matchmaking.NotifyResults(MatchId, resultsAttr);

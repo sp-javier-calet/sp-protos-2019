@@ -8,6 +8,9 @@ namespace SocialPoint.Lockstep
 {
     public sealed class LockstepServer : IUpdateable, IDisposable
     {
+        const string TurnProcessingTimeMetricName = "battle.online.photon.turn_processing_time";
+        const string TurnProcessingTimeExceedMetricName = "battle.online.photon.turn_processing_time_exceed";
+
         int _time;
         long _timestamp;
         int _lastCmdTime;
@@ -273,9 +276,9 @@ namespace SocialPoint.Lockstep
             }
             if(data.ProcessTime >= Config.CommandStepDuration)
             {
-                SendMetric(new Metric(MetricType.Counter, "photon.turn_processing_time_exceed", 1));
+                SendMetric(new Metric(MetricType.Counter, TurnProcessingTimeExceedMetricName, 1));
             }
-            SendMetric(new Metric(MetricType.Gauge, "photon.turn_processing_time", (int)data.ProcessTime));
+            SendMetric(new Metric(MetricType.Gauge, TurnProcessingTimeMetricName, (int)data.ProcessTime));
         }
 
         void ConfirmLocalClientTurn(ServerTurnData turn)
