@@ -29,4 +29,4 @@
 
 @end
 
-IMPL_APP_CONTROLLER_SUBCLASS(AppsFlyerAppController)
+//IMPL_APP_CONTROLLER_SUBCLASS(AppsFlyerAppController)
