@@ -43,7 +43,10 @@ extern bool _unityAppReady;
 {
     if([SPUnityApplication application:application didFinishLaunchingWithOptions:launchOptions])
     {
-        [super application:application didFinishLaunchingWithOptions:launchOptions];
+        if([UnityAppController instancesRespondToSelector:@selector(application:didFinishLaunchingWithOptions:)])
+        {
+            [super application:application didFinishLaunchingWithOptions:launchOptions];
+        }
     }
     
     return YES;
@@ -58,7 +61,10 @@ extern bool _unityAppReady;
     
     if(callSuper)
     {
-        [super applicationWillResignActive:application];
+        if([UnityAppController instancesRespondToSelector:@selector(applicationWillResignActive:)])
+        {
+            [super applicationWillResignActive:application];
+        }
     }
 }
 
@@ -66,7 +72,10 @@ extern bool _unityAppReady;
 {
     if([SPUnityApplication applicationDidBecomeActive:application])
     {
-        [super applicationDidBecomeActive:application];
+        if([UnityAppController instancesRespondToSelector:@selector(applicationDidBecomeActive:)])
+        {
+            [super applicationDidBecomeActive:application];
+        }
     }
 }
 
@@ -74,7 +83,10 @@ extern bool _unityAppReady;
 {
     if([SPUnityApplication applicationDidEnterBackground:application])
     {
-        [super applicationDidEnterBackground:application];
+        if([UnityAppController instancesRespondToSelector:@selector(applicationDidEnterBackground:)])
+        {
+            [super applicationDidEnterBackground:application];
+        }
     }
 }
 
@@ -82,7 +94,10 @@ extern bool _unityAppReady;
 {
     if([SPUnityApplication applicationWillEnterForeground:application])
     {
-        [super applicationWillEnterForeground:application];
+        if([UnityAppController instancesRespondToSelector:@selector(applicationWillEnterForeground:)])
+        {
+            [super applicationWillEnterForeground:application];
+        }
     }
 }
 
@@ -90,7 +105,10 @@ extern bool _unityAppReady;
 {
     if([SPUnityApplication applicationWillTerminate:application])
     {
-        [super applicationWillTerminate:application];
+        if([UnityAppController instancesRespondToSelector:@selector(applicationWillTerminate:)])
+        {
+            [super applicationWillTerminate:application];
+        }
     }
 }
 
@@ -99,7 +117,10 @@ extern bool _unityAppReady;
 {
     if([SPUnityApplication application:application openURL:url sourceApplication:sourceApplication annotation:annotation])
     {
-        [super application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
+        if([UnityAppController instancesRespondToSelector:@selector(application:openURL:sourceApplication:annotation:)])
+        {
+            [super application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
+        }
     }
     
     return YES;
@@ -110,7 +131,10 @@ extern bool _unityAppReady;
 {
     if([SPUnityApplication application:application continueUserActivity:userActivity restorationHandler:restorationHandler])
     {
-        [super application:application continueUserActivity:userActivity restorationHandler:restorationHandler];
+        if([UnityAppController instancesRespondToSelector:@selector(application:continueUserActivity:restorationHandler:)])
+        {
+            [super application:application continueUserActivity:userActivity restorationHandler:restorationHandler];
+        }
     }
     
     return YES;
@@ -122,7 +146,10 @@ extern bool _unityAppReady;
 {
     if([SPUnityApplication applicationDidReceiveMemoryWarning:application])
     {
-        [super applicationDidReceiveMemoryWarning:application];
+        if([UnityAppController instancesRespondToSelector:@selector(applicationDidReceiveMemoryWarning:)])
+        {
+            [super applicationDidReceiveMemoryWarning:application];
+        }
     }
 }
 
@@ -133,7 +160,10 @@ extern bool _unityAppReady;
 {
     if([SPUnityApplication application:application didRegisterUserNotificationSettings:notificationSettings])
     {
-        [super application:application didRegisterUserNotificationSettings:notificationSettings];
+        if([UnityAppController instancesRespondToSelector:@selector(application:didRegisterUserNotificationSettings:)])
+        {
+            [super application:application didRegisterUserNotificationSettings:notificationSettings];
+        }
     }
 }
 #endif
@@ -142,7 +172,10 @@ extern bool _unityAppReady;
 {
     if([SPUnityApplication application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken])
     {
-        [super application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+        if([UnityAppController instancesRespondToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)])
+        {
+            [super application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+        }
     }
 }
 
@@ -150,7 +183,10 @@ extern bool _unityAppReady;
 {
     if([SPUnityApplication application:application didFailToRegisterForRemoteNotificationsWithError:error])
     {
-        [super application:application didFailToRegisterForRemoteNotificationsWithError:error];
+        if([UnityAppController instancesRespondToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)])
+        {
+            [super application:application didFailToRegisterForRemoteNotificationsWithError:error];
+        }
     }
 }
 
@@ -158,7 +194,10 @@ extern bool _unityAppReady;
 {
     if([SPUnityApplication application:application didReceiveRemoteNotification:userInfo])
     {
-        [super application:application didReceiveRemoteNotification:userInfo];
+        if([UnityAppController instancesRespondToSelector:@selector(application:didReceiveRemoteNotification:)])
+        {
+            [super application:application didReceiveRemoteNotification:userInfo];
+        }
     }
 }
 
@@ -167,7 +206,10 @@ extern bool _unityAppReady;
 {
     if([SPUnityApplication application:application didReceiveLocalNotification:notification])
     {
-        [super application:application didReceiveLocalNotification:notification];
+        if([UnityAppController instancesRespondToSelector:@selector(application:didReceiveLocalNotification:)])
+        {
+            [super application:application didReceiveLocalNotification:notification];
+        }
     }
 }
 #endif
@@ -189,7 +231,10 @@ extern bool _unityAppReady;
     
     if([SPUnityApplication application:application performActionForShortcutItem:shortcutItem completionHandler:callback])
     {
-        [super application:application performActionForShortcutItem:shortcutItem completionHandler:callback];
+        if([UnityAppController instancesRespondToSelector:@selector(application:performActionForShortcutItem:completionHandler:)])
+        {
+            [super application:application performActionForShortcutItem:shortcutItem completionHandler:callback];
+        }
     }
     
     callback(YES);
