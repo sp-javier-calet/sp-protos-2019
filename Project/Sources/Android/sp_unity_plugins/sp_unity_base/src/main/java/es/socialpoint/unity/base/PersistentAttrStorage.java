@@ -163,35 +163,46 @@ public class PersistentAttrStorage {
 		return savePersistentStorage(storage);
 	}
 	
-	private String createKey(String customPrefix, String key) {
-		
-		/* Appends the defined prefix to the key name. 
-		 * If the customPrefix is undefined, use the default one
-		 */
-		return (customPrefix != null && !customPrefix.isEmpty())?
-				customPrefix + key : 
-				entryPrefix  + key;
+	private String createKey(String groupPrefix, String customPrefix, String key) {
+		String finalKey;
+		if(groupPrefix != null && !groupPrefix.isEmpty())
+		{
+			finalKey = groupPrefix;
+		}
+		else
+		{
+			finalKey = entryPrefix;
+		}
+
+		if(customPrefix != null && !customPrefix.isEmpty())
+		{
+			finalKey += customPrefix;
+		}
+
+		finalKey += key;
+
+		return finalKey;
 	}
 
 	/** JNI Interface **/
 
-	public String getAttrForKey(String customPrefix, String key, String defaultValue) {
-		String finalKey = createKey(customPrefix, key);
+	public String getAttrForKey(String groupPrefix, String customPrefix, String key, String defaultValue) {
+		String finalKey = createKey(groupPrefix, customPrefix, key);
 		return getAttr(finalKey, defaultValue);
 	}
 
-	public boolean setAttrForKey(String customPrefix, String key, String attr) {
-		String finalKey = createKey(customPrefix, key);
+	public boolean setAttrForKey(String groupPrefix, String customPrefix, String key, String attr) {
+		String finalKey = createKey(groupPrefix, customPrefix, key);
 		return setAttr(finalKey, attr);
 	}
 
-	public boolean removeAttrForKey(String customPrefix, String key) {
-		String finalKey = createKey(customPrefix, key);
+	public boolean removeAttrForKey(String groupPrefix, String customPrefix, String key) {
+		String finalKey = createKey(groupPrefix, customPrefix, key);
 		return removeAttr(finalKey);
 	}
 
-	public boolean contains(String customPrefix, String key) {
-		String finalKey = createKey(customPrefix, key);
+	public boolean contains(String groupPrefix, String customPrefix, String key) {
+		String finalKey = createKey(groupPrefix, customPrefix, key);
 		return getAttr(finalKey, null) != null;
 	}
 	

@@ -15,6 +15,7 @@
 *.pidb
 *.booproj
 *.apk
+*.sln.swp
 
 #local config
 /.proxy

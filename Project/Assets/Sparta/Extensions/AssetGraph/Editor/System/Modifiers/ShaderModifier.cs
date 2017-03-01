@@ -3,53 +3,63 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace AssetBundleGraph.Modifiers {
+namespace AssetBundleGraph.Modifiers
+{
 
-	/*
+    /*
 	 * Code template for Shader modifier.
 	 * You can copy and create your CustomModifier.
-	 */ 
+	 */
 
-	[Serializable] 
-	[CustomModifier("Default Modifier(Shader)", typeof(Shader))]
-	public class ShaderModifier : IModifier {
-		[SerializeField] int maximumLOD;
+    [Serializable]
+    [CustomModifier("Default Modifier(Shader)", typeof(Shader))]
+    public class ShaderModifier : IModifier
+    {
+        [SerializeField]
+        int maximumLOD;
 
-		public ShaderModifier () {}
+        public ShaderModifier() { }
 
-		public bool IsModified (object asset) {
-			var shader = asset as Shader;
+        public bool IsModified(object asset)
+        {
+            var shader = asset as Shader;
 
-			var changed = false;
+            var changed = false;
 
-			if (shader.maximumLOD != this.maximumLOD) {
-				changed = true; 
-			}
+            if(shader.maximumLOD != this.maximumLOD)
+            {
+                changed = true;
+            }
 
-			return changed; 
-		}
+            return changed;
+        }
 
-		public void Modify (object asset) {
-			var shader = asset as Shader;
+        public void Modify(object asset)
+        {
+            var shader = asset as Shader;
 
-			shader.maximumLOD = this.maximumLOD;
-		}
+            shader.maximumLOD = this.maximumLOD;
+        }
 
-		public void OnInspectorGUI (Action onValueChanged) {
-			using (new GUILayout.HorizontalScope()) {
-				GUILayout.Label("Maximum LOD");
+        public void OnInspectorGUI(Action onValueChanged)
+        {
+            using(new GUILayout.HorizontalScope())
+            {
+                GUILayout.Label("Maximum LOD");
 
-				var changedVal = (int)EditorGUILayout.Slider(this.maximumLOD, 0, 1000);
-				if (changedVal != this.maximumLOD) {
-					this.maximumLOD = changedVal;
-					onValueChanged();
-				}
-			}
-		}
+                var changedVal = (int)EditorGUILayout.Slider(this.maximumLOD, 0, 1000);
+                if(changedVal != this.maximumLOD)
+                {
+                    this.maximumLOD = changedVal;
+                    onValueChanged();
+                }
+            }
+        }
 
-		public string Serialize() {
-			return JsonUtility.ToJson(this);
-		}
-	}
-	
+        public string Serialize()
+        {
+            return JsonUtility.ToJson(this);
+        }
+    }
+
 }

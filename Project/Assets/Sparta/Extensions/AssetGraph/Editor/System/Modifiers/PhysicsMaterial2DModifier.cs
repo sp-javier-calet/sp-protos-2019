@@ -3,60 +3,71 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace AssetBundleGraph.Modifiers {
+namespace AssetBundleGraph.Modifiers
+{
 
-	/*
+    /*
 	 * Code template for PhysicsMaterial2D modifier.
 	 * You can copy and create your CustomModifier.
-	 */ 
+	 */
 
-	[Serializable] 
-	[CustomModifier("Default Modifier(PhysicsMaterial2D)", typeof(PhysicsMaterial2D))]
-	public class PhysicsMaterial2DModifier : IModifier {
-		
-		[SerializeField] public float friction;
-		[SerializeField] public float bounciness;
+    [Serializable]
+    [CustomModifier("Default Modifier(PhysicsMaterial2D)", typeof(PhysicsMaterial2D))]
+    public class PhysicsMaterial2DModifier : IModifier
+    {
 
-		public PhysicsMaterial2DModifier () {
-			
-		}
+        [SerializeField]
+        public float friction;
+        [SerializeField]
+        public float bounciness;
 
-		public bool IsModified (object asset) {
-			var physicsMaterial2D = asset as PhysicsMaterial2D;
+        public PhysicsMaterial2DModifier()
+        {
 
-			var changed = false;
+        }
 
-			if (physicsMaterial2D.friction != this.friction) changed = true;
-			if (physicsMaterial2D.bounciness != this.bounciness) changed = true; 
+        public bool IsModified(object asset)
+        {
+            var physicsMaterial2D = asset as PhysicsMaterial2D;
 
-			return changed; 
-		}
+            var changed = false;
 
-		public void Modify (object asset) {
-			var physicsMaterial2D = asset as PhysicsMaterial2D;
+            if(physicsMaterial2D.friction != this.friction) changed = true;
+            if(physicsMaterial2D.bounciness != this.bounciness) changed = true;
 
-			physicsMaterial2D.friction = this.friction;
-			physicsMaterial2D.bounciness = this.bounciness; 
-		}
+            return changed;
+        }
 
-		public void OnInspectorGUI (Action onValueChanged) {
-			var newFriction = EditorGUILayout.FloatField("Friction", friction);
-			var newBounciness = EditorGUILayout.FloatField("Bounciness", bounciness);
+        public void Modify(object asset)
+        {
+            var physicsMaterial2D = asset as PhysicsMaterial2D;
 
-			if(newFriction != friction) {
-				friction = newFriction;
-				onValueChanged();
-			}
+            physicsMaterial2D.friction = this.friction;
+            physicsMaterial2D.bounciness = this.bounciness;
+        }
 
-			if(newBounciness != bounciness) {
-				bounciness = newBounciness;
-				onValueChanged();
-			}
-		}
+        public void OnInspectorGUI(Action onValueChanged)
+        {
+            var newFriction = EditorGUILayout.FloatField("Friction", friction);
+            var newBounciness = EditorGUILayout.FloatField("Bounciness", bounciness);
 
-		public string Serialize() {
-			return JsonUtility.ToJson(this);
-		}
-	}
+            if(newFriction != friction)
+            {
+                friction = newFriction;
+                onValueChanged();
+            }
+
+            if(newBounciness != bounciness)
+            {
+                bounciness = newBounciness;
+                onValueChanged();
+            }
+        }
+
+        public string Serialize()
+        {
+            return JsonUtility.ToJson(this);
+        }
+    }
 
 }

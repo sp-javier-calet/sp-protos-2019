@@ -26,7 +26,7 @@ namespace SocialPoint.Social
         {
             PlayerPosition = position;
             LocalPlayer = localPlayer;
-
+           
             if(position >= _players.Count)
             {
                 _players.Add(localPlayer);

@@ -6,181 +6,227 @@ using System.Collections.Generic;
 using System;
 using System.IO;
 
-public class PreProcessor : AssetPostprocessor {
-	private static LoaderSaveData loaderSaveData = null;
+public class PreProcessor : AssetPostprocessor
+{
+    private static LoaderSaveData loaderSaveData = null;
 
-	protected static LoaderSaveData LoaderData {
-		get {
-			if(loaderSaveData == null) {
-				loaderSaveData = AssetBundleGraph.LoaderSaveData.LoadFromDisk();
-			}
-			return loaderSaveData;
-		}
-	}
+    protected static LoaderSaveData LoaderData
+    {
+        get
+        {
+            if(loaderSaveData == null)
+            {
+                loaderSaveData = AssetBundleGraph.LoaderSaveData.LoadFromDisk();
+            }
+            return loaderSaveData;
+        }
+    }
 
-	private static SaveData fullSaveData = null;
-	
-	protected static SaveData FullSaveData {
-		get {
-			if(fullSaveData == null) {
-				fullSaveData = SaveData.LoadFromDisk();
-			}
-			return fullSaveData;
-		}
-	}
+    private static SaveData fullSaveData = null;
 
-	private static bool hadErrors = false;
-	private static bool wasMoving = false;
-	public static bool isPreProcessing = false;
+    protected static SaveData FullSaveData
+    {
+        get
+        {
+            if(fullSaveData == null)
+            {
+                fullSaveData = SaveData.LoadFromDisk();
+            }
+            return fullSaveData;
+        }
+    }
 
-	public static HashSet<string> AssetsToPostProcess = new HashSet<string>();
+    private static bool hadErrors = false;
+    private static bool wasMoving = false;
+    public static bool isPreProcessing = false;
 
-	public static void MarkForReload() {
-		fullSaveData = null;
-		loaderSaveData = null;
-	}
+    public static HashSet<string> AssetsToPostProcess = new HashSet<string>();
 
-	void OnPreprocessTexture() {
-		if(!LoaderSaveData.IsLoaderDataAvailableAtDisk()) {
-			return;
-		}
+    public static void MarkForReload()
+    {
+        fullSaveData = null;
+        loaderSaveData = null;
+    }
 
-		if(!wasMoving) {
-			GenericProcess(assetPath);
-		}
-	}
+    void OnPreprocessTexture()
+    {
+        if(!LoaderSaveData.IsLoaderDataAvailableAtDisk())
+        {
+            return;
+        }
 
-	void OnPreprocessModel() {
-		if(!LoaderSaveData.IsLoaderDataAvailableAtDisk()) {
-			return;
-		}
+        if(!wasMoving)
+        {
+            GenericProcess(assetPath);
+        }
+    }
 
-		if(!wasMoving) {
-			GenericProcess(assetPath);
-		}
+    void OnPreprocessModel()
+    {
+        if(!LoaderSaveData.IsLoaderDataAvailableAtDisk())
+        {
+            return;
+        }
 
-		if(assetPath.Contains(AssetGraphRelativePaths.ASSET_PLACEHOLDER_FOLDER)) {
-			((ModelImporter)assetImporter).importMaterials = false;
-		}
-	}
+        if(!wasMoving)
+        {
+            GenericProcess(assetPath);
+        }
 
-	void OnPreprocessAudio() {
-		if(!LoaderSaveData.IsLoaderDataAvailableAtDisk()) {
-			return;
-		}
+        if(assetPath.Contains(AssetGraphRelativePaths.ASSET_PLACEHOLDER_FOLDER))
+        {
+            ((ModelImporter)assetImporter).importMaterials = false;
+        }
+    }
 
-		if(!wasMoving) {
-			GenericProcess(assetPath);
-		}
-	}
+    void OnPreprocessAudio()
+    {
+        if(!LoaderSaveData.IsLoaderDataAvailableAtDisk())
+        {
+            return;
+        }
 
-	// TODO: PostProcess assets in a single run 
-	static void OnPostprocessAllAssets(string[] imported, string[] deleted, string[] moved, string[] movedFromAssetPaths) {
-		if(!LoaderSaveData.IsLoaderDataAvailableAtDisk()) {
-			return;
-		}
+        if(!wasMoving)
+        {
+            GenericProcess(assetPath);
+        }
+    }
 
-		float i = 0;
-		bool clearBar = false;
+    // TODO: PostProcess assets in a single run 
+    static void OnPostprocessAllAssets(string[] imported, string[] deleted, string[] moved, string[] movedFromAssetPaths)
+    {
+        if(!LoaderSaveData.IsLoaderDataAvailableAtDisk())
+        {
+            return;
+        }
 
-		foreach(string path in AssetsToPostProcess) {
-			EditorUtility.DisplayProgressBar("Processing", path, i / (float)AssetsToPostProcess.Count);
-			GenericProcess(path, true);
-			i++;
-			clearBar = true;
-		}
+        float i = 0;
+        bool clearBar = false;
 
-		i = 0;
-		foreach(string path in moved) {
-			EditorUtility.DisplayProgressBar("Processing", path, i / (float)moved.Length);
-			if(!TypeUtility.IgnoredExtension.Contains(Path.GetExtension(path))) {
-				GenericProcess(path, true, true);
-				wasMoving = true;
-			}
-			i++;
-			clearBar = true;
-		}
+        foreach(string path in AssetsToPostProcess)
+        {
+            EditorUtility.DisplayProgressBar("Processing", path, i / (float)AssetsToPostProcess.Count);
+            GenericProcess(path, true);
+            i++;
+            clearBar = true;
+        }
 
-		if(clearBar) {
-			EditorUtility.ClearProgressBar();
-		}
+        i = 0;
+        foreach(string path in moved)
+        {
+            EditorUtility.DisplayProgressBar("Processing", path, i / (float)moved.Length);
+            if(!TypeUtility.IgnoredExtension.Contains(Path.GetExtension(path)))
+            {
+                GenericProcess(path, true, true);
+                wasMoving = true;
+            }
+            i++;
+            clearBar = true;
+        }
 
-		AssetsToPostProcess.Clear();
-	}
-	
+        if(clearBar)
+        {
+            EditorUtility.ClearProgressBar();
+        }
 
-	static void GenericProcess(string path, bool isPostProcessing = false, bool isMoving = false) {
-		var loader = LoaderData.GetBestLoaderData(path);
+        AssetsToPostProcess.Clear();
+    }
 
-		bool execute = false;
 
-		if(loader != null) {
-			if(loader.isPermanent) {
-				execute = true;
-			} else if(loader.isPreProcess) {
-				if(!isMoving && isPostProcessing) {
-					execute = true;
-				} else {
-					// if it is first import
-					execute = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path) == null;
-				}
-			}
-		}
-				
-		if(execute) {		
-			try {
-				isPreProcessing = !isPostProcessing;
-				var loaderNodeData = FullSaveData.Graph.Nodes.Find(x => x.Id == loader.id);
-				var graph = FullSaveData.Graph.GetSubGraph(new NodeData[] { loaderNodeData });
+    static void GenericProcess(string path, bool isPostProcessing = false, bool isMoving = false)
+    {
+        var loader = LoaderData.GetBestLoaderData(path);
 
-				var currentCount = 0.00f;
-				var totalCount = graph.Nodes.Count * 1f;
-				Action<NodeData, float> updateHandler = (node, progress) => {
-					var progressPercentage = ((currentCount / totalCount) * 100).ToString();
-					if(progressPercentage.Contains(".")) progressPercentage = progressPercentage.Split('.')[0];
+        bool execute = false;
 
-					if(0 < progress) {
-						currentCount = currentCount + 1f;
-					}
+        if(loader != null)
+        {
+            if(loader.isPermanent)
+            {
+                execute = true;
+            }
+            else if(loader.isPreProcess)
+            {
+                if(!isMoving && isPostProcessing)
+                {
+                    execute = true;
+                }
+                else
+                {
+                    // if it is first import
+                    execute = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(path) == null;
+                }
+            }
+        }
 
-					EditorUtility.DisplayProgressBar("AssetBundleGraph Processing... ", "Processing " + node.Name + ": " + progressPercentage + "%", currentCount / totalCount);
-				};
-				List<NodeException> errors = new List<NodeException>();
-				Action<NodeException> errorHandler = (NodeException e) => {
-					errors.Add(e);
-				};
+        if(execute)
+        {
+            try
+            {
+                isPreProcessing = !isPostProcessing;
+                var loaderNodeData = FullSaveData.Graph.Nodes.Find(x => x.Id == loader.id);
+                var graph = FullSaveData.Graph.GetSubGraph(new NodeData[] { loaderNodeData });
 
-				var target = EditorUserBuildSettings.activeBuildTarget;
+                var currentCount = 0.00f;
+                var totalCount = graph.Nodes.Count * 1f;
+                Action<NodeData, float> updateHandler = (node, progress) =>
+                {
+                    var progressPercentage = ((currentCount / totalCount) * 100).ToString();
+                    if(progressPercentage.Contains(".")) progressPercentage = progressPercentage.Split('.')[0];
 
-				Dictionary<ConnectionData, Dictionary<string, List<Asset>>> streamMap = null;
+                    if(0 < progress)
+                    {
+                        currentCount = currentCount + 1f;
+                    }
 
-				if(hadErrors || !isPostProcessing) {
-					// perform setup. Fails if any exception raises.
-					streamMap = AssetBundleGraphController.Perform(graph, target, false, errorHandler, null);
-				}
+                    EditorUtility.DisplayProgressBar("AssetBundleGraph Processing... ", "Processing " + node.Name + ": " + progressPercentage + "%", currentCount / totalCount);
+                };
+                List<NodeException> errors = new List<NodeException>();
+                Action<NodeException> errorHandler = (NodeException e) =>
+                {
+                    errors.Add(e);
+                };
 
-				// if there is not error reported, then run
-				if(errors.Count == 0) {
-					// run datas.                
-					streamMap = AssetBundleGraphController.Perform(graph, target, true, errorHandler, updateHandler, path);
-				}
+                var target = EditorUserBuildSettings.activeBuildTarget;
 
-				if(errors.Count > 0) {
-					Debug.LogError(errors[0]);
-					hadErrors = true;
-				}else {
-					hadErrors = false;
-				}
+                Dictionary<ConnectionData, Dictionary<string, List<Asset>>> streamMap = null;
 
-				AssetBundleGraphController.Postprocess(graph, streamMap, true);
-			} catch(Exception e) {
-				hadErrors = true;
-				Debug.LogError(e);
-			} finally {
-				EditorUtility.ClearProgressBar();
-				isPreProcessing = false;
-				wasMoving = false;
-			}
-		}
-	}
+                if(hadErrors || !isPostProcessing)
+                {
+                    // perform setup. Fails if any exception raises.
+                    streamMap = AssetBundleGraphController.Perform(graph, target, false, errorHandler, null);
+                }
+
+                // if there is not error reported, then run
+                if(errors.Count == 0)
+                {
+                    // run datas.                
+                    streamMap = AssetBundleGraphController.Perform(graph, target, true, errorHandler, updateHandler, path);
+                }
+
+                if(errors.Count > 0)
+                {
+                    Debug.LogError(errors[0]);
+                    hadErrors = true;
+                }
+                else
+                {
+                    hadErrors = false;
+                }
+
+                AssetBundleGraphController.Postprocess(graph, streamMap, true);
+            }
+            catch(Exception e)
+            {
+                hadErrors = true;
+                Debug.LogError(e);
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+                isPreProcessing = false;
+                wasMoving = false;
+            }
+        }
+    }
 }

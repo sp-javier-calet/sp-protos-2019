@@ -575,13 +575,19 @@ namespace SocialPoint.Lockstep
 
         void IMatchmakingServerDelegate.OnResultsReceived(AttrDic results)
         {
+            SendResults(results);
+        }
+
+        void SendResults(AttrDic results)
+        {
             for(var i = 0; i < _clients.Count; i++)
             {
                 var client = _clients[i];
                 if(results.ContainsKey(client.PlayerId))
                 {
                     var result = results[client.PlayerId];
-                    _server.SendMessage(new NetworkMessageData {
+                    _server.SendMessage(new NetworkMessageData
+                    {
                         MessageType = LockstepMsgType.ClientEnd,
                         ClientId = client.ClientId
                     }, new AttrMessage(result));
@@ -594,7 +600,7 @@ namespace SocialPoint.Lockstep
             _serverLockstep.Start(ServerConfig.ClientSimulationDelay - ServerConfig.ClientStartDelay);
             SendMetric(new Metric(MetricType.Counter, MatchStartMetricName, 1));
             SendTrack(MatchStartMetricName, null, null);
-            for (var i = 0; i < _clients.Count; i++)
+            for(var i = 0; i < _clients.Count; i++)
             {
                 var client = _clients[i];
                 _server.SendMessage(new NetworkMessageData {
@@ -634,15 +640,11 @@ namespace SocialPoint.Lockstep
         void EndLockstep()
         {
             _serverLockstep.Stop();
-            if(_matchmaking == null || !_matchmaking.Enabled)
-            {
-                return;
-            }
             var results = PlayerResults;
             var originalResults = new Dictionary<byte, Attr>();
             {
                 var itr = results.GetEnumerator();
-                while (itr.MoveNext())
+                while(itr.MoveNext())
                 {
                     originalResults[itr.Current.Key] = (Attr)itr.Current.Value.Clone();
                 }
@@ -653,22 +655,20 @@ namespace SocialPoint.Lockstep
                 MatchFinished(results);
             }
             var resultsAttr = new AttrDic();
+            var itr = results.GetEnumerator();
+            while(itr.MoveNext())
             {
-                var itr = results.GetEnumerator();
-                while (itr.MoveNext())
+                var playerId = FindPlayerId(itr.Current.Key);
+                if(!string.IsNullOrEmpty(playerId))
                 {
-                    var playerId = FindPlayerId(itr.Current.Key);
-                    if (!string.IsNullOrEmpty(playerId))
-                    {
-                        resultsAttr[playerId] = itr.Current.Value;
-                    }
+                    resultsAttr[playerId] = itr.Current.Value;
                 }
-                itr.Dispose();
             }
+            itr.Dispose();
 
             bool corrected = false;
             var keys = originalResults.Keys.GetEnumerator();
-            while (keys.MoveNext())
+            while(keys.MoveNext())
             {
                 if(results.ContainsKey(keys.Current))
                 {
@@ -684,7 +684,7 @@ namespace SocialPoint.Lockstep
                 break;
             }
 
-            if (SendMetric != null)
+            if(SendMetric != null)
             {
                 SendMetric(new Metric(MetricType.Counter, corrected? MatchEndCorrectedMetricName : MatchEndMetricName, 1));
             }
@@ -694,7 +694,14 @@ namespace SocialPoint.Lockstep
                 SendTrack(corrected ? MatchEndCorrectedMetricName : MatchEndMetricName, null, null);
             }
 
-            _matchmaking.NotifyResults(MatchId, resultsAttr);
+            if(_matchmaking == null || !_matchmaking.Enabled)
+            {
+                SendResults(resultsAttr);
+            }
+            else
+            {
+                _matchmaking.NotifyResults(MatchId, resultsAttr);
+            }
         }
 
         public void OnServerStarted()
@@ -777,7 +784,7 @@ namespace SocialPoint.Lockstep
             _serverLockstep.TurnReady -= OnServerTurnReady;
             _serverLockstep.EmptyTurnsReady -= OnServerEmptyTurnsReady;
 
-            if (_matchmaking != null)
+            if(_matchmaking != null)
             {
                 _matchmaking.RemoveDelegate(this);
             }
