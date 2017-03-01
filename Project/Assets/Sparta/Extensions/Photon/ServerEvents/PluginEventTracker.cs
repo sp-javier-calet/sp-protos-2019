@@ -164,10 +164,10 @@ namespace SocialPoint.Photon.ServerEvents
             }
         }
 
-        public void SendLog(Log log, bool inmediate = false)
+        public void SendLog(Log log, bool immediate = false)
         {
             _pendingLogs.Add(log);
-            if(inmediate)
+            if(immediate)
             {
                 if(_sending)
                 {
