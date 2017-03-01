@@ -635,21 +635,61 @@ namespace SocialPoint.Lockstep
                 return;
             }
             var results = PlayerResults;
+            var originalResults = new Dictionary<byte, Attr>();
+            {
+                var itr = results.GetEnumerator();
+                while (itr.MoveNext())
+                {
+                    originalResults[itr.Current.Key] = (Attr)itr.Current.Value.Clone();
+                }
+                itr.Dispose();
+            }
             if(MatchFinished != null)
             {
                 MatchFinished(results);
             }
             var resultsAttr = new AttrDic();
-            var itr = results.GetEnumerator();
-            while(itr.MoveNext())
             {
-                var playerId = FindPlayerId(itr.Current.Key);
-                if(!string.IsNullOrEmpty(playerId))
+                var itr = results.GetEnumerator();
+                while (itr.MoveNext())
                 {
-                    resultsAttr[playerId] = itr.Current.Value;
+                    var playerId = FindPlayerId(itr.Current.Key);
+                    if (!string.IsNullOrEmpty(playerId))
+                    {
+                        resultsAttr[playerId] = itr.Current.Value;
+                    }
                 }
+                itr.Dispose();
             }
-            itr.Dispose();
+
+            bool corrected = false;
+            var keys = originalResults.Keys.GetEnumerator();
+            while (keys.MoveNext())
+            {
+                if(results.ContainsKey(keys.Current))
+                {
+                    if(results[keys.Current] == originalResults[keys.Current])
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        corrected = true;
+                    }
+                }
+                break;
+            }
+
+            if (SendMetric != null)
+            {
+                SendMetric(new Metric(MetricType.Counter, corrected? "photon.match_end_corrected" : "photon.match_end", 1));
+            }
+
+            if(SendTrack != null)
+            {
+                SendTrack(corrected ? "photon.match_end_corrected" : "photon.match_end", null, null);
+            }
+
             _matchmaking.NotifyResults(MatchId, resultsAttr);
         }
 
