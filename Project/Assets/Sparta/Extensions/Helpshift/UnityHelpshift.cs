@@ -231,18 +231,6 @@ namespace SocialPoint.Extension.Helpshift
             _helpshift.showConversation(_configMap);
         }
 
-        public void OpenFromPush(string issueId, object extra)
-        {
-            if(_helpshift == null)
-            {
-                return;
-            }
-            var data = new Dictionary<string, object>();
-            data.Add(issueId, extra);
-
-            _helpshift.handlePushNotification(data);
-        }
-
         #endregion
     }
 }

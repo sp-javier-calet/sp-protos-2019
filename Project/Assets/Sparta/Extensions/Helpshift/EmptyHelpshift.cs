@@ -42,10 +42,6 @@ namespace SocialPoint.Extension.Helpshift
         {
         }
 
-        public void OpenFromPush(string issueId, object extra)
-        {
-        }
-
         #endregion
     }
 }
