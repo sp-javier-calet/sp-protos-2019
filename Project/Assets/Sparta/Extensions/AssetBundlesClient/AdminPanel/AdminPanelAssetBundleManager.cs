@@ -2,8 +2,11 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using SocialPoint.AdminPanel;
+using SocialPoint.Attributes;
+using SocialPoint.IO;
 using UnityEngine;
 
 namespace SocialPoint.AssetBundlesClient
@@ -66,7 +69,6 @@ namespace SocialPoint.AssetBundlesClient
             AddLoadedAssetBundlesPanel();
             AddAssetBundlesParsedDataPanel(true);
             AddAssetBundlesParsedDataPanel(false);
-
         }
 
         void AddCleanCacheButton()
@@ -90,6 +92,19 @@ namespace SocialPoint.AssetBundlesClient
             return Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_localAssetBundleManager, "_assetBundlesParsedData");
         }
 
+        static AttrList GetBundlesDataAttrList()
+        {
+            const string bundleDataFile = "bundle_data.json";
+            const string bundleDataKey = "bundle_data";
+
+            string jsonPath = Path.Combine(PathsManager.StreamingAssetsPath, bundleDataFile);
+            string json = FileUtils.ReadAllText(jsonPath);
+
+            var bundlesAttrDic = new JsonAttrParser().ParseString(json).AssertDic;
+            var bundleDataAttrList = bundlesAttrDic.Get(bundleDataKey).AssertList;
+            return bundleDataAttrList;
+        }
+
         void FillFoldoutLists()
         {
             if(_scenes.Count > 0 || _prefabs.Count > 0)
@@ -101,8 +116,9 @@ namespace SocialPoint.AssetBundlesClient
             if(assetBundlesParsedData.Count == 0)
             {
                 _console.Print("There is no Asset Bundles data parsed from the config manager.");
-                _console.Print("Trying to load local bundles instead.");
-                assetBundlesParsedData = GetLocalAssetBundlesParsedDataReflection();
+                _console.Print("Trying to load bundles from bundle_data.json from Streaming Assets");
+                Reflection.CallPrivateVoidMethod<AssetBundleManager>(_assetBundleManager, "LoadBundleData", GetBundlesDataAttrList());
+                assetBundlesParsedData = GetAssetBundlesParsedDataReflection();
             }
 
             var iter = assetBundlesParsedData.GetEnumerator();

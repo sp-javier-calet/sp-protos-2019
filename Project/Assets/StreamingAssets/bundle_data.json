@@ -1,8 +1,8 @@
 {
-    "local_bundle_data": [
+    "bundle_data": [
         {
             "name": "drg_air1_01_evo1_hig_prefab",
-            "version": 1,
+            "version": 0,
             "dependencies": [
                 "defaultmat_mat"
             ]
@@ -16,7 +16,7 @@
         },
         {
             "name": "drg_air1_01_evo5_low_prefab",
-            "version": 0,
+            "version": 1,
             "dependencies": [
                 "heli_evo34_base_fbx",
                 "scg_fx_specialdragon_solid_shader",

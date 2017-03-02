@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using SocialPoint.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -37,7 +38,7 @@ namespace SocialPoint.AssetBundlesClient
 
         public string AssetBundleName { get; private set; }
 
-        public LoadedAssetBundle AssetBundle { get; protected set; }
+        public LoadedAssetBundle AssetBundleLoaded { get; protected set; }
 
         protected abstract bool downloadIsDone { get; }
 
@@ -63,6 +64,50 @@ namespace SocialPoint.AssetBundlesClient
         protected AssetBundleDownloadOperation(string assetBundleName)
         {
             AssetBundleName = assetBundleName;
+        }
+    }
+
+    public class AssetBundleLoadLocalOperation : AssetBundleDownloadOperation
+    {
+        readonly string _Url;
+
+        public AssetBundleLoadLocalOperation(string assetBundleName, string path)
+            : base(assetBundleName)
+        {
+            _Url = path;
+        }
+
+        protected override void FinishDownload()
+        {
+            if(!FileUtils.ExistsFile(_Url))
+            {
+                Error = string.Format("{0} file does not exists locally.", AssetBundleName);
+                return;
+            }
+
+            var bundle = AssetBundle.LoadFromFile(_Url);
+
+            if(bundle == null)
+            {
+                Error = string.Format("{0} is not a valid asset bundle.", AssetBundleName);
+                return;
+            }
+
+            AssetBundleLoaded = new LoadedAssetBundle(bundle);
+        }
+
+        public override string GetSourceURL()
+        {
+            return _Url;
+        }
+
+        protected override bool downloadIsDone
+        {
+            get
+            {
+                return true;
+                ;
+            }
         }
     }
 
@@ -99,7 +144,7 @@ namespace SocialPoint.AssetBundlesClient
             }
             else
             {
-                AssetBundle = new LoadedAssetBundle(bundle);
+                AssetBundleLoaded = new LoadedAssetBundle(bundle);
             }
 
             _WWW.Dispose();
