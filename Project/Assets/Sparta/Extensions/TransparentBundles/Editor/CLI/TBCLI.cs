@@ -189,8 +189,7 @@ namespace SocialPoint.TransparentBundles
 
             DependencySystem.CheckBundlesForBuild(false, input.BundlesDictionary);
 
-            Application.LogCallback Callback = (msg, stack, type) =>
-            {
+            Application.LogCallback Callback = (msg, stack, type) => {
                 if(type == LogType.Error || type == LogType.Exception || type == LogType.Warning)
                 {
                     typedOutput.BuildLog.Add(type + " - " + msg + "\n" + stack);
