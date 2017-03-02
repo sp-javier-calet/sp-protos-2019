@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using SocialPoint.IosKeychain;
 using SocialPoint.Base;
 using UnityEngine;
@@ -9,6 +10,73 @@ namespace SocialPoint.Hardware
         // check: https://socialpoint.atlassian.net/wiki/display/MT/iOS+Keychain
         const string UidKeychainItemId = "SPDeviceID";
         const string UidKeychainAccessGroup = "es.socialpoint";
+
+        static Dictionary<string, int> CpuFreqMap = new Dictionary<string, int> {
+            { "iPhone1,1", 412 },  // iPhone
+            { "iPod1,1", 412 },    // iPod touch
+            { "iPhone1,2", 412 },  // iPhone 3G
+            { "iPod2,1", 532 },    // iPod touch (2G)
+            { "iPhone2,1", 600 },  // iPhone 3GS
+            { "iPod3,1", 600 },    // iPod touch (3G)
+            { "iPad1,1", 1000 },   // iPad
+            { "iPhone3,1", 800 },  // iPhone 4
+            { "iPhone3,2", 800 },  // iPhone 4
+            { "iPhone3,3", 800 },  // iPhone 4
+            { "iPod4,1", 800 },    // iPod touch (4G)
+            { "AppleTV2,1", 800 }, // Apple TV (2G)
+            { "iPad2,1", 1000 },   // iPad 2
+            { "iPad2,2", 1000 },   // iPad 2
+            { "iPad2,3", 1000 },   // iPad 2
+            { "iPhone4,1", 800 },  // iPhone 4S
+            { "iPad3,1", 1000 },   // iPad (3G)
+            { "iPad3,2", 1000 },   // iPad (3G)
+            { "iPad3,3", 1000 },   // iPad (3G)
+            { "iPhone5,1", 1300 }, // iPhone 5
+            { "iPhone5,2", 1300 }, // iPhone 5
+            { "iPod5,1", 800 },    // iPod touch (5G)
+            { "iPad3,4", 1400 },   // iPad (4G)
+            { "iPad3,5", 1400 },   // iPad (4G)
+            { "iPad3,6", 1400 },   // iPad (4G)
+            { "iPad2,5", 1000 },   // iPad mini
+            { "iPad2,6", 1000 },   // iPad mini
+            { "iPad2,7", 1000 },   // iPad mini
+            { "AppleTV3,1", 1000 },// Apple TV (3G Rev A)
+            { "iPhone5,3", 1300 }, // iPhone 5c
+            { "iPhone5,4", 1300 }, // iPhone 5c
+            { "iPhone6,1", 1300 }, // iPhone 5s
+            { "iPhone6,2", 1300 }, // iPhone 5s
+            { "iPhone6,3", 1300 }, // iPhone 5s
+            { "iPad4,1", 1400 },   // iPad Air
+            { "iPad4,2", 1400 },   // iPad Air
+            { "iPad4,3", 1400 },   // iPad Air
+            { "iPad4,4", 1300 },   // iPad mini 2
+            { "iPad4,5", 1300 },   // iPad mini 2
+            { "iPad4,6", 1300 },   // iPad mini 2
+            { "iPhone7,2", 1400 }, // iPhone 6
+            { "iPhone7,1", 1400 }, // iPhone 6 Plus
+            { "iPad5,3", 1500 },   // iPad Air 2
+            { "iPad5,4", 1500 },   // iPad Air 2
+            { "iPad4,7", 1300 },   // iPad mini 3
+            { "iPad4,8", 1300 },   // iPad mini 3
+            { "iPad4,9", 1300 },   // iPad mini 3
+            { "Watch1,1", 520 },   // Apple Watch 38mm
+            { "Watch1,2", 520 },   // Apple Watch 42mm
+            { "iPod7,1", 1100 },   // iPod touch (6G)
+            { "AppleTV5,3", 1400 },// Apple TV (4G)
+            { "iPad6,7", 2260 },   // iPad Pro
+            { "iPad6,8", 2260 },   // iPad Pro
+            { "iPad5,1", 1400 },   // iPad mini 4
+            { "iPad5,2", 1400 },   // iPad mini 4
+            { "iPhone8,1", 1850 }, // iPhone 6S
+            { "iPhone8,2", 1850 }, // iPhone 6S Plus
+            { "iPhone8,4", 1850 }, // iPhone SE
+            { "iPad6,3", 2160 },   // 9.7-inch iPad Pro
+            { "iPad6,4", 2160 },   // 9.7-inch iPad Pro
+            { "iPhone9,1", 2340 }, // iPhone 7
+            { "iPhone9,3", 2340 }, // iPhone 7
+            { "iPhone9,2", 2340 }, // iPhone 7 Plus
+            { "iPhone9,4", 2340 }  // iPhone 7 Plus
+        };
 
         IosMemoryInfo _memoryInfo;
         IosStorageInfo _storageInfo;
@@ -183,7 +251,14 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                return SystemInfo.processorFrequency;
+                //SystemInfo.processorFrequency is not supported for iOS
+                int freq;
+                if(!CpuFreqMap.TryGetValue(Model, out freq))
+                {
+                    // unknow model
+                    freq = -1;
+                }
+                return freq;
             }
         }
 
