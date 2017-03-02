@@ -79,7 +79,6 @@ namespace SocialPoint.TransparentBundles
         /// </summary>
         public class BuildBundlesInput : InputCLI
         {
-            public Dictionary<string, BundleDependenciesData> BundlesDictionary;
             public string TextureFormat = "Generic";
             public string BundlesPath;
         }
@@ -167,7 +166,10 @@ namespace SocialPoint.TransparentBundles
 
             DependencySystem.UpdateManifest(input.ManualBundles);
 
+            DependencySystem.PrepareForBuild();
+
             typedOutput.BundlesDictionary = DependencySystem.Manifest.GetDictionary();
+
         }
 
         /// <summary>
@@ -184,9 +186,8 @@ namespace SocialPoint.TransparentBundles
 
             DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y + " - " + x);
 
-            DependencySystem.PrepareForBuild(input.BundlesDictionary);
-
-            Application.LogCallback Callback = (msg, stack, type) => {
+            Application.LogCallback Callback = (msg, stack, type) =>
+            {
                 if(type == LogType.Error || type == LogType.Exception || type == LogType.Warning)
                 {
                     typedOutput.BuildLog.Add(type + " - " + msg + "\n" + stack);
