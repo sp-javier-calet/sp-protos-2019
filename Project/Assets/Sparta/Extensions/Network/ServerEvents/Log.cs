@@ -33,7 +33,7 @@ namespace SocialPoint.Network.ServerEvents
         {
             Level = level;
             Message = message;
-            Context = context?? new AttrDic();
+            Context = context ?? new AttrDic();
             ResponseDelegate = responseDelegate;
         }
 

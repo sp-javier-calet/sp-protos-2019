@@ -76,7 +76,7 @@ namespace SocialPoint.Network.ServerEvents
             }
             var req = new HttpRequest();
             SetupRequest(req, MetricUri);
-            
+
             var metricsData = new AttrDic();
             var sendMetrics = new List<Metric>();
             foreach(var key in _pendingMetrics.Keys)
@@ -114,7 +114,7 @@ namespace SocialPoint.Network.ServerEvents
 
         public void SendTrack(string eventName, AttrDic data = null, ErrorDelegate del = null)
         {
-            var ev = new Event(eventName, data?? new AttrDic(), del);
+            var ev = new Event(eventName, data ?? new AttrDic(), del);
             _pendingEvents.Add(ev);
         }
 
@@ -142,7 +142,7 @@ namespace SocialPoint.Network.ServerEvents
             var common = new AttrDic();
             common.Set("plat", new AttrString("photon"));
             common.Set("ver", new AttrString("1"));
-            track.Set("common",common);
+            track.Set("common", common);
             track.Set("events", eventsAttr);
             req.Body = new JsonAttrSerializer().Serialize(track);
             _httpClient.Send(req, r => OnSendEventResponse(r, events));
@@ -190,7 +190,7 @@ namespace SocialPoint.Network.ServerEvents
             SetupRequest(req, LogUri);
             var body = new AttrDic();
             var logList = new AttrList();
-            for (int i = 0; i < _pendingLogs.Count; i++)
+            for(int i = 0; i < _pendingLogs.Count; i++)
             {
                 var log = _pendingLogs[i];
                 logList.Add(log.ToAttr());
@@ -205,10 +205,10 @@ namespace SocialPoint.Network.ServerEvents
 
         void OnSendLogResponse(HttpResponse resp)
         {
-            for (int i = 0; i < _sendingLogs.Count; i++)
+            for(int i = 0; i < _sendingLogs.Count; i++)
             {
                 var log = _sendingLogs[i];
-                if (log.ResponseDelegate != null)
+                if(log.ResponseDelegate != null)
                 {
                     log.ResponseDelegate(resp.Error);
                 }

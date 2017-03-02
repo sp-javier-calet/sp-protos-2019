@@ -81,7 +81,7 @@ namespace SocialPoint.Network
             Predicate<HttpRequest> pred = delegate (HttpRequest req)
             {
                 var data = new JsonAttrParser().Parse(req.Body).AsDic;
-                if (data.ContainsKey("events"))
+                if(data.ContainsKey("events"))
                 {
                     var events = data["events"].AsList;
                     var ev = events[0].AsDic;
@@ -122,7 +122,7 @@ namespace SocialPoint.Network
             Predicate<HttpRequest> pred = delegate (HttpRequest req)
             {
                 var data = new JsonAttrParser().Parse(req.Body).AsDic;
-                if (data.ContainsKey("events"))
+                if(data.ContainsKey("events"))
                 {
                     var events = data["events"].AsList;
                     var ev = events[0].AsDic;
@@ -139,7 +139,7 @@ namespace SocialPoint.Network
         [Test]
         public void SendLog_Immediate()
         {
-            EventTracker.SendLog(new Log(LogLevel.Error, "TestMessage"),true);
+            EventTracker.SendLog(new Log(LogLevel.Error, "TestMessage"), true);
             HttpClient.Received(1).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
         }
 
