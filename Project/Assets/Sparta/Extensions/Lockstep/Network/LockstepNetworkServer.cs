@@ -656,10 +656,10 @@ namespace SocialPoint.Lockstep
             var resultsAttr = new AttrDic();
             {
                 var itr = results.GetEnumerator();
-                while (itr.MoveNext())
+                while(itr.MoveNext())
                 {
                     var playerId = FindPlayerId(itr.Current.Key);
-                    if (!string.IsNullOrEmpty(playerId))
+                    if(!string.IsNullOrEmpty(playerId))
                     {
                         resultsAttr[playerId] = itr.Current.Value;
                     }
