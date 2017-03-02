@@ -241,6 +241,11 @@ namespace SocialPoint.Extension.Helpshift
             _helpshift.showConversation(_configMap);
         }
 
+        public void UpdateMetadata()
+        {
+            UpdateCustomerData();
+        }
+
         #endregion
     }
 }
@@ -253,11 +258,12 @@ namespace SocialPoint.Extension.Helpshift
     {
         public UnityHelpshift(HelpshiftConfiguration config)
         {
-
         }
 
         public ILocalizationManager LocalizationManager { private get; set; }
+
         public INotificationServices NotificationServices { private get; set; }
+
         public GameObject GameObjectDelegate { private get; set; }
     }
 }

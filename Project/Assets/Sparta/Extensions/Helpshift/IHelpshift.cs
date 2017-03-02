@@ -69,5 +69,7 @@ namespace SocialPoint.Extension.Helpshift
         void ShowFAQ(string sectionId = null);
 
         void ShowConversation();
+
+        void UpdateMetadata();
     }
 }
