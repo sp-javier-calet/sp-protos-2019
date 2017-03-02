@@ -70,6 +70,6 @@ namespace SocialPoint.Extension.Helpshift
 
         void ShowConversation();
 
-        void OpenFromPush(string issueId);
+        void OpenFromPush(string issueId, object extra);
     }
 }

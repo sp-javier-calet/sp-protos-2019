@@ -47,7 +47,7 @@ namespace SocialPoint.Extension.Helpshift
             }
             else
             {
-                Container.Rebind<IHelpshift>().ToMethod<UnityHelpshift>(CreateUnityHelpshift);
+                Container.Rebind<IHelpshift>().ToMethod<UnityHelpshift>(CreateUnityHelpshift, SetupUnityHelpshift);
             }
 
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelHelpshift>(CreateAdminPanel);
@@ -72,7 +72,15 @@ namespace SocialPoint.Extension.Helpshift
                 ConversationResolutionQuestionEnabled = Settings.ConversationResolutionQuestionEnabled
             };
 
-            var hs = new UnityHelpshift(hsconfig, Container.Resolve<ILocalizationManager>(), Container.Resolve<INotificationServices>());
+            var hs = new UnityHelpshift(hsconfig);
+            _helpshift = hs;
+            return hs;
+        }
+
+        void SetupUnityHelpshift(UnityHelpshift helpshift)
+        {
+            helpshift.LocalizationManager = Container.Resolve<ILocalizationManager>();
+            helpshift.NotificationServices = Container.Resolve<INotificationServices>();
 
             var login = Container.Resolve<ILogin>();
             if(login != null)
@@ -81,10 +89,7 @@ namespace SocialPoint.Extension.Helpshift
                 login.NewGenericDataEvent += OnNewGenericData;
             }
 
-            hs.Enable();
-
-            _helpshift = hs;
-            return hs;
+            helpshift.Enable();
         }
 
         void OnNewGenericData(Attr data)

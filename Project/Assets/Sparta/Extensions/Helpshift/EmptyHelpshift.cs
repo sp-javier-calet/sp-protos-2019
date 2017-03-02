@@ -42,7 +42,7 @@ namespace SocialPoint.Extension.Helpshift
         {
         }
 
-        public void OpenFromPush(string issueId)
+        public void OpenFromPush(string issueId, object extra)
         {
         }
 
