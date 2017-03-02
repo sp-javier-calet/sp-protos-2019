@@ -163,10 +163,11 @@ namespace SocialPoint.TransparentBundles
         }
 
         /// <summary>
-        /// Assigns all the bundles in the asset .meta files and removes the ones that are not in the manifest.
+        /// Checks that all the bundles are assigned correctly in the asset .meta files and removes the ones that are not in use.
         /// </summary>
+        /// <param name="overwrite">Whether or not the dependency system fix all the bundles assignments</param>
         /// <param name="bundleManifest">Optional manifest to use to assign the bundles. If none is provided, it will use the last one produced by the DependencySystem</param>
-        public static void PrepareForBuild(Dictionary<string, BundleDependenciesData> bundleManifest = null)
+        public static void CheckBundlesForBuild(bool overwrite, Dictionary<string, BundleDependenciesData> bundleManifest = null)
         {
             if(bundleManifest == null)
             {
@@ -183,13 +184,20 @@ namespace SocialPoint.TransparentBundles
                 {
                     if(OnLogMessage != null)
                     {
-                        OnLogMessage("Old bundle found: " + bundle + ". Removing tag from assets...", LogType.Warning);
+                        OnLogMessage("Old bundle found: " + bundle + ".", overwrite ? LogType.Log : LogType.Error);
                     }
 
-                    foreach(var asset in AssetDatabase.GetAssetPathsFromAssetBundle(bundle))
+                    if(overwrite)
                     {
-                        var importer = AssetImporter.GetAtPath(asset);
-                        importer.assetBundleName = string.Empty;
+                        foreach(var asset in AssetDatabase.GetAssetPathsFromAssetBundle(bundle))
+                        {
+                            var importer = AssetImporter.GetAtPath(asset);
+                            importer.assetBundleName = string.Empty;
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("Bundles in the project have a different assignment than the Dependencies provided. Calculate Dependencies in the project again.");
                     }
                 }
             }
@@ -197,15 +205,23 @@ namespace SocialPoint.TransparentBundles
 
             foreach(var bundleData in bundleManifest.Values)
             {
-                var importer = AssetImporter.GetAtPath(bundleData.AssetPath);
-                if(bundleData.BundleName != importer.assetBundleName)
+                if(overwrite)
                 {
-                    importer.assetBundleName = bundleData.BundleName;
+                    var importer = AssetImporter.GetAtPath(bundleData.AssetPath);
+                    if(bundleData.BundleName != importer.assetBundleName)
+                    {
+                        importer.assetBundleName = bundleData.BundleName;
+                    }
+                }
+                else
+                {
+                    throw new Exception("Bundles in the project have a different assignment than the Dependencies provided. Calculate Dependencies in the project again.");
                 }
             }
 
             AssetDatabase.StopAssetEditing();
         }
+
 
         #endregion
 

@@ -79,6 +79,7 @@ namespace SocialPoint.TransparentBundles
         /// </summary>
         public class BuildBundlesInput : InputCLI
         {
+            public Dictionary<string, BundleDependenciesData> BundlesDictionary;
             public string TextureFormat = "Generic";
             public string BundlesPath;
         }
@@ -166,7 +167,7 @@ namespace SocialPoint.TransparentBundles
 
             DependencySystem.UpdateManifest(input.ManualBundles);
 
-            DependencySystem.PrepareForBuild();
+            DependencySystem.CheckBundlesForBuild(true);
 
             typedOutput.BundlesDictionary = DependencySystem.Manifest.GetDictionary();
 
@@ -185,6 +186,8 @@ namespace SocialPoint.TransparentBundles
             EditorUserBuildSettings.androidBuildSubtarget = (MobileTextureSubtarget)Enum.Parse(typeof(MobileTextureSubtarget), input.TextureFormat);
 
             DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y + " - " + x);
+
+            DependencySystem.CheckBundlesForBuild(false, input.BundlesDictionary);
 
             Application.LogCallback Callback = (msg, stack, type) =>
             {
