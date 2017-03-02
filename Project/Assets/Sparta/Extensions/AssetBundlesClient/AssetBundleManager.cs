@@ -113,15 +113,15 @@ namespace SocialPoint.AssetBundlesClient
     /// </summary>
     public class AssetBundleManager : IUpdateable, IDisposable
     {
-        Dictionary<string, LoadedAssetBundle> _loadedAssetBundles = new Dictionary<string, LoadedAssetBundle>();
-        Dictionary<string, string> _downloadingErrors = new Dictionary<string, string>();
-        readonly List<string> _downloadingBundles = new List<string>();
+        static Dictionary<string, LoadedAssetBundle> _loadedAssetBundles = new Dictionary<string, LoadedAssetBundle>();
+        static Dictionary<string, string> _downloadingErrors = new Dictionary<string, string>();
+        static readonly List<string> _downloadingBundles = new List<string>();
 
         protected readonly List<AssetBundleLoadOperation> _inProgressOperations = new List<AssetBundleLoadOperation>();
         protected AssetBundlesParsedData _assetBundlesParsedData = new AssetBundlesParsedData();
         protected string _baseDownloadingURL;
 
-        LocalAssetBundleManager _localAssetBundleManager;
+        static LocalAssetBundleManager _localAssetBundleManager;
 
         [System.Diagnostics.Conditional("DEBUG_BUNDLES")]
         static void DebugLog(string msg)
@@ -194,7 +194,7 @@ namespace SocialPoint.AssetBundlesClient
             }
         }
 
-        protected AssetBundlesParsedData LoadBundleData(AttrList bundlesAttrList)
+        protected void LoadBundleData(AttrList bundlesAttrList)
         {
             var dependencies = new Dictionary<string, List<string>>();
 
@@ -254,8 +254,6 @@ namespace SocialPoint.AssetBundlesClient
                 assetBundleData.Dependencies = ExpandDependencies(assetBundleData);
             }
             iter.Dispose();
-
-            return _assetBundlesParsedData;
         }
 
         static HashSet<AssetBundleParsedData> ExpandDependencies(AssetBundleParsedData assetBundleData)
@@ -329,7 +327,7 @@ namespace SocialPoint.AssetBundlesClient
                 return bundle;
             }
 
-            error = string.Format("Failed parse bundle {0}", assetBundleName);
+            error = string.Format("Failed parsing bundle {0}", assetBundleName);
             return null;
         }
 
@@ -349,7 +347,7 @@ namespace SocialPoint.AssetBundlesClient
             return assetBundleData;
         }
 
-        AssetBundleParsedData GetLocalAssetBundleParsedData(string assetBundleName)
+        static AssetBundleParsedData GetLocalAssetBundleParsedData(string assetBundleName)
         {
             AssetBundleParsedData assetBundleData;
             _localAssetBundleManager._assetBundlesParsedData.TryGetValue(assetBundleName, out assetBundleData);
@@ -381,13 +379,9 @@ namespace SocialPoint.AssetBundlesClient
             if(bundle != null)
             {
                 bundle._referencedCount++;
-//                FileUtils.WriteAllBytes(Path.Combine(_localBundlesPath, assetBundleName), (byte[])bundle._assetBundle);
                 return true;
             }
 
-            // @TODO: Do we need to consider the referenced count of WWWs?
-            // In the demo, unity never have duplicate WWWs as we wait LoadAssetAsync()/LoadLevelAsync() to be finished before calling another LoadAssetAsync()/LoadLevelAsync().
-            // But in the real case, users can call LoadAssetAsync()/LoadLevelAsync() several times then wait them to be finished which might have duplicate WWWs.
             if(_downloadingBundles.Contains(assetBundleName))
             {
                 return true;
