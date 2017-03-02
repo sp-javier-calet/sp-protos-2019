@@ -8,11 +8,14 @@ using SocialPoint.Extension.Helpshift;
 using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.Notifications;
+using UnityEngine;
 
 namespace SocialPoint.Extension.Helpshift
 {
     public class HelpshiftInstaller : ServiceInstaller
     {
+        const string HelpshiftDelegateObjectName = "HelpshiftDelegate";
+
         [Serializable]
         public class SettingsData
         {
@@ -81,6 +84,7 @@ namespace SocialPoint.Extension.Helpshift
         {
             helpshift.LocalizationManager = Container.Resolve<ILocalizationManager>();
             helpshift.NotificationServices = Container.Resolve<INotificationServices>();
+            helpshift.GameObjectDelegate = CreateDelegateObject();
 
             var login = Container.Resolve<ILogin>();
             if(login != null)
@@ -90,6 +94,29 @@ namespace SocialPoint.Extension.Helpshift
             }
 
             helpshift.Enable();
+        }
+
+        GameObject CreateDelegateObject()
+        {
+            var delegateObject = new GameObject(HelpshiftDelegateObjectName);
+            var handler = delegateObject.AddComponent<HelpshiftNativeHandler>();
+
+            if(Container.HasBinding<IHelpshiftDelegate>())
+            {
+                var del = Container.Resolve<IHelpshiftDelegate>();
+                handler.Delegate = del;
+            }
+
+            var parent = Container.Resolve<Transform>();
+            if(parent != null)
+            {
+                delegateObject.transform.SetParent(parent);
+            }
+            else
+            {
+                DontDestroyOnLoad(delegateObject);
+            }
+            return delegateObject;
         }
 
         void OnNewGenericData(Attr data)
@@ -103,7 +130,6 @@ namespace SocialPoint.Extension.Helpshift
             {
                 _helpshift.UserData = new HelpshiftCustomer(userId, new []{ userImportance }, new Dictionary<string, object>());
             }
-
         }
     }
 }
