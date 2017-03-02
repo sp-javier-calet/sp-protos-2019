@@ -10,7 +10,6 @@ namespace SocialPoint.Network.ServerEvents
 {
     public class PluginEventTracker : IUpdateable
     {
-        //TODO: specify
         const string MetricUri = "rtmp/metrics";
         const string TrackUri = "rtmp/tracks";
         const string LogUri = "rtmp/logs";
