@@ -1,10 +1,9 @@
-using NUnit.Framework;
-using NSubstitute;
-using SocialPoint.Utils;
-using SocialPoint.Attributes;
 using System;
-using SocialPoint.ServerEvents;
-using SocialPoint.Photon.ServerEvents;
+using NSubstitute;
+using NUnit.Framework;
+using SocialPoint.Attributes;
+using SocialPoint.Network.ServerEvents;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
