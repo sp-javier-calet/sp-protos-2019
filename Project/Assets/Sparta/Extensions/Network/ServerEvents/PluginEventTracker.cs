@@ -33,7 +33,7 @@ namespace SocialPoint.Network.ServerEvents
         public PluginEventTracker(IUpdateScheduler updateScheduler, IHttpClient httpClient)
         {
             _updateScheduler = updateScheduler;
-            _httpClient = httpClient;//new ImmediateWebRequestHttpClient();
+            _httpClient = httpClient;
             _pendingMetrics = new Dictionary<MetricType, List<Metric>>();
             _pendingEvents = new List<Event>();
             _pendingLogs = new List<Log>();
@@ -107,7 +107,6 @@ namespace SocialPoint.Network.ServerEvents
                         metric.ResponseDelegate(resp.Error);
                     }
                     _pendingMetrics[metric.MetricType].Remove(metric);
-                    //TODO call metric on response delegate?
                 }
             }
         }
