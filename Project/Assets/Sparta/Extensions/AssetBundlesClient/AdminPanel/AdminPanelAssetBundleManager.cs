@@ -14,7 +14,6 @@ namespace SocialPoint.AssetBundlesClient
     public sealed class AdminPanelAssetBundleManager : IAdminPanelConfigurer, IAdminPanelGUI
     {
         readonly AssetBundleManager _assetBundleManager;
-        readonly LocalAssetBundleManager _localAssetBundleManager;
 
         AdminPanelConsole _console;
         AdminPanelLayout _layout;
@@ -31,7 +30,6 @@ namespace SocialPoint.AssetBundlesClient
         public AdminPanelAssetBundleManager(AssetBundleManager assetBundleManager)
         {
             _assetBundleManager = assetBundleManager;
-            _localAssetBundleManager = Reflection.GetPrivateField<AssetBundleManager, LocalAssetBundleManager>(_assetBundleManager, "_localAssetBundleManager");
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -67,8 +65,9 @@ namespace SocialPoint.AssetBundlesClient
 
             AddDownloadingErrorsPanel();
             AddLoadedAssetBundlesPanel();
-            AddAssetBundlesParsedDataPanel(true);
-            AddAssetBundlesParsedDataPanel(false);
+            AddAssetBundlesParsedDataPanel(ParsedDataType.Local);
+            AddAssetBundlesParsedDataPanel(ParsedDataType.Remote);
+            AddAssetBundlesParsedDataPanel(ParsedDataType.Merged);
         }
 
         void AddCleanCacheButton()
@@ -82,14 +81,19 @@ namespace SocialPoint.AssetBundlesClient
             _layout.CreateMargin();
         }
 
-        AssetBundlesParsedData GetAssetBundlesParsedDataReflection()
+        AssetBundlesParsedData GetRemoteAssetBundlesParsedDataReflection()
         {
-            return Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_assetBundlesParsedData");
+            return Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_remoteAssetBundlesParsedData");
         }
 
         AssetBundlesParsedData GetLocalAssetBundlesParsedDataReflection()
         {
-            return Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_localAssetBundleManager, "_assetBundlesParsedData");
+            return Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_localAssetBundlesParsedData");
+        }
+
+        AssetBundlesParsedData GetMergedAssetBundlesParsedDataReflection()
+        {
+            return Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_mergedAssetBundlesParsedData");
         }
 
         static AttrList GetBundlesDataAttrList()
@@ -112,15 +116,15 @@ namespace SocialPoint.AssetBundlesClient
                 return;
             }
 
-            var assetBundlesParsedData = GetAssetBundlesParsedDataReflection();
+            var assetBundlesParsedData = GetRemoteAssetBundlesParsedDataReflection();
             if(assetBundlesParsedData.Count == 0)
             {
                 _console.Print("There is no Asset Bundles data parsed from the config manager.");
                 _console.Print("Trying to load bundles from bundle_data.json from Streaming Assets");
-                Reflection.CallPrivateVoidMethod<AssetBundleManager>(_assetBundleManager, "LoadBundleData", GetBundlesDataAttrList());
-                assetBundlesParsedData = GetAssetBundlesParsedDataReflection();
+                Reflection.CallPrivateVoidMethod<AssetBundleManager>(_assetBundleManager, "LoadBundleData", GetBundlesDataAttrList(), null);
             }
 
+            assetBundlesParsedData = GetMergedAssetBundlesParsedDataReflection();
             var iter = assetBundlesParsedData.GetEnumerator();
             while(iter.MoveNext())
             {
@@ -141,8 +145,7 @@ namespace SocialPoint.AssetBundlesClient
         void AddBasicInfo()
         {
             var baseDownloadingURL = Reflection.GetPrivateField<AssetBundleManager, string>(_assetBundleManager, "_baseDownloadingURL");
-
-            var localBaseDownloadingURL = Reflection.GetPrivateField<AssetBundleManager, string>(_localAssetBundleManager, "_baseDownloadingURL");
+            var localAssetBundlesPath = Reflection.GetPrivateField<AssetBundleManager, string>(_assetBundleManager, "_localAssetBundlesPath");
 
             var content = new StringBuilder();
             content.AppendLine("Server: " + _assetBundleManager.Server);
@@ -150,7 +153,7 @@ namespace SocialPoint.AssetBundlesClient
             content.AppendLine("Platorm: " + Utility.GetPlatformName());
             content.AppendLine("BaseDownloadingURL: " + baseDownloadingURL);
             content.AppendLine();
-            content.AppendLine("Local BaseDownloadingURL: " + localBaseDownloadingURL);
+            content.AppendLine("Local Asset Bundles Path: " + localAssetBundlesPath);
             content.AppendLine();
 
             _layout.CreateVerticalLayout().CreateTextArea(content.ToString());
@@ -181,12 +184,19 @@ namespace SocialPoint.AssetBundlesClient
             _layout.CreateMargin();
         }
 
-        void AddAssetBundlesParsedDataPanel(bool isLocal)
+        enum ParsedDataType
         {
-            var assetBundlesParsedData = isLocal ? GetLocalAssetBundlesParsedDataReflection() : GetAssetBundlesParsedDataReflection();
+            Local,
+            Remote,
+            Merged
+        }
+
+        void AddAssetBundlesParsedDataPanel(ParsedDataType dataType)
+        {
+            var assetBundlesParsedData = dataType == ParsedDataType.Local ? GetLocalAssetBundlesParsedDataReflection() : dataType == ParsedDataType.Remote ? GetRemoteAssetBundlesParsedDataReflection() : GetMergedAssetBundlesParsedDataReflection();
             if(assetBundlesParsedData.Count > 0)
             {
-                _layout.CreateLabel(isLocal ? "LocalAssetBundlesParsedData" : "AssetBundlesParsedData");
+                _layout.CreateLabel(dataType == ParsedDataType.Local ? "LocalAssetBundlesParsedData" : dataType == ParsedDataType.Remote ? "RemoteAssetBundlesParsedData" : "MergedAssetBundlesParsedData");
                 var content = new StringBuilder();
                 var iter = assetBundlesParsedData.GetEnumerator();
                 while(iter.MoveNext())
