@@ -174,7 +174,11 @@ namespace SocialPoint.TransparentBundles
                 bundleManifest = Manifest.GetDictionary();
             }
 
-            AssetDatabase.StartAssetEditing();
+            if(overwrite)
+            {
+                AssetDatabase.StartAssetEditing();
+            }
+
             var bundledAssets = GetBundledAsset();
 
             AssetDatabase.RemoveUnusedAssetBundleNames();
@@ -219,7 +223,12 @@ namespace SocialPoint.TransparentBundles
                 }
             }
 
-            AssetDatabase.StopAssetEditing();
+            if(overwrite)
+            {
+                AssetDatabase.StopAssetEditing();
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
         }
 
 
