@@ -84,7 +84,7 @@ namespace SocialPoint.Extension.Helpshift
         {
             helpshift.LocalizationManager = Container.Resolve<ILocalizationManager>();
             helpshift.NotificationServices = Container.Resolve<INotificationServices>();
-            helpshift.GameObjectDelegate = CreateDelegateObject();
+            helpshift.GameObjectDelegate = CreateDelegateObject(helpshift);
 
             var login = Container.Resolve<ILogin>();
             if(login != null)
@@ -96,10 +96,12 @@ namespace SocialPoint.Extension.Helpshift
             helpshift.Enable();
         }
 
-        GameObject CreateDelegateObject()
+        GameObject CreateDelegateObject(IHelpshift helpshift)
         {
             var delegateObject = new GameObject(HelpshiftDelegateObjectName);
+
             var handler = delegateObject.AddComponent<HelpshiftNativeHandler>();
+            handler.Helpshift = helpshift;
 
             if(Container.HasBinding<IHelpshiftDelegate>())
             {
