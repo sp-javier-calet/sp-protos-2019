@@ -81,7 +81,7 @@
 
             public void install (string apiKey, string domain, string appId, Dictionary<string, object> configMap) {
                 configMap.Add ("sdkType", "unity");
-                configMap.Add ("pluginVersion", HelpshiftConfig.pluginVersion);
+                configMap.Add ("pluginVersion", "2.6.1");
  		 configMap.Add ("runtimeVersion", Application.unityVersion);
 		 hsApiCall("install", new object[] {this.application, apiKey, domain, appId, Json.Serialize(configMap)});
             }
