@@ -69,27 +69,27 @@ namespace SocialPoint.AssetBundlesClient
 
     public class AssetBundleLoadLocalOperation : AssetBundleDownloadOperation
     {
-        readonly string _Url;
+        readonly string _fullPath;
 
-        public AssetBundleLoadLocalOperation(string assetBundleName, string path)
+        public AssetBundleLoadLocalOperation(string assetBundleName, string fullPath)
             : base(assetBundleName)
         {
-            _Url = path;
+            _fullPath = fullPath;
         }
 
         protected override void FinishDownload()
         {
-            if(!FileUtils.ExistsFile(_Url))
+            if(!FileUtils.ExistsFile(_fullPath))
             {
-                Error = string.Format("{0} file does not exists locally.", AssetBundleName);
+                Error = string.Format("{0} file does not exists locally. FullPath: {1}", AssetBundleName, _fullPath);
                 return;
             }
 
-            var bundle = AssetBundle.LoadFromFile(_Url);
+            var bundle = AssetBundle.LoadFromFile(_fullPath);
 
             if(bundle == null)
             {
-                Error = string.Format("{0} is not a valid asset bundle.", AssetBundleName);
+                Error = string.Format("{0} is not a valid asset bundle. FullPath: {1}", AssetBundleName, _fullPath);
                 return;
             }
 
@@ -98,7 +98,7 @@ namespace SocialPoint.AssetBundlesClient
 
         public override string GetSourceURL()
         {
-            return _Url;
+            return _fullPath;
         }
 
         protected override bool downloadIsDone
@@ -116,15 +116,17 @@ namespace SocialPoint.AssetBundlesClient
         WWW _WWW;
         readonly string _Url;
 
-        public AssetBundleDownloadFromWebOperation(string assetBundleName, WWW www)
+        public AssetBundleDownloadFromWebOperation(string assetBundleName, int assetBundleVersion, string url)
             : base(assetBundleName)
         {
-            if(www == null)
+            //@TODO: replace with DownloadHandlerAssetBundle when we all upgrade to unity 5.5
+            // https://unity3d.com/es/learn/tutorials/topics/best-practices/assetbundle-fundamentals#AssetBundleDownloadHandler
+            _WWW = WWW.LoadFromCacheOrDownload(url, assetBundleVersion);
+            if(_WWW == null)
             {
-                throw new ArgumentNullException("www");
+                throw new ArgumentNullException("_WWW");
             }
-            _Url = www.url;
-            _WWW = www;
+            _Url = _WWW.url;
         }
 
         protected override bool downloadIsDone { get { return (_WWW == null) || _WWW.isDone; } }

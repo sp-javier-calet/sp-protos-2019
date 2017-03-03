@@ -375,7 +375,6 @@ namespace SocialPoint.AssetBundlesClient
                 AddAssetBundleLoadLocalOperation(assetBundleData);
             }
 
-
             _downloadingBundles.Add(assetBundleName);
 
             return false;
@@ -392,10 +391,7 @@ namespace SocialPoint.AssetBundlesClient
             stringBuilder.Append(assetBundleData.Name);
             var url = stringBuilder.ToString();
 
-            //@TODO: replace with DownloadHandlerAssetBundle when we all upgrade to unity 5.5
-            // https://unity3d.com/es/learn/tutorials/topics/best-practices/assetbundle-fundamentals#AssetBundleDownloadHandler
-            var download = WWW.LoadFromCacheOrDownload(url, assetBundleData.Version);
-            _inProgressOperations.Add(new AssetBundleDownloadFromWebOperation(assetBundleData.Name, download));
+            _inProgressOperations.Add(new AssetBundleDownloadFromWebOperation(assetBundleData.Name, assetBundleData.Version, url));
         }
 
         // Where we get all the dependencies and load them all.
@@ -560,9 +556,9 @@ namespace SocialPoint.AssetBundlesClient
             stringBuilder.Append(_localAssetBundlesPath);
             stringBuilder.Append(slash);
             stringBuilder.Append(assetBundleData.Name);
-            var url = stringBuilder.ToString();
+            var fullPath = stringBuilder.ToString();
 
-            _inProgressOperations.Add(new AssetBundleLoadLocalOperation(assetBundleData.Name, url));
+            _inProgressOperations.Add(new AssetBundleLoadLocalOperation(assetBundleData.Name, fullPath));
         }
 
         public IEnumerator LoadAssetAsyncRequest(string assetBundleName, string assetName, Type type, Action<AssetBundleLoadAssetOperation> onRequestChanged)
