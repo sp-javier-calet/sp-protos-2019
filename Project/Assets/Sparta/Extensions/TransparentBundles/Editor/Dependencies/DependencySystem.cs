@@ -209,25 +209,23 @@ namespace SocialPoint.TransparentBundles
 
             foreach(var bundleData in bundleManifest.Values)
             {
-                if(overwrite)
+                var importer = AssetImporter.GetAtPath(bundleData.AssetPath);
+                if(bundleData.BundleName != importer.assetBundleName)
                 {
-                    var importer = AssetImporter.GetAtPath(bundleData.AssetPath);
-                    if(bundleData.BundleName != importer.assetBundleName)
+                    if(overwrite)
                     {
                         importer.assetBundleName = bundleData.BundleName;
                     }
-                }
-                else
-                {
-                    throw new Exception("Bundles in the project have a different assignment than the Dependencies provided. Calculate Dependencies in the project again.");
+                    else
+                    {
+                        throw new Exception("Bundles in the project have a different assignment than the Dependencies provided. Calculate Dependencies in the project again. Bundle expected: " + bundleData.BundleName + ". Bundle Found: " + importer.assetBundleName);
+                    }
                 }
             }
 
             if(overwrite)
             {
                 AssetDatabase.StopAssetEditing();
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
             }
         }
 
