@@ -4,6 +4,10 @@ using SocialPoint.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+#if UNITY_5_5_OR_NEWER
+using UnityEngine.Networking;
+#endif
+
 namespace SocialPoint.AssetBundlesClient
 {
     public abstract class AssetBundleLoadOperation : IEnumerator
@@ -106,7 +110,6 @@ namespace SocialPoint.AssetBundlesClient
             get
             {
                 return true;
-                ;
             }
         }
     }
@@ -119,14 +122,13 @@ namespace SocialPoint.AssetBundlesClient
         public AssetBundleDownloadFromWebOperation(string assetBundleName, int assetBundleVersion, string url)
             : base(assetBundleName)
         {
-            //@TODO: replace with DownloadHandlerAssetBundle when we all upgrade to unity 5.5
-            // https://unity3d.com/es/learn/tutorials/topics/best-practices/assetbundle-fundamentals#AssetBundleDownloadHandler
+            _Url = _WWW.url;
+
             _WWW = WWW.LoadFromCacheOrDownload(url, assetBundleVersion);
             if(_WWW == null)
             {
                 throw new ArgumentNullException("_WWW");
             }
-            _Url = _WWW.url;
         }
 
         protected override bool downloadIsDone { get { return (_WWW == null) || _WWW.isDone; } }
@@ -158,6 +160,60 @@ namespace SocialPoint.AssetBundlesClient
             return _Url;
         }
     }
+
+    #if UNITY_5_5_OR_NEWER
+    public class AssetBundleDownloadFromUnityWebRequestOperation : AssetBundleDownloadOperation
+    {
+        readonly string _Url;
+        UnityWebRequest _request;
+
+        public AssetBundleDownloadFromUnityWebRequestOperation(string assetBundleName, int assetBundleVersion, string url)
+            : base(assetBundleName)
+        {
+            _Url = url;
+
+            _request = UnityWebRequest.GetAssetBundle(url, (uint)assetBundleVersion, 0);
+            if(_request == null)
+            {
+                throw new ArgumentNullException("_request");
+            }
+
+            if(_request != null)
+            {
+                _request.Send();
+            }
+        }
+
+        protected override bool downloadIsDone { get { return (_request == null) || _request.isDone; } }
+
+        protected override void FinishDownload()
+        {
+            Error = _request.error;
+            if(!string.IsNullOrEmpty(Error))
+            {
+                return;
+            }
+
+            AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(_request);
+            if(bundle == null)
+            {
+                Error = string.Format("{0} is not a valid asset bundle.", AssetBundleName);
+            }
+            else
+            {
+                AssetBundleLoaded = new LoadedAssetBundle(bundle);
+            }
+
+            _request.Dispose();
+            _request = null;
+        }
+
+        public override string GetSourceURL()
+        {
+            return _Url;
+        }
+    }
+    #endif
 
     public class AssetBundleLoadLevelOperation : AssetBundleLoadOperation
     {

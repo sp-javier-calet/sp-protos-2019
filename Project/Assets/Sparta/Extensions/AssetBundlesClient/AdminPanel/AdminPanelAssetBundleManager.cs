@@ -65,9 +65,10 @@ namespace SocialPoint.AssetBundlesClient
 
             AddDownloadingErrorsPanel();
             AddLoadedAssetBundlesPanel();
-            AddAssetBundlesParsedDataPanel(ParsedDataType.Local);
-            AddAssetBundlesParsedDataPanel(ParsedDataType.Remote);
+
             AddAssetBundlesParsedDataPanel(ParsedDataType.Merged);
+            AddAssetBundlesParsedDataPanel(ParsedDataType.Remote);
+            AddAssetBundlesParsedDataPanel(ParsedDataType.Local);
         }
 
         void AddCleanCacheButton()
@@ -286,7 +287,7 @@ namespace SocialPoint.AssetBundlesClient
                 prefab = request.GetAsset<GameObject>();
                 if(prefab != null)
                 {
-                    Object.Instantiate(prefab);
+                    Object.Instantiate(prefab, new Vector3(Random.Range(-10,11), Random.Range(-10,11), Random.Range(-10,11)), Quaternion.identity);
                 }
             }
 
