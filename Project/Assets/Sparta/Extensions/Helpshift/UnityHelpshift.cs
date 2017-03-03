@@ -120,7 +120,7 @@ namespace SocialPoint.Extension.Helpshift
                 customerMetaData.Add(kpv.Key, kpv.Value);
             }
 
-            _configMap.Add(HelpshiftSdk.HSCUSTOMMETADATAKEY, customerMetaData);
+            _configMap[HelpshiftSdk.HSCUSTOMMETADATAKEY] = customerMetaData;
         }
 
         static string GetContactModeString(HelpshiftConfiguration.ContactMode mode)
