@@ -287,7 +287,7 @@ namespace SocialPoint.AssetBundlesClient
                 prefab = request.GetAsset<GameObject>();
                 if(prefab != null)
                 {
-                    Object.Instantiate(prefab, new Vector3(Random.Range(-10,11), Random.Range(-10,11), Random.Range(-10,11)), Quaternion.identity);
+                    Object.Instantiate(prefab, new Vector3(Random.Range(-10, 11), Random.Range(-10, 11), Random.Range(-10, 11)), Quaternion.identity);
                 }
             }
 
