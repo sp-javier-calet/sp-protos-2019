@@ -16,5 +16,7 @@
         "{ROOT_PATH}/Assets/Sparta/External/Helpshift/Plugins/iOS/HSThemes",
         "{ROOT_PATH}/Assets/Sparta/External/Helpshift/Plugins/iOS/HelpshiftDefaultLocalizations"
     ]
-    
+    "files":[
+        "{ROOT_PATH}/Assets/Plugins/iOS/HelpshiftInstallConfig.json"
+    ]
 }
