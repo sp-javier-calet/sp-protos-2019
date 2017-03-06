@@ -58,9 +58,9 @@ namespace SocialPoint.Lockstep
             public byte PlayerNumber;
         }
 
-        const string MatchStartMetricName = "battle.online.photon.match_start";
-        const string MatchEndMetricName = "battle.online.photon.match_end";
-        const string MatchEndCorrectedMetricName = "battle.online.photon.match_corrected";
+        const string MatchStartMetricName = "multiplayer.lockstep.match_start";
+        const string MatchEndMetricName = "multiplayer.lockstep.match_end";
+        const string MatchEndCorrectedMetricName = "multiplayer.lockstep.match_corrected";
 
         IMatchmakingServer _matchmaking;
 
@@ -683,7 +683,7 @@ namespace SocialPoint.Lockstep
                 }
                 break;
             }
-
+            keys.Dispose();
             if(SendMetric != null)
             {
                 SendMetric(new Metric(MetricType.Counter, corrected? MatchEndCorrectedMetricName : MatchEndMetricName, 1));

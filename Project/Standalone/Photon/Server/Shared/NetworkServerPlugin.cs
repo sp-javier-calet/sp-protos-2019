@@ -45,7 +45,7 @@ namespace SocialPoint.Network
             }
         }
 
-        public PluginEventTracker PluginEventTracker { get; private set; }
+        public HttpServerEventTracker PluginEventTracker { get; private set; }
 
         List<INetworkServerDelegate> _delegates;
         INetworkMessageReceiver _receiver;
@@ -81,7 +81,7 @@ namespace SocialPoint.Network
             _delegates = new List<INetworkServerDelegate>();
             var httpServer = new ImmediateWebRequestHttpClient();
             _updateScheduler = new UpdateScheduler();
-            PluginEventTracker = new PluginEventTracker(_updateScheduler, httpServer);
+            PluginEventTracker = new HttpServerEventTracker(_updateScheduler, httpServer);
             PluginEventTracker.Start();
         }
 
@@ -103,6 +103,10 @@ namespace SocialPoint.Network
             if(config.TryGetValue(LoggerNameConfig, out configStr))
             {
                 _log = LogManager.GetLogger(configStr);
+            }
+            if(PluginEventTracker != null)
+            {
+                PluginEventTracker.UpdateCommonTrackData += (dic => dic.SetValue("ver", AppVersion));
             }
             return true;
         }

@@ -7,8 +7,8 @@ namespace SocialPoint.Lockstep
 {
     public sealed class LockstepServer : IUpdateable, IDisposable
     {
-        const string TurnProcessingTimeMetricName = "battle.online.photon.turn_processing_time";
-        const string TurnProcessingTimeExceedMetricName = "battle.online.photon.turn_processing_time_exceed";
+        const string TurnProcessingTimeMetricName = "multiplayer.lockstep.turn_processing_time";
+        const string TurnProcessingTimeExceedMetricName = "multiplayer.lockstep.turn_processing_time_exceed";
 
         int _time;
         long _timestamp;

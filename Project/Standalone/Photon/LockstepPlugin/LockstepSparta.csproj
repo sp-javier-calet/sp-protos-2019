@@ -92,14 +92,14 @@
     <Compile Include="..\..\..\Assets\Sparta\Extensions\Matchmaking\IMatchmakingServer.cs">
       <Link>Matchmaking\IMatchmakingServer.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\HttpServerEventTracker.cs">
+      <Link>Network\ServerEvents\HttpServerEventTracker.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\Log.cs">
       <Link>Network\ServerEvents\Log.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\Metric.cs">
       <Link>Network\ServerEvents\Metric.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\PluginEventTracker.cs">
-      <Link>Network\ServerEvents\PluginEventTracker.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\dynamic.cs">
       <Link>External\FastJson\dynamic.cs</Link>

@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Network.ServerEvents
 {
-    public class PluginEventTracker : IUpdateable
+    public class HttpServerEventTracker : IUpdateable
     {
         const string MetricUri = "rtmp/metrics";
         const string TrackUri = "rtmp/tracks";
@@ -20,6 +20,8 @@ namespace SocialPoint.Network.ServerEvents
 
         public int SendInterval = DefaultSendInterval;
 
+        public event Action<AttrDic> UpdateCommonTrackData;
+
         IHttpClient _httpClient;
         Dictionary<MetricType, List<Metric>> _pendingMetrics;
         List<Event> _pendingEvents;
@@ -29,7 +31,7 @@ namespace SocialPoint.Network.ServerEvents
         bool _sending;
         bool _sendAgain;
 
-        public PluginEventTracker(IUpdateScheduler updateScheduler, IHttpClient httpClient)
+        public HttpServerEventTracker(IUpdateScheduler updateScheduler, IHttpClient httpClient)
         {
             _updateScheduler = updateScheduler;
             _httpClient = httpClient;
@@ -78,18 +80,20 @@ namespace SocialPoint.Network.ServerEvents
 
             var metricsData = new AttrDic();
             var sendMetrics = new List<Metric>();
-            foreach(var key in _pendingMetrics.Keys)
+            var keys = _pendingMetrics.Keys.GetEnumerator();
+            while(keys.MoveNext())
             {
                 var metrics = new AttrList();
-                for(int i = 0; i < _pendingMetrics[key].Count; i++)
+                for(int i = 0; i < _pendingMetrics[keys.Current].Count; i++)
                 {
-                    var metric = _pendingMetrics[key][i];
+                    var metric = _pendingMetrics[keys.Current][i];
                     metrics.Add(metric.ToAttr());
                     sendMetrics.Add(metric);
                 }
-                var dicKey = key.ToString().ToLower() + "s";
+                var dicKey = keys.Current.ToString().ToLower() + "s";
                 metricsData.Set(dicKey, metrics);
             }
+            keys.Dispose();
             req.Body = new JsonAttrSerializer().Serialize(metricsData);
             _httpClient.Send(req, (r) => OnMetricResponse(r, sendMetrics));
         }
@@ -137,9 +141,14 @@ namespace SocialPoint.Network.ServerEvents
                 var ev = events[i];
                 eventsAttr.Add(ev.ToAttr());
             }
+
             var common = new AttrDic();
-            common.Set("plat", new AttrString("photon"));
-            common.Set("ver", new AttrString("1"));
+            var handler = UpdateCommonTrackData;
+            if(handler != null)
+            {
+                UpdateCommonTrackData(common);
+            }
+            common.Set("plat", new AttrString("PhotonPlugin"));
             track.Set("common", common);
             track.Set("events", eventsAttr);
             req.Body = new JsonAttrSerializer().Serialize(track);
