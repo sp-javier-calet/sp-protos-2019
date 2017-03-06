@@ -36,5 +36,6 @@ namespace SocialPoint.TransparentBundles
         public const string ErrorImageName = "error.png";
         public const string InServerImageName = "in_server.png";
         public const string HelpImageName = "help.png";
+        public const string SleepImageName = "sleep.png";
     }
 }

@@ -64,8 +64,6 @@ namespace SocialPoint.TransparentBundles
                 }
             }
 #endif
-            LoadBundleDataFromServer();
-
             DependenciesCache = new Dictionary<string, List<Asset>>();
             ReferencesCache = new Dictionary<string, List<Asset>>();
             SharedDependenciesCache = new Dictionary<string, bool>();
@@ -92,11 +90,7 @@ namespace SocialPoint.TransparentBundles
             {
                 byte[] jsonBytes = Encoding.ASCII.GetBytes(bundleJsonString);
                 ServerInfo = ReadServerInfoFromJSON(jsonBytes);
-                var tempDict = ReadBundleListFromJSON(jsonBytes);
-                if(tempDict.Count > 0)
-                {
-                    _bundleDictionary = tempDict;
-                }
+                _bundleDictionary = ReadBundleListFromJSON(jsonBytes);
 
                 UpdateProcessingBundleStatus();
 
