@@ -140,6 +140,7 @@ namespace SocialPoint.Lockstep
         bool _simRecoveredCalled;
         State _state;
         XRandom _rootRandom;
+        List<int> _turnBuffersHistoric;
 
         Dictionary<Type, ILockstepCommandLogic> _commandLogics = new Dictionary<Type, ILockstepCommandLogic>();
         List<ClientCommandData> _pendingCommands = new List<ClientCommandData>();
@@ -261,6 +262,7 @@ namespace SocialPoint.Lockstep
             GameParams = new LockstepGameParams();
             ClientConfig = new LockstepClientConfig();
             _updateScheduler = updateScheduler;
+            _turnBuffersHistoric = new List<int>();
             Stop();
         }
 
@@ -373,6 +375,8 @@ namespace SocialPoint.Lockstep
         public void AddConfirmedTurn(ClientTurnData turn=null)
         {
             _lastConfirmedTurnNumber++;
+            _turnBuffersHistoric.Add(TurnBuffer);
+            _turnBuffersHistoric.Sort();
             if(!ClientTurnData.IsNullOrEmpty(turn))
             {
                 _confirmedTurns[_lastConfirmedTurnNumber] = turn;
@@ -574,6 +578,35 @@ namespace SocialPoint.Lockstep
         public void Dispose()
         {
             Stop();
+        }
+
+        public int LowestTurnBuffer
+        {
+            get
+            {
+                return _turnBuffersHistoric.Count > 0 ? _turnBuffersHistoric[0] : -1;
+            }
+        }
+
+        public int HighestTurnBuffer
+        {
+            get
+            {
+                return _turnBuffersHistoric.Count > 0 ? _turnBuffersHistoric[_turnBuffersHistoric.Count-1] : -1;
+            }
+        }
+
+        public int AverageTurnBuffer
+        {
+            get
+            {
+                var sum = 0;
+                for(int i = 0; i < _turnBuffersHistoric.Count; i++)
+                {
+                    sum += _turnBuffersHistoric[i];
+                }
+                return _turnBuffersHistoric.Count > 0 ? sum / _turnBuffersHistoric.Count : -1;
+            }
         }
     }
 }

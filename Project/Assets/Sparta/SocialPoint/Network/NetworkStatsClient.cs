@@ -39,7 +39,7 @@ namespace SocialPoint.Network
             _latencies.Sort();
         }
 
-        int LowestLatency
+        public int LowestLatency
         {
             get
             {
@@ -47,7 +47,7 @@ namespace SocialPoint.Network
             }
         }
 
-        int HighestLatency
+        public int HighestLatency
         {
             get
             {
@@ -55,7 +55,7 @@ namespace SocialPoint.Network
             }
         }
 
-        int AverageLatency
+        public int AverageLatency
         {
             get
             {

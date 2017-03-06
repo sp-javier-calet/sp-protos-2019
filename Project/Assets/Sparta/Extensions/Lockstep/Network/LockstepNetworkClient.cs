@@ -11,9 +11,13 @@ namespace SocialPoint.Lockstep
 {
     public sealed class LockstepNetworkClient : IDisposable, INetworkMessageReceiver, INetworkClientDelegate
     {
-        public INetworkClient Network { get; private set;  }
-        public LockstepCommandFactory CommandFactory { get;  private set; }
+        public INetworkClient Network { get; private set; }
+
+        public LockstepCommandFactory CommandFactory { get; private set; }
+
         public LockstepClient Lockstep { get; private set; }
+
+        public Action<string, AttrDic, ErrorDelegate> SendTrack;
 
         INetworkMessageReceiver _receiver;
 
@@ -27,6 +31,8 @@ namespace SocialPoint.Lockstep
                 return Network.Connected && Lockstep.Running;
             }
         }
+
+        public string MatchId { get; set; }
 
         public string PlayerId{ get; set; }
 
@@ -44,6 +50,7 @@ namespace SocialPoint.Lockstep
         }
 
         List<string> _playerIds;
+
         public ReadOnlyCollection<string> PlayerIds
         {
             get
@@ -159,7 +166,7 @@ namespace SocialPoint.Lockstep
             msg.Deserialize(reader);
             var time = msg.StartTime + Network.GetDelay(msg.ServerTimestamp);
             _playerIds = msg.PlayerIds;
-            PlayerNumber =  (byte)_playerIds.IndexOf(PlayerId);
+            PlayerNumber = (byte)_playerIds.IndexOf(PlayerId);
 
             Lockstep.Start(time);
             if(StartScheduled != null)
@@ -170,6 +177,7 @@ namespace SocialPoint.Lockstep
 
         void OnClientEndReceived(IReader reader)
         {
+            SendNetworkStats();
             var msg = new AttrMessage();
             msg.Deserialize(reader);
             if(EndReceived != null)
@@ -177,6 +185,37 @@ namespace SocialPoint.Lockstep
                 EndReceived(msg.Data);
             }
             Lockstep.Stop();
+        }
+
+        void SendNetworkStats()
+        {
+            if(SendTrack != null && Network is NetworkStatsClient)
+            {
+                var statsClient = (NetworkStatsClient)Network;
+                {
+                    var data = new AttrDic();
+                    data.SetValue("unique_id", MatchId);
+                    data.SetValue("min_lag", statsClient.LowestLatency);
+                    data.SetValue("max_lag", statsClient.HighestLatency);
+                    data.SetValue("average_lag", statsClient.AverageLatency);
+                    SendTrack("log_battle_end_lag_info", data, null);
+                }
+                {
+                    var data = new AttrDic();
+                    data.SetValue("unique_id", MatchId);
+                    data.SetValue("download", statsClient.DownloadBandwith);
+                    data.SetValue("upload", statsClient.UploadBandwith);
+                    SendTrack("log_battle_end_bandwith_info", data, null);
+                }
+                {
+                    var data = new AttrDic();
+                    data.SetValue("unique_id", MatchId);
+                    data.SetValue("min_turn_buffer", Lockstep.LowestTurnBuffer);
+                    data.SetValue("max_turn_buffer", Lockstep.HighestTurnBuffer);
+                    data.SetValue("average_turn_buffer", Lockstep.AverageTurnBuffer);
+                    SendTrack("log_battle_end_buffer_info", data, null);
+                }
+            }
         }
 
         public void SendPlayerReady()
@@ -197,7 +236,7 @@ namespace SocialPoint.Lockstep
                 Network.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.PlayerReady,
                 }, new PlayerReadyMessage(PlayerId));
-              if(PlayerReadySent != null)
+                if(PlayerReadySent != null)
                 {
                     PlayerReadySent();
                 }
@@ -210,7 +249,7 @@ namespace SocialPoint.Lockstep
             {
                 return;
             }
-            Network.SendMessage(new NetworkMessageData{
+            Network.SendMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.PlayerFinish
             }, new AttrMessage(data));
             if(PlayerFinishSent != null)

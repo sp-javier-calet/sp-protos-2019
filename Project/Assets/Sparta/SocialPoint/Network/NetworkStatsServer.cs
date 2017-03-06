@@ -21,6 +21,8 @@ namespace SocialPoint.Network
         {
             _delegates = new List<INetworkServerDelegate>();
             _server = server;
+            _server.RegisterReceiver(this);
+            _server.AddDelegate(this);
             _scheduler = scheduler;
             _clients = new List<byte>();
         }

@@ -597,8 +597,14 @@ namespace SocialPoint.Lockstep
         void DoStartLockstep()
         {
             _serverLockstep.Start(ServerConfig.ClientSimulationDelay - ServerConfig.ClientStartDelay);
-            SendMetric(new Metric(MetricType.Counter, MatchStartMetricName, 1));
-            SendTrack(MatchStartMetricName, null, null);
+            if(SendMetric != null)
+            {
+                SendMetric(new Metric(MetricType.Counter, MatchStartMetricName, 1));
+            }
+            if(SendTrack != null)
+            {
+                SendTrack(MatchStartMetricName, null, null);
+            }
             for(var i = 0; i < _clients.Count; i++)
             {
                 var client = _clients[i];

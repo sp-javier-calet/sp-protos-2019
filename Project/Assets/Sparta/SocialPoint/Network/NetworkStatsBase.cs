@@ -87,23 +87,7 @@ namespace SocialPoint.Network
 
         #endregion
 
-        int LowestDownloadBandwith
-        {
-            get
-            {
-                return _downloadBandwith.Count > 0 ? _downloadBandwith[0] : -1;
-            }
-        }
-
-        int HighestDownloadBandwith
-        {
-            get
-            {
-                return _downloadBandwith.Count > 0 ? _downloadBandwith[_downloadBandwith.Count - 1] : -1;
-            }
-        }
-
-        int AverageDownloadBandwith
+        public int DownloadBandwith
         {
             get
             {
@@ -112,27 +96,35 @@ namespace SocialPoint.Network
                 {
                     sum += _downloadBandwith[i];
                 }
-                return _downloadBandwith.Count > 0 ? sum / _downloadBandwith.Count : -1;
+                return _downloadBandwith.Count > 0 ? sum : -1;
             }
         }
 
-        int LowestUploadBandwith
+        public int LowestDownloadBandwith
         {
             get
             {
-                return _uploadBandwith.Count > 0 ? _uploadBandwith[0] : -1;
+                return _downloadBandwith.Count > 0 ? _downloadBandwith[0] : -1;
             }
         }
 
-        int HighestUploadBandwith
+        public int HighestDownloadBandwith
         {
             get
             {
-                return _uploadBandwith.Count > 0 ? _uploadBandwith[_uploadBandwith.Count - 1] : -1;
+                return _downloadBandwith.Count > 0 ? _downloadBandwith[_downloadBandwith.Count - 1] : -1;
             }
         }
 
-        int AverageUploadBandwith
+        public int AverageDownloadBandwith
+        {
+            get
+            {
+                return _downloadBandwith.Count > 0 ? DownloadBandwith / _downloadBandwith.Count : -1;
+            }
+        }
+
+        public int UploadBandwith
         {
             get
             {
@@ -141,7 +133,31 @@ namespace SocialPoint.Network
                 {
                     sum += _uploadBandwith[i];
                 }
-                return _uploadBandwith.Count > 0 ? sum / _uploadBandwith.Count : -1;
+                return sum;
+            }
+        }
+
+        public int LowestUploadBandwith
+        {
+            get
+            {
+                return _uploadBandwith.Count > 0 ? _uploadBandwith[0] : -1;
+            }
+        }
+
+        public int HighestUploadBandwith
+        {
+            get
+            {
+                return _uploadBandwith.Count > 0 ? _uploadBandwith[_uploadBandwith.Count - 1] : -1;
+            }
+        }
+
+        public int AverageUploadBandwith
+        {
+            get
+            {
+                return _uploadBandwith.Count > 0 ? UploadBandwith / _uploadBandwith.Count : -1;
             }
         }
     }
