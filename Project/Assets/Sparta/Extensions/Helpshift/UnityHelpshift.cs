@@ -8,7 +8,6 @@ using SocialPoint.Base;
 
 using SocialPoint.Locale;
 using SocialPoint.Notifications;
-using UnityEngine;
 
 #if HELPSHIFT_SUPPORTED
 
@@ -18,7 +17,6 @@ namespace SocialPoint.Extension.Helpshift
     {
         const string EnableInAppNotificationsKey = "enableInAppNotification";
         const string EnableContactUsKey = "enableContactUs";
-        const string UnityGameObjectKey = "unityGameObject";
         const string ShowSarchOnNewConversationKey = "showSearchOnNewConversation";
         const string ShowConversationResolutionQuestionKey = "showConversationResolutionQuestion";
         const string YesKey = "yes";
@@ -28,8 +26,6 @@ namespace SocialPoint.Extension.Helpshift
 
         public ILocalizationManager LocalizationManager { private get; set; }
         public INotificationServices NotificationServices { private get; set; }
-
-        public GameObject GameObjectDelegate { private get; set; }
 
         HelpshiftSdk _helpshift;
         Dictionary<string, object> _configMap;
@@ -68,12 +64,6 @@ namespace SocialPoint.Extension.Helpshift
         void CreateConfigMap()
         {
             _configMap = new Dictionary<string, object>();
-
-
-            if(GameObjectDelegate != null)
-            {
-                _configMap.Add(UnityGameObjectKey, GameObjectDelegate.name);
-            }
 
             // Controls the visibility of Contact Us button
             _configMap.Add(EnableContactUsKey, GetContactModeString(_config.Mode));
@@ -246,11 +236,6 @@ namespace SocialPoint.Extension.Helpshift
             _helpshift.showConversation(_configMap);
         }
 
-        public void UpdateMetadata()
-        {
-            UpdateCustomerData();
-        }
-
         #endregion
     }
 }
@@ -268,8 +253,6 @@ namespace SocialPoint.Extension.Helpshift
         public ILocalizationManager LocalizationManager { private get; set; }
 
         public INotificationServices NotificationServices { private get; set; }
-
-        public GameObject GameObjectDelegate { private get; set; }
     }
 }
 

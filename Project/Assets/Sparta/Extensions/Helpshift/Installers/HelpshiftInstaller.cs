@@ -14,8 +14,6 @@ namespace SocialPoint.Extension.Helpshift
 {
     public class HelpshiftInstaller : ServiceInstaller
     {
-        const string HelpshiftDelegateObjectName = "HelpshiftDelegate";
-
         [Serializable]
         public class SettingsData
         {
@@ -84,7 +82,6 @@ namespace SocialPoint.Extension.Helpshift
         {
             helpshift.LocalizationManager = Container.Resolve<ILocalizationManager>();
             helpshift.NotificationServices = Container.Resolve<INotificationServices>();
-            helpshift.GameObjectDelegate = CreateDelegateObject(helpshift);
 
             var login = Container.Resolve<ILogin>();
             if(login != null)
@@ -94,31 +91,6 @@ namespace SocialPoint.Extension.Helpshift
             }
 
             helpshift.Enable();
-        }
-
-        GameObject CreateDelegateObject(IHelpshift helpshift)
-        {
-            var delegateObject = new GameObject(HelpshiftDelegateObjectName);
-
-            var handler = delegateObject.AddComponent<HelpshiftNativeHandler>();
-            handler.Helpshift = helpshift;
-
-            if(Container.HasBinding<IHelpshiftDelegate>())
-            {
-                var del = Container.Resolve<IHelpshiftDelegate>();
-                handler.Delegate = del;
-            }
-
-            var parent = Container.Resolve<Transform>();
-            if(parent != null)
-            {
-                delegateObject.transform.SetParent(parent);
-            }
-            else
-            {
-                DontDestroyOnLoad(delegateObject);
-            }
-            return delegateObject;
         }
 
         void OnNewGenericData(Attr data)

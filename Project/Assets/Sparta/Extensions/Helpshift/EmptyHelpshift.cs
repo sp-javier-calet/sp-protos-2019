@@ -42,10 +42,6 @@ namespace SocialPoint.Extension.Helpshift
         {
         }
 
-        public void UpdateMetadata()
-        {
-        }
-
         #endregion
     }
 }
