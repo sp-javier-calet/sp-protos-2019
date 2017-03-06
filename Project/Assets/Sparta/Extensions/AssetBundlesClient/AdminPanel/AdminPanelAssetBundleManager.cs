@@ -15,6 +15,10 @@ namespace SocialPoint.AssetBundlesClient
     {
         readonly AssetBundleManager _assetBundleManager;
 
+        AssetBundlesParsedData _remoteAssetBundlesParsedData = new AssetBundlesParsedData();
+        AssetBundlesParsedData _localAssetBundlesParsedData = new AssetBundlesParsedData();
+        AssetBundlesParsedData _mergedAssetBundlesParsedData = new AssetBundlesParsedData();
+
         AdminPanelConsole _console;
         AdminPanelLayout _layout;
 
@@ -82,21 +86,6 @@ namespace SocialPoint.AssetBundlesClient
             _layout.CreateMargin();
         }
 
-        AssetBundlesParsedData GetRemoteAssetBundlesParsedDataReflection()
-        {
-            return Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_remoteAssetBundlesParsedData");
-        }
-
-        AssetBundlesParsedData GetLocalAssetBundlesParsedDataReflection()
-        {
-            return Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_localAssetBundlesParsedData");
-        }
-
-        AssetBundlesParsedData GetMergedAssetBundlesParsedDataReflection()
-        {
-            return Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_mergedAssetBundlesParsedData");
-        }
-
         static AttrList GetBundlesDataAttrList()
         {
             const string bundleDataFile = "bundle_data.json";
@@ -117,16 +106,19 @@ namespace SocialPoint.AssetBundlesClient
                 return;
             }
 
-            var assetBundlesParsedData = GetRemoteAssetBundlesParsedDataReflection();
-            if(assetBundlesParsedData.Count == 0)
+            _localAssetBundlesParsedData = Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_localAssetBundlesParsedData");
+            _remoteAssetBundlesParsedData = Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_remoteAssetBundlesParsedData");
+
+            if(_remoteAssetBundlesParsedData.Count == 0)
             {
                 _console.Print("There is no Asset Bundles data parsed from the config manager.");
                 _console.Print("Trying to load bundles from bundle_data.json from Streaming Assets");
                 Reflection.CallPrivateVoidMethod<AssetBundleManager>(_assetBundleManager, "LoadBundleData", GetBundlesDataAttrList(), null);
             }
 
-            assetBundlesParsedData = GetMergedAssetBundlesParsedDataReflection();
-            var iter = assetBundlesParsedData.GetEnumerator();
+            _mergedAssetBundlesParsedData = Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_mergedAssetBundlesParsedData");
+
+            var iter = _mergedAssetBundlesParsedData.GetEnumerator();
             while(iter.MoveNext())
             {
                 var item = iter.Current;
@@ -194,7 +186,7 @@ namespace SocialPoint.AssetBundlesClient
 
         void AddAssetBundlesParsedDataPanel(ParsedDataType dataType)
         {
-            var assetBundlesParsedData = dataType == ParsedDataType.Local ? GetLocalAssetBundlesParsedDataReflection() : dataType == ParsedDataType.Remote ? GetRemoteAssetBundlesParsedDataReflection() : GetMergedAssetBundlesParsedDataReflection();
+            var assetBundlesParsedData = dataType == ParsedDataType.Local ? _localAssetBundlesParsedData : dataType == ParsedDataType.Remote ? _remoteAssetBundlesParsedData : _mergedAssetBundlesParsedData;
             if(assetBundlesParsedData.Count > 0)
             {
                 _layout.CreateLabel(dataType == ParsedDataType.Local ? "LocalAssetBundlesParsedData" : dataType == ParsedDataType.Remote ? "RemoteAssetBundlesParsedData" : "MergedAssetBundlesParsedData");

@@ -56,6 +56,7 @@ namespace SocialPoint.AssetBundlesClient
         static AssetBundlesParsedData _localAssetBundlesParsedData = new AssetBundlesParsedData();
         static string _localAssetBundlesPath;
 
+        //merged
         static HashSet<string> _parsedBundlesNames = new HashSet<string>();
         static AssetBundlesParsedData _mergedAssetBundlesParsedData = new AssetBundlesParsedData();
 
@@ -448,6 +449,14 @@ namespace SocialPoint.AssetBundlesClient
 
         public void Dispose()
         {
+            _loadedAssetBundles.Clear();
+            _downloadingErrors.Clear();
+            _downloadingBundles.Clear();
+            _inProgressOperations.Clear();
+            _remoteAssetBundlesParsedData.Clear();
+            _localAssetBundlesParsedData.Clear();
+            _parsedBundlesNames.Clear();
+            _mergedAssetBundlesParsedData.Clear();
             _scheduler.Remove(this);
         }
 

@@ -122,7 +122,7 @@ namespace SocialPoint.AssetBundlesClient
         public AssetBundleDownloadFromWebOperation(string assetBundleName, int assetBundleVersion, string url)
             : base(assetBundleName)
         {
-            _Url = _WWW.url;
+            _Url = url;
 
             _WWW = WWW.LoadFromCacheOrDownload(url, assetBundleVersion);
             if(_WWW == null)
