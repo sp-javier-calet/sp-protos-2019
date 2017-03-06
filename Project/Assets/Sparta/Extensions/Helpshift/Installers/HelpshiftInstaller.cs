@@ -8,24 +8,30 @@ using SocialPoint.Extension.Helpshift;
 using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.Notifications;
-using UnityEngine;
 
 namespace SocialPoint.Extension.Helpshift
 {
     public class HelpshiftInstaller : ServiceInstaller
     {
+        // default params from DL
+        public const string DefaultApiKey = "e80e75c9fd498d3274f3cdbc637b3866";
+        public const string DefaultDomainName = "socialpoint.helpshift.com";
+        public const string DefaultIosAppId = "socialpoint_platform_20151021095745155-1b0b401a75542a3";
+        public const string DefaultAndroidAppId = "socialpoint_platform_20151021095745169-3fd755eb172b848";
+
+
         [Serializable]
         public class SettingsData
         {
             public bool UseEmpty;
 
-            public string ApiKey = HelpshiftConfiguration.DefaultApiKey;
+            public string ApiKey = DefaultApiKey;
 
-            public string DomainName = HelpshiftConfiguration.DefaultDomainName;
+            public string DomainName = DefaultDomainName;
 
-            public string IosAppId = HelpshiftConfiguration.DefaultIosAppId;
+            public string IosAppId = DefaultIosAppId;
 
-            public string AndroidAppId = HelpshiftConfiguration.DefaultAndroidAppId;
+            public string AndroidAppId = DefaultAndroidAppId;
 
             public HelpshiftConfiguration.ContactMode Mode;
 
