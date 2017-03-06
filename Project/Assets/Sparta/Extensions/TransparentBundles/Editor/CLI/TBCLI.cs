@@ -167,7 +167,10 @@ namespace SocialPoint.TransparentBundles
 
             DependencySystem.UpdateManifest(input.ManualBundles);
 
+            DependencySystem.CheckBundlesForBuild(true);
+
             typedOutput.BundlesDictionary = DependencySystem.Manifest.GetDictionary();
+
         }
 
         /// <summary>
@@ -184,7 +187,7 @@ namespace SocialPoint.TransparentBundles
 
             DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y + " - " + x);
 
-            DependencySystem.PrepareForBuild(input.BundlesDictionary);
+            DependencySystem.CheckBundlesForBuild(false, input.BundlesDictionary);
 
             Application.LogCallback Callback = (msg, stack, type) => {
                 if(type == LogType.Error || type == LogType.Exception || type == LogType.Warning)
