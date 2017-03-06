@@ -13,7 +13,7 @@ namespace SocialPoint.AssetBundlesClient
     public sealed class AssetBundleManagerTests
     {
         AssetBundleManager _assetBundleManager;
-        AssetBundlesParsedData _mergedAssetBundlesParsedData = new AssetBundlesParsedData();
+        AssetBundlesParsedData _mergedAssetBundlesParsedData;
         Action<AssetBundleLoadLevelOperation> _loadLevelOperation;
         Action<AssetBundleLoadAssetOperation> _loadAssetOperation;
 
@@ -36,7 +36,6 @@ namespace SocialPoint.AssetBundlesClient
         [TearDown]
         public void TearDown()
         {
-            _mergedAssetBundlesParsedData.Clear();
             _assetBundleManager.Dispose();
         }
 

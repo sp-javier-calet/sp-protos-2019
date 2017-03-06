@@ -74,23 +74,32 @@ namespace SocialPoint.AssetBundlesClient
     public class AssetBundleLoadLocalOperation : AssetBundleDownloadOperation
     {
         readonly string _fullPath;
+        AssetBundleCreateRequest _request;
 
         public AssetBundleLoadLocalOperation(string assetBundleName, string fullPath)
             : base(assetBundleName)
         {
             _fullPath = fullPath;
-        }
 
-        protected override void FinishDownload()
-        {
             if(!FileUtils.ExistsFile(_fullPath))
             {
                 Error = string.Format("{0} file does not exists locally. FullPath: {1}", AssetBundleName, _fullPath);
                 return;
             }
 
-            var bundle = AssetBundle.LoadFromFile(_fullPath);
+            _request = AssetBundle.LoadFromFileAsync(_fullPath);
+        }
 
+        protected override bool downloadIsDone { get { return (_request == null) || _request.isDone; } }
+
+        protected override void FinishDownload()
+        {
+            if(_request == null)
+            {
+                return;
+            }
+
+            var bundle = _request.assetBundle;
             if(bundle == null)
             {
                 Error = string.Format("{0} is not a valid asset bundle. FullPath: {1}", AssetBundleName, _fullPath);
@@ -104,20 +113,12 @@ namespace SocialPoint.AssetBundlesClient
         {
             return _fullPath;
         }
-
-        protected override bool downloadIsDone
-        {
-            get
-            {
-                return true;
-            }
-        }
     }
 
     public class AssetBundleDownloadFromWebOperation : AssetBundleDownloadOperation
     {
-        WWW _WWW;
         readonly string _Url;
+        WWW _WWW;
 
         public AssetBundleDownloadFromWebOperation(string assetBundleName, int assetBundleVersion, string url)
             : base(assetBundleName)
@@ -125,16 +126,17 @@ namespace SocialPoint.AssetBundlesClient
             _Url = url;
 
             _WWW = WWW.LoadFromCacheOrDownload(url, assetBundleVersion);
-            if(_WWW == null)
-            {
-                throw new ArgumentNullException("_WWW");
-            }
         }
 
         protected override bool downloadIsDone { get { return (_WWW == null) || _WWW.isDone; } }
 
         protected override void FinishDownload()
         {
+            if(_WWW == null)
+            {
+                return;
+            }
+
             Error = _WWW.error;
             if(!string.IsNullOrEmpty(Error))
             {
@@ -173,11 +175,6 @@ namespace SocialPoint.AssetBundlesClient
             _Url = url;
 
             _request = UnityWebRequest.GetAssetBundle(url, (uint)assetBundleVersion, 0);
-            if(_request == null)
-            {
-                throw new ArgumentNullException("_request");
-            }
-
             if(_request != null)
             {
                 _request.Send();
@@ -188,6 +185,11 @@ namespace SocialPoint.AssetBundlesClient
 
         protected override void FinishDownload()
         {
+            if(_request == null)
+            {
+                return;
+            }
+
             Error = _request.error;
             if(!string.IsNullOrEmpty(Error))
             {
@@ -294,7 +296,9 @@ namespace SocialPoint.AssetBundlesClient
 
     public class AssetBundleLoadAssetOperationFull : AssetBundleLoadAssetOperation
     {
-        const string LoadingErrorDescription = "LoadAssetAsync loading failed.";
+        const string LoadingErrorDescription = "LoadAssetAsync failed.";
+        const string GetAssetTypeErrorDescription = "Asset from request is not from the expected type.";
+        const string GetAssetRequestrDescription = "Can not retrieve asset from AssetBundleRequest.";
 
         protected string _assetBundleName;
         protected string _assetName;
@@ -314,7 +318,19 @@ namespace SocialPoint.AssetBundlesClient
         {
             if(_request != null && _request.isDone)
             {
-                return _request.asset as T;
+                var asset = _request.asset as T;
+                if(asset != null)
+                {
+                    return asset;
+                }
+                if(string.IsNullOrEmpty(Error))
+                {
+                    Error = GetAssetTypeErrorDescription;
+                }
+            }
+            if(string.IsNullOrEmpty(Error))
+            {
+                Error = GetAssetRequestrDescription;
             }
             return null;
         }

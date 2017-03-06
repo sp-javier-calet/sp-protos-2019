@@ -59,6 +59,7 @@ namespace SocialPoint.AssetBundlesClient
         //merged
         static HashSet<string> _parsedBundlesNames = new HashSet<string>();
         static AssetBundlesParsedData _mergedAssetBundlesParsedData = new AssetBundlesParsedData();
+        static readonly List<string> _mergeIssues = new List<string>();
 
 
         [System.Diagnostics.Conditional("DEBUG_BUNDLES")]
@@ -123,36 +124,40 @@ namespace SocialPoint.AssetBundlesClient
                     if(configData.ContainsKey(bundleDataKey))
                     {
                         var bundleData = configData.Get(bundleDataKey).AssertDic;
-                        LoadBundleData(bundleData.Get(bundleDataKey).AssertList);
+                        LoadBundleData(bundleData.Get(bundleDataKey).AssertList, false);
+                        ClearTemporaryData();
                     }
                 }
             }
         }
 
-        static void MergeParsedData()
+        static void ClearTemporaryData()
         {
-            var iter = _remoteAssetBundlesParsedData.GetEnumerator();
+            _remoteAssetBundlesParsedData.Clear();
+            _localAssetBundlesParsedData.Clear();
+            _parsedBundlesNames.Clear();
+        }
+
+        static void MergeParsedData(Dictionary<string, AssetBundleParsedData> assetBundlesParsedData)
+        {
+            var iter = assetBundlesParsedData.GetEnumerator();
             while(iter.MoveNext())
             {
                 _parsedBundlesNames.Add(iter.Current.Key);
             }
             iter.Dispose();
 
-            var iterLocal = _localAssetBundlesParsedData.GetEnumerator();
-            while(iterLocal.MoveNext())
-            {
-                _parsedBundlesNames.Add(iterLocal.Current.Key);
-            }
-            iterLocal.Dispose();
-
             var iterNames = _parsedBundlesNames.GetEnumerator();
             while(iterNames.MoveNext())
             {
                 var assetBundleName = iterNames.Current;
-                var remoteAsset = GetRemoteAssetBundleParsedData(assetBundleName);
+
+                AssetBundleParsedData remoteAsset;
+                _remoteAssetBundlesParsedData.TryGetValue(assetBundleName, out remoteAsset);
                 int remoteAssetVersion = remoteAsset != null ? remoteAsset.Version : 0;
 
-                var localAsset = GetLocalAssetBundleParsedData(assetBundleName);
+                AssetBundleParsedData localAsset;
+                _localAssetBundlesParsedData.TryGetValue(assetBundleName, out localAsset);
                 int localAssetVersion = localAsset != null ? localAsset.Version : 0;
 
                 if(remoteAssetVersion > localAssetVersion && remoteAssetVersion > 0 && !_mergedAssetBundlesParsedData.ContainsKey(assetBundleName))
@@ -166,16 +171,42 @@ namespace SocialPoint.AssetBundlesClient
                 }
             }
             iterNames.Dispose();
+
+            CheckMixedDependencies();
         }
 
-        static void LoadBundleData(AttrList bundlesAttrList, AssetBundlesParsedData assetBundlesParsedData = null)
+        static void CheckMixedDependencies()
         {
-            bool loadOnRemote = false;
-            if(assetBundlesParsedData == null)
+            var assetBundlesParsedData = _mergedAssetBundlesParsedData;
+
+            var iter = assetBundlesParsedData.GetEnumerator();
+            while(iter.MoveNext())
             {
-                assetBundlesParsedData = _remoteAssetBundlesParsedData;
-                loadOnRemote = true;
+                var assetBundle = iter.Current.Value;
+                var remoteIsNewest = assetBundle.RemoteIsNewest;
+
+                var dependencies = assetBundle.Dependencies;
+                var iterDeps = dependencies.GetEnumerator();
+                while(iterDeps.MoveNext())
+                {
+                    var assetBundleDep = iterDeps.Current;
+                    var remoteDepIsNewest = assetBundleDep.RemoteIsNewest;
+
+                    if(remoteIsNewest != remoteDepIsNewest)
+                    {
+                        string issue = string.Format("assetBundle: {0} - Remote: {1} but assetBundleDep: {2} - Remote: {3}", assetBundle.Name, remoteIsNewest, assetBundleDep.Name, remoteDepIsNewest);
+                        _mergeIssues.Add(issue);
+                    }
+                }
+                iterDeps.Dispose();
+                   
             }
+            iter.Dispose();
+        }
+
+        static void LoadBundleData(AttrList bundlesAttrList, bool isLocal)
+        {
+            var assetBundlesParsedData = isLocal ? _localAssetBundlesParsedData : _remoteAssetBundlesParsedData;
 
             var dependencies = new Dictionary<string, List<string>>();
 
@@ -236,12 +267,16 @@ namespace SocialPoint.AssetBundlesClient
             }
             iter.Dispose();
 
-            if(loadOnRemote)
+            if(isLocal)
+            {
+                _localAssetBundlesParsedData = assetBundlesParsedData;
+            }
+            else
             {
                 _remoteAssetBundlesParsedData = assetBundlesParsedData;
             }
 
-            MergeParsedData();
+            MergeParsedData(assetBundlesParsedData);
         }
 
         static HashSet<AssetBundleParsedData> ExpandDependencies(AssetBundleParsedData assetBundleData)
@@ -282,7 +317,7 @@ namespace SocialPoint.AssetBundlesClient
                 return null;
             }
 
-            var assetBundleData = GetNewestAssetBundleParsedData(assetBundleName);
+            var assetBundleData = GetAssetBundleParsedData(assetBundleName);
             if(assetBundleData != null)
             {
                 var dependencies = assetBundleData.Dependencies;
@@ -361,7 +396,7 @@ namespace SocialPoint.AssetBundlesClient
                 return true;
             }
 
-            var assetBundleData = GetNewestAssetBundleParsedData(assetBundleName);
+            var assetBundleData = GetAssetBundleParsedData(assetBundleName);
             if(assetBundleData == null)
             {
                 return false;
@@ -402,7 +437,7 @@ namespace SocialPoint.AssetBundlesClient
         // Where we get all the dependencies and load them all.
         static void LoadDependencies(string assetBundleName)
         {
-            var assetBundleData = GetNewestAssetBundleParsedData(assetBundleName);
+            var assetBundleData = GetAssetBundleParsedData(assetBundleName);
             if(assetBundleData == null)
             {
                 return;
@@ -457,6 +492,7 @@ namespace SocialPoint.AssetBundlesClient
             _localAssetBundlesParsedData.Clear();
             _parsedBundlesNames.Clear();
             _mergedAssetBundlesParsedData.Clear();
+            _mergeIssues.Clear();
             _scheduler.Remove(this);
         }
 
@@ -522,21 +558,7 @@ namespace SocialPoint.AssetBundlesClient
             }
         }
 
-        static AssetBundleParsedData GetRemoteAssetBundleParsedData(string assetBundleName)
-        {
-            AssetBundleParsedData assetBundleData;
-            _remoteAssetBundlesParsedData.TryGetValue(assetBundleName, out assetBundleData);
-            return assetBundleData;
-        }
-
-        static AssetBundleParsedData GetLocalAssetBundleParsedData(string assetBundleName)
-        {
-            AssetBundleParsedData assetBundleData;
-            _localAssetBundlesParsedData.TryGetValue(assetBundleName, out assetBundleData);
-            return assetBundleData;
-        }
-
-        static AssetBundleParsedData GetNewestAssetBundleParsedData(string assetBundleName)
+        static AssetBundleParsedData GetAssetBundleParsedData(string assetBundleName)
         {
             AssetBundleParsedData assetBundleData;
             _mergedAssetBundlesParsedData.TryGetValue(assetBundleName, out assetBundleData);
@@ -546,7 +568,7 @@ namespace SocialPoint.AssetBundlesClient
         static void SetupLocal()
         {
             _localAssetBundlesPath = Path.Combine(PathsManager.StreamingAssetsPath, Utility.GetPlatformName());
-            LoadBundleData(GetLocalBundlesDataAttrList(), _localAssetBundlesParsedData);
+            LoadBundleData(GetLocalBundlesDataAttrList(), true);
         }
 
         static AttrList GetLocalBundlesDataAttrList()
@@ -665,7 +687,6 @@ namespace SocialPoint.AssetBundlesClient
             stringBuilder.AppendLine("AssetBundleData: ");
             stringBuilder.AppendLine("- name: " + Name);
             stringBuilder.AppendLine("- version: " + Version);
-            stringBuilder.AppendLine("- Remote Is Newest: " + RemoteIsNewest);
             stringBuilder.AppendLine("- dependencies: ");
 
             var itr = Dependencies.GetEnumerator();

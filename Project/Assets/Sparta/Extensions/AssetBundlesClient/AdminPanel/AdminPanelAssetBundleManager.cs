@@ -16,8 +16,10 @@ namespace SocialPoint.AssetBundlesClient
         readonly AssetBundleManager _assetBundleManager;
 
         AssetBundlesParsedData _remoteAssetBundlesParsedData = new AssetBundlesParsedData();
-        AssetBundlesParsedData _localAssetBundlesParsedData = new AssetBundlesParsedData();
         AssetBundlesParsedData _mergedAssetBundlesParsedData = new AssetBundlesParsedData();
+
+        string _baseDownloadingURL;
+        string _localAssetBundlesPath;
 
         AdminPanelConsole _console;
         AdminPanelLayout _layout;
@@ -27,6 +29,9 @@ namespace SocialPoint.AssetBundlesClient
 
         const string _sceneSuffix = "_unity";
         const string _prefabSuffix = "_prefab";
+        const string _remoteColor = "lime";
+        const string _localColor = "aqua";
+        const string _errorColor = "red";
 
         char[] _sceneSuffixCharArray = _sceneSuffix.ToCharArray();
         char[] _prefabSuffixCharArray = _prefabSuffix.ToCharArray();
@@ -70,9 +75,8 @@ namespace SocialPoint.AssetBundlesClient
             AddDownloadingErrorsPanel();
             AddLoadedAssetBundlesPanel();
 
-            AddAssetBundlesParsedDataPanel(ParsedDataType.Merged);
-            AddAssetBundlesParsedDataPanel(ParsedDataType.Remote);
-            AddAssetBundlesParsedDataPanel(ParsedDataType.Local);
+            AddMergeIssuesPanel();
+            AddAssetBundlesParsedDataPanel();
         }
 
         void AddCleanCacheButton()
@@ -106,14 +110,16 @@ namespace SocialPoint.AssetBundlesClient
                 return;
             }
 
-            _localAssetBundlesParsedData = Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_localAssetBundlesParsedData");
+            _baseDownloadingURL = Reflection.GetPrivateField<AssetBundleManager, string>(_assetBundleManager, "_baseDownloadingURL");
+            _localAssetBundlesPath = Reflection.GetPrivateField<AssetBundleManager, string>(_assetBundleManager, "_localAssetBundlesPath");
+
             _remoteAssetBundlesParsedData = Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_remoteAssetBundlesParsedData");
 
             if(_remoteAssetBundlesParsedData.Count == 0)
             {
                 _console.Print("There is no Asset Bundles data parsed from the config manager.");
                 _console.Print("Trying to load bundles from bundle_data.json from Streaming Assets");
-                Reflection.CallPrivateVoidMethod<AssetBundleManager>(_assetBundleManager, "LoadBundleData", GetBundlesDataAttrList(), null);
+                Reflection.CallPrivateVoidMethod<AssetBundleManager>(_assetBundleManager, "LoadBundleData", GetBundlesDataAttrList(), false);
             }
 
             _mergedAssetBundlesParsedData = Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_mergedAssetBundlesParsedData");
@@ -137,16 +143,13 @@ namespace SocialPoint.AssetBundlesClient
 
         void AddBasicInfo()
         {
-            var baseDownloadingURL = Reflection.GetPrivateField<AssetBundleManager, string>(_assetBundleManager, "_baseDownloadingURL");
-            var localAssetBundlesPath = Reflection.GetPrivateField<AssetBundleManager, string>(_assetBundleManager, "_localAssetBundlesPath");
-
             var content = new StringBuilder();
             content.AppendLine("Server: " + _assetBundleManager.Server);
             content.AppendLine("Game: " + _assetBundleManager.Game);
             content.AppendLine("Platorm: " + Utility.GetPlatformName());
-            content.AppendLine("BaseDownloadingURL: " + baseDownloadingURL);
+            content.AppendLine("BaseDownloadingURL: " + _baseDownloadingURL);
             content.AppendLine();
-            content.AppendLine("Local Asset Bundles Path: " + localAssetBundlesPath);
+            content.AppendLine("Local Asset Bundles Path: " + _localAssetBundlesPath);
             content.AppendLine();
 
             _layout.CreateVerticalLayout().CreateTextArea(content.ToString());
@@ -177,25 +180,23 @@ namespace SocialPoint.AssetBundlesClient
             _layout.CreateMargin();
         }
 
-        enum ParsedDataType
+        void AddAssetBundlesParsedDataPanel()
         {
-            Local,
-            Remote,
-            Merged
-        }
-
-        void AddAssetBundlesParsedDataPanel(ParsedDataType dataType)
-        {
-            var assetBundlesParsedData = dataType == ParsedDataType.Local ? _localAssetBundlesParsedData : dataType == ParsedDataType.Remote ? _remoteAssetBundlesParsedData : _mergedAssetBundlesParsedData;
+            var assetBundlesParsedData = _mergedAssetBundlesParsedData;
             if(assetBundlesParsedData.Count > 0)
             {
-                _layout.CreateLabel(dataType == ParsedDataType.Local ? "LocalAssetBundlesParsedData" : dataType == ParsedDataType.Remote ? "RemoteAssetBundlesParsedData" : "MergedAssetBundlesParsedData");
+                _layout.CreateLabel("AssetBundlesParsedData");
                 var content = new StringBuilder();
+
+                content.AppendFormat("<color={0}>remote bundles</color> - <color={1}>local bundles</color>\n\n", _remoteColor, _localColor);
+
                 var iter = assetBundlesParsedData.GetEnumerator();
                 while(iter.MoveNext())
                 {
                     var item = iter.Current;
+                    content.AppendFormat("<color={0}>", item.Value.RemoteIsNewest ? _remoteColor : _localColor);
                     content.AppendLine(item.Value.ToString());
+                    content.Append("</color>");
                 }
                 iter.Dispose();
                 _layout.CreateVerticalScrollLayout().CreateTextArea(content.ToString());
@@ -227,6 +228,7 @@ namespace SocialPoint.AssetBundlesClient
             {
                 _layout.CreateLabel("DownloadingErrors");
                 var content = new StringBuilder();
+                content.AppendFormat("<color={0}>", _errorColor);
                 var iter = downloadingErrors.GetEnumerator();
                 while(iter.MoveNext())
                 {
@@ -235,8 +237,29 @@ namespace SocialPoint.AssetBundlesClient
                     content.AppendLine(item.Value);
                 }
                 iter.Dispose();
+                content.Append("</color>");
                 _layout.CreateVerticalScrollLayout().CreateTextArea(content.ToString());
             }
+        }
+
+        void AddMergeIssuesPanel()
+        {
+            var mergeIssues = Reflection.GetPrivateField<AssetBundleManager, List<string>>(_assetBundleManager, "_mergeIssues");
+            if(mergeIssues.Count > 0)
+            {
+                _layout.CreateLabel("Merge Issues");
+                var content = new StringBuilder();
+                content.AppendFormat("<color={0}>", _errorColor);
+                var iter = mergeIssues.GetEnumerator();
+                while(iter.MoveNext())
+                {
+                    var item = iter.Current;
+                    content.AppendLine(item);
+                }
+                iter.Dispose();
+                content.Append("</color>");
+                _layout.CreateVerticalScrollLayout().CreateTextArea(content.ToString());
+            }  
         }
 
         void DownloadScene(string sceneName)
@@ -259,7 +282,9 @@ namespace SocialPoint.AssetBundlesClient
 
             // Calculate and display the elapsed time.
             float elapsedTime = Time.realtimeSinceStartup - startTime;
-            ConsolePrint(string.Format("Scene - {0} - {1} - Time: {2} seconds", sceneName, string.IsNullOrEmpty(request.Error) ? " OK" : request.Error, elapsedTime));
+            string requestOK = string.Format("<color={0}> OK </color>", _remoteColor);
+            string requestError = string.Format("<color={0}> {1}</color>", _errorColor, request.Error);
+            ConsolePrint(string.Format("Scene - {0} - {1} - Time: {2} seconds", sceneName, string.IsNullOrEmpty(request.Error) ? requestOK : requestError, elapsedTime));
 
             _layout.Refresh();
         }
@@ -279,13 +304,15 @@ namespace SocialPoint.AssetBundlesClient
                 prefab = request.GetAsset<GameObject>();
                 if(prefab != null)
                 {
-                    Object.Instantiate(prefab, new Vector3(Random.Range(-10, 11), Random.Range(-10, 11), Random.Range(-10, 11)), Quaternion.identity);
+                    Object.Instantiate(prefab, new Vector3(Random.Range(-5, 6), Random.Range(-5, 6), Random.Range(-5, 6)), Quaternion.identity);
                 }
             }
 
             // Calculate and display the elapsed time.
             float elapsedTime = Time.realtimeSinceStartup - startTime;
-            ConsolePrint(string.Format("Prefab - {0} - {1} - Time: {2} seconds", assetName, prefab != null ? " OK" : request.Error, elapsedTime));
+            string requestOK = string.Format("<color={0}> OK </color>", _remoteColor);
+            string requestError = string.Format("<color={0}>{1}</color>", _errorColor, request.Error);
+            ConsolePrint(string.Format("Prefab - {0} - {1} - Time: {2} seconds", assetName, prefab != null ? requestOK : requestError, elapsedTime));
 
             _layout.Refresh();
         }
