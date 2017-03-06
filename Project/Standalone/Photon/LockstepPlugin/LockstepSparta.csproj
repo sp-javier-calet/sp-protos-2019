@@ -248,6 +248,15 @@
     <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\INetworkServer.cs">
       <Link>Network\INetworkServer.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\NetworkStatsBase.cs">
+      <Link>Network\NetworkStatsBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\NetworkStatsClient.cs">
+      <Link>Network\NetworkStatsClient.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\NetworkStatsServer.cs">
+      <Link>Network\NetworkStatsServer.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\WebRequestUtils.cs">
       <Link>Network\WebRequestUtils.cs</Link>
     </Compile>

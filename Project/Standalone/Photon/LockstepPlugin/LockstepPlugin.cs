@@ -43,13 +43,6 @@ namespace SocialPoint.Lockstep
 
         public LockstepPlugin() : base("Lockstep")
         {
-            _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient());
-            _netServer = new LockstepNetworkServer(this, _matchmaking);
-            _netServer.BeforeMatchStarts += OnBeforeMatchStarts;
-
-            _netServer.SendMetric = PluginEventTracker.SendMetric;
-            _netServer.SendLog = PluginEventTracker.SendLog;
-            _netServer.SendTrack = PluginEventTracker.SendTrack;
         }
 
         void OnBeforeMatchStarts()
@@ -76,6 +69,15 @@ namespace SocialPoint.Lockstep
             {
                 return false;
             }
+
+            _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient());
+            _netServer = new LockstepNetworkServer(NetworkServer, _matchmaking);
+            _netServer.BeforeMatchStarts += OnBeforeMatchStarts;
+
+            _netServer.SendMetric = PluginEventTracker.SendMetric;
+            _netServer.SendLog = PluginEventTracker.SendLog;
+            _netServer.SendTrack = PluginEventTracker.SendTrack;
+
             _matchmaking.Version = AppVersion;
             _netServer.Config.CommandStepDuration = GetConfigOption(config,
                 CommandStepDurationConfig, _netServer.Config.CommandStepDuration);
