@@ -13,7 +13,7 @@ namespace SocialPoint.Dependency
             return Resources.Load<GlobalDependencyConfigurer>(ResourcePath);
         }
 
-        [UnityEngine.SerializeField]
+        [SerializeField]
         public Installer[] Installers;
 
         public GlobalDependencyConfigurer() : base(ModuleType.Configurer)
