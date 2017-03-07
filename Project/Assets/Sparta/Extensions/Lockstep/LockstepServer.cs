@@ -255,7 +255,7 @@ namespace SocialPoint.Lockstep
             {
                 sum += _processingTimes[i];
             }
-            SendMetric(new Metric(MetricType.Gauge, TurnProcessingTimeMetricName, (int)sum/_processingTimes.Count));
+            SendMetric(new Metric(MetricType.Gauge, TurnProcessingTimeMetricName, sum > 0 ? (int)sum/_processingTimes.Count : 0));
             _processingTimes.Clear();
         }
 
