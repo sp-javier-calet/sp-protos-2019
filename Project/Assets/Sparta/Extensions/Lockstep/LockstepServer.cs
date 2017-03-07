@@ -9,6 +9,8 @@ namespace SocialPoint.Lockstep
     {
         const string TurnProcessingTimeMetricName = "multiplayer.lockstep.turn_processing_time";
         const string TurnProcessingTimeExceedMetricName = "multiplayer.lockstep.turn_processing_time_exceed";
+        const int MetricSendInterval = 10000;
+        int _timeSendMetric;
 
         int _time;
         long _timestamp;
@@ -16,6 +18,7 @@ namespace SocialPoint.Lockstep
         IUpdateScheduler _updateScheduler;
         Dictionary<int, ServerTurnData> _turns;
         int _pendingEmptyTurns;
+        List<int> _processingTimes;
 
         public bool Running{ get; private set; }
 
@@ -59,6 +62,7 @@ namespace SocialPoint.Lockstep
             _updateScheduler = updateScheduler;
             _turns = new Dictionary<int, ServerTurnData>();
             _pendingEmptyTurns = 0;
+            _processingTimes = new List<int>();
             Stop();
         }
 
@@ -165,6 +169,12 @@ namespace SocialPoint.Lockstep
                 _localClient.Update(dt);
             }
             _time += dt;
+            _timeSendMetric += dt;
+            if(_timeSendMetric > MetricSendInterval)
+            {
+                _timeSendMetric -= MetricSendInterval;
+                SendAverageProcessingTime();
+            }
             while(true)
             {
                 var nextCmdTime = _lastCmdTime + Config.CommandStepDuration;
@@ -234,6 +244,21 @@ namespace SocialPoint.Lockstep
             UnregisterLocalClient();
         }
 
+        void SendAverageProcessingTime()
+        {
+            if(SendMetric != null)
+            {
+                return;
+            }
+            var sum = 0;
+            for(int i = 0; i < _processingTimes.Count; i++)
+            {
+                sum += _processingTimes[i];
+            }
+            SendMetric(new Metric(MetricType.Gauge, TurnProcessingTimeMetricName, (int)sum/_processingTimes.Count));
+            _processingTimes.Clear();
+        }
+
         #region local client implementation
 
         LockstepClient _localClient;
@@ -277,7 +302,7 @@ namespace SocialPoint.Lockstep
             {
                 SendMetric(new Metric(MetricType.Counter, TurnProcessingTimeExceedMetricName, 1));
             }
-            SendMetric(new Metric(MetricType.Gauge, TurnProcessingTimeMetricName, (int)data.ProcessTime));
+            _processingTimes.Add((int)data.ProcessTime);
         }
 
         void ConfirmLocalClientTurn(ServerTurnData turn)

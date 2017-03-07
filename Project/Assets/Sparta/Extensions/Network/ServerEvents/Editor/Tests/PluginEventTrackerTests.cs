@@ -11,7 +11,7 @@ namespace SocialPoint.Network
     [Category("SocialPoint.Events")]
     public class PluginEventTrackerTests
     {
-        PluginEventTracker EventTracker;
+        HttpServerEventTracker EventTracker;
         IUpdateScheduler Scheduler;
         IHttpClient HttpClient;
 
@@ -21,7 +21,7 @@ namespace SocialPoint.Network
             Scheduler = Substitute.For<IUpdateScheduler>();
             HttpClient = Substitute.For<IHttpClient>();
             HttpClient.Send(Arg.Any<HttpRequest>(), Arg.InvokeDelegate<HttpResponseDelegate>(new HttpResponse(200)));
-            EventTracker = new PluginEventTracker(Scheduler, HttpClient);
+            EventTracker = new HttpServerEventTracker(Scheduler, HttpClient);
             EventTracker.BaseUrl = "https://lodx.socialpointgames.com/api/v3/";
             EventTracker.Start();
         }
