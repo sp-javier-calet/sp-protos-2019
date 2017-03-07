@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+
 import es.socialpoint.unity.notification.IntentParameters.Origin;
 
 public class PushNotificationReceiver extends BroadcastReceiver {
