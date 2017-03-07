@@ -23,9 +23,9 @@ namespace SocialPoint.Purchase
 
         #region IPurchaseStore implementationcategoryModel
 
-        public event ProductsUpdatedDelegate ProductsUpdated = delegate {};
+        public event ProductsUpdatedDelegate ProductsUpdated;
 
-        public event PurchaseUpdatedDelegate PurchaseUpdated = delegate {};
+        public event PurchaseUpdatedDelegate PurchaseUpdated;
 
         public ILoginData LoginData { get; set; }
 

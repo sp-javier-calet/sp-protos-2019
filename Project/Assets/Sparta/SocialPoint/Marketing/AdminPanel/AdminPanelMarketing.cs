@@ -1,4 +1,6 @@
-﻿using SocialPoint.AdminPanel;
+﻿#if ADMIN_PANEL 
+
+using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
 
 namespace SocialPoint.Marketing
@@ -45,4 +47,4 @@ namespace SocialPoint.Marketing
     }
 }
 
-
+#endif

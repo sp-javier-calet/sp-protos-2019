@@ -1,6 +1,9 @@
 using System;
 using SocialPoint.Dependency;
+
+#if ADMIN_PANEL
 using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Notifications
 {
@@ -27,8 +30,9 @@ namespace SocialPoint.Notifications
 #else
         Container.Rebind<INotificationServices>().ToSingle<EmptyNotificationServices>();
 #endif
-
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelNotifications>(CreateAdminPanel);
+            #endif
         }
 
         #if !UNITY_EDITOR
@@ -52,11 +56,13 @@ namespace SocialPoint.Notifications
     
     #endif
 
+        #if ADMIN_PANEL
         AdminPanelNotifications CreateAdminPanel()
         {
             return new AdminPanelNotifications(
                 Container.Resolve<INotificationServices>());
         }
+        #endif
 
         public void Initialize()
         {

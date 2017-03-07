@@ -1,4 +1,6 @@
-﻿using SocialPoint.AdminPanel;
+﻿#if ADMIN_PANEL 
+
+using SocialPoint.AdminPanel;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 
@@ -70,3 +72,5 @@ namespace SocialPoint.VideoAds
         }
     }
 }
+
+#endif

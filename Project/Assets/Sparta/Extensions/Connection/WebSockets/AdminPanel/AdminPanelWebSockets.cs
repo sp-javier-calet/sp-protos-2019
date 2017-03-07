@@ -1,4 +1,6 @@
-﻿using UnityEngine.UI;
+﻿#if ADMIN_PANEL 
+
+using UnityEngine.UI;
 using System.Text;
 using SocialPoint.IO;
 using SocialPoint.AdminPanel;
@@ -143,3 +145,5 @@ namespace SocialPoint.WebSockets
         #endregion
     }
 }
+
+#endif

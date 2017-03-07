@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿#if ADMIN_PANEL 
+
+using System.Text;
 using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
 using UnityEngine;
@@ -212,3 +214,5 @@ namespace SocialPoint.Lockstep
         }
     }
 }
+
+#endif
