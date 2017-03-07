@@ -246,7 +246,7 @@ namespace SocialPoint.Lockstep
 
         void SendAverageProcessingTime()
         {
-            if(SendMetric != null)
+            if(SendMetric == null)
             {
                 return;
             }
