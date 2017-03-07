@@ -9,7 +9,7 @@ namespace SocialPoint.Network
 {
     [TestFixture]
     [Category("SocialPoint.Events")]
-    public class PluginEventTrackerTests
+    public class HttpServerEventTrackerTests
     {
         HttpServerEventTracker EventTracker;
         IUpdateScheduler Scheduler;
@@ -68,7 +68,7 @@ namespace SocialPoint.Network
             Predicate<HttpRequest> pred = delegate (HttpRequest req)
             {
                 var data = new JsonAttrParser().Parse(req.Body).AsDic;
-                return data.ContainsKey(MetricType.Counter.ToString().ToLower() + "s");
+                return data.ContainsKey(MetricType.Counter.ToApiKey());
             };
             HttpClient.Received().Send(Arg.Is<HttpRequest>(r => pred(r)), Arg.Any<HttpResponseDelegate>());
         }
@@ -101,9 +101,9 @@ namespace SocialPoint.Network
             Predicate<HttpRequest> pred = delegate (HttpRequest req)
             {
                 var data = new JsonAttrParser().Parse(req.Body).AsDic;
-                if(data.ContainsKey(MetricType.Counter.ToString().ToLower() + "s"))
+                if(data.ContainsKey(MetricType.Counter.ToApiKey()))
                 {
-                    return data[MetricType.Counter.ToString().ToLower() + "s"].AsList.Count > 0;
+                    return data[MetricType.Counter.ToApiKey()].AsList.Count > 0;
                 }
                 return false;
             };

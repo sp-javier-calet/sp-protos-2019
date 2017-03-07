@@ -13,6 +13,28 @@ namespace SocialPoint.Network.ServerEvents
         Histogram
     }
 
+    public static class MetricExtensions
+    {
+        public static string ToApiKey(this MetricType type)
+        {
+            switch(type)
+            {
+            case MetricType.Counter:
+                return "counters";
+            case MetricType.Gauge:
+                return "gauges";
+            case MetricType.Histogram:
+                return "histograms";
+            case MetricType.Set:
+                return "sets";
+            case MetricType.Timing:
+                return "timings";
+            default:
+                return type.ToString();
+            }
+        }
+    }
+
     public class Metric
     {
         const string AttrKeyStat = "stat";

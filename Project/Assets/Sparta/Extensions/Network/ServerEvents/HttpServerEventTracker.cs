@@ -84,13 +84,14 @@ namespace SocialPoint.Network.ServerEvents
             while(keys.MoveNext())
             {
                 var metrics = new AttrList();
-                for(int i = 0; i < _pendingMetrics[keys.Current].Count; i++)
+                var pendingMetrics = _pendingMetrics[keys.Current];
+                for(int i = 0; i < pendingMetrics.Count; i++)
                 {
-                    var metric = _pendingMetrics[keys.Current][i];
+                    var metric = pendingMetrics[i];
                     metrics.Add(metric.ToAttr());
                     sendMetrics.Add(metric);
                 }
-                var dicKey = keys.Current.ToString().ToLower() + "s";
+                var dicKey = keys.Current.ToApiKey();
                 metricsData.Set(dicKey, metrics);
             }
             keys.Dispose();
