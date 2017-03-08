@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 namespace SocialPoint.TransparentBundles
 {
+    //This is a copy from SpartaEditorTools NativeConsole. We are not using that class cause it must be determined if that could affect the compilation of sparta
     public static class NativeConsole
     {
         public enum OutputType

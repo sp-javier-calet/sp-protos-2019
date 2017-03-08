@@ -3,6 +3,7 @@ using System.Text;
 
 namespace SocialPoint.TransparentBundles
 {
+    //This is a copy from SpartaEditorTools Repository. We are not using that class cause it must be determined if that could affect the compilation of sparta
     public class Repository
     {
         const string Binary = "git";
