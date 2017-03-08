@@ -66,5 +66,4 @@ namespace SocialPoint.GrayboxLibrary
         Vehicles,
         UI}
 
-    ;
 }
