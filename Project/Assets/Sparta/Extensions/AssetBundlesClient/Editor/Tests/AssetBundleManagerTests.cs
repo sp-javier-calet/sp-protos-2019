@@ -1,7 +1,6 @@
 ﻿using System;
 using NSubstitute;
 using NUnit.Framework;
-using SocialPoint.AdminPanel;
 using SocialPoint.IO;
 using SocialPoint.Utils;
 using UnityEngine;
@@ -13,7 +12,6 @@ namespace SocialPoint.AssetBundlesClient
     public sealed class AssetBundleManagerTests
     {
         AssetBundleManager _assetBundleManager;
-        AssetBundlesParsedData _mergedAssetBundlesParsedData;
         Action<AssetBundleLoadLevelOperation> _loadLevelOperation;
         Action<AssetBundleLoadAssetOperation> _loadAssetOperation;
 
@@ -27,7 +25,6 @@ namespace SocialPoint.AssetBundlesClient
             _assetBundleManager.Scheduler = Substitute.For<IUpdateScheduler>();
             _assetBundleManager.CoroutineRunner = Substitute.For<ICoroutineRunner>();
             _assetBundleManager.Setup();
-            _mergedAssetBundlesParsedData = Reflection.GetPrivateField<AssetBundleManager, AssetBundlesParsedData>(_assetBundleManager, "_mergedAssetBundlesParsedData");
 
             _loadLevelOperation = Substitute.For<Action<AssetBundleLoadLevelOperation>>();
             _loadAssetOperation = Substitute.For<Action<AssetBundleLoadAssetOperation>>();
@@ -37,12 +34,6 @@ namespace SocialPoint.AssetBundlesClient
         public void TearDown()
         {
             _assetBundleManager.Dispose();
-        }
-
-        [Test]
-        public void SetupIsDone()
-        {
-            Assert.Greater(_mergedAssetBundlesParsedData.Count, 0);
         }
 
         [Test]

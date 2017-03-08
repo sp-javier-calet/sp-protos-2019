@@ -33,6 +33,8 @@ namespace SocialPoint.AssetBundlesClient
         const string _localColor = "aqua";
         const string _errorColor = "red";
 
+        const float _secondsToDays = 1.0f / (60.0f * 60.0f * 24.0f);
+
         char[] _sceneSuffixCharArray = _sceneSuffix.ToCharArray();
         char[] _prefabSuffixCharArray = _prefabSuffix.ToCharArray();
 
@@ -150,6 +152,8 @@ namespace SocialPoint.AssetBundlesClient
             content.AppendLine("BaseDownloadingURL: " + _baseDownloadingURL);
             content.AppendLine();
             content.AppendLine("Local Asset Bundles Path: " + _localAssetBundlesPath);
+            content.AppendLine();
+            content.AppendLine("Caching.expirationDelay: " + Caching.expirationDelay * _secondsToDays);
             content.AppendLine();
 
             _layout.CreateVerticalLayout().CreateTextArea(content.ToString());

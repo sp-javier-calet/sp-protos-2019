@@ -124,7 +124,6 @@ namespace SocialPoint.AssetBundlesClient
             : base(assetBundleName)
         {
             _Url = url;
-
             _WWW = WWW.LoadFromCacheOrDownload(url, assetBundleVersion);
         }
 
@@ -134,12 +133,15 @@ namespace SocialPoint.AssetBundlesClient
         {
             if(_WWW == null)
             {
+                _WWW.Dispose();
                 return;
             }
 
             Error = _WWW.error;
             if(!string.IsNullOrEmpty(Error))
             {
+                _WWW.Dispose();
+                _WWW = null;
                 return;
             }
 
@@ -187,12 +189,15 @@ namespace SocialPoint.AssetBundlesClient
         {
             if(_request == null)
             {
+                _request.Dispose();
                 return;
             }
 
             Error = _request.error;
             if(!string.IsNullOrEmpty(Error))
             {
+                _request.Dispose();
+                _request = null;
                 return;
             }
 
