@@ -49,7 +49,7 @@ namespace SocialPoint.Lockstep
         }
     }
 
-    public sealed class LockstepNetworkServer : IDisposable, INetworkMessageReceiver, INetworkServerDelegate, IMatchmakingServerDelegate
+    public sealed class LockstepNetworkServer : IDisposable, INetworkMessageReceiver, INetworkServerDelegate, IMatchmakingServerDelegate, IServerEventTracker
     {
         class ClientData
         {
@@ -133,9 +133,9 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public Action<Network.ServerEvents.Log, bool> SendLog;
+        public Action<Network.ServerEvents.Log, bool> SendLog { get; set; }
 
-        public Action<string, AttrDic, ErrorDelegate> SendTrack;
+        public Action<string, AttrDic, ErrorDelegate> SendTrack { get; set; }
 
         public LockstepNetworkServer(INetworkServer server, IMatchmakingServer matchmaking = null, IUpdateScheduler scheduler = null)
         {
