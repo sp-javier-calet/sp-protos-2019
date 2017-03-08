@@ -30,12 +30,13 @@ namespace SocialPoint.Lockstep
         public const int DefaultClientStartDelay = 3000;
         public const int DefaultClientSimulationDelay = 1000;
         public const bool DefaultFinishOnClientDisconnection = true;
+        public const int DefaultMetricSendInterval = 10000;
 
         public byte MaxPlayers = DefaultMaxPlayers;
         public int ClientStartDelay = DefaultClientStartDelay;
         public int ClientSimulationDelay = DefaultClientSimulationDelay;
         public bool FinishOnClientDisconnection = DefaultFinishOnClientDisconnection;
-
+        public int MetricSendInterval = DefaultMetricSendInterval;
         public override string ToString()
         {
             return string.Format("[LockstepServerConfig\n" +
@@ -65,6 +66,15 @@ namespace SocialPoint.Lockstep
         IMatchmakingServer _matchmaking;
 
         LockstepServer _serverLockstep;
+
+        public LockstepServer ServerLockstep
+        {
+            get
+            {
+                return _serverLockstep;
+            }
+        }
+
         INetworkServer _server;
         List<ClientData> _clients;
         Dictionary<uint, byte> _commandSenders;

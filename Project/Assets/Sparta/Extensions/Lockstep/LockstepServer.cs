@@ -9,8 +9,7 @@ namespace SocialPoint.Lockstep
     {
         const string TurnProcessingTimeMetricName = "multiplayer.lockstep.turn_processing_time";
         const string TurnProcessingTimeExceedMetricName = "multiplayer.lockstep.turn_processing_time_exceed";
-        const int DefaultMetricSendInterval = 10000;
-        public int MetricSendInterval = DefaultMetricSendInterval;
+        public int MetricSendInterval = LockstepServerConfig.DefaultMetricSendInterval;
         int _timeSendMetric;
 
         int _time;

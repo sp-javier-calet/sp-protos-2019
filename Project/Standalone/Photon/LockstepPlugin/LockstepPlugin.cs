@@ -69,6 +69,7 @@ namespace SocialPoint.Lockstep
         const string BackendBaseUrlConfig = "BackendBaseUrl";
         const string GameAssemblyNameConfig = "GameAssemblyName";
         const string GameTypeConfig = "GameType";
+        const string MetricSendIntervalConfig = "MetricSendInterval";
 
         public override bool SetupInstance(IPluginHost host, Dictionary<string, string> config, out string errorMsg)
         {
@@ -87,7 +88,11 @@ namespace SocialPoint.Lockstep
                 ClientStartDelayConfig, _netServer.ServerConfig.ClientStartDelay);
             _netServer.ServerConfig.ClientSimulationDelay = GetConfigOption(config,
                 ClientSimulationDelayConfig, _netServer.ServerConfig.ClientSimulationDelay);
+            _netServer.ServerConfig.MetricSendInterval = GetConfigOption(config,
+                MetricSendIntervalConfig, _netServer.ServerConfig.MetricSendInterval);
             
+            _netServer.ServerLockstep.MetricSendInterval = _netServer.ServerConfig.MetricSendInterval;
+
             string baseUrl;
             config.TryGetValue(BackendBaseUrlConfig, out baseUrl);
             if (_matchmaking != null && baseUrl != string.Empty)
