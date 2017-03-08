@@ -35,7 +35,9 @@ namespace SocialPoint.Network
         {
             var msg = new NetworkStatsMessage();
             msg.Deserialize(reader);
-            _latencies.Add(GetDelay(msg.Timestamp));
+            var delay = GetDelay(msg.Timestamp);
+            var pos = _latencies.FindLastIndex(l => l < delay);
+            _latencies.Insert(pos + 1, delay);
             _latencies.Sort();
         }
 

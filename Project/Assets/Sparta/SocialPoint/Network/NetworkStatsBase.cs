@@ -53,7 +53,8 @@ namespace SocialPoint.Network
 
         void SendMessage(NetworkMessageData data, byte[] body)
         {
-            _uploadBandwith.Add(body.Length);
+            var pos = _uploadBandwith.FindLastIndex(l => l < body.Length);
+            _uploadBandwith.Insert(pos + 1, body.Length);
             if(_sender != null)
             {
                 _sender.SendMessage(data, body);
@@ -71,7 +72,8 @@ namespace SocialPoint.Network
 
         virtual protected void ReceiveMessage(NetworkMessageData data, IReader reader)
         {
-            _downloadBandwith.Add(data.MessageLength);
+            var pos = _downloadBandwith.FindLastIndex(ml => ml < data.MessageLength);
+            _downloadBandwith.Insert(pos + 1, data.MessageLength);
             if(_receiver != null)
             {
                 _receiver.OnMessageReceived(data, reader);

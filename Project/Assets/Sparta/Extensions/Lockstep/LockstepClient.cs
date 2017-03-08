@@ -62,12 +62,12 @@ namespace SocialPoint.Lockstep
         }
 
         public LockstepCommandLogic(Action<T> action) :
-        this(new ActionLockstepCommandLogic<T>(action))
+            this(new ActionLockstepCommandLogic<T>(action))
         {
         }
 
         public LockstepCommandLogic(Action action) :
-        this(new ActionLockstepCommandLogic<T>(action))
+            this(new ActionLockstepCommandLogic<T>(action))
         {
         }
 
@@ -231,6 +231,7 @@ namespace SocialPoint.Lockstep
         public byte PlayerNumber;
 
         bool _externalUpdate;
+
         public bool ExternalUpdate
         {
             set
@@ -372,11 +373,11 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public void AddConfirmedTurn(ClientTurnData turn=null)
+        public void AddConfirmedTurn(ClientTurnData turn = null)
         {
             _lastConfirmedTurnNumber++;
-            _turnBuffersHistoric.Add(TurnBuffer);
-            _turnBuffersHistoric.Sort();
+            var pos = _turnBuffersHistoric.FindLastIndex(tb => tb < TurnBuffer);
+            _turnBuffersHistoric.Insert(pos + 1, TurnBuffer);
             if(!ClientTurnData.IsNullOrEmpty(turn))
             {
                 _confirmedTurns[_lastConfirmedTurnNumber] = turn;
@@ -592,7 +593,7 @@ namespace SocialPoint.Lockstep
         {
             get
             {
-                return _turnBuffersHistoric.Count > 0 ? _turnBuffersHistoric[_turnBuffersHistoric.Count-1] : -1;
+                return _turnBuffersHistoric.Count > 0 ? _turnBuffersHistoric[_turnBuffersHistoric.Count - 1] : -1;
             }
         }
 
