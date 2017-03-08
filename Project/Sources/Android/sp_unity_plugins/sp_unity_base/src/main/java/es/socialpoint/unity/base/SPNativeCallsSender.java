@@ -1,7 +1,5 @@
 package es.socialpoint.unity.base;
 
-import android.util.Log;
-
 public class SPNativeCallsSender {
 
     private static String Separator;

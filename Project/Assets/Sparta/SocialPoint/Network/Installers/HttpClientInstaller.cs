@@ -1,9 +1,12 @@
 ﻿using System;
-using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
 using SocialPoint.Utils;
 using SocialPoint.AppEvents;
 using SocialPoint.Hardware;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Network
 {
@@ -22,7 +25,7 @@ namespace SocialPoint.Network
     }
     #endif
 
-    public class HttpClientInstaller : ServiceInstaller
+    public class HttpClientInstaller : ServiceInstaller, IInitializable
     {
         [Serializable]
         public class SettingsData
@@ -39,7 +42,6 @@ namespace SocialPoint.Network
         public override void InstallBindings()
         {
             _httpProxy = EditorProxy.GetProxy();
-            _deviceInfo = Container.Resolve<IDeviceInfo>();
 
             #pragma warning disable 0162
 
@@ -64,10 +66,17 @@ namespace SocialPoint.Network
                 Container.Rebind<IHttpStreamClient>().ToLookup<CurlHttpStreamClient>(); 
                 Container.Bind<IDisposable>().ToLookup<IHttpStreamClient>();
 
+                #if ADMIN_PANEL
                 Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelHttpStream>(CreateAdminPanel);
+                #endif
             }
 
             #pragma warning restore 0162
+        }
+
+        public void Initialize()
+        {
+            _deviceInfo = Container.Resolve<IDeviceInfo>();
         }
 
         CurlHttpClient CreateCurlHttpClient()
@@ -121,10 +130,12 @@ namespace SocialPoint.Network
             }
         }
 
+        #if ADMIN_PANEL
         AdminPanelHttpStream CreateAdminPanel()
         {
             return new AdminPanelHttpStream(
                 Container.Resolve<CurlHttpStreamClient>());
         }
+        #endif
     }
 }

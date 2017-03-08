@@ -1,5 +1,4 @@
 ﻿using System;
-using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.Hardware;
@@ -8,6 +7,10 @@ using SocialPoint.Login;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 using SocialPoint.WebSockets;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Connection
 {
@@ -46,7 +49,9 @@ namespace SocialPoint.Connection
             Container.Bind<ConnectionManager>().ToMethod<ConnectionManager>(CreateConnectionManager, SetupConnectionManager);    
             Container.Bind<IDisposable>().ToLookup<ConnectionManager>();
 
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelWebSockets>(CreateAdminPanelWebSockets);
+            #endif
         }
 
         WebSocketClient CreateWebSocket()
@@ -88,11 +93,13 @@ namespace SocialPoint.Connection
             manager.Localization = Container.Resolve<Localization>();
         }
 
+        #if ADMIN_PANEL
         AdminPanelWebSockets CreateAdminPanelWebSockets()
         {
             return new AdminPanelWebSockets(
                 Container.Resolve<IWebSocketClient>(ConnectionManagerTag),
                 ConnectionManagerTag);
         }
+        #endif
     }
 }

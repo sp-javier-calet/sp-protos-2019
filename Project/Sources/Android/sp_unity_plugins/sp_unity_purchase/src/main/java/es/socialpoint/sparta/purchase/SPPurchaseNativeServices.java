@@ -1,30 +1,29 @@
  package es.socialpoint.sparta.purchase;
 
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.util.Log;
+ import android.content.Intent;
+ import android.content.IntentFilter;
+ import android.util.Log;
 
-import com.unity3d.player.UnityPlayer;
+ import com.unity3d.player.UnityPlayer;
 
-import java.util.ArrayList;
-import java.util.List;
+ import org.json.JSONArray;
+ import org.json.JSONException;
+ import org.json.JSONObject;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+ import java.util.ArrayList;
+ import java.util.List;
 
-import es.socialpoint.unity.base.SPUnityActivityEventListener;
-import es.socialpoint.unity.base.SPUnityActivityEventManager;
-import es.socialpoint.unity.base.SPNativeCallsSender;
-
-import es.socialpoint.sparta.purchase.utils.IabBroadcastReceiver;
-import es.socialpoint.sparta.purchase.utils.IabBroadcastReceiver.IabBroadcastListener;
-import es.socialpoint.sparta.purchase.utils.IabHelper;
-import es.socialpoint.sparta.purchase.utils.IabHelper.IabAsyncInProgressException;
-import es.socialpoint.sparta.purchase.utils.IabResult;
-import es.socialpoint.sparta.purchase.utils.Inventory;
-import es.socialpoint.sparta.purchase.utils.Purchase;
-import es.socialpoint.sparta.purchase.utils.SkuDetails;
+ import es.socialpoint.sparta.purchase.utils.IabBroadcastReceiver;
+ import es.socialpoint.sparta.purchase.utils.IabBroadcastReceiver.IabBroadcastListener;
+ import es.socialpoint.sparta.purchase.utils.IabHelper;
+ import es.socialpoint.sparta.purchase.utils.IabHelper.IabAsyncInProgressException;
+ import es.socialpoint.sparta.purchase.utils.IabResult;
+ import es.socialpoint.sparta.purchase.utils.Inventory;
+ import es.socialpoint.sparta.purchase.utils.Purchase;
+ import es.socialpoint.sparta.purchase.utils.SkuDetails;
+ import es.socialpoint.unity.base.SPNativeCallsSender;
+ import es.socialpoint.unity.base.SPUnityActivityEventListener;
+ import es.socialpoint.unity.base.SPUnityActivityEventManager;
 
 public class SPPurchaseNativeServices implements IabBroadcastListener, SPUnityActivityEventListener {
 
