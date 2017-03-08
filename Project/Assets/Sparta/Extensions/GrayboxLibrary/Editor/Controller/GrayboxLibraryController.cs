@@ -20,28 +20,61 @@ namespace SocialPoint.GrayboxLibrary
         {
             //Mounts the smb folder
             #if  UNITY_EDITOR_OSX
+
             if(!Directory.Exists(GrayboxLibraryConfig.PkgDefaultFolder))
             {
-                ProcessStartInfo process = new ProcessStartInfo();
+                if(!IsSmbReady())
+                {
+                    GrayboxLibrarySmbSetup.Launch();
+                    if(GrayboxLibraryWindow.Window != null)
+                    {
+                        GrayboxLibraryWindow.Window.Close();
+                    }
+                    return;
+                }
+
+                var process = new ProcessStartInfo();
+                process.UseShellExecute = false;
                 process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-                process.FileName = "mkdir";
-                process.Arguments = GrayboxLibraryConfig.VolumePath;
-                Process.Start(process);
+                process.FileName = "sudo";
+                process.Arguments = "-S mkdir " + GrayboxLibraryConfig.VolumePath;
+                process.RedirectStandardError = true;
+                process.RedirectStandardInput = true;
+                var run = Process.Start(process);
+                run.StandardInput.WriteLine(PlayerPrefs.GetString(GrayboxLibraryConfig.SuPswPlayerPerfs) + "\n");
+                while(!run.StandardError.EndOfStream)
+                {
+                    UnityEngine.Debug.LogError(run.StandardError.ReadLine());
+                }
 
                 process = new ProcessStartInfo();
+                process.UseShellExecute = false;
                 process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-                process.FileName = "mount_smbfs";
-                process.Arguments = GrayboxLibraryConfig.SmbConnectionUrl + " " + GrayboxLibraryConfig.VolumePath;
-                Process.Start(process);
+                process.FileName = "sudo";
+                process.Arguments = "-S mount_smbfs " + GrayboxLibraryConfig.SmbConnectionUrl + " " + GrayboxLibraryConfig.VolumePath;
+                process.RedirectStandardError = true;
+                process.RedirectStandardInput = true;
+                run = Process.Start(process);
+                run.StandardInput.WriteLine(PlayerPrefs.GetString(GrayboxLibraryConfig.SuPswPlayerPerfs) + "\n");
+                while(!run.StandardError.EndOfStream)
+                {
+                    UnityEngine.Debug.LogError(run.StandardError.ReadLine());
+                }
 
-                for(int i = 0; !Directory.Exists(GrayboxLibraryConfig.PkgDefaultFolder) && i < 100; i ++)
+                run.Close();
+
+                for(int i = 0; !Directory.Exists(GrayboxLibraryConfig.PkgDefaultFolder) && i < 100; i++)
                 {
                     Thread.Sleep(100);
-                    if (i == 99)
+                    if(i == 99)
                     {
-                        if (EditorUtility.DisplayDialog("Graybox tool", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE'", "Close"))
+                        if(EditorUtility.DisplayDialog("Graybox tool", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE' \n\n Check also that you have specified your Mac's password correctly.", "Close"))
                         {
-                            GrayboxLibraryWindow.Window.Close();
+                            PlayerPrefs.DeleteKey(GrayboxLibraryConfig.SuPswPlayerPerfs);
+                            if(GrayboxLibraryWindow.Window != null)
+                            {
+                                GrayboxLibraryWindow.Window.Close();
+                            }
                             Selection.activeObject = null;
                         }
                     }
@@ -54,13 +87,22 @@ namespace SocialPoint.GrayboxLibrary
             Connect();
         }
 
+        public bool IsSmbReady()
+        {
+            #if  UNITY_EDITOR_OSX
+            return PlayerPrefs.HasKey(GrayboxLibraryConfig.SuPswPlayerPerfs);
+            #else
+            return true;
+            #endif
+
+        }
 
         public GrayboxAsset GetAsset(string name)
         {
             GrayboxAsset asset = null;
 
             MySqlCommand command = new MySqlCommand("SELECT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path, DATE_FORMAT(a.creation_date, '%m/%d/%Y %H:%i:%s') as 'creation_date' FROM asset a WHERE a.name LIKE @NAME");
-            command.Parameters.AddWithValue("@NAME",name);
+            command.Parameters.AddWithValue("@NAME", name);
 
             ArrayList queryResult = _dbController.ExecuteQuery(command);
 
@@ -100,7 +142,7 @@ namespace SocialPoint.GrayboxLibrary
             {
                 string tag = tags[i];
                 commandTag.CommandText += " NATURAL JOIN (SELECT id_asset FROM asset_tag NATURAL JOIN tag WHERE name LIKE CONCAT('%', @TAG" + i + ", '%')) as tag" + i;
-                commandTag.Parameters.AddWithValue("@TAG"+i, tag);
+                commandTag.Parameters.AddWithValue("@TAG" + i, tag);
             }
 
             string sql = "SELECT DISTINCT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path, DATE_FORMAT(a.creation_date, '%m/%d/%Y %H:%i:%s') as 'creation_date' "
@@ -151,7 +193,7 @@ namespace SocialPoint.GrayboxLibrary
 
             MySqlCommand commandFilteredSQL = new MySqlCommand("");
             
-            for(int i = 0; i < filters.Length; i ++)
+            for(int i = 0; i < filters.Length; i++)
             {
                 string filter = filters[i];
                 commandFilteredSQL.CommandText = commandFilteredSQL.CommandText + " a.name LIKE CONCAT('%', @FILTER" + i + ", '%') AND";
@@ -165,7 +207,7 @@ namespace SocialPoint.GrayboxLibrary
 
             MySqlCommand command = new MySqlCommand(sql);
 
-            for (int i = 0; i < commandFilteredSQL.Parameters.Count; i++)
+            for(int i = 0; i < commandFilteredSQL.Parameters.Count; i++)
                 command.Parameters.AddWithValue(commandFilteredSQL.Parameters[i].ParameterName, commandFilteredSQL.Parameters[i].Value);
 
             ArrayList queryResult = _dbController.ExecuteQuery(command);
@@ -235,7 +277,7 @@ namespace SocialPoint.GrayboxLibrary
             {
                 string tag = tags[i];
                 commandTagSearchSQL.CommandText += " NATURAL JOIN (SELECT id_asset FROM asset_tag NATURAL JOIN tag WHERE name LIKE CONCAT('%', @TAG" + i + ", '%')) as tag" + i;
-                commandTagSearchSQL.Parameters.AddWithValue("@TAG"+i, tag);
+                commandTagSearchSQL.Parameters.AddWithValue("@TAG" + i, tag);
             }
 
             string sql = "SELECT DISTINCT a.id_asset "
@@ -243,7 +285,7 @@ namespace SocialPoint.GrayboxLibrary
 
             MySqlCommand command = new MySqlCommand(sql);
 
-            for (int i = 0; i < commandTagSearchSQL.Parameters.Count; i++)
+            for(int i = 0; i < commandTagSearchSQL.Parameters.Count; i++)
                 command.Parameters.AddWithValue(commandTagSearchSQL.Parameters[i].ParameterName, commandTagSearchSQL.Parameters[i].Value);
 
             ArrayList queryResult = _dbController.ExecuteQuery(command);
@@ -257,8 +299,8 @@ namespace SocialPoint.GrayboxLibrary
         {
             ArrayList tags = GetTags(name, 0, 1);
             GrayboxTag tag = null;
-            if (tags.Count > 0)
-                tag = (GrayboxTag) tags[0];
+            if(tags.Count > 0)
+                tag = (GrayboxTag)tags[0];
 
             return tag;
         }
@@ -273,7 +315,7 @@ namespace SocialPoint.GrayboxLibrary
 
             ArrayList queryResult = _dbController.ExecuteQuery(command);
 
-            for (int i = 0; i < queryResult.Count; i++)
+            for(int i = 0; i < queryResult.Count; i++)
             {
                 Dictionary<string, string> row = (Dictionary<string, string>)queryResult[i];
                 GrayboxTag tag = new GrayboxTag(int.Parse(row["id_tag"]), row["name"]);
@@ -292,7 +334,7 @@ namespace SocialPoint.GrayboxLibrary
 
             ArrayList queryResult = _dbController.ExecuteQuery(command);
 
-            for (int i = 0; i < queryResult.Count; i++)
+            for(int i = 0; i < queryResult.Count; i++)
             {
                 Dictionary<string, string> row = (Dictionary<string, string>)queryResult[i];
                 GrayboxTag tag = new GrayboxTag(int.Parse(row["id_tag"]), row["name"]);
@@ -308,9 +350,9 @@ namespace SocialPoint.GrayboxLibrary
 
             ArrayList gbTags = GetTags(name, startLimit, endLimit);
 
-            for (int i = 0; i < gbTags.Count; i++)
+            for(int i = 0; i < gbTags.Count; i++)
             {
-                GrayboxTag tag = (GrayboxTag) gbTags[i];
+                GrayboxTag tag = (GrayboxTag)gbTags[i];
                 tags.Add(tag.Name);
             }
 
@@ -323,7 +365,7 @@ namespace SocialPoint.GrayboxLibrary
 
             ArrayList gbTags = GetTagsInCategory(name, category, startLimit, endLimit);
 
-            for (int i = 0; i < gbTags.Count; i++)
+            for(int i = 0; i < gbTags.Count; i++)
             {
                 GrayboxTag tag = (GrayboxTag)gbTags[i];
                 tags.Add(tag.Name);
@@ -416,7 +458,7 @@ namespace SocialPoint.GrayboxLibrary
                 command.Parameters.AddWithValue("@NAME", asset.Name);
 
                 queryResult = _dbController.ExecuteQuery(command);
-                if (queryResult.Count == 0)
+                if(queryResult.Count == 0)
                 {
                     sql = "INSERT INTO asset (name, category, main_asset_path, pkg_path, thumb_path, animated_thumb_path) VALUES (@NAME, @CATEGORY, @MAINASSET, @PKG, @THUMB, @ANIMTHUMB)";
 
@@ -477,13 +519,13 @@ namespace SocialPoint.GrayboxLibrary
 
         public void AssignTag(GrayboxAsset asset, GrayboxTag tag)
         {
-            string sql = "SELECT id_asset FROM asset_tag WHERE id_asset = " + asset.Id + " AND id_tag = " + tag.Id ;
+            string sql = "SELECT id_asset FROM asset_tag WHERE id_asset = " + asset.Id + " AND id_tag = " + tag.Id;
 
             MySqlCommand command = new MySqlCommand(sql);
 
             ArrayList queryResult = _dbController.ExecuteQuery(command);
 
-            if (queryResult.Count == 0)
+            if(queryResult.Count == 0)
             {
                 sql = "INSERT INTO asset_tag VALUES (" + asset.Id + "," + tag.Id + ")";
 
@@ -507,11 +549,11 @@ namespace SocialPoint.GrayboxLibrary
         {
             int category = -1;
             var enumerator = GrayboxLibraryConfig.CategoryPrefix.GetEnumerator();
-            while (enumerator.MoveNext())
+            while(enumerator.MoveNext())
             {
                 string prefix = enumerator.Current.Value;
-                if (fullname.Contains(prefix))
-                    category = (int) enumerator.Current.Key;
+                if(fullname.Contains(prefix))
+                    category = (int)enumerator.Current.Key;
             }
             enumerator.Dispose();
             
@@ -548,11 +590,11 @@ namespace SocialPoint.GrayboxLibrary
             if(asset.Category == GrayboxAssetCategory.UI)
             {
                 if(parent == null)
-                    parent = ((Canvas) GameObject.FindObjectOfType(typeof(Canvas))).transform;
+                    parent = ((Canvas)GameObject.FindObjectOfType(typeof(Canvas))).transform;
                 instance.transform.SetParent(parent, false);
             }
 
-            if (GrayboxLibraryConfig.ScriptOnInstance[asset.Category] != null)
+            if(GrayboxLibraryConfig.ScriptOnInstance[asset.Category] != null)
                 instance.AddComponent(GrayboxLibraryConfig.ScriptOnInstance[asset.Category]);
 
             return instance;
