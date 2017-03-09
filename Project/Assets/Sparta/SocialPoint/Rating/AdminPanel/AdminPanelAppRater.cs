@@ -1,4 +1,6 @@
-﻿using UnityEngine.UI;
+﻿#if ADMIN_PANEL
+
+using UnityEngine.UI;
 using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Rating
@@ -51,3 +53,4 @@ namespace SocialPoint.Rating
     }
 }
 
+#endif

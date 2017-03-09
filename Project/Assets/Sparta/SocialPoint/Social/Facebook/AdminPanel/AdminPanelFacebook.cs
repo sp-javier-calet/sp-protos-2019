@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#if ADMIN_PANEL 
+
+using UnityEngine;
 using UnityEngine.UI;
 using SocialPoint.AdminPanel;
 using SocialPoint.Console;
@@ -319,3 +321,5 @@ namespace SocialPoint.Social
         #endregion
     }
 }
+
+#endif

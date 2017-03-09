@@ -1,3 +1,5 @@
+#if ADMIN_PANEL 
+
 using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Hardware
@@ -26,3 +28,5 @@ namespace SocialPoint.Hardware
         }
     }
 }
+
+#endif

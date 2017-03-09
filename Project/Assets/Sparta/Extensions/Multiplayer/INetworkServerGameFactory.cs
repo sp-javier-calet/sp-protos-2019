@@ -5,6 +5,6 @@ namespace SocialPoint.Multiplayer
 {
     public interface INetworkServerGameFactory
     {
-        object Create(INetworkServer server, NetworkServerSceneController ctrl, Dictionary<string, string> config);
+        object Create(NetworkServerSceneController ctrl, Dictionary<string, string> config);
     }
 }

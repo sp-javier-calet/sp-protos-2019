@@ -31,6 +31,14 @@ namespace SocialPoint.Multiplayer
         NetworkSceneActionHandler _actionHandler;
         TypedWriteSerializer _actionSerializer;
 
+        public INetworkClient Client
+        {
+            get
+            {
+                return _client;
+            }
+        }
+
         public NetworkClientSceneController(INetworkClient client)
         {
             _sceneBehaviours = new List<INetworkClientSceneBehaviour>();
