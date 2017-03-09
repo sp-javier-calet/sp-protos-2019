@@ -167,7 +167,7 @@ namespace SocialPoint.Notifications
             _checkPermissionStatusCoroutine = null;
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPNOTIFICATIONS")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugNotificationsFlag)]
         void DebugLog(string msg)
         {
             const string tag = "SocialPoint.Notifications-DebugLog";

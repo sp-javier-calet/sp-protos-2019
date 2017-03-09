@@ -390,7 +390,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPGUI")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("UIViewController {0} {1} | {2}", gameObject.name, _viewState, msg));
