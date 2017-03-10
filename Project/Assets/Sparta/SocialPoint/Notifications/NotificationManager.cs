@@ -187,8 +187,6 @@ namespace SocialPoint.Notifications
             Reset();
         }
 
-
-
         [System.Diagnostics.Conditional(DebugFlags.DebugNotificationsFlag)]
         void DebugLog(string msg)
         {
