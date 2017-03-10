@@ -269,7 +269,7 @@ namespace SocialPoint.GUIControl
             DebugLog("EndTransition");
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPGUI")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("UIStackController | {0}", msg));

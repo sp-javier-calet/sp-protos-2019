@@ -56,7 +56,7 @@ namespace SocialPoint.Purchase
                 IosStoreBinding.SetShouldSendTransactionUpdateEvents);
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugPurchasesFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("IosPurchaseStore {0}", msg));

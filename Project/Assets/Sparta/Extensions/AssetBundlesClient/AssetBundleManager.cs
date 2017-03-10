@@ -62,7 +62,7 @@ namespace SocialPoint.AssetBundlesClient
         static readonly List<string> _mergeIssues = new List<string>();
 
 
-        [System.Diagnostics.Conditional("DEBUG_BUNDLES")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugAssetBundlesFlag)]
         static void DebugLog(string msg)
         {
             Log.i("AssetBundleManager", msg);
@@ -219,6 +219,7 @@ namespace SocialPoint.AssetBundlesClient
                     continue;
                 }
                 var itemVersion = item.Get("version").AsValue.ToInt();
+
                 var dependenciesList = item.Get("dependencies").AssertList;
                 if(dependenciesList.Count > 0)
                 {

@@ -17,7 +17,7 @@ namespace SocialPoint.Social
     {
         const string GooglePlayLoginCancelledKey = "google_play_login_cancelled";
 
-        [System.Diagnostics.Conditional("DEBUG_GOOGLEPLAY")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugGooglePlayFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("GooglePlay - {0}", msg));
