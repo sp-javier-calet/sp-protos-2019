@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.helpshift.supportCampaigns.InitializeHelpshiftUtil;
+
 import es.socialpoint.unity.notification.IntentParameters.Origin;
 
 public class PushNotificationReceiver extends BroadcastReceiver {
@@ -14,8 +16,6 @@ public class PushNotificationReceiver extends BroadcastReceiver {
 
     private static final String MANAGED_ORIGIN = "socialpoint";
     private static final String ORIGIN_KEY = "origin";
-
-    private static final String HELPSHIFT_RECEIVER_CLASS = "com.helpshift.supportCampaigns.gcm.HSGcmBroadcastReceiver";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -59,13 +59,11 @@ public class PushNotificationReceiver extends BroadcastReceiver {
     }
 
     private boolean handleExtenalPushNotification(Context context, Intent intent) {
-        BroadcastReceiver receiver = loadHandler(HELPSHIFT_RECEIVER_CLASS);
-
-        if(receiver != null) {
-            receiver.onReceive(context, intent);
+        if("helpshift".equals(intent.getStringExtra("origin"))) {
+            InitializeHelpshiftUtil.initHelpshift(context);
+            InitializeHelpshiftUtil.handlePush(context, intent);
             return true;
         }
-
         return false;
     }
 
