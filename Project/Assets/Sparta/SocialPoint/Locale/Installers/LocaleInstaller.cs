@@ -123,7 +123,7 @@ namespace SocialPoint.Locale
         #if NGUI
         static void LoadNGUICSV(byte[] bytes)
         {
-        NGUILocalization.LoadCSV(bytes);
+            NGUILocalization.LoadCSV(bytes);
         }
         #endif
 
