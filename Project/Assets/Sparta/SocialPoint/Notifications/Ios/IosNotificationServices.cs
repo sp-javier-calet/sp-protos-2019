@@ -5,6 +5,7 @@
 #if UNITY_IOS
 using System.Collections;
 using System.Runtime.InteropServices;
+using SocialPoint.Base;
 using SocialPoint.Utils;
 using UnityEngine;
 #endif
@@ -171,7 +172,7 @@ namespace SocialPoint.Notifications
         void DebugLog(string msg)
         {
             const string tag = "SocialPoint.Notifications-DebugLog";
-            SocialPoint.Base.Log.i(tag, msg);
+            Log.i(tag, msg);
         }
     }
     
