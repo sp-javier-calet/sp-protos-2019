@@ -9,26 +9,25 @@ namespace SpartaTools.Editor.View
     {
         #region Build Player options
 
-        [MenuItem("Sparta/Build/Player/Android Release", false, 131)]
-
+        [MenuItem("Sparta/Build/Player/Android Release", false, 181)]
         public static void BuildAndroidRelease()
         {
             AutoBuilder.Build(BuildTarget.Android, BuildSet.ReleaseConfigName);
         }
 
-        [MenuItem("Sparta/Build/Player/Android Debug", false, 132)]
+        [MenuItem("Sparta/Build/Player/Android Debug", false, 182)]
         public static void BuildAndroidDebug()
         {
             AutoBuilder.Build(BuildTarget.Android, BuildSet.DebugConfigName);
         }
 
-        [MenuItem("Sparta/Build/Player/Ios Release", false, 151)]
+        [MenuItem("Sparta/Build/Player/Ios Release", false, 201)]
         public static void BuildIosRelease()
         {
             AutoBuilder.Build(BuildTarget.iOS, BuildSet.ReleaseConfigName);
         }
 
-        [MenuItem("Sparta/Build/Player/Ios Debug", false, 152)]
+        [MenuItem("Sparta/Build/Player/Ios Debug", false, 202)]
         public static void BuildIosDebug()
         {
             AutoBuilder.Build(BuildTarget.iOS, BuildSet.DebugConfigName);
@@ -38,7 +37,7 @@ namespace SpartaTools.Editor.View
 
         #region Build Plugins options
 
-        [MenuItem("Sparta/Build/Plugins/Android Java Plugins", false, 161)]
+        [MenuItem("Sparta/Build/Plugins/Android Java Plugins", false, 182)]
         public static void CompileAndroid()
         {
             NativeBuild.CompileAndroid(
@@ -46,7 +45,7 @@ namespace SpartaTools.Editor.View
                 EditorUtility.ClearProgressBar);
         }
 
-        [MenuItem("Sparta/Build/Plugins/Android Native Plugins", false, 162)]
+        [MenuItem("Sparta/Build/Plugins/Android Native Plugins", false, 183)]
         public static void CompileAndroidNative()
         {
             NativeBuild.CompileAndroidNative(
@@ -54,19 +53,19 @@ namespace SpartaTools.Editor.View
                 EditorUtility.ClearProgressBar);
         }
 
-        [MenuItem("Sparta/Build/Plugins/iOS Plugins", false, 181)]
+        [MenuItem("Sparta/Build/Plugins/iOS Plugins", false, 201)]
         public static void CompileIOS()
         {
             NativeBuild.CompileIOS();
         }
 
-        [MenuItem("Sparta/Build/Plugins/tvOS Plugins", false, 182)]
+        [MenuItem("Sparta/Build/Plugins/tvOS Plugins", false, 202)]
         public static void CompileTVOS()
         {
             NativeBuild.CompileTVOS();
         }
 
-        [MenuItem("Sparta/Build/Plugins/OSX Plugins", false, 183)]
+        [MenuItem("Sparta/Build/Plugins/OSX Plugins", false, 203)]
         public static void CompileOSX()
         {
             NativeBuild.CompileOSX();
@@ -81,7 +80,7 @@ namespace SpartaTools.Editor.View
             }
         }
 
-        [MenuItem("Sparta/Build/Plugins/Build All", false, 200)]
+        [MenuItem("Sparta/Build/Plugins/Build All", false, 220)]
         public static void CompileAll()
         {
             NativeBuild.CompileAll();

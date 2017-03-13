@@ -37,7 +37,7 @@ namespace SpartaTools.Editor.View
 
         #region Editor options
 
-        [MenuItem("Sparta/Project/Project Info", false, 201)]
+        [MenuItem("Sparta/Project/Project Info", false, 102)]
         public static void ShowWindow()
         {
             EditorWindow.GetWindow(typeof(ProjectEditorWindow), false, "Project", true);

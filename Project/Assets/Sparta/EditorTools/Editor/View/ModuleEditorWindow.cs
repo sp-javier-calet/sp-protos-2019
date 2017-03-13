@@ -11,7 +11,7 @@ namespace SpartaTools.Editor.View
     {
         #region Editor options
 
-        [MenuItem("Sparta/Project/Module Info", false, 203)]
+        [MenuItem("Sparta/Project/Module Info", false, 104)]
         public static void ShowWindow()
         {
             EditorWindow.GetWindow(typeof(ModuleEditorWindow), false, "Module", true);

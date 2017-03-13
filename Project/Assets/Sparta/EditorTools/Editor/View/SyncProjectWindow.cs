@@ -14,13 +14,13 @@ namespace SpartaTools.Editor.View
     {
         #region Editor options
 
-        [MenuItem("Sparta/Project/Sync Tools", false, 202)]
+        [MenuItem("Sparta/Project/Sync Tools", false, 103)]
         public static void ShowWindow()
         {
             EditorWindow.GetWindow(typeof(SyncProjectWindow), false, "Sync", true);
         }
 
-        [MenuItem("Sparta/Project/Create module...", false, 180)]
+        [MenuItem("Sparta/Project/Create module...", false, 120)]
         public static void CreateModule()
         {
             var path = EditorUtility.OpenFolderPanel("Select module root", 
