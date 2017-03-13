@@ -22,6 +22,10 @@ namespace SocialPoint.TransparentBundles
             var assets = new List<Asset>(_controller.GetAssetsFromSelection());
             _controller.CreateOrUpdateBundles(assets);
             BundlesWindow.OpenWindow();
+            if(BundlesWindow.Window.position.xMin == 0 && BundlesWindow.Window.position.yMin == 0)
+            {
+                EditorUtility.DisplayDialog("Transparent Bundles", "The selected assets will be created or updated shortly.", "Close");
+            }
         }
 
         [MenuItem("Assets/Bundles/Remove Bundle")]
@@ -41,7 +45,12 @@ namespace SocialPoint.TransparentBundles
                         "' from the server. Keep in mind that this operation cannot be undone. Are you sure?",
                         "Remove it", "Cancel"))
             {
-                _controller.RemoveBundle(assets[0]);
+                _controller.PerfomBundleOperation(new List<Asset>() { assets[0] }, BundleOperation.remove_asset_bundles);
+                BundlesWindow.OpenWindow();
+                if(BundlesWindow.Window.position.xMin == 0 && BundlesWindow.Window.position.yMin == 0)
+                {
+                    EditorUtility.DisplayDialog("Transparent Bundles", "The selected assets will be removed shortly.", "Close");
+                }
             }
         }
 
@@ -50,7 +59,12 @@ namespace SocialPoint.TransparentBundles
         {
             Init();
             var assets = new List<Asset>(_controller.GetAssetsFromSelection());
-            _controller.PerfomExistingBundleAction(assets, EditorClientController.BundleIntoBuildMode.MakeLocal);
+            _controller.PerfomBundleOperation(assets, BundleOperation.AddToBuild);
+            BundlesWindow.OpenWindow();
+            if(BundlesWindow.Window.position.xMin == 0 && BundlesWindow.Window.position.yMin == 0)
+            {
+                EditorUtility.DisplayDialog("Transparent Bundles", "The selected assets will be placed into the build shortly.", "Close");
+            }
         }
 
         [MenuItem("Assets/Bundles/Remove Bundle from the Build")]
@@ -58,7 +72,12 @@ namespace SocialPoint.TransparentBundles
         {
             Init();
             var assets = new List<Asset>(_controller.GetAssetsFromSelection());
-            _controller.PerfomExistingBundleAction(assets, EditorClientController.BundleIntoBuildMode.RemoveLocalBundle);
+            _controller.PerfomBundleOperation(assets, BundleOperation.RemoveFromBuild);
+            BundlesWindow.OpenWindow();
+            if(BundlesWindow.Window.position.xMin == 0 && BundlesWindow.Window.position.yMin == 0)
+            {
+                EditorUtility.DisplayDialog("Transparent Bundles", "The selected assets will be removed from the build shortly.", "Close");
+            }
         }
     }
 }

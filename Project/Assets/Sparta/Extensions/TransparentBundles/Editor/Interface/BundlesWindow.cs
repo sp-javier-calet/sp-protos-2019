@@ -20,8 +20,8 @@ namespace SocialPoint.TransparentBundles
         static Vector2 _scrollPos;
         const int _iconSize = 33;
         static GUIContent[] _actionButons;
-        static float _updateFilterTime;
-        static bool _toSearch;
+        //static float _updateFilterTime;
+        //static bool _toSearch;
         const float _searchDelay = 0.5f;
         static bool _bundlesInServerShown = true;
         static bool _bundlesInBuildShown = true;
@@ -63,8 +63,8 @@ namespace SocialPoint.TransparentBundles
                 new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.OutBuildImageName), "Remove bundle from the Build")
             };
 
-            _updateFilterTime = 0f;
-            _toSearch = false;
+            //_updateFilterTime = 0f;
+            //_toSearch = false;
 
             _columnsSize = new[] { 20f, 20f, 70f, 100f };
             _controller.FlushCache();
@@ -296,18 +296,18 @@ namespace SocialPoint.TransparentBundles
                 EditorUtility.DisplayDialog("Transparent Bundles " + _controller.ServerInfo.Status, _controller.ServerInfo.Status + "\n\n" + _controller.ServerInfo.Log, "Close");
             }
             GUILayout.Label("", GUILayout.ExpandWidth(true));
-            string previousFilter = _filter;
+            //string previousFilter = _filter;
             _filter = EditorGUILayout.TextField(_filter, GUI.skin.FindStyle("ToolbarSeachTextField"), GUILayout.Width(200), GUILayout.Height(20));
-            if(previousFilter != _filter)
+            /*if(previousFilter != _filter)
             {
                 _updateFilterTime = Time.realtimeSinceStartup;
                 _toSearch = true;
-            }
+            }*/
             if(GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
             {
                 EditorGUI.FocusTextInControl("");
                 _filter = "";
-                SearchBundles(_filter);
+                //SearchBundles(_filter);
             }
             GUILayout.Label("", GUILayout.Width(5));
             EditorGUILayout.EndHorizontal();
@@ -537,7 +537,7 @@ namespace SocialPoint.TransparentBundles
                 }
                 _controller.CreateOrUpdateBundles(assetList);
                 chosenEnum.Dispose();
-                SearchBundles(_filter);
+                //SearchBundles(_filter);
             }
             if(GUILayout.Button(_actionButons[1], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
@@ -566,10 +566,10 @@ namespace SocialPoint.TransparentBundles
                     {
                         assetList.Add(chosenEnum.Current.Value.Asset);
                     }
-                    _controller.PerfomExistingBundleAction(assetList, EditorClientController.BundleIntoBuildMode.RemoveBundle);
+                    _controller.PerfomBundleOperation(assetList, BundleOperation.remove_asset_bundles);
                     chosenEnum.Dispose();
                 }
-                SearchBundles(_filter);
+                //SearchBundles(_filter);
             }
             if(GUILayout.Button(_actionButons[2], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
@@ -579,9 +579,9 @@ namespace SocialPoint.TransparentBundles
                 {
                     assetList.Add(chosenEnum.Current.Value.Asset);
                 }
-                _controller.PerfomExistingBundleAction(assetList, EditorClientController.BundleIntoBuildMode.MakeLocal);
+                _controller.PerfomBundleOperation(assetList, BundleOperation.AddToBuild);
                 chosenEnum.Dispose();
-                SearchBundles(_filter);
+                //SearchBundles(_filter);
             }
             if(GUILayout.Button(_actionButons[3], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
@@ -591,9 +591,9 @@ namespace SocialPoint.TransparentBundles
                 {
                     assetList.Add(chosenEnum.Current.Value.Asset);
                 }
-                _controller.PerfomExistingBundleAction(assetList, EditorClientController.BundleIntoBuildMode.RemoveLocalBundle);
+                _controller.PerfomBundleOperation(assetList, BundleOperation.RemoveFromBuild);
                 chosenEnum.Dispose();
-                SearchBundles(_filter);
+                //SearchBundles(_filter);
             }
             GUILayout.Label("", GUILayout.Width(3));
             EditorGUILayout.EndHorizontal();
@@ -624,7 +624,7 @@ namespace SocialPoint.TransparentBundles
 
             ManageKeyInputs();
 
-            ManageAutoSearch();
+            //ManageAutoSearch();
         }
 
         static void DisplayBundleRow(Bundle bundle)
@@ -875,7 +875,42 @@ namespace SocialPoint.TransparentBundles
         static void UpdateBundleData()
         {
             _lastUpdateTime = Time.realtimeSinceStartup;
-            _controller.LoadBundleDataFromServer(() => SearchBundles(_filter));
+            _controller.LoadBundleDataFromServer( /*() => SearchBundles(_filter)*/);
+        }
+
+        static void CleanBundleLists()
+        {
+            CleanBundleList(ref _selectedList);
+            CleanBundleList(ref _chosenList);
+        }
+
+        static void CleanBundleList(ref Dictionary<string, Bundle> list)
+        {
+            if(list != null && list.Count > 0)
+            {
+                var bundlesToRemoveFromList = new List<string>();
+                var listEnum = list.GetEnumerator();
+                while(listEnum.MoveNext())
+                {
+                    bool bundleExist = false;
+                    for(int i = 0; i < BundleList.Count && !bundleExist; i++)
+                    {
+                        if(BundleList[i].Name == listEnum.Current.Key)
+                        {
+                            bundleExist = true;
+                        }
+                    }
+                    if(!bundleExist)
+                    {
+                        bundlesToRemoveFromList.Add(listEnum.Current.Key);
+                    }
+                }
+                listEnum.Dispose();
+                for(int i = 0; i < bundlesToRemoveFromList.Count; i++)
+                {
+                    list.Remove(bundlesToRemoveFromList[i]);
+                }
+            }
         }
 
         static void SearchBundles(string filter)
@@ -890,6 +925,7 @@ namespace SocialPoint.TransparentBundles
                     _bundlesInBuild++;
                 }
             }
+            CleanBundleLists();
             Window.Repaint();
         }
 
@@ -905,9 +941,9 @@ namespace SocialPoint.TransparentBundles
             {
                 switch(Event.current.keyCode)
                 {
-                case KeyCode.Return:
+                /*case KeyCode.Return:
                     SearchBundles(_filter);
-                    break;
+                    break;*/
 
                 case KeyCode.A:
                     if(Event.current.command || Event.current.control)
@@ -924,7 +960,7 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        static void ManageAutoSearch()
+        /*static void ManageAutoSearch()
         {
             if(_toSearch && _updateFilterTime + _searchDelay > Time.realtimeSinceStartup)
             {
@@ -932,7 +968,7 @@ namespace SocialPoint.TransparentBundles
                 _toSearch = false;
                 SearchBundles(_filter);
             }
-        }
+        }*/
 
         public static string PrintProperSize(int bytes)
         {
@@ -993,6 +1029,7 @@ namespace SocialPoint.TransparentBundles
             {
                 UpdateBundleData();
             }
+            SearchBundles(_filter);
             Repaint();
         }
     }

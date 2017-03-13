@@ -149,7 +149,9 @@ namespace SocialPoint.TransparentBundles
                 }
                 else
                 {
-                    Debug.LogError("Transparent Bundles - Error - The bundle '" + parent.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactMail);
+                    string errorText = "Transparent Bundles - Error - The bundle '" + parent.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactMail;
+                    Debug.LogError(errorText);
+                    EditorUtility.DisplayDialog("Transparent Bundles", errorText, "Close");
                 }
             }
 
@@ -163,7 +165,9 @@ namespace SocialPoint.TransparentBundles
                 }
                 else
                 {
-                    Debug.LogError("Transparent Bundles - Error - The bundle '" + bundle.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactMail);
+                    string errorText = "Transparent Bundles - Error - The bundle '" + bundle.Name + "' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactMail;
+                    Debug.LogError(errorText);
+                    EditorUtility.DisplayDialog("Transparent Bundles", errorText, "Close");
                 }
             }
         }
