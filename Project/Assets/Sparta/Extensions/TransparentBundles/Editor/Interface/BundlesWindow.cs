@@ -20,8 +20,6 @@ namespace SocialPoint.TransparentBundles
         static Vector2 _scrollPos;
         const int _iconSize = 33;
         static GUIContent[] _actionButons;
-        //static float _updateFilterTime;
-        //static bool _toSearch;
         const float _searchDelay = 0.5f;
         static bool _bundlesInServerShown = true;
         static bool _bundlesInBuildShown = true;
@@ -63,18 +61,14 @@ namespace SocialPoint.TransparentBundles
                 new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.OutBuildImageName), "Remove bundle from the Build")
             };
 
-            //_updateFilterTime = 0f;
-            //_toSearch = false;
-
             _columnsSize = new[] { 20f, 20f, 70f, 100f };
             _controller.FlushCache();
 
             _previousScene = SceneManager.GetActiveScene();
 
             UpdateBundleData();
-
-            //TODO: Get ios/android bundle platform from build platform
-            CurrentPlatform = BundlePlaform.android_etc;
+            
+            CurrentPlatform = BundlePlaform.ios;
         }
 
 
@@ -296,18 +290,11 @@ namespace SocialPoint.TransparentBundles
                 EditorUtility.DisplayDialog("Transparent Bundles " + _controller.ServerInfo.Status, _controller.ServerInfo.Status + "\n\n" + _controller.ServerInfo.Log, "Close");
             }
             GUILayout.Label("", GUILayout.ExpandWidth(true));
-            //string previousFilter = _filter;
             _filter = EditorGUILayout.TextField(_filter, GUI.skin.FindStyle("ToolbarSeachTextField"), GUILayout.Width(200), GUILayout.Height(20));
-            /*if(previousFilter != _filter)
-            {
-                _updateFilterTime = Time.realtimeSinceStartup;
-                _toSearch = true;
-            }*/
             if(GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
             {
                 EditorGUI.FocusTextInControl("");
                 _filter = "";
-                //SearchBundles(_filter);
             }
             GUILayout.Label("", GUILayout.Width(5));
             EditorGUILayout.EndHorizontal();
@@ -537,7 +524,6 @@ namespace SocialPoint.TransparentBundles
                 }
                 _controller.CreateOrUpdateBundles(assetList);
                 chosenEnum.Dispose();
-                //SearchBundles(_filter);
             }
             if(GUILayout.Button(_actionButons[1], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
@@ -569,7 +555,6 @@ namespace SocialPoint.TransparentBundles
                     _controller.PerfomBundleOperation(assetList, BundleOperation.remove_asset_bundles);
                     chosenEnum.Dispose();
                 }
-                //SearchBundles(_filter);
             }
             if(GUILayout.Button(_actionButons[2], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
@@ -581,7 +566,6 @@ namespace SocialPoint.TransparentBundles
                 }
                 _controller.PerfomBundleOperation(assetList, BundleOperation.AddToBuild);
                 chosenEnum.Dispose();
-                //SearchBundles(_filter);
             }
             if(GUILayout.Button(_actionButons[3], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
             {
@@ -593,7 +577,6 @@ namespace SocialPoint.TransparentBundles
                 }
                 _controller.PerfomBundleOperation(assetList, BundleOperation.RemoveFromBuild);
                 chosenEnum.Dispose();
-                //SearchBundles(_filter);
             }
             GUILayout.Label("", GUILayout.Width(3));
             EditorGUILayout.EndHorizontal();
@@ -623,8 +606,6 @@ namespace SocialPoint.TransparentBundles
             EditorGUILayout.EndVertical();
 
             ManageKeyInputs();
-
-            //ManageAutoSearch();
         }
 
         static void DisplayBundleRow(Bundle bundle)
@@ -875,7 +856,7 @@ namespace SocialPoint.TransparentBundles
         static void UpdateBundleData()
         {
             _lastUpdateTime = Time.realtimeSinceStartup;
-            _controller.LoadBundleDataFromServer( /*() => SearchBundles(_filter)*/);
+            _controller.LoadBundleDataFromServer();
         }
 
         static void CleanBundleLists()
@@ -941,10 +922,6 @@ namespace SocialPoint.TransparentBundles
             {
                 switch(Event.current.keyCode)
                 {
-                /*case KeyCode.Return:
-                    SearchBundles(_filter);
-                    break;*/
-
                 case KeyCode.A:
                     if(Event.current.command || Event.current.control)
                     {
@@ -959,16 +936,6 @@ namespace SocialPoint.TransparentBundles
                 }
             }
         }
-
-        /*static void ManageAutoSearch()
-        {
-            if(_toSearch && _updateFilterTime + _searchDelay > Time.realtimeSinceStartup)
-            {
-                _updateFilterTime = 0f;
-                _toSearch = false;
-                SearchBundles(_filter);
-            }
-        }*/
 
         public static string PrintProperSize(int bytes)
         {
