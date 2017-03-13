@@ -4,12 +4,12 @@ using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Dependency;
-using SocialPoint.Extension.Helpshift;
+using SocialPoint.Helpshift;
 using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.Notifications;
 
-namespace SocialPoint.Extension.Helpshift
+namespace SocialPoint.Helpshift
 {
     public class HelpshiftInstaller : ServiceInstaller
     {

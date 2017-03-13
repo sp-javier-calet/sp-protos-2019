@@ -11,7 +11,7 @@ using SocialPoint.Notifications;
 
 #if HELPSHIFT_SUPPORTED
 
-namespace SocialPoint.Extension.Helpshift
+namespace SocialPoint.Helpshift
 {
     public sealed class UnityHelpshift : IHelpshift
     {
@@ -242,7 +242,7 @@ namespace SocialPoint.Extension.Helpshift
 
 #else
 
-namespace SocialPoint.Extension.Helpshift
+namespace SocialPoint.Helpshift
 {
     public sealed class UnityHelpshift : EmptyHelpshift
     {

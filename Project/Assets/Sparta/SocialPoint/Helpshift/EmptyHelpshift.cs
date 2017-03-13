@@ -1,5 +1,5 @@
 ﻿
-namespace SocialPoint.Extension.Helpshift
+namespace SocialPoint.Helpshift
 {
     public class EmptyHelpshift : IHelpshift
     {

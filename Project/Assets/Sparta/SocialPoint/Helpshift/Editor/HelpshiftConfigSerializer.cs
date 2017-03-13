@@ -5,7 +5,7 @@ using SocialPoint.Dependency;
 using UnityEngine;
 using UnityEditor;
 
-namespace SocialPoint.Extension.Helpshift
+namespace SocialPoint.Helpshift
 {
     /// <summary>
     /// Serialize Helpshift Installer data to json files.

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SocialPoint.Extension.Helpshift
+namespace SocialPoint.Helpshift
 {
     public struct HelpshiftConfiguration
     {
