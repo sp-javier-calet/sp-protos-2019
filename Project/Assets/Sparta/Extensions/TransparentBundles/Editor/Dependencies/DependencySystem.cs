@@ -163,73 +163,31 @@ namespace SocialPoint.TransparentBundles
         }
 
         /// <summary>
-        /// Checks that all the bundles are assigned correctly in the asset .meta files and removes the ones that are not in use.
+        /// Creates the data structure needed to build bundles with the Unity call
         /// </summary>
-        /// <param name="overwrite">Whether or not the dependency system fix all the bundles assignments</param>
-        /// <param name="bundleManifest">Optional manifest to use to assign the bundles. If none is provided, it will use the last one produced by the DependencySystem</param>
-        public static void CheckBundlesForBuild(bool overwrite, Dictionary<string, BundleDependenciesData> bundleManifest = null)
+        /// <param name="bundleManifest">List of bundles calculated by Dependency System (Will take local data if null is passed)</param>
+        /// <returns>Array of AssetBundleBuild structure to pass to BuildAssetBundles</returns>
+        public static AssetBundleBuild[] CreateBuildMap(Dictionary<string, BundleDependenciesData> bundleManifest = null)
         {
             if(bundleManifest == null)
             {
                 bundleManifest = Manifest.GetDictionary();
             }
 
-            if(overwrite)
-            {
-                AssetDatabase.StartAssetEditing();
-            }
-
-            var bundledAssets = GetBundledAsset();
-
-            AssetDatabase.RemoveUnusedAssetBundleNames();
-            foreach(var bundle in AssetDatabase.GetAllAssetBundleNames())
-            {
-                if(!bundledAssets.Exists(x => x.BundleName == bundle))
-                {
-                    if(OnLogMessage != null)
-                    {
-                        OnLogMessage("Old bundle found: " + bundle + ".", overwrite ? LogType.Log : LogType.Error);
-                    }
-
-                    if(overwrite)
-                    {
-                        foreach(var asset in AssetDatabase.GetAssetPathsFromAssetBundle(bundle))
-                        {
-                            var importer = AssetImporter.GetAtPath(asset);
-                            importer.assetBundleName = string.Empty;
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception("Bundles in the project have a different assignment than the Dependencies provided. Calculate Dependencies in the project again.");
-                    }
-                }
-            }
-            AssetDatabase.RemoveUnusedAssetBundleNames();
-
+            List<AssetBundleBuild> bundles = new List<AssetBundleBuild>();
             foreach(var bundleData in bundleManifest.Values)
             {
-                var importer = AssetImporter.GetAtPath(bundleData.AssetPath);
-                if(bundleData.BundleName != importer.assetBundleName)
+                if(!string.IsNullOrEmpty(bundleData.BundleName))
                 {
-                    if(overwrite)
-                    {
-                        importer.assetBundleName = bundleData.BundleName;
-                    }
-                    else
-                    {
-                        throw new Exception("Bundles in the project have a different assignment than the Dependencies provided. Calculate Dependencies in the project again. Bundle expected: " + bundleData.BundleName + ". Bundle Found: " + importer.assetBundleName);
-                    }
+                    var assetBundleBuild = new AssetBundleBuild();
+                    assetBundleBuild.assetBundleName = bundleData.BundleName;
+                    assetBundleBuild.assetNames = new string[] { bundleData.AssetPath };
+                    bundles.Add(assetBundleBuild);
                 }
             }
 
-            if(overwrite)
-            {
-                AssetDatabase.StopAssetEditing();
-            }
+            return bundles.ToArray();
         }
-
-
         #endregion
 
         #region PrivateMethods
