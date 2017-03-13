@@ -161,10 +161,7 @@ namespace SocialPoint.Social
         void OnLoginEnd(Error err)
         {
             DebugLog("OnLoginEnd - Error: " + err);
-            if(!Error.IsNullOrEmpty(err))
-            {
-                HasCancelledLogin = true;    
-            }
+            HasCancelledLogin |= !Error.IsNullOrEmpty(err);
 
             _connecting = false;
             NotifyStateChanged();
@@ -268,7 +265,8 @@ namespace SocialPoint.Social
             }
         }
 
-        public bool HasCancelledLogin {
+        public bool HasCancelledLogin
+        {
             get
             {
                 return PlayerPrefs.HasKey(GooglePlayLoginCancelledKey);

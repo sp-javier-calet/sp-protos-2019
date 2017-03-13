@@ -51,7 +51,7 @@ namespace SocialPoint.Social
             #endif
         }
 
-        UnityGoogle CreateUnityGoogle()
+        static UnityGoogle CreateUnityGoogle()
         {
             return new UnityGoogle();
         }

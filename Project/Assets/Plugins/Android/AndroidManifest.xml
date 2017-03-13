@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="es.socialpoint.basegame" android:installLocation="preferExternal" android:versionCode="1" android:versionName="1.0">
   <supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:xlargeScreens="true" android:anyDensity="true" />
-  <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="25" />
   <permission android:name="es.socialpoint.basegame.permission.C2D_MESSAGE" android:protectionLevel="signature">
   </permission>
   <uses-permission android:name="es.socialpoint.basegame.permission.C2D_MESSAGE" />
