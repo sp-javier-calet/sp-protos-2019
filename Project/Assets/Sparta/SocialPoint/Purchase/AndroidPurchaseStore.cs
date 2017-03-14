@@ -134,7 +134,7 @@ namespace SocialPoint.Purchase
             _storeManager.ConsumePurchaseFailedEvent += ConsumePurchaseFailed;
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugPurchasesFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("AndroidPurchaseStore {0}", msg));

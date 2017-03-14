@@ -41,7 +41,7 @@ namespace SocialPoint.Network
 
         public override void InstallBindings()
         {
-            _httpProxy = EditorProxy.GetProxy();
+            Container.Bind<IInitializable>().ToInstance(this);
 
             #pragma warning disable 0162
 
@@ -76,6 +76,7 @@ namespace SocialPoint.Network
 
         public void Initialize()
         {
+            _httpProxy = EditorProxy.GetProxy();
             _deviceInfo = Container.Resolve<IDeviceInfo>();
         }
 

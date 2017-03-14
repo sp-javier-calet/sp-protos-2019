@@ -471,7 +471,7 @@ namespace SocialPoint.Login
             return false;
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPLOGIN")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugLoginFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("SocialPointLogin {0}", msg));
