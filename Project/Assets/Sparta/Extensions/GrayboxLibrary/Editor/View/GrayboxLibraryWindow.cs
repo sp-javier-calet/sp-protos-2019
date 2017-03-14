@@ -61,10 +61,6 @@ namespace SocialPoint.GrayboxLibrary
         public static void LaunchClient()
         {
             Tool = new GrayboxLibraryController();
-            if(!Tool.IsSmbReady())
-            {
-                return;
-            }
             Tool.FlushImageCache();
             _currentPage = 0;
 

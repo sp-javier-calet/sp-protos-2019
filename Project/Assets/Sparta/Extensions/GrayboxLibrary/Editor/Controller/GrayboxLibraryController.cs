@@ -23,25 +23,13 @@ namespace SocialPoint.GrayboxLibrary
 
             if(!Directory.Exists(GrayboxLibraryConfig.PkgDefaultFolder))
             {
-                if(!IsSmbReady())
-                {
-                    GrayboxLibrarySmbSetup.Launch();
-                    if(GrayboxLibraryWindow.Window != null)
-                    {
-                        GrayboxLibraryWindow.Window.Close();
-                    }
-                    return;
-                }
-
                 var process = new ProcessStartInfo();
                 process.UseShellExecute = false;
                 process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-                process.FileName = "sudo";
-                process.Arguments = "-S mkdir " + GrayboxLibraryConfig.VolumePath;
+                process.FileName = "mkdir";
+                process.Arguments = "-p "+GrayboxLibraryConfig.VolumePath;
                 process.RedirectStandardError = true;
-                process.RedirectStandardInput = true;
                 var run = Process.Start(process);
-                run.StandardInput.WriteLine(PlayerPrefs.GetString(GrayboxLibraryConfig.SuPswPlayerPerfs) + "\n");
                 while(!run.StandardError.EndOfStream)
                 {
                     UnityEngine.Debug.LogError(run.StandardError.ReadLine());
@@ -50,12 +38,10 @@ namespace SocialPoint.GrayboxLibrary
                 process = new ProcessStartInfo();
                 process.UseShellExecute = false;
                 process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
-                process.FileName = "sudo";
-                process.Arguments = "-S mount_smbfs " + GrayboxLibraryConfig.SmbConnectionUrl + " " + GrayboxLibraryConfig.VolumePath;
+                process.FileName = "mount_smbfs";
+                process.Arguments = GrayboxLibraryConfig.SmbConnectionUrl + " " + GrayboxLibraryConfig.VolumePath;
                 process.RedirectStandardError = true;
-                process.RedirectStandardInput = true;
                 run = Process.Start(process);
-                run.StandardInput.WriteLine(PlayerPrefs.GetString(GrayboxLibraryConfig.SuPswPlayerPerfs) + "\n");
                 while(!run.StandardError.EndOfStream)
                 {
                     UnityEngine.Debug.LogError(run.StandardError.ReadLine());
@@ -70,7 +56,6 @@ namespace SocialPoint.GrayboxLibrary
                     {
                         if(EditorUtility.DisplayDialog("Graybox tool", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE' \n\n Check also that you have specified your Mac's password correctly.", "Close"))
                         {
-                            PlayerPrefs.DeleteKey(GrayboxLibraryConfig.SuPswPlayerPerfs);
                             if(GrayboxLibraryWindow.Window != null)
                             {
                                 GrayboxLibraryWindow.Window.Close();
@@ -85,16 +70,6 @@ namespace SocialPoint.GrayboxLibrary
             _dbController = GrayboxLibraryDB.GetInstance();
             _downloadController = GrayboxLibraryDownloader.GetInstance();
             Connect();
-        }
-
-        public bool IsSmbReady()
-        {
-            #if  UNITY_EDITOR_OSX
-            return PlayerPrefs.HasKey(GrayboxLibraryConfig.SuPswPlayerPerfs);
-            #else
-            return true;
-            #endif
-
         }
 
         public GrayboxAsset GetAsset(string name)

@@ -8,7 +8,7 @@ namespace SocialPoint.GrayboxLibrary
     {
         public static string DbConfig = "Server=GrayboxTool.c4rdfbnb9wen.eu-west-1.rds.amazonaws.com;Database=GrayboxTool;User ID=GrayboxTool;Password=SM9tyR8h21PRoVz;Pooling=true";
 
-        public static string MacVolumePath = "/Volumes/3dshare/";
+        public static string MacVolumePath = "/mount/3dshare/";
 
         public static string WinVolumePath = "//spserver/3dshare/";
 
@@ -25,8 +25,6 @@ namespace SocialPoint.GrayboxLibrary
         public static string PkgDefaultFolder = (VolumePath + "TA/UnityAssetLibrary/Packages").Replace("/", "\\");
 #endif
         public static string SmbConnectionUrl = "//guest@" + WinVolumePath.Substring(2);
-
-        public static string SuPswPlayerPerfs = "smbsupsw";
 
         public static string ContactMail = "technical-art@socialpoint.es";
 
