@@ -26,7 +26,7 @@ namespace SocialPoint.Network
         const string kQuestionMark = @"?";
 
         readonly Curl.Connection _connection;
-        UnmanagedMarshalledObject<Curl.RequestStruct> _requestStruct;
+        UnmanagedMarshaledObject<Curl.RequestStruct> _requestStruct;
 
         public override IEnumerator Update()
         {
@@ -103,9 +103,9 @@ namespace SocialPoint.Network
             ReceiveData();
         }
 
-        static UnmanagedMarshalledObject<Curl.RequestStruct> CreateMarshalledRequestStruct(HttpRequest request, int connectionId = 0)
+        static UnmanagedMarshaledObject<Curl.RequestStruct> CreateMarshalledRequestStruct(HttpRequest request, int connectionId = 0)
         {
-            return new UnmanagedMarshalledObject<Curl.RequestStruct>(CreateRequestStruct(request, connectionId));
+            return new UnmanagedMarshaledObject<Curl.RequestStruct>(CreateRequestStruct(request, connectionId));
         }
 
         static Curl.RequestStruct CreateRequestStruct(HttpRequest request, int connectionId = 0)

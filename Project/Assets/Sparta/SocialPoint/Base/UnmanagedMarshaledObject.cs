@@ -3,14 +3,14 @@ using System.Runtime.InteropServices;
 
 namespace SocialPoint.Base
 {
-    class UnmanagedMarshalledObject<T> : IDisposable
+    class UnmanagedMarshaledObject<T> : IDisposable
     {
         IntPtr _ptr = IntPtr.Zero;
         #if DEBUG
         readonly T _content;
         #endif
 
-        public UnmanagedMarshalledObject(T content)
+        public UnmanagedMarshaledObject(T content)
         {
             #if DEBUG
             _content = content;
@@ -19,12 +19,12 @@ namespace SocialPoint.Base
             Marshal.StructureToPtr(content, _ptr, false);
         }
 
-        ~UnmanagedMarshalledObject()
+        ~UnmanagedMarshaledObject()
         {
             Dispose();
         }
             
-        public static implicit operator IntPtr(UnmanagedMarshalledObject<T> obj)
+        public static implicit operator IntPtr(UnmanagedMarshaledObject<T> obj)
         {
             return obj._ptr;
         }

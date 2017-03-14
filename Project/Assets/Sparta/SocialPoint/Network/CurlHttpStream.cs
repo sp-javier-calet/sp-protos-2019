@@ -25,7 +25,7 @@ namespace SocialPoint.Network
         const string kQuestionMark = @"?";
 
         readonly Curl.Connection _connection;
-        UnmanagedMarshalledObject<Curl.RequestStruct> _requestStruct;
+        UnmanagedMarshaledObject<Curl.RequestStruct> _requestStruct;
         HttpStreamClosedDelegate _callback;
 
         public event Action<byte[]> DataReceived;
@@ -59,7 +59,7 @@ namespace SocialPoint.Network
             var msg = new Curl.MessageStruct();
             msg.Message = data;
             msg.MessageLength = data.Length;
-            UnmanagedMarshalledObject<Curl.MessageStruct> messageStruct = new UnmanagedMarshalledObject<Curl.MessageStruct>(msg);
+            UnmanagedMarshaledObject<Curl.MessageStruct> messageStruct = new UnmanagedMarshaledObject<Curl.MessageStruct>(msg);
             _connection.SendStreamMessage(messageStruct);
         }
 
@@ -154,9 +154,9 @@ namespace SocialPoint.Network
             FinalizeStream();
         }
 
-        static UnmanagedMarshalledObject<Curl.RequestStruct> CreateMarshalledRequestStruct(HttpRequest request, int connectionId = 0)
+        static UnmanagedMarshaledObject<Curl.RequestStruct> CreateMarshalledRequestStruct(HttpRequest request, int connectionId = 0)
         {
-            return new UnmanagedMarshalledObject<Curl.RequestStruct>(CreateRequestStruct(request, connectionId));
+            return new UnmanagedMarshaledObject<Curl.RequestStruct>(CreateRequestStruct(request, connectionId));
         }
 
         static Curl.RequestStruct CreateRequestStruct(HttpRequest request, int connectionId = 0)
