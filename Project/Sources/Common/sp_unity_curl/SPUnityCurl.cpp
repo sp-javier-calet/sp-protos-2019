@@ -45,7 +45,7 @@ extern "C"
         return client->send(req);
     }
     
-    EXPORT_API int SPUnityCurlSendStreamMessage(CurlClient* client, int id, CurlMessage msg)
+    EXPORT_API int SPUnityCurlSendStreamMessage(CurlClient* client, int id, CurlMessage* msg)
     {
         return client->sendStreamMessage(id, msg);
     }

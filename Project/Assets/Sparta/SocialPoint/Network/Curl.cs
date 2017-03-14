@@ -181,9 +181,9 @@ namespace SocialPoint.Network
                 return SPUnityCurlSend(_curl.NativeClient, requestPtr);
             }
 
-            public int SendStreamMessage(MessageStruct msg)
+            public int SendStreamMessage(IntPtr msgPtr)
             {
-                return SPUnityCurlSendStreamMessage(_curl.NativeClient, _connectionId, msg);
+                return SPUnityCurlSendStreamMessage(_curl.NativeClient, _connectionId, msgPtr);
             }
 
             public int Id
@@ -387,6 +387,21 @@ namespace SocialPoint.Network
             [MarshalAs(UnmanagedType.LPArray)]
             public byte[] Message;
             public int MessageLength;
+
+            override public string ToString()
+            {
+                var builder = StringUtils.StartBuilder();
+                if(Message != null)
+                {
+                    builder.Append("Message: " + System.Text.Encoding.ASCII.GetString(Message) + System.Environment.NewLine);
+                }
+                else
+                {
+                    builder.Append("Message: null");
+                }
+                builder.Append("MessageLength: " + MessageLength + System.Environment.NewLine);
+                return StringUtils.FinishBuilder(builder);
+            }
         };
 
         /// <summary>
@@ -520,7 +535,7 @@ namespace SocialPoint.Network
         static extern int SPUnityCurlSend(UIntPtr client, IntPtr data);
 
         [DllImport(PluginModuleName)]
-        static extern int SPUnityCurlSendStreamMessage(UIntPtr client, int id, MessageStruct data);
+        static extern int SPUnityCurlSendStreamMessage(UIntPtr client, int id, IntPtr data);
 
         [DllImport(PluginModuleName)]
         static extern bool SPUnityCurlUpdate(UIntPtr client);

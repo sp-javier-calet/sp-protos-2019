@@ -402,8 +402,9 @@ bool CurlClient::destroyConnection(int id)
     return _connections.remove(id);
 }
 
-bool CurlClient::sendStreamMessage(int id, CurlMessage data)
+bool CurlClient::sendStreamMessage(int id, CurlMessage* data)
 {
+    assert(data);
     CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
@@ -412,7 +413,7 @@ bool CurlClient::sendStreamMessage(int id, CurlMessage data)
             curl_easy_pause(conn.easy, CURLPAUSE_CONT);
         }
 
-        conn.messages.outcoming.append((char*)data.message, data.messageLength * sizeof(char));
+        conn.messages.outcoming.append((char*)data->message, data->messageLength * sizeof(char));
         return true;
     }
     return false;
