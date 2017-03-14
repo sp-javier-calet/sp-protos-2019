@@ -401,6 +401,7 @@ namespace SocialPoint.Connection
                 _connection.AbortJoining();
             }
 
+            _initialized = false;
             UnschedulePing();
         }
 
