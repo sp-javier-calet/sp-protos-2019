@@ -27,7 +27,7 @@ namespace SocialPoint.GrayboxLibrary
                 process.UseShellExecute = false;
                 process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
                 process.FileName = "mkdir";
-                process.Arguments = "-p "+GrayboxLibraryConfig.VolumePath;
+                process.Arguments = "-p " + GrayboxLibraryConfig.VolumePath;
                 process.RedirectStandardError = true;
                 var run = Process.Start(process);
                 while(!run.StandardError.EndOfStream)
