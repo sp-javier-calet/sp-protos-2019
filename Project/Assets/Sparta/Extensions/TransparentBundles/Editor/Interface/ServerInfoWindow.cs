@@ -58,6 +58,10 @@ namespace SocialPoint.TransparentBundles
             {
                 EditorGUILayout.BeginHorizontal(GUILayout.Height(25), GUILayout.ExpandHeight(false));
                 GUILayout.Label("", GUILayout.Width(5));
+                if(i > 0)
+                {
+                    
+                }
                 BundlesWindow.DrawOperationIcon(queueEnum.Current.Value, i == 0);
                 string bundleNames = "";
                 int j = 0;
