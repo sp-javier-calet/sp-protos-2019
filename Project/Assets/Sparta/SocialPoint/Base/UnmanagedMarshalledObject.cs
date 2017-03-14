@@ -39,41 +39,10 @@ namespace SocialPoint.Base
         }
         #endif
 
-        /*
-        #if DEBUG
-        public T Content
-        {
-            get
-            {
-                if(ptr != IntPtr.Zero)
-                {
-                    // Structure field of type Byte[] can't be marshalled as LPArray
-                    //return (T)Marshal.PtrToStructure(ptr, typeof(T));
-                    try
-                    {
-                        T content = (T)Marshal.PtrToStructure(ptr, typeof(T));
-                        return content;
-                    }
-                    catch(Exception e)
-                    {
-                        Log.e(e.ToString());
-                        return default(T);
-                    }
-                }
-                else
-                {
-                    return default(T);
-                }
-            }
-        }
-        #endif
-        */
-
         public void Dispose()
         {
             if(_ptr != IntPtr.Zero)
             {
-                UnityEngine.Debug.LogWarning("DISPOSING: " + _content);
                 Marshal.FreeHGlobal(_ptr);
                 _ptr = IntPtr.Zero;
             }

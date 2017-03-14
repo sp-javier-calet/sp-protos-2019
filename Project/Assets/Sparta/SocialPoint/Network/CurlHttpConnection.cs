@@ -26,7 +26,6 @@ namespace SocialPoint.Network
         const string kQuestionMark = @"?";
 
         readonly Curl.Connection _connection;
-
         UnmanagedMarshalledObject<Curl.RequestStruct> _requestStruct;
 
         public override IEnumerator Update()
