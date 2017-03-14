@@ -31,6 +31,7 @@ namespace SocialPoint.TransparentBundles
         const string _loginUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/login/";
         const string _requestUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/asset_request/";
         const string _localBundleUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/local_asset/";
+        const string _cancelUrl = "";
 
         const string _queryLogin = "user_email";
         const string _queryProject = "project";
@@ -194,6 +195,17 @@ namespace SocialPoint.TransparentBundles
             var url = HttpAsyncRequest.AppendQueryParams(_localBundleUrl, queryDict);
             url = HttpAsyncRequest.AppendQueryParams(url, GetBaseQueryArgs());
             GenericRequest(arguments, url, "DELETE", string.Empty, x => HandleActionResponse(x, arguments, RemoveLocalBundle));
+        }
+
+
+        /// <summary>
+        /// Sends a cancel order for a request.
+        /// </summary>
+        /// <param name="arguments">Arguments needed for this type of request</param>
+        public static void CancelRequest(CancelRequestArgs arguments)
+        {
+            throw new NotImplementedException();
+            GenericRequest(arguments, _cancelUrl, "", JsonMapper.ToJson(arguments.requestID), x => HandleActionResponse(x, arguments, CancelRequest));
         }
 
 
