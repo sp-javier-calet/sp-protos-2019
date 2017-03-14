@@ -296,7 +296,7 @@ namespace SocialPoint.GameLoading
             operation.Start();
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPGAMELOADING")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugGameLoadingFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("GameLoadingController: {0}", msg));
