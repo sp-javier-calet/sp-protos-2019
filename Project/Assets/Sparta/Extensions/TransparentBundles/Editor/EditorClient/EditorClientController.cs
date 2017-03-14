@@ -29,32 +29,45 @@ namespace SocialPoint.TransparentBundles
             if(!Directory.Exists(Config.IconsPath))
             {
                 var process = new ProcessStartInfo();
-                process.WindowStyle = ProcessWindowStyle.Hidden;
+                process.UseShellExecute = false;
+                process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
                 process.FileName = "mkdir";
-                process.Arguments = Config.VolumePath;
-                Process proc = Process.Start(process);
-                if(!proc.WaitForExit(10000))
+                process.Arguments = "-p " + Config.VolumePath;
+                process.RedirectStandardError = true;
+                var run = Process.Start(process);
+                while(!run.StandardError.EndOfStream)
+                {
+                    UnityEngine.Debug.LogError(run.StandardError.ReadLine());
+                }
+                if(!run.WaitForExit(10000))
                 {
                     if(EditorUtility.DisplayDialog("Transparent Bundles", "The folder '" + Config.VolumePath + "' was not able to be created. Please, contact the Transparent Bundles developers: " + Config.ContactUrl, "Close"))
                     {
                         BundlesWindow.Window.Close();
                     }
+                    return;
                 }
-                else
+
+                process = new ProcessStartInfo();
+                process.UseShellExecute = false;
+                process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                process.FileName = "mount_smbfs";
+                process.Arguments = Config.SmbConnectionUrl + " " + Config.VolumePath;
+                process.RedirectStandardError = true;
+                run = Process.Start(process);
+                while(!run.StandardError.EndOfStream)
                 {
-                    process = new ProcessStartInfo();
-                    process.WindowStyle = ProcessWindowStyle.Hidden;
-                    process.FileName = "mount_smbfs";
-                    process.Arguments = Config.SmbConnectionUrl + " " + Config.VolumePath;
-                    proc = Process.Start(process);
-                    if(!proc.WaitForExit(10000))
+                    UnityEngine.Debug.LogError(run.StandardError.ReadLine());
+                }
+                if(!run.WaitForExit(10000))
+                {
+                    if(EditorUtility.DisplayDialog("Transparent Bundles", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE'", "Close"))
                     {
-                        if(EditorUtility.DisplayDialog("Transparent Bundles", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE'", "Close"))
-                        {
-                            BundlesWindow.Window.Close();
-                        }
+                        BundlesWindow.Window.Close();
                     }
                 }
+
+                run.Close();
             }
 #endif
             DependenciesCache = new Dictionary<string, List<Asset>>();
