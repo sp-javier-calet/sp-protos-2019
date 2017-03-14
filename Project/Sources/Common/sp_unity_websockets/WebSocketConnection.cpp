@@ -270,5 +270,15 @@ bool WebSocketConnection::onPingSent()
 
 void WebSocketConnection::resetPing()
 {
+    _pendingPings = 0;
     _missingPong = 0;
+}
+
+void WebSocketConnection::onWillGoBackground()
+{
+    closeSocket();
+}
+
+void WebSocketConnection::onWasOnBackground()
+{
 }

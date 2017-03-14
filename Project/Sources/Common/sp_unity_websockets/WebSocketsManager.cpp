@@ -20,7 +20,7 @@ static int callback_websocket(struct lws* wsi, enum lws_callback_reasons reason,
 {
     WebSocketsManager& manager = WebSocketsManager::get();
     WebSocketConnection* connection = manager.get(wsi);
-    
+
     if(!connection)
     {
         return 0;
@@ -125,17 +125,17 @@ static int callback_websocket(struct lws* wsi, enum lws_callback_reasons reason,
                     if(connection->onPingSent())
                     {
                         connection->resetPing();
-                        
+
                         lwsl_err("ERROR: MAX PINGS REACHED\n");
                         connection->connectionError((int)WebSocketConnection::Error::MaxPings, "Max pings reached");
                         connection->closeSocket();
                         pRet = -1;
-                        
                     };
                 }
             }
             break;
         }
+        case LWS_CALLBACK_WSI_DESTROY:
         case LWS_CALLBACK_CLOSED:
             connection->closeSocket();
             pRet = -1;
@@ -330,7 +330,7 @@ void WebSocketsManager::connect(WebSocketConnection* connection)
 
     size_t currentUrlIndex = connection->getCurrentUrlIndex() % vecUrls.size();
     const WebSocketConnectionInfo& currentUrl = vecUrls[currentUrlIndex];
-    
+
     std::stringstream ss;
     ss << currentUrl;
     std::string urlStr = ss.str();

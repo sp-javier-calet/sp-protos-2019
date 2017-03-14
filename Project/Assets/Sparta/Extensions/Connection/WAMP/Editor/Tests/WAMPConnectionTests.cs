@@ -242,7 +242,8 @@ namespace SocialPoint.WAMP
                 subscribed = true;
             };
 
-            _connection.Subscribe(TestTopic, handlerSubscription, completionHandler);
+            var req = _connection.CreateSubscribe(TestTopic, handlerSubscription, completionHandler);
+            _connection.SendSubscribe(req);
 
             Assert.IsTrue(subscribed);
         }
@@ -274,7 +275,8 @@ namespace SocialPoint.WAMP
                 subscribed = true;
             };
 
-            var req = _connection.Subscribe(TestTopic, handlerSubscription, completionHandler);
+            var req = _connection.CreateSubscribe(TestTopic, handlerSubscription, completionHandler);
+            _connection.SendSubscribe(req);
 
             req.Dispose();
             t.Join(15);
@@ -304,7 +306,8 @@ namespace SocialPoint.WAMP
                 unsubscribed = true;
             };
 
-            _connection.Unsubscribe(new Subscriber.Subscription(SubscriptionId, TestTopic), completionHandler);
+            var req = _connection.CreateUnsubscribe(new Subscriber.Subscription(SubscriptionId, TestTopic), completionHandler);
+            _connection.SendUnsubscribe(req);
 
             Assert.IsTrue(unsubscribed);
         }
@@ -335,7 +338,8 @@ namespace SocialPoint.WAMP
                 unsubscribed = true;
             };
 
-            var req = _connection.Unsubscribe(new Subscriber.Subscription(SubscriptionId, TestTopic), completionHandler);
+            var req = _connection.CreateUnsubscribe(new Subscriber.Subscription(SubscriptionId, TestTopic), completionHandler);
+            _connection.SendUnsubscribe(req);
 
             req.Dispose();
             t.Join(15);
@@ -383,7 +387,8 @@ namespace SocialPoint.WAMP
                 published = true;
             };
 
-            _connection.Publish(TestTopic, CreateArgs(), CreateKWArgs(), true, completionHandler);
+            var req = _connection.CreatePublish(TestTopic, CreateArgs(), CreateKWArgs(), true, completionHandler);
+            _connection.SendPublish(req);
 
             Assert.IsTrue(published);
         }
@@ -413,7 +418,8 @@ namespace SocialPoint.WAMP
 
             var args = new AttrList();
             var kwargs = new AttrDic();
-            var req = _connection.Publish(TestTopic, args, kwargs, true, completionHandler);
+            var req = _connection.CreatePublish(TestTopic, args, kwargs, true, completionHandler);
+            _connection.SendPublish(req);
 
             req.Dispose();
             t.Join(15);
@@ -454,7 +460,8 @@ namespace SocialPoint.WAMP
                 subscribed = true;
             };
 
-            _connection.Subscribe(TestTopic, handlerSubscription, completionHandler);
+            var req = _connection.CreateSubscribe(TestTopic, handlerSubscription, completionHandler);
+            _connection.SendSubscribe(req);
 
             Assert.IsTrue(subscribed);
             Assert.IsTrue(eventReceived);
@@ -480,13 +487,13 @@ namespace SocialPoint.WAMP
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
                 .Do(x => {
-                    var message = string.Format("[{0}, 0, {1}]", MsgCode.SUBSCRIBED, SubscriptionId);
-                    var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
-                    _receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                var message = string.Format("[{0}, 0, {1}]", MsgCode.SUBSCRIBED, SubscriptionId);
+                var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                _receiver.OnMessageReceived(new NetworkMessageData(), reader);
 
-                    //Delay the fake EVENT message
-                    t.Start(_receiver);
-                });
+                //Delay the fake EVENT message
+                t.Start(_receiver);
+            });
 
             Subscriber.HandlerSubscription handlerSubscription = (attrList, attrDict) => {
                 eventReceived = true;
@@ -500,18 +507,20 @@ namespace SocialPoint.WAMP
                 subscribed = true;
             };
 
-            _connection.Subscribe(TestTopic, handlerSubscription, completionHandler);
+            var reqSubs = _connection.CreateSubscribe(TestTopic, handlerSubscription, completionHandler);
+            _connection.SendSubscribe(reqSubs);
 
             ClearMessageSubstitute();
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
                 .Do(x => {
-                    var message = string.Format("[{0}, 1]", MsgCode.UNSUBSCRIBED);
-                    var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
-                    _receiver.OnMessageReceived(new NetworkMessageData(), reader);
-                });
+                var message = string.Format("[{0}, 1]", MsgCode.UNSUBSCRIBED);
+                var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                _receiver.OnMessageReceived(new NetworkMessageData(), reader);
+            });
 
-            _connection.Unsubscribe(new Subscriber.Subscription(SubscriptionId, TestTopic), null);
+            var reqUnsubs = _connection.CreateUnsubscribe(new Subscriber.Subscription(SubscriptionId, TestTopic), null);
+            _connection.SendUnsubscribe(reqUnsubs);
 
             t.Join(15);
 
@@ -563,7 +572,8 @@ namespace SocialPoint.WAMP
                 Assert.AreEqual(respKWArgs.GetValue(ResponseKey).ToString(), ResponseValue);
             };
 
-            _connection.Call(TestProcedure, CreateArgs(), CreateKWArgs(), completionHandler);
+            var req = _connection.CreateCall(TestProcedure, CreateArgs(), CreateKWArgs(), completionHandler);
+            _connection.SendCall(req);
 
             Assert.IsTrue(called);
         }
@@ -593,7 +603,8 @@ namespace SocialPoint.WAMP
                 called = true;
             };
 
-            var req = _connection.Call(testProcedure, CreateArgs(), CreateKWArgs(), completionHandler);
+            var req = _connection.CreateCall(testProcedure, CreateArgs(), CreateKWArgs(), completionHandler);
+            _connection.SendCall(req);
 
             req.Dispose();
             t.Join(15);

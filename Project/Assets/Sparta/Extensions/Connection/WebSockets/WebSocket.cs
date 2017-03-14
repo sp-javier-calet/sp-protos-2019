@@ -41,6 +41,8 @@ namespace SocialPoint.WebSockets
 
         WebSocketState _lastState;
 
+        bool ForceNotifyState;
+
         string[] _urls;
 
         WebSocketState State
@@ -99,6 +101,7 @@ namespace SocialPoint.WebSockets
 
         public void Connect()
         {
+            ForceNotifyState = true;
             SPUnityWebSocketConnect(NativeSocket);
         }
 
@@ -110,6 +113,16 @@ namespace SocialPoint.WebSockets
         public void Ping()
         {
             SPUnityWebSocketPing(NativeSocket);
+        }
+
+        public void OnWillGoBackground()
+        {
+            SPUnityWebSocketOnWillGoBackground(NativeSocket);
+        }
+
+        public void OnWasOnBackground()
+        {
+            SPUnityWebSocketOnWasOnBackground(NativeSocket);
         }
 
         public void Update()
@@ -131,7 +144,7 @@ namespace SocialPoint.WebSockets
 
             // Update Connection state
             var newState = State;
-            if(newState != _lastState)
+            if(newState != _lastState || ForceNotifyState)
             {
                 _lastState = newState;
                 NotifyConnectionState(newState);
@@ -160,7 +173,7 @@ namespace SocialPoint.WebSockets
         {
             get
             {
-                return SPUnityWebSocketGetState(NativeSocket) == (int)WebSocketState.Open;
+                return SPUnityWebSocketIsConnected(NativeSocket);
             }
         }
 
@@ -168,7 +181,7 @@ namespace SocialPoint.WebSockets
         {
             get
             {
-                return SPUnityWebSocketGetState(NativeSocket) == (int)WebSocketState.Connecting;
+                return SPUnityWebSocketIsConnecting(NativeSocket);
             }
         }
 
@@ -207,6 +220,7 @@ namespace SocialPoint.WebSockets
 
         void NotifyConnectionState(WebSocketState state)
         {
+            ForceNotifyState = false;
             if(ConnectionStateChanged != null)
             {
                 switch(state)
@@ -301,11 +315,17 @@ namespace SocialPoint.WebSockets
         const string PluginModuleName = "SPUnityPlugins";
         #elif UNITY_ANDROID && !UNITY_EDITOR
         const string PluginModuleName = "sp_unity_websockets";
-        #elif (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+        
+
+#elif (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         const string PluginModuleName = "__Internal";
-        #elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
+        
+
+#elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
         const string PluginModuleName = "sp_unity_websockets";
-        #else
+        
+
+#else
         const string PluginModuleName = "none";
         #endif
 
@@ -328,10 +348,22 @@ namespace SocialPoint.WebSockets
         static extern void SPUnityWebSocketConnect(UIntPtr socket);
 
         [DllImport(PluginModuleName)]
+        static extern bool SPUnityWebSocketIsConnected(UIntPtr socket);
+
+        [DllImport(PluginModuleName)]
+        static extern bool SPUnityWebSocketIsConnecting(UIntPtr socket);
+
+        [DllImport(PluginModuleName)]
         static extern int SPUnityWebSocketGetState(UIntPtr socket);
 
         [DllImport(PluginModuleName)]
         static extern void SPUnityWebSocketDisconnect(UIntPtr socket);
+
+        [DllImport(PluginModuleName)]
+        static extern void SPUnityWebSocketOnWillGoBackground(UIntPtr socket);
+
+        [DllImport(PluginModuleName)]
+        static extern void SPUnityWebSocketOnWasOnBackground(UIntPtr socket);
 
         [DllImport(PluginModuleName)]
         static extern void SPUnityWebSocketUpdate(UIntPtr socket);
