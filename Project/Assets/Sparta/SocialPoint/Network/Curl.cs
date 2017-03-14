@@ -10,6 +10,7 @@ using System;
 using System.Runtime.InteropServices;
 using SocialPoint.Base;
 using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -175,9 +176,9 @@ namespace SocialPoint.Network
                 return SPUnityCurlUpdateConn(_curl.NativeClient, _connectionId);
             }
 
-            public int Send(RequestStruct req)
+            public int Send(IntPtr requestPtr)
             {
-                return SPUnityCurlSend(_curl.NativeClient, req);
+                return SPUnityCurlSend(_curl.NativeClient, requestPtr);
             }
 
             public int SendStreamMessage(MessageStruct msg)
@@ -355,6 +356,29 @@ namespace SocialPoint.Network
             [MarshalAs(UnmanagedType.LPArray)]
             public byte[] Body;
             public int BodyLength;
+
+            override public string ToString()
+            {
+                var builder = StringUtils.StartBuilder();
+                builder.Append("Id: " + Id + System.Environment.NewLine);
+                builder.Append("Url: " + Url + System.Environment.NewLine);
+                builder.Append("Query: " + Query + System.Environment.NewLine);
+                builder.Append("Method: " + Method + System.Environment.NewLine);
+                builder.Append("Timeout: " + Timeout + System.Environment.NewLine);
+                builder.Append("ActivityTimeout: " + ActivityTimeout + System.Environment.NewLine);
+                builder.Append("Proxy: " + Proxy + System.Environment.NewLine);
+                builder.Append("Headers: " + Headers + System.Environment.NewLine);
+                if(Body != null)
+                {
+                    builder.Append("Body: " + System.Text.Encoding.ASCII.GetString(Body) + System.Environment.NewLine);
+                }
+                else
+                {
+                    builder.Append("Body: null");
+                }
+                builder.Append("BodyLength: " + BodyLength + System.Environment.NewLine);
+                return StringUtils.FinishBuilder(builder);
+            }
         };
 
         [StructLayout(LayoutKind.Sequential)]
@@ -493,7 +517,7 @@ namespace SocialPoint.Network
         static extern void SPUnityCurlDestroyConn(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
-        static extern int SPUnityCurlSend(UIntPtr client, RequestStruct data);
+        static extern int SPUnityCurlSend(UIntPtr client, IntPtr data);
 
         [DllImport(PluginModuleName)]
         static extern int SPUnityCurlSendStreamMessage(UIntPtr client, int id, MessageStruct data);

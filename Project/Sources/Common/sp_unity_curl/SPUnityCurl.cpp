@@ -40,7 +40,7 @@ extern "C"
         client->destroyConnection(id);
     }
     
-    EXPORT_API int SPUnityCurlSend(CurlClient* client, CurlRequest req)
+    EXPORT_API int SPUnityCurlSend(CurlClient* client, CurlRequest* req)
     {
         return client->send(req);
     }

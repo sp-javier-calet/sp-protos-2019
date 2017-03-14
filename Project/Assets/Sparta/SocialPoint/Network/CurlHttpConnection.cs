@@ -27,6 +27,8 @@ namespace SocialPoint.Network
 
         readonly Curl.Connection _connection;
 
+        UnmanagedMarshalledObject<Curl.RequestStruct> _requestStruct;
+
         public override IEnumerator Update()
         {
             while(!_dataReceived)
@@ -102,7 +104,12 @@ namespace SocialPoint.Network
             ReceiveData();
         }
 
-        static Curl.RequestStruct CreateRequestStruct(HttpRequest request, int id = 0)
+        static UnmanagedMarshalledObject<Curl.RequestStruct> CreateMarshalledRequestStruct(HttpRequest request, int connectionId = 0)
+        {
+            return new UnmanagedMarshalledObject<Curl.RequestStruct>(CreateRequestStruct(request, connectionId));
+        }
+
+        static Curl.RequestStruct CreateRequestStruct(HttpRequest request, int connectionId = 0)
         {
             var data = new Curl.RequestStruct();
             var urlPath = string.Empty;
@@ -131,7 +138,7 @@ namespace SocialPoint.Network
                 }
             }
 
-            data.Id = id;
+            data.Id = connectionId;
             data.Url = urlPath ?? string.Empty;
             data.Query = queryParamsStr ?? string.Empty;
             data.Method = request.Method.ToString() ?? string.Empty;
@@ -146,8 +153,8 @@ namespace SocialPoint.Network
 
         void Send(Curl.Connection connection, HttpRequest req)
         {
-            var data = CreateRequestStruct(req, connection.Id);
-            int ok = connection.Send(data);
+            _requestStruct = CreateMarshalledRequestStruct(req, connection.Id);
+            int ok = connection.Send(_requestStruct);
             if(ok == 0)
             {
                 ReceiveData();
@@ -166,6 +173,8 @@ namespace SocialPoint.Network
             _body = _connection.Body;
             _headers = _connection.Headers;
             _connection.Dispose();
+
+            _requestStruct = null;
             
             HttpResponse resp;
             try
