@@ -68,7 +68,7 @@ namespace SocialPoint.TransparentBundles
 
             UpdateBundleData();
             
-            CurrentPlatform = BundlePlaform.ios;
+            CurrentPlatform = BundlePlaform.android_etc;
         }
 
 

@@ -297,6 +297,24 @@ namespace SocialPoint.TransparentBundles
                 valid = false;
                 EditorUtility.DisplayDialog("Asset issue", "You cannot create a bundle of a folder.\n\nVisit the following link for more info: \n" + Config.HelpUrl, "Close");
             }
+            else
+            {
+                string[] assetsPath = AssetDatabase.GetDependencies(AssetDatabase.GUIDToAssetPath(asset.Guid));
+                var pendingAssetMessages = GitChecker.CheckFilePending(assetsPath);
+                if(pendingAssetMessages.Count > 0)
+                {
+                    valid = false;
+                    string penginAssetsText = "";
+                    for(int i = 0; i < pendingAssetMessages.Count; i++)
+                    {
+                        penginAssetsText += pendingAssetMessages[i]+"\n";
+                    }
+                    string erroMessage = "Some asset are pending to be commited and pushed to GIT:\n\n\n" + penginAssetsText + "\nPlease, make sure that you updload all the pending assets before creating or updating bundles. \n\nVisit the following link for more info: \n" + Config.HelpUrl;
+                    UnityEngine.Debug.LogError(erroMessage);
+                    EditorUtility.DisplayDialog("Asset issue", erroMessage, "Close");
+                }
+            }
+            
 
             return valid;
         }
@@ -345,7 +363,7 @@ namespace SocialPoint.TransparentBundles
             }
         }
 
-        public void CreateOrUpdateBundles(List<Asset> assets)
+        public bool CreateOrUpdateBundles(List<Asset> assets)
         {
             bool valid = true;
 
@@ -389,16 +407,17 @@ namespace SocialPoint.TransparentBundles
                 }
                 TransparentBundleAPI.CreateBundle(new CreateBundlesArgs(guids, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
             }
+            return valid;
         }
 
-        public void PerfomBundleOperation(List<Asset> assets, BundleOperation operation)
+        public bool PerfomBundleOperation(List<Asset> assets, BundleOperation operation)
         {
             bool valid = true;
 
             for(int i = 0; i < assets.Count && valid; i++)
             {
                 Asset asset = assets[i];
-                valid &= _bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name));
+                valid &= IsValidAsset(asset) && _bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name));
             }
 
             if(valid)
@@ -421,6 +440,12 @@ namespace SocialPoint.TransparentBundles
                     break;
                 }
             }
+            return valid;
+        }
+
+        public void CancelBundleOperation(List<Asset> assets, BundleOperation operation)
+        {
+            
         }
 
         public string GetFixedAssetName(string assetName)
