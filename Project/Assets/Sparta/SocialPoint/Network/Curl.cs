@@ -374,7 +374,7 @@ namespace SocialPoint.Network
                 }
                 else
                 {
-                    builder.Append("Body: null");
+                    builder.Append("Body: null" + System.Environment.NewLine);
                 }
                 builder.Append("BodyLength: " + BodyLength + System.Environment.NewLine);
                 return StringUtils.FinishBuilder(builder);
@@ -397,7 +397,7 @@ namespace SocialPoint.Network
                 }
                 else
                 {
-                    builder.Append("Message: null");
+                    builder.Append("Message: null" + System.Environment.NewLine);
                 }
                 builder.Append("MessageLength: " + MessageLength + System.Environment.NewLine);
                 return StringUtils.FinishBuilder(builder);

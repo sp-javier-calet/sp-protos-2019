@@ -182,6 +182,8 @@ CURL* CurlClient::create(CurlRequest* req)
         return curl;
     }
 
+    assert(req->url);
+    assert(req->query);
     std::stringstream url;
     url << req->url << "?" << req->query;
     curl_easy_setopt(curl, CURLOPT_URL, url.str().c_str());
@@ -190,6 +192,7 @@ CURL* CurlClient::create(CurlRequest* req)
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
     curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 10);
 
+    assert(req->method);
     if(strcmp(req->method, "GET") == 0)// method
     {
         curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
