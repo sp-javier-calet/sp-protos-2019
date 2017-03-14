@@ -452,7 +452,7 @@ namespace SocialPoint.TransparentBundles
             var wasBundled = !string.IsNullOrEmpty(data.BundleName);
 
             // If is manual or have more than one dependant bundle it.
-            if(data.Dependants.Count > 1)
+            if(data.Dependants.Count > 1 && string.Compare(Path.GetExtension(data.AssetPath), ".cs", StringComparison.InvariantCultureIgnoreCase) != 0)
             {
                 data.BundleName = GetAutoBundleName(data.AssetPath);
 
