@@ -15,6 +15,7 @@ namespace SocialPoint.Helpshift
 {
     public sealed class UnityHelpshift : IHelpshift
     {
+        const string DisableErrorLoggingKey = "disableErrorLogging";
         const string EnableInAppNotificationsKey = "enableInAppNotification";
         const string EnableContactUsKey = "enableContactUs";
         const string ShowSarchOnNewConversationKey = "showSearchOnNewConversation";
@@ -70,6 +71,9 @@ namespace SocialPoint.Helpshift
 
             // Use in-app notification support provided by the Helpshift 
             _configMap.Add(EnableInAppNotificationsKey, _config.InAppNotificationEnabled ? YesKey : NoKey);
+
+            // Disable Error Logging, since it interferes with some native services (CrashReporter, curl/ssl...)
+            _configMap.Add(DisableErrorLoggingKey, YesKey);
 
             // If showSearchOnNewConversation flag is set to yes, the user will be taken to a view which shows the 
             // search results relevant to the conversation text that he has entered upon clicking the ‘Send’ button. 
