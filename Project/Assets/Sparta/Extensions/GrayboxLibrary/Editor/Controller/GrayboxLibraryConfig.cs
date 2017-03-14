@@ -8,7 +8,7 @@ namespace SocialPoint.GrayboxLibrary
     {
         public static string DbConfig = "Server=GrayboxTool.c4rdfbnb9wen.eu-west-1.rds.amazonaws.com;Database=GrayboxTool;User ID=GrayboxTool;Password=SM9tyR8h21PRoVz;Pooling=true";
 
-        public static string MacVolumePath = Application.dataPath.Substring(0, Application.dataPath.IndexOf("/", 8)) + "/mount/3dshare/";
+        public static string MacVolumePath = "/Users/" + Environment.UserName + "/mount/3dshare/";
 
         public static string WinVolumePath = "//spserver/3dshare/";
 
