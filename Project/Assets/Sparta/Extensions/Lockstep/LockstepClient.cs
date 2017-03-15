@@ -62,12 +62,12 @@ namespace SocialPoint.Lockstep
         }
 
         public LockstepCommandLogic(Action<T> action) :
-        this(new ActionLockstepCommandLogic<T>(action))
+            this(new ActionLockstepCommandLogic<T>(action))
         {
         }
 
         public LockstepCommandLogic(Action action) :
-        this(new ActionLockstepCommandLogic<T>(action))
+            this(new ActionLockstepCommandLogic<T>(action))
         {
         }
 
@@ -140,6 +140,7 @@ namespace SocialPoint.Lockstep
         bool _simRecoveredCalled;
         State _state;
         XRandom _rootRandom;
+        List<int> _turnBuffersHistoric;
 
         Dictionary<Type, ILockstepCommandLogic> _commandLogics = new Dictionary<Type, ILockstepCommandLogic>();
         List<ClientCommandData> _pendingCommands = new List<ClientCommandData>();
@@ -230,6 +231,7 @@ namespace SocialPoint.Lockstep
         public byte PlayerNumber;
 
         bool _externalUpdate;
+
         public bool ExternalUpdate
         {
             set
@@ -261,6 +263,7 @@ namespace SocialPoint.Lockstep
             GameParams = new LockstepGameParams();
             ClientConfig = new LockstepClientConfig();
             _updateScheduler = updateScheduler;
+            _turnBuffersHistoric = new List<int>();
             Stop();
         }
 
@@ -370,9 +373,11 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public void AddConfirmedTurn(ClientTurnData turn=null)
+        public void AddConfirmedTurn(ClientTurnData turn = null)
         {
             _lastConfirmedTurnNumber++;
+            var pos = _turnBuffersHistoric.FindLastIndex(tb => tb < TurnBuffer);
+            _turnBuffersHistoric.Insert(pos + 1, TurnBuffer);
             if(!ClientTurnData.IsNullOrEmpty(turn))
             {
                 _confirmedTurns[_lastConfirmedTurnNumber] = turn;
@@ -574,6 +579,35 @@ namespace SocialPoint.Lockstep
         public void Dispose()
         {
             Stop();
+        }
+
+        public int LowestTurnBuffer
+        {
+            get
+            {
+                return _turnBuffersHistoric.Count > 0 ? _turnBuffersHistoric[0] : -1;
+            }
+        }
+
+        public int HighestTurnBuffer
+        {
+            get
+            {
+                return _turnBuffersHistoric.Count > 0 ? _turnBuffersHistoric[_turnBuffersHistoric.Count - 1] : -1;
+            }
+        }
+
+        public int AverageTurnBuffer
+        {
+            get
+            {
+                var sum = 0;
+                for(int i = 0; i < _turnBuffersHistoric.Count; i++)
+                {
+                    sum += _turnBuffersHistoric[i];
+                }
+                return _turnBuffersHistoric.Count > 0 ? sum / _turnBuffersHistoric.Count : -1;
+            }
         }
     }
 }

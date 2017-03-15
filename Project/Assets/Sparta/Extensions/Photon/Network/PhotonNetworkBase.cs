@@ -395,11 +395,13 @@ namespace SocialPoint.Network
             {
                 clientId = GetClientId(GetPlayer((byte)senderid));
             }
+            var bcontent = (byte[])content;
             var info = new NetworkMessageData {
                 MessageType = eventcode,
-                ClientId = clientId
+                ClientId = clientId,
+                MessageLength = bcontent.Length
             };
-            var stream = new MemoryStream((byte[])content);
+            var stream = new MemoryStream(bcontent);
             var reader = new SystemBinaryReader(stream);
             OnMessageReceived(info, reader);
         }

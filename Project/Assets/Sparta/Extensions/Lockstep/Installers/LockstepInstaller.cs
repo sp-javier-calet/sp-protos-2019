@@ -6,6 +6,7 @@ using SocialPoint.Network;
 using SocialPoint.AdminPanel;
 using SocialPoint.Matchmaking;
 using System;
+using SocialPoint.ServerEvents;
 
 public class LockstepInstaller : ServiceInstaller
 {
@@ -94,10 +95,12 @@ public class LockstepInstaller : ServiceInstaller
 
     LockstepNetworkClient CreateClientNetworkController()
     {
-        return new LockstepNetworkClient(
+        var client = new LockstepNetworkClient(
             Container.Resolve<INetworkClient>(),
             Container.Resolve<LockstepClient>(),
             Container.Resolve<LockstepCommandFactory>());
+        client.SendTrack = Container.Resolve<IEventTracker>().TrackEvent;
+        return client;
     }
 
     LockstepNetworkServer CreateServerNetworkController()

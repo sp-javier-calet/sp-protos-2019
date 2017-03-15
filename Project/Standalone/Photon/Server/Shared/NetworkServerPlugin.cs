@@ -49,7 +49,9 @@ namespace SocialPoint.Network
 
         List<INetworkServerDelegate> _delegates;
         INetworkMessageReceiver _receiver;
-        UpdateScheduler _updateScheduler;
+        protected UpdateScheduler _updateScheduler;
+        protected NetworkStatsServer _statsServer;
+        protected bool _statsServerEnabled;
         ILog _log;
         object _timer;
         protected string BackendEnv { get; private set; }
@@ -66,9 +68,21 @@ namespace SocialPoint.Network
 
         const string LoggerNameConfig = "LoggerName";
         const string PluginNameConfig = "PluginName";
-
+        const string StatsServerEnabled = "StatsServerEnabled";
         const string FullErrorMsg = "Game is full.";
         const string ServerPresentErrorMsg = "This room already has a server.";
+
+        public INetworkServer NetworkServer
+        {
+            get
+            {
+                if(_statsServerEnabled)
+                {
+                    return _statsServer;
+                }
+                return this;
+            }
+        }
 
         abstract protected int MaxPlayers { get; }
         abstract protected bool Full { get; }
@@ -103,6 +117,14 @@ namespace SocialPoint.Network
             if(config.TryGetValue(LoggerNameConfig, out configStr))
             {
                 _log = LogManager.GetLogger(configStr);
+            }
+            if(config.TryGetValue(StatsServerEnabled, out configStr))
+            {
+                _statsServerEnabled = configStr.Equals("true") ? true : false;
+                if(_statsServerEnabled)
+                {
+                    _statsServer = new NetworkStatsServer(this, _updateScheduler);
+                }
             }
             if(PluginEventTracker != null)
             {
@@ -210,6 +232,11 @@ namespace SocialPoint.Network
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnServerStarted();
+            }
+
+            if(_statsServer != null)
+            {
+                _statsServer.Start();
             }
 
             var u = UpdateInterval;

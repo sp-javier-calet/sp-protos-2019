@@ -29,6 +29,7 @@ namespace SocialPoint.Matchmaking
         public void OnMatched(Match match)
         {
             _lockstep.PlayerId = match.PlayerId;
+            _lockstep.MatchId = match.Id;
         }
 
         public void OnError(Error err)

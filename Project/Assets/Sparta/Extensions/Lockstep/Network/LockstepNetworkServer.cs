@@ -26,6 +26,11 @@ namespace SocialPoint.Lockstep
     [Serializable]
     public sealed class LockstepServerConfig
     {
+        const string MaxPlayersAttrKey = "max_players";
+        const string ClientStartDelayAttrKey = "client_start_delay";
+        const string ClientSimulationDelayAttrKey = "client_simulation_delay";
+        const string FinishOnClientDisconnectionAttrKey = "finish_on_client_disconnection";
+
         public const byte DefaultMaxPlayers = 2;
         public const int DefaultClientStartDelay = 3000;
         public const int DefaultClientSimulationDelay = 1000;
@@ -46,6 +51,16 @@ namespace SocialPoint.Lockstep
             "]",
                 MaxPlayers, ClientStartDelay,
                 ClientSimulationDelay);
+        }
+
+        public Attr ToAttr()
+        {
+            var attrDic = new AttrDic();
+            attrDic.Set(MaxPlayersAttrKey, new AttrInt(MaxPlayers));
+            attrDic.Set(ClientStartDelayAttrKey, new AttrInt(ClientStartDelay));
+            attrDic.Set(ClientSimulationDelayAttrKey, new AttrInt(ClientSimulationDelay));
+            attrDic.Set(FinishOnClientDisconnectionAttrKey, new AttrBool(FinishOnClientDisconnection));
+            return attrDic;
         }
     }
 
@@ -607,8 +622,17 @@ namespace SocialPoint.Lockstep
         void DoStartLockstep()
         {
             _serverLockstep.Start(ServerConfig.ClientSimulationDelay - ServerConfig.ClientStartDelay);
-            SendMetric(new Metric(MetricType.Counter, MatchStartMetricName, 1));
-            SendTrack(MatchStartMetricName, null, null);
+            if(SendMetric != null)
+            {
+                SendMetric(new Metric(MetricType.Counter, MatchStartMetricName, 1));
+            }
+            if(SendTrack != null)
+            {
+                var data = new AttrDic();
+                data.Set("lockstep_server_config", ServerConfig.ToAttr());
+                data.Set("lockstep_config", Config.ToAttr());
+                SendTrack(MatchStartMetricName, data, null);
+            }
             for(var i = 0; i < _clients.Count; i++)
             {
                 var client = _clients[i];
