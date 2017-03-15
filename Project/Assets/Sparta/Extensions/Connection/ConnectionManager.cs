@@ -198,14 +198,6 @@ namespace SocialPoint.Connection
             }
         }
 
-        public bool Initialized
-        {
-            get
-            {
-                return _initialized;
-            }
-        }
-
         public bool IsConnected
         {
             get
@@ -277,7 +269,7 @@ namespace SocialPoint.Connection
         ScheduledAction _pingUpdate;
         ScheduledAction _reconnectUpdate;
 
-        bool _initialized;
+        bool _active;
         bool _joined;
         Queue<RequestWrapper> _pendingRequests;
 
@@ -289,7 +281,7 @@ namespace SocialPoint.Connection
             _connection = new WAMPConnection(client);
             _config = new ConnectionManagerConfig();
 
-            _initialized = false;
+            _active = false;
             _joined = false;
             _pendingRequests = new Queue<RequestWrapper>();
         }
@@ -330,7 +322,7 @@ namespace SocialPoint.Connection
                 return null;
             }
 
-            _initialized = true;
+            _active = true;
             return _connection.Start(() => {
                 SendHello();
                 SchedulePing();
@@ -401,7 +393,7 @@ namespace SocialPoint.Connection
                 _connection.AbortJoining();
             }
 
-            _initialized = false;
+            _active = false;
             UnschedulePing();
         }
 
@@ -495,7 +487,7 @@ namespace SocialPoint.Connection
 
         public PublishRequest Publish(string topic, AttrList args, AttrDic kwargs, OnPublished onComplete)
         {
-            DebugUtils.Assert(_initialized, "Connect the ConnectionManager before attempting to send a publish");
+            DebugUtils.Assert(_active, "Connect the ConnectionManager before attempting to send a publish");
             var request = _connection.CreatePublish(topic, args, kwargs, onComplete != null, onComplete);
             _pendingRequests.Enqueue(new RequestWrapper {
                 Type = RequestWrapper.RequestType.Publish,
@@ -506,7 +498,7 @@ namespace SocialPoint.Connection
 
         public CallRequest Call(string procedure, AttrList args, AttrDic kwargs, HandlerCall onResult)
         {
-            DebugUtils.Assert(_initialized, "Connect the ConnectionManager before attempting to send a call");
+            DebugUtils.Assert(_active, "Connect the ConnectionManager before attempting to send a call");
             var request = _connection.CreateCall(procedure, args, kwargs, (err, iargs, ikwargs) => OnRPCFinished(iargs, ikwargs, onResult, err));
             _pendingRequests.Enqueue(new RequestWrapper {
                 Type = RequestWrapper.RequestType.Call,
@@ -648,7 +640,6 @@ namespace SocialPoint.Connection
 
         public void OnNetworkError(Error err)
         {
-            _initialized = false;
             OnConnectionError(err);
         }
 
