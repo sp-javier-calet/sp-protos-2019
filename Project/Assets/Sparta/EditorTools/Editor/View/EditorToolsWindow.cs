@@ -6,7 +6,7 @@ namespace SpartaTools.Editor.View
 {
     public static class EditorToolsWindow
     {
-        static readonly string[] TempFolders = new string[] { "Temp", "obj", "Library" };
+        static readonly string[] TempFolders = new string[] { "obj", "Library" };
 
         [MenuItem("Sparta/Editor/Restart &#r", false, 1000)]
         public static void RestartEditor()
@@ -17,7 +17,7 @@ namespace SpartaTools.Editor.View
         [MenuItem("Sparta/Editor/Clean", false, 1000)]
         public static void CleanEditorLibrary()
         {
-            if(EditorUtility.DisplayDialog("Clean Library Folder", "Editor must be restarted to apply changes in native plugins", "Clean and restart", "Cancel"))
+            if(EditorUtility.DisplayDialog("Clean Library Folder", "A full reimport will be required after restart. Do you want to continue?", "Clean and restart", "Cancel"))
             {
                 Clean();
             }
@@ -27,7 +27,7 @@ namespace SpartaTools.Editor.View
         {
             for(var i = 0; i < TempFolders.Length; ++i)
             {
-                var path = Path.Combine(Application.dataPath, "../" + TempFolders[i]);
+                var path = Path.Combine(ProjectRoot, TempFolders[i]);
                 Directory.Delete(path, true);
             }
             
@@ -36,7 +36,15 @@ namespace SpartaTools.Editor.View
 
         static void Restart()
         {
-            EditorApplication.OpenProject(Path.Combine(Application.dataPath, ".."));
+            EditorApplication.OpenProject(ProjectRoot);
         }
-	}
+
+        static string ProjectRoot
+        {
+            get
+            {
+                return Path.Combine(Application.dataPath, "..");
+            }
+        }
+    }
 }
