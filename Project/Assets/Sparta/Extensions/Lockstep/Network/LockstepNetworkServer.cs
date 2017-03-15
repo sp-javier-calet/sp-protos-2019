@@ -629,6 +629,7 @@ namespace SocialPoint.Lockstep
             if(SendTrack != null)
             {
                 var data = new AttrDic();
+                data.Set("unique_id", new AttrString(MatchId));
                 data.Set("lockstep_server_config", ServerConfig.ToAttr());
                 data.Set("lockstep_config", Config.ToAttr());
                 SendTrack(MatchStartMetricName, data, null);
@@ -725,6 +726,26 @@ namespace SocialPoint.Lockstep
 
             if(SendTrack != null)
             {
+                var data = new AttrDic();
+                data.Set("unique_id", new AttrString(MatchId));
+                var origResultsAttr = new AttrDic();
+                {
+                    var itr = results.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        var playerId = FindPlayerId(itr.Current.Key);
+                        if(!string.IsNullOrEmpty(playerId))
+                        {
+                            resultsAttr[playerId] = itr.Current.Value;
+                        }
+                    }
+                    itr.Dispose();
+                }
+                data.Set("match_result", origResultsAttr);
+                if(corrected)
+                {
+                    data.Set("match_result_corrected", resultsAttr);
+                }
                 SendTrack(corrected ? MatchEndCorrectedMetricName : MatchEndMetricName, null, null);
             }
 
