@@ -393,6 +393,7 @@ namespace SocialPoint.Connection
             }
 
             _active = false;
+            _joined = false;
             UnschedulePing();
         }
 
