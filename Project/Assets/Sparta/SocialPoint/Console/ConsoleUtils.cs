@@ -12,14 +12,14 @@ namespace SocialPoint.Console
 
         public static void SetForegroundColor(ConsoleColor color)
         {
-#if !UNITY && !UNITY_4_6
+#if !UNITY
             System.Console.ForegroundColor = color;
 #endif
         }       
         
         public static void ResetColor()
         {
-#if !UNITY && !UNITY_4_6
+#if !UNITY
             System.Console.ResetColor();
 #endif
         }

@@ -1,12 +1,15 @@
-﻿
-using SocialPoint.Dependency;
+﻿using SocialPoint.Dependency;
 using SocialPoint.Lockstep;
 using SocialPoint.Utils;
 using SocialPoint.Network;
-using SocialPoint.AdminPanel;
 using SocialPoint.Matchmaking;
 using System;
 using SocialPoint.ServerEvents;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
+
 
 public class LockstepInstaller : ServiceInstaller
 {
@@ -36,10 +39,13 @@ public class LockstepInstaller : ServiceInstaller
         Container.Rebind<LockstepNetworkServer>().ToMethod<LockstepNetworkServer>
             (CreateServerNetworkController);
 
+        #if ADMIN_PANEL
         Container.Bind<AdminPanelLockstep>().ToMethod<AdminPanelLockstep>(CreateAdminPanel);
         Container.Bind<IAdminPanelConfigurer>().ToLookup<AdminPanelLockstep>();
+        #endif
     }
 
+    #if ADMIN_PANEL
     AdminPanelLockstep _adminPanel;
     AdminPanelLockstep CreateAdminPanel()
     {
@@ -47,6 +53,7 @@ public class LockstepInstaller : ServiceInstaller
             Container.Resolve<LockstepClient>());
         return _adminPanel;
     }
+    #endif
 
     LockstepConfig CreateConfig()
     {
@@ -119,10 +126,12 @@ public class LockstepInstaller : ServiceInstaller
                 Container.Resolve<LockstepCommandFactory>());
         }
 
+        #if ADMIN_PANEL
         if(_adminPanel != null)
         {
             _adminPanel.RegisterServer(ctrl);
         }
+        #endif
 
         return ctrl;
     }

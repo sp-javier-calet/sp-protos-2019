@@ -99,7 +99,7 @@ namespace SocialPoint.Locale
         public const float DefaultTimeout = 20.0f;
         public float Timeout = DefaultTimeout;
 
-        public event Action<Dictionary<string, Localization>> Loaded = delegate{};
+        public event Action<Dictionary<string, Localization>> Loaded;
 
         public const string DefaultBundleDir = "localization";
         public string BundleDir = DefaultBundleDir;
@@ -429,7 +429,10 @@ namespace SocialPoint.Locale
                 #endif
             }
 
-            Loaded(locales);
+            if(Loaded != null)
+            {
+                Loaded(locales);
+            }
         }
 
         void DownloadCurrentLanguage()

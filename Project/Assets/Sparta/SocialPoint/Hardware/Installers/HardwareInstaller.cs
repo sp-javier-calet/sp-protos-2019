@@ -1,7 +1,10 @@
 ﻿using System;
 using SocialPoint.Dependency;
 using SocialPoint.Hardware;
+
+#if ADMIN_PANEL
 using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Hardware
 {
@@ -27,7 +30,10 @@ namespace SocialPoint.Hardware
             Container.Rebind<IStorageInfo>().ToGetter<IDeviceInfo>(x => x.StorageInfo);
             Container.Rebind<IAppInfo>().ToGetter<IDeviceInfo>(x => x.AppInfo);
             Container.Rebind<INetworkInfo>().ToGetter<IDeviceInfo>(x => x.NetworkInfo);
+
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelHardware>(CreateAdminPanel);
+            #endif
         }
 
         SocialPointDeviceInfo CreateDeviceInfo()
@@ -75,10 +81,12 @@ namespace SocialPoint.Hardware
             }
         }
 
+        #if ADMIN_PANEL
         AdminPanelHardware CreateAdminPanel()
         {
             return new AdminPanelHardware(
                 Container.Resolve<IDeviceInfo>());
         }
+        #endif
     }
 }

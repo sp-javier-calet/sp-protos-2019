@@ -277,12 +277,9 @@ namespace SocialPoint.Lockstep
         {
             Running = true;
             _time = startTime;
+            _simRecoveredCalled = false;
             _state = _time > 0 ? State.Recovering : State.Normal;
             _timestamp = TimeUtils.TimestampMilliseconds;
-            _lastSimTime = 0;
-            _lastCmdTime = 0;
-            _simStartedCalled = false;
-            _simRecoveredCalled = false;
             if(!_externalUpdate && _updateScheduler != null)
             {
                 _updateScheduler.Add(this);
@@ -291,6 +288,9 @@ namespace SocialPoint.Lockstep
 
         public void Stop()
         {
+            _lastSimTime = 0;
+            _lastCmdTime = 0;
+            _simStartedCalled = false;
             Running = false;
             _rootRandom = null;
             _state = State.Waiting;
@@ -451,16 +451,6 @@ namespace SocialPoint.Lockstep
             {
                 TurnApplied(turn);
             }
-        }
-
-        public void Pause()
-        {
-            Running = false;
-        }
-
-        public void Resume()
-        {
-            Running = true;
         }
 
         public void Update()

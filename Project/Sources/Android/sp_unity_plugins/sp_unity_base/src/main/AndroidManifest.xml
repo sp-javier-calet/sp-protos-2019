@@ -3,19 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="es.socialpoint.unity.base">
 
-  <uses-sdk
-      android:minSdkVersion="14"
-      android:targetSdkVersion="21" />
     <application>
         <receiver android:name="es.socialpoint.unity.ad.AdReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="com.android.vending.INSTALL_REFERRER" />
             </intent-filter>
         </receiver>
-        <activity
-            android:name="com.tune.crosspromo.TuneAdActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
         <!-- Required configuration in game manifest -->
         <!--
 

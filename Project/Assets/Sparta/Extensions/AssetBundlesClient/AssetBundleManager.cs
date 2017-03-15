@@ -49,7 +49,7 @@ namespace SocialPoint.AssetBundlesClient
 
         static string _baseDownloadingURL;
 
-        [System.Diagnostics.Conditional("DEBUG_BUNDLES")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugAssetBundlesFlag)]
         static void DebugLog(string msg)
         {
             Log.i("AssetBundleManager", msg);

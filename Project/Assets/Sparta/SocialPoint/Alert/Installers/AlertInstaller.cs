@@ -3,12 +3,15 @@
 #endif
 
 using System;
-using SocialPoint.AdminPanel;
 using SocialPoint.Base;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.ScriptEvents;
 using UnityEngine;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Alert
 {
@@ -58,7 +61,9 @@ namespace SocialPoint.Alert
             Container.Bind<IEventsBridge>().ToLookup<AlertBridge>();
             Container.Bind<IScriptEventsBridge>().ToLookup<AlertBridge>();
 
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelAlert>(CreateAdminPanel);
+            #endif
         }
 
         public AlertBridge CreateAlertBridge()
@@ -104,9 +109,11 @@ namespace SocialPoint.Alert
             ctrl.Hide(true);
         }
 
+        #if ADMIN_PANEL
         AdminPanelAlert CreateAdminPanel()
         {
             return new AdminPanelAlert(Container.Resolve<IAlertView>());
         }
+        #endif
     }
 }

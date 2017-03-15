@@ -546,7 +546,7 @@ namespace SocialPoint.Lockstep
             ));
 
             // send the old turns
-            var itr = _serverLockstep.GetTurnsEnumerator();
+            var itr = _serverLockstep.GetTurnsEnumerator(msg.CurrentTurn);
             while(itr.MoveNext())
             {
                 SendTurn(itr.Current, client.ClientId);
