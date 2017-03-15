@@ -37,13 +37,13 @@ subprojects{
 
     /* Configure plugins compilation */
     project.android {
-        compileSdkVersion 23
-        buildToolsVersion "23.0.2"
+        compileSdkVersion 24
+        buildToolsVersion "24.0.0"
 
 
         defaultConfig {
             minSdkVersion 14
-            targetSdkVersion 23
+            targetSdkVersion 24
         }
     }
 

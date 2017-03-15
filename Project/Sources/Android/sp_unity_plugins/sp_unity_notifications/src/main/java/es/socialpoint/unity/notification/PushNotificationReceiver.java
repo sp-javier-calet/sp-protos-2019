@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.helpshift.supportCampaigns.InitializeHelpshiftUtil;
+import com.helpshift.supportCampaigns.UnityAPIDelegate;
 
 import es.socialpoint.unity.notification.IntentParameters.Origin;
 
@@ -60,8 +61,9 @@ public class PushNotificationReceiver extends BroadcastReceiver {
 
     private boolean handleExtenalPushNotification(Context context, Intent intent) {
         if("helpshift".equals(intent.getStringExtra("origin"))) {
+            UnityAPIDelegate.installDex(context);
             InitializeHelpshiftUtil.initHelpshift(context);
-            InitializeHelpshiftUtil.handlePush(context, intent);
+            UnityAPIDelegate.handlePush(context, intent);
             return true;
         }
         return false;
