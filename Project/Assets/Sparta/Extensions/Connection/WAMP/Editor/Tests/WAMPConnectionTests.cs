@@ -5,6 +5,7 @@ using System;
 using SocialPoint.Network;
 using SocialPoint.WAMP;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
 
 namespace SocialPoint.WAMP
 {
@@ -285,6 +286,43 @@ namespace SocialPoint.WAMP
         }
 
         [Test]
+        public void Subscribe_Error()
+        {
+            Join();
+
+            Error requestError = null;
+
+            const string testProcedure = "sparta.test_procedure";
+            const int requestId = 0;
+
+            var t = new System.Threading.Thread(obj => {
+                System.Threading.Thread.Sleep(10);
+                var receiver = obj as INetworkMessageReceiver;
+                var message = string.Format("[{0}, {1}, {2}, \"\", \"\"]", MsgCode.ERROR, MsgCode.SUBSCRIBE, requestId);
+                var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                receiver.OnMessageReceived(new NetworkMessageData(), reader);
+            });
+
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
+                .Do(x => t.Start(_receiver));
+
+            Subscriber.HandlerSubscription handlerSubscription = (attrList, attrDict) => {
+
+            };
+
+            Subscriber.OnSubscribed completionHandler = (error, subscription) => {
+                requestError = error;
+            };
+
+            var req = _connection.CreateSubscribe(TestTopic, handlerSubscription, completionHandler);
+            _connection.SendSubscribe(req);
+
+            t.Join(15);
+
+            Assert.IsTrue(!Error.IsNullOrEmpty(requestError));
+        }
+
+        [Test]
         public void Unsubscribe()
         {
             Join();
@@ -345,6 +383,42 @@ namespace SocialPoint.WAMP
             t.Join(15);
 
             Assert.IsFalse(unsubscribed);
+        }
+
+        [Test]
+        public void Unsubscribe_Error()
+        {
+            Join();
+            Subscribe();
+
+            Error requestError = null;
+
+            const string testProcedure = "sparta.test_procedure";
+            const int requestId = 1;//0 was for subscribe
+
+            var t = new System.Threading.Thread(obj => {
+                System.Threading.Thread.Sleep(10);
+                var receiver = obj as INetworkMessageReceiver;
+                var message = string.Format("[{0}, {1}, {2}, \"\", \"\"]", MsgCode.ERROR, MsgCode.UNSUBSCRIBE, requestId);
+                var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                receiver.OnMessageReceived(new NetworkMessageData(), reader);
+            });
+
+            ClearMessageSubstitute();
+
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
+                .Do(x => t.Start(_receiver));
+
+            Subscriber.OnUnsubscribed completionHandler = error => {
+                requestError = error;
+            };
+
+            var req = _connection.CreateUnsubscribe(new Subscriber.Subscription(SubscriptionId, TestTopic), completionHandler);
+            _connection.SendUnsubscribe(req);
+
+            t.Join(15);
+
+            Assert.IsTrue(!Error.IsNullOrEmpty(requestError));
         }
 
         [Test]
@@ -425,6 +499,41 @@ namespace SocialPoint.WAMP
             t.Join(15);
 
             Assert.IsFalse(published);
+        }
+
+        [Test]
+        public void Publish_Error()
+        {
+            Join();
+
+            Error requestError = null;
+
+            const string testProcedure = "sparta.test_procedure";
+            const int requestId = 0;
+
+            var t = new System.Threading.Thread(obj => {
+                System.Threading.Thread.Sleep(10);
+                var receiver = obj as INetworkMessageReceiver;
+                var message = string.Format("[{0}, {1}, {2}, \"\", \"\"]", MsgCode.ERROR, MsgCode.PUBLISH, requestId);
+                var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                receiver.OnMessageReceived(new NetworkMessageData(), reader);
+            });
+
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
+                .Do(x => t.Start(_receiver));
+
+            Publisher.OnPublished completionHandler = (error, publication) => {
+                requestError = error;
+            };
+
+            var args = new AttrList();
+            var kwargs = new AttrDic();
+            var req = _connection.CreatePublish(TestTopic, args, kwargs, true, completionHandler);
+            _connection.SendPublish(req);
+
+            t.Join(15);
+
+            Assert.IsTrue(!Error.IsNullOrEmpty(requestError));
         }
 
         [Test]
@@ -610,6 +719,39 @@ namespace SocialPoint.WAMP
             t.Join(15);
 
             Assert.IsFalse(called);
+        }
+
+        [Test]
+        public void Call_Error()
+        {
+            Join();
+
+            Error requestError = null;
+
+            const string testProcedure = "sparta.test_procedure";
+            const int requestId = 0;
+
+            var t = new System.Threading.Thread(obj => {
+                System.Threading.Thread.Sleep(10);
+                var receiver = obj as INetworkMessageReceiver;
+                var message = string.Format("[{0}, {1}, {2}, \"\", \"\"]", MsgCode.ERROR, MsgCode.CALL, requestId);
+                var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
+                receiver.OnMessageReceived(new NetworkMessageData(), reader);
+            });
+
+            _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
+                .Do(x => t.Start(_receiver));
+
+            Caller.HandlerCall completionHandler = (error, respArgs, respKWArgs) => {
+                requestError = error;
+            };
+
+            var req = _connection.CreateCall(testProcedure, CreateArgs(), CreateKWArgs(), completionHandler);
+            _connection.SendCall(req);
+
+            t.Join(15);
+
+            Assert.IsTrue(!Error.IsNullOrEmpty(requestError));
         }
 
         void ClearMessageSubstitute()
