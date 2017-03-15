@@ -44,7 +44,6 @@ namespace SocialPoint.TransparentBundles
 
             var gitStatus = query.Exec();
 
-
             for(int i = 0; i < assetPaths.Length; i++)
             {
                 var path = assetPaths[i];
@@ -52,17 +51,24 @@ namespace SocialPoint.TransparentBundles
 
                 if(idx != -1)
                 {
-                    var shiftedIdx = 1;
-                    var prevChar = gitStatus[idx - 1];
+                    var preIdx = idx;
+                    var prevChar = gitStatus[preIdx - 1];
 
-                    while(prevChar != '\n' && idx != 0)
+                    while(prevChar != '\n' && preIdx != 0)
                     {
-                        shiftedIdx++;
-                        idx--;
-                        prevChar = gitStatus[idx - 1];
+                        preIdx--;
+                        prevChar = gitStatus[preIdx - 1];
                     }
 
-                    var line = gitStatus.Substring(idx, shiftedIdx + path.Length);
+                    var lastIdx = idx + path.Length;
+                    char nextChar = gitStatus[lastIdx];
+                    while(nextChar != '\n' && lastIdx < gitStatus.Length)
+                    {
+                        lastIdx++;
+                        nextChar = gitStatus[lastIdx];
+                    }
+
+                    var line = gitStatus.Substring(preIdx, lastIdx - preIdx);
 
                     if(line.StartsWith(_gitModifiedToken))
                     {

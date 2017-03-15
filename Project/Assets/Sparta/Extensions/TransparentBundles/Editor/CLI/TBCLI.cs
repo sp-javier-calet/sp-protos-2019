@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Diagnostics;
 using LitJson;
 using UnityEditor;
 using UnityEngine;
@@ -116,10 +117,12 @@ namespace SocialPoint.TransparentBundles
         public static void Run()
         {
             var output = new OutputCLI();
+            output.log.Add("Started Process Time: " + DateTime.Now);
             var outputPath = string.Empty;
             object[] args = null;
             try
             {
+                Stopwatch watch = Stopwatch.StartNew();
                 var arguments = new List<string>(Environment.GetCommandLineArgs());
                 var jsonPath = GetArgument(arguments, _inputJson);
                 var methodName = GetArgument(arguments, _methodName);
@@ -127,9 +130,15 @@ namespace SocialPoint.TransparentBundles
 
                 InputCLI inputs = InputCLI.Load(jsonPath, methodName + "Input");
 
+                output.log.Add("Loaded Input: " + watch.ElapsedMilliseconds);
+                watch = Stopwatch.StartNew();
+
                 args = new object[] { inputs, output };
                 typeof(TBCLI).GetMethod(methodName).Invoke(null, args);
                 output = (OutputCLI)args[1];
+
+                output.log.Add("Method call took a total of: " + watch.ElapsedMilliseconds);
+                watch.Stop();
 
                 output.success = true;
                 output.log.Add("OK - Process completed");
@@ -143,7 +152,7 @@ namespace SocialPoint.TransparentBundles
                 output.success = false;
                 string msg = "CLI RUN ERROR - " + e;
                 output.log.Add(msg);
-                Debug.LogError(msg);
+                UnityEngine.Debug.LogError(msg);
             }
 
             if(outputPath != string.Empty)
@@ -164,10 +173,12 @@ namespace SocialPoint.TransparentBundles
             var typedOutput = (CalculateBundlesOutput)output;
 
             DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y + " - " + x);
+            Stopwatch watch = Stopwatch.StartNew();
 
             DependencySystem.UpdateManifest(input.ManualBundles);
 
-            DependencySystem.CheckBundlesForBuild(true);
+            typedOutput.log.Add("Dependencies calculated in: " + watch.ElapsedMilliseconds);
+            watch.Stop();
 
             typedOutput.BundlesDictionary = DependencySystem.Manifest.GetDictionary();
 
@@ -183,13 +194,21 @@ namespace SocialPoint.TransparentBundles
             output = new BuildBundlesOutput();
             var typedOutput = (BuildBundlesOutput)output;
 
+            Stopwatch watch = Stopwatch.StartNew();
+
             EditorUserBuildSettings.androidBuildSubtarget = (MobileTextureSubtarget)Enum.Parse(typeof(MobileTextureSubtarget), input.TextureFormat);
+            typedOutput.log.Add("Android switch texture target in: " + watch.ElapsedMilliseconds);
+            watch = Stopwatch.StartNew();
 
             DependencySystem.OnLogMessage += (x, y) => typedOutput.log.Add(y + " - " + x);
 
-            DependencySystem.CheckBundlesForBuild(false, input.BundlesDictionary);
+            var buildMap = DependencySystem.CreateBuildMap(input.BundlesDictionary);
 
-            Application.LogCallback Callback = (msg, stack, type) => {
+            typedOutput.log.Add("BuildMap created in: " + watch.ElapsedMilliseconds);
+            watch = Stopwatch.StartNew();
+
+            Application.LogCallback Callback = (msg, stack, type) =>
+            {
                 if(type == LogType.Error || type == LogType.Exception || type == LogType.Warning)
                 {
                     typedOutput.BuildLog.Add(type + " - " + msg + "\n" + stack);
@@ -197,8 +216,12 @@ namespace SocialPoint.TransparentBundles
             };
 
             Application.logMessageReceived += Callback;
-            var manifest = BuildPipeline.BuildAssetBundles(input.BundlesPath, BuildAssetBundleOptions.DeterministicAssetBundle, EditorUserBuildSettings.activeBuildTarget);
+            var manifest = BuildPipeline.BuildAssetBundles(input.BundlesPath, buildMap, BuildAssetBundleOptions.DeterministicAssetBundle, EditorUserBuildSettings.activeBuildTarget);
             Application.logMessageReceived -= Callback;
+
+            typedOutput.log.Add("Bundles built in: " + watch.ElapsedMilliseconds);
+            watch = Stopwatch.StartNew();
+
             if(manifest != null)
             {
                 foreach(string bundleName in manifest.GetAllAssetBundles())
@@ -239,6 +262,9 @@ namespace SocialPoint.TransparentBundles
             {
                 throw new Exception("Error during building process");
             }
+
+            typedOutput.log.Add("Info written in output: " + watch.ElapsedMilliseconds);
+            watch.Stop();
         }
 
         #endregion
