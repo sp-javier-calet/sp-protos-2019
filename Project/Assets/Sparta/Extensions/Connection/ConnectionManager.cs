@@ -83,7 +83,6 @@ namespace SocialPoint.Connection
         enum ConnectionState
         {
             Disconnected,
-            Connecting,
             Connected
         }
 
