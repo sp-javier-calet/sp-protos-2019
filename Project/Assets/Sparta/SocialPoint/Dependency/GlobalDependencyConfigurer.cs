@@ -10,7 +10,7 @@ namespace SocialPoint.Dependency
 
         #if UNITY_EDITOR
 
-        [UnityEditor.MenuItem("Sparta/Global Configurer &g", false, 1000)]
+        [UnityEditor.MenuItem("Sparta/Global Configurer &g", false, 1001)]
         public static void Edit()
         {
             UnityEditor.Selection.activeObject = Load();
