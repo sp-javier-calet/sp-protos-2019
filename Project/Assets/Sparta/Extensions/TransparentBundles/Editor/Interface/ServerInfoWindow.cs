@@ -60,7 +60,10 @@ namespace SocialPoint.TransparentBundles
                 GUILayout.Label("", GUILayout.Width(5));
                 if(i > 0)
                 {
-                    
+                    if(GUILayout.Button("Cancel", GUILayout.Width(50)))
+                    {
+                        _controller.CancelBundleOperation(queueEnum.Current.Key);
+                    }
                 }
                 BundlesWindow.DrawOperationIcon(queueEnum.Current.Value, i == 0);
                 string bundleNames = "";

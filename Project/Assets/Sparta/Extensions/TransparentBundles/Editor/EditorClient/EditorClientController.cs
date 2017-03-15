@@ -443,9 +443,9 @@ namespace SocialPoint.TransparentBundles
             return valid;
         }
 
-        public void CancelBundleOperation(List<Asset> assets, BundleOperation operation)
+        public void CancelBundleOperation(int operationId)
         {
-            
+            TransparentBundleAPI.CancelRequest(new CancelRequestArgs(operationId, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
         }
 
         public string GetFixedAssetName(string assetName)
