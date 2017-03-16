@@ -7,166 +7,200 @@ using System.IO;
 using System.Collections.Generic;
 
 
-namespace AssetBundleGraph {
-	public class FileUtility {
-		public static void RemakeDirectory (string localFolderPath) {
-			if (Directory.Exists(localFolderPath)) Directory.Delete(localFolderPath, true);
-			Directory.CreateDirectory(localFolderPath);
-			AssetDatabase.Refresh();
-		}
-		
-		public static void CopyFileFromGlobalToLocal (string absoluteSourceFilePath, string localTargetFilePath) {
-			var parentDirectoryPath = Path.GetDirectoryName(localTargetFilePath);
-			Directory.CreateDirectory(parentDirectoryPath);
-			File.Copy(absoluteSourceFilePath, localTargetFilePath, true);
-		}
+namespace AssetBundleGraph
+{
+    public class FileUtility
+    {
+        public static void RemakeDirectory(string localFolderPath)
+        {
+            if(Directory.Exists(localFolderPath)) Directory.Delete(localFolderPath, true);
+            Directory.CreateDirectory(localFolderPath);
+            AssetDatabase.Refresh();
+        }
 
-		public static void DeleteFileThenDeleteFolderIfEmpty (string localTargetFilePath) {			
-			File.Delete(localTargetFilePath);
-			File.Delete(localTargetFilePath + AssetBundleGraphSettings.UNITY_METAFILE_EXTENSION);
-			var directoryPath = Directory.GetParent(localTargetFilePath).FullName;
-			var restFiles = GetFilePathsInFolder(directoryPath);
-			if (!restFiles.Any()) {
-				Directory.Delete(directoryPath, true);
-				File.Delete(directoryPath + AssetBundleGraphSettings.UNITY_METAFILE_EXTENSION);
-			}
-		}
+        public static void CopyFileFromGlobalToLocal(string absoluteSourceFilePath, string localTargetFilePath)
+        {
+            var parentDirectoryPath = Path.GetDirectoryName(localTargetFilePath);
+            Directory.CreateDirectory(parentDirectoryPath);
+            File.Copy(absoluteSourceFilePath, localTargetFilePath, true);
+        }
 
-		// Get all files under given path, including files in child folders
-		public static List<string> GetAllFilePathsInFolder (string localFolderPath, bool includeHidden=false, bool includeMeta=!AssetBundleGraphSettings.IGNORE_META) 
-		{
-			var filePaths = new List<string>();
-			
-			if (string.IsNullOrEmpty(localFolderPath)) {
-				return filePaths;
-			}
-			if (!Directory.Exists(localFolderPath)) {
-				return filePaths;
-			}
+        public static void DeleteFileThenDeleteFolderIfEmpty(string localTargetFilePath)
+        {
+            File.Delete(localTargetFilePath);
+            File.Delete(localTargetFilePath + AssetBundleGraphSettings.UNITY_METAFILE_EXTENSION);
+            var directoryPath = Directory.GetParent(localTargetFilePath).FullName;
+            var restFiles = GetFilePathsInFolder(directoryPath);
+            if(!restFiles.Any())
+            {
+                Directory.Delete(directoryPath, true);
+                File.Delete(directoryPath + AssetBundleGraphSettings.UNITY_METAFILE_EXTENSION);
+            }
+        }
 
-			GetFilePathsRecursively(localFolderPath, filePaths, includeHidden, includeMeta);
-			
-			return filePaths;
-		}
+        // Get all files under given path, including files in child folders
+        public static List<string> GetAllFilePathsInFolder(string localFolderPath, bool includeHidden = false, bool includeMeta = !AssetBundleGraphSettings.IGNORE_META)
+        {
+            var filePaths = new List<string>();
 
-		// Get files under given path
-		public static List<string> GetFilePathsInFolder (string folderPath, bool includeHidden=false, bool includeMeta=!AssetBundleGraphSettings.IGNORE_META) {
-			var filePaths = Directory.GetFiles(folderPath).Select(p=>p);
+            if(string.IsNullOrEmpty(localFolderPath))
+            {
+                return filePaths;
+            }
+            if(!Directory.Exists(localFolderPath))
+            {
+                return filePaths;
+            }
 
-			if(!includeHidden) {
-				filePaths = filePaths.Where(path => !(Path.GetFileName(path).StartsWith(AssetBundleGraphSettings.DOTSTART_HIDDEN_FILE_HEADSTRING)));
-			}
-			if (!includeMeta) {
-				filePaths = filePaths.Where(path => !FileUtility.IsMetaFile(path));
-			}
+            GetFilePathsRecursively(localFolderPath, filePaths, includeHidden, includeMeta);
 
-			// Directory.GetFiles() returns platform dependent delimiter, so make sure replace with "/"
-			if(Path.DirectorySeparatorChar != AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR) {
-				filePaths =	filePaths.Select(filePath => filePath.Replace(Path.DirectorySeparatorChar.ToString(), AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR.ToString()));
-			}
+            return filePaths;
+        }
 
-			return filePaths.ToList();
-		}
+        // Get files under given path
+        public static List<string> GetFilePathsInFolder(string folderPath, bool includeHidden = false, bool includeMeta = !AssetBundleGraphSettings.IGNORE_META)
+        {
+            var filePaths = Directory.GetFiles(folderPath).Select(p => p);
 
-		private static void GetFilePathsRecursively (string localFolderPath, List<string> filePaths, bool includeHidden=false, bool includeMeta=!AssetBundleGraphSettings.IGNORE_META) {
-			var folders = Directory.GetDirectories(localFolderPath);
+            if(!includeHidden)
+            {
+                filePaths = filePaths.Where(path => !(Path.GetFileName(path).StartsWith(AssetBundleGraphSettings.DOTSTART_HIDDEN_FILE_HEADSTRING)));
+            }
+            if(!includeMeta)
+            {
+                filePaths = filePaths.Where(path => !FileUtility.IsMetaFile(path));
+            }
 
-			foreach (var folder in folders) {
-				GetFilePathsRecursively(folder, filePaths, includeHidden, includeMeta);
-			}
+            // Directory.GetFiles() returns platform dependent delimiter, so make sure replace with "/"
+            if(Path.DirectorySeparatorChar != AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR)
+            {
+                filePaths = filePaths.Select(filePath => filePath.Replace(Path.DirectorySeparatorChar.ToString(), AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR.ToString()));
+            }
 
-			var files = GetFilePathsInFolder(localFolderPath, includeHidden, includeMeta);
-			filePaths.AddRange(files);
-		}
+            return filePaths.ToList();
+        }
 
-		/**
+        private static void GetFilePathsRecursively(string localFolderPath, List<string> filePaths, bool includeHidden = false, bool includeMeta = !AssetBundleGraphSettings.IGNORE_META)
+        {
+            var folders = Directory.GetDirectories(localFolderPath);
+
+            foreach(var folder in folders)
+            {
+                GetFilePathsRecursively(folder, filePaths, includeHidden, includeMeta);
+            }
+
+            var files = GetFilePathsInFolder(localFolderPath, includeHidden, includeMeta);
+            filePaths.AddRange(files);
+        }
+
+        /**
 			create combination of path.
 
 			delimiter is always '/'.
 		*/
-		public static string PathCombine (params string[] paths) {
-			if (paths.Length < 2) {
-				throw new ArgumentException("Argument must contain at least 2 strings to combine.");
-			}
+        public static string PathCombine(params string[] paths)
+        {
+            if(paths.Length < 2)
+            {
+                throw new ArgumentException("Argument must contain at least 2 strings to combine.");
+            }
 
-			var combinedPath = _PathCombine(paths[0], paths[1]);
-			var restPaths = new string[paths.Length-2];
+            var combinedPath = _PathCombine(paths[0], paths[1]);
+            var restPaths = new string[paths.Length - 2];
 
-			Array.Copy(paths, 2, restPaths, 0, restPaths.Length);
-			foreach (var path in restPaths) combinedPath = _PathCombine(combinedPath, path);
+            Array.Copy(paths, 2, restPaths, 0, restPaths.Length);
+            foreach(var path in restPaths) combinedPath = _PathCombine(combinedPath, path);
 
-			return combinedPath;
-		}
+            return combinedPath;
+        }
 
-		private static string _PathCombine (string head, string tail) {
-			if (!head.EndsWith(AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR.ToString())) {
-				head = head + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR;
-			}
-			
-			if (string.IsNullOrEmpty(tail)) {
-				return head;
-			}
+        private static string _PathCombine(string head, string tail)
+        {
+            if(!head.EndsWith(AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR.ToString()))
+            {
+                head = head + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR;
+            }
 
-			if (tail.StartsWith(AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR.ToString())) {
-				tail = tail.Substring(1);
-			}
+            if(string.IsNullOrEmpty(tail))
+            {
+                return head;
+            }
 
-			return Path.Combine(head, tail);
-		}
+            if(tail.StartsWith(AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR.ToString()))
+            {
+                tail = tail.Substring(1);
+            }
 
-		public static string GetPathWithProjectPath (string pathUnderProjectFolder) {
-			var assetPath = Application.dataPath;
-			var projectPath = Directory.GetParent(assetPath).ToString();
-			return FileUtility.PathCombine(projectPath, pathUnderProjectFolder);
-		}
+            return Path.Combine(head, tail);
+        }
 
-		public static string GetPathWithAssetsPath (string pathUnderAssetsFolder) {
-			var assetPath = Application.dataPath;
-			return FileUtility.PathCombine(assetPath, pathUnderAssetsFolder);
-		}
+        public static string GetPathWithProjectPath(string pathUnderProjectFolder)
+        {
+            var assetPath = Application.dataPath;
+            var projectPath = Directory.GetParent(assetPath).ToString();
+            return FileUtility.PathCombine(projectPath, pathUnderProjectFolder);
+        }
 
-		public static string ProjectPathWithSlash () {
-			var assetPath = Application.dataPath;
-			return Directory.GetParent(assetPath).ToString() + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR;
-		}
+        public static string GetPathWithAssetsPath(string pathUnderAssetsFolder)
+        {
+            var assetPath = Application.dataPath;
+            return FileUtility.PathCombine(assetPath, pathUnderAssetsFolder);
+        }
 
-		public static bool IsMetaFile (string filePath) {
-			if (filePath.EndsWith(AssetBundleGraphSettings.UNITY_METAFILE_EXTENSION)) return true;
-			return false;
-		}
+        public static string ProjectPathWithSlash()
+        {
+            var assetPath = Application.dataPath;
+            return Directory.GetParent(assetPath).ToString() + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR;
+        }
 
-		public static bool ContainsHiddenFiles (string filePath) {
-			var pathComponents = filePath.Split(AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR);
-			foreach (var path in pathComponents) {
-				if (path.StartsWith(AssetBundleGraphSettings.DOTSTART_HIDDEN_FILE_HEADSTRING)) return true;
-			}
-			return false;
-		}
+        public static bool IsMetaFile(string filePath)
+        {
+            if(filePath.EndsWith(AssetBundleGraphSettings.UNITY_METAFILE_EXTENSION)) return true;
+            return false;
+        }
 
-		public static string EnsurePrefabBuilderCacheDirExists(BuildTarget t, NodeData node) {
-			var cacheDir = FileUtility.PathCombine(AssetBundleGraphSettings.PREFABBUILDER_CACHE_PLACE, node.Id, SystemDataUtility.GetPathSafeTargetName(t));
+        public static bool ContainsHiddenFiles(string filePath)
+        {
+            var pathComponents = filePath.Split(AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR);
+            foreach(var path in pathComponents)
+            {
+                if(path.StartsWith(AssetBundleGraphSettings.DOTSTART_HIDDEN_FILE_HEADSTRING)) return true;
+            }
+            return false;
+        }
 
-			if (!Directory.Exists(cacheDir)) {
-				Directory.CreateDirectory(cacheDir);
-			}
-			if (!cacheDir.EndsWith(AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR.ToString())) {
-				cacheDir = cacheDir + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR.ToString();
-			}
-			return cacheDir;
-		}
+        public static string EnsurePrefabBuilderCacheDirExists(BuildTarget t, NodeData node)
+        {
+            var cacheDir = FileUtility.PathCombine(AssetBundleGraphSettings.PREFABBUILDER_CACHE_PLACE, node.Id, SystemDataUtility.GetPathSafeTargetName(t));
+
+            if(!Directory.Exists(cacheDir))
+            {
+                Directory.CreateDirectory(cacheDir);
+            }
+            if(!cacheDir.EndsWith(AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR.ToString()))
+            {
+                cacheDir = cacheDir + AssetBundleGraphSettings.UNITY_FOLDER_SEPARATOR.ToString();
+            }
+            return cacheDir;
+        }
 
 
-		public static string EnsureAssetBundleCacheDirExists(BuildTarget t, NodeData node, bool remake = false) {
-			var cacheDir = FileUtility.PathCombine(AssetBundleGraphSettings.BUNDLEBUILDER_CACHE_PLACE, node.Id, BuildTargetUtility.TargetToAssetBundlePlatformName(t));
+        public static string EnsureAssetBundleCacheDirExists(BuildTarget t, NodeData node, bool remake = false)
+        {
+            var cacheDir = FileUtility.PathCombine(AssetBundleGraphSettings.BUNDLEBUILDER_CACHE_PLACE, node.Id, BuildTargetUtility.TargetToAssetBundlePlatformName(t));
 
-			if (!Directory.Exists(cacheDir)) {
-				Directory.CreateDirectory(cacheDir);
-			} else {
-				if(remake) {
-					RemakeDirectory(cacheDir);
-				}
-			}
-			return cacheDir;
-		}
-	}
+            if(!Directory.Exists(cacheDir))
+            {
+                Directory.CreateDirectory(cacheDir);
+            }
+            else
+            {
+                if(remake)
+                {
+                    RemakeDirectory(cacheDir);
+                }
+            }
+            return cacheDir;
+        }
+    }
 }

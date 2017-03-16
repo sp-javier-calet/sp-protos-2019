@@ -94,14 +94,14 @@ PlayerSettings:
     16:9: 1
     Others: 1
   bundleIdentifier: es.socialpoint.basegame
-  bundleVersion: 1
+  bundleVersion: 1.0
   preloadedAssets: []
   metroEnableIndependentInputSource: 0
   metroEnableLowLatencyPresentationAPI: 0
   xboxOneDisableKinectGpuReservation: 0
   virtualRealitySupported: 0
   productGUID: ebb005ff38e9b473cbf04a55f0b772a0
-  AndroidBundleVersionCode: 1610101010
+  AndroidBundleVersionCode: 1611111111
   AndroidMinSdkVersion: 15
   AndroidPreferredInstallLocation: 1
   aotOptions: ntrampolines=2048,nimt-trampolines=256
@@ -109,7 +109,7 @@ PlayerSettings:
   stripEngineCode: 1
   iPhoneStrippingLevel: 2
   iPhoneScriptCallOptimization: 0
-  iPhoneBuildNumber: 1610101010
+  iPhoneBuildNumber: 1611111111
   ForceInternetPermission: 0
   ForceSDCardPermission: 0
   CreateWallpaper: 0
@@ -177,8 +177,8 @@ PlayerSettings:
   AndroidTargetDevice: 3
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: Assets/Plugins/Android/socialpoint.keystore
-  AndroidKeyaliasName: android
+  AndroidKeystoreName: 
+  AndroidKeyaliasName: 
   AndroidTVCompatibility: 1
   AndroidIsGame: 1
   androidEnableBanner: 0
@@ -430,8 +430,8 @@ PlayerSettings:
   spritePackerPolicy: 
   scriptingDefineSymbols:
     1: NO_GPGS;ADMIN_PANEL
-    4: ADMIN_PANEL;SPARTA_PROFILER_ENABLED;SPARTA_LOG_DEBUG;NO_GPGS
-    7: ADMIN_PANEL;SPARTA_PROFILER_ENABLED;SPARTA_LOG_DEBUG
+    4: SPARTA_PROFILER_ENABLED;NO_GPGS;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES
+    7: SPARTA_PROFILER_ENABLED;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES
     13: NO_GPGS;ADMIN_PANEL
     25: NO_GPGS;ADMIN_PANEL
   metroPackageName: Project

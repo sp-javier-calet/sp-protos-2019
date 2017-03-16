@@ -1,7 +1,10 @@
 ﻿using System;
-using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.VideoAds
 {
@@ -22,7 +25,10 @@ namespace SocialPoint.VideoAds
             Container.BindUnityComponent<SocialPointVideoAdsManager>();
             Container.Bind<IVideoAdsManager>().ToMethod<SocialPointVideoAdsManager>(CreateVideoAdManager);
             Container.Bind<IDisposable>().ToLookup<IVideoAdsManager>();
+
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelVideoAds>(CreateAdminPanelVideoAds);
+            #endif
         }
 
         SocialPointVideoAdsManager CreateVideoAdManager()
@@ -46,10 +52,12 @@ namespace SocialPoint.VideoAds
             return videoAdsManager;
         }
 
+        #if ADMIN_PANEL
         AdminPanelVideoAds CreateAdminPanelVideoAds()
         {
             return new AdminPanelVideoAds(
                 Container.Resolve<IVideoAdsManager>());
         }
+        #endif
     }
 }

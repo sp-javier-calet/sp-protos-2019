@@ -1,7 +1,8 @@
-﻿using System;
+﻿#if ADMIN_PANEL
+
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace SocialPoint.AdminPanel
@@ -127,3 +128,5 @@ namespace SocialPoint.AdminPanel
         }
     }
 }
+
+#endif

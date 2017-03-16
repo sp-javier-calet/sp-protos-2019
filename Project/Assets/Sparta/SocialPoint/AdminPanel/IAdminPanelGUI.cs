@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if ADMIN_PANEL
+
+using System;
 using System.Collections.Generic;
 
 namespace SocialPoint.AdminPanel
@@ -144,3 +146,5 @@ namespace SocialPoint.AdminPanel
         }
     }
 }
+
+#endif

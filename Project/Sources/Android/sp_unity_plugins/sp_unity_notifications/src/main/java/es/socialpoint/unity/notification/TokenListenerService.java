@@ -1,6 +1,5 @@
 package es.socialpoint.unity.notification;
 
-import es.socialpoint.unity.notification.NotificationBridge;
 import com.google.android.gms.iid.InstanceIDListenerService;
 
 public class TokenListenerService extends InstanceIDListenerService {

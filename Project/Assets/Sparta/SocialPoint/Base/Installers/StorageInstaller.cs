@@ -1,8 +1,11 @@
 ﻿using System;
-using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
 using SocialPoint.IO;
 using SocialPoint.Dependency;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Base
 {
@@ -21,12 +24,14 @@ namespace SocialPoint.Base
         public SettingsData Settings = new SettingsData();
 
         public override void InstallBindings()
-        {		
+        {
             Container.Bind<IAttrStorage>(VolatileTag).ToMethod<PlayerPrefsAttrStorage>(CreateVolatileStorage);
             Container.Bind<IAttrStorage>(PersistentTag).ToMethod<TransitionAttrStorage>(CreatePersistentStorage);
 
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelAttrStorage>(() => CreateAdminPanel(VolatileTag));
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelAttrStorage>(() => CreateAdminPanel(PersistentTag));
+            #endif
 
             // cannot move this into Initialize as creation of storages depends on it
             PathsManager.Init();
@@ -64,9 +69,11 @@ namespace SocialPoint.Base
             return new TransitionAttrStorage(vol, persistent);
         }
 
+        #if ADMIN_PANEL
         AdminPanelAttrStorage CreateAdminPanel(string tag)
         {
             return new AdminPanelAttrStorage(tag, Container.Resolve<IAttrStorage>(tag));
         }
+        #endif
     }
 }

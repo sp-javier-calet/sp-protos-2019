@@ -4,75 +4,89 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace AssetBundleGraph {
+namespace AssetBundleGraph
+{
 
-	/*
+    /*
 		string:Vector2 pseudo dictionary to support Undo
 	*/
-	[Serializable] public class SerializableVector2Dictionary {
-		[SerializeField] private List<string> keys = new List<string>();
-		[SerializeField] private List<Vector2> values = new List<Vector2>();
+    [Serializable]
+    public class SerializableVector2Dictionary
+    {
+        [SerializeField]
+        private List<string> keys = new List<string>();
+        [SerializeField]
+        private List<Vector2> values = new List<Vector2>();
 
-		public SerializableVector2Dictionary (Dictionary<string, Vector2> baseDict) {
-			var dict = new Dictionary<string, Vector2>(baseDict);
+        public SerializableVector2Dictionary(Dictionary<string, Vector2> baseDict)
+        {
+            var dict = new Dictionary<string, Vector2>(baseDict);
 
-			keys = dict.Keys.ToList();
-			values = dict.Values.ToList();
-		}
+            keys = dict.Keys.ToList();
+            values = dict.Values.ToList();
+        }
 
-		public void Add (string key, Vector2 val) {
-			var dict = new Dictionary<string, Vector2>();
-			
-			for (var i = 0; i < keys.Count; i++) {
-				var currentKey = keys[i];
-				var currentVal = values[i];
-				dict[currentKey] = currentVal;
-			}
+        public void Add(string key, Vector2 val)
+        {
+            var dict = new Dictionary<string, Vector2>();
 
-			// add or update parameter.
-			dict[key] = val;
+            for(var i = 0; i < keys.Count; i++)
+            {
+                var currentKey = keys[i];
+                var currentVal = values[i];
+                dict[currentKey] = currentVal;
+            }
 
-			keys = new List<string>(dict.Keys);
-			values = new List<Vector2>(dict.Values);
-		}
+            // add or update parameter.
+            dict[key] = val;
 
-		public bool ContainsKey (string key) {
-			var dict = new Dictionary<string, Vector2>();
-			
-			for (var i = 0; i < keys.Count; i++) {
-				var currentKey = keys[i];
-				var currentVal = values[i];
-				dict[currentKey] = currentVal;
-			}
+            keys = new List<string>(dict.Keys);
+            values = new List<Vector2>(dict.Values);
+        }
 
-			return dict.ContainsKey(key);
-		}
+        public bool ContainsKey(string key)
+        {
+            var dict = new Dictionary<string, Vector2>();
 
-		public void Remove (string key) {
-			var dict = new Dictionary<string, Vector2>();
-			
-			for (var i = 0; i < keys.Count; i++) {
-				var currentKey = keys[i];
-				var currentVal = values[i];
-				dict[currentKey] = currentVal;
-			}
+            for(var i = 0; i < keys.Count; i++)
+            {
+                var currentKey = keys[i];
+                var currentVal = values[i];
+                dict[currentKey] = currentVal;
+            }
 
-			dict.Remove(key);
-			keys = new List<string>(dict.Keys);
-			values = new List<Vector2>(dict.Values);
-		}
+            return dict.ContainsKey(key);
+        }
 
-		public Dictionary<string, Vector2> ReadonlyDict () {
-			var dict = new Dictionary<string, Vector2>();
-			if (keys == null) return dict;
+        public void Remove(string key)
+        {
+            var dict = new Dictionary<string, Vector2>();
 
-			for (var i = 0; i < keys.Count; i++) {
-				var key = keys[i];
-				var val = values[i];
-				dict[key] = val;
-			}
+            for(var i = 0; i < keys.Count; i++)
+            {
+                var currentKey = keys[i];
+                var currentVal = values[i];
+                dict[currentKey] = currentVal;
+            }
 
-			return dict;
-		}
-	}
+            dict.Remove(key);
+            keys = new List<string>(dict.Keys);
+            values = new List<Vector2>(dict.Values);
+        }
+
+        public Dictionary<string, Vector2> ReadonlyDict()
+        {
+            var dict = new Dictionary<string, Vector2>();
+            if(keys == null) return dict;
+
+            for(var i = 0; i < keys.Count; i++)
+            {
+                var key = keys[i];
+                var val = values[i];
+                dict[key] = val;
+            }
+
+            return dict;
+        }
+    }
 }

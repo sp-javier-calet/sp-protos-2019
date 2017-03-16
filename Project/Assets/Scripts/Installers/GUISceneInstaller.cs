@@ -8,8 +8,8 @@ public class GUISceneInstaller : Installer, IInitializable
     [Serializable]
     public class SettingsData
     {
-        public GameObject InitialScreenPrefab = null;
-        public bool InitialScreenAnimation = false;
+        public GameObject InitialScreenPrefab;
+        public bool InitialScreenAnimation;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -41,16 +41,13 @@ public class GUISceneInstaller : Installer, IInitializable
         {
             throw new InvalidOperationException("Initial Screen Prefab does not contain a UIViewController");
         }
+        if(Settings.InitialScreenAnimation)
+        {
+            screens.Push(ctrl);
+        }
         else
         {
-            if(Settings.InitialScreenAnimation)
-            {
-                screens.Push(ctrl);
-            }
-            else
-            {
-                screens.PushImmediate(ctrl);
-            }
+            screens.PushImmediate(ctrl);
         }
     }
 }

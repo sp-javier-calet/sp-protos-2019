@@ -1,8 +1,11 @@
 ﻿using System;
-using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.ServerEvents;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Social
 {
@@ -11,7 +14,7 @@ namespace SocialPoint.Social
         [Serializable]
         public class SettingsData
         {
-            public bool UseEmpty = false;
+            public bool UseEmpty;
             public bool LoginLink = true;
             public bool LoginWithUi = true;
         }
@@ -42,7 +45,9 @@ namespace SocialPoint.Social
             Container.Rebind<IGoogle>().ToSingle<EmptyGoogle>();
             #endif
 
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGoogle>(CreateAdminPanel);
+            #endif
         }
 
         #if UNITY_ANDROID
@@ -54,16 +59,20 @@ namespace SocialPoint.Social
 
         void SetupUnityGoogle(UnityGoogle google)
         {
-            google.Scheduler = Container.Resolve<SocialPoint.Utils.IUpdateScheduler>();
+            google.Scheduler = Container.Resolve<IUpdateScheduler>();
         }
 
         #endif
+
+        #if ADMIN_PANEL
 
         AdminPanelGoogle CreateAdminPanel()
         {
             return new AdminPanelGoogle(
                 Container.Resolve<IGoogle>());
         }
+
+        #endif
 
         GooglePlayLink CreateLoginLink()
         {

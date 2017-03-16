@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿#if ADMIN_PANEL 
+
+using System.Collections.Generic;
 using System.Text;
 using SocialPoint.AdminPanel;
 using SocialPoint.Console;
@@ -188,3 +190,5 @@ namespace SocialPoint.Locale
     }
 
 }
+
+#endif
