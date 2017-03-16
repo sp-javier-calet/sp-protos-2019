@@ -41,8 +41,8 @@ namespace SocialPoint.Helpshift
 
         // Use game-defined icon for push notification, as in sp_unity_notifications plugin.
         // Notice that helpshift pushes does not use default notifications icons. If game does not define a custom icon, a white quad will be shown.
-        const string NotificationIconName = "notify_icon_small.png";
-        const string LargeNotificationIconName = "notify_icon_large.png";
+        const string NotificationIconName = "notify_icon_small";
+        const string LargeNotificationIconName = "notify_icon_large";
 
         [InitializeOnLoadMethod]
         public static void Serialize()

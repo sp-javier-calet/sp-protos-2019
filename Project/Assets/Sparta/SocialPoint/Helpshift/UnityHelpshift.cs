@@ -40,13 +40,6 @@ namespace SocialPoint.Helpshift
 
         void Setup()
         {
-            if(string.IsNullOrEmpty(_config.ApiKey) ||
-               string.IsNullOrEmpty(_config.DomainName) ||
-               string.IsNullOrEmpty(_config.AppId))
-            {
-                throw new ArgumentException("Invalid Helshift configuration");
-            }
-
             // Generate config
             CreateConfigMap();
 
@@ -58,7 +51,7 @@ namespace SocialPoint.Helpshift
 #if UNITY_ANDROID
             // Install is only called from c# in Android.
             // For iOS, the config is deployed directly in a json file in the bundle to be read from native code
-            _helpshift.install(_config.ApiKey, _config.DomainName, _config.AppId, _configMap);
+            _helpshift.install();
 #endif
         }
 

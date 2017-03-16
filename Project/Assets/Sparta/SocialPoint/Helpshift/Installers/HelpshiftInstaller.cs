@@ -33,7 +33,7 @@ namespace SocialPoint.Helpshift
 
             public string AndroidAppId = DefaultAndroidAppId;
 
-            public HelpshiftConfiguration.ContactMode Mode;
+            public HelpshiftConfiguration.ContactMode Mode = HelpshiftConfiguration.ContactMode.CONTACT_US_ALWAYS;
 
             public bool InAppNotificationEnabled;
 
@@ -66,13 +66,8 @@ namespace SocialPoint.Helpshift
         }
 
         UnityHelpshift CreateUnityHelpshift()
-        {
-            string appId = Settings.IosAppId;
-            #if UNITY_ANDROID
-            appId = Settings.AndroidAppId;
-            #endif
-           
-            var hsconfig = new HelpshiftConfiguration(Settings.ApiKey, appId, Settings.DomainName) {
+        {           
+            var hsconfig = new HelpshiftConfiguration() {
                 Mode = Settings.Mode,
                 InAppNotificationEnabled = Settings.InAppNotificationEnabled,
                 SearchOnNewConversationEnabled = Settings.SearchOnNewConversationEnabled,

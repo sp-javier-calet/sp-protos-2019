@@ -5,7 +5,7 @@ namespace SocialPoint.Helpshift
     {
         #region IHelpshift implementation
 
-        static HelpshiftConfiguration _config = new HelpshiftConfiguration(string.Empty, string.Empty, string.Empty);
+        static HelpshiftConfiguration _config = new HelpshiftConfiguration();
 
         public HelpshiftConfiguration Configuration
         { 

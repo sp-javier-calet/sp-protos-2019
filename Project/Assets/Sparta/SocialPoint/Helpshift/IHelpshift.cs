@@ -11,12 +11,6 @@ namespace SocialPoint.Helpshift
             CONTACT_US_AFTER_VIEWING_FAQS
         }
 
-        public string ApiKey { get; private set; }
-
-        public string AppId { get; private set; }
-
-        public string DomainName { get; private set; }
-
         public ContactMode Mode { get; set; }
 
         public bool InAppNotificationEnabled { get; set; }
@@ -24,14 +18,6 @@ namespace SocialPoint.Helpshift
         public bool SearchOnNewConversationEnabled { get; set; }
 
         public bool ConversationResolutionQuestionEnabled { get; set; }
-
-        public HelpshiftConfiguration(string apiKey, string appId, string domainName) : this()
-        {
-            ApiKey = apiKey;
-            AppId = appId;
-            DomainName = domainName;
-            Mode = ContactMode.CONTACT_US_ALWAYS;
-        }
     }
 
     public class HelpshiftCustomer
