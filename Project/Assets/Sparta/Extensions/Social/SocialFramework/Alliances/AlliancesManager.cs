@@ -176,7 +176,7 @@ namespace SocialPoint.Social
                 {
                     DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
                     var result = rDic.Get(OperationResultKey).AsDic;
-                    alliance = Factory.CreateAlliance(allianceId, AccessTypes.DefaultAccessType, result);
+                    alliance = Factory.CreateAlliance(allianceId, result);
                 }
                 if(callback != null)
                 {

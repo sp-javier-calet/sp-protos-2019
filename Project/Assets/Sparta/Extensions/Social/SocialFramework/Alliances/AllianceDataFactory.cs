@@ -98,17 +98,17 @@ namespace SocialPoint.Social
             data.IsNewAlliance = alliance.IsNewAlliance;
         }
 
-        public Alliance CreateAlliance(string allianceId, int defaultMemberRank, AttrDic dic)
+        public Alliance CreateAlliance(string allianceId, AttrDic dic)
         {
             var alliance = CreateCustomAlliance();
             alliance.Id = allianceId;
 
-            ParseAlliance(alliance, defaultMemberRank, dic);
+            ParseAlliance(alliance, dic);
             ParseCustomAlliance(alliance, dic);
             return alliance;
         }
 
-        void ParseAlliance(Alliance alliance, int defaultMemberRank, AttrDic dic)
+        void ParseAlliance(Alliance alliance, AttrDic dic)
         {
             var data = dic.Get(AllianceInfoKey).AsDic;
             alliance.Name = data.GetValue(AllianceNameKey).ToString();
@@ -132,7 +132,7 @@ namespace SocialPoint.Social
                     var component = candidate.GetComponent<AlliancePlayerBasic>();
                     if(component != null)
                     {
-                        component.Rank = defaultMemberRank;
+                        component.Rank = Ranks.DefaultRank;
                         component.Id = alliance.Id;
                         component.Name = alliance.Name;
                         component.Avatar = alliance.Avatar;

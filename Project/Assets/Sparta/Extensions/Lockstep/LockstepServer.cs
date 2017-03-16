@@ -57,14 +57,18 @@ namespace SocialPoint.Lockstep
             Stop();
         }
 
-        public IEnumerator<ServerTurnData> GetTurnsEnumerator()
+        public IEnumerator<ServerTurnData> GetTurnsEnumerator(int afterTurnNumber = 0)
         {
-            var t = 0;
+            var t = afterTurnNumber;
             var itr = _turns.GetEnumerator();
             var n = CurrentTurnNumber;
             while(itr.MoveNext())
             {
                 var k = itr.Current.Key;
+                if(k < t)
+                {
+                    continue;
+                }
                 if(k >= n)
                 {
                     break;

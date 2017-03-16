@@ -1,9 +1,12 @@
 using System;
-using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.Locale;
 using SocialPoint.Connection;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Social
 {
@@ -28,7 +31,9 @@ namespace SocialPoint.Social
 
             Container.Bind<AllianceDataFactory>().ToMethod<AllianceDataFactory>(CreateAlliancesDataFactory, SetupAlliancesDataFactory);
 
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework);
+            #endif
 
             Container.Listen<IChatRoom>().WhenResolved(SetupChatRoom);
         }
@@ -98,6 +103,7 @@ namespace SocialPoint.Social
             return new DefaultAccessTypeManager();
         }
 
+        #if ADMIN_PANEL
         AdminPanelSocialFramework CreateAdminPanelSocialFramework()
         {
             return new AdminPanelSocialFramework(
@@ -107,6 +113,7 @@ namespace SocialPoint.Social
                 Container.Resolve<PlayersManager>(),
                 Container.Resolve<SocialManager>());
         }
+        #endif
 
         void SetupChatRoom(IChatRoom room)
         {

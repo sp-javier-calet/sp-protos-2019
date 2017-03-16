@@ -1,5 +1,4 @@
 using System;
-using SocialPoint.AdminPanel;
 using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.Base;
@@ -9,6 +8,10 @@ using SocialPoint.Login;
 using SocialPoint.Network;
 using SocialPoint.ServerEvents;
 using SocialPoint.Utils;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Crash
 {
@@ -42,15 +45,20 @@ namespace SocialPoint.Crash
             }
 
             Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
+
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCrashReporter>(CreateAdminPanel);
+            #endif
         }
 
+        #if ADMIN_PANEL
         AdminPanelCrashReporter CreateAdminPanel()
         {
             return new AdminPanelCrashReporter(
                 Container.Resolve<ICrashReporter>(),
                 Container.Resolve<IBreadcrumbManager>());
         }
+        #endif
 
         SocialPointCrashReporter CreateCrashReporter()
         {

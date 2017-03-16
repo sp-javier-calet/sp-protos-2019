@@ -1,4 +1,6 @@
-﻿using SocialPoint.AdminPanel;
+﻿#if ADMIN_PANEL 
+
+using SocialPoint.AdminPanel;
 using UnityEngine.UI;
 
 namespace SocialPoint.Helpshift
@@ -54,3 +56,5 @@ namespace SocialPoint.Helpshift
         }
     }
 }
+
+#endif

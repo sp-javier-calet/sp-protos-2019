@@ -1,3 +1,5 @@
+#if ADMIN_PANEL
+
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -390,3 +392,5 @@ namespace SocialPoint.AdminPanel
         }
     }
 }
+
+#endif

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Dependency;
@@ -8,6 +7,10 @@ using SocialPoint.Helpshift;
 using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.Notifications;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Helpshift
 {
@@ -57,13 +60,17 @@ namespace SocialPoint.Helpshift
                 Container.Rebind<IHelpshift>().ToMethod<UnityHelpshift>(CreateUnityHelpshift, SetupUnityHelpshift);
             }
 
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelHelpshift>(CreateAdminPanel);
+            #endif
         }
 
+        #if ADMIN_PANEL
         AdminPanelHelpshift CreateAdminPanel()
         {
             return new AdminPanelHelpshift(Container.Resolve<IHelpshift>());
         }
+        #endif
 
         UnityHelpshift CreateUnityHelpshift()
         {           

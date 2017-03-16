@@ -1,5 +1,9 @@
 package es.socialpoint.unity.base;
 
+import android.content.Context;
+import android.os.Environment;
+import android.util.Log;
+
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,10 +16,6 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.spec.SecretKeySpec;
-
-import android.content.Context;
-import android.os.Environment;
-import android.util.Log;
 
 /**
  * Persistent Attr Storage Allows to store key-value pairs with serialized Attrs

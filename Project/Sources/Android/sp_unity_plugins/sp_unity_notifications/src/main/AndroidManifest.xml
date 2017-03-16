@@ -2,6 +2,7 @@
 <manifest 
     xmlns:android="http://schemas.android.com/apk/res/android" 
     package="es.socialpoint.unity.notification">
+
     <!-- Required configuration in game manifest -->
     <!--
     <permission 
