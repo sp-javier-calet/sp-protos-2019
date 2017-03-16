@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace SocialPoint.Base
 {
-    class UnmanagedMarshaledObject<T> : IDisposable
+    public class UnmanagedMarshaledObject<T> : IDisposable
     {
         IntPtr _ptr = IntPtr.Zero;
         #if DEBUG

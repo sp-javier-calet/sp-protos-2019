@@ -176,9 +176,9 @@ namespace SocialPoint.Network
                 return SPUnityCurlUpdateConn(_curl.NativeClient, _connectionId);
             }
 
-            public int Send(IntPtr requestPtr)
+            public int Send(UnmanagedMarshaledObject<RequestStruct> request)
             {
-                return SPUnityCurlSend(_curl.NativeClient, requestPtr);
+                return SPUnityCurlSend(_curl.NativeClient, request);
             }
 
             public int SendStreamMessage(IntPtr msgPtr)
