@@ -157,7 +157,7 @@ namespace SocialPoint.Lockstep
         public int Disconnects{ get; private set; }
         
         public int DisconnectTime { get; private set; }
-        
+
         public event Action<ClientCommandData> CommandAdded;
         public event Action<ClientTurnData> TurnApplied;
         public event Action SimulationStarted;
@@ -165,6 +165,7 @@ namespace SocialPoint.Lockstep
         public event Action ConnectionChanged;
         public event Action<int> Simulate;
         public event Action<Error, ClientCommandData> CommandFailed;
+        public event Action<bool> LockstepClientStarts;
 
         public bool Connected
         {
@@ -283,6 +284,10 @@ namespace SocialPoint.Lockstep
             _time = startTime;
             _simRecoveredCalled = false;
             _state = _time > 0 ? State.Recovering : State.Normal;
+            if(LockstepClientStarts != null)
+            { 
+                LockstepClientStarts(_state == State.Recovering);
+            }
             _timestamp = TimeUtils.TimestampMilliseconds;
             if(!_externalUpdate && _updateScheduler != null)
             {

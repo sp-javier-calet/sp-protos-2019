@@ -61,7 +61,7 @@ namespace SocialPoint.Matchmaking
     public interface IMatchmakingClientDelegate
     {
         void OnWaiting(int waitTime);
-        void OnMatched(Match match, bool reconnect);
+        void OnMatched(Match match);
         void OnError(Error err);
     }
 

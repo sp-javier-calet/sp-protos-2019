@@ -75,6 +75,7 @@ namespace SocialPoint.Lockstep
             Network.RegisterReceiver(this);
             Network.AddDelegate(this);
             Lockstep.CommandAdded += OnCommandAdded;
+            Lockstep.LockstepClientStarts += OnLockstepStarts;
         }
 
         public void RegisterReceiver(INetworkMessageReceiver receiver)
@@ -276,6 +277,18 @@ namespace SocialPoint.Lockstep
             });
             command.Serialize(CommandFactory, msg.Writer);
             msg.Send();
+        }
+
+        void OnLockstepStarts(bool reconnect)
+        {
+            if(SendTrack != null)
+            {
+                var data = new AttrDic();
+                data.SetValue("match_id", MatchId);
+                data.SetValue("player_id", PlayerId);
+                data.SetValue("reconnect", reconnect);
+                SendTrack("log_battle_start", data, null);
+            }
         }
 
         public void Dispose()

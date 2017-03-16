@@ -136,7 +136,7 @@ namespace SocialPoint.Matchmaking
                 match.ParseAttrDic(attr);
                 for(var i = 0; i < _delegates.Count; i++)
                 {
-                    _delegates[i].OnMatched(match, false);
+                    _delegates[i].OnMatched(match);
                 }
             }
             else if(type == TimeoutNotification)

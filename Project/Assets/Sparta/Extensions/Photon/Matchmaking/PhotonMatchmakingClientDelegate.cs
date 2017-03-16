@@ -29,7 +29,7 @@ namespace SocialPoint.Matchmaking
         {
         }
 
-        public void OnMatched(Match match, bool reconnect)
+        public void OnMatched(Match match)
         {
             _network.Config.RoomName = match.Id;
             _network.Config.CreateRoom = !match.Running;
