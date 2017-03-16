@@ -145,7 +145,7 @@ namespace SocialPoint.Matchmaking
                 };
                 for(var i = 0; i < _delegates.Count; i++)
                 {
-                    _delegates[i].OnMatched(match);
+                    _delegates[i].OnMatched(match, false);
                 }
             }
             else if(attr.ContainsKey(ErrorAttrKey))

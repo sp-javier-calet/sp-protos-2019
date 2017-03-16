@@ -7,6 +7,7 @@ namespace SocialPoint.Matchmaking
 {
     public class LockstepMatchmakingClientDelegate : IMatchmakingClientDelegate, IDisposable
     {
+
         LockstepNetworkClient _lockstep;
         IMatchmakingClient _matchmaking;
 
@@ -26,10 +27,18 @@ namespace SocialPoint.Matchmaking
         {
         }
 
-        public void OnMatched(Match match)
+        public void OnMatched(Match match, bool reconnect)
         {
             _lockstep.PlayerId = match.PlayerId;
             _lockstep.MatchId = match.Id;
+            if(_lockstep.SendTrack != null)
+            {
+                var data = new AttrDic();
+                data.SetValue("match_id", match.Id);
+                data.SetValue("player_id", match.PlayerId);
+                data.SetValue("reconnect", reconnect);
+                _lockstep.SendTrack("log_battle_match", data, null);
+            }
         }
 
         public void OnError(Error err)

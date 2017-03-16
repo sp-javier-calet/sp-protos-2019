@@ -276,7 +276,7 @@ namespace Examples.Lockstep
             _fullscreenText.text = string.Format("estimated waiting time {0}", waitTime);
         }
 
-        void IMatchmakingClientDelegate.OnMatched(Match match)
+        void IMatchmakingClientDelegate.OnMatched(Match match, bool reconnect)
         {
             _fullscreenText.text = string.Format("match {0} player {1}", match.Id, match.PlayerId);
             StartClient(GameLockstepMode.Client);

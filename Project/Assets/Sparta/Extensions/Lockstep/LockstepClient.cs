@@ -154,6 +154,10 @@ namespace SocialPoint.Lockstep
 
         public LockstepClientConfig ClientConfig { get; set; }
 
+        public int Disconnects{ get; private set; }
+        
+        public int DisconnectTime { get; private set; }
+        
         public event Action<ClientCommandData> CommandAdded;
         public event Action<ClientTurnData> TurnApplied;
         public event Action SimulationStarted;
@@ -548,8 +552,16 @@ namespace SocialPoint.Lockstep
                     break;
                 }
             }
+            if(_state == State.Waiting)
+            {
+                DisconnectTime += dt;
+            }
             if(wasConnected != Connected)
             {
+                if(_state == State.Waiting)
+                {
+                    Disconnects++;
+                }
                 if(ConnectionChanged != null)
                 {
                     ConnectionChanged();

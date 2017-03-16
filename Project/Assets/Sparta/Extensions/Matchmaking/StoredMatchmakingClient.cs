@@ -118,7 +118,7 @@ namespace SocialPoint.Matchmaking
             Match match;
             if(_storage.Load(out match))
             {
-                OnMatched(match);
+                OnMatched(match, true);
                 return;
             }
             _client.Start();
@@ -143,10 +143,10 @@ namespace SocialPoint.Matchmaking
             }
         }
 
-        void IMatchmakingClientDelegate.OnMatched(Match match)
+        void IMatchmakingClientDelegate.OnMatched(Match match, bool reconnect)
         {
             _storage.Save(match);
-            OnMatched(match);
+            OnMatched(match, false);
         }
 
         void IMatchmakingClientDelegate.OnError(Error err)
@@ -157,11 +157,11 @@ namespace SocialPoint.Matchmaking
             }
         }
 
-        void OnMatched(Match match)
+        void OnMatched(Match match, bool reconnect)
         {
             for(var i=0; i<_delegates.Count; i++)
             {
-                _delegates[i].OnMatched(match);
+                _delegates[i].OnMatched(match, reconnect);
             }
         }
 
