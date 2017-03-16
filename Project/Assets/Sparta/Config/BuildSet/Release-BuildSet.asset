@@ -33,7 +33,7 @@ MonoBehaviour:
     UseEnvironmentProvisioningUuid: 1
     RemovedResources: 
   Android:
-    BundleIdentifier: es.socialpoint.DragonCity
+    BundleIdentifier: 
     Flags: 
     RemovedResources: 
     UseKeystore: 1

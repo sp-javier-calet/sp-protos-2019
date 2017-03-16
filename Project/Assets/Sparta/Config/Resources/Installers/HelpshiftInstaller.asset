@@ -14,10 +14,10 @@ MonoBehaviour:
   _isGlobal: 1
   Settings:
     UseEmpty: 0
-    ApiKey: b53650a21595c2902bb5daed4dc038a3
+    ApiKey: e80e75c9fd498d3274f3cdbc637b3866
     DomainName: socialpoint.helpshift.com
-    IosAppId: socialpoint_platform_20160428132624231-59dc1e2226b6e5f
-    AndroidAppId: socialpoint_platform_20160428132625011-5852b352b0111d2
+    IosAppId: socialpoint_platform_20151021095745155-1b0b401a75542a3
+    AndroidAppId: socialpoint_platform_20151021095745169-3fd755eb172b848
     Mode: 0
     InAppNotificationEnabled: 0
     SearchOnNewConversationEnabled: 0
