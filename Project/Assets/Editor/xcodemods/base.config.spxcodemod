@@ -14,10 +14,7 @@
     "IPHONEOS_DEPLOYMENT_TARGET": "7.0",
     "CODE_SIGN_ENTITLEMENTS": "Unity-iPhone.entitlements",
     "ENABLE_BITCODE": "NO",
-    "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
-    "DEBUG_INFORMATION_FORMAT[sdk=iphoneos*]": "dwarf-with-dsym"
-    "CC": "$(SRCROOT)/clang_cache_distcc",
-    "LDPLUSPLUS": "$(DT_TOOLCHAIN_DIR)/usr/bin/clang++"
+    "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym"
   },
   "shellScripts": [
     {
@@ -34,11 +31,6 @@
   "frameworks": [
     "Security.framework:weak"
   ],
-  "copyFiles": {
-    "{ROOT_PATH}/Sources/Apple/sp_unity_plugins/clang_cache" : "{XCODE_PROJECT_PATH}/../clang_cache",
-    "{ROOT_PATH}/Sources/Apple/sp_unity_plugins/clang_cache_distcc" : "{XCODE_PROJECT_PATH}/../clang_cache_distcc",
-    "{ROOT_PATH}/Sources/Apple/sp_unity_plugins/distcc/*" : "{XCODE_PROJECT_PATH}/../distcc"
-  },
   "infoPlist": {
     "CFBundleURLTypes":[{
       "CFBundleURLName":"basegame",
