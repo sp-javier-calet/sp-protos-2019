@@ -28,14 +28,6 @@ namespace SocialPoint.Helpshift
         {
             public bool UseEmpty;
 
-            public string ApiKey = DefaultApiKey;
-
-            public string DomainName = DefaultDomainName;
-
-            public string IosAppId = DefaultIosAppId;
-
-            public string AndroidAppId = DefaultAndroidAppId;
-
             public HelpshiftConfiguration.ContactMode Mode = HelpshiftConfiguration.ContactMode.CONTACT_US_ALWAYS;
 
             public bool InAppNotificationEnabled;
@@ -45,7 +37,20 @@ namespace SocialPoint.Helpshift
             public bool ConversationResolutionQuestionEnabled;
         }
 
+        [Serializable]
+        public class InstallData
+        {
+            public string ApiKey = DefaultApiKey;
+
+            public string DomainName = DefaultDomainName;
+
+            public string IosAppId = DefaultIosAppId;
+
+            public string AndroidAppId = DefaultAndroidAppId;
+        }
+
         public SettingsData Settings = new SettingsData();
+        public InstallData InstallSettings = new InstallData();
 
         IHelpshift _helpshift;
 

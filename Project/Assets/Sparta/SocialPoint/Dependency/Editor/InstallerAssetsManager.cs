@@ -53,13 +53,6 @@ namespace SocialPoint.Dependency
             return AssetDatabase.LoadAssetAtPath<Installer>(path);
         }
 
-        public static T Open<T>() where T : Installer
-        {
-            var type = typeof(T);
-            var path = Path.Combine(ContainerPath, type.Name + FileExtension);
-            return Open(path) as T;
-        }
-
         static string GetInstallerPath(Type t)
         {
             return GetInstallerPath(t.Name);

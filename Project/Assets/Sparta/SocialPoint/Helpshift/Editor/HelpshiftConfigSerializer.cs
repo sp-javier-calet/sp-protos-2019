@@ -44,19 +44,12 @@ namespace SocialPoint.Helpshift
         const string NotificationIconName = "notify_icon_small";
         const string LargeNotificationIconName = "notify_icon_large";
 
-        [InitializeOnLoadMethod]
-        public static void Serialize()
+        public static void Serialize(HelpshiftInstaller installer)
         {
-            var hs = InstallerAssetsManager.Open<HelpshiftInstaller>();
-            if(hs == null)
-            {
-                return;
-            }
-
             // Common config
             var installDic = new Dictionary<string, object>();
-            installDic.Add(ApiKeyJsonKey, hs.Settings.ApiKey);
-            installDic.Add(DomainNameJsonKey, hs.Settings.DomainName);
+            installDic.Add(ApiKeyJsonKey, installer.InstallSettings.ApiKey);
+            installDic.Add(DomainNameJsonKey, installer.InstallSettings.DomainName);
 
             installDic.Add(SdkTypeKey, UnitySdkTypeKey);
             installDic.Add(PluginVersionKey, HSPluginVersion);
@@ -66,8 +59,8 @@ namespace SocialPoint.Helpshift
             installDic.Add(AndroidNotificationLargeIconNameKey, LargeNotificationIconName);
             installDic.Add(DisableErrorLoggingKey, YesKey);
 
-            WriteInstallConfigWithId(installDic, hs.Settings.AndroidAppId, HelpshiftAndroidConfigPath, HelpshiftAndroidConfigFile);
-            WriteInstallConfigWithId(installDic, hs.Settings.IosAppId, HelpshiftIosConfigPath, HelpshiftIosConfigFile);
+            WriteInstallConfigWithId(installDic, installer.InstallSettings.AndroidAppId, HelpshiftAndroidConfigPath, HelpshiftAndroidConfigFile);
+            WriteInstallConfigWithId(installDic, installer.InstallSettings.IosAppId, HelpshiftIosConfigPath, HelpshiftIosConfigFile);
         }
 
         static void WriteInstallConfigWithId(Dictionary<string, object> installDic, string appId, string filePath, string fileName)
