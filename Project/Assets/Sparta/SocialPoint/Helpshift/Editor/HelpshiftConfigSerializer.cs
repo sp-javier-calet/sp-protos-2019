@@ -1,9 +1,7 @@
 ﻿using HSMiniJSON;
 using System.IO;
 using System.Collections.Generic;
-using SocialPoint.Dependency;
 using UnityEngine;
-using UnityEditor;
 
 namespace SocialPoint.Helpshift
 {
