@@ -1,6 +1,5 @@
 ﻿using System;
 using SocialPoint.Dependency;
-using SocialPoint.AdminPanel;
 using SocialPoint.ServerSync;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
@@ -9,6 +8,10 @@ using SocialPoint.AppEvents;
 using SocialPoint.ServerEvents;
 using SocialPoint.Login;
 using SocialPoint.GameLoading;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.ServerSync
 {
@@ -47,8 +50,10 @@ namespace SocialPoint.ServerSync
 
             Container.Rebind<CommandReceiver>().ToSingle<CommandReceiver>();
 
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCommandReceiver>(CreateAdminPanelCommandReceiver);
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCommandQueue>(CreateAdminPanelCommandQueue);
+            #endif
         }
 
         CommandQueue CreateCommandQueue()
@@ -79,6 +84,7 @@ namespace SocialPoint.ServerSync
                 Container.Resolve<ICommandQueue>());
         }
 
+        #if ADMIN_PANEL
         AdminPanelCommandReceiver CreateAdminPanelCommandReceiver()
         {
             return new AdminPanelCommandReceiver(
@@ -89,5 +95,6 @@ namespace SocialPoint.ServerSync
         {
             return new AdminPanelCommandQueue(Container.Resolve<ICommandQueue>());
         }
+        #endif
     }
 }

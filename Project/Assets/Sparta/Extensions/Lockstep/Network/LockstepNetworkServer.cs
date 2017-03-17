@@ -496,7 +496,7 @@ namespace SocialPoint.Lockstep
             ));
 
             // send the old turns
-            var itr = _serverLockstep.GetTurnsEnumerator();
+            var itr = _serverLockstep.GetTurnsEnumerator(msg.CurrentTurn);
             while(itr.MoveNext())
             {
                 SendTurn(itr.Current, client.ClientId);
@@ -549,13 +549,19 @@ namespace SocialPoint.Lockstep
 
         void IMatchmakingServerDelegate.OnResultsReceived(AttrDic results)
         {
+            SendResults(results);
+        }
+
+        void SendResults(AttrDic results)
+        {
             for(var i = 0; i < _clients.Count; i++)
             {
                 var client = _clients[i];
                 if(results.ContainsKey(client.PlayerId))
                 {
                     var result = results[client.PlayerId];
-                    _server.SendMessage(new NetworkMessageData {
+                    _server.SendMessage(new NetworkMessageData
+                    {
                         MessageType = LockstepMsgType.ClientEnd,
                         ClientId = client.ClientId
                     }, new AttrMessage(result));
@@ -606,10 +612,6 @@ namespace SocialPoint.Lockstep
         void EndLockstep()
         {
             _serverLockstep.Stop();
-            if(_matchmaking == null || !_matchmaking.Enabled)
-            {
-                return;
-            }
             var results = PlayerResults;
             if(MatchFinished != null)
             {
@@ -626,7 +628,14 @@ namespace SocialPoint.Lockstep
                 }
             }
             itr.Dispose();
-            _matchmaking.NotifyResults(MatchId, resultsAttr);
+            if(_matchmaking == null || !_matchmaking.Enabled)
+            {
+                SendResults(resultsAttr);
+            }
+            else
+            {
+                _matchmaking.NotifyResults(MatchId, resultsAttr);
+            }
         }
 
         public void OnServerStarted()

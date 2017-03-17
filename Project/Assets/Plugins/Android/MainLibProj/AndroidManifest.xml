@@ -6,10 +6,7 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16" />
-
     <!-- replaced during setup -->
-    
 
     <application>
 
@@ -22,8 +19,10 @@
             android:value="\ 942387780338" />
         <meta-data android:name="com.google.android.gms.appstate.APP_ID"
             android:value="\ 942387780338" />
-        <meta-data android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
+        <meta-data android:name="com.google.android.gms.games.unityVersion"
+            android:value="\ 0.9.36" />
+        <!--<meta-data android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />-->
 
         <activity android:name="com.google.games.bridge.NativeBridgeActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />

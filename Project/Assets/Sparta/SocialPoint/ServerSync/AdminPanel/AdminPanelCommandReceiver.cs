@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if ADMIN_PANEL 
+
+using System;
 using System.Text;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
@@ -145,3 +147,5 @@ namespace SocialPoint.ServerSync
         }
     }
 }
+
+#endif

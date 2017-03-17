@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if (UNITY_ANDROID || (UNITY_IPHONE && !NO_GPGS))
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +19,7 @@ namespace SocialPoint.Social
     {
         const string GooglePlayLoginCancelledKey = "google_play_login_cancelled";
 
-        [System.Diagnostics.Conditional("DEBUG_GOOGLEPLAY")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugGooglePlayFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("GooglePlay - {0}", msg));
@@ -161,10 +163,7 @@ namespace SocialPoint.Social
         void OnLoginEnd(Error err)
         {
             DebugLog("OnLoginEnd - Error: " + err);
-            if(!Error.IsNullOrEmpty(err))
-            {
-                HasCancelledLogin = true;    
-            }
+            HasCancelledLogin |= !Error.IsNullOrEmpty(err);
 
             _connecting = false;
             NotifyStateChanged();
@@ -268,7 +267,8 @@ namespace SocialPoint.Social
             }
         }
 
-        public bool HasCancelledLogin {
+        public bool HasCancelledLogin
+        {
             get
             {
                 return PlayerPrefs.HasKey(GooglePlayLoginCancelledKey);
@@ -743,3 +743,4 @@ namespace SocialPoint.Social
         #endregion
     }
 }
+#endif

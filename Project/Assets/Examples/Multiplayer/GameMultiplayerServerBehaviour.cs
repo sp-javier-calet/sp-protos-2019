@@ -25,7 +25,6 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
         Pickup
     }
 
-    INetworkServer _server;
     NetworkServerSceneController _controller;
 
     Dictionary<int,int> _updateTimes;
@@ -43,9 +42,8 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     List<int> _toDestroy = new List<int>();
 
-    public GameMultiplayerServerBehaviour(INetworkServer server, NetworkServerSceneController ctrl, IPhysicsDebugger physicsDebugger = null)
+    public GameMultiplayerServerBehaviour(NetworkServerSceneController ctrl, IPhysicsDebugger physicsDebugger = null)
     {
-        _server = server;
         _controller = ctrl;
         _controller.RegisterReceiver(this);
         _controller.RegisterAction<MovementAction>(GameMsgType.MovementAction, MovementAction.Apply);
@@ -152,7 +150,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void SendExplosionEvent(Transform t)
     {
-        _server.SendMessage(new NetworkMessageData {
+        _controller.Server.SendMessage(new NetworkMessageData {
             MessageType = GameMsgType.ExplosionEvent
         }, new ExplosionEvent {
             Position = t.Position
@@ -161,7 +159,7 @@ public class GameMultiplayerServerBehaviour : INetworkServerSceneReceiver, IDisp
 
     void SendPathEvent(StraightPath path)
     {
-        _server.SendMessage(new NetworkMessageData {
+        _controller.Server.SendMessage(new NetworkMessageData {
             MessageType = GameMsgType.PathEvent
         }, new PathEvent {
             Points = MultiplayerExtensionsBridge.StraightPathToVectors(path)

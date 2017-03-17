@@ -20,7 +20,7 @@ namespace SocialPoint.GrayboxLibrary
         private static string[] _categories;
         public static string Filter = "";
         public static List<string> Filters = new List<string>();
-        private static float _timeFilterUpdated = Time.realtimeSinceStartup;
+        private static float _timeFilterUpdated;
         private static bool _filterUpdated = false;
         private static bool _displayFilterOptions = false;
         private static string _currentSelectedOption = "";
@@ -42,7 +42,7 @@ namespace SocialPoint.GrayboxLibrary
 
         public static GrayboxLibraryWindow Window;
 
-        private static float _timeKeyPressed = Time.realtimeSinceStartup;
+        private static float _timeKeyPressed;
         private const float _keyDelay = 0.2f;
         private static int _focusChangeDelay = 0;
 
@@ -53,7 +53,7 @@ namespace SocialPoint.GrayboxLibrary
 
         private static bool _secondGUIDraw = false;
         private static bool _wasInactive = false;
-        private static Scene _previousScene = SceneManager.GetActiveScene();
+        private static Scene _previousScene;
 
         private static GrayboxLibraryInspectorDummy _inspectorDummyA, _inspectorDummyB;
         private static int _currentInspectorDummy = 0;

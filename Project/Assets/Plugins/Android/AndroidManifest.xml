@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="es.socialpoint.basegame" android:installLocation="preferExternal" android:versionCode="1" android:versionName="1.0">
   <supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:xlargeScreens="true" android:anyDensity="true" />
-  <uses-sdk android:minSdkVersion="15" android:targetSdkVersion="23" />
   <permission android:name="es.socialpoint.basegame.permission.C2D_MESSAGE" android:protectionLevel="signature">
   </permission>
   <uses-permission android:name="es.socialpoint.basegame.permission.C2D_MESSAGE" />
@@ -54,7 +53,6 @@
     <activity android:name="com.fyber.unity.ads.RewardedVideoUnityActivity" android:configChanges="screenSize|orientation" android:theme="@android:style/Theme.Translucent" android:hardwareAccelerated="true" />
     <activity android:name="com.fyber.unity.ads.InterstitialUnityActivity" android:configChanges="screenSize|orientation" android:theme="@android:style/Theme.Translucent" />
     <service android:name="com.fyber.cache.CacheVideoDownloadService" android:exported="false" />
-    <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
     <activity android:name="com.jirbo.adcolony.AdColonyOverlay" android:configChanges="keyboardHidden|orientation|screenSize" android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
     <activity android:name="com.jirbo.adcolony.AdColonyFullscreen" android:configChanges="keyboardHidden|orientation|screenSize" android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />
     <activity android:name="com.jirbo.adcolony.AdColonyBrowser" android:configChanges="keyboardHidden|orientation|screenSize" android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" />

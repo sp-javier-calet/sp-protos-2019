@@ -1,3 +1,5 @@
+#if ADMIN_PANEL 
+
 using System;
 using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
@@ -69,3 +71,5 @@ namespace SocialPoint.Attributes
         }
     }
 }
+
+#endif
