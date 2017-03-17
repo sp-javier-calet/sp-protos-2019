@@ -16,7 +16,7 @@ namespace SocialPoint.Helpshift
     {
         const string HSPluginVersion = "2.6.1";
 
-        const string HelpshiftAndroidConfigPath = "Plugins/Android/res/raw/";
+        const string HelpshiftAndroidConfigPath = "Plugins/Android/main/res/raw/";
         const string HelpshiftAndroidConfigFile = "helpshiftinstallconfig.json";
 
         const string HelpshiftIosConfigPath = "Plugins/iOS/";
