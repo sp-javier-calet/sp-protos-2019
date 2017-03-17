@@ -59,7 +59,7 @@ namespace SocialPoint.Social
 
         void SetupUnityGoogle(UnityGoogle google)
         {
-            google.Scheduler = Container.Resolve<IUpdateScheduler>();
+            google.Scheduler = Container.Resolve<SocialPoint.Utils.IUpdateScheduler>();
         }
 
         #endif
