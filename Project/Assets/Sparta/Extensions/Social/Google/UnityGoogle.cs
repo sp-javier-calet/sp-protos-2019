@@ -74,6 +74,8 @@ namespace SocialPoint.Social
 
         public void Login(ErrorDelegate cbk, bool silent = false)
         {
+            DebugUtils.Assert(_scheduler != null, "UnityGoogle is not scheduled for update");
+
             DebugLog("Login");
             if(IsConnected)
             {
@@ -95,18 +97,8 @@ namespace SocialPoint.Social
                 DebugLog("Login - Authenticate success: " + success);
                 DebugLog("Login - Authenticate with local user: " + _platform.localUser.userName);
                 _loginSuccess = success;
-                DispatchMainThread(UpdateAfterLogin);
+                DispatchMainThread(OnLogin);
             }, silent);
-        }
-
-        void UpdateAfterLogin()
-        {
-            DebugLog("UpdateAfterLogin");
-            DebugUtils.Assert(_loginCallback != null);
-            if(_loginCallback != null)
-            {
-                OnLogin();
-            }
         }
 
         void LoadDescriptionAchievements()
