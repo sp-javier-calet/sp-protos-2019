@@ -1,13 +1,16 @@
-﻿using SocialPoint.AdminPanel;
-using SocialPoint.AppEvents;
+﻿using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Login;
 using SocialPoint.Dependency;
 using System;
 
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
+
 namespace SocialPoint.Marketing
 {
-    public class MarketingInstaller : ServiceInstaller
+    public class MarketingInstaller : ServiceInstaller, IInitializable
     {
         [Serializable]
         public class SettingsData
@@ -21,7 +24,15 @@ namespace SocialPoint.Marketing
         {
             Container.Rebind<IMarketingAttributionManager>().ToMethod<IMarketingAttributionManager>(CreateMarketingAttributionManager, SetupMarketingAttributionManager);
             Container.Bind<IDisposable>().ToLookup<IMarketingAttributionManager>();
+
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMarketing>(CreateAdminPanelMarketing);
+            #endif
+        }
+
+        public void Initialize()
+        {
+            Container.Bind<IInitializable>().ToInstance(this);
         }
 
         public IMarketingAttributionManager CreateMarketingAttributionManager()
@@ -42,11 +53,13 @@ namespace SocialPoint.Marketing
             manager.LoginData = Container.Resolve<ILoginData>();
         }
 
+        #if ADMIN_PANEL
         public AdminPanelMarketing CreateAdminPanelMarketing()
         {
             var adminPanel = new AdminPanelMarketing(Container.Resolve<IMarketingAttributionManager>(), Container.Resolve<IAttrStorage>("persistent"));
             return adminPanel;
         }
+        #endif
     }
 }
 

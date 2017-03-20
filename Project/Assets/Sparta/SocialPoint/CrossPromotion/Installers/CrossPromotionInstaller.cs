@@ -1,8 +1,11 @@
 ﻿using System;
-using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.ServerEvents;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.CrossPromotion
 {
@@ -18,7 +21,10 @@ namespace SocialPoint.CrossPromotion
         public override void InstallBindings()
         {
             Container.Listen<CrossPromotionManager>().WhenResolved(SetupManager);
+
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCrossPromotion>(CreateAdminPanel);
+            #endif
         }
 
         void SetupManager(CrossPromotionManager mng)
@@ -29,9 +35,11 @@ namespace SocialPoint.CrossPromotion
             mng.AppEvents = Container.Resolve<IAppEvents>();
         }
 
+        #if ADMIN_PANEL
         AdminPanelCrossPromotion CreateAdminPanel()
         {
             return new AdminPanelCrossPromotion(Container.Resolve<CrossPromotionManager>());
         }
+        #endif
     }
 }

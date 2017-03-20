@@ -1,9 +1,12 @@
 ﻿using System;
-using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.ServerSync;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.ServerMessaging
 {
@@ -29,15 +32,20 @@ namespace SocialPoint.ServerMessaging
             }
 
             Container.Bind<IDisposable>().ToLookup<IMessageCenter>();
+
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelMessageCenter>(CreateAdminPanel);
+            #endif
         }
 
+        #if ADMIN_PANEL
         AdminPanelMessageCenter CreateAdminPanel()
         {
             return new AdminPanelMessageCenter(
                 Container.Resolve<IMessageCenter>(),
                 Container.Resolve<ILoginData>());
         }
+        #endif
 
         MessageCenter CreateMessageCenter()
         {

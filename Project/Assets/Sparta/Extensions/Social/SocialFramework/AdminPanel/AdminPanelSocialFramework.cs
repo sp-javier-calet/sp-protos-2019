@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if ADMIN_PANEL 
+
+using System;
 using System.Text;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
@@ -315,3 +317,5 @@ namespace SocialPoint.Social
         #endregion
     }
 }
+
+#endif

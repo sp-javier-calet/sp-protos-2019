@@ -10,9 +10,9 @@ namespace Examples.Multiplayer
     {
         string _navMeshFileLocation = "\\..\\data\\test_navmesh";
 
-        public object Create(INetworkServer server, NetworkServerSceneController ctrl, Dictionary<string, string> config)
+        public object Create(NetworkServerSceneController ctrl, Dictionary<string, string> config)
         {
-            var gameServer = new GameMultiplayerServerBehaviour(server, ctrl); 
+            var gameServer = new GameMultiplayerServerBehaviour(ctrl); 
             string navmeshPath = Assembly.GetExecutingAssembly().Location + _navMeshFileLocation;
             string errorMsg;
             if (!gameServer.LoadNavMesh(navmeshPath, out errorMsg))

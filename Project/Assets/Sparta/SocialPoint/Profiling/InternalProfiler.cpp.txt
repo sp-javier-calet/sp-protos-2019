@@ -139,8 +139,12 @@ Profiler_FrameEnd()
 	_swapStart = mach_absolute_time();
 }
 
-void
-Profiler_FrameUpdate(const UnityFrameStats* unityFrameStats)
+void Profiler_FrameUpdate(const UnityFrameStats* unityFrameStats)
+{
+	Profiler_FramePresent(unityFrameStats);
+}
+
+void Profiler_FramePresent(const UnityFrameStats* unityFrameStats)
 {
 	if (!unityFrameStats)
 		return;

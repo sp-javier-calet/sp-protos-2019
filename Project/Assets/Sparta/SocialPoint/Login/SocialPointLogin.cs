@@ -471,7 +471,7 @@ namespace SocialPoint.Login
             return false;
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPLOGIN")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugLoginFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("SocialPointLogin {0}", msg));
@@ -2074,7 +2074,7 @@ namespace SocialPoint.Login
 
         public void AddForcedErrorRequestParams(HttpRequest req)
         {
-            #pragma warning disable 0162
+            #if ADMIN_PANEL
             if(AdminPanel.AdminPanel.IsAvailable)
             {
                 if(!string.IsNullOrEmpty(_forcedErrorCode))
@@ -2086,7 +2086,7 @@ namespace SocialPoint.Login
                     req.AddParam(HttpParamForcedErrorType, _forcedErrorType);
                 }
             }
-            #pragma warning restore 0162
+            #endif
         }
 
         #endregion

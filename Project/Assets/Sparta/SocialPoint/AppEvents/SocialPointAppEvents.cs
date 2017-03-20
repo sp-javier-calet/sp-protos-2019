@@ -65,6 +65,14 @@ namespace SocialPoint.AppEvents
             }
         }
 
+        public PriorityAction WasOnBackground
+        {
+            get
+            {
+                return _appEvents == null ? _default : _appEvents.WasOnBackground;
+            }
+        }
+
         public PriorityCoroutineAction AfterGameWasLoaded
         {
             get
@@ -107,6 +115,15 @@ namespace SocialPoint.AppEvents
             _appEvents.TriggerWillGoBackground();
         }
 
+        public void TriggerWasOnBackground()
+        {
+            if(_appEvents == null)
+            {
+                return;
+            }
+            _appEvents.TriggerWasOnBackground();
+        }
+
         public void TriggerGameWasLoaded()
         {
             if(_appEvents == null)
@@ -132,26 +149,6 @@ namespace SocialPoint.AppEvents
                 return;
             }
             _appEvents.TriggerApplicationQuit();
-        }
-
-        public event Action WasOnBackground
-        {
-            add
-            {
-                if(_appEvents == null)
-                {
-                    return;
-                }
-                _appEvents.WasOnBackground += value;
-            }
-            remove
-            {
-                if(_appEvents == null)
-                {
-                    return;
-                }
-                _appEvents.WasOnBackground -= value;
-            }
         }
 
         public event Action WasCovered

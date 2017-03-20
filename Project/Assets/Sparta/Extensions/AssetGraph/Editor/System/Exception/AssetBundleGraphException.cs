@@ -1,11 +1,14 @@
-﻿using System;
+using System;
 using UnityEngine;
 using System.Collections;
 
-namespace AssetBundleGraph {
+namespace AssetBundleGraph
+{
 
-	public class AssetBundleGraphException : Exception {
-		public AssetBundleGraphException(string message) : base(message) {
-		}
-	}
+    public class AssetBundleGraphException : Exception
+    {
+        public AssetBundleGraphException(string message) : base(message)
+        {
+        }
+    }
 }

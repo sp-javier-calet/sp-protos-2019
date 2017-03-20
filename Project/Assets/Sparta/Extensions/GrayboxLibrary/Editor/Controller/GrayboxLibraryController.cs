@@ -59,7 +59,7 @@ namespace SocialPoint.GrayboxLibrary
         {
             GrayboxAsset asset = null;
 
-            MySqlCommand command = new MySqlCommand("SELECT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path, a.creation_date FROM asset a WHERE a.name LIKE @NAME");
+            MySqlCommand command = new MySqlCommand("SELECT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path, DATE_FORMAT(a.creation_date, '%m/%d/%Y %H:%i:%s') as 'creation_date' FROM asset a WHERE a.name LIKE @NAME");
             command.Parameters.AddWithValue("@NAME",name);
 
             ArrayList queryResult = _dbController.ExecuteQuery(command);
@@ -103,7 +103,7 @@ namespace SocialPoint.GrayboxLibrary
                 commandTag.Parameters.AddWithValue("@TAG"+i, tag);
             }
 
-            string sql = "SELECT DISTINCT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path, a.creation_date "
+            string sql = "SELECT DISTINCT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path, DATE_FORMAT(a.creation_date, '%m/%d/%Y %H:%i:%s') as 'creation_date' "
                          + "FROM asset a " + commandTag.CommandText + " WHERE a.category LIKE '" + category.ToString() + "' ORDER BY a.name ASC, a.creation_date DESC LIMIT " + startLimit + "," + endLimit;
             
             MySqlCommand command = new MySqlCommand(sql);
@@ -146,7 +146,7 @@ namespace SocialPoint.GrayboxLibrary
         {
             ArrayList assets = new ArrayList();
 
-            string sql = "SELECT DISTINCT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path,  a.creation_date "
+            string sql = "SELECT DISTINCT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path,  DATE_FORMAT(a.creation_date, '%m/%d/%Y %H:%i:%s') as 'creation_date' "
                          + "FROM asset a WHERE a.category LIKE '" + category.ToString() + "'";
 
             MySqlCommand commandFilteredSQL = new MySqlCommand("");

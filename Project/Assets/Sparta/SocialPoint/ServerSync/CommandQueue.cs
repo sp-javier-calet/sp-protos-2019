@@ -107,7 +107,7 @@ namespace SocialPoint.ServerSync
             appEvents.WillGoBackground.Add(-25, OnAppWillGoBackground);
             appEvents.GameWillRestart.Add(-25, OnGameWillRestart);
             appEvents.GameWasLoaded.Add(-1000, OnGameWasLoaded);
-            appEvents.WasOnBackground += OnWasOnBackground;
+            appEvents.WasOnBackground.Add(0, OnWasOnBackground);
         }
 
         void DisconnectAppEvents(IAppEvents appEvents)
@@ -115,7 +115,7 @@ namespace SocialPoint.ServerSync
             appEvents.WillGoBackground.Remove(OnAppWillGoBackground);
             appEvents.GameWillRestart.Remove(OnGameWillRestart);
             appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
-            appEvents.WasOnBackground -= OnWasOnBackground;
+            appEvents.WasOnBackground.Remove(OnWasOnBackground);
         }
 
         void OnGameWasLoaded()
