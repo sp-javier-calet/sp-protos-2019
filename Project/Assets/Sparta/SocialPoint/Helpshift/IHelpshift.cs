@@ -13,8 +13,6 @@ namespace SocialPoint.Helpshift
 
         public ContactMode Mode { get; set; }
 
-        public bool InAppNotificationEnabled { get; set; }
-
         public bool SearchOnNewConversationEnabled { get; set; }
 
         public bool ConversationResolutionQuestionEnabled { get; set; }

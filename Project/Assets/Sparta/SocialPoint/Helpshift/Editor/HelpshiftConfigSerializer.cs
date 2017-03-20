@@ -27,6 +27,9 @@ namespace SocialPoint.Helpshift
         const string AndroidNotificationIconNameKey = "notificationIcon";
         const string AndroidNotificationLargeIconNameKey = "largeNotificationIcon";
         const string DisableErrorLoggingKey = "disableErrorLogging";
+        const string EnableInAppNotificationKey = "enableInAppNotification";
+        const string EnableDefaultFallbackLanguageKey = "enableDefaultFallbackLanguage";
+        const string DisableEntryExitAnimations = "disableEntryExitAnimations";
 
         // Install Id keys
         const string ApiKeyJsonKey = "__hs__apiKey";
@@ -53,8 +56,13 @@ namespace SocialPoint.Helpshift
             installDic.Add(PluginVersionKey, HSPluginVersion);
             installDic.Add(RuntimeVersionKey, Application.unityVersion);
 
+            installDic.Add(EnableInAppNotificationKey, YesKey);
+            installDic.Add(EnableDefaultFallbackLanguageKey, YesKey);
+
             installDic.Add(AndroidNotificationIconNameKey, NotificationIconName);
             installDic.Add(AndroidNotificationLargeIconNameKey, LargeNotificationIconName);
+
+            // Disable Error Logging, since it interferes with some native services in iOS (CrashReporter, curl/ssl...)
             installDic.Add(DisableErrorLoggingKey, YesKey);
 
             WriteInstallConfigWithId(installDic, installer.InstallSettings.AndroidAppId, HelpshiftAndroidConfigPath, HelpshiftAndroidConfigFile);

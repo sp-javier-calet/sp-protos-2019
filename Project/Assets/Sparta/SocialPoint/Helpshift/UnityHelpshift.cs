@@ -62,15 +62,6 @@ namespace SocialPoint.Helpshift
             // Controls the visibility of Contact Us button
             _configMap.Add(EnableContactUsKey, GetContactModeString(_config.Mode));
 
-            // Use in-app notification support provided by the Helpshift 
-            _configMap.Add(EnableInAppNotificationsKey, _config.InAppNotificationEnabled ? YesKey : NoKey);
-
-            // TODO Test ssl sigpipe in Android
-            // Disable Error Logging, since it interferes with some native services in iOS (CrashReporter, curl/ssl...)
-#if UNITY_IOS
-            _configMap.Add(DisableErrorLoggingKey, YesKey);
-#endif
-
             // If showSearchOnNewConversation flag is set to yes, the user will be taken to a view which shows the 
             // search results relevant to the conversation text that he has entered upon clicking the ‘Send’ button. 
             // This is to avoid tickets which are already answered in the FAQs.

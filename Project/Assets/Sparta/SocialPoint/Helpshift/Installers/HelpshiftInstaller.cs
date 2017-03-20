@@ -30,8 +30,6 @@ namespace SocialPoint.Helpshift
 
             public HelpshiftConfiguration.ContactMode Mode = HelpshiftConfiguration.ContactMode.CONTACT_US_ALWAYS;
 
-            public bool InAppNotificationEnabled;
-
             public bool SearchOnNewConversationEnabled;
 
             public bool ConversationResolutionQuestionEnabled;
@@ -81,7 +79,6 @@ namespace SocialPoint.Helpshift
         {           
             var hsconfig = new HelpshiftConfiguration() {
                 Mode = Settings.Mode,
-                InAppNotificationEnabled = Settings.InAppNotificationEnabled,
                 SearchOnNewConversationEnabled = Settings.SearchOnNewConversationEnabled,
                 ConversationResolutionQuestionEnabled = Settings.ConversationResolutionQuestionEnabled
             };
