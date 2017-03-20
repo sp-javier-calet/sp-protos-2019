@@ -64,7 +64,7 @@ private:
     const uint8_t* _pinnedPublicKey;
     size_t _pinnedPublicKeySize;
     
-    CURL* create(CurlRequestInfo& req);
+    CURL* create(CurlRequest req);
     
 public:
     CurlClient(bool enableHttp2);

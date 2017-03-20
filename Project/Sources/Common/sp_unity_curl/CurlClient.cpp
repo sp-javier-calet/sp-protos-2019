@@ -172,7 +172,7 @@ void CurlClient::setVerbose(bool verbose)
     _verbose = verbose;
 }
 
-CURL* CurlClient::create(CurlRequestInfo& req)
+CURL* CurlClient::create(CurlRequest req)
 {
     CURL* curl = curl_easy_init();
     if(!curl)
@@ -180,7 +180,7 @@ CURL* CurlClient::create(CurlRequestInfo& req)
         return curl;
     }
 
-    std::string url = (req.url + "?" + req.query).c_str();
+    std::string url = (std::string(req.url) + "?" + std::string(req.query)).c_str();
 
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 
@@ -188,23 +188,23 @@ CURL* CurlClient::create(CurlRequestInfo& req)
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
     curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 10);
 
-    if(req.method == "GET")// method
+    if(strcmp(req.method, "GET") == 0)// method
     {
         curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
     }
-    else if(req.method == "POST")
+    else if(strcmp(req.method, "POST") == 0)
     {
         curl_easy_setopt(curl, CURLOPT_POST, 1);
     }
-    else if(req.method == "PUT")
+    else if(strcmp(req.method, "PUT") == 0)
     {
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
     }
-    else if(req.method == "DELETE")
+    else if(strcmp(req.method, "DELETE") == 0)
     {
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
     }
-    else if(req.method == "HEAD")
+    else if(strcmp(req.method, "HEAD") == 0)
     {
         curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
     }
@@ -220,9 +220,9 @@ CURL* CurlClient::create(CurlRequestInfo& req)
         curl_easy_setopt(curl, CURLOPT_TIMEOUT, req.timeout);
     }
 
-    if(!req.proxy.empty())
+    if(req.proxy != nullptr && strlen(req.proxy) > 0)
     {
-        curl_easy_setopt(curl, CURLOPT_PROXY, req.proxy.c_str());
+        curl_easy_setopt(curl, CURLOPT_PROXY, req.proxy);
         curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
     }
 
@@ -239,13 +239,13 @@ CURL* CurlClient::create(CurlRequestInfo& req)
     }
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 
-    if(!req.body.empty())
+    if(req.bodyLength > 0)
     {
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, req.body.c_str());
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, req.body.length());
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, req.body);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, req.bodyLength);
     }
 
-    if(!req.headers.empty())
+    if(req.headers != nullptr)
     {
         std::vector<std::string> headersData = split(req.headers, "\n");
         curl_slist* headers = nullptr;
@@ -261,6 +261,7 @@ CURL* CurlClient::create(CurlRequestInfo& req)
     {
         curl_easy_setopt(curl, CURLOPT_VERBOSE, true);
     }
+
     return curl;
 }
 
@@ -272,25 +273,15 @@ bool CurlClient::send(CurlRequest req)
     {
         return false;
     }
-    
-    // Copy request data to c++ managed memory
-    conn.request.url = req.url;
-    conn.request.query = req.query;
-    conn.request.method = req.method;
-    conn.request.proxy = req.proxy;
-    conn.request.headers = req.headers;
-    conn.request.body = std::string((const char*)req.body, req.bodyLength);
-    conn.request.timeout = req.timeout;
-    conn.request.activityTimeout = req.activityTimeout;
-    
-    conn.easy = create(conn.request);
+
+    conn.easy = create(req);
     if(!conn.easy)
     {
         return false;
     }
-    
+
     curl_easy_setopt(conn.easy, CURLOPT_HEADERFUNCTION, write_to_string);
-    curl_easy_setopt(conn.easy, CURLOPT_HEADERDATA, &conn.response.headers);
+    curl_easy_setopt(conn.easy, CURLOPT_HEADERDATA, &conn.headersBuffer);
     curl_easy_setopt(conn.easy, CURLOPT_PRIVATE, &conn);
 
     if(_supportsHttp2)
@@ -310,16 +301,16 @@ bool CurlClient::send(CurlRequest req)
     {
         curl_easy_setopt(conn.easy, CURLOPT_WRITEFUNCTION, write_to_string);
 
-        curl_easy_setopt(conn.easy, CURLOPT_WRITEDATA, &conn.response.body);
+        curl_easy_setopt(conn.easy, CURLOPT_WRITEDATA, &conn.bodyBuffer);
     }
 
-    conn.response.body.clear();
-    conn.response.headers.clear();
+    conn.bodyBuffer.clear();
+    conn.headersBuffer.clear();
     CURLMcode rc = curl_multi_add_handle(_multi, conn.easy);
 
     if(rc != CURLM_OK)
     {
-        conn.response.error = curl_multi_strerror(rc);
+        conn.errorBuffer = curl_multi_strerror(rc);
         return false;
     }
 
@@ -349,20 +340,20 @@ void CurlClient::update()
 
             if(msg->data.result != CURLE_OK)
             {
-                conn->response.error = curl_easy_strerror(msg->data.result);
-                conn->response.errorCode = msg->data.result;
+                conn->errorBuffer = curl_easy_strerror(msg->data.result);
+                conn->errorCode = msg->data.result;
             }
             else
             {
                 long code = 0;
                 curl_easy_getinfo(easy, CURLINFO_RESPONSE_CODE, &code);
-                conn->response.code = (int)code;
+                conn->responseCode = (int)code;
             }
 
-            curl_easy_getinfo(easy, CURLINFO_CONNECT_TIME, &conn->response.connectTime);
-            curl_easy_getinfo(easy, CURLINFO_TOTAL_TIME, &conn->response.totalTime);
-            curl_easy_getinfo(easy, CURLINFO_SIZE_DOWNLOAD, &conn->response.downloadSize);
-            curl_easy_getinfo(easy, CURLINFO_SPEED_DOWNLOAD, &conn->response.downloadSpeed);
+            curl_easy_getinfo(easy, CURLINFO_CONNECT_TIME, &conn->connectTime);
+            curl_easy_getinfo(easy, CURLINFO_TOTAL_TIME, &conn->totalTime);
+            curl_easy_getinfo(easy, CURLINFO_SIZE_DOWNLOAD, &conn->downloadSize);
+            curl_easy_getinfo(easy, CURLINFO_SPEED_DOWNLOAD, &conn->downloadSpeed);
 
             curl_multi_remove_handle(_multi, easy);
             curl_easy_cleanup(easy);
@@ -385,7 +376,7 @@ bool CurlClient::update(int id)
 bool CurlClient::isFinished(int id)
 {
     CurlConnection& conn = _connections.get(id);
-    if(!conn.isValid || conn.response.code != 0 || conn.response.errorCode != 0)
+    if(!conn.isValid || conn.responseCode != 0 || conn.errorCode != 0)
     {
         return true;
     }
@@ -454,7 +445,7 @@ double CurlClient::getTime(int id)
     CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
-        return conn.response.connectTime;
+        return conn.connectTime;
     }
     return 0;
 }
@@ -464,7 +455,7 @@ double CurlClient::getTotalTime(int id)
     CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
-        return conn.response.totalTime;
+        return conn.totalTime;
     }
     return 0;
 }
@@ -474,7 +465,7 @@ double CurlClient::getDownloadSize(int id)
     CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
-        return conn.response.downloadSize;
+        return conn.downloadSize;
     }
     return 0;
 }
@@ -485,7 +476,7 @@ double CurlClient::getDownloadSpeed(int id)
     CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
-        return conn.response.downloadSpeed;
+        return conn.downloadSpeed;
     }
     return 0;
 }
@@ -495,7 +486,7 @@ int CurlClient::getResponseCode(int id)
     CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
-        return conn.response.code;
+        return conn.responseCode;
     }
     return 0;
 }
@@ -505,7 +496,7 @@ int CurlClient::getErrorCode(int id)
     CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
-        return conn.response.errorCode;
+        return conn.errorCode;
     }
     return 0;
 }
@@ -515,7 +506,7 @@ bool CurlClient::getError(int id, char* data)
     CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
-        memcpy(data, conn.response.error.c_str(), conn.response.error.length() * sizeof(char));
+        memcpy(data, conn.errorBuffer.c_str(), conn.errorBuffer.length() * sizeof(char));
         return true;
     }
     return false;
@@ -526,7 +517,7 @@ bool CurlClient::getBody(int id, char* data)
     CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
-        memcpy(data, conn.response.body.c_str(), conn.response.body.length() * sizeof(char));
+        memcpy(data, conn.bodyBuffer.c_str(), conn.bodyBuffer.length() * sizeof(char));
         return true;
     }
     return false;
@@ -537,7 +528,7 @@ bool CurlClient::getHeaders(int id, char* data)
     CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
-        memcpy(data, conn.response.headers.c_str(), conn.response.headers.length() * sizeof(char));
+        memcpy(data, conn.headersBuffer.c_str(), conn.headersBuffer.length() * sizeof(char));
         return true;
     }
     return false;
@@ -555,7 +546,7 @@ int CurlClient::getErrorLength(int id)
     CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
-        return (int)conn.response.error.length();
+        return (int)conn.errorBuffer.length();
     }
     return 0;
 }
@@ -565,7 +556,7 @@ int CurlClient::getBodyLength(int id)
     CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
-        return (int)conn.response.body.length();
+        return (int)conn.bodyBuffer.length();
     }
     return 0;
 }
@@ -575,7 +566,7 @@ int CurlClient::getHeadersLength(int id)
     CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
-        return (int)conn.response.headers.length();
+        return (int)conn.headersBuffer.length();
     }
     return 0;
 }
