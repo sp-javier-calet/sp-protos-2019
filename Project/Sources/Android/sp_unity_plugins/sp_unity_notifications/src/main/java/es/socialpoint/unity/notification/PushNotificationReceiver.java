@@ -40,6 +40,8 @@ public class PushNotificationReceiver extends BroadcastReceiver {
             return false;
         }
 
+        Log.e(TAG, "Managed push notification. Origin: socialpoint.");
+
         Bundle intentExtras = intent.getExtras();
         NotificationShower shower = NotificationShower
                 .create(context, intent.getExtras())
@@ -60,26 +62,16 @@ public class PushNotificationReceiver extends BroadcastReceiver {
     }
 
     private boolean handleExtenalPushNotification(Context context, Intent intent) {
+        Log.e(TAG, "Handling external push notification");
+
         if("helpshift".equals(intent.getStringExtra("origin"))) {
+            Log.e(TAG, "External push notification. Origin: Helpshift.");
+
             UnityAPIDelegate.installDex(context);
             InitializeHelpshiftUtil.initHelpshift(context);
             UnityAPIDelegate.handlePush(context, intent);
             return true;
         }
         return false;
-    }
-
-    protected static <T extends BroadcastReceiver> T loadHandler(String clazzName) {
-        T newInstance = null;
-
-        try {
-            Class<?> serviceClass = Class.forName(clazzName);
-            newInstance = (T) serviceClass.newInstance();
-        } catch (Exception e) {
-            Log.w(TAG, "Notification receiver class '" + clazzName + "' could not be created. Reason:");
-            e.printStackTrace();
-        }
-
-        return newInstance;
     }
 }
