@@ -43,7 +43,7 @@ extern bool _unityAppReady;
 {
     if([SPUnityApplication application:application didFinishLaunchingWithOptions:launchOptions])
     {
-        [super application:application didFinishLaunchingWithOptions:launchOptions];
+        return [super application:application didFinishLaunchingWithOptions:launchOptions];
     }
     
     return YES;

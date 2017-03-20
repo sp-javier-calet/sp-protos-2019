@@ -27,20 +27,9 @@ static std::vector<SPUnitySubController*>* _controllers = nullptr;
     _controllers = new std::vector<SPUnitySubController*>();
     
     // Check for SPUnitySubController subclasses and register the existing ones
-    
-    // MANU TODO: IMPLEMENT SPUnityAppEvents WITH THE CURRENT CODE
-    
     NSArray* extensions = @[ @"SPUnityAppEvents",
                              @"HsUnityAppController"];
     
-//    for(NSString* className in extensions)
-//    {
-//        id objClass = NSClassFromString(className);
-//        if(objClass != nil)
-//        {
-//            [objClass superclass];
-//        }
-//    }
     id parentClass = objc_getClass("SPUnitySubController");
     
     for(NSString* className in extensions)
