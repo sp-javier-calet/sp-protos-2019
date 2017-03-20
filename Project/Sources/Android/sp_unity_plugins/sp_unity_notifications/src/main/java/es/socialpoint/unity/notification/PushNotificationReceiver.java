@@ -16,6 +16,7 @@ public class PushNotificationReceiver extends BroadcastReceiver {
     private static final String TAG = "PushReceiver";
 
     private static final String MANAGED_ORIGIN = "socialpoint";
+    private static final String HELPSHIFT_ORIGIN = "helpshift";
     private static final String ORIGIN_KEY = "origin";
 
     @Override
@@ -64,7 +65,7 @@ public class PushNotificationReceiver extends BroadcastReceiver {
     private boolean handleExtenalPushNotification(Context context, Intent intent) {
         Log.e(TAG, "Handling external push notification");
 
-        if("helpshift".equals(intent.getStringExtra("origin"))) {
+        if(HELPSHIFT_ORIGIN.equals(intent.getStringExtra(ORIGIN_KEY))) {
             Log.e(TAG, "External push notification. Origin: Helpshift.");
 
             UnityAPIDelegate.installDex(context);
