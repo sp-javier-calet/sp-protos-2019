@@ -360,9 +360,20 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     foreach(var mod in _mods)
                     {
                         var filePath = editor.ReplaceProjectVariables(mod.Base, mod.Src);
-                        if(!File.Exists(filePath))
+                        if(filePath.EndsWith("/*"))
                         {
-                            return string.Format("File '{0}' does not exists", filePath); 
+                            var tempFilePath = filePath.Substring(0, filePath.Length - 1);
+                            if(!Directory.Exists(tempFilePath))
+                            {
+                                return string.Format("Directory '{0}' does not exists", tempFilePath); 
+                            }
+                        }
+                        else
+                        {
+                            if(!File.Exists(filePath))
+                            {
+                                return string.Format("File '{0}' does not exists", filePath); 
+                            }
                         }
                     }
                     return null;
@@ -670,7 +681,13 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
                 public void Add(string lang, bool createFile, string name, string path, string variantGroup)
                 {
-                    _mods.Add(new ModData{ Language = lang, CreateLocFile = createFile, Name = name, Path = path, Group = variantGroup });
+                    _mods.Add(new ModData {
+                        Language = lang,
+                        CreateLocFile = createFile,
+                        Name = name,
+                        Path = path,
+                        Group = variantGroup
+                    });
                 }
 
                 public override void Apply(XcodeEditorInternal editor)
@@ -679,7 +696,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     {
                         if(mod.CreateLocFile)
                         {
-                            var folderName =  string.Format("{0}{1}", mod.Language, DefaultLocalizationProjSuffix);
+                            var folderName = string.Format("{0}{1}", mod.Language, DefaultLocalizationProjSuffix);
                             var groupPath = Path.Combine(editor.Project.ProjectPath, folderName);
                             var filePath = Path.Combine(groupPath, DefaultLocalizationGroupName);
 

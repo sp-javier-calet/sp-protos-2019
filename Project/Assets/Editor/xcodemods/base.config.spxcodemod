@@ -14,8 +14,7 @@
     "IPHONEOS_DEPLOYMENT_TARGET": "7.0",
     "CODE_SIGN_ENTITLEMENTS": "Unity-iPhone.entitlements",
     "ENABLE_BITCODE": "NO",
-    "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym",
-    "DEBUG_INFORMATION_FORMAT[sdk=iphoneos*]": "dwarf-with-dsym"
+    "DEBUG_INFORMATION_FORMAT": "dwarf-with-dsym"
   },
   "shellScripts": [
     {

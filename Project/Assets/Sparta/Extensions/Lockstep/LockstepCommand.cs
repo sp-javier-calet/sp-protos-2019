@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using SocialPoint.Attributes;
 using SocialPoint.IO;
 using SocialPoint.Utils;
 
@@ -12,6 +13,10 @@ namespace SocialPoint.Lockstep
     [System.Serializable]
     public sealed class LockstepConfig : INetworkShareable
     {
+        const string CommandStepDurationAttrKey = "command_step_duration";
+        const string SimulationStepDurationAttrKey = "simulation_step_duration";
+        const string MaxSkippedEmptyTurnsAttrKey = "max_skipped_empty_turns";
+
         public const int DefaultCommandStepDuration = 100;
         public const int DefaultSimulationStepDuration = 10;
         public const int DefaultMaxSkippedEmptyTurns = 0;
@@ -42,6 +47,15 @@ namespace SocialPoint.Lockstep
             return string.Format("[LockstepConfig\n" +
             "SimulationStepDuration:{0}\n" +
             "CommandStepDuration:{1}]", SimulationStepDuration, CommandStepDuration);
+        }
+
+        public Attr ToAttr()
+        {
+            var attrDic = new AttrDic();
+            attrDic.Set(CommandStepDurationAttrKey, new AttrInt(CommandStepDuration));
+            attrDic.Set(SimulationStepDurationAttrKey, new AttrInt(SimulationStepDuration));
+            attrDic.Set(MaxSkippedEmptyTurnsAttrKey, new AttrInt(MaxSkippedEmptyTurns));
+            return attrDic;
         }
     }
 

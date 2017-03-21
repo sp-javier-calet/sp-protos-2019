@@ -1,18 +1,24 @@
 ﻿using System.Collections.Generic;
 using System;
 using SocialPoint.Utils;
-using SocialPoint.Base;
+using SocialPoint.Network.ServerEvents;
 
 namespace SocialPoint.Lockstep
 {
     public sealed class LockstepServer : IUpdateable, IDisposable
     {
+        const string TurnProcessingTimeMetricName = "multiplayer.lockstep.turn_processing_time";
+        const string TurnProcessingTimeExceedMetricName = "multiplayer.lockstep.turn_processing_time_exceed";
+        public int MetricSendInterval = LockstepServerConfig.DefaultMetricSendInterval;
+        int _timeSendMetric;
+
         int _time;
         long _timestamp;
         int _lastCmdTime;
         IUpdateScheduler _updateScheduler;
         Dictionary<int, ServerTurnData> _turns;
         int _pendingEmptyTurns;
+        List<int> _processingTimes;
 
         public bool Running{ get; private set; }
 
@@ -22,6 +28,8 @@ namespace SocialPoint.Lockstep
 
         public event Action<ServerTurnData> TurnReady;
         public event Action<int> EmptyTurnsReady;
+
+        public Action<Metric> SendMetric;
 
         public int UpdateTime
         {
@@ -54,6 +62,7 @@ namespace SocialPoint.Lockstep
             _updateScheduler = updateScheduler;
             _turns = new Dictionary<int, ServerTurnData>();
             _pendingEmptyTurns = 0;
+            _processingTimes = new List<int>();
             Stop();
         }
 
@@ -164,6 +173,12 @@ namespace SocialPoint.Lockstep
                 _localClient.Update(dt);
             }
             _time += dt;
+            _timeSendMetric += dt;
+            if(_timeSendMetric > MetricSendInterval)
+            {
+                _timeSendMetric -= MetricSendInterval;
+                SendAverageProcessingTime();
+            }
             while(true)
             {
                 var nextCmdTime = _lastCmdTime + Config.CommandStepDuration;
@@ -233,6 +248,21 @@ namespace SocialPoint.Lockstep
             UnregisterLocalClient();
         }
 
+        void SendAverageProcessingTime()
+        {
+            if(SendMetric == null)
+            {
+                return;
+            }
+            var sum = 0;
+            for(int i = 0; i < _processingTimes.Count; i++)
+            {
+                sum += _processingTimes[i];
+            }
+            SendMetric(new Metric(MetricType.Gauge, TurnProcessingTimeMetricName, sum > 0 ? (int)sum/_processingTimes.Count : 0));
+            _processingTimes.Clear();
+        }
+
         #region local client implementation
 
         LockstepClient _localClient;
@@ -243,6 +273,7 @@ namespace SocialPoint.Lockstep
             if(_localClient != null)
             {
                 _localClient.CommandAdded -= AddPendingLocalClientCommand;
+                _localClient.TurnApplied -= OnLocalClientTurnApplied;
             }
             _localClient = null;
             _localFactory = null;
@@ -256,12 +287,26 @@ namespace SocialPoint.Lockstep
             _localClient.Config = Config;
             _localClient.GameParams = GameParams;
             _localClient.CommandAdded += AddPendingLocalClientCommand;
+            _localClient.TurnApplied += OnLocalClientTurnApplied;
         }
 
         void AddPendingLocalClientCommand(ClientCommandData command)
         {
             var serverCommand = command.ToServer(_localFactory);
             AddCommand(serverCommand);
+        }
+
+        private void OnLocalClientTurnApplied(ClientTurnData data)
+        {
+            if(SendMetric == null)
+            {
+                return;
+            }
+            if(data.ProcessTime >= Config.CommandStepDuration)
+            {
+                SendMetric(new Metric(MetricType.Counter, TurnProcessingTimeExceedMetricName, 1));
+            }
+            _processingTimes.Add((int)data.ProcessTime);
         }
 
         void ConfirmLocalClientTurn(ServerTurnData turn)
