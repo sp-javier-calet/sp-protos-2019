@@ -1,4 +1,8 @@
-﻿using System;
+﻿#if(UNITY_ANDROID || (UNITY_IPHONE && !NO_GPGS))
+#define GOOGLE_SUPPORTED
+#endif
+
+using System;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.ServerEvents;
@@ -23,7 +27,7 @@ namespace SocialPoint.Social
 
         public override void InstallBindings()
         {
-            #if UNITY_ANDROID
+            #if GOOGLE_SUPPORTED
             if(Settings.UseEmpty)
             {
                 Container.Rebind<IGoogle>().ToSingle<EmptyGoogle>();
@@ -50,7 +54,7 @@ namespace SocialPoint.Social
             #endif
         }
 
-        #if UNITY_ANDROID
+        #if GOOGLE_SUPPORTED
 
         UnityGoogle CreateUnityGoogle()
         {
