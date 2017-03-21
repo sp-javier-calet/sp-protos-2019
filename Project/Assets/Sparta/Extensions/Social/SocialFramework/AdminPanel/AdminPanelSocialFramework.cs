@@ -68,15 +68,16 @@ namespace SocialPoint.Social
         {
             _layout = layout;
 
-            var connected = _connection.IsConnected;
+            var connected = Reflection.GetPrivateProperty<ConnectionManager, bool>(_connection, "IsSocketConnected");
 
             layout.CreateLabel("Social Framework");
             layout.CreateMargin();
 
-            var connectLabel = _connection.IsConnecting ? "Connecting..." : "Connect";
+            var connecting = Reflection.GetPrivateProperty<ConnectionManager, bool>(_connection, "IsSocketConnecting");
+            var connectLabel = connecting ? "Connecting..." : "Connect";
             layout.CreateToggleButton(connectLabel, connected, value => {
                 // Abort connection
-                if(_connection.IsConnecting)
+                if(Reflection.GetPrivateProperty<ConnectionManager, bool>(_connection, "IsSocketConnecting"))
                 {
                     _connection.Disconnect();
                 }

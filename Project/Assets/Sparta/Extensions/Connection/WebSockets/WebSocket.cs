@@ -41,8 +41,6 @@ namespace SocialPoint.WebSockets
 
         WebSocketState _lastState;
 
-        bool ForceNotifyState;
-
         string[] _urls;
 
         WebSocketState State
@@ -101,7 +99,6 @@ namespace SocialPoint.WebSockets
 
         public void Connect()
         {
-            ForceNotifyState = true;
             SPUnityWebSocketConnect(NativeSocket);
         }
 
@@ -118,11 +115,13 @@ namespace SocialPoint.WebSockets
         public void OnWillGoBackground()
         {
             SPUnityWebSocketOnWillGoBackground(NativeSocket);
+            CheckStateChanges();
         }
 
         public void OnWasOnBackground()
         {
             SPUnityWebSocketOnWasOnBackground(NativeSocket);
+            CheckStateChanges();
         }
 
         public void Update()
@@ -143,12 +142,7 @@ namespace SocialPoint.WebSockets
             }
 
             // Update Connection state
-            var newState = State;
-            if(newState != _lastState || ForceNotifyState)
-            {
-                _lastState = newState;
-                NotifyConnectionState(newState);
-            }
+            CheckStateChanges();
 
             // Check error
             var err = Error;
@@ -218,9 +212,18 @@ namespace SocialPoint.WebSockets
             }
         }
 
+        void CheckStateChanges()
+        {
+            var newState = State;
+            if(newState != _lastState)
+            {
+                _lastState = newState;
+                NotifyConnectionState(newState);
+            }
+        }
+
         void NotifyConnectionState(WebSocketState state)
         {
-            ForceNotifyState = false;
             if(ConnectionStateChanged != null)
             {
                 switch(state)
@@ -317,13 +320,16 @@ namespace SocialPoint.WebSockets
         const string PluginModuleName = "sp_unity_websockets";
         
 
+
 #elif (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         const string PluginModuleName = "__Internal";
         
 
+
 #elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
         const string PluginModuleName = "sp_unity_websockets";
         
+
 
 #else
         const string PluginModuleName = "none";

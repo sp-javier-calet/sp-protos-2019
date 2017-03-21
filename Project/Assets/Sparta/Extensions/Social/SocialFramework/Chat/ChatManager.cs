@@ -179,6 +179,7 @@ namespace SocialPoint.Social
         public void ClearAllSubscriptions()
         {
             _chatSubscriptions.Clear();
+            _reports.Clear();
         }
 
         void ProcessNotificationMessage(int type, string topic, AttrDic dic)
