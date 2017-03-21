@@ -318,20 +318,11 @@ namespace SocialPoint.WebSockets
         const string PluginModuleName = "SPUnityPlugins";
         #elif UNITY_ANDROID && !UNITY_EDITOR
         const string PluginModuleName = "sp_unity_websockets";
-        
-
-
-#elif (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+        #elif (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
         const string PluginModuleName = "__Internal";
-        
-
-
-#elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
+        #elif UNITY_EDITOR_LINUX || UNITY_STANDALONE_LINUX
         const string PluginModuleName = "sp_unity_websockets";
-        
-
-
-#else
+        #else
         const string PluginModuleName = "none";
         #endif
 
