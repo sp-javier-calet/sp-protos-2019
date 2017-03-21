@@ -138,8 +138,10 @@ namespace SpartaTools.Editor.Build
                 PlayerSettings.bundleIdentifier = Android.BundleIdentifier;
             }
 
+            #if UNITY_5_5_OR_NEWER
             // Due to plugins constraints, we need to compile always using Gradle
             EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Gradle;
+            #endif
 
             // Flags
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, Common.Flags + ";" + Android.Flags);
