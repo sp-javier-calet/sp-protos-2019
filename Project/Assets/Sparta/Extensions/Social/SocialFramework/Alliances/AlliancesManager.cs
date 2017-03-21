@@ -288,20 +288,15 @@ namespace SocialPoint.Social
             var id = result.GetValue(AllianceIdKey).ToString();
 
             var basicComponent = GetLocalBasicData();
-            if(basicComponent != null)
-            {
-                basicComponent.Id = id;
-                basicComponent.Name = data.Name;
-                basicComponent.Avatar = data.Avatar;
-                basicComponent.Rank = Ranks.FounderRank;
-            }
+            basicComponent.Id = id;
+            basicComponent.Name = data.Name;
+            basicComponent.Avatar = data.Avatar;
+            basicComponent.Rank = Ranks.FounderRank;
+
             var privateComponent = GetLocalPrivateData();
-            if(privateComponent != null)
-            {
-                privateComponent.TotalMembers = 1;
-                privateComponent.JoinTimestamp = TimeUtils.Timestamp;
-                privateComponent.ClearRequests();
-            }
+            privateComponent.TotalMembers = 1;
+            privateComponent.JoinTimestamp = TimeUtils.Timestamp;
+            privateComponent.ClearRequests();
         }
 
         public WAMPRequest CreateAlliance(Alliance data, Action<Error> callback)
@@ -468,20 +463,15 @@ namespace SocialPoint.Social
         void OnAllianceJoined(AllianceBasicData data, JoinExtraData extra)
         {
             var basicComponent = GetLocalBasicData();
-            if(basicComponent != null)
-            {
-                basicComponent.Id = data.Id;
-                basicComponent.Name = data.Name;
-                basicComponent.Avatar = data.Avatar;
-                basicComponent.Rank = Ranks.DefaultRank;
-            }
+            basicComponent.Id = data.Id;
+            basicComponent.Name = data.Name;
+            basicComponent.Avatar = data.Avatar;
+            basicComponent.Rank = Ranks.DefaultRank;
+
             var privateComponent = GetLocalPrivateData();
-            if(privateComponent != null)
-            {
-                privateComponent.TotalMembers = data.Members;
-                privateComponent.JoinTimestamp = extra.Timestamp;
-                privateComponent.ClearRequests();
-            }
+            privateComponent.TotalMembers = data.Members;
+            privateComponent.JoinTimestamp = extra.Timestamp;
+            privateComponent.ClearRequests();
         }
 
         WAMPRequest JoinPublicAlliance(AllianceBasicData alliance, Action<Error> callback, JoinExtraData data)
@@ -684,24 +674,23 @@ namespace SocialPoint.Social
             DebugUtils.Assert(dic.GetValue(AllianceRequestAvatarKey).IsValue);
             var avatarId = dic.GetValue(AllianceRequestAvatarKey).ToInt();
 
+            DebugUtils.Assert(dic.GetValue(AllianceRequestTotalMembersKey).IsValue);
             var totalMembers = dic.GetValue(AllianceRequestTotalMembersKey).ToInt();
+
+            DebugUtils.Assert(dic.GetValue(AllianceRequestJoinTimestampKey).IsValue);
             var joinTs = dic.GetValue(AllianceRequestJoinTimestampKey).ToInt();
 
             var basicComponent = GetLocalBasicData();
-            if(basicComponent != null)
-            {
-                basicComponent.Id = allianceId;
-                basicComponent.Name = allianceName;
-                basicComponent.Avatar = avatarId;
-                basicComponent.Rank = Ranks.DefaultRank;
-            }
+            basicComponent.Id = allianceId;
+            basicComponent.Name = allianceName;
+            basicComponent.Avatar = avatarId;
+            basicComponent.Rank = Ranks.DefaultRank;
+
             var privateComponent = GetLocalPrivateData();
-            if(privateComponent != null)
-            {
-                privateComponent.TotalMembers = totalMembers;
-                privateComponent.JoinTimestamp = joinTs;
-                privateComponent.ClearRequests();
-            }
+            privateComponent.TotalMembers = totalMembers;
+            privateComponent.JoinTimestamp = joinTs;
+            privateComponent.ClearRequests();
+
             UpdateChatServices(dic);
 
             NotifyAllianceEvent(AllianceAction.JoinPrivateAlliance, dic);
@@ -783,7 +772,7 @@ namespace SocialPoint.Social
                 AllianceEvent(action, dic);
             }
         }
-            
+
         void LeaveAllianceChat()
         {
             if(_chatManager != null)
