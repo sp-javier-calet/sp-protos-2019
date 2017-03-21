@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.appsflyer.AppsFlyerLib;
-
 public class AdReceiver extends BroadcastReceiver {
 
     @Override
