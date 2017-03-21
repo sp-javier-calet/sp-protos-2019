@@ -181,9 +181,9 @@ namespace SocialPoint.Network
                 return SPUnityCurlSend(_curl.NativeClient, request);
             }
 
-            public int SendStreamMessage(IntPtr msgPtr)
+            public int SendStreamMessage(UnmanagedMarshaledObject<MessageStruct> msg)
             {
-                return SPUnityCurlSendStreamMessage(_curl.NativeClient, _connectionId, msgPtr);
+                return SPUnityCurlSendStreamMessage(_curl.NativeClient, _connectionId, msg);
             }
 
             public int Id
@@ -360,23 +360,23 @@ namespace SocialPoint.Network
             override public string ToString()
             {
                 var builder = StringUtils.StartBuilder();
-                builder.Append("Id: " + Id + System.Environment.NewLine);
-                builder.Append("Url: " + Url + System.Environment.NewLine);
-                builder.Append("Query: " + Query + System.Environment.NewLine);
-                builder.Append("Method: " + Method + System.Environment.NewLine);
-                builder.Append("Timeout: " + Timeout + System.Environment.NewLine);
-                builder.Append("ActivityTimeout: " + ActivityTimeout + System.Environment.NewLine);
-                builder.Append("Proxy: " + Proxy + System.Environment.NewLine);
-                builder.Append("Headers: " + Headers + System.Environment.NewLine);
+                builder.AppendFormat("Id: {0}\n", Id);
+                builder.AppendFormat("Url: {0}\n", Url);
+                builder.AppendFormat("Query: {0}\n", Query);
+                builder.AppendFormat("Method: {0}\n", Method);
+                builder.AppendFormat("Timeout: {0}\n", Timeout);
+                builder.AppendFormat("ActivityTimeout: {0}\n", ActivityTimeout);
+                builder.AppendFormat("Proxy: {0}\n", Proxy);
+                builder.AppendFormat("Headers: {0}\n", Headers);
                 if(Body != null)
                 {
-                    builder.Append("Body: " + System.Text.Encoding.ASCII.GetString(Body) + System.Environment.NewLine);
+                    builder.AppendFormat("Body: {0}\n", System.Text.Encoding.ASCII.GetString(Body));
                 }
                 else
                 {
-                    builder.Append("Body: null" + System.Environment.NewLine);
+                    builder.AppendLine("Body: null");
                 }
-                builder.Append("BodyLength: " + BodyLength + System.Environment.NewLine);
+                builder.AppendFormat("BodyLength: {0}\n", BodyLength);
                 return StringUtils.FinishBuilder(builder);
             }
         };
@@ -393,13 +393,13 @@ namespace SocialPoint.Network
                 var builder = StringUtils.StartBuilder();
                 if(Message != null)
                 {
-                    builder.Append("Message: " + System.Text.Encoding.ASCII.GetString(Message) + System.Environment.NewLine);
+                    builder.AppendFormat("Message: {0}\n", System.Text.Encoding.ASCII.GetString(Message));
                 }
                 else
                 {
-                    builder.Append("Message: null" + System.Environment.NewLine);
+                    builder.AppendLine("Message: null");
                 }
-                builder.Append("MessageLength: " + MessageLength + System.Environment.NewLine);
+                builder.AppendFormat("MessageLength: {0}\n", MessageLength);
                 return StringUtils.FinishBuilder(builder);
             }
         };
