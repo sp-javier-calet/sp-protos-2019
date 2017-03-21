@@ -7,23 +7,8 @@ using System.Collections.Generic;
 
 public class AppsFlyer : MonoBehaviour {
 	
-    #if UNITY_EDITOR || UNITY_STANDALONE || UNITY_TVOS
-    public static void trackEvent(string eventName,string eventValue){}
-    public static void setCurrencyCode(string currencyCode){}
-    public static void setCustomerUserID(string customerUserID){}
-    public static void loadConversionData(string callbackObject,string callbackMethod, string callbackFailedMethod){}
-    public static void setAppsFlyerKey(string key){}
-    public static void trackAppLaunch(){}
-    public static void setAppID(string appleAppId){}
-    public static void trackRichEvent(string eventName, Dictionary<string, string> eventValues){}
-    public static void validateReceipt(string productIdentifier, string price, string currency){}
-    public static void setIsDebug(bool isDebug){}
-    public static void setIsSandbox(bool isSandbox){}
-    public static void getConversionData (){}
-    public static string getAppsFlyerId () {return null;}
-    public static void handleOpenUrl(string url, string sourceApplication, string annotation) {}
 	
-    #elif UNITY_IOS
+	#if UNITY_IOS && !UNITY_EDITOR
 	[DllImport("__Internal")]
 	private static extern void mTrackEvent(string eventName,string eventValue);
 	
@@ -66,9 +51,12 @@ public class AppsFlyer : MonoBehaviour {
 	[DllImport("__Internal")]
 	private static extern void mHandlePushNotification(string payload);
 
-	
+	[DllImport("__Internal")]
+	private static extern void mRegisterUninstall(byte[] pushToken);
+
 	public static void trackEvent(string eventName,string eventValue){
 		mTrackEvent(eventName,eventValue);
+		print("AF.cs this is deprecated method. please use trackRichEvent instead.");
 	}
 	
 	public static void setCurrencyCode(string currencyCode){
@@ -140,7 +128,11 @@ public class AppsFlyer : MonoBehaviour {
 		mHandlePushNotification(attributesString);
 	}
 
-	#elif UNITY_ANDROID
+	public static void registerUninstall(byte[] token) {
+		mRegisterUninstall(token);
+	}
+
+	#elif UNITY_ANDROID && !UNITY_EDITOR
 
 	private static AndroidJavaClass obj = new AndroidJavaClass ("com.appsflyer.AppsFlyerLib");
 	private static AndroidJavaObject cls_AppsFlyer = obj.CallStatic<AndroidJavaObject>("getInstance");
@@ -149,14 +141,15 @@ public class AppsFlyer : MonoBehaviour {
 
 	
 	public static void trackEvent(string eventName,string eventValue){
-		using(AndroidJavaClass cls_UnityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) 
-		{
-			using(AndroidJavaObject cls_Activity = cls_UnityPlayer.GetStatic<AndroidJavaObject>("currentActivity")) 
-			{
-				cls_AppsFlyer.Call("trackEvent",cls_Activity, eventName, eventValue);
-			}
-		}
-		
+//		using(AndroidJavaClass cls_UnityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) 
+//		{
+//			using(AndroidJavaObject cls_Activity = cls_UnityPlayer.GetStatic<AndroidJavaObject>("currentActivity")) 
+//			{
+//				cls_AppsFlyer.Call("trackEvent",cls_Activity, eventName, eventValue);
+//			}
+//		}
+
+		print("AF.cs this is deprecated method. please use trackRichEvent instead. nothing is sent.");
 	}
 	
 	public static void setCurrencyCode(string currencyCode){
@@ -164,19 +157,25 @@ public class AppsFlyer : MonoBehaviour {
 	}
 	
 	public static void  setCustomerUserID(string customerUserID){
-        print("AF.cs setCustomerUserID");
 		cls_AppsFlyer.Call("setAppUserId", customerUserID);
 	}
-	
-	public static void loadConversionData(string callbackObject,string callbackMethod, string callbackFailedMethod){
+
+
+	public static void loadConversionData(string callbackObject){
 		using(AndroidJavaClass cls_UnityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) 
 		{
 			using(AndroidJavaObject cls_Activity = cls_UnityPlayer.GetStatic<AndroidJavaObject>("currentActivity")) {
-				cls_AppsFlyerHelper.CallStatic("createConversionDataListener", cls_Activity, callbackObject, callbackMethod, callbackFailedMethod);	
+				cls_AppsFlyerHelper.CallStatic("createConversionDataListener", cls_Activity, callbackObject);	
 			}
 		}
 	}
-	
+
+	[System.Obsolete("Use loadConversionData(string callbackObject)")]
+	public static void loadConversionData(string callbackObject, string callbackMethod, string callbackFailedMethod){
+		loadConversionData(callbackObject);
+	}
+	                                    
+
 	public static void setCollectIMEI (bool shouldCollect) {
 		cls_AppsFlyer.Call("setCollectIMEI", shouldCollect);
 	}
@@ -197,11 +196,14 @@ public class AppsFlyer : MonoBehaviour {
 	}
 
 	static void init_cb() {
-		print("AF.cs init_cb");
+
+		print("AF.cs start tracking");
+		trackAppLaunch ();
 
 		using (AndroidJavaClass cls_UnityPlayer = new AndroidJavaClass ("com.unity3d.player.UnityPlayer")) {
 			using (AndroidJavaObject cls_Activity = cls_UnityPlayer.GetStatic<AndroidJavaObject> ("currentActivity")) {
-				cls_AppsFlyer.Call("init", cls_Activity, devKey);
+				AndroidJavaObject cls_Application = cls_Activity.Call<AndroidJavaObject>("getApplication");
+				cls_AppsFlyer.Call("startTracking", cls_Application, devKey);
 			}
 		}
 	}
@@ -214,11 +216,14 @@ public class AppsFlyer : MonoBehaviour {
 	
 	public static void trackAppLaunch(){
 		print("AF.cs trackAppLaunch");
-		trackEvent(null, null);
+		using(AndroidJavaClass cls_UnityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
+			using(AndroidJavaObject cls_Activity = cls_UnityPlayer.GetStatic<AndroidJavaObject>("currentActivity")) {
+				cls_AppsFlyer.Call("trackAppLaunch",cls_Activity, devKey);
+			}
+		}		
 	}
 
 	public static void setAppID(string packageName){
-        print("AF.cs setAppID");
 		// In Android we take the package name
 		cls_AppsFlyer.Call("setAppId", packageName);
 	}
@@ -234,39 +239,54 @@ public class AppsFlyer : MonoBehaviour {
 	}
 	
 
-	public static void validateReceipt(string publicKey, string purchaseData, string signature, string price, string currency) {
+	public static void validateReceipt(string publicKey, string purchaseData, string signature, string price, string currency, Dictionary<string,string> extraParams) {
 		print ("AF.cs validateReceipt pk = " + publicKey + " data = " + purchaseData + "sig = " + signature);
 		
 		using(AndroidJavaClass cls_UnityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
 			using(AndroidJavaObject cls_Activity = cls_UnityPlayer.GetStatic<AndroidJavaObject>("currentActivity")) {
+				AndroidJavaObject convertedDict = null;
+				if (extraParams != null) {
+					convertedDict = ConvertHashMap (extraParams);
+				}
 				print ("inside cls_activity");
-				cls_AppsFlyer.Call("validateAndTrackInAppPurchase",cls_Activity, publicKey, signature, purchaseData, price, currency, null);
+				cls_AppsFlyer.Call("validateAndTrackInAppPurchase",cls_Activity, publicKey, signature, purchaseData, price, currency, convertedDict);
 			}
 		}		
 	}
 	
+	
 	public static void trackRichEvent(string eventName, Dictionary<string, string> eventValues){
+		using(AndroidJavaClass cls_UnityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
+			using(AndroidJavaObject cls_Activity = cls_UnityPlayer.GetStatic<AndroidJavaObject>("currentActivity")) {
+				AndroidJavaObject convertedDict = ConvertHashMap (eventValues);
+				cls_AppsFlyer.Call("trackEvent",cls_Activity, eventName, convertedDict);
+			}
+		}	
+	}
+	
+	//turn a dictionary into hashmap, to pass it in JNI
+	private static AndroidJavaObject ConvertHashMap(Dictionary<string,string> dict)
+	{
+		AndroidJavaObject obj_HashMap = new AndroidJavaObject("java.util.HashMap");
 		
-		using(AndroidJavaObject obj_HashMap = new AndroidJavaObject("java.util.HashMap")) {
-			IntPtr method_Put = AndroidJNIHelper.GetMethodID(obj_HashMap.GetRawClass(), "put", 
-			                                                 "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
-			object[] args = new object[2];
-			foreach(KeyValuePair<string, string> kvp in eventValues){
-				using(AndroidJavaObject k = new AndroidJavaObject("java.lang.String", kvp.Key)){
-					using(AndroidJavaObject v = new AndroidJavaObject("java.lang.String", kvp.Value)){
-						args[0] = k;
-						args[1] = v;
-						AndroidJNI.CallObjectMethod(obj_HashMap.GetRawObject(), 
-						                            method_Put, AndroidJNIHelper.CreateJNIArgArray(args));
-					}
+		IntPtr method_Put = AndroidJNIHelper.GetMethodID(obj_HashMap.GetRawClass(), "put", 
+		                                                 "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+		
+		object[] args = new object[2];
+		foreach(KeyValuePair<string, string> kvp in dict)
+		{
+			using(AndroidJavaObject k = new AndroidJavaObject("java.lang.String", kvp.Key))
+			{
+				using(AndroidJavaObject v = new AndroidJavaObject("java.lang.String", kvp.Value))
+				{
+					args[0] = k;
+					args[1] = v;
+					AndroidJNI.CallObjectMethod(obj_HashMap.GetRawObject(), 
+					                            method_Put, AndroidJNIHelper.CreateJNIArgArray(args));
 				}
 			}
-			using(AndroidJavaClass cls_UnityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer")) {
-				using(AndroidJavaObject cls_Activity = cls_UnityPlayer.GetStatic<AndroidJavaObject>("currentActivity")) {
-					cls_AppsFlyer.Call("trackEvent",cls_Activity, eventName, obj_HashMap);
-				}
-			}		
 		}
+		return obj_HashMap;
 	}
 
 	public static void setImeiData(string imeiData) {
@@ -304,5 +324,36 @@ public class AppsFlyer : MonoBehaviour {
 		}
 		return appsFlyerId;
 	}
+
+	public static void setGCMProjectNumber(string googleGCMNumber) {
+		cls_AppsFlyer.Call("setGCMProjectNumber", googleGCMNumber);
+	}
+
+	#else
+	//editor
+	public static void validateReceipt(string publicKey, string purchaseData, string signature, string price, string currency, Dictionary<string,string> extraParams) {}
+	public static void validateReceipt(string productIdentifier, string price, string currency, string transactionId, Dictionary<string,string> additionalParametes) {}
+	public static void handlePushNotification(Dictionary<string, string> payload) {}
+	public static void registerUninstall(byte[] token) {}
+	public static void setCollectIMEI (bool shouldCollect) {}
+	public static void createValidateInAppListener(string aObject, string callbackMethod, string callbackFailedMethod){}
+	public static void init (string devKey){}
+	public static void setGCMProjectNumber(string googleGCMNumber){}
+	public static void setImeiData(string imeiData){}
+	public static void trackEvent(string eventName,string eventValue){}
+	public static void setCurrencyCode(string currencyCode){}
+	public static void setCustomerUserID(string customerUserID){}
+	public static void loadConversionData(string callbackObject){}
+	[System.Obsolete("Use loadConversionData(string callbackObject)")]
+	public static void loadConversionData(string callbackObject, string callbackMethod, string callbackFailedMethod){}
+	public static void setAppsFlyerKey(string key){}
+	public static void trackAppLaunch(){}
+	public static void setAppID(string appleAppId){}
+	public static void trackRichEvent(string eventName, Dictionary<string, string> eventValues){}
+	public static void setIsDebug(bool isDebug){}
+	public static void setIsSandbox(bool isSandbox){}
+	public static void getConversionData (){}
+	public static string getAppsFlyerId () {return null;}
+	public static void handleOpenUrl(string url, string sourceApplication, string annotation) {}
 	#endif
 }
