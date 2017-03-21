@@ -83,8 +83,6 @@ namespace SocialPoint.WAMP.Publisher
 
         #endregion
 
-        #region Private
-
         AttrList CreatePublishData(string topic, AttrList args, AttrDic kwargs, bool acknowledged)
         {
             /* [PUBLISH, Request|id, Options|dict, Topic|uri, Arguments|list, ArgumentsKw|dict]
@@ -118,6 +116,8 @@ namespace SocialPoint.WAMP.Publisher
 
             return data;
         }
+
+        #region Private
 
         internal void ProcessPublished(AttrList msg)
         {
