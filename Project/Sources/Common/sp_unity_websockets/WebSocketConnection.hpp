@@ -115,6 +115,7 @@ class WebSocketConnection
 
     bool onPingSent();
     void resetPing();
+
   public:
     /**
      * Constructor
@@ -152,6 +153,9 @@ class WebSocketConnection
 
     void setOrigin(const std::string& pNewOrigin);
     const std::string& getOrigin() const;
+
+    void onWillGoBackground();
+    void onWasOnBackground();
 };
 
 

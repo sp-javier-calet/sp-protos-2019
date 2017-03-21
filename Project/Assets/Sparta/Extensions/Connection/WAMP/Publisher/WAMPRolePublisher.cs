@@ -22,10 +22,15 @@ namespace SocialPoint.WAMP.Publisher
 
     public class PublishRequest : WAMPConnection.Request<OnPublished>
     {
+        public const int IdIndex = 1;
+
+        internal AttrList Data { get; private set; }
+
         internal string Topic{ get; private set; }
 
-        public PublishRequest(OnPublished completionHandler, string topic) : base(completionHandler)
+        public PublishRequest(OnPublished completionHandler, AttrList data, string topic) : base(completionHandler)
         {
+            Data = data;
             Topic = topic;
         }
     }
@@ -45,7 +50,7 @@ namespace SocialPoint.WAMP.Publisher
             _publishRequests = new Dictionary<long, PublishRequest>();
         }
 
-        public PublishRequest Publish(string topic, AttrList args, AttrDic kwargs, bool acknowledged, OnPublished completionHandler)
+        public PublishRequest CreatePublish(string topic, AttrList args, AttrDic kwargs, bool acknowledged, OnPublished completionHandler)
         {
             DebugUtils.Assert((acknowledged && completionHandler != null) || !acknowledged, "Asked for acknowledge but without completionHandler");
 
@@ -60,21 +65,31 @@ namespace SocialPoint.WAMP.Publisher
 
             _connection.DebugMessage(string.Concat("Publish event ", topic, " with args", args, " and ", kwargs));
 
+            var data = CreatePublishData(topic, args, kwargs, acknowledged);
+            var request = new PublishRequest(completionHandler, data, topic);
+            return request;
+        }
+
+        public void SendPublish(PublishRequest request)
+        {
+            var requestId = _connection.GetAndIncrementRequestId();
+            DebugUtils.Assert(!_publishRequests.ContainsKey(requestId), "This requestId was already in use");
+
+            request.Data.SetValue(PublishRequest.IdIndex, requestId);
+            _publishRequests.Add(requestId, request);
+
+            _connection.SendData(request.Data);
+        }
+
+        #endregion
+
+        AttrList CreatePublishData(string topic, AttrList args, AttrDic kwargs, bool acknowledged)
+        {
             /* [PUBLISH, Request|id, Options|dict, Topic|uri, Arguments|list, ArgumentsKw|dict]
              * [16, 239714735, {}, "com.myapp.mytopic1", [], {"color": "orange", "sizes": [23, 42, 7]}]
              */
-            var requestId = _connection.GetAndIncrementRequestId();
-            PublishRequest request = null;
-            if(acknowledged)
-            {
-                DebugUtils.Assert(!_publishRequests.ContainsKey(requestId), "This requestId was already in use");
-                request = new PublishRequest(completionHandler, topic);
-                _publishRequests.Add(requestId, request);
-            }
-
             var data = new AttrList();
             data.AddValue(MsgCode.PUBLISH);
-            data.AddValue(requestId);
             var optionsDict = new AttrDic();
             if(acknowledged)
             {
@@ -96,12 +111,11 @@ namespace SocialPoint.WAMP.Publisher
                 data.Add(kwargs);
             }
 
-            _connection.SendData(data);
+            //Placeholder id
+            data.InsertValue(PublishRequest.IdIndex, 0L);
 
-            return request;
+            return data;
         }
-
-        #endregion
 
         #region Private
 

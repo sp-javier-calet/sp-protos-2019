@@ -9,8 +9,13 @@ namespace SocialPoint.WAMP.Caller
 
     public class CallRequest : WAMPConnection.Request<HandlerCall>
     {
-        internal CallRequest(HandlerCall handler) : base(handler)
+        public const int IdIndex = 1;
+
+        internal AttrList Data { get; private set; }
+
+        internal CallRequest(HandlerCall handler, AttrList data) : base(handler)
         {
+            Data = data;
         }
     }
 
@@ -29,7 +34,7 @@ namespace SocialPoint.WAMP.Caller
             _calls = new Dictionary<long, CallRequest>();
         }
 
-        public CallRequest Call(string procedure, AttrList args, AttrDic kwargs, HandlerCall resultHandler)
+        public CallRequest CreateCall(string procedure, AttrList args, AttrDic kwargs, HandlerCall resultHandler)
         {
             if(!_connection.HasActiveSession())
             {
@@ -42,17 +47,33 @@ namespace SocialPoint.WAMP.Caller
 
             _connection.DebugMessage(string.Concat("Request call ", procedure));
 
+            var data = CreateCallData(procedure, args, kwargs);
+            var request = new CallRequest(resultHandler, data);
+            return request;
+        }
+
+        public void SendCall(CallRequest request)
+        {
             var requestId = _connection.GetAndIncrementRequestId();
             DebugUtils.Assert(!_calls.ContainsKey(requestId), "This requestId was already in use");
-            var request = new CallRequest(resultHandler);
+
+            request.Data.SetValue(CallRequest.IdIndex, requestId);
             _calls.Add(requestId, request);
 
+            _connection.SendData(request.Data);
+        }
+
+        #endregion
+
+        #region Private
+
+        AttrList CreateCallData(string procedure, AttrList args, AttrDic kwargs)
+        {
             /* [CALL, Request|id, Options|dict, Procedure|uri]
              * [48, 7814135, {}, "com.myapp.user.new", ["johnny"], {"firstname": "John", "surname": "Doe"}]
              */
             var data = new AttrList();
             data.AddValue(MsgCode.CALL);
-            data.AddValue(requestId);
             data.Add(new AttrDic());
             data.AddValue(procedure);
             if(args != null)
@@ -69,14 +90,11 @@ namespace SocialPoint.WAMP.Caller
                 data.Add(kwargs);
             }
 
-            _connection.SendData(data);
+            //Placeholder id
+            data.InsertValue(CallRequest.IdIndex, 0L);
 
-            return request;
+            return data;
         }
-
-        #endregion
-
-        #region Private
 
         internal void ProcessCallResult(AttrList msg)
         {

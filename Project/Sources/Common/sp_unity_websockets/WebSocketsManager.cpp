@@ -18,17 +18,6 @@ static int always_true_callback(X509_STORE_CTX* ctx, void* arg)
 
 static int callback_websocket(struct lws* wsi, enum lws_callback_reasons reason, void* user, void* in, size_t len)
 {
-    WebSocketsManager& manager = WebSocketsManager::get();
-    WebSocketConnection* connection = manager.get(wsi);
-    
-    if(!connection)
-    {
-        return 0;
-    }
-
-    int n;
-    int pRet = 0;
-
     if(reason != LWS_CALLBACK_GET_THREAD_ID)
     {
         lwsl_notice("REASON --- %d\n", reason);
@@ -38,6 +27,17 @@ static int callback_websocket(struct lws* wsi, enum lws_callback_reasons reason,
     {
         SSL_CTX_set_cert_verify_callback((SSL_CTX*)user, always_true_callback, 0);
     }
+
+    WebSocketsManager& manager = WebSocketsManager::get();
+    WebSocketConnection* connection = manager.get(wsi);
+
+    if(!connection)
+    {
+        return 0;
+    }
+
+    int n;
+    int pRet = 0;
 
     switch(reason)
     {
@@ -125,17 +125,17 @@ static int callback_websocket(struct lws* wsi, enum lws_callback_reasons reason,
                     if(connection->onPingSent())
                     {
                         connection->resetPing();
-                        
+
                         lwsl_err("ERROR: MAX PINGS REACHED\n");
                         connection->connectionError((int)WebSocketConnection::Error::MaxPings, "Max pings reached");
                         connection->closeSocket();
                         pRet = -1;
-                        
                     };
                 }
             }
             break;
         }
+        case LWS_CALLBACK_WSI_DESTROY:
         case LWS_CALLBACK_CLOSED:
             connection->closeSocket();
             pRet = -1;
@@ -330,7 +330,7 @@ void WebSocketsManager::connect(WebSocketConnection* connection)
 
     size_t currentUrlIndex = connection->getCurrentUrlIndex() % vecUrls.size();
     const WebSocketConnectionInfo& currentUrl = vecUrls[currentUrlIndex];
-    
+
     std::stringstream ss;
     ss << currentUrl;
     std::string urlStr = ss.str();
