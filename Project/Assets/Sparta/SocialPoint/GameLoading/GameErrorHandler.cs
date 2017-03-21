@@ -86,6 +86,7 @@ namespace SocialPoint.GameLoading
     {
         const string RetryButtonKey = "game_errors.retry_button";
         const string RetryButtonDef = "Retry";
+        const string SkipButtonDef = "Skip";
 
         const string UpgradeButtonKey = "game_errors.upgrade_button";
         const string UpgradeButtonDef = "Upgrade";
@@ -281,7 +282,12 @@ namespace SocialPoint.GameLoading
         {
             var alert = (IAlertView)_alert.Clone();
             alert.Title = _locale.Get(ConnectionErrorTitleKey, ConnectionErrorTitleDef);
-            alert.Buttons = new []{ _locale.Get(RetryButtonKey, RetryButtonDef) };
+            alert.Buttons = Debug ? new[] {
+                _locale.Get(RetryButtonKey, RetryButtonDef),
+                SkipButtonDef
+            } : new[] {
+                _locale.Get(RetryButtonKey, RetryButtonDef)
+            };
             alert.Message = GetErrorMessage(err, ConnectionErrorMessageKey, ConnectionErrorMessageDef);
             alert.Signature = Signature + "-" + err.Code;
             alert.Show(i => {

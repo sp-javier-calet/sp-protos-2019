@@ -72,6 +72,11 @@ namespace SocialPoint.WebSockets
             }
 
             _socket = new WebSocketSharp.WebSocket(urls[0], _protocols);
+
+            // WebsocketSharp connects automatically on creation. 
+            // We want to manage the connection manually, so we have to close the socket at startup.
+            _socket.Close();
+
             _socket.OnOpen += OnSocketOpened;
             _socket.OnClose += OnSocketClosed;
             _socket.OnError += OnSocketError;

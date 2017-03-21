@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿#if ADMIN_PANEL 
+
+using System.Text;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
 using SocialPoint.Dependency.Graph;
@@ -220,3 +222,5 @@ namespace SocialPoint.Dependency
         }
     }
 }
+
+#endif

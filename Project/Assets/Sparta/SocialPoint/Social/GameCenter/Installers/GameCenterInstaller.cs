@@ -1,9 +1,12 @@
 ﻿using System;
-using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.Utils;
 using UnityEngine;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Social
 {
@@ -12,7 +15,7 @@ namespace SocialPoint.Social
         [Serializable]
         public class SettingsData
         {
-            public bool UseEmpty = false;
+            public bool UseEmpty;
             public bool LoginLink = true;
         }
 
@@ -36,7 +39,10 @@ namespace SocialPoint.Social
             #else
             Container.Rebind<IGameCenter>().ToMethod<EmptyGameCenter>(CreateEmpty);
             #endif
+
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGameCenter>(CreateAdminPanel);
+            #endif
         }
 
         EmptyGameCenter CreateEmpty()
@@ -50,12 +56,13 @@ namespace SocialPoint.Social
                 Container.Resolve<NativeCallsHandler>());
         }
 
-
+        #if ADMIN_PANEL
         AdminPanelGameCenter CreateAdminPanel()
         {
             return new AdminPanelGameCenter(
                 Container.Resolve<IGameCenter>());
         }
+        #endif
 
         GameCenterLink CreateLoginLink()
         {

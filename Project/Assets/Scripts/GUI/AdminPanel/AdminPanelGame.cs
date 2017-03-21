@@ -1,4 +1,6 @@
-﻿using SocialPoint.AdminPanel;
+﻿#if ADMIN_PANEL 
+
+using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 
 public class AdminPanelGame : IAdminPanelConfigurer
@@ -65,3 +67,5 @@ public class AdminPanelGame : IAdminPanelConfigurer
         }
     }
 }
+
+#endif

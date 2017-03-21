@@ -176,7 +176,7 @@ namespace SocialPoint.Social
                 {
                     DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
                     var result = rDic.Get(OperationResultKey).AsDic;
-                    alliance = Factory.CreateAlliance(allianceId, AccessTypes.DefaultAccessType, result);
+                    alliance = Factory.CreateAlliance(allianceId, result);
                 }
                 if(callback != null)
                 {
@@ -282,6 +282,23 @@ namespace SocialPoint.Social
             }
         }
 
+        void OnAllianceCreated(Alliance data, AttrDic result)
+        {
+            DebugUtils.Assert(result.Get(AllianceIdKey).IsValue);
+            var id = result.GetValue(AllianceIdKey).ToString();
+
+            var basicComponent = GetLocalBasicData();
+            basicComponent.Id = id;
+            basicComponent.Name = data.Name;
+            basicComponent.Avatar = data.Avatar;
+            basicComponent.Rank = Ranks.FounderRank;
+
+            var privateComponent = GetLocalPrivateData();
+            privateComponent.TotalMembers = 1;
+            privateComponent.JoinTimestamp = TimeUtils.Timestamp;
+            privateComponent.ClearRequests();
+        }
+
         public WAMPRequest CreateAlliance(Alliance data, Action<Error> callback)
         {
             var dic = Factory.SerializeAlliance(data);
@@ -299,7 +316,7 @@ namespace SocialPoint.Social
 
                 DebugUtils.Assert(rDic.Get(OperationResultKey).IsDic);
                 var result = rDic.Get(OperationResultKey).AsDic;
-                Factory.OnAllianceCreated(_socialManager.LocalPlayer, data, result);
+                OnAllianceCreated(data, result);
 
                 UpdateChatServices(rDic);
 
@@ -329,17 +346,15 @@ namespace SocialPoint.Social
                     return;
                 }
 
+                GetLocalBasicData().Name = data.Name;
                 GetLocalBasicData().Avatar = data.Avatar;
+
+                Factory.UpdateAllianceData(current, data);
 
                 if(callback != null)
                 {
                     callback(null);
                 }
-
-                current.Description = data.Description;
-                current.Avatar = data.Avatar;
-                current.AccessType = data.AccessType;
-                current.Requirement = data.Requirement;
 
                 NotifyAllianceEvent(AllianceAction.AllianceDataEdited, rDic);
             });
@@ -445,6 +460,20 @@ namespace SocialPoint.Social
 
         #region Private methods
 
+        void OnAllianceJoined(AllianceBasicData data, JoinExtraData extra)
+        {
+            var basicComponent = GetLocalBasicData();
+            basicComponent.Id = data.Id;
+            basicComponent.Name = data.Name;
+            basicComponent.Avatar = data.Avatar;
+            basicComponent.Rank = Ranks.DefaultRank;
+
+            var privateComponent = GetLocalPrivateData();
+            privateComponent.TotalMembers = data.Members;
+            privateComponent.JoinTimestamp = extra.Timestamp;
+            privateComponent.ClearRequests();
+        }
+
         WAMPRequest JoinPublicAlliance(AllianceBasicData alliance, Action<Error> callback, JoinExtraData data)
         {
             DebugUtils.Assert(AccessTypes.IsPublic(alliance.AccessType));
@@ -466,7 +495,7 @@ namespace SocialPoint.Social
                     return;
                 }
 
-                Factory.OnAllianceJoined(_socialManager.LocalPlayer, alliance, data);
+                OnAllianceJoined(alliance, data);
                 UpdateChatServices(rDic);
 
                 if(callback != null)
@@ -628,9 +657,39 @@ namespace SocialPoint.Social
             }
         }
 
+        const string AllianceRequestIdKey = "alliance_id";
+        const string AllianceRequestNameKey = "alliance_name";
+        const string AllianceRequestAvatarKey = "alliance_symbol";
+        const string AllianceRequestTotalMembersKey = "total_members";
+        const string AllianceRequestJoinTimestampKey = "join_ts";
+
         void OnRequestAccepted(AttrDic dic)
         {
-            Factory.OnAllianceRequestAccepted(_socialManager.LocalPlayer, dic);
+            DebugUtils.Assert(dic.GetValue(AllianceRequestIdKey).IsValue);
+            var allianceId = dic.GetValue(AllianceRequestIdKey).ToString();
+
+            DebugUtils.Assert(dic.GetValue(AllianceRequestNameKey).IsValue);
+            var allianceName = dic.GetValue(AllianceRequestNameKey).ToString();
+
+            DebugUtils.Assert(dic.GetValue(AllianceRequestAvatarKey).IsValue);
+            var avatarId = dic.GetValue(AllianceRequestAvatarKey).ToInt();
+
+            DebugUtils.Assert(dic.GetValue(AllianceRequestTotalMembersKey).IsValue);
+            var totalMembers = dic.GetValue(AllianceRequestTotalMembersKey).ToInt();
+
+            DebugUtils.Assert(dic.GetValue(AllianceRequestJoinTimestampKey).IsValue);
+            var joinTs = dic.GetValue(AllianceRequestJoinTimestampKey).ToInt();
+
+            var basicComponent = GetLocalBasicData();
+            basicComponent.Id = allianceId;
+            basicComponent.Name = allianceName;
+            basicComponent.Avatar = avatarId;
+            basicComponent.Rank = Ranks.DefaultRank;
+
+            var privateComponent = GetLocalPrivateData();
+            privateComponent.TotalMembers = totalMembers;
+            privateComponent.JoinTimestamp = joinTs;
+            privateComponent.ClearRequests();
 
             UpdateChatServices(dic);
 
@@ -713,7 +772,7 @@ namespace SocialPoint.Social
                 AllianceEvent(action, dic);
             }
         }
-            
+
         void LeaveAllianceChat()
         {
             if(_chatManager != null)

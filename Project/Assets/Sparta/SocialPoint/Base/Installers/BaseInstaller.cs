@@ -1,7 +1,10 @@
 using SocialPoint.Dependency;
 using SocialPoint.Utils;
-using SocialPoint.AdminPanel;
 using UnityEngine;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Base
 {
@@ -14,8 +17,11 @@ namespace SocialPoint.Base
             Container.Rebind<ICoroutineRunner>().ToLookup<UnityUpdateRunner>();
             Container.Rebind<IUpdateScheduler>().ToLookup<UnityUpdateRunner>();
             Container.Bind<NativeCallsHandler>().ToMethod<NativeCallsHandler>(CreateNativeCallsHandler);
+
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelNativeCallsHandler>(CreateAdminPanel);
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelDependency>(CreateAdminPanelDependency);
+            #endif
         }
 
         public void Initialize()
@@ -32,11 +38,12 @@ namespace SocialPoint.Base
         {
             var trans = Container.Resolve<Transform>();
             var go = new GameObject();
-            UnityEngine.Object.DontDestroyOnLoad(go);
+            Object.DontDestroyOnLoad(go);
             go.transform.SetParent(trans);
             return go.AddComponent<NativeCallsHandler>();
         }
 
+        #if ADMIN_PANEL
         AdminPanelNativeCallsHandler CreateAdminPanel()
         {
             return new AdminPanelNativeCallsHandler(
@@ -47,5 +54,6 @@ namespace SocialPoint.Base
         {
             return new AdminPanelDependency();
         }
+        #endif
     }
 }

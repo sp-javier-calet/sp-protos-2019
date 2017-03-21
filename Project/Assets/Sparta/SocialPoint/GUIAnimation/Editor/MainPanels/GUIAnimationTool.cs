@@ -43,7 +43,7 @@ namespace SocialPoint.GUIAnimation
 
         bool _isInit;
 
-        [MenuItem("Social Point/GUI/Animation Tool")]
+        [MenuItem("Sparta/GUI/Animation Tool", false, 500)]
         public static void ShowWindow()
         {
             GUIAnimationTool animationTool = EditorWindow.GetWindow<GUIAnimationTool>();

@@ -1,3 +1,5 @@
+#if ADMIN_PANEL
+
 using SocialPoint.GUIControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -150,3 +152,5 @@ namespace SocialPoint.AdminPanel
         void OnCreateFloatingPanel(FloatingPanelController panel);
     }
 }
+
+#endif
