@@ -106,7 +106,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         _gameLoader.Load(data);
 
         ParseSFLocalPlayerData(data);
-        ParseBundleData(data);
+//        ParseAssetBundlesData(data);
 
         _loadModelOperation.Finish("game model loaded");
         return true;
@@ -120,23 +120,11 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         }
     }
 
-    void ParseBundleData(Attr data)
+    void ParseAssetBundlesData(Attr data)
     {
         if(_assetBundleManager != null)
         {
-            const string configKey = "config";
-            const string bundleDataKey = "bundle_data";
-
-            var dataDic = data.AssertDic;
-            if(dataDic.ContainsKey(configKey))
-            {
-                var configData = dataDic.Get(configKey).AssertDic;
-                if(configData.ContainsKey(bundleDataKey))
-                {
-                    var bundleData = configData.Get(bundleDataKey).AssertDic;
-                    _assetBundleManager.Init(bundleData.Get(bundleDataKey).AssertList);
-                }
-            }
+            _assetBundleManager.Init(data);
         }
     }
 
