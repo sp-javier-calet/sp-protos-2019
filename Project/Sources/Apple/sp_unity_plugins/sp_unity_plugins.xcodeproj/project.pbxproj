@@ -3041,9 +3041,11 @@
 		FE448F121C1EE83100A10FEA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CC = "$(SRCROOT)/clang_cache_distcc";
 				ENABLE_TESTABILITY = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LDPLUSPLUS = "$(DT_TOOLCHAIN_DIR)/usr/bin/clang++";
 				MACH_O_TYPE = staticlib;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -3054,9 +3056,11 @@
 		FE448F131C1EE83100A10FEA /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CC = "$(SRCROOT)/clang_cache_distcc";
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LDPLUSPLUS = "$(DT_TOOLCHAIN_DIR)/usr/bin/clang++";
 				MACH_O_TYPE = staticlib;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";

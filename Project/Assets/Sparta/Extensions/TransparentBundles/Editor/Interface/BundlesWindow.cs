@@ -78,7 +78,7 @@ namespace SocialPoint.TransparentBundles
 
 
 
-        [MenuItem("Social Point/Bundles")]
+        [MenuItem("Sparta/Bundles", false, 500)]
         public static void OpenWindow()
         {
             Window = (BundlesWindow)EditorWindow.GetWindow(typeof(BundlesWindow));

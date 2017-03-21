@@ -42,12 +42,6 @@ namespace SocialPoint.Social
         const string AllianceActivityIndicatorKey = "activityIndicator";
         const string AllianceIsNewKey = "newAlliance";
 
-        const string AllianceRequestIdKey = "alliance_id";
-        const string AllianceRequestNameKey = "alliance_name";
-        const string AllianceRequestAvatarKey = "alliance_symbol";
-        const string AllianceRequestTotalMembersKey = "total_members";
-        const string AllianceRequestJoinTimestampKey = "join_ts";
-
         #endregion
 
         public IRankManager Ranks;
@@ -201,76 +195,15 @@ namespace SocialPoint.Social
             }
         }
 
-        public void OnAllianceCreated(SocialPlayer info, Alliance data, AttrDic result)
+        public void UpdateAllianceData(Alliance baseAlliance, Alliance modifiedAlliance)
         {
-            DebugUtils.Assert(result.Get(AllianceIdKey).IsValue);
-            var id = result.GetValue(AllianceIdKey).ToString();
+            baseAlliance.Name = modifiedAlliance.Name;
+            baseAlliance.Description = modifiedAlliance.Description;
+            baseAlliance.Avatar = modifiedAlliance.Avatar;
+            baseAlliance.AccessType = modifiedAlliance.AccessType;
+            baseAlliance.Requirement = modifiedAlliance.Requirement;
 
-            var basicComponent = info.GetComponent<AlliancePlayerBasic>();
-            if(basicComponent != null)
-            {
-                basicComponent.Id = id;
-                basicComponent.Name = data.Name;
-                basicComponent.Avatar = data.Avatar;
-                basicComponent.Rank = Ranks.FounderRank;
-            }
-            var privateComponent = info.GetComponent<AlliancePlayerPrivate>();
-            if(privateComponent != null)
-            {
-                privateComponent.TotalMembers = 1;
-                privateComponent.JoinTimestamp = TimeUtils.Timestamp;
-                privateComponent.ClearRequests();
-            }
-        }
-
-        public void OnAllianceJoined(SocialPlayer info, AllianceBasicData data, JoinExtraData extra)
-        {
-            var basicComponent = info.GetComponent<AlliancePlayerBasic>();
-            if(basicComponent != null)
-            {
-                basicComponent.Id = data.Id;
-                basicComponent.Name = data.Name;
-                basicComponent.Avatar = data.Avatar;
-                basicComponent.Rank = Ranks.DefaultRank;
-            }
-            var privateComponent = info.GetComponent<AlliancePlayerPrivate>();
-            if(privateComponent != null)
-            {
-                privateComponent.TotalMembers = data.Members;
-                privateComponent.JoinTimestamp = extra.Timestamp;
-                privateComponent.ClearRequests();
-            }
-        }
-
-        public void OnAllianceRequestAccepted(SocialPlayer info, AttrDic dic)
-        {
-            DebugUtils.Assert(dic.GetValue(AllianceRequestIdKey).IsValue);
-            var allianceId = dic.GetValue(AllianceRequestIdKey).ToString();
-
-            DebugUtils.Assert(dic.GetValue(AllianceRequestNameKey).IsValue);
-            var allianceName = dic.GetValue(AllianceRequestNameKey).ToString();
-
-            DebugUtils.Assert(dic.GetValue(AllianceRequestAvatarKey).IsValue);
-            var avatarId = dic.GetValue(AllianceRequestAvatarKey).ToInt();
-
-            var totalMembers = dic.GetValue(AllianceRequestTotalMembersKey).ToInt();
-            var joinTs = dic.GetValue(AllianceRequestJoinTimestampKey).ToInt();
-
-            var basicComponent = info.GetComponent<AlliancePlayerBasic>();
-            if(basicComponent != null)
-            {
-                basicComponent.Id = allianceId;
-                basicComponent.Name = allianceName;
-                basicComponent.Avatar = avatarId;
-                basicComponent.Rank = Ranks.DefaultRank;
-            }
-            var privateComponent = info.GetComponent<AlliancePlayerPrivate>();
-            if(privateComponent != null)
-            {
-                privateComponent.TotalMembers = totalMembers;
-                privateComponent.JoinTimestamp = joinTs;
-                privateComponent.ClearRequests();
-            }
+            UpdateCustomAllianceData(baseAlliance, modifiedAlliance);
         }
 
         public AlliancesRanking CreateRankingData(AttrDic dic)
@@ -382,6 +315,10 @@ namespace SocialPoint.Social
         }
 
         protected virtual void ParseCustomSearchResult(AlliancesSearchResult search, AttrDic dic)
+        {
+        }
+
+        protected virtual void UpdateCustomAllianceData(Alliance baseAlliance, Alliance modifiedAlliance)
         {
         }
 
