@@ -1,4 +1,5 @@
-﻿
+﻿using System.Collections.Generic;
+
 namespace SocialPoint.Helpshift
 {
     public class EmptyHelpshift : IHelpshift
@@ -6,7 +7,7 @@ namespace SocialPoint.Helpshift
         #region IHelpshift implementation
 
         static HelpshiftConfiguration _config = new HelpshiftConfiguration();
-        static HelpshiftCustomer _customer = new HelpshiftCustomer("0", new string[0], null);
+        static HelpshiftCustomer _customer = new HelpshiftCustomer("0", new string[0], new Dictionary<string, object>());
 
         public HelpshiftConfiguration Configuration
         { 
