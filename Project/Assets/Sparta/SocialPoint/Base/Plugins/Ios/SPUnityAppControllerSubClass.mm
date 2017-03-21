@@ -50,7 +50,7 @@ extern bool _unityAppReady;
     {
         if([UnityAppController instancesRespondToSelector:@selector(application:didFinishLaunchingWithOptions:)])
         {
-            [super application:application didFinishLaunchingWithOptions:launchOptions];
+            return [super application:application didFinishLaunchingWithOptions:launchOptions];
         }
     }
     
