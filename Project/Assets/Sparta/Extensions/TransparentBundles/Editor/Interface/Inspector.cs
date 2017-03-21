@@ -220,7 +220,6 @@ namespace SocialPoint.TransparentBundles
                 EditorGUILayout.EndVertical();
             }
 
-
             void PrintHierarchy(Asset selectedAsset, List<Asset> assets, int margin = 0)
             {
                 for(int i = 0; i < assets.Count; i++)
@@ -235,6 +234,14 @@ namespace SocialPoint.TransparentBundles
                         if(!isChild || _shownHierarchy.Contains(assets[i].Name))
                         {
                             List<Asset> dependencies = GetAssetDependencies(assets[i]);
+                            for(int j = 0; j < dependencies.Count; j++)
+                            {
+                                if(assets.Contains(dependencies[j]))
+                                {
+                                    dependencies.RemoveAt(j);
+                                }
+                            }
+                            
                             _controller.SortAssets(AssetSortingMode.TypeAsc, dependencies);
                             PrintHierarchy(selectedAsset, dependencies, margin + 20);
                         }
@@ -317,9 +324,9 @@ namespace SocialPoint.TransparentBundles
 
             List<Asset> GetAssetDependencies(Asset asset)
             {
-                if(_controller.DependenciesCache.ContainsKey(asset.Name))
+                if(_controller.DependenciesCache.ContainsKey(asset.FullName))
                 {
-                    return _controller.DependenciesCache[asset.Name];
+                    return _controller.DependenciesCache[asset.FullName];
                 }
 
                 var dependencies = new List<Asset>();
@@ -336,7 +343,7 @@ namespace SocialPoint.TransparentBundles
                         }
                     }
                 }
-                _controller.DependenciesCache.Add(asset.Name, dependencies);
+                _controller.DependenciesCache.Add(asset.FullName, dependencies);
 
                 return dependencies;
             }
@@ -407,9 +414,9 @@ namespace SocialPoint.TransparentBundles
 
             List<Asset> GetAssetReferences(Asset asset, int searchLimit = 100)
             {
-                if(_controller.ReferencesCache.ContainsKey(asset.Name))
+                if(_controller.ReferencesCache.ContainsKey(asset.FullName))
                 {
-                    return _controller.ReferencesCache[asset.Name];
+                    return _controller.ReferencesCache[asset.FullName];
                 }
 
                 string assetName;
@@ -453,7 +460,7 @@ namespace SocialPoint.TransparentBundles
                 }
 
                 List<Asset> references = GetRootParentsOnly(new List<Asset>(matches.Values), asset);
-                _controller.ReferencesCache.Add(asset.Name, GetRootParentsOnly(new List<Asset>(matches.Values), asset));
+                _controller.ReferencesCache.Add(asset.FullName, GetRootParentsOnly(new List<Asset>(matches.Values), asset));
 
                 return references;
             }
