@@ -203,13 +203,7 @@ namespace SpartaTools.Editor.View
 
         #region Editor options
 
-        [MenuItem("Sparta/Build/Apply Current", false, 0)]
-        public static void ApplyCurrent()
-        {
-            BuildSetApplier.Reapply();
-        }
-
-        [MenuItem("Sparta/Build/Debug", false, 1)]
+        [MenuItem("Sparta/Build/Debug", false, 101)]
         public static void SetDebugConfig()
         {
             BuildSetApplier.ApplyConfig(BuildSet.DebugConfigName);
@@ -221,7 +215,7 @@ namespace SpartaTools.Editor.View
             return BuildSetApplier.CurrentMode != BuildSet.DebugConfigName;
         }
 
-        [MenuItem("Sparta/Build/Release", false, 2)]
+        [MenuItem("Sparta/Build/Release", false, 102)]
         public static void SetReleaseConfig()
         {
             BuildSetApplier.ApplyConfig(BuildSet.ReleaseConfigName);
@@ -233,7 +227,7 @@ namespace SpartaTools.Editor.View
             return BuildSetApplier.CurrentMode != BuildSet.ReleaseConfigName;
         }
 
-        [MenuItem("Sparta/Build/Shipping", false, 2)]
+        [MenuItem("Sparta/Build/Shipping", false, 103)]
         public static void SetShippingConfig()
         {
             BuildSetApplier.ApplyConfig(BuildSet.ShippingConfigName);
@@ -245,7 +239,13 @@ namespace SpartaTools.Editor.View
             return BuildSetApplier.CurrentMode != BuildSet.ShippingConfigName;
         }
 
-        [MenuItem("Sparta/Build/Build Set...", false, 3)]
+        [MenuItem("Sparta/Build/Apply Current &s", false, 120)]
+        public static void ApplyCurrent()
+        {
+            BuildSetApplier.Reapply();
+        }
+
+        [MenuItem("Sparta/Build/Build Set... &#s", false, 121)]
         public static void ShowBuildSettings()
         {
             EditorWindow.GetWindow(typeof(BuildSetsWindow), false, "Build Set", true);

@@ -12,7 +12,7 @@ namespace SpartaTools.Editor.View
     {
         #region Editor options
 
-        [MenuItem("Sparta/Validate/Sparta compiler...", false, 500)]
+        [MenuItem("Sparta/Validate/Sparta compiler...", false, 103)]
         public static void CompileModule()
         {
             EditorWindow.GetWindow(typeof(ModuleCompilerWindow), false, "Compiler", true);
