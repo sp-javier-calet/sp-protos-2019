@@ -6,6 +6,7 @@ namespace SocialPoint.Helpshift
         #region IHelpshift implementation
 
         static HelpshiftConfiguration _config = new HelpshiftConfiguration();
+        static HelpshiftCustomer _customer = new HelpshiftCustomer("0", new string[0], null);
 
         public HelpshiftConfiguration Configuration
         { 
@@ -17,8 +18,13 @@ namespace SocialPoint.Helpshift
 
         public HelpshiftCustomer UserData
         {
+            get
+            {
+                return _customer;
+            }
             set
             {
+                _customer = value;
             }
         }
 

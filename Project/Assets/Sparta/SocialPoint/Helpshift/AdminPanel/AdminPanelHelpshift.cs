@@ -1,7 +1,9 @@
 ﻿#if ADMIN_PANEL 
 
 using SocialPoint.AdminPanel;
+using SocialPoint.Utils;
 using UnityEngine.UI;
+using System.Text;
 
 namespace SocialPoint.Helpshift
 {
@@ -9,6 +11,7 @@ namespace SocialPoint.Helpshift
     {
         readonly IHelpshift _helpshift;
         AdminPanelConsole _console;
+        string _faqSectionId;
 
         Toggle _toggleHelpshift;
 
@@ -20,7 +23,7 @@ namespace SocialPoint.Helpshift
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
             _console = adminPanel.Console;
-            adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("HelpShift", this));
+            adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Helpshift", this));
         }
 
         void ConsolePrint(string msg)
@@ -46,13 +49,39 @@ namespace SocialPoint.Helpshift
             }, !enabled);
 
             layout.CreateMargin();
-            layout.CreateButton("FAQ", ShowFAQ, enabled);
+
+            var config = _helpshift.Configuration;
+            var builder = new StringBuilder();
+            layout.CreateLabel("Configuration");
+            builder.Append("Contact Mode: ").AppendLine(config.Mode.ToString());
+            builder.Append("Conversation resolution question: ").AppendLine(config.ConversationResolutionQuestionEnabled.ToString());
+            builder.Append("Search on new conversation: ").AppendLine(config.SearchOnNewConversationEnabled.ToString());
+            layout.CreateTextArea(builder.ToString());
+            layout.CreateMargin();
+
+            var userData = _helpshift.UserData;
+            builder = new StringBuilder();
+            layout.CreateLabel("User Data");
+            builder.Append("User Id: ").AppendLine(userData.UserId);
+            builder.Append("Metadata: ").AppendLine(StringUtils.DictToString(userData.CustomMetaData));
+            builder.Append("Tags: ").AppendLine(string.Join(",", userData.CustomerTags));
+            layout.CreateMargin();
+
+            layout.CreateTextInput("FAQ Id", value => _faqSectionId = value, enabled);
+            layout.CreateButton("Show FAQ", ShowFAQ, enabled);
             layout.CreateButton("Conversation", _helpshift.ShowConversation, enabled);
         }
 
         void ShowFAQ()
         {
-            _helpshift.ShowFAQ();
+            if(string.IsNullOrEmpty(_faqSectionId))
+            {
+                _helpshift.ShowFAQ();
+            }
+            else
+            {
+                _helpshift.ShowFAQ(_faqSectionId);
+            }
         }
     }
 }

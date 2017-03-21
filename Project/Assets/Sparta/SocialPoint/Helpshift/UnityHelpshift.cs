@@ -156,6 +156,10 @@ namespace SocialPoint.Helpshift
 
         public HelpshiftCustomer UserData
         {
+            get
+            {
+                return _userData;
+            }
             set
             {
                 _userData = value;

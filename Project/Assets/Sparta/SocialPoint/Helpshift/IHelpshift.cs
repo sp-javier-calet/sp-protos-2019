@@ -38,7 +38,7 @@ namespace SocialPoint.Helpshift
     {
         HelpshiftConfiguration Configuration { get; }
 
-        HelpshiftCustomer UserData { set; }
+        HelpshiftCustomer UserData { get; set; }
 
         bool IsEnabled{ get; }
 
