@@ -31,5 +31,7 @@ MonoBehaviour:
       Url: http://localhost:4630/api/v3
       Type: 3
   Defaults:
-    ProductionEnvironment: Production
+    IosProductionEnvironment: Production
+    AndroidProductionEnvironment: Production
+    CommonProductionEnvironment: Production
     DefaultEnvironment: Development
