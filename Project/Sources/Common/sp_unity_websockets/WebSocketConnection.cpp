@@ -19,7 +19,7 @@ namespace
 
 
 WebSocketConnection::WebSocketConnection()
-: _allowSelfSignedCertificates(false)
+: _allowSelfSignedCertificates(true)
 , _currentUrlIndex(0)
 , _websocket(nullptr)
 , _pendingPings(0)
@@ -155,8 +155,8 @@ void WebSocketConnection::connect()
 {
     if(_state != State::Connecting)
     {
-        WebSocketsManager::get().connect(this);
         setState(State::Connecting);
+        WebSocketsManager::get().connect(this);
     }
 }
 

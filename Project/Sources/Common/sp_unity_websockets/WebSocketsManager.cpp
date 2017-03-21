@@ -21,14 +21,6 @@ static int callback_websocket(struct lws* wsi, enum lws_callback_reasons reason,
     WebSocketsManager& manager = WebSocketsManager::get();
     WebSocketConnection* connection = manager.get(wsi);
 
-    if(!connection)
-    {
-        return 0;
-    }
-
-    int n;
-    int pRet = 0;
-
     if(reason != LWS_CALLBACK_GET_THREAD_ID)
     {
         lwsl_notice("REASON --- %d\n", reason);
@@ -38,6 +30,14 @@ static int callback_websocket(struct lws* wsi, enum lws_callback_reasons reason,
     {
         SSL_CTX_set_cert_verify_callback((SSL_CTX*)user, always_true_callback, 0);
     }
+
+    if(!connection)
+    {
+        return 0;
+    }
+
+    int n;
+    int pRet = 0;
 
     switch(reason)
     {
