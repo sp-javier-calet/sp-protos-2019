@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Dependency;
-using SocialPoint.Extension.Helpshift;
+using SocialPoint.Helpshift;
 using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.Notifications;
@@ -12,33 +12,43 @@ using SocialPoint.Notifications;
 using SocialPoint.AdminPanel;
 #endif
 
-namespace SocialPoint.Extension.Helpshift
+namespace SocialPoint.Helpshift
 {
     public class HelpshiftInstaller : ServiceInstaller
     {
+        // default params from DL
+        public const string DefaultApiKey = "e80e75c9fd498d3274f3cdbc637b3866";
+        public const string DefaultDomainName = "socialpoint.helpshift.com";
+        public const string DefaultIosAppId = "socialpoint_platform_20151021095745155-1b0b401a75542a3";
+        public const string DefaultAndroidAppId = "socialpoint_platform_20151021095745169-3fd755eb172b848";
+
+
         [Serializable]
         public class SettingsData
         {
             public bool UseEmpty;
 
-            public string ApiKey = HelpshiftConfiguration.DefaultApiKey;
-
-            public string DomainName = HelpshiftConfiguration.DefaultDomainName;
-
-            public string IosAppId = HelpshiftConfiguration.DefaultIosAppId;
-
-            public string AndroidAppId = HelpshiftConfiguration.DefaultAndroidAppId;
-
-            public HelpshiftConfiguration.ContactMode Mode;
-
-            public bool InAppNotificationEnabled;
+            public HelpshiftConfiguration.ContactMode Mode = HelpshiftConfiguration.ContactMode.CONTACT_US_ALWAYS;
 
             public bool SearchOnNewConversationEnabled;
 
             public bool ConversationResolutionQuestionEnabled;
         }
 
+        [Serializable]
+        public class InstallData
+        {
+            public string ApiKey = DefaultApiKey;
+
+            public string DomainName = DefaultDomainName;
+
+            public string IosAppId = DefaultIosAppId;
+
+            public string AndroidAppId = DefaultAndroidAppId;
+        }
+
         public SettingsData Settings = new SettingsData();
+        public InstallData InstallSettings = new InstallData();
 
         IHelpshift _helpshift;
 
@@ -50,7 +60,7 @@ namespace SocialPoint.Extension.Helpshift
             }
             else
             {
-                Container.Rebind<IHelpshift>().ToMethod<UnityHelpshift>(CreateUnityHelpshift);
+                Container.Rebind<IHelpshift>().ToMethod<UnityHelpshift>(CreateUnityHelpshift, SetupUnityHelpshift);
             }
 
             #if ADMIN_PANEL
@@ -66,20 +76,22 @@ namespace SocialPoint.Extension.Helpshift
         #endif
 
         UnityHelpshift CreateUnityHelpshift()
-        {
-            string appId = Settings.IosAppId;
-            #if UNITY_ANDROID
-            appId = Settings.AndroidAppId;
-            #endif
-           
-            var hsconfig = new HelpshiftConfiguration(Settings.ApiKey, appId, Settings.DomainName) {
+        {           
+            var hsconfig = new HelpshiftConfiguration() {
                 Mode = Settings.Mode,
-                InAppNotificationEnabled = Settings.InAppNotificationEnabled,
                 SearchOnNewConversationEnabled = Settings.SearchOnNewConversationEnabled,
                 ConversationResolutionQuestionEnabled = Settings.ConversationResolutionQuestionEnabled
             };
 
-            var hs = new UnityHelpshift(hsconfig, Container.Resolve<ILocalizationManager>(), Container.Resolve<INotificationServices>());
+            var hs = new UnityHelpshift(hsconfig);
+            _helpshift = hs;
+            return hs;
+        }
+
+        void SetupUnityHelpshift(UnityHelpshift helpshift)
+        {
+            helpshift.LocalizationManager = Container.Resolve<ILocalizationManager>();
+            helpshift.NotificationServices = Container.Resolve<INotificationServices>();
 
             var login = Container.Resolve<ILogin>();
             if(login != null)
@@ -88,10 +100,7 @@ namespace SocialPoint.Extension.Helpshift
                 login.NewGenericDataEvent += OnNewGenericData;
             }
 
-            hs.Enable();
-
-            _helpshift = hs;
-            return hs;
+            helpshift.Enable();
         }
 
         void OnNewGenericData(Attr data)
@@ -105,7 +114,6 @@ namespace SocialPoint.Extension.Helpshift
             {
                 _helpshift.UserData = new HelpshiftCustomer(userId, new []{ userImportance }, new Dictionary<string, object>());
             }
-
         }
     }
 }

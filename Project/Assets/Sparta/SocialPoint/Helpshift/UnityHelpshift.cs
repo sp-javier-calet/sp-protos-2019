@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using Helpshift;
 using SocialPoint.Base;
-using UnityEngine;
 #endif
 
 using SocialPoint.Locale;
@@ -12,50 +11,35 @@ using SocialPoint.Notifications;
 
 #if HELPSHIFT_SUPPORTED
 
-namespace SocialPoint.Extension.Helpshift
+namespace SocialPoint.Helpshift
 {
     public sealed class UnityHelpshift : IHelpshift
     {
-        const string ENABLE_IN_APP_NOTIFICATIONS_KEY = "enableInAppNotification";
-        const string UNITY_GAMEOBJECT_NAME_KEY = "unityGameObject";
-        const string ENABLE_CONTACT_US_KEY = "enableContactUs";
-        const string SHOW_SEARCH_ON_NEW_CONVERSATION_KEY = "showSearchOnNewConversation";
-        const string SHOW_CONVERSATION_RESOLUTION_QUESTION_KEY = "showConversationResolutionQuestion";
-        const string YES_KEY = "yes";
-        const string NO_KEY = "no";
-
-        const string GameObjectName = "SocialPointHelpshift";
-
-        GameObject _gameObject;
-
+        const string DisableErrorLoggingKey = "disableErrorLogging";
+        const string EnableInAppNotificationsKey = "enableInAppNotification";
+        const string EnableContactUsKey = "enableContactUs";
+        const string ShowSarchOnNewConversationKey = "showSearchOnNewConversation";
+        const string ShowConversationResolutionQuestionKey = "showConversationResolutionQuestion";
+        const string YesKey = "yes";
+        const string NoKey = "no";
+       
         HelpshiftConfiguration _config;
-        ILocalizationManager _localizationManager;
-        INotificationServices _notificationServices;
+
+        public ILocalizationManager LocalizationManager { private get; set; }
+        public INotificationServices NotificationServices { private get; set; }
 
         HelpshiftSdk _helpshift;
         Dictionary<string, object> _configMap;
 
         HelpshiftCustomer _userData;
 
-        public UnityHelpshift(HelpshiftConfiguration config, ILocalizationManager localizationManager, INotificationServices notificationServices)
+        public UnityHelpshift(HelpshiftConfiguration config)
         {
             _config = config;
-            _localizationManager = localizationManager;
-            _notificationServices = notificationServices;
-
-            DebugUtils.Assert(_localizationManager != null);
-            DebugUtils.Assert(_notificationServices != null);
         }
 
         void Setup()
         {
-            if(string.IsNullOrEmpty(_config.ApiKey) ||
-               string.IsNullOrEmpty(_config.DomainName) ||
-               string.IsNullOrEmpty(_config.AppId))
-            {
-                throw new ArgumentException("Invalid Helshift configuration");
-            }
-
             // Generate config
             CreateConfigMap();
 
@@ -63,32 +47,32 @@ namespace SocialPoint.Extension.Helpshift
 
             // Initialize Helpshift sdk
             _helpshift = HelpshiftSdk.getInstance();
-            _helpshift.install(_config.ApiKey, _config.DomainName, _config.AppId, _configMap);
+
+#if UNITY_ANDROID
+            // Install is only called from c# in Android.
+            // For iOS, the config is deployed directly in a json file in the bundle to be read from native code
+            _helpshift.install();
+#endif
         }
 
         void CreateConfigMap()
         {
             _configMap = new Dictionary<string, object>();
 
-            _configMap.Add(UNITY_GAMEOBJECT_NAME_KEY, GameObjectName);
-
             // Controls the visibility of Contact Us button
-            _configMap.Add(ENABLE_CONTACT_US_KEY, GetContactModeString(_config.Mode));
-
-            // Use in-app notification support provided by the Helpshift 
-            _configMap.Add(ENABLE_IN_APP_NOTIFICATIONS_KEY, _config.InAppNotificationEnabled ? YES_KEY : NO_KEY);
+            _configMap.Add(EnableContactUsKey, GetContactModeString(_config.Mode));
 
             // If showSearchOnNewConversation flag is set to yes, the user will be taken to a view which shows the 
             // search results relevant to the conversation text that he has entered upon clicking the ‘Send’ button. 
             // This is to avoid tickets which are already answered in the FAQs.
-            _configMap.Add(SHOW_SEARCH_ON_NEW_CONVERSATION_KEY, _config.SearchOnNewConversationEnabled ? YES_KEY : NO_KEY);
+            _configMap.Add(ShowSarchOnNewConversationKey, _config.SearchOnNewConversationEnabled ? YesKey : NoKey);
 
 
             // By default the Helpshift SDK will not show the conversation resolution question to the user, to confirm 
             // if the conversation was resolved. On resolving the conversation from the admin dashboard will now take the 
             // user directly to the “Start a new conversation” state. If you want to enable the conversation resolution question, 
             // set showConversationResolutionQuestion to yes
-            _configMap.Add(SHOW_CONVERSATION_RESOLUTION_QUESTION_KEY, _config.ConversationResolutionQuestionEnabled ? YES_KEY : NO_KEY);
+            _configMap.Add(ShowConversationResolutionQuestionKey, _config.ConversationResolutionQuestionEnabled ? YesKey : NoKey);
         }
 
         void UpdateCustomerData()
@@ -117,7 +101,7 @@ namespace SocialPoint.Extension.Helpshift
                 customerMetaData.Add(kpv.Key, kpv.Value);
             }
 
-            _configMap.Add(HelpshiftSdk.HSCUSTOMMETADATAKEY, customerMetaData);
+            _configMap[HelpshiftSdk.HSCUSTOMMETADATAKEY] = customerMetaData;
         }
 
         static string GetContactModeString(HelpshiftConfiguration.ContactMode mode)
@@ -140,7 +124,7 @@ namespace SocialPoint.Extension.Helpshift
                 return;
             }
 
-            _helpshift.setSDKLanguage(_localizationManager.SelectedLanguage);
+            _helpshift.setSDKLanguage(LocalizationManager.SelectedLanguage);
         }
 
         void OnDeviceTokenReceived(bool validToken, string deviceToken)
@@ -172,6 +156,10 @@ namespace SocialPoint.Extension.Helpshift
 
         public HelpshiftCustomer UserData
         {
+            get
+            {
+                return _userData;
+            }
             set
             {
                 _userData = value;
@@ -189,11 +177,11 @@ namespace SocialPoint.Extension.Helpshift
 
         public void Enable()
         {
-            if(_gameObject == null)
-            {
-                _gameObject = new GameObject(GameObjectName);
-                UnityEngine.Object.DontDestroyOnLoad(_gameObject);
+            DebugUtils.Assert(LocalizationManager != null);
+            DebugUtils.Assert(NotificationServices != null);
 
+            if(!IsEnabled)
+            {
                 Setup();
 
                 if(_helpshift == null)
@@ -202,7 +190,7 @@ namespace SocialPoint.Extension.Helpshift
                 }
 
                 // Listen push notification token
-                _notificationServices.RegisterForRemoteToken(OnDeviceTokenReceived);
+                NotificationServices.RegisterForRemoteToken(OnDeviceTokenReceived);
 
                 UpdateLanguage();
             }
@@ -243,30 +231,23 @@ namespace SocialPoint.Extension.Helpshift
             _helpshift.showConversation(_configMap);
         }
 
-        public void OpenFromPush(string issueId)
-        {
-            if(_helpshift == null)
-            {
-                return;
-            }
-
-            _helpshift.handlePushNotification(issueId);
-        }
-
         #endregion
     }
 }
 
 #else
 
-namespace SocialPoint.Extension.Helpshift
+namespace SocialPoint.Helpshift
 {
     public sealed class UnityHelpshift : EmptyHelpshift
     {
-        public UnityHelpshift(HelpshiftConfiguration config, ILocalizationManager localizationManager, INotificationServices notificationServices)
+        public UnityHelpshift(HelpshiftConfiguration config)
         {
-
         }
+
+        public ILocalizationManager LocalizationManager { private get; set; }
+
+        public INotificationServices NotificationServices { private get; set; }
     }
 }
 

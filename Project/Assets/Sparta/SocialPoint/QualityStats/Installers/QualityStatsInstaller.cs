@@ -4,6 +4,7 @@ using SocialPoint.Dependency;
 using SocialPoint.Hardware;
 using SocialPoint.Network;
 using SocialPoint.ServerEvents;
+using SocialPoint.Utils;
 
 namespace SocialPoint.QualityStats
 {
@@ -35,7 +36,8 @@ namespace SocialPoint.QualityStats
         {
             return new SocialPointQualityStats(
                 Container.Resolve<IDeviceInfo>(),
-                Container.Resolve<IAppEvents>());
+                Container.Resolve<IAppEvents>(),
+                Container.Resolve<IUpdateScheduler>());
         }
 
         void SetupQualityStats(SocialPointQualityStats stats)

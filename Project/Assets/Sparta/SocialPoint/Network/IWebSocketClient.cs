@@ -4,10 +4,16 @@ namespace SocialPoint.Network
     {
         string ConnectedUrl { get; }
 
+        bool Connecting { get; }
+
         string[] Urls { get; set; }
 
         string Proxy { get; set; }
 
         void Ping();
+
+        void OnWillGoBackground();
+
+        void OnWasOnBackground();
     }
 }

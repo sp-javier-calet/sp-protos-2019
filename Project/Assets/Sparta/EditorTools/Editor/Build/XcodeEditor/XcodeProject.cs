@@ -459,7 +459,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             /// </summary>
             class FilesModEditor : IModEditor
             {
-                const string FilesBasePath = XcodeEditorInternal.ModsBasePath + "/Classes";
+                const string FilesBasePath = XcodeEditorInternal.ModsBasePath;
                 readonly List<ModData> _mods = new List<ModData>();
 
                 struct ModData

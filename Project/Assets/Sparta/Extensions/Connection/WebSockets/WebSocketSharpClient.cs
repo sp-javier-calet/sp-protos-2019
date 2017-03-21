@@ -149,6 +149,14 @@ namespace SocialPoint.WebSockets
             _socket.Ping();
         }
 
+        public void OnWillGoBackground()
+        {
+        }
+
+        public void OnWasOnBackground()
+        {
+        }
+
         #endregion
 
         #region INetworkClient implementation
@@ -207,6 +215,14 @@ namespace SocialPoint.WebSockets
             get
             {
                 return _socket.ReadyState == WebSocketSharp.WebSocketState.Open;
+            }
+        }
+
+        public bool Connecting
+        {
+            get
+            {
+                return _socket.ReadyState == WebSocketSharp.WebSocketState.Connecting;
             }
         }
 

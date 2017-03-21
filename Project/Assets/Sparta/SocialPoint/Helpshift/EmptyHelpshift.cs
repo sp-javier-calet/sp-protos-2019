@@ -1,11 +1,13 @@
-﻿
-namespace SocialPoint.Extension.Helpshift
+﻿using System.Collections.Generic;
+
+namespace SocialPoint.Helpshift
 {
     public class EmptyHelpshift : IHelpshift
     {
         #region IHelpshift implementation
 
-        static HelpshiftConfiguration _config = new HelpshiftConfiguration(string.Empty, string.Empty, string.Empty);
+        static HelpshiftConfiguration _config = new HelpshiftConfiguration();
+        static HelpshiftCustomer _customer = new HelpshiftCustomer("0", new string[0], new Dictionary<string, object>());
 
         public HelpshiftConfiguration Configuration
         { 
@@ -17,8 +19,13 @@ namespace SocialPoint.Extension.Helpshift
 
         public HelpshiftCustomer UserData
         {
+            get
+            {
+                return _customer;
+            }
             set
             {
+                _customer = value;
             }
         }
 
@@ -39,10 +46,6 @@ namespace SocialPoint.Extension.Helpshift
         }
 
         public void ShowConversation()
-        {
-        }
-
-        public void OpenFromPush(string issueId)
         {
         }
 
