@@ -154,7 +154,7 @@ namespace SocialPoint.Network
             FinalizeStream();
         }
 
-        static UnmanagedMarshaledObject<Curl.RequestStruct> CreateMarshalledRequestStruct(HttpRequest request, int connectionId = 0)
+        static UnmanagedMarshaledObject<Curl.RequestStruct> CreateMarshaledRequestStruct(HttpRequest request, int connectionId = 0)
         {
             return new UnmanagedMarshaledObject<Curl.RequestStruct>(CreateRequestStruct(request, connectionId));
         }
@@ -203,7 +203,7 @@ namespace SocialPoint.Network
 
         void Send(Curl.Connection connection, HttpRequest req)
         {
-            _requestStruct = CreateMarshalledRequestStruct(req, connection.Id);
+            _requestStruct = CreateMarshaledRequestStruct(req, connection.Id);
             int ok = connection.Send(_requestStruct);
             if(ok == 0)
             {
