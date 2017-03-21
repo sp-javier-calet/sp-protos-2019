@@ -163,50 +163,31 @@ namespace SocialPoint.TransparentBundles
         }
 
         /// <summary>
-        /// Assigns all the bundles in the asset .meta files and removes the ones that are not in the manifest.
+        /// Creates the data structure needed to build bundles with the Unity call
         /// </summary>
-        /// <param name="bundleManifest">Optional manifest to use to assign the bundles. If none is provided, it will use the last one produced by the DependencySystem</param>
-        public static void PrepareForBuild(Dictionary<string, BundleDependenciesData> bundleManifest = null)
+        /// <param name="bundleManifest">List of bundles calculated by Dependency System (Will take local data if null is passed)</param>
+        /// <returns>Array of AssetBundleBuild structure to pass to BuildAssetBundles</returns>
+        public static AssetBundleBuild[] CreateBuildMap(Dictionary<string, BundleDependenciesData> bundleManifest = null)
         {
             if(bundleManifest == null)
             {
                 bundleManifest = Manifest.GetDictionary();
             }
 
-            AssetDatabase.StartAssetEditing();
-            var bundledAssets = GetBundledAsset();
-
-            AssetDatabase.RemoveUnusedAssetBundleNames();
-            foreach(var bundle in AssetDatabase.GetAllAssetBundleNames())
-            {
-                if(!bundledAssets.Exists(x => x.BundleName == bundle))
-                {
-                    if(OnLogMessage != null)
-                    {
-                        OnLogMessage("Old bundle found: " + bundle + ". Removing tag from assets...", LogType.Warning);
-                    }
-
-                    foreach(var asset in AssetDatabase.GetAssetPathsFromAssetBundle(bundle))
-                    {
-                        var importer = AssetImporter.GetAtPath(asset);
-                        importer.assetBundleName = string.Empty;
-                    }
-                }
-            }
-            AssetDatabase.RemoveUnusedAssetBundleNames();
-
+            List<AssetBundleBuild> bundles = new List<AssetBundleBuild>();
             foreach(var bundleData in bundleManifest.Values)
             {
-                var importer = AssetImporter.GetAtPath(bundleData.AssetPath);
-                if(bundleData.BundleName != importer.assetBundleName)
+                if(!string.IsNullOrEmpty(bundleData.BundleName))
                 {
-                    importer.assetBundleName = bundleData.BundleName;
+                    var assetBundleBuild = new AssetBundleBuild();
+                    assetBundleBuild.assetBundleName = bundleData.BundleName;
+                    assetBundleBuild.assetNames = new string[] { bundleData.AssetPath };
+                    bundles.Add(assetBundleBuild);
                 }
             }
 
-            AssetDatabase.StopAssetEditing();
+            return bundles.ToArray();
         }
-
         #endregion
 
         #region PrivateMethods
@@ -471,7 +452,7 @@ namespace SocialPoint.TransparentBundles
             var wasBundled = !string.IsNullOrEmpty(data.BundleName);
 
             // If is manual or have more than one dependant bundle it.
-            if(data.Dependants.Count > 1)
+            if(data.Dependants.Count > 1 && string.Compare(Path.GetExtension(data.AssetPath), ".cs", StringComparison.InvariantCultureIgnoreCase) != 0)
             {
                 data.BundleName = GetAutoBundleName(data.AssetPath);
 

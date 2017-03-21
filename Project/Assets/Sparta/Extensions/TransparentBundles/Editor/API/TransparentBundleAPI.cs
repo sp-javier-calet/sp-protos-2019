@@ -31,6 +31,7 @@ namespace SocialPoint.TransparentBundles
         const string _loginUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/login/";
         const string _requestUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/asset_request/";
         const string _localBundleUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/local_asset/";
+        const string _cancelUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/cancel_request/";
 
         const string _queryLogin = "user_email";
         const string _queryProject = "project";
@@ -197,13 +198,24 @@ namespace SocialPoint.TransparentBundles
         }
 
 
+        /// <summary>
+        /// Sends a cancel order for a request.
+        /// </summary>
+        /// <param name="arguments">Arguments needed for this type of request</param>
+        public static void CancelRequest(CancelRequestArgs arguments)
+        {
+            GenericRequest(arguments, _cancelUrl, "POST", JsonMapper.ToJson(arguments.requestID), x => HandleActionResponse(x, arguments, CancelRequest));
+        }
+
+
         static void GenericRequest(RequestArgs arguments, string url, string method, string body, Action<ResponseResult> finishedCallback)
         {
             // Build up the Login Options with callbacks and options
             var options = new LoginOptions();
 
             options.AutoRetryLogin = arguments.AutoRetryLogin;
-            options.LoginOk = report => {
+            options.LoginOk = report =>
+            {
                 var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.AppendQueryParams(url, GetBaseQueryArgs()));
                 request.Method = method;
                 request.ContentType = "application/json";
@@ -212,7 +224,8 @@ namespace SocialPoint.TransparentBundles
                 ActionRequest(arguments, requestData);
             };
 
-            options.LoginFailed = report => {
+            options.LoginFailed = report =>
+            {
                 arguments.SetRequestReport(report);
                 arguments.OnFailedCallback(report);
             };
