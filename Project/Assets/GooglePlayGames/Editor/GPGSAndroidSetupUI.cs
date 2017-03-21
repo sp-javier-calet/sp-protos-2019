@@ -107,14 +107,6 @@ namespace GooglePlayGames.Editor
                 // check the bundle id and set it if needed.
                 CheckBundleId();
 
-                Google.VersionHandler.InvokeInstanceMethod(
-                    GPGSDependencies.svcSupport, "ClearDependencies", null);
-                GPGSDependencies.RegisterDependencies();
-                Google.VersionHandler.InvokeStaticMethod(
-                    Google.VersionHandler.FindClass(
-                        "Google.JarResolver", "GooglePlayServices.PlayServicesResolver"),
-                    "MenuResolve", null);
-
                 return PerformSetup(
                     clientId,
                     GPGSProjectSettings.Instance.Get(GPGSUtil.APPIDKEY),
