@@ -480,7 +480,7 @@ namespace SocialPoint.TransparentBundles
                 for(int i = 0; i < allObjects.Length; i++)
                 {
                     string objectToCheck = allObjects[i];
-                    if(_controller.IsBundle(Path.GetFileNameWithoutExtension(objectToCheck)))
+                    if(_controller.IsBundle(Path.GetFileName(objectToCheck)))
                     {
                         filteredArray.Add(objectToCheck);
                     }
