@@ -231,6 +231,14 @@ namespace SocialPoint.Helpshift
             _helpshift.showConversation(_configMap);
         }
 
+        public int PendingNotificationsCount
+        {
+            get
+            {
+                return _helpshift.getNotificationCount(false);
+            }
+        }
+
         #endregion
     }
 }
