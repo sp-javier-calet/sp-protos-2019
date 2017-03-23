@@ -1,4 +1,4 @@
 {
-  "buildSettings": {"GCC_OPTIMIZATION_LEVEL": "s"},
+  "buildSettings": {"GCC_OPTIMIZATION_LEVEL": "0"},
   "infoPlist": {"UIFileSharingEnabled": true}
 }
