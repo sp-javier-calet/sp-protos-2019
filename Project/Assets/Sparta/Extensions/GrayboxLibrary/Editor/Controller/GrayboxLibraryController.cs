@@ -54,14 +54,13 @@ namespace SocialPoint.GrayboxLibrary
                     Thread.Sleep(100);
                     if(i == 99)
                     {
-                        if(EditorUtility.DisplayDialog("Graybox tool", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE' \n\n Check also that you have specified your Mac's password correctly.", "Close"))
+                        EditorUtility.DisplayDialog("Graybox tool", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE' \n\n Check also that you have specified your Mac's password correctly.", "Close");
+                        if(GrayboxLibraryWindow.Window != null)
                         {
-                            if(GrayboxLibraryWindow.Window != null)
-                            {
-                                GrayboxLibraryWindow.Window.Close();
-                            }
-                            Selection.activeObject = null;
+                            GrayboxLibraryWindow.Window.Close();
                         }
+                        Selection.activeObject = null;
+                        return;
                     }
                 }
             }
