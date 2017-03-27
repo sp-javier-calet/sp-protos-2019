@@ -442,13 +442,13 @@ namespace SocialPoint.TransparentBundles
                 }
                 switch(operation)
                 {
-                case BundleOperation.AddToBuild:
+                case BundleOperation.create_local_asset_bundles:
                     TransparentBundleAPI.MakeLocalBundle(new MakeLocalBundlesArgs(guids, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
                     break;
                 case BundleOperation.remove_asset_bundles:
                     TransparentBundleAPI.RemoveBundle(new RemoveBundlesArgs(guids, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
                     break;
-                case BundleOperation.RemoveFromBuild:
+                case BundleOperation.remove_local_asset_bundles:
                     TransparentBundleAPI.RemoveLocalBundle(new RemoveLocalBundlesArgs(guids, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
                     break;
                 }

@@ -564,7 +564,7 @@ namespace SocialPoint.TransparentBundles
                 {
                     assetList.Add(chosenEnum.Current.Value.Asset);
                 }
-                _controller.PerfomBundleOperation(assetList, BundleOperation.AddToBuild);
+                _controller.PerfomBundleOperation(assetList, BundleOperation.create_local_asset_bundles);
                 chosenEnum.Dispose();
             }
             if(GUILayout.Button(_actionButons[3], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
@@ -575,7 +575,7 @@ namespace SocialPoint.TransparentBundles
                 {
                     assetList.Add(chosenEnum.Current.Value.Asset);
                 }
-                _controller.PerfomBundleOperation(assetList, BundleOperation.RemoveFromBuild);
+                _controller.PerfomBundleOperation(assetList, BundleOperation.remove_local_asset_bundles);
                 chosenEnum.Dispose();
             }
             GUILayout.Label("", GUILayout.Width(3));
@@ -831,11 +831,11 @@ namespace SocialPoint.TransparentBundles
                 icon = processing ? _controller.DownloadImage(Config.IconsPath + Config.RemoveImageName) : _controller.DownloadImage(Config.IconsPath + Config.RemoveQueuedImageName);
                 break;
 
-            case BundleOperation.AddToBuild:
+            case BundleOperation.create_local_asset_bundles:
                 icon = processing ? _controller.DownloadImage(Config.IconsPath + Config.InBuildImageName) : _controller.DownloadImage(Config.IconsPath + Config.InBuildQueuedImageName);
                 break;
 
-            case BundleOperation.RemoveFromBuild:
+            case BundleOperation.remove_local_asset_bundles:
                 icon = processing ? _controller.DownloadImage(Config.IconsPath + Config.OutBuildImageName) : _controller.DownloadImage(Config.IconsPath + Config.OutBuildQueuedImageName);
                 break;
 

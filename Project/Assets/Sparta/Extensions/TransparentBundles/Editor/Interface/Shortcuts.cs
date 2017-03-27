@@ -63,7 +63,7 @@ namespace SocialPoint.TransparentBundles
         {
             Init();
             var assets = new List<Asset>(_controller.GetAssetsFromSelection());
-            if(_controller.PerfomBundleOperation(assets, BundleOperation.AddToBuild))
+            if(_controller.PerfomBundleOperation(assets, BundleOperation.create_local_asset_bundles))
             {
                 BundlesWindow.OpenWindow();
                 if(BundlesWindow.Window.position.xMin == 0 && BundlesWindow.Window.position.yMin == 0)
@@ -78,7 +78,7 @@ namespace SocialPoint.TransparentBundles
         {
             Init();
             var assets = new List<Asset>(_controller.GetAssetsFromSelection());
-            if(_controller.PerfomBundleOperation(assets, BundleOperation.RemoveFromBuild))
+            if(_controller.PerfomBundleOperation(assets, BundleOperation.remove_local_asset_bundles))
             {
                 BundlesWindow.OpenWindow();
                 if(BundlesWindow.Window.position.xMin == 0 && BundlesWindow.Window.position.yMin == 0)
