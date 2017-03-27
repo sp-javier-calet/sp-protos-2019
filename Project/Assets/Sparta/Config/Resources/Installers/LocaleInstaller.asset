@@ -13,15 +13,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    EditorDebug: 0
     EnableViewLocalization: 1
     Localization:
-      EnvironmentId: 2
+      Environment: 2
       ProjectId: lod
       SecretKeyDev: AE7ffBEUZXNzfTe0
       SecretKeyLoc: AE7ffBEUZXNzfTe0
       SecretKeyProd: GpfC4F40mwkX0jBX
       BundleDir: localization
+      CsvMode: 0
       SupportedLanguages:
       - en
       - es

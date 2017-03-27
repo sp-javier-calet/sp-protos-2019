@@ -101,7 +101,7 @@ namespace SocialPoint.Locale
                 Container.Resolve<IEventDispatcher>());
         }
 
-        static LocalizationManager CreateLocalizationManager()
+        LocalizationManager CreateLocalizationManager()
         {
             LocalizationManager.CsvLoadedDelegate csvLoadedDelegate = null;
 
