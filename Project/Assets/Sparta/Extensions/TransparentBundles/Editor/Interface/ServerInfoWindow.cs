@@ -53,53 +53,55 @@ namespace SocialPoint.TransparentBundles
             _scrollPos = GUILayout.BeginScrollView(_scrollPos, BundlesWindow.BodyStyle, GUILayout.ExpandHeight(true));
             GUILayout.Label("", GUILayout.Height(5));
 
-            var queueEnum = _controller.ServerInfo.ProcessingQueue.GetEnumerator();
-            for(int i = 0; queueEnum.MoveNext(); i++)
+            using(var queueEnum = _controller.ServerInfo.ProcessingQueue.GetEnumerator())
             {
-                EditorGUILayout.BeginHorizontal(GUILayout.Height(25), GUILayout.ExpandHeight(false));
-                GUILayout.Label("", GUILayout.Width(5));
-                if(i > 0)
+                for(int i = 0; queueEnum.MoveNext(); i++)
                 {
-                    if(GUILayout.Button("Cancel", GUILayout.Width(50)))
+                    EditorGUILayout.BeginHorizontal(GUILayout.Height(25), GUILayout.ExpandHeight(false));
+                    GUILayout.Label("", GUILayout.Width(5));
+                    if(i > 0)
                     {
-                        _controller.CancelBundleOperation(queueEnum.Current.Key);
+                        if(GUILayout.Button("Cancel", GUILayout.Width(50)))
+                        {
+                            _controller.CancelBundleOperation(queueEnum.Current.Key);
+                        }
                     }
-                }
-                BundlesWindow.DrawOperationIcon(queueEnum.Current.Value, i == 0);
-                string bundleNames = "";
-                int j = 0;
-                while(j < BundlesWindow.BundleList.Count && bundleNames.Length < Window.position.width)
-                {
-                    if(BundlesWindow.BundleList[j].OperationQueue.ContainsKey(queueEnum.Current.Key))
+                    BundlesWindow.DrawOperationIcon(queueEnum.Current.Value, i == 0);
+                    string bundleNames = "";
+                    int j = 0;
+                    while(j < BundlesWindow.BundleList.Count && bundleNames.Length < Window.position.width)
                     {
-                        bundleNames += BundlesWindow.BundleList[j].Asset.Name + ", ";
+                        if(BundlesWindow.BundleList[j].OperationQueue.ContainsKey(queueEnum.Current.Key))
+                        {
+                            bundleNames += BundlesWindow.BundleList[j].Asset.Name + ", ";
+                        }
+                        j++;
                     }
-                    j++;
-                }
-                if(bundleNames.Length == 0)
-                {
-                    //TEMPORARY
-                    var newBundlesEnum = _controller.NewBundles.GetEnumerator();
-                    while(newBundlesEnum.MoveNext())
+                    if(bundleNames.Length == 0)
                     {
-                        bundleNames += newBundlesEnum.Current.Key + ", ";
+                        //TEMPORARY
+                        var newBundlesEnum = _controller.NewBundles.GetEnumerator();
+                        while(newBundlesEnum.MoveNext())
+                        {
+                            bundleNames += newBundlesEnum.Current.Key + ", ";
+                        }
+                        newBundlesEnum.Dispose();
                     }
-                    newBundlesEnum.Dispose();
+                    if(bundleNames.Length > 0)
+                    {
+                        bundleNames = bundleNames.Substring(0, bundleNames.Length - 2);
+                    }
+                    if(j < BundlesWindow.BundleList.Count)
+                    {
+                        bundleNames += " (" + (BundlesWindow.BundleList.Count - j).ToString() + " more)";
+                    }
+                    GUILayout.Label(bundleNames, BundlesWindow.BodyTextStyle, GUILayout.ExpandWidth(true), GUILayout.Height(25));
+                    GUILayout.Label("", GUILayout.Width(5));
+                    EditorGUILayout.EndHorizontal();
+                    GUILayout.Label("", GUILayout.Height(5));
                 }
-                if(bundleNames.Length > 0)
-                {
-                    bundleNames = bundleNames.Substring(0, bundleNames.Length - 2);
-                }
-                if(j < BundlesWindow.BundleList.Count)
-                {
-                    bundleNames += " (" + (BundlesWindow.BundleList.Count - j).ToString() + " more)";
-                }
-                GUILayout.Label(bundleNames, BundlesWindow.BodyTextStyle, GUILayout.ExpandWidth(true), GUILayout.Height(25));
-                GUILayout.Label("", GUILayout.Width(5));
-                EditorGUILayout.EndHorizontal();
-                GUILayout.Label("", GUILayout.Height(5));
             }
-            queueEnum.Dispose();
+                
 
             EditorGUILayout.EndScrollView();
 
