@@ -312,6 +312,13 @@ namespace SocialPoint.TransparentBundles
             }
             else
             {
+                if(asset.GetAssetObject() == null)
+                {
+                    string erroMessage = "The asset '"+asset.Name+"' was not found in the project. Please, make sure that the asset was not deleted from the project. \n\nVisit the following link for more info: \n" + Config.HelpUrl;
+                    UnityEngine.Debug.LogError(erroMessage);
+                    EditorUtility.DisplayDialog("Asset issue", erroMessage, "Close");
+                    return false;
+                }
                 string[] assetsPath = AssetDatabase.GetDependencies(AssetDatabase.GUIDToAssetPath(asset.Guid));
                 var pendingAssetMessages = GitChecker.CheckFilePending(assetsPath);
                 if(pendingAssetMessages.Count > 0)
