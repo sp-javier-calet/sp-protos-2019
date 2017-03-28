@@ -1,10 +1,11 @@
 using UnityEngine;
+using System;
 
 namespace SocialPoint.TransparentBundles
 {
     public static class Config
     {
-        public static string MacVolumePath = Application.dataPath.Substring(0, Application.dataPath.IndexOf("/", 8)) + "/mount/3dshare/";
+        public static string MacVolumePath = "/Users/" + Environment.UserName + "/mount/3dshare/";
 
         public static string WinVolumePath = "//spserver.spoint.es/3dshare/";
 
