@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.Hardware;
@@ -8,6 +7,10 @@ using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Locale
 {
@@ -52,6 +55,8 @@ namespace SocialPoint.Locale
 
         public override void InstallBindings()
         {
+            Container.Bind<IInitializable>().ToInstance(this);
+
             Container.Rebind<Localization>().ToMethod<Localization>(CreateLocalization);
             Container.Rebind<LocalizeAttributeConfiguration>().ToMethod<LocalizeAttributeConfiguration>(CreateLocalizeAttributeConfiguration);
 
@@ -61,7 +66,9 @@ namespace SocialPoint.Locale
             Container.Rebind<ILocalizationManager>().ToMethod<LocalizationManager>(CreateLocalizationManager, SetupLocalizationManager);
             Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();    
 
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLocale>(CreateAdminPanel);
+            #endif
         }
 
         public void Initialize()
@@ -79,11 +86,13 @@ namespace SocialPoint.Locale
                 Container.ResolveList<IMemberAttributeObserver<LocalizeAttribute>>());
         }
 
+        #if ADMIN_PANEL
         AdminPanelLocale CreateAdminPanel()
         {
             return new AdminPanelLocale(
                 Container.Resolve<ILocalizationManager>());
         }
+        #endif
 
         Localization CreateLocalization()
         {
@@ -101,10 +110,23 @@ namespace SocialPoint.Locale
                 Container.Resolve<IEventDispatcher>());
         }
 
-        LocalizationManager CreateLocalizationManager()
+        static LocalizationManager CreateLocalizationManager()
         {
+            #if NGUI
+            var csvLoadedDelegate = new LocalizationManager.CsvLoadedDelegate(LoadNGUICSV);
+            return new LocalizationManager(LocalizationManager.CsvMode.WriteCsvWithAllSupportedLanguages, csvLoadedDelegate);
+            #else
             return new LocalizationManager();
+            #endif
         }
+
+        #if NGUI
+        static void LoadNGUICSV(byte[] bytes)
+        {
+            NGUILocalization.LoadCSV(bytes);
+        }
+        #endif
+
 
         void SetupLocalizationManager(LocalizationManager mng)
         {

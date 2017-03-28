@@ -14,6 +14,9 @@
 //    limitations under the License.
 // </copyright>
 
+// Keep the strings even if NO_GPGS 
+#if (UNITY_ANDROID || UNITY_IPHONE)
+
 namespace GooglePlayGames.Editor
 {
     public class GPGSStrings
@@ -200,3 +203,4 @@ namespace GooglePlayGames.Editor
                                           "limitations under the License.";
     }
 }
+#endif

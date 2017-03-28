@@ -72,6 +72,11 @@ namespace SocialPoint.WebSockets
             }
 
             _socket = new WebSocketSharp.WebSocket(urls[0], _protocols);
+
+            // WebsocketSharp connects automatically on creation. 
+            // We want to manage the connection manually, so we have to close the socket at startup.
+            _socket.Close();
+
             _socket.OnOpen += OnSocketOpened;
             _socket.OnClose += OnSocketClosed;
             _socket.OnError += OnSocketError;
@@ -144,6 +149,14 @@ namespace SocialPoint.WebSockets
             _socket.Ping();
         }
 
+        public void OnWillGoBackground()
+        {
+        }
+
+        public void OnWasOnBackground()
+        {
+        }
+
         #endregion
 
         #region INetworkClient implementation
@@ -202,6 +215,14 @@ namespace SocialPoint.WebSockets
             get
             {
                 return _socket.ReadyState == WebSocketSharp.WebSocketState.Open;
+            }
+        }
+
+        public bool Connecting
+        {
+            get
+            {
+                return _socket.ReadyState == WebSocketSharp.WebSocketState.Connecting;
             }
         }
 

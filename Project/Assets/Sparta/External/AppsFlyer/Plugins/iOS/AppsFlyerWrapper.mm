@@ -12,6 +12,7 @@
 
 
 static AppsFlyerDelegate *mAppsFlyerdelegate;
+static const int kPushNotificationSize = 32;
 
 @interface AppsFlyerWarpper () {
 }
@@ -24,7 +25,6 @@ static AppsFlyerDelegate *mAppsFlyerdelegate;
     
     if (mAppsFlyerdelegate == nil) {
         mAppsFlyerdelegate = [[AppsFlyerDelegate alloc] init];
-        
     }
     return mAppsFlyerdelegate;
 }
@@ -188,6 +188,10 @@ extern "C" {
         
     }
 
+    const void mRegisterUninstall (unsigned char *pushToken) {
+        NSData* tokenData = [NSData dataWithBytes:(const void *)pushToken length:sizeof(unsigned char)*kPushNotificationSize];
+        [[AppsFlyerTracker sharedTracker] registerUninstall:tokenData];
+    }
     
     char* cStringCopy(const char* string)
     {

@@ -1,4 +1,6 @@
-﻿using SocialPoint.AdminPanel;
+﻿#if ADMIN_PANEL 
+
+using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
 using UnityEngine;
 
@@ -78,3 +80,5 @@ namespace SocialPoint.CrossPromotion
         }
     }
 }
+
+#endif

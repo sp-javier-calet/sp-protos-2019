@@ -13,6 +13,7 @@
 //  See the License for the specific language governing permissions and
 //    limitations under the License.
 // </copyright>
+#if (UNITY_ANDROID || (UNITY_IPHONE && !NO_GPGS))
 
 namespace GooglePlayGames.Editor
 {
@@ -101,9 +102,7 @@ namespace GooglePlayGames.Editor
                 GPGSUtil.EnsureDirExists("Assets/Plugins/Android");
 
                 // Generate AndroidManifest.xml
-                GPGSUtil.GenerateAndroidManifest(
-                    GPGSProjectSettings.Instance.GetBool(GPGSUtil.REQUIREGOOGLEPLUSKEY)
-                );
+                GPGSUtil.GenerateAndroidManifest();
 
                 // refresh assets, and we're done
                 AssetDatabase.Refresh();
@@ -114,3 +113,4 @@ namespace GooglePlayGames.Editor
         }
     }
 }
+#endif

@@ -2,6 +2,8 @@
 using System;
 using System.IO;
 using Photon.Hive.Plugin;
+using PhotonHttpRequest = Photon.Hive.Plugin.HttpRequest;
+using PhotonIHttpResponse = Photon.Hive.Plugin.IHttpResponse;
 
 namespace SocialPoint.Network
 {
@@ -77,7 +79,7 @@ namespace SocialPoint.Network
                 stream.Write(request.Body, 0, request.Body.Length);
             }
             var conn = new PluginHttpConnection(del);
-            var photonRequest = new Photon.Hive.Plugin.HttpRequest
+            var photonRequest = new PhotonHttpRequest
             {
                 Url = request.Url.ToString(),
                 Method = request.Method.ToString(),
@@ -93,7 +95,7 @@ namespace SocialPoint.Network
             return conn;
         }
 
-        static void OnRequestCallback(Photon.Hive.Plugin.IHttpResponse photonResp, object userState)
+        static void OnRequestCallback(PhotonIHttpResponse photonResp, object userState)
         {
             var resp = new HttpResponse(photonResp.HttpCode);
             resp.OriginalBody = photonResp.ResponseData;

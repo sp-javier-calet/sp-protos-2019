@@ -36,6 +36,7 @@ namespace SocialPoint.Lockstep
             _client.Update(2000);
             Assert.IsTrue(started);
             started = false;
+            _client.Stop();
             _client.Start(-200);
             _client.Update(150);
             Assert.IsFalse(started, "Started should not be called if update time is lower than start delay");
@@ -43,6 +44,7 @@ namespace SocialPoint.Lockstep
             Assert.IsTrue(started, "Started should be called after update time exceeds start delay");
 
             started = false;
+            _client.Stop();
             _client.Start(200);
             _client.Update(0);
             Assert.IsTrue(started, "Started should not be called if started after 0 time (reconnection)");
@@ -118,6 +120,7 @@ namespace SocialPoint.Lockstep
 
             _client.RegisterCommandLogic(cmd.GetType(), apply);
             _client.ClientConfig.LocalSimulationDelay = 1000;
+            _client.Stop();
             _client.Start();
             _client.AddPendingCommand(cmd, finish);
             _client.Update(950);

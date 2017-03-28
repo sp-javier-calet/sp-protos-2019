@@ -21,6 +21,7 @@ MonoBehaviour:
       MaxPlayers: 2
       ClientStartDelay: 3000
       ClientSimulationDelay: 1000
+      FinishOnClientDisconnection: 1
     ClientConfig:
       LocalSimulationDelay: 1000
       MaxSimulationStepsPerFrame: 0

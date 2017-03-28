@@ -13,7 +13,7 @@ namespace SpartaTools.Editor.View
     {
         #region Editor options
 
-        [MenuItem("Sparta/Validate/XcodeMods...", false, 501)]
+        [MenuItem("Sparta/Validate/XcodeMods...", false, 104)]
         public static void ShowBuildSettings()
         {
             EditorWindow.GetWindow(typeof(XcodeEditorWindow), false, "Xcode Mods", true);

@@ -37,7 +37,7 @@ namespace SocialPoint.AssetBundlesClient
         }
         #endif
 
-        AssetBundleManager CreateAssetBundleManager()
+        static AssetBundleManager CreateAssetBundleManager()
         {
             return new AssetBundleManager();
         }
@@ -49,6 +49,7 @@ namespace SocialPoint.AssetBundlesClient
 
             mng.Scheduler = Container.Resolve<IUpdateScheduler>();
             mng.CoroutineRunner = Container.Resolve<ICoroutineRunner>();
+            mng.Setup();
         }
     }
 }

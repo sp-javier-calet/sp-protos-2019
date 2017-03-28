@@ -16,6 +16,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.unity3d.player.UnityPlayer;
+
 import es.socialpoint.unity.configuration.Metadata;
 
 public class NotificationBridge {

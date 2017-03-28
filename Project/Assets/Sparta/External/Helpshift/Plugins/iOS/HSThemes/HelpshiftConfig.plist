@@ -24,6 +24,22 @@
 		<string></string>
 		<key>Search highlight color</key>
 		<string></string>
+		<key>Status bar light content</key>
+		<string>NO</string>
+		<key>Table view detail font color</key>
+		<string></string>
+		<key>Table view destructive action font color</key>
+		<string></string>
+		<key>Table view normal action font color</key>
+		<string></string>
+		<key>Table view destructive action color</key>
+		<string></string>
+		<key>Table view normal action color</key>
+		<string></string>
+		<key>Table view icon background color</key>
+		<string>cccccc</string>
+		<key>Table view disclosure color</key>
+		<string></string>
 	</dict>
 	<key>Navigation Bar</key>
 	<dict>
@@ -43,18 +59,10 @@
 		<string></string>
 		<key>Set Translucent</key>
 		<true/>
-		<key>Text shadow color (iOS 6)</key>
-		<string></string>
-		<key>Background image (iOS 6)</key>
-		<string></string>
-		<key>Background image landscape (iOS 6)</key>
-		<string></string>
 	</dict>
 	<key>Search Bar</key>
 	<dict>
 		<key>Background color</key>
-		<string></string>
-		<key>Button text color (iOS 6)</key>
 		<string></string>
 	</dict>
 	<key>Table Section Header</key>
@@ -82,8 +90,6 @@
 	<key>Message Retry Badge</key>
 	<dict>
 		<key>Text color</key>
-		<string></string>
-		<key>Border color (iOS 6)</key>
 		<string></string>
 		<key>Background color</key>
 		<string></string>
