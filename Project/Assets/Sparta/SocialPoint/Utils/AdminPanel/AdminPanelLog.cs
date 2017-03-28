@@ -1,3 +1,5 @@
+#if ADMIN_PANEL 
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -358,3 +360,5 @@ namespace SocialPoint.Utils
         }
     }
 }
+
+#endif

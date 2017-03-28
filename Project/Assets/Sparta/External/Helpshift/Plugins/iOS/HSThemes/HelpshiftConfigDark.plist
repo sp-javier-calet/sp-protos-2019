@@ -24,6 +24,22 @@
 		<string>444A4B</string>
 		<key>Search highlight color</key>
 		<string>FFBB00</string>
+		<key>Status bar light content</key>
+		<string>YES</string>
+		<key>Table view detail font color</key>
+		<string>fafafa</string>
+		<key>Table view destructive action font color</key>
+		<string></string>
+		<key>Table view normal action font color</key>
+		<string></string>
+		<key>Table view destructive action color</key>
+		<string></string>
+		<key>Table view normal action color</key>
+		<string></string>
+		<key>Table view icon background color</key>
+		<string>888888</string>
+		<key>Table view disclosure color</key>
+		<string>888888</string>
 	</dict>
 	<key>Navigation Bar</key>
 	<dict>

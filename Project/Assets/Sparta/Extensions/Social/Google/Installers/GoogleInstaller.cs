@@ -1,9 +1,15 @@
-﻿using System;
-using SocialPoint.AdminPanel;
+﻿#if(UNITY_ANDROID || (UNITY_IPHONE && !NO_GPGS))
+#define GOOGLE_SUPPORTED
+#endif
+
+using System;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
-using SocialPoint.Utils;
 using SocialPoint.ServerEvents;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Social
 {
@@ -12,7 +18,7 @@ namespace SocialPoint.Social
         [Serializable]
         public class SettingsData
         {
-            public bool UseEmpty = false;
+            public bool UseEmpty;
             public bool LoginLink = true;
             public bool LoginWithUi = true;
         }
@@ -21,7 +27,7 @@ namespace SocialPoint.Social
 
         public override void InstallBindings()
         {
-            #if UNITY_ANDROID
+            #if GOOGLE_SUPPORTED
             if(Settings.UseEmpty)
             {
                 Container.Rebind<IGoogle>().ToSingle<EmptyGoogle>();
@@ -42,8 +48,13 @@ namespace SocialPoint.Social
             #else
             Container.Rebind<IGoogle>().ToSingle<EmptyGoogle>();
             #endif
+
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGoogle>(CreateAdminPanel);
+            #endif
         }
+
+        #if GOOGLE_SUPPORTED
 
         UnityGoogle CreateUnityGoogle()
         {
@@ -52,14 +63,20 @@ namespace SocialPoint.Social
 
         void SetupUnityGoogle(UnityGoogle google)
         {
-            google.Scheduler = Container.Resolve<IUpdateScheduler>();
+            google.Scheduler = Container.Resolve<SocialPoint.Utils.IUpdateScheduler>();
         }
+
+        #endif
+
+        #if ADMIN_PANEL
 
         AdminPanelGoogle CreateAdminPanel()
         {
             return new AdminPanelGoogle(
                 Container.Resolve<IGoogle>());
         }
+
+        #endif
 
         GooglePlayLink CreateLoginLink()
         {

@@ -120,11 +120,11 @@ namespace SocialPoint.Matchmaking
             }
             else if(attr != null && attr.ContainsKey(ErrorAttrKey))
             {
-                OnError(new Error("Got error: "+attr.GetValue(ErrorAttrKey).ToString()));
+                OnError(new Error("Got error: " + attr.GetValue(ErrorAttrKey).ToString()));
             }
             else
             {
-                OnError(new Error("Got unknown data: "+kwargs));
+                OnError(new Error("Got unknown data: " + kwargs));
             }
         }
 

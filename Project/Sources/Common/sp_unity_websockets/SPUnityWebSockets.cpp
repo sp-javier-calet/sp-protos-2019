@@ -62,6 +62,16 @@ EXPORT_API void SPUnityWebSocketDisconnect(WebSocketConnection* socket)
     socket->disconnect();
 }
 
+EXPORT_API void SPUnityWebSocketOnWillGoBackground(WebSocketConnection* socket)
+{
+    socket->onWillGoBackground();
+}
+
+EXPORT_API void SPUnityWebSocketOnWasOnBackground(WebSocketConnection* socket)
+{
+    socket->onWasOnBackground();
+}
+
 EXPORT_API int SPUnityWebSocketGetConnectedUrlIndex(WebSocketConnection* socket)
 {
     if(socket->getState() == WebSocketConnection::State::Open)

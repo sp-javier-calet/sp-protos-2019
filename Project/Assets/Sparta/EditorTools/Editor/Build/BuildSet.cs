@@ -344,7 +344,7 @@ namespace SpartaTools.Editor.Build
             var sharedFlags = string.Format("{0};{1};{2};{3}", commonFlags, logLevelFlag, adminFlags, inspectionFlags);
 
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, string.Format(flagsPattern, sharedFlags, androidFlags));
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS,string.Format(flagsPattern, sharedFlags, iosFlags));
+            PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, string.Format(flagsPattern, sharedFlags, iosFlags));
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone, sharedFlags);
 
             /*
@@ -352,12 +352,24 @@ namespace SpartaTools.Editor.Build
              */
 
             // Android Keystore
-            if(Android.UseKeystore && !string.IsNullOrEmpty(Android.Keystore.Path))
+            if(Android.UseKeystore)
             {       
-                PlayerSettings.Android.keystoreName = Android.Keystore.Path;
-                PlayerSettings.Android.keystorePass = Android.Keystore.FilePassword;
-                PlayerSettings.Android.keyaliasName = Android.Keystore.Alias;
-                PlayerSettings.Android.keyaliasPass = Android.Keystore.Password;
+                if(!string.IsNullOrEmpty(Android.Keystore.Path))
+                {
+                    PlayerSettings.Android.keystoreName = Android.Keystore.Path;
+                }
+                if(!string.IsNullOrEmpty(Android.Keystore.FilePassword))
+                {
+                    PlayerSettings.Android.keystorePass = Android.Keystore.FilePassword;
+                }
+                if(!string.IsNullOrEmpty(Android.Keystore.Alias))
+                {
+                    PlayerSettings.Android.keyaliasName = Android.Keystore.Alias;
+                }
+                if(!string.IsNullOrEmpty(Android.Keystore.Password))
+                {
+                    PlayerSettings.Android.keyaliasPass = Android.Keystore.Password;
+                }
             }
             else
             {

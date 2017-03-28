@@ -1,0 +1,12 @@
+
+{
+  "buildSettings": {
+    "CC": "$(SRCROOT)/clang_cache_distcc",
+    "LDPLUSPLUS": "$(DT_TOOLCHAIN_DIR)/usr/bin/clang++"
+  },
+  "copyFiles": {
+    "{ROOT_PATH}/Sources/Apple/sp_unity_plugins/clang_cache" : "{XCODE_PROJECT_PATH}/../clang_cache",
+    "{ROOT_PATH}/Sources/Apple/sp_unity_plugins/clang_cache_distcc" : "{XCODE_PROJECT_PATH}/../clang_cache_distcc",
+    "{ROOT_PATH}/Sources/Apple/sp_unity_plugins/distcc/*" : "{XCODE_PROJECT_PATH}/../distcc"
+  }
+}

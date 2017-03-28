@@ -1,4 +1,4 @@
-#include "Helpshift.h"
+#include "HelpshiftSupport.h"
 extern "C" UIViewController *UnityGetGLViewController();
 extern void UnitySendMessage(const char *, const char *, const char *);
 
@@ -135,6 +135,13 @@ extern "C" void hsRegisterDeviceToken(const char *deviceToken);
 extern "C" void hsHandleRemoteNotificationForIssue(const char *issue_id);
 
 /*
+ * Forward the push notification for the Helpshift lib to handle
+ *
+ */
+
+extern "C" void hsHandleRemoteNotification(const char *notificationDataCharString);
+
+/*
  * Forward the local notification for the Helpshift lib to handle
  *
  * To show support on Notification opened, call handleLocalNotificationForIssue when you receive a local notification with the value of
@@ -174,14 +181,36 @@ extern "C" void hsPauseDisplayOfInAppNotification(bool pauseInApp);
 
 extern "C" void hsShowAlertToRateAppWithURL(const char *url);
 
-extern "C" void hsRegisterForRemoteNotifications();
-
 extern "C" void hsLogin(const char *identifier, const char *name, const char *email);
 
 extern "C" void hsLogout();
 
-extern "C" void hsRegisterHelpshiftDeepLinking();
-
-extern "C" void hsRegisterForLocalNotifications();
-
 extern "C" void hsSetSDKLanguage(const char *locale);
+
+extern "C" bool hsAddPropertyInteger(const char *key,int value);
+
+extern "C" bool hsAddPropertyString(const char *key,const char *value);
+
+extern "C" bool hsAddPropertyBoolean(const char *key,bool value);
+
+extern "C" bool hsAddPropertyDate(const char *key,double value);
+
+extern "C" char *hsAddProperties(const char *value);
+
+extern "C" void hsShowDynamicForm(const char *, const char *);
+
+extern "C" void hsShowInboxWithOptions(const char *optionsDictionaryString);
+
+extern "C" void hsShowMessageWithIdAndOptions(const char *messageId, const char *optionsDictionaryString);
+
+extern "C" int hsGetCountOfUnreadMessages();
+
+extern "C" void hsRefetchMessages();
+
+/**
+ *  API to log messages to console and upload as metadata when filing an issue.
+ *
+ *  @param tag The tag for the log message
+ */
+extern "C" void hsLog(const char *log);
+

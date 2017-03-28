@@ -1,21 +1,33 @@
-#import "SPUnityAppControllerSubClass.h"
+#import "UnityAppController.h"
 #import <AdSupport/AdSupport.h>
 #import <UIKit/UIKit.h>
 
 #if !UNITY_TVOS
 #import <SPUnityPlugins/UnityGameObject.h>
-#import <SPUnityPlugins/SPUnityNativeUtils.h>
+#import <SPUnityPlugins/SPUnityApplication.h>
 #else
 #import <SPUnityPlugins_tvOS/UnityGameObject.h>
-#import <SPUnityPlugins_tvOS/SPUnityNativeUtils.h>
+#import <SPUnityPlugins_tvOS/SPUnityApplication.h>
 #endif
 
 #include <string>
 
+@interface SPUnityAppControllerSubClass : UnityAppController
+
++ (void)load;
+
+@end
+
 @implementation SPUnityAppControllerSubClass
+
+#pragma region - Controller Initialization
+
+// AppReady flag defined in UnityAppController
+extern bool _unityAppReady;
 
 + (void)load
 {
+    // Set this class as the main Application Controller
     extern const char* AppControllerClassName;
     AppControllerClassName = "SPUnityAppControllerSubClass";
 
@@ -26,170 +38,212 @@
                                             {
                                                 UnitySendMessage(name.c_str(), method.c_str(), message.c_str());
                                             });
+    
+    [SPUnityApplication setupApplication:&_unityAppReady];
 }
 
+#pragma region - SubController Life Cycle Implementation
 
 - (BOOL)application:(UIApplication*)application didFinishLaunchingWithOptions:(NSDictionary*)launchOptions
 {
-    [super application:application didFinishLaunchingWithOptions:launchOptions];
-
-    [AppSourceUtils clearSource];
-
-#if !UNITY_TVOS
-    UILocalNotification* notification = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
-    if(notification)
+    if([SPUnityApplication application:application didFinishLaunchingWithOptions:launchOptions])
     {
-        /* Notice that all event processing must be synchronous,
-         * since the Source could change if there are any other notification event
-         */
-        [AppSourceUtils storeSourceOptions:notification.userInfo withScheme:@"local"];
+        if([UnityAppController instancesRespondToSelector:@selector(application:didFinishLaunchingWithOptions:)])
+        {
+            return [super application:application didFinishLaunchingWithOptions:launchOptions];
+        }
     }
-#endif
-
-#if !UNITY_TVOS
-    if(SPUnityNativeUtils::isSystemVersionGreaterThanOrEqualTo(SPUnityNativeUtils::kV9) && launchOptions != nil)
-    {
-        UIApplicationShortcutItem* shortcutItem = [launchOptions objectForKey:UIApplicationLaunchOptionsShortcutItemKey];
-
-        if(shortcutItem != nil)
-            [self storeForceTouchShortcut:shortcutItem];
-    }
-#endif
-    [AppEventsUtils notifyStatus:kStatusUpdateSource];
-
+    
     return YES;
+}
+
+- (void)applicationWillResignActive:(UIApplication*)application
+{
+    BOOL callSuper = [SPUnityApplication applicationWillResignActive:application];
+    
+    //aditional game loop to allow scripts response before being paused
+    UnityBatchPlayerLoop();
+    
+    if(callSuper)
+    {
+        if([UnityAppController instancesRespondToSelector:@selector(applicationWillResignActive:)])
+        {
+            [super applicationWillResignActive:application];
+        }
+    }
+}
+
+- (void)applicationDidBecomeActive:(UIApplication*)application
+{
+    if([SPUnityApplication applicationDidBecomeActive:application])
+    {
+        if([UnityAppController instancesRespondToSelector:@selector(applicationDidBecomeActive:)])
+        {
+            [super applicationDidBecomeActive:application];
+        }
+    }
+}
+
+- (void)applicationDidEnterBackground:(UIApplication*)application
+{
+    if([SPUnityApplication applicationDidEnterBackground:application])
+    {
+        if([UnityAppController instancesRespondToSelector:@selector(applicationDidEnterBackground:)])
+        {
+            [super applicationDidEnterBackground:application];
+        }
+    }
+}
+
+- (void)applicationWillEnterForeground:(UIApplication*)application
+{
+    if([SPUnityApplication applicationWillEnterForeground:application])
+    {
+        if([UnityAppController instancesRespondToSelector:@selector(applicationWillEnterForeground:)])
+        {
+            [super applicationWillEnterForeground:application];
+        }
+    }
+}
+
+- (void)applicationWillTerminate:(UIApplication*)application
+{
+    if([SPUnityApplication applicationWillTerminate:application])
+    {
+        if([UnityAppController instancesRespondToSelector:@selector(applicationWillTerminate:)])
+        {
+            [super applicationWillTerminate:application];
+        }
+    }
 }
 
 #if !UNITY_TVOS
 - (BOOL)application:(UIApplication*)application openURL:(NSURL*)url sourceApplication:(NSString*)sourceApplication annotation:(id)annotation
 {
-    [super application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
-
-    [AppSourceUtils storeSource:url.absoluteString];
-
-    [AppEventsUtils notifyStatus:kStatusUpdateSource];
-
+    if([SPUnityApplication application:application openURL:url sourceApplication:sourceApplication annotation:annotation])
+    {
+        if([UnityAppController instancesRespondToSelector:@selector(application:openURL:sourceApplication:annotation:)])
+        {
+            [super application:application openURL:url sourceApplication:sourceApplication annotation:annotation];
+        }
+    }
+    
     return YES;
 }
 #endif
+
+- (BOOL)application:(UIApplication*)application continueUserActivity:(NSUserActivity*)userActivity restorationHandler:(void (^)(NSArray* restorableObjects))restorationHandler
+{
+    if([SPUnityApplication application:application continueUserActivity:userActivity restorationHandler:restorationHandler])
+    {
+        if([UnityAppController instancesRespondToSelector:@selector(application:continueUserActivity:restorationHandler:)])
+        {
+            [super application:application continueUserActivity:userActivity restorationHandler:restorationHandler];
+        }
+    }
+    
+    return YES;
+}
+
+#pragma mark - Memory management
+
+- (void)applicationDidReceiveMemoryWarning:(UIApplication*)application
+{
+    if([SPUnityApplication applicationDidReceiveMemoryWarning:application])
+    {
+        if([UnityAppController instancesRespondToSelector:@selector(applicationDidReceiveMemoryWarning:)])
+        {
+            [super applicationDidReceiveMemoryWarning:application];
+        }
+    }
+}
 
 #pragma mark - Notifications
 
 #if !UNITY_TVOS
 - (void)application:(UIApplication*)application didRegisterUserNotificationSettings:(UIUserNotificationSettings*)notificationSettings// IOS 8.0
 {
-    if(userAllowsNotifications())
+    if([SPUnityApplication application:application didRegisterUserNotificationSettings:notificationSettings])
     {
-        onPermissionsGranted();
+        if([UnityAppController instancesRespondToSelector:@selector(application:didRegisterUserNotificationSettings:)])
+        {
+            [super application:application didRegisterUserNotificationSettings:notificationSettings];
+        }
     }
 }
 #endif
 
 - (void)application:(UIApplication*)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData*)deviceToken// IOS 3.0
 {
-    [super application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
-
-    NSString* pushToken = [NSString stringWithFormat:@"%@", deviceToken];
-
-    // apple sends the token in " <token> " format
-    pushToken = [pushToken stringByReplacingOccurrencesOfString:@"<" withString:@""];
-    pushToken = [pushToken stringByReplacingOccurrencesOfString:@">" withString:@""];
-    pushToken = [pushToken stringByReplacingOccurrencesOfString:@" " withString:@""];
-
-    onRegisterForRemote([pushToken UTF8String]);
+    if([SPUnityApplication application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken])
+    {
+        if([UnityAppController instancesRespondToSelector:@selector(application:didRegisterForRemoteNotificationsWithDeviceToken:)])
+        {
+            [super application:application didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+        }
+    }
 }
 
 - (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error// IOS 3.0
 {
-    [super application:application didFailToRegisterForRemoteNotificationsWithError:error];
-
-    onRegisterForRemoteFailed([error.localizedDescription UTF8String]);
+    if([SPUnityApplication application:application didFailToRegisterForRemoteNotificationsWithError:error])
+    {
+        if([UnityAppController instancesRespondToSelector:@selector(application:didFailToRegisterForRemoteNotificationsWithError:)])
+        {
+            [super application:application didFailToRegisterForRemoteNotificationsWithError:error];
+        }
+    }
 }
 
 - (void)application:(UIApplication*)application didReceiveRemoteNotification:(NSDictionary*)userInfo// IOS 3.0
 {
-    [super application:application didReceiveRemoteNotification:userInfo];
-
-    [AppSourceUtils storeSourceOptions:userInfo withScheme:@"push"];
-
-    [AppEventsUtils notifyStatus:kStatusUpdateSource];
+    if([SPUnityApplication application:application didReceiveRemoteNotification:userInfo])
+    {
+        if([UnityAppController instancesRespondToSelector:@selector(application:didReceiveRemoteNotification:)])
+        {
+            [super application:application didReceiveRemoteNotification:userInfo];
+        }
+    }
 }
 
 #if !UNITY_TVOS
 - (void)application:(UIApplication*)application didReceiveLocalNotification:(UILocalNotification*)notification// IOS 4.0
 {
-    [super application:application didReceiveLocalNotification:notification];
-
-    [AppSourceUtils storeSourceOptions:notification.userInfo withScheme:@"local"];
-
-    [AppEventsUtils notifyStatus:kStatusUpdateSource];
+    if([SPUnityApplication application:application didReceiveLocalNotification:notification])
+    {
+        if([UnityAppController instancesRespondToSelector:@selector(application:didReceiveLocalNotification:)])
+        {
+            [super application:application didReceiveLocalNotification:notification];
+        }
+    }
 }
 #endif
 
-
 #if !UNITY_TVOS
-- (void)storeForceTouchShortcut:(UIApplicationShortcutItem*)shortcut
-{
-    NSDictionary* dictionary = @{kEventTypeKey : [shortcut type]};
-
-    [AppSourceUtils storeSourceOptions:dictionary withScheme:@"appshortcut"];
-}
-
 - (void)application:(UIApplication*)application
   performActionForShortcutItem:(UIApplicationShortcutItem*)shortcutItem
              completionHandler:(void (^)(BOOL))completionHandler
 {
-    [self storeForceTouchShortcut:shortcutItem];
-
-    [AppEventsUtils notifyStatus:kStatusUpdateSource];
-
-    completionHandler(YES);
+    __block BOOL completionHandlerCalled = NO;
+    
+    auto callback = ^(BOOL result) {
+        if(!completionHandlerCalled)
+        {
+            completionHandlerCalled = YES;
+            completionHandler(result);
+        }
+    };
+    
+    if([SPUnityApplication application:application performActionForShortcutItem:shortcutItem completionHandler:callback])
+    {
+        if([UnityAppController instancesRespondToSelector:@selector(application:performActionForShortcutItem:completionHandler:)])
+        {
+            [super application:application performActionForShortcutItem:shortcutItem completionHandler:callback];
+        }
+    }
+    
+    callback(YES);
 }
 #endif
-
-- (void)applicationDidEnterBackground:(UIApplication*)application
-{
-    [super applicationDidEnterBackground:application];
-
-    [AppEventsUtils notifyStatus:kStatusBackground];
-}
-
-- (void)applicationWillEnterForeground:(UIApplication*)application
-{
-#if !UNITY_TVOS
-    application.applicationIconBadgeNumber = 0;
-#endif
-
-    [super applicationWillEnterForeground:application];
-
-    // applicationWillEnterForeground: might sometimes arrive *before* actually
-    // initing unity (e.g. locking on startup)
-    [AppEventsUtils notifyStatus:kStatusWillGoForeground];
-}
-
-- (void)applicationDidBecomeActive:(UIApplication*)application
-{
-    [super applicationDidBecomeActive:application];
-
-    [AppEventsUtils notifyStatus:kStatusActive];
-}
-
-- (void)applicationWillResignActive:(UIApplication*)application
-{
-    [AppEventsUtils notifyStatus:kStatusWillGoBackground];
-
-    // aditional game loop to allow scripts response before being paused
-    UnityBatchPlayerLoop();
-
-    [super applicationWillResignActive:application];
-}
-
-- (void)applicationDidReceiveMemoryWarning:(UIApplication*)application
-{
-    [super applicationDidReceiveMemoryWarning:application];
-
-    [AppEventsUtils notifyStatus:kStatusMemoryWarning];
-}
-
 
 @end

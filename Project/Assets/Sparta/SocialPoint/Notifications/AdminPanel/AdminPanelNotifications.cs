@@ -1,3 +1,5 @@
+#if ADMIN_PANEL 
+
 using UnityEngine.UI;
 using SocialPoint.AdminPanel;
 using SocialPoint.Console;
@@ -108,3 +110,5 @@ namespace SocialPoint.Notifications
         }
     }
 }
+
+#endif

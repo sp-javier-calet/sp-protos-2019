@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
@@ -9,6 +8,10 @@ using SocialPoint.Hardware;
 using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.ServerEvents;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Login
 {
@@ -45,7 +48,9 @@ namespace SocialPoint.Login
             Container.Rebind<ILoginData>().ToLookup<ILogin>();
             Container.Bind<IDisposable>().ToLookup<ILogin>();
 
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLogin>(CreateAdminPanel);
+            #endif
         }
 
         SocialPointLogin.LoginConfig CreateConfig()
@@ -90,6 +95,7 @@ namespace SocialPoint.Login
             }
         }
 
+        #if ADMIN_PANEL
         AdminPanelLogin CreateAdminPanel()
         {
             return new AdminPanelLogin(
@@ -97,5 +103,6 @@ namespace SocialPoint.Login
                 Container.Resolve<IBackendEnvironment>(),
                 Container.Resolve<IAppEvents>());
         }
+        #endif
     }
 }
