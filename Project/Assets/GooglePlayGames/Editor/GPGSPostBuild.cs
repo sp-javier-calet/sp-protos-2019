@@ -28,11 +28,7 @@ namespace GooglePlayGames.Editor
     // Use the included xcode support for unity 5+,
     // otherwise use the backported code.
 #if (UNITY_IOS || UNITY_IPHONE)
-    #if UNITY_5
         using UnityEditor.iOS.Xcode;
-    #else
-        using GooglePlayGames.xcode;
-    #endif
 #endif
 
     public static class GPGSPostBuild
