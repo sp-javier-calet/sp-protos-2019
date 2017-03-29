@@ -301,7 +301,7 @@ namespace SocialPoint.TransparentBundles
             {
                 if(asset.GetAssetObject() == null)
                 {
-                    ErrorDisplay.DisplayError(ErrorType.assetNotFound, true, false, false, asset.Name);
+                    ErrorDisplay.DisplayError(ErrorType.assetNotFound, true, false, false, asset.Name, asset.Guid);
                     return false;
                 }
                 string[] assetsPath = AssetDatabase.GetDependencies(AssetDatabase.GUIDToAssetPath(asset.Guid));
@@ -309,12 +309,12 @@ namespace SocialPoint.TransparentBundles
                 if(pendingAssetMessages.Count > 0)
                 {
                     valid = false;
-                    string penginAssetsText = "";
+                    string pendingAssetsText = "";
                     for(int i = 0; i < pendingAssetMessages.Count; i++)
                     {
-                        penginAssetsText += pendingAssetMessages[i]+"\n";
+                        pendingAssetsText += pendingAssetMessages[i]+"\n";
                     }
-                    ErrorDisplay.DisplayError(ErrorType.assetNotFound, true, false, false, penginAssetsText);
+                    ErrorDisplay.DisplayError(ErrorType.assetPendingToCommit, true, false, false, pendingAssetsText);
                 }
             }
             

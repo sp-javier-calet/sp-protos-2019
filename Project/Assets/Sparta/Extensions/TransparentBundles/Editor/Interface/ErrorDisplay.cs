@@ -10,11 +10,11 @@ namespace SocialPoint.TransparentBundles
 
         private static Dictionary<ErrorType, string> ErrorMessages = new Dictionary<ErrorType, string>
         {
-            { ErrorType.assetNotFoundInBundle, "Transparent Bundles - Error - The bundle '{}' have an asset with the following GUID: '{}' that was not found in the project. Please, make sure your project is up-to-date and that the asset has not been removed. If the issue persists, please, contact the transparent bundles team: " + Config.ContactMail },
-            { ErrorType.assetNotFound, "Transparent Bundles - Error - The asset '{}' was not found in the project. Please, make sure that the asset was not deleted from the project. \n\nVisit the following link for more info: \n" + Config.HelpUrl},
-            { ErrorType.parentBundleNotFound, "Transparent Bundles - Error - The parent bundle '{}' was not found in the bundle list. Please, contact the transparent bundles team: " + Config.ContactMail},
-            { ErrorType.assetPendingToCommit, "Transparent Bundles - Error - Some asset are pending to be commited and pushed to GIT:\n\n\n{}\nPlease, make sure that you updload all the pending assets before creating or updating bundles. \n\nVisit the following link for more info: \n" + Config.HelpUrl},
-            { ErrorType.bundleNotDownloadable, "Transparent Bundles - Error - The bundle '{}' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactMail}
+            { ErrorType.assetNotFoundInBundle, "Transparent Bundles - Error - The bundle '{0}' have an asset with the following GUID: '{1}' that was not found in the project. Please, make sure your project is up-to-date and that the asset has not been removed. If the issue persists, please, contact the transparent bundles team: " + Config.ContactMail+"\n"},
+            { ErrorType.assetNotFound, "Transparent Bundles - Error - The asset '{0}' with the following GUID: '{1}' was not found in the project. Please, make sure that the asset was not deleted from the project. \n\nVisit the following link for more info: \n" + Config.HelpUrl+"\n"},
+            { ErrorType.parentBundleNotFound, "Transparent Bundles - Error - The parent bundle '{0}' was not found in the bundle list. Please, contact the transparent bundles team: " + Config.ContactMail + "\n"},
+            { ErrorType.assetPendingToCommit, "Transparent Bundles - Error - Some asset are pending to be commited and pushed to GIT:\n\n\n{0}\nPlease, make sure that you updload all the pending assets before creating or updating bundles. \n\nVisit the following link for more info: \n" + Config.HelpUrl+"\n"},
+            { ErrorType.bundleNotDownloadable, "Transparent Bundles - Error - The bundle '{0}' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactMail + "\n"}
         };
 
         public static void FlushErrorCache()
@@ -22,9 +22,18 @@ namespace SocialPoint.TransparentBundles
             ErrorLog = new Dictionary<string, string>();
         }
 
-        public static string DisplayError(ErrorType errorType, bool showPopup = false, bool showOnce = false,  bool warning = false, string itemName = "", string GUID = "")
+        public static string DisplayError(ErrorType errorType, bool showPopup = false, bool showOnce = false, bool warning = false, string itemName = "", string GUID = "")
         {
-            string errorText = string.Format(ErrorMessages[errorType], errorType, GUID);
+            string errorText = "";
+
+            if(GUID.Length == 0)
+            {
+                errorText = string.Format(ErrorMessages[errorType], itemName);
+            }
+            else
+            {
+                errorText = string.Format(ErrorMessages[errorType], itemName, GUID);
+            }
 
             if(showOnce)
             {
@@ -53,7 +62,7 @@ namespace SocialPoint.TransparentBundles
                     DisplayConsoleError(errorText, warning);
                 }
             }
-            
+
             return errorText;
         }
 
