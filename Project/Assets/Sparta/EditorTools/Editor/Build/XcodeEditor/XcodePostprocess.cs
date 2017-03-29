@@ -24,7 +24,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 return EditorPrefs.GetString(LastPathPrefsKey, string.Empty);
             }
         }
-            
+
         static string[] Schemes
         {
             get
@@ -47,7 +47,6 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             Debug.Log(string.Format("XcodeMods Editor: {0}", message));
         }
 
-
         public static string GetProjectPath(string basePath)
         {
             var projectPath = basePath;
@@ -63,6 +62,19 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             return Path.GetFullPath(projectPath);
         }
 
+        // check for in-editor builds (replace button removes folder content first, append does not)
+        public static bool CheckIfAppend(string path)
+        {
+            string appendCheckFilePath = Path.Combine(path, "appendcheck.txt");
+
+            if(File.Exists(appendCheckFilePath))
+            {
+                return true;
+            }
+            File.Create(appendCheckFilePath).Close();
+            return false;
+        }
+
         [PostProcessBuild(701)]
         public static void OnPostProcessBuild(BuildTarget target, string path)
         {
@@ -73,6 +85,20 @@ namespace SpartaTools.Editor.Build.XcodeEditor
         {
             if(target == BuildTarget.iOS || target == BuildTarget.tvOS)
             {
+                if(AutoBuilder.IsRunning)
+                {
+                    if(AutoBuilder.IsAppendingBuild)
+                    {
+                        Log("(Autobuilder Build) XcodeMods will not be applied due to appending build");
+                        return;
+                    }
+                }
+                else if(CheckIfAppend(path)) // check only for manual builds
+                {
+                    Log("(Manual Build) XcodeMods will not be applied due to appending build");
+                    return;
+                }
+
                 Log("Executing SocialPoint xcodemods PostProcessor on path '" + path + "'...");
 
                 // Store project path for manual execution
@@ -140,7 +166,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             {
                 #if UNITY_EDITOR
                 return UnityEditorInternal.InternalEditorUtility.isHumanControllingUs &&
-                    !UnityEditorInternal.InternalEditorUtility.inBatchMode;
+                !UnityEditorInternal.InternalEditorUtility.inBatchMode;
                 #else
                 return false;
                 #endif

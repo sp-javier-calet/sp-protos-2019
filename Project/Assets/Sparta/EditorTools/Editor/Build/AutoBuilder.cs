@@ -8,6 +8,11 @@ namespace SpartaTools.Editor.Build
 {
     public static class AutoBuilder
     {
+        static BuildOptions _options = BuildOptions.None;
+        const BuildOptions _appendFlag = BuildOptions.AcceptExternalModificationsToPlayer;
+
+        public static bool IsRunning;
+
         static string ProjectName
         {
             get
@@ -51,14 +56,33 @@ namespace SpartaTools.Editor.Build
             return value;
         }
 
+        static bool IsUsingCommandLineArg(string name)
+        {
+            string[] arguments = Environment.GetCommandLineArgs();
+            foreach(var arg in arguments)
+            {
+                string argName = "+" + name;
+                if(arg.Equals(argName))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         static string GetDefaultLocationForTarget(BuildTarget target)
         {
             switch(target)
             {
-            case BuildTarget.Android: return "Builds/Android";
-            case BuildTarget.iOS: return "Builds/iOS";
-            case BuildTarget.tvOS: return "Builds/tvOS";
-            case BuildTarget.StandaloneOSXIntel: return "Builds/OSX-Intel";
+            case BuildTarget.Android:
+                return "Builds/Android";
+            case BuildTarget.iOS:
+                return "Builds/iOS";
+            case BuildTarget.tvOS:
+                return "Builds/tvOS";
+            case BuildTarget.StandaloneOSXIntel:
+                return "Builds/OSX-Intel";
             default:
                 throw new NotSupportedException("Unsupported platform " + target);
             }
@@ -124,6 +148,26 @@ namespace SpartaTools.Editor.Build
             Log(string.Format("Defined bundle version: '{0}'", PlayerSettings.bundleVersion));
         }
 
+        static void OverrideBuiltSetOptions(BuildTarget target, string location, BuildSet buildSet, bool appendBuild)
+        {
+            _options = buildSet.Options;
+
+            if(appendBuild)
+            {
+                _options |= _appendFlag;
+            }
+
+            var canAppendBuild = UnityEditorInternal.InternalEditorUtility.BuildCanBeAppended(target, location) == UnityEditorInternal.CanAppendBuild.Yes;
+            var optionsHasAppendFlag = (_options & _appendFlag) == _appendFlag;
+            if(optionsHasAppendFlag && (target == BuildTarget.Android || buildSet.IsShippingConfig || !canAppendBuild))
+            {
+                _options = _options & ~_appendFlag;
+                Log("Append flag is not allowed, it will not be used");
+            }
+
+            Log(string.Format("Building player with options: '{0}'", _options));
+        }
+
         static void OverrideBuildNumber(int buildNumber)
         {
             // Set build number. May be overriden by Build Set.
@@ -159,10 +203,19 @@ namespace SpartaTools.Editor.Build
 
         #region Public builder interface
 
+        public static bool IsAppendingBuild
+        {
+            get
+            {
+                bool enabled = (_options & _appendFlag) == _appendFlag;
+                return enabled;
+            }
+        }
+
         public static void BuildWithArgs()
         {
             // Parse Build number argument
-            int versionNumber = 0;
+            int versionNumber;
             try
             {
                 versionNumber = Int32.Parse(GetCommandLineArg("build", null));
@@ -176,9 +229,10 @@ namespace SpartaTools.Editor.Build
             var versionName = GetCommandLineArg("version", string.Empty);
             var builSetName = GetCommandLineArg("config", BuildSet.DebugConfigName);
             var outputPath = GetCommandLineArg("output", string.Empty);
+            var appendBuild = IsUsingCommandLineArg("append");
 
             // Launch build
-            Build(EditorUserBuildSettings.activeBuildTarget, builSetName, versionNumber, versionName, outputPath);
+            Build(EditorUserBuildSettings.activeBuildTarget, builSetName, appendBuild, versionNumber, versionName, outputPath);
         }
 
         /// <summary>
@@ -186,11 +240,14 @@ namespace SpartaTools.Editor.Build
         /// </summary>
         /// <param name="target">Target Platform</param>
         /// <param name="buildSetName">Build set name to apply before compiling</param>
+        /// <param name = "appendBuild">Append Build Option. If true adds the append option to the builder.</param>
         /// <param name="versionNumber">Version number. If zero, local current timestamp will be used. If negative, it will use the one defined in Unity Player Settings. </param>
         /// <param name="versionName">Short Version Name. If it is null or empty, it will use the one defined in Unity Player Settings. </param>
-        /// <param name="outPath">Output location. </param>
-        public static void Build(BuildTarget target, string buildSetName, int versionNumber = -1, string versionName = null, string outputPath = null)
+        /// <param name="outputPath">Output location. </param>
+        public static void Build(BuildTarget target, string buildSetName, bool appendBuild = false, int versionNumber = -1, string versionName = null, string outputPath = null)
         {
+            IsRunning = true;
+
             Log(string.Format("Starting Build <{0}> for target <{1}> with config set <{2}>", 
                 versionNumber, target, buildSetName));
 
@@ -224,10 +281,11 @@ namespace SpartaTools.Editor.Build
             var location = GetLocationForTarget(target, outputPath, ProjectName);
             Log(string.Format("Building player in path '{0}", location));
 
-            var options = buildSet.Options;
-            Log(string.Format("Building player with options: '{0}'", options));
+            OverrideBuiltSetOptions(target, location, buildSet, appendBuild);
 
-            // Dump config report after apply config
+            Debug.Log(string.Format("Sparta-Autobuilder: Unity version: {0}", Application.unityVersion));
+
+            //Dump config report after apply config
             new BuildReport()
                 .CollectBaseSettings()
                 .AddBuildSetInfo(buildSet)
@@ -235,13 +293,27 @@ namespace SpartaTools.Editor.Build
                 .Dump();
 
             Log("Starting Player Build");
-            string result = BuildPipeline.BuildPlayer(activeScenes, location, target, options);
 
-            Log(string.Format("Player Build finished with result: '{0}'", result));
+            #if UNITY_5_5_OR_NEWER
+            var buildPlayerOptions = new BuildPlayerOptions();
+            buildPlayerOptions.scenes = activeScenes;
+            buildPlayerOptions.locationPathName = location;
+            buildPlayerOptions.target = target;
+            buildPlayerOptions.options = _options;
+            string result = BuildPipeline.BuildPlayer(buildPlayerOptions);
+            #else
+            string result = BuildPipeline.BuildPlayer(activeScenes, location, target, _options);
+            #endif
+
+            _options = BuildOptions.None;
+            IsRunning = false;
+
             if(!string.IsNullOrEmpty(result))
             {
+                Log(string.Format("Player Build finished with error result: '{0}'", result));
                 throw new CompilerErrorException(result);
             }
+            Log("Player Build finished successfully");
         }
 
         #endregion

@@ -140,7 +140,9 @@ namespace SpartaTools.Editor.Build
 
             #if UNITY_5_5_OR_NEWER
             // Due to plugins constraints, we need to compile always using Gradle
+            EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
             EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Gradle;
+            EditorUserBuildSettings.forceInstallation = false;
             #endif
 
             // Flags
