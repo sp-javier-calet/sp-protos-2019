@@ -24,8 +24,7 @@ namespace SocialPoint.TransparentBundles
                 _dummy = (InspectorDummy)target;
                 if(_dummy.SelectedAsset.GetAssetObject() == null)
                 {
-                    string errorText = "Transparent Bundles - Error - The bundle '" + _dummy.SelectedAsset.Name + "' have an asset with the following GUID: '" + _dummy.SelectedAsset.Guid + "' that was not found in the project. Please, make sure your project is up-to-date and that the asset has not been removed. If the issue persists, please, contact the transparent bundles team: " + Config.ContactMail;
-                    UnityEngine.Debug.LogError(errorText);
+                    ErrorDisplay.DisplayError(ErrorType.assetNotFoundInBundle,false,false,false, _dummy.SelectedAsset.Name, _dummy.SelectedAsset.Guid);
                 }
                 else
                 {
@@ -437,7 +436,7 @@ namespace SocialPoint.TransparentBundles
                 }
                 else
                 {
-                    Debug.Log("Error Asset not found");
+                    ErrorDisplay.DisplayError(ErrorType.assetNotFound, false, false, false, asset.Name, asset.Guid);
                     return null;
                 }
 

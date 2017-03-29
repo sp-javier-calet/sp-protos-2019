@@ -15,7 +15,7 @@ namespace SocialPoint.TransparentBundles
         static Downloader _downloader;
         public Dictionary<string, List<Asset>> DependenciesCache, ReferencesCache;
         public Dictionary<string, bool> SharedDependenciesCache;
-        public Dictionary<string, string> ErrorLog;
+        
         Dictionary<string, Bundle> _bundleDictionary;
         public ServerInfo ServerInfo;
         bool _requestPending;
@@ -74,7 +74,6 @@ namespace SocialPoint.TransparentBundles
             DependenciesCache = new Dictionary<string, List<Asset>>();
             ReferencesCache = new Dictionary<string, List<Asset>>();
             SharedDependenciesCache = new Dictionary<string, bool>();
-            ErrorLog = new Dictionary<string, string>();
             _downloader = Downloader.GetInstance();
             _bundleDictionary = new Dictionary<string, Bundle>();
             ServerInfo = new ServerInfo(ServerStatus.Ok, "", new Dictionary<int, BundleOperation>());
@@ -198,13 +197,7 @@ namespace SocialPoint.TransparentBundles
 
                 if(asset.Name.Length == 0)
                 {
-                    string errorCode = "Asset not found " + asset.Guid;
-                    string errorText = "Transparent Bundles - Error - The bundle '" + bundleName + "' have an asset with the following GUID: '" + asset.Guid + "' that was not found in the project. Please, make sure your project is up-to-date and that the asset has not been removed. If the issue persists, please, contact the transparent bundles team: " + Config.ContactMail;
-                    if(!ErrorLog.ContainsKey(errorCode))
-                    {
-                        ErrorLog.Add(errorCode, errorText);
-                        UnityEngine.Debug.LogWarning(errorText);
-                    }
+                    ErrorDisplay.DisplayError(ErrorType.assetNotFoundInBundle, false, true, true, bundleName, asset.Guid);
                 }
                 else
                 {
@@ -239,13 +232,7 @@ namespace SocialPoint.TransparentBundles
                         }
                         else
                         {
-                            string errorCode = "Parent bundle not found " + parentBundleName;
-                            string errorText = "Transparent Bundles - Error - The parent bundle '" + parentBundleName + "' was not found in the bundle list. Please, contact the transparent bundles team: " + Config.ContactMail;
-                            if(!ErrorLog.ContainsKey(errorCode))
-                            {
-                                ErrorLog.Add(errorCode, errorText);
-                                UnityEngine.Debug.LogError(errorText);
-                            }
+                            ErrorDisplay.DisplayError(ErrorType.parentBundleNotFound, false, true, false, parentBundleName);
                         }
                     }
                 }
@@ -314,9 +301,7 @@ namespace SocialPoint.TransparentBundles
             {
                 if(asset.GetAssetObject() == null)
                 {
-                    string erroMessage = "The asset '"+asset.Name+"' was not found in the project. Please, make sure that the asset was not deleted from the project. \n\nVisit the following link for more info: \n" + Config.HelpUrl;
-                    UnityEngine.Debug.LogError(erroMessage);
-                    EditorUtility.DisplayDialog("Asset issue", erroMessage, "Close");
+                    ErrorDisplay.DisplayError(ErrorType.assetNotFound, true, false, false, asset.Name);
                     return false;
                 }
                 string[] assetsPath = AssetDatabase.GetDependencies(AssetDatabase.GUIDToAssetPath(asset.Guid));
@@ -329,9 +314,7 @@ namespace SocialPoint.TransparentBundles
                     {
                         penginAssetsText += pendingAssetMessages[i]+"\n";
                     }
-                    string erroMessage = "Some asset are pending to be commited and pushed to GIT:\n\n\n" + penginAssetsText + "\nPlease, make sure that you updload all the pending assets before creating or updating bundles. \n\nVisit the following link for more info: \n" + Config.HelpUrl;
-                    UnityEngine.Debug.LogError(erroMessage);
-                    EditorUtility.DisplayDialog("Asset issue", erroMessage, "Close");
+                    ErrorDisplay.DisplayError(ErrorType.assetNotFound, true, false, false, penginAssetsText);
                 }
             }
             
@@ -628,7 +611,7 @@ namespace SocialPoint.TransparentBundles
             DependenciesCache = new Dictionary<string, List<Asset>>();
             ReferencesCache = new Dictionary<string, List<Asset>>();
             SharedDependenciesCache = new Dictionary<string, bool>();
-            ErrorLog = new Dictionary<string, string>();
+            ErrorDisplay.FlushErrorCache();
         }
 
         public void FlushImagesCache()
