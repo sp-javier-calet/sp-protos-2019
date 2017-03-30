@@ -30,20 +30,6 @@ namespace SocialPoint.Locale
         public const string TraditionalChineseIdentifierCountry = "zh-TW";
         public const string TraditionalHongKongChineseIdentifierCountry = "zh-HK";
 
-        static Localization _defaultLocalization;
-
-        public static Localization Default
-        {
-            get
-            {
-                if(_defaultLocalization == null)
-                {
-                    _defaultLocalization = new Localization();
-                }
-                return _defaultLocalization;
-            }
-        }
-
         public Localization Fallback;
 
         readonly Dictionary<string,string> _strings = new Dictionary<string,string>();
@@ -56,11 +42,18 @@ namespace SocialPoint.Locale
             }
         }
 
-        public bool Debug;
+        bool _showKeysOnDevMode;
 
-        public Localization()
+        public bool ShowKeysOnDevMode
         {
-            Debug = DebugUtils.IsDebugBuild;
+            get
+            {
+                return _showKeysOnDevMode;
+            }
+            set
+            {
+                _showKeysOnDevMode = value && DebugUtils.IsDebugBuild;
+            }
         }
 
         string _language = "";
@@ -86,7 +79,7 @@ namespace SocialPoint.Locale
             {
                 return value;
             }
-            if(Fallback != null && Fallback.ContainsKey(key))
+            if(!ShowKeysOnDevMode && Fallback != null && Fallback.ContainsKey(key))
             {
                 return Fallback.Get(key);
             }
@@ -99,7 +92,7 @@ namespace SocialPoint.Locale
             {
                 return Get(err.ClientLocalize, err.ClientMsg);
             }
-            if(!Debug && !string.IsNullOrEmpty(err.ClientMsg))
+            if(!ShowKeysOnDevMode && !string.IsNullOrEmpty(err.ClientMsg))
             {
                 return err.ClientMsg;
             }
@@ -108,7 +101,7 @@ namespace SocialPoint.Locale
 
         string GetDefault(string defaultString, string key = null)
         {
-            if(Debug && !string.IsNullOrEmpty(key))
+            if(ShowKeysOnDevMode && !string.IsNullOrEmpty(key))
             {
                 StringBuilder stringBuilder = StringUtils.StartBuilder();
 
@@ -116,7 +109,7 @@ namespace SocialPoint.Locale
 
                 return StringUtils.FinishBuilder(stringBuilder);
             }
-            return defaultString != null ? defaultString : key;
+            return defaultString ?? key;
         }
 
         public string GetWithParams(string key, params object[] t)
