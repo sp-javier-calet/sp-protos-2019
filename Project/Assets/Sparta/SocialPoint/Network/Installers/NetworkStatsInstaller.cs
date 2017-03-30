@@ -7,6 +7,7 @@ namespace SocialPoint.Network
     public class NetworkStatsInstaller : ServiceInstaller
     {
         public bool Rebind = true;
+
         public override void InstallBindings()
         {
             if(Rebind)
@@ -17,7 +18,8 @@ namespace SocialPoint.Network
             else
             {
                 Container.Bind<INetworkServer>().ToLookup<INetworkServer>("internal");
-            }   Container.Bind<INetworkClient>().ToLookup<INetworkClient>("internal");
+                Container.Bind<INetworkClient>().ToLookup<INetworkClient>("internal");
+            }   
         }
 
         NetworkStatsServer CreateNetworkStatsServer()
