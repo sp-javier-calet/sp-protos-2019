@@ -204,7 +204,7 @@ namespace SocialPoint.TransparentBundles
         /// <param name="arguments">Arguments needed for this type of request</param>
         public static void CancelRequest(CancelRequestArgs arguments)
         {
-            GenericRequest(arguments, _cancelUrl, "POST", JsonMapper.ToJson(arguments.requestID), x => HandleActionResponse(x, arguments, CancelRequest));
+            GenericRequest(arguments, _cancelUrl, "POST", JsonMapper.ToJson(arguments.requestIDs), x => HandleActionResponse(x, arguments, CancelRequest));
         }
 
 
