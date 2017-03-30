@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using System.IO;
 using UnityEditor;
 using UnityEditor.Callbacks;
-using System;
-using System.IO;
+using UnityEngine;
 
 namespace SpartaTools.Editor.Build.XcodeEditor
 {
@@ -10,6 +10,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
     {
         public const string BaseScheme = "base";
         public const string EditorScheme = "editor";
+        public const string AppendScheme = "append";
 
         const string LastPathPrefsKey = "XcodePostProcessLastPath";
 
@@ -31,14 +32,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             {
                 // XCodeModSchemes prefs are written by BuildSet.
                 var customPrefixes = BuildSet.CurrentXcodeModSchemes;
-                if(string.IsNullOrEmpty(customPrefixes))
-                {
-                    return new string[0];
-                }
-                else
-                {
-                    return customPrefixes.Split(new char[]{ ';' });
-                }
+                return string.IsNullOrEmpty(customPrefixes) ? new string[0] : customPrefixes.Split(new [] { ';' });
             }
         }
 
@@ -62,8 +56,9 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             return Path.GetFullPath(projectPath);
         }
 
+
         // check for in-editor builds (replace button removes folder content first, append does not)
-        public static bool CheckIfAppend(string path)
+        static bool CheckIfManualAppend(string path)
         {
             string appendCheckFilePath = Path.Combine(path, "appendcheck.txt");
 
@@ -75,6 +70,26 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             return false;
         }
 
+        static bool IsAppendingBuild(string path)
+        {
+            if(AutoBuilder.IsRunning)
+            {
+                if(AutoBuilder.IsAppendingBuild)
+                {
+                    Log("(Autobuilder Build) XcodeMods will not be applied due to appending build, except the ones with 'append' scheme");
+                    return true;
+                }
+            }
+            else if(CheckIfManualAppend(path)) // check only for manual builds
+            {
+                Log("(Manual Build) XcodeMods will not be applied due to appending build, except the ones with 'append' scheme");
+                return true;
+            }
+
+            return false;
+        }
+
+
         [PostProcessBuild(701)]
         public static void OnPostProcessBuild(BuildTarget target, string path)
         {
@@ -85,26 +100,12 @@ namespace SpartaTools.Editor.Build.XcodeEditor
         {
             if(target == BuildTarget.iOS || target == BuildTarget.tvOS)
             {
-                if(AutoBuilder.IsRunning)
-                {
-                    if(AutoBuilder.IsAppendingBuild)
-                    {
-                        Log("(Autobuilder Build) XcodeMods will not be applied due to appending build");
-                        return;
-                    }
-                }
-                else if(CheckIfAppend(path)) // check only for manual builds
-                {
-                    Log("(Manual Build) XcodeMods will not be applied due to appending build");
-                    return;
-                }
-
                 Log("Executing SocialPoint xcodemods PostProcessor on path '" + path + "'...");
 
                 // Store project path for manual execution
                 LastProjectPath = path;
 
-                var baseAppPath = Path.Combine(UnityEngine.Application.dataPath, "..");
+                var baseAppPath = Path.Combine(Application.dataPath, "..");
 
                 var projectPath = GetProjectPath(path);
 
@@ -122,17 +123,25 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 var project = new XcodeProject(projectPath, baseAppPath);
                 var mods = new XcodeModsSet(target);
 
-                Log("Enabling 'base' scheme for xcodemods");
-                mods.AddScheme(BaseScheme);
-
-                var schemes = Schemes;
-                Log(string.Format("Enabling config schemes for xcodemods: {0}", string.Join(", ", schemes)));
-                mods.AddScheme(schemes);
-
-                if(IsEditorMode)
+                if(IsAppendingBuild(path))
                 {
-                    mods.AddScheme(EditorScheme);
-                    Log("Enabling 'editor' scheme for xcodemods");
+                    mods.AddScheme(AppendScheme);
+                    Log("Enabling 'append' scheme for xcodemods");
+                }
+                else
+                {
+                    Log("Enabling 'base' scheme for xcodemods");
+                    mods.AddScheme(BaseScheme);
+
+                    var schemes = Schemes;
+                    Log(string.Format("Enabling config schemes for xcodemods: {0}", string.Join(", ", schemes)));
+                    mods.AddScheme(schemes);
+
+                    if(IsEditorMode)
+                    {
+                        mods.AddScheme(EditorScheme);
+                        Log("Enabling 'editor' scheme for xcodemods");
+                    }
                 }
 
                 foreach(string file in mods.Files)
