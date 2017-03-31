@@ -5,18 +5,24 @@ namespace SocialPoint.TransparentBundles
 {
     public static class Config
     {
-        public static string MacVolumePath = "/Users/" + Environment.UserName + "/mount/3dshare/";
+        public static string MacVolumePath = "/Users/" + Environment.UserName + "/mount/3dshare";
 
-        public static string WinVolumePath = "//spserver.spoint.es/3dshare/";
+        public static string SmbFolder = "spserver.spoint.es/3dshare";
+
+        public static string AltSmbFolder = "spserver/3dshare";
+
+        public static string WinVolumePath = "//" + SmbFolder;
 
         #if UNITY_EDITOR_OSX
         public static string VolumePath = MacVolumePath;
         #else
         public static string VolumePath = WinVolumePath;
         #endif
-        public static string IconsPath = VolumePath + "TA/TransparentBundles/tool_icons/";
+        public static string IconsFolder = "/TA/TransparentBundles/tool_icons/";
 
-        public static string SmbConnectionUrl = "//guest@" + WinVolumePath.Substring(2);
+        public static string IconsPath = VolumePath + IconsFolder;
+
+        public static string SmbConnectionUrl = "//guest@" + SmbFolder;
 
         public static string ContactMail = "transparent.bundles@socialpoint.es";
 
@@ -38,5 +44,11 @@ namespace SocialPoint.TransparentBundles
         public const string InServerImageName = "in_server.png";
         public const string HelpImageName = "help.png";
         public const string SleepImageName = "sleep.png";
+
+        public static void SetVolumePath(string newVolumePath)
+        {
+            VolumePath = newVolumePath;
+            IconsPath = VolumePath + IconsFolder;
+        }
     }
 }

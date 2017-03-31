@@ -27,7 +27,42 @@ namespace SocialPoint.TransparentBundles
         {
             //Mounts the smb folder
 #if UNITY_EDITOR_OSX
+            bool mounted = false;
             if(!Directory.Exists(Config.IconsPath))
+            {
+                var process = new ProcessStartInfo();
+                process.UseShellExecute = false;
+                process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                process.FileName = "mount";
+                process.RedirectStandardError = true;
+                process.RedirectStandardOutput = true;
+                var run = Process.Start(process);
+                while(!run.StandardError.EndOfStream)
+                {
+                    UnityEngine.Debug.LogError(run.StandardError.ReadLine());
+                }
+                while(!run.StandardOutput.EndOfStream)
+                {
+                    string outputText = run.StandardOutput.ReadLine();
+                    if(outputText.Contains(Config.SmbFolder))
+                    {
+                        string newPath = outputText.Substring(outputText.IndexOf(Config.SmbFolder + " on ") + Config.SmbFolder.Length + 4);
+                        newPath = newPath.Split(' ')[0];
+                        Config.SetVolumePath(newPath);
+                        mounted = true;
+                    }
+                    else if(outputText.Contains(Config.AltSmbFolder))
+                    {
+                        string newPath = outputText.Substring(outputText.IndexOf(Config.AltSmbFolder + " on ") + Config.AltSmbFolder.Length + 4);
+                        newPath = newPath.Split(' ')[0];
+                        Config.SetVolumePath(newPath);
+                        mounted = true;
+                    }
+                }
+                run.Close();
+            }
+
+            if(!mounted)
             {
                 var process = new ProcessStartInfo();
                 process.UseShellExecute = false;
@@ -216,7 +251,7 @@ namespace SocialPoint.TransparentBundles
             {
                 AttrDic jsonRow = jsonList[i].AsDic;
                 string childBundleName = jsonRow["name"].AsValue.ToString();
-                string childAssetName = GetFixedAssetName(childBundleName.Substring(0, childBundleName.LastIndexOf("_"))+"."+ childBundleName.Substring(childBundleName.LastIndexOf("_")+1));
+                string childAssetName = GetFixedAssetName(childBundleName.Substring(0, childBundleName.LastIndexOf("_")) + "." + childBundleName.Substring(childBundleName.LastIndexOf("_") + 1));
                 if(bundleDictionary.ContainsKey(childAssetName))
                 {
                     AttrList jsonParents = jsonRow["parents"].AsList;
@@ -224,7 +259,7 @@ namespace SocialPoint.TransparentBundles
                     for(int j = 0; j < jsonParents.Count; j++)
                     {
                         string parentBundleName = jsonParents[j].AsValue.ToString();
-                        string parentAssetName = GetFixedAssetName(parentBundleName.Substring(0, parentBundleName.LastIndexOf("_")) + "." + parentBundleName.Substring(parentBundleName.LastIndexOf("_")+1));
+                        string parentAssetName = GetFixedAssetName(parentBundleName.Substring(0, parentBundleName.LastIndexOf("_")) + "." + parentBundleName.Substring(parentBundleName.LastIndexOf("_") + 1));
 
                         if(bundleDictionary.ContainsKey(parentAssetName))
                         {
@@ -312,7 +347,7 @@ namespace SocialPoint.TransparentBundles
                     string pendingAssetsText = "";
                     for(int i = 0; i < pendingAssetMessages.Count; i++)
                     {
-                        pendingAssetsText += pendingAssetMessages[i]+"\n";
+                        pendingAssetsText += pendingAssetMessages[i] + "\n";
                     }
                     ErrorDisplay.DisplayError(ErrorType.assetPendingToCommit, true, false, false, pendingAssetsText);
                 }
