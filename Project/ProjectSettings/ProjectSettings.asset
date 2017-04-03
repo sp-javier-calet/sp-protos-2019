@@ -9,7 +9,7 @@ PlayerSettings:
   defaultScreenOrientation: 4
   targetDevice: 2
   useOnDemandResources: 0
-  accelerometerFrequency: 60
+  accelerometerFrequency: 0
   companyName: socialpoint
   productName: Sparta BaseGame
   defaultCursor: {fileID: 0}
@@ -50,7 +50,7 @@ PlayerSettings:
   m_ActiveColorSpace: 0
   m_MTRendering: 1
   m_MobileMTRendering: 0
-  m_StackTraceTypes: 020000000200000002000000020000000200000001000000
+  m_StackTraceTypes: 010000000100000001000000010000000100000001000000
   iosShowActivityIndicatorOnLoading: -1
   androidShowActivityIndicatorOnLoading: -1
   tizenShowActivityIndicatorOnLoading: -1
@@ -130,8 +130,8 @@ PlayerSettings:
   AndroidMinSdkVersion: 15
   AndroidPreferredInstallLocation: 1
   aotOptions: ntrampolines=2048,nimt-trampolines=256
-  apiCompatibilityLevel: 1
-  stripEngineCode: 0
+  apiCompatibilityLevel: 2
+  stripEngineCode: 1
   iPhoneStrippingLevel: 2
   iPhoneScriptCallOptimization: 0
   iPhoneBuildNumber: 1611111111
@@ -145,7 +145,7 @@ PlayerSettings:
     serializedVersion: 2
     m_Bits: 238
   iPhoneSdkVersion: 988
-  iOSTargetOSVersionString: 6.0
+  iOSTargetOSVersionString: 7.0
   tvOSSdkVersion: 0
   tvOSRequireExtendedGameController: 0
   tvOSTargetOSVersionString: 9.0
@@ -462,8 +462,8 @@ PlayerSettings:
   webGLUseWasm: 0
   webGLCompressionFormat: 1
   scriptingDefineSymbols:
-    1: NO_GPGS;ADMIN_PANEL
-    4: SPARTA_PROFILER_ENABLED;NO_GPGS;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES
+    1: SPARTA_PROFILER_ENABLED;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES
+    4: SPARTA_PROFILER_ENABLED;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES;NO_GPGS
     7: SPARTA_PROFILER_ENABLED;SPARTA_LOG_DEBUG;ADMIN_PANEL;SPARTA_COLLECT_DEPENDENCIES
     13: NO_GPGS;ADMIN_PANEL
     25: NO_GPGS;ADMIN_PANEL
