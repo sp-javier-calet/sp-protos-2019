@@ -4,7 +4,7 @@ using UnityEngine;
 namespace SocialPoint.Helpshift
 {
     [CustomEditor(typeof(HelpshiftInstaller))]
-    public sealed class HelpshiftInstallerEditor : Editor
+    public sealed class HelpshiftInstallerEditor : UnityEditor.Editor
     {
         const string SerializeTooltip = "Helpshift install config is serialized to json in order to be read from native code before Unity initialization";
         static bool ActionsVisible = true;
