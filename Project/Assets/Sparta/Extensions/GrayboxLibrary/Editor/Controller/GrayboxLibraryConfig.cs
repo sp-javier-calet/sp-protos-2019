@@ -8,23 +8,29 @@ namespace SocialPoint.GrayboxLibrary
     {
         public static string DbConfig = "Server=GrayboxTool.c4rdfbnb9wen.eu-west-1.rds.amazonaws.com;Database=GrayboxTool;User ID=GrayboxTool;Password=SM9tyR8h21PRoVz;Pooling=true";
 
-        public static string MacVolumePath = "/Users/" + Environment.UserName + "/mount/3dshare/";
+        public static string MacVolumePath = "/Users/" + Environment.UserName + "/mount/3dshare";
 
-        public static string WinVolumePath = "//spserver/3dshare/";
+        public static string SmbFolder = "spserver.spoint.es/3dshare";
+
+        public static string AltSmbFolder = "spserver/3dshare";
+
+        public static string WinVolumePath = "//" + SmbFolder;
 
         #if UNITY_EDITOR_OSX
         public static string VolumePath = MacVolumePath;
         #else
         public static string VolumePath = WinVolumePath;
 #endif
-        public static string IconsPath = VolumePath + "TA/UnityAssetLibrary/tool_icons/";
+        public static string IconsFolder = "/TA/TransparentBundles/tool_icons/";
+
+        public static string IconsPath = VolumePath + IconsFolder;
 
         #if UNITY_EDITOR_OSX
-        public static string PkgDefaultFolder = VolumePath + "TA/UnityAssetLibrary/Packages";
+        public static string PkgDefaultFolder = VolumePath + "/TA/UnityAssetLibrary/Packages";
         #else
-        public static string PkgDefaultFolder = (VolumePath + "TA/UnityAssetLibrary/Packages").Replace("/", "\\");
+        public static string PkgDefaultFolder = (VolumePath + "/TA/UnityAssetLibrary/Packages").Replace("/", "\\");
 #endif
-        public static string SmbConnectionUrl = "//guest@" + WinVolumePath.Substring(2);
+        public static string SmbConnectionUrl = "//guest@" + SmbFolder;
 
         public static string ContactMail = "technical-art@socialpoint.es";
 
@@ -51,6 +57,12 @@ namespace SocialPoint.GrayboxLibrary
             { GrayboxAssetCategory.UI, "UI_" },
             { GrayboxAssetCategory.Vehicles, "VHC_" }
         };
+
+        public static void SetVolumePath(string newVolumePath)
+        {
+            VolumePath = newVolumePath;
+            IconsPath = VolumePath + IconsFolder;
+        }
 
     }
 

@@ -20,8 +20,42 @@ namespace SocialPoint.GrayboxLibrary
         {
             //Mounts the smb folder
             #if  UNITY_EDITOR_OSX
+            bool mounted = false;
+            if(!Directory.Exists(GrayboxLibraryConfig.IconsPath))
+            {
+                var process = new ProcessStartInfo();
+                process.UseShellExecute = false;
+                process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                process.FileName = "mount";
+                process.RedirectStandardError = true;
+                process.RedirectStandardOutput = true;
+                var run = Process.Start(process);
+                while(!run.StandardError.EndOfStream)
+                {
+                    UnityEngine.Debug.LogError(run.StandardError.ReadLine());
+                }
+                while(!run.StandardOutput.EndOfStream)
+                {
+                    string outputText = run.StandardOutput.ReadLine();
+                    if(outputText.Contains(GrayboxLibraryConfig.SmbFolder))
+                    {
+                        string newPath = outputText.Substring(outputText.IndexOf(GrayboxLibraryConfig.SmbFolder + " on ") + GrayboxLibraryConfig.SmbFolder.Length + 4);
+                        newPath = newPath.Split(' ')[0];
+                        GrayboxLibraryConfig.SetVolumePath(newPath);
+                        mounted = true;
+                    }
+                    else if(outputText.Contains(GrayboxLibraryConfig.AltSmbFolder))
+                    {
+                        string newPath = outputText.Substring(outputText.IndexOf(GrayboxLibraryConfig.AltSmbFolder + " on ") + GrayboxLibraryConfig.AltSmbFolder.Length + 4);
+                        newPath = newPath.Split(' ')[0];
+                        GrayboxLibraryConfig.SetVolumePath(newPath);
+                        mounted = true;
+                    }
+                }
+                run.Close();
+            }
 
-            if(!Directory.Exists(GrayboxLibraryConfig.PkgDefaultFolder))
+            if(!mounted)
             {
                 var process = new ProcessStartInfo();
                 process.UseShellExecute = false;
