@@ -51,13 +51,13 @@ namespace SocialPoint.TransparentBundles
 
                 if(idx != -1)
                 {
-                    var preIdx = idx;
+                    var preIdx = idx - 1;
                     var prevChar = gitStatus[preIdx - 1];
 
                     while(prevChar != '\n' && preIdx != 0)
                     {
-                        preIdx--;
                         prevChar = gitStatus[preIdx - 1];
+                        preIdx--;
                     }
 
                     var lastIdx = idx + path.Length;
