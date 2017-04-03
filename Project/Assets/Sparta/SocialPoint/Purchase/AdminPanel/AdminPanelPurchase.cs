@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#if ADMIN_PANEL 
+
+using UnityEngine;
 using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.AdminPanel;
@@ -220,3 +222,5 @@ namespace SocialPoint.Purchase
         }
     }
 }
+
+#endif

@@ -9,9 +9,9 @@ namespace SocialPoint.Network
         public override void InstallBindings()
         {
             Container.Rebind<LocalNetworkServer>().ToMethod<LocalNetworkServer>(CreateLocalServer, SetupServer);
-            Container.Rebind<INetworkServer>().ToLookup<LocalNetworkServer>();
+            Container.Rebind<INetworkServer>("internal").ToLookup<LocalNetworkServer>();
             Container.Rebind<LocalNetworkClient>().ToMethod<LocalNetworkClient>(CreateLocalClient, SetupClient);
-            Container.Rebind<INetworkClient>().ToLookup<LocalNetworkClient>();
+            Container.Rebind<INetworkClient>("internal").ToLookup<LocalNetworkClient>();
         }
 
         LocalNetworkClient CreateLocalClient()

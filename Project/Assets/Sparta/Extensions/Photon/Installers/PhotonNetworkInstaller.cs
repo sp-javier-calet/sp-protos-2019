@@ -16,9 +16,9 @@ namespace SocialPoint.Network
         public override void InstallBindings()
         {
             Container.RebindUnityComponent<PhotonNetworkServer>().WithSetup<PhotonNetworkServer>(SetupPhotonServer);
-            Container.Rebind<INetworkServer>().ToLookup<PhotonNetworkServer>();
+            Container.Rebind<INetworkServer>("internal").ToLookup<PhotonNetworkServer>();
             Container.RebindUnityComponent<PhotonNetworkClient>().WithSetup<PhotonNetworkClient>(SetupPhotonClient);
-            Container.Rebind<INetworkClient>().ToLookup<PhotonNetworkClient>();
+            Container.Rebind<INetworkClient>("internal").ToLookup<PhotonNetworkClient>();
         }
 
         void SetupPhotonServer(PhotonNetworkServer server)

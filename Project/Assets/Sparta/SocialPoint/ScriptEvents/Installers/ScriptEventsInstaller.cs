@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using SocialPoint.Dependency;
 using SocialPoint.Attributes;
-using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.ScriptEvents
 {
@@ -30,15 +33,19 @@ namespace SocialPoint.ScriptEvents
             Container.Rebind<IEventDispatcher>().ToSingle<EventDispatcher>();
             Container.Rebind<IScriptEventDispatcher>().ToMethod<ScriptEventDispatcher>(CreateScriptEventDispatcher);
 
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelScriptEvents>(CreateAdminPanel);
+            #endif
         }
 
+        #if ADMIN_PANEL
         AdminPanelScriptEvents CreateAdminPanel()
         {
             return new AdminPanelScriptEvents(
                 Container.Resolve<IScriptEventDispatcher>(),
                 Container.Resolve<IAttrObjParser<ScriptModel>>());
         }
+        #endif
 
         ScriptEventDispatcher CreateScriptEventDispatcher()
         {

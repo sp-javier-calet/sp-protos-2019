@@ -7,13 +7,16 @@ using SocialPoint.Dependency;
 using SocialPoint.IO;
 using SocialPoint.Pooling;
 using SocialPoint.Network;
-using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
 using SocialPoint.Matchmaking;
 using SocialPoint.Attributes;
 using FixMath.NET;
 using System;
 using System.IO;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace Examples.Lockstep
 {
@@ -68,11 +71,13 @@ namespace Examples.Lockstep
         ServerBehaviour _serverBehaviour;
         CloudRegionCode _photonRegion = CloudRegionCode.none;
 
+        #if ADMIN_PANEL
         FloatingPanelController _clientFloating;
         FloatingPanelController _serverFloating;
 
         static readonly Vector2 ClientFloatingPanelPosition = new Vector2(600, 200);
         static readonly Vector2 ServerFloatingPanelPosition = new Vector2(600, 90);
+        #endif
 
         string ReplayPath
         {
@@ -234,6 +239,8 @@ namespace Examples.Lockstep
             _netServer.RemoveDelegate(this);
             _netServer.AddDelegate(this);
             _netServer.Start();
+
+            #if ADMIN_PANEL
             if(_serverFloating == null)
             {
                 _serverFloating = FloatingPanelController.Create(new AdminPanelLockstepServerGUI(_netLockstepServer));
@@ -241,6 +248,7 @@ namespace Examples.Lockstep
                 _serverFloating.ScreenPosition = ServerFloatingPanelPosition;
                 _serverFloating.Show();
             }
+            #endif
         }
 
         public void OnHostClicked()
@@ -396,6 +404,7 @@ namespace Examples.Lockstep
             {
                 _setupContainer.SetActive(false);
             }
+            #if ADMIN_PANEL 
             if(_clientFloating == null)
             {
                 _clientFloating = FloatingPanelController.Create(new AdminPanelLockstepClientGUI(_lockstep));
@@ -403,6 +412,7 @@ namespace Examples.Lockstep
                 _clientFloating.ScreenPosition = ClientFloatingPanelPosition;
                 _clientFloating.Show();
             }
+            #endif
         }
 
         void SimulateClient(int dt)

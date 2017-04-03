@@ -33,7 +33,10 @@ namespace SocialPoint.Social
 
             LocalPlayer.AddComponent(basicDataComponent);
 
-            OnLocalPlayerLoaded(data);
+            if(OnLocalPlayerLoaded != null)
+            { 
+                OnLocalPlayerLoaded(data);
+            }
         }
 
         /// <summary>

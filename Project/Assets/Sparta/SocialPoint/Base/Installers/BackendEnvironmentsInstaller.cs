@@ -36,8 +36,25 @@ namespace SocialPoint.Base
         [Serializable]
         public class DefaultEnvironmentsData
         {
-            public string ProductionEnvironment = DefaultProductionName;
+            public string IosProductionEnvironment = DefaultProductionName;
+            public string AndroidProductionEnvironment = DefaultProductionName;
+            public string CommonProductionEnvironment = DefaultDevelopmentName;
             public string DefaultEnvironment = DefaultDevelopmentName;
+
+            public string CurrentProductionEnvironment
+            {
+                get
+                {
+                    switch(Application.platform)
+                    {
+                    case RuntimePlatform.Android:
+                        return AndroidProductionEnvironment;
+                    case RuntimePlatform.IPhonePlayer:
+                        return IosProductionEnvironment;
+                    }
+                    return CommonProductionEnvironment;
+                }
+            }
         }
 
         public SettingsData Settings = new SettingsData();
@@ -63,7 +80,7 @@ namespace SocialPoint.Base
         PersistentBackendEnvironmentStorage CreatePersistentStorage()
         {
             return new PersistentBackendEnvironmentStorage(
-                Defaults.ProductionEnvironment, 
+                Defaults.CurrentProductionEnvironment, 
                 Defaults.DefaultEnvironment
             );
         }
@@ -71,7 +88,7 @@ namespace SocialPoint.Base
         DefaultBackendEnvironmentStorage CreateStorage()
         {
             return new DefaultBackendEnvironmentStorage(
-                Defaults.ProductionEnvironment, 
+                Defaults.CurrentProductionEnvironment, 
                 Defaults.DefaultEnvironment
             );
         }

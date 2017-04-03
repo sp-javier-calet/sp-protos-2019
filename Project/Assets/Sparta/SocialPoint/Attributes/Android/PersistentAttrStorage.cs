@@ -52,7 +52,7 @@ namespace SocialPoint.Attributes
             _persistentAttrStorage = new AndroidJavaObject("es.socialpoint.unity.base.PersistentAttrStorage", AndroidContext.CurrentActivity, deviceUid);
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPPERSISTENT")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugPersistentAttrFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("AndroidPersistentAttrStorage {0}", msg));

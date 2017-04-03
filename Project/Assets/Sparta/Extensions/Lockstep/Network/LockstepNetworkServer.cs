@@ -6,6 +6,7 @@ using SocialPoint.IO;
 using SocialPoint.Matchmaking;
 using SocialPoint.Network;
 using SocialPoint.Utils;
+using SocialPoint.Network.ServerEvents;
 
 namespace SocialPoint.Lockstep
 {
@@ -25,16 +26,22 @@ namespace SocialPoint.Lockstep
     [Serializable]
     public sealed class LockstepServerConfig
     {
+        const string MaxPlayersAttrKey = "max_players";
+        const string ClientStartDelayAttrKey = "client_start_delay";
+        const string ClientSimulationDelayAttrKey = "client_simulation_delay";
+        const string FinishOnClientDisconnectionAttrKey = "finish_on_client_disconnection";
+
         public const byte DefaultMaxPlayers = 2;
         public const int DefaultClientStartDelay = 3000;
         public const int DefaultClientSimulationDelay = 1000;
         public const bool DefaultFinishOnClientDisconnection = true;
+        public const int DefaultMetricSendInterval = 10000;
 
         public byte MaxPlayers = DefaultMaxPlayers;
         public int ClientStartDelay = DefaultClientStartDelay;
         public int ClientSimulationDelay = DefaultClientSimulationDelay;
         public bool FinishOnClientDisconnection = DefaultFinishOnClientDisconnection;
-
+        public int MetricSendInterval = DefaultMetricSendInterval;
         public override string ToString()
         {
             return string.Format("[LockstepServerConfig\n" +
@@ -45,9 +52,19 @@ namespace SocialPoint.Lockstep
                 MaxPlayers, ClientStartDelay,
                 ClientSimulationDelay);
         }
+
+        public Attr ToAttr()
+        {
+            var attrDic = new AttrDic();
+            attrDic.Set(MaxPlayersAttrKey, new AttrInt(MaxPlayers));
+            attrDic.Set(ClientStartDelayAttrKey, new AttrInt(ClientStartDelay));
+            attrDic.Set(ClientSimulationDelayAttrKey, new AttrInt(ClientSimulationDelay));
+            attrDic.Set(FinishOnClientDisconnectionAttrKey, new AttrBool(FinishOnClientDisconnection));
+            return attrDic;
+        }
     }
 
-    public sealed class LockstepNetworkServer : IDisposable, INetworkMessageReceiver, INetworkServerDelegate, IMatchmakingServerDelegate
+    public sealed class LockstepNetworkServer : IDisposable, INetworkMessageReceiver, INetworkServerDelegate, IMatchmakingServerDelegate, IServerEventTracker
     {
         class ClientData
         {
@@ -57,9 +74,22 @@ namespace SocialPoint.Lockstep
             public byte PlayerNumber;
         }
 
+        const string MatchStartMetricName = "multiplayer.lockstep.match_start";
+        const string MatchEndMetricName = "multiplayer.lockstep.match_end";
+        const string MatchEndCorrectedMetricName = "multiplayer.lockstep.match_corrected";
+
         IMatchmakingServer _matchmaking;
 
         LockstepServer _serverLockstep;
+
+        public LockstepServer ServerLockstep
+        {
+            get
+            {
+                return _serverLockstep;
+            }
+        }
+
         INetworkServer _server;
         List<ClientData> _clients;
         Dictionary<uint, byte> _commandSenders;
@@ -102,7 +132,26 @@ namespace SocialPoint.Lockstep
                 return _serverLockstep.GameParams;
             }
         }
-        
+
+        Action<Metric> _sendMetric;
+        public Action<Metric> SendMetric
+        {
+            get
+            {
+                return _sendMetric;
+            }
+
+            set
+            {
+                _sendMetric = value;
+                _serverLockstep.SendMetric = SendMetric;
+            }
+        }
+
+        public Action<Network.ServerEvents.Log, bool> SendLog { get; set; }
+
+        public Action<string, AttrDic, ErrorDelegate> SendTrack { get; set; }
+
         public LockstepNetworkServer(INetworkServer server, IMatchmakingServer matchmaking = null, IUpdateScheduler scheduler = null)
         {
             ServerConfig = new LockstepServerConfig();
@@ -116,6 +165,7 @@ namespace SocialPoint.Lockstep
 
             _server.RegisterReceiver(this);
             _server.AddDelegate(this);
+
             _serverLockstep.TurnReady += OnServerTurnReady;
             _serverLockstep.EmptyTurnsReady += OnServerEmptyTurnsReady;
             if(_matchmaking != null)
@@ -496,7 +546,7 @@ namespace SocialPoint.Lockstep
             ));
 
             // send the old turns
-            var itr = _serverLockstep.GetTurnsEnumerator();
+            var itr = _serverLockstep.GetTurnsEnumerator(msg.CurrentTurn);
             while(itr.MoveNext())
             {
                 SendTurn(itr.Current, client.ClientId);
@@ -572,6 +622,18 @@ namespace SocialPoint.Lockstep
         void DoStartLockstep()
         {
             _serverLockstep.Start(ServerConfig.ClientSimulationDelay - ServerConfig.ClientStartDelay);
+            if(SendMetric != null)
+            {
+                SendMetric(new Metric(MetricType.Counter, MatchStartMetricName, 1));
+            }
+            if(SendTrack != null)
+            {
+                var data = new AttrDic();
+                data.Set("unique_id", new AttrString(MatchId));
+                data.Set("lockstep_server_config", ServerConfig.ToAttr());
+                data.Set("lockstep_config", Config.ToAttr());
+                SendTrack(MatchStartMetricName, data, null);
+            }
             for(var i = 0; i < _clients.Count; i++)
             {
                 var client = _clients[i];
@@ -613,21 +675,80 @@ namespace SocialPoint.Lockstep
         {
             _serverLockstep.Stop();
             var results = PlayerResults;
+            var originalResults = new Dictionary<byte, Attr>();
+            {
+                var itr = results.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    originalResults[itr.Current.Key] = (Attr)itr.Current.Value.Clone();
+                }
+                itr.Dispose();
+            }
             if(MatchFinished != null)
             {
                 MatchFinished(results);
             }
             var resultsAttr = new AttrDic();
-            var itr = results.GetEnumerator();
-            while(itr.MoveNext())
             {
-                var playerId = FindPlayerId(itr.Current.Key);
-                if(!string.IsNullOrEmpty(playerId))
+                var itr = results.GetEnumerator();
+                while(itr.MoveNext())
                 {
-                    resultsAttr[playerId] = itr.Current.Value;
+                    var playerId = FindPlayerId(itr.Current.Key);
+                    if(!string.IsNullOrEmpty(playerId))
+                    {
+                        resultsAttr[playerId] = itr.Current.Value;
+                    }
                 }
+                itr.Dispose();
             }
-            itr.Dispose();
+            bool corrected = false;
+            var keys = originalResults.Keys.GetEnumerator();
+            while(keys.MoveNext())
+            {
+                if(results.ContainsKey(keys.Current))
+                {
+                    if(results[keys.Current] == originalResults[keys.Current])
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        corrected = true;
+                    }
+                }
+                break;
+            }
+            keys.Dispose();
+            if(SendMetric != null)
+            {
+                SendMetric(new Metric(MetricType.Counter, corrected? MatchEndCorrectedMetricName : MatchEndMetricName, 1));
+            }
+
+            if(SendTrack != null)
+            {
+                var data = new AttrDic();
+                data.Set("unique_id", new AttrString(MatchId));
+                var origResultsAttr = new AttrDic();
+                {
+                    var itr = results.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        var playerId = FindPlayerId(itr.Current.Key);
+                        if(!string.IsNullOrEmpty(playerId))
+                        {
+                            resultsAttr[playerId] = itr.Current.Value;
+                        }
+                    }
+                    itr.Dispose();
+                }
+                data.Set("match_result", origResultsAttr);
+                if(corrected)
+                {
+                    data.Set("match_result_corrected", resultsAttr);
+                }
+                SendTrack(corrected ? MatchEndCorrectedMetricName : MatchEndMetricName, null, null);
+            }
+
             if(_matchmaking == null || !_matchmaking.Enabled)
             {
                 SendResults(resultsAttr);
@@ -714,6 +835,10 @@ namespace SocialPoint.Lockstep
             Stop();
             _server.RegisterReceiver(null);
             _server.RemoveDelegate(this);
+
+            _serverLockstep.TurnReady -= OnServerTurnReady;
+            _serverLockstep.EmptyTurnsReady -= OnServerEmptyTurnsReady;
+
             if(_matchmaking != null)
             {
                 _matchmaking.RemoveDelegate(this);

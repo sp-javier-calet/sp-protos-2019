@@ -1,3 +1,5 @@
+#if ADMIN_PANEL 
+
 using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
 using UnityEngine;
@@ -102,3 +104,5 @@ namespace SocialPoint.Profiling
         }
     }
 }
+
+#endif

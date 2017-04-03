@@ -3,6 +3,7 @@ using SocialPoint.Attributes;
 using SocialPoint.Base;
 using System.Collections.Generic;
 using System;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Matchmaking
 {
@@ -12,6 +13,8 @@ namespace SocialPoint.Matchmaking
         IHttpClient _httpClient;
         IAttrParser _parser;
         List<IMatchmakingServerDelegate> _delegates;
+
+        const string MatchMakingUri = "matchmaking";
 
         public string BaseUrl;
 
@@ -53,7 +56,7 @@ namespace SocialPoint.Matchmaking
 
         public void LoadInfo(string matchId, List<string> playerIds)
         {
-            var req = CreateRequest(InfoUri);
+            var req = CreateRequest(StringUtils.CombineUri(MatchMakingUri,InfoUri));
             req.AddQueryParam(MatchIdParam, matchId);
             for (var i=0; i<playerIds.Count; i++)
             {
@@ -90,7 +93,7 @@ namespace SocialPoint.Matchmaking
 
         public void NotifyResults(string matchId, AttrDic userData)
         {
-            var req = CreateRequest(EndUri);
+            var req = CreateRequest(StringUtils.CombineUri(MatchMakingUri, EndUri));
             req.Method = HttpRequest.MethodType.POST;
             req.AddParam(MatchIdParam, matchId);
             req.AddParam(PlayersParam, userData);
@@ -133,7 +136,7 @@ namespace SocialPoint.Matchmaking
             {
                 throw new InvalidOperationException("Base url not configured.");
             }
-            return new HttpRequest(BaseUrl + uri);
+            return new HttpRequest(StringUtils.CombineUri(BaseUrl, uri));
         }
 
     }

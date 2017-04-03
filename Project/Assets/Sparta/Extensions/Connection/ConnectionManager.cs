@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
@@ -54,7 +55,7 @@ namespace SocialPoint.Connection
         public float RPCTimeout = 1.0f;
     }
 
-    public class ConnectionManager : INetworkClientDelegate, IDisposable
+    public class ConnectionManager : INetworkClientDelegate, IUpdateable, IDisposable
     {
         #region Attr keys
 
@@ -70,18 +71,14 @@ namespace SocialPoint.Connection
         public const string NotificationsServiceKey = "notification";
         public const string PendingKey = "pending";
         public const string NotificationPayloadKey = "payload";
-       
+
         #endregion
 
         const string NotificationTopicType = "notification";
         const string NotificationTopicName = "notifications";
 
-        enum ConnectionState
-        {
-            Disconnected,
-            Connecting,
-            Connected
-        }
+        const int WillGoBackgroundPriority = int.MaxValue;
+        const int WasOnBackgroundPriority = int.MaxValue;
 
         /// <summary>
         /// User data to allow forcing user parameters
@@ -107,12 +104,24 @@ namespace SocialPoint.Connection
             }
         }
 
+        class RequestWrapper
+        {
+            public enum RequestType
+            {
+                Unknown,
+                Publish,
+                Call,
+            }
+
+            public RequestType Type;
+            public WAMPRequest Request;
+        }
+
         public delegate void NotificationReceivedDelegate(int type, string topic, AttrDic dictParams);
 
         public event Action OnConnected;
         public event Action OnClosed;
         public event Action<AttrDic> OnProcessServices;
-        public event Action<bool> OnUpdatedConnectivity;
         public event Action<Error> OnError;
         public event Action<Error> OnRPCError;
         public event NotificationReceivedDelegate OnNotificationReceived;
@@ -134,8 +143,11 @@ namespace SocialPoint.Connection
                 }
 
                 _config = value;
-                if(IsConnected)
+
+                //Re-schedule with updated values
+                if(_active)
                 {
+                    UnschedulePing();
                     SchedulePing();
                 }
             }
@@ -152,12 +164,18 @@ namespace SocialPoint.Connection
 
                     _appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
                     _appEvents.GameWillRestart.Remove(Disconnect);
+                    _appEvents.WillGoBackground.Remove(OnWillGoBackground);
+                    _appEvents.WasOnBackground.Remove(OnWasOnBackground);
+                    _appEvents.WasCovered -= OnWasOnBackground;
                 }
                 _appEvents = value;
                 if(_appEvents != null)
                 {
                     _appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
                     _appEvents.GameWillRestart.Add(0, Disconnect);
+                    _appEvents.WillGoBackground.Add(WillGoBackgroundPriority, OnWillGoBackground);
+                    _appEvents.WasOnBackground.Add(WasOnBackgroundPriority, OnWasOnBackground);
+                    _appEvents.WasCovered += OnWasOnBackground;
                 }
             }
         }
@@ -168,7 +186,12 @@ namespace SocialPoint.Connection
         {
             set
             {
+                if(_scheduler != null)
+                {
+                    _scheduler.Remove(this);
+                }
                 _scheduler = value;
+                _scheduler.Add(this);
             }
         }
 
@@ -176,15 +199,25 @@ namespace SocialPoint.Connection
         {
             get
             {
-                return _state == ConnectionState.Connected;
+                return _joined;
             }
         }
 
-        public bool IsConnecting
+        //Note: Social Framewoork's Admin Panel calls this by reflection. Update if renamed
+        bool IsSocketConnected
         {
             get
             {
-                return _state == ConnectionState.Connecting;
+                return _socket.Connected;
+            }
+        }
+
+        //Note: Social Framewoork's Admin Panel calls this by reflection. Update if renamed
+        bool IsSocketConnecting
+        {
+            get
+            {
+                return _socket.Connecting;
             }
         }
 
@@ -226,7 +259,7 @@ namespace SocialPoint.Connection
                 _connection.Debug = value;
             }
         }
-            
+
         public ILoginData LoginData { get; set; }
 
         public SocialPoint.Social.IPlayerData PlayerData { get; set; }
@@ -242,7 +275,10 @@ namespace SocialPoint.Connection
 
         ScheduledAction _pingUpdate;
         ScheduledAction _reconnectUpdate;
-        ConnectionState _state;
+
+        bool _active;
+        bool _joined;
+        Queue<RequestWrapper> _pendingRequests;
 
         public ConnectionManager(IWebSocketClient client)
         {
@@ -251,7 +287,10 @@ namespace SocialPoint.Connection
             _socket.AddDelegate(this);
             _connection = new WAMPConnection(client);
             _config = new ConnectionManagerConfig();
-            _state = ConnectionState.Disconnected;
+
+            _active = false;
+            _joined = false;
+            _pendingRequests = new Queue<RequestWrapper>();
         }
 
         public void Dispose()
@@ -285,24 +324,16 @@ namespace SocialPoint.Connection
 
         public WAMPConnection.StartRequest Reconnect()
         {
-            if(_state != ConnectionState.Disconnected)
+            if(IsSocketConnected || IsSocketConnecting)
             {
                 return null;
             }
 
-            _state = ConnectionState.Connecting;
-
+            _active = true;
+            SchedulePing();
             return _connection.Start(() => {
                 SendHello();
-                SchedulePing();
             });
-        }
-
-        void RestartConnection()
-        {
-            UnschedulePing();
-            ResetState();
-            Reconnect();
         }
 
         void OnGameWasLoaded()
@@ -314,24 +345,75 @@ namespace SocialPoint.Connection
             }
         }
 
+        void OnWillGoBackground()
+        {
+            _socket.OnWillGoBackground();
+        }
+
+        void OnWasOnBackground()
+        {
+            _socket.OnWasOnBackground();
+        }
+
+        void SendPendingRequests()
+        {
+            while(_pendingRequests.Count > 0)
+            {
+                var request = _pendingRequests.Dequeue();
+                switch(request.Type)
+                {
+                case RequestWrapper.RequestType.Publish:
+                    _connection.SendPublish((PublishRequest)request.Request);
+                    break;
+                case RequestWrapper.RequestType.Call:
+                    _connection.SendCall((CallRequest)request.Request);
+                    break;
+                default:
+                    throw new Exception("ConnectionManager cannot store requests of type: " + request.Type);
+                }
+            }
+        }
+
+        public void Update()
+        {
+            if(IsSocketConnected && _joined)
+            {
+                SendPendingRequests();
+            }
+        }
+
         public void Disconnect()
         {
-            if(IsConnected)
+            if(IsSocketConnected)
             {
                 _connection.Leave(null, "Disconnect requested");
             }
-            else if(IsConnecting)
+            else if(IsSocketConnecting)
             {
                 _connection.AbortJoining();
             }
 
+            _active = false;
+            _joined = false;
             UnschedulePing();
-            _state = ConnectionState.Disconnected;
         }
 
-        void ResetState()
+        void SetConnectedState()
         {
-            _state = ConnectionState.Disconnected;
+            _joined = true;
+            if(OnConnected != null)
+            {
+                OnConnected();
+            }
+        }
+
+        void SetClosedState()
+        {
+            _joined = false;
+            if(OnClosed != null)
+            {
+                OnClosed();
+            }
         }
 
         void SchedulePing()
@@ -341,10 +423,11 @@ namespace SocialPoint.Connection
                 Log.e("Failed to schedule ping actions. Scheduler instance is not available.");
                 return;
             }
+
             if(_pingUpdate == null)
             {
                 _pingUpdate = new ScheduledAction(_scheduler, () => {
-                    if(IsConnected)
+                    if(IsSocketConnected)
                     {
                         _socket.Ping();
                     }
@@ -354,7 +437,7 @@ namespace SocialPoint.Connection
             if(_reconnectUpdate == null)
             {
                 _reconnectUpdate = new ScheduledAction(_scheduler, () => {
-                    if(!IsConnected && !IsConnecting)
+                    if(!IsSocketConnected && !IsSocketConnecting)
                     {
                         Reconnect();
                     }
@@ -419,36 +502,24 @@ namespace SocialPoint.Connection
 
         public PublishRequest Publish(string topic, AttrList args, AttrDic kwargs, OnPublished onComplete)
         {
-            return _connection.Publish(topic, args, kwargs, onComplete != null, onComplete);
+            DebugUtils.Assert(_active, "Connect the ConnectionManager before attempting to send a publish");
+            var request = _connection.CreatePublish(topic, args, kwargs, onComplete != null, onComplete);
+            _pendingRequests.Enqueue(new RequestWrapper {
+                Type = RequestWrapper.RequestType.Publish,
+                Request = request,
+            });
+            return request;
         }
 
         public CallRequest Call(string procedure, AttrList args, AttrDic kwargs, HandlerCall onResult)
         {
-            return _connection.Call(procedure, args, kwargs, (err, iargs, ikwargs) => OnRPCFinished(iargs, ikwargs, onResult, err));
-        }
-
-        void OnConnectionStateChanged(ConnectionState state)
-        {
-            switch(state)
-            {
-            case ConnectionState.Disconnected:
-                ResetState();
-                if(OnClosed != null)
-                {
-                    OnClosed();
-                }
-                if(OnUpdatedConnectivity != null)
-                {
-                    OnUpdatedConnectivity(false);
-                }
-                break;
-            case ConnectionState.Connected:
-                if(OnUpdatedConnectivity != null)
-                {
-                    OnUpdatedConnectivity(true);
-                }
-                break;
-            }
+            DebugUtils.Assert(_active, "Connect the ConnectionManager before attempting to send a call");
+            var request = _connection.CreateCall(procedure, args, kwargs, (err, iargs, ikwargs) => OnRPCFinished(iargs, ikwargs, onResult, err));
+            _pendingRequests.Enqueue(new RequestWrapper {
+                Type = RequestWrapper.RequestType.Call,
+                Request = request,
+            });
+            return request;
         }
 
         void OnConnectionError(Error err)
@@ -463,7 +534,6 @@ namespace SocialPoint.Connection
         {
             if(!Error.IsNullOrEmpty(err))
             {
-                _state = ConnectionState.Disconnected;
                 return;
             }
 
@@ -478,11 +548,8 @@ namespace SocialPoint.Connection
             {
                 OnProcessServices(servicesDic);
             }
-            _state = ConnectionState.Connected;
-            if(OnConnected != null)
-            {
-                OnConnected();
-            }
+
+            SetConnectedState();
         }
 
         void OnNotificationMessageReceived(string topic, AttrList listParams, AttrDic dicParams)
@@ -501,16 +568,6 @@ namespace SocialPoint.Connection
                 if(OnRPCError != null)
                 {
                     OnRPCError(err);
-                }
-
-                if(err.Code == ErrorCodes.ConnectionClosed)
-                {
-                    if(onResult != null)
-                    {
-                        onResult(err, iargs, ikwargs);
-                    }
-                    RestartConnection();
-                    return;
                 }
             }
 
@@ -545,12 +602,11 @@ namespace SocialPoint.Connection
 
         public void OnClientConnected()
         {
-            OnConnectionStateChanged(ConnectionState.Connected);
         }
 
         public void OnClientDisconnected()
         {
-            OnConnectionStateChanged(ConnectionState.Disconnected);
+            SetClosedState();
         }
 
         public void OnMessageReceived(NetworkMessageData data)

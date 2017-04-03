@@ -4,9 +4,13 @@
 <dict>
 	<key>files</key>
 	<dict>
-		<key>Headers/SPUnityNativeUtils.h</key>
+		<key>Headers/SPUnityApplication.h</key>
 		<data>
-		ww4zYT1Q/WHJuM5F5uzdP91Wecc=
+		TXKJCLOspThBSoLPXb3MeiZdiwc=
+		</data>
+		<key>Headers/SPUnitySubController.h</key>
+		<data>
+		FV+U/41Yas5s4ywxl9AFbqxp0VU=
 		</data>
 		<key>Headers/UnityGameObject.h</key>
 		<data>
@@ -14,7 +18,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		+SxE7VxuwwVGuUcdqp7ESPKXCq4=
+		KvvceYRoqxEOzpf/r2jR8RqzwvI=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -23,18 +27,50 @@
 	</dict>
 	<key>files2</key>
 	<dict>
-		<key>Headers/SPUnityNativeUtils.h</key>
-		<data>
-		ww4zYT1Q/WHJuM5F5uzdP91Wecc=
-		</data>
+		<key>Headers/SPUnityApplication.h</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			TXKJCLOspThBSoLPXb3MeiZdiwc=
+			</data>
+			<key>hash2</key>
+			<data>
+			f6cN3ea50RtX05jG3la+K2IoUKxeaKHrjudJWPybdO4=
+			</data>
+		</dict>
+		<key>Headers/SPUnitySubController.h</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			FV+U/41Yas5s4ywxl9AFbqxp0VU=
+			</data>
+			<key>hash2</key>
+			<data>
+			gTk9YpWfClHzzdgu7f8PdLE+d33i/1k7+cheI6zduNM=
+			</data>
+		</dict>
 		<key>Headers/UnityGameObject.h</key>
-		<data>
-		m78W3PPIMN+NbOdc2Jt36l7Agi4=
-		</data>
+		<dict>
+			<key>hash</key>
+			<data>
+			m78W3PPIMN+NbOdc2Jt36l7Agi4=
+			</data>
+			<key>hash2</key>
+			<data>
+			FcGJyLs5jfA5V46J1TC5fvasudTaFyBTZOLy/U8kFc4=
+			</data>
+		</dict>
 		<key>Modules/module.modulemap</key>
-		<data>
-		5gEf2z95peYmCYB36mBd+2hhLKM=
-		</data>
+		<dict>
+			<key>hash</key>
+			<data>
+			5gEf2z95peYmCYB36mBd+2hhLKM=
+			</data>
+			<key>hash2</key>
+			<data>
+			bO7D5CzTd1viwXDQqKnQ3ORmLj0vvBZdF5SIh9W/0T4=
+			</data>
+		</dict>
 	</dict>
 	<key>rules</key>
 	<dict>

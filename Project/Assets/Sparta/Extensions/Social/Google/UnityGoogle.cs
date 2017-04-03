@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if (UNITY_ANDROID || (UNITY_IPHONE && !NO_GPGS))
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +19,7 @@ namespace SocialPoint.Social
     {
         const string GooglePlayLoginCancelledKey = "google_play_login_cancelled";
 
-        [System.Diagnostics.Conditional("DEBUG_GOOGLEPLAY")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugGooglePlayFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("GooglePlay - {0}", msg));
@@ -74,6 +76,8 @@ namespace SocialPoint.Social
 
         public void Login(ErrorDelegate cbk, bool silent = false)
         {
+            DebugUtils.Assert(_scheduler != null, "UnityGoogle is not scheduled for update");
+
             DebugLog("Login");
             if(IsConnected)
             {
@@ -95,18 +99,8 @@ namespace SocialPoint.Social
                 DebugLog("Login - Authenticate success: " + success);
                 DebugLog("Login - Authenticate with local user: " + _platform.localUser.userName);
                 _loginSuccess = success;
-                DispatchMainThread(UpdateAfterLogin);
+                DispatchMainThread(OnLogin);
             }, silent);
-        }
-
-        void UpdateAfterLogin()
-        {
-            DebugLog("UpdateAfterLogin");
-            DebugUtils.Assert(_loginCallback != null);
-            if(_loginCallback != null)
-            {
-                OnLogin();
-            }
         }
 
         void LoadDescriptionAchievements()
@@ -161,10 +155,7 @@ namespace SocialPoint.Social
         void OnLoginEnd(Error err)
         {
             DebugLog("OnLoginEnd - Error: " + err);
-            if(!Error.IsNullOrEmpty(err))
-            {
-                HasCancelledLogin = true;    
-            }
+            HasCancelledLogin |= !Error.IsNullOrEmpty(err);
 
             _connecting = false;
             NotifyStateChanged();
@@ -268,7 +259,8 @@ namespace SocialPoint.Social
             }
         }
 
-        public bool HasCancelledLogin {
+        public bool HasCancelledLogin
+        {
             get
             {
                 return PlayerPrefs.HasKey(GooglePlayLoginCancelledKey);
@@ -743,3 +735,4 @@ namespace SocialPoint.Social
         #endregion
     }
 }
+#endif

@@ -1,3 +1,5 @@
+#if ADMIN_PANEL 
+
 using System;
 using System.Text;
 using SocialPoint.AdminPanel;
@@ -142,3 +144,5 @@ namespace SocialPoint.Crash
         }
     }
 }
+
+#endif

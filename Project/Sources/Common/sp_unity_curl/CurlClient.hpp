@@ -64,7 +64,7 @@ private:
     const uint8_t* _pinnedPublicKey;
     size_t _pinnedPublicKeySize;
     
-    CURL* create(CurlRequest req);
+    CURL* create(CurlRequest* req);
     
 public:
     CurlClient(bool enableHttp2);
@@ -73,7 +73,7 @@ public:
     bool isRunning();
     void setVerbose(bool verbose);
     
-    bool send(CurlRequest req);
+    bool send(CurlRequest* req);
     void update();
     bool update(int id);
     bool isFinished(int id);
@@ -81,7 +81,7 @@ public:
     int createConnection();
     bool destroyConnection(int id);
     
-    bool sendStreamMessage(int id, CurlMessage data);
+    bool sendStreamMessage(int id, CurlMessage* data);
     int getStreamMessageLenght(int id);
     void getStreamMessage(int id, char* data);
     
