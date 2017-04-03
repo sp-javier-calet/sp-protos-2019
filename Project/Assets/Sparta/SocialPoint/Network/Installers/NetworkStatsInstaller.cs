@@ -29,7 +29,7 @@ namespace SocialPoint.Network
 
         NetworkStatsClient CreateNetworkStatsClient()
         {
-            return new NetworkStatsClient(Container.Resolve<INetworkClient>("internal"));
+            return new NetworkStatsClient(Container.Resolve<INetworkClient>("internal"), Container.Resolve<IUpdateScheduler>());
         }
     }
 }

@@ -29,7 +29,7 @@ namespace SocialPoint.Network
 
         public void Start()
         {
-            if(_scheduler != null)
+            if(_scheduler != null && !_server.PingSupported)
             {
                 _scheduler.Add(this, false, SendStatusMessageInterval);
             }
@@ -43,9 +43,9 @@ namespace SocialPoint.Network
             for(int i = 0; i < _clients.Count; i++)
             {
                 _server.SendMessage(new NetworkMessageData {
-                    MessageType = StatsMessageType,
+                    MessageType = LatencyMessageType,
                     ClientId = _clients[i]
-                }, new NetworkStatsMessage(_server.GetTimestamp())
+                }, new NetworkLatencyMessage(_server.GetTimestamp())
                 );
             }
         }
@@ -79,6 +79,14 @@ namespace SocialPoint.Network
         public int GetTimestamp()
         {
             return _server.GetTimestamp();
+        }
+
+        public bool PingSupported
+        {
+            get
+            {
+                return _server.PingSupported;
+            }
         }
 
         public bool Running

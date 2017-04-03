@@ -252,6 +252,22 @@ namespace SocialPoint.WebSockets
             }
         }
 
+        public bool PingSupported
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public int Latency
+        {
+            get
+            {
+                DebugUtils.Assert(PingSupported);
+                return -1;
+            }
+        }
         #endregion
     }
 }

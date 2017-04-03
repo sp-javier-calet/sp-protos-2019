@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Utils;
 using SocialPoint.IO;
 
 namespace SocialPoint.Network
 {
-    public class NetworkStatsClient : NetworkStatsBase, INetworkClient, INetworkClientDelegate
+    public class NetworkStatsClient : NetworkStatsBase, INetworkClient, INetworkClientDelegate, IUpdateable
     {
         INetworkClient _client;
+        IUpdateScheduler _scheduler;
         List<INetworkClientDelegate> _delegates;
         List<int> _latencies;
 
-        public NetworkStatsClient(INetworkClient client) :
+        public NetworkStatsClient(INetworkClient client, IUpdateScheduler scheduler) :
             base(client)
         {
             _delegates = new List<INetworkClientDelegate>();
@@ -18,27 +20,42 @@ namespace SocialPoint.Network
             _client.RegisterReceiver(this);
             _client.AddDelegate(this);
             _latencies = new List<int>();
+            _scheduler = scheduler;
+            if(_client.PingSupported)
+            {
+                _scheduler.Add(this, false, NetworkStatsServer.DefaultSendStatusMessageInterval);
+            }
         }
+
+        #region IUpdateable implementation
+
+        public void Update()
+        {
+            var delay = Latency;
+            var pos = _latencies.FindLastIndex(l => l < delay);
+            _latencies.Insert(pos + 1, delay);
+        }
+
+        #endregion
 
         override public void OnMessageReceived(NetworkMessageData data, IReader reader)
         {
             switch(data.MessageType)
             {
-            case StatsMessageType:
-                OnStatsMessageReceived(reader);
+            case LatencyMessageType:
+                OnLatencyMessageReceived(reader);
                 break;
             }
             base.OnMessageReceived(data, reader);
         }
 
-        void OnStatsMessageReceived(IReader reader)
+        void OnLatencyMessageReceived(IReader reader)
         {
-            var msg = new NetworkStatsMessage();
+            var msg = new NetworkLatencyMessage();
             msg.Deserialize(reader);
             var delay = GetDelay(msg.Timestamp);
             var pos = _latencies.FindLastIndex(l => l < delay);
             _latencies.Insert(pos + 1, delay);
-            _latencies.Sort();
         }
 
         public int LowestLatency
@@ -110,6 +127,22 @@ namespace SocialPoint.Network
             get
             {
                 return _client.Connected;
+            }
+        }
+
+        public bool PingSupported
+        {
+            get
+            {
+                return _client.PingSupported;
+            }
+        }
+
+        public int Latency
+        {
+            get
+            {
+                return _client.Latency;
             }
         }
 

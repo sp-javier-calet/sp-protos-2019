@@ -124,5 +124,22 @@ namespace SocialPoint.Network
         {
             return 0;
         }
+
+        public bool PingSupported
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public int Latency
+        {
+            get
+            {
+                DebugUtils.Assert(PingSupported);
+                return -1;
+            }
+        }
     }
 }

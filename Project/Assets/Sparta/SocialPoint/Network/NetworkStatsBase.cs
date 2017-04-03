@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using SocialPoint.IO;
 using System.Collections.Generic;
 
@@ -6,11 +7,11 @@ namespace SocialPoint.Network
 {
     public class NetworkStatsBase : INetworkMessageReceiver, INetworkMessageSender
     {
-        public class NetworkStatsMessage : INetworkShareable
+        public class NetworkLatencyMessage : INetworkShareable
         {
             public int Timestamp { get; private set; }
 
-            public NetworkStatsMessage(int timestamp = 0)
+            public NetworkLatencyMessage(int timestamp = 0)
             {
                 Timestamp = timestamp;
             }
@@ -34,16 +35,16 @@ namespace SocialPoint.Network
         INetworkMessageSender _sender;
         INetworkMessageReceiver _receiver;
 
-        List<int> _uploadBandwith;
-        List<int> _downloadBandwith;
+        List<int> _uploadBandwidth;
+        List<int> _downloadBandwidth;
 
-        protected const byte StatsMessageType = 99;
+        protected const byte LatencyMessageType = 99;
 
         public NetworkStatsBase(INetworkMessageSender sender)
         {
             _sender = sender;
-            _uploadBandwith = new List<int>();
-            _downloadBandwith = new List<int>();
+            _uploadBandwidth = new List<int>();
+            _downloadBandwidth = new List<int>();
         }
 
         public void RegisterReceiver(INetworkMessageReceiver receiver)
@@ -51,10 +52,10 @@ namespace SocialPoint.Network
             _receiver = receiver;
         }
 
-        void SendMessage(NetworkMessageData data, byte[] body)
+        public void OnMessageSent(NetworkMessageData data, byte[] body)
         {
-            var pos = _uploadBandwith.FindLastIndex(l => l < body.Length);
-            _uploadBandwith.Insert(pos + 1, body.Length);
+            var pos = _uploadBandwidth.FindLastIndex(l => l < body.Length);
+            _uploadBandwidth.Insert(pos + 1, body.Length);
             if(_sender != null)
             {
                 _sender.SendMessage(data, body);
@@ -72,8 +73,8 @@ namespace SocialPoint.Network
 
         virtual protected void ReceiveMessage(NetworkMessageData data, IReader reader)
         {
-            var pos = _downloadBandwith.FindLastIndex(ml => ml < data.MessageLength);
-            _downloadBandwith.Insert(pos + 1, data.MessageLength);
+            var pos = _downloadBandwidth.FindLastIndex(ml => ml < data.MessageLength);
+            _downloadBandwidth.Insert(pos + 1, data.MessageLength);
             if(_receiver != null)
             {
                 _receiver.OnMessageReceived(data, reader);
@@ -84,7 +85,7 @@ namespace SocialPoint.Network
 
         public INetworkMessage CreateMessage(NetworkMessageData data)
         {
-            return _sender.CreateMessage(data);
+            return new NetworkStatsMessage(data, this);
         }
 
         #endregion
@@ -94,11 +95,11 @@ namespace SocialPoint.Network
             get
             {
                 var sum = 0;
-                for(int i = 0; i < _downloadBandwith.Count; i++)
+                for(int i = 0; i < _downloadBandwidth.Count; i++)
                 {
-                    sum += _downloadBandwith[i];
+                    sum += _downloadBandwidth[i];
                 }
-                return _downloadBandwith.Count > 0 ? sum : -1;
+                return _downloadBandwidth.Count > 0 ? sum : -1;
             }
         }
 
@@ -106,7 +107,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                return _downloadBandwith.Count > 0 ? _downloadBandwith[0] : -1;
+                return _downloadBandwidth.Count > 0 ? _downloadBandwidth[0] : -1;
             }
         }
 
@@ -114,7 +115,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                return _downloadBandwith.Count > 0 ? _downloadBandwith[_downloadBandwith.Count - 1] : -1;
+                return _downloadBandwidth.Count > 0 ? _downloadBandwidth[_downloadBandwidth.Count - 1] : -1;
             }
         }
 
@@ -122,7 +123,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                return _downloadBandwith.Count > 0 ? DownloadBandwith / _downloadBandwith.Count : -1;
+                return _downloadBandwidth.Count > 0 ? DownloadBandwith / _downloadBandwidth.Count : -1;
             }
         }
 
@@ -131,9 +132,9 @@ namespace SocialPoint.Network
             get
             {
                 var sum = 0;
-                for(int i = 0; i < _uploadBandwith.Count; i++)
+                for(int i = 0; i < _uploadBandwidth.Count; i++)
                 {
-                    sum += _uploadBandwith[i];
+                    sum += _uploadBandwidth[i];
                 }
                 return sum;
             }
@@ -143,7 +144,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                return _uploadBandwith.Count > 0 ? _uploadBandwith[0] : -1;
+                return _uploadBandwidth.Count > 0 ? _uploadBandwidth[0] : -1;
             }
         }
 
@@ -151,7 +152,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                return _uploadBandwith.Count > 0 ? _uploadBandwith[_uploadBandwith.Count - 1] : -1;
+                return _uploadBandwidth.Count > 0 ? _uploadBandwidth[_uploadBandwidth.Count - 1] : -1;
             }
         }
 
@@ -159,9 +160,40 @@ namespace SocialPoint.Network
         {
             get
             {
-                return _uploadBandwith.Count > 0 ? UploadBandwith / _uploadBandwith.Count : -1;
+                return _uploadBandwidth.Count > 0 ? UploadBandwith / _uploadBandwidth.Count : -1;
             }
         }
+    }
+
+    class NetworkStatsMessage : INetworkMessage
+    {
+        NetworkStatsBase _stats;
+        NetworkMessageData _data;
+        MemoryStream _stream;
+        SystemBinaryWriter _writer;
+
+
+        public NetworkStatsMessage(NetworkMessageData data, NetworkStatsBase stats)
+        {
+            _stats = stats;
+            _data = data;
+            _stream = new MemoryStream();
+            _writer = new SystemBinaryWriter(_stream);
+        }
+
+        #region INetworkMessage implementation
+        public void Send()
+        {
+            _stats.OnMessageSent(_data, _stream.ToArray());
+        }
+        public IWriter Writer
+        {
+            get
+            {
+                return _writer;
+            }
+        }
+        #endregion
     }
 }
 

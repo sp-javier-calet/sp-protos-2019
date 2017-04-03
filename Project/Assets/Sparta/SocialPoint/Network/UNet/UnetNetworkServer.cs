@@ -220,5 +220,13 @@ namespace SocialPoint.Network
         {
             return NetworkTransport.GetNetworkTimestamp();
         }
+
+        public bool PingSupported
+        {
+            get
+            {
+                return false;
+            }
+        }
     }
 }

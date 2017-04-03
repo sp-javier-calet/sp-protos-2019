@@ -68,6 +68,14 @@ namespace SocialPoint.Network
             return _server.GetTimestamp();
         }
 
+        public bool PingSupported
+        {
+            get
+            {
+                return _server.PingSupported;
+            }
+        }
+
         #region INetworkServerDelegate implementation
 
         void INetworkServerDelegate.OnServerStarted()
