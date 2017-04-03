@@ -24,18 +24,21 @@ namespace SocialPoint.Social
         public override void InstallBindings()
         {
             #if UNITY_IOS
-        if(Settings.UseEmpty)
-        {
-            Container.Rebind<IGameCenter>().ToMethod<EmptyGameCenter>(CreateEmpty);
-        }
-        else
-        {
-            Container.Rebind<IGameCenter>().ToMethod<UnityGameCenter>(CreateUnity);
-        }
-        if(Settings.LoginLink)
-        {
-            Container.Bind<ILink>().ToMethod<GameCenterLink>(CreateLoginLink);
-        }
+            if(Settings.UseEmpty)
+            {
+                Container.Rebind<IGameCenter>().ToMethod<EmptyGameCenter>(CreateEmpty);
+            }
+            else
+            {
+                Container.Rebind<UnityGameCenter>().ToMethod<UnityGameCenter>(CreateUnity);
+                Container.Rebind<IGameCenter>().ToLookup<UnityGameCenter>();
+            }
+
+            if(Settings.LoginLink)
+            {
+                Container.Bind<GameCenterLink>().ToMethod<GameCenterLink>(CreateLoginLink);
+                Container.Bind<ILink>().ToLookup<GameCenterLink>();
+            }
             #else
             Container.Rebind<IGameCenter>().ToMethod<EmptyGameCenter>(CreateEmpty);
             #endif
