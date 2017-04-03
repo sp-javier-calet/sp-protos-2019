@@ -22,8 +22,8 @@ namespace SpartaTools.Editor.View
 
         Vector2 _scrollPosition;
         List<ModuleCategory> _categories;
-        bool _enableTvOS = true;
-        bool _enableStandalone = true;
+        bool _enableTvOS;
+        bool _enableStandalone;
 
         Variant _selectedVariant;
         float _lastSelectionTime;

@@ -485,10 +485,15 @@ namespace SpartaTools.Editor.Build
             compiler.AddReference("GUISystem/UnityEngine.UI.dll");
             compiler.AddReference("Networking/UnityEngine.Networking.dll");
 
-            var unityMinorVersion = Convert.ToInt32(Application.unityVersion.Split('.')[1]);
-            compiler.AddDefinedSymbol("UNITY_5");
-            compiler.AddDefinedSymbol(string.Format("UNITY_5_{0}", unityMinorVersion));
-            compiler.AddDefinedSymbol(string.Format("UNITY_5_{0}_OR_NEWER", unityMinorVersion));
+            var activeCompilationDefines = EditorUserBuildSettings.activeScriptCompilationDefines;
+            for(int i = 0, activeCompilationDefinesLength = activeCompilationDefines.Length; i < activeCompilationDefinesLength; i++)
+            {
+                var item = activeCompilationDefines[i];
+                if(item.StartsWith("UNITY_5"))
+                {
+                    compiler.AddDefinedSymbol(item);
+                }
+            }
 
             /* Platform configuration */
             if(editorAssembly)
