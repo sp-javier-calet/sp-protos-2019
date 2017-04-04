@@ -125,7 +125,7 @@ namespace SocialPoint.Network
             return 0;
         }
 
-        public bool PingSupported
+        public bool LatencySupported
         {
             get
             {
@@ -137,7 +137,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                DebugUtils.Assert(PingSupported);
+                DebugUtils.Assert(LatencySupported);
                 return -1;
             }
         }

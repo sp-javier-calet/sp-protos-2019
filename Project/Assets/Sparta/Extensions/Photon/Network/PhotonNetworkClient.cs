@@ -100,7 +100,7 @@ namespace SocialPoint.Network
             }
         }
 
-        public bool PingSupported
+        public bool LatencySupported
         {
             get
             {

@@ -226,7 +226,7 @@ namespace SocialPoint.WebSockets
                 return _socket.ReadyState == WebSocketSharp.WebSocketState.Connecting;
             }
         }
-        public bool PingSupported
+        public bool LatencySupported
         {
             get
             {
@@ -238,7 +238,7 @@ namespace SocialPoint.WebSockets
         {
             get
             {
-                DebugUtils.Assert(PingSupported);
+                DebugUtils.Assert(LatencySupported);
                 return -1;
             }
         }

@@ -208,7 +208,8 @@ namespace SocialPoint.Lockstep
                     data.SetValue("player_id", PlayerId);
                     data.SetValue("download", statsClient.DownloadBandwith);
                     data.SetValue("upload", statsClient.UploadBandwith);
-                    SendTrack("log_battle_end_bandwith_info", data, null);
+                    data.SetValue("battle_time", Lockstep.UpdateTime);
+                    SendTrack("log_battle_end_bandwidth_info", data, null);
                 }
                 {
                     var data = new AttrDic();

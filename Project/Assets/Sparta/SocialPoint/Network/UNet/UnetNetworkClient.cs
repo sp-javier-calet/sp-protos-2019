@@ -195,7 +195,7 @@ namespace SocialPoint.Network
             return NetworkTransport.GetRemoteDelayTimeMS(_client.connection.hostId, _client.connection.connectionId, serverTimestamp, out error);
         }
 
-        public bool PingSupported
+        public bool LatencySupported
         {
             get
             {
@@ -207,7 +207,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                DebugUtils.Assert(PingSupported);
+                DebugUtils.Assert(LatencySupported);
                 return -1;
             }
         }

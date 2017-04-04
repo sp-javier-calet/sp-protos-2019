@@ -12,6 +12,8 @@ namespace SocialPoint.Network
         List<INetworkClientDelegate> _delegates;
         List<int> _latencies;
 
+        public int PingInterval = NetworkStatsServer.DefaultSendStatusMessageInterval;
+
         public NetworkStatsClient(INetworkClient client, IUpdateScheduler scheduler) :
             base(client)
         {
@@ -21,9 +23,9 @@ namespace SocialPoint.Network
             _client.AddDelegate(this);
             _latencies = new List<int>();
             _scheduler = scheduler;
-            if(_client.PingSupported)
+            if(_client.LatencySupported)
             {
-                _scheduler.Add(this, false, NetworkStatsServer.DefaultSendStatusMessageInterval);
+                _scheduler.Add(this, false, PingInterval);
             }
         }
 
@@ -130,11 +132,11 @@ namespace SocialPoint.Network
             }
         }
 
-        public bool PingSupported
+        public bool LatencySupported
         {
             get
             {
-                return _client.PingSupported;
+                return _client.LatencySupported;
             }
         }
 

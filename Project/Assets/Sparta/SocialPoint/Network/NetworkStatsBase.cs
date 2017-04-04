@@ -35,16 +35,14 @@ namespace SocialPoint.Network
         INetworkMessageSender _sender;
         INetworkMessageReceiver _receiver;
 
-        List<int> _uploadBandwidth;
-        List<int> _downloadBandwidth;
+        int _uploadBandwidth;
+        int _downloadBandwidth;
 
         protected const byte LatencyMessageType = 99;
 
         public NetworkStatsBase(INetworkMessageSender sender)
         {
             _sender = sender;
-            _uploadBandwidth = new List<int>();
-            _downloadBandwidth = new List<int>();
         }
 
         public void RegisterReceiver(INetworkMessageReceiver receiver)
@@ -54,8 +52,7 @@ namespace SocialPoint.Network
 
         public void OnMessageSent(NetworkMessageData data, byte[] body)
         {
-            var pos = _uploadBandwidth.FindLastIndex(l => l < body.Length);
-            _uploadBandwidth.Insert(pos + 1, body.Length);
+            _uploadBandwidth += body.Length;
             if(_sender != null)
             {
                 _sender.SendMessage(data, body);
@@ -73,8 +70,7 @@ namespace SocialPoint.Network
 
         virtual protected void ReceiveMessage(NetworkMessageData data, IReader reader)
         {
-            var pos = _downloadBandwidth.FindLastIndex(ml => ml < data.MessageLength);
-            _downloadBandwidth.Insert(pos + 1, data.MessageLength);
+            _downloadBandwidth += data.MessageLength;
             if(_receiver != null)
             {
                 _receiver.OnMessageReceived(data, reader);
@@ -94,36 +90,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                var sum = 0;
-                for(int i = 0; i < _downloadBandwidth.Count; i++)
-                {
-                    sum += _downloadBandwidth[i];
-                }
-                return _downloadBandwidth.Count > 0 ? sum : -1;
-            }
-        }
-
-        public int LowestDownloadBandwith
-        {
-            get
-            {
-                return _downloadBandwidth.Count > 0 ? _downloadBandwidth[0] : -1;
-            }
-        }
-
-        public int HighestDownloadBandwith
-        {
-            get
-            {
-                return _downloadBandwidth.Count > 0 ? _downloadBandwidth[_downloadBandwidth.Count - 1] : -1;
-            }
-        }
-
-        public int AverageDownloadBandwith
-        {
-            get
-            {
-                return _downloadBandwidth.Count > 0 ? DownloadBandwith / _downloadBandwidth.Count : -1;
+                return _downloadBandwidth;
             }
         }
 
@@ -131,36 +98,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                var sum = 0;
-                for(int i = 0; i < _uploadBandwidth.Count; i++)
-                {
-                    sum += _uploadBandwidth[i];
-                }
-                return sum;
-            }
-        }
-
-        public int LowestUploadBandwith
-        {
-            get
-            {
-                return _uploadBandwidth.Count > 0 ? _uploadBandwidth[0] : -1;
-            }
-        }
-
-        public int HighestUploadBandwith
-        {
-            get
-            {
-                return _uploadBandwidth.Count > 0 ? _uploadBandwidth[_uploadBandwidth.Count - 1] : -1;
-            }
-        }
-
-        public int AverageUploadBandwith
-        {
-            get
-            {
-                return _uploadBandwidth.Count > 0 ? UploadBandwith / _uploadBandwidth.Count : -1;
+                return _uploadBandwidth;
             }
         }
     }

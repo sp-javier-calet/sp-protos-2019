@@ -7,6 +7,8 @@ namespace SocialPoint.Network
     public class NetworkStatsInstaller : ServiceInstaller
     {
         public bool Rebind = true;
+        public int PingInterval = NetworkStatsServer.DefaultSendStatusMessageInterval;
+
         public override void InstallBindings()
         {
             if(Rebind)
@@ -29,7 +31,9 @@ namespace SocialPoint.Network
 
         NetworkStatsClient CreateNetworkStatsClient()
         {
-            return new NetworkStatsClient(Container.Resolve<INetworkClient>("internal"), Container.Resolve<IUpdateScheduler>());
+            var nsc = new NetworkStatsClient(Container.Resolve<INetworkClient>("internal"), Container.Resolve<IUpdateScheduler>());
+            nsc.PingInterval = PingInterval;
+            return nsc;
         }
     }
 }

@@ -68,11 +68,11 @@ namespace SocialPoint.Network
             return _client.GetDelay(networkTimestamp);
         }
 
-        public bool PingSupported
+        public bool LatencySupported
         {
             get
             {
-                return _client.PingSupported;
+                return _client.LatencySupported;
             }
         }
 

@@ -36,7 +36,7 @@ namespace SocialPoint.Network
          */
         int GetDelay(int networkTimestamp);
 
-        bool PingSupported{ get; }
+        bool LatencySupported{ get; }
 
         int Latency{ get; }
     }
