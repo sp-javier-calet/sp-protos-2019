@@ -16,19 +16,23 @@ namespace SocialPoint.GrayboxLibrary
 
         public static string WinVolumePath = "//" + SmbFolder;
 
+        public static string WinVolumePathAlt = "//" + AltSmbFolder;
+
         #if UNITY_EDITOR_OSX
         public static string VolumePath = MacVolumePath;
         #else
         public static string VolumePath = WinVolumePath;
 #endif
-        public static string IconsFolder = "/TA/TransparentBundles/tool_icons/";
+        public static string IconsFolder = "/TA/UnityAssetLibrary/tool_icons/";
 
         public static string IconsPath = VolumePath + IconsFolder;
 
+        public static string PkgFolder = "/TA/UnityAssetLibrary/Packages/";
+
         #if UNITY_EDITOR_OSX
-        public static string PkgDefaultFolder = VolumePath + "/TA/UnityAssetLibrary/Packages";
+        public static string PkgDefaultFolder = VolumePath + PkgFolder;
         #else
-        public static string PkgDefaultFolder = (VolumePath + "/TA/UnityAssetLibrary/Packages").Replace("/", "\\");
+        public static string PkgDefaultFolder = (VolumePath + PkgFolder).Replace("/", "\\");
 #endif
         public static string SmbConnectionUrl = "//guest@" + SmbFolder;
 
@@ -62,6 +66,11 @@ namespace SocialPoint.GrayboxLibrary
         {
             VolumePath = newVolumePath;
             IconsPath = VolumePath + IconsFolder;
+            #if UNITY_EDITOR_OSX
+            PkgDefaultFolder = VolumePath + PkgFolder;
+            #else
+            PkgDefaultFolder = (VolumePath + PkgFolder).Replace("/", "\\");
+            #endif
         }
 
     }
