@@ -33,7 +33,8 @@ namespace SocialPoint.Social
             }
             if(Settings.LoginLink)
             {
-                Container.Bind<ILink>().ToMethod<FacebookLink>(CreateLoginLink);
+                Container.Bind<FacebookLink>().ToMethod<FacebookLink>(CreateLoginLink);
+                Container.Bind<ILink>().ToLookup<FacebookLink>();
             }
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelFacebook>(CreateAdminPanel);

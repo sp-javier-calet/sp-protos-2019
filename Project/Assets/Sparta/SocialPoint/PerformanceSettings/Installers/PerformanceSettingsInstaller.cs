@@ -20,7 +20,7 @@ namespace SocialPoint.PerformanceSettings
         public void Initialize()
         {
             var performanceSettingsMgr = Container.Resolve<PerformanceSettingsManager>();
-            performanceSettingsMgr.ExtraApplier = Services.Instance.Resolve<PerformanceSettingsManager.IExtraPerformanceSettingsApplier>();
+            performanceSettingsMgr.ExtraApplier = Container.Resolve<PerformanceSettingsManager.IExtraPerformanceSettingsApplier>();
         }
     }
 }

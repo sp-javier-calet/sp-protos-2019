@@ -19,7 +19,8 @@ namespace SocialPoint.Network
             else
             {
                 Container.Bind<INetworkServer>().ToLookup<INetworkServer>("internal");
-            }   Container.Bind<INetworkClient>().ToLookup<INetworkClient>("internal");
+                Container.Bind<INetworkClient>().ToLookup<INetworkClient>("internal");
+            }   
         }
 
         NetworkStatsServer CreateNetworkStatsServer()

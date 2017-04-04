@@ -15,7 +15,7 @@ using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Crash
 {
-    public class CrashInstaller : SubInstaller
+    public class CrashInstaller : SubInstaller, IInitializable
     {
         [Serializable]
         public class SettingsData
@@ -32,6 +32,8 @@ namespace SocialPoint.Crash
 
         public override void InstallBindings()
         {
+            Container.Bind<IInitializable>().ToInstance(this);
+
             if(!Settings.UseEmpty)
             {
                 Container.Rebind<IBreadcrumbManager>().ToMethod<IBreadcrumbManager>(CreateBreadcrumbManager);
@@ -49,6 +51,12 @@ namespace SocialPoint.Crash
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCrashReporter>(CreateAdminPanel);
             #endif
+        }
+
+        public void Initialize()
+        {
+            var crashReporter = Container.Resolve<ICrashReporter>();
+            crashReporter.Enable();
         }
 
         #if ADMIN_PANEL
@@ -70,7 +78,7 @@ namespace SocialPoint.Crash
                 Container.Resolve<IAlertView>());
         }
 
-        IBreadcrumbManager CreateBreadcrumbManager()
+        static IBreadcrumbManager CreateBreadcrumbManager()
         {
             var breadcrumbManager = new BreadcrumbManager();
             Log.BreadcrumbLogger = breadcrumbManager;
