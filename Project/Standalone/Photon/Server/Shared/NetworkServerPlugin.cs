@@ -445,6 +445,14 @@ namespace SocialPoint.Network
             return System.Environment.TickCount;
         }
 
+        bool INetworkServer.LatencySupported
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         protected object CreateInstanceFromAssembly(string assemblyName, string typeName)
         {
             var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);

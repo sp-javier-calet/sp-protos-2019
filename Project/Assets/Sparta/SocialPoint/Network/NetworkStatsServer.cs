@@ -29,7 +29,7 @@ namespace SocialPoint.Network
 
         public void Start()
         {
-            if(_scheduler != null && !_server.PingSupported)
+            if(_scheduler != null && !_server.LatencySupported)
             {
                 _scheduler.Add(this, false, SendStatusMessageInterval);
             }
@@ -81,11 +81,11 @@ namespace SocialPoint.Network
             return _server.GetTimestamp();
         }
 
-        public bool PingSupported
+        public bool LatencySupported
         {
             get
             {
-                return _server.PingSupported;
+                return _server.LatencySupported;
             }
         }
 

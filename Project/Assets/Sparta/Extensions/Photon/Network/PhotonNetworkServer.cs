@@ -49,7 +49,7 @@ namespace SocialPoint.Network
             return PhotonNetwork.ServerTimestamp;
         }
 
-        public bool PingSupported
+        public bool LatencySupported
         {
             get
             {

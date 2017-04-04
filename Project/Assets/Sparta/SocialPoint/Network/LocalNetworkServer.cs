@@ -197,7 +197,7 @@ namespace SocialPoint.Network
             return (int)TimeUtils.TimestampMilliseconds;
         }
 
-        public bool PingSupported
+        public bool LatencySupported
         {
             get
             {

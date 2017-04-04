@@ -221,7 +221,7 @@ namespace SocialPoint.Network
             return NetworkTransport.GetNetworkTimestamp();
         }
 
-        public bool PingSupported
+        public bool LatencySupported
         {
             get
             {
