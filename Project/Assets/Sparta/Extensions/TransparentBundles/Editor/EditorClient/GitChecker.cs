@@ -51,24 +51,19 @@ namespace SocialPoint.TransparentBundles
 
                 if(idx != -1)
                 {
-                    var preIdx = idx;
-                    var prevChar = gitStatus[preIdx - 1];
-
-                    while(prevChar != '\n' && preIdx != 0)
+                    var prevIdx = idx - 1;
+                    while(prevIdx > 0 && gitStatus[prevIdx - 1] != '\n')
                     {
-                        preIdx--;
-                        prevChar = gitStatus[preIdx - 1];
+                        prevIdx--;
                     }
 
-                    var lastIdx = idx + path.Length;
-                    char nextChar = gitStatus[lastIdx];
-                    while(nextChar != '\n' && lastIdx < gitStatus.Length)
+                    var nextIdx = idx + path.Length;
+                    while(nextIdx < gitStatus.Length && gitStatus[nextIdx] != '\n')
                     {
-                        lastIdx++;
-                        nextChar = gitStatus[lastIdx];
+                        nextIdx++;
                     }
 
-                    var line = gitStatus.Substring(preIdx, lastIdx - preIdx);
+                    var line = gitStatus.Substring(prevIdx, nextIdx - prevIdx);
 
                     if(line.StartsWith(_gitModifiedToken))
                     {
