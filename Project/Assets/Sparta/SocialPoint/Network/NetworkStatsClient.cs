@@ -23,10 +23,6 @@ namespace SocialPoint.Network
             _client.AddDelegate(this);
             _latencies = new List<int>();
             _scheduler = scheduler;
-            if(_client.LatencySupported)
-            {
-                _scheduler.Add(this, false, PingInterval);
-            }
         }
 
         #region IUpdateable implementation
@@ -93,11 +89,19 @@ namespace SocialPoint.Network
 
         public void Connect()
         {
+            if(_client.LatencySupported)
+            {
+                _scheduler.Add(this, false, PingInterval);
+            }
             _client.Connect();
         }
 
         public void Disconnect()
         {
+            if(_client.LatencySupported)
+            {
+                _scheduler.Remove(this);
+            }
             _client.Disconnect();
         }
 
