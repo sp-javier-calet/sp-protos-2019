@@ -101,6 +101,12 @@ namespace SocialPoint.Network
                 return _uploadBandwidth;
             }
         }
+
+        protected virtual void RestartStats()
+        {
+            _downloadBandwidth = 0;
+            _uploadBandwidth = 0;
+        }
     }
 
     class NetworkStatsMessage : INetworkMessage

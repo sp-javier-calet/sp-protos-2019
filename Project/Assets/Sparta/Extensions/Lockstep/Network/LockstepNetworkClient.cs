@@ -195,8 +195,8 @@ namespace SocialPoint.Lockstep
                 var statsClient = (NetworkStatsClient)Network;
                 {
                     var data = new AttrDic();
-                    data.SetValue("match_id", MatchId);
-                    data.SetValue("player_id", PlayerId);
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
                     data.SetValue("min_lag", statsClient.LowestLatency);
                     data.SetValue("max_lag", statsClient.HighestLatency);
                     data.SetValue("average_lag", statsClient.AverageLatency);
@@ -204,8 +204,8 @@ namespace SocialPoint.Lockstep
                 }
                 {
                     var data = new AttrDic();
-                    data.SetValue("match_id", MatchId);
-                    data.SetValue("player_id", PlayerId);
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
                     data.SetValue("download", statsClient.DownloadBandwith);
                     data.SetValue("upload", statsClient.UploadBandwith);
                     data.SetValue("battle_time", Lockstep.UpdateTime);
@@ -213,8 +213,8 @@ namespace SocialPoint.Lockstep
                 }
                 {
                     var data = new AttrDic();
-                    data.SetValue("match_id", MatchId);
-                    data.SetValue("player_id", PlayerId);
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
                     data.SetValue("min_turn_buffer", Lockstep.LowestTurnBuffer);
                     data.SetValue("max_turn_buffer", Lockstep.HighestTurnBuffer);
                     data.SetValue("average_turn_buffer", Lockstep.AverageTurnBuffer);
@@ -222,8 +222,8 @@ namespace SocialPoint.Lockstep
                 }
                 {
                     var data = new AttrDic();
-                    data.SetValue("match_id", MatchId);
-                    data.SetValue("player_id", PlayerId);
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
                     data.SetValue("disconnects", Lockstep.Disconnects);
                     data.SetValue("disconnect_time", Lockstep.DisconnectTime);
                     SendTrack("log_battle_end_disconects", data, null);
@@ -286,9 +286,9 @@ namespace SocialPoint.Lockstep
             {
                 var data = new AttrDic();
                 data.SetValue("match_id", MatchId);
-                data.SetValue("player_id", PlayerId);
+                data.SetValue("user_id", PlayerId);
                 data.SetValue("reconnect", reconnect);
-                SendTrack("log_battle_start", data, null);
+                SendTrack("log_battle_start_lockstep", data, null);
             }
         }
 

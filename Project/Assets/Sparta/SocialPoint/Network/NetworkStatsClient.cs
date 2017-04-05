@@ -89,6 +89,7 @@ namespace SocialPoint.Network
 
         public void Connect()
         {
+            RestartStats();
             if(_client.LatencySupported)
             {
                 _scheduler.Add(this, false, PingInterval);
@@ -193,6 +194,12 @@ namespace SocialPoint.Network
             {
                 _delegates[i].OnMessageReceived(data);
             }
+        }
+
+        protected override void RestartStats()
+        {
+            base.RestartStats();
+            _latencies = new List<int>();
         }
     }
 }
