@@ -44,6 +44,8 @@ namespace SocialPoint.TransparentBundles
         public const string InServerImageName = "in_server.png";
         public const string HelpImageName = "help.png";
         public const string SleepImageName = "sleep.png";
+        public const string ProgressBarImageName = "progress_bar.png";
+        public const string ProgressBarBkgImageName = "progress_bar_background.png";
 
         public static void SetVolumePath(string newVolumePath)
         {

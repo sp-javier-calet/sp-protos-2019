@@ -111,7 +111,7 @@ namespace SocialPoint.TransparentBundles
             SharedDependenciesCache = new Dictionary<string, bool>();
             _downloader = Downloader.GetInstance();
             _bundleDictionary = new Dictionary<string, Bundle>();
-            ServerInfo = new ServerInfo(ServerStatus.Ok, "", new Dictionary<int, BundleOperation>());
+            ServerInfo = new ServerInfo(ServerStatus.Ok, "", new Dictionary<int, BundleOperation>(), 0, "");
             NewBundles = new Dictionary<string, Bundle>();
 
         }
@@ -311,7 +311,19 @@ namespace SocialPoint.TransparentBundles
                 key.Dispose();
             }
 
-            return new ServerInfo((ServerStatus)Enum.Parse(typeof(ServerStatus), jsonList["status"].AsValue.ToString()), jsonList["log"].AsValue.ToString(), processingQueue);
+            Attr progressObject = jsonList["progress"];
+
+            float progress = 0f;
+            string progressMessage = "";
+
+            if(progressObject.IsDic)
+            {
+                AttrDic progressDic = progressObject.AsDic;
+                progress = progressDic["progress"].AsValue.ToFloat();
+                progressMessage = progressDic["message"].AsValue.ToString();
+            }
+
+            return new ServerInfo((ServerStatus)Enum.Parse(typeof(ServerStatus), jsonList["status"].AsValue.ToString()), jsonList["log"].AsValue.ToString(), processingQueue, progress, progressMessage);
         }
 
         public static EditorClientController GetInstance()

@@ -604,13 +604,14 @@ namespace SocialPoint.TransparentBundles
             EditorGUILayout.EndHorizontal();
 
             EditorGUILayout.EndVertical();
-
+            
             ManageKeyInputs();
         }
 
         static void DisplayBundleRow(Bundle bundle)
         {
             EditorGUILayout.BeginHorizontal(GUILayout.Height(_bundleRowHeight - 10));
+
             EditorGUILayout.BeginVertical(GUILayout.Width(_columnsSize[0]));
             GUILayout.Label("", GUILayout.Height(3), GUILayout.Width(_columnsSize[0]));
             bool bundleChosen = _chosenList.ContainsKey(bundle.Name);
@@ -661,8 +662,7 @@ namespace SocialPoint.TransparentBundles
             GUILayout.Label("", GUILayout.Height(3), GUILayout.Width(_columnsSize[1]));
             GUILayout.Label(AssetPreview.GetMiniThumbnail(bundle.Asset.GetAssetObject()), GUILayout.Width(_columnsSize[1]), GUILayout.Height(_columnsSize[1]));
             EditorGUILayout.EndVertical();
-
-
+            
             if(bundle.Status == BundleStatus.Warning || bundle.Status == BundleStatus.Error)
             {
                 EditorGUILayout.BeginVertical(GUILayout.Width(20));
@@ -675,7 +675,6 @@ namespace SocialPoint.TransparentBundles
                 }
                 EditorGUILayout.EndVertical();
             }
-
 
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
             GUIStyle bundleStyle = BodyTextStyle;
@@ -710,7 +709,18 @@ namespace SocialPoint.TransparentBundles
                 }
 
             }
-            if(GUILayout.Button(bundle.Asset.Name, bundleStyle, GUILayout.ExpandWidth(true), GUILayout.Height(_bundleRowHeight)))
+
+            Rect bundleButtonRec = GUILayoutUtility.GetRect(0, _bundleRowHeight, bundleStyle, GUILayout.ExpandWidth(true));
+
+            if(bundle.Status == BundleStatus.Processing)
+            {
+                Rect progressRect = new Rect(bundleButtonRec.position.x - 3, bundleButtonRec.position.y + 2, (bundleButtonRec.width + 3) * _controller.ServerInfo.Progress, bundleButtonRec.height);
+                Rect backgroundRec = new Rect(bundleButtonRec.position.x - 3, bundleButtonRec.position.y + 2, bundleButtonRec.width + 3, bundleButtonRec.height);
+                GUI.DrawTexture(backgroundRec, _controller.DownloadImage(Config.IconsPath + Config.ProgressBarBkgImageName));
+                GUI.DrawTexture(progressRect, _controller.DownloadImage(Config.IconsPath + Config.ProgressBarImageName));
+            }
+            
+            if(GUI.Button(bundleButtonRec, bundle.Asset.Name, bundleStyle))
             {
                 if(Event.current.control || Event.current.command)
                 {
@@ -782,7 +792,8 @@ namespace SocialPoint.TransparentBundles
                 var operationEnumerator = bundle.OperationQueue.GetEnumerator();
                 for(int i = 0; operationEnumerator.MoveNext(); i++)
                 {
-                    EditorGUILayout.BeginVertical(GUILayout.Width(25));
+                    EditorGUILayout.BeginVertical(GUILayout.Width(22));
+                    GUILayout.Label("", GUILayout.Height(3));
                     DrawOperationIcon(operationEnumerator.Current.Value, (bundle.Status == BundleStatus.Processing && i == 0) /*TEMPORARY*/ || _controller.NewBundles.ContainsKey(bundle.Name));
                     EditorGUILayout.EndVertical();
                 }
@@ -843,7 +854,7 @@ namespace SocialPoint.TransparentBundles
 
             var iconContent = new GUIContent(icon, operation.ToString());
 
-            float iconSize = 23;
+            float iconSize = 20;
             if(processing)
             {
                 iconSize = iconSize * iconsProcessCurrentSize;
