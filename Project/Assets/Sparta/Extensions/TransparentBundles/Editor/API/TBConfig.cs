@@ -8,6 +8,7 @@ namespace SocialPoint.TransparentBundles
     public class TBConfig : ScriptableObject
     {
         public string project = "";
+        public string branchName = "";
         const string _configDefaultPath = "Assets/Sparta/Config/TransparentBundles/TBConfig.asset";
         const string _configSearchPattern = "t:TBConfig";
 

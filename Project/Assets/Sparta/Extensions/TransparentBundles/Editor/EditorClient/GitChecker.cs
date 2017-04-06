@@ -10,8 +10,9 @@ namespace SocialPoint.TransparentBundles
         const string _gitModifiedToken = " M";
         const string _gitUntrackedToken = "??";
 
-        public static List<string> CheckInBranchUpdated(string branchName)
+        public static List<string> CheckInBranchUpdated()
         {
+            string branchName = TBConfig.GetConfig().branchName;
             var infractions = new List<string>();
             var repo = new Repository(Application.dataPath);
 
@@ -22,6 +23,18 @@ namespace SocialPoint.TransparentBundles
             if(currentBranch != branchName)
             {
                 infractions.Add(string.Format("The current branch is {0}. Was expecting {1}.", currentBranch, branchName));
+                return infractions;
+            }
+
+            query = repo.CreateQuery("rev-parse").WithOption("abbrev-ref HEAD@{u}");
+
+            var remote = query.Exec().TrimEnd('\n');
+            var remoteBranch = remote.Substring(remote.IndexOf("/") + 1);
+
+            if(remoteBranch != branchName)
+            {
+                infractions.Add(string.Format("The remote tracked branch is {0}. Was expecting {1}.", remote, branchName));
+                return infractions;
             }
 
             var queryLocal = repo.CreateQuery("log").WithArg("-1").WithOption("oneline").WithArg(currentBranch);
