@@ -47,5 +47,7 @@ namespace SocialPoint.Helpshift
         void ShowFAQ(string sectionId = null);
 
         void ShowConversation();
+
+        int PendingNotificationsCount { get; }
     }
 }
