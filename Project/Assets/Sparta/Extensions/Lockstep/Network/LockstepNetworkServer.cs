@@ -593,7 +593,8 @@ namespace SocialPoint.Lockstep
         void IMatchmakingServerDelegate.OnError(Error ierr)
         {
             var err = new Error(MatchmakingErrorCode,
-                string.Format("Matchmaking: {0}", ierr));
+                string.Format("Matchmaking: {0}", ierr.Msg));
+            err.Detail = ierr.Detail;
             OnError(err);
         }
 
