@@ -10,8 +10,9 @@ namespace SocialPoint.TransparentBundles
         const string _gitModifiedToken = " M";
         const string _gitUntrackedToken = "??";
 
-        public static List<string> CheckInBranchUpdated(string branchName)
+        public static List<string> CheckInBranchUpdated()
         {
+            string branchName = TBConfig.GetConfig().branchName;
             var infractions = new List<string>();
             var repo = new Repository(Application.dataPath);
 
@@ -22,6 +23,18 @@ namespace SocialPoint.TransparentBundles
             if(currentBranch != branchName)
             {
                 infractions.Add(string.Format("The current branch is {0}. Was expecting {1}.", currentBranch, branchName));
+                return infractions;
+            }
+
+            query = repo.CreateQuery("rev-parse").WithOption("abbrev-ref HEAD@{u}");
+
+            var remote = query.Exec().TrimEnd('\n');
+            var remoteBranch = remote.Substring(remote.IndexOf("/") + 1);
+
+            if(remoteBranch != branchName)
+            {
+                infractions.Add(string.Format("The remote tracked branch is {0}. Was expecting {1}.", remote, branchName));
+                return infractions;
             }
 
             var queryLocal = repo.CreateQuery("log").WithArg("-1").WithOption("oneline").WithArg(currentBranch);
@@ -51,24 +64,19 @@ namespace SocialPoint.TransparentBundles
 
                 if(idx != -1)
                 {
-                    var preIdx = idx;
-                    var prevChar = gitStatus[preIdx - 1];
-
-                    while(prevChar != '\n' && preIdx != 0)
+                    var prevIdx = idx - 1;
+                    while(prevIdx > 0 && gitStatus[prevIdx - 1] != '\n')
                     {
-                        preIdx--;
-                        prevChar = gitStatus[preIdx - 1];
+                        prevIdx--;
                     }
 
-                    var lastIdx = idx + path.Length;
-                    char nextChar = gitStatus[lastIdx];
-                    while(nextChar != '\n' && lastIdx < gitStatus.Length)
+                    var nextIdx = idx + path.Length;
+                    while(nextIdx < gitStatus.Length && gitStatus[nextIdx] != '\n')
                     {
-                        lastIdx++;
-                        nextChar = gitStatus[lastIdx];
+                        nextIdx++;
                     }
 
-                    var line = gitStatus.Substring(preIdx, lastIdx - preIdx);
+                    var line = gitStatus.Substring(prevIdx, nextIdx - prevIdx);
 
                     if(line.StartsWith(_gitModifiedToken))
                     {
