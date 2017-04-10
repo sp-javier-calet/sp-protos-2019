@@ -9,6 +9,7 @@ using SocialPoint.Base;
 using SocialPoint.Utils;
 using log4net;
 using SocialPoint.Network.ServerEvents;
+using SocialPoint.Attributes;
 
 namespace SocialPoint.Network
 {

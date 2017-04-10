@@ -942,7 +942,8 @@ namespace SocialPoint.Lockstep
             byte playerNum;
             _commandSenders.TryGetValue(cmd.Id, out playerNum);
             var err = new Error(CommandFailedErrorCode,
-                string.Format("Command failed: {0}", ierr));
+                string.Format("Command failed: {0}", ierr.Msg),
+                ierr.Detail);
             if(CommandFailed != null)
             {
                 CommandFailed(err, playerNum);
