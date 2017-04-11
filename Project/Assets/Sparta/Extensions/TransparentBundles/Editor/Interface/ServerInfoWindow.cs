@@ -85,7 +85,7 @@ namespace SocialPoint.TransparentBundles
                     {
                         if(BundlesWindow.BundleList[j].OperationQueue.ContainsKey(queueEnum.Current.Key))
                         {
-                            bundleNames += BundlesWindow.BundleList[j].Asset.Name + ", ";
+                            bundleNames += BundlesWindow.BundleList[j].Name.Substring(0, BundlesWindow.BundleList[j].Name.LastIndexOf("_")) + ", ";
                         }
                         j++;
                     }
