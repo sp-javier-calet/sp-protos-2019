@@ -36,7 +36,7 @@ namespace SocialPoint.Matchmaking
             _parser = new JsonAttrParser();
         }
 
-        const string InfoUri = "/get_match";
+        const string InfoUri = "/start_match";
         const string EndUri = "/end_match";
         const string UsersParam = "users";
         const string MatchIdParam = "match_id";
