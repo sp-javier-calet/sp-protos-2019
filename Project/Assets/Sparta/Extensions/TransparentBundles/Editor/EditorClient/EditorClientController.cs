@@ -112,7 +112,7 @@ namespace SocialPoint.TransparentBundles
             SharedDependenciesCache = new Dictionary<string, bool>();
             _downloader = Downloader.GetInstance();
             _bundleDictionary = new Dictionary<string, Bundle>();
-            ServerInfo = new ServerInfo(ServerStatus.Ok, "", new Dictionary<int, BundleOperation>(), 0, "");
+            ServerInfo = new ServerInfo(ServerStatus.Ok, "", new Dictionary<int, ServerTask>(), 0, "");
             NewBundles = new Dictionary<string, Bundle>();
         }
 
@@ -226,7 +226,7 @@ namespace SocialPoint.TransparentBundles
                 for(int j = 0; j < jsonOperations.Count; j++)
                 {
                     int operationId = jsonOperations[j].AsValue.ToInt();
-                    operationDict.Add(operationId, (ServerInfo.ProcessingQueue[operationId]));
+                    operationDict.Add(operationId, (ServerInfo.ProcessingQueue[operationId].Operation));
                 }
 
                 var bundle = new Bundle(bundleName,
@@ -309,15 +309,18 @@ namespace SocialPoint.TransparentBundles
             Attr jsonParsed = parser.Parse(jsonBytes);
             AttrDic jsonList = jsonParsed.AsDic["server"].AsDic;
 
-            var processingQueue = new Dictionary<int, BundleOperation>();
+            var processingQueue = new Dictionary<int, ServerTask>();
             var jsonQueue = jsonList["queue"].AsList;
 
             for(int i = 0; i < jsonQueue.Count; i++)
             {
-                var key = jsonQueue[i].AsDic.Keys.GetEnumerator();
-                key.MoveNext();
-                processingQueue.Add(int.Parse(key.Current), (BundleOperation)Enum.Parse(typeof(BundleOperation), jsonQueue[i].AsDic[key.Current].AsValue.ToString()));
-                key.Dispose();
+                var taskDic = jsonQueue[i].AsDic;
+                var taskId = taskDic["id"].AsValue.ToInt();
+                var taskName = taskDic["name"].AsValue.ToString();
+                var taskAuthor = taskDic["author_email"].AsValue.ToString();
+
+                ServerTask st = new ServerTask((BundleOperation)Enum.Parse(typeof(BundleOperation), taskName), taskId, taskAuthor);
+                processingQueue.Add(taskId, st);
             }
 
             Attr progressObject = jsonList["progress"];

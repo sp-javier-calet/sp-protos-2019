@@ -73,12 +73,12 @@ namespace SocialPoint.TransparentBundles
                     GUILayout.Label("", GUILayout.Width(5));
                     if(i > 0)
                     {
-                        if(GUILayout.Button("Cancel", GUILayout.Width(50)))
+                        if(queueEnum.Current.Value.AuthorMail == EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY) && GUILayout.Button("Cancel", GUILayout.Width(50)))
                         {
                             _controller.CancelBundleOperation(queueEnum.Current.Key);
                         }
                     }
-                    BundlesWindow.DrawOperationIcon(queueEnum.Current.Value, i == 0);
+                    BundlesWindow.DrawOperationIcon(queueEnum.Current.Value.Operation, i == 0);
                     string bundleNames = "";
                     int j = 0;
                     while(j < BundlesWindow.BundleList.Count && bundleNames.Length < Window.position.width)

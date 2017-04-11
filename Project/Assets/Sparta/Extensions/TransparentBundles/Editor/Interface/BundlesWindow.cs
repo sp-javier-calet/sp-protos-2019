@@ -279,17 +279,7 @@ namespace SocialPoint.TransparentBundles
             Rect serverIconRect = GUILayoutUtility.GetRect(20, 20, GUILayout.ExpandWidth(false));
             GUI.DrawTexture(serverIconRect, _controller.DownloadImage(Config.IconsPath + Config.ServerDbImageName));
 
-            if(_controller.ServerInfo.Status == ServerStatus.Warning)
-            {
-                GUILayout.Label(" System Warning", BodyTextStyleWarning, GUILayout.ExpandWidth(false));
-                buttonContent = new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.WarningImageName), "Warning");
-            }
-            else if(_controller.ServerInfo.Status == ServerStatus.Error)
-            {
-                GUILayout.Label(" System Error", BodyTextStyleError, GUILayout.ExpandWidth(false));
-                buttonContent = new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.ErrorImageName), "Error");
-            }
-            else if(_controller.ServerInfo.ProcessingQueue.Count > 0)
+            if(_controller.ServerInfo.ProcessingQueue.Count > 0)
             {
                 if(GUILayout.Button(new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.UpdateImageName), "Processing"), NoButtonStyle, GUILayout.Width(20), GUILayout.Height(20)))
                 {
@@ -299,6 +289,17 @@ namespace SocialPoint.TransparentBundles
             else
             {
                 GUILayout.Label(_controller.DownloadImage(Config.IconsPath + Config.SleepImageName), GUILayout.Width(20), GUILayout.Height(20));
+            }
+
+            if(_controller.ServerInfo.Status == ServerStatus.Warning)
+            {
+                GUILayout.Label(" System Warning", BodyTextStyleWarning, GUILayout.ExpandWidth(false));
+                buttonContent = new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.WarningImageName), "Warning");
+            }
+            else if(_controller.ServerInfo.Status == ServerStatus.Error)
+            {
+                GUILayout.Label(" System Error", BodyTextStyleError, GUILayout.ExpandWidth(false));
+                buttonContent = new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.ErrorImageName), "Error");
             }
 
             if(buttonContent != null && GUILayout.Button(buttonContent, NoButtonStyle, GUILayout.Width(20), GUILayout.Height(20)))
