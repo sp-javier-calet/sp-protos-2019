@@ -169,7 +169,7 @@ namespace SocialPoint.TransparentBundles
 
                 GUILayout.Label("", GUILayout.Height(5));
                 EditorGUILayout.BeginHorizontal();
-                Bundle bundle = _selectedBundle;
+                Bundle bundle = _selectedBundle == null ? _controller.GetBundleFromAsset(_selectedAsset) : _selectedBundle;
                 string inBuild;
                 if(bundle == null)
                 {

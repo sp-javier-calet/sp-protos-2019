@@ -391,8 +391,16 @@ namespace SocialPoint.TransparentBundles
                     branchIssuesText += branchIssuesMessages[i] + "\n";
                 }
 
-                ServerInfo.Status = ServerStatus.Warning;
-                ServerInfo.Log = ErrorDisplay.DisplayError(ErrorType.wrongBranch, true, true, false, branchIssuesText);
+                if(ServerInfo.Status == ServerStatus.Ok)
+                {
+                    ServerInfo.Status = ServerStatus.Warning;
+                    ServerInfo.Log = ErrorDisplay.DisplayError(ErrorType.wrongBranch, true, true, false, branchIssuesText);
+                }
+            }
+            else if(_instance.ServerInfo.Log.IndexOf(ErrorDisplay.ErrorMessages[ErrorType.wrongBranch].Substring(0, ErrorDisplay.ErrorMessages[ErrorType.wrongBranch].IndexOf("{"))) == 0)
+            {
+                ServerInfo.Status = ServerStatus.Ok;
+                ServerInfo.Log = "";
             }
 
             BranchUpdated = valid;
