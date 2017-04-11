@@ -5,11 +5,16 @@ namespace SocialPoint.TransparentBundles
 {
     public class CancelRequestArgs : RequestArgs
     {
-        public int requestID;
+        public int[] requestIDs;
 
         public CancelRequestArgs(int requestID, Action<RequestReport> SuccessCallback, Action<RequestReport> FailedCallback) : base(SuccessCallback, FailedCallback)
         {
-            this.requestID = requestID;
+            this.requestIDs = new int[] {requestID};
+        }
+
+        public CancelRequestArgs(int[] requestIDs, Action<RequestReport> SuccessCallback, Action<RequestReport> FailedCallback) : base(SuccessCallback, FailedCallback)
+        {
+            this.requestIDs = requestIDs;
         }
     }
 }
