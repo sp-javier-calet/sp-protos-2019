@@ -28,6 +28,6 @@ namespace SocialPoint.Matchmaking
         void LoadInfo(string matchId, List<string> playerIds);
 
         // called when the match ends, results keys should be unique playerIds
-        void NotifyResults(string matchId, AttrDic results);
+        void NotifyResults(string matchId, AttrDic results, AttrDic customData);
     }
 }

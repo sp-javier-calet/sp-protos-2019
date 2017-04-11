@@ -105,7 +105,7 @@ namespace SocialPoint.Lockstep
         public event Action<byte[]> MatchStarted;
         public event Action<Error> ErrorProduced;
         public event Action<Error, byte> CommandFailed;
-        public event Action<Dictionary<byte, Attr>> MatchFinished;
+        public event Action<Dictionary<byte, Attr>, AttrDic> MatchFinished;
 
 
         public const int CommandFailedErrorCode = 300;
@@ -675,6 +675,7 @@ namespace SocialPoint.Lockstep
         {
             _serverLockstep.Stop();
             var results = PlayerResults;
+            var customData = new AttrDic();
             var originalResults = new Dictionary<byte, Attr>();
             {
                 var itr = results.GetEnumerator();
@@ -686,7 +687,7 @@ namespace SocialPoint.Lockstep
             }
             if(MatchFinished != null)
             {
-                MatchFinished(results);
+                MatchFinished(results, customData);
             }
             var resultsAttr = new AttrDic();
             {
@@ -755,7 +756,7 @@ namespace SocialPoint.Lockstep
             }
             else
             {
-                _matchmaking.NotifyResults(MatchId, resultsAttr);
+                _matchmaking.NotifyResults(MatchId, resultsAttr, customData);
             }
         }
 
