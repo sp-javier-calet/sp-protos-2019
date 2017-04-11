@@ -8,7 +8,7 @@ namespace SocialPoint.TransparentBundles
         public string Log;
         public Dictionary<int, BundleOperation> ProcessingQueue;
         public float Progress;
-        public string ProgressMessage; 
+        public string ProgressMessage;
 
         public ServerInfo(ServerStatus status, string log, Dictionary<int, BundleOperation> processingQueue, float progress, string progressMessage)
         {
