@@ -132,8 +132,14 @@ namespace SocialPoint.TransparentBundles
             if(!_requestPending)
             {
                 _requestPending = true;
-                TransparentBundleAPI.GetBundles(new GetBundlesArgs(x => ImportBundleData(x.ResponseRes.Response, SuccessCallback), x => UnityEngine.Debug.LogError(x.ResponseRes.Response)));
+                TransparentBundleAPI.GetBundles(new GetBundlesArgs(x => ImportBundleData(x.ResponseRes.Response, SuccessCallback), x => AsyncRequestErrorMessage(x.ResponseRes.Response)));
             }
+        }
+
+        void AsyncRequestErrorMessage(string error)
+        {
+            _requestPending = false;
+            UnityEngine.Debug.LogError(error);
         }
 
         void ImportBundleData(string bundleJsonString, Action SuccessCallback = null)
