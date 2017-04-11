@@ -22,7 +22,14 @@ namespace SocialPoint.TransparentBundles
             if(target != null)
             {
                 _dummy = (InspectorDummy)target;
-                _selectedAsset = _dummy.SelectedAsset;
+                if(_dummy.SelectedAsset.GetAssetObject() == null)
+                {
+                    ErrorDisplay.DisplayError(ErrorType.assetNotFoundInBundle,false,false,false, _dummy.SelectedAsset.Name, _dummy.SelectedAsset.Guid);
+                }
+                else
+                {
+                    _selectedAsset = _dummy.SelectedAsset;
+                }
             }
 
             if(_selectedAsset != null)
@@ -220,7 +227,6 @@ namespace SocialPoint.TransparentBundles
                 EditorGUILayout.EndVertical();
             }
 
-
             void PrintHierarchy(Asset selectedAsset, List<Asset> assets, int margin = 0)
             {
                 for(int i = 0; i < assets.Count; i++)
@@ -235,6 +241,14 @@ namespace SocialPoint.TransparentBundles
                         if(!isChild || _shownHierarchy.Contains(assets[i].Name))
                         {
                             List<Asset> dependencies = GetAssetDependencies(assets[i]);
+                            for(int j = 0; j < dependencies.Count; j++)
+                            {
+                                if(assets.Contains(dependencies[j]))
+                                {
+                                    dependencies.RemoveAt(j);
+                                }
+                            }
+                            
                             _controller.SortAssets(AssetSortingMode.TypeAsc, dependencies);
                             PrintHierarchy(selectedAsset, dependencies, margin + 20);
                         }
@@ -317,9 +331,9 @@ namespace SocialPoint.TransparentBundles
 
             List<Asset> GetAssetDependencies(Asset asset)
             {
-                if(_controller.DependenciesCache.ContainsKey(asset.Name))
+                if(_controller.DependenciesCache.ContainsKey(asset.FullName))
                 {
-                    return _controller.DependenciesCache[asset.Name];
+                    return _controller.DependenciesCache[asset.FullName];
                 }
 
                 var dependencies = new List<Asset>();
@@ -336,7 +350,7 @@ namespace SocialPoint.TransparentBundles
                         }
                     }
                 }
-                _controller.DependenciesCache.Add(asset.Name, dependencies);
+                _controller.DependenciesCache.Add(asset.FullName, dependencies);
 
                 return dependencies;
             }
@@ -407,9 +421,9 @@ namespace SocialPoint.TransparentBundles
 
             List<Asset> GetAssetReferences(Asset asset, int searchLimit = 100)
             {
-                if(_controller.ReferencesCache.ContainsKey(asset.Name))
+                if(_controller.ReferencesCache.ContainsKey(asset.FullName))
                 {
-                    return _controller.ReferencesCache[asset.Name];
+                    return _controller.ReferencesCache[asset.FullName];
                 }
 
                 string assetName;
@@ -422,7 +436,7 @@ namespace SocialPoint.TransparentBundles
                 }
                 else
                 {
-                    Debug.Log("Error Asset not found");
+                    ErrorDisplay.DisplayError(ErrorType.assetNotFound, false, false, false, asset.Name, asset.Guid);
                     return null;
                 }
 
@@ -453,7 +467,7 @@ namespace SocialPoint.TransparentBundles
                 }
 
                 List<Asset> references = GetRootParentsOnly(new List<Asset>(matches.Values), asset);
-                _controller.ReferencesCache.Add(asset.Name, GetRootParentsOnly(new List<Asset>(matches.Values), asset));
+                _controller.ReferencesCache.Add(asset.FullName, GetRootParentsOnly(new List<Asset>(matches.Values), asset));
 
                 return references;
             }
@@ -465,7 +479,7 @@ namespace SocialPoint.TransparentBundles
                 for(int i = 0; i < allObjects.Length; i++)
                 {
                     string objectToCheck = allObjects[i];
-                    if(_controller.IsBundle(Path.GetFileNameWithoutExtension(objectToCheck)))
+                    if(_controller.IsBundle(Path.GetFileName(objectToCheck)))
                     {
                         filteredArray.Add(objectToCheck);
                     }
