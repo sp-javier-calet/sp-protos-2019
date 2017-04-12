@@ -15,7 +15,8 @@ namespace SocialPoint.TransparentBundles
             { ErrorType.parentBundleNotFound, "Transparent Bundles - Error - The parent bundle '{0}' was not found in the bundle list. Please, contact the transparent bundles team: " + Config.ContactMail + "\n"},
             { ErrorType.assetPendingToCommit, "Transparent Bundles - Error - Some asset are pending to be commited and pushed to GIT:\n\n\n{0}\nPlease, make sure that you updload all the pending assets before creating or updating bundles. \n\nVisit the following link for more info: \n" + Config.HelpUrl+"\n"},
             { ErrorType.wrongBranch, "Transparent Bundles - Error - It seems that you are in a GIT branch which doesn't have access to the Transparent Bundles System. Please, change your GIT into the proper branch listed below to use this tool. Otherwise you will not be able to perform any bundle operation.\n\n{0}\nVisit the following link for more info: \n" + Config.HelpUrl+"\n"},
-            { ErrorType.bundleNotDownloadable, "Transparent Bundles - Error - The bundle '{0}' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactMail + "\n"}
+            { ErrorType.bundleNotDownloadable, "Transparent Bundles - Error - The bundle '{0}' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactMail + "\n"},
+            { ErrorType.bundleBeingCreated, "Transparent Bundles - Error - The bundle '{0}' is pending to be created. You won't be able to preform any other operation to that bundle until the system finishes the bundle creation process. Please wait until the bundle is created.\n"}
         };
 
         public static void FlushErrorCache()
@@ -93,6 +94,7 @@ namespace SocialPoint.TransparentBundles
         parentBundleNotFound,
         assetPendingToCommit,
         wrongBranch,
-        bundleNotDownloadable
+        bundleNotDownloadable,
+        bundleBeingCreated
     }
 }

@@ -531,7 +531,7 @@ namespace SocialPoint.TransparentBundles
             GUILayout.Label(PrintProperSize(totalSelectedSize), BodyTextStyle, GUILayout.Width(70));
             EditorGUILayout.EndVertical();
 
-            if(GUILayout.Button(_actionButons[0], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)) && _controller.BranchUpdated)
+            if(GUILayout.Button(_actionButons[0], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)) && _controller.BranchUpdated && _chosenList.Count > 0)
             {
                 chosenEnum = _chosenList.GetEnumerator();
                 var assetList = new List<Asset>();
@@ -542,7 +542,7 @@ namespace SocialPoint.TransparentBundles
                 _controller.CreateOrUpdateBundles(assetList);
                 chosenEnum.Dispose();
             }
-            if(GUILayout.Button(_actionButons[1], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)) && _controller.BranchUpdated)
+            if(GUILayout.Button(_actionButons[1], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)) && _controller.BranchUpdated && _chosenList.Count > 0)
             {
                 string bundlesListString = "\n\n";
 
@@ -573,7 +573,7 @@ namespace SocialPoint.TransparentBundles
                     chosenEnum.Dispose();
                 }
             }
-            if(GUILayout.Button(_actionButons[2], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)) && _controller.BranchUpdated)
+            if(GUILayout.Button(_actionButons[2], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)) && _controller.BranchUpdated && _chosenList.Count > 0)
             {
                 chosenEnum = _chosenList.GetEnumerator();
                 var assetList = new List<Asset>();
@@ -584,7 +584,7 @@ namespace SocialPoint.TransparentBundles
                 _controller.PerfomBundleOperation(assetList, BundleOperation.create_local_asset_bundles);
                 chosenEnum.Dispose();
             }
-            if(GUILayout.Button(_actionButons[3], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)) && _controller.BranchUpdated)
+            if(GUILayout.Button(_actionButons[3], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)) && _controller.BranchUpdated && _chosenList.Count > 0)
             {
                 chosenEnum = _chosenList.GetEnumerator();
                 var assetList = new List<Asset>();
@@ -815,7 +815,7 @@ namespace SocialPoint.TransparentBundles
                 {
                     EditorGUILayout.BeginVertical(GUILayout.Width(22));
                     GUILayout.Label("", GUILayout.Height(3));
-                    DrawOperationIcon(operationEnumerator.Current.Value, (bundle.Status == BundleStatus.Processing && i == 0) /*TEMPORARY*/ || _controller.NewBundles.ContainsKey(bundle.Name));
+                    DrawOperationIcon(operationEnumerator.Current.Value, (bundle.Status == BundleStatus.Processing && i == 0));
                     EditorGUILayout.EndVertical();
                 }
                 operationEnumerator.Dispose();

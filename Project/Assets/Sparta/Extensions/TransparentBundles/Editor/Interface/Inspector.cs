@@ -121,17 +121,10 @@ namespace SocialPoint.TransparentBundles
                     Object assetObject = _selectedAsset.GetAssetObject();
                     _typeIcon = AssetPreview.GetMiniThumbnail(assetObject);
 
-                    for(int i = 0; i < 75 && _preview == null; i++)
+                    for(int i = 0; i < 10 && _preview == null; i++)
                     {
                         _preview = AssetPreview.GetAssetPreview(assetObject);
-                        System.Threading.Thread.Sleep(15);
-                    }
-
-
-                    for(int counter = 0; _preview == null && counter < 10; counter++)
-                    {
-                        _preview = AssetPreview.GetAssetPreview(assetObject);
-                        System.Threading.Thread.Sleep(20);
+                        System.Threading.Thread.Sleep(10);
                     }
                     if(_preview == null)
                     {
@@ -164,7 +157,7 @@ namespace SocialPoint.TransparentBundles
                 GUI.DrawTexture(Rec, _typeIcon == null ? _controller.DownloadImage(Config.IconsPath + Config.MissingFileImageName) : _typeIcon);
 
                 GUILayout.Label("", GUILayout.Width(5));
-                GUILayout.Label(_selectedBundle == null ? _selectedAsset.Name : _selectedBundle.Name.Substring(0, _selectedBundle.Name.LastIndexOf("_")), BundlesWindow.BodyTextStyle);
+                GUILayout.Label(_selectedAsset == null ? _selectedBundle.Name.Substring(0, _selectedBundle.Name.LastIndexOf("_")) : _selectedAsset.Name, BundlesWindow.BodyTextStyle);
                 EditorGUILayout.EndHorizontal();
 
                 GUILayout.Label("", GUILayout.Height(5));
