@@ -38,12 +38,12 @@ namespace SocialPoint.Social
             return _properties.GetEnumerator();
         }
 
-        internal void AddProperty(string property)
+        public void AddProperty(string property)
         {
             _properties.Add(property);
         }
 
-        internal void RemoveProperty(string property)
+        public void RemoveProperty(string property)
         {
             _properties.Remove(property);
         }
