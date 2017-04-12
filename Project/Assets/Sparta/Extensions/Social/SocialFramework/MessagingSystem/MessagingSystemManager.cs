@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
 using SocialPoint.Connection;
 
 namespace SocialPoint.Social
@@ -9,27 +10,32 @@ namespace SocialPoint.Social
     public sealed class MessagingSystemManager : IDisposable
     {
         readonly ConnectionManager _connection;
+        readonly SocialManager _socialManager;
 
         readonly List<Message> _listMessages;
         readonly Dictionary<string, IMessageOriginFactory> _originFactories;
         readonly Dictionary<string, IMessagePayloadFactory> _payloadFactories;
 
-        public delegate void FinishCallback(bool success, AttrDic dic);
+        public delegate void FinishCallback(Error error, AttrDic dic);
 
         public delegate void OnNewMessage(Message msg);
 
         public event Action OnHistoricReceived;
         public event OnNewMessage OnNewMessageEvent;
 
-        public MessagingSystemManager(ConnectionManager connectionManager)
+        public MessagingSystemManager(ConnectionManager connectionManager, SocialManager socialManager)
         {
             _connection = connectionManager;
             _connection.OnNotificationReceived += OnNotificationReceived;
             _connection.OnProcessServices += OnProcessServices;
 
+            _socialManager = socialManager;
+
             _listMessages = new List<Message>();
             _originFactories = new Dictionary<string, IMessageOriginFactory>();
             _payloadFactories = new Dictionary<string, IMessagePayloadFactory>();
+
+            AddDefaultOriginFactories();
         }
 
         public void Dispose()
@@ -37,32 +43,99 @@ namespace SocialPoint.Social
             _connection.OnNotificationReceived -= OnNotificationReceived;
         }
 
-        ReadOnlyCollection<Message> GetMessages()
+        void AddDefaultOriginFactories()
+        {
+            _originFactories.Add(MessageOriginUser.Identifier, new MessageOriginUserFactory(_socialManager.PlayerFactory));
+            _originFactories.Add(MessageOriginSystem.Identifier, new MessageOriginSystemFactory());
+
+            _payloadFactories.Add(MessagePayloadPlainText.Identifier, new MessagePayloadPlainTextFactory());
+        }
+
+        public ReadOnlyCollection<Message> GetMessages()
         {
             return _listMessages.AsReadOnly();
         }
 
-        void SendMessage(string destinationType, AttrDic destinationData, FinishCallback callback)
+        public void SendMessage(string destinationType, AttrDic destinationData, IMessagePayload payload, FinishCallback callback)
         {
+            var paramsDic = new AttrDic();
+            paramsDic.SetValue("destination_type", destinationType);
+            paramsDic.Set("destination_data", destinationData);
+            paramsDic.SetValue("payload_type", payload.GetIdentifier());
+            paramsDic.Set("payload_data", payload.Serialize());
 
+            _connection.Call("messaging_system.send", null, paramsDic, (error, AttrList, attrDic) => {
+                if(callback != null)
+                {
+                    callback(error, attrDic);
+                }
+            });
         }
 
-        void DeleteMessage(Message msg, FinishCallback callback)
+        public void DeleteMessage(Message msg, FinishCallback callback)
         {
-
+            var paramsDic = new AttrDic();
+            paramsDic.SetValue("msg_id", msg.Id);
+            _connection.Call("messaging_system.delete", null, paramsDic, (error, AttrList, attrDic) => {
+                if(callback != null)
+                {
+                    _listMessages.Remove(msg);
+                    callback(error, attrDic);
+                }
+            });
         }
 
-        void AddMessageProperty(string property, Message msg, FinishCallback callback)
+        public void AddMessageProperty(string property, Message msg, FinishCallback callback)
         {
-
+            AddMessageProperties(new List<string>{ property }, msg, callback);
         }
 
-        void RemoveMessageProperty(string property, Message msg, FinishCallback callback)
+        public void AddMessageProperties(List<string> properties, Message msg, FinishCallback callback)
         {
-
+            var paramsDic = new AttrDic();
+            paramsDic.SetValue("msg_id", msg.Id);
+            paramsDic.Set("properties", new AttrList(properties));
+            _connection.Call("messaging_system.add_properties", null, paramsDic, (error, AttrList, attrDic) => {
+                if(callback != null)
+                {
+                    using(var propertyItr = properties.GetEnumerator())
+                    {
+                        while(propertyItr.MoveNext())
+                        {
+                            msg.AddProperty(propertyItr.Current);
+                        }
+                    }
+                    callback(error, attrDic);
+                }
+            });
         }
 
-        void ClearMessages()
+        public void RemoveMessageProperty(string property, Message msg, FinishCallback callback)
+        {
+            RemoveMessageProperties(new List<string>{ property }, msg, callback);
+        }
+
+        public void RemoveMessageProperties(List<string> properties, Message msg, FinishCallback callback)
+        {
+            var paramsDic = new AttrDic();
+            paramsDic.SetValue("msg_id", msg.Id);
+            paramsDic.Set("properties", new AttrList(properties));
+            _connection.Call("messaging_system.remove_properties", null, paramsDic, (error, AttrList, attrDic) => {
+                if(callback != null)
+                {
+                    using(var propertyItr = properties.GetEnumerator())
+                    {
+                        while(propertyItr.MoveNext())
+                        {
+                            msg.RemoveProperty(propertyItr.Current);
+                        }
+                    }
+                    callback(error, attrDic);
+                }
+            });
+        }
+
+        public void ClearMessages()
         {
             _listMessages.Clear();
         }
@@ -114,6 +187,57 @@ namespace SocialPoint.Social
         {
             var id = data.Get("id").AsValue.ToString();
 
+            var origin = ParseMessageOrigin(data);
+            var payload = ParseMessagePayload(data);
+            if(origin == null || payload == null)
+            {
+                return null;
+            }
+
+            var message = new Message(id, origin, payload);
+
+            ParseMessageProperties(data, message);
+
+            return message;
+        }
+
+        IMessageOrigin ParseMessageOrigin(AttrDic data)
+        {
+            var type = data.Get("origin_type").AsValue.ToString();
+            IMessageOriginFactory factory;
+            return !_originFactories.TryGetValue(type, out factory) ? null : factory.CreateOrigin(data.Get("origin_data").AsDic);
+        }
+
+        IMessagePayload ParseMessagePayload(AttrDic data)
+        {
+            var type = data.Get("payload_type").AsValue.ToString();
+            IMessagePayloadFactory factory;
+            return !_payloadFactories.TryGetValue(type, out factory) ? null : factory.CreatePayload(data.Get("payload_data").AsDic);
+        }
+
+        static void ParseMessageProperties(AttrDic data, Message message)
+        {
+            var propertiesDic = data.Get("properties").AsList;
+            using(var propertiesItr = propertiesDic.GetEnumerator())
+            {
+                while(propertiesItr.MoveNext())
+                {
+                    message.AddProperty(propertiesItr.Current.AsValue.ToString());
+                }
+            }
+        }
+
+        static AttrList SerializeMessageProperties(Message message)
+        {
+            var list = new AttrList();
+            using(var propertiesItr = message.GetProperties())
+            {
+                while(propertiesItr.MoveNext())
+                {
+                    list.AddValue(propertiesItr.Current);
+                }
+            }
+            return list;
         }
     }
 }

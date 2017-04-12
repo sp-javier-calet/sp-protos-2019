@@ -33,6 +33,11 @@ namespace SocialPoint.Social
             return _properties.Contains(property);
         }
 
+        public IEnumerator<string> GetProperties()
+        {
+            return _properties.GetEnumerator();
+        }
+
         internal void AddProperty(string property)
         {
             _properties.Add(property);
