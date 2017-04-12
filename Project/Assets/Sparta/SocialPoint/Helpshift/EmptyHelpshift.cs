@@ -49,6 +49,14 @@ namespace SocialPoint.Helpshift
         {
         }
 
+        public int PendingNotificationsCount
+        {
+            get
+            {
+                return 0;
+            }
+        }
+
         #endregion
     }
 }

@@ -42,7 +42,8 @@ namespace SocialPoint.Social
             }
             if(Settings.LoginLink)
             {
-                Container.Bind<ILink>().ToMethod<GooglePlayLink>(CreateLoginLink);
+                Container.Bind<GooglePlayLink>().ToMethod<GooglePlayLink>(CreateLoginLink);
+                Container.Bind<ILink>().ToLookup<GooglePlayLink>();
                 Container.Bind<IDisposable>().ToLookup<GooglePlayLink>();
             }
             #else
