@@ -100,5 +100,21 @@ namespace SocialPoint.Network
             }
         }
 
+        public bool LatencySupported
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public int Latency
+        {
+            get
+            {
+                return PhotonNetwork.GetPing();
+            }
+        }
+
     }
 }

@@ -10,8 +10,8 @@ namespace Examples.Lockstep
     {
         const long DefaultManaSpeed = 2;
         const long DefaultMaxMana = 10000;
-        const long DefaultGameDuration = 10000;
-        const long DefaultUnitCost = 7000;
+        const long DefaultGameDuration = 30000;
+        const long DefaultUnitCost = 2000;
 
         public long ManaSpeed = DefaultManaSpeed;
         public long MaxMana = DefaultMaxMana;

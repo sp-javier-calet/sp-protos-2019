@@ -1,6 +1,7 @@
 using System;
 using SocialPoint.Utils;
 using SocialPoint.Network;
+using SocialPoint.Base;
 
 namespace SocialPoint.WebSockets
 {
@@ -225,7 +226,22 @@ namespace SocialPoint.WebSockets
                 return _socket.ReadyState == WebSocketSharp.WebSocketState.Connecting;
             }
         }
+        public bool LatencySupported
+        {
+            get
+            {
+                return false;
+            }
+        }
 
+        public int Latency
+        {
+            get
+            {
+                DebugUtils.Assert(LatencySupported);
+                return -1;
+            }
+        }
         #endregion
     }
 }

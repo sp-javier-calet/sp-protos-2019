@@ -95,6 +95,9 @@
     <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\HttpServerEventTracker.cs">
       <Link>Network\ServerEvents\HttpServerEventTracker.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\IServerEventTracker.cs">
+      <Link>Network\ServerEvents\IServerEventTracker.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\Log.cs">
       <Link>Network\ServerEvents\Log.cs</Link>
     </Compile>

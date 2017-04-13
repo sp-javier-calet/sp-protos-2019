@@ -40,5 +40,7 @@ namespace SocialPoint.Network
         void RegisterReceiver(INetworkMessageReceiver receiver);
 
         int GetTimestamp();
+
+        bool LatencySupported{ get; }
     }
 }

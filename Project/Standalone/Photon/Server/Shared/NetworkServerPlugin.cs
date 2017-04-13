@@ -71,6 +71,7 @@ namespace SocialPoint.Network
         const string StatsServerEnabled = "StatsServerEnabled";
         const string FullErrorMsg = "Game is full.";
         const string ServerPresentErrorMsg = "This room already has a server.";
+        const string ExceptionMetricName = "multiplayer.exception_raised";
 
         public INetworkServer NetworkServer
         {
@@ -378,6 +379,7 @@ namespace SocialPoint.Network
 
         void BroadcastError(Error err)
         {
+            PluginEventTracker.SendMetric(new Metric(MetricType.Counter, ExceptionMetricName, 1));
             PluginEventTracker.SendLog(new Network.ServerEvents.Log(LogLevel.Error, err.Msg), true);
             var dic = new Dictionary<byte, object>();
             dic.Add(EventContentParam, err.ToString());
@@ -443,6 +445,14 @@ namespace SocialPoint.Network
         int INetworkServer.GetTimestamp()
         {
             return System.Environment.TickCount;
+        }
+
+        bool INetworkServer.LatencySupported
+        {
+            get
+            {
+                return true;
+            }
         }
 
         protected object CreateInstanceFromAssembly(string assemblyName, string typeName)
