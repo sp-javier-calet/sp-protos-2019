@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using SocialPoint.Utils;
-using UnityEngine;
 using UnityEngine.UI;
 
 namespace SocialPoint.Locale
@@ -22,7 +21,7 @@ namespace SocialPoint.Locale
     {
         protected Localization _locale;
         
-        public BaseLocalizeAttributeObserver(Localization locale)
+        protected BaseLocalizeAttributeObserver(Localization locale)
         {
             _locale = locale;
         }        
