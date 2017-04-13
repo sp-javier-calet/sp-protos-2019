@@ -28,12 +28,12 @@ namespace SocialPoint.GUIControl
             {
                 if(_appEvents != null)
                 {
-                    _appEvents.GameWillRestart.Remove(Reset);
+                    _appEvents.GameWillRestart.Remove(Restart);
                 }
                 _appEvents = value;
                 if(_appEvents != null)
                 {
-                    _appEvents.GameWillRestart.Add(0, Reset);
+                    _appEvents.GameWillRestart.Add(0, Restart);
                 }
             }
         }
@@ -739,7 +739,7 @@ namespace SocialPoint.GUIControl
 
         #endregion
 
-        void Reset()
+        void Restart()
         {
             for(int i = _stack.Count - 1; i >= 0; i--)
             {
