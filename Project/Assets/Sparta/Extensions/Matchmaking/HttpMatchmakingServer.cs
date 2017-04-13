@@ -43,6 +43,7 @@ namespace SocialPoint.Matchmaking
         const string PlayerIdParam = "player{0}_token";
         const string VersionParam = "version";
         const string PlayersParam = "players";
+        const string CustomDataParam = "custom_data";
 
         public void AddDelegate(IMatchmakingServerDelegate dlg)
         {
@@ -91,12 +92,13 @@ namespace SocialPoint.Matchmaking
             }
         }
 
-        public void NotifyResults(string matchId, AttrDic userData)
+        public void NotifyResults(string matchId, AttrDic userData, AttrDic customData)
         {
             var req = CreateRequest(StringUtils.CombineUri(MatchMakingUri, EndUri));
             req.Method = HttpRequest.MethodType.POST;
             req.AddParam(MatchIdParam, matchId);
             req.AddParam(PlayersParam, userData);
+            req.AddParam(CustomDataParam, customData);
             _httpClient.Send(req, (resp) => OnResultReceived(resp, userData));
         }
 
