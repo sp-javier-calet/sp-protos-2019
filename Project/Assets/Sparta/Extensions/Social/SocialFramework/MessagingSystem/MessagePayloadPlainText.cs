@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Social
 {
-    class MessagePayloadPlainText : IMessagePayload
+    public class MessagePayloadPlainText : IMessagePayload
     {
         public string Title{ get; private set; }
 
@@ -30,7 +30,7 @@ namespace SocialPoint.Social
         public const string Identifier = "plain_text";
     }
 
-    class MessagePayloadPlainTextFactory : IMessagePayloadFactory
+    public sealed class MessagePayloadPlainTextFactory : IMessagePayloadFactory
     {
         public const string kTitleKey = "title";
         public const string kTextKey = "text";

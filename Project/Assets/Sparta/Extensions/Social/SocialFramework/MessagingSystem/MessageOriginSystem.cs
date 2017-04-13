@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Social
 {
-    class MessageOriginSystem : IMessageOrigin
+    public class MessageOriginSystem : IMessageOrigin
     {
         public string GetIdentifier()
         {
@@ -12,7 +12,7 @@ namespace SocialPoint.Social
         public const string Identifier = "system";
     }
 
-    class MessageOriginSystemFactory : IMessageOriginFactory
+    public sealed class MessageOriginSystemFactory : IMessageOriginFactory
     {
         public IMessageOrigin CreateOrigin(AttrDic data)
         {

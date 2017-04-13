@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Social
 {
-    class MessageOriginUser : IMessageOrigin
+    public class MessageOriginUser : IMessageOrigin
     {
         public SocialPlayer Player{ get; private set; }
 
@@ -19,7 +19,7 @@ namespace SocialPoint.Social
         public const string Identifier = "user";
     }
 
-    class MessageOriginUserFactory : IMessageOriginFactory
+    public sealed class MessageOriginUserFactory : IMessageOriginFactory
     {
         readonly SocialPlayerFactory _playerFactory;
 

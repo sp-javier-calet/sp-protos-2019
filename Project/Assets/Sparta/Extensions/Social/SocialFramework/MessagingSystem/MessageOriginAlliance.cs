@@ -2,7 +2,7 @@
 
 namespace SocialPoint.Social
 {
-    class MessageOriginAlliance : IMessageOrigin
+    public class MessageOriginAlliance : IMessageOrigin
     {
         public AllianceBasicData Alliance{ get; private set; }
 
@@ -19,7 +19,7 @@ namespace SocialPoint.Social
         public const string Identifier = "alliance";
     }
 
-    class MessageOriginAllianceFactory : IMessageOriginFactory
+    public sealed class MessageOriginAllianceFactory : IMessageOriginFactory
     {
         readonly AllianceDataFactory _dataFactory;
 
