@@ -40,7 +40,7 @@ namespace SocialPoint.Locale
         AdminPanelLayout _layout;
         LocalizationManager _lm;
         string _translatedKey;
-        string _translateInputSavedText = "incubator.get_character";
+        string _translateInputSavedText = "HUD_ALLIANCE_POPUP_CREATE_NOT_COINS_EMPTY_KEY";
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
@@ -53,16 +53,25 @@ namespace SocialPoint.Locale
                 return;
             }
 
-            _layout.CreateButton("DownloadSupportedLanguages", DownloadSupportedLanguages);
-            _layout.CreateMargin();
-
             _layout.CreateLabel("Locale Info");
             var content = new StringBuilder();
             content.AppendLine(GetLocalizationPaths());
             content.AppendLine("LANGUAGES:\n--------------------------------------------------------------");
             content.AppendLine(GetLocalizationLocales());
             content.AppendLine(GetLocalizationLocales(true));
+            content.AppendFormat("Selected Language: {0}\n", _lm.SelectedLanguage);
+            content.AppendFormat("Selected CultureInfo: {0}\n", _lm.SelectedCultureInfo);
+            content.AppendFormat("Current Language: {0}\n", _lm.CurrentLanguage);
+            content.AppendFormat("Current CultureInfo: {0}\n", _lm.CurrentCultureInfo);
+
             _layout.CreateVerticalLayout().CreateTextArea(content.ToString());
+
+            _layout.CreateToggleButton("Show Keys On DevMode", _lm.Localization.ShowKeysOnDevMode, value => {
+                _lm.Localization.ShowKeysOnDevMode = value;
+                _layout.Refresh();
+            });
+            _layout.CreateButton("DownloadSupportedLanguages", DownloadSupportedLanguages);
+            _layout.CreateMargin();
 
             var flayout = layout.CreateHorizontalLayout();
             flayout.CreateFormLabel("Translate Key:");
@@ -77,7 +86,7 @@ namespace SocialPoint.Locale
             for(int i = 0, _managerSupportedLanguagesLength = _manager.SupportedLanguages.Length; i < _managerSupportedLanguagesLength; i++)
             {
                 var lang = _manager.SupportedLanguages[i];
-                var fixedLang = Reflection.CallPrivateMethod<LocalizationManager, string>(_lm, "FixLanguage", string.Empty, lang);
+                var fixedLang = Reflection.CallPrivateMethod<LocalizationManager, string>(_lm, "FixLanguage", lang);
                 var downloadedLang = _locales != null && _locales.ContainsKey(fixedLang) && _locales[fixedLang].Strings.Count > 0;
                 var buttonLabel = string.Format("{0} > {1}", lang, fixedLang);
                 _langButtons[lang] = layout.CreateToggleButton(buttonLabel, true, onToggle => {
@@ -92,7 +101,7 @@ namespace SocialPoint.Locale
             while(itr.MoveNext())
             {
                 var lang = itr.Current.Key;
-                var fixedLang = Reflection.CallPrivateMethod<LocalizationManager, string>(_lm, "FixLanguage", string.Empty, lang);
+                var fixedLang = Reflection.CallPrivateMethod<LocalizationManager, string>(_lm, "FixLanguage", lang);
                 var toggle = itr.Current.Value;
 
                 var action = toggle.onValueChanged;
@@ -157,7 +166,7 @@ namespace SocialPoint.Locale
 
         void DownloadSupportedLanguages()
         {
-            Reflection.CallPrivateVoidMethod<LocalizationManager>(_lm, "DownloadSupportedLanguages", null, null, null);
+            Reflection.CallPrivateVoidMethod<LocalizationManager>(_lm, "DownloadSupportedLanguages", null, null);
         }
 
         void OnLanguagesLoaded(Dictionary<string, Localization> locales)

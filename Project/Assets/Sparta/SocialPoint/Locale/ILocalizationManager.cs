@@ -14,7 +14,5 @@ namespace SocialPoint.Locale
         Localization Localization{ get; }
 
         event Action<Dictionary<string, Localization>> Loaded;
-
-        void Load();
     }
 }

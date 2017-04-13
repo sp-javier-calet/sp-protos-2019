@@ -24,7 +24,7 @@ namespace SocialPoint.Locale
         }
 
         // Environment Ids mapping
-        static readonly Dictionary<LocalizationEnvironment, string> EnvironmentIds = new Dictionary<LocalizationEnvironment, string>() {
+        static readonly Dictionary<LocalizationEnvironment, string> EnvironmentIds = new Dictionary<LocalizationEnvironment, string> {
             { LocalizationEnvironment.Development,  "dev"  },
             { LocalizationEnvironment.Localization, "loc"  },
             { LocalizationEnvironment.Production,   "prod" }
@@ -46,7 +46,8 @@ namespace SocialPoint.Locale
             public string SecretKeyLoc = LocalizationManager.LocationData.DefaultDevSecretKey;
             public string SecretKeyProd = LocalizationManager.LocationData.DefaultProdSecretKey;
             public string BundleDir = LocalizationManager.DefaultBundleDir;
-            public LocalizationManager.CsvMode CsvMode = LocalizationManager.CsvMode.WriteCsv;
+            public LocalizationManager.CsvMode CsvMode = LocalizationManager.CsvMode.NoCsv;
+            public bool ShowKeysOnDevMode = true;
             public string[] SupportedLanguages = LocalizationManager.DefaultSupportedLanguages;
             public float Timeout = LocalizationManager.DefaultTimeout;
         }
@@ -64,7 +65,7 @@ namespace SocialPoint.Locale
             Container.Bind<IDisposable>().ToLookup<UILocalizationUpdater>();
 
             Container.Rebind<ILocalizationManager>().ToMethod<LocalizationManager>(CreateLocalizationManager, SetupLocalizationManager);
-            Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();    
+            Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
 
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLocale>(CreateAdminPanel);
@@ -103,23 +104,24 @@ namespace SocialPoint.Locale
 
         LocalizationManager CreateLocalizationManager()
         {
-            LocalizationManager.CsvLoadedDelegate csvLoadedDelegate = null;
+            LocalizationManager.CsvForNGUILoadedDelegate csvLoadedDelegate = null;
 
             #if NGUI
-            csvLoadedDelegate = new LocalizationManager.CsvLoadedDelegate(LoadNGUICSV);
+            csvLoadedDelegate = new LocalizationManager.CsvForNGUILoadedDelegate(LoadNGUICSV);
             #endif
 
             return new LocalizationManager(Settings.Localization.CsvMode, csvLoadedDelegate);
-
         }
 
         #if NGUI
         static void LoadNGUICSV(byte[] bytes)
         {
+            var manager = Container.Resolve<ILocalizationManager>();
+
             NGUILocalization.LoadCSV(bytes);
+            NGUILocalization.language = manager.CurrentLanguage;
         }
         #endif
-
 
         void SetupLocalizationManager(LocalizationManager mng)
         {
@@ -146,6 +148,8 @@ namespace SocialPoint.Locale
             mng.Location.SecretKey = secretKey;
             mng.Timeout = Settings.Localization.Timeout;
             mng.BundleDir = Settings.Localization.BundleDir;
+            mng.SupportedLanguages = Settings.Localization.SupportedLanguages;
+            mng.Localization.ShowKeysOnDevMode = Settings.Localization.ShowKeysOnDevMode;
 
             mng.UpdateDefaultLanguage();
         }
