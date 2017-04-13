@@ -11,6 +11,7 @@ namespace SocialPoint.Social
     {
         readonly ConnectionManager _connection;
         readonly SocialManager _socialManager;
+        readonly AlliancesManager _alliancesManager;
 
         readonly List<Message> _listMessages;
         readonly Dictionary<string, IMessageOriginFactory> _originFactories;
@@ -23,13 +24,14 @@ namespace SocialPoint.Social
         public event Action OnHistoricReceived;
         public event OnNewMessage OnNewMessageEvent;
 
-        public MessagingSystemManager(ConnectionManager connectionManager, SocialManager socialManager)
+        public MessagingSystemManager(ConnectionManager connectionManager, SocialManager socialManager, AlliancesManager alliances)
         {
             _connection = connectionManager;
             _connection.OnNotificationReceived += OnNotificationReceived;
             _connection.OnProcessServices += OnProcessServices;
 
             _socialManager = socialManager;
+            _alliancesManager = alliances;
 
             _listMessages = new List<Message>();
             _originFactories = new Dictionary<string, IMessageOriginFactory>();
@@ -41,12 +43,17 @@ namespace SocialPoint.Social
         public void Dispose()
         {
             _connection.OnNotificationReceived -= OnNotificationReceived;
+            _connection.OnProcessServices -= OnProcessServices;
         }
 
         void AddDefaultOriginFactories()
         {
             _originFactories.Add(MessageOriginUser.Identifier, new MessageOriginUserFactory(_socialManager.PlayerFactory));
             _originFactories.Add(MessageOriginSystem.Identifier, new MessageOriginSystemFactory());
+            if(_alliancesManager != null)
+            {
+                _originFactories.Add(MessageOriginAlliance.Identifier, new MessageOriginAllianceFactory(_alliancesManager.Factory));
+            }
 
             _payloadFactories.Add(MessagePayloadPlainText.Identifier, new MessagePayloadPlainTextFactory());
         }

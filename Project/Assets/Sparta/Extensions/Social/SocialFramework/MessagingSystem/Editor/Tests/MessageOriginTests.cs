@@ -41,5 +41,29 @@ namespace SocialPoint.Social
             Assert.AreEqual(userOrigin.Player.Name, kName);
             Assert.AreEqual(userOrigin.Player.Uid, kUid);
         }
+
+        [Test]
+        public void AllianceOrigin()
+        {
+            const string kName = "TestName";
+            const string kUid = "123456789";
+            const int kScore = 999;
+
+            var dataDic = new AttrDic();
+            dataDic.SetValue("id", kUid);
+            dataDic.SetValue("name", kName);
+            dataDic.SetValue("score", kScore);
+
+            var allianceFactory = new AllianceDataFactory();
+
+            var factory = new MessageOriginAllianceFactory(allianceFactory);
+            var origin = factory.CreateOrigin(dataDic);
+
+            Assert.IsInstanceOf<MessageOriginAlliance>(origin);
+            var allianceOrigin = origin as MessageOriginAlliance;
+            Assert.AreEqual(allianceOrigin.Alliance.Name, kName);
+            Assert.AreEqual(allianceOrigin.Alliance.Id, kUid);
+            Assert.AreEqual(allianceOrigin.Alliance.Score, kScore);
+        }
     }
 }

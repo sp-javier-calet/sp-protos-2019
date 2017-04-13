@@ -112,7 +112,7 @@ namespace SocialPoint.Social
 
         public AllianceDataFactory Factory
         { 
-            private get
+            get
             {
                 return _factory;
             }

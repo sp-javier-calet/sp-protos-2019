@@ -31,6 +31,9 @@ namespace SocialPoint.Social
 
             Container.Bind<AllianceDataFactory>().ToMethod<AllianceDataFactory>(CreateAlliancesDataFactory, SetupAlliancesDataFactory);
 
+            Container.Bind<MessagingSystemManager>().ToMethod<MessagingSystemManager>(CreateMessagingSystemManager, SetupMessagingSystemManager);
+            Container.Bind<IDisposable>().ToLookup<AlliancesManager>();
+
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework);
             #endif
@@ -101,6 +104,18 @@ namespace SocialPoint.Social
         IAccessTypeManager CreateAccessTypeManager()
         {
             return new DefaultAccessTypeManager();
+        }
+
+        MessagingSystemManager CreateMessagingSystemManager()
+        {
+            //TODO: Check if I can know if AlliancesManager exists or something to not Resolve it here
+            return new MessagingSystemManager(
+                Container.Resolve<ConnectionManager>(), Container.Resolve<SocialManager>(), Container.Resolve<AlliancesManager>());
+        }
+
+        void SetupMessagingSystemManager(MessagingSystemManager manager)
+        {
+
         }
 
         #if ADMIN_PANEL
