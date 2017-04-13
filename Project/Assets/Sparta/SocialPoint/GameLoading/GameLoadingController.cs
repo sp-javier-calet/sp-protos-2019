@@ -7,7 +7,6 @@ using SocialPoint.Crash;
 using SocialPoint.GUIControl;
 using SocialPoint.Locale;
 using SocialPoint.Login;
-using SocialPoint.Utils;
 using UnityEngine;
 
 namespace SocialPoint.GameLoading
@@ -127,11 +126,10 @@ namespace SocialPoint.GameLoading
                         {
                             finishedExpected += CurrentOperationProgress * opExpected;
                         }
-                        else
-                            if(i < _currentOperationIndex)
-                            {
-                                finishedExpected += opExpected;
-                            }
+                        else if(i < _currentOperationIndex)
+                        {
+                            finishedExpected += opExpected;
+                        }
                         totalExpected += opExpected;
                     }
                     i++;
@@ -197,18 +195,8 @@ namespace SocialPoint.GameLoading
         override protected void OnLoad()
         {
             base.OnLoad();
-
-            if(Localization == null)
-            {
-                Localization = Localization.Default;
-            }
-
-            if(CrashReporter != null)
-            {
-                _sendCrashesBeforeLoginOperation = new LoadingOperation(FakeLoginDuration, DoSendCrashesBeforeLoginOperation);
-                RegisterOperation(_sendCrashesBeforeLoginOperation);
-            }
-                
+                            
+            DebugUtils.Assert(Login != null, "Login can not be null");
             if(Login != null)
             {
                 Login.ErrorEvent += OnLoginError;
@@ -216,10 +204,15 @@ namespace SocialPoint.GameLoading
                 RegisterOperation(_loginOperation);
             }
 
-            if(ErrorHandler == null)
+            DebugUtils.Assert(CrashReporter != null, "CrashReporter can not be null");
+            if(CrashReporter != null)
             {
-                ErrorHandler = new GameErrorHandler();
+                _sendCrashesBeforeLoginOperation = new LoadingOperation(FakeLoginDuration, DoSendCrashesBeforeLoginOperation);
+                RegisterOperation(_sendCrashesBeforeLoginOperation);
             }
+
+            DebugUtils.Assert(Localization != null, "Localization can not be null");
+            DebugUtils.Assert(ErrorHandler != null, "ErrorHandler can not be null");
         }
 
         protected override void OnAppearing()
@@ -347,7 +340,7 @@ namespace SocialPoint.GameLoading
                 ErrorHandler.ShowLogin(err, OnLoginErrorShown);
                 break;
             }
-        }            
+        }
 
         void OnInvalidSecurityTokenShown()
         {
