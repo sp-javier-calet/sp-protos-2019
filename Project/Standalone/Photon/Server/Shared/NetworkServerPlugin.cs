@@ -9,6 +9,7 @@ using SocialPoint.Base;
 using SocialPoint.Utils;
 using log4net;
 using SocialPoint.Network.ServerEvents;
+using SocialPoint.Attributes;
 
 namespace SocialPoint.Network
 {
@@ -380,7 +381,12 @@ namespace SocialPoint.Network
         void BroadcastError(Error err)
         {
             PluginEventTracker.SendMetric(new Metric(MetricType.Counter, ExceptionMetricName, 1));
-            PluginEventTracker.SendLog(new Network.ServerEvents.Log(LogLevel.Error, err.Msg), true);
+            var context = new AttrDic();
+            if(err.Detail != string.Empty)
+            {
+                context.SetValue("detail", err.Detail);
+            }
+            PluginEventTracker.SendLog(new Network.ServerEvents.Log(LogLevel.Error, err.Msg, context), true);
             var dic = new Dictionary<byte, object>();
             dic.Add(EventContentParam, err.ToString());
             BroadcastEvent(FailEventCode, dic);

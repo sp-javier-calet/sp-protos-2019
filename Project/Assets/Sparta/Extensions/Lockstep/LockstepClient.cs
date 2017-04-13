@@ -449,7 +449,7 @@ namespace SocialPoint.Lockstep
                 {
                     if(CommandFailed != null)
                     {
-                        CommandFailed(new Error(e.ToString()), command);
+                        CommandFailed(new Error(e.Message, e.StackTrace), command);
                     }
                 }
                 command.Finish();

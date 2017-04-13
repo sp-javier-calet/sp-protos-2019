@@ -4,6 +4,8 @@ namespace SocialPoint.Base
     {
         public string Msg { get; set; }
 
+        public string Detail { get; set; }
+
         public string ClientMsg { get; set; }
 
         public string ClientLocalize { get; set; }
@@ -14,6 +16,7 @@ namespace SocialPoint.Base
         {
             Code = 0;
             Msg = string.Empty;
+            Detail = string.Empty;
         }
 
         public Error(int code) : this()
@@ -26,20 +29,38 @@ namespace SocialPoint.Base
             Msg = msg;
         }
 
+        public Error(string msg, string detail) : this(msg)
+        {
+            Detail = detail;
+        }
+
         public Error(int code, string msg) : this(code)
         {
             Msg = msg;
         }
-        
-        public override string ToString()
+
+        public Error(int code, string msg, string detail) : this(code, msg)
         {
-            return string.Format("{0}: {1}", Code, Msg);
+            Detail = detail;
         }
 
-        public void SetData(int code = 0, string msg = null)
+        public override string ToString()
+        {
+            if(Detail != string.Empty)
+            {
+                return string.Format("{0}: {1}: {2}", Code, Msg, Detail);
+            }
+            else
+            {
+                return string.Format("{0}: {1}", Code, Msg);
+            }
+        }
+
+        public void SetData(int code = 0, string msg = null, string detail = null)
         {
             Code = code;
             Msg = msg;
+            Detail = detail;
         }
 
         public void Clear()
@@ -75,7 +96,17 @@ namespace SocialPoint.Base
                     {
                         err.Code = code;
                     }
-                    err.Msg = str.Substring(i + 1);
+                    var substring = str.Substring(i + 2);
+                    var detailIndex = substring.IndexOf(Separator);
+                    if(detailIndex >= 0)
+                    {
+                        err.Msg = substring.Substring(0, detailIndex);
+                        err.Detail = substring.Substring(detailIndex + 2);
+                    }
+                    else
+                    {
+                        err.Msg = substring;
+                    }
                 }
                 else
                 {
