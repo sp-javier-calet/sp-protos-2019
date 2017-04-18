@@ -60,7 +60,7 @@ static int callback_websocket(struct lws* wsi, enum lws_callback_reasons reason,
         case LWS_CALLBACK_CLIENT_RECEIVE_PONG:
         {
             lwsl_notice("Client RX - PONG\n");
-            connection->resetPing();
+            connection->onPongReceived();
             break;
         }
         case LWS_CALLBACK_CLIENT_WRITEABLE:
