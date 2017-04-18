@@ -743,7 +743,7 @@ namespace GooglePlayGames.Native
         /// <seealso cref="GooglePlayGames.BasicApi.IPlayGamesClient.GetPlayerStats"/>
         public void GetPlayerStats(Action<CommonStatusCodes, PlayerStats> callback)
         {
-#if UNITY_ANDROID
+#if UNITY_ANDROID && IL2CPP_CRASHES_HERE
             // Temporary fix to get SpendProbability until the
             // C++ SDK supports it.
             PlayGamesHelperObject.RunOnGameThread(() =>
