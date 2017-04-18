@@ -930,6 +930,7 @@ namespace SocialPoint.TransparentBundles
         {
             BundleList = _controller.GetBundles(filter);
             ChangeSorting(_sorting);
+            _bundlesInBuild = 0;
             for(int i = 0; i < BundleList.Count; i++)
             {
                 Bundle bundle = BundleList[i];
