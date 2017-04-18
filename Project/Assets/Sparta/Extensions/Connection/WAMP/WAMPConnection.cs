@@ -72,7 +72,6 @@ namespace SocialPoint.WAMP
             {
                 CompletionHandler = null;
             }
-
         }
 
         public class StartRequest : Request<Action>
@@ -713,17 +712,17 @@ namespace SocialPoint.WAMP
             _goodbyeSent = false;
             _requestId = 0;
 
-            if(_joinRequest != null)
+            if(_joinRequest != null && _joinRequest.CompletionHandler != null)
             {
                 _joinRequest.CompletionHandler(new Error(ErrorCodes.ConnectionClosed, "Connection reset"), 0, null);
-                _joinRequest = null;
             }
+            _joinRequest = null;
 
-            if(_leaveRequest != null)
+            if(_leaveRequest != null && _leaveRequest.CompletionHandler != null)
             {
                 _leaveRequest.CompletionHandler(new Error(ErrorCodes.ConnectionClosed, "Connection reset"), "wamp.error.connection_reset");
-                _leaveRequest = null;
             }
+            _leaveRequest = null;
 
             for(var i = 0; i < _roles.Count; i++)
             {
