@@ -37,6 +37,8 @@ namespace SocialPoint.Alert
 
         public UnityAlertView(GameObject prefab = null)
         {
+            //Avoid exception in editor if LoD... THIS SHOULD NOT NE BACKPORTED TO SPARTA
+            #if !I_AM_LOD
             if(prefab == null)
             {
                 prefab = Resources.Load(DefaultPrefab) as GameObject;
@@ -46,6 +48,7 @@ namespace SocialPoint.Alert
             {
                 throw new MissingComponentException("Could not load prefab.");
             }
+            #endif
         }
 
         public void Dispose()

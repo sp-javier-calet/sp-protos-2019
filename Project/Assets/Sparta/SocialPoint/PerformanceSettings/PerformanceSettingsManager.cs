@@ -94,7 +94,16 @@ namespace SocialPoint.PerformanceSettings
 
         void Init(AttrDic config)
         {
-            _data.Add(kDefaultSettings, new PerformanceSettingsData(config));
+            if(_data.ContainsKey(kDefaultSettings))
+            {
+                _data[kDefaultSettings] = new PerformanceSettingsData(config);
+            }
+            else
+            {
+                _data.Add(kDefaultSettings, new PerformanceSettingsData(config));
+            }
+            
+
 
             ApplyPerformanceSettings(kDefaultSettings);	
         }
@@ -105,7 +114,17 @@ namespace SocialPoint.PerformanceSettings
             while(itr.MoveNext())
             {
                 var pair = itr.Current;
-                _data.Add(pair.Key, new PerformanceSettingsData(pair.Value.AsDic));
+
+                if(_data.ContainsKey(pair.Key))
+                {
+                    _data[pair.Key] = new PerformanceSettingsData(pair.Value.AsDic);
+                }
+                else
+                {
+                    _data.Add(pair.Key, new PerformanceSettingsData(pair.Value.AsDic));
+                }
+
+
             }
             itr.Dispose();
 
@@ -183,7 +202,10 @@ namespace SocialPoint.PerformanceSettings
                 QualitySettings.maximumLODLevel = settings.MaxLodLevel;
             }
 
-            QualitySettings.vSyncCount = settings.Vsync ? 1 : 0;
+            if(QualitySettings.vSyncCount != settings.Vsync)
+            {
+                QualitySettings.vSyncCount = settings.Vsync;
+            }
 
             if(ExtraApplier != null)
             {
@@ -198,7 +220,8 @@ namespace SocialPoint.PerformanceSettings
 
         void Reset()
         {
-            _data = null;
+            _data.Clear();
+            _login.NewGenericDataEvent -= ParsePerformanceSettings;
             _login = null;
         }
     }

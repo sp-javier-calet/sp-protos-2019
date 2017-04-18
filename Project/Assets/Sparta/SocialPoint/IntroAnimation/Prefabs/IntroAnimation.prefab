@@ -319,7 +319,6 @@ MonoBehaviour:
   pmaVertexColors: 1
   calculateNormals: 0
   calculateTangents: 0
-  frontFacing: 0
   logErrors: 0
   disableRenderingOnOverride: 1
   _animationName: animation
@@ -340,7 +339,6 @@ MonoBehaviour:
   NextSceneToLoadName: splashscreen
   DelaySecsBeforeLoading: 1
   DelaySecsDeleteAfterLoading: 2
-  IntroCamera: {fileID: 2003756}
   IntroAnimation: {fileID: 11456356}
   IntroSound: {fileID: 8219442}
 --- !u!1001 &100100000

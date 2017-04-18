@@ -1,4 +1,6 @@
-﻿using SocialPoint.AdminPanel;
+﻿#if ADMIN_PANEL 
+
+using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
 
 namespace SocialPoint.Base
@@ -53,7 +55,7 @@ namespace SocialPoint.Base
                 var attr = _storage.Load(_key);
                 if(attr != null)
                 {
-                    var serialized = _serializer.Serialize(attr);
+                    var serialized = _serializer.SerializeString(attr);
                     _console.Print(string.Format("Loaded '{0}' key '{1}' with value: {2}", _name, _key, serialized));
                 }
                 else
@@ -69,3 +71,5 @@ namespace SocialPoint.Base
         }
     }
 }
+
+#endif

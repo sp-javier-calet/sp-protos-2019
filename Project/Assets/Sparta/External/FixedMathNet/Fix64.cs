@@ -21,6 +21,8 @@ namespace FixMath.NET {
         public static readonly Fix64 MinValue = new Fix64(MIN_VALUE);
         public static readonly Fix64 One = new Fix64(ONE);
         public static readonly Fix64 Zero = new Fix64();
+        public static readonly Fix64 Half = new Fix64(2147483648L);
+
         /// <summary>
         /// The value of Pi
         /// </summary>
@@ -598,29 +600,31 @@ namespace FixMath.NET {
         }
 
 
-
-        public static explicit operator Fix64(long value) {
+        public static implicit operator Fix64(int value) {
             return new Fix64(value * ONE);
         }
-        public static explicit operator long(Fix64 value) {
+        public static implicit operator Fix64(long value) {
+            return new Fix64(value * ONE);
+        }
+        public static implicit operator long(Fix64 value) {
             return value.m_rawValue >> FRACTIONAL_PLACES;
         }
-        public static explicit operator Fix64(float value) {
+        public static implicit operator Fix64(float value) {
             return new Fix64((long)(value * ONE));
         }
-        public static explicit operator float(Fix64 value) {
+        public static implicit operator float(Fix64 value) {
             return (float)value.m_rawValue / ONE;
         }
-        public static explicit operator Fix64(double value) {
+        public static implicit operator Fix64(double value) {
             return new Fix64((long)(value * ONE));
         }
-        public static explicit operator double(Fix64 value) {
+        public static implicit operator double(Fix64 value) {
             return (double)value.m_rawValue / ONE;
         }
-        public static explicit operator Fix64(decimal value) {
+        public static implicit operator Fix64(decimal value) {
             return new Fix64((long)(value * ONE));
         }
-        public static explicit operator decimal(Fix64 value) {
+        public static implicit operator decimal(Fix64 value) {
             return (decimal)value.m_rawValue / ONE;
         }
 

@@ -179,6 +179,7 @@ namespace SocialPoint.Login
         public bool Cheat;
         public MaintenanceData Maintenance;
         public SocialFrameworkData Social;
+        public AttrDic MatchData;
         const string AttrKeyTimestamp = "ts";
         const string AttrKeyStoreUrl = "store";
         const string AttrKeyUpgradeSuggested = "suggested_upgrade";
@@ -187,6 +188,7 @@ namespace SocialPoint.Login
         const string AttrKeySocialFrameworkData = "social";
         const string AttrKeyUserImportance = "user_importance";
         const string AttrKeyCheat = "cheat";
+        const string AttrKeyActiveMatch = "active_match";
 
         public void Load(IStreamReader reader)
         {
@@ -279,6 +281,22 @@ namespace SocialPoint.Login
             if(datadic.ContainsKey(AttrKeySocialFrameworkData))
             {
                 Social = new SocialFrameworkData(datadic.Get(AttrKeySocialFrameworkData));
+            }
+            if(datadic.ContainsKey(AttrKeyActiveMatch))
+            {
+                #if ADMIN_PANEL
+                if(ServiceLocator.StorageInfo.Has("IgnoreRTMPReconnection"))
+                {
+                    bool ignore = ServiceLocator.StorageInfo.Load("IgnoreRTMPReconnection").AsValue.ToBool();
+
+                    if(ignore)
+                    {
+                        return;
+                    }
+                }
+                #endif
+
+                MatchData = datadic[AttrKeyActiveMatch].AsDic;
             }
         }
 

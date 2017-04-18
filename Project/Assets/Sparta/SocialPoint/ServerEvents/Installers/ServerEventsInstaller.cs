@@ -57,7 +57,7 @@ namespace SocialPoint.ServerEvents
         SocialPointEventTracker CreateEventTracker()
         {
             return new SocialPointEventTracker(
-                Container.Resolve<IUpdateScheduler>());
+                Container.Resolve<IUpdateScheduler>(), false);
         }
 
         void SetupEventTracker(SocialPointEventTracker tracker)

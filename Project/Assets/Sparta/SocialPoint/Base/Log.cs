@@ -1,27 +1,20 @@
-﻿#region Incremental log levels
-
-#if SPARTA_LOG_VERBOSE
-#define SPARTA_LOG_DEBUG
-#endif
-
-#if SPARTA_LOG_DEBUG
-#define SPARTA_LOG_INFO
-#endif
-
-#if SPARTA_LOG_INFO
-#define SPARTA_LOG_WARNING
-#endif
-
-#if SPARTA_LOG_WARNING
-#define SPARTA_LOG_ERROR
-#endif
-
-#endregion
-
-using System;
+﻿using System;
+using System.Diagnostics;
 
 namespace SocialPoint.Base
 {
+    public static class DebugFlags
+    {
+        public const string DebugPurchasesFlag = "DEBUG_SPPURCHASE";
+        public const string DebugNotificationsFlag = "DEBUG_SPNOTIFICATIONS";
+        public const string DebugLoginFlag = "DEBUG_SPLOGIN";
+        public const string DebugGUIControlFlag = "DEBUG_SPGUI";
+        public const string DebugGameLoadingFlag = "DEBUG_SPGAMELOADING";
+        public const string DebugPersistentAttrFlag = "DEBUG_SPPERSISTENT";
+        public const string DebugAssetBundlesFlag = "DEBUG_BUNDLES";
+        public const string DebugGooglePlayFlag = "DEBUG_GOOGLEPLAY";
+    }
+
     public static class Log
     {
         const string VerboseFlag = "SPARTA_LOG_VERBOSE";
@@ -117,7 +110,7 @@ namespace SocialPoint.Base
         }
       
         #else
-
+        
         class InternalLogger : ILogger, IBreadcrumbLogger
         {
             public void Log(string message)
@@ -154,7 +147,7 @@ namespace SocialPoint.Base
         /// <summary>
         /// Verbose Log
         /// </summary>
-        [System.Diagnostics.Conditional(VerboseFlag)]
+        [Conditional(VerboseFlag)]
         public static void v(string message)
         {
             _logger.Log(message);
@@ -163,7 +156,7 @@ namespace SocialPoint.Base
         /// <summary>
         /// Verbose Log. Uses a tag to identify the message.
         /// </summary>
-        [System.Diagnostics.Conditional(VerboseFlag)]
+        [Conditional(VerboseFlag)]
         public static void v(string tag, string message)
         {
             _logger.Log(string.Format(TaggedFormat, tag, message));
@@ -172,7 +165,7 @@ namespace SocialPoint.Base
         /// <summary>
         /// Debug Log.
         /// </summary>
-        [System.Diagnostics.Conditional(DebugFlag)]
+        [Conditional(DebugFlag), Conditional(VerboseFlag)]
         public static void d(string message)
         {
             _logger.Log(message);
@@ -181,7 +174,7 @@ namespace SocialPoint.Base
         /// <summary>
         /// Debug Log. Uses a tag to identify the message.
         /// </summary>
-        [System.Diagnostics.Conditional(DebugFlag)]
+        [Conditional(DebugFlag), Conditional(VerboseFlag)]
         public static void d(string tag, string message)
         {
             _logger.Log(string.Format(TaggedFormat, tag, message));
@@ -190,7 +183,7 @@ namespace SocialPoint.Base
         /// <summary>
         /// Info Log.
         /// </summary>
-        [System.Diagnostics.Conditional(InfoFlag)]
+        [Conditional(InfoFlag), Conditional(DebugFlag), Conditional(VerboseFlag)]
         public static void i(string message)
         {
             _logger.Log(message);
@@ -199,7 +192,7 @@ namespace SocialPoint.Base
         /// <summary>
         /// Info Log. Uses a tag to identify the message.
         /// </summary>
-        [System.Diagnostics.Conditional(InfoFlag)]
+        [Conditional(InfoFlag), Conditional(DebugFlag), Conditional(VerboseFlag)]
         public static void i(string tag, string message)
         {
             _logger.Log(string.Format(TaggedFormat, tag, message));
@@ -208,7 +201,7 @@ namespace SocialPoint.Base
         /// <summary>
         /// Warning Log
         /// </summary>
-        [System.Diagnostics.Conditional(WarningFlag)]
+        [Conditional(WarningFlag), Conditional(InfoFlag), Conditional(DebugFlag), Conditional(VerboseFlag)]
         public static void w(string message)
         {
             _logger.LogWarning(message);
@@ -217,7 +210,7 @@ namespace SocialPoint.Base
         /// <summary>
         /// Warning Log. Uses a tag to identify the message.
         /// </summary>
-        [System.Diagnostics.Conditional(WarningFlag)]
+        [Conditional(WarningFlag), Conditional(InfoFlag), Conditional(DebugFlag), Conditional(VerboseFlag)]
         public static void w(string tag, string message)
         {
             _logger.LogWarning(string.Format(TaggedFormat, tag, message));
@@ -226,7 +219,7 @@ namespace SocialPoint.Base
         /// <summary>
         /// Error Log.
         /// </summary>
-        [System.Diagnostics.Conditional(ErrorFlag)]
+        [Conditional(ErrorFlag), Conditional(WarningFlag), Conditional(InfoFlag), Conditional(DebugFlag), Conditional(VerboseFlag)]
         public static void e(string message)
         {
             _logger.LogError(message);
@@ -235,7 +228,7 @@ namespace SocialPoint.Base
         /// <summary>
         /// Error Log. Uses a tag to identify the message.
         /// </summary>
-        [System.Diagnostics.Conditional(ErrorFlag)]
+        [Conditional(ErrorFlag), Conditional(WarningFlag), Conditional(InfoFlag), Conditional(DebugFlag), Conditional(VerboseFlag)]
         public static void e(string tag, string message)
         {
             _logger.LogError(string.Format(TaggedFormat, tag, message));
@@ -244,7 +237,7 @@ namespace SocialPoint.Base
         /// <summary>
         /// Exception Log.
         /// </summary>
-        [System.Diagnostics.Conditional(ErrorFlag)]
+        [Conditional(ErrorFlag), Conditional(WarningFlag), Conditional(InfoFlag), Conditional(DebugFlag), Conditional(VerboseFlag)]
         public static void x(Exception e)
         {
             _logger.LogException(e);

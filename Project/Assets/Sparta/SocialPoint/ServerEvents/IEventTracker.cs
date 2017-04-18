@@ -18,7 +18,11 @@ namespace SocialPoint.ServerEvents
 
     public sealed class ResourceOperation
     {
-        public string Resource;
+        public string ResourceName;
+        public string ResourceTrackName;
+        public int ResourceId;
+        public string ResourceRarityName;
+        public int ResourceRarityId;
         public int Amount;
         public string Category;
         public string Subcategory;

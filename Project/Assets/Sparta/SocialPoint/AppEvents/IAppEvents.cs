@@ -13,6 +13,11 @@ namespace SocialPoint.AppEvents
         PriorityAction WillGoBackground{ get; }
 
         /// <summary>
+        /// Occurs when was on background.
+        /// </summary>
+        PriorityAction WasOnBackground{ get; }
+
+        /// <summary>
         /// Occurs after the game was loaded.
         /// </summary>
         PriorityAction GameWasLoaded{ get; }
@@ -26,11 +31,6 @@ namespace SocialPoint.AppEvents
         /// Occurs before game is restarted
         /// </summary>
         PriorityAction GameWillRestart{ get; }
-
-        /// <summary>
-        /// Occurs when was on background.
-        /// </summary>
-        event Action WasOnBackground;
 
         /// <summary>
         /// Occurs when the app was covered.
@@ -74,6 +74,11 @@ namespace SocialPoint.AppEvents
         void TriggerWillGoBackground();
 
         /// <summary>
+        /// Trigger WasOnBackground by hand (for debug purposes)
+        /// </summary>
+        void TriggerWasOnBackground();
+
+        /// <summary>
         /// Trigger GameWasLoaded
         /// </summary>
         void TriggerGameWasLoaded();
@@ -94,7 +99,6 @@ namespace SocialPoint.AppEvents
         public static void RestartGame(this IAppEvents events)
         {
             events.TriggerGameWillRestart();
-            SceneManager.LoadScene(0);
         }
 
         public static bool QuitGame(this IAppEvents events)

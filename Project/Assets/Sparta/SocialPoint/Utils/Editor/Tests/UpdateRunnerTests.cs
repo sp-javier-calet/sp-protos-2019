@@ -210,9 +210,7 @@ namespace SocialPoint.Utils
         {
             var updateable = Substitute.For<IUpdateable>();
             _scheduler.Add(updateable);
-            #pragma warning disable 618
             _scheduler.AddFixed(updateable, 0);
-            #pragma warning restore 618
 
             _scheduler.Update(0.1f);
 
@@ -223,9 +221,7 @@ namespace SocialPoint.Utils
         public IUpdateable DoAddFixedAndAdd()
         {
             var updateable = Substitute.For<IUpdateable>();
-            #pragma warning disable 618
             _scheduler.AddFixed(updateable, 0);
-            #pragma warning restore 618
             _scheduler.Add(updateable);
 
             _scheduler.Update(0.1f);

@@ -66,28 +66,28 @@ struct Response
 CurlClient* _client(nullptr);
 Config cfg;
 
-Request data_create(int connection, const std::string& url, const std::string& method, const std::string& body)
+Request* data_create(int connection, const std::string& url, const std::string& method, const std::string& body)
 {
-    Request cdata;
+    Request* cdata = new Request();
     
-    cdata.id = connection;
-    cdata.url = url.c_str();
-    cdata.query = "";
-    cdata.method = method.c_str();
-    cdata.timeout = cfg.timeout;
-    cdata.activityTimeout = cfg.timeout;
-    cdata.proxy = cfg.proxy.c_str();
-    cdata.headers = "";
+    cdata->id = connection;
+    cdata->url = url.c_str();
+    cdata->query = "";
+    cdata->method = method.c_str();
+    cdata->timeout = cfg.timeout;
+    cdata->activityTimeout = cfg.timeout;
+    cdata->proxy = cfg.proxy.c_str();
+    cdata->headers = "";
     
     if(!body.empty())
     {
-        cdata.body = (const uint8_t*)body.c_str();
-        cdata.bodyLength = (int)body.length();
+        cdata->body = (const uint8_t*)body.c_str();
+        cdata->bodyLength = (int)body.length();
     }
     else
     {
-        cdata.body = nullptr;
-        cdata.bodyLength = 0;
+        cdata->body = nullptr;
+        cdata->bodyLength = 0;
     }
     
     return cdata;
@@ -99,7 +99,6 @@ void createConnectionByType(RequestType type, std::vector<int>& connections)
     
     printf("### Adding request %s\n", r.url.c_str());
     int conn = _client->createConnection();
-    connections.push_back(conn);
     bool send = _client->send(data_create(conn, r.url, r.method, r.data));
     printf("Curl Send %s, result: %d\n", r.url.c_str(), send);
 }

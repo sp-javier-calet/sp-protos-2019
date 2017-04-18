@@ -273,6 +273,7 @@ namespace SocialPoint.Profiling
             builder.AppendFormat("fps: {0:F0}\n", Frame.FPS);
             builder.AppendFormat("tris: {0} ({1})\n", Frame.Tris, Frame.BatchedTris);
             builder.AppendFormat("draws: {0} ({1})\n", Frame.DrawCalls, Frame.BatchedDrawCalls);
+            builder.AppendFormat("ping: {0}\n", PhotonNetwork.networkingPeer.RoundTripTime.ToString());
             return builder.ToString();
         }
 

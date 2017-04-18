@@ -6,6 +6,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
 using SocialPoint.Network;
@@ -99,7 +100,7 @@ namespace SocialPoint.Locale
         public const float DefaultTimeout = 20.0f;
         public float Timeout = DefaultTimeout;
 
-        public event Action<Dictionary<string, Localization>> Loaded = delegate{};
+        public event Action<Dictionary<string, Localization>> Loaded;
 
         public const string DefaultBundleDir = "localization";
         public string BundleDir = DefaultBundleDir;
@@ -110,7 +111,7 @@ namespace SocialPoint.Locale
         {
             get
             {
-                if(string.IsNullOrEmpty(_fallbackLanguage) && Location.EnvironmentId == LocationData.ProdEnvironmentId)
+                if(string.IsNullOrEmpty(_fallbackLanguage))
                 {
                     return Localization.EnglishIdentifier;
                 }
@@ -192,26 +193,13 @@ namespace SocialPoint.Locale
             }
         }
 
-        Localization _localization;
+        readonly Localization _localization;
 
         public Localization Localization
         {
             get
             {
-                if(_localization == null)
-                {
-                    _localization = Localization.Default;
-                }
                 return _localization;
-            }
-
-            set
-            {
-                if(_localization != value)
-                {
-                    _localization = value;
-                    UpdateCurrentLanguage();
-                }
             }
         }
 
@@ -274,25 +262,23 @@ namespace SocialPoint.Locale
 
         public bool CopyAllFilesToBundleFolder{ get; set; }
 
-        public LocalizationManager(CsvMode csvMode = CsvMode.WriteCsvWithAllSupportedLanguages, CsvLoadedDelegate csvLoaded = null)
+        public LocalizationManager(CsvMode csvMode, CsvLoadedDelegate csvLoaded)
         {
             _writeCsv = csvMode == CsvMode.WriteCsv || csvMode == CsvMode.WriteCsvWithAllSupportedLanguages;
             _loadAllSupportedLanguagesCsv = csvMode == CsvMode.WriteCsvWithAllSupportedLanguages;
-            _localization = Localization.Default;
+            _localization = new Localization();
 
             CsvLoaded = csvLoaded;
 
             SupportedLanguages = DefaultSupportedLanguages; 
 
-            _currentLanguage = GetSupportedLanguage(_currentLanguage);
             PathsManager.CallOnLoaded(Init);
-
-            LoadCurrentLanguage();
         }
 
         public void UpdateDefaultLanguage()
         {
             _currentLanguage = GetSupportedLanguage(_currentLanguage);
+            LoadCurrentLanguage();
         }
 
         void OnGameWasLoaded()
@@ -429,7 +415,10 @@ namespace SocialPoint.Locale
                 #endif
             }
 
-            Loaded(locales);
+            if(Loaded != null)
+            {
+                Loaded(locales);
+            }
         }
 
         void DownloadCurrentLanguage()
@@ -729,6 +718,7 @@ namespace SocialPoint.Locale
 
             if(string.IsNullOrEmpty(lang))
             {
+                DebugUtils.Assert(AppInfo != null, "AppInfo not configured");
                 if(AppInfo != null)
                 {
                     lang = AppInfo.Language;

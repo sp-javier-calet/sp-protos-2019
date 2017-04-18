@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿#if ADMIN_PANEL 
+
+using System.Text;
 using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
 using UnityEngine;
@@ -51,6 +53,7 @@ namespace SocialPoint.Lockstep
             }
             builder.AppendLine("TurnBuffer: " + _client.TurnBuffer);
             builder.AppendLine("Time: " + _client.UpdateTime + " sim:" + _client.SimulationDeltaTime + " cmd:" + _client.CommandDeltaTime);
+            builder.AppendLine("Ping: " + PhotonNetwork.GetPing());
             return builder.ToString();
         }
 
@@ -105,7 +108,7 @@ namespace SocialPoint.Lockstep
             }
             builder.AppendFormat("players: max={0} ready={1} finished={2}\n", _server.MaxPlayers, _server.ReadyPlayerCount, _server.FinishedPlayerCount);
 
-            builder.AppendFormat("Time: {0} cmd: {1}", _server.UpdateTime, _server.CommandDeltaTime);
+            builder.AppendFormat("Time: {0} cmd: {1}",  _server.UpdateTime, _server.CommandDeltaTime);
             return builder.ToString();
         }
 
@@ -156,7 +159,7 @@ namespace SocialPoint.Lockstep
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Lockstep", this));
         }
 
-        static string GetConfigDescription(LockstepConfig config)
+        string GetConfigDescription(LockstepConfig config)
         {
             var builder = new StringBuilder();
             builder.AppendLine("CommandStepDuration: " + config.CommandStepDuration);
@@ -212,3 +215,5 @@ namespace SocialPoint.Lockstep
         }
     }
 }
+
+#endif

@@ -72,7 +72,7 @@ namespace SocialPoint.Utils
             }
             itr.Dispose();
             
-            return FinishBuilder(sb);
+            return sb.ToString();
         }
 
         const char QuerySeparator = '&';

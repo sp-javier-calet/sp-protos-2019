@@ -116,7 +116,15 @@ namespace SocialPoint.Social
 
         public IChatMessage GetMessage(int index)
         {
-            return GetMessage(index);
+            //return GetMessage(index);
+            if(index < 0 || index >= _messages.Count)
+            {
+                Log.e(string.Format("Invalid index {0} of {1} while accessing a {2}", index, _messages.Count, typeof(MessageType).Name));
+                return null;
+            }
+
+            return _messages[index];
+
         }
 
         public MessageType GetCustomMessage(int index)

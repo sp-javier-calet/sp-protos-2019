@@ -13,8 +13,6 @@ namespace SocialPoint.Social
     {
         const uint kMaxLoginRetries = 3;
 
-        public bool InitializedFriends { get; private set; }
-
         bool _connecting;
         FacebookUser _user;
         uint _loginRetries;

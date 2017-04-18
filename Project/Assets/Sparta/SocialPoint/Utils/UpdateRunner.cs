@@ -71,14 +71,25 @@ namespace SocialPoint.Utils
         Action _action;
         IUpdateScheduler _scheduler;
         bool _started;
+        bool _disposed;
+
+        public bool WasDisposed
+        {
+            get
+            {
+                return _disposed;
+            }
+        }
 
         public ScheduledAction(IUpdateScheduler scheduler, Action action)
         {
             _scheduler = scheduler;
             _action = action;
+
+            _disposed = false;
         }
 
-        public void Start(float interval = 0)
+        public void Start(double interval = 0)
         {
             if(_started)
             {
@@ -92,7 +103,7 @@ namespace SocialPoint.Utils
             }
             else
             {
-                _scheduler.Add(this, false, interval);
+                _scheduler.AddFixed(this, interval);
             }
         }
 
@@ -109,7 +120,11 @@ namespace SocialPoint.Utils
 
         public void Dispose()
         {
-            Stop();
+            _disposed = true;
+            if(_started)
+            {
+                Stop();
+            }
             _scheduler = null;
             _action = null;
         }

@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace SocialPoint.QualityStats
 {
-    public sealed class SocialPointQualityStats : IDisposable
+    public sealed class SocialPointQualityStats : IUpdateable, IDisposable
     {
         IDeviceInfo _deviceInfo;
         List<QualityStatsHttpClient> _qualityStatsHttpClients;
@@ -18,6 +18,9 @@ namespace SocialPoint.QualityStats
         double _timeToMap;
         bool _timeToMapSent;
         float _totalDataDownloaded;
+        float _frameTimeSum;
+        float _frameTimeVarianceSum;
+        int _numSessionSamples;
 
         static readonly float kByteConverter = 1.0f / 1024.0f;
 
@@ -28,7 +31,7 @@ namespace SocialPoint.QualityStats
 
         public TrackEventDelegate TrackEvent{ private get; set; }
 
-        public SocialPointQualityStats(IDeviceInfo deviceInfo, IAppEvents appEvents)
+        public SocialPointQualityStats(IDeviceInfo deviceInfo, IAppEvents appEvents, IUpdateScheduler scheduler)
         {
             if(deviceInfo == null)
             {
@@ -37,10 +40,14 @@ namespace SocialPoint.QualityStats
             _deviceInfo = deviceInfo;
 
             AppEvents = appEvents;
+            Scheduler = scheduler;
 
             _loadingStarted = new DateTime();
             _timeToMapSent = false;
             _timeToMap = 0.0;
+            _frameTimeSum = 0.0f;
+            _frameTimeVarianceSum = 0.0f;
+            _numSessionSamples = 1;
 
             _qualityStatsHttpClients = new List<QualityStatsHttpClient>();
 
@@ -53,6 +60,21 @@ namespace SocialPoint.QualityStats
             {
                 DisconnectAppEvents(_appEvents);
             }
+            if(_scheduler != null)
+            {
+                _scheduler.Remove(this);
+            }
+        }
+
+        public void Update()
+        {
+            float dt = Time.deltaTime;
+            _frameTimeSum += dt;
+
+            float average = GetAverageFrameTime();
+            _frameTimeVarianceSum += ((dt - average) * (dt - average));
+
+            ++_numSessionSamples;
         }
 
         public void AddQualityStatsHttpClient(QualityStatsHttpClient client)
@@ -83,6 +105,25 @@ namespace SocialPoint.QualityStats
                 {
                     ConnectAppEvents(_appEvents);
                 }
+            }
+        }
+
+        IUpdateScheduler _scheduler;
+
+        IUpdateScheduler Scheduler
+        {
+            get
+            {
+                return _scheduler;
+            }
+            set
+            {
+                if(_scheduler != null)
+                {
+                    _scheduler.Remove(this);
+                }
+                _scheduler = value;
+                _scheduler.Add(this);
             }
         }
 
@@ -353,6 +394,7 @@ namespace SocialPoint.QualityStats
             AddSizeCacheDir(dict);
             AddTimeToMap(dict);
             AddTotalDataDownloaded(dict);
+            AddFPSInfo(dict);
 
             return dict;
         }
@@ -363,17 +405,17 @@ namespace SocialPoint.QualityStats
             var dict = new AttrDic();
 
             dict.SetValue("max_texture_size", deviceInfo.MaxTextureSize);
-            dict.SetValue("screen_width", deviceInfo.ScreenSize.x);
-            dict.SetValue("screen_height", deviceInfo.ScreenSize.y);
-            dict.SetValue("screen_dpi", deviceInfo.ScreenDpi);
+            dict.SetValue("screen_width", (int)deviceInfo.ScreenSize.x);
+            dict.SetValue("screen_height", (int)deviceInfo.ScreenSize.y);
+            dict.SetValue("screen_dpi", (int)deviceInfo.ScreenDpi);
             dict.SetValue("cpu_cores", deviceInfo.CpuCores);
             dict.SetValue("cpu_freq", deviceInfo.CpuFreq);
             dict.SetValue("cpu_model", deviceInfo.CpuModel);
             dict.SetValue("cpu_arch", deviceInfo.CpuArchitecture);
             dict.SetValue("opengl_vendor", deviceInfo.OpenglVendor);
             dict.SetValue("opengl_renderer", deviceInfo.OpenglRenderer);
-            dict.SetValue("opengl_extensions", deviceInfo.OpenglExtensions);
-            dict.SetValue("opengl_shading", deviceInfo.OpenglShadingVersion);
+            //dict.SetValue("opengl_extensions", deviceInfo.OpenglExtensions);
+            //dict.SetValue("opengl_shading", deviceInfo.OpenglShadingVersion);
             dict.SetValue("opengl_version", deviceInfo.OpenglVersion);
             dict.SetValue("opengl_memory", deviceInfo.OpenglMemorySize);
 
@@ -400,7 +442,22 @@ namespace SocialPoint.QualityStats
             dict.SetValue("total_data_downloaded", _totalDataDownloaded);
         }
 
+        void AddFPSInfo(AttrDic dict)
+        {
+            dict.SetValue("avg_frame", GetAverageFrameTime());
+            dict.SetValue("variance_frame", GetVarianceFrameTime());
+        }
+
         #endregion
 
+        float GetAverageFrameTime()
+        {
+            return (_frameTimeSum / _numSessionSamples);
+        }
+
+        float GetVarianceFrameTime()
+        {
+            return (_frameTimeVarianceSum / _numSessionSamples);
+        }
     }
 }

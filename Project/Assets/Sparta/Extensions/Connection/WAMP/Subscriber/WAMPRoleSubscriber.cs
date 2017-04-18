@@ -24,12 +24,17 @@ namespace SocialPoint.WAMP.Subscriber
 
     public class SubscribeRequest : WAMPConnection.Request<OnSubscribed>
     {
+        public const int IdIndex = 1;
+
+        internal AttrList Data { get; private set; }
+
         internal HandlerSubscription Handler{ get; private set; }
 
         internal string Topic{ get; private set; }
 
-        internal SubscribeRequest(HandlerSubscription handler, OnSubscribed completionHandler, string topic) : base(completionHandler)
+        internal SubscribeRequest(HandlerSubscription handler, AttrList data, OnSubscribed completionHandler, string topic) : base(completionHandler)
         {
+            Data = data;
             Handler = handler;
             Topic = topic;
         }
@@ -39,9 +44,13 @@ namespace SocialPoint.WAMP.Subscriber
 
     public class UnsubscribeRequest : WAMPConnection.Request<OnUnsubscribed>
     {
-        internal UnsubscribeRequest(OnUnsubscribed completionHandler) : base(completionHandler)
-        {
+        public const int IdIndex = 1;
 
+        internal AttrList Data { get; private set; }
+
+        internal UnsubscribeRequest(OnUnsubscribed completionHandler, AttrList data) : base(completionHandler)
+        {
+            Data = data;
         }
     }
 
@@ -66,7 +75,7 @@ namespace SocialPoint.WAMP.Subscriber
             _unsubscribeRequests = new Dictionary<long, UnsubscribeRequest>();
         }
 
-        public SubscribeRequest Subscribe(string topic, HandlerSubscription handler, OnSubscribed completionHandler)
+        public SubscribeRequest CreateSubscribe(string topic, HandlerSubscription handler, OnSubscribed completionHandler)
         {
             if(!_connection.HasActiveSession())
             {
@@ -79,26 +88,23 @@ namespace SocialPoint.WAMP.Subscriber
 
             _connection.DebugMessage(string.Concat("Subscribe to event ", topic));
 
-            /* [SUBSCRIBE, Request|id, Options|dict, Topic|uri]
-             * [32, 713845233, {}, "com.myapp.mytopic1"]
-             */
-            var requestId = _connection.GetAndIncrementRequestId();
-            DebugUtils.Assert(!_subscribeRequests.ContainsKey(requestId), "This requestId was already in use");
-            var request = new SubscribeRequest(handler, completionHandler, topic);
-            _subscribeRequests.Add(requestId, request);
-
-            var data = new AttrList();
-            data.Add(new AttrInt(MsgCode.SUBSCRIBE));
-            data.AddValue(requestId);
-            data.Add(new AttrDic());
-            data.AddValue(topic);
-
-            _connection.SendData(data);
-
+            var data = CreateSubscribeData(topic);
+            var request = new SubscribeRequest(handler, data, completionHandler, topic);
             return request;
         }
 
-        public UnsubscribeRequest Unsubscribe(Subscription subscription, OnUnsubscribed completionHandler)
+        public void SendSubscribe(SubscribeRequest request)
+        {
+            var requestId = _connection.GetAndIncrementRequestId();
+            DebugUtils.Assert(!_subscribeRequests.ContainsKey(requestId), "This requestId was already in use");
+
+            request.Data.SetValue(SubscribeRequest.IdIndex, requestId);
+            _subscribeRequests.Add(requestId, request);
+
+            _connection.SendData(request.Data);
+        }
+
+        public UnsubscribeRequest CreateUnsubscribe(Subscription subscription, OnUnsubscribed completionHandler)
         {
             if(!_connection.HasActiveSession())
             {
@@ -122,23 +128,20 @@ namespace SocialPoint.WAMP.Subscriber
 
             _subscriptionHandlers.Remove(subscription.Id);
 
-            /* [UNSUBSCRIBE, Request|id, SUBSCRIBED.Subscription|id]
-             * [34, 85346237, 5512315355]
-             */
+            var data = CreateUnsubscribeData(subscription);
+            var request = new UnsubscribeRequest(completionHandler, data);
+            return request;
+        }
+
+        public void SendUnsubscribe(UnsubscribeRequest request)
+        {
             var requestId = _connection.GetAndIncrementRequestId();
             DebugUtils.Assert(!_unsubscribeRequests.ContainsKey(requestId), "This requestId was already in use");
 
-            var request = new UnsubscribeRequest(completionHandler);
+            request.Data.SetValue(UnsubscribeRequest.IdIndex, requestId);
             _unsubscribeRequests.Add(requestId, request);
 
-            var data = new AttrList();
-            data.Add(new AttrInt(MsgCode.UNSUBSCRIBE));
-            data.AddValue(requestId);
-            data.AddValue(subscription.Id);
-
-            _connection.SendData(data);
-
-            return request;
+            _connection.SendData(request.Data);
         }
 
         public void AutoSubscribe(Subscription subscription, HandlerSubscription handler)
@@ -153,6 +156,37 @@ namespace SocialPoint.WAMP.Subscriber
         #endregion
 
         #region Private
+
+        AttrList CreateSubscribeData(string topic)
+        {
+            /* [SUBSCRIBE, Request|id, Options|dict, Topic|uri]
+             * [32, 713845233, {}, "com.myapp.mytopic1"]
+             */
+            var data = new AttrList();
+            data.Add(new AttrInt(MsgCode.SUBSCRIBE));
+            data.Add(new AttrDic());
+            data.AddValue(topic);
+
+            //Placeholder id
+            data.InsertValue(SubscribeRequest.IdIndex, 0L);
+
+            return data;
+        }
+
+        AttrList CreateUnsubscribeData(Subscription subscription)
+        {
+            /* [UNSUBSCRIBE, Request|id, SUBSCRIBED.Subscription|id]
+             * [34, 85346237, 5512315355]
+             */
+            var data = new AttrList();
+            data.Add(new AttrInt(MsgCode.UNSUBSCRIBE));
+            data.AddValue(subscription.Id);
+
+            //Placeholder id
+            data.InsertValue(UnsubscribeRequest.IdIndex, 0L);
+
+            return data;
+        }
 
         internal void ProcessSubscribed(AttrList msg)
         {

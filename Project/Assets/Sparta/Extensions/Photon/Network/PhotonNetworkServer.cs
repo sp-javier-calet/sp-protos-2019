@@ -10,7 +10,7 @@ namespace SocialPoint.Network
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         INetworkMessageReceiver _receiver;
 
-        public void Start()
+        void INetworkServer.Start()
         {
             DoConnect();
         }
@@ -47,6 +47,14 @@ namespace SocialPoint.Network
         public int GetTimestamp()
         {
             return PhotonNetwork.ServerTimestamp;
+        }
+
+        public bool LatencySupported
+        {
+            get
+            {
+                return true;
+            }
         }
 
         public bool Running
@@ -94,8 +102,9 @@ namespace SocialPoint.Network
             {
                 return false;
             }
-            var props = new Hashtable{
-                { ServerIdRoomProperty, PhotonNetwork.player.ID }};
+            var props = new Hashtable {
+                { ServerIdRoomProperty, PhotonNetwork.player.ID }
+            };
             PhotonNetwork.room.SetCustomProperties(props);
             return true;
         }

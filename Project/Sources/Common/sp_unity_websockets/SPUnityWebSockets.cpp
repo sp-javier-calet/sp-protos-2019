@@ -51,6 +51,16 @@ EXPORT_API bool SPUnityWebSocketIsConnecting(WebSocketConnection* socket)
 {
     return socket->getState() == WebSocketConnection::State::Connecting;
 }
+    
+EXPORT_API bool SPUnityWebSocketInStandby(WebSocketConnection* socket)
+{
+    return socket->inStandby();
+}
+    
+EXPORT_API void SPUnityWebSocketSetStandbyTimeout(WebSocketConnection* socket, int timeout_seconds)
+{
+    return socket->setStandbyTimeout(timeout_seconds);
+}
 
 EXPORT_API int SPUnityWebSocketGetState(WebSocketConnection* socket)
 {
@@ -60,6 +70,16 @@ EXPORT_API int SPUnityWebSocketGetState(WebSocketConnection* socket)
 EXPORT_API void SPUnityWebSocketDisconnect(WebSocketConnection* socket)
 {
     socket->disconnect();
+}
+
+EXPORT_API void SPUnityWebSocketOnWillGoBackground(WebSocketConnection* socket)
+{
+    socket->onWillGoBackground();
+}
+
+EXPORT_API void SPUnityWebSocketOnWasOnBackground(WebSocketConnection* socket)
+{
+    socket->onWasOnBackground();
 }
 
 EXPORT_API int SPUnityWebSocketGetConnectedUrlIndex(WebSocketConnection* socket)
@@ -90,6 +110,9 @@ EXPORT_API void SPUnityWebSocketAddProtocol(WebSocketConnection* socket, const c
 EXPORT_API void SPUnityWebSocketUpdate(WebSocketConnection* socket)
 {
     WebSocketsManager::get().update();
+    //TODO: If we will work with more than one socket, create a separate call to update the manager only once.
+    //      Or check if we can update all of them inside the manager without modifying the map while iterating.
+    socket->update();
 }
 
 EXPORT_API void SPUnityWebSocketPing(WebSocketConnection* socket)

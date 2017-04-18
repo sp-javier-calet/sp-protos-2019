@@ -1,8 +1,11 @@
 using System;
-using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
 using SocialPoint.Login;
 using SocialPoint.Utils;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Social
 {
@@ -30,16 +33,21 @@ namespace SocialPoint.Social
             }
             if(Settings.LoginLink)
             {
-                Container.Bind<ILink>().ToMethod<FacebookLink>(CreateLoginLink);
+                Container.Bind<FacebookLink>().ToMethod<FacebookLink>(CreateLoginLink);
+                Container.Bind<ILink>().ToLookup<FacebookLink>();
             }
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelFacebook>(CreateAdminPanel);
+            #endif
         }
 
+        #if ADMIN_PANEL
         AdminPanelFacebook CreateAdminPanel()
         {
             return new AdminPanelFacebook(
                 Container.Resolve<IFacebook>());
         }
+        #endif
 
         UnityFacebook CreateUnityFacebook()
         {

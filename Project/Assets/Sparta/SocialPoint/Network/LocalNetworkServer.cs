@@ -35,7 +35,7 @@ namespace SocialPoint.Network
             }
             _clientList.Clear();
             _clientList.AddRange(_clients.Keys);
-            for(var i=0; i<_clientList.Count; i++)
+            for(var i = 0; i < _clientList.Count; i++)
             {
                 _clientList[i].OnServerStarted();
             }
@@ -54,7 +54,7 @@ namespace SocialPoint.Network
             }
             _clientList.Clear();
             _clientList.AddRange(_clients.Keys);
-            for(var i=0; i<_clientList.Count; i++)
+            for(var i = 0; i < _clientList.Count; i++)
             {
                 _clientList[i].OnServerStopped();
             }
@@ -64,7 +64,7 @@ namespace SocialPoint.Network
         {
             _clientList.Clear();
             _clientList.AddRange(_clients.Keys);
-            for(var i=0; i<_clientList.Count; i++)
+            for(var i = 0; i < _clientList.Count; i++)
             {
                 _clientList[i].OnServerFailed(err);
             }
@@ -192,9 +192,18 @@ namespace SocialPoint.Network
         {
             _receiver = receiver;
         }
+
         public int GetTimestamp()
         {
             return (int)TimeUtils.TimestampMilliseconds;
+        }
+
+        public bool LatencySupported
+        {
+            get
+            {
+                return false;
+            }
         }
     }
 }

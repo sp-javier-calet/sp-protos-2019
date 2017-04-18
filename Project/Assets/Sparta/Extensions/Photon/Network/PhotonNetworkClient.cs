@@ -74,6 +74,7 @@ namespace SocialPoint.Network
 
         protected override void OnDisconnected()
         {
+            base.OnDisconnected();
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnClientDisconnected();
@@ -100,5 +101,20 @@ namespace SocialPoint.Network
             }
         }
 
+        public bool LatencySupported
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public int Latency
+        {
+            get
+            {
+                return PhotonNetwork.GetPing();
+            }
+        }
     }
 }

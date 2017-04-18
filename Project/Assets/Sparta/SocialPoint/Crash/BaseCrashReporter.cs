@@ -210,7 +210,7 @@ namespace SocialPoint.Crash
             BeforeLogin,
             AfterLogin
         }
-            
+
         public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
         const string UriCrash = "crash";
@@ -495,7 +495,7 @@ namespace SocialPoint.Crash
 
             if(_updateScheduler != null)
             { 
-                _updateScheduler.Add(this, false, SendInterval);
+                _updateScheduler.AddFixed(this, SendInterval);
                 _running = true;
             }
 
@@ -1022,7 +1022,7 @@ namespace SocialPoint.Crash
         {
             appEvents.ReceivedMemoryWarning += OnMemoryWarning;
             appEvents.WillGoBackground.Add(0, OnWillGoBackground);
-            appEvents.WasOnBackground += OnWillGoForeground;
+            appEvents.WasOnBackground.Add(0, OnWillGoForeground);
             appEvents.LevelWasLoaded += OnLevelWasLoaded;
             appEvents.ApplicationQuit += OnApplicationQuit;
             appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
@@ -1032,7 +1032,7 @@ namespace SocialPoint.Crash
         {
             appEvents.ReceivedMemoryWarning -= OnMemoryWarning;
             appEvents.WillGoBackground.Remove(OnWillGoBackground);
-            appEvents.WasOnBackground -= OnWillGoForeground;
+            appEvents.WasOnBackground.Remove(OnWillGoForeground);
             appEvents.LevelWasLoaded -= OnLevelWasLoaded;
             appEvents.ApplicationQuit -= OnApplicationQuit;
             appEvents.GameWasLoaded.Remove(OnGameWasLoaded);

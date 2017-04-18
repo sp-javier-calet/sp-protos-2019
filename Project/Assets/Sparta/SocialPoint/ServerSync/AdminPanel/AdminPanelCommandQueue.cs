@@ -1,4 +1,6 @@
-﻿using SocialPoint.AdminPanel;
+﻿#if ADMIN_PANEL 
+
+using SocialPoint.AdminPanel;
 using System;
 using System.Text;
 
@@ -91,3 +93,5 @@ namespace SocialPoint.ServerSync
         }
     }
 }
+
+#endif

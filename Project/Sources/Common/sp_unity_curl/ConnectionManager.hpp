@@ -19,10 +19,23 @@ extern "C" {
 }
 
 /* Information associated with a specific easy handle */
-struct SPUnityCurlMessagesInfo
+struct CurlMessagesInfo
 {
     std::string incoming;
     std::string outcoming;
+};
+
+struct CurlResponseInfo
+{
+    int code = 0;
+    int errorCode = 0;
+    double downloadSize = 0.0;
+    double downloadSpeed = 0.0;
+    double connectTime = 0.0;
+    double totalTime = 0.0;
+    std::string headers;
+    std::string body;
+    std::string error;
 };
 
 class CurlConnection
@@ -34,17 +47,10 @@ class CurlConnection
     const bool isValid;
 
     CURL* easy = NULL;
-    int responseCode = 0;
-    int errorCode = 0;
-    std::string bodyBuffer;
-    std::string headersBuffer;
-    std::string errorBuffer;
-    double downloadSize = 0.0;
-    double downloadSpeed = 0.0;
-    double connectTime = 0.0;
-    double totalTime = 0.0;
     bool isActive = true;
-    SPUnityCurlMessagesInfo messages;
+    
+    CurlResponseInfo response;
+    CurlMessagesInfo messages;
 
     CurlConnection(int pId)
     : id(pId)

@@ -9,6 +9,7 @@ void Profiler_UninitProfiler();
 void Profiler_FrameStart();
 void Profiler_FrameEnd();
 void Profiler_FrameUpdate(const UnityFrameStats*);
+void Profiler_FramePresent(const UnityFrameStats*);
 
 void Profiler_StartMSAAResolve();
 void Profiler_EndMSAAResolve();

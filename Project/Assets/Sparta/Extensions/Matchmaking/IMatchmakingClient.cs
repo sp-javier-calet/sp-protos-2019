@@ -8,6 +8,11 @@ namespace SocialPoint.Matchmaking
 {
     public struct Match
     {
+        const string MatchIdAttrKey = "match_id";
+        const string PlayerIdAttrKey = "token";
+        const string GameInfoAttrKey = "game_info";
+        const string ServerInfoAttrKey = "server";
+
         public string Id;
         public string PlayerId;
 
@@ -24,6 +29,26 @@ namespace SocialPoint.Matchmaking
             }
         }
 
+        public void ParseAttrDic(AttrDic matchData)
+        {
+            Id = matchData.GetValue(MatchIdAttrKey).ToString();
+            PlayerId = matchData.GetValue(PlayerIdAttrKey).ToString();
+            Running = true;
+            GameInfo = matchData.Get(GameInfoAttrKey);
+            ServerInfo = matchData.Get(ServerInfoAttrKey);
+        }
+
+        public AttrDic ToAttrDic()
+        {
+            var attrDic = new AttrDic();
+            attrDic.SetValue(MatchIdAttrKey, Id);
+            attrDic.SetValue(PlayerIdAttrKey, PlayerId);
+            attrDic.Set(GameInfoAttrKey, GameInfo);
+            attrDic.Set(ServerInfoAttrKey, ServerInfo);
+
+            return attrDic;
+        }
+
         public override string ToString()
         {
             return string.Format("[Match:{0}\n" +
@@ -37,6 +62,7 @@ namespace SocialPoint.Matchmaking
     {
         void OnWaiting(int waitTime);
         void OnMatched(Match match);
+        void OnStopped(bool successful);
         void OnError(Error err);
     }
 

@@ -38,9 +38,7 @@ public sealed class SocialPointAppsFlyer : IMarketingTracker
             AppsFlyer.loadConversionData("AppsFlyerTrackerCallbacks", "didReceiveConversionData", "didReceiveConversionDataWithError");
             #endif
         }
-        #if UNITY_IOS //only needed on ios, android does it automatically on the receiver
         AppsFlyer.trackAppLaunch();
-        #endif
     }
 
     public void SetDebugMode(bool debugMode)

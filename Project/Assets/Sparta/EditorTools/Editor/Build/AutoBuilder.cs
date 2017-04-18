@@ -55,10 +55,14 @@ namespace SpartaTools.Editor.Build
         {
             switch(target)
             {
-            case BuildTarget.Android: return "Builds/Android";
-            case BuildTarget.iOS: return "Builds/iOS";
-            case BuildTarget.tvOS: return "Builds/tvOS";
-            case BuildTarget.StandaloneOSXIntel: return "Builds/OSX-Intel";
+            case BuildTarget.Android:
+                return "Builds/Android";
+            case BuildTarget.iOS:
+                return "Builds/iOS";
+            case BuildTarget.tvOS:
+                return "Builds/tvOS";
+            case BuildTarget.StandaloneOSXIntel:
+                return "Builds/OSX-Intel";
             default:
                 throw new NotSupportedException("Unsupported platform " + target);
             }
@@ -237,10 +241,97 @@ namespace SpartaTools.Editor.Build
             Log("Starting Player Build");
             string result = BuildPipeline.BuildPlayer(activeScenes, location, target, options);
 
+            BackupTempFolder();
+
             Log(string.Format("Player Build finished with result: '{0}'", result));
             if(!string.IsNullOrEmpty(result))
             {
                 throw new CompilerErrorException(result);
+            }
+        }
+
+        #endregion
+
+        #region BackupTempFolder and Directory Utils methods.
+
+        static void BackupTempFolder()
+        {
+            //Save TempFolder in order to backup debug symbols
+            string tempFolder = Path.Combine(Application.dataPath, "../Temp");
+            string tempFolderBackup = Path.Combine(Application.dataPath, "../TempBackup");
+
+            // We first delete the previous backup folder to allow copying or moving files without exceptions.
+            if(Directory.Exists(tempFolderBackup))
+            {
+                DeleteDirectory(tempFolderBackup);
+            }
+
+            if(Directory.Exists(tempFolder))
+            {
+                CopyDirectory(tempFolder, tempFolderBackup, true);
+            }
+        }
+
+        // Directory.Delete(targetDir, true) is not enough in .NET 3.5
+        static void DeleteDirectory(string targetDir)
+        {
+            string[] files = Directory.GetFiles(targetDir);
+            string[] dirs = Directory.GetDirectories(targetDir);
+
+            for(int i = 0, filesLength = files.Length; i < filesLength; i++)
+            {
+                string file = files[i];
+                File.SetAttributes(file, FileAttributes.Normal);
+                File.Delete(file);
+            }
+
+            for(int i = 0, dirsLength = dirs.Length; i < dirsLength; i++)
+            {
+                string dir = dirs[i];
+                DeleteDirectory(dir);
+            }
+
+            Directory.Delete(targetDir, false);
+        }
+
+        // We perform a full depth copy instead of only rename (move) the folder with Directory.Move.
+        static void CopyDirectory(string sourceDirName, string destDirName, bool copySubDirs)
+        {
+            // Get the subdirectories for the specified directory.
+            var dir = new DirectoryInfo(sourceDirName);
+
+            if(!dir.Exists)
+            {
+                throw new DirectoryNotFoundException(
+                    "Source directory does not exist or could not be found: "
+                    + sourceDirName);
+            }
+
+            DirectoryInfo[] dirs = dir.GetDirectories();
+            // If the destination directory doesn't exist, create it.
+            if(!Directory.Exists(destDirName))
+            {
+                Directory.CreateDirectory(destDirName);
+            }
+
+            // Get the files in the directory and copy them to the new location.
+            FileInfo[] files = dir.GetFiles();
+            for(int i = 0, filesLength = files.Length; i < filesLength; i++)
+            {
+                FileInfo file = files[i];
+                string temppath = Path.Combine(destDirName, file.Name);
+                file.CopyTo(temppath, false);
+            }
+
+            // If copying subdirectories, copy them and their contents to new location.
+            if(copySubDirs)
+            {
+                for(int i = 0, dirsLength = dirs.Length; i < dirsLength; i++)
+                {
+                    DirectoryInfo subdir = dirs[i];
+                    string temppath = Path.Combine(destDirName, subdir.Name);
+                    CopyDirectory(subdir.FullName, temppath, copySubDirs);
+                }
             }
         }
 

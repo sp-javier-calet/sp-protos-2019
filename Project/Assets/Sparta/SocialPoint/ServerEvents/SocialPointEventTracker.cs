@@ -9,6 +9,7 @@ using SocialPoint.Network;
 using SocialPoint.Login;
 using SocialPoint.ServerSync;
 using SocialPoint.Utils;
+using System.Text;
 
 namespace SocialPoint.ServerEvents
 {
@@ -287,7 +288,10 @@ namespace SocialPoint.ServerEvents
         {
             if(BreadcrumbManager != null)
             {
-                BreadcrumbManager.Log(string.Format("{0} {1}", eventName, data));
+                StringBuilder stringBuilder = StringUtils.StartBuilder();
+                stringBuilder.AppendFormat(eventName, data);
+
+                BreadcrumbManager.Log(StringUtils.FinishBuilder(stringBuilder));
             }
             if(CommandQueue == null || IsEventUnauthorized(eventName))
             {
@@ -336,7 +340,7 @@ namespace SocialPoint.ServerEvents
 
             if(_updateScheduler != null)
             {
-                _updateScheduler.Add(this, false, SendInterval);
+                _updateScheduler.AddFixed(this, SendInterval);
                 _running = true;
             }
 
@@ -696,7 +700,10 @@ namespace SocialPoint.ServerEvents
         {
             string name;
             name = op.Amount >= 0 ? EventNameResourceEarning : EventNameResourceSpending;
-            name = string.Format(name, op.Resource);
+
+            StringBuilder stringBuilder = StringUtils.StartBuilder();
+            stringBuilder.AppendFormat(name, op.ResourceName);
+            name = StringUtils.FinishBuilder(stringBuilder);
 
             var data = op.AdditionalData ?? new AttrDic();
             var operation = op.AdditionalData != null && op.AdditionalData.ContainsKey("operation") ? op.AdditionalData["operation"].AsDic : new AttrDic();
@@ -706,7 +713,19 @@ namespace SocialPoint.ServerEvents
             operation.SetValue("amount", Math.Abs(op.Amount));
             operation.SetValue("potential_amount", Math.Abs(op.PotentialAmount));
             operation.SetValue("lost_amount", Math.Abs(op.LostAmount));
-            operation.SetValue("type", op.Resource);
+            operation.SetValue("type", op.ResourceName);
+
+            AttrDic material = new AttrDic();
+            material.SetValue("name", op.ResourceTrackName );
+            material.SetValue("id", op.ResourceId );
+            material.SetValue("rarity_name", op.ResourceRarityName );
+            material.SetValue("rarity_id", op.ResourceRarityId );
+            data.Set("material", material);
+
+            AttrDic rune = new AttrDic();
+            rune.SetValue("name", op.ResourceTrackName );
+            rune.SetValue("id", op.ResourceId );
+            data.Set("rune", rune);
 
             var item = new AttrDic();
             data.Set("item", item);

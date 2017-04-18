@@ -119,7 +119,8 @@ namespace SocialPoint.Login
         const int LinkedToLooseError = 265;
         const int LinkedToSameError = 266;
         const int LinkedToLinkedError = 267;
-        const int ForceUpgradeError = 485;
+        const int ForceUpgradeError = 285;
+        const int RootedDeviceError = 479;
 
         public const int DefaultMaxSecurityTokenErrorRetries = 5;
         public const int DefaultMaxConnectivityErrorRetries = 0;
@@ -295,6 +296,13 @@ namespace SocialPoint.Login
                         {
                             UInt64.TryParse(attr.ToString(), out _userId);
                         }
+
+                        #if ADMIN_PANEL && !UNITY_EDITOR && I_AM_LOD
+                        string version = Storage.Load("Version").AsValue.ToString();
+                        if( ServiceLocator.DeviceInfo.AppInfo.Version != version )
+                            _userId = 0;
+                        #endif
+
                     }
                     catch(Exception)
                     {
@@ -471,7 +479,7 @@ namespace SocialPoint.Login
             return false;
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPLOGIN")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugLoginFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("SocialPointLogin {0}", msg));
@@ -541,18 +549,23 @@ namespace SocialPoint.Login
             AttrDic json = null;
             if(resp.HasError)
             {
-                try
-                {
-                    json = new JsonAttrParser().Parse(resp.Body).AsDic;
-                }
-                catch(Exception)
-                {
-                }
+                json = new JsonAttrParser().Parse(resp.Body).AsDic;
             }
+
             if(resp.StatusCode == ForceUpgradeError)
             {
+                json = new JsonAttrParser().Parse(resp.Body).AsDic;
+
                 err = new Error("The game needs to be upgraded.");
                 typ = ErrorType.Upgrade;
+                LoadGenericData(json.Get(AttrKeyGenericData));
+            }
+            else if(resp.StatusCode == RootedDeviceError)
+            {
+                json = new JsonAttrParser().Parse(resp.Body).AsDic;
+
+                err = new Error("The device has been rooted.");
+                typ = ErrorType.Rooted;
                 LoadGenericData(json.Get(AttrKeyGenericData));
             }
             else if(resp.StatusCode == InvalidSecurityTokenError)
@@ -575,6 +588,7 @@ namespace SocialPoint.Login
             {
                 err = resp.Error;
             }
+
             if(!Error.IsNullOrEmpty(err))
             {
                 data.SetValue(AttrKeyHttpCode, resp.StatusCode);
@@ -1861,6 +1875,10 @@ namespace SocialPoint.Login
             if(Storage != null)
             {
                 Storage.Save(UserIdStorageKey, new AttrString(UserId.ToString()));
+
+                #if ADMIN_PANEL && !UNITY_EDITOR && I_AM_LOD
+                Storage.Save("Version", new AttrString(ServiceLocator.DeviceInfo.AppInfo.Version));
+                #endif
             }
         }
 
@@ -2074,7 +2092,7 @@ namespace SocialPoint.Login
 
         public void AddForcedErrorRequestParams(HttpRequest req)
         {
-            #pragma warning disable 0162
+            #if ADMIN_PANEL
             if(AdminPanel.AdminPanel.IsAvailable)
             {
                 if(!string.IsNullOrEmpty(_forcedErrorCode))
@@ -2086,7 +2104,7 @@ namespace SocialPoint.Login
                     req.AddParam(HttpParamForcedErrorType, _forcedErrorType);
                 }
             }
-            #pragma warning restore 0162
+            #endif
         }
 
         #endregion
@@ -2186,6 +2204,10 @@ namespace SocialPoint.Login
             if(Storage != null)
             {
                 Storage.Remove(UserIdStorageKey);
+                #if ADMIN_PANEL && !UNITY_EDITOR && I_AM_LOD
+                Storage.Save("Version", new AttrString(ServiceLocator.DeviceInfo.AppInfo.Version));
+                #endif
+
                 Storage.Remove(UserHasRegisteredStorageKey);
             }
         }

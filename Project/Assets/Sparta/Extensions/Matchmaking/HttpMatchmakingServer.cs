@@ -3,6 +3,7 @@ using SocialPoint.Attributes;
 using SocialPoint.Base;
 using System.Collections.Generic;
 using System;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Matchmaking
 {
@@ -12,6 +13,10 @@ namespace SocialPoint.Matchmaking
         IHttpClient _httpClient;
         IAttrParser _parser;
         List<IMatchmakingServerDelegate> _delegates;
+
+        HttpRequest _notifyRequest = null;
+
+        const string MatchMakingUri = "matchmaking";
 
         public string BaseUrl;
 
@@ -25,6 +30,14 @@ namespace SocialPoint.Matchmaking
 
         public string Version { get; set; }
 
+        public HttpRequest NotifyRequest
+        {
+            get
+            {
+                return _notifyRequest;
+            }
+        }
+
         public HttpMatchmakingServer(IHttpClient httpClient, string baseUrl=null)
         {
             _delegates = new List<IMatchmakingServerDelegate>();
@@ -35,9 +48,7 @@ namespace SocialPoint.Matchmaking
 
         const string InfoUri = "/get_match";
         const string EndUri = "/end_match";
-        const string UsersParam = "users";
         const string MatchIdParam = "match_id";
-        const string PlayerIdParam = "player{0}_token";
         const string VersionParam = "version";
         const string PlayersParam = "players";
 
@@ -51,14 +62,10 @@ namespace SocialPoint.Matchmaking
             _delegates.Remove(dlg);
         }
 
-        public void LoadInfo(string matchId, List<string> playerIds)
+        public void LoadInfo(string matchId)
         {
-            var req = CreateRequest(InfoUri);
+            var req = CreateRequest(StringUtils.CombineUri(MatchMakingUri,InfoUri));
             req.AddQueryParam(MatchIdParam, matchId);
-            for (var i=0; i<playerIds.Count; i++)
-            {
-                req.AddQueryParam(string.Format(PlayerIdParam, i+1), playerIds[i]);
-            }
             if (!string.IsNullOrEmpty(Version))
             {
                 req.AddQueryParam(VersionParam, Version);
@@ -90,11 +97,11 @@ namespace SocialPoint.Matchmaking
 
         public void NotifyResults(string matchId, AttrDic userData)
         {
-            var req = CreateRequest(EndUri);
-            req.Method = HttpRequest.MethodType.POST;
-            req.AddParam(MatchIdParam, matchId);
-            req.AddParam(PlayersParam, userData);
-            _httpClient.Send(req, (resp) => OnResultReceived(resp, userData));
+            _notifyRequest = CreateRequest(StringUtils.CombineUri(MatchMakingUri, EndUri));
+            _notifyRequest.Method = HttpRequest.MethodType.POST;
+            _notifyRequest.AddParam(MatchIdParam, matchId);
+            _notifyRequest.AddParam(PlayersParam, userData);
+            _httpClient.Send(_notifyRequest, (resp) => OnResultReceived(resp, userData));
         }
 
         void OnResultReceived(HttpResponse resp, AttrDic userData)
@@ -133,7 +140,7 @@ namespace SocialPoint.Matchmaking
             {
                 throw new InvalidOperationException("Base url not configured.");
             }
-            return new HttpRequest(BaseUrl + uri);
+            return new HttpRequest(StringUtils.CombineUri(BaseUrl, uri));
         }
 
     }

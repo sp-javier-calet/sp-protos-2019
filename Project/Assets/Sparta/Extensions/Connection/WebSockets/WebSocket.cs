@@ -112,6 +112,18 @@ namespace SocialPoint.WebSockets
             SPUnityWebSocketPing(NativeSocket);
         }
 
+        public void OnWillGoBackground()
+        {
+            SPUnityWebSocketOnWillGoBackground(NativeSocket);
+            CheckStateChanges();
+        }
+
+        public void OnWasOnBackground()
+        {
+            SPUnityWebSocketOnWasOnBackground(NativeSocket);
+            CheckStateChanges();
+        }
+
         public void Update()
         {
             // Update service
@@ -130,12 +142,7 @@ namespace SocialPoint.WebSockets
             }
 
             // Update Connection state
-            var newState = State;
-            if(newState != _lastState)
-            {
-                _lastState = newState;
-                NotifyConnectionState(newState);
-            }
+            CheckStateChanges();
 
             // Check error
             var err = Error;
@@ -160,7 +167,7 @@ namespace SocialPoint.WebSockets
         {
             get
             {
-                return SPUnityWebSocketGetState(NativeSocket) == (int)WebSocketState.Open;
+                return SPUnityWebSocketIsConnected(NativeSocket);
             }
         }
 
@@ -168,7 +175,15 @@ namespace SocialPoint.WebSockets
         {
             get
             {
-                return SPUnityWebSocketGetState(NativeSocket) == (int)WebSocketState.Connecting;
+                return SPUnityWebSocketIsConnecting(NativeSocket);
+            }
+        }
+
+        public bool InStandby
+        {
+            get
+            {
+                return SPUnityWebSocketInStandby(NativeSocket);
             }
         }
 
@@ -202,6 +217,16 @@ namespace SocialPoint.WebSockets
                 {
                     SPUnityWebSocketSetProxy(string.Empty, 0);
                 }
+            }
+        }
+
+        void CheckStateChanges()
+        {
+            var newState = State;
+            if(newState != _lastState)
+            {
+                _lastState = newState;
+                NotifyConnectionState(newState);
             }
         }
 
@@ -328,10 +353,28 @@ namespace SocialPoint.WebSockets
         static extern void SPUnityWebSocketConnect(UIntPtr socket);
 
         [DllImport(PluginModuleName)]
+        static extern bool SPUnityWebSocketIsConnected(UIntPtr socket);
+
+        [DllImport(PluginModuleName)]
+        static extern bool SPUnityWebSocketIsConnecting(UIntPtr socket);
+
+        [DllImport(PluginModuleName)]
+        static extern bool SPUnityWebSocketInStandby(UIntPtr socket);
+
+        [DllImport(PluginModuleName)]
+        static extern void SPUnityWebSocketSetStandbyTimeout(UIntPtr socket, int timeout_seconds);
+
+        [DllImport(PluginModuleName)]
         static extern int SPUnityWebSocketGetState(UIntPtr socket);
 
         [DllImport(PluginModuleName)]
         static extern void SPUnityWebSocketDisconnect(UIntPtr socket);
+
+        [DllImport(PluginModuleName)]
+        static extern void SPUnityWebSocketOnWillGoBackground(UIntPtr socket);
+
+        [DllImport(PluginModuleName)]
+        static extern void SPUnityWebSocketOnWasOnBackground(UIntPtr socket);
 
         [DllImport(PluginModuleName)]
         static extern void SPUnityWebSocketUpdate(UIntPtr socket);

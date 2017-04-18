@@ -25,7 +25,7 @@ namespace SocialPoint.Matchmaking
         void RemoveDelegate(IMatchmakingServerDelegate dlg);
 
         // called when the match starts, callback should be called with match info
-        void LoadInfo(string matchId, List<string> playerIds);
+        void LoadInfo(string matchId);
 
         // called when the match ends, results keys should be unique playerIds
         void NotifyResults(string matchId, AttrDic results);

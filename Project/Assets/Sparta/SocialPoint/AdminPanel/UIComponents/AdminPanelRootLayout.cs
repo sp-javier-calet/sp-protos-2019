@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#if ADMIN_PANEL
+
+using UnityEngine;
 
 namespace SocialPoint.AdminPanel
 {
@@ -21,3 +23,5 @@ namespace SocialPoint.AdminPanel
         }
     }
 }
+
+#endif

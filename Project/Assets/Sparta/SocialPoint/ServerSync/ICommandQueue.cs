@@ -23,6 +23,9 @@ namespace SocialPoint.ServerSync
 
     public interface ICommandQueue : IDisposable
     {
+        int SendInterval { get; set; }
+        bool PingEnabled { get; set; }
+
         SyncDelegate AutoSync{ set; }
 
         event CommandQueueErrorDelegate GeneralError;
