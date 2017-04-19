@@ -27,6 +27,11 @@ namespace SocialPoint.Social
             return dic;
         }
 
+        public override string ToString()
+        {
+            return string.Format("[MessagePayloadPlainText: Title={0}, Text={1}]", Title, Text);
+        }
+
         public const string Identifier = "plain_text";
     }
 

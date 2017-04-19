@@ -16,6 +16,7 @@ namespace SocialPoint.Social
         readonly ChatManager _chat;
         readonly AlliancesManager _alliances;
         readonly PlayersManager _playersManager;
+        readonly MessagingSystemManager _messagesManager;
         readonly SocialManager _socialManager;
         readonly StringBuilder _content;
 
@@ -26,14 +27,16 @@ namespace SocialPoint.Social
         AdminPanelSocialFrameworkChat _chatPanel;
         AdminPanelSocialFrameworkAlliances _alliancesPanel;
         AdminPanelSocialFrameworkPlayers _playersPanel;
+        AdminPanelSocialFrameworkMessagingSystem _messagesPanel;
 
-        public AdminPanelSocialFramework(ConnectionManager connection, ChatManager chat, AlliancesManager alliances, PlayersManager playersManager, SocialManager socialManager)
+        public AdminPanelSocialFramework(ConnectionManager connection, ChatManager chat, AlliancesManager alliances, PlayersManager playersManager, SocialManager socialManager, MessagingSystemManager messagesManager)
         {
             _connection = connection;
             _chat = chat;
             _alliances = alliances;
             _playersManager = playersManager;
             _socialManager = socialManager;
+            _messagesManager = messagesManager;
             _content = new StringBuilder();
         }
 
@@ -47,6 +50,7 @@ namespace SocialPoint.Social
             _chatPanel = new AdminPanelSocialFrameworkChat(_chat, _console);
             _alliancesPanel = new AdminPanelSocialFrameworkAlliances(_alliances, _playersManager, _socialManager, _console);
             _playersPanel = new AdminPanelSocialFrameworkPlayers(_playersManager, _socialManager, _console);
+            _messagesPanel = new AdminPanelSocialFrameworkMessagingSystem(_console, _messagesManager);
         }
 
         public void OnOpened()
@@ -117,6 +121,7 @@ namespace SocialPoint.Social
             layout.CreateOpenPanelButton("Players", _playersPanel, _playersPanel != null && connected);
             layout.CreateOpenPanelButton("Chat", _chatPanel, _chat != null && connected);
             layout.CreateOpenPanelButton("Alliances", _alliancesPanel, _alliances != null && connected);
+            layout.CreateOpenPanelButton("Messages", _messagesPanel, _messagesManager != null && connected);
         }
 
         void OnConnected()

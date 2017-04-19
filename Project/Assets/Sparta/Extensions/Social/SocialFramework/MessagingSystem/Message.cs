@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text;
 
 namespace SocialPoint.Social
 {
@@ -46,6 +47,21 @@ namespace SocialPoint.Social
         public void RemoveProperty(string property)
         {
             _properties.Remove(property);
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder();
+            builder.AppendFormat("Ori: {0} - Payld: {1} - Prop: ", _origin.GetIdentifier(), _payload.GetIdentifier());
+            using(var itr = _properties.GetEnumerator())
+            {
+                while(itr.MoveNext())
+                {
+                    builder.Append(itr.Current);
+                    builder.Append(", ");
+                }
+            }
+            return builder.ToString();
         }
     }
 }

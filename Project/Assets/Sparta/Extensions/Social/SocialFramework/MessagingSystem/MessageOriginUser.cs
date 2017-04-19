@@ -16,6 +16,11 @@ namespace SocialPoint.Social
             return Identifier;
         }
 
+        public override string ToString()
+        {
+            return string.Format("[MessageOriginUser: Player={0}]", Player);
+        }
+
         public const string Identifier = "user";
     }
 

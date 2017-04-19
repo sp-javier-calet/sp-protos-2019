@@ -16,6 +16,11 @@ namespace SocialPoint.Social
             return Identifier;
         }
 
+        public override string ToString()
+        {
+            return string.Format("[MessageOriginAlliance: Alliance={0}]", Alliance);
+        }
+
         public const string Identifier = "alliance";
     }
 

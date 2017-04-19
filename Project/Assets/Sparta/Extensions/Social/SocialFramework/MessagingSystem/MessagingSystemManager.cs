@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Connection;
+using SocialPoint.WAMP;
 
 namespace SocialPoint.Social
 {
@@ -63,7 +64,7 @@ namespace SocialPoint.Social
             return _listMessages.AsReadOnly();
         }
 
-        public void SendMessage(string destinationType, AttrDic destinationData, IMessagePayload payload, FinishCallback callback)
+        public WAMPRequest SendMessage(string destinationType, AttrDic destinationData, IMessagePayload payload, FinishCallback callback)
         {
             var paramsDic = new AttrDic();
             paramsDic.SetValue("destination_type", destinationType);
@@ -71,7 +72,7 @@ namespace SocialPoint.Social
             paramsDic.SetValue("payload_type", payload.GetIdentifier());
             paramsDic.Set("payload_data", payload.Serialize());
 
-            _connection.Call("messaging_system.send", null, paramsDic, (error, AttrList, attrDic) => {
+            return _connection.Call("messaging_system.send", null, paramsDic, (error, AttrList, attrDic) => {
                 if(callback != null)
                 {
                     callback(error, attrDic);
@@ -79,37 +80,43 @@ namespace SocialPoint.Social
             });
         }
 
-        public void DeleteMessage(Message msg, FinishCallback callback)
+        public WAMPRequest DeleteMessage(Message msg, FinishCallback callback)
         {
             var paramsDic = new AttrDic();
             paramsDic.SetValue("msg_id", msg.Id);
-            _connection.Call("messaging_system.delete", null, paramsDic, (error, AttrList, attrDic) => {
+            return _connection.Call("messaging_system.delete", null, paramsDic, (error, AttrList, attrDic) => {
                 if(callback != null)
                 {
-                    _listMessages.Remove(msg);
+                    if(Error.IsNullOrEmpty(error))
+                    {
+                        _listMessages.Remove(msg);
+                    }
                     callback(error, attrDic);
                 }
             });
         }
 
-        public void AddMessageProperty(string property, Message msg, FinishCallback callback)
+        public WAMPRequest AddMessageProperty(string property, Message msg, FinishCallback callback)
         {
-            AddMessageProperties(new List<string>{ property }, msg, callback);
+            return AddMessageProperties(new List<string>{ property }, msg, callback);
         }
 
-        public void AddMessageProperties(List<string> properties, Message msg, FinishCallback callback)
+        public WAMPRequest AddMessageProperties(List<string> properties, Message msg, FinishCallback callback)
         {
             var paramsDic = new AttrDic();
             paramsDic.SetValue("msg_id", msg.Id);
             paramsDic.Set("properties", new AttrList(properties));
-            _connection.Call("messaging_system.add_properties", null, paramsDic, (error, AttrList, attrDic) => {
+            return _connection.Call("messaging_system.add_properties", null, paramsDic, (error, AttrList, attrDic) => {
                 if(callback != null)
                 {
-                    using(var propertyItr = properties.GetEnumerator())
+                    if(Error.IsNullOrEmpty(error))
                     {
-                        while(propertyItr.MoveNext())
+                        using(var propertyItr = properties.GetEnumerator())
                         {
-                            msg.AddProperty(propertyItr.Current);
+                            while(propertyItr.MoveNext())
+                            {
+                                msg.AddProperty(propertyItr.Current);
+                            }
                         }
                     }
                     callback(error, attrDic);
@@ -117,24 +124,27 @@ namespace SocialPoint.Social
             });
         }
 
-        public void RemoveMessageProperty(string property, Message msg, FinishCallback callback)
+        public WAMPRequest RemoveMessageProperty(string property, Message msg, FinishCallback callback)
         {
-            RemoveMessageProperties(new List<string>{ property }, msg, callback);
+            return RemoveMessageProperties(new List<string>{ property }, msg, callback);
         }
 
-        public void RemoveMessageProperties(List<string> properties, Message msg, FinishCallback callback)
+        public WAMPRequest RemoveMessageProperties(List<string> properties, Message msg, FinishCallback callback)
         {
             var paramsDic = new AttrDic();
             paramsDic.SetValue("msg_id", msg.Id);
             paramsDic.Set("properties", new AttrList(properties));
-            _connection.Call("messaging_system.remove_properties", null, paramsDic, (error, AttrList, attrDic) => {
+            return _connection.Call("messaging_system.remove_properties", null, paramsDic, (error, AttrList, attrDic) => {
                 if(callback != null)
                 {
-                    using(var propertyItr = properties.GetEnumerator())
+                    if(Error.IsNullOrEmpty(error))
                     {
-                        while(propertyItr.MoveNext())
+                        using(var propertyItr = properties.GetEnumerator())
                         {
-                            msg.RemoveProperty(propertyItr.Current);
+                            while(propertyItr.MoveNext())
+                            {
+                                msg.RemoveProperty(propertyItr.Current);
+                            }
                         }
                     }
                     callback(error, attrDic);
@@ -151,7 +161,7 @@ namespace SocialPoint.Social
         {
             ClearMessages();
 
-            var messagingServiceData = servicesDic.Get("messaging_system").AsDic;
+            var messagingServiceData = servicesDic.Get("message_system").AsDic;
             var messagesList = messagingServiceData.Get("msgs").AsList;
             using(var messageDataItr = messagesList.GetEnumerator())
             {
@@ -165,7 +175,10 @@ namespace SocialPoint.Social
                     _listMessages.Add(message);
                 }
             }
-            OnHistoricReceived();
+            if(OnHistoricReceived != null)
+            {
+                OnHistoricReceived();
+            }
         }
 
         void OnNotificationReceived(int type, string topic, AttrDic dic)
@@ -180,7 +193,10 @@ namespace SocialPoint.Social
                         break;
                     }
                     _listMessages.Add(message);
-                    OnNewMessageEvent(message);
+                    if(OnNewMessageEvent != null)
+                    {
+                        OnNewMessageEvent(message);
+                    }
                     break;
                 }
             default:
