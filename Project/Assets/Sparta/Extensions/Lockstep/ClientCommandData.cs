@@ -54,7 +54,7 @@ namespace SocialPoint.Lockstep
                 var len = (int)stream.Length;
 
                 writer.Write(len);
-                writer.Write(stream.GetBuffer(), len);
+                writer.Write(stream.ToArray(), len);
             }
         }
 
