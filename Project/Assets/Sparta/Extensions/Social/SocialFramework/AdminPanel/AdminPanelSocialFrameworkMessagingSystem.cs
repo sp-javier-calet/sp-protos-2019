@@ -230,6 +230,7 @@ namespace SocialPoint.Social
 
                 _destinationPanels = new Dictionary<string, AdminPanelEditDestinationPanel>();
                 _destinationPanels.Add("user", new AdminPanelUserDestination());
+                _destinationPanels.Add("alliance", new AdminPanelAllianceDestination());
                 _currentDestination = _destinationPanels.Keys.First();
             }
 
@@ -365,6 +366,33 @@ namespace SocialPoint.Social
                 layout.CreateLabel("Edit user destination");
                 layout.CreateMargin();
                 var idInput = layout.CreateTextInput("UserId", id => Destination.Data.SetValue("id", id));
+                idInput.text = Destination.Data.GetValue("id").ToString();
+
+                layout.CreateButton("Ok", layout.ClosePanel);
+            }
+        }
+
+        class AdminPanelAllianceDestination : AdminPanelEditDestinationPanel
+        {
+            public DestinationData Destination{ get; private set; }
+
+            public AdminPanelAllianceDestination()
+            {
+                Destination = new DestinationData();
+                Destination.Type = "alliance";
+                Destination.Data.SetValue("id", "");
+            }
+
+            public override DestinationData GetData()
+            {
+                return Destination;
+            }
+
+            public override void OnCreateGUI(AdminPanelLayout layout)
+            {
+                layout.CreateLabel("Edit alliance destination");
+                layout.CreateMargin();
+                var idInput = layout.CreateTextInput("AllianceId", id => Destination.Data.SetValue("id", id));
                 idInput.text = Destination.Data.GetValue("id").ToString();
 
                 layout.CreateButton("Ok", layout.ClosePanel);
