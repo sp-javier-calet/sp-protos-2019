@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.GitCommands;
+using System.IO;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -9,6 +11,7 @@ namespace SocialPoint.TransparentBundles
     {
         const string _gitModifiedToken = " M";
         const string _gitUntrackedToken = "??";
+        const string _gitDeletedToken = " D";
 
         public static List<string> CheckInBranchUpdated()
         {
@@ -52,44 +55,37 @@ namespace SocialPoint.TransparentBundles
 
         public static List<string> CheckFilePending(params string[] assetPaths)
         {
+            var paths = new List<string>(assetPaths);
             var infractions = new List<string>();
             var query = new Repository(Application.dataPath).CreateQuery("status").WithOption("porcelain");
-
             var gitStatus = query.Exec();
+            var reader = new StringReader(gitStatus);
 
-            for(int i = 0; i < assetPaths.Length; i++)
+            string line = null;
+            do
             {
-                var path = assetPaths[i];
-                var idx = gitStatus.IndexOf(path);
-
-                if(idx != -1)
+                line = reader.ReadLine();
+                if(line != null)
                 {
-                    var prevIdx = idx - 1;
-                    while(prevIdx > 0 && gitStatus[prevIdx - 1] != '\n')
+                    if(line.StartsWith(_gitDeletedToken))
                     {
-                        prevIdx--;
+                        line = line.Remove(0, _gitDeletedToken.Length).Insert(0, "This file is deleted and pending to commit:");
+                        infractions.Add(line);
                     }
-
-                    var nextIdx = idx + path.Length;
-                    while(nextIdx < gitStatus.Length && gitStatus[nextIdx] != '\n')
+                    else if(paths.Exists(x => line.Contains(x)))
                     {
-                        nextIdx++;
+                        if(line.StartsWith(_gitModifiedToken))
+                        {
+                            line = line.Remove(0, _gitModifiedToken.Length).Insert(0, "This file is modified and pending to commit:");
+                        }
+                        else if(line.StartsWith(_gitUntrackedToken))
+                        {
+                            line = line.Remove(0, _gitUntrackedToken.Length).Insert(0, "This file is new and pending to commit:");
+                        }
+                        infractions.Add(line);
                     }
-
-                    var line = gitStatus.Substring(prevIdx, nextIdx - prevIdx);
-
-                    if(line.StartsWith(_gitModifiedToken))
-                    {
-                        line = line.Remove(0, 2).Insert(0, "This file is modified and pending to commit:");
-                    }
-                    else if(line.StartsWith(_gitUntrackedToken))
-                    {
-                        line = line.Remove(0, 2).Insert(0, "This file is new and pending to commit:");
-                    }
-
-                    infractions.Add(line);
                 }
-            }
+            } while(line != null);
 
             return infractions;
         }
