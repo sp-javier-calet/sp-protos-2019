@@ -231,10 +231,25 @@ namespace SocialPoint.Helpshift
             _helpshift.showConversation(_configMap);
         }
 
+        public void OpenFromPush(string issueId)
+        {
+            if(_helpshift == null)
+            {
+                return;
+            }
+
+            _helpshift.handlePushNotification(issueId);
+        }
+
         public int PendingNotificationsCount
         {
             get
             {
+                if(_helpshift == null)
+                {
+                    return 0;
+                }
+
                 return _helpshift.getNotificationCount(false);
             }
         }
