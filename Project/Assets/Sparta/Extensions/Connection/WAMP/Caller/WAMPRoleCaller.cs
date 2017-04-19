@@ -104,19 +104,29 @@ namespace SocialPoint.WAMP.Caller
 
             if(msg.Count < 3 || msg.Count > 5)
             {
-                throw new Exception("Invalid RESULT message structure - length must be 3, 4 or 5");
+                Log.e("Invalid RESULT message structure - length must be 3, 4 or 5");
+                return;
             }
 
             if(!msg.Get(1).IsValue)
             {
-                throw new Exception("Invalid RESULT message structure - CALL.Request must be an integer");
+                Log.e("Invalid RESULT message structure - CALL.Request must be an integer");
+                return;
             }
             long requestId = msg.Get(1).AsValue.ToLong();
 
             CallRequest request; 
+
+            if(_calls == null)
+            {
+                Log.e("Calls are null !!!");
+                return;
+            }
+
             if(!_calls.TryGetValue(requestId, out request))
             {
-                throw new Exception("Bogus RESULT message for non-pending request ID");
+                Log.e("Bogus RESULT message for non-pending request ID");
+                return;
             }
 
             if(request.CompletionHandler != null)
@@ -127,7 +137,8 @@ namespace SocialPoint.WAMP.Caller
                 {
                     if(!msg.Get(3).IsList)
                     {
-                        throw new Exception("Invalid RESULT message structure - YIELD.Arguments must be a list");
+                        Log.e("Invalid RESULT message structure - YIELD.Arguments must be a list");
+                        return;
                     }
                     listParams = msg.Get(3).AsList;
                 }
@@ -135,7 +146,8 @@ namespace SocialPoint.WAMP.Caller
                 {
                     if(!msg.Get(4).IsDic)
                     {
-                        throw new Exception("Invalid RESULT message structure - YIELD.ArgumentsKw must be a dictionary");
+                        Log.e("Invalid RESULT message structure - YIELD.ArgumentsKw must be a dictionary");
+                        return;
                     }
                     dictParams = msg.Get(4).AsDic;
                 }
@@ -149,7 +161,8 @@ namespace SocialPoint.WAMP.Caller
             CallRequest request;
             if(!_calls.TryGetValue(requestId, out request))
             {
-                throw new Exception("Bogus ERROR message for non-pending CALL request ID");
+                Log.e("Bogus ERROR message for non-pending CALL request ID");
+                return;
             }
             if(request.CompletionHandler != null)
             {
