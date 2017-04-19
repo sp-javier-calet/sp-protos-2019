@@ -34,14 +34,18 @@ namespace SocialPoint.Lockstep
         public const byte DefaultMaxPlayers = 2;
         public const int DefaultClientStartDelay = 3000;
         public const int DefaultClientSimulationDelay = 1000;
+        public const int DefaultBattleEndedWithoutConfirmationTimeout = 10;
         public const bool DefaultFinishOnClientDisconnection = true;
         public const int DefaultMetricSendInterval = 10000;
+        public const bool DefaultAllowBattleStartWithOnePlayerReady = false;
 
         public byte MaxPlayers = DefaultMaxPlayers;
         public int ClientStartDelay = DefaultClientStartDelay;
         public int ClientSimulationDelay = DefaultClientSimulationDelay;
+        public int BattleEndedWithoutConfirmationTimeout = DefaultBattleEndedWithoutConfirmationTimeout;
         public bool FinishOnClientDisconnection = DefaultFinishOnClientDisconnection;
         public int MetricSendInterval = DefaultMetricSendInterval;
+        public bool AllowBattleStartWithOnePlayerReady = DefaultAllowBattleStartWithOnePlayerReady;
 
         public override string ToString()
         {
@@ -100,6 +104,8 @@ namespace SocialPoint.Lockstep
         LockstepCommandFactory _localFactory;
         ClientData _localClientData;
 
+        DateTime _battleEndTimeOut;
+
         public LockstepServerConfig ServerConfig{ get; set; }
 
         public event Action BeforeMatchStarts;
@@ -107,11 +113,16 @@ namespace SocialPoint.Lockstep
         public event Action<Error> ErrorProduced;
         public event Action<Error, byte> CommandFailed;
         public event Action<Dictionary<byte, Attr>, AttrDic> MatchFinished;
+        public event Action<byte> OnClientConnectedEvent;
+        public event Action<byte> OnClientDisconnectedEvent;
 
+        public Func<bool> HasBattleEnded;
 
         public const int CommandFailedErrorCode = 300;
         public const int MatchmakingErrorCode = 301;
         public const int NetworkErrorCode = 302;
+
+        const string PlayerIDKey = "player{0}_token";
 
         public LockstepConfig Config
         {
@@ -165,6 +176,8 @@ namespace SocialPoint.Lockstep
             _matchmaking = matchmaking;
             _server = server;
 
+            _battleEndTimeOut = DateTime.MinValue;
+
             _server.RegisterReceiver(this);
             _server.AddDelegate(this);
 
@@ -179,6 +192,8 @@ namespace SocialPoint.Lockstep
         public void Update()
         {
             _serverLockstep.Update();
+
+            CheckBattleEndTimeout();
         }
 
         public void Update(int dt)
@@ -511,10 +526,7 @@ namespace SocialPoint.Lockstep
             if(client == null)
             {
                 // new client
-                client = new ClientData {
-                    PlayerId = msg.PlayerId,
-                    PlayerNumber = FreePlayerNumber
-                };
+                client = CreateClientData(msg.PlayerId);
                 _clients.Add(client);
             }
             else
@@ -558,7 +570,7 @@ namespace SocialPoint.Lockstep
 
         void CheckAllPlayersReady()
         {
-            if(!_serverLockstep.Running && ReadyPlayerCount == ServerConfig.MaxPlayers)
+            if(!_serverLockstep.Running && ReadyPlayerCount == ServerConfig.MaxPlayers || (ClientCount < ServerConfig.MaxPlayers && ServerConfig.AllowBattleStartWithOnePlayerReady))
             {
                 StartLockstep();
             }
@@ -566,17 +578,22 @@ namespace SocialPoint.Lockstep
 
         void StartLockstep()
         {
+            SendCustomLog("Start");
+
+            if(_battleEnded)
+            {
+                SendCustomLog("Trying to Start a match that has already ended!");
+            }
             if(BeforeMatchStarts != null)
             {
                 BeforeMatchStarts();
             }
             if(_matchmaking != null && _matchmaking.Enabled)
             {
-                var playerIds = PlayerIds;
                 var matchId = MatchId;
-                if(playerIds.Count > 0 && !string.IsNullOrEmpty(matchId))
+                if(PlayerIds.Count > 0 && !string.IsNullOrEmpty(matchId))
                 {
-                    _matchmaking.LoadInfo(matchId, playerIds);
+                    _matchmaking.LoadInfo(matchId);
                     return;
                 }
             }
@@ -585,11 +602,38 @@ namespace SocialPoint.Lockstep
 
         void IMatchmakingServerDelegate.OnMatchInfoReceived(byte[] info)
         {
+            var matchData = new JsonAttrParser().Parse(info).AsDic;
+
+            for(int i = 0; i < MaxPlayers; i++)
+            {
+                var playerIDKey = string.Format(PlayerIDKey, i + 1);
+                
+                if(matchData.ContainsKey(playerIDKey))
+                {
+                    var playerID = matchData[playerIDKey].ToString();
+
+                    var client = FindClientByPlayerId(playerID);
+                    if(client == null)
+                    {
+                        _clients.Add(CreateClientData(playerID));
+                    }
+                }
+            }
+
             if(MatchStarted != null)
             {
                 MatchStarted(info);
             }
             DoStartLockstep();
+        }
+
+        ClientData CreateClientData(string id)
+        {
+            var client = new ClientData {
+                PlayerId = id,
+                PlayerNumber = FreePlayerNumber
+            };
+            return client;
         }
 
         void IMatchmakingServerDelegate.OnError(Error ierr)
@@ -623,6 +667,7 @@ namespace SocialPoint.Lockstep
 
         void DoStartLockstep()
         {
+            SendCustomLog("Starting Lockstep Server");
             _serverLockstep.Start(ServerConfig.ClientSimulationDelay - ServerConfig.ClientStartDelay);
             if(SendMetric != null)
             {
@@ -667,15 +712,43 @@ namespace SocialPoint.Lockstep
 
         void CheckAllPlayersEnded()
         {
-            if(_serverLockstep.Running && FinishedPlayerCount == ReadyPlayerCount)
+            if(_serverLockstep.Running && FinishedPlayerCount > 0)
             {
+                if(FinishedPlayerCount >= ReadyPlayerCount)
+                {
+                    EndLockstep();
+                }
+                else if(HasBattleEnded != null)
+                {
+                    if(HasBattleEnded())
+                    {
+                        EndLockstep();
+                    }
+                    else
+                    {
+                        // Should be tagged as cheater?
+                        _battleEndTimeOut = DateTime.Now;
+                    }
+                }
+            }
+        }
+
+        void CheckBattleEndTimeout()
+        {
+            if(_serverLockstep.Running && _battleEndTimeOut > DateTime.MinValue && (DateTime.Now - _battleEndTimeOut).TotalSeconds >= ServerConfig.BattleEndedWithoutConfirmationTimeout)
+            {
+                SendCustomLog("Battle End Timed Out");
+
                 EndLockstep();
             }
         }
 
         void EndLockstep()
         {
+            _battleEnded = true;
             _serverLockstep.Stop();
+            _battleEndTimeOut = DateTime.MinValue;
+
             var results = PlayerResults;
             var customData = new AttrDic();
             var originalResults = new Dictionary<byte, Attr>();
@@ -752,6 +825,8 @@ namespace SocialPoint.Lockstep
                 SendTrack(corrected ? MatchEndCorrectedMetricName : MatchEndMetricName, null, null);
             }
 
+            SendCustomLog("Ended");
+
             if(_matchmaking == null || !_matchmaking.Enabled)
             {
                 SendResults(resultsAttr);
@@ -789,11 +864,72 @@ namespace SocialPoint.Lockstep
             if(ErrorProduced != null)
             {
                 ErrorProduced(err);
+                if(((HttpMatchmakingServer)_matchmaking).NotifyRequest != null)
+                {
+                    var req = ((HttpMatchmakingServer)_matchmaking).NotifyRequest;
+
+                    var dic = new AttrDic();
+
+                    dic.SetValue("body", System.Text.Encoding.UTF8.GetString(req.Body));
+                    dic.SetValue("match_id", MatchId);
+                    dic.Set("bodyParams.match_id", req.BodyParams["match_id"]);
+                    int i = 0;
+                    int playerFlag = 0;
+                    foreach(var valParam in req.BodyParams["players"].AsDic)
+                    {
+                        playerFlag = 0;
+                        foreach(var param in valParam.Value.AsDic)
+                        {
+                            if(param.Key == "duration")
+                                dic.Set("bodyParams.players" + i + ".duration", param.Value);
+                            else if(param.Key == "modified")
+                                dic.Set("bodyParams.players" + i + ".modified", param.Value);
+                            else
+                            {
+                                dic.Set("bodyParams.players" + i + ".flags" + playerFlag, param.Value);
+                                playerFlag++;
+                            }
+                        }
+                        i++;
+                    }
+                    dic.Set("bodyParams.modified", req.BodyParams["modified"]);
+                    dic.Set("params.match_id", req.Params["match_id"]);
+                    i = 0;
+                    foreach(var valParam in req.Params["players"].AsDic)
+                    {
+                        playerFlag = 0;
+                        foreach(var param in valParam.Value.AsDic)
+                        {
+                            if(param.Key == "duration")
+                                dic.Set("params.players" + i + ".duration", param.Value);
+                            else if(param.Key == "modified")
+                                dic.Set("params.players" + i + ".modified", param.Value);
+                            else
+                            {
+                                dic.Set("params.players" + i + ".flags" + playerFlag, param.Value);
+                                playerFlag++;
+                            }
+                        }
+                        i++;
+                    }
+                    dic.Set("params.modified", req.Params["modified"]);
+
+                    SendLog(new Network.ServerEvents.Log(LogLevel.Error, "Battle End Notification Error", dic), true);
+                }
             }
         }
 
         public void OnClientConnected(byte clientId)
         {
+            var dic = new AttrDic();
+            dic.SetValue("client_id", clientId);
+            SendCustomLog("Client Connected", dic);
+
+            if(OnClientConnectedEvent != null)
+            {
+                OnClientConnectedEvent(clientId);
+            }
+
             ClientCount++;
             _server.SendMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.ClientSetup,
@@ -804,6 +940,15 @@ namespace SocialPoint.Lockstep
 
         public void OnClientDisconnected(byte clientId)
         {
+            var dic = new AttrDic();
+            dic.SetValue("client_id", clientId);
+            SendCustomLog("Client Disconnected", dic);
+
+            if(OnClientDisconnectedEvent != null)
+            {
+                OnClientDisconnectedEvent(clientId);
+            }
+
             ClientCount--;
             var client = FindClientByClientId(clientId);
             if(client != null)
@@ -816,10 +961,18 @@ namespace SocialPoint.Lockstep
             {
                 CheckAllPlayersEnded();
             }
+            if(ServerConfig.AllowBattleStartWithOnePlayerReady && !Running && ReadyPlayerCount > 0 && FinishedPlayerCount == 0)
+            {
+                if(HasBattleEnded != null && !HasBattleEnded())
+                {
+                    StartLockstep();
+                }
+            }
         }
 
         public void Stop()
         {
+            SendCustomLog("Stopped");
             if(_serverLockstep.Running)
             {
                 EndLockstep();
@@ -861,6 +1014,11 @@ namespace SocialPoint.Lockstep
             itr.Dispose();
         }
 
+        public IEnumerator<ServerTurnData> GetLockstepTurnsEnumerator()
+        {
+            return _serverLockstep.GetTurnsEnumerator();
+        }
+
         void SendClientStatusMessage(ClientData client, bool connected)
         {
             if(!Running)
@@ -879,6 +1037,21 @@ namespace SocialPoint.Lockstep
                     }, new ClientChangedConnectionStatusMessage(client.ClientId, connected));
                 }
             }
+        }
+
+        int _logCount;
+        bool _battleEnded;
+
+        void SendCustomLog(string message, AttrDic dic = null)
+        {
+            if(dic == null)
+            {
+                dic = new AttrDic();
+            }
+            dic.SetValue("match_id", MatchId);
+            dic.SetValue("log_number", _logCount);
+            SendLog(new Network.ServerEvents.Log(LogLevel.Error, "Lockstep: " + message, dic), true);
+            _logCount++;
         }
 
         #region local client
