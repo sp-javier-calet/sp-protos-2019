@@ -62,6 +62,7 @@ namespace SocialPoint.Matchmaking
     {
         void OnWaiting(int waitTime);
         void OnMatched(Match match);
+        void OnStopped(bool successful);
         void OnError(Error err);
     }
 
