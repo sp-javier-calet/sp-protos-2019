@@ -57,6 +57,20 @@ namespace SocialPoint.Base
             transform.localPosition = Vector3.zero;
         }
 
+        public static void ResetLocalTransform(this Transform transform, Vector3 pos, Quaternion rot)
+        {
+            transform.localScale = Vector3.one;
+            transform.localRotation = rot;
+            transform.localPosition = pos;
+        }
+
+        public static void ResetLocalTransform(this Transform transform, Quaternion rot)
+        {
+            transform.localScale = Vector3.one;
+            transform.localRotation = rot;
+            transform.localPosition = Vector3.zero;
+        }
+
         public static Transform GetChildRecursive(this Transform trans, string name)
         {
             Component[] transforms = trans.GetComponentsInChildren(typeof(Transform), true);
