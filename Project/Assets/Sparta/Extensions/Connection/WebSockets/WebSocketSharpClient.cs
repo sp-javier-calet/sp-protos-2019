@@ -226,6 +226,15 @@ namespace SocialPoint.WebSockets
                 return _socket.ReadyState == WebSocketSharp.WebSocketState.Connecting;
             }
         }
+
+        public bool InStandby
+        {
+            get
+            {
+                return false;
+            }
+        }
+
         public bool LatencySupported
         {
             get
