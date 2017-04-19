@@ -121,6 +121,15 @@ namespace SocialPoint.Social
                 layout.CreateTextArea(Msg.Origin<IMessageOrigin>().ToString());
                 layout.CreateLabel("Payload");
                 layout.CreateTextArea(Msg.Payload<IMessagePayload>().ToString());
+                CreatePropertiesGUI(layout);
+                CreateAddPropertyGUI(layout);
+                layout.CreateMargin();
+
+                CreateDeleteMessageGUI(layout);
+            }
+
+            void CreatePropertiesGUI(AdminPanelLayout layout)
+            {
                 layout.CreateLabel("Properties");
 
                 using(var itr = Msg.GetProperties())
@@ -138,7 +147,7 @@ namespace SocialPoint.Social
                             }
                             else
                             {
-                                _console.Print(string.Format("Error deleteing property {0} of message {1}. Error: {2}", itr.Current, Msg.Id, _wampRequestError));
+                                _console.Print(string.Format("Error deleting property {0} of message {1}. Error: {2}", itr.Current, Msg.Id, _wampRequestError));
                             }
                             layout.Refresh();
                         };
@@ -151,9 +160,34 @@ namespace SocialPoint.Social
                         });
                     }
                 }
+            }
 
-                layout.CreateMargin();
+            void CreateAddPropertyGUI(AdminPanelLayout layout)
+            {
+                layout.CreateTextInput("Insert new property", (property) => {
+                    MessagingSystemManager.FinishCallback finishCallback = (Error error, AttrDic dic) => {
+                        _requestInProgress = false;
+                        _wampRequestError = error;
+                        if(Error.IsNullOrEmpty(_wampRequestError))
+                        {
+                            _console.Print(string.Format("Added property {0} to message {1}", property, Msg.Id));
+                        }
+                        else
+                        {
+                            _console.Print(string.Format("Error adding property {0} to message {1}. Error: {2}", property, Msg.Id, _wampRequestError));
+                        }
+                        layout.Refresh();
+                    };
 
+                    Cancel();
+                    _requestInProgress = true;
+                    _console.Print(string.Format("Adding property {0} to message {1}", property, Msg.Id));
+                    _wampRequest = _messagesManager.AddMessageProperty(property, Msg, finishCallback);
+                });
+            }
+
+            void CreateDeleteMessageGUI(AdminPanelLayout layout)
+            {
                 MessagingSystemManager.FinishCallback finishCbk = (Error error, AttrDic dic) => {
                     _requestInProgress = false;
                     _wampRequestError = error;
