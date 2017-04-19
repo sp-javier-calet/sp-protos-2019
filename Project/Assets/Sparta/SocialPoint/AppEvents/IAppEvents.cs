@@ -74,7 +74,7 @@ namespace SocialPoint.AppEvents
         void TriggerWillGoBackground();
 
         /// <summary>
-        /// Trigger WillGoBackground by hand (for debug purposes)
+        /// Trigger WasOnBackground by hand (for debug purposes)
         /// </summary>
         void TriggerWasOnBackground();
 
