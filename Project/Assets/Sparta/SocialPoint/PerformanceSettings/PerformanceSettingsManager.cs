@@ -183,7 +183,10 @@ namespace SocialPoint.PerformanceSettings
                 QualitySettings.maximumLODLevel = settings.MaxLodLevel;
             }
 
-            QualitySettings.vSyncCount = settings.Vsync ? 1 : 0;
+            if(QualitySettings.vSyncCount != settings.Vsync)
+            {
+                QualitySettings.vSyncCount = settings.Vsync;
+            }
 
             if(ExtraApplier != null)
             {
