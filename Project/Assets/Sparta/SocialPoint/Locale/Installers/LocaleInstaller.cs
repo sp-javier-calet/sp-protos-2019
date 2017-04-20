@@ -102,6 +102,7 @@ namespace SocialPoint.Locale
                 Container.Resolve<IEventDispatcher>());
         }
 
+        // I_AM_LOD ... FIXME LoD custom temp fix. This method should be static
         LocalizationManager CreateLocalizationManager()
         {
             LocalizationManager.CsvForNGUILoadedDelegate csvLoadedDelegate = null;
@@ -114,14 +115,29 @@ namespace SocialPoint.Locale
         }
 
         #if NGUI
-        static void LoadNGUICSV(byte[] bytes)
+        // I_AM_LOD ... FIXME LoD custom temp fix. This method should be static, and only should only call 'NGUILocalization.LoadCSV(bytes);'
+        void LoadNGUICSV(byte[] bytes)
+        {
+            NGUILocalization.LoadCSV(bytes);
+        }
+
+        void OnLocalizationLoaded(byte[] bytes)
         {
             var manager = Container.Resolve<ILocalizationManager>();
+            var appInfo = Container.Resolve<IAppInfo>();
 
+            // Update current language and add localizations to NGUI
             NGUILocalization.LoadCSV(bytes);
             NGUILocalization.language = manager.CurrentLanguage;
+
+            UILocalize[] localizadElements = GameObject.FindObjectsOfType<UILocalize>();
+            for(int i = 0; i < localizadElements.Length; i++)
+            {
+                localizadElements[i].OnLocalize();
+            }
         }
         #endif
+
 
         void SetupLocalizationManager(LocalizationManager mng)
         {
