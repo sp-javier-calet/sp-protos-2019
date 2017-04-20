@@ -173,6 +173,9 @@ namespace SocialPoint.Notifications
 
         void ScheduleNotifications()
         {
+            #if I_AM_LOD //Should be ported to Sparta?? should clear all? should clear only some that will be rescheduled (in _notifications)?
+            ClearNotifications();
+            #endif
             AddGameNotifications();
             for(int i = 0, _notificationsCount = _notifications.Count; i < _notificationsCount; i++)
             {
