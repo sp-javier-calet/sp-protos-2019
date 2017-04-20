@@ -56,8 +56,13 @@ namespace SocialPoint.ServerEvents
 
         SocialPointEventTracker CreateEventTracker()
         {
+            #if I_AM_LOD
+            return new SocialPointEventTracker(
+                Container.Resolve<IUpdateScheduler>(), false);
+            #else
             return new SocialPointEventTracker(
                 Container.Resolve<IUpdateScheduler>());
+            #endif
         }
 
         void SetupEventTracker(SocialPointEventTracker tracker)
