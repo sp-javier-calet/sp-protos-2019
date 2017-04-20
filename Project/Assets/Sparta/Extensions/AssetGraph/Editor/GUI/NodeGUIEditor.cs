@@ -108,7 +108,6 @@ namespace AssetBundleGraph
 
             if(!string.IsNullOrEmpty(node.Data.LoaderLoadPath.CurrentPlatformValue) && GUILayout.Button("Select Folder in Project"))
             {
-                Debug.Log(node.Data.LoaderLoadPath.CurrentPlatformValue);
                 Selection.activeObject = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>("Assets/" + node.Data.LoaderLoadPath.CurrentPlatformValue);
             }
 
@@ -209,7 +208,7 @@ namespace AssetBundleGraph
                 // add contains keyword interface.
                 if(GUILayout.Button("+"))
                 {
-                    using(new RecordUndoScope("Add Filter Condition", node))
+                    using(new RecordUndoScope("Add Filter Condition", node, true))
                     {
                         node.Data.AddFilterCondition(
                             AssetBundleGraphSettings.DEFAULT_FILTER_NAME,
@@ -280,30 +279,30 @@ namespace AssetBundleGraph
 
                 switch(status)
                 {
-                    case IntegratedGUIImportSetting.ConfigStatus.NoSampleFound:
-                        // IntegratedGUIImportSetting.Setup() must run to grab another sample to configure.
-                        EditorGUILayout.HelpBox("Press Refresh to configure.", MessageType.Info);
-                        break;
-                    case IntegratedGUIImportSetting.ConfigStatus.GoodSampleFound:
-                        if(GUILayout.Button("Configure Import Setting"))
-                        {
+                case IntegratedGUIImportSetting.ConfigStatus.NoSampleFound:
+                    // IntegratedGUIImportSetting.Setup() must run to grab another sample to configure.
+                    EditorGUILayout.HelpBox("Press Refresh to configure.", MessageType.Info);
+                    break;
+                case IntegratedGUIImportSetting.ConfigStatus.GoodSampleFound:
+                    if(GUILayout.Button("Configure Import Setting"))
+                    {
 #if UNITY_5_4_OR_NEWER
-							Selection.activeObject = IntegratedGUIImportSetting.GetReferenceAssetImporter(node.Data.Id);
+                        Selection.activeObject = IntegratedGUIImportSetting.GetReferenceAssetImporter(node.Data.Id);
 #else
                             Selection.activeObject = IntegratedGUIImportSetting.GetReferenceAsset(node.Data.Id);
 #endif
-                        }
-                        if(GUILayout.Button("Reset Import Setting"))
-                        {
-                            IntegratedGUIImportSetting.ResetConfig(node.Data);
-                        }
-                        break;
-                    case IntegratedGUIImportSetting.ConfigStatus.TooManySamplesFound:
-                        if(GUILayout.Button("Reset Import Setting"))
-                        {
-                            IntegratedGUIImportSetting.ResetConfig(node.Data);
-                        }
-                        break;
+                    }
+                    if(GUILayout.Button("Reset Import Setting"))
+                    {
+                        IntegratedGUIImportSetting.ResetConfig(node.Data);
+                    }
+                    break;
+                case IntegratedGUIImportSetting.ConfigStatus.TooManySamplesFound:
+                    if(GUILayout.Button("Reset Import Setting"))
+                    {
+                        IntegratedGUIImportSetting.ResetConfig(node.Data);
+                    }
+                    break;
                 }
             }
         }
@@ -404,15 +403,18 @@ namespace AssetBundleGraph
                 {
                     var disabledScope = DrawOverrideTargetToggle(node, node.Data.InstanceData.ContainsValueOf(currentEditingGroup), (bool enabled) =>
                     {
-                        if(enabled)
+                        using(new RecordUndoScope("Override Target Modifier", node, true))
                         {
-                            node.Data.InstanceData[currentEditingGroup] = node.Data.InstanceData.DefaultValue;
+                            if(enabled)
+                            {
+                                node.Data.InstanceData[currentEditingGroup] = node.Data.InstanceData.DefaultValue;
+                            }
+                            else
+                            {
+                                node.Data.InstanceData.Remove(currentEditingGroup);
+                            }
+                            m_modifier = null;
                         }
-                        else
-                        {
-                            node.Data.InstanceData.Remove(currentEditingGroup);
-                        }
-                        m_modifier = null;
                     });
 
                     using(disabledScope)
@@ -435,7 +437,7 @@ namespace AssetBundleGraph
                         {
                             Action onChangedAction = () =>
                             {
-                                using(new RecordUndoScope("Change Modifier Setting", node))
+                                using(new RecordUndoScope("Change Modifier Setting", node, true))
                                 {
                                     node.Data.ScriptClassName = m_modifier.GetType().FullName;
                                     if(node.Data.InstanceData.ContainsValueOf(currentEditingGroup))
@@ -570,15 +572,18 @@ namespace AssetBundleGraph
                 {
                     var disabledScope = DrawOverrideTargetToggle(node, node.Data.InstanceData.ContainsValueOf(currentEditingGroup), (bool enabled) =>
                     {
-                        if(enabled)
+                        using(new RecordUndoScope("Override Target PrefabBuilder", node, true))
                         {
-                            node.Data.InstanceData[currentEditingGroup] = node.Data.InstanceData.DefaultValue;
+                            if(enabled)
+                            {
+                                node.Data.InstanceData[currentEditingGroup] = node.Data.InstanceData.DefaultValue;
+                            }
+                            else
+                            {
+                                node.Data.InstanceData.Remove(currentEditingGroup);
+                            }
+                            m_prefabBuilder = null;
                         }
-                        else
-                        {
-                            node.Data.InstanceData.Remove(currentEditingGroup);
-                        }
-                        m_prefabBuilder = null;
                     });
 
                     using(disabledScope)
@@ -601,7 +606,7 @@ namespace AssetBundleGraph
                         {
                             Action onChangedAction = () =>
                             {
-                                using(new RecordUndoScope("Change PrefabBuilder Setting", node))
+                                using(new RecordUndoScope("Change PrefabBuilder Setting", node, true))
                                 {
                                     node.Data.ScriptClassName = m_prefabBuilder.GetType().FullName;
                                     if(node.Data.InstanceData.ContainsValueOf(currentEditingGroup))
@@ -1042,15 +1047,18 @@ namespace AssetBundleGraph
                 {
                     var disabledScope = DrawOverrideTargetToggle(node, node.Data.InstanceData.ContainsValueOf(currentEditingGroup), (bool enabled) =>
                     {
-                        if(enabled)
+                        using(new RecordUndoScope("Override Target Validator", node, true))
                         {
-                            node.Data.InstanceData[currentEditingGroup] = node.Data.InstanceData.DefaultValue;
+                            if(enabled)
+                            {
+                                node.Data.InstanceData[currentEditingGroup] = node.Data.InstanceData.DefaultValue;
+                            }
+                            else
+                            {
+                                node.Data.InstanceData.Remove(currentEditingGroup);
+                            }
+                            m_validator = null;
                         }
-                        else
-                        {
-                            node.Data.InstanceData.Remove(currentEditingGroup);
-                        }
-                        m_validator = null;
                     });
 
                     using(disabledScope)
@@ -1073,7 +1081,7 @@ namespace AssetBundleGraph
                         {
                             Action onChangedAction = () =>
                             {
-                                using(new RecordUndoScope("Change Validator Setting", node))
+                                using(new RecordUndoScope("Change Validator Setting", node, true))
                                 {
                                     node.Data.ScriptClassName = m_validator.GetType().FullName;
                                     if(node.Data.InstanceData.ContainsValueOf(currentEditingGroup))
@@ -1098,12 +1106,12 @@ namespace AssetBundleGraph
 
             switch(node.Kind)
             {
-                case NodeKind.MODIFIER_GUI:
-                case NodeKind.VALIDATOR_GUI:
-                    {
-                        selectedType = null;
-                        break;
-                    }
+            case NodeKind.MODIFIER_GUI:
+            case NodeKind.VALIDATOR_GUI:
+                {
+                    selectedType = null;
+                    break;
+                }
             }
         }
 
@@ -1116,46 +1124,46 @@ namespace AssetBundleGraph
 
             switch(node.Kind)
             {
-                case NodeKind.LOADER_GUI:
-                    DoInspectorLoaderGUI(node);
-                    break;
-                case NodeKind.FILTER_GUI:
-                    DoInspectorFilterGUI(node);
-                    break;
-                case NodeKind.IMPORTSETTING_GUI:
-                    DoInspectorImportSettingGUI(node);
-                    break;
-                case NodeKind.MODIFIER_GUI:
-                    DoInspectorModifierGUI(node);
-                    break;
-                case NodeKind.GROUPING_GUI:
-                    DoInspectorGroupingGUI(node);
-                    break;
-                case NodeKind.PREFABBUILDER_GUI:
-                    DoInspectorPrefabBuilderGUI(node);
-                    break;
-                case NodeKind.BUNDLECONFIG_GUI:
-                    DoInspectorBundleConfiguratorGUI(node);
-                    break;
-                case NodeKind.BUNDLEBUILDER_GUI:
-                    DoInspectorBundleBuilderGUI(node);
-                    break;
-                case NodeKind.EXPORTER_GUI:
-                    DoInspectorExporterGUI(node);
-                    break;
-                case NodeKind.WARP_IN:
-                    DoInspectorWarpInNode(node);
-                    break;
-                case NodeKind.WARP_OUT:
-                    DoInspectorWarpOutNode(node);
-                    break;
-                case NodeKind.VALIDATOR_GUI:
-                    DoInspectorValidatorGUI(node);
-                    break;
+            case NodeKind.LOADER_GUI:
+                DoInspectorLoaderGUI(node);
+                break;
+            case NodeKind.FILTER_GUI:
+                DoInspectorFilterGUI(node);
+                break;
+            case NodeKind.IMPORTSETTING_GUI:
+                DoInspectorImportSettingGUI(node);
+                break;
+            case NodeKind.MODIFIER_GUI:
+                DoInspectorModifierGUI(node);
+                break;
+            case NodeKind.GROUPING_GUI:
+                DoInspectorGroupingGUI(node);
+                break;
+            case NodeKind.PREFABBUILDER_GUI:
+                DoInspectorPrefabBuilderGUI(node);
+                break;
+            case NodeKind.BUNDLECONFIG_GUI:
+                DoInspectorBundleConfiguratorGUI(node);
+                break;
+            case NodeKind.BUNDLEBUILDER_GUI:
+                DoInspectorBundleBuilderGUI(node);
+                break;
+            case NodeKind.EXPORTER_GUI:
+                DoInspectorExporterGUI(node);
+                break;
+            case NodeKind.WARP_IN:
+                DoInspectorWarpInNode(node);
+                break;
+            case NodeKind.WARP_OUT:
+                DoInspectorWarpOutNode(node);
+                break;
+            case NodeKind.VALIDATOR_GUI:
+                DoInspectorValidatorGUI(node);
+                break;
 
-                default:
-                    Debug.LogError(node.Name + " is defined as unknown kind of node. value:" + node.Kind);
-                    break;
+            default:
+                Debug.LogError(node.Name + " is defined as unknown kind of node. value:" + node.Kind);
+                break;
             }
 
             var errors = currentTarget.errors;

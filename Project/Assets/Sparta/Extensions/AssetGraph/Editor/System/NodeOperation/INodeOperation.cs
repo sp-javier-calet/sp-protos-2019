@@ -9,6 +9,9 @@ namespace AssetBundleGraph
 	*/
     public interface INodeOperation
     {
+        void Skip(ConnectionData connectionToOutput,
+            Dictionary<string, List<Asset>> inputGroupAssets,
+            Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output);
 
         /**
 			Setup is the method which validates and perform necessary setups in order to build.

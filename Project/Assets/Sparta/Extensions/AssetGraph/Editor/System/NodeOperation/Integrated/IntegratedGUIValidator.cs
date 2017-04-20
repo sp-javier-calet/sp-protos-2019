@@ -38,6 +38,52 @@ namespace AssetBundleGraph
             Output(connectionToOutput, inputGroupAssets, null);
         }
 
+        public bool ValidateSingleAsset(BuildTarget target,
+            NodeData node,
+            Asset asset,
+            IValidator instancedValidator = null
+            )
+        {
+            var validator = instancedValidator;
+
+            if(validator == null)
+            {
+                validator = ValidatorUtility.CreateValidator(node, target);
+            }
+
+            var loadedAsset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(asset.importFrom);
+
+            bool passed = true;
+
+            var targetGroup = BuildTargetUtility.TargetToGroup(target);
+
+            if(validator.ShouldValidate(loadedAsset))
+            {
+                if(!validator.Validate(loadedAsset))
+                {
+                    if(validator.TryToRecover(loadedAsset))
+                    {
+                        Debug.LogWarning("Asset " + loadedAsset.name + " validation failed but has been recovered - Validator Node: " + node.Name);
+                    }
+                    else
+                    {
+                        var message = validator.ValidationFailed(loadedAsset);
+                        Debug.LogError("[" + target.ToString() + "] " + message + " - Validator Node: " + node.Name);
+                        var newValidation = new InvalidObjectInfo(asset, message, targetGroup);
+                        AssetBundleGraphController.CurrentLog.LogToFile(node, newValidation, targetGroup);
+                        passed = false;
+                    }
+                }
+            }
+
+            if(passed)
+            {
+                AssetBundleGraphController.CurrentLog.RemoveSingleEntry(node.Id, AssetDatabase.AssetPathToGUID(asset.importFrom), targetGroup);
+            }
+
+            return passed;
+        }
+
         public void Run(BuildTarget target,
                 NodeData node,
                 ConnectionPointData inputPoint,
@@ -51,6 +97,8 @@ namespace AssetBundleGraph
             var validator = ValidatorUtility.CreateValidator(node, target);
             UnityEngine.Assertions.Assert.IsNotNull(validator);
 
+            AssetBundleGraphController.CurrentLog.ClearObjectsForTarget(node.Id, BuildTargetUtility.TargetToGroup(target));
+
             List<Asset> assetsToRemove = new List<Asset>();
             foreach(var asset in incomingAssets)
             {
@@ -60,27 +108,20 @@ namespace AssetBundleGraph
                     PreProcessor.AssetsToPostProcess.Add(asset.importFrom);
                     continue;
                 }
-                var loadedAsset = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(asset.importFrom);
 
-                if(validator.ShouldValidate(loadedAsset))
+                if(!ValidateSingleAsset(target, node, asset, validator))
                 {
-                    if(!validator.Validate(loadedAsset))
-                    {
-                        if(validator.TryToRecover(loadedAsset))
-                        {
-                            Debug.LogWarning("Asset " + loadedAsset.name + " validation failed but has been recovered - Validator Node: " + node.Name);
-                        }
-                        else
-                        {
-                            Debug.LogError(validator.ValidationFailed(loadedAsset) + " - Validator Node: " + node.Name);
-                            assetsToRemove.Add(asset);
-                        }
-                    }
+                    assetsToRemove.Add(asset);
                 }
             }
             incomingAssets.RemoveAll(x => assetsToRemove.Contains(x));
 
             // Modifier does not add, filter or change structure of group, so just pass given group of assets
+            Output(connectionToOutput, inputGroupAssets, null);
+        }
+
+        public void Skip(ConnectionData connectionToOutput, Dictionary<string, List<Asset>> inputGroupAssets, Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output)
+        {
             Output(connectionToOutput, inputGroupAssets, null);
         }
 

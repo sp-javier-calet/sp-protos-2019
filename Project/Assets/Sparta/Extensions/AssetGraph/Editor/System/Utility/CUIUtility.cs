@@ -44,20 +44,25 @@ namespace AssetBundleGraph
 		 */
         public static void BuildFromCommandline()
         {
+            int exitCode = 0;
             try
             {
                 var arguments = new List<string>(System.Environment.GetCommandLineArgs());
 
+                //Remove the local validator to guarrantee fresh results
+                ValidatorLog.RemoveFromDisk();
 #if UNITY_5_4_OR_NEWER
-				Application.SetStackTraceLogType(LogType.Log,		StackTraceLogType.None);
-				Application.SetStackTraceLogType(LogType.Error,		StackTraceLogType.None);
-				Application.SetStackTraceLogType(LogType.Warning,	StackTraceLogType.None);
+                Application.SetStackTraceLogType(LogType.Log, StackTraceLogType.None);
+                Application.SetStackTraceLogType(LogType.Error, StackTraceLogType.None);
+                Application.SetStackTraceLogType(LogType.Warning, StackTraceLogType.None);
 #else
                 Application.stackTraceLogType = StackTraceLogType.None;
 #endif
                 BuildTarget target = EditorUserBuildSettings.activeBuildTarget;
 
                 int targetIndex = arguments.FindIndex(a => a == "-target");
+
+                bool isValidation = arguments.FindIndex(a => a == "-validationRun") >= 0;
 
                 if(targetIndex >= 0)
                 {
@@ -77,12 +82,11 @@ namespace AssetBundleGraph
                     }
                 }
 
-                Debug.Log("Asset bundle building for:" + BuildTargetUtility.TargetToHumaneString(target));
+                Debug.Log("AssetGraph executing for:" + BuildTargetUtility.TargetToHumaneString(target));
 
                 if(!SaveData.IsSaveDataAvailableAtDisk())
                 {
-                    Debug.Log("AssetBundleGraph save data not found. Aborting...");
-                    return;
+                    throw new Exception("AssetBundleGraph save data not found. Aborting...");
                 }
 
                 // load data from file.
@@ -102,52 +106,65 @@ namespace AssetBundleGraph
                 // if there is error reported, then run
                 if(errors.Count > 0)
                 {
-                    Debug.Log("Build terminated because following error found during Setup phase. Please fix issues by opening editor before building.");
                     errors.ForEach(e => Debug.LogError(e));
-
-                    return;
+                    throw new Exception("Build terminated because following error found during Setup phase. Please fix issues by opening editor before building.");
                 }
 
                 NodeData lastNodeData = null;
                 float lastProgress = 0.0f;
                 Action<NodeData, float> updateHandler = (NodeData node, float progress) =>
                 {
-                    if(node != null && lastNodeData != node)
+                    if(progress == 2f)
                     {
-                        lastNodeData = node;
-                        lastProgress = progress;
+                        Debug.LogFormat("Skipped {0}.", node.Name);
+                    }
+                    else
+                    {
+                        if(node != null && lastNodeData != node)
+                        {
+                            lastNodeData = node;
+                            lastProgress = progress;
 
-                        Debug.LogFormat("Processing {0}...", node.Name);
-                    }
-                    if(progress > lastProgress)
-                    {
-                        if(progress <= 1.0f)
-                        {
-                            Debug.LogFormat("{0} Complete.", node.Name);
+                            Debug.LogFormat("Processing {0}...", node.Name);
                         }
-                        else if((progress - lastProgress) > 0.2f)
+                        if(progress > lastProgress)
                         {
-                            Debug.LogFormat("{0}: {1} %", node.Name, (int)progress * 100f);
+                            if(progress <= 1.0f)
+                            {
+                                Debug.LogFormat("{0} Complete.", node.Name);
+                            }
+                            else if((progress - lastProgress) > 0.2f)
+                            {
+                                Debug.LogFormat("{0}: {1} %", node.Name, (int)progress * 100f);
+                            }
+                            lastProgress = progress;
                         }
-                        lastProgress = progress;
                     }
+
                 };
 
                 // run datas.
-                result = AssetBundleGraphController.Perform(graph, target, true, errorHandler, updateHandler);
+                result = AssetBundleGraphController.Perform(graph, target, true, errorHandler, updateHandler, null, isValidation);
 
                 AssetDatabase.Refresh();
                 AssetBundleGraphController.Postprocess(graph, result, true);
+
+                if(AssetBundleGraphController.CurrentLog.entries.Count > 0)
+                {
+                    exitCode = 2;
+                }
 
             }
             catch(Exception e)
             {
                 Debug.LogError(e);
                 Debug.LogError("Building asset bundles terminated due to unexpected error.");
+                exitCode = 1;
             }
             finally
             {
                 Debug.Log("End of build.");
+                EditorApplication.Exit(exitCode);
             }
         }
     }

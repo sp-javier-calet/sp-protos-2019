@@ -27,6 +27,7 @@ namespace AssetBundleGraph
 
         public const string ASSETNBUNDLEGRAPH_DATA_PATH = "AssetGraph/SettingFiles";
         public const string ASSETBUNDLEGRAPH_DATA_NAME = "AssetGraph.json";
+        public const string ASSETGRAPH_VALIDATOR_DATA_NAME = "ValidatorLog.json";
         public const string ASSETBUNDLEGRAPH_LOADER_DATA_NAME = "LoaderFolders.json";
 
         public const string ASSETS_PATH = "Assets/";
