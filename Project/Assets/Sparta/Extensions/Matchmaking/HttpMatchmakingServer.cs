@@ -63,7 +63,7 @@ namespace SocialPoint.Matchmaking
             _delegates.Remove(dlg);
         }
 
-        public void LoadInfo(string matchId)
+        public void LoadInfo(string matchId, List<string> playerIds)
         {
             var req = CreateRequest(StringUtils.CombineUri(MatchMakingUri, InfoUri));
             req.AddQueryParam(MatchIdParam, matchId);
