@@ -590,10 +590,11 @@ namespace SocialPoint.Lockstep
             }
             if(_matchmaking != null && _matchmaking.Enabled)
             {
+                var playerIds = PlayerIds;
                 var matchId = MatchId;
-                if(PlayerIds.Count > 0 && !string.IsNullOrEmpty(matchId))
+                if(playerIds.Count > 0 && !string.IsNullOrEmpty(matchId))
                 {
-                    _matchmaking.LoadInfo(matchId);
+                    _matchmaking.LoadInfo(matchId, playerIds);
                     return;
                 }
             }
