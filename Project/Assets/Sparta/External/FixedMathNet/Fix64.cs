@@ -600,7 +600,9 @@ namespace FixMath.NET {
         }
 
 
-
+        public static explicit operator Fix64(int value) {
+            return new Fix64(value * ONE);
+        }
         public static explicit operator Fix64(long value) {
             return new Fix64(value * ONE);
         }
