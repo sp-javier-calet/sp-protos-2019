@@ -11,8 +11,35 @@ namespace SocialPoint.Social
     public sealed class MessagingSystemManager : IDisposable
     {
         readonly ConnectionManager _connection;
-        readonly SocialManager _socialManager;
-        readonly AlliancesManager _alliancesManager;
+
+        SocialManager _socialManager;
+
+        internal SocialManager SocialManager {
+            private get
+            {
+                return _socialManager; 
+            } 
+            set
+            {
+                _socialManager = value;
+                _originFactories.Add(MessageOriginUser.Identifier, new MessageOriginUserFactory(SocialManager.PlayerFactory));
+            }
+        }
+
+        AlliancesManager _alliancesManager;
+
+        internal AlliancesManager AlliancesManager
+        {
+            private get
+            {
+                return _alliancesManager; 
+            } 
+            set
+            {
+                _alliancesManager = value;
+                _originFactories.Add(MessageOriginAlliance.Identifier, new MessageOriginAllianceFactory(AlliancesManager.Factory));
+            }
+        }
 
         readonly List<Message> _listMessages;
         readonly Dictionary<string, IMessageOriginFactory> _originFactories;
@@ -25,14 +52,11 @@ namespace SocialPoint.Social
         public event Action OnHistoricReceived;
         public event OnNewMessage OnNewMessageEvent;
 
-        public MessagingSystemManager(ConnectionManager connectionManager, SocialManager socialManager, AlliancesManager alliances)
+        public MessagingSystemManager(ConnectionManager connectionManager)
         {
             _connection = connectionManager;
             _connection.OnNotificationReceived += OnNotificationReceived;
             _connection.OnProcessServices += OnProcessServices;
-
-            _socialManager = socialManager;
-            _alliancesManager = alliances;
 
             _listMessages = new List<Message>();
             _originFactories = new Dictionary<string, IMessageOriginFactory>();
@@ -49,12 +73,7 @@ namespace SocialPoint.Social
 
         void AddDefaultOriginFactories()
         {
-            _originFactories.Add(MessageOriginUser.Identifier, new MessageOriginUserFactory(_socialManager.PlayerFactory));
             _originFactories.Add(MessageOriginSystem.Identifier, new MessageOriginSystemFactory());
-            if(_alliancesManager != null)
-            {
-                _originFactories.Add(MessageOriginAlliance.Identifier, new MessageOriginAllianceFactory(_alliancesManager.Factory));
-            }
 
             _payloadFactories.Add(MessagePayloadPlainText.Identifier, new MessagePayloadPlainTextFactory());
         }

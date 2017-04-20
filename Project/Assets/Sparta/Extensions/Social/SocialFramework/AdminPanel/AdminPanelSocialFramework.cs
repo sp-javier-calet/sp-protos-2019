@@ -13,12 +13,73 @@ namespace SocialPoint.Social
     public class AdminPanelSocialFramework : IAdminPanelConfigurer, IAdminPanelManagedGUI
     {
         readonly ConnectionManager _connection;
-        readonly ChatManager _chat;
-        readonly AlliancesManager _alliances;
-        readonly PlayersManager _playersManager;
-        readonly MessagingSystemManager _messagesManager;
         readonly SocialManager _socialManager;
         readonly StringBuilder _content;
+        readonly PlayersManager _playersManager;
+
+        ChatManager _chatManager;
+        AlliancesManager _alliancesManager;
+        MessagingSystemManager _messagesManager;
+
+        internal ChatManager ChatManager
+        {
+            get
+            {
+                return _chatManager; 
+            }
+            set
+            {
+                _chatManager = value;
+                if(_chatManager != null)
+                {
+                    _chatPanel = new AdminPanelSocialFrameworkChat(ChatManager, _console);
+                }
+                else
+                {
+                    _chatPanel = null;
+                }
+            }
+        }
+
+        internal AlliancesManager AlliancesManager
+        {
+            get
+            {
+                return _alliancesManager; 
+            }
+            set
+            {
+                _alliancesManager = value;
+                if(_alliancesManager != null)
+                {
+                    _alliancesPanel = new AdminPanelSocialFrameworkAlliances(AlliancesManager, _playersManager, _socialManager, _console);
+                }
+                else
+                {
+                    _alliancesPanel = null;
+                }
+            }
+        }
+
+        internal MessagingSystemManager MessagesManager
+        {
+            get
+            {
+                return _messagesManager; 
+            }
+            set
+            {
+                _messagesManager = value;
+                if(_messagesManager != null)
+                {
+                    _messagesPanel = new AdminPanelSocialFrameworkMessagingSystem(_console, MessagesManager);
+                }
+                else
+                {
+                    _messagesPanel = null;
+                }
+            }
+        }
 
         AdminPanelLayout _layout;
         AdminPanelConsole _console;
@@ -29,14 +90,11 @@ namespace SocialPoint.Social
         AdminPanelSocialFrameworkPlayers _playersPanel;
         AdminPanelSocialFrameworkMessagingSystem _messagesPanel;
 
-        public AdminPanelSocialFramework(ConnectionManager connection, ChatManager chat, AlliancesManager alliances, PlayersManager playersManager, SocialManager socialManager, MessagingSystemManager messagesManager)
+        public AdminPanelSocialFramework(ConnectionManager connection, SocialManager socialManager, PlayersManager playersManager)
         {
             _connection = connection;
-            _chat = chat;
-            _alliances = alliances;
-            _playersManager = playersManager;
             _socialManager = socialManager;
-            _messagesManager = messagesManager;
+            _playersManager = playersManager;
             _content = new StringBuilder();
         }
 
@@ -47,10 +105,7 @@ namespace SocialPoint.Social
 
             // Cache nested panel
             _userPanel = new AdminPanelSocialFrameworkUser(_connection);
-            _chatPanel = new AdminPanelSocialFrameworkChat(_chat, _console);
-            _alliancesPanel = new AdminPanelSocialFrameworkAlliances(_alliances, _playersManager, _socialManager, _console);
             _playersPanel = new AdminPanelSocialFrameworkPlayers(_playersManager, _socialManager, _console);
-            _messagesPanel = new AdminPanelSocialFrameworkMessagingSystem(_console, _messagesManager);
         }
 
         public void OnOpened()
@@ -118,10 +173,10 @@ namespace SocialPoint.Social
             });
             layout.CreateMargin();
 
-            layout.CreateOpenPanelButton("Players", _playersPanel, _playersPanel != null && connected);
-            layout.CreateOpenPanelButton("Chat", _chatPanel, _chat != null && connected);
-            layout.CreateOpenPanelButton("Alliances", _alliancesPanel, _alliances != null && connected);
-            layout.CreateOpenPanelButton("Messages", _messagesPanel, _messagesManager != null && connected);
+            layout.CreateOpenPanelButton("Players", _playersPanel, _playersManager != null && connected);
+            layout.CreateOpenPanelButton("Chat", _chatPanel, ChatManager != null && connected);
+            layout.CreateOpenPanelButton("Alliances", _alliancesPanel, AlliancesManager != null && connected);
+            layout.CreateOpenPanelButton("Messages", _messagesPanel, MessagesManager != null && connected);
         }
 
         void OnConnected()
