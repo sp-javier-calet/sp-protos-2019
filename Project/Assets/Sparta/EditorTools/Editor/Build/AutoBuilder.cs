@@ -247,7 +247,14 @@ namespace SpartaTools.Editor.Build
         public static void Build(BuildTarget target, string buildSetName, bool appendBuild = false, int versionNumber = -1, string versionName = null, string outputPath = null)
         {
             IsRunning = true;
-
+            string detailedOutput = "";
+            Application.LogCallback Callback = (msg, stack, type) => {
+                if(type == LogType.Error || type == LogType.Exception || type == LogType.Assert)
+                {
+                    detailedOutput += (type + " - " + msg + "\n" + stack + "\n\n");
+                }
+            };
+            Application.logMessageReceived += Callback;
             Log(string.Format("Starting Build <{0}> for target <{1}> with config set <{2}>", 
                 versionNumber, target, buildSetName));
 
@@ -283,6 +290,8 @@ namespace SpartaTools.Editor.Build
 
             OverrideBuiltSetOptions(target, location, buildSet, appendBuild);
 
+            Debug.Log(string.Format("Building player with options: '{0}'", _options));
+
             Debug.Log(string.Format("Sparta-Autobuilder: Unity version: {0}", Application.unityVersion));
 
             //Dump config report after apply config
@@ -310,12 +319,15 @@ namespace SpartaTools.Editor.Build
             _options = BuildOptions.None;
             IsRunning = false;
 
+
             if(!string.IsNullOrEmpty(result))
             {
                 Log(string.Format("Player Build finished with error result: '{0}'", result));
                 throw new CompilerErrorException(result);
             }
             Log("Player Build finished successfully");
+            Log(string.Format("Detailed log:\n '{0}' \nEnd of detailed log\n", detailedOutput));
+            Application.logMessageReceived -= Callback;
         }
 
         #endregion
