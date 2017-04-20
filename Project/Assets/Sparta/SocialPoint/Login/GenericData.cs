@@ -284,6 +284,20 @@ namespace SocialPoint.Login
             }
             if(datadic.ContainsKey(AttrKeyActiveMatch))
             {
+                #if ADMIN_PANEL 
+                #if I_AM_LOD
+                if(ServiceLocator.StorageInfo.Has("IgnoreRTMPReconnection"))
+                {
+                    bool ignore = ServiceLocator.StorageInfo.Load("IgnoreRTMPReconnection").AsValue.ToBool();
+
+                    if(ignore)
+                    {
+                        return;
+                    }
+                }
+                #endif
+                #endif
+
                 MatchData = datadic[AttrKeyActiveMatch].AsDic;
             }
         }

@@ -24,7 +24,13 @@ namespace SocialPoint.Base
         public SettingsData Settings = new SettingsData();
 
         public override void InstallBindings()
-        {
+        {		
+            #if ADMIN_PANEL && I_AM_LOD
+            string envName = ServiceLocator.Container.Resolve<BackendEnvironment>().GetEnvironment().Name;
+            Settings.VolatilePrefix = envName;
+            Settings.PersistentPrefix = envName;
+            #endif
+
             Container.Bind<IAttrStorage>(VolatileTag).ToMethod<PlayerPrefsAttrStorage>(CreateVolatileStorage);
             Container.Bind<IAttrStorage>(PersistentTag).ToMethod<TransitionAttrStorage>(CreatePersistentStorage);
 

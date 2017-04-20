@@ -6,6 +6,10 @@ using SocialPoint.Connection;
 using SocialPoint.Login;
 using SocialPoint.WAMP.Caller;
 
+#if I_AM_LOD
+using DS.Common.Events;
+#endif
+
 namespace SocialPoint.Matchmaking
 {
     public class WampMatchmakingClient : IMatchmakingClient, IDisposable
@@ -162,6 +166,9 @@ namespace SocialPoint.Matchmaking
             }
             _startRequest = _wamp.Call(MatchmakingStartMethodName, Attr.InvalidList, kwargs, OnStartResult);
             _waitingReconnectedBattle = true;
+            #if I_AM_LOD
+            ServiceLocator.EventDispatcher.Raise(new MatckmakerStateChangedEvent(1010, "mm_request_ok"));
+            #endif
         }
 
         void OnReconnectResult(Error error, AttrList args, AttrDic kwargs)
@@ -203,6 +210,9 @@ namespace SocialPoint.Matchmaking
                 {
                     _delegates[i].OnWaiting(waitTime);
                 }
+                #if I_AM_LOD
+                ServiceLocator.EventDispatcher.Raise(new MatckmakerStateChangedEvent(1020, "waiting_time_received"));
+                #endif
             }
             else if(attr != null && attr.ContainsKey(ErrorAttrKey))
             {
@@ -230,6 +240,9 @@ namespace SocialPoint.Matchmaking
                 _stopRequest.Dispose();
             }
             _stopRequest = _wamp.Call(MatchmakingStopMethodName, Attr.InvalidList, kwargs, OnStopResult);
+            #if I_AM_LOD
+            ServiceLocator.EventDispatcher.Raise(new MatckmakerStateChangedEvent(1001, "initializing_cancel"));
+            #endif
         }
 
         void OnStopResult(Error error, AttrList args, AttrDic kwargs)
@@ -295,9 +308,15 @@ namespace SocialPoint.Matchmaking
                 {
                     _delegates[i].OnMatched(match);
                 }
+                #if I_AM_LOD
+                ServiceLocator.EventDispatcher.Raise(new MatckmakerStateChangedEvent(1030, "match_response_ok_real"));
+                #endif
             }
             else if(type == TimeoutNotification)
             {
+                #if I_AM_LOD
+                ServiceLocator.EventDispatcher.Raise(new MatckmakerStateChangedEvent(1031, "match_response_ok_ai"));
+                #endif
                 OnError(new Error(MatchmakingClientErrorCode.Timeout, new JsonAttrSerializer().SerializeString(attr)));
             }
         }
