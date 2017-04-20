@@ -7,6 +7,8 @@ namespace SocialPoint.Purchase
     //TODO: Verify behaviour for desired empty store
     public sealed class EmptyGamePurchaseStore : IGamePurchaseStore
     {
+        public string Currency { get; set; }
+
         Product[] _productList = new Product[0];
         bool _productsLoaded = false;
         PurchaseCompletedDelegate _purchaseCompleted;
