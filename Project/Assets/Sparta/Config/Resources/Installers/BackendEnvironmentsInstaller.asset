@@ -31,7 +31,7 @@ MonoBehaviour:
       Url: http://localhost:4630/api/v3
       Type: 3
     - Name: Champions Arena
-      Url: http://int-ca.socialpointgames.com/ca_qa/web/api/v3
+      Url: http://int-ca.socialpointgames.com/ca10/web/api/v3
       Type: 3
   Defaults:
     IosProductionEnvironment: Production
