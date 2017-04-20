@@ -87,7 +87,15 @@ namespace SocialPoint.Login
          * meaning that the app version is not supported and should be updated
          */
         Upgrade,
-        
+
+
+        //I_AM_LOD ... Should rooted device error be ported to sparta??
+        /**
+         * 
+         * Error getting RootedDeviceError http code on login
+         * 
+         * */
+        Rooted,
         /**
          * Not managed http error code on login
          */
