@@ -19,6 +19,12 @@ namespace SocialPoint.ServerEvents
     public sealed class ResourceOperation
     {
         public string ResourceName;
+        #if I_AM_LOD //Really needed? lod using them for materials and runes (game related objects)
+        public string ResourceTrackName;
+        public int ResourceId;
+        public string ResourceRarityName;
+        public int ResourceRarityId;
+        #endif
         public int Amount;
         public string Category;
         public string Subcategory;
