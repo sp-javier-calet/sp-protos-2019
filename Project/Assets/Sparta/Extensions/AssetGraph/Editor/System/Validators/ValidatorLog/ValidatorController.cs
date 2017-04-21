@@ -119,8 +119,14 @@ namespace AssetBundleGraph
 
         static string GetBranch()
         {
-            //TODO Git get current branch
-            return "test_branch";
+            //TODO: when GitCommands Sparta extension is merged from transparent bundles into master, uncomment this. Merge Request 725 (https://gitlab.socialpoint.es/mobile-platform/sp-unity-BaseGame/merge_requests/725)
+            //var infractions = new List<string>();
+            //var repo = new Repository(Application.dataPath);
+            //var query = repo.CreateQuery("rev-parse").WithOption("abbrev-ref HEAD");
+            //var currentBranch = query.Exec().TrimEnd('\n');
+            var currentBranch = "test_branch";
+
+            return currentBranch;
         }
 
     }
