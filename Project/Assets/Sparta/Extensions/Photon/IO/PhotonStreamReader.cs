@@ -11,6 +11,14 @@ namespace SocialPoint.IO
             _stream = stream;
         }
 
+        public override bool Finished
+        {
+            get
+            {
+                return _stream.PeekNext() == null;
+            }
+        }
+
         T ReceiveNext<T>()
         {
             return (T)_stream.ReceiveNext();
