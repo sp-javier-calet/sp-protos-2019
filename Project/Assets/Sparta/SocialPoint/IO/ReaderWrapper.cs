@@ -1,19 +1,13 @@
-﻿using System.IO;
-
+﻿
 namespace SocialPoint.IO
 {
-    public sealed class SystemBinaryReader : IReader
+    public class ReaderWrapper : IReader
     {
-        readonly BinaryReader _reader;
+        IReader _reader;
 
-        public SystemBinaryReader(BinaryReader reader)
+        public ReaderWrapper(IReader reader)
         {
             _reader = reader;
-        }
-
-        public SystemBinaryReader(Stream stream):
-        this(new BinaryReader(stream))
-        {
         }
 
         public bool ReadBoolean()
@@ -76,21 +70,11 @@ namespace SocialPoint.IO
             return _reader.ReadUInt64();
         }
 
-        public bool EOF()
-        {
-            return _reader.PeekChar() == -1;
-        }
-
-        public void Dispose()
-        {
-            _reader.Close();
-        }
-
         public bool Finished
         {
             get
             {
-                return _reader.BaseStream.Position >= _reader.BaseStream.Length;
+                return _reader.Finished;
             }
         }
     }
