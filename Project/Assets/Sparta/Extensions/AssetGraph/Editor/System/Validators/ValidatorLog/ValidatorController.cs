@@ -14,10 +14,11 @@ namespace AssetBundleGraph
 {
     public class ValidatorController
     {
-        const string S3URL = "https://s3.amazonaws.com/sp-tools/";
+        const string _S3URL = "https://s3.amazonaws.com/sp-tools/";
 
         public static ValidatorLog GetLastValidatorLog()
         {
+            ValidatorLog resValidator;
             var localValidator = ValidatorLog.LoadFromDisk();
 
             var files = ListFromS3();
@@ -29,17 +30,19 @@ namespace AssetBundleGraph
 
                 if(localValidator.executedPlatforms.Count == 0 || localValidator.lastExecuted < date)
                 {
-                    return ValidatorLog.LoadFromText(DownloadFromS3(lastFile.Key), lastFile.Key);
+                    resValidator = ValidatorLog.LoadFromText(DownloadFromS3(lastFile.Key), lastFile.Key);
                 }
                 else
                 {
-                    return localValidator;
+                    resValidator = localValidator;
                 }
             }
             else
             {
-                return localValidator;
+                resValidator = localValidator;
             }
+
+            return resValidator;
         }
 
 
@@ -55,24 +58,32 @@ namespace AssetBundleGraph
 
         public static List<S3ListObject> ListFromS3()
         {
-            var connection = new S3Connection("AKIAJVQTABXWU2SVVPBQ", "5+u5ZJS92KRodbJECS96CAHGx/mGbn/tTKbJNEMX");
+            List<S3ListObject> res = new List<S3ListObject>();
+            try
+            {
+                var connection = new S3Connection("AKIAJVQTABXWU2SVVPBQ", "5+u5ZJS92KRodbJECS96CAHGx/mGbn/tTKbJNEMX");
 
-            var bucket = connection.GetBucket("sp-tools");
+                var bucket = connection.GetBucket("sp-tools");
 
-            var files = bucket.ListFiles("AssetGraph/" + GetProjectId() + "/" + GetBranch() + "/");
+                var files = bucket.ListFiles("AssetGraph/" + GetProjectId() + "/" + GetBranch() + "/");
 
-            var nonFolderFiles = files.FindAll(x => !x.IsFolder);
+                res = files.FindAll(x => !x.IsFolder);
 
-            //sort by name descending
-            nonFolderFiles.Sort((x, y) => y.Key.CompareTo(x.Key));
+                //sort by name descending
+                res.Sort((x, y) => y.Key.CompareTo(x.Key));
+            }
+            catch(Exception e)
+            {
+                Debug.LogWarning(e);
+            }
 
-            return nonFolderFiles;
+            return res;
         }
 
 
         public static string DownloadFromS3(string filepathUrl)
         {
-            var url = S3URL + filepathUrl;
+            var url = _S3URL + filepathUrl;
 
             RemoteCertificateValidationCallback SSLDelegate = (x, y, z, w) => true;
 
@@ -94,9 +105,16 @@ namespace AssetBundleGraph
         }
 
 
-        static int GetProjectId()
+        static string GetProjectId()
         {
-            return 37;
+            var projectID = AssetGraphCIConfig.GetConfig().ProjectID;
+
+            if(string.IsNullOrEmpty(projectID))
+            {
+                throw new Exception("Project Id is not initialized. This is required to retrieve S3 Validations. Configure it in " + AssetGraphCIConfig.ConfigDefaultPath);
+            }
+
+            return projectID;
         }
 
         static string GetBranch()

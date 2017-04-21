@@ -16,14 +16,13 @@ namespace AssetBundleGraph
         {
             parentWindow = parent;
         }
-
     }
 
     public class ValidatorLogWindow : EditorWindow
     {
-        Dictionary<Type, WindowView<ValidatorLogWindow>> availableViews = new Dictionary<Type, WindowView<ValidatorLogWindow>>();
+        Dictionary<Type, WindowView<ValidatorLogWindow>> _availableViews = new Dictionary<Type, WindowView<ValidatorLogWindow>>();
 
-        WindowView<ValidatorLogWindow> currentView;
+        WindowView<ValidatorLogWindow> _currentView;
 
         [MenuItem("Window/AssetGraph/Open Validation Log", false, 2)]
         public static void Open()
@@ -33,35 +32,35 @@ namespace AssetBundleGraph
 
         public T GetView<T>() where T : WindowView<ValidatorLogWindow>
         {
-            return (T)availableViews[typeof(T)];
+            return (T)_availableViews[typeof(T)];
         }
 
         public T ChangeView<T>() where T : WindowView<ValidatorLogWindow>
         {
-            currentView = availableViews[typeof(T)];
-            currentView.OnEnableMethod();
+            _currentView = _availableViews[typeof(T)];
+            _currentView.OnEnableMethod();
 
-            return (T)currentView;
+            return (T)_currentView;
         }
 
         void OnEnable()
         {
             minSize = new Vector2(800, 100);
-            availableViews.Add(typeof(ValidatorView), new ValidatorView(this));
-            availableViews.Add(typeof(ValidatorSelectView), new ValidatorSelectView(this));
+            _availableViews.Add(typeof(ValidatorView), new ValidatorView(this));
+            _availableViews.Add(typeof(ValidatorSelectView), new ValidatorSelectView(this));
 
-            currentView = GetView<ValidatorView>();
+            _currentView = GetView<ValidatorView>();
         }
 
         void OnFocus()
         {
-            currentView.OnFocusMethod();
+            _currentView.OnFocusMethod();
         }
 
         private void OnGUI()
         {
             DrawValidatorSelectionBar();
-            currentView.OnGUIMethod();
+            _currentView.OnGUIMethod();
         }
 
         public void DrawValidatorSelectionBar()
@@ -71,10 +70,9 @@ namespace AssetBundleGraph
                 var style = EditorStyles.toolbarButton;
                 style.richText = true;
 
-                var currentLog = GetView<ValidatorView>().currentLogInWindow;
+                var currentLog = GetView<ValidatorView>().CurrentLogInWindow;
 
-                var source = currentLog.isLocal ? "<color=yellow>Local</color> " : "<color=yellow>Remote</color> ";
-
+                var source = currentLog.IsLocal ? "<color=yellow>Local</color> " : "<color=yellow>Remote</color> ";
 
                 var hRect = GUILayoutUtility.GetRect(new GUIContent(), style);
 
@@ -92,9 +90,9 @@ namespace AssetBundleGraph
                     ChangeView<ValidatorView>().LoadValidatorLog(ValidatorController.GetLastValidatorLog());
                 }
 
-                var selectView = GUI.Toggle(rectRight, currentView is ValidatorSelectView, "Select Validation Report", style);
+                var selectView = GUI.Toggle(rectRight, _currentView is ValidatorSelectView, "Select Validation Report", style);
 
-                if(selectView != currentView is ValidatorSelectView)
+                if(selectView != _currentView is ValidatorSelectView)
                 {
                     if(selectView)
                     {

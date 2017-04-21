@@ -1,191 +1,190 @@
 using UnityEngine;
 using UnityEditor;
 using System.IO;
-using AssetBundleGraph;
 using System.Collections.Generic;
-using System.Linq;
-using System;
 
-[InitializeOnLoad]
-public static class FolderPainter
+namespace AssetBundleGraph
 {
-    static Texture2D texture;
-    static Texture2D texture2;
-    static Texture2D textureMini;
-    static Texture2D texture2Mini;
-    static List<int> markedObjects;
-    static bool perfectMatch = false;
-
-    static FolderPainter()
+    [InitializeOnLoad]
+    public static class FolderPainter
     {
-        texture = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_FOLDER_TEX);
-        texture2 = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_INHERITED_FOLDER_TEX);
-        textureMini = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_FOLDER_TEX_MINI);
-        texture2Mini = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_INHERITED_FOLDER_TEX_MINI);
-        EditorApplication.projectWindowItemOnGUI += HierarchyItemCB;
-    }
+        static Texture2D _folder;
+        static Texture2D _inherited_folder;
+        static Texture2D _folder_mini;
+        static Texture2D _inherited_folder_mini;
+        static List<int> markedObjects;
+        static bool _perfectMatch = false;
 
-    static void HierarchyItemCB(string guid, Rect r)
-    {
-        if(IsFolderUserByAssetGraph(AssetDatabase.GUIDToAssetPath(guid), out perfectMatch))
+        static FolderPainter()
         {
-            Texture2D drawTexture = null;
-            Rect drawRect = new Rect(r);
-            if(Mathf.Approximately(r.height, 16f))
-            {
-                drawRect.x += 2;
-                drawTexture = perfectMatch ? textureMini : texture2Mini;
-                drawRect.width = drawRect.height;
-            }
-            else
-            {
-                drawTexture = perfectMatch ? texture : texture2;
-                drawRect.height = r.height * 0.8f;
+            _folder = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_FOLDER_TEX);
+            _inherited_folder = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_INHERITED_FOLDER_TEX);
+            _folder_mini = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_FOLDER_TEX_MINI);
+            _inherited_folder_mini = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_INHERITED_FOLDER_TEX_MINI);
+            EditorApplication.projectWindowItemOnGUI += HierarchyItemCB;
+        }
 
-                var diffheight = drawRect.height - drawTexture.height;
-                var diffwidth = drawRect.width - drawTexture.width;
-
-                if(diffheight > 0)
+        static void HierarchyItemCB(string guid, Rect r)
+        {
+            if(IsFolderUserByAssetGraph(AssetDatabase.GUIDToAssetPath(guid), out _perfectMatch))
+            {
+                Texture2D drawTexture = null;
+                Rect drawRect = new Rect(r);
+                if(Mathf.Approximately(r.height, 16f))
                 {
-                    drawRect.y += diffheight * 0.75f;
-                    drawRect.height = drawTexture.height;
+                    drawRect.x += 2;
+                    drawTexture = _perfectMatch ? _folder_mini : _inherited_folder_mini;
+                    drawRect.width = drawRect.height;
                 }
-                if(diffwidth > 0)
+                else
                 {
-                    drawRect.x += diffwidth / 2;
-                    drawRect.width = drawTexture.width;
+                    drawTexture = _perfectMatch ? _folder : _inherited_folder;
+                    drawRect.height = r.height * 0.8f;
+
+                    var diffheight = drawRect.height - drawTexture.height;
+                    var diffwidth = drawRect.width - drawTexture.width;
+
+                    if(diffheight > 0)
+                    {
+                        drawRect.y += diffheight * 0.75f;
+                        drawRect.height = drawTexture.height;
+                    }
+                    if(diffwidth > 0)
+                    {
+                        drawRect.x += diffwidth / 2;
+                        drawRect.width = drawTexture.width;
+                    }
+                }
+
+                if(drawTexture != null)
+                {
+                    GUI.DrawTexture(drawRect, drawTexture);
                 }
             }
+        }
 
-            if(drawTexture != null)
+        private static bool IsFolderUserByAssetGraph(string path, out bool isPerfectMatch)
+        {
+            bool isUsed = false;
+            isPerfectMatch = false;
+
+            if(Path.GetExtension(path) == string.Empty)
             {
-                GUI.DrawTexture(drawRect, drawTexture);
+                if(!LoaderSaveData.IsLoaderDataAvailableAtDisk())
+                {
+                    return false;
+                }
+                LoaderSaveData loaderSaveData = LoaderSaveData.LoadFromDisk();
+                var loader = loaderSaveData.GetBestLoaderData(path);
+
+                if(loader != null)
+                {
+                    var folderConfigured = loader.paths.CurrentPlatformValue;
+                    if(folderConfigured == string.Empty)
+                    {
+                        folderConfigured = "Global";
+                    }
+                    else
+                    {
+                        folderConfigured = "Assets/" + folderConfigured;
+                    }
+
+                    isPerfectMatch = folderConfigured == path;
+                    isUsed = true;
+                }
+
             }
+            return isUsed;
         }
     }
 
-    private static bool IsFolderUserByAssetGraph(string path, out bool isPerfectMatch)
+    [CustomEditor(typeof(DefaultAsset))]
+    public class FolderInspector : Editor
     {
-        bool isUsed = false;
-        isPerfectMatch = false;
+        private string _path = null;
+        private LoaderSaveData.LoaderData _loader = null;
 
-        if(Path.GetExtension(path) == string.Empty)
+        private bool IsValid
+        {
+            get
+            {
+
+                bool shouldPaintInspector = false;
+                var currentPath = AssetDatabase.GetAssetPath(target);
+                if(Directory.Exists(currentPath))
+                {
+                    if(currentPath != _path)
+                    {
+                        _path = currentPath;
+                        CheckForLoader();
+                    }
+
+                    shouldPaintInspector = !(_path + "/").Contains(AssetBundleGraphSettings.ASSETBUNDLEGRAPH_PATH);
+                }
+                return shouldPaintInspector;
+            }
+        }
+
+        private void CheckForLoader()
         {
             if(!LoaderSaveData.IsLoaderDataAvailableAtDisk())
             {
-                return false;
+                return;
             }
             LoaderSaveData loaderSaveData = LoaderSaveData.LoadFromDisk();
-            var loader = loaderSaveData.GetBestLoaderData(path);
-
-            if(loader != null)
-            {
-                var folderConfigured = loader.paths.CurrentPlatformValue;
-                if(folderConfigured == string.Empty)
-                {
-                    folderConfigured = "Global";
-                }
-                else
-                {
-                    folderConfigured = "Assets/" + folderConfigured;
-                }
-
-                isPerfectMatch = folderConfigured == path;
-                isUsed = true;
-            }
-
+            _loader = loaderSaveData.GetBestLoaderData(_path);
         }
-        return isUsed;
-    }
-}
 
-[CustomEditor(typeof(DefaultAsset))]
-public class FolderInspector : Editor
-{
-
-    private string path = null;
-    private LoaderSaveData.LoaderData loader = null;
-
-    private bool IsValid
-    {
-        get
+        public override void OnInspectorGUI()
         {
-
-            bool shouldPaintInspector = false;
-            var currentPath = AssetDatabase.GetAssetPath(target);
-            if(Directory.Exists(currentPath))
+            base.OnInspectorGUI();
+            if(IsValid)
             {
-                if(currentPath != path)
+                GUI.enabled = true;
+                bool perfectMatch = false;
+
+                if(_loader != null)
                 {
-                    path = currentPath;
-                    CheckForLoader();
+                    var folderConfigured = _loader.paths.CurrentPlatformValue;
+                    if(folderConfigured == string.Empty)
+                    {
+                        folderConfigured = "Global";
+                    }
+                    else
+                    {
+                        folderConfigured = "Assets/" + folderConfigured;
+                    }
+
+                    perfectMatch = folderConfigured == _path;
+
+                    string message = perfectMatch ? "This folder is configured to use the Graph Importer" : "This folder is inheriting a Graph Importer configuration from " + folderConfigured;
+                    string buttonMsg = perfectMatch ? "Open Folder Graph" : "Open Inherited graph from " + folderConfigured;
+
+                    EditorGUILayout.HelpBox(message, MessageType.Info);
+                    EditorGUILayout.Space();
+
+
+                    if(GUILayout.Button(buttonMsg))
+                    {
+                        AssetBundleGraphEditorWindow.SelectAllRelatedTree(new string[] { _loader.id });
+                    }
+
+                    if(GUILayout.Button("Run this Subgraph"))
+                    {
+                        var nodeIDs = new List<string>();
+                        nodeIDs.Add(_loader.id);
+                        AssetBundleGraphEditorWindow.OpenAndRunSelected(new string[] { _loader.id });
+                    }
+
                 }
 
-                shouldPaintInspector = !(path + "/").Contains(AssetBundleGraphSettings.ASSETBUNDLEGRAPH_PATH);
-            }
-            return shouldPaintInspector;
-        }
-    }
-
-    private void CheckForLoader()
-    {
-        if(!LoaderSaveData.IsLoaderDataAvailableAtDisk())
-        {
-            return;
-        }
-        LoaderSaveData loaderSaveData = LoaderSaveData.LoadFromDisk();
-        loader = loaderSaveData.GetBestLoaderData(path);
-    }
-
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        if(IsValid)
-        {
-            GUI.enabled = true;
-            bool perfectMatch = false;
-
-            if(loader != null)
-            {
-                var folderConfigured = loader.paths.CurrentPlatformValue;
-                if(folderConfigured == string.Empty)
+                if(!perfectMatch)
                 {
-                    folderConfigured = "Global";
-                }
-                else
-                {
-                    folderConfigured = "Assets/" + folderConfigured;
-                }
-
-                perfectMatch = folderConfigured == path;
-
-                string message = perfectMatch ? "This folder is configured to use the Graph Importer" : "This folder is inheriting a Graph Importer configuration from " + folderConfigured;
-                string buttonMsg = perfectMatch ? "Open Folder Graph" : "Open Inherited graph from " + folderConfigured;
-
-                EditorGUILayout.HelpBox(message, MessageType.Info);
-                EditorGUILayout.Space();
-
-
-                if(GUILayout.Button(buttonMsg))
-                {
-                    AssetBundleGraphEditorWindow.SelectAllRelatedTree(new string[] { loader.id });
-                }
-
-                if(GUILayout.Button("Run this Subgraph"))
-                {
-                    var nodeIDs = new List<string>();
-                    nodeIDs.Add(loader.id);
-                    AssetBundleGraphEditorWindow.OpenAndRunSelected(new string[] { loader.id });
-                }
-
-            }
-
-            if(!perfectMatch)
-            {
-                if(GUILayout.Button("Setup Graph Loader for this folder"))
-                {
-                    AssetBundleGraphEditorWindow.OpenAndCreateLoader(path);
-                    CheckForLoader();
+                    if(GUILayout.Button("Setup Graph Loader for this folder"))
+                    {
+                        AssetBundleGraphEditorWindow.OpenAndCreateLoader(_path);
+                        CheckForLoader();
+                    }
                 }
             }
         }

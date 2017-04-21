@@ -19,7 +19,7 @@ namespace AssetBundleGraph
         public const string DATE_FORMAT = "MM/dd/yyyy HH:mm:ss";
         public const string VIEW_DATE_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
-        public bool isLocal;
+        public bool IsLocal;
         public Dictionary<string, ValidatorEntryData> entries = new Dictionary<string, ValidatorEntryData>();
         public DateTime lastExecuted;
         public Dictionary<BuildTargetGroup, DateTime> executedPlatforms = new Dictionary<BuildTargetGroup, DateTime>();
@@ -34,7 +34,7 @@ namespace AssetBundleGraph
 
         public ValidatorLog()
         {
-            isLocal = true;
+            IsLocal = true;
         }
 
         public ValidatorLog(Dictionary<string, object> jsonData)
@@ -45,7 +45,7 @@ namespace AssetBundleGraph
 
                 lastExecuted = DateTime.ParseExact(jsonData[DATE] as string, DATE_FORMAT, CultureInfo.InvariantCulture);
                 DateTime.SpecifyKind(lastExecuted, DateTimeKind.Utc);
-                isLocal = true;
+                IsLocal = true;
 
                 foreach(KeyValuePair<string, object> entry in entriesDict)
                 {
@@ -70,7 +70,7 @@ namespace AssetBundleGraph
                 entries = new Dictionary<string, ValidatorEntryData>();
                 executedPlatforms = new Dictionary<BuildTargetGroup, DateTime>();
                 lastExecuted = DateTime.MinValue;
-                isLocal = true;
+                IsLocal = true;
             }
         }
 
@@ -132,7 +132,7 @@ namespace AssetBundleGraph
             var validatorLog = new ValidatorLog(deserialized);
             if(name != string.Empty)
             {
-                validatorLog.isLocal = false;
+                validatorLog.IsLocal = false;
             }
 
             return validatorLog;

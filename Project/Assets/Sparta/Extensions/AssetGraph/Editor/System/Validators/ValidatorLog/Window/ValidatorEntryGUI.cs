@@ -10,12 +10,12 @@ namespace AssetBundleGraph
     {
         public class OutdatedInfo
         {
-            public bool fileChanged = false;
-            public bool graphChanged = false;
+            public bool FileChanged = false;
+            public bool GraphChanged = false;
         }
 
-        public bool fileRemoved = false;
-        public bool validatorRemoved = false;
+        public bool FileRemoved = false;
+        public bool ValidatorRemoved = false;
         public SortedDictionary<BuildTargetGroup, OutdatedInfo> outdatedInfo;
         public BuildTargetGroup currentEditingTarget;
 
@@ -51,7 +51,7 @@ namespace AssetBundleGraph
                 outdatedInfo[target] = new OutdatedInfo();
             }
 
-            this.validatorRemoved = validatorRemovedInGraph;
+            this.ValidatorRemoved = validatorRemovedInGraph;
             _saveDataModified = lastTimeSaveDataModified;
             CheckIsOutdated();
         }
@@ -59,17 +59,17 @@ namespace AssetBundleGraph
 
         public void CheckIsOutdated()
         {
-            if(!validatorRemoved)
+            if(!ValidatorRemoved)
             {
                 foreach(var pair in invalidObject.platformInfo)
                 {
-                    outdatedInfo[pair.Key].graphChanged = DateTime.Compare(_saveDataModified, pair.Value.lastUpdated) > 0;
+                    outdatedInfo[pair.Key].GraphChanged = DateTime.Compare(_saveDataModified, pair.Value.lastUpdated) > 0;
                 }
             }
-            AssetDatabase.Refresh();
+
             var assetPath = AssetDatabase.GUIDToAssetPath(invalidObject.AssetId);
-            fileRemoved = string.IsNullOrEmpty(assetPath);
-            if(!fileRemoved)
+            FileRemoved = string.IsNullOrEmpty(assetPath);
+            if(!FileRemoved)
             {
                 var changedTimeFile = File.GetLastWriteTimeUtc(assetPath);
                 var changedTimeMeta = File.GetLastWriteTimeUtc(assetPath + ".meta");
@@ -77,7 +77,7 @@ namespace AssetBundleGraph
 
                 foreach(var pair in invalidObject.platformInfo)
                 {
-                    outdatedInfo[pair.Key].fileChanged = DateTime.Compare(mostRecentChange, pair.Value.lastUpdated) > 0;
+                    outdatedInfo[pair.Key].FileChanged = DateTime.Compare(mostRecentChange, pair.Value.lastUpdated) > 0;
                 }
             }
         }

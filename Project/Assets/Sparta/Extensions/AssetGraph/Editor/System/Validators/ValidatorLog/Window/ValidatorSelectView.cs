@@ -10,10 +10,10 @@ namespace AssetBundleGraph
 {
     public class ValidatorSelectView : WindowView<ValidatorLogWindow>
     {
-        public List<S3ListObject> s3Items;
-        public Vector2 scrollPos;
-        public ValidatorLog localValidator = null;
-        ValidatorLog validatorInViewWindow;
+        public List<S3ListObject> S3Items;
+        ValidatorLog _localValidator = null;
+        Vector2 _scrollPos;
+        ValidatorLog _validatorInViewWindow;
 
         public ValidatorSelectView(ValidatorLogWindow parent) : base(parent)
         {
@@ -21,13 +21,14 @@ namespace AssetBundleGraph
 
         public override void OnEnableMethod()
         {
-            s3Items = ValidatorController.ListFromS3();
+            S3Items = ValidatorController.ListFromS3();
+
             if(ValidatorLog.IsValidatorLogAvailableAtDisk())
             {
-                localValidator = ValidatorLog.LoadFromDisk();
+                _localValidator = ValidatorLog.LoadFromDisk();
             }
 
-            validatorInViewWindow = parentWindow.GetView<ValidatorView>().currentLogInWindow;
+            _validatorInViewWindow = parentWindow.GetView<ValidatorView>().CurrentLogInWindow;
         }
 
         public override void OnFocusMethod()
@@ -36,41 +37,46 @@ namespace AssetBundleGraph
 
         public override void OnGUIMethod()
         {
-            using(var scroll = new EditorGUILayout.ScrollViewScope(scrollPos))
+            using(var scroll = new EditorGUILayout.ScrollViewScope(_scrollPos))
             {
                 EditorGUILayout.Space();
-                scrollPos = scroll.scrollPosition;
+                _scrollPos = scroll.scrollPosition;
 
                 bool localPainted = false;
 
-                for(int i = 0; i < s3Items.Count; i++)
+                for(int i = 0; i < S3Items.Count; i++)
                 {
-                    var obj = s3Items[i];
+                    var obj = S3Items[i];
                     var date = ValidatorController.GetS3ValidationDate(obj.Key);
 
-                    if(localValidator != null && !localPainted)
+                    if(_localValidator != null && !localPainted)
                     {
-                        if(localValidator.lastExecuted > date)
+                        if(_localValidator.lastExecuted > date)
                         {
-                            DrawRow("Local", localValidator.FormatedDate, validatorInViewWindow.lastExecuted == localValidator.lastExecuted, OnClickLocalValidator);
+                            DrawRow("Local", _localValidator.FormatedDate, _validatorInViewWindow.lastExecuted == _localValidator.lastExecuted, OnClickLocalValidator);
                             localPainted = true;
                         }
                     }
 
                     var dateStr = date.ToLocalTime().ToString(ValidatorLog.VIEW_DATE_FORMAT, CultureInfo.InvariantCulture);
-                    DrawRow("Remote", dateStr, validatorInViewWindow.lastExecuted == date, () => OnClickRemoteValidator(obj.Key));
+                    DrawRow("Remote", dateStr, _validatorInViewWindow.lastExecuted == date, () => OnClickRemoteValidator(obj.Key));
                 }
 
                 if(!localPainted)
                 {
-                    DrawRow("Local", localValidator.FormatedDate, validatorInViewWindow.lastExecuted == localValidator.lastExecuted, OnClickLocalValidator);
+                    DrawRow("Local", _localValidator.FormatedDate, _validatorInViewWindow.lastExecuted == _localValidator.lastExecuted, OnClickLocalValidator);
+                }
+
+                if(S3Items.Count == 0)
+                {
+                    GUILayout.Label("No remote info could be found", EditorStyles.centeredGreyMiniLabel);
                 }
             }
         }
 
         void OnClickLocalValidator()
         {
-            parentWindow.ChangeView<ValidatorView>().LoadValidatorLog(localValidator);
+            parentWindow.ChangeView<ValidatorView>().LoadValidatorLog(_localValidator);
 
         }
 

@@ -8,8 +8,6 @@ namespace AssetBundleGraph
 {
     public class ValidatorView : WindowView<ValidatorLogWindow>
     {
-        List<ValidatorEntryGUI> entries = new List<ValidatorEntryGUI>();
-
         const string _fileModifiedTooltip = "The target asset of this validation has been modified after this validation. Those changes could have affected the result.";
         const string _graphModifiedTooltip = "The Graph was modified after this validation. Those changes could have affected the result.";
         const string _validatorRemovedTooltip = "The Validator node that produced this validation is no longer present in the graph.";
@@ -21,12 +19,11 @@ namespace AssetBundleGraph
         const string _fileModifiedKey = "VAL_LOG_FILE_MOD_TINT";
         const string _fileRemovedKey = "VAL_LOG_FILE_REM_TINT";
 
-        public ValidatorLog currentLogInWindow;
-        HashSet<BuildTargetGroup> targets = new HashSet<BuildTargetGroup>();
+        public ValidatorLog CurrentLogInWindow;
 
-        bool shouldRefresh = false;
-
-        Vector2 scrollPos = Vector2.zero;
+        List<ValidatorEntryGUI> _entries = new List<ValidatorEntryGUI>();
+        bool _shouldRefresh = false;
+        Vector2 _scrollPos = Vector2.zero;
 
         public ValidatorView(ValidatorLogWindow parent) : base(parent)
         {
@@ -39,28 +36,29 @@ namespace AssetBundleGraph
 
         public override void OnFocusMethod()
         {
-            if(currentLogInWindow.isLocal)
+            if(CurrentLogInWindow.IsLocal)
             {
                 Refresh();
             }
             else
             {
-                entries.ForEach(x => x.CheckIsOutdated());
+                _entries.ForEach(x => x.CheckIsOutdated());
             }
         }
 
         public void LoadValidatorLog(ValidatorLog log)
         {
-            currentLogInWindow = log;
+            CurrentLogInWindow = log;
             var saveData = SaveData.LoadFromDisk();
             List<string> objsProcessed = new List<string>();
             Dictionary<string, ValidatorEntryData> entriesToProcess = new Dictionary<string, ValidatorEntryData>(log.entries);
             List<ValidatorEntryGUI> entriesToRemove = new List<ValidatorEntryGUI>();
-            targets.Clear();
 
-            for(int i = 0; i < entries.Count; i++)
+            AssetDatabase.Refresh();
+
+            for(int i = 0; i < _entries.Count; i++)
             {
-                var oldEntry = entries[i];
+                var oldEntry = _entries[i];
                 if(entriesToProcess.ContainsKey(oldEntry.validatorData.Id))
                 {
                     var matchingValidator = entriesToProcess[oldEntry.validatorData.Id];
@@ -76,7 +74,7 @@ namespace AssetBundleGraph
                     }
                     else
                     {
-                        entries.RemoveAt(i);
+                        _entries.RemoveAt(i);
                         i--;
                     }
                 }
@@ -85,7 +83,7 @@ namespace AssetBundleGraph
                     entriesToRemove.Add(oldEntry);
                 }
             }
-            entries.RemoveAll(x => entriesToRemove.Contains(x));
+            _entries.RemoveAll(x => entriesToRemove.Contains(x));
 
             foreach(var remainingEntry in entriesToProcess.Values)
             {
@@ -94,23 +92,18 @@ namespace AssetBundleGraph
                     bool validatorRemoved = saveData.Graph.Nodes.Find(x => x.Id == remainingEntry.ValidatorData.Id) == null;
 
                     var validatorEntry = new ValidatorEntryGUI(remainingEntry.ValidatorData, obj, validatorRemoved, saveData.LastModified);
-                    entries.Add(validatorEntry);
+                    _entries.Add(validatorEntry);
                 }
             }
 
-            foreach(var entry in entries)
-            {
-                targets.UnionWith(entry.invalidObject.platformInfo.Keys);
-            }
-
-            entries.Sort(ValidatorEntryGUI.SortByName);
+            _entries.Sort(ValidatorEntryGUI.SortByName);
         }
 
         void Refresh()
         {
-            currentLogInWindow = ValidatorLog.LoadFromDisk();
-            LoadValidatorLog(currentLogInWindow);
-            shouldRefresh = false;
+            CurrentLogInWindow = ValidatorLog.LoadFromDisk();
+            LoadValidatorLog(CurrentLogInWindow);
+            _shouldRefresh = false;
         }
 
         void RunAllValidators(BuildTarget target)
@@ -118,7 +111,7 @@ namespace AssetBundleGraph
             var saveData = SaveData.LoadFromDisk();
             AssetBundleGraphController.Perform(saveData.Graph, target, true, x => Debug.LogError(x), null, null, true);
             Refresh();
-            entries.ForEach(x => x.SwitchTargetTab(BuildTargetUtility.TargetToGroup(target)));
+            _entries.ForEach(x => x.SwitchTargetTab(BuildTargetUtility.TargetToGroup(target)));
         }
 
         void ValidateSingleAsset(BuildTarget target, string nodeId, string assetPath)
@@ -136,7 +129,7 @@ namespace AssetBundleGraph
         public override void OnGUIMethod()
         {
             DrawToolBar();
-            if(entries.Count == 0)
+            if(_entries.Count == 0)
             {
                 EditorGUILayout.Space();
                 GUILayout.Label("There are no validation errors!", EditorStyles.centeredGreyMiniLabel);
@@ -154,16 +147,15 @@ namespace AssetBundleGraph
             GUIStyle msgStyle = new GUIStyle(style);
             msgStyle.alignment = TextAnchor.MiddleLeft;
 
-            using(var scroll = new EditorGUILayout.ScrollViewScope(scrollPos))
+            using(var scroll = new EditorGUILayout.ScrollViewScope(_scrollPos))
             {
                 EditorGUILayout.Space();
-                scrollPos = scroll.scrollPosition;
-                for(int i = 0; i < entries.Count; i++)
+                _scrollPos = scroll.scrollPosition;
+                for(int i = 0; i < _entries.Count; i++)
                 {
-                    var entry = entries[i];
+                    var entry = _entries[i];
                     using(var vScope = new EditorGUILayout.VerticalScope(box))
                     {
-                        //EditorGUILayout.LabelField(entry.currentEditingTarget.ToString(), EditorStyles.toolbarButton);
                         GUI.color = Color.white;
 
                         using(var hScope = new EditorGUILayout.HorizontalScope())
@@ -172,28 +164,28 @@ namespace AssetBundleGraph
 
                             var platformButtonsRect = GUILayoutUtility.GetLastRect();
 
-                            var c1Content = entry.validatorData.Name /*+ " - " + entry.validatorData.ScriptClassName*/;
+                            var c1Content = entry.validatorData.Name;
                             var c2Content = entry.invalidObject.AssetName;
                             var c3Content = entry.invalidObject.platformInfo[entry.currentEditingTarget].Message;
                             var bContent = new GUIContent("Re-Validate", NodeGUIUtility.GetPlatformButtonFor(entry.currentEditingTarget).ui.image);
                             bContent.tooltip = entry.currentEditingTarget.ToString();
-                            if(!currentLogInWindow.isLocal)
+                            if(!CurrentLogInWindow.IsLocal)
                             {
                                 bContent.tooltip = _remoteInformationTooltip;
                             }
-                            else if(entry.validatorRemoved)
+                            else if(entry.ValidatorRemoved)
                             {
                                 bContent.tooltip = _validatorRemovedTooltip;
                             }
-                            else if(entry.fileRemoved)
+                            else if(entry.FileRemoved)
                             {
                                 bContent.tooltip = _fileRemovedTooltip;
                             }
-                            else if(entry.GetCurrentOutdatedInfo().graphChanged)
+                            else if(entry.GetCurrentOutdatedInfo().GraphChanged)
                             {
                                 bContent.tooltip = _graphModifiedTooltip;
                             }
-                            else if(entry.GetCurrentOutdatedInfo().fileChanged)
+                            else if(entry.GetCurrentOutdatedInfo().FileChanged)
                             {
                                 bContent.tooltip = _fileModifiedTooltip;
                             }
@@ -237,25 +229,24 @@ namespace AssetBundleGraph
 
 
                             System.Action btnAction = () => ValidateSingleAsset(BuildTargetUtility.GroupToTarget(entry.currentEditingTarget), entry.validatorData.Id, entry.invalidObject.AssetId);
-                            GUI.enabled = currentLogInWindow.isLocal && !entry.GetCurrentOutdatedInfo().graphChanged;
+                            GUI.enabled = CurrentLogInWindow.IsLocal && !entry.GetCurrentOutdatedInfo().GraphChanged;
 
-                            if(entry.validatorRemoved || entry.fileRemoved)
+                            if(entry.ValidatorRemoved || entry.FileRemoved)
                             {
                                 GUI.color = Color.red;
                                 bContent.text = "Remove";
                                 btnAction = () =>
                                 {
-                                    currentLogInWindow.RemoveSingleEntry(entry.validatorData.Id, entry.invalidObject.AssetId, entry.currentEditingTarget);
-                                    if(currentLogInWindow.isLocal)
+                                    CurrentLogInWindow.RemoveSingleEntry(entry.validatorData.Id, entry.invalidObject.AssetId, entry.currentEditingTarget);
+                                    if(CurrentLogInWindow.IsLocal)
                                     {
-                                        currentLogInWindow.Save();
+                                        CurrentLogInWindow.Save();
                                     }
-                                    //entries.Remove(entry);
                                     i--;
                                 };
                                 GUI.enabled = true;
                             }
-                            else if(entry.GetCurrentOutdatedInfo().graphChanged || entry.GetCurrentOutdatedInfo().fileChanged)
+                            else if(entry.GetCurrentOutdatedInfo().GraphChanged || entry.GetCurrentOutdatedInfo().FileChanged)
                             {
                                 GUI.color = Color.yellow;
                             }
@@ -271,7 +262,7 @@ namespace AssetBundleGraph
                 }
             }
 
-            if(shouldRefresh)
+            if(_shouldRefresh)
             {
                 Refresh();
             }
@@ -280,25 +271,29 @@ namespace AssetBundleGraph
 
         void DrawToolBar()
         {
+            if(CurrentLogInWindow.executedPlatforms.Count == 0)
+            {
+                return;
+            }
+
             var styles = new GUIStyle(EditorStyles.toolbar);
-            //styles.fixedHeight *= 2;
+
             using(new EditorGUILayout.HorizontalScope(styles))
             {
                 int idx = 0;
-                foreach(var targetGroup in currentLogInWindow.executedPlatforms.Keys)
+                foreach(var targetGroup in CurrentLogInWindow.executedPlatforms.Keys)
                 {
                     var target = BuildTargetUtility.GroupToTarget(targetGroup);
                     GUIStyle style = new GUIStyle(EditorStyles.toolbarButton);
-                    //style.fixedHeight *= 2;
 
                     var rect = GUILayoutUtility.GetRect(new GUIContent(""), style);
 
                     var btn = NodeGUIUtility.GetPlatformButtonFor(targetGroup);
                     var content = new GUIContent("Full Validation", btn.ui.image, "Run Graph in validation mode for this Platform");
 
-                    if(currentLogInWindow.executedPlatforms.ContainsKey(targetGroup))
+                    if(CurrentLogInWindow.executedPlatforms.ContainsKey(targetGroup))
                     {
-                        if(!entries.Any(x => x.invalidObject.platformInfo.ContainsKey(targetGroup)))
+                        if(!_entries.Any(x => x.invalidObject.platformInfo.ContainsKey(targetGroup)))
                         {
                             GUI.color = Color.green;
                         }
@@ -333,7 +328,7 @@ namespace AssetBundleGraph
                 BuildTargetGroup newGroup = g;
                 List<BuildTargetGroup> alreadyPaintedGroups = new List<BuildTargetGroup>();
 
-                foreach(var target in currentLogInWindow.executedPlatforms.Keys)
+                foreach(var target in CurrentLogInWindow.executedPlatforms.Keys)
                 {
                     var buildTargetGroup = target;
                     if(alreadyPaintedGroups.Contains(buildTargetGroup))
@@ -359,25 +354,25 @@ namespace AssetBundleGraph
                         GUI.color = Color.green;
                         GUI.enabled = false;
                     }
-                    else if(entry.validatorRemoved)
+                    else if(entry.ValidatorRemoved)
                     {
                         content.tooltip = _validatorRemovedTooltip;
-                        GUI.color = Color.red * 40;
+                        GUI.color = new Color(1, 0.3f, 0.2f);
                     }
-                    else if(entry.fileRemoved)
+                    else if(entry.FileRemoved)
                     {
                         content.tooltip = _fileRemovedTooltip;
-                        GUI.color = Color.red * 40;
+                        GUI.color = new Color(1, 0.3f, 0.2f);
                     }
-                    else if(entry.outdatedInfo[target].graphChanged)
+                    else if(entry.outdatedInfo[target].GraphChanged)
                     {
                         content.tooltip = _graphModifiedTooltip;
-                        GUI.color = Color.yellow * 10;
+                        GUI.color = new Color(1f, 0.92f, 0.02f);
                     }
-                    else if(entry.outdatedInfo[target].fileChanged)
+                    else if(entry.outdatedInfo[target].FileChanged)
                     {
                         content.tooltip = _fileModifiedTooltip;
-                        GUI.color = Color.yellow * 10;
+                        GUI.color = new Color(1f, 0.92f, 0.02f);
                     }
 
                     onOffAfter = GUI.Toggle(rect, onOffBefore, content, toolbarbutton);
@@ -407,10 +402,5 @@ namespace AssetBundleGraph
 
             return editGroupChanged;
         }
-
-
-
     }
-
-
 }
