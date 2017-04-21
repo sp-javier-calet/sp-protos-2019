@@ -15,5 +15,4 @@ MonoBehaviour:
   Settings:
     EnableAlliances: 1
     EnableChat: 1
-    EnablePlayers: 1
     EnableMessageSystem: 1
