@@ -57,6 +57,43 @@ namespace SocialPoint.Network
         public CloudRegionCode ForceRegion = CloudRegionCode.none;
         public string ForceAppId;
         public string ForceServer;
+
+        public PhotonNetworkConfig()
+        {
+        }
+
+        public PhotonNetworkConfig(PhotonNetworkConfig c)
+        {
+            CreateRoom = c.CreateRoom;
+
+            CustomPhotonConfig cfc = new CustomPhotonConfig();
+            cfc.Enabled = c.CustomPhotonConfig.Enabled;
+            cfc.MaximumTransferUnit = c.CustomPhotonConfig.MaximumTransferUnit;
+            cfc.QuickResendAttempts = c.CustomPhotonConfig.QuickResendAttempts;
+            cfc.SentCountAllowance = c.CustomPhotonConfig.SentCountAllowance;
+            cfc.UpdateInterval = c.CustomPhotonConfig.UpdateInterval;
+            cfc.UpdateIntervalOnSerialize = c.CustomPhotonConfig.UpdateIntervalOnSerialize;
+            CustomPhotonConfig = cfc;
+
+            ForceAppId = c.ForceAppId;
+            ForceRegion = c.ForceRegion;
+            ForceServer = c.ForceServer;
+            GameVersion = c.GameVersion;
+            RoomName = c.RoomName;
+
+            PhotonNetworkRoomConfig rfg = new PhotonNetworkRoomConfig();
+            rfg.CleanupCache = c.RoomOptions.CleanupCache;
+            rfg.CustomLobbyProperties = (string[])c.RoomOptions.CustomLobbyProperties.Clone();
+            rfg.CustomProperties = (string[])c.RoomOptions.CustomProperties.Clone();
+            rfg.EmptyRoomTtl = c.RoomOptions.EmptyRoomTtl;
+            rfg.IsOpen = c.RoomOptions.IsOpen;
+            rfg.IsVisible = c.RoomOptions.IsVisible;
+            rfg.MaxPlayers = c.RoomOptions.MaxPlayers;
+            rfg.PlayerTtl = c.RoomOptions.PlayerTtl;
+            rfg.Plugins = (string[])c.RoomOptions.Plugins.Clone();
+            rfg.PublishUserId = c.RoomOptions.PublishUserId;
+            RoomOptions = rfg;
+        }
     }
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
