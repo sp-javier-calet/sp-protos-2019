@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using SharpNav;
 using SharpNav.Geometry;
@@ -8,11 +9,18 @@ namespace SocialPoint.Pathfinding
 {
     public class PathfindingUnityDebugger : IPathfindingDebugger
     {
+        public Func<NavPoly, bool> NavPolyConditionalDraw;
+
         Color _color = Color.red;
 
         public void SetColor(float r, float g, float b, float a)
         {
             _color = new Color(r, g, b, a);
+        }
+
+        public void DrawNavMesh(TiledNavMesh navMesh)
+        {
+            navMesh.IteratePolys(DrawNavPoly);
         }
 
         public void DrawNavPoly(TiledNavMesh navMesh, NavPolyId navPolyRef)
@@ -27,6 +35,11 @@ namespace SocialPoint.Pathfinding
 
         public void DrawNavPoly(NavTile tile, NavPoly navPoly)
         {
+            if(NavPolyConditionalDraw != null && !NavPolyConditionalDraw(navPoly))
+            {
+                return;
+            }
+
             var verts = navPoly.Verts;
             for(int i = 0; i < navPoly.VertCount; i++)
             {
@@ -36,21 +49,6 @@ namespace SocialPoint.Pathfinding
                 var v2 = tile.Verts[index2].ToUnity();
 
                 Debug.DrawLine(v1, v2, _color);
-            }
-        }
-
-        public void DrawNavMesh(TiledNavMesh navMesh)
-        {
-            //IMPORTANT: Use TileCount, PolyCount, VertCount instead of the arrays.Lenth, arrays can have additional "blank" positions
-            for(int t = 0; t < navMesh.TileCount; t++)
-            {
-                var tile = navMesh.Tiles[t];
-                var polys = tile.Polys;
-                for(int p = 0; p < tile.PolyCount; p++)
-                {
-                    var poly = polys[p];
-                    DrawNavPoly(tile, poly);
-                }
             }
         }
 

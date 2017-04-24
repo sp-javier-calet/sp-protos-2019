@@ -23,6 +23,8 @@ namespace SharpNav.Crowds
 {
     public class PathCorridor
     {
+        //[SP-Change] Added support for NavQueryFilter as parameter for some functions
+
         #region Fields
 
         private Vector3 pos;
@@ -102,7 +104,7 @@ namespace SharpNav.Crowds
         /// <param name="npos">Current position</param>
         /// <param name="navquery">The NavMeshQuery</param>
         /// <returns>True if position changed, false if not</returns>
-        public bool MovePosition(Vector3 npos, NavMeshQuery navquery)
+        public bool MovePosition(Vector3 npos, NavMeshQuery navquery, NavQueryFilter filter)
         {
             const int MaxVisited = 16;
 			
@@ -112,7 +114,7 @@ namespace SharpNav.Crowds
 
 
             //move along navmesh and update new position
-            bool status = navquery.MoveAlongSurface(ref startPoint, ref npos, out result, visited);
+            bool status = navquery.MoveAlongSurface(ref startPoint, ref npos, filter, out result, visited);
 
             if(status == true)
             {
@@ -193,7 +195,7 @@ namespace SharpNav.Crowds
         /// <param name="next">The next postion</param>
         /// <param name="pathOptimizationRange">The range</param>
         /// <param name="navquery">The NavMeshQuery</param>
-        public void OptimizePathVisibility(Vector3 next, float pathOptimizationRange, NavMeshQuery navquery)
+        public void OptimizePathVisibility(Vector3 next, float pathOptimizationRange, NavMeshQuery navquery, NavQueryFilter filter)
         {
             //clamp the ray to max distance
             Vector3 goal = next;
@@ -213,7 +215,7 @@ namespace SharpNav.Crowds
             Path raycastPath = new Path();
             RaycastHit hit;
 
-            navquery.Raycast(ref startPoint, ref goal, RaycastOptions.None, out hit, raycastPath);
+            navquery.Raycast(ref startPoint, ref goal, filter, RaycastOptions.None, out hit, raycastPath);
             if(raycastPath.Count > 1 && hit.T > 0.99f)
             {
                 MergeCorridorStartShortcut(raycastPath, raycastPath);
@@ -401,12 +403,12 @@ namespace SharpNav.Crowds
         /// <param name="maxLookAhead">The amount of polygons to examine</param>
         /// <param name="navquery">The NavMeshQuery</param>
         /// <returns>True if all valid, false if otherwise</returns>
-        public bool IsValid(int maxLookAhead, NavMeshQuery navquery)
+        public bool IsValid(int maxLookAhead, NavMeshQuery navquery, NavQueryFilter filter)
         {
             int n = Math.Min(path.Count, maxLookAhead);
             for(int i = 0; i < n; i++)
             {
-                if(!navquery.IsValidPolyRef(path[i]))
+                if(!navquery.IsValidPolyRef(path[i], filter))
                     return false;
             }
 
