@@ -64,6 +64,16 @@ namespace SocialPoint.Utils
         {
             scheduler.Add(elm, false, -1);
         }
+
+        public static void Add(this IUpdateScheduler scheduler, IUpdateable elm, float interval)
+        {
+            scheduler.Add(elm, false, interval);
+        }
+
+        public static void Add(this IUpdateScheduler scheduler, IDeltaUpdateable elm)
+        {
+            scheduler.Add(elm, false, -1.0f);
+        }
     }
 
     public sealed class ScheduledAction : IUpdateable, IDisposable

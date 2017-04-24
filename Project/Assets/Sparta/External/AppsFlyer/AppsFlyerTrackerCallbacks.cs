@@ -14,7 +14,8 @@ public class AppsFlyerTrackerCallbacks : MonoBehaviour {
 	
 	public void didReceiveConversionData(string conversionData) {
 		print ("AppsFlyerTrackerCallbacks:: got conversion data = " + conversionData);
-        if(OnConversionDataReceived != null)
+        var handler = OnConversionDataReceived;
+        if(handler != null)
         {
             OnConversionDataReceived(conversionData);
         }
