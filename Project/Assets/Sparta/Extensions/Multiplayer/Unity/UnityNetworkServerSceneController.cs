@@ -4,7 +4,7 @@ using SocialPoint.Network;
 
 namespace SocialPoint.Multiplayer
 {
-    public class UnityNetworkServerSceneController : NetworkServerSceneController, IUpdateable
+    public class UnityNetworkServerSceneController : NetworkServerSceneController
     {
         IUpdateScheduler _scheduler;
 
