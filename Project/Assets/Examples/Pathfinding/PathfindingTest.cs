@@ -37,14 +37,14 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
     // Use this for initialization
     void Start()
     {
-        Mesh map = PathfindingUnityUtils.CombineSubMeshes(gameObject);
+        Mesh map = PathfindingUnityUtils.CombineSubMeshesToUnity(gameObject);
         SetMeshCollider(gameObject, map);
 
         //Create NavMesh
         var settings = NavMeshGenerationSettings.Default;//Use the default generation settings
         settings.AgentHeight = 1.7f;
         settings.AgentRadius = 0.5f;
-        var generatedNavMesh = PathfindingUnityUtils.CreateNavMesh(map, settings);
+        var generatedNavMesh = PathfindingUnityUtils.CreateNavMesh(gameObject, settings);
 
         if(!UseSerialization)
         {
@@ -56,7 +56,7 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
             _navMesh = LoadNavMesh(data);
         }
 
-        _pathfinder = new Pathfinder(_navMesh);
+        _pathfinder = new Pathfinder(_navMesh, SharpNav.Geometry.Vector3.One);
         _debugger = new PathfindingUnityDebugger();
     }
 
@@ -97,7 +97,7 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
                 var endPoint = hit.point.ToPathfinding();
                 var extents = SharpNav.Geometry.Vector3.One;
 
-                _pathfinder.TryGetPath(_startPoint, endPoint, extents, out _straightPath);
+                _pathfinder.TryGetPath(_startPoint, endPoint, _straightPath);
 
                 UpdateVisualPath();
             }
