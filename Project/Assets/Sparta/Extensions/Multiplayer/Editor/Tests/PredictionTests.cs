@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System.Collections.Generic;
 using System.IO;
 using SocialPoint.IO;
 using SocialPoint.Network;
@@ -30,11 +31,11 @@ namespace SocialPoint.Multiplayer
             _clientCtrl1 = new NetworkClientSceneController(_client1);
             _clientCtrl2 = new NetworkClientSceneController(_client2);
 
-            _serverCtrl.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
+            _serverCtrl.RegisterAction<TestInstatiateAction>(InstatiateActionType);
             _serverCtrl.RegisterAction<TestMovementAction>(MovementActionType);
-            _clientCtrl1.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
+            _clientCtrl1.RegisterAction<TestInstatiateAction>(InstatiateActionType);
             _clientCtrl1.RegisterAction<TestMovementAction>(MovementActionType);
-            _clientCtrl2.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
+            _clientCtrl2.RegisterAction<TestInstatiateAction>(InstatiateActionType);
             _clientCtrl2.RegisterAction<TestMovementAction>(MovementActionType);
 
             _server.Start();
@@ -189,7 +190,8 @@ namespace SocialPoint.Multiplayer
             {
                 Transform newObjTransform = Transform.Identity;
                 newObjTransform.Position = action.Position;
-                var go = new NetworkGameObject(scene.FreeObjectId, newObjTransform);
+                var go = new NetworkGameObject();
+                go.Init(scene.FreeObjectId, false, newObjTransform);
                 scene.AddObject(go);
             }
         }
@@ -210,7 +212,8 @@ namespace SocialPoint.Multiplayer
 
             public void Apply(NetworkScene scene)
             {
-                var itr = scene.GetObjectEnumerator();
+                var list = new List<NetworkGameObject>();
+                var itr = scene.GetObjectEnumerator(list);
                 while(itr.MoveNext())
                 {
                     var go = itr.Current;

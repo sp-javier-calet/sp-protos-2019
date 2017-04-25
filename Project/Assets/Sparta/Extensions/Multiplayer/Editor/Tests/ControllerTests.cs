@@ -35,7 +35,7 @@ namespace SocialPoint.Multiplayer
         [Test]
         public void SceneSync()
         {
-            var go = _serverCtrl.Instantiate("test");
+            var go = _serverCtrl.Instantiate(_serverCtrl.Scene.FreeObjectId);
             _serverCtrl.Update(0.001f);
             Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
             Assert.That(_client2Ctrl.Equals(_serverCtrl.Scene));
