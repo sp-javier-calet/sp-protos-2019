@@ -287,7 +287,7 @@ namespace SpartaTools.Editor.Build
 
             OverrideBuiltSetOptions(target, location, buildSet, appendBuild);
 
-            Debug.Log(string.Format("Sparta-Autobuilder: Unity version: {0}", Application.unityVersion));
+            Log(string.Format("Sparta-Autobuilder: Unity version: {0}", Application.unityVersion));
 
             //Dump config report after apply config
             new BuildReport()
@@ -295,7 +295,7 @@ namespace SpartaTools.Editor.Build
                 .AddBuildSetInfo(buildSet)
                 .CollectPlayerSettings()
                 .Dump();
-
+                
             Log("Starting Player Build");
 
             #if UNITY_5_5_OR_NEWER
@@ -321,11 +321,11 @@ namespace SpartaTools.Editor.Build
                 throw new CompilerErrorException(result);
             }
             Log("Player Build finished successfully");
-            Log(string.Format("Detailed log:\n '{0}' \nEnd of detailed log\n", detailedOutput));
+            Log(string.Format("Detailed log:\n '{0}' \nEnd of detailed log\n", _detailedOutput));
             Application.logMessageReceived -= LogMessageReceivedCallback;
         }
 
-        static void LogMessageReceivedCallback (string msg, string stack, LogType type)
+        static void LogMessageReceivedCallback(string msg, string stack, LogType type)
         {
             if(type == LogType.Error || type == LogType.Exception || type == LogType.Assert)
             {
