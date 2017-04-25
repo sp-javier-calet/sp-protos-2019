@@ -22,6 +22,7 @@ MonoBehaviour:
     Flags: +SPARTA_PROFILER_ENABLED
     RebuildNativePlugins: 0
     IsDevelopmentBuild: 1
+    AppendBuild: 0
     IncludeDebugScenes: 1
     LogLevel: 3
     EnableAdminPanel: 1

@@ -196,5 +196,14 @@ namespace SocialPoint.Network
         {
             return (int)TimeUtils.TimestampMilliseconds;
         }
+
+        public bool LatencySupported
+        {
+            get
+            {
+                return false;
+            }
+        }
+
     }
 }

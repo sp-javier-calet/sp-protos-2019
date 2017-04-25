@@ -94,7 +94,7 @@ namespace SocialPoint.Attributes
                 return ParseValue(reader);
             }
         }
-        
+
         static readonly string kNullString = "null";
         static readonly string kQuoteString = "\"";
         static readonly string kEscapeString = "\\";
@@ -114,12 +114,12 @@ namespace SocialPoint.Attributes
                 var i = 0;
                 while(true && i < data.Length)
                 {
-                    i = data.IndexOf(kQuoteString, i+1);
+                    i = data.IndexOf(kQuoteString, i + 1);
                     if(i == -1)
                     {
                         break;
                     }
-                    if(data.Substring(i-kEscapeString.Length, kEscapeString.Length) != kEscapeString)
+                    if(data.Substring(i - kEscapeString.Length, kEscapeString.Length) != kEscapeString)
                     {
                         throw new SerializationException("Invalid string value.");
                     }
@@ -166,7 +166,7 @@ namespace SocialPoint.Attributes
             {
                 return new AttrDouble(doubleval);
             }
-            if(data.ToLower() == kNullString || data.Length == 0)
+            if(string.Equals(data, kNullString, StringComparison.CurrentCultureIgnoreCase) || data.Length == 0)
             {
                 return new AttrEmpty();
             }

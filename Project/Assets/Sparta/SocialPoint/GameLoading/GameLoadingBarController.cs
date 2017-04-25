@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System;
-using SocialPoint.Locale;
 
 namespace SocialPoint.GameLoading
 {
@@ -17,11 +15,7 @@ namespace SocialPoint.GameLoading
         {
             get
             {
-                if(_log != null)
-                {
-                    return _log.text;
-                }
-                return null;
+                return _log != null ? _log.text : null;
             }
 
             set
@@ -37,11 +31,7 @@ namespace SocialPoint.GameLoading
         {
             get
             {
-                if(_slider != null)
-                {
-                    return _slider.normalizedValue;
-                }
-                return 0.0f;
+                return _slider != null ? _slider.normalizedValue : 0.0f;
             }
 
             set
@@ -51,6 +41,6 @@ namespace SocialPoint.GameLoading
                     _slider.normalizedValue = value;
                 }
             }
-        }            
+        }
     }
 }

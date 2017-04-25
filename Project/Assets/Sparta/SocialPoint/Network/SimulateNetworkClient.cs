@@ -68,6 +68,22 @@ namespace SocialPoint.Network
             return _client.GetDelay(networkTimestamp);
         }
 
+        public bool LatencySupported
+        {
+            get
+            {
+                return _client.LatencySupported;
+            }
+        }
+
+        public int Latency
+        {
+            get
+            {
+                return _client.Latency;
+            }
+        }
+
         #region INetworkClientDelegate implementation
 
         void INetworkClientDelegate.OnClientConnected()

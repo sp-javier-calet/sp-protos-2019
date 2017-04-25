@@ -28,8 +28,6 @@ namespace SocialPoint.ServerEvents
         const string EventNameResourceEarning = "economy.{0}_earning";
         const string EventNameResourceSpending = "economy.{0}_spending";
 
-        const string HttpParamSessionId = "session_id";
-
         const int SessionLostErrorStatusCode = 482;
         const int StartEventNum = 1;
         static readonly string[] DefaultUnauthorizedEvents = {

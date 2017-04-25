@@ -47,8 +47,12 @@ namespace SpartaTools.Editor.View
 
         ProjectEditorWindow()
         {
+            Sparta.OnChanged += OnSpartaChanged;
+        }
+
+        void OnEnable()
+        {
             _inputPath = Sparta.Target.ProjectPath;
-            Sparta.OnChanged += OnSpartaChanged;   
         }
 
         ~ProjectEditorWindow()

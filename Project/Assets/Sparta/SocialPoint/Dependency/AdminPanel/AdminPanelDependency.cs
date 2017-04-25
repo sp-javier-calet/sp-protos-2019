@@ -109,25 +109,21 @@ namespace SocialPoint.Dependency
             return included;
         }
 
-        ButtonColor GetColor(Node node)
+        static ButtonColor GetColor(Node node)
         {
             if(node.IsRoot)
             {
                 return ButtonColor.Green;
             }
-            else if(node.HasNullValue)
+            if(node.HasNullValue)
             {
                 return ButtonColor.Red;
             }
-            else if(node.Instantiated)
+            if(node.Instantiated)
             {
                 return ButtonColor.Blue;
             }
-            else if(node.IsInterface)
-            {
-                return ButtonColor.Yellow;
-            }
-            return ButtonColor.Gray;
+            return node.IsInterface ? ButtonColor.Yellow : ButtonColor.Gray;
         }
 
 

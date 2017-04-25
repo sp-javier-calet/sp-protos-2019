@@ -17,7 +17,7 @@ namespace SpartaTools.Editor.View
         const string TargetProjectKey = "SpartaSyncTargetProject";
 
 
-        static string _targetPath = EditorPrefs.GetString(TargetProjectKey);
+        static string _targetPath;
 
         static Project _current;
 
@@ -41,6 +41,7 @@ namespace SpartaTools.Editor.View
             {
                 if(_target == null)
                 {
+                    _targetPath = EditorPrefs.GetString(TargetProjectKey);
                     _target = new Project(_targetPath);
                 }
                 return _target;
@@ -76,14 +77,7 @@ namespace SpartaTools.Editor.View
             set
             {
                 _selectedModuleSync = value;
-                if(_selectedModuleSync != null)
-                {
-                    SelectedModule = _selectedModuleSync.ReferenceModule;
-                }
-                else
-                {
-                    SelectedModule = null;
-                }
+                SelectedModule = _selectedModuleSync != null ? _selectedModuleSync.ReferenceModule : null;
             }
         }
 
@@ -112,12 +106,16 @@ namespace SpartaTools.Editor.View
         /*
          * Sparta repository info
          */
-        static RepositoryInfo _repoInfo = Current.GetRepositoryInfo();
+        static RepositoryInfo _repoInfo;
 
         public static RepositoryInfo RepoInfo
         {
             get
             {
+                if(_repoInfo == null)
+                {
+                    _repoInfo = Current.GetRepositoryInfo();
+                }
                 return _repoInfo;
             }
         }

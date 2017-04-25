@@ -1,9 +1,10 @@
 ﻿using System;
-using UnityEngine;
+using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
+using UnityEngine;
 
 public class GUIInstaller : Installer, IDisposable
 {
@@ -29,15 +30,18 @@ public class GUIInstaller : Installer, IDisposable
         Container.Bind<float>("popup_fade_speed").ToInstance(Settings.PopupFadeSpeed);
 
         _root = CreateRoot();
+        var AppEvents = Container.Resolve<IAppEvents>();
         var popups = _root.GetComponentInChildren<PopupsController>();
         if(popups != null)
         {
+            popups.AppEvents = AppEvents;
             Container.Rebind<PopupsController>().ToInstance(popups);
             Container.Rebind<UIStackController>().ToLookup<PopupsController>();
         }
         var screens = _root.GetComponentInChildren<ScreensController>();
         if(screens != null)
         {
+            screens.AppEvents = AppEvents;
             Container.Rebind<ScreensController>().ToInstance(screens);
         }
         var layers = _root.GetComponentInChildren<UILayersController>();
