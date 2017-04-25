@@ -1,4 +1,21 @@
 #Configuration for Gitlab CI
 
-#variables:
-#  UNITY_PROJ_REL_PATH: "/Project"
+variables:
+  UNITY_PROJ_REL_PATH: "/Project"
+
+Unity_Tests:
+ stage: test
+ script: 
+   - 'python C:\sp-tools-Python-CI-Scripts\UnityGenericCall\UnitySimpleCall.py -runEditorTests -editorTestsResultFile %CI_PROJECT_DIR%/UnityLog/TestsResults.txt -logfile %CI_PROJECT_DIR%/UnityLog/editorLog_Simple.txt' 
+ except:
+   - master
+ only:
+   - triggers
+ cache:
+   key: android
+   paths:
+   - Library/
+ artifacts:
+   when: always
+   paths:
+     - '%CI_PROJECT_DIR%/UnityLog/'
