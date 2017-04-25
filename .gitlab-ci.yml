@@ -1,4 +1,4 @@
 #Configuration for Gitlab CI
 
-variables:
-  UNITY_PROJ_REL_PATH: "/Project"
+#variables:
+#  UNITY_PROJ_REL_PATH: "/Project"
