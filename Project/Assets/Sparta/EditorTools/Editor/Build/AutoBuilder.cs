@@ -1,14 +1,16 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System;
-using System.IO;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using UnityEditor;
+using UnityEngine;
 
 namespace SpartaTools.Editor.Build
 {
     public static class AutoBuilder
     {
         static BuildOptions _options = BuildOptions.None;
+        static StringBuilder _detailedOutput;
         const BuildOptions _appendFlag = BuildOptions.AcceptExternalModificationsToPlayer;
 
         public static bool IsRunning;
@@ -247,14 +249,9 @@ namespace SpartaTools.Editor.Build
         public static void Build(BuildTarget target, string buildSetName, bool appendBuild = false, int versionNumber = -1, string versionName = null, string outputPath = null)
         {
             IsRunning = true;
-            string detailedOutput = "";
-            Application.LogCallback Callback = (msg, stack, type) => {
-                if(type == LogType.Error || type == LogType.Exception || type == LogType.Assert)
-                {
-                    detailedOutput += (type + " - " + msg + "\n" + stack + "\n\n");
-                }
-            };
-            Application.logMessageReceived += Callback;
+            _detailedOutput = new StringBuilder();
+
+            Application.logMessageReceived += LogMessageReceivedCallback;
             Log(string.Format("Starting Build <{0}> for target <{1}> with config set <{2}>", 
                 versionNumber, target, buildSetName));
 
@@ -289,8 +286,6 @@ namespace SpartaTools.Editor.Build
             Log(string.Format("Building player in path '{0}", location));
 
             OverrideBuiltSetOptions(target, location, buildSet, appendBuild);
-
-            Debug.Log(string.Format("Building player with options: '{0}'", _options));
 
             Debug.Log(string.Format("Sparta-Autobuilder: Unity version: {0}", Application.unityVersion));
 
@@ -327,7 +322,15 @@ namespace SpartaTools.Editor.Build
             }
             Log("Player Build finished successfully");
             Log(string.Format("Detailed log:\n '{0}' \nEnd of detailed log\n", detailedOutput));
-            Application.logMessageReceived -= Callback;
+            Application.logMessageReceived -= LogMessageReceivedCallback;
+        }
+
+        static void LogMessageReceivedCallback (string msg, string stack, LogType type)
+        {
+            if(type == LogType.Error || type == LogType.Exception || type == LogType.Assert)
+            {
+                _detailedOutput.AppendFormat("{0} - {1}\n{2}\n\n", type, msg, stack);
+            }
         }
 
         #endregion
