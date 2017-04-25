@@ -353,7 +353,7 @@ namespace SocialPoint.Social
             {
                 Destination = new DestinationData();
                 Destination.Type = "user";
-                Destination.Data.SetValue("id", "");
+                Destination.Data.SetValue("id", 0L);
             }
 
             public override DestinationData GetData()
@@ -365,7 +365,7 @@ namespace SocialPoint.Social
             {
                 layout.CreateLabel("Edit user destination");
                 layout.CreateMargin();
-                var idInput = layout.CreateTextInput("UserId", id => Destination.Data.SetValue("id", id));
+                var idInput = layout.CreateTextInput("UserId", id => Destination.Data.SetValue("id", Int64.Parse(id)));
                 idInput.text = Destination.Data.GetValue("id").ToString();
 
                 layout.CreateButton("Ok", layout.ClosePanel);
