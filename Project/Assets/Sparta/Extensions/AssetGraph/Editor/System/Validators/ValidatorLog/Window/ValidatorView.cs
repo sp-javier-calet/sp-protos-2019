@@ -140,10 +140,20 @@ namespace AssetBundleGraph
             GUIStyle box = new GUIStyle("box");
             box.margin.top = 0;
 
-            GUIStyle style = new GUIStyle(EditorStyles.miniLabel);
+
+            GUIStyle style = new GUIStyle(EditorStyles.label);
+
             style.wordWrap = true;
             style.richText = true;
             style.alignment = TextAnchor.MiddleCenter;
+
+            GUIStyle link = new GUIStyle(style);
+            link.normal.textColor = new Color(0.29f, 0.49f, 1f);
+            link.active.textColor = new Color(0.5f, 0.7f, 1f);
+            GUIStyle brokenlink = new GUIStyle(link);
+            brokenlink.normal.textColor = new Color(1f, 0.23f, 0.05f);
+            brokenlink.active.textColor = new Color(1f, 0.53f, 0.3f);
+
             GUIStyle msgStyle = new GUIStyle(style);
             msgStyle.alignment = TextAnchor.MiddleLeft;
 
@@ -223,10 +233,33 @@ namespace AssetBundleGraph
                             GUI.Box(sep3, "", separator);
                             GUI.color = Color.white;
 
-                            GUI.Label(rect1, c1Content, style);
-                            GUI.Label(rect2, c2Content, style);
+                            if(GUI.Button(rect1, c1Content, entry.ValidatorRemoved ? brokenlink : link))
+                            {
+                                if(entry.ValidatorRemoved)
+                                {
+                                    Debug.LogError("This validator no longer exists in AssetGraph");
+                                }
+                                else
+                                {
+                                    AssetBundleGraphEditorWindow.SelectNodeById(entry.validatorData.Id);
+                                }
+                            }
+                            if(GUI.Button(rect2, c2Content, entry.FileRemoved ? brokenlink : link))
+                            {
+                                if(entry.FileRemoved)
+                                {
+                                    Debug.LogError("This object no longer exists in the project or was moved");
+                                }
+                                else
+                                {
+                                    Selection.activeGameObject = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(entry.invalidObject.AssetId));
+                                }
+                            }
+
                             GUI.Label(rect3, c3Content, msgStyle);
 
+                            EditorGUIUtility.AddCursorRect(rect2, MouseCursor.Link);
+                            EditorGUIUtility.AddCursorRect(rect1, MouseCursor.Link);
 
                             System.Action btnAction = () => ValidateSingleAsset(BuildTargetUtility.GroupToTarget(entry.currentEditingTarget), entry.validatorData.Id, entry.invalidObject.AssetId);
                             GUI.enabled = CurrentLogInWindow.IsLocal && !entry.GetCurrentOutdatedInfo().GraphChanged;
