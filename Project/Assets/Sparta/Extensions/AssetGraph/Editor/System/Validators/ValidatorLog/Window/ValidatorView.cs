@@ -266,7 +266,7 @@ namespace AssetBundleGraph
 
                             if(entry.ValidatorRemoved || entry.FileRemoved)
                             {
-                                GUI.color = Color.red;
+                                GUI.color = new Color(1f, 0.23f, 0.05f);
                                 bContent.text = "Remove";
                                 btnAction = () =>
                                 {
@@ -281,7 +281,7 @@ namespace AssetBundleGraph
                             }
                             else if(entry.GetCurrentOutdatedInfo().GraphChanged || entry.GetCurrentOutdatedInfo().FileChanged)
                             {
-                                GUI.color = Color.yellow;
+                                GUI.color = new Color(1f, 0.92f, 0.02f);
                             }
 
                             if(GUI.Button(rect4, bContent, EditorStyles.miniButton))
@@ -390,12 +390,12 @@ namespace AssetBundleGraph
                     else if(entry.ValidatorRemoved)
                     {
                         content.tooltip = _validatorRemovedTooltip;
-                        GUI.color = new Color(1, 0.3f, 0.2f);
+                        GUI.color = new Color(1f, 0.23f, 0.05f);
                     }
                     else if(entry.FileRemoved)
                     {
                         content.tooltip = _fileRemovedTooltip;
-                        GUI.color = new Color(1, 0.3f, 0.2f);
+                        GUI.color = new Color(1f, 0.23f, 0.05f);
                     }
                     else if(entry.outdatedInfo[target].GraphChanged)
                     {
