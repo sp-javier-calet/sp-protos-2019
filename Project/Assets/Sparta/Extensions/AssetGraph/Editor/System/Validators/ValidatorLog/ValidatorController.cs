@@ -9,6 +9,7 @@ using SocialPoint.AWS.S3;
 using UnityEditor;
 using UnityEngine;
 using System.Globalization;
+using SocialPoint.GitCommands;
 
 namespace AssetBundleGraph
 {
@@ -119,12 +120,9 @@ namespace AssetBundleGraph
 
         static string GetBranch()
         {
-            //TODO: when GitCommands Sparta extension is merged from transparent bundles into master, uncomment this. Merge Request 725 (https://gitlab.socialpoint.es/mobile-platform/sp-unity-BaseGame/merge_requests/725)
-            //var infractions = new List<string>();
-            //var repo = new Repository(Application.dataPath);
-            //var query = repo.CreateQuery("rev-parse").WithOption("abbrev-ref HEAD");
-            //var currentBranch = query.Exec().TrimEnd('\n');
-            var currentBranch = "test_branch";
+            var repo = new Repository(Application.dataPath);
+            var query = repo.CreateQuery("rev-parse").WithOption("abbrev-ref HEAD");
+            var currentBranch = query.Exec().TrimEnd('\n');
 
             return currentBranch;
         }
