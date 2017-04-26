@@ -11,4 +11,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 144b411a528b0d3418cc8ded2435d61f, type: 3}
   m_Name: AssetGraphCIConfig
   m_EditorClassIdentifier: 
-  ProjectID: 37
+  ProjectID: 3
