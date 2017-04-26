@@ -8,7 +8,7 @@ namespace SocialPoint.TransparentBundles
     [Category("SocialPoint.TransparentBundles")]
     class DependencyTests
     {
-        const string _testAssetsFolder = "Assets/Sparta/Extensions/TransparentBundles/Editor/UnitTests/TestAssets/";
+        const string _testAssetsFolder = "Assets/Sparta/Extensions/TransparentBundles/Editor/Tests/TestAssets/";
         const string _prefab1 = "test_prefab_1.prefab";
         const string _prefab2 = "test_prefab_2.prefab";
         const string _texture1 = "texture_1.png";

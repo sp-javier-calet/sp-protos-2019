@@ -6,20 +6,22 @@ namespace SocialPoint.TransparentBundles
 {
     public class ErrorDisplay
     {
-        private static Dictionary<string, string> ErrorLog = new Dictionary<string, string>();
+        private static Dictionary<string, string> _errorLog = new Dictionary<string, string>();
 
-        private static Dictionary<ErrorType, string> ErrorMessages = new Dictionary<ErrorType, string>
+        public static Dictionary<ErrorType, string> ErrorMessages = new Dictionary<ErrorType, string>
         {
             { ErrorType.assetNotFoundInBundle, "Transparent Bundles - Error - The bundle '{0}' have an asset with the following GUID: '{1}' that was not found in the project. Please, make sure your project is up-to-date and that the asset has not been removed. If the issue persists, please, contact the transparent bundles team: " + Config.ContactMail+"\n"},
             { ErrorType.assetNotFound, "Transparent Bundles - Error - The asset '{0}' with the following GUID: '{1}' was not found in the project. Please, make sure that the asset was not deleted from the project. \n\nVisit the following link for more info: \n" + Config.HelpUrl+"\n"},
             { ErrorType.parentBundleNotFound, "Transparent Bundles - Error - The parent bundle '{0}' was not found in the bundle list. Please, contact the transparent bundles team: " + Config.ContactMail + "\n"},
             { ErrorType.assetPendingToCommit, "Transparent Bundles - Error - Some asset are pending to be commited and pushed to GIT:\n\n\n{0}\nPlease, make sure that you updload all the pending assets before creating or updating bundles. \n\nVisit the following link for more info: \n" + Config.HelpUrl+"\n"},
-            { ErrorType.bundleNotDownloadable, "Transparent Bundles - Error - The bundle '{0}' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactMail + "\n"}
+            { ErrorType.wrongBranch, "Transparent Bundles - Error - It seems that you are in a GIT branch which doesn't have access to the Transparent Bundles System. Please, change your GIT into the proper branch listed below to use this tool. Otherwise you will not be able to perform any bundle operation.\n\n{0}\nVisit the following link for more info: \n" + Config.HelpUrl+"\n"},
+            { ErrorType.bundleNotDownloadable, "Transparent Bundles - Error - The bundle '{0}' doesn't have a proper URL or Name assigned. Please, contact the transparent bundles team: " + Config.ContactMail + "\n"},
+            { ErrorType.bundleBeingCreated, "Transparent Bundles - Error - The bundle '{0}' is pending to be created. You won't be able to preform any other operation to that bundle until the system finishes the bundle creation process. Please wait until the bundle is created.\n"}
         };
 
         public static void FlushErrorCache()
         {
-            ErrorLog = new Dictionary<string, string>();
+            _errorLog = new Dictionary<string, string>();
         }
 
         public static string DisplayError(ErrorType errorType, bool showPopup = false, bool showOnce = false, bool warning = false, string itemName = "", string GUID = "")
@@ -38,9 +40,9 @@ namespace SocialPoint.TransparentBundles
             if(showOnce)
             {
                 string errorCode = errorType.ToString() + itemName + GUID;
-                if(!ErrorLog.ContainsKey(errorCode))
+                if(!_errorLog.ContainsKey(errorCode))
                 {
-                    ErrorLog.Add(errorCode, errorText);
+                    _errorLog.Add(errorCode, errorText);
                     if(showPopup)
                     {
                         DisplayPopupError(errorText, warning);
@@ -91,6 +93,8 @@ namespace SocialPoint.TransparentBundles
         assetNotFound,
         parentBundleNotFound,
         assetPendingToCommit,
-        bundleNotDownloadable
+        wrongBranch,
+        bundleNotDownloadable,
+        bundleBeingCreated
     }
 }

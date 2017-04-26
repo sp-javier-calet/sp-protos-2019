@@ -54,12 +54,26 @@ namespace SocialPoint.TransparentBundles
             ChangeSorting(_sorting);
             _scrollPos = Vector2.zero;
 
-            _actionButons = new[] {
-                new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.UpdateImageName), "Update Bundle"),
-                new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.RemoveImageName), "Remove bundle"),
-                new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.InBuildImageName), "Add bundle into the Build"),
-                new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.OutBuildImageName), "Remove bundle from the Build")
-            };
+            _controller.CheckInBranchUpdated();
+
+            if(_controller.BranchUpdated)
+            {
+                _actionButons = new[] {
+                    new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.UpdateImageName), "Update Bundle"),
+                    new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.RemoveImageName), "Remove bundle"),
+                    new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.InBuildImageName), "Add bundle into the Build"),
+                    new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.OutBuildImageName), "Remove bundle from the Build")
+                };
+            }
+            else
+            {
+                _actionButons = new[] {
+                    new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.UpdateQueuedImageName), "Update Bundle"),
+                    new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.RemoveQueuedImageName), "Remove bundle"),
+                    new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.InBuildQueuedImageName), "Add bundle into the Build"),
+                    new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.OutBuildQueuedImageName), "Remove bundle from the Build")
+                };
+            }
 
             _columnsSize = new[] { 20f, 20f, 70f, 100f };
             _controller.FlushCache();
@@ -67,8 +81,10 @@ namespace SocialPoint.TransparentBundles
             _previousScene = SceneManager.GetActiveScene();
 
             UpdateBundleData();
-            
+
             CurrentPlatform = BundlePlaform.android_etc;
+
+
         }
 
 
@@ -263,17 +279,7 @@ namespace SocialPoint.TransparentBundles
             Rect serverIconRect = GUILayoutUtility.GetRect(20, 20, GUILayout.ExpandWidth(false));
             GUI.DrawTexture(serverIconRect, _controller.DownloadImage(Config.IconsPath + Config.ServerDbImageName));
 
-            if(_controller.ServerInfo.Status == ServerStatus.Warning)
-            {
-                GUILayout.Label(" Server Warning", BodyTextStyleWarning, GUILayout.ExpandWidth(false));
-                buttonContent = new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.WarningImageName), "Warning");
-            }
-            else if(_controller.ServerInfo.Status == ServerStatus.Error)
-            {
-                GUILayout.Label(" Server Error", BodyTextStyleError, GUILayout.ExpandWidth(false));
-                buttonContent = new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.ErrorImageName), "Error");
-            }
-            else if(_controller.ServerInfo.ProcessingQueue.Count > 0)
+            if(_controller.ServerInfo.ProcessingQueue.Count > 0)
             {
                 if(GUILayout.Button(new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.UpdateImageName), "Processing"), NoButtonStyle, GUILayout.Width(20), GUILayout.Height(20)))
                 {
@@ -283,6 +289,17 @@ namespace SocialPoint.TransparentBundles
             else
             {
                 GUILayout.Label(_controller.DownloadImage(Config.IconsPath + Config.SleepImageName), GUILayout.Width(20), GUILayout.Height(20));
+            }
+
+            if(_controller.ServerInfo.Status == ServerStatus.Warning)
+            {
+                GUILayout.Label(" System Warning", BodyTextStyleWarning, GUILayout.ExpandWidth(false));
+                buttonContent = new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.WarningImageName), "Warning");
+            }
+            else if(_controller.ServerInfo.Status == ServerStatus.Error)
+            {
+                GUILayout.Label(" System Error", BodyTextStyleError, GUILayout.ExpandWidth(false));
+                buttonContent = new GUIContent(_controller.DownloadImage(Config.IconsPath + Config.ErrorImageName), "Error");
             }
 
             if(buttonContent != null && GUILayout.Button(buttonContent, NoButtonStyle, GUILayout.Width(20), GUILayout.Height(20)))
@@ -514,7 +531,7 @@ namespace SocialPoint.TransparentBundles
             GUILayout.Label(PrintProperSize(totalSelectedSize), BodyTextStyle, GUILayout.Width(70));
             EditorGUILayout.EndVertical();
 
-            if(GUILayout.Button(_actionButons[0], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
+            if(GUILayout.Button(_actionButons[0], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)) && _controller.BranchUpdated && _chosenList.Count > 0)
             {
                 chosenEnum = _chosenList.GetEnumerator();
                 var assetList = new List<Asset>();
@@ -525,7 +542,7 @@ namespace SocialPoint.TransparentBundles
                 _controller.CreateOrUpdateBundles(assetList);
                 chosenEnum.Dispose();
             }
-            if(GUILayout.Button(_actionButons[1], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
+            if(GUILayout.Button(_actionButons[1], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)) && _controller.BranchUpdated && _chosenList.Count > 0)
             {
                 string bundlesListString = "\n\n";
 
@@ -542,9 +559,9 @@ namespace SocialPoint.TransparentBundles
                     bundlesListString += "... (" + (_chosenList.Count - removeListLimit) + " more)\n";
                 }
                 if(EditorUtility.DisplayDialog("Removing Bundle",
-                       "You are about to remove " + _chosenList.Count + " bundles from the server." + bundlesListString
-                       + "\nKeep in mind that this operation cannot be undone. Are you sure?",
-                       "Remove", "Cancel"))
+                        "You are about to remove " + _chosenList.Count + " bundles from the server." + bundlesListString
+                        + "\nKeep in mind that this operation cannot be undone. Are you sure?",
+                        "Remove", "Cancel"))
                 {
                     chosenEnum = _chosenList.GetEnumerator();
                     var assetList = new List<Asset>();
@@ -556,7 +573,7 @@ namespace SocialPoint.TransparentBundles
                     chosenEnum.Dispose();
                 }
             }
-            if(GUILayout.Button(_actionButons[2], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
+            if(GUILayout.Button(_actionButons[2], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)) && _controller.BranchUpdated && _chosenList.Count > 0)
             {
                 chosenEnum = _chosenList.GetEnumerator();
                 var assetList = new List<Asset>();
@@ -567,7 +584,7 @@ namespace SocialPoint.TransparentBundles
                 _controller.PerfomBundleOperation(assetList, BundleOperation.create_local_asset_bundles);
                 chosenEnum.Dispose();
             }
-            if(GUILayout.Button(_actionButons[3], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)))
+            if(GUILayout.Button(_actionButons[3], GUILayout.Width(_iconSize), GUILayout.Height(_iconSize)) && _controller.BranchUpdated && _chosenList.Count > 0)
             {
                 chosenEnum = _chosenList.GetEnumerator();
                 var assetList = new List<Asset>();
@@ -578,6 +595,7 @@ namespace SocialPoint.TransparentBundles
                 _controller.PerfomBundleOperation(assetList, BundleOperation.remove_local_asset_bundles);
                 chosenEnum.Dispose();
             }
+
             GUILayout.Label("", GUILayout.Width(3));
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndVertical();
@@ -611,6 +629,7 @@ namespace SocialPoint.TransparentBundles
         static void DisplayBundleRow(Bundle bundle)
         {
             EditorGUILayout.BeginHorizontal(GUILayout.Height(_bundleRowHeight - 10));
+
             EditorGUILayout.BeginVertical(GUILayout.Width(_columnsSize[0]));
             GUILayout.Label("", GUILayout.Height(3), GUILayout.Width(_columnsSize[0]));
             bool bundleChosen = _chosenList.ContainsKey(bundle.Name);
@@ -659,9 +678,9 @@ namespace SocialPoint.TransparentBundles
 
             EditorGUILayout.BeginVertical(GUILayout.Width(_columnsSize[1]));
             GUILayout.Label("", GUILayout.Height(3), GUILayout.Width(_columnsSize[1]));
-            GUILayout.Label(AssetPreview.GetMiniThumbnail(bundle.Asset.GetAssetObject()), GUILayout.Width(_columnsSize[1]), GUILayout.Height(_columnsSize[1]));
+            var assetObject = bundle.Asset.GetAssetObject();
+            GUILayout.Label(assetObject == null ? _controller.DownloadImage(Config.IconsPath + Config.MissingFileImageName) : AssetPreview.GetMiniThumbnail(assetObject), GUILayout.Width(_columnsSize[1]), GUILayout.Height(_columnsSize[1]));
             EditorGUILayout.EndVertical();
-
 
             if(bundle.Status == BundleStatus.Warning || bundle.Status == BundleStatus.Error)
             {
@@ -675,7 +694,6 @@ namespace SocialPoint.TransparentBundles
                 }
                 EditorGUILayout.EndVertical();
             }
-
 
             EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true));
             GUIStyle bundleStyle = BodyTextStyle;
@@ -710,7 +728,19 @@ namespace SocialPoint.TransparentBundles
                 }
 
             }
-            if(GUILayout.Button(bundle.Asset.Name, bundleStyle, GUILayout.ExpandWidth(true), GUILayout.Height(_bundleRowHeight)))
+
+            Rect bundleButtonRec = GUILayoutUtility.GetRect(0, _bundleRowHeight, bundleStyle, GUILayout.ExpandWidth(true));
+
+            if(bundle.Status == BundleStatus.Processing)
+            {
+                Rect progressRect = new Rect(bundleButtonRec.position.x - 3, bundleButtonRec.position.y + 2, (bundleButtonRec.width + 3) * _controller.ServerInfo.Progress, bundleButtonRec.height);
+                Rect backgroundRec = new Rect(bundleButtonRec.position.x - 3, bundleButtonRec.position.y + 2, bundleButtonRec.width + 3, bundleButtonRec.height);
+                GUI.DrawTexture(backgroundRec, _controller.DownloadImage(Config.IconsPath + Config.ProgressBarBkgImageName));
+                GUI.DrawTexture(progressRect, _controller.DownloadImage(Config.IconsPath + Config.ProgressBarImageName));
+            }
+
+            string buttonText = bundle.Asset.Name.Length == 0 ? bundle.Name.Substring(0, bundle.Name.LastIndexOf('_')) : bundle.Asset.Name;
+            if(GUI.Button(bundleButtonRec, buttonText, bundleStyle))
             {
                 if(Event.current.control || Event.current.command)
                 {
@@ -773,6 +803,7 @@ namespace SocialPoint.TransparentBundles
 
                 InspectorDummy inspectorDummy = ScriptableObject.CreateInstance<InspectorDummy>();
                 inspectorDummy.SelectedAsset = bundle.Asset;
+                inspectorDummy.SelectedBundle = bundle;
                 Selection.activeObject = inspectorDummy;
             }
             EditorGUILayout.EndVertical();
@@ -782,8 +813,9 @@ namespace SocialPoint.TransparentBundles
                 var operationEnumerator = bundle.OperationQueue.GetEnumerator();
                 for(int i = 0; operationEnumerator.MoveNext(); i++)
                 {
-                    EditorGUILayout.BeginVertical(GUILayout.Width(25));
-                    DrawOperationIcon(operationEnumerator.Current.Value, (bundle.Status == BundleStatus.Processing && i == 0) /*TEMPORARY*/ || _controller.NewBundles.ContainsKey(bundle.Name));
+                    EditorGUILayout.BeginVertical(GUILayout.Width(22));
+                    GUILayout.Label("", GUILayout.Height(3));
+                    DrawOperationIcon(operationEnumerator.Current.Value, (bundle.Status == BundleStatus.Processing && i == 0));
                     EditorGUILayout.EndVertical();
                 }
                 operationEnumerator.Dispose();
@@ -823,27 +855,27 @@ namespace SocialPoint.TransparentBundles
 
             switch(operation)
             {
-            case BundleOperation.create_asset_bundles:
-                icon = processing ? _controller.DownloadImage(Config.IconsPath + Config.UpdateImageName) : _controller.DownloadImage(Config.IconsPath + Config.UpdateQueuedImageName);
-                break;
+                case BundleOperation.create_asset_bundles:
+                    icon = processing ? _controller.DownloadImage(Config.IconsPath + Config.UpdateImageName) : _controller.DownloadImage(Config.IconsPath + Config.UpdateQueuedImageName);
+                    break;
 
-            case BundleOperation.remove_asset_bundles:
-                icon = processing ? _controller.DownloadImage(Config.IconsPath + Config.RemoveImageName) : _controller.DownloadImage(Config.IconsPath + Config.RemoveQueuedImageName);
-                break;
+                case BundleOperation.remove_asset_bundles:
+                    icon = processing ? _controller.DownloadImage(Config.IconsPath + Config.RemoveImageName) : _controller.DownloadImage(Config.IconsPath + Config.RemoveQueuedImageName);
+                    break;
 
-            case BundleOperation.create_local_asset_bundles:
-                icon = processing ? _controller.DownloadImage(Config.IconsPath + Config.InBuildImageName) : _controller.DownloadImage(Config.IconsPath + Config.InBuildQueuedImageName);
-                break;
+                case BundleOperation.create_local_asset_bundles:
+                    icon = processing ? _controller.DownloadImage(Config.IconsPath + Config.InBuildImageName) : _controller.DownloadImage(Config.IconsPath + Config.InBuildQueuedImageName);
+                    break;
 
-            case BundleOperation.remove_local_asset_bundles:
-                icon = processing ? _controller.DownloadImage(Config.IconsPath + Config.OutBuildImageName) : _controller.DownloadImage(Config.IconsPath + Config.OutBuildQueuedImageName);
-                break;
+                case BundleOperation.remove_local_asset_bundles:
+                    icon = processing ? _controller.DownloadImage(Config.IconsPath + Config.OutBuildImageName) : _controller.DownloadImage(Config.IconsPath + Config.OutBuildQueuedImageName);
+                    break;
 
             }
 
             var iconContent = new GUIContent(icon, operation.ToString());
 
-            float iconSize = 23;
+            float iconSize = 20;
             if(processing)
             {
                 iconSize = iconSize * iconsProcessCurrentSize;
@@ -898,6 +930,7 @@ namespace SocialPoint.TransparentBundles
         {
             BundleList = _controller.GetBundles(filter);
             ChangeSorting(_sorting);
+            _bundlesInBuild = 0;
             for(int i = 0; i < BundleList.Count; i++)
             {
                 Bundle bundle = BundleList[i];
@@ -922,17 +955,17 @@ namespace SocialPoint.TransparentBundles
             {
                 switch(Event.current.keyCode)
                 {
-                case KeyCode.A:
-                    if(Event.current.command || Event.current.control)
-                    {
-                        _selectedList = new Dictionary<string, Bundle>();
-                        for(int i = 0; i < BundleList.Count; i++)
+                    case KeyCode.A:
+                        if(Event.current.command || Event.current.control)
                         {
-                            _selectedList.Add(BundleList[i].Name, BundleList[i]);
+                            _selectedList = new Dictionary<string, Bundle>();
+                            for(int i = 0; i < BundleList.Count; i++)
+                            {
+                                _selectedList.Add(BundleList[i].Name, BundleList[i]);
+                            }
                         }
-                    }
-                    Window.Repaint();
-                    break;
+                        Window.Repaint();
+                        break;
                 }
             }
         }
