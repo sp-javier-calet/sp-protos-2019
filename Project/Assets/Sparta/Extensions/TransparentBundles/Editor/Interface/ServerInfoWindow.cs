@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -50,43 +47,52 @@ namespace SocialPoint.TransparentBundles
 
             GUILayout.Label("", GUILayout.Height(10));
 
-            _scrollPos = GUILayout.BeginScrollView(_scrollPos, BundlesWindow.BodyStyle, GUILayout.ExpandHeight(true));
-            GUILayout.Label("", GUILayout.Height(5));
+            EditorGUILayout.BeginVertical(BundlesWindow.BodyStyle, GUILayout.ExpandHeight(true));
+            GUILayout.Label("", GUILayout.Height(10));
+
+            if(_controller.ServerInfo.ProgressMessage.Length > 0)
+            {
+                EditorGUILayout.BeginHorizontal();
+                GUILayout.Label("", GUILayout.Width(5));
+                Rect progressRectBar = GUILayoutUtility.GetRect(0, 25, GUILayout.ExpandWidth(true));
+                Rect progressRect = new Rect(progressRectBar.position.x, progressRectBar.position.y, progressRectBar.width * _controller.ServerInfo.Progress, progressRectBar.height);
+                Rect progressMessageRect = new Rect(progressRectBar.position.x + 5, progressRectBar.position.y, progressRectBar.width - 10, progressRectBar.height);
+                GUI.DrawTexture(progressRectBar, _controller.DownloadImage(Config.IconsPath + Config.ProgressBarBkgImageName));
+                GUI.DrawTexture(progressRect, _controller.DownloadImage(Config.IconsPath + Config.ProgressBarImageName));
+                GUI.Label(progressMessageRect, Mathf.RoundToInt(_controller.ServerInfo.Progress * 100).ToString() + "%    " + _controller.ServerInfo.ProgressMessage, BundlesWindow.BodyTextStyle);
+                GUILayout.Label("", GUILayout.Width(5));
+                EditorGUILayout.EndHorizontal();
+            }
+
+            GUILayout.Label("", GUILayout.Height(10));
+            _scrollPos = GUILayout.BeginScrollView(_scrollPos);
 
             using(var queueEnum = _controller.ServerInfo.ProcessingQueue.GetEnumerator())
             {
                 for(int i = 0; queueEnum.MoveNext(); i++)
                 {
+                    GUILayout.Label("", GUILayout.Height(5));
                     EditorGUILayout.BeginHorizontal(GUILayout.Height(25), GUILayout.ExpandHeight(false));
                     GUILayout.Label("", GUILayout.Width(5));
                     if(i > 0)
                     {
-                        if(GUILayout.Button("Cancel", GUILayout.Width(50)))
+                        if(queueEnum.Current.Value.AuthorMail == EditorPrefs.GetString(LoginWindow.LOGIN_PREF_KEY) && GUILayout.Button("Cancel", GUILayout.Width(50)))
                         {
                             _controller.CancelBundleOperation(queueEnum.Current.Key);
                         }
                     }
-                    BundlesWindow.DrawOperationIcon(queueEnum.Current.Value, i == 0);
+                    BundlesWindow.DrawOperationIcon(queueEnum.Current.Value.Operation, i == 0);
                     string bundleNames = "";
                     int j = 0;
                     while(j < BundlesWindow.BundleList.Count && bundleNames.Length < Window.position.width)
                     {
                         if(BundlesWindow.BundleList[j].OperationQueue.ContainsKey(queueEnum.Current.Key))
                         {
-                            bundleNames += BundlesWindow.BundleList[j].Asset.Name + ", ";
+                            bundleNames += BundlesWindow.BundleList[j].Name.Substring(0, BundlesWindow.BundleList[j].Name.LastIndexOf("_")) + ", ";
                         }
                         j++;
                     }
-                    if(bundleNames.Length == 0)
-                    {
-                        //TEMPORARY
-                        var newBundlesEnum = _controller.NewBundles.GetEnumerator();
-                        while(newBundlesEnum.MoveNext())
-                        {
-                            bundleNames += newBundlesEnum.Current.Key + ", ";
-                        }
-                        newBundlesEnum.Dispose();
-                    }
+
                     if(bundleNames.Length > 0)
                     {
                         bundleNames = bundleNames.Substring(0, bundleNames.Length - 2);
@@ -95,15 +101,17 @@ namespace SocialPoint.TransparentBundles
                     {
                         bundleNames += " (" + (BundlesWindow.BundleList.Count - j).ToString() + " more)";
                     }
+
                     GUILayout.Label(bundleNames, BundlesWindow.BodyTextStyle, GUILayout.ExpandWidth(true), GUILayout.Height(25));
                     GUILayout.Label("", GUILayout.Width(5));
                     EditorGUILayout.EndHorizontal();
+
                     GUILayout.Label("", GUILayout.Height(5));
                 }
             }
-                
 
             EditorGUILayout.EndScrollView();
+            EditorGUILayout.EndVertical();
 
             GUILayout.Label("", GUILayout.Height(15));
 

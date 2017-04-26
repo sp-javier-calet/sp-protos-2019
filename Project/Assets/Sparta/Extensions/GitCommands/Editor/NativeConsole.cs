@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using System.Diagnostics;
 
-namespace SocialPoint.TransparentBundles
+namespace SocialPoint.GitCommands
 {
     //This is a copy from SpartaEditorTools NativeConsole. We are not using that class cause it must be determined if that could affect the compilation of sparta
     public static class NativeConsole

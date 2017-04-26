@@ -13,11 +13,11 @@ namespace SocialPoint.TransparentBundles
 
         public static string WinVolumePath = "//" + SmbFolder;
 
-        #if UNITY_EDITOR_OSX
+#if UNITY_EDITOR_OSX
         public static string VolumePath = MacVolumePath;
-        #else
+#else
         public static string VolumePath = WinVolumePath;
-        #endif
+#endif
         public static string IconsFolder = "/TA/TransparentBundles/tool_icons/";
 
         public static string IconsPath = VolumePath + IconsFolder;
@@ -44,6 +44,9 @@ namespace SocialPoint.TransparentBundles
         public const string InServerImageName = "in_server.png";
         public const string HelpImageName = "help.png";
         public const string SleepImageName = "sleep.png";
+        public const string ProgressBarImageName = "progress_bar.png";
+        public const string ProgressBarBkgImageName = "progress_bar_background.png";
+        public const string MissingFileImageName = "missing_file.png";
 
         public static void SetVolumePath(string newVolumePath)
         {
