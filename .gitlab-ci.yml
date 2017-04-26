@@ -6,7 +6,7 @@ variables:
 Unity_Tests:
  stage: test
  script: 
-   - 'python C:\sp-tools-Python-CI-Scripts\UnityGenericCall\UnitySimpleCall.py -runEditorTests -editorTestsResultFile %CI_PROJECT_DIR%/UnityLog/TestsResults.txt -logfile %CI_PROJECT_DIR%/UnityLog/editorLog_Simple.txt' 
+   - 'python C:\sp-tools-Python-CI-Scripts\UnityGenericCall\UnityTestsCall.py'
  except:
    - master
  only:
