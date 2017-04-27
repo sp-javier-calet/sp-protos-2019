@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System.IO;
 using SocialPoint.IO;
 using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
@@ -27,26 +28,34 @@ namespace SocialPoint.Multiplayer
             _serverCtrl = new NetworkServerSceneController(_server);
             _clientCtrl = new NetworkClientSceneController(_client);
             _client2Ctrl = new NetworkClientSceneController(_client2);
+            _serverCtrl.Restart(_server);
+            _clientCtrl.Restart(_client);
+            _client2Ctrl.Restart(_client2);
             _server.Start();
             _client.Connect();
             _client2.Connect();
         }
 
+        void UpdateServerInterval()
+        {
+            _serverCtrl.Update(_serverCtrl.SyncInterval);
+        }
+
         [Test]
         public void SceneSync()
         {
-            var go = _serverCtrl.Instantiate(_serverCtrl.Scene.FreeObjectId);
-            _serverCtrl.Update(0.001f);
+            var go = _serverCtrl.Instantiate(0);
+            UpdateServerInterval();
             Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
             Assert.That(_client2Ctrl.Equals(_serverCtrl.Scene));
             go.Transform.Position.X = 2.0f;
             Assert.That(!_clientCtrl.Equals(_serverCtrl.Scene));
             Assert.That(!_client2Ctrl.Equals(_serverCtrl.Scene));
-            _serverCtrl.Update(0.001f);
+            UpdateServerInterval();;
             Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
             Assert.That(_client2Ctrl.Equals(_serverCtrl.Scene));
             _serverCtrl.Destroy(go.Id);
-            _serverCtrl.Update(0.001f);
+            UpdateServerInterval();
             Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
             Assert.That(_client2Ctrl.Equals(_serverCtrl.Scene));
         }

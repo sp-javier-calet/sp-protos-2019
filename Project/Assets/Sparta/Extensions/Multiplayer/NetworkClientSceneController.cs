@@ -173,7 +173,10 @@ namespace SocialPoint.Multiplayer
         {
             if(!go.Local)
             {
-                SetupObject(go as NetworkGameObject<INetworkBehaviour>);
+                if(go is NetworkGameObject<INetworkBehaviour>)
+                {
+                    SetupObject(go as NetworkGameObject<INetworkBehaviour>);
+                }
             }
         }
 

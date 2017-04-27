@@ -197,7 +197,7 @@ namespace SocialPoint.Multiplayer
             //TODO: Remove this
             SyncInterval = 0.02f;
 
-            if (!_server.Running)
+            if(!_server.Running)
             {
                 return;
             }
@@ -236,6 +236,7 @@ namespace SocialPoint.Multiplayer
         }
 
         List<byte> keyList = new List<byte>();
+
         void SendScene()
         {
             var timestamp = LastUpdateTimestamp;
