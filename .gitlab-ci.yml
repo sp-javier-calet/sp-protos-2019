@@ -2,17 +2,32 @@
 
 variables:
   UNITY_PROJ_REL_PATH: "Project"
-
-Unity_Tests:
+  
+  
+Android_Unity_Tests:
  stage: test
  script: 
-   - 'python C:\sp-tools-Python-CI-Scripts\UnityGenericCall\UnityTestsCall.py'
- except:
-   - master
+   - 'python C:\sp-tools-Python-CI-Scripts\UnityGenericCall\UnityTestsCall.py -buildTarget android'
  only:
    - triggers
  cache:
-   key: '%CI_PROJECT_DIR%-Default-Library'
+   key: 'AndroidLib/'
+   paths:
+     - '%UNITY_PROJ_REL_PATH%/Library/'
+ artifacts:
+   when: always
+   paths:
+     - '%CI_PROJECT_DIR%/UnityLog/'
+     
+     
+iOS_Unity_Tests:
+ stage: test
+ script: 
+   - 'python C:\sp-tools-Python-CI-Scripts\UnityGenericCall\UnityTestsCall.py -buildTarget ios'
+ only:
+   - triggers
+ cache:
+   key: 'iOSLib/'
    paths:
      - '%UNITY_PROJ_REL_PATH%/Library/'
  artifacts:
