@@ -11,11 +11,8 @@ namespace SocialPoint.Social
 {
     public sealed class SocialPointGameCenterVerification
     {
-        bool _loaded;
-        bool _inited;
         GameCenterValidationDelegate _delegate;
         GameCenterUserVerification _verification;
-        Error _error;
         NativeCallsHandler _handler;
 
         #if IOS_DEVICE
@@ -24,6 +21,8 @@ namespace SocialPoint.Social
         #else
         void SPUnityGameCenter_UserVerificationInit()
         {
+            // just to get the callbacks called on unity to test the whole flow.
+            Notify(string.Empty);
         }
         #endif
 
@@ -35,21 +34,10 @@ namespace SocialPoint.Social
 
         public void LoadData(GameCenterValidationDelegate cbk)
         {
-            if(!_inited)
-            {
-                _inited = true;
-                SPUnityGameCenter_UserVerificationInit();
-            }
             if(cbk != null)
             {
-                if(_loaded)
-                {
-                    cbk(_error, _verification);
-                }
-                else
-                {
-                    _delegate += cbk;
-                }
+                _delegate = cbk;
+                SPUnityGameCenter_UserVerificationInit();
             }
         }
 
@@ -59,27 +47,39 @@ namespace SocialPoint.Social
         /// <param name="verification">Verification.</param>
         void Notify(string verification)
         {
-            var parser = new JsonAttrParser();
-            var data = parser.ParseString(verification).AsDic;
-            if(data.GetValue("error").ToBool())
+            Error error;
+
+            if(string.IsNullOrEmpty(verification))
             {
                 _verification = null;
-                _error = new Error(data.GetValue("errorCode").ToInt(), data.GetValue("errorMessage").ToString());
-                Log.i("Game Center Verification got error: " + _error);
+                error = new Error("Game Center Verification only supported on iOS device.");
+                Log.i("Game Center Verification only supported on iOS device.");
             }
             else
             {
-                var url = data.GetValue("url").ToString();
-                var signature = Convert.FromBase64String(data.GetValue("signature").ToString());
-                var salt = Convert.FromBase64String(data.GetValue("salt").ToString());
-                var time = (ulong)data.GetValue("timestamp").ToLong();
-                _verification = new GameCenterUserVerification(url, signature, salt, time);
-                _error = null;
+                var parser = new JsonAttrParser();
+                var data = parser.ParseString(verification).AsDic;
+                if(data.GetValue("error").ToBool())
+                {
+                    _verification = null;
+                    error = new Error(data.GetValue("errorCode").ToInt(), data.GetValue("errorMessage").ToString());
+                    Log.i("Game Center Verification got error: " + error);
+                }
+                else
+                {
+                    var url = data.GetValue("url").ToString();
+                    var signature = Convert.FromBase64String(data.GetValue("signature").ToString());
+                    var salt = Convert.FromBase64String(data.GetValue("salt").ToString());
+                    var time = (ulong)data.GetValue("timestamp").ToLong();
+                    _verification = new GameCenterUserVerification(url, signature, salt, time);
+                    error = null;
+                }
             }
-            _loaded = true;
+
+            DebugUtils.Assert(_delegate != null, "SocialPointGameCenterVerification, _delegate must not be null");
             if(_delegate != null)
             {
-                _delegate(_error, _verification);
+                _delegate(error, _verification);
                 _delegate = null;
             }
         }

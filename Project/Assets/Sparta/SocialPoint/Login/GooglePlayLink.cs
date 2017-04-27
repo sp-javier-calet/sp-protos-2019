@@ -134,12 +134,14 @@ namespace SocialPoint.Login
             GoogleUser user = _googlePlay.User;
             var data = new AttrDic();
 
-            string accessToken = _googlePlay.AccessToken;
+            if(string.IsNullOrEmpty(user.UserId))
+            {
+                string accessToken = _googlePlay.AccessToken;
             
-            data.SetValue("gp_external_id", user.UserId);
-            data.SetValue("gp_user_name", user.Name);
-            data.SetValue("gp_access_token", accessToken);
-
+                data.SetValue("gp_external_id", user.UserId);
+                data.SetValue("gp_user_name", user.Name);
+                data.SetValue("gp_access_token", accessToken);
+            }
             return data;
         }
 

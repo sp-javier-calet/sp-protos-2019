@@ -32,6 +32,7 @@ namespace SocialPoint.Social
 
         List<GameCenterAchievement> _achievements;
         bool _connecting;
+        bool _connected;
         GameCenterPlatform _platform;
         List<GameCenterUser> _friends;
         HashSet<string> _achievementsUpdating;
@@ -63,8 +64,15 @@ namespace SocialPoint.Social
             NotifyStateChanged();
             if(!Error.IsNullOrEmpty(err))
             {
+                #if !UNITY_EDITOR
                 Log.e("Game Center login ended in error: " + err);
+                #endif
             }
+            else
+            {
+                _connected = true;
+            }
+
             if(cbk != null)
             {
                 cbk(err);
@@ -208,7 +216,7 @@ namespace SocialPoint.Social
         {
             get
             {
-                return _platform.localUser.authenticated && !_connecting;
+                return _platform.localUser.authenticated && !_connecting && _connected;
             }
         }
 
@@ -236,7 +244,8 @@ namespace SocialPoint.Social
                 return;
             }
             _connecting = true;
-            _platform.localUser.Authenticate(success => {
+            _connected = false;
+            _platform.localUser.Authenticate((success, error) => {
                 if(success)
                 {
                     LoginLoadPlayerData(err => {
@@ -261,7 +270,7 @@ namespace SocialPoint.Social
                 }
                 else
                 {
-                    OnLoginEnd(new Error("Could not login - GameCenterPlatform.localUser.Authenticate failed"), cbk);
+                    OnLoginEnd(new Error(string.Format("Could not login - GameCenterPlatform.localUser.Authenticate failed: {0}", error)), cbk);
                 }
             });
         }

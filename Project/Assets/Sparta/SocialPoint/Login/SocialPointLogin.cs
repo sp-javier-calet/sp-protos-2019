@@ -972,6 +972,12 @@ namespace SocialPoint.Login
 
             // the user links have changed, we need to tell the server
             info.LinkData = info.Link.GetLinkData();
+
+            if(info.LinkData.Count == 0)
+            {
+                return;
+            }
+
             if(FakeEnvironment)
             {
                 UpdateLinkData(info, false);

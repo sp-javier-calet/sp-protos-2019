@@ -10,8 +10,8 @@ namespace SpartaTools.Editor.Build
     public static class AutoBuilder
     {
         static BuildOptions _options = BuildOptions.None;
-        static StringBuilder _detailedOutput;
         const BuildOptions _appendFlag = BuildOptions.AcceptExternalModificationsToPlayer;
+        static StringBuilder _detailedOutput;
 
         public static bool IsRunning;
 
@@ -249,9 +249,10 @@ namespace SpartaTools.Editor.Build
         public static void Build(BuildTarget target, string buildSetName, bool appendBuild = false, int versionNumber = -1, string versionName = null, string outputPath = null)
         {
             IsRunning = true;
-            _detailedOutput = new StringBuilder();
 
+            _detailedOutput = new StringBuilder();
             Application.logMessageReceived += LogMessageReceivedCallback;
+
             Log(string.Format("Starting Build <{0}> for target <{1}> with config set <{2}>", 
                 versionNumber, target, buildSetName));
 
@@ -287,7 +288,7 @@ namespace SpartaTools.Editor.Build
 
             OverrideBuiltSetOptions(target, location, buildSet, appendBuild);
 
-            Log(string.Format("Sparta-Autobuilder: Unity version: {0}", Application.unityVersion));
+            Log(string.Format("Unity version: {0}", Application.unityVersion));
 
             //Dump config report after apply config
             new BuildReport()
@@ -314,6 +315,8 @@ namespace SpartaTools.Editor.Build
             _options = BuildOptions.None;
             IsRunning = false;
 
+            Log(string.Format("Detailed log:\n '{0}' \nEnd of detailed log\n", _detailedOutput));
+            Application.logMessageReceived -= LogMessageReceivedCallback;
 
             if(!string.IsNullOrEmpty(result))
             {
@@ -321,8 +324,6 @@ namespace SpartaTools.Editor.Build
                 throw new CompilerErrorException(result);
             }
             Log("Player Build finished successfully");
-            Log(string.Format("Detailed log:\n '{0}' \nEnd of detailed log\n", _detailedOutput));
-            Application.logMessageReceived -= LogMessageReceivedCallback;
         }
 
         static void LogMessageReceivedCallback(string msg, string stack, LogType type)
