@@ -1,6 +1,7 @@
 ﻿using NSubstitute;
 using NUnit.Framework;
 using SocialPoint.Hardware;
+using SocialPoint.IO;
 using SocialPoint.Network;
 
 namespace SocialPoint.Locale
@@ -15,6 +16,8 @@ namespace SocialPoint.Locale
         [SetUp]
         public void SetUp()
         {
+            PathsManager.Init();
+
             HttpClient = Substitute.For<IHttpClient>();
             var DeviceInfo = Substitute.For<UnityDeviceInfo>();
 
@@ -24,6 +27,7 @@ namespace SocialPoint.Locale
             LocalizationManager.Location.ProjectId = "ds";
             LocalizationManager.Location.EnvironmentId = "prod";
             LocalizationManager.Location.SecretKey = "4HKu9W2Wv4Ooolrt";
+            LocalizationManager.SupportedLanguages = LocalizationManager.DefaultSupportedLanguages;
         }
 
         [TearDown]
