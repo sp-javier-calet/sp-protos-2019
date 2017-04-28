@@ -6,7 +6,7 @@ namespace SocialPoint.Social
     {
         public string Title{ get; private set; }
 
-        public string Text{ get; }
+        public string Text{ get; private set; }
 
         internal MessagePayloadPlainText(string title, string text)
         {
