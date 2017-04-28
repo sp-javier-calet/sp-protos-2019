@@ -35,5 +35,9 @@ namespace SocialPoint.Network
          * from the server to the clients
          */
         int GetDelay(int networkTimestamp);
+
+        bool LatencySupported{ get; }
+
+        int Latency{ get; }
     }
 }

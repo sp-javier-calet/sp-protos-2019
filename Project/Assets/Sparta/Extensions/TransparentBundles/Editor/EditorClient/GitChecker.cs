@@ -2,6 +2,8 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
+using SocialPoint.GitCommands;
+using System.IO;
 
 namespace SocialPoint.TransparentBundles
 {
@@ -9,9 +11,11 @@ namespace SocialPoint.TransparentBundles
     {
         const string _gitModifiedToken = " M";
         const string _gitUntrackedToken = "??";
+        const string _gitDeletedToken = " D";
 
-        public static List<string> CheckInBranchUpdated(string branchName)
+        public static List<string> CheckInBranchUpdated()
         {
+            string branchName = TBConfig.GetConfig().branchName;
             var infractions = new List<string>();
             var repo = new Repository(Application.dataPath);
 
@@ -22,6 +26,18 @@ namespace SocialPoint.TransparentBundles
             if(currentBranch != branchName)
             {
                 infractions.Add(string.Format("The current branch is {0}. Was expecting {1}.", currentBranch, branchName));
+                return infractions;
+            }
+
+            query = repo.CreateQuery("rev-parse").WithOption("abbrev-ref HEAD@{u}");
+
+            var remote = query.Exec().TrimEnd('\n');
+            var remoteBranch = remote.Substring(remote.IndexOf("/") + 1);
+
+            if(remoteBranch != branchName)
+            {
+                infractions.Add(string.Format("The remote tracked branch is {0}. Was expecting {1}.", remote, branchName));
+                return infractions;
             }
 
             var queryLocal = repo.CreateQuery("log").WithArg("-1").WithOption("oneline").WithArg(currentBranch);
@@ -39,49 +55,37 @@ namespace SocialPoint.TransparentBundles
 
         public static List<string> CheckFilePending(params string[] assetPaths)
         {
+            var paths = new List<string>(assetPaths);
             var infractions = new List<string>();
             var query = new Repository(Application.dataPath).CreateQuery("status").WithOption("porcelain");
-
             var gitStatus = query.Exec();
+            var reader = new StringReader(gitStatus);
 
-            for(int i = 0; i < assetPaths.Length; i++)
+            string line = null;
+            do
             {
-                var path = assetPaths[i];
-                var idx = gitStatus.IndexOf(path);
-
-                if(idx != -1)
+                line = reader.ReadLine();
+                if(line != null)
                 {
-                    var preIdx = idx;
-                    var prevChar = gitStatus[preIdx - 1];
-
-                    while(prevChar != '\n' && preIdx != 0)
+                    if(line.StartsWith(_gitDeletedToken))
                     {
-                        preIdx--;
-                        prevChar = gitStatus[preIdx - 1];
+                        line = line.Remove(0, _gitDeletedToken.Length).Insert(0, "This file is deleted and pending to commit:");
+                        infractions.Add(line);
                     }
-
-                    var lastIdx = idx + path.Length;
-                    char nextChar = gitStatus[lastIdx];
-                    while(nextChar != '\n' && lastIdx < gitStatus.Length)
+                    else if(paths.Exists(x => line.Contains(x)))
                     {
-                        lastIdx++;
-                        nextChar = gitStatus[lastIdx];
+                        if(line.StartsWith(_gitModifiedToken))
+                        {
+                            line = line.Remove(0, _gitModifiedToken.Length).Insert(0, "This file is modified and pending to commit:");
+                        }
+                        else if(line.StartsWith(_gitUntrackedToken))
+                        {
+                            line = line.Remove(0, _gitUntrackedToken.Length).Insert(0, "This file is new and pending to commit:");
+                        }
+                        infractions.Add(line);
                     }
-
-                    var line = gitStatus.Substring(preIdx, lastIdx - preIdx);
-
-                    if(line.StartsWith(_gitModifiedToken))
-                    {
-                        line = line.Remove(0, 2).Insert(0, "This file is modified and pending to commit:");
-                    }
-                    else if(line.StartsWith(_gitUntrackedToken))
-                    {
-                        line = line.Remove(0, 2).Insert(0, "This file is new and pending to commit:");
-                    }
-
-                    infractions.Add(line);
                 }
-            }
+            } while(line != null);
 
             return infractions;
         }

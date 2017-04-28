@@ -68,6 +68,14 @@ namespace SocialPoint.Network
             return _server.GetTimestamp();
         }
 
+        public bool LatencySupported
+        {
+            get
+            {
+                return _server.LatencySupported;
+            }
+        }
+
         #region INetworkServerDelegate implementation
 
         void INetworkServerDelegate.OnServerStarted()

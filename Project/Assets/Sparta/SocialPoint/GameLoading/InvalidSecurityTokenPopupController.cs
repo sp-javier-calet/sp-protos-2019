@@ -1,5 +1,6 @@
 ﻿using System;
 using SocialPoint.Alert;
+using SocialPoint.Base;
 using SocialPoint.GUIControl;
 using SocialPoint.Locale;
 using SocialPoint.Utils;
@@ -37,7 +38,7 @@ public sealed class InvalidSecurityTokenPopupController : UIViewController
     public string Subject;
     public string DefaultBody;
 
-    public Action Restart;      
+    public Action Restart;
 
     string MessageText
     {
@@ -137,10 +138,10 @@ public sealed class InvalidSecurityTokenPopupController : UIViewController
     protected override void OnLoad()
     {
         base.OnLoad();
-        if(Localization == null)
-        {
-            Localization = new Localization();
-        }
+
+        DebugUtils.Assert(Localization != null, "Localization can not be null");
+        DebugUtils.Assert(AlertView != null, "AlertView can not be null");
+
         TitleText = Localization.Get(TitleKey, TitleDef);
         MessageText = Localization.Get(MessageKey, MessageDef);
         ContactButtonText = Localization.Get(ContactButtonKey, ContactButtonDef);
@@ -154,13 +155,13 @@ public sealed class InvalidSecurityTokenPopupController : UIViewController
 
     public void OnRestartButtonPressed()
     {
-        var restartAlert = AlertView != null ? (IAlertView) AlertView.Clone() : new AlertView();
+        var restartAlert = (IAlertView)AlertView.Clone();
         restartAlert.Title = Localization.Get(RestartGameTitleKey, RestartGameTitleDef);
         restartAlert.Message = Localization.Get(RestartGameMessageKey, RestartGameMessageDef);
         var buttonYesLocalized = Localization.Get(RestartGameYesButtonKey, RestartGameYesButtonDef);
         var buttonNoLocalized = Localization.Get(RestartGameNoButtonKey, RestartGameNoButtonDef);
-        restartAlert.Buttons = new string[]{ buttonYesLocalized, buttonNoLocalized};
-        restartAlert.Show((int restartResult) => {
+        restartAlert.Buttons = new []{ buttonYesLocalized, buttonNoLocalized };
+        restartAlert.Show(restartResult => {
             if(restartResult == 0)
             {
                 Restart();
@@ -168,5 +169,3 @@ public sealed class InvalidSecurityTokenPopupController : UIViewController
         });
     }
 }
-
-

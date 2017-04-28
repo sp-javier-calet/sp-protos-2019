@@ -24,7 +24,7 @@ namespace SocialPoint.Locale
         }
 
         // Environment Ids mapping
-        static readonly Dictionary<LocalizationEnvironment, string> EnvironmentIds = new Dictionary<LocalizationEnvironment, string>() {
+        static readonly Dictionary<LocalizationEnvironment, string> EnvironmentIds = new Dictionary<LocalizationEnvironment, string> {
             { LocalizationEnvironment.Development,  "dev"  },
             { LocalizationEnvironment.Localization, "loc"  },
             { LocalizationEnvironment.Production,   "prod" }
@@ -33,7 +33,6 @@ namespace SocialPoint.Locale
         [Serializable]
         public class SettingsData
         {
-            public bool EditorDebug = true;
             public bool EnableViewLocalization = true;
             public LocalizationSettings Localization;
         }
@@ -47,6 +46,8 @@ namespace SocialPoint.Locale
             public string SecretKeyLoc = LocalizationManager.LocationData.DefaultDevSecretKey;
             public string SecretKeyProd = LocalizationManager.LocationData.DefaultProdSecretKey;
             public string BundleDir = LocalizationManager.DefaultBundleDir;
+            public LocalizationManager.CsvMode CsvMode = LocalizationManager.CsvMode.NoCsv;
+            public bool ShowKeysOnDevMode = true;
             public string[] SupportedLanguages = LocalizationManager.DefaultSupportedLanguages;
             public float Timeout = LocalizationManager.DefaultTimeout;
         }
@@ -56,15 +57,15 @@ namespace SocialPoint.Locale
         public override void InstallBindings()
         {
             Container.Bind<IInitializable>().ToInstance(this);
+            Container.Bind<Localization>().ToGetter<ILocalizationManager>(mng => mng.Localization);
 
-            Container.Rebind<Localization>().ToMethod<Localization>(CreateLocalization);
             Container.Rebind<LocalizeAttributeConfiguration>().ToMethod<LocalizeAttributeConfiguration>(CreateLocalizeAttributeConfiguration);
 
             Container.Rebind<UILocalizationUpdater>().ToMethod<UILocalizationUpdater>(CreateViewLocalizer);
             Container.Bind<IDisposable>().ToLookup<UILocalizationUpdater>();
 
             Container.Rebind<ILocalizationManager>().ToMethod<LocalizationManager>(CreateLocalizationManager, SetupLocalizationManager);
-            Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();    
+            Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
 
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLocale>(CreateAdminPanel);
@@ -94,15 +95,6 @@ namespace SocialPoint.Locale
         }
         #endif
 
-        Localization CreateLocalization()
-        {
-            var locale = new Localization();
-#if UNITY_EDITOR
-            locale.Debug = Settings.EditorDebug;
-#endif
-            return locale;
-        }
-
         UILocalizationUpdater CreateViewLocalizer()
         {
             return new UILocalizationUpdater(
@@ -110,29 +102,31 @@ namespace SocialPoint.Locale
                 Container.Resolve<IEventDispatcher>());
         }
 
-        static LocalizationManager CreateLocalizationManager()
+        LocalizationManager CreateLocalizationManager()
         {
+            LocalizationManager.CsvForNGUILoadedDelegate csvLoadedDelegate = null;
+
             #if NGUI
-            var csvLoadedDelegate = new LocalizationManager.CsvLoadedDelegate(LoadNGUICSV);
-            return new LocalizationManager(LocalizationManager.CsvMode.WriteCsvWithAllSupportedLanguages, csvLoadedDelegate);
-            #else
-            return new LocalizationManager();
+            csvLoadedDelegate = new LocalizationManager.CsvForNGUILoadedDelegate(LoadNGUICSV);
             #endif
+
+            return new LocalizationManager(Settings.Localization.CsvMode, csvLoadedDelegate);
         }
 
         #if NGUI
         static void LoadNGUICSV(byte[] bytes)
         {
+            var manager = Container.Resolve<ILocalizationManager>();
+
             NGUILocalization.LoadCSV(bytes);
+            NGUILocalization.language = manager.CurrentLanguage;
         }
         #endif
-
 
         void SetupLocalizationManager(LocalizationManager mng)
         {
             mng.HttpClient = Container.Resolve<IHttpClient>();
             mng.AppInfo = Container.Resolve<IAppInfo>();
-            mng.Localization = Container.Resolve<Localization>();
             mng.AppEvents = Container.Resolve<IAppEvents>();
 
             string secretKey;
@@ -154,6 +148,8 @@ namespace SocialPoint.Locale
             mng.Location.SecretKey = secretKey;
             mng.Timeout = Settings.Localization.Timeout;
             mng.BundleDir = Settings.Localization.BundleDir;
+            mng.SupportedLanguages = Settings.Localization.SupportedLanguages;
+            mng.Localization.ShowKeysOnDevMode = Settings.Localization.ShowKeysOnDevMode;
 
             mng.UpdateDefaultLanguage();
         }

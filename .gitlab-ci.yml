@@ -1,0 +1,36 @@
+#Configuration for Gitlab CI
+
+variables:
+  UNITY_PROJ_REL_PATH: "Project"
+  
+  
+Android_Unity_Tests:
+ stage: test
+ script: 
+   - 'python C:\sp-tools-Python-CI-Scripts\UnityGenericCall\UnityTestsCall.py -buildTarget android'
+ only:
+   - triggers
+ cache:
+   key: 'AndroidLib/'
+   paths:
+     - '%UNITY_PROJ_REL_PATH%/Library/'
+ artifacts:
+   when: always
+   paths:
+     - '%CI_PROJECT_DIR%/UnityLog/'
+     
+     
+iOS_Unity_Tests:
+ stage: test
+ script: 
+   - 'python C:\sp-tools-Python-CI-Scripts\UnityGenericCall\UnityTestsCall.py -buildTarget ios'
+ only:
+   - triggers
+ cache:
+   key: 'iOSLib/'
+   paths:
+     - '%UNITY_PROJ_REL_PATH%/Library/'
+ artifacts:
+   when: always
+   paths:
+     - '%CI_PROJECT_DIR%/UnityLog/'
