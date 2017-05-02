@@ -25,10 +25,11 @@ namespace SocialPoint.Network
             EventTracker.BaseUrl = "https://lodx.socialpointgames.com/api/v3/";
             EventTracker.Start();
         }
+
         [Test]
         public void Start()
         {
-            Scheduler.Received(1).Add(EventTracker, false, EventTracker.SendInterval);
+            Scheduler.Received(1).Add(EventTracker, UpdateableTimeMode.GameTimeUnscaled, EventTracker.SendInterval);
         }
 
 

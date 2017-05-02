@@ -31,7 +31,7 @@ namespace SocialPoint.Network
         {
             if(_scheduler != null && !_server.LatencySupported)
             {
-                _scheduler.Add(this, false, SendStatusMessageInterval);
+                _scheduler.Add(this, UpdateableTimeMode.GameTimeUnscaled, SendStatusMessageInterval);
             }
             _server.Start();
         }
