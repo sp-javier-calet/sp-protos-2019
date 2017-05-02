@@ -123,9 +123,27 @@ namespace AssetBundleGraph
             RESOURCE_INHERITED_FOLDER_TEX = RESOURCE_ICONS + "folder_inherit.png";
             RESOURCE_FOLDER_TEX_MINI = RESOURCE_ICONS + "folder_mini.png";
             RESOURCE_INHERITED_FOLDER_TEX_MINI = RESOURCE_ICONS + "folder_inherit_mini.png";
+
+
+            var oldSettingsPath = Application.dataPath + "/AssetGraph";
+            if(Directory.Exists(oldSettingsPath))
+            {
+                var destPath = Application.dataPath + "/Sparta/Config/AssetGraph";
+                foreach(string dir in Directory.GetDirectories(oldSettingsPath))
+                {
+                    var dirFolder = dir + "/";
+                    var newDir = dirFolder.Replace(oldSettingsPath, destPath);
+                    if(Directory.Exists(newDir))
+                    {
+                        Debug.Log("Replacing folder " + newDir);
+                        Directory.Delete(newDir, true);
+                    }
+                    Directory.Move(dirFolder, newDir);
+                }
+                Directory.Delete(oldSettingsPath);
+
+                EditorUtility.DisplayDialog("AssetGraph Upgrade", "The AssetGraph Settings folder has been auto relocated due to a version upgrade, before commiting please open the Graph and check if it is correct and has not been corrupted.\n\nIf you have any doubts contact the Tools department.", "Ok");
+            }
         }
-
-
-
     }
 }

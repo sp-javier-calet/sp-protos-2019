@@ -421,6 +421,7 @@ namespace AssetBundleGraph
         {
             LoaderData res = null;
             var path = Path.HasExtension(assetPath) ? assetPath : assetPath + "/";
+            path = path.Replace("Assets/", "");
 
             if(path.Contains(AssetBundleGraphSettings.ASSETBUNDLEGRAPH_PATH))
             {
@@ -429,7 +430,7 @@ namespace AssetBundleGraph
 
             foreach(LoaderData dataPath in loaders)
             {
-                if(path.Contains(dataPath.paths.CurrentPlatformValue + "/"))
+                if(dataPath.paths.CurrentPlatformValue == string.Empty || path.StartsWith(dataPath.paths.CurrentPlatformValue + "/"))
                 {
                     if(res == null || res.paths.CurrentPlatformValue.Length < dataPath.paths.CurrentPlatformValue.Length)
                     {
