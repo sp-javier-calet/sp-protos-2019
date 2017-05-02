@@ -6,6 +6,13 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Utils
 {
+    public enum UpdateableTimeMode
+    {
+        GameTimeScaled,
+        GameTimeUnscaled,
+        RealTime
+    }
+
     public interface IUpdateable
     {
         void Update();
@@ -25,13 +32,13 @@ namespace SocialPoint.Utils
 
     public interface IUpdateScheduler
     {
-        void Add(IUpdateable elm, bool timeScaled, float interval);
+        void Add(IUpdateable elm, UpdateableTimeMode updateTimeMode, float interval);
 
         void Remove(IUpdateable elm);
 
         bool Contains(IUpdateable elm);
 
-        void Add(IDeltaUpdateable elm, bool timeScaled, float interval);
+        void Add(IDeltaUpdateable elm, UpdateableTimeMode updateTimeMode, float interval);
 
         void Remove(IDeltaUpdateable elm);
 
@@ -55,14 +62,14 @@ namespace SocialPoint.Utils
         }
 
         [Obsolete("Use Add instead")]
-        public static void AddFixed(this IUpdateScheduler scheduler, IUpdateable elm, double interval, bool usesTimeScale = false)
+        public static void AddFixed(this IUpdateScheduler scheduler, IUpdateable elm, double interval, UpdateableTimeMode updateTimeMode = UpdateableTimeMode.GameTimeUnscaled)
         {
-            scheduler.Add(elm, usesTimeScale, (float)interval);
+            scheduler.Add(elm, updateTimeMode, (float)interval);
         }
 
         public static void Add(this IUpdateScheduler scheduler, IUpdateable elm)
         {
-            scheduler.Add(elm, false, -1);
+            scheduler.Add(elm, UpdateableTimeMode.GameTimeUnscaled, -1);
         }
     }
 
@@ -92,7 +99,7 @@ namespace SocialPoint.Utils
             }
             else
             {
-                _scheduler.Add(this, false, interval);
+                _scheduler.Add(this, UpdateableTimeMode.GameTimeUnscaled, interval);
             }
         }
 
@@ -145,37 +152,45 @@ namespace SocialPoint.Utils
             }
         }
 
-        public void Add(IUpdateable elm, bool timeScaled = false, float interval = -1)
+        public void Add(IUpdateable elm, UpdateableTimeMode updateTimeMode = UpdateableTimeMode.GameTimeUnscaled, float interval = -1)
         {
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                IUpdateableHandler handler;
-                if(timeScaled)
+                IUpdateableHandler handler = null;
+                switch(updateTimeMode)
                 {
+                case UpdateableTimeMode.GameTimeScaled:
                     handler = new ScaledUpdateableHandler(elm, CreateTimer(interval));
-                }
-                else
-                {
-                    handler = new UpdateableHandler(elm, CreateTimer(interval));   
+                    break;
+                case UpdateableTimeMode.GameTimeUnscaled:
+                    handler = new UpdateableHandler(elm, CreateTimer(interval));  
+                    break;
+                case UpdateableTimeMode.RealTime:
+                    handler = new RealTimeUpdateableHandler(elm, CreateTimer(interval));
+                    break;
                 }
                 DoAdd(elm, handler);
             }
         }
 
-        public void Add(IDeltaUpdateable elm, bool timeScaled = false, float interval = -1)
+        public void Add(IDeltaUpdateable elm, UpdateableTimeMode updateTimeMode = UpdateableTimeMode.GameTimeUnscaled, float interval = -1)
         {
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                IUpdateableHandler handler;
-                if(timeScaled)
+                IUpdateableHandler handler = null;
+                switch(updateTimeMode)
                 {
+                case UpdateableTimeMode.GameTimeScaled:
                     handler = new DeltaScaledUpdateableHandler(elm, CreateTimer(interval));
-                }
-                else
-                {
+                    break;
+                case UpdateableTimeMode.GameTimeUnscaled:
                     handler = new DeltaUpdateableHandler(elm, CreateTimer(interval));   
+                    break;
+                case UpdateableTimeMode.RealTime:
+                    handler = new RealTimeDeltaUpdateableHandler(elm, CreateTimer(interval));   
+                    break;
                 }
                 DoAdd(elm, handler);
             }
@@ -274,7 +289,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        public void Update(float deltaTime)
+        public void Update(float deltaTime, float unscaledDeltaTime)
         {
             // Sync for external changes
             Synchronize();
@@ -282,7 +297,7 @@ namespace SocialPoint.Utils
             _exceptions.Clear();
 
             // Update registered elements
-            var time = GetUpdateTime(deltaTime);
+            var time = GetUpdateTime(deltaTime, unscaledDeltaTime);
             DoUpdate(time);
 
             // Check new exceptions
@@ -314,7 +329,7 @@ namespace SocialPoint.Utils
             itr.Dispose();
         }
 
-        UpdateableTime GetUpdateTime(float deltaTime)
+        UpdateableTime GetUpdateTime(float deltaTime, float unscaledDeltaTime)
         {
             var currentTimeStamp = TimeUtils.GetTimestampDouble(DateTime.Now);
             if(_lastUpdateTimestamp < float.Epsilon)
@@ -324,7 +339,11 @@ namespace SocialPoint.Utils
             var nonScaledDeltaTime = currentTimeStamp - _lastUpdateTimestamp;
             _lastUpdateTimestamp = currentTimeStamp;
 
-            var time = new UpdateableTime { DeltaTime = deltaTime, NonScaledDeltaTime = (float)nonScaledDeltaTime };
+            var time = new UpdateableTime {
+                DeltaTime = deltaTime,
+                UnscaledDeltaTime = unscaledDeltaTime,
+                RealDeltaTime = (float)nonScaledDeltaTime
+            };
             return time;
         }
 
@@ -388,7 +407,8 @@ namespace SocialPoint.Utils
     {
         public int Ticks;
         public float DeltaTime;
-        public float NonScaledDeltaTime;
+        public float UnscaledDeltaTime;
+        public float RealDeltaTime;
     }
 
     #region TimeHandlers
@@ -441,6 +461,27 @@ namespace SocialPoint.Utils
         void Update(UpdateableTime time);
     }
 
+    struct UpdateableHandler : IUpdateableHandler
+    {
+        readonly IUpdateableTimer _timer;
+        readonly IUpdateable _updateable;
+
+        public UpdateableHandler(IUpdateable updateable, IUpdateableTimer timer)
+        {
+            _updateable = updateable;
+            _timer = timer;
+        }
+
+        public void Update(UpdateableTime time)
+        {
+            float interval;
+            if(_timer.Step(time.UnscaledDeltaTime, out interval))
+            {
+                _updateable.Update();
+            }
+        }
+    }
+
     struct ScaledUpdateableHandler : IUpdateableHandler
     {
         readonly IUpdateableTimer _timer;
@@ -462,12 +503,12 @@ namespace SocialPoint.Utils
         }
     }
 
-    struct UpdateableHandler : IUpdateableHandler
+    struct RealTimeUpdateableHandler : IUpdateableHandler
     {
         readonly IUpdateableTimer _timer;
         readonly IUpdateable _updateable;
 
-        public UpdateableHandler(IUpdateable updateable, IUpdateableTimer timer)
+        public RealTimeUpdateableHandler(IUpdateable updateable, IUpdateableTimer timer)
         {
             _updateable = updateable;
             _timer = timer;
@@ -476,7 +517,7 @@ namespace SocialPoint.Utils
         public void Update(UpdateableTime time)
         {
             float interval;
-            if(_timer.Step(time.NonScaledDeltaTime, out interval))
+            if(_timer.Step(time.RealDeltaTime, out interval))
             {
                 _updateable.Update();
             }
@@ -497,7 +538,7 @@ namespace SocialPoint.Utils
         public void Update(UpdateableTime time)
         {
             float interval;
-            if(_timer.Step(time.NonScaledDeltaTime, out interval))
+            if(_timer.Step(time.UnscaledDeltaTime, out interval))
             {
                 _updateable.Update(interval);
             }
@@ -519,6 +560,27 @@ namespace SocialPoint.Utils
         {
             float interval;
             if(_timer.Step(time.DeltaTime, out interval))
+            {
+                _updateable.Update(interval);
+            }
+        }
+    }
+
+    struct RealTimeDeltaUpdateableHandler : IUpdateableHandler
+    {
+        readonly IUpdateableTimer _timer;
+        readonly IDeltaUpdateable _updateable;
+
+        public RealTimeDeltaUpdateableHandler(IDeltaUpdateable updateable, IUpdateableTimer timer)
+        {
+            _updateable = updateable;
+            _timer = timer;
+        }
+
+        public void Update(UpdateableTime time)
+        {
+            float interval;
+            if(_timer.Step(time.RealDeltaTime, out interval))
             {
                 _updateable.Update(interval);
             }
