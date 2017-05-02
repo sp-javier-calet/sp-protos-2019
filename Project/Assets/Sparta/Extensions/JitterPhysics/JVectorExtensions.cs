@@ -11,10 +11,20 @@ public static partial class JVectorExtensions
         v.Normalize();
         return v;
     }
-    
+
+    public static JVector ZeroXValue(this JVector v)
+    {
+        return new JVector(0f, v.Y, v.Z);
+    }
+
     public static JVector ZeroYValue(this JVector v)
     {
         return new JVector(v.X, 0f, v.Z);
+    }
+
+    public static JVector ZeroZValue(this JVector v)
+    {
+        return new JVector(v.X, v.Y, 0f);
     }
 
     public static float DistanceSQ(this JVector v, JVector other)
