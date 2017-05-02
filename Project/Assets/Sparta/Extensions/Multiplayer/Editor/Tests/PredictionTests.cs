@@ -8,7 +8,7 @@ using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
-    [TestFixture, Ignore]
+    [TestFixture]//, Ignore]
     [Category("SocialPoint.Multiplayer")]
     class PredictionTests
     {
@@ -35,11 +35,11 @@ namespace SocialPoint.Multiplayer
             _clientCtrl2.Restart(_client2);
 
             _serverCtrl.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
-            _serverCtrl.RegisterAction<TestMovementAction>(MovementActionType);
+            _serverCtrl.RegisterAction<TestMovementAction>(MovementActionType, TestMovementAction.Apply);
             _clientCtrl1.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
-            _clientCtrl1.RegisterAction<TestMovementAction>(MovementActionType);
+            _clientCtrl1.RegisterAction<TestMovementAction>(MovementActionType, TestMovementAction.Apply);
             _clientCtrl2.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
-            _clientCtrl2.RegisterAction<TestMovementAction>(MovementActionType);
+            _clientCtrl2.RegisterAction<TestMovementAction>(MovementActionType, TestMovementAction.Apply);
 
             _server.Start();
             _client1.Connect();
@@ -202,9 +202,10 @@ namespace SocialPoint.Multiplayer
                 go.Init(scene.CurrentScene.FreeObjectId, false, newObjTransform);
                 scene.CurrentScene.AddObject(go);
             }
+
         }
 
-        class TestMovementAction : INetworkShareable, INetworkSceneAction
+        class TestMovementAction : INetworkShareable
         {
             public JVector Movement;
 
@@ -218,14 +219,14 @@ namespace SocialPoint.Multiplayer
                 JVectorSerializer.Instance.Serialize(Movement, writer);
             }
 
-            public void Apply(NetworkScene scene)
+            public static void Apply(NetworkSceneMemento scene, TestMovementAction action)
             {
                 var list = new List<NetworkGameObject>();
-                var itr = scene.GetObjectEnumerator(list);
+                var itr = scene.CurrentScene.GetObjectEnumerator(list);
                 while(itr.MoveNext())
                 {
                     var go = itr.Current;
-                    go.Transform.Position += Movement;
+                    go.Transform.Position += action.Movement;
                 }
                 itr.Dispose();
             }

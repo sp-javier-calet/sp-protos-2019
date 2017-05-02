@@ -39,7 +39,7 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
     {
         Mesh map = PathfindingUnityUtils.CombineSubMeshes(gameObject);
         SetMeshCollider(gameObject, map);
-
+        _straightPath = new StraightPath();
         //Create NavMesh
         var settings = NavMeshGenerationSettings.Default;//Use the default generation settings
         settings.AgentHeight = 1.7f;

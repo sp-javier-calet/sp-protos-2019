@@ -113,7 +113,7 @@ namespace SocialPoint.Network
         }
 
         [Test]
-        public void MultipleMetricsAtATime([Random(1, 3, 5)] int counter, [Random(1, 3, 5)] int gauge)
+        public void MultipleMetricsAtATime([Random(1, 3, 2)] int counter, [Random(1, 3, 2)] int gauge)
         {
             var counterCount = counter;
             var gaugesCount = gauge;

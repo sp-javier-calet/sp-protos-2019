@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using NSubstitute;
 using System.IO;
 using SocialPoint.IO;
 using SocialPoint.Network;
@@ -42,6 +43,24 @@ namespace SocialPoint.Multiplayer
         }
 
         [Test]
+        public void Reconnect()
+        {
+            var clientDel = Substitute.For<INetworkClientDelegate>();
+            _client.AddDelegate(clientDel);
+            clientDel.Received(1).OnClientConnected();
+            var serverDel = Substitute.For<INetworkServerDelegate>();
+            _server.AddDelegate(serverDel);
+            _client.Disconnect();
+            Assert.That(!_client.Connected);
+            clientDel.Received(1).OnClientDisconnected();
+            serverDel.Received(1).OnClientDisconnected(1);
+            _client.Connect();
+            clientDel.Received(2).OnClientConnected();
+            serverDel.Received(1).OnClientConnected(1);
+            Assert.That(_client.Connected);
+        }
+
+        [Test]
         public void SceneSync()
         {
             var go = _serverCtrl.Instantiate(0);
@@ -51,7 +70,7 @@ namespace SocialPoint.Multiplayer
             go.Transform.Position.X = 2.0f;
             Assert.That(!_clientCtrl.Equals(_serverCtrl.Scene));
             Assert.That(!_client2Ctrl.Equals(_serverCtrl.Scene));
-            UpdateServerInterval();;
+            UpdateServerInterval();
             Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
             Assert.That(_client2Ctrl.Equals(_serverCtrl.Scene));
             _serverCtrl.Destroy(go.Id);
