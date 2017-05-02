@@ -62,7 +62,7 @@ namespace SocialPoint.Social
             _originFactories = new Dictionary<string, IMessageOriginFactory>();
             _payloadFactories = new Dictionary<string, IMessagePayloadFactory>();
 
-            AddDefaultOriginFactories();
+            AddDefaultFactories();
         }
 
         public void Dispose()
@@ -71,7 +71,7 @@ namespace SocialPoint.Social
             _connection.OnProcessServices -= OnProcessServices;
         }
 
-        void AddDefaultOriginFactories()
+        void AddDefaultFactories()
         {
             _originFactories.Add(MessageOriginSystem.Identifier, new MessageOriginSystemFactory());
 
