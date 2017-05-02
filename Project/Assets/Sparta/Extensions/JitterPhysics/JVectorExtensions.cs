@@ -6,7 +6,8 @@ public static partial class JVectorExtensions
     {
         if(v.LengthSquared() < 1e-4f)
         {
-            return JVector.Zero;
+            v.MakeZero();
+            return v;
         }
         v.Normalize();
         return v;
