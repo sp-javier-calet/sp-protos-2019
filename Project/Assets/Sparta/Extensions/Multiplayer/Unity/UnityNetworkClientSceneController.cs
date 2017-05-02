@@ -57,7 +57,7 @@ namespace SocialPoint.Multiplayer
                 }
             }
 
-            var go = ObjectPool.Spawn(prefab, parent,
+            var go = UnityObjectPool.Spawn(prefab, parent,
                          ev.Transform.Position.ToUnity(), ev.Transform.Rotation.ToUnity());
             _objects[ev.ObjectId] = go;
         }
@@ -67,7 +67,7 @@ namespace SocialPoint.Multiplayer
             GameObject go;
             if(_objects.TryGetValue(ev.ObjectId, out go))
             {
-                ObjectPool.Recycle(go);
+                UnityObjectPool.Recycle(go);
                 _objects.Remove(ev.ObjectId);
             }
         }
