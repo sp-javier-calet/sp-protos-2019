@@ -126,7 +126,7 @@ namespace AssetBundleGraph
         private AssetBundleGraphSelection selection;
         private ScalePoint scalePoint;
         private GraphBackground background = new GraphBackground();
-        private bool validated = false;
+        private bool _compiled = false;
         private double lastClickedTime = 0;
         private double doubleClickTime = 0.3f;
 
@@ -420,7 +420,7 @@ namespace AssetBundleGraph
 			*/
 
             graphGUI = new GraphGUI(graph);
-            validated = false;
+            _compiled = false;
         }
 
         /**
@@ -448,7 +448,7 @@ namespace AssetBundleGraph
 
         private void SaveGraphThatRequiresReload(bool silent = false)
         {
-            validated = false;
+            _compiled = false;
             PreProcessor.MarkForReload();
             SaveGraph();
         }
@@ -487,7 +487,7 @@ namespace AssetBundleGraph
 
                 AssetBundleGraphController.Postprocess(graph, s_assetStreamMap, false);
 
-                validated = true;
+                _compiled = true;
             }
             catch(Exception e)
             {
@@ -676,16 +676,16 @@ namespace AssetBundleGraph
                     selectedTarget = supportedTargets[newIndex];
                 }
 
-                using(new EditorGUI.DisabledGroupScope(validated))
+                using(new EditorGUI.DisabledGroupScope(_compiled))
                 {
-                    if(GUILayout.Button("Validate", EditorStyles.toolbarButton, GUILayout.Height(AssetGraphRelativePaths.TOOLBAR_HEIGHT)))
+                    if(GUILayout.Button("Compile", EditorStyles.toolbarButton, GUILayout.Height(AssetGraphRelativePaths.TOOLBAR_HEIGHT)))
                     {
                         SaveGraph();
                         Setup(ActiveBuildTarget);
                     }
                 }
 
-                using(new EditorGUI.DisabledGroupScope(!(Selection.objects.Length > 0 && Selection.objects.All(x => x is NodeGUIInspectorHelper && ((NodeGUIInspectorHelper)x).node.Kind == NodeKind.LOADER_GUI)) || !validated))
+                using(new EditorGUI.DisabledGroupScope(!(Selection.objects.Length > 0 && Selection.objects.All(x => x is NodeGUIInspectorHelper && ((NodeGUIInspectorHelper)x).node.Kind == NodeKind.LOADER_GUI)) || !_compiled))
                 {
                     if(GUILayout.Button("Run Selected", EditorStyles.toolbarButton, GUILayout.Height(AssetGraphRelativePaths.TOOLBAR_HEIGHT)))
                     {
@@ -694,7 +694,7 @@ namespace AssetBundleGraph
                         Run(ActiveBuildTarget, selectedLoaderIds.ToList());
                     }
                 }
-                using(new EditorGUI.DisabledGroupScope(isAnyIssueFound || !validated))
+                using(new EditorGUI.DisabledGroupScope(isAnyIssueFound || !_compiled))
                 {
                     if(GUILayout.Button("Run", EditorStyles.toolbarButton, GUILayout.Height(AssetGraphRelativePaths.TOOLBAR_HEIGHT)))
                     {
