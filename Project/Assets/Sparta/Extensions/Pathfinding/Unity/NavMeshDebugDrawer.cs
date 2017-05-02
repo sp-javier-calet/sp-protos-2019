@@ -36,12 +36,6 @@ public class NavMeshDebugDrawer : MonoBehaviour
     // Use this for initialization
     void Awake()
     {
-        //Create NavMesh
-//        var settings = NavMeshGenerationSettings.Default;//Use the default generation settings
-//        settings.AgentHeight = AgentHeight;
-//        settings.AgentRadius = AgentRadius;
-//        _navMesh = PathfindingUnityUtils.CreateNavMesh(gameObject, settings);
-
         _debugger = new PathfindingUnityDebugger();
         HideChildren();
     }
