@@ -122,7 +122,9 @@ namespace SocialPoint.Pooling
             // We force to upload a model to GPU in order to prevent performance
             // spikes when a model is first visible. We place it in front of the
             // camera to avoid culling.
-            prefab.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 2.0f;
+            float centreClipPlane = (Camera.main.farClipPlane + Camera.main.nearClipPlane) * 0.5f;
+            SocialPoint.Base.DebugUtils.Assert(centreClipPlane > 0.0f);
+            prefab.transform.position = Camera.main.transform.position + Camera.main.transform.forward * centreClipPlane;
             prefab.SetActive(true);
 
             yield return 0;
