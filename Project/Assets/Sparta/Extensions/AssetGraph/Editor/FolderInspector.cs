@@ -169,7 +169,7 @@ namespace AssetBundleGraph
 
                     perfectMatch = folderConfigured == _path;
 
-                    string message = perfectMatch ? "This folder is configured to use the Graph Importer" : "This folder is inheriting a Graph Importer configuration from " + folderConfigured;
+                    string message = perfectMatch ? "This folder is configured to use the AssetGraph Importer" : "This folder is inheriting an AssetGraph Importer configuration from " + folderConfigured;
                     string buttonMsg = perfectMatch ? "Open Folder Graph" : "Open Inherited graph from " + folderConfigured;
 
                     EditorGUILayout.HelpBox(message, MessageType.Info);
