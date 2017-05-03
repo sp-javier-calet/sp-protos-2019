@@ -117,7 +117,7 @@ namespace SocialPoint.Pooling
             return CreatePool(prefab.gameObject, initialPoolSize);
         }
 
-        static IEnumerator HidePrefab(GameObject prefab, bool active, Vector3 position)
+        static IEnumerator ActiveOnceAndResetState(GameObject prefab, bool active, Vector3 position)
         {
             // We force to upload a model to GPU in order to prevent performance
             // spikes when a model is first visible. We place it in front of the
@@ -170,7 +170,7 @@ namespace SocialPoint.Pooling
 
                 list.Add(obj);
             }
-            Instance.StartCoroutine(HidePrefab(prefab, active, prefab.transform.position));
+            Instance.StartCoroutine(ActiveOnceAndResetState(prefab, active, prefab.transform.position));
 
             return list;
         }
