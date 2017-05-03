@@ -26,40 +26,49 @@ namespace AssetBundleGraph
 
         static void HierarchyItemCB(string guid, Rect r)
         {
-            if(IsFolderUserByAssetGraph(AssetDatabase.GUIDToAssetPath(guid), out _perfectMatch))
+            if(string.IsNullOrEmpty(guid))
+                return;
+            try
             {
-                Texture2D drawTexture = null;
-                Rect drawRect = new Rect(r);
-                if(Mathf.Approximately(r.height, 16f))
+                if(IsFolderUserByAssetGraph(AssetDatabase.GUIDToAssetPath(guid), out _perfectMatch))
                 {
-                    drawRect.x += 2;
-                    drawTexture = _perfectMatch ? _folder_mini : _inherited_folder_mini;
-                    drawRect.width = drawRect.height;
-                }
-                else
-                {
-                    drawTexture = _perfectMatch ? _folder : _inherited_folder;
-                    drawRect.height = r.height * 0.8f;
-
-                    var diffheight = drawRect.height - drawTexture.height;
-                    var diffwidth = drawRect.width - drawTexture.width;
-
-                    if(diffheight > 0)
+                    Texture2D drawTexture = null;
+                    Rect drawRect = new Rect(r);
+                    if(Mathf.Approximately(r.height, 16f))
                     {
-                        drawRect.y += diffheight * 0.75f;
-                        drawRect.height = drawTexture.height;
+                        drawRect.x += 2;
+                        drawTexture = _perfectMatch ? _folder_mini : _inherited_folder_mini;
+                        drawRect.width = drawRect.height;
                     }
-                    if(diffwidth > 0)
+                    else
                     {
-                        drawRect.x += diffwidth / 2;
-                        drawRect.width = drawTexture.width;
+                        drawTexture = _perfectMatch ? _folder : _inherited_folder;
+                        drawRect.height = r.height * 0.8f;
+
+                        var diffheight = drawRect.height - drawTexture.height;
+                        var diffwidth = drawRect.width - drawTexture.width;
+
+                        if(diffheight > 0)
+                        {
+                            drawRect.y += diffheight * 0.75f;
+                            drawRect.height = drawTexture.height;
+                        }
+                        if(diffwidth > 0)
+                        {
+                            drawRect.x += diffwidth / 2;
+                            drawRect.width = drawTexture.width;
+                        }
+                    }
+
+                    if(drawTexture != null)
+                    {
+                        GUI.DrawTexture(drawRect, drawTexture);
                     }
                 }
-
-                if(drawTexture != null)
-                {
-                    GUI.DrawTexture(drawRect, drawTexture);
-                }
+            }
+            catch(System.Exception e)
+            {
+                Debug.Log(e);
             }
         }
 
@@ -67,6 +76,9 @@ namespace AssetBundleGraph
         {
             bool isUsed = false;
             isPerfectMatch = false;
+
+            if(string.IsNullOrEmpty(path))
+                return isUsed;
 
             if(Path.GetExtension(path) == string.Empty)
             {
