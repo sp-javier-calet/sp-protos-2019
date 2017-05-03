@@ -5,7 +5,7 @@ using System.Collections;
 
 namespace SocialPoint.Pooling
 {
-    public class ObjectPool : MonoBehaviour
+    public sealed class ObjectPool : MonoBehaviour
     {
         public enum StartupPoolModeEnum
         {
