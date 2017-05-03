@@ -361,16 +361,14 @@ namespace SocialPoint.Pooling
 
         static void Recycle(GameObject obj, GameObject prefab)
         {
-            if(Instance._pooledObjects.ContainsKey(prefab))
+            SocialPoint.Base.DebugUtils.Assert(Instance._pooledObjects.ContainsKey(prefab), "Maybe you forgot calling Spawn method before");
+            Instance._pooledObjects[prefab].Add(obj);
+            Instance._spawnedObjects.Remove(obj);
+            Transform _parent = Instance.gameObject.transform.FindChild("Pool_" + prefab.name).transform;
+            if(obj)
             {
-                Instance._pooledObjects[prefab].Add(obj);
-                Instance._spawnedObjects.Remove(obj);
-                Transform _parent = Instance.gameObject.transform.FindChild("Pool_" + prefab.name).transform;
-                if(obj)
-                {
-                    SetupTransform(_parent ? _parent : _instance.transform, Vector3.zero, Quaternion.identity, obj);
-                    obj.SetActive(false);
-                }
+                SetupTransform(_parent ? _parent : _instance.transform, Vector3.zero, Quaternion.identity, obj);
+                obj.SetActive(false);
             }
         }
 
