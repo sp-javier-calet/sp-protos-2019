@@ -421,9 +421,10 @@ namespace AssetBundleGraph
         {
             LoaderData res = null;
             var path = Path.HasExtension(assetPath) ? assetPath : assetPath + "/";
-            path = path.Replace("Assets/", "");
+            var separator = "Assets/";
+            path = path.Remove(0, path.IndexOf(separator) + separator.Length);
 
-            if(path.Contains(AssetBundleGraphSettings.ASSETBUNDLEGRAPH_PATH))
+            if(path.Contains(AssetBundleGraphSettings.ASSETBUNDLEGRAPH_PATH.Remove(0, separator.Length)))
             {
                 return res;
             }
