@@ -97,12 +97,17 @@ namespace SocialPoint.Pooling
         bool GetOrCreatePool(GameObject prefab, out List<GameObject> list)
         {
             bool found = Instance._pooledObjects.TryGetValue(prefab, out list);
-            if(!found && AllowAutoPoolCreation)
+            if(!found)
             {
-                list = CreatePool(prefab, 1);
-                found = list != null;
-
-                LogWarningSpawningPrefabNotInPool(prefab);
+                if(AllowAutoPoolCreation)
+                {
+                    list = CreatePool(prefab, 1);
+                    found = list != null;
+                }
+                else
+                {
+                    LogWarningSpawningPrefabNotInPool(prefab);
+                }
             }
             return found;
         }
