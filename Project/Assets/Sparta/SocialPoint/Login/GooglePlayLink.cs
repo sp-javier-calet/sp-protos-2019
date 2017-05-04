@@ -134,7 +134,7 @@ namespace SocialPoint.Login
             GoogleUser user = _googlePlay.User;
             var data = new AttrDic();
 
-            if(string.IsNullOrEmpty(user.UserId))
+            if(!string.IsNullOrEmpty(user.UserId))
             {
                 string accessToken = _googlePlay.AccessToken;
             

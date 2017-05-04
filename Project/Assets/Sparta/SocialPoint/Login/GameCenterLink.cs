@@ -153,7 +153,7 @@ namespace SocialPoint.Login
         {
             GameCenterUser user = _gameCenter.User;
             var data = new AttrDic();
-            if(string.IsNullOrEmpty(user.UserId))
+            if(!string.IsNullOrEmpty(user.UserId))
             {
                 data.SetValue("gc_external_id", user.UserId);
                 data.SetValue("alias", user.Alias);

@@ -12,7 +12,6 @@ namespace SocialPoint.Social
     public sealed class SocialPointGameCenterVerification
     {
         GameCenterValidationDelegate _delegate;
-        GameCenterUserVerification _verification;
         NativeCallsHandler _handler;
 
         #if IOS_DEVICE
@@ -48,10 +47,10 @@ namespace SocialPoint.Social
         void Notify(string verification)
         {
             Error error;
+            GameCenterUserVerification gcUserVerification = null;
 
             if(string.IsNullOrEmpty(verification))
             {
-                _verification = null;
                 error = new Error("Game Center Verification only supported on iOS device.");
                 Log.i("Game Center Verification only supported on iOS device.");
             }
@@ -61,7 +60,6 @@ namespace SocialPoint.Social
                 var data = parser.ParseString(verification).AsDic;
                 if(data.GetValue("error").ToBool())
                 {
-                    _verification = null;
                     error = new Error(data.GetValue("errorCode").ToInt(), data.GetValue("errorMessage").ToString());
                     Log.i("Game Center Verification got error: " + error);
                 }
@@ -71,7 +69,7 @@ namespace SocialPoint.Social
                     var signature = Convert.FromBase64String(data.GetValue("signature").ToString());
                     var salt = Convert.FromBase64String(data.GetValue("salt").ToString());
                     var time = (ulong)data.GetValue("timestamp").ToLong();
-                    _verification = new GameCenterUserVerification(url, signature, salt, time);
+                    gcUserVerification = new GameCenterUserVerification(url, signature, salt, time);
                     error = null;
                 }
             }
@@ -79,7 +77,7 @@ namespace SocialPoint.Social
             DebugUtils.Assert(_delegate != null, "SocialPointGameCenterVerification, _delegate must not be null");
             if(_delegate != null)
             {
-                _delegate(error, _verification);
+                _delegate(error, gcUserVerification);
                 _delegate = null;
             }
         }
