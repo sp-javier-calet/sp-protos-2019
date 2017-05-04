@@ -13,6 +13,7 @@ namespace AssetBundleGraph
         public const bool IGNORE_META = true;
 
         public const string GUI_TEXT_MENU_OPEN = "Window/AssetGraph/Open Graph Editor";
+        public const string GUI_TEXT_MENU_OPEN_VALIDATION = "Window/AssetGraph/Open Validation Log";
         public const string GUI_TEXT_MENU_BUILD = "Window/AssetGraph/Build Bundles for Current Platform";
         public const string GUI_TEXT_MENU_GENERATE = "Window/AssetGraph/Create Node Script";
         public const string GUI_TEXT_MENU_GENERATE_MODIFIER = GUI_TEXT_MENU_GENERATE + "/Modifier Script";

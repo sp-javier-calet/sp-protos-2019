@@ -24,7 +24,7 @@ namespace AssetBundleGraph
 
         WindowView<ValidatorLogWindow> _currentView;
 
-        [MenuItem("Window/AssetGraph/Open Validation Log", false, 2)]
+        [MenuItem(AssetBundleGraphSettings.GUI_TEXT_MENU_OPEN_VALIDATION, false, 2)]
         public static void Open()
         {
             GetWindow<ValidatorLogWindow>("Validator Log");

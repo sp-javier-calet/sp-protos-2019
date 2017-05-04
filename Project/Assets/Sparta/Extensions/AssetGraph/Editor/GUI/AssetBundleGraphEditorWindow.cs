@@ -215,22 +215,22 @@ namespace AssetBundleGraph
         /*
 			menu items
 		*/
-        [MenuItem(AssetBundleGraphSettings.GUI_TEXT_MENU_GENERATE_MODIFIER, priority = 0)]
+        [MenuItem(AssetBundleGraphSettings.GUI_TEXT_MENU_GENERATE_MODIFIER, false, 7)]
         public static void GenerateModifier()
         {
             GenerateScript(ScriptType.SCRIPT_MODIFIER);
         }
-        [MenuItem(AssetBundleGraphSettings.GUI_TEXT_MENU_GENERATE_VALIDATOR, priority = 0)]
+        [MenuItem(AssetBundleGraphSettings.GUI_TEXT_MENU_GENERATE_VALIDATOR, false, 7)]
         public static void GenerateValidator()
         {
             GenerateScript(ScriptType.SCRIPT_VALIDATOR);
         }
-        [MenuItem(AssetBundleGraphSettings.GUI_TEXT_MENU_GENERATE_PREFABBUILDER, priority = 10)]
+        [MenuItem(AssetBundleGraphSettings.GUI_TEXT_MENU_GENERATE_PREFABBUILDER, false, 10)]
         public static void GeneratePrefabBuilder()
         {
             GenerateScript(ScriptType.SCRIPT_PREFABBUILDER);
         }
-        [MenuItem(AssetBundleGraphSettings.GUI_TEXT_MENU_GENERATE_POSTPROCESS, priority = 10)]
+        [MenuItem(AssetBundleGraphSettings.GUI_TEXT_MENU_GENERATE_POSTPROCESS, false, 10)]
         public static void GeneratePostprocess()
         {
             GenerateScript(ScriptType.SCRIPT_POSTPROCESS);
