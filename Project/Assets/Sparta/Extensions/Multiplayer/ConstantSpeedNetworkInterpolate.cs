@@ -7,8 +7,8 @@ namespace SocialPoint.Multiplayer
     public class ConstantSpeedNetworkInterpolate : INetworkBehaviour, INetworkInterpolate
     {
         public static double PositionLerpSpeed = 18.0;
-        const double _epsilon = 1e-4f;
-        const double _defMaxDistance = 4f;
+        const double _epsilon = 1e-4;
+        const double _defMaxDistance = 4;
         const double _minTimeToProcessData = 0.1;
         const int _minIterationCount = 1;
 

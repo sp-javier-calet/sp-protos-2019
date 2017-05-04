@@ -12,8 +12,8 @@ namespace SocialPoint.Multiplayer
 
     public class SmoothNetworkInterpolate : INetworkBehaviour, INetworkInterpolate
     {
-        const double _epsilon = 1e-4f;
-        const double _defMaxDistance = 4f;
+        const double _epsilon = 1e-4;
+        const double _defMaxDistance = 4;
         const int _minIterationCount = 1;
 
         public bool Enable{ get; set; }
