@@ -317,7 +317,7 @@ namespace Spine.Unity {
 
 				// Create a new SubmeshInstruction when material changes. (or when forced to separate by a submeshSeparator)
 				bool forceSeparate = (separatorSlots.Count > 0 && separatorSlots.Contains(slot));
-                if ((lastMaterial != null && material != null) && vertexCount > 0 && (lastMaterial.GetInstanceID() != material.GetInstanceID() || forceSeparate)) {
+				if (vertexCount > 0 && (lastMaterial.GetInstanceID() != material.GetInstanceID() || forceSeparate)) {
 					workingSubmeshInstructions.Add(
 						new Spine.Unity.MeshGeneration.SubmeshInstruction {
 							skeleton = this.skeleton,
