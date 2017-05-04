@@ -1,13 +1,11 @@
 ﻿using Jitter.LinearMath;
+using SocialPoint.Base;
 
 public static partial class JVectorExtensions
 {
     public static JVector Normalized(this JVector v)
     {
-        if(v.LengthSquared() < 1e-4f)
-        {
-            return JVector.Zero;
-        }
+        DebugUtils.Assert(v.LengthSquared() > 1e-4f, "Trying to normalize a vector with lenght 0");
         v.Normalize();
         return v;
     }

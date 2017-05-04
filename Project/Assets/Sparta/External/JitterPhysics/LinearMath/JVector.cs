@@ -18,6 +18,8 @@
 */
 
 #region Using Statements
+using SocialPoint.Base;
+
 using System;
 using System.Collections.Generic;
 
@@ -729,7 +731,9 @@ namespace Jitter.LinearMath
         #region public static JVector operator /(JVector value1, float value2)
         public static JVector operator /(JVector value1, float value2)
         {
-            return new JVector(value1.X / value2, value1.Y / value2, value1.Z / value2);
+            DebugUtils.Assert(Math.Abs(value2) > 1e-4f, "Trying to divide a vector by 0");
+            float invValue2 = 1f/value2;
+            return new JVector(value1.X * invValue2, value1.Y * invValue2, value1.Z * invValue2);
         }
         #endregion
     }

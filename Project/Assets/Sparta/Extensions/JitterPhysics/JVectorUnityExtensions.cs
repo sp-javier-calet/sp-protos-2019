@@ -21,10 +21,4 @@ public static partial class JVectorExtensions
     {
         return new UnityEngine.Vector2(v.X, v.Y);
     }
-
-    public static float LengthXZ(this JVector v)
-    {
-        var sq = v.X * v.X + v.Z * v.Z;
-        return JMath.Sqrt(sq);
-    }
 }
