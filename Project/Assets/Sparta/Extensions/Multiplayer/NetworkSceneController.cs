@@ -40,7 +40,6 @@ namespace SocialPoint.Multiplayer
 
         protected void UnregisterAllBehaviours()
         {
-            #warning we should destroy properly old behaviours
             var behaviourEnum = _behaviourPrototypes.GetEnumerator();
             while(behaviourEnum.MoveNext() != false)
             {
