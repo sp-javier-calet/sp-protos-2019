@@ -8,7 +8,7 @@ using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
-    [TestFixture]//, Ignore]
+    [TestFixture]
     [Category("SocialPoint.Multiplayer")]
     class PredictionTests
     {
