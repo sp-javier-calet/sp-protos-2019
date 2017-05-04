@@ -16,7 +16,7 @@ namespace SocialPoint.Multiplayer
 
         void Start()
         {
-            #warning as we install 2 clients we should know which NetworkClient to use here
+            //TODO: as we install 2 clients we should know which NetworkClient to use here
             _client = Services.Instance.Resolve<INetworkClient>();
             _clientController = Services.Instance.Resolve<NetworkClientSceneController>();
 

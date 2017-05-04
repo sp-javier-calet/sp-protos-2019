@@ -170,7 +170,7 @@ namespace SocialPoint.Multiplayer
         {
             if(_server == null || Scene == null)
             {
-                #warning CHECK: Receiving OnServerStopped on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
+                //TODO: CHECK: Receiving OnServerStopped on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
                 return;
             }
 
@@ -390,7 +390,7 @@ namespace SocialPoint.Multiplayer
         {
             if(_server == null || Scene == null)
             {
-                #warning CHECK: Receiving OnClientConnected on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
+                //TODO: CHECK: Receiving OnClientConnected on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
                 return;
             }
 
@@ -426,7 +426,7 @@ namespace SocialPoint.Multiplayer
         {
             if(_server == null || Scene == null)
             {
-                #warning CHECK: Receiving OnClientDisconnected on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
+                //TODO: CHECK: Receiving OnClientDisconnected on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
                 return;
             }
 
