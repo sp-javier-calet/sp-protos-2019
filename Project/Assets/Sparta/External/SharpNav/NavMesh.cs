@@ -139,11 +139,15 @@ namespace SharpNav
                 maxz = chf.Length - 1;    
 
             // TODO: Optimize.
+            var p = Vector3.Zero;
             for(int z = minz; z <= maxz; ++z)
             {
+                var zwidth = z * chf.Width;
+                var zBoundPoint = chf.Bounds.Min.Z + (z + 0.5f) * chf.CellSize;
                 for(int x = minx; x <= maxx; ++x)
                 {
-                    CompactCell c = chf.Cells[x + z * chf.Width];
+                    var xBoundPoint = chf.Bounds.Min.X + (x + 0.5f) * chf.CellSize;
+                    CompactCell c = chf.Cells[x + zwidth];
                     for(int i = (int)c.StartIndex, ni = (int)(c.StartIndex + c.Count); i < ni; ++i)
                     {
                         CompactSpan s = chf.Spans[i];
@@ -151,11 +155,8 @@ namespace SharpNav
                             continue;
                         if((int)s.Minimum >= miny && (int)s.Minimum <= maxy)
                         {
-                            Vector3 p = new Vector3(
-                                            chf.Bounds.Min.X + (x + 0.5f) * chf.CellSize,
-                                            0,
-                                            chf.Bounds.Min.Z + (z + 0.5f) * chf.CellSize
-                                        );
+                            p.X = xBoundPoint;
+                            p.Z = zBoundPoint;
 
                             if(PointInPoly(poly, ref p))
                             {
