@@ -8,6 +8,7 @@
 #ifndef __sparta__WebSocketConnection__
 #define __sparta__WebSocketConnection__
 
+#include <ctime>
 #include <string>
 #include <functional>
 #include <vector>
@@ -64,11 +65,20 @@ class WebSocketConnection
      * Accumulated message received in multiple frames
      */
     std::string _accumulatedMessage;
+    
+    bool _standby;
+    std::time_t _standbyStartTime;
+    std::time_t _standbyTimeout;
+    
+    void startStandby();
+    void endStandby();
+    void startStandbyCountdown();
+    void checkStandbyTimeout();
 
   public:
     State getState();
     void setState(State pNewState);
-
+    
     /**
      * Called when new data is received form _socket
      */
@@ -114,6 +124,7 @@ class WebSocketConnection
     lws* getWebsocket();
 
     bool onPingSent();
+    void onPongReceived();
     void resetPing();
 
   public:
@@ -156,6 +167,11 @@ class WebSocketConnection
 
     void onWillGoBackground();
     void onWasOnBackground();
+    
+    bool inStandby();
+    void setStandbyTimeout(std::time_t timeout);
+    
+    void update();
 };
 
 
