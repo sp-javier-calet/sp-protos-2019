@@ -2,11 +2,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
-using SocialPoint.WAMP;
 
 namespace SocialPoint.Social
 {
