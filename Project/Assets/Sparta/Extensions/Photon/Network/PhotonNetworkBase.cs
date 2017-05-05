@@ -45,16 +45,16 @@ namespace SocialPoint.Network
     }
 
     [Serializable]
-    public class PhotonNetworkConfig
+    public struct PhotonNetworkConfig
     {
         public const bool DefaultCreateRoom = true;
 
         public string GameVersion;
         public string RoomName;
-        public bool CreateRoom = DefaultCreateRoom;
-        public CustomPhotonConfig CustomPhotonConfig = new CustomPhotonConfig();
-        public PhotonNetworkRoomConfig RoomOptions = new PhotonNetworkRoomConfig();
-        public CloudRegionCode ForceRegion = CloudRegionCode.none;
+        public bool CreateRoom;
+        public CustomPhotonConfig CustomPhotonConfig;
+        public PhotonNetworkRoomConfig RoomOptions;
+        public CloudRegionCode ForceRegion;
         public string ForceAppId;
         public string ForceServer;
     }
@@ -93,10 +93,6 @@ namespace SocialPoint.Network
 
         void Awake()
         {
-            if(Config == null)
-            {
-                Config = new PhotonNetworkConfig();
-            }
         }
 
         void Update()
