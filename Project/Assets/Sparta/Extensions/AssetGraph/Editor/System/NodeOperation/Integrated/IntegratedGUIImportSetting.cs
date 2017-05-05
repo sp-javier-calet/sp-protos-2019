@@ -85,7 +85,7 @@ namespace AssetBundleGraph
 
             Output(connectionToOutput, inputGroupAssets, null);
         }
-        
+
         public void Skip(ConnectionData connectionToOutput, Dictionary<string, List<Asset>> inputGroupAssets, Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output)
         {
             Output(connectionToOutput, inputGroupAssets, null);
@@ -290,6 +290,7 @@ namespace AssetBundleGraph
                 if(status != ConfigStatus.GoodSampleFound)
                 {
                     errorInConfig(status);
+                    return;
                 }
             }
 
@@ -299,10 +300,14 @@ namespace AssetBundleGraph
                 // right type of asset is coming in - so we'll just skip the test
                 if(incomingAssets.Any() && status == ConfigStatus.GoodSampleFound)
                 {
-                    Type targetType = GetReferenceAssetImporter(node.Id).GetType();
-                    if(targetType != expectedType)
+                    var importer = GetReferenceAssetImporter(node.Id);
+                    if(importer != null)
                     {
-                        incomingTypeMismatch(targetType, expectedType);
+                        Type targetType = importer.GetType();
+                        if(targetType != expectedType)
+                        {
+                            incomingTypeMismatch(targetType, expectedType);
+                        }
                     }
                 }
             }
