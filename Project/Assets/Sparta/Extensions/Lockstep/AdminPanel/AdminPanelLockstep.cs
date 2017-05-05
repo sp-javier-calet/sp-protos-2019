@@ -53,9 +53,6 @@ namespace SocialPoint.Lockstep
             }
             builder.AppendLine("TurnBuffer: " + _client.TurnBuffer);
             builder.AppendLine("Time: " + _client.UpdateTime + " sim:" + _client.SimulationDeltaTime + " cmd:" + _client.CommandDeltaTime);
-            #if I_AM_LOD //ping removed by ivan, lockstep should not depend on photon to compile
-            builder.AppendLine("Ping: " + PhotonNetwork.GetPing());
-            #endif
             return builder.ToString();
         }
 
