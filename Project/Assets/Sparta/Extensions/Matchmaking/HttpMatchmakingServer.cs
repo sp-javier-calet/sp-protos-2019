@@ -30,14 +30,6 @@ namespace SocialPoint.Matchmaking
 
         public string Version { get; set; }
 
-        public HttpRequest NotifyRequest
-        {
-            get
-            {
-                return _notifyRequest;
-            }
-        }
-
         public HttpMatchmakingServer(IHttpClient httpClient, string baseUrl = null)
         {
             _delegates = new List<IMatchmakingServerDelegate>();
@@ -46,7 +38,7 @@ namespace SocialPoint.Matchmaking
             _parser = new JsonAttrParser();
         }
 
-        const string InfoUri = "/get_match";
+        const string InfoUri = "/start_match";
         const string EndUri = "/end_match";
         const string MatchIdParam = "match_id";
         const string VersionParam = "version";
@@ -104,6 +96,21 @@ namespace SocialPoint.Matchmaking
             _notifyRequest.AddParam(PlayersParam, userData);
             _notifyRequest.AddParam(CustomDataParam, customData);
             _httpClient.Send(_notifyRequest, (resp) => OnResultReceived(resp, userData));
+        }
+
+        public byte[] GetLastNotificationBody()
+        {
+            return (_notifyRequest != null) ? _notifyRequest.Body : null;
+        }
+
+        public AttrDic GetLastNotificationBodyParams()
+        {
+            return (_notifyRequest != null) ? _notifyRequest.BodyParams : null;
+        }
+
+        public AttrDic GetLastNotificationParams()
+        {
+            return (_notifyRequest != null) ? _notifyRequest.Params : null;
         }
 
         void OnResultReceived(HttpResponse resp, AttrDic userData)

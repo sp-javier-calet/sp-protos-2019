@@ -570,7 +570,9 @@ namespace SocialPoint.Lockstep
 
         void CheckAllPlayersReady()
         {
-            if(!_serverLockstep.Running && ReadyPlayerCount == ServerConfig.MaxPlayers || (ClientCount < ServerConfig.MaxPlayers && ServerConfig.AllowBattleStartWithOnePlayerReady))
+            if(!_serverLockstep.Running
+               && (ReadyPlayerCount == ServerConfig.MaxPlayers
+               || (ReadyPlayerCount > 0 && ServerConfig.AllowBattleStartWithOnePlayerReady)))
             {
                 StartLockstep();
             }
@@ -582,7 +584,7 @@ namespace SocialPoint.Lockstep
 
             if(_battleEnded)
             {
-                SendCustomLog("Trying to Start a match that has already ended!");
+                SendCustomLog("Trying to Start a match that has already ended!", LogLevel.Error);
             }
             if(BeforeMatchStarts != null)
             {
@@ -738,7 +740,7 @@ namespace SocialPoint.Lockstep
         {
             if(_serverLockstep.Running && _battleEndTimeOut > DateTime.MinValue && (DateTime.Now - _battleEndTimeOut).TotalSeconds >= ServerConfig.BattleEndedWithoutConfirmationTimeout)
             {
-                SendCustomLog("Battle End Timed Out");
+                SendCustomLog("Battle End Timed Out", LogLevel.Error);
 
                 EndLockstep();
             }
@@ -865,58 +867,7 @@ namespace SocialPoint.Lockstep
             if(ErrorProduced != null)
             {
                 ErrorProduced(err);
-                if(((HttpMatchmakingServer)_matchmaking).NotifyRequest != null)
-                {
-                    var req = ((HttpMatchmakingServer)_matchmaking).NotifyRequest;
-
-                    var dic = new AttrDic();
-
-                    dic.SetValue("body", System.Text.Encoding.UTF8.GetString(req.Body));
-                    dic.SetValue("match_id", MatchId);
-                    dic.Set("bodyParams.match_id", req.BodyParams["match_id"]);
-                    int i = 0;
-                    int playerFlag = 0;
-                    foreach(var valParam in req.BodyParams["players"].AsDic)
-                    {
-                        playerFlag = 0;
-                        foreach(var param in valParam.Value.AsDic)
-                        {
-                            if(param.Key == "duration")
-                                dic.Set("bodyParams.players" + i + ".duration", param.Value);
-                            else if(param.Key == "modified")
-                                dic.Set("bodyParams.players" + i + ".modified", param.Value);
-                            else
-                            {
-                                dic.Set("bodyParams.players" + i + ".flags" + playerFlag, param.Value);
-                                playerFlag++;
-                            }
-                        }
-                        i++;
-                    }
-                    dic.Set("bodyParams.modified", req.BodyParams["modified"]);
-                    dic.Set("params.match_id", req.Params["match_id"]);
-                    i = 0;
-                    foreach(var valParam in req.Params["players"].AsDic)
-                    {
-                        playerFlag = 0;
-                        foreach(var param in valParam.Value.AsDic)
-                        {
-                            if(param.Key == "duration")
-                                dic.Set("params.players" + i + ".duration", param.Value);
-                            else if(param.Key == "modified")
-                                dic.Set("params.players" + i + ".modified", param.Value);
-                            else
-                            {
-                                dic.Set("params.players" + i + ".flags" + playerFlag, param.Value);
-                                playerFlag++;
-                            }
-                        }
-                        i++;
-                    }
-                    dic.Set("params.modified", req.Params["modified"]);
-
-                    SendLog(new Network.ServerEvents.Log(LogLevel.Error, "Battle End Notification Error", dic), true);
-                }
+                SendServerNotificationLog();
             }
         }
 
@@ -961,13 +912,6 @@ namespace SocialPoint.Lockstep
             if(ServerConfig.FinishOnClientDisconnection)
             {
                 CheckAllPlayersEnded();
-            }
-            if(ServerConfig.AllowBattleStartWithOnePlayerReady && !Running && ReadyPlayerCount > 0 && FinishedPlayerCount == 0)
-            {
-                if(HasBattleEnded != null && !HasBattleEnded())
-                {
-                    StartLockstep();
-                }
             }
         }
 
@@ -1043,7 +987,7 @@ namespace SocialPoint.Lockstep
         int _logCount;
         bool _battleEnded;
 
-        void SendCustomLog(string message, AttrDic dic = null)
+        void SendCustomLog(string message, LogLevel logLevel, AttrDic dic = null)
         {
             if(dic == null)
             {
@@ -1051,8 +995,69 @@ namespace SocialPoint.Lockstep
             }
             dic.SetValue("match_id", MatchId);
             dic.SetValue("log_number", _logCount);
-            SendLog(new Network.ServerEvents.Log(LogLevel.Error, "Lockstep: " + message, dic), true);
+            SendLog(new Network.ServerEvents.Log(logLevel, "Lockstep: " + message, dic), true);
             _logCount++;
+        }
+
+        void SendCustomLog(string message, AttrDic dic = null)
+        {
+            SendCustomLog(message, LogLevel.Debug, dic);
+        }
+
+        //TODO: Fix this? Should this data be custom for all games or should we add a way for each game to customize it
+        void SendServerNotificationLog()
+        {
+            var notifBody = _matchmaking.GetLastNotificationBody();
+            var notifBodyParams = _matchmaking.GetLastNotificationBodyParams();
+            var notifParams = _matchmaking.GetLastNotificationParams();
+            if(notifBody == null || notifBodyParams == null || notifParams == null)
+            {
+                return;
+            }
+
+            var dic = new AttrDic();
+            dic.SetValue("body", System.Text.Encoding.UTF8.GetString(notifBody));
+            dic.SetValue("match_id", MatchId);
+            AddServerNotificationLogData(dic, notifBodyParams, "bodyParams");
+            AddServerNotificationLogData(dic, notifParams, "params");
+
+            SendLog(new Network.ServerEvents.Log(LogLevel.Error, "Battle End Notification Error", dic), true);
+        }
+
+        void AddServerNotificationLogData(AttrDic dic, AttrDic data, string baseKey)
+        {
+            dic.Set(baseKey + ".match_id", data["match_id"]);
+
+            int i = 0;
+            var outerItr = data["players"].AsDic.GetEnumerator();
+            while(outerItr.MoveNext())
+            {
+                int playerFlag = 0;
+                var valParam = outerItr.Current;
+                var innerItr = valParam.Value.AsDic.GetEnumerator();
+                while(innerItr.MoveNext())
+                {
+                    var param = innerItr.Current;
+                    if(param.Key == "duration")
+                    {
+                        dic.Set(baseKey + ".players" + i + ".duration", param.Value);
+                    }
+                    else if(param.Key == "modified")
+                    {
+                        dic.Set(baseKey + ".players" + i + ".modified", param.Value);
+                    }
+                    else
+                    {
+                        dic.Set(baseKey + ".players" + i + ".flags" + playerFlag, param.Value);
+                        playerFlag++;
+                    }
+                }
+                innerItr.Dispose();
+                i++;
+            }
+            outerItr.Dispose();
+
+            dic.Set(baseKey + ".modified", data["modified"]);
         }
 
         #region local client
@@ -1118,8 +1123,8 @@ namespace SocialPoint.Lockstep
             byte playerNum;
             _commandSenders.TryGetValue(cmd.Id, out playerNum);
             var err = new Error(CommandFailedErrorCode,
-                string.Format("Command failed: {0}", ierr.Msg),
-                ierr.Detail);
+                          string.Format("Command failed: {0}", ierr.Msg),
+                          ierr.Detail);
             if(CommandFailed != null)
             {
                 CommandFailed(err, playerNum);
