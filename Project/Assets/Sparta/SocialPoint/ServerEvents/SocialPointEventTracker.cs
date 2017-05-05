@@ -713,22 +713,6 @@ namespace SocialPoint.ServerEvents
             operation.SetValue("lost_amount", Math.Abs(op.LostAmount));
             operation.SetValue("type", op.ResourceName);
 
-            #if I_AM_LOD
-            AttrDic material = new AttrDic();
-            material.SetValue("name", op.ResourceTrackName);
-            material.SetValue("id", op.ResourceId);
-            material.SetValue("rarity_name", op.ResourceRarityName);
-            material.SetValue("rarity_id", op.ResourceRarityId);
-            data.Set("material", material);
-            #endif
-
-            #if I_AM_LOD
-            AttrDic rune = new AttrDic();
-            rune.SetValue("name", op.ResourceTrackName);
-            rune.SetValue("id", op.ResourceId);
-            data.Set("rune", rune);
-            #endif
-
             var item = new AttrDic();
             data.Set("item", item);
             item.SetValue("reference", op.ItemId);
