@@ -171,7 +171,7 @@ namespace SocialPoint.Social
             });
         }
 
-        public void ClearMessages()
+        void ClearMessages()
         {
             _listMessages.Clear();
         }
@@ -259,8 +259,8 @@ namespace SocialPoint.Social
 
         static void ParseMessageProperties(AttrDic data, Message message)
         {
-            var propertiesDic = data.Get("properties").AsList;
-            using(var propertiesItr = propertiesDic.GetEnumerator())
+            var propertiesList = data.Get("properties").AsList;
+            using(var propertiesItr = propertiesList.GetEnumerator())
             {
                 while(propertiesItr.MoveNext())
                 {
