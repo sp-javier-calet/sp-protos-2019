@@ -1,24 +1,13 @@
-﻿using UnityEngine.Networking;
-using SocialPoint.IO;
-using System;
-
-namespace SocialPoint.Network
+﻿
+namespace SocialPoint.IO
 {
-    public sealed class UnetNetworkReader : IReader
+    public class ReaderWrapper : IReader
     {
-        readonly NetworkReader _reader;
+        IReader _reader;
 
-        public UnetNetworkReader(NetworkReader reader)
+        public ReaderWrapper(IReader reader)
         {
             _reader = reader;
-        }
-
-        public bool Finished
-        {
-            get
-            {
-                return _reader.Position >= _reader.Length;
-            }
         }
 
         public bool ReadBoolean()
@@ -79,6 +68,14 @@ namespace SocialPoint.Network
         public ulong ReadUInt64()
         {
             return _reader.ReadUInt64();
+        }
+
+        public bool Finished
+        {
+            get
+            {
+                return _reader.Finished;
+            }
         }
     }
 }
