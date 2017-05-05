@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 
-namespace SocialPoint.TransparentBundles
+namespace SocialPoint.GitCommands
 {
     //This is a copy from SpartaEditorTools Repository. We are not using that class cause it must be determined if that could affect the compilation of sparta
     public class Repository

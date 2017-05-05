@@ -20,7 +20,7 @@ namespace SocialPoint.TransparentBundles
         {
             Init();
             var assets = new List<Asset>(_controller.GetAssetsFromSelection());
-            if(_controller.CreateOrUpdateBundles(assets))
+            if(assets.Count > 0 && _controller.CreateOrUpdateBundles(assets))
             {
                 BundlesWindow.OpenWindow();
                 if(BundlesWindow.Window.position.xMin == 0 && BundlesWindow.Window.position.yMin == 0)
@@ -42,7 +42,7 @@ namespace SocialPoint.TransparentBundles
                     "The bundle removal operation can only be done with one asset at a time. If you want to delete multiple bundles open the Bundles Window (Social Point > Bundles)",
                     "Close");
             }
-            else if(EditorUtility.DisplayDialog("Removing Bundle",
+            else if(assets.Count > 0 && EditorUtility.DisplayDialog("Removing Bundle",
                         "You are about to remove the bundle of the asset '" + assets[0].Name +
                         "' from the server. Keep in mind that this operation cannot be undone. Are you sure?",
                         "Remove it", "Cancel"))
@@ -63,7 +63,7 @@ namespace SocialPoint.TransparentBundles
         {
             Init();
             var assets = new List<Asset>(_controller.GetAssetsFromSelection());
-            if(_controller.PerfomBundleOperation(assets, BundleOperation.create_local_asset_bundles))
+            if(assets.Count > 0 && _controller.PerfomBundleOperation(assets, BundleOperation.create_local_asset_bundles))
             {
                 BundlesWindow.OpenWindow();
                 if(BundlesWindow.Window.position.xMin == 0 && BundlesWindow.Window.position.yMin == 0)
@@ -78,7 +78,7 @@ namespace SocialPoint.TransparentBundles
         {
             Init();
             var assets = new List<Asset>(_controller.GetAssetsFromSelection());
-            if(_controller.PerfomBundleOperation(assets, BundleOperation.remove_local_asset_bundles))
+            if(assets.Count > 0 && _controller.PerfomBundleOperation(assets, BundleOperation.remove_local_asset_bundles))
             {
                 BundlesWindow.OpenWindow();
                 if(BundlesWindow.Window.position.xMin == 0 && BundlesWindow.Window.position.yMin == 0)

@@ -134,7 +134,7 @@ public class GoalsModel : IDisposable
             var goalIndex = index;
 
             var condition = goal.Conditions[index];
-            Action<string, Attr> listener = (name, attributes) => (OnGoalMatched(matchedGoal, goalIndex, attributes));
+            Action<string, Attr> listener = (name, attributes) => OnGoalMatched(matchedGoal, goalIndex, attributes);
 
             _listenersByCondition.Add(condition, listener);
             _dispatcher.AddListener(condition, listener);

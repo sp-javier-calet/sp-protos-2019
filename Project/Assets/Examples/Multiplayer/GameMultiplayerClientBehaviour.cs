@@ -104,7 +104,7 @@ public class GameMultiplayerClientBehaviour : MonoBehaviour, INetworkClientScene
     void ReadExplosionEvent(IReader reader)
     {
         var ev = reader.Read<ExplosionEvent>();
-        ObjectPool.Spawn(_explosionPrefab, transform, ev.Position.ToUnity());
+        UnityObjectPool.Spawn(_explosionPrefab, transform, ev.Position.ToUnity());
     }
 
     void ReadPathEvent(IReader reader)

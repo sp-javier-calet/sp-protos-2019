@@ -411,6 +411,18 @@ namespace SocialPoint.GUIControl
             OnAwake();
         }
 
+        [Obsolete("Use Reset instead")]
+        public void ResetState()
+        {
+            Reset();
+        }
+
+        public void Reset()
+        {
+            _animation.Reset();
+            _viewState = ViewState.Initial;
+        }
+
         void Start()
         {
             OnStart();
