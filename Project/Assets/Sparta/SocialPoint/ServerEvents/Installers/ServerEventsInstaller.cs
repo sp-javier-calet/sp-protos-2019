@@ -19,6 +19,7 @@ namespace SocialPoint.ServerEvents
         public class SettingsData
         {
             public bool UseEmpty;
+            public bool AutoStart = true;
             public int MaxOutOfSyncInterval = SocialPointEventTracker.DefaultMaxOutOfSyncInterval;
             public int SendInterval = SocialPointEventTracker.DefaultSendInterval;
             public float Timeout = SocialPointEventTracker.DefaultTimeout;
@@ -42,7 +43,6 @@ namespace SocialPoint.ServerEvents
             else
             {
                 Container.Bind<IEventTracker>().ToSingle<EmptyEventTracker>();
-
             }
 
             Container.Bind<IDisposable>().ToLookup<IEventTracker>();
@@ -56,13 +56,8 @@ namespace SocialPoint.ServerEvents
 
         SocialPointEventTracker CreateEventTracker()
         {
-            #if I_AM_LOD
             return new SocialPointEventTracker(
-                Container.Resolve<IUpdateScheduler>(), false);
-            #else
-            return new SocialPointEventTracker(
-                Container.Resolve<IUpdateScheduler>());
-            #endif
+                Container.Resolve<IUpdateScheduler>(), Settings.AutoStart);
         }
 
         void SetupEventTracker(SocialPointEventTracker tracker)
