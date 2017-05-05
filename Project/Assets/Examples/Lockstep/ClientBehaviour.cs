@@ -434,7 +434,7 @@ namespace Examples.Lockstep
                             (float)_random.Range(InstanceMinScale, InstanceMaxScale),
                             (float)_random.Range(InstanceMinScale, InstanceMaxScale));
             
-            var unit = ObjectPool.Spawn(_unitPrefab, transform,
+            var unit = UnityObjectPool.Spawn(_unitPrefab, transform,
                            new Vector3((float)x, (float)y * scale.y, (float)z), Quaternion.identity);
             
             unit.transform.localScale = scale;
@@ -478,14 +478,14 @@ namespace Examples.Lockstep
             var cmd = new ClickCommand(
                           (Fix64)p.x, (Fix64)p.y, (Fix64)p.z);
 
-            var loading = ObjectPool.Spawn(
+            var loading = UnityObjectPool.Spawn(
                               _loadingPrefab, transform, p, Quaternion.identity);
             _lockstep.AddPendingCommand(cmd, (c) => FinishLoading(loading));
         }
 
         public void FinishLoading(GameObject loading)
         {
-            ObjectPool.Recycle(loading);
+            UnityObjectPool.Recycle(loading);
         }
 
         public void OnRegionValueChanged(int pos)
