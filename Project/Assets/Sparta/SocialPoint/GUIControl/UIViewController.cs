@@ -417,12 +417,6 @@ namespace SocialPoint.GUIControl
             Reset();
         }
 
-        public void Reset()
-        {
-            _animation.Reset();
-            _viewState = ViewState.Initial;
-        }
-
         void Start()
         {
             OnStart();
@@ -748,6 +742,7 @@ namespace SocialPoint.GUIControl
             {
                 Animation.Reset();
             }
+            _viewState = ViewState.Initial;
         }
 
         virtual protected void Disable()
