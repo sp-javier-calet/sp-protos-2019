@@ -1,8 +1,12 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using SharpNav;
 using SharpNav.Pathfinding;
 using SharpNav.Geometry;
+using UnityMesh = UnityEngine.Mesh;
+using PathMesh = SocialPoint.Pathfinding.NavMeshBuildUtils.Mesh;
 using UnityVector = UnityEngine.Vector3;
 using PathVector = SharpNav.Geometry.Vector3;
 
@@ -11,53 +15,86 @@ namespace SocialPoint.Pathfinding
     public static class PathfindingUnityUtils
     {
         /// <summary>
-        /// Combines the meshes in the game object's hierarchy.
+        /// Combines the meshes in the game object's hierarchy and creates a nav mesh from them.
         /// </summary>
+        /// <returns>The nav mesh.</returns>
+        /// <param name="go">Parent game object in hierarchy.</param>
+        /// <param name="settings">Settings.</param>
+        public static TiledNavMesh CreateNavMesh(GameObject go, NavMeshGenerationSettings settings, IEnumerable<ConvexVolume> convexVolumes = null, Func<Area, ushort> areaToFlagsMap = null)
+        {
+            return CreateNavMesh(new GameObject[] { go }, settings, convexVolumes, areaToFlagsMap);
+        }
+
+        public static TiledNavMesh CreateNavMesh(GameObject[] gos, NavMeshGenerationSettings settings, IEnumerable<ConvexVolume> convexVolumes = null, Func<Area, ushort> areaToFlagsMap = null)
+        {
+            var gosBuildMeshes = new List<PathMesh>(); 
+
+            for(int obj = 0; obj < gos.Length; obj++)
+            {
+                var go = gos[obj];
+
+                //Get mesh objects
+                var meshFilters = go.GetComponentsInChildren<MeshFilter>();
+                var buildMeshes = new PathMesh[meshFilters.Length];
+                for(int i = 0; i < meshFilters.Length; i++)
+                {
+                    buildMeshes[i] = UnityMeshToPathfinding(meshFilters[i].sharedMesh, meshFilters[i].transform);
+                }
+                gosBuildMeshes.AddRange(buildMeshes);
+            }
+
+            return NavMeshBuildUtils.CreateNavMesh(gosBuildMeshes, settings, convexVolumes, areaToFlagsMap);
+        }
+
+        public static IEnumerable<ConvexVolumeMarker> GetConvexVolumeMarkers(GameObject go)
+        {
+            return GetConvexVolumeMarkers(new GameObject[] { go });
+        }
+
+        public static IEnumerable<ConvexVolumeMarker> GetConvexVolumeMarkers(GameObject[] gos)
+        {
+            var gosConvexVolumes = new List<ConvexVolumeMarker>();
+            for(int obj = 0; obj < gos.Length; obj++)
+            {
+                var go = gos[obj];
+                //Get area volumes
+                var convexVolumeMarkers = go.GetComponentsInChildren<ConvexVolumeMarker>();
+                gosConvexVolumes.AddRange(convexVolumeMarkers);
+            }
+            return gosConvexVolumes;
+        }
+
+        /// <summary>         
+        /// Combines the meshes in the game object's hierarchy.
+        /// </summary>         
         /// <returns>The combined mesh.</returns>
         /// <param name="go">Parent game object in hierarchy.</param>
-        public static Mesh CombineSubMeshes(GameObject go)
+        public static UnityMesh CombineSubMeshesToUnity(GameObject go)
         {
-            MeshFilter[] meshFilters = go.GetComponentsInChildren<MeshFilter>();
-            CombineInstance[] combine = new CombineInstance[meshFilters.Length];
+            var meshFilters = go.GetComponentsInChildren<MeshFilter>();
+            var combine = new CombineInstance[meshFilters.Length];
             for(int i = 0; i < meshFilters.Length; i++)
             {
                 combine[i].mesh = meshFilters[i].sharedMesh;
                 combine[i].transform = meshFilters[i].transform.localToWorldMatrix;
             }
-
-            Mesh mesh = new Mesh();
+            var mesh = new UnityMesh();
             mesh.CombineMeshes(combine);
             return mesh;
         }
 
-        /// <summary>
-        /// Creates a nav mesh from a Unity Mesh object.
-        /// </summary>
-        /// <returns>The nav mesh.</returns>
-        /// <param name="mesh">Unity Mesh.</param>
-        /// <param name="settings">Settings.</param>
-        public static TiledNavMesh CreateNavMesh(Mesh mesh, NavMeshGenerationSettings settings)
+        public static PathMesh CombineSubMeshesToPathfinding(GameObject go)
         {
-            var vertices = mesh.vertices;
-            var navVertices = ConvertVectorsToPathfinding(vertices);
-
-            var indices = mesh.triangles;
-            int totalTriangles = indices.Length / 3;
-
-            /* vertStride: How the triangles are packed in the data.
-             *      0 means tighly packet triangles (last vertex from one is the first vertex for the next).
-             *      1 means every three vertices are a triangle by themselves.
-             * */
-            int vertStride = 1;
-
-            //prepare the geometry from your mesh data
-            var tris = TriangleEnumerable.FromIndexedVector3(navVertices, indices, 0, vertStride, 0, totalTriangles);
-
-            //generate the mesh
-            return SharpNav.NavMesh.Generate(tris, settings);
+            var meshFilters = go.GetComponentsInChildren<MeshFilter>();
+            var buildMeshes = new PathMesh[meshFilters.Length];
+            for(int i = 0; i < meshFilters.Length; i++)
+            {
+                buildMeshes[i] = UnityMeshToPathfinding(meshFilters[i].sharedMesh, meshFilters[i].transform);
+            }
+            return NavMeshBuildUtils.CombineMeshes(buildMeshes);
         }
 
-        public static PathVector[] ConvertVectorsToPathfinding(UnityVector[] vectors)
+        public static PathVector[] UnityVectorsToPathfinding(UnityVector[] vectors)
         {
             var navVectors = new PathVector[vectors.Length];
             for(int i = 0; i < vectors.Length; i++)
@@ -67,14 +104,22 @@ namespace SocialPoint.Pathfinding
             return navVectors;
         }
 
-        public static UnityVector[] ConvertVectorsToUnity(PathVector[] vectors)
+        public static PathMesh UnityMeshToPathfinding(UnityMesh unityMesh, Transform transform)
         {
-            var navVectors = new UnityVector[vectors.Length];
-            for(int i = 0; i < vectors.Length; i++)
+            var mesh = new PathMesh();
+            mesh.Vertices = UnityVectorsToPathfinding(TransformVertices(unityMesh.vertices, transform));
+            mesh.Triangles = unityMesh.triangles;
+            return mesh;
+        }
+
+        static UnityVector[] TransformVertices(UnityVector[] vertices, Transform transform)
+        {
+            var transVertices = new UnityVector[vertices.Length];
+            for(int i = 0; i < vertices.Length; i++)
             {
-                navVectors[i] = vectors[i].ToUnity();
+                transVertices[i] = transform.TransformPoint(vertices[i]);
             }
-            return navVectors;
+            return transVertices;
         }
     }
 }
