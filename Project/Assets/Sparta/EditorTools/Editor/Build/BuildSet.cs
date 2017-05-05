@@ -70,6 +70,7 @@ namespace SpartaTools.Editor.Build
             public string Flags;
             public bool RebuildNativePlugins;
             public bool IsDevelopmentBuild;
+            public bool AppendBuild;
             public bool IncludeDebugScenes;
             public LogLevel LogLevel;
             public bool EnableAdminPanel;
@@ -204,6 +205,10 @@ namespace SpartaTools.Editor.Build
             new Validator {
                 Validate = bs => !bs.IsShippingConfig || !bs.Common.IsDevelopmentBuild,
                 ErrorMessage = "Shipping Build Set cannot be set as a Development Build"
+            },
+            new Validator {
+                Validate = bs => !bs.IsShippingConfig || !bs.Common.AppendBuild,
+                ErrorMessage = "Shipping Build Set cannot be set as a Append Build"
             },
             new Validator {
                 Validate = bs => !bs.IsShippingConfig || !bs.App.OverrideBuild,
@@ -497,6 +502,11 @@ namespace SpartaTools.Editor.Build
                 if(Common.IsDevelopmentBuild)
                 {
                     options |= BuildOptions.Development;
+                }
+
+                if(Common.AppendBuild)
+                {
+                    options |= BuildOptions.AcceptExternalModificationsToPlayer;
                 }
 
                 return options;

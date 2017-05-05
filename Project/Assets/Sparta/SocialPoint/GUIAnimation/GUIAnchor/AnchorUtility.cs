@@ -62,10 +62,10 @@ namespace SocialPoint.GUIAnimation
             #endif
         }
 
-        public static Vector2 ToClipSpace(Vector2 pixels)
+        public static Vector2 ToClipSpace(Vector2 pixels, GameObject obj = null)
         {
             #if NGUI
-            return ToClipSpaceNGUI(pixels);
+            return ToClipSpaceNGUI(pixels, obj);
             #else
             throw new System.NotImplementedException();
             #endif
@@ -458,9 +458,17 @@ namespace SocialPoint.GUIAnimation
             return new Vector2(w / uiRoot.manualWidth, h / uiRoot.manualHeight);
         }
 
-        public static Vector2 GetCanvasSizeNGUI()
+        public static Vector2 GetCanvasSizeNGUI(GameObject obj = null)
         {
-            UIRoot uiRoot = GameObject.FindObjectOfType<UIRoot>();
+            UIRoot uiRoot;
+            if(obj != null)
+            {
+                uiRoot = obj.FindObjectOfTypeRecursiveUp<UIRoot>();
+            }
+            else
+            {
+                uiRoot = GameObject.FindObjectOfType<UIRoot>();
+            }
             UICamera uiCamera = uiRoot.GetComponentInChildren<UICamera>();
 			
             float camW = (float)uiCamera.cachedCamera.pixelWidth;
@@ -531,9 +539,9 @@ namespace SocialPoint.GUIAnimation
             return screenDelta;
         }
 
-        static Vector2 ToClipSpaceNGUI(Vector2 pixels)
+        static Vector2 ToClipSpaceNGUI(Vector2 pixels, GameObject obj = null)
         {
-            Vector2 cs = GetCanvasSizeNGUI();
+            Vector2 cs = GetCanvasSizeNGUI(obj);
 			
             pixels.x /= (cs.y * 0.5f);
             pixels.y /= (cs.y * 0.5f);

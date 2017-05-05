@@ -26,6 +26,8 @@ namespace SocialPoint.IO
         uint ReadUInt32();
 
         ulong ReadUInt64();
+
+        bool Finished{ get; }
     }
 
     public abstract class SimpleReader : IReader
@@ -51,6 +53,8 @@ namespace SocialPoint.IO
         public abstract uint ReadUInt32();
 
         public abstract ulong ReadUInt64();
+
+        public abstract bool Finished{ get; }
 
         public byte[] ReadBytes(int count)
         {
