@@ -12,16 +12,6 @@ namespace SocialPoint.Network
         List<INetworkClientDelegate> _delegates;
         List<int> _latencies;
 
-        #if I_AM_LOD //LoD should get the PhotonNetworkClient they need through installers/resolve/explicit constructor params, instead of casting
-        public INetworkClient Client
-        {
-            get
-            {
-                return _client;
-            }
-        }
-        #endif
-
         public int PingInterval = NetworkStatsServer.DefaultSendStatusMessageInterval;
 
         public NetworkStatsClient(INetworkClient client, IUpdateScheduler scheduler) :
