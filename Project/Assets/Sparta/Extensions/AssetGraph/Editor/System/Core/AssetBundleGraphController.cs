@@ -90,7 +90,7 @@ namespace AssetBundleGraph
             // if validation failed, node may contain looped connections, so we are not going to 
             // go into each operations.
 
-            AssetDatabase.StartAssetEditing();
+            //AssetDatabase.StartAssetEditing();
             try
             {
                 if(!validateFailed)
@@ -158,7 +158,7 @@ namespace AssetBundleGraph
             }
             finally
             {
-                AssetDatabase.StopAssetEditing();
+                //AssetDatabase.StopAssetEditing();
             }
             return resultDict;
         }

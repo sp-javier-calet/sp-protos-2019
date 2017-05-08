@@ -215,20 +215,29 @@ namespace AssetBundleGraph
 
             var referenceImporter = GetReferenceAssetImporter(node.Id);
             var configurator = new ImportSettingsConfigurator(referenceImporter);
-
-            foreach(var asset in assets)
+            AssetDatabase.StartAssetEditing();
+            try
             {
-                var importer = AssetImporter.GetAtPath(asset.importFrom);
-                if(!configurator.IsEqual(importer))
+                foreach(var asset in assets)
                 {
-                    configurator.OverwriteImportSettings(importer);
-
-                    // if the importsettings are applied manually we need to reimport the asset.
-                    if(!PreProcessor.isPreProcessing)
+                    var importer = AssetImporter.GetAtPath(asset.importFrom);
+                    if(!configurator.IsEqual(importer))
                     {
-                        AssetDatabase.ImportAsset(asset.importFrom, ImportAssetOptions.ForceUpdate);
+                        configurator.OverwriteImportSettings(importer);
+
+                        // if the importsettings are applied manually we need to reimport the asset.
+                        if(!PreProcessor.isPreProcessing)
+                        {
+                            AssetDatabase.ImportAsset(asset.importFrom, ImportAssetOptions.ForceUpdate);
+                        }
                     }
                 }
+                AssetDatabase.StopAssetEditing();
+            }
+            catch(Exception e)
+            {
+                AssetDatabase.StopAssetEditing();
+                throw e;
             }
         }
 
