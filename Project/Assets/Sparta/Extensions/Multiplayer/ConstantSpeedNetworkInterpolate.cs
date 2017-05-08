@@ -1,9 +1,16 @@
 ﻿using Jitter.LinearMath;
 using System;
-using SocialPoint.Utils;
+using SocialPoint.Pooling;
 
 namespace SocialPoint.Multiplayer
 {
+    
+    public static class InterpolationSettings
+    {
+        public static bool Enable = true;
+        public static double RotationLerpSpeed = 13.0;
+    }
+
     public class ConstantSpeedNetworkInterpolate : INetworkBehaviour, INetworkInterpolate
     {
         public static double PositionLerpSpeed = 18.0;

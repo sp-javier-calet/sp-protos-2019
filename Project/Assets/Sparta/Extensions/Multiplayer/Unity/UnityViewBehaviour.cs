@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using SocialPoint.Pooling;
 using SocialPoint.Physics;
 
 namespace SocialPoint.Multiplayer
@@ -34,7 +35,6 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        INetworkInterpolate _interpolator;
         GameObject _view;
 
         public GameObject View
@@ -79,11 +79,6 @@ namespace SocialPoint.Multiplayer
             return this;
         }
 
-        protected override void OnAwake()
-        {
-            _interpolator = GameObject.GetBehaviour<INetworkInterpolate>();
-        }
-
         protected override void OnStart()
         {
             if(_view == null)
@@ -124,7 +119,7 @@ namespace SocialPoint.Multiplayer
 
         public override object Clone()
         {
-            var vb = SocialPoint.Utils.ObjectPool.Get<UnityViewBehaviour>().Init(_prefabName, _viewPool);
+            var vb = ObjectPool.Get<UnityViewBehaviour>().Init(_prefabName, _viewPool);
             vb._obtainPrefabNameCallback = _obtainPrefabNameCallback;
             return vb;
         }

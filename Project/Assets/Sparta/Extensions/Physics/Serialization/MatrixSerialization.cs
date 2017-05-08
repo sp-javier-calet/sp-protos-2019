@@ -58,7 +58,7 @@ namespace SocialPoint.Physics
 
         public int GetDirtyBitsSize(JMatrix obj)
         {
-            return 4;
+            return 3;
         }
 
         public JMatrix Parse(JMatrix obj, IReader reader, Bitset dirty)
