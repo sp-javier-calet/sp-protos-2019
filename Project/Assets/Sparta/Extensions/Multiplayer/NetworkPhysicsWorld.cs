@@ -2,23 +2,39 @@
 
 namespace SocialPoint.Multiplayer
 {
-    public class NetworkPhysicsWorld : PhysicsWorld, INetworkServerSceneBehaviour
+    public class NetworkPhysicsWorld : PhysicsWorld, INetworkSceneBehaviour
     {
         public NetworkPhysicsWorld(bool multithreaded) : base(multithreaded)
         {
         }
 
-        public void Update(float dt, NetworkScene scene, NetworkScene oldScene)
+        void INetworkSceneBehaviour.OnDestroy()
+        {
+        }
+
+        void INetworkSceneBehaviour.Update(float dt)
         {
             base.Update(dt);
         }
 
-        public void OnClientConnected(byte clientId)
+        void INetworkSceneBehaviour.OnInstantiateObject(NetworkGameObject go)
         {
         }
 
-        public void OnClientDisconnected(byte clientId)
+        void INetworkSceneBehaviour.OnDestroyObject(int id)
         {
         }
+
+        void INetworkSceneBehaviour.OnStart()
+        {
+        }
+
+        NetworkScene INetworkSceneBehaviour.Scene
+        {
+            set
+            {
+            }
+        }
+
     }
 }

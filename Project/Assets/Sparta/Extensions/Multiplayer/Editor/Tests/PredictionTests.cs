@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System.Collections.Generic;
 using System.IO;
 using SocialPoint.IO;
 using SocialPoint.Network;
@@ -29,17 +30,25 @@ namespace SocialPoint.Multiplayer
             _serverCtrl = new NetworkServerSceneController(_server);
             _clientCtrl1 = new NetworkClientSceneController(_client1);
             _clientCtrl2 = new NetworkClientSceneController(_client2);
+            _serverCtrl.Restart(_server);
+            _clientCtrl1.Restart(_client1);
+            _clientCtrl2.Restart(_client2);
 
             _serverCtrl.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
-            _serverCtrl.RegisterAction<TestMovementAction>(MovementActionType);
+            _serverCtrl.RegisterAction<TestMovementAction>(MovementActionType, TestMovementAction.Apply);
             _clientCtrl1.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
-            _clientCtrl1.RegisterAction<TestMovementAction>(MovementActionType);
+            _clientCtrl1.RegisterAction<TestMovementAction>(MovementActionType, TestMovementAction.Apply);
             _clientCtrl2.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
-            _clientCtrl2.RegisterAction<TestMovementAction>(MovementActionType);
+            _clientCtrl2.RegisterAction<TestMovementAction>(MovementActionType, TestMovementAction.Apply);
 
             _server.Start();
             _client1.Connect();
             _client2.Connect();
+        }
+
+        void UpdateServerInterval()
+        {
+            _serverCtrl.Update(_serverCtrl.SyncInterval);
         }
 
         [Test]
@@ -55,7 +64,7 @@ namespace SocialPoint.Multiplayer
 
             Assert.That(!_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
-            _serverCtrl.Update(0.001f);
+            UpdateServerInterval();
             Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
 
@@ -66,7 +75,7 @@ namespace SocialPoint.Multiplayer
 
             Assert.That(!_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
-            _serverCtrl.Update(0.001f);
+            UpdateServerInterval();
             Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
         }
@@ -81,7 +90,7 @@ namespace SocialPoint.Multiplayer
             _clientCtrl1.ApplyAction(new TestInstatiateAction {
                 Position = JVector.Zero
             });
-            _serverCtrl.Update(0.001f);
+            UpdateServerInterval();
             Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
 
@@ -106,12 +115,12 @@ namespace SocialPoint.Multiplayer
             for(int i = 0; i < finalAction; i++)
             {
                 _client1.SendNextMessage();
-                _serverCtrl.Update(0.001f);
+                UpdateServerInterval();
                 Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
                 Assert.That(!_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
             }
             _client1.SendNextMessage();
-            _serverCtrl.Update(0.001f);
+            UpdateServerInterval();
             Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
         }
@@ -128,7 +137,7 @@ namespace SocialPoint.Multiplayer
             _clientCtrl1.ApplyAction(new TestInstatiateAction {
                 Position = JVector.Zero
             });
-            _serverCtrl.Update(0.001f);
+            UpdateServerInterval();
             Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
             Assert.That(_clientCtrl2.Equals(_serverCtrl.Scene));
@@ -153,13 +162,13 @@ namespace SocialPoint.Multiplayer
 
             //Start updating
             _client1.SendNextMessage();
-            _serverCtrl.Update(0.001f);
+            UpdateServerInterval();
             Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
             Assert.That(_clientCtrl2.Equals(_serverCtrl.Scene));
             Assert.That(!_clientCtrl2.PredictionEquals(_serverCtrl.Scene));
             _client2.SendNextMessage();
-            _serverCtrl.Update(0.001f);
+            UpdateServerInterval();
             Assert.That(_clientCtrl1.Equals(_serverCtrl.Scene));
             Assert.That(_clientCtrl1.PredictionEquals(_serverCtrl.Scene));
             Assert.That(_clientCtrl2.Equals(_serverCtrl.Scene));
@@ -185,16 +194,18 @@ namespace SocialPoint.Multiplayer
                 JVectorSerializer.Instance.Serialize(Position, writer);
             }
 
-            public static void Apply(NetworkScene scene, TestInstatiateAction action)
+            public static void Apply(NetworkSceneMemento scene, TestInstatiateAction action)
             {
                 Transform newObjTransform = Transform.Identity;
                 newObjTransform.Position = action.Position;
-                var go = new NetworkGameObject(scene.FreeObjectId, newObjTransform);
-                scene.AddObject(go);
+                var go = new NetworkGameObject();
+                go.Init(scene.CurrentScene.FreeObjectId, false, newObjTransform);
+                scene.CurrentScene.AddObject(go);
             }
+
         }
 
-        class TestMovementAction : INetworkShareable, INetworkSceneAction
+        class TestMovementAction : INetworkShareable
         {
             public JVector Movement;
 
@@ -208,13 +219,14 @@ namespace SocialPoint.Multiplayer
                 JVectorSerializer.Instance.Serialize(Movement, writer);
             }
 
-            public void Apply(NetworkScene scene)
+            public static void Apply(NetworkSceneMemento scene, TestMovementAction action)
             {
-                var itr = scene.GetObjectEnumerator();
+                var list = new List<NetworkGameObject>();
+                var itr = scene.CurrentScene.GetObjectEnumerator(list);
                 while(itr.MoveNext())
                 {
                     var go = itr.Current;
-                    go.Transform.Position += Movement;
+                    go.Transform.Position += action.Movement;
                 }
                 itr.Dispose();
             }
