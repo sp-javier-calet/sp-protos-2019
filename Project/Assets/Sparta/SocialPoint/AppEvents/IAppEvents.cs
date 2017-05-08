@@ -98,10 +98,13 @@ namespace SocialPoint.AppEvents
     {
         public static void RestartGame(this IAppEvents events)
         {
+            events.RestartGame(0);
+        }
+
+        public static void RestartGame(this IAppEvents events, int restartScene)
+        {
             events.TriggerGameWillRestart();
-            #if !I_AM_LOD //Note is negated, lod removed the line
-            SceneManager.LoadScene(0);
-            #endif
+            SceneManager.LoadScene(restartScene);
         }
 
         public static bool QuitGame(this IAppEvents events)
