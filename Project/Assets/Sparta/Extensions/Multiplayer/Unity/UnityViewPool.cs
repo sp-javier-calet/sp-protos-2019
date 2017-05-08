@@ -41,12 +41,12 @@ namespace SocialPoint.Multiplayer
                 prefab = Resources.Load(prefabName) as GameObject;
                 _prefabs.Add(prefabName, prefab);
             }
-            return ObjectPool.Spawn(prefab, ParentTransform, position, rotation);
+            return UnityObjectPool.Spawn(prefab, ParentTransform, position, rotation);
         }
 
         public void Recycle(GameObject view)
         {
-            ObjectPool.Recycle(view);
+            UnityObjectPool.Recycle(view);
         }
     }
 }

@@ -95,7 +95,6 @@ public class PathfindingTest : MonoBehaviour, IPointerClickHandler
             if(_started)
             {
                 var endPoint = hit.point.ToPathfinding();
-                var extents = SharpNav.Geometry.Vector3.One;
 
                 _pathfinder.TryGetPath(_startPoint, endPoint, _straightPath);
 

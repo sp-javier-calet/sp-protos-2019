@@ -1,9 +1,9 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
 using SocialPoint.IO;
-using SocialPoint.Utils;
 using SocialPoint.Network;
+using SocialPoint.Pooling;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
@@ -249,7 +249,6 @@ namespace SocialPoint.Multiplayer
             _serializer.Serialize(_scene, _prevScene, binWriter);
             var sceneBuffer = memStream.ToArray();
             // to avoid out of sync exception with GetEnumerator we will "make a copy" of the keys and iterate over them
-            var clients = new Dictionary<byte,ClientData>.KeyCollection(_clientData);
             var itrKeys = _clientData.GetEnumerator();
             keyList.Clear();
             while(itrKeys.MoveNext())

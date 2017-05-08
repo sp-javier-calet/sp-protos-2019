@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using SocialPoint.Physics;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using SocialPoint.Pooling;
+using UnityEngine;
 
 namespace SocialPoint.Multiplayer
 {
@@ -57,7 +57,7 @@ namespace SocialPoint.Multiplayer
 
         public override object Clone()
         {
-            var b = SocialPoint.Utils.ObjectPool.Get<UnityNetworkClientDebugBehaviour>().Init(Client, Server);
+            var b = ObjectPool.Get<UnityNetworkClientDebugBehaviour>().Init(Client, Server);
             b.ClientObject = ClientObject;
             return b;
         }

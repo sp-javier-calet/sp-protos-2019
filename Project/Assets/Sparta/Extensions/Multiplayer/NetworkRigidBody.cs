@@ -1,6 +1,6 @@
 ﻿using Jitter.LinearMath;
 using SocialPoint.Physics;
-using SocialPoint.Utils;
+using SocialPoint.Pooling;
 
 namespace SocialPoint.Multiplayer
 {
@@ -18,7 +18,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        new public NetworkRigidBody Init(IPhysicsShape shape, ControlType type, PhysicsWorld physicsWorld)
+        public NetworkRigidBody Init(IPhysicsShape shape, ControlType type, PhysicsWorld physicsWorld)
         {
             base.Init(shape, type, physicsWorld);
             return this;

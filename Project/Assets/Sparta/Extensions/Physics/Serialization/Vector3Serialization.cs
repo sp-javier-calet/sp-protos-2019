@@ -7,13 +7,14 @@ namespace SocialPoint.Physics
 {
     public class JVectorSerializer : IDiffWriteSerializer<JVector>
     {
+        float _epsilon = 1e-5f;
         public static readonly JVectorSerializer Instance = new JVectorSerializer();
 
         public void Compare(JVector newObj, JVector oldObj, Bitset dirty)
         {
-            dirty.Set(newObj.X != oldObj.X);
-            dirty.Set(newObj.Y != oldObj.Y);
-            dirty.Set(newObj.Z != oldObj.Z);
+            dirty.Set(Math.Abs(newObj.X - oldObj.X) > _epsilon );
+            dirty.Set(Math.Abs(newObj.Y - oldObj.Y) > _epsilon );
+            dirty.Set(Math.Abs(newObj.Z - oldObj.Z) > _epsilon );
         }
 
         public void Serialize(JVector newObj, IWriter writer)
@@ -46,7 +47,7 @@ namespace SocialPoint.Physics
 
         public JVector Parse(IReader reader)
         {
-            JVector obj;
+            JVector obj = new JVector();
             obj.X = reader.ReadSingle();
             obj.Y = reader.ReadSingle();
             obj.Z = reader.ReadSingle();
