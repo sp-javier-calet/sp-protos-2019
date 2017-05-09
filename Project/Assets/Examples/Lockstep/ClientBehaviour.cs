@@ -282,6 +282,11 @@ namespace Examples.Lockstep
             StartClient(GameLockstepMode.Client);
         }
 
+        void IMatchmakingClientDelegate.OnStopped(bool successful)
+        {
+            _fullscreenText.text = string.Format("match stopped - successful: {0}", successful);
+        }
+
         void IMatchmakingClientDelegate.OnError(Error err)
         {
             Log.e("IMatchmakingClientDelegate.OnError " + err);

@@ -1,4 +1,5 @@
 ﻿using System;
+using SocialPoint.Base;
 using SocialPoint.GUIControl;
 using SocialPoint.Locale;
 using SocialPoint.ScriptEvents;
@@ -14,6 +15,7 @@ namespace SocialPoint.Locale
         {
             _localizeAttributeConfig = attrConfig;
             _dispatcher = dispatcher;
+            DebugUtils.Assert(_dispatcher != null, "UILocalizationUpdater requires a valid IEventDispatcher instance");
             _dispatcher.AddListener<UIViewControllerStateChangeEvent>(OnViewControllerStateChangeEvent);
             _dispatcher.AddListener<UIViewControllerInstantiateEvent>(OnViewControllerInstantiateEvent);
         }

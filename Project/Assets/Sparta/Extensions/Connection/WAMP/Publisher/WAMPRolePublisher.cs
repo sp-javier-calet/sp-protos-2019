@@ -124,12 +124,14 @@ namespace SocialPoint.WAMP.Publisher
             // [PUBLISHED, PUBLISH.Request|id, Publication|id]
             if(msg.Count != 3)
             {
-                throw new Exception("Invalid PUBLISHED message structure - length must be 3");
+                Log.e("Invalid PUBLISHED message structure - length must be 3");
+                return;
             }
 
             if(!msg.Get(1).IsValue)
             {
-                throw new Exception("Invalid PUBLISHED message structure - PUBLISHED.Request must be an integer");
+                Log.e("Invalid PUBLISHED message structure - PUBLISHED.Request must be an integer");
+                return;
             }
 
             long requestId = msg.Get(1).AsValue.ToLong();
@@ -137,12 +139,14 @@ namespace SocialPoint.WAMP.Publisher
             PublishRequest request;
             if(!_publishRequests.TryGetValue(requestId, out request))
             {
-                throw new Exception("Bogus PUBLISHED message for non-pending request ID");
+                Log.e("Bogus PUBLISHED message for non-pending request ID");
+                return;
             }
 
             if(!msg.Get(2).IsValue)
             {
-                throw new Exception("Invalid PUBLISHED message structure - PUBLISHED.Subscription must be an integer");
+                Log.e("Invalid PUBLISHED message structure - PUBLISHED.Subscription must be an integer");
+                return;
             }
             long publicationId = msg.Get(2).AsValue.ToLong();
 
@@ -158,7 +162,8 @@ namespace SocialPoint.WAMP.Publisher
             PublishRequest request;
             if(!_publishRequests.TryGetValue(requestId, out request))
             {
-                throw new Exception("Bogus ERROR message for non-pending PUBLISH request ID");
+                Log.e("Bogus ERROR message for non-pending PUBLISH request ID");
+                return;
             }
             if(request.CompletionHandler != null)
             {

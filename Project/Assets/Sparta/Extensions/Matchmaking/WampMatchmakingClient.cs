@@ -10,53 +10,80 @@ namespace SocialPoint.Matchmaking
 {
     public class WampMatchmakingClient : IMatchmakingClient, IDisposable
     {
-        List<IMatchmakingClientDelegate> _delegates;
-        ConnectionManager _wamp;
-        ILoginData _login;
-        CallRequest _req;
+        const string MatchmakingStartMethodName = "matchmaking.match.start";
+        const string MatchmakingStopMethodName = "matchmaking.match.stop";
+        const string MatchmakingGetMethodName = "matchmaking.match.find_active_match";
 
         const string RoomParameter = "room";
         const string UserIdParameter = "user_id";
+        const string ConnectIdParameter = "connect_id";
 
         const string ErrorAttrKey = "error";
         const string StatusAttrKey = "status";
         const string WaitingStatus = "waiting";
         const string WaitingTimeAttrKey = "estimated_time";
         const string ResultAttrKey = "result";
+        const string SuccessAttrKey = "success";
+        const string MatchFoundAttrKey = "found";
 
         const int SuccessNotification = 502;
         const int TimeoutNotification = 503;
 
+        public Action OnStart;
+        public Action OnStop;
+        public Action OnSearchOpponent;
+        public Action OnWaitTimeReceived;
+
         public string Room{ get; set; }
 
-        public WampMatchmakingClient(ILoginData login, ConnectionManager wamp)
+        public bool IsConnected
+        {
+            get
+            {
+                return _wamp.IsConnected;
+            }
+        }
+
+        readonly List<IMatchmakingClientDelegate> _delegates;
+        readonly List<IMatchmakingClientDelegate> _delegatesToAdd;
+        readonly List<IMatchmakingClientDelegate> _delegatesToRemove;
+        ConnectionManager _wamp;
+        ILoginData _login;
+        CallRequest _startRequest;
+        CallRequest _stopRequest;
+        CallRequest _reconnectRequest;
+        bool _searchingForOpponent;
+        string _connectionID;
+
+        public WampMatchmakingClient(ConnectionManager wamp, ILoginData login, string connectionID = null)
         {
             _delegates = new List<IMatchmakingClientDelegate>();
+            _delegatesToAdd = new List<IMatchmakingClientDelegate>();
+            _delegatesToRemove = new List<IMatchmakingClientDelegate>();
             _wamp = wamp;
             _login = login;
+            _connectionID = (connectionID == null) ? string.Empty : connectionID;
         }
 
-        public void Dispose()
+        void OnWampConnected()
         {
-            Stop();
+            _wamp.OnConnected -= OnWampConnected;
+            CheckStart();
         }
 
-        public void AddDelegate(IMatchmakingClientDelegate dlg)
+        void OnConnectionClosed()
         {
-            _delegates.Add(dlg);
+            _wamp.OnClosed -= OnConnectionClosed;
+            if(_startRequest != null)
+            {
+                _wamp.OnConnected += OnReconnected;
+            }
         }
-
-        public void RemoveDelegate(IMatchmakingClientDelegate dlg)
-        {
-            _delegates.Remove(dlg);
-        }
-
-        const string MethodName = "matchmaking.match.start";
 
         public void Start()
         {
+            CallAction(OnStart);
             _wamp.OnError += OnWampError;
-            _wamp.OnNotificationReceived += OnWampNotificationReceived;
             if(!_wamp.IsConnected)
             {
                 _wamp.OnConnected += OnWampConnected;
@@ -64,35 +91,95 @@ namespace SocialPoint.Matchmaking
             }
             else
             {
-                DoStart();
+                CheckStart();
             }
         }
 
-        void OnWampConnected()
+        void OnReconnected()
         {
-            _wamp.OnConnected -= OnWampConnected;
-            DoStart();
+            _wamp.OnConnected -= OnReconnected;
+            CheckStart();
         }
 
-        void DoStart()
+        void CheckStart()
         {
-            var kwargs = new AttrDic();
-            if(_login != null)
+            _searchingForOpponent = false;
+            _wamp.OnClosed += OnConnectionClosed;
+            _wamp.OnNotificationReceived += OnWampNotificationReceived;
+
+            DisposeStartRequest();
+
+            var dic = new AttrDic();
+            dic.SetValue(UserIdParameter, _login.UserId.ToString());
+            _reconnectRequest = _wamp.Call(MatchmakingGetMethodName, Attr.InvalidList, dic, OnCheckStartResponse);
+        }
+
+        void OnCheckStartResponse(Error error, AttrList args, AttrDic kwargs)
+        {
+            if(!Error.IsNullOrEmpty(error))
             {
-                kwargs.SetValue(UserIdParameter, _login.UserId.ToString());
+                OnError(error);
+                return;
             }
+            AttrDic attr = null;
+            if(kwargs != null && kwargs.ContainsKey(ResultAttrKey))
+            {
+                attr = kwargs.Get(ResultAttrKey).AsDic;
+            }
+            if(attr != null)
+            { 
+                bool found = attr.GetValue(MatchFoundAttrKey).ToBool();
+                if(!found)
+                {
+                    SearchOpponent();
+                }
+            }
+            #if ADMIN_PANEL
+            if(kwargs == null || attr == null)
+                OnError(new Error("BAD MM RESPONSE: " + kwargs.ToString()));
+            #endif
+        }
+
+        void OnWampNotificationReceived(int type, string topic, AttrDic attr)
+        {
+            if(type == NotificationType.MatchmakingSuccessNotification)
+            {
+                UnregisterEvents();
+                _searchingForOpponent = false;
+                DisposeStartRequest();
+                DisposeStopRequest();
+
+                var match = new Match();
+                match.ParseAttrDic(attr);
+                DispatchOnMatchEvent(match);
+            }
+            else if(type == TimeoutNotification)
+            {
+                UnregisterEvents();
+                _searchingForOpponent = false;
+                DisposeStopRequest();
+                OnError(new Error(MatchmakingClientErrorCode.Timeout, new JsonAttrSerializer().SerializeString(attr)));
+            }
+        }
+
+        void SearchOpponent()
+        {
+            _searchingForOpponent = true;
+            var kwargs = new AttrDic();
+            kwargs.SetValue(UserIdParameter, _login.UserId.ToString());
             if(!string.IsNullOrEmpty(Room))
             {
                 kwargs.SetValue(RoomParameter, Room);
             }
-            if(_req != null)
-            {
-                _req.Dispose();
-            }
-            _req = _wamp.Call(MethodName, Attr.InvalidList, kwargs, OnStartResult);
+
+            kwargs.SetValue(ConnectIdParameter, _connectionID);
+
+            DisposeStartRequest();
+            _startRequest = _wamp.Call(MatchmakingStartMethodName, Attr.InvalidList, kwargs, OnSearchOpponentResult);
+            CallAction(OnSearchOpponent);
         }
 
-        void OnStartResult(Error error, AttrList args, AttrDic kwargs)
+        void OnSearchOpponentResult(Error error, AttrList args, AttrDic kwargs)
         {
             if(!Error.IsNullOrEmpty(error))
             {
@@ -113,10 +200,8 @@ namespace SocialPoint.Matchmaking
                     return;
                 }
                 var waitTime = attr.GetValue(WaitingTimeAttrKey).ToInt();
-                for(var i = 0; i < _delegates.Count; i++)
-                {
-                    _delegates[i].OnWaiting(waitTime);
-                }
+                DispatchOnWaitingEvent(waitTime);
+                CallAction(OnWaitTimeReceived);
             }
             else if(attr != null && attr.ContainsKey(ErrorAttrKey))
             {
@@ -128,31 +213,101 @@ namespace SocialPoint.Matchmaking
             }
         }
 
-        void OnWampNotificationReceived(int type, string topic, AttrDic attr)
+        public void Stop()
         {
-            if(type == NotificationType.MatchmakingSuccessNotification)
+            if(!_searchingForOpponent)
             {
-                var match = new Match();
-                match.ParseAttrDic(attr);
-                for(var i = 0; i < _delegates.Count; i++)
+                return;
+            }
+            var kwargs = new AttrDic();
+            if(_login != null)
+            {
+                kwargs.SetValue(UserIdParameter, _login.UserId.ToString());
+            }
+            if(!string.IsNullOrEmpty(Room))
+            {
+                kwargs.SetValue(RoomParameter, Room);
+            }
+            if(_stopRequest != null)
+            {
+                _stopRequest.Dispose();
+            }
+
+            _wamp.OnError -= OnWampError;
+            _wamp.OnNotificationReceived -= OnWampNotificationReceived;
+
+            _stopRequest = _wamp.Call(MatchmakingStopMethodName, Attr.InvalidList, kwargs, OnStopResult);
+            CallAction(OnStop);
+        }
+
+        void OnStopResult(Error error, AttrList args, AttrDic kwargs)
+        {
+            if(!Error.IsNullOrEmpty(error))
+            {
+                OnError(error);
+                return;
+            }
+            AttrDic attr = null;
+            if(kwargs != null && kwargs.ContainsKey(ResultAttrKey))
+            {
+                attr = kwargs.Get(ResultAttrKey).AsDic;
+            }
+            if(attr != null)
+            {
+                if(attr.ContainsKey(ErrorAttrKey))
                 {
-                    _delegates[i].OnMatched(match);
+                    OnError(new Error("Got error: " + attr.GetValue(ErrorAttrKey).ToString()));
+                    return;
+                }
+                else if(attr.ContainsKey(SuccessAttrKey))
+                {
+                    bool stopped = attr.GetValue(SuccessAttrKey).ToBool();
+
+                    if(stopped)
+                    {
+                        _searchingForOpponent = false;
+                        UnregisterEvents();
+                        DisposeStartRequest();
+                    }
+                    DisposeStopRequest();
+                    DispatchOnStoppedEvent(stopped);
+                    return;
                 }
             }
-            else if(type == TimeoutNotification)
+            OnError(new Error("Got unknown data: " + kwargs));
+        }
+
+        void UnregisterEvents()
+        {
+            _wamp.OnNotificationReceived -= OnWampNotificationReceived;
+            _wamp.OnClosed -= OnConnectionClosed;
+            _wamp.OnConnected -= OnWampConnected;
+            _wamp.OnConnected -= OnReconnected;
+            _wamp.OnError -= OnWampError;
+        }
+
+        public void Dispose()
+        {
+            UnregisterEvents();
+            DisposeStartRequest();
+            DisposeStopRequest();
+        }
+
+        void DisposeStartRequest()
+        {
+            if(_startRequest != null)
             {
-                OnError(new Error(MatchmakingClientErrorCode.Timeout, "Timeout"));
+                _startRequest.Dispose();
+                _startRequest = null;
             }
         }
 
-        public void Stop()
+        void DisposeStopRequest()
         {
-            _wamp.OnError -= OnWampError;
-            _wamp.OnNotificationReceived -= OnWampNotificationReceived;
-            if(_req != null)
+            if(_stopRequest != null)
             {
-                _req.Dispose();
-                _req = null;
+                _stopRequest.Dispose();
+                _stopRequest = null;
             }
         }
 
@@ -167,10 +322,81 @@ namespace SocialPoint.Matchmaking
 
         void OnError(Error err)
         {
+            DispatchOnErrorEvent(err);
+        }
+
+        void CallAction(Action action)
+        {
+            if(action != null)
+            {
+                action();
+            }
+        }
+
+        void SyncDelegates()
+        {
+            for(int i = 0; i < _delegatesToRemove.Count; ++i)
+            {
+                _delegates.Remove(_delegatesToRemove[i]);
+            }
+            _delegatesToRemove.Clear();
+
+            _delegates.AddRange(_delegatesToAdd);
+            _delegatesToAdd.Clear();
+        }
+
+        void DispatchOnErrorEvent(Error err)
+        {
+            if(err == null)
+            {
+                return;
+            }
+            SyncDelegates();
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnError(err);
             }
+        }
+
+        void DispatchOnMatchEvent(Match match)
+        {
+            if(match == null)
+            {
+                return;
+            }
+            SyncDelegates();
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnMatched(match);
+            }
+        }
+
+        void DispatchOnWaitingEvent(int time)
+        {
+            SyncDelegates();
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnWaiting(time);
+            }
+        }
+
+        void DispatchOnStoppedEvent(bool stopped)
+        {
+            SyncDelegates();
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnStopped(stopped);
+            }
+        }
+
+        public void AddDelegate(IMatchmakingClientDelegate dlg)
+        {
+            _delegatesToAdd.Add(dlg);
+        }
+
+        public void RemoveDelegate(IMatchmakingClientDelegate dlg)
+        {
+            _delegatesToRemove.Remove(dlg);
         }
     }
 

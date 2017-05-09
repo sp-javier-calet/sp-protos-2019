@@ -36,7 +36,7 @@ namespace SocialPoint.Base
                     var forcedEnv = new Environment { 
                         Name = "Forced", 
                         Url = environmentUrl, 
-                        Type = EnvironmentType.Production
+                        Type = EnvironmentType.Development
                     };
                     return forcedEnv;
                 }

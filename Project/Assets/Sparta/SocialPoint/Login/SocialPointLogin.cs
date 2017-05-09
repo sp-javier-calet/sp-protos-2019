@@ -26,6 +26,7 @@ namespace SocialPoint.Login
         const string SecurityTokenStorageKey = "SocialPointLoginClientToken";
         const string UserIdStorageKey = "SocialPointLoginUserId";
         const string UserHasRegisteredStorageKey = "SocialPointLoginHasRegistered";
+        const string AppVersionStorageKey = "SocialPointAppVersion";
 
         const string HttpParamSessionId = "session_id";
         const string HttpParamDeviceModel = "device_model";
@@ -119,7 +120,8 @@ namespace SocialPoint.Login
         const int LinkedToLooseError = 265;
         const int LinkedToSameError = 266;
         const int LinkedToLinkedError = 267;
-        const int ForceUpgradeError = 485;
+        const int ForceUpgradeError = 285;
+        const int RootedDeviceError = 479;
 
         public const int DefaultMaxSecurityTokenErrorRetries = 5;
         public const int DefaultMaxConnectivityErrorRetries = 0;
@@ -295,6 +297,15 @@ namespace SocialPoint.Login
                         {
                             UInt64.TryParse(attr.ToString(), out _userId);
                         }
+
+                        #if ADMIN_PANEL && !UNITY_EDITOR
+                        string version = LoadAppVerion();
+                        if(DeviceInfo.AppInfo.Version != version)
+                        {
+                            _userId = 0;
+                        }
+                        #endif
+
                     }
                     catch(Exception)
                     {
@@ -541,18 +552,19 @@ namespace SocialPoint.Login
             AttrDic json = null;
             if(resp.HasError)
             {
-                try
-                {
-                    json = new JsonAttrParser().Parse(resp.Body).AsDic;
-                }
-                catch(Exception)
-                {
-                }
+                json = new JsonAttrParser().Parse(resp.Body).AsDic;
             }
+
             if(resp.StatusCode == ForceUpgradeError)
             {
                 err = new Error("The game needs to be upgraded.");
                 typ = ErrorType.Upgrade;
+                LoadGenericData(json.Get(AttrKeyGenericData));
+            }
+            else if(resp.StatusCode == RootedDeviceError)
+            {
+                err = new Error("The device has been rooted.");
+                typ = ErrorType.Rooted;
                 LoadGenericData(json.Get(AttrKeyGenericData));
             }
             else if(resp.StatusCode == InvalidSecurityTokenError)
@@ -575,6 +587,7 @@ namespace SocialPoint.Login
             {
                 err = resp.Error;
             }
+
             if(!Error.IsNullOrEmpty(err))
             {
                 data.SetValue(AttrKeyHttpCode, resp.StatusCode);
@@ -1861,7 +1874,21 @@ namespace SocialPoint.Login
             if(Storage != null)
             {
                 Storage.Save(UserIdStorageKey, new AttrString(UserId.ToString()));
+
+                #if ADMIN_PANEL && !UNITY_EDITOR
+                StoreAppVersion();
+                #endif
             }
+        }
+
+        void StoreAppVersion()
+        {
+            Storage.Save(AppVersionStorageKey, new AttrString(DeviceInfo.AppInfo.Version));
+        }
+
+        string LoadAppVerion()
+        {
+            return Storage.Load(AppVersionStorageKey).AsValue.ToString();
         }
 
         bool SetupUserMappingsHttpRequest(HttpRequest req, List<UserMapping> mappings, uint block)
@@ -2186,6 +2213,10 @@ namespace SocialPoint.Login
             if(Storage != null)
             {
                 Storage.Remove(UserIdStorageKey);
+                #if ADMIN_PANEL && !UNITY_EDITOR
+                StoreAppVersion();
+                #endif
+
                 Storage.Remove(UserHasRegisteredStorageKey);
             }
         }
