@@ -52,7 +52,7 @@ namespace SocialPoint.Login
          */
         LooseToLinked
     }
-    
+
     public enum LinkConfirmDecision
     {
         /**
@@ -88,14 +88,6 @@ namespace SocialPoint.Login
          */
         Upgrade,
 
-
-        //I_AM_LOD ... Should rooted device error be ported to sparta??
-        /**
-         * 
-         * Error getting RootedDeviceError http code on login
-         * 
-         * */
-        Rooted,
         /**
          * Not managed http error code on login
          */
@@ -200,7 +192,14 @@ namespace SocialPoint.Login
         /**
          * Error parsing the game data
          */
-        GameDataParse
+        GameDataParse,
+
+        /**
+         * 
+         * Error getting RootedDeviceError http code on login
+         * 
+         * */
+        Rooted,
     }
 
     public static class ErrorTypeExtensions
@@ -210,7 +209,7 @@ namespace SocialPoint.Login
             return type == ErrorType.Link || type == ErrorType.LinkConfirm || type == ErrorType.LinkConfirmParse || type == ErrorType.LinkLogin || type == ErrorType.LinkParse;
         }
     }
-    
+
     public enum LinkMode
     {
         /**
@@ -231,7 +230,7 @@ namespace SocialPoint.Login
          */
         Manual
     }
-    
+
     public enum LinkState
     {
         Connected,

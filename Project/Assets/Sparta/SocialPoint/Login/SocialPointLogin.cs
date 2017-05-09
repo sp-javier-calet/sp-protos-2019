@@ -120,9 +120,7 @@ namespace SocialPoint.Login
         const int LinkedToLooseError = 265;
         const int LinkedToSameError = 266;
         const int LinkedToLinkedError = 267;
-        //I_AM_LOD ... is this ForceUpgradeError ok? shouldn't it be 485?
         const int ForceUpgradeError = 285;
-        //I_AM_LOD ... Should rooted device error be ported to sparta??
         const int RootedDeviceError = 479;
 
         public const int DefaultMaxSecurityTokenErrorRetries = 5;
@@ -566,7 +564,6 @@ namespace SocialPoint.Login
                 typ = ErrorType.Upgrade;
                 LoadGenericData(json.Get(AttrKeyGenericData));
             }
-            //I_AM_LOD ... Should rooted device error be ported to sparta??
             else if(resp.StatusCode == RootedDeviceError)
             {
                 //I_AM_LOD ... Should be already parsed from if checking that it HasError
