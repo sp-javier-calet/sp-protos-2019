@@ -6,10 +6,6 @@ using SocialPoint.Connection;
 using SocialPoint.Login;
 using SocialPoint.WAMP.Caller;
 
-#if I_AM_LOD
-using DS.Common.Events;
-#endif
-
 namespace SocialPoint.Matchmaking
 {
     public class WampMatchmakingClient : IMatchmakingClient, IDisposable
@@ -32,6 +28,11 @@ namespace SocialPoint.Matchmaking
 
         const int SuccessNotification = 502;
         const int TimeoutNotification = 503;
+
+        public Action OnStart;
+        public Action OnStop;
+        public Action OnSearchOpponent;
+        public Action OnWaitTimeReceived;
 
         public string Room{ get; set; }
 
@@ -81,9 +82,7 @@ namespace SocialPoint.Matchmaking
 
         public void Start()
         {
-            #if I_AM_LOD
-            ServiceLocator.EventDispatcher.Raise(new MatckmakerStateChangedEvent(1010, "initializing"));
-            #endif
+            CallAction(OnStart);
             _wamp.OnError += OnWampError;
             if(!_wamp.IsConnected)
             {
@@ -177,9 +176,7 @@ namespace SocialPoint.Matchmaking
 
             DisposeStartRequest();
             _startRequest = _wamp.Call(MatchmakingStartMethodName, Attr.InvalidList, kwargs, OnSearchOpponentResult);
-            #if I_AM_LOD
-            ServiceLocator.EventDispatcher.Raise(new MatckmakerStateChangedEvent(1030, "mm_request_ok"));
-            #endif
+            CallAction(OnSearchOpponent);
         }
 
         void OnSearchOpponentResult(Error error, AttrList args, AttrDic kwargs)
@@ -204,9 +201,7 @@ namespace SocialPoint.Matchmaking
                 }
                 var waitTime = attr.GetValue(WaitingTimeAttrKey).ToInt();
                 DispatchOnWaitingEvent(waitTime);
-                #if I_AM_LOD
-                ServiceLocator.EventDispatcher.Raise(new MatckmakerStateChangedEvent(1040, "waiting_time_received"));
-                #endif
+                CallAction(OnWaitTimeReceived);
             }
             else if(attr != null && attr.ContainsKey(ErrorAttrKey))
             {
@@ -242,9 +237,7 @@ namespace SocialPoint.Matchmaking
             _wamp.OnNotificationReceived -= OnWampNotificationReceived;
 
             _stopRequest = _wamp.Call(MatchmakingStopMethodName, Attr.InvalidList, kwargs, OnStopResult);
-            #if I_AM_LOD
-            ServiceLocator.EventDispatcher.Raise(new MatckmakerStateChangedEvent(1020, "initializing_cancel"));
-            #endif
+            CallAction(OnStop);
         }
 
         void OnStopResult(Error error, AttrList args, AttrDic kwargs)
@@ -330,6 +323,14 @@ namespace SocialPoint.Matchmaking
         void OnError(Error err)
         {
             DispatchOnErrorEvent(err);
+        }
+
+        void CallAction(Action action)
+        {
+            if(action != null)
+            {
+                action();
+            }
         }
 
         void SyncDelegates()
