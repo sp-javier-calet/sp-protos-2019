@@ -25,8 +25,8 @@ namespace SocialPoint.Base
 
         public override void InstallBindings()
         {		
-            #if ADMIN_PANEL && I_AM_LOD
-            string envName = ServiceLocator.Container.Resolve<BackendEnvironment>().GetEnvironment().Name;
+            #if ADMIN_PANEL
+            string envName = Container.Resolve<BackendEnvironment>().GetEnvironment().Name;
             Settings.VolatilePrefix = envName;
             Settings.PersistentPrefix = envName;
             #endif
