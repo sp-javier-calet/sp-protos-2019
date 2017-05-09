@@ -6,7 +6,7 @@ using System;
 
 namespace SocialPoint.Matchmaking
 {
-    public struct Match
+    public class Match
     {
         const string MatchIdAttrKey = "match_id";
         const string PlayerIdAttrKey = "token";
