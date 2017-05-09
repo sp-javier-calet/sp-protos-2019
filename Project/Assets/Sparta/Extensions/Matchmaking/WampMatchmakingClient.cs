@@ -51,7 +51,6 @@ namespace SocialPoint.Matchmaking
         ILoginData _login;
         CallRequest _startRequest;
         CallRequest _stopRequest;
-        CallRequest _reconnectRequest;
         bool _searchingForOpponent;
         string _connectionID;
 
@@ -111,7 +110,7 @@ namespace SocialPoint.Matchmaking
 
             var dic = new AttrDic();
             dic.SetValue(UserIdParameter, _login.UserId.ToString());
-            _reconnectRequest = _wamp.Call(MatchmakingGetMethodName, Attr.InvalidList, dic, OnCheckStartResponse);
+            _wamp.Call(MatchmakingGetMethodName, Attr.InvalidList, dic, OnCheckStartResponse);
         }
 
         void OnCheckStartResponse(Error error, AttrList args, AttrDic kwargs)
