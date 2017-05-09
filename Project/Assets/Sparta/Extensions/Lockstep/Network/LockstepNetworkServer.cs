@@ -989,14 +989,25 @@ namespace SocialPoint.Lockstep
 
         void SendCustomLog(string message, LogLevel logLevel, AttrDic dic = null)
         {
-            if(dic == null)
+            if(SendLog != null)
             {
-                dic = new AttrDic();
+                if(dic == null)
+                {
+                    dic = new AttrDic();
+                }
+                dic.SetValue("match_id", MatchId);
+                dic.SetValue("log_number", _logCount);
+                SendLog(new Network.ServerEvents.Log(logLevel, "Lockstep: " + message, dic), true);
+                _logCount++;
             }
-            dic.SetValue("match_id", MatchId);
-            dic.SetValue("log_number", _logCount);
-            SendLog(new Network.ServerEvents.Log(logLevel, "Lockstep: " + message, dic), true);
-            _logCount++;
+            else
+            {
+                /* NOTE: The null check was added because it was messing with unit tests, 
+                 * but in reality this class should not have logging functionality.
+                 * A refactor/cleaning should be done.
+                 * */
+                SocialPoint.Base.Log.w("Server SendLog action not set...");
+            }
         }
 
         void SendCustomLog(string message, AttrDic dic = null)
