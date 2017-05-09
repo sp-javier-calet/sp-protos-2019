@@ -300,6 +300,7 @@ namespace AssetBundleGraph
             public bool isPreProcess;
             public bool isPermanent;
 
+
             public LoaderData(string id, SerializableMultiTargetString paths, bool isPreProcess, bool isPermanent)
             {
                 this.id = id;
@@ -334,6 +335,9 @@ namespace AssetBundleGraph
                 return jsonDict;
             }
         }
+
+        public static bool isDirty = true;
+        public static event Action OnSave;
 
         private List<LoaderData> loaders;
         public List<LoaderData> LoaderPaths
@@ -395,6 +399,9 @@ namespace AssetBundleGraph
             {
                 sw.Write(loaderPrettyfied);
             }
+
+            if(OnSave != null)
+                OnSave();
         }
 
         public Dictionary<string, object> ToJsonDictionary()

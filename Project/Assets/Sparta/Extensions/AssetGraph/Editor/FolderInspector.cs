@@ -14,6 +14,9 @@ namespace AssetBundleGraph
         static Texture2D _inherited_folder_mini;
         static List<int> markedObjects;
         static bool _perfectMatch = false;
+        static LoaderSaveData _loaderData = null;
+        public static bool reloadLoaders = true;
+
 
         static FolderPainter()
         {
@@ -22,6 +25,7 @@ namespace AssetBundleGraph
             _folder_mini = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_FOLDER_TEX_MINI);
             _inherited_folder_mini = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetGraphRelativePaths.RESOURCE_INHERITED_FOLDER_TEX_MINI);
             EditorApplication.projectWindowItemOnGUI += HierarchyItemCB;
+            LoaderSaveData.OnSave += () => reloadLoaders = true;
         }
 
         static void HierarchyItemCB(string guid, Rect r)
@@ -86,8 +90,13 @@ namespace AssetBundleGraph
                 {
                     return false;
                 }
-                LoaderSaveData loaderSaveData = LoaderSaveData.LoadFromDisk();
-                var loader = loaderSaveData.GetBestLoaderData(path);
+                if(reloadLoaders)
+                {
+                    _loaderData = LoaderSaveData.LoadFromDisk();
+                    reloadLoaders = false;
+                }
+
+                var loader = _loaderData.GetBestLoaderData(path);
 
                 if(loader != null)
                 {
