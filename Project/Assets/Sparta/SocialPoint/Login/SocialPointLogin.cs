@@ -557,18 +557,12 @@ namespace SocialPoint.Login
 
             if(resp.StatusCode == ForceUpgradeError)
             {
-                //I_AM_LOD ... Should be already parsed from if checking that it HasError
-                json = new JsonAttrParser().Parse(resp.Body).AsDic;
-
                 err = new Error("The game needs to be upgraded.");
                 typ = ErrorType.Upgrade;
                 LoadGenericData(json.Get(AttrKeyGenericData));
             }
             else if(resp.StatusCode == RootedDeviceError)
             {
-                //I_AM_LOD ... Should be already parsed from if checking that it HasError
-                json = new JsonAttrParser().Parse(resp.Body).AsDic;
-
                 err = new Error("The device has been rooted.");
                 typ = ErrorType.Rooted;
                 LoadGenericData(json.Get(AttrKeyGenericData));
