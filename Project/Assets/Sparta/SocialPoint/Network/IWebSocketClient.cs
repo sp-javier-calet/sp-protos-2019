@@ -6,6 +6,8 @@ namespace SocialPoint.Network
 
         bool Connecting { get; }
 
+        bool InStandby { get; }
+
         string[] Urls { get; set; }
 
         string Proxy { get; set; }

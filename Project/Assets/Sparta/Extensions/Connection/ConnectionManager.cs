@@ -161,7 +161,6 @@ namespace SocialPoint.Connection
             {
                 if(_appEvents != null)
                 {
-
                     _appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
                     _appEvents.GameWillRestart.Remove(Disconnect);
                     _appEvents.WillGoBackground.Remove(OnWillGoBackground);
@@ -218,6 +217,14 @@ namespace SocialPoint.Connection
             get
             {
                 return _socket.Connecting;
+            }
+        }
+
+        bool IsSocketInStandby
+        {
+            get
+            {
+                return _socket.InStandby;
             }
         }
 
@@ -376,7 +383,7 @@ namespace SocialPoint.Connection
 
         public void Update()
         {
-            if(IsSocketConnected && _joined)
+            if(IsSocketConnected && !IsSocketInStandby && _joined)
             {
                 SendPendingRequests();
             }
@@ -437,10 +444,7 @@ namespace SocialPoint.Connection
             if(_reconnectUpdate == null)
             {
                 _reconnectUpdate = new ScheduledAction(_scheduler, () => {
-                    if(!IsSocketConnected && !IsSocketConnecting)
-                    {
-                        Reconnect();
-                    }
+                    Reconnect();
                 });
             }
 
@@ -611,7 +615,7 @@ namespace SocialPoint.Connection
 
         public void OnMessageReceived(NetworkMessageData data)
         {
-            
+
         }
 
         public void OnNetworkError(Error err)

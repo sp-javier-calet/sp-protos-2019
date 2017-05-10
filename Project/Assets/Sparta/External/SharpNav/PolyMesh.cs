@@ -146,7 +146,7 @@ namespace SharpNav
                     //each polygon has numVertsPerPoly
                     //index 0, 1, 2 store triangle vertices
                     //other polygon indexes (3 to numVertsPerPoly - 1) should be used for storing extra vertices when two polygons merge together
-                    Polygon p = new Polygon(numVertsPerPoly, Area.Null, RegionId.Null);
+                    Polygon p = new Polygon(numVertsPerPoly, Area.Null, RegionId.Null, null);
                     p.Vertices[0] = RemoveDiagonalFlag(indices[ti.Index0]);
                     p.Vertices[1] = RemoveDiagonalFlag(indices[ti.Index1]);
                     p.Vertices[2] = RemoveDiagonalFlag(indices[ti.Index2]);
@@ -202,7 +202,7 @@ namespace SharpNav
                 for(int i = 0; i < contPolys.Count; i++)
                 {
                     Polygon p = contPolys[i];
-                    Polygon p2 = new Polygon(numVertsPerPoly, cont.Area, cont.RegionId);
+                    Polygon p2 = new Polygon(numVertsPerPoly, cont.Area, cont.RegionId, cont.Tag);
 
                     Buffer.BlockCopy(p.Vertices, 0, p2.Vertices, 0, numVertsPerPoly * sizeof(int));
 
@@ -1011,6 +1011,7 @@ namespace SharpNav
             List<int> hole = new List<int>(numRemovedVerts * numVertsPerPoly);
             List<RegionId> regions = new List<RegionId>(numRemovedVerts * numVertsPerPoly);
             List<Area> areas = new List<Area>(numRemovedVerts * numVertsPerPoly);
+            List<object> tags = new List<object>(numRemovedVerts * numVertsPerPoly);
 
             //Iterate through all the polygons
             for(int i = 0; i < polys.Count; i++)
@@ -1024,7 +1025,7 @@ namespace SharpNav
                     //collect edges which don't touch removed vertex
                     for(int j = 0, k = nv - 1; j < nv; k = j++)
                         if(p.Vertices[j] != vertex && p.Vertices[k] != vertex)
-                            edges.Add(new Edge(p.Vertices[k], p.Vertices[j], p.RegionId, p.Area));
+                            edges.Add(new Edge(p.Vertices[k], p.Vertices[j], p.RegionId, p.Area, p.Tag));
 
                     polys[i] = polys[polys.Count - 1];
                     polys.RemoveAt(polys.Count - 1);
@@ -1066,6 +1067,7 @@ namespace SharpNav
             hole.Add(edges[0].Vert0);
             regions.Add(edges[0].Region);
             areas.Add(edges[0].Area);
+            tags.Add(edges[0].Tag);
 
             while(edges.Count > 0)
             {
@@ -1082,6 +1084,7 @@ namespace SharpNav
                         hole.Insert(0, edge.Vert0);
                         regions.Insert(0, edge.Region);
                         areas.Insert(0, edge.Area);
+                        tags.Insert(0, edge.Tag);
                         add = true;
                     }
                     else if(hole[hole.Count - 1] == edge.Vert0)
@@ -1090,6 +1093,7 @@ namespace SharpNav
                         hole.Add(edge.Vert1);
                         regions.Add(edge.Region);
                         areas.Add(edge.Area);
+                        tags.Add(edge.Tag);
                         add = true;
                     }
 
@@ -1132,7 +1136,7 @@ namespace SharpNav
                 Triangle t = tris[j];
                 if(t.Index0 != t.Index1 && t.Index0 != t.Index2 && t.Index1 != t.Index2)
                 {
-                    Polygon p = new Polygon(numVertsPerPoly, areas[t.Index0], regions[t.Index0]);
+                    Polygon p = new Polygon(numVertsPerPoly, areas[t.Index0], regions[t.Index0], tags[t.Index0]);
                     p.Vertices[0] = hole[t.Index0];
                     p.Vertices[1] = hole[t.Index1];
                     p.Vertices[2] = hole[t.Index2];
@@ -1267,6 +1271,8 @@ namespace SharpNav
             public int Vert1;
             public RegionId Region;
             public Area Area;
+            //[SP-Change] added tag
+            public object Tag;
 
             /// <summary>
             /// Initializes a new instance of the <see cref="Edge"/> struct.
@@ -1275,12 +1281,13 @@ namespace SharpNav
             /// <param name="vert1">Vertex B</param>
             /// <param name="region">Region id</param>
             /// <param name="area">Area id</param>
-            public Edge(int vert0, int vert1, RegionId region, Area area)
+            public Edge(int vert0, int vert1, RegionId region, Area area, object tag)
             {
                 Vert0 = vert0;
                 Vert1 = vert1;
                 Region = region;
                 Area = area;
+                Tag = tag;
             }
         }
 
@@ -1302,12 +1309,13 @@ namespace SharpNav
             /// <param name="numVertsPerPoly">The number of vertices per polygon.</param>
             /// <param name="area">The AreaId</param>
             /// <param name="regionId">The RegionId</param>
-            public Polygon(int numVertsPerPoly, Area area, RegionId regionId)
+            public Polygon(int numVertsPerPoly, Area area, RegionId regionId, object tag)
             {
                 vertices = new int[numVertsPerPoly];
                 neighborEdges = new int[numVertsPerPoly];
                 this.area = area;
                 this.regionId = regionId;
+                Tag = tag;
 
                 for(int i = 0; i < numVertsPerPoly; i++)
                 {
@@ -1378,6 +1386,13 @@ namespace SharpNav
             /// </summary>
             /// <value>Any object to tag this instance with.</value>
             public object Tag { get; set; }
+
+            //[SP-Change] Added flag support
+            /// <summary>
+            /// Gets or sets a tag for this instance.
+            /// </summary>
+            /// <value>Any object to tag this instance with.</value>
+            public ushort Flags { get; set; }
 
             /// <summary>
             /// Gets the the number of vertex.

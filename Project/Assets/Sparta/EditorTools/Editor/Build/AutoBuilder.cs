@@ -1,14 +1,16 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System;
-using System.IO;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
+using UnityEditor;
+using UnityEngine;
 
 namespace SpartaTools.Editor.Build
 {
     public static class AutoBuilder
     {
         static BuildOptions _options = BuildOptions.None;
+        static StringBuilder _detailedOutput;
         const BuildOptions _appendFlag = BuildOptions.AcceptExternalModificationsToPlayer;
 
         public static bool IsRunning;
@@ -247,7 +249,9 @@ namespace SpartaTools.Editor.Build
         public static void Build(BuildTarget target, string buildSetName, bool appendBuild = false, int versionNumber = -1, string versionName = null, string outputPath = null)
         {
             IsRunning = true;
+            _detailedOutput = new StringBuilder();
 
+            Application.logMessageReceived += LogMessageReceivedCallback;
             Log(string.Format("Starting Build <{0}> for target <{1}> with config set <{2}>", 
                 versionNumber, target, buildSetName));
 
@@ -283,7 +287,7 @@ namespace SpartaTools.Editor.Build
 
             OverrideBuiltSetOptions(target, location, buildSet, appendBuild);
 
-            Debug.Log(string.Format("Sparta-Autobuilder: Unity version: {0}", Application.unityVersion));
+            Log(string.Format("Sparta-Autobuilder: Unity version: {0}", Application.unityVersion));
 
             //Dump config report after apply config
             new BuildReport()
@@ -291,7 +295,7 @@ namespace SpartaTools.Editor.Build
                 .AddBuildSetInfo(buildSet)
                 .CollectPlayerSettings()
                 .Dump();
-
+                
             Log("Starting Player Build");
 
             #if UNITY_5_5_OR_NEWER
@@ -310,12 +314,23 @@ namespace SpartaTools.Editor.Build
             _options = BuildOptions.None;
             IsRunning = false;
 
+
             if(!string.IsNullOrEmpty(result))
             {
                 Log(string.Format("Player Build finished with error result: '{0}'", result));
                 throw new CompilerErrorException(result);
             }
             Log("Player Build finished successfully");
+            Log(string.Format("Detailed log:\n '{0}' \nEnd of detailed log\n", _detailedOutput));
+            Application.logMessageReceived -= LogMessageReceivedCallback;
+        }
+
+        static void LogMessageReceivedCallback(string msg, string stack, LogType type)
+        {
+            if(type == LogType.Error || type == LogType.Exception || type == LogType.Assert)
+            {
+                _detailedOutput.AppendFormat("{0} - {1}\n{2}\n\n", type, msg, stack);
+            }
         }
 
         #endregion

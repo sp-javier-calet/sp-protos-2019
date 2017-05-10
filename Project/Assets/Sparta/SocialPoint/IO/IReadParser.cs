@@ -1,4 +1,5 @@
-﻿
+﻿using System.Collections.Generic;
+
 namespace SocialPoint.IO
 {
     public interface IReadParser<T>
@@ -21,6 +22,46 @@ namespace SocialPoint.IO
          * return the amount of dirty bits the element will check
          */
         int GetDirtyBitsSize(T obj);
+    }
+
+    public static class ReadParserExtensions
+    {
+        public static T[] ReadArray<T>(this IReadParser<T> parser, IReader reader)
+        {
+            int size = reader.ReadInt32();
+            var array = new T[size];
+            for(int i = 0; i < size; ++i)
+            {
+                array[i] = parser.Parse(reader);
+            }
+            return array;
+        }
+
+        public static List<T> ReadList<T>(this IReadParser<T> parser, IReader reader)
+        {
+            int size = reader.ReadInt32();
+            var list = new List<T>(size);
+            for(int i = 0; i < size; ++i)
+            {
+                list.Add(parser.Parse(reader));
+            }
+            return list;
+        }
+
+        public static List<T> ReadCompleteList<T>(this IReadParser<T> parser, IReader reader)
+        {
+            var list = new List<T>();
+            while(!reader.Finished)
+            {
+                list.Add(parser.Parse(reader));
+            }
+            return list;
+        }
+
+        public static T[] ReadCompleteArray<T>(this IReadParser<T> parser, IReader reader)
+        {
+            return parser.ReadCompleteList(reader).ToArray();
+        }
     }
 
     public static class DiffReadParserExtensions

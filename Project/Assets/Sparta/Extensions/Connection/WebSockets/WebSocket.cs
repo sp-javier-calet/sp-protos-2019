@@ -179,6 +179,14 @@ namespace SocialPoint.WebSockets
             }
         }
 
+        public bool InStandby
+        {
+            get
+            {
+                return SPUnityWebSocketInStandby(NativeSocket);
+            }
+        }
+
         public bool Verbose
         {
             set
@@ -349,6 +357,12 @@ namespace SocialPoint.WebSockets
 
         [DllImport(PluginModuleName)]
         static extern bool SPUnityWebSocketIsConnecting(UIntPtr socket);
+
+        [DllImport(PluginModuleName)]
+        static extern bool SPUnityWebSocketInStandby(UIntPtr socket);
+
+        [DllImport(PluginModuleName)]
+        static extern void SPUnityWebSocketSetStandbyTimeout(UIntPtr socket, int timeout_seconds);
 
         [DllImport(PluginModuleName)]
         static extern int SPUnityWebSocketGetState(UIntPtr socket);
