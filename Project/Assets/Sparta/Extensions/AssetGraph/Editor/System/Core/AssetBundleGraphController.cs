@@ -115,6 +115,7 @@ namespace AssetBundleGraph
                     {
                         if(!isPartialRun)
                         {
+                            CurrentLog.ClearOldValidators();
                             List<string> keysToRemove = new List<string>();
                             foreach(var entry in CurrentLog.entries)
                             {
@@ -144,7 +145,6 @@ namespace AssetBundleGraph
                             }
                         }
 
-                        CurrentLog.ClearOldValidators();
                         CurrentLog.lastExecuted = DateTime.UtcNow;
                         CurrentLog.executedPlatforms[BuildTargetUtility.TargetToGroup(target)] = CurrentLog.lastExecuted;
                         CurrentLog.Save();

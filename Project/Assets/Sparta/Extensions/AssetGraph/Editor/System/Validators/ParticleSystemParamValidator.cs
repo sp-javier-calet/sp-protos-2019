@@ -116,9 +116,9 @@ namespace AssetBundleGraph
             {
                 if(checkEmissionRateOverTime)
                 {
-                    msg += " and ";
+                    msg += " or ";
                 }
-                msg += "the emission rateOverDistance of" + emissionRateOverDistance;
+                msg += "the emission rateOverDistance of " + emissionRateOverDistance;
             }
 
             return msg;
@@ -158,7 +158,6 @@ namespace AssetBundleGraph
 
             using(new EditorGUILayout.VerticalScope(GUI.skin.box))
             {
-                GUI.enabled = true;
                 var newCOD = EditorGUILayout.Toggle("Check Emission Over Distance", checkEmissionRateOverDistance);
                 if(newCOD != checkEmissionRateOverDistance)
                 {

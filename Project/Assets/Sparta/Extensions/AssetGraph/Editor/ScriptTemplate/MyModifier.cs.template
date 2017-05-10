@@ -11,7 +11,7 @@ namespace AssetBundleGraph {
 
         // Test if asset is different from intended configuration 
         public bool IsModified (object asset) {
-            return false;
+            return true;
         }
 
         // Actually change asset configurations. 
