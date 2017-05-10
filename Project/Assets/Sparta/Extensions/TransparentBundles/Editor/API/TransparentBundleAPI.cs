@@ -28,12 +28,17 @@ namespace SocialPoint.TransparentBundles
             public string OverwriteLoginUsername = "";
         }
 
-        const string _loginUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/login/";
-        const string _requestUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/asset_request/";
-        const string _removeUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/remove_asset_request/";
-        const string _localBundleUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/local_asset/";
-        const string _removeLocalBundleUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/remove_local_asset/";
-        const string _cancelUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/cancel_request/";
+#if TB_DEBUG
+        const string _hostName = "https://transparentbundles-pre.socialpoint.es";
+#else
+        const string _hostName = "https://transparentbundles.socialpoint.es";
+#endif            
+        const string _loginUrl = _hostName + "/transparent_bundles/login/";
+        const string _requestUrl = _hostName + "/transparent_bundles/asset_request/";
+        const string _removeUrl = _hostName + "/transparent_bundles/remove_asset_request/";
+        const string _localBundleUrl = _hostName + "/transparent_bundles/local_asset/";
+        const string _removeLocalBundleUrl = _hostName + "/transparent_bundles/remove_local_asset/";
+        const string _cancelUrl = _hostName + "/transparent_bundles/cancel_request/";
 
         const string _queryLogin = "user_email";
         const string _queryProject = "project";
