@@ -53,6 +53,7 @@ namespace SocialPoint.Social
                         return;
                     }
                     ConsolePrint("Logging in to Google Play Games");
+
                     _google.Login(err => {
                         _toggleLogin.isOn = (err == null);
                         ConsolePrint("Login finished." + err);
