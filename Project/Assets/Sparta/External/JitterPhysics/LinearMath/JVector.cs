@@ -18,6 +18,8 @@
 */
 
 #region Using Statements
+using SocialPoint.Base;
+
 using System;
 using System.Collections.Generic;
 
@@ -97,12 +99,12 @@ namespace Jitter.LinearMath
         {
             One = new JVector(1, 1, 1);
             Zero = new JVector(0, 0, 0);
-            Left = new JVector(1, 0, 0);
-            Right = new JVector(-1, 0, 0);
+            Left = new JVector(-1, 0, 0);
+            Right = new JVector(1, 0, 0);
             Up = new JVector(0, 1, 0);
             Down = new JVector(0, -1, 0);
-            Backward = new JVector(0, 0, 1);
-            Forward = new JVector(0, 0, -1);
+            Backward = new JVector(0, 0, -1);
+            Forward = new JVector(0, 0, 1);
             MinValue = new JVector(float.MinValue);
             MaxValue = new JVector(float.MaxValue);
             Arbitrary = new JVector(1, 1, 1);
@@ -512,6 +514,13 @@ namespace Jitter.LinearMath
         }
         #endregion
 
+        public static void Lerp(ref JVector valueFrom, ref JVector valueTo, float percent, out JVector result)
+        {
+            result.X = valueFrom.X + (valueTo.X - valueFrom.X) * percent;
+            result.Y = valueFrom.Y + (valueTo.Y - valueFrom.Y) * percent;
+            result.Z = valueFrom.Z + (valueTo.Z - valueFrom.Z) * percent;
+        }
+
         /// <summary>
         /// Normalizes the given vector.
         /// </summary>
@@ -713,5 +722,19 @@ namespace Jitter.LinearMath
         }
         #endregion
 
+        /// <summary>
+        /// Divides a vector by a floating point value
+        /// </summary>
+        /// <param name="value1">The first value.</param>
+        /// <param name="value2">The second value.</param>
+        /// <returns>the vector value1 divided value2 times.</returns>
+        #region public static JVector operator /(JVector value1, float value2)
+        public static JVector operator /(JVector value1, float value2)
+        {
+            DebugUtils.Assert(Math.Abs(value2) > 1e-4f, "Trying to divide a vector by 0");
+            float invValue2 = 1f/value2;
+            return new JVector(value1.X * invValue2, value1.Y * invValue2, value1.Z * invValue2);
+        }
+        #endregion
     }
 }

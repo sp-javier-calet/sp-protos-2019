@@ -266,7 +266,7 @@ namespace LitJson
                 number.IndexOf ('E') != -1) {
 
                 double n_double;
-                if (Double.TryParse (number, out n_double)) {
+                if (Double.TryParse (number, System.Globalization.NumberStyles.AllowDecimalPoint, System.Globalization.NumberFormatInfo.InvariantInfo, out n_double)) {
                     token = JsonToken.Double;
                     token_value = n_double;
 

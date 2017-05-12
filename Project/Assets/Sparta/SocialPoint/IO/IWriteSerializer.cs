@@ -1,4 +1,5 @@
-﻿
+﻿using System.Collections.Generic;
+
 namespace SocialPoint.IO
 {
     public interface IWriteSerializer<T>
@@ -20,7 +21,29 @@ namespace SocialPoint.IO
          * should serialize newObject but only the elements that are changed
          */
         void Serialize(T newObj, T oldObj, IWriter writer, Bitset dirty);
+    }
 
+    public static class WriteSerializerExtensions
+    {
+        public static void SerializeArray<T>(this IWriteSerializer<T> serializer, T[] array, IWriter writer)
+        {
+            int size = (array != null) ? array.Length : 0;
+            writer.Write(size);
+            for(int i = 0; i < size; ++i)
+            {
+                serializer.Serialize(array[i], writer);
+            }
+        }
+
+        public static void SerializeList<T>(this IWriteSerializer<T> serializer, List<T> list, IWriter writer)
+        {
+            int size = (list != null) ? list.Count : 0;
+            writer.Write(size);
+            for(int i = 0; i < size; ++i)
+            {
+                serializer.Serialize(list[i], writer);
+            }
+        }
     }
 
     public static class DiffWriteSerializerExtensions

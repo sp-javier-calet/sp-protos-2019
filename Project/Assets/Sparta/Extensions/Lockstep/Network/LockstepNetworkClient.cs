@@ -195,36 +195,37 @@ namespace SocialPoint.Lockstep
                 var statsClient = (NetworkStatsClient)Network;
                 {
                     var data = new AttrDic();
-                    data.SetValue("match_id", MatchId);
-                    data.SetValue("player_id", PlayerId);
-                    data.SetValue("min_lag", statsClient.LowestLatency);
-                    data.SetValue("max_lag", statsClient.HighestLatency);
-                    data.SetValue("average_lag", statsClient.AverageLatency);
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
+                    data.SetValue("battle.min_lag", statsClient.LowestLatency);
+                    data.SetValue("battle.max_lag", statsClient.HighestLatency);
+                    data.SetValue("battle.average_lag", statsClient.AverageLatency);
                     SendTrack("log_battle_end_lag_info", data, null);
                 }
                 {
                     var data = new AttrDic();
-                    data.SetValue("match_id", MatchId);
-                    data.SetValue("player_id", PlayerId);
-                    data.SetValue("download", statsClient.DownloadBandwith);
-                    data.SetValue("upload", statsClient.UploadBandwith);
-                    SendTrack("log_battle_end_bandwith_info", data, null);
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
+                    data.SetValue("battle.download", statsClient.DownloadBandwith);
+                    data.SetValue("battle.upload", statsClient.UploadBandwith);
+                    data.SetValue("battle.battle_time", Lockstep.UpdateTime);
+                    SendTrack("log_battle_end_bandwidth_info", data, null);
                 }
                 {
                     var data = new AttrDic();
-                    data.SetValue("match_id", MatchId);
-                    data.SetValue("player_id", PlayerId);
-                    data.SetValue("min_turn_buffer", Lockstep.LowestTurnBuffer);
-                    data.SetValue("max_turn_buffer", Lockstep.HighestTurnBuffer);
-                    data.SetValue("average_turn_buffer", Lockstep.AverageTurnBuffer);
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
+                    data.SetValue("battle.min_turn_buffer", Lockstep.LowestTurnBuffer);
+                    data.SetValue("battle.max_turn_buffer", Lockstep.HighestTurnBuffer);
+                    data.SetValue("battle.average_turn_buffer", Lockstep.AverageTurnBuffer);
                     SendTrack("log_battle_end_buffer_info", data, null);
                 }
                 {
                     var data = new AttrDic();
-                    data.SetValue("match_id", MatchId);
-                    data.SetValue("player_id", PlayerId);
-                    data.SetValue("disconnects", Lockstep.Disconnects);
-                    data.SetValue("disconnect_time", Lockstep.DisconnectTime);
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
+                    data.SetValue("battle.disconnects", Lockstep.Disconnects);
+                    data.SetValue("battle.disconnect_time", Lockstep.DisconnectTime);
                     SendTrack("log_battle_end_disconects", data, null);
                 }
             }
@@ -285,9 +286,9 @@ namespace SocialPoint.Lockstep
             {
                 var data = new AttrDic();
                 data.SetValue("match_id", MatchId);
-                data.SetValue("player_id", PlayerId);
-                data.SetValue("reconnect", reconnect);
-                SendTrack("log_battle_start", data, null);
+                data.SetValue("user_id", PlayerId);
+                data.SetValue("battle.reconnect", reconnect);
+                SendTrack("log_battle_start_lockstep", data, null);
             }
         }
 

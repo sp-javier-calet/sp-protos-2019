@@ -1,33 +1,46 @@
-﻿using System;
+﻿using Jitter.LinearMath;
 using SocialPoint.Physics;
-using Jitter.LinearMath;
+using SocialPoint.Pooling;
 
 namespace SocialPoint.Multiplayer
 {
-    public class NetworkRigidBody : PhysicsRigidBody, INetworkBehaviour
+    public class NetworkRigidBody : PhysicsRigidBody, INetworkBehaviour, ILateUpdateable
     {
+        public static bool EnableRigidBody = true;
 
-        public NetworkGameObject NetworkGameObject
+        NetworkGameObject _go;
+
+        public NetworkGameObject GameObject
         {
-            get;
-            private set;
+            set
+            {
+                _go = value;
+            }
         }
 
-        public NetworkRigidBody(PhysicsCollisionShape shape, ControlType type, PhysicsWorld physicsWorld, IPhysicsDebugger debugger = null)
-            : base(shape, type, physicsWorld, debugger)
+        public NetworkRigidBody Init(IPhysicsShape shape, ControlType type, PhysicsWorld physicsWorld)
         {
+            base.Init(shape, type, physicsWorld);
+            return this;
         }
 
-        void INetworkBehaviour.OnStart(NetworkGameObject go)
+        public void OnAwake()
         {
-            NetworkGameObject = go;
-            UpdateTransformFromGameObject();
-
             AddObjectToPhysicsWorld();
         }
 
-        void INetworkBehaviour.Update(float dt)
+        public void OnStart()
         {
+            UpdateTransformFromGameObject();
+        }
+
+        public void Update(float dt)
+        {
+            if(!EnableRigidBody)
+            {
+                return;
+            }
+
             //Update object transform
             switch(_controlType)
             {
@@ -39,31 +52,41 @@ namespace SocialPoint.Multiplayer
                 break;
             default:
                 break;
-            }
-
-            //Debug if requested
-            if(_rigidBody.EnableDebugDraw && _debugger != null)
-            {
-                _rigidBody.DebugDraw(_debugger);
-            }
+            }            
         }
 
-        void INetworkBehaviour.OnDestroy()
+        public void LateUpdate(float dt)
+        {
+        }
+
+        public void OnDestroy()
         {
             RemoveObjectFromPhysicsWorld();
         }
 
         public object Clone()
         {
-            PhysicsCollisionShape shapeClone = (PhysicsCollisionShape)_collisionShape.Clone();
-            var behavior = new NetworkRigidBody(shapeClone, _controlType, _physicsWorld, _debugger);
-            return behavior;
+            var shapeClone = (IPhysicsShape)_shape.Clone();
+            var behaviour = ObjectPool.Get<NetworkRigidBody>();
+            behaviour.Init(shapeClone, _controlType, _physicsWorld);
+            behaviour.GameObject = _go;
+            return behaviour;
+        }
+
+        public void Dispose()
+        {
+            ObjectPool.Return(this);
         }
 
         void UpdateTransformFromGameObject()
         {
-            var newPos = NetworkGameObject.Transform.Position;
-            var newRot = JMatrix.CreateFromQuaternion(NetworkGameObject.Transform.Rotation);
+            if(_go == null)
+            {
+                return;
+            }
+            var newPos = _go.Transform.Position;
+
+            var newRot = JMatrix.CreateFromQuaternion(_go.Transform.Rotation);
 
             bool moved = (_rigidBody.Position != newPos);
             bool rotated = moved ? true : (_rigidBody.Orientation != newRot);//If moved, we can avoid to check if rotated
@@ -82,8 +105,8 @@ namespace SocialPoint.Multiplayer
 
         void UpdateTransformFromPhysicsObject()
         {
-            NetworkGameObject.Transform.Position = _rigidBody.Position;
-            NetworkGameObject.Transform.Rotation = JQuaternion.CreateFromMatrix(_rigidBody.Orientation);
+            _go.Transform.Position = _rigidBody.Position;
+            _go.Transform.Rotation = JQuaternion.CreateFromMatrix(_rigidBody.Orientation);
         }
     }
 }

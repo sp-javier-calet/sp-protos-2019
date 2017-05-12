@@ -55,7 +55,7 @@ namespace Examples.Lockstep
             _server.Fail(err);
         }
 
-        public void OnMatchFinished(Dictionary<byte, Attr> playerResults)
+        public void OnMatchFinished(Dictionary<byte, Attr> playerResults, AttrDic customData)
         {
             // TODO: only replay if playerResults do not match up
             // for example: if all players say they won
@@ -75,6 +75,9 @@ namespace Examples.Lockstep
                 playerResults.Add(itr.Current.Key, itr.Current.Value);
             }
             itr.Dispose();
+
+            //add any aditional data the game would like to send to the backend through the matchmaking
+            //customData.SetValue("battle_duration",_client.UpdateTime);
         }
 
         public void OnMatchStarted(byte[] data)

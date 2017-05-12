@@ -75,6 +75,7 @@ namespace SpartaTools.Editor.Build
                         .Add("Flags", bs.Common.Flags)
                         .Add("Rebuild Native Plugins", bs.Common.RebuildNativePlugins.ToString())
                         .Add("Is Development Build", bs.Common.IsDevelopmentBuild.ToString())
+                        .Add("Append Build", bs.Common.AppendBuild.ToString())
                         .Add("Include Debug Scenes", bs.Common.IncludeDebugScenes.ToString())
                     .IndentBack()
 

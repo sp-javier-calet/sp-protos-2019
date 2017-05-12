@@ -1,26 +1,20 @@
-﻿using System.Collections.Generic;
-using System.Collections;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using SocialPoint.IO;
+using SocialPoint.Pooling;
 using SocialPoint.Utils;
-using SocialPoint.Network;
 
 namespace SocialPoint.Multiplayer
 {
-    public interface INetworkBehaviour : ICloneable
+    public class NetworkScene : IEquatable<NetworkScene>, ICloneable, INetworkBehaviourProvider
     {
-        void OnStart(NetworkGameObject go);
-
-        void Update(float dt);
-
-        void OnDestroy();
-    }
-
-    public class NetworkScene : IEquatable<NetworkScene>, ICloneable
-    {
-        Dictionary<int,NetworkGameObject> _objects;
+        Dictionary<int, NetworkGameObject> _objects = new Dictionary<int, NetworkGameObject>();
+        Dictionary<int, NetworkGameObject> _syncObjects = new Dictionary<int, NetworkGameObject>();
 
         public int FreeObjectId{ get; private set; }
+
+        public Action<NetworkGameObject> OnObjectAdded;
+        public Action<NetworkGameObject> OnObjectRemoved;
 
         public int ObjectsCount
         {
@@ -30,52 +24,208 @@ namespace SocialPoint.Multiplayer
             }
         }
 
+        public int SyncObjectsCount
+        {
+            get
+            {
+                return _syncObjects.Count;
+            }
+        }
+
+        public INetworkBehaviourContainer Behaviours{ get; protected set; }
+
+        const int InitialObjectId = 1;
+
         public NetworkScene()
         {
-            _objects = new Dictionary<int,NetworkGameObject>();
-            FreeObjectId = 1;
+            _objects.Clear();
+            _syncObjects.Clear();
+
+            FreeObjectId = InitialObjectId;
         }
 
-        public NetworkScene(NetworkScene scene) : this()
+        public virtual void Copy(NetworkScene other, NetworkGameObject.PairOperation customObjectCopy = null)
         {
-            if(scene != null)
             {
-                FreeObjectId = scene.FreeObjectId;
-                if(scene._objects != null)
+                var itr = other._syncObjects.GetEnumerator();
+                while(itr.MoveNext())
                 {
-                    var itr = scene._objects.GetEnumerator();
-                    while(itr.MoveNext())
+                    var go = itr.Current.Value;
+                    var myGo = FindObject(go.Id);
+                    if(myGo == null)
                     {
-                        _objects[itr.Current.Key] = new NetworkGameObject(itr.Current.Value);
+                        //New object
+                        AddObject((NetworkGameObject)go.Clone());
                     }
-                    itr.Dispose();
+                    else
+                    {
+                        //For existing objects copy data (keep references)
+                        if(customObjectCopy == null)
+                        {
+                            myGo.Copy(go);
+                        }
+                        else
+                        {
+                            customObjectCopy(go, myGo);
+                        }
+                    }
                 }
+                itr.Dispose();
             }
-        }
-
-        public Object Clone()
-        {
-            return new NetworkScene(this);
-        }
-
-        public void AddObject(NetworkGameObject obj)
-        {
-            if(FindObject(obj.Id) != null)
             {
-                throw new InvalidOperationException("Object with same id already exists");
-            }
-            _objects[obj.Id] = obj;
-            if(FreeObjectId == obj.Id)
-            {
-                FreeObjectId++;
+                // remove objects that are not present
+                var tmp = ObjectPool.Get<List<NetworkGameObject>>();
+                var itr = GetSyncObjectEnumerator(tmp);
+                while(itr.MoveNext())
+                {
+                    var id = itr.Current.Id;
+                    if(other.FindObject(id) == null)
+                    {
+                        RemoveObject(id);
+                    }
+                }
+                itr.Dispose();
+                ObjectPool.Return(tmp);
             }
         }
 
-        public bool RemoveObject(int id)
+        public virtual void DeepCopy(NetworkScene other)
         {
-            var r = _objects.Remove(id);
+            {
+                var itr = other._syncObjects.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    var go = itr.Current.Value;
+                    var myGo = FindObject(go.Id);
+                    if(myGo == null)
+                    {
+                        //New object
+                        AddObject((NetworkGameObject)go.DeepClone());
+                    }
+                    else
+                    {
+                        myGo.DeepCopy(go);
+                    }
+                }
+                itr.Dispose();
+            }
+            {
+                // remove objects that are not present
+                var tmp = ObjectPool.Get<List<NetworkGameObject>>();
+                var itr = GetSyncObjectEnumerator(tmp);
+                while(itr.MoveNext())
+                {
+                    var id = itr.Current.Id;
+                    if(other.FindObject(id) == null)
+                    {
+                        RemoveObject(id);
+                    }
+                }
+                itr.Dispose();
+                ObjectPool.Return(tmp);
+            }
+        }
+
+        protected void AddClonedObjectsFromScene(NetworkScene other)
+        {
+            var tmp = ObjectPool.Get<List<NetworkGameObject>>();
+            var itr = other.GetObjectEnumerator(tmp);
+            while(itr.MoveNext())
+            {
+                AddObject((NetworkGameObject)itr.Current.Clone());
+            }
+            itr.Dispose();
+            ObjectPool.Return(tmp);
+        }
+
+        public virtual Object Clone()
+        {
+            var scene = ObjectPool.Get<NetworkScene>();
+            scene.AddClonedObjectsFromScene(this);
+            return scene;
+        }
+
+        protected void AddDeeplyClonedObjectsFromScene(NetworkScene other)
+        {
+            var tmp = ObjectPool.Get<List<NetworkGameObject>>();
+            var itr = other.GetObjectEnumerator(tmp);
+            while(itr.MoveNext())
+            {
+                AddObject((NetworkGameObject)itr.Current.DeepClone());
+            }
+            itr.Dispose();
+            ObjectPool.Return(tmp);
+        }
+
+        public virtual Object DeepClone()
+        {
+            var scene = ObjectPool.Get<NetworkScene>();
+            scene.AddDeeplyClonedObjectsFromScene(this);
+            return scene;
+        }
+
+        public virtual void Dispose()
+        {
+            OnObjectAdded = null;
+            OnObjectRemoved = null;
+
+            var objectsEnum = _objects.GetEnumerator();
+            while(objectsEnum.MoveNext())
+            {
+                objectsEnum.Current.Value.Dispose();
+            }
+            objectsEnum.Dispose();
+
+            Clear();
+
+            ObjectPool.Return(this);
+        }
+
+        public void Clear()
+        {            
+            _objects.Clear();
+            _syncObjects.Clear();
+            FreeObjectId = InitialObjectId;
+        }
+
+        public int ProvideObjectId()
+        {
+            return ++FreeObjectId;
+        }
+
+        public virtual void AddObject(NetworkGameObject obj)
+        {
+            _objects.Add(obj.Id, obj);
+            if(!obj.Local)
+            {
+                _syncObjects.Add(obj.Id, obj);
+            }
+            if(FreeObjectId <= obj.UniqueId)
+            {
+                FreeObjectId = obj.UniqueId + 1;
+            }
+            if(OnObjectAdded != null)
+            {
+                OnObjectAdded(obj);
+            }
+        }
+
+        public virtual bool RemoveObject(int id)
+        {
+            var go = FindObject(id);
+            if(go != null)
+            {
+                _objects.Remove(id);
+                _syncObjects.Remove(id);
+                go.Invalidate();
+                if(OnObjectRemoved != null)
+                {
+                    OnObjectRemoved(go);
+                }
+                return true;
+            }
             //TODO: Find a way to reuse ids?
-            return r;
+            return false;
         }
 
         public NetworkGameObject FindObject(int id)
@@ -85,16 +235,22 @@ namespace SocialPoint.Multiplayer
             {
                 return obj;
             }
+
             return null;
         }
 
-        public IEnumerator<NetworkGameObject> GetObjectEnumerator()
+        public List<NetworkGameObject>.Enumerator GetObjectEnumerator(List<NetworkGameObject> result)
         {
-            var objects = new List<NetworkGameObject>(_objects.Values);
-            for(var i = 0; i < objects.Count; i++)
-            {
-                yield return objects[i];
-            }
+            result.Clear();
+            result.AddRange(_objects.Values);
+            return result.GetEnumerator();
+        }
+
+        public List<NetworkGameObject>.Enumerator GetSyncObjectEnumerator(List<NetworkGameObject> result)
+        {
+            result.Clear();
+            result.AddRange(_syncObjects.Values);
+            return result.GetEnumerator();
         }
 
         static bool Compare(NetworkScene a, NetworkScene b)
@@ -182,9 +338,159 @@ namespace SocialPoint.Multiplayer
         }
     }
 
+    public class NetworkScene<B> : NetworkScene where B : class, INetworkSceneBehaviour
+    {
+        public NetworkBehaviourContainer<B> TypedBehaviours{ get; protected set; }
+
+        protected NetworkBehaviourContainerObserver<B> _behaviourObserver;
+
+        public NetworkScene() : base()
+        {
+            TypedBehaviours = ObjectPool.Get<NetworkBehaviourContainer<B>>();
+            Behaviours = TypedBehaviours;
+            _behaviourObserver = ObjectPool.Get<NetworkBehaviourContainerObserver<B>>().Init(TypedBehaviours);
+        }
+
+        public override object Clone()
+        {
+            var scene = new NetworkScene<B>();
+            scene.AddClonedObjectsFromScene(this);
+            scene.Behaviours = Behaviours;
+            scene.TypedBehaviours = TypedBehaviours;
+            return scene;
+        }
+
+        public override object DeepClone()
+        {
+            var scene = new NetworkScene<B>();
+            scene.AddDeeplyClonedObjectsFromScene(this);
+            scene.TypedBehaviours = (NetworkBehaviourContainer<B>)TypedBehaviours.Clone();
+            scene.Behaviours = scene.TypedBehaviours;
+            return scene;
+        }
+
+        public override void DeepCopy(NetworkScene other)
+        {
+            base.DeepCopy(other);
+            var bscene = other as NetworkScene<B>;
+            if(bscene != null)
+            {
+                TypedBehaviours.Copy(bscene.TypedBehaviours);
+            }
+        }
+
+        public void AddBehaviour(B behaviour)
+        {
+            TypedBehaviours.Add(behaviour);
+        }
+
+        public T GetBehaviour<T>(T behaviour) where T : class
+        {
+            return TypedBehaviours.Get<T>();
+        }
+
+        public void AddBehaviours(IEnumerable<B> behaviours)
+        {
+            TypedBehaviours.Add(behaviours);
+        }
+
+        public void Update(float dt)
+        {
+            var tmp = ObjectPool.Get<List<B>>();
+            var itr = TypedBehaviours.GetEnumerator(tmp);
+            while(itr.MoveNext())
+            {
+                itr.Current.Update(dt);
+            }
+            ObjectPool.Return(tmp);
+            itr.Dispose();
+        }
+
+        public void UpdatePendingLogic()
+        {
+            for(var i = 0; i < _behaviourObserver.Added.Count; i++)
+            {
+                _behaviourObserver.Added[i].Scene = this;
+            }
+            for(var i = 0; i < _behaviourObserver.Added.Count; i++)
+            {
+                OnBehaviourAdded(_behaviourObserver.Added[i]);
+            }
+            for(var i = 0; i < _behaviourObserver.Removed.Count; i++)
+            {
+                OnBehaviourRemoved(_behaviourObserver.Removed[i]);
+            }
+            _behaviourObserver.Clear();
+        }
+
+        protected virtual void OnBehaviourAdded(B behaviour)
+        {
+            behaviour.OnStart();
+        }
+
+        protected virtual void OnBehaviourRemoved(B behaviour)
+        {
+            behaviour.OnDestroy();
+        }
+
+        public override void AddObject(NetworkGameObject go)
+        {
+            base.AddObject(go);
+            var tmp = ObjectPool.Get<List<B>>();
+            var itr = TypedBehaviours.GetEnumerator(tmp);
+            while(itr.MoveNext())
+            {
+                itr.Current.OnInstantiateObject(go);
+            }
+            ObjectPool.Return(tmp);
+            itr.Dispose();
+        }
+
+        public override bool RemoveObject(int objectId)
+        {
+            if(!base.RemoveObject(objectId))
+            {
+                return false;
+            }
+            var tmp = ObjectPool.Get<List<B>>();
+            var itr = TypedBehaviours.GetEnumerator(tmp);
+            while(itr.MoveNext())
+            {
+                itr.Current.OnDestroyObject(objectId);
+            }
+            ObjectPool.Return(tmp);
+            itr.Dispose();
+            return true;
+        }
+    }
+
+    public interface INetworkSceneBehaviour
+    {
+        NetworkScene Scene { set; }
+
+        void OnStart();
+
+        void OnDestroy();
+
+        void Update(float dt);
+
+        void OnInstantiateObject(NetworkGameObject go);
+
+        void OnDestroyObject(int id);
+    }
+
     public class NetworkSceneSerializer : IDiffWriteSerializer<NetworkScene>
     {
-        public static readonly NetworkSceneSerializer Instance = new NetworkSceneSerializer();
+        IDiffWriteSerializer<NetworkGameObject> _objectSerializer;
+
+        public NetworkSceneSerializer(IDiffWriteSerializer<NetworkGameObject> objectSerializer = null)
+        {
+            if(objectSerializer == null)
+            {
+                objectSerializer = new NetworkGameObjectSerializer();
+            }
+            _objectSerializer = objectSerializer;
+        }
 
         public void Compare(NetworkScene newScene, NetworkScene oldScene, Bitset dirty)
         {
@@ -192,21 +498,24 @@ namespace SocialPoint.Multiplayer
 
         public void Serialize(NetworkScene newScene, IWriter writer)
         {
-            writer.Write(newScene.ObjectsCount);
-            var itr = newScene.GetObjectEnumerator();
-            var gos = NetworkGameObjectSerializer.Instance;
+            var tmp = ObjectPool.Get<List<NetworkGameObject>>();
+            writer.Write(newScene.SyncObjectsCount);
+            var itr = newScene.GetSyncObjectEnumerator(tmp);
             while(itr.MoveNext())
             {
-                gos.Serialize(itr.Current, writer);
+                var go = itr.Current;
+                _objectSerializer.Serialize(go, writer);
             }
             itr.Dispose();
+            ObjectPool.Return(tmp);
         }
 
         public void Serialize(NetworkScene newScene, NetworkScene oldScene, IWriter writer, Bitset dirty)
         {
-            writer.Write(newScene.ObjectsCount);
-            var itr = newScene.GetObjectEnumerator();
-            var gos = NetworkGameObjectSerializer.Instance;
+            var tmp = ObjectPool.Get<List<NetworkGameObject>>();
+            
+            writer.Write(newScene.SyncObjectsCount);
+            var itr = newScene.GetSyncObjectEnumerator(tmp);
             while(itr.MoveNext())
             {
                 var go = itr.Current;
@@ -214,15 +523,17 @@ namespace SocialPoint.Multiplayer
                 var oldGo = oldScene.FindObject(go.Id);
                 if(oldGo == null)
                 {
-                    gos.Serialize(go, writer);
+                    _objectSerializer.Serialize(go, writer);
                 }
                 else
                 {
-                    gos.Serialize(go, oldGo, writer);
+                    _objectSerializer.Serialize(go, oldGo, writer);
                 }
             }
             itr.Dispose();
-            itr = oldScene.GetObjectEnumerator();
+
+            tmp.Clear();
+            itr = oldScene.GetSyncObjectEnumerator(tmp);
             var removed = new List<int>();
             while(itr.MoveNext())
             {
@@ -238,24 +549,64 @@ namespace SocialPoint.Multiplayer
             {
                 writer.Write(removed[i]);
             }
+
+            ObjectPool.Return(tmp);
+        }
+    }
+
+    public class NetworkSceneSerializer<Behaviour> : IDiffWriteSerializer<NetworkScene<Behaviour>> where Behaviour : class, INetworkSceneBehaviour
+    {
+        NetworkSceneSerializer _sceneSerializer;
+        NetworkBehaviourContainerSerializer<Behaviour> _behaviourSerializer;
+        NetworkGameObjectSerializer<INetworkBehaviour> _objectSerializer;
+
+        public NetworkSceneSerializer(NetworkGameObjectSerializer<INetworkBehaviour> objectSerializer = null)
+        {
+            _objectSerializer = objectSerializer ?? new NetworkGameObjectSerializer<INetworkBehaviour>();
+            _sceneSerializer = new NetworkSceneSerializer(_objectSerializer);
+            _behaviourSerializer = new NetworkBehaviourContainerSerializer<Behaviour>();
+        }
+
+        public void RegisterSceneBehaviour<T>(byte type, IDiffWriteSerializer<T> serializer) where T : Behaviour
+        {
+            _behaviourSerializer.Register(type, serializer);
+        }
+
+        public void RegisterObjectBehaviour<T>(byte type, IDiffWriteSerializer<T> parser) where T : INetworkBehaviour
+        {
+            _objectSerializer.RegisterBehaviour(type, parser);
+        }
+
+        public void Compare(NetworkScene<Behaviour> newObj, NetworkScene<Behaviour> oldObj, Bitset dirty)
+        {
+        }
+
+        public void Serialize(NetworkScene<Behaviour> newObj, IWriter writer)
+        {
+            _sceneSerializer.Serialize(newObj, writer);
+            _behaviourSerializer.Serialize(newObj.TypedBehaviours, writer);
+        }
+
+        public void Serialize(NetworkScene<Behaviour> newObj, NetworkScene<Behaviour> oldObj, IWriter writer, Bitset dirty)
+        {
+            _sceneSerializer.Serialize(newObj, oldObj, writer);
+            _behaviourSerializer.Serialize(newObj.TypedBehaviours, oldObj.TypedBehaviours, writer);
         }
     }
 
     public class NetworkSceneParser : IDiffReadParser<NetworkScene>
     {
-        public static readonly NetworkSceneParser Instance = new NetworkSceneParser();
+        Func<NetworkScene> _factory;
+        IDiffReadParser<NetworkGameObject> _objectParser;
 
-        public NetworkScene Parse(IReader reader)
+        public NetworkSceneParser(IDiffReadParser<NetworkGameObject> objectParser = null, Func<NetworkScene> factory = null)
         {
-            var obj = new NetworkScene();
-            var c = reader.ReadInt32();
-            var gop = NetworkGameObjectParser.Instance;
-            for(var i = 0; i < c; i++)
+            if(objectParser == null)
             {
-                var go = gop.Parse(reader);
-                obj.AddObject(go);
+                objectParser = new NetworkGameObjectParser();
             }
-            return obj;
+            _factory = factory;
+            _objectParser = objectParser;
         }
 
         public int GetDirtyBitsSize(NetworkScene obj)
@@ -263,22 +614,33 @@ namespace SocialPoint.Multiplayer
             return 0;
         }
 
+        public NetworkScene Parse(IReader reader)
+        {
+            var obj = _factory == null ? new NetworkScene() : _factory();
+            var c = reader.ReadInt32();
+            for(var i = 0; i < c; i++)
+            {
+                var go = _objectParser.Parse(reader);
+                obj.AddObject(go);
+            }
+            return obj;
+        }
+
         public NetworkScene Parse(NetworkScene scene, IReader reader, Bitset dirty)
         {
             var c = reader.ReadInt32();
-            var gop = NetworkGameObjectParser.Instance;
             for(var i = 0; i < c; i++)
             {
                 var id = reader.ReadInt32();
                 var go = scene.FindObject(id);
                 if(go == null)
                 {
-                    go = gop.Parse(reader);
+                    go = _objectParser.Parse(reader);
                     scene.AddObject(go);
                 }
                 else
                 {
-                    gop.Parse(go, reader);
+                    _objectParser.Parse(go, reader);
                 }
             }
             c = reader.ReadInt32();
@@ -288,6 +650,61 @@ namespace SocialPoint.Multiplayer
                 scene.RemoveObject(id);
             }
             return scene;
+        }
+    }
+
+    public class NetworkSceneParser<Behaviour> : IDiffReadParser<NetworkScene<Behaviour>> where Behaviour : class, INetworkSceneBehaviour
+    {
+        readonly NetworkSceneParser _sceneParser;
+        readonly NetworkBehaviourContainerParser<Behaviour> _behaviourParser;
+        readonly NetworkGameObjectParser<INetworkBehaviour> _objectParser;
+
+        public NetworkSceneParser(NetworkGameObjectParser<INetworkBehaviour> objectParser = null)
+        {
+            _objectParser = objectParser ?? new NetworkGameObjectParser<INetworkBehaviour>(CreateObject);
+            _sceneParser = new NetworkSceneParser(_objectParser, CreateScene);
+            _behaviourParser = new NetworkBehaviourContainerParser<Behaviour>();
+        }
+
+        public void RegisterSceneBehaviour<T>(byte type, IDiffReadParser<T> parser) where T : Behaviour
+        {
+            _behaviourParser.Register(type, parser);
+        }
+
+        public void RegisterObjectBehaviour<T>(byte type, IDiffReadParser<T> parser) where T : INetworkBehaviour
+        {
+            _objectParser.RegisterBehaviour(type, parser);
+        }
+
+        NetworkScene CreateScene()
+        {
+            return new NetworkScene<Behaviour>();
+        }
+
+        NetworkGameObject<INetworkBehaviour> CreateObject(int objId, byte objType)
+        {
+            var obj = ObjectPool.Get<NetworkGameObject<INetworkBehaviour>>();
+            obj.Init(objId, false, null, objType);
+            return obj;
+        }
+
+        public NetworkScene<Behaviour> Parse(IReader reader)
+        {
+            var scene = _sceneParser.Parse(reader) as NetworkScene<Behaviour>;
+            scene.TypedBehaviours.Copy(_behaviourParser.Parse(reader));
+            return scene;
+        }
+
+        public int GetDirtyBitsSize(NetworkScene<Behaviour> obj)
+        {
+            return 0;
+        }
+
+        public NetworkScene<Behaviour> Parse(NetworkScene<Behaviour> obj, IReader reader, Bitset dirty)
+        {
+            _sceneParser.Parse(obj, reader);
+            _behaviourParser.Parse(obj.TypedBehaviours, reader);
+            return obj;
         }
     }
 }

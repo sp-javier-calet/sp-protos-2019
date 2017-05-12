@@ -15,7 +15,8 @@ namespace SocialPoint.Pathfinding
             writer.WriteInt32Array(value.Neis);
             writer.Write(value.VertCount);   
             writer.Write(value.Area.Id);
-            //TODO: Serialize NavPoly.Tag if used
+            writer.Write(value.Flags);
+            NavTagSerializer.Instance.Serialize(value.Tag, writer);
         }
     }
 
@@ -36,7 +37,8 @@ namespace SocialPoint.Pathfinding
             navPoly.Neis = reader.ReadInt32Array();
             navPoly.VertCount = reader.ReadInt32();
             navPoly.Area = new SharpNav.Area(reader.ReadByte());
-            //TODO: Parse NavPoly.Tag if used
+            navPoly.Flags = reader.ReadUInt16();
+            navPoly.Tag = NavTagParser.Instance.Parse(reader);
             return navPoly;
         }
     }

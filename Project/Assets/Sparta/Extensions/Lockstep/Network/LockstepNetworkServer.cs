@@ -42,6 +42,7 @@ namespace SocialPoint.Lockstep
         public int ClientSimulationDelay = DefaultClientSimulationDelay;
         public bool FinishOnClientDisconnection = DefaultFinishOnClientDisconnection;
         public int MetricSendInterval = DefaultMetricSendInterval;
+
         public override string ToString()
         {
             return string.Format("[LockstepServerConfig\n" +
@@ -105,7 +106,7 @@ namespace SocialPoint.Lockstep
         public event Action<byte[]> MatchStarted;
         public event Action<Error> ErrorProduced;
         public event Action<Error, byte> CommandFailed;
-        public event Action<Dictionary<byte, Attr>> MatchFinished;
+        public event Action<Dictionary<byte, Attr>, AttrDic> MatchFinished;
 
 
         public const int CommandFailedErrorCode = 300;
@@ -134,6 +135,7 @@ namespace SocialPoint.Lockstep
         }
 
         Action<Metric> _sendMetric;
+
         public Action<Metric> SendMetric
         {
             get
@@ -293,7 +295,7 @@ namespace SocialPoint.Lockstep
 
         bool HasClientFinished(ClientData client)
         {
-            return client != null && client.PlayerId != null&& PlayerResults.ContainsKey(client.PlayerNumber);
+            return client != null && client.PlayerId != null && PlayerResults.ContainsKey(client.PlayerNumber);
         }
 
         byte FreePlayerNumber
@@ -337,7 +339,7 @@ namespace SocialPoint.Lockstep
                         count++;
                     }
                 }
-                if( _localClientData.Ready)
+                if(_localClientData.Ready)
                 {
                     count++;
                 }
@@ -593,7 +595,8 @@ namespace SocialPoint.Lockstep
         void IMatchmakingServerDelegate.OnError(Error ierr)
         {
             var err = new Error(MatchmakingErrorCode,
-                string.Format("Matchmaking: {0}", ierr));
+                          string.Format("Matchmaking: {0}", ierr.Msg),
+                          ierr.Detail);
             OnError(err);
         }
 
@@ -610,8 +613,7 @@ namespace SocialPoint.Lockstep
                 if(results.ContainsKey(client.PlayerId))
                 {
                     var result = results[client.PlayerId];
-                    _server.SendMessage(new NetworkMessageData
-                    {
+                    _server.SendMessage(new NetworkMessageData {
                         MessageType = LockstepMsgType.ClientEnd,
                         ClientId = client.ClientId
                     }, new AttrMessage(result));
@@ -675,6 +677,7 @@ namespace SocialPoint.Lockstep
         {
             _serverLockstep.Stop();
             var results = PlayerResults;
+            var customData = new AttrDic();
             var originalResults = new Dictionary<byte, Attr>();
             {
                 var itr = results.GetEnumerator();
@@ -686,7 +689,7 @@ namespace SocialPoint.Lockstep
             }
             if(MatchFinished != null)
             {
-                MatchFinished(results);
+                MatchFinished(results, customData);
             }
             var resultsAttr = new AttrDic();
             {
@@ -721,7 +724,7 @@ namespace SocialPoint.Lockstep
             keys.Dispose();
             if(SendMetric != null)
             {
-                SendMetric(new Metric(MetricType.Counter, corrected? MatchEndCorrectedMetricName : MatchEndMetricName, 1));
+                SendMetric(new Metric(MetricType.Counter, corrected ? MatchEndCorrectedMetricName : MatchEndMetricName, 1));
             }
 
             if(SendTrack != null)
@@ -755,7 +758,7 @@ namespace SocialPoint.Lockstep
             }
             else
             {
-                _matchmaking.NotifyResults(MatchId, resultsAttr);
+                _matchmaking.NotifyResults(MatchId, resultsAttr, customData);
             }
         }
 
@@ -777,13 +780,13 @@ namespace SocialPoint.Lockstep
         public void OnNetworkError(Error ierr)
         {
             var err = new Error(NetworkErrorCode,
-                string.Format("Network: {0}", ierr));
+                          string.Format("Network: {0}", ierr));
             OnError(err);
         }
 
         void OnError(Error err)
         {
-            if (ErrorProduced != null)
+            if(ErrorProduced != null)
             {
                 ErrorProduced(err);
             }
@@ -941,7 +944,8 @@ namespace SocialPoint.Lockstep
             byte playerNum;
             _commandSenders.TryGetValue(cmd.Id, out playerNum);
             var err = new Error(CommandFailedErrorCode,
-                string.Format("Command failed: {0}", ierr));
+                string.Format("Command failed: {0}", ierr.Msg),
+                ierr.Detail);
             if(CommandFailed != null)
             {
                 CommandFailed(err, playerNum);

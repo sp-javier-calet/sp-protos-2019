@@ -29,9 +29,9 @@ namespace SocialPoint.Network
 
         public void Start()
         {
-            if(_scheduler != null)
+            if(_scheduler != null && !_server.LatencySupported)
             {
-                _scheduler.Add(this, false, SendStatusMessageInterval);
+                _scheduler.Add(this, UpdateableTimeMode.GameTimeUnscaled, SendStatusMessageInterval);
             }
             _server.Start();
         }
@@ -43,9 +43,9 @@ namespace SocialPoint.Network
             for(int i = 0; i < _clients.Count; i++)
             {
                 _server.SendMessage(new NetworkMessageData {
-                    MessageType = StatsMessageType,
+                    MessageType = LatencyMessageType,
                     ClientId = _clients[i]
-                }, new NetworkStatsMessage(_server.GetTimestamp())
+                }, new NetworkLatencyMessage(_server.GetTimestamp())
                 );
             }
         }
@@ -79,6 +79,14 @@ namespace SocialPoint.Network
         public int GetTimestamp()
         {
             return _server.GetTimestamp();
+        }
+
+        public bool LatencySupported
+        {
+            get
+            {
+                return _server.LatencySupported;
+            }
         }
 
         public bool Running

@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 namespace SocialPoint.GameLoading
 {
@@ -26,7 +25,6 @@ namespace SocialPoint.GameLoading
 
         public bool HasExpectedDuration
         {
-
             get
             {
                 return ExpectedDuration >= 0.0f;
@@ -43,7 +41,7 @@ namespace SocialPoint.GameLoading
             _start = start;
         }
 
-        public LoadingOperation(Action start = null): this(-1.0f, start)
+        public LoadingOperation(Action start = null) : this(-1.0f, start)
         {
         }
 
@@ -53,7 +51,7 @@ namespace SocialPoint.GameLoading
             {
                 _start();
             }
-        }            
+        }
 
         public void Update(float progress, string message = null)
         {
@@ -67,6 +65,6 @@ namespace SocialPoint.GameLoading
         public void Finish(string message = null)
         {
             Update(1.0f, message);
-        }            
+        }
     }
 }

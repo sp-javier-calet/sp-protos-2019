@@ -252,6 +252,30 @@ namespace SocialPoint.WebSockets
             }
         }
 
+        public bool InStandby
+        {
+            get
+            {
+                return _socket.InStandby;
+            }
+        }
+
+        public bool LatencySupported
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public int Latency
+        {
+            get
+            {
+                DebugUtils.Assert(LatencySupported);
+                return -1;
+            }
+        }
         #endregion
     }
 }

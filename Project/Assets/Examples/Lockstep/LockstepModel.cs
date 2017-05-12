@@ -12,7 +12,7 @@ public class LockstepModel
     const long ManaSpeed = 2;
     const long MaxMana = 10000;
 
-    const long UnitCost = 7000;
+    const long UnitCost = 2000;
 
     public event Action<Fix64, Fix64, Fix64> OnInstantiate;
     public event Action OnFinish;

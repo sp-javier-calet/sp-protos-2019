@@ -14,6 +14,8 @@ namespace SocialPoint.WebSockets
 
         #region IReader implementation
 
+        public bool Finished{ get; private set; }
+
         public bool ReadBoolean()
         {
             throw new NotImplementedException();
@@ -56,6 +58,7 @@ namespace SocialPoint.WebSockets
 
         public string ReadString()
         {
+            Finished = true;
             return _content;
         }
 

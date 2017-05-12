@@ -15,7 +15,6 @@ using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Alert
 {
-
     public class AlertInstaller : ServiceInstaller
     {
         [Serializable]

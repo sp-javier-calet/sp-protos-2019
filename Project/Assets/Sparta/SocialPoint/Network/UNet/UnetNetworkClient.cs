@@ -194,5 +194,22 @@ namespace SocialPoint.Network
             byte error;
             return NetworkTransport.GetRemoteDelayTimeMS(_client.connection.hostId, _client.connection.connectionId, serverTimestamp, out error);
         }
+
+        public bool LatencySupported
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public int Latency
+        {
+            get
+            {
+                DebugUtils.Assert(LatencySupported);
+                return -1;
+            }
+        }
     }
 }

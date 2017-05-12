@@ -49,6 +49,14 @@ namespace SocialPoint.Network
             return PhotonNetwork.ServerTimestamp;
         }
 
+        public bool LatencySupported
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         public bool Running
         {
             get
@@ -94,8 +102,9 @@ namespace SocialPoint.Network
             {
                 return false;
             }
-            var props = new Hashtable{
-                { ServerIdRoomProperty, PhotonNetwork.player.ID }};
+            var props = new Hashtable {
+                { ServerIdRoomProperty, PhotonNetwork.player.ID }
+            };
             PhotonNetwork.room.SetCustomProperties(props);
             return true;
         }

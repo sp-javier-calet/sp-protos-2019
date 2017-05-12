@@ -143,7 +143,7 @@ namespace SocialPoint.GameLoading
 
         public string Signature { set; private get; }
 
-        public GameErrorHandler(IAlertView alert = null, Localization locale = null, IAppEvents appEvents = null, Func<UIStackController> findPopups = null)
+        public GameErrorHandler(IAlertView alert, Localization locale, IAppEvents appEvents, Func<UIStackController> findPopups)
         {
             _alert = alert;
             _locale = locale;
@@ -151,18 +151,9 @@ namespace SocialPoint.GameLoading
             _findPopups = findPopups;
             Debug = DebugUtils.IsDebugBuild;
 
-            if(_alert == null)
-            {
-                _alert = new AlertView();
-            }
-            if(_locale == null)
-            {
-                _locale = Localization.Default;
-            }
-            if(_appEvents == null)
-            {
-                _appEvents = new SocialPointAppEvents();
-            }
+            DebugUtils.Assert(_alert != null, "Alert can not be null");
+            DebugUtils.Assert(_locale != null, "Locale can not be null");
+            DebugUtils.Assert(_appEvents != null, "AppEvents can not be null");
 
             _appEvents.LevelWasLoaded += OnLevelWasLoaded;
             OnLevelWasLoaded(SceneManager.GetActiveScene().buildIndex);
@@ -306,6 +297,7 @@ namespace SocialPoint.GameLoading
                 popup.Localization = _locale;
                 popup.Restart = restart;
                 popup.Signature = Signature;
+                popup.AlertView = _alert;
                 _popups.Push(popup);
             }
         }

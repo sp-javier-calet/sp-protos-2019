@@ -41,7 +41,7 @@ namespace SocialPoint.Utils
             _scheduler.Remove(updateable);
 
             Assert.IsFalse(_scheduler.Contains(updateable));
-            _scheduler.Update(0.1f);
+            _scheduler.Update(0.1f, 0.1f);
             Assert.IsFalse(_scheduler.Contains(updateable));
         }
 
@@ -51,8 +51,8 @@ namespace SocialPoint.Utils
             var updateable = Substitute.For<IUpdateable>();
             _scheduler.Add(updateable);
 
-            _scheduler.Update(0.1f);
-            _scheduler.Update(0.1f);
+            _scheduler.Update(0.1f, 0.1f);
+            _scheduler.Update(0.1f, 0.1f);
 
             updateable.Received(2).Update();
         }
@@ -65,7 +65,7 @@ namespace SocialPoint.Utils
             _scheduler.Remove(updateable);
             _scheduler.Add(updateable);
 
-            _scheduler.Update(0.1f);
+            _scheduler.Update(0.1f, 0.1f);
 
             updateable.Received(1).Update();
         }
@@ -82,7 +82,7 @@ namespace SocialPoint.Utils
             _scheduler.AddFixed(updateable, 0);
             #pragma warning restore 618
 
-            _scheduler.Update(0.1f);
+            _scheduler.Update(0.1f, 0.1f);
 
             updateable.Received(1).Update();
         }
@@ -93,7 +93,7 @@ namespace SocialPoint.Utils
             var updateable = Substitute.For<IUpdateable>();
             _scheduler.Add(updateable);
             Assert.IsTrue(_scheduler.Contains(updateable));
-            _scheduler.Update(0.1f);
+            _scheduler.Update(0.1f, 0.1f);
             DoRemove(updateable);
         }
 
@@ -118,7 +118,7 @@ namespace SocialPoint.Utils
             _scheduler.Add(updateable);
             _scheduler.Add(updateable);
 
-            _scheduler.Update(0.1f);
+            _scheduler.Update(0.1f, 0.1f);
 
             updateable.Received(1).Update();
 
@@ -135,7 +135,7 @@ namespace SocialPoint.Utils
             _scheduler.AddFixed(updateable, 0);
             #pragma warning restore 618
 
-            _scheduler.Update(0.1f);
+            _scheduler.Update(0.1f, 0.1f);
 
             updateable.Received(1).Update();
 
@@ -175,7 +175,7 @@ namespace SocialPoint.Utils
             _scheduler.Add(updateable);
 
             Assert.IsTrue(_scheduler.Contains(updateable));
-            _scheduler.Update(0.1f);
+            _scheduler.Update(0.1f, 0.1f);
             Assert.IsTrue(_scheduler.Contains(updateable));
         }
 
@@ -187,7 +187,7 @@ namespace SocialPoint.Utils
             _scheduler.Add(updateableAction);
             Assert.IsTrue(_scheduler.Contains(updateableAction));
 
-            _scheduler.Update(0.1f);
+            _scheduler.Update(0.1f, 0.1f);
             Assert.IsTrue(_scheduler.Contains(updateable));
         }
 
@@ -202,7 +202,7 @@ namespace SocialPoint.Utils
             _scheduler.Add(updateableAction);
             Assert.IsTrue(_scheduler.Contains(updateableAction));
 
-            _scheduler.Update(0.1f);
+            _scheduler.Update(0.1f, 0.1f);
             Assert.IsFalse(_scheduler.Contains(updateable));
         }
 
@@ -214,7 +214,7 @@ namespace SocialPoint.Utils
             _scheduler.AddFixed(updateable, 0);
             #pragma warning restore 618
 
-            _scheduler.Update(0.1f);
+            _scheduler.Update(0.1f, 0.1f);
 
             updateable.Received(1).Update();
             return updateable;
@@ -228,7 +228,7 @@ namespace SocialPoint.Utils
             #pragma warning restore 618
             _scheduler.Add(updateable);
 
-            _scheduler.Update(0.1f);
+            _scheduler.Update(0.1f, 0.1f);
 
             updateable.Received(1).Update();
             return updateable;
@@ -261,59 +261,81 @@ namespace SocialPoint.Utils
         }
 
         [Test]
-        public void ScaledSlower()
+        public void ScaledGameSlower()
         {
             var updateable = Substitute.For<IUpdateable>();
-            _scheduler.Add(updateable, true, 0.1f);
-            _scheduler.Update(0);
+            _scheduler.Add(updateable, UpdateableTimeMode.GameTimeScaled, 0.1f);
+            _scheduler.Update(0, 0);
             System.Threading.Thread.Sleep(200);
-            _scheduler.Update(1f);
+            _scheduler.Update(1f, 1f);
             updateable.Received(1).Update();
         }
 
         [Test]
-        public void ScaledFaster()
+        public void UnscaledGameSlower()
         {
             var updateable = Substitute.For<IUpdateable>();
-            _scheduler.Add(updateable, true, 0.1f);
-            _scheduler.Update(0);
+            _scheduler.Add(updateable, UpdateableTimeMode.GameTimeUnscaled, 0.1f);
+            _scheduler.Update(0, 0);
+            System.Threading.Thread.Sleep(200);
+            _scheduler.Update(1f, 1f);
+            updateable.Received(1).Update();
+        }
+
+        [Test]
+        public void ScaledGameFaster()
+        {
+            var updateable = Substitute.For<IUpdateable>();
+            _scheduler.Add(updateable, UpdateableTimeMode.GameTimeScaled, 0.1f);
+            _scheduler.Update(0, 0);
             System.Threading.Thread.Sleep(50);
-            _scheduler.Update(0.1f);
+            _scheduler.Update(0.1f, 0.1f);
             updateable.Received(1).Update();
         }
 
         [Test]
-        public void NonScaledSlower()
+        public void UnscaledGameFaster()
         {
             var updateable = Substitute.For<IUpdateable>();
-            _scheduler.Add(updateable, false, 0.1f);
-            _scheduler.Update(0);
-            System.Threading.Thread.Sleep(100);
-            _scheduler.Update(0.05f);
+            _scheduler.Add(updateable, UpdateableTimeMode.GameTimeUnscaled, 0.1f);
+            _scheduler.Update(0, 0);
+            System.Threading.Thread.Sleep(50);
+            _scheduler.Update(0.1f, 0.1f);
             updateable.Received(1).Update();
         }
 
         [Test]
-        public void NonScaledFaster()
+        public void RealTimeSlower()
         {
             var updateable = Substitute.For<IUpdateable>();
-            _scheduler.Add(updateable, false, 0.1f);
-            _scheduler.Update(0);
+            _scheduler.Add(updateable, UpdateableTimeMode.RealTime, 0.1f);
+            _scheduler.Update(0, 0);
             System.Threading.Thread.Sleep(100);
-            _scheduler.Update(0.2f);
+            _scheduler.Update(0.05f, 0.05f);
             updateable.Received(1).Update();
         }
 
         [Test]
-        public void ScaledAndNonScaled()
+        public void RealTimeFaster()
+        {
+            var updateable = Substitute.For<IUpdateable>();
+            _scheduler.Add(updateable, UpdateableTimeMode.RealTime, 0.1f);
+            _scheduler.Update(0, 0);
+            System.Threading.Thread.Sleep(100);
+            _scheduler.Update(0.2f, 0.2f);
+            updateable.Received(1).Update();
+        }
+
+        [Test]
+        public void GameVsRealTime()
         {
             var updateable0 = Substitute.For<IUpdateable>();
             var updateable1 = Substitute.For<IUpdateable>();
-            _scheduler.Add(updateable0, false, 0.1f);
-            _scheduler.Add(updateable1, true, 0.1f);
-            _scheduler.Update(0);
+            _scheduler.Add(updateable0, UpdateableTimeMode.RealTime, 0.1f);
+            _scheduler.Add(updateable1, UpdateableTimeMode.GameTimeUnscaled, 0.1f);
+            _scheduler.Update(0, 0);
             System.Threading.Thread.Sleep(100);
-            _scheduler.Update(0.05f);
+            _scheduler.Update(0.05f, 0.05f);
             updateable0.Received(1).Update();
             updateable1.Received(0).Update();
         }
@@ -323,13 +345,13 @@ namespace SocialPoint.Utils
         {
             var updateable0 = Substitute.For<IUpdateable>();
             var updateable1 = Substitute.For<IUpdateable>();
-            _scheduler.Add(updateable0, true, 0.1f);
-            _scheduler.Add(updateable1, true, 0.05f);
+            _scheduler.Add(updateable0, UpdateableTimeMode.GameTimeScaled, 0.1f);
+            _scheduler.Add(updateable1, UpdateableTimeMode.GameTimeScaled, 0.05f);
             _scheduler.Remove(updateable0);
             _scheduler.Remove(updateable1);
-            _scheduler.Add(updateable0, true, 0.05f);
-            _scheduler.Add(updateable1, true, 0.1f);
-            _scheduler.Update(0.05f);
+            _scheduler.Add(updateable0, UpdateableTimeMode.GameTimeScaled, 0.05f);
+            _scheduler.Add(updateable1, UpdateableTimeMode.GameTimeScaled, 0.1f);
+            _scheduler.Update(0.05f, 0.05f);
             updateable0.Received(1).Update();
             updateable1.Received(0).Update();
         }

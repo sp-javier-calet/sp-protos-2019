@@ -9,12 +9,12 @@ namespace SocialPoint.Network
     {
         INetworkMessageReceiver _receiver;
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
-        LocalNetworkServer _server;
+        ILocalNetworkServer _server;
 
         public byte ClientId{ get; private set; }
         public bool Connected{ get; private set; }
 
-        public LocalNetworkClient(LocalNetworkServer server)
+        public LocalNetworkClient(ILocalNetworkServer server)
         {
             _server = server;
         }
@@ -55,7 +55,7 @@ namespace SocialPoint.Network
             }
         }
 
-        public void OnLocalMessageReceived(LocalNetworkMessage msg)
+        public void OnLocalMessageReceived(ILocalNetworkMessage msg)
         {
             if(!Connected)
             {
@@ -123,6 +123,23 @@ namespace SocialPoint.Network
         public int GetDelay(int serverTimestamp)
         {
             return 0;
+        }
+
+        public bool LatencySupported
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public int Latency
+        {
+            get
+            {
+                DebugUtils.Assert(LatencySupported);
+                return -1;
+            }
         }
     }
 }

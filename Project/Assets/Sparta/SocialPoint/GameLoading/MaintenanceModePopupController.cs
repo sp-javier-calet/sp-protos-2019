@@ -1,6 +1,6 @@
+using System;
 using SocialPoint.GUIControl;
 using UnityEngine.UI;
-using System;
 
 public sealed class MaintenanceModePopupController : UIViewController
 {
@@ -8,11 +8,7 @@ public sealed class MaintenanceModePopupController : UIViewController
     public Text MessageLabel;
     public Text SignatureLabel;
     public Text ButtonLabel;
-    public Action Dismissed;  
-
-    public MaintenanceModePopupController()
-    {
-    }
+    public Action Dismissed;
 
     public void OnButtonClicked()
     {
@@ -82,5 +78,3 @@ public sealed class MaintenanceModePopupController : UIViewController
         }
     }
 }
-
-

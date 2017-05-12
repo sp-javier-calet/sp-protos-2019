@@ -344,7 +344,7 @@ namespace SocialPoint.ServerSync
             }
             if(_updateScheduler != null)
             {
-                _updateScheduler.Add(this, false, SendInterval);
+                _updateScheduler.Add(this, UpdateableTimeMode.GameTimeUnscaled, SendInterval);
                 _running = true;
             }
         }
