@@ -232,9 +232,6 @@ namespace SocialPoint.Matchmaking
                 _stopRequest.Dispose();
             }
 
-            _wamp.OnError -= OnWampError;
-            _wamp.OnNotificationReceived -= OnWampNotificationReceived;
-
             _stopRequest = _wamp.Call(MatchmakingStopMethodName, Attr.InvalidList, kwargs, OnStopResult);
             CallAction(OnStop);
         }
