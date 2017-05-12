@@ -69,17 +69,22 @@ namespace SocialPoint.Utils
 
         public static void Add(this IUpdateScheduler scheduler, IUpdateable elm)
         {
-            scheduler.Add(elm, UpdateableTimeMode.GameTimeUnscaled, -1);
+            scheduler.Add(elm, UpdateableTimeMode.GameTimeUnscaled, -1.0f);
         }
 
         public static void Add(this IUpdateScheduler scheduler, IUpdateable elm, float interval)
         {
-            scheduler.Add(elm, false, interval);
+            scheduler.Add(elm, UpdateableTimeMode.GameTimeUnscaled, interval);
         }
 
         public static void Add(this IUpdateScheduler scheduler, IDeltaUpdateable elm)
         {
-            scheduler.Add(elm, false, -1.0f);
+            scheduler.Add(elm, UpdateableTimeMode.GameTimeUnscaled, -1.0f);
+        }
+
+        public static void Add(this IUpdateScheduler scheduler, IDeltaUpdateable elm, float interval)
+        {
+            scheduler.Add(elm, UpdateableTimeMode.GameTimeUnscaled, interval);
         }
     }
 
