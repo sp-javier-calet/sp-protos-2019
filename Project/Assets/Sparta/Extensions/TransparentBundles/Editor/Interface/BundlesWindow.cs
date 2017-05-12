@@ -682,7 +682,7 @@ namespace SocialPoint.TransparentBundles
             GUILayout.Label(assetObject == null ? _controller.DownloadImage(Config.IconsPath + Config.MissingFileImageName) : AssetPreview.GetMiniThumbnail(assetObject), GUILayout.Width(_columnsSize[1]), GUILayout.Height(_columnsSize[1]));
             EditorGUILayout.EndVertical();
 
-            if(bundle.Status == BundleStatus.Warning || bundle.Status == BundleStatus.Error)
+            if(bundle.Status == BundleStatus.Warning || bundle.Status == BundleStatus.Failed)
             {
                 EditorGUILayout.BeginVertical(GUILayout.Width(20));
                 GUILayout.Label("", GUILayout.Height(3));
@@ -703,7 +703,7 @@ namespace SocialPoint.TransparentBundles
                 {
                     bundleStyle = BodySelectedLinkStyleWarning;
                 }
-                else if(bundle.Status == BundleStatus.Error)
+                else if(bundle.Status == BundleStatus.Failed)
                 {
                     bundleStyle = BodySelectedLinkStyleError;
                 }
@@ -722,7 +722,7 @@ namespace SocialPoint.TransparentBundles
                 {
                     bundleStyle = BodyTextStyleWarning;
                 }
-                else if(bundle.Status == BundleStatus.Error)
+                else if(bundle.Status == BundleStatus.Failed)
                 {
                     bundleStyle = BodyTextStyleError;
                 }
