@@ -18,10 +18,8 @@ namespace SocialPoint.Social
         const string UserNameKey = "user_name";
         const string KickedUserNameKey = "kicked_user_name";
         const string AdminUserNameKey = "admin_user_name";
-        const string UserNameTwoDaysLaterKey = "UserName";
         const string OldRoleKey = "old_role";
         const string NewRoleKey = "new_role";
-        const string NewRoleTwoDaysLaterKey = "NewRole";
         const string RankPromotionKey = "promotion";
         const string RankDemotionKey = "demotion";
 
