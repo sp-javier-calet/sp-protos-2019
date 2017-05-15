@@ -129,6 +129,12 @@ namespace AssetBundleGraph
             if(Directory.Exists(oldSettingsPath))
             {
                 var destPath = Application.dataPath + "/Sparta/Config/AssetGraph";
+
+                if(!Directory.Exists(destPath))
+                {
+                    Directory.CreateDirectory(destPath);
+                }
+
                 foreach(string dir in Directory.GetDirectories(oldSettingsPath))
                 {
                     var dirFolder = dir + "/";
