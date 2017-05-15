@@ -42,6 +42,7 @@ namespace SocialPoint.Connection
         //Matchmaking notifications
         public const int MatchmakingSuccessNotification = 502;
         public const int MatchmakingTimeoutNotification = 503;
+        public const int MatchmakingWaitingTimeNotification = 504;
 
         public const int MaxValue = 1000;
     }
