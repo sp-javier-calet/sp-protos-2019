@@ -129,7 +129,7 @@ namespace SocialPoint.Social
         public WAMPRequest DeleteMessage(Message msg, FinishCallback callback)
         {
             var paramsDic = new AttrDic();
-            paramsDic.SetValue("msg_id", msg.Id);
+            paramsDic.SetValue(MsgIdKey, msg.Id);
             return _connection.Call(MessagingSystemDeleteMethod, null, paramsDic, (error, AttrList, attrDic) => {
                 if(callback != null)
                 {
