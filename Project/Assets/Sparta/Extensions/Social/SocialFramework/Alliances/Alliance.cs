@@ -88,7 +88,7 @@ namespace SocialPoint.Social
 
         public void AddMember(SocialPlayer member)
         {
-            AddMembers(_members, new SocialPlayer[]{ member });
+            AddMembers(_members, new []{ member });
         }
 
         public void AddMembers(IEnumerable<SocialPlayer> members)
@@ -103,7 +103,7 @@ namespace SocialPoint.Social
 
         public List<SocialPlayer> GetMembersList()
         {
-            return new List<SocialPlayer> (_members);
+            return new List<SocialPlayer>(_members);
         }
 
         public bool HasMember(string id)
@@ -132,7 +132,7 @@ namespace SocialPoint.Social
 
         public void AddCandidate(SocialPlayer candidate)
         {
-            AddMembers(_candidates, new SocialPlayer[]{ candidate });
+            AddMembers(_candidates, new []{ candidate });
         }
 
         public void AddCandidates(List<SocialPlayer> candidates)
@@ -180,11 +180,7 @@ namespace SocialPoint.Social
                 {
                     return a.Score - b.Score;
                 }
-                if(a.Name != b.Name)
-                {
-                    return string.Compare(a.Name, b.Name);
-                }
-                return string.Compare(a.Uid, b.Uid);
+                return a.Name != b.Name ? string.Compare(a.Name, b.Name) : string.Compare(a.Uid, b.Uid);
             });
         }
 

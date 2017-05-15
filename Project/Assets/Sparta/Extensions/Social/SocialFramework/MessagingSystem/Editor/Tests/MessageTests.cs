@@ -10,25 +10,34 @@ namespace SocialPoint.Social
     {
         class MessageOrigin : IMessageOrigin
         {
-            public string GetIdentifier()
+            public string Identifier
             {
-                return "testOrigin";
+                get
+                {
+                    return "testOrigin";
+                }
             }
         }
 
         class MessageOrigin2 : IMessageOrigin
         {
-            public string GetIdentifier()
+            public string Identifier
             {
-                return "testOrigin2";
+                get
+                {
+                    return "testOrigin2";
+                }
             }
         }
 
         class MessagePayload : IMessagePayload
         {
-            public string GetIdentifier()
+            public string Identifier
             {
-                return "testPayload";
+                get
+                {
+                    return "testPayload";
+                }
             }
 
             public AttrDic Serialize()
@@ -39,9 +48,12 @@ namespace SocialPoint.Social
 
         class MessagePayload2 : IMessagePayload
         {
-            public string GetIdentifier()
+            public string Identifier
             {
-                return "testPayload2";
+                get
+                {
+                    return "testPayload2";
+                }
             }
 
             public AttrDic Serialize()

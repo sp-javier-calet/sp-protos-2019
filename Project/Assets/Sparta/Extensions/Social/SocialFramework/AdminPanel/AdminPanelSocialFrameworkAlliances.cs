@@ -94,7 +94,7 @@ namespace SocialPoint.Social
                 _console = console;
             }
         }
- 
+
         #endregion
 
         class AdminPanelAllianceCreate : BaseAlliancePanel
@@ -257,7 +257,7 @@ namespace SocialPoint.Social
                 _data = new Alliance();
             }
 
-            void StringValueInput(AdminPanelLayout layout, string label, string current, Action<string> onChanged)
+            static void StringValueInput(AdminPanelLayout layout, string label, string current, Action<string> onChanged)
             {
                 var hlayout = layout.CreateHorizontalLayout();
                 hlayout.CreateFormLabel(label);
@@ -428,7 +428,7 @@ namespace SocialPoint.Social
         class AdminPanelAllianceUserInfo : AdminPanelSocialFramework.BaseUserInfoPanel
         {
             public Alliance Alliance;
-            private readonly AlliancesManager _alliances;
+            readonly AlliancesManager _alliances;
 
             public AdminPanelAllianceUserInfo(AlliancesManager alliances, PlayersManager playersManager, AdminPanelConsole console) : base(playersManager, console)
             {

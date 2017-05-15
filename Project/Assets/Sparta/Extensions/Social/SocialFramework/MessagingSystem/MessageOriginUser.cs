@@ -11,9 +11,12 @@ namespace SocialPoint.Social
             Player = player;
         }
 
-        public string GetIdentifier()
+        public string Identifier
         {
-            return Identifier;
+            get
+            {
+                return IdentifierKey;
+            }
         }
 
         public override string ToString()
@@ -21,7 +24,7 @@ namespace SocialPoint.Social
             return string.Format("[MessageOriginUser: Player={0}]", Player);
         }
 
-        public const string Identifier = "user";
+        public const string IdentifierKey = "user";
     }
 
     public sealed class MessageOriginUserFactory : IMessageOriginFactory

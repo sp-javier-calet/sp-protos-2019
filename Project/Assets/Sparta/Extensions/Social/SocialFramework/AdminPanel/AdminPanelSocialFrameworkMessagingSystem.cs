@@ -223,7 +223,7 @@ namespace SocialPoint.Social
             public AdminPanelSendMessage(MessagingSystemManager messagesManager, AdminPanelConsole console) : base(messagesManager, console)
             {
                 _payloadPanels = new Dictionary<string, AdminPanelEditPayloadPanel>();
-                _payloadPanels.Add(MessagePayloadPlainText.Identifier, new AdminPanelMessagePayloadPlainText());
+                _payloadPanels.Add(MessagePayloadPlainText.IdentifierKey, new AdminPanelMessagePayloadPlainText());
                 _currentPayload = _payloadPanels.Keys.First();
 
                 _destinationPanels = new Dictionary<string, AdminPanelEditDestinationPanel>();

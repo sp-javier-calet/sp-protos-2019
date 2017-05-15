@@ -180,14 +180,7 @@ namespace SocialPoint.Social
             {
                 return SocialFrameworkStrings.ChatPlayerPromotedKey;
             }
-            else if(comp < 0)
-            {
-                return SocialFrameworkStrings.ChatPlayerDemotedKey;
-            }
-            else
-            {
-                return string.Empty;
-            }
+            return comp < 0 ? SocialFrameworkStrings.ChatPlayerDemotedKey : string.Empty;
         }
 
         public string GetRankNameTid(int rank)

@@ -3,7 +3,7 @@ namespace SocialPoint.Social
 {
     public interface IMessageOrigin
     {
-        string GetIdentifier();
+        string Identifier { get; }
 
         string ToString();
     }

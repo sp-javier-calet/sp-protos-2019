@@ -10,11 +10,38 @@ namespace SocialPoint.Social
 {
     public sealed class MessagingSystemManager : IDisposable
     {
+        #region Attr keys
+
+        const string DestinationTypeKey = "destination_type";
+        const string DestinationDataKey = "destination_data";
+        const string OriginTypeKey = "origin_type";
+        const string OriginDataKey = "origin_data";
+        const string PayloadTypeKey = "payload_type";
+        const string PayloadDataKey = "payload_data";
+        const string MsgIdKey = "msg_id";
+        const string PropertiesKey = "properties";
+        const string MessageSystemKey = "message_system";
+        const string MsgsKey = "msgs";
+        const string MsgKey = "msg";
+        const string IdKey = "id";
+
+        #endregion
+
+        #region RPC methods
+
+        const string MessagingSystemSendMethod = "messaging_system.send";
+        const string MessagingSystemDeleteMethod = "messaging_system.delete";
+        const string MessagingSystemAddPropertiesMethod = "messaging_system.add_properties";
+        const string MessagingSystemRemovePropertiesMethod = "messaging_system.remove_properties";
+
+        #endregion
+
         readonly ConnectionManager _connection;
 
         SocialManager _socialManager;
 
-        internal SocialManager SocialManager {
+        internal SocialManager SocialManager
+        {
             private get
             {
                 return _socialManager; 
@@ -22,7 +49,7 @@ namespace SocialPoint.Social
             set
             {
                 _socialManager = value;
-                _originFactories.Add(MessageOriginUser.Identifier, new MessageOriginUserFactory(SocialManager.PlayerFactory));
+                _originFactories.Add(MessageOriginUser.IdentifierKey, new MessageOriginUserFactory(SocialManager.PlayerFactory));
             }
         }
 
@@ -37,7 +64,7 @@ namespace SocialPoint.Social
             set
             {
                 _alliancesManager = value;
-                _originFactories.Add(MessageOriginAlliance.Identifier, new MessageOriginAllianceFactory(AlliancesManager.Factory));
+                _originFactories.Add(MessageOriginAlliance.IdentifierKey, new MessageOriginAllianceFactory(AlliancesManager.Factory));
             }
         }
 
@@ -73,9 +100,9 @@ namespace SocialPoint.Social
 
         void AddDefaultFactories()
         {
-            _originFactories.Add(MessageOriginSystem.Identifier, new MessageOriginSystemFactory());
+            _originFactories.Add(MessageOriginSystem.IdentifierKey, new MessageOriginSystemFactory());
 
-            _payloadFactories.Add(MessagePayloadPlainText.Identifier, new MessagePayloadPlainTextFactory());
+            _payloadFactories.Add(MessagePayloadPlainText.IdentifierKey, new MessagePayloadPlainTextFactory());
         }
 
         public ReadOnlyCollection<Message> GetMessages()
@@ -86,12 +113,12 @@ namespace SocialPoint.Social
         public WAMPRequest SendMessage(string destinationType, AttrDic destinationData, IMessagePayload payload, FinishCallback callback)
         {
             var paramsDic = new AttrDic();
-            paramsDic.SetValue("destination_type", destinationType);
-            paramsDic.Set("destination_data", destinationData);
-            paramsDic.SetValue("payload_type", payload.GetIdentifier());
-            paramsDic.Set("payload_data", payload.Serialize());
+            paramsDic.SetValue(DestinationTypeKey, destinationType);
+            paramsDic.Set(DestinationDataKey, destinationData);
+            paramsDic.SetValue(PayloadTypeKey, payload.Identifier);
+            paramsDic.Set(PayloadDataKey, payload.Serialize());
 
-            return _connection.Call("messaging_system.send", null, paramsDic, (error, AttrList, attrDic) => {
+            return _connection.Call(MessagingSystemSendMethod, null, paramsDic, (error, AttrList, attrDic) => {
                 if(callback != null)
                 {
                     callback(error, attrDic);
@@ -103,7 +130,7 @@ namespace SocialPoint.Social
         {
             var paramsDic = new AttrDic();
             paramsDic.SetValue("msg_id", msg.Id);
-            return _connection.Call("messaging_system.delete", null, paramsDic, (error, AttrList, attrDic) => {
+            return _connection.Call(MessagingSystemDeleteMethod, null, paramsDic, (error, AttrList, attrDic) => {
                 if(callback != null)
                 {
                     if(Error.IsNullOrEmpty(error))
@@ -123,9 +150,9 @@ namespace SocialPoint.Social
         public WAMPRequest AddMessageProperties(List<string> properties, Message msg, FinishCallback callback)
         {
             var paramsDic = new AttrDic();
-            paramsDic.SetValue("msg_id", msg.Id);
-            paramsDic.Set("properties", new AttrList(properties));
-            return _connection.Call("messaging_system.add_properties", null, paramsDic, (error, AttrList, attrDic) => {
+            paramsDic.SetValue(MsgIdKey, msg.Id);
+            paramsDic.Set(PropertiesKey, new AttrList(properties));
+            return _connection.Call(MessagingSystemAddPropertiesMethod, null, paramsDic, (error, AttrList, attrDic) => {
                 if(callback != null)
                 {
                     if(Error.IsNullOrEmpty(error))
@@ -151,9 +178,9 @@ namespace SocialPoint.Social
         public WAMPRequest RemoveMessageProperties(List<string> properties, Message msg, FinishCallback callback)
         {
             var paramsDic = new AttrDic();
-            paramsDic.SetValue("msg_id", msg.Id);
-            paramsDic.Set("properties", new AttrList(properties));
-            return _connection.Call("messaging_system.remove_properties", null, paramsDic, (error, AttrList, attrDic) => {
+            paramsDic.SetValue(MsgIdKey, msg.Id);
+            paramsDic.Set(PropertiesKey, new AttrList(properties));
+            return _connection.Call(MessagingSystemRemovePropertiesMethod, null, paramsDic, (error, AttrList, attrDic) => {
                 if(callback != null)
                 {
                     if(Error.IsNullOrEmpty(error))
@@ -180,8 +207,8 @@ namespace SocialPoint.Social
         {
             ClearMessages();
 
-            var messagingServiceData = servicesDic.Get("message_system").AsDic;
-            var messagesList = messagingServiceData.Get("msgs").AsList;
+            var messagingServiceData = servicesDic.Get(MessageSystemKey).AsDic;
+            var messagesList = messagingServiceData.Get(MsgsKey).AsList;
             using(var messageDataItr = messagesList.GetEnumerator())
             {
                 while(messageDataItr.MoveNext())
@@ -206,7 +233,7 @@ namespace SocialPoint.Social
             {
             case NotificationType.MessagingSystemNewMessage:
                 {
-                    var message = ParseMessage(dic.Get("msg").AsDic);
+                    var message = ParseMessage(dic.Get(MsgKey).AsDic);
                     if(message == null)
                     {
                         break;
@@ -227,7 +254,7 @@ namespace SocialPoint.Social
 
         Message ParseMessage(AttrDic data)
         {
-            var id = data.Get("id").AsValue.ToString();
+            var id = data.Get(IdKey).AsValue.ToString();
 
             var origin = ParseMessageOrigin(data);
             var payload = ParseMessagePayload(data);
@@ -245,21 +272,21 @@ namespace SocialPoint.Social
 
         IMessageOrigin ParseMessageOrigin(AttrDic data)
         {
-            var type = data.Get("origin_type").AsValue.ToString();
+            var type = data.Get(OriginTypeKey).AsValue.ToString();
             IMessageOriginFactory factory;
-            return !_originFactories.TryGetValue(type, out factory) ? null : factory.CreateOrigin(data.Get("origin_data").AsDic);
+            return !_originFactories.TryGetValue(type, out factory) ? null : factory.CreateOrigin(data.Get(OriginDataKey).AsDic);
         }
 
         IMessagePayload ParseMessagePayload(AttrDic data)
         {
-            var type = data.Get("payload_type").AsValue.ToString();
+            var type = data.Get(PayloadTypeKey).AsValue.ToString();
             IMessagePayloadFactory factory;
-            return !_payloadFactories.TryGetValue(type, out factory) ? null : factory.CreatePayload(data.Get("payload_data").AsDic);
+            return !_payloadFactories.TryGetValue(type, out factory) ? null : factory.CreatePayload(data.Get(PayloadDataKey).AsDic);
         }
 
         static void ParseMessageProperties(AttrDic data, Message message)
         {
-            var propertiesList = data.Get("properties").AsList;
+            var propertiesList = data.Get(PropertiesKey).AsList;
             using(var propertiesItr = propertiesList.GetEnumerator())
             {
                 while(propertiesItr.MoveNext())

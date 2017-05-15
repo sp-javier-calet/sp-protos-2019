@@ -11,6 +11,8 @@ namespace SocialPoint.Social
 {
     public sealed class ChatManager : IDisposable
     {
+        #region Attr keys
+
         const string ChatServiceKey = "chat";
         const string AllianceRoomType = "alliance";
 
@@ -20,6 +22,19 @@ namespace SocialPoint.Social
         public const string HistoryTopicKey = "history";
         public const string TopicMembersKey = "topic_members";
         public const string ChatMessageInfoKey = "message_info";
+
+        const string ChatBanEndTimestampKey = "banEndTimestamp";
+        const string ChatBanEndTimeKey = "ban_end_time";
+        const string ReportsKey = "reports";
+        const string UserIdKey = "user_id";
+
+        #endregion
+
+        #region RPC methods
+
+        const string ChatReportUserKey = "chat.report.user";
+
+        #endregion
 
         public event Action<long> OnChatBanReceived;
 
@@ -165,14 +180,14 @@ namespace SocialPoint.Social
             }
 
             ChatBanEndTimestamp = 0;
-            if(chatServiceDic.ContainsKey("banEndTimestamp"))
+            if(chatServiceDic.ContainsKey(ChatBanEndTimestampKey))
             {
-                ChatBanEndTimestamp = chatServiceDic.GetValue("banEndTimestamp").ToLong();
+                ChatBanEndTimestamp = chatServiceDic.GetValue(ChatBanEndTimestampKey).ToLong();
             }
 
-            if(chatServiceDic.ContainsKey("reports"))
+            if(chatServiceDic.ContainsKey(ReportsKey))
             {
-                ProcessReports(chatServiceDic.GetValue("reports").AsList);
+                ProcessReports(chatServiceDic.GetValue(ReportsKey).AsList);
             }
         }
 
@@ -202,7 +217,7 @@ namespace SocialPoint.Social
 
         void SetChatBan(AttrDic dic)
         {
-            ChatBanEndTimestamp = dic.GetValue("ban_end_time").ToLong();
+            ChatBanEndTimestamp = dic.GetValue(ChatBanEndTimeKey).ToLong();
             OnChatBanReceived(ChatBanEndTimestamp);
         }
 
@@ -212,9 +227,9 @@ namespace SocialPoint.Social
             _reports.Add(report);
 
             var dicData = report.Serialize();
-            dicData.SetValue("user_id", _socialManager.LocalPlayer.Uid);
+            dicData.SetValue(UserIdKey, _socialManager.LocalPlayer.Uid);
 
-            _connection.Call("chat.report.user", null, dicData, null);
+            _connection.Call(ChatReportUserKey, null, dicData, null);
         }
 
         void ProcessReports(AttrList listReports)
@@ -229,7 +244,7 @@ namespace SocialPoint.Social
 
         public bool CanReportUser(string userId)
         {
-            var vigentReport = _reports.Find((ChatReport report) => (report.ReportedUid == userId) && (TimeUtils.Timestamp < report.Ts + ReportUserCooldown));
+            var vigentReport = _reports.Find(report => (report.ReportedUid == userId) && (TimeUtils.Timestamp < report.Ts + ReportUserCooldown));
             return (vigentReport == null);
         }
 

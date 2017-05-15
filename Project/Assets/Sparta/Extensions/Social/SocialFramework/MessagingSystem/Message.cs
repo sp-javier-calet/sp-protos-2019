@@ -52,7 +52,7 @@ namespace SocialPoint.Social
         public override string ToString()
         {
             var builder = new StringBuilder();
-            builder.AppendFormat("Ori: {0} - Payld: {1} - Prop: ", _origin.GetIdentifier(), _payload.GetIdentifier());
+            builder.AppendFormat("Ori: {0} - Payld: {1} - Prop: ", _origin.Identifier, _payload.Identifier);
             using(var itr = _properties.GetEnumerator())
             {
                 while(itr.MoveNext())

@@ -1,12 +1,12 @@
 ﻿#if ADMIN_PANEL 
 
 using System;
-using System.Text;
 using System.Collections.Generic;
+using System.Text;
 using SocialPoint.AdminPanel;
 using SocialPoint.Base;
-using SocialPoint.WAMP;
 using SocialPoint.Connection;
+using SocialPoint.WAMP;
 
 namespace SocialPoint.Social
 {
@@ -30,14 +30,7 @@ namespace SocialPoint.Social
             set
             {
                 _chatManager = value;
-                if(_chatManager != null)
-                {
-                    _chatPanel = new AdminPanelSocialFrameworkChat(ChatManager, _console);
-                }
-                else
-                {
-                    _chatPanel = null;
-                }
+                _chatPanel = _chatManager != null ? new AdminPanelSocialFrameworkChat(ChatManager, _console) : null;
             }
         }
 
@@ -50,14 +43,7 @@ namespace SocialPoint.Social
             set
             {
                 _alliancesManager = value;
-                if(_alliancesManager != null)
-                {
-                    _alliancesPanel = new AdminPanelSocialFrameworkAlliances(AlliancesManager, _playersManager, _socialManager, _console);
-                }
-                else
-                {
-                    _alliancesPanel = null;
-                }
+                _alliancesPanel = _alliancesManager != null ? new AdminPanelSocialFrameworkAlliances(AlliancesManager, _playersManager, _socialManager, _console) : null;
             }
         }
 
@@ -70,14 +56,7 @@ namespace SocialPoint.Social
             set
             {
                 _messagesManager = value;
-                if(_messagesManager != null)
-                {
-                    _messagesPanel = new AdminPanelSocialFrameworkMessagingSystem(_console, MessagesManager);
-                }
-                else
-                {
-                    _messagesPanel = null;
-                }
+                _messagesPanel = _messagesManager != null ? new AdminPanelSocialFrameworkMessagingSystem(_console, MessagesManager) : null;
             }
         }
 

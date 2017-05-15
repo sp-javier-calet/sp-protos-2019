@@ -11,9 +11,12 @@ namespace SocialPoint.Social
             Alliance = alliance;
         }
 
-        public string GetIdentifier()
+        public string Identifier
         {
-            return Identifier;
+            get
+            {
+                return IdentifierKey;
+            }
         }
 
         public override string ToString()
@@ -21,7 +24,7 @@ namespace SocialPoint.Social
             return string.Format("[MessageOriginAlliance: Alliance={0}]", Alliance);
         }
 
-        public const string Identifier = "alliance";
+        public const string IdentifierKey = "alliance";
     }
 
     public sealed class MessageOriginAllianceFactory : IMessageOriginFactory

@@ -186,16 +186,16 @@ namespace SocialPoint.Social
 
             var msgInfo = dic.Get(ChatManager.ChatMessageInfoKey).AsDic;
             if(!Validate(msgInfo,
-                ChatMessageUserIdKey,
-                ChatMessageUserNameKey,
-                ChatMessageTsKey,
-                ChatMessageTextKey,
-                ChatMessageLevelKey,
-                ChatMessageAllyNameKey,
-                ChatMessageAllyIdKey,
-                ChatMessageAllyAvatarKey,
-                ChatMessageAllyRoleKey
-            ))
+                   ChatMessageUserIdKey,
+                   ChatMessageUserNameKey,
+                   ChatMessageTsKey,
+                   ChatMessageTextKey,
+                   ChatMessageLevelKey,
+                   ChatMessageAllyNameKey,
+                   ChatMessageAllyIdKey,
+                   ChatMessageAllyAvatarKey,
+                   ChatMessageAllyRoleKey
+               ))
             {
                 Log.e(Tag, "Received chat message of text type does not contain all the mandatory fields");
                 return new MessageType[0];
@@ -225,7 +225,7 @@ namespace SocialPoint.Social
                 ParseExtraInfo(message, msgInfo);
             }
 
-            return new MessageType[]{ message };
+            return new []{ message };
         }
 
         MessageType[] ParsePlayerJoinedMessage(int type, AttrDic dic)
@@ -238,14 +238,7 @@ namespace SocialPoint.Social
 
             var playerName = dic.GetValue(UserNameKey).ToString();
             var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerJoinedKey), playerName));
-            if(message == null)
-            {
-                return new MessageType[]{ };
-            }
-            else
-            {
-                return new MessageType[] { message };
-            }
+            return message == null ? new MessageType[] { } : new [] { message };
         }
 
         MessageType[] ParsePlayerLeftMessage(int type, AttrDic dic)
@@ -258,14 +251,7 @@ namespace SocialPoint.Social
 
             var playerName = dic.GetValue(UserNameKey).ToString();
             var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerLeftKey), playerName));
-            if(message == null)
-            {
-                return new MessageType[]{ };
-            }
-            else
-            {
-                return new MessageType[] { message };
-            }
+            return message == null ? new MessageType[] { } : new [] { message };
         }
 
         MessageType[] ParsePlayerKickedMessage(int type, AttrDic dic)
@@ -279,14 +265,7 @@ namespace SocialPoint.Social
             var kickedPlayerName = dic.GetValue(KickedUserNameKey).ToString();
             var adminPlayerName = dic.GetValue(AdminUserNameKey).ToString();
             var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerKickedKey), kickedPlayerName, adminPlayerName));
-            if(message == null)
-            {
-                return new MessageType[]{ };
-            }
-            else
-            {
-                return new MessageType[] { message };
-            }
+            return message == null ? new MessageType[] { } : new [] { message };
         }
 
         MessageType[] ParseMemberPromotedMessage(int type, AttrDic dic)
@@ -322,7 +301,7 @@ namespace SocialPoint.Social
             data.NewRank = newRank;
             message.MemberPromotionData = data;
 
-            return new MessageType[] { message };
+            return new [] { message };
         }
 
         MessageType[] ParseJoinRequestMessage(int type, AttrDic dic)
@@ -344,10 +323,10 @@ namespace SocialPoint.Social
                 ParseExtraInfo(message, dic);
             }
 
-            return new MessageType[] { message };
+            return new [] { message };
         }
 
-        bool Validate(AttrDic dic, params string[] requiredValues)
+        static bool Validate(AttrDic dic, params string[] requiredValues)
         {
             for(int i = 0; i < requiredValues.Length; ++i)
             {

@@ -14,9 +14,12 @@ namespace SocialPoint.Social
             Text = text;
         }
 
-        public string GetIdentifier()
+        public string Identifier
         {
-            return Identifier;
+            get
+            {
+                return IdentifierKey;
+            }
         }
 
         public AttrDic Serialize()
@@ -32,7 +35,7 @@ namespace SocialPoint.Social
             return string.Format("[MessagePayloadPlainText: Title={0}, Text={1}]", Title, Text);
         }
 
-        public const string Identifier = "plain_text";
+        public const string IdentifierKey = "plain_text";
     }
 
     public sealed class MessagePayloadPlainTextFactory : IMessagePayloadFactory

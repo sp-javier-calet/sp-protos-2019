@@ -4,12 +4,15 @@ namespace SocialPoint.Social
 {
     public class MessageOriginSystem : IMessageOrigin
     {
-        public string GetIdentifier()
+        public string Identifier
         {
-            return Identifier;
+            get
+            {
+                return IdentifierKey;
+            }
         }
 
-        public const string Identifier = "system";
+        public const string IdentifierKey = "system";
     }
 
     public sealed class MessageOriginSystemFactory : IMessageOriginFactory

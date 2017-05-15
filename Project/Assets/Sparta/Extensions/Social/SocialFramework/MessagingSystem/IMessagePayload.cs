@@ -4,7 +4,7 @@ namespace SocialPoint.Social
 {
     public interface IMessagePayload
     {
-        string GetIdentifier();
+        string Identifier { get; }
 
         AttrDic Serialize();
     }
