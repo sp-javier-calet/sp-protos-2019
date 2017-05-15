@@ -85,5 +85,13 @@ namespace SocialPoint.IO
         {
             _reader.Close();
         }
+
+        public bool Finished
+        {
+            get
+            {
+                return _reader.BaseStream.Position >= _reader.BaseStream.Length;
+            }
+        }
     }
 }

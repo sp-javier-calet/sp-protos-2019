@@ -5,13 +5,21 @@ using System;
 
 namespace SocialPoint.Network
 {
-    public sealed class LocalNetworkServer : INetworkServer
+    public interface ILocalNetworkServer : INetworkServer
+    {
+        byte OnClientConnecting(LocalNetworkClient client);
+        void OnClientConnected(LocalNetworkClient client);
+        void OnClientDisconnected(LocalNetworkClient client);
+        void OnLocalMessageReceived(LocalNetworkClient origin, ILocalNetworkMessage msg);
+        ILocalNetworkMessage CreateLocalMessage(NetworkMessageData data);
+    }
+
+    public sealed class LocalNetworkServer : ILocalNetworkServer
     {
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         Dictionary<LocalNetworkClient, byte> _clients = new Dictionary<LocalNetworkClient,byte>();
         List<LocalNetworkClient> _clientList = new List<LocalNetworkClient>();
         INetworkMessageReceiver _receiver;
-
 
         public bool Running{ get; private set; }
 
@@ -35,7 +43,7 @@ namespace SocialPoint.Network
             }
             _clientList.Clear();
             _clientList.AddRange(_clients.Keys);
-            for(var i=0; i<_clientList.Count; i++)
+            for(var i = 0; i < _clientList.Count; i++)
             {
                 _clientList[i].OnServerStarted();
             }
@@ -54,7 +62,7 @@ namespace SocialPoint.Network
             }
             _clientList.Clear();
             _clientList.AddRange(_clients.Keys);
-            for(var i=0; i<_clientList.Count; i++)
+            for(var i = 0; i < _clientList.Count; i++)
             {
                 _clientList[i].OnServerStopped();
             }
@@ -64,7 +72,7 @@ namespace SocialPoint.Network
         {
             _clientList.Clear();
             _clientList.AddRange(_clients.Keys);
-            for(var i=0; i<_clientList.Count; i++)
+            for(var i = 0; i < _clientList.Count; i++)
             {
                 _clientList[i].OnServerFailed(err);
             }
@@ -117,7 +125,7 @@ namespace SocialPoint.Network
             }
         }
 
-        public void OnLocalMessageReceived(LocalNetworkClient origin, LocalNetworkMessage msg)
+        public void OnLocalMessageReceived(LocalNetworkClient origin, ILocalNetworkMessage msg)
         {
             byte clientId;
             if(!_clients.TryGetValue(origin, out clientId))
@@ -137,6 +145,11 @@ namespace SocialPoint.Network
         }
 
         public INetworkMessage CreateMessage(NetworkMessageData info)
+        {
+            return CreateLocalMessage(info);
+        }
+
+        public ILocalNetworkMessage CreateLocalMessage(NetworkMessageData info)
         {
             if(!Running)
             {

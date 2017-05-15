@@ -134,13 +134,15 @@ namespace SocialPoint.Multiplayer
         [Test]
         public void NetworkGameObjectInitial()
         {
+            var g0 = new NetworkGameObject();
+            g0.Init(1, false, new Transform(
+                new JVector(1.0f, 2.3f, 4.2f),
+                new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                new JVector(2.0f, 1.0f, 2.0f)
+            )
+            );
             GenericInitial(
-                new NetworkGameObject(1, new Transform(
-                    new JVector(1.0f, 2.3f, 4.2f),
-                    new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
-                    new JVector(2.0f, 1.0f, 2.0f)
-                )
-                ),
+                g0,
                 new NetworkGameObjectSerializer(),
                 new NetworkGameObjectParser());
         }
@@ -148,39 +150,44 @@ namespace SocialPoint.Multiplayer
         [Test]
         public void NetworkGameObjectDiff()
         {
-            GenericDiff(
-                new NetworkGameObject(1, new Transform(
-                    new JVector(1.0f, 2.3f, 4.2f),
-                    new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
-                    new JVector(2.0f, 1.0f, 2.0f)
-                )
-                ),
-                new NetworkGameObject(1, new Transform(
-                    new JVector(1.0f, 3.3f, 4.2f),
-                    new JQuaternion(1.0f, 3.3f, 4.2f, 6.0f),
-                    new JVector(1.0f, 0.0f, 2.0f)
-                )
-                ),
-                new NetworkGameObjectSerializer(),
-                new NetworkGameObjectParser());
+            var g0 = new NetworkGameObject();
+            g0.Init(1, false, new Transform(
+                new JVector(1.0f, 2.3f, 4.2f),
+                new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
+                new JVector(2.0f, 1.0f, 2.0f)
+            )
+            );
+            var g1 = new NetworkGameObject();
+            g1.Init(1, false, new Transform(
+                new JVector(1.0f, 3.3f, 4.2f),
+                new JQuaternion(1.0f, 3.3f, 4.2f, 6.0f),
+                new JVector(1.0f, 0.0f, 2.0f)
+            )
+            );
+            GenericDiff(g0, g1, new NetworkGameObjectSerializer(), new NetworkGameObjectParser());
         }
 
         [Test]
         public void NetworkGameSceneInitial()
         {
             var scene = new NetworkScene();
-
-            scene.AddObject(new NetworkGameObject(1, new Transform(
+            var g0 = new NetworkGameObject();
+            g0.Init(1, false, new Transform(
                 new JVector(1.0f, 2.3f, 4.2f),
                 new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
                 new JVector(2.0f, 1.0f, 2.0f)
-            )));
+            )
+            );
+            scene.AddObject(g0);
 
-            scene.AddObject(new NetworkGameObject(2, new Transform(
+            var g1 = new NetworkGameObject();
+            g1.Init(2, false, new Transform(
                 new JVector(2.0f, 2.3f, 4.2f),
                 new JQuaternion(5.0f, 2.3f, 4.2f, 5.0f),
                 new JVector(3.0f, 1.0f, 2.0f)
-            )));
+            )
+            );
+            scene.AddObject(g1);
 
             GenericInitial(scene,
                 new NetworkSceneSerializer(),
@@ -192,25 +199,34 @@ namespace SocialPoint.Multiplayer
         {
             var scene = new NetworkScene();
 
-            scene.AddObject(new NetworkGameObject(1, new Transform(
+            var g0 = new NetworkGameObject();
+            g0.Init(1, false, new Transform(
                 new JVector(1.0f, 2.3f, 4.2f),
                 new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
                 new JVector(2.0f, 1.0f, 2.0f)
-            )));
+            )
+            );
+            scene.AddObject(g0);
 
             var scene2 = new NetworkScene();
 
-            scene2.AddObject(new NetworkGameObject(1, new Transform(
+            var g1 = new NetworkGameObject();
+            g1.Init(1, false, new Transform(
                 new JVector(1.0f, 2.3f, 4.6f),
                 new JQuaternion(3.0f, 2.3f, 4.2f, 5.0f),
                 new JVector(2.0f, 1.0f, 4.0f)
-            )));
+            )
+            );
+            scene2.AddObject(g1);
 
-            scene2.AddObject(new NetworkGameObject(2, new Transform(
+            var g2 = new NetworkGameObject();
+            g2.Init(2, false, new Transform(
                 new JVector(2.0f, 2.3f, 4.2f),
                 new JQuaternion(5.0f, 2.3f, 4.2f, 5.0f),
                 new JVector(3.0f, 1.0f, 2.1f)
-            )));
+            )
+            );
+            scene2.AddObject(g2);
 
             GenericDiff(scene2, scene,
                 new NetworkSceneSerializer(),
@@ -222,25 +238,34 @@ namespace SocialPoint.Multiplayer
         {
             var scene = new NetworkScene();
 
-            scene.AddObject(new NetworkGameObject(1, new Transform(
+            var g0 = new NetworkGameObject();
+            g0.Init(1, false, new Transform(
                 new JVector(1.0f, 2.3f, 4.2f),
                 new JQuaternion(1.0f, 2.3f, 4.2f, 5.0f),
                 new JVector(2.0f, 1.0f, 2.0f)
-            )));
+            )
+            );
+            scene.AddObject(g0);
 
-            scene.AddObject(new NetworkGameObject(2, new Transform(
+            var g1 = new NetworkGameObject();
+            g1.Init(2, false, new Transform(
                 new JVector(2.0f, 2.3f, 4.2f),
                 new JQuaternion(5.0f, 2.3f, 4.2f, 5.0f),
                 new JVector(3.0f, 1.0f, 2.1f)
-            )));
+            )
+            );
+            scene.AddObject(g1);
 
             var scene2 = new NetworkScene();
 
-            scene2.AddObject(new NetworkGameObject(1, new Transform(
+            var g2 = new NetworkGameObject();
+            g2.Init(1, false, new Transform(
                 new JVector(1.0f, 2.3f, 4.6f),
                 new JQuaternion(3.0f, 2.3f, 4.2f, 5.0f),
                 new JVector(2.0f, 1.0f, 4.0f)
-            )));
+            )
+            );
+            scene2.AddObject(g2);
 
             GenericDiff(scene2, scene,
                 new NetworkSceneSerializer(),

@@ -15,6 +15,12 @@
 namespace
 {
     int kMaxNumberOfPings = 3;
+    
+    void clearQueue(std::queue<std::string>& q)
+    {
+        std::queue<std::string> empty;
+        std::swap( q, empty );
+    }
 }
 
 
@@ -26,6 +32,9 @@ WebSocketConnection::WebSocketConnection()
 , _missingPong(0)
 , _state(State::Closed)
 , _errorCode(0)
+, _standby(false)
+, _standbyStartTime(0)
+, _standbyTimeout(10)
 {
 }
 
@@ -137,6 +146,10 @@ void WebSocketConnection::closeSocket()
         WebSocketsManager::get().remove(this);
         _websocket = nullptr;
         setState(State::Closed);
+        
+        endStandby();
+        clearQueue(_incomingQueue);
+        clearQueue(_outcomingQueue);
     }
 }
 
@@ -268,6 +281,19 @@ bool WebSocketConnection::onPingSent()
     return _missingPong >= kMaxNumberOfPings;
 }
 
+void WebSocketConnection::onPongReceived()
+{
+    if(_missingPong > 0)
+    {
+        _missingPong--;
+        
+        if(_standby && _missingPong == 0)
+        {
+            endStandby();
+        }
+    }
+}
+
 void WebSocketConnection::resetPing()
 {
     _pendingPings = 0;
@@ -276,9 +302,73 @@ void WebSocketConnection::resetPing()
 
 void WebSocketConnection::onWillGoBackground()
 {
-    closeSocket();
+    switch (_state)
+    {
+        case State::Open:
+        {
+            startStandby();
+            break;
+        }
+        case State::Connecting:
+        {
+            closeSocket();
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 void WebSocketConnection::onWasOnBackground()
 {
+    if(_standby)
+    {
+        startStandbyCountdown();
+        sendPing();
+    }
 }
+
+void WebSocketConnection::startStandby()
+{
+    _standby = true;
+    _standbyStartTime = 0;
+}
+
+void WebSocketConnection::endStandby()
+{
+    _standby = false;
+    _standbyStartTime = 0;
+}
+
+void WebSocketConnection::startStandbyCountdown()
+{
+    _standbyStartTime = std::time(nullptr);
+}
+
+void WebSocketConnection::checkStandbyTimeout()
+{
+    if(_standby && _standbyStartTime > 0)
+    {
+        std::time_t standbyElapsed = std::time(nullptr) - _standbyStartTime;
+        if(standbyElapsed >= _standbyTimeout)
+        {
+            closeSocket();
+        }
+    }
+}
+
+bool WebSocketConnection::inStandby()
+{
+    return _standby;
+}
+
+void WebSocketConnection::setStandbyTimeout(std::time_t timeout)
+{
+    _standbyTimeout = timeout;
+}
+
+void WebSocketConnection::update()
+{
+    checkStandbyTimeout();
+}
+

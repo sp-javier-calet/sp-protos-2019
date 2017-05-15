@@ -1,11 +1,11 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System;
-using System.Text;
-using System.IO;
+﻿using System;
 using System.Collections.Generic;
-using SpartaTools.Editor.Utils;
+using System.IO;
+using System.Text;
 using SpartaTools.Editor.SpartaProject;
+using SpartaTools.Editor.Utils;
+using UnityEditor;
+using UnityEngine;
 
 namespace SpartaTools.Editor.Build
 {
@@ -15,21 +15,21 @@ namespace SpartaTools.Editor.Build
 
         // Internal Unity paths may be different depending on the Unity version and the current platform
 
-        static readonly string[] UnityExtensionsAvailablePaths = new string[] {
+        static readonly string[] UnityExtensionsAvailablePaths = {
             "Unity.app/Contents/UnityExtensions/Unity/"
         };
 
-        static readonly string[] MonoFrameworkLibrariesAvailablePaths = new string[] { 
+        static readonly string[] MonoFrameworkLibrariesAvailablePaths = { 
             "Unity.app/Contents/Frameworks/Mono/lib/mono/2.0/",
             "Unity.app/Contents/Mono/lib/mono/2.0/" 
         };
 
-        static readonly string[] UnityManagedLibrariesAvailablePaths = new string[] {
+        static readonly string[] UnityManagedLibrariesAvailablePaths = {
             "Unity.app/Contents/Frameworks/Managed/",
             "Unity.app/Contents/Managed/" 
         };
 
-        static readonly string[] UnityMonoAvailablePaths = new string[] { 
+        static readonly string[] UnityMonoAvailablePaths = { 
             "Unity.app/Contents/Frameworks/Mono/bin/gmcs", 
             "Unity.app/Contents/Mono/bin/gmcs" 
         };
@@ -186,6 +186,7 @@ namespace SpartaTools.Editor.Build
 
         const string EditorFilter = "Editor";
         const string TestsFilter = "Tests";
+        const string StandaloneFilter = "Standalone/Photon";
         const string PlatformWSAFilter = "Plugins/WSA";
         const string PlatformUwpFilter = "Plugins/Uwp";
         const string PlatformAndroidFilter = "Plugins/Android";
@@ -231,6 +232,7 @@ namespace SpartaTools.Editor.Build
             _filters.Add(PlatformUwpFilter, new FilterData(PlatformUwpFilter));
             _filters.Add(PlatformAndroidFilter, new FilterData(PlatformAndroidFilter));
             _filters.Add(PlatformIosFilter, new FilterData(PlatformIosFilter));
+            _filters.Add(StandaloneFilter, new FilterData(StandaloneFilter));
 
             // Initialize log entry
             _logContent.Append(Path.GetFileName(name)).AppendLine(" module compilation");
@@ -715,7 +717,7 @@ namespace SpartaTools.Editor.Build
         class ExtensionModuleConfiguration : ICompilerConfiguration
         {
             BuildTarget _target;
-            bool _editorAssembly;
+            readonly bool _editorAssembly;
 
             public ExtensionModuleConfiguration(BuildTarget target, bool editorAssembly)
             {

@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System;
 
 namespace SocialPoint.Utils
 {
@@ -8,16 +7,37 @@ namespace SocialPoint.Utils
         float _startTime = 0f;
         float _endTime = 0f;
         bool _isCanceled = false;
+        bool _ignoreTimeScale = false;
+        IGameTime _gameTime;
 
+        #if UNITY_5_3_OR_NEWER
         public Timer()
+        {
+            _gameTime = new UnityGameTime();
+            Reset();
+        }
+        #endif
+
+        public Timer(IGameTime gameTime)
+        {
+            _gameTime = gameTime;
+            Reset();
+        }
+
+        void Reset()
         {
             _startTime = 0f;
             _endTime = 0f;
         }
 
+        float GetCurrentTime()
+        {
+            return _ignoreTimeScale ? _gameTime.UnscaledTime : _gameTime.Time;
+        }
+
         public void Wait(float waitTime)
         {
-            _startTime = Time.timeSinceLevelLoad;
+            _startTime = GetCurrentTime();
             _endTime = _startTime + waitTime;
             _isCanceled = false;
         }
@@ -30,7 +50,7 @@ namespace SocialPoint.Utils
                 {
                     return false;
                 }
-                return Time.timeSinceLevelLoad < _endTime;
+                return !IsFinished;
             }
         }
 
@@ -42,7 +62,15 @@ namespace SocialPoint.Utils
                 {
                     return false;
                 }
-                return Time.timeSinceLevelLoad >= _endTime;
+                return GetCurrentTime() >= _endTime;
+            }
+        }
+
+        public float Duration
+        {
+            get
+            {
+                return _endTime - _startTime;
             }
         }
 
@@ -55,7 +83,7 @@ namespace SocialPoint.Utils
         {
             get
             {
-                return Time.timeSinceLevelLoad - _startTime;
+                return Math.Max(GetCurrentTime() - _startTime, 0f);
             }
         }
 
@@ -65,7 +93,19 @@ namespace SocialPoint.Utils
             {
                 float dt = Delta / (_endTime - _startTime);
 
-                return Mathf.Clamp(dt, 0f, 1f);
+                return Math.Min(Math.Max(dt, 0f), 1f);
+            }
+        }
+
+        public bool IgnoreTimeScale
+        {
+            get
+            {
+                return _ignoreTimeScale;
+            }
+            set
+            {
+                _ignoreTimeScale = value;
             }
         }
     }
