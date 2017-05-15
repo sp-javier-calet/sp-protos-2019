@@ -32,7 +32,7 @@ namespace SocialPoint.Social
 
         #region RPC methods
 
-        const string ChatReportUserKey = "chat.report.user";
+        const string ChatReportUserMethod = "chat.report.user";
 
         #endregion
 
@@ -229,7 +229,7 @@ namespace SocialPoint.Social
             var dicData = report.Serialize();
             dicData.SetValue(UserIdKey, _socialManager.LocalPlayer.Uid);
 
-            _connection.Call(ChatReportUserKey, null, dicData, null);
+            _connection.Call(ChatReportUserMethod, null, dicData, null);
         }
 
         void ProcessReports(AttrList listReports)
