@@ -1115,6 +1115,12 @@ namespace AssetBundleGraph
             }
         }
 
+        void OnLostFocus()
+        {
+            EditorWindow.GetWindow<AssetBundleGraphEditorWindow>().SaveGraph();
+        }
+
+
 
         public override void OnInspectorGUI()
         {

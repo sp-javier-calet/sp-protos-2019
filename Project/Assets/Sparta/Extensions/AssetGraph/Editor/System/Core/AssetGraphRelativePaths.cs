@@ -146,7 +146,7 @@ namespace AssetBundleGraph
                     }
                     Directory.Move(dirFolder, newDir);
                 }
-                Directory.Delete(oldSettingsPath);
+                Directory.Delete(oldSettingsPath, true);
 
                 EditorUtility.DisplayDialog("AssetGraph Upgrade", "The AssetGraph Settings folder has been auto relocated due to a version upgrade, before commiting please open the Graph and check if it is correct and has not been corrupted.\n\nIf you have any doubts contact the Tools department.", "Ok");
             }

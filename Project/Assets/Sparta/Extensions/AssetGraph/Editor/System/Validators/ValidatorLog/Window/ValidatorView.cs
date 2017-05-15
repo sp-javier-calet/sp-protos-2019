@@ -252,7 +252,7 @@ namespace AssetBundleGraph
                                 }
                                 else
                                 {
-                                    Selection.activeGameObject = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(entry.invalidObject.AssetId));
+                                    Selection.activeObject = AssetDatabase.LoadAssetAtPath<Object>(AssetDatabase.GUIDToAssetPath(entry.invalidObject.AssetId));
                                 }
                             }
 

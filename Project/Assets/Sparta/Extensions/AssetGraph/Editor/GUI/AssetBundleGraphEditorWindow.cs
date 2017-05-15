@@ -440,7 +440,7 @@ namespace AssetBundleGraph
             return id + 1;
         }
 
-        private void SaveGraph()
+        public void SaveGraph()
         {
             SaveData newSaveData = new SaveData(graphGUI.Nodes, graphGUI.Connections);
             newSaveData.Save();
