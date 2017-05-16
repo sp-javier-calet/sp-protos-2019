@@ -4,123 +4,145 @@ using System;
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Scene auto loader.
-/// </summary>
-/// <description>
-/// This class adds a File > Scene Autoload menu containing options to select
-/// a "master scene" enable it to be auto-loaded when the user presses play
-/// in the editor. When enabled, the selected scene will be loaded on play,
-/// then the original scene will be reloaded on stop.
-///
-/// Based on an idea on this thread:
-/// http://forum.unity3d.com/threads/157502-Executing-first-scene-in-build-settings-when-pressing-play-button-in-editor
-/// </description>
-[InitializeOnLoad]
-static class SceneAutoLoader
+namespace SpartaTools.Editor.Utils
 {
-    // Static constructor binds a playmode-changed callback.
-    // [InitializeOnLoad] above makes sure this gets executed.
-    static SceneAutoLoader()
+    /// <summary>
+    /// Scene auto loader.
+    /// </summary>
+    /// <description>
+    /// This class adds a Sparta > Scene Autoload menu containing options to select
+    /// a "master scene" enable it to be auto-loaded when the user presses play
+    /// in the editor. When enabled, the selected scene will be loaded on play,
+    /// then the original scene will be reloaded on stop.
+    ///
+    /// Based on an idea on this thread:
+    /// http://forum.unity3d.com/threads/157502-Executing-first-scene-in-build-settings-when-pressing-play-button-in-editor
+    /// </description>
+    [InitializeOnLoad]
+    static class SceneAutoLoader
     {
-        EditorApplication.playmodeStateChanged += OnPlayModeChanged;
-    }
-
-    // Menu items to select the "master" scene and control whether or not to load it.
-    [MenuItem("Sparta/Scene Autoload/Select Master Scene...")]
-    static void SelectMasterScene()
-    {
-        string masterScene = EditorUtility.OpenFilePanel("Select Master Scene", Application.dataPath, "unity");
-        if (!string.IsNullOrEmpty(masterScene))
+        // Static constructor binds a playmode-changed callback.
+        // [InitializeOnLoad] above makes sure this gets executed.
+        static SceneAutoLoader()
         {
-            MasterScene = masterScene;
+            EditorApplication.playmodeStateChanged += OnPlayModeChanged;
+        }
+
+        // Menu items to select the "master" scene and control whether or not to load it.
+        [MenuItem("Sparta/Scene Autoload/Select Master Scene...", false, 1501)]
+        static void SelectMasterScene()
+        {
+            string masterScene = EditorUtility.OpenFilePanel("Select Master Scene", Application.dataPath, "unity");
+            if(!string.IsNullOrEmpty(masterScene))
+            {
+                MasterScene = masterScene;
+                LoadMasterOnPlay = true;
+            }
+        }
+
+        [MenuItem("Sparta/Scene Autoload/Load Master On Play", true)]
+        static bool ShowLoadMasterOnPlay()
+        {
+            return !LoadMasterOnPlay;
+        }
+
+        [MenuItem("Sparta/Scene Autoload/Load Master On Play", false, 1502)]
+        static void EnableLoadMasterOnPlay()
+        {
             LoadMasterOnPlay = true;
         }
-    }
 
-    [MenuItem("Sparta/Scene Autoload/Load Master On Play", true)]
-    static bool ShowLoadMasterOnPlay()
-    {
-        return !LoadMasterOnPlay;
-    }
-    [MenuItem("Sparta/Scene Autoload/Load Master On Play")]
-    static void EnableLoadMasterOnPlay()
-    {
-        LoadMasterOnPlay = true;
-    }
-
-    [MenuItem("Sparta/Scene Autoload/Don't Load Master On Play", true)]
-    static bool ShowDontLoadMasterOnPlay()
-    {
-        return LoadMasterOnPlay;
-    }
-    [MenuItem("Sparta/Scene Autoload/Don't Load Master On Play")]
-    static void DisableLoadMasterOnPlay()
-    {
-        LoadMasterOnPlay = false;
-    }
-
-    // Play mode change callback handles the scene load/reload.
-    static void OnPlayModeChanged()
-    {
-        if (!LoadMasterOnPlay)
+        [MenuItem("Sparta/Scene Autoload/Don't Load Master On Play", true)]
+        static bool ShowDontLoadMasterOnPlay()
         {
-            return;
+            return LoadMasterOnPlay;
         }
 
-        if (!EditorApplication.isPlaying && EditorApplication.isPlayingOrWillChangePlaymode)
+        [MenuItem("Sparta/Scene Autoload/Don't Load Master On Play", false, 1503)]
+        static void DisableLoadMasterOnPlay()
         {
-            // User pressed play -- autoload master scene.
-            PreviousScene = SceneManager.GetActiveScene().path;
-            if (EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
+            LoadMasterOnPlay = false;
+        }
+
+        // Play mode change callback handles the scene load/reload.
+        static void OnPlayModeChanged()
+        {
+            if(!LoadMasterOnPlay)
             {
-                var scene = EditorSceneManager.OpenScene(MasterScene);
-                if (!scene.IsValid())
+                return;
+            }
+
+            if(!EditorApplication.isPlaying && EditorApplication.isPlayingOrWillChangePlaymode)
+            {
+                // User pressed play -- autoload master scene.
+                PreviousScene = SceneManager.GetActiveScene().path;
+                if(EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
                 {
-                    Debug.LogError(string.Format("error: scene not found: {0}", MasterScene));
+                    var scene = EditorSceneManager.OpenScene(MasterScene);
+                    if(!scene.IsValid())
+                    {
+                        Debug.LogError(string.Format("error: scene not found: {0}", MasterScene));
+                        EditorApplication.isPlaying = false;
+                    }
+                }
+                else
+                {
+                    // User cancelled the save operation -- cancel play as well.
                     EditorApplication.isPlaying = false;
                 }
             }
-            else
+
+            // isPlaying check required because cannot OpenScene while playing
+            if(!EditorApplication.isPlaying && !EditorApplication.isPlayingOrWillChangePlaymode)
             {
-                // User cancelled the save operation -- cancel play as well.
-                EditorApplication.isPlaying = false;
+                // User pressed stop -- reload previous scene.
+                var scene = EditorSceneManager.OpenScene(PreviousScene);
+                if(!scene.IsValid())
+                {
+                    Debug.LogError(string.Format("error: scene not found: {0}", PreviousScene));
+                }
             }
         }
 
-        // isPlaying check required because cannot OpenScene while playing
-        if (!EditorApplication.isPlaying && !EditorApplication.isPlayingOrWillChangePlaymode)
+        // Properties are remembered as editor preferences.
+        const string EditorPrefLoadMasterOnPlay = "SceneAutoLoader.LoadMasterOnPlay";
+        const string EditorPrefMasterScene = "SceneAutoLoader.MasterScene";
+        const string EditorPrefPreviousScene = "SceneAutoLoader.PreviousScene";
+
+        static bool LoadMasterOnPlay
         {
-            // User pressed stop -- reload previous scene.
-            var scene = EditorSceneManager.OpenScene(PreviousScene);
-            if (!scene.IsValid())
+            get 
             {
-                Debug.LogError(string.Format("error: scene not found: {0}", PreviousScene));
+                return Convert.ToBoolean(PlayerPrefs.GetInt(EditorPrefLoadMasterOnPlay, 0)); 
+            }
+            set
+            {
+                PlayerPrefs.SetInt(EditorPrefLoadMasterOnPlay, Convert.ToInt32(value)); 
+            }
+        }
+
+        static string MasterScene
+        {
+            get
+            {
+                return PlayerPrefs.GetString(EditorPrefMasterScene, "Sparta/SocialPoint/IntroAnimation/IntroAnimation.unity"); 
+            }
+            set
+            {
+                PlayerPrefs.SetString(EditorPrefMasterScene, value); 
+            }
+        }
+
+        static string PreviousScene
+        {
+            get 
+            {
+                return PlayerPrefs.GetString(EditorPrefPreviousScene, SceneManager.GetActiveScene().path); 
+            }
+            set
+            {
+                PlayerPrefs.SetString(EditorPrefPreviousScene, value); 
             }
         }
     }
-
-    // Properties are remembered as editor preferences.
-    const string cEditorPrefLoadMasterOnPlay = "SceneAutoLoader.LoadMasterOnPlay";
-    const string cEditorPrefMasterScene = "SceneAutoLoader.MasterScene";
-    const string cEditorPrefPreviousScene = "SceneAutoLoader.PreviousScene";
-
-    static bool LoadMasterOnPlay
-    {
-        get { return Convert.ToBoolean(PlayerPrefs.GetInt(cEditorPrefLoadMasterOnPlay, 0));}
-        set { PlayerPrefs.SetInt(cEditorPrefLoadMasterOnPlay, Convert.ToInt32(value)); }
-    }
-
-    static string MasterScene
-    {
-        get { return PlayerPrefs.GetString(cEditorPrefMasterScene, "Master.unity"); }
-        set { PlayerPrefs.SetString(cEditorPrefMasterScene, value); }
-    }
-
-    static string PreviousScene
-    {
-        get { return PlayerPrefs.GetString(cEditorPrefPreviousScene, SceneManager.GetActiveScene().path); }
-        set { PlayerPrefs.SetString(cEditorPrefPreviousScene, value); }
-    }
-
 }
