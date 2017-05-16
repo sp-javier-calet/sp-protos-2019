@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+using UnityEngine;
+#endif
 using SocialPoint.IO;
 using SocialPoint.Base;
 
@@ -17,14 +19,14 @@ namespace SocialPoint.Network
         {
             string proxy = null;
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             var proxyPath = FileUtils.Combine(Application.dataPath, ProxyFilePath);
             if(FileUtils.ExistsFile(proxyPath))
             {
                 proxy = FileUtils.ReadAllText(proxyPath).Trim();
                 Log.i(string.Format("Using editor proxy '{0}'", proxy));
             }
-            #endif
+#endif
 
             return proxy;
         }

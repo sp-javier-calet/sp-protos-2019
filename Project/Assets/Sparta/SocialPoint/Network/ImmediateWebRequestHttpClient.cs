@@ -1,9 +1,6 @@
 using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Net;
-using SocialPoint.Base;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -18,12 +15,25 @@ namespace SocialPoint.Network
         }
     }
 
-
     public class ImmediateWebRequestHttpClient : IHttpClient
     {
         const int BufferLength = 16 * 1024;
 
         public event HttpRequestDelegate RequestSetup;
+
+        public ImmediateWebRequestHttpClient()
+        {
+            RequestSetup += OnRequestSetup;
+        }
+
+        static void OnRequestSetup(HttpRequest req)
+        {
+            var editorProxy = EditorProxy.GetProxy();
+            if(string.IsNullOrEmpty(req.Proxy) && !string.IsNullOrEmpty(editorProxy))
+            {
+                req.Proxy = editorProxy;
+            }
+        }
 
         public IHttpConnection Send(HttpRequest request, HttpResponseDelegate del = null)
         {
@@ -34,6 +44,7 @@ namespace SocialPoint.Network
             request.Timeout = 0.0f;
             request.ActivityTimeout = 0.0f;
             var webRequest = WebRequestUtils.ConvertRequest(request);
+
             if(request.Body != null)
             {
                 var reqStream = webRequest.GetRequestStream();
@@ -55,12 +66,12 @@ namespace SocialPoint.Network
                     throw;
                 }
             }
-            if (webResponse == null)
+            if(webResponse == null)
             {
                 throw new InvalidOperationException("Could not get a response object.");
             }
             var respStream = webResponse.GetResponseStream();
-            byte[] buffer = new byte[BufferLength];
+            var buffer = new byte[BufferLength];
             var ms = new MemoryStream();
             int read;
             while((read = respStream.Read(buffer, 0, buffer.Length)) > 0)
@@ -93,9 +104,7 @@ namespace SocialPoint.Network
 
         public void Dispose()
         {
+            RequestSetup -= OnRequestSetup;
         }
-
-
-
     }
 }
