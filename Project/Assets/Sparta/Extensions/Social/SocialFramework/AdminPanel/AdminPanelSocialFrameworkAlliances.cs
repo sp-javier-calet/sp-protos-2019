@@ -131,9 +131,9 @@ namespace SocialPoint.Social
                 get
                 {
                     bool ret = true;
-                    ret |= !string.IsNullOrEmpty(_data.Name);
-                    ret |= !string.IsNullOrEmpty(_data.Description);
-                    ret |= !string.IsNullOrEmpty(_data.Message);
+                    ret &= !string.IsNullOrEmpty(_data.Name);
+                    ret &= !string.IsNullOrEmpty(_data.Description);
+                    ret &= !string.IsNullOrEmpty(_data.Message);
                     return ret;
                 }
             }
