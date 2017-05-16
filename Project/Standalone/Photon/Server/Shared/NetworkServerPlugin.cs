@@ -58,9 +58,7 @@ namespace SocialPoint.Network
         protected string BackendEnv { get; private set; }
 
         const byte FailEventCode = 199;
-        const byte EventContentParam = 245;        
-	const byte ErrorInfoCode = 251;
-        const byte ParameterCodeData = 245;
+        const byte EventContentParam = 245;
         const byte MaxPlayersKey = 255;
         const byte IsOpenKey = 253;
         const byte MasterClientIdKey = 248;
