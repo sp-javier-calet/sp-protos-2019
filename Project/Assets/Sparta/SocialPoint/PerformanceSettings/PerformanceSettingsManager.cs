@@ -94,16 +94,7 @@ namespace SocialPoint.PerformanceSettings
 
         void Init(AttrDic config)
         {
-            if(_data.ContainsKey(kDefaultSettings))
-            {
-                _data[kDefaultSettings] = new PerformanceSettingsData(config);
-            }
-            else
-            {
-                _data.Add(kDefaultSettings, new PerformanceSettingsData(config));
-            }
-            
-
+            _data[kDefaultSettings] = new PerformanceSettingsData(config);
 
             ApplyPerformanceSettings(kDefaultSettings);	
         }
@@ -114,17 +105,7 @@ namespace SocialPoint.PerformanceSettings
             while(itr.MoveNext())
             {
                 var pair = itr.Current;
-
-                if(_data.ContainsKey(pair.Key))
-                {
-                    _data[pair.Key] = new PerformanceSettingsData(pair.Value.AsDic);
-                }
-                else
-                {
-                    _data.Add(pair.Key, new PerformanceSettingsData(pair.Value.AsDic));
-                }
-
-
+                _data[pair.Key] = new PerformanceSettingsData(pair.Value.AsDic);
             }
             itr.Dispose();
 
@@ -211,7 +192,7 @@ namespace SocialPoint.PerformanceSettings
             {
                 ExtraApplier.Apply(settings.Settings);
             }
-       }
+        }
 
         public void Dispose()
         {
