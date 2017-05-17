@@ -8,10 +8,6 @@
 		<data>
 		TXKJCLOspThBSoLPXb3MeiZdiwc=
 		</data>
-		<key>Headers/SPUnityNativeUtils.h</key>
-		<data>
-		ww4zYT1Q/WHJuM5F5uzdP91Wecc=
-		</data>
 		<key>Headers/SPUnitySubController.h</key>
 		<data>
 		FV+U/41Yas5s4ywxl9AFbqxp0VU=
@@ -40,17 +36,6 @@
 			<key>hash2</key>
 			<data>
 			f6cN3ea50RtX05jG3la+K2IoUKxeaKHrjudJWPybdO4=
-			</data>
-		</dict>
-		<key>Headers/SPUnityNativeUtils.h</key>
-		<dict>
-			<key>hash</key>
-			<data>
-			ww4zYT1Q/WHJuM5F5uzdP91Wecc=
-			</data>
-			<key>hash2</key>
-			<data>
-			caRn8a2vorjo1fsMV/cFNIxUlSC7aNgT1Zg14q9Fgp0=
 			</data>
 		</dict>
 		<key>Headers/SPUnitySubController.h</key>
