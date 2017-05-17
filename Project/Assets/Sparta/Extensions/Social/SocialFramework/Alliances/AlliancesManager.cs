@@ -57,7 +57,6 @@ namespace SocialPoint.Social
         public const string UserIdKey = "user_id";
 
         const string AllianceIdKey = "alliance_id";
-        const string AllianceShortIdKey = "id";
         public const string AvatarKey = "avatar";
         public const string AllianceDescriptionKey = "description";
         public const string AllianceMessageKey = "welcome_message";
@@ -286,8 +285,8 @@ namespace SocialPoint.Social
 
         void OnAllianceCreated(Alliance data, AttrDic result)
         {
-            DebugUtils.Assert(result.Get(AllianceShortIdKey).IsValue);
-            var id = result.GetValue(AllianceShortIdKey).ToString();
+            DebugUtils.Assert(result.Get(AllianceIdKey).IsValue);
+            var id = result.GetValue(AllianceIdKey).ToString();
 
             var basicComponent = GetLocalBasicData();
             basicComponent.Id = id;
