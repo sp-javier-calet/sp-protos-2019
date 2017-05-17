@@ -17,5 +17,6 @@
         public const string ChatPlayerLeftKey = "socialFramework.ChatPlayerLeft";
         public const string ChatPlayerKickedKey = "socialFramework.ChatPlayerKicked";
         public const string ChatJoinRequestKey = "socialFramework.ChatJoinRequest";
+        public const string ChatPlayerAcceptedKey = "socialFramework.ChatAcceptedPlayer";
     }
 }

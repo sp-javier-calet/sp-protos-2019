@@ -135,6 +135,7 @@ namespace SocialPoint.GameLoading
         readonly IAlertView _alert;
         readonly Localization _locale;
         readonly IAppEvents _appEvents;
+        readonly int _restartScene;
 
         UIStackController _popups;
         Func<UIStackController> _findPopups;
@@ -143,11 +144,12 @@ namespace SocialPoint.GameLoading
 
         public string Signature { set; private get; }
 
-        public GameErrorHandler(IAlertView alert, Localization locale, IAppEvents appEvents, Func<UIStackController> findPopups)
+        public GameErrorHandler(IAlertView alert, Localization locale, IAppEvents appEvents, Func<UIStackController> findPopups, int restartScene = 0)
         {
             _alert = alert;
             _locale = locale;
             _appEvents = appEvents;
+            _restartScene = restartScene;
             _findPopups = findPopups;
             Debug = DebugUtils.IsDebugBuild;
 
@@ -326,7 +328,7 @@ namespace SocialPoint.GameLoading
             alert.Buttons = new [] {
                 _locale.Get(SyncButtonKey, SyncButtonDef)
             };
-            alert.Show(i => _appEvents.RestartGame());
+            alert.Show(i => _appEvents.RestartGame(_restartScene));
         }
 
         public virtual void ShowLink(ILink link, LinkConfirmType linkConfirmType, Attr data, ConfirmBackLinkDelegate cbk)

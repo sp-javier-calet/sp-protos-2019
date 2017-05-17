@@ -5,6 +5,8 @@ namespace SocialPoint.Social
 {
     public abstract class BaseFacebook : IFacebook
     {
+        public bool InitializedFriends {get; set;}
+
         public event FacebookStateChangeDelegate StateChangeEvent;
 
         protected void NotifyStateChanged()

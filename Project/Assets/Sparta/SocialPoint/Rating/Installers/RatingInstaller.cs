@@ -22,6 +22,7 @@ namespace SocialPoint.Rating
             public long DaysBeforeReminding = AppRater.DefaultDaysBeforeReminding;
             public int UserLevelUntilPrompt = AppRater.DefaultUserLevelUntilPrompt;
             public int MaxPromptsPerDay = AppRater.DefaultMaxPromptsPerDay;
+            public bool PromptAfterBackground = true;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -49,10 +50,16 @@ namespace SocialPoint.Rating
 
         AppRater CreateAppRater()
         {
+            IAppEvents appEvents = null;
+            if(Settings.PromptAfterBackground)
+            {
+                appEvents = Container.Resolve<IAppEvents>();
+            }
+
             return new AppRater(
                 Container.Resolve<IDeviceInfo>(),
                 Container.Resolve<IAttrStorage>("volatile"),
-                Container.Resolve<IAppEvents>());
+                appEvents);
         }
 
         void SetupAppRater(AppRater rater)

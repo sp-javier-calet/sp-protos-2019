@@ -461,6 +461,9 @@ namespace SocialPoint.Social
 
     public interface IFacebook
     {
+
+        bool InitializedFriends { get; set; }
+
         event FacebookStateChangeDelegate StateChangeEvent;
 
         string GetFriendsIds(FacebookFriendFilterDelegate includeFriend = null);
