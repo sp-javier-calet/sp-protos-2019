@@ -357,12 +357,6 @@ namespace SocialPoint.Social
                     callback(null);
                 }
 
-                current.Description = data.Description;
-                current.Message = data.Message;
-                current.Avatar = data.Avatar;
-                current.AccessType = data.AccessType;
-                current.Requirement = data.Requirement;
-
                 NotifyAllianceEvent(AllianceAction.AllianceDataEdited, rDic);
             });
         }
