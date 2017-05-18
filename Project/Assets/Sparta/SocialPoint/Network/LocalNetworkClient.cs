@@ -12,6 +12,7 @@ namespace SocialPoint.Network
         ILocalNetworkServer _server;
 
         public byte ClientId{ get; private set; }
+
         public bool Connected{ get; private set; }
 
         public LocalNetworkClient(ILocalNetworkServer server)

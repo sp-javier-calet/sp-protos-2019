@@ -52,7 +52,7 @@ namespace SocialPoint.Login
          */
         LooseToLinked
     }
-    
+
     public enum LinkConfirmDecision
     {
         /**
@@ -87,7 +87,7 @@ namespace SocialPoint.Login
          * meaning that the app version is not supported and should be updated
          */
         Upgrade,
-        
+
         /**
          * Not managed http error code on login
          */
@@ -192,7 +192,14 @@ namespace SocialPoint.Login
         /**
          * Error parsing the game data
          */
-        GameDataParse
+        GameDataParse,
+
+        /**
+         * 
+         * Error getting RootedDeviceError http code on login
+         * 
+         * */
+        Rooted,
     }
 
     public static class ErrorTypeExtensions
@@ -202,7 +209,7 @@ namespace SocialPoint.Login
             return type == ErrorType.Link || type == ErrorType.LinkConfirm || type == ErrorType.LinkConfirmParse || type == ErrorType.LinkLogin || type == ErrorType.LinkParse;
         }
     }
-    
+
     public enum LinkMode
     {
         /**
@@ -223,7 +230,7 @@ namespace SocialPoint.Login
          */
         Manual
     }
-    
+
     public enum LinkState
     {
         Connected,

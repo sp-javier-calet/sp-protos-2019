@@ -149,6 +149,10 @@ namespace SocialPoint.Matchmaking
             OnMatched(match);
         }
 
+        void IMatchmakingClientDelegate.OnStopped(bool successful)
+        {
+        }
+
         void IMatchmakingClientDelegate.OnError(Error err)
         {
             for(var i=0; i<_delegates.Count; i++)
