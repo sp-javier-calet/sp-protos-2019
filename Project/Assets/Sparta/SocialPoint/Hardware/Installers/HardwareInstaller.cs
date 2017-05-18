@@ -1,6 +1,7 @@
 ﻿using System;
 using SocialPoint.Dependency;
 using SocialPoint.Hardware;
+using SocialPoint.Utils;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -11,6 +12,13 @@ namespace SocialPoint.Hardware
     public class HardwareInstaller : ServiceInstaller
     {
         [Serializable]
+        public struct AnalyzerSettings
+        {
+            public StorageAnalyzerConfig Config;
+            public StorageUnit ConfigStorageUnit;
+        }
+
+        [Serializable]
         public class SettingsData
         {
             public string AppSeedId;
@@ -19,6 +27,8 @@ namespace SocialPoint.Hardware
             public string AppShortVersion;
             public string AppLanguage;
             public string AppCountry;
+
+            public AnalyzerSettings AnalyzerSettings;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -30,6 +40,7 @@ namespace SocialPoint.Hardware
             Container.Rebind<IStorageInfo>().ToGetter<IDeviceInfo>(x => x.StorageInfo);
             Container.Rebind<IAppInfo>().ToGetter<IDeviceInfo>(x => x.AppInfo);
             Container.Rebind<INetworkInfo>().ToGetter<IDeviceInfo>(x => x.NetworkInfo);
+            Container.Rebind<IStorageAnalyzer>().ToMethod<StorageAnalyzer>(CreateStorageAnalyzer);
 
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelHardware>(CreateAdminPanel);
@@ -79,6 +90,21 @@ namespace SocialPoint.Hardware
                     appInfo.ShortVersion = Settings.AppShortVersion;
                 }
             }
+        }
+
+        StorageAnalyzer CreateStorageAnalyzer()
+        {
+            var settingsConfig = Settings.AnalyzerSettings.Config;
+            settingsConfig.FreeStorageWarning = StorageUtils.TransformStorageUnit(
+                settingsConfig.FreeStorageWarning,
+                Settings.AnalyzerSettings.ConfigStorageUnit,
+                StorageUnit.Bytes);
+            
+            return new StorageAnalyzer(
+                Container.Resolve<IStorageInfo>(),
+                Container.Resolve<IUpdateScheduler>(),
+                settingsConfig
+            );
         }
 
         #if ADMIN_PANEL

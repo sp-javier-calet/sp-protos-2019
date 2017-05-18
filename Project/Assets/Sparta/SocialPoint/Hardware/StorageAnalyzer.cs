@@ -3,43 +3,92 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Hardware
 {
-    public class StorageAnalyzer : IUpdateable, IDisposable
+    [Serializable]
+    public struct StorageAnalyzerConfig
     {
-        [Serializable]
-        public struct Config
+        public float AnalysisInterval;
+        public ulong FreeStorageWarning;
+    }
+
+    public interface IStorageAnalyzer : IDisposable
+    {
+        StorageAnalyzerConfig Config { get; set; }
+
+        bool Running { get; }
+
+        void Start();
+
+        void Stop();
+
+        void RegisterLowStorageWarningHandler(Action handler);
+
+        void UnregisterLowStorageWarningHandler(Action handler);
+    }
+
+    public class StorageAnalyzer : IStorageAnalyzer, IUpdateable
+    {
+        public StorageAnalyzerConfig Config
         {
-            public ulong FreeStorageWarning;
-            public float UpdateInterval;
+            get
+            {
+                return _config;
+            }
+            set
+            {
+                _config = value;
+                if(Running)
+                {
+                    Start();
+                }
+            }
         }
 
-        public Action<ulong> OnLowStorageWarning;
+        public bool Running
+        {
+            get;
+            private set;
+        }
 
-        Config _config;
+        StorageAnalyzerConfig _config;
         IStorageInfo _storageInfo;
-        UpdateScheduler _scheduler;
+        IUpdateScheduler _scheduler;
+        Action _onLowStorageWarning;
 
-        public StorageAnalyzer(IStorageInfo storageInfo, UpdateScheduler scheduler, Config config)
+        public StorageAnalyzer(IStorageInfo storageInfo, IUpdateScheduler scheduler, StorageAnalyzerConfig config)
         {
             _storageInfo = storageInfo;
             _scheduler = scheduler;
             _config = config;
-            Start();
         }
 
         public void Dispose()
         {
             Stop();
+            _storageInfo = null;
+            _scheduler = null;
         }
 
         public void Start()
         {
             Stop();
-            _scheduler.Add(this, _config.UpdateInterval);
+            _scheduler.Add(this, _config.AnalysisInterval);
+            Running = true;
         }
 
         public void Stop()
         {
             _scheduler.Remove(this);
+            Running = false;
+        }
+
+        public void RegisterLowStorageWarningHandler(Action handler)
+        {
+            _onLowStorageWarning += handler;
+        }
+
+        public void UnregisterLowStorageWarningHandler(Action handler)
+        {
+            _onLowStorageWarning -= handler;
         }
 
         public void Update()
@@ -58,9 +107,9 @@ namespace SocialPoint.Hardware
 
         void RaiseLowStorageWarning(ulong freeStorage)
         {
-            if(OnLowStorageWarning != null)
+            if(_onLowStorageWarning != null)
             {
-                OnLowStorageWarning(freeStorage);
+                _onLowStorageWarning();
             }
         }
     }
