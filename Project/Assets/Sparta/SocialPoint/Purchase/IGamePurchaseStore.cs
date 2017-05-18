@@ -17,6 +17,8 @@ namespace SocialPoint.Purchase
 
     public interface IGamePurchaseStore
     {
+        string Currency { get; set; }
+
         event ProductsUpdatedDelegate ProductsUpdated;
         event PurchaseUpdatedDelegate PurchaseUpdated;
 

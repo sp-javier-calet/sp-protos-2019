@@ -59,6 +59,7 @@ namespace SocialPoint.Social
         const string AllianceIdKey = "alliance_id";
         public const string AvatarKey = "avatar";
         public const string AllianceDescriptionKey = "description";
+        public const string AllianceMessageKey = "welcome_message";
         public const string AllianceRequirementKey = "minimum_score";
         public const string AllianceTypeKey = "type";
         public const string AlliancePropertiesKey = "properties";

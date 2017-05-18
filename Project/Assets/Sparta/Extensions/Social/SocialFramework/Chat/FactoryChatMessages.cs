@@ -17,6 +17,7 @@ namespace SocialPoint.Social
         const string UserIdKey = "user_id";
         const string UserNameKey = "user_name";
         const string KickedUserNameKey = "kicked_user_name";
+        const string AcceptedUserNameKey = "accepted_user_name";
         const string AdminUserNameKey = "admin_user_name";
         const string OldRoleKey = "old_role";
         const string NewRoleKey = "new_role";
@@ -144,6 +145,9 @@ namespace SocialPoint.Social
                 break;
             
             case NotificationType.BroadcastAllianceMemberAccept:
+                messages = ParsePlayerAcceptedMessage(type, dic);
+                break;
+
             case NotificationType.BroadcastAllianceJoin:
                 messages = ParsePlayerJoinedMessage(type, dic);
                 break;
@@ -184,16 +188,16 @@ namespace SocialPoint.Social
 
             var msgInfo = dic.Get(ChatManager.ChatMessageInfoKey).AsDic;
             if(!Validate(msgInfo,
-                   ChatMessageUserIdKey,
-                   ChatMessageUserNameKey,
-                   ChatMessageTsKey,
-                   ChatMessageTextKey,
-                   ChatMessageLevelKey,
-                   ChatMessageAllyNameKey,
-                   ChatMessageAllyIdKey,
-                   ChatMessageAllyAvatarKey,
-                   ChatMessageAllyRoleKey
-               ))
+                ChatMessageUserIdKey,
+                ChatMessageUserNameKey,
+                ChatMessageTsKey,
+                ChatMessageTextKey,
+                ChatMessageLevelKey,
+                ChatMessageAllyNameKey,
+                ChatMessageAllyIdKey,
+                ChatMessageAllyAvatarKey,
+                ChatMessageAllyRoleKey
+            ))
             {
                 Log.e(Tag, "Received chat message of text type does not contain all the mandatory fields");
                 return new MessageType[0];
@@ -236,7 +240,35 @@ namespace SocialPoint.Social
 
             var playerName = dic.GetValue(UserNameKey).ToString();
             var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerJoinedKey), playerName));
-            return message == null ? new MessageType[] { } : new [] { message };
+
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
+        }
+
+        MessageType[] ParsePlayerAcceptedMessage(int type, AttrDic dic)
+        {   
+            if(!Validate(dic, UserNameKey, AcceptedUserNameKey, UserIdKey))
+            {
+                Log.e(Tag, "Received chat message of player accepted message type does not contain all the mandatory fields");
+                return new MessageType[0];
+            }
+
+            var nameUserAction = dic.GetValue(UserNameKey).ToString();
+            var nameUserAccepted = dic.GetValue(AcceptedUserNameKey).ToString();
+            string userAcceptedId = dic.GetValue(UserIdKey).ToString();
+            var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerAcceptedKey), nameUserAction, nameUserAccepted));
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
+            message.RequestJoinData = new RequestJoinData();
+            message.RequestJoinData.PlayerId = userAcceptedId;
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
         }
 
         MessageType[] ParsePlayerLeftMessage(int type, AttrDic dic)
@@ -249,7 +281,12 @@ namespace SocialPoint.Social
 
             var playerName = dic.GetValue(UserNameKey).ToString();
             var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerLeftKey), playerName));
-            return message == null ? new MessageType[] { } : new [] { message };
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
         }
 
         MessageType[] ParsePlayerKickedMessage(int type, AttrDic dic)
@@ -263,7 +300,12 @@ namespace SocialPoint.Social
             var kickedPlayerName = dic.GetValue(KickedUserNameKey).ToString();
             var adminPlayerName = dic.GetValue(AdminUserNameKey).ToString();
             var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerKickedKey), kickedPlayerName, adminPlayerName));
-            return message == null ? new MessageType[] { } : new [] { message };
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
         }
 
         MessageType[] ParseMemberPromotedMessage(int type, AttrDic dic)
@@ -293,6 +335,8 @@ namespace SocialPoint.Social
                 return new MessageType[]{ };
             }
 
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+
             var data = new MemberPromotionData();
             data.PlayerName = playerName;
             data.OldRank = oldRank;
@@ -315,6 +359,7 @@ namespace SocialPoint.Social
             var data = new RequestJoinData();
             data.PlayerId = playerId;
             message.RequestJoinData = data;
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
 
             if(ParseExtraInfo != null)
             {

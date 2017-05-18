@@ -46,6 +46,7 @@ namespace SocialPoint.Social
     public class Alliance : AllianceData
     {
         public string Description;
+        public string Message;
 
         public int Score
         {
@@ -148,6 +149,11 @@ namespace SocialPoint.Social
         public bool HasCandidate(string id)
         {
             return GetMember(_candidates, id) != null;
+        }
+
+        public SocialPlayer GetCandidate(string id)
+        {
+            return GetMember(_candidates, id);
         }
 
         public void AcceptCandidate(string id)
