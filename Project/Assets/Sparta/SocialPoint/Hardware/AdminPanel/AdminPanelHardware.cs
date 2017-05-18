@@ -75,11 +75,11 @@ namespace SocialPoint.Hardware
                 {
                     var parsed = ulong.Parse(value);
                     UpdateAnalyzerFreeStorageWarningValue(parsed);
-                    layout.Refresh();
                 }
                 catch(Exception)
                 {
                 }
+                layout.Refresh();
             });
 
             var timeLayout = layout.CreateHorizontalLayout();
@@ -89,11 +89,11 @@ namespace SocialPoint.Hardware
                 {
                     var parsed = float.Parse(value);
                     UpdateAnalyzerCheckInterval(parsed);
-                    layout.Refresh();
                 }
                 catch(Exception)
                 {
                 }
+                layout.Refresh();
             });
         }
 
