@@ -173,6 +173,7 @@ namespace SocialPoint.Notifications
 
         void ScheduleNotifications()
         {
+            ClearNotifications();
             AddGameNotifications();
             for(int i = 0, _notificationsCount = _notifications.Count; i < _notificationsCount; i++)
             {

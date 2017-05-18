@@ -40,17 +40,18 @@ namespace SocialPoint.Lockstep
         LockstepNetworkServer _netServer;
         HttpMatchmakingServer _matchmaking;
         object _game;
+        bool _isURLEditable;
 
         public LockstepPlugin() : base("Lockstep")
         {
+            System.Net.ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
         }
 
         void OnBeforeMatchStarts()
         {
-            var backendEnv = BackendEnv;
-            if(!string.IsNullOrEmpty(backendEnv))
+            if(_isURLEditable)
             {
-                _matchmaking.BaseUrl = string.Format(_matchmaking.BaseUrl, backendEnv);
+                _matchmaking.BaseUrl = BackendEnv;
             }
         }
 
@@ -60,6 +61,10 @@ namespace SocialPoint.Lockstep
         const string ClientStartDelayConfig = "ClientStartDelay";
         const string ClientSimulationDelayConfig = "ClientSimulationDelay";
         const string BackendBaseUrlConfig = "BackendBaseUrl";
+        const string BattleEndedWithoutConfirmationTimeoutConfig = "BattleEndedWithoutConfirmationTimeout";
+        const string FinishOnClientDisconnectionConfig = "FinishOnClientDisconnection";
+        const string AllowBattleStartWithOnePlayerReadyConfig = "AllowBattleStartWithOnePlayerReady";
+        const string IsURLEditableConfig = "IsURLEditable";
         const string GameAssemblyNameConfig = "GameAssemblyName";
         const string GameTypeConfig = "GameType";
         const string MetricSendIntervalConfig = "MetricSendInterval";
@@ -90,6 +95,9 @@ namespace SocialPoint.Lockstep
                 ClientStartDelayConfig, _netServer.ServerConfig.ClientStartDelay);
             _netServer.ServerConfig.ClientSimulationDelay = GetConfigOption(config,
                 ClientSimulationDelayConfig, _netServer.ServerConfig.ClientSimulationDelay);
+            _netServer.ServerConfig.BattleEndedWithoutConfirmationTimeout = GetConfigOption(config,
+                BattleEndedWithoutConfirmationTimeoutConfig, _netServer.ServerConfig.BattleEndedWithoutConfirmationTimeout);
+            _netServer.ServerConfig.FinishOnClientDisconnection = GetConfigOption(config, FinishOnClientDisconnectionConfig, _netServer.ServerConfig.FinishOnClientDisconnection);
             _netServer.ServerConfig.MetricSendInterval = GetConfigOption(config,
                 MetricSendIntervalConfig, _netServer.ServerConfig.MetricSendInterval);
             
@@ -97,7 +105,7 @@ namespace SocialPoint.Lockstep
 
             string baseUrl;
             config.TryGetValue(BackendBaseUrlConfig, out baseUrl);
-            if (_matchmaking != null && baseUrl != string.Empty)
+            if (_matchmaking != null && !string.IsNullOrEmpty(baseUrl))
             {
                 _matchmaking.BaseUrl = baseUrl;
             }
@@ -105,6 +113,10 @@ namespace SocialPoint.Lockstep
             {
                 PluginEventTracker.BaseUrl = baseUrl;
             }
+
+            _netServer.ServerConfig.AllowBattleStartWithOnePlayerReady = GetConfigOption(config,
+                AllowBattleStartWithOnePlayerReadyConfig, _netServer.ServerConfig.AllowBattleStartWithOnePlayerReady);
+            _isURLEditable = GetConfigOption(config, IsURLEditableConfig, _isURLEditable);
 
             string gameAssembly;
             string gameType;

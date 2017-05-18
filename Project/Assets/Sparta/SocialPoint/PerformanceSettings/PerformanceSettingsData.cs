@@ -47,7 +47,7 @@ namespace SocialPoint.PerformanceSettings
 
         public int MaxLodLevel { get { return Settings.GetValue(kMaxLodLevel).ToInt(); } }
 
-        public bool Vsync { get { return Settings.GetValue(kVsync).ToBool(); } }
+        public int Vsync { get { return Settings.GetValue(kVsync).ToInt(); } }
 
 
         public PerformanceSettingsData(AttrDic config)

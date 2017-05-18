@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
@@ -105,6 +105,10 @@ namespace SocialPoint.Matchmaking
         {
             _storage.Save(match);
             OnMatched(match);
+        }
+        
+        void IMatchmakingClientDelegate.OnStopped(bool successful)
+        {
         }
 
         void IMatchmakingClientDelegate.OnError(Error err)
