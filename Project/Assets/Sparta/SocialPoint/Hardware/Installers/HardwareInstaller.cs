@@ -111,7 +111,9 @@ namespace SocialPoint.Hardware
         AdminPanelHardware CreateAdminPanel()
         {
             return new AdminPanelHardware(
-                Container.Resolve<IDeviceInfo>());
+                Container.Resolve<IDeviceInfo>(),
+                Container.Resolve<IStorageAnalyzer>()
+            );
         }
         #endif
     }
