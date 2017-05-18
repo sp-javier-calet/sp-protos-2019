@@ -19,3 +19,8 @@ MonoBehaviour:
     AppShortVersion: 
     AppLanguage: 
     AppCountry: 
+    AnalyzerSettings:
+      Config:
+        AnalysisInterval: 5
+        FreeStorageWarning: 25
+      ConfigStorageUnit: 2
