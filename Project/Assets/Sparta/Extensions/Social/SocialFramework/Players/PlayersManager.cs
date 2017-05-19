@@ -13,6 +13,7 @@ namespace SocialPoint.Social
 
         const string UserIdKey = "user_id";
         const string MemberIdKey = "player_id";
+        const string ExtraDataKey = "extra_data";
 
         const string OperationResultKey = "result";
 
@@ -55,7 +56,7 @@ namespace SocialPoint.Social
             dic.SetValue(MemberIdKey, userId);
             if(extraData != null)
             {
-                dic.Set("extra_data", extraData);
+                dic.Set(ExtraDataKey, extraData);
             }
 
             return _connection.Call(PlayerInfoMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
@@ -79,7 +80,7 @@ namespace SocialPoint.Social
             dic.SetValue(UserIdKey, _socialManager.LocalPlayer.Uid);
             if(extraData != null)
             {
-                dic.Set("extra_data", extraData);
+                dic.Set(ExtraDataKey, extraData);
             }
 
             return _connection.Call(PlayersRankinsMethod, Attr.InvalidList, dic, (err, rList, rDic) => {

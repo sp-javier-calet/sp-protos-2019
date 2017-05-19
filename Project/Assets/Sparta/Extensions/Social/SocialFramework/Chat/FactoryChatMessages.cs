@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
@@ -19,10 +19,8 @@ namespace SocialPoint.Social
         const string KickedUserNameKey = "kicked_user_name";
         const string AcceptedUserNameKey = "accepted_user_name";
         const string AdminUserNameKey = "admin_user_name";
-        const string UserNameTwoDaysLaterKey = "UserName";
         const string OldRoleKey = "old_role";
         const string NewRoleKey = "new_role";
-        const string NewRoleTwoDaysLaterKey = "NewRole";
         const string RankPromotionKey = "promotion";
         const string RankDemotionKey = "demotion";
 
@@ -229,7 +227,7 @@ namespace SocialPoint.Social
                 ParseExtraInfo(message, msgInfo);
             }
 
-            return new MessageType[]{ message };
+            return new []{ message };
         }
 
         MessageType[] ParsePlayerJoinedMessage(int type, AttrDic dic)
@@ -247,16 +245,13 @@ namespace SocialPoint.Social
             {
                 return new MessageType[]{ };
             }
-            else
-            {
-                message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
-                return new MessageType[] { message };
-            }
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
         }
 
         MessageType[] ParsePlayerAcceptedMessage(int type, AttrDic dic)
         {   
-            if(!Validate(dic, UserNameKey, AcceptedUserNameKey,UserIdKey))
+            if(!Validate(dic, UserNameKey, AcceptedUserNameKey, UserIdKey))
             {
                 Log.e(Tag, "Received chat message of player accepted message type does not contain all the mandatory fields");
                 return new MessageType[0];
@@ -270,13 +265,10 @@ namespace SocialPoint.Social
             {
                 return new MessageType[]{ };
             }
-            else
-            {
-                message.RequestJoinData = new RequestJoinData();
-                message.RequestJoinData.PlayerId = userAcceptedId;
-                message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
-                return new MessageType[] { message };
-            }
+            message.RequestJoinData = new RequestJoinData();
+            message.RequestJoinData.PlayerId = userAcceptedId;
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
         }
 
         MessageType[] ParsePlayerLeftMessage(int type, AttrDic dic)
@@ -293,11 +285,8 @@ namespace SocialPoint.Social
             {
                 return new MessageType[]{ };
             }
-            else
-            {
-                message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
-                return new MessageType[] { message };
-            }
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
         }
 
         MessageType[] ParsePlayerKickedMessage(int type, AttrDic dic)
@@ -315,11 +304,8 @@ namespace SocialPoint.Social
             {
                 return new MessageType[]{ };
             }
-            else
-            {
-                message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
-                return new MessageType[] { message };
-            }
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
         }
 
         MessageType[] ParseMemberPromotedMessage(int type, AttrDic dic)
@@ -357,7 +343,7 @@ namespace SocialPoint.Social
             data.NewRank = newRank;
             message.MemberPromotionData = data;
 
-            return new MessageType[] { message };
+            return new [] { message };
         }
 
         MessageType[] ParseJoinRequestMessage(int type, AttrDic dic)
@@ -380,10 +366,10 @@ namespace SocialPoint.Social
                 ParseExtraInfo(message, dic);
             }
 
-            return new MessageType[] { message };
+            return new [] { message };
         }
 
-        bool Validate(AttrDic dic, params string[] requiredValues)
+        static bool Validate(AttrDic dic, params string[] requiredValues)
         {
             for(int i = 0; i < requiredValues.Length; ++i)
             {

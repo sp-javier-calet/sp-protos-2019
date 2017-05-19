@@ -45,7 +45,7 @@ namespace SocialPoint.Social
             {
                 var hLayout = layout.CreateHorizontalLayout();
                 hLayout.CreateFormLabel("Report User:");
-                hLayout.CreateTextInput("Insert reported User ID", (insertedText) => {
+                hLayout.CreateTextInput("Insert reported User ID", insertedText => {
                     if(!_chat.CanReportUser(insertedText))
                     {
                         _console.Print(string.Format("You cannot report more times the user {0}", insertedText));
@@ -71,7 +71,7 @@ namespace SocialPoint.Social
                 var hLayout = layout.CreateHorizontalLayout();
                 hLayout.CreateFormLabel("Change report cooldown");
                 hLayout.CreateTextInput("Insert new cooldown", (insertedText) => {
-                    var newCooldown = 0;
+                    int newCooldown;
                     if(!Int32.TryParse(insertedText, out newCooldown))
                     {
                         _console.Print(string.Format("Invalid cooldown value: {0}", insertedText));

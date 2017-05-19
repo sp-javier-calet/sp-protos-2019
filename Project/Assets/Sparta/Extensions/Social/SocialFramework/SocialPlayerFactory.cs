@@ -10,7 +10,7 @@ namespace SocialPoint.Social
         const string MemberUidKey = "id";
         const string MemberNameKey = "name";
         const string MemberLevelKey = "level";
-        const string MemberScoreKey = "power";
+        const string MemberScoreKey = "score";
 
         public interface IFactory
         {
