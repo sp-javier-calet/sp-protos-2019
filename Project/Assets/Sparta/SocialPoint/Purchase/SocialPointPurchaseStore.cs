@@ -58,7 +58,7 @@ namespace SocialPoint.Purchase
         /// </summary>
         PurchaseCompletedDelegate _purchaseCompleted;
 
-        public string Currency;
+        public string Currency { get; set; }
 
         public bool ProductListReceived { get; private set; }
 

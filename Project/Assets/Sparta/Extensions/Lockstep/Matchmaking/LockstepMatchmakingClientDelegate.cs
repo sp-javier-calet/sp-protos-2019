@@ -33,6 +33,10 @@ namespace SocialPoint.Matchmaking
             _lockstep.MatchId = match.Id;
         }
 
+        public void OnStopped(bool successful)
+        {
+        }
+
         public void OnError(Error err)
         {
         }

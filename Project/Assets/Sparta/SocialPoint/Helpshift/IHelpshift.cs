@@ -48,6 +48,8 @@ namespace SocialPoint.Helpshift
 
         void ShowConversation();
 
+        void OpenFromPush(string issueId);
+
         int PendingNotificationsCount { get; }
     }
 }
