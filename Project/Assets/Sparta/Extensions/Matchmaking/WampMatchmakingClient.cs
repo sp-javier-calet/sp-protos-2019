@@ -26,9 +26,6 @@ namespace SocialPoint.Matchmaking
         const string SuccessAttrKey = "success";
         const string MatchFoundAttrKey = "found";
 
-        const int SuccessNotification = 502;
-        const int TimeoutNotification = 503;
-
         public Action OnStart;
         public Action OnStop;
         public Action OnSearchOpponent;
@@ -61,7 +58,10 @@ namespace SocialPoint.Matchmaking
             _delegatesToRemove = new List<IMatchmakingClientDelegate>();
             _wamp = wamp;
             _login = login;
-            _connectionID = (connectionID == null) ? string.Empty : connectionID;
+            _connectionID = connectionID ?? string.Empty;
+
+            _wamp.OnNotificationReceived += OnWampNotificationReceived;
+            _wamp.OnError += OnWampError;
         }
 
         void OnWampConnected()
@@ -82,7 +82,7 @@ namespace SocialPoint.Matchmaking
         public void Start()
         {
             CallAction(OnStart);
-            _wamp.OnError += OnWampError;
+
             if(!_wamp.IsConnected)
             {
                 _wamp.OnConnected += OnWampConnected;
@@ -104,7 +104,7 @@ namespace SocialPoint.Matchmaking
         {
             _searchingForOpponent = false;
             _wamp.OnClosed += OnConnectionClosed;
-            _wamp.OnNotificationReceived += OnWampNotificationReceived;
+
 
             DisposeStartRequest();
 
@@ -135,29 +135,40 @@ namespace SocialPoint.Matchmaking
             }
             #if ADMIN_PANEL
             if(kwargs == null || attr == null)
-                OnError(new Error("BAD MM RESPONSE: " + kwargs.ToString()));
+                OnError(new Error("BAD MM RESPONSE: " + kwargs));
             #endif
         }
 
         void OnWampNotificationReceived(int type, string topic, AttrDic attr)
         {
-            if(type == NotificationType.MatchmakingSuccessNotification)
+            switch(type)
             {
-                UnregisterEvents();
-                _searchingForOpponent = false;
-                DisposeStartRequest();
-                DisposeStopRequest();
+            case NotificationType.MatchmakingWaitingTimeNotification:
+                {
+                    var waitTime = attr.GetValue(WaitingTimeAttrKey).ToInt();
+                    DispatchOnWaitingEvent(waitTime);
+                }
+                break;
+            case NotificationType.MatchmakingSuccessNotification:
+                {
+                    UnregisterEvents();
+                    _searchingForOpponent = false;
+                    DisposeStartRequest();
+                    DisposeStopRequest();
 
-                var match = new Match();
-                match.ParseAttrDic(attr);
-                DispatchOnMatchEvent(match);
-            }
-            else if(type == TimeoutNotification)
-            {
-                UnregisterEvents();
-                _searchingForOpponent = false;
-                DisposeStopRequest();
-                OnError(new Error(MatchmakingClientErrorCode.Timeout, new JsonAttrSerializer().SerializeString(attr)));
+                    var match = new Match();
+                    match.ParseAttrDic(attr);
+                    DispatchOnMatchEvent(match);
+                }
+                break;
+            case NotificationType.MatchmakingTimeoutNotification:
+                {
+                    UnregisterEvents();
+                    _searchingForOpponent = false;
+                    DisposeStopRequest();
+                    OnError(new Error(MatchmakingClientErrorCode.Timeout, new JsonAttrSerializer().SerializeString(attr)));
+                }
+                break;
             }
         }
 
@@ -204,7 +215,7 @@ namespace SocialPoint.Matchmaking
             }
             else if(attr != null && attr.ContainsKey(ErrorAttrKey))
             {
-                OnError(new Error("Got error: " + attr.GetValue(ErrorAttrKey).ToString()));
+                OnError(new Error("Got error: " + attr.GetValue(ErrorAttrKey)));
             }
             else
             {
@@ -252,7 +263,7 @@ namespace SocialPoint.Matchmaking
             {
                 if(attr.ContainsKey(ErrorAttrKey))
                 {
-                    OnError(new Error("Got error: " + attr.GetValue(ErrorAttrKey).ToString()));
+                    OnError(new Error("Got error: " + attr.GetValue(ErrorAttrKey)));
                     return;
                 }
                 else if(attr.ContainsKey(SuccessAttrKey))
@@ -275,15 +286,15 @@ namespace SocialPoint.Matchmaking
 
         void UnregisterEvents()
         {
-            _wamp.OnNotificationReceived -= OnWampNotificationReceived;
             _wamp.OnClosed -= OnConnectionClosed;
             _wamp.OnConnected -= OnWampConnected;
             _wamp.OnConnected -= OnReconnected;
-            _wamp.OnError -= OnWampError;
         }
 
         public void Dispose()
         {
+            _wamp.OnNotificationReceived -= OnWampNotificationReceived;
+            _wamp.OnError -= OnWampError;
             UnregisterEvents();
             DisposeStartRequest();
             DisposeStopRequest();
@@ -321,7 +332,7 @@ namespace SocialPoint.Matchmaking
             DispatchOnErrorEvent(err);
         }
 
-        void CallAction(Action action)
+        static void CallAction(Action action)
         {
             if(action != null)
             {
