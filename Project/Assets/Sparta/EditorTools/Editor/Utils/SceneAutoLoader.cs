@@ -113,11 +113,12 @@ namespace SpartaTools.Editor.Utils
         {
             get 
             {
-                return Convert.ToBoolean(PlayerPrefs.GetInt(EditorPrefLoadMasterOnPlay, 0)); 
+                
+                return EditorPrefs.GetBool(PlayerSettings.productName + EditorPrefLoadMasterOnPlay, false); 
             }
             set
             {
-                PlayerPrefs.SetInt(EditorPrefLoadMasterOnPlay, Convert.ToInt32(value)); 
+                EditorPrefs.SetBool(PlayerSettings.productName + EditorPrefLoadMasterOnPlay, value); 
             }
         }
 
@@ -125,11 +126,11 @@ namespace SpartaTools.Editor.Utils
         {
             get
             {
-                return PlayerPrefs.GetString(EditorPrefMasterScene, "Sparta/SocialPoint/IntroAnimation/IntroAnimation.unity"); 
+                return EditorPrefs.GetString(PlayerSettings.productName + EditorPrefMasterScene, "Sparta/SocialPoint/IntroAnimation/IntroAnimation.unity"); 
             }
             set
             {
-                PlayerPrefs.SetString(EditorPrefMasterScene, value); 
+                EditorPrefs.SetString(PlayerSettings.productName + EditorPrefMasterScene, value); 
             }
         }
 
@@ -137,11 +138,11 @@ namespace SpartaTools.Editor.Utils
         {
             get 
             {
-                return PlayerPrefs.GetString(EditorPrefPreviousScene, SceneManager.GetActiveScene().path); 
+                return EditorPrefs.GetString(PlayerSettings.productName + EditorPrefPreviousScene, SceneManager.GetActiveScene().path); 
             }
             set
             {
-                PlayerPrefs.SetString(EditorPrefPreviousScene, value); 
+                EditorPrefs.SetString(PlayerSettings.productName + EditorPrefPreviousScene, value); 
             }
         }
     }
