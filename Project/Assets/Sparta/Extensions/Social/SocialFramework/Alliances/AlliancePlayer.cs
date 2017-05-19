@@ -85,7 +85,9 @@ namespace SocialPoint.Social
             var component = player.GetComponent<AlliancePlayerBasic>();
 
             if(component == null)
+            {
                 return;
+            }
 
             AttrDic allyDic;
             if(dic.ContainsKey(AllianceComponentKey))
@@ -216,7 +218,9 @@ namespace SocialPoint.Social
             var component = player.GetComponent<AlliancePlayerPrivate>();
 
             if(component == null)
+            {
                 return;
+            }
 
             AttrDic allyDic;
             if(dic.ContainsKey(AllianceComponentKey))

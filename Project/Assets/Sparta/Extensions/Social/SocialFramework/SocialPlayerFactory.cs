@@ -35,7 +35,9 @@ namespace SocialPoint.Social
                 var basicDataComponent = player.GetComponent<SocialPlayer.BasicData>();
 
                 if(basicDataComponent == null)
+                {
                     return;
+                }
 
                 dic.SetValue(MemberUidKey, basicDataComponent.Uid);
                 dic.SetValue(MemberNameKey, basicDataComponent.Name);
