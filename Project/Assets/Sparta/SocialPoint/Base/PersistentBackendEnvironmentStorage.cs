@@ -19,12 +19,11 @@ namespace SocialPoint.Base
         {
             get
             {
-
+                var value = DebugUtils.IsDebugBuild ? _default : _production;
                 #if ADMIN_PANEL
-                return _default;
+                value = _default;
                 #endif
-
-                return DebugUtils.IsDebugBuild ? _default : _production;
+                return value;
             }
         }
 
@@ -62,12 +61,11 @@ namespace SocialPoint.Base
             get
             {
                 var stored = PlayerPrefs.GetString(SelectedBackendEnvPrefsKey);
-
+                var value = DebugUtils.IsDebugBuild ? stored : null;
                 #if ADMIN_PANEL
-                return stored;
+                value = stored;
                 #endif
-
-                return DebugUtils.IsDebugBuild ? stored : null;
+                return value;
             }
         }
     }

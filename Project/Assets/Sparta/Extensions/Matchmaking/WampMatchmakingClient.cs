@@ -265,8 +265,10 @@ namespace SocialPoint.Matchmaking
                         UnregisterEvents();
                         DisposeStartRequest();
 //I_AM_LOD
+                        #if I_AM_LOD
                         ServiceLocator.EventDispatcher.Raise(new MatckmakerStateChangedEvent(1020, "initializing_cancel"));
                         ServiceLocator.Instance.NetworkConnectionsController.ClearConnectID();
+                        #endif
 //I_AM_LOD End
                     }
                     DisposeStopRequest();

@@ -766,7 +766,7 @@ namespace SocialPoint.Lockstep
         void IMatchmakingServerDelegate.OnError(Error ierr)
         {
             var err = new Error(MatchmakingErrorCode,
-                string.Format(LogMessageMatchmakingFormat, ierr.Msg),
+                          string.Format(LogMessageMatchmakingFormat, ierr.Msg),
                           ierr.Detail);
             OnError(err);
         }
@@ -784,8 +784,7 @@ namespace SocialPoint.Lockstep
                 if(results.ContainsKey(client.PlayerToken))
                 {
                     var result = results[client.PlayerToken];
-                    _server.SendMessage(new NetworkMessageData
-                    {
+                    _server.SendMessage(new NetworkMessageData {
                         MessageType = LockstepMsgType.ClientEnd,
                         ClientId = client.ClientId
                     }, new AttrMessage(result));
@@ -884,7 +883,7 @@ namespace SocialPoint.Lockstep
                 results.AddValue(0);
                 results.AddValue(0);
 
-                for (int i = 0; i < _clients.Count; i++)
+                for(int i = 0; i < _clients.Count; i++)
                 {
                     PlayerResults[_clients[i].PlayerNumber] = results;
                 }
@@ -1023,7 +1022,7 @@ namespace SocialPoint.Lockstep
         public void OnNetworkError(Error ierr)
         {
             var err = new Error(NetworkErrorCode,
-                string.Format(LogMessageNetworkFormat, ierr));
+                          string.Format(LogMessageNetworkFormat, ierr));
             OnError(err);
         }
 
@@ -1046,7 +1045,7 @@ namespace SocialPoint.Lockstep
 
                     SendCustomLog(LogMessageBattleEndNotification, dic);
                 }
-                else if (infoResponse != null && infoResponse.HasError && infoRequest != null)
+                else if(infoResponse != null && infoResponse.HasError && infoRequest != null)
                 {
                     var dic = GetRequestAndResponseLogs(infoRequest, infoResponse);
 
@@ -1056,7 +1055,7 @@ namespace SocialPoint.Lockstep
 //I_AM_LOD End
         }
 
-//I_AM_LOD
+        //I_AM_LOD
         AttrDic GetRequestAndResponseLogs(HttpRequest request, HttpResponse response)
         {
             var dic = new AttrDic();
@@ -1095,14 +1094,14 @@ namespace SocialPoint.Lockstep
 
             int i = 0;
             int playerFlag = 0;
-            foreach (var valParam in paramsDic[ParamPlayers].AsDic)
+            foreach(var valParam in paramsDic[ParamPlayers].AsDic)
             {
                 playerFlag = 0;
-                foreach (var param in valParam.Value.AsDic)
+                foreach(var param in valParam.Value.AsDic)
                 {
-                    if (param.Key == ParamDuration)
+                    if(param.Key == ParamDuration)
                         dic.Set(string.Format(ParamLogPlayersFormat, paramType, i, ParamDuration), param.Value);
-                    else if (param.Key == ParamModified)
+                    else if(param.Key == ParamModified)
                         dic.Set(string.Format(ParamLogPlayersFormat, paramType, i, ParamModified), param.Value);
                     else
                     {
@@ -1114,7 +1113,7 @@ namespace SocialPoint.Lockstep
             }
             dic.Set(string.Format(ParamLogModified, paramType, ParamModified), paramsDic[ParamModified]);
         }
-//I_AM_LOD End
+        //I_AM_LOD End
 
         public void OnClientConnected(byte clientId)
         {
@@ -1141,7 +1140,7 @@ namespace SocialPoint.Lockstep
             var dic = new AttrDic();
             dic.SetValue(LogMessageClientIDKey, clientId);
             var client = FindClientByClientId(clientId);
-            if (client != null)
+            if(client != null)
             {
                 dic.SetValue(LogMessagePlayerIDKey, client.PlayerId);
             }
@@ -1234,9 +1233,6 @@ namespace SocialPoint.Lockstep
                 }
             }
         }
-
-        int _logCount;
-        bool _battleEnded;
 
         void SendCustomLog(string message, LogLevel logLevel, AttrDic dic = null)
         {
@@ -1389,8 +1385,8 @@ namespace SocialPoint.Lockstep
             byte playerNum;
             _commandSenders.TryGetValue(cmd.Id, out playerNum);
             var err = new Error(CommandFailedErrorCode,
-                string.Format(CommandFormat, ierr.Msg),
-                ierr.Detail);
+                          string.Format(CommandFormat, ierr.Msg),
+                          ierr.Detail);
             if(CommandFailed != null)
             {
                 CommandFailed(err, playerNum);

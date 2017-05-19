@@ -45,7 +45,7 @@ namespace SocialPoint.Network
     }
 
     [Serializable]
-    public struct PhotonNetworkConfig
+    public class PhotonNetworkConfig
     {
         public const bool DefaultCreateRoom = true;
         public const ExitGames.Client.Photon.ConnectionProtocol DefaultProtocol = ExitGames.Client.Photon.ConnectionProtocol.Udp;
@@ -74,6 +74,7 @@ namespace SocialPoint.Network
         }
 
         ConnState _state = ConnState.Disconnected;
+
         protected ConnState State
         {
             get

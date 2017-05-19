@@ -7,6 +7,7 @@ using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
+using SocialPoint.Base;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
