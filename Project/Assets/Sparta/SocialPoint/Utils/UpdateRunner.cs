@@ -131,7 +131,10 @@ namespace SocialPoint.Utils
 
         public void Dispose()
         {
-            Stop();
+            if(_started)
+            {
+                Stop();
+            }
             _scheduler = null;
             _action = null;
         }

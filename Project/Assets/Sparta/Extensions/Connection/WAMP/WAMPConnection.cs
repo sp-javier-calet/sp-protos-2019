@@ -72,7 +72,6 @@ namespace SocialPoint.WAMP
             {
                 CompletionHandler = null;
             }
-
         }
 
         public class StartRequest : Request<Action>

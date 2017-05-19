@@ -148,7 +148,8 @@ namespace SocialPoint.WAMP.Subscriber
         {
             if(_subscriptionHandlers.ContainsKey(subscription.Id))
             {
-                throw new Exception("This subscriptionId was already in use");
+                Log.e("This subscriptionId was already in use");
+                return;
             }
             _subscriptionHandlers.Add(subscription.Id, handler);
         }
@@ -194,24 +195,28 @@ namespace SocialPoint.WAMP.Subscriber
 
             if(msg.Count != 3)
             {
-                throw new Exception("Invalid SUBSCRIBED message structure - length must be 3");
+                Log.e("Invalid SUBSCRIBED message structure - length must be 3");
+                return;
             }
 
             if(!msg.Get(1).IsValue)
             {
-                throw new Exception("Invalid SUBSCRIBED message structure - SUBSCRIBE.Request must be an integer");
+                Log.e("Invalid SUBSCRIBED message structure - SUBSCRIBE.Request must be an integer");
+                return;
             }
 
             long requestId = msg.Get(1).AsValue.ToLong();
             SubscribeRequest request;
             if(!_subscribeRequests.TryGetValue(requestId, out request))
             {
-                throw new Exception("Bogus SUBSCRIBED message for non-pending request ID");
+                Log.e("Bogus SUBSCRIBED message for non-pending request ID");
+                return;
             }
 
             if(!msg.Get(2).IsValue)
             {
-                throw new Exception("Invalid SUBSCRIBED message structure - SUBSCRIBED.Subscription must be an integer");
+                Log.e("Invalid SUBSCRIBED message structure - SUBSCRIBED.Subscription must be an integer");
+                return;
             }
             long subscriptionId = msg.Get(2).AsValue.ToLong();
 
@@ -231,19 +236,22 @@ namespace SocialPoint.WAMP.Subscriber
 
             if(msg.Count != 2)
             {
-                throw new Exception("Invalid UNSUBSCRIBED message structure - length must be 2");
+                Log.e("Invalid UNSUBSCRIBED message structure - length must be 2");
+                return;
             }
 
             if(!msg.Get(1).IsValue)
             {
-                throw new Exception("Invalid UNSUBSCRIBED message structure - UNSUBSCRIBE.Request must be an integer");
+                Log.e("Invalid UNSUBSCRIBED message structure - UNSUBSCRIBE.Request must be an integer");
+                return;
             }
 
             long requestId = msg.Get(1).AsValue.ToLong();
             UnsubscribeRequest request;
             if(!_unsubscribeRequests.TryGetValue(requestId, out request))
             {
-                throw new Exception("Bogus UNSUBSCRIBED message for non-pending request ID");
+                Log.e("Bogus UNSUBSCRIBED message for non-pending request ID");
+                return;
             }
 
             if(request.CompletionHandler != null)
@@ -261,12 +269,14 @@ namespace SocialPoint.WAMP.Subscriber
 
             if(msg.Count < 4 || msg.Count > 6)
             {
-                throw new Exception("Invalid EVENT message structure - length must be 4, 5 or 6");
+                Log.e("Invalid EVENT message structure - length must be 4, 5 or 6");
+                return;
             }
 
             if(!msg.Get(1).IsValue)
             {
-                throw new Exception("Invalid EVENT message structure - SUBSCRIBED.Subscription must be an integer");
+                Log.e("Invalid EVENT message structure - SUBSCRIBED.Subscription must be an integer");
+                return;
             }
             long subscriptionId = msg.Get(1).AsValue.ToLong();
 
@@ -288,7 +298,8 @@ namespace SocialPoint.WAMP.Subscriber
                 {
                     if(!msg.Get(4).IsList)
                     {
-                        throw new Exception("Invalid RESULT message structure - YIELD.Arguments must be a list");
+                        Log.e("Invalid RESULT message structure - YIELD.Arguments must be a list");
+                        return;
                     }
                     listParams = msg.Get(4).AsList;
                 }
@@ -296,7 +307,8 @@ namespace SocialPoint.WAMP.Subscriber
                 {
                     if(!msg.Get(5).IsDic)
                     {
-                        throw new Exception("Invalid RESULT message structure - YIELD.ArgumentsKw must be a dictionary");
+                        Log.e("Invalid RESULT message structure - YIELD.ArgumentsKw must be a dictionary");
+                        return;
                     }
                     dictParams = msg.Get(5).AsDic;
                 }
@@ -309,7 +321,8 @@ namespace SocialPoint.WAMP.Subscriber
             SubscribeRequest request;
             if(!_subscribeRequests.TryGetValue(requestId, out request))
             {
-                throw new Exception("Bogus ERROR message for non-pending SUBSCRIBE request ID");
+                Log.e("Bogus ERROR message for non-pending SUBSCRIBE request ID");
+                return;
             }
             if(request.CompletionHandler != null)
             {
@@ -323,7 +336,8 @@ namespace SocialPoint.WAMP.Subscriber
             UnsubscribeRequest request;
             if(!_unsubscribeRequests.TryGetValue(requestId, out request))
             {
-                throw new Exception("Bogus ERROR message for non-pending UNSUBSCRIBE request ID");
+                Log.e("Bogus ERROR message for non-pending UNSUBSCRIBE request ID");
+                return;
             }
             if(request.CompletionHandler != null)
             {

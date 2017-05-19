@@ -49,6 +49,11 @@ namespace SocialPoint.Helpshift
         {
         }
 
+        public void OpenFromPush(string issueId)
+        {
+            
+        }
+
         public int PendingNotificationsCount
         {
             get

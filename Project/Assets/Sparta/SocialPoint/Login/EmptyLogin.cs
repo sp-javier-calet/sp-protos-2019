@@ -9,6 +9,18 @@ namespace SocialPoint.Login
 {
     public sealed class EmptyLogin : ILogin
     {
+        public void AddLink(ILink link, LinkMode mode = LinkMode.Auto)
+        {
+        }
+
+        public void LoginLink(ILink link, ErrorDelegate cbk = null)
+        {
+        }
+
+        public void ClearUser()
+        {
+        }
+
         public event HttpRequestDelegate HttpRequestEvent
         {
             add { }

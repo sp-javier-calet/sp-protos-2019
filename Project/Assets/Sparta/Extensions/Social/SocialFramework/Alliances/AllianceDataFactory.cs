@@ -24,6 +24,7 @@ namespace SocialPoint.Social
         const string AllianceIdKey = "id";
         const string AllianceNameKey = "name";
         const string AllianceDescriptionKey = "description";
+        const string AllianceMessageKey = "welcome_message";
         // TODO duplicated
         const string AllianceAvatarKey = "avatar";
         const string AllianceAvatarIdKey = "avatarId";
@@ -107,6 +108,7 @@ namespace SocialPoint.Social
             var data = dic.Get(AllianceInfoKey).AsDic;
             alliance.Name = data.GetValue(AllianceNameKey).ToString();
             alliance.Description = data.GetValue(AllianceDescriptionKey).ToString();
+            alliance.Message = data.GetValue(AllianceMessageKey).ToString();
             alliance.Requirement = data.GetValue(AllianceRequirementMinLevelKey).ToInt();
             alliance.AccessType = data.GetValue(AllianceTypeAccessKey).ToInt();
             alliance.Avatar = data.ContainsKey(AllianceAvatarIdKey) ? data.GetValue(AllianceAvatarIdKey).ToInt() : 1;
@@ -175,6 +177,7 @@ namespace SocialPoint.Social
         {
             AddStringDiff(dic, AllianceNameKey, baseAlliance != null ? baseAlliance.Name : null, modifiedAlliance.Name);
             AddStringDiff(dic, AllianceDescriptionKey, baseAlliance != null ? baseAlliance.Description : null, modifiedAlliance.Description);
+            AddStringDiff(dic, AllianceMessageKey, baseAlliance != null ? baseAlliance.Message : null, modifiedAlliance.Message);
             AddIntDiff(dic, AllianceRequirementScore, baseAlliance != null ? baseAlliance.Requirement : -1, modifiedAlliance.Requirement);
             AddIntDiff(dic, AllianceTypeKey, baseAlliance != null ? baseAlliance.AccessType : -1, modifiedAlliance.AccessType);
             AddIntDiff(dic, AllianceAvatarKey, baseAlliance != null ? baseAlliance.Avatar : -1, modifiedAlliance.Avatar);
