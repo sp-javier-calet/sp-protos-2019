@@ -74,7 +74,7 @@ namespace SocialPoint.AppEvents
         void TriggerWillGoBackground();
 
         /// <summary>
-        /// Trigger WillGoBackground by hand (for debug purposes)
+        /// Trigger WasOnBackground by hand (for debug purposes)
         /// </summary>
         void TriggerWasOnBackground();
 
@@ -98,8 +98,13 @@ namespace SocialPoint.AppEvents
     {
         public static void RestartGame(this IAppEvents events)
         {
+            events.RestartGame(0);
+        }
+
+        public static void RestartGame(this IAppEvents events, int restartScene)
+        {
             events.TriggerGameWillRestart();
-            SceneManager.LoadScene(0);
+            SceneManager.LoadScene(restartScene);
         }
 
         public static bool QuitGame(this IAppEvents events)

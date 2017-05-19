@@ -36,6 +36,8 @@ namespace SocialPoint.Network
             var webRequest = WebRequestUtils.ConvertRequest(request);
             if(request.Body != null)
             {
+                webRequest.ContentLength = request.Body.Length;
+
                 var reqStream = webRequest.GetRequestStream();
                 reqStream.Write(request.Body, 0, request.Body.Length);
                 reqStream.Close();

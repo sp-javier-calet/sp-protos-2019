@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using SocialPoint.Base;
 using UnityEngine;
+using System.Collections;
+using UnityEngine.SceneManagement;
 
 namespace SocialPoint.Pooling
 {
-    public sealed class UnityObjectPool : MonoBehaviour
+    public class UnityObjectPool : MonoBehaviour
     {
         public enum StartupPoolModeEnum
         {
@@ -34,14 +36,14 @@ namespace SocialPoint.Pooling
                 {
                     return _instance;
                 }
-            
+
                 _instance = Object.FindObjectOfType<UnityObjectPool>();
                 if(_instance != null)
                 {
                     return _instance;
                 }
-            
-                var go = new GameObject("ObjectPool");
+
+                var go = new GameObject("UnityObjectPool");
                 _instance = go.AddComponent<UnityObjectPool>();
                 return _instance;
             }
@@ -49,8 +51,16 @@ namespace SocialPoint.Pooling
 
         static List<GameObject> _recycleList = new List<GameObject>();
         Dictionary<GameObject, List<GameObject>> _pooledObjects = new Dictionary<GameObject, List<GameObject>>();
+
+        public Dictionary<GameObject, List<GameObject>> PooledObjects
+        {
+            get
+            {
+                return _pooledObjects;
+            }
+        }
+
         Dictionary<GameObject, GameObject> _spawnedObjects = new Dictionary<GameObject, GameObject>();
-        HashSet<GameObject> _nonPulledPrefabs = new HashSet<GameObject>();
         bool startupPoolsCreated;
 
         void Awake()
@@ -93,6 +103,8 @@ namespace SocialPoint.Pooling
             {
                 list = CreatePool(prefab, 1);
                 found = list != null;
+
+                LogWarningSpawningPrefabNotInPool(prefab);
             }
             return found;
         }
@@ -100,6 +112,21 @@ namespace SocialPoint.Pooling
         public static List<GameObject> CreatePool<T>(T prefab, int initialPoolSize) where T : Component
         {
             return CreatePool(prefab.gameObject, initialPoolSize);
+        }
+
+        static IEnumerator HidePrefab(GameObject prefab, bool active, Vector3 position)
+        {
+            // We force to upload a model to GPU in order to prevent performance
+            // spikes when a model is first visible. We place it in front of the
+            // camera to avoid culling.
+            prefab.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 2.0f;
+            prefab.SetActive(true);
+
+            yield return 0;
+
+            // We set back the previous values.
+            prefab.transform.position = position;
+            prefab.SetActive(active);
         }
 
         public static List<GameObject> CreatePool(GameObject prefab, int initialPoolSize)
@@ -111,24 +138,34 @@ namespace SocialPoint.Pooling
                 return null;
             }
 
+            bool active = prefab.activeSelf;
+            Transform parent = null;
             if(!Instance._pooledObjects.ContainsKey(prefab))
             {
                 list = new List<GameObject>();
                 Instance._pooledObjects.Add(prefab, list);
 
-                bool active = prefab.activeSelf;
-                prefab.SetActive(false);
-                Transform parent = new GameObject().transform;
+                parent = new GameObject().transform;
                 parent.parent = _instance.transform;
                 parent.name = "Pool_" + prefab.name;
-                while(list.Count < initialPoolSize)
-                {
-                    var obj = Object.Instantiate(prefab);
-                    SetupTransform(parent, Vector3.zero, Quaternion.identity, obj);
-                    list.Add(obj);
-                }
-                prefab.SetActive(active);
             }
+            else
+            {
+                list = Instance._pooledObjects[prefab];
+                initialPoolSize += list.Count;
+
+                parent = UnityObjectPool.Instance.gameObject.transform.FindChild("Pool_" + prefab.name);
+            }
+
+            prefab.SetActive(false);
+            while(list.Count < initialPoolSize)
+            {
+                var obj = Object.Instantiate(prefab);
+                SetupTransform(parent, Vector3.zero, Quaternion.identity, obj);
+
+                list.Add(obj);
+            }
+            Instance.StartCoroutine(HidePrefab(prefab, active, prefab.transform.position));
 
             return list;
         }
@@ -185,7 +222,7 @@ namespace SocialPoint.Pooling
                     }
                 }
                 GameObject spawnedObj = CreateObject(prefab, parent, position, rotation, obj, true);
-                
+
                 // Spawn 'notification'
                 Component[] recyclables = spawnedObj.GetComponents(typeof(IRecyclable));
                 for(int i = 0; i < recyclables.Length; ++i)
@@ -194,7 +231,7 @@ namespace SocialPoint.Pooling
                 }
                 return spawnedObj;
             }
-            LogWarningSpawningPrefabNotInPool(prefab);
+
             return CreateObject(prefab, parent, position, rotation, null, false);
         }
 
@@ -204,8 +241,10 @@ namespace SocialPoint.Pooling
             {
                 obj = Object.Instantiate(prefab);
             }
+
             SetupTransform(parent, position, rotation, obj);
             SetupParticleSystems(obj);
+
             if(addToSpawnedObjects)
             {
                 Instance._spawnedObjects.Add(obj, prefab);
@@ -218,6 +257,11 @@ namespace SocialPoint.Pooling
             obj.transform.SetParent(parent);
             obj.transform.localPosition = position;
             obj.transform.localRotation = rotation;
+
+            if(parent == null)
+            {
+                SceneManager.MoveGameObjectToScene(obj, SceneManager.GetActiveScene());
+            }
         }
 
         static void SetupParticleSystems(GameObject obj)
@@ -226,16 +270,27 @@ namespace SocialPoint.Pooling
 
             for(int j = 0; j < m_particleSystems.Length; ++j)
             {
-                m_particleSystems[j].Stop();
-                var emission = m_particleSystems[j].emission;
-                emission.enabled = false;
+                ParticleSystem particleSystem = m_particleSystems[j];
+
+                if(particleSystem.gameObject.activeSelf)
+                {
+                    particleSystem.Stop();
+                    particleSystem.Clear();
+                    var emission = particleSystem.emission;
+                    emission.enabled = false;
+                }
             }
 
             for(int j = 0; j < m_particleSystems.Length; ++j)
             {
-                m_particleSystems[j].Play();
-                var emission = m_particleSystems[j].emission;
-                emission.enabled = true;
+                ParticleSystem particleSystem = m_particleSystems[j];
+
+                if(particleSystem.gameObject.activeSelf)
+                {
+                    particleSystem.Play();
+                    var emission = particleSystem.emission;
+                    emission.enabled = true;
+                }
             }
             obj.SetActive(false);
             obj.SetActive(true);
@@ -243,11 +298,7 @@ namespace SocialPoint.Pooling
 
         static void LogWarningSpawningPrefabNotInPool(GameObject nonPooledPrefab)
         {
-            if(!Instance._nonPulledPrefabs.Contains(nonPooledPrefab))
-            {
-                Instance._nonPulledPrefabs.Add(nonPooledPrefab);
-                Log.w("ObjectPool: " + nonPooledPrefab.name);
-            }
+            Log.w("UnityObjectPool - created needed prefab: " + nonPooledPrefab.name);
         }
 
         public static GameObject Spawn(GameObject prefab, Transform parent, Vector3 position)
@@ -290,7 +341,7 @@ namespace SocialPoint.Pooling
             GameObject prefab;
             if(Instance._spawnedObjects.TryGetValue(obj, out prefab))
             {
-            
+
                 // Recycle 'notification'
                 Component[] recyclables = obj.GetComponents(typeof(IRecyclable));
                 for(int i = 0; i < recyclables.Length; ++i)
@@ -309,13 +360,16 @@ namespace SocialPoint.Pooling
 
         static void Recycle(GameObject obj, GameObject prefab)
         {
-            Instance._pooledObjects[prefab].Add(obj);
-            Instance._spawnedObjects.Remove(obj);
-            Transform _parent = Instance.gameObject.transform.FindChild("Pool_" + prefab.name).transform;
-            if(obj)
+            if(Instance._pooledObjects.ContainsKey(prefab))
             {
-                SetupTransform(_parent ? _parent : _instance.transform, Vector3.zero, Quaternion.identity, obj);
-                obj.SetActive(false);
+                Instance._pooledObjects[prefab].Add(obj);
+                Instance._spawnedObjects.Remove(obj);
+                Transform _parent = Instance.gameObject.transform.FindChild("Pool_" + prefab.name).transform;
+                if(obj)
+                {
+                    SetupTransform(_parent ? _parent : _instance.transform, Vector3.zero, Quaternion.identity, obj);
+                    obj.SetActive(false);
+                }
             }
         }
 
@@ -357,6 +411,11 @@ namespace SocialPoint.Pooling
         public static bool IsSpawned(GameObject obj)
         {
             return Instance._spawnedObjects.ContainsKey(obj);
+        }
+
+        public static bool IsPooled(GameObject obj)
+        {
+            return Instance._pooledObjects.ContainsKey(obj);
         }
 
         public static int CountPooled<T>(T prefab) where T : Component
@@ -520,3 +579,4 @@ namespace SocialPoint.Pooling
         }
     }
 }
+            
