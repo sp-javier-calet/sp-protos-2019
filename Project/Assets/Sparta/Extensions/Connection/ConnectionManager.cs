@@ -120,6 +120,7 @@ namespace SocialPoint.Connection
 
         public delegate void NotificationReceivedDelegate(int type, string topic, AttrDic dictParams);
 
+        public event Action OnConnectionStablished;
         public event Action OnConnected;
         public event Action OnClosed;
         public event Action<AttrDic> OnProcessServices;
@@ -127,9 +128,6 @@ namespace SocialPoint.Connection
         public event Action<Error> OnRPCError;
         public event NotificationReceivedDelegate OnNotificationReceived;
         public event NotificationReceivedDelegate OnPendingNotification;
-
-        //NOTE: This event was added for tracking purposes only, should not be really needed and should not be backported to Sparta
-        public event Action OnConnectionStablished;
 
         ConnectionManagerConfig _config;
 
