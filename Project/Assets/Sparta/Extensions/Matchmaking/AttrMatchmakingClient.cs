@@ -93,6 +93,22 @@ namespace SocialPoint.Matchmaking
             _storage.Clear();
         }
 
+        void IMatchmakingClientDelegate.OnStart()
+        {
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnStart();
+            }
+        }
+
+        void IMatchmakingClientDelegate.OnSearchOpponent()
+        {
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnSearchOpponent();
+            }
+        }
+
         void IMatchmakingClientDelegate.OnWaiting(int waitTime)
         {
             for(var i=0; i<_delegates.Count; i++)
