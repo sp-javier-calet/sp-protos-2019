@@ -114,14 +114,22 @@ namespace SocialPoint.Locale
         }
 
         #if NGUI
-        static void LoadNGUICSV(byte[] bytes)
+        void LoadNGUICSV(byte[] bytes)
         {
             var manager = Container.Resolve<ILocalizationManager>();
 
+            // Add localizations to NGUI and Update current language
             NGUILocalization.LoadCSV(bytes);
             NGUILocalization.language = manager.CurrentLanguage;
+
+            UILocalize[] localizadElements = GameObject.FindObjectsOfType<UILocalize>();
+            for(int i = 0; i < localizadElements.Length; i++)
+            {
+                localizadElements[i].OnLocalize();
+            }
         }
         #endif
+
 
         void SetupLocalizationManager(LocalizationManager mng)
         {

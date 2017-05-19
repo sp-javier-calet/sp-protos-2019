@@ -6,6 +6,10 @@ namespace SocialPoint.ServerSync
 {
     public sealed class EmptyCommandQueue : ICommandQueue
     {
+        public int SendInterval { get; set; }
+
+        public bool PingEnabled { get; set; }
+
         public SyncDelegate AutoSync{ set; private get; }
 
         public event CommandResponseDelegate CommandResponse

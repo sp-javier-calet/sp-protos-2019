@@ -305,6 +305,7 @@ namespace SocialPoint.Lockstep
             _state = State.Waiting;
             _confirmedTurns.Clear();
             _pendingCommands.Clear();
+            _commandLogics.Clear();
             _lastConfirmedTurnNumber = 0;
             if(_updateScheduler != null)
             {
