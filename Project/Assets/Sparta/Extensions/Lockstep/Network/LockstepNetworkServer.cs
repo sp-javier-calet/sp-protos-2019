@@ -691,19 +691,16 @@ namespace SocialPoint.Lockstep
                 var matchId = MatchId;
                 if(playerIds.Count > 0 && !string.IsNullOrEmpty(matchId))
                 {
-//I_AM_LOD
                     var dic = new AttrDic();
-                    for(int i = 0; i < PlayerIds.Count; i++)
+                    for(int i = 0; i < playerIds.Count; i++)
                     {
-                        var client = FindClientByPlayerId(PlayerIds[i]);
+                        var client = FindClientByPlayerId(playerIds[i]);
                         if(client != null && !string.IsNullOrEmpty(client.Version))
                         {
-                            dic.SetValue(PlayerIds[i], client.Version);
+                            dic.SetValue(playerIds[i], client.Version);
                         }
                     }
-
-                    ((HttpMatchmakingServer)_matchmaking).ClientsVersions = dic;
-//I_AM_LOD End
+                    _matchmaking.ClientsVersions = dic;
 
                     _matchmaking.LoadInfo(matchId, playerIds);
                     return;
@@ -731,7 +728,6 @@ namespace SocialPoint.Lockstep
                         client = CreateClientData(playerID);
                         _clients.Add(client);
                     }
-//I_AM_LOD
                     if(matchData.ContainsKey(playerIdKey))
                     {
                         client.PlayerId = matchData[playerIdKey].AsDic[LogMessageIDKey].AsValue.ToLong();
@@ -740,11 +736,9 @@ namespace SocialPoint.Lockstep
                 else
                 {
                     AttrDic dic = new AttrDic();
-                    dic.SetValue(ParamResponseBody, System.Text.Encoding.UTF8.GetString(((HttpMatchmakingServer)_matchmaking).InfoResponse.Body));
-
+                    dic.SetValue(ParamResponseBody, System.Text.Encoding.UTF8.GetString(_matchmaking.InfoResponse.Body));
                     SendCustomLog(LogMessageNoPlayerTokenOnMatchInfo, dic);
                 }
-//I_AM_LOD End
             }
 
             if(MatchStarted != null)
@@ -877,17 +871,15 @@ namespace SocialPoint.Lockstep
             if(_serverLockstep.Running && _battleEndTimeOut > DateTime.MinValue && (DateTime.Now - _battleEndTimeOut).TotalSeconds >= ServerConfig.BattleEndedWithoutConfirmationTimeout)
             {
                 SendCustomLog(LogMessageTimedOut, LogLevel.Error);
-//I_AM_LOD
+
                 PlayerResults.Clear();
                 AttrList results = new AttrList();
                 results.AddValue(0);
                 results.AddValue(0);
-
                 for(int i = 0; i < _clients.Count; i++)
                 {
                     PlayerResults[_clients[i].PlayerNumber] = results;
                 }
-//I_AM_LOD End
 
                 EndLockstep();
             }
@@ -984,16 +976,15 @@ namespace SocialPoint.Lockstep
             }
             else
             {
-//I_AM_LOD
                 if(_clients.Count < 1)
                 {
-                    SendCustomLog(LogMessageNoClients);
+                    SendCustomLog(LogMessageNoClients, LogLevel.Error);
                 }
                 else
                 {
                     if(resultsAttr.Count < 1 || customData.Count < 1)
                     {
-                        SendCustomLog(LogMessageDataIsEmpty);
+                        SendCustomLog(LogMessageDataIsEmpty, LogLevel.Error);
                     }
                     else
                     {
@@ -1001,7 +992,6 @@ namespace SocialPoint.Lockstep
                     }
                 }
             }
-//I_AM_LOD End
         }
 
         public void OnServerStarted()
@@ -1031,31 +1021,10 @@ namespace SocialPoint.Lockstep
             if(ErrorProduced != null)
             {
                 ErrorProduced(err);
-                SendServerNotificationLog();
-//I_AM_LOD I think all this was removed in previous backport
-                var infoResponse = ((HttpMatchmakingServer)_matchmaking).InfoResponse;
-                var infoRequest = ((HttpMatchmakingServer)_matchmaking).InfoRequest;
-
-                var notifyResponse = ((HttpMatchmakingServer)_matchmaking).NotifyResponse;
-                var notifyRequest = ((HttpMatchmakingServer)_matchmaking).NotifyRequest;
-
-                if(notifyResponse != null && notifyResponse.HasError && notifyRequest != null)
-                {
-                    var dic = GetRequestAndResponseLogs(notifyRequest, notifyResponse);
-
-                    SendCustomLog(LogMessageBattleEndNotification, dic);
-                }
-                else if(infoResponse != null && infoResponse.HasError && infoRequest != null)
-                {
-                    var dic = GetRequestAndResponseLogs(infoRequest, infoResponse);
-
-                    SendCustomLog(LogMessageBattleEndNotification, dic);
-                }
+                SendServerOnErrorLog();
             }
-//I_AM_LOD End
         }
 
-        //I_AM_LOD
         AttrDic GetRequestAndResponseLogs(HttpRequest request, HttpResponse response)
         {
             var dic = new AttrDic();
@@ -1113,7 +1082,6 @@ namespace SocialPoint.Lockstep
             }
             dic.Set(string.Format(ParamLogModified, paramType, ParamModified), paramsDic[ParamModified]);
         }
-        //I_AM_LOD End
 
         public void OnClientConnected(byte clientId)
         {
@@ -1267,23 +1235,27 @@ namespace SocialPoint.Lockstep
         }
 
         //TODO: Fix this? Should this data be custom for all games or should we add a way for each game to customize it
-        void SendServerNotificationLog()
+        void SendServerOnErrorLog()
         {
-            var notifBody = _matchmaking.GetLastNotificationBody();
-            var notifBodyParams = _matchmaking.GetLastNotificationBodyParams();
-            var notifParams = _matchmaking.GetLastNotificationParams();
-            if(notifBody == null || notifBodyParams == null || notifParams == null)
+            var infoResponse = _matchmaking.InfoResponse;
+            var infoRequest = _matchmaking.InfoRequest;
+            var notifyResponse = _matchmaking.NotifyResponse;
+            var notifyRequest = _matchmaking.NotifyRequest;
+
+            AttrDic dic = null;
+            if(notifyResponse != null && notifyResponse.HasError && notifyRequest != null)
             {
-                return;
+                dic = GetRequestAndResponseLogs(notifyRequest, notifyResponse);
+            }
+            else if(infoResponse != null && infoResponse.HasError && infoRequest != null)
+            {
+                dic = GetRequestAndResponseLogs(infoRequest, infoResponse);
             }
 
-            var dic = new AttrDic();
-            dic.SetValue("body", System.Text.Encoding.UTF8.GetString(notifBody));
-            dic.SetValue("match_id", MatchId);
-            AddServerNotificationLogData(dic, notifBodyParams, "bodyParams");
-            AddServerNotificationLogData(dic, notifParams, "params");
-
-            SendLog(new Network.ServerEvents.Log(LogLevel.Error, "Battle End Notification Error", dic), true);
+            if(dic != null)
+            {
+                SendCustomLog(LogMessageBattleEndNotification, LogLevel.Error, dic);
+            }
         }
 
         void AddServerNotificationLogData(AttrDic dic, AttrDic data, string baseKey)

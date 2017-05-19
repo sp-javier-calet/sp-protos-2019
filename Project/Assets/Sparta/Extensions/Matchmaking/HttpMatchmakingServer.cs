@@ -14,10 +14,8 @@ namespace SocialPoint.Matchmaking
         IAttrParser _parser;
         List<IMatchmakingServerDelegate> _delegates;
 
-//I_AM_LOD Check use of all this request and responses
         HttpRequest _infoRequest = null;
         HttpRequest _notifyRequest = null;
-
         HttpResponse _infoResponse = null;
         HttpResponse _notifyResponse = null;
 
@@ -34,6 +32,7 @@ namespace SocialPoint.Matchmaking
         }
 
         public string Version { get; set; }
+
         public AttrDic ClientsVersions { get; set; }
 
         public HttpRequest InfoRequest
@@ -140,21 +139,6 @@ namespace SocialPoint.Matchmaking
             _notifyRequest.AddParam(PlayersParam, userData);
             _notifyRequest.AddParam(CustomDataParam, customData);
             _httpClient.Send(_notifyRequest, (resp) => OnResultReceived(resp, userData));
-        }
-
-        public byte[] GetLastNotificationBody()
-        {
-            return (_notifyRequest != null) ? _notifyRequest.Body : null;
-        }
-
-        public AttrDic GetLastNotificationBodyParams()
-        {
-            return (_notifyRequest != null) ? _notifyRequest.BodyParams : null;
-        }
-
-        public AttrDic GetLastNotificationParams()
-        {
-            return (_notifyRequest != null) ? _notifyRequest.Params : null;
         }
 
         void OnResultReceived(HttpResponse resp, AttrDic userData)

@@ -3,6 +3,7 @@ using SocialPoint.Attributes;
 using SocialPoint.Base;
 using System.Collections.Generic;
 using System;
+using SocialPoint.Network;
 
 namespace SocialPoint.Matchmaking
 {
@@ -23,6 +24,20 @@ namespace SocialPoint.Matchmaking
         // should set the server version
         string Version { get; set; }
 
+        AttrDic ClientsVersions { get; set; }
+
+        //TODO: Fix backport. This getter is only used to do some logs in LockstepNetworkServer, it should be refactored in a cleaner way
+        HttpRequest InfoRequest { get; }
+
+        //TODO: Fix backport. This getter is only used to do some logs in LockstepNetworkServer, it should be refactored in a cleaner way
+        HttpRequest NotifyRequest { get; }
+
+        //TODO: Fix backport. This getter is only used to do some logs in LockstepNetworkServer, it should be refactored in a cleaner way
+        HttpResponse InfoResponse { get; }
+
+        //TODO: Fix backport. This getter is only used to do some logs in LockstepNetworkServer, it should be refactored in a cleaner way
+        HttpResponse NotifyResponse { get; }
+
         void AddDelegate(IMatchmakingServerDelegate dlg);
 
         void RemoveDelegate(IMatchmakingServerDelegate dlg);
@@ -32,14 +47,5 @@ namespace SocialPoint.Matchmaking
 
         // called when the match ends, results keys should be unique playerIds
         void NotifyResults(string matchId, AttrDic results, AttrDic customData);
-
-        //TODO: Fix this. It was added to decouple an specific IMatchmakingServerDelegate and IMatchmakingServer implementation from a game's backport
-        byte[] GetLastNotificationBody();
-
-        //TODO: Fix this. It was added to decouple an specific IMatchmakingServerDelegate and IMatchmakingServer implementation from a game's backport
-        AttrDic GetLastNotificationBodyParams();
-
-        //TODO: Fix this. It was added to decouple an specific IMatchmakingServerDelegate and IMatchmakingServer implementation from a game's backport
-        AttrDic GetLastNotificationParams();
     }
 }
