@@ -165,9 +165,6 @@ namespace SocialPoint.Lockstep
         const string LogMessagePlayerIDKey = "player_id";
         const string LogMessageMatchIDKey = "match_id";
 
-        const string LogMessageVerKey = "ver";
-        const string LogMessageVerValue = "1.0.10";
-
         const string ParamServerConfig = "lockstep_server_config";
         const string ParamConfig = "lockstep_config";
 
@@ -797,7 +794,6 @@ namespace SocialPoint.Lockstep
             if(SendTrack != null)
             {
                 var data = new AttrDic();
-                data.SetValue(LogMessageVerKey, LogMessageVerValue);
                 data.Set(LogMessageUniqueIDKey, new AttrString(MatchId));
                 data.Set(ParamServerConfig, ServerConfig.ToAttr());
                 data.Set(ParamConfig, Config.ToAttr());
@@ -946,7 +942,6 @@ namespace SocialPoint.Lockstep
             {
                 var data = new AttrDic();
                 data.Set(LogMessageUniqueIDKey, new AttrString(MatchId));
-                data.SetValue(LogMessageVerKey, LogMessageVerValue);
                 var origResultsAttr = new AttrDic();
                 {
                     var itr = results.GetEnumerator();
