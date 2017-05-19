@@ -15,6 +15,7 @@ namespace SocialPoint.Network.ServerEvents
         const string LogUri = "rtmp/logs";
 
         public string BaseUrl;
+        public string Environment;
 
         public const int DefaultSendInterval = 10;
 
@@ -88,6 +89,10 @@ namespace SocialPoint.Network.ServerEvents
                 for(int i = 0; i < pendingMetrics.Count; i++)
                 {
                     var metric = pendingMetrics[i];
+                    if(!string.IsNullOrEmpty(Environment))
+                    {
+                        metric.Tags.Add(string.Format("environment:{0}", Environment));
+                    }
                     metrics.Add(metric.ToAttr());
                     sendMetrics.Add(metric);
                 }
@@ -149,7 +154,7 @@ namespace SocialPoint.Network.ServerEvents
             {
                 UpdateCommonTrackData(common);
             }
-            common.Set("plat", new AttrString("PhotonPlugin"));
+            common.SetValue("plat", "PhotonPlugin");
             track.Set("common", common);
             track.Set("events", eventsAttr);
             req.Body = new JsonAttrSerializer().Serialize(track);
@@ -190,7 +195,7 @@ namespace SocialPoint.Network.ServerEvents
 
         void DoSendLogs()
         {
-            if(_sending)
+            if(_sending || _pendingLogs.Count == 0)
             {
                 return;
             }
@@ -201,6 +206,10 @@ namespace SocialPoint.Network.ServerEvents
             for(int i = 0; i < _pendingLogs.Count; i++)
             {
                 var log = _pendingLogs[i];
+                if(!string.IsNullOrEmpty(Environment))
+                {
+                    log.Context.SetValue("environment", Environment);
+                }
                 logList.Add(log.ToAttr());
                 _sendingLogs.Add(log);
             }
@@ -221,6 +230,7 @@ namespace SocialPoint.Network.ServerEvents
                     log.ResponseDelegate(resp.Error);
                 }
             }
+            _pendingLogs.Clear();
             _sending = false;
             if(_sendAgain)
             {

@@ -1,3 +1,4 @@
+#if ENABLE_TANGENT_FIX64
 namespace FixMath.NET {
     partial struct Fix64 {
         public static readonly long[] TanLut = new[] {
@@ -25740,3 +25741,4 @@ namespace FixMath.NET {
         };
     }
 }
+#endif

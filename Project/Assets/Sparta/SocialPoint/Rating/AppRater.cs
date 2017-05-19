@@ -345,7 +345,7 @@ namespace SocialPoint.Rating
 
         void OnWasOnBackground()
         {
-            IncrementUsesCounts(true);
+           // IncrementUsesCounts(true);
         }
 
         public void OnRequestResult(RateRequestResult result)

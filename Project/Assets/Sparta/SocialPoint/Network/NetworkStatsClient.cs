@@ -23,6 +23,10 @@ namespace SocialPoint.Network
             _client.AddDelegate(this);
             _latencies = new List<int>();
             _scheduler = scheduler;
+            if(_client.LatencySupported)
+            {
+                _scheduler.Add(this, UpdateableTimeMode.GameTimeUnscaled, PingInterval);
+            }
         }
 
         #region IUpdateable implementation

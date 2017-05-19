@@ -67,6 +67,7 @@ namespace SocialPoint.Locale
             Container.Rebind<ILocalizationManager>().ToMethod<LocalizationManager>(CreateLocalizationManager, SetupLocalizationManager);
             Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
 
+
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLocale>(CreateAdminPanel);
             #endif
@@ -110,6 +111,7 @@ namespace SocialPoint.Locale
             csvLoadedDelegate = new LocalizationManager.CsvForNGUILoadedDelegate(LoadNGUICSV);
             #endif
 
+
             return new LocalizationManager(Settings.Localization.CsvMode, csvLoadedDelegate);
         }
 
@@ -136,6 +138,7 @@ namespace SocialPoint.Locale
             mng.HttpClient = Container.Resolve<IHttpClient>();
             mng.AppInfo = Container.Resolve<IAppInfo>();
             mng.AppEvents = Container.Resolve<IAppEvents>();
+            mng.EnvironmentType = Container.Resolve<IBackendEnvironment>().GetEnvironment().Type;
 
             string secretKey;
             if(Settings.Localization.Environment == LocalizationEnvironment.Development)

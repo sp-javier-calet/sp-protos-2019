@@ -72,7 +72,7 @@ namespace SocialPoint.ServerSync
             queue.BackoffMultiplier = Settings.BackoffMultiplier;
             queue.PingEnabled = Settings.PingEnabled;
             queue.AppEvents = Container.Resolve<IAppEvents>();
-            queue.TrackEvent = Container.Resolve<IEventTracker>().TrackEvent;
+            queue.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
             queue.LoginData = Container.Resolve<ILoginData>();
             queue.CommandReceiver = Container.Resolve<CommandReceiver>();
             Container.Resolve<IGameErrorHandler>().Setup(queue);

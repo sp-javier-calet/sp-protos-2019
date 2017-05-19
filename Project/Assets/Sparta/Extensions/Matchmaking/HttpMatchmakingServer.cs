@@ -14,7 +14,12 @@ namespace SocialPoint.Matchmaking
         IAttrParser _parser;
         List<IMatchmakingServerDelegate> _delegates;
 
+//I_AM_LOD Check use of all this request and responses
+        HttpRequest _infoRequest = null;
         HttpRequest _notifyRequest = null;
+
+        HttpResponse _infoResponse = null;
+        HttpResponse _notifyResponse = null;
 
         const string MatchMakingUri = "matchmaking";
 
@@ -29,6 +34,39 @@ namespace SocialPoint.Matchmaking
         }
 
         public string Version { get; set; }
+        public AttrDic ClientsVersions { get; set; }
+
+        public HttpRequest InfoRequest
+        {
+            get
+            {
+                return _infoRequest;
+            }
+        }
+
+        public HttpRequest NotifyRequest
+        {
+            get
+            {
+                return _notifyRequest;
+            }
+        }
+
+        public HttpResponse InfoResponse
+        {
+            get
+            {
+                return _infoResponse;
+            }
+        }
+
+        public HttpResponse NotifyResponse
+        {
+            get
+            {
+                return _notifyResponse;
+            }
+        }
 
         public HttpMatchmakingServer(IHttpClient httpClient, string baseUrl = null)
         {
@@ -42,6 +80,7 @@ namespace SocialPoint.Matchmaking
         const string EndUri = "/end_match";
         const string MatchIdParam = "match_id";
         const string VersionParam = "version";
+        const string ClientsVersionsParam = "clients_versions";
         const string PlayersParam = "players";
         const string CustomDataParam = "custom_data";
 
@@ -57,17 +96,22 @@ namespace SocialPoint.Matchmaking
 
         public void LoadInfo(string matchId, List<string> playerIds)
         {
-            var req = CreateRequest(StringUtils.CombineUri(MatchMakingUri, InfoUri));
-            req.AddQueryParam(MatchIdParam, matchId);
+            _infoRequest = CreateRequest(StringUtils.CombineUri(MatchMakingUri, InfoUri));
+            _infoRequest.AddQueryParam(MatchIdParam, matchId);
             if(!string.IsNullOrEmpty(Version))
             {
-                req.AddQueryParam(VersionParam, Version);
+                _infoRequest.AddQueryParam(VersionParam, Version);
             }
-            _httpClient.Send(req, OnInfoReceived);
+            if(ClientsVersions != null)
+            {
+                _infoRequest.AddQueryParam(ClientsVersionsParam, ClientsVersions);
+            }
+            _httpClient.Send(_infoRequest, OnInfoReceived);
         }
 
         void OnInfoReceived(HttpResponse resp)
         {
+            _infoResponse = resp;
             if(resp.HasError)
             {
                 OnError(resp.Error);
@@ -115,6 +159,7 @@ namespace SocialPoint.Matchmaking
 
         void OnResultReceived(HttpResponse resp, AttrDic userData)
         {
+            _notifyResponse = resp;
             if(resp.HasError)
             {
                 OnError(resp.Error);

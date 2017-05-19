@@ -29,6 +29,8 @@ namespace SocialPoint.Login
             public uint MaxConnectivityErrorRetries = SocialPointLogin.DefaultMaxConnectivityErrorRetries;
             public bool EnableLinkConfirmRetries = SocialPointLogin.DefaultEnableLinkConfirmRetries;
             public uint UserMappingsBlock = SocialPointLogin.DefaultUserMappingsBlock;
+            public UInt64 ImpersonatedUserId = 0;
+            public string PrivilegeToken;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -87,6 +89,12 @@ namespace SocialPoint.Login
             login.AutoUpdateFriends = Settings.AutoupdateFriends;
             login.AutoUpdateFriendsPhotosSize = Settings.AutoupdateFriendsPhotoSize;
             login.UserMappingsBlock = Settings.UserMappingsBlock;
+
+            if(!string.IsNullOrEmpty(Settings.PrivilegeToken))
+            {
+                login.PrivilegeToken = Settings.PrivilegeToken;
+                login.ImpersonatedUserId = Settings.ImpersonatedUserId;
+            }
 
             var links = Container.ResolveList<ILink>();
             for(var i = 0; i < links.Count; i++)

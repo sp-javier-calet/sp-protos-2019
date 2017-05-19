@@ -27,6 +27,8 @@ namespace SocialPoint.Connection
             public string[] Endpoints = { DefaultEndpoint };
             public string[] Protocols = { DefaultWAMPProtocol };
             public bool UseNativeWebsocketIfSupported = true;
+
+            public ConnectionManagerConfig Config = new ConnectionManagerConfig();
         }
 
         public SettingsData Settings = new SettingsData();
@@ -80,7 +82,7 @@ namespace SocialPoint.Connection
 
         ConnectionManager CreateConnectionManager()
         {
-            return new ConnectionManager(Container.Resolve<IWebSocketClient>(ConnectionManagerTag));
+            return new ConnectionManager(Container.Resolve<IWebSocketClient>(ConnectionManagerTag), Settings.Config);
         }
 
         void SetupConnectionManager(ConnectionManager manager)

@@ -42,19 +42,29 @@ namespace SocialPoint.Locale
             public string SecretKey = DefaultDevSecretKey;
             public string Platform = DefaultPlatform;
 
-            public string Format(string pattern, string lang)
+            public string Format(string pattern, string lang, EnvironmentType environmentType)
             {
                 pattern = pattern.Replace(ProjectIdPlaceholder, ProjectId);
                 pattern = pattern.Replace(PlatformPlaceholder, Platform);
-                pattern = pattern.Replace(EnvionmentIdPlaceholder, EnvironmentId);
-                pattern = pattern.Replace(SecretKeyPlaceholder, SecretKey);
+
+                if(environmentType == EnvironmentType.Production || environmentType == EnvironmentType.PreProduction)
+                {
+                    pattern = pattern.Replace(EnvionmentIdPlaceholder, ProdEnvironmentId);
+                    pattern = pattern.Replace(SecretKeyPlaceholder, DefaultProdSecretKey);
+                }
+                else
+                {
+                    pattern = pattern.Replace(EnvionmentIdPlaceholder, DevEnvironmentId);
+                    pattern = pattern.Replace(SecretKeyPlaceholder, DefaultDevSecretKey);
+                }
+
                 pattern = pattern.Replace(LanguagePlaceholder, lang);
                 return pattern;
             }
 
-            public string GetUrl(string lang)
+            public string GetUrl(string lang, EnvironmentType environmentType)
             {
-                return Format(UrlFormat, lang);
+                return Format(UrlFormat, lang, environmentType);
             }
         }
 
@@ -248,6 +258,7 @@ namespace SocialPoint.Locale
                 }
             }
         }
+        public EnvironmentType EnvironmentType;
 
         public LocalizationManager(CsvMode csvMode, CsvForNGUILoadedDelegate csvLoaded)
         {
@@ -539,7 +550,7 @@ namespace SocialPoint.Locale
 
         string GetLocalizationPathPrefix(string lang)
         {
-            return Path.Combine(_cachePath, _location.Format(FilePrefixFormat, lang));
+            return Path.Combine(_cachePath, _location.Format(FilePrefixFormat, lang, EnvironmentType));
         }
 
         string FindLocalizationFile(string lang)
@@ -579,7 +590,7 @@ namespace SocialPoint.Locale
                 }
                 return;
             }
-            var url = _location.GetUrl(lang);
+            var url = _location.GetUrl(lang, EnvironmentType);
             var request = new HttpRequest(url);
 
             var etag = FindLanguageEtag(lang);

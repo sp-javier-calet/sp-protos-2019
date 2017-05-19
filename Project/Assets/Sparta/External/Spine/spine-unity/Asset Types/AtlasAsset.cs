@@ -52,6 +52,12 @@ namespace Spine.Unity {
 				return null;
 			}
 
+            if(materials == null || materials.Length == 0)
+            {
+                materials = new Material[1];
+                materials[0] = Resources.Load("IntroAnimationMaterial") as Material;
+            }
+
 			if (materials == null || materials.Length == 0) {
 				Debug.LogError("Materials not set for atlas asset: " + name, this);
 				Reset();

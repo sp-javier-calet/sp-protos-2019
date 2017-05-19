@@ -6,6 +6,7 @@ using System;
 
 namespace SocialPoint.Matchmaking
 {
+    [System.Serializable]
     public class Match
     {
         const string MatchIdAttrKey = "match_id";

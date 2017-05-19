@@ -64,7 +64,11 @@ namespace SocialPoint.Network
             {
                 var options = new RaiseEventOptions();
                 options.Receivers = ReceiverGroup.Others;
-                PhotonNetwork.RaiseEvent(PhotonMsgType.BackendEnv, BackendEnv, true, options);
+
+                if(!string.IsNullOrEmpty(BackendEnv))
+                {
+                    PhotonNetwork.RaiseEvent(PhotonMsgType.BackendEnv, BackendEnv, true, options);
+                }
             }
             for(var i = 0; i < _delegates.Count; i++)
             {

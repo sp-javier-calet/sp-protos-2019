@@ -1,6 +1,7 @@
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
+using System.Collections.Generic;
 
 namespace SocialPoint.Network.ServerEvents
 {
@@ -52,15 +53,15 @@ namespace SocialPoint.Network.ServerEvents
 
         public long Time { private set; get; }
 
-        public string[] Tags { private set; get; }
+        public List<string> Tags { private set; get; }
 
-        public Metric(MetricType type, string stat, int value, string[] tags = null, ErrorDelegate responseDelegate = null)
+        public Metric(MetricType type, string stat, int value, List<string> tags = null, ErrorDelegate responseDelegate = null)
         {
             MetricType = type;
             Stat = stat;
             Value = value;
             Time = TimeUtils.Timestamp;
-            Tags = tags ?? new string[] { };
+            Tags = tags ?? new List<string>();
             ResponseDelegate = responseDelegate;
         }
 
@@ -70,11 +71,7 @@ namespace SocialPoint.Network.ServerEvents
             dic.SetValue(AttrKeyStat, Stat);
             dic.SetValue(AttrKeyValue, Value);
             dic.SetValue(AttrKeyTimestamp, Time);
-            var tagsList = new AttrList();
-            for(int i = 0; i < Tags.Length; i++)
-            {
-                tagsList.Add(new AttrString(Tags[i]));
-            }
+            var tagsList = new AttrList(Tags);
             dic.Set(AttrKeyTags, tagsList);
             return dic;
         }

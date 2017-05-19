@@ -36,6 +36,8 @@ namespace SocialPoint.Lockstep
 
         public string PlayerId{ get; set; }
 
+        public string ClientVersion { get; set; }
+
         public byte PlayerNumber
         {
             get
@@ -248,7 +250,7 @@ namespace SocialPoint.Lockstep
                 _sendPlayerReadyPending = false;
                 Network.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.PlayerReady,
-                }, new PlayerReadyMessage(PlayerId, Lockstep.CurrentTurnNumber));
+                }, new PlayerReadyMessage(PlayerId, Lockstep.CurrentTurnNumber, ClientVersion));
                 if(PlayerReadySent != null)
                 {
                     PlayerReadySent();
