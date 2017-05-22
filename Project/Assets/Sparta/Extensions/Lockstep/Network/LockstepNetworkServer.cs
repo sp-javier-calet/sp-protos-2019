@@ -34,19 +34,19 @@ namespace SocialPoint.Lockstep
         public const byte DefaultMaxPlayers = 2;
         public const int DefaultClientStartDelay = 3000;
         public const int DefaultClientSimulationDelay = 1000;
-        public const int DefaultBattleEndedWithoutConfirmationTimeout = 10;
+        public const int DefaultMatchEndedWithoutConfirmationTimeout = 10;
         public const bool DefaultFinishOnClientDisconnection = true;
         public const int DefaultMetricSendInterval = 10000;
-        public const bool DefaultAllowBattleStartWithOnePlayerReady = false;
+        public const bool DefaultAllowMatchStartWithOnePlayerReady = false;
         public const bool DefaultUsePluginHttpClient = false;
 
         public byte MaxPlayers = DefaultMaxPlayers;
         public int ClientStartDelay = DefaultClientStartDelay;
         public int ClientSimulationDelay = DefaultClientSimulationDelay;
-        public int BattleEndedWithoutConfirmationTimeout = DefaultBattleEndedWithoutConfirmationTimeout;
+        public int MatchEndedWithoutConfirmationTimeout = DefaultMatchEndedWithoutConfirmationTimeout;
         public bool FinishOnClientDisconnection = DefaultFinishOnClientDisconnection;
         public int MetricSendInterval = DefaultMetricSendInterval;
-        public bool AllowBattleStartWithOnePlayerReady = DefaultAllowBattleStartWithOnePlayerReady;
+        public bool AllowMatchStartWithOnePlayerReady = DefaultAllowMatchStartWithOnePlayerReady;
         public bool UsePluginHttpClient = DefaultUsePluginHttpClient;
 
         public override string ToString()
@@ -109,10 +109,10 @@ namespace SocialPoint.Lockstep
         LockstepCommandFactory _localFactory;
         ClientData _localClientData;
 
-        DateTime _battleEndTimeOut;
+        DateTime _matchEndTimeOut;
 
         int _logCount;
-        bool _battleEnded;
+        bool _matchEnded;
 
         public LockstepServerConfig ServerConfig{ get; set; }
 
@@ -124,7 +124,7 @@ namespace SocialPoint.Lockstep
         public event Action<byte> OnClientConnectedEvent;
         public event Action<byte> OnClientDisconnectedEvent;
 
-        public Func<bool> HasBattleEnded;
+        public Func<bool> HasMatchEnded;
 
         public const int CommandFailedErrorCode = 300;
         public const int MatchmakingErrorCode = 301;
@@ -151,11 +151,11 @@ namespace SocialPoint.Lockstep
 
         const string LogMessageAlreadyEnded = "Trying to Start a match that has already ended!";
         const string LogMessageStartingLockstep = "Starting Lockstep Server";
-        const string LogMessagePlayerTryEnd = "Player said that battle ended but game says it had not.";
+        const string LogMessagePlayerTryEnd = "Player said that match ended but game says it had not.";
         const string LogMessageTimedOut = "Timed Out After Player Said Game Was Over";
         const string LogMessageNoClients = "Match had no clients!";
         const string LogMessageDataIsEmpty = "Player Result or Custom Data is Empty!";
-        const string LogMessageBattleEndNotification = "Battle End Notification Error";
+        const string LogMessageMatchEndNotification = "Match End Notification Error";
         const string LogMessageCouldNotFindPlayerID = "Client not found for given PlayerID";
         const string LogMessageNoPlayerTokenOnMatchInfo = "Match Info response has no Player Token";
 
@@ -248,7 +248,7 @@ namespace SocialPoint.Lockstep
             _matchmaking = matchmaking;
             _server = server;
 
-            _battleEndTimeOut = DateTime.MinValue;
+            _matchEndTimeOut = DateTime.MinValue;
 
             _server.RegisterReceiver(this);
             _server.AddDelegate(this);
@@ -265,7 +265,7 @@ namespace SocialPoint.Lockstep
         {
             _serverLockstep.Update();
 
-            CheckBattleEndTimeout();
+            CheckMatchEndTimeout();
         }
 
         public void Update(int dt)
@@ -664,7 +664,7 @@ namespace SocialPoint.Lockstep
         {
             if(!_serverLockstep.Running
                && (ReadyPlayerCount == ServerConfig.MaxPlayers
-               || (ReadyPlayerCount > 0 && ServerConfig.AllowBattleStartWithOnePlayerReady)))
+               || (ReadyPlayerCount > 0 && ServerConfig.AllowMatchStartWithOnePlayerReady)))
             {
                 StartLockstep();
             }
@@ -674,7 +674,7 @@ namespace SocialPoint.Lockstep
         {
             SendCustomLog(LogMessageStart);
 
-            if(_battleEnded)
+            if(_matchEnded)
             {
                 SendCustomLog(LogMessageAlreadyEnded, LogLevel.Error);
             }
@@ -836,9 +836,9 @@ namespace SocialPoint.Lockstep
                 {
                     EndLockstep();
                 }
-                else if(HasBattleEnded != null)
+                else if(HasMatchEnded != null)
                 {
-                    if(HasBattleEnded())
+                    if(HasMatchEnded())
                     {
                         EndLockstep();
                     }
@@ -856,15 +856,15 @@ namespace SocialPoint.Lockstep
                         dic.SetValue(ParamDetail, new System.Diagnostics.StackTrace(true).ToString());
 
                         SendCustomLog(LogMessagePlayerTryEnd, dic);
-                        _battleEndTimeOut = DateTime.Now;
+                        _matchEndTimeOut = DateTime.Now;
                     }
                 }
             }
         }
 
-        void CheckBattleEndTimeout()
+        void CheckMatchEndTimeout()
         {
-            if(_serverLockstep.Running && _battleEndTimeOut > DateTime.MinValue && (DateTime.Now - _battleEndTimeOut).TotalSeconds >= ServerConfig.BattleEndedWithoutConfirmationTimeout)
+            if(_serverLockstep.Running && _matchEndTimeOut > DateTime.MinValue && (DateTime.Now - _matchEndTimeOut).TotalSeconds >= ServerConfig.MatchEndedWithoutConfirmationTimeout)
             {
                 SendCustomLog(LogMessageTimedOut, LogLevel.Error);
 
@@ -874,9 +874,9 @@ namespace SocialPoint.Lockstep
 
         void EndLockstep()
         {
-            _battleEnded = true;
+            _matchEnded = true;
             _serverLockstep.Stop();
-            _battleEndTimeOut = DateTime.MinValue;
+            _matchEndTimeOut = DateTime.MinValue;
 
             var results = PlayerResults;
             var customData = new AttrDic();
@@ -1240,7 +1240,7 @@ namespace SocialPoint.Lockstep
 
             if(dic != null)
             {
-                SendCustomLog(LogMessageBattleEndNotification, LogLevel.Error, dic);
+                SendCustomLog(LogMessageMatchEndNotification, LogLevel.Error, dic);
             }
         }
 
