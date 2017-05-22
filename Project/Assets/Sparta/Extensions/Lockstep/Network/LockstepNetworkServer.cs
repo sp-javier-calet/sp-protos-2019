@@ -868,15 +868,6 @@ namespace SocialPoint.Lockstep
             {
                 SendCustomLog(LogMessageTimedOut, LogLevel.Error);
 
-                PlayerResults.Clear();
-                AttrList results = new AttrList();
-                results.AddValue(0);
-                results.AddValue(0);
-                for(int i = 0; i < _clients.Count; i++)
-                {
-                    PlayerResults[_clients[i].PlayerNumber] = results;
-                }
-
                 EndLockstep();
             }
         }
