@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using SocialPoint.Attributes;
-using SocialPoint.Base;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
@@ -24,6 +22,7 @@ namespace SocialPoint.Social
         const string AllianceIdKey = "id";
         const string AllianceNameKey = "name";
         const string AllianceDescriptionKey = "description";
+        const string AllianceMessageKey = "welcome_message";
         // TODO duplicated
         const string AllianceAvatarKey = "avatar";
         const string AllianceAvatarIdKey = "avatarId";
@@ -64,7 +63,7 @@ namespace SocialPoint.Social
             return data;
         }
 
-        void ParseAllianceBasicData(AllianceBasicData data, AttrDic dic)
+        static void ParseAllianceBasicData(AllianceBasicData data, AttrDic dic)
         {
             data.Id = dic.GetValue(AllianceIdKey).ToString();
             data.Name = dic.GetValue(AllianceNameKey).ToString();
@@ -78,7 +77,7 @@ namespace SocialPoint.Social
             data.IsNewAlliance = dic.GetValue(AllianceIsNewKey).ToBool();
         }
 
-        void ParseAllianceBasicData(AllianceBasicData data, Alliance alliance)
+        static void ParseAllianceBasicData(AllianceBasicData data, Alliance alliance)
         {
             data.Id = alliance.Id;
             data.Name = alliance.Name;
@@ -107,6 +106,7 @@ namespace SocialPoint.Social
             var data = dic.Get(AllianceInfoKey).AsDic;
             alliance.Name = data.GetValue(AllianceNameKey).ToString();
             alliance.Description = data.GetValue(AllianceDescriptionKey).ToString();
+            alliance.Message = data.GetValue(AllianceMessageKey).ToString();
             alliance.Requirement = data.GetValue(AllianceRequirementMinLevelKey).ToInt();
             alliance.AccessType = data.GetValue(AllianceTypeAccessKey).ToInt();
             alliance.Avatar = data.ContainsKey(AllianceAvatarIdKey) ? data.GetValue(AllianceAvatarIdKey).ToInt() : 1;
@@ -175,6 +175,7 @@ namespace SocialPoint.Social
         {
             AddStringDiff(dic, AllianceNameKey, baseAlliance != null ? baseAlliance.Name : null, modifiedAlliance.Name);
             AddStringDiff(dic, AllianceDescriptionKey, baseAlliance != null ? baseAlliance.Description : null, modifiedAlliance.Description);
+            AddStringDiff(dic, AllianceMessageKey, baseAlliance != null ? baseAlliance.Message : null, modifiedAlliance.Message);
             AddIntDiff(dic, AllianceRequirementScore, baseAlliance != null ? baseAlliance.Requirement : -1, modifiedAlliance.Requirement);
             AddIntDiff(dic, AllianceTypeKey, baseAlliance != null ? baseAlliance.AccessType : -1, modifiedAlliance.AccessType);
             AddIntDiff(dic, AllianceAvatarKey, baseAlliance != null ? baseAlliance.Avatar : -1, modifiedAlliance.Avatar);
@@ -187,6 +188,7 @@ namespace SocialPoint.Social
                 dic.SetValue(key, newData);
             }
         }
+
         protected void AddIntDiff(AttrDic dic, string key, int currentData, int newData)
         {
             if(currentData != newData)
@@ -244,7 +246,7 @@ namespace SocialPoint.Social
             return dic;
         }
 
-        void SerializeSearchData(AlliancesSearch search, AttrDic dic)
+        static void SerializeSearchData(AlliancesSearch search, AttrDic dic)
         {
             dic.SetValue(SearchFilterKey, search.Filter);
         }

@@ -17,11 +17,10 @@ namespace SocialPoint.Social
         const string UserIdKey = "user_id";
         const string UserNameKey = "user_name";
         const string KickedUserNameKey = "kicked_user_name";
+        const string AcceptedUserNameKey = "accepted_user_name";
         const string AdminUserNameKey = "admin_user_name";
-        const string UserNameTwoDaysLaterKey = "UserName";
         const string OldRoleKey = "old_role";
         const string NewRoleKey = "new_role";
-        const string NewRoleTwoDaysLaterKey = "NewRole";
         const string RankPromotionKey = "promotion";
         const string RankDemotionKey = "demotion";
 
@@ -146,6 +145,9 @@ namespace SocialPoint.Social
                 break;
             
             case NotificationType.BroadcastAllianceMemberAccept:
+                messages = ParsePlayerAcceptedMessage(type, dic);
+                break;
+
             case NotificationType.BroadcastAllianceJoin:
                 messages = ParsePlayerJoinedMessage(type, dic);
                 break;
@@ -225,7 +227,7 @@ namespace SocialPoint.Social
                 ParseExtraInfo(message, msgInfo);
             }
 
-            return new MessageType[]{ message };
+            return new []{ message };
         }
 
         MessageType[] ParsePlayerJoinedMessage(int type, AttrDic dic)
@@ -238,14 +240,35 @@ namespace SocialPoint.Social
 
             var playerName = dic.GetValue(UserNameKey).ToString();
             var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerJoinedKey), playerName));
+
             if(message == null)
             {
                 return new MessageType[]{ };
             }
-            else
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
+        }
+
+        MessageType[] ParsePlayerAcceptedMessage(int type, AttrDic dic)
+        {   
+            if(!Validate(dic, UserNameKey, AcceptedUserNameKey, UserIdKey))
             {
-                return new MessageType[] { message };
+                Log.e(Tag, "Received chat message of player accepted message type does not contain all the mandatory fields");
+                return new MessageType[0];
             }
+
+            var nameUserAction = dic.GetValue(UserNameKey).ToString();
+            var nameUserAccepted = dic.GetValue(AcceptedUserNameKey).ToString();
+            string userAcceptedId = dic.GetValue(UserIdKey).ToString();
+            var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerAcceptedKey), nameUserAction, nameUserAccepted));
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
+            message.RequestJoinData = new RequestJoinData();
+            message.RequestJoinData.PlayerId = userAcceptedId;
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
         }
 
         MessageType[] ParsePlayerLeftMessage(int type, AttrDic dic)
@@ -262,10 +285,8 @@ namespace SocialPoint.Social
             {
                 return new MessageType[]{ };
             }
-            else
-            {
-                return new MessageType[] { message };
-            }
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
         }
 
         MessageType[] ParsePlayerKickedMessage(int type, AttrDic dic)
@@ -283,10 +304,8 @@ namespace SocialPoint.Social
             {
                 return new MessageType[]{ };
             }
-            else
-            {
-                return new MessageType[] { message };
-            }
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
         }
 
         MessageType[] ParseMemberPromotedMessage(int type, AttrDic dic)
@@ -316,13 +335,15 @@ namespace SocialPoint.Social
                 return new MessageType[]{ };
             }
 
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+
             var data = new MemberPromotionData();
             data.PlayerName = playerName;
             data.OldRank = oldRank;
             data.NewRank = newRank;
             message.MemberPromotionData = data;
 
-            return new MessageType[] { message };
+            return new [] { message };
         }
 
         MessageType[] ParseJoinRequestMessage(int type, AttrDic dic)
@@ -338,16 +359,17 @@ namespace SocialPoint.Social
             var data = new RequestJoinData();
             data.PlayerId = playerId;
             message.RequestJoinData = data;
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
 
             if(ParseExtraInfo != null)
             {
                 ParseExtraInfo(message, dic);
             }
 
-            return new MessageType[] { message };
+            return new [] { message };
         }
 
-        bool Validate(AttrDic dic, params string[] requiredValues)
+        static bool Validate(AttrDic dic, params string[] requiredValues)
         {
             for(int i = 0; i < requiredValues.Length; ++i)
             {

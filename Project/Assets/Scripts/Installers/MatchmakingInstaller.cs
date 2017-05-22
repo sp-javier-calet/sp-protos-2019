@@ -64,11 +64,12 @@ public class MatchmakingInstaller : Installer
     {
         return new StoredMatchmakingClient(
             new WampMatchmakingClient(
-                Container.Resolve<ILoginData>(),
-                Container.Resolve<SocialPoint.Connection.ConnectionManager>()
-            ), new AttrMatchStorage(
-            Container.Resolve<IAttrStorage>("volatile")
-        )
+                Container.Resolve<SocialPoint.Connection.ConnectionManager>(),
+                Container.Resolve<ILoginData>()
+            ), 
+            new AttrMatchStorage(
+                Container.Resolve<IAttrStorage>("volatile")
+            )
         );
     }
 

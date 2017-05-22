@@ -59,6 +59,7 @@ namespace SocialPoint.Social
         const string AllianceIdKey = "alliance_id";
         public const string AvatarKey = "avatar";
         public const string AllianceDescriptionKey = "description";
+        public const string AllianceMessageKey = "welcome_message";
         public const string AllianceRequirementKey = "minimum_score";
         public const string AllianceTypeKey = "type";
         public const string AlliancePropertiesKey = "properties";
@@ -73,6 +74,12 @@ namespace SocialPoint.Social
         const string JoinTimestampKey = "timestamp";
         const string JoinOriginKey = "origin";
         const string JoinMessageKey = "message";
+
+        const string AllianceRequestIdKey = "alliance_id";
+        const string AllianceRequestNameKey = "alliance_name";
+        const string AllianceRequestAvatarKey = "alliance_symbol";
+        const string AllianceRequestTotalMembersKey = "total_members";
+        const string AllianceRequestJoinTimestampKey = "join_ts";
 
         #endregion
 
@@ -112,7 +119,7 @@ namespace SocialPoint.Social
 
         public AllianceDataFactory Factory
         { 
-            private get
+            get
             {
                 return _factory;
             }
@@ -656,12 +663,6 @@ namespace SocialPoint.Social
                 }
             }
         }
-
-        const string AllianceRequestIdKey = "alliance_id";
-        const string AllianceRequestNameKey = "alliance_name";
-        const string AllianceRequestAvatarKey = "alliance_symbol";
-        const string AllianceRequestTotalMembersKey = "total_members";
-        const string AllianceRequestJoinTimestampKey = "join_ts";
 
         void OnRequestAccepted(AttrDic dic)
         {

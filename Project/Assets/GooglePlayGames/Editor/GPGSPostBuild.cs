@@ -66,15 +66,19 @@ namespace GooglePlayGames.Editor
             string[] filesToRemove = {
                 "Libraries/Plugins/IOS/GPGSAppController.mm",
                 "Libraries/Plugins/iOS/GPGSAppController.mm",
+                "Libraries/Plugins/Ios/GPGSAppController.mm",
                 "Libraries/GPGSAppController.mm",
                 "Libraries/Plugins/IOS/GPGSAppController.h",
                 "Libraries/Plugins/iOS/GPGSAppController.h",
+                "Libraries/Plugins/Ios/GPGSAppController.h",
                 "Libraries/GPGSAppController.h",
                 "Libraries/Plugins/IOS/CustomWebViewApplication.h",
                 "Libraries/Plugins/iOS/CustomWebViewApplication.h",
+                "Libraries/Plugins/Ios/CustomWebViewApplication.h",
                 "Libraries/CustomWebViewApplication.h",
                 "Libraries/Plugins/IOS/CustomWebViewApplication.mm",
                 "Libraries/Plugins/iOS/CustomWebViewApplication.mm",
+                "Libraries/Plugins/Ios/CustomWebViewApplication.mm",
                 "Libraries/CustomWebViewApplication.mm"
             };
 

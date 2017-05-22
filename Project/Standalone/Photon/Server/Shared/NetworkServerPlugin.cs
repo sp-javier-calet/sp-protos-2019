@@ -360,6 +360,20 @@ namespace SocialPoint.Network
             return def;
         }
 
+        protected static bool GetConfigOption(Dictionary<string, string> config, string key, bool def)
+        {
+            string sval;
+            if(config.TryGetValue(key, out sval))
+            {
+                bool val;
+                if(bool.TryParse(sval, out val))
+                {
+                    return val;
+                }
+            }
+            return def;
+        }
+
         void TryUpdate()
         {
             try
@@ -385,6 +399,7 @@ namespace SocialPoint.Network
             if(err.Detail != string.Empty)
             {
                 context.SetValue("detail", err.Detail);
+                context.SetValue("match_id", PluginHost.GameId);
             }
             PluginEventTracker.SendLog(new Network.ServerEvents.Log(LogLevel.Error, err.Msg, context), true);
             var dic = new Dictionary<byte, object>();
@@ -395,7 +410,7 @@ namespace SocialPoint.Network
 
         protected void HandleException(Exception e)
         {
-            BroadcastError(new Error(e.Message));
+            BroadcastError(new Error(e.Message, e.StackTrace));
         }
 
         void INetworkServer.Start()

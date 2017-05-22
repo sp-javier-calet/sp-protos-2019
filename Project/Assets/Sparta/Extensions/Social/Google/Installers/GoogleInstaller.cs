@@ -1,4 +1,4 @@
-﻿#if(UNITY_ANDROID || (UNITY_IPHONE && !NO_GPGS))
+﻿#if(UNITY_ANDROID || (UNITY_IOS && !NO_GPGS))
 #define GOOGLE_SUPPORTED
 #endif
 

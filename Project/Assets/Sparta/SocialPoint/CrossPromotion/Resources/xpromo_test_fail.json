@@ -50,8 +50,8 @@
 "popup_freq": 3600,
 "popup_timeout": 30,
 "track_timeout": 3,
-"show_icon": true,
-"show_popup": true,
+"show_icon": false,
+"show_popup": false,
 "aspect_ratio": 1.88,
 "popup_height_factor": 1.5,
 "legacy_xpromo_enabled": false

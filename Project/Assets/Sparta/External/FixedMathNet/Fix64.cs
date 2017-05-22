@@ -21,6 +21,8 @@ namespace FixMath.NET {
         public static readonly Fix64 MinValue = new Fix64(MIN_VALUE);
         public static readonly Fix64 One = new Fix64(ONE);
         public static readonly Fix64 Zero = new Fix64();
+        public static readonly Fix64 Half = new Fix64(2147483648L);
+
         /// <summary>
         /// The value of Pi
         /// </summary>
@@ -598,7 +600,9 @@ namespace FixMath.NET {
         }
 
 
-
+        public static explicit operator Fix64(int value) {
+            return new Fix64(value * ONE);
+        }
         public static explicit operator Fix64(long value) {
             return new Fix64(value * ONE);
         }

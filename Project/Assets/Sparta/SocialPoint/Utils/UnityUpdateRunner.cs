@@ -18,14 +18,14 @@ namespace SocialPoint.Utils
     {
         readonly UpdateScheduler _scheduler = new UpdateScheduler();
 
-        public void Add(IUpdateable elm, bool timeScaled = false, float interval = -1)
+        public void Add(IUpdateable elm, UpdateableTimeMode updateTimeMode = UpdateableTimeMode.GameTimeUnscaled, float interval = -1)
         {
-            _scheduler.Add(elm, timeScaled, interval);
+            _scheduler.Add(elm, updateTimeMode, interval);
         }
 
-        public void Add(IDeltaUpdateable elm, bool timeScaled = false, float interval = -1)
+        public void Add(IDeltaUpdateable elm, UpdateableTimeMode updateTimeMode = UpdateableTimeMode.GameTimeUnscaled, float interval = -1)
         {
-            _scheduler.Add(elm, timeScaled, interval);
+            _scheduler.Add(elm, updateTimeMode, interval);
         }
 
         public void Remove(IUpdateable elm)
@@ -67,7 +67,11 @@ namespace SocialPoint.Utils
 
         void Update()
         {
-            _scheduler.Update(Time.deltaTime);
+            /* NOTE: Unity's Time.unscaledDeltaTime is counting time while in background (BUG?), 
+             * but we want an unscaled game-time-only for UnscaledDeltaTime, 
+             * so we divide delta by scale instead.
+             * */
+            _scheduler.Update(Time.deltaTime, Time.deltaTime / Time.timeScale);
         }
     }
 

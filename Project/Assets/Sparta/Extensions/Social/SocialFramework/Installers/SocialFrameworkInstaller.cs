@@ -10,32 +10,75 @@ using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Social
 {
-    public class SocialFrameworkInstaller : ServiceInstaller
+    public class SocialFrameworkInstaller : ServiceInstaller, IInitializable
     {
+        [Serializable]
+        public class SettingsData
+        {
+            public bool EnableAlliances;
+            public bool EnableChat;
+            public bool EnableMessageSystem;
+
+            public SettingsData()
+            {
+                EnableAlliances = true;
+                EnableChat = true;
+                EnableMessageSystem = true;
+            }
+        }
+
+        public SettingsData Settings = new SettingsData();
+
         public override void InstallBindings()
         {
             Container.Bind<SocialManager>().ToMethod<SocialManager>(CreateSocialManager);
 
             Container.Bind<PlayersManager>().ToMethod<PlayersManager>(CreatePlayersManager, SetupPlayersManager);
-
-            Container.Bind<ChatManager>().ToMethod<ChatManager>(CreateChatManager, SetupChatManager);
-            Container.Bind<IDisposable>().ToLookup<ChatManager>();
-
-            Container.Bind<AlliancesManager>().ToMethod<AlliancesManager>(CreateAlliancesManager, SetupAlliancesManager);
-            Container.Bind<IDisposable>().ToLookup<AlliancesManager>();
-
-            Container.Bind<IRankManager>().ToMethod<IRankManager>(CreateRankManager);
-            Container.Bind<IAccessTypeManager>().ToMethod<IAccessTypeManager>(CreateAccessTypeManager);
-
             Container.Bind<PlayersDataFactory>().ToMethod<PlayersDataFactory>(CreatePlayersDataFactory);
 
-            Container.Bind<AllianceDataFactory>().ToMethod<AllianceDataFactory>(CreateAlliancesDataFactory, SetupAlliancesDataFactory);
+            if(Settings.EnableChat)
+            {
+                Container.Bind<ChatManager>().ToMethod<ChatManager>(CreateChatManager, SetupChatManager);
+                Container.Bind<IDisposable>().ToLookup<ChatManager>();
+                Container.Listen<IChatRoom>().WhenResolved(SetupChatRoom);
+            }
+            if(Settings.EnableAlliances)
+            {
+                Container.Bind<AlliancesManager>().ToMethod<AlliancesManager>(CreateAlliancesManager, SetupAlliancesManager);
+                Container.Bind<IDisposable>().ToLookup<AlliancesManager>();
 
+                Container.Bind<IRankManager>().ToMethod<IRankManager>(CreateRankManager);
+                Container.Bind<IAccessTypeManager>().ToMethod<IAccessTypeManager>(CreateAccessTypeManager);
+
+                Container.Bind<AllianceDataFactory>().ToMethod<AllianceDataFactory>(CreateAlliancesDataFactory, SetupAlliancesDataFactory);
+            }
+            if(Settings.EnableMessageSystem)
+            {
+                Container.Bind<MessagingSystemManager>().ToMethod<MessagingSystemManager>(CreateMessagingSystemManager, SetupMessagingSystemManager);
+                Container.Bind<IDisposable>().ToLookup<MessagingSystemManager>();
+            }
             #if ADMIN_PANEL
-            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework);
+            Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelSocialFramework>(CreateAdminPanelSocialFramework, SetupAdminPanelSocialFramework);
             #endif
 
-            Container.Listen<IChatRoom>().WhenResolved(SetupChatRoom);
+            Container.Bind<IInitializable>().ToInstance(this);
+        }
+
+        public void Initialize()
+        {
+            Container.Resolve<PlayersManager>();
+            if(Settings.EnableChat)
+            {
+                Container.Resolve<ChatManager>();
+            }
+            if(Settings.EnableAlliances)
+            {
+                Container.Resolve<AlliancesManager>();
+            }
+            if(Settings.EnableMessageSystem)
+            {
+                Container.Resolve<MessagingSystemManager>();
+            }
         }
 
         SocialManager CreateSocialManager()
@@ -103,15 +146,44 @@ namespace SocialPoint.Social
             return new DefaultAccessTypeManager();
         }
 
+        MessagingSystemManager CreateMessagingSystemManager()
+        {
+            return new MessagingSystemManager(Container.Resolve<ConnectionManager>());
+        }
+
+        void SetupMessagingSystemManager(MessagingSystemManager manager)
+        {
+            manager.SocialManager = Container.Resolve<SocialManager>();
+            if(Settings.EnableAlliances)
+            {
+                manager.AlliancesManager = Container.Resolve<AlliancesManager>();
+            }
+        }
+
         #if ADMIN_PANEL
         AdminPanelSocialFramework CreateAdminPanelSocialFramework()
         {
             return new AdminPanelSocialFramework(
                 Container.Resolve<ConnectionManager>(),
-                Container.Resolve<ChatManager>(),
-                Container.Resolve<AlliancesManager>(),
-                Container.Resolve<PlayersManager>(),
-                Container.Resolve<SocialManager>());
+                Container.Resolve<SocialManager>(),
+                Container.Resolve<PlayersManager>()
+            );
+        }
+
+        void SetupAdminPanelSocialFramework(AdminPanelSocialFramework adminPanel)
+        {
+            if(Settings.EnableChat)
+            {
+                adminPanel.ChatManager = Container.Resolve<ChatManager>();
+            }
+            if(Settings.EnableAlliances)
+            {
+                adminPanel.AlliancesManager = Container.Resolve<AlliancesManager>();
+            }
+            if(Settings.EnableMessageSystem)
+            {
+                adminPanel.MessagesManager = Container.Resolve<MessagingSystemManager>();
+            }
         }
         #endif
 

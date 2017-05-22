@@ -118,10 +118,10 @@ namespace SocialPoint.Lockstep
             apply = Substitute.For<ILockstepCommandLogic>();
             finish = Substitute.For<ILockstepCommandLogic>();
 
-            _client.RegisterCommandLogic(cmd.GetType(), apply);
             _client.ClientConfig.LocalSimulationDelay = 1000;
             _client.Stop();
             _client.Start();
+            _client.RegisterCommandLogic(cmd.GetType(), apply);
             _client.AddPendingCommand(cmd, finish);
             _client.Update(950);
             finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>(), Arg.Any<byte>());

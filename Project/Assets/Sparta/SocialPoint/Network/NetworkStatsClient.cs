@@ -92,7 +92,7 @@ namespace SocialPoint.Network
             RestartStats();
             if(_client.LatencySupported)
             {
-                _scheduler.Add(this, false, PingInterval);
+                _scheduler.Add(this, UpdateableTimeMode.GameTimeUnscaled, PingInterval);
             }
             _client.Connect();
         }
