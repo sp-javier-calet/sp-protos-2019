@@ -98,6 +98,7 @@ namespace SocialPoint.Network
             var httpServer = new ImmediateWebRequestHttpClient();
             _updateScheduler = new UpdateScheduler();
             PluginEventTracker = new HttpServerEventTracker(_updateScheduler, httpServer);
+            PluginEventTracker.Platform = "PhotonPlugin";
             PluginEventTracker.Start();
         }
 
