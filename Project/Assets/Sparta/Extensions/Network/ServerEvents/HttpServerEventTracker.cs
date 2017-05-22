@@ -16,6 +16,7 @@ namespace SocialPoint.Network.ServerEvents
 
         public string BaseUrl;
         public string Environment;
+        public string Platform;
 
         public const int DefaultSendInterval = 10;
 
@@ -154,7 +155,7 @@ namespace SocialPoint.Network.ServerEvents
             {
                 UpdateCommonTrackData(common);
             }
-            common.SetValue("plat", "PhotonPlugin");
+            common.SetValue("plat", Platform);
             track.Set("common", common);
             track.Set("events", eventsAttr);
             req.Body = new JsonAttrSerializer().Serialize(track);
