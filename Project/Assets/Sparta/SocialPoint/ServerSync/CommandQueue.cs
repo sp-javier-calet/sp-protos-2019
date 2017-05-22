@@ -208,7 +208,7 @@ namespace SocialPoint.ServerSync
             }
         }
 
-        public TrackEventDelegate TrackEvent;
+        public TrackEventDelegate TrackSystemEvent;
 
         public const bool DefaultIgnoreResponses = false;
         public const int DefaultSendInterval = 20;
@@ -367,7 +367,7 @@ namespace SocialPoint.ServerSync
             Stop();
             Reset();
             AutoSync = null;
-            TrackEvent = null;
+            TrackSystemEvent = null;
             if(_appEvents != null)
             {
                 DisconnectAppEvents(_appEvents);
@@ -673,7 +673,7 @@ namespace SocialPoint.ServerSync
             {
                 err.Code = (int)type;
             }
-            if(TrackEvent != null)
+            if(TrackSystemEvent != null)
             {
                 var data = new AttrDic();
                 var errData = new AttrDic();
@@ -683,7 +683,7 @@ namespace SocialPoint.ServerSync
                 syncData.SetValue(AttrKeyEventErrorType, (int)type);
                 syncData.SetValue(AttrKeyEventErrorMessage, err.Msg);
                 syncData.SetValue(AttrKeyEventErrorHttpCode, httpCode);
-                TrackEvent(ErrorEventName, data);
+                TrackSystemEvent(ErrorEventName, data);
             }
             if(GeneralError != null)
             {
@@ -693,13 +693,13 @@ namespace SocialPoint.ServerSync
 
         void NotifySyncChange()
         {
-            if(TrackEvent != null)
+            if(TrackSystemEvent != null)
             {
                 var data = new AttrDic();
                 var gameData = new AttrDic();
                 data.Set(AttrKeyGame, gameData);
                 gameData.SetValue(AttrKeySynced, _synced);
-                TrackEvent(SyncChangeEventName, data);
+                TrackSystemEvent(SyncChangeEventName, data);
             }
             if(SyncChange != null)
             {

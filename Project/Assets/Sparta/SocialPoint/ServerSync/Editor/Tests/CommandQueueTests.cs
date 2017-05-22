@@ -46,7 +46,7 @@ namespace SocialPoint.ServerSync
             appEvents.GameWasLoaded.Returns(new PriorityAction());
             appEvents.GameWillRestart.Returns(new PriorityAction());
             CommandQueue.AppEvents = appEvents;
-            CommandQueue.TrackEvent = Substitute.For<CommandQueue.TrackEventDelegate>();
+            CommandQueue.TrackSystemEvent = Substitute.For<CommandQueue.TrackEventDelegate>();
         }
 
         [Test]
