@@ -3,7 +3,6 @@
 using System;
 using SocialPoint.AdminPanel;
 using SocialPoint.Base;
-using SocialPoint.WAMP;
 
 namespace SocialPoint.Social
 {

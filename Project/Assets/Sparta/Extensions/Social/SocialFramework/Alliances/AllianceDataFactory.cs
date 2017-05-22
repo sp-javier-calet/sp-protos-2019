@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using SocialPoint.Attributes;
-using SocialPoint.Base;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Social
 {
@@ -65,7 +63,7 @@ namespace SocialPoint.Social
             return data;
         }
 
-        void ParseAllianceBasicData(AllianceBasicData data, AttrDic dic)
+        static void ParseAllianceBasicData(AllianceBasicData data, AttrDic dic)
         {
             data.Id = dic.GetValue(AllianceIdKey).ToString();
             data.Name = dic.GetValue(AllianceNameKey).ToString();
@@ -79,7 +77,7 @@ namespace SocialPoint.Social
             data.IsNewAlliance = dic.GetValue(AllianceIsNewKey).ToBool();
         }
 
-        void ParseAllianceBasicData(AllianceBasicData data, Alliance alliance)
+        static void ParseAllianceBasicData(AllianceBasicData data, Alliance alliance)
         {
             data.Id = alliance.Id;
             data.Name = alliance.Name;
@@ -190,6 +188,7 @@ namespace SocialPoint.Social
                 dic.SetValue(key, newData);
             }
         }
+
         protected void AddIntDiff(AttrDic dic, string key, int currentData, int newData)
         {
             if(currentData != newData)
@@ -247,7 +246,7 @@ namespace SocialPoint.Social
             return dic;
         }
 
-        void SerializeSearchData(AlliancesSearch search, AttrDic dic)
+        static void SerializeSearchData(AlliancesSearch search, AttrDic dic)
         {
             dic.SetValue(SearchFilterKey, search.Filter);
         }
