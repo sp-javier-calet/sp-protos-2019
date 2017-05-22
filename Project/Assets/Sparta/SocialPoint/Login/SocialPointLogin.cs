@@ -1252,7 +1252,7 @@ namespace SocialPoint.Login
                 }
             }
 
-            if(err == null && User != null)
+            if(Error.IsNullOrEmpty(err) && User != null)
             {
                 if(NewUserEvent != null)
                 {
