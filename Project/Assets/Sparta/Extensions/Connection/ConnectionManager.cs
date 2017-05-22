@@ -608,7 +608,6 @@ namespace SocialPoint.Connection
 
         public void OnClientConnected()
         {
-            //See notes for OnConnectionStablished event
             if(OnConnectionStablished != null)
             {
                 OnConnectionStablished();
