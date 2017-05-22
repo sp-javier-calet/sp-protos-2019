@@ -177,5 +177,10 @@ namespace AssetBundleGraph
             }
             return false;
         }
+
+        public void Skip(ConnectionData connectionToOutput, Dictionary<string, List<Asset>> inputGroupAssets, Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output)
+        {
+            Output(connectionToOutput, inputGroupAssets, null);
+        }
     }
 }

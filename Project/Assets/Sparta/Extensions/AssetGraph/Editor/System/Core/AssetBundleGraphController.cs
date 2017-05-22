@@ -15,6 +15,7 @@ namespace AssetBundleGraph
 	 */
     public class AssetBundleGraphController
     {
+        public static ValidatorLog CurrentLog;
 
         /*
 		 * Verify nodes does not create cycle
@@ -65,7 +66,9 @@ namespace AssetBundleGraph
             bool isRun,
             Action<NodeException> errorHandler,
             Action<NodeData, float> updateHandler,
-            string preImporter = null)
+            string preImporter = null,
+            bool isValidation = false,
+            bool isPartialRun = false)
         {
             bool validateFailed = false;
             try
@@ -82,36 +85,87 @@ namespace AssetBundleGraph
             var performedIds = new List<string>();
             var cacheDict = new Dictionary<NodeData, List<string>>();
 
+            CurrentLog = ValidatorLog.LoadFromDisk();
+
             // if validation failed, node may contain looped connections, so we are not going to 
             // go into each operations.
 
-            if(!validateFailed)
+            //AssetDatabase.StartAssetEditing();
+            try
             {
-                var leaf = graph.CollectAllLeafNodes();
-
-                AssetDatabase.StartAssetEditing();
-                foreach(var leafNode in leaf)
+                if(!validateFailed)
                 {
-                    if(leafNode.InputPoints.Count == 0)
+                    var leaf = graph.CollectAllLeafNodes();
+
+                    foreach(var leafNode in leaf)
                     {
-                        DoNodeOperation(target, leafNode, null, null, graph, resultDict, cacheDict, performedIds, isRun, errorHandler, updateHandler, preImporter);
-                    }
-                    else
-                    {
-                        foreach(var inputPoint in leafNode.InputPoints)
+                        if(leafNode.InputPoints.Count == 0)
                         {
-                            DoNodeOperation(target, leafNode, inputPoint, null, graph, resultDict, cacheDict, performedIds, isRun, errorHandler, updateHandler, preImporter);
+                            DoNodeOperation(target, leafNode, null, null, graph, resultDict, cacheDict, performedIds, isRun, errorHandler, updateHandler, preImporter, isValidation);
+                        }
+                        else
+                        {
+                            foreach(var inputPoint in leafNode.InputPoints)
+                            {
+                                DoNodeOperation(target, leafNode, inputPoint, null, graph, resultDict, cacheDict, performedIds, isRun, errorHandler, updateHandler, preImporter, isValidation);
+                            }
                         }
                     }
+                    if(isRun)
+                    {
+                        if(!isPartialRun)
+                        {
+                            CurrentLog.ClearOldValidators();
+                            List<string> keysToRemove = new List<string>();
+                            foreach(var entry in CurrentLog.entries)
+                            {
+                                var node = graph.Nodes.Find(x => x.Id == entry.Key);
+
+                                if(node == null)
+                                {
+                                    keysToRemove.Add(entry.Key);
+                                }
+
+                                if(node.InputPoints.Count > 0)
+                                {
+                                    if(!performedIds.Contains(node.InputPoints[0].Id))
+                                    {
+                                        keysToRemove.Add(entry.Key);
+                                    }
+                                }
+                                else if(!performedIds.Contains(entry.Key))
+                                {
+                                    keysToRemove.Add(entry.Key);
+                                }
+                            }
+
+                            foreach(var key in keysToRemove)
+                            {
+                                CurrentLog.ClearObjectsForTarget(key, BuildTargetUtility.TargetToGroup(target));
+                            }
+                        }
+
+                        CurrentLog.lastExecuted = DateTime.UtcNow;
+                        CurrentLog.executedPlatforms[BuildTargetUtility.TargetToGroup(target)] = CurrentLog.lastExecuted;
+                        CurrentLog.Save();
+                        EditorWindow.FocusWindowIfItsOpen<ValidatorLogWindow>();
+                    }
                 }
-                AssetDatabase.StopAssetEditing();
+            }
+            catch(Exception e)
+            {
+                Debug.LogError(e);
+            }
+            finally
+            {
+                //AssetDatabase.StopAssetEditing();
             }
             return resultDict;
         }
 
         /**
-			Perform Run or Setup from parent of given terminal node recursively.
-		*/
+            Perform Run or Setup from parent of given terminal node recursively.
+*/
         private static void DoNodeOperation(
             BuildTarget target,
             NodeData currentNodeData,
@@ -124,7 +178,8 @@ namespace AssetBundleGraph
             bool isActualRun,
             Action<NodeException> errorHandler,
             Action<NodeData, float> updateHandler,
-            string preImporter
+            string preImporter,
+            bool isValidation
         )
         {
             if(performedIds.Contains(currentNodeData.Id) || (currentInputPoint != null && performedIds.Contains(currentInputPoint.Id)))
@@ -133,8 +188,8 @@ namespace AssetBundleGraph
             }
 
             /*
-			 * Find connections coming into this node from parent node, and traverse recursively
-			*/
+             * Find connections coming into this node from parent node, and traverse recursively
+            */
             var connectionsToParents = graph.Connections.FindAll(con => con.ToNodeId == currentNodeData.Id);
 
             foreach(var c in connectionsToParents)
@@ -150,13 +205,13 @@ namespace AssetBundleGraph
                     // if node has multiple input, node is operated per input
                     foreach(var parentInputPoint in parentNode.InputPoints)
                     {
-                        DoNodeOperation(target, parentNode, parentInputPoint, c, graph, resultDict, cachedDict, performedIds, isActualRun, errorHandler, updateHandler, preImporter);
+                        DoNodeOperation(target, parentNode, parentInputPoint, c, graph, resultDict, cachedDict, performedIds, isActualRun, errorHandler, updateHandler, preImporter, isValidation);
                     }
                 }
                 // if parent does not have input point, call with inputPoint==null
                 else
                 {
-                    DoNodeOperation(target, parentNode, null, c, graph, resultDict, cachedDict, performedIds, isActualRun, errorHandler, updateHandler, preImporter);
+                    DoNodeOperation(target, parentNode, null, c, graph, resultDict, cachedDict, performedIds, isActualRun, errorHandler, updateHandler, preImporter, isValidation);
                 }
             }
 
@@ -172,8 +227,8 @@ namespace AssetBundleGraph
             }
 
             /*
-			 * Perform node operation for this node
-			*/
+             * Perform node operation for this node
+            */
 
             if(updateHandler != null)
             {
@@ -181,8 +236,8 @@ namespace AssetBundleGraph
             }
 
             /*
-				has next node, run first time.
-			*/
+                has next node, run first time.
+            */
 
             var alreadyCachedPaths = new List<string>();
             if(cachedDict.ContainsKey(currentNodeData))
@@ -218,9 +273,9 @@ namespace AssetBundleGraph
             }
 
             /*
-				the Action passes to NodeOperaitons.
-				It stores result to resultDict.
-			*/
+                the Action passes to NodeOperaitons.
+                It stores result to resultDict.
+            */
             Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output =
                 (ConnectionData destinationConnection, Dictionary<string, List<Asset>> outputGroupAsset, List<string> cachedItems) =>
             {
@@ -231,8 +286,8 @@ namespace AssetBundleGraph
                         resultDict[destinationConnection] = new Dictionary<string, List<Asset>>();
                     }
                     /*
-					merge connection result by group key.
-					*/
+                    merge connection result by group key.
+                    */
                     foreach(var groupKey in outputGroupAsset.Keys)
                     {
                         if(!resultDict[destinationConnection].ContainsKey(groupKey))
@@ -256,6 +311,8 @@ namespace AssetBundleGraph
                 }
             };
 
+            bool skipped = false;
+
             try
             {
                 INodeOperation executor = CreateOperation(graph, currentNodeData, errorHandler);
@@ -270,7 +327,15 @@ namespace AssetBundleGraph
                     {
                         if(isActualRun)
                         {
-                            executor.Run(target, currentNodeData, currentInputPoint, connectionToOutput, inputGroupAssets, alreadyCachedPaths, Output);
+                            if(!isValidation || (currentNodeData.Kind == NodeKind.LOADER_GUI || currentNodeData.Kind == NodeKind.VALIDATOR_GUI || currentNodeData.Kind == NodeKind.FILTER_GUI))
+                            {
+                                executor.Run(target, currentNodeData, currentInputPoint, connectionToOutput, inputGroupAssets, alreadyCachedPaths, Output);
+                            }
+                            else
+                            {
+                                skipped = true;
+                                executor.Skip(connectionToOutput, inputGroupAssets, Output);
+                            }
                         }
                         else
                         {
@@ -298,7 +363,7 @@ namespace AssetBundleGraph
 
             if(updateHandler != null)
             {
-                updateHandler(currentNodeData, 1f);
+                updateHandler(currentNodeData, skipped ? 2f : 1f);
             }
         }
 
@@ -310,76 +375,76 @@ namespace AssetBundleGraph
             {
                 switch(currentNodeData.Kind)
                 {
-                    case NodeKind.LOADER_GUI:
-                        {
-                            executor = new IntegratedGUILoader();
-                            break;
-                        }
-                    case NodeKind.FILTER_GUI:
-                        {
-                            // Filter requires multiple output connections
-                            var connectionsToChild = graph.Connections.FindAll(c => c.FromNodeId == currentNodeData.Id);
-                            executor = new IntegratedGUIFilter(connectionsToChild);
-                            break;
-                        }
+                case NodeKind.LOADER_GUI:
+                    {
+                        executor = new IntegratedGUILoader();
+                        break;
+                    }
+                case NodeKind.FILTER_GUI:
+                    {
+                        // Filter requires multiple output connections
+                        var connectionsToChild = graph.Connections.FindAll(c => c.FromNodeId == currentNodeData.Id);
+                        executor = new IntegratedGUIFilter(connectionsToChild);
+                        break;
+                    }
 
-                    case NodeKind.IMPORTSETTING_GUI:
-                        {
-                            executor = new IntegratedGUIImportSetting();
-                            break;
-                        }
-                    case NodeKind.MODIFIER_GUI:
-                        {
-                            executor = new IntegratedGUIModifier();
-                            break;
-                        }
-                    case NodeKind.GROUPING_GUI:
-                        {
-                            executor = new IntegratedGUIGrouping();
-                            break;
-                        }
-                    case NodeKind.PREFABBUILDER_GUI:
-                        {
-                            executor = new IntegratedPrefabBuilder();
-                            break;
-                        }
+                case NodeKind.IMPORTSETTING_GUI:
+                    {
+                        executor = new IntegratedGUIImportSetting();
+                        break;
+                    }
+                case NodeKind.MODIFIER_GUI:
+                    {
+                        executor = new IntegratedGUIModifier();
+                        break;
+                    }
+                case NodeKind.GROUPING_GUI:
+                    {
+                        executor = new IntegratedGUIGrouping();
+                        break;
+                    }
+                case NodeKind.PREFABBUILDER_GUI:
+                    {
+                        executor = new IntegratedPrefabBuilder();
+                        break;
+                    }
 
-                    case NodeKind.BUNDLECONFIG_GUI:
-                        {
-                            executor = new IntegratedGUIBundleConfigurator();
-                            break;
-                        }
+                case NodeKind.BUNDLECONFIG_GUI:
+                    {
+                        executor = new IntegratedGUIBundleConfigurator();
+                        break;
+                    }
 
-                    case NodeKind.BUNDLEBUILDER_GUI:
-                        {
-                            executor = new IntegratedGUIBundleBuilder();
-                            break;
-                        }
-                    case NodeKind.EXPORTER_GUI:
-                        {
-                            executor = new IntegratedGUIExporter();
-                            break;
-                        }
-                    case NodeKind.WARP_IN:
-                        {
-                            executor = new IntegratedGUIWarpIn();
-                            break;
-                        }
-                    case NodeKind.WARP_OUT:
-                        {
-                            executor = new IntegratedGUIWarpOut();
-                            break;
-                        }
-                    case NodeKind.VALIDATOR_GUI:
-                        {
-                            executor = new IntegratedGUIValidator();
-                            break;
-                        }
-                    default:
-                        {
-                            Debug.LogError(currentNodeData.Name + " is defined as unknown kind of node. value:" + currentNodeData.Kind);
-                            break;
-                        }
+                case NodeKind.BUNDLEBUILDER_GUI:
+                    {
+                        executor = new IntegratedGUIBundleBuilder();
+                        break;
+                    }
+                case NodeKind.EXPORTER_GUI:
+                    {
+                        executor = new IntegratedGUIExporter();
+                        break;
+                    }
+                case NodeKind.WARP_IN:
+                    {
+                        executor = new IntegratedGUIWarpIn();
+                        break;
+                    }
+                case NodeKind.WARP_OUT:
+                    {
+                        executor = new IntegratedGUIWarpOut();
+                        break;
+                    }
+                case NodeKind.VALIDATOR_GUI:
+                    {
+                        executor = new IntegratedGUIValidator();
+                        break;
+                    }
+                default:
+                    {
+                        Debug.LogError(currentNodeData.Name + " is defined as unknown kind of node. value:" + currentNodeData.Kind);
+                        break;
+                    }
                 }
             }
             catch(NodeException e)
@@ -394,82 +459,82 @@ namespace AssetBundleGraph
         {
             switch(node.Kind)
             {
-                case NodeKind.IMPORTSETTING_GUI:
-                    {
-                        // no cache file exists for importSetting.
-                        return new List<string>();
-                    }
-                case NodeKind.MODIFIER_GUI:
-                    {
-                        // no cache file exists for modifier.
-                        return new List<string>();
-                    }
+            case NodeKind.IMPORTSETTING_GUI:
+                {
+                    // no cache file exists for importSetting.
+                    return new List<string>();
+                }
+            case NodeKind.MODIFIER_GUI:
+                {
+                    // no cache file exists for modifier.
+                    return new List<string>();
+                }
 
-                case NodeKind.PREFABBUILDER_GUI:
+            case NodeKind.PREFABBUILDER_GUI:
+                {
+                    var cachedPathBase = FileUtility.PathCombine(
+                        AssetBundleGraphSettings.PREFABBUILDER_CACHE_PLACE,
+                        node.Id,
+                        SystemDataUtility.GetPathSafeTargetName(t)
+                    );
+
+                    // no cache folder, no cache.
+                    if(!Directory.Exists(cachedPathBase))
                     {
-                        var cachedPathBase = FileUtility.PathCombine(
+                        // search default platform + package
+                        cachedPathBase = FileUtility.PathCombine(
                             AssetBundleGraphSettings.PREFABBUILDER_CACHE_PLACE,
                             node.Id,
-                            SystemDataUtility.GetPathSafeTargetName(t)
+                            SystemDataUtility.GetPathSafeDefaultTargetName()
                         );
 
-                        // no cache folder, no cache.
                         if(!Directory.Exists(cachedPathBase))
                         {
-                            // search default platform + package
-                            cachedPathBase = FileUtility.PathCombine(
-                                AssetBundleGraphSettings.PREFABBUILDER_CACHE_PLACE,
-                                node.Id,
-                                SystemDataUtility.GetPathSafeDefaultTargetName()
-                            );
-
-                            if(!Directory.Exists(cachedPathBase))
-                            {
-                                return new List<string>();
-                            }
+                            return new List<string>();
                         }
-
-                        return FileUtility.GetFilePathsInFolder(cachedPathBase);
                     }
 
-                case NodeKind.BUNDLECONFIG_GUI:
-                    {
-                        // do nothing.
-                        break;
-                    }
+                    return FileUtility.GetFilePathsInFolder(cachedPathBase);
+                }
 
-                case NodeKind.BUNDLEBUILDER_GUI:
+            case NodeKind.BUNDLECONFIG_GUI:
+                {
+                    // do nothing.
+                    break;
+                }
+
+            case NodeKind.BUNDLEBUILDER_GUI:
+                {
+                    var cachedPathBase = FileUtility.PathCombine(
+                        AssetBundleGraphSettings.BUNDLEBUILDER_CACHE_PLACE,
+                        node.Id,
+                        SystemDataUtility.GetPathSafeTargetName(t)
+                    );
+
+                    // no cache folder, no cache.
+                    if(!Directory.Exists(cachedPathBase))
                     {
-                        var cachedPathBase = FileUtility.PathCombine(
+                        // search default platform + package
+                        cachedPathBase = FileUtility.PathCombine(
                             AssetBundleGraphSettings.BUNDLEBUILDER_CACHE_PLACE,
                             node.Id,
-                            SystemDataUtility.GetPathSafeTargetName(t)
+                            SystemDataUtility.GetPathSafeDefaultTargetName()
                         );
 
-                        // no cache folder, no cache.
                         if(!Directory.Exists(cachedPathBase))
                         {
-                            // search default platform + package
-                            cachedPathBase = FileUtility.PathCombine(
-                                AssetBundleGraphSettings.BUNDLEBUILDER_CACHE_PLACE,
-                                node.Id,
-                                SystemDataUtility.GetPathSafeDefaultTargetName()
-                            );
-
-                            if(!Directory.Exists(cachedPathBase))
-                            {
-                                return new List<string>();
-                            }
+                            return new List<string>();
                         }
-
-                        return FileUtility.GetFilePathsInFolder(cachedPathBase);
                     }
 
-                default:
-                    {
-                        // nothing to do.
-                        break;
-                    }
+                    return FileUtility.GetFilePathsInFolder(cachedPathBase);
+                }
+
+            default:
+                {
+                    // nothing to do.
+                    break;
+                }
             }
             return new List<string>();
         }

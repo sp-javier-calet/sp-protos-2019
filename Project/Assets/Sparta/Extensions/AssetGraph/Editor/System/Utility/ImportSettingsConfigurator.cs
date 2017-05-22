@@ -73,6 +73,27 @@ namespace AssetBundleGraph
             var reference = referenceImporter as TextureImporter;
             UnityEngine.Assertions.Assert.IsNotNull(reference);
 
+#if UNITY_5_5_OR_NEWER
+            importer.alphaSource = reference.alphaSource;
+            importer.sRGBTexture = importer.sRGBTexture;
+
+
+            foreach(var targetGroup in NodeGUIUtility.SupportedBuildTargetGroups)
+            {
+                var impSet = reference.GetPlatformTextureSettings(targetGroup.ToString());
+                importer.SetPlatformTextureSettings(impSet);
+            }
+
+            importer.textureCompression = reference.textureCompression;
+            importer.crunchedCompression = reference.crunchedCompression;
+#else
+            importer.generateMipsInLinearSpace = reference.generateMipsInLinearSpace;
+            importer.grayscaleToAlpha = reference.grayscaleToAlpha;
+            importer.lightmap = reference.lightmap;
+            importer.linearTexture = reference.linearTexture;
+            importer.normalmap = reference.normalmap;
+            importer.textureFormat = reference.textureFormat;
+#endif
             importer.anisoLevel = reference.anisoLevel;
             importer.borderMipmap = reference.borderMipmap;
             importer.compressionQuality = reference.compressionQuality;
@@ -80,20 +101,15 @@ namespace AssetBundleGraph
             importer.fadeout = reference.fadeout;
             importer.filterMode = reference.filterMode;
             importer.generateCubemap = reference.generateCubemap;
-            importer.generateMipsInLinearSpace = reference.generateMipsInLinearSpace;
-            importer.grayscaleToAlpha = reference.grayscaleToAlpha;
             importer.heightmapScale = reference.heightmapScale;
 
             importer.isReadable = reference.isReadable;
-            importer.lightmap = reference.lightmap;
-            importer.linearTexture = reference.linearTexture;
             importer.maxTextureSize = reference.maxTextureSize;
             importer.mipMapBias = reference.mipMapBias;
             importer.mipmapEnabled = reference.mipmapEnabled;
             importer.mipmapFadeDistanceEnd = reference.mipmapFadeDistanceEnd;
             importer.mipmapFadeDistanceStart = reference.mipmapFadeDistanceStart;
             importer.mipmapFilter = reference.mipmapFilter;
-            importer.normalmap = reference.normalmap;
 
             importer.normalmapFilter = reference.normalmapFilter;
             importer.npotScale = reference.npotScale;
@@ -104,7 +120,8 @@ namespace AssetBundleGraph
             importer.spritePivot = reference.spritePivot;
             importer.spritePixelsPerUnit = reference.spritePixelsPerUnit;
             importer.spritesheet = reference.spritesheet;
-            importer.textureFormat = reference.textureFormat;
+
+
 
             importer.textureType = reference.textureType;
             importer.wrapMode = reference.wrapMode;
@@ -115,6 +132,27 @@ namespace AssetBundleGraph
             TextureImporter reference = referenceImporter as TextureImporter;
             UnityEngine.Assertions.Assert.IsNotNull(reference);
 
+#if UNITY_5_5_OR_NEWER
+            if(target.alphaSource != reference.alphaSource) return false;
+            if(target.sRGBTexture != reference.sRGBTexture) return false;
+
+            foreach(var targetGroup in NodeGUIUtility.SupportedBuildTargetGroups)
+            {
+                var impSet = reference.GetPlatformTextureSettings(targetGroup.ToString());
+                var targetImpSet = target.GetPlatformTextureSettings(targetGroup.ToString());
+                if(!CompareImporterPlatformSettings(impSet, targetImpSet)) return false;
+            }
+
+            if(target.textureCompression != reference.textureCompression) return false;
+            if(target.crunchedCompression != reference.crunchedCompression) return false;
+#else
+            if(target.generateMipsInLinearSpace != reference.generateMipsInLinearSpace) return false;
+            if(target.lightmap != reference.lightmap) return false;
+            if(target.grayscaleToAlpha != reference.grayscaleToAlpha) return false;
+            if(target.linearTexture != reference.linearTexture) return false;
+            if(target.normalmap != reference.normalmap) return false;
+            if(target.textureFormat != reference.textureFormat) return false;
+#endif
             if(target.anisoLevel != reference.anisoLevel) return false;
             if(target.borderMipmap != reference.borderMipmap) return false;
             if(target.compressionQuality != reference.compressionQuality) return false;
@@ -122,19 +160,16 @@ namespace AssetBundleGraph
             if(target.fadeout != reference.fadeout) return false;
             if(target.filterMode != reference.filterMode) return false;
             if(target.generateCubemap != reference.generateCubemap) return false;
-            if(target.generateMipsInLinearSpace != reference.generateMipsInLinearSpace) return false;
-            if(target.grayscaleToAlpha != reference.grayscaleToAlpha) return false;
+
             if(target.heightmapScale != reference.heightmapScale) return false;
             if(target.isReadable != reference.isReadable) return false;
-            if(target.lightmap != reference.lightmap) return false;
-            if(target.linearTexture != reference.linearTexture) return false;
+
             if(target.maxTextureSize != reference.maxTextureSize) return false;
             if(target.mipMapBias != reference.mipMapBias) return false;
             if(target.mipmapEnabled != reference.mipmapEnabled) return false;
             if(target.mipmapFadeDistanceEnd != reference.mipmapFadeDistanceEnd) return false;
             if(target.mipmapFadeDistanceStart != reference.mipmapFadeDistanceStart) return false;
             if(target.mipmapFilter != reference.mipmapFilter) return false;
-            if(target.normalmap != reference.normalmap) return false;
             if(target.normalmapFilter != reference.normalmapFilter) return false;
             if(target.npotScale != reference.npotScale) return false;
             // target.qualifiesForSpritePacking is read only
@@ -157,7 +192,6 @@ namespace AssetBundleGraph
                 }
             }
 
-            if(target.textureFormat != reference.textureFormat) return false;
             if(target.textureType != reference.textureType) return false;
             if(target.wrapMode != reference.wrapMode) return false;
             return true;
@@ -189,6 +223,20 @@ namespace AssetBundleGraph
             if(target.forceToMono != reference.forceToMono) return false;
             if(target.loadInBackground != reference.loadInBackground) return false;
             if(target.preloadAudioData != reference.preloadAudioData) return false;
+
+            return true;
+        }
+
+        bool CompareImporterPlatformSettings(TextureImporterPlatformSettings c1, TextureImporterPlatformSettings c2)
+        {
+            if(c1.allowsAlphaSplitting != c2.allowsAlphaSplitting) return false;
+            if(c1.compressionQuality != c2.compressionQuality) return false;
+            if(c1.crunchedCompression != c2.crunchedCompression) return false;
+            if(c1.format != c2.format) return false;
+            if(c1.maxTextureSize != c2.maxTextureSize) return false;
+            if(c1.name != c2.name) return false;
+            if(c1.overridden != c2.overridden) return false;
+            if(c1.textureCompression != c2.textureCompression) return false;
 
             return true;
         }

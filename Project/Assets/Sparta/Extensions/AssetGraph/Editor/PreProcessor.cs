@@ -16,7 +16,7 @@ public class PreProcessor : AssetPostprocessor
         {
             if(loaderSaveData == null)
             {
-                loaderSaveData = AssetBundleGraph.LoaderSaveData.LoadFromDisk();
+                loaderSaveData = LoaderSaveData.LoadFromDisk();
             }
             return loaderSaveData;
         }
@@ -112,6 +112,19 @@ public class PreProcessor : AssetPostprocessor
         }
 
         i = 0;
+        foreach(string path in imported)
+        {
+            EditorUtility.DisplayProgressBar("Processing", path, i / (float)moved.Length);
+            if(!TypeUtility.IgnoredExtension.Contains(Path.GetExtension(path)))
+            {
+                GenericProcess(path, true, true);
+            }
+            i++;
+            clearBar = true;
+        }
+
+
+        i = 0;
         foreach(string path in moved)
         {
             EditorUtility.DisplayProgressBar("Processing", path, i / (float)moved.Length);
@@ -201,7 +214,7 @@ public class PreProcessor : AssetPostprocessor
                 if(errors.Count == 0)
                 {
                     // run datas.                
-                    streamMap = AssetBundleGraphController.Perform(graph, target, true, errorHandler, updateHandler, path);
+                    streamMap = AssetBundleGraphController.Perform(graph, target, true, errorHandler, updateHandler, path, false, true);
                 }
 
                 if(errors.Count > 0)
