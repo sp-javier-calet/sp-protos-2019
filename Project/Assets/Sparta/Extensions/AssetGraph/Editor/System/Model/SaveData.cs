@@ -300,6 +300,7 @@ namespace AssetBundleGraph
             public bool isPreProcess;
             public bool isPermanent;
 
+
             public LoaderData(string id, SerializableMultiTargetString paths, bool isPreProcess, bool isPermanent)
             {
                 this.id = id;
@@ -334,6 +335,9 @@ namespace AssetBundleGraph
                 return jsonDict;
             }
         }
+
+        public static bool isDirty = true;
+        public static event Action OnSave;
 
         private List<LoaderData> loaders;
         public List<LoaderData> LoaderPaths
@@ -395,6 +399,9 @@ namespace AssetBundleGraph
             {
                 sw.Write(loaderPrettyfied);
             }
+
+            if(OnSave != null)
+                OnSave();
         }
 
         public Dictionary<string, object> ToJsonDictionary()
@@ -421,15 +428,17 @@ namespace AssetBundleGraph
         {
             LoaderData res = null;
             var path = Path.HasExtension(assetPath) ? assetPath : assetPath + "/";
+            var separator = "Assets/";
+            path = path.Remove(0, path.IndexOf(separator) + separator.Length);
 
-            if(path.Contains(AssetBundleGraphSettings.ASSETBUNDLEGRAPH_PATH))
+            if(path.Contains(AssetBundleGraphSettings.ASSETBUNDLEGRAPH_PATH.Remove(0, separator.Length)))
             {
                 return res;
             }
 
             foreach(LoaderData dataPath in loaders)
             {
-                if(path.Contains(dataPath.paths.CurrentPlatformValue + "/"))
+                if(dataPath.paths.CurrentPlatformValue == string.Empty || path.StartsWith(dataPath.paths.CurrentPlatformValue + "/"))
                 {
                     if(res == null || res.paths.CurrentPlatformValue.Length < dataPath.paths.CurrentPlatformValue.Length)
                     {
