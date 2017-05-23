@@ -1,6 +1,9 @@
 ﻿using System;
 using SocialPoint.Utils;
 
+//Handlers receive amount of free bytes (1) and minimun expected (2)
+using LowStorageHandler = System.Action<ulong, ulong>;
+
 namespace SocialPoint.Hardware
 {
     [Serializable]
@@ -8,6 +11,7 @@ namespace SocialPoint.Hardware
     {
         public float AnalysisInterval;
         public ulong FreeStorageWarning;
+        public bool StopOnFirstWarning;
     }
 
     public interface IStorageAnalyzer : IDisposable
@@ -20,9 +24,11 @@ namespace SocialPoint.Hardware
 
         void Stop();
 
-        void RegisterLowStorageWarningHandler(Action handler);
+        void AnalyzeNow();
 
-        void UnregisterLowStorageWarningHandler(Action handler);
+        void RegisterLowStorageWarningHandler(LowStorageHandler handler);
+
+        void UnregisterLowStorageWarningHandler(LowStorageHandler handler);
     }
 
     public class StorageAnalyzer : IStorageAnalyzer, IUpdateable
@@ -52,7 +58,7 @@ namespace SocialPoint.Hardware
         StorageAnalyzerConfig _config;
         IStorageInfo _storageInfo;
         IUpdateScheduler _scheduler;
-        Action _onLowStorageWarning;
+        LowStorageHandler _onLowStorageWarning;
 
         public StorageAnalyzer(IStorageInfo storageInfo, IUpdateScheduler scheduler, StorageAnalyzerConfig config)
         {
@@ -81,35 +87,46 @@ namespace SocialPoint.Hardware
             Running = false;
         }
 
-        public void RegisterLowStorageWarningHandler(Action handler)
+        public void AnalyzeNow()
+        {
+            CheckFreeStorageSpace();
+        }
+
+        public void RegisterLowStorageWarningHandler(LowStorageHandler handler)
         {
             _onLowStorageWarning += handler;
         }
 
-        public void UnregisterLowStorageWarningHandler(Action handler)
+        public void UnregisterLowStorageWarningHandler(LowStorageHandler handler)
         {
             _onLowStorageWarning -= handler;
         }
 
         public void Update()
         {
-            CheckFreeStorageSpace();
+            AnalyzeNow();
         }
 
         void CheckFreeStorageSpace()
         {
-            var freeStorage = _storageInfo.FreeStorage;
-            if(freeStorage < _config.FreeStorageWarning)
+            var freeBytesStorage = _storageInfo.FreeStorage;
+            var requiredBytesStorage = _config.FreeStorageWarning;
+            if(freeBytesStorage < requiredBytesStorage)
             {
-                RaiseLowStorageWarning(freeStorage);
+                RaiseLowStorageWarning(freeBytesStorage, requiredBytesStorage);
             }
         }
 
-        void RaiseLowStorageWarning(ulong freeStorage)
+        void RaiseLowStorageWarning(ulong freeBytesStorage, ulong requiredBytesStorage)
         {
             if(_onLowStorageWarning != null)
             {
-                _onLowStorageWarning();
+                _onLowStorageWarning(freeBytesStorage, requiredBytesStorage);
+
+                if(_config.StopOnFirstWarning)
+                {
+                    Stop();
+                }
             }
         }
     }

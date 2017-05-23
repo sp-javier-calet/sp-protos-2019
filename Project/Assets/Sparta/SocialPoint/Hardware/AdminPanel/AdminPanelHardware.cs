@@ -133,11 +133,11 @@ namespace SocialPoint.Hardware
             _storageAnalyzer.Config = config;
         }
 
-        void OnLowStorageSpace()
+        void OnLowStorageSpace(ulong freeBytesStorage, ulong requiredBytesStorage)
         {
             if(_console != null)
             {
-                _console.Print("Low Storage Detected!");
+                _console.Print("Low Storage Detected! [Free: " + freeBytesStorage + " bytes | Expected: " + requiredBytesStorage + " bytes]");
             }
         }
     }
