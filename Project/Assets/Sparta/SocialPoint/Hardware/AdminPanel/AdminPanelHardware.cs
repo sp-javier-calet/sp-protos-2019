@@ -8,6 +8,7 @@ namespace SocialPoint.Hardware
     public sealed class AdminPanelHardware : IAdminPanelConfigurer, IAdminPanelGUI
     {
         AdminPanelConsole _console;
+        AdminPanelLayout _layout;
         IDeviceInfo _deviceInfo;
         IStorageAnalyzer _storageAnalyzer;
         StorageUnit _storageAnalyzerUnit;
@@ -34,10 +35,16 @@ namespace SocialPoint.Hardware
 
         public void OnCreateGUI(AdminPanelLayout layout)
         {
+            _layout = layout;
             layout.CreateLabel("Device Info");
             layout.CreateTextArea(_deviceInfo.ToString());
 
             layout.CreateLabel("Storage Analyzer");
+            //Analyze
+            layout.CreateButton("Analyze Now", () => {
+                _storageAnalyzer.AnalyzeNow();
+            });
+            //Start/Stop
             layout.CreateToggleButton(
                 _storageAnalyzer.Running ? "Stop" : "Start",
                 _storageAnalyzer.Running,
@@ -52,6 +59,7 @@ namespace SocialPoint.Hardware
                     }
                     layout.Refresh();
                 });
+            //Listeners
             layout.CreateToggleButton(
                 _listeningStorageWarning ? "Unregister Listener" : "Register Listener",
                 _listeningStorageWarning,
@@ -68,6 +76,7 @@ namespace SocialPoint.Hardware
                     layout.Refresh();
                 });
 
+            //Storage size warning
             var storageLayout = layout.CreateHorizontalLayout();
             storageLayout.CreateLabel("Storage Warning At (" + _storageAnalyzerUnit.ToString() + ")");
             storageLayout.CreateTextInput(StorageToDisplayValue(_storageAnalyzer.Config.FreeStorageWarning).ToString(), value => {
@@ -82,6 +91,7 @@ namespace SocialPoint.Hardware
                 layout.Refresh();
             });
 
+            //Check interval
             var timeLayout = layout.CreateHorizontalLayout();
             timeLayout.CreateLabel("Check Interval (Seconds)");
             timeLayout.CreateTextInput(_storageAnalyzer.Config.AnalysisInterval.ToString(), value => {
@@ -95,6 +105,15 @@ namespace SocialPoint.Hardware
                 }
                 layout.Refresh();
             });
+
+            //Auto stop
+            layout.CreateToggleButton(
+                "Stop On First Warning",
+                _storageAnalyzer.Config.StopOnFirstWarning,
+                value => {
+                    UpdateAnalyzerAutoStop(!_storageAnalyzer.Config.StopOnFirstWarning);
+                    layout.Refresh();
+                });
         }
 
         ulong StorageToDisplayValue(ulong value)
@@ -133,11 +152,23 @@ namespace SocialPoint.Hardware
             _storageAnalyzer.Config = config;
         }
 
+        void UpdateAnalyzerAutoStop(bool value)
+        {
+            var config = _storageAnalyzer.Config;
+            config.StopOnFirstWarning = value;
+            _storageAnalyzer.Config = config;
+        }
+
         void OnLowStorageSpace(ulong freeBytesStorage, ulong requiredBytesStorage)
         {
             if(_console != null)
             {
                 _console.Print("Low Storage Detected! [Free: " + freeBytesStorage + " bytes | Expected: " + requiredBytesStorage + " bytes]");
+            }
+
+            if(_layout != null)
+            {
+                _layout.Refresh();
             }
         }
     }

@@ -121,12 +121,12 @@ namespace SocialPoint.Hardware
         {
             if(_onLowStorageWarning != null)
             {
-                _onLowStorageWarning(freeBytesStorage, requiredBytesStorage);
-
                 if(_config.StopOnFirstWarning)
                 {
                     Stop();
                 }
+
+                _onLowStorageWarning(freeBytesStorage, requiredBytesStorage);
             }
         }
     }
