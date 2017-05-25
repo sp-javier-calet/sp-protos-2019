@@ -17,6 +17,8 @@ public sealed class SocialPointAppsFlyer : IMarketingTracker
     public void Init()
     {
         SetupAppsFlyerDelegate();
+        DebugUtils.Assert(!String.IsNullOrEmpty(AppID));
+        AppsFlyer.setAppID(AppID);
     }
 
     public void SetUserID(string userID)
@@ -26,10 +28,11 @@ public sealed class SocialPointAppsFlyer : IMarketingTracker
 
     public void TrackInstall(bool isNewInstall)
     {
+        /* We set AppsFlyer key here (and not on Init) because it could trigger a track on its own.
+         * (It was happening in Android with v4.14 of the Unity Plugin)
+         * */
         DebugUtils.Assert(!String.IsNullOrEmpty(AppsFlyerKey));
         AppsFlyer.setAppsFlyerKey(AppsFlyerKey);
-        DebugUtils.Assert(!String.IsNullOrEmpty(AppID));
-        AppsFlyer.setAppID(AppID);
 
         if(isNewInstall)
         {
