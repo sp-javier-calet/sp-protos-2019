@@ -17,8 +17,6 @@ public sealed class SocialPointAppsFlyer : IMarketingTracker
     public void Init()
     {
         SetupAppsFlyerDelegate();
-        DebugUtils.Assert(!String.IsNullOrEmpty(AppID));
-        AppsFlyer.setAppID(AppID);
     }
 
     public void SetUserID(string userID)
@@ -33,6 +31,8 @@ public sealed class SocialPointAppsFlyer : IMarketingTracker
          * */
         DebugUtils.Assert(!String.IsNullOrEmpty(AppsFlyerKey));
         AppsFlyer.setAppsFlyerKey(AppsFlyerKey);
+        DebugUtils.Assert(!String.IsNullOrEmpty(AppID));
+        AppsFlyer.setAppID(AppID);
 
         if(isNewInstall)
         {
