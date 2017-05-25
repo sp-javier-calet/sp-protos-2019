@@ -86,6 +86,11 @@ namespace AssetBundleGraph
             Output(connectionToOutput, inputGroupAssets, null);
         }
 
+        public void Skip(ConnectionData connectionToOutput, Dictionary<string, List<Asset>> inputGroupAssets, Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output)
+        {
+            Output(connectionToOutput, inputGroupAssets, null);
+        }
+
         public static void RemoveConfigFile(string nodeId)
         {
             var path = FileUtility.PathCombine(AssetBundleGraphSettings.IMPORTER_SETTINGS_PLACE, nodeId);
@@ -210,20 +215,29 @@ namespace AssetBundleGraph
 
             var referenceImporter = GetReferenceAssetImporter(node.Id);
             var configurator = new ImportSettingsConfigurator(referenceImporter);
-
-            foreach(var asset in assets)
+            AssetDatabase.StartAssetEditing();
+            try
             {
-                var importer = AssetImporter.GetAtPath(asset.importFrom);
-                if(!configurator.IsEqual(importer))
+                foreach(var asset in assets)
                 {
-                    configurator.OverwriteImportSettings(importer);
-
-                    // if the importsettings are applied manually we need to reimport the asset.
-                    if(!PreProcessor.isPreProcessing)
+                    var importer = AssetImporter.GetAtPath(asset.importFrom);
+                    if(!configurator.IsEqual(importer))
                     {
-                        AssetDatabase.ImportAsset(asset.importFrom, ImportAssetOptions.ForceUpdate);
+                        configurator.OverwriteImportSettings(importer);
+
+                        // if the importsettings are applied manually we need to reimport the asset.
+                        if(!PreProcessor.isPreProcessing)
+                        {
+                            AssetDatabase.ImportAsset(asset.importFrom, ImportAssetOptions.ForceUpdate);
+                        }
                     }
                 }
+                AssetDatabase.StopAssetEditing();
+            }
+            catch(Exception e)
+            {
+                AssetDatabase.StopAssetEditing();
+                throw e;
             }
         }
 
@@ -285,6 +299,7 @@ namespace AssetBundleGraph
                 if(status != ConfigStatus.GoodSampleFound)
                 {
                     errorInConfig(status);
+                    return;
                 }
             }
 
@@ -294,10 +309,14 @@ namespace AssetBundleGraph
                 // right type of asset is coming in - so we'll just skip the test
                 if(incomingAssets.Any() && status == ConfigStatus.GoodSampleFound)
                 {
-                    Type targetType = GetReferenceAssetImporter(node.Id).GetType();
-                    if(targetType != expectedType)
+                    var importer = GetReferenceAssetImporter(node.Id);
+                    if(importer != null)
                     {
-                        incomingTypeMismatch(targetType, expectedType);
+                        Type targetType = importer.GetType();
+                        if(targetType != expectedType)
+                        {
+                            incomingTypeMismatch(targetType, expectedType);
+                        }
                     }
                 }
             }

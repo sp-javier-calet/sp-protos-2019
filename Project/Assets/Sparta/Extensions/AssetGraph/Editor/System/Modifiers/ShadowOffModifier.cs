@@ -4,21 +4,17 @@ using UnityEditor;
 using System;
 using System.Collections.Generic;
 
+[AssetBundleGraph.CustomModifier("ShadowOffModifier", typeof(GameObject))]
+public class ShadowOffModifierGO : ShadowOffModifier { }
 [AssetBundleGraph.CustomModifier("ShadowOffModifier", typeof(ModelImporter))]
 public class ShadowOffModifier : AssetBundleGraph.IModifier
 {
 
-    private bool isSkinned;
     // Test if asset is different from intended configuration 
     public bool IsModified(object asset)
     {
         var target = (GameObject)asset;
-
-        var staticMesh = target.GetComponentInChildren<MeshRenderer>();
-
-        isSkinned = staticMesh == null;
-
-        return !isSkinned || target.GetComponentInChildren<SkinnedMeshRenderer>() != null;
+        return target.GetComponentInChildren<MeshFilter>() != null || target.GetComponentInChildren<SkinnedMeshRenderer>() != null;
     }
 
     // Actually change asset configurations. 
@@ -26,21 +22,14 @@ public class ShadowOffModifier : AssetBundleGraph.IModifier
     {
         var target = (GameObject)asset;
 
-        if(isSkinned)
+        foreach(SkinnedMeshRenderer skinnedMesh in target.GetComponentsInChildren<SkinnedMeshRenderer>())
         {
-            var skinnedMeshes = target.GetComponentsInChildren<SkinnedMeshRenderer>();
-            foreach(SkinnedMeshRenderer skinnedMesh in skinnedMeshes)
-            {
-                DisableShadows(skinnedMesh);
-            }
+            DisableShadows(skinnedMesh);
         }
-        else
+
+        foreach(MeshRenderer skinnedMesh in target.GetComponentsInChildren<MeshRenderer>())
         {
-            var skinnedMeshes = target.GetComponentsInChildren<MeshRenderer>();
-            foreach(MeshRenderer skinnedMesh in skinnedMeshes)
-            {
-                DisableShadows(skinnedMesh);
-            }
+            DisableShadows(skinnedMesh);
         }
     }
 
@@ -48,7 +37,12 @@ public class ShadowOffModifier : AssetBundleGraph.IModifier
     {
         renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         renderer.receiveShadows = false;
+
+#if UNITY_5_5_OR_NEWER
+        renderer.lightProbeUsage = UnityEngine.Rendering.LightProbeUsage.Off;
+#else
         renderer.useLightProbes = false;
+#endif
         renderer.reflectionProbeUsage = UnityEngine.Rendering.ReflectionProbeUsage.Off;
     }
 

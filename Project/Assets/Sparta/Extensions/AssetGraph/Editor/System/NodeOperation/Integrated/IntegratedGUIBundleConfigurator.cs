@@ -137,6 +137,11 @@ namespace AssetBundleGraph
             Output(connectionToOutput, output, null);
         }
 
+        public void Skip(ConnectionData connectionToOutput, Dictionary<string, List<Asset>> inputGroupAssets, Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output)
+        {
+            Output(connectionToOutput, inputGroupAssets, null);
+        }
+
         public List<Asset> ConfigureAssetBundleSettings(string variantName, List<Asset> assets)
         {
 

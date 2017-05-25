@@ -195,208 +195,208 @@ namespace AssetBundleGraph
             res.border = new RectOffset(13, 13, 13, 13);
             switch(kind)
             {
-                case NodeKind.LOADER_GUI:
-                case NodeKind.EXPORTER_GUI:
+            case NodeKind.LOADER_GUI:
+            case NodeKind.EXPORTER_GUI:
+                {
+                    if(style == StyleType.Highlighted)
                     {
-                        if(style == StyleType.Highlighted)
+                        if(NodeSingleton.s.nodeGreyHighlight == null)
                         {
-                            if(NodeSingleton.s.nodeGreyHighlight == null)
-                            {
-                                Debug.LogWarning("Highlight texture not found, showing selected style");
-                                style = StyleType.Selected;
-                            }
-                            else
-                            {
-                                res.name = "Grey node Highlight";
-                                res.normal.background = NodeSingleton.s.nodeGreyHighlight;
-                            }
+                            Debug.LogWarning("Highlight texture not found, showing selected style");
+                            style = StyleType.Selected;
                         }
-
-                        if(style == StyleType.UnSelected)
+                        else
                         {
-                            res.name = "Grey node";
-                            res.normal.background = NodeSingleton.s.nodeGrey;
+                            res.name = "Grey node Highlight";
+                            res.normal.background = NodeSingleton.s.nodeGreyHighlight;
                         }
-                        else if(style == StyleType.Selected)
-                        {
-                            res.name = "Grey node On";
-                            res.normal.background = NodeSingleton.s.nodeGreyOn;
-                        }
-                        break;
-                    }
-                case NodeKind.FILTER_GUI:
-                    {
-                        if(style == StyleType.Highlighted)
-                        {
-                            if(NodeSingleton.s.nodeBlueHighlight == null)
-                            {
-                                Debug.LogWarning("Highlight texture not found, showing selected style");
-                                style = StyleType.Selected;
-                            }
-                            else
-                            {
-                                res.name = "Blue node Highlight";
-                                res.normal.background = NodeSingleton.s.nodeBlueHighlight;
-                            }
-                        }
-                        if(style == StyleType.UnSelected)
-                        {
-                            res.name = "Blue node";
-                            res.normal.background = NodeSingleton.s.nodeBlue;
-                        }
-                        else if(style == StyleType.Selected)
-                        {
-                            res.name = "Blue node On";
-                            res.normal.background = NodeSingleton.s.nodeBlueOn;
-                        }
-
-                        break;
-                    }
-                case NodeKind.IMPORTSETTING_GUI:
-                case NodeKind.GROUPING_GUI:
-                    {
-                        if(style == StyleType.Highlighted)
-                        {
-                            if(NodeSingleton.s.nodeAquaHighlight == null)
-                            {
-                                Debug.LogWarning("Highlight texture not found, showing selected style");
-                                style = StyleType.Selected;
-                            }
-                            else
-                            {
-                                res.name = "Aqua node Highlight";
-                                res.normal.background = NodeSingleton.s.nodeAquaHighlight;
-                            }
-                        }
-                        if(style == StyleType.UnSelected)
-                        {
-                            res.name = "Aqua node";
-                            res.normal.background = NodeSingleton.s.nodeAqua;
-                        }
-                        else if(style == StyleType.Selected)
-                        {
-                            res.name = "Aqua node On";
-                            res.normal.background = NodeSingleton.s.nodeAquaOn;
-                        }
-                        break;
-                    }
-                case NodeKind.WARP_IN:
-                case NodeKind.WARP_OUT:
-                    {
-                        if(style == StyleType.Highlighted)
-                        {
-                            if(NodeSingleton.s.nodeOrangeHighlight == null)
-                            {
-                                Debug.LogWarning("Highlight texture not found, showing selected style");
-                                style = StyleType.Selected;
-                            }
-                            else
-                            {
-                                res.name = "Orange node Highlight";
-                                res.normal.background = NodeSingleton.s.nodeOrangeHighlight;
-                            }
-                        }
-
-                        if(style == StyleType.UnSelected)
-                        {
-                            res.name = "Orange node";
-                            res.normal.background = NodeSingleton.s.nodeOrange;
-                        }
-                        else if(style == StyleType.Selected)
-                        {
-                            res.name = "Orange node On";
-                            res.normal.background = NodeSingleton.s.nodeOrangeOn;
-                        }
-                        break;
-                    }
-                case NodeKind.PREFABBUILDER_GUI:
-                case NodeKind.BUNDLEBUILDER_GUI:
-                    {
-                        if(style == StyleType.Highlighted)
-                        {
-                            if(NodeSingleton.s.nodeRedHighlight == null)
-                            {
-                                Debug.LogWarning("Highlight texture not found, showing selected style");
-                                style = StyleType.Selected;
-                            }
-                            else
-                            {
-                                res.name = "Red node Highlight";
-                                res.normal.background = NodeSingleton.s.nodeRedHighlight;
-                            }
-                        }
-
-                        if(style == StyleType.UnSelected)
-                        {
-                            res.name = "Red node";
-                            res.normal.background = NodeSingleton.s.nodeRed;
-                        }
-                        else if(style == StyleType.Selected)
-                        {
-                            res.name = "Red node On";
-                            res.normal.background = NodeSingleton.s.nodeRedOn;
-                        }
-                        break;
-                    }
-                case NodeKind.BUNDLECONFIG_GUI:
-                case NodeKind.MODIFIER_GUI:
-                    {
-                        if(style == StyleType.Highlighted)
-                        {
-                            if(NodeSingleton.s.nodeYellowHighlight == null)
-                            {
-                                Debug.LogWarning("Highlight texture not found, showing selected style");
-                                style = StyleType.Selected;
-                            }
-                            else
-                            {
-                                res.name = "Yellow node Highlight";
-                                res.normal.background = NodeSingleton.s.nodeYellowHighlight;
-                            }
-                        }
-
-                        if(style == StyleType.UnSelected)
-                        {
-                            res.name = "Yellow node";
-                            res.normal.background = NodeSingleton.s.nodeYellow;
-                        }
-                        else if(style == StyleType.Selected)
-                        {
-                            res.name = "Yellow node On";
-                            res.normal.background = NodeSingleton.s.nodeYellowOn;
-                        }
-                        break;
                     }
 
-                case NodeKind.VALIDATOR_GUI:
+                    if(style == StyleType.UnSelected)
                     {
-                        if(style == StyleType.Highlighted)
-                        {
-                            if(NodeSingleton.s.nodeGreenHighlight == null)
-                            {
-                                Debug.LogWarning("Highlight texture not found, showing selected style");
-                                style = StyleType.Selected;
-                            }
-                            else
-                            {
-                                res.name = "Green node Highlight";
-                                res.normal.background = NodeSingleton.s.nodeGreenHighlight;
-                            }
-                        }
-
-                        if(style == StyleType.UnSelected)
-                        {
-                            res.name = "Green node";
-                            res.normal.background = NodeSingleton.s.nodeGreen;
-                        }
-                        else if(style == StyleType.Selected)
-                        {
-                            res.name = "Green node On";
-                            res.normal.background = NodeSingleton.s.nodeGreenOn;
-                        }
-
-                        break;
+                        res.name = "Grey node";
+                        res.normal.background = NodeSingleton.s.nodeGrey;
                     }
+                    else if(style == StyleType.Selected)
+                    {
+                        res.name = "Grey node On";
+                        res.normal.background = NodeSingleton.s.nodeGreyOn;
+                    }
+                    break;
+                }
+            case NodeKind.FILTER_GUI:
+                {
+                    if(style == StyleType.Highlighted)
+                    {
+                        if(NodeSingleton.s.nodeBlueHighlight == null)
+                        {
+                            Debug.LogWarning("Highlight texture not found, showing selected style");
+                            style = StyleType.Selected;
+                        }
+                        else
+                        {
+                            res.name = "Blue node Highlight";
+                            res.normal.background = NodeSingleton.s.nodeBlueHighlight;
+                        }
+                    }
+                    if(style == StyleType.UnSelected)
+                    {
+                        res.name = "Blue node";
+                        res.normal.background = NodeSingleton.s.nodeBlue;
+                    }
+                    else if(style == StyleType.Selected)
+                    {
+                        res.name = "Blue node On";
+                        res.normal.background = NodeSingleton.s.nodeBlueOn;
+                    }
+
+                    break;
+                }
+            case NodeKind.IMPORTSETTING_GUI:
+            case NodeKind.GROUPING_GUI:
+                {
+                    if(style == StyleType.Highlighted)
+                    {
+                        if(NodeSingleton.s.nodeAquaHighlight == null)
+                        {
+                            Debug.LogWarning("Highlight texture not found, showing selected style");
+                            style = StyleType.Selected;
+                        }
+                        else
+                        {
+                            res.name = "Aqua node Highlight";
+                            res.normal.background = NodeSingleton.s.nodeAquaHighlight;
+                        }
+                    }
+                    if(style == StyleType.UnSelected)
+                    {
+                        res.name = "Aqua node";
+                        res.normal.background = NodeSingleton.s.nodeAqua;
+                    }
+                    else if(style == StyleType.Selected)
+                    {
+                        res.name = "Aqua node On";
+                        res.normal.background = NodeSingleton.s.nodeAquaOn;
+                    }
+                    break;
+                }
+            case NodeKind.WARP_IN:
+            case NodeKind.WARP_OUT:
+                {
+                    if(style == StyleType.Highlighted)
+                    {
+                        if(NodeSingleton.s.nodeOrangeHighlight == null)
+                        {
+                            Debug.LogWarning("Highlight texture not found, showing selected style");
+                            style = StyleType.Selected;
+                        }
+                        else
+                        {
+                            res.name = "Orange node Highlight";
+                            res.normal.background = NodeSingleton.s.nodeOrangeHighlight;
+                        }
+                    }
+
+                    if(style == StyleType.UnSelected)
+                    {
+                        res.name = "Orange node";
+                        res.normal.background = NodeSingleton.s.nodeOrange;
+                    }
+                    else if(style == StyleType.Selected)
+                    {
+                        res.name = "Orange node On";
+                        res.normal.background = NodeSingleton.s.nodeOrangeOn;
+                    }
+                    break;
+                }
+            case NodeKind.PREFABBUILDER_GUI:
+            case NodeKind.BUNDLEBUILDER_GUI:
+                {
+                    if(style == StyleType.Highlighted)
+                    {
+                        if(NodeSingleton.s.nodeRedHighlight == null)
+                        {
+                            Debug.LogWarning("Highlight texture not found, showing selected style");
+                            style = StyleType.Selected;
+                        }
+                        else
+                        {
+                            res.name = "Red node Highlight";
+                            res.normal.background = NodeSingleton.s.nodeRedHighlight;
+                        }
+                    }
+
+                    if(style == StyleType.UnSelected)
+                    {
+                        res.name = "Red node";
+                        res.normal.background = NodeSingleton.s.nodeRed;
+                    }
+                    else if(style == StyleType.Selected)
+                    {
+                        res.name = "Red node On";
+                        res.normal.background = NodeSingleton.s.nodeRedOn;
+                    }
+                    break;
+                }
+            case NodeKind.BUNDLECONFIG_GUI:
+            case NodeKind.MODIFIER_GUI:
+                {
+                    if(style == StyleType.Highlighted)
+                    {
+                        if(NodeSingleton.s.nodeYellowHighlight == null)
+                        {
+                            Debug.LogWarning("Highlight texture not found, showing selected style");
+                            style = StyleType.Selected;
+                        }
+                        else
+                        {
+                            res.name = "Yellow node Highlight";
+                            res.normal.background = NodeSingleton.s.nodeYellowHighlight;
+                        }
+                    }
+
+                    if(style == StyleType.UnSelected)
+                    {
+                        res.name = "Yellow node";
+                        res.normal.background = NodeSingleton.s.nodeYellow;
+                    }
+                    else if(style == StyleType.Selected)
+                    {
+                        res.name = "Yellow node On";
+                        res.normal.background = NodeSingleton.s.nodeYellowOn;
+                    }
+                    break;
+                }
+
+            case NodeKind.VALIDATOR_GUI:
+                {
+                    if(style == StyleType.Highlighted)
+                    {
+                        if(NodeSingleton.s.nodeGreenHighlight == null)
+                        {
+                            Debug.LogWarning("Highlight texture not found, showing selected style");
+                            style = StyleType.Selected;
+                        }
+                        else
+                        {
+                            res.name = "Green node Highlight";
+                            res.normal.background = NodeSingleton.s.nodeGreenHighlight;
+                        }
+                    }
+
+                    if(style == StyleType.UnSelected)
+                    {
+                        res.name = "Green node";
+                        res.normal.background = NodeSingleton.s.nodeGreen;
+                    }
+                    else if(style == StyleType.Selected)
+                    {
+                        res.name = "Green node On";
+                        res.normal.background = NodeSingleton.s.nodeGreenOn;
+                    }
+
+                    break;
+                }
             }
 
             return res;
@@ -501,8 +501,8 @@ namespace AssetBundleGraph
                     {BuildTargetGroup.N3DS,  "BuildSettings.N3DS.Small"},
                     #else
 					{BuildTargetGroup.Nintendo3DS,  "BuildSettings.N3DS.Small"},
-                    #endif
 					{BuildTargetGroup.PS3,          "BuildSettings.PS3.Small"},
+                    #endif
                     {BuildTargetGroup.PS4,          "BuildSettings.PS4.Small"},
                     {BuildTargetGroup.PSM,          "BuildSettings.PSM.Small"},
                     {BuildTargetGroup.PSP2,         "BuildSettings.PSP2.Small"},
@@ -514,7 +514,9 @@ namespace AssetBundleGraph
                     {BuildTargetGroup.WebGL,        "BuildSettings.WebGL.Small"},
                     {BuildTargetGroup.WiiU,         "BuildSettings.WiiU.Small"},
                     {BuildTargetGroup.WSA,          "BuildSettings.WP8.Small"},
+                    #if !UNITY_5_5_OR_NEWER
                     {BuildTargetGroup.XBOX360,      "BuildSettings.Xbox360.Small"},
+                    #endif
                     {BuildTargetGroup.XboxOne,      "BuildSettings.XboxOne.Small"}
                 };
 

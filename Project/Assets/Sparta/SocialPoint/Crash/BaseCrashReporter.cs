@@ -495,7 +495,7 @@ namespace SocialPoint.Crash
 
             if(_updateScheduler != null)
             { 
-                _updateScheduler.Add(this, false, SendInterval);
+                _updateScheduler.Add(this, UpdateableTimeMode.GameTimeUnscaled, SendInterval);
                 _running = true;
             }
 
@@ -660,11 +660,13 @@ namespace SocialPoint.Crash
 
         void SendCrashesAfterLogin(Action callback = null)
         {
+            DebugUtils.Assert(IsEnabled, "CrashReporter should be already enabled after login"); 
             SendCrashesWithSafeCallback(ReportSendType.AfterLogin, callback);
         }
 
         public void SendCrashesBeforeLogin(Action callback)
         {
+            DebugUtils.Assert(IsEnabled, "CrashReporter should be enabled before login"); 
             SendCrashesWithSafeCallback(ReportSendType.BeforeLogin, callback);
         }
 
@@ -1055,7 +1057,6 @@ namespace SocialPoint.Crash
 
         void OnGameWasLoaded()
         {
-            Enable();
             SendCrashesAfterLogin();
         }
 

@@ -110,16 +110,18 @@ namespace AssetBundleGraph
         public static Type GetTypeOfAsset(string assetPath)
         {
             if(assetPath.EndsWith(AssetBundleGraphSettings.UNITY_METAFILE_EXTENSION)) return typeof(string);
+            Type t = typeof(object);
+#if(UNITY_5_4_OR_NEWER && !UNITY_5_4_0 && !UNITY_5_4_1)
+            t = AssetDatabase.GetMainAssetTypeAtPath(assetPath);
+#else
+			var asset = AssetDatabase.LoadMainAssetAtPath(assetPath);
 
-            var asset = AssetDatabase.LoadMainAssetAtPath(assetPath);
-
-            // If asset is null, this asset is not imported yet, or unsupported type of file
-            // so we set this to object type.
-            if(asset == null)
-            {
-                return typeof(object);
-            }
-            return asset.GetType();
+			if (asset != null) {
+				t = asset.GetType();
+				Resources.UnloadAsset(asset);
+			}
+#endif
+            return t;
         }
 
         /**
@@ -140,12 +142,12 @@ namespace AssetBundleGraph
 
             switch(importerTypeStr)
             {
-                case "UnityEditor.TextureImporter":
-                case "UnityEditor.ModelImporter":
-                case "UnityEditor.AudioImporter":
-                    {
-                        return assumedImporterType;
-                    }
+            case "UnityEditor.TextureImporter":
+            case "UnityEditor.ModelImporter":
+            case "UnityEditor.AudioImporter":
+                {
+                    return assumedImporterType;
+                }
             }
 
             // not specific type importer. should determine their type by extension.

@@ -16,7 +16,7 @@ MonoBehaviour:
     PersistsSelection: 1
     Environments:
     - Name: Production
-      Url: https://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3
+      Url: http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3
       Type: 0
     - Name: Test
       Url: http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3
@@ -30,6 +30,11 @@ MonoBehaviour:
     - Name: Docker
       Url: http://localhost:4630/api/v3
       Type: 3
+    - Name: Champions Arena
+      Url: http://int-ca.socialpointgames.com/ca10/web/api/v3
+      Type: 3
   Defaults:
-    ProductionEnvironment: Production
+    IosProductionEnvironment: Production
+    AndroidProductionEnvironment: Production
+    CommonProductionEnvironment: Production
     DefaultEnvironment: Development

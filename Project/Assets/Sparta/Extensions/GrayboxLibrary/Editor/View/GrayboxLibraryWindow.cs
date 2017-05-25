@@ -110,49 +110,49 @@ namespace SocialPoint.GrayboxLibrary
             Window.titleContent.text = "Library";
         }
 
-        [MenuItem("Social Point/Graybox Library/Buildings")]
+        [MenuItem("Sparta/Graybox Library/Buildings", false, 500)]
         public static void LaunchBuldingsClient()
         {
             _currentCategory = (int)GrayboxAssetCategory.Buildings;
             LaunchClient();
         }
 
-        [MenuItem("Social Point/Graybox Library/Props")]
+        [MenuItem("Sparta/Graybox Library/Props", false, 500)]
         public static void LaunchPropsClient()
         {
             _currentCategory = (int)GrayboxAssetCategory.Props;
             LaunchClient();
         }
 
-        [MenuItem("Social Point/Graybox Library/Decos")]
+        [MenuItem("Sparta/Graybox Library/Decos", false, 500)]
         public static void LaunchDecosClient()
         {
             _currentCategory = (int)GrayboxAssetCategory.Decos;
             LaunchClient();
         }
 
-        [MenuItem("Social Point/Graybox Library/Fx")]
+        [MenuItem("Sparta/Graybox Library/Fx", false, 500)]
         public static void LaunchFxClient()
         {
             _currentCategory = (int)GrayboxAssetCategory.Fx;
             LaunchClient();
         }
 
-        [MenuItem("Social Point/Graybox Library/Characters")]
+        [MenuItem("Sparta/Graybox Library/Characters", false, 500)]
         public static void LaunchCharactersClient()
         {
             _currentCategory = (int)GrayboxAssetCategory.Characters;
             LaunchClient();
         }
 
-        [MenuItem("Social Point/Graybox Library/Vehicles")]
+        [MenuItem("Sparta/Graybox Library/Vehicles", false, 500)]
         public static void LaunchVehiclesClient()
         {
             _currentCategory = (int)GrayboxAssetCategory.Vehicles;
             LaunchClient();
         }
 
-        [MenuItem("Social Point/Graybox Library/UI")]
+        [MenuItem("Sparta/Graybox Library/UI", false, 500)]
         public static void LaunchUIClient()
         {
             _currentCategory = (int)GrayboxAssetCategory.UI;

@@ -173,6 +173,7 @@ namespace SocialPoint.Notifications
 
         void ScheduleNotifications()
         {
+            ClearNotifications();
             AddGameNotifications();
             for(int i = 0, _notificationsCount = _notifications.Count; i < _notificationsCount; i++)
             {
@@ -187,9 +188,7 @@ namespace SocialPoint.Notifications
             Reset();
         }
 
-
-
-        [System.Diagnostics.Conditional("DEBUG_SPNOTIFICATIONS")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugNotificationsFlag)]
         void DebugLog(string msg)
         {
             const string tag = "SocialPoint.Notifications-DebugLog";

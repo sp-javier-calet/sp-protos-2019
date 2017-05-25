@@ -58,7 +58,7 @@ namespace SocialPoint.Purchase
         /// </summary>
         PurchaseCompletedDelegate _purchaseCompleted;
 
-        public string Currency;
+        public string Currency { get; set; }
 
         public bool ProductListReceived { get; private set; }
 
@@ -141,7 +141,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugPurchasesFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("SocialPointPurchaseStore {0}", msg));

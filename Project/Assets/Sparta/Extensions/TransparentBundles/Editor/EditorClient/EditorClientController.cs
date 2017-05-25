@@ -15,65 +15,115 @@ namespace SocialPoint.TransparentBundles
         static Downloader _downloader;
         public Dictionary<string, List<Asset>> DependenciesCache, ReferencesCache;
         public Dictionary<string, bool> SharedDependenciesCache;
+
         Dictionary<string, Bundle> _bundleDictionary;
         public ServerInfo ServerInfo;
+        public bool BranchUpdated = false;
         bool _requestPending;
 
-        //TEMPORARY
         public Dictionary<string, Bundle> NewBundles;
-
-        public enum BundleIntoBuildMode
-        {
-            MakeLocal,
-            RemoveBundle,
-            RemoveLocalBundle
-        }
 
         EditorClientController()
         {
             //Mounts the smb folder
 #if UNITY_EDITOR_OSX
+            bool mounted = false;
             if(!Directory.Exists(Config.IconsPath))
             {
                 var process = new ProcessStartInfo();
-                process.WindowStyle = ProcessWindowStyle.Hidden;
+                process.UseShellExecute = false;
+                process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                process.FileName = "mount";
+                process.RedirectStandardError = true;
+                process.RedirectStandardOutput = true;
+                var run = Process.Start(process);
+                while(!run.StandardError.EndOfStream)
+                {
+                    UnityEngine.Debug.LogError(run.StandardError.ReadLine());
+                }
+                while(!run.StandardOutput.EndOfStream)
+                {
+                    string outputText = run.StandardOutput.ReadLine();
+                    if(outputText.Contains(Config.SmbFolder))
+                    {
+                        string newPath = outputText.Substring(outputText.IndexOf(Config.SmbFolder + " on ") + Config.SmbFolder.Length + 4);
+                        newPath = newPath.Split(' ')[0];
+                        Config.SetVolumePath(newPath);
+                        mounted = true;
+                    }
+                    else if(outputText.Contains(Config.AltSmbFolder))
+                    {
+                        string newPath = outputText.Substring(outputText.IndexOf(Config.AltSmbFolder + " on ") + Config.AltSmbFolder.Length + 4);
+                        newPath = newPath.Split(' ')[0];
+                        Config.SetVolumePath(newPath);
+                        mounted = true;
+                    }
+                }
+                run.Close();
+            }
+
+            if(!mounted)
+            {
+                var process = new ProcessStartInfo();
+                process.UseShellExecute = false;
+                process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
                 process.FileName = "mkdir";
-                process.Arguments = Config.VolumePath;
-                Process proc = Process.Start(process);
-                if(!proc.WaitForExit(10000))
+                process.Arguments = "-p " + Config.VolumePath;
+                process.RedirectStandardError = true;
+                var run = Process.Start(process);
+                while(!run.StandardError.EndOfStream)
+                {
+                    UnityEngine.Debug.LogError(run.StandardError.ReadLine());
+                }
+                if(!run.WaitForExit(10000))
                 {
                     if(EditorUtility.DisplayDialog("Transparent Bundles", "The folder '" + Config.VolumePath + "' was not able to be created. Please, contact the Transparent Bundles developers: " + Config.ContactUrl, "Close"))
                     {
                         BundlesWindow.Window.Close();
                     }
+                    return;
                 }
-                else
+
+                process = new ProcessStartInfo();
+                process.UseShellExecute = false;
+                process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                process.FileName = "mount_smbfs";
+                process.Arguments = Config.SmbConnectionUrl + " " + Config.VolumePath;
+                process.RedirectStandardError = true;
+                run = Process.Start(process);
+                while(!run.StandardError.EndOfStream)
                 {
-                    process = new ProcessStartInfo();
-                    process.WindowStyle = ProcessWindowStyle.Hidden;
-                    process.FileName = "mount_smbfs";
-                    process.Arguments = Config.SmbConnectionUrl + " " + Config.VolumePath;
-                    proc = Process.Start(process);
-                    if(!proc.WaitForExit(10000))
+                    UnityEngine.Debug.LogError(run.StandardError.ReadLine());
+                }
+                if(!run.WaitForExit(10000))
+                {
+                    if(EditorUtility.DisplayDialog("Transparent Bundles", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE'", "Close"))
                     {
-                        if(EditorUtility.DisplayDialog("Transparent Bundles", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE'", "Close"))
-                        {
-                            BundlesWindow.Window.Close();
-                        }
+                        BundlesWindow.Window.Close();
                     }
                 }
+
+                run.Close();
             }
 #endif
-            LoadBundleDataFromServer();
-
             DependenciesCache = new Dictionary<string, List<Asset>>();
             ReferencesCache = new Dictionary<string, List<Asset>>();
             SharedDependenciesCache = new Dictionary<string, bool>();
             _downloader = Downloader.GetInstance();
             _bundleDictionary = new Dictionary<string, Bundle>();
-            ServerInfo = new ServerInfo(ServerStatus.Ok, "", new Dictionary<int, BundleOperation>());
+            ServerInfo = new ServerInfo(ServerStatus.Ok, "", new Dictionary<int, ServerTask>(), 0, "");
             NewBundles = new Dictionary<string, Bundle>();
+        }
 
+        public static EditorClientController GetInstance()
+        {
+            if(_instance == null)
+            {
+                _instance = new EditorClientController();
+                _instance.BranchUpdated = _instance.CheckInBranchUpdated();
+            }
+
+            return _instance;
         }
 
         public void LoadBundleDataFromServer(Action SuccessCallback = null)
@@ -81,8 +131,14 @@ namespace SocialPoint.TransparentBundles
             if(!_requestPending)
             {
                 _requestPending = true;
-                TransparentBundleAPI.GetBundles(new GetBundlesArgs(x => ImportBundleData(x.ResponseRes.Response, SuccessCallback), x => UnityEngine.Debug.LogError(x.ResponseRes.Response)));
+                TransparentBundleAPI.GetBundles(new GetBundlesArgs(x => ImportBundleData(x.ResponseRes.Response, SuccessCallback), x => AsyncRequestErrorMessage(x.ResponseRes.Response)));
             }
+        }
+
+        void AsyncRequestErrorMessage(string error)
+        {
+            _requestPending = false;
+            UnityEngine.Debug.LogError(error);
         }
 
         void ImportBundleData(string bundleJsonString, Action SuccessCallback = null)
@@ -92,11 +148,8 @@ namespace SocialPoint.TransparentBundles
             {
                 byte[] jsonBytes = Encoding.ASCII.GetBytes(bundleJsonString);
                 ServerInfo = ReadServerInfoFromJSON(jsonBytes);
-                var tempDict = ReadBundleListFromJSON(jsonBytes);
-                if(tempDict.Count > 0)
-                {
-                    _bundleDictionary = tempDict;
-                }
+                _bundleDictionary = ReadBundleListFromJSON(jsonBytes);
+                NewBundles = ReadNewBundlesFromJSON(jsonBytes);
 
                 UpdateProcessingBundleStatus();
 
@@ -179,7 +232,10 @@ namespace SocialPoint.TransparentBundles
                 for(int j = 0; j < jsonOperations.Count; j++)
                 {
                     int operationId = jsonOperations[j].AsValue.ToInt();
-                    operationDict.Add(operationId, (ServerInfo.ProcessingQueue[operationId]));
+                    if(!operationDict.ContainsKey(operationId))
+                    {
+                        operationDict.Add(operationId, (ServerInfo.ProcessingQueue[operationId].Operation));
+                    }
                 }
 
                 var bundle = new Bundle(bundleName,
@@ -191,24 +247,21 @@ namespace SocialPoint.TransparentBundles
                                  urlDict,
                                  (BundleStatus)Enum.Parse(typeof(BundleStatus), jsonRow["status"].AsValue.ToString()),
                                  operationDict,
-                                 jsonRow["log"].AsValue.ToString()
+                                 jsonRow["log"].AsValue.ToString(),
+                                 jsonRow["isrequested"].AsValue.ToBool()
                              );
 
+                if(bundle.Status == BundleStatus.Deployed && !bundle.IsRequested)
+                {
+                    bundle.Status = BundleStatus.Warning;
+                    bundle.Log += ErrorDisplay.DisplayError(ErrorType.bundleAutogenerated, false, true, true, bundleName);
+                }
                 if(asset.Name.Length == 0)
                 {
-                    string errorText = "Transparent Bundles - Error - The bundle '" + bundleName + "' have an asset with the following GUID: '" + asset.Guid + "' that was not found in the project. Please, make sure your project is up-to-date. If the issue persists, please, contact the transparent bundles team: " + Config.ContactMail;
-                    UnityEngine.Debug.LogError(errorText);
+                    bundle.Status = BundleStatus.Warning;
+                    bundle.Log += ErrorDisplay.DisplayError(ErrorType.assetNotFoundInBundle, false, true, true, bundleName, asset.Guid);
                 }
-                else
-                {
-                    bundleDictionary.Add(GetFixedAssetName(asset.Name), bundle);
-                }
-
-                //TEMPORARY
-                if(NewBundles.ContainsKey(bundleName))
-                {
-                    NewBundles.Remove(bundleName);
-                }
+                bundleDictionary.Add(bundleName, bundle);
             }
 
             //Get Parent Bundles
@@ -216,7 +269,7 @@ namespace SocialPoint.TransparentBundles
             {
                 AttrDic jsonRow = jsonList[i].AsDic;
                 string childBundleName = jsonRow["name"].AsValue.ToString();
-                string childAssetName = GetFixedAssetName(childBundleName.Substring(0, childBundleName.LastIndexOf("_")));
+                string childAssetName = GetFixedAssetName(childBundleName.Substring(0, childBundleName.LastIndexOf("_")) + "." + childBundleName.Substring(childBundleName.LastIndexOf("_") + 1));
                 if(bundleDictionary.ContainsKey(childAssetName))
                 {
                     AttrList jsonParents = jsonRow["parents"].AsList;
@@ -224,7 +277,7 @@ namespace SocialPoint.TransparentBundles
                     for(int j = 0; j < jsonParents.Count; j++)
                     {
                         string parentBundleName = jsonParents[j].AsValue.ToString();
-                        string parentAssetName = GetFixedAssetName(parentBundleName.Substring(0, parentBundleName.LastIndexOf("_")));
+                        string parentAssetName = GetFixedAssetName(parentBundleName.Substring(0, parentBundleName.LastIndexOf("_")) + "." + parentBundleName.Substring(parentBundleName.LastIndexOf("_") + 1));
 
                         if(bundleDictionary.ContainsKey(parentAssetName))
                         {
@@ -232,25 +285,83 @@ namespace SocialPoint.TransparentBundles
                         }
                         else
                         {
-                            UnityEngine.Debug.LogError("Transparent Bundles - Error - The parent bundle '" + parentBundleName + "' was not found in the bundle list. Please, contact the transparent bundles team: " + Config.ContactMail);
+                            ErrorDisplay.DisplayError(ErrorType.parentBundleNotFound, false, true, false, parentBundleName);
                         }
                     }
                 }
             }
 
-            //TEMPORARY
+            //Prints new Bundles
             var newBundleEnum = NewBundles.GetEnumerator();
             while(newBundleEnum.MoveNext())
             {
                 Bundle newBundle = newBundleEnum.Current.Value;
-                if(!bundleDictionary.ContainsKey(GetFixedAssetName(newBundle.Asset.Name)))
+                string newBundleAssetName = GetFixedAssetName(newBundle.Asset.FullName);
+
+                if(!bundleDictionary.ContainsKey(newBundleAssetName))
                 {
-                    bundleDictionary.Add(GetFixedAssetName(newBundle.Asset.Name), newBundle);
+                    bundleDictionary.Add(newBundleAssetName, newBundle);
+                }
+                else if(bundleDictionary[newBundleAssetName].IsAutogenerated)
+                {
+                    bundleDictionary[newBundleAssetName] = newBundle;
                 }
             }
             newBundleEnum.Dispose();
 
             return bundleDictionary;
+        }
+
+        static Dictionary<string, Bundle> ReadNewBundlesFromJSON(byte[] jsonBytes)
+        {
+            var newBundlesDict = new Dictionary<string, Bundle>();
+
+            var parser = new JsonAttrParser();
+            Attr jsonParsed = parser.Parse(jsonBytes);
+            AttrList jsonList = jsonParsed.AsDic["assets"].AsList;
+
+            for(int i = 0; i < jsonList.Count; i++)
+            {
+                var newAssetDic = jsonList[i].AsDic;
+                string guid = newAssetDic["assetguid"].AsValue.ToString();
+                var operationDict = new Dictionary<int, BundleOperation>();
+
+                var jsonOperations = newAssetDic["queue"].AsList;
+                for(int j = 0; j < jsonOperations.Count; j++)
+                {
+                    int operationId = jsonOperations[j].AsValue.ToInt();
+                    if(!operationDict.ContainsKey(operationId))
+                    {
+                        operationDict.Add(operationId, BundleOperation.create_asset_bundles);
+                    }
+                }
+
+                var asset = new Asset(guid);
+                asset.Name = "NEW: "+asset.Name;
+                var sizeDict = new Dictionary<BundlePlaform, int>();
+                sizeDict.Add(BundlePlaform.android_etc, 0);
+                sizeDict.Add(BundlePlaform.ios, 0);
+                var urlDict = new Dictionary<BundlePlaform, string>();
+                urlDict.Add(BundlePlaform.android_etc, "");
+                urlDict.Add(BundlePlaform.ios, "");
+
+                var bundle = new Bundle(asset.Name.Length == 0 ? "New bundle (update your git)" : "NEW: " + GetFixedAssetName(asset.FullName),
+                                 sizeDict,
+                                 false,
+                                 false,
+                                 asset,
+                                 new List<Bundle>(),
+                                 urlDict,
+                                 BundleStatus.Queued,
+                                 operationDict,
+                                 "",
+                                 true
+                             );
+
+                newBundlesDict.Add(guid, bundle);
+            }
+                
+            return newBundlesDict;
         }
 
         static ServerInfo ReadServerInfoFromJSON(byte[] jsonBytes)
@@ -259,29 +370,44 @@ namespace SocialPoint.TransparentBundles
             Attr jsonParsed = parser.Parse(jsonBytes);
             AttrDic jsonList = jsonParsed.AsDic["server"].AsDic;
 
-            var processingQueue = new Dictionary<int, BundleOperation>();
+            var processingQueue = new Dictionary<int, ServerTask>();
             var jsonQueue = jsonList["queue"].AsList;
 
             for(int i = 0; i < jsonQueue.Count; i++)
             {
-                var key = jsonQueue[i].AsDic.Keys.GetEnumerator();
-                key.MoveNext();
-                processingQueue.Add(int.Parse(key.Current), (BundleOperation)Enum.Parse(typeof(BundleOperation), jsonQueue[i].AsDic[key.Current].AsValue.ToString()));
-                key.Dispose();
+                var taskDic = jsonQueue[i].AsDic;
+                var taskId = taskDic["id"].AsValue.ToInt();
+                var taskName = taskDic["name"].AsValue.ToString();
+                var taskAuthor = taskDic["author_email"].AsValue.ToString();
+
+                ServerTask st = new ServerTask((BundleOperation)Enum.Parse(typeof(BundleOperation), taskName), taskId, taskAuthor);
+                processingQueue.Add(taskId, st);
             }
 
-            return new ServerInfo((ServerStatus)Enum.Parse(typeof(ServerStatus), jsonList["status"].AsValue.ToString()), jsonList["log"].AsValue.ToString(), processingQueue);
-        }
+            Attr progressObject = jsonList["progress"];
 
-        public static EditorClientController GetInstance()
-        {
-            if(_instance == null)
+            float progress = 0f;
+            string progressMessage = "";
+
+            if(progressObject.IsDic)
             {
-                _instance = new EditorClientController();
+                AttrDic progressDic = progressObject.AsDic;
+                progress = progressDic["progress"].AsValue.ToFloat();
+                progressMessage = progressDic["message"].AsValue.ToString();
             }
 
-            return _instance;
+            ServerInfo si = new ServerInfo((ServerStatus)Enum.Parse(typeof(ServerStatus), jsonList["status"].AsValue.ToString()), jsonList["log"].AsValue.ToString(), processingQueue, progress, progressMessage);
+
+            if(_instance != null && _instance.ServerInfo != null && si.Status == ServerStatus.Ok && _instance.ServerInfo.Log.IndexOf(ErrorDisplay.ErrorMessages[ErrorType.wrongBranch].Substring(0, ErrorDisplay.ErrorMessages[ErrorType.wrongBranch].IndexOf("{"))) == 0)
+            {
+                si.Status = _instance.ServerInfo.Status;
+                si.Log = _instance.ServerInfo.Log;
+            }
+
+            return si;
         }
+
+
 
         static bool IsValidAsset(Asset asset)
         {
@@ -289,8 +415,48 @@ namespace SocialPoint.TransparentBundles
             if(asset.Type == "UnityEditor.DefaultAsset")
             {
                 valid = false;
-                EditorUtility.DisplayDialog("Asset issue", "You cannot create a bundle of a folder.\n\nVisit the following link for more info: \n" + Config.HelpUrl, "Close");
+                EditorUtility.DisplayDialog("Asset issue", "You cannot create a bundle of a folder or any other file that may not be considered as an asset.\n\nVisit the following link for more info: \n" + Config.HelpUrl, "Close");
             }
+            else if(asset.GetAssetObject() == null)
+            {
+                ErrorDisplay.DisplayError(ErrorType.assetNotFound, true, false, false, asset.Name, asset.Guid);
+                valid = false;
+            }
+            else if(_instance != null && _instance.NewBundles.ContainsKey(asset.Guid))
+            {
+                ErrorDisplay.DisplayError(ErrorType.bundleBeingCreated, true, false, true, _instance.NewBundles[asset.Guid].Name);
+                valid = false;
+            }   
+
+            return valid;
+        }
+
+        public bool CheckInBranchUpdated()
+        {
+            var valid = true;
+            var branchIssuesMessages = GitChecker.CheckInBranchUpdated();
+            if(branchIssuesMessages.Count > 0)
+            {
+                valid = false;
+                string branchIssuesText = "";
+                for(int i = 0; i < branchIssuesMessages.Count; i++)
+                {
+                    branchIssuesText += branchIssuesMessages[i] + "\n";
+                }
+
+                if(ServerInfo.Status == ServerStatus.Ok)
+                {
+                    ServerInfo.Status = ServerStatus.Warning;
+                    ServerInfo.Log = ErrorDisplay.DisplayError(ErrorType.wrongBranch, true, true, false, branchIssuesText);
+                }
+            }
+            else if(_instance.ServerInfo.Log.IndexOf(ErrorDisplay.ErrorMessages[ErrorType.wrongBranch].Substring(0, ErrorDisplay.ErrorMessages[ErrorType.wrongBranch].IndexOf("{"))) == 0)
+            {
+                ServerInfo.Status = ServerStatus.Ok;
+                ServerInfo.Log = "";
+            }
+
+            BranchUpdated = valid;
 
             return valid;
         }
@@ -320,46 +486,10 @@ namespace SocialPoint.TransparentBundles
             return valid;
         }
 
-        public void CreateOrUpdateBundle(Asset asset)
-        {
-            bool valid = true;
 
-            if(IsValidAsset(asset))
-            {
-                if(!_bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)))
-                {
-                    valid = HasValidDependencies(asset);
-                }
-                else
-                {
-                    Asset serverAsset = _bundleDictionary[GetFixedAssetName(asset.Name)].Asset;
-                    if(serverAsset.Guid != asset.Guid)
-                    {
-                        EditorUtility.DisplayDialog("Asset issue", "You are trying to create a bundle from an asset with a repeated name in the server. The system does not allow multiple bundles with the same name, so please, rename the asset and try again. \n\nVisit the following link for more info: \n" + Config.HelpUrl, "Close");
-                        valid = false;
-                    }
-                }
-            }
-            else
-            {
-                valid = false;
-            }
-
-
-            if(valid)
-            {
-                //TEMPORARY
-                AddNewBundle(asset);
-
-                TransparentBundleAPI.CreateBundle(new CreateBundlesArgs(new List<string> { asset.Guid }, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.ResponseRes.StatusCode)));
-            }
-
-        }
-
-        //TEMPORARY
         void AddNewBundle(Asset asset)
         {
-            if(!_bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)) && !NewBundles.ContainsKey(asset.FullName.ToLower().Replace(".", "_").Replace(" ", "_")))
+            if((!_bundleDictionary.ContainsKey(GetFixedAssetName(asset.FullName)) || _bundleDictionary[GetFixedAssetName(asset.FullName)].IsAutogenerated) && !NewBundles.ContainsKey(asset.Guid))
             {
                 var sizeDict = new Dictionary<BundlePlaform, int>();
                 sizeDict.Add(BundlePlaform.android_etc, 0);
@@ -369,14 +499,15 @@ namespace SocialPoint.TransparentBundles
                 urlDict.Add(BundlePlaform.ios, "");
                 var operationsDict = new Dictionary<int, BundleOperation>();
                 operationsDict.Add(-1, BundleOperation.create_asset_bundles);
-                var newBundle = new Bundle(asset.FullName.ToLower().Replace(".", "_"), sizeDict, false, false, asset, new List<Bundle>(), urlDict, BundleStatus.Queued, operationsDict, "");
-                NewBundles.Add(newBundle.Name, newBundle);
+                asset.Name = "NEW: " + asset.Name;
+                var newBundle = new Bundle("NEW: "+asset.FullName.ToLower().Replace(".", "_"), sizeDict, false, false, asset, new List<Bundle>(), urlDict, BundleStatus.Queued, operationsDict, "", true);
+                NewBundles.Add(asset.Guid, newBundle);
             }
         }
 
-        public void CreateOrUpdateBundles(List<Asset> assets)
+        public bool CreateOrUpdateBundles(List<Asset> assets)
         {
-            bool valid = true;
+            bool valid = assets.Count > 0;
 
             for(int i = 0; i < assets.Count; i++)
             {
@@ -384,13 +515,15 @@ namespace SocialPoint.TransparentBundles
 
                 if(IsValidAsset(asset))
                 {
-                    if(!_bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)))
+                    string fixedAssetName = GetFixedAssetName(asset.FullName);
+
+                    if(!_bundleDictionary.ContainsKey(fixedAssetName))
                     {
                         valid &= HasValidDependencies(asset);
                     }
                     else
                     {
-                        Asset serverAsset = _bundleDictionary[GetFixedAssetName(asset.Name)].Asset;
+                        Asset serverAsset = _bundleDictionary[fixedAssetName].Asset;
                         if(serverAsset.Guid != asset.Guid)
                         {
                             EditorUtility.DisplayDialog("Asset issue", "You are trying to create a bundle from an asset with a repeated name in the server. The system does not allow multiple bundles with the same name, so please, rename the asset and try again. \n\nVisit the following link for more info: \n" + Config.HelpUrl, "Close");
@@ -404,6 +537,8 @@ namespace SocialPoint.TransparentBundles
                 }
             }
 
+            valid &= CheckGitStatus(assets);
+
             if(valid)
             {
                 var guids = new List<string>();
@@ -411,38 +546,54 @@ namespace SocialPoint.TransparentBundles
                 {
                     guids.Add(assets[i].Guid);
 
-                    //TEMPORARY
                     AddNewBundle(assets[i]);
                 }
-                TransparentBundleAPI.CreateBundle(new CreateBundlesArgs(guids, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
+                TransparentBundleAPI.CreateBundle(new CreateBundlesArgs(guids, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.ResponseRes.Response)));
             }
+            return valid;
         }
 
-        public void RemoveBundle(Asset asset)
-        {
-            if(_bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)))
-            {
-                TransparentBundleAPI.RemoveBundle(new RemoveBundlesArgs(new List<string> { asset.Guid }, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
-            }
-        }
-
-        public void BundleIntoBuild(Asset asset)
-        {
-            if(_bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)) && !_bundleDictionary[GetFixedAssetName(asset.Name)].IsLocal)
-            {
-                TransparentBundleAPI.MakeLocalBundle(new MakeLocalBundlesArgs(new List<string> { asset.Guid }, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
-            }
-        }
-
-        public void PerfomExistingBundleAction(List<Asset> assets, BundleIntoBuildMode mode)
+        bool CheckGitStatus(List<Asset> assets)
         {
             bool valid = true;
+            var assetsPath = new List<string>();
+            for(int i = 0; i < assets.Count; i++)
+            {
+                var newAssetsPath = AssetDatabase.GetDependencies(AssetDatabase.GUIDToAssetPath(assets[i].Guid));
+                for(int j = 0; j < newAssetsPath.Length; j++)
+                {
+                    if(!assetsPath.Contains(newAssetsPath[j]))
+                    {
+                        assetsPath.Add(newAssetsPath[j]);
+                    }
+                }
+            }
+            valid = _instance.CheckInBranchUpdated();
+            var pendingAssetMessages = GitChecker.CheckFilePending(assetsPath.ToArray());
+            if(pendingAssetMessages.Count > 0)
+            {
+                valid = false;
+                string pendingAssetsText = "";
+                for(int i = 0; i < pendingAssetMessages.Count; i++)
+                {
+                    pendingAssetsText += pendingAssetMessages[i] + "\n";
+                }
+                ErrorDisplay.DisplayError(ErrorType.assetPendingToCommit, true, false, false, pendingAssetsText);
+            }
+            return valid;
+        }
+
+        public bool PerfomBundleOperation(List<Asset> assets, BundleOperation operation)
+        {
+            bool valid = assets.Count > 0;
 
             for(int i = 0; i < assets.Count && valid; i++)
             {
                 Asset asset = assets[i];
-                valid &= _bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name));
+                valid &= IsValidAsset(asset) && _bundleDictionary.ContainsKey(GetFixedAssetName(asset.FullName));
             }
+
+            valid &= CheckGitStatus(assets);
 
             if(valid)
             {
@@ -451,32 +602,30 @@ namespace SocialPoint.TransparentBundles
                 {
                     guids.Add(assets[i].Guid);
                 }
-                switch(mode)
+                switch(operation)
                 {
-                case BundleIntoBuildMode.MakeLocal:
-                    TransparentBundleAPI.MakeLocalBundle(new MakeLocalBundlesArgs(guids, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
-                    break;
-                case BundleIntoBuildMode.RemoveBundle:
-                    TransparentBundleAPI.RemoveBundle(new RemoveBundlesArgs(guids, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
-                    break;
-                case BundleIntoBuildMode.RemoveLocalBundle:
-                    TransparentBundleAPI.RemoveLocalBundle(new RemoveLocalBundlesArgs(guids, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
-                    break;
+                    case BundleOperation.create_local_asset_bundles:
+                        TransparentBundleAPI.MakeLocalBundle(new MakeLocalBundlesArgs(guids, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.ResponseRes.Response)));
+                        break;
+                    case BundleOperation.remove_asset_bundles:
+                        TransparentBundleAPI.RemoveBundle(new RemoveBundlesArgs(guids, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.ResponseRes.Response)));
+                        break;
+                    case BundleOperation.remove_local_asset_bundles:
+                        TransparentBundleAPI.RemoveLocalBundle(new RemoveLocalBundlesArgs(guids, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.ResponseRes.Response)));
+                        break;
                 }
             }
+            return valid;
         }
 
-        public void BundleOutsideBuild(Asset asset)
+        public void CancelBundleOperation(int operationId)
         {
-            if(_bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)) && _bundleDictionary[GetFixedAssetName(asset.Name)].IsLocal)
-            {
-                TransparentBundleAPI.RemoveLocalBundle(new RemoveLocalBundlesArgs(new List<string> { asset.Guid }, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.RequestCancelled)));
-            }
+            TransparentBundleAPI.CancelRequest(new CancelRequestArgs(operationId, x => LoadBundleDataFromServer(), x => UnityEngine.Debug.LogError(x.ResponseRes.Response)));
         }
 
-        public string GetFixedAssetName(string assetName)
+        public static string GetFixedAssetName(string assetName)
         {
-            return assetName.ToLower().Replace(" ", "_");
+            return assetName.ToLower().Replace(" ", "_").Replace(".", "_");
         }
 
         public List<Bundle> GetBundles(string searchText)
@@ -495,14 +644,12 @@ namespace SocialPoint.TransparentBundles
 
         public Bundle GetBundleFromAsset(Asset asset)
         {
-            return _bundleDictionary.ContainsKey(GetFixedAssetName(asset.Name)) ? _bundleDictionary[GetFixedAssetName(asset.Name)] : null;
-
+            return _bundleDictionary.ContainsKey(GetFixedAssetName(asset.FullName)) ? _bundleDictionary[GetFixedAssetName(asset.FullName)] : null;
         }
 
         public Bundle GetBundleFromAsset(string assetName)
         {
             return _bundleDictionary.ContainsKey(GetFixedAssetName(assetName)) ? _bundleDictionary[GetFixedAssetName(assetName)] : null;
-
         }
 
         public int GetLocalBundlesTotalSize(BundlePlaform platform)
@@ -574,7 +721,7 @@ namespace SocialPoint.TransparentBundles
 
         public bool IsBundle(UnityEngine.Object assetObject)
         {
-            Bundle bundle = GetBundleFromAsset(assetObject.name);
+            Bundle bundle = GetBundleFromAsset(Path.GetFileName(AssetDatabase.GetAssetPath(assetObject)));
             return (bundle != null && bundle.Asset.Type == assetObject.GetType().ToString());
         }
 
@@ -582,29 +729,29 @@ namespace SocialPoint.TransparentBundles
         {
             switch(mode)
             {
-            case BundleSortingMode.TypeDesc:
-                bundleList.Sort((b1, b2) => ((b2.Asset.Type + b2.Asset.Name).CompareTo(b1.Asset.Type + b1.Asset.Name)));
-                break;
+                case BundleSortingMode.TypeDesc:
+                    bundleList.Sort((b1, b2) => ((b2.Asset.Type + b2.Asset.Name).CompareTo(b1.Asset.Type + b1.Asset.Name)));
+                    break;
 
-            case BundleSortingMode.TypeAsc:
-                bundleList.Sort((b1, b2) => ((b1.Asset.Type + b1.Asset.Name).CompareTo(b2.Asset.Type + b2.Asset.Name)));
-                break;
+                case BundleSortingMode.TypeAsc:
+                    bundleList.Sort((b1, b2) => ((b1.Asset.Type + b1.Asset.Name).CompareTo(b2.Asset.Type + b2.Asset.Name)));
+                    break;
 
-            case BundleSortingMode.NameDesc:
-                bundleList.Sort((b1, b2) => b2.Name.CompareTo(b1.Name));
-                break;
+                case BundleSortingMode.NameDesc:
+                    bundleList.Sort((b1, b2) => b2.Name.CompareTo(b1.Name));
+                    break;
 
-            case BundleSortingMode.NameAsc:
-                bundleList.Sort((b1, b2) => b1.Name.CompareTo(b2.Name));
-                break;
+                case BundleSortingMode.NameAsc:
+                    bundleList.Sort((b1, b2) => b1.Name.CompareTo(b2.Name));
+                    break;
 
-            case BundleSortingMode.SizeDesc:
-                bundleList.Sort((b1, b2) => (b2.Size[platform] + b2.Asset.Name).CompareTo(b1.Size[platform] + b1.Asset.Name));
-                break;
+                case BundleSortingMode.SizeDesc:
+                    bundleList.Sort((b1, b2) => (b2.Size[platform] + b2.Asset.Name).CompareTo(b1.Size[platform] + b1.Asset.Name));
+                    break;
 
-            case BundleSortingMode.SizeAsc:
-                bundleList.Sort((b1, b2) => (b1.Size[platform] + b1.Asset.Name).CompareTo(b2.Size[platform] + b2.Asset.Name));
-                break;
+                case BundleSortingMode.SizeAsc:
+                    bundleList.Sort((b1, b2) => (b1.Size[platform] + b1.Asset.Name).CompareTo(b2.Size[platform] + b2.Asset.Name));
+                    break;
             }
         }
 
@@ -612,21 +759,21 @@ namespace SocialPoint.TransparentBundles
         {
             switch(mode)
             {
-            case AssetSortingMode.TypeDesc:
-                assetList.Sort((b1, b2) => ((b2.Type + b2.Name).CompareTo(b1.Type + b1.Name)));
-                break;
+                case AssetSortingMode.TypeDesc:
+                    assetList.Sort((b1, b2) => ((b2.Type + b2.Name).CompareTo(b1.Type + b1.Name)));
+                    break;
 
-            case AssetSortingMode.TypeAsc:
-                assetList.Sort((b1, b2) => ((b1.Type + b1.Name).CompareTo(b2.Type + b2.Name)));
-                break;
+                case AssetSortingMode.TypeAsc:
+                    assetList.Sort((b1, b2) => ((b1.Type + b1.Name).CompareTo(b2.Type + b2.Name)));
+                    break;
 
-            case AssetSortingMode.NameDesc:
-                assetList.Sort((b1, b2) => b2.Name.CompareTo(b1.Name));
-                break;
+                case AssetSortingMode.NameDesc:
+                    assetList.Sort((b1, b2) => b2.Name.CompareTo(b1.Name));
+                    break;
 
-            case AssetSortingMode.NameAsc:
-                assetList.Sort((b1, b2) => b1.Name.CompareTo(b2.Name));
-                break;
+                case AssetSortingMode.NameAsc:
+                    assetList.Sort((b1, b2) => b1.Name.CompareTo(b2.Name));
+                    break;
 
             }
         }
@@ -636,6 +783,7 @@ namespace SocialPoint.TransparentBundles
             DependenciesCache = new Dictionary<string, List<Asset>>();
             ReferencesCache = new Dictionary<string, List<Asset>>();
             SharedDependenciesCache = new Dictionary<string, bool>();
+            ErrorDisplay.FlushErrorCache();
         }
 
         public void FlushImagesCache()

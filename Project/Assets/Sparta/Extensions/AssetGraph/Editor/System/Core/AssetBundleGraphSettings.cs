@@ -13,24 +13,26 @@ namespace AssetBundleGraph
         public const bool IGNORE_META = true;
 
         public const string GUI_TEXT_MENU_OPEN = "Window/AssetGraph/Open Graph Editor";
+        public const string GUI_TEXT_MENU_OPEN_VALIDATION = "Window/AssetGraph/Open Validation Log";
         public const string GUI_TEXT_MENU_BUILD = "Window/AssetGraph/Build Bundles for Current Platform";
         public const string GUI_TEXT_MENU_GENERATE = "Window/AssetGraph/Create Node Script";
         public const string GUI_TEXT_MENU_GENERATE_MODIFIER = GUI_TEXT_MENU_GENERATE + "/Modifier Script";
-        public const string GUI_TEXT_MENU_GENERATE_PREFABBUILDER = GUI_TEXT_MENU_GENERATE + "/PrefabBuilder Script";
+        public const string GUI_TEXT_MENU_GENERATE_PREFABBUILDER = GUI_TEXT_MENU_GENERATE + "/Legacy/PrefabBuilder Script";
         public const string GUI_TEXT_MENU_GENERATE_VALIDATOR = GUI_TEXT_MENU_GENERATE + "/Validator Script";
         public const string GUI_TEXT_MENU_GENERATE_CUITOOL = "Window/AssetGraph/Create CUI Tool";
 
-        public const string GUI_TEXT_MENU_GENERATE_POSTPROCESS = GUI_TEXT_MENU_GENERATE + "/Postprocess Script";
+        public const string GUI_TEXT_MENU_GENERATE_POSTPROCESS = GUI_TEXT_MENU_GENERATE + "/Legacy/Postprocess Script";
         public const string GUI_TEXT_MENU_DELETE_CACHE = "Window/AssetGraph/Clear Build Cache";
 
         public const string GUI_TEXT_MENU_DELETE_IMPORTSETTING_SETTINGS = "Window/AssetGraph/Clear Saved ImportSettings";
 
-        public const string ASSETNBUNDLEGRAPH_DATA_PATH = "AssetGraph/SettingFiles";
+        public const string ASSETNBUNDLEGRAPH_DATA_PATH = "Sparta/Config/AssetGraph/SettingFiles";
         public const string ASSETBUNDLEGRAPH_DATA_NAME = "AssetGraph.json";
+        public const string ASSETGRAPH_VALIDATOR_DATA_NAME = "ValidatorLog.json";
         public const string ASSETBUNDLEGRAPH_LOADER_DATA_NAME = "LoaderFolders.json";
 
         public const string ASSETS_PATH = "Assets/";
-        public const string ASSETBUNDLEGRAPH_PATH = ASSETS_PATH + "AssetGraph/";
+        public const string ASSETBUNDLEGRAPH_PATH = ASSETS_PATH + "Sparta/Config/AssetGraph/";
         public const string APPLICATIONDATAPATH_CACHE_PATH = ASSETBUNDLEGRAPH_PATH + "Cache/";
         public const string USERSPACE_PATH = ASSETBUNDLEGRAPH_PATH + "Generated/Editor/";
         public const string CUISPACE_PATH = ASSETBUNDLEGRAPH_PATH + "Generated/CUI/";
@@ -102,12 +104,13 @@ namespace AssetBundleGraph
             {"Create " + MENU_IMPORTSETTING_NAME + " Node", NodeKind.IMPORTSETTING_GUI},
             {"Create " + MENU_MODIFIER_NAME + " Node", NodeKind.MODIFIER_GUI},
             {"Create " + MENU_VALIDATOR_NAME + " Node", NodeKind.VALIDATOR_GUI },
-            {"Create " + MENU_GROUPING_NAME + " Node", NodeKind.GROUPING_GUI},
-            {"Create " + MENU_PREFABBUILDER_NAME + " Node", NodeKind.PREFABBUILDER_GUI},
-            {"Create " + MENU_BUNDLECONFIG_NAME + " Node", NodeKind.BUNDLECONFIG_GUI},
-            {"Create " + MENU_BUNDLEBUILDER_NAME + " Node", NodeKind.BUNDLEBUILDER_GUI},
-            {"Create " + MENU_EXPORTER_NAME + " Node", NodeKind.EXPORTER_GUI},
-            {"Create " + MENU_WARP_NAME + " Node", NodeKind.WARP_IN }
+            {"Create " + MENU_WARP_NAME + " Node", NodeKind.WARP_IN },
+            {"/", NodeKind.WARP_IN }, // separator
+            {"Legacy/Create " + MENU_GROUPING_NAME + " Node", NodeKind.GROUPING_GUI},
+            {"Legacy/Create " + MENU_PREFABBUILDER_NAME + " Node", NodeKind.PREFABBUILDER_GUI},
+            {"Legacy/Create " + MENU_BUNDLECONFIG_NAME + " Node", NodeKind.BUNDLECONFIG_GUI},
+            {"Legacy/Create " + MENU_BUNDLEBUILDER_NAME + " Node", NodeKind.BUNDLEBUILDER_GUI},
+            {"Legacy/Create " + MENU_EXPORTER_NAME + " Node", NodeKind.EXPORTER_GUI},
         };
 
         public static Dictionary<NodeKind, string> DEFAULT_NODE_NAME = new Dictionary<NodeKind, string>{

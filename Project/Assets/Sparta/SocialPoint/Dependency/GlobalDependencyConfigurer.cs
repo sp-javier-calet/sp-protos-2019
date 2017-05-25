@@ -8,6 +8,16 @@ namespace SocialPoint.Dependency
     {
         const string ResourcePath = "Installers/GlobalDependencyConfigurer";
 
+        #if UNITY_EDITOR
+
+        [UnityEditor.MenuItem("Sparta/Global Configurer &g", false, 1001)]
+        public static void Edit()
+        {
+            UnityEditor.Selection.activeObject = Load();
+        }
+
+        #endif
+
         public static GlobalDependencyConfigurer Load()
         {
             return Resources.Load<GlobalDependencyConfigurer>(ResourcePath);
@@ -26,6 +36,12 @@ namespace SocialPoint.Dependency
             for(var i = 0; i < Installers.Length; ++i)
             {
                 var installer = Installers[i];
+
+                if( installer == null )
+                {
+                    continue;
+                }
+                
                 if(installer.IsGlobal)
                 {
                     Container.Install(installer);

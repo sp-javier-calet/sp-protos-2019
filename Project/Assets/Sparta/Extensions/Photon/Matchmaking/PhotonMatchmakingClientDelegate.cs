@@ -54,6 +54,10 @@ namespace SocialPoint.Matchmaking
                 _network.Config.ForceAppId = server.GetValue(AppIdAttrKey).ToString();
             }
         }
+        
+        public void OnStopped(bool successful)
+        {
+        }
 
         public void OnError(Error err)
         {

@@ -1,6 +1,6 @@
 /*
  *    Helpshift.h
- *    SDK Version 4.15.0
+ *    SDK Version 5.9.3
  *
  *    Get the documentation at http://www.helpshift.com/docs
  *
@@ -15,7 +15,7 @@ typedef enum HSAlertToRateAppAction
     HS_RATE_ALERT_FEEDBACK,
     HS_RATE_ALERT_SUCCESS,
     HS_RATE_ALERT_FAIL
-} HSAlertToRateAppAction;
+} HSAlertToRateAppAction __deprecated;
 
 typedef NSDictionary * (^metadataBlock)(void);
 typedef void (^AppRatingAlertViewCompletionBlock)(HSAlertToRateAppAction);
@@ -32,7 +32,7 @@ typedef void (^AppRatingAlertViewCompletionBlock)(HSAlertToRateAppAction);
  * NSDictionary *metaData = @{@"usertype": @"paid", @"level":@"7", @"score":@"12345"]};
  * [[Helpshift sharedInstance] showConversation:self withOptions:@{HSCustomMetadataKey: metaData}];
  */
-extern NSString *const HSCustomMetadataKey;
+extern NSString *const HSCustomMetadataKey __deprecated;
 
 /**
  *  A Reserved key (HSTagsKey) constant to be used with metadataBlock (of type NSDictionary) to pass NSArray (of type only NSStrings) which get interpreted at server and added as Tags for the issue being reported.
@@ -47,7 +47,8 @@ extern NSString *const HSCustomMetadataKey;
  *  NSDictionary *metaData = @{@"usertype": @"paid", @"level":@"7", @"score":@"12345", HSTagsKey:@[@"feedback",@"paid user",@"v4.1"]};
  * [[Helpshift sharedInstance] showConversation:self withOptions:@{HSCustomMetadataKey: metaData}];
  */
-extern NSString *const HSTagsKey;
+
+extern NSString *const HSTagsKey __deprecated;
 
 /**
  *  Types of auto message responses generated on user actions. These values can be used in your userRepliedToConversationWithMessage: delegate call. If the user replied with a custom message, then that string will be returned instead.
@@ -59,22 +60,15 @@ extern NSString *const HSTagsKey;
  *      }
  *  }
  */
-static NSString *HSUserAcceptedTheSolution = @"User accepted the solution";
-static NSString *HSUserRejectedTheSolution = @"User rejected the solution";
-static NSString *HSUserSentScreenShot = @"User sent a screenshot";
-static NSString *HSUserReviewedTheApp = @"User reviewed the app";
 
-/**
- *  This documents the APIs exposed by the Helpshift SDK. Developers can use this information to integrate Helpshift support into their apps. If you want documentation regarding how to use the various features provided by the Helpshift SDK, please visit the [developer docs](http://developers.helpshift.com/)
- */
+__deprecated static NSString *HSUserAcceptedTheSolution = @"User accepted the solution";
+__deprecated static NSString *HSUserRejectedTheSolution = @"User rejected the solution";
+__deprecated static NSString *HSUserSentScreenShot = @"User sent a screenshot";
+__deprecated static NSString *HSUserReviewedTheApp = @"User reviewed the app";
 
-@protocol HelpshiftDelegate;
-
-@interface Helpshift : NSObject {
-    id <HelpshiftDelegate> delegate;
-}
-
-@property (nonatomic,retain) id<HelpshiftDelegate> delegate;
+__deprecated @protocol HelpshiftDelegate;
+__deprecated @interface Helpshift : NSObject
+@property (nonatomic, strong) id<HelpshiftDelegate> delegate;
 
 /**
  *  Initialise Helpshift. This invocation typically needs to happen in your application:didFinishLaunchingWithOptions: method.
@@ -248,6 +242,10 @@ static NSString *HSUserReviewedTheApp = @"User reviewed the app";
  */
 - (void) registerDeviceToken:(NSData *)deviceToken;
 
+#ifdef UNITY_SUPPORT
+- (void) registerDeviceTokenForUnity:(NSString *)deviceTokenData;
+#endif
+
 /**
  *  Pass control to Helpshift for handling a push notification.
  *  In your application delegate's didReceiveRemoteNotification: method, check if "origin" is "helpshift". If yes, you should call this method.
@@ -323,98 +321,9 @@ static NSString *HSUserReviewedTheApp = @"User reviewed the app";
 + (void) logout;
 
 
-/**
- *  Deprecated Helpshift calls. In case you are using any of these calls, we strongly suggest you move to the alternatives.
- */
-
-/**
- * @warning Deprecated API call. Use installForApiKey:domainName:appID: instead.
- */
-+ (void) installForAppID:(NSString *)appID domainName:(NSString *)domainName apiKey:(NSString *)apiKey
-    __attribute__((deprecated("Use installForApiKey:domainName:appID: instead")));
-
-/**
- * @warning Deprecated API call. Use installForApiKey:domainName:appID:withOptions: instead.
- */
-+ (void) installForAppID:(NSString *)appID domainName:(NSString *)domainName apiKey:(NSString *)apiKey withOptions:(NSDictionary *)optionsDictionary
-    __attribute__((deprecated("Use installForApiKey:domainName:appID:withOptions: instead")));
-
-/**
- * @warning Deprecated API call. Use showFAQs:withOptions: instead.
- */
-- (void) showSupport:(UIViewController *)viewController withOptions:(NSDictionary *)optionsDictionary
-    __attribute__((deprecated("Use showFAQs:withOptions: instead")));
-
-/**
- * @warning Deprecated API call. Use showFAQs:withOptions: instead.
- */
-- (void) showSupport:(UIViewController *)viewController
-    __attribute__((deprecated("Use showFAQs:withOptions: instead")));
-
-/**
- * @warning Deprecated API call. Use showFAQs:withOptions: instead.
- */
-- (void) showFAQs:(UIViewController *)viewController
-    __attribute__((deprecated("Use showFAQs:withOptions: instead")));
-
-/**
- * @warning Deprecated API call. Use showConversation:withOptions: instead.
- */
-- (void) reportIssue:(UIViewController *)viewController
-    __attribute__((deprecated("Use showConversation:withOptions: instead")));
-
-/**
- * @warning Deprecated API call. Use showConversation:withOptions: instead.
- */
-- (void) reportIssue:(UIViewController *)viewController withOptions:(NSDictionary *)optionsDictionary
-    __attribute__((deprecated("Use showConversation:withOptions: instead")));
-
-/**
- * @warning Deprecated API call. Use showFAQSection:withController:withOptions: instead.
- */
-- (void) showFAQSection:(NSString *)faqSectionPublishID withController:(UIViewController *)viewController
-    __attribute__((deprecated("Use showFAQSection:withController:withOptions: instead")));
-
-/**
- * @warning Deprecated API call. Use showSingleFAQ:withController:withOptions: instead.
- */
-- (void) showFAQ:(NSString *)faqPublishID withController:(UIViewController *)viewController
-    __attribute__((deprecated("Use showSingleFAQ:withController:withOptions: instead")));
-
-/**
- * @warning Deprecated API call. Use showConversation:withOptions: instead.
- */
-- (void) showInbox:(UIViewController *)viewController
-    __attribute__((deprecated("Use showConversation:withOptions: instead")));
-
-/**
- * @warning Deprecated API call. Use getNotificationCountFromRemote: instead.
- */
-- (NSInteger) notificationCountAsync:(BOOL)isAsync
-    __attribute__((deprecated("Use getNotificationCountFromRemote: instead")));
-
-/**
- * @warning Deprecated API call. Use handleRemoteNotification:withController: instead.
- */
-- (void) handleNotification:(NSDictionary *)notification withController:(UIViewController *)viewController
-    __attribute__((deprecated("Use handleRemoteNotification:withController: instead")));
-
-/**
- * @warning Deprecated API call. Use setName:andEmail: instead.
- */
-+ (void) setUsername:(NSString *)name
-    __attribute__((deprecated("Use setName:andEmail: instead")));
-
-/**
- * @warning Deprecated API call. Use setName:andEmail: instead.
- */
-
-+ (void) setUseremail:(NSString *)email
-    __attribute__((deprecated("Use setName:andEmail: instead")));
-
 @end
 
-@protocol HelpshiftDelegate <NSObject>
+__deprecated @protocol HelpshiftDelegate <NSObject>
 
 /**
  *  This delegate is the response to the 'getNotificationCountFromRemote:' method with 'isRemote' set to YES. It provides the number of unread messages in the current conversation.

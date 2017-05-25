@@ -45,16 +45,16 @@ namespace SocialPoint.Network
     }
 
     [Serializable]
-    public class PhotonNetworkConfig
+    public struct PhotonNetworkConfig
     {
         public const bool DefaultCreateRoom = true;
 
         public string GameVersion;
         public string RoomName;
-        public bool CreateRoom = DefaultCreateRoom;
-        public CustomPhotonConfig CustomPhotonConfig = new CustomPhotonConfig();
-        public PhotonNetworkRoomConfig RoomOptions = new PhotonNetworkRoomConfig();
-        public CloudRegionCode ForceRegion = CloudRegionCode.none;
+        public bool CreateRoom;
+        public CustomPhotonConfig CustomPhotonConfig;
+        public PhotonNetworkRoomConfig RoomOptions;
+        public CloudRegionCode ForceRegion;
         public string ForceAppId;
         public string ForceServer;
     }
@@ -93,10 +93,6 @@ namespace SocialPoint.Network
 
         void Awake()
         {
-            if(Config == null)
-            {
-                Config = new PhotonNetworkConfig();
-            }
         }
 
         void Update()
@@ -190,7 +186,12 @@ namespace SocialPoint.Network
 
         abstract protected void OnConnected();
 
-        abstract protected void OnDisconnected();
+        virtual protected void OnDisconnected()
+        {
+            PhotonNetwork.OnEventCall -= OnEventReceived;
+            _state = ConnState.Disconnected;
+            Config.CustomPhotonConfig.RestorePhotonConfig();
+        }
 
         abstract protected void OnMessageReceived(NetworkMessageData data, IReader reader);
 
@@ -292,9 +293,6 @@ namespace SocialPoint.Network
             {
                 return;
             }
-            PhotonNetwork.OnEventCall -= OnEventReceived;
-            _state = ConnState.Disconnected;
-            Config.CustomPhotonConfig.RestorePhotonConfig();
             OnDisconnected();
         }
 
@@ -305,7 +303,6 @@ namespace SocialPoint.Network
                 return;
             }
             var err = new Error(ConnectionError, "Failed to connect: " + cause);
-            _state = ConnState.Disconnected;
             OnNetworkError(err);
             OnDisconnected();
         }
@@ -317,7 +314,6 @@ namespace SocialPoint.Network
                 return;
             }
             var err = new Error(CustomAuthError, "Custom Authentication failed: " + debugMessage);
-            _state = ConnState.Disconnected;
             OnNetworkError(err);
             OnDisconnected();
         }
@@ -395,11 +391,13 @@ namespace SocialPoint.Network
             {
                 clientId = GetClientId(GetPlayer((byte)senderid));
             }
+            var bcontent = (byte[])content;
             var info = new NetworkMessageData {
                 MessageType = eventcode,
-                ClientId = clientId
+                ClientId = clientId,
+                MessageLength = bcontent.Length
             };
-            var stream = new MemoryStream((byte[])content);
+            var stream = new MemoryStream(bcontent);
             var reader = new SystemBinaryReader(stream);
             OnMessageReceived(info, reader);
         }

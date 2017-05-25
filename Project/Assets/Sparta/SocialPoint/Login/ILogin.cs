@@ -73,10 +73,19 @@ namespace SocialPoint.Login
 
         event RestartDelegate RestartEvent;
 
+        event HttpRequestDelegate HttpRequestEvent;
+
         void Login(ErrorDelegate cbk = null);
 
         void ClearStoredUser();
 
         void SetBaseUrl(string url);
+
+        void AddLink(ILink link, LinkMode mode = LinkMode.Auto);
+
+        void LoginLink(ILink link, ErrorDelegate cbk = null);
+
+        void ClearUser();
+
     }
 }

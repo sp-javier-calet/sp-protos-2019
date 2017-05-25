@@ -10,8 +10,7 @@ public class TriCountValidator : AssetBundleGraph.IValidator
 
     [SerializeField]
     public int maxTriangleCount;
-
-    private bool isSkinned;
+    
     private int triangleCount;
     private List<string> offendingMeshes = new List<string>();
 
@@ -20,12 +19,7 @@ public class TriCountValidator : AssetBundleGraph.IValidator
     public bool ShouldValidate(object asset)
     {
         var target = (GameObject)asset;
-
-        var staticMesh = target.GetComponentInChildren<MeshFilter>();
-
-        isSkinned = staticMesh == null;
-
-        return !isSkinned || target.GetComponentInChildren<SkinnedMeshRenderer>() != null;
+        return target.GetComponentInChildren<MeshFilter>() != null || target.GetComponentInChildren<SkinnedMeshRenderer>() != null;
     }
 
 
@@ -34,31 +28,26 @@ public class TriCountValidator : AssetBundleGraph.IValidator
     {
         var target = (GameObject)asset;
         offendingMeshes.Clear();
-
-        if(isSkinned)
+        
+        foreach(SkinnedMeshRenderer skinnedMesh in target.GetComponentsInChildren<SkinnedMeshRenderer>())
         {
-            foreach(SkinnedMeshRenderer skinnedMesh in target.GetComponentsInChildren<SkinnedMeshRenderer>())
-            {
-                triangleCount = skinnedMesh.sharedMesh.triangles.Length / 3;
-                var exceedsMaximum = triangleCount > maxTriangleCount;
+            triangleCount = skinnedMesh.sharedMesh.triangles.Length / 3;
+            var exceedsMaximum = triangleCount > maxTriangleCount;
 
-                if(exceedsMaximum)
-                {
-                    offendingMeshes.Add(skinnedMesh.name);
-                }
+            if(exceedsMaximum)
+            {
+                offendingMeshes.Add(skinnedMesh.name);
             }
         }
-        else
-        {
-            foreach(MeshFilter skinnedMesh in target.GetComponentsInChildren<MeshFilter>())
-            {
-                triangleCount = skinnedMesh.sharedMesh.triangles.Length / 3;
-                var exceedsMaximum = triangleCount > maxTriangleCount;
 
-                if(exceedsMaximum)
-                {
-                    offendingMeshes.Add(skinnedMesh.name);
-                }
+        foreach(MeshFilter skinnedMesh in target.GetComponentsInChildren<MeshFilter>())
+        {
+            triangleCount = skinnedMesh.sharedMesh.triangles.Length / 3;
+            var exceedsMaximum = triangleCount > maxTriangleCount;
+
+            if(exceedsMaximum)
+            {
+                offendingMeshes.Add(skinnedMesh.name);
             }
         }
 

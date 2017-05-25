@@ -4,7 +4,7 @@ namespace SpartaTools.Editor.View
 {
     public sealed class SettingsWindow : ComposedWindow
     {
-        [MenuItem("Sparta/Settings...", false, 700)]
+        [MenuItem("Sparta/Settings...", false, 1010)]
         public static void OpenProxySettings()
         {
             EditorWindow.GetWindow(typeof(SettingsWindow), false, "Settings", true);

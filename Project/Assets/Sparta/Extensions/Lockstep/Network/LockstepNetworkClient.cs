@@ -11,9 +11,13 @@ namespace SocialPoint.Lockstep
 {
     public sealed class LockstepNetworkClient : IDisposable, INetworkMessageReceiver, INetworkClientDelegate
     {
-        public INetworkClient Network { get; private set;  }
-        public LockstepCommandFactory CommandFactory { get;  private set; }
+        public INetworkClient Network { get; private set; }
+
+        public LockstepCommandFactory CommandFactory { get; private set; }
+
         public LockstepClient Lockstep { get; private set; }
+
+        public Action<string, AttrDic, ErrorDelegate> SendTrack;
 
         INetworkMessageReceiver _receiver;
 
@@ -27,6 +31,8 @@ namespace SocialPoint.Lockstep
                 return Network.Connected && Lockstep.Running;
             }
         }
+
+        public string MatchId { get; set; }
 
         public string PlayerId{ get; set; }
 
@@ -44,6 +50,7 @@ namespace SocialPoint.Lockstep
         }
 
         List<string> _playerIds;
+
         public ReadOnlyCollection<string> PlayerIds
         {
             get
@@ -68,6 +75,7 @@ namespace SocialPoint.Lockstep
             Network.RegisterReceiver(this);
             Network.AddDelegate(this);
             Lockstep.CommandAdded += OnCommandAdded;
+            Lockstep.LockstepClientStarts += OnLockstepStarts;
         }
 
         public void RegisterReceiver(INetworkMessageReceiver receiver)
@@ -158,7 +166,7 @@ namespace SocialPoint.Lockstep
             msg.Deserialize(reader);
             var time = msg.StartTime + Network.GetDelay(msg.ServerTimestamp);
             _playerIds = msg.PlayerIds;
-            PlayerNumber =  (byte)_playerIds.IndexOf(PlayerId);
+            PlayerNumber = (byte)_playerIds.IndexOf(PlayerId);
 
             Lockstep.Start(time);
 
@@ -170,6 +178,7 @@ namespace SocialPoint.Lockstep
 
         void OnClientEndReceived(IReader reader)
         {
+            SendNetworkStats();
             var msg = new AttrMessage();
             msg.Deserialize(reader);
             if(EndReceived != null)
@@ -177,6 +186,49 @@ namespace SocialPoint.Lockstep
                 EndReceived(msg.Data);
             }
             Lockstep.Stop();
+        }
+
+        void SendNetworkStats()
+        {
+            if(SendTrack != null && Network is NetworkStatsClient)
+            {
+                var statsClient = (NetworkStatsClient)Network;
+                {
+                    var data = new AttrDic();
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
+                    data.SetValue("battle.min_lag", statsClient.LowestLatency);
+                    data.SetValue("battle.max_lag", statsClient.HighestLatency);
+                    data.SetValue("battle.average_lag", statsClient.AverageLatency);
+                    SendTrack("log_battle_end_lag_info", data, null);
+                }
+                {
+                    var data = new AttrDic();
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
+                    data.SetValue("battle.download", statsClient.DownloadBandwith);
+                    data.SetValue("battle.upload", statsClient.UploadBandwith);
+                    data.SetValue("battle.battle_time", Lockstep.UpdateTime);
+                    SendTrack("log_battle_end_bandwidth_info", data, null);
+                }
+                {
+                    var data = new AttrDic();
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
+                    data.SetValue("battle.min_turn_buffer", Lockstep.LowestTurnBuffer);
+                    data.SetValue("battle.max_turn_buffer", Lockstep.HighestTurnBuffer);
+                    data.SetValue("battle.average_turn_buffer", Lockstep.AverageTurnBuffer);
+                    SendTrack("log_battle_end_buffer_info", data, null);
+                }
+                {
+                    var data = new AttrDic();
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
+                    data.SetValue("battle.disconnects", Lockstep.Disconnects);
+                    data.SetValue("battle.disconnect_time", Lockstep.DisconnectTime);
+                    SendTrack("log_battle_end_disconects", data, null);
+                }
+            }
         }
 
         public void SendPlayerReady()
@@ -197,7 +249,7 @@ namespace SocialPoint.Lockstep
                 Network.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.PlayerReady,
                 }, new PlayerReadyMessage(PlayerId, Lockstep.CurrentTurnNumber));
-              if(PlayerReadySent != null)
+                if(PlayerReadySent != null)
                 {
                     PlayerReadySent();
                 }
@@ -210,7 +262,7 @@ namespace SocialPoint.Lockstep
             {
                 return;
             }
-            Network.SendMessage(new NetworkMessageData{
+            Network.SendMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.PlayerFinish
             }, new AttrMessage(data));
             if(PlayerFinishSent != null)
@@ -226,6 +278,18 @@ namespace SocialPoint.Lockstep
             });
             command.Serialize(CommandFactory, msg.Writer);
             msg.Send();
+        }
+
+        void OnLockstepStarts(bool reconnect)
+        {
+            if(SendTrack != null)
+            {
+                var data = new AttrDic();
+                data.SetValue("match_id", MatchId);
+                data.SetValue("user_id", PlayerId);
+                data.SetValue("battle.reconnect", reconnect);
+                SendTrack("log_battle_start_lockstep", data, null);
+            }
         }
 
         public void Dispose()

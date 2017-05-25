@@ -61,20 +61,77 @@ namespace SocialPoint.Physics
             _collisionSystem.CollisionDetected -= handler;
         }
 
-        void CollisionDetectedHandler(RigidBody body1, RigidBody body2, 
-                                      JVector point1, JVector point2, JVector normal, float penetration)
+        void CollisionDetectedHandler(RigidBody body1, RigidBody body2)
         {
             var behavior1 = (PhysicsRigidBody)body1.Tag;
             var behavior2 = (PhysicsRigidBody)body2.Tag;
-            behavior1.OnCollision(body2, point1, point2, normal, penetration);
-            behavior2.OnCollision(body1, point2, point1, normal, penetration);
+
+            List<PhysicsContact> contacts1;
+            List<PhysicsContact> contacts2;
+
+            GetContactLists(body1, body2, out contacts1, out contacts2);
+
+            behavior1.OnCollisionStay(body2, contacts1);
+            behavior2.OnCollisionStay(body1, contacts2);
+        }
+
+        void OnCollisionBeginHandler(RigidBody body1, RigidBody body2)
+        {
+            var behavior1 = (PhysicsRigidBody)body1.Tag;
+            var behavior2 = (PhysicsRigidBody)body2.Tag;
+
+            List<PhysicsContact> contacts1;
+            List<PhysicsContact> contacts2;
+
+            GetContactLists(body1, body2, out contacts1, out contacts2);
+
+            behavior1.OnCollisionEnter(body2, contacts1);
+            behavior2.OnCollisionEnter(body1, contacts2);
+        }
+
+        void OnCollisionEndHandler(RigidBody body1, RigidBody body2)
+        {
+            var behavior1 = (PhysicsRigidBody)body1.Tag;
+            var behavior2 = (PhysicsRigidBody)body2.Tag;
+
+            List<PhysicsContact> contacts1;
+            List<PhysicsContact> contacts2;
+
+            GetContactLists(body1, body2, out contacts1, out contacts2);
+
+            behavior1.OnCollisionExit(body2, contacts1);
+            behavior2.OnCollisionExit(body1, contacts2);
+        }
+
+        void GetContactLists(RigidBody body1, RigidBody body2, out List<PhysicsContact> contacts1, out List<PhysicsContact> contacts2)
+        {
+            contacts1 = new List<PhysicsContact>();
+            contacts2 = new List<PhysicsContact>();
+
+            Arbiter arbiter = null;
+
+            lock(_world.ArbiterMap)
+            {
+                _world.ArbiterMap.LookUpArbiter(body1, body2, out arbiter);
+                if(arbiter != null)
+                {
+                    for(int i = 0; i < arbiter.ContactList.Count; i++)
+                    {
+                        var contact = arbiter.ContactList[i];
+                        contacts1.Add(new PhysicsContact(contact, arbiter.Body1));
+                        contacts2.Add(new PhysicsContact(contact, arbiter.Body2));
+                    }
+                }
+            }
         }
 
         void InitializePhysicsWorld()
         {
             _collisionSystem = new CollisionSystemPersistentSAP();
-            _collisionSystem.CollisionDetected += CollisionDetectedHandler;
             _world = new World(_collisionSystem);
+            _world.Events.BodiesBeginCollide += OnCollisionBeginHandler;
+            _collisionSystem.CollisionDetected += (body1, body2, point1, point2, normal, penetration) => CollisionDetectedHandler(body1, body2);
+            _world.Events.BodiesEndCollide += OnCollisionEndHandler;
         }
 
         public bool IsCollisionEnabled(int layerIdxA, int layerIdxB)

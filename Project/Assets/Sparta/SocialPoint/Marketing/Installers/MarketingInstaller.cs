@@ -22,6 +22,8 @@ namespace SocialPoint.Marketing
 
         public override void InstallBindings()
         {
+            Container.Bind<IInitializable>().ToInstance(this);
+
             Container.Rebind<IMarketingAttributionManager>().ToMethod<IMarketingAttributionManager>(CreateMarketingAttributionManager, SetupMarketingAttributionManager);
             Container.Bind<IDisposable>().ToLookup<IMarketingAttributionManager>();
 
@@ -32,7 +34,7 @@ namespace SocialPoint.Marketing
 
         public void Initialize()
         {
-            Container.Bind<IInitializable>().ToInstance(this);
+            Container.Resolve<IMarketingAttributionManager>();
         }
 
         public IMarketingAttributionManager CreateMarketingAttributionManager()

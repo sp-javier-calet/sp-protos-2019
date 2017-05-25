@@ -1,18 +1,13 @@
 package es.socialpoint.unity.permissions;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import es.socialpoint.unity.configuration.Metadata;
 
 public class PermissionsActivity extends Activity {
-
-	private static final String TAG = "PermissionsActivity";
-	protected static final int PERMISSIONS_REQUEST_ALL = 0;
-
-	AlertDialog currentDialog = null;
 	Metadata metadata;
 
 	@Override

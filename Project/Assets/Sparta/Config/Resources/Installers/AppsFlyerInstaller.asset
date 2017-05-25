@@ -13,9 +13,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    ActiveOnIOS: 0
-    IOsAppsFlyerKey: 
-    IOsAppID: 
-    ActiveOnAndroid: 0
-    AndroidAppsFlyerKey: 
-    AndroidAppID: 
+    ActiveOnIOS: 1
+    IosAppsFlyerKey: 8vNZLw2QPtD8EnnXXbh9q3
+    IosAppID: 1121646376
+    ActiveOnAndroid: 1
+    AndroidAppsFlyerKey: 8vNZLw2QPtD8EnnXXbh9q3
+    AndroidAppID: es.socialpoint.leagueofdragons

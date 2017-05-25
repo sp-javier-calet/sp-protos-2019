@@ -6,7 +6,10 @@ using System.Collections.Generic;
 using Photon.Hive.Plugin;
 using SocialPoint.IO;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 using log4net;
+using SocialPoint.Network.ServerEvents;
+using SocialPoint.Attributes;
 
 namespace SocialPoint.Network
 {
@@ -43,8 +46,13 @@ namespace SocialPoint.Network
             }
         }
 
+        public HttpServerEventTracker PluginEventTracker { get; private set; }
+
         List<INetworkServerDelegate> _delegates;
         INetworkMessageReceiver _receiver;
+        protected UpdateScheduler _updateScheduler;
+        protected NetworkStatsServer _statsServer;
+        protected bool _statsServerEnabled;
         ILog _log;
         object _timer;
         protected string BackendEnv { get; private set; }
@@ -61,9 +69,22 @@ namespace SocialPoint.Network
 
         const string LoggerNameConfig = "LoggerName";
         const string PluginNameConfig = "PluginName";
-
+        const string StatsServerEnabled = "StatsServerEnabled";
         const string FullErrorMsg = "Game is full.";
         const string ServerPresentErrorMsg = "This room already has a server.";
+        const string ExceptionMetricName = "multiplayer.exception_raised";
+
+        public INetworkServer NetworkServer
+        {
+            get
+            {
+                if(_statsServerEnabled)
+                {
+                    return _statsServer;
+                }
+                return this;
+            }
+        }
 
         abstract protected int MaxPlayers { get; }
         abstract protected bool Full { get; }
@@ -74,6 +95,10 @@ namespace SocialPoint.Network
             _pluginName = pluginName;
             UseStrictMode = true;
             _delegates = new List<INetworkServerDelegate>();
+            var httpServer = new ImmediateWebRequestHttpClient();
+            _updateScheduler = new UpdateScheduler();
+            PluginEventTracker = new HttpServerEventTracker(_updateScheduler, httpServer);
+            PluginEventTracker.Start();
         }
 
         /*
@@ -94,6 +119,18 @@ namespace SocialPoint.Network
             if(config.TryGetValue(LoggerNameConfig, out configStr))
             {
                 _log = LogManager.GetLogger(configStr);
+            }
+            if(config.TryGetValue(StatsServerEnabled, out configStr))
+            {
+                _statsServerEnabled = configStr.Equals("true") ? true : false;
+                if(_statsServerEnabled)
+                {
+                    _statsServer = new NetworkStatsServer(this, _updateScheduler);
+                }
+            }
+            if(PluginEventTracker != null)
+            {
+                PluginEventTracker.UpdateCommonTrackData += (dic => dic.SetValue("ver", AppVersion));
             }
             return true;
         }
@@ -197,6 +234,11 @@ namespace SocialPoint.Network
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnServerStarted();
+            }
+
+            if(_statsServer != null)
+            {
+                _statsServer.Start();
             }
 
             var u = UpdateInterval;
@@ -318,6 +360,20 @@ namespace SocialPoint.Network
             return def;
         }
 
+        protected static bool GetConfigOption(Dictionary<string, string> config, string key, bool def)
+        {
+            string sval;
+            if(config.TryGetValue(key, out sval))
+            {
+                bool val;
+                if(bool.TryParse(sval, out val))
+                {
+                    return val;
+                }
+            }
+            return def;
+        }
+
         void TryUpdate()
         {
             try
@@ -333,10 +389,19 @@ namespace SocialPoint.Network
 
         protected virtual void Update()
         {
+            _updateScheduler.Update((float)UpdateInterval/1000.0f);
         }
 
         void BroadcastError(Error err)
         {
+            PluginEventTracker.SendMetric(new Metric(MetricType.Counter, ExceptionMetricName, 1));
+            var context = new AttrDic();
+            if(err.Detail != string.Empty)
+            {
+                context.SetValue("detail", err.Detail);
+                context.SetValue("match_id", PluginHost.GameId);
+            }
+            PluginEventTracker.SendLog(new Network.ServerEvents.Log(LogLevel.Error, err.Msg, context), true);
             var dic = new Dictionary<byte, object>();
             dic.Add(EventContentParam, err.ToString());
             BroadcastEvent(FailEventCode, dic);
@@ -345,7 +410,7 @@ namespace SocialPoint.Network
 
         protected void HandleException(Exception e)
         {
-            BroadcastError(new Error(e.Message));
+            BroadcastError(new Error(e.Message, e.StackTrace));
         }
 
         void INetworkServer.Start()
@@ -401,6 +466,14 @@ namespace SocialPoint.Network
         int INetworkServer.GetTimestamp()
         {
             return System.Environment.TickCount;
+        }
+
+        bool INetworkServer.LatencySupported
+        {
+            get
+            {
+                return true;
+            }
         }
 
         protected object CreateInstanceFromAssembly(string assemblyName, string typeName)

@@ -25,6 +25,7 @@ namespace SocialPoint.Base
 
         public override void InstallBindings()
         {
+            Container.Bind<IFileManager>().ToMethod<UnityFileManager>(CreateFileManager);
             Container.Bind<IAttrStorage>(VolatileTag).ToMethod<PlayerPrefsAttrStorage>(CreateVolatileStorage);
             Container.Bind<IAttrStorage>(PersistentTag).ToMethod<TransitionAttrStorage>(CreatePersistentStorage);
 
@@ -37,10 +38,15 @@ namespace SocialPoint.Base
             PathsManager.Init();
         }
 
+        UnityFileManager CreateFileManager()
+        {
+            return new UnityFileManager();
+        }
+
         PlayerPrefsAttrStorage CreateVolatileStorage()
         {
             var vol = new PlayerPrefsAttrStorage();
-            vol.Prefix = Settings.VolatilePrefix;
+            vol.Prefix = VolatilePrefix;
             #if UNITY_STANDALONE
             // avoid editor and standalone overwriting
             vol.Prefix += UnityEngine.Application.platform.ToString();
@@ -48,13 +54,37 @@ namespace SocialPoint.Base
             return vol;
         }
 
+        string PersistentPrefix
+        {
+            get
+            {
+                #if ADMIN_PANEL
+                return Container.Resolve<BackendEnvironment>().GetEnvironment().Name;
+                #else
+                return Settings.PersistentPrefix;
+                #endif
+            }
+        }
+
+        string VolatilePrefix
+        {
+            get
+            {
+                #if ADMIN_PANEL
+                return Container.Resolve<BackendEnvironment>().GetEnvironment().Name;
+                #else
+                return Settings.VolatilePrefix;
+                #endif
+            }
+        }
+
         TransitionAttrStorage CreatePersistentStorage()
         {
             #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
-            var persistent = new KeychainAttrStorage(Settings.PersistentPrefix);
+            var persistent = new KeychainAttrStorage(PersistentPrefix);
             #elif UNITY_ANDROID && !UNITY_EDITOR
             var devInfo = Container.Resolve<SocialPoint.Hardware.IDeviceInfo>();
-            var persistent = new PersistentAttrStorage(devInfo.Uid, Settings.PersistentPrefix);
+            var persistent = new PersistentAttrStorage(devInfo.Uid, PersistentPrefix);
             Container.Bind<IDisposable>().ToLookup<PersistentAttrStorage>();
             #else
             var path = PathsManager.AppPersistentDataPath;

@@ -1,23 +1,64 @@
 ﻿#if ADMIN_PANEL 
 
 using System;
-using System.Text;
 using System.Collections.Generic;
+using System.Text;
 using SocialPoint.AdminPanel;
 using SocialPoint.Base;
-using SocialPoint.WAMP;
 using SocialPoint.Connection;
+using SocialPoint.WAMP;
 
 namespace SocialPoint.Social
 {
     public class AdminPanelSocialFramework : IAdminPanelConfigurer, IAdminPanelManagedGUI
     {
         readonly ConnectionManager _connection;
-        readonly ChatManager _chat;
-        readonly AlliancesManager _alliances;
-        readonly PlayersManager _playersManager;
         readonly SocialManager _socialManager;
         readonly StringBuilder _content;
+        readonly PlayersManager _playersManager;
+
+        ChatManager _chatManager;
+        AlliancesManager _alliancesManager;
+        MessagingSystemManager _messagesManager;
+
+        internal ChatManager ChatManager
+        {
+            get
+            {
+                return _chatManager; 
+            }
+            set
+            {
+                _chatManager = value;
+                _chatPanel = _chatManager != null ? new AdminPanelSocialFrameworkChat(ChatManager, _console) : null;
+            }
+        }
+
+        internal AlliancesManager AlliancesManager
+        {
+            get
+            {
+                return _alliancesManager; 
+            }
+            set
+            {
+                _alliancesManager = value;
+                _alliancesPanel = _alliancesManager != null ? new AdminPanelSocialFrameworkAlliances(AlliancesManager, _playersManager, _socialManager, _console) : null;
+            }
+        }
+
+        internal MessagingSystemManager MessagesManager
+        {
+            get
+            {
+                return _messagesManager; 
+            }
+            set
+            {
+                _messagesManager = value;
+                _messagesPanel = _messagesManager != null ? new AdminPanelSocialFrameworkMessagingSystem(_console, MessagesManager) : null;
+            }
+        }
 
         AdminPanelLayout _layout;
         AdminPanelConsole _console;
@@ -26,14 +67,13 @@ namespace SocialPoint.Social
         AdminPanelSocialFrameworkChat _chatPanel;
         AdminPanelSocialFrameworkAlliances _alliancesPanel;
         AdminPanelSocialFrameworkPlayers _playersPanel;
+        AdminPanelSocialFrameworkMessagingSystem _messagesPanel;
 
-        public AdminPanelSocialFramework(ConnectionManager connection, ChatManager chat, AlliancesManager alliances, PlayersManager playersManager, SocialManager socialManager)
+        public AdminPanelSocialFramework(ConnectionManager connection, SocialManager socialManager, PlayersManager playersManager)
         {
             _connection = connection;
-            _chat = chat;
-            _alliances = alliances;
-            _playersManager = playersManager;
             _socialManager = socialManager;
+            _playersManager = playersManager;
             _content = new StringBuilder();
         }
 
@@ -44,8 +84,6 @@ namespace SocialPoint.Social
 
             // Cache nested panel
             _userPanel = new AdminPanelSocialFrameworkUser(_connection);
-            _chatPanel = new AdminPanelSocialFrameworkChat(_chat, _console);
-            _alliancesPanel = new AdminPanelSocialFrameworkAlliances(_alliances, _playersManager, _socialManager, _console);
             _playersPanel = new AdminPanelSocialFrameworkPlayers(_playersManager, _socialManager, _console);
         }
 
@@ -68,15 +106,16 @@ namespace SocialPoint.Social
         {
             _layout = layout;
 
-            var connected = _connection.IsConnected;
+            var connected = Reflection.GetPrivateProperty<ConnectionManager, bool>(_connection, "IsSocketConnected");
 
             layout.CreateLabel("Social Framework");
             layout.CreateMargin();
 
-            var connectLabel = _connection.IsConnecting ? "Connecting..." : "Connect";
+            var connecting = Reflection.GetPrivateProperty<ConnectionManager, bool>(_connection, "IsSocketConnecting");
+            var connectLabel = connecting ? "Connecting..." : "Connect";
             layout.CreateToggleButton(connectLabel, connected, value => {
                 // Abort connection
-                if(_connection.IsConnecting)
+                if(Reflection.GetPrivateProperty<ConnectionManager, bool>(_connection, "IsSocketConnecting"))
                 {
                     _connection.Disconnect();
                 }
@@ -113,9 +152,10 @@ namespace SocialPoint.Social
             });
             layout.CreateMargin();
 
-            layout.CreateOpenPanelButton("Players", _playersPanel, _playersPanel != null && connected);
-            layout.CreateOpenPanelButton("Chat", _chatPanel, _chat != null && connected);
-            layout.CreateOpenPanelButton("Alliances", _alliancesPanel, _alliances != null && connected);
+            layout.CreateOpenPanelButton("Players", _playersPanel, _playersManager != null && connected);
+            layout.CreateOpenPanelButton("Chat", _chatPanel, ChatManager != null && connected);
+            layout.CreateOpenPanelButton("Alliances", _alliancesPanel, AlliancesManager != null && connected);
+            layout.CreateOpenPanelButton("Messages", _messagesPanel, MessagesManager != null && connected);
         }
 
         void OnConnected()

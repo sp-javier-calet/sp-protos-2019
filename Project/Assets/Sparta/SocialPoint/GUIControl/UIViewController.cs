@@ -390,7 +390,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPGUI")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("UIViewController {0} {1} | {2}", gameObject.name, _viewState, msg));
@@ -409,6 +409,12 @@ namespace SocialPoint.GUIControl
             }
 
             OnAwake();
+        }
+
+        [Obsolete("Use Reset instead")]
+        public void ResetState()
+        {
+            Reset();
         }
 
         void Start()
@@ -736,6 +742,7 @@ namespace SocialPoint.GUIControl
             {
                 Animation.Reset();
             }
+            _viewState = ViewState.Initial;
         }
 
         virtual protected void Disable()

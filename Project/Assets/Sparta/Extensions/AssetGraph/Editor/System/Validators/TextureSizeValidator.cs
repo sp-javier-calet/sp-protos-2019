@@ -41,7 +41,7 @@ public class TextureSizeValidator : AssetBundleGraph.IValidator
     public string ValidationFailed(object asset)
     {
         var target = (Texture)asset;
-        return AssetDatabase.GetAssetPath(target) + " size " + target.width + " x " + target.height + " exceeds max size " + target.width + " x " + target.height;
+        return AssetDatabase.GetAssetPath(target) + " size " + target.width + " x " + target.height + " exceeds max size " + maxWidth + " x " + maxHeight;
     }
 
 

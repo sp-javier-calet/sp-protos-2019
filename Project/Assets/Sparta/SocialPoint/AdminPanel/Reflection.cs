@@ -21,6 +21,19 @@ namespace SocialPoint.AdminPanel
             return field != null ? (R)field.GetValue(instance) : default(R);
         }
 
+        public static R GetPrivateProperty<T, R>(object instance, string fieldName)
+        {
+            BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.NonPublic;
+
+            PropertyInfo property = typeof(T).GetProperty(fieldName, bindFlags);
+            if(property == null)
+            {
+                Log.w(string.Format("AdminPanel Error. No '{0}` property in class {1}", fieldName, instance.GetType()));
+            }
+
+            return property != null ? (R)property.GetValue(instance, null) : default(R);
+        }
+
         static MethodInfo GetMethod<T>(string methodName)
         {
             // FIXME Does not work for overloaded methods
