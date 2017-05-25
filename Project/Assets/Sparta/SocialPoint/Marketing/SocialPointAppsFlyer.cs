@@ -38,8 +38,9 @@ public sealed class SocialPointAppsFlyer : IMarketingTracker
             #endif
         }
 
-        /* We set AppsFlyer key here (and not on Init) because it could trigger a track on its own.
-         * (It was happening in Android with v4.14 of the Unity Plugin)
+        /* We set AppsFlyer key here (and not on Init) because it triggers a trackAppLaunch on Android,
+         * and we enclose our trackAppLaunch call inside the iOS ifdef because of that reason.
+         * (It was happening with v4.14 of the Unity Plugin)
          * */
         DebugUtils.Assert(!String.IsNullOrEmpty(AppsFlyerKey));
         AppsFlyer.setAppsFlyerKey(AppsFlyerKey);
