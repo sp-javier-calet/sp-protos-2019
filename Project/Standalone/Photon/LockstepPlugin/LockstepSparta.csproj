@@ -194,6 +194,12 @@
     <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\Bitset.cs">
       <Link>IO\Bitset.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\FileManager.cs">
+      <Link>IO\FileManager.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\FileUtils.cs">
+      <Link>IO\FileUtils.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\INetworkShareable.cs">
       <Link>IO\INetworkShareable.cs</Link>
     </Compile>
