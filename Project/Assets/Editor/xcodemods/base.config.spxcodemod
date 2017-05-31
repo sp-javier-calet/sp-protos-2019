@@ -19,5 +19,6 @@
       "CFBundleURLName":"basegame",
       "CFBundleURLSchemes":["basegame"]
     }]
-  }
+  },
+  "mainKeychainAccessGroup": "basegame"
 }
