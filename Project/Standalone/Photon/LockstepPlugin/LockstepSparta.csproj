@@ -227,6 +227,9 @@
     <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\BaseYieldHttpClient.cs">
       <Link>Network\BaseYieldHttpClient.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\EditorProxy.cs">
+      <Link>Network\EditorProxy.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\HttpEncoding.cs">
       <Link>Network\HttpEncoding.cs</Link>
     </Compile>

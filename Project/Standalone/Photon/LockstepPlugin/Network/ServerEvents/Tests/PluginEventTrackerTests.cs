@@ -28,7 +28,7 @@ namespace SocialPoint.Network
         [Test]
         public void Start()
         {
-            Scheduler.Received(1).Add(EventTracker, false, EventTracker.SendInterval);
+            Scheduler.Received(1).Add(EventTracker, UpdateableTimeMode.GameTimeUnscaled, EventTracker.SendInterval);
         }
 
 
