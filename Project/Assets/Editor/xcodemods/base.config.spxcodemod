@@ -20,5 +20,5 @@
       "CFBundleURLSchemes":["basegame"]
     }]
   },
-  "mainKeychainAccessGroup": "basegame"
+  "mainKeychainAccessGroup": "$(AppIdentifierPrefix)basegame"
 }
