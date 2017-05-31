@@ -98,6 +98,18 @@
     <Compile Include="..\..\..\assets\sparta\extensions\multiplayer\TweenNetworkBehaviour.cs">
       <Link>Multiplayer\TweenNetworkBehaviour.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\HttpServerEventTracker.cs">
+      <Link>Network\HttpServerEventTracker.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\IServerEventTracker.cs">
+      <Link>Network\IServerEventTracker.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\Log.cs">
+      <Link>Network\Log.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\Metric.cs">
+      <Link>Network\Metric.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\assets\sparta\extensions\pathfinding\IPathfindingDebugger.cs">
       <Link>Pathfinding\IPathfindingDebugger.cs</Link>
     </Compile>
@@ -344,6 +356,15 @@
     <Compile Include="..\..\..\assets\sparta\external\jitterphysics\World.cs">
       <Link>External\JitterPhysics\World.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\External\LitJson\JsonException.cs">
+      <Link>External\LitJson\JsonException.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\External\LitJson\JsonWriter.cs">
+      <Link>External\LitJson\JsonWriter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\External\LitJson\ParserToken.cs">
+      <Link>External\LitJson\ParserToken.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\assets\sparta\external\sharpnav\Area.cs">
       <Link>External\SharpNav\Area.cs</Link>
     </Compile>
@@ -575,6 +596,30 @@
     <Compile Include="..\..\..\assets\sparta\external\sharpnav\TiledNavMesh.cs">
       <Link>External\SharpNav\TiledNavMesh.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\Attr.cs">
+      <Link>Attributes\Attr.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\AttrExtensions.cs">
+      <Link>Attributes\AttrExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\IAttrParser.cs">
+      <Link>Attributes\IAttrParser.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\IAttrSerializer.cs">
+      <Link>Attributes\IAttrSerializer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\JsonAttrSerializer.cs">
+      <Link>Attributes\JsonAttrSerializer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\LitJsonAttrSerializer.cs">
+      <Link>Attributes\LitJsonAttrSerializer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\UrlQueryAttrParser.cs">
+      <Link>Attributes\UrlQueryAttrParser.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\UrlQueryAttrSerializer.cs">
+      <Link>Attributes\UrlQueryAttrSerializer.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Base\DebugUtils.cs">
       <Link>Base\DebugUtils.cs</Link>
     </Compile>
@@ -635,6 +680,24 @@
     <Compile Include="..\..\..\assets\sparta\socialpoint\io\TypedWriteSerializer.cs">
       <Link>IO\TypedWriteSerializer.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\EditorProxy.cs">
+      <Link>Network\EditorProxy.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\HttpEncoding.cs">
+      <Link>Network\HttpEncoding.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\HttpRequest.cs">
+      <Link>Network\HttpRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\HttpResponse.cs">
+      <Link>Network\HttpResponse.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\IHttpClient.cs">
+      <Link>Network\IHttpClient.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\ImmediateWebRequestHttpClient.cs">
+      <Link>Network\ImmediateWebRequestHttpClient.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\assets\sparta\socialpoint\network\INetworkClient.cs">
       <Link>Network\INetworkClient.cs</Link>
     </Compile>
@@ -644,8 +707,23 @@
     <Compile Include="..\..\..\assets\sparta\socialpoint\network\INetworkServer.cs">
       <Link>Network\INetworkServer.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\NetworkStatsBase.cs">
+      <Link>Network\NetworkStatsBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\NetworkStatsClient.cs">
+      <Link>Network\NetworkStatsClient.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\NetworkStatsServer.cs">
+      <Link>Network\NetworkStatsServer.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\WebRequestUtils.cs">
+      <Link>Network\WebRequestUtils.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Pooling\ObjectPool.cs">
       <Link>Pooling\ObjectPool.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\ServerEvents\Event.cs">
+      <Link>ServerEvents\Event.cs</Link>
     </Compile>
     <Compile Include="..\..\..\assets\sparta\socialpoint\utils\ActionHandler.cs">
       <Link>Utils\ActionHandler.cs</Link>
