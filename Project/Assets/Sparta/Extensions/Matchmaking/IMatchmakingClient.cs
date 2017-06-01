@@ -6,6 +6,7 @@ using System;
 
 namespace SocialPoint.Matchmaking
 {
+    [System.Serializable]
     public class Match
     {
         const string MatchIdAttrKey = "match_id";
@@ -60,9 +61,16 @@ namespace SocialPoint.Matchmaking
 
     public interface IMatchmakingClientDelegate
     {
+        void OnStart();
+
+        void OnSearchOpponent();
+
         void OnWaiting(int waitTime);
+
         void OnMatched(Match match);
+
         void OnStopped(bool successful);
+
         void OnError(Error err);
     }
 

@@ -45,9 +45,10 @@ namespace SocialPoint.Network
     }
 
     [Serializable]
-    public struct PhotonNetworkConfig
+    public class PhotonNetworkConfig
     {
         public const bool DefaultCreateRoom = true;
+        public const ExitGames.Client.Photon.ConnectionProtocol DefaultProtocol = ExitGames.Client.Photon.ConnectionProtocol.Udp;
 
         public string GameVersion;
         public string RoomName;
@@ -57,6 +58,7 @@ namespace SocialPoint.Network
         public CloudRegionCode ForceRegion;
         public string ForceAppId;
         public string ForceServer;
+        public ExitGames.Client.Photon.ConnectionProtocol Protocol = DefaultProtocol;
     }
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
@@ -72,6 +74,7 @@ namespace SocialPoint.Network
         }
 
         ConnState _state = ConnState.Disconnected;
+
         protected ConnState State
         {
             get
@@ -107,6 +110,7 @@ namespace SocialPoint.Network
                 return;
             }
             _state = ConnState.Connecting;
+            PhotonNetwork.networkingPeer.TransportProtocol = Config.Protocol;
             Config.CustomPhotonConfig.SetConfigBeforeConnection();
             if(!string.IsNullOrEmpty(Config.ForceServer) && !string.IsNullOrEmpty(Config.ForceAppId))
             {

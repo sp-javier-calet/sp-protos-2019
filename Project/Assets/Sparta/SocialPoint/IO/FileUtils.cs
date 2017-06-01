@@ -141,6 +141,15 @@ namespace SocialPoint.IO
             return Directory.Exists(path);
         }
 
+        public static long FileSize(string path)
+        {
+            if(IsUrl(path))
+            {
+                return (new FileInfo(path)).Length;
+            }
+            return 0L;
+        }
+
         public static bool IsUrl(string path)
         {
             return path.Contains("://");

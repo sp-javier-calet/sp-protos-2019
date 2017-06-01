@@ -23,6 +23,7 @@ namespace SocialPoint.Social
         public int ActivityIndicator;
 
         public bool IsNewAlliance;
+
     }
 
     /// <summary>

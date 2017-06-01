@@ -25,6 +25,14 @@ namespace SocialPoint.Matchmaking
             _network.RemoveDelegate(this);
         }
 
+        public void OnStart()
+        {
+        }
+
+        public void OnSearchOpponent()
+        {
+        }
+
         public void OnWaiting(int waitTime)
         {
         }

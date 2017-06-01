@@ -106,7 +106,7 @@ public class LockstepInstaller : ServiceInstaller
             Container.Resolve<INetworkClient>(),
             Container.Resolve<LockstepClient>(),
             Container.Resolve<LockstepCommandFactory>());
-        client.SendTrack = Container.Resolve<IEventTracker>().TrackEvent;
+        client.SendTrack = Container.Resolve<IEventTracker>().TrackSystemEvent;
         return client;
     }
 

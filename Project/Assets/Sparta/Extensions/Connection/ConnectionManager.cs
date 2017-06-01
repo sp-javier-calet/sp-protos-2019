@@ -49,10 +49,11 @@ namespace SocialPoint.Connection
         public const int MaxValue = 1000;
     }
 
+    [Serializable]
     public class ConnectionManagerConfig
     {
         public float PingInterval = 10.0f;
-        public float ReconnectInterval = 10.0f;
+        public float ReconnectInterval = 1.0f;
 
         public int RPCRetries = 1;
         public float RPCTimeout = 1.0f;
@@ -122,6 +123,7 @@ namespace SocialPoint.Connection
 
         public delegate void NotificationReceivedDelegate(int type, string topic, AttrDic dictParams);
 
+        public event Action OnConnectionStablished;
         public event Action OnConnected;
         public event Action OnClosed;
         public event Action<AttrDic> OnProcessServices;
@@ -290,13 +292,13 @@ namespace SocialPoint.Connection
         bool _joined;
         Queue<RequestWrapper> _pendingRequests;
 
-        public ConnectionManager(IWebSocketClient client)
+        public ConnectionManager(IWebSocketClient client, ConnectionManagerConfig config)
         {
             DebugUtils.Assert(client != null, "IWebsocketClient is required");
             _socket = client;
             _socket.AddDelegate(this);
             _connection = new WAMPConnection(client);
-            _config = new ConnectionManagerConfig();
+            _config = (config != null) ? config : new ConnectionManagerConfig();
 
             _active = false;
             _joined = false;
@@ -609,6 +611,10 @@ namespace SocialPoint.Connection
 
         public void OnClientConnected()
         {
+            if(OnConnectionStablished != null)
+            {
+                OnConnectionStablished();
+            }
         }
 
         public void OnClientDisconnected()

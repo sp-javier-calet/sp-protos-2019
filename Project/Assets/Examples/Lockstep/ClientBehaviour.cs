@@ -271,6 +271,16 @@ namespace Examples.Lockstep
 
         #region IMatchmakingClientDelegate implementation
 
+        void IMatchmakingClientDelegate.OnStart()
+        {
+            _fullscreenText.text = string.Format("matchmaking start");
+        }
+
+        void IMatchmakingClientDelegate.OnSearchOpponent()
+        {
+            _fullscreenText.text = string.Format("searching for opponent");
+        }
+
         void IMatchmakingClientDelegate.OnWaiting(int waitTime)
         {
             _fullscreenText.text = string.Format("estimated waiting time {0}", waitTime);

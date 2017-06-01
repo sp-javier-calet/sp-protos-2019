@@ -527,6 +527,7 @@ namespace FixMath.NET {
             return FastSin(new Fix64(rawAngle));
         }
 
+        #if ENABLE_TANGENT_FIX64
         /// <summary>
         /// Returns the tangent of x.
         /// </summary>
@@ -560,6 +561,7 @@ namespace FixMath.NET {
             var finalValue = flip ? -interpolatedValue : interpolatedValue;
             return new Fix64(finalValue);
         }
+        #endif
 
         public static Fix64 Atan2(Fix64 y, Fix64 x) {
             var yl = y.m_rawValue;
@@ -677,10 +679,12 @@ namespace FixMath.NET {
             }
         }
 
+
         internal static void GenerateTanLut() {
             using (var writer = new StreamWriter("Fix64TanLut.cs")) {
                 writer.Write(
-@"namespace FixMath.NET {
+@"#if ENABLE_TANGENT_FIX64
+  namespace FixMath.NET {
     partial struct Fix64 {
         public static readonly long[] TanLut = new[] {");
                 int lineCounter = 0;
@@ -701,7 +705,8 @@ namespace FixMath.NET {
 @"
         };
     }
-}");
+}
+#endif");
             }
         }
 

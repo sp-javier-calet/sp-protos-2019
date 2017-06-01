@@ -23,6 +23,14 @@ namespace SocialPoint.Matchmaking
             _lockstep.PlayerFinishSent -= OnPlayerFinishSent;
         }
 
+        public void OnStart()
+        {
+        }
+
+        public void OnSearchOpponent()
+        {
+        }
+
         public void OnWaiting(int waitTime)
         {
         }

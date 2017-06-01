@@ -26,10 +26,8 @@ namespace SocialPoint.Matchmaking
         const string SuccessAttrKey = "success";
         const string MatchFoundAttrKey = "found";
 
-        public Action OnStart;
-        public Action OnStop;
-        public Action OnSearchOpponent;
-        public Action OnWaitTimeReceived;
+        const int SuccessNotification = 502;
+        const int TimeoutNotification = 503;
 
         public string Room{ get; set; }
 
@@ -81,7 +79,7 @@ namespace SocialPoint.Matchmaking
 
         public void Start()
         {
-            CallAction(OnStart);
+            DispatchOnStartEvent();
 
             if(!_wamp.IsConnected)
             {
@@ -175,18 +173,18 @@ namespace SocialPoint.Matchmaking
         void SearchOpponent()
         {
             _searchingForOpponent = true;
+            DispatchOnSearchOpponentEvent();
+
             var kwargs = new AttrDic();
             kwargs.SetValue(UserIdParameter, _login.UserId.ToString());
             if(!string.IsNullOrEmpty(Room))
             {
                 kwargs.SetValue(RoomParameter, Room);
             }
-
             kwargs.SetValue(ConnectIdParameter, _connectionID);
 
             DisposeStartRequest();
             _startRequest = _wamp.Call(MatchmakingStartMethodName, Attr.InvalidList, kwargs, OnSearchOpponentResult);
-            CallAction(OnSearchOpponent);
         }
 
         void OnSearchOpponentResult(Error error, AttrList args, AttrDic kwargs)
@@ -211,7 +209,6 @@ namespace SocialPoint.Matchmaking
                 }
                 var waitTime = attr.GetValue(WaitingTimeAttrKey).ToInt();
                 DispatchOnWaitingEvent(waitTime);
-                CallAction(OnWaitTimeReceived);
             }
             else if(attr != null && attr.ContainsKey(ErrorAttrKey))
             {
@@ -244,7 +241,6 @@ namespace SocialPoint.Matchmaking
             }
 
             _stopRequest = _wamp.Call(MatchmakingStopMethodName, Attr.InvalidList, kwargs, OnStopResult);
-            CallAction(OnStop);
         }
 
         void OnStopResult(Error error, AttrList args, AttrDic kwargs)
@@ -332,14 +328,6 @@ namespace SocialPoint.Matchmaking
             DispatchOnErrorEvent(err);
         }
 
-        static void CallAction(Action action)
-        {
-            if(action != null)
-            {
-                action();
-            }
-        }
-
         void SyncDelegates()
         {
             for(int i = 0; i < _delegatesToRemove.Count; ++i)
@@ -350,6 +338,24 @@ namespace SocialPoint.Matchmaking
 
             _delegates.AddRange(_delegatesToAdd);
             _delegatesToAdd.Clear();
+        }
+
+        void DispatchOnStartEvent()
+        {
+            SyncDelegates();
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnStart();
+            }
+        }
+
+        void DispatchOnSearchOpponentEvent()
+        {
+            SyncDelegates();
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnSearchOpponent();
+            }
         }
 
         void DispatchOnErrorEvent(Error err)

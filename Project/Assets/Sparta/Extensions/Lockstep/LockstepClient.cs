@@ -426,10 +426,13 @@ namespace SocialPoint.Lockstep
             return cmd;
         }
 
-        void ProcessTurn(ClientTurnData turn)
+        bool ProcessTurn(ClientTurnData turn)
         {
             var itr = turn.GetCommandEnumerator();
             var processStart = TimeUtils.TimestampMilliseconds;
+
+            bool hadIssuesProcessingTurnData = false;
+
             while(itr.MoveNext())
             {
                 var command = FindCommand(itr.Current);
@@ -448,6 +451,7 @@ namespace SocialPoint.Lockstep
                 }
                 catch(Exception e)
                 {
+                    hadIssuesProcessingTurnData = true;
                     if(CommandFailed != null)
                     {
                         CommandFailed(new Error(e.Message, e.StackTrace), command);
@@ -461,6 +465,8 @@ namespace SocialPoint.Lockstep
             {
                 TurnApplied(turn);
             }
+
+            return !hadIssuesProcessingTurnData;
         }
 
         public void Update()
@@ -498,7 +504,7 @@ namespace SocialPoint.Lockstep
             var simSteps = 0;
             var wasConnected = Connected;
             _state = State.Normal;
-            while(true)
+            while(Running)
             {
                 var nextSimTime = _lastSimTime + Config.SimulationStepDuration;
                 var nextCmdTime = _lastCmdTime + Config.CommandStepDuration;
@@ -532,11 +538,17 @@ namespace SocialPoint.Lockstep
                         {
                             _confirmedTurns.Remove(t);
                         }
-                        ProcessTurn(turn);
+                        if(!ProcessTurn(turn))
+                        {
+                            break;
+                        }
                     }
                     else if(CommandAdded == null)
                     {
-                        ProcessTurn(ClientTurnData.Empty);
+                        if(!ProcessTurn(ClientTurnData.Empty))
+                        {
+                            break;
+                        }
                     }
                     else
                     {

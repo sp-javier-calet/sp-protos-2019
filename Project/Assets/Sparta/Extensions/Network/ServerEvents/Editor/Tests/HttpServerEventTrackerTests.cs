@@ -46,7 +46,7 @@ namespace SocialPoint.Network
             var metric = new Metric(MetricType.Counter, "Tests", 1);
             EventTracker.SendMetric(metric);
             EventTracker.Update();
-            HttpClient.Received(3).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
+            HttpClient.Received(2).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
         }
 
         [Test]
