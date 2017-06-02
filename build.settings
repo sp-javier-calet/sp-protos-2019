@@ -1,10 +1,9 @@
 [common]
 # Build system version to use for this build. If a branch matches this value, the branch is used, otherwise if a tag match this value the tag is used.
-SP_BUILD_SYSTEM_VERSION = v2.0-dev
+SP_BUILD_SYSTEM_VERSION = v2.0
 
 # Unity project path relative to the Jenkins Workspace
-SP_PROJECT_LEAD = dani.garcia@socialpoint.es
-SP_PROJECT_PATH = Project
+SP_PROJECT_LEAD = daniel.garcia@socialpoint.es
 SP_PROJECT_NAME = Unity Base Game
 
 # One of application, static_library or dynamic_library
@@ -32,6 +31,9 @@ SP_CHAT_ROOMS = Mobile Platform
 # Target platform. One of Android or iOS
 SP_PLATFORM = ios
 
+# Must match the path to the root of the Unity project.
+SP_PROJECT_PATH = Project
+
 # One of google or amazon or appstore.
 SP_STORE = appstore
 
@@ -50,6 +52,9 @@ SP_PROCESS_SYMBOLS = True
 [android]
 # Target platform. One of Android or iOS
 SP_PLATFORM = android
+
+# Must match the path to the root of the Unity project.
+SP_PROJECT_PATH = Project
 
 # One of google or amazon or appstore.
 SP_STORE = google
