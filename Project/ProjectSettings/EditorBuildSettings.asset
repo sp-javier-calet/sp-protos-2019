@@ -16,6 +16,4 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BaseMainScene.unity
   - enabled: 1
-    path: Assets/Examples/Multiplayer/MultiplayerScene.unity
-  - enabled: 1
     path: Assets/Examples/Lockstep/LockstepScene.unity
