@@ -85,5 +85,21 @@ namespace SocialPoint.Pathfinding
 
             return false;
         }
+
+        /// <summary>
+        /// Casts a 'walkability' ray along the surface of the navigation mesh from the start position toward the end position.
+        /// </summary>
+        /// <returns>True if ray can be traced.</returns>
+        /// <param name="start">Start point.</param>
+        /// <param name="end">End point.</param>
+        /// <param name="hit">Resulting hit data.</param>
+        public bool TryRayCast(Vector3 startPoint, Vector3 endPoint, out RaycastHit hit)
+        {
+            NavPoint startNavPoint = _query.FindNearestPoly(startPoint, _extents, _filter);
+
+            _path.Clear();
+
+            return _query.Raycast(ref startNavPoint, ref endPoint, _filter, RaycastOptions.None, out hit, _path);
+        }
     }
 }
