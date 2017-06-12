@@ -10,22 +10,21 @@ namespace SocialPoint.Matchmaking
 {
     public class WampMatchmakingClient : IMatchmakingClient, IDisposable
     {
-        List<IMatchmakingClientDelegate> _delegates;
+        readonly List<IMatchmakingClientDelegate> _delegates;
         ConnectionManager _wamp;
         ILoginData _login;
         CallRequest _req;
+        AttrDic _extraData;
 
         const string RoomParameter = "room";
         const string UserIdParameter = "user_id";
+        const string ExtraDataParameter = "extra_data";
 
         const string ErrorAttrKey = "error";
         const string StatusAttrKey = "status";
         const string WaitingStatus = "waiting";
         const string WaitingTimeAttrKey = "estimated_time";
         const string ResultAttrKey = "result";
-
-        const int SuccessNotification = 502;
-        const int TimeoutNotification = 503;
 
         public string Room{ get; set; }
 
@@ -34,11 +33,16 @@ namespace SocialPoint.Matchmaking
             _delegates = new List<IMatchmakingClientDelegate>();
             _wamp = wamp;
             _login = login;
+
+            _wamp.OnNotificationReceived += OnWampNotificationReceived;
+            _wamp.OnError += OnWampError;
         }
 
         public void Dispose()
         {
             Stop();
+            _wamp.OnError -= OnWampError;
+            _wamp.OnNotificationReceived -= OnWampNotificationReceived;
         }
 
         public void AddDelegate(IMatchmakingClientDelegate dlg)
@@ -53,10 +57,9 @@ namespace SocialPoint.Matchmaking
 
         const string MethodName = "matchmaking.match.start";
 
-        public void Start()
+        public void Start(AttrDic extraData)
         {
-            _wamp.OnError += OnWampError;
-            _wamp.OnNotificationReceived += OnWampNotificationReceived;
+            _extraData = extraData;
             if(!_wamp.IsConnected)
             {
                 _wamp.OnConnected += OnWampConnected;
@@ -84,6 +87,10 @@ namespace SocialPoint.Matchmaking
             if(!string.IsNullOrEmpty(Room))
             {
                 kwargs.SetValue(RoomParameter, Room);
+            }
+            if(_extraData != null && _extraData.Count > 0)
+            {
+                kwargs[ExtraDataParameter] = _extraData;
             }
             if(_req != null)
             {
@@ -120,35 +127,48 @@ namespace SocialPoint.Matchmaking
             }
             else if(attr != null && attr.ContainsKey(ErrorAttrKey))
             {
-                OnError(new Error("Got error: "+attr.GetValue(ErrorAttrKey).ToString()));
+                OnError(new Error("Got error: " + attr.GetValue(ErrorAttrKey)));
             }
             else
             {
-                OnError(new Error("Got unknown data: "+kwargs));
+                OnError(new Error("Got unknown data: " + kwargs));
             }
         }
 
         void OnWampNotificationReceived(int type, string topic, AttrDic attr)
         {
-            if(type == NotificationType.MatchmakingSuccessNotification)
+            switch(type)
             {
-                var match = new Match();
-                match.ParseAttrDic(attr);
-                for(var i = 0; i < _delegates.Count; i++)
+            case NotificationType.MatchmakingWaitingTimeNotification:
                 {
-                    _delegates[i].OnMatched(match);
+                    var waitTime = attr.GetValue(WaitingTimeAttrKey).ToInt();
+                    for(var i = 0; i < _delegates.Count; i++)
+                    {
+                        _delegates[i].OnWaiting(waitTime);
+                    }
                 }
+                break;
+            case NotificationType.MatchmakingSuccessNotification:
+                {
+                    var match = new Match();
+                    match.ParseAttrDic(attr);
+                    for(var i = 0; i < _delegates.Count; i++)
+                    {
+                        _delegates[i].OnMatched(match);
+                    }
+                }
+                break;
+            case NotificationType.MatchmakingTimeoutNotification:
+                {
+                    OnError(new Error(MatchmakingClientErrorCode.Timeout, "Timeout"));
+                }
+                break;
             }
-            else if(type == TimeoutNotification)
-            {
-                OnError(new Error(MatchmakingClientErrorCode.Timeout, "Timeout"));
-            }
+
         }
 
         public void Stop()
         {
-            _wamp.OnError -= OnWampError;
-            _wamp.OnNotificationReceived -= OnWampNotificationReceived;
             if(_req != null)
             {
                 _req.Dispose();

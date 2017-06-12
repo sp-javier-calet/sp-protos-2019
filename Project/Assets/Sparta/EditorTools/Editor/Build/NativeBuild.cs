@@ -12,6 +12,26 @@ namespace SpartaTools.Editor.Build
     {
         static readonly List<string> IgnoredAndroidNativeModules = new List<string>{ "lib" };
 
+        #if UNITY_EDITOR_OSX
+        [UnityEditor.Callbacks.DidReloadScripts]
+        private static void OnScriptsReloaded() {
+            //compile standalone server
+
+            var commandOutput = new StringBuilder("Compile Standalone Server");
+            var path = Path.Combine(Path.Combine(Application.dataPath, "../../"), "Standalone/PhotonServer/src-server/Plugins");
+            var bin = Path.Combine(path, "build_auth_server.sh");
+
+            var result = NativeConsole.RunProcess(bin, "", path);
+            commandOutput.AppendLine(result.Output);
+
+            if(result.Code != 0)
+            {
+                UnityEngine.Debug.LogError(string.Format("Compile Standalone Server failed:\n{0}\n\nFull output:\n{1}", result.Error, result.Output));
+            }
+            UnityEngine.Debug.Log(commandOutput.ToString());
+        }
+        #endif
+
         static string SourcesDirectoryPath
         {
             get

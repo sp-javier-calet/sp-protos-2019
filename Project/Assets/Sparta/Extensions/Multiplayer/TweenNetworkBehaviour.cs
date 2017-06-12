@@ -3,7 +3,7 @@ using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
-    public class TweenNetworkBehaviour : INetworkBehaviour
+    public class TweenNetworkBehaviour : NetworkBehaviour
     {
         JVector _origin;
         JVector _destination;
@@ -11,58 +11,62 @@ namespace SocialPoint.Multiplayer
         float _duration;
         Easing.Function _easing;
         float _time;
-        NetworkGameObject _go;
 
-        public TweenNetworkBehaviour(JVector dest, float duration, Easing.Function easing)
+        public TweenNetworkBehaviour Init(JVector dest, float duration, Easing.Function easing)
         {
             _destination = dest;
             _duration = duration;
             _time = 0.0f;
             _easing = easing;
+            return this;
         }
 
-        public object Clone()
+        public override object Clone()
         {
-            var behaviour = new TweenNetworkBehaviour(_destination, _duration, _easing);
+            var behaviour = GameObject.Context.Pool.Get<TweenNetworkBehaviour>();
+            behaviour.Init(_destination, _duration, _easing);
             behaviour._delta = _delta;
             behaviour._time = _time;
-            behaviour._go = _go;
             return behaviour;
         }
 
-        public void OnStart(NetworkGameObject go)
+        protected override void OnStart()
         {
-            _go = go;
-            _origin = go.Transform.Position;
+            _origin = GameObject.Transform.Position;
             _delta = _destination - _origin;
             _time = 0.0f;
         }
 
-        public void Update(float dt)
+        protected override void Update(float dt)
         {
             _time += dt;
 
-            if(_go != null)
+            if(GameObject != null)
             {
-                _go.Transform.Position = new JVector(
+                GameObject.Transform.Position = new JVector(
                     _easing(_time, _origin.X, _delta.X, _duration),
                     _easing(_time, _origin.Y, _delta.Y, _duration),
                     _easing(_time, _origin.Z, _delta.Z, _duration));
             }
         }
 
-        public void OnDestroy()
+        protected override void OnDestroy()
         {
             _time = 0.0f;
-            _go = null;
         }
     }
 
     public static class TweenNetworkGameObjectExtensions
     {
+        private static readonly System.Type TweenNetworkBehaviourType = typeof(TweenNetworkBehaviour);
+
         public static void Tween(this NetworkServerSceneController ctrl, int id, JVector dest, float duration, Easing.Function easing)
         {
-            ctrl.AddBehaviour(id, new TweenNetworkBehaviour(dest, duration, easing));
+            var go = ctrl.FindObject(id);
+            if(go != null)
+            {
+                go.AddBehaviour(new TweenNetworkBehaviour().Init(dest, duration, easing), TweenNetworkBehaviourType);
+            }
         }
 
         public static void Tween(this NetworkServerSceneController ctrl, int id, JVector dest, float duration)

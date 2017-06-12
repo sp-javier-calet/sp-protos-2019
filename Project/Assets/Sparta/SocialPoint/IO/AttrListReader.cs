@@ -14,6 +14,14 @@ namespace SocialPoint.IO
             _position = 0;
         }
 
+        public override bool Finished
+        {
+            get
+            {
+                return _position >= _attr.Count;
+            }
+        }
+
         AttrValue GetValue()
         {
             var v = _attr.GetValue(_position);

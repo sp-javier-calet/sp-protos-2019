@@ -6,13 +6,17 @@ namespace SocialPoint.TransparentBundles
     {
         public ServerStatus Status;
         public string Log;
-        public Dictionary<int, BundleOperation> ProcessingQueue;
+        public Dictionary<int, ServerTask> ProcessingQueue;
+        public float Progress;
+        public string ProgressMessage;
 
-        public ServerInfo(ServerStatus status, string log, Dictionary<int, BundleOperation> processingQueue)
+        public ServerInfo(ServerStatus status, string log, Dictionary<int, ServerTask> processingQueue, float progress, string progressMessage)
         {
             Status = status;
             Log = log;
             ProcessingQueue = processingQueue;
+            Progress = progress;
+            ProgressMessage = progressMessage;
         }
     }
 
@@ -22,4 +26,6 @@ namespace SocialPoint.TransparentBundles
         Warning,
         Error
     }
+
+
 }

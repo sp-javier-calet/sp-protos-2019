@@ -91,6 +91,8 @@ namespace SocialPoint.Login
             
             layout.CreateLabel("Friends");
             layout.CreateVerticalScrollLayout().CreateTextArea((friends.Length > 0) ? friends.ToString() : "No friends");
+
+            UnityEngine.Debug.Log(loginInfo);
         }
             
         public sealed class AdminPanelLoginForcedErrors : IAdminPanelGUI

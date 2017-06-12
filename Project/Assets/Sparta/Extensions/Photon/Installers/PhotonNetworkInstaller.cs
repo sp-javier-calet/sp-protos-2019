@@ -23,13 +23,13 @@ namespace SocialPoint.Network
 
         void SetupPhotonServer(PhotonNetworkServer server)
         {
-            server.Config = Settings.Config;
+            server.Config = new PhotonNetworkConfig(Settings.Config);
             SetupServer(server);
         }
 
         void SetupPhotonClient(PhotonNetworkClient client)
         {
-            client.Config = Settings.Config;
+            client.Config = new PhotonNetworkConfig(Settings.Config);
             SetupClient(client);
         }
 

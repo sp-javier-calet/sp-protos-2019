@@ -12,7 +12,7 @@ namespace SocialPoint.Social
     {
         public int Score;
 
-        readonly List<AllianceBasicData> _searchData;
+        public readonly List<AllianceBasicData> _searchData;
 
         public AlliancesSearchResult()
         {

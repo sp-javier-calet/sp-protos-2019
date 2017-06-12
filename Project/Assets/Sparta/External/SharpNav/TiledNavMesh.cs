@@ -420,14 +420,17 @@ namespace SharpNav
             return GetTilesAt(new Vector2i(x, y));
         }
 
+        static readonly IEnumerable<NavTile> EmptyNavTileCollection =  Enumerable.Empty<NavTile>();
+
         public IEnumerable<NavTile> GetTilesAt(Vector2i location)
         {
             //Find tile based off hash
             List<NavTile> list;
             if(!tileSet.TryGetValue(location, out list))
-                return Enumerable.Empty<NavTile>();
+                return EmptyNavTileCollection;
 
-            return new ReadOnlyCollection<NavTile>(list);
+//            return new ReadOnlyCollection<NavTile>(list); // This was the original code, commented because it generates memory and who uses this does not touch the enumerator
+            return list.AsEnumerable();
         }
 
         public IEnumerable<NavTile> GetNeighborTilesAt(Vector2i location, BoundarySide side)

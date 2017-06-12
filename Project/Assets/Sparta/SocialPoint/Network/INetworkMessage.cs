@@ -71,11 +71,22 @@ namespace SocialPoint.Network
             msg.Send();
         }
 
+        public static void SendMessage(this INetworkMessageSender sender, INetworkShareable obj)
+        {
+            sender.SendMessage(new NetworkMessageData{ }, obj);
+        }
+
         public static void SendMessage(this INetworkMessageSender sender, NetworkMessageData data, byte[] body)
         {
             var msg = sender.CreateMessage(data);
             msg.Writer.Write(body, body.Length);
             msg.Send();
+        }
+
+
+        public static void SendMessage(this INetworkMessageSender sender, byte[] body)
+        {
+            sender.SendMessage(new NetworkMessageData{ }, body);
         }
     }
 }

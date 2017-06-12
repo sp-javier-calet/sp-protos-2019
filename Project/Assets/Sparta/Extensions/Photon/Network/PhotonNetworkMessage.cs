@@ -7,8 +7,7 @@ namespace SocialPoint.Network
     public static class PhotonMsgType
     {
         public const byte Fail = 199;
-        public const byte BackendEnv = 198;
-        public const byte Lowest = BackendEnv;
+        public const byte Lowest = Fail;
     }
 
     class PhotonNetworkMessage : INetworkMessage

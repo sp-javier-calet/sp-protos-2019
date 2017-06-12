@@ -191,6 +191,14 @@ namespace SpartaTools.Editor.Build
         /// <param name="outPath">Output location. </param>
         public static void Build(BuildTarget target, string buildSetName, int versionNumber = -1, string versionName = null, string outputPath = null)
         {
+            string detailedOutput = "";
+            Application.LogCallback Callback = (msg, stack, type) => {
+                if(type == LogType.Error || type == LogType.Exception || type == LogType.Assert)
+                {
+                    detailedOutput += (type + " - " + msg + "\n" + stack + "\n\n");
+                }
+            };
+            Application.logMessageReceived += Callback;
             Log(string.Format("Starting Build <{0}> for target <{1}> with config set <{2}>", 
                 versionNumber, target, buildSetName));
 
@@ -238,6 +246,9 @@ namespace SpartaTools.Editor.Build
             string result = BuildPipeline.BuildPlayer(activeScenes, location, target, options);
 
             Log(string.Format("Player Build finished with result: '{0}'", result));
+            Log(string.Format("Detailed log:\n '{0}' \nEnd of detailed log\n", detailedOutput));
+            Application.logMessageReceived -= Callback;
+            
             if(!string.IsNullOrEmpty(result))
             {
                 throw new CompilerErrorException(result);

@@ -1,4 +1,5 @@
-﻿using SharpNav;
+﻿using System.Collections.Generic;
+using SharpNav;
 using SharpNav.Geometry;
 using SharpNav.Pathfinding;
 
@@ -9,19 +10,54 @@ namespace SocialPoint.Pathfinding
         /// <summary>
         /// The nav mesh to query for paths.
         /// </summary>
-        TiledNavMesh _navMesh;
+        public TiledNavMesh NavMesh;
+
+        /// <summary>
+        /// Maximun distance in each axis that the 'start' and 'end' point can search for the closest navigation poly.
+        /// </summary>
+        Vector3 _extents;
 
         /// <summary>
         /// Maximun number that can be queued in a query.
         /// This value should be tweaked according to each game necessities.
         /// It is used to create containers (Pools, PriorityQueue, etc) with this value as capacity.
+        /// The created containers are for expanding neighbours and other important search functions, so this number should be big enough or paths may be incomplete in some cases.
         /// </summary>
         int _maxNodes;
 
-        public Pathfinder(TiledNavMesh navMesh, int maxNodes = 128)
+        NavQueryFilter _filter;
+        NavMeshQuery _query;
+        PathBuildFlags _flags;
+        Path _path;
+
+        public Pathfinder(TiledNavMesh navMesh, Vector3 extents, int maxNodes = 128)
         {
-            _navMesh = navMesh;
+            NavMesh = navMesh;
+            _extents = extents;
             _maxNodes = maxNodes;
+            _filter = new NavQueryFilter();
+            _query = new NavMeshQuery(NavMesh, _filter, _maxNodes);
+            _flags = new PathBuildFlags();
+            _path = new Path();
+        }
+
+        public void SetAreaCost(byte area, float cost)
+        {
+            if(area == Area.Null)
+            {
+                throw new System.Exception("Cannot assign cost to null {0} area");
+            }
+            _filter.SetAreaCost(area, cost);
+        }
+
+        public void SetIncludeFlags(ushort flags)
+        {
+            _filter.SetIncludeFlags(flags);
+        }
+
+        public void SetExcludeFlags(ushort flags)
+        {
+            _filter.SetExcludeFlags(flags);
         }
 
         /// <summary>
@@ -30,26 +66,40 @@ namespace SocialPoint.Pathfinding
         /// <returns>True if path is found, false otherwise.</returns>
         /// <param name="start">Start point.</param>
         /// <param name="end">End point.</param>
-        /// <param name="extents">Maximun distance in each axis that the 'start' and 'end' point can search for the closest navigation poly.</param>
         /// <param name="straightPath">Resulting path.</param>
-        public bool TryGetPath(Vector3 startPoint, Vector3 endPoint, Vector3 extents, out StraightPath straightPath)
+        public bool TryGetPath(Vector3 startPoint, Vector3 endPoint, StraightPath straightPath)
         {
-            straightPath = new StraightPath();
+            straightPath.Clear();
             //First, find poly path between targets
-            var query = new NavMeshQuery(_navMesh, _maxNodes);
-            NavPoint startNavPoint = query.FindNearestPoly(startPoint, extents);
-            NavPoint endNavPoint = query.FindNearestPoly(endPoint, extents);
-            var path = new SharpNav.Pathfinding.Path();
-            if(query.FindPath(ref startNavPoint, ref endNavPoint, new NavQueryFilter(), path))
+            NavPoint startNavPoint = _query.FindNearestPoly(startPoint, _extents, _filter);
+            NavPoint endNavPoint = _query.FindNearestPoly(endPoint, _extents, _filter);
+            _path.Clear();
+            if(_query.FindPath(ref startNavPoint, ref endNavPoint, _filter, _path))
             {
                 //With poly path found, find straight path
-                if(query.FindStraightPath(startNavPoint.Position, endNavPoint.Position, path, straightPath, new PathBuildFlags()))
+                if(_query.FindStraightPath(startNavPoint.Position, endNavPoint.Position, _path, straightPath, _flags))
                 {
                     return true;
                 }
             }
 
             return false;
+        }
+
+        /// <summary>
+        /// Casts a 'walkability' ray along the surface of the navigation mesh from the start position toward the end position.
+        /// </summary>
+        /// <returns>True if ray can be traced.</returns>
+        /// <param name="start">Start point.</param>
+        /// <param name="end">End point.</param>
+        /// <param name="hit">Resulting hit data.</param>
+        public bool TryRayCast(Vector3 startPoint, Vector3 endPoint, out RaycastHit hit)
+        {
+            NavPoint startNavPoint = _query.FindNearestPoly(startPoint, _extents, _filter);
+
+            _path.Clear();
+
+            return _query.Raycast(ref startNavPoint, ref endPoint, _filter, RaycastOptions.None, out hit, _path);
         }
     }
 }

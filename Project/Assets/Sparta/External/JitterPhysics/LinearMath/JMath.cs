@@ -136,5 +136,18 @@ namespace Jitter.LinearMath
             result.M33 = Math.Abs(matrix.M33);
         }
         #endregion
+
+        /// <summary>
+        /// Linearly interpolates between a and b by ammount.
+        /// </summary>
+        /// <param name="a">The start value.</param>
+        /// <param name="b">The end value.</param>
+        /// <param name="ammount">The interpolation value between the two floats.</param>
+        #region public static float Lerp(float a, float b, float ammount)
+        public static float Lerp(float a, float b, float ammount)
+        {
+            return (a * (1.0f - ammount)) + (b * ammount);
+        }
+        #endregion
     }
 }

@@ -2,11 +2,22 @@ using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.IO;
 using ExitGames.Client.Photon;
+using System.IO;
 
 namespace SocialPoint.Network
 {
-    class PhotonNetworkServer : PhotonNetworkBase, INetworkServer
+    public class PhotonNetworkServer : PhotonNetworkBase, INetworkServer
     {
+        public PhotonNetworkClient LocalPhotonClient;
+
+        public bool HasLocalPhotonClient
+        {
+            get
+            {
+                return LocalPhotonClient != null;
+            }
+        }
+        
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         INetworkMessageReceiver _receiver;
 
@@ -57,6 +68,14 @@ namespace SocialPoint.Network
             }
         }
 
+        public byte ClientId
+        {
+            get
+            {
+                return GetClientId(PhotonNetwork.player);
+            }
+        }
+
         public string Id
         {
             get
@@ -94,13 +113,14 @@ namespace SocialPoint.Network
             {
                 return false;
             }
-            var props = new Hashtable{
-                { ServerIdRoomProperty, PhotonNetwork.player.ID }};
+            var props = new Hashtable {
+                { ServerIdRoomProperty, PhotonNetwork.player.ID }
+            };
             PhotonNetwork.room.SetCustomProperties(props);
             return true;
         }
 
-        void OnPhotonPlayerConnected(PhotonPlayer player)
+        public void OnPhotonPlayerConnected(PhotonPlayer player)
         {
             var clientId = GetClientId(player);
             for(var i = 0; i < _delegates.Count; i++)
@@ -163,6 +183,48 @@ namespace SocialPoint.Network
             {
                 _receiver.OnMessageReceived(data, reader);
             }
+        }
+
+        public override void SendNetworkMessage(NetworkMessageData info, byte[] data)
+        {
+            var cdata = HttpEncoding.Encode(data, HttpEncoding.DefaultBodyCompression);
+
+            var options = new RaiseEventOptions();
+
+            var reliable = PhotonNetwork.PhotonServerSettings.Protocol == ConnectionProtocol.Tcp && !info.Unreliable;
+            if(info.ClientId != 0)
+            {
+                var player = GetPlayer(info.ClientId);
+                if(player == null)
+                {
+                    return;
+                }
+
+                options.TargetActors = new int[]{ player.ID };
+                PhotonNetwork.RaiseEvent(info.MessageType, cdata, reliable, options);
+            }
+            else
+            {
+                options.Receivers = HasLocalPhotonClient ? ReceiverGroup.All : ReceiverGroup.Others;
+                PhotonNetwork.RaiseEvent(info.MessageType, cdata, reliable, options);
+            }
+
+            Config.CustomPhotonConfig.RegisterOnGoingCommand();
+        }
+
+        protected override void ProcessOnEventReceived(byte eventcode, object content, int senderid)
+        {
+            var cdata = HttpEncoding.Decode((byte[])content, HttpEncoding.DefaultBodyCompression);
+            
+            byte clientId = GetClientId(GetPlayer((byte)senderid));
+            var info = new NetworkMessageData {
+                MessageType = eventcode,
+                ClientId = clientId
+            };
+            var stream = new MemoryStream(cdata);
+            var reader = new SystemBinaryReader(stream);
+
+            OnMessageReceived(info, reader);
         }
     }
 }

@@ -77,6 +77,20 @@ namespace SocialPoint.Social
 
             return component;
         }
+
+        public void SerializeElement(SocialPlayer player, AttrDic dic)
+        {
+            var component = player.GetComponent<AlliancePlayerBasic>();
+
+            if(component == null)
+                return;
+
+            AttrDic allDic = dic.Get("alliance").AsDic;
+            allDic.SetValue(AlliancePlayerIdKey, component.Id);
+            allDic.SetValue(AlliancePlayerNameKey, component.Name);
+            allDic.SetValue(AlliancePlayerAvatarKey, component.Avatar);
+            allDic.SetValue(AlliancePlayerRoleKey, component.Rank);
+        }
     }
 
     /// <summary>
@@ -96,6 +110,12 @@ namespace SocialPoint.Social
         {
             _alliancesRequests = new Queue<string>();
             MaxRequests = 20;
+        }
+
+        public List<string> GetRequests()
+        {
+            List<string> requests = new List<string>(_alliancesRequests);
+            return requests;
         }
 
         public bool HasRequest(string id)
@@ -176,6 +196,26 @@ namespace SocialPoint.Social
                 }
             }
             return component;
+        }
+
+        public void SerializeElement(SocialPlayer player, AttrDic dic)
+        {
+            var component = player.GetComponent<AlliancePlayerPrivate>();
+
+            if(component == null)
+                return;
+
+            AttrDic allDic = dic.Get("alliance").AsDic;
+            allDic.SetValue(AlliancePlayerTotalMembersKey, component.TotalMembers);
+            allDic.SetValue(AlliancePlayerJoinTimestampKey, component.JoinTimestamp);
+
+            var requests = component.GetRequests();
+            AttrList reqList = new AttrList();
+            for(int i = 0; i < requests.Count;i++)
+            {
+                reqList.Add(new AttrString(requests[i]));
+            }
+            allDic.Set(AlliancePlayerRequestsKey, reqList);
         }
     }
 }

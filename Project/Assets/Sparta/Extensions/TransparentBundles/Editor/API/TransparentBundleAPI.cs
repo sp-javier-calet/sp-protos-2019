@@ -30,7 +30,10 @@ namespace SocialPoint.TransparentBundles
 
         const string _loginUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/login/";
         const string _requestUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/asset_request/";
+        const string _removeUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/remove_asset_request/";
         const string _localBundleUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/local_asset/";
+        const string _removeLocalBundleUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/remove_local_asset/";
+        const string _cancelUrl = "https://transparentbundles.socialpoint.es/transparent_bundles/cancel_request/";
 
         const string _queryLogin = "user_email";
         const string _queryProject = "project";
@@ -168,10 +171,7 @@ namespace SocialPoint.TransparentBundles
         /// <param name="arguments">Arguments needed for this type of request</param>
         public static void RemoveBundle(RemoveBundlesArgs arguments)
         {
-            var queryDict = new Dictionary<string, List<string>>();
-            queryDict.Add(_queryGuids, arguments.AssetGUIDs);
-            var url = HttpAsyncRequest.AppendQueryParams(_requestUrl, queryDict);
-            GenericRequest(arguments, url, "DELETE", string.Empty, x => HandleActionResponse(x, arguments, RemoveBundle));
+            GenericRequest(arguments, _removeUrl, "POST", JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, RemoveBundle));
         }
 
         /// <summary>
@@ -189,11 +189,16 @@ namespace SocialPoint.TransparentBundles
         /// <param name="arguments">Arguments needed for this type of request</param>
         public static void RemoveLocalBundle(RemoveLocalBundlesArgs arguments)
         {
-            var queryDict = new Dictionary<string, List<string>>();
-            queryDict.Add(_queryGuids, arguments.AssetGUIDs);
-            var url = HttpAsyncRequest.AppendQueryParams(_localBundleUrl, queryDict);
-            url = HttpAsyncRequest.AppendQueryParams(url, GetBaseQueryArgs());
-            GenericRequest(arguments, url, "DELETE", string.Empty, x => HandleActionResponse(x, arguments, RemoveLocalBundle));
+            GenericRequest(arguments, _removeLocalBundleUrl, "POST", JsonMapper.ToJson(arguments.AssetGUIDs), x => HandleActionResponse(x, arguments, RemoveLocalBundle));
+        }
+
+        /// <summary>
+        /// Sends a cancel order for a request.
+        /// </summary>
+        /// <param name="arguments">Arguments needed for this type of request</param>
+        public static void CancelRequest(CancelRequestArgs arguments)
+        {
+            GenericRequest(arguments, _cancelUrl, "POST", JsonMapper.ToJson(arguments.requestIDs), x => HandleActionResponse(x, arguments, CancelRequest));
         }
 
 
@@ -203,7 +208,8 @@ namespace SocialPoint.TransparentBundles
             var options = new LoginOptions();
 
             options.AutoRetryLogin = arguments.AutoRetryLogin;
-            options.LoginOk = report => {
+            options.LoginOk = report =>
+            {
                 var request = (HttpWebRequest)HttpWebRequest.Create(HttpAsyncRequest.AppendQueryParams(url, GetBaseQueryArgs()));
                 request.Method = method;
                 request.ContentType = "application/json";
@@ -212,7 +218,8 @@ namespace SocialPoint.TransparentBundles
                 ActionRequest(arguments, requestData);
             };
 
-            options.LoginFailed = report => {
+            options.LoginFailed = report =>
+            {
                 arguments.SetRequestReport(report);
                 arguments.OnFailedCallback(report);
             };

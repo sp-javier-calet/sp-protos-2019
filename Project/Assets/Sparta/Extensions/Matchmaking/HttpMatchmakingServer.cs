@@ -13,23 +13,23 @@ namespace SocialPoint.Matchmaking
         IAttrParser _parser;
         List<IMatchmakingServerDelegate> _delegates;
 
-        public string BaseUrl;
+        Func<string> _getBaseUrl;
 
         public bool Enabled
         {
             get
             {
-                return !string.IsNullOrEmpty(BaseUrl);
+                return  _getBaseUrl != null && !string.IsNullOrEmpty(_getBaseUrl());
             }
         }
 
         public string Version { get; set; }
 
-        public HttpMatchmakingServer(IHttpClient httpClient, string baseUrl=null)
+        public HttpMatchmakingServer(IHttpClient httpClient, Func<string> getBaseUrlCallback)
         {
             _delegates = new List<IMatchmakingServerDelegate>();
             _httpClient = httpClient;
-            BaseUrl = baseUrl;
+            _getBaseUrl = getBaseUrlCallback;
             _parser = new JsonAttrParser();
         }
 
@@ -55,11 +55,11 @@ namespace SocialPoint.Matchmaking
         {
             var req = CreateRequest(InfoUri);
             req.AddQueryParam(MatchIdParam, matchId);
-            for (var i=0; i<playerIds.Count; i++)
+            for(var i = 0; i < playerIds.Count; i++)
             {
-                req.AddQueryParam(string.Format(PlayerIdParam, i+1), playerIds[i]);
+                req.AddQueryParam(string.Format(PlayerIdParam, i + 1), playerIds[i]);
             }
-            if (!string.IsNullOrEmpty(Version))
+            if(!string.IsNullOrEmpty(Version))
             {
                 req.AddQueryParam(VersionParam, Version);
             }
@@ -82,7 +82,7 @@ namespace SocialPoint.Matchmaking
 
         void OnError(Error err)
         {
-            for(var i=0; i< _delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnError(err);
             }
@@ -129,11 +129,16 @@ namespace SocialPoint.Matchmaking
 
         HttpRequest CreateRequest(string uri)
         {
-            if(string.IsNullOrEmpty(BaseUrl))
+            string baseUrl = string.Empty;
+            if(_getBaseUrl != null)
+            {
+                baseUrl = _getBaseUrl();
+            }
+            if(string.IsNullOrEmpty(baseUrl))
             {
                 throw new InvalidOperationException("Base url not configured.");
             }
-            return new HttpRequest(BaseUrl + uri);
+            return new HttpRequest(baseUrl + uri);
         }
 
     }

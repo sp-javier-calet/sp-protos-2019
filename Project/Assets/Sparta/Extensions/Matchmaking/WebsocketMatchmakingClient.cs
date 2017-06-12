@@ -30,6 +30,7 @@ namespace SocialPoint.Matchmaking
 
         const string UserParameter = "user_id";
         const string RoomParameter = "room";
+        const string ExtraDataParameter = "extra_data";
 
         const string ErrorAttrKey = "error";
         const string StatusAttrKey = "status";
@@ -69,10 +70,10 @@ namespace SocialPoint.Matchmaking
             _delegates.Remove(dlg);
         }
 
-        public void Start()
+        public void Start(AttrDic extraData)
         {
             _status = Status.Connecting;
-            UpdateUrlParameters();
+            UpdateUrlParameters(extraData);
             _websocket.Connect();
         }
 
@@ -86,7 +87,7 @@ namespace SocialPoint.Matchmaking
         {
         }
 
-        void UpdateUrlParameters()
+        void UpdateUrlParameters(AttrDic extraData)
         {
             var urls = _websocket.Urls;
             for(var i = 0; i < urls.Length; ++i)
@@ -101,6 +102,10 @@ namespace SocialPoint.Matchmaking
                 if(!string.IsNullOrEmpty(Room))
                 {
                     req.AddQueryParam(RoomParameter, Room);
+                }
+                if(extraData != null && extraData.Count > 0)
+                {
+                    req.AddQueryParam(ExtraDataParameter, extraData);
                 }
                 urls[i] = req.Url.ToString();
             }

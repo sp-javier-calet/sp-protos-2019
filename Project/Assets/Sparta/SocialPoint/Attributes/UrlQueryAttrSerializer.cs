@@ -14,7 +14,7 @@ namespace SocialPoint.Attributes
 
         string Convert(Attr data, string prefix)
         {
-            var str = StringUtils.StartBuilder();
+            var str = new StringBuilder();
             bool first;
             data = data ?? new AttrEmpty();
             switch(data.AttrType)
@@ -73,7 +73,8 @@ namespace SocialPoint.Attributes
                 itrList.Dispose();
                 break;
             }
-            return StringUtils.FinishBuilder(str);
+
+            return str.ToString();
         }
 
         public byte[] Serialize(Attr attr)

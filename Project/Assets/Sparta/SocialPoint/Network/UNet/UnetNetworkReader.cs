@@ -1,5 +1,6 @@
 ﻿using UnityEngine.Networking;
 using SocialPoint.IO;
+using System;
 
 namespace SocialPoint.Network
 {
@@ -10,6 +11,16 @@ namespace SocialPoint.Network
         public UnetNetworkReader(NetworkReader reader)
         {
             _reader = reader;
+        }
+
+        public bool Finished
+        {
+            get
+            {
+                throw new NotSupportedException();
+                // TODO: NetworkReader.Length was added in 5.5
+                // return _reader.Position >= _reader.Length;
+            }
         }
 
         public bool ReadBoolean()
@@ -70,6 +81,11 @@ namespace SocialPoint.Network
         public ulong ReadUInt64()
         {
             return _reader.ReadUInt64();
+        }
+
+        public float ReadShortFloat()
+        {
+            return ShortEncoding.Decode(_reader.ReadInt16());
         }
     }
 }

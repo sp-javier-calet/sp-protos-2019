@@ -31,8 +31,10 @@ namespace SocialPoint.Matchmaking
 
         public void OnMatched(Match match)
         {
+            /*
             _network.Config.RoomName = match.Id;
-            _network.Config.CreateRoom = !match.Running;
+            //_network.Config.CreateRoom = !match.Running; // Running is always true!!
+            _network.Config.CreateRoom = true;
             var server = match.ServerInfo.AsDic;
             if(server.ContainsKey(RegionAttrKey))
             {
@@ -53,6 +55,10 @@ namespace SocialPoint.Matchmaking
             {
                 _network.Config.ForceAppId = server.GetValue(AppIdAttrKey).ToString();
             }
+            */
+
+            _network.Config.RoomName = match.Id;
+            _network.Config.CreateRoom = true;
         }
 
         public void OnError(Error err)

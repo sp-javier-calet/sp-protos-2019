@@ -15,6 +15,7 @@ namespace SocialPoint.Social
         public interface IFactory
         {
             SocialPlayer.IComponent CreateElement(AttrDic dic);
+            void SerializeElement(SocialPlayer player, AttrDic dic);
         }
 
         sealed class BasicDataFactory : IFactory
@@ -27,6 +28,19 @@ namespace SocialPoint.Social
                 component.Level = dic.GetValue(MemberLevelKey).ToInt();
                 component.Score = dic.GetValue(MemberScoreKey).ToInt();
                 return component;
+            }
+
+            public void SerializeElement(SocialPlayer player, AttrDic dic)
+            {
+                var basicDataComponent = player.GetComponent<SocialPlayer.BasicData>();
+
+                if(basicDataComponent == null)
+                    return;
+
+                dic.SetValue(MemberUidKey, basicDataComponent.Uid);
+                dic.SetValue(MemberNameKey, basicDataComponent.Name);
+                dic.SetValue(MemberLevelKey, basicDataComponent.Level);
+                dic.SetValue(MemberScoreKey, basicDataComponent.Score);
             }
         }
 
@@ -55,6 +69,18 @@ namespace SocialPoint.Social
                     player.AddComponent(component);
                 }
             }
+        }
+
+        public AttrDic SerializeSocialPlayer(SocialPlayer player)
+        {
+            AttrDic dic = new AttrDic();
+            dic.Set("alliance",new AttrDic());
+            for(var i = 0; i < _factories.Count; i++)
+            {
+                _factories[i].SerializeElement(player, dic);
+            }
+
+            return dic;
         }
 
         public void AddFactory(IFactory factory)

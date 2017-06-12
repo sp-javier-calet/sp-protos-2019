@@ -19,14 +19,17 @@ namespace Jitter.Collision
     /// </summary>
     class IslandManager : ReadOnlyCollection<CollisionIsland>
     {
-
-        public static ResourcePool<CollisionIsland> Pool = new ResourcePool<CollisionIsland>();
+        /// <summary>
+        /// Unique instance per world.
+        /// </summary>
+        private ResourcePool<CollisionIsland> pool = null;
 
         private List<CollisionIsland> islands;
 
-        public IslandManager()
+        public IslandManager(ResourcePool<CollisionIsland> pool)
             : base(new List<CollisionIsland>())
         {
+            this.pool = pool;
             this.islands = this.Items as List<CollisionIsland>;
         }
 
@@ -103,7 +106,7 @@ namespace Jitter.Collision
                 if(body.island.bodies.Count == 0)
                 {
                     body.island.ClearLists();
-                    Pool.GiveBack(body.island);
+                    pool.GiveBack(body.island);
                 }
             }
 
@@ -145,7 +148,7 @@ namespace Jitter.Collision
                     "Removed all connections of a body - body is still in a non single Island.");
 
                 body.island.ClearLists();
-                Pool.GiveBack(body.island);
+                pool.GiveBack(body.island);
 
                 islands.Remove(body.island);
 
@@ -180,7 +183,7 @@ namespace Jitter.Collision
             {
                 if(body2 == null || body2.island != null)
                     return;
-                CollisionIsland @new = IslandManager.Pool.GetNew();
+                CollisionIsland @new = pool.GetNew();
                 @new.islandManager = this;
                 body2.island = @new;
                 body2.island.bodies.Add(body2);
@@ -190,7 +193,7 @@ namespace Jitter.Collision
             {
                 if(body1 == null || body1.island != null)
                     return;
-                CollisionIsland @new = IslandManager.Pool.GetNew();
+                CollisionIsland @new = pool.GetNew();
                 @new.islandManager = this;
                 body1.island = @new;
                 body1.island.bodies.Add(body1);
@@ -298,7 +301,7 @@ namespace Jitter.Collision
                 }
             }
 
-            CollisionIsland island = Pool.GetNew();
+            CollisionIsland island = pool.GetNew();
             island.islandManager = this;
 
             islands.Add(island);
@@ -401,7 +404,7 @@ namespace Jitter.Collision
 
                     CollisionIsland giveBackIsland = smallIslandOwner.island;
 
-                    Pool.GiveBack(giveBackIsland);
+                    pool.GiveBack(giveBackIsland);
                     islands.Remove(giveBackIsland);
 
                     foreach(RigidBody b in giveBackIsland.bodies)
@@ -426,7 +429,7 @@ namespace Jitter.Collision
             }
             else if(body0.island == null) // <- both are null
             {
-                CollisionIsland island = Pool.GetNew();
+                CollisionIsland island = pool.GetNew();
                 island.islandManager = this;
 
                 body0.island = body1.island = island;

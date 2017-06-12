@@ -73,6 +73,7 @@ namespace SocialPoint.Social
             else
             {
                 layout.CreateOpenPanelButton("Create Alliance", _createPanel);
+
             }
         }
 
@@ -137,8 +138,12 @@ namespace SocialPoint.Social
 
             public AdminPanelAllianceCreate(AlliancesManager alliances, AdminPanelConsole console) : base(alliances, console)
             {
-                _data = new Alliance();
                 _content = new StringBuilder();
+            }
+
+            public override void OnOpened()
+            {
+                ClearData();
             }
 
             public override void OnCreateGUI(AdminPanelLayout layout)
@@ -252,7 +257,7 @@ namespace SocialPoint.Social
 
             void ClearData()
             {
-                _data = new Alliance();
+                _data = _alliances.Factory.CreateAlliance(string.Empty,_alliances.Ranks.DefaultRank, Attributes.Attr.InvalidDic);
             }
 
             void StringValueInput(AdminPanelLayout layout, string label, string current, Action<string> onChanged)

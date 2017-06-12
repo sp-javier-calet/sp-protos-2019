@@ -59,27 +59,11 @@ namespace Jitter
         /// </summary>
         public int ThreadCount { private set { this.threadCount = value; } get { return threadCount; } }
 
-        static ThreadManager instance = null;
-
-        public static ThreadManager Instance
-        { 
-            get
-            {
-                if(instance == null)
-                {
-                    instance = new ThreadManager();
-                    instance.Initialize();
-                }
-
-                return instance;
-            }
-        }
-
-        private ThreadManager()
+        public ThreadManager()
         {
         }
 
-        private void Initialize()
+        public void Initialize()
         {
 
 
@@ -99,7 +83,7 @@ namespace Jitter
 
             AutoResetEvent initWaitHandle = new AutoResetEvent(false);
 
-            for(int i = 1; i < threads.Length; i++)
+            for (int i = 0; i < threads.Length; i++)
             {
                 threads[i] = new Thread(() => {
 #if XBOX
@@ -113,9 +97,6 @@ namespace Jitter
                 threads[i].Start();
                 initWaitHandle.WaitOne();
             }
-
-
-
         }
 
         /// <summary>
@@ -130,7 +111,7 @@ namespace Jitter
             currentWaitHandle.Set();
             PumpTasks();
 
-            while(waitingThreadCount < threads.Length - 1)
+            while(waitingThreadCount < threads.Length)
                 Thread.Sleep(0);
 
             currentWaitHandle.Reset();
@@ -160,7 +141,7 @@ namespace Jitter
                 Interlocked.Increment(ref waitingThreadCount);
                 waitHandleA.WaitOne();
                 PumpTasks();
-
+                
                 Interlocked.Increment(ref waitingThreadCount);
                 waitHandleB.WaitOne();
                 PumpTasks();
@@ -182,7 +163,5 @@ namespace Jitter
                 }
             }
         }
-
     }
-
 }

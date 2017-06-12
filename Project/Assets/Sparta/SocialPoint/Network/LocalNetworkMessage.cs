@@ -4,13 +4,19 @@ using System.IO;
 
 namespace SocialPoint.Network
 {
-    public sealed class LocalNetworkMessage : INetworkMessage
+    public interface ILocalNetworkMessage : INetworkMessage
+    {
+        IReader Receive();
+        NetworkMessageData Data { get; }
+    }
+
+    public sealed class LocalNetworkMessage : ILocalNetworkMessage
     {
         public IWriter Writer{ get; private set; }
 
         public NetworkMessageData Data{ get; private set; }
 
-        LocalNetworkServer _server;
+        ILocalNetworkServer _server;
         LocalNetworkClient[] _clients;
         LocalNetworkClient _origin;
         MemoryStream _stream;
@@ -21,7 +27,7 @@ namespace SocialPoint.Network
             Init(data);
         }
 
-        public LocalNetworkMessage(NetworkMessageData data, LocalNetworkClient origin, LocalNetworkServer server)
+        public LocalNetworkMessage(NetworkMessageData data, LocalNetworkClient origin, ILocalNetworkServer server)
         {
             _origin = origin;
             _server = server;

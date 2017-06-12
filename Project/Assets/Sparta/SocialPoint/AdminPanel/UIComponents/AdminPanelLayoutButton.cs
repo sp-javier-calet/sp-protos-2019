@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections;
+using SocialPoint.AssetBundlesClient;
 
 namespace SocialPoint.AdminPanel
 {
@@ -38,21 +39,22 @@ namespace SocialPoint.AdminPanel
 
     public partial class AdminPanelLayout
     {
+        public delegate void Callback (AssetBundleLoadAssetOperation request);
         /*
          * Generic Button
          */
 
-        public Button CreateButton(string label, Action onClick, bool enabled = true)
+        public Button CreateButton(string label, Action onClick, bool enabled = true, bool bestFit = false)
         {
-            return CreateButton(label, ButtonColor.Default, onClick, enabled);
+            return CreateButton(label, ButtonColor.Default, onClick, enabled, null, bestFit);
         }
 
-        public Button CreateButtonWithIcon(string label, Action onClick, string imagePath, bool enabled = true)
+        public Button CreateButtonWithIcon(string label, Action onClick, string imagePath, bool bestFit, bool enabled = true)
         {
-            return CreateButton(label, ButtonColor.Default, onClick, enabled, imagePath);
+            return CreateButton(label, ButtonColor.Default, onClick, enabled, imagePath, bestFit);
         }
 
-        public Button CreateButton(string label, ButtonColor buttonColor, Action onClick, bool enabled = true, string imagePath = null)
+        public Button CreateButton(string label, ButtonColor buttonColor, Action onClick, bool enabled = true, string imagePath = null, bool bestFit = false)
         {
             var rectTransform = CreateUIObject("Admin Panel - Button", Parent);
           
@@ -61,21 +63,41 @@ namespace SocialPoint.AdminPanel
             layoutElement.flexibleWidth = 1;
 
             var image = rectTransform.gameObject.AddComponent<Image>();
-            SetImageIcon(image, enabled, buttonColor, imagePath);
-            
+            image.color = enabled ? buttonColor.Color : ButtonColor.Disabled.Color;
             var button = rectTransform.gameObject.AddComponent<Button>();
-            button.targetGraphic = image;
-            var colors = button.colors;
-            colors.highlightedColor = button.colors.pressedColor;
-            button.colors = colors;
-
+            CreateButtonLabel(label, rectTransform, FontStyle.Normal, enabled, bestFit, (imagePath == null) ? 1 : 0.75f);
             if(enabled && onClick != null)
             {
                 button.onClick.AddListener(() => onClick());
             }
-            
-            CreateButtonLabel(label, rectTransform, FontStyle.Normal, enabled);
 
+            Callback cb = (AssetBundleLoadAssetOperation request) => {
+                Texture prefab = null;
+                if(request != null)
+                {
+                    prefab = request.GetAsset<Texture>();
+                    if(prefab != null)
+                    {
+                        var iconImage = new GameObject("Admin Panel - Icon Button");
+                        iconImage.transform.parent = image.transform;
+                        iconImage.transform.localPosition = new Vector3(25, 0, 0);
+                        RawImage uitexture = iconImage.AddComponent<RawImage>();
+                        uitexture.texture = prefab;
+                        uitexture.raycastTarget = false;
+                        Color col = uitexture.color;
+                        col.a = 0.7f;
+                        uitexture.color = col;
+                    }
+                }
+
+                button.targetGraphic = image;
+            };
+
+            if(imagePath != null)
+            {
+                GameManager.instance.AssetBundleManager.CoroutineRunner.StartCoroutine(SetImageIcon(imagePath, cb));
+            }
+            
             return button;
         }
 
@@ -84,19 +106,16 @@ namespace SocialPoint.AdminPanel
             image.texture = Resources.Load(path) as Texture;
         }
 
-        void SetImageIcon(Image image, bool enabled, ButtonColor buttonColor, string imagePath)
+        IEnumerator SetImageIcon(string imagePath, Callback callBack)
         {
-            image.color = enabled ? buttonColor.Color : ButtonColor.Disabled.Color;
-            if(imagePath != null)
-            {
-                var iconImage = new GameObject();
-                iconImage.transform.parent = image.transform;
-                iconImage.transform.localPosition = new Vector3(50, 0, 0);
-                RawImage uitexture = iconImage.AddComponent<RawImage>();
-                uitexture.texture = Resources.Load(imagePath) as Texture;
-            }
-        }
+            AssetBundleLoadAssetOperation request = null;
 
+            // Get the asset
+            yield return GameManager.instance.AssetBundleManager.LoadAssetAsyncRequest(imagePath+"_png", imagePath, typeof(Texture), req => request = req);
+
+            // do something with it
+            callBack(request);
+        }
 
         /*
          * Confirm Button
@@ -247,7 +266,6 @@ namespace SocialPoint.AdminPanel
         }
 
 
-
         /*
          * Toggle Button
          */
@@ -378,15 +396,24 @@ namespace SocialPoint.AdminPanel
          * Internal
          */
 
-        void CreateButtonLabel(string label, Transform buttonTransform, FontStyle style = FontStyle.Normal, bool enabled = true)
+        void CreateButtonLabel(string label, Transform buttonTransform, FontStyle style = FontStyle.Normal, bool enabled = true, bool bestFit = false, float xMaxAnchor = -1)
         {
             var rectTransform = CreateUIObject("Admin Panel - Button Label", buttonTransform);
-            
+
+            if(xMaxAnchor > 0)
+            {
+                Vector2 anchor = rectTransform.anchorMax;
+                anchor.x = xMaxAnchor;
+                rectTransform.anchorMax = anchor;
+            }
+
             var text = rectTransform.gameObject.AddComponent<Text>();
             text.text = label;
             text.font = DefaultFont;
             text.fontSize = DefaultFontSize;
             text.color = enabled ? Color.white : Color.gray;
+            text.resizeTextForBestFit = bestFit;
+            text.resizeTextMinSize = 10;
             text.alignment = TextAnchor.MiddleCenter;
             text.fontStyle = style;
             

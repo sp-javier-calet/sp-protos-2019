@@ -2,11 +2,22 @@ using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.IO;
+using System.IO;
 
 namespace SocialPoint.Network
 {
     public class PhotonNetworkClient : PhotonNetworkBase, INetworkClient
     {
+        public PhotonNetworkServer LocalPhotonServer;
+
+        public bool HasLocalPhotonServer
+        {
+            get
+            {
+                return LocalPhotonServer != null;
+            }
+        }
+
         public byte ClientId
         {
             get
@@ -58,14 +69,23 @@ namespace SocialPoint.Network
             return PhotonNetwork.ServerTimestamp - networkTimestamp;
         }
 
+        protected override void DoConnect()
+        {
+            if(HasLocalPhotonServer)
+            {
+                _state = ConnState.Connecting;
+
+                OnJoinedRoom();
+                LocalPhotonServer.OnPhotonPlayerConnected(PhotonNetwork.player);
+            }
+            else
+            {
+                base.DoConnect();
+            }
+        }
+
         protected override void OnConnected()
         {
-            if(!string.IsNullOrEmpty(BackendEnv))
-            {
-                var options = new RaiseEventOptions();
-                options.Receivers = ReceiverGroup.Others;
-                PhotonNetwork.RaiseEvent(PhotonMsgType.BackendEnv, BackendEnv, true, options);
-            }
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnClientConnected();
@@ -100,5 +120,37 @@ namespace SocialPoint.Network
             }
         }
 
+        public override void SendNetworkMessage(NetworkMessageData info, byte[] data)
+        {
+            var cdata = HttpEncoding.Encode(data, HttpEncoding.DefaultBodyCompression);
+            
+            var options = new RaiseEventOptions();
+            var serverId = PhotonNetworkServer.PhotonPlayerId;
+            options.TargetActors = new int[]{ serverId };
+
+            var reliable = PhotonNetwork.PhotonServerSettings.Protocol == ExitGames.Client.Photon.ConnectionProtocol.Tcp && !info.Unreliable;
+            PhotonNetwork.RaiseEvent(info.MessageType, cdata, reliable, options);
+            Config.CustomPhotonConfig.RegisterOnGoingCommand();
+        }
+
+        protected override void ProcessOnEventReceived(byte eventcode, object content, int senderid)
+        {
+            var cdata = HttpEncoding.Decode((byte[])content, HttpEncoding.DefaultBodyCompression);
+
+            byte clientId = 0;
+            var serverId = PhotonNetworkServer.PhotonPlayerId;
+            if(senderid != serverId)
+            {
+                clientId = GetClientId(GetPlayer((byte)senderid));
+            }
+            var info = new NetworkMessageData {
+                MessageType = eventcode,
+                ClientId = clientId
+            };
+            var stream = new MemoryStream(cdata);
+            var reader = new SystemBinaryReader(stream);
+
+            OnMessageReceived(info, reader);
+        }
     }
 }

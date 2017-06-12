@@ -20,8 +20,14 @@ namespace SocialPoint.TransparentBundles
         {
             Init();
             var assets = new List<Asset>(_controller.GetAssetsFromSelection());
-            _controller.CreateOrUpdateBundles(assets);
-            BundlesWindow.OpenWindow();
+            if(assets.Count > 0 && _controller.CreateOrUpdateBundles(assets))
+            {
+                BundlesWindow.OpenWindow();
+                if(BundlesWindow.Window.position.xMin == 0 && BundlesWindow.Window.position.yMin == 0)
+                {
+                    EditorUtility.DisplayDialog("Transparent Bundles", "The selected assets will be created or updated shortly.", "Close");
+                }
+            }
         }
 
         [MenuItem("Assets/Bundles/Remove Bundle")]
@@ -36,12 +42,19 @@ namespace SocialPoint.TransparentBundles
                     "The bundle removal operation can only be done with one asset at a time. If you want to delete multiple bundles open the Bundles Window (Social Point > Bundles)",
                     "Close");
             }
-            else if(EditorUtility.DisplayDialog("Removing Bundle",
+            else if(assets.Count > 0 && EditorUtility.DisplayDialog("Removing Bundle",
                         "You are about to remove the bundle of the asset '" + assets[0].Name +
                         "' from the server. Keep in mind that this operation cannot be undone. Are you sure?",
                         "Remove it", "Cancel"))
             {
-                _controller.RemoveBundle(assets[0]);
+                if(_controller.PerfomBundleOperation(new List<Asset>() { assets[0] }, BundleOperation.remove_asset_bundles))
+                {
+                    BundlesWindow.OpenWindow();
+                    if(BundlesWindow.Window.position.xMin == 0 && BundlesWindow.Window.position.yMin == 0)
+                    {
+                        EditorUtility.DisplayDialog("Transparent Bundles", "The selected assets will be removed shortly.", "Close");
+                    }
+                }
             }
         }
 
@@ -50,7 +63,14 @@ namespace SocialPoint.TransparentBundles
         {
             Init();
             var assets = new List<Asset>(_controller.GetAssetsFromSelection());
-            _controller.PerfomExistingBundleAction(assets, EditorClientController.BundleIntoBuildMode.MakeLocal);
+            if(assets.Count > 0 && _controller.PerfomBundleOperation(assets, BundleOperation.create_local_asset_bundles))
+            {
+                BundlesWindow.OpenWindow();
+                if(BundlesWindow.Window.position.xMin == 0 && BundlesWindow.Window.position.yMin == 0)
+                {
+                    EditorUtility.DisplayDialog("Transparent Bundles", "The selected assets will be placed into the build shortly.", "Close");
+                }
+            }
         }
 
         [MenuItem("Assets/Bundles/Remove Bundle from the Build")]
@@ -58,7 +78,14 @@ namespace SocialPoint.TransparentBundles
         {
             Init();
             var assets = new List<Asset>(_controller.GetAssetsFromSelection());
-            _controller.PerfomExistingBundleAction(assets, EditorClientController.BundleIntoBuildMode.RemoveLocalBundle);
+            if(assets.Count > 0 && _controller.PerfomBundleOperation(assets, BundleOperation.remove_local_asset_bundles))
+            {
+                BundlesWindow.OpenWindow();
+                if(BundlesWindow.Window.position.xMin == 0 && BundlesWindow.Window.position.yMin == 0)
+                {
+                    EditorUtility.DisplayDialog("Transparent Bundles", "The selected assets will be removed from the build shortly.", "Close");
+                }
+            }
         }
     }
 }

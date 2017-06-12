@@ -51,14 +51,14 @@ namespace Jitter.Collision
         }
     }
 
-    public static class LayerCollisionMatrix
+    public class LayerCollisionMatrix
     {
-        static int numLayers = 32;
-        static readonly int[] masks = new int[numLayers];
+        const int numLayers = 32;
+        readonly int[] masks = new int[numLayers];
 
         // http://www.vipan.com/htdocs/bitwisehelp.html
 
-        public static bool IsCollisionEnabled(int layerIdxA, int layerIdxB)
+        public bool IsCollisionEnabled(int layerIdxA, int layerIdxB)
         {
             if(layerIdxA == layerIdxB)
             {
@@ -69,7 +69,7 @@ namespace Jitter.Collision
             return enabled;
         }
 
-        public static bool IsMaskCollisionEnabled(int mask, int layerIdx)
+        public bool IsMaskCollisionEnabled(int mask, int layerIdx)
         {
             var flag = 1 << layerIdx;
 
@@ -77,7 +77,7 @@ namespace Jitter.Collision
             return enabled;
         }
 
-        public static void SetCollisionBetweenLayers(int layerIdxA, int layerIdxB, bool enable = true)
+        public void SetCollisionBetweenLayers(int layerIdxA, int layerIdxB, bool enable = true)
         {
             if(layerIdxA == layerIdxB)
             {
@@ -146,6 +146,9 @@ namespace Jitter.Collision
     /// CollisionSystem. Used by the world class to detect all collisions. 
     /// Can be used seperatly from the physics.
     /// </summary>
+    /// <remarks>
+    /// Limitation: we can only use one CollisionSystem instance per World.
+    /// </remarks>
     public abstract class CollisionSystem
     {
 
@@ -165,11 +168,6 @@ namespace Jitter.Collision
             /// The second body.
             /// </summary>
             public IBroadphaseEntity Entity2;
-
-            /// <summary>
-            /// A resource pool of Pairs.
-            /// </summary>
-            public static ResourcePool<BroadphasePair> Pool = new ResourcePool<BroadphasePair>();
         }
 
         #endregion
@@ -199,7 +197,14 @@ namespace Jitter.Collision
         /// </summary>
         public event CollisionDetectedHandler CollisionDetected;
 
-        protected ThreadManager threadManager = ThreadManager.Instance;
+        protected LayerCollisionMatrix layerCollisionMatrix = new LayerCollisionMatrix();
+
+        protected GJKCollide gjkCollide = new GJKCollide();
+
+        protected ThreadManager threadManager = new ThreadManager();
+        public ThreadManager ThreadManager { get { return threadManager; } }
+
+        protected ResourcePool<BroadphasePair> broadphasePairPool = new ResourcePool<BroadphasePair>();
 
         private bool speculativeContacts = false;
 
@@ -210,6 +215,7 @@ namespace Jitter.Collision
         /// </summary>
         public CollisionSystem()
         {
+            threadManager.Initialize();
         }
 
         internal bool useTerrainNormal = true;
@@ -338,7 +344,7 @@ namespace Jitter.Collision
                 {
                     JVector hit1, hit2;
 
-                    if(GJKCollide.ClosestPoints(body1.Shape, body2.Shape, ref body1.orientation, ref body2.orientation,
+                    if(gjkCollide.ClosestPoints(body1.Shape, body2.Shape, ref body1.orientation, ref body2.orientation,
                            ref body1.position, ref body2.position, out hit1, out hit2, out normal))
                     {
                         JVector delta = hit2 - hit1;
@@ -402,7 +408,7 @@ namespace Jitter.Collision
                         {
                             JVector hit1, hit2;
 
-                            if(GJKCollide.ClosestPoints(ms1, ms2, ref body1.orientation, ref body2.orientation,
+                            if(gjkCollide.ClosestPoints(ms1, ms2, ref body1.orientation, ref body2.orientation,
                                    ref body1.position, ref body2.position, out hit1, out hit2, out normal))
                             {
                                 JVector delta = hit2 - hit1;
@@ -485,7 +491,7 @@ namespace Jitter.Collision
                     {
                         JVector hit1, hit2;
 
-                        if(GJKCollide.ClosestPoints(ms, b2.Shape, ref b1.orientation, ref b2.orientation,
+                        if(gjkCollide.ClosestPoints(ms, b2.Shape, ref b1.orientation, ref b2.orientation,
                                ref b1.position, ref b2.position, out hit1, out hit2, out normal))
                         {
                             JVector delta = hit2 - hit1;
@@ -744,17 +750,17 @@ namespace Jitter.Collision
 
         public bool IsCollisionEnabled(int layerIdxA, int layerIdxB)
         {
-            return LayerCollisionMatrix.IsCollisionEnabled(layerIdxA, layerIdxB);
+            return layerCollisionMatrix.IsCollisionEnabled(layerIdxA, layerIdxB);
         }
 
         public bool IsMaskCollisionEnabled(int mask, int layerIdxB)
         {
-            return LayerCollisionMatrix.IsMaskCollisionEnabled(mask, layerIdxB);
+            return layerCollisionMatrix.IsMaskCollisionEnabled(mask, layerIdxB);
         }
 
         public void SetCollisionBetweenLayers(int layerIdxA, int layerIdxB, bool enable = true)
         {
-            LayerCollisionMatrix.SetCollisionBetweenLayers(layerIdxA, layerIdxB, enable);
+            layerCollisionMatrix.SetCollisionBetweenLayers(layerIdxA, layerIdxB, enable);
         }
     }
 }

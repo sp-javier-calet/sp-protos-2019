@@ -26,7 +26,7 @@ namespace SocialPoint.Dependency
             for(var i = 0; i < Installers.Length; ++i)
             {
                 var installer = Installers[i];
-                if(installer.IsGlobal)
+                if(installer != null && installer.IsGlobal)
                 {
                     Container.Install(installer);
                 }

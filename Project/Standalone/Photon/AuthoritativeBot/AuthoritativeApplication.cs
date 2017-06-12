@@ -2,6 +2,7 @@
 using Photon.Stardust.S2S.Server.ClientConnections;
 using System.Collections.Generic;
 using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
@@ -11,7 +12,8 @@ namespace SocialPoint.Multiplayer
         {
             var mpFactory = (INetworkClientGameFactory)factory;
             var sceneClient = new NetworkClientSceneController(conn.NetworkClient);
-            return mpFactory.Create(sceneClient, config);
+            var scheduler = new UpdateScheduler();
+            return mpFactory.Create((INetworkClient)sceneClient, scheduler, config);
         }
     }
 }

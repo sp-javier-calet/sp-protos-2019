@@ -48,6 +48,11 @@ namespace AssetBundleGraph
             Export(target, node, inputPoint, connectionToOutput, inputGroupAssets, Output, true);
         }
 
+        public void Skip(ConnectionData connectionToOutput, Dictionary<string, List<Asset>> inputGroupAssets, Action<ConnectionData, Dictionary<string, List<Asset>>, List<string>> Output)
+        {
+            Output(connectionToOutput, inputGroupAssets, null);
+        }
+
         private void Export(BuildTarget target,
             NodeData node,
             ConnectionPointData inputPoint,

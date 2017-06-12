@@ -1019,7 +1019,7 @@ namespace SocialPoint.Login
                 type = LinkConfirmType.LooseToLinked;
                 break;
             case LinkedToSameError:
-                    // duplicated link attempt, do nothing
+                // duplicated link attempt, do nothing
                 resp.StatusCode = (int)HttpResponse.StatusCodeType.Success;
                 break;
             }

@@ -120,6 +120,10 @@ namespace SocialPoint.Dependency
 
         public void Install(IInstaller installer)
         {
+            if(installer == null)
+            {
+                return;
+            }
             installer.Container = this;
             installer.InstallBindings();
             _installed.Add(installer);

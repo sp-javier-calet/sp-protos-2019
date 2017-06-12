@@ -1,50 +1,60 @@
 ﻿using SocialPoint.IO;
-using SocialPoint.Network;
-using System;
 
 namespace SocialPoint.Multiplayer
 {
     public static class SceneMsgType
     {
+        public const byte ConnectEvent = 0;
         public const byte UpdateSceneEvent = 1;
-        public const byte InstantiateObjectEvent = 2;
-        public const byte DestroyObjectEvent = 3;
+        public const byte UpdateSceneAckEvent = 2;
         public const byte Highest = 3;
     }
 
-    public class InstantiateNetworkGameObjectEvent : INetworkShareable
+    public struct ConnectEvent : INetworkShareable
     {
-        public int ObjectId;
-        public string PrefabName;
-        public Transform Transform;
+        public float Timestamp;
 
         public void Deserialize(IReader reader)
         {
-            ObjectId = reader.ReadInt32();
-            PrefabName = reader.ReadString();
-            Transform = TransformParser.Instance.Parse(reader);
+            Timestamp = reader.ReadSingle();
         }
 
         public void Serialize(IWriter writer)
         {
-            writer.Write(ObjectId);
-            writer.Write(PrefabName);
-            TransformSerializer.Instance.Serialize(Transform, writer);
+            writer.Write(Timestamp);
         }
     }
 
-    public class DestroyNetworkGameObjectEvent : INetworkShareable
+    public struct UpdateSceneEvent : INetworkShareable
     {
-        public int ObjectId;
+        public float Timestamp;
+        public int LastAction;
 
         public void Deserialize(IReader reader)
         {
-            ObjectId = reader.ReadInt32();
+            Timestamp = reader.ReadSingle();
+            LastAction = reader.ReadInt32();
         }
 
         public void Serialize(IWriter writer)
         {
-            writer.Write(ObjectId);
+            writer.Write(Timestamp);
+            writer.Write(LastAction);
+        }
+    }
+
+    public struct UpdateSceneAckEvent : INetworkShareable
+    {
+        public float Timestamp;
+
+        public void Deserialize(IReader reader)
+        {
+            Timestamp = reader.ReadSingle();
+        }
+
+        public void Serialize(IWriter writer)
+        {
+            writer.Write(Timestamp);
         }
     }
 }

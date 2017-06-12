@@ -30,7 +30,6 @@ namespace SocialPoint.Network
             Container.Rebind<UnetNetworkClient>().ToMethod<UnetNetworkClient>(CreateUnetClient, SetupClient);
             Container.Bind<IDisposable>().ToLookup<UnetNetworkClient>();
             Container.Rebind<INetworkClient>().ToLookup<UnetNetworkClient>();
-
         }
 
         UnetNetworkClient CreateUnetClient()

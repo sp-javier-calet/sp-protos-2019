@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using SocialPoint.Network;
 using Photon.Hive.Plugin;
+using SocialPoint.Matchmaking;
+using SocialPoint.Network;
 
 namespace SocialPoint.Multiplayer
 {
     public class AuthoritativePlugin : NetworkServerPlugin
     {
-        override protected int UpdateInterval
+		override protected int UpdateInterval
         {
             get
             {
@@ -32,15 +33,19 @@ namespace SocialPoint.Multiplayer
         }
 
         NetworkServerSceneController _netServer;
-        object _game;
-        int _maxPlayers = 4;
-        int _currentPlayers = 0;
-        int _lastUpdateTimestamp = 0;
-        int _updateInterval = 100;
+        HttpMatchmakingServer _matchmaking;
 
-        public AuthoritativePlugin() : base("Authoritative")
+        object _game;
+        int _maxPlayers = 6;
+        int _currentPlayers;
+        int _lastUpdateTimestamp;
+        int _updateInterval = 70;
+
+        public AuthoritativePlugin(string name="Authoritative") : base(name)
         {
             _netServer = new NetworkServerSceneController(this);
+            _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient(), () => { return BaseBackendUrl + "/matchmaking"; });
+            _lastUpdateTimestamp = ((INetworkServer)this).GetTimestamp();
         }
 
         const string MaxPlayersConfig = "MaxPlayers";
@@ -58,18 +63,16 @@ namespace SocialPoint.Multiplayer
 
             string gameAssembly;
             string gameType;
-            if(config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) &&
-                config.TryGetValue(GameTypeConfig, out gameType))
+            if (config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) && config.TryGetValue(GameTypeConfig, out gameType))
             {
                 try
                 {
                     var factory = (INetworkServerGameFactory)CreateInstanceFromAssembly(gameAssembly, gameType);
-                    _game = factory.Create(_netServer, config);
+                    _game = factory.Create(_netServer, this, _fileManager, _matchmaking, config);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     errorMsg = e.Message;
-                    return false;
                 }
             }
 
@@ -101,6 +104,5 @@ namespace SocialPoint.Multiplayer
             _lastUpdateTimestamp = currentTimestamp;
             return deltaTime;
         }
-
     }
 }

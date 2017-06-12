@@ -81,9 +81,22 @@ namespace SocialPoint.IO
             return _reader.PeekChar() == -1;
         }
 
+        public float ReadShortFloat()
+        {
+            return ShortEncoding.Decode(_reader.ReadInt16());
+        }
+
         public void Dispose()
         {
             _reader.Close();
+        }
+
+        public bool Finished
+        {
+            get
+            {
+                return _reader.BaseStream.Position >= _reader.BaseStream.Length;
+            }
         }
     }
 }

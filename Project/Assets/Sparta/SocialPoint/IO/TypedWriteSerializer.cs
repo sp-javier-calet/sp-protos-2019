@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
+using System.Diagnostics;
 
 namespace SocialPoint.IO
 {
@@ -55,28 +56,51 @@ namespace SocialPoint.IO
             }
         }
 
-        public bool TrySerialize(T obj, IWriter writer)
+        public bool TrySerialize(T obj, IWriter writer, bool writeCode = true)
         {
-            bool found = false;
-            var itr = _serializers.GetEnumerator();
-            while(itr.MoveNext())
+            byte code;
+            if(FindCode(obj, out code))
             {
-                var s = itr.Current.Value;
-                if(s.Serialize(obj, writer))
+                ITypeSerializer serializer;
+                if(_serializers.TryGetValue(code, out serializer))
                 {
-                    found = true;
-                    break;
+                    if(writeCode)
+                    {
+                        writer.Write(code);
+                    }
+                    serializer.Serialize(obj, writer);
+                    return true;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Found code but No valid serializer found");
                 }
             }
-            itr.Dispose();
-            return found;
+            else
+            {
+                throw new InvalidOperationException("No valid serializer found");
+            }
+            return false;
+        }
+
+        public bool TrySerializeRaw(T obj, IWriter writer)
+        {
+            return TrySerialize(obj, writer, false);
+        }
+
+        public void SerializeRaw(T obj, IWriter writer)
+        {
+            if(!TrySerializeRaw(obj, writer))
+            {
+                throw new InvalidOperationException("No valid serializer found");
+            }
         }
 
         public void Serialize(T obj, IWriter writer)
         {
             if(!TrySerialize(obj, writer))
             {
-                throw new InvalidOperationException("No valid serializer found");
+                throw new InvalidOperationException(string.Format("No valid serializer found {0}", obj));
             }
         }
 

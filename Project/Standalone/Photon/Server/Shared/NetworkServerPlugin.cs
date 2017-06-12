@@ -46,8 +46,8 @@ namespace SocialPoint.Network
         List<INetworkServerDelegate> _delegates;
         INetworkMessageReceiver _receiver;
         ILog _log;
+        protected IFileManager _fileManager;
         object _timer;
-        protected string BackendEnv { get; private set; }
 
         const byte FailEventCode = 199;
         const byte EventContentParam = 245;
@@ -55,12 +55,15 @@ namespace SocialPoint.Network
         const byte IsOpenKey = 253;
         const byte MasterClientIdKey = 248;
 
+        const string BackendBaseUrlConfigKey = "BackendBaseUrl";
+        const string ClientCanChangeBackendBaseUrlConfigKey = "ClientCanChangeBackendBaseUrl";
+
+        const string BackendEnvKey = "be_env";
         const string ServerIdRoomProperty = "server";
-        const byte BackendEnvMessageType = 198;
-        const byte DifferentBackendEnvErrorCode = 252;
 
         const string LoggerNameConfig = "LoggerName";
         const string PluginNameConfig = "PluginName";
+        const string AssetsPathConfig = "AssetsPath";
 
         const string FullErrorMsg = "Game is full.";
         const string ServerPresentErrorMsg = "This room already has a server.";
@@ -69,7 +72,10 @@ namespace SocialPoint.Network
         abstract protected bool Full { get; }
         abstract protected int UpdateInterval { get; }
 
-        public NetworkServerPlugin(string pluginName)
+        public string BaseBackendUrl { get; private set; }
+        bool _clientCanChangeBackendBaseUrl;
+
+        protected NetworkServerPlugin(string pluginName)
         {
             _pluginName = pluginName;
             UseStrictMode = true;
@@ -87,6 +93,7 @@ namespace SocialPoint.Network
                 return false;
             }
             string configStr;
+            string assetsPath;
             if(config.TryGetValue(PluginNameConfig, out configStr))
             {
                 _pluginName = configStr;
@@ -95,6 +102,19 @@ namespace SocialPoint.Network
             {
                 _log = LogManager.GetLogger(configStr);
             }
+            if(config.TryGetValue(AssetsPathConfig, out configStr))
+            {
+                assetsPath = configStr;
+            }
+            else
+            {
+                assetsPath = Path.GetDirectoryName(GetType().Assembly.Location);
+            }
+            _fileManager = new FileManagerWrapper(new StandaloneFileManager(),
+                Path.Combine(assetsPath, "{0}.bytes"), true);
+
+            SetupBackendUrl(config);
+
             return true;
         }
 
@@ -188,6 +208,8 @@ namespace SocialPoint.Network
                 return;
             }
 
+            CheckAndOverwriteBackendEnv(info);
+
             PluginHost.SetProperties(0, new Hashtable {
                 { (int)MaxPlayersKey,MaxPlayers },
                 { (int)MasterClientIdKey, 0 },
@@ -210,11 +232,19 @@ namespace SocialPoint.Network
 
         protected virtual void OnClientConnected(byte clientId)
         {
-            for(var i = 0; i < _delegates.Count; i++)
+            try
             {
-                _delegates[i].OnClientConnected(clientId);
+                for(var i = 0; i < _delegates.Count; i++)
+                {
+                    _delegates[i].OnClientConnected(clientId);
+                }
+                OnClientChanged();
             }
-            OnClientChanged();
+            catch(Exception e)
+            {
+                HandleException(e);
+                LogError("OnClientConnected", e);
+            }
         }
 
         public override void BeforeJoin(IBeforeJoinGameCallInfo info)
@@ -236,11 +266,19 @@ namespace SocialPoint.Network
 
         protected virtual void OnClientDisconnected(byte clientId)
         {
-            for(var i = 0; i < _delegates.Count; i++)
+            try
             {
-                _delegates[i].OnClientDisconnected(clientId);
+                for(var i = 0; i < _delegates.Count; i++)
+                {
+                    _delegates[i].OnClientDisconnected(clientId);
+                }
+                OnClientChanged();
             }
-            OnClientChanged();
+            catch(Exception e)
+            {
+                HandleException(e);
+                LogError("OnClientDisconnected", e);
+            }
         }
 
         protected virtual void OnClientChanged()
@@ -265,28 +303,18 @@ namespace SocialPoint.Network
         public override void OnRaiseEvent(IRaiseEventCallInfo info)
         {
             info.Continue();
-            if (info.Request.EvCode == BackendEnvMessageType)
-            {
-                var backendEnv = info.Request.Data as String;
-
-                if (BackendEnv != null && BackendEnv != backendEnv)
-                {
-                    var exp = (INetworkServer)this;
-                    exp.Fail(new Error(DifferentBackendEnvErrorCode, "Trying to set different backend environments."));
-                }
-                BackendEnv = backendEnv;
-                return;
-            }
 
             if(_receiver == null)
             {
                 return;
             }
             try
-            {
+            {   
                 var data = info.Request.Data as byte[];
                 if(data != null)
                 {
+                    data = HttpEncoding.Decode(data, HttpEncoding.DefaultBodyCompression);
+
                     var stream = new MemoryStream(data);
                     var reader = new SystemBinaryReader(stream);
                     var netData = new NetworkMessageData
@@ -366,7 +394,7 @@ namespace SocialPoint.Network
             BroadcastError(new Error("server stopped"));
         }
 
-        void INetworkServer.Fail(Error err)
+        public void Fail(Error err)
         {
             BroadcastError(err);
         }
@@ -409,6 +437,29 @@ namespace SocialPoint.Network
             var path = Path.Combine(dir, assemblyName);
             var gameType = Assembly.LoadFile(path).GetType(typeName);
             return Activator.CreateInstance(gameType);
+        }
+
+        void SetupBackendUrl(Dictionary<string, string> config)
+        {
+            _clientCanChangeBackendBaseUrl = GetConfigOption(config, ClientCanChangeBackendBaseUrlConfigKey, 0) != 0;
+
+            string baseUrl;
+            if(config.TryGetValue(BackendBaseUrlConfigKey, out baseUrl))
+            {
+                BaseBackendUrl = baseUrl;
+            }
+        }
+
+        void CheckAndOverwriteBackendEnv(ICreateGameCallInfo info)
+        {
+            if(_clientCanChangeBackendBaseUrl && info.Request.GameProperties.ContainsKey(BackendEnvKey))
+            {
+                object url = info.Request.GameProperties[BackendEnvKey];
+                if(url is string)
+                {
+                    BaseBackendUrl = url as string;
+                }
+            }
         }
     }
 }

@@ -39,7 +39,9 @@ namespace SocialPoint.Network
 
         public void Send()
         {
-            var evData = _stream.GetBuffer();
+            var evData = _stream.ToArray();
+            evData = HttpEncoding.Encode(evData, HttpEncoding.DefaultBodyCompression);
+
             var data = new Dictionary<byte, object> { { EventDataKey, evData } };
             var parms = new SendParameters();
             parms.Unreliable = _unreliable;

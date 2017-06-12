@@ -91,6 +91,11 @@ namespace SocialPoint.IO
             _writer.Write(value);
         }
 
+        public void WriteShortFloat(float value)
+        {
+            _writer.Write(ShortEncoding.Encode(value));
+        }
+
         public void Flush()
         {
             _writer.Flush();

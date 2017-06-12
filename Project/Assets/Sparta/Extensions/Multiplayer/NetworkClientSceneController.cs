@@ -6,30 +6,48 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
-    public interface INetworkClientSceneBehaviour
-    {
-        void OnInstantiateObject(int id, Transform t);
 
-        void OnDestroyObject(int id);
-    }
-
-    public interface INetworkClientSceneReceiver : INetworkClientSceneBehaviour, INetworkMessageReceiver
-    {
-    }
-
-    public class NetworkClientSceneController : INetworkClientDelegate, INetworkMessageReceiver, IDisposable
+    public class NetworkClientSceneController : NetworkSceneController<NetworkGameObject<INetworkBehaviour>, INetworkBehaviour>, INetworkClientDelegate, INetworkMessageReceiver, IDeltaUpdateable, INetworkSceneController
     {
         INetworkClient _client;
-        NetworkScene _scene;
-        INetworkClientSceneReceiver _receiver;
-        List<INetworkClientSceneBehaviour> _sceneBehaviours;
+        NetworkScene<INetworkSceneBehaviour> _scene;
+        NetworkScene<INetworkSceneBehaviour> _clientScene;
+        INetworkMessageReceiver _receiver;
+        NetworkSceneParser<INetworkSceneBehaviour> _parser;
 
-        NetworkScene _clientScene;
-        int _lastAppliedAction;
         Dictionary<int, object> _pendingActions;
+        int _lastAppliedAction;
+        float _serverTimestamp;
+        List<NetworkGameObject> _pendingGameObjectAdded;
 
-        NetworkSceneActionHandler _actionHandler;
-        TypedWriteSerializer _actionSerializer;
+        public event Action ServerUpdated;
+
+        bool _stop = true;
+        bool _willDestroyScene = false;
+
+        public NetworkScene<INetworkSceneBehaviour> Scene
+        {
+            get
+            {
+                return _clientScene;
+            }
+        }
+
+        public NetworkScene ServerScene
+        {
+            get
+            {
+                return _scene;
+            }
+        }
+
+        public float ServerTimestamp
+        {
+            get
+            {
+                return _serverTimestamp;
+            }
+        }
 
         public INetworkClient Client
         {
@@ -41,20 +59,52 @@ namespace SocialPoint.Multiplayer
 
         public NetworkClientSceneController(INetworkClient client)
         {
-            _sceneBehaviours = new List<INetworkClientSceneBehaviour>();
-            _pendingActions = new Dictionary<int, object>();
-            _actionHandler = new NetworkSceneActionHandler();
-            _actionSerializer = new TypedWriteSerializer();
-
             _client = client;
-            _client.AddDelegate(this);
-            _client.RegisterReceiver(this);
         }
 
-        public virtual void Dispose()
+        public override INetworkMessage CreateMessage(NetworkMessageData data)
         {
+            return _client.CreateMessage(data);
+        }
+
+        void CopyNetworkGameObject(NetworkGameObject serverGo, NetworkGameObject clientGo)
+        {   
+            var interpolate = clientGo.GetBehaviour<INetworkInterpolate>();
+            if(interpolate != null)
+            {
+                interpolate.OnServerTransform(serverGo.Transform, _serverTimestamp);
+            }
+            else
+            {
+                clientGo.Transform.Copy(serverGo.Transform);
+            }
+        }
+
+        public void Restart(INetworkClient client)
+        {
+            _client = client;
+            _stop = false;
+            _willDestroyScene = false;
+
+            UnregisterAllBehaviours();
+
+            _clientScene = new NetworkScene<INetworkSceneBehaviour>(Context);
+            _scene = (NetworkScene<INetworkSceneBehaviour>)_clientScene.Clone();
+            _parser = new NetworkSceneParser<INetworkSceneBehaviour>(Context);
+            _pendingActions = new Dictionary<int, object>();
+            _pendingGameObjectAdded = new List<NetworkGameObject>();
+
+            Init(_clientScene);
+
             _client.RemoveDelegate(this);
-            _client.RegisterReceiver(null);
+            _client.AddDelegate(this);
+            _client.RegisterReceiver(this);
+
+            _clientScene.OnObjectAdded -= OnObjectAddedToScene;
+            _clientScene.OnObjectAdded += OnObjectAddedToScene;
+
+            _clientScene.OnObjectRemoved -= OnObjectRemovedFromScene;
+            _clientScene.OnObjectRemoved += OnObjectRemovedFromScene;
         }
 
         public bool Equals(NetworkScene scene)
@@ -69,12 +119,15 @@ namespace SocialPoint.Multiplayer
 
         void INetworkClientDelegate.OnClientConnected()
         {
-            _scene = null;
+            _scene.Clear();
+            _clientScene.Clear();
+            _clientScene.UpdatePendingLogic();
+            _lastAppliedAction = 0;
+            _serverTimestamp = 0.0f;
         }
 
         void INetworkClientDelegate.OnClientDisconnected()
         {
-            _scene = null;
         }
 
         void INetworkClientDelegate.OnMessageReceived(NetworkMessageData data)
@@ -83,71 +136,128 @@ namespace SocialPoint.Multiplayer
 
         void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
         {
-            if(data.MessageType == SceneMsgType.UpdateSceneEvent)
+            if(_willDestroyScene)
             {
-                if(_scene == null)
-                {
-                    _scene = NetworkSceneParser.Instance.Parse(reader);
-                    _clientScene = new NetworkScene(_scene);
-                }
-                else
-                {
-                    _scene = NetworkSceneParser.Instance.Parse(_scene, reader);
-                    _clientScene = new NetworkScene(_scene);
-                    int lastServerAction = reader.ReadInt32();
-                    OnActionFromServer(lastServerAction);
-                }
+                return;
+            }
 
-                UpdateSceneView();
-            }
-            else if(data.MessageType == SceneMsgType.InstantiateObjectEvent)
+            if(data.MessageType == SceneMsgType.ConnectEvent)
             {
-                var ev = reader.Read<InstantiateNetworkGameObjectEvent>();
-                for(var i = 0; i < _sceneBehaviours.Count; i++)
-                {
-                    _sceneBehaviours[i].OnInstantiateObject(ev.ObjectId, ev.Transform);
-                }
-                InstantiateObjectView(ev);
+                var ev = reader.Read<ConnectEvent>();
+                _serverTimestamp = ev.Timestamp;
             }
-            else if(data.MessageType == SceneMsgType.DestroyObjectEvent)
+            else if(data.MessageType == SceneMsgType.UpdateSceneEvent)
             {
-                var ev = reader.Read<DestroyNetworkGameObjectEvent>();
-                for(var i = 0; i < _sceneBehaviours.Count; i++)
+                _scene = _parser.Parse(_scene, reader);
+
+                var ev = reader.Read<UpdateSceneEvent>();
+                _serverTimestamp = ev.Timestamp;
+
+                _clientScene.Copy(_scene, CopyNetworkGameObject);
+                UpdatePendingLogic();
+                OnActionFromServer(ev.LastAction);
+                ServerUpdateObjectBehaviours();
+
+                var actionsCount = reader.ReadInt32();
+                for(int i = 0; i < actionsCount; ++i)
                 {
-                    _sceneBehaviours[i].OnDestroyObject(ev.ObjectId);
+                    var messageType = reader.ReadByte();
+
+                    var messageInfo = new NetworkMessageData
+                    {
+                        MessageType = messageType,
+                        ClientId = data.ClientId
+                    };
+
+                    var handled = _actions.ApplyActionReceived(messageInfo, reader);
+                    if(!handled && _receiver != null)
+                    {
+                        _receiver.OnMessageReceived(messageInfo, reader);
+                    }
                 }
-                DestroyObjectView(ev);
             }
             else
             {
-                if(_receiver != null)
+                bool handled = _actions.ApplyActionReceived(data, reader);
+                if(!handled && _receiver != null)
                 {
                     _receiver.OnMessageReceived(data, reader);
                 }
             }
         }
 
-        void UpdateSceneView()
+        void OnObjectAddedToScene(NetworkGameObject go)
         {
-            var itr = _clientScene.GetObjectEnumerator();
+            if(!go.Local)
+            {
+                SetupObject(go as NetworkGameObject<INetworkBehaviour>);
+            }
+        }
+
+        void OnObjectRemovedFromScene(NetworkGameObject go)
+        {
+            go.OnDestroy();
+        }
+
+        public void Pause()
+        {
+            _stop = true;
+        }
+
+        public void DestroyScene()
+        {
+            _stop = true;
+            _willDestroyScene = true;
+
+            var itr = GetObjectEnumerator();
             while(itr.MoveNext())
             {
-                var go = itr.Current;
-                UpdateObjectView(go.Id, go.Transform);
+                Destroy(itr.Current.Id);
             }
             itr.Dispose();
         }
 
-        virtual protected void UpdateObjectView(int objectId, Transform t)
+        public void Resume()
         {
+            _stop = false;
         }
 
-        virtual protected void InstantiateObjectView(InstantiateNetworkGameObjectEvent ev)
+        public void Update(float dt)
         {
+            if(!_stop)
+            {
+                AddPendingGameObjects();
+                UpdatePendingLogic();
+                UpdateObjects(dt);
+                LateUpdateObjects(dt);
+                UpdatePendingLogic();
+                _clientScene.Update(dt);
+                UpdatePendingLogic();
+            }
         }
 
-        virtual protected void DestroyObjectView(DestroyNetworkGameObjectEvent ev)
+        void ServerUpdateObjectBehaviours()
         {
+            if(ServerUpdated != null)
+            {
+                ServerUpdated();
+            }
+        }
+
+        protected override void UpdatePendingLogic()
+        {
+            _clientScene.UpdatePendingLogic();
+            base.UpdatePendingLogic();
+        }
+
+        public void Destroy(int id)
+        {
+            SetupObjectToDestroy(id);
+            var go = _clientScene.FindObject(id);
+            if(go != null && (go.Local || _willDestroyScene))
+            {
+                _clientScene.RemoveObject(id);
+            }
         }
 
         virtual protected void OnError(SocialPoint.Base.Error err)
@@ -159,91 +269,69 @@ namespace SocialPoint.Multiplayer
             OnError(err);
         }
 
-        public void RegisterReceiver(INetworkClientSceneReceiver receiver)
+        public void RegisterReceiver(INetworkMessageReceiver receiver)
         {
-            if(receiver == null)
-            {
-                _sceneBehaviours.Remove(_receiver);
-            }
-            else
-            {
-                if(!_sceneBehaviours.Contains(receiver))
-                {
-                    _sceneBehaviours.Add(receiver);
-                }
-            }
             _receiver = receiver;
         }
 
-        public void AddBehaviour(INetworkClientSceneBehaviour behaviour)
+        public void RegisterSceneParser<T>(byte type, IDiffReadParser<T> parser) where T : INetworkSceneBehaviour, ICopyable
         {
-            _sceneBehaviours.Add(behaviour);
+            _parser.RegisterSceneBehaviour<T>(type, parser);
         }
 
-        public void RemoveBehaviour(INetworkClientSceneBehaviour behaviour)
+        public void RegisterObjectParser<T>(byte type, IDiffReadParser<T> parser) where T : INetworkBehaviour, ICopyable
         {
-            _sceneBehaviours.Remove(behaviour);
+            _parser.RegisterObjectBehaviour<T>(type, parser);
         }
-            
+
+        public NetworkGameObject InstantiateLocal(byte objType, Transform trans = null)
+        {
+            return Instantiate(objType, trans);
+        }
+
+        public NetworkGameObject Instantiate(byte objType, Transform trans = null)
+        {
+            var go = Context.Pool.Get<NetworkGameObject<INetworkBehaviour>>();
+            go.Init(Context, _clientScene.ProvideObjectId(), false, trans, objType, true);
+            SetupObject(go);
+            _pendingGameObjectAdded.Add(go);
+            return go;
+        }
+
+        protected void AddPendingGameObjects()
+        {
+            if(_pendingGameObjectAdded.Count == 0)
+            {
+                return;
+            }
+            var oldPendingGameObjectsAdded = new List<NetworkGameObject>(_pendingGameObjectAdded);
+            _pendingGameObjectAdded.Clear();
+
+            for(int i = 0; i < oldPendingGameObjectsAdded.Count; ++i)
+            {
+                var go = oldPendingGameObjectsAdded[i];
+                _clientScene.AddObject(go);
+            }
+        }
+
+        public void ApplyActionLocal(object action)
+        {
+            _actions.ApplyAction(action);
+        }
+
+        public void ApplyActionSync(object action)
+        {
+            ApplyActionLocal(action);
+        }
+
         public void ApplyAction(object action)
         {
             _lastAppliedAction++;
             _pendingActions.Add(_lastAppliedAction, action);
-            if(ApplyActionToScene(action))
-            {
-                UpdateSceneView();
-            }
-
-            byte msgType;
-            if(_actionSerializer.FindCode(action, out msgType))
-            {
-                var msg = _client.CreateMessage(new NetworkMessageData {
-                    MessageType = msgType
-                });
-                _actionSerializer.Serialize(action, msg.Writer);
-                msg.Send();
-            }
+            _actions.ApplyActionAndSend(action);
         }
 
-        bool ApplyActionToScene(object action)
-        {
-            return _actionHandler.HandleAction(_clientScene, action);
-        }
-
-        public void RegisterAction<T>(byte msgType, Action<NetworkScene, T> callback=null) where T : INetworkShareable
-        {
-            if(callback != null)
-            {
-                _actionHandler.Register(callback);
-            }
-            _actionSerializer.Register<T>(msgType);
-        }
-
-        public void RegisterAction<T>(byte msgType, Action<NetworkScene, T> callback, IWriteSerializer<T> serializer)
-        {
-            _actionHandler.Register(callback);
-            _actionSerializer.Register<T>(msgType, serializer);
-        }
-
-        public void RegisterAction<T>(byte msgType, IActionHandler<NetworkScene, T> handler) where T : INetworkShareable
-        {
-            _actionHandler.Register(handler);
-            _actionSerializer.Register<T>(msgType);
-        }
-
-        public void RegisterAction<T>(byte msgType, IActionHandler<NetworkScene, T> handler, IWriteSerializer<T> serializer)
-        {
-            _actionHandler.Register(handler);
-            _actionSerializer.Register<T>(msgType, serializer);
-        }
-
-        public void UnregisterAction<T>()
-        {
-            _actionSerializer.Unregister<T>();
-            _actionHandler.Unregister<T>();
-        }
-
-        public void OnActionFromServer(int lastServerAction)
+        void OnActionFromServer(int lastServerAction)
         {
             //Remove pending actions with id or lower
             RemoveOldPendingActions(lastServerAction);
@@ -273,7 +361,7 @@ namespace SocialPoint.Multiplayer
             var itr = _pendingActions.GetEnumerator();
             while(itr.MoveNext())
             {
-                ApplyActionToScene(itr.Current.Value);
+                _actions.ApplyAction(itr.Current.Value);
             }
             itr.Dispose();
         }

@@ -83,6 +83,11 @@ namespace SocialPoint.Dependency
                 {
                     continue;
                 }
+                Debug.LogError("Dependency Configurer Name: " + assembly.GetName().Name);
+                if(assembly.GetName().Name.Contains("BehaviorDesignerEditor"))
+                {
+                    continue;
+                }
 
                 foreach(var t in assembly.GetTypes())
                 {

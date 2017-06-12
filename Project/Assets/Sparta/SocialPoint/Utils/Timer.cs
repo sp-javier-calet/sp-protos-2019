@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System;
 
 namespace SocialPoint.Utils
 {
@@ -9,8 +8,23 @@ namespace SocialPoint.Utils
         float _endTime = 0f;
         bool _isCanceled = false;
         bool _ignoreTimeScale = false;
+        IGameTime _gameTime;
 
+        #if UNITY_5_3_OR_NEWER
         public Timer()
+        {
+            _gameTime = new UnityGameTime();
+            Reset();
+        }
+        #endif
+
+        public Timer(IGameTime gameTime)
+        {
+            _gameTime = gameTime;
+            Reset();
+        }
+
+        void Reset()
         {
             _startTime = 0f;
             _endTime = 0f;
@@ -18,7 +32,7 @@ namespace SocialPoint.Utils
 
         float GetCurrentTime()
         {
-            return _ignoreTimeScale ? Time.unscaledTime : Time.time;
+            return _ignoreTimeScale ? _gameTime.UnscaledTime : _gameTime.Time;
         }
 
         public void Wait(float waitTime)
@@ -69,7 +83,7 @@ namespace SocialPoint.Utils
         {
             get
             {
-                return Mathf.Max(GetCurrentTime() - _startTime, 0f);
+                return Math.Max(GetCurrentTime() - _startTime, 0f);
             }
         }
 
@@ -79,7 +93,7 @@ namespace SocialPoint.Utils
             {
                 float dt = Delta / (_endTime - _startTime);
 
-                return Mathf.Clamp(dt, 0f, 1f);
+                return Math.Min(Math.Max(dt, 0f), 1f);
             }
         }
 

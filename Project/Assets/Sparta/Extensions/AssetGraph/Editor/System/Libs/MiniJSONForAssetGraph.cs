@@ -30,6 +30,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace AssetBundleGraph
@@ -631,43 +632,62 @@ namespace AssetBundleGraph
 
         public static string Prettify(string sourceJson)
         {
-            var lines = sourceJson
-                .Replace("{", "{\n").Replace("}", "\n}")
-                .Replace("[", "[\n").Replace("]", "\n]")
-                .Replace(",", ",\n")
-                .Split('\n');
-
-            Func<string, int, string> indents = (string baseLine, int indentDepth) =>
-            {
-                var indentsStr = string.Empty;
-                for(var i = 0; i < indentDepth; i++) indentsStr += "\t";
-                return indentsStr + baseLine;
-            };
-
             var indent = 0;
-            for(var i = 0; i < lines.Length; i++)
+            var quoted = false;
+            var sb = new StringBuilder();
+            for(var i = 0; i < sourceJson.Length; i++)
             {
-                var line = lines[i];
-
-                // reduce indent for "}"
-                if(line.Contains("}") || line.Contains("]"))
+                var ch = sourceJson[i];
+                switch(ch)
                 {
-                    indent--;
-                }
-
-                /*
-					adopt indent.
-				*/
-                lines[i] = indents(lines[i], indent);
-
-                // indent continued all line after "{" 
-                if(line.Contains("{") || line.Contains("["))
-                {
-                    indent++;
-                    continue;
+                    case '{':
+                    case '[':
+                        sb.Append(ch);
+                        if(!quoted)
+                        {
+                            sb.AppendLine();
+                            indent++;
+                            for(int j = 0; j < indent; j++) sb.Append("\t");
+                        }
+                        break;
+                    case '}':
+                    case ']':
+                        if(!quoted)
+                        {
+                            sb.AppendLine();
+                            indent--;
+                            for(int j = 0; j < indent; j++) sb.Append("\t");
+                        }
+                        sb.Append(ch);
+                        break;
+                    case '"':
+                        sb.Append(ch);
+                        bool escaped = false;
+                        var index = i;
+                        while(index > 0 && sourceJson[--index] == '\\')
+                            escaped = !escaped;
+                        if(!escaped)
+                            quoted = !quoted;
+                        break;
+                    case ',':
+                        sb.Append(ch);
+                        if(!quoted)
+                        {
+                            sb.AppendLine();
+                            for(int j = 0; j < indent; j++) sb.Append("\t");
+                        }
+                        break;
+                    case ':':
+                        sb.Append(ch);
+                        if(!quoted)
+                            sb.Append(" ");
+                        break;
+                    default:
+                        sb.Append(ch);
+                        break;
                 }
             }
-            return string.Join("\n", lines);
+            return sb.ToString();
         }
     }
 }

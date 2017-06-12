@@ -166,7 +166,8 @@ namespace Jitter
         private int smallIterations = 4;
         private float timestep = 0.0f;
 
-        private Jitter.Collision.IslandManager islands = new IslandManager();
+        private ResourcePool<CollisionIsland> collisionIslandsPool = new ResourcePool<CollisionIsland>();
+        private Jitter.Collision.IslandManager islands = null;
 
         private HashSet<RigidBody> rigidBodies = new HashSet<RigidBody>();
         private HashSet<Constraint> constraints = new HashSet<Constraint>();
@@ -182,14 +183,15 @@ namespace Jitter
 
         public WorldEvents Events { get { return events; } }
 
-        private ThreadManager threadManager = ThreadManager.Instance;
+        private ThreadManager threadManager = null;
+
+        private ResourcePool<Arbiter> arbiterPool = new ResourcePool<Arbiter>();
 
         /// <summary>
         /// Holds a list of <see cref="Arbiter"/>. All currently
         /// active arbiter in the <see cref="World"/> are stored in this map.
         /// </summary>
         public ArbiterMap ArbiterMap { get { return arbiterMap; } }
-
         private ArbiterMap arbiterMap;
 
         private Queue<Arbiter> removedArbiterQueue = new Queue<Arbiter>();
@@ -198,7 +200,7 @@ namespace Jitter
         private JVector gravity = new JVector(0, -9.81f, 0);
 
         public ContactSettings ContactSettings { get { return contactSettings; } }
-
+        private ResourcePool<Contact> contactPool = new ResourcePool<Contact>();
         /// <summary>
         /// Gets a read only collection of the <see cref="Jitter.Collision.CollisionIsland"/> objects managed by
         /// this class.
@@ -221,6 +223,10 @@ namespace Jitter
         {
             if(collision == null)
                 throw new ArgumentNullException("The CollisionSystem can't be null.", "collision");
+
+            this.islands = new IslandManager(collisionIslandsPool);
+
+            this.threadManager = collision.ThreadManager;
 
             arbiterCallback = new Action<object>(ArbiterCallback);
             integrateCallback = new Action<object>(IntegrateCallback);
@@ -296,9 +302,9 @@ namespace Jitter
         /// </summary>
         public void ResetResourcePools()
         {
-            IslandManager.Pool.ResetResourcePool();
-            Arbiter.Pool.ResetResourcePool();
-            Contact.Pool.ResetResourcePool();
+            collisionIslandsPool.ResetResourcePool();
+            arbiterPool.ResetResourcePool();
+            contactPool.ResetResourcePool();
         }
 
         /// <summary>
@@ -753,7 +759,7 @@ namespace Jitter
 
                 if(c.penetration < -contactSettings.breakThreshold)
                 {
-                    Contact.Pool.GiveBack(c);
+                    contactPool.GiveBack(c);
                     arbiter.contactList.RemoveAt(i);
                     continue;
                 }
@@ -770,7 +776,7 @@ namespace Jitter
                     // following line.
                     if(distance > contactSettings.breakThreshold * contactSettings.breakThreshold * 100)
                     {
-                        Contact.Pool.GiveBack(c);
+                        contactPool.GiveBack(c);
                         arbiter.contactList.RemoveAt(i);
                         continue;
                     }
@@ -791,7 +797,7 @@ namespace Jitter
             while(removedArbiterStack.Count > 0)
             {
                 Arbiter arbiter = removedArbiterStack.Pop();
-                Arbiter.Pool.GiveBack(arbiter);
+                arbiterPool.GiveBack(arbiter);
                 arbiterMap.Remove(arbiter);
 
                 removedArbiterQueue.Enqueue(arbiter);
@@ -985,7 +991,8 @@ namespace Jitter
                 arbiterMap.LookUpArbiter(body1, body2, out arbiter);
                 if(arbiter == null)
                 {
-                    arbiter = Arbiter.Pool.GetNew();
+                    arbiter = arbiterPool.GetNew();
+                    arbiter.contactPool = contactPool;
                     arbiter.body1 = body1;
                     arbiter.body2 = body2;
                     arbiterMap.Add(new ArbiterKey(body1, body2), arbiter);

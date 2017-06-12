@@ -411,14 +411,14 @@ namespace SocialPoint.GUIControl
             OnAwake();
         }
 
-        void Start()
-        {
-            OnStart();
-        }
-
         public void ResetState()
         {
             _viewState = ViewState.Initial;
+        }
+
+        void Start()
+        {
+            OnStart();
         }
 
         void OnDestroy()

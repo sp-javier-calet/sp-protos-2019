@@ -103,7 +103,8 @@ public class CustomPhotonConfig
 
     public void SendOutgoingCommands()
     {
-        if(Enabled && _pendingOutgoingCommands)
+        //if (Enabled && _pendingOutgoingCommands)
+        if (_pendingOutgoingCommands)
         {
             _pendingOutgoingCommands = false;
             PhotonNetwork.SendOutgoingCommands();

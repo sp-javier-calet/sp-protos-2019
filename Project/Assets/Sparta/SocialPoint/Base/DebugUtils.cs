@@ -40,7 +40,7 @@ namespace SocialPoint.Base
         public static void Assert(bool condition, string msg = "")
         {
             #if UNITY
-                UnityEngine.Assertions.Assert.IsTrue(condition, msg);
+             //   UnityEngine.Assertions.Assert.IsTrue(condition, msg);
 
                 #if UNITY_EDITOR
                     try

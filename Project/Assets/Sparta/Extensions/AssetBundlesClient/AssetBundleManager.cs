@@ -101,6 +101,10 @@ namespace SocialPoint.AssetBundlesClient
             {
                 var item = bundlesAttrList[i].AssertDic;
                 var itemName = item.Get("name").AsValue.ToString();
+                if(string.IsNullOrEmpty(itemName))
+                {
+                    continue;
+                }
                 var itemVersion = item.Get("version").AsValue.ToInt();
 
                 var dependenciesList = item.Get("dependencies").AssertList;
@@ -408,6 +412,9 @@ namespace SocialPoint.AssetBundlesClient
 
         public IEnumerator LoadAssetAsyncRequest(string assetBundleName, string assetName, Type type, Action<AssetBundleLoadAssetOperation> onRequestChanged)
         {
+            #warning debug code to convert everything in lowercase
+            assetBundleName = assetBundleName.ToLower();
+            assetName = assetName.ToLower();
             yield return WaitForReady();
 
             // Load asset from assetBundle.
