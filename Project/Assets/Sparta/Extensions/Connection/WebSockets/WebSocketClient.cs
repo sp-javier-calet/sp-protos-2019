@@ -170,6 +170,16 @@ namespace SocialPoint.WebSockets
             _socket.Ping();
         }
 
+        public void OnWillGoBackground()
+        {
+            _socket.OnWillGoBackground();
+        }
+
+        public void OnWasOnBackground()
+        {
+            _socket.OnWasOnBackground();
+        }
+
         #endregion
 
         #region INetworkClient implementation
@@ -231,6 +241,39 @@ namespace SocialPoint.WebSockets
             get
             {
                 return _socket.IsConnected;
+            }
+        }
+
+        public bool Connecting
+        {
+            get
+            {
+                return _socket.IsConnecting;
+            }
+        }
+
+        public bool InStandby
+        {
+            get
+            {
+                return _socket.InStandby;
+            }
+        }
+
+        public bool LatencySupported
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public int Latency
+        {
+            get
+            {
+                DebugUtils.Assert(LatencySupported);
+                return -1;
             }
         }
 

@@ -3,6 +3,7 @@ using SocialPoint.Matchmaking;
 using System;
 using System.Collections.Generic;
 using Photon.Hive.Plugin;
+using SocialPoint.Network.ServerEvents;
 
 namespace SocialPoint.Lockstep
 {
@@ -39,20 +40,18 @@ namespace SocialPoint.Lockstep
         LockstepNetworkServer _netServer;
         HttpMatchmakingServer _matchmaking;
         object _game;
+        bool _isURLEditable;
 
         public LockstepPlugin() : base("Lockstep")
         {
-            _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient());
-            _netServer = new LockstepNetworkServer(this, _matchmaking);
-            _netServer.BeforeMatchStarts += OnBeforeMatchStarts;
+            System.Net.ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
         }
 
         void OnBeforeMatchStarts()
         {
-            var backendEnv = BackendEnv;
-            if(!string.IsNullOrEmpty(backendEnv))
+            if(_isURLEditable)
             {
-                _matchmaking.BaseUrl = string.Format(_matchmaking.BaseUrl, backendEnv);
+                _matchmaking.BaseUrl = BackendEnv;
             }
         }
 
@@ -62,8 +61,13 @@ namespace SocialPoint.Lockstep
         const string ClientStartDelayConfig = "ClientStartDelay";
         const string ClientSimulationDelayConfig = "ClientSimulationDelay";
         const string BackendBaseUrlConfig = "BackendBaseUrl";
+        const string BattleEndedWithoutConfirmationTimeoutConfig = "BattleEndedWithoutConfirmationTimeout";
+        const string FinishOnClientDisconnectionConfig = "FinishOnClientDisconnection";
+        const string AllowBattleStartWithOnePlayerReadyConfig = "AllowBattleStartWithOnePlayerReady";
+        const string IsURLEditableConfig = "IsURLEditable";
         const string GameAssemblyNameConfig = "GameAssemblyName";
         const string GameTypeConfig = "GameType";
+        const string MetricSendIntervalConfig = "MetricSendInterval";
 
         public override bool SetupInstance(IPluginHost host, Dictionary<string, string> config, out string errorMsg)
         {
@@ -71,6 +75,15 @@ namespace SocialPoint.Lockstep
             {
                 return false;
             }
+
+            _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient());
+            _netServer = new LockstepNetworkServer(NetworkServer, _matchmaking);
+            _netServer.BeforeMatchStarts += OnBeforeMatchStarts;
+
+            _netServer.SendMetric = PluginEventTracker.SendMetric;
+            _netServer.SendLog = PluginEventTracker.SendLog;
+            _netServer.SendTrack = PluginEventTracker.SendTrack;
+
             _matchmaking.Version = AppVersion;
             _netServer.Config.CommandStepDuration = GetConfigOption(config,
                 CommandStepDurationConfig, _netServer.Config.CommandStepDuration);
@@ -82,12 +95,28 @@ namespace SocialPoint.Lockstep
                 ClientStartDelayConfig, _netServer.ServerConfig.ClientStartDelay);
             _netServer.ServerConfig.ClientSimulationDelay = GetConfigOption(config,
                 ClientSimulationDelayConfig, _netServer.ServerConfig.ClientSimulationDelay);
+            _netServer.ServerConfig.BattleEndedWithoutConfirmationTimeout = GetConfigOption(config,
+                BattleEndedWithoutConfirmationTimeoutConfig, _netServer.ServerConfig.BattleEndedWithoutConfirmationTimeout);
+            _netServer.ServerConfig.FinishOnClientDisconnection = GetConfigOption(config, FinishOnClientDisconnectionConfig, _netServer.ServerConfig.FinishOnClientDisconnection);
+            _netServer.ServerConfig.MetricSendInterval = GetConfigOption(config,
+                MetricSendIntervalConfig, _netServer.ServerConfig.MetricSendInterval);
+            
+            _netServer.ServerLockstep.MetricSendInterval = _netServer.ServerConfig.MetricSendInterval;
 
             string baseUrl;
-            if(_matchmaking != null && config.TryGetValue(BackendBaseUrlConfig, out baseUrl))
+            config.TryGetValue(BackendBaseUrlConfig, out baseUrl);
+            if (_matchmaking != null && !string.IsNullOrEmpty(baseUrl))
             {
                 _matchmaking.BaseUrl = baseUrl;
             }
+            if(PluginEventTracker != null && baseUrl != string.Empty)
+            {
+                PluginEventTracker.BaseUrl = baseUrl;
+            }
+
+            _netServer.ServerConfig.AllowBattleStartWithOnePlayerReady = GetConfigOption(config,
+                AllowBattleStartWithOnePlayerReadyConfig, _netServer.ServerConfig.AllowBattleStartWithOnePlayerReady);
+            _isURLEditable = GetConfigOption(config, IsURLEditableConfig, _isURLEditable);
 
             string gameAssembly;
             string gameType;

@@ -36,6 +36,8 @@ namespace SocialPoint.Physics
         protected PhysicsWorld _physicsWorld;
         protected bool _isInWorld = false;
 
+        protected IPhysicsDebugger _debugger;
+
         public RigidBody RigidBody
         {
             get
@@ -72,7 +74,7 @@ namespace SocialPoint.Physics
 
         event CollisionHandler _collisionExitListeners;
 
-        public PhysicsRigidBody Init(IPhysicsShape shape, ControlType type, PhysicsWorld physicsWorld)
+        public PhysicsRigidBody Init(IPhysicsShape shape, ControlType type, PhysicsWorld physicsWorld, IPhysicsDebugger debugger = null)
         {
             if(shape == null)
             {
@@ -85,6 +87,7 @@ namespace SocialPoint.Physics
             _shape = shape;
             _controlType = type;
             _physicsWorld = physicsWorld;
+            _debugger = debugger;
             return this;
         }
 

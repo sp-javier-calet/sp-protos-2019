@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Base;
+using SocialPoint.AppEvents;
 using UnityEngine;
 
 namespace SocialPoint.GUIControl
@@ -18,6 +19,24 @@ namespace SocialPoint.GUIControl
         public UIViewAnimation ChildUpAnimation;
         public UIViewAnimation ChildDownAnimation;
         public UIViewAnimation ChildAnimation;
+
+        IAppEvents _appEvents;
+
+        public IAppEvents AppEvents
+        {
+            set
+            {
+                if(_appEvents != null)
+                {
+                    _appEvents.GameWillRestart.Remove(Restart);
+                }
+                _appEvents = value;
+                if(_appEvents != null)
+                {
+                    _appEvents.GameWillRestart.Add(0, Restart);
+                }
+            }
+        }
 
         public enum ActionType
         {
@@ -269,7 +288,7 @@ namespace SocialPoint.GUIControl
             DebugLog("EndTransition");
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPGUI")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("UIStackController | {0}", msg));
@@ -604,7 +623,7 @@ namespace SocialPoint.GUIControl
 
         private delegate bool PopCondition(UIViewController ctrl);
 
-        IEnumerator DoPopUntilCondition(PopCondition cond, ActionType act, bool checkTop = false)
+        IEnumerator DoPopUntilCondition(PopCondition cond, ActionType act)
         {
             UIViewController top = null;
             UIViewController ctrl = null;
@@ -719,5 +738,26 @@ namespace SocialPoint.GUIControl
         }
 
         #endregion
+
+        void Restart()
+        {
+            for(int i = _stack.Count - 1; i >= 0; i--)
+            {
+                var elm = _stack[i];
+                _stack.RemoveAt(i);
+                elm.HideImmediate(true);
+            }
+            _stack.Clear();
+
+            if(Background != null)
+            {
+                Background.SetActive(false);
+            }
+
+            if(Blocker != null)
+            {
+                Blocker.SetActive(false);
+            }
+        }
     }
 }

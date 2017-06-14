@@ -59,8 +59,8 @@ namespace SocialPoint.Matchmaking
         {
             return new StoredMatchmakingClient(
                 new WampMatchmakingClient(
-                    Container.Resolve<ILoginData>(),
-                    Container.Resolve<SocialPoint.Connection.ConnectionManager>()
+                    Container.Resolve<SocialPoint.Connection.ConnectionManager>(),
+					Container.Resolve<ILoginData>()
                 ), new AttrMatchStorage(
                 Container.Resolve<IAttrStorage>("volatile")
             )

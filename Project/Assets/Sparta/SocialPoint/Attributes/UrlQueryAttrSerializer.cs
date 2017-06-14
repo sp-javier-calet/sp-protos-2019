@@ -74,7 +74,9 @@ namespace SocialPoint.Attributes
                 break;
             }
 
-            return str.ToString();
+            var result = str.ToString();
+
+            return result;
         }
 
         public byte[] Serialize(Attr attr)

@@ -1,4 +1,4 @@
-﻿using SocialPoint.Utils;
+using SocialPoint.Utils;
 
 namespace SocialPoint.IO
 {

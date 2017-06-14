@@ -114,5 +114,13 @@ namespace SocialPoint.Network
         {
             return _netServer.GetTimestamp();
         }
+
+        public bool LatencySupported
+        {
+            get
+            {
+                return _netServer.LatencySupported;
+            }
+        }
     }
 }

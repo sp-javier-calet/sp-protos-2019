@@ -1,22 +1,20 @@
 ﻿using UnityEngine;
 using System;
-using System.Collections;
 
 
 public class AppsFlyerTrackerCallbacks : MonoBehaviour {
+
+    public Action<string> OnConversionDataReceived;
 	
 	// Use this for initialization
 	void Start () {
 		print ("AppsFlyerTrackerCallbacks on Start");
 		
 	}
-
-    public Action<string> OnConversionDataReceived;
 	
 	public void didReceiveConversionData(string conversionData) {
 		print ("AppsFlyerTrackerCallbacks:: got conversion data = " + conversionData);
-        var handler = OnConversionDataReceived;
-        if(handler != null)
+        if(OnConversionDataReceived != null)
         {
             OnConversionDataReceived(conversionData);
         }

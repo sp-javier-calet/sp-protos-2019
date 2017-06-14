@@ -25,6 +25,14 @@ namespace SocialPoint.Matchmaking
             _network.RemoveDelegate(this);
         }
 
+        public void OnStart()
+        {
+        }
+
+        public void OnSearchOpponent()
+        {
+        }
+
         public void OnWaiting(int waitTime)
         {
         }
@@ -59,6 +67,10 @@ namespace SocialPoint.Matchmaking
 
             _network.Config.RoomName = match.Id;
             _network.Config.CreateRoom = true;
+        }
+        
+        public void OnStopped(bool successful)
+        {
         }
 
         public void OnError(Error err)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SocialPoint.Utils;
 using SocialPoint.IO;
@@ -51,7 +51,7 @@ namespace SocialPoint.Multiplayer
 
         protected void UnregisterAllBehaviours()
         {
-            #warning we should destroy properly old behaviours
+            //#warning we should destroy properly old behaviours
             var behaviourEnum = _behaviourPrototypes.GetEnumerator();
             while(behaviourEnum.MoveNext() != false)
             {

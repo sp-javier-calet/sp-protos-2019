@@ -1,0 +1,29 @@
+﻿#if !BEHAVIOR_DESIGNER_STANDALONE && !BEHAVIOR_DESIGNER_EDITOR_STANDALONE
+using UnityEngine;
+
+namespace BehaviorDesigner.Runtime.Tasks.Basic.UnityInput
+{
+    [TaskCategory("Basic/Input")]
+    [TaskDescription("Stores the state of the specified button.")]
+    public class GetButton : Action
+    {
+        [Tooltip("The name of the button")]
+        public SharedString buttonName;
+        [RequiredField]
+        [Tooltip("The stored result")]
+        public SharedBool storeResult;
+
+        public override TaskStatus OnUpdate()
+        {
+            storeResult.Value = Input.GetButton(buttonName.Value);
+            return TaskStatus.Success;
+        }
+
+        public override void OnReset()
+        {
+            buttonName = "Fire1";
+            storeResult = false;
+        }
+    }
+}
+#endif

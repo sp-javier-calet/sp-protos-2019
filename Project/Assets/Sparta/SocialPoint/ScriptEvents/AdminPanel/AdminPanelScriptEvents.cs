@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if ADMIN_PANEL 
+
+using System;
 using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
 using UnityEngine.UI;
@@ -95,3 +97,5 @@ namespace SocialPoint.ScriptEvents
         }
     }
 }
+
+#endif

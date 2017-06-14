@@ -1,13 +1,10 @@
-﻿
-using SocialPoint.Dependency;
-using SocialPoint.Network;
-using SocialPoint.Matchmaking;
-using SocialPoint.WebSockets;
-using SocialPoint.Login;
-using SocialPoint.Utils;
+﻿using System;
 using SocialPoint.Attributes;
+using SocialPoint.Dependency;
 using SocialPoint.Lockstep;
-using System;
+using SocialPoint.Login;
+using SocialPoint.Matchmaking;
+using SocialPoint.Network;
 
 public class MatchmakingInstaller : Installer
 {
@@ -17,7 +14,7 @@ public class MatchmakingInstaller : Installer
         const string DefaultBaseUrl = "http://int-lod.socialpointgames.es";
         const string DefaultWebsocketUrl = "ws://int-lod.socialpointgames.com:8001/find_opponent";
         public string BaseUrl = DefaultBaseUrl;
-        public string[] WebsocketUrls = new string[] { DefaultWebsocketUrl };
+        public string[] WebsocketUrls = { DefaultWebsocketUrl };
     }
 
     public SettingsData Settings = new SettingsData();
@@ -67,11 +64,12 @@ public class MatchmakingInstaller : Installer
     {
         return new StoredMatchmakingClient(
             new WampMatchmakingClient(
-                Container.Resolve<ILoginData>(),
-                Container.Resolve<SocialPoint.Connection.ConnectionManager>()
-            ), new AttrMatchStorage(
-            Container.Resolve<IAttrStorage>("volatile")
-        )
+                Container.Resolve<SocialPoint.Connection.ConnectionManager>(),
+                Container.Resolve<ILoginData>()
+            ), 
+            new AttrMatchStorage(
+                Container.Resolve<IAttrStorage>("volatile")
+            )
         );
     }
 

@@ -75,12 +75,22 @@ namespace SocialPoint.Matchmaking
             _status = Status.Connecting;
             UpdateUrlParameters(extraData);
             _websocket.Connect();
+
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnStart();
+            }
         }
 
         public void Stop()
         {
             _status = Status.Finished;
             _websocket.Disconnect();
+
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnStopped(true);
+            }
         }
 
         public void Clear()

@@ -1,9 +1,12 @@
+#if ADMIN_PANEL
+
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using System.Collections;
 using SocialPoint.AssetBundlesClient;
+using SocialPoint.Dependency;
 
 namespace SocialPoint.AdminPanel
 {
@@ -95,7 +98,7 @@ namespace SocialPoint.AdminPanel
 
             if(imagePath != null)
             {
-                GameManager.instance.AssetBundleManager.CoroutineRunner.StartCoroutine(SetImageIcon(imagePath, cb));
+                Services.Instance.Resolve<AssetBundleManager>().CoroutineRunner.StartCoroutine(SetImageIcon(imagePath, cb));
             }
             
             return button;
@@ -111,7 +114,7 @@ namespace SocialPoint.AdminPanel
             AssetBundleLoadAssetOperation request = null;
 
             // Get the asset
-            yield return GameManager.instance.AssetBundleManager.LoadAssetAsyncRequest(imagePath+"_png", imagePath, typeof(Texture), req => request = req);
+            yield return Services.Instance.Resolve<AssetBundleManager>().LoadAssetAsyncRequest(imagePath+"_png", imagePath, typeof(Texture), req => request = req);
 
             // do something with it
             callBack(request);
@@ -441,3 +444,5 @@ namespace SocialPoint.AdminPanel
         }
     }
 }
+
+#endif

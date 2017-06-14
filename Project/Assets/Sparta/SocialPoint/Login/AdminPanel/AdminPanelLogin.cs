@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿#if ADMIN_PANEL 
+
+using System.Text;
 using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Base;
@@ -141,3 +143,5 @@ namespace SocialPoint.Login
         }
     }
 }
+
+#endif

@@ -1,4 +1,6 @@
-﻿using SocialPoint.AdminPanel;
+﻿#if ADMIN_PANEL 
+
+using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
@@ -51,6 +53,7 @@ namespace SocialPoint.Social
                         return;
                     }
                     ConsolePrint("Logging in to Google Play Games");
+
                     _google.Login(err => {
                         _toggleLogin.isOn = (err == null);
                         ConsolePrint("Login finished." + err);
@@ -300,3 +303,5 @@ namespace SocialPoint.Social
         #endregion
     }
 }
+
+#endif

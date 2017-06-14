@@ -1,0 +1,830 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using SocialPoint.IO;
+using SocialPoint.Network;
+<<<<<<< HEAD
+using SocialPoint.Utils;
+using System.Diagnostics;
+
+namespace SocialPoint.Multiplayer
+{
+    [Serializable]
+    public class SyncGroupSettings
+    {
+        public float SyncInterval;
+    }
+
+//    public struct NetworkServerSceneActionData
+    public class NetworkServerSceneActionData
+    {
+        public bool Synced = true;
+        public bool Unreliable;
+    }
+
+    public class ClientData
+    {
+        public int LastReceivedAction;
+        public float LastAckTimestamp;
+        public NetworkScene Scene;
+    }
+
+    public struct ActionInfo
+    {
+        public NetworkServerSceneActionData Data;
+        public object Action;
+        public float Time;
+    }
+
+    public class NetworkServerSceneController : NetworkSceneController<NetworkGameObject<INetworkBehaviour>, INetworkBehaviour>, INetworkServerDelegate, INetworkMessageReceiver, IDeltaUpdateable, INetworkSceneController
+    {
+        public static bool SerializeAlways = false;
+
+        INetworkServer _server;
+
+        NetworkScene<INetworkSceneBehaviour> _scene;
+        NetworkScene<INetworkSceneBehaviour> _prevScene;
+
+        List<NetworkScene<INetworkSceneBehaviour>> _oldScenes;
+        NetworkScene<INetworkSceneBehaviour> _emptyScene;
+        INetworkMessageReceiver _receiver;
+        NetworkSceneSerializer<INetworkSceneBehaviour> _serializer;
+
+        public const int DefaultBufferSize = 0;
+        public int BufferSize = DefaultBufferSize;
+        public List<SyncGroupSettings> SyncGroupsSettings = new List<SyncGroupSettings> {
+            new SyncGroupSettings { SyncInterval = 0.05f },
+        };
+
+        float _timestamp;
+        float _actionTimestampThreshold;
+
+        bool _paused = false;
+
+        Dictionary<byte, ClientData> _clientData;
+        List<ActionInfo> _pendingActions;
+
+        public NetworkServerSyncController SyncController = new NetworkServerSyncController();
+
+        public NetworkScene<INetworkSceneBehaviour> Scene
+=======
+using SocialPoint.Pooling;
+using SocialPoint.Utils;
+
+namespace SocialPoint.Multiplayer
+{
+    public struct NetworkServerSceneActionData
+    {
+        public bool Synced;
+        public bool Unreliable;
+    }
+
+    public class NetworkServerSceneController : NetworkSceneController<NetworkGameObject<INetworkBehaviour>, INetworkBehaviour>, INetworkServerDelegate, INetworkMessageReceiver, IDeltaUpdateable, INetworkSceneController
+    {
+        public static bool SerializeAlways = false;
+        public static bool IsEnableSceneDispose = false;
+        public static float GlobalSyncInterval = -1f;
+
+        struct ActionInfo
+        {
+            public NetworkServerSceneActionData Data;
+            public object Action;
+        }
+
+        class ClientData
+>>>>>>> origin/master
+        {
+            public int LastReceivedAction;
+            public float LastAckTimestamp;
+            public NetworkScene Scene;
+        }
+
+<<<<<<< HEAD
+        public bool Paused
+        {
+            get{ return _paused;} set { _paused = value;}
+=======
+        INetworkServer _server;
+        NetworkScene<INetworkSceneBehaviour> _scene;
+        NetworkScene<INetworkSceneBehaviour> _prevScene;
+        List<NetworkScene<INetworkSceneBehaviour>> _oldScenes;
+        NetworkScene<INetworkSceneBehaviour> _emptyScene;
+        INetworkMessageReceiver _receiver;
+        NetworkSceneSerializer<INetworkSceneBehaviour> _serializer;
+
+        public const float DefaultSyncInterval = 0.02f;
+        public const int DefaultBufferSize = 10;
+
+        public float SyncInterval = DefaultSyncInterval;
+        public int BufferSize = DefaultBufferSize;
+
+        float _timeSinceLastSync;
+        float _timestamp;
+        float _lastSentTimestamp;
+        float _actionTimestampThreshold;
+
+        Dictionary<byte, ClientData> _clientData;
+        List<ActionInfo> _pendingActions;
+
+        public NetworkScene<INetworkSceneBehaviour> Scene
+        {
+            get
+            {
+                return _scene;
+            }
+>>>>>>> origin/master
+        }
+
+        public IGameTime GameTime { get; private set; }
+
+        GameTime _gameTime;
+<<<<<<< HEAD
+=======
+        ActionUpdater _sceneDisposer;
+>>>>>>> origin/master
+
+        public NetworkServerSceneController(INetworkServer server, IGameTime gameTime = null)
+        {
+            _server = server;
+<<<<<<< HEAD
+            Paused = false;
+            GameTime = gameTime;
+            if(GameTime == null)
+            {
+                _gameTime = new GameTime();
+                GameTime = _gameTime;
+            }
+        }
+
+        void OnObjectRemoved(NetworkGameObject go)
+        {
+            go.OnDestroy();
+        }
+
+        public void Restart(INetworkServer server)
+        {
+            _server = server;
+            Paused = false;
+            UnregisterAllBehaviours();
+
+            _scene = new NetworkScene<INetworkSceneBehaviour>(Context);
+            _prevScene = (NetworkScene<INetworkSceneBehaviour>)_scene.DeepClone();
+
+            _oldScenes = new List<NetworkScene<INetworkSceneBehaviour>>();
+            _emptyScene = new NetworkScene<INetworkSceneBehaviour>(Context);
+
+            _clientData = new Dictionary<byte, ClientData>();
+            _pendingActions = new List<ActionInfo>();
+            _serializer = new NetworkSceneSerializer<INetworkSceneBehaviour>(Context);
+
+            _scene.OnObjectRemoved += OnObjectRemoved;
+
+            Init(_scene);
+
+            _scene.SetSyncGroupSettings(SyncGroupsSettings);
+            _prevScene.SetSyncGroupSettings(SyncGroupsSettings);
+
+            SyncController = new NetworkServerSyncController();
+            SyncController.Init(GameTime, _server, _clientData, _serializer, _scene, _prevScene, _actions, _pendingActions);
+
+            _server.RemoveDelegate(this);
+            _server.AddDelegate(this);
+            _server.RegisterReceiver(this);
+
+=======
+            _server.AddDelegate(this);
+            _server.RegisterReceiver(this);
+
+            GameTime = gameTime;
+            if(GameTime == null)
+            {
+                _gameTime = new GameTime();
+                GameTime = _gameTime;
+            }
+
+            _sceneDisposer = new ActionUpdater(DisposeScenes, 0.2f);
+        }
+
+        void OnObjectRemoved(NetworkGameObject go)
+        {
+            go.OnDestroy();
+        }
+
+        public void Restart(INetworkServer server)
+        {
+            _server = server;
+            UnregisterAllBehaviours();
+
+            _scene = new NetworkScene<INetworkSceneBehaviour>();
+            _prevScene = (NetworkScene<INetworkSceneBehaviour>)_scene.DeepClone();
+            _oldScenes = new List<NetworkScene<INetworkSceneBehaviour>>();
+            _emptyScene = new NetworkScene<INetworkSceneBehaviour>();
+
+            _clientData = new Dictionary<byte, ClientData>();
+            _pendingActions = new List<ActionInfo>();
+            _serializer = new NetworkSceneSerializer<INetworkSceneBehaviour>();
+
+            _scene.OnObjectRemoved += OnObjectRemoved;
+            Init(_scene);
+        }
+
+        public float LastUpdateTimestamp
+        {
+            get
+            {
+                return _timestamp - _timeSinceLastSync;
+            }
+>>>>>>> origin/master
+        }
+
+        public NetworkScene GetSceneForTimestamp(float ts)
+        {
+<<<<<<< HEAD
+            if(BufferSize > 0)
+            {
+                var i = (int)(((SyncController.LastUpdateTimestamp - ts) / SyncController.MaxSyncInterval) + 0.5f);
+                if(i >= 0 && i < _oldScenes.Count)
+                {
+                    return _oldScenes[i];
+                }
+                return null;
+            }
+            else
+            {
+                return _activeScene;
+            }
+        }
+
+        public void SetSyncInterval(int groupId, float syncInterval)
+        {
+            if(SyncGroupsSettings.Count > groupId)
+            {
+                SyncGroupsSettings[groupId].SyncInterval = syncInterval;
+
+                if(_scene != null)
+                {
+                    _scene.SyncGroups[groupId].Settings.SyncInterval = syncInterval;
+                }
+
+                if(_prevScene != null)
+                {
+                    _prevScene.SyncGroups[groupId].Settings.SyncInterval = syncInterval;
+                }
+            }
+        }
+
+        public override INetworkMessage CreateMessage(NetworkMessageData data)
+        {
+            return _server.CreateMessage(data);
+        }
+
+=======
+            var i = (int)(((LastUpdateTimestamp - ts) / SyncInterval) + 0.5f);
+            if(i >= 0 && i < _oldScenes.Count)
+            {
+                return _oldScenes[i];
+            }
+            return null;
+        }
+
+        public override INetworkMessage CreateMessage(NetworkMessageData data)
+        {
+            return _server.CreateMessage(data);
+        }
+
+>>>>>>> origin/master
+        public void RegisterReceiver(INetworkMessageReceiver receiver)
+        {
+            _receiver = receiver;
+        }
+
+        public void RegisterObjectSerializer<T>(byte type, IDiffWriteSerializer<T> serializer) where T : INetworkBehaviour, ICopyable
+        {
+            _serializer.RegisterObjectBehaviour<T>(type, serializer);
+        }
+
+        public void RegisterSceneSerializer<T>(byte type, IDiffWriteSerializer<T> serializer) where T : INetworkSceneBehaviour
+        {
+            _serializer.RegisterSceneBehaviour<T>(type, serializer);
+        }
+
+        void INetworkServerDelegate.OnServerStarted()
+        {
+            OnServerStarted();
+        }
+
+        virtual protected void OnServerStarted()
+        {
+            _timestamp = 0.0f;
+<<<<<<< HEAD
+
+            _scene.Clear();
+            _prevScene.Clear();
+
+            _oldScenes.Clear();
+            _clientData.Clear();
+
+            SyncController.Reset();
+=======
+            _timeSinceLastSync = 0.0f;
+            _lastSentTimestamp = -1.0f;
+            _scene.Clear();
+            _prevScene.Clear();
+            _oldScenes.Clear();
+            _clientData.Clear();
+>>>>>>> origin/master
+        }
+
+        protected override void OnObjectSyncGroupChanged(NetworkGameObject obj)
+        {
+            base.OnObjectSyncGroupChanged(obj);
+
+            var oldObject = _prevScene.FindObject(obj.Id);
+            if(oldObject != null)
+            {
+                oldObject.SyncGroup = obj.SyncGroup;
+                _prevScene.AddObjectInSyncGroup(oldObject);
+            }
+        }
+
+        void INetworkServerDelegate.OnServerStopped()
+        {
+<<<<<<< HEAD
+            OnServerStopped();
+=======
+            if(_server == null || Scene == null)
+            {
+                //TODO: CHECK: Receiving OnServerStopped on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
+                return;
+            }
+
+            var itr = GetObjectEnumerator();
+            while(itr.MoveNext())
+            {
+                Destroy(itr.Current.Id);
+            }
+            itr.Dispose();
+>>>>>>> origin/master
+        }
+
+        virtual protected void OnServerStopped()
+        {
+<<<<<<< HEAD
+            if(_server == null || Scene == null)
+=======
+            if(GlobalSyncInterval < -0.1f)
+            {
+                GlobalSyncInterval = SyncInterval;
+            }
+            else
+            {
+                SyncInterval = GlobalSyncInterval;
+            }
+            SyncInterval = Math.Max(SyncInterval, 0f);
+
+            //TODO: Remove this
+            SyncInterval = 0.02f;
+
+            if(!_server.Running)
+>>>>>>> origin/master
+            {
+                #warning CHECK: Receiving OnServerStopped on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
+                return;
+            }
+<<<<<<< HEAD
+
+            var itr = GetObjectEnumerator();
+            while(itr.MoveNext())
+            {
+                Destroy(itr.Current.Id);
+=======
+            if(_gameTime != null)
+            {
+                _gameTime.Update(dt);
+            }
+            _timestamp += dt;
+            _timeSinceLastSync += dt;
+            UpdateScene(dt);
+            if(_timeSinceLastSync >= SyncInterval || SerializeAlways)
+            {
+                SendScene();
+                _timeSinceLastSync = 0f;
+            }
+            else
+            {
+                _sceneDisposer.Update(dt);
+>>>>>>> origin/master
+            }
+            itr.Dispose();
+        }
+
+        public void Update(float dt)
+        {
+<<<<<<< HEAD
+            if(!_server.Running || Paused)
+            {
+                return;
+            }
+            if(_gameTime != null)
+            {
+                _gameTime.Update(dt);
+            }
+
+            _timestamp += dt;
+            UpdateScene(dt);
+
+            var synced = SyncController.Update(_timestamp, dt);
+
+            if(synced && BufferSize > 0)
+            {
+                _oldScenes.Insert(0, (NetworkScene<INetworkSceneBehaviour>)_scene.DeepClone());
+
+                var excess = _oldScenes.Count - BufferSize;
+                if(excess > 0)
+                {
+                    _oldScenes.RemoveRange(BufferSize, excess);
+                }
+            }
+        }
+
+        void UpdateScene(float dt)
+        {
+            //Add or remove logic changed before update
+            UpdatePendingLogic();
+            //Update behaviours
+            UpdateObjects(dt);
+            //LateUpdate behaviours
+            LateUpdateObjects(dt);
+            //Add or remove logic changed during behaviour update
+            UpdatePendingLogic();
+            //Update scene behaviours
+            _scene.Update(dt);
+            //Add or remove logic changed during scene behaviour update
+            UpdatePendingLogic();
+        }
+
+        public NetworkGameObject InstantiateLocal(byte objType, Transform trans = null)
+        {
+            return Instantiate(objType, trans, true);
+        }
+
+        public NetworkGameObject Instantiate(byte objType, Transform trans = null, bool local = false, int syncGroup = 0)
+        {
+            var go = Context.Pool.Get<NetworkGameObject<INetworkBehaviour>>();
+            go.Init(Context, _scene.FreeObjectId, true, trans, objType, local, syncGroup);
+            SetupObject(go);
+            _scene.AddObject(go);
+            return go;
+        }
+
+        public void Destroy(int id)
+        {
+            SetupObjectToDestroy(id);
+            _scene.RemoveObject(id);
+        }
+
+        protected override void UpdatePendingLogic()
+        {
+            _scene.UpdatePendingLogic();
+            base.UpdatePendingLogic();
+        }
+
+        public void ApplyActionLocal(object evnt)
+        {
+            _actions.ApplyAction(evnt);
+        }
+
+        public void ApplyActionSync(object evnt)
+        {
+            ApplyAction(new NetworkServerSceneActionData {
+                Synced = true,
+                Unreliable = false
+            }, evnt);
+=======
+            //Add or remove logic changed before update
+            UpdatePendingLogic();
+            //Update behaviours
+            UpdateObjects(dt);
+            //LateUpdate behaviours
+            LateUpdateObjects(dt);
+            //Add or remove logic changed during behaviour update
+            UpdatePendingLogic();
+            //Update scene behaviours
+            _scene.Update(dt);
+            //Add or remove logic changed during scene behaviour update
+            UpdatePendingLogic();
+        }
+
+        List<byte> keyList = new List<byte>();
+
+        void SendScene()
+        {
+            var timestamp = LastUpdateTimestamp;
+            if(timestamp <= _lastSentTimestamp)
+            {
+                return;
+            }
+            var memStream = new MemoryStream();
+            var binWriter = new SystemBinaryWriter(memStream);
+            _serializer.Serialize(_scene, _prevScene, binWriter);
+            var sceneBuffer = memStream.ToArray();
+            // to avoid out of sync exception with GetEnumerator we will "make a copy" of the keys and iterate over them
+            var itrKeys = _clientData.GetEnumerator();
+            keyList.Clear();
+            while(itrKeys.MoveNext())
+            {
+                keyList.Add(itrKeys.Current.Key);
+            }
+            itrKeys.Dispose();
+
+            var itr = keyList.GetEnumerator();
+            while(itr.MoveNext())
+            {
+                if(!_clientData.ContainsKey(itr.Current))
+                {
+                    continue;
+                }
+                var msg = _server.CreateMessage(new NetworkMessageData {
+                    ClientId = itr.Current,
+                    MessageType = SceneMsgType.UpdateSceneEvent
+                });
+                msg.Writer.Write(sceneBuffer, sceneBuffer.Length);
+                msg.Writer.Write(new UpdateSceneEvent {
+                    Timestamp = _timeSinceLastSync,
+                    LastAction = _clientData[itr.Current].LastReceivedAction,
+                });
+                msg.Send();
+            }
+            itr.Dispose();
+            _lastSentTimestamp = timestamp;
+
+            //update old scenes
+            if(IsEnableSceneDispose)
+            {
+                _prevScene.Dispose();
+            }
+            _prevScene.DeepCopy(_scene);
+                
+            if(BufferSize > 0)
+            {
+                _oldScenes.Insert(0, (NetworkScene<INetworkSceneBehaviour>)_scene.DeepClone());
+            }
+            //send pending actions
+            for(var i = _pendingActions.Count - 1; i >= 0; i--)
+            {
+                var info = _pendingActions[i];
+                if(info.Data.Synced)
+                {
+                    _actions.SendAction(info.Action, info.Data.Unreliable);
+                    _pendingActions.RemoveAt(i);
+                }
+            }
+        }
+
+        void DisposeScenes(float dt)
+        {
+            var excess = _oldScenes.Count - BufferSize;
+            if(excess <= 0)
+            {
+                return;
+            }
+            
+            for(int i = 0; i < excess; ++i)
+            {
+                var scene = _oldScenes[BufferSize + i];
+                scene.Dispose();
+            }
+
+            _oldScenes.RemoveRange(BufferSize, excess);
+        }
+
+        public NetworkGameObject InstantiateLocal(byte objType, Transform trans = null)
+        {
+            return Instantiate(objType, trans, true);
+        }
+
+        public NetworkGameObject Instantiate(byte objType, Transform trans = null, bool local = false)
+        {
+            var go = ObjectPool.Get<NetworkGameObject<INetworkBehaviour>>();
+            go.Init(_scene.FreeObjectId, true, trans, objType, local);
+            SetupObject(go);
+            _scene.AddObject(go);
+            return go;
+>>>>>>> origin/master
+        }
+
+        public void ApplyAction(object evnt)
+        {
+<<<<<<< HEAD
+=======
+            SetupObjectToDestroy(id);
+            _scene.RemoveObject(id);
+        }
+
+        protected override void UpdatePendingLogic()
+        {
+            _scene.UpdatePendingLogic();
+            base.UpdatePendingLogic();
+        }
+
+        public void ApplyActionLocal(object evnt)
+        {
+            _actions.ApplyAction(evnt);
+        }
+
+        public void ApplyActionSync(object evnt)
+        {
+>>>>>>> origin/master
+            ApplyAction(new NetworkServerSceneActionData {
+                Synced = true,
+                Unreliable = false
+            }, evnt);
+        }
+
+<<<<<<< HEAD
+=======
+        public void ApplyAction(object evnt)
+        {
+            ApplyAction(new NetworkServerSceneActionData {
+                Synced = false,
+                Unreliable = false
+            }, evnt);
+        }
+
+>>>>>>> origin/master
+        public void ApplyAction(NetworkServerSceneActionData data, object evnt)
+        {
+            if(data.Synced)
+            {
+                _actions.ApplyAction(evnt);
+                _pendingActions.Add(new ActionInfo {
+                    Data = data,
+<<<<<<< HEAD
+                    Action = evnt,
+                    Time = GameTime.Time
+=======
+                    Action = evnt
+>>>>>>> origin/master
+                });
+            }
+            else
+            {
+                _actions.ApplyActionAndSend(evnt, data.Unreliable);
+            }
+        }
+
+        public event Action<byte> ClientConnected;
+
+        public event Action<byte> ClientDisconnected;
+
+        void INetworkServerDelegate.OnClientConnected(byte clientId)
+        {
+            if(_server == null || Scene == null)
+            {
+<<<<<<< HEAD
+                #warning CHECK: Receiving OnClientConnected on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
+=======
+                //TODO: CHECK: Receiving OnClientConnected on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
+>>>>>>> origin/master
+                return;
+            }
+
+            _clientData.Add(clientId, new ClientData {
+                LastReceivedAction = 0,
+                LastAckTimestamp = 0f,
+            });
+            _server.SendMessage(new NetworkMessageData {
+                MessageType = SceneMsgType.ConnectEvent
+            }, new ConnectEvent {
+                Timestamp = _timestamp
+            });
+            //Send scene
+            var msg = _server.CreateMessage(new NetworkMessageData {
+                ClientId = clientId,
+                MessageType = SceneMsgType.UpdateSceneEvent
+            });
+<<<<<<< HEAD
+
+            _serializer.Serialize(_scene, _emptyScene, msg.Writer);
+
+            msg.Writer.Write(new UpdateSceneEvent {
+                Timestamp = SyncController.TimeSinceLastSync,
+            });
+
+            // Write Events
+            msg.Writer.Write(0);
+
+=======
+            _serializer.Serialize(_scene, _emptyScene, msg.Writer);
+            msg.Writer.Write(new UpdateSceneEvent {
+                Timestamp = _timeSinceLastSync,
+            });
+>>>>>>> origin/master
+            msg.Send();
+
+            //Run behaviours logic as last step
+            UpdatePendingLogic();
+            if(ClientConnected != null)
+            {
+                ClientConnected(clientId);
+            }
+        }
+
+        void INetworkServerDelegate.OnClientDisconnected(byte clientId)
+        {
+            if(_server == null || Scene == null)
+            {
+<<<<<<< HEAD
+                #warning CHECK: Receiving OnClientDisconnected on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
+=======
+                //TODO: CHECK: Receiving OnClientDisconnected on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
+>>>>>>> origin/master
+                return;
+            }
+
+            _clientData.Remove(clientId);
+            UpdatePendingLogic();
+            if(ClientDisconnected != null)
+            {
+                ClientDisconnected(clientId);
+            }
+        }
+
+        void INetworkServerDelegate.OnMessageReceived(NetworkMessageData data)
+        {
+        }
+
+        void INetworkServerDelegate.OnNetworkError(SocialPoint.Base.Error err)
+        {
+        }
+
+        void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
+        {
+            if(data.MessageType == SceneMsgType.UpdateSceneAckEvent)
+            {
+                var ev = reader.Read<UpdateSceneAckEvent>();
+                float lastAckTimestamp = ev.Timestamp;
+                ClientData clientData = null;
+                if(_clientData.TryGetValue(data.ClientId, out clientData))
+                {
+                    clientData.LastAckTimestamp = lastAckTimestamp;
+                    clientData.Scene = GetSceneForTimestamp(lastAckTimestamp);
+                }
+            }
+            else
+            {
+<<<<<<< HEAD
+                _actionTimestampThreshold = SyncController.MaxSyncInterval * BufferSize;
+=======
+                _actionTimestampThreshold = SyncInterval * BufferSize;
+>>>>>>> origin/master
+                ClientData clientData = null;
+                NetworkScene mementoScene = null;
+                float mementoDelta = 0f;
+                if(_clientData.TryGetValue(data.ClientId, out clientData))
+                {
+<<<<<<< HEAD
+                    mementoScene = _scene; //clientData.Scene;
+=======
+                    mementoScene = clientData.Scene;
+>>>>>>> origin/master
+                    mementoDelta = _timestamp - clientData.LastAckTimestamp;
+                }
+                bool handled = _actions.ApplyActionReceived(data, mementoScene, mementoDelta, _actionTimestampThreshold, data.ClientId, reader);
+                if(handled)
+                {
+                    if(clientData != null)
+                    {
+                        clientData.LastReceivedAction++;
+                    }
+                }
+                else if(_receiver != null)
+                {
+                    _receiver.OnMessageReceived(data, reader);
+                }
+            }
+        }
+
+        public NetworkScene FindSceneMemento(byte clientId)
+        {
+            ClientData clientData = null;
+            NetworkScene mementoScene = null;
+            if(_clientData.TryGetValue(clientId, out clientData))
+            {
+                mementoScene = clientData.Scene;
+            }
+
+            return mementoScene;
+        }
+
+        public event Action GameStarted;
+
+        public void OnGameStarted()
+        {
+            if(GameStarted != null)
+            {
+                GameStarted();
+            }
+        }
+    }
+}

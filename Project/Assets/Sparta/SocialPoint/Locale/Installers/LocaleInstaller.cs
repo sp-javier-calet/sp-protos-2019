@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.Hardware;
@@ -8,6 +7,11 @@ using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
+using SocialPoint.Base;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Locale
 {
@@ -21,7 +25,7 @@ namespace SocialPoint.Locale
         }
 
         // Environment Ids mapping
-        static readonly Dictionary<LocalizationEnvironment, string> EnvironmentIds = new Dictionary<LocalizationEnvironment, string>() {
+        static readonly Dictionary<LocalizationEnvironment, string> EnvironmentIds = new Dictionary<LocalizationEnvironment, string> {
             { LocalizationEnvironment.Development,  "dev"  },
             { LocalizationEnvironment.Localization, "loc"  },
             { LocalizationEnvironment.Production,   "prod" }
@@ -30,7 +34,6 @@ namespace SocialPoint.Locale
         [Serializable]
         public class SettingsData
         {
-            public bool EditorDebug = true;
             public bool EnableViewLocalization = true;
             public LocalizationSettings Localization;
         }
@@ -44,6 +47,8 @@ namespace SocialPoint.Locale
             public string SecretKeyLoc = LocalizationManager.LocationData.DefaultDevSecretKey;
             public string SecretKeyProd = LocalizationManager.LocationData.DefaultProdSecretKey;
             public string BundleDir = LocalizationManager.DefaultBundleDir;
+            public LocalizationManager.CsvMode CsvMode = LocalizationManager.CsvMode.NoCsv;
+            public bool ShowKeysOnDevMode = true;
             public string[] SupportedLanguages = LocalizationManager.DefaultSupportedLanguages;
             public float Timeout = LocalizationManager.DefaultTimeout;
         }
@@ -52,16 +57,21 @@ namespace SocialPoint.Locale
 
         public override void InstallBindings()
         {
-            Container.Rebind<Localization>().ToMethod<Localization>(CreateLocalization);
+            Container.Bind<IInitializable>().ToInstance(this);
+            Container.Bind<Localization>().ToGetter<ILocalizationManager>(mng => mng.Localization);
+
             Container.Rebind<LocalizeAttributeConfiguration>().ToMethod<LocalizeAttributeConfiguration>(CreateLocalizeAttributeConfiguration);
 
             Container.Rebind<UILocalizationUpdater>().ToMethod<UILocalizationUpdater>(CreateViewLocalizer);
             Container.Bind<IDisposable>().ToLookup<UILocalizationUpdater>();
 
             Container.Rebind<ILocalizationManager>().ToMethod<LocalizationManager>(CreateLocalizationManager, SetupLocalizationManager);
-            Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();    
+            Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
 
+
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLocale>(CreateAdminPanel);
+            #endif
         }
 
         public void Initialize()
@@ -79,20 +89,13 @@ namespace SocialPoint.Locale
                 Container.ResolveList<IMemberAttributeObserver<LocalizeAttribute>>());
         }
 
+        #if ADMIN_PANEL
         AdminPanelLocale CreateAdminPanel()
         {
             return new AdminPanelLocale(
                 Container.Resolve<ILocalizationManager>());
         }
-
-        Localization CreateLocalization()
-        {
-            var locale = new Localization();
-#if UNITY_EDITOR
-            locale.Debug = Settings.EditorDebug;
-#endif
-            return locale;
-        }
+        #endif
 
         UILocalizationUpdater CreateViewLocalizer()
         {
@@ -103,25 +106,40 @@ namespace SocialPoint.Locale
 
         LocalizationManager CreateLocalizationManager()
         {
+            LocalizationManager.CsvForNGUILoadedDelegate csvLoadedDelegate = null;
+
             #if NGUI
-            SocialPoint.Locale.LocalizationManager.CsvLoadedDelegate objectDelegate = new SocialPoint.Locale.LocalizationManager.CsvLoadedDelegate(LoadNGUICSV);
-            return new LocalizationManager(LocalizationManager.CsvMode.WriteCsvWithAllSupportedLanguages,objectDelegate);;
-            #else
-            return new LocalizationManager();
+            csvLoadedDelegate = new LocalizationManager.CsvForNGUILoadedDelegate(LoadNGUICSV);
             #endif
+
+
+            return new LocalizationManager(Settings.Localization.CsvMode, csvLoadedDelegate);
         }
 
+        #if NGUI
         void LoadNGUICSV(byte[] bytes)
         {
+            var manager = Container.Resolve<ILocalizationManager>();
+
+            // Add localizations to NGUI and Update current language
             NGUILocalization.LoadCSV(bytes);
+            NGUILocalization.language = manager.CurrentLanguage;
+
+            UILocalize[] localizadElements = GameObject.FindObjectsOfType<UILocalize>();
+            for(int i = 0; i < localizadElements.Length; i++)
+            {
+                localizadElements[i].OnLocalize();
+            }
         }
+        #endif
+
 
         void SetupLocalizationManager(LocalizationManager mng)
         {
             mng.HttpClient = Container.Resolve<IHttpClient>();
             mng.AppInfo = Container.Resolve<IAppInfo>();
-            mng.Localization = Container.Resolve<Localization>();
             mng.AppEvents = Container.Resolve<IAppEvents>();
+            mng.EnvironmentType = Container.Resolve<IBackendEnvironment>().GetEnvironment().Type;
 
             string secretKey;
             if(Settings.Localization.Environment == LocalizationEnvironment.Development)
@@ -142,6 +160,8 @@ namespace SocialPoint.Locale
             mng.Location.SecretKey = secretKey;
             mng.Timeout = Settings.Localization.Timeout;
             mng.BundleDir = Settings.Localization.BundleDir;
+            mng.SupportedLanguages = Settings.Localization.SupportedLanguages;
+            mng.Localization.ShowKeysOnDevMode = Settings.Localization.ShowKeysOnDevMode;
 
             mng.UpdateDefaultLanguage();
         }

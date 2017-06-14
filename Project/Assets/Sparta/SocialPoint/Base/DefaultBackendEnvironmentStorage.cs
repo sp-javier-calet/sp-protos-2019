@@ -15,7 +15,11 @@
         {
             get
             {
-                return DebugUtils.IsDebugBuild ? _default : _production;
+                var value = DebugUtils.IsDebugBuild ? _default : _production;
+                #if ADMIN_PANEL
+                value = _default;
+                #endif
+                return value;
             }
         }
 

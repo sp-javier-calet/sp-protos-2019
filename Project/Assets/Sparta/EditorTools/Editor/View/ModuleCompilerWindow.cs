@@ -1,10 +1,9 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿using System.Collections.Generic;
+using System.Text;
 using SpartaTools.Editor.Build;
 using SpartaTools.Editor.SpartaProject;
-using System.Collections.Generic;
-using System.Text;
-
+using UnityEditor;
+using UnityEngine;
 
 namespace SpartaTools.Editor.View
 {
@@ -12,7 +11,7 @@ namespace SpartaTools.Editor.View
     {
         #region Editor options
 
-        [MenuItem("Sparta/Validate/Sparta compiler...", false, 500)]
+        [MenuItem("Sparta/Validate/Sparta compiler...", false, 103)]
         public static void CompileModule()
         {
             EditorWindow.GetWindow(typeof(ModuleCompilerWindow), false, "Compiler", true);
@@ -22,8 +21,8 @@ namespace SpartaTools.Editor.View
 
         Vector2 _scrollPosition;
         List<ModuleCategory> _categories;
-        bool _enableTvOS = true;
-        bool _enableStandalone = true;
+        bool _enableTvOS;
+        bool _enableStandalone;
 
         Variant _selectedVariant;
         float _lastSelectionTime;
@@ -245,7 +244,7 @@ namespace SpartaTools.Editor.View
             Sparta.SetIcon(this, "Compiler", "Sparta Module compiler");
         }
 
-        void GUIShowLog(Variant variant)
+        static void GUIShowLog(Variant variant)
         {
             var log = variant.Log;
             if(!string.IsNullOrEmpty(log))
@@ -420,7 +419,7 @@ namespace SpartaTools.Editor.View
             EditorGUILayout.EndScrollView();
         }
 
-        GUIStyle GetFoldoutStyle(CompileStatus status)
+        static GUIStyle GetFoldoutStyle(CompileStatus status)
         {
             var style = EditorStyles.foldout;
 
@@ -446,7 +445,7 @@ namespace SpartaTools.Editor.View
             return style;
         }
 
-        GUIStyle GetLabelStyle(CompileStatus status)
+        static GUIStyle GetLabelStyle(CompileStatus status)
         {
             var style = EditorStyles.label;
 

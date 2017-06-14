@@ -60,6 +60,14 @@ namespace SocialPoint.Network
             return PhotonNetwork.ServerTimestamp;
         }
 
+        public bool LatencySupported
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         public bool Running
         {
             get

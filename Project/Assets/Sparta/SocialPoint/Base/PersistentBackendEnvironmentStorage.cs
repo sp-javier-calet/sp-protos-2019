@@ -19,7 +19,11 @@ namespace SocialPoint.Base
         {
             get
             {
-                return DebugUtils.IsDebugBuild ? _default : _production;
+                var value = DebugUtils.IsDebugBuild ? _default : _production;
+                #if ADMIN_PANEL
+                value = _default;
+                #endif
+                return value;
             }
         }
 
@@ -28,6 +32,19 @@ namespace SocialPoint.Base
         {
             set
             {
+
+                #if ADMIN_PANEL
+                if(string.IsNullOrEmpty(value))
+                {
+                    PlayerPrefs.DeleteKey(SelectedBackendEnvPrefsKey);
+                }
+                else
+                {
+                    PlayerPrefs.SetString(SelectedBackendEnvPrefsKey, value);
+                }
+                #else
+                if(DebugUtils.IsDebugBuild)
+                {
                     if(string.IsNullOrEmpty(value))
                     {
                         PlayerPrefs.DeleteKey(SelectedBackendEnvPrefsKey);
@@ -36,10 +53,17 @@ namespace SocialPoint.Base
                     {
                         PlayerPrefs.SetString(SelectedBackendEnvPrefsKey, value);
                     }
+                }
+				#endif
             }
             get
             {
-                return PlayerPrefs.GetString(SelectedBackendEnvPrefsKey);
+                var stored = PlayerPrefs.GetString(SelectedBackendEnvPrefsKey);
+                var value = DebugUtils.IsDebugBuild ? stored : null;
+                #if ADMIN_PANEL
+                value = stored;
+                #endif
+                return value;
             }
         }
     }

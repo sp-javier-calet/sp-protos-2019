@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using SocialPoint.Pooling;
 using System.Collections.Generic;
 

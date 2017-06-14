@@ -44,6 +44,8 @@ namespace SocialPoint.Social
 
     public class AlliancePlayerBasicFactory : SocialPlayerFactory.IFactory
     {
+        const string AllianceComponentKey = "alliance";
+
         const string AlliancePlayerIdKey = "id";
         const string AlliancePlayerNameKey = "name";
         const string AlliancePlayerAvatarKey = "avatar";
@@ -57,7 +59,7 @@ namespace SocialPoint.Social
 
         public SocialPlayer.IComponent CreateElement(AttrDic dic)
         {
-            var alliancesDic = dic.Get("alliance").AsDic;
+            var alliancesDic = dic.Get(AllianceComponentKey).AsDic;
 
             var component = new AlliancePlayerBasic();
 
@@ -83,14 +85,26 @@ namespace SocialPoint.Social
             var component = player.GetComponent<AlliancePlayerBasic>();
 
             if(component == null)
+            {
                 return;
+            }
 
-            AttrDic allDic = dic.Get("alliance").AsDic;
-            allDic.SetValue(AlliancePlayerIdKey, component.Id);
-            allDic.SetValue(AlliancePlayerNameKey, component.Name);
-            allDic.SetValue(AlliancePlayerAvatarKey, component.Avatar);
-            allDic.SetValue(AlliancePlayerRoleKey, component.Rank);
+            AttrDic allyDic;
+            if(dic.ContainsKey(AllianceComponentKey))
+            {
+                allyDic = dic.Get(AllianceComponentKey).AsDic;
+            }
+            else
+            {
+                allyDic = new AttrDic();
+                dic.Set(AllianceComponentKey, allyDic);
+            }
+            allyDic.SetValue(AlliancePlayerIdKey, component.Id);
+            allyDic.SetValue(AlliancePlayerNameKey, component.Name);
+            allyDic.SetValue(AlliancePlayerAvatarKey, component.Avatar);
+            allyDic.SetValue(AlliancePlayerRoleKey, component.Rank);
         }
+
     }
 
     /// <summary>
@@ -112,10 +126,9 @@ namespace SocialPoint.Social
             MaxRequests = 20;
         }
 
-        public List<string> GetRequests()
+        public Queue<string>.Enumerator GetRequests()
         {
-            List<string> requests = new List<string>(_alliancesRequests);
-            return requests;
+            return _alliancesRequests.GetEnumerator();
         }
 
         public bool HasRequest(string id)
@@ -173,13 +186,15 @@ namespace SocialPoint.Social
 
     public class AlliancePlayerPrivateFactory : SocialPlayerFactory.IFactory
     {
+        const string AllianceComponentKey = "alliance";
+
         const string AlliancePlayerTotalMembersKey = "total_members";
         const string AlliancePlayerJoinTimestampKey = "join_ts";
         const string AlliancePlayerRequestsKey = "requests";
 
         public SocialPlayer.IComponent CreateElement(AttrDic dic)
         {
-            var alliancesDic = dic.Get("alliance").AsDic;
+            var alliancesDic = dic.Get(AllianceComponentKey).AsDic;
 
             var component = new AlliancePlayerPrivate();
 
@@ -203,19 +218,35 @@ namespace SocialPoint.Social
             var component = player.GetComponent<AlliancePlayerPrivate>();
 
             if(component == null)
-                return;
-
-            AttrDic allDic = dic.Get("alliance").AsDic;
-            allDic.SetValue(AlliancePlayerTotalMembersKey, component.TotalMembers);
-            allDic.SetValue(AlliancePlayerJoinTimestampKey, component.JoinTimestamp);
-
-            var requests = component.GetRequests();
-            AttrList reqList = new AttrList();
-            for(int i = 0; i < requests.Count;i++)
             {
-                reqList.Add(new AttrString(requests[i]));
+                return;
             }
-            allDic.Set(AlliancePlayerRequestsKey, reqList);
+
+            AttrDic allyDic;
+            if(dic.ContainsKey(AllianceComponentKey))
+            {
+                allyDic = dic.Get(AllianceComponentKey).AsDic;
+            }
+            else
+            {
+                allyDic = new AttrDic();
+                dic.Set(AllianceComponentKey, allyDic);
+            }
+
+            allyDic.SetValue(AlliancePlayerTotalMembersKey, component.TotalMembers);
+            allyDic.SetValue(AlliancePlayerJoinTimestampKey, component.JoinTimestamp);
+
+            var reqList = new AttrList();
+            using(var itr = component.GetRequests())
+            {
+                while(itr.MoveNext())
+                {
+                    reqList.AddValue(itr.Current);
+
+                }
+            }
+
+            allyDic.Set(AlliancePlayerRequestsKey, reqList);
         }
     }
 }

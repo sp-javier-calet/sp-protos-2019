@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using SocialPoint.Physics;
 using System.Collections.Generic;
 
@@ -22,88 +22,6 @@ namespace SocialPoint.Multiplayer
 
             void Update()
             {
-#if UNITY_EDITOR
-                #warning TODO : Remove after testing
-                var skillManager = _go.GetBehaviour<SkillManagerBehaviour>();
-                if(skillManager != null)
-                {
-                    if(Input.GetKeyDown("c"))
-                    {
-                        for(var itr = skillManager.Skills.GetEnumerator(); itr.MoveNext();)
-                        {
-                            var action = new SkillAction {
-                                Object = _go.Id,
-                                SkillSlot = itr.Current.Slot,
-                                ActionType = SkillActionType.Cancel,
-                                Target = 0
-                            };
-                            skillManager.SceneController.ApplyAction(action);
-                        }
-                    }
-                    else if(Input.GetKey("i"))
-                    {
-                        for(var itr = skillManager.Skills.GetEnumerator(); itr.MoveNext();)
-                        {
-                            var action = new SkillAction {
-                                Object = _go.Id,
-                                SkillSlot = itr.Current.Slot,
-                                ActionType = SkillActionType.Interrupt,
-                                Target = 0
-                            };
-                            skillManager.SceneController.ApplyAction(action);
-                        }
-                    }
-                    else if(Input.GetKeyUp("p"))
-                    {
-                        var controller = _go.GetBehaviour<HeroPlayerControllerBehaviour>();
-                        if (controller != null && controller.IsControlledByPlayer)
-                        {
-                            var action = new AddStatusEffectAction {
-                                StatusEffectId = "Stun",
-                                StatusEffectLevel = 1,
-                                Objects = new List<int>() {_go.Id}
-                            };
-                            skillManager.SceneController.ApplyAction(action);
-                        }
-                    }
-                    else if(Input.GetKeyUp("j"))
-                    {
-                        var controller = _go.GetBehaviour<HeroPlayerControllerBehaviour>();
-                        if (controller != null && controller.IsControlledByPlayer)
-                        {
-                            var dmg = new DamageFormula.Result();
-                            dmg.TrueDamage = 1000000;
-
-                            var action = new DamageEvent {
-                                AttackerUnitKind = _go.GetBehaviour<UnitKindBehaviour>().UnitKind,
-                                AttackerChampionIndex = _go.GetBehaviour<HeroBehaviour>().ChampionData.ChampionIndex,
-                                AttackerId = _go.Id,
-                                Damage = dmg,
-                                DamagedObjects = new List<int>() {_go.Id},
-                                Attacker = _go,
-                                LifeSteal = 0
-                            };
-                            skillManager.SceneController.ApplyAction(action);
-                        }
-                    }
-                    else if(Input.GetKeyUp("n"))
-                    {
-                        var controller = _go.GetBehaviour<HeroPlayerControllerBehaviour>();
-                        if (controller != null && controller.IsControlledByPlayer)
-                        {
-                            var action = new AddStatusEffectAction {
-                                StatusEffectId = "Immunity",
-                                StatusEffectLevel = 1,
-                                Objects = new List<int>() {_go.Id}
-                            };
-                            skillManager.SceneController.ApplyAction(action);
-                        }
-                    }
-
-                }
-                // End TODO
-#endif
-
                 SyncTransform();
             }
 

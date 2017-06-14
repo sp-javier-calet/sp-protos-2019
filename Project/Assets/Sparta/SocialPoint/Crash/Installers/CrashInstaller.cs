@@ -1,5 +1,4 @@
 using System;
-using SocialPoint.AdminPanel;
 using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.Base;
@@ -10,9 +9,13 @@ using SocialPoint.Network;
 using SocialPoint.ServerEvents;
 using SocialPoint.Utils;
 
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
+
 namespace SocialPoint.Crash
 {
-    public class CrashInstaller : SubInstaller
+    public class CrashInstaller : SubInstaller, IInitializable
     {
         [Serializable]
         public class SettingsData
@@ -29,6 +32,8 @@ namespace SocialPoint.Crash
 
         public override void InstallBindings()
         {
+            Container.Bind<IInitializable>().ToInstance(this);
+
             if(!Settings.UseEmpty)
             {
                 Container.Rebind<IBreadcrumbManager>().ToMethod<IBreadcrumbManager>(CreateBreadcrumbManager);
@@ -42,15 +47,26 @@ namespace SocialPoint.Crash
             }
 
             Container.Bind<IDisposable>().ToLookup<ICrashReporter>();
+
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelCrashReporter>(CreateAdminPanel);
+            #endif
         }
 
+        public void Initialize()
+        {
+            var crashReporter = Container.Resolve<ICrashReporter>();
+            crashReporter.Enable();
+        }
+
+        #if ADMIN_PANEL
         AdminPanelCrashReporter CreateAdminPanel()
         {
             return new AdminPanelCrashReporter(
                 Container.Resolve<ICrashReporter>(),
                 Container.Resolve<IBreadcrumbManager>());
         }
+        #endif
 
         SocialPointCrashReporter CreateCrashReporter()
         {
@@ -62,7 +78,7 @@ namespace SocialPoint.Crash
                 Container.Resolve<IAlertView>());
         }
 
-        IBreadcrumbManager CreateBreadcrumbManager()
+        static IBreadcrumbManager CreateBreadcrumbManager()
         {
             var breadcrumbManager = new BreadcrumbManager();
             Log.BreadcrumbLogger = breadcrumbManager;

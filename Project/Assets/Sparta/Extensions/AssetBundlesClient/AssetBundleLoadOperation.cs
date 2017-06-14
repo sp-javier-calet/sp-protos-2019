@@ -1,7 +1,12 @@
 using System;
 using System.Collections;
+using SocialPoint.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+
+#if UNITY_5_5_OR_NEWER
+using UnityEngine.Networking;
+#endif
 
 namespace SocialPoint.AssetBundlesClient
 {
@@ -37,7 +42,7 @@ namespace SocialPoint.AssetBundlesClient
 
         public string AssetBundleName { get; private set; }
 
-        public LoadedAssetBundle AssetBundle { get; protected set; }
+        public LoadedAssetBundle AssetBundleLoaded { get; protected set; }
 
         protected abstract bool downloadIsDone { get; }
 
@@ -66,29 +71,77 @@ namespace SocialPoint.AssetBundlesClient
         }
     }
 
-    public class AssetBundleDownloadFromWebOperation : AssetBundleDownloadOperation
+    public class AssetBundleLoadLocalOperation : AssetBundleDownloadOperation
     {
-        WWW _WWW;
-        readonly string _Url;
+        readonly string _fullPath;
+        AssetBundleCreateRequest _request;
 
-        public AssetBundleDownloadFromWebOperation(string assetBundleName, WWW www)
+        public AssetBundleLoadLocalOperation(string assetBundleName, string fullPath)
             : base(assetBundleName)
         {
-            if(www == null)
+            _fullPath = fullPath;
+
+            if(!FileUtils.ExistsFile(_fullPath))
             {
-                throw new ArgumentNullException("www");
+                Error = string.Format("{0} file does not exists locally. FullPath: {1}", AssetBundleName, _fullPath);
+                return;
             }
-            _Url = www.url;
-            _WWW = www;
+
+            _request = AssetBundle.LoadFromFileAsync(_fullPath);
+        }
+
+        protected override bool downloadIsDone { get { return (_request == null) || _request.isDone; } }
+
+        protected override void FinishDownload()
+        {
+            if(_request == null)
+            {
+                return;
+            }
+
+            var bundle = _request.assetBundle;
+            if(bundle == null)
+            {
+                Error = string.Format("{0} is not a valid asset bundle. FullPath: {1}", AssetBundleName, _fullPath);
+                return;
+            }
+
+            AssetBundleLoaded = new LoadedAssetBundle(bundle);
+        }
+
+        public override string GetSourceURL()
+        {
+            return _fullPath;
+        }
+    }
+
+    public class AssetBundleDownloadFromWebOperation : AssetBundleDownloadOperation
+    {
+        readonly string _Url;
+        WWW _WWW;
+
+        public AssetBundleDownloadFromWebOperation(string assetBundleName, int assetBundleVersion, string url)
+            : base(assetBundleName)
+        {
+            _Url = url;
+            _WWW = WWW.LoadFromCacheOrDownload(url, assetBundleVersion);
         }
 
         protected override bool downloadIsDone { get { return (_WWW == null) || _WWW.isDone; } }
 
         protected override void FinishDownload()
         {
+            if(_WWW == null)
+            {
+                _WWW.Dispose();
+                return;
+            }
+
             Error = _WWW.error;
             if(!string.IsNullOrEmpty(Error))
             {
+                _WWW.Dispose();
+                _WWW = null;
                 return;
             }
 
@@ -99,7 +152,7 @@ namespace SocialPoint.AssetBundlesClient
             }
             else
             {
-                AssetBundle = new LoadedAssetBundle(_WWW.assetBundle);
+                AssetBundleLoaded = new LoadedAssetBundle(bundle);
             }
 
             _WWW.Dispose();
@@ -111,6 +164,63 @@ namespace SocialPoint.AssetBundlesClient
             return _Url;
         }
     }
+
+    #if UNITY_5_5_OR_NEWER
+    public class AssetBundleDownloadFromUnityWebRequestOperation : AssetBundleDownloadOperation
+    {
+        readonly string _Url;
+        UnityWebRequest _request;
+
+        public AssetBundleDownloadFromUnityWebRequestOperation(string assetBundleName, int assetBundleVersion, string url)
+            : base(assetBundleName)
+        {
+            _Url = url;
+
+            _request = UnityWebRequest.GetAssetBundle(url, (uint)assetBundleVersion, 0);
+            if(_request != null)
+            {
+                _request.Send();
+            }
+        }
+
+        protected override bool downloadIsDone { get { return (_request == null) || _request.isDone; } }
+
+        protected override void FinishDownload()
+        {
+            if(_request == null)
+            {
+                _request.Dispose();
+                return;
+            }
+
+            Error = _request.error;
+            if(!string.IsNullOrEmpty(Error))
+            {
+                _request.Dispose();
+                _request = null;
+                return;
+            }
+
+            AssetBundle bundle = DownloadHandlerAssetBundle.GetContent(_request);
+            if(bundle == null)
+            {
+                Error = string.Format("{0} is not a valid asset bundle.", AssetBundleName);
+            }
+            else
+            {
+                AssetBundleLoaded = new LoadedAssetBundle(bundle);
+            }
+
+            _request.Dispose();
+            _request = null;
+        }
+
+        public override string GetSourceURL()
+        {
+            return _Url;
+        }
+    }
+    #endif
 
     public class AssetBundleLoadLevelOperation : AssetBundleLoadOperation
     {
@@ -191,7 +301,9 @@ namespace SocialPoint.AssetBundlesClient
 
     public class AssetBundleLoadAssetOperationFull : AssetBundleLoadAssetOperation
     {
-        const string LoadingErrorDescription = "LoadAssetAsync loading failed.";
+        const string LoadingErrorDescription = "LoadAssetAsync failed.";
+        const string GetAssetTypeErrorDescription = "Asset from request is not from the expected type.";
+        const string GetAssetRequestrDescription = "Can not retrieve asset from AssetBundleRequest.";
 
         protected string _assetBundleName;
         protected string _assetName;
@@ -211,7 +323,19 @@ namespace SocialPoint.AssetBundlesClient
         {
             if(_request != null && _request.isDone)
             {
-                return _request.asset as T;
+                var asset = _request.asset as T;
+                if(asset != null)
+                {
+                    return asset;
+                }
+                if(string.IsNullOrEmpty(Error))
+                {
+                    Error = GetAssetTypeErrorDescription;
+                }
+            }
+            if(string.IsNullOrEmpty(Error))
+            {
+                Error = GetAssetRequestrDescription;
             }
             return null;
         }

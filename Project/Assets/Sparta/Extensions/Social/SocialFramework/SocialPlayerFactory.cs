@@ -10,7 +10,7 @@ namespace SocialPoint.Social
         const string MemberUidKey = "id";
         const string MemberNameKey = "name";
         const string MemberLevelKey = "level";
-        const string MemberScoreKey = "power";
+        const string MemberScoreKey = "score";
 
         public interface IFactory
         {
@@ -35,13 +35,16 @@ namespace SocialPoint.Social
                 var basicDataComponent = player.GetComponent<SocialPlayer.BasicData>();
 
                 if(basicDataComponent == null)
+                {
                     return;
+                }
 
                 dic.SetValue(MemberUidKey, basicDataComponent.Uid);
                 dic.SetValue(MemberNameKey, basicDataComponent.Name);
                 dic.SetValue(MemberLevelKey, basicDataComponent.Level);
                 dic.SetValue(MemberScoreKey, basicDataComponent.Score);
             }
+
         }
 
         readonly List<IFactory> _factories;
@@ -73,8 +76,7 @@ namespace SocialPoint.Social
 
         public AttrDic SerializeSocialPlayer(SocialPlayer player)
         {
-            AttrDic dic = new AttrDic();
-            dic.Set("alliance",new AttrDic());
+            var dic = new AttrDic();
             for(var i = 0; i < _factories.Count; i++)
             {
                 _factories[i].SerializeElement(player, dic);

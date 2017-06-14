@@ -1,0 +1,7 @@
+name Extension/AssetBundlesClient
+<<<<<<< HEAD
+desc Tool for AssetBundles Client
+=======
+desc Asset Bundles Runtime Client
+>>>>>>> origin/master
+type extension

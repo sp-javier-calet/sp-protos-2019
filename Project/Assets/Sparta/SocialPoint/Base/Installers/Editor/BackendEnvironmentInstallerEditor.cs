@@ -9,6 +9,7 @@ namespace SocialPoint.Base
     public sealed class BackendEnvironmentsInstallerEditor : UnityEditor.Editor
     {
         readonly static string[] NoEnvironmentOptions = new string[] { "-" };
+        readonly Func<Environment, bool> ProductionEnvFilter = env => env.Type == EnvironmentType.Production;
 
         bool _defaultVisible = true;
 
@@ -34,12 +35,29 @@ namespace SocialPoint.Base
                 installer.Defaults.DefaultEnvironment = defaultDev;
 
                 EditorGUILayout.EndHorizontal();
+                GUILayout.Space(5);
                 EditorGUILayout.BeginHorizontal();
 
-                EditorGUILayout.LabelField("Production");
-                var currentProd = installer.Defaults.ProductionEnvironment;
-                var defaultProd = ShowEnvironmentsPopup(envs, currentProd, env => env.Type == EnvironmentType.Production);
-                installer.Defaults.ProductionEnvironment = defaultProd;
+                EditorGUILayout.LabelField("Production - Android");
+                var currentAndroidProd = installer.Defaults.AndroidProductionEnvironment;
+                var defaultAndroidProd = ShowEnvironmentsPopup(envs, currentAndroidProd, ProductionEnvFilter);
+                installer.Defaults.AndroidProductionEnvironment = defaultAndroidProd;
+
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.BeginHorizontal();
+
+                EditorGUILayout.LabelField("Production - iOS");
+                var currentIosProd = installer.Defaults.IosProductionEnvironment;
+                var defaultIosProd = ShowEnvironmentsPopup(envs, currentIosProd, ProductionEnvFilter);
+                installer.Defaults.IosProductionEnvironment = defaultIosProd;
+
+                EditorGUILayout.EndHorizontal();
+                EditorGUILayout.BeginHorizontal();
+
+                EditorGUILayout.LabelField("Production - Others");
+                var currentProd = installer.Defaults.CommonProductionEnvironment;
+                var defaultProd = ShowEnvironmentsPopup(envs, currentProd, ProductionEnvFilter);
+                installer.Defaults.CommonProductionEnvironment = defaultProd;
 
                 EditorGUILayout.EndHorizontal();
                 EditorGUILayout.EndVertical();

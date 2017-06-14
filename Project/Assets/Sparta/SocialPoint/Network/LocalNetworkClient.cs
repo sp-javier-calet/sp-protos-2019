@@ -12,6 +12,7 @@ namespace SocialPoint.Network
         ILocalNetworkServer _server;
 
         public byte ClientId{ get; private set; }
+
         public bool Connected{ get; private set; }
 
         public LocalNetworkClient(ILocalNetworkServer server)
@@ -123,6 +124,23 @@ namespace SocialPoint.Network
         public int GetDelay(int serverTimestamp)
         {
             return 0;
+        }
+
+        public bool LatencySupported
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public int Latency
+        {
+            get
+            {
+                DebugUtils.Assert(LatencySupported);
+                return -1;
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.IO;
 using System.Collections.Generic;
@@ -6,7 +6,6 @@ using System.Threading;
 
 namespace SocialPoint.IO
 {
-
     public class ReadHandler : IDisposable
     {
         Stream _stream;
@@ -94,7 +93,6 @@ namespace SocialPoint.IO
     public interface IFileManager
     {
         ReadHandler Read(string asset);
-
         WriteHandler Write(string asset);
     }
 
@@ -129,7 +127,7 @@ namespace SocialPoint.IO
         public WriteHandler Write(string asset)
         {
             FileUtils.CreateDirectory(Path.GetDirectoryName(asset));
-            var stream = new FileStream(asset, FileMode.OpenOrCreate, FileAccess.Write);
+            var stream = new FileStream(asset, FileMode.OpenOrCreate);
             return new WriteHandler(stream);
         }
     }
@@ -140,7 +138,7 @@ namespace SocialPoint.IO
         string _path;
         bool _format;
 
-        public FileManagerWrapper(IFileManager manager, string path, bool format = false)
+        public FileManagerWrapper(IFileManager manager, string path, bool format=false)
         {
             _manager = manager;
             _path = path;
@@ -174,9 +172,7 @@ namespace SocialPoint.IO
     public class FileManagerObserver : IFileManager
     {
         public List<string> ReadFiles{ get; private set; }
-
         public List<string> WriteFiles{ get; private set; }
-
         IFileManager _manager;
 
         public FileManagerObserver(IFileManager manager)

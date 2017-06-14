@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
@@ -93,6 +93,22 @@ namespace SocialPoint.Matchmaking
             _storage.Clear();
         }
 
+        void IMatchmakingClientDelegate.OnStart()
+        {
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnStart();
+            }
+        }
+
+        void IMatchmakingClientDelegate.OnSearchOpponent()
+        {
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnSearchOpponent();
+            }
+        }
+
         void IMatchmakingClientDelegate.OnWaiting(int waitTime)
         {
             for(var i=0; i<_delegates.Count; i++)
@@ -105,6 +121,10 @@ namespace SocialPoint.Matchmaking
         {
             _storage.Save(match);
             OnMatched(match);
+        }
+        
+        void IMatchmakingClientDelegate.OnStopped(bool successful)
+        {
         }
 
         void IMatchmakingClientDelegate.OnError(Error err)

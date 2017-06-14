@@ -1,4 +1,6 @@
-﻿using SocialPoint.AdminPanel;
+﻿#if ADMIN_PANEL
+
+using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Alert
 {
@@ -36,3 +38,5 @@ namespace SocialPoint.Alert
         }
     }
 }
+
+#endif

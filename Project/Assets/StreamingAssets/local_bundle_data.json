@@ -1,0 +1,130 @@
+{
+    "local_bundle_data": [
+        {
+            "name": "drg_air1_01_evo1_hig_prefab",
+            "version": 1,
+            "dependencies": [
+                "defaultmat_mat"
+            ]
+        },
+        {
+            "name": "defaultmat_mat",
+            "version": 1,
+            "dependencies": [
+
+            ]
+        },
+        {
+            "name": "drg_air1_01_evo5_low_prefab",
+            "version": 0,
+            "dependencies": [
+                "heli_evo34_base_fbx",
+                "scg_fx_specialdragon_solid_shader",
+                "drg_air1_01_evo4_fbx",
+                "drg_air1_01_evo34_low_d_tga"
+            ]
+        },
+        {
+            "name": "heli_evo34_base_fbx",
+            "version": 0,
+            "dependencies": [
+
+            ]
+        },
+        {
+            "name": "drg_air1_01_evo3_hig_prefab",
+            "version": 0,
+            "dependencies": [
+                "heli_evo34_base_fbx",
+                "mat_drg_air1_01_evo34_hig_mat",
+                "drg_air1_01_evo3_fbx"
+            ]
+        },
+        {
+            "name": "drg_air1_01_evo4_hig_prefab",
+            "version": 0,
+            "dependencies": [
+                "heli_evo34_base_fbx",
+                "drg_air1_01_evo4_fbx",
+                "mat_drg_air1_01_evo34_hig_mat"
+            ]
+        },
+        {
+            "name": "drg_air1_01_evo4_fbx",
+            "version": 0,
+            "dependencies": [
+                "defaultmat_mat"
+            ]
+        },
+        {
+            "name": "mat_drg_air1_01_evo34_hig_mat",
+            "version": 0,
+            "dependencies": [
+                "drg_air1_01_evo34_hig_d_tga"
+            ]
+        },
+        {
+            "name": "drg_air1_01_evo34_low_d_tga",
+            "version": 0,
+            "dependencies": [
+
+            ]
+        },
+        {
+            "name": "drg_air1_01_evo3_fbx",
+            "version": 0,
+            "dependencies": [
+                "defaultmat_mat"
+            ]
+        },
+        {
+            "name": "drg_air1_01_evo3_low_prefab",
+            "version": 0,
+            "dependencies": [
+                "heli_evo34_base_fbx",
+                "drg_air1_01_evo3_fbx",
+                "mat_drg_air1_01_evo34_low_mat"
+            ]
+        },
+        {
+            "name": "mat_drg_air1_01_evo34_low_mat",
+            "version": 0,
+            "dependencies": [
+                "drg_air1_01_evo34_low_d_tga"
+            ]
+        },
+        {
+            "name": "drg_air1_01_evo4_low_prefab",
+            "version": 0,
+            "dependencies": [
+                "heli_evo34_base_fbx",
+                "drg_air1_01_evo4_fbx",
+                "mat_drg_air1_01_evo34_low_mat"
+            ]
+        },
+        {
+            "name": "scg_fx_specialdragon_solid_shader",
+            "version": 0,
+            "dependencies": [
+
+            ]
+        },
+        {
+            "name": "drg_air1_01_evo5_hig_prefab",
+            "version": 0,
+            "dependencies": [
+                "heli_evo34_base_fbx",
+                "scg_fx_specialdragon_solid_shader",
+                "drg_air1_01_evo4_fbx",
+                "drg_air1_01_evo34_hig_d_tga"
+            ]
+        },
+        {
+            "name": "drg_air1_01_evo34_hig_d_tga",
+            "version": 0,
+            "dependencies": [
+
+            ]
+        }
+    ]
+}

@@ -1,10 +1,13 @@
 ﻿using System;
 using SocialPoint.Dependency;
 using SocialPoint.Alert;
-using SocialPoint.AdminPanel;
 using SocialPoint.Hardware;
 using SocialPoint.Attributes;
 using SocialPoint.AppEvents;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace SocialPoint.Rating
 {
@@ -19,6 +22,7 @@ namespace SocialPoint.Rating
             public long DaysBeforeReminding = AppRater.DefaultDaysBeforeReminding;
             public int UserLevelUntilPrompt = AppRater.DefaultUserLevelUntilPrompt;
             public int MaxPromptsPerDay = AppRater.DefaultMaxPromptsPerDay;
+            public bool PromptAfterBackground = true;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -30,21 +34,32 @@ namespace SocialPoint.Rating
             Container.Rebind<AppRater>().ToMethod<AppRater>(CreateAppRater, SetupAppRater);
             Container.Rebind<IAppRater>().ToLookup<AppRater>();
             Container.Bind<IDisposable>().ToLookup<AppRater>();
+
+            #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelAppRater>(CreateAdminPanel);
+            #endif
         }
 
+        #if ADMIN_PANEL
         AdminPanelAppRater CreateAdminPanel()
         {
             return new AdminPanelAppRater(
                 Container.Resolve<IAppRater>());
         }
+        #endif
 
         AppRater CreateAppRater()
         {
+            IAppEvents appEvents = null;
+            if(Settings.PromptAfterBackground)
+            {
+                appEvents = Container.Resolve<IAppEvents>();
+            }
+
             return new AppRater(
                 Container.Resolve<IDeviceInfo>(),
                 Container.Resolve<IAttrStorage>("volatile"),
-                Container.Resolve<IAppEvents>());
+                appEvents);
         }
 
         void SetupAppRater(AppRater rater)

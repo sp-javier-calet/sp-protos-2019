@@ -23,9 +23,9 @@ namespace SocialPoint.Purchase
 
         #region IPurchaseStore implementationcategoryModel
 
-        public event ProductsUpdatedDelegate ProductsUpdated = delegate {};
+        public event ProductsUpdatedDelegate ProductsUpdated;
 
-        public event PurchaseUpdatedDelegate PurchaseUpdated = delegate {};
+        public event PurchaseUpdatedDelegate PurchaseUpdated;
 
         public ILoginData LoginData { get; set; }
 
@@ -56,7 +56,7 @@ namespace SocialPoint.Purchase
                 IosStoreBinding.SetShouldSendTransactionUpdateEvents);
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugPurchasesFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("IosPurchaseStore {0}", msg));

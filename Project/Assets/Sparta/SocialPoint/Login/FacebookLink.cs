@@ -173,8 +173,11 @@ namespace SocialPoint.Login
         {
             FacebookUser user = _facebook.User;
             var data = new AttrDic();
-            data.SetValue("external_id", user.UserId);
-            data.SetValue("fb_access_token", user.AccessToken);
+            if(!string.IsNullOrEmpty(user.UserId))
+            {
+                data.SetValue("external_id", user.UserId);
+                data.SetValue("fb_access_token", user.AccessToken);
+            }
             return data;
         }
 

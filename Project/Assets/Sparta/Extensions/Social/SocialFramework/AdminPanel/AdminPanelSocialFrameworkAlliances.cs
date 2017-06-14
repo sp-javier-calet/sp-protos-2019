@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if ADMIN_PANEL 
+
+using System;
 using System.Text;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
@@ -93,7 +95,7 @@ namespace SocialPoint.Social
                 _console = console;
             }
         }
- 
+
         #endregion
 
         class AdminPanelAllianceCreate : BaseAlliancePanel
@@ -130,8 +132,9 @@ namespace SocialPoint.Social
                 get
                 {
                     bool ret = true;
-                    ret |= !string.IsNullOrEmpty(_data.Name);
-                    ret |= !string.IsNullOrEmpty(_data.Description);
+                    ret &= !string.IsNullOrEmpty(_data.Name);
+                    ret &= !string.IsNullOrEmpty(_data.Description);
+                    ret &= !string.IsNullOrEmpty(_data.Message);
                     return ret;
                 }
             }
@@ -156,6 +159,9 @@ namespace SocialPoint.Social
                 });
                 StringValueInput(layout, "Description", _data.Description, value => {
                     _data.Description = value;
+                });
+                StringValueInput(layout, "Welcome", _data.Message, value => {
+                    _data.Message = value;
                 });
                 IntValueInput(layout, "Required Score", _data.Requirement, value => {
                     _data.Requirement = value;
@@ -232,6 +238,7 @@ namespace SocialPoint.Social
                 {
                     _data.Name = alliance.Name;
                     _data.Description = alliance.Description;
+                    _data.Message = alliance.Message;
                     _data.Requirement = alliance.Requirement;
                     _data.Avatar = alliance.Avatar;
                     _data.AccessType = alliance.AccessType;
@@ -249,6 +256,7 @@ namespace SocialPoint.Social
                 _content
                     .Append("Name: ").AppendLine(_data.Name)
                     .Append("Description: ").AppendLine(_data.Description)
+                    .Append("Message: ").AppendLine(_data.Message)
                     .Append("Requirement: ").AppendLine(_data.Requirement.ToString())
                     .Append("Avatar: ").AppendLine(_data.Avatar.ToString())
                     .Append("Type: ").AppendLine(_data.AccessType.ToString());
@@ -257,10 +265,10 @@ namespace SocialPoint.Social
 
             void ClearData()
             {
-                _data = _alliances.Factory.CreateAlliance(string.Empty,_alliances.Ranks.DefaultRank, Attributes.Attr.InvalidDic);
+                _data = _alliances.Factory.CreateAlliance(string.Empty, Attributes.Attr.InvalidDic);
             }
 
-            void StringValueInput(AdminPanelLayout layout, string label, string current, Action<string> onChanged)
+            static void StringValueInput(AdminPanelLayout layout, string label, string current, Action<string> onChanged)
             {
                 var hlayout = layout.CreateHorizontalLayout();
                 hlayout.CreateFormLabel(label);
@@ -318,6 +326,7 @@ namespace SocialPoint.Social
                         .Append("Id: ").AppendLine(Alliance.Id)
                         .Append("Name: ").AppendLine(Alliance.Name)
                         .Append("Description: ").AppendLine(Alliance.Description)
+                        .Append("Message: ").AppendLine(Alliance.Message)
                         .Append("Avatar: ").AppendLine(Alliance.Avatar.ToString())
                         .Append("Type: ").AppendLine(Alliance.AccessType.ToString())
                         .Append("Activity: ").AppendLine(Alliance.ActivityIndicator.ToString())
@@ -431,7 +440,7 @@ namespace SocialPoint.Social
         class AdminPanelAllianceUserInfo : AdminPanelSocialFramework.BaseUserInfoPanel
         {
             public Alliance Alliance;
-            private readonly AlliancesManager _alliances;
+            readonly AlliancesManager _alliances;
 
             public AdminPanelAllianceUserInfo(AlliancesManager alliances, PlayersManager playersManager, AdminPanelConsole console) : base(playersManager, console)
             {
@@ -661,3 +670,5 @@ namespace SocialPoint.Social
         }
     }
 }
+
+#endif

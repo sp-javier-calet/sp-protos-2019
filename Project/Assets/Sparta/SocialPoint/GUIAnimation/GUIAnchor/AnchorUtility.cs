@@ -460,10 +460,14 @@ namespace SocialPoint.GUIAnimation
 
         public static Vector2 GetCanvasSizeNGUI(GameObject obj = null)
         {
-            UIRoot uiRoot = GameObject.FindObjectOfType<UIRoot>();
+            UIRoot uiRoot;
             if(obj != null)
             {
                 uiRoot = obj.FindObjectOfTypeRecursiveUp<UIRoot>();
+            }
+            else
+            {
+                uiRoot = GameObject.FindObjectOfType<UIRoot>();
             }
             UICamera uiCamera = uiRoot.GetComponentInChildren<UICamera>();
 			

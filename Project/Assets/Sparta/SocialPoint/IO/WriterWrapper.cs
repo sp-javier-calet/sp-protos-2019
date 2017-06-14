@@ -1,4 +1,4 @@
-﻿
+
 namespace SocialPoint.IO
 {
     public class WriterWrapper : IWriter

@@ -63,7 +63,16 @@ namespace SocialPoint.Network
 
         public IReader Receive()
         {
-            return new SystemBinaryReader(new MemoryStream(_stream.ToArray()));
+            var streamArray = _stream.ToArray();
+            var data = new NetworkMessageData
+            {
+                ClientId = Data.ClientId,
+                MessageType = Data.MessageType,
+                Unreliable = Data.Unreliable,
+                MessageLength = streamArray.Length
+            };
+            Data = data;
+            return new SystemBinaryReader(new MemoryStream(streamArray));
         }
     }
 }

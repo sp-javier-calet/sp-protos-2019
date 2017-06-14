@@ -17,9 +17,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                throw new NotSupportedException();
-                // TODO: NetworkReader.Length was added in 5.5
-                // return _reader.Position >= _reader.Length;
+                return _reader.Position >= _reader.Length;
             }
         }
 

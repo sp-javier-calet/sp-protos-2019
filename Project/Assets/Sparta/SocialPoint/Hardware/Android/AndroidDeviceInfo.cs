@@ -318,8 +318,10 @@ namespace SocialPoint.Hardware
 
         public string CpuArchitecture
         {
-            get;
-            set;
+            get
+            {
+                return Architecture;
+            }
         }
 
         public string OpenglVendor

@@ -1,0 +1,19 @@
+﻿using SocialPoint.Network;
+using System.Collections.Generic;
+using SocialPoint.IO;
+<<<<<<< HEAD
+using SocialPoint.Matchmaking;
+=======
+>>>>>>> origin/master
+
+namespace SocialPoint.Multiplayer
+{
+    public interface INetworkServerGameFactory
+    {
+<<<<<<< HEAD
+        object Create(NetworkServerSceneController ctrl, INetworkServer networkServer, IFileManager fileManager, IMatchmakingServer matchmakingServer, Dictionary<string, string> config);
+=======
+        object Create(NetworkServerSceneController ctrl, INetworkServer networkServer, IFileManager fileManager, Dictionary<string, string> config);
+>>>>>>> origin/master
+    }
+}

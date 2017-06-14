@@ -58,7 +58,7 @@ namespace SocialPoint.Attributes
             catch
             {
             }
-            throw new SerializationException(string.Format("Error reading data: {0}", data));
+            throw new SerializationException("Error reading data");
         }
     }
 }

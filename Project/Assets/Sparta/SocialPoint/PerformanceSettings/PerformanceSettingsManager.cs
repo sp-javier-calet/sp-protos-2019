@@ -107,7 +107,7 @@ namespace SocialPoint.PerformanceSettings
             while(itr.MoveNext())
             {
                 var pair = itr.Current;
-                _data.Add(pair.Key, new PerformanceSettingsData(pair.Value.AsDic));
+                _data[pair.Key] = new PerformanceSettingsData(pair.Value.AsDic);
             }
             itr.Dispose();
 
@@ -185,13 +185,16 @@ namespace SocialPoint.PerformanceSettings
                 QualitySettings.maximumLODLevel = settings.MaxLodLevel;
             }
 
-            QualitySettings.vSyncCount = settings.Vsync ? 1 : 0;
+            if(QualitySettings.vSyncCount != settings.Vsync)
+            {
+                QualitySettings.vSyncCount = settings.Vsync;
+            }
 
             if(ExtraApplier != null)
             {
                 ExtraApplier.Apply(settings.Settings);
             }
-       }
+        }
 
         public void Dispose()
         {
@@ -200,7 +203,8 @@ namespace SocialPoint.PerformanceSettings
 
         void Reset()
         {
-            _data = null;
+            _data.Clear();
+            _login.NewGenericDataEvent -= ParsePerformanceSettings;
             _login = null;
         }
     }

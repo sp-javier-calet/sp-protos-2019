@@ -4,6 +4,11 @@ using SocialPoint.Utils;
 using System;
 using System.Collections.Generic;
 
+public class FinderSettings
+{
+	public static readonly int DefaultListCapacity = 20;
+}
+
 namespace SocialPoint.Multiplayer
 {
     public class NetworkGameObject : IEquatable<NetworkGameObject>, ICloneable, INetworkBehaviourProvider

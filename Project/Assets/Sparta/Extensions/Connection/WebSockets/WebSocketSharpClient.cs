@@ -1,6 +1,7 @@
 using System;
 using SocialPoint.Utils;
 using SocialPoint.Network;
+using SocialPoint.Base;
 
 namespace SocialPoint.WebSockets
 {
@@ -72,6 +73,11 @@ namespace SocialPoint.WebSockets
             }
 
             _socket = new WebSocketSharp.WebSocket(urls[0], _protocols);
+
+            // WebsocketSharp connects automatically on creation. 
+            // We want to manage the connection manually, so we have to close the socket at startup.
+            _socket.Close();
+
             _socket.OnOpen += OnSocketOpened;
             _socket.OnClose += OnSocketClosed;
             _socket.OnError += OnSocketError;
@@ -144,6 +150,14 @@ namespace SocialPoint.WebSockets
             _socket.Ping();
         }
 
+        public void OnWillGoBackground()
+        {
+        }
+
+        public void OnWasOnBackground()
+        {
+        }
+
         #endregion
 
         #region INetworkClient implementation
@@ -202,6 +216,39 @@ namespace SocialPoint.WebSockets
             get
             {
                 return _socket.ReadyState == WebSocketSharp.WebSocketState.Open;
+            }
+        }
+
+        public bool Connecting
+        {
+            get
+            {
+                return _socket.ReadyState == WebSocketSharp.WebSocketState.Connecting;
+            }
+        }
+
+        public bool InStandby
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public bool LatencySupported
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public int Latency
+        {
+            get
+            {
+                DebugUtils.Assert(LatencySupported);
+                return -1;
             }
         }
 

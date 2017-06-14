@@ -1,4 +1,6 @@
-﻿using SocialPoint.AdminPanel;
+﻿#if ADMIN_PANEL
+
+using SocialPoint.AdminPanel;
 using SocialPoint.Dependency;
 using SocialPoint.Utils;
 using UnityEngine.UI;
@@ -387,3 +389,5 @@ namespace SocialPoint.Network
         }
     }
 }
+
+#endif

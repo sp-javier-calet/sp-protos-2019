@@ -15,6 +15,7 @@ namespace SocialPoint.Network
         public byte MessageType;
         public bool Unreliable;
         public byte ClientId;
+        public int MessageLength;
 
         public override bool Equals(System.Object obj)
         {

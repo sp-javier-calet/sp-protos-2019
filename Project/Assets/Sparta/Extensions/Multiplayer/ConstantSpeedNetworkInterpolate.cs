@@ -1,4 +1,4 @@
-﻿using Jitter.LinearMath;
+using Jitter.LinearMath;
 using System;
 using SocialPoint.Utils;
 

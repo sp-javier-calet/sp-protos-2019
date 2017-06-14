@@ -10,6 +10,7 @@ namespace SocialPoint.Multiplayer
         NetworkClientSceneController _clientController;
         NetworkServerSceneController _serverController;
         GameObject _multiObject = null;
+		NavMeshDebugDrawer _navMeshDebugDrawer = null;
 
         private static readonly System.Type UnityDebugNetworkClientRigidBodyType = typeof(UnityDebugNetworkClientRigidBody);
 
@@ -33,11 +34,15 @@ namespace SocialPoint.Multiplayer
                 debugScene.Client = _clientController;
                 debugScene.Server = _serverController;
 
-                var navMeshComponent = _multiObject.AddComponent<NavMeshDebugDrawer>();
-                navMeshComponent.NavMesh = _clientController.Scene.GetBehaviour<GameMultiplayerClientBehaviour>().NavMesh;
+                _navMeshDebugDrawer = _multiObject.AddComponent<NavMeshDebugDrawer>();
             }
             return this;
         }
+
+		void SetNavMeshForDebugDrawer(SharpNav.TiledNavMesh navMesh)
+		{
+			_navMeshDebugDrawer.NavMesh = navMesh;
+		}
 
         void OnDestroy()
         {

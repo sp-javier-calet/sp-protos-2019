@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using SocialPoint.Physics;
 using System.Collections.Generic;
 

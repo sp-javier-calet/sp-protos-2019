@@ -72,7 +72,6 @@ namespace SocialPoint.WAMP
             {
                 CompletionHandler = null;
             }
-
         }
 
         public class StartRequest : Request<Action>
@@ -447,14 +446,24 @@ namespace SocialPoint.WAMP
 
         #region Public methods
 
-        public SubscribeRequest Subscribe(string topic, HandlerSubscription handler, OnSubscribed completionHandler)
+        public SubscribeRequest CreateSubscribe(string topic, HandlerSubscription handler, OnSubscribed completionHandler)
         {
-            return _subscriber.Subscribe(topic, handler, completionHandler);
+            return _subscriber.CreateSubscribe(topic, handler, completionHandler);
         }
 
-        public UnsubscribeRequest Unsubscribe(Subscription subscription, OnUnsubscribed completionHandler)
+        public void SendSubscribe(SubscribeRequest request)
         {
-            return _subscriber.Unsubscribe(subscription, completionHandler);
+            _subscriber.SendSubscribe(request);
+        }
+
+        public UnsubscribeRequest CreateUnsubscribe(Subscription subscription, OnUnsubscribed completionHandler)
+        {
+            return _subscriber.CreateUnsubscribe(subscription, completionHandler);
+        }
+
+        public void SendUnsubscribe(UnsubscribeRequest request)
+        {
+            _subscriber.SendUnsubscribe(request);
         }
 
         public void AutoSubscribe(Subscription subscription, HandlerSubscription handler)
@@ -462,14 +471,24 @@ namespace SocialPoint.WAMP
             _subscriber.AutoSubscribe(subscription, handler);
         }
 
-        public PublishRequest Publish(string topic, AttrList args, AttrDic kwargs, bool acknowledged, OnPublished completionHandler)
+        public PublishRequest CreatePublish(string topic, AttrList args, AttrDic kwargs, bool acknowledged, OnPublished completionHandler)
         {
-            return _publisher.Publish(topic, args, kwargs, acknowledged, completionHandler);
+            return _publisher.CreatePublish(topic, args, kwargs, acknowledged, completionHandler);
         }
 
-        public CallRequest Call(string procedure, AttrList args, AttrDic kwargs, HandlerCall resultHandler)
+        public void SendPublish(PublishRequest request)
         {
-            return _caller.Call(procedure, args, kwargs, resultHandler);
+            _publisher.SendPublish(request);
+        }
+
+        public CallRequest CreateCall(string procedure, AttrList args, AttrDic kwargs, HandlerCall resultHandler)
+        {
+            return _caller.CreateCall(procedure, args, kwargs, resultHandler);
+        }
+
+        public void SendCall(CallRequest request)
+        {
+            _caller.SendCall(request);
         }
 
         #endregion
@@ -522,7 +541,7 @@ namespace SocialPoint.WAMP
             long requestId = msg.Get(2).AsValue.ToLong();
 
             // Error initialization
-            string errorDescription  = msg.Get(4).AsValue.ToString();
+            string errorDescription = msg.Get(4).AsValue.ToString();
             int code = 0;
 
             // Details
@@ -693,17 +712,17 @@ namespace SocialPoint.WAMP
             _goodbyeSent = false;
             _requestId = 0;
 
-            if(_joinRequest != null)
+            if(_joinRequest != null && _joinRequest.CompletionHandler != null)
             {
                 _joinRequest.CompletionHandler(new Error(ErrorCodes.ConnectionClosed, "Connection reset"), 0, null);
-                _joinRequest = null;
             }
+            _joinRequest = null;
 
-            if(_leaveRequest != null)
+            if(_leaveRequest != null && _leaveRequest.CompletionHandler != null)
             {
                 _leaveRequest.CompletionHandler(new Error(ErrorCodes.ConnectionClosed, "Connection reset"), "wamp.error.connection_reset");
-                _leaveRequest = null;
             }
+            _leaveRequest = null;
 
             for(var i = 0; i < _roles.Count; i++)
             {

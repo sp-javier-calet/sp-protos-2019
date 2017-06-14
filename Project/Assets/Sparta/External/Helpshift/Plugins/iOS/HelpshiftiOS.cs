@@ -66,31 +66,31 @@ namespace Helpshift
 		[DllImport ("__Internal")]
 		private static extern void hsHandleRemoteNotificationForIssue (string issueID);
 		[DllImport ("__Internal")]
+		private static extern void hsHandleRemoteNotification (string issueID);
+		[DllImport ("__Internal")]
 		private static extern void hsSetMetaData (string meta);
 		[DllImport ("__Internal")]
 		private static extern void hsPauseDisplayOfInAppNotification (bool pauseInApp);
 		[DllImport ("__Internal")]
 		private static extern void hsShowAlertToRateAppWithURL (string url);
 		[DllImport ("__Internal")]
-		private static extern void hsRegisterForRemoteNotifications ();
-		[DllImport ("__Internal")]
-		private static extern void hsRegisterForLocalNotifications ();
-		[DllImport ("__Internal")]
 		private static extern void hsLogin (string identifier, string name, string email);
 		[DllImport ("__Internal")]
 		private static extern void hsLogout ();
 		[DllImport ("__Internal")]
-		private static extern void hsRegisterHelpshiftDeepLinking ();
-		[DllImport ("__Internal")]
 		private static extern void hsSetSDKLanguage (string locale);
+		[DllImport ("__Internal")]
+		private static extern void hsShowDynamicForm (string title, string flowsJson);
 
 
 		public HelpshiftiOS () {
 		}
 
+		[Obsolete("Use HsUnityAppController.mm to initialize the Helpshift SDK",false)]
 		public void install () {
 			hsInstall();
 		}
+		[Obsolete("Use HsUnityAppController.mm to initialize the Helpshift SDK",false)]
 		public void install (string apiKey, string domain, string appId, Dictionary<string, object> configMap) {
 			if(configMap == null) {
 				hsInstallForApiKey (apiKey, domain, appId);
@@ -98,6 +98,7 @@ namespace Helpshift
 				hsInstallForApiKeyWithOptions (apiKey, domain, appId, Json.Serialize(configMap));
 			}
 		}
+		[Obsolete("Use HsUnityAppController.mm to initialize the Helpshift SDK",false)]
 		public void install(string apiKey, string domain, string appId) {
 			hsInstallForApiKey (apiKey, domain, appId);
 		}
@@ -179,12 +180,18 @@ namespace Helpshift
 		}
 
 		public void handlePushNotification (string issueId) {
-			hsHandleRemoteNotificationForIssue(issueId);
+            Dictionary<string, object> pushNotificationData = new Dictionary<string, object>();
+            pushNotificationData.Add("issue_id", issueId);
+            handlePushNotification(pushNotificationData);
 		}
 
 		public void handleLocalNotification (string issueId) {
 			hsHandleLocalNotificationForIssue(issueId);
 		}
+
+        public void handlePushNotification(Dictionary<string, object> pushNotificationData) {
+			hsHandleRemoteNotification(Json.Serialize(pushNotificationData));
+        }
 
 		public void pauseDisplayOfInAppNotification (bool pauseInApp) {
 			hsPauseDisplayOfInAppNotification(pauseInApp);
@@ -194,50 +201,45 @@ namespace Helpshift
 			hsShowAlertToRateAppWithURL(url);
 		}
 
-		public void registerForRemoteNotifications () {
-			hsRegisterForRemoteNotifications();
-		}
-
-		public void registerForLocalNotifications () {
-			hsRegisterForLocalNotifications();
-		}
-
-		public void registerHelpshiftDeepLinking () {
-			hsRegisterHelpshiftDeepLinking();
-		}
-
 		public void setSDKLanguage(string locale) {
 			hsSetSDKLanguage(locale);
 		}
+
+        public void showDynamicForm(string title, Dictionary<string, object>[] flowsData) {
+            hsShowDynamicForm(title, Json.Serialize(flowsData));
+        }
 	}
 
 	public class HelpshiftiOSLog {
+
+		[DllImport ("__Internal")]
+		private static extern void hsLog (string log);
 
 		private HelpshiftiOSLog () {
 		}
 
 		public static int v (String tag, String log) {
-			Debug.Log("Verbose::" + tag + "::" + log);
+			hsLog("HelpshiftLog:Verbose::" + tag + "::" + log);
 			return 0;
 		}
 
 		public static int d (String tag, String log) {
-			Debug.Log("Debug::" + tag + "::" + log);
+			hsLog("HelpshiftLog:Debug::" + tag + "::" + log);
 			return 0;
 		}
 
 		public static int i (String tag, String log) {
-			Debug.Log("Info::" + tag + "::" + log);
+			hsLog("HelpshiftLog:Info::" + tag + "::" + log);
 			return 0;
 		}
 
 		public static int w (String tag, String log) {
-			Debug.Log("Warn::" + tag + "::" + log);
+			hsLog("HelpshiftLog:Warn::" + tag + "::" + log);
 			return 0;
 		}
 
 		public static int e (String tag, String log) {
-			Debug.Log("Error::" + tag + "::" + log);
+			hsLog("HelpshiftLog:Error::" + tag + "::" + log);
 			return 0;
 		}
 

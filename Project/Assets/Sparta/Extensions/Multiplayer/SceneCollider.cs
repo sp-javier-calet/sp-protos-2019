@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SocialPoint.IO;
 using SocialPoint.Physics;
 using SocialPoint.Utils;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Jitter;
 using Jitter.LinearMath;
 using UnityEngine;

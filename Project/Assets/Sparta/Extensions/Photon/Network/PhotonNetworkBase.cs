@@ -78,15 +78,17 @@ namespace SocialPoint.Network
     public class PhotonNetworkConfig
     {
         public const bool DefaultCreateRoom = true;
+		public const ExitGames.Client.Photon.ConnectionProtocol DefaultProtocol = ExitGames.Client.Photon.ConnectionProtocol.Tcp;
 
         public string GameVersion;
         public string RoomName;
-        public bool CreateRoom = DefaultCreateRoom;
-        public CustomPhotonConfig CustomPhotonConfig = new CustomPhotonConfig();
-        public PhotonNetworkRoomConfig RoomOptions = new PhotonNetworkRoomConfig();
-        public CloudRegionCode ForceRegion = CloudRegionCode.none;
+        public bool CreateRoom;
+        public CustomPhotonConfig CustomPhotonConfig;
+        public PhotonNetworkRoomConfig RoomOptions;
+        public CloudRegionCode ForceRegion;
         public string ForceAppId;
         public string ForceServer;
+		public ExitGames.Client.Photon.ConnectionProtocol Protocol = DefaultProtocol;
 
         public PhotonNetworkConfig()
         {
@@ -161,10 +163,6 @@ namespace SocialPoint.Network
 
         void Awake()
         {
-            if(Config == null)
-            {
-                Config = new PhotonNetworkConfig();
-            }
         }
 
         void Update()
@@ -179,6 +177,7 @@ namespace SocialPoint.Network
                 return;
             }
             _state = ConnState.Connecting;
+            PhotonNetwork.networkingPeer.TransportProtocol = Config.Protocol;
             Config.CustomPhotonConfig.SetConfigBeforeConnection();
             if(!string.IsNullOrEmpty(Config.ForceServer) && !string.IsNullOrEmpty(Config.ForceAppId))
             {
@@ -262,7 +261,12 @@ namespace SocialPoint.Network
 
         abstract protected void OnConnected();
 
-        abstract protected void OnDisconnected();
+        virtual protected void OnDisconnected()
+        {
+            PhotonNetwork.OnEventCall -= OnEventReceived;
+            _state = ConnState.Disconnected;
+            Config.CustomPhotonConfig.RestorePhotonConfig();
+        }
 
         abstract protected void OnMessageReceived(NetworkMessageData data, IReader reader);
 
@@ -368,9 +372,6 @@ namespace SocialPoint.Network
             {
                 return;
             }
-            PhotonNetwork.OnEventCall -= OnEventReceived;
-            _state = ConnState.Disconnected;
-            Config.CustomPhotonConfig.RestorePhotonConfig();
             OnDisconnected();
         }
 
@@ -382,7 +383,6 @@ namespace SocialPoint.Network
                 return;
             }
             var err = new Error(ConnectionError, "Failed to connect: " + cause);
-            _state = ConnState.Disconnected;
             OnNetworkError(err);
             OnDisconnected();
         }
@@ -394,7 +394,6 @@ namespace SocialPoint.Network
                 return;
             }
             var err = new Error(CustomAuthError, "Custom Authentication failed: " + debugMessage);
-            _state = ConnState.Disconnected;
             OnNetworkError(err);
             OnDisconnected();
         }

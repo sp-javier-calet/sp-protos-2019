@@ -327,7 +327,7 @@ namespace SocialPoint.TransparentBundles
             _selectAllToggle = GUILayout.Toggle(_selectAllToggle, "", GUILayout.Width(_columnsSize[0] - 5f), GUILayout.Height(_columnsSize[0] - 5f));
             if(_selectAllToggle && !_allSelected)
             {
-                for(int i = 0; i <BundleList.Count; i++)
+                for(int i = 0; i < BundleList.Count; i++)
                 {
                     Bundle bundle = BundleList[i];
                     if(!_chosenList.ContainsKey(bundle.Name))
@@ -930,6 +930,7 @@ namespace SocialPoint.TransparentBundles
         {
             BundleList = _controller.GetBundles(filter);
             ChangeSorting(_sorting);
+            _bundlesInBuild = 0;
             for(int i = 0; i < BundleList.Count; i++)
             {
                 Bundle bundle = BundleList[i];

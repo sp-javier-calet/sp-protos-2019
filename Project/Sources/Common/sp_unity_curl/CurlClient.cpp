@@ -13,6 +13,7 @@
 #include <map>
 #include <vector>
 #include <cassert>
+#include <sstream>
 
 extern "C" {
 #include <curl/curl.h>
@@ -174,6 +175,7 @@ void CurlClient::setVerbose(bool verbose)
 
 CURL* CurlClient::create(CurlRequestInfo& req)
 {
+    assert(req);
     CURL* curl = curl_easy_init();
     if(!curl)
     {
@@ -214,10 +216,10 @@ CURL* CurlClient::create(CurlRequestInfo& req)
         curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
     }
 
-    if(req.timeout > 0)
+    if(req->timeout > 0)
     {
-        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, req.activityTimeout);
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, req.timeout);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, req->activityTimeout);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, req->timeout);
     }
 
     if(!req.proxy.empty())
@@ -247,7 +249,7 @@ CURL* CurlClient::create(CurlRequestInfo& req)
 
     if(!req.headers.empty())
     {
-        std::vector<std::string> headersData = split(req.headers, "\n");
+        std::vector<std::string> headersData = split(req->headers, "\n");
         curl_slist* headers = nullptr;
         for(auto itr = headersData.begin(); itr != headersData.end(); ++itr)
         {
@@ -264,10 +266,10 @@ CURL* CurlClient::create(CurlRequestInfo& req)
     return curl;
 }
 
-bool CurlClient::send(CurlRequest req)
+bool CurlClient::send(CurlRequest* req)
 {
-    CurlConnection& conn = _connections.get(req.id);
-
+    assert(req);
+    CurlConnection& conn = _connections.get(req->id);
     if(!conn.isValid)
     {
         return false;
@@ -411,8 +413,9 @@ bool CurlClient::destroyConnection(int id)
     return _connections.remove(id);
 }
 
-bool CurlClient::sendStreamMessage(int id, CurlMessage data)
+bool CurlClient::sendStreamMessage(int id, CurlMessage* data)
 {
+    assert(data);
     CurlConnection& conn = _connections.get(id);
     if(conn.isValid)
     {
@@ -421,7 +424,7 @@ bool CurlClient::sendStreamMessage(int id, CurlMessage data)
             curl_easy_pause(conn.easy, CURLPAUSE_CONT);
         }
 
-        conn.messages.outcoming.append((char*)data.message, data.messageLength * sizeof(char));
+        conn.messages.outcoming.append((char*)data->message, data->messageLength * sizeof(char));
         return true;
     }
     return false;

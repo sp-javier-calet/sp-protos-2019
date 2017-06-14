@@ -24,12 +24,17 @@ namespace SocialPoint.WAMP.Subscriber
 
     public class SubscribeRequest : WAMPConnection.Request<OnSubscribed>
     {
+        public const int IdIndex = 1;
+
+        internal AttrList Data { get; private set; }
+
         internal HandlerSubscription Handler{ get; private set; }
 
         internal string Topic{ get; private set; }
 
-        internal SubscribeRequest(HandlerSubscription handler, OnSubscribed completionHandler, string topic) : base(completionHandler)
+        internal SubscribeRequest(HandlerSubscription handler, AttrList data, OnSubscribed completionHandler, string topic) : base(completionHandler)
         {
+            Data = data;
             Handler = handler;
             Topic = topic;
         }
@@ -39,9 +44,13 @@ namespace SocialPoint.WAMP.Subscriber
 
     public class UnsubscribeRequest : WAMPConnection.Request<OnUnsubscribed>
     {
-        internal UnsubscribeRequest(OnUnsubscribed completionHandler) : base(completionHandler)
-        {
+        public const int IdIndex = 1;
 
+        internal AttrList Data { get; private set; }
+
+        internal UnsubscribeRequest(OnUnsubscribed completionHandler, AttrList data) : base(completionHandler)
+        {
+            Data = data;
         }
     }
 
@@ -66,7 +75,7 @@ namespace SocialPoint.WAMP.Subscriber
             _unsubscribeRequests = new Dictionary<long, UnsubscribeRequest>();
         }
 
-        public SubscribeRequest Subscribe(string topic, HandlerSubscription handler, OnSubscribed completionHandler)
+        public SubscribeRequest CreateSubscribe(string topic, HandlerSubscription handler, OnSubscribed completionHandler)
         {
             if(!_connection.HasActiveSession())
             {
@@ -79,26 +88,23 @@ namespace SocialPoint.WAMP.Subscriber
 
             _connection.DebugMessage(string.Concat("Subscribe to event ", topic));
 
-            /* [SUBSCRIBE, Request|id, Options|dict, Topic|uri]
-             * [32, 713845233, {}, "com.myapp.mytopic1"]
-             */
-            var requestId = _connection.GetAndIncrementRequestId();
-            DebugUtils.Assert(!_subscribeRequests.ContainsKey(requestId), "This requestId was already in use");
-            var request = new SubscribeRequest(handler, completionHandler, topic);
-            _subscribeRequests.Add(requestId, request);
-
-            var data = new AttrList();
-            data.Add(new AttrInt(MsgCode.SUBSCRIBE));
-            data.AddValue(requestId);
-            data.Add(new AttrDic());
-            data.AddValue(topic);
-
-            _connection.SendData(data);
-
+            var data = CreateSubscribeData(topic);
+            var request = new SubscribeRequest(handler, data, completionHandler, topic);
             return request;
         }
 
-        public UnsubscribeRequest Unsubscribe(Subscription subscription, OnUnsubscribed completionHandler)
+        public void SendSubscribe(SubscribeRequest request)
+        {
+            var requestId = _connection.GetAndIncrementRequestId();
+            DebugUtils.Assert(!_subscribeRequests.ContainsKey(requestId), "This requestId was already in use");
+
+            request.Data.SetValue(SubscribeRequest.IdIndex, requestId);
+            _subscribeRequests.Add(requestId, request);
+
+            _connection.SendData(request.Data);
+        }
+
+        public UnsubscribeRequest CreateUnsubscribe(Subscription subscription, OnUnsubscribed completionHandler)
         {
             if(!_connection.HasActiveSession())
             {
@@ -122,30 +128,28 @@ namespace SocialPoint.WAMP.Subscriber
 
             _subscriptionHandlers.Remove(subscription.Id);
 
-            /* [UNSUBSCRIBE, Request|id, SUBSCRIBED.Subscription|id]
-             * [34, 85346237, 5512315355]
-             */
+            var data = CreateUnsubscribeData(subscription);
+            var request = new UnsubscribeRequest(completionHandler, data);
+            return request;
+        }
+
+        public void SendUnsubscribe(UnsubscribeRequest request)
+        {
             var requestId = _connection.GetAndIncrementRequestId();
             DebugUtils.Assert(!_unsubscribeRequests.ContainsKey(requestId), "This requestId was already in use");
 
-            var request = new UnsubscribeRequest(completionHandler);
+            request.Data.SetValue(UnsubscribeRequest.IdIndex, requestId);
             _unsubscribeRequests.Add(requestId, request);
 
-            var data = new AttrList();
-            data.Add(new AttrInt(MsgCode.UNSUBSCRIBE));
-            data.AddValue(requestId);
-            data.AddValue(subscription.Id);
-
-            _connection.SendData(data);
-
-            return request;
+            _connection.SendData(request.Data);
         }
 
         public void AutoSubscribe(Subscription subscription, HandlerSubscription handler)
         {
             if(_subscriptionHandlers.ContainsKey(subscription.Id))
             {
-                throw new Exception("This subscriptionId was already in use");
+                Log.e("This subscriptionId was already in use");
+                return;
             }
             _subscriptionHandlers.Add(subscription.Id, handler);
         }
@@ -154,30 +158,65 @@ namespace SocialPoint.WAMP.Subscriber
 
         #region Private
 
+        AttrList CreateSubscribeData(string topic)
+        {
+            /* [SUBSCRIBE, Request|id, Options|dict, Topic|uri]
+             * [32, 713845233, {}, "com.myapp.mytopic1"]
+             */
+            var data = new AttrList();
+            data.Add(new AttrInt(MsgCode.SUBSCRIBE));
+            data.Add(new AttrDic());
+            data.AddValue(topic);
+
+            //Placeholder id
+            data.InsertValue(SubscribeRequest.IdIndex, 0L);
+
+            return data;
+        }
+
+        AttrList CreateUnsubscribeData(Subscription subscription)
+        {
+            /* [UNSUBSCRIBE, Request|id, SUBSCRIBED.Subscription|id]
+             * [34, 85346237, 5512315355]
+             */
+            var data = new AttrList();
+            data.Add(new AttrInt(MsgCode.UNSUBSCRIBE));
+            data.AddValue(subscription.Id);
+
+            //Placeholder id
+            data.InsertValue(UnsubscribeRequest.IdIndex, 0L);
+
+            return data;
+        }
+
         internal void ProcessSubscribed(AttrList msg)
         {
             // [SUBSCRIBED, SUBSCRIBE.Request|id, Subscription|id]
 
             if(msg.Count != 3)
             {
-                throw new Exception("Invalid SUBSCRIBED message structure - length must be 3");
+                Log.e("Invalid SUBSCRIBED message structure - length must be 3");
+                return;
             }
 
             if(!msg.Get(1).IsValue)
             {
-                throw new Exception("Invalid SUBSCRIBED message structure - SUBSCRIBE.Request must be an integer");
+                Log.e("Invalid SUBSCRIBED message structure - SUBSCRIBE.Request must be an integer");
+                return;
             }
 
             long requestId = msg.Get(1).AsValue.ToLong();
             SubscribeRequest request;
             if(!_subscribeRequests.TryGetValue(requestId, out request))
             {
-                throw new Exception("Bogus SUBSCRIBED message for non-pending request ID");
+                Log.e("Bogus SUBSCRIBED message for non-pending request ID");
+                return;
             }
 
             if(!msg.Get(2).IsValue)
             {
-                throw new Exception("Invalid SUBSCRIBED message structure - SUBSCRIBED.Subscription must be an integer");
+                Log.e("Invalid SUBSCRIBED message structure - SUBSCRIBED.Subscription must be an integer");
+                return;
             }
             long subscriptionId = msg.Get(2).AsValue.ToLong();
 
@@ -197,19 +236,22 @@ namespace SocialPoint.WAMP.Subscriber
 
             if(msg.Count != 2)
             {
-                throw new Exception("Invalid UNSUBSCRIBED message structure - length must be 2");
+                Log.e("Invalid UNSUBSCRIBED message structure - length must be 2");
+                return;
             }
 
             if(!msg.Get(1).IsValue)
             {
-                throw new Exception("Invalid UNSUBSCRIBED message structure - UNSUBSCRIBE.Request must be an integer");
+                Log.e("Invalid UNSUBSCRIBED message structure - UNSUBSCRIBE.Request must be an integer");
+                return;
             }
 
             long requestId = msg.Get(1).AsValue.ToLong();
             UnsubscribeRequest request;
             if(!_unsubscribeRequests.TryGetValue(requestId, out request))
             {
-                throw new Exception("Bogus UNSUBSCRIBED message for non-pending request ID");
+                Log.e("Bogus UNSUBSCRIBED message for non-pending request ID");
+                return;
             }
 
             if(request.CompletionHandler != null)
@@ -227,12 +269,14 @@ namespace SocialPoint.WAMP.Subscriber
 
             if(msg.Count < 4 || msg.Count > 6)
             {
-                throw new Exception("Invalid EVENT message structure - length must be 4, 5 or 6");
+                Log.e("Invalid EVENT message structure - length must be 4, 5 or 6");
+                return;
             }
 
             if(!msg.Get(1).IsValue)
             {
-                throw new Exception("Invalid EVENT message structure - SUBSCRIBED.Subscription must be an integer");
+                Log.e("Invalid EVENT message structure - SUBSCRIBED.Subscription must be an integer");
+                return;
             }
             long subscriptionId = msg.Get(1).AsValue.ToLong();
 
@@ -254,7 +298,8 @@ namespace SocialPoint.WAMP.Subscriber
                 {
                     if(!msg.Get(4).IsList)
                     {
-                        throw new Exception("Invalid RESULT message structure - YIELD.Arguments must be a list");
+                        Log.e("Invalid RESULT message structure - YIELD.Arguments must be a list");
+                        return;
                     }
                     listParams = msg.Get(4).AsList;
                 }
@@ -262,7 +307,8 @@ namespace SocialPoint.WAMP.Subscriber
                 {
                     if(!msg.Get(5).IsDic)
                     {
-                        throw new Exception("Invalid RESULT message structure - YIELD.ArgumentsKw must be a dictionary");
+                        Log.e("Invalid RESULT message structure - YIELD.ArgumentsKw must be a dictionary");
+                        return;
                     }
                     dictParams = msg.Get(5).AsDic;
                 }
@@ -275,7 +321,8 @@ namespace SocialPoint.WAMP.Subscriber
             SubscribeRequest request;
             if(!_subscribeRequests.TryGetValue(requestId, out request))
             {
-                throw new Exception("Bogus ERROR message for non-pending SUBSCRIBE request ID");
+                Log.e("Bogus ERROR message for non-pending SUBSCRIBE request ID");
+                return;
             }
             if(request.CompletionHandler != null)
             {
@@ -289,7 +336,8 @@ namespace SocialPoint.WAMP.Subscriber
             UnsubscribeRequest request;
             if(!_unsubscribeRequests.TryGetValue(requestId, out request))
             {
-                throw new Exception("Bogus ERROR message for non-pending UNSUBSCRIBE request ID");
+                Log.e("Bogus ERROR message for non-pending UNSUBSCRIBE request ID");
+                return;
             }
             if(request.CompletionHandler != null)
             {

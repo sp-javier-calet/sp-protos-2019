@@ -314,7 +314,7 @@ namespace SocialPoint.Base
             }
         }
 
-        public static T GetChildComponent<T> (this GameObject gameObject, string name)
+        public static T GetChildComponent<T>(this GameObject gameObject, string name)
         {
             Transform child = gameObject.transform.Find(name);
             if(child != null)

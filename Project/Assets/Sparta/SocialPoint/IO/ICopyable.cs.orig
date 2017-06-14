@@ -1,0 +1,21 @@
+<<<<<<< HEAD
+﻿using SocialPoint.Utils;
+
+=======
+﻿
+>>>>>>> origin/master
+namespace SocialPoint.IO
+{
+    public interface ICopyable
+    {
+        void Copy(object other);
+    }
+<<<<<<< HEAD
+
+    public interface IPoolCloneable
+    {
+        object Clone(ObjectPool pool);
+    }
+=======
+>>>>>>> origin/master
+}
