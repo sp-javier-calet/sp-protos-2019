@@ -20,8 +20,46 @@ namespace SocialPoint.GrayboxLibrary
         {
             //Mounts the smb folder
             #if  UNITY_EDITOR_OSX
+            bool mounted = false;
+            if(!Directory.Exists(GrayboxLibraryConfig.IconsPath))
+            {
+                var process = new ProcessStartInfo();
+                process.UseShellExecute = false;
+                process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                process.FileName = "mount";
+                process.RedirectStandardError = true;
+                process.RedirectStandardOutput = true;
+                var run = Process.Start(process);
+                while(!run.StandardError.EndOfStream)
+                {
+                    UnityEngine.Debug.LogError(run.StandardError.ReadLine());
+                }
+                while(!run.StandardOutput.EndOfStream)
+                {
+                    string outputText = run.StandardOutput.ReadLine();
+                    if(outputText.Contains(GrayboxLibraryConfig.SmbFolder))
+                    {
+                        string newPath = outputText.Substring(outputText.IndexOf(GrayboxLibraryConfig.SmbFolder + " on ") + GrayboxLibraryConfig.SmbFolder.Length + 4);
+                        newPath = newPath.Split(' ')[0];
+                        GrayboxLibraryConfig.SetVolumePath(newPath);
+                        mounted = true;
+                    }
+                    else if(outputText.Contains(GrayboxLibraryConfig.AltSmbFolder))
+                    {
+                        string newPath = outputText.Substring(outputText.IndexOf(GrayboxLibraryConfig.AltSmbFolder + " on ") + GrayboxLibraryConfig.AltSmbFolder.Length + 4);
+                        newPath = newPath.Split(' ')[0];
+                        GrayboxLibraryConfig.SetVolumePath(newPath);
+                        mounted = true;
+                    }
+                }
+                run.Close();
+            }
+            else
+            {
+                mounted = true;
+            }
 
-            if(!Directory.Exists(GrayboxLibraryConfig.PkgDefaultFolder))
+            if(!mounted)
             {
                 var process = new ProcessStartInfo();
                 process.UseShellExecute = false;
@@ -86,7 +124,7 @@ namespace SocialPoint.GrayboxLibrary
 
                 Texture2D thumb = null;
                 if(row["thumb_path"].Length > 0)
-                    thumb = _downloadController.DownloadImage(row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath));
+                    thumb = _downloadController.DownloadImage(row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath));
 
                 string[] split1 = row["creation_date"].Split(' ');
                 string[] date = split1[0].Split('/');
@@ -95,13 +133,13 @@ namespace SocialPoint.GrayboxLibrary
 
                 asset = new GrayboxAsset(int.Parse(row["id_asset"]), row["name"], (GrayboxAssetCategory)Enum.Parse(typeof(GrayboxAssetCategory), row["category"]),
                     row["main_asset_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                     row["pkg_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                     row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                     row["animated_thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath), thumb, finalDate);
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath), thumb, finalDate);
             }
 
             return asset;
@@ -135,7 +173,7 @@ namespace SocialPoint.GrayboxLibrary
                 Texture2D thumb = null;
                 if(downloadThumbnail)
                     thumb = _downloadController.DownloadImage(row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                        .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath));
+                        .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath));
 
                 string[] split1 = row["creation_date"].Split(' ');
                 string[] date = split1[0].Split('/');
@@ -144,13 +182,13 @@ namespace SocialPoint.GrayboxLibrary
 
                 GrayboxAsset asset = new GrayboxAsset(int.Parse(row["id_asset"]), row["name"], (GrayboxAssetCategory)Enum.Parse(typeof(GrayboxAssetCategory), row["category"]),
                                          row["main_asset_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                                          row["pkg_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                                          row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                                          row["animated_thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath), thumb, finalDate);
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath), thumb, finalDate);
 
                 assets.Add(asset);
             }
@@ -192,7 +230,7 @@ namespace SocialPoint.GrayboxLibrary
                 Texture2D thumb = null;
                 if(downloadThumbnail)
                     thumb = _downloadController.DownloadImage(row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                        .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath));
+                        .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath));
 
                 string[] split1 = row["creation_date"].Split(' ');
                 string[] date = split1[0].Split('/');
@@ -201,13 +239,13 @@ namespace SocialPoint.GrayboxLibrary
 
                 GrayboxAsset asset = new GrayboxAsset(int.Parse(row["id_asset"]), row["name"], (GrayboxAssetCategory)Enum.Parse(typeof(GrayboxAssetCategory), row["category"]),
                                          row["main_asset_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                                          row["pkg_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                                          row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                                          row["animated_thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath), thumb, finalDate);
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath), thumb, finalDate);
 
                 assets.Add(asset);
             }
