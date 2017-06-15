@@ -23,13 +23,13 @@ namespace SocialPoint.Rating
 
         const int DayInSeconds = 86400;
 
-        IDeviceInfo _deviceInfo;
+        readonly IDeviceInfo _deviceInfo;
         readonly IAttrStorage _storage;
-        IAppEvents _appEvents;
-
-        IAppRaterGUI _gui;
+        readonly IAppEvents _appEvents;
+        readonly INativeUtils _nativeUtils;
         AttrDic _appRaterInfo;
 
+        IAppRaterGUI _gui;
         public IAppRaterGUI GUI
         {
             set
@@ -41,8 +41,6 @@ namespace SocialPoint.Rating
                 }
             }
         }
-
-        public string StoreUrl = "http://www.socialpoint.es/";
 
         public const int DefaultUsesUntilPrompt = 20;
         public const int DefaultEventsUntilPrompt = -1;
@@ -69,11 +67,13 @@ namespace SocialPoint.Rating
         /// </summary>
         public bool AnyVersionRateIsValid;
 
+        public string StoreUrl;
 
-        public AppRater(IDeviceInfo deviceInfo, IAttrStorage storage, IAppEvents appEvents)
+        public AppRater(IDeviceInfo deviceInfo, IAttrStorage storage, INativeUtils nativeUtils, IAppEvents appEvents)
         {
             _deviceInfo = deviceInfo;
             _storage = storage;
+            _nativeUtils = nativeUtils;
 
             //In some games, we don't want showRate when you come back from background
             if(appEvents != null)
@@ -382,7 +382,18 @@ namespace SocialPoint.Rating
 
         void RequestAccepted()
         {
-            Application.OpenURL(StoreUrl);
+            if(!string.IsNullOrEmpty(StoreUrl))
+            {
+                Application.OpenURL(StoreUrl);
+            }
+            else if(_nativeUtils == null)
+            {
+                throw new InvalidOperationException("No native utils found.");
+            }
+            else
+            {
+                _nativeUtils.OpenReview();
+            }
             _appRaterInfo.SetValue(RatedCurrentVersionKey, true);
             _appRaterInfo.SetValue(RatedAnyVersionKey, true);
             SaveInfo();

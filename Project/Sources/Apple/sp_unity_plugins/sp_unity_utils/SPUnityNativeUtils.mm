@@ -259,7 +259,23 @@ EXPORT_API char* SPUnityNotificationsDeviceToken()
 {
     return SPUnityNativeUtils::createString(_deviceToken.c_str());
 }
+
 EXPORT_API char* SPUnityNotificationsRegistrationError()
 {
     return SPUnityNativeUtils::createString(_registrationError.c_str());
+}
+
+#import <StoreKit/StoreKit.h>
+
+EXPORT_API bool SPUnityNativeUtilsOpenReview()
+{
+#ifndef TARGET_OS_TV
+    if(NSStringFromClass([SKStoreReviewController class]) != nil)
+    {
+        [SKStoreReviewController requestReview];
+        return true;
+    }
+#endif
+
+    return false;
 }

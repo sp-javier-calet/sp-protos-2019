@@ -99,6 +99,7 @@ EXPORT_API void SPUnityAppEvents_Init(const char* gameObjectName);
 EXPORT_API void SPUnityAppEvents_Flush();
 EXPORT_API char* SPUnityNotificationsDeviceToken();
 EXPORT_API char* SPUnityNotificationsRegistrationError();
+EXPORT_API bool SPUnityNativeUtilsOpenReview();
 }
 
 #endif

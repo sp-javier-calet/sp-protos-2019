@@ -174,6 +174,7 @@ namespace SocialPoint.Login
     {
         public TimeSpan DeltaTime;
         public string StoreUrl;
+        public string RateUrl;
         public UpgradeData Upgrade;
         public string UserImportance;
         public bool Cheat;
@@ -182,6 +183,7 @@ namespace SocialPoint.Login
         public AttrDic MatchData;
         const string AttrKeyTimestamp = "ts";
         const string AttrKeyStoreUrl = "store";
+        const string AttrKeyRateUrl = "rate_url";
         const string AttrKeyUpgradeSuggested = "suggested_upgrade";
         const string AttrKeyUpgradeForced = "forced_upgrade";
         const string AttrKeyMaintenanceData = "maintenance_data";
@@ -210,6 +212,9 @@ namespace SocialPoint.Login
                         break;
                     case AttrKeyStoreUrl:
                         StoreUrl = reader.GetStringValue();
+                        break;
+                    case AttrKeyRateUrl:
+                        RateUrl = reader.GetStringValue();
                         break;
                     case AttrKeyUpgradeForced:
                         Upgrade = new UpgradeData(UpgradeType.Forced, reader);
@@ -252,6 +257,10 @@ namespace SocialPoint.Login
             if(datadic.ContainsKey(AttrKeyStoreUrl))
             {
                 StoreUrl = datadic.GetValue(AttrKeyStoreUrl).ToString();
+            }
+            if(datadic.ContainsKey(AttrKeyRateUrl))
+            {
+                RateUrl = datadic.GetValue(AttrKeyRateUrl).ToString();
             }
             if(datadic.ContainsKey(AttrKeyUserImportance))
             {

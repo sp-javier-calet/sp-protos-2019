@@ -31,7 +31,8 @@ namespace SocialPoint.Rating
             storage = new FileAttrStorage(FileUtils.Combine(PathsManager.AppPersistentDataPath, "AppRaterTests"));
             var appEvents = Substitute.For<IAppEvents>();
             appEvents.WasOnBackground.Returns(new PriorityAction());
-            AppRater = new AppRater(deviceInfo, storage, appEvents);
+			var nativeUtils = Substitute.For<INativeUtils> ();
+            AppRater = new AppRater(deviceInfo, storage, nativeUtils, appEvents);
             AppRaterGUI = Substitute.For<IAppRaterGUI>();
             AppRaterGUI.Show(Arg.Any<bool>()).Returns(true);
             AppRater.GUI = AppRaterGUI;
