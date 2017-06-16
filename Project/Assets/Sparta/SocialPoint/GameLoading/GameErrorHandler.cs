@@ -157,16 +157,21 @@ namespace SocialPoint.GameLoading
             DebugUtils.Assert(_locale != null, "Locale can not be null");
             DebugUtils.Assert(_appEvents != null, "AppEvents can not be null");
 
-            _appEvents.LevelWasLoaded += OnLevelWasLoaded;
-            OnLevelWasLoaded(SceneManager.GetActiveScene().buildIndex);
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            ReloadPopups();
         }
 
         public void Dispose()
         {
-            _appEvents.LevelWasLoaded -= OnLevelWasLoaded;
+            SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 
-        void OnLevelWasLoaded(int i)
+        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            ReloadPopups();
+        }
+
+        void ReloadPopups()
         {
             _popups = null;
             if(_findPopups != null)
