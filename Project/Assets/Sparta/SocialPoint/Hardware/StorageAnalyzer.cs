@@ -1,9 +1,6 @@
 ﻿using System;
 using SocialPoint.Utils;
 
-//Handlers receive amount of free bytes (1) and minimun expected (2)
-using LowStorageHandler = System.Action<ulong, ulong>;
-
 namespace SocialPoint.Hardware
 {
     [Serializable]
@@ -16,6 +13,9 @@ namespace SocialPoint.Hardware
 
     public interface IStorageAnalyzer : IDisposable
     {
+        //Handlers receive amount of free bytes (1) and minimun expected (2)
+        event Action<ulong, ulong> OnLowStorageWarning;
+
         StorageAnalyzerConfig Config { get; set; }
 
         bool Running { get; }
@@ -25,14 +25,12 @@ namespace SocialPoint.Hardware
         void Stop();
 
         void AnalyzeNow();
-
-        void RegisterLowStorageWarningHandler(LowStorageHandler handler);
-
-        void UnregisterLowStorageWarningHandler(LowStorageHandler handler);
     }
 
     public class StorageAnalyzer : IStorageAnalyzer, IUpdateable
     {
+        public event Action<ulong, ulong> OnLowStorageWarning;
+
         public StorageAnalyzerConfig Config
         {
             get
@@ -58,7 +56,6 @@ namespace SocialPoint.Hardware
         StorageAnalyzerConfig _config;
         IStorageInfo _storageInfo;
         IUpdateScheduler _scheduler;
-        LowStorageHandler _onLowStorageWarning;
 
         public StorageAnalyzer(IStorageInfo storageInfo, IUpdateScheduler scheduler, StorageAnalyzerConfig config)
         {
@@ -92,16 +89,6 @@ namespace SocialPoint.Hardware
             CheckFreeStorageSpace();
         }
 
-        public void RegisterLowStorageWarningHandler(LowStorageHandler handler)
-        {
-            _onLowStorageWarning += handler;
-        }
-
-        public void UnregisterLowStorageWarningHandler(LowStorageHandler handler)
-        {
-            _onLowStorageWarning -= handler;
-        }
-
         public void Update()
         {
             AnalyzeNow();
@@ -119,14 +106,14 @@ namespace SocialPoint.Hardware
 
         void RaiseLowStorageWarning(ulong freeBytesStorage, ulong requiredBytesStorage)
         {
-            if(_onLowStorageWarning != null)
+            if(OnLowStorageWarning != null)
             {
                 if(_config.StopOnFirstWarning)
                 {
                     Stop();
                 }
 
-                _onLowStorageWarning(freeBytesStorage, requiredBytesStorage);
+                OnLowStorageWarning(freeBytesStorage, requiredBytesStorage);
             }
         }
     }

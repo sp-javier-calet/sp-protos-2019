@@ -66,11 +66,11 @@ namespace SocialPoint.Hardware
                 value => {
                     if(_listeningStorageWarning)
                     {
-                        _storageAnalyzer.UnregisterLowStorageWarningHandler(OnLowStorageSpace);
+                        _storageAnalyzer.OnLowStorageWarning -= OnLowStorageSpace;
                     }
                     else
                     {
-                        _storageAnalyzer.RegisterLowStorageWarningHandler(OnLowStorageSpace);
+                        _storageAnalyzer.OnLowStorageWarning += OnLowStorageSpace;
                     }
                     _listeningStorageWarning = !_listeningStorageWarning;
                     layout.Refresh();
