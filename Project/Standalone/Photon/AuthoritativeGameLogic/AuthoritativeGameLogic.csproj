@@ -31,29 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\ClickAction.cs">
-      <Link>ClickAction.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\ExplosionEvent.cs">
-      <Link>ExplosionEvent.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\GameMsgType.cs">
-      <Link>GameMsgType.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\GameMultiplayerServerBehaviour.cs">
-      <Link>GameMultiplayerServerBehaviour.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\MovementAction.cs">
-      <Link>MovementAction.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\NetworkServerFactory.cs">
-      <Link>NetworkServerFactory.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\PathEvent.cs">
-      <Link>PathEvent.cs</Link>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>

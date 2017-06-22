@@ -263,7 +263,7 @@ namespace SocialPoint.Multiplayer
 
         public void RegisterSceneParser<T>(byte type, IDiffReadParser<T> parser) where T : INetworkSceneBehaviour, ICopyable
         {
-            UnityEngine.Debug.Log("Registering parser of type " + typeof(T));
+            SocialPoint.Base.Log.d("Registering parser of type " + typeof(T));
             _parser.RegisterSceneBehaviour<T>(type, parser);
         }
 

@@ -54,6 +54,7 @@ namespace SocialPoint.Network
         protected NetworkStatsServer _statsServer;
         protected bool _statsServerEnabled;
         ILog _log;
+        protected IFileManager _fileManager;
         object _timer;
         protected string BackendEnv { get; private set; }
 
@@ -69,6 +70,7 @@ namespace SocialPoint.Network
 
         const string LoggerNameConfig = "LoggerName";
         const string PluginNameConfig = "PluginName";
+        const string AssetsPathConfig = "AssetsPath";
         const string StatsServerEnabled = "StatsServerEnabled";
         const string FullErrorMsg = "Game is full.";
         const string ServerPresentErrorMsg = "This room already has a server.";
@@ -113,7 +115,8 @@ namespace SocialPoint.Network
                 return false;
             }
             string configStr;
-            if(config.TryGetValue(PluginNameConfig, out configStr))
+            string assetsPath;
+            if (config.TryGetValue(PluginNameConfig, out configStr))
             {
                 _pluginName = configStr;
             }
@@ -121,7 +124,15 @@ namespace SocialPoint.Network
             {
                 _log = LogManager.GetLogger(configStr);
             }
-            if(config.TryGetValue(StatsServerEnabled, out configStr))
+            if (config.TryGetValue(AssetsPathConfig, out configStr))
+            {
+                assetsPath = configStr;
+            }
+            else
+            {
+                assetsPath = Path.GetDirectoryName(GetType().Assembly.Location);
+            }
+            if (config.TryGetValue(StatsServerEnabled, out configStr))
             {
                 _statsServerEnabled = configStr.Equals("true") ? true : false;
                 if(_statsServerEnabled)
@@ -133,6 +144,8 @@ namespace SocialPoint.Network
             {
                 PluginEventTracker.UpdateCommonTrackData += (dic => dic.SetValue("ver", AppVersion));
             }
+            _fileManager = new FileManagerWrapper(new StandaloneFileManager(),
+                Path.Combine(assetsPath, "{0}.bytes"), true);
             return true;
         }
 
@@ -390,7 +403,8 @@ namespace SocialPoint.Network
 
         protected virtual void Update()
         {
-            _updateScheduler.Update((float)UpdateInterval/1000.0f);
+            float deltaTime = (float)UpdateInterval / 1000.0f;
+            _updateScheduler.Update(deltaTime, deltaTime);
         }
 
         void BroadcastError(Error err)
