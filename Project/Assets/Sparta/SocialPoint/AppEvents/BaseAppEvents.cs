@@ -138,17 +138,6 @@ namespace SocialPoint.AppEvents
             }
         }
 
-        public event Action<int> LevelWasLoaded;
-
-        void OnLevelWasLoaded(int level)
-        {
-            var handler = LevelWasLoaded;
-            if(handler != null)
-            {
-                handler(level);
-            }
-        }
-
         IEnumerator ICoroutineRunner.StartCoroutine(IEnumerator enumerator)
         {
             if(enumerator != null)
