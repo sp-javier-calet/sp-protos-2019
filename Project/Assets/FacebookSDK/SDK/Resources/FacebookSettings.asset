@@ -8,7 +8,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: -2115301841, guid: 589eed0dc92d0461f812d342c7b29002, type: 3}
+  m_Script: {fileID: -2115301841, guid: b96583fe9d2614f3081becbbd70cd55f, type: 3}
   m_Name: FacebookSettings
   m_EditorClassIdentifier: 
   selectedAppIndex: 0
@@ -26,4 +26,3 @@ MonoBehaviour:
   iosURLSuffix: 
   appLinkSchemes:
   - list: []
-  uploadAccessToken: 
