@@ -269,7 +269,7 @@ EXPORT_API char* SPUnityNotificationsRegistrationError()
 
 EXPORT_API bool SPUnityNativeUtilsOpenReview()
 {
-#ifndef TARGET_OS_TV
+#ifndef UNITY_TVOS
     if(NSStringFromClass([SKStoreReviewController class]) != nil)
     {
         [SKStoreReviewController requestReview];
