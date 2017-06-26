@@ -38,7 +38,7 @@ namespace SocialPoint.Lockstep
         public const bool DefaultFinishOnClientDisconnection = true;
         public const int DefaultMetricSendInterval = 10000;
         public const bool DefaultAllowMatchStartWithOnePlayerReady = false;
-        public const bool DefaultUsePluginHttpClient = false;
+        public const bool DefaultMatchmakingEnabled = true;
 
         public byte MaxPlayers = DefaultMaxPlayers;
         public int ClientStartDelay = DefaultClientStartDelay;
@@ -47,7 +47,7 @@ namespace SocialPoint.Lockstep
         public bool FinishOnClientDisconnection = DefaultFinishOnClientDisconnection;
         public int MetricSendInterval = DefaultMetricSendInterval;
         public bool AllowMatchStartWithOnePlayerReady = DefaultAllowMatchStartWithOnePlayerReady;
-        public bool UsePluginHttpClient = DefaultUsePluginHttpClient;
+        public bool MatchmakingEnabled = DefaultMatchmakingEnabled;
 
         public override string ToString()
         {
@@ -682,7 +682,7 @@ namespace SocialPoint.Lockstep
             {
                 BeforeMatchStarts();
             }
-            if(_matchmaking != null && _matchmaking.Enabled)
+            if(ServerConfig.MatchmakingEnabled && _matchmaking != null && _matchmaking.Enabled)
             {
                 var playerIds = PlayerIds;
                 var matchId = MatchId;

@@ -235,6 +235,7 @@ namespace Examples.Lockstep
             _netServer = Services.Instance.Resolve<INetworkServer>();
             SetupPhoton(_netServer as PhotonNetworkBase);
             _netLockstepServer = Services.Instance.Resolve<LockstepNetworkServer>();
+            _netLockstepServer.ServerConfig.MatchmakingEnabled = true;
             _serverBehaviour = new ServerBehaviour(_netLockstepServer, _gameConfig);
             _netServer.RemoveDelegate(this);
             _netServer.AddDelegate(this);
@@ -256,6 +257,7 @@ namespace Examples.Lockstep
             SetupGameScreen();
             StartServer();
             _netLockstepServer.UnregisterLocalClient();
+            _netLockstepServer.ServerConfig.MatchmakingEnabled = false;
             StartClient(GameLockstepMode.Host);
         }
 
