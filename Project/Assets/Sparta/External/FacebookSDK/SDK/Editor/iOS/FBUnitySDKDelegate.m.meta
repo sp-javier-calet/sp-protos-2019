@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: fbc51482e3ca248329707d61959f9d9d
+guid: 23ab7addd3517464784fd9d1870b1da6
 timeCreated: 1435010266
 licenseType: Pro
 PluginImporter:
@@ -7,6 +7,7 @@ PluginImporter:
   iconMap: {}
   executionOrder: {}
   isPreloaded: 0
+  isOverridable: 0
   platformData:
     Android:
       enabled: 0
