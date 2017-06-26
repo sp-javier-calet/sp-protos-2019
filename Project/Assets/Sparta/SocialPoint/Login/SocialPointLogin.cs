@@ -540,22 +540,21 @@ namespace SocialPoint.Login
             Error err = null;
             var data = new AttrDic();
             AttrDic json = null;
-            if(resp.HasError)
+            if(resp.Body != null)
             {
                 json = new JsonAttrParser().Parse(resp.Body).AsDic;
+                LoadGenericData(json.Get(AttrKeyGenericData));
             }
 
             if(resp.StatusCode == ForceUpgradeError)
             {
                 err = new Error("The game needs to be upgraded.");
                 typ = ErrorType.Upgrade;
-                LoadGenericData(json.Get(AttrKeyGenericData));
             }
             else if(resp.StatusCode == RootedDeviceError)
             {
                 err = new Error("The device has been rooted.");
                 typ = ErrorType.Rooted;
-                LoadGenericData(json.Get(AttrKeyGenericData));
             }
             else if(resp.StatusCode == InvalidSecurityTokenError)
             {
