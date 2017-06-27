@@ -1305,7 +1305,10 @@ namespace SocialPoint.Lockstep
 
         public void ReplayLocalClient()
         {
-            Replay(_localClient, _localFactory);
+            if(_localClient != null)
+            {
+                Replay(_localClient, _localFactory);
+            }
         }
 
         public void UnregisterLocalClient()

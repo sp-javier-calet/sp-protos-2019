@@ -302,11 +302,11 @@ namespace SocialPoint.Lockstep
             {
                 return;
             }
-            if(data.ProcessTime >= Config.CommandStepDuration)
+            if(data.ProcessDuration >= Config.CommandStepDuration)
             {
                 SendMetric(new Metric(MetricType.Counter, TurnProcessingTimeExceedMetricName, 1));
             }
-            _processingTimes.Add((int)data.ProcessTime);
+            _processingTimes.Add((int)data.ProcessDuration);
         }
 
         void ConfirmLocalClientTurn(ServerTurnData turn)

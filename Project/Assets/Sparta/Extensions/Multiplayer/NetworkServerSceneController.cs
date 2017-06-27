@@ -88,10 +88,14 @@ namespace SocialPoint.Multiplayer
 
         public void Restart(INetworkServer server)
         {
+            if(_server != null)
+            {
+                _server.RemoveDelegate(this);
+            }
+            UnregisterAllBehaviours();
             _server = server;
             _server.AddDelegate(this);
             _server.RegisterReceiver(this);
-            UnregisterAllBehaviours();
 
             _scene = new NetworkScene<INetworkSceneBehaviour>();
             _prevScene = (NetworkScene<INetworkSceneBehaviour>)_scene.DeepClone();

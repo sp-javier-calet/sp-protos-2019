@@ -14,6 +14,7 @@ namespace SocialPoint.Lockstep
         public void SetUp()
         {
             _client = new LockstepClient();
+            _client.ClientConfig.RecoverGracefully = false;
         }
 
         [Test]

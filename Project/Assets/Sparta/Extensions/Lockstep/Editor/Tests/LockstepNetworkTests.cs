@@ -70,10 +70,12 @@ namespace SocialPoint.Lockstep.Network
 
             _netClient1 = new SimulateNetworkClient(_netServer);
             _lockClient1 = new LockstepClient();
+            _lockClient1.ClientConfig.RecoverGracefully = false;
             _netLockClient1 = new LockstepNetworkClient(_netClient1, _lockClient1, _factory);
 
             _netClient2 = new SimulateNetworkClient(_netServer);
             _lockClient2 = new LockstepClient();
+            _lockClient2.ClientConfig.RecoverGracefully = false;
             _netLockClient2 = new LockstepNetworkClient(_netClient2, _lockClient2, _factory);
 
             _factory.Register<TestCommand>(1, new TestCommand());
