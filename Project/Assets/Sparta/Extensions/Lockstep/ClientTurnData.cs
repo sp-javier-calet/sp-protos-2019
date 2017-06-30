@@ -7,10 +7,6 @@ namespace SocialPoint.Lockstep
     {
         List<ClientCommandData> _commands;
 
-        public long ProcessDuration;
-
-        public long ReceptionTime;
-
         public ClientTurnData(List<ClientCommandData> commands = null)
         {
             if(commands == null)
