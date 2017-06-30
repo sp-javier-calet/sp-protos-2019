@@ -30,5 +30,7 @@ MonoBehaviour:
       LocalSimulationDelay: 1000
       MaxSimulationStepsPerFrame: 0
       SpeedFactor: 1
-      GracefulTurnReceptionDurationFactor: 0.9
+      RecoverGracefully: 1
+      GracefulTurnReceptionDurationFactor: 1.1
+      TurnReceptionDurationAverageSize: 10
     RunLocalServerClient: 1

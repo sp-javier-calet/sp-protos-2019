@@ -107,10 +107,16 @@ namespace SocialPoint.Lockstep
             return string.Format("[LockstepClientConfig\n" +
             "LocalSimulationDelay:{0}\n" +
             "MaxSimulationStepsPerFrame:{1}\n" +
-            "SpeedFactor:{2}]",
+            "SpeedFactor:{2}\n" +
+            "RecoverGracefully:{3}\n" +
+            "GracefulTurnReceptionDurationFactor:{4}\n" +
+            "TurnReceptionDurationAverageSize:{5}]",
                 LocalSimulationDelay,
                 MaxSimulationStepsPerFrame,
-                SpeedFactor);
+                SpeedFactor,
+                RecoverGracefully,
+                GracefulTurnReceptionDurationFactor,
+                TurnReceptionDurationAverageSize);
         }
     }
 
@@ -163,7 +169,7 @@ namespace SocialPoint.Lockstep
         public LockstepClientConfig ClientConfig { get; set; }
 
         public int Disconnects{ get; private set; }
-        
+
         public int DisconnectTime { get; private set; }
 
         public event Action<ClientCommandData> CommandAdded;
@@ -274,6 +280,10 @@ namespace SocialPoint.Lockstep
             get
             {
                 var m = 0;
+                if(_turnReceptionDurations.Count == 0)
+                {
+                    return m;
+                }
                 for(var i = 0; i < _turnReceptionDurations.Count; i++)
                 {
                     m += _turnReceptionDurations[i];
@@ -286,14 +296,14 @@ namespace SocialPoint.Lockstep
         {
             get
             {
-                var dt = _confirmedTurns.Count * Config.CommandStepDuration;
-                if(_lastCmdTime + dt < _time)
+                var cmdt = _lastConfirmedTurnNumber * Config.CommandStepDuration;
+                if(cmdt < _time)
                 {
                     // not enough turns to arrive to current time
                     return false;
                 }
-                var f = TurnReceptionDuration / Config.CommandStepDuration;
-                if(f < ClientConfig.GracefulTurnReceptionDurationFactor)
+                var f = 1.0f * TurnReceptionDuration / Config.CommandStepDuration;
+                if(f > ClientConfig.GracefulTurnReceptionDurationFactor)
                 {
                     // turn reception duration is not similar enough to the optimum
                     return false;
@@ -427,13 +437,14 @@ namespace SocialPoint.Lockstep
 
         public void AddConfirmedTurn(ClientTurnData turn = null)
         {
+            _lastConfirmedTurnNumber++;
             var pos = _turnBuffersHistoric.FindLastIndex(tb => tb < TurnBuffer);
             _turnBuffersHistoric.Insert(pos + 1, TurnBuffer);
             if(!ClientTurnData.IsNullOrEmpty(turn))
             {
-                DoAddConfirmedTurn(_lastConfirmedTurnNumber+1, turn);
+                _confirmedTurns[_lastConfirmedTurnNumber] = turn;
             }
-            _lastConfirmedTurnNumber++;
+            AddConfirmedTurnDuration(_lastConfirmedTurnNumber);
         }
 
         public void AddConfirmedEmptyTurns(EmptyTurnsMessage emptyTurns)
@@ -451,33 +462,31 @@ namespace SocialPoint.Lockstep
             if(!_confirmedTurns.TryGetValue(t, out turn))
             {
                 turn = new ClientTurnData();
-                DoAddConfirmedTurn(t, turn);
+                _confirmedTurns[t] = turn;
+                AddConfirmedTurnDuration(t);
                 _lastConfirmedTurnNumber = Math.Max(_lastConfirmedTurnNumber, t);
             }
             turn.AddCommand(cmd);
         }
 
-        void DoAddConfirmedTurn(int t, ClientTurnData turn)
+        void AddConfirmedTurnDuration(int t)
         {
-            _confirmedTurns[t] = turn;
-            if(t >= _lastConfirmedTurnNumber)
+            if(t < _lastConfirmedTurnNumber)
             {
-                if(_lastConfirmedTurnTime > 0)
-                {
-                    var dt = _time - _lastConfirmedTurnTime;
-                    if(dt > 0)
-                    {
-                        var dr = t - _lastConfirmedTurnNumber + 1;
-                        _turnReceptionDurations.Add(dr / dt);
-                        var s = ClientConfig.TurnReceptionDurationAverageSize;
-                        if(_turnReceptionDurations.Count > s)
-                        {
-                            _turnReceptionDurations.RemoveRange(0, _turnReceptionDurations.Count - s);
-                        }
-                    }
-                }
-                _lastConfirmedTurnTime = _time;
+                return;
             }
+            if(_lastConfirmedTurnTime > 0)
+            {
+                var dt = _time - _lastConfirmedTurnTime;
+                var dr = t - _lastConfirmedTurnNumber + 1;
+                _turnReceptionDurations.Add(dt / dr);
+                var s = ClientConfig.TurnReceptionDurationAverageSize;
+                if(_turnReceptionDurations.Count > s)
+                {
+                    _turnReceptionDurations.RemoveRange(0, _turnReceptionDurations.Count - s);
+                }
+            }
+            _lastConfirmedTurnTime = _time;
         }
 
         ClientCommandData FindCommand(ClientCommandData cmd)
@@ -558,6 +567,12 @@ namespace SocialPoint.Lockstep
                     SimulationStarted();
                 }
             }
+            if(ClientConfig.RecoverGracefully && !Connected && !WillRecoverGracefully)
+            {
+                return;
+            }
+            var wasConnected = Connected;
+            _state = State.Normal;
             if(!_simRecoveredCalled && _time >= 0 && _state == State.Normal)
             {
                 _simRecoveredCalled = true;
@@ -567,12 +582,6 @@ namespace SocialPoint.Lockstep
                 }
             }
             var simSteps = 0;
-            var wasConnected = Connected;
-            if(ClientConfig.RecoverGracefully && !wasConnected && !WillRecoverGracefully)
-            {
-                return;
-            }
-            _state = State.Normal;
             while(Running)
             {
                 var nextSimTime = _lastSimTime + Config.SimulationStepDuration;
