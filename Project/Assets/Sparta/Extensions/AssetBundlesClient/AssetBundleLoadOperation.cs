@@ -328,7 +328,7 @@ namespace SocialPoint.AssetBundlesClient
                 {
                     return asset;
                 }
-                if(string.IsNullOrEmpty(Error))
+                if(string.IsNullOrEmpty(Error) && _request.asset != null)
                 {
                     Error = GetAssetTypeErrorDescription;
                 }
