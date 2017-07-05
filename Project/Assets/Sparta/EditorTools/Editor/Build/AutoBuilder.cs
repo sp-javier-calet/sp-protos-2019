@@ -299,16 +299,12 @@ namespace SpartaTools.Editor.Build
                 
             Log("Starting Player Build");
 
-            #if UNITY_5_5_OR_NEWER
             var buildPlayerOptions = new BuildPlayerOptions();
             buildPlayerOptions.scenes = activeScenes;
             buildPlayerOptions.locationPathName = location;
             buildPlayerOptions.target = target;
             buildPlayerOptions.options = _options;
             string result = BuildPipeline.BuildPlayer(buildPlayerOptions);
-            #else
-            string result = BuildPipeline.BuildPlayer(activeScenes, location, target, _options);
-            #endif
 
             BackupTempFolder();
 

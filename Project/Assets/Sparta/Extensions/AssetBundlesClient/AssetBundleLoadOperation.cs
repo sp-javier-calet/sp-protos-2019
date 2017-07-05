@@ -2,11 +2,8 @@ using System;
 using System.Collections;
 using SocialPoint.IO;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-
-#if UNITY_5_5_OR_NEWER
 using UnityEngine.Networking;
-#endif
+using UnityEngine.SceneManagement;
 
 namespace SocialPoint.AssetBundlesClient
 {
@@ -164,8 +161,7 @@ namespace SocialPoint.AssetBundlesClient
             return _Url;
         }
     }
-
-    #if UNITY_5_5_OR_NEWER
+        
     public class AssetBundleDownloadFromUnityWebRequestOperation : AssetBundleDownloadOperation
     {
         readonly string _Url;
@@ -220,7 +216,6 @@ namespace SocialPoint.AssetBundlesClient
             return _Url;
         }
     }
-    #endif
 
     public class AssetBundleLoadLevelOperation : AssetBundleLoadOperation
     {

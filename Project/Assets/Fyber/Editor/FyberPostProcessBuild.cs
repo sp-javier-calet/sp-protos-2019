@@ -14,7 +14,7 @@ public class FyberPostProcessBuild
 	public static void OnPostProcessBuild( BuildTarget target, string path )
 	{
 
-#if UNITY_5
+#if UNITY_5_3_OR_NEWER
 		if (target == BuildTarget.iOS)
 #else
 		if (target == BuildTarget.iPhone)

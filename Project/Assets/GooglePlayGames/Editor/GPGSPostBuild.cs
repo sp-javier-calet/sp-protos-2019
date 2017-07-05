@@ -42,7 +42,7 @@ namespace GooglePlayGames.Editor
         [PostProcessBuild (99999)]
         public static void OnPostprocessBuild(BuildTarget target, string pathToBuiltProject)
         {
-#if UNITY_5
+#if UNITY_5_3_OR_NEWER
             if (target != BuildTarget.iOS)
             {
                 if (!GPGSProjectSettings.Instance.GetBool(GPGSUtil.ANDROIDSETUPDONEKEY, false))

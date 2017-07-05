@@ -448,11 +448,7 @@ namespace SocialPoint.AssetBundlesClient
             stringBuilder.Append(assetBundleData.Name);
             var url = stringBuilder.ToString();
 
-            #if UNITY_5_5_OR_NEWER
             _inProgressOperations.Add(new AssetBundleDownloadFromUnityWebRequestOperation(assetBundleData.Name, assetBundleData.Version, url));
-            #else
-            _inProgressOperations.Add(new AssetBundleDownloadFromWebOperation(assetBundleData.Name, assetBundleData.Version, url));
-            #endif
         }
 
         // Where we get all the dependencies and load them all.
