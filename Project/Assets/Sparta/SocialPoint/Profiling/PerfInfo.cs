@@ -324,7 +324,7 @@ namespace SocialPoint.Profiling
         public static GarbageInfo SPUnityProfilerGetGarbageInfo()
         {
             var stats = new GarbageInfo();
-        #if UNITY_5_6
+        #if UNITY_5_6_OR_NEWER
             stats.AllocatedHeap = (uint)Profiler.GetMonoHeapSize();
         #else
             stats.AllocatedHeap = Profiler.GetMonoHeapSize();
