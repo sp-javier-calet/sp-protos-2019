@@ -22,24 +22,11 @@ public static class Util
 	{
 		switch (b)
 		{
-			case BuildTarget.WebPlayer:
-				return BuildPlatform.Web;
-			case BuildTarget.WebPlayerStreamed:
-				return BuildPlatform.Web;
 			case BuildTarget.iOS:
 				return BuildPlatform.iOS;
 
 			case BuildTarget.Android:
 				return BuildPlatform.Android;
-
-
-			case BuildTarget.XBOX360:
-				return BuildPlatform.XBOX360;
-
-			case BuildTarget.PS3:
-				return BuildPlatform.PS3;
-
-
 
 			case BuildTarget.StandaloneWindows:
 				return BuildPlatform.Windows32;
