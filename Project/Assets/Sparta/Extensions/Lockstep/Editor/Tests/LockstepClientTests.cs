@@ -165,6 +165,32 @@ namespace SocialPoint.Lockstep
             Assert.IsTrue(connChanged);
             Assert.IsTrue(_client.Connected, "Client should be reconnected if it received enough turns.");
         }
+
+        [Test]
+        public void ConnectionChangesDetectedGracefully()
+        {
+            bool connChanged = false;
+            _client.ConnectionChanged += () =>  connChanged = true;
+            // add delegate to simulate server that needs to confirm commands
+            _client.CommandAdded += delegate {};
+            _client.ClientConfig.LocalSimulationDelay = 1000;
+            _client.Config.CommandStepDuration = 100;
+            _client.Config.SimulationStepDuration = 1000;
+
+            _client.Start(-1000);
+            _client.Update(1100);
+            connChanged = false;
+            _client.AddConfirmedTurn(new ClientTurnData());
+            _client.Update(200);
+            _client.AddConfirmedTurn(new ClientTurnData());
+            _client.Update(0);
+            Assert.IsFalse(connChanged);
+            Assert.IsFalse(_client.Connected, "Client is waiting until it has enough turns to go to current simulation time.");
+            _client.AddConfirmedTurn(new ClientTurnData());
+            _client.Update(0);
+            Assert.IsTrue(connChanged);
+            Assert.IsTrue(_client.Connected, "Client should be reconnected if it received enough turns.");
+        }
     }
 
 }

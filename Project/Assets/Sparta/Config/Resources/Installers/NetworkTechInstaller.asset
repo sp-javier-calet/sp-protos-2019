@@ -13,7 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    Tech: 2
+    Tech: 0
     Unet:
       Config:
         ServerAddress: localhost
@@ -40,8 +40,8 @@ MonoBehaviour:
           PublishUserId: 0
           CustomProperties: []
           CustomLobbyProperties: []
-          Plugins:
-          - Lockstep
+          Plugins: []
         ForceRegion: 4
         ForceAppId: 
         ForceServer: 
+        Protocol: 0

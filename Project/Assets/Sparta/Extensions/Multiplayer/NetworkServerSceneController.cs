@@ -70,10 +70,6 @@ namespace SocialPoint.Multiplayer
 
         public NetworkServerSceneController(INetworkServer server, IGameTime gameTime = null)
         {
-            _server = server;
-            _server.AddDelegate(this);
-            _server.RegisterReceiver(this);
-
             GameTime = gameTime;
             if(GameTime == null)
             {
@@ -82,6 +78,7 @@ namespace SocialPoint.Multiplayer
             }
 
             _sceneDisposer = new ActionUpdater(DisposeScenes, 0.2f);
+            Restart(server);
         }
 
         void OnObjectRemoved(NetworkGameObject go)
@@ -91,8 +88,14 @@ namespace SocialPoint.Multiplayer
 
         public void Restart(INetworkServer server)
         {
-            _server = server;
+            if(_server != null)
+            {
+                _server.RemoveDelegate(this);
+            }
             UnregisterAllBehaviours();
+            _server = server;
+            _server.AddDelegate(this);
+            _server.RegisterReceiver(this);
 
             _scene = new NetworkScene<INetworkSceneBehaviour>();
             _prevScene = (NetworkScene<INetworkSceneBehaviour>)_scene.DeepClone();
