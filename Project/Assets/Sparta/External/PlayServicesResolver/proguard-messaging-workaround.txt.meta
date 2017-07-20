@@ -1,10 +1,6 @@
 fileFormatVersion: 2
-guid: 5fbd6d5c81e540cc97070cc3bdfeeac4
-labels:
-- gvh
-- gvh_manifest
-- gvh_v1.2.12.0
-timeCreated: 1474401009
+guid: a9437ce89709c4a18b57a67b9a74f893
+timeCreated: 1499301405
 licenseType: Pro
 TextScriptImporter:
   userData: 
