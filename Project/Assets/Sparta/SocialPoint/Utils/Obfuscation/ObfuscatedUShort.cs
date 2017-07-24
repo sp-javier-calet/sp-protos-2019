@@ -44,7 +44,7 @@ namespace SocialPoint.Utils.Obfuscation
 
         public static ObfuscatedUShort operator -(ObfuscatedUShort obfuscated1, ObfuscatedUShort obfuscated2)
         {
-            return new ObfuscatedUShort((ushort)(obfuscated1.Value + obfuscated2.Value));
+            return new ObfuscatedUShort((ushort)(obfuscated1.Value - obfuscated2.Value));
         }
 
         public static ObfuscatedUShort operator -(ObfuscatedUShort obfuscated, ushort value)

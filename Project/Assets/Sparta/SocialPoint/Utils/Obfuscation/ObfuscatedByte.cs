@@ -44,7 +44,7 @@ namespace SocialPoint.Utils.Obfuscation
 
         public static ObfuscatedByte operator -(ObfuscatedByte obfuscated1, ObfuscatedByte obfuscated2)
         {
-            return new ObfuscatedByte((byte)(obfuscated1.Value + obfuscated2.Value));
+            return new ObfuscatedByte((byte)(obfuscated1.Value - obfuscated2.Value));
         }
 
         public static ObfuscatedByte operator -(ObfuscatedByte obfuscated, byte value)

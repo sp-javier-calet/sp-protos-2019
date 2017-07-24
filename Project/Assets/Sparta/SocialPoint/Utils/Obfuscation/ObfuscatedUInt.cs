@@ -44,7 +44,7 @@ namespace SocialPoint.Utils.Obfuscation
 
         public static ObfuscatedUInt operator -(ObfuscatedUInt obfuscated1, ObfuscatedUInt obfuscated2)
         {
-            return new ObfuscatedUInt(obfuscated1.Value + obfuscated2.Value);
+            return new ObfuscatedUInt(obfuscated1.Value - obfuscated2.Value);
         }
 
         public static ObfuscatedUInt operator -(ObfuscatedUInt obfuscated, uint value)

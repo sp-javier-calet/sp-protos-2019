@@ -44,7 +44,7 @@ namespace SocialPoint.Utils.Obfuscation
 
         public static ObfuscatedDouble operator -(ObfuscatedDouble obfuscated1, ObfuscatedDouble obfuscated2)
         {
-            return new ObfuscatedDouble(obfuscated1.Value + obfuscated2.Value);
+            return new ObfuscatedDouble(obfuscated1.Value - obfuscated2.Value);
         }
 
         public static ObfuscatedDouble operator -(ObfuscatedDouble obfuscated, double value)
