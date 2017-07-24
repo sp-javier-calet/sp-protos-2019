@@ -18,11 +18,17 @@
             return obfustated.Value;
         }
         
+        static Obfuscated()
+        {
+            ulong highMask = (ulong)RandomUtils.GenerateUint();
+            ulong lowMask = (ulong)RandomUtils.GenerateUint();
+            _mask = highMask << 32 | lowMask;
+        }
+
         public Obfuscated(T value = default(T))
         {
             _obfuscatedValue = default(T);
 
-            Init();
             Set(value);
         }
 
@@ -31,16 +37,6 @@
         protected void Set(T value)
         {
             _obfuscatedValue = Obfuscate(value);
-        }
-
-        private void Init()
-        {
-            if (0 == _mask)
-            {
-                uint highMask = RandomUtils.GenerateUint();
-                uint lowMask = RandomUtils.GenerateUint();
-                _mask = (ulong)(highMask << 32 | lowMask);
-            }
         }
 
         protected void DoObfuscate(ref ulong value)
