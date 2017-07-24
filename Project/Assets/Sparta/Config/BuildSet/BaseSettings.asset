@@ -32,11 +32,11 @@ MonoBehaviour:
     Flags: NO_GPGS
     XcodeModSchemes: 
     UseEnvironmentProvisioningUuid: 0
-    RemovedResources: 
+    RemovedResources: StreamingAssets/android_etc
   Android:
     BundleIdentifier: es.socialpoint.basegame
     Flags: 
-    RemovedResources: 
+    RemovedResources: StreamingAssets/ios
     UseKeystore: 0
     Keystore:
       Path: Assets/Plugins/Android/socialpoint.keystore

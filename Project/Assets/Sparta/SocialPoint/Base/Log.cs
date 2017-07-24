@@ -79,7 +79,7 @@ namespace SocialPoint.Base
 
         #region Platform implementation
 
-        #if UNITY_5
+        #if UNITY_5_3_OR_NEWER
 
         class InternalLogger : ILogger, IBreadcrumbLogger
         {
