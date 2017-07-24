@@ -19,6 +19,10 @@ namespace SocialPoint.Utils.Obfuscation
             Assert.AreEqual(value, obfuscatedInt);
 
             Assert.AreNotEqual(value, obfuscatedInt.ObfuscatedValue);
+
+            int newValue = 99;
+            obfuscatedInt = newValue;
+            Assert.AreEqual(newValue, obfuscatedInt);
         }
 
         [Test]

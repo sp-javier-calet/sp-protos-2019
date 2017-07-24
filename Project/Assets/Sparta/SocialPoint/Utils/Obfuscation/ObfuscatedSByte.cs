@@ -13,6 +13,11 @@ namespace SocialPoint.Utils.Obfuscation
             public ulong mask;
         }
 
+        public static implicit operator ObfuscatedSByte(sbyte value)
+        {
+            return new ObfuscatedSByte(value);
+        }
+
         public ObfuscatedSByte(sbyte value = default(sbyte))
             : base(value)
         {

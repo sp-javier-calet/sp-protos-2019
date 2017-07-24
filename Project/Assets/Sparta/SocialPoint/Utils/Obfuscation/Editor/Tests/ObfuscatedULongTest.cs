@@ -19,6 +19,10 @@ namespace SocialPoint.Utils.Obfuscation
             Assert.AreEqual(value, obfuscatedULong);
 
             Assert.AreNotEqual(value, obfuscatedULong.ObfuscatedValue);
+
+            ulong newValue = 99;
+            obfuscatedULong = newValue;
+            Assert.AreEqual(newValue, obfuscatedULong);
         }
 
         [Test]

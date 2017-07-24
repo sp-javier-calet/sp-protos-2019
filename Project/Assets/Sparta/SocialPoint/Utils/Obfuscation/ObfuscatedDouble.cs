@@ -13,6 +13,11 @@ namespace SocialPoint.Utils.Obfuscation
             public ulong mask;
         }
 
+        public static implicit operator ObfuscatedDouble(double value)
+        {
+            return new ObfuscatedDouble(value);
+        }
+
         public ObfuscatedDouble(double value = default(double))
             : base(value)
         {

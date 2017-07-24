@@ -13,6 +13,11 @@ namespace SocialPoint.Utils.Obfuscation
             public ulong mask;
         }
 
+        public static implicit operator ObfuscatedChar(char value)
+        {
+            return new ObfuscatedChar(value);
+        }
+
         public ObfuscatedChar(char value = default(char))
             : base(value)
         {

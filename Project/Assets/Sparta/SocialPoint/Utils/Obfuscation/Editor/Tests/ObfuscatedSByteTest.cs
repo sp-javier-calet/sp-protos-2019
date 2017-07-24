@@ -19,6 +19,10 @@ namespace SocialPoint.Utils.Obfuscation
             Assert.AreEqual(value, obfuscatedSByte);
 
             Assert.AreNotEqual(value, obfuscatedSByte.ObfuscatedValue);
+
+            sbyte newValue = 99;
+            obfuscatedSByte = newValue;
+            Assert.AreEqual(newValue, obfuscatedSByte);
         }
 
         [Test]

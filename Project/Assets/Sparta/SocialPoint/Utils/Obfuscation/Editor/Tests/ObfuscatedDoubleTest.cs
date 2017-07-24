@@ -21,6 +21,10 @@ namespace SocialPoint.Utils.Obfuscation
             Assert.AreEqual(value, obfuscatedDouble, Epsilon);
 
             Assert.AreNotEqual(value, obfuscatedDouble.ObfuscatedValue);
+
+            double newValue = 99.0;
+            obfuscatedDouble = newValue;
+            Assert.AreEqual(newValue, obfuscatedDouble, Epsilon);
         }
 
         [Test]
