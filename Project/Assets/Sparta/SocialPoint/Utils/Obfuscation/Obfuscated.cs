@@ -5,6 +5,14 @@
         private static ulong _mask;
         private T _obfuscatedValue;
 
+        public T ObfuscatedValue
+        {
+            get
+            {
+                return _obfuscatedValue;
+            }
+        }
+
         public T Value
         {
             get
