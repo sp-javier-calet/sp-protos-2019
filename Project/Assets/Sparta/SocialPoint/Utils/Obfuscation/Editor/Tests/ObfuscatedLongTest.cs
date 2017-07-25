@@ -25,6 +25,14 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
+        public void ToString([Values(32)] long value)
+        {
+            var obfuscatedLong = new ObfuscatedLong(value);
+
+            Assert.AreEqual(obfuscatedLong.ToString(), value.ToString());
+        }
+
+        [Test]
         public void ComparisonEqual([Values(73)] long value)
         {
             var obfuscatedLong = new ObfuscatedLong(value);

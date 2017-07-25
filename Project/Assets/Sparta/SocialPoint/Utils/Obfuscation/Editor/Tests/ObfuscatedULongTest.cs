@@ -25,6 +25,14 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
+        public void ToString([Values((ulong)32)] ulong value)
+        {
+            var obfuscatedULong = new ObfuscatedULong(value);
+
+            Assert.AreEqual(obfuscatedULong.ToString(), value.ToString());
+        }
+
+        [Test]
         public void ComparisonEqual([Values((ulong)73)] ulong value)
         {
             var obfuscatedULong = new ObfuscatedULong(value);

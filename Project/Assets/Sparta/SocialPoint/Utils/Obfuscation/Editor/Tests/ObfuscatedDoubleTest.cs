@@ -27,6 +27,14 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
+        public void ToString([Values(32.0)] double value)
+        {
+            var obfuscatedDouble = new ObfuscatedDouble(value);
+
+            Assert.AreEqual(obfuscatedDouble.ToString(), value.ToString());
+        }
+
+        [Test]
         public void ComparisonEqual([Values(73.0)] double value)
         {
             var obfuscatedDouble = new ObfuscatedDouble(value);

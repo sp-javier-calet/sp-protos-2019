@@ -27,6 +27,14 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
+        public void ToString([Values(32.0f)] float value)
+        {
+            var obfuscatedFloat = new ObfuscatedFloat(value);
+
+            Assert.AreEqual(obfuscatedFloat.ToString(), value.ToString());
+        }
+
+        [Test]
         public void ComparisonEqual([Values(73.0f)] float value)
         {
             var obfuscatedFloat = new ObfuscatedFloat(value);

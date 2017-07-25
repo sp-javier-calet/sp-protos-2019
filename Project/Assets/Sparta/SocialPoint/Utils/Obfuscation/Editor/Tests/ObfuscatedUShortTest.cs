@@ -25,6 +25,14 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
+        public void ToString([Values((ushort)32)] ushort value)
+        {
+            var obfuscatedUShort = new ObfuscatedUShort(value);
+
+            Assert.AreEqual(obfuscatedUShort.ToString(), value.ToString());
+        }
+
+        [Test]
         public void ComparisonEqual([Values((ushort)73)] ushort value)
         {
             var obfuscatedUShort = new ObfuscatedUShort(value);

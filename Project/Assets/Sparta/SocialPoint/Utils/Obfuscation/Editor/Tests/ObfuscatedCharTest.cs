@@ -25,6 +25,14 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
+        public void ToString([Values((char)32)] char value)
+        {
+            var obfuscatedChar = new ObfuscatedChar(value);
+
+            Assert.AreEqual(obfuscatedChar.ToString(), value.ToString());
+        }
+
+        [Test]
         public void ComparisonEqual([Values((char)73)] char value)
         {
             var obfuscatedChar = new ObfuscatedChar(value);

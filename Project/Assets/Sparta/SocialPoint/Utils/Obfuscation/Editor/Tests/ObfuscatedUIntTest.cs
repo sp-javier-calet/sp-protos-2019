@@ -25,6 +25,14 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
+        public void ToString([Values((uint)32)] uint value)
+        {
+            var obfuscatedUInt = new ObfuscatedUInt(value);
+
+            Assert.AreEqual(obfuscatedUInt.ToString(), value.ToString());
+        }
+
+        [Test]
         public void ComparisonEqual([Values((uint)73)] uint value)
         {
             var obfuscatedUInt = new ObfuscatedUInt(value);

@@ -40,6 +40,11 @@
             Set(value);
         }
 
+        public string ToString()
+        {
+            return Value.ToString();
+        }
+
         protected abstract T Obfuscate(T value);
 
         protected void Set(T value)

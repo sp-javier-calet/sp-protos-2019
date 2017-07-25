@@ -25,6 +25,14 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
+        public void ToString([Values(32)] sbyte value)
+        {
+            var obfuscatedSByte = new ObfuscatedSByte(value);
+
+            Assert.AreEqual(obfuscatedSByte.ToString(), value.ToString());
+        }
+
+        [Test]
         public void ComparisonEqual([Values(73)] sbyte value)
         {
             var obfuscatedSByte = new ObfuscatedSByte(value);
