@@ -8,9 +8,8 @@ namespace SocialPoint.Utils.Obfuscation
     public class ObfuscatedShortTest
     {
         [Test]
-        public void ConversionImplicit()
+        public void ConversionImplicit([Values(68)] short value)
         {
-            short value = 168;
             var obfuscatedShort = new ObfuscatedShort(value);
             short unobfuscatedShort = obfuscatedShort;
 
@@ -20,15 +19,14 @@ namespace SocialPoint.Utils.Obfuscation
 
             Assert.AreNotEqual(value, obfuscatedShort.ObfuscatedValue);
 
-            short newValue = 99;
+            short newValue = (short)(value + 1);
             obfuscatedShort = newValue;
             Assert.AreEqual(newValue, obfuscatedShort);
         }
 
         [Test]
-        public void ComparisonEqual()
+        public void ComparisonEqual([Values(73)] short value)
         {
-            short value = 73;
             var obfuscatedShort = new ObfuscatedShort(value);
 
             Assert.AreEqual(obfuscatedShort, value);
@@ -36,62 +34,71 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void ComparisonNotEqual()
+        public void ComparisonNotEqual([Values(114)] short value)
         {
-            short value = 214;
             var obfuscatedShort = new ObfuscatedShort(value);
 
-            Assert.AreNotEqual(obfuscatedShort, 128);
-            Assert.AreNotEqual(20, obfuscatedShort);
+            short differentValue = (short)(value + 1);
+            Assert.AreNotEqual(obfuscatedShort, differentValue);
+            Assert.AreNotEqual(differentValue, obfuscatedShort);
         }
 
         [Test]
-        public void ComparisonLess()
+        public void ComparisonLess([Values(64)] short value1, [Values(100)] short value2)
         {
-            short value = 64;
-            var obfuscatedShort = new ObfuscatedShort(value);
+            Assert.Less(value1, value2);
 
-            Assert.Less(obfuscatedShort, 100);
-            Assert.Less(3, obfuscatedShort);
-        }
-
-        [Test]
-        public void ComparisonLessEqual()
-        {
-            short value = 95;
-            var obfuscatedShort = new ObfuscatedShort(value);
-
-            Assert.LessOrEqual(obfuscatedShort, 243);
-            Assert.LessOrEqual(value, obfuscatedShort);
-        }
-
-        [Test]
-        public void ComparisonGreater()
-        {
-            short value = 194;
-            var obfuscatedShort = new ObfuscatedShort(value);
-
-            Assert.Greater(obfuscatedShort, 156);
-            Assert.Greater(255, obfuscatedShort);
-        }
-
-        [Test]
-        public void ComparisonGreaterEqual()
-        {
-            short value = 137;
-            var obfuscatedShort = new ObfuscatedShort(value);
-
-            Assert.GreaterOrEqual(obfuscatedShort, value);
-            Assert.GreaterOrEqual(209, obfuscatedShort);
-        }
-
-        [Test]
-        public void OperatorAddition()
-        {
-            short value1 = 13;
             var obfuscatedShort1 = new ObfuscatedShort(value1);
+            var obfuscatedShort2 = new ObfuscatedShort(value2);
 
-            short value2 = 7;
+            Assert.Less(obfuscatedShort1, obfuscatedShort2);
+            Assert.Less(obfuscatedShort1, value2);
+            Assert.Less(value1, obfuscatedShort2);
+        }
+
+        [Test]
+        public void ComparisonLessEqual([Values(95, 101)] short value1, [Values(101)] short value2)
+        {
+            Assert.LessOrEqual(value1, value2);
+
+            var obfuscatedShort1 = new ObfuscatedShort(value1);
+            var obfuscatedShort2 = new ObfuscatedShort(value2);
+
+            Assert.LessOrEqual(obfuscatedShort1, obfuscatedShort2);
+            Assert.LessOrEqual(obfuscatedShort1, value2);
+            Assert.LessOrEqual(value1, obfuscatedShort2);
+        }
+
+        [Test]
+        public void ComparisonGreater([Values(127)] short value1, [Values(41)] short value2)
+        {
+            Assert.Greater(value1, value2);
+
+            var obfuscatedShort1 = new ObfuscatedShort(value1);
+            var obfuscatedShort2 = new ObfuscatedShort(value2);
+
+            Assert.Greater(obfuscatedShort1, obfuscatedShort2);
+            Assert.Greater(obfuscatedShort1, value2);
+            Assert.Greater(value1, obfuscatedShort2);
+        }
+
+        [Test]
+        public void ComparisonGreaterEqual([Values(117, 54)] short value1, [Values(54)] short value2)
+        {
+            Assert.GreaterOrEqual(value1, value2);
+
+            var obfuscatedShort1 = new ObfuscatedShort(value1);
+            var obfuscatedShort2 = new ObfuscatedShort(value2);
+
+            Assert.GreaterOrEqual(obfuscatedShort1, obfuscatedShort2);
+            Assert.GreaterOrEqual(obfuscatedShort1, value2);
+            Assert.GreaterOrEqual(value1, obfuscatedShort2);
+        }
+
+        [Test]
+        public void OperatorAddition([Values(13)] short value1, [Values(7)] short value2)
+        {
+            var obfuscatedShort1 = new ObfuscatedShort(value1);
             var obfuscatedShort2 = new ObfuscatedShort(value2);
 
             short addition = (short)(value1 + value2);
@@ -110,12 +117,9 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorSubtraction()
+        public void OperatorSubtraction([Values(25)] short value1, [Values(5)] short value2)
         {
-            short value1 = 25;
             var obfuscatedShort1 = new ObfuscatedShort(value1);
-
-            short value2 = 5;
             var obfuscatedShort2 = new ObfuscatedShort(value2);
 
             short subtraction = (short)(value1 - value2);
@@ -134,12 +138,9 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorMultiplication()
+        public void OperatorMultiplication([Values(11)] short value1, [Values(6)] short value2)
         {
-            short value1 = 11;
             var obfuscatedShort1 = new ObfuscatedShort(value1);
-
-            short value2 = 6;
             var obfuscatedShort2 = new ObfuscatedShort(value2);
 
             short multiplication = (short)(value1 * value2);
@@ -154,12 +155,9 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorDivision()
+        public void OperatorDivision([Values(80)] short value1, [Values(8)] short value2)
         {
-            short value1 = 80;
             var obfuscatedShort1 = new ObfuscatedShort(value1);
-
-            short value2 = 8;
             var obfuscatedShort2 = new ObfuscatedShort(value2);
 
             short division = (short)(value1 / value2);

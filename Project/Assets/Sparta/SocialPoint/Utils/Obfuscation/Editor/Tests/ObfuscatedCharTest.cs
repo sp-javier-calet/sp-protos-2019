@@ -8,9 +8,8 @@ namespace SocialPoint.Utils.Obfuscation
     public class ObfuscatedCharTest
     {
         [Test]
-        public void ConversionImplicit()
+        public void ConversionImplicit([Values((char)68)] char value)
         {
-            char value = (char)1680;
             var obfuscatedChar = new ObfuscatedChar(value);
             char unobfuscatedChar = obfuscatedChar;
 
@@ -20,15 +19,14 @@ namespace SocialPoint.Utils.Obfuscation
 
             Assert.AreNotEqual(value, obfuscatedChar.ObfuscatedValue);
 
-            char newValue = (char)99;
+            char newValue = (char)(value + 1);
             obfuscatedChar = newValue;
             Assert.AreEqual(newValue, obfuscatedChar);
         }
 
         [Test]
-        public void ComparisonEqual()
+        public void ComparisonEqual([Values((char)73)] char value)
         {
-            char value = (char)730;
             var obfuscatedChar = new ObfuscatedChar(value);
 
             Assert.AreEqual(obfuscatedChar, value);
@@ -36,62 +34,71 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void ComparisonNotEqual()
+        public void ComparisonNotEqual([Values((char)114)] char value)
         {
-            char value = (char)2140;
             var obfuscatedChar = new ObfuscatedChar(value);
 
-            Assert.AreNotEqual(obfuscatedChar, 1280);
-            Assert.AreNotEqual(200, obfuscatedChar);
+            char differentValue = (char)(value + 1);
+            Assert.AreNotEqual(obfuscatedChar, differentValue);
+            Assert.AreNotEqual(differentValue, obfuscatedChar);
         }
 
         [Test]
-        public void ComparisonLess()
+        public void ComparisonLess([Values((char)64)] char value1, [Values((char)100)] char value2)
         {
-            char value = (char)640;
-            var obfuscatedChar = new ObfuscatedChar(value);
+            Assert.Less(value1, value2);
 
-            Assert.Less(obfuscatedChar, 1000);
-            Assert.Less(30, obfuscatedChar);
-        }
-
-        [Test]
-        public void ComparisonLessEqual()
-        {
-            char value = (char)950;
-            var obfuscatedChar = new ObfuscatedChar(value);
-
-            Assert.LessOrEqual(obfuscatedChar, 2430);
-            Assert.LessOrEqual(value, obfuscatedChar);
-        }
-
-        [Test]
-        public void ComparisonGreater()
-        {
-            char value = (char)1940;
-            var obfuscatedChar = new ObfuscatedChar(value);
-
-            Assert.Greater(obfuscatedChar, 1560);
-            Assert.Greater(2550, obfuscatedChar);
-        }
-
-        [Test]
-        public void ComparisonGreaterEqual()
-        {
-            char value = (char)1370;
-            var obfuscatedChar = new ObfuscatedChar(value);
-
-            Assert.GreaterOrEqual(obfuscatedChar, value);
-            Assert.GreaterOrEqual(2090, obfuscatedChar);
-        }
-
-        [Test]
-        public void OperatorAddition()
-        {
-            char value1 = (char)130;
             var obfuscatedChar1 = new ObfuscatedChar(value1);
+            var obfuscatedChar2 = new ObfuscatedChar(value2);
 
-            char value2 = (char)70;
+            Assert.Less(obfuscatedChar1, obfuscatedChar2);
+            Assert.Less(obfuscatedChar1, value2);
+            Assert.Less(value1, obfuscatedChar2);
+        }
+
+        [Test]
+        public void ComparisonLessEqual([Values((char)95, (char)101)] char value1, [Values((char)101)] char value2)
+        {
+            Assert.LessOrEqual(value1, value2);
+
+            var obfuscatedChar1 = new ObfuscatedChar(value1);
+            var obfuscatedChar2 = new ObfuscatedChar(value2);
+
+            Assert.LessOrEqual(obfuscatedChar1, obfuscatedChar2);
+            Assert.LessOrEqual(obfuscatedChar1, value2);
+            Assert.LessOrEqual(value1, obfuscatedChar2);
+        }
+
+        [Test]
+        public void ComparisonGreater([Values((char)127)] char value1, [Values((char)41)] char value2)
+        {
+            Assert.Greater(value1, value2);
+
+            var obfuscatedChar1 = new ObfuscatedChar(value1);
+            var obfuscatedChar2 = new ObfuscatedChar(value2);
+
+            Assert.Greater(obfuscatedChar1, obfuscatedChar2);
+            Assert.Greater(obfuscatedChar1, value2);
+            Assert.Greater(value1, obfuscatedChar2);
+        }
+
+        [Test]
+        public void ComparisonGreaterEqual([Values((char)117, (char)54)] char value1, [Values((char)54)] char value2)
+        {
+            Assert.GreaterOrEqual(value1, value2);
+
+            var obfuscatedChar1 = new ObfuscatedChar(value1);
+            var obfuscatedChar2 = new ObfuscatedChar(value2);
+
+            Assert.GreaterOrEqual(obfuscatedChar1, obfuscatedChar2);
+            Assert.GreaterOrEqual(obfuscatedChar1, value2);
+            Assert.GreaterOrEqual(value1, obfuscatedChar2);
+        }
+
+        [Test]
+        public void OperatorAddition([Values((char)13)] char value1, [Values((char)7)] char value2)
+        {
+            var obfuscatedChar1 = new ObfuscatedChar(value1);
             var obfuscatedChar2 = new ObfuscatedChar(value2);
 
             char addition = (char)(value1 + value2);
@@ -110,12 +117,9 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorSubtraction()
+        public void OperatorSubtraction([Values((char)25)] char value1, [Values((char)5)] char value2)
         {
-            char value1 = (char)250;
             var obfuscatedChar1 = new ObfuscatedChar(value1);
-
-            char value2 = (char)50;
             var obfuscatedChar2 = new ObfuscatedChar(value2);
 
             char subtraction = (char)(value1 - value2);
@@ -134,12 +138,9 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorMultiplication()
+        public void OperatorMultiplication([Values((char)11)] char value1, [Values((char)6)] char value2)
         {
-            char value1 = (char)110;
             var obfuscatedChar1 = new ObfuscatedChar(value1);
-
-            char value2 = (char)60;
             var obfuscatedChar2 = new ObfuscatedChar(value2);
 
             char multiplication = (char)(value1 * value2);
@@ -154,12 +155,9 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorDivision()
+        public void OperatorDivision([Values((char)80)] char value1, [Values((char)8)] char value2)
         {
-            char value1 = (char)800;
             var obfuscatedChar1 = new ObfuscatedChar(value1);
-
-            char value2 = (char)80;
             var obfuscatedChar2 = new ObfuscatedChar(value2);
 
             char division = (char)(value1 / value2);

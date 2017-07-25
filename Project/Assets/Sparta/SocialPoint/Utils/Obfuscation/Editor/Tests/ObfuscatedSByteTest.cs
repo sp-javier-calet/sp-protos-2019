@@ -8,9 +8,8 @@ namespace SocialPoint.Utils.Obfuscation
     public class ObfuscatedSByteTest
     {
         [Test]
-        public void ConversionImplicit()
+        public void ConversionImplicit([Values(68)] sbyte value)
         {
-            sbyte value = 40;
             var obfuscatedSByte = new ObfuscatedSByte(value);
             sbyte unobfuscatedSByte = obfuscatedSByte;
 
@@ -20,15 +19,14 @@ namespace SocialPoint.Utils.Obfuscation
 
             Assert.AreNotEqual(value, obfuscatedSByte.ObfuscatedValue);
 
-            sbyte newValue = 99;
+            sbyte newValue = (sbyte)(value + 1);
             obfuscatedSByte = newValue;
             Assert.AreEqual(newValue, obfuscatedSByte);
         }
 
         [Test]
-        public void ComparisonEqual()
+        public void ComparisonEqual([Values(73)] sbyte value)
         {
-            sbyte value = -55;
             var obfuscatedSByte = new ObfuscatedSByte(value);
 
             Assert.AreEqual(obfuscatedSByte, value);
@@ -36,62 +34,71 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void ComparisonNotEqual()
+        public void ComparisonNotEqual([Values(114)] sbyte value)
         {
-            sbyte value = 86;
             var obfuscatedSByte = new ObfuscatedSByte(value);
 
-            Assert.AreNotEqual(obfuscatedSByte, 0);
-            Assert.AreNotEqual(-108, obfuscatedSByte);
+            sbyte differentValue = (sbyte)(value + 1);
+            Assert.AreNotEqual(obfuscatedSByte, differentValue);
+            Assert.AreNotEqual(differentValue, obfuscatedSByte);
         }
 
         [Test]
-        public void ComparisonLess()
+        public void ComparisonLess([Values(64)] sbyte value1, [Values(100)] sbyte value2)
         {
-            sbyte value = -64;
-            var obfuscatedSByte = new ObfuscatedSByte(value);
+            Assert.Less(value1, value2);
 
-            Assert.Less(obfuscatedSByte, -28);
-            Assert.Less(-125, obfuscatedSByte);
-        }
-
-        [Test]
-        public void ComparisonLessEqual()
-        {
-            sbyte value = -33;
-            var obfuscatedSByte = new ObfuscatedSByte(value);
-
-            Assert.LessOrEqual(obfuscatedSByte, 115);
-            Assert.LessOrEqual(value, obfuscatedSByte);
-        }
-
-        [Test]
-        public void ComparisonGreater()
-        {
-            sbyte value = 66;
-            var obfuscatedSByte = new ObfuscatedSByte(value);
-
-            Assert.Greater(obfuscatedSByte, 28);
-            Assert.Greater(127, obfuscatedSByte);
-        }
-
-        [Test]
-        public void ComparisonGreaterEqual()
-        {
-            sbyte value = 9;
-            var obfuscatedSByte = new ObfuscatedSByte(value);
-
-            Assert.GreaterOrEqual(obfuscatedSByte, value);
-            Assert.GreaterOrEqual(81, obfuscatedSByte);
-        }
-
-        [Test]
-        public void OperatorAddition()
-        {
-            sbyte value1 = 13;
             var obfuscatedSByte1 = new ObfuscatedSByte(value1);
+            var obfuscatedSByte2 = new ObfuscatedSByte(value2);
 
-            sbyte value2 = 7;
+            Assert.Less(obfuscatedSByte1, obfuscatedSByte2);
+            Assert.Less(obfuscatedSByte1, value2);
+            Assert.Less(value1, obfuscatedSByte2);
+        }
+
+        [Test]
+        public void ComparisonLessEqual([Values(95, 101)] sbyte value1, [Values(101)] sbyte value2)
+        {
+            Assert.LessOrEqual(value1, value2);
+
+            var obfuscatedSByte1 = new ObfuscatedSByte(value1);
+            var obfuscatedSByte2 = new ObfuscatedSByte(value2);
+
+            Assert.LessOrEqual(obfuscatedSByte1, obfuscatedSByte2);
+            Assert.LessOrEqual(obfuscatedSByte1, value2);
+            Assert.LessOrEqual(value1, obfuscatedSByte2);
+        }
+
+        [Test]
+        public void ComparisonGreater([Values(127)] sbyte value1, [Values(41)] sbyte value2)
+        {
+            Assert.Greater(value1, value2);
+
+            var obfuscatedSByte1 = new ObfuscatedSByte(value1);
+            var obfuscatedSByte2 = new ObfuscatedSByte(value2);
+
+            Assert.Greater(obfuscatedSByte1, obfuscatedSByte2);
+            Assert.Greater(obfuscatedSByte1, value2);
+            Assert.Greater(value1, obfuscatedSByte2);
+        }
+
+        [Test]
+        public void ComparisonGreaterEqual([Values(117, 54)] sbyte value1, [Values(54)] sbyte value2)
+        {
+            Assert.GreaterOrEqual(value1, value2);
+
+            var obfuscatedSByte1 = new ObfuscatedSByte(value1);
+            var obfuscatedSByte2 = new ObfuscatedSByte(value2);
+
+            Assert.GreaterOrEqual(obfuscatedSByte1, obfuscatedSByte2);
+            Assert.GreaterOrEqual(obfuscatedSByte1, value2);
+            Assert.GreaterOrEqual(value1, obfuscatedSByte2);
+        }
+
+        [Test]
+        public void OperatorAddition([Values(13)] sbyte value1, [Values(7)] sbyte value2)
+        {
+            var obfuscatedSByte1 = new ObfuscatedSByte(value1);
             var obfuscatedSByte2 = new ObfuscatedSByte(value2);
 
             sbyte addition = (sbyte)(value1 + value2);
@@ -110,12 +117,9 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorSubtraction()
+        public void OperatorSubtraction([Values(25)] sbyte value1, [Values(5)] sbyte value2)
         {
-            sbyte value1 = 25;
             var obfuscatedSByte1 = new ObfuscatedSByte(value1);
-
-            sbyte value2 = 5;
             var obfuscatedSByte2 = new ObfuscatedSByte(value2);
 
             sbyte subtraction = (sbyte)(value1 - value2);
@@ -134,12 +138,9 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorMultiplication()
+        public void OperatorMultiplication([Values(11)] sbyte value1, [Values(6)] sbyte value2)
         {
-            sbyte value1 = 11;
             var obfuscatedSByte1 = new ObfuscatedSByte(value1);
-
-            sbyte value2 = 6;
             var obfuscatedSByte2 = new ObfuscatedSByte(value2);
 
             sbyte multiplication = (sbyte)(value1 * value2);
@@ -154,12 +155,9 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorDivision()
+        public void OperatorDivision([Values(80)] sbyte value1, [Values(8)] sbyte value2)
         {
-            sbyte value1 = 80;
             var obfuscatedSByte1 = new ObfuscatedSByte(value1);
-
-            sbyte value2 = 8;
             var obfuscatedSByte2 = new ObfuscatedSByte(value2);
 
             sbyte division = (sbyte)(value1 / value2);

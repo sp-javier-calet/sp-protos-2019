@@ -8,9 +8,8 @@ namespace SocialPoint.Utils.Obfuscation
     public class ObfuscatedLongTest
     {
         [Test]
-        public void ConversionImplicit()
+        public void ConversionImplicit([Values(68)] long value)
         {
-            long value = 168;
             var obfuscatedLong = new ObfuscatedLong(value);
             long unobfuscatedLong = obfuscatedLong;
 
@@ -20,15 +19,14 @@ namespace SocialPoint.Utils.Obfuscation
 
             Assert.AreNotEqual(value, obfuscatedLong.ObfuscatedValue);
 
-            long newValue = 99;
+            long newValue = value + 1;
             obfuscatedLong = newValue;
             Assert.AreEqual(newValue, obfuscatedLong);
         }
 
         [Test]
-        public void ComparisonEqual()
+        public void ComparisonEqual([Values(73)] long value)
         {
-            long value = 73;
             var obfuscatedLong = new ObfuscatedLong(value);
 
             Assert.AreEqual(obfuscatedLong, value);
@@ -36,65 +34,74 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void ComparisonNotEqual()
+        public void ComparisonNotEqual([Values(114)] long value)
         {
-            long value = 214;
             var obfuscatedLong = new ObfuscatedLong(value);
 
-            Assert.AreNotEqual(obfuscatedLong, 128);
-            Assert.AreNotEqual(20, obfuscatedLong);
+            long differentValue = value + 1;
+            Assert.AreNotEqual(obfuscatedLong, differentValue);
+            Assert.AreNotEqual(differentValue, obfuscatedLong);
         }
 
         [Test]
-        public void ComparisonLess()
+        public void ComparisonLess([Values(64)] long value1, [Values(100)] long value2)
         {
-            long value = 64;
-            var obfuscatedLong = new ObfuscatedLong(value);
+            Assert.Less(value1, value2);
 
-            Assert.Less(obfuscatedLong, 100);
-            Assert.Less(3, obfuscatedLong);
-        }
-
-        [Test]
-        public void ComparisonLessEqual()
-        {
-            long value = 95;
-            var obfuscatedLong = new ObfuscatedLong(value);
-
-            Assert.LessOrEqual(obfuscatedLong, 243);
-            Assert.LessOrEqual(value, obfuscatedLong);
-        }
-
-        [Test]
-        public void ComparisonGreater()
-        {
-            long value = 194;
-            var obfuscatedLong = new ObfuscatedLong(value);
-
-            Assert.Greater(obfuscatedLong, 156);
-            Assert.Greater(255, obfuscatedLong);
-        }
-
-        [Test]
-        public void ComparisonGreaterEqual()
-        {
-            long value = 137;
-            var obfuscatedLong = new ObfuscatedLong(value);
-
-            Assert.GreaterOrEqual(obfuscatedLong, value);
-            Assert.GreaterOrEqual(209, obfuscatedLong);
-        }
-
-        [Test]
-        public void OperatorAddition()
-        {
-            long value1 = 13;
             var obfuscatedLong1 = new ObfuscatedLong(value1);
-
-            long value2 = 7;
             var obfuscatedLong2 = new ObfuscatedLong(value2);
 
-            long addition = (long)(value1 + value2);
+            Assert.Less(obfuscatedLong1, obfuscatedLong2);
+            Assert.Less(obfuscatedLong1, value2);
+            Assert.Less(value1, obfuscatedLong2);
+        }
+
+        [Test]
+        public void ComparisonLessEqual([Values(95, 101)] long value1, [Values(101)] long value2)
+        {
+            Assert.LessOrEqual(value1, value2);
+
+            var obfuscatedLong1 = new ObfuscatedLong(value1);
+            var obfuscatedLong2 = new ObfuscatedLong(value2);
+
+            Assert.LessOrEqual(obfuscatedLong1, obfuscatedLong2);
+            Assert.LessOrEqual(obfuscatedLong1, value2);
+            Assert.LessOrEqual(value1, obfuscatedLong2);
+        }
+
+        [Test]
+        public void ComparisonGreater([Values(127)] long value1, [Values(41)] long value2)
+        {
+            Assert.Greater(value1, value2);
+
+            var obfuscatedLong1 = new ObfuscatedLong(value1);
+            var obfuscatedLong2 = new ObfuscatedLong(value2);
+
+            Assert.Greater(obfuscatedLong1, obfuscatedLong2);
+            Assert.Greater(obfuscatedLong1, value2);
+            Assert.Greater(value1, obfuscatedLong2);
+        }
+
+        [Test]
+        public void ComparisonGreaterEqual([Values(117, 54)] long value1, [Values(54)] long value2)
+        {
+            Assert.GreaterOrEqual(value1, value2);
+
+            var obfuscatedLong1 = new ObfuscatedLong(value1);
+            var obfuscatedLong2 = new ObfuscatedLong(value2);
+
+            Assert.GreaterOrEqual(obfuscatedLong1, obfuscatedLong2);
+            Assert.GreaterOrEqual(obfuscatedLong1, value2);
+            Assert.GreaterOrEqual(value1, obfuscatedLong2);
+        }
+
+        [Test]
+        public void OperatorAddition([Values(13)] long value1, [Values(7)] long value2)
+        {
+            var obfuscatedLong1 = new ObfuscatedLong(value1);
+            var obfuscatedLong2 = new ObfuscatedLong(value2);
+
+            long addition = value1 + value2;
             long obfuscatedAddition = new ObfuscatedLong(addition);
 
             Assert.AreEqual(obfuscatedLong1 + obfuscatedLong2, addition);
@@ -110,15 +117,12 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorSubtraction()
+        public void OperatorSubtraction([Values(25)] long value1, [Values(5)] long value2)
         {
-            long value1 = 25;
             var obfuscatedLong1 = new ObfuscatedLong(value1);
-
-            long value2 = 5;
             var obfuscatedLong2 = new ObfuscatedLong(value2);
 
-            long subtraction = (long)(value1 - value2);
+            long subtraction = value1 - value2;
             long obfuscatedSubtraction = new ObfuscatedLong(subtraction);
 
             Assert.AreEqual(obfuscatedLong1 - obfuscatedLong2, subtraction);
@@ -134,15 +138,12 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorMultiplication()
+        public void OperatorMultiplication([Values(11)] long value1, [Values(6)] long value2)
         {
-            long value1 = 11;
             var obfuscatedLong1 = new ObfuscatedLong(value1);
-
-            long value2 = 6;
             var obfuscatedLong2 = new ObfuscatedLong(value2);
 
-            long multiplication = (long)(value1 * value2);
+            long multiplication = value1 * value2;
             long obfuscatedMultiplication = new ObfuscatedLong(multiplication);
 
             Assert.AreEqual(obfuscatedLong1 * obfuscatedLong2, multiplication);
@@ -154,15 +155,12 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorDivision()
+        public void OperatorDivision([Values(80)] long value1, [Values(8)] long value2)
         {
-            long value1 = 80;
             var obfuscatedLong1 = new ObfuscatedLong(value1);
-
-            long value2 = 8;
             var obfuscatedLong2 = new ObfuscatedLong(value2);
 
-            long division = (long)(value1 / value2);
+            long division = value1 / value2;
             long obfuscatedDivision = new ObfuscatedLong(division);
 
             Assert.AreEqual(obfuscatedLong1 / obfuscatedLong2, division);

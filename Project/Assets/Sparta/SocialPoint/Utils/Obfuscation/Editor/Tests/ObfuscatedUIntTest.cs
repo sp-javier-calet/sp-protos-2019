@@ -8,9 +8,8 @@ namespace SocialPoint.Utils.Obfuscation
     public class ObfuscatedUIntTest
     {
         [Test]
-        public void ConversionImplicit()
+        public void ConversionImplicit([Values((uint)68)] uint value)
         {
-            uint value = 168;
             var obfuscatedUInt = new ObfuscatedUInt(value);
             uint unobfuscatedUInt = obfuscatedUInt;
 
@@ -20,15 +19,14 @@ namespace SocialPoint.Utils.Obfuscation
 
             Assert.AreNotEqual(value, obfuscatedUInt.ObfuscatedValue);
 
-            uint newValue = 99;
+            uint newValue = value + 1;
             obfuscatedUInt = newValue;
             Assert.AreEqual(newValue, obfuscatedUInt);
         }
 
         [Test]
-        public void ComparisonEqual()
+        public void ComparisonEqual([Values((uint)73)] uint value)
         {
-            uint value = 73;
             var obfuscatedUInt = new ObfuscatedUInt(value);
 
             Assert.AreEqual(obfuscatedUInt, value);
@@ -36,65 +34,74 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void ComparisonNotEqual()
+        public void ComparisonNotEqual([Values((uint)114)] uint value)
         {
-            uint value = 214;
             var obfuscatedUInt = new ObfuscatedUInt(value);
 
-            Assert.AreNotEqual(obfuscatedUInt, 128);
-            Assert.AreNotEqual(20, obfuscatedUInt);
+            uint differentValue = value + 1;
+            Assert.AreNotEqual(obfuscatedUInt, differentValue);
+            Assert.AreNotEqual(differentValue, obfuscatedUInt);
         }
 
         [Test]
-        public void ComparisonLess()
+        public void ComparisonLess([Values((uint)64)] uint value1, [Values((uint)100)] uint value2)
         {
-            uint value = 64;
-            var obfuscatedUInt = new ObfuscatedUInt(value);
+            Assert.Less(value1, value2);
 
-            Assert.Less(obfuscatedUInt, 100);
-            Assert.Less(3, obfuscatedUInt);
-        }
-
-        [Test]
-        public void ComparisonLessEqual()
-        {
-            uint value = 95;
-            var obfuscatedUInt = new ObfuscatedUInt(value);
-
-            Assert.LessOrEqual(obfuscatedUInt, 243);
-            Assert.LessOrEqual(value, obfuscatedUInt);
-        }
-
-        [Test]
-        public void ComparisonGreater()
-        {
-            uint value = 194;
-            var obfuscatedUInt = new ObfuscatedUInt(value);
-
-            Assert.Greater(obfuscatedUInt, 156);
-            Assert.Greater(255, obfuscatedUInt);
-        }
-
-        [Test]
-        public void ComparisonGreaterEqual()
-        {
-            uint value = 137;
-            var obfuscatedUInt = new ObfuscatedUInt(value);
-
-            Assert.GreaterOrEqual(obfuscatedUInt, value);
-            Assert.GreaterOrEqual(209, obfuscatedUInt);
-        }
-
-        [Test]
-        public void OperatorAddition()
-        {
-            uint value1 = 13;
             var obfuscatedUInt1 = new ObfuscatedUInt(value1);
-
-            uint value2 = 7;
             var obfuscatedUInt2 = new ObfuscatedUInt(value2);
 
-            uint addition = (uint)(value1 + value2);
+            Assert.Less(obfuscatedUInt1, obfuscatedUInt2);
+            Assert.Less(obfuscatedUInt1, value2);
+            Assert.Less(value1, obfuscatedUInt2);
+        }
+
+        [Test]
+        public void ComparisonLessEqual([Values((uint)95, (uint)101)] uint value1, [Values((uint)101)] uint value2)
+        {
+            Assert.LessOrEqual(value1, value2);
+
+            var obfuscatedUInt1 = new ObfuscatedUInt(value1);
+            var obfuscatedUInt2 = new ObfuscatedUInt(value2);
+
+            Assert.LessOrEqual(obfuscatedUInt1, obfuscatedUInt2);
+            Assert.LessOrEqual(obfuscatedUInt1, value2);
+            Assert.LessOrEqual(value1, obfuscatedUInt2);
+        }
+
+        [Test]
+        public void ComparisonGreater([Values((uint)127)] uint value1, [Values((uint)41)] uint value2)
+        {
+            Assert.Greater(value1, value2);
+
+            var obfuscatedUInt1 = new ObfuscatedUInt(value1);
+            var obfuscatedUInt2 = new ObfuscatedUInt(value2);
+
+            Assert.Greater(obfuscatedUInt1, obfuscatedUInt2);
+            Assert.Greater(obfuscatedUInt1, value2);
+            Assert.Greater(value1, obfuscatedUInt2);
+        }
+
+        [Test]
+        public void ComparisonGreaterEqual([Values((uint)117, (uint)54)] uint value1, [Values((uint)54)] uint value2)
+        {
+            Assert.GreaterOrEqual(value1, value2);
+
+            var obfuscatedUInt1 = new ObfuscatedUInt(value1);
+            var obfuscatedUInt2 = new ObfuscatedUInt(value2);
+
+            Assert.GreaterOrEqual(obfuscatedUInt1, obfuscatedUInt2);
+            Assert.GreaterOrEqual(obfuscatedUInt1, value2);
+            Assert.GreaterOrEqual(value1, obfuscatedUInt2);
+        }
+
+        [Test]
+        public void OperatorAddition([Values((uint)13)] uint value1, [Values((uint)7)] uint value2)
+        {
+            var obfuscatedUInt1 = new ObfuscatedUInt(value1);
+            var obfuscatedUInt2 = new ObfuscatedUInt(value2);
+
+            uint addition = value1 + value2;
             uint obfuscatedAddition = new ObfuscatedUInt(addition);
 
             Assert.AreEqual(obfuscatedUInt1 + obfuscatedUInt2, addition);
@@ -110,15 +117,12 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorSubtraction()
+        public void OperatorSubtraction([Values((uint)25)] uint value1, [Values((uint)5)] uint value2)
         {
-            uint value1 = 25;
             var obfuscatedUInt1 = new ObfuscatedUInt(value1);
-
-            uint value2 = 5;
             var obfuscatedUInt2 = new ObfuscatedUInt(value2);
 
-            uint subtraction = (uint)(value1 - value2);
+            uint subtraction = value1 - value2;
             uint obfuscatedSubtraction = new ObfuscatedUInt(subtraction);
 
             Assert.AreEqual(obfuscatedUInt1 - obfuscatedUInt2, subtraction);
@@ -134,15 +138,12 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorMultiplication()
+        public void OperatorMultiplication([Values((uint)11)] uint value1, [Values((uint)6)] uint value2)
         {
-            uint value1 = 11;
             var obfuscatedUInt1 = new ObfuscatedUInt(value1);
-
-            uint value2 = 6;
             var obfuscatedUInt2 = new ObfuscatedUInt(value2);
 
-            uint multiplication = (uint)(value1 * value2);
+            uint multiplication = value1 * value2;
             uint obfuscatedMultiplication = new ObfuscatedUInt(multiplication);
 
             Assert.AreEqual(obfuscatedUInt1 * obfuscatedUInt2, multiplication);
@@ -154,15 +155,12 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorDivision()
+        public void OperatorDivision([Values((uint)80)] uint value1, [Values((uint)8)] uint value2)
         {
-            uint value1 = 80;
             var obfuscatedUInt1 = new ObfuscatedUInt(value1);
-
-            uint value2 = 8;
             var obfuscatedUInt2 = new ObfuscatedUInt(value2);
 
-            uint division = (uint)(value1 / value2);
+            uint division = value1 / value2;
             uint obfuscatedDivision = new ObfuscatedUInt(division);
 
             Assert.AreEqual(obfuscatedUInt1 / obfuscatedUInt2, division);

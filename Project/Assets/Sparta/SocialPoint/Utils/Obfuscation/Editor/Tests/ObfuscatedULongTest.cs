@@ -8,9 +8,8 @@ namespace SocialPoint.Utils.Obfuscation
     public class ObfuscatedULongTest
     {
         [Test]
-        public void ConversionImplicit()
+        public void ConversionImplicit([Values((ulong)68)] ulong value)
         {
-            ulong value = 168;
             var obfuscatedULong = new ObfuscatedULong(value);
             ulong unobfuscatedULong = obfuscatedULong;
 
@@ -20,15 +19,14 @@ namespace SocialPoint.Utils.Obfuscation
 
             Assert.AreNotEqual(value, obfuscatedULong.ObfuscatedValue);
 
-            ulong newValue = 99;
+            ulong newValue = value + 1;
             obfuscatedULong = newValue;
             Assert.AreEqual(newValue, obfuscatedULong);
         }
 
         [Test]
-        public void ComparisonEqual()
+        public void ComparisonEqual([Values((ulong)73)] ulong value)
         {
-            ulong value = 73;
             var obfuscatedULong = new ObfuscatedULong(value);
 
             Assert.AreEqual(obfuscatedULong, value);
@@ -36,65 +34,74 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void ComparisonNotEqual()
+        public void ComparisonNotEqual([Values((ulong)114)] ulong value)
         {
-            ulong value = 214;
             var obfuscatedULong = new ObfuscatedULong(value);
 
-            Assert.AreNotEqual(obfuscatedULong, 128);
-            Assert.AreNotEqual(20, obfuscatedULong);
+            ulong differentValue = value + 1;
+            Assert.AreNotEqual(obfuscatedULong, differentValue);
+            Assert.AreNotEqual(differentValue, obfuscatedULong);
         }
 
         [Test]
-        public void ComparisonLess()
+        public void ComparisonLess([Values((ulong)64)] ulong value1, [Values((ulong)100)] ulong value2)
         {
-            ulong value = 64;
-            var obfuscatedULong = new ObfuscatedULong(value);
+            Assert.Less(value1, value2);
 
-            Assert.Less(obfuscatedULong, 100);
-            Assert.Less(3, obfuscatedULong);
-        }
-
-        [Test]
-        public void ComparisonLessEqual()
-        {
-            ulong value = 95;
-            var obfuscatedULong = new ObfuscatedULong(value);
-
-            Assert.LessOrEqual(obfuscatedULong, 243);
-            Assert.LessOrEqual(value, obfuscatedULong);
-        }
-
-        [Test]
-        public void ComparisonGreater()
-        {
-            ulong value = 194;
-            var obfuscatedULong = new ObfuscatedULong(value);
-
-            Assert.Greater(obfuscatedULong, 156);
-            Assert.Greater(255, obfuscatedULong);
-        }
-
-        [Test]
-        public void ComparisonGreaterEqual()
-        {
-            ulong value = 137;
-            var obfuscatedULong = new ObfuscatedULong(value);
-
-            Assert.GreaterOrEqual(obfuscatedULong, value);
-            Assert.GreaterOrEqual(209, obfuscatedULong);
-        }
-
-        [Test]
-        public void OperatorAddition()
-        {
-            ulong value1 = 13;
             var obfuscatedULong1 = new ObfuscatedULong(value1);
-
-            ulong value2 = 7;
             var obfuscatedULong2 = new ObfuscatedULong(value2);
 
-            ulong addition = (ulong)(value1 + value2);
+            Assert.Less(obfuscatedULong1, obfuscatedULong2);
+            Assert.Less(obfuscatedULong1, value2);
+            Assert.Less(value1, obfuscatedULong2);
+        }
+
+        [Test]
+        public void ComparisonLessEqual([Values((ulong)95, (ulong)101)] ulong value1, [Values((ulong)101)] ulong value2)
+        {
+            Assert.LessOrEqual(value1, value2);
+
+            var obfuscatedULong1 = new ObfuscatedULong(value1);
+            var obfuscatedULong2 = new ObfuscatedULong(value2);
+
+            Assert.LessOrEqual(obfuscatedULong1, obfuscatedULong2);
+            Assert.LessOrEqual(obfuscatedULong1, value2);
+            Assert.LessOrEqual(value1, obfuscatedULong2);
+        }
+
+        [Test]
+        public void ComparisonGreater([Values((ulong)127)] ulong value1, [Values((ulong)41)] ulong value2)
+        {
+            Assert.Greater(value1, value2);
+
+            var obfuscatedULong1 = new ObfuscatedULong(value1);
+            var obfuscatedULong2 = new ObfuscatedULong(value2);
+
+            Assert.Greater(obfuscatedULong1, obfuscatedULong2);
+            Assert.Greater(obfuscatedULong1, value2);
+            Assert.Greater(value1, obfuscatedULong2);
+        }
+
+        [Test]
+        public void ComparisonGreaterEqual([Values((ulong)117, (ulong)54)] ulong value1, [Values((ulong)54)] ulong value2)
+        {
+            Assert.GreaterOrEqual(value1, value2);
+
+            var obfuscatedULong1 = new ObfuscatedULong(value1);
+            var obfuscatedULong2 = new ObfuscatedULong(value2);
+
+            Assert.GreaterOrEqual(obfuscatedULong1, obfuscatedULong2);
+            Assert.GreaterOrEqual(obfuscatedULong1, value2);
+            Assert.GreaterOrEqual(value1, obfuscatedULong2);
+        }
+
+        [Test]
+        public void OperatorAddition([Values((ulong)13)] ulong value1, [Values((ulong)7)] ulong value2)
+        {
+            var obfuscatedULong1 = new ObfuscatedULong(value1);
+            var obfuscatedULong2 = new ObfuscatedULong(value2);
+
+            ulong addition = value1 + value2;
             ulong obfuscatedAddition = new ObfuscatedULong(addition);
 
             Assert.AreEqual(obfuscatedULong1 + obfuscatedULong2, addition);
@@ -110,15 +117,12 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorSubtraction()
+        public void OperatorSubtraction([Values((ulong)25)] ulong value1, [Values((ulong)5)] ulong value2)
         {
-            ulong value1 = 25;
             var obfuscatedULong1 = new ObfuscatedULong(value1);
-
-            ulong value2 = 5;
             var obfuscatedULong2 = new ObfuscatedULong(value2);
 
-            ulong subtraction = (ulong)(value1 - value2);
+            ulong subtraction = value1 - value2;
             ulong obfuscatedSubtraction = new ObfuscatedULong(subtraction);
 
             Assert.AreEqual(obfuscatedULong1 - obfuscatedULong2, subtraction);
@@ -134,15 +138,12 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorMultiplication()
+        public void OperatorMultiplication([Values((ulong)11)] ulong value1, [Values((ulong)6)] ulong value2)
         {
-            ulong value1 = 11;
             var obfuscatedULong1 = new ObfuscatedULong(value1);
-
-            ulong value2 = 6;
             var obfuscatedULong2 = new ObfuscatedULong(value2);
 
-            ulong multiplication = (ulong)(value1 * value2);
+            ulong multiplication = value1 * value2;
             ulong obfuscatedMultiplication = new ObfuscatedULong(multiplication);
 
             Assert.AreEqual(obfuscatedULong1 * obfuscatedULong2, multiplication);
@@ -154,15 +155,12 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorDivision()
+        public void OperatorDivision([Values((ulong)80)] ulong value1, [Values((ulong)8)] ulong value2)
         {
-            ulong value1 = 80;
             var obfuscatedULong1 = new ObfuscatedULong(value1);
-
-            ulong value2 = 8;
             var obfuscatedULong2 = new ObfuscatedULong(value2);
 
-            ulong division = (ulong)(value1 / value2);
+            ulong division = value1 / value2;
             ulong obfuscatedDivision = new ObfuscatedULong(division);
 
             Assert.AreEqual(obfuscatedULong1 / obfuscatedULong2, division);

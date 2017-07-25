@@ -7,12 +7,11 @@ namespace SocialPoint.Utils.Obfuscation
     [Category("SocialPoint.Utils.Obfuscation")]
     public class ObfuscatedDoubleTest
     {
-        const double Epsilon = 0.00001;
+        const double Epsilon = 0.000001;
 
         [Test]
-        public void ConversionImplicit()
+        public void ConversionImplicit([Values(68.0)] double value)
         {
-            double value = 168.0;
             var obfuscatedDouble = new ObfuscatedDouble(value);
             double unobfuscatedDouble = obfuscatedDouble;
 
@@ -22,15 +21,14 @@ namespace SocialPoint.Utils.Obfuscation
 
             Assert.AreNotEqual(value, obfuscatedDouble.ObfuscatedValue);
 
-            double newValue = 99.0;
+            double newValue = value + 1.0;
             obfuscatedDouble = newValue;
             Assert.AreEqual(newValue, obfuscatedDouble, Epsilon);
         }
 
         [Test]
-        public void ComparisonEqual()
+        public void ComparisonEqual([Values(73.0)] double value)
         {
-            double value = 73.0;
             var obfuscatedDouble = new ObfuscatedDouble(value);
 
             Assert.AreEqual(obfuscatedDouble, value, Epsilon);
@@ -38,65 +36,74 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void ComparisonNotEqual()
+        public void ComparisonNotEqual([Values(114.0)] double value)
         {
-            double value = 214.0;
             var obfuscatedDouble = new ObfuscatedDouble(value);
 
-            Assert.AreNotEqual(obfuscatedDouble, 128.0);
-            Assert.AreNotEqual(20.0, obfuscatedDouble);
+            double differentValue = value + 1.0;
+            Assert.AreNotEqual(obfuscatedDouble, differentValue);
+            Assert.AreNotEqual(differentValue, obfuscatedDouble);
         }
 
         [Test]
-        public void ComparisonLess()
+        public void ComparisonLess([Values(64.0)] double value1, [Values(100.0)] double value2)
         {
-            double value = 64.0;
-            var obfuscatedDouble = new ObfuscatedDouble(value);
+            Assert.Less(value1, value2);
 
-            Assert.Less(obfuscatedDouble, 100.0);
-            Assert.Less(3, obfuscatedDouble);
-        }
-
-        [Test]
-        public void ComparisonLessEqual()
-        {
-            double value = 95.0;
-            var obfuscatedDouble = new ObfuscatedDouble(value);
-
-            Assert.LessOrEqual(obfuscatedDouble, 243.0);
-            Assert.LessOrEqual(value, obfuscatedDouble);
-        }
-
-        [Test]
-        public void ComparisonGreater()
-        {
-            double value = 194.0;
-            var obfuscatedDouble = new ObfuscatedDouble(value);
-
-            Assert.Greater(obfuscatedDouble, 156.0);
-            Assert.Greater(255.0, obfuscatedDouble);
-        }
-
-        [Test]
-        public void ComparisonGreaterEqual()
-        {
-            double value = 137.0;
-            var obfuscatedDouble = new ObfuscatedDouble(value);
-
-            Assert.GreaterOrEqual(obfuscatedDouble, value);
-            Assert.GreaterOrEqual(209.0, obfuscatedDouble);
-        }
-
-        [Test]
-        public void OperatorAddition()
-        {
-            double value1 = 13.0;
             var obfuscatedDouble1 = new ObfuscatedDouble(value1);
-
-            double value2 = 7.0;
             var obfuscatedDouble2 = new ObfuscatedDouble(value2);
 
-            double addition = (double)(value1 + value2);
+            Assert.Less(obfuscatedDouble1, obfuscatedDouble2);
+            Assert.Less(obfuscatedDouble1, value2);
+            Assert.Less(value1, obfuscatedDouble2);
+        }
+
+        [Test]
+        public void ComparisonLessEqual([Values(95.0, 101.0)] double value1, [Values(101.0)] double value2)
+        {
+            Assert.LessOrEqual(value1, value2);
+
+            var obfuscatedDouble1 = new ObfuscatedDouble(value1);
+            var obfuscatedDouble2 = new ObfuscatedDouble(value2);
+
+            Assert.LessOrEqual(obfuscatedDouble1, obfuscatedDouble2);
+            Assert.LessOrEqual(obfuscatedDouble1, value2);
+            Assert.LessOrEqual(value1, obfuscatedDouble2);
+        }
+
+        [Test]
+        public void ComparisonGreater([Values(127.0)] double value1, [Values(41.0)] double value2)
+        {
+            Assert.Greater(value1, value2);
+
+            var obfuscatedDouble1 = new ObfuscatedDouble(value1);
+            var obfuscatedDouble2 = new ObfuscatedDouble(value2);
+
+            Assert.Greater(obfuscatedDouble1, obfuscatedDouble2);
+            Assert.Greater(obfuscatedDouble1, value2);
+            Assert.Greater(value1, obfuscatedDouble2);
+        }
+
+        [Test]
+        public void ComparisonGreaterEqual([Values(117.0, 54.0)] double value1, [Values(54.0)] double value2)
+        {
+            Assert.GreaterOrEqual(value1, value2);
+
+            var obfuscatedDouble1 = new ObfuscatedDouble(value1);
+            var obfuscatedDouble2 = new ObfuscatedDouble(value2);
+
+            Assert.GreaterOrEqual(obfuscatedDouble1, obfuscatedDouble2);
+            Assert.GreaterOrEqual(obfuscatedDouble1, value2);
+            Assert.GreaterOrEqual(value1, obfuscatedDouble2);
+        }
+
+        [Test]
+        public void OperatorAddition([Values(13.0)] double value1, [Values(7.0)] double value2)
+        {
+            var obfuscatedDouble1 = new ObfuscatedDouble(value1);
+            var obfuscatedDouble2 = new ObfuscatedDouble(value2);
+
+            double addition = value1 + value2;
             double obfuscatedAddition = new ObfuscatedDouble(addition);
 
             Assert.AreEqual(obfuscatedDouble1 + obfuscatedDouble2, addition, Epsilon);
@@ -112,15 +119,12 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorSubtraction()
+        public void OperatorSubtraction([Values(25.0)] double value1, [Values(5.0)] double value2)
         {
-            double value1 = 25.0;
             var obfuscatedDouble1 = new ObfuscatedDouble(value1);
-
-            double value2 = 5.0;
             var obfuscatedDouble2 = new ObfuscatedDouble(value2);
 
-            double subtraction = (double)(value1 - value2);
+            double subtraction = value1 - value2;
             double obfuscatedSubtraction = new ObfuscatedDouble(subtraction);
 
             Assert.AreEqual(obfuscatedDouble1 - obfuscatedDouble2, subtraction, Epsilon);
@@ -136,15 +140,12 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorMultiplication()
+        public void OperatorMultiplication([Values(11.0)] double value1, [Values(6.0)] double value2)
         {
-            double value1 = 11.0;
             var obfuscatedDouble1 = new ObfuscatedDouble(value1);
-
-            double value2 = 6.0;
             var obfuscatedDouble2 = new ObfuscatedDouble(value2);
 
-            double multiplication = (double)(value1 * value2);
+            double multiplication = value1 * value2;
             double obfuscatedMultiplication = new ObfuscatedDouble(multiplication);
 
             Assert.AreEqual(obfuscatedDouble1 * obfuscatedDouble2, multiplication, Epsilon);
@@ -156,15 +157,12 @@ namespace SocialPoint.Utils.Obfuscation
         }
 
         [Test]
-        public void OperatorDivision()
+        public void OperatorDivision([Values(80.0)] double value1, [Values(8.0)] double value2)
         {
-            double value1 = 80.0;
             var obfuscatedDouble1 = new ObfuscatedDouble(value1);
-
-            double value2 = 8.0;
             var obfuscatedDouble2 = new ObfuscatedDouble(value2);
 
-            double division = (double)(value1 / value2);
+            double division = value1 / value2;
             double obfuscatedDivision = new ObfuscatedDouble(division);
 
             Assert.AreEqual(obfuscatedDouble1 / obfuscatedDouble2, division, Epsilon);
