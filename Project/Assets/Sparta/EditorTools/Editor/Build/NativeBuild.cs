@@ -12,11 +12,35 @@ namespace SpartaTools.Editor.Build
     {
         static readonly List<string> IgnoredAndroidNativeModules = new List<string>{ "lib" };
 
+        const string LegacySourcesPath = "../Sources";
+        const string SourcesPath = "Plugins/Sparta/Hidden~/Sources";
+
+        static string _sourcesDirectoryPath;
+
         static string SourcesDirectoryPath
         {
             get
             {
-                return Path.Combine(Application.dataPath, "../Sources");
+                if(string.IsNullOrEmpty(_sourcesDirectoryPath))
+                {
+                    var sourcesDirectoryPath = Path.Combine(Application.dataPath, SourcesPath);
+                    if(Directory.Exists(sourcesDirectoryPath))
+                    {
+                        _sourcesDirectoryPath = sourcesDirectoryPath;
+                    }
+                    else
+                    {
+                        Debug.LogWarning(string.Format("Path: '{0}' not found", sourcesDirectoryPath)); 
+                        sourcesDirectoryPath = Path.Combine(Application.dataPath, LegacySourcesPath);
+                        if(Directory.Exists(sourcesDirectoryPath))
+                        {
+                            _sourcesDirectoryPath = sourcesDirectoryPath;
+                        }
+                        Debug.LogWarning(string.Format("Path: '{0}' not found", sourcesDirectoryPath)); 
+                    }
+                }
+
+                return _sourcesDirectoryPath;
             }
         }
 
@@ -69,6 +93,8 @@ namespace SpartaTools.Editor.Build
 
         public static void CompileAndroid(Action<string> onBuildStart, Action onBuildEnd)
         {
+            RemoveEmptyDirs();
+
             var commandOutput = new StringBuilder("Compile SPUnityPlugins for Android");
             var path = Path.Combine(SourcesDirectoryPath, "Android/sp_unity_plugins");
             var unityPath = InstallationPath;
@@ -118,6 +144,8 @@ namespace SpartaTools.Editor.Build
 
         public static void CompileAndroidNative(Action<float, string> onProgress, Action onModuleEnd)
         {
+            RemoveEmptyDirs();
+
             if(string.IsNullOrEmpty(AndroidNDKPath))
             {
                 Debug.LogError("Error compiling Android native plugins. No NDK Path configured");
@@ -168,16 +196,19 @@ namespace SpartaTools.Editor.Build
 
         public static void CompileIOS()
         {
+            RemoveEmptyDirs();
             CompileAppleProjectTarget("generateUnityPlugin");
         }
 
         public static void CompileTVOS()
         {
+            RemoveEmptyDirs();
             CompileAppleProjectTarget("generateUnityPlugin_tvOS");
         }
 
         public static void CompileOSX()
         {
+            RemoveEmptyDirs();
             CompileAppleProjectTarget("generateUnityPlugin_macOS");
         }
 
@@ -210,7 +241,7 @@ namespace SpartaTools.Editor.Build
             commandOutput.AppendLine(msg);
             EditorUtility.DisplayProgressBar("Compiling native plugin", msg, 0.1f);
 
-            var bin = "xcodebuild";
+            const string bin = "xcodebuild";
             var param = paramsBuilder.ToString();
             Debug.Log(string.Format("Running build command: {0} {1}", bin, param)); 
             var result = NativeConsole.RunProcess(bin, param, path);
@@ -221,6 +252,21 @@ namespace SpartaTools.Editor.Build
             EditorUtility.ClearProgressBar();
 
             ValidateResult(result);
+        }
+
+        static void RemoveEmptyDirs()
+        {
+            var commandOutput = new StringBuilder("Removing empty Directories");
+            var path = Path.Combine(SourcesDirectoryPath, "Common");
+
+            var bin = Path.Combine(path, "remove_empty_dirs.sh");
+            Debug.Log(string.Format("Running build command: {0}", bin)); 
+            var result = NativeConsole.RunProcess(bin, string.Empty, path);
+            commandOutput.AppendLine(result.Output);
+
+            ValidateResult(result);
+
+            Debug.Log(commandOutput.ToString());
         }
     }
 }

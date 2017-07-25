@@ -172,7 +172,7 @@ namespace SpartaTools.Editor.Build
 
         // Name of the main Core library module. Workaround for module dependencies.
         const string SpartaCoreModule = "Sparta Core";
-        const string BinariesFolderPath = "Temp/Sparta/Binaries";
+        const string BinariesFolderPath = "Temp/Sparta/Assemblies";
 
         const string ScriptFilePattern = "*.cs";
         const string LibraryFilePattern = "*.dll";
