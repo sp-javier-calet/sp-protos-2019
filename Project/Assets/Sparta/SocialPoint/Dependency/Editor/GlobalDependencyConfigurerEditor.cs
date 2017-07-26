@@ -6,7 +6,7 @@ using System.Reflection;
 namespace SocialPoint.Dependency
 {
     [CustomEditor(typeof(GlobalDependencyConfigurer))]
-    public sealed class GlobalDependencyConfigurerEditor : UnityEditor.Editor
+    public sealed class GlobalDependencyConfigurerEditor : Editor
     {
         GUIStyle EnabledInstaller { get; set; }
 
@@ -97,7 +97,7 @@ namespace SocialPoint.Dependency
             return configurer.Installers;
         }
 
-        void Duplicate(Installer installer)
+        static void Duplicate(Installer installer)
         {
             if(!InstallerAssetsManager.Duplicate(installer))
             {
@@ -150,10 +150,23 @@ namespace SocialPoint.Dependency
             {
                 if(_actionsIcon == null)
                 {
-                    _actionsIcon = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Sparta/EditorTools/Editor/EditorResources/more.icon.png");
+                    const string iconName = "more.icon";
+                    _actionsIcon = LoadTexture2D(iconName);
                 }
                 return _actionsIcon;
             }
+        }
+
+        static Texture LoadTexture2D(string textureName)
+        {
+            const string type = "t:texture2d";
+            var guids = AssetDatabase.FindAssets(string.Format("{0} {1}", textureName, type));
+            foreach(var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            }
+            return null;
         }
 
         public override void OnInspectorGUI()
@@ -200,12 +213,7 @@ namespace SocialPoint.Dependency
 
         bool IsFiltered(InstallerData data)
         {
-            if(string.IsNullOrEmpty(_filter))
-            {
-                return false;
-            }
-
-            return !data.LowerCaseName.Contains(_filterString);
+            return string.IsNullOrEmpty(_filter) ? false : !data.LowerCaseName.Contains(_filterString);
         }
     }
 }
