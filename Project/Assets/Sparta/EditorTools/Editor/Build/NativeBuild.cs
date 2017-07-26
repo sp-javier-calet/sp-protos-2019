@@ -1,10 +1,10 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Collections.Generic;
 using SpartaTools.Editor.Utils;
+using UnityEditor;
+using UnityEngine;
 
 namespace SpartaTools.Editor.Build
 {
@@ -88,7 +88,9 @@ namespace SpartaTools.Editor.Build
 
         public static void CompileAndroid()
         {
-            CompileAndroid(null, null);
+            CompileAndroid(
+                path => EditorUtility.DisplayProgressBar("Compiling Android plugin", path, 0.1f), 
+                EditorUtility.ClearProgressBar);
         }
 
         public static void CompileAndroid(Action<string> onBuildStart, Action onBuildEnd)
@@ -139,18 +141,20 @@ namespace SpartaTools.Editor.Build
 
         public static void CompileAndroidNative()
         {
-            CompileAndroidNative(null, null);
+            CompileAndroidNative(
+                (progress, msg) => EditorUtility.DisplayProgressBar("Compiling native plugin", msg, progress), 
+                EditorUtility.ClearProgressBar);
         }
 
         public static void CompileAndroidNative(Action<float, string> onProgress, Action onModuleEnd)
         {
-            RemoveEmptyDirs();
-
             if(string.IsNullOrEmpty(AndroidNDKPath))
             {
                 Debug.LogError("Error compiling Android native plugins. No NDK Path configured");
                 return;
             }
+
+            RemoveEmptyDirs();
                 
             var commandOutput = new StringBuilder("Compile Android Native Plugins");
             var path = Path.Combine(SourcesDirectoryPath, "Android/sp_unity_native_plugins");
@@ -260,7 +264,7 @@ namespace SpartaTools.Editor.Build
             var path = Path.Combine(SourcesDirectoryPath, "Common");
 
             var bin = Path.Combine(path, "remove_empty_dirs.sh");
-            Debug.Log(string.Format("Running build command: {0}", bin)); 
+            Debug.Log(string.Format("Running build command: {0}", bin));
             var result = NativeConsole.RunProcess(bin, string.Empty, path);
             commandOutput.AppendLine(result.Output);
 
