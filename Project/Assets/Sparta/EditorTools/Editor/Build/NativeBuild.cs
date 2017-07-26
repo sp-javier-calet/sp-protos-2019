@@ -95,8 +95,6 @@ namespace SpartaTools.Editor.Build
 
         public static void CompileAndroid(Action<string> onBuildStart, Action onBuildEnd)
         {
-            RemoveEmptyDirs();
-
             var commandOutput = new StringBuilder("Compile SPUnityPlugins for Android");
             var path = Path.Combine(SourcesDirectoryPath, "Android/sp_unity_plugins");
             var unityPath = InstallationPath;
@@ -154,8 +152,6 @@ namespace SpartaTools.Editor.Build
                 return;
             }
 
-            RemoveEmptyDirs();
-                
             var commandOutput = new StringBuilder("Compile Android Native Plugins");
             var path = Path.Combine(SourcesDirectoryPath, "Android/sp_unity_native_plugins");
 
@@ -200,19 +196,16 @@ namespace SpartaTools.Editor.Build
 
         public static void CompileIOS()
         {
-            RemoveEmptyDirs();
             CompileAppleProjectTarget("generateUnityPlugin");
         }
 
         public static void CompileTVOS()
         {
-            RemoveEmptyDirs();
             CompileAppleProjectTarget("generateUnityPlugin_tvOS");
         }
 
         public static void CompileOSX()
         {
-            RemoveEmptyDirs();
             CompileAppleProjectTarget("generateUnityPlugin_macOS");
         }
 
@@ -256,21 +249,6 @@ namespace SpartaTools.Editor.Build
             EditorUtility.ClearProgressBar();
 
             ValidateResult(result);
-        }
-
-        static void RemoveEmptyDirs()
-        {
-            var commandOutput = new StringBuilder("Removing empty Directories");
-            var path = Path.Combine(SourcesDirectoryPath, "Common");
-
-            var bin = Path.Combine(path, "remove_empty_dirs.sh");
-            Debug.Log(string.Format("Running build command: {0}", bin));
-            var result = NativeConsole.RunProcess(bin, string.Empty, path);
-            commandOutput.AppendLine(result.Output);
-
-            ValidateResult(result);
-
-            Debug.Log(commandOutput.ToString());
         }
     }
 }
