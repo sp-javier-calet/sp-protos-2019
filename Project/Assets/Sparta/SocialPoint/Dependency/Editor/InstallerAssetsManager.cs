@@ -1,14 +1,15 @@
 ﻿using System;
-using System.IO;
-using UnityEngine;
-using UnityEditor;
 using System.Collections.Generic;
+using System.IO;
+using SocialPoint.Base;
+using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.Dependency
 {
     public static class InstallerAssetsManager
     {
-        public const string ContainerPath = "Assets/Sparta/Config/Resources/Installers";
+        public static readonly string ContainerPath = ConfigPaths.SpartaConfigResourcesPath + "Installers";
         public const string FileExtension = ".asset";
         public const string AssetPattern = "*.asset";
 

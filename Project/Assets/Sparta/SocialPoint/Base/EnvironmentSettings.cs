@@ -17,9 +17,9 @@ namespace SocialPoint.Base
 
         const string FileName = "Environment";
         const string FileExtension = ".asset";
-        const string ContainerPath = "Assets/Sparta/Config/Environment/Resources/";
+        static readonly string ContainerPath = ConfigPaths.SpartaConfigResourcesPath + "Environment/";
 
-        const string EnvironmentSettingsAssetPath = ContainerPath + FileName + FileExtension;
+        static readonly string EnvironmentSettingsAssetPath = ContainerPath + FileName + FileExtension;
 
         static EnvironmentSettings _instance;
 

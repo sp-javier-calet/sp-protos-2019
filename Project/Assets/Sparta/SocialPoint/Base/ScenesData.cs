@@ -16,9 +16,9 @@ namespace SocialPoint.Base
     {
         const string FileName = "ScenesData";
         const string FileExtension = ".asset";
-        const string ContainerPath = "Assets/Sparta/Config/ScenesData/Resources/";
+        static readonly string ContainerPath = ConfigPaths.SpartaConfigResourcesPath + "ScenesData/";
 
-        const string ScenesDataAssetPath = ContainerPath + FileName + FileExtension;
+        static readonly string ScenesDataAssetPath = ContainerPath + FileName + FileExtension;
 
         static ScenesData _instance;
 
