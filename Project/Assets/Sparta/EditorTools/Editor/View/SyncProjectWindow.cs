@@ -74,13 +74,13 @@ namespace SpartaTools.Editor.View
         }
 
         // Options are tied to ModuleSync.SyncAction definition.
-        readonly string[] InstalledModuleOptions = new [] {
+        readonly string[] InstalledModuleOptions = {
             "None",
             "Override",
             "Uninstall" 
         };
 
-        readonly string[] NotInstalledModuleOptions = new [] {
+        readonly string[] NotInstalledModuleOptions = {
             "None",
             "Install"
         };
@@ -110,11 +110,12 @@ namespace SpartaTools.Editor.View
             }
         }
 
-#if UNITY_EDITOR_WIN //Windows doesn't work with autorefresh enabled when opening the editorwindow.
+        //Windows doesn't work with autorefresh enabled when opening the editorwindow.
+        #if UNITY_EDITOR_WIN
         bool _autoRefresh = false;
-#else
+        #else
         bool _autoRefresh = true;
-#endif
+        #endif
 
         bool Synchronized
         {
@@ -135,7 +136,7 @@ namespace SpartaTools.Editor.View
                     var categories = new List<ModuleSyncCategory>();
                     var modules = SyncTools.Synchronize(Sparta.Target.ProjectPath, progress);
 
-                    if(modules != null) 
+                    if(modules != null)
                     {
                         foreach(var mod in modules)
                         {
@@ -160,7 +161,7 @@ namespace SpartaTools.Editor.View
             }
         }
 
-#region Draw GUI
+        #region Draw GUI
 
         void OnFocus()
         {
@@ -212,13 +213,7 @@ namespace SpartaTools.Editor.View
                                "Skip", 
                                "Checkout"))
                         {
-                            if(EditorUtility.DisplayDialog("Different commit", 
-                                   "Target project was updated from a different library commit. Backport could be inconsistent.", 
-                                   "Backport", 
-                                   "Cancel"))
-                            {
-                                doBackport = true;
-                            }
+                            doBackport |= EditorUtility.DisplayDialog("Different commit", "Target project was updated from a different library commit. Backport could be inconsistent.", "Backport", "Cancel");
                         }
                         else
                         {
@@ -393,6 +388,6 @@ namespace SpartaTools.Editor.View
             GUILayout.EndVertical();
         }
 
-#endregion
+        #endregion
     }
 }

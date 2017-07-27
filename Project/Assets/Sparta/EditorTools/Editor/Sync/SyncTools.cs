@@ -72,7 +72,7 @@ namespace SpartaTools.Editor.Sync
                 CurrentProgress.Update(string.Format("Comparing {0}", spartaMod.Name), modulePercent);
 
                 // Search for module in target
-                Module targetModule = null;
+                Module targetModule;
                 targetModules.TryGetValue(spartaMod.Name, out targetModule);
 
                 // Compare modules between sparta and target project
@@ -231,11 +231,8 @@ namespace SpartaTools.Editor.Sync
                 Directory.Delete(path, true);
                 return true;
             }
-            else
-            {
-                File.Delete(path);
-                return true;
-            }
+            File.Delete(path);
+            return true;
         }
 
         /// <summary>
@@ -252,8 +249,8 @@ namespace SpartaTools.Editor.Sync
             foreach(var file in moduleSync.Files)
             {
                 bool deleteFile = action == CopyAction.TargetToSource ? 
-					file.FileStatus == ModuleSync.FileStatus.MissingFileInTarget :
-					file.FileStatus == ModuleSync.FileStatus.MissingFileInSource;
+                file.FileStatus == ModuleSync.FileStatus.MissingFileInTarget :
+                file.FileStatus == ModuleSync.FileStatus.MissingFileInSource;
 
                 if(deleteFile)
                 {
@@ -378,11 +375,11 @@ namespace SpartaTools.Editor.Sync
                     var depFile1 = new FileInfo(spartaDependencyPath);
                     var depFile2 = new FileInfo(targetDependencyPath);
 
-                    IEnumerable<FileInfo> depList1 = depFile1.Exists ? new FileInfo[] {
+                    IEnumerable<FileInfo> depList1 = depFile1.Exists ? new [] {
                         depFile1,
                         new FileInfo(spartaDependencyPath + ".meta")
                     } : EmptyFileList;
-                    IEnumerable<FileInfo> depList2 = depFile2.Exists ? new FileInfo[] {
+                    IEnumerable<FileInfo> depList2 = depFile2.Exists ? new [] {
                         depFile2,
                         new FileInfo(targetDependencyPath + ".meta")
                     } : EmptyFileList;
@@ -485,9 +482,9 @@ namespace SpartaTools.Editor.Sync
 
         static string GetMD5HashFromFile(string fileName)
         {
-            using (var md5 = System.Security.Cryptography.MD5.Create())
+            using(var md5 = System.Security.Cryptography.MD5.Create())
             {
-                using (var stream = File.OpenRead(fileName))
+                using(var stream = File.OpenRead(fileName))
                 {
                     return BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty);
                 }
