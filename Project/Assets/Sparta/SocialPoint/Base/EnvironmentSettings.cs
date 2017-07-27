@@ -16,10 +16,12 @@ namespace SocialPoint.Base
         const string EnvironmentUrlEnvironmentKey = "SP_DEFAULT_ENVIRONMENT";
 
         const string FileName = "Environment";
+
+        #if UNITY_EDITOR
         const string FileExtension = ".asset";
         static readonly string ContainerPath = ConfigPaths.SpartaConfigResourcesPath + "Environment/";
-
         static readonly string EnvironmentSettingsAssetPath = ContainerPath + FileName + FileExtension;
+        #endif
 
         static EnvironmentSettings _instance;
 
@@ -100,7 +102,6 @@ namespace SocialPoint.Base
         #endif
 
         [SerializeField]
-        [HideInInspector]
         string _environmentUrl;
 
         public string EnvironmentUrl

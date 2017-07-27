@@ -15,10 +15,12 @@ namespace SocialPoint.Base
     public class ScenesData : ScriptableObject
     {
         const string FileName = "ScenesData";
+
+        #if UNITY_EDITOR
         const string FileExtension = ".asset";
         static readonly string ContainerPath = ConfigPaths.SpartaConfigResourcesPath + "ScenesData/";
-
         static readonly string ScenesDataAssetPath = ContainerPath + FileName + FileExtension;
+        #endif
 
         static ScenesData _instance;
 
