@@ -23,21 +23,7 @@ namespace SpartaTools.Editor.Build
             {
                 if(string.IsNullOrEmpty(_sourcesDirectoryPath))
                 {
-                    var sourcesDirectoryPath = Path.Combine(Application.dataPath, SourcesPath);
-                    if(Directory.Exists(sourcesDirectoryPath))
-                    {
-                        _sourcesDirectoryPath = sourcesDirectoryPath;
-                    }
-                    else
-                    {
-                        Debug.LogWarning(string.Format("Path: '{0}' not found", sourcesDirectoryPath)); 
-                        sourcesDirectoryPath = Path.Combine(Application.dataPath, LegacySourcesPath);
-                        if(Directory.Exists(sourcesDirectoryPath))
-                        {
-                            _sourcesDirectoryPath = sourcesDirectoryPath;
-                        }
-                        Debug.LogWarning(string.Format("Path: '{0}' not found", sourcesDirectoryPath)); 
-                    }
+                    _sourcesDirectoryPath = SpartaPaths.SourcesDir;
                 }
 
                 return _sourcesDirectoryPath;

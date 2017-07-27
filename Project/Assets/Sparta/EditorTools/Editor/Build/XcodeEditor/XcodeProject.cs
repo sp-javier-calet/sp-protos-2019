@@ -1,7 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using SpartaTools.Editor.Utils;
 using SpartaTools.iOS.Xcode;
 
 namespace SpartaTools.Editor.Build.XcodeEditor
@@ -101,10 +102,15 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 Pbx = pbx;
                 DefaultTargetGuid = Pbx.TargetGuidByName(PBXProject.GetUnityTargetName());
 
-                _projectVariables = new Dictionary<string, string>() {
+                _projectVariables = new Dictionary<string, string> {
                     { ProjectPathVar,  project.ProjectPath     }, // Path to the .xcodeproj file
                     { ProjectRootVar,  project.ProjectRootPath }, // Path to the xcode project folder
-                    { CurrentRootPath, project.BaseAppPath     }  // Path to the Unity project root
+                    { CurrentRootPath, project.BaseAppPath     }, // Path to the Unity project root
+                    { SpartaPaths.SourcesVariable, SpartaPaths.SourcesDir       },
+                    { SpartaPaths.BinariesVariable, SpartaPaths.BinariesDir     },
+                    { SpartaPaths.CoreVariable, SpartaPaths.CoreDir             },
+                    { SpartaPaths.ExternalVariable, SpartaPaths.ExternalDir     },
+                    { SpartaPaths.ExtensionsVariable, SpartaPaths.ExtensionsDir }
                 };
             }
 
@@ -115,20 +121,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
             public string ReplaceProjectVariables(string basePath, string originalPath)
             {
-                var path = originalPath;
-                foreach(var entry in _projectVariables)
-                {
-                    var pattern = string.Format("{{{0}}}", entry.Key);
-                    path = path.Replace(pattern, entry.Value);
-                }
-
-                // If is not already a full path, use the base path if possible
-                if(!Path.IsPathRooted(path) && !string.IsNullOrEmpty(basePath))
-                {
-                    path = Path.Combine(basePath, path);
-                }
-
-                return Path.GetFullPath(path);
+                return SpartaPaths.ReplaceProjectVariables(basePath, originalPath, _projectVariables);
             }
 
             #region XCodeProjectEditor interface methods
