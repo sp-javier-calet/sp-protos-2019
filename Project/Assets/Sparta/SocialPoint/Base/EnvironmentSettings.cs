@@ -15,11 +15,12 @@ namespace SocialPoint.Base
     {
         const string EnvironmentUrlEnvironmentKey = "SP_DEFAULT_ENVIRONMENT";
 
+        const string FolderName = "Environment/";
         const string FileName = "Environment";
 
         #if UNITY_EDITOR
         const string FileExtension = ".asset";
-        static readonly string ContainerPath = ConfigPaths.SpartaConfigResourcesPath + "Environment/";
+        static readonly string ContainerPath = ConfigPaths.SpartaConfigResourcesPath + FolderName;
         static readonly string EnvironmentSettingsAssetPath = ContainerPath + FileName + FileExtension;
         #endif
 
@@ -49,7 +50,7 @@ namespace SocialPoint.Base
                 #if UNITY_EDITOR
                 _instance = AssetDatabase.LoadAssetAtPath<EnvironmentSettings>(EnvironmentSettingsAssetPath);
                 #else
-                _instance = Resources.Load(FileName) as EnvironmentSettings;
+                _instance = Resources.Load(FolderName + FileName) as EnvironmentSettings;
                 #endif
 
                 if(_instance == null)
