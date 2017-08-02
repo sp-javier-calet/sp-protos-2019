@@ -78,8 +78,11 @@ namespace SocialPoint.Base
                 Directory.CreateDirectory(ContainerPath);
             }
 
-            AssetDatabase.CreateAsset(_instance, EnvironmentSettingsAssetPath);
-            AssetDatabase.SaveAssets();
+            if(!File.Exists(EnvironmentSettingsAssetPath))
+            {
+                string assetPath = AssetDatabase.GenerateUniqueAssetPath(EnvironmentSettingsAssetPath);
+                AssetDatabase.CreateAsset(_instance, assetPath);
+            }
         }
 
         static public void UpdateData()
@@ -97,7 +100,6 @@ namespace SocialPoint.Base
         static void UpdateAsset()
         {
             EditorUtility.SetDirty(_instance);
-            AssetDatabase.SaveAssets();
         }
 
         #endif

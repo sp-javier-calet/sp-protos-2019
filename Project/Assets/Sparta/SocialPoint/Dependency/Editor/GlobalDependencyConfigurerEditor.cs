@@ -1,7 +1,7 @@
-using UnityEngine;
-using UnityEditor;
 using System;
 using System.Reflection;
+using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.Dependency
 {
@@ -49,7 +49,6 @@ namespace SocialPoint.Dependency
         {
             var configurer = (GlobalDependencyConfigurer)target;
             var installers = Load(configurer);
-            EditorUtility.SetDirty(configurer);
 
             _installers = new InstallerData[installers.Length];
 
@@ -171,9 +170,11 @@ namespace SocialPoint.Dependency
 
         public override void OnInspectorGUI()
         {
-            GUIToolbar();
-
             serializedObject.Update();
+            base.OnInspectorGUI();
+            serializedObject.ApplyModifiedProperties();
+
+            GUIToolbar();
 
             foreach(var data in _installers)
             {
@@ -201,19 +202,17 @@ namespace SocialPoint.Dependency
 
                         var editor = CreateEditor(installer);
                         editor.OnInspectorGUI();
-                        EditorUtility.SetDirty(installer);
 
                         EditorGUILayout.EndVertical();
                         EditorGUILayout.EndHorizontal();
                     }
                 }
             }
-            serializedObject.ApplyModifiedProperties();
         }
 
         bool IsFiltered(InstallerData data)
         {
-            return string.IsNullOrEmpty(_filter) ? false : !data.LowerCaseName.Contains(_filterString);
+            return !string.IsNullOrEmpty(_filter) && !data.LowerCaseName.Contains(_filterString);
         }
     }
 }

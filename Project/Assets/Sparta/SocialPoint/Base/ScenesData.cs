@@ -46,7 +46,6 @@ namespace SocialPoint.Base
         {
             if(_instance == null)
             {
-                Debug.LogError(ScenesDataAssetPath);
                 #if UNITY_EDITOR
                 _instance = AssetDatabase.LoadAssetAtPath<ScenesData>(ScenesDataAssetPath);
                 #else
@@ -78,8 +77,12 @@ namespace SocialPoint.Base
                 Directory.CreateDirectory(ContainerPath);
             }
 
-            AssetDatabase.CreateAsset(_instance, ScenesDataAssetPath);
-            AssetDatabase.SaveAssets();
+            if(!File.Exists(ScenesDataAssetPath))
+            {
+                string assetPath = AssetDatabase.GenerateUniqueAssetPath(ScenesDataAssetPath);
+                AssetDatabase.CreateAsset(_instance, assetPath);
+                AssetDatabase.SaveAssets();
+            }
         }
 
         static public void UpdateData()
@@ -109,13 +112,11 @@ namespace SocialPoint.Base
         static void UpdateAsset()
         {
             EditorUtility.SetDirty(_instance);
-            AssetDatabase.SaveAssets();
         }
 
         #endif
 
         [SerializeField]
-        [HideInInspector]
         string[] _scenesNames;
 
         public string[] ScenesNames
