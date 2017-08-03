@@ -1,22 +1,21 @@
 ﻿using System.IO;
+using SocialPoint.Base;
 using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace SocialPoint.Base
+namespace SocialPoint.IntroAnimation
 {
     #if UNITY_EDITOR
     [UnityEditor.InitializeOnLoad]
     #endif
 
-    public class EnvironmentSettings : ScriptableObject
+    public class IntroScreenData : ScriptableObject
     {
-        const string EnvironmentUrlEnvironmentKey = "SP_DEFAULT_ENVIRONMENT";
-
-        const string FolderName = "Environment/";
-        const string FileName = "Environment";
+        const string FolderName = "IntroScreen/";
+        const string FileName = "IntroScreen";
 
         #if UNITY_EDITOR
         const string FileExtension = ".asset";
@@ -24,9 +23,9 @@ namespace SocialPoint.Base
         static readonly string AssetFullPath = ContainerPath + FileName + FileExtension;
         #endif
 
-        static EnvironmentSettings _instance;
+        static IntroScreenData _instance;
 
-        public static EnvironmentSettings Instance
+        public static IntroScreenData Instance
         {
             get
             {
@@ -43,29 +42,25 @@ namespace SocialPoint.Base
         #if UNITY_EDITOR
         [InitializeOnLoadMethod]
         #endif
-        static EnvironmentSettings GetInstance()
+        static IntroScreenData GetInstance()
         {
             if(_instance == null)
             {
                 #if UNITY_EDITOR
-                _instance = AssetDatabase.LoadAssetAtPath<EnvironmentSettings>(AssetFullPath);
+                _instance = AssetDatabase.LoadAssetAtPath<IntroScreenData>(AssetFullPath);
                 #else
-                _instance = Resources.Load<EnvironmentSettings>(FolderName + FileName);
+                _instance = Resources.Load<IntroScreenData>(FolderName + FileName);
                 #endif
 
                 if(_instance == null)
                 {
                     // If not found, autocreate the asset object.
-                    _instance = CreateInstance<EnvironmentSettings>();
+                    _instance = CreateInstance<IntroScreenData>();
 
                     #if UNITY_EDITOR
                     CreateAsset();
                     #endif
                 }
-
-                #if UNITY_EDITOR
-                UpdateData();
-                #endif
             }
             return _instance;
         }
@@ -85,37 +80,20 @@ namespace SocialPoint.Base
             }
         }
 
-        static public void UpdateData()
-        {
-            UpdateEnvironmentUrl();
-            UpdateAsset();
-        }
-
-        static void UpdateEnvironmentUrl()
-        {
-            _instance.EnvironmentUrl = string.Empty;
-            EnvironmentSettings._instance.EnvironmentUrl = System.Environment.GetEnvironmentVariable(EnvironmentUrlEnvironmentKey);
-        }
-
-        static void UpdateAsset()
-        {
-            EditorUtility.SetDirty(_instance);
-        }
-
         #endif
 
         [SerializeField]
-        string _environmentUrl;
+        Object _nextScene;
 
-        public string EnvironmentUrl
+        public Object NextScene
         {
             get
             {
-                return _environmentUrl ?? string.Empty;
+                return _nextScene;
             }
             private set
             {
-                _environmentUrl = value;
+                _nextScene = value;
             }
         }
     }

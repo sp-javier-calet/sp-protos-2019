@@ -20,7 +20,7 @@ namespace SocialPoint.Base
         #if UNITY_EDITOR
         const string FileExtension = ".asset";
         static readonly string ContainerPath = ConfigPaths.SpartaConfigResourcesPath + FolderName;
-        static readonly string ScenesDataAssetPath = ContainerPath + FileName + FileExtension;
+        static readonly string AssetFullPath = ContainerPath + FileName + FileExtension;
         #endif
 
         static ScenesData _instance;
@@ -47,9 +47,9 @@ namespace SocialPoint.Base
             if(_instance == null)
             {
                 #if UNITY_EDITOR
-                _instance = AssetDatabase.LoadAssetAtPath<ScenesData>(ScenesDataAssetPath);
+                _instance = AssetDatabase.LoadAssetAtPath<ScenesData>(AssetFullPath);
                 #else
-                _instance = Resources.Load(FolderName + FileName) as ScenesData;
+                _instance = Resources.Load<ScenesData>(FolderName + FileName);
                 #endif
 
                 if(_instance == null)
@@ -77,9 +77,9 @@ namespace SocialPoint.Base
                 Directory.CreateDirectory(ContainerPath);
             }
 
-            if(!File.Exists(ScenesDataAssetPath))
+            if(!File.Exists(AssetFullPath))
             {
-                string assetPath = AssetDatabase.GenerateUniqueAssetPath(ScenesDataAssetPath);
+                string assetPath = AssetDatabase.GenerateUniqueAssetPath(AssetFullPath);
                 AssetDatabase.CreateAsset(_instance, assetPath);
                 AssetDatabase.SaveAssets();
             }
