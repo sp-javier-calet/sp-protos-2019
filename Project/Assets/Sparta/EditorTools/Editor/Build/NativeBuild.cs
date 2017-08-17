@@ -12,9 +12,6 @@ namespace SpartaTools.Editor.Build
     {
         static readonly List<string> IgnoredAndroidNativeModules = new List<string>{ "lib" };
 
-        const string LegacySourcesPath = "../Sources";
-        const string SourcesPath = "Plugins/Sparta/Hidden~/Sources";
-
         static string _sourcesDirectoryPath;
 
         static string SourcesDirectoryPath
