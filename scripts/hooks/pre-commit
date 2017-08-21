@@ -10,7 +10,7 @@
 REPO_PATH=$(git rev-parse --show-toplevel)
 
 # Remove merge conflict files
-find $REPO_PATH -name '*~HEAD.*' -type f -delete
+find $REPO_PATH -name '*~HEAD*' -type f -delete
 find $REPO_PATH -name '*.orig*' -type f -delete
 
 # Remove empty directories
