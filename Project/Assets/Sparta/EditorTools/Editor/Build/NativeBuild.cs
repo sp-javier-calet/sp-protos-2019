@@ -222,9 +222,15 @@ namespace SpartaTools.Editor.Build
             EditorUtility.DisplayProgressBar("Compiling native plugin", msg, 0.1f);
 
             const string bin = "xcodebuild";
-            var param = paramsBuilder.ToString();
+
+            var param = "-version";
             Debug.Log(string.Format("Running build command: {0} {1}", bin, param)); 
             var result = NativeConsole.RunProcess(bin, param, path);
+            commandOutput.AppendLine(result.Output);
+
+            param = paramsBuilder.ToString();
+            Debug.Log(string.Format("Running build command: {0} {1}", bin, param)); 
+            result = NativeConsole.RunProcess(bin, param, path);
             commandOutput.AppendLine(result.Output);
 
             Debug.Log(commandOutput.ToString());
