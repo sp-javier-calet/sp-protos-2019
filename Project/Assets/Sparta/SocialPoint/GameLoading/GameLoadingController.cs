@@ -368,7 +368,7 @@ namespace SocialPoint.GameLoading
             {
                 msg = "login finished sucessfully";
             }
-			if(Error.IsNullOrEmpty(err) && Login.Data != null)
+            if(Error.IsNullOrEmpty(err) && Login.Data != null)
             {
                 if(Login.Data.Upgrade != null && Login.Data.Upgrade.Type != UpgradeType.None)
                 {

@@ -8,7 +8,7 @@ public sealed class MaintenanceModePopupController : UIViewController
     public Text MessageLabel;
     public Text SignatureLabel;
     public Text ButtonLabel;
-	public Button Button;
+    public Button Button;
     public Action Dismissed;
 
     public void OnButtonClicked()
@@ -26,7 +26,7 @@ public sealed class MaintenanceModePopupController : UIViewController
         {
             if(MessageLabel != null)
             {
-				MessageLabel.gameObject.SetActive(!string.IsNullOrEmpty(value));
+                MessageLabel.gameObject.SetActive(!string.IsNullOrEmpty(value));
                 MessageLabel.text = value;
             }
         }
@@ -38,7 +38,7 @@ public sealed class MaintenanceModePopupController : UIViewController
         {
             if(TitleLabel != null)
             {
-				TitleLabel.gameObject.SetActive(!string.IsNullOrEmpty(value));
+                TitleLabel.gameObject.SetActive(!string.IsNullOrEmpty(value));
                 TitleLabel.text = value;
             }
         }
@@ -53,15 +53,15 @@ public sealed class MaintenanceModePopupController : UIViewController
                 var button = ButtonLabel.GetComponentInParent<Button>();
                 if(button != null && button.gameObject != null)
                 {
-					button.gameObject.SetActive(!string.IsNullOrEmpty(value));
+                    button.gameObject.SetActive(!string.IsNullOrEmpty(value));
                 }
                 ButtonLabel.text = value;
             }
 
-			if(Button != null)
-			{
-				Button.gameObject.SetActive(!string.IsNullOrEmpty(value));
-			}
+            if(Button != null)
+            {
+                Button.gameObject.SetActive(!string.IsNullOrEmpty(value));
+            }
         }
     }
 
@@ -71,8 +71,8 @@ public sealed class MaintenanceModePopupController : UIViewController
         {
             if(SignatureLabel != null)
             {
-				SignatureLabel.gameObject.SetActive(!string.IsNullOrEmpty(value));
-				SignatureLabel.text = value;
+                SignatureLabel.gameObject.SetActive(!string.IsNullOrEmpty(value));
+                SignatureLabel.text = value;
             }
         }
     }
