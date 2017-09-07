@@ -12,8 +12,7 @@ namespace SocialPoint.GUIControl
     public class UIStackController : UIParentController
     {
         public GameObject Background;
-        public GameObject FrontContainer;
-        public GameObject BackContainer;
+        public GameObject ViewsContainer;
         public GameObject Blocker;
         public bool SimultaneousAnimations = true;
         public UIViewAnimation ChildUpAnimation;
@@ -155,16 +154,13 @@ namespace SocialPoint.GUIControl
 
         void SetupTransition(UIViewController from, UIViewController to, ActionType act)
         {
-            if(FrontContainer != null && to != null)
-            {
-                to.SetParent(FrontContainer.transform);
-            }
-            if(BackContainer != null && from != null)
-            {
-                from.SetParent(BackContainer.transform);
-            }
             if(act == ActionType.Push)
             {
+                if(ViewsContainer != null && to != null)
+                {
+                    to.SetParent(ViewsContainer.transform);
+                }
+
                 if(!SetAnimation(from, to, ChildUpAnimation))
                 {
                     SetAnimation(from, to, ChildAnimation);
@@ -463,10 +459,6 @@ namespace SocialPoint.GUIControl
             }
             DebugLog(string.Format("PushBehind {0}", ctrl.gameObject.name));
             AddChild(ctrl);
-            if(BackContainer != null)
-            {
-                ctrl.transform.parent = BackContainer.transform;
-            }
             ctrl.HideImmediate();
             _stack.Insert(0, ctrl);
             return ctrl;

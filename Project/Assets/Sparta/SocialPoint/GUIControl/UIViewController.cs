@@ -19,6 +19,13 @@ namespace SocialPoint.GUIControl
             Destroyed
         }
 
+        public enum ViewCtrlType
+        {
+            Base,
+            Popup,
+            Screen
+        }
+
         public static event Action<UIViewController> AwakeEvent;
         public event Action<UIViewController, ViewState> ViewEvent;
         public event Action<UIViewController, GameObject> InstantiateEvent;
@@ -91,6 +98,14 @@ namespace SocialPoint.GUIControl
                     }
                 }
                 return materials;
+            }
+        }
+
+        public virtual ViewCtrlType ViewType
+        {
+            get
+            {
+                return ViewCtrlType.Base;
             }
         }
 

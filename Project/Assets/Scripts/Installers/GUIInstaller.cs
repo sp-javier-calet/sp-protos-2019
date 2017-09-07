@@ -14,12 +14,13 @@ public class GUIInstaller : Installer, IDisposable
     [Serializable]
     public class SettingsData
     {
-        public float PopupFadeSpeed = PopupsController.DefaultFadeSpeed;
+        public float PopupFadeSpeed = UIViewsStackController.DefaultFadeSpeed;
     }
 
     public SettingsData Settings = new SettingsData();
 
     GameObject _root;
+    UIViewsStackController _uiViewsStackController;
 
     public override void InstallBindings()
     {
@@ -31,19 +32,15 @@ public class GUIInstaller : Installer, IDisposable
 
         _root = CreateRoot();
         var AppEvents = Container.Resolve<IAppEvents>();
-        var popups = _root.GetComponentInChildren<PopupsController>();
-        if(popups != null)
+
+        _uiViewsStackController = _root.GetComponentInChildren<UIViewsStackController>();
+        if(_uiViewsStackController != null)
         {
-            popups.AppEvents = AppEvents;
-            Container.Rebind<PopupsController>().ToInstance(popups);
-            Container.Rebind<UIStackController>().ToLookup<PopupsController>();
+            _uiViewsStackController.AppEvents = AppEvents;
+            Container.Rebind<UIViewsStackController>().ToInstance(_uiViewsStackController);
+            Container.Rebind<UIStackController>().ToLookup<UIStackController>();
         }
-        var screens = _root.GetComponentInChildren<ScreensController>();
-        if(screens != null)
-        {
-            screens.AppEvents = AppEvents;
-            Container.Rebind<ScreensController>().ToInstance(screens);
-        }
+
         var layers = _root.GetComponentInChildren<UILayersController>();
         if(layers != null)
         {
@@ -82,6 +79,8 @@ public class GUIInstaller : Installer, IDisposable
         {
             name = name.Substring(0, name.Length - UIViewControllerSuffix.Length);
         }
+
+        // Change to stringbuilder????
         return string.Format("GUI_{0}", name);
     }
 
