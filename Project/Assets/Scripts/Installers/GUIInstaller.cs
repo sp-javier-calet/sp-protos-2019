@@ -32,13 +32,17 @@ public class GUIInstaller : Installer, IDisposable
 
         _root = CreateRoot();
         var AppEvents = Container.Resolve<IAppEvents>();
+        var EventDispatcher = Container.Resolve<IEventDispatcher>();
 
         _uiViewsStackController = _root.GetComponentInChildren<UIViewsStackController>();
         if(_uiViewsStackController != null)
         {
             _uiViewsStackController.AppEvents = AppEvents;
+            _uiViewsStackController.EventDispatcher = EventDispatcher;
             Container.Rebind<UIViewsStackController>().ToInstance(_uiViewsStackController);
             Container.Rebind<UIStackController>().ToLookup<UIStackController>();
+
+            UIViewController.ForceCloseEvent += _uiViewsStackController.OnForceCloseUIView;
         }
 
         var layers = _root.GetComponentInChildren<UILayersController>();

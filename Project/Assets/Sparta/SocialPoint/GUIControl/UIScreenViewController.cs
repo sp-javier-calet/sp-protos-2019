@@ -10,7 +10,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        public override bool AnimateShowHide
+        public override bool IsAnimated
         {
             get
             {

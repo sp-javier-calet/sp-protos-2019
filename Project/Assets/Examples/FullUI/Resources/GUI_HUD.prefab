@@ -90,6 +90,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224862612769404916}
   - component: {fileID: 114316384369975150}
+  - component: {fileID: 114581134788313342}
   m_Layer: 9
   m_Name: TopBar
   m_TagString: Untagged
@@ -263,9 +264,9 @@ GameObject:
   - component: {fileID: 223060957164924748}
   - component: {fileID: 114610598456359270}
   - component: {fileID: 114801464276696344}
-  - component: {fileID: 114210731673848474}
+  - component: {fileID: 114965366198141134}
   m_Layer: 9
-  m_Name: HUD
+  m_Name: GUI_HUD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -336,7 +337,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f4c22ea8d06c4442b5411a67a59b516, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _uiViewToLoad: {fileID: 11449706, guid: 4885b1ce6152048a98b26cd8bb651f5f, type: 2}
+  _resourceType: 0
 --- !u!114 &114163389920189638
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -397,20 +398,6 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
---- !u!114 &114210731673848474
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1921171621177860}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96578f82c7dc14b7aaf0f014603e7f21, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ParentController: {fileID: 0}
-  DestroyOnHide: 0
-  _containers3d: []
 --- !u!114 &114217066233209226
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -674,6 +661,17 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 11
+--- !u!114 &114581134788313342
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1152420107173376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fbcde90b4e41b4281bd52d8238d595c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114610598456359270
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -786,7 +784,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f4c22ea8d06c4442b5411a67a59b516, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _uiViewToLoad: {fileID: 11449706, guid: 4885b1ce6152048a98b26cd8bb651f5f, type: 2}
+  _resourceType: 0
 --- !u!114 &114717722011285318
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -846,6 +844,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 434f139c8525748058ddca376614d318, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &114965366198141134
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1921171621177860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35cb41bbd0ed14fc3b012429d16c623d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ParentController: {fileID: 0}
+  DestroyOnHide: 0
+  _containers3d: []
 --- !u!222 &222063499872292334
 CanvasRenderer:
   m_ObjectHideFlags: 1

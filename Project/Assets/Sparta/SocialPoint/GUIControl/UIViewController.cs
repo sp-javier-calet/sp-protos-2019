@@ -27,6 +27,7 @@ namespace SocialPoint.GUIControl
         }
 
         public static event Action<UIViewController> AwakeEvent;
+        public static event Action<UIViewController> ForceCloseEvent;
         public event Action<UIViewController, ViewState> ViewEvent;
         public event Action<UIViewController, GameObject> InstantiateEvent;
 
@@ -109,7 +110,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        public virtual bool AnimateShowHide
+        public virtual bool IsAnimated
         {
             get
             {
@@ -614,11 +615,15 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("Hide");
             Load();
-            var enm = DoHideCoroutine(destroy);
-            if(enm != null)
+
+            if(IsAnimated)
             {
-                StartHideCoroutine(enm);
-                return true;
+                var enm = DoHideCoroutine(destroy);
+                if(enm != null)
+                {
+                    StartHideCoroutine(enm);
+                    return true;
+                }
             }
             return false;
         }
@@ -657,6 +662,15 @@ namespace SocialPoint.GUIControl
             if(ViewEvent != null)
             {
                 ViewEvent(this, _viewState);
+            }
+        }
+
+        void NotifyForcingClose()
+        {
+            DebugLog("NotifyForcingClose");
+            if(ForceCloseEvent != null)
+            {
+                ForceCloseEvent(this);
             }
         }
 
@@ -790,6 +804,11 @@ namespace SocialPoint.GUIControl
                 InstantiateEvent(this, go);
             }
             return go;
+        }
+
+        public void OnForceClose()
+        {
+            NotifyForcingClose();
         }
     }
 }
