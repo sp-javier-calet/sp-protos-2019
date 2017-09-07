@@ -9,5 +9,13 @@ namespace SocialPoint.GUIControl
                 return ViewCtrlType.Popup;
             }
         }
+
+        public override bool AnimateShowHide
+        {
+            get
+            {
+                return true;
+            }
+        }
     }
 }

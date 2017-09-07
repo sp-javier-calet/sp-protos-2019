@@ -9,5 +9,13 @@ namespace SocialPoint.GUIControl
                 return ViewCtrlType.Screen;
             }
         }
+
+        public override bool AnimateShowHide
+        {
+            get
+            {
+                return false;
+            }
+        }
     }
 }

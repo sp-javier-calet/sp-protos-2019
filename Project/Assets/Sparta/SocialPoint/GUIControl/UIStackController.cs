@@ -134,11 +134,11 @@ namespace SocialPoint.GUIControl
         {
             if(anim != null)
             {
-                if(to != null)
+                if(to != null && to.AnimateShowHide)
                 {
                     to.Animation = (UIViewAnimation)anim.Clone();
                 }
-                if(from != null)
+                if(from != null && from.AnimateShowHide)
                 {
                     from.Animation = (UIViewAnimation)anim.Clone();
                 }

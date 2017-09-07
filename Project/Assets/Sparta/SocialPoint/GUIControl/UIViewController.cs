@@ -109,6 +109,14 @@ namespace SocialPoint.GUIControl
             }
         }
 
+        public virtual bool AnimateShowHide
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         public float Alpha
         {
             set
