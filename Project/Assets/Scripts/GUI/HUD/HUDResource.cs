@@ -23,6 +23,7 @@ public class HUDResource : MonoBehaviour
             throw new InvalidOperationException("Could not find UI Controller");
         }
             
+        uiViewsStackController.Push(typeof(NotEnoughtResourcesController));
         uiViewsStackController.Push(typeof(ShopController));
     }
 }

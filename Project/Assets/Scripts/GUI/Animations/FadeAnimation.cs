@@ -1,14 +1,13 @@
 using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
 using SocialPoint.GUIControl;
-using System.Collections.Generic;
 
 public class FadeAnimation : UIViewAnimation
 {
-    private float _speed = 1.0f;
-    private float _maxAlpha = 1.0f;
-    private UIViewController _ctrl;
+    float _time = 1.0f;
+    float _minAlpha = 0.0f;
+    float _maxAlpha = 1.0f;
+    UIViewController _ctrl;
 
     public void Load(UIViewController ctrl)
     {
@@ -16,33 +15,37 @@ public class FadeAnimation : UIViewAnimation
         _ctrl = ctrl;
     }
 
-    public FadeAnimation(float speed)
+    public FadeAnimation(float time)
     {
-        _speed = speed;
+        _time = time;
     }
 
     public IEnumerator Appear()
     {
-        _ctrl.Alpha = 0.0f;
+        _ctrl.Alpha = _minAlpha;
 
-        while(_ctrl.Alpha < _maxAlpha)
+        var elapsedTime = 0.0f;
+        while(elapsedTime < _time)
         {
-            float alpha = _ctrl.Alpha + (_speed * Time.deltaTime);
+            float alpha = Mathf.Lerp(_ctrl.Alpha, _maxAlpha, (elapsedTime / _time));
+            elapsedTime += Time.deltaTime;
 
             _ctrl.Alpha = alpha;
-
             yield return null;
         }
     }
 
     public IEnumerator Disappear()
     {
-        while(_ctrl.Alpha > 0.0f)
+        _ctrl.Alpha = _maxAlpha;
+
+        var elapsedTime = 0.0f;
+        while(elapsedTime < _time)
         {
-            float alpha = _ctrl.Alpha - (_speed * Time.deltaTime);
+            float alpha = Mathf.Lerp(_ctrl.Alpha, _minAlpha, (elapsedTime / _time));
+            elapsedTime += Time.deltaTime;
 
             _ctrl.Alpha = alpha;
-
             yield return null;
         }
     }
@@ -54,7 +57,7 @@ public class FadeAnimation : UIViewAnimation
 
     public object Clone()
     {
-        var anim = new FadeAnimation(_speed);
+        var anim = new FadeAnimation(_time);
         return anim;
     }
 }

@@ -13,5 +13,7 @@ public class ShopController : UIScreenViewController
         }
 
         uiViewsStackController.Push(typeof(NotEnoughtResourcesController));
+        uiViewsStackController.Push(typeof(NotEnoughtResourcesController));
+        uiViewsStackController.Push(typeof(NotEnoughtResourcesController));
     }
 }

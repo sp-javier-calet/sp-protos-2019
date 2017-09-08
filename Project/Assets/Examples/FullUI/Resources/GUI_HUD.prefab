@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 222298391699839618}
   - component: {fileID: 114036692176321158}
   - component: {fileID: 114402617475917226}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40,7 +40,7 @@ GameObject:
   - component: {fileID: 222063499872292334}
   - component: {fileID: 114088318135261488}
   - component: {fileID: 114620210543892852}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -58,7 +58,7 @@ GameObject:
   - component: {fileID: 222919957176535428}
   - component: {fileID: 114323888318459494}
   - component: {fileID: 114489606347141694}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: BackGround
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -74,7 +74,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224479465860037142}
   - component: {fileID: 114699943304225410}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: ResourceGold
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -91,7 +91,7 @@ GameObject:
   - component: {fileID: 224862612769404916}
   - component: {fileID: 114316384369975150}
   - component: {fileID: 114581134788313342}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: TopBar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -108,7 +108,7 @@ GameObject:
   - component: {fileID: 224959193929646802}
   - component: {fileID: 222260493017880746}
   - component: {fileID: 114316437620906944}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: level
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -125,7 +125,7 @@ GameObject:
   - component: {fileID: 224923722231032354}
   - component: {fileID: 222641814947491224}
   - component: {fileID: 114275185241219880}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Number
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -142,7 +142,7 @@ GameObject:
   - component: {fileID: 224066862103364216}
   - component: {fileID: 222722822740330334}
   - component: {fileID: 114634786706678932}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -159,7 +159,7 @@ GameObject:
   - component: {fileID: 224482131742473612}
   - component: {fileID: 222639015298025404}
   - component: {fileID: 114562774425980434}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Number
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -176,7 +176,7 @@ GameObject:
   - component: {fileID: 224089353331339466}
   - component: {fileID: 222874848503745568}
   - component: {fileID: 114163389920189638}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -194,7 +194,7 @@ GameObject:
   - component: {fileID: 114896189942431534}
   - component: {fileID: 222458109806711808}
   - component: {fileID: 114717722011285318}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: SyncIndicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -212,7 +212,7 @@ GameObject:
   - component: {fileID: 222200476886470618}
   - component: {fileID: 114178356401463072}
   - component: {fileID: 114480292577130520}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: BackGround
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -230,7 +230,7 @@ GameObject:
   - component: {fileID: 222987816706289132}
   - component: {fileID: 114217066233209226}
   - component: {fileID: 114386782004486952}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: PlayerLevel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -246,7 +246,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224641327564273828}
   - component: {fileID: 114106448243688078}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: ResourceGems
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -265,7 +265,7 @@ GameObject:
   - component: {fileID: 114610598456359270}
   - component: {fileID: 114801464276696344}
   - component: {fileID: 114965366198141134}
-  m_Layer: 9
+  m_Layer: 0
   m_Name: GUI_HUD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -858,6 +858,7 @@ MonoBehaviour:
   ParentController: {fileID: 0}
   DestroyOnHide: 0
   _containers3d: []
+  _topBarcontroller: {fileID: 0}
 --- !u!222 &222063499872292334
 CanvasRenderer:
   m_ObjectHideFlags: 1

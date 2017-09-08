@@ -14,7 +14,7 @@ public class GUIInstaller : Installer, IDisposable
     [Serializable]
     public class SettingsData
     {
-        public float PopupFadeSpeed = UIViewsStackController.DefaultFadeSpeed;
+        public float PopupAnimationTime = UIViewsStackController.DefaultAnimationTime;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -28,7 +28,7 @@ public class GUIInstaller : Installer, IDisposable
 
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
 
-        Container.Bind<float>("popup_fade_speed").ToInstance(Settings.PopupFadeSpeed);
+        Container.Bind<float>("popup_animation_time").ToInstance(Settings.PopupAnimationTime);
 
         _root = CreateRoot();
         var AppEvents = Container.Resolve<IAppEvents>();

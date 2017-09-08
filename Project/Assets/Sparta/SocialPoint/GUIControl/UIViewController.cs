@@ -21,7 +21,7 @@ namespace SocialPoint.GUIControl
 
         public enum ViewCtrlType
         {
-            Base,
+            None,
             Popup,
             Screen
         }
@@ -106,7 +106,7 @@ namespace SocialPoint.GUIControl
         {
             get
             {
-                return ViewCtrlType.Base;
+                return ViewCtrlType.None;
             }
         }
 
@@ -616,14 +616,11 @@ namespace SocialPoint.GUIControl
             DebugLog("Hide");
             Load();
 
-            if(IsAnimated)
+            var enm = DoHideCoroutine(destroy);
+            if(enm != null)
             {
-                var enm = DoHideCoroutine(destroy);
-                if(enm != null)
-                {
-                    StartHideCoroutine(enm);
-                    return true;
-                }
+                StartHideCoroutine(enm);
+                return true;
             }
             return false;
         }

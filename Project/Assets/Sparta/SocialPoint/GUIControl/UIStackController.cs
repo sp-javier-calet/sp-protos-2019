@@ -3,8 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.AppEvents;
-using SocialPoint.ScriptEvents;
 using UnityEngine;
+using SocialPoint.ScriptEvents;
 
 namespace SocialPoint.GUIControl
 {
@@ -48,7 +48,7 @@ namespace SocialPoint.GUIControl
                 }
             }
         }
-            
+
         public enum ActionType
         {
             None,
@@ -65,7 +65,7 @@ namespace SocialPoint.GUIControl
             None,
 
         };
-            
+
         public int Count
         {
             get
@@ -93,7 +93,7 @@ namespace SocialPoint.GUIControl
 
         Coroutine StartActionCoroutine(IEnumerator enm, ActionType act)
         {
-            if(IsPopAction(act))
+            if(IsPopAction(_action))
             {
                 if(Top != null)
                 {
@@ -104,6 +104,7 @@ namespace SocialPoint.GUIControl
                     Hide();
                 }
             }
+
             if(_actionCoroutine != null)
             {
                 DebugLog("StopCoroutine");
@@ -146,11 +147,11 @@ namespace SocialPoint.GUIControl
         {
             if(anim != null)
             {
-                if(to != null && to.IsAnimated)
+                if(to != null)
                 {
                     to.Animation = (UIViewAnimation)anim.Clone();
                 }
-                if(from != null && from.IsAnimated)
+                if(from != null)
                 {
                     from.Animation = (UIViewAnimation)anim.Clone();
                 }
@@ -158,7 +159,7 @@ namespace SocialPoint.GUIControl
             }
             return false;
         }
-      
+
         bool IsPushAction(ActionType act)
         {
             return act == ActionType.Push;
@@ -171,6 +172,7 @@ namespace SocialPoint.GUIControl
 
         void SetupTransition(UIViewController from, UIViewController to, ActionType act)
         {
+            // TODO force not to animate screens
             if(IsPushAction(act))
             {
                 if(ViewsContainer != null && to != null)
@@ -230,25 +232,8 @@ namespace SocialPoint.GUIControl
             {
                 if(from != null && to != null && from.State == ViewState.Shown)
                 {
-                    if(IsPushAction(act))
-                    {
-                        if(to.ViewType == ViewCtrlType.Screen)
-                        {
-                            HideTopViewsUntil(ViewCtrlType.Screen);
-                        }
-
-                        to.Show();
-                    }
-                    else if(IsPopAction(act))
-                    {
-                        from.Hide();
-
-                        if(from.ViewType == ViewCtrlType.Screen)
-                        {
-                            ShowTopViewsUntil(ViewCtrlType.Screen);
-                        }
-                    }
-
+                    from.Hide();
+                    to.Show();
                     while(!to.IsStable || !from.IsStable)
                     {
                         yield return null;
@@ -277,16 +262,11 @@ namespace SocialPoint.GUIControl
             {
                 if(from != null && to != null)
                 {
-                    IEnumerator enm = null;
-                    if(IsPushAction(_action) && to.ViewType == ViewCtrlType.Popup)
+                    var enm = from.HideCoroutine();
+                    while(enm.MoveNext())
                     {
-                        enm = from.HideCoroutine();
-                        while(enm.MoveNext())
-                        {
-                            yield return enm.Current;
-                        }
+                        yield return enm.Current;
                     }
-
                     enm = to.ShowCoroutine();
                     while(enm.MoveNext())
                     {
@@ -323,51 +303,6 @@ namespace SocialPoint.GUIControl
             DebugLog("EndTransition");
         }
 
-        void ShowTopViewsUntil(ViewCtrlType type)
-        {
-            if(_stack.Count > 0)
-            {
-                for(int i = _stack.Count - 1; i == 0; ++i)
-                {
-                    var ctrl = _stack[i];
-                    if(ctrl != null && ctrl.State != ViewState.Shown)
-                    {
-                        ctrl.ShowImmediate();
-                    }
-
-                    if(ctrl.ViewType == type)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-
-        void HideTopViewsUntil(ViewCtrlType type)
-        {
-            if(_stack.Count > 0)
-            {
-                for(int i = _stack.Count - 1; i == 0; ++i)
-                {
-                    var ctrl = _stack[i];
-                    if(Top == ctrl)
-                    {
-                        continue;
-                    }
-
-                    if(ctrl != null && ctrl.State != ViewState.Hidden)
-                    {
-                        ctrl.HideImmediate();
-                    }
-
-                    if(ctrl.ViewType == type)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
-            
         [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
         void DebugLog(string msg)
         {
@@ -424,7 +359,7 @@ namespace SocialPoint.GUIControl
                 }
             }
         }
-            
+
         #endregion
 
         
@@ -466,13 +401,42 @@ namespace SocialPoint.GUIControl
 
         IEnumerator DoPushCoroutine(UIViewController ctrl, ActionType act)
         {
-            var top = Top;
             AddChild(ctrl);
             _stack.Add(ctrl);
-            var enm = DoTransition(top, ctrl, act);
+
+            DebugLog(string.Format("{0} on {1}", act, ctrl ? ctrl.gameObject.name : string.Empty));
+
+            var enm = DoTransition(null, ctrl, act);
             while(enm.MoveNext())
             {
                 yield return enm;
+            }
+
+            if(ctrl.ViewType == ViewCtrlType.Screen)
+            {
+                if(_stack.Count > 1)
+                {
+                    var found  = false;
+                    for(int i = _stack.Count - 2; i >= 0; --i)
+                    {
+                        if(!found)
+                        {
+                            var currentCtrl = _stack[i];
+                            enm = DoTransition(currentCtrl, null, act);
+                            while(enm.MoveNext())
+                            {
+                                yield return enm;
+
+                                found = (currentCtrl.ViewType == ViewCtrlType.Screen);
+//                                if(currentCtrl.ViewType == ViewCtrlType.Screen)
+//                                {
+//                                    found = true;
+//    //                                break;
+//                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -496,17 +460,19 @@ namespace SocialPoint.GUIControl
             return PushImmediate(CreateChild(c));
         }
 
-        public UIViewController PushImmediate(UIViewController ctrl)
+        public UIViewController PushImmediate(UIViewController ctrl, bool hideTop = true)
         {
             DebugLog(string.Format("PushImmediate {0}", ctrl.gameObject.name));
             var top = Top;
             AddChild(ctrl);
             _stack.Add(ctrl);
             SetupTransition(top, ctrl, ActionType.Push);
-            if(top != null)
+
+            if(hideTop && top != null)
             {
                 top.HideImmediate();
             }
+
             ctrl.ShowImmediate();
             return ctrl;
         }
@@ -659,35 +625,41 @@ namespace SocialPoint.GUIControl
         IEnumerator DoPopCoroutine()
         {
             UIViewController top = null;
-            UIViewController ctrl = null;
             if(_stack.Count > 0)
             {
-                top = _stack[_stack.Count - 1];
+                top = Top;
                 top.DestroyOnHide = true;
             }
-            if(_stack.Count > 1)
-            {
-                ctrl = _stack[_stack.Count - 2];
-            }
+
             var act = ActionType.Pop;
-            DebugLog(string.Format("{0} {1}", act, ctrl ? ctrl.gameObject.name : string.Empty));
-            var enm = DoTransition(top, ctrl, act);
+            DebugLog(string.Format("{0} on {1}", act, top ? top.gameObject.name : string.Empty));
+
+            var enm = DoTransition(top, null, act);
             while(enm.MoveNext())
             {
                 yield return enm.Current;
             }
 
-            if(_stack.Count > 1)
+            if(top.ViewType == ViewCtrlType.Screen)
             {
-                if(top.ViewType == ViewCtrlType.Screen)
+                if(_stack.Count > 0)
                 {
-                    for(int i = _stack.Count - 1; i == 0; ++i)
+                    var found = false;
+
+                    for(int i = _stack.Count - 1; i >= 0; --i)
                     {
-                        var pctrl = _stack[i];
-                        pctrl.Show();
-                        if(pctrl.ViewType == ViewCtrlType.Screen)
+                        if(!found)
                         {
-                            break;
+                            var currentCtrl = _stack[i];
+                            Debug.Log(_stack[i]);
+                            enm = DoTransition(null, currentCtrl, act);
+                            found = (currentCtrl.ViewType == ViewCtrlType.Screen);
+                            while(enm.MoveNext())
+                            {
+                                yield return enm.Current;
+
+                                found = (currentCtrl.ViewType == ViewCtrlType.Screen);
+                            }
                         }
                     }
                 }
@@ -701,6 +673,7 @@ namespace SocialPoint.GUIControl
                 Top.HideImmediate();
                 _stack.RemoveAt(_stack.Count - 1);
             }
+
             var ctrl = Top;
             DebugLog(string.Format("PopImmediate {0}", ctrl ? ctrl.gameObject.name : string.Empty));
             if(ctrl)
@@ -762,7 +735,7 @@ namespace SocialPoint.GUIControl
         {
             StartActionCoroutine(DoPopUntilCoroutine(type), ActionType.PopUntilType);
         }
-            
+
         public IEnumerator PopUntilCoroutine(Type type)
         {
             yield return StartActionCoroutine(DoPopUntilCoroutine(type), ActionType.PopUntilType);
@@ -774,12 +747,12 @@ namespace SocialPoint.GUIControl
                 return ctrl.GetType() == type;
             }, ActionType.PopUntilType);
         }
-            
+
         public void PopUntil(int i)
         {
             StartActionCoroutine(DoPopUntilCoroutine(i), ActionType.PopUntilPos);
         }
-            
+
         public IEnumerator PopUntilCoroutine(int i)
         {
             yield return StartActionCoroutine(DoPopUntilCoroutine(i), ActionType.PopUntilPos);
@@ -857,6 +830,7 @@ namespace SocialPoint.GUIControl
             if(ctrl != null)
             {
                 Pop();
+//                ctrl.Hide(true);
             }
         }
     }
