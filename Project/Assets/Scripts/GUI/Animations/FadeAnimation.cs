@@ -19,7 +19,7 @@ public class FadeAnimation : UIViewAnimation
     {
         _time = time;
     }
-
+        
     public IEnumerator Appear()
     {
         _ctrl.Alpha = _minAlpha;

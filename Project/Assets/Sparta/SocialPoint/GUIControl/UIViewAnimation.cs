@@ -12,7 +12,5 @@ namespace SocialPoint.GUIControl
         IEnumerator Disappear();
 
         void Reset();
-
     }
-
 }

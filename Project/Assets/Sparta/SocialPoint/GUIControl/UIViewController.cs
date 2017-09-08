@@ -328,7 +328,6 @@ namespace SocialPoint.GUIControl
                 }
                 _animation = value;
             }
-
             get
             {
                 return _animation;
@@ -709,6 +708,12 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("OnAppeared");
             _viewState = ViewState.Shown;
+
+            if(Animation != null)
+            {
+                Animation.Reset();
+            }
+
             DestroyOnHide = false;
             NotifyViewEvent();
         }
@@ -767,11 +772,13 @@ namespace SocialPoint.GUIControl
                 StopCoroutine(_showCoroutine);
                 _showCoroutine = null;
             }
+
             if(_hideCoroutine != null)
             {
                 StopCoroutine(_hideCoroutine);
                 _hideCoroutine = null;
             }
+
             if(Animation != null)
             {
                 Animation.Reset();

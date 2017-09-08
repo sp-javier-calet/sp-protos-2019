@@ -82,6 +82,7 @@ namespace SocialPoint.GUIControl
                 {
                     return _stack[_stack.Count - 1];
                 }
+
                 return null;
             }
         }
@@ -170,6 +171,14 @@ namespace SocialPoint.GUIControl
             return act == ActionType.Pop || act == ActionType.PopUntilCheck || act == ActionType.PopUntilPos || act == ActionType.PopUntilType;
         }
 
+        void SetupParent(UIViewController ctrl) // TODO NEEDED???
+        {
+            if(ViewsContainer != null && ctrl != null)
+            {
+                ctrl.SetParent(ViewsContainer.transform);
+            }
+        }
+
         void SetupTransition(UIViewController from, UIViewController to, ActionType act)
         {
             // TODO force not to animate screens
@@ -209,7 +218,8 @@ namespace SocialPoint.GUIControl
                 yield break;
             }
 
-            SetupTransition(from, to, act);
+            SetupParent(to);
+//            SetupTransition(from, to, act);
 
             DebugLog(string.Format("StartTransition {0} {1} -> {2}", SimultaneousAnimations ? "sim" : "con",
                 from == null ? string.Empty : from.gameObject.name,
@@ -412,28 +422,31 @@ namespace SocialPoint.GUIControl
                 yield return enm;
             }
 
-            if(ctrl.ViewType == ViewCtrlType.Screen)
+            UpdateStackVisibilityUntilScreen(false);
+        }
+
+        void UpdateStackVisibilityUntilScreen(bool show)
+        {
+            if(Top.ViewType == ViewCtrlType.Screen)
             {
                 if(_stack.Count > 1)
                 {
-                    var found  = false;
                     for(int i = _stack.Count - 2; i >= 0; --i)
                     {
-                        if(!found)
-                        {
-                            var currentCtrl = _stack[i];
-                            enm = DoTransition(currentCtrl, null, act);
-                            while(enm.MoveNext())
-                            {
-                                yield return enm;
+                        var ctrl = _stack[i];
 
-                                found = (currentCtrl.ViewType == ViewCtrlType.Screen);
-//                                if(currentCtrl.ViewType == ViewCtrlType.Screen)
-//                                {
-//                                    found = true;
-//    //                                break;
-//                                }
-                            }
+                        if(show)
+                        {
+                            ctrl.ShowImmediate();
+                        }
+                        else
+                        {
+                            ctrl.HideImmediate();
+                        }
+
+                        if(ctrl.ViewType == ViewCtrlType.Screen)
+                        {
+                            break;
                         }
                     }
                 }
@@ -624,46 +637,18 @@ namespace SocialPoint.GUIControl
 
         IEnumerator DoPopCoroutine()
         {
-            UIViewController top = null;
-            if(_stack.Count > 0)
+            var top = Top;
+  
+            DebugLog(string.Format("{0} on {1}", ActionType.Pop, top ? top.gameObject.name : string.Empty));
+
+            UpdateStackVisibilityUntilScreen(true);
+            if(top != null)
             {
-                top = Top;
                 top.DestroyOnHide = true;
+                top.Hide();
             }
 
-            var act = ActionType.Pop;
-            DebugLog(string.Format("{0} on {1}", act, top ? top.gameObject.name : string.Empty));
-
-            var enm = DoTransition(top, null, act);
-            while(enm.MoveNext())
-            {
-                yield return enm.Current;
-            }
-
-            if(top.ViewType == ViewCtrlType.Screen)
-            {
-                if(_stack.Count > 0)
-                {
-                    var found = false;
-
-                    for(int i = _stack.Count - 1; i >= 0; --i)
-                    {
-                        if(!found)
-                        {
-                            var currentCtrl = _stack[i];
-                            Debug.Log(_stack[i]);
-                            enm = DoTransition(null, currentCtrl, act);
-                            found = (currentCtrl.ViewType == ViewCtrlType.Screen);
-                            while(enm.MoveNext())
-                            {
-                                yield return enm.Current;
-
-                                found = (currentCtrl.ViewType == ViewCtrlType.Screen);
-                            }
-                        }
-                    }
-                }
-            }
+            yield return null;
         }
 
         public void PopImmediate()

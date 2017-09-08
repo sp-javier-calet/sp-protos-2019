@@ -14,7 +14,7 @@ public class GUIInstaller : Installer, IDisposable
     [Serializable]
     public class SettingsData
     {
-        public float PopupAnimationTime = UIViewsStackController.DefaultAnimationTime;
+        public float PopupAnimationTime = UIPopupViewController.DefaultAnimationTime;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -90,7 +90,9 @@ public class GUIInstaller : Installer, IDisposable
 
     public void Dispose()
     {
+        UIViewController.ForceCloseEvent -= _uiViewsStackController.OnForceCloseUIView;
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)null);
+
         Destroy(_root);
     }
 }

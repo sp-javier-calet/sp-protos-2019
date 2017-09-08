@@ -16,12 +16,12 @@ namespace SocialPoint.GUIControl
 
         public delegate void DestructorDelegate(UIViewController view);
 
-        private IDictionary<Type, Delegate> _creators = new Dictionary<Type,Delegate>();
-        private IDictionary<Type, PrefabDelegate> _prefabCreators = new Dictionary<Type,PrefabDelegate>();
-        private DefaultDelegate _defaultCreator;
-        private DefaultPrefabDelegate _defaultPrefabCreator;
-        private UIViewControllerFactory _parent;
-        private DestructorDelegate _destructor;
+        IDictionary<Type, Delegate> _creators = new Dictionary<Type,Delegate>();
+        IDictionary<Type, PrefabDelegate> _prefabCreators = new Dictionary<Type,PrefabDelegate>();
+        DefaultDelegate _defaultCreator;
+        DefaultPrefabDelegate _defaultPrefabCreator;
+        UIViewControllerFactory _parent;
+        DestructorDelegate _destructor;
 
         public UIViewControllerFactory(UIViewControllerFactory parent=null)
         {
@@ -75,7 +75,7 @@ namespace SocialPoint.GUIControl
             return (C)Create(typeof(C), name);
         }
         
-        private static UIViewController CreateFromResource(string prefab)
+        static UIViewController CreateFromResource(string prefab)
         {
             var robj = Resources.Load(prefab);
             if(robj != null)
@@ -86,7 +86,7 @@ namespace SocialPoint.GUIControl
             return null;
         }
 
-        private static UIViewController CreateFromResource(Type c, string prefab)
+        static UIViewController CreateFromResource(Type c, string prefab)
         {
             var robj = Resources.Load(prefab);
             if(robj != null)
@@ -149,7 +149,7 @@ namespace SocialPoint.GUIControl
             return CreateEnd(c, prefab, ctrl);
         }
 
-        private UIViewController CreateEnd(Type c, string prefab, UIViewController ctrl)
+        UIViewController CreateEnd(Type c, string prefab, UIViewController ctrl)
         {
             if(ctrl == null)
             {
