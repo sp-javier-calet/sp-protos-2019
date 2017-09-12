@@ -14,6 +14,7 @@ namespace SocialPoint.GUIControl
         public GameObject Background;
         public GameObject FrontContainer;
         public GameObject BackContainer;
+        public GameObject PopupBlocker;
         public GameObject Blocker;
         public bool SimultaneousAnimations = true;
         public UIViewAnimation ChildUpAnimation;
@@ -789,6 +790,11 @@ namespace SocialPoint.GUIControl
             if(Background != null)
             {
                 Background.SetActive(false);
+            }
+
+            if(PopupBlocker != null)
+            {
+                PopupBlocker.SetActive(false);
             }
 
             if(Blocker != null)
