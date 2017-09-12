@@ -3,23 +3,23 @@ using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.ScriptEvents;
+using SocialPoint.Utils;
 using UnityEngine;
 
 public class GUIInstaller : Installer, IDisposable
 {
     const string UIViewControllerSuffix = "Controller";
-    const string GUIRootPrefab = "GUI_ExampleRoot";
+    const string GUIRootPrefab = "GUI_Root";
 
     [Serializable]
     public class SettingsData
     {
-        public float PopupAnimationTime = UIPopupViewController.DefaultAnimationTime;
+        public float PopupFadeSpeed = PopupsController.DefaultAnimationTime;
     }
 
     public SettingsData Settings = new SettingsData();
 
     GameObject _root;
-    UIViewsStackController _uiViewsStackController;
 
     public override void InstallBindings()
     {
@@ -27,21 +27,23 @@ public class GUIInstaller : Installer, IDisposable
 
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
 
-        Container.Bind<float>("popup_animation_time").ToInstance(Settings.PopupAnimationTime);
+        Container.Bind<float>("popup_fade_speed").ToInstance(Settings.PopupFadeSpeed);
 
         _root = CreateRoot();
         var AppEvents = Container.Resolve<IAppEvents>();
-
-        _uiViewsStackController = _root.GetComponentInChildren<UIViewsStackController>();
-        if(_uiViewsStackController != null)
+        var popups = _root.GetComponentInChildren<PopupsController>();
+        if(popups != null)
         {
-            _uiViewsStackController.AppEvents = AppEvents;
-            Container.Rebind<UIViewsStackController>().ToInstance(_uiViewsStackController);
-            Container.Rebind<UIViewsStackController>().ToLookup<UIViewsStackController>();
-
-            UIViewController.ForceCloseEvent += _uiViewsStackController.OnForceCloseUIView;
+            popups.AppEvents = AppEvents;
+            Container.Rebind<PopupsController>().ToInstance(popups);
+            Container.Rebind<UIStackController>().ToLookup<PopupsController>();
         }
-
+        var screens = _root.GetComponentInChildren<ScreensController>();
+        if(screens != null)
+        {
+            screens.AppEvents = AppEvents;
+            Container.Rebind<ScreensController>().ToInstance(screens);
+        }
         var layers = _root.GetComponentInChildren<UILayersController>();
         if(layers != null)
         {
@@ -76,21 +78,16 @@ public class GUIInstaller : Installer, IDisposable
     string GetControllerFactoryPrefabName(Type type)
     {
         var name = type.Name;
-        name = name.Replace(UIViewControllerSuffix, string.Empty);
-//        if(StringUtils.EndsWith(name, UIViewControllerSuffix))
-//        {
-//            name = name.Substring(0, name.Length - UIViewControllerSuffix.Length);
-//        }
-
-        // Change to stringbuilder????
+        if(StringUtils.EndsWith(name, UIViewControllerSuffix))
+        {
+            name = name.Substring(0, name.Length - UIViewControllerSuffix.Length);
+        }
         return string.Format("GUI_{0}", name);
     }
 
     public void Dispose()
     {
-        UIViewController.ForceCloseEvent -= _uiViewsStackController.OnForceCloseUIView;
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)null);
-
         Destroy(_root);
     }
 }
