@@ -15,6 +15,7 @@ namespace SocialPoint.GUIControl
         public GameObject Background;
         public GameObject ViewsContainer;
         public GameObject Blocker;
+        public bool HideBetweenScreens = false;
         public bool SimultaneousAnimations = true;
         public UIViewAnimation ChildUpAnimation;
         public UIViewAnimation ChildDownAnimation;
@@ -171,7 +172,7 @@ namespace SocialPoint.GUIControl
             return act == ActionType.Pop || act == ActionType.PopUntilCheck || act == ActionType.PopUntilPos || act == ActionType.PopUntilType;
         }
 
-        void SetupParent(UIViewController ctrl) // TODO NEEDED???
+        void SetupParent(UIViewController ctrl)
         {
             if(ViewsContainer != null && ctrl != null)
             {
@@ -181,13 +182,9 @@ namespace SocialPoint.GUIControl
 
         void SetupTransition(UIViewController from, UIViewController to, ActionType act)
         {
-            // TODO force not to animate screens
             if(IsPushAction(act))
             {
-                if(ViewsContainer != null && to != null)
-                {
-                    to.SetParent(ViewsContainer.transform);
-                }
+                SetupParent(to);
 
                 if(!SetAnimation(from, to, ChildUpAnimation))
                 {
@@ -411,21 +408,33 @@ namespace SocialPoint.GUIControl
 
         IEnumerator DoPushCoroutine(UIViewController ctrl, ActionType act)
         {
+            var top = Top;
             AddChild(ctrl);
             _stack.Add(ctrl);
 
             DebugLog(string.Format("{0} on {1}", act, ctrl ? ctrl.gameObject.name : string.Empty));
 
-            var enm = DoTransition(null, ctrl, act);
-            while(enm.MoveNext())
+            if(HideBetweenScreens)
             {
-                yield return enm;
-            }
+                var enm = DoTransition(null, ctrl, act);
+                while(enm.MoveNext())
+                {
+                    yield return enm;
+                }
 
-            UpdateStackVisibilityUntilScreen(false);
+                UpdateVisibilityBetweenScreens(false);
+            }
+            else
+            {
+                var enm = DoTransition(top, ctrl, act);
+                while(enm.MoveNext())
+                {
+                    yield return enm;
+                }
+            }
         }
 
-        void UpdateStackVisibilityUntilScreen(bool show)
+        void UpdateVisibilityBetweenScreens(bool show)
         {
             if(Top.ViewType == ViewCtrlType.Screen)
             {
@@ -637,18 +646,42 @@ namespace SocialPoint.GUIControl
 
         IEnumerator DoPopCoroutine()
         {
-            var top = Top;
-  
-            DebugLog(string.Format("{0} on {1}", ActionType.Pop, top ? top.gameObject.name : string.Empty));
-
-            UpdateStackVisibilityUntilScreen(true);
-            if(top != null)
+            if(HideBetweenScreens)
             {
-                top.DestroyOnHide = true;
-                top.Hide();
-            }
+                var top = Top;
 
-            yield return null;
+                DebugLog(string.Format("{0} on {1}", ActionType.Pop, top ? top.gameObject.name : string.Empty));
+
+                UpdateVisibilityBetweenScreens(true);
+                if(top != null)
+                {
+                    top.DestroyOnHide = true;
+                    top.Hide();
+                }
+
+                yield return null;
+            }
+            else
+            {
+                UIViewController top = null;
+                UIViewController ctrl = null;
+                if(_stack.Count > 0)
+                {
+                    top = _stack[_stack.Count - 1];
+                    top.DestroyOnHide = true;
+                }
+                if(_stack.Count > 1)
+                {
+                    ctrl = _stack[_stack.Count - 2];
+                }
+                var act = ActionType.Pop;
+                DebugLog(string.Format("{0} {1}", act, ctrl ? ctrl.gameObject.name : string.Empty));
+                var enm = DoTransition(top, ctrl, act);
+                while(enm.MoveNext())
+                {
+                    yield return enm.Current;
+                }
+            }
         }
 
         public void PopImmediate()

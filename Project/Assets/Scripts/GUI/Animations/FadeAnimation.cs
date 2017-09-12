@@ -25,12 +25,11 @@ public class FadeAnimation : UIViewAnimation
         _ctrl.Alpha = _minAlpha;
 
         var elapsedTime = 0.0f;
-        while(elapsedTime < _time)
+        while(elapsedTime <= _time)
         {
-            float alpha = Mathf.Lerp(_ctrl.Alpha, _maxAlpha, (elapsedTime / _time));
             elapsedTime += Time.deltaTime;
+            _ctrl.Alpha = Mathf.Lerp(_ctrl.Alpha, _maxAlpha, (elapsedTime / _time));
 
-            _ctrl.Alpha = alpha;
             yield return null;
         }
     }
@@ -40,12 +39,11 @@ public class FadeAnimation : UIViewAnimation
         _ctrl.Alpha = _maxAlpha;
 
         var elapsedTime = 0.0f;
-        while(elapsedTime < _time)
+        while(elapsedTime <= _time)
         {
-            float alpha = Mathf.Lerp(_ctrl.Alpha, _minAlpha, (elapsedTime / _time));
             elapsedTime += Time.deltaTime;
+            _ctrl.Alpha = Mathf.Lerp(_ctrl.Alpha, _minAlpha, (elapsedTime / _time));
 
-            _ctrl.Alpha = alpha;
             yield return null;
         }
     }
