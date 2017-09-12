@@ -57,9 +57,9 @@ GameObject:
   - component: {fileID: 225253504456368488}
   - component: {fileID: 114518460470130730}
   - component: {fileID: 114058537052627428}
-  - component: {fileID: 114977580801788422}
+  - component: {fileID: 114026511494811910}
   m_Layer: 0
-  m_Name: GUI_NotEnoughtResources
+  m_Name: GUI_ExampleNotEnoughtResourcesRed
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -100,6 +100,20 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &114026511494811910
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1195133344905080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 42a728622f84142c996d497bb91c9771, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ParentController: {fileID: 0}
+  DestroyOnHide: 0
+  _containers3d: []
 --- !u!114 &114058537052627428
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -193,7 +207,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 114977580801788422}
+      - m_Target: {fileID: 114026511494811910}
         m_MethodName: OnForceClose
         m_Mode: 1
         m_Arguments:
@@ -234,7 +248,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.30147058, g: 0.30147058, b: 0.30147058, a: 1}
+  m_Color: {r: 0.625, g: 0.28492647, b: 0.28492647, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -309,20 +323,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: X
---- !u!114 &114977580801788422
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1195133344905080}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a45e784bcfa3747419a3b991d52aca57, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ParentController: {fileID: 0}
-  DestroyOnHide: 0
-  _containers3d: []
 --- !u!222 &222362655674097042
 CanvasRenderer:
   m_ObjectHideFlags: 1

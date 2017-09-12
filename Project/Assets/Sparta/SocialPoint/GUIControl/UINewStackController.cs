@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using System;
 
 namespace SocialPoint.GUIControl
 {
@@ -149,43 +150,6 @@ namespace SocialPoint.GUIControl
 
         #endregion
 
-        #region PushBehind
-
-//        public UIViewController PushBehind(GameObject go)
-//        {
-//            var ctrl = go.GetComponent(typeof(UIViewController)) as UIViewController;
-//            if(ctrl == null)
-//            {
-//                throw new MissingComponentException("Could not find UIViewController component.");
-//            }
-//            return PushBehind(ctrl);
-//        }
-//
-//        public C PushBehind<C>() where C : UIViewController
-//        {
-//            return PushBehind(typeof(C)) as C; 
-//        }
-//
-//        public UIViewController PushBehind(Type c)
-//        {
-//            return PushBehind(CreateChild(c));
-//        }
-//
-//        public UIViewController PushBehind(UIViewController ctrl)
-//        {
-//            if(_stack.Count == 0)
-//            {
-//                return Push(ctrl);
-//            }
-//            DebugLog(string.Format("PushBehind {0}", ctrl.gameObject.name));
-//            AddChild(ctrl);
-//            ctrl.HideImmediate();
-//            _stack.Insert(0, ctrl);
-//            return ctrl;
-//        }
-
-        #endregion
-
         #region Replace
 
         public override UIViewController Replace(UIViewController ctrl, ActionType act = ActionType.Replace)
@@ -242,6 +206,60 @@ namespace SocialPoint.GUIControl
             }
 
             return ctrl;
+        }
+
+        #endregion
+
+        #region PopupUntil
+
+        protected override IEnumerator DoPopUntilCheckPointCoroutine(string name)
+        {
+            int i;
+            if(!_checkpoints.TryGetValue(name, out i))
+            {
+                throw new Exception(string.Format("Could not find checkpoint '{0}'.", name));
+            }
+            else
+            {
+                var enm = DoPopUntilCoroutine(i, ActionType.PopUntilCheck);
+                while(enm.MoveNext())
+                {
+                    yield return enm.Current;
+                }
+            }
+        }
+
+        protected override IEnumerator DoPopUntilCondition(PopCondition cond, ActionType act)
+        {
+            UIViewController top = null;
+            UIViewController ctrl = null;
+            for(var i = _stack.Count - 1; i >= 0; i--)
+            {
+                var elm = _stack[i];
+                if(top == null)
+                {
+                    top = elm;
+                }
+                if(cond(elm))
+                {
+                    ctrl = elm;
+                    break;
+                }
+                else if(elm != top)
+                {
+                    _stack.RemoveAt(i);
+                    elm.HideImmediate(true);
+                }
+            }
+            DebugLog(string.Format("{0} {1}", act, ctrl ? ctrl.gameObject.name : string.Empty));
+            if(top != ctrl)
+            {
+                var enm = DoTransition(top, ctrl, act);
+                while(enm.MoveNext())
+                {
+                    yield return enm.Current;
+                }
+            }
         }
 
         #endregion

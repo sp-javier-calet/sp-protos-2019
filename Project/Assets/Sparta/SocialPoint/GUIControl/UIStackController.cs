@@ -89,7 +89,7 @@ namespace SocialPoint.GUIControl
         }
 
         protected IList<UIViewController> _stack = new List<UIViewController>();
-        IDictionary<string,int> _checkpoints = new Dictionary<string,int>();
+        protected IDictionary<string,int> _checkpoints = new Dictionary<string,int>();
         Coroutine _actionCoroutine = null;
         ActionType _action = ActionType.None;
 
@@ -324,6 +324,16 @@ namespace SocialPoint.GUIControl
         public void SetCheckPoint(string name)
         {
             _checkpoints[name] = _stack.Count;
+        }
+
+        public void RemoveCheckPoint(string name)
+        {
+            int index = 0;
+
+            if(_checkpoints.TryGetValue(name, out index))
+            {
+                _stack.RemoveAt(index);
+            }
         }
 
         #region UIParentController overrides
@@ -648,9 +658,9 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        private delegate bool PopCondition(UIViewController ctrl);
+        protected delegate bool PopCondition(UIViewController ctrl);
 
-        IEnumerator DoPopUntilCondition(PopCondition cond, ActionType act)
+        protected virtual IEnumerator DoPopUntilCondition(PopCondition cond, ActionType act)
         {
             UIViewController top = null;
             UIViewController ctrl = null;
@@ -703,7 +713,7 @@ namespace SocialPoint.GUIControl
             yield return StartActionCoroutine(DoPopUntilCoroutine(type), ActionType.PopUntilType);
         }
 
-        IEnumerator DoPopUntilCoroutine(Type type)
+        protected IEnumerator DoPopUntilCoroutine(Type type)
         {
             return DoPopUntilCondition((UIViewController ctrl) => {
                 return ctrl.GetType() == type;
@@ -720,12 +730,12 @@ namespace SocialPoint.GUIControl
             yield return StartActionCoroutine(DoPopUntilCoroutine(i), ActionType.PopUntilPos);
         }
 
-        IEnumerator DoPopUntilCoroutine(int i)
+        protected IEnumerator DoPopUntilCoroutine(int i)
         {
             return DoPopUntilCoroutine(i, ActionType.PopUntilPos);
         }
 
-        IEnumerator DoPopUntilCoroutine(int i, ActionType act)
+        protected IEnumerator DoPopUntilCoroutine(int i, ActionType act)
         {
             if(_stack.Count > i)
             {           
@@ -746,7 +756,7 @@ namespace SocialPoint.GUIControl
             yield return StartActionCoroutine(DoPopUntilCheckPointCoroutine(name), ActionType.PopUntilCheck);
         }
 
-        IEnumerator DoPopUntilCheckPointCoroutine(string name)
+        protected virtual IEnumerator DoPopUntilCheckPointCoroutine(string name)
         {
             int i;
             if(!_checkpoints.TryGetValue(name, out i))
