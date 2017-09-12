@@ -7,7 +7,6 @@ using UnityEngine;
 
 public class GUIExampleInstaller : Installer, IDisposable
 {
-    const string UIViewControllerSuffix = "Controller";
     const string GUIRootPrefab = "GUI_ExampleRoot";
 
     [Serializable]
@@ -75,10 +74,7 @@ public class GUIExampleInstaller : Installer, IDisposable
 
     string GetControllerFactoryPrefabName(Type type)
     {
-        var name = type.Name;
-        name = name.Replace(UIViewControllerSuffix, string.Empty);
-
-        return string.Format("GUI_Example{0}", name);
+        return _uiViewsStackController.GetControllerFactoryPrefabName(type);
     }
 
     public void Dispose()
