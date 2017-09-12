@@ -3,13 +3,12 @@ using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.ScriptEvents;
-using SocialPoint.Utils;
 using UnityEngine;
 
 public class GUIInstaller : Installer, IDisposable
 {
     const string UIViewControllerSuffix = "Controller";
-    const string GUIRootPrefab = "GUI_Root";
+    const string GUIRootPrefab = "GUI_ExampleRoot";
 
     [Serializable]
     public class SettingsData
@@ -32,15 +31,13 @@ public class GUIInstaller : Installer, IDisposable
 
         _root = CreateRoot();
         var AppEvents = Container.Resolve<IAppEvents>();
-        var EventDispatcher = Container.Resolve<IEventDispatcher>();
 
         _uiViewsStackController = _root.GetComponentInChildren<UIViewsStackController>();
         if(_uiViewsStackController != null)
         {
             _uiViewsStackController.AppEvents = AppEvents;
-            _uiViewsStackController.EventDispatcher = EventDispatcher;
             Container.Rebind<UIViewsStackController>().ToInstance(_uiViewsStackController);
-            Container.Rebind<UIStackController>().ToLookup<UIStackController>();
+            Container.Rebind<UIViewsStackController>().ToLookup<UIViewsStackController>();
 
             UIViewController.ForceCloseEvent += _uiViewsStackController.OnForceCloseUIView;
         }
@@ -79,10 +76,11 @@ public class GUIInstaller : Installer, IDisposable
     string GetControllerFactoryPrefabName(Type type)
     {
         var name = type.Name;
-        if(StringUtils.EndsWith(name, UIViewControllerSuffix))
-        {
-            name = name.Substring(0, name.Length - UIViewControllerSuffix.Length);
-        }
+        name = name.Replace(UIViewControllerSuffix, string.Empty);
+//        if(StringUtils.EndsWith(name, UIViewControllerSuffix))
+//        {
+//            name = name.Substring(0, name.Length - UIViewControllerSuffix.Length);
+//        }
 
         // Change to stringbuilder????
         return string.Format("GUI_{0}", name);

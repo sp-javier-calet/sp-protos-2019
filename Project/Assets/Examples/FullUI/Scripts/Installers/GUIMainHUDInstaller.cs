@@ -1,6 +1,6 @@
 ﻿using System;
-using UnityEngine;
 using SocialPoint.Dependency;
+using SocialPoint.GUIControl;
 
 public class GUIMainHUDInstaller : Installer, IInitializable
 {

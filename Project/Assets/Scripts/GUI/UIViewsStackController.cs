@@ -1,6 +1,6 @@
 ﻿using SocialPoint.GUIControl;
 
-public class UIViewsStackController : UIStackController
+public class UIViewsStackController : UINewStackController
 {
 
 }
