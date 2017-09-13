@@ -705,7 +705,10 @@ namespace SocialPoint.GUIControl
 
         public void PopUntil(Type type)
         {
-            StartActionCoroutine(DoPopUntilCoroutine(type), ActionType.PopUntilType);
+            if(_stack.Count > 1)
+            {
+                StartActionCoroutine(DoPopUntilCoroutine(type), ActionType.PopUntilType);
+            }
         }
 
         public IEnumerator PopUntilCoroutine(Type type)
@@ -722,7 +725,10 @@ namespace SocialPoint.GUIControl
 
         public void PopUntil(int i)
         {
-            StartActionCoroutine(DoPopUntilCoroutine(i), ActionType.PopUntilPos);
+            if(_stack.Count > 1)
+            {
+                StartActionCoroutine(DoPopUntilCoroutine(i), ActionType.PopUntilPos);
+            }
         }
 
         public IEnumerator PopUntilCoroutine(int i)

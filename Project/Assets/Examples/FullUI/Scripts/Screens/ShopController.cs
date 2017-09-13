@@ -49,4 +49,15 @@ public class ShopController : UIScreenViewController
 
         uiViewsStackController.ReplaceImmediate(typeof(NotEnoughtResourcesControllerRed));
     }
+
+    public void OnPopUntilMain()
+    {
+        var uiViewsStackController = Services.Instance.Resolve<UIViewsStackController>();
+        if(uiViewsStackController == null)
+        {
+            throw new InvalidOperationException("Could not find UI Controller");
+        }
+
+        uiViewsStackController.PopUntil(typeof(HUDController));
+    }
 }

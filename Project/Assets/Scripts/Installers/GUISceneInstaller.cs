@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using SocialPoint.Dependency;
+using SocialPoint.GUIControl;
 
 public class GUISceneInstaller : Installer, IInitializable
 {
@@ -12,6 +13,7 @@ public class GUISceneInstaller : Installer, IInitializable
     }
 
     public SettingsData Settings = new SettingsData();
+
 
     public GUISceneInstaller() : base(ModuleType.Game)
     {
@@ -28,13 +30,13 @@ public class GUISceneInstaller : Installer, IInitializable
         {
             return;
         }
-
+            
         var uiViewsStackController = Container.Resolve<UIViewsStackController>();
         if(uiViewsStackController == null)
         {
             throw new InvalidOperationException("Could not find UI Controller");
         }
-            
+
         if(Settings.InitialScreenPrefab != null)
         {
             var go = Instantiate<GameObject>(Settings.InitialScreenPrefab);
@@ -46,7 +48,7 @@ public class GUISceneInstaller : Installer, IInitializable
                 }
                 else
                 {
-                    uiViewsStackController.PushImmediate(go);
+                    uiViewsStackController.PushImmediate(go); 
                 }
             }
         }

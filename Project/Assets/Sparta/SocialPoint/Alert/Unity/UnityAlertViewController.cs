@@ -119,8 +119,13 @@ namespace SocialPoint.Alert
                 for(int i = 0; i < value.Length; ++i)
                 {
                     var btnGo = Instantiate(ButtonPrefab);
+
+                    #if UNITY_EDITOR
                     btnGo.name = string.Format("{0} ({1})", ButtonPrefab, value[i]);
+                    #endif
+
                     btnGo.transform.SetParent(Buttons.transform);
+                    btnGo.transform.localScale = Vector3.one;
 
                     var btn = btnGo.GetComponent<UnityAlertViewButton>();
                     if(btn != null)

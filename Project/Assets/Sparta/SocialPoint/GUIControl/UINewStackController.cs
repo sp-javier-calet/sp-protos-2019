@@ -12,11 +12,6 @@ namespace SocialPoint.GUIControl
 
         void ShowPopupsBetweenScreens(UIViewController top, UIViewController newTop, ActionType act)
         {
-            if(top == null || newTop == null)
-            {
-                return;
-            }
-
             switch(act)
             {
             case ActionType.Push:
@@ -28,9 +23,6 @@ namespace SocialPoint.GUIControl
                 break;
 
             case ActionType.Pop:
-            case ActionType.PopUntilCheck:
-            case ActionType.PopUntilPos:
-            case ActionType.PopUntilType:
                 if(top.ViewType == ViewCtrlType.Screen)
                 {
                     ShowStackedUIViews(true);
@@ -38,7 +30,23 @@ namespace SocialPoint.GUIControl
 
                 break;
 
+            case ActionType.PopUntilPos:
+            case ActionType.PopUntilType:
+            case ActionType.PopUntilCheck:
+
+                if(newTop.ViewType == ViewCtrlType.Popup)
+                {
+                    ShowStackedUIViews(true);
+                }
+
+                break;
+
             case ActionType.Replace:
+                if(top == null || newTop == null)
+                {
+                    return;
+                }
+
                 if(top.ViewType == ViewCtrlType.Screen && newTop.ViewType == ViewCtrlType.Popup)
                 {
                     ShowStackedUIViews(true);
@@ -56,20 +64,20 @@ namespace SocialPoint.GUIControl
         {
             if(_stack.Count > 1)
             {
-                for(int i = _stack.Count - 2; i >= 0; --i)
+                for(int i = _stack.Count - 2; i >= 0; i--)
                 {
-                    var ctrl = _stack[i];
+                    var elm = _stack[i];
 
                     if(showPopups)
                     {
-                        ctrl.ShowImmediate();
+                        elm.ShowImmediate();
                     }
                     else
                     {
-                        ctrl.HideImmediate();
+                        elm.HideImmediate();
                     }
 
-                    if(ctrl.ViewType == ViewCtrlType.Screen)
+                    if(elm.ViewType == ViewCtrlType.Screen)
                     {
                         break;
                     }
@@ -231,34 +239,33 @@ namespace SocialPoint.GUIControl
 
         protected override IEnumerator DoPopUntilCondition(PopCondition cond, ActionType act)
         {
-            UIViewController top = null;
             UIViewController ctrl = null;
             for(var i = _stack.Count - 1; i >= 0; i--)
             {
                 var elm = _stack[i];
-                if(top == null)
-                {
-                    top = elm;
-                }
+
                 if(cond(elm))
                 {
                     ctrl = elm;
                     break;
                 }
-                else if(elm != top)
+                else
                 {
                     _stack.RemoveAt(i);
                     elm.HideImmediate(true);
                 }
             }
             DebugLog(string.Format("{0} {1}", act, ctrl ? ctrl.gameObject.name : string.Empty));
-            if(top != ctrl)
+
+            if(ctrl != null)
             {
-                var enm = DoTransition(top, ctrl, act);
+                var enm = DoTransition(null, ctrl, act);
                 while(enm.MoveNext())
                 {
-                    yield return enm.Current;
+                    yield return enm;
                 }
+
+                ShowPopupsBetweenScreens(null, ctrl, ActionType.PopUntilType);
             }
         }
 
@@ -290,8 +297,8 @@ namespace SocialPoint.GUIControl
 
             DebugLog(string.Format("PopImmediate {0}", top ? top.gameObject.name : string.Empty));
 
-            top.HideImmediate(true);
             _stack.RemoveAt(_stack.Count - 1);
+            top.HideImmediate(true);
 
             ctrl.ShowImmediate();
 

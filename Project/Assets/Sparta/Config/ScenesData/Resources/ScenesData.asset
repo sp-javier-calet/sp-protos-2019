@@ -18,5 +18,3 @@ MonoBehaviour:
   - MainScene
   - BaseMainScene
   - LockstepScene
-  - UIExample - BaseMainScene
-  - UIExample - MainScene
