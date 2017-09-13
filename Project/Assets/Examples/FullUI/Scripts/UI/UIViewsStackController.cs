@@ -2,6 +2,7 @@
 using System;
 using SocialPoint.Utils;
 using System.Text;
+using SocialPoint.AdminPanel;
 
 public class UIViewsStackController : UINewStackController
 {
@@ -12,7 +13,7 @@ public class UIViewsStackController : UINewStackController
 
     public string GetControllerFactoryPrefabName(Type type)
     {
-        if(type == typeof(AdminPanelButton))
+        if(type == typeof(AdminPanelController))
         {
             return kAdminPanelPrefab;
         }
