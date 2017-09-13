@@ -9,7 +9,6 @@ using SocialPoint.Login;
 using SocialPoint.Social;
 using SocialPoint.Utils;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -27,13 +26,6 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     [SerializeField]
     string _sceneToLoad = "MainScene";
-    public string SceneToLoad 
-    { 
-        set 
-        { 
-            _sceneToLoad = value; 
-        } 
-    }
 
     LoadingOperation _loadModelOperation;
     LoadingOperation _loadSceneOperation;
