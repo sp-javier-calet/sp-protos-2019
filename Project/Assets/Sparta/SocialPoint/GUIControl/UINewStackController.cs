@@ -239,11 +239,15 @@ namespace SocialPoint.GUIControl
 
         protected override IEnumerator DoPopUntilCondition(PopCondition cond, ActionType act)
         {
+            UIViewController top = null;
             UIViewController ctrl = null;
             for(var i = _stack.Count - 1; i >= 0; i--)
             {
                 var elm = _stack[i];
-
+                if(top == null)
+                {
+                    top = elm;
+                }
                 if(cond(elm))
                 {
                     ctrl = elm;
@@ -256,17 +260,15 @@ namespace SocialPoint.GUIControl
                 }
             }
             DebugLog(string.Format("{0} {1}", act, ctrl ? ctrl.gameObject.name : string.Empty));
-
-            if(ctrl != null)
+            if(top != ctrl)
             {
-                var enm = DoTransition(null, ctrl, act);
+                var enm = DoTransition(top, ctrl, act);
                 while(enm.MoveNext())
                 {
-                    yield return enm;
+                    yield return enm.Current;
                 }
-
-                ShowPopupsBetweenScreens(null, ctrl, ActionType.PopUntilType);
             }
+            ShowPopupsBetweenScreens(null, ctrl, ActionType.PopUntilType);
         }
 
         #endregion

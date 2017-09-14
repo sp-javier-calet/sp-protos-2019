@@ -1,8 +1,6 @@
 ﻿using System;
 using UnityEngine;
 using SocialPoint.Dependency;
-using SocialPoint.GUIControl;
-using SocialPoint.Alert;
 
 public class HUDResource : MonoBehaviour 
 {
@@ -17,13 +15,12 @@ public class HUDResource : MonoBehaviour
 
     public void OnClick()
     {
-        var uiViewsStackController = Services.Instance.Resolve<UIViewsStackController>();
-        if(uiViewsStackController == null)
+        var uiHUDNotificationsController = Services.Instance.Resolve<HUDNotificationsController>();
+        if(uiHUDNotificationsController == null)
         {
-            throw new InvalidOperationException("Could not find UI Controller");
+            throw new InvalidOperationException("Could not find UI HUD NotificationsController");
         }
             
-        uiViewsStackController.Push(typeof(NotEnoughtResourcesController));
-        uiViewsStackController.Push(typeof(ShopController));
+        uiHUDNotificationsController.ShowNotification("Button for resource '" + _resourceType + "' pressed");
     }
 }

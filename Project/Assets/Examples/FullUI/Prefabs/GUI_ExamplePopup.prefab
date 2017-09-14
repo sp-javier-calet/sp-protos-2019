@@ -61,7 +61,7 @@ GameObject:
   - component: {fileID: 222666323638474072}
   - component: {fileID: 114977580801788422}
   m_Layer: 0
-  m_Name: GUI_ExampleNotEnoughtResources
+  m_Name: GUI_ExamplePopup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -155,7 +155,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Not enought resources
+  m_Text: popup
 --- !u!114 &114125596072895474
 MonoBehaviour:
   m_ObjectHideFlags: 1

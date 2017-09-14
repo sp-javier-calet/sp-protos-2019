@@ -13,4 +13,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    PopupFadeTime: 1
+    PopupAnimationTime: 0.5
