@@ -1,11 +1,9 @@
-
 using System;
 using System.Collections.Generic;
-using SocialPoint.Dependency;
 using SocialPoint.Attributes;
-using SocialPoint.ScriptEvents;
-using SocialPoint.Purchase;
 using SocialPoint.Base;
+using SocialPoint.Dependency;
+using SocialPoint.Purchase;
 
 public class EconomyInstaller : SubInstaller
 {
@@ -50,7 +48,7 @@ public class EconomyInstaller : SubInstaller
         Action<PurchaseResponseType> callback = null;
         if(finished != null)
         {
-            callback = (PurchaseResponseType responseType) => {
+            callback = responseType => {
                 Error error = null;
                 if(responseType != PurchaseResponseType.Complete)
                 {

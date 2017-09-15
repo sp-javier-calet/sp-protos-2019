@@ -11,6 +11,10 @@ namespace SocialPoint.ServerSync
 {
     public sealed class CommandQueue : ICommandQueue, IUpdateable
     {
+        public int SendInterval { get; set; }
+
+        public bool PingEnabled { get; set; }
+
         public delegate void ResponseDelegate(HttpResponse resp);
 
         public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
@@ -107,7 +111,7 @@ namespace SocialPoint.ServerSync
             appEvents.WillGoBackground.Add(-25, OnAppWillGoBackground);
             appEvents.GameWillRestart.Add(-25, OnGameWillRestart);
             appEvents.GameWasLoaded.Add(-1000, OnGameWasLoaded);
-            appEvents.WasOnBackground += OnWasOnBackground;
+            appEvents.WasOnBackground.Add(0, OnWasOnBackground);
         }
 
         void DisconnectAppEvents(IAppEvents appEvents)
@@ -115,7 +119,7 @@ namespace SocialPoint.ServerSync
             appEvents.WillGoBackground.Remove(OnAppWillGoBackground);
             appEvents.GameWillRestart.Remove(OnGameWillRestart);
             appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
-            appEvents.WasOnBackground -= OnWasOnBackground;
+            appEvents.WasOnBackground.Remove(OnWasOnBackground);
         }
 
         void OnGameWasLoaded()
@@ -204,7 +208,7 @@ namespace SocialPoint.ServerSync
             }
         }
 
-        public TrackEventDelegate TrackEvent;
+        public TrackEventDelegate TrackSystemEvent;
 
         public const bool DefaultIgnoreResponses = false;
         public const int DefaultSendInterval = 20;
@@ -214,11 +218,9 @@ namespace SocialPoint.ServerSync
         public const bool DefaultPingEnabled = true;
 
         public bool IgnoreResponses = DefaultIgnoreResponses;
-        public int SendInterval = DefaultSendInterval;
         public int MaxOutOfSyncInterval = DefaultMaxOutOfSyncInterval;
         public float Timeout = DefaultTimeout;
         public float BackoffMultiplier = DefaultBackoffMultiplier;
-        public bool PingEnabled = DefaultPingEnabled;
 
 
         IHttpClient _httpClient;
@@ -243,6 +245,8 @@ namespace SocialPoint.ServerSync
 
         public CommandQueue(IUpdateScheduler updateScheduler, IHttpClient client)
         {
+            SendInterval = DefaultSendInterval;
+            PingEnabled = DefaultPingEnabled;
             DebugUtils.Assert(updateScheduler != null);
             DebugUtils.Assert(client != null);
             TimeUtils.OffsetChanged += OnTimeOffsetChanged;
@@ -344,7 +348,7 @@ namespace SocialPoint.ServerSync
             }
             if(_updateScheduler != null)
             {
-                _updateScheduler.AddFixed(this, SendInterval);
+                _updateScheduler.Add(this, UpdateableTimeMode.GameTimeUnscaled, SendInterval);
                 _running = true;
             }
         }
@@ -363,7 +367,7 @@ namespace SocialPoint.ServerSync
             Stop();
             Reset();
             AutoSync = null;
-            TrackEvent = null;
+            TrackSystemEvent = null;
             if(_appEvents != null)
             {
                 DisconnectAppEvents(_appEvents);
@@ -669,7 +673,7 @@ namespace SocialPoint.ServerSync
             {
                 err.Code = (int)type;
             }
-            if(TrackEvent != null)
+            if(TrackSystemEvent != null)
             {
                 var data = new AttrDic();
                 var errData = new AttrDic();
@@ -679,7 +683,7 @@ namespace SocialPoint.ServerSync
                 syncData.SetValue(AttrKeyEventErrorType, (int)type);
                 syncData.SetValue(AttrKeyEventErrorMessage, err.Msg);
                 syncData.SetValue(AttrKeyEventErrorHttpCode, httpCode);
-                TrackEvent(ErrorEventName, data);
+                TrackSystemEvent(ErrorEventName, data);
             }
             if(GeneralError != null)
             {
@@ -689,13 +693,13 @@ namespace SocialPoint.ServerSync
 
         void NotifySyncChange()
         {
-            if(TrackEvent != null)
+            if(TrackSystemEvent != null)
             {
                 var data = new AttrDic();
                 var gameData = new AttrDic();
                 data.Set(AttrKeyGame, gameData);
                 gameData.SetValue(AttrKeySynced, _synced);
-                TrackEvent(SyncChangeEventName, data);
+                TrackSystemEvent(SyncChangeEventName, data);
             }
             if(SyncChange != null)
             {

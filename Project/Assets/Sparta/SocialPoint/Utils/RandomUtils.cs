@@ -1,6 +1,5 @@
 #if (UNITY_ANDROID || UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
 #define UNITY_DEVICE
-#define UNITY
 #endif
 #if UNITY_EDITOR_OSX || UNITY_STANDALONE_OSX || UNITY_DEVICE
 #define NATIVE_RANDOM
@@ -27,7 +26,7 @@ namespace SocialPoint.Utils
         const string PluginModuleName = "SPUnityPlugins";
         #elif UNITY_ANDROID
         const string PluginModuleName = "sp_unity_utils";
-        #elif (UNITY_IOS || UNITY_TVOS)
+#elif (UNITY_IOS || UNITY_TVOS)
         const string PluginModuleName = "__Internal";
         #endif
 
@@ -55,13 +54,20 @@ namespace SocialPoint.Utils
             {
                 return;
             }
-        #if UNITY
-            UnityEngine.Random.seed = GetRandomSeed();
-        #else
+            #if UNITY
+            InitRandomSeed();
+            #else
             _random = new Random(Guid.NewGuid().GetHashCode());
-        #endif
+            #endif
             _init = true;
         }
+
+    #if UNITY
+        static void InitRandomSeed()
+        {
+            UnityEngine.Random.InitState(GetRandomSeed());
+        }
+    #endif
 
         public static string GetUuid(string format = null)
         {
@@ -121,11 +127,11 @@ namespace SocialPoint.Utils
         public static uint GenerateUint()
         {
             Init();
-        #if UNITY
+            #if UNITY
             return (uint)UnityEngine.Random.Range(int.MinValue, int.MaxValue);
-        #else
+            #else
             return (uint)_random.Next(Int32.MinValue, Int32.MaxValue);
-        #endif
+            #endif
         }
 
         /// <summary>

@@ -2,145 +2,10 @@ using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.Utils;
+using SocialPoint.Dependency.Graph;
 
 namespace SocialPoint.Dependency
 {
-    public interface IBinding
-    {
-        object Resolve();
-
-        void OnResolutionFinished();
-    }
-
-    public sealed class Binding<F> : IBinding
-    {
-        enum ToType
-        {
-            Single,
-            Lookup,
-            Method
-        }
-
-        F _instance;
-        ToType _toType;
-        Type _type;
-        string _tag;
-        Func<F> _method;
-        Action<object> _setup;
-        Func<object, F> _getter;
-        DependencyContainer _container;
-
-        public Binding(DependencyContainer container)
-        {
-            _container = container;
-        }
-
-        public Binding<F> ToSingle<T>() where T : F, new()
-        {
-            _toType = ToType.Single;
-            _type = typeof(T);
-            return this;
-        }
-
-        public Binding<F> ToInstance<T>(T instance) where T : F
-        {
-            _toType = ToType.Single;
-            _instance = instance;
-            return this;
-        }
-
-        public Binding<F> ToLookup<T>(string tag = null) where T : F
-        {
-            _toType = ToType.Lookup;
-            _type = typeof(T);
-            _tag = tag;
-            _container.AddLookup(this, _type, _tag);
-            return this;
-        }
-
-        public Binding<F> ToMethod<T>(Func<T> method, Action<T> setup = null) where T : F
-        {
-            _type = typeof(T);
-            _method = () => method();
-            _toType = ToType.Method;
-
-            _setup = null;
-            if(setup != null)
-            {
-                _setup = result => setup((T)result);
-            }
-            return this;
-        }
-
-        public Binding<F> ToGetter<T>(Func<T,F> method, string tag = null)
-        {
-            _type = typeof(T);
-            _getter = t => method((T)t);
-            _toType = ToType.Method;
-            _tag = null;
-            _container.AddLookup(this, _type, _tag);
-            return this;
-        }
-
-        public object Resolve()
-        {
-            if(_instance != null)
-            {
-            }
-            else if(_toType == ToType.Single)
-            {
-                var construct = _type.GetConstructor(new Type[]{ });
-                _instance = (F)construct.Invoke(new object[]{ });
-
-            }
-            else if(_toType == ToType.Lookup)
-            {
-                _instance = (F)_container.Resolve(_type, _tag, null);
-            }
-            else if(_toType == ToType.Method)
-            {
-                if(_method != null)
-                {
-                    _instance = _method();
-                }
-                else if(_getter != null)
-                {
-                    var param = _container.Resolve(_type, _tag, null);
-                    _instance = _getter(param);
-                }
-            }
-            return _instance;
-        }
-
-        public void OnResolutionFinished()
-        {
-            if(_setup != null && _instance != null)
-            {
-                // Execute a copy to avoid recursive calls in circular dependencies
-                var setup = _setup;
-                _setup = null;
-                setup(_instance);
-            }
-        }
-
-        public override string ToString()
-        {
-            return string.Format("[Binding {0} -> {1} {2}]", typeof(F), _toType, _type);
-        }
-    }
-
-    public struct BindingKey
-    {
-        public Type Type;
-        public string Tag;
-
-        public BindingKey(Type type, string tag)
-        {
-            Type = type;
-            Tag = tag;
-        }
-    }
-
     public sealed class DependencyContainer : IDisposable
     {
         const string Tag = "DependencyContainer";
@@ -151,6 +16,8 @@ namespace SocialPoint.Dependency
         List<IBinding> _resolved;
         Dictionary<IBinding, HashSet<object>> _instances;
         Dictionary<BindingKey, List<IBinding>> _lookups;
+        Dictionary<BindingKey, List<BindingKey>> _aliases;
+        Dictionary<BindingKey, List<IListener>> _listeners;
 
         public DependencyContainer()
         {
@@ -161,6 +28,14 @@ namespace SocialPoint.Dependency
             var comparer = new ReferenceComparer<IBinding>();
             _instances = new Dictionary<IBinding, HashSet<object>>(comparer);
             _lookups = new Dictionary<BindingKey, List<IBinding>>();
+            _aliases = new Dictionary<BindingKey, List<BindingKey>>();
+            _listeners = new Dictionary<BindingKey, List<IListener>>();
+        }
+
+        public void AddBindingWithInstance<T>(IBinding binding, Type type, T instance, string tag = null)
+        {
+            AddBinding(binding, type, tag);
+            AddInstance(binding, instance);
         }
 
         public void AddBinding(IBinding binding, Type type, string tag = null)
@@ -172,21 +47,47 @@ namespace SocialPoint.Dependency
                 list = new List<IBinding>();
                 _bindings.Add(key, list);
             }
+
             list.Add(binding);
             Log.v(Tag, string.Format("Added binding <{0}> for type `{1}`", tag, type.Name));
         }
 
         public void AddLookup(IBinding binding, Type type, string tag = null)
         {
-            List<IBinding> list;
             var key = new BindingKey(type, tag);
-            if(!_lookups.TryGetValue(key, out list))
+
+            // Add Lookup
+            List<IBinding> lookupsList;
+            if(!_lookups.TryGetValue(key, out lookupsList))
             {
-                list = new List<IBinding>();
-                _lookups.Add(key, list);
+                lookupsList = new List<IBinding>();
+                _lookups.Add(key, lookupsList);
             }
-            list.Add(binding);
+            lookupsList.Add(binding);
+
+            // Add alias
+            List<BindingKey> aliasesList;
+            if(!_aliases.TryGetValue(key, out aliasesList))
+            {
+                aliasesList = new List<BindingKey>();
+                _aliases.Add(key, aliasesList);
+            }
+            aliasesList.Add(binding.Key);
+
             Log.v(Tag, string.Format("Added lookup <{0}> for type `{1}`", tag, type.Name));
+        }
+
+        public void AddListener(IListener listener, Type type, string tag = null)
+        {
+            List<IListener> list;
+            var key = new BindingKey(type, tag);
+            if(!_listeners.TryGetValue(key, out list))
+            {
+                list = new List<IListener>();
+                _listeners.Add(key, list);
+            }
+            list.Add(listener);
+            Log.v(Tag, string.Format("Added binding <{0}> for type `{1}`", tag, type.Name));
         }
 
         public bool Remove<T>(string tag = null)
@@ -194,6 +95,7 @@ namespace SocialPoint.Dependency
             var key = new BindingKey(typeof(T), tag);
             DisposeInstances(key);
             var removed = _bindings.Remove(key);
+            DependencyGraphBuilder.Remove(typeof(T), tag);
             Log.v(Tag, string.Format("Removed binding <{0}> for type `{1}`. {2}", tag, typeof(T).Name, removed ? "Success" : "Failed"));
             return removed;
         }
@@ -259,8 +161,27 @@ namespace SocialPoint.Dependency
                     }
                 }
             }
-            Log.v(Tag, string.Format("Resolved instance <{0}> for type `{1}`. {2}", tag, type.Name, result == def ? "Default" : "Found"));
+
+            if(result == null)
+            {
+                Log.w(Tag, string.Format("Resolved instance <{0}> for type `{1}`. {2}", tag, type.Name, "Default as null"));
+            }
+            else
+            {
+                Log.v(Tag, string.Format("Resolved instance <{0}> for type `{1}`. {2}", tag, type.Name, result == def ? "Default" : "Found"));
+            }
             return result;
+        }
+
+        void AddInstance(IBinding binding, object instance)
+        {
+            HashSet<object> instances;
+            if(!_instances.TryGetValue(binding, out instances))
+            {
+                instances = new HashSet<object>();
+                _instances[binding] = instances;
+            }
+            instances.Add(instance); 
         }
 
         bool TryResolve(IBinding binding, out object result)
@@ -273,14 +194,7 @@ namespace SocialPoint.Dependency
 
             _resolving.Add(binding);
             result = binding.Resolve();
-
-            HashSet<object> instances;
-            if(!_instances.TryGetValue(binding, out instances))
-            {
-                instances = new HashSet<object>();
-                _instances[binding] = instances;
-            }
-            instances.Add(result);
+            AddInstance(binding, result);
 
             _resolving.Remove(binding);
             _resolved.Add(binding);
@@ -291,10 +205,29 @@ namespace SocialPoint.Dependency
                 _resolved.Clear();
                 for(var i = 0; i < resolved.Length; i++)
                 {
-                    resolved[i].OnResolutionFinished();
+                    var resolvedBinding = resolved[i];
+                    if(!binding.Resolved)
+                    {
+                        NotifyResolutionFinished(resolvedBinding);
+                    }
                 }
             }
             return true;
+        }
+
+        void NotifyResolutionFinished(IBinding binding)
+        {
+            binding.OnResolved();
+
+            var listeners = FindListeners(binding);
+            if(listeners.Count > 0)
+            {
+                var instance = binding.Resolve();
+                for(var j = 0; j < listeners.Count; ++j)
+                {
+                    listeners[j].OnResolved(instance);
+                }
+            }
         }
 
         public void Clear()
@@ -305,7 +238,64 @@ namespace SocialPoint.Dependency
             _resolved.Clear();
             _resolving.Clear();
             _lookups.Clear();
+            _aliases.Clear();
+            _listeners.Clear();
             Log.v(Tag, "Depencency Container Cleared");
+        }
+
+        public enum InstallationPhase
+        {
+            Global,
+            Install,
+            Initialization
+        }
+
+        public void OnPhaseStart(InstallationPhase phase)
+        {
+            switch(phase)
+            {
+            case InstallationPhase.Global:
+                DependencyGraphBuilder.StartGlobalInstall();
+                break;
+            case InstallationPhase.Install:
+                DependencyGraphBuilder.StartInstall();
+                break;
+            case InstallationPhase.Initialization:
+                DependencyGraphBuilder.StartInitialization();
+                break;
+            }
+        }
+
+        public void OnPhaseEnd()
+        {
+            DependencyGraphBuilder.EndPhase();
+        }
+
+        List<IListener> FindListeners(IBinding binding)
+        {
+            var listeners = new List<IListener>();
+
+            // Look for direct bindings
+            List<IListener> keyListeners;
+            if(_listeners.TryGetValue(binding.Key, out keyListeners))
+            {
+                listeners.AddRange(keyListeners);
+            }
+                
+            // Look for aliased bindings
+            List<BindingKey> list;
+            if(_aliases.TryGetValue(binding.Key, out list))
+            {
+                for(var i = 0; i < list.Count; i++)
+                {
+                    var key = list[i];
+                    if(_listeners.TryGetValue(key, out keyListeners))
+                    {
+                        listeners.AddRange(keyListeners);
+                    }
+                } 
+            }
+            return listeners;
         }
 
         BindingKey FindBindingKey(IBinding binding)
@@ -346,7 +336,7 @@ namespace SocialPoint.Dependency
             return false;
         }
 
-        HashSet<object> FindInstances(BindingKey fromKey, BindingKey filterKey, bool remove=false)
+        HashSet<object> FindInstances(BindingKey fromKey, BindingKey filterKey, bool remove = false)
         {
             var instances = new HashSet<object>();
             var itr = _bindings.GetEnumerator();
@@ -361,22 +351,24 @@ namespace SocialPoint.Dependency
                     {
                         continue;
                     }
-                    if(!IsLookup(fromKey, key))
-                    {
-                        continue;
-                    }
                     var binding = bindings[i];
-                    if(_instances.TryGetValue(binding, out bindingInstances))
+                    var bindingKey = binding.Key;
+                    bool isInstanceBinding = fromKey.Type == bindingKey.Type && fromKey.Tag == bindingKey.Tag;
+
+                    if(isInstanceBinding || IsLookup(fromKey, key))
                     {
-                        var itr2 = bindingInstances.GetEnumerator();
-                        while(itr2.MoveNext())
+                        if(_instances.TryGetValue(binding, out bindingInstances))
                         {
-                            instances.Add(itr2.Current);
-                        }
-                        itr2.Dispose();
-                        if(remove)
-                        {
-                            _instances.Remove(binding);
+                            var itr2 = bindingInstances.GetEnumerator();
+                            while(itr2.MoveNext())
+                            {
+                                instances.Add(itr2.Current);
+                            }
+                            itr2.Dispose();
+                            if(remove)
+                            {
+                                _instances.Remove(binding);
+                            }
                         }
                     }
                 }
@@ -399,48 +391,18 @@ namespace SocialPoint.Dependency
             var itr = disposables.GetEnumerator();
             while(itr.MoveNext())
             {
-                ((IDisposable)itr.Current).Dispose();
+                Log.w("Disposing Container Instance: " + itr.Current.GetType().Name);
+                var disposable = itr.Current as IDisposable;
+                if(disposable != null)
+                {
+                    disposable.Dispose();
+                }
+                else
+                {
+                    Log.e(string.Format("Type {0} does not implement IDisposable", itr.Current.GetType().Name));
+                }
             }
             itr.Dispose();
-        }
-    }
-
-    public static class DependencyContainerExtensions
-    {
-        public static void Install<T>(this DependencyContainer container) where T : IInstaller, new()
-        {
-            container.Install(new T());
-        }
-
-        public static Binding<T> Rebind<T>(this DependencyContainer container, string tag = null)
-        {
-            container.Remove<T>(tag);
-            return container.Bind<T>(tag);
-        }
-
-        public static Binding<T> Bind<T>(this DependencyContainer container, string tag = null)
-        {
-            var bind = new Binding<T>(container);
-            container.AddBinding(bind, typeof(T), tag);
-            return bind;
-        }
-
-        public static void BindInstance<T>(this DependencyContainer container, string tag, T instance)
-        {
-            container.Bind<T>(tag).ToInstance(instance);
-        }
-
-        public static void Install(this DependencyContainer container, IInstaller[] installers)
-        {
-            for(var i = 0; i < installers.Length; i++)
-            {
-                container.Install(installers[i]);
-            }
-        }
-
-        public static T Resolve<T>(this DependencyContainer container, string tag = null, T def = default(T))
-        {
-            return (T)container.Resolve(typeof(T), tag, def);
         }
     }
 }

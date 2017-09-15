@@ -7,13 +7,16 @@ using SocialPoint.Dependency;
 using SocialPoint.IO;
 using SocialPoint.Pooling;
 using SocialPoint.Network;
-using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
 using SocialPoint.Matchmaking;
 using SocialPoint.Attributes;
 using FixMath.NET;
 using System;
 using System.IO;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 namespace Examples.Lockstep
 {
@@ -68,11 +71,13 @@ namespace Examples.Lockstep
         ServerBehaviour _serverBehaviour;
         CloudRegionCode _photonRegion = CloudRegionCode.none;
 
+        #if ADMIN_PANEL
         FloatingPanelController _clientFloating;
         FloatingPanelController _serverFloating;
 
         static readonly Vector2 ClientFloatingPanelPosition = new Vector2(600, 200);
         static readonly Vector2 ServerFloatingPanelPosition = new Vector2(600, 90);
+        #endif
 
         string ReplayPath
         {
@@ -84,9 +89,9 @@ namespace Examples.Lockstep
 
         void Start()
         {
-            _lockstep = ServiceLocator.Instance.Resolve<LockstepClient>();
+            _lockstep = Services.Instance.Resolve<LockstepClient>();
             _lockstep.ClientConfig.LocalSimulationDelay = 500;
-            _replay = ServiceLocator.Instance.Resolve<LockstepReplay>();
+            _replay = Services.Instance.Resolve<LockstepReplay>();
             _lockstep.Simulate += SimulateClient;
 
             _model = new Model(_gameConfig);
@@ -95,7 +100,7 @@ namespace Examples.Lockstep
 
             _lockstep.RegisterCommandLogic<ClickCommand>(new ClickCommandLogic(_model));
             _lockstep.SimulationStarted += OnGameStarted;
-            var factory = ServiceLocator.Instance.Resolve<LockstepCommandFactory>();
+            var factory = Services.Instance.Resolve<LockstepCommandFactory>();
             CommandType.Setup(_model, factory, _lockstep);
 
 
@@ -136,7 +141,10 @@ namespace Examples.Lockstep
                 _replay.Record();
             }
 
-            _timeText.text = _model.TimeString;
+            if(_timeText != null)
+            {
+                _timeText.text = _model.TimeString;
+            }
 
             _random = _lockstep.CreateRandomGenerator();
         }
@@ -190,11 +198,11 @@ namespace Examples.Lockstep
         void StartClient(GameLockstepMode mode)
         {
             _mode = mode;
-            _netClient = ServiceLocator.Instance.Resolve<INetworkClient>();
+            _netClient = Services.Instance.Resolve<INetworkClient>();
             _netClient.RemoveDelegate(this);
             _netClient.AddDelegate(this);
             SetupPhoton(_netClient as PhotonNetworkBase);
-            _netLockstepClient = ServiceLocator.Instance.Resolve<LockstepNetworkClient>();
+            _netLockstepClient = Services.Instance.Resolve<LockstepNetworkClient>();
             _netLockstepClient.EndReceived -= OnClientEndReceived;
             _netLockstepClient.EndReceived += OnClientEndReceived;
             _netClient.Connect();
@@ -216,21 +224,24 @@ namespace Examples.Lockstep
             _mode = GameLockstepMode.Server;
             StartServer();
             _netLockstepServer.RegisterLocalClient(
-                ServiceLocator.Instance.Resolve<LockstepClient>(),
-                ServiceLocator.Instance.Resolve<LockstepCommandFactory>()
+                Services.Instance.Resolve<LockstepClient>(),
+                Services.Instance.Resolve<LockstepCommandFactory>()
             );
             _netLockstepServer.LocalPlayerReady();
         }
 
         void StartServer()
         {
-            _netServer = ServiceLocator.Instance.Resolve<INetworkServer>();
+            _netServer = Services.Instance.Resolve<INetworkServer>();
             SetupPhoton(_netServer as PhotonNetworkBase);
-            _netLockstepServer = ServiceLocator.Instance.Resolve<LockstepNetworkServer>();
+            _netLockstepServer = Services.Instance.Resolve<LockstepNetworkServer>();
+            _netLockstepServer.ServerConfig.MatchmakingEnabled = true;
             _serverBehaviour = new ServerBehaviour(_netLockstepServer, _gameConfig);
             _netServer.RemoveDelegate(this);
             _netServer.AddDelegate(this);
             _netServer.Start();
+
+            #if ADMIN_PANEL
             if(_serverFloating == null)
             {
                 _serverFloating = FloatingPanelController.Create(new AdminPanelLockstepServerGUI(_netLockstepServer));
@@ -238,6 +249,7 @@ namespace Examples.Lockstep
                 _serverFloating.ScreenPosition = ServerFloatingPanelPosition;
                 _serverFloating.Show();
             }
+            #endif
         }
 
         public void OnHostClicked()
@@ -245,13 +257,14 @@ namespace Examples.Lockstep
             SetupGameScreen();
             StartServer();
             _netLockstepServer.UnregisterLocalClient();
+            _netLockstepServer.ServerConfig.MatchmakingEnabled = false;
             StartClient(GameLockstepMode.Host);
         }
 
         public void OnMatchClicked()
         {
             SetupGameScreen();
-            _matchClient = ServiceLocator.Instance.Resolve<IMatchmakingClient>();
+            _matchClient = Services.Instance.Resolve<IMatchmakingClient>();
             _matchClient.RemoveDelegate(this);
             _matchClient.AddDelegate(this);
             _fullscreenText.text = "connecting to matchmaker...";
@@ -259,6 +272,16 @@ namespace Examples.Lockstep
         }
 
         #region IMatchmakingClientDelegate implementation
+
+        void IMatchmakingClientDelegate.OnStart()
+        {
+            _fullscreenText.text = string.Format("matchmaking start");
+        }
+
+        void IMatchmakingClientDelegate.OnSearchOpponent()
+        {
+            _fullscreenText.text = string.Format("searching for opponent");
+        }
 
         void IMatchmakingClientDelegate.OnWaiting(int waitTime)
         {
@@ -269,6 +292,11 @@ namespace Examples.Lockstep
         {
             _fullscreenText.text = string.Format("match {0} player {1}", match.Id, match.PlayerId);
             StartClient(GameLockstepMode.Client);
+        }
+
+        void IMatchmakingClientDelegate.OnStopped(bool successful)
+        {
+            _fullscreenText.text = string.Format("match stopped - successful: {0}", successful);
         }
 
         void IMatchmakingClientDelegate.OnError(Error err)
@@ -393,6 +421,7 @@ namespace Examples.Lockstep
             {
                 _setupContainer.SetActive(false);
             }
+            #if ADMIN_PANEL 
             if(_clientFloating == null)
             {
                 _clientFloating = FloatingPanelController.Create(new AdminPanelLockstepClientGUI(_lockstep));
@@ -400,12 +429,16 @@ namespace Examples.Lockstep
                 _clientFloating.ScreenPosition = ClientFloatingPanelPosition;
                 _clientFloating.Show();
             }
+            #endif
         }
 
         void SimulateClient(int dt)
         {
             _model.Simulate(dt);
-            _timeText.text = _model.TimeString;
+            if(_timeText != null)
+            {
+                _timeText.text = _model.TimeString;
+            }
         }
 
         static readonly Fix64 InstanceMinScale = (Fix64)0.2f;
@@ -418,7 +451,7 @@ namespace Examples.Lockstep
                             (float)_random.Range(InstanceMinScale, InstanceMaxScale),
                             (float)_random.Range(InstanceMinScale, InstanceMaxScale));
             
-            var unit = ObjectPool.Spawn(_unitPrefab, transform,
+            var unit = UnityObjectPool.Spawn(_unitPrefab, transform,
                            new Vector3((float)x, (float)y * scale.y, (float)z), Quaternion.identity);
             
             unit.transform.localScale = scale;
@@ -462,14 +495,14 @@ namespace Examples.Lockstep
             var cmd = new ClickCommand(
                           (Fix64)p.x, (Fix64)p.y, (Fix64)p.z);
 
-            var loading = ObjectPool.Spawn(
+            var loading = UnityObjectPool.Spawn(
                               _loadingPrefab, transform, p, Quaternion.identity);
             _lockstep.AddPendingCommand(cmd, (c) => FinishLoading(loading));
         }
 
         public void FinishLoading(GameObject loading)
         {
-            ObjectPool.Recycle(loading);
+            UnityObjectPool.Recycle(loading);
         }
 
         public void OnRegionValueChanged(int pos)

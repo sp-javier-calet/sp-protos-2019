@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Locale;
+using SocialPoint.Connection;
 
 namespace SocialPoint.Social
 {
@@ -13,13 +14,26 @@ namespace SocialPoint.Social
 
         #region Attr keys
 
+        const string UserIdKey = "user_id";
         const string UserNameKey = "user_name";
-        const string UserNameTwoDaysLaterKey = "UserName";
+        const string KickedUserNameKey = "kicked_user_name";
+        const string AcceptedUserNameKey = "accepted_user_name";
+        const string AdminUserNameKey = "admin_user_name";
         const string OldRoleKey = "old_role";
         const string NewRoleKey = "new_role";
-        const string NewRoleTwoDaysLaterKey = "NewRole";
         const string RankPromotionKey = "promotion";
         const string RankDemotionKey = "demotion";
+
+        public const string ChatMessageUuidKey = "id";
+        public const string ChatMessageUserIdKey = "uid";
+        public const string ChatMessageUserNameKey = "uname";
+        public const string ChatMessageTsKey = "ts";
+        public const string ChatMessageTextKey = "msg";
+        public const string ChatMessageLevelKey = "lvl";
+        public const string ChatMessageAllyNameKey = "ally_name";
+        public const string ChatMessageAllyIdKey = "ally_id";
+        public const string ChatMessageAllyAvatarKey = "ally_avatar";
+        public const string ChatMessageAllyRoleKey = "ally_role";
 
         #endregion
 
@@ -33,8 +47,27 @@ namespace SocialPoint.Social
 
         public Localization Localization;
 
+        readonly HashSet<int> _filteredMessageTypes;
+
+        public HashSet<int> FilteredMessageTypes
+        {
+            get
+            {
+                return _filteredMessageTypes;
+            }
+        }
+
+        public FactoryChatMessages()
+        {
+            _filteredMessageTypes = new HashSet<int>();
+        }
+
         public MessageType Create(int type, string text)
         {
+            if(_filteredMessageTypes.Contains(type))
+            {
+                return null;
+            }
             var message = new MessageType();
             message.Type = type;
             message.Text = text;
@@ -49,14 +82,20 @@ namespace SocialPoint.Social
         public MessageType CreateWarning(int type, string text)
         {
             var message = Create(type, text);
-            message.IsWarning = true;
+            if(message != null)
+            {
+                message.IsWarning = true;
+            }
             return message;
         }
 
         public MessageType CreateLocalizedWarning(int type, string tid)
         {
             var message = CreateLocalized(type, tid);
-            message.IsWarning = true;
+            if(message != null)
+            {
+                message.IsWarning = true;
+            }
             return message;
         }
 
@@ -71,16 +110,16 @@ namespace SocialPoint.Social
 
             var data = message.MessageData;
 
-            msgInfo.SetValue(ConnectionManager.ChatMessageUuidKey, message.Uuid);
-            msgInfo.SetValue(ConnectionManager.ChatMessageUserIdKey, data.PlayerId);
-            msgInfo.SetValue(ConnectionManager.ChatMessageUserNameKey, data.PlayerName);
-            msgInfo.SetValue(ConnectionManager.ChatMessageTsKey, message.Timestamp);
-            msgInfo.SetValue(ConnectionManager.ChatMessageTextKey, message.Text);
-            msgInfo.SetValue(ConnectionManager.ChatMessageLevelKey, data.PlayerLevel);
-            msgInfo.SetValue(ConnectionManager.ChatMessageAllyNameKey, data.AllianceName);
-            msgInfo.SetValue(ConnectionManager.ChatMessageAllyIdKey, data.AllianceId);
-            msgInfo.SetValue(ConnectionManager.ChatMessageAllyAvatarKey, data.AllianceAvatarId);
-            msgInfo.SetValue(ConnectionManager.ChatMessageAllyRoleKey, data.RankInAlliance);
+            msgInfo.SetValue(ChatMessageUuidKey, message.Uuid);
+            msgInfo.SetValue(ChatMessageUserIdKey, data.PlayerId);
+            msgInfo.SetValue(ChatMessageUserNameKey, data.PlayerName);
+            msgInfo.SetValue(ChatMessageTsKey, message.Timestamp);
+            msgInfo.SetValue(ChatMessageTextKey, message.Text);
+            msgInfo.SetValue(ChatMessageLevelKey, data.PlayerLevel);
+            msgInfo.SetValue(ChatMessageAllyNameKey, data.AllianceName);
+            msgInfo.SetValue(ChatMessageAllyIdKey, data.AllianceId);
+            msgInfo.SetValue(ChatMessageAllyAvatarKey, data.AllianceAvatarId);
+            msgInfo.SetValue(ChatMessageAllyRoleKey, data.RankInAlliance);
 
             return msgInfo;
         }
@@ -106,11 +145,17 @@ namespace SocialPoint.Social
                 break;
             
             case NotificationType.BroadcastAllianceMemberAccept:
+                messages = ParsePlayerAcceptedMessage(type, dic);
+                break;
+
             case NotificationType.BroadcastAllianceJoin:
                 messages = ParsePlayerJoinedMessage(type, dic);
                 break;
 
             case NotificationType.BroadcastAllianceMemberKickoff:
+                messages = ParsePlayerKickedMessage(type, dic);
+                break;
+
             case NotificationType.BroadcastAllianceMemberLeave:
                 messages = ParsePlayerLeftMessage(type, dic);
                 break;
@@ -135,41 +180,45 @@ namespace SocialPoint.Social
 
         MessageType[] ParseChatMessage(int type, AttrDic dic)
         {
-            if(!dic.ContainsKey(ConnectionManager.ChatMessageInfoKey))
+            if(!dic.ContainsKey(ChatManager.ChatMessageInfoKey))
             {
                 Log.e(Tag, "Received chat message of text type does not contain the main parent");
                 return new MessageType[0];
             }
 
-            var msgInfo = dic.Get(ConnectionManager.ChatMessageInfoKey).AsDic;
-            if(!Validate(msgInfo, new string[] {
-                ConnectionManager.ChatMessageUserIdKey,
-                ConnectionManager.ChatMessageUserNameKey,
-                ConnectionManager.ChatMessageTsKey,
-                ConnectionManager.ChatMessageTextKey,
-                ConnectionManager.ChatMessageLevelKey,
-                ConnectionManager.ChatMessageAllyNameKey,
-                ConnectionManager.ChatMessageAllyIdKey,
-                ConnectionManager.ChatMessageAllyAvatarKey,
-                ConnectionManager.ChatMessageAllyRoleKey
-            }))
+            var msgInfo = dic.Get(ChatManager.ChatMessageInfoKey).AsDic;
+            if(!Validate(msgInfo,
+                ChatMessageUserIdKey,
+                ChatMessageUserNameKey,
+                ChatMessageTsKey,
+                ChatMessageTextKey,
+                ChatMessageLevelKey,
+                ChatMessageAllyNameKey,
+                ChatMessageAllyIdKey,
+                ChatMessageAllyAvatarKey,
+                ChatMessageAllyRoleKey
+            ))
             {
                 Log.e(Tag, "Received chat message of text type does not contain all the mandatory fields");
                 return new MessageType[0];
             }
 
-            var message = Create(type, msgInfo.GetValue(ConnectionManager.ChatMessageTextKey).ToString());
+            var message = Create(type, msgInfo.GetValue(ChatMessageTextKey).ToString());
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
 
             var data = new MessageData();
 
-            data.PlayerId = msgInfo.GetValue(ConnectionManager.ChatMessageUserIdKey).ToString();
-            data.PlayerName = msgInfo.GetValue(ConnectionManager.ChatMessageUserNameKey).ToString();
-            data.PlayerLevel = msgInfo.GetValue(ConnectionManager.ChatMessageLevelKey).ToInt();
-            data.AllianceName = msgInfo.GetValue(ConnectionManager.ChatMessageAllyNameKey).ToString();
-            data.AllianceId = msgInfo.GetValue(ConnectionManager.ChatMessageAllyIdKey).ToString();
-            data.AllianceAvatarId = msgInfo.GetValue(ConnectionManager.ChatMessageAllyAvatarKey).ToInt();
-            data.RankInAlliance = msgInfo.GetValue(ConnectionManager.ChatMessageAllyRoleKey).ToInt();
-            message.Timestamp = msgInfo.GetValue(ConnectionManager.ChatMessageTsKey).ToLong();
+            data.PlayerId = msgInfo.GetValue(ChatMessageUserIdKey).ToString();
+            data.PlayerName = msgInfo.GetValue(ChatMessageUserNameKey).ToString();
+            data.PlayerLevel = msgInfo.GetValue(ChatMessageLevelKey).ToInt();
+            data.AllianceName = msgInfo.GetValue(ChatMessageAllyNameKey).ToString();
+            data.AllianceId = msgInfo.GetValue(ChatMessageAllyIdKey).ToString();
+            data.AllianceAvatarId = msgInfo.GetValue(ChatMessageAllyAvatarKey).ToInt();
+            data.RankInAlliance = msgInfo.GetValue(ChatMessageAllyRoleKey).ToInt();
+            message.Timestamp = msgInfo.GetValue(ChatMessageTsKey).ToLong();
 
             message.MessageData = data;
 
@@ -178,7 +227,7 @@ namespace SocialPoint.Social
                 ParseExtraInfo(message, msgInfo);
             }
 
-            return new MessageType[]{ message };
+            return new []{ message };
         }
 
         MessageType[] ParsePlayerJoinedMessage(int type, AttrDic dic)
@@ -192,7 +241,34 @@ namespace SocialPoint.Social
             var playerName = dic.GetValue(UserNameKey).ToString();
             var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerJoinedKey), playerName));
 
-            return new MessageType[] { message };
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
+        }
+
+        MessageType[] ParsePlayerAcceptedMessage(int type, AttrDic dic)
+        {   
+            if(!Validate(dic, UserNameKey, AcceptedUserNameKey, UserIdKey))
+            {
+                Log.e(Tag, "Received chat message of player accepted message type does not contain all the mandatory fields");
+                return new MessageType[0];
+            }
+
+            var nameUserAction = dic.GetValue(UserNameKey).ToString();
+            var nameUserAccepted = dic.GetValue(AcceptedUserNameKey).ToString();
+            string userAcceptedId = dic.GetValue(UserIdKey).ToString();
+            var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerAcceptedKey), nameUserAction, nameUserAccepted));
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
+            message.RequestJoinData = new RequestJoinData();
+            message.RequestJoinData.PlayerId = userAcceptedId;
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
         }
 
         MessageType[] ParsePlayerLeftMessage(int type, AttrDic dic)
@@ -205,17 +281,36 @@ namespace SocialPoint.Social
 
             var playerName = dic.GetValue(UserNameKey).ToString();
             var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerLeftKey), playerName));
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
+        }
 
-            return new MessageType[] { message };
+        MessageType[] ParsePlayerKickedMessage(int type, AttrDic dic)
+        {
+            if(!Validate(dic, KickedUserNameKey, AdminUserNameKey))
+            {
+                Log.e(Tag, "Received chat message of player left type does not contain all the mandatory fields");
+                return new MessageType[0];
+            }
+
+            var kickedPlayerName = dic.GetValue(KickedUserNameKey).ToString();
+            var adminPlayerName = dic.GetValue(AdminUserNameKey).ToString();
+            var message = CreateWarning(type, string.Format(Localization.Get(SocialFrameworkStrings.ChatPlayerKickedKey), kickedPlayerName, adminPlayerName));
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+            return new [] { message };
         }
 
         MessageType[] ParseMemberPromotedMessage(int type, AttrDic dic)
         {
-            if(!Validate(dic, new string[] { 
-                UserNameKey, 
-                OldRoleKey, 
-                NewRoleKey 
-            }))
+            if(!Validate(dic, UserNameKey, OldRoleKey, NewRoleKey))
             {
                 Log.e(Tag, "Received chat message of member promoted type does not contain all the mandatory fields");
                 return new MessageType[0];
@@ -235,6 +330,12 @@ namespace SocialPoint.Social
             var oldRankName = Localization.Get(RankManager.GetRankNameTid(oldRank));
             var newRankName = Localization.Get(RankManager.GetRankNameTid(newRank));
             var message = CreateWarning(type, string.Format(Localization.Get(messageTid), playerName, oldRankName, newRankName));
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
+
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
 
             var data = new MemberPromotionData();
             data.PlayerName = playerName;
@@ -242,21 +343,33 @@ namespace SocialPoint.Social
             data.NewRank = newRank;
             message.MemberPromotionData = data;
 
-            return new MessageType[] { message };
+            return new [] { message };
         }
 
         MessageType[] ParseJoinRequestMessage(int type, AttrDic dic)
         {
+
+            var playerId = dic.GetValue(UserIdKey).ToString();
             var message = CreateWarning(type, Localization.Get(SocialFrameworkStrings.ChatJoinRequestKey));
-            return new MessageType[] { message };
+            if(message == null)
+            {
+                return new MessageType[]{ };
+            }
+
+            var data = new RequestJoinData();
+            data.PlayerId = playerId;
+            message.RequestJoinData = data;
+            message.Timestamp = dic.GetValue(ChatMessageTsKey).ToLong();
+
+            if(ParseExtraInfo != null)
+            {
+                ParseExtraInfo(message, dic);
+            }
+
+            return new [] { message };
         }
 
-        bool Validate(AttrDic dic, string requiredValue)
-        {
-            return Validate(dic, new string[]{ requiredValue });
-        }
-
-        bool Validate(AttrDic dic, string[] requiredValues)
+        static bool Validate(AttrDic dic, params string[] requiredValues)
         {
             for(int i = 0; i < requiredValues.Length; ++i)
             {

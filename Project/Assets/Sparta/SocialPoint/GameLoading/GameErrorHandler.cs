@@ -86,13 +86,18 @@ namespace SocialPoint.GameLoading
     {
         const string RetryButtonKey = "game_errors.retry_button";
         const string RetryButtonDef = "Retry";
+        const string SkipButtonDef = "Skip";
 
         const string UpgradeButtonKey = "game_errors.upgrade_button";
         const string UpgradeButtonDef = "Upgrade";
         const string ForceUpgradeTitleKey = "game_errors.force_upgrade_title";
         const string ForceUpgradeTitleDef = "Force Upgrade";
+        const string ForceUpgradeMessageKey = "game_errors.force_upgrade_message";
+        const string ForceUpgradeMessageDef = "A new version of the game has been released \nIt is mandatory to upgrade to continue playing";
         const string SuggestedUpgradeTitleKey = "game_errors.suggested_upgrade_title";
         const string SuggestedUpgradeTitleDef = "Suggested Upgrade";
+        const string SuggestedUpgradeMessageKey = "game_errors.suggested_upgrade_message";
+        const string SuggestedUpgradeMessageDef = "A new version of the game has been released \nIt is recomended to upgrade";
         const string UpgradeLaterButtonKey = "game_errors.upgrade_later_button";
         const string UpgradeLaterButtonDef = "Later";
 
@@ -134,6 +139,7 @@ namespace SocialPoint.GameLoading
         readonly IAlertView _alert;
         readonly Localization _locale;
         readonly IAppEvents _appEvents;
+        readonly int _restartScene;
 
         UIStackController _popups;
         Func<UIStackController> _findPopups;
@@ -142,37 +148,34 @@ namespace SocialPoint.GameLoading
 
         public string Signature { set; private get; }
 
-        public GameErrorHandler(IAlertView alert = null, Localization locale = null, IAppEvents appEvents = null, Func<UIStackController> findPopups = null)
+        public GameErrorHandler(IAlertView alert, Localization locale, IAppEvents appEvents, Func<UIStackController> findPopups, int restartScene = 0)
         {
             _alert = alert;
             _locale = locale;
             _appEvents = appEvents;
+            _restartScene = restartScene;
             _findPopups = findPopups;
             Debug = DebugUtils.IsDebugBuild;
 
-            if(_alert == null)
-            {
-                _alert = new AlertView();
-            }
-            if(_locale == null)
-            {
-                _locale = Localization.Default;
-            }
-            if(_appEvents == null)
-            {
-                _appEvents = new SocialPointAppEvents();
-            }
+            DebugUtils.Assert(_alert != null, "Alert can not be null");
+            DebugUtils.Assert(_locale != null, "Locale can not be null");
+            DebugUtils.Assert(_appEvents != null, "AppEvents can not be null");
 
-            _appEvents.LevelWasLoaded += OnLevelWasLoaded;
-            OnLevelWasLoaded(SceneManager.GetActiveScene().buildIndex);
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            ReloadPopups();
         }
 
         public void Dispose()
         {
-            _appEvents.LevelWasLoaded -= OnLevelWasLoaded;
+            SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 
-        void OnLevelWasLoaded(int i)
+        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            ReloadPopups();
+        }
+
+        void ReloadPopups()
         {
             _popups = null;
             if(_findPopups != null)
@@ -202,6 +205,10 @@ namespace SocialPoint.GameLoading
             alert.Signature = Signature;
             if(data.Type == UpgradeType.Forced)
             {
+                if(string.IsNullOrEmpty(data.Message))
+                {
+                    alert.Message = _locale.Get(ForceUpgradeMessageKey, ForceUpgradeMessageDef);
+                }
                 alert.Title = _locale.Get(ForceUpgradeTitleKey, ForceUpgradeTitleDef);
                 alert.Buttons = new []{ _locale.Get(UpgradeButtonKey, UpgradeButtonDef) };
                 alert.Show(result => {
@@ -213,6 +220,10 @@ namespace SocialPoint.GameLoading
             }
             else //suggested
             {
+                if(string.IsNullOrEmpty(data.Message))
+                {
+                    alert.Message = _locale.Get(SuggestedUpgradeMessageKey, SuggestedUpgradeMessageDef);
+                }
                 alert.Title = _locale.Get(SuggestedUpgradeTitleKey, SuggestedUpgradeTitleDef);
                 alert.Buttons = new [] {
                     _locale.Get(UpgradeButtonKey, UpgradeButtonDef),
@@ -281,7 +292,12 @@ namespace SocialPoint.GameLoading
         {
             var alert = (IAlertView)_alert.Clone();
             alert.Title = _locale.Get(ConnectionErrorTitleKey, ConnectionErrorTitleDef);
-            alert.Buttons = new []{ _locale.Get(RetryButtonKey, RetryButtonDef) };
+            alert.Buttons = Debug ? new[] {
+                _locale.Get(RetryButtonKey, RetryButtonDef),
+                SkipButtonDef
+            } : new[] {
+                _locale.Get(RetryButtonKey, RetryButtonDef)
+            };
             alert.Message = GetErrorMessage(err, ConnectionErrorMessageKey, ConnectionErrorMessageDef);
             alert.Signature = Signature + "-" + err.Code;
             alert.Show(i => {
@@ -300,6 +316,7 @@ namespace SocialPoint.GameLoading
                 popup.Localization = _locale;
                 popup.Restart = restart;
                 popup.Signature = Signature;
+                popup.AlertView = _alert;
                 _popups.Push(popup);
             }
         }
@@ -328,7 +345,7 @@ namespace SocialPoint.GameLoading
             alert.Buttons = new [] {
                 _locale.Get(SyncButtonKey, SyncButtonDef)
             };
-            alert.Show(i => _appEvents.RestartGame());
+            alert.Show(i => _appEvents.RestartGame(_restartScene));
         }
 
         public virtual void ShowLink(ILink link, LinkConfirmType linkConfirmType, Attr data, ConfirmBackLinkDelegate cbk)

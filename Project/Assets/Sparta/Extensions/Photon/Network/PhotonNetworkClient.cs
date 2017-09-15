@@ -1,9 +1,7 @@
-using Photon;
-using SocialPoint.Base;
-using SocialPoint.Utils;
-using SocialPoint.IO;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
+using SocialPoint.Base;
+using SocialPoint.IO;
 
 namespace SocialPoint.Network
 {
@@ -24,6 +22,8 @@ namespace SocialPoint.Network
                 return State == ConnState.Connected;
             }
         }
+
+        public string BackendEnv;
 
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
         INetworkMessageReceiver _receiver;
@@ -60,6 +60,16 @@ namespace SocialPoint.Network
 
         protected override void OnConnected()
         {
+            if(!string.IsNullOrEmpty(BackendEnv))
+            {
+                var options = new RaiseEventOptions();
+                options.Receivers = ReceiverGroup.Others;
+
+                if(!string.IsNullOrEmpty(BackendEnv))
+                {
+                    PhotonNetwork.RaiseEvent(PhotonMsgType.BackendEnv, BackendEnv, true, options);
+                }
+            }
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnClientConnected();
@@ -68,6 +78,7 @@ namespace SocialPoint.Network
 
         protected override void OnDisconnected()
         {
+            base.OnDisconnected();
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnClientDisconnected();
@@ -94,5 +105,20 @@ namespace SocialPoint.Network
             }
         }
 
+        public bool LatencySupported
+        {
+            get
+            {
+                return true;
+            }
+        }
+
+        public int Latency
+        {
+            get
+            {
+                return PhotonNetwork.GetPing();
+            }
+        }
     }
 }

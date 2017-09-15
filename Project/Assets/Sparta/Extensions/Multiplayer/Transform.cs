@@ -1,13 +1,13 @@
-﻿using SocialPoint.IO;
-using SocialPoint.Utils;
-using SocialPoint.Network;
-using SocialPoint.Physics;
-using System;
+﻿using System;
 using Jitter.LinearMath;
+using SocialPoint.IO;
+using SocialPoint.Physics;
+using SocialPoint.Pooling;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
-    public class Transform : IEquatable<Transform>, ICloneable
+    public partial class Transform : IEquatable<Transform>, ICloneable, ICopyable
     {
         public JVector Position;
 
@@ -34,22 +34,35 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        public Transform(Transform t)
+        public void Copy(object other)
         {
-            if(t != null)
-            {
-                Position = t.Position;
-                Rotation = t.Rotation;
-                Scale = t.Scale;
-            }
+            var trans = other as Transform;
+            Position = trans.Position;
+            Rotation = trans.Rotation;
+            Scale = trans.Scale;
         }
 
         public object Clone()
         {
-            return new Transform(this);
+            var t = ObjectPool.Get<Transform>();
+            t.Copy(this);
+            return t;
         }
 
-        public override bool Equals(System.Object obj)
+        public void Dispose()
+        {
+            Reset();
+            ObjectPool.Return(this);
+        }
+
+        public void Reset()
+        {
+            Position = JVector.Zero;
+            Scale = JVector.One;
+            Rotation = JQuaternion.Identity;
+        }
+
+        public override bool Equals(object obj)
         {
             var go = (Transform)obj;
             if((object)go == null)
@@ -66,6 +79,67 @@ namespace SocialPoint.Multiplayer
                 return false;
             }
             return Compare(this, go);
+        }
+
+        public void MoveTowards(JVector targetPos, float speed, float dt)
+        {
+            Position += GetLinearMovementVector(targetPos, speed, dt);
+        }
+
+        public JVector GetLinearMovementVector(JVector targetPos, float speed, float dt)
+        {
+            var direction = targetPos - Position;
+            var distanceSqr = direction.LengthSquared();
+
+            var normalStep = speed * dt;
+            var normalStepSqr = normalStep * normalStep;
+
+            var arrive = (distanceSqr <= normalStepSqr);
+            var step = arrive ? (float)Math.Sqrt(distanceSqr) : normalStep;
+
+            if(distanceSqr > 0f)
+            {
+                direction.Normalize();
+            }
+            return direction * step;
+        }
+
+        public void LookAt(JVector targetPos)
+        {
+            var direction = targetPos - Position;
+            if(direction.LengthSquared() <= 0.0001f)
+            {
+                return;
+            }
+            var yRotation = (float)Math.Atan2(direction.X, direction.Z);
+            JQuaternion.CreateFromYawPitchRoll(yRotation, 0f, 0f, out Rotation);
+        }
+
+        public bool MoveLookTowards(JVector targetPos, float speed, float dt, float deltaSqr = 0.01f)
+        {
+            if(IsNear(targetPos, deltaSqr))
+            {
+                return false;
+            }
+            LookAt(targetPos);
+            MoveTowards(targetPos, speed, dt);
+            return true;
+        }
+
+        public bool IsNear(JVector pos, float deltaSqr = 0.1f)
+        {
+            var dir = pos - Position;
+            var distSqr = Scale * dir.LengthSquared();
+            return distSqr.X <= deltaSqr && distSqr.Y <= deltaSqr && distSqr.Z <= deltaSqr;
+        }
+
+
+        public JVector Forward
+        {
+            get
+            {
+                return Rotation.Forward();
+            }
         }
 
         public static bool operator ==(Transform a, Transform b)

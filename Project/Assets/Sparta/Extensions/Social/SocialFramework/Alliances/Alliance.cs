@@ -23,6 +23,7 @@ namespace SocialPoint.Social
         public int ActivityIndicator;
 
         public bool IsNewAlliance;
+
     }
 
     /// <summary>
@@ -46,6 +47,7 @@ namespace SocialPoint.Social
     public class Alliance : AllianceData
     {
         public string Description;
+        public string Message;
 
         public int Score
         {
@@ -76,29 +78,34 @@ namespace SocialPoint.Social
             }
         }
 
-        readonly List<AllianceMemberBasicData> _members;
+        readonly List<SocialPlayer> _members;
 
-        readonly List<AllianceMemberBasicData> _candidates;
+        readonly List<SocialPlayer> _candidates;
 
         public Alliance()
         {
-            _members = new List<AllianceMemberBasicData>();
-            _candidates = new List<AllianceMemberBasicData>();
+            _members = new List<SocialPlayer>();
+            _candidates = new List<SocialPlayer>();
         }
 
-        public void AddMember(AllianceMemberBasicData member)
+        public void AddMember(SocialPlayer member)
         {
-            AddMembers(_members, new AllianceMemberBasicData[]{ member });
+            AddMembers(_members, new []{ member });
         }
 
-        public void AddMembers(IEnumerable<AllianceMemberBasicData> members)
+        public void AddMembers(IEnumerable<SocialPlayer> members)
         {
             AddMembers(_members, members);
         }
 
-        public IEnumerator<AllianceMemberBasicData> GetMembers()
+        public IEnumerator<SocialPlayer> GetMembers()
         {
             return _members.GetEnumerator();
+        }
+
+        public List<SocialPlayer> GetMembersList()
+        {
+            return new List<SocialPlayer>(_members);
         }
 
         public bool HasMember(string id)
@@ -110,9 +117,13 @@ namespace SocialPoint.Social
         {
             var member = GetMember(_members, id);
             DebugUtils.Assert(member != null, string.Format("Promoting unexistent alliance {0} member {1}", Id, id));
-            if(member != null && member.Rank != rank)
+            if(member != null)
             {
-                member.Rank = rank;
+                var component = member.GetComponent<AlliancePlayerBasic>();
+                if(component != null && component.Rank != rank)
+                {
+                    component.Rank = rank;
+                }
             }
         }
 
@@ -121,17 +132,17 @@ namespace SocialPoint.Social
             RemoveMember(_members, id);
         }
 
-        public void AddCandidate(AllianceMemberBasicData candidate)
+        public void AddCandidate(SocialPlayer candidate)
         {
-            AddMembers(_candidates, new AllianceMemberBasicData[]{ candidate });
+            AddMembers(_candidates, new []{ candidate });
         }
 
-        public void AddCandidates(List<AllianceMemberBasicData> candidates)
+        public void AddCandidates(List<SocialPlayer> candidates)
         {
             AddMembers(_candidates, candidates);
         }
 
-        public IEnumerator<AllianceMemberBasicData> GetCandidates()
+        public IEnumerator<SocialPlayer> GetCandidates()
         {
             return _candidates.GetEnumerator();
         }
@@ -139,6 +150,11 @@ namespace SocialPoint.Social
         public bool HasCandidate(string id)
         {
             return GetMember(_candidates, id) != null;
+        }
+
+        public SocialPlayer GetCandidate(string id)
+        {
+            return GetMember(_candidates, id);
         }
 
         public void AcceptCandidate(string id)
@@ -164,22 +180,18 @@ namespace SocialPoint.Social
 
         #region Static methods to manager members lists
 
-        static void SortMembers(List<AllianceMemberBasicData> members)
+        static void SortMembers(List<SocialPlayer> members)
         {
             members.Sort((a, b) => {
                 if(a.Score != b.Score)
                 {
                     return a.Score - b.Score;
                 }
-                if(a.Name != b.Name)
-                {
-                    return string.Compare(a.Name, b.Name);
-                }
-                return string.Compare(a.Uid, b.Uid);
+                return a.Name != b.Name ? string.Compare(a.Name, b.Name) : string.Compare(a.Uid, b.Uid);
             });
         }
 
-        static AllianceMemberBasicData GetMember(List<AllianceMemberBasicData> list, string id)
+        static SocialPlayer GetMember(List<SocialPlayer> list, string id)
         {
             for(var i = 0; i < list.Count; ++i)
             {
@@ -192,7 +204,7 @@ namespace SocialPoint.Social
             return null;
         }
 
-        static void AddMembers(List<AllianceMemberBasicData> list, IEnumerable<AllianceMemberBasicData> members)
+        static void AddMembers(List<SocialPlayer> list, IEnumerable<SocialPlayer> members)
         {
             var itr = members.GetEnumerator();
             while(itr.MoveNext())
@@ -205,7 +217,7 @@ namespace SocialPoint.Social
             SortMembers(list);
         }
 
-        static void RemoveMember(List<AllianceMemberBasicData> list, string id)
+        static void RemoveMember(List<SocialPlayer> list, string id)
         {
             var member = GetMember(list, id);
             DebugUtils.Assert(member != null, string.Format("Removing unexistent alliance member {0}", id));

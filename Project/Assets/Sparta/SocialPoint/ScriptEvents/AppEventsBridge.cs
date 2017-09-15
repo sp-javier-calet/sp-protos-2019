@@ -188,14 +188,13 @@ namespace SocialPoint.ScriptEvents
             _appEvents.GameWasLoaded.Add(OnGameWasLoaded);
             _appEvents.AfterGameWasLoaded.Add(AfterGameWasLoaded);
             _appEvents.GameWillRestart.Add(OnGameWillRestart);
-            _appEvents.WasOnBackground += OnWasOnBackground;
+            _appEvents.WasOnBackground.Add(0, OnWasOnBackground);
             _appEvents.WasCovered += OnWasCovered;
             _appEvents.OpenedFromSource += OnOpenedFromSource;
             _appEvents.ApplicationQuit += OnApplicationQuit;
-            _appEvents.LevelWasLoaded += OnLevelWasLoaded;
             _appEvents.ReceivedMemoryWarning += OnReceivedMemoryWarning;
         }
-            
+
         public void Load(IScriptEventDispatcher dispatcher)
         {
             dispatcher.AddSerializer(new AppWillGoBackgroundEventSerializer());
@@ -220,11 +219,10 @@ namespace SocialPoint.ScriptEvents
             _appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
             _appEvents.AfterGameWasLoaded.Remove(AfterGameWasLoaded);
             _appEvents.GameWillRestart.Remove(OnGameWillRestart);
-            _appEvents.WasOnBackground -= OnWasOnBackground;
+            _appEvents.WasOnBackground.Remove(OnWasOnBackground);
             _appEvents.WasCovered -= OnWasCovered;
             _appEvents.OpenedFromSource -= OnOpenedFromSource;
             _appEvents.ApplicationQuit -= OnApplicationQuit;
-            _appEvents.LevelWasLoaded -= OnLevelWasLoaded;
             _appEvents.ReceivedMemoryWarning -= OnReceivedMemoryWarning;
         }
 
@@ -319,18 +317,6 @@ namespace SocialPoint.ScriptEvents
             }
             _dispatcher.Raise(new AppQuitEvent());
         }
-
-        void OnLevelWasLoaded(int level)
-        {
-            if(_dispatcher == null)
-            {
-                return;
-            }
-            _dispatcher.Raise(new AppLevelWasLoadedEvent {
-                Level = level
-            });
-        }
-
     }
 
 }

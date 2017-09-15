@@ -220,8 +220,6 @@ namespace BuildReportTool
             
             settings.UseGPUSkinning = PlayerSettings.gpuSkinning;
             
-            settings.RenderingPathUsed = PlayerSettings.renderingPath.ToString();
-            
             
             // shared settings
             // ---------------------------------------------------------------
@@ -301,7 +299,7 @@ namespace BuildReportTool
             settings.iOSScriptCallOptimizationUsed = PlayerSettings.iOS.scriptCallOptimization.ToString();
             
             settings.iOSSDKVersionUsed = PlayerSettings.iOS.sdkVersion.ToString();
-            settings.iOSTargetOSVersion = PlayerSettings.iOS.targetOSVersion.ToString();
+            settings.iOSTargetOSVersion = PlayerSettings.iOS.targetOSVersionString;
             
             settings.iOSTargetDevice = PlayerSettings.iOS.targetDevice.ToString();
             #if !UNITY_5_3_OR_NEWER
@@ -352,7 +350,9 @@ namespace BuildReportTool
             // ---------------------------------------------------------------
             
             settings.Xbox360BuildSubtarget = EditorUserBuildSettings.xboxBuildSubtarget.ToString();
+            #if !UNITY_5_5_OR_NEWER
             settings.Xbox360RunMethod = EditorUserBuildSettings.xboxRunMethod.ToString();
+            #endif
             
             settings.Xbox360TitleId = PlayerSettings.xboxTitleId;
             settings.Xbox360ImageXexFilePath = PlayerSettings.xboxImageXexFilePath;
@@ -376,8 +376,10 @@ namespace BuildReportTool
             
             // Playstation devices build settings
             // ---------------------------------------------------------------
-            
+
+            #if !UNITY_5_5_OR_NEWER
             settings.SCEBuildSubtarget = EditorUserBuildSettings.sceBuildSubtarget.ToString();
+            #endif
         }
     }
     

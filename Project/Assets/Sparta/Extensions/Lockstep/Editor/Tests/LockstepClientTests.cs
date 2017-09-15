@@ -36,6 +36,7 @@ namespace SocialPoint.Lockstep
             _client.Update(2000);
             Assert.IsTrue(started);
             started = false;
+            _client.Stop();
             _client.Start(-200);
             _client.Update(150);
             Assert.IsFalse(started, "Started should not be called if update time is lower than start delay");
@@ -43,6 +44,7 @@ namespace SocialPoint.Lockstep
             Assert.IsTrue(started, "Started should be called after update time exceeds start delay");
 
             started = false;
+            _client.Stop();
             _client.Start(200);
             _client.Update(0);
             Assert.IsTrue(started, "Started should not be called if started after 0 time (reconnection)");
@@ -116,9 +118,10 @@ namespace SocialPoint.Lockstep
             apply = Substitute.For<ILockstepCommandLogic>();
             finish = Substitute.For<ILockstepCommandLogic>();
 
-            _client.RegisterCommandLogic(cmd.GetType(), apply);
             _client.ClientConfig.LocalSimulationDelay = 1000;
+            _client.Stop();
             _client.Start();
+            _client.RegisterCommandLogic(cmd.GetType(), apply);
             _client.AddPendingCommand(cmd, finish);
             _client.Update(950);
             finish.DidNotReceive().Apply(Arg.Any<ILockstepCommand>(), Arg.Any<byte>());
@@ -157,6 +160,32 @@ namespace SocialPoint.Lockstep
             Assert.IsFalse(connChanged);
             Assert.IsFalse(_client.Connected, "Client should not be reconnected if it did not receive enough turns.");
 
+            _client.AddConfirmedTurn(new ClientTurnData());
+            _client.Update(0);
+            Assert.IsTrue(connChanged);
+            Assert.IsTrue(_client.Connected, "Client should be reconnected if it received enough turns.");
+        }
+
+        [Test]
+        public void ConnectionChangesDetectedGracefully()
+        {
+            bool connChanged = false;
+            _client.ConnectionChanged += () =>  connChanged = true;
+            // add delegate to simulate server that needs to confirm commands
+            _client.CommandAdded += delegate {};
+            _client.ClientConfig.LocalSimulationDelay = 1000;
+            _client.Config.CommandStepDuration = 100;
+            _client.Config.SimulationStepDuration = 1000;
+
+            _client.Start(-1000);
+            _client.Update(1100);
+            connChanged = false;
+            _client.AddConfirmedTurn(new ClientTurnData());
+            _client.Update(200);
+            _client.AddConfirmedTurn(new ClientTurnData());
+            _client.Update(0);
+            Assert.IsFalse(connChanged);
+            Assert.IsFalse(_client.Connected, "Client is waiting until it has enough turns to go to current simulation time.");
             _client.AddConfirmedTurn(new ClientTurnData());
             _client.Update(0);
             Assert.IsTrue(connChanged);

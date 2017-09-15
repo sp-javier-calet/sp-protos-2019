@@ -1,21 +1,28 @@
-using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
+using SocialPoint.AssetBundlesClient;
 using SocialPoint.Attributes;
 using SocialPoint.Crash;
 using SocialPoint.Dependency;
 using SocialPoint.GameLoading;
 using SocialPoint.Locale;
 using SocialPoint.Login;
+using SocialPoint.Social;
 using SocialPoint.Utils;
 using UnityEngine;
+
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
 
 public class GameLoadingController : SocialPoint.GameLoading.GameLoadingController
 {
     IGameLoader _gameLoader;
     ICoroutineRunner _coroutineRunner;
 
+    #if ADMIN_PANEL
     // Explicit assignation to avoid warnings when ADMIN_PANEL is not enabled
     AdminPanel _adminPanel = null;
+    #endif
 
     [SerializeField]
     string _sceneToLoad = "Main";
@@ -28,20 +35,23 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     const float ExpectedLoadModelDuration = 1.0f;
     const float ExpectedLoadSceneDuration = 2.0f;
 
+    AssetBundleManager _assetBundleManager;
+    SocialManager _socialManager;
+
     protected override void OnLoad()
     {
-        Login = ServiceLocator.Instance.Resolve<ILogin>();
-        CrashReporter = ServiceLocator.Instance.Resolve<ICrashReporter>();
-        Localization = ServiceLocator.Instance.Resolve<Localization>();
-        AppEvents = ServiceLocator.Instance.Resolve<IAppEvents>();
-        ErrorHandler = ServiceLocator.Instance.Resolve<IGameErrorHandler>();
-        _coroutineRunner = ServiceLocator.Instance.Resolve<ICoroutineRunner>();
-        _gameLoader = ServiceLocator.Instance.Resolve<IGameLoader>();
+        Login = Services.Instance.Resolve<ILogin>();
+        CrashReporter = Services.Instance.Resolve<ICrashReporter>();
+        Localization = Services.Instance.Resolve<Localization>();
+        AppEvents = Services.Instance.Resolve<IAppEvents>();
+        ErrorHandler = Services.Instance.Resolve<IGameErrorHandler>();
+        _assetBundleManager = Services.Instance.Resolve<AssetBundleManager>();
+        _socialManager = Services.Instance.Resolve<SocialManager>();
+        _coroutineRunner = Services.Instance.Resolve<ICoroutineRunner>();
+        _gameLoader = Services.Instance.Resolve<IGameLoader>();
 
         #if ADMIN_PANEL
-        _adminPanel = ServiceLocator.Instance.Resolve<AdminPanel>();
-        #else
-        _adminPanel = null;
+        _adminPanel = Services.Instance.Resolve<AdminPanel>();
         #endif
 
         base.OnLoad();
@@ -59,10 +69,12 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
         Login.NewUserStreamEvent += OnLoginNewUser;
         Login.ConfirmLinkEvent += OnConfirmLinkEvent;
+        #if ADMIN_PANEL
         if(_adminPanel != null)
         {
             _adminPanel.ChangedVisibility += OnAdminPanelChange;
         }
+        #endif
     }
 
     void OnLoadSceneStart()
@@ -78,6 +90,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         });
     }
 
+    #if ADMIN_PANEL
     void OnAdminPanelChange()
     {
         if(_adminPanel != null)
@@ -85,13 +98,34 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
             Paused = _adminPanel.Visible;
         }
     }
+    #endif
 
     bool OnLoginNewUser(IStreamReader reader)
     {
         var data = reader.ParseElement();
         _gameLoader.Load(data);
+
+        ParseSFLocalPlayerData(data);
+//        ParseAssetBundlesData(data);
+
         _loadModelOperation.Finish("game model loaded");
         return true;
+    }
+
+    void ParseSFLocalPlayerData(Attr data)
+    {
+        if(_socialManager != null)
+        {
+            _socialManager.SetLocalPlayerData(data.AsDic, Services.Instance.Resolve<IPlayerData>());
+        }
+    }
+
+    void ParseAssetBundlesData(Attr data)
+    {
+        if(_assetBundleManager != null)
+        {
+            _assetBundleManager.Init(data);
+        }
     }
 
     void OnConfirmLinkEvent(ILink link, LinkConfirmType type, Attr data, ConfirmBackLinkDelegate cbk)
@@ -102,10 +136,12 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     override protected void OnDisappearing()
     {
         Login.NewUserStreamEvent -= OnLoginNewUser;
+        #if ADMIN_PANEL
         if(_adminPanel != null)
         {
             _adminPanel.ChangedVisibility -= OnAdminPanelChange;
         }
+        #endif
         base.OnDisappearing();
     }
 

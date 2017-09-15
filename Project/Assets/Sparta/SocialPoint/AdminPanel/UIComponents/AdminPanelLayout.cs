@@ -1,3 +1,5 @@
+#if ADMIN_PANEL
+
 using System;
 using UnityEngine;
 using SocialPoint.Utils;
@@ -102,3 +104,5 @@ namespace SocialPoint.AdminPanel
         }
     }
 }
+
+#endif

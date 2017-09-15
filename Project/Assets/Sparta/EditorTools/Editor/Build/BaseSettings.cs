@@ -126,24 +126,7 @@ namespace SpartaTools.Editor.Build
             PlayerSettings.iOS.buildNumber = App.BuildNumber.ToString();
 
             // Always override Icon
-            PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Android, new Texture2D[] {
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture
-            });
-            PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.iOS, new Texture2D[] {
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture,
-                App.IconTexture
-            });
+            SetIcon(App.IconTexture);
                 
             // Bundle Identifier
             if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.iOS)
@@ -154,6 +137,11 @@ namespace SpartaTools.Editor.Build
             {
                 PlayerSettings.bundleIdentifier = Android.BundleIdentifier;
             }
+                
+            // Due to plugins constraints, we need to compile always using Gradle
+            EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
+            EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Gradle;
+            EditorUserBuildSettings.forceInstallation = false;
 
             // Flags
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, Common.Flags + ";" + Android.Flags);

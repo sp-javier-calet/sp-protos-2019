@@ -61,7 +61,7 @@ namespace SocialPoint.ScriptEvents
 
         void OnTrackAction(ServerTrackAction action)
         {
-            _tracker.TrackEvent(action.Name, action.Arguments);
+            _tracker.TrackSystemEvent(action.Name, action.Arguments);
         }
 
     }

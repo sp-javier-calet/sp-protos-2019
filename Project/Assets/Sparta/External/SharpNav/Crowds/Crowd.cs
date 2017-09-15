@@ -25,6 +25,8 @@ namespace SharpNav.Crowds
     /// </summary>
     public class Crowd
     {
+        //[SP-Change] Added support for NavQueryFilter as parameter for some functions
+
         /// <summary>
         /// The maximum number of crowd avoidance configurations supported by the crowd manager
         /// </summary>
@@ -172,7 +174,7 @@ namespace SharpNav.Crowds
 
             //find nearest position on the navmesh and place the agent there
             NavPoint nearest;
-            navQuery.FindNearestPoly(ref pos, ref ext, out nearest);
+            navQuery.FindNearestPoly(ref pos, ref ext, navQueryFilter, out nearest);
             /*if (status == false)
 			{
 				nearest = pos;
@@ -273,9 +275,9 @@ namespace SharpNav.Crowds
 
                 //update the collision boundary after certain distance has passed or if it has become invalid
                 float updateThr = agents[i].Parameters.CollisionQueryRange * 0.25f;
-                if(Vector3Extensions.Distance2D(agents[i].Position, agents[i].Boundary.Center) > updateThr * updateThr || !agents[i].Boundary.IsValid(navQuery))
+                if(Vector3Extensions.Distance2D(agents[i].Position, agents[i].Boundary.Center) > updateThr * updateThr || !agents[i].Boundary.IsValid(navQuery, navQueryFilter))
                 {
-                    agents[i].Boundary.Update(agents[i].Corridor.GetFirstPoly(), agents[i].Position, agents[i].Parameters.CollisionQueryRange, navQuery);
+                    agents[i].Boundary.Update(agents[i].Corridor.GetFirstPoly(), agents[i].Position, agents[i].Parameters.CollisionQueryRange, navQuery, navQueryFilter);
                 }
 
                 //query neighbor agents
@@ -301,7 +303,7 @@ namespace SharpNav.Crowds
                 if(((agents[i].Parameters.UpdateFlags & UpdateFlags.OptimizeVis) != 0) && agents[i].Corners.Count > 0)
                 {
                     Vector3 target = agents[i].Corners[Math.Min(1, agents[i].Corners.Count - 1)].Point.Position;
-                    agents[i].Corridor.OptimizePathVisibility(target, agents[i].Parameters.PathOptimizationRange, navQuery);
+                    agents[i].Corridor.OptimizePathVisibility(target, agents[i].Parameters.PathOptimizationRange, navQuery, navQueryFilter);
                 }
             }
 
@@ -539,7 +541,7 @@ namespace SharpNav.Crowds
                         continue;
 
                     //move along navmesh
-                    agents[i].Corridor.MovePosition(agents[i].Position, navQuery);
+                    agents[i].Corridor.MovePosition(agents[i].Position, navQuery, navQueryFilter);
 
                     //get valid constrained position back
                     agents[i].Position = agents[i].Corridor.Pos;
@@ -862,14 +864,14 @@ namespace SharpNav.Crowds
                 //first check that the current location is valid
                 NavPolyId agentRef = ag.Corridor.GetFirstPoly();
                 Vector3 agentPos = ag.Position;
-                if(!navQuery.IsValidPolyRef(agentRef))
+                if(!navQuery.IsValidPolyRef(agentRef, navQueryFilter))
                 {
                     //current location is not valid, try to reposition
                     //Vector3 nearest = agentPos;//[SP-Change]
                     Vector3 pos = ag.Position;
                     agentRef = NavPolyId.Null;
                     NavPoint nearestPt;
-                    navQuery.FindNearestPoly(ref pos, ref ext, out nearestPt);
+                    navQuery.FindNearestPoly(ref pos, ref ext, navQueryFilter, out nearestPt);
                     //nearest = nearestPt.Position;//[SP-Change]
                     agentRef = nearestPt.Polygon;
                     agentPos = nearestPt.Position;
@@ -896,14 +898,14 @@ namespace SharpNav.Crowds
                 if(ag.TargetState != TargetState.None &&
                    ag.TargetState != TargetState.Failed)
                 {
-                    if(!navQuery.IsValidPolyRef(ag.TargetRef))
+                    if(!navQuery.IsValidPolyRef(ag.TargetRef, navQueryFilter))
                     {
                         //current target is not valid, try to reposition
                         Vector3 nearest = ag.TargetPosition;
                         Vector3 tpos = ag.TargetPosition;
                         ag.TargetRef = NavPolyId.Null;
                         NavPoint nearestPt;
-                        navQuery.FindNearestPoly(ref tpos, ref ext, out nearestPt);
+                        navQuery.FindNearestPoly(ref tpos, ref ext, navQueryFilter, out nearestPt);
                         ag.TargetRef = nearestPt.Polygon;
                         nearest = nearestPt.Position;
                         ag.TargetPosition = nearest;
@@ -920,7 +922,7 @@ namespace SharpNav.Crowds
                 }
 
                 //if nearby corridor is not valid, replan
-                if(!ag.Corridor.IsValid(CHECK_LOOKAHEAD, navQuery))
+                if(!ag.Corridor.IsValid(CHECK_LOOKAHEAD, navQuery, navQueryFilter))
                 {
                     replan = true;
                 }

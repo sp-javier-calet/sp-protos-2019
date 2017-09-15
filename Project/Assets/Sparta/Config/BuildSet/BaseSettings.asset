@@ -22,19 +22,21 @@ MonoBehaviour:
     Flags: 
     RebuildNativePlugins: 0
     IsDevelopmentBuild: 0
+    AppendBuild: 0
     IncludeDebugScenes: 0
     LogLevel: 0
     EnableAdminPanel: 0
+    EnableDependencyInspection: 0
   Ios:
     BundleIdentifier: es.socialpoint.basegame
     Flags: NO_GPGS
     XcodeModSchemes: 
     UseEnvironmentProvisioningUuid: 0
-    RemovedResources: 
+    RemovedResources: StreamingAssets/android_etc
   Android:
     BundleIdentifier: es.socialpoint.basegame
     Flags: 
-    RemovedResources: 
+    RemovedResources: StreamingAssets/ios
     UseKeystore: 0
     Keystore:
       Path: Assets/Plugins/Android/socialpoint.keystore

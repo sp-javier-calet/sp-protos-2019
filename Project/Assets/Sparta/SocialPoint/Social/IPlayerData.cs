@@ -18,6 +18,6 @@
         /// <summary>
         /// Player Level
         /// </summary>
-        long Level { get; }
+        int Level { get; }
     }
 }

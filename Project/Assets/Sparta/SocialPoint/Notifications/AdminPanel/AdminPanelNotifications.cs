@@ -1,3 +1,5 @@
+#if ADMIN_PANEL 
+
 using UnityEngine.UI;
 using SocialPoint.AdminPanel;
 using SocialPoint.Console;
@@ -29,11 +31,11 @@ namespace SocialPoint.Notifications
             var cmd = new ConsoleCommand()
                 .WithDescription("set a local notification")
                 .WithOption(new ConsoleCommandOption("t|title")
-                    .withDescription("title of the notification"))
+                    .WithDescription("title of the notification"))
                 .WithOption(new ConsoleCommandOption("m|message")
-                    .withDescription("message of the notification"))
+                    .WithDescription("message of the notification"))
                 .WithOption(new ConsoleCommandOption("d|delay")
-                    .withDescription("seconds after now when to show"))
+                    .WithDescription("seconds after now when to show"))
                 .WithDelegate(OnNotifyCommand);
             adminPanel.RegisterCommand("notify", cmd);
         }
@@ -108,3 +110,5 @@ namespace SocialPoint.Notifications
         }
     }
 }
+
+#endif

@@ -12,9 +12,6 @@ using System;
 
 public class FyberAdColonyFix
 {
-    bool was_paused;
-
-
 #if UNITY_ANDROID && !UNITY_EDITOR
     static bool adr_initialized = false;
     static AndroidJavaClass class_UnityPlayer;

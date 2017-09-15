@@ -7,6 +7,7 @@ namespace SocialPoint.Matchmaking
 {
     public class LockstepMatchmakingClientDelegate : IMatchmakingClientDelegate, IDisposable
     {
+
         LockstepNetworkClient _lockstep;
         IMatchmakingClient _matchmaking;
 
@@ -22,6 +23,14 @@ namespace SocialPoint.Matchmaking
             _lockstep.PlayerFinishSent -= OnPlayerFinishSent;
         }
 
+        public void OnStart()
+        {
+        }
+
+        public void OnSearchOpponent()
+        {
+        }
+
         public void OnWaiting(int waitTime)
         {
         }
@@ -29,6 +38,11 @@ namespace SocialPoint.Matchmaking
         public void OnMatched(Match match)
         {
             _lockstep.PlayerId = match.PlayerId;
+            _lockstep.MatchId = match.Id;
+        }
+
+        public void OnStopped(bool successful)
+        {
         }
 
         public void OnError(Error err)

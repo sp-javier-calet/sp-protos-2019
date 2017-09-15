@@ -1,21 +1,117 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System;
-using System.Text;
-using System.IO;
+﻿using System;
 using System.Collections.Generic;
-using SpartaTools.Editor.Utils;
+using System.IO;
+using System.Text;
 using SpartaTools.Editor.SpartaProject;
+using SpartaTools.Editor.Utils;
+using UnityEditor;
+using UnityEngine;
 
 namespace SpartaTools.Editor.Build
 {
     public class ModuleCompiler
     {
-        const string UnityExtensionsPath = "Unity.app/Contents/UnityExtensions/Unity/";
-        const string MonoFrameworkLibrariesPath = "Unity.app/Contents/Frameworks/Mono/lib/mono/2.0/";
-        const string UnityManagedLibrariesPath = "Unity.app/Contents/Frameworks/Managed/";
-        const string UnityMonoPath = "Unity.app/Contents/Frameworks/Mono/bin/gmcs";
-        const string BinariesFolderPath = "Temp/Sparta/Binaries";
+        #region Unity Engine Libraries paths
+
+        // Internal Unity paths may be different depending on the Unity version and the current platform
+
+        static readonly string[] UnityExtensionsAvailablePaths = {
+            "Unity.app/Contents/UnityExtensions/Unity/"
+        };
+
+        static readonly string[] MonoFrameworkLibrariesAvailablePaths = { 
+            "Unity.app/Contents/Frameworks/Mono/lib/mono/2.0/",
+            "Unity.app/Contents/Mono/lib/mono/2.0/" 
+        };
+
+        static readonly string[] UnityManagedLibrariesAvailablePaths = {
+            "Unity.app/Contents/Frameworks/Managed/",
+            "Unity.app/Contents/Managed/" 
+        };
+
+        static readonly string[] UnityMonoAvailablePaths = { 
+            "Unity.app/Contents/Frameworks/Mono/bin/gmcs", 
+            "Unity.app/Contents/Mono/bin/gmcs" 
+        };
+
+        static string _unityExtensionsPath;
+
+        static string UnityExtensionsPath
+        {
+            get
+            {
+                if(string.IsNullOrEmpty(_unityExtensionsPath))
+                {
+                    _unityExtensionsPath = GetCurrentLibraryPath(UnityExtensionsAvailablePaths);
+                }
+                return _unityExtensionsPath;
+            }
+        }
+
+        static string _monoFrameworkLibrariesPath;
+
+        static string MonoFrameworkLibrariesPath
+        {
+            get
+            {
+                if(string.IsNullOrEmpty(_monoFrameworkLibrariesPath))
+                {
+                    _monoFrameworkLibrariesPath = GetCurrentLibraryPath(MonoFrameworkLibrariesAvailablePaths);
+                }
+                return _monoFrameworkLibrariesPath;
+            }
+        }
+
+        static string _unityManagedLibrariesPath;
+
+        static string UnityManagedLibrariesPath
+        {
+            get
+            {
+                if(string.IsNullOrEmpty(_unityManagedLibrariesPath))
+                {
+                    _unityManagedLibrariesPath = GetCurrentLibraryPath(UnityManagedLibrariesAvailablePaths);
+                }
+                return _unityManagedLibrariesPath;
+            }
+        }
+
+        static string _unityMonoPath;
+
+        static string UnityMonoPath
+        {
+            get
+            {
+                if(string.IsNullOrEmpty(_unityMonoPath))
+                {
+                    _unityMonoPath = GetCurrentLibraryPath(UnityMonoAvailablePaths);
+                }
+
+                return _unityMonoPath;
+            }
+        }
+
+        static string GetCurrentLibraryPath(string[] availablePaths)
+        {
+            string existing = null;
+            for(var i = 0; i < availablePaths.Length; ++i)
+            {
+                var path = Path.Combine(InstallationPath, availablePaths[i]);
+                if(File.Exists(path) || Directory.Exists(path))
+                {
+                    existing = path;
+                    break;
+                }
+            }
+
+            if(string.IsNullOrEmpty(existing))
+            {
+                throw new CompilerConfigurationException("Required Unity Library path not found");
+            }
+            return existing;
+        }
+
+        #endregion
 
         static string InstallationPath
         {
@@ -76,6 +172,7 @@ namespace SpartaTools.Editor.Build
 
         // Name of the main Core library module. Workaround for module dependencies.
         const string SpartaCoreModule = "Sparta Core";
+        const string BinariesFolderPath = "Temp/Sparta/Binaries";
 
         const string ScriptFilePattern = "*.cs";
         const string LibraryFilePattern = "*.dll";
@@ -89,7 +186,9 @@ namespace SpartaTools.Editor.Build
 
         const string EditorFilter = "Editor";
         const string TestsFilter = "Tests";
+        const string StandaloneFilter = "Standalone/Photon";
         const string PlatformWSAFilter = "Plugins/WSA";
+        const string PlatformUwpFilter = "Plugins/Uwp";
         const string PlatformAndroidFilter = "Plugins/Android";
         const string PlatformIosFilter = "Plugins/Ios";
 
@@ -130,8 +229,10 @@ namespace SpartaTools.Editor.Build
             _filters.Add(EditorFilter, new FilterData(EditorFilter));
             _filters.Add(TestsFilter, new FilterData(TestsFilter));
             _filters.Add(PlatformWSAFilter, new FilterData(PlatformWSAFilter));
+            _filters.Add(PlatformUwpFilter, new FilterData(PlatformUwpFilter));
             _filters.Add(PlatformAndroidFilter, new FilterData(PlatformAndroidFilter));
             _filters.Add(PlatformIosFilter, new FilterData(PlatformIosFilter));
+            _filters.Add(StandaloneFilter, new FilterData(StandaloneFilter));
 
             // Initialize log entry
             _logContent.Append(Path.GetFileName(name)).AppendLine(" module compilation");
@@ -376,9 +477,9 @@ namespace SpartaTools.Editor.Build
                 .SetEditorAssembly(editorAssembly);
 
             // Global configuration for Unity
-            compiler.AddLibraryPath(Path.Combine(InstallationPath, UnityManagedLibrariesPath));
-            compiler.AddLibraryPath(Path.Combine(InstallationPath, MonoFrameworkLibrariesPath));
-            compiler.AddLibraryPath(Path.Combine(InstallationPath, UnityExtensionsPath));
+            compiler.AddLibraryPath(UnityManagedLibrariesPath);
+            compiler.AddLibraryPath(MonoFrameworkLibrariesPath);
+            compiler.AddLibraryPath(UnityExtensionsPath);
 
             compiler.AddReference("UnityEngine.dll");
             compiler.AddReference("System.Xml.Linq.dll");
@@ -386,10 +487,15 @@ namespace SpartaTools.Editor.Build
             compiler.AddReference("GUISystem/UnityEngine.UI.dll");
             compiler.AddReference("Networking/UnityEngine.Networking.dll");
 
-            // FIXME Read default symbols from unity
-            compiler.AddDefinedSymbol("UNITY_5");
-            compiler.AddDefinedSymbol("UNITY_5_3");
-            compiler.AddDefinedSymbol("UNITY_5_3_OR_NEWER");
+            var activeCompilationDefines = EditorUserBuildSettings.activeScriptCompilationDefines;
+            for(int i = 0, activeCompilationDefinesLength = activeCompilationDefines.Length; i < activeCompilationDefinesLength; i++)
+            {
+                var item = activeCompilationDefines[i];
+                if(item.StartsWith("UNITY_5"))
+                {
+                    compiler.AddDefinedSymbol(item);
+                }
+            }
 
             /* Platform configuration */
             if(editorAssembly)
@@ -544,6 +650,7 @@ namespace SpartaTools.Editor.Build
             public void Configure(ModuleCompiler compiler)
             {
                 compiler.AddReference("UnityEditor.dll");
+                compiler.AddReference("UnityEditor.Graphs.dll");
 
                 compiler.AddDefinedSymbol("UNITY_EDITOR");
                 compiler.SetEditorAssembly(true);
@@ -610,7 +717,7 @@ namespace SpartaTools.Editor.Build
         class ExtensionModuleConfiguration : ICompilerConfiguration
         {
             BuildTarget _target;
-            bool _editorAssembly;
+            readonly bool _editorAssembly;
 
             public ExtensionModuleConfiguration(BuildTarget target, bool editorAssembly)
             {

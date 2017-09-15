@@ -1,7 +1,11 @@
+#if ADMIN_PANEL 
+
 using System;
 using System.Collections.Generic;
 using System.Text;
 using SocialPoint.AdminPanel;
+using SocialPoint.Base;
+using SocialPoint.Console;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,10 +16,10 @@ namespace SocialPoint.Utils
         readonly List<LogEntry> _entries;
         readonly HashSet<string> _availableTags;
         readonly HashSet<string> _selectedTags;
-        bool _showLogLevels;
-        bool _showTags;
         Text _textComponent;
         LogConfig _config;
+
+        event Action<string> ContentUpdated;
 
         public AdminPanelLog()
         {
@@ -32,11 +36,82 @@ namespace SocialPoint.Utils
                 var type = (LogType)array.GetValue(i);
                 _config.ActiveTypes[type] = true;
             }
+
+            ContentUpdated += OnContentUpdated;
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
         {
             adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("Log", this));
+
+            // Bind Log commands. Use anonymous delegates to avoid issues with conditional methods during compilation
+            adminPanel.RegisterCommand("log", CreateLogCommand("default (info)", msg => Log.i(msg), (tag, msg) => Log.i(tag, msg)));
+            adminPanel.RegisterCommand("logv", CreateLogCommand("verbose", msg => Log.v(msg), (tag, msg) => Log.v(tag, msg)));
+            adminPanel.RegisterCommand("logd", CreateLogCommand("debug", msg => Log.d(msg), (tag, msg) => Log.d(tag, msg)));
+            adminPanel.RegisterCommand("logi", CreateLogCommand("info", msg => Log.i(msg), (tag, msg) => Log.i(tag, msg)));
+            adminPanel.RegisterCommand("logw", CreateLogCommand("warning", msg => Log.w(msg), (tag, msg) => Log.w(tag, msg)));
+            adminPanel.RegisterCommand("loge", CreateLogCommand("error", msg => Log.e(msg), (tag, msg) => Log.e(tag, msg)));
+
+            adminPanel.RegisterCommand("logx", new ConsoleCommand()
+                .WithDescription("log a exception")
+                .WithDelegate(command => LogExceptionCommand(exception => Log.x(exception), command)));
+            
+            adminPanel.RegisterCommand("logb", new ConsoleCommand()
+                .WithDescription("leave a breadcrumb")
+                .WithDelegate(command => LogBreadcrumbCommand(msg => Log.b(msg), command)));
+        }
+
+        static ConsoleCommand CreateLogCommand(string level, Action<string> dlg, Action<string, string> taggedDlg)
+        {
+            return new ConsoleCommand()
+                .WithDescription("log a message as " + level)
+                .WithOption(new ConsoleCommandOption("t|tag")
+                    .WithDescription("log tag"))
+                .WithDelegate(command => LogCommand(dlg, taggedDlg, command));
+        }
+
+        static void LogCommand(Action<string> dlg, Action<string, string> taggedDlg, ConsoleCommand cmd)
+        {
+            var content = GetContent(cmd);
+            var tag = cmd["tag"];
+            if(tag != null && tag.Value != null)
+            {
+                taggedDlg(tag.Value, content);
+            }
+            else
+            {
+                dlg(content);
+            } 
+        }
+
+        static void LogExceptionCommand(Action<Exception> dlg, ConsoleCommand cmd)
+        {
+            dlg(new Exception(GetContent(cmd)));
+        }
+
+        static void LogBreadcrumbCommand(Action<string> dlg, ConsoleCommand cmd)
+        {
+            dlg(GetContent(cmd));
+        }
+
+        static string GetContent(ConsoleCommand cmd)
+        {
+            var list = new List<string>(cmd.Arguments);
+            if(list.Count == 0)
+            {
+                throw new ConsoleException("Need at least a content argument");
+            }
+
+            var content = string.Empty;
+            for(var i = 0; i < list.Count; ++i)
+            {
+                var arg = list[i];
+                if(!arg.StartsWith("-"))
+                {
+                    content += arg;
+                }
+            }
+            return content;
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -80,7 +155,20 @@ namespace SocialPoint.Utils
                     RefreshContent();
                 });
 
+            layout.CreateButton("Show log", () => {
+                FloatingPanelController.Create(new LogFloatingGUI(this)).Show();
+                RefreshContent();
+            });
+
             RefreshContent();
+        }
+
+        void OnContentUpdated(string content)
+        {
+            if(_textComponent != null)
+            {
+                _textComponent.text = content;
+            }
         }
 
         public void LogLevelsFoldoutGUI(AdminPanelLayout layout)
@@ -100,8 +188,10 @@ namespace SocialPoint.Utils
             var vlayout = layout.CreateVerticalLayout().CreateVerticalScrollLayout();
             if(_availableTags.Count > 0)
             {
-                foreach(var tagFilter in _availableTags)
+                var itr = _availableTags.GetEnumerator();
+                while(itr.MoveNext())
                 {
+                    var tagFilter = itr.Current;
                     vlayout.CreateToggleButton(tagFilter, _selectedTags.Contains(tagFilter), value => {
                         if(value)
                         {
@@ -118,6 +208,7 @@ namespace SocialPoint.Utils
                         }
                     });
                 }
+                itr.Dispose();
             }
             else
             {
@@ -136,7 +227,7 @@ namespace SocialPoint.Utils
 
         void RefreshContent()
         {
-            if(_textComponent != null)
+            if(ContentUpdated != null)
             {
                 int numEntriesToDisplay = 0;
                 var logContent = StringUtils.StartBuilder();
@@ -159,7 +250,8 @@ namespace SocialPoint.Utils
                     }
                 }
 
-                _textComponent.text = StringUtils.FinishBuilder(logContent);
+                var content = StringUtils.FinishBuilder(logContent);
+                ContentUpdated(content);
             }
         }
 
@@ -180,6 +272,48 @@ namespace SocialPoint.Utils
             }
             _entries.Add(new LogEntry(type, message, stackTrace, tag));
             RefreshContent();
+        }
+
+        sealed class LogFloatingGUI : IFloatingPanelGUI, IAdminPanelManagedGUI
+        {
+            Text _textComponent;
+            string _content;
+            AdminPanelLog _logPanel;
+
+            public LogFloatingGUI(AdminPanelLog panel)
+            {
+                _logPanel = panel;
+            }
+
+            public void OnCreateFloatingPanel(FloatingPanelController panel)
+            {
+                panel.Title = "Log";
+                panel.Size = new Vector2(200, 120);
+            }
+
+            public void OnCreateGUI(AdminPanelLayout layout)
+            {
+                _textComponent = layout.CreateTextArea(_content);
+            }
+
+            public void OnOpened()
+            {
+                _logPanel.ContentUpdated += OnContentUpdated;
+            }
+
+            public void OnClosed()
+            {
+                _logPanel.ContentUpdated -= OnContentUpdated;
+            }
+
+            void OnContentUpdated(string content)
+            {
+                if(_textComponent != null)
+                {
+                    _content = content;
+                    _textComponent.text = _content;
+                }
+            }
         }
 
         sealed class LogConfig
@@ -226,3 +360,5 @@ namespace SocialPoint.Utils
         }
     }
 }
+
+#endif

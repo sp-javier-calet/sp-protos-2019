@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if ADMIN_PANEL
+
+using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.Console;
@@ -7,6 +9,16 @@ namespace SocialPoint.AdminPanel
 {
     public sealed class AdminPanel
     {
+        /// <summary>
+        /// Static method to ask if AdminPanel is available
+        /// </summary>
+        public const bool IsAvailable
+        #if (ADMIN_PANEL && !NO_ADMIN_PANEL) || UNITY_EDITOR
+        = true;
+        #else
+        = false;
+        #endif        
+
         public Dictionary<string, IAdminPanelGUI> Categories { get; private set; }
 
         public AdminPanelConsole Console { get; private set; }
@@ -19,7 +31,7 @@ namespace SocialPoint.AdminPanel
 
         string _defaultCategory;
 
-        public string DefaultCategory 
+        public string DefaultCategory
         { 
             private get
             {
@@ -39,6 +51,11 @@ namespace SocialPoint.AdminPanel
         {
             get
             {
+                if(string.IsNullOrEmpty(_defaultCategory))
+                {
+                    return null;
+                }
+
                 return GetCategoryLayout(_defaultCategory);
             }
         }
@@ -118,3 +135,5 @@ namespace SocialPoint.AdminPanel
         }
     }
 }
+
+#endif

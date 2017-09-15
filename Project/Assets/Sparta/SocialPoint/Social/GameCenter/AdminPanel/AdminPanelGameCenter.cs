@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if ADMIN_PANEL 
+
+using System;
 using SocialPoint.AdminPanel;
 using SocialPoint.Base;
 using SocialPoint.Utils;
@@ -43,20 +45,26 @@ namespace SocialPoint.Social
         {
             layout.CreateLabel("Game Center");
             layout.CreateMargin();
-
-            bool connected = _gameCenter.IsConnected;
            
-            _toggleLogin = layout.CreateToggleButton("Logged In", connected, status => {
+            _toggleLogin = layout.CreateToggleButton("Logged In", _gameCenter.IsConnected, status => {
                 if(status)
                 {
+                    if(_gameCenter.IsConnected)
+                    {
+                        return;
+                    }
+
                     ConsolePrint("Logging in to Game Center");
+
                     _gameCenter.Login(err => {
-                        _toggleLogin.isOn = (err == null);
+                        _toggleLogin.isOn = _gameCenter.IsConnected;
                         ConsolePrint("Login finished." + err);
+                        layout.Refresh();
                     });
                 }
-                layout.Refresh();
             });
+
+            bool connected = _gameCenter.IsConnected;
 
             layout.CreateMargin(2);
             layout.CreateLabel("User");
@@ -198,3 +206,5 @@ namespace SocialPoint.Social
 
     }
 }
+
+#endif

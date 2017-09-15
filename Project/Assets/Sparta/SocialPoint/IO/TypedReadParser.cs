@@ -48,7 +48,7 @@ namespace SocialPoint.IO
             }
         }
 
-        public bool TryParse(byte code, IReader reader, out T obj)
+        public bool TryParseRaw(byte code, IReader reader, out T obj)
         {
             ITypeParser parser;
             if(_parsers.TryGetValue(code, out parser))
@@ -60,10 +60,10 @@ namespace SocialPoint.IO
             return false;
         }
 
-        public T Parse(byte code, IReader reader)
+        public T ParseRaw(byte code, IReader reader)
         {
             T obj;
-            if(TryParse(code, reader, out obj))
+            if(TryParseRaw(code, reader, out obj))
             {
                 return obj;
             }
@@ -73,7 +73,7 @@ namespace SocialPoint.IO
         public T Parse(IReader reader)
         {
             var code = reader.ReadByte();
-            return Parse(code, reader);
+            return ParseRaw(code, reader);
         }
     }
 

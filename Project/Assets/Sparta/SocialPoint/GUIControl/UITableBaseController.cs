@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using SocialPoint.Base;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.UI;
 

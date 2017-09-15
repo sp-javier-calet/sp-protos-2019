@@ -8,7 +8,7 @@ namespace SocialPoint.Utils
         const float oneKMinimumValue = 10000f;
         const float oneMMinimumValue = 10000000f;
 
-        public static string ResourceAmount(int amount)
+        public static string ResourceAmount(long amount)
         {
             string formatStr = "{0}";
             float finalAmount = amount;

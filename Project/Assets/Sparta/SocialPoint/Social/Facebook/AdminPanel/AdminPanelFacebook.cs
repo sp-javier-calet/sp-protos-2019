@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#if ADMIN_PANEL 
+
+using UnityEngine;
 using UnityEngine.UI;
 using SocialPoint.AdminPanel;
 using SocialPoint.Console;
@@ -43,9 +45,9 @@ namespace SocialPoint.Social
             var cmd = new ConsoleCommand()
                 .WithDescription("do a facebook graph apy query")
                     .WithOption(new ConsoleCommandOption("0|method")
-                                .withDescription("query method"))
+                                .WithDescription("query method"))
                     .WithOption(new ConsoleCommandOption("1|path")
-                                .withDescription("query path"))
+                                .WithDescription("query path"))
                     .WithDelegate(OnQueryCommand);
             adminPanel.RegisterCommand("fb-query", cmd);
         }
@@ -183,6 +185,7 @@ namespace SocialPoint.Social
 
             layout.CreateButton("Post on Wall", () => {
                 var post = new FacebookWallPost();
+                post.Link = new Uri("http://www.socialpoint.es");
                 _facebook.PostOnWallWithDialog(post, (_, err) => {
                     if(!PrintError("posting on wall", err))
                     {
@@ -319,3 +322,5 @@ namespace SocialPoint.Social
         #endregion
     }
 }
+
+#endif

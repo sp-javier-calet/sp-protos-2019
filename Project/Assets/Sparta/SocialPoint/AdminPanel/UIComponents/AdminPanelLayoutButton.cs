@@ -1,3 +1,5 @@
+#if ADMIN_PANEL
+
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -14,6 +16,16 @@ namespace SocialPoint.AdminPanel
         ButtonColor(float r, float g, float b)
         {
             Color = new Color(r, g, b, Alpha);
+        }
+
+        public Color GetDisabled()
+        {
+            return new Color(Color.r * 0.5f, Color.g * 0.5f, Color.b * 0.5f, Alpha);
+        }
+
+        public Color GetHighlight()
+        {   
+            return new Color(Color.r * 1.2f, Color.g * 1.2f, Color.b * 1.2f, Alpha);
         }
 
         public static readonly ButtonColor Default = new ButtonColor(.5f, .5f, .5f);
@@ -380,3 +392,5 @@ namespace SocialPoint.AdminPanel
         }
     }
 }
+
+#endif

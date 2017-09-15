@@ -1,4 +1,4 @@
-﻿// <copyright file="PlayGamesClientConfiguration.cs" company="Google Inc.">
+// <copyright file="PlayGamesClientConfiguration.cs" company="Google Inc.">
 // Copyright (C) 2014 Google Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,11 +13,13 @@
 //  See the License for the specific language governing permissions and
 //    limitations under the License.
 // </copyright>
+#if (UNITY_ANDROID || (UNITY_IPHONE && !NO_GPGS))
 
 namespace GooglePlayGames.BasicApi
 {
     using GooglePlayGames.BasicApi.Multiplayer;
     using GooglePlayGames.OurUtils;
+    using System.Collections.Generic;
 
     /// <summary>
     /// Provides configuration for <see cref="PlayGamesPlatform"/>. If you wish to use either Saved
@@ -31,8 +33,9 @@ namespace GooglePlayGames.BasicApi
         /// The default configuration.
         /// </summary>
         public static readonly PlayGamesClientConfiguration DefaultConfiguration =
-            new Builder().Build();
-
+            new Builder()
+           .WithPermissionRationale("Select email address to send to this game or hit cancel to not share.")
+           .Build();
         /// <summary>
         /// Flag indicating to enable saved games API.
         /// </summary>
@@ -42,6 +45,11 @@ namespace GooglePlayGames.BasicApi
         /// Flag indicating to request use of a player's Google+ social graph.
         /// </summary>
         private readonly bool mRequireGooglePlus;
+        
+        /// <summary>
+        /// Array of scopes to be requested from user. None is considered as 'games_lite'.
+        /// </summary>
+        private readonly string[] mScopes;
 
         /// <summary>
         /// The invitation delegate.
@@ -70,6 +78,7 @@ namespace GooglePlayGames.BasicApi
             this.mMatchDelegate = builder.GetMatchDelegate();
             this.mPermissionRationale = builder.GetPermissionRationale();
             this.mRequireGooglePlus = builder.HasRequireGooglePlus();
+            this.mScopes = builder.getScopes();
         }
 
         /// <summary>
@@ -95,6 +104,18 @@ namespace GooglePlayGames.BasicApi
             get
             {
                 return mRequireGooglePlus;
+            }
+        }
+        
+        /// <summary>
+        /// Gets a array of scopes to be requested from the user.
+        /// </summary>
+        /// <value>String array of scopes.</value>
+        public string[] Scopes
+        {
+            get
+            {
+                return mScopes;
             }
         }
 
@@ -148,6 +169,11 @@ namespace GooglePlayGames.BasicApi
             /// The flag to request Google+. Default is false.
             /// </summary>
             private bool mRequireGooglePlus = false;
+            
+            /// <summary>
+            /// The scopes to request from the user. Default is none.
+            /// </summary>
+            private List<string> mScopes = null;
 
             /// <summary>
             /// The invitation delegate.  Default is a no-op;
@@ -191,6 +217,24 @@ namespace GooglePlayGames.BasicApi
             public Builder RequireGooglePlus()
             {
                 mRequireGooglePlus = true;
+                return this;
+            }
+
+            /// <summary>
+            /// Requests an Oauth scope from the user.
+            /// </summary>
+            /// <remarks>
+            /// Not setting one will default to 'games_lite' and will not show a consent
+            /// dialog to the user. Valid examples are 'profile' and 'email'.
+            /// Full list: https://developers.google.com/identity/protocols/googlescopes
+            /// To exchange the auth code with an id_token (or user id) on your server, 
+            /// you must add at least one scope.
+            /// </remarks>
+            /// <returns>The builder.</returns>
+            public Builder AddOauthScope(string scope)
+            {
+                if (mScopes == null) mScopes = new List<string>();
+                mScopes.Add(scope);
                 return this;
             }
 
@@ -260,6 +304,14 @@ namespace GooglePlayGames.BasicApi
             }
 
             /// <summary>
+            /// Gets the Oauth scopes to be requested from the user.
+            /// </summary>
+            /// <returns>String array of scopes.</returns>
+            internal string[] getScopes() {
+                return mScopes == null? new string[0] : mScopes.ToArray();
+            }
+
+            /// <summary>
             /// Gets the match delegate.
             /// </summary>
             /// <returns>The match delegate.</returns>
@@ -288,3 +340,4 @@ namespace GooglePlayGames.BasicApi
         }
     }
 }
+#endif

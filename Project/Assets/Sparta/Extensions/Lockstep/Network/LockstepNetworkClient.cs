@@ -1,19 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using SocialPoint.Network;
-using SocialPoint.IO;
-using SocialPoint.Utils;
-using SocialPoint.Base;
 using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.IO;
+using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Lockstep
 {
     public sealed class LockstepNetworkClient : IDisposable, INetworkMessageReceiver, INetworkClientDelegate
     {
-        INetworkClient _client;
-        LockstepCommandFactory _commandFactory;
-        LockstepClient _clientLockstep;
+        public INetworkClient Network { get; private set; }
+
+        public LockstepCommandFactory CommandFactory { get; private set; }
+
+        public LockstepClient Lockstep { get; private set; }
+
+        public Action<string, AttrDic, ErrorDelegate> SendTrack;
+
         INetworkMessageReceiver _receiver;
 
         bool _sendPlayerReadyPending;
@@ -23,26 +28,31 @@ namespace SocialPoint.Lockstep
         {
             get
             {
-                return _client.Connected && _clientLockstep.Running;
+                return Network.Connected && Lockstep.Running;
             }
         }
 
+        public string MatchId { get; set; }
+
         public string PlayerId{ get; set; }
+
+        public string ClientVersion { get; set; }
 
         public byte PlayerNumber
         {
             get
             {
-                return _clientLockstep.PlayerNumber;
+                return Lockstep.PlayerNumber;
             }
 
             private set
             {
-                _clientLockstep.PlayerNumber = value;
+                Lockstep.PlayerNumber = value;
             }
         }
 
         List<string> _playerIds;
+
         public ReadOnlyCollection<string> PlayerIds
         {
             get
@@ -60,13 +70,14 @@ namespace SocialPoint.Lockstep
         public LockstepNetworkClient(INetworkClient client, LockstepClient clientLockstep, LockstepCommandFactory factory)
         {
             PlayerId = RandomUtils.GenerateSecurityToken();
-            _client = client;
-            _clientLockstep = clientLockstep;
-            _commandFactory = factory;
+            Network = client;
+            Lockstep = clientLockstep;
+            CommandFactory = factory;
 
-            _client.RegisterReceiver(this);
-            _client.AddDelegate(this);
-            _clientLockstep.CommandAdded += OnCommandAdded;
+            Network.RegisterReceiver(this);
+            Network.AddDelegate(this);
+            Lockstep.CommandAdded += OnCommandAdded;
+            Lockstep.LockstepClientStarts += OnLockstepStarts;
         }
 
         public void RegisterReceiver(INetworkMessageReceiver receiver)
@@ -82,7 +93,6 @@ namespace SocialPoint.Lockstep
         public void OnClientDisconnected()
         {
             _clientSetupReceived = false;
-            _clientLockstep.Stop();
         }
 
         public void OnMessageReceived(NetworkMessageData data)
@@ -129,14 +139,14 @@ namespace SocialPoint.Lockstep
         {
             var emptyTurns = new EmptyTurnsMessage();
             emptyTurns.Deserialize(reader);
-            _clientLockstep.AddConfirmedEmptyTurns(emptyTurns);
+            Lockstep.AddConfirmedEmptyTurns(emptyTurns);
         }
 
         void OnTurnReceived(IReader reader)
         {
             var turn = new ClientTurnData();
-            turn.Deserialize(_commandFactory, reader);
-            _clientLockstep.AddConfirmedTurn(turn);
+            turn.Deserialize(CommandFactory, reader);
+            Lockstep.AddConfirmedTurn(turn);
         }
 
         void OnClientSetupReceived(IReader reader)
@@ -144,10 +154,10 @@ namespace SocialPoint.Lockstep
             var msg = new ClientSetupMessage();
             msg.Deserialize(reader);
             _clientSetupReceived = true;
-            if(_clientLockstep != null)
+            if(Lockstep != null)
             {
-                _clientLockstep.Config = msg.Config;
-                _clientLockstep.GameParams = msg.GameParams;
+                Lockstep.Config = msg.Config;
+                Lockstep.GameParams = msg.GameParams;
             }
             TrySendPlayerReady();
         }
@@ -156,11 +166,12 @@ namespace SocialPoint.Lockstep
         {
             var msg = new ClientStartMessage();
             msg.Deserialize(reader);
-            var time = msg.StartTime + _client.GetDelay(msg.ServerTimestamp);
+            var time = msg.StartTime + Network.GetDelay(msg.ServerTimestamp);
             _playerIds = msg.PlayerIds;
-            PlayerNumber =  (byte)_playerIds.IndexOf(PlayerId);
+            PlayerNumber = (byte)_playerIds.IndexOf(PlayerId);
 
-            _clientLockstep.Start(time);
+            Lockstep.Start(time);
+
             if(StartScheduled != null)
             {
                 StartScheduled(time);
@@ -169,13 +180,57 @@ namespace SocialPoint.Lockstep
 
         void OnClientEndReceived(IReader reader)
         {
+            SendNetworkStats();
             var msg = new AttrMessage();
             msg.Deserialize(reader);
             if(EndReceived != null)
             {
                 EndReceived(msg.Data);
             }
-            _clientLockstep.Stop();
+            Lockstep.Stop();
+        }
+
+        void SendNetworkStats()
+        {
+            if(SendTrack != null && Network is NetworkStatsClient)
+            {
+                var statsClient = (NetworkStatsClient)Network;
+                {
+                    var data = new AttrDic();
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
+                    data.SetValue("battle.min_lag", statsClient.LowestLatency);
+                    data.SetValue("battle.max_lag", statsClient.HighestLatency);
+                    data.SetValue("battle.average_lag", statsClient.AverageLatency);
+                    SendTrack("log_battle_end_lag_info", data, null);
+                }
+                {
+                    var data = new AttrDic();
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
+                    data.SetValue("battle.download", statsClient.DownloadBandwith);
+                    data.SetValue("battle.upload", statsClient.UploadBandwith);
+                    data.SetValue("battle.battle_time", Lockstep.UpdateTime);
+                    SendTrack("log_battle_end_bandwidth_info", data, null);
+                }
+                {
+                    var data = new AttrDic();
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
+                    data.SetValue("battle.min_turn_buffer", Lockstep.LowestTurnBuffer);
+                    data.SetValue("battle.max_turn_buffer", Lockstep.HighestTurnBuffer);
+                    data.SetValue("battle.average_turn_buffer", Lockstep.AverageTurnBuffer);
+                    SendTrack("log_battle_end_buffer_info", data, null);
+                }
+                {
+                    var data = new AttrDic();
+                    data.SetValue("battle.unique_id", MatchId);
+                    data.SetValue("user_id", PlayerId);
+                    data.SetValue("battle.disconnects", Lockstep.Disconnects);
+                    data.SetValue("battle.disconnect_time", Lockstep.DisconnectTime);
+                    SendTrack("log_battle_end_disconects", data, null);
+                }
+            }
         }
 
         public void SendPlayerReady()
@@ -186,16 +241,16 @@ namespace SocialPoint.Lockstep
 
         void TrySendPlayerReady()
         {
-            if(!_client.Connected || !_clientSetupReceived)
+            if(!Network.Connected || !_clientSetupReceived)
             {
                 return;
             }
             if(_sendPlayerReadyPending)
             {
                 _sendPlayerReadyPending = false;
-                _client.SendMessage(new NetworkMessageData {
+                Network.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.PlayerReady,
-                }, new PlayerReadyMessage(PlayerId));
+                }, new PlayerReadyMessage(PlayerId, Lockstep.CurrentTurnNumber, ClientVersion));
                 if(PlayerReadySent != null)
                 {
                     PlayerReadySent();
@@ -205,11 +260,11 @@ namespace SocialPoint.Lockstep
 
         public void SendPlayerFinish(Attr data)
         {
-            if(!_clientLockstep.Running)
+            if(!Lockstep.Running)
             {
                 return;
             }
-            _client.SendMessage(new NetworkMessageData{
+            Network.SendMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.PlayerFinish
             }, new AttrMessage(data));
             if(PlayerFinishSent != null)
@@ -220,20 +275,32 @@ namespace SocialPoint.Lockstep
 
         void OnCommandAdded(ClientCommandData command)
         {
-            var msg = _client.CreateMessage(new NetworkMessageData {
+            var msg = Network.CreateMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.Command,
             });
-            command.Serialize(_commandFactory, msg.Writer);
+            command.Serialize(CommandFactory, msg.Writer);
             msg.Send();
+        }
+
+        void OnLockstepStarts(bool reconnect)
+        {
+            if(SendTrack != null)
+            {
+                var data = new AttrDic();
+                data.SetValue("match_id", MatchId);
+                data.SetValue("user_id", PlayerId);
+                data.SetValue("battle.reconnect", reconnect);
+                SendTrack("log_battle_start_lockstep", data, null);
+            }
         }
 
         public void Dispose()
         {
-            _client.RegisterReceiver(null);
-            _client.RemoveDelegate(this);
-            if(_clientLockstep != null)
+            Network.RegisterReceiver(null);
+            Network.RemoveDelegate(this);
+            if(Lockstep != null)
             {
-                _clientLockstep.CommandAdded -= OnCommandAdded;
+                Lockstep.CommandAdded -= OnCommandAdded;
             }
         }
     }

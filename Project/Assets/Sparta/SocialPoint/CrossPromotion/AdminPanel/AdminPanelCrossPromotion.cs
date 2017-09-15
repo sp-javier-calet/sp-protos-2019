@@ -1,13 +1,15 @@
-﻿using UnityEngine;
+﻿#if ADMIN_PANEL 
+
 using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
+using UnityEngine;
 
 namespace SocialPoint.CrossPromotion
 {
     public sealed class AdminPanelCrossPromotion : IAdminPanelConfigurer, IAdminPanelGUI
     {
-        CrossPromotionManager _xpromo;
-        bool _initialized = false;
+        readonly CrossPromotionManager _xpromo;
+        bool _initialized;
 
         public AdminPanelCrossPromotion(CrossPromotionManager xpromo)
         {
@@ -44,9 +46,9 @@ namespace SocialPoint.CrossPromotion
         void Start()
         {
             #if UNITY_ANDROID
-            TextAsset data = Resources.Load("xpromo_android") as TextAsset;
+            var data = Resources.Load("xpromo_android") as TextAsset;
             #else
-            TextAsset data = Resources.Load("xpromo_ios") as TextAsset;
+            var data = Resources.Load("xpromo_ios") as TextAsset;
             #endif
             InitWithData(data);
         }
@@ -64,7 +66,7 @@ namespace SocialPoint.CrossPromotion
 
         void StartWithInvalidAssets()
         {
-            TextAsset data = Resources.Load("xpromo_test_fail") as TextAsset;
+            var data = Resources.Load("xpromo_test_fail") as TextAsset;
             InitWithData(data);
         }
 
@@ -78,3 +80,5 @@ namespace SocialPoint.CrossPromotion
         }
     }
 }
+
+#endif

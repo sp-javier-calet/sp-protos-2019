@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections;
-using Jitter.LinearMath;
+using System.Collections.Generic;
+using Jitter;
 using Jitter.Dynamics;
-using Jitter.Collision;
-using Jitter.Collision.Shapes;
+using Jitter.LinearMath;
 
 namespace SocialPoint.Physics
 {
@@ -16,7 +15,7 @@ namespace SocialPoint.Physics
             Static
         }
 
-        public bool DoDebugDraw
+        public bool EnableDebugDraw
         {
             get
             {
@@ -29,11 +28,28 @@ namespace SocialPoint.Physics
         }
 
         protected RigidBody _rigidBody;
-        protected PhysicsCollisionShape _collisionShape;
+        protected IPhysicsShape _shape;
         protected ControlType _controlType;
         protected PhysicsWorld _physicsWorld;
         protected bool _isInWorld = false;
+
         protected IPhysicsDebugger _debugger;
+
+        public RigidBody RigidBody
+        {
+            get
+            {
+                return _rigidBody; 
+            }
+        }
+
+        public JVector Position
+        {
+            get
+            {
+                return _rigidBody.Position;
+            }
+        }
 
         public int LayerIndex // 0-31 (int)
         {
@@ -47,34 +63,88 @@ namespace SocialPoint.Physics
             }
         }
 
-        event CollisionDetectedHandler _collisionListeners;
+        public delegate void CollisionHandler(RigidBody other, List<PhysicsContact> ContactSettings);
 
-        public PhysicsRigidBody(PhysicsCollisionShape shape, ControlType type, PhysicsWorld physicsWorld, IPhysicsDebugger debugger = null)
+        event CollisionHandler _collisionStayListeners;
+
+        event CollisionHandler _collisionEnterListeners;
+
+        event CollisionHandler _collisionExitListeners;
+
+        public PhysicsRigidBody Init(IPhysicsShape shape, ControlType type, PhysicsWorld physicsWorld, IPhysicsDebugger debugger = null)
         {
-            _collisionShape = shape;
+            if(shape == null)
+            {
+                throw new ArgumentNullException("shape");
+            }
+            if(physicsWorld == null)
+            {
+                throw new ArgumentNullException("physicsWorld");
+            }
+            _shape = shape;
             _controlType = type;
             _physicsWorld = physicsWorld;
             _debugger = debugger;
-
-            BuildPhysicObject();
+            return this;
         }
 
-        public void OnCollision(RigidBody other, JVector myPoint, JVector otherPoint, JVector normal, float penetration)
+        public void DebugDraw(IDebugDrawer drawer)
         {
-            if(_collisionListeners != null)
+            _rigidBody.DebugDraw(drawer);
+        }
+
+        public void OnCollisionStay(RigidBody other, List<PhysicsContact> contacts)
+        {
+            if(_collisionStayListeners != null)
             {
-                _collisionListeners(_rigidBody, other, myPoint, otherPoint, normal, penetration);
+                _collisionStayListeners(other, contacts);
             }
         }
 
-        public void AddCollisionHandler(CollisionDetectedHandler handler)
+        public void OnCollisionEnter(RigidBody other, List<PhysicsContact> contacts)
         {
-            _collisionListeners += handler;
+            if(_collisionEnterListeners != null)
+            {
+                _collisionEnterListeners(other, contacts);
+            }
         }
 
-        public void RemoveCollisionHandler(CollisionDetectedHandler handler)
+        public void OnCollisionExit(RigidBody other, List<PhysicsContact> contacts)
         {
-            _collisionListeners -= handler;
+            if(_collisionExitListeners != null)
+            {
+                _collisionExitListeners(other, contacts);
+            }
+        }
+
+        public void AddCollisionStayHandler(CollisionHandler handler)
+        {
+            _collisionStayListeners += handler;
+        }
+
+        public void RemoveCollisionStayHandler(CollisionHandler handler)
+        {
+            _collisionStayListeners -= handler;
+        }
+
+        public void AddCollisionEnterHandler(CollisionHandler handler)
+        {
+            _collisionEnterListeners += handler;
+        }
+
+        public void RemoveCollisionEnterHandler(CollisionHandler handler)
+        {
+            _collisionEnterListeners -= handler;
+        }
+
+        public void AddCollisionExitHandler(CollisionHandler handler)
+        {
+            _collisionExitListeners += handler;
+        }
+
+        public void RemoveCollisionExitHandler(CollisionHandler handler)
+        {
+            _collisionExitListeners -= handler;
         }
 
         public void AddImpulse(JVector impulse)
@@ -117,16 +187,17 @@ namespace SocialPoint.Physics
             }
         }
 
-        protected void AddObjectToPhysicsWorld()
+        public void AddObjectToPhysicsWorld()
         {
             if(!_isInWorld)
             {
+                BuildPhysicObject();
                 _physicsWorld.AddRigidBody(_rigidBody);
                 _isInWorld = true;
             }
         }
 
-        protected void RemoveObjectFromPhysicsWorld()
+        public void RemoveObjectFromPhysicsWorld()
         {
             if(_isInWorld)
             {
@@ -137,8 +208,7 @@ namespace SocialPoint.Physics
 
         void BuildPhysicObject()
         {
-            Shape cs = _collisionShape.GetCollisionShape();
-            _rigidBody = new RigidBody(cs);
+            _rigidBody = new RigidBody(_shape.CollisionShape);
             _rigidBody.Tag = this;
 
             switch(_controlType)

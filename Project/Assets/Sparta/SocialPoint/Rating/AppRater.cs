@@ -79,7 +79,7 @@ namespace SocialPoint.Rating
             if(appEvents != null)
             {
                 _appEvents = appEvents;
-                _appEvents.WasOnBackground += OnWasOnBackground;
+                _appEvents.WasOnBackground.Add(0, OnWasOnBackground);
             }
 
             _appRaterInfo = new AttrDic();
@@ -89,7 +89,7 @@ namespace SocialPoint.Rating
         {
             if(_appEvents != null)
             {
-                _appEvents.WasOnBackground -= OnWasOnBackground;
+                _appEvents.WasOnBackground.Remove(OnWasOnBackground);
             }
         }
 
@@ -123,7 +123,7 @@ namespace SocialPoint.Rating
 
             LoadInfo();
 
-            if((TimeUtils.Timestamp - _appRaterInfo.GetValue(DateStartLastDayKey).ToDouble()) > DayInSeconds)
+            if((TimeUtils.Timestamp - _appRaterInfo.GetValue(DateStartLastDayKey).ToLong()) > DayInSeconds)
             {
                 _appRaterInfo.SetValue(PromptsLastDayKey, 0);
                 _appRaterInfo.SetValue(DateStartLastDayKey, TimeUtils.Timestamp);
@@ -193,7 +193,7 @@ namespace SocialPoint.Rating
 
             if(_appRaterInfo.GetValue(CurrentVersionKey) == version)
             {
-                if(_appRaterInfo.GetValue(FirstUseDateKey) == 0)
+                if(_appRaterInfo.GetValue(FirstUseDateKey).ToLong() == 0)
                 {
                     _appRaterInfo.SetValue(FirstUseDateKey, TimeUtils.Timestamp);
                 }
@@ -218,8 +218,8 @@ namespace SocialPoint.Rating
             }
         }
 
-        void SaveFirstDefaults(double firstUseDate, int usesUntilPrompt, int eventsUntilPrompt, bool ratedCurrentVersion, 
-                               bool ratedAnyVersion, bool declineToRate, double reminderRequestDate, int promptsPerDay, double lastDayDate)
+        void SaveFirstDefaults(long firstUseDate, int usesUntilPrompt, int eventsUntilPrompt, bool ratedCurrentVersion,
+                               bool ratedAnyVersion, bool declineToRate, long reminderRequestDate, int promptsPerDay, long lastDayDate)
         {
             _appRaterInfo.SetValue(CurrentVersionKey, _deviceInfo.AppInfo.Version);
             _appRaterInfo.SetValue(FirstUseDateKey, firstUseDate);
@@ -268,7 +268,7 @@ namespace SocialPoint.Rating
         {
 
             // Check if the days passed from first use has passed
-            var timeSinceFirstLaunch = TimeUtils.Timestamp - _appRaterInfo.GetValue(FirstUseDateKey).ToDouble();
+            var timeSinceFirstLaunch = TimeUtils.Timestamp - _appRaterInfo.GetValue(FirstUseDateKey).ToLong();
             var timeUntilRate = DayInSeconds * DaysUntilPrompt;
             if(timeSinceFirstLaunch < timeUntilRate)
             {
@@ -288,7 +288,7 @@ namespace SocialPoint.Rating
             }
 
             // If the user wanted to be reminded later, has enough time passed?
-            var timeSinceReminderRequest = TimeUtils.Timestamp - _appRaterInfo.GetValue(ReminderRequestDateKey).ToDouble();
+            var timeSinceReminderRequest = TimeUtils.Timestamp - _appRaterInfo.GetValue(ReminderRequestDateKey).ToLong();
             var timeUntilReminder = DayInSeconds * DaysBeforeReminding;
             if(timeSinceReminderRequest < timeUntilReminder)
             {

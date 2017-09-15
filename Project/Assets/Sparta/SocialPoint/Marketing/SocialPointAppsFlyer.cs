@@ -1,11 +1,10 @@
 ﻿using SocialPoint.Base;
-using SocialPoint.Utils;
 using SocialPoint.Attributes;
 using SocialPoint.Marketing;
 using System;
 using UnityEngine;
 
-public sealed class SocialPointAppFlyer : IMarketingTracker
+public sealed class SocialPointAppsFlyer : IMarketingTracker
 {
     const string TrackerName = "appsflyer";
     AppsFlyerTrackerCallbacks _trackerDelegate;
@@ -18,10 +17,6 @@ public sealed class SocialPointAppFlyer : IMarketingTracker
     public void Init()
     {
         SetupAppsFlyerDelegate();
-        DebugUtils.Assert(!String.IsNullOrEmpty(AppsFlyerKey));
-        AppsFlyer.setAppsFlyerKey(AppsFlyerKey);
-        DebugUtils.Assert(!String.IsNullOrEmpty(AppID));
-        AppsFlyer.setAppID(AppID);
     }
 
     public void SetUserID(string userID)
@@ -31,15 +26,25 @@ public sealed class SocialPointAppFlyer : IMarketingTracker
 
     public void TrackInstall(bool isNewInstall)
     {
+        DebugUtils.Assert(!String.IsNullOrEmpty(AppID));
+        AppsFlyer.setAppID(AppID);
+
         if(isNewInstall)
         {
             #if UNITY_IOS
             AppsFlyer.getConversionData();
             #elif UNITY_ANDROID
-            AppsFlyer.loadConversionData("AppsFlyerTrackerCallbacks", "didReceiveConversionData", "didReceiveConversionDataWithError");
+            AppsFlyer.loadConversionData("AppsFlyerTrackerCallbacks");
             #endif
         }
-        #if UNITY_IOS //only needed on ios, android does it automatically on the receiver
+
+        /* We set AppsFlyer key here (and not on Init) because it triggers a trackAppLaunch on Android,
+         * and we enclose our trackAppLaunch call inside the iOS ifdef because of that reason.
+         * (It was happening with v4.14 of the Unity Plugin)
+         * */
+        DebugUtils.Assert(!String.IsNullOrEmpty(AppsFlyerKey));
+        AppsFlyer.setAppsFlyerKey(AppsFlyerKey);
+        #if UNITY_IOS
         AppsFlyer.trackAppLaunch();
         #endif
     }

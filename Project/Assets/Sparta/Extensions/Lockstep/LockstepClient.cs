@@ -62,12 +62,12 @@ namespace SocialPoint.Lockstep
         }
 
         public LockstepCommandLogic(Action<T> action) :
-        this(new ActionLockstepCommandLogic<T>(action))
+            this(new ActionLockstepCommandLogic<T>(action))
         {
         }
 
         public LockstepCommandLogic(Action action) :
-        this(new ActionLockstepCommandLogic<T>(action))
+            this(new ActionLockstepCommandLogic<T>(action))
         {
         }
 
@@ -91,20 +91,32 @@ namespace SocialPoint.Lockstep
         public const int DefaultLocalSimulationDelay = 1000;
         public const int DefaultMaxSimulationStepsPerFrame = 0;
         public const float DefaultSpeedFactor = 1.0f;
+        public const bool DefaultRecoverGracefully = true;
+        public const float DefaultGracefulTurnReceptionDurationFactor = 1.1f;
+        public const int DefaultTurnReceptionDurationAverageSize = 10;
 
         public int LocalSimulationDelay = DefaultLocalSimulationDelay;
         public int MaxSimulationStepsPerFrame = DefaultMaxSimulationStepsPerFrame;
         public float SpeedFactor = DefaultSpeedFactor;
+        public bool RecoverGracefully = DefaultRecoverGracefully;
+        public float GracefulTurnReceptionDurationFactor = DefaultGracefulTurnReceptionDurationFactor;
+        public int TurnReceptionDurationAverageSize = DefaultTurnReceptionDurationAverageSize;
 
         public override string ToString()
         {
             return string.Format("[LockstepClientConfig\n" +
             "LocalSimulationDelay:{0}\n" +
             "MaxSimulationStepsPerFrame:{1}\n" +
-            "SpeedFactor:{2}]",
+            "SpeedFactor:{2}\n" +
+            "RecoverGracefully:{3}\n" +
+            "GracefulTurnReceptionDurationFactor:{4}\n" +
+            "TurnReceptionDurationAverageSize:{5}]",
                 LocalSimulationDelay,
                 MaxSimulationStepsPerFrame,
-                SpeedFactor);
+                SpeedFactor,
+                RecoverGracefully,
+                GracefulTurnReceptionDurationFactor,
+                TurnReceptionDurationAverageSize);
         }
     }
 
@@ -136,11 +148,14 @@ namespace SocialPoint.Lockstep
         int _lastSimTime;
         int _lastCmdTime;
         int _lastConfirmedTurnNumber;
+        int _lastConfirmedTurnTime;
         bool _simStartedCalled;
         bool _simRecoveredCalled;
         State _state;
         XRandom _rootRandom;
 
+        List<int> _turnReceptionDurations = new List<int>();
+        List<int> _turnBuffersHistoric = new List<int>();
         Dictionary<Type, ILockstepCommandLogic> _commandLogics = new Dictionary<Type, ILockstepCommandLogic>();
         List<ClientCommandData> _pendingCommands = new List<ClientCommandData>();
         Dictionary<int, ClientTurnData> _confirmedTurns = new Dictionary<int, ClientTurnData>();
@@ -153,13 +168,18 @@ namespace SocialPoint.Lockstep
 
         public LockstepClientConfig ClientConfig { get; set; }
 
+        public int Disconnects{ get; private set; }
+
+        public int DisconnectTime { get; private set; }
+
         public event Action<ClientCommandData> CommandAdded;
-        public event Action<ClientTurnData> TurnApplied;
+        public event Action<ClientTurnData, int> TurnApplied;
         public event Action SimulationStarted;
         public event Action SimulationRecovered;
         public event Action ConnectionChanged;
         public event Action<int> Simulate;
         public event Action<Error, ClientCommandData> CommandFailed;
+        public event Action<bool> LockstepClientStarts;
 
         public bool Connected
         {
@@ -230,6 +250,7 @@ namespace SocialPoint.Lockstep
         public byte PlayerNumber;
 
         bool _externalUpdate;
+
         public bool ExternalUpdate
         {
             set
@@ -254,6 +275,43 @@ namespace SocialPoint.Lockstep
             }
         }
 
+        public int TurnReceptionDuration
+        {
+            get
+            {
+                var m = 0;
+                if(_turnReceptionDurations.Count == 0)
+                {
+                    return m;
+                }
+                for(var i = 0; i < _turnReceptionDurations.Count; i++)
+                {
+                    m += _turnReceptionDurations[i];
+                }
+                return m / _turnReceptionDurations.Count;
+            }
+        }
+
+        public bool WillRecoverGracefully
+        {
+            get
+            {
+                var cmdt = _lastConfirmedTurnNumber * Config.CommandStepDuration;
+                if(cmdt < _time)
+                {
+                    // not enough turns to arrive to current time
+                    return false;
+                }
+                var f = 1.0f * TurnReceptionDuration / Config.CommandStepDuration;
+                if(f > ClientConfig.GracefulTurnReceptionDurationFactor)
+                {
+                    // turn reception duration is not similar enough to the optimum
+                    return false;
+                }
+                return true;
+            }
+        }
+
         public LockstepClient(IUpdateScheduler updateScheduler = null)
         {
             _state = State.Normal;
@@ -274,12 +332,13 @@ namespace SocialPoint.Lockstep
         {
             Running = true;
             _time = startTime;
-            _state = _time > 0 ? State.Recovering : State.Normal;
-            _timestamp = TimeUtils.TimestampMilliseconds;
-            _lastSimTime = 0;
-            _lastCmdTime = 0;
-            _simStartedCalled = false;
             _simRecoveredCalled = false;
+            _state = _time > 0 ? State.Recovering : State.Normal;
+            if(LockstepClientStarts != null)
+            { 
+                LockstepClientStarts(_state == State.Recovering);
+            }
+            _timestamp = TimeUtils.TimestampMilliseconds;
             if(!_externalUpdate && _updateScheduler != null)
             {
                 _updateScheduler.Add(this);
@@ -288,12 +347,18 @@ namespace SocialPoint.Lockstep
 
         public void Stop()
         {
+            _lastSimTime = 0;
+            _lastCmdTime = 0;
+            _simStartedCalled = false;
             Running = false;
             _rootRandom = null;
             _state = State.Waiting;
             _confirmedTurns.Clear();
             _pendingCommands.Clear();
+            _commandLogics.Clear();
             _lastConfirmedTurnNumber = 0;
+            _lastConfirmedTurnTime = 0;
+            _turnReceptionDurations.Clear();
             if(_updateScheduler != null)
             {
                 _updateScheduler.Remove(this);
@@ -370,13 +435,16 @@ namespace SocialPoint.Lockstep
             }
         }
 
-        public void AddConfirmedTurn(ClientTurnData turn=null)
+        public void AddConfirmedTurn(ClientTurnData turn = null)
         {
             _lastConfirmedTurnNumber++;
+            var pos = _turnBuffersHistoric.FindLastIndex(tb => tb < TurnBuffer);
+            _turnBuffersHistoric.Insert(pos + 1, TurnBuffer);
             if(!ClientTurnData.IsNullOrEmpty(turn))
             {
                 _confirmedTurns[_lastConfirmedTurnNumber] = turn;
             }
+            AddConfirmedTurnDuration(_lastConfirmedTurnNumber);
         }
 
         public void AddConfirmedEmptyTurns(EmptyTurnsMessage emptyTurns)
@@ -395,9 +463,30 @@ namespace SocialPoint.Lockstep
             {
                 turn = new ClientTurnData();
                 _confirmedTurns[t] = turn;
+                AddConfirmedTurnDuration(t);
                 _lastConfirmedTurnNumber = Math.Max(_lastConfirmedTurnNumber, t);
             }
             turn.AddCommand(cmd);
+        }
+
+        void AddConfirmedTurnDuration(int t)
+        {
+            if(t < _lastConfirmedTurnNumber)
+            {
+                return;
+            }
+            if(_lastConfirmedTurnTime > 0)
+            {
+                var dt = _time - _lastConfirmedTurnTime;
+                var dr = t - _lastConfirmedTurnNumber + 1;
+                _turnReceptionDurations.Add(dt / dr);
+                var s = ClientConfig.TurnReceptionDurationAverageSize;
+                if(_turnReceptionDurations.Count > s)
+                {
+                    _turnReceptionDurations.RemoveRange(0, _turnReceptionDurations.Count - s);
+                }
+            }
+            _lastConfirmedTurnTime = _time;
         }
 
         ClientCommandData FindCommand(ClientCommandData cmd)
@@ -411,9 +500,13 @@ namespace SocialPoint.Lockstep
             return cmd;
         }
 
-        void ProcessTurn(ClientTurnData turn)
+        bool ProcessTurn(ClientTurnData turn)
         {
             var itr = turn.GetCommandEnumerator();
+            var processStart = TimeUtils.TimestampMilliseconds;
+
+            bool hadIssuesProcessingTurnData = false;
+
             while(itr.MoveNext())
             {
                 var command = FindCommand(itr.Current);
@@ -432,9 +525,10 @@ namespace SocialPoint.Lockstep
                 }
                 catch(Exception e)
                 {
+                    hadIssuesProcessingTurnData = true;
                     if(CommandFailed != null)
                     {
-                        CommandFailed(new Error(e.ToString()), command);
+                        CommandFailed(new Error(e.Message, e.StackTrace), command);
                     }
                 }
                 command.Finish();
@@ -442,18 +536,11 @@ namespace SocialPoint.Lockstep
             itr.Dispose();
             if(TurnApplied != null)
             {
-                TurnApplied(turn);
+                var processDuration = TimeUtils.TimestampMilliseconds - processStart;
+                TurnApplied(turn, (int)processDuration);
             }
-        }
 
-        public void Pause()
-        {
-            Running = false;
-        }
-
-        public void Resume()
-        {
-            Running = true;
+            return !hadIssuesProcessingTurnData;
         }
 
         public void Update()
@@ -480,6 +567,12 @@ namespace SocialPoint.Lockstep
                     SimulationStarted();
                 }
             }
+            if(ClientConfig.RecoverGracefully && !Connected && !WillRecoverGracefully)
+            {
+                return;
+            }
+            var wasConnected = Connected;
+            _state = State.Normal;
             if(!_simRecoveredCalled && _time >= 0 && _state == State.Normal)
             {
                 _simRecoveredCalled = true;
@@ -489,9 +582,7 @@ namespace SocialPoint.Lockstep
                 }
             }
             var simSteps = 0;
-            var wasConnected = Connected;
-            _state = State.Normal;
-            while(true)
+            while(Running)
             {
                 var nextSimTime = _lastSimTime + Config.SimulationStepDuration;
                 var nextCmdTime = _lastCmdTime + Config.CommandStepDuration;
@@ -525,11 +616,17 @@ namespace SocialPoint.Lockstep
                         {
                             _confirmedTurns.Remove(t);
                         }
-                        ProcessTurn(turn);
+                        if(!ProcessTurn(turn))
+                        {
+                            break;
+                        }
                     }
                     else if(CommandAdded == null)
                     {
-                        ProcessTurn(ClientTurnData.Empty);
+                        if(!ProcessTurn(ClientTurnData.Empty))
+                        {
+                            break;
+                        }
                     }
                     else
                     {
@@ -551,8 +648,16 @@ namespace SocialPoint.Lockstep
                     break;
                 }
             }
+            if(_state == State.Waiting)
+            {
+                DisconnectTime += dt;
+            }
             if(wasConnected != Connected)
             {
+                if(_state == State.Waiting)
+                {
+                    Disconnects++;
+                }
                 if(ConnectionChanged != null)
                 {
                     ConnectionChanged();
@@ -572,6 +677,35 @@ namespace SocialPoint.Lockstep
         public void Dispose()
         {
             Stop();
+        }
+
+        public int LowestTurnBuffer
+        {
+            get
+            {
+                return _turnBuffersHistoric.Count > 0 ? _turnBuffersHistoric[0] : -1;
+            }
+        }
+
+        public int HighestTurnBuffer
+        {
+            get
+            {
+                return _turnBuffersHistoric.Count > 0 ? _turnBuffersHistoric[_turnBuffersHistoric.Count - 1] : -1;
+            }
+        }
+
+        public int AverageTurnBuffer
+        {
+            get
+            {
+                var sum = 0;
+                for(int i = 0; i < _turnBuffersHistoric.Count; i++)
+                {
+                    sum += _turnBuffersHistoric[i];
+                }
+                return _turnBuffersHistoric.Count > 0 ? sum / _turnBuffersHistoric.Count : -1;
+            }
         }
     }
 }

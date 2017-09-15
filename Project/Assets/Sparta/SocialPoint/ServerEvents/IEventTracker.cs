@@ -18,7 +18,7 @@ namespace SocialPoint.ServerEvents
 
     public sealed class ResourceOperation
     {
-        public string Resource;
+        public string ResourceName;
         public int Amount;
         public string Category;
         public string Subcategory;
@@ -86,5 +86,6 @@ namespace SocialPoint.ServerEvents
         void TrackLevelUp(int lvl, AttrDic data = null);
 
         void TrackResource(ResourceOperation op);
+
     }
 }

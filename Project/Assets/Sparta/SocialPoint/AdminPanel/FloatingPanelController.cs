@@ -1,3 +1,5 @@
+#if ADMIN_PANEL
+
 using SocialPoint.GUIControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -50,6 +52,7 @@ namespace SocialPoint.AdminPanel
             }
             if(_gui != null)
             {
+                NotifyOpenedPanel(_gui);
                 _gui.OnCreateGUI(_mainPanelContent);
             }
         }
@@ -149,3 +152,5 @@ namespace SocialPoint.AdminPanel
         void OnCreateFloatingPanel(FloatingPanelController panel);
     }
 }
+
+#endif

@@ -1,29 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#if ADMIN_PANEL 
+
 using System.Text;
 using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Base;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Login
 {
     public sealed class AdminPanelLogin : IAdminPanelGUI, IAdminPanelConfigurer
     {
         readonly ILogin _login;
-        readonly IDictionary<string, string> _environments;
+        readonly IBackendEnvironment _environments;
         readonly IAppEvents _appEvents;
+        readonly AdminPanelLoginForcedErrors _forcedErrorPanel;
+        readonly AdminPanelEnvironment _environmentsPanel;
 
         public AdminPanelLogin(ILogin login)
         {
             _login = login;
         }
 
-        public AdminPanelLogin(ILogin login, IDictionary<string, string> envs, IAppEvents appEvents=null):this(login)
+        public AdminPanelLogin(ILogin login, IBackendEnvironment environment, IAppEvents appEvents = null) : this(login)
         {
             _login = login;
             _appEvents = appEvents;
-            _environments = envs;
+            _environments = environment;
+
+            _forcedErrorPanel = new AdminPanelLoginForcedErrors(login, appEvents);
+            _environmentsPanel = new AdminPanelEnvironment(_login, _environments, _appEvents);
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -37,34 +41,12 @@ namespace SocialPoint.Login
             layout.CreateLabel("Login");
             layout.CreateMargin();
             
-            if(_environments != null)
-            {                
-                layout.CreateLabel("Backend Environment");
-                var envNames = new string[_environments.Count];
-                int i = 0;
-                StringBuilder envInfo = null;
-                var itr = _environments.GetEnumerator();
-                while(itr.MoveNext())
-                {
-                    var kvp = itr.Current;
-                    envNames[i++] = kvp.Key;
-                    var envUrl = StringUtils.FixBaseUri(kvp.Value);
-                    if(envInfo == null && _login.BaseUrl == envUrl)
-                    {
-                        envInfo = new StringBuilder();
-                        envInfo.Append("Name: ").AppendLine(kvp.Key);
-                        envInfo.Append("URL: ").AppendLine(kvp.Value);
-                    }
-                }
-                itr.Dispose();
-                if(envInfo != null)
-                {
-                    layout.CreateTextArea(envInfo.ToString());
-                }
-                layout.CreateOpenPanelButton("Change environment", new AdminPanelEnvironment(_login, _environments, _appEvents));
-                layout.CreateMargin();
-            }
-            
+            layout.CreateLabel("Backend Environment");
+
+            layout.CreateOpenPanelButton("Change environment", _environmentsPanel, _environments != null);
+            layout.CreateOpenPanelButton("Force Login Errors", _forcedErrorPanel);
+            layout.CreateMargin();
+
             layout.CreateLabel("Actions");
             
             layout.CreateConfirmButton("Clear Stored User", _login.ClearStoredUser);
@@ -107,10 +89,57 @@ namespace SocialPoint.Login
             layout.CreateTextArea(loginInfo.ToString());
             
             layout.CreateLabel("Link Info");
-            layout.CreateTextArea((links.Length > 0)? links.ToString() : "No links");
+            layout.CreateTextArea((links.Length > 0) ? links.ToString() : "No links");
             
             layout.CreateLabel("Friends");
-            layout.CreateVerticalScrollLayout().CreateTextArea((friends.Length > 0)? friends.ToString() : "No friends");
+            layout.CreateVerticalScrollLayout().CreateTextArea((friends.Length > 0) ? friends.ToString() : "No friends");
+        }
+            
+        public sealed class AdminPanelLoginForcedErrors : IAdminPanelGUI
+        {
+            readonly SocialPointLogin _login;
+            readonly IAppEvents _appEvents;
+
+            public AdminPanelLoginForcedErrors(ILogin login, IAppEvents appEvents)
+            {
+                _login = login as SocialPointLogin;
+                _appEvents = appEvents;
+            }
+
+            public void OnCreateGUI(AdminPanelLayout layout)
+            {
+                if(_login == null)
+                {
+                    layout.CreateLabel("Unsupported ILogin implementation");
+                    return;
+                }
+
+                layout.CreateLabel("Force Login Errors");
+                layout.CreateMargin();
+
+                var hlayout = layout.CreateHorizontalLayout();
+                hlayout.CreateFormLabel("Error Code");
+                var currentCode = _login.GetForcedErrorCode();
+                var code = string.IsNullOrEmpty(currentCode) ? "none" : currentCode;
+                hlayout.CreateTextInput(code, _login.SetForcedErrorCode);
+
+                hlayout = layout.CreateHorizontalLayout();
+                hlayout.CreateFormLabel("Error Type");
+                var currentType = _login.GetForcedErrorType();
+                var type = string.IsNullOrEmpty(currentType) ? "none" : currentType;
+                hlayout.CreateTextInput(type, _login.SetForcedErrorType);
+
+                layout.CreateButton("Clear", () => {
+                    _login.SetForcedErrorCode(null);
+                    _login.SetForcedErrorType(null);
+                    layout.Refresh();
+                });
+                
+                layout.CreateMargin();
+                layout.CreateConfirmButton("Restart Game", () => _appEvents.RestartGame());
+            }
         }
     }
 }
+
+#endif

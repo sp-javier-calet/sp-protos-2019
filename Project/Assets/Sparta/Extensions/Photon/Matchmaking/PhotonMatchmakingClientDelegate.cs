@@ -25,6 +25,14 @@ namespace SocialPoint.Matchmaking
             _network.RemoveDelegate(this);
         }
 
+        public void OnStart()
+        {
+        }
+
+        public void OnSearchOpponent()
+        {
+        }
+
         public void OnWaiting(int waitTime)
         {
         }
@@ -53,6 +61,10 @@ namespace SocialPoint.Matchmaking
             {
                 _network.Config.ForceAppId = server.GetValue(AppIdAttrKey).ToString();
             }
+        }
+        
+        public void OnStopped(bool successful)
+        {
         }
 
         public void OnError(Error err)

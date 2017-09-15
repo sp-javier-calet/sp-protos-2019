@@ -29,26 +29,16 @@ namespace SocialPoint.Base
                 return GetInstance();
             }
         }
-
-        [SerializeField]
-        string[] _scenesNames = new string[0];
-
-        public string[] ScenesNames
-        {
-            get
-            {
-                return _scenesNames;
-            }
-        }
-
-        #if UNITY_EDITOR
-        //Static constructor needed to run upon editor initialization (UnityEditor.InitializeOnLoad)
-        static ScenesData()
+            
+        #if !UNITY_EDITOR
+        void OnEnable()
         {
             GetInstance();
         }
         #endif
-
+        #if UNITY_EDITOR
+        [InitializeOnLoadMethod]
+        #endif
         static ScenesData GetInstance()
         {
             if(_instance == null)
@@ -76,15 +66,24 @@ namespace SocialPoint.Base
             return _instance;
         }
 
-        static public void UpdateData()
+        #if UNITY_EDITOR
+        static void CreateAsset()
         {
-            #if UNITY_EDITOR
-            UpdateSceneNames();
-            UpdateAsset();
-            #endif
+            if(!Directory.Exists(ContainerPath))
+            {
+                Directory.CreateDirectory(ContainerPath);
+            }
+
+            AssetDatabase.CreateAsset(_instance, ScenesDataAssetPath);
+            AssetDatabase.SaveAssets();
         }
 
-        #if UNITY_EDITOR
+        static public void UpdateData()
+        {
+            UpdateSceneNames();
+            UpdateAsset();
+        }
+
         static void UpdateSceneNames()
         {
             EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;
@@ -99,26 +98,28 @@ namespace SocialPoint.Base
                     namesList.Add(sceneName);
                 }
             }
-
-            Instance._scenesNames = namesList.ToArray();
+                
+            _instance._scenesNames = namesList.ToArray();
         }
 
         static void UpdateAsset()
         {
-            EditorUtility.SetDirty(Instance);
-        }
-
-        static void CreateAsset()
-        {
-            if(!Directory.Exists(ContainerPath))
-            {
-                Directory.CreateDirectory(ContainerPath);
-            }
-
-            string assetPath = ScenesDataAssetPath;
-            AssetDatabase.CreateAsset(Instance, assetPath);
+            EditorUtility.SetDirty(_instance);
             AssetDatabase.SaveAssets();
         }
+
         #endif
+
+        [SerializeField]
+        [HideInInspector]
+        string[] _scenesNames;
+
+        public string[] ScenesNames
+        {
+            get
+            {
+                return _scenesNames;
+            }
+        }
     }
 }

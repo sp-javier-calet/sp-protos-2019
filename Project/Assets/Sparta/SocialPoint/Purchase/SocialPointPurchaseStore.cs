@@ -43,10 +43,12 @@ namespace SocialPoint.Purchase
         }
 
         IPurchaseStore _purchaseStore;
-        IHttpClient _httpClient;
-        ICommandQueue _commandQueue;
+
         Dictionary<string, Action<PurchaseResponseType>> _purchasesInProcess;
         Dictionary<string, List<ProductReadyPetition>> _productReadyPetitions;
+
+        public IHttpClient HttpClient { get; set; }
+        public ICommandQueue CommandQueue { get; set; }
 
         /// <summary>
         /// The purchase completed function that each game defines.
@@ -56,7 +58,7 @@ namespace SocialPoint.Purchase
         /// </summary>
         PurchaseCompletedDelegate _purchaseCompleted;
 
-        public string Currency;
+        public string Currency { get; set; }
 
         public bool ProductListReceived { get; private set; }
 
@@ -106,7 +108,7 @@ namespace SocialPoint.Purchase
         /// </summary>
         /// <param name="httpClient">Http client.</param>
         /// <param name = "commandQueue"></param>
-        public SocialPointPurchaseStore(IHttpClient httpClient, ICommandQueue commandQueue, NativeCallsHandler handler)
+        public SocialPointPurchaseStore(NativeCallsHandler handler)
         {
             #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
             _purchaseStore = new IosPurchaseStore(handler);
@@ -115,9 +117,6 @@ namespace SocialPoint.Purchase
             #else
             _purchaseStore = new MockPurchaseStore();
             #endif
-
-            _httpClient = httpClient;
-            _commandQueue = commandQueue;
             _purchaseStore.ValidatePurchase = SocialPointValidatePurchase;
             _purchasesInProcess = new Dictionary<string, Action<PurchaseResponseType>>();
             _productReadyPetitions = new Dictionary<string, List<ProductReadyPetition>>();
@@ -142,7 +141,7 @@ namespace SocialPoint.Purchase
             }
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPPURCHASE")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugPurchasesFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("SocialPointPurchaseStore {0}", msg));
@@ -186,7 +185,7 @@ namespace SocialPoint.Purchase
             paramDic.Set(HttpParamDataSignature, new AttrString(receipt.DataSignature));
             req.AddParam(HttpParamOrderData, new JsonAttrSerializer().SerializeString(paramDic));
             #endif
-            _httpClient.Send(req, _1 => OnBackendResponse(_1, response, receipt));
+            HttpClient.Send(req, _1 => OnBackendResponse(_1, response, receipt));
         }
 
         /// <summary>
@@ -227,7 +226,7 @@ namespace SocialPoint.Purchase
                 var purchaseGameInfo = _purchaseCompleted(receipt, PurchaseResponseType.Complete);
                 TrackPurchaseStart(receipt, purchaseGameInfo);
                 //we send the packet with the purchaseSync, if there is no syncCmd we will add one with the cmdqueue event Sync
-                _commandQueue.Send();
+                CommandQueue.Send();
                 break;
                 
             case (int)BackendResponse.ORDER_SYNCED:
@@ -275,7 +274,7 @@ namespace SocialPoint.Purchase
         void PurchaseSync(Receipt receipt, ValidatePurchaseResponseDelegate response)
         {
             var purchaseCmd = new PurchaseCommand(receipt.OrderId, receipt.Store);
-            _commandQueue.Add(purchaseCmd, (data, err) => {
+            CommandQueue.Add(purchaseCmd, (data, err) => {
                 if(Error.IsNullOrEmpty(err))
                 {
                     Log.i("calling ValidatePurchaseResponseDelegate"); 
@@ -524,7 +523,7 @@ namespace SocialPoint.Purchase
         public void Dispose()
         {
             UnregisterEvents();
-            _commandQueue = null;
+            CommandQueue = null;
             _purchaseStore.Dispose();
         }
 

@@ -27,6 +27,12 @@ namespace SocialPoint.ServerMessaging
             list.Add(msg);
             msgs.DeleteMessages(list, callback);
         }
+
+        public static void ReadMessage(this IMessageCenter msgs, Message msg, Action<Error> callback = null)
+        {
+            var list = new List<Message>{msg};
+            msgs.ReadMessages(list, callback);
+        }
     }
 }
 

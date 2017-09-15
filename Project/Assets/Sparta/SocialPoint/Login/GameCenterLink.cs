@@ -90,6 +90,11 @@ namespace SocialPoint.Login
             _eventStateChange += cbk;
         }
 
+        public void ClearStateChangeDelegate()
+        {
+            _eventStateChange = null;
+        }
+
         void OnStateChanged()
         {
             
@@ -148,36 +153,32 @@ namespace SocialPoint.Login
         {
             GameCenterUser user = _gameCenter.User;
             var data = new AttrDic();
-            data.SetValue("gc_external_id", user.UserId);
-            data.SetValue("alias", user.Alias);
-            string ageGroup = "unknown";
-            switch(user.Age)
+            if(!string.IsNullOrEmpty(user.UserId))
             {
-            case GameCenterUser.AgeGroup.Underage:
-                ageGroup = "underage";
-                break;
-            case GameCenterUser.AgeGroup.Adult:
-                ageGroup = "adult";
-                break;
-            case GameCenterUser.AgeGroup.Unknown:
-                ageGroup = "unknown";
-                break;
-            }
-            data.SetValue("ageGroup", ageGroup);
-            GameCenterUserVerification veri = user.Verification;
-            if(!string.IsNullOrEmpty(veri.Url))
-            {
-                data.SetValue("gc_verification_url", veri.Url);
-                data.SetValue("gc_verification_signature", Convert.ToBase64String(veri.Signature));
-                data.SetValue("gc_verification_salt", Convert.ToBase64String(veri.Salt));
-                data.SetValue("gc_verification_time", veri.Time.ToString());
-            }
-            else
-            {
-                data.SetValue("gc_verification_url", string.Empty);
-                data.SetValue("gc_verification_signature", string.Empty);
-                data.SetValue("gc_verification_salt", string.Empty);
-                data.SetValue("gc_verification_time", string.Empty);
+                data.SetValue("gc_external_id", user.UserId);
+                data.SetValue("alias", user.Alias);
+                string ageGroup = "unknown";
+                switch(user.Age)
+                {
+                case GameCenterUser.AgeGroup.Underage:
+                    ageGroup = "underage";
+                    break;
+                case GameCenterUser.AgeGroup.Adult:
+                    ageGroup = "adult";
+                    break;
+                case GameCenterUser.AgeGroup.Unknown:
+                    ageGroup = "unknown";
+                    break;
+                }
+                data.SetValue("ageGroup", ageGroup);
+
+                GameCenterUserVerification veri = user.Verification;
+                bool validVerification = veri != null && !string.IsNullOrEmpty(veri.Url);
+
+                data.SetValue("gc_verification_url", validVerification ? veri.Url : string.Empty);
+                data.SetValue("gc_verification_signature", validVerification ? Convert.ToBase64String(veri.Signature) : string.Empty);
+                data.SetValue("gc_verification_salt", validVerification ? Convert.ToBase64String(veri.Salt) : string.Empty);
+                data.SetValue("gc_verification_time", validVerification ? veri.Time.ToString() : string.Empty);
             }
             return data;
         }

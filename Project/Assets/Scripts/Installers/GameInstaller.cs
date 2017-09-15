@@ -1,18 +1,19 @@
-
 using System;
-using System.Collections.Generic;
 using SocialPoint.Dependency;
-using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
 using SocialPoint.GameLoading;
 using SocialPoint.Alert;
 using SocialPoint.Locale;
 using SocialPoint.AppEvents;
-using SocialPoint.ScriptEvents;
+using SocialPoint.ServerSync;
 using SocialPoint.Social;
 using SocialPoint.Login;
 
-public class GameInstaller : Installer
+#if ADMIN_PANEL
+using SocialPoint.AdminPanel;
+#endif
+
+public class GameInstaller : Installer, IInitializable
 {
     [Serializable]
     public class SettingsData
@@ -20,30 +21,49 @@ public class GameInstaller : Installer
         public string InitialJsonGameResource = "game";
         public string InitialJsonPlayerResource = "user";
         public bool EditorDebug = true;
+        public bool LoadLocalJson;
     }
 
     public SettingsData Settings = new SettingsData();
 
     public override void InstallBindings()
     {
+        Container.Bind<IInitializable>().ToInstance(this);
+
 #if UNITY_EDITOR
-        Container.BindInstance("game_debug", Settings.EditorDebug);
+        Container.Bind<bool>("game_debug").ToInstance(Settings.EditorDebug);
 #else
-        Container.BindInstance("game_debug", UnityEngine.Debug.isDebugBuild);
+        Container.Bind<bool>("game_debug").ToInstance(UnityEngine.Debug.isDebugBuild);
 #endif
         Container.Install<GameModelInstaller>();
 
         Container.Rebind<IGameErrorHandler>().ToMethod<GameErrorHandler>(CreateErrorHandler);
         Container.Bind<IDisposable>().ToLookup<IGameErrorHandler>();
 
-        Container.Rebind<IGameLoader>().ToMethod<GameLoader>(CreateGameLoader);
+        Container.Rebind<IGameLoader>().ToMethod<GameLoader>(CreateGameLoader, SetupGameLoader);
+
+        #if ADMIN_PANEL
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelGame>(CreateAdminPanel);
+        #endif
 
         Container.Rebind<IPlayerData>().ToMethod<PlayerDataProvider>(CreatePlayerData);
 
         Container.Install<EconomyInstaller>();
     }
 
+    public void Initialize()
+    {
+        if(Settings.LoadLocalJson)
+        {
+            var loader = Container.Resolve<IGameLoader>();
+            if(loader != null)
+            {
+                loader.Load(null);
+            }
+        }
+    }
+
+    #if ADMIN_PANEL
     AdminPanelGame CreateAdminPanel()
     {
         return new AdminPanelGame(
@@ -51,6 +71,7 @@ public class GameInstaller : Installer
             Container.Resolve<IGameLoader>(),
             Container.Resolve<GameModel>());
     }
+    #endif
 
     GameLoader CreateGameLoader()
     {
@@ -64,6 +85,15 @@ public class GameInstaller : Installer
             Container.Resolve<IAttrObjSerializer<PlayerModel>>(),
             Container.Resolve<GameModel>(),
             Container.Resolve<ILogin>());
+    }
+
+    void SetupGameLoader(GameLoader loader)
+    {
+        var commandQueue = Container.Resolve<ICommandQueue>();
+        if(commandQueue != null)
+        {
+            commandQueue.AutoSync = loader.OnAutoSync;
+        }
     }
 
     GameErrorHandler CreateErrorHandler()
@@ -90,7 +120,7 @@ public class GameInstaller : Installer
     class PlayerDataProvider : IPlayerData
     {
         ILoginData _loginData;
-        PlayerModel _playerModel;
+        readonly PlayerModel _playerModel;
 
         public PlayerDataProvider(ILoginData loginData, PlayerModel playerModel)
         {
@@ -116,7 +146,7 @@ public class GameInstaller : Installer
             }
         }
 
-        public long Level
+        public int Level
         {
             get
             {

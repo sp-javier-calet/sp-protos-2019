@@ -4,6 +4,7 @@ using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Hardware;
+using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 
@@ -51,6 +52,9 @@ namespace SocialPoint.Login
         const string HttpParamPrivilegeToken = "privileged_session_token";
         const string HttpParamLinkChange = "link_change";
         const string HttpParamLinkChangeCode = "link_change_code";
+
+        const string HttpParamForcedErrorCode = "fake_error_code";
+        const string HttpParamForcedErrorType = "fake_error_type";
 
         const string HttpParamDeviceTotalMemory = "device_total_memory";
         const string HttpParamDeviceUsedMemory = "device_used_memory";
@@ -100,6 +104,8 @@ namespace SocialPoint.Login
         const string EventNameLoginError = "errors.login_error";
         const string EventNameLinkError = "errors.link_error";
 
+        const long TrackErrorMinElapsedTime = 60;
+
         const string SignatureSeparator = ":";
         const string SignatureCodeSeparator = "-";
 
@@ -113,7 +119,8 @@ namespace SocialPoint.Login
         const int LinkedToLooseError = 265;
         const int LinkedToSameError = 266;
         const int LinkedToLinkedError = 267;
-        const int ForceUpgradeError = 485;
+        const int ForceUpgradeError = 285;
+        const int RootedDeviceError = 479;
 
         public const int DefaultMaxSecurityTokenErrorRetries = 5;
         public const int DefaultMaxConnectivityErrorRetries = 0;
@@ -153,6 +160,12 @@ namespace SocialPoint.Login
         string _securityToken;
         bool _linkChange;
         int _linkChangeCode;
+
+        long _lastTrackedErrorTimestamp;
+        int _lastTrackedErrorCode;
+
+        string _forcedErrorCode = null;
+        string _forcedErrorType = null;
 
         public event HttpRequestDelegate HttpRequestEvent = null;
         public event NewUserDelegate NewUserEvent = null;
@@ -249,6 +262,8 @@ namespace SocialPoint.Login
 
         public IAttrStorage Storage { get; set; }
 
+        public ILocalizationManager Localization { get; set; }
+
         public float Timeout { get; set; }
 
         public float ActivityTimeout { get; set; }
@@ -259,7 +274,6 @@ namespace SocialPoint.Login
 
         public uint UserMappingsBlock { get; set; }
 
-        public string Language { get; set; }
 
         public GenericData Data { get; private set; }
 
@@ -404,6 +418,14 @@ namespace SocialPoint.Login
             }
         }
 
+        public string Language
+        {
+            get
+            {
+                return Localization != null ? Localization.CurrentLanguage : null;
+            }
+        }
+
         public void SetBaseUrl(string url)
         {
             var baseurl = StringUtils.FixBaseUri(url);
@@ -450,7 +472,7 @@ namespace SocialPoint.Login
             return false;
         }
 
-        [System.Diagnostics.Conditional("DEBUG_SPLOGIN")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugLoginFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("SocialPointLogin {0}", msg));
@@ -470,7 +492,6 @@ namespace SocialPoint.Login
             AutoUpdateFriendsPhotosSize = DefaultAutoUpdateFriendsPhotoSize;
             UserMappingsBlock = DefaultUserMappingsBlock;
             SecurityToken = string.Empty;
-            Language = null;
             User = new LocalUser();
             _users = new List<User>();
             _links = new List<LinkInfo>();
@@ -489,6 +510,11 @@ namespace SocialPoint.Login
         public void Dispose()
         {
             ClearUsersCache();
+            for(var i = 0; i < _links.Count; ++i)
+            {
+                var info = _links[i];
+                info.Link.ClearStateChangeDelegate();
+            }
             _links.Clear();
             Friends.Clear();
             _pendingLinkConfirms.Clear();
@@ -516,18 +542,23 @@ namespace SocialPoint.Login
             AttrDic json = null;
             if(resp.HasError)
             {
-                try
-                {
-                    json = new JsonAttrParser().Parse(resp.Body).AsDic;
-                }
-                catch(Exception)
-                {
-                }
+                json = new JsonAttrParser().Parse(resp.Body).AsDic;
             }
+
             if(resp.StatusCode == ForceUpgradeError)
             {
                 err = new Error("The game needs to be upgraded.");
                 typ = ErrorType.Upgrade;
+                if(resp.Body != null)
+                {
+                    json = new JsonAttrParser().Parse(resp.Body).AsDic;
+                }
+                LoadGenericData(json.Get(AttrKeyGenericData));
+            }
+            else if(resp.StatusCode == RootedDeviceError)
+            {
+                err = new Error("The device has been rooted.");
+                typ = ErrorType.Rooted;
                 LoadGenericData(json.Get(AttrKeyGenericData));
             }
             else if(resp.StatusCode == InvalidSecurityTokenError)
@@ -550,6 +581,7 @@ namespace SocialPoint.Login
             {
                 err = resp.Error;
             }
+
             if(!Error.IsNullOrEmpty(err))
             {
                 data.SetValue(AttrKeyHttpCode, resp.StatusCode);
@@ -622,7 +654,13 @@ namespace SocialPoint.Login
             {
                 err = new Error("Game is under maintenance.");
                 typ = ErrorType.MaintenanceMode;
-                LoadGenericData(json.Get(AttrKeyGenericData));
+
+                Attr genericDataAttr = null;
+                if(json != null)
+                {
+                    genericDataAttr = json.Get(AttrKeyGenericData);
+                }
+                LoadGenericData(genericDataAttr);
             }
             else if(resp.StatusCode == InvalidSessionError)
             {
@@ -787,6 +825,10 @@ namespace SocialPoint.Login
 
         void LoadGenericData(Attr genericData)
         {
+            if(genericData == null)
+            {
+                genericData = Attr.InvalidDic;
+            }
             if(Data == null)
             {
                 Data = new GenericData();
@@ -901,8 +943,8 @@ namespace SocialPoint.Login
         void OnLinkStateChanged(LinkInfo info, LinkState state)
         {
             DebugLog("OnLinkStateChanged");
-            DebugLog("OnLinkStateChanged info: "+ info);
-            DebugLog("OnLinkStateChanged state: "+ state);
+            DebugLog("OnLinkStateChanged info: " + info);
+            DebugLog("OnLinkStateChanged state: " + state);
 
             DebugUtils.Assert(info != null && _links.FirstOrDefault(item => item == info) != null);
             if(ImpersonatedUserId != 0)
@@ -937,6 +979,12 @@ namespace SocialPoint.Login
 
             // the user links have changed, we need to tell the server
             info.LinkData = info.Link.GetLinkData();
+
+            if(info.LinkData.Count == 0)
+            {
+                return;
+            }
+
             if(FakeEnvironment)
             {
                 UpdateLinkData(info, false);
@@ -1208,7 +1256,7 @@ namespace SocialPoint.Login
                 }
             }
 
-            if(User != null)
+            if(Error.IsNullOrEmpty(err) && User != null)
             {
                 if(NewUserEvent != null)
                 {
@@ -1444,32 +1492,8 @@ namespace SocialPoint.Login
             var signature = typeCode + SignatureSeparator + SignatureSuffix;
             data.SetValue(AttrKeySignature, signature);
 
-            if(TrackEvent != null)
-            {
-                var evData = new AttrDic();
-                var errData = new AttrDic();
-                evData.Set(AttrKeyEventError, errData);
-                var loginData = new AttrDic();
-                errData.Set(AttrKeyEventLogin, loginData);
-                loginData.SetValue(AttrKeyEventErrorType, (int)type);
-                loginData.SetValue(AttrKeyEventErrorCode, err.Code);
-                loginData.SetValue(AttrKeyEventErrorMessage, err.Msg);
-                var code = 0;
-                if(data.AsDic.ContainsKey(AttrKeyHttpCode))
-                {
-                    code = data.AsDic.GetValue(AttrKeyHttpCode).ToInt();
-                }
-                loginData.SetValue(AttrKeyEventErrorHttpCode, code);
-                loginData.Set(AttrKeyEventErrorData, data);
-                if(type.IsLinkError())
-                {
-                    TrackEvent(EventNameLinkError, evData);
-                }
-                else
-                {
-                    TrackEvent(EventNameLoginError, evData);
-                }
-            }
+            TrackError(type, err, data);
+
             if(!type.IsLinkError())
             {
                 if(ErrorEvent != null)
@@ -1484,7 +1508,56 @@ namespace SocialPoint.Login
                     LinkErrorEvent(type, err, data);
                 }
             }
+        }
 
+        void TrackError(ErrorType type, Error err, AttrDic data)
+        {
+            if(TrackEvent != null && CanTrackLoginError(err.Code))
+            {
+                var evData = new AttrDic();
+                var errData = new AttrDic();
+                evData.Set(AttrKeyEventError, errData);
+                var loginData = new AttrDic();
+                errData.Set(AttrKeyEventLogin, loginData);
+                loginData.SetValue(AttrKeyEventErrorType, (int)type);
+                loginData.SetValue(AttrKeyEventErrorCode, err.Code);
+                loginData.SetValue(AttrKeyEventErrorMessage, err.Msg);
+
+                var code = 0;
+                if(data.AsDic.ContainsKey(AttrKeyHttpCode))
+                {
+                    code = data.AsDic.GetValue(AttrKeyHttpCode).ToInt();
+                }
+                loginData.SetValue(AttrKeyEventErrorHttpCode, code);
+                loginData.Set(AttrKeyEventErrorData, data);
+
+                if(type.IsLinkError())
+                {
+                    TrackEvent(EventNameLinkError, evData);
+                }
+                else
+                {
+                    TrackEvent(EventNameLoginError, evData);
+                }
+            }
+        }
+
+        bool CanTrackLoginError(int code)
+        {
+            var now = TimeUtils.Timestamp;
+            var elapsed = now - _lastTrackedErrorTimestamp;
+            bool isErrorRepeating = (_lastTrackedErrorCode == code);
+
+            // Avoid trackign repeated errors in a defined span of time
+            if(isErrorRepeating && elapsed < TrackErrorMinElapsedTime)
+            {
+                return false;
+            }
+
+            _lastTrackedErrorTimestamp = now;
+            _lastTrackedErrorCode = code;
+
+            return true;
         }
 
         void OnAppRequestResponse(HttpResponse resp, AppRequest req, ErrorDelegate cbk)
@@ -1986,7 +2059,50 @@ namespace SocialPoint.Login
             {
                 req.AddParam(HttpParamLinkChangeCode, new AttrInt(_linkChangeCode));
             }
+
+            AddForcedErrorRequestParams(req);
         }
+
+        #region Forced Login Errors
+
+        public void SetForcedErrorCode(string code)
+        {
+            _forcedErrorCode = code;
+        }
+
+        public string GetForcedErrorCode()
+        {
+            return _forcedErrorCode;
+        }
+
+        public void SetForcedErrorType(string type)
+        {
+            _forcedErrorType = type;
+        }
+
+        public string GetForcedErrorType()
+        {
+            return _forcedErrorType;
+        }
+
+        public void AddForcedErrorRequestParams(HttpRequest req)
+        {
+            #if ADMIN_PANEL
+            if(AdminPanel.AdminPanel.IsAvailable)
+            {
+                if(!string.IsNullOrEmpty(_forcedErrorCode))
+                {
+                    req.AddParam(HttpParamForcedErrorCode, _forcedErrorCode);
+                }
+                if(!string.IsNullOrEmpty(_forcedErrorType))
+                {
+                    req.AddParam(HttpParamForcedErrorType, _forcedErrorType);
+                }
+            }
+            #endif
+        }
+
+        #endregion
 
         // PUBLIC
 
@@ -2083,6 +2199,7 @@ namespace SocialPoint.Login
             if(Storage != null)
             {
                 Storage.Remove(UserIdStorageKey);
+
                 Storage.Remove(UserHasRegisteredStorageKey);
             }
         }

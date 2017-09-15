@@ -13,6 +13,7 @@
 //  See the License for the specific language governing permissions and
 //    limitations under the License.
 // </copyright>
+#if (UNITY_ANDROID || (UNITY_IPHONE && !NO_GPGS))
 
 namespace GooglePlayGames
 {
@@ -52,7 +53,25 @@ namespace GooglePlayGames
         /// Authenticates the local user. Equivalent to calling
         /// <see cref="PlayGamesPlatform.Authenticate" />.
         /// </summary>
+        public void Authenticate(Action<bool, string> callback)
+        {
+            mPlatform.Authenticate(callback);
+        }
+
+        /// <summary>
+        /// Authenticates the local user. Equivalent to calling
+        /// <see cref="PlayGamesPlatform.Authenticate" />.
+        /// </summary>
         public void Authenticate(Action<bool> callback, bool silent)
+        {
+            mPlatform.Authenticate(callback, silent);
+        }
+
+        /// <summary>
+        /// Authenticates the local user. Equivalent to calling
+        /// <see cref="PlayGamesPlatform.Authenticate" />.
+        /// </summary>
+        public void Authenticate(Action<bool, string> callback, bool silent)
         {
             mPlatform.Authenticate(callback, silent);
         }
@@ -85,7 +104,7 @@ namespace GooglePlayGames
         [Obsolete("Use PlayGamesPlatform.GetServerAuthCode()")]
         public void GetIdToken(Action<string> idTokenCallback)
         {
-            if(authenticated)
+            if (authenticated)
                 mPlatform.GetIdToken(idTokenCallback);
             else
                 idTokenCallback(null);
@@ -142,6 +161,11 @@ namespace GooglePlayGames
         /// <summary>
         /// Gets the user's Google id.
         /// </summary>
+        /// <remarks> This id is persistent and uniquely identifies the user
+        ///     across all games that use Google Play Game Services.  It is
+        ///     the preferred method of uniquely identifying a player instead
+        ///     of email address.
+        /// </remarks>
         /// <returns>
         /// The user's Google id.
         /// </returns>
@@ -254,10 +278,10 @@ namespace GooglePlayGames
             if (mStats == null || !mStats.Valid)
             {
                 mPlatform.GetPlayerStats((rc, stats) =>
-                    {
-                        mStats = stats;
-                        callback(rc, stats);
-                    });
+                {
+                    mStats = stats;
+                    callback(rc, stats);
+                });
             }
             else
             {
@@ -267,3 +291,4 @@ namespace GooglePlayGames
         }
     }
 }
+#endif

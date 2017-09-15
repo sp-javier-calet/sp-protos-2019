@@ -1,4 +1,6 @@
-﻿using System;
+﻿#if (UNITY_ANDROID || (UNITY_IOS && !NO_GPGS))
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,14 +9,17 @@ using GooglePlayGames.BasicApi;
 using GooglePlayGames.BasicApi.Quests;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 using UnityEngine;
 using UnityEngine.SocialPlatforms;
 
 namespace SocialPoint.Social
 {
-    public sealed class UnityGoogle : MonoBehaviour, IGoogle
+    public sealed class UnityGoogle : IUpdateable, IDisposable, IGoogle
     {
-        [System.Diagnostics.Conditional("DEBUG_GOOGLEPLAY")]
+        const string GooglePlayLoginCancelledKey = "google_play_login_cancelled";
+
+        [System.Diagnostics.Conditional(DebugFlags.DebugGooglePlayFlag)]
         void DebugLog(string msg)
         {
             Log.i(string.Format("GooglePlay - {0}", msg));
@@ -49,10 +54,30 @@ namespace SocialPoint.Social
             }
         }
 
+        IUpdateScheduler _scheduler;
+
+        public IUpdateScheduler Scheduler
+        {
+            set
+            {
+                if(_scheduler != null)
+                {
+                    _scheduler.Remove(this);
+                }
+                _scheduler = value;
+                if(_scheduler != null)
+                {
+                    _scheduler.Add(this);
+                }
+            }
+        }
+
         #region IGoogle implementation
 
         public void Login(ErrorDelegate cbk, bool silent = false)
         {
+            DebugUtils.Assert(_scheduler != null, "UnityGoogle is not scheduled for update");
+
             DebugLog("Login");
             if(IsConnected)
             {
@@ -74,18 +99,8 @@ namespace SocialPoint.Social
                 DebugLog("Login - Authenticate success: " + success);
                 DebugLog("Login - Authenticate with local user: " + _platform.localUser.userName);
                 _loginSuccess = success;
-                DispatchMainThread(UpdateAfterLogin);
+                DispatchMainThread(OnLogin);
             }, silent);
-        }
-
-        void UpdateAfterLogin()
-        {
-            DebugLog("UpdateAfterLogin");
-            DebugUtils.Assert(_loginCallback != null);
-            if(_loginCallback != null)
-            {
-                OnLogin();
-            }
         }
 
         void LoadDescriptionAchievements()
@@ -140,6 +155,7 @@ namespace SocialPoint.Social
         void OnLoginEnd(Error err)
         {
             DebugLog("OnLoginEnd - Error: " + err);
+            HasCancelledLogin |= !Error.IsNullOrEmpty(err);
 
             _connecting = false;
             NotifyStateChanged();
@@ -241,6 +257,30 @@ namespace SocialPoint.Social
             {
                 return _connecting;
             }
+        }
+
+        public bool HasCancelledLogin
+        {
+            get
+            {
+                return PlayerPrefs.HasKey(GooglePlayLoginCancelledKey);
+            }
+            private set
+            {
+                if(value)
+                {
+                    PlayerPrefs.SetInt(GooglePlayLoginCancelledKey, 1);
+                }
+                else
+                {
+                    PlayerPrefs.DeleteKey(GooglePlayLoginCancelledKey);
+                }
+            }
+        }
+
+        public void Dispose()
+        {
+            _scheduler.Remove(this);
         }
 
         #region Achievements
@@ -670,12 +710,11 @@ namespace SocialPoint.Social
 
         Action _dispatched;
 
-        void LateUpdate()
+        public void Update()
         {
             DispatchPending();
         }
 
-        
         void DispatchPending()
         {
             if(_dispatched != null)
@@ -696,3 +735,4 @@ namespace SocialPoint.Social
         #endregion
     }
 }
+#endif

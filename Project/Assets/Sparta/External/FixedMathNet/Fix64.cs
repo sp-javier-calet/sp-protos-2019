@@ -21,6 +21,8 @@ namespace FixMath.NET {
         public static readonly Fix64 MinValue = new Fix64(MIN_VALUE);
         public static readonly Fix64 One = new Fix64(ONE);
         public static readonly Fix64 Zero = new Fix64();
+        public static readonly Fix64 Half = new Fix64(2147483648L);
+
         /// <summary>
         /// The value of Pi
         /// </summary>
@@ -525,6 +527,7 @@ namespace FixMath.NET {
             return FastSin(new Fix64(rawAngle));
         }
 
+        #if ENABLE_TANGENT_FIX64
         /// <summary>
         /// Returns the tangent of x.
         /// </summary>
@@ -558,6 +561,7 @@ namespace FixMath.NET {
             var finalValue = flip ? -interpolatedValue : interpolatedValue;
             return new Fix64(finalValue);
         }
+        #endif
 
         public static Fix64 Atan2(Fix64 y, Fix64 x) {
             var yl = y.m_rawValue;
@@ -598,7 +602,9 @@ namespace FixMath.NET {
         }
 
 
-
+        public static explicit operator Fix64(int value) {
+            return new Fix64(value * ONE);
+        }
         public static explicit operator Fix64(long value) {
             return new Fix64(value * ONE);
         }
@@ -673,10 +679,12 @@ namespace FixMath.NET {
             }
         }
 
+
         internal static void GenerateTanLut() {
             using (var writer = new StreamWriter("Fix64TanLut.cs")) {
                 writer.Write(
-@"namespace FixMath.NET {
+@"#if ENABLE_TANGENT_FIX64
+  namespace FixMath.NET {
     partial struct Fix64 {
         public static readonly long[] TanLut = new[] {");
                 int lineCounter = 0;
@@ -697,7 +705,8 @@ namespace FixMath.NET {
 @"
         };
     }
-}");
+}
+#endif");
             }
         }
 

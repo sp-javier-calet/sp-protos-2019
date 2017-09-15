@@ -210,7 +210,7 @@ namespace SocialPoint.Crash
             BeforeLogin,
             AfterLogin
         }
-            
+
         public delegate void TrackEventDelegate(string eventName, AttrDic data = null, ErrorDelegate del = null);
 
         const string UriCrash = "crash";
@@ -495,7 +495,7 @@ namespace SocialPoint.Crash
 
             if(_updateScheduler != null)
             { 
-                _updateScheduler.AddFixed(this, SendInterval);
+                _updateScheduler.Add(this, UpdateableTimeMode.GameTimeUnscaled, SendInterval);
                 _running = true;
             }
 
@@ -660,11 +660,13 @@ namespace SocialPoint.Crash
 
         void SendCrashesAfterLogin(Action callback = null)
         {
+            DebugUtils.Assert(IsEnabled, "CrashReporter should be already enabled after login"); 
             SendCrashesWithSafeCallback(ReportSendType.AfterLogin, callback);
         }
 
         public void SendCrashesBeforeLogin(Action callback)
         {
+            DebugUtils.Assert(IsEnabled, "CrashReporter should be enabled before login"); 
             SendCrashesWithSafeCallback(ReportSendType.BeforeLogin, callback);
         }
 
@@ -1022,8 +1024,8 @@ namespace SocialPoint.Crash
         {
             appEvents.ReceivedMemoryWarning += OnMemoryWarning;
             appEvents.WillGoBackground.Add(0, OnWillGoBackground);
-            appEvents.WasOnBackground += OnWillGoForeground;
-            appEvents.LevelWasLoaded += OnLevelWasLoaded;
+            appEvents.WasOnBackground.Add(0, OnWillGoForeground);
+            SceneManager.sceneLoaded += OnSceneLoaded;
             appEvents.ApplicationQuit += OnApplicationQuit;
             appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
         }
@@ -1032,8 +1034,8 @@ namespace SocialPoint.Crash
         {
             appEvents.ReceivedMemoryWarning -= OnMemoryWarning;
             appEvents.WillGoBackground.Remove(OnWillGoBackground);
-            appEvents.WasOnBackground -= OnWillGoForeground;
-            appEvents.LevelWasLoaded -= OnLevelWasLoaded;
+            appEvents.WasOnBackground.Remove(OnWillGoForeground);
+            SceneManager.sceneLoaded -= OnSceneLoaded;
             appEvents.ApplicationQuit -= OnApplicationQuit;
             appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
         }
@@ -1048,14 +1050,13 @@ namespace SocialPoint.Crash
             _breadcrumbManager.DumpToFile();
         }
 
-        void OnLevelWasLoaded(int level)
+        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             ClearUniqueExceptions();
         }
 
         void OnGameWasLoaded()
         {
-            Enable();
             SendCrashesAfterLogin();
         }
 

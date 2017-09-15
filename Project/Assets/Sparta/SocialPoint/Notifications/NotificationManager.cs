@@ -68,7 +68,7 @@ namespace SocialPoint.Notifications
             _appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
             _appEvents.WillGoBackground.Add(-50, ScheduleNotifications);
             _appEvents.ApplicationQuit += ScheduleNotifications;
-            _appEvents.WasOnBackground += ClearNotifications;
+            _appEvents.WasOnBackground.Add(0, ClearNotifications);
             _appEvents.WasCovered += ClearNotifications;
             Services.RegisterForRemoteToken(OnPushTokenReceived);
             Reset();
@@ -81,7 +81,7 @@ namespace SocialPoint.Notifications
             _appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
             _appEvents.WillGoBackground.Remove(ScheduleNotifications);
             _appEvents.ApplicationQuit -= ScheduleNotifications;
-            _appEvents.WasOnBackground -= ClearNotifications;
+            _appEvents.WasOnBackground.Remove(ClearNotifications);
             _appEvents.WasCovered -= ClearNotifications;
         }
 
@@ -173,6 +173,7 @@ namespace SocialPoint.Notifications
 
         void ScheduleNotifications()
         {
+            ClearNotifications();
             AddGameNotifications();
             for(int i = 0, _notificationsCount = _notifications.Count; i < _notificationsCount; i++)
             {
@@ -187,9 +188,7 @@ namespace SocialPoint.Notifications
             Reset();
         }
 
-
-
-        [System.Diagnostics.Conditional("DEBUG_SPNOTIFICATIONS")]
+        [System.Diagnostics.Conditional(DebugFlags.DebugNotificationsFlag)]
         void DebugLog(string msg)
         {
             const string tag = "SocialPoint.Notifications-DebugLog";

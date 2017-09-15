@@ -75,5 +75,23 @@ namespace SocialPoint.IO
         {
             return _reader.ReadUInt64();
         }
+
+        public bool EOF()
+        {
+            return _reader.PeekChar() == -1;
+        }
+
+        public void Dispose()
+        {
+            _reader.Close();
+        }
+
+        public bool Finished
+        {
+            get
+            {
+                return _reader.BaseStream.Position >= _reader.BaseStream.Length;
+            }
+        }
     }
 }

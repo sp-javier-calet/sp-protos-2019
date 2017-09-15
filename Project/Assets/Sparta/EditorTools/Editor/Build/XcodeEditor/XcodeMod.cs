@@ -74,6 +74,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             ApplyShellScripts(editor);
             ApplySystemCapabilities(editor);
             ApplyProvisioningProfile(editor);
+            ApplyMainKeychainAccessGroup(editor);
             ApplyKeychainAccessGroups(editor);
         }
 
@@ -320,6 +321,15 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             if(provisioningProfile != null)
             {
                 editor.SetProvisioningProfile(provisioningProfile);
+            }
+        }
+
+        void ApplyMainKeychainAccessGroup(XCodeProjectEditor editor)
+        {
+            var mainKeychainAccessGroup = (string)_datastore["mainKeychainAccessGroup"];
+            if(mainKeychainAccessGroup != null)
+            {
+                editor.AddKeychainAccessGroup(mainKeychainAccessGroup);
             }
         }
 

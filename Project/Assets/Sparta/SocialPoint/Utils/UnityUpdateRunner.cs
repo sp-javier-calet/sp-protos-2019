@@ -16,16 +16,18 @@ namespace SocialPoint.Utils
 
     public sealed class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler
     {
+        const float kMaxUnscaledDelta = 0.5f;
+
         readonly UpdateScheduler _scheduler = new UpdateScheduler();
 
-        public void Add(IUpdateable elm)
+        public void Add(IUpdateable elm, UpdateableTimeMode updateTimeMode = UpdateableTimeMode.GameTimeUnscaled, float interval = -1)
         {
-            _scheduler.Add(elm);
+            _scheduler.Add(elm, updateTimeMode, interval);
         }
 
-        public void AddFixed(IUpdateable elm, double interval, bool usesTimeScale = false)
+        public void Add(IDeltaUpdateable elm, UpdateableTimeMode updateTimeMode = UpdateableTimeMode.GameTimeUnscaled, float interval = -1)
         {
-            _scheduler.AddFixed(elm, interval, usesTimeScale);
+            _scheduler.Add(elm, updateTimeMode, interval);
         }
 
         public void Remove(IUpdateable elm)
@@ -33,7 +35,17 @@ namespace SocialPoint.Utils
             _scheduler.Remove(elm);
         }
 
+        public void Remove(IDeltaUpdateable elm)
+        {
+            _scheduler.Remove(elm);
+        }
+
         public bool Contains(IUpdateable elm)
+        {
+            return _scheduler.Contains(elm);
+        }
+
+        public bool Contains(IDeltaUpdateable elm)
         {
             return _scheduler.Contains(elm);
         }
@@ -57,7 +69,12 @@ namespace SocialPoint.Utils
 
         void Update()
         {
-            _scheduler.Update(Time.deltaTime);
+            /* NOTE: Unity's Time.unscaledDeltaTime is counting time while in background (BUG?), 
+             * but we want an unscaled game-time-only for UnscaledDeltaTime, 
+             * so we ignore big deltas in Time.unscaledDeltaTime.
+             * */
+            float unscaledDeltaTime = (Time.unscaledDeltaTime > kMaxUnscaledDelta) ? kMaxUnscaledDelta : Time.unscaledDeltaTime;
+            _scheduler.Update(Time.deltaTime, unscaledDeltaTime);
         }
     }
 

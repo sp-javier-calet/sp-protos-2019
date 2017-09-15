@@ -6,9 +6,21 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Utils
 {
+    public enum UpdateableTimeMode
+    {
+        GameTimeScaled,
+        GameTimeUnscaled,
+        RealTime
+    }
+
     public interface IUpdateable
     {
         void Update();
+    }
+
+    public interface IDeltaUpdateable
+    {
+        void Update(float elapsed);
     }
 
     public interface ICoroutineRunner
@@ -20,13 +32,17 @@ namespace SocialPoint.Utils
 
     public interface IUpdateScheduler
     {
-        void Add(IUpdateable elm);
-
-        void AddFixed(IUpdateable elm, double interval, bool usesTimeScale = false);
+        void Add(IUpdateable elm, UpdateableTimeMode updateTimeMode, float interval);
 
         void Remove(IUpdateable elm);
 
         bool Contains(IUpdateable elm);
+
+        void Add(IDeltaUpdateable elm, UpdateableTimeMode updateTimeMode, float interval);
+
+        void Remove(IDeltaUpdateable elm);
+
+        bool Contains(IDeltaUpdateable elm);
     }
 
     public static class UpdateSchedulerExtension
@@ -44,6 +60,32 @@ namespace SocialPoint.Utils
                 itr.Dispose();
             }
         }
+
+        [Obsolete("Use Add instead")]
+        public static void AddFixed(this IUpdateScheduler scheduler, IUpdateable elm, double interval, UpdateableTimeMode updateTimeMode = UpdateableTimeMode.GameTimeUnscaled)
+        {
+            scheduler.Add(elm, updateTimeMode, (float)interval);
+        }
+
+        public static void Add(this IUpdateScheduler scheduler, IUpdateable elm)
+        {
+            scheduler.Add(elm, UpdateableTimeMode.GameTimeUnscaled, -1.0f);
+        }
+
+        public static void Add(this IUpdateScheduler scheduler, IUpdateable elm, float interval)
+        {
+            scheduler.Add(elm, UpdateableTimeMode.GameTimeUnscaled, interval);
+        }
+
+        public static void Add(this IUpdateScheduler scheduler, IDeltaUpdateable elm)
+        {
+            scheduler.Add(elm, UpdateableTimeMode.GameTimeUnscaled, -1.0f);
+        }
+
+        public static void Add(this IUpdateScheduler scheduler, IDeltaUpdateable elm, float interval)
+        {
+            scheduler.Add(elm, UpdateableTimeMode.GameTimeUnscaled, interval);
+        }
     }
 
     public sealed class ScheduledAction : IUpdateable, IDisposable
@@ -58,7 +100,7 @@ namespace SocialPoint.Utils
             _action = action;
         }
 
-        public void Start(double interval = 0)
+        public void Start(float interval = 0)
         {
             if(_started)
             {
@@ -72,7 +114,7 @@ namespace SocialPoint.Utils
             }
             else
             {
-                _scheduler.AddFixed(this, interval);
+                _scheduler.Add(this, UpdateableTimeMode.GameTimeUnscaled, interval);
             }
         }
 
@@ -89,7 +131,10 @@ namespace SocialPoint.Utils
 
         public void Dispose()
         {
-            Stop();
+            if(_started)
+            {
+                Stop();
+            }
             _scheduler = null;
             _action = null;
         }
@@ -97,117 +142,202 @@ namespace SocialPoint.Utils
 
     public sealed class UpdateScheduler : IUpdateScheduler
     {
-        readonly HashSet<IUpdateable> _elementsToRemove;
-        readonly HashSet<IUpdateable> _elements;
-        readonly Dictionary<IUpdateable, TimeScaleDependantInterval> _intervalTimeScaleDependantElements;
-        readonly Dictionary<IUpdateable, TimeScaleNonDependantInterval> _intervalTimeScaleNonDependantElements;
+        readonly Dictionary<Object, IUpdateableHandler> _elements;
+        readonly Dictionary<Object, IUpdateableHandler> _elementsToAdd;
+        readonly List<Object> _elementsToRemove;
+        bool _dirty;
+
         readonly List<Exception> _exceptions = new List<Exception>();
+
+        double _lastUpdateTimestamp;
 
         public UpdateScheduler()
         {
-            var comparer = new ReferenceComparer<IUpdateable>();
-            _elements = new HashSet<IUpdateable>(comparer);
-            _elementsToRemove = new HashSet<IUpdateable>(comparer);
-            _intervalTimeScaleDependantElements = new Dictionary<IUpdateable, TimeScaleDependantInterval>(comparer);
-            _intervalTimeScaleNonDependantElements = new Dictionary<IUpdateable, TimeScaleNonDependantInterval>(comparer);
+            _elements = new Dictionary<Object, IUpdateableHandler>();
+            _elementsToAdd = new Dictionary<Object, IUpdateableHandler>();
+            _elementsToRemove = new List<object>();
         }
 
-        public void Add(IUpdateable elm)
+        IUpdateableTimer CreateTimer(float interval = -1)
+        {
+            if(interval == -1)
+            {
+                return new ContinuousTimer();
+            }
+            else
+            {
+                return new FixedTimer(interval);
+            }
+        }
+
+        public void Add(IUpdateable elm, UpdateableTimeMode updateTimeMode = UpdateableTimeMode.GameTimeUnscaled, float interval = -1)
         {
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                if(!_elementsToRemove.Remove(elm))
+                IUpdateableHandler handler = null;
+                switch(updateTimeMode)
                 {
-                    if(!Contains(elm))
-                    {
-                        _elements.Add(elm);
-                    }
+                case UpdateableTimeMode.GameTimeScaled:
+                    handler = new ScaledUpdateableHandler(elm, CreateTimer(interval));
+                    break;
+                case UpdateableTimeMode.GameTimeUnscaled:
+                    handler = new UpdateableHandler(elm, CreateTimer(interval));  
+                    break;
+                case UpdateableTimeMode.RealTime:
+                    handler = new RealTimeUpdateableHandler(elm, CreateTimer(interval));
+                    break;
                 }
+                DoAdd(elm, handler);
             }
         }
 
-        public void AddFixed(IUpdateable elm, double interval, bool usesTimeScale = false)
+        public void Add(IDeltaUpdateable elm, UpdateableTimeMode updateTimeMode = UpdateableTimeMode.GameTimeUnscaled, float interval = -1)
         {
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                if(!_elementsToRemove.Remove(elm))
+                IUpdateableHandler handler = null;
+                switch(updateTimeMode)
                 {
-                    if(!Contains(elm))
-                    {
-                        DoAddFixed(elm, interval, usesTimeScale);
-                    }
+                case UpdateableTimeMode.GameTimeScaled:
+                    handler = new DeltaScaledUpdateableHandler(elm, CreateTimer(interval));
+                    break;
+                case UpdateableTimeMode.GameTimeUnscaled:
+                    handler = new DeltaUpdateableHandler(elm, CreateTimer(interval));   
+                    break;
+                case UpdateableTimeMode.RealTime:
+                    handler = new RealTimeDeltaUpdateableHandler(elm, CreateTimer(interval));   
+                    break;
                 }
+                DoAdd(elm, handler);
             }
+        }
+
+        void DoAdd(Object elm, IUpdateableHandler handler)
+        {
+            _elementsToRemove.Remove(elm);
+            _elementsToAdd[elm] = handler;
+            _dirty = true;
         }
 
         public void Remove(IUpdateable elm)
         {
+            DoRemove(elm);
+        }
+
+        public void Remove(IDeltaUpdateable elm)
+        {
+            DoRemove(elm);
+        }
+
+        void DoRemove(object elm)
+        {
+            DebugUtils.Assert(elm != null);
             if(elm != null)
             {
                 _elementsToRemove.Add(elm);
+                _elementsToAdd.Remove(elm);
+                _dirty = true;
             }
         }
 
         public bool Contains(IUpdateable elm)
-        {
-            if(_elements.Contains(elm))
-            {
-                return true;
-            }
-            return _intervalTimeScaleDependantElements.ContainsKey(elm) || _intervalTimeScaleNonDependantElements.ContainsKey(elm);
+        { 
+            return Contains((object)elm);
         }
 
-        void DoAddFixed(IUpdateable elm, double interval, bool usesTimeScale = false)
+        public bool Contains(IDeltaUpdateable elm)
+        { 
+            return Contains((object)elm);
+        }
+
+        bool Contains(object elm)
         {
-            if(usesTimeScale)
+            DebugUtils.Assert(elm != null);
+            if(elm != null)
             {
-                var intervalData = new TimeScaleDependantInterval(interval);
-                _intervalTimeScaleDependantElements.Add(elm, intervalData);
+                if(_dirty)
+                {
+                    if(_elementsToRemove.Contains(elm))
+                    {
+                        return false;
+                    }
+
+                    if(_elementsToAdd.ContainsKey(elm))
+                    {
+                        return true;
+                    }
+                }
+
+                return _elements.ContainsKey(elm);
             }
-            else
+
+            return false;
+        }
+
+        void Synchronize()
+        {
+            if(_dirty)
             {
-                var intervalData = new TimeScaleNonDependantInterval(interval);
-                _intervalTimeScaleNonDependantElements.Add(elm, intervalData);
+                // Remove pending elements
+                {
+                    var itr = _elementsToRemove.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        _elements.Remove(itr.Current);
+                    }
+                    itr.Dispose();
+                    _elementsToRemove.Clear();
+                }
+
+                // Add pending elements
+                {
+                    var itr = _elementsToAdd.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        var current = itr.Current;
+                        _elements[current.Key] = current.Value;
+                    }
+                    itr.Dispose();
+                    _elementsToAdd.Clear();
+                }
+
+                _dirty = false;
             }
         }
 
-        void DoRemove()
+        public void Update(float deltaTime, float unscaledDeltaTime)
         {
-            var itr = _elementsToRemove.GetEnumerator();
-            while(itr.MoveNext())
-            {
-                var elm = itr.Current;
-                if(_elements.Contains(elm))
-                {
-                    _elements.Remove(elm);
-                }
-                if(_intervalTimeScaleDependantElements.ContainsKey(elm))
-                {
-                    _intervalTimeScaleDependantElements.Remove(elm);
-                }
-                if(_intervalTimeScaleNonDependantElements.ContainsKey(elm))
-                {
-                    _intervalTimeScaleNonDependantElements.Remove(elm);
-                }
-            }
-            itr.Dispose();
-            _elementsToRemove.Clear();
-        }
+            // Sync for external changes
+            Synchronize();
 
-        public void Update(float deltaTime)
-        {
-            DoRemove();
             _exceptions.Clear();
 
+            // Update registered elements
+            var time = GetUpdateTime(deltaTime, unscaledDeltaTime);
+            DoUpdate(time);
+
+            // Check new exceptions
+            var exceptionsCount = _exceptions.Count;
+            if(exceptionsCount > 0)
+            {
+                throw new AggregateException(_exceptions);
+            }
+
+            // Sync for internal changes during update
+            Synchronize();
+        }
+
+        void DoUpdate(UpdateableTime time)
+        {
             var itr = _elements.GetEnumerator();
             while(itr.MoveNext())
             {
                 var elm = itr.Current;
                 try
                 {
-                    elm.Update();
+                    elm.Value.Update(time);
                 }
                 catch(Exception e)
                 {
@@ -215,62 +345,24 @@ namespace SocialPoint.Utils
                 }
             }
             itr.Dispose();
+        }
 
-            var itr2 = _intervalTimeScaleDependantElements.GetEnumerator();
-            while(itr2.MoveNext())
-            {
-                var data = itr2.Current.Value;
-
-                data.AccumTime += deltaTime;
-
-                var interval = data.Interval;
-                var accumTime = data.AccumTime;
-                var timeDiff = accumTime - interval;
-                if(timeDiff >= 0)
-                {
-                    var elm = itr2.Current.Key;
-                    try
-                    {
-                        elm.Update();
-                    }
-                    catch(Exception e)
-                    {
-                        _exceptions.Add(e);
-                    }
-                    data.AccumTime = timeDiff;
-                }
-            }
-            itr2.Dispose();
-
+        UpdateableTime GetUpdateTime(float deltaTime, float unscaledDeltaTime)
+        {
             var currentTimeStamp = TimeUtils.GetTimestampDouble(DateTime.Now);
-            var itr3 = _intervalTimeScaleNonDependantElements.GetEnumerator();
-            while(itr3.MoveNext())
+            if(_lastUpdateTimestamp < float.Epsilon)
             {
-                var data = itr3.Current.Value;
-                var interval = data.Interval;
-                var timeStampDelta = currentTimeStamp - data.CurrentTimeStamp;
-                var timeDiff = timeStampDelta - interval;
-                if(timeDiff >= 0)
-                {
-                    var elm = itr3.Current.Key;
-                    try
-                    {
-                        elm.Update();
-                    }
-                    catch(Exception e)
-                    {
-                        _exceptions.Add(e);
-                    }
-                    data.CurrentTimeStamp = currentTimeStamp + timeDiff;
-                }
+                _lastUpdateTimestamp = currentTimeStamp;
             }
-            itr3.Dispose();
+            var nonScaledDeltaTime = currentTimeStamp - _lastUpdateTimestamp;
+            _lastUpdateTimestamp = currentTimeStamp;
 
-            var exceptionsCount = _exceptions.Count;
-            if(exceptionsCount > 0)
-            {
-                throw new AggregateException(_exceptions);
-            }
+            var time = new UpdateableTime {
+                DeltaTime = deltaTime,
+                UnscaledDeltaTime = unscaledDeltaTime,
+                RealDeltaTime = (float)nonScaledDeltaTime
+            };
+            return time;
         }
 
         sealed class AggregateException : Exception
@@ -328,6 +420,192 @@ namespace SocialPoint.Utils
             }
         }
     }
+
+    struct UpdateableTime
+    {
+        public int Ticks;
+        public float DeltaTime;
+        public float UnscaledDeltaTime;
+        public float RealDeltaTime;
+    }
+
+    #region TimeHandlers
+
+    public interface IUpdateableTimer
+    {
+        bool Step(float delta, out float interval);
+    }
+
+    public struct ContinuousTimer : IUpdateableTimer
+    {
+        public bool Step(float delta, out float interval)
+        {
+            interval = delta;
+            return true;
+        }
+    }
+
+    public struct FixedTimer : IUpdateableTimer
+    {
+        readonly float _interval;
+        float _current;
+
+        public FixedTimer(float interval)
+        {
+            _current = 0;
+            _interval = interval;
+        }
+
+        public bool Step(float delta, out float interval)
+        {
+            _current += delta;
+            interval = 0;
+            if(_current >= _interval)
+            {
+                _current = _current - _interval;
+                interval = _interval;
+                return true;
+            }
+            return false;
+        }
+    }
+
+    #endregion
+
+    #region UpdateableHandlers
+
+    interface IUpdateableHandler
+    {
+        void Update(UpdateableTime time);
+    }
+
+    struct UpdateableHandler : IUpdateableHandler
+    {
+        readonly IUpdateableTimer _timer;
+        readonly IUpdateable _updateable;
+
+        public UpdateableHandler(IUpdateable updateable, IUpdateableTimer timer)
+        {
+            _updateable = updateable;
+            _timer = timer;
+        }
+
+        public void Update(UpdateableTime time)
+        {
+            float interval;
+            if(_timer.Step(time.UnscaledDeltaTime, out interval))
+            {
+                _updateable.Update();
+            }
+        }
+    }
+
+    struct ScaledUpdateableHandler : IUpdateableHandler
+    {
+        readonly IUpdateableTimer _timer;
+        readonly IUpdateable _updateable;
+
+        public ScaledUpdateableHandler(IUpdateable updateable, IUpdateableTimer timer)
+        {
+            _updateable = updateable;
+            _timer = timer;
+        }
+
+        public void Update(UpdateableTime time)
+        {
+            float interval;
+            if(_timer.Step(time.DeltaTime, out interval))
+            {
+                _updateable.Update();
+            }
+        }
+    }
+
+    struct RealTimeUpdateableHandler : IUpdateableHandler
+    {
+        readonly IUpdateableTimer _timer;
+        readonly IUpdateable _updateable;
+
+        public RealTimeUpdateableHandler(IUpdateable updateable, IUpdateableTimer timer)
+        {
+            _updateable = updateable;
+            _timer = timer;
+        }
+
+        public void Update(UpdateableTime time)
+        {
+            float interval;
+            if(_timer.Step(time.RealDeltaTime, out interval))
+            {
+                _updateable.Update();
+            }
+        }
+    }
+
+    struct DeltaUpdateableHandler : IUpdateableHandler
+    {
+        readonly IUpdateableTimer _timer;
+        readonly IDeltaUpdateable _updateable;
+
+        public DeltaUpdateableHandler(IDeltaUpdateable updateable, IUpdateableTimer timer)
+        {
+            _updateable = updateable;
+            _timer = timer;
+        }
+
+        public void Update(UpdateableTime time)
+        {
+            float interval;
+            if(_timer.Step(time.UnscaledDeltaTime, out interval))
+            {
+                _updateable.Update(interval);
+            }
+        }
+    }
+
+    struct DeltaScaledUpdateableHandler : IUpdateableHandler
+    {
+        readonly IUpdateableTimer _timer;
+        readonly IDeltaUpdateable _updateable;
+
+        public DeltaScaledUpdateableHandler(IDeltaUpdateable updateable, IUpdateableTimer timer)
+        {
+            _updateable = updateable;
+            _timer = timer;
+        }
+
+        public void Update(UpdateableTime time)
+        {
+            float interval;
+            if(_timer.Step(time.DeltaTime, out interval))
+            {
+                _updateable.Update(interval);
+            }
+        }
+    }
+
+    struct RealTimeDeltaUpdateableHandler : IUpdateableHandler
+    {
+        readonly IUpdateableTimer _timer;
+        readonly IDeltaUpdateable _updateable;
+
+        public RealTimeDeltaUpdateableHandler(IDeltaUpdateable updateable, IUpdateableTimer timer)
+        {
+            _updateable = updateable;
+            _timer = timer;
+        }
+
+        public void Update(UpdateableTime time)
+        {
+            float interval;
+            if(_timer.Step(time.RealDeltaTime, out interval))
+            {
+                _updateable.Update(interval);
+            }
+        }
+    }
+
+    #endregion
 
     public class ImmediateCoroutineRunner : ICoroutineRunner
     {

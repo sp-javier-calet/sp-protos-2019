@@ -20,30 +20,85 @@ namespace SocialPoint.GrayboxLibrary
         {
             //Mounts the smb folder
             #if  UNITY_EDITOR_OSX
-            if(!Directory.Exists(GrayboxLibraryConfig.PkgDefaultFolder))
+            bool mounted = false;
+            if(!Directory.Exists(GrayboxLibraryConfig.IconsPath))
             {
-                ProcessStartInfo process = new ProcessStartInfo();
+                var process = new ProcessStartInfo();
+                process.UseShellExecute = false;
+                process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
+                process.FileName = "mount";
+                process.RedirectStandardError = true;
+                process.RedirectStandardOutput = true;
+                var run = Process.Start(process);
+                while(!run.StandardError.EndOfStream)
+                {
+                    UnityEngine.Debug.LogError(run.StandardError.ReadLine());
+                }
+                while(!run.StandardOutput.EndOfStream)
+                {
+                    string outputText = run.StandardOutput.ReadLine();
+                    if(outputText.Contains(GrayboxLibraryConfig.SmbFolder))
+                    {
+                        string newPath = outputText.Substring(outputText.IndexOf(GrayboxLibraryConfig.SmbFolder + " on ") + GrayboxLibraryConfig.SmbFolder.Length + 4);
+                        newPath = newPath.Split(' ')[0];
+                        GrayboxLibraryConfig.SetVolumePath(newPath);
+                        mounted = true;
+                    }
+                    else if(outputText.Contains(GrayboxLibraryConfig.AltSmbFolder))
+                    {
+                        string newPath = outputText.Substring(outputText.IndexOf(GrayboxLibraryConfig.AltSmbFolder + " on ") + GrayboxLibraryConfig.AltSmbFolder.Length + 4);
+                        newPath = newPath.Split(' ')[0];
+                        GrayboxLibraryConfig.SetVolumePath(newPath);
+                        mounted = true;
+                    }
+                }
+                run.Close();
+            }
+            else
+            {
+                mounted = true;
+            }
+
+            if(!mounted)
+            {
+                var process = new ProcessStartInfo();
+                process.UseShellExecute = false;
                 process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
                 process.FileName = "mkdir";
-                process.Arguments = GrayboxLibraryConfig.VolumePath;
-                Process.Start(process);
+                process.Arguments = "-p " + GrayboxLibraryConfig.VolumePath;
+                process.RedirectStandardError = true;
+                var run = Process.Start(process);
+                while(!run.StandardError.EndOfStream)
+                {
+                    UnityEngine.Debug.LogError(run.StandardError.ReadLine());
+                }
 
                 process = new ProcessStartInfo();
+                process.UseShellExecute = false;
                 process.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
                 process.FileName = "mount_smbfs";
                 process.Arguments = GrayboxLibraryConfig.SmbConnectionUrl + " " + GrayboxLibraryConfig.VolumePath;
-                Process.Start(process);
+                process.RedirectStandardError = true;
+                run = Process.Start(process);
+                while(!run.StandardError.EndOfStream)
+                {
+                    UnityEngine.Debug.LogError(run.StandardError.ReadLine());
+                }
 
-                for(int i = 0; !Directory.Exists(GrayboxLibraryConfig.PkgDefaultFolder) && i < 100; i ++)
+                run.Close();
+
+                for(int i = 0; !Directory.Exists(GrayboxLibraryConfig.PkgDefaultFolder) && i < 100; i++)
                 {
                     Thread.Sleep(100);
-                    if (i == 99)
+                    if(i == 99)
                     {
-                        if (EditorUtility.DisplayDialog("Graybox tool", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE'", "Close"))
+                        EditorUtility.DisplayDialog("Graybox tool", "Connection timeout. Please, make sure that you are connected to the SocialPoint network: \n wifi: 'SP_EMPLOYEE' \n\n Check also that you have specified your Mac's password correctly.", "Close");
+                        if(GrayboxLibraryWindow.Window != null)
                         {
                             GrayboxLibraryWindow.Window.Close();
-                            Selection.activeObject = null;
                         }
+                        Selection.activeObject = null;
+                        return;
                     }
                 }
             }
@@ -54,13 +109,12 @@ namespace SocialPoint.GrayboxLibrary
             Connect();
         }
 
-
         public GrayboxAsset GetAsset(string name)
         {
             GrayboxAsset asset = null;
 
-            MySqlCommand command = new MySqlCommand("SELECT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path, a.creation_date FROM asset a WHERE a.name LIKE @NAME");
-            command.Parameters.AddWithValue("@NAME",name);
+            MySqlCommand command = new MySqlCommand("SELECT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path, DATE_FORMAT(a.creation_date, '%m/%d/%Y %H:%i:%s') as 'creation_date' FROM asset a WHERE a.name LIKE @NAME");
+            command.Parameters.AddWithValue("@NAME", name);
 
             ArrayList queryResult = _dbController.ExecuteQuery(command);
 
@@ -70,7 +124,7 @@ namespace SocialPoint.GrayboxLibrary
 
                 Texture2D thumb = null;
                 if(row["thumb_path"].Length > 0)
-                    thumb = _downloadController.DownloadImage(row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath));
+                    thumb = _downloadController.DownloadImage(row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath));
 
                 string[] split1 = row["creation_date"].Split(' ');
                 string[] date = split1[0].Split('/');
@@ -79,13 +133,13 @@ namespace SocialPoint.GrayboxLibrary
 
                 asset = new GrayboxAsset(int.Parse(row["id_asset"]), row["name"], (GrayboxAssetCategory)Enum.Parse(typeof(GrayboxAssetCategory), row["category"]),
                     row["main_asset_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                     row["pkg_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                     row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                     row["animated_thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath), thumb, finalDate);
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath), thumb, finalDate);
             }
 
             return asset;
@@ -100,10 +154,10 @@ namespace SocialPoint.GrayboxLibrary
             {
                 string tag = tags[i];
                 commandTag.CommandText += " NATURAL JOIN (SELECT id_asset FROM asset_tag NATURAL JOIN tag WHERE name LIKE CONCAT('%', @TAG" + i + ", '%')) as tag" + i;
-                commandTag.Parameters.AddWithValue("@TAG"+i, tag);
+                commandTag.Parameters.AddWithValue("@TAG" + i, tag);
             }
 
-            string sql = "SELECT DISTINCT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path, a.creation_date "
+            string sql = "SELECT DISTINCT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path, DATE_FORMAT(a.creation_date, '%m/%d/%Y %H:%i:%s') as 'creation_date' "
                          + "FROM asset a " + commandTag.CommandText + " WHERE a.category LIKE '" + category.ToString() + "' ORDER BY a.name ASC, a.creation_date DESC LIMIT " + startLimit + "," + endLimit;
             
             MySqlCommand command = new MySqlCommand(sql);
@@ -119,7 +173,7 @@ namespace SocialPoint.GrayboxLibrary
                 Texture2D thumb = null;
                 if(downloadThumbnail)
                     thumb = _downloadController.DownloadImage(row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                        .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath));
+                        .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath));
 
                 string[] split1 = row["creation_date"].Split(' ');
                 string[] date = split1[0].Split('/');
@@ -128,13 +182,13 @@ namespace SocialPoint.GrayboxLibrary
 
                 GrayboxAsset asset = new GrayboxAsset(int.Parse(row["id_asset"]), row["name"], (GrayboxAssetCategory)Enum.Parse(typeof(GrayboxAssetCategory), row["category"]),
                                          row["main_asset_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                                          row["pkg_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                                          row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                                          row["animated_thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath), thumb, finalDate);
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath), thumb, finalDate);
 
                 assets.Add(asset);
             }
@@ -146,12 +200,12 @@ namespace SocialPoint.GrayboxLibrary
         {
             ArrayList assets = new ArrayList();
 
-            string sql = "SELECT DISTINCT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path,  a.creation_date "
+            string sql = "SELECT DISTINCT a.id_asset, a.name, a.category, a.main_asset_path, a.pkg_path, a.thumb_path, a.animated_thumb_path,  DATE_FORMAT(a.creation_date, '%m/%d/%Y %H:%i:%s') as 'creation_date' "
                          + "FROM asset a WHERE a.category LIKE '" + category.ToString() + "'";
 
             MySqlCommand commandFilteredSQL = new MySqlCommand("");
             
-            for(int i = 0; i < filters.Length; i ++)
+            for(int i = 0; i < filters.Length; i++)
             {
                 string filter = filters[i];
                 commandFilteredSQL.CommandText = commandFilteredSQL.CommandText + " a.name LIKE CONCAT('%', @FILTER" + i + ", '%') AND";
@@ -165,7 +219,7 @@ namespace SocialPoint.GrayboxLibrary
 
             MySqlCommand command = new MySqlCommand(sql);
 
-            for (int i = 0; i < commandFilteredSQL.Parameters.Count; i++)
+            for(int i = 0; i < commandFilteredSQL.Parameters.Count; i++)
                 command.Parameters.AddWithValue(commandFilteredSQL.Parameters[i].ParameterName, commandFilteredSQL.Parameters[i].Value);
 
             ArrayList queryResult = _dbController.ExecuteQuery(command);
@@ -176,7 +230,7 @@ namespace SocialPoint.GrayboxLibrary
                 Texture2D thumb = null;
                 if(downloadThumbnail)
                     thumb = _downloadController.DownloadImage(row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                        .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath));
+                        .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath));
 
                 string[] split1 = row["creation_date"].Split(' ');
                 string[] date = split1[0].Split('/');
@@ -185,13 +239,13 @@ namespace SocialPoint.GrayboxLibrary
 
                 GrayboxAsset asset = new GrayboxAsset(int.Parse(row["id_asset"]), row["name"], (GrayboxAssetCategory)Enum.Parse(typeof(GrayboxAssetCategory), row["category"]),
                                          row["main_asset_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                                          row["pkg_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                                          row["thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath),
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath),
                                          row["animated_thumb_path"].Replace(GrayboxLibraryConfig.MacVolumePath, GrayboxLibraryConfig.VolumePath)
-                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath), thumb, finalDate);
+                    .Replace(GrayboxLibraryConfig.WinVolumePath, GrayboxLibraryConfig.VolumePath).Replace(GrayboxLibraryConfig.WinVolumePathAlt, GrayboxLibraryConfig.VolumePath), thumb, finalDate);
 
                 assets.Add(asset);
             }
@@ -235,7 +289,7 @@ namespace SocialPoint.GrayboxLibrary
             {
                 string tag = tags[i];
                 commandTagSearchSQL.CommandText += " NATURAL JOIN (SELECT id_asset FROM asset_tag NATURAL JOIN tag WHERE name LIKE CONCAT('%', @TAG" + i + ", '%')) as tag" + i;
-                commandTagSearchSQL.Parameters.AddWithValue("@TAG"+i, tag);
+                commandTagSearchSQL.Parameters.AddWithValue("@TAG" + i, tag);
             }
 
             string sql = "SELECT DISTINCT a.id_asset "
@@ -243,7 +297,7 @@ namespace SocialPoint.GrayboxLibrary
 
             MySqlCommand command = new MySqlCommand(sql);
 
-            for (int i = 0; i < commandTagSearchSQL.Parameters.Count; i++)
+            for(int i = 0; i < commandTagSearchSQL.Parameters.Count; i++)
                 command.Parameters.AddWithValue(commandTagSearchSQL.Parameters[i].ParameterName, commandTagSearchSQL.Parameters[i].Value);
 
             ArrayList queryResult = _dbController.ExecuteQuery(command);
@@ -257,8 +311,8 @@ namespace SocialPoint.GrayboxLibrary
         {
             ArrayList tags = GetTags(name, 0, 1);
             GrayboxTag tag = null;
-            if (tags.Count > 0)
-                tag = (GrayboxTag) tags[0];
+            if(tags.Count > 0)
+                tag = (GrayboxTag)tags[0];
 
             return tag;
         }
@@ -273,7 +327,7 @@ namespace SocialPoint.GrayboxLibrary
 
             ArrayList queryResult = _dbController.ExecuteQuery(command);
 
-            for (int i = 0; i < queryResult.Count; i++)
+            for(int i = 0; i < queryResult.Count; i++)
             {
                 Dictionary<string, string> row = (Dictionary<string, string>)queryResult[i];
                 GrayboxTag tag = new GrayboxTag(int.Parse(row["id_tag"]), row["name"]);
@@ -292,7 +346,7 @@ namespace SocialPoint.GrayboxLibrary
 
             ArrayList queryResult = _dbController.ExecuteQuery(command);
 
-            for (int i = 0; i < queryResult.Count; i++)
+            for(int i = 0; i < queryResult.Count; i++)
             {
                 Dictionary<string, string> row = (Dictionary<string, string>)queryResult[i];
                 GrayboxTag tag = new GrayboxTag(int.Parse(row["id_tag"]), row["name"]);
@@ -308,9 +362,9 @@ namespace SocialPoint.GrayboxLibrary
 
             ArrayList gbTags = GetTags(name, startLimit, endLimit);
 
-            for (int i = 0; i < gbTags.Count; i++)
+            for(int i = 0; i < gbTags.Count; i++)
             {
-                GrayboxTag tag = (GrayboxTag) gbTags[i];
+                GrayboxTag tag = (GrayboxTag)gbTags[i];
                 tags.Add(tag.Name);
             }
 
@@ -323,7 +377,7 @@ namespace SocialPoint.GrayboxLibrary
 
             ArrayList gbTags = GetTagsInCategory(name, category, startLimit, endLimit);
 
-            for (int i = 0; i < gbTags.Count; i++)
+            for(int i = 0; i < gbTags.Count; i++)
             {
                 GrayboxTag tag = (GrayboxTag)gbTags[i];
                 tags.Add(tag.Name);
@@ -416,7 +470,7 @@ namespace SocialPoint.GrayboxLibrary
                 command.Parameters.AddWithValue("@NAME", asset.Name);
 
                 queryResult = _dbController.ExecuteQuery(command);
-                if (queryResult.Count == 0)
+                if(queryResult.Count == 0)
                 {
                     sql = "INSERT INTO asset (name, category, main_asset_path, pkg_path, thumb_path, animated_thumb_path) VALUES (@NAME, @CATEGORY, @MAINASSET, @PKG, @THUMB, @ANIMTHUMB)";
 
@@ -477,13 +531,13 @@ namespace SocialPoint.GrayboxLibrary
 
         public void AssignTag(GrayboxAsset asset, GrayboxTag tag)
         {
-            string sql = "SELECT id_asset FROM asset_tag WHERE id_asset = " + asset.Id + " AND id_tag = " + tag.Id ;
+            string sql = "SELECT id_asset FROM asset_tag WHERE id_asset = " + asset.Id + " AND id_tag = " + tag.Id;
 
             MySqlCommand command = new MySqlCommand(sql);
 
             ArrayList queryResult = _dbController.ExecuteQuery(command);
 
-            if (queryResult.Count == 0)
+            if(queryResult.Count == 0)
             {
                 sql = "INSERT INTO asset_tag VALUES (" + asset.Id + "," + tag.Id + ")";
 
@@ -507,11 +561,11 @@ namespace SocialPoint.GrayboxLibrary
         {
             int category = -1;
             var enumerator = GrayboxLibraryConfig.CategoryPrefix.GetEnumerator();
-            while (enumerator.MoveNext())
+            while(enumerator.MoveNext())
             {
                 string prefix = enumerator.Current.Value;
-                if (fullname.Contains(prefix))
-                    category = (int) enumerator.Current.Key;
+                if(fullname.Contains(prefix))
+                    category = (int)enumerator.Current.Key;
             }
             enumerator.Dispose();
             
@@ -548,11 +602,11 @@ namespace SocialPoint.GrayboxLibrary
             if(asset.Category == GrayboxAssetCategory.UI)
             {
                 if(parent == null)
-                    parent = ((Canvas) GameObject.FindObjectOfType(typeof(Canvas))).transform;
+                    parent = ((Canvas)GameObject.FindObjectOfType(typeof(Canvas))).transform;
                 instance.transform.SetParent(parent, false);
             }
 
-            if (GrayboxLibraryConfig.ScriptOnInstance[asset.Category] != null)
+            if(GrayboxLibraryConfig.ScriptOnInstance[asset.Category] != null)
                 instance.AddComponent(GrayboxLibraryConfig.ScriptOnInstance[asset.Category]);
 
             return instance;

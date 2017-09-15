@@ -48,15 +48,17 @@ namespace SocialPoint.Network
     public class PhotonNetworkConfig
     {
         public const bool DefaultCreateRoom = true;
+        public const ExitGames.Client.Photon.ConnectionProtocol DefaultProtocol = ExitGames.Client.Photon.ConnectionProtocol.Udp;
 
         public string GameVersion;
         public string RoomName;
-        public bool CreateRoom = DefaultCreateRoom;
-        public CustomPhotonConfig CustomPhotonConfig = new CustomPhotonConfig();
-        public PhotonNetworkRoomConfig RoomOptions = new PhotonNetworkRoomConfig();
-        public CloudRegionCode ForceRegion = CloudRegionCode.none;
+        public bool CreateRoom;
+        public CustomPhotonConfig CustomPhotonConfig;
+        public PhotonNetworkRoomConfig RoomOptions;
+        public CloudRegionCode ForceRegion;
         public string ForceAppId;
         public string ForceServer;
+        public ExitGames.Client.Photon.ConnectionProtocol Protocol = DefaultProtocol;
     }
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
@@ -72,6 +74,7 @@ namespace SocialPoint.Network
         }
 
         ConnState _state = ConnState.Disconnected;
+
         protected ConnState State
         {
             get
@@ -93,10 +96,6 @@ namespace SocialPoint.Network
 
         void Awake()
         {
-            if(Config == null)
-            {
-                Config = new PhotonNetworkConfig();
-            }
         }
 
         void Update()
@@ -111,8 +110,9 @@ namespace SocialPoint.Network
                 return;
             }
             _state = ConnState.Connecting;
+            PhotonNetwork.networkingPeer.TransportProtocol = Config.Protocol;
             Config.CustomPhotonConfig.SetConfigBeforeConnection();
-            if(!string.IsNullOrEmpty(Config.ForceServer) || !string.IsNullOrEmpty(Config.ForceAppId))
+            if(!string.IsNullOrEmpty(Config.ForceServer) && !string.IsNullOrEmpty(Config.ForceAppId))
             {
                 string addr = null;
                 int port = 0;
@@ -132,8 +132,12 @@ namespace SocialPoint.Network
                 }
                 PhotonNetwork.ConnectToMaster(addr, port, appId, Config.GameVersion);
             }
-            if(Config.ForceRegion != CloudRegionCode.none)
+            else if(Config.ForceRegion != CloudRegionCode.none)
             {
+                if(!string.IsNullOrEmpty(Config.ForceAppId))
+                {
+                    PhotonNetwork.PhotonServerSettings.AppID = Config.ForceAppId;
+                }
                 PhotonNetwork.ConnectToRegion(Config.ForceRegion, Config.GameVersion);
             }
             else
@@ -186,7 +190,12 @@ namespace SocialPoint.Network
 
         abstract protected void OnConnected();
 
-        abstract protected void OnDisconnected();
+        virtual protected void OnDisconnected()
+        {
+            PhotonNetwork.OnEventCall -= OnEventReceived;
+            _state = ConnState.Disconnected;
+            Config.CustomPhotonConfig.RestorePhotonConfig();
+        }
 
         abstract protected void OnMessageReceived(NetworkMessageData data, IReader reader);
 
@@ -288,9 +297,6 @@ namespace SocialPoint.Network
             {
                 return;
             }
-            PhotonNetwork.OnEventCall -= OnEventReceived;
-            _state = ConnState.Disconnected;
-            Config.CustomPhotonConfig.RestorePhotonConfig();
             OnDisconnected();
         }
 
@@ -301,7 +307,6 @@ namespace SocialPoint.Network
                 return;
             }
             var err = new Error(ConnectionError, "Failed to connect: " + cause);
-            _state = ConnState.Disconnected;
             OnNetworkError(err);
             OnDisconnected();
         }
@@ -313,7 +318,6 @@ namespace SocialPoint.Network
                 return;
             }
             var err = new Error(CustomAuthError, "Custom Authentication failed: " + debugMessage);
-            _state = ConnState.Disconnected;
             OnNetworkError(err);
             OnDisconnected();
         }
@@ -380,6 +384,10 @@ namespace SocialPoint.Network
                 DoDisconnect();
                 return;
             }
+            if(eventcode == PhotonMsgType.BackendEnv)
+            {
+                return;
+            }
 
             byte clientId = 0;
             var serverId = PhotonNetworkServer.PhotonPlayerId;
@@ -387,11 +395,13 @@ namespace SocialPoint.Network
             {
                 clientId = GetClientId(GetPlayer((byte)senderid));
             }
+            var bcontent = (byte[])content;
             var info = new NetworkMessageData {
                 MessageType = eventcode,
-                ClientId = clientId
+                ClientId = clientId,
+                MessageLength = bcontent.Length
             };
-            var stream = new MemoryStream((byte[])content);
+            var stream = new MemoryStream(bcontent);
             var reader = new SystemBinaryReader(stream);
             OnMessageReceived(info, reader);
         }

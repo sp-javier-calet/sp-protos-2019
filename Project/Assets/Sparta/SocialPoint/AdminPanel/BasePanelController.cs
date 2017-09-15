@@ -1,6 +1,9 @@
+#if ADMIN_PANEL
+
 using SocialPoint.GUIControl;
 using SocialPoint.Utils;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 namespace SocialPoint.AdminPanel
 {
@@ -21,9 +24,21 @@ namespace SocialPoint.AdminPanel
 
     public abstract class BasePanelController : UIViewController, IPanelController
     {
-        void OnLevelWasLoaded(int i)
+        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             Hide();
+        }
+
+        protected override void OnAppearing()
+        {
+            base.OnAppearing();
+            SceneManager.sceneLoaded += OnSceneLoaded;
+        }
+
+        protected override void OnDisappeared()
+        {
+            base.OnDisappeared();
+            SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 
         void Update()
@@ -76,3 +91,5 @@ namespace SocialPoint.AdminPanel
         }
     }
 }
+
+#endif

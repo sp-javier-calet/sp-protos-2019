@@ -797,7 +797,7 @@ namespace SocialPoint.Utils
 
         public void Draw()
         {
-#if UNITY_5
+#if UNITY_5_3_OR_NEWER
             for(int i = 0, maxCount = GetAllNodes().Count; i < maxCount; i++)
             {
                 var node = GetAllNodes()[i];

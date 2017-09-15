@@ -1,5 +1,5 @@
 // #defines must be placed at the start of the file #csharpfirstworldproblems
-#if UNITY_5
+#if UNITY_5_3_OR_NEWER
 #define UNITY
 #endif
 #if DEBUG || UNITY_EDITOR || UNITY_STANDALONE
@@ -32,7 +32,7 @@ namespace SocialPoint.Base
             }
 
             #if UNITY
-                Base.Log.i(StringUtils.FinishBuilder(sb));
+            Base.Log.i(StringUtils.FinishBuilder(sb));
             #endif
         }
 
@@ -40,25 +40,32 @@ namespace SocialPoint.Base
         public static void Assert(bool condition, string msg = "")
         {
             #if UNITY
-                UnityEngine.Assertions.Assert.IsTrue(condition, msg);
+            UnityEngine.Assertions.Assert.IsTrue(condition, msg);
+            if(condition)
+            {
+                return;
+            }
 
-                #if UNITY_EDITOR
-                    try
-                    {
-                        if(UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
-                        {
-                            UnityEditor.EditorApplication.isPlaying &= condition;
-                        }
-                    }
-                    catch(MissingMethodException)
-                    {
-                        /* This is required to run Tests from MonoDevelop, 
+            #if UNITY_EDITOR
+            try
+            {
+                if(UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
+                {
+                    UnityEditor.EditorApplication.isPaused = true;
+                }
+            }
+            catch(MissingMethodException)
+            {
+                /* This is required to run Tests from MonoDevelop, 
                          * which includes the UNITY_EDITOR flag but EditorApplication is not available. */
-                    }
-                #endif
+            }
+            #endif
 
             #else
+            if(!condition)
+            {
                 SocialPoint.Base.Log.e(msg);
+            }
             #endif
         }
 
@@ -79,7 +86,7 @@ namespace SocialPoint.Base
         public static void Break()
         {
             #if UNITY
-                UnityEngine.Debug.Break();
+            UnityEngine.Debug.Break();
             #endif
         }
 

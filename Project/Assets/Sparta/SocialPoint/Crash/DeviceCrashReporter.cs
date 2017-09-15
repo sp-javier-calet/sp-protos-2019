@@ -229,9 +229,15 @@ namespace SocialPoint.Crash
 
             if(FileUtils.ExistsFile(path))
             {
-                _breadcrumbManager.Log("Non-Killing Crash StackTrace - Start");
-                _breadcrumbManager.Log(DeviceCrashReporter.ReadStackTraceFromCrashPath(path));
-                _breadcrumbManager.Log("Non-Killing Crash StackTrace - End");
+                /*
+                 * NOTE: 
+                 * The following log lines were created to simplify looking for possible reasons of a non-killing crash with help of the stack trace,
+                 * but they are now commented because that trace could be really big in terms of memory, and a lot of succesive non-killing error
+                 * (like NullReferenceExceptions) could potentially trigger memory warnings/crashes on their own.
+                 * */
+                //_breadcrumbManager.Log("Non-Killing Crash StackTrace - Start");
+                //_breadcrumbManager.Log(DeviceCrashReporter.ReadStackTraceFromCrashPath(path));
+                //_breadcrumbManager.Log("Non-Killing Crash StackTrace - End");
 
                 Log.w("Removing non-killing crash file '" + path + "'...");
                 FileUtils.DeleteFile(path);

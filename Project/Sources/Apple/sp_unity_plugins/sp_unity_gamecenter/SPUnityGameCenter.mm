@@ -44,6 +44,11 @@ void generateIdentityVerificationSignature()
           NSString* jsonString = [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding];
           SPNativeCallsSender::SendMessage(kNotifyMethod, [jsonString UTF8String]);
       }
+      else
+      {
+          SPNativeCallsSender::SendMessage(kNotifyMethod, "");
+      }
+
     }];
 }
 

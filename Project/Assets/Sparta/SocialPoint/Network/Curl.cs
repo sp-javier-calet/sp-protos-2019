@@ -10,6 +10,7 @@ using System;
 using System.Runtime.InteropServices;
 using SocialPoint.Base;
 using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Network
 {
@@ -22,17 +23,12 @@ namespace SocialPoint.Network
         /// <summary>
         /// Static method to ask if Curl implementation is available in the current platform
         /// </summary>
-        public static bool IsSupported
-        {
-            get
-            {
-                #if CURL_SUPPORTED
-                return true;
-                #else
-                return false;
-                #endif
-            }
-        }
+        public const bool IsSupported
+        #if CURL_SUPPORTED
+        = true;
+        #else
+        = false;
+        #endif
 
         UIntPtr _nativeClient;
 
@@ -180,12 +176,12 @@ namespace SocialPoint.Network
                 return SPUnityCurlUpdateConn(_curl.NativeClient, _connectionId);
             }
 
-            public int Send(RequestStruct req)
+            public int Send(UnmanagedMarshaledObject<RequestStruct> request)
             {
-                return SPUnityCurlSend(_curl.NativeClient, req);
+                return SPUnityCurlSend(_curl.NativeClient, request);
             }
 
-            public int SendStreamMessage(MessageStruct msg)
+            public int SendStreamMessage(UnmanagedMarshaledObject<MessageStruct> msg)
             {
                 return SPUnityCurlSendStreamMessage(_curl.NativeClient, _connectionId, msg);
             }
@@ -360,6 +356,29 @@ namespace SocialPoint.Network
             [MarshalAs(UnmanagedType.LPArray)]
             public byte[] Body;
             public int BodyLength;
+
+            override public string ToString()
+            {
+                var builder = StringUtils.StartBuilder();
+                builder.AppendFormat("Id: {0}\n", Id);
+                builder.AppendFormat("Url: {0}\n", Url);
+                builder.AppendFormat("Query: {0}\n", Query);
+                builder.AppendFormat("Method: {0}\n", Method);
+                builder.AppendFormat("Timeout: {0}\n", Timeout);
+                builder.AppendFormat("ActivityTimeout: {0}\n", ActivityTimeout);
+                builder.AppendFormat("Proxy: {0}\n", Proxy);
+                builder.AppendFormat("Headers: {0}\n", Headers);
+                if(Body != null)
+                {
+                    builder.AppendFormat("Body: {0}\n", System.Text.Encoding.ASCII.GetString(Body));
+                }
+                else
+                {
+                    builder.AppendLine("Body: null");
+                }
+                builder.AppendFormat("BodyLength: {0}\n", BodyLength);
+                return StringUtils.FinishBuilder(builder);
+            }
         };
 
         [StructLayout(LayoutKind.Sequential)]
@@ -368,6 +387,21 @@ namespace SocialPoint.Network
             [MarshalAs(UnmanagedType.LPArray)]
             public byte[] Message;
             public int MessageLength;
+
+            override public string ToString()
+            {
+                var builder = StringUtils.StartBuilder();
+                if(Message != null)
+                {
+                    builder.AppendFormat("Message: {0}\n", System.Text.Encoding.ASCII.GetString(Message));
+                }
+                else
+                {
+                    builder.AppendLine("Message: null");
+                }
+                builder.AppendFormat("MessageLength: {0}\n", MessageLength);
+                return StringUtils.FinishBuilder(builder);
+            }
         };
 
         /// <summary>
@@ -498,10 +532,10 @@ namespace SocialPoint.Network
         static extern void SPUnityCurlDestroyConn(UIntPtr client, int id);
 
         [DllImport(PluginModuleName)]
-        static extern int SPUnityCurlSend(UIntPtr client, RequestStruct data);
+        static extern int SPUnityCurlSend(UIntPtr client, IntPtr data);
 
         [DllImport(PluginModuleName)]
-        static extern int SPUnityCurlSendStreamMessage(UIntPtr client, int id, MessageStruct data);
+        static extern int SPUnityCurlSendStreamMessage(UIntPtr client, int id, IntPtr data);
 
         [DllImport(PluginModuleName)]
         static extern bool SPUnityCurlUpdate(UIntPtr client);

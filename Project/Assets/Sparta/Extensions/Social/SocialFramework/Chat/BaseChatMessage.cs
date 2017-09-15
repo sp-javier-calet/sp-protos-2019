@@ -15,7 +15,7 @@
 
         public int RankInAlliance { get; set; }
 
-        public long PlayerLevel { get; set; }
+        public int PlayerLevel { get; set; }
 
         public int AllianceAvatarId { get; set; }
 
@@ -40,6 +40,14 @@
         public int NewRank { get; set; }
     }
 
+    // <summary>
+    // Stores information for requested joins
+    // </summary>
+    public class RequestJoinData
+    {
+        public string PlayerId { get; set; }
+    }
+
     public interface IChatMessage
     {
         string Uuid { get; set; }
@@ -57,6 +65,8 @@
         MessageData MessageData { get; set; }
 
         MemberPromotionData MemberPromotionData { get; set; }
+
+        RequestJoinData RequestJoinData { get; set; }
     }
 
     public class BaseChatMessage : IChatMessage
@@ -76,5 +86,7 @@
         public MessageData MessageData { get; set; }
 
         public MemberPromotionData MemberPromotionData { get; set; }
+
+        public RequestJoinData RequestJoinData { get; set; }
     }
 }
