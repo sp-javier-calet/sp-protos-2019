@@ -50,26 +50,33 @@ public class FullUITestingController : MonoBehaviour
         }
         else if(Input.GetKeyUp(KeyCode.Alpha3))
         {
+            if(_popupsController.Count > 0)
+            {
+                _popupsController.Pop();
+            }
+        }
+        else if(Input.GetKeyUp(KeyCode.Alpha4))
+        {
             if(_screensController.Count > 1)
             {
                 _screensController.Pop();
             }
         }
-        else if(Input.GetKeyUp(KeyCode.Alpha4))
+        else if(Input.GetKeyUp(KeyCode.Alpha5))
         {
             if(_popupsController.Count > 1)
             {
                 _popupsController.Replace(instantiatePrefab(_popupReplace));
             }
         }
-        else if(Input.GetKeyUp(KeyCode.Alpha5))
+        else if(Input.GetKeyUp(KeyCode.Alpha6))
         {
             if(_screensController.Count > 1)
             {
                 _screensController.Replace(instantiatePrefab(_screenReplace));
             }
         }
-        else if(Input.GetKeyUp(KeyCode.Alpha6))
+        else if(Input.GetKeyUp(KeyCode.Alpha7))
         {
             var top = _popupsController.Top;
             if(top != null)
@@ -78,14 +85,14 @@ public class FullUITestingController : MonoBehaviour
                 _popupsController.SetCheckPoint(_latestCheckPoint);
             }
         }
-        else if(Input.GetKeyUp(KeyCode.Alpha7))
+        else if(Input.GetKeyUp(KeyCode.Alpha8))
         {
             if(!string.IsNullOrEmpty(_latestCheckPoint))
             {
                 _popupsController.PopUntilCheckPoint(_latestCheckPoint);
             }
         }
-        else if(Input.GetKeyUp(KeyCode.Alpha8))
+        else if(Input.GetKeyUp(KeyCode.Alpha9))
         {
             _popupsController.PopUntil(1);
         }
