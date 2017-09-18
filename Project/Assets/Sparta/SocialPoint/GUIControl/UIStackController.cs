@@ -75,21 +75,8 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        public UIViewController Second
-        {
-            get
-            {
-                if(_stack.Count > 1)
-                {
-                    return _stack[_stack.Count - 2];
-                }
-
-                return null;
-            }
-        }
-
-        protected IList<UIViewController> _stack = new List<UIViewController>();
-        protected IDictionary<string,int> _checkpoints = new Dictionary<string,int>();
+        IList<UIViewController> _stack = new List<UIViewController>();
+        IDictionary<string,int> _checkpoints = new Dictionary<string,int>();
         Coroutine _actionCoroutine = null;
         ActionType _action = ActionType.None;
 
@@ -144,7 +131,7 @@ namespace SocialPoint.GUIControl
             DebugLog("EndProcess");
         }
 
-        protected bool SetAnimation(UIViewController from, UIViewController to, UIViewAnimation anim)
+        bool SetAnimation(UIViewController from, UIViewController to, UIViewAnimation anim)
         {
             if(anim != null)
             {
@@ -161,17 +148,12 @@ namespace SocialPoint.GUIControl
             return false;
         }
 
-        protected bool IsPushAction(ActionType act)
-        {
-            return act == ActionType.Push;
-        }
-
-        protected bool IsPopAction(ActionType act)
+        bool IsPopAction(ActionType act)
         {
             return act == ActionType.Pop || act == ActionType.PopUntilCheck || act == ActionType.PopUntilPos || act == ActionType.PopUntilType;
         }
 
-        protected virtual void SetupTransition(UIViewController from, UIViewController to, ActionType act)
+        void SetupTransition(UIViewController from, UIViewController to, ActionType act)
         {
             if(FrontContainer != null && to != null)
             {
@@ -204,7 +186,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        protected IEnumerator DoTransition(UIViewController from, UIViewController to, ActionType act)
+        IEnumerator DoTransition(UIViewController from, UIViewController to, ActionType act)
         {            
             if(from == to)
             {
@@ -307,33 +289,14 @@ namespace SocialPoint.GUIControl
         }
 
         [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
-        protected void DebugLog(string msg)
+        void DebugLog(string msg)
         {
             Log.i(string.Format("UIStackController | {0}", msg));
-        }
-
-        [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
-        protected void DebugLogStack()
-        {
-            foreach (UIViewController ctrl in _stack)
-            {
-                Debug.Log(ctrl.gameObject.name);
-            }
         }
 
         public void SetCheckPoint(string name)
         {
             _checkpoints[name] = _stack.Count;
-        }
-
-        public void RemoveCheckPoint(string name)
-        {
-            int index = 0;
-
-            if(_checkpoints.TryGetValue(name, out index))
-            {
-                _stack.RemoveAt(index);
-            }
         }
 
         #region UIParentController overrides
@@ -421,7 +384,7 @@ namespace SocialPoint.GUIControl
             yield return StartActionCoroutine(DoPushCoroutine(ctrl, act), act);
         }
 
-        protected virtual IEnumerator DoPushCoroutine(UIViewController ctrl, ActionType act)
+        IEnumerator DoPushCoroutine(UIViewController ctrl, ActionType act)
         {
             var top = Top;
             AddChild(ctrl);
@@ -453,7 +416,7 @@ namespace SocialPoint.GUIControl
             return PushImmediate(CreateChild(c));
         }
 
-        public virtual UIViewController PushImmediate(UIViewController ctrl)
+        public UIViewController PushImmediate(UIViewController ctrl)
         {
             DebugLog(string.Format("PushImmediate {0}", ctrl.gameObject.name));
             var top = Top;
@@ -533,7 +496,7 @@ namespace SocialPoint.GUIControl
             return Replace(CreateChild(c), act);
         }
 
-        public virtual UIViewController Replace(UIViewController ctrl, ActionType act = ActionType.Replace)
+        public UIViewController Replace(UIViewController ctrl, ActionType act = ActionType.Replace)
         {
             StartActionCoroutine(DoReplaceCoroutine(ctrl, act), act);
             return ctrl;
@@ -579,7 +542,7 @@ namespace SocialPoint.GUIControl
             return ReplaceImmediate(CreateChild(c));
         }
 
-        public virtual UIViewController ReplaceImmediate(UIViewController ctrl)
+        public UIViewController ReplaceImmediate(UIViewController ctrl)
         {
             DebugLog(string.Format("ReplaceImmediate {0}", ctrl.gameObject.name));
             var top = Top;
@@ -617,7 +580,7 @@ namespace SocialPoint.GUIControl
             yield return StartActionCoroutine(DoPopCoroutine(), ActionType.Pop);
         }
 
-        protected virtual IEnumerator DoPopCoroutine()
+        IEnumerator DoPopCoroutine()
         {
             UIViewController top = null;
             UIViewController ctrl = null;
@@ -639,7 +602,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        public virtual void PopImmediate()
+        public void PopImmediate()
         {
             if(_stack.Count > 0)
             {
@@ -658,9 +621,9 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        protected delegate bool PopCondition(UIViewController ctrl);
+        private delegate bool PopCondition(UIViewController ctrl);
 
-        protected virtual IEnumerator DoPopUntilCondition(PopCondition cond, ActionType act)
+        IEnumerator DoPopUntilCondition(PopCondition cond, ActionType act)
         {
             UIViewController top = null;
             UIViewController ctrl = null;
@@ -705,10 +668,7 @@ namespace SocialPoint.GUIControl
 
         public void PopUntil(Type type)
         {
-            if(_stack.Count > 1)
-            {
-                StartActionCoroutine(DoPopUntilCoroutine(type), ActionType.PopUntilType);
-            }
+            StartActionCoroutine(DoPopUntilCoroutine(type), ActionType.PopUntilType);
         }
 
         public IEnumerator PopUntilCoroutine(Type type)
@@ -716,7 +676,7 @@ namespace SocialPoint.GUIControl
             yield return StartActionCoroutine(DoPopUntilCoroutine(type), ActionType.PopUntilType);
         }
 
-        protected IEnumerator DoPopUntilCoroutine(Type type)
+        IEnumerator DoPopUntilCoroutine(Type type)
         {
             return DoPopUntilCondition((UIViewController ctrl) => {
                 return ctrl.GetType() == type;
@@ -725,10 +685,7 @@ namespace SocialPoint.GUIControl
 
         public void PopUntil(int i)
         {
-            if(_stack.Count > 1)
-            {
-                StartActionCoroutine(DoPopUntilCoroutine(i), ActionType.PopUntilPos);
-            }
+            StartActionCoroutine(DoPopUntilCoroutine(i), ActionType.PopUntilPos);
         }
 
         public IEnumerator PopUntilCoroutine(int i)
@@ -736,12 +693,12 @@ namespace SocialPoint.GUIControl
             yield return StartActionCoroutine(DoPopUntilCoroutine(i), ActionType.PopUntilPos);
         }
 
-        protected IEnumerator DoPopUntilCoroutine(int i)
+        IEnumerator DoPopUntilCoroutine(int i)
         {
             return DoPopUntilCoroutine(i, ActionType.PopUntilPos);
         }
 
-        protected IEnumerator DoPopUntilCoroutine(int i, ActionType act)
+        IEnumerator DoPopUntilCoroutine(int i, ActionType act)
         {
             if(_stack.Count > i)
             {           
@@ -762,7 +719,7 @@ namespace SocialPoint.GUIControl
             yield return StartActionCoroutine(DoPopUntilCheckPointCoroutine(name), ActionType.PopUntilCheck);
         }
 
-        protected virtual IEnumerator DoPopUntilCheckPointCoroutine(string name)
+        IEnumerator DoPopUntilCheckPointCoroutine(string name)
         {
             int i;
             if(!_checkpoints.TryGetValue(name, out i))
@@ -796,18 +753,10 @@ namespace SocialPoint.GUIControl
             {
                 Background.SetActive(false);
             }
-                
+
             if(Blocker != null)
             {
                 Blocker.SetActive(false);
-            }
-        }
-
-        public void OnForceCloseUIView(UIViewController ctrl)
-        {
-            if(ctrl != null)
-            {
-                Pop();
             }
         }
     }

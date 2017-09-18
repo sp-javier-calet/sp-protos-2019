@@ -19,15 +19,22 @@ public class FullUITestingController : MonoBehaviour
     [SerializeField]
     GameObject _screenReplace;
 
-    UIViewsStackController _uiViewsStackController;
+    PopupsController _popupsController;
+    ScreensController _screensController;
     string _latestCheckPoint;
 
     void Start()
     {
-        _uiViewsStackController = Services.Instance.Resolve<UIViewsStackController>();
-        if(_uiViewsStackController == null)
+        _popupsController = Services.Instance.Resolve<PopupsController>();
+        if(_popupsController == null)
         {
-            throw new InvalidOperationException("Could not find UI Controller");
+            throw new InvalidOperationException("Could not find Popups UI Controller");
+        }
+
+        _screensController = Services.Instance.Resolve<ScreensController>();
+        if(_screensController == null)
+        {
+            throw new InvalidOperationException("Could not find Screens UI Controller");
         }
     }
 
@@ -35,52 +42,52 @@ public class FullUITestingController : MonoBehaviour
     {
         if(Input.GetKeyUp(KeyCode.Alpha1))
         {
-            _uiViewsStackController.Push(instantiatePrefab(_popup));
+            _popupsController.Push(instantiatePrefab(_popup));
         }
         else if(Input.GetKeyUp(KeyCode.Alpha2))
         {
-            _uiViewsStackController.Push(instantiatePrefab(_screen));
+            _screensController.Push(instantiatePrefab(_screen));
         }
         else if(Input.GetKeyUp(KeyCode.Alpha3))
         {
-            if(_uiViewsStackController.Count > 1)
+            if(_screensController.Count > 1)
             {
-                _uiViewsStackController.Pop();
+                _screensController.Pop();
             }
         }
         else if(Input.GetKeyUp(KeyCode.Alpha4))
         {
-            if(_uiViewsStackController.Count > 1)
+            if(_popupsController.Count > 1)
             {
-                _uiViewsStackController.Replace(instantiatePrefab(_popupReplace));
+                _popupsController.Replace(instantiatePrefab(_popupReplace));
             }
         }
         else if(Input.GetKeyUp(KeyCode.Alpha5))
         {
-            if(_uiViewsStackController.Count > 1)
+            if(_screensController.Count > 1)
             {
-                _uiViewsStackController.Replace(instantiatePrefab(_screenReplace));
+                _screensController.Replace(instantiatePrefab(_screenReplace));
             }
         }
         else if(Input.GetKeyUp(KeyCode.Alpha6))
         {
-            var top = _uiViewsStackController.Top;
+            var top = _popupsController.Top;
             if(top != null)
             {
                 _latestCheckPoint = top.name;
-                _uiViewsStackController.SetCheckPoint(_latestCheckPoint);
+                _popupsController.SetCheckPoint(_latestCheckPoint);
             }
         }
         else if(Input.GetKeyUp(KeyCode.Alpha7))
         {
             if(!string.IsNullOrEmpty(_latestCheckPoint))
             {
-                _uiViewsStackController.PopUntilCheckPoint(_latestCheckPoint);
+                _popupsController.PopUntilCheckPoint(_latestCheckPoint);
             }
         }
         else if(Input.GetKeyUp(KeyCode.Alpha8))
         {
-            _uiViewsStackController.PopUntil(1);
+            _popupsController.PopUntil(1);
         }
     }
 

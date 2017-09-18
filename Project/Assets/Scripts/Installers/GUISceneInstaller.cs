@@ -14,7 +14,6 @@ public class GUISceneInstaller : Installer, IInitializable
 
     public SettingsData Settings = new SettingsData();
 
-
     public GUISceneInstaller() : base(ModuleType.Game)
     {
     }
@@ -30,27 +29,27 @@ public class GUISceneInstaller : Installer, IInitializable
         {
             return;
         }
-            
-        var uiViewsStackController = Container.Resolve<UIViewsStackController>();
-        if(uiViewsStackController == null)
+
+        var screens = Container.Resolve<ScreensController>();
+        if(screens == null)
         {
-            throw new InvalidOperationException("Could not find UI Controller");
+            throw new InvalidOperationException("Could not find screens controller for initial screen");
         }
 
-        if(Settings.InitialScreenPrefab != null)
+        var go = Instantiate<GameObject>(Settings.InitialScreenPrefab);
+        var ctrl = go.GetComponent<UIViewController>();
+        if(ctrl == null)
         {
-            var go = Instantiate<GameObject>(Settings.InitialScreenPrefab);
-            if(go != null)
-            {
-                if(Settings.InitialScreenAnimation)
-                {
-                    uiViewsStackController.Push(go);
-                }
-                else
-                {
-                    uiViewsStackController.PushImmediate(go); 
-                }
-            }
+            throw new InvalidOperationException("Initial Screen Prefab does not contain a UIViewController");
+        }
+
+        if(Settings.InitialScreenAnimation)
+        {
+            screens.Push(ctrl);
+        }
+        else
+        {
+            screens.PushImmediate(ctrl);
         }
     }
 }

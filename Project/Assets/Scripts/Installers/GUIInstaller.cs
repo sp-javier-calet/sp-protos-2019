@@ -5,11 +5,13 @@ using SocialPoint.GUIControl;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
 using UnityEngine;
+using System.Text;
 
 public class GUIInstaller : Installer, IDisposable
 {
     const string kUIViewControllerSuffix = "Controller";
     const string kGUIRootPrefab = "GUI_Root";
+    const string kUIViewControllerExamplePrefix = "GUI_";
 
     [Serializable]
     public class SettingsData
@@ -20,7 +22,6 @@ public class GUIInstaller : Installer, IDisposable
     public SettingsData Settings = new SettingsData();
 
     GameObject _root;
-    UIViewsStackController _uiViewsStackController;
 
     public override void InstallBindings()
     {
@@ -32,15 +33,19 @@ public class GUIInstaller : Installer, IDisposable
 
         _root = CreateRoot();
         var AppEvents = Container.Resolve<IAppEvents>();
-
-        _uiViewsStackController = _root.GetComponentInChildren<UIViewsStackController>();
-        if(_uiViewsStackController != null)
+        var popups = _root.GetComponentInChildren<PopupsController>();
+        if(popups != null)
         {
-            _uiViewsStackController.AppEvents = AppEvents;
-            Container.Rebind<UIViewsStackController>().ToInstance(_uiViewsStackController);
-            Container.Rebind<UIViewsStackController>().ToLookup<UIViewsStackController>();
+            popups.AppEvents = AppEvents;
+            Container.Rebind<PopupsController>().ToInstance(popups);
+            Container.Rebind<UIStackController>().ToLookup<PopupsController>();
+        }
 
-            UIViewController.ForceCloseEvent += _uiViewsStackController.OnForceCloseUIView;
+        var screens = _root.GetComponentInChildren<ScreensController>();
+        if(screens != null)
+        {
+            screens.AppEvents = AppEvents;
+            Container.Rebind<ScreensController>().ToInstance(screens);
         }
 
         var layers = _root.GetComponentInChildren<UILayersController>();
@@ -72,20 +77,25 @@ public class GUIInstaller : Installer, IDisposable
         root = Instantiate<GameObject>(root);
         root.name = rname;
         DontDestroyOnLoad(root);
-
         return root;
     }
 
     string GetControllerFactoryPrefabName(Type type)
     {
-        return _uiViewsStackController.GetControllerFactoryPrefabName(type);
+        var name = type.Name;
+        name = name.Replace(kUIViewControllerSuffix, string.Empty);
+
+        StringBuilder stringBuilder = StringUtils.StartBuilder();
+        stringBuilder.Append(kUIViewControllerExamplePrefix);
+        stringBuilder.Append(name);
+        return StringUtils.FinishBuilder(stringBuilder);
     }
 
     public void Dispose()
     {
-        UIViewController.ForceCloseEvent -= _uiViewsStackController.OnForceCloseUIView;
-        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)null);
+//        UIViewController.ForceCloseEvent -= _uiViewsStackController.OnForceCloseUIView;
 
+        UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)null);
         Destroy(_root);
     }
 }
