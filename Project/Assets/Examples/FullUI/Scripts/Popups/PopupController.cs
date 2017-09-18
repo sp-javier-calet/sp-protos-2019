@@ -1,5 +1,5 @@
 ﻿using SocialPoint.GUIControl;
 
-public class PopupController : UIPopupViewController 
+public class PopupController : UIViewController 
 {
 }

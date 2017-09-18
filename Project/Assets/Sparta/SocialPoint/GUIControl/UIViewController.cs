@@ -19,15 +19,7 @@ namespace SocialPoint.GUIControl
             Destroyed
         }
 
-        public enum ViewCtrlType
-        {
-            None,
-            Popup,
-            Screen
-        }
-
         public static event Action<UIViewController> AwakeEvent;
-        public static event Action<UIViewController> ForceCloseEvent;
         public event Action<UIViewController, ViewState> ViewEvent;
         public event Action<UIViewController, GameObject> InstantiateEvent;
 
@@ -99,22 +91,6 @@ namespace SocialPoint.GUIControl
                     }
                 }
                 return materials;
-            }
-        }
-
-        public virtual ViewCtrlType ViewType
-        {
-            get
-            {
-                return ViewCtrlType.None;
-            }
-        }
-
-        public virtual bool IsAnimated
-        {
-            get
-            {
-                return true;
             }
         }
 
@@ -328,6 +304,7 @@ namespace SocialPoint.GUIControl
                 }
                 _animation = value;
             }
+
             get
             {
                 return _animation;
@@ -614,7 +591,6 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("Hide");
             Load();
-
             var enm = DoHideCoroutine(destroy);
             if(enm != null)
             {
@@ -661,15 +637,6 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        void NotifyForcingClose()
-        {
-            DebugLog("NotifyForcingClose");
-            if(ForceCloseEvent != null)
-            {
-                ForceCloseEvent(this);
-            }
-        }
-
         virtual protected void OnAppearing()
         {
             DebugLog("OnAppearing");
@@ -708,12 +675,6 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("OnAppeared");
             _viewState = ViewState.Shown;
-
-            if(Animation != null)
-            {
-                Animation.Reset();
-            }
-
             DestroyOnHide = false;
             NotifyViewEvent();
         }
@@ -772,13 +733,11 @@ namespace SocialPoint.GUIControl
                 StopCoroutine(_showCoroutine);
                 _showCoroutine = null;
             }
-
             if(_hideCoroutine != null)
             {
                 StopCoroutine(_hideCoroutine);
                 _hideCoroutine = null;
             }
-
             if(Animation != null)
             {
                 Animation.Reset();
@@ -808,11 +767,6 @@ namespace SocialPoint.GUIControl
                 InstantiateEvent(this, go);
             }
             return go;
-        }
-
-        public void OnForceClose()
-        {
-            NotifyForcingClose();
         }
     }
 }

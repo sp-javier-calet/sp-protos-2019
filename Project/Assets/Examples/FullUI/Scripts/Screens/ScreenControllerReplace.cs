@@ -1,5 +1,5 @@
 ﻿using SocialPoint.GUIControl;
 
-public class ScreenControllerReplace : UIScreenViewController 
+public class ScreenControllerReplace : UIViewController 
 {
 }

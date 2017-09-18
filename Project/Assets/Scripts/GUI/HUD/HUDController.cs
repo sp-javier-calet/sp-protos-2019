@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using SocialPoint.GUIControl;
 
-public class HUDController : UIScreenViewController 
+public class HUDController : UIViewController 
 {
 }
