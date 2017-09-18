@@ -1,8 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System;
 
 public class AppsFlyerTrackerCallbacks : MonoBehaviour {
+
+    public Action<string> OnConversionDataReceived;
 
 	public Text callbacks;
 
@@ -19,6 +22,9 @@ public class AppsFlyerTrackerCallbacks : MonoBehaviour {
 	
 	public void didReceiveConversionData(string conversionData) {
 		printCallback ("AppsFlyerTrackerCallbacks:: got conversion data = " + conversionData);
+        if(OnConversionDataReceived != null) {
+            OnConversionDataReceived(conversionData);
+        }
 	}
 	
 	public void didReceiveConversionDataWithError(string error) {

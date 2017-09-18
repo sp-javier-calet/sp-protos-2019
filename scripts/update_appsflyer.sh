@@ -1,5 +1,6 @@
 #!/bin/bash
 
+SCRIPT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJ_PATH="Project/Assets"
 PLUGINS_PATH="${PROJ_PATH}/Plugins"
 SPARTA_PATH="${PROJ_PATH}/Sparta/External/AppsFlyer"
@@ -35,32 +36,4 @@ for FILE in $IOS_FILES ; do
 	fi
 done
 
-read -d '' DIFF <<"EOM"
---- a/Project/Assets/Sparta/External/AppsFlyer/AppsFlyerTrackerCallbacks.cs
-+++ b/Project/Assets/Sparta/External/AppsFlyer/AppsFlyerTrackerCallbacks.cs
-@@ -1,9 +1,12 @@
- <U+FEFF>using UnityEngine;
- using System.Collections;
- using UnityEngine.UI;
-+using System;
-
- public class AppsFlyerTrackerCallbacks : MonoBehaviour {
-
-+		public Action<string> OnConversionDataReceived;
-+
-        public Text callbacks;
-
-        // Use this for initialization
-@@ -19,6 +22,9 @@ public class AppsFlyerTrackerCallbacks : MonoBehaviour {
-
-        public void didReceiveConversionData(string conversionData) {
-                printCallback ("AppsFlyerTrackerCallbacks:: got conversion data = " + conversionData);
-+				if(OnConversionDataReceived != null) {
-+					OnConversionDataReceived(conversionData);
-+				}
-        }
-
-        public void didReceiveConversionDataWithError(string error) {
-EOM
-
-echo "${DIFF}" | patch --verbose -p1
+patch --verbose -p1 < "${SCRIPT_PATH}/appsflyer.patch"
