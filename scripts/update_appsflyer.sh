@@ -1,4 +1,4 @@
-#bin/sh
+#!/bin/bash
 
 PROJ_PATH="Project/Assets"
 PLUGINS_PATH="${PROJ_PATH}/Plugins"
@@ -15,22 +15,22 @@ ANDROID_FILES="AF-Android-SDK.jar AppsFlyerAndroidPlugin.jar"
 IOS_FILES="AppsFlyerAppController.mm AppsFlyerDelegate.h AppsFlyerDelegate.mm AppsFlyerTracker.h AppsFlyerWrapper.h AppsFlyerWrapper.mm libAppsFlyerLib.a"
 
 for FILE in $UNITY_FILES ; do
-	PATH="${PLUGINS_PATH}/${FILE}"
-	if [ -f $PATH ]; then
-		mv "${PATH}" "${SPARTA_PATH}"
+	FILE_PATH="${PLUGINS_PATH}/${FILE}"
+	if [ -f $FILE_PATH ]; then
+		mv "${FILE_PATH}" "${SPARTA_PATH}"
 	fi
 done
 
 for FILE in $ANDROID_FILES ; do
-	PATH="${PLUGINS_PATH}/Android/${FILE}"
-	if [ -f $PATH ]; then
-		mv "${PATH}" "${SPARTA_PATH}/Plugins/Android"
+	FILE_PATH="${PLUGINS_PATH}/Android/${FILE}"
+	if [ -f $FILE_PATH ]; then
+		mv "${FILE_PATH}" "${SPARTA_PATH}/Plugins/Android"
 	fi
 done
 
 for FILE in $IOS_FILES ; do
-	PATH="${PLUGINS_PATH}/iOS/${FILE}"
-	if [ -f $PATH ]; then
-		mv "${PATH}" "${SPARTA_PATH}/Plugins/iOS"
+	FILE_PATH="${PLUGINS_PATH}/iOS/${FILE}"
+	if [ -f $FILE_PATH ]; then
+		mv "${FILE_PATH}" "${SPARTA_PATH}/Plugins/iOS"
 	fi
 done
