@@ -2,4 +2,8 @@
 
 public class PopupController : UIViewController 
 {
+    public PopupController()
+    {
+        IsFullScreen = false;
+    }
 }

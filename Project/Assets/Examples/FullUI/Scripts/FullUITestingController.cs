@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using SocialPoint.Dependency;
 using System;
-using SocialPoint.GUIControl;
 
 public class FullUITestingController : MonoBehaviour
 {
@@ -19,22 +16,16 @@ public class FullUITestingController : MonoBehaviour
     [SerializeField]
     GameObject _screenReplace;
 
-    PopupsController _popupsController;
-    ScreensController _screensController;
+    ScreensController _screens;
     string _latestCheckPoint;
 
     void Start()
     {
-        _popupsController = Services.Instance.Resolve<PopupsController>();
-        if(_popupsController == null)
+        
+        _screens = Services.Instance.Resolve<ScreensController>();
+        if(_screens == null)
         {
-            throw new InvalidOperationException("Could not find Popups UI Controller");
-        }
-
-        _screensController = Services.Instance.Resolve<ScreensController>();
-        if(_screensController == null)
-        {
-            throw new InvalidOperationException("Could not find Screens UI Controller");
+            throw new InvalidOperationException("Could not find UI Views Stack Controller");
         }
     }
 
@@ -42,59 +33,47 @@ public class FullUITestingController : MonoBehaviour
     {
         if(Input.GetKeyUp(KeyCode.Alpha1))
         {
-            _popupsController.Push(instantiatePrefab(_popup));
+            _screens.Push(instantiatePrefab(_popup));
         }
         else if(Input.GetKeyUp(KeyCode.Alpha2))
         {
-            _screensController.Push(instantiatePrefab(_screen));
+            _screens.Push(instantiatePrefab(_screen));
         }
         else if(Input.GetKeyUp(KeyCode.Alpha3))
         {
-            if(_popupsController.Count > 0)
-            {
-                _popupsController.Pop();
-            }
+            _screens.Pop();
         }
         else if(Input.GetKeyUp(KeyCode.Alpha4))
         {
-            if(_screensController.Count > 1)
-            {
-                _screensController.Pop();
-            }
+            _screens.Replace(instantiatePrefab(_popupReplace));
         }
         else if(Input.GetKeyUp(KeyCode.Alpha5))
         {
-            if(_popupsController.Count > 1)
-            {
-                _popupsController.Replace(instantiatePrefab(_popupReplace));
-            }
+            _screens.Replace(instantiatePrefab(_screenReplace));
         }
         else if(Input.GetKeyUp(KeyCode.Alpha6))
         {
-            if(_screensController.Count > 1)
+            var top = _screens.Top;
+            if(top != null)
             {
-                _screensController.Replace(instantiatePrefab(_screenReplace));
+                _latestCheckPoint = top.name;
+                _screens.SetCheckPoint(_latestCheckPoint);
             }
         }
         else if(Input.GetKeyUp(KeyCode.Alpha7))
         {
-            var top = _popupsController.Top;
-            if(top != null)
+            if(!string.IsNullOrEmpty(_latestCheckPoint))
             {
-                _latestCheckPoint = top.name;
-                _popupsController.SetCheckPoint(_latestCheckPoint);
+                _screens.PopUntilCheckPoint(_latestCheckPoint);
             }
         }
         else if(Input.GetKeyUp(KeyCode.Alpha8))
         {
-            if(!string.IsNullOrEmpty(_latestCheckPoint))
-            {
-                _popupsController.PopUntilCheckPoint(_latestCheckPoint);
-            }
+            _screens.PopUntil(0);
         }
         else if(Input.GetKeyUp(KeyCode.Alpha9))
         {
-            _popupsController.PopUntil(1);
+            _screens.PopUntil(-1);
         }
     }
 

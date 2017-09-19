@@ -22,6 +22,7 @@ public class GUIInstaller : Installer, IDisposable
     public SettingsData Settings = new SettingsData();
 
     GameObject _root;
+    ScreensController _screens;
 
     public override void InstallBindings()
     {
@@ -33,21 +34,16 @@ public class GUIInstaller : Installer, IDisposable
 
         _root = CreateRoot();
         var AppEvents = Container.Resolve<IAppEvents>();
-        var popups = _root.GetComponentInChildren<PopupsController>();
-        if(popups != null)
-        {
-            popups.AppEvents = AppEvents;
-            Container.Rebind<PopupsController>().ToInstance(popups);
-            Container.Rebind<UIStackController>().ToLookup<PopupsController>();
-        }
 
-        var screens = _root.GetComponentInChildren<ScreensController>();
-        if(screens != null)
+        _screens = _root.GetComponentInChildren<ScreensController>();
+        if(_screens != null)
         {
-            screens.AppEvents = AppEvents;
-            Container.Rebind<ScreensController>().ToInstance(screens);
-        }
+            _screens.AppEvents = AppEvents;
+            Container.Rebind<ScreensController>().ToInstance(_screens);
 
+            UIViewController.ForceCloseEvent += _screens.OnForceCloseUIView;
+        }
+            
         var layers = _root.GetComponentInChildren<UILayersController>();
         if(layers != null)
         {
@@ -93,7 +89,10 @@ public class GUIInstaller : Installer, IDisposable
 
     public void Dispose()
     {
-//        UIViewController.ForceCloseEvent -= _uiViewsStackController.OnForceCloseUIView;
+        if(_screens != null)
+        {
+            UIViewController.ForceCloseEvent -= _screens.OnForceCloseUIView;
+        }
 
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)null);
         Destroy(_root);

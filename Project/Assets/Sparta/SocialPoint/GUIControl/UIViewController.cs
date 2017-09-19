@@ -18,8 +18,14 @@ namespace SocialPoint.GUIControl
             Destroying,
             Destroyed
         }
+  
+        /// <summary>
+        ///     To check if the UI View is full screen.
+        /// </summary>
+        public bool IsFullScreen { get; set; }
 
         public static event Action<UIViewController> AwakeEvent;
+        public static Action<UIViewController> ForceCloseEvent;
         public event Action<UIViewController, ViewState> ViewEvent;
         public event Action<UIViewController, GameObject> InstantiateEvent;
 
@@ -637,6 +643,15 @@ namespace SocialPoint.GUIControl
             }
         }
 
+        void NotifyForcingClose()
+        {
+            DebugLog(string.Format("NotifyForcingClose {0}", gameObject.name));
+            if(ForceCloseEvent != null)
+            {
+                ForceCloseEvent(this);
+            }
+        }
+
         virtual protected void OnAppearing()
         {
             DebugLog("OnAppearing");
@@ -705,6 +720,12 @@ namespace SocialPoint.GUIControl
             }
         }
 
+        virtual public bool OnBack()
+        {
+            // TODO To be used with ANDROID Back button
+            return IsStable; 
+        }
+
         virtual protected void OnDisappearing()
         {
             DebugLog("OnDisappearing");
@@ -767,6 +788,11 @@ namespace SocialPoint.GUIControl
                 InstantiateEvent(this, go);
             }
             return go;
+        }
+
+        public void OnForceClose()
+        {
+            NotifyForcingClose();
         }
     }
 }

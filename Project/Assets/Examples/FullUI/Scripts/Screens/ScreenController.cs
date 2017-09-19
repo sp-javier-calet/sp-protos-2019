@@ -2,4 +2,8 @@
 
 public class ScreenController : UIViewController 
 {
+    public ScreenController()
+    {
+        IsFullScreen = true;
+    }
 }

@@ -2,4 +2,8 @@
 
 public class ScreenControllerReplace : UIViewController 
 {
+    public ScreenControllerReplace()
+    {
+        IsFullScreen = true;
+    }
 }

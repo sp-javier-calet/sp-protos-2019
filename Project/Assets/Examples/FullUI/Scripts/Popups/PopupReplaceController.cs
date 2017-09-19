@@ -2,4 +2,8 @@
 
 public class PopupReplaceController : UIViewController 
 {
+    public PopupReplaceController()
+    {
+        IsFullScreen = false;
+    }
 }
