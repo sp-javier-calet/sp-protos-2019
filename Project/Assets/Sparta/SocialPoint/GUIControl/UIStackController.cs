@@ -12,6 +12,12 @@ namespace SocialPoint.GUIControl
 
     public class UIStackController : UIParentController
     {
+        public enum StackShowType
+        {
+            ShowAndHidePrevious,
+            ShowAndHideUntilScreen
+        }
+
         public GameObject Background;
         public GameObject FrontContainer;
         public GameObject BackContainer;
@@ -30,7 +36,7 @@ namespace SocialPoint.GUIControl
         /// <summary>
         ///     To check if we want to only hide the previous UI View or hide from FullScreen to FullScreen views.
         /// </summary>
-        public bool HideBetweenFullScreenViews = false;
+        public StackShowType StackType = StackShowType.ShowAndHidePrevious;
 
         List<UIViewController> _views = new List<UIViewController>();
         IAppEvents _appEvents;
@@ -314,7 +320,7 @@ namespace SocialPoint.GUIControl
             {
                 if(from != null && to != null && from.State == ViewState.Shown)
                 {
-                    if(HideBetweenFullScreenViews)
+                    if(StackType == StackShowType.ShowAndHideUntilScreen)
                     {
                         if(IsPushAction(act) && to.IsFullScreen)
                         {
@@ -795,7 +801,7 @@ namespace SocialPoint.GUIControl
 
             if(_stack.Count > 0)
             {
-                if(HideBetweenFullScreenViews && top.IsFullScreen)
+                if(StackType == StackShowType.ShowAndHideUntilScreen && top.IsFullScreen)
                 {
                     ShowStackedUIViews(true);
                 }

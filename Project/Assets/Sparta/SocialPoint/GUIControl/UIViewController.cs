@@ -22,7 +22,7 @@ namespace SocialPoint.GUIControl
         /// <summary>
         ///     To check if the UI View is full screen.
         /// </summary>
-        public bool IsFullScreen { get; set; }
+        public bool IsFullScreen = true;
 
         public static event Action<UIViewController> AwakeEvent;
         public static Action<UIViewController> ForceCloseEvent;

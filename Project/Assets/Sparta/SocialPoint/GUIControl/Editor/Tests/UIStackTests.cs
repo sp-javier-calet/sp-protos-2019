@@ -29,7 +29,7 @@ namespace SocialPoint.GUIControl
             UITestStackController = GO.AddComponent<UIStackController>();
             CoroutineRunner = new ImmediateCoroutineRunner();
             UITestStackController.CoroutineRunner = CoroutineRunner;
-            UITestStackController.HideBetweenFullScreenViews = true;
+            UITestStackController.StackType = UIStackController.StackShowType.ShowAndHideUntilScreen;
 
             InstantiateGO(ref PopupGO, "popup", false);
             InstantiateGO(ref ScreenGO, "screen", true);
@@ -104,6 +104,7 @@ namespace SocialPoint.GUIControl
 
             Assert.IsNotNull(top);
             Assert.IsTrue(top.gameObject == go);
+            Assert.IsTrue(UITestStackController.Count == 1);
         }
 
         void BasicReplaceImmediate(GameObject gameObject, GameObject goReplace)
@@ -117,6 +118,7 @@ namespace SocialPoint.GUIControl
 
             Assert.IsNotNull(top);
             Assert.IsTrue(top.gameObject == go);
+            Assert.IsTrue(UITestStackController.Count == 1);
         }
 
         void BasicSetCheckpoint()
