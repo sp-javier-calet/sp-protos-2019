@@ -5,15 +5,18 @@ namespace SocialPoint.Social
 {
     public sealed class Message
     {
-        internal string Id{ get; private set; }
+        public string Id{ get; private set; }
+
+        public int Timestamp{ get; private set; }
 
         readonly IMessageOrigin _origin;
         readonly IMessagePayload _payload;
         readonly HashSet<string> _properties;
 
-        public Message(string id, IMessageOrigin origin, IMessagePayload payload)
+        public Message(string id, int timestamp, IMessageOrigin origin, IMessagePayload payload)
         {
             Id = id;
+            Timestamp = timestamp;
             _origin = origin;
             _payload = payload;
             _properties = new HashSet<string>();
