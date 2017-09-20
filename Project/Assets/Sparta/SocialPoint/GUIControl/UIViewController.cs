@@ -473,6 +473,7 @@ namespace SocialPoint.GUIControl
             {
                 ParentController = FindParentController();
             }
+
             if(transform.parent == null)
             {
                 if(ParentController != null)
@@ -488,6 +489,7 @@ namespace SocialPoint.GUIControl
             {
                 return null;
             }
+
             GameObject parent = transform.parent.gameObject;
             while(parent != null)
             {
@@ -769,7 +771,10 @@ namespace SocialPoint.GUIControl
         virtual protected void Disable()
         {
             DebugLog("Disable");
-            gameObject.SetActive(false);
+            if(gameObject != null)
+            {
+                gameObject.SetActive(false);
+            }
         }
 
         virtual protected void OnDisappeared()
@@ -782,7 +787,7 @@ namespace SocialPoint.GUIControl
 
         protected GameObject Instantiate(GameObject proto)
         {
-            var go = GameObject.Instantiate(proto);
+            var go = UnityEngine.Object.Instantiate(proto);
             if(InstantiateEvent != null)
             {
                 InstantiateEvent(this, go);

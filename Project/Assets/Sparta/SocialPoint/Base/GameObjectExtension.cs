@@ -283,7 +283,7 @@ namespace SocialPoint.Base
             {
                 if(children[index] != gameObject.transform)
                 {
-                    GameObject.Destroy(children[index].gameObject);
+                    UnityEngine.Object.Destroy(children[index].gameObject);
                 }
             }
         }
@@ -335,6 +335,18 @@ namespace SocialPoint.Base
                 component = gameObject.AddComponent<T>();
             }
             return component;
+        }
+
+        public static void DestroyAnyway(this GameObject gameObject)
+        {
+            if(!Application.isPlaying)
+            {
+                UnityEngine.Object.DestroyImmediate(gameObject);
+            }
+            else
+            {
+                UnityEngine.Object.Destroy(gameObject);
+            }
         }
     }
 }

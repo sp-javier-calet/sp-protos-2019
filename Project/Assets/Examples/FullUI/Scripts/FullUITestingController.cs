@@ -39,13 +39,25 @@ public class FullUITestingController : MonoBehaviour
         {
             _screens.Push(instantiatePrefab(_screen));
         }
+        else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha3))
+        {
+            _screens.PopImmediate();
+        }
         else if(Input.GetKeyUp(KeyCode.Alpha3))
         {
             _screens.Pop();
         }
+        else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha4))
+        {
+            _screens.ReplaceImmediate(instantiatePrefab(_popupReplace));
+        }
         else if(Input.GetKeyUp(KeyCode.Alpha4))
         {
             _screens.Replace(instantiatePrefab(_popupReplace));
+        }
+        else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha5))
+        {
+            _screens.ReplaceImmediate(instantiatePrefab(_screenReplace));
         }
         else if(Input.GetKeyUp(KeyCode.Alpha5))
         {

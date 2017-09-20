@@ -1517,7 +1517,8 @@ MonoBehaviour:
   m_Text: "UI Stack Controller test\n\nPress 1: To push a popup\nPress 2: To push
     a screen\nPress 3: To pop current UI view\nPress 4: To replace current view with
     a popup\nPress 5: To replace current view with a screen\nPress 6: to setup a checkpoint\nPress
-    7: to pop until checkpoint \nPress 8: to pop until item 0 "
+    7: to pop until checkpoint \nPress 8: to pop until item 0 \nPress 9: to pop until
+    no items\n\nPress ALT + Number: to use immediate option"
 --- !u!114 &114772946800073738
 MonoBehaviour:
   m_ObjectHideFlags: 1

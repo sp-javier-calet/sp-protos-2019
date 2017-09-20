@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIControl
 {
@@ -183,7 +184,10 @@ namespace SocialPoint.GUIControl
             }
             else
             {
-                GameObject.Destroy(view.gameObject);
+                if(view.gameObject != null)
+                {
+                    view.gameObject.DestroyAnyway();
+                }
             }
         }
     }
