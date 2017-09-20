@@ -24,125 +24,107 @@ namespace SocialPoint.Utils
             _scheduler.Update(0.0f, 0.0f);
         }
 
-        class ExecutionCounter : IEnumerator
-        {
-            public int TimesExecuted{ get; private set; }
-
-            public bool MoveNext()
-            {
-                TimesExecuted++;
-                return true;
-            }
-
-            public void Reset()
-            {
-            }
-
-            public object Current
-            {
-                get
-                {
-                    return null;
-                }
-            }
-        }
-
         [Test]
         public void StartCoroutine()
         {
-            var coroutine = new ExecutionCounter();
-            _coroutineRunner.StartCoroutine(coroutine);
+            var enumerator = Substitute.For<IEnumerator>();
+            enumerator.MoveNext().Returns(true);
+            _coroutineRunner.StartCoroutine(enumerator);
             UpdateScheduler();
 
-            Assert.AreEqual(1, coroutine.TimesExecuted);
+            enumerator.Received(1).MoveNext();
         }
 
         [Test]
         public void ExecuteTwiceCoroutine()
         {
-            var coroutine = new ExecutionCounter();
-            _coroutineRunner.StartCoroutine(coroutine);
+            var enumerator = Substitute.For<IEnumerator>();
+            enumerator.MoveNext().Returns(true);
+            _coroutineRunner.StartCoroutine(enumerator);
             UpdateScheduler();
             UpdateScheduler();
 
-            Assert.AreEqual(2, coroutine.TimesExecuted);
+            enumerator.Received(2).MoveNext();
         }
 
         [Test]
         public void StartAndStopCoroutine()
         {
-            var coroutine = new ExecutionCounter();
-            var handler = _coroutineRunner.StartCoroutine(coroutine);
+            var enumerator = Substitute.For<IEnumerator>();
+            enumerator.MoveNext().Returns(true);
+            var handler = _coroutineRunner.StartCoroutine(enumerator);
             UpdateScheduler();
             _coroutineRunner.StopCoroutine(handler);
             UpdateScheduler();
 
-            Assert.AreEqual(1, coroutine.TimesExecuted);
+            enumerator.Received(1).MoveNext();
         }
 
         [Test]
         public void StartAndStopCoroutineSameFrame()
         {
-            var coroutine = new ExecutionCounter();
-            var handler = _coroutineRunner.StartCoroutine(coroutine);
+            var enumerator = Substitute.For<IEnumerator>();
+            enumerator.MoveNext().Returns(true);
+            var handler = _coroutineRunner.StartCoroutine(enumerator);
             _coroutineRunner.StopCoroutine(handler);
             UpdateScheduler();
             UpdateScheduler();
 
-            Assert.AreEqual(0, coroutine.TimesExecuted);
+            enumerator.Received(0).MoveNext();
         }
 
         [Test]
         public void StopCoroutineDuringUpdate()
         {
-            var coroutine1 = new ExecutionCounter();
+            var coroutine1 = Substitute.For<IEnumerator>();
+            coroutine1.MoveNext().Returns(true);
             var handler = _coroutineRunner.StartCoroutine(coroutine1);
 
-            int timesExecuted = 0;
             var coroutine2 = Substitute.For<IEnumerator>();
             coroutine2.MoveNext().Returns(true);
             coroutine2.When(x => x.MoveNext())
-                .Do(x => {
-                timesExecuted++;
-                _coroutineRunner.StopCoroutine(handler);
-            });
+                .Do(x => _coroutineRunner.StopCoroutine(handler));
 
             _coroutineRunner.StartCoroutine(coroutine2);
 
             UpdateScheduler();
             UpdateScheduler();
 
-            Assert.AreEqual(1, coroutine1.TimesExecuted);
-            Assert.AreEqual(2, timesExecuted);
+            coroutine1.Received(1).MoveNext();
+            coroutine2.Received(2).MoveNext();
         }
 
         [Test]
         public void StartTwoCoroutines()
         {
-            var coroutine1 = new ExecutionCounter();
-            var coroutine2 = new ExecutionCounter();
+            var coroutine1 = Substitute.For<IEnumerator>();
+            coroutine1.MoveNext().Returns(true);
+            var coroutine2 = Substitute.For<IEnumerator>();
+            coroutine2.MoveNext().Returns(true);
             _coroutineRunner.StartCoroutine(coroutine1);
             _coroutineRunner.StartCoroutine(coroutine2);
             UpdateScheduler();
             UpdateScheduler();
 
-            Assert.AreEqual(2, coroutine1.TimesExecuted);
-            Assert.AreEqual(2, coroutine2.TimesExecuted);
+            coroutine1.Received(2).MoveNext();
+            coroutine2.Received(2).MoveNext();
         }
 
         [Test]
         public void StartTwoCoroutinesAndStopOne()
         {
-            var coroutine1 = new ExecutionCounter();
-            var coroutine2 = new ExecutionCounter();
+            var coroutine1 = Substitute.For<IEnumerator>();
+            coroutine1.MoveNext().Returns(true);
+            var coroutine2 = Substitute.For<IEnumerator>();
+            coroutine2.MoveNext().Returns(true);
             var handler = _coroutineRunner.StartCoroutine(coroutine1);
             _coroutineRunner.StartCoroutine(coroutine2);
             UpdateScheduler();
             _coroutineRunner.StopCoroutine(handler);
             UpdateScheduler();
 
-            Assert.AreEqual(1, coroutine1.TimesExecuted);
-            Assert.AreEqual(2, coroutine2.TimesExecuted);
+            coroutine1.Received(1).MoveNext();
+            coroutine2.Received(2).MoveNext();
         }
 
         class StepsCoroutine
