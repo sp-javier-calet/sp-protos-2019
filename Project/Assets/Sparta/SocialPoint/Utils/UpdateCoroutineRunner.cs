@@ -11,27 +11,6 @@ namespace SocialPoint.Utils
             }
         }
 
-        class UpdateCoroutineEnumerator : IEnumerator
-        {
-            public bool MoveNext()
-            {
-                return false;
-            }
-
-            public void Reset()
-            {
-
-            }
-
-            public object Current
-            {
-                get
-                {
-                    return null;
-                }
-            }
-        }
-
         class CoroutineNode
         {
             public CoroutineNode ListPrevious;
@@ -41,11 +20,8 @@ namespace SocialPoint.Utils
 
             public IEnumerator Enumerator{ get; private set; }
 
-            public UpdateCoroutineEnumerator Handler{ get; private set; }
-
             public CoroutineNode(IEnumerator enumerator)
             {
-                Handler = new UpdateCoroutineEnumerator();
                 Enumerator = enumerator;
             }
         }
@@ -66,7 +42,7 @@ namespace SocialPoint.Utils
             // create coroutine node and run until we reach first yield
             var coroutine = new CoroutineNode(enumerator);
             AddCoroutine(coroutine);
-            return coroutine.Handler;
+            return coroutine.Enumerator;
         }
 
         public void StopCoroutine(IEnumerator handler)
@@ -85,7 +61,7 @@ namespace SocialPoint.Utils
 
         void UpdateAllCoroutines()
         {
-            CoroutineNode coroutine = this.FirstCoroutine;
+            CoroutineNode coroutine = FirstCoroutine;
             while(coroutine != null)
             {
                 //Store listNext before coroutine finishes and is removed from the list
@@ -175,7 +151,7 @@ namespace SocialPoint.Utils
             var node = FirstCoroutine;
             while(node != null)
             {
-                if(node.Handler == handler)
+                if(node.Enumerator == handler)
                 {
                     return node;
                 }
