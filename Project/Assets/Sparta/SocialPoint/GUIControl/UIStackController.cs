@@ -15,7 +15,7 @@ namespace SocialPoint.GUIControl
         public enum StackShowType
         {
             ShowAndHidePrevious,
-            ShowAndHideUntilScreen
+            ShowAndHidePreviousUntilScreen
         }
 
         public GameObject Background;
@@ -320,7 +320,7 @@ namespace SocialPoint.GUIControl
             {
                 if(from != null && to != null && from.State == ViewState.Shown)
                 {
-                    if(StackType == StackShowType.ShowAndHideUntilScreen)
+                    if(StackType == StackShowType.ShowAndHidePreviousUntilScreen)
                     {
                         if(IsPushAction(act) && to.IsFullScreen)
                         {
@@ -801,7 +801,7 @@ namespace SocialPoint.GUIControl
 
             if(_stack.Count > 0)
             {
-                if(StackType == StackShowType.ShowAndHideUntilScreen && top.IsFullScreen)
+                if(StackType == StackShowType.ShowAndHidePreviousUntilScreen && top.IsFullScreen)
                 {
                     ShowStackedUIViews(true);
                 }

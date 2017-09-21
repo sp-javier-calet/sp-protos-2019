@@ -1551,6 +1551,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf48c2327df64472d8f5bcba28a5cab2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsFullScreen: 1
   ParentController: {fileID: 0}
   DestroyOnHide: 0
   _containers3d: []
@@ -1559,7 +1560,7 @@ MonoBehaviour:
   BackContainer: {fileID: 1730914884282660}
   Blocker: {fileID: 1100893622520596}
   SimultaneousAnimations: 1
-  HideBetweenFullScreenViews: 1
+  StackType: 1
 --- !u!114 &114813777603242634
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1571,6 +1572,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c5a8781eaa33458db621ced1e07670a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsFullScreen: 1
   ParentController: {fileID: 0}
   DestroyOnHide: 0
   _containers3d: []
@@ -1579,7 +1581,7 @@ MonoBehaviour:
   BackContainer: {fileID: 1389137535606556}
   Blocker: {fileID: 1898151764981000}
   SimultaneousAnimations: 1
-  HideBetweenFullScreenViews: 0
+  StackType: 0
 --- !u!114 &114927783657337926
 MonoBehaviour:
   m_ObjectHideFlags: 1
