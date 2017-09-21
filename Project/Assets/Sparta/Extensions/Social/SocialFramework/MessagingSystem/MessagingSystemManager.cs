@@ -24,7 +24,7 @@ namespace SocialPoint.Social
         const string MsgsKey = "msgs";
         const string MsgKey = "msg";
         const string IdKey = "id";
-        const string TimestampKey = "ts";
+        const string TimestampKey = "timestamp";
         #endregion
 
         #region RPC methods

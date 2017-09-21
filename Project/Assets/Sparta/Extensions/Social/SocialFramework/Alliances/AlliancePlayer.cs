@@ -272,7 +272,7 @@ namespace SocialPoint.Social
     {
         const string ComponentKey = "alliance_join_request";
         
-        const string TimestampKey = "ts";
+        const string TimestampKey = "timestamp";
 
         public SocialPlayer.IComponent CreateElement(AttrDic dic)
         {
