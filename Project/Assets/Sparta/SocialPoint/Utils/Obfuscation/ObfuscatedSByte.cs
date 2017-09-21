@@ -23,10 +23,19 @@ namespace SocialPoint.Utils.Obfuscation
         {
         }
 
-        protected override sbyte Obfuscate(sbyte value)
+        protected override ulong Obfuscate(sbyte value)
         {
             UnionMaskSByte reinterpret = default(UnionMaskSByte);
             reinterpret.value = value;
+            DoObfuscate(ref reinterpret.mask);
+
+            return reinterpret.mask;
+        }
+
+        protected override sbyte Unobfuscate(ulong value)
+        {
+            UnionMaskSByte reinterpret = default(UnionMaskSByte);
+            reinterpret.mask = value;
             DoObfuscate(ref reinterpret.mask);
 
             return reinterpret.value;

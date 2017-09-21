@@ -1,11 +1,24 @@
 ﻿namespace SocialPoint.Utils.Obfuscation
 {
-    public abstract class Obfuscated<T>
+    public abstract class Obfuscated
     {
-        private static ulong _mask;
-        private T _obfuscatedValue;
+        protected static ulong _mask;
 
-        public T ObfuscatedValue
+        static Obfuscated()
+        {
+            // Mask must never be 0.
+            ulong highMask = (ulong)RandomUtils.Range(1, uint.MaxValue);
+            ulong lowMask = (ulong)RandomUtils.Range(1, uint.MaxValue);
+            _mask = highMask << 32 | lowMask;
+        }
+    }
+
+    public abstract class Obfuscated<T> : Obfuscated
+    {
+        
+        private ulong _obfuscatedValue;
+
+        public ulong ObfuscatedValue
         {
             get
             {
@@ -17,7 +30,7 @@
         {
             get
             {
-                return Obfuscate(_obfuscatedValue);
+                return Unobfuscate(_obfuscatedValue);
             }
         }
 
@@ -25,18 +38,9 @@
         {
             return obfustated.Value;
         }
-        
-        static Obfuscated()
-        {
-            ulong highMask = (ulong)RandomUtils.GenerateUint();
-            ulong lowMask = (ulong)RandomUtils.GenerateUint();
-            _mask = highMask << 32 | lowMask;
-        }
 
         public Obfuscated(T value = default(T))
         {
-            _obfuscatedValue = default(T);
-
             Set(value);
         }
 
@@ -45,7 +49,8 @@
             return Value.ToString();
         }
 
-        protected abstract T Obfuscate(T value);
+        protected abstract ulong Obfuscate(T value);
+        protected abstract T Unobfuscate(ulong value);
 
         protected void Set(T value)
         {
