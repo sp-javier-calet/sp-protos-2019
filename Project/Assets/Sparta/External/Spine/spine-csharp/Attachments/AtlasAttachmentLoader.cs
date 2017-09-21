@@ -1,9 +1,9 @@
 /******************************************************************************
  * Spine Runtimes Software License v2.5
- * 
+ *
  * Copyright (c) 2013-2016, Esoteric Software
  * All rights reserved.
- * 
+ *
  * You are granted a perpetual, non-exclusive, non-sublicensable, and
  * non-transferable license to use, install, execute, and perform the Spine
  * Runtimes software and derivative works solely for personal or internal
@@ -15,7 +15,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -31,6 +31,11 @@
 using System;
 
 namespace Spine {
+
+	/// <summary>
+	/// An AttachmentLoader that configures attachments using texture regions from an Atlas.
+	/// See <a href='http://esotericsoftware.com/spine-loading-skeleton-data#JSON-and-binary-data'>Loading Skeleton Data</a> in the Spine Runtimes Guide.
+	/// </summary>
 	public class AtlasAttachmentLoader : AttachmentLoader {
 		private Atlas[] atlasArray;
 
@@ -39,9 +44,9 @@ namespace Spine {
 			this.atlasArray = atlasArray;
 		}
 
-		public RegionAttachment NewRegionAttachment (Skin skin, String name, String path) {
+		public RegionAttachment NewRegionAttachment (Skin skin, string name, string path) {
 			AtlasRegion region = FindRegion(path);
-			if (region == null) throw new Exception("Region not found in atlas: " + path + " (region attachment: " + name + ")");
+			if (region == null) throw new ArgumentException(string.Format("Region not found in atlas: {0} (region attachment: {1})", path, name));
 			RegionAttachment attachment = new RegionAttachment(name);
 			attachment.RendererObject = region;
 			attachment.SetUVs(region.u, region.v, region.u2, region.v2, region.rotate);
@@ -54,9 +59,9 @@ namespace Spine {
 			return attachment;
 		}
 
-		public MeshAttachment NewMeshAttachment (Skin skin, String name, String path) {
+		public MeshAttachment NewMeshAttachment (Skin skin, string name, string path) {
 			AtlasRegion region = FindRegion(path);
-			if (region == null) throw new Exception("Region not found in atlas: " + path + " (mesh attachment: " + name + ")");
+			if (region == null) throw new ArgumentException(string.Format("Region not found in atlas: {0} (region attachment: {1})", path, name));
 			MeshAttachment attachment = new MeshAttachment(name);
 			attachment.RendererObject = region;
 			attachment.RegionU = region.u;
@@ -73,12 +78,20 @@ namespace Spine {
 			return attachment;
 		}			
 
-		public BoundingBoxAttachment NewBoundingBoxAttachment (Skin skin, String name) {
+		public BoundingBoxAttachment NewBoundingBoxAttachment (Skin skin, string name) {
 			return new BoundingBoxAttachment(name);
 		}
 
-		public PathAttachment NewPathAttachment (Skin skin, String name) {
-			return new PathAttachment (name);
+		public PathAttachment NewPathAttachment (Skin skin, string name) {
+			return new PathAttachment(name);
+		}
+
+		public PointAttachment NewPointAttachment (Skin skin, string name) {
+			return new PointAttachment(name);
+		}
+
+		public ClippingAttachment NewClippingAttachment(Skin skin, string name) {
+			return new ClippingAttachment(name);
 		}
 
 		public AtlasRegion FindRegion (string name) {
