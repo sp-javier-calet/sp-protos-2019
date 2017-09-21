@@ -9,7 +9,8 @@
   "buildSettings": {
     "SEPARATE_STRIP": "YES",
     "CODE_SIGN_ENTITLEMENTS": "Unity-iPhone.entitlements",
-    "ENABLE_BITCODE": "NO"
+    "ENABLE_BITCODE": "NO",
+    "CLANG_ENABLE_CODE_COVERAGE": "NO"
   },
   "frameworks": [
     "Security.framework:weak"

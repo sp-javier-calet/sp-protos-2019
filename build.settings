@@ -1,6 +1,6 @@
 [common]
 # Build system version to use for this build. If a branch matches this value, the branch is used, otherwise if a tag match this value the tag is used.
-SP_BUILD_SYSTEM_VERSION = v2.0
+SP_BUILD_SYSTEM_VERSION = v2.02
 
 # Unity project path relative to the Jenkins Workspace
 SP_PROJECT_LEAD = daniel.garcia@socialpoint.es
@@ -22,7 +22,7 @@ SP_UNITY_EXEC = /Applications/Unity-$SP_UNITY_VERSION/Unity.app/Contents/MacOS/U
 SP_PREPROCESSOR_DEFINITIONS =
 
 # It will contain the Revision number or Git hash of the build
-SP_REV = 0 
+SP_REV = 0
 
 SP_CHAT_ROOMS = Mobile Platform
 
@@ -42,9 +42,9 @@ SP_ARCHITECTURE = arm+arm64
 
 SP_TEXTURE_FORMATS = pvr
 
-SP_DEFAULT_ENVIRONMENT = 
+SP_DEFAULT_ENVIRONMENT =
 
-SP_XCODE_VERSION = 7.2
+SP_XCODE_VERSION = 9-GM
 
 SP_PROCESS_SYMBOLS = True
 
@@ -64,7 +64,7 @@ SP_ARCHITECTURE = arm+x86
 
 SP_TEXTURE_FORMATS = pvr
 
-SP_DEFAULT_ENVIRONMENT = 
+SP_DEFAULT_ENVIRONMENT =
 
 # One of the different versions of the Android NDK.
 # NOTE: It is only appended to the value contained in the exported SP_ANDROID_NDK_HOME var. in order finding a valid Android NDK installation dir.
