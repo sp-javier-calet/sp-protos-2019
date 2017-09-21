@@ -12,10 +12,11 @@ namespace SocialPoint.GUIControl
 
     public class UIStackController : UIParentController
     {
-        public enum StackShowType
+        public enum StackVisibility
         {
-            ShowAndHidePrevious,
-            ShowAndHidePreviousUntilScreen
+            ShowLast,
+            ShowAllBetweenScreens,
+            ShowLastBetweenScreens
         }
 
         public GameObject Background;
@@ -36,7 +37,7 @@ namespace SocialPoint.GUIControl
         /// <summary>
         ///     To check if we want to only hide the previous UI View or hide from FullScreen to FullScreen views.
         /// </summary>
-        public StackShowType StackType = StackShowType.ShowAndHidePrevious;
+        public StackVisibility StackVisibilityMode = StackVisibility.ShowLast;
 
         List<UIViewController> _views = new List<UIViewController>();
         IAppEvents _appEvents;
@@ -207,8 +208,9 @@ namespace SocialPoint.GUIControl
             
         void ShowStackedUIViews(bool showPopups)
         {
-            // We need to store the views that need to be shown/hidden and then show or hide them 
-            // in a reverse way to be sure that the layers sorting order for each views is correct
+            // Always starting from the second element in top, we need to store the views that need 
+            // to be shown/hidden and then show or hide them in a reverse way to be sure that the
+            // layers sorting order for each views is correct
 
             _views.Clear();
 
@@ -237,7 +239,21 @@ namespace SocialPoint.GUIControl
                         {
                             if(showPopups)
                             {
-                                elm.ShowImmediate();
+                                if(StackVisibilityMode == StackVisibility.ShowLastBetweenScreens)
+                                {
+                                    if(elm.IsFullScreen)
+                                    {
+                                        elm.ShowImmediate();
+                                    }
+                                    else if(!elm.IsFullScreen)
+                                    {
+                                        elm.HideImmediate();
+                                    }
+                                }
+                                else
+                                {
+                                    elm.ShowImmediate();
+                                }
                             }
                             else
                             {
@@ -289,7 +305,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        IEnumerator DoTransition(UIViewController from, UIViewController to, ActionType act)
+        IEnumerator DoTransition(UIViewController from, UIViewController to, ActionType act, bool forceShowLast = false)
         {            
             if(from == to)
             {
@@ -320,23 +336,57 @@ namespace SocialPoint.GUIControl
             {
                 if(from != null && to != null && from.State == ViewState.Shown)
                 {
-                    if(StackType == StackShowType.ShowAndHidePreviousUntilScreen)
+                    if(forceShowLast)
                     {
-                        if(IsPushAction(act) && to.IsFullScreen)
+                        // Only allowed Push and Replace
+                        if(IsReplaceAction(act))
                         {
-                            ShowStackedUIViews(false);
+                            if(_stack.Count > 1)
+                            {
+                                _stack.RemoveAt(_stack.Count - 2);
+                            }
+                        }
+
+                        ShowStackedUIViews(false);
+                        from.Hide();
+                    }
+                    else if(StackVisibilityMode == StackVisibility.ShowLast)
+                    {
+                        if(IsReplaceAction(act))
+                        {
+                            if(_stack.Count > 1)
+                            {
+                                _stack.RemoveAt(_stack.Count - 2);
+                            }
+                        }
+
+                        from.Hide();
+                    }
+                    else
+                    {
+                        if(IsPushAction(act))
+                        {
+                            if(to.IsFullScreen)
+                            {
+                                ShowStackedUIViews(false);
+                            }
+                            else if(!from.IsFullScreen && StackVisibilityMode == StackVisibility.ShowLastBetweenScreens)
+                            {
+                                from.Hide();
+                            }
                         }
                         else if(IsPopAction(act))
                         {
+                            ShowStackedUIViews(true);
                             from.Hide();
-                            if(from.IsFullScreen)
-                            {
-                                ShowStackedUIViews(true);
-                            }
                         }
                         else if(IsReplaceAction(act))
                         {
-                            from.Hide();
+                            if(_stack.Count > 1)
+                            {
+                                _stack.RemoveAt(_stack.Count - 2);
+                            }
+
                             if(from.IsFullScreen && !to.IsFullScreen)
                             {
                                 ShowStackedUIViews(true);
@@ -345,11 +395,9 @@ namespace SocialPoint.GUIControl
                             {
                                 ShowStackedUIViews(false);
                             }
+                                
+                            from.Hide();
                         }
-                    }
-                    else
-                    {
-                        from.Hide();
                     }
 
                     to.Show();
@@ -489,80 +537,82 @@ namespace SocialPoint.GUIControl
 
         #endregion
 
-        
         #region Push
 
-        public UIViewController Push(GameObject go)
+        public UIViewController Push(GameObject go, bool forceShowLast = false)
         {
             var ctrl = go.GetComponent(typeof(UIViewController)) as UIViewController;
             if(ctrl == null)
             {
                 throw new MissingComponentException("Could not find UIViewController component.");
             }
-            return Push(ctrl);
+            return Push(ctrl, forceShowLast);
         }
 
-        public C Push<C>() where C : UIViewController
+        public C Push<C>(bool forceShowLast = false) where C : UIViewController
         {
-            return Push(typeof(C)) as C; 
+            return Push(typeof(C), forceShowLast) as C; 
         }
 
-        public UIViewController Push(Type c)
+        public UIViewController Push(Type c, bool forceShowLast = false)
         {
-            return Push(CreateChild(c));
+            return Push(CreateChild(c), forceShowLast);
         }
 
-        public UIViewController Push(UIViewController ctrl)
+        public UIViewController Push(UIViewController ctrl, bool forceShowLast = false)
         {
             var act = ActionType.Push;
-            StartActionCoroutine(DoPushCoroutine(ctrl, act), act);
+            StartActionCoroutine(DoPushCoroutine(ctrl, act, forceShowLast), act);
             return ctrl;
         }
 
-        public IEnumerator PushCoroutine(UIViewController ctrl)
+        public IEnumerator PushCoroutine(UIViewController ctrl, bool forceShowLast = false)
         {
             var act = ActionType.Push;
-            yield return StartActionCoroutine(DoPushCoroutine(ctrl, act), act);
+            yield return StartActionCoroutine(DoPushCoroutine(ctrl, act, forceShowLast), act);
         }
 
-        IEnumerator DoPushCoroutine(UIViewController ctrl, ActionType act)
+        IEnumerator DoPushCoroutine(UIViewController ctrl, ActionType act, bool forceShowLast = false)
         {
-            DebugLog(string.Format("Push {0}", ctrl.gameObject.name));
+            forceShowLast &= !ctrl.IsFullScreen;
 
             var top = Top;
             AddChild(ctrl);
             _stack.Add(ctrl);
 
-            var enm = DoTransition(top, ctrl, act);
+            var enm = DoTransition(top, ctrl, act, forceShowLast);
             while(enm.MoveNext())
             {
                 yield return enm;
             }
         }
 
-        public UIViewController PushImmediate(GameObject go)
+        public UIViewController PushImmediate(GameObject go, bool forceShowLast = false)
         {
             var ctrl = go.GetComponent<UIViewController>();
             if(ctrl == null)
             {
                 throw new MissingComponentException("Could not find UIViewController component.");
             }
-            return PushImmediate(ctrl);
+            return PushImmediate(ctrl, forceShowLast);
         }
 
-        public C PushImmediate<C>() where C : UIViewController
+        public C PushImmediate<C>(bool forceShowLast = false) where C : UIViewController
         {
-            return PushImmediate(typeof(C)) as C; 
+            return PushImmediate(typeof(C), forceShowLast) as C; 
         }
 
-        public UIViewController PushImmediate(Type c)
+        public UIViewController PushImmediate(Type c, bool forceShowLast = false)
         {
-            return PushImmediate(CreateChild(c));
+            return PushImmediate(CreateChild(c), forceShowLast);
         }
 
-        public UIViewController PushImmediate(UIViewController ctrl)
+        public UIViewController PushImmediate(UIViewController ctrl, bool forceShowLast = false)
         {
             DebugLog(string.Format("PushImmediate {0}", ctrl.gameObject.name));
+
+            forceShowLast &= !ctrl.IsFullScreen;
+
             var top = Top;
             AddChild(ctrl);
             _stack.Add(ctrl);
@@ -623,44 +673,48 @@ namespace SocialPoint.GUIControl
 
         #region Replace
 
-        public UIViewController Replace(GameObject go, ActionType act = ActionType.Replace)
+        public UIViewController Replace(GameObject go, bool forceShowLast = false)
         {
             var ctrl = go.GetComponent(typeof(UIViewController)) as UIViewController;
             if(ctrl == null)
             {
                 throw new MissingComponentException("Could not find UIViewController component.");
             }
-            return Replace(ctrl, act);
+            return Replace(ctrl, forceShowLast);
         }
 
-        public C Replace<C>(ActionType act = ActionType.Replace) where C : UIViewController
+        public C Replace<C>(bool forceShowLast = false) where C : UIViewController
         {
-            return Replace(typeof(C), act) as C; 
+            return Replace(typeof(C), forceShowLast) as C; 
         }
 
-        public UIViewController Replace(Type c, ActionType act = ActionType.Replace)
+        public UIViewController Replace(Type c, bool forceShowLast = false)
         {
-            return Replace(CreateChild(c), act);
+            return Replace(CreateChild(c), forceShowLast);
         }
 
-        public UIViewController Replace(UIViewController ctrl, ActionType act = ActionType.Replace)
+        public UIViewController Replace(UIViewController ctrl, bool forceShowLast = false)
         {
             if(_stack.Count == 0)
             {
                 return null;
             }
 
-            StartActionCoroutine(DoReplaceCoroutine(ctrl, act), act);
+            var act = ActionType.Replace;
+            StartActionCoroutine(DoReplaceCoroutine(ctrl, act, forceShowLast), act);
             return ctrl;
         }
 
-        public IEnumerator ReplaceCoroutine(UIViewController ctrl, ActionType act = ActionType.Replace)
+        public IEnumerator ReplaceCoroutine(UIViewController ctrl, bool forceShowLast = false)
         {
-            yield return StartActionCoroutine(DoReplaceCoroutine(ctrl, act), act);
+            var act = ActionType.Replace;
+            yield return StartActionCoroutine(DoReplaceCoroutine(ctrl, act, forceShowLast), act);
         }
 
-        IEnumerator DoReplaceCoroutine(UIViewController ctrl, ActionType act)
+        IEnumerator DoReplaceCoroutine(UIViewController ctrl, ActionType act, bool forceShowLast)
         {
+            forceShowLast &= !ctrl.IsFullScreen;
+
             var top = Top;
             if(top != null)
             {
@@ -668,44 +722,41 @@ namespace SocialPoint.GUIControl
             }
             DebugLog(string.Format("Replace {0} with {1}", top.gameObject.name, ctrl.gameObject.name));
 
-            var enm = DoPushCoroutine(ctrl, act);
+            var enm = DoPushCoroutine(ctrl, act, forceShowLast);
             while(enm.MoveNext())
             {
                 yield return enm.Current;
             }
-
-            if(_stack.Count > 1)
-            {
-                _stack.RemoveAt(_stack.Count - 2);
-            }
         }
 
-        public UIViewController ReplaceImmediate(GameObject go)
+        public UIViewController ReplaceImmediate(GameObject go, bool forceShowLast = false)
         {
             var ctrl = go.GetComponent(typeof(UIViewController)) as UIViewController;
             if(ctrl == null)
             {
                 throw new MissingComponentException("Could not find UIViewController component.");
             }
-            return ReplaceImmediate(ctrl);
+            return ReplaceImmediate(ctrl, forceShowLast);
         }
 
-        public C ReplaceImmediate<C>() where C : UIViewController
+        public C ReplaceImmediate<C>(bool forceShowLast = false) where C : UIViewController
         {
-            return ReplaceImmediate(typeof(C)) as C; 
+            return ReplaceImmediate(typeof(C), forceShowLast) as C; 
         }
 
-        public UIViewController ReplaceImmediate(Type c)
+        public UIViewController ReplaceImmediate(Type c, bool forceShowLast = false)
         {
-            return ReplaceImmediate(CreateChild(c));
+            return ReplaceImmediate(CreateChild(c), forceShowLast);
         }
 
-        public UIViewController ReplaceImmediate(UIViewController ctrl)
+        public UIViewController ReplaceImmediate(UIViewController ctrl, bool forceShowLast)
         {
             if(_stack.Count == 0)
             {
                 return null;
             }
+
+            forceShowLast &= !ctrl.IsFullScreen;
 
             var top = Top;
             DebugLog(string.Format("ReplaceImmediate {0} with {1}", top.gameObject.name, ctrl.gameObject.name));
@@ -721,6 +772,22 @@ namespace SocialPoint.GUIControl
             if(_stack.Count > 1)
             {
                 _stack.RemoveAt(_stack.Count - 2);
+            }
+
+            if(forceShowLast)
+            {
+                ShowStackedUIViews(false);
+            }
+            else if(StackVisibilityMode != StackVisibility.ShowLast)
+            {
+                if(top.IsFullScreen && !ctrl.IsFullScreen)
+                {
+                    ShowStackedUIViews(true);
+                }
+                else if(!top.IsFullScreen && ctrl.IsFullScreen)
+                {
+                    ShowStackedUIViews(false);
+                }
             }
 
             return ctrl;
@@ -801,7 +868,7 @@ namespace SocialPoint.GUIControl
 
             if(_stack.Count > 0)
             {
-                if(StackType == StackShowType.ShowAndHidePreviousUntilScreen && top.IsFullScreen)
+                if(StackVisibilityMode == StackVisibility.ShowAllBetweenScreens && top.IsFullScreen)
                 {
                     ShowStackedUIViews(true);
                 }

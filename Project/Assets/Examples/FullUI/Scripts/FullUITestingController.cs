@@ -31,9 +31,33 @@ public class FullUITestingController : MonoBehaviour
 
     void Update()
     {
-        if(Input.GetKeyUp(KeyCode.Alpha1))
+        if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha1))
+        {
+            _screens.PushImmediate(instantiatePrefab(_popup), true);
+        }
+        else if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha1))
+        {
+            _screens.Push(instantiatePrefab(_popup), true);
+        }
+        else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha1))
+        {
+            _screens.PushImmediate(instantiatePrefab(_popup));
+        }
+        else if(Input.GetKeyUp(KeyCode.Alpha1))
         {
             _screens.Push(instantiatePrefab(_popup));
+        }
+        else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha2))
+        {
+            _screens.PushImmediate(instantiatePrefab(_screen), true);
+        }
+        else if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha2))
+        {
+            _screens.Push(instantiatePrefab(_screen), true);
+        }
+        else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha2))
+        {
+            _screens.PushImmediate(instantiatePrefab(_screen));
         }
         else if(Input.GetKeyUp(KeyCode.Alpha2))
         {
@@ -46,6 +70,14 @@ public class FullUITestingController : MonoBehaviour
         else if(Input.GetKeyUp(KeyCode.Alpha3))
         {
             _screens.Pop();
+        }
+        else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha4))
+        {
+            _screens.ReplaceImmediate(instantiatePrefab(_popupReplace), true);
+        }
+        else if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha4))
+        {
+            _screens.Replace(instantiatePrefab(_popupReplace), true);
         }
         else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha4))
         {
