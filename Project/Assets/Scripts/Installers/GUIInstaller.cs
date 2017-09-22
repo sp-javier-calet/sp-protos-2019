@@ -40,8 +40,6 @@ public class GUIInstaller : Installer, IDisposable
         {
             _screens.AppEvents = AppEvents;
             Container.Rebind<ScreensController>().ToInstance(_screens);
-
-            UIViewController.ForceCloseEvent += _screens.OnForceCloseUIView;
         }
             
         var layers = _root.GetComponentInChildren<UILayersController>();
@@ -89,11 +87,6 @@ public class GUIInstaller : Installer, IDisposable
 
     public void Dispose()
     {
-        if(_screens != null)
-        {
-            UIViewController.ForceCloseEvent -= _screens.OnForceCloseUIView;
-        }
-
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)null);
         Destroy(_root);
     }

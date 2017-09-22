@@ -25,7 +25,6 @@ namespace SocialPoint.GUIControl
         public bool IsFullScreen = true;
 
         public static event Action<UIViewController> AwakeEvent;
-        public static Action<UIViewController> ForceCloseEvent;
         public event Action<UIViewController, ViewState> ViewEvent;
         public event Action<UIViewController, GameObject> InstantiateEvent;
 
@@ -645,15 +644,6 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        void NotifyForcingClose()
-        {
-            DebugLog(string.Format("NotifyForcingClose {0}", gameObject.name));
-            if(ForceCloseEvent != null)
-            {
-                ForceCloseEvent(this);
-            }
-        }
-
         virtual protected void OnAppearing()
         {
             DebugLog("OnAppearing");
@@ -771,7 +761,8 @@ namespace SocialPoint.GUIControl
         virtual protected void Disable()
         {
             DebugLog("Disable");
-            if(gameObject != null)
+
+            if(this != null && gameObject != null)
             {
                 gameObject.SetActive(false);
             }
@@ -797,7 +788,7 @@ namespace SocialPoint.GUIControl
 
         public void OnForceClose()
         {
-            NotifyForcingClose();
+            Hide(true);
         }
     }
 }

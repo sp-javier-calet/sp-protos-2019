@@ -37,12 +37,7 @@ namespace SocialPoint.GUIControl
             InstantiateGO(ref ReplacePopupGO, "popup_replace", false);
             InstantiateGO(ref ReplaceScreenGO, "screen_replace", true);
         }
-
-        static IEnumerable StackType()
-        {
-            return Enum.GetValues(typeof(UIStackController.StackVisibility));
-        }
-
+            
         [TearDown]
         public void TearDown()
         {
@@ -70,9 +65,8 @@ namespace SocialPoint.GUIControl
             return null;
         }
 
-        void Reset(UIStackController.StackVisibility stackType)
+        void Reset()
         {
-            UITestStackController.StackVisibilityMode = stackType;
             UITestStackController.Restart();
         }
 
@@ -81,7 +75,7 @@ namespace SocialPoint.GUIControl
             GameObject go = CloneGO(gameObject);
 
             UITestStackController.Push(go, forceShowLast);
-            UIViewController top = UITestStackController.Top;
+            UIViewController top = UITestStackController.Top.Controller;
 
             Assert.IsNotNull(top);
             Assert.IsTrue(top.gameObject == go);
@@ -92,20 +86,20 @@ namespace SocialPoint.GUIControl
             GameObject go = CloneGO(gameObject);
 
             UITestStackController.PushImmediate(go);
-            UIViewController top = UITestStackController.Top;
+            UIViewController top = UITestStackController.Top.Controller;
 
             Assert.IsNotNull(top);
             Assert.IsTrue(top.gameObject == go);
         }
 
-        void BasicReplace(GameObject gameObject, GameObject goReplace, bool forceShowLast = false)
+        void BasicReplace(GameObject gameObject, GameObject goReplace, bool showOthers = false)
         {
             BasicPush(gameObject);
 
             GameObject go = CloneGO(goReplace);
-            UITestStackController.Replace(go, forceShowLast);
+            UITestStackController.Replace(go, showOthers);
 
-            UIViewController top = UITestStackController.Top;
+            UIViewController top = UITestStackController.Top.Controller;
 
             Assert.IsNotNull(top);
             Assert.IsTrue(top.gameObject == go);
@@ -118,7 +112,7 @@ namespace SocialPoint.GUIControl
             GameObject go = CloneGO(goReplace);
             UITestStackController.ReplaceImmediate(go);
 
-            UIViewController top = UITestStackController.Top;
+            UIViewController top = UITestStackController.Top.Controller;
 
             Assert.IsNotNull(top);
             Assert.IsTrue(top.gameObject == go);
@@ -131,87 +125,23 @@ namespace SocialPoint.GUIControl
             Assert.IsTrue(UITestStackController.CheckPointExists(checkpoint));
         }
 
-        void CheckViewsVisibility(bool forceShowLast = false)
+        void CheckViewsVisibility()
         {
-            IList<UIViewController> stack = UITestStackController.Stack;
-            bool screenFound = false;
-            bool popupFound = false;
+            IList<StackNode> stack = new List<StackNode>();
+            UITestStackController.CheckStackVisibility(stack);
 
-            if(stack.Count > 0)
+            for(int i = 0; i < stack.Count; ++i)
             {
-                for(int i = stack.Count - 1; i >= 0; i--)
+                var elm = stack[i];
+                if(UITestStackController.IsValidStackNode(elm))
                 {
-                    var elm = stack[i];
-                    if(elm != null)
+                    if(elm.IsDesiredToShow)
                     {
-                        if(forceShowLast)
-                        {
-                            if(i == stack.Count - 1)
-                            {
-                                Assert.IsTrue(elm.gameObject.activeSelf);
-                            }
-                            else
-                            {
-                                Assert.IsTrue(!elm.gameObject.activeSelf);
-                            }
-                        }
-                        else if(UITestStackController.StackVisibilityMode == UIStackController.StackVisibility.ShowAllBetweenScreens)
-                        {
-                            if(!screenFound && elm.IsFullScreen)
-                            {
-                                screenFound = true;
-                                Assert.IsTrue(elm.gameObject.activeSelf);
-                            }
-                            else
-                            {
-                                if(screenFound)
-                                {
-                                    Assert.IsTrue(!elm.gameObject.activeSelf);
-                                }
-                                else
-                                {
-                                    Assert.IsTrue(elm.gameObject.activeSelf);
-                                }
-                            }
-                        }
-                        else if(UITestStackController.StackVisibilityMode == UIStackController.StackVisibility.ShowLast)
-                        {
-                            if(elm == UITestStackController.Top)
-                            {
-                                Assert.IsTrue(elm.gameObject.activeSelf);
-                            }
-                            else
-                            {
-                                Assert.IsTrue(!elm.gameObject.activeSelf);
-                            }
-                        }
-                        else if(UITestStackController.StackVisibilityMode == UIStackController.StackVisibility.ShowLastBetweenScreens)
-                        {
-                            if(!screenFound && elm.IsFullScreen)
-                            {
-                                screenFound = true;
-                                Assert.IsTrue(elm.gameObject.activeSelf);
-                            }
-                            else
-                            {
-                                if(screenFound)
-                                {
-                                    Assert.IsTrue(!elm.gameObject.activeSelf);
-                                }
-                                else
-                                {
-                                    if(!popupFound && !elm.IsFullScreen)
-                                    {
-                                        popupFound = true;
-                                        Assert.IsTrue(elm.gameObject.activeSelf);
-                                    }
-                                    else
-                                    {
-                                        Assert.IsTrue(!elm.gameObject.activeSelf);
-                                    }
-                                }
-                            }
-                        }
+                        Assert.IsTrue(elm.GameObject.activeSelf);
+                    }
+                    else
+                    {
+                        Assert.IsTrue(!elm.GameObject.activeSelf);
                     }
                 }
             }
@@ -246,7 +176,7 @@ namespace SocialPoint.GUIControl
 
             UITestStackController.Pop();
 
-            UIViewController top = UITestStackController.Top;
+            UIViewController top = UITestStackController.Top.Controller;
             Assert.IsNotNull(top);
             Assert.IsTrue(UITestStackController.Count == 4);
             CheckViewsVisibility();
@@ -270,41 +200,40 @@ namespace SocialPoint.GUIControl
             BasicPush(PopupGO);
             Assert.IsTrue(UITestStackController.Count == 9);
             CheckViewsVisibility();
-
         }
 
         [Test]
-        public void Push_Screen([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Push_Screen()
         {
-            Reset(stackType);
+            Reset();
             BasicPush(ScreenGO);
         }
 
         [Test]
-        public void Push_Immediate_Screen([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Push_Immediate_Screen()
         {
-            Reset(stackType);
+            Reset();
             BasicPushImmediate(ScreenGO);
         }
 
         [Test]
-        public void Push_Popup([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Push_Popup()
         {
-            Reset(stackType);
+            Reset();
             BasicPush(PopupGO);
         }
 
         [Test]
-        public void Push_Immediate_Popup([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Push_Immediate_Popup()
         {
-            Reset(stackType);
+            Reset();
             BasicPushImmediate(PopupGO);
         }
 
         [Test]
-        public void Pop_After_Push([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Pop_After_Push()
         {
-            Reset(stackType);
+            Reset();
             BasicPush(PopupGO);
             UITestStackController.Pop();
 
@@ -312,9 +241,9 @@ namespace SocialPoint.GUIControl
         }
 
         [Test]
-        public void Pop_Immediate_After_Push([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Pop_Immediate_After_Push()
         {
-            Reset(stackType);
+            Reset();
             BasicPush(PopupGO);
             UITestStackController.PopImmediate();
 
@@ -322,88 +251,88 @@ namespace SocialPoint.GUIControl
         }
 
         [Test]
-        public void Replace_Popup_By_Screen_After_Push([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Replace_Popup_By_Screen_After_Push()
         {
-            Reset(stackType);
+            Reset();
 
             BasicReplace(PopupGO, ReplaceScreenGO);
             Assert.IsTrue(UITestStackController.Count == 1);
         }
 
         [Test]
-        public void Replace_Popup_By_Popup_After_Push([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Replace_Popup_By_Popup_After_Push()
         {
-            Reset(stackType);
+            Reset();
 
             BasicReplace(PopupGO, ReplacePopupGO);
             Assert.IsTrue(UITestStackController.Count == 1);
         }
 
         [Test]
-        public void Replace_Screen_By_Popup_After_Push([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Replace_Screen_By_Popup_After_Push()
         {
-            Reset(stackType);
+            Reset();
 
             BasicReplace(ScreenGO, ReplacePopupGO);
             Assert.IsTrue(UITestStackController.Count == 1);
         }
 
         [Test]
-        public void Replace_Screen_By_Screen_After_Push([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Replace_Screen_By_Screen_After_Push()
         {
-            Reset(stackType);
+            Reset();
 
             BasicReplace(ScreenGO, ReplaceScreenGO);
         }
 
         [Test]
-        public void Replace_Immediate_Popup_By_Screen_After_Push([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Replace_Immediate_Popup_By_Screen_After_Push()
         {
-            Reset(stackType);
+            Reset();
 
             BasicReplaceImmediate(PopupGO, ReplaceScreenGO);
             Assert.IsTrue(UITestStackController.Count == 1);
         }
 
         [Test]
-        public void Replace_Immediate_Popup_By_Popup_After_Push([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Replace_Immediate_Popup_By_Popup_After_Push()
         {
-            Reset(stackType);
+            Reset();
 
             BasicReplaceImmediate(PopupGO, ReplacePopupGO);
             Assert.IsTrue(UITestStackController.Count == 1);
         }
 
         [Test]
-        public void Replace_Immediate_Screen_By_Popup_After_Push([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Replace_Immediate_Screen_By_Popup_After_Push()
         {
-            Reset(stackType);
+            Reset();
 
             BasicReplaceImmediate(ScreenGO, ReplacePopupGO);
             Assert.IsTrue(UITestStackController.Count == 1);
         }
 
         [Test]
-        public void Replace_Immediate_Screen_By_Screen_After_Push([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Replace_Immediate_Screen_By_Screen_After_Push()
         {
-            Reset(stackType);
+            Reset();
 
             BasicReplaceImmediate(ScreenGO, ReplaceScreenGO);
             Assert.IsTrue(UITestStackController.Count == 1);
         }
 
         [Test]
-        public void SetCheckPoint([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void SetCheckPoint()
         {
-            Reset(stackType);
+            Reset();
             BasicPush(ScreenGO);
             BasicSetCheckpoint();
         }
 
         [Test]
-        public void PopUntil_None([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void PopUntil_None()
         {
-            Reset(stackType);
+            Reset();
             ComplexPushesAndPops(false);
 
             UITestStackController.Clear();
@@ -412,9 +341,9 @@ namespace SocialPoint.GUIControl
         }
 
         [Test]
-        public void PopUntil_Zero([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void PopUntil_Zero()
         {
-            Reset(stackType);
+            Reset();
             ComplexPushesAndPops(false);
 
             UITestStackController.PopUntil(0);
@@ -427,9 +356,9 @@ namespace SocialPoint.GUIControl
         }
 
         [Test]
-        public void PopupUntil_CheckPoint([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void PopupUntil_CheckPoint()
         {
-            Reset(stackType);
+            Reset();
             ComplexPushesAndPops(true);
 
             UITestStackController.PopUntilCheckPoint(checkpoint);
@@ -442,31 +371,31 @@ namespace SocialPoint.GUIControl
         }
             
         [Test]
-        public void Push_Popup_Force_Hide_All_Behind([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Push_Popup_With_Force_Show_Popup()
         {
-            Reset(stackType);
-            bool forceShowLast = true;
+            Reset();
+            bool showOthers = true;
 
             ComplexPushesAndPops(false);
 
-            BasicPush(PopupGO, forceShowLast);
+            BasicPush(PopupGO, showOthers);
 
             Assert.IsTrue(UITestStackController.Count == 10);
-            CheckViewsVisibility(forceShowLast);
+            CheckViewsVisibility();
         }
 
         [Test]
-        public void Replace_Popup_By_Popup_Force_Hide_All_Behind([ValueSource("StackType")] UIStackController.StackVisibility stackType)
+        public void Replace_Popup_With_Force_Show_Popup()
         {
-            Reset(stackType);
-            bool forceShowLast = true;
+            Reset();
+            bool showOthers = true;
 
             ComplexPushesAndPops(false);
 
-            BasicReplace(PopupGO, ReplacePopupGO, forceShowLast);
+            BasicReplace(PopupGO, ReplacePopupGO, showOthers);
 
             Assert.IsTrue(UITestStackController.Count == 10);
-            CheckViewsVisibility(forceShowLast);
+            CheckViewsVisibility();
         }
     }
 }

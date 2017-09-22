@@ -184,7 +184,7 @@ namespace SocialPoint.GUIControl
             }
             else
             {
-                if(view.gameObject != null)
+                if(view != null && view.gameObject != null)
                 {
                     view.gameObject.DestroyAnyway();
                 }

@@ -9,11 +9,6 @@ namespace SocialPoint.ScriptEvents
         public UIViewController Controller;
     }
 
-    public struct UIViewControllerForceCloseEvent
-    {
-        public UIViewController Controller;
-    }
-
     public struct UIViewControllerStateChangeEvent
     {
         public UIViewController Controller;
@@ -41,18 +36,6 @@ namespace SocialPoint.ScriptEvents
         }
 
         override protected Attr SerializeEvent(UIViewControllerAwakeEvent ev)
-        {
-            return new AttrString(ev.Controller.GetScriptEventId());
-        }
-    }
-
-    public sealed class UIViewControllerForceClosingEventSerializer : BaseScriptEventSerializer<UIViewControllerForceCloseEvent>
-    {
-        public UIViewControllerForceClosingEventSerializer() : base("event.gui.controller_force_close")
-        {
-        }
-
-        override protected Attr SerializeEvent(UIViewControllerForceCloseEvent ev)
         {
             return new AttrString(ev.Controller.GetScriptEventId());
         }
@@ -110,7 +93,6 @@ namespace SocialPoint.ScriptEvents
         public void Load(IScriptEventDispatcher dispatcher)
         {
             dispatcher.AddSerializer(new UIViewControllerAwakeEventSerializer());
-            dispatcher.AddSerializer(new UIViewControllerForceClosingEventSerializer());
             dispatcher.AddSerializer(new UIViewControllerStateChangeEventSerializer());
             dispatcher.AddSerializer(new UIViewControllerInstantiateEventSerializer());
         }
@@ -134,17 +116,6 @@ namespace SocialPoint.ScriptEvents
                 return;
             }
             _dispatcher.Raise(new UIViewControllerAwakeEvent {
-                Controller = ctrl
-            });
-        }
-         
-        void OnViewControllerIsForcedToClose(UIViewController ctrl)
-        {
-            if(_dispatcher == null)
-            {
-                return;
-            }
-            _dispatcher.Raise(new UIViewControllerForceCloseEvent {
                 Controller = ctrl
             });
         }
