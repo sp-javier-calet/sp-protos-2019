@@ -29,6 +29,15 @@ namespace SocialPoint.Utils.Obfuscation
             reinterpret.value = value;
             DoObfuscate(ref reinterpret.mask);
 
+            return reinterpret.mask;
+        }
+
+        protected override ulong Unobfuscate(ulong value)
+        {
+            UnionMaskULong reinterpret = default(UnionMaskULong);
+            reinterpret.mask = value;
+            DoObfuscate(ref reinterpret.mask);
+
             return reinterpret.value;
         }
 

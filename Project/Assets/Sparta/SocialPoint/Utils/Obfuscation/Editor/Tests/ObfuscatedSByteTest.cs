@@ -17,7 +17,7 @@ namespace SocialPoint.Utils.Obfuscation
             Assert.AreEqual(value, unobfuscatedSByte);
             Assert.AreEqual(value, obfuscatedSByte);
 
-            Assert.AreNotEqual(value, obfuscatedSByte.ObfuscatedValue);
+            Assert.AreNotEqual((ulong)value, obfuscatedSByte.ObfuscatedValue);
 
             sbyte newValue = (sbyte)(value + 1);
             obfuscatedSByte = newValue;
