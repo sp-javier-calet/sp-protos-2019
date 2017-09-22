@@ -249,4 +249,48 @@ namespace SocialPoint.Social
             allyDic.Set(AlliancePlayerRequestsKey, reqList);
         }
     }
+
+    public class AllianceJoinRequestComponent : SocialPlayer.IComponent
+    {
+        public string Timestamp{ get; private set; }
+
+        public AllianceJoinRequestComponent(string timestamp)
+        {
+            Timestamp = timestamp;
+        }
+
+        public override string ToString()
+        {
+            var builder = StringUtils.StartBuilder();
+            builder.AppendLine("AllianceJoinRequestComponent:")
+                   .Append("\tTimestamp: ").AppendLine(Timestamp);
+            return StringUtils.FinishBuilder(builder);
+        }
+    }
+
+    public class AllianceJoinRequestComponentFactory : SocialPlayerFactory.IFactory
+    {
+        const string ComponentKey = "alliance_join_request";
+        
+        const string TimestampKey = "timestamp";
+
+        public SocialPlayer.IComponent CreateElement(AttrDic dic)
+        {
+            var timestamp = dic.GetValue(TimestampKey).ToString();
+            return new AllianceJoinRequestComponent(timestamp);
+        }
+
+        public void SerializeElement(SocialPlayer player, AttrDic dic)
+        {
+            var component = player.GetComponent<AllianceJoinRequestComponent>();
+            
+            if(component == null)
+            {
+                return;
+            }
+            
+            AttrDic requestDic = new AttrDic();
+            requestDic.SetValue(TimestampKey, component.Timestamp);
+        }
+    }
 }

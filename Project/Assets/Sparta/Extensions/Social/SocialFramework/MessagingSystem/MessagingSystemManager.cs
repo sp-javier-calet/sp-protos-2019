@@ -24,7 +24,7 @@ namespace SocialPoint.Social
         const string MsgsKey = "msgs";
         const string MsgKey = "msg";
         const string IdKey = "id";
-
+        const string TimestampKey = "timestamp";
         #endregion
 
         #region RPC methods
@@ -255,6 +255,7 @@ namespace SocialPoint.Social
         Message ParseMessage(AttrDic data)
         {
             var id = data.Get(IdKey).AsValue.ToString();
+            var timestamp = data.GetValue(TimestampKey).ToInt();
 
             var origin = ParseMessageOrigin(data);
             var payload = ParseMessagePayload(data);
@@ -263,7 +264,7 @@ namespace SocialPoint.Social
                 return null;
             }
 
-            var message = new Message(id, origin, payload);
+            var message = new Message(id, timestamp, origin, payload);
 
             ParseMessageProperties(data, message);
 

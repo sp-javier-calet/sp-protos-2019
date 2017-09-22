@@ -141,6 +141,7 @@ namespace SocialPoint.Social
             _socialManager.OnLocalPlayerLoaded += OnLocalPlayerLoaded;
             _socialManager.PlayerFactory.AddFactory(new AlliancePlayerBasicFactory());
             _socialManager.PlayerFactory.AddFactory(new AlliancePlayerPrivateFactory());
+            _socialManager.PlayerFactory.AddFactory(new AllianceJoinRequestComponentFactory());
 
             _connection = connection;
             _connection.OnNotificationReceived += OnNotificationReceived;
