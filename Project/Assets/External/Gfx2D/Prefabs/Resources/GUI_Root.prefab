@@ -1519,7 +1519,7 @@ MonoBehaviour:
     a popup\nPress 5: To replace current view with a screen\nPress 6: to setup a checkpoint\nPress
     7: to pop until checkpoint \nPress 8: to pop until item 0 \nPress 9: to pop until
     no items\n\nPress ALT + Number: to use immediate option\nFor Push/Replace press
-    CRTL + Number to force hidding all previous views"
+    CRTL + Number to force not hidding all previous popups"
 --- !u!114 &114772946800073738
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1561,7 +1561,6 @@ MonoBehaviour:
   BackContainer: {fileID: 1730914884282660}
   Blocker: {fileID: 1100893622520596}
   SimultaneousAnimations: 1
-  StackVisibilityMode: 1
 --- !u!114 &114813777603242634
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1582,7 +1581,6 @@ MonoBehaviour:
   BackContainer: {fileID: 1389137535606556}
   Blocker: {fileID: 1898151764981000}
   SimultaneousAnimations: 1
-  StackVisibilityMode: 0
 --- !u!114 &114927783657337926
 MonoBehaviour:
   m_ObjectHideFlags: 1

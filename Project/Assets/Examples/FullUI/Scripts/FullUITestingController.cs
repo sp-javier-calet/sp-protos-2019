@@ -32,11 +32,11 @@ public class FullUITestingController : MonoBehaviour
     {
         if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha1))
         {
-            _screens.PushImmediate(instantiatePrefab(_popup));
+            _screens.PushImmediate(instantiatePrefab(_popup), false);
         }
         else if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha1))
         {
-            _screens.Push(instantiatePrefab(_popup), true);
+            _screens.Push(instantiatePrefab(_popup), false);
         }
         else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha1))
         {
@@ -44,15 +44,15 @@ public class FullUITestingController : MonoBehaviour
         }
         else if(Input.GetKeyUp(KeyCode.Alpha1))
         {
-            _screens.Push(instantiatePrefab(_popup), true);
+            _screens.Push(instantiatePrefab(_popup));
         }
         else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha2))
         {
-            _screens.PushImmediate(instantiatePrefab(_screen));
+            _screens.PushImmediate(instantiatePrefab(_screen), false);
         }
         else if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha2))
         {
-            _screens.Push(instantiatePrefab(_screen));
+            _screens.Push(instantiatePrefab(_screen), false);
         }
         else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha2))
         {
@@ -60,7 +60,7 @@ public class FullUITestingController : MonoBehaviour
         }
         else if(Input.GetKeyUp(KeyCode.Alpha2))
         {
-            _screens.Push(instantiatePrefab(_screen), true);
+            _screens.Push(instantiatePrefab(_screen));
         }
         else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha3))
         {
@@ -72,11 +72,11 @@ public class FullUITestingController : MonoBehaviour
         }
         else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha4))
         {
-            _screens.ReplaceImmediate(instantiatePrefab(_popupReplace));
+            _screens.ReplaceImmediate(instantiatePrefab(_popupReplace), false);
         }
         else if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha4))
         {
-            _screens.Replace(instantiatePrefab(_popupReplace));
+            _screens.Replace(instantiatePrefab(_popupReplace), false);
         }
         else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha4))
         {
@@ -84,7 +84,7 @@ public class FullUITestingController : MonoBehaviour
         }
         else if(Input.GetKeyUp(KeyCode.Alpha4))
         {
-            _screens.Replace(instantiatePrefab(_popupReplace), true);
+            _screens.Replace(instantiatePrefab(_popupReplace));
         }
         else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha5))
         {
