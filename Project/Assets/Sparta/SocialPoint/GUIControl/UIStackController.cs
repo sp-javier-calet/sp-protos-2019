@@ -992,13 +992,5 @@ namespace SocialPoint.GUIControl
                 Blocker.SetActive(false);
             }
         }
-
-        public void OnForceCloseUIView(UIViewController ctrl)
-        {
-            if(ctrl != null)
-            {
-                Pop();
-            }
-        }
     }
 }
