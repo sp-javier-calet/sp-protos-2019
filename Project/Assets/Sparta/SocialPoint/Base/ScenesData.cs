@@ -75,7 +75,6 @@ namespace SocialPoint.Base
             }
 
             AssetDatabase.CreateAsset(_instance, ScenesDataAssetPath);
-            AssetDatabase.SaveAssets();
         }
 
         static public void UpdateData()
@@ -105,7 +104,6 @@ namespace SocialPoint.Base
         static void UpdateAsset()
         {
             EditorUtility.SetDirty(_instance);
-            AssetDatabase.SaveAssets();
         }
 
         #endif

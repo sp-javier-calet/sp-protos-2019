@@ -63,9 +63,25 @@ namespace SocialPoint.Social
         }
 
         [Test]
+        public void GetId()
+        {
+            const string messageId = "fake_id";
+            var msg = new Message(messageId, 0, null, null);
+            Assert.AreEqual(messageId, msg.Id);
+        }
+
+        [Test]
+        public void GetTimestamp()
+        {
+            const int messageTs = 123456789;
+            var msg = new Message("fake_id", messageTs, null, null);
+            Assert.AreEqual(messageTs, msg.Timestamp);
+        }
+
+        [Test]
         public void GetOrigin()
         {
-            var msg = new Message("fake_id", new MessageOrigin(), null);
+            var msg = new Message("fake_id", 0, new MessageOrigin(), null);
             var origin = msg.Origin<MessageOrigin>();
             Assert.IsNotNull(origin);
             Assert.AreEqual(origin.GetType(), typeof(MessageOrigin));
@@ -74,7 +90,7 @@ namespace SocialPoint.Social
         [Test]
         public void GetOriginInvalid()
         {
-            var msg = new Message("fake_id", new MessageOrigin(), null);
+            var msg = new Message("fake_id", 0, new MessageOrigin(), null);
             var origin = msg.Origin<MessageOrigin2>();
             Assert.IsNull(origin);
         }
@@ -82,7 +98,7 @@ namespace SocialPoint.Social
         [Test]
         public void GetPayload()
         {
-            var msg = new Message("fake_id", null, new MessagePayload());
+            var msg = new Message("fake_id", 0, null, new MessagePayload());
             var payload = msg.Payload<MessagePayload>();
             Assert.IsNotNull(payload);
             Assert.AreEqual(payload.GetType(), typeof(MessagePayload));
@@ -91,7 +107,7 @@ namespace SocialPoint.Social
         [Test]
         public void GetPayloadInvalid()
         {
-            var msg = new Message("fake_id", null, new MessagePayload());
+            var msg = new Message("fake_id", 0, null, new MessagePayload());
             var payload = msg.Payload<MessagePayload2>();
             Assert.IsNull(payload);
         }
@@ -101,7 +117,7 @@ namespace SocialPoint.Social
         {
             const string Property1 = "prop1";
             const string Property2 = "prop2";
-            var msg = new Message("fake_id", null, null);
+            var msg = new Message("fake_id", 0, null, null);
 
             Assert.IsFalse(msg.HasProperty(Property1));
             Assert.IsFalse(msg.HasProperty(Property2));
@@ -120,7 +136,7 @@ namespace SocialPoint.Social
         {
             const string Property1 = "prop1";
             const string Property2 = "prop2";
-            var msg = new Message("fake_id", null, null);
+            var msg = new Message("fake_id", 0, null, null);
 
             msg.AddProperty(Property1);
             msg.AddProperty(Property2);
