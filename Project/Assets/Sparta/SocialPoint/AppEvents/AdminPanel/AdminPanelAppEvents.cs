@@ -26,7 +26,6 @@ namespace SocialPoint.AppEvents
             _appEvents.GameWillRestart.Add(0, OnGameWillRestart);
             _appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
             _appEvents.AfterGameWasLoaded.Add(0, AfterGameWasLoaded);
-            _appEvents.LevelWasLoaded += OnLevelWasLoaded;
             _appEvents.ApplicationQuit += OnApplicationQuit;
             _appEvents.ReceivedMemoryWarning += OnReceivedMemoryWarning;
         }
@@ -73,11 +72,6 @@ namespace SocialPoint.AppEvents
             yield break;
         }
 
-        void OnLevelWasLoaded(int level)
-        {
-            AddEvent("LevelWasLoaded: " + level); 
-        }
-
         void OnApplicationQuit()
         {
             AddEvent("ApplicationQuit");
@@ -97,7 +91,6 @@ namespace SocialPoint.AppEvents
             _appEvents.GameWillRestart.Remove(OnGameWillRestart);
             _appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
             _appEvents.AfterGameWasLoaded.Remove(AfterGameWasLoaded);
-            _appEvents.LevelWasLoaded -= OnLevelWasLoaded;
             _appEvents.ApplicationQuit -= OnApplicationQuit;
             _appEvents.ReceivedMemoryWarning -= OnReceivedMemoryWarning;
         }

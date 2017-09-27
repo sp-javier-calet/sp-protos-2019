@@ -296,17 +296,17 @@ namespace SocialPoint.Lockstep
             AddCommand(serverCommand);
         }
 
-        private void OnLocalClientTurnApplied(ClientTurnData data)
+        private void OnLocalClientTurnApplied(ClientTurnData data, int processDuration)
         {
             if(SendMetric == null)
             {
                 return;
             }
-            if(data.ProcessTime >= Config.CommandStepDuration)
+            if(processDuration >= Config.CommandStepDuration)
             {
                 SendMetric(new Metric(MetricType.Counter, TurnProcessingTimeExceedMetricName, 1));
             }
-            _processingTimes.Add((int)data.ProcessTime);
+            _processingTimes.Add(processDuration);
         }
 
         void ConfirmLocalClientTurn(ServerTurnData turn)

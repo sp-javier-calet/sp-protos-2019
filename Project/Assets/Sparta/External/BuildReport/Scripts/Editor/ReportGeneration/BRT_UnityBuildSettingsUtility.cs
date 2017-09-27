@@ -220,8 +220,6 @@ namespace BuildReportTool
             
             settings.UseGPUSkinning = PlayerSettings.gpuSkinning;
             
-            settings.RenderingPathUsed = PlayerSettings.renderingPath.ToString();
-            
             
             // shared settings
             // ---------------------------------------------------------------
@@ -301,7 +299,7 @@ namespace BuildReportTool
             settings.iOSScriptCallOptimizationUsed = PlayerSettings.iOS.scriptCallOptimization.ToString();
             
             settings.iOSSDKVersionUsed = PlayerSettings.iOS.sdkVersion.ToString();
-            settings.iOSTargetOSVersion = PlayerSettings.iOS.targetOSVersion.ToString();
+            settings.iOSTargetOSVersion = PlayerSettings.iOS.targetOSVersionString;
             
             settings.iOSTargetDevice = PlayerSettings.iOS.targetDevice.ToString();
             #if !UNITY_5_3_OR_NEWER

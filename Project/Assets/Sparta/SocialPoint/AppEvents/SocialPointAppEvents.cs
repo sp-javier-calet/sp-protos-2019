@@ -239,26 +239,6 @@ namespace SocialPoint.AppEvents
             }
         }
 
-        public event Action<int> LevelWasLoaded
-        {
-            add
-            {
-                if(_appEvents == null)
-                {
-                    return;
-                }
-                _appEvents.LevelWasLoaded += value;
-            }
-            remove
-            {
-                if(_appEvents == null)
-                {
-                    return;
-                }
-                _appEvents.LevelWasLoaded -= value;
-            }
-        }
-
         #endregion
     }
 }

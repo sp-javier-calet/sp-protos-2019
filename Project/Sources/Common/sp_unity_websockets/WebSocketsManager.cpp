@@ -357,6 +357,7 @@ void WebSocketsManager::connect(WebSocketConnection* connection)
     else
     {
         currentUrlIndex = 0;
+        connection->connectionError((int)WebSocketConnection::Error::ConnectionError, "Connection Error");
         connection->setState(WebSocketConnection::State::Closed);
     }
 }

@@ -30,21 +30,14 @@ namespace SocialPoint.Base
                 return GetInstance();
             }
         }
-
-        #if UNITY_EDITOR
-        static EnvironmentSettings()
-        {
-            #if !UNITY_5_4_OR_NEWER
-            GetInstance();
-            #endif
-        }
-        #else
+            
+        #if !UNITY_EDITOR
         void OnEnable()
         {
             GetInstance();
         }
         #endif
-        #if UNITY_5_4_OR_NEWER && UNITY_EDITOR
+        #if UNITY_EDITOR
         [InitializeOnLoadMethod]
         #endif
         static EnvironmentSettings GetInstance()
@@ -82,8 +75,7 @@ namespace SocialPoint.Base
                 Directory.CreateDirectory(ContainerPath);
             }
 
-            AssetDatabase.CreateAsset(Instance, EnvironmentSettingsAssetPath);
-            AssetDatabase.SaveAssets();
+            AssetDatabase.CreateAsset(_instance, EnvironmentSettingsAssetPath);
         }
 
         static public void UpdateData()
@@ -94,19 +86,20 @@ namespace SocialPoint.Base
 
         static void UpdateEnvironmentUrl()
         {
-            Instance.EnvironmentUrl = string.Empty;
-            EnvironmentSettings.Instance.EnvironmentUrl = System.Environment.GetEnvironmentVariable(EnvironmentUrlEnvironmentKey);
+            _instance.EnvironmentUrl = string.Empty;
+            EnvironmentSettings._instance.EnvironmentUrl = System.Environment.GetEnvironmentVariable(EnvironmentUrlEnvironmentKey);
         }
 
         static void UpdateAsset()
         {
-            EditorUtility.SetDirty(Instance);
+            EditorUtility.SetDirty(_instance);
         }
 
         #endif
 
         [SerializeField]
-        string _environmentUrl = string.Empty;
+        [HideInInspector]
+        string _environmentUrl;
 
         public string EnvironmentUrl
         {

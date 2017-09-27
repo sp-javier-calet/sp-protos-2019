@@ -550,6 +550,11 @@ namespace SocialPoint.Login
             {
                 err = new Error("The game needs to be upgraded.");
                 typ = ErrorType.Upgrade;
+                if(resp.Body != null)
+                {
+                    json = new JsonAttrParser().Parse(resp.Body).AsDic;
+                }
+                LoadGenericData(json.Get(AttrKeyGenericData));
             }
             else if(resp.StatusCode == RootedDeviceError)
             {

@@ -1,4 +1,4 @@
-#if UNITY_5
+#if UNITY_5_3_OR_NEWER
 using UnityEngine;
 #endif
 
@@ -27,7 +27,7 @@ namespace SocialPoint.Dependency
     }
 
     public abstract class Installer : 
-    #if UNITY_5
+    #if UNITY_5_3_OR_NEWER
     ScriptableObject,
     #endif
     IInstaller

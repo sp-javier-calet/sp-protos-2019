@@ -65,11 +65,7 @@ namespace SocialPoint.Utils
     #if UNITY
         static void InitRandomSeed()
         {
-            #if UNITY_5_4_OR_NEWER
             UnityEngine.Random.InitState(GetRandomSeed());
-            #else
-            UnityEngine.Random.seed = GetRandomSeed();
-            #endif
         }
     #endif
 

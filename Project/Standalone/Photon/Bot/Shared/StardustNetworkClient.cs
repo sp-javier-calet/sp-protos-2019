@@ -53,6 +53,22 @@ namespace SocialPoint.Network
             return 0;
         }
 
+        public bool LatencySupported
+        {
+            get
+            {
+                return false;
+            }
+        }
+
+        public int Latency
+        {
+            get
+            {
+                return 0;
+            }
+        }
+
         public void RegisterReceiver(INetworkMessageReceiver receiver)
         {
             _receiver = receiver;

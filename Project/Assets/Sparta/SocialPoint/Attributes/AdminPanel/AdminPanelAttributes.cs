@@ -4,11 +4,8 @@ using System;
 using SocialPoint.AdminPanel;
 using SocialPoint.Utils;
 using UnityEngine;
-using UnityEngine.UI;
-
-#if UNITY_5_5_OR_NEWER
 using UnityEngine.Profiling;
-#endif
+using UnityEngine.UI;
 
 namespace SocialPoint.Attributes
 {

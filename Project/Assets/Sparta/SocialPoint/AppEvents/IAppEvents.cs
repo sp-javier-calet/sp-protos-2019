@@ -54,11 +54,6 @@ namespace SocialPoint.AppEvents
         event Action ApplicationQuit;
 
         /// <summary>
-        /// Occurs when level is loaded non additive.
-        /// </summary>
-        event Action<int> LevelWasLoaded;
-
-        /// <summary>
         /// The source info
         /// </summary>
         AppSource Source { get; }

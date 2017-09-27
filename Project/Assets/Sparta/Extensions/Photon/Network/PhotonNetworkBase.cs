@@ -3,6 +3,8 @@ using SocialPoint.Utils;
 using SocialPoint.IO;
 using System;
 using System.IO;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace SocialPoint.Network
 {
@@ -105,6 +107,8 @@ namespace SocialPoint.Network
 
         protected void DoConnect()
         {
+            RegisterAsMessageTarget();
+
             if(PhotonNetwork.connectionState != ConnectionState.Disconnected)
             {
                 return;
@@ -158,9 +162,28 @@ namespace SocialPoint.Network
 
         public void Dispose()
         {
+            UnregisterAsMessageTarget();
             DoDisconnect();
             Destroy(this);
         }
+
+        void RegisterAsMessageTarget()
+        {
+            if(PhotonNetwork.SendMonoMessageTargets == null)
+            {
+                PhotonNetwork.SendMonoMessageTargets = new HashSet<GameObject>();
+            }
+            PhotonNetwork.SendMonoMessageTargets.Add(this.gameObject);
+        }
+
+        void UnregisterAsMessageTarget()
+        {
+            if(PhotonNetwork.SendMonoMessageTargets != null)
+            {
+                PhotonNetwork.SendMonoMessageTargets.Remove(this.gameObject);
+            }
+        }
+
 
         RoomOptions PhotonRoomOptions
         {

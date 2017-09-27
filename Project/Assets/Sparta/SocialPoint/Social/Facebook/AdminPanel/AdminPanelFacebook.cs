@@ -185,6 +185,7 @@ namespace SocialPoint.Social
 
             layout.CreateButton("Post on Wall", () => {
                 var post = new FacebookWallPost();
+                post.Link = new Uri("http://www.socialpoint.es");
                 _facebook.PostOnWallWithDialog(post, (_, err) => {
                     if(!PrintError("posting on wall", err))
                     {

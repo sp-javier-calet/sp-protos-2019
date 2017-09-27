@@ -86,5 +86,6 @@ namespace SocialPoint.ServerEvents
         void TrackLevelUp(int lvl, AttrDic data = null);
 
         void TrackResource(ResourceOperation op);
+
     }
 }

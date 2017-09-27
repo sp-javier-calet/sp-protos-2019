@@ -92,8 +92,12 @@ namespace SocialPoint.GameLoading
         const string UpgradeButtonDef = "Upgrade";
         const string ForceUpgradeTitleKey = "game_errors.force_upgrade_title";
         const string ForceUpgradeTitleDef = "Force Upgrade";
+        const string ForceUpgradeMessageKey = "game_errors.force_upgrade_message";
+        const string ForceUpgradeMessageDef = "A new version of the game has been released \nIt is mandatory to upgrade to continue playing";
         const string SuggestedUpgradeTitleKey = "game_errors.suggested_upgrade_title";
         const string SuggestedUpgradeTitleDef = "Suggested Upgrade";
+        const string SuggestedUpgradeMessageKey = "game_errors.suggested_upgrade_message";
+        const string SuggestedUpgradeMessageDef = "A new version of the game has been released \nIt is recomended to upgrade";
         const string UpgradeLaterButtonKey = "game_errors.upgrade_later_button";
         const string UpgradeLaterButtonDef = "Later";
 
@@ -157,16 +161,21 @@ namespace SocialPoint.GameLoading
             DebugUtils.Assert(_locale != null, "Locale can not be null");
             DebugUtils.Assert(_appEvents != null, "AppEvents can not be null");
 
-            _appEvents.LevelWasLoaded += OnLevelWasLoaded;
-            OnLevelWasLoaded(SceneManager.GetActiveScene().buildIndex);
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            ReloadPopups();
         }
 
         public void Dispose()
         {
-            _appEvents.LevelWasLoaded -= OnLevelWasLoaded;
+            SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 
-        void OnLevelWasLoaded(int i)
+        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            ReloadPopups();
+        }
+
+        void ReloadPopups()
         {
             _popups = null;
             if(_findPopups != null)
@@ -196,6 +205,10 @@ namespace SocialPoint.GameLoading
             alert.Signature = Signature;
             if(data.Type == UpgradeType.Forced)
             {
+                if(string.IsNullOrEmpty(data.Message))
+                {
+                    alert.Message = _locale.Get(ForceUpgradeMessageKey, ForceUpgradeMessageDef);
+                }
                 alert.Title = _locale.Get(ForceUpgradeTitleKey, ForceUpgradeTitleDef);
                 alert.Buttons = new []{ _locale.Get(UpgradeButtonKey, UpgradeButtonDef) };
                 alert.Show(result => {
@@ -207,6 +220,10 @@ namespace SocialPoint.GameLoading
             }
             else //suggested
             {
+                if(string.IsNullOrEmpty(data.Message))
+                {
+                    alert.Message = _locale.Get(SuggestedUpgradeMessageKey, SuggestedUpgradeMessageDef);
+                }
                 alert.Title = _locale.Get(SuggestedUpgradeTitleKey, SuggestedUpgradeTitleDef);
                 alert.Buttons = new [] {
                     _locale.Get(UpgradeButtonKey, UpgradeButtonDef),
