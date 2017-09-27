@@ -28,8 +28,7 @@ public class FadeAnimation : UIViewAnimation
         while(elapsedTime <= _time)
         {
             elapsedTime += Time.deltaTime;
-            _ctrl.Alpha = Mathf.Lerp(_ctrl.Alpha, _maxAlpha, (elapsedTime / _time));
-
+            _ctrl.Alpha = Mathf.Lerp(_minAlpha, _maxAlpha, (elapsedTime / _time));
             yield return null;
         }
     }
@@ -42,8 +41,7 @@ public class FadeAnimation : UIViewAnimation
         while(elapsedTime <= _time)
         {
             elapsedTime += Time.deltaTime;
-            _ctrl.Alpha = Mathf.Lerp(_ctrl.Alpha, _minAlpha, (elapsedTime / _time));
-
+            _ctrl.Alpha = Mathf.Lerp(_maxAlpha, _minAlpha, (elapsedTime / _time));
             yield return null;
         }
     }
