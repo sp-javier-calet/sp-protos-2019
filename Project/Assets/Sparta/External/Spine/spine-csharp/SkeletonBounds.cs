@@ -1,9 +1,9 @@
 /******************************************************************************
  * Spine Runtimes Software License v2.5
- * 
+ *
  * Copyright (c) 2013-2016, Esoteric Software
  * All rights reserved.
- * 
+ *
  * You are granted a perpetual, non-exclusive, non-sublicensable, and
  * non-transferable license to use, install, execute, and perform the Spine
  * Runtimes software and derivative works solely for personal or internal
@@ -15,7 +15,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -31,6 +31,11 @@
 using System;
 
 namespace Spine {
+
+	/// <summary>
+	/// Collects each BoundingBoxAttachment that is visible and computes the world vertices for its polygon.
+	/// The polygon vertices are provided along with convenience methods for doing hit detection.
+	/// </summary>
 	public class SkeletonBounds {
 		private ExposedList<Polygon> polygonPool = new ExposedList<Polygon>();
 		private float minX, minY, maxX, maxY;
@@ -49,6 +54,14 @@ namespace Spine {
 			Polygons = new ExposedList<Polygon>();
 		}
 
+		/// <summary>
+		/// Clears any previous polygons, finds all visible bounding box attachments,
+		/// and computes the world vertices for each bounding box's polygon.</summary>
+		/// <param name="skeleton">The skeleton.</param>
+		/// <param name="updateAabb">
+		/// If true, the axis aligned bounding box containing all the polygons is computed.
+		/// If false, the SkeletonBounds AABB methods will always return true.
+		/// </param>
 		public void Update (Skeleton skeleton, bool updateAabb) {
 			ExposedList<BoundingBoxAttachment> boundingBoxes = BoundingBoxes;
 			ExposedList<Polygon> polygons = Polygons;
@@ -75,16 +88,23 @@ namespace Spine {
 					polygon = new Polygon();
 				polygons.Add(polygon);
 
-				int count = boundingBox.Vertices.Length;
+				int count = boundingBox.worldVerticesLength;
 				polygon.Count = count;
 				if (polygon.Vertices.Length < count) polygon.Vertices = new float[count];
 				boundingBox.ComputeWorldVertices(slot, polygon.Vertices);
 			}
 
-			if (updateAabb) aabbCompute();
+			if (updateAabb) {
+				AabbCompute();
+			} else {
+				minX = int.MinValue;
+				minY = int.MinValue;
+				maxX = int.MaxValue;
+				maxY = int.MaxValue;
+			}
 		}
 
-		private void aabbCompute () {
+		private void AabbCompute () {
 			float minX = int.MaxValue, minY = int.MaxValue, maxX = int.MinValue, maxY = int.MinValue;
 			ExposedList<Polygon> polygons = Polygons;
 			for (int i = 0, n = polygons.Count; i < n; i++) {
@@ -197,7 +217,7 @@ namespace Spine {
 			return false;
 		}
 
-		public Polygon getPolygon (BoundingBoxAttachment attachment) {
+		public Polygon GetPolygon (BoundingBoxAttachment attachment) {
 			int index = BoundingBoxes.IndexOf(attachment);
 			return index == -1 ? null : Polygons.Items[index];
 		}

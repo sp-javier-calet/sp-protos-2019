@@ -1,9 +1,9 @@
 /******************************************************************************
  * Spine Runtimes Software License v2.5
- * 
+ *
  * Copyright (c) 2013-2016, Esoteric Software
  * All rights reserved.
- * 
+ *
  * You are granted a perpetual, non-exclusive, non-sublicensable, and
  * non-transferable license to use, install, execute, and perform the Spine
  * Runtimes software and derivative works solely for personal or internal
@@ -15,7 +15,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -29,52 +29,56 @@
  *****************************************************************************/
 
 using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using Spine;
+using Spine.Unity.Modules.AttachmentTools;
 
 namespace Spine.Unity.Modules {
+	/// <summary>
+	/// Example code for a component that replaces the default attachment of a slot with an image from a Spine atlas.</summary>
 	public class AtlasRegionAttacher : MonoBehaviour {
 
 		[System.Serializable]
 		public class SlotRegionPair {
-			[SpineSlot]
-			public string slot;
-
-			[SpineAtlasRegion]
-			public string region;
+			[SpineSlot] public string slot;
+			[SpineAtlasRegion] public string region;
 		}
 
-		public AtlasAsset atlasAsset;
-		public SlotRegionPair[] attachments;
+		[SerializeField] protected AtlasAsset atlasAsset;
+		[SerializeField] protected bool inheritProperties = true;
+		[SerializeField] protected List<SlotRegionPair> attachments = new List<SlotRegionPair>();
 
 		Atlas atlas;
 
 		void Awake () {
-			GetComponent<SkeletonRenderer>().OnRebuild += Apply;
+			var skeletonRenderer = GetComponent<SkeletonRenderer>();
+			skeletonRenderer.OnRebuild += Apply;
+			if (skeletonRenderer.valid) Apply(skeletonRenderer);
 		}
 
+		void Start () { } // Allow checkbox in inspector
 
 		void Apply (SkeletonRenderer skeletonRenderer) {
+			if (!this.enabled) return;
+
 			atlas = atlasAsset.GetAtlas();
+			if (atlas == null) return;
+			float scale = skeletonRenderer.skeletonDataAsset.scale;
 
-			AtlasAttachmentLoader loader = new AtlasAttachmentLoader(atlas);
+			foreach (var entry in attachments) {
+				Slot slot = skeletonRenderer.Skeleton.FindSlot(entry.slot);
+				Attachment originalAttachment = slot.Attachment;
+				AtlasRegion region = atlas.FindRegion(entry.region);
 
-			float scaleMultiplier = skeletonRenderer.skeletonDataAsset.scale;
-
-			var enumerator = attachments.GetEnumerator();
-			while (enumerator.MoveNext()) {
-				var entry = (SlotRegionPair)enumerator.Current;
-				var regionAttachment = loader.NewRegionAttachment(null, entry.region, entry.region);
-				regionAttachment.Width = regionAttachment.RegionOriginalWidth * scaleMultiplier;
-				regionAttachment.Height = regionAttachment.RegionOriginalHeight * scaleMultiplier;
-
-				regionAttachment.SetColor(new Color(1, 1, 1, 1));
-				regionAttachment.UpdateOffset();
-
-				var slot = skeletonRenderer.skeleton.FindSlot(entry.slot);
-				slot.Attachment = regionAttachment;
+				if (region == null) {
+					slot.Attachment = null;
+				} else if (inheritProperties && originalAttachment != null) {
+					slot.Attachment = originalAttachment.GetRemappedClone(region, true, true, scale);
+				} else {
+					var newRegionAttachment = region.ToRegionAttachment(region.name, scale);
+					slot.Attachment = newRegionAttachment;
+				}
 			}
 		}
-
 	}
 }
