@@ -1,8 +1,7 @@
-﻿using UnityEngine;
-using System;
-using System.IO;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
 
 namespace SpartaTools.Editor.SpartaProject
 {
@@ -14,6 +13,7 @@ namespace SpartaTools.Editor.SpartaProject
 
         public enum ModuleType
         {
+            Full,
             Core,
             Sources,
             Binaries,
@@ -106,6 +106,10 @@ namespace SpartaTools.Editor.SpartaProject
             {
                 switch(content)
                 {
+                case "full":
+                    Type = ModuleType.Full;
+                    break;
+
                 case "core":
                     Type = ModuleType.Core;
                     break;
@@ -113,7 +117,7 @@ namespace SpartaTools.Editor.SpartaProject
                 case "sources":
                     Type = ModuleType.Sources;
                     break;
-					
+
                 case "binaries":
                     Type = ModuleType.Binaries;
                     break;
@@ -162,8 +166,8 @@ namespace SpartaTools.Editor.SpartaProject
 
         class PathFilter : IModuleFilter
         {
-            string Path;
-            string PathMeta;
+            readonly string Path;
+            readonly string PathMeta;
 
             public PathFilter(string path)
             {
@@ -179,7 +183,7 @@ namespace SpartaTools.Editor.SpartaProject
 
         class ExtensionFilter : IModuleFilter
         {
-            string Extension;
+            readonly string Extension;
 
             public ExtensionFilter(string extension)
             {

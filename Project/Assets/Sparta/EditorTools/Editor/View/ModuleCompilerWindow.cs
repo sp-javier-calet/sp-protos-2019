@@ -187,7 +187,7 @@ namespace SpartaTools.Editor.View
             Repaint();
         }
 
-        void CompileAll()
+        void CompileAll(bool onlyFullCategory = false)
         {
             ModuleCompiler.ClearOutputPath();
 
@@ -195,6 +195,11 @@ namespace SpartaTools.Editor.View
             {
                 foreach(var data in category.Modules)
                 {
+                    if(onlyFullCategory && (data.Module.Type != Module.ModuleType.Full))
+                    {
+                        continue;
+                    }
+
                     foreach(var variant in data.Variants)
                     {
                         CompileVariant(variant, true);
@@ -354,6 +359,19 @@ namespace SpartaTools.Editor.View
 
 
             GUILayout.FlexibleSpace();
+
+            if(GUILayout.Button("Compile Sparta Full only", EditorStyles.toolbarButton))
+            {
+                EditorUtility.DisplayProgressBar("Compile Sparta Full only", "Compiling all variants", 0.1f);
+                try
+                {
+                    CompileAll(true);
+                }
+                finally
+                {
+                    EditorUtility.ClearProgressBar();
+                }
+            }
 
             if(GUILayout.Button("Compile All", EditorStyles.toolbarButton))
             {
