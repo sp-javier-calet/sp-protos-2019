@@ -2,12 +2,13 @@
 using UnityEngine;
 using SocialPoint.Base;
 using SocialPoint.Login;
+using SocialPoint.Hardware;
 
 namespace SocialPoint.Utils
 {
     public sealed class AndroidNativeUtils : UnityNativeUtils
     {
-        public AndroidNativeUtils(ILoginData loginData): base(loginData)
+        public AndroidNativeUtils(IAppInfo appInfo) : base(appInfo)
         {
         }
 
@@ -40,7 +41,6 @@ namespace SocialPoint.Utils
         {
             try
             {
-
                 using(var intent = GetLaunchIntentForPackage(appId))
                 {
                     if(intent != null)
@@ -59,7 +59,8 @@ namespace SocialPoint.Utils
             Application.OpenURL(string.Format("market://details?id={0}", appId));
         }
 
+#endif
 
-        #endif
     }
+
 }

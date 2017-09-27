@@ -1,6 +1,8 @@
 #include "SPUnityNativeUtils.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <StoreKit/StoreKit.h>
+
 #include <queue>
 #include "UnityGameObject.h"
 
@@ -265,17 +267,23 @@ EXPORT_API char* SPUnityNotificationsRegistrationError()
     return SPUnityNativeUtils::createString(_registrationError.c_str());
 }
 
-#import <StoreKit/StoreKit.h>
-
-EXPORT_API bool SPUnityNativeUtilsDisplayReviewDialog()
+EXPORT_API bool SPUnityNativeUtilsSupportsReviewDialog()
 {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 103000
+#if !UNITY_TVOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= 103000
     if(NSStringFromClass([SKStoreReviewController class]) != nil)
     {
-        [SKStoreReviewController requestReview];
         return true;
     }
 #endif
-
     return false;
+}
+
+EXPORT_API void SPUnityNativeUtilsDisplayReviewDialog()
+{
+#if !UNITY_TVOS && __IPHONE_OS_VERSION_MAX_ALLOWED >= 103000
+    if(NSStringFromClass([SKStoreReviewController class]) != nil)
+    {
+        [SKStoreReviewController requestReview];
+    }
+#endif
 }

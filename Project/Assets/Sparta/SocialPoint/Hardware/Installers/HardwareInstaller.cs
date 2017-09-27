@@ -52,7 +52,6 @@ namespace SocialPoint.Hardware
         IosNativeUtils CreateIosNativeUtils()
         {
             return new IosNativeUtils(
-                Container.Resolve<ILoginData>(),
                 Container.Resolve<IAppInfo>()
             );
         }
@@ -60,14 +59,14 @@ namespace SocialPoint.Hardware
         AndroidNativeUtils CreateAndroidNativeUtils()
         {
             return new AndroidNativeUtils(
-                Container.Resolve<ILoginData>()
+                Container.Resolve<IAppInfo>()
             );
         }
 
         UnityNativeUtils CreateUnityNativeUtils()
         {
             return new UnityNativeUtils(
-                Container.Resolve<ILoginData>()
+                Container.Resolve<IAppInfo>()
             );
         }
 

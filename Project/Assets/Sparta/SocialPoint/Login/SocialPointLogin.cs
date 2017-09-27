@@ -540,10 +540,9 @@ namespace SocialPoint.Login
             Error err = null;
             var data = new AttrDic();
             AttrDic json = null;
-            if(resp.Body != null)
+            if(resp.HasError)
             {
                 json = new JsonAttrParser().Parse(resp.Body).AsDic;
-                LoadGenericData(json.Get(AttrKeyGenericData));
             }
 
             if(resp.StatusCode == ForceUpgradeError)
@@ -560,6 +559,7 @@ namespace SocialPoint.Login
             {
                 err = new Error("The device has been rooted.");
                 typ = ErrorType.Rooted;
+                LoadGenericData(json.Get(AttrKeyGenericData));
             }
             else if(resp.StatusCode == InvalidSecurityTokenError)
             {

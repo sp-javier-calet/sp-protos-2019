@@ -1,16 +1,17 @@
 ﻿using System;
 using SocialPoint.Login;
 using UnityEngine;
+using SocialPoint.Hardware;
 
 namespace SocialPoint.Utils
 {
     public class UnityNativeUtils : INativeUtils
     {
-        ILoginData _loginData;
+        protected IAppInfo _appInfo;
 
-        public UnityNativeUtils(ILoginData loginData)
+        public UnityNativeUtils(IAppInfo appInfo)
         {
-            _loginData = loginData;
+            _appInfo = appInfo;
         }
 
         public virtual bool IsInstalled(string appId)
@@ -20,7 +21,7 @@ namespace SocialPoint.Utils
 
         public virtual void OpenApp(string appId)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException();            
         }
 
         public virtual void OpenStore(string appId)
@@ -28,38 +29,22 @@ namespace SocialPoint.Utils
             throw new NotImplementedException();
         }
 
-        public virtual void OpenUpgrade()
-        {
-            if(_loginData == null)
-            {
-                throw new InvalidOperationException("No login data.");
-            }
-            if(_loginData.Data == null)
-            {
-                throw new InvalidOperationException("No login generic data.");
-            }
-            if(string.IsNullOrEmpty(_loginData.Data.StoreUrl))
-            {
-                throw new InvalidOperationException("No login generic data store url.");
-            }
-            Application.OpenURL(_loginData.Data.StoreUrl);
-        }
-
         public virtual void OpenReview()
         {
-            if(_loginData == null)
+            throw new NotImplementedException();
+        }
+
+        public virtual void OpenUpgrade()
+        {
+            OpenStore(_appInfo.Id);
+        }
+
+        public virtual bool SupportsReviewDialog
+        {
+            get
             {
-                throw new InvalidOperationException("No login data.");
+                return false;
             }
-            if(_loginData.Data == null)
-            {
-                throw new InvalidOperationException("No login generic data.");
-            }
-            if(string.IsNullOrEmpty(_loginData.Data.RateUrl))
-            {
-                throw new InvalidOperationException("No login generic data rate url.");
-            }
-            Application.OpenURL(_loginData.Data.RateUrl);
         }
 
         public virtual void DisplayReviewDialog()

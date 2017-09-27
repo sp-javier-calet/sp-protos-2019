@@ -28,6 +28,14 @@ namespace SocialPoint.Utils
         {
         }
 
+        public virtual bool SupportsReviewDialog
+        {
+            get
+            {
+                return false;
+            }
+        }
+
         public bool UserAllowNotification
         {
             get

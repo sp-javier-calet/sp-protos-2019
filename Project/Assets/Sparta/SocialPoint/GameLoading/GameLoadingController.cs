@@ -328,9 +328,9 @@ namespace SocialPoint.GameLoading
             {
             case ErrorType.Upgrade:
                 ErrorHandler.ShowUpgrade(Login.Data.Upgrade, success => {
-                    if(success && NativeUtils != null)
+                    if(success)
                     {
-                        NativeUtils.OpenUpgrade();
+                        OpenUpgrade();
                     }
                 });
                 break;
@@ -346,6 +346,22 @@ namespace SocialPoint.GameLoading
             default:
                 ErrorHandler.ShowLogin(err, OnLoginErrorShown);
                 break;
+            }
+        }
+
+        void OpenUpgrade()
+        {
+            if(Login.Data != null && !string.IsNullOrEmpty(Login.Data.StoreUrl))
+            {
+                Application.OpenURL(Login.Data.StoreUrl);
+            }
+            else if(NativeUtils != null)
+            {
+                NativeUtils.OpenUpgrade();
+            }
+            else
+            {
+                throw new InvalidOperationException("Could not show upgrade");
             }
         }
 
@@ -383,9 +399,9 @@ namespace SocialPoint.GameLoading
                     RegisterOperation(op);
                     op.Message = "suggesting upgrade...";
                     ErrorHandler.ShowUpgrade(Login.Data.Upgrade, success => {
-                        if(success && NativeUtils != null)
+                        if(success)
                         {
-                            NativeUtils.OpenUpgrade();
+                            OpenUpgrade();
                         }
                         op.Finish();
                     });

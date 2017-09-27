@@ -40,6 +40,11 @@
         void OpenReview();
 
         /// <summary>
+        /// Return true if the native platform supports showing review dialogs
+        /// </summary>
+        bool SupportsReviewDialog { get; }
+
+        /// <summary>
         /// Tries to open the native review dialog
         /// </summary>
         void DisplayReviewDialog();

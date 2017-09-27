@@ -6,16 +6,19 @@ using SocialPoint.Hardware;
 
 namespace SocialPoint.Utils
 {
+
     public sealed class IosNativeUtils : UnityNativeUtils
     {
-        IAppInfo _appInfo;
-
-        public IosNativeUtils(ILoginData loginData, IAppInfo appInfo) : base(loginData)
+        public IosNativeUtils(IAppInfo appInfo):base(appInfo)
         {
-            _appInfo = appInfo;
         }
 
-        #if (UNITY_IOS || UNITY_TVOS)
+#if (UNITY_IOS || UNITY_TVOS)
+
+        public override void OpenApp(string appId)
+        {
+            Application.OpenURL(appId);
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         public struct IosShortcutItem
@@ -49,7 +52,6 @@ namespace SocialPoint.Utils
         [DllImport("__Internal")]
         static extern bool SPUnityNativeUtilsIsInstalled(string appId);
 
-
         public override bool IsInstalled(string appId)
         {
             return SPUnityNativeUtilsIsInstalled(appId);
@@ -65,32 +67,26 @@ namespace SocialPoint.Utils
             Application.OpenURL(GetAppUrl(appId));
         }
 
-        public override void OpenUpgrade()
-        {
-            try
-            {
-                base.OpenUpgrade();
-            }
-            catch(Exception)
-            {
-                Application.OpenURL(GetAppUrl(_appInfo.Id));
-            }
-        }
-
         public override void OpenReview()
         {
-            try
-            {
-                base.OpenReview();
-            }
-            catch(Exception)
-            {
-                Application.OpenURL(GetAppUrl(_appInfo.Id, "?action=write-review"));
-            }
+            Application.OpenURL(GetAppUrl(_appInfo.Id, "?action=write-review"));
         }
 
         [DllImport("__Internal")]
-        static extern bool SPUnityNativeUtilsDisplayReviewDialog();
+        static extern bool SPUnityNativeUtilsSupportsReviewDialog();
+
+
+        public override bool SupportsReviewDialog
+        {
+            get
+            {
+                return SPUnityNativeUtilsSupportsReviewDialog();
+            }
+
+        }
+
+        [DllImport("__Internal")]
+        static extern void SPUnityNativeUtilsDisplayReviewDialog();
 
         public override void DisplayReviewDialog()
         {
@@ -132,7 +128,6 @@ namespace SocialPoint.Utils
             }
         }
 
-        #endif
-
+#endif
     }
 }

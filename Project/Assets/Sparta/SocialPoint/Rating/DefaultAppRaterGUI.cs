@@ -14,6 +14,11 @@ namespace SocialPoint.Rating
         {
             _prototype = proto;
             _nativeUtils = nativeUtils;
+            // only enable native dialog if platform supports it
+            if(_nativeUtils != null && !_nativeUtils.SupportsReviewDialog)
+            {
+                nativeRateDialog = false;
+            }
             _nativeRateDialog = nativeRateDialog;
         }
 
