@@ -267,9 +267,9 @@ EXPORT_API char* SPUnityNotificationsRegistrationError()
 
 #import <StoreKit/StoreKit.h>
 
-EXPORT_API bool SPUnityNativeUtilsOpenReview()
+EXPORT_API bool SPUnityNativeUtilsDisplayReviewDialog()
 {
-#ifndef UNITY_TVOS
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 103000
     if(NSStringFromClass([SKStoreReviewController class]) != nil)
     {
         [SKStoreReviewController requestReview];

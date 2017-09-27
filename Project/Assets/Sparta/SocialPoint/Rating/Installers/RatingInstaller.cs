@@ -25,7 +25,7 @@ namespace SocialPoint.Rating
             public int UserLevelUntilPrompt = AppRater.DefaultUserLevelUntilPrompt;
             public int MaxPromptsPerDay = AppRater.DefaultMaxPromptsPerDay;
             public bool PromptAfterBackground = true;
-            public string StoreUrl = null;
+            public bool NativeRateDialog = false;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -62,14 +62,15 @@ namespace SocialPoint.Rating
             return new AppRater(
                 Container.Resolve<IDeviceInfo>(),
                 Container.Resolve<IAttrStorage>("volatile"),
-                Container.Resolve<INativeUtils>(),
                 appEvents);
         }
 
         void SetupAppRater(AppRater rater)
         {
-            rater.StoreUrl = Settings.StoreUrl;
-            rater.GUI = new DefaultAppRaterGUI(Container.Resolve<IAlertView>());
+            rater.GUI = new DefaultAppRaterGUI(
+                Container.Resolve<IAlertView>(),
+                Container.Resolve<INativeUtils>(),
+                Settings.NativeRateDialog);
             rater.UsesUntilPrompt = Settings.UsesUntilPrompt;
             rater.EventsUntilPrompt = Settings.EventsUntilPrompt;
             rater.DaysUntilPrompt = Settings.DaysUntilPrompt;

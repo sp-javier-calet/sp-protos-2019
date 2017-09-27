@@ -20,11 +20,12 @@ namespace SocialPoint.Utils
 
         public virtual void OpenApp(string appId)
         {
-            Application.OpenURL(appId);
+            throw new NotImplementedException();
         }
 
         public virtual void OpenStore(string appId)
         {
+            throw new NotImplementedException();
         }
 
         public virtual void OpenUpgrade()
@@ -54,11 +55,16 @@ namespace SocialPoint.Utils
             {
                 throw new InvalidOperationException("No login generic data.");
             }
-            if(string.IsNullOrEmpty(_loginData.Data.StoreUrl))
+            if(string.IsNullOrEmpty(_loginData.Data.RateUrl))
             {
                 throw new InvalidOperationException("No login generic data rate url.");
             }
             Application.OpenURL(_loginData.Data.RateUrl);
+        }
+
+        public virtual void OpenReviewDialog()
+        {
+            throw new NotImplementedException();
         }
 
         public virtual bool UserAllowNotification

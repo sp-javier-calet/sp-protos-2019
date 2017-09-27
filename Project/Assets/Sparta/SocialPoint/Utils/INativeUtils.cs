@@ -40,6 +40,11 @@
         void OpenReview();
 
         /// <summary>
+        /// Tries to open the native review dialog
+        /// </summary>
+        void OpenReviewDialog();
+
+        /// <summary>
         /// Checks if the user is allowing notifications
         /// </summary>
         /// <value><c>true</c> if user allows notification; otherwise, <c>false</c>.</value>

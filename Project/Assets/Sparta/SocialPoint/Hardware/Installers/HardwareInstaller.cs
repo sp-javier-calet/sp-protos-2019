@@ -52,7 +52,8 @@ namespace SocialPoint.Hardware
         IosNativeUtils CreateIosNativeUtils()
         {
             return new IosNativeUtils(
-                Container.Resolve<ILoginData>()
+                Container.Resolve<ILoginData>(),
+                Container.Resolve<IAppInfo>()
             );
         }
 

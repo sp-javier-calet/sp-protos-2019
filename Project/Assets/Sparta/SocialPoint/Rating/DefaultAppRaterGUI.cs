@@ -1,21 +1,33 @@
 using SocialPoint.Alert;
+using SocialPoint.Utils;
+using System;
 
 namespace SocialPoint.Rating
 {
     public sealed class DefaultAppRaterGUI : IAppRaterGUI
     {
-        IAppRater _appRater;
         IAlertView _prototype;
+        bool _nativeRateDialog;
+        INativeUtils _nativeUtils;
 
-        public DefaultAppRaterGUI(IAlertView proto)
+        public DefaultAppRaterGUI(IAlertView proto, INativeUtils nativeUtils, bool nativeRateDialog)
         {
             _prototype = proto;
+            _nativeUtils = nativeUtils;
+            _nativeRateDialog = nativeRateDialog;
         }
 
         #region IAppRaterGUI implementation
 
         public bool Show(bool showLaterButton)
         {
+            if(_nativeRateDialog)
+            {
+                //native dialog should be called directly without asking
+                //since it can show up or not depending on app store guidelines
+                AppRater.OnRequestResult(RateRequestResult.Accept);
+                return true;
+            }
             var alert = _prototype.Clone() as IAlertView;
             if(alert != null)
             {
@@ -34,13 +46,13 @@ namespace SocialPoint.Rating
                     switch(result)
                     {
                     case 0:
-                        _appRater.OnRequestResult(RateRequestResult.Accept);
+                        AppRater.OnRequestResult(RateRequestResult.Accept);
                         break;
                     case 1:
-                        _appRater.OnRequestResult(RateRequestResult.Decline);
+                        AppRater.OnRequestResult(RateRequestResult.Decline);
                         break;
                     case 2:
-                        _appRater.OnRequestResult(RateRequestResult.Delay);
+                        AppRater.OnRequestResult(RateRequestResult.Delay);
                         break;
                     }
                 });
@@ -49,10 +61,23 @@ namespace SocialPoint.Rating
             return false;
         }
 
-        public void SetAppRater(IAppRater appRater)
+        public void Rate()
         {
-            _appRater = appRater;
+            if(_nativeUtils == null)
+            {
+                throw new InvalidOperationException("No native utils found.");
+            }
+            else if(_nativeRateDialog)
+            {
+                _nativeUtils.OpenReviewDialog();
+            }
+            else
+            {
+                _nativeUtils.OpenReview();
+            }
         }
+
+        public IAppRater AppRater{ get; set; }
 
         #endregion
 

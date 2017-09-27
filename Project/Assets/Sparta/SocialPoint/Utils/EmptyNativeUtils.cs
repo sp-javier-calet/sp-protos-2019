@@ -24,6 +24,10 @@ namespace SocialPoint.Utils
         {
         }
 
+        public void OpenReviewDialog()
+        {
+        }
+
         public bool UserAllowNotification
         {
             get
