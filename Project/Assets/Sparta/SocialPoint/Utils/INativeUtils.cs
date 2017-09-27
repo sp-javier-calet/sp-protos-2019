@@ -42,7 +42,7 @@
         /// <summary>
         /// Tries to open the native review dialog
         /// </summary>
-        void OpenReviewDialog();
+        void DisplayReviewDialog();
 
         /// <summary>
         /// Checks if the user is allowing notifications

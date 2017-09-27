@@ -62,7 +62,7 @@ namespace SocialPoint.Utils
             Application.OpenURL(_loginData.Data.RateUrl);
         }
 
-        public virtual void OpenReviewDialog()
+        public virtual void DisplayReviewDialog()
         {
             throw new NotImplementedException();
         }

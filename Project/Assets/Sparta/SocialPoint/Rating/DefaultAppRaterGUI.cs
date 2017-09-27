@@ -69,7 +69,7 @@ namespace SocialPoint.Rating
             }
             else if(_nativeRateDialog)
             {
-                _nativeUtils.OpenReviewDialog();
+                _nativeUtils.DisplayReviewDialog();
             }
             else
             {

@@ -24,7 +24,7 @@ namespace SocialPoint.Utils
         {
         }
 
-        public void OpenReviewDialog()
+        public void DisplayReviewDialog()
         {
         }
 

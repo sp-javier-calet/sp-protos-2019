@@ -90,11 +90,11 @@ namespace SocialPoint.Utils
         }
 
         [DllImport("__Internal")]
-        static extern bool SPUnityNativeUtilsOpenReviewDialog();
+        static extern bool SPUnityNativeUtilsDisplayReviewDialog();
 
-        public override void OpenReviewDialog()
+        public override void DisplayReviewDialog()
         {
-            SPUnityNativeUtilsOpenReviewDialog();
+            SPUnityNativeUtilsDisplayReviewDialog();
         }
 
         [DllImport("__Internal")]
