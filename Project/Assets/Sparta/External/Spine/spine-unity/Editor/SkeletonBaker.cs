@@ -1,7 +1,35 @@
-/*****************************************************************************
- * SkeletonBaker added by Mitch Thompson
- * Full irrevocable rights and permissions granted to Esoteric Software
-*****************************************************************************/
+/******************************************************************************
+ * Spine Runtimes Software License v2.5
+ *
+ * Copyright (c) 2013-2016, Esoteric Software
+ * All rights reserved.
+ *
+ * You are granted a perpetual, non-exclusive, non-sublicensable, and
+ * non-transferable license to use, install, execute, and perform the Spine
+ * Runtimes software and derivative works solely for personal or internal
+ * use. Without the written permission of Esoteric Software (see Section 2 of
+ * the Spine Software License Agreement), you may not (a) modify, translate,
+ * adapt, or develop new applications using the Spine Runtimes or otherwise
+ * create derivative works or improvements of the Spine Runtimes or (b) remove,
+ * delete, alter, or obscure any trademarks or any copyright, trademark, patent,
+ * or other intellectual property or proprietary rights notices on or in the
+ * Software, including any copy thereof. Redistributions in binary or source
+ * form must include this license and terms.
+ *
+ * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+ * EVENT SHALL ESOTERIC SOFTWARE BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES, BUSINESS INTERRUPTION, OR LOSS OF
+ * USE, DATA, OR PROFITS) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+ * IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *****************************************************************************/
+
+// Contributed by: Mitch Thompson
+
 #define SPINE_SKELETON_ANIMATOR
 
 using UnityEngine;
@@ -14,36 +42,35 @@ using System.Reflection;
 using System.IO;
 using Spine;
 
-
-/// <summary>
-/// [SUPPORTS]
-/// Linear, Constant, and Bezier Curves* 
-/// Inverse Kinematics*
-/// Inherit Rotation
-/// Translate Timeline
-/// Rotate Timeline
-/// Scale Timeline**
-/// Event Timeline***
-/// Attachment Timeline
-/// 
-/// RegionAttachment
-/// MeshAttachment
-/// SkinnedMeshAttachment
-/// 
-/// [LIMITATIONS]
-/// *Inverse Kinematics & Bezier Curves are baked into the animation at 60fps and are not realtime. Use bakeIncrement constant to adjust key density if desired.
-/// **Non-uniform Scale Keys  (ie:  if ScaleX and ScaleY are not equal to eachother, it will not be accurate to Spine source)
-/// ***Events may only fire 1 type of data per event in Unity safely so priority to String data if present in Spine key, otherwise a Float is sent whether the Spine key was Int or Float with priority given to Int.
-/// 
-/// [DOES NOT SUPPORT]
-/// FlipX or FlipY (Maybe one day)
-/// FFD (Unity does not provide access to BlendShapes with code)
-/// Color Keys (Maybe one day when Unity supports full FBX standard and provides access with code)
-/// InheritScale (Never.  Unity and Spine do scaling very differently)
-/// Draw Order Keyframes
-/// </summary>
-/// 
 namespace Spine.Unity.Editor {
+
+	/// <summary>
+	/// [SUPPORTS]
+	/// Linear, Constant, and Bezier Curves* 
+	/// Inverse Kinematics*
+	/// Inherit Rotation
+	/// Translate Timeline
+	/// Rotate Timeline
+	/// Scale Timeline**
+	/// Event Timeline***
+	/// Attachment Timeline
+	/// 
+	/// RegionAttachment
+	/// MeshAttachment
+	/// SkinnedMeshAttachment
+	/// 
+	/// [LIMITATIONS]
+	/// *Inverse Kinematics & Bezier Curves are baked into the animation at 60fps and are not realtime. Use bakeIncrement constant to adjust key density if desired.
+	/// **Non-uniform Scale Keys  (ie:  if ScaleX and ScaleY are not equal to eachother, it will not be accurate to Spine source)
+	/// ***Events may only fire 1 type of data per event in Unity safely so priority to String data if present in Spine key, otherwise a Float is sent whether the Spine key was Int or Float with priority given to Int.
+	/// 
+	/// [DOES NOT SUPPORT]
+	/// FlipX or FlipY (Maybe one day)
+	/// FFD (Unity does not provide access to BlendShapes with code)
+	/// Color Keys (Maybe one day when Unity supports full FBX standard and provides access with code)
+	/// InheritScale (Never.  Unity and Spine do scaling very differently)
+	/// Draw Order Keyframes
+	/// </summary>
 	public static class SkeletonBaker {
 
 		#region SkeletonAnimator's Mecanim Clips
@@ -58,10 +85,7 @@ namespace Spine.Unity.Editor {
 
 			string dataPath = AssetDatabase.GetAssetPath(skeletonDataAsset);
 			string controllerPath = dataPath.Replace("_SkeletonData", "_Controller").Replace(".asset", ".controller");
-
-		#if UNITY_5
 			UnityEditor.Animations.AnimatorController controller;
-
 			if (skeletonDataAsset.controller != null) {
 				controller = (UnityEditor.Animations.AnimatorController)skeletonDataAsset.controller;
 				controllerPath = AssetDatabase.GetAssetPath(controller);
@@ -77,24 +101,6 @@ namespace Spine.Unity.Editor {
 				}
 
 			}
-		#else
-		UnityEditorInternal.AnimatorController controller;
-
-		if (skeletonDataAsset.controller != null) {
-			controller = (UnityEditorInternal.AnimatorController)skeletonDataAsset.controller;
-			controllerPath = AssetDatabase.GetAssetPath(controller);
-		} else {
-			if (File.Exists(controllerPath)) {
-				if (EditorUtility.DisplayDialog("Controller Overwrite Warning", "Unknown Controller already exists at: " + controllerPath, "Update", "Overwrite")) {
-					controller = (UnityEditorInternal.AnimatorController)AssetDatabase.LoadAssetAtPath(controllerPath, typeof(RuntimeAnimatorController));
-				} else {
-					controller = (UnityEditorInternal.AnimatorController)UnityEditorInternal.AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
-				}
-			} else {
-				controller = (UnityEditorInternal.AnimatorController)UnityEditorInternal.AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
-			}
-		}
-		#endif
 
 			skeletonDataAsset.controller = controller;
 			EditorUtility.SetDirty(skeletonDataAsset);
@@ -128,9 +134,6 @@ namespace Spine.Unity.Editor {
 					//generate new dummy clip
 					AnimationClip newClip = new AnimationClip();
 					newClip.name = name;
-					#if !(UNITY_5)
-					AnimationUtility.SetAnimationType(newClip, ModelImporterAnimationType.Generic);
-					#endif
 					AssetDatabase.AddObjectToAsset(newClip, controller);
 					unityAnimationClipTable.Add(name, newClip);
 				}
@@ -190,32 +193,19 @@ namespace Spine.Unity.Editor {
 
 			var skeletonData = skeletonDataAsset.GetSkeletonData(true);
 			bool hasAnimations = bakeAnimations && skeletonData.Animations.Count > 0;
-			#if UNITY_5
 			UnityEditor.Animations.AnimatorController controller = null;
-			#else
-			UnityEditorInternal.AnimatorController controller = null;
-			#endif
 			if (hasAnimations) {
 				string controllerPath = outputPath + "/" + skeletonDataAsset.skeletonJSON.name + " Controller.controller";
 				bool newAnimContainer = false;
 
 				var runtimeController = AssetDatabase.LoadAssetAtPath(controllerPath, typeof(RuntimeAnimatorController));
 
-				#if UNITY_5
 				if (runtimeController != null) {
 					controller = (UnityEditor.Animations.AnimatorController)runtimeController;
 				} else {
 					controller = UnityEditor.Animations.AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
 					newAnimContainer = true;
 				}
-				#else
-				if (runtimeController != null) {
-				controller = (UnityEditorInternal.AnimatorController)runtimeController;
-				} else {
-				controller = UnityEditorInternal.AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
-				newAnimContainer = true;
-				}
-				#endif
 
 				var existingClipTable = new Dictionary<string, AnimationClip>();
 				var unusedClipNames = new List<string>();
@@ -260,12 +250,7 @@ namespace Spine.Unity.Editor {
 						unusedClipNames.Remove(clip.name);
 					} else {
 						AssetDatabase.AddObjectToAsset(clip, controller);
-						#if UNITY_5
 						controller.AddMotion(clip);
-						#else
-						UnityEditorInternal.AnimatorController.AddAnimationClipToController(controller, clip);
-						#endif
-
 					}
 				}
 
@@ -336,12 +321,13 @@ namespace Spine.Unity.Editor {
 
 					boneTransform.parent = parentTransform;
 					boneTransform.localPosition = new Vector3(boneData.X, boneData.Y, 0);
-					if (boneData.InheritRotation)
+					var tm = boneData.TransformMode;
+					if (tm.InheritsRotation())
 						boneTransform.localRotation = Quaternion.Euler(0, 0, boneData.Rotation);
 					else
 						boneTransform.rotation = Quaternion.Euler(0, 0, boneData.Rotation);
 
-					if (boneData.InheritScale)
+					if (tm.InheritsScale())
 						boneTransform.localScale = new Vector3(boneData.ScaleX, boneData.ScaleY, 1);
 				}
 
@@ -381,7 +367,7 @@ namespace Spine.Unity.Editor {
 							offset.y = regionAttachment.Y;
 							rotation = regionAttachment.Rotation;
 							mesh = ExtractRegionAttachment(attachmentMeshName, regionAttachment, mesh);
-							material = ExtractMaterial(attachment);
+							material = attachment.GetMaterial();
 							unusedMeshNames.Remove(attachmentMeshName);
 							if (newPrefab || meshTable.ContainsKey(attachmentMeshName) == false)
 								AssetDatabase.AddObjectToAsset(mesh, prefab);
@@ -397,7 +383,7 @@ namespace Spine.Unity.Editor {
 							else
 								mesh = ExtractMeshAttachment(attachmentMeshName, meshAttachment, mesh);
 							
-							material = ExtractMaterial(attachment);
+							material = attachment.GetMaterial();
 							unusedMeshNames.Remove(attachmentMeshName);
 							if (newPrefab || meshTable.ContainsKey(attachmentMeshName) == false)
 								AssetDatabase.AddObjectToAsset(mesh, prefab);
@@ -505,21 +491,6 @@ namespace Spine.Unity.Editor {
 			return extractionSlot;
 		}
 
-		static Material ExtractMaterial (Attachment attachment) {
-			if (attachment == null || attachment is BoundingBoxAttachment)
-				return null;
-
-			if (attachment is RegionAttachment) {
-				var att = (RegionAttachment)attachment;
-				return (Material)((AtlasRegion)att.RendererObject).page.rendererObject;
-			} else if (attachment is MeshAttachment) {
-				var att = (MeshAttachment)attachment;
-				return (Material)((AtlasRegion)att.RendererObject).page.rendererObject;
-			} else {
-				return null;
-			}
-		}
-
 		static Mesh ExtractRegionAttachment (string name, RegionAttachment attachment, Mesh mesh = null) {
 			var bone = GetExtractionBone();
 
@@ -529,7 +500,7 @@ namespace Spine.Unity.Editor {
 
 			Vector2[] uvs = ExtractUV(attachment.UVs);
 			float[] floatVerts = new float[8];
-			attachment.ComputeWorldVertices(bone, floatVerts);
+			attachment.ComputeWorldVertices(bone, floatVerts, 0);
 			Vector3[] verts = ExtractVerts(floatVerts);
 
 			//unrotate verts now that they're centered
@@ -769,12 +740,6 @@ namespace Spine.Unity.Editor {
 				AnimationUtility.SetAnimationEvents(clip, new AnimationEvent[0]);
 			}
 
-			#if UNITY_5
-
-			#else
-			AnimationUtility.SetAnimationType(clip, ModelImporterAnimationType.Generic);
-			#endif
-
 			clip.name = name;
 
 			Skeleton skeleton = new Skeleton(skeletonData);
@@ -792,7 +757,7 @@ namespace Spine.Unity.Editor {
 			}
 
 			foreach (Bone b in skeleton.Bones) {
-				if (b.Data.InheritRotation == false) {
+				if (!b.Data.TransformMode.InheritsRotation()) {
 					int index = skeleton.FindBoneIndex(b.Data.Name);
 
 					if (ignoreRotateTimelineIndexes.Contains(index) == false) {
@@ -961,10 +926,9 @@ namespace Spine.Unity.Editor {
 
 		static void BakeBone (Bone bone, Spine.Animation animation, AnimationClip clip) {
 			Skeleton skeleton = bone.Skeleton;
-			bool inheritRotation = bone.Data.InheritRotation;
+			bool inheritRotation = bone.Data.TransformMode.InheritsRotation();
 
-			skeleton.SetToSetupPose();
-			animation.Apply(skeleton, 0, 0, true, null);
+			animation.PoseSkeleton(skeleton, 0);
 			skeleton.UpdateWorldTransform();
 			float duration = animation.Duration;
 
@@ -985,7 +949,6 @@ namespace Spine.Unity.Editor {
 			int steps = Mathf.CeilToInt(duration / bakeIncrement);
 
 			float currentTime = 0;
-			float lastTime = 0;
 			float angle = rotation;
 
 			for (int i = 1; i <= steps; i++) {
@@ -993,7 +956,7 @@ namespace Spine.Unity.Editor {
 				if (i == steps)
 					currentTime = duration;
 
-				animation.Apply(skeleton, lastTime, currentTime, true, null);
+				animation.PoseSkeleton(skeleton, currentTime, true);
 				skeleton.UpdateWorldTransform();
 
 				int pIndex = listIndex - 1;
@@ -1002,11 +965,7 @@ namespace Spine.Unity.Editor {
 
 				pk = keys[pIndex];
 
-				if (inheritRotation)
-					rotation = bone.AppliedRotation;
-				else {
-					rotation = GetUninheritedRotation(bone);
-				}
+				rotation = inheritRotation ? bone.AppliedRotation : GetUninheritedRotation(bone);
 
 				angle += Mathf.DeltaAngle(angle, rotation);
 
@@ -1021,7 +980,6 @@ namespace Spine.Unity.Editor {
 				keys[pIndex] = pk;
 
 				listIndex++;
-				lastTime = currentTime;
 			}
 
 			curve = EnsureCurveKeyCount(new AnimationCurve(keys.ToArray()));
@@ -1091,7 +1049,7 @@ namespace Spine.Unity.Editor {
 
 					currentTime = time;
 
-					timeline.Apply(skeleton, lastTime, currentTime, null, 1);
+					timeline.Apply(skeleton, lastTime, currentTime, null, 1, MixPose.Setup, MixDirection.In);
 
 					lastTime = time;
 					listIndex++;
@@ -1118,7 +1076,7 @@ namespace Spine.Unity.Editor {
 
 					currentTime = time;
 
-					timeline.Apply(skeleton, lastTime, currentTime, null, 1);
+					timeline.Apply(skeleton, lastTime, currentTime, null, 1, MixPose.Setup, MixDirection.In);
 
 					lastTime = time;
 					listIndex++;
@@ -1137,7 +1095,7 @@ namespace Spine.Unity.Editor {
 						if (i == steps)
 							currentTime = time;
 
-						timeline.Apply(skeleton, lastTime, currentTime, null, 1);
+						timeline.Apply(skeleton, lastTime, currentTime, null, 1, MixPose.Setup, MixDirection.In);
 
 						px = xKeys[listIndex - 1];
 						py = yKeys[listIndex - 1];
@@ -1234,7 +1192,7 @@ namespace Spine.Unity.Editor {
 
 					currentTime = time;
 
-					timeline.Apply(skeleton, lastTime, currentTime, null, 1);
+					timeline.Apply(skeleton, lastTime, currentTime, null, 1, MixPose.Setup, MixDirection.In);
 
 					lastTime = time;
 					listIndex++;
@@ -1261,7 +1219,7 @@ namespace Spine.Unity.Editor {
 
 					currentTime = time;
 
-					timeline.Apply(skeleton, lastTime, currentTime, null, 1);
+					timeline.Apply(skeleton, lastTime, currentTime, null, 1, MixPose.Setup, MixDirection.In);
 
 					lastTime = time;
 					listIndex++;
@@ -1279,7 +1237,7 @@ namespace Spine.Unity.Editor {
 						if (i == steps)
 							currentTime = time;
 
-						timeline.Apply(skeleton, lastTime, currentTime, null, 1);
+						timeline.Apply(skeleton, lastTime, currentTime, null, 1, MixPose.Setup, MixDirection.In);
 
 						px = xKeys[listIndex - 1];
 						py = yKeys[listIndex - 1];
@@ -1363,7 +1321,7 @@ namespace Spine.Unity.Editor {
 
 					currentTime = time;
 
-					timeline.Apply(skeleton, lastTime, currentTime, null, 1);
+					timeline.Apply(skeleton, lastTime, currentTime, null, 1, MixPose.Setup, MixDirection.In);
 
 					lastTime = time;
 					listIndex++;
@@ -1388,7 +1346,7 @@ namespace Spine.Unity.Editor {
 
 					currentTime = time;
 
-					timeline.Apply(skeleton, lastTime, currentTime, null, 1);
+					timeline.Apply(skeleton, lastTime, currentTime, null, 1, MixPose.Setup, MixDirection.In);
 
 					lastTime = time;
 					listIndex++;
@@ -1398,7 +1356,7 @@ namespace Spine.Unity.Editor {
 
 					float time = frames[f];
 
-					timeline.Apply(skeleton, lastTime, currentTime, null, 1);
+					timeline.Apply(skeleton, lastTime, currentTime, null, 1, MixPose.Setup, MixDirection.In);
 					skeleton.UpdateWorldTransform();
 
 					rotation = frames[f + 1] + boneData.Rotation;
@@ -1412,7 +1370,7 @@ namespace Spine.Unity.Editor {
 						if (i == steps)
 							currentTime = time;
 
-						timeline.Apply(skeleton, lastTime, currentTime, null, 1);
+						timeline.Apply(skeleton, lastTime, currentTime, null, 1, MixPose.Setup, MixDirection.In);
 						skeleton.UpdateWorldTransform();
 						pk = keys[listIndex - 1];
 
@@ -1440,7 +1398,7 @@ namespace Spine.Unity.Editor {
 			curve = EnsureCurveKeyCount(new AnimationCurve(keys.ToArray()));
 
 			string path = GetPath(boneData);
-			string propertyName = "localEulerAnglesBaked";
+			const string propertyName = "localEulerAnglesBaked";
 
 			EditorCurveBinding xBind = EditorCurveBinding.FloatCurve(path, typeof(Transform), propertyName + ".x");
 			AnimationUtility.SetEditorCurve(clip, xBind, new AnimationCurve());
@@ -1464,14 +1422,7 @@ namespace Spine.Unity.Editor {
 		#endregion
 
 		static void SetAnimationSettings (AnimationClip clip, AnimationClipSettings settings) {
-			#if UNITY_5
 			AnimationUtility.SetAnimationClipSettings(clip, settings);
-			#else
-			MethodInfo methodInfo = typeof(AnimationUtility).GetMethod("SetAnimationClipSettings", BindingFlags.Static | BindingFlags.NonPublic);
-			methodInfo.Invoke(null, new object[] { clip, settings });
-
-			EditorUtility.SetDirty(clip);
-			#endif
 		}
 
 

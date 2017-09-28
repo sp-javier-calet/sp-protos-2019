@@ -1,9 +1,9 @@
 /******************************************************************************
  * Spine Runtimes Software License v2.5
- * 
+ *
  * Copyright (c) 2013-2016, Esoteric Software
  * All rights reserved.
- * 
+ *
  * You are granted a perpetual, non-exclusive, non-sublicensable, and
  * non-transferable license to use, install, execute, and perform the Spine
  * Runtimes software and derivative works solely for personal or internal
@@ -15,7 +15,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -31,20 +31,22 @@
 using System;
 
 namespace Spine {
+	/// <summary>Stores the setup pose values for an Event.</summary>
 	public class EventData {
-		internal String name;
+		internal string name;
 
-		public String Name { get { return name; } }
+		/// <summary>The name of the event, which is unique within the skeleton.</summary>
+		public string Name { get { return name; } }
 		public int Int { get; set; }
 		public float Float { get; set; }
-		public String String { get; set; }
+		public string String { get; set; }
 
-		public EventData (String name) {
+		public EventData (string name) {
 			if (name == null) throw new ArgumentNullException("name", "name cannot be null.");
 			this.name = name;
 		}
 
-		override public String ToString () {
+		override public string ToString () {
 			return Name;
 		}
 	}
