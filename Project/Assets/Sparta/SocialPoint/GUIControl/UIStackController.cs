@@ -15,15 +15,15 @@ namespace SocialPoint.GUIControl
     {
         public UIViewController Controller;
         public GameObject GameObject;
-        public bool HidePopups;
-        public bool NeedsToBeVisible = true;
+        public bool HideControllersBelow; 
+        public bool IsDesiredToShow = true;
 
-        public StackNode(UIViewController controller, GameObject gameObject, bool hidePopups)
+        public StackNode(UIViewController controller, GameObject gameObject, bool hideControllersBelow)
         {
             Controller = controller;
             GameObject = gameObject;
-            HidePopups = hidePopups;
-            NeedsToBeVisible = true;
+            HideControllersBelow = hideControllersBelow;
+            IsDesiredToShow = true;
         }
     }
 
@@ -120,12 +120,12 @@ namespace SocialPoint.GUIControl
         {
             return stackNode != null && stackNode.Controller != null && stackNode.GameObject != null;
         }
-
-        StackNode NewStackNode(UIViewController ctrl, bool hidePopups)
+   
+        StackNode NewStackNode(UIViewController ctrl, bool hideControllersBelow)
         {
             if(ctrl != null)
             {
-                return new StackNode(ctrl, ctrl.gameObject, hidePopups);
+                return new StackNode(ctrl, ctrl.gameObject, hideControllersBelow);
             }
 
             return null;
@@ -273,7 +273,7 @@ namespace SocialPoint.GUIControl
             views.Clear();
 
             bool firstFullScreenFound = false;
-            bool hidePreviousPopups = false;
+            bool hideControllersBelow = false;
 
             StackNode top = Top;
             for(int i = Count - 1; i >= 0; --i)
@@ -283,15 +283,15 @@ namespace SocialPoint.GUIControl
                 {
                     if(elm == top)
                     {
-                        elm.NeedsToBeVisible = true;
-                        hidePreviousPopups = !elm.Controller.IsFullScreen && elm.HidePopups;
+                        elm.IsDesiredToShow = true;
+                        hideControllersBelow = !elm.Controller.IsFullScreen && elm.HideControllersBelow;
                     }
                     else
                     {
                         if(top.Controller.IsFullScreen)
                         {
                             // Hide all Views behind Top
-                            elm.NeedsToBeVisible = false;
+                            elm.IsDesiredToShow = false;
                         }
                         else
                         {
@@ -301,24 +301,24 @@ namespace SocialPoint.GUIControl
                                 if(elm.Controller.IsFullScreen)
                                 {
                                     firstFullScreenFound = true;
-                                    elm.NeedsToBeVisible = true;
+                                    elm.IsDesiredToShow = true;
                                 }
                                 else
                                 {
-                                    if(!hidePreviousPopups)
+                                    if(!hideControllersBelow)
                                     {
-                                        hidePreviousPopups = elm.HidePopups;
-                                        elm.NeedsToBeVisible = true;
+                                        hideControllersBelow = elm.HideControllersBelow;
+                                        elm.IsDesiredToShow = true;
                                     }
                                     else
                                     {
-                                        elm.NeedsToBeVisible = false;
+                                        elm.IsDesiredToShow = false;
                                     }
                                 }
                             }
                             else
                             {
-                                elm.NeedsToBeVisible = false;
+                                elm.IsDesiredToShow = false;
                             }
                         }
                     }
@@ -345,7 +345,7 @@ namespace SocialPoint.GUIControl
                     var elm = _views[i];
                     if(IsValidStackNode(elm))
                     {
-                        if(elm.NeedsToBeVisible && elm.Controller.State != ViewState.Shown)
+                        if(elm.IsDesiredToShow && elm.Controller.State != ViewState.Shown)
                         {
                             if(IsImmediateAction(act) || top.Controller != elm.Controller)
                             {
@@ -356,7 +356,7 @@ namespace SocialPoint.GUIControl
                                 elm.Controller.Show();
                             }
                         }
-                        else if(!elm.NeedsToBeVisible && elm.Controller.State != ViewState.Hidden)
+                        else if(!elm.IsDesiredToShow && elm.Controller.State != ViewState.Hidden)
                         {
                             elm.Controller.HideImmediate();
                         }
@@ -602,42 +602,42 @@ namespace SocialPoint.GUIControl
 
         #region Push
 
-        public UIViewController Push(GameObject go, bool hidePopups = false)
+        public UIViewController Push(GameObject go, bool hideControllersBelow = true)
         {
             var ctrl = go.GetComponent(typeof(UIViewController)) as UIViewController;
             if(ctrl == null)
             {
                 throw new MissingComponentException("Could not find UIViewController component.");
             }
-            return Push(ctrl, hidePopups);
+            return Push(ctrl, hideControllersBelow);
         }
 
-        public C Push<C>(bool hidePopups = true) where C : UIViewController
+        public C Push<C>(bool hideControllersBelow = true) where C : UIViewController
         {
-            return Push(typeof(C), hidePopups) as C; 
+            return Push(typeof(C), hideControllersBelow) as C; 
         }
-
-        public UIViewController Push(Type c, bool hidePopups = false)
+            
+        public UIViewController Push(Type c, bool hideControllersBelow = true)
         {
-            return Push(CreateChild(c), hidePopups);
+            return Push(CreateChild(c), hideControllersBelow);
         }
 
-        public UIViewController Push(UIViewController ctrl, bool hidePopups = true)
+        public UIViewController Push(UIViewController ctrl, bool hideControllersBelow = true)
         {
             var act = ActionType.Push;
-            StartActionCoroutine(DoPushCoroutine(ctrl, act, hidePopups), act);
+            StartActionCoroutine(DoPushCoroutine(ctrl, act, hideControllersBelow), act);
             return ctrl;
         }
-
-        public IEnumerator PushCoroutine(UIViewController ctrl, bool hidePopups = false)
+            
+        public IEnumerator PushCoroutine(UIViewController ctrl, bool hideControllersBelow = true)
         {
             var act = ActionType.Push;
-            yield return StartActionCoroutine(DoPushCoroutine(ctrl, act, hidePopups), act);
+            yield return StartActionCoroutine(DoPushCoroutine(ctrl, act, hideControllersBelow), act);
         }
-
-        IEnumerator DoPushCoroutine(UIViewController ctrl, ActionType act, bool hidePopups = false)
+            
+        IEnumerator DoPushCoroutine(UIViewController ctrl, ActionType act, bool hideControllersBelow = true)
         {
-            var stackNode = NewStackNode(ctrl, hidePopups);
+            var stackNode = NewStackNode(ctrl, hideControllersBelow);
 
             var top = Top;
             AddChild(stackNode.GameObject);
@@ -649,30 +649,30 @@ namespace SocialPoint.GUIControl
                 yield return enm;
             }
         }
-
-        public UIViewController PushImmediate(GameObject go, bool hidePopups = false)
+            
+        public UIViewController PushImmediate(GameObject go, bool hideControllersBelow = true)
         {
             var ctrl = go.GetComponent<UIViewController>();
             if(ctrl == null)
             {
                 throw new MissingComponentException("Could not find UIViewController component.");
             }
-            return PushImmediate(ctrl, hidePopups);
+            return PushImmediate(ctrl, hideControllersBelow);
         }
 
-        public C PushImmediate<C>(bool hidePopups = true) where C : UIViewController
+        public C PushImmediate<C>(bool hideControllersBelow = true) where C : UIViewController
         {
-            return PushImmediate(typeof(C), hidePopups) as C; 
+            return PushImmediate(typeof(C), hideControllersBelow) as C; 
         }
 
-        public UIViewController PushImmediate(Type c, bool hidePopups = true)
+        public UIViewController PushImmediate(Type c, bool hideControllersBelow = true)
         {
-            return PushImmediate(CreateChild(c), hidePopups);
+            return PushImmediate(CreateChild(c), hideControllersBelow);
         }
 
-        public UIViewController PushImmediate(UIViewController ctrl, bool hidePopups = true)
+        public UIViewController PushImmediate(UIViewController ctrl, bool hideControllersBelow = true)
         {
-            var stackNode = NewStackNode(ctrl, hidePopups);
+            var stackNode = NewStackNode(ctrl, hideControllersBelow);
             DebugLog(string.Format("PushImmediate {0}", IsValidStackNode(stackNode) ? stackNode.GameObject.name : string.Empty));
 
             var top = Top;
@@ -696,27 +696,27 @@ namespace SocialPoint.GUIControl
 
         #region Replace
 
-        public UIViewController Replace(GameObject go, bool hidePopups = true)
+        public UIViewController Replace(GameObject go, bool hideControllersBelow = true)
         {
             var ctrl = go.GetComponent(typeof(UIViewController)) as UIViewController;
             if(ctrl == null)
             {
                 throw new MissingComponentException("Could not find UIViewController component.");
             }
-            return Replace(ctrl, hidePopups);
+            return Replace(ctrl, hideControllersBelow);
         }
 
-        public C Replace<C>(bool hidePopups = true) where C : UIViewController
+        public C Replace<C>(bool hideControllersBelow = true) where C : UIViewController
         {
-            return Replace(typeof(C), hidePopups) as C; 
+            return Replace(typeof(C), hideControllersBelow) as C; 
         }
 
-        public UIViewController Replace(Type c, bool hidePopups = true)
+        public UIViewController Replace(Type c, bool hideControllersBelow = true)
         {
-            return Replace(CreateChild(c), hidePopups);
+            return Replace(CreateChild(c), hideControllersBelow);
         }
 
-        public UIViewController Replace(UIViewController ctrl, bool hidePopups = true)
+        public UIViewController Replace(UIViewController ctrl, bool hideControllersBelow = true)
         {
             if(Count == 0)
             {
@@ -724,56 +724,56 @@ namespace SocialPoint.GUIControl
             }
 
             var act = ActionType.Replace;
-            StartActionCoroutine(DoReplaceCoroutine(ctrl, act, hidePopups), act);
+            StartActionCoroutine(DoReplaceCoroutine(ctrl, act, hideControllersBelow), act);
             return ctrl;
         }
 
-        public IEnumerator ReplaceCoroutine(UIViewController ctrl, bool hidePopups = true)
+        public IEnumerator ReplaceCoroutine(UIViewController ctrl, bool hideControllersBelow = true)
         {
             var act = ActionType.Replace;
-            yield return StartActionCoroutine(DoReplaceCoroutine(ctrl, act, hidePopups), act);
+            yield return StartActionCoroutine(DoReplaceCoroutine(ctrl, act, hideControllersBelow), act);
         }
 
-        IEnumerator DoReplaceCoroutine(UIViewController ctrl, ActionType act, bool hidePopups = true)
+        IEnumerator DoReplaceCoroutine(UIViewController ctrl, ActionType act, bool hideControllersBelow = true)
         {
             var top = Top;
             DebugLog(string.Format("Replace {0} with {1}", IsValidStackNode(top) ? top.GameObject.name : string.Empty, ctrl != null ? ctrl.gameObject.name : string.Empty));
 
-            var enm = DoPushCoroutine(ctrl, act, hidePopups);
+            var enm = DoPushCoroutine(ctrl, act, hideControllersBelow);
             while(enm.MoveNext())
             {
                 yield return enm.Current;
             }
         }
-
-        public UIViewController ReplaceImmediate(GameObject go, bool hidePopups = true)
+   
+        public UIViewController ReplaceImmediate(GameObject go, bool hideControllersBelow = true)
         {
             var ctrl = go.GetComponent(typeof(UIViewController)) as UIViewController;
             if(ctrl == null)
             {
                 throw new MissingComponentException("Could not find UIViewController component.");
             }
-            return ReplaceImmediate(ctrl, hidePopups);
+            return ReplaceImmediate(ctrl, hideControllersBelow);
         }
 
-        public C ReplaceImmediate<C>(bool hidePopups = true) where C : UIViewController
+        public C ReplaceImmediate<C>(bool hideControllersBelow = true) where C : UIViewController
         {
-            return ReplaceImmediate(typeof(C), hidePopups) as C; 
+            return ReplaceImmediate(typeof(C), hideControllersBelow) as C; 
         }
 
-        public UIViewController ReplaceImmediate(Type c, bool hidePopups = true)
+        public UIViewController ReplaceImmediate(Type c, bool hideControllersBelow = true)
         {
-            return ReplaceImmediate(CreateChild(c), hidePopups);
+            return ReplaceImmediate(CreateChild(c), hideControllersBelow);
         }
 
-        public UIViewController ReplaceImmediate(UIViewController ctrl, bool hidePopups = true)
+        public UIViewController ReplaceImmediate(UIViewController ctrl, bool hideControllersBelow = true)
         {
             if(Count == 0)
             {
                 return null;
             }
-
-            var stackNode = NewStackNode(ctrl, hidePopups);
+                
+            var stackNode =  NewStackNode(ctrl, hideControllersBelow);
                 
             var top = Top;
             DebugLog(string.Format("ReplaceImmediate {0} with {1}", IsValidStackNode(top) ? top.GameObject.name : string.Empty, IsValidStackNode(stackNode) ? stackNode.GameObject.name : string.Empty));

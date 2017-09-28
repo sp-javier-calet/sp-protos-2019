@@ -135,7 +135,7 @@ namespace SocialPoint.GUIControl
                 var elm = stack[i];
                 if(UITestStackController.IsValidStackNode(elm))
                 {
-                    if(elm.NeedsToBeVisible)
+                    if(elm.IsDesiredToShow)
                     {
                         Assert.IsTrue(elm.GameObject.activeSelf);
                     }
