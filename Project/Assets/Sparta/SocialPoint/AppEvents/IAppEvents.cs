@@ -2,6 +2,7 @@ using System;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 using UnityEngine.SceneManagement;
+using UnityEditor;
 
 namespace SocialPoint.AppEvents
 {
@@ -115,7 +116,10 @@ namespace SocialPoint.AppEvents
 
         public static void KillGame(this IAppEvents events)
         {
-#if UNITY_ANDROID && !UNITY_EDITOR
+            
+#if UNITY_EDITOR
+            EditorApplication.isPlaying = false;
+#elif UNITY_ANDROID
             events.TriggerApplicationQuit();
             try
             {
