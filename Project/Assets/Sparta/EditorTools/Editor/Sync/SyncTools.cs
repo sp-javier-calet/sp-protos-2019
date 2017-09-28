@@ -9,7 +9,6 @@ namespace SpartaTools.Editor.Sync
 {
     public static class SyncTools
     {
-
         static readonly FileInfo[] EmptyFileList = new FileInfo[0];
 
         enum ProjectType
@@ -68,6 +67,11 @@ namespace SpartaTools.Editor.Sync
                 {   
                     return null;
                 }
+
+                if(spartaMod.Type == Module.ModuleType.Full)
+                {
+                    continue;
+                }
                 
                 CurrentProgress.Update(string.Format("Comparing {0}", spartaMod.Name), modulePercent);
 
@@ -103,6 +107,11 @@ namespace SpartaTools.Editor.Sync
                 if(CheckCancelled())
                 {   
                     return null;
+                }
+
+                if(targetMod.Type == Module.ModuleType.Full)
+                {
+                    continue;
                 }
                 
                 CurrentProgress.Update(string.Format("Comparing {0}", targetMod.Name), modulePercent);

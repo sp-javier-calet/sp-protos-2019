@@ -22,6 +22,7 @@ namespace SpartaTools.Editor.SpartaProject
 
         public enum ModuleType
         {
+            Full,
             Core,
             Sources,
             Binaries,
@@ -114,6 +115,10 @@ namespace SpartaTools.Editor.SpartaProject
             {
                 switch(content)
                 {
+                case "full":
+                    Type = ModuleType.Full;
+                    break;
+
                 case "core":
                     Type = ModuleType.Core;
                     break;
@@ -121,7 +126,7 @@ namespace SpartaTools.Editor.SpartaProject
                 case "sources":
                     Type = ModuleType.Sources;
                     break;
-
+					
                 case "binaries":
                     Type = ModuleType.Binaries;
                     break;

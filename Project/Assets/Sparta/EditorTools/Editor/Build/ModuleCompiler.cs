@@ -173,6 +173,7 @@ namespace SpartaTools.Editor.Build
         // Name of the main Core library module. Workaround for module dependencies.
         const string SpartaCoreModule = "Sparta Core";
         const string BinariesFolderPath = "Temp/Sparta/Assemblies";
+        const string RspFile = "build_command.rsp";
 
         const string ScriptFilePattern = "*.cs";
         const string LibraryFilePattern = "*.dll";
@@ -183,6 +184,7 @@ namespace SpartaTools.Editor.Build
         const string CloseQuote = "\" ";
         const string Space = " ";
         const string SingleQuote = "\'";
+        const string DoubleQuote = "\"";
 
         const string EditorFilter = "Editor";
         const string TestsFilter = "Tests";
@@ -405,6 +407,17 @@ namespace SpartaTools.Editor.Build
             return references.ToString();
         }
 
+        static string BuildCommandToResponseFileCommand(string buildCommand)
+        {
+            string responseFileFullPath = Path.Combine(OutputPath, RspFile);
+            var fileStream = File.CreateText(responseFileFullPath);
+            fileStream.Write(buildCommand);
+            fileStream.Flush();
+            fileStream.Close();
+
+            return string.Format("{0}@{1}{2}", DoubleQuote, responseFileFullPath, DoubleQuote);
+        }
+
         public void Compile()
         {
             var filteredFiles = GetFilteredFiles();
@@ -425,6 +438,8 @@ namespace SpartaTools.Editor.Build
             Directory.CreateDirectory(dir);
 
             var buildCommand = string.Format(BuildCommandPattern, dllPath, _libraries, filteredReferences, _defines, filteredFiles);
+
+            buildCommand = BuildCommandToResponseFileCommand(buildCommand);
 
             // Launch mono compiler
             try
@@ -623,6 +638,7 @@ namespace SpartaTools.Editor.Build
 
                 compiler.AddDefinedSymbol("UNITY_IOS");
                 compiler.AddDefinedSymbol("UNITY_IPHONE");
+                compiler.AddDefinedSymbol("NO_GPGS");
                 compiler.DisableFilter(PlatformIosFilter);
             }
         }

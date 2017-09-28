@@ -1,9 +1,9 @@
 /******************************************************************************
  * Spine Runtimes Software License v2.5
- * 
+ *
  * Copyright (c) 2013-2016, Esoteric Software
  * All rights reserved.
- * 
+ *
  * You are granted a perpetual, non-exclusive, non-sublicensable, and
  * non-transferable license to use, install, execute, and perform the Spine
  * Runtimes software and derivative works solely for personal or internal
@@ -15,7 +15,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -34,15 +34,16 @@ namespace Spine {
 	/// <summary>Attachment that displays a texture region using a mesh.</summary>
 	public class MeshAttachment : VertexAttachment {
 		internal float regionOffsetX, regionOffsetY, regionWidth, regionHeight, regionOriginalWidth, regionOriginalHeight;
+		private MeshAttachment parentMesh;
 		internal float[] uvs, regionUVs;
 		internal int[] triangles;
 		internal float r = 1, g = 1, b = 1, a = 1;
 		internal int hulllength;
-		internal MeshAttachment parentMesh;
 		internal bool inheritDeform;
 
 		public int HullLength { get { return hulllength; } set { hulllength = value; } }
 		public float[] RegionUVs { get { return regionUVs; } set { regionUVs = value; } }
+		/// <summary>The UV pair for each vertex, normalized within the entire texture. <seealso cref="MeshAttachment.UpdateUVs"/></summary>
 		public float[] UVs { get { return uvs; } set { uvs = value; } }
 		public int[] Triangles { get { return triangles; } set { triangles = value; } }
 
@@ -51,8 +52,8 @@ namespace Spine {
 		public float B { get { return b; } set { b = value; } }
 		public float A { get { return a; } set { a = value; } }
 
-		public String Path { get; set; }
-		public Object RendererObject { get; set; }
+		public string Path { get; set; }
+		public object RendererObject; //public Object RendererObject { get; set; }
 		public float RegionU { get; set; }
 		public float RegionV { get; set; }
 		public float RegionU2 { get; set; }
