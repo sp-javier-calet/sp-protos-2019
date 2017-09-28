@@ -135,7 +135,7 @@ namespace SocialPoint.GUIControl
                 var elm = stack[i];
                 if(UITestStackController.IsValidStackNode(elm))
                 {
-                    if(elm.IsDesiredToShow)
+                    if(elm.NeedsToBeVisible)
                     {
                         Assert.IsTrue(elm.GameObject.activeSelf);
                     }
@@ -395,6 +395,19 @@ namespace SocialPoint.GUIControl
             BasicReplace(PopupGO, ReplacePopupGO, showOthers);
 
             Assert.IsTrue(UITestStackController.Count == 10);
+            CheckViewsVisibility();
+        }
+
+        [Test]
+        public void Close_Top_View_Using_Button()
+        {
+            Reset();
+            ComplexPushesAndPops(false);
+
+            var top = UITestStackController.Top;
+            top.Controller.OnCloseClicked();
+
+            Assert.IsTrue(UITestStackController.Count == 8);
             CheckViewsVisibility();
         }
     }

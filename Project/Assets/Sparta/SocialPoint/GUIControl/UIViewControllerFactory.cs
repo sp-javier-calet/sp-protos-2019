@@ -8,13 +8,9 @@ namespace SocialPoint.GUIControl
     public sealed class UIViewControllerFactory
     {
         public delegate UIViewController Delegate();
-
         public delegate UIViewController DefaultDelegate(Type t);
-
         public delegate string PrefabDelegate();
-
         public delegate string DefaultPrefabDelegate(Type t);
-
         public delegate void DestructorDelegate(UIViewController view);
 
         IDictionary<Type, Delegate> _creators = new Dictionary<Type,Delegate>();
@@ -81,7 +77,7 @@ namespace SocialPoint.GUIControl
             var robj = Resources.Load(prefab);
             if(robj != null)
             {
-                var go = (GameObject)GameObject.Instantiate(robj);
+                var go = UnityEngine.Object.Instantiate(robj) as GameObject;
                 return go.GetComponent<UIViewController>();
             }
             return null;
@@ -92,7 +88,7 @@ namespace SocialPoint.GUIControl
             var robj = Resources.Load(prefab);
             if(robj != null)
             {
-                var go = (GameObject)GameObject.Instantiate(robj);
+                var go = UnityEngine.Object.Instantiate(robj) as GameObject;
                 return (UIViewController)go.GetComponent(c);
             }
             return null;
@@ -115,6 +111,7 @@ namespace SocialPoint.GUIControl
         {
             UIViewController ctrl = null;
             string prefab = null;
+
             if(ctrl == null)
             {
                 Delegate creator = null;
@@ -123,6 +120,7 @@ namespace SocialPoint.GUIControl
                     ctrl = creator();
                 }
             }
+
             if(ctrl == null)
             {
                 if(_defaultCreator != null)
@@ -130,6 +128,7 @@ namespace SocialPoint.GUIControl
                     ctrl = _defaultCreator(c);
                 }
             }
+
             if(ctrl == null)
             {
                 PrefabDelegate prefabCreator = null;
@@ -139,6 +138,7 @@ namespace SocialPoint.GUIControl
                     ctrl = CreateFromResource(prefab);
                 }
             }
+
             if(ctrl == null)
             {
                 if(_defaultPrefabCreator != null)
@@ -147,6 +147,7 @@ namespace SocialPoint.GUIControl
                     ctrl = CreateFromResource(prefab);
                 }
             }
+
             return CreateEnd(c, prefab, ctrl);
         }
 
@@ -161,8 +162,7 @@ namespace SocialPoint.GUIControl
             }
             if(ctrl == null)
             {
-                throw new MissingComponentException(string.Format(
-                    "Could not find controller for type {0} and prefab {1}.", c, prefab)); 
+                throw new MissingComponentException(string.Format("Could not find controller for type {0} and prefab {1}.", c, prefab)); 
             }
             if(prefab != null)
             {

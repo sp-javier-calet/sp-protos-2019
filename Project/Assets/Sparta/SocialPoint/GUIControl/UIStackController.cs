@@ -5,24 +5,25 @@ using SocialPoint.Base;
 using SocialPoint.AppEvents;
 using UnityEngine;
 using SocialPoint.Utils;
+using SocialPoint.Alert;
 
 namespace SocialPoint.GUIControl
 {
     public delegate void UIStackControllerDelegate();
 
-    public class StackNode 
-    { 
-        public UIViewController Controller; 
+    public class StackNode
+    {
+        public UIViewController Controller;
         public GameObject GameObject;
-        public bool HidePopups; 
-        public bool IsDesiredToShow = true;
+        public bool HidePopups;
+        public bool NeedsToBeVisible = true;
 
         public StackNode(UIViewController controller, GameObject gameObject, bool hidePopups)
         {
             Controller = controller;
             GameObject = gameObject;
             HidePopups = hidePopups;
-            IsDesiredToShow = true;
+            NeedsToBeVisible = true;
         }
     }
 
@@ -34,9 +35,8 @@ namespace SocialPoint.GUIControl
         public GameObject Blocker;
         public bool SimultaneousAnimations = true;
 
-        public UIViewAnimation ChildUpAnimation;
-        public UIViewAnimation ChildDownAnimation;
-        public UIViewAnimation ChildAnimation;
+        public UIViewAnimation ChildAnimationPopups;
+        public UIViewAnimation ChildAnimationScreens;
 
         /// <summary>
         ///     To be used in Unity Tests to avoid problems with Coroutines and yields.
@@ -44,6 +44,7 @@ namespace SocialPoint.GUIControl
         public ICoroutineRunner CoroutineRunner;
 
         IList<StackNode> _views = new List<StackNode>();
+
         IAppEvents _appEvents;
 
         public IAppEvents AppEvents
@@ -62,6 +63,8 @@ namespace SocialPoint.GUIControl
             }
         }
 
+        public Action CloseAppShow { get; set; }
+
         public enum ActionType
         {
             None,
@@ -75,7 +78,7 @@ namespace SocialPoint.GUIControl
             PopUntilPos,
             PopUntilCheck
         }
-            
+
         public int Count
         {
             get
@@ -88,16 +91,17 @@ namespace SocialPoint.GUIControl
         {
             get
             {
-                if(_stack.Count > 0)
+                if(Count > 0)
                 {
-                    return _stack[_stack.Count - 1];
+                    return _stack[Count - 1];
                 }
 
                 return null;
             }
         }
 
-        IList<StackNode> _stack = new List<StackNode>();
+        List<StackNode> _stack = new List<StackNode>();
+
         public IList<StackNode> Stack
         {
             get
@@ -116,7 +120,7 @@ namespace SocialPoint.GUIControl
         {
             return stackNode != null && stackNode.Controller != null && stackNode.GameObject != null;
         }
-            
+
         StackNode NewStackNode(UIViewController ctrl, bool hidePopups)
         {
             if(ctrl != null)
@@ -201,24 +205,47 @@ namespace SocialPoint.GUIControl
             DebugLog("EndProcess");
         }
 
-        bool SetAnimation(StackNode from, StackNode to, UIViewAnimation anim)
+        void SetupAnimation(StackNode from, StackNode to, UIViewAnimation anim)
         {
-            if(anim != null)
+            UIViewController fromCtrl = null;
+            if(IsValidStackNode(from))
             {
-                if(IsValidStackNode(to))
-                {
-                    to.Controller.Animation = (UIViewAnimation)anim.Clone();
-                }
-
-                if(IsValidStackNode(from))
-                {
-                    from.Controller.Animation = (UIViewAnimation)anim.Clone();
-                }
-
-                return true;
+                fromCtrl = from.Controller;
             }
 
-            return false;
+            UIViewController toCtrl = null;
+            if(IsValidStackNode(to))
+            {
+                toCtrl = to.Controller;
+            }
+
+            SetupAnimation(fromCtrl, toCtrl, anim);
+        }
+
+        void SetupAnimation(UIViewController from, UIViewController to, UIViewAnimation anim)
+        {
+            if(anim == null)
+            {
+                if(to != null)
+                {
+                    anim = to.IsFullScreen ? ChildAnimationScreens : ChildAnimationPopups;
+                }
+            }
+
+            SetAnimation(from, to, anim);
+        }
+
+        void SetAnimation(UIViewController from, UIViewController to, UIViewAnimation anim)
+        {
+            if(from != null)
+            {
+                from.Animation = (anim == null ? null : (UIViewAnimation)anim.Clone());
+            }
+
+            if(to != null)
+            {
+                to.Animation = (anim == null ? null : (UIViewAnimation)anim.Clone());
+            }
         }
 
         bool IsPushAction(ActionType act)
@@ -240,7 +267,7 @@ namespace SocialPoint.GUIControl
         {
             return act == ActionType.PushImmediate || act == ActionType.PopImmediate || act == ActionType.ReplaceImmediate;
         }
-            
+
         public void CheckStackVisibility(IList<StackNode> views)
         {
             views.Clear();
@@ -249,14 +276,14 @@ namespace SocialPoint.GUIControl
             bool hidePreviousPopups = false;
 
             StackNode top = Top;
-            for(int i = _stack.Count - 1; i >= 0; --i)
+            for(int i = Count - 1; i >= 0; --i)
             {
                 var elm = _stack[i];
                 if(IsValidStackNode(elm) && IsValidStackNode(top))
                 {
                     if(elm == top)
                     {
-                        elm.IsDesiredToShow = true;
+                        elm.NeedsToBeVisible = true;
                         hidePreviousPopups = !elm.Controller.IsFullScreen && elm.HidePopups;
                     }
                     else
@@ -264,9 +291,9 @@ namespace SocialPoint.GUIControl
                         if(top.Controller.IsFullScreen)
                         {
                             // Hide all Views behind Top
-                            elm.IsDesiredToShow = false;
+                            elm.NeedsToBeVisible = false;
                         }
-                        else 
+                        else
                         {
                             // Show/Hide all Views behind Top until a screen is found
                             if(!firstFullScreenFound)
@@ -274,24 +301,24 @@ namespace SocialPoint.GUIControl
                                 if(elm.Controller.IsFullScreen)
                                 {
                                     firstFullScreenFound = true;
-                                    elm.IsDesiredToShow = true;
+                                    elm.NeedsToBeVisible = true;
                                 }
                                 else
                                 {
                                     if(!hidePreviousPopups)
                                     {
                                         hidePreviousPopups = elm.HidePopups;
-                                        elm.IsDesiredToShow = true;
+                                        elm.NeedsToBeVisible = true;
                                     }
                                     else
                                     {
-                                        elm.IsDesiredToShow = false;
+                                        elm.NeedsToBeVisible = false;
                                     }
                                 }
                             }
                             else
                             {
-                                elm.IsDesiredToShow = false;
+                                elm.NeedsToBeVisible = false;
                             }
                         }
                     }
@@ -311,14 +338,16 @@ namespace SocialPoint.GUIControl
 
             if(_views.Count > 0)
             {
+                var top = Top;
+
                 for(int i = _views.Count - 1; i >= 0; --i)
                 {
                     var elm = _views[i];
                     if(IsValidStackNode(elm))
                     {
-                        if(elm.IsDesiredToShow)
+                        if(elm.NeedsToBeVisible && elm.Controller.State != ViewState.Shown)
                         {
-                            if(IsImmediateAction(act))
+                            if(IsImmediateAction(act) || top.Controller != elm.Controller)
                             {
                                 elm.Controller.ShowImmediate();
                             }
@@ -327,23 +356,15 @@ namespace SocialPoint.GUIControl
                                 elm.Controller.Show();
                             }
                         }
-                        else if(!elm.IsDesiredToShow)
+                        else if(!elm.NeedsToBeVisible && elm.Controller.State != ViewState.Hidden)
                         {
-                            if(IsImmediateAction(act))
-                            {
-                                elm.Controller.HideImmediate();
-                            }
-                            else
-                            {
-                                elm.Controller.Hide();
-                            }
+                            elm.Controller.HideImmediate();
                         }
                     }
                 }
             }
         }
             
-
         void SetupTransition(StackNode from, StackNode to, ActionType act)
         {
             if(FrontContainer != null && IsValidStackNode(to))
@@ -358,23 +379,17 @@ namespace SocialPoint.GUIControl
 
             if(IsPushAction(act))
             {
-                if(!SetAnimation(from, to, ChildUpAnimation))
-                {
-                    SetAnimation(from, to, ChildAnimation);
-                }
+                SetupAnimation(from, to, ChildUpAnimation);
             }
             else if(IsPopAction(act))
             {
-                if(!SetAnimation(from, to, ChildDownAnimation))
-                {
-                    SetAnimation(from, to, ChildAnimation);
-                }
+                SetupAnimation(from, to, ChildDownAnimation);
             }
             else
             {
                 if(IsReplaceAction(act))
                 {
-                    SetAnimation(from, to, ChildAnimation);
+                    SetupAnimation(from, to, ChildAnimationPopups);
                 }
             }
         }
@@ -394,41 +409,43 @@ namespace SocialPoint.GUIControl
                 to == null ? string.Empty : to.GameObject.name));
 
             // wait one frame to prevent overlapping transitions. meanwhile we disable the "to" controller to avoid it to update before loading
-            if(IsValidStackNode(to))
-            {
-                to.GameObject.SetActive(false);
-            }
+//            if(IsValidStackNode(to))
+//            {
+//                to.GameObject.SetActive(false);
+//            }
 
             yield return null;
 
-            if(IsValidStackNode(to))
-            {
-                to.GameObject.SetActive(true);
-            }
+//            if(IsValidStackNode(to))
+//            {
+//                to.GameObject.SetActive(true);
+//            }
 
             if(SimultaneousAnimations)
             {
-                if(IsValidStackNode(from) && IsValidStackNode(to) && from.Controller.State == ViewState.Shown)
+                if(IsValidStackNode(from) && IsValidStackNode(to))
                 {
-                    if(IsPopAction(act))
+                    if(from.Controller.State == ViewState.Shown)
                     {
-                        from.Controller.Hide(true);
-                    }
-                    else if(IsReplaceAction(act))
-                    {
-                        from.Controller.Hide(true);
-
-                        if(_stack.Count > 1)
+                        if(IsPopAction(act) || IsReplaceAction(act))
                         {
-                            _stack.RemoveAt(_stack.Count - 2);
+                            from.Controller.Hide(true);
+                        }
+                    }
+                    else if(from.Controller.State == ViewState.Hidden)
+                    {
+                        if(IsPopAction(act))
+                        {
+                            from.Controller.CheckDestroyOnHide(true);
                         }
                     }
 
-                    UpdateStackVisibility(act);
                     while(!to.Controller.IsStable || !from.Controller.IsStable)
                     {
                         yield return null;
                     }
+
+                    UpdateStackVisibility(act);
                 }
                 else if(IsValidStackNode(to))
                 {
@@ -441,7 +458,18 @@ namespace SocialPoint.GUIControl
                 }
                 else if(IsValidStackNode(from))
                 {
-                    from.Controller.Hide(true);
+                    if(IsPopAction(act))
+                    {
+                        if(from.Controller.State == ViewState.Shown)
+                        {
+                            from.Controller.Hide(true);
+                        }
+                        else if(from.Controller.State == ViewState.Hidden) 
+                        {
+                            from.Controller.CheckDestroyOnHide(true);
+                        }
+                    }
+
                     Hide();
                     while(!from.Controller.IsStable || !IsStable)
                     {
@@ -502,9 +530,9 @@ namespace SocialPoint.GUIControl
 
         public void SetCheckPoint(string name)
         {
-            if(_stack.Count > 0)
+            if(Count > 0)
             {
-                _checkpoints[name] = _stack.Count - 1;
+                _checkpoints[name] = Count - 1;
             }
         }
 
@@ -539,23 +567,31 @@ namespace SocialPoint.GUIControl
             }
             base.OnDisappeared();
         }
-
+            
         override protected void OnChildViewStateChanged(UIViewController ctrl, ViewState state)
         {
             var top = Top;
             if(IsValidStackNode(top))
             {
-                if(_action == ActionType.None && state == ViewState.Disappearing && top.Controller == ctrl)
+                if(_action == ActionType.None && top.Controller == ctrl)
                 {
-                    Pop();
+                    if(state == ViewState.Disappearing)
+                    {
+                        SetupAnimation(ctrl, null, ChildDownAnimation);
+                    }
+                    else if(state == ViewState.Hidden)
+                    {
+                        Pop();
+                    }
                 }
                 else if(state == ViewState.Destroying)
                 {
-                    if(_stack.Count > 0)
+                    if(Count > 0)
                     {
-                        if(top.Controller == ctrl)
+                        int index = _stack.FindIndex(x => x.Controller == ctrl);
+                        if(index >= 0)
                         {
-                            _stack.RemoveAt(_stack.Count - 1);
+                            _stack.RemoveAt(index);
                         }
                     }
                 }
@@ -566,7 +602,7 @@ namespace SocialPoint.GUIControl
 
         #region Push
 
-        public UIViewController Push(GameObject go, bool hidePopups = true)
+        public UIViewController Push(GameObject go, bool hidePopups = false)
         {
             var ctrl = go.GetComponent(typeof(UIViewController)) as UIViewController;
             if(ctrl == null)
@@ -581,7 +617,7 @@ namespace SocialPoint.GUIControl
             return Push(typeof(C), hidePopups) as C; 
         }
 
-        public UIViewController Push(Type c, bool hidePopups = true)
+        public UIViewController Push(Type c, bool hidePopups = false)
         {
             return Push(CreateChild(c), hidePopups);
         }
@@ -593,13 +629,13 @@ namespace SocialPoint.GUIControl
             return ctrl;
         }
 
-        public IEnumerator PushCoroutine(UIViewController ctrl, bool hidePopups = true)
+        public IEnumerator PushCoroutine(UIViewController ctrl, bool hidePopups = false)
         {
             var act = ActionType.Push;
             yield return StartActionCoroutine(DoPushCoroutine(ctrl, act, hidePopups), act);
         }
 
-        IEnumerator DoPushCoroutine(UIViewController ctrl, ActionType act, bool hidePopups = true)
+        IEnumerator DoPushCoroutine(UIViewController ctrl, ActionType act, bool hidePopups = false)
         {
             var stackNode = NewStackNode(ctrl, hidePopups);
 
@@ -614,7 +650,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        public UIViewController PushImmediate(GameObject go, bool hidePopups = true)
+        public UIViewController PushImmediate(GameObject go, bool hidePopups = false)
         {
             var ctrl = go.GetComponent<UIViewController>();
             if(ctrl == null)
@@ -682,7 +718,7 @@ namespace SocialPoint.GUIControl
 
         public UIViewController Replace(UIViewController ctrl, bool hidePopups = true)
         {
-            if(_stack.Count == 0)
+            if(Count == 0)
             {
                 return null;
             }
@@ -709,7 +745,7 @@ namespace SocialPoint.GUIControl
                 yield return enm.Current;
             }
         }
-            
+
         public UIViewController ReplaceImmediate(GameObject go, bool hidePopups = true)
         {
             var ctrl = go.GetComponent(typeof(UIViewController)) as UIViewController;
@@ -732,12 +768,12 @@ namespace SocialPoint.GUIControl
 
         public UIViewController ReplaceImmediate(UIViewController ctrl, bool hidePopups = true)
         {
-            if(_stack.Count == 0)
+            if(Count == 0)
             {
                 return null;
             }
 
-            var stackNode =  NewStackNode(ctrl, hidePopups);
+            var stackNode = NewStackNode(ctrl, hidePopups);
                 
             var top = Top;
             DebugLog(string.Format("ReplaceImmediate {0} with {1}", IsValidStackNode(top) ? top.GameObject.name : string.Empty, IsValidStackNode(stackNode) ? stackNode.GameObject.name : string.Empty));
@@ -755,9 +791,9 @@ namespace SocialPoint.GUIControl
                 
             stackNode.Controller.ShowImmediate();
 
-            if(_stack.Count > 1)
+            if(Count > 1)
             {
-                _stack.RemoveAt(_stack.Count - 2);
+                _stack.RemoveAt(Count - 2);
             }
 
             UpdateStackVisibility(act);
@@ -774,12 +810,33 @@ namespace SocialPoint.GUIControl
             PopUntil(-1);
         }
 
+#if UNITY_EDITOR || UNITY_ANDROID
+        void ExecuteCloseAppCallback()
+        {
+            if(CloseAppShow != null)
+            {
+                CloseAppShow();
+            }
+        }
+#endif
+
         public void Pop()
         {
-            if(_stack.Count == 0)
+            var top = Top;
+            if(IsValidStackNode(top))
             {
+                if(!top.Controller.CanPop())
+                {
+                    return;
+                }
+            }
+#if UNITY_EDITOR || UNITY_ANDROID
+            else 
+            {
+                ExecuteCloseAppCallback();
                 return;
             }
+#endif
 
             StartActionCoroutine(DoPopCoroutine(), ActionType.Pop);
         }
@@ -794,9 +851,9 @@ namespace SocialPoint.GUIControl
             StackNode top = Top;
             StackNode stackNode = null;
 
-            if(_stack.Count > 1)
+            if(Count > 1)
             {
-                stackNode = _stack[_stack.Count - 2];
+                stackNode = _stack[Count - 2];
             }
 
             var act = ActionType.Pop;
@@ -811,19 +868,26 @@ namespace SocialPoint.GUIControl
 
         public void PopImmediate()
         {
-            if(_stack.Count == 0)
-            {
-                return;
-            }
-
             var top = Top;
-            DebugLog(string.Format("PopImmediate {0}", IsValidStackNode(top) ? top.GameObject.name : string.Empty));
-
             if(IsValidStackNode(top))
             {
-                top.Controller.HideImmediate(true);
+                if(!top.Controller.CanPop())
+                {
+                    return;
+                }
             }
+#if UNITY_EDITOR || UNITY_ANDROID
+            else 
+            {
+                ExecuteCloseAppCallback();
+                return;
+            }
+#endif
                 
+            DebugLog(string.Format("PopImmediate {0}", IsValidStackNode(top) ? top.GameObject.name : string.Empty));
+
+            top.Controller.HideImmediate(true);
+    
             var stackNode = Top;
             if(IsValidStackNode(stackNode))
             {
@@ -849,7 +913,7 @@ namespace SocialPoint.GUIControl
                 top.Controller.DestroyOnHide = true;
             }
 
-            for(var i = _stack.Count - 1; i >= 0; --i)
+            for(var i = Count - 1; i >= 0; --i)
             {
                 var elm = _stack[i];
                 if(IsValidStackNode(elm))
@@ -900,7 +964,9 @@ namespace SocialPoint.GUIControl
 
         IEnumerator DoPopUntilCoroutine(Type type)
         {
-            return DoPopUntilCondition((UIViewController ctrl) => { return ctrl.GetType() == type; }, ActionType.PopUntilType);
+            return DoPopUntilCondition((UIViewController ctrl) => {
+                return ctrl.GetType() == type;
+            }, ActionType.PopUntilType);
         }
 
         public void PopUntil(int i)
@@ -920,21 +986,20 @@ namespace SocialPoint.GUIControl
 
         IEnumerator DoPopUntilCoroutine(int i, ActionType act)
         {
-            if(_stack.Count > i)
+            if(Count > i)
             {           
-                return DoPopUntilCondition((UIViewController ctrl) => 
-                    { 
-                        if(i >= 0)
+                return DoPopUntilCondition((UIViewController ctrl) => { 
+                    if(i >= 0)
+                    {
+                        var elm = _stack.ElementAt(i);
+                        if(IsValidStackNode(elm))
                         {
-                            var elm = _stack.ElementAt(i);
-                            if(IsValidStackNode(elm))
-                            {
-                                return _stack.ElementAt(i).Controller == ctrl; 
-                            }
+                            return _stack.ElementAt(i).Controller == ctrl; 
                         }
+                    }
 
-                        return false;
-                    }, act);
+                    return false;
+                }, act);
             }
 
             return null;
@@ -969,9 +1034,26 @@ namespace SocialPoint.GUIControl
 
         #endregion
 
+#if UNITY_EDITOR || UNITY_ANDROID
+        public void OnSpecialButtonClickedEvent()
+        {
+            if(Count == 0)
+            {
+                Pop();
+            }
+            else if(IsValidStackNode(Top))
+            {
+                if(Top.Controller.CanPop())
+                {
+                    Top.Controller.OnCloseClicked();
+                }
+            }
+        }
+#endif
+
         public void Restart()
         {
-            for(int i = _stack.Count - 1; i >= 0; i--)
+            for(int i = Count - 1; i >= 0; i--)
             {
                 var elm = _stack[i];
                 if(IsValidStackNode(elm))

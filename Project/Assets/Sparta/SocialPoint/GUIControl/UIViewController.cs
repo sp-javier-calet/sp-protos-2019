@@ -24,6 +24,9 @@ namespace SocialPoint.GUIControl
         /// </summary>
         public bool IsFullScreen = true;
 
+        public UIViewAnimation ChildUpAnimation;
+        public UIViewAnimation ChildDownAnimation;
+
         public static event Action<UIViewController> AwakeEvent;
         public event Action<UIViewController, ViewState> ViewEvent;
         public event Action<UIViewController, GameObject> InstantiateEvent;
@@ -294,7 +297,7 @@ namespace SocialPoint.GUIControl
             }
             return size;
         }
-
+            
         public UIViewAnimation Animation
         {
             set
@@ -303,6 +306,7 @@ namespace SocialPoint.GUIControl
                 {
                     _animation.Reset();
                 }
+
                 if(value != null)
                 {
                     value.Load(this);
@@ -700,7 +704,7 @@ namespace SocialPoint.GUIControl
             CheckDestroyOnHide(destroy);
         }
 
-        void CheckDestroyOnHide(bool force)
+        public void CheckDestroyOnHide(bool force)
         {
             if(DestroyOnHide || force)
             {
@@ -712,9 +716,8 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        virtual public bool OnBack()
+        virtual public bool CanPop()
         {
-            // TODO To be used with ANDROID Back button
             return IsStable; 
         }
 
@@ -785,10 +788,17 @@ namespace SocialPoint.GUIControl
             }
             return go;
         }
+            
+        #region public UI button methods
 
-        public void OnForceClose()
+        public virtual void OnCloseClicked()
         {
-            Hide(true);
+            if(CanPop())
+            {
+                Hide();
+            }
         }
+
+        #endregion
     }
 }

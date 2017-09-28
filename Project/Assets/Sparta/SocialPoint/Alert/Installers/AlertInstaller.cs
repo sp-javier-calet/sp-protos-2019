@@ -26,7 +26,7 @@ namespace SocialPoint.Alert
 
         public SettingsData Settings = new SettingsData();
 
-        UIStackController _popups;
+        UIStackController _stackController;
 
         static bool IsNativeViewAvailable
         {
@@ -74,13 +74,14 @@ namespace SocialPoint.Alert
         {
             var ctrl = go.GetComponent<UIViewController>();
             DebugUtils.Assert(ctrl != null, "GameObject doesn't have a viewController");
-            if(_popups == null)
+            if(_stackController == null)
             {
-                _popups = Container.Resolve<UIStackController>();
+                _stackController = Container.Resolve<UIStackController>();
             }
-            if(_popups != null)
+
+            if(_stackController != null)
             {
-                _popups.Push(ctrl);
+                _stackController.Push(ctrl);
             }
             else
             {

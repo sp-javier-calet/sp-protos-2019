@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using SocialPoint.Dependency;
 using System;
+using SocialPoint.GUIControl;
 
 public class FullUITestingController : MonoBehaviour
 {
@@ -16,15 +17,15 @@ public class FullUITestingController : MonoBehaviour
     [SerializeField]
     GameObject _screenReplace;
 
-    ScreensController _screens;
+    UIStackController _stackController;
     string _latestCheckPoint;
 
     void Start()
     {
-        _screens = Services.Instance.Resolve<ScreensController>();
-        if(_screens == null)
+        _stackController = Services.Instance.Resolve<UIStackController>();
+        if(_stackController == null)
         {
-            throw new InvalidOperationException("Could not find UI Views Stack Controller");
+            throw new InvalidOperationException("Could not find UI Stack Controller");
         }
     }
 
@@ -32,91 +33,91 @@ public class FullUITestingController : MonoBehaviour
     {
         if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha1))
         {
-            _screens.PushImmediate(instantiatePrefab(_popup), false);
+            _stackController.PushImmediate(instantiatePrefab(_popup), false);
         }
         else if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha1))
         {
-            _screens.Push(instantiatePrefab(_popup), false);
+            _stackController.Push(instantiatePrefab(_popup), false);
         }
         else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha1))
         {
-            _screens.PushImmediate(instantiatePrefab(_popup));
+            _stackController.PushImmediate(instantiatePrefab(_popup));
         }
         else if(Input.GetKeyUp(KeyCode.Alpha1))
         {
-            _screens.Push(instantiatePrefab(_popup));
+            _stackController.Push(instantiatePrefab(_popup));
         }
         else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha2))
         {
-            _screens.PushImmediate(instantiatePrefab(_screen), false);
+            _stackController.PushImmediate(instantiatePrefab(_screen), false);
         }
         else if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha2))
         {
-            _screens.Push(instantiatePrefab(_screen), false);
+            _stackController.Push(instantiatePrefab(_screen), false);
         }
         else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha2))
         {
-            _screens.PushImmediate(instantiatePrefab(_screen));
+            _stackController.PushImmediate(instantiatePrefab(_screen));
         }
         else if(Input.GetKeyUp(KeyCode.Alpha2))
         {
-            _screens.Push(instantiatePrefab(_screen));
+            _stackController.Push(instantiatePrefab(_screen));
         }
         else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha3))
         {
-            _screens.PopImmediate();
+            _stackController.PopImmediate();
         }
         else if(Input.GetKeyUp(KeyCode.Alpha3))
         {
-            _screens.Pop();
+            _stackController.Pop();
         }
         else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha4))
         {
-            _screens.ReplaceImmediate(instantiatePrefab(_popupReplace), false);
+            _stackController.ReplaceImmediate(instantiatePrefab(_popupReplace), false);
         }
         else if(Input.GetKey(KeyCode.LeftControl) && Input.GetKeyUp(KeyCode.Alpha4))
         {
-            _screens.Replace(instantiatePrefab(_popupReplace), false);
+            _stackController.Replace(instantiatePrefab(_popupReplace), false);
         }
         else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha4))
         {
-            _screens.ReplaceImmediate(instantiatePrefab(_popupReplace));
+            _stackController.ReplaceImmediate(instantiatePrefab(_popupReplace));
         }
         else if(Input.GetKeyUp(KeyCode.Alpha4))
         {
-            _screens.Replace(instantiatePrefab(_popupReplace));
+            _stackController.Replace(instantiatePrefab(_popupReplace));
         }
         else if(Input.GetKey(KeyCode.LeftAlt) && Input.GetKeyUp(KeyCode.Alpha5))
         {
-            _screens.ReplaceImmediate(instantiatePrefab(_screenReplace));
+            _stackController.ReplaceImmediate(instantiatePrefab(_screenReplace));
         }
         else if(Input.GetKeyUp(KeyCode.Alpha5))
         {
-            _screens.Replace(instantiatePrefab(_screenReplace));
+            _stackController.Replace(instantiatePrefab(_screenReplace));
         }
         else if(Input.GetKeyUp(KeyCode.Alpha6))
         {
-            var top = _screens.Top;
-            if(_screens.IsValidStackNode(top))
+            var top = _stackController.Top;
+            if(_stackController.IsValidStackNode(top))
             {
                 _latestCheckPoint = top.GameObject.name;
-                _screens.SetCheckPoint(_latestCheckPoint);
+                _stackController.SetCheckPoint(_latestCheckPoint);
             }
         }
         else if(Input.GetKeyUp(KeyCode.Alpha7))
         {
             if(!string.IsNullOrEmpty(_latestCheckPoint))
             {
-                _screens.PopUntilCheckPoint(_latestCheckPoint);
+                _stackController.PopUntilCheckPoint(_latestCheckPoint);
             }
         }
         else if(Input.GetKeyUp(KeyCode.Alpha8))
         {
-            _screens.PopUntil(0);
+            _stackController.PopUntil(0);
         }
         else if(Input.GetKeyUp(KeyCode.Alpha9))
         {
-            _screens.PopUntil(-1);
+            _stackController.PopUntil(-1);
         }
     }
 
