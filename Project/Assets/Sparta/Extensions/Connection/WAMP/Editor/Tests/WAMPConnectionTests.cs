@@ -63,10 +63,12 @@ namespace SocialPoint.WAMP
         [Test]
         public void Connect_Cancel()
         {
+            var semaphore = new System.Threading.Semaphore(0, 1);
             var t = new System.Threading.Thread(obj => {
-                System.Threading.Thread.Sleep(10);
+                semaphore.WaitOne();
                 var del = obj as INetworkClientDelegate;
-                del.OnClientConnected(); 
+                del.OnClientConnected();
+                semaphore.Release();
             });
             _client.When(x => x.Connect()).Do(x => t.Start(_delegate));
 
@@ -74,7 +76,8 @@ namespace SocialPoint.WAMP
             var req = _connection.Start(() => connected = true);
 
             req.Dispose();
-            t.Join(15);
+            semaphore.Release();
+            t.Join();
 
             Assert.IsFalse(connected);
         }
@@ -96,17 +99,20 @@ namespace SocialPoint.WAMP
             Connect();
             bool connected = true;
 
+            var semaphore = new System.Threading.Semaphore(0, 1);
             var t = new System.Threading.Thread(obj => {
-                System.Threading.Thread.Sleep(10);
+                semaphore.WaitOne();
                 var del = obj as INetworkClientDelegate;
-                del.OnClientDisconnected(); 
+                del.OnClientDisconnected();
+                semaphore.Release();
             });
 
             _client.When(x => x.Disconnect()).Do(x => t.Start(_delegate));
             var req = _connection.Stop(() => connected = false);
 
             req.Dispose();
-            t.Join(15);
+            semaphore.Release();
+            t.Join();
 
             Assert.IsTrue(connected);
         }
@@ -142,12 +148,14 @@ namespace SocialPoint.WAMP
             bool joined = false;
             const long fakedSessionId = 10;
 
+            var semaphore = new System.Threading.Semaphore(0, 1);
             var t = new System.Threading.Thread(obj => {
-                System.Threading.Thread.Sleep(10);
+                semaphore.WaitOne();
                 var receiver = obj as INetworkMessageReceiver;
                 var message = string.Format("[{0}, {1}, {{}}]", MsgCode.WELCOME, fakedSessionId);
                 var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
                 receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                semaphore.Release();
             });
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
@@ -161,7 +169,8 @@ namespace SocialPoint.WAMP
             });
 
             req.Dispose();
-            t.Join(15);
+            semaphore.Release();
+            t.Join();
 
             Assert.IsFalse(joined);
         }
@@ -196,12 +205,14 @@ namespace SocialPoint.WAMP
             bool joined = true;
             const string _fakeReason = "wamp.test_leave";
 
+            var semaphore = new System.Threading.Semaphore(0, 1);
             var t = new System.Threading.Thread(obj => {
-                System.Threading.Thread.Sleep(10);
+                semaphore.WaitOne();
                 var receiver = obj as INetworkMessageReceiver;
                 var message = string.Format("[{0}, {{}}, \"{1}\"]", MsgCode.GOODBYE, _fakeReason);
                 var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
                 receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                semaphore.Release();
             });
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
@@ -214,7 +225,8 @@ namespace SocialPoint.WAMP
             }, "wamp.test_leaving");
 
             req.Dispose();
-            t.Join(15);
+            semaphore.Release();
+            t.Join();
 
             Assert.IsTrue(joined);
         }
@@ -256,12 +268,14 @@ namespace SocialPoint.WAMP
 
             bool subscribed = false;
 
+            var semaphore = new System.Threading.Semaphore(0, 1);
             var t = new System.Threading.Thread(obj => {
-                System.Threading.Thread.Sleep(10);
+                semaphore.WaitOne();
                 var receiver = obj as INetworkMessageReceiver;
                 var message = string.Format("[{0}, 0, {1}]", MsgCode.SUBSCRIBED, SubscriptionId);
                 var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
                 receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                semaphore.Release();
             });
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
@@ -280,7 +294,8 @@ namespace SocialPoint.WAMP
             _connection.SendSubscribe(req);
 
             req.Dispose();
-            t.Join(15);
+            semaphore.Release();
+            t.Join();
 
             Assert.IsFalse(subscribed);
         }
@@ -292,15 +307,16 @@ namespace SocialPoint.WAMP
 
             Error requestError = null;
 
-            const string testProcedure = "sparta.test_procedure";
             const int requestId = 0;
 
+            var semaphore = new System.Threading.Semaphore(0, 1);
             var t = new System.Threading.Thread(obj => {
-                System.Threading.Thread.Sleep(10);
+                semaphore.WaitOne();
                 var receiver = obj as INetworkMessageReceiver;
                 var message = string.Format("[{0}, {1}, {2}, \"\", \"\"]", MsgCode.ERROR, MsgCode.SUBSCRIBE, requestId);
                 var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
                 receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                semaphore.Release();
             });
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
@@ -316,8 +332,8 @@ namespace SocialPoint.WAMP
 
             var req = _connection.CreateSubscribe(TestTopic, handlerSubscription, completionHandler);
             _connection.SendSubscribe(req);
-
-            t.Join(15);
+            semaphore.Release();
+            t.Join();
 
             Assert.IsTrue(!Error.IsNullOrEmpty(requestError));
         }
@@ -357,13 +373,15 @@ namespace SocialPoint.WAMP
             Subscribe();
 
             bool unsubscribed = false;
+            var semaphore = new System.Threading.Semaphore(0, 1);
 
             var t = new System.Threading.Thread(obj => {
-                System.Threading.Thread.Sleep(10);
+                semaphore.WaitOne();
                 var receiver = obj as INetworkMessageReceiver;
                 var message = string.Format("[{0}, 1]", MsgCode.UNSUBSCRIBED);
                 var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
                 receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                semaphore.Release();
             });
 
             ClearMessageSubstitute();
@@ -380,7 +398,8 @@ namespace SocialPoint.WAMP
             _connection.SendUnsubscribe(req);
 
             req.Dispose();
-            t.Join(15);
+            semaphore.Release();
+            t.Join();
 
             Assert.IsFalse(unsubscribed);
         }
@@ -393,15 +412,16 @@ namespace SocialPoint.WAMP
 
             Error requestError = null;
 
-            const string testProcedure = "sparta.test_procedure";
             const int requestId = 1;//0 was for subscribe
+            var semaphore = new System.Threading.Semaphore(0, 1);
 
             var t = new System.Threading.Thread(obj => {
-                System.Threading.Thread.Sleep(10);
+                semaphore.WaitOne();
                 var receiver = obj as INetworkMessageReceiver;
                 var message = string.Format("[{0}, {1}, {2}, \"\", \"\"]", MsgCode.ERROR, MsgCode.UNSUBSCRIBE, requestId);
                 var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
                 receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                semaphore.Release();
             });
 
             ClearMessageSubstitute();
@@ -415,8 +435,9 @@ namespace SocialPoint.WAMP
 
             var req = _connection.CreateUnsubscribe(new Subscriber.Subscription(SubscriptionId, TestTopic), completionHandler);
             _connection.SendUnsubscribe(req);
+            semaphore.Release();
 
-            t.Join(15);
+            t.Join();
 
             Assert.IsTrue(!Error.IsNullOrEmpty(requestError));
         }
@@ -473,13 +494,15 @@ namespace SocialPoint.WAMP
             Join();
 
             bool published = false;
+            var semaphore = new System.Threading.Semaphore(0, 1);
 
             var t = new System.Threading.Thread(obj => {
-                System.Threading.Thread.Sleep(10);
+                semaphore.WaitOne();
                 var receiver = obj as INetworkMessageReceiver;
                 var message = string.Format("[{0}, 0, {1}]", MsgCode.PUBLISHED, PublicationId);
                 var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
                 receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                semaphore.Release();
             });
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
@@ -496,7 +519,8 @@ namespace SocialPoint.WAMP
             _connection.SendPublish(req);
 
             req.Dispose();
-            t.Join(15);
+            semaphore.Release();
+            t.Join();
 
             Assert.IsFalse(published);
         }
@@ -508,15 +532,16 @@ namespace SocialPoint.WAMP
 
             Error requestError = null;
 
-            const string testProcedure = "sparta.test_procedure";
             const int requestId = 0;
+            var semaphore = new System.Threading.Semaphore(0, 1);
 
             var t = new System.Threading.Thread(obj => {
-                System.Threading.Thread.Sleep(10);
+                semaphore.WaitOne();
                 var receiver = obj as INetworkMessageReceiver;
                 var message = string.Format("[{0}, {1}, {2}, \"\", \"\"]", MsgCode.ERROR, MsgCode.PUBLISH, requestId);
                 var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
                 receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                semaphore.Release();
             });
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
@@ -530,8 +555,8 @@ namespace SocialPoint.WAMP
             var kwargs = new AttrDic();
             var req = _connection.CreatePublish(TestTopic, args, kwargs, true, completionHandler);
             _connection.SendPublish(req);
-
-            t.Join(15);
+            semaphore.Release();
+            t.Join();
 
             Assert.IsTrue(!Error.IsNullOrEmpty(requestError));
         }
@@ -583,15 +608,17 @@ namespace SocialPoint.WAMP
 
             bool subscribed = false;
             bool eventReceived = false;
+            var semaphore = new System.Threading.Semaphore(0, 1);
 
             var t = new System.Threading.Thread(obj => {
-                System.Threading.Thread.Sleep(10);
+                semaphore.WaitOne();
                 var receiver = obj as INetworkMessageReceiver;
                 //Create the fake EVENT message
                 var serializer = new JsonAttrSerializer();
                 var message = string.Format("[{0}, {1}, {2}, {{}}, {3}, {4}]", MsgCode.EVENT, SubscriptionId, PublicationId, serializer.SerializeString(CreateArgs()), serializer.SerializeString(CreateKWArgs()));
                 var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
                 receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                semaphore.Release();
             });
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
@@ -631,7 +658,8 @@ namespace SocialPoint.WAMP
             var reqUnsubs = _connection.CreateUnsubscribe(new Subscriber.Subscription(SubscriptionId, TestTopic), null);
             _connection.SendUnsubscribe(reqUnsubs);
 
-            t.Join(15);
+            semaphore.Release();
+            t.Join();
 
             Assert.IsTrue(subscribed);
             Assert.IsFalse(eventReceived);
@@ -695,13 +723,15 @@ namespace SocialPoint.WAMP
             bool called = false;
 
             const string testProcedure = "sparta.test_procedure";
+            var semaphore = new System.Threading.Semaphore(0, 1);
 
             var t = new System.Threading.Thread(obj => {
-                System.Threading.Thread.Sleep(10);
+                semaphore.WaitOne();
                 var receiver = obj as INetworkMessageReceiver;
                 var message = string.Format("[{0}, 0, {{}}, [], {{}}]", MsgCode.RESULT);
                 var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
                 receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                semaphore.Release();
             });
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
@@ -716,7 +746,8 @@ namespace SocialPoint.WAMP
             _connection.SendCall(req);
 
             req.Dispose();
-            t.Join(15);
+            semaphore.Release();
+            t.Join();
 
             Assert.IsFalse(called);
         }
@@ -730,13 +761,15 @@ namespace SocialPoint.WAMP
 
             const string testProcedure = "sparta.test_procedure";
             const int requestId = 0;
+            var semaphore = new System.Threading.Semaphore(0, 1);
 
             var t = new System.Threading.Thread(obj => {
-                System.Threading.Thread.Sleep(10);
+                semaphore.WaitOne();
                 var receiver = obj as INetworkMessageReceiver;
                 var message = string.Format("[{0}, {1}, {2}, \"\", \"\"]", MsgCode.ERROR, MsgCode.CALL, requestId);
                 var reader = new SocialPoint.WebSockets.WebSocketsTextReader(message);
                 receiver.OnMessageReceived(new NetworkMessageData(), reader);
+                semaphore.Release();
             });
 
             _client.CreateMessage(Arg.Any<NetworkMessageData>()).When(x => x.Send())
@@ -749,7 +782,8 @@ namespace SocialPoint.WAMP
             var req = _connection.CreateCall(testProcedure, CreateArgs(), CreateKWArgs(), completionHandler);
             _connection.SendCall(req);
 
-            t.Join(15);
+            semaphore.Release();
+            t.Join();
 
             Assert.IsTrue(!Error.IsNullOrEmpty(requestError));
         }

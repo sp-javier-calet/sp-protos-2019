@@ -1,9 +1,9 @@
 /******************************************************************************
  * Spine Runtimes Software License v2.5
- * 
+ *
  * Copyright (c) 2013-2016, Esoteric Software
  * All rights reserved.
- * 
+ *
  * You are granted a perpetual, non-exclusive, non-sublicensable, and
  * non-transferable license to use, install, execute, and perform the Spine
  * Runtimes software and derivative works solely for personal or internal
@@ -15,7 +15,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -28,10 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-﻿/*****************************************************************************
- * SkeletonGhost created by Mitch Thompson
- * Full irrevocable rights and permissions granted to Esoteric Software
-*****************************************************************************/
+// Contributed by: Mitch Thompson
 
 using UnityEngine;
 using System.Collections.Generic;
@@ -40,6 +37,10 @@ namespace Spine.Unity.Modules {
 	
 	[RequireComponent(typeof(SkeletonRenderer))]
 	public class SkeletonGhost : MonoBehaviour {
+		// Internal Settings
+		const HideFlags GhostHideFlags = HideFlags.HideInHierarchy;
+		const string GhostingShaderName = "Spine/Special/SkeletonGhost";
+
 		public bool ghostingEnabled = true;
 		public float spawnRate = 0.05f;
 		public Color32 color = new Color32(0xFF, 0xFF, 0xFF, 0x00); // default for additive.
@@ -63,12 +64,11 @@ namespace Spine.Unity.Modules {
 		MeshRenderer meshRenderer;
 		MeshFilter meshFilter;
 
-
-		Dictionary<Material, Material> materialTable = new Dictionary<Material, Material>();
+		readonly Dictionary<Material, Material> materialTable = new Dictionary<Material, Material>();
 
 		void Start () {
 			if (ghostShader == null)
-				ghostShader = Shader.Find("Spine/Special/SkeletonGhost");
+				ghostShader = Shader.Find(GhostingShaderName);
 
 			skeletonRenderer = GetComponent<SkeletonRenderer>();
 			meshFilter = GetComponent<MeshFilter>();
@@ -79,28 +79,27 @@ namespace Spine.Unity.Modules {
 				GameObject go = new GameObject(gameObject.name + " Ghost", typeof(SkeletonGhostRenderer));
 				pool[i] = go.GetComponent<SkeletonGhostRenderer>();
 				go.SetActive(false);
-				go.hideFlags = HideFlags.HideInHierarchy;
+				go.hideFlags = GhostHideFlags;
 			}
 
-			if (skeletonRenderer is SkeletonAnimation)
-				((SkeletonAnimation)skeletonRenderer).state.Event += OnEvent;
-
+			var skeletonAnimation = skeletonRenderer as Spine.Unity.IAnimationStateComponent;
+			if (skeletonAnimation != null) skeletonAnimation.AnimationState.Event += OnEvent;
 		}
 
 		//SkeletonAnimation
 		/*
-	 *	Int Value:		0 sets ghostingEnabled to false, 1 sets ghostingEnabled to true
-	 *	Float Value:	Values greater than 0 set the spawnRate equal the float value
-	 *	String Value:	Pass RGBA hex color values in to set the color property.  IE:   "A0FF8BFF"
-	 */
-		void OnEvent (Spine.AnimationState state, int trackIndex, Spine.Event e) {
-			if (e.Data.Name == "Ghosting") {
+		 *	Int Value:		0 sets ghostingEnabled to false, 1 sets ghostingEnabled to true
+		 *	Float Value:	Values greater than 0 set the spawnRate equal the float value
+		 *	String Value:	Pass RGBA hex color values in to set the color property.  IE:   "A0FF8BFF"
+		 */
+		void OnEvent (Spine.TrackEntry trackEntry, Spine.Event e) {
+			if (e.Data.Name.Equals("Ghosting", System.StringComparison.Ordinal)) {
 				ghostingEnabled = e.Int > 0;
 				if (e.Float > 0)
 					spawnRate = e.Float;
-				if (e.String != null) {
+				
+				if (!string.IsNullOrEmpty(e.stringValue))
 					this.color = HexToColor(e.String);
-				}
 			}
 		}
 
@@ -156,15 +155,14 @@ namespace Spine.Unity.Modules {
 		}
 
 		void OnDestroy () {
-			for (int i = 0; i < maximumGhosts; i++) {
-				if (pool[i] != null)
-					pool[i].Cleanup();
+			if (pool != null) {
+				for (int i = 0; i < maximumGhosts; i++)
+					if (pool[i] != null) pool[i].Cleanup();
 			}
 
 			foreach (var mat in materialTable.Values)
 				Destroy(mat);
 		}
-
 
 		//based on UnifyWiki  http://wiki.unity3d.com/index.php?title=HexConverter
 		static Color32 HexToColor (string hex) {

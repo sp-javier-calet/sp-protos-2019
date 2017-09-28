@@ -1,9 +1,9 @@
 /******************************************************************************
  * Spine Runtimes Software License v2.5
- * 
+ *
  * Copyright (c) 2013-2016, Esoteric Software
  * All rights reserved.
- * 
+ *
  * You are granted a perpetual, non-exclusive, non-sublicensable, and
  * non-transferable license to use, install, execute, and perform the Spine
  * Runtimes software and derivative works solely for personal or internal
@@ -15,7 +15,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -29,6 +29,7 @@
  *****************************************************************************/
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using Spine;
@@ -38,28 +39,100 @@ namespace Spine.Unity {
 	public class AtlasAsset : ScriptableObject {
 		public TextAsset atlasFile;
 		public Material[] materials;
-		private Atlas atlas;
+		protected Atlas atlas;
 
-		public void Reset () {
+		public bool IsLoaded { get { return this.atlas != null; } }
+
+		#region Runtime Instantiation
+		/// <summary>
+		/// Creates a runtime AtlasAsset</summary>
+		public static AtlasAsset CreateRuntimeInstance (TextAsset atlasText, Material[] materials, bool initialize) {
+			AtlasAsset atlasAsset = ScriptableObject.CreateInstance<AtlasAsset>();
+			atlasAsset.Reset();
+			atlasAsset.atlasFile = atlasText;
+			atlasAsset.materials = materials;
+
+			if (initialize)
+				atlasAsset.GetAtlas();
+
+			return atlasAsset;
+		}
+
+		/// <summary>
+		/// Creates a runtime AtlasAsset. Only providing the textures is slower because it has to search for atlas page matches. <seealso cref="Spine.Unity.AtlasAsset.CreateRuntimeInstance(TextAsset, Material[], bool)"/></summary>
+		public static AtlasAsset CreateRuntimeInstance (TextAsset atlasText, Texture2D[] textures, Material materialPropertySource, bool initialize) {
+			// Get atlas page names.
+			string atlasString = atlasText.text;
+			atlasString = atlasString.Replace("\r", "");
+			string[] atlasLines = atlasString.Split('\n');
+			var pages = new List<string>();
+			for (int i = 0; i < atlasLines.Length - 1; i++) {
+				if (atlasLines[i].Trim().Length == 0)
+					pages.Add(atlasLines[i + 1].Trim().Replace(".png", ""));
+			}
+
+			// Populate Materials[] by matching texture names with page names.
+			var materials = new Material[pages.Count];
+			for (int i = 0, n = pages.Count; i < n; i++) {
+				Material mat = null;
+
+				// Search for a match.
+				string pageName = pages[i];
+				for (int j = 0, m = textures.Length; j < m; j++) {
+					if (string.Equals(pageName, textures[j].name, System.StringComparison.OrdinalIgnoreCase)) {
+						// Match found.
+						mat = new Material(materialPropertySource);
+						mat.mainTexture = textures[j];
+						break;
+					}
+				}
+
+				if (mat != null)
+					materials[i] = mat;
+				else
+					throw new ArgumentException("Could not find matching atlas page in the texture array.");
+			}
+
+			// Create AtlasAsset normally
+			return CreateRuntimeInstance(atlasText, materials, initialize);
+		}
+
+		/// <summary>
+		/// Creates a runtime AtlasAsset. Only providing the textures is slower because it has to search for atlas page matches. <seealso cref="Spine.Unity.AtlasAsset.CreateRuntimeInstance(TextAsset, Material[], bool)"/></summary>
+		public static AtlasAsset CreateRuntimeInstance (TextAsset atlasText, Texture2D[] textures, Shader shader, bool initialize) {
+			if (shader == null)
+				shader = Shader.Find("Spine/Skeleton");
+
+			Material materialProperySource = new Material(shader);
+			var oa = CreateRuntimeInstance(atlasText, textures, materialProperySource, initialize);
+
+			return oa;
+		}
+		#endregion
+
+		void Reset () {
+			Clear();
+		}
+
+		public virtual void Clear () {
 			atlas = null;
 		}
 
 		/// <returns>The atlas or null if it could not be loaded.</returns>
-		public Atlas GetAtlas () {
+		public virtual Atlas GetAtlas () {
 			if (atlasFile == null) {
 				Debug.LogError("Atlas file not set for atlas asset: " + name, this);
-				Reset();
+				Clear();
 				return null;
 			}
 
 			if (materials == null || materials.Length == 0) {
 				Debug.LogError("Materials not set for atlas asset: " + name, this);
-				Reset();
+				Clear();
 				return null;
 			}
 
-			if (atlas != null)
-				return atlas;
+			if (atlas != null) return atlas;
 
 			try {
 				atlas = new Atlas(new StringReader(atlasFile.text), "", new MaterialsTextureLoader(this));
@@ -69,19 +142,6 @@ namespace Spine.Unity {
 				Debug.LogError("Error reading atlas file for atlas asset: " + name + "\n" + ex.Message + "\n" + ex.StackTrace, this);
 				return null;
 			}
-		}
-
-		public Sprite GenerateSprite (string name, out Material material) {
-			AtlasRegion region = atlas.FindRegion(name);
-
-			Sprite sprite = null;
-			material = null;
-
-			if (region != null) {
-				//sprite.rect
-			}
-
-			return sprite;
 		}
 
 		public Mesh GenerateMesh (string name, Mesh mesh, out Material material, float scale = 0.01f) {
@@ -95,8 +155,8 @@ namespace Spine.Unity {
 
 				Vector3[] verts = new Vector3[4];
 				Vector2[] uvs = new Vector2[4];
-				Color[] colors = new Color[4] { Color.white, Color.white, Color.white, Color.white };
-				int[] triangles = new int[6] { 0, 1, 2, 2, 3, 0 };
+				Color[] colors = { Color.white, Color.white, Color.white, Color.white };
+				int[] triangles = { 0, 1, 2, 2, 3, 0 };
 
 				float left, right, top, bottom;
 				left = region.width / -2f;
@@ -150,7 +210,7 @@ namespace Spine.Unity {
 			this.atlasAsset = atlasAsset;
 		}
 
-		public void Load (AtlasPage page, String path) {
+		public void Load (AtlasPage page, string path) {
 			String name = Path.GetFileNameWithoutExtension(path);
 			Material material = null;
 			foreach (Material other in atlasAsset.materials) {
@@ -176,7 +236,6 @@ namespace Spine.Unity {
 			}
 		}
 
-		public void Unload (object texture) {
-		}
+		public void Unload (object texture) { }
 	}
 }

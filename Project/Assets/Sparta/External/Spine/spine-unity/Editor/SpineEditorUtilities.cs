@@ -1,9 +1,9 @@
 /******************************************************************************
  * Spine Runtimes Software License v2.5
- * 
+ *
  * Copyright (c) 2013-2016, Esoteric Software
  * All rights reserved.
- * 
+ *
  * You are granted a perpetual, non-exclusive, non-sublicensable, and
  * non-transferable license to use, install, execute, and perform the Spine
  * Runtimes software and derivative works solely for personal or internal
@@ -15,7 +15,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -30,10 +30,8 @@
 
 #pragma warning disable 0219
 
-/*****************************************************************************
- * Spine Editor Utilities created by Mitch Thompson
- * Full irrevocable rights and permissions granted to Esoteric Software
-*****************************************************************************/
+// Original contribution by: Mitch Thompson
+
 #define SPINE_SKELETONANIMATOR
 using UnityEngine;
 using UnityEditor;
@@ -45,6 +43,7 @@ using System.Reflection;
 using Spine;
 
 namespace Spine.Unity.Editor {
+	using EventType = UnityEngine.EventType;
 	
 	// Analysis disable once ConvertToStaticType
 	[InitializeOnLoad]
@@ -60,87 +59,93 @@ namespace Spine.Unity.Editor {
 			public static Texture2D slotRoot;
 			public static Texture2D skinPlaceholder;
 			public static Texture2D image;
+			public static Texture2D genericAttachment;
 			public static Texture2D boundingBox;
 			public static Texture2D mesh;
 			public static Texture2D weights;
+			public static Texture2D path;
+			public static Texture2D clipping;
 			public static Texture2D skin;
 			public static Texture2D skinsRoot;
 			public static Texture2D animation;
 			public static Texture2D animationRoot;
 			public static Texture2D spine;
-			public static Texture2D _event;
+			public static Texture2D userEvent;
 			public static Texture2D constraintNib;
+			public static Texture2D constraintRoot;
+			public static Texture2D constraintTransform;
+			public static Texture2D constraintPath;
+			public static Texture2D constraintIK;
 			public static Texture2D warning;
 			public static Texture2D skeletonUtility;
 			public static Texture2D hingeChain;
 			public static Texture2D subMeshRenderer;
-			public static Texture2D unityIcon;
-			public static Texture2D controllerIcon;
 
-			internal static Mesh _boneMesh;
-			public static Mesh BoneMesh {
-				get {
-					if (_boneMesh == null) {
-						_boneMesh = new Mesh();
-						_boneMesh.vertices = new [] {
-							new Vector3(0, 0, 0),
-							new Vector3(-0.1f, 0.1f, 0),
-							new Vector3(0, 1, 0),
-							new Vector3(0.1f, 0.1f, 0)
-						};
-						_boneMesh.uv = new Vector2[4];
-						_boneMesh.triangles = new [] { 0, 1, 2, 2, 3, 0 };
-						_boneMesh.RecalculateBounds();
-						_boneMesh.RecalculateNormals();
-					}
-					return _boneMesh;
-				}
-			}
+			public static Texture2D info;
 
-			internal static Material _boneMaterial;
-			public static Material BoneMaterial {
-				get {
-					if (_boneMaterial == null) {
-						#if UNITY_4_3
-						_boneMaterial = new Material(Shader.Find("Particles/Alpha Blended"));
-						_boneMaterial.SetColor("_TintColor", new Color(0.4f, 0.4f, 0.4f, 0.25f));
-						#else
-						_boneMaterial = new Material(Shader.Find("Hidden/Spine/Bones"));
-						_boneMaterial.SetColor("_Color", new Color(0.4f, 0.4f, 0.4f, 0.25f));
-						#endif
-					}
-					return _boneMaterial;
-				}
+			public static Texture2D unity;
+//			public static Texture2D controllerIcon;
+
+			static Texture2D LoadIcon (string filename) {
+				return (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/" + filename);
 			}
 
 			public static void Initialize () {
-				skeleton = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-skeleton.png");
-				nullBone = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-null.png");
-				bone = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-bone.png");
-				poseBones = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-poseBones.png");
-				boneNib = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-boneNib.png");
-				slot = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-slot.png");
-				slotRoot = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-slotRoot.png");
-				skinPlaceholder = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-skinPlaceholder.png");
-				image = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-image.png");
-				boundingBox = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-boundingBox.png");
-				mesh = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-mesh.png");
-				weights = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-weights.png");
-				skin = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-skinPlaceholder.png");
-				skinsRoot = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-skinsRoot.png");
-				animation = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-animation.png");
-				animationRoot = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-animationRoot.png");
-				spine = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-spine.png");
-				_event = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-event.png");
-				constraintNib = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-constraintNib.png");
-				warning = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-warning.png");
-				skeletonUtility = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-skeletonUtility.png");
-				hingeChain = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-hingeChain.png");
-				subMeshRenderer = (Texture2D)AssetDatabase.LoadMainAssetAtPath(SpineEditorUtilities.editorGUIPath + "/icon-subMeshRenderer.png");
+				skeleton = LoadIcon("icon-skeleton.png");
+				nullBone = LoadIcon("icon-null.png");
+				bone = LoadIcon("icon-bone.png");
+				poseBones = LoadIcon("icon-poseBones.png");
+				boneNib = LoadIcon("icon-boneNib.png");
+				slot = LoadIcon("icon-slot.png");
+				slotRoot = LoadIcon("icon-slotRoot.png");
+				skinPlaceholder = LoadIcon("icon-skinPlaceholder.png");
 
-				unityIcon = EditorGUIUtility.FindTexture("SceneAsset Icon");
+				genericAttachment = LoadIcon("icon-attachment.png");
+				image = LoadIcon("icon-image.png");
+				boundingBox = LoadIcon("icon-boundingBox.png");
+				mesh = LoadIcon("icon-mesh.png");
+				weights = LoadIcon("icon-weights.png");
+				path = LoadIcon("icon-path.png");
+				clipping = LoadIcon("icon-clipping.png");
 
-				controllerIcon = EditorGUIUtility.FindTexture("AnimatorController Icon");
+				skin = LoadIcon("icon-skin.png");
+				skinsRoot = LoadIcon("icon-skinsRoot.png");
+				animation = LoadIcon("icon-animation.png");
+				animationRoot = LoadIcon("icon-animationRoot.png");
+				spine = LoadIcon("icon-spine.png");
+				userEvent = LoadIcon("icon-event.png");
+				constraintNib = LoadIcon("icon-constraintNib.png");
+
+				constraintRoot = LoadIcon("icon-constraints.png");
+				constraintTransform = LoadIcon("icon-constraintTransform.png");
+				constraintPath = LoadIcon("icon-constraintPath.png");
+				constraintIK = LoadIcon("icon-constraintIK.png");
+
+				warning = LoadIcon("icon-warning.png");
+				skeletonUtility = LoadIcon("icon-skeletonUtility.png");
+				hingeChain = LoadIcon("icon-hingeChain.png");
+				subMeshRenderer = LoadIcon("icon-subMeshRenderer.png");
+
+
+				info = EditorGUIUtility.FindTexture("console.infoicon.sml");
+				unity = EditorGUIUtility.FindTexture("SceneAsset Icon");
+//				controllerIcon = EditorGUIUtility.FindTexture("AnimatorController Icon");
+			}
+
+			public static Texture2D GetAttachmentIcon (Attachment attachment) {
+				// Analysis disable once CanBeReplacedWithTryCastAndCheckForNull
+				if (attachment is RegionAttachment)
+					return Icons.image;
+				else if (attachment is MeshAttachment)
+					return ((MeshAttachment)attachment).IsWeighted() ? Icons.weights : Icons.mesh;
+				else if (attachment is BoundingBoxAttachment)
+					return Icons.boundingBox;
+				else if (attachment is PathAttachment)
+					return Icons.path;
+				else if (attachment is ClippingAttachment)
+					return Icons.clipping;
+				else
+					return Icons.warning;
 			}
 		}
 
@@ -154,7 +159,6 @@ namespace Spine.Unity.Editor {
 		/// Unity can mistakenly unload assets whose references are only on the stack.
 		/// This leads to MissingReferenceException and other errors.
 		static readonly List<ScriptableObject> protectFromStackGarbageCollection = new List<ScriptableObject>();
-
 		static HashSet<string> assetsImportedInWrongState;
 		static Dictionary<int, GameObject> skeletonRendererTable;
 		static Dictionary<int, SkeletonUtilityBone> skeletonUtilityBoneTable;
@@ -176,25 +180,36 @@ namespace Spine.Unity.Editor {
 		const string DEFAULT_SHADER_KEY = "SPINE_DEFAULT_SHADER";
 		public static string defaultShader = DEFAULT_DEFAULT_SHADER;
 
+		const float DEFAULT_DEFAULT_ZSPACING = 0f;
+		const string DEFAULT_ZSPACING_KEY = "SPINE_DEFAULT_ZSPACING";
+		public static float defaultZSpacing = DEFAULT_DEFAULT_ZSPACING;
+
 		const bool DEFAULT_SHOW_HIERARCHY_ICONS = true;
 		const string SHOW_HIERARCHY_ICONS_KEY = "SPINE_SHOW_HIERARCHY_ICONS";
 		public static bool showHierarchyIcons = DEFAULT_SHOW_HIERARCHY_ICONS;
+
+		internal const float DEFAULT_MIPMAPBIAS = -0.5f;
+
+		public const float DEFAULT_SCENE_ICONS_SCALE = 1f;
+		public const string SCENE_ICONS_SCALE_KEY = "SPINE_SCENE_ICONS_SCALE";
 
 		#region Initialization
 		static SpineEditorUtilities () {
 			Initialize();
 		}
 
-		static void Initialize () {
-			{
-				defaultMix = EditorPrefs.GetFloat(DEFAULT_MIX_KEY, DEFAULT_DEFAULT_MIX);
-				defaultScale = EditorPrefs.GetFloat(DEFAULT_SCALE_KEY, DEFAULT_DEFAULT_SCALE);
-				defaultShader = EditorPrefs.GetString(DEFAULT_SHADER_KEY, DEFAULT_DEFAULT_SHADER);	
-				showHierarchyIcons = EditorPrefs.GetBool(SHOW_HIERARCHY_ICONS_KEY, DEFAULT_SHOW_HIERARCHY_ICONS);
-			}
+		static void LoadPreferences () {
+			defaultMix = EditorPrefs.GetFloat(DEFAULT_MIX_KEY, DEFAULT_DEFAULT_MIX);
+			defaultScale = EditorPrefs.GetFloat(DEFAULT_SCALE_KEY, DEFAULT_DEFAULT_SCALE);
+			defaultZSpacing = EditorPrefs.GetFloat(DEFAULT_ZSPACING_KEY, DEFAULT_DEFAULT_ZSPACING);
+			defaultShader = EditorPrefs.GetString(DEFAULT_SHADER_KEY, DEFAULT_DEFAULT_SHADER);	
+			showHierarchyIcons = EditorPrefs.GetBool(SHOW_HIERARCHY_ICONS_KEY, DEFAULT_SHOW_HIERARCHY_ICONS);
+			SpineHandles.handleScale = EditorPrefs.GetFloat(SCENE_ICONS_SCALE_KEY, DEFAULT_SCENE_ICONS_SCALE);
+			preferencesLoaded = true;
+		}
 
-			SceneView.onSceneGUIDelegate -= OnSceneGUI;
-			SceneView.onSceneGUIDelegate += OnSceneGUI;
+		static void Initialize () {
+			LoadPreferences();
 
 			DirectoryInfo rootDir = new DirectoryInfo(Application.dataPath);
 			FileInfo[] files = rootDir.GetFiles("SpineEditorUtilities.cs", SearchOption.AllDirectories);
@@ -208,12 +223,17 @@ namespace Spine.Unity.Editor {
 			skeletonUtilityBoneTable = new Dictionary<int, SkeletonUtilityBone>();
 			boundingBoxFollowerTable = new Dictionary<int, BoundingBoxFollower>();
 
-			EditorApplication.hierarchyWindowChanged -= HierarchyWindowChanged;
-			EditorApplication.hierarchyWindowChanged += HierarchyWindowChanged;
-			EditorApplication.hierarchyWindowItemOnGUI -= HierarchyWindowItemOnGUI;
-			EditorApplication.hierarchyWindowItemOnGUI += HierarchyWindowItemOnGUI;
+			// Drag and Drop
+			SceneView.onSceneGUIDelegate -= SceneViewDragAndDrop;
+			SceneView.onSceneGUIDelegate += SceneViewDragAndDrop;
+			EditorApplication.hierarchyWindowItemOnGUI -= HierarchyDragAndDrop;
+			EditorApplication.hierarchyWindowItemOnGUI += HierarchyDragAndDrop;
 
-			HierarchyWindowChanged();
+			// Hierarchy Icons
+			EditorApplication.playmodeStateChanged -= HierarchyIconsOnPlaymodeStateChanged;
+			EditorApplication.playmodeStateChanged += HierarchyIconsOnPlaymodeStateChanged;
+			HierarchyIconsOnPlaymodeStateChanged();
+
 			initialized = true;
 		}
 
@@ -228,22 +248,15 @@ namespace Spine.Unity.Editor {
 
 		[PreferenceItem("Spine")]
 		static void PreferencesGUI () {
-			if (!preferencesLoaded) {
-				preferencesLoaded = true;
-				defaultMix = EditorPrefs.GetFloat(DEFAULT_MIX_KEY, DEFAULT_DEFAULT_MIX);
-				defaultScale = EditorPrefs.GetFloat(DEFAULT_SCALE_KEY, DEFAULT_DEFAULT_SCALE);
-				defaultShader = EditorPrefs.GetString(DEFAULT_SHADER_KEY, DEFAULT_DEFAULT_SHADER);
-				showHierarchyIcons = EditorPrefs.GetBool(SHOW_HIERARCHY_ICONS_KEY, DEFAULT_SHOW_HIERARCHY_ICONS);
-			}
-
+			if (!preferencesLoaded)
+				LoadPreferences();
 
 			EditorGUI.BeginChangeCheck();
 			showHierarchyIcons = EditorGUILayout.Toggle(new GUIContent("Show Hierarchy Icons", "Show relevant icons on GameObjects with Spine Components on them. Disable this if you have large, complex scenes."), showHierarchyIcons);
 			if (EditorGUI.EndChangeCheck()) {
 				EditorPrefs.SetBool(SHOW_HIERARCHY_ICONS_KEY, showHierarchyIcons);
-				HierarchyWindowChanged();				
-			} 
-				
+				HierarchyIconsOnPlaymodeStateChanged();
+			}
 
 			EditorGUILayout.Separator();
 
@@ -260,28 +273,43 @@ namespace Spine.Unity.Editor {
 				EditorPrefs.SetFloat(DEFAULT_SCALE_KEY, defaultScale);
 
 			EditorGUI.BeginChangeCheck();
-			#if UNITY_5_3_OR_NEWER
-			defaultShader = EditorGUILayout.DelayedTextField(new GUIContent("Default shader", "Default shader for materials auto-generated on import."), defaultShader); 
-			#else
-			defaultShader = EditorGUILayout.TextField(new GUIContent("Default shader", "Default shader for materials auto-generated on import."), defaultShader); 
-			#endif
+			var shader = (EditorGUILayout.ObjectField("Default Shader", Shader.Find(defaultShader), typeof(Shader), false) as Shader);
+			defaultShader = shader != null ? shader.name : DEFAULT_DEFAULT_SHADER;
 			if (EditorGUI.EndChangeCheck())
 				EditorPrefs.SetString(DEFAULT_SHADER_KEY, defaultShader);
+			EditorGUILayout.Space();
+
+			EditorGUILayout.LabelField("Editor Instantiation", EditorStyles.boldLabel);
+			EditorGUI.BeginChangeCheck();
+			defaultZSpacing = EditorGUILayout.Slider("Default Slot Z-Spacing", defaultZSpacing, -0.1f, 0f);
+			if (EditorGUI.EndChangeCheck())
+				EditorPrefs.SetFloat(DEFAULT_ZSPACING_KEY, defaultZSpacing);
+			
+
+			EditorGUILayout.Space();
+			EditorGUILayout.LabelField("Handles and Gizmos", EditorStyles.boldLabel);
+			EditorGUI.BeginChangeCheck();
+			SpineHandles.handleScale = EditorGUILayout.Slider("Editor Bone Scale", SpineHandles.handleScale, 0.01f, 2f);
+			SpineHandles.handleScale = Mathf.Max(0.01f, SpineHandles.handleScale);
+			if (EditorGUI.EndChangeCheck()) {
+				EditorPrefs.SetFloat(SCENE_ICONS_SCALE_KEY, SpineHandles.handleScale);
+				SceneView.RepaintAll();
+			}
+				
 			
 			GUILayout.Space(20);
 			EditorGUILayout.LabelField("3rd Party Settings", EditorStyles.boldLabel);
-			GUILayout.BeginHorizontal();
-			EditorGUILayout.PrefixLabel("TK2D");
-
-			if (GUILayout.Button("Enable", GUILayout.Width(64)))
-				EnableTK2D();
-			if (GUILayout.Button("Disable", GUILayout.Width(64)))
-				DisableTK2D();
-			GUILayout.EndHorizontal();
+			using (new GUILayout.HorizontalScope()) {
+				EditorGUILayout.PrefixLabel("Define TK2D");
+				if (GUILayout.Button("Enable", GUILayout.Width(64)))
+					EnableTK2D();
+				if (GUILayout.Button("Disable", GUILayout.Width(64)))
+					DisableTK2D();
+			}
 		}
 		#endregion
 
-		#region Drag and Drop to Scene View
+		#region Drag and Drop Instantiation
 
 		public delegate Component InstantiateDelegate (SkeletonDataAsset skeletonDataAsset);
 
@@ -300,9 +328,10 @@ namespace Spine.Unity.Editor {
 
 		public static readonly List<SkeletonComponentSpawnType> additionalSpawnTypes = new List<SkeletonComponentSpawnType>();
 
-		static void OnSceneGUI (SceneView sceneview) {
+		static void SceneViewDragAndDrop (SceneView sceneview) {
 			var current = UnityEngine.Event.current;
 			var references = DragAndDrop.objectReferences;
+			if (current.type == EventType.Repaint || current.type == EventType.Layout) return;
 
 			// Allow drag and drop of one SkeletonDataAsset.
 			if (references.Length == 1) {
@@ -327,47 +356,89 @@ namespace Spine.Unity.Editor {
 							RectTransform rectTransform = (Selection.activeGameObject == null) ? null : Selection.activeGameObject.GetComponent<RectTransform>();
 							Plane plane = (rectTransform == null) ? new Plane(Vector3.back, Vector3.zero) : new Plane(-rectTransform.forward, rectTransform.position);
 							Vector3 spawnPoint = MousePointToWorldPoint2D(mousePos, sceneview.camera, plane);
-
-							var menu = new GenericMenu();
-							// SkeletonAnimation
-							menu.AddItem(new GUIContent("SkeletonAnimation"), false, HandleSkeletonComponentDrop, new SpawnMenuData {
-								skeletonDataAsset = skeletonDataAsset,
-								spawnPoint = spawnPoint,
-								instantiateDelegate = (data) => InstantiateSkeletonAnimation(data),
-								isUI = false
-							});
-
-							// SkeletonGraphic
-							var skeletonGraphicInspectorType = System.Type.GetType("Spine.Unity.Editor.SkeletonGraphicInspector");
-							if (skeletonGraphicInspectorType != null) {
-								var graphicInstantiateDelegate = skeletonGraphicInspectorType.GetMethod("SpawnSkeletonGraphicFromDrop", BindingFlags.Static | BindingFlags.Public);
-								if (graphicInstantiateDelegate != null)
-									menu.AddItem(new GUIContent("SkeletonGraphic (UI)"), false, HandleSkeletonComponentDrop, new SpawnMenuData {
-										skeletonDataAsset = skeletonDataAsset,
-										spawnPoint = spawnPoint,
-										instantiateDelegate = System.Delegate.CreateDelegate(typeof(InstantiateDelegate), graphicInstantiateDelegate) as InstantiateDelegate,
-										isUI = true
-									});
-							}
-
-
-							#if SPINE_SKELETONANIMATOR
-							menu.AddSeparator("");
-							// SkeletonAnimator
-							menu.AddItem(new GUIContent("SkeletonAnimator"), false, HandleSkeletonComponentDrop, new SpawnMenuData {
-								skeletonDataAsset = skeletonDataAsset,
-								spawnPoint = spawnPoint,
-								instantiateDelegate = (data) => InstantiateSkeletonAnimator(data)
-							});
-							#endif
-
-							menu.ShowAsContext();
+							ShowInstantiateContextMenu(skeletonDataAsset, spawnPoint);
+							DragAndDrop.AcceptDrag();
+							current.Use();
 						}
 					}
+				}
+			}
+		}
 
+		static void HierarchyDragAndDrop (int instanceId, Rect selectionRect) {
+			// HACK: Uses EditorApplication.hierarchyWindowItemOnGUI.
+			// Only works when there is at least one item in the scene.
+			var current = UnityEngine.Event.current;
+			var eventType = current.type;
+			bool isDraggingEvent = eventType == EventType.DragUpdated;
+			bool isDropEvent = eventType == EventType.DragPerform;
+			if (isDraggingEvent || isDropEvent) {
+				var mouseOverWindow = EditorWindow.mouseOverWindow;
+				if (mouseOverWindow != null) {
+
+					// One, existing, valid SkeletonDataAsset
+					var references = DragAndDrop.objectReferences;
+					if (references.Length == 1) {
+						var skeletonDataAsset = references[0] as SkeletonDataAsset;
+						if (skeletonDataAsset != null && skeletonDataAsset.GetSkeletonData(true) != null) {
+							
+							// Allow drag-and-dropping anywhere in the Hierarchy Window.
+							// HACK: string-compare because we can't get its type via reflection.
+							const string HierarchyWindow = "UnityEditor.SceneHierarchyWindow";
+							if (HierarchyWindow.Equals(mouseOverWindow.GetType().ToString(), System.StringComparison.Ordinal)) {
+								if (isDraggingEvent) {
+									DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+									current.Use();
+								} else if (isDropEvent) {
+									ShowInstantiateContextMenu(skeletonDataAsset, Vector3.zero);
+									DragAndDrop.AcceptDrag();
+									current.Use();
+									return;
+								}
+							}
+								
+						}
+					}
 				}
 			}
 
+		}
+
+		public static void ShowInstantiateContextMenu (SkeletonDataAsset skeletonDataAsset, Vector3 spawnPoint) {
+			var menu = new GenericMenu();
+
+			// SkeletonAnimation
+			menu.AddItem(new GUIContent("SkeletonAnimation"), false, HandleSkeletonComponentDrop, new SpawnMenuData {
+				skeletonDataAsset = skeletonDataAsset,
+				spawnPoint = spawnPoint,
+				instantiateDelegate = (data) => InstantiateSkeletonAnimation(data),
+				isUI = false
+			});
+
+			// SkeletonGraphic
+			var skeletonGraphicInspectorType = System.Type.GetType("Spine.Unity.Editor.SkeletonGraphicInspector");
+			if (skeletonGraphicInspectorType != null) {
+				var graphicInstantiateDelegate = skeletonGraphicInspectorType.GetMethod("SpawnSkeletonGraphicFromDrop", BindingFlags.Static | BindingFlags.Public);
+				if (graphicInstantiateDelegate != null)
+					menu.AddItem(new GUIContent("SkeletonGraphic (UI)"), false, HandleSkeletonComponentDrop, new SpawnMenuData {
+						skeletonDataAsset = skeletonDataAsset,
+						spawnPoint = spawnPoint,
+						instantiateDelegate = System.Delegate.CreateDelegate(typeof(InstantiateDelegate), graphicInstantiateDelegate) as InstantiateDelegate,
+						isUI = true
+					});
+			}
+
+			#if SPINE_SKELETONANIMATOR
+			menu.AddSeparator("");
+			// SkeletonAnimator
+			menu.AddItem(new GUIContent("SkeletonAnimator"), false, HandleSkeletonComponentDrop, new SpawnMenuData {
+				skeletonDataAsset = skeletonDataAsset,
+				spawnPoint = spawnPoint,
+				instantiateDelegate = (data) => InstantiateSkeletonAnimator(data)
+			});
+			#endif
+
+			menu.ShowAsContext();
 		}
 
 		public static void HandleSkeletonComponentDrop (object menuData) {
@@ -386,7 +457,7 @@ namespace Spine.Unity.Editor {
 			var transform = newGameObject.transform;
 
 			var activeGameObject = Selection.activeGameObject;
-			if (activeGameObject != null)
+			if (isUI && activeGameObject != null)
 				transform.SetParent(activeGameObject.transform, false);
 
 			newGameObject.transform.position = isUI ? data.spawnPoint : RoundVector(data.spawnPoint, 2);
@@ -398,6 +469,7 @@ namespace Spine.Unity.Editor {
 				Debug.Log("New Spine GameObject was parented to a scaled Transform. It may not be the intended size.");
 
 			Selection.activeGameObject = newGameObject;
+			//EditorGUIUtility.PingObject(newGameObject); // Doesn't work when setting activeGameObject.
 			Undo.RegisterCreatedObjectUndo(newGameObject, "Create Spine GameObject");
 		}
 
@@ -423,60 +495,69 @@ namespace Spine.Unity.Editor {
 		}
 		#endregion
 
-		#region Hierarchy Icons
-		static void HierarchyWindowChanged () {
-			if (showHierarchyIcons) {
-				skeletonRendererTable.Clear();
-				skeletonUtilityBoneTable.Clear();
-				boundingBoxFollowerTable.Clear();
+		#region Hierarchy
+		static void HierarchyIconsOnPlaymodeStateChanged () {
+			skeletonRendererTable.Clear();
+			skeletonUtilityBoneTable.Clear();
+			boundingBoxFollowerTable.Clear();
 
-				SkeletonRenderer[] arr = Object.FindObjectsOfType<SkeletonRenderer>();
-				foreach (SkeletonRenderer r in arr)
-					skeletonRendererTable.Add(r.gameObject.GetInstanceID(), r.gameObject);
+			EditorApplication.hierarchyWindowChanged -= HierarchyIconsOnChanged;
+			EditorApplication.hierarchyWindowItemOnGUI -= HierarchyIconsOnGUI;
 
-				SkeletonUtilityBone[] boneArr = Object.FindObjectsOfType<SkeletonUtilityBone>();
-				foreach (SkeletonUtilityBone b in boneArr)
-					skeletonUtilityBoneTable.Add(b.gameObject.GetInstanceID(), b);
-
-				BoundingBoxFollower[] bbfArr = Object.FindObjectsOfType<BoundingBoxFollower>();
-				foreach (BoundingBoxFollower bbf in bbfArr)
-					boundingBoxFollowerTable.Add(bbf.gameObject.GetInstanceID(), bbf);
+			if (!Application.isPlaying && showHierarchyIcons) {
+				EditorApplication.hierarchyWindowChanged += HierarchyIconsOnChanged;
+				EditorApplication.hierarchyWindowItemOnGUI += HierarchyIconsOnGUI;
+				HierarchyIconsOnChanged();
 			}
 		}
 
-		static void HierarchyWindowItemOnGUI (int instanceId, Rect selectionRect) {
-			if (showHierarchyIcons) {
-				
-				Rect r = new Rect(selectionRect);
-				if (skeletonRendererTable.ContainsKey(instanceId)) {
-					r.x = r.width - 15;
-					r.width = 15;
-					GUI.Label(r, Icons.spine);
-				} else if (skeletonUtilityBoneTable.ContainsKey(instanceId)) {
-					r.x -= 26;
-					if (skeletonUtilityBoneTable[instanceId] != null) {
-						if (skeletonUtilityBoneTable[instanceId].transform.childCount == 0)
-							r.x += 13;
-						r.y += 2;
-						r.width = 13;
-						r.height = 13;
-						if (skeletonUtilityBoneTable[instanceId].mode == SkeletonUtilityBone.Mode.Follow)
-							GUI.DrawTexture(r, Icons.bone);
-						else
-							GUI.DrawTexture(r, Icons.poseBones);
-					}
-				} else if (boundingBoxFollowerTable.ContainsKey(instanceId)) {
-					r.x -= 26;
-					if (boundingBoxFollowerTable[instanceId] != null) {
-						if (boundingBoxFollowerTable[instanceId].transform.childCount == 0)
-							r.x += 13;
-						r.y += 2;
-						r.width = 13;
-						r.height = 13;
-						GUI.DrawTexture(r, Icons.boundingBox);
-					}
-				}
+		static void HierarchyIconsOnChanged () {
+			skeletonRendererTable.Clear();
+			skeletonUtilityBoneTable.Clear();
+			boundingBoxFollowerTable.Clear();
 
+			SkeletonRenderer[] arr = Object.FindObjectsOfType<SkeletonRenderer>();
+			foreach (SkeletonRenderer r in arr)
+				skeletonRendererTable.Add(r.gameObject.GetInstanceID(), r.gameObject);
+
+			SkeletonUtilityBone[] boneArr = Object.FindObjectsOfType<SkeletonUtilityBone>();
+			foreach (SkeletonUtilityBone b in boneArr)
+				skeletonUtilityBoneTable.Add(b.gameObject.GetInstanceID(), b);
+
+			BoundingBoxFollower[] bbfArr = Object.FindObjectsOfType<BoundingBoxFollower>();
+			foreach (BoundingBoxFollower bbf in bbfArr)
+				boundingBoxFollowerTable.Add(bbf.gameObject.GetInstanceID(), bbf);
+		}
+
+		static void HierarchyIconsOnGUI (int instanceId, Rect selectionRect) {
+			Rect r = new Rect(selectionRect);
+			if (skeletonRendererTable.ContainsKey(instanceId)) {
+				r.x = r.width - 15;
+				r.width = 15;
+				GUI.Label(r, Icons.spine);
+			} else if (skeletonUtilityBoneTable.ContainsKey(instanceId)) {
+				r.x -= 26;
+				if (skeletonUtilityBoneTable[instanceId] != null) {
+					if (skeletonUtilityBoneTable[instanceId].transform.childCount == 0)
+						r.x += 13;
+					r.y += 2;
+					r.width = 13;
+					r.height = 13;
+					if (skeletonUtilityBoneTable[instanceId].mode == SkeletonUtilityBone.Mode.Follow)
+						GUI.DrawTexture(r, Icons.bone);
+					else
+						GUI.DrawTexture(r, Icons.poseBones);
+				}
+			} else if (boundingBoxFollowerTable.ContainsKey(instanceId)) {
+				r.x -= 26;
+				if (boundingBoxFollowerTable[instanceId] != null) {
+					if (boundingBoxFollowerTable[instanceId].transform.childCount == 0)
+						r.x += 13;
+					r.y += 2;
+					r.width = 13;
+					r.height = 13;
+					GUI.DrawTexture(r, Icons.boundingBox);
+				}
 			}
 		}
 		#endregion
@@ -528,12 +609,13 @@ namespace Spine.Unity.Editor {
 					imagePaths.Add(str);
 					break;
 				case ".json":
-					if (IsValidSpineData((TextAsset)AssetDatabase.LoadAssetAtPath(str, typeof(TextAsset))))
+					var jsonAsset = (TextAsset)AssetDatabase.LoadAssetAtPath(str, typeof(TextAsset));
+					if (jsonAsset != null && IsSpineData(jsonAsset))
 						skeletonPaths.Add(str);
 					break;
 				case ".bytes":
 					if (str.ToLower().EndsWith(".skel.bytes", System.StringComparison.Ordinal)) {
-						if (IsValidSpineData((TextAsset)AssetDatabase.LoadAssetAtPath(str, typeof(TextAsset))))
+						if (IsSpineData((TextAsset)AssetDatabase.LoadAssetAtPath(str, typeof(TextAsset))))
 							skeletonPaths.Add(str);
 					}
 					break;
@@ -543,7 +625,6 @@ namespace Spine.Unity.Editor {
 			// Import atlases first.
 			var atlases = new List<AtlasAsset>();
 			foreach (string ap in atlasPaths) {
-				// MITCH: left note: Always import atlas data now.
 				TextAsset atlasText = (TextAsset)AssetDatabase.LoadAssetAtPath(ap, typeof(TextAsset));
 				AtlasAsset atlas = IngestSpineAtlas(atlasText);
 				atlases.Add(atlas);
@@ -553,7 +634,7 @@ namespace Spine.Unity.Editor {
 			bool abortSkeletonImport = false;
 			foreach (string sp in skeletonPaths) {
 				if (!reimport && CheckForValidSkeletonData(sp)) {
-					ResetExistingSkeletonData(sp);
+					ReloadSkeletonData(sp);
 					continue;
 				}
 
@@ -565,7 +646,7 @@ namespace Spine.Unity.Editor {
 				var localAtlases = FindAtlasesAtPath(dir);
 				var requiredPaths = GetRequiredAtlasRegions(sp);
 				var atlasMatch = GetMatchingAtlas(requiredPaths, localAtlases);
-				if (atlasMatch != null) {
+				if (atlasMatch != null || requiredPaths.Count == 0) {
 					IngestSpineProject(AssetDatabase.LoadAssetAtPath(sp, typeof(TextAsset)) as TextAsset, atlasMatch);
 				} else {
 					bool resolved = false;
@@ -580,7 +661,7 @@ namespace Spine.Unity.Editor {
 
 						switch (result) {
 						case -1:
-							Debug.Log("Select Atlas");
+							//Debug.Log("Select Atlas");
 							AtlasAsset selectedAtlas = GetAtlasDialog(Path.GetDirectoryName(sp));
 							if (selectedAtlas != null) {
 								localAtlases.Clear();
@@ -615,10 +696,10 @@ namespace Spine.Unity.Editor {
 					break;
 				#endif
 			}
-			// MITCH: left a todo: any post processing of images
+			// Any post processing of images
 		}
 
-		static void ResetExistingSkeletonData (string skeletonJSONPath) {
+		static void ReloadSkeletonData (string skeletonJSONPath) {
 			string dir = Path.GetDirectoryName(skeletonJSONPath);
 			TextAsset textAsset = (TextAsset)AssetDatabase.LoadAssetAtPath(skeletonJSONPath, typeof(TextAsset));
 			DirectoryInfo dirInfo = new DirectoryInfo(dir);
@@ -633,7 +714,8 @@ namespace Spine.Unity.Editor {
 						if (Selection.activeObject == skeletonDataAsset)
 							Selection.activeObject = null;
 
-						skeletonDataAsset.Reset();
+						Debug.LogFormat("Changes to '{0}' detected. Clearing SkeletonDataAsset: {1}", skeletonJSONPath, localPath);
+						skeletonDataAsset.Clear();
 
 						string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(skeletonDataAsset));
 						string lastHash = EditorPrefs.GetString(guid + "_hash");
@@ -665,9 +747,8 @@ namespace Spine.Unity.Editor {
 						// if (currentHash == null || lastHash != currentHash)
 						// Do any upkeep on synchronized assets
 
-						if (currentHash != null) {
+						if (currentHash != null)
 							EditorPrefs.SetString(guid + "_hash", currentHash);
-						}
 					}
 				}
 			}
@@ -675,7 +756,8 @@ namespace Spine.Unity.Editor {
 		#endregion
 
 		#region Match SkeletonData with Atlases
-		static readonly AttachmentType[] NonAtlasTypes = { AttachmentType.Boundingbox, AttachmentType.Path };
+		//static readonly AttachmentType[] NonAtlasTypes = { AttachmentType.Boundingbox, AttachmentType.Path };
+		static readonly AttachmentType[] AtlasTypes = { AttachmentType.Region, AttachmentType.Linkedmesh, AttachmentType.Mesh };
 
 		static List<AtlasAsset> MultiAtlasDialog (List<string> requiredPaths, string initialDirectory, string filename = "") {
 			List<AtlasAsset> atlasAssets = new List<AtlasAsset>();
@@ -792,6 +874,8 @@ namespace Spine.Unity.Editor {
 			StringReader reader = new StringReader(spineJson.text);
 			var root = Json.Deserialize(reader) as Dictionary<string, object>;
 
+			if (!root.ContainsKey("skins"))
+				return requiredPaths;			
 
 			foreach (KeyValuePair<string, object> entry in (Dictionary<string, object>)root["skins"]) {
 				foreach (KeyValuePair<string, object> slotEntry in (Dictionary<string, object>)entry.Value) {
@@ -810,8 +894,8 @@ namespace Spine.Unity.Editor {
 								Debug.LogWarning(string.Format("Unidentified Attachment type: \"{0}\". Skeleton may have been exported from an incompatible Spine version.", typeString));
 								throw e;
 							}
-
-							if (NonAtlasTypes.Contains(attachmentType))
+								
+							if (!AtlasTypes.Contains(attachmentType))
 								continue;
 						}
 
@@ -874,6 +958,14 @@ namespace Spine.Unity.Editor {
 			public PathAttachment NewPathAttachment (Skin skin, string name) {
 				return new PathAttachment(name);
 			}
+
+			public PointAttachment NewPointAttachment (Skin skin, string name) {
+				return new PointAttachment(name);
+			}
+
+			public ClippingAttachment NewClippingAttachment (Skin skin, string name) {
+				return new ClippingAttachment(name);
+			}
 		}
 		#endregion
 
@@ -930,24 +1022,29 @@ namespace Spine.Unity.Editor {
 					pageFiles.Add(atlasLines[i + 1].Trim());
 			}
 
-			atlasAsset.materials = new Material[pageFiles.Count];
+			var populatingMaterials = new List<Material>(pageFiles.Count);//atlasAsset.materials = new Material[pageFiles.Count];
 
 			for (int i = 0; i < pageFiles.Count; i++) {
 				string texturePath = assetPath + "/" + pageFiles[i];
 				Texture2D texture = (Texture2D)AssetDatabase.LoadAssetAtPath(texturePath, typeof(Texture2D));
 
 				TextureImporter texImporter = (TextureImporter)TextureImporter.GetAtPath(texturePath);
-                #if UNITY_5_5_OR_NEWER
-                texImporter.textureType = TextureImporterType.Default;
-                #else
-                texImporter.textureType = TextureImporterType.Advanced;
-                #endif
+				if (texImporter == null) {
+					Debug.LogWarning(string.Format("{0} ::: Texture asset \"{1}\" not found. Skipping. Please check your atlas file for renamed files.", atlasAsset.name, texturePath));
+					continue;
+				}
+
+				#if UNITY_5_5_OR_NEWER
+				texImporter.textureCompression = TextureImporterCompression.Uncompressed;
+				texImporter.alphaSource = TextureImporterAlphaSource.FromInput;
+				#else
+				texImporter.textureType = TextureImporterType.Advanced;
 				texImporter.textureFormat = TextureImporterFormat.AutomaticTruecolor;
+				#endif
 				texImporter.mipmapEnabled = false;
-				texImporter.alphaIsTransparency = false;
+				texImporter.alphaIsTransparency = false; // Prevent the texture importer from applying bleed to the transparent parts.
 				texImporter.spriteImportMode = SpriteImportMode.None;
 				texImporter.maxTextureSize = 2048;
-
 
 				EditorUtility.SetDirty(texImporter);
 				AssetDatabase.ImportAsset(texturePath);
@@ -973,8 +1070,10 @@ namespace Spine.Unity.Editor {
 				EditorUtility.SetDirty(mat);
 				AssetDatabase.SaveAssets();
 
-				atlasAsset.materials[i] = mat;
+				populatingMaterials.Add(mat); //atlasAsset.materials[i] = mat;
 			}
+
+			atlasAsset.materials = populatingMaterials.ToArray();
 
 			for (int i = 0; i < vestigialMaterials.Count; i++)
 				AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(vestigialMaterials[i]));
@@ -982,10 +1081,15 @@ namespace Spine.Unity.Editor {
 			if (AssetDatabase.GetAssetPath(atlasAsset) == "")
 				AssetDatabase.CreateAsset(atlasAsset, atlasPath);
 			else
-				atlasAsset.Reset();
+				atlasAsset.Clear();
 
 			EditorUtility.SetDirty(atlasAsset);
 			AssetDatabase.SaveAssets();
+
+			if (pageFiles.Count != atlasAsset.materials.Length)
+				Debug.LogWarning(string.Format("{0} ::: Not all atlas pages were imported. If you rename your image files, please make sure you also edit the filenames specified in the atlas file.", atlasAsset.name));
+			else
+				Debug.Log(string.Format("{0} ::: Imported with {1} material", atlasAsset.name, atlasAsset.materials.Length));
 
 			// Iterate regions and bake marked.
 			Atlas atlas = atlasAsset.GetAtlas();
@@ -1083,7 +1187,7 @@ namespace Spine.Unity.Editor {
 					AssetDatabase.CreateAsset(skeletonDataAsset, filePath);
 					AssetDatabase.SaveAssets();
 				} else {
-					skeletonDataAsset.Reset();
+					skeletonDataAsset.Clear();
 					skeletonDataAsset.GetSkeletonData(true);
 				}
 
@@ -1095,26 +1199,24 @@ namespace Spine.Unity.Editor {
 
 			#else
 			if (spineJson != null && atlasAssets != null) {
-				SkeletonDataAsset skelDataAsset = (SkeletonDataAsset)AssetDatabase.LoadAssetAtPath(filePath, typeof(SkeletonDataAsset));
-				if (skelDataAsset == null) {
-					skelDataAsset = SkeletonDataAsset.CreateInstance<SkeletonDataAsset>();
-					skelDataAsset.atlasAssets = atlasAssets;
-					skelDataAsset.skeletonJSON = spineJson;
-					skelDataAsset.fromAnimation = new string[0];
-					skelDataAsset.toAnimation = new string[0];
-					skelDataAsset.duration = new float[0];
-					skelDataAsset.defaultMix = defaultMix;
-					skelDataAsset.scale = defaultScale;
+				SkeletonDataAsset skeletonDataAsset = (SkeletonDataAsset)AssetDatabase.LoadAssetAtPath(filePath, typeof(SkeletonDataAsset));
+				if (skeletonDataAsset == null) {
+					skeletonDataAsset = ScriptableObject.CreateInstance<SkeletonDataAsset>(); {
+						skeletonDataAsset.atlasAssets = atlasAssets;
+						skeletonDataAsset.skeletonJSON = spineJson;
+						skeletonDataAsset.defaultMix = defaultMix;
+						skeletonDataAsset.scale = defaultScale;
+					}
 
-					AssetDatabase.CreateAsset(skelDataAsset, filePath);
+					AssetDatabase.CreateAsset(skeletonDataAsset, filePath);
 					AssetDatabase.SaveAssets();
 				} else {
-					skelDataAsset.atlasAssets = atlasAssets;
-					skelDataAsset.Reset();
-					skelDataAsset.GetSkeletonData(true);
+					skeletonDataAsset.atlasAssets = atlasAssets;
+					skeletonDataAsset.Clear();
+					skeletonDataAsset.GetSkeletonData(true);
 				}
 
-				return skelDataAsset;
+				return skeletonDataAsset;
 			} else {
 				EditorUtility.DisplayDialog("Error!", "Must specify both Spine JSON and AtlasAsset array", "OK");
 				return null;
@@ -1124,8 +1226,8 @@ namespace Spine.Unity.Editor {
 		#endregion
 
 		#region Checking Methods
-		static int[][] compatibleVersions = { new[] {3, 4, 0}, new[] {3, 3, 0} };
-		static bool isFixVersionRequired = false;
+		static int[][] compatibleVersions = { new[] {3, 6, 0}, new[] {3, 5, 0} };
+		//static bool isFixVersionRequired = false;
 
 		static bool CheckForValidSkeletonData (string skeletonJSONPath) {
 			string dir = Path.GetDirectoryName(skeletonJSONPath);
@@ -1144,40 +1246,57 @@ namespace Spine.Unity.Editor {
 			return false;
 		}
 
-		public static bool IsValidSpineData (TextAsset asset) {
-			if (asset.name.Contains(".skel")) return true;
+		public static bool IsSpineData (TextAsset asset) {
+			if (asset == null) return false;
 
-			object obj = null;
-			obj = Json.Deserialize(new StringReader(asset.text));
+			bool isSpineData = false;
+			string rawVersion = null;
 
-			if (obj == null) {
-				Debug.LogError("Is not valid JSON.");
-				return false;
+			if (asset.name.Contains(".skel")) {
+				try {
+					rawVersion = SkeletonBinary.GetVersionString(new MemoryStream(asset.bytes));
+					//Debug.Log(rawVersion);
+					isSpineData = !(string.IsNullOrEmpty(rawVersion));
+				} catch (System.Exception e) {
+					Debug.LogErrorFormat("Failed to read '{0}'. It is likely not a binary Spine SkeletonData file.\n{1}", asset.name, e);
+					return false;
+				}
+			} else {
+				var obj = Json.Deserialize(new StringReader(asset.text));
+				if (obj == null) {
+					Debug.LogErrorFormat("'{0}' is not valid JSON.", asset.name);
+					return false;
+				}
+
+				var root = obj as Dictionary<string, object>;
+				if (root == null) {
+					Debug.LogError("Parser returned an incorrect type.");
+					return false;
+				}
+
+				isSpineData = root.ContainsKey("skeleton");
+				if (isSpineData) {
+					var skeletonInfo = (Dictionary<string, object>)root["skeleton"];
+					object jv;
+					skeletonInfo.TryGetValue("spine", out jv);
+					rawVersion = jv as string;
+				}
 			}
-
-			var root = obj as Dictionary<string, object>;
-			if (root == null) {
-				Debug.LogError("Parser returned an incorrect type.");
-				return false;
-			}
-
-			bool isSpineJson = root.ContainsKey("skeleton");
 
 			// Version warning
-			if (isSpineJson) {
-				var skeletonInfo = (Dictionary<string, object>)root["skeleton"];
-				object jv;
-				skeletonInfo.TryGetValue("spine", out jv);
-				string jsonVersion = (jv == null) ? (string)jv : null;
-				if (!string.IsNullOrEmpty(jsonVersion)) {
-					string[] jsonVersionSplit = jsonVersion.Split('.');
+			if (isSpineData) {
+				string runtimeVersionDebugString = compatibleVersions[0][0] + "." + compatibleVersions[0][1];
+
+				if (string.IsNullOrEmpty(rawVersion)) {
+					Debug.LogWarningFormat("Skeleton '{0}' has no version information. It may be incompatible with your runtime version: spine-unity v{1}", asset.name, runtimeVersionDebugString);
+				} else {
+					string[] versionSplit = rawVersion.Split('.');
 					bool match = false;
 					foreach (var version in compatibleVersions) {
-						bool primaryMatch = version[0] == int.Parse(jsonVersionSplit[0]);
-						bool secondaryMatch = version[1] == int.Parse(jsonVersionSplit[1]);
+						bool primaryMatch = version[0] == int.Parse(versionSplit[0]);
+						bool secondaryMatch = version[1] == int.Parse(versionSplit[1]);
 
-						if (isFixVersionRequired)
-							secondaryMatch &= version[2] <= int.Parse(jsonVersionSplit[2]);
+						// if (isFixVersionRequired) secondaryMatch &= version[2] <= int.Parse(jsonVersionSplit[2]);
 
 						if (primaryMatch && secondaryMatch) {
 							match = true;
@@ -1185,45 +1304,75 @@ namespace Spine.Unity.Editor {
 						}
 					}
 
-					if (!match) {
-						string runtimeVersion = compatibleVersions[0][0] + "." + compatibleVersions[0][1];
-						Debug.LogWarning(string.Format("Skeleton '{0}' (exported with Spine {1}) may be incompatible with your runtime version: spine-unity v{2}", asset.name, jsonVersion, runtimeVersion));
-					}
-				} else {
-					isSpineJson = false;
+					if (!match)
+						Debug.LogWarningFormat("Skeleton '{0}' (exported with Spine {1}) may be incompatible with your runtime version: spine-unity v{2}", asset.name, rawVersion, runtimeVersionDebugString);
 				}
 			}
-				
-			return isSpineJson;
+
+			return isSpineData;
 		}
 		#endregion
 
 		#region SkeletonAnimation Menu
-		[MenuItem("Assets/Spine/Instantiate (SkeletonAnimation)", false, 10)]
-		static void InstantiateSkeletonAnimation () {
-			Object[] arr = Selection.objects;
-			foreach (Object o in arr) {
-				string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(o));
-				string skinName = EditorPrefs.GetString(guid + "_lastSkin", "");
+//		[MenuItem("Assets/Spine/Instantiate (SkeletonAnimation)", false, 10)]
+//		static void InstantiateSkeletonAnimation () {
+//			Object[] arr = Selection.objects;
+//			foreach (Object o in arr) {
+//				string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(o));
+//				string skinName = EditorPrefs.GetString(guid + "_lastSkin", "");
+//
+//				InstantiateSkeletonAnimation((SkeletonDataAsset)o, skinName, false);
+//				SceneView.RepaintAll();
+//			}
+//		}
+//
+//		[MenuItem("Assets/Spine/Instantiate (SkeletonAnimation)", true, 10)]
+//		static bool ValidateInstantiateSkeletonAnimation () {
+//			Object[] arr = Selection.objects;
+//
+//			if (arr.Length == 0)
+//				return false;
+//
+//			foreach (Object o in arr) {
+//				if (o.GetType() != typeof(SkeletonDataAsset))
+//					return false;
+//			}
+//
+//			return true;
+//		}
 
-				InstantiateSkeletonAnimation((SkeletonDataAsset)o, skinName, false);
-				SceneView.RepaintAll();
+		public static void IngestAdvancedRenderSettings (SkeletonRenderer skeletonRenderer) {
+			const string PMAShaderQuery = "Spine/Skeleton";
+			const string TintBlackShaderQuery = "Tint Black";
+
+			if (skeletonRenderer == null) return;
+			var skeletonDataAsset = skeletonRenderer.skeletonDataAsset;
+			if (skeletonDataAsset == null) return;
+
+			bool pmaVertexColors = false;
+			bool tintBlack = false;
+			foreach (AtlasAsset atlasAsset in skeletonDataAsset.atlasAssets) {
+				if (!pmaVertexColors) {
+					foreach (Material m in atlasAsset.materials) {
+						if (m.shader.name.Contains(PMAShaderQuery)) {
+							pmaVertexColors = true;
+							break;
+						}
+					}
+				}
+
+				if (!tintBlack) {
+					foreach (Material m in atlasAsset.materials) {
+						if (m.shader.name.Contains(TintBlackShaderQuery)) {
+							tintBlack = true;
+							break;
+						}
+					}
+				}
 			}
-		}
 
-		[MenuItem("Assets/Spine/Instantiate (SkeletonAnimation)", true, 10)]
-		static bool ValidateInstantiateSkeletonAnimation () {
-			Object[] arr = Selection.objects;
-
-			if (arr.Length == 0)
-				return false;
-
-			foreach (Object o in arr) {
-				if (o.GetType() != typeof(SkeletonDataAsset))
-					return false;
-			}
-
-			return true;
+			skeletonRenderer.pmaVertexColors = pmaVertexColors;
+			skeletonRenderer.tintBlack = tintBlack;
 		}
 
 		public static SkeletonAnimation InstantiateSkeletonAnimation (SkeletonDataAsset skeletonDataAsset, string skinName, bool destroyInvalid = true) {
@@ -1248,26 +1397,11 @@ namespace Spine.Unity.Editor {
 				return null;
 			}
 
-			if (skin == null) skin = data.DefaultSkin;
-			if (skin == null) skin = data.Skins.Items[0];
-
 			string spineGameObjectName = string.Format("Spine GameObject ({0})", skeletonDataAsset.name.Replace("_SkeletonData", ""));
 			GameObject go = new GameObject(spineGameObjectName, typeof(MeshFilter), typeof(MeshRenderer), typeof(SkeletonAnimation));
 			SkeletonAnimation newSkeletonAnimation = go.GetComponent<SkeletonAnimation>();
 			newSkeletonAnimation.skeletonDataAsset = skeletonDataAsset;
-
-			{
-				bool requiresNormals = false;
-				foreach (AtlasAsset atlasAsset in skeletonDataAsset.atlasAssets) {
-					foreach (Material m in atlasAsset.materials) {
-						if (m.shader.name.Contains("Lit")) {
-							requiresNormals = true;
-							break;
-						}
-					}
-				}
-				newSkeletonAnimation.calculateNormals = requiresNormals;
-			}
+			IngestAdvancedRenderSettings(newSkeletonAnimation);
 
 			try {
 				newSkeletonAnimation.Initialize(false);
@@ -1279,11 +1413,18 @@ namespace Spine.Unity.Editor {
 				throw e;
 			}
 
-			newSkeletonAnimation.skeleton.SetSkin(skin);
-			newSkeletonAnimation.initialSkinName = skin.Name;
+			// Set Defaults
+			bool noSkins = data.DefaultSkin == null && (data.Skins == null || data.Skins.Count == 0); // Support attachmentless/skinless SkeletonData.
+			skin = skin ?? data.DefaultSkin ?? (noSkins ? null : data.Skins.Items[0]);
+			if (skin != null) {
+				newSkeletonAnimation.initialSkinName = skin.Name;
+				newSkeletonAnimation.skeleton.SetSkin(skin);
+			}
 
-			newSkeletonAnimation.skeleton.Update(1);
-			newSkeletonAnimation.state.Update(1);
+			newSkeletonAnimation.zSpacing = defaultZSpacing;
+
+			newSkeletonAnimation.skeleton.Update(0);
+			newSkeletonAnimation.state.Update(0);
 			newSkeletonAnimation.state.Apply(newSkeletonAnimation.skeleton);
 			newSkeletonAnimation.skeleton.UpdateWorldTransform();
 
@@ -1298,33 +1439,6 @@ namespace Spine.Unity.Editor {
 				return;
 
 			SkeletonBaker.GenerateMecanimAnimationClips(skeletonDataAsset);
-		}
-
-		[MenuItem("Assets/Spine/Instantiate (Mecanim)", false, 100)]
-		static void InstantiateSkeletonAnimator () {
-			Object[] arr = Selection.objects;
-			foreach (Object o in arr) {
-				string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(o));
-				string skinName = EditorPrefs.GetString(guid + "_lastSkin", "");
-
-				InstantiateSkeletonAnimator((SkeletonDataAsset)o, skinName);
-				SceneView.RepaintAll();
-			}
-		}
-
-		[MenuItem("Assets/Spine/Instantiate (Mecanim)", true, 100)]
-		static bool ValidateInstantiateSkeletonAnimator () {
-			Object[] arr = Selection.objects;
-
-			if (arr.Length == 0)
-				return false;
-
-			foreach (Object o in arr) {
-				if (o.GetType() != typeof(SkeletonDataAsset))
-					return false;
-			}
-
-			return true;
 		}
 
 		public static SkeletonAnimator InstantiateSkeletonAnimator (SkeletonDataAsset skeletonDataAsset, string skinName) {
@@ -1344,43 +1458,26 @@ namespace Spine.Unity.Editor {
 
 			SkeletonAnimator anim = go.GetComponent<SkeletonAnimator>();
 			anim.skeletonDataAsset = skeletonDataAsset;
-
-			bool requiresNormals = false;
-
-			foreach (AtlasAsset atlasAsset in anim.skeletonDataAsset.atlasAssets) {
-				foreach (Material m in atlasAsset.materials) {
-					if (m.shader.name.Contains("Lit")) {
-						requiresNormals = true;
-						break;
-					}
-				}
-			}
-
-			anim.calculateNormals = requiresNormals;
+			IngestAdvancedRenderSettings(anim);
 
 			SkeletonData data = skeletonDataAsset.GetSkeletonData(true);
-
 			if (data == null) {
 				for (int i = 0; i < skeletonDataAsset.atlasAssets.Length; i++) {
 					string reloadAtlasPath = AssetDatabase.GetAssetPath(skeletonDataAsset.atlasAssets[i]);
 					skeletonDataAsset.atlasAssets[i] = (AtlasAsset)AssetDatabase.LoadAssetAtPath(reloadAtlasPath, typeof(AtlasAsset));
 				}
-
 				data = skeletonDataAsset.GetSkeletonData(true);
 			}
 
-			if (skin == null)
-				skin = data.DefaultSkin;
-
-			if (skin == null)
-				skin = data.Skins.Items[0];
+			// Set defaults
+			skin = skin ?? data.DefaultSkin ?? data.Skins.Items[0];
+			anim.zSpacing = defaultZSpacing;
 
 			anim.Initialize(false);
-
 			anim.skeleton.SetSkin(skin);
 			anim.initialSkinName = skin.Name;
 
-			anim.skeleton.Update(1);
+			anim.skeleton.Update(0);
 			anim.skeleton.UpdateWorldTransform();
 			anim.LateUpdate();
 
@@ -1392,10 +1489,18 @@ namespace Spine.Unity.Editor {
 		#region TK2D Support
 		const string SPINE_TK2D_DEFINE = "SPINE_TK2D";
 
+		static bool IsInvalidGroup (BuildTargetGroup group) {
+			int gi = (int)group;
+			return
+				gi == 15 || gi == 16
+				||
+				group == BuildTargetGroup.Unknown;
+		}
+
 		static void EnableTK2D () {
 			bool added = false;
-			foreach (BuildTargetGroup group in System.Enum.GetValues(typeof(BuildTargetGroup))) {
-				if (group == BuildTargetGroup.Unknown)
+			foreach (BuildTargetGroup group in System.Enum.GetValues(typeof(BuildTargetGroup))) {				
+				if (IsInvalidGroup(group))
 					continue;
 
 				string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(group);
@@ -1421,6 +1526,9 @@ namespace Spine.Unity.Editor {
 		static void DisableTK2D () {
 			bool removed = false;
 			foreach (BuildTargetGroup group in System.Enum.GetValues(typeof(BuildTargetGroup))) {
+				if (IsInvalidGroup(group))
+					continue;
+				
 				string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(group);
 				if (defines.Contains(SPINE_TK2D_DEFINE)) {
 					removed = true;
@@ -1441,24 +1549,217 @@ namespace Spine.Unity.Editor {
 		}
 		#endregion
 
-		#region Handles
-		static public void DrawBone (Matrix4x4 transformMatrix) {
-			SpineEditorUtilities.Icons.BoneMaterial.SetPass(0);
-			Graphics.DrawMeshNow(SpineEditorUtilities.Icons.BoneMesh, transformMatrix);
+		public static string GetPathSafeRegionName (AtlasRegion region) {
+			return region.name.Replace("/", "_");
+		}
+	}
+
+	public static class SpineHandles {
+		internal static float handleScale = 1f;
+		public static Color BoneColor { get { return new Color(0.8f, 0.8f, 0.8f, 0.4f); } }
+		public static Color PathColor { get { return new Color(254/255f, 127/255f, 0); } }
+		public static Color TransformContraintColor { get { return new Color(170/255f, 226/255f, 35/255f); } }
+		public static Color IkColor { get { return new Color(228/255f,90/255f,43/255f); } }
+
+		static Vector3[] _boneMeshVerts = {
+			new Vector3(0, 0, 0),
+			new Vector3(0.1f, 0.1f, 0),
+			new Vector3(1, 0, 0),
+			new Vector3(0.1f, -0.1f, 0)
+		};
+		static Mesh _boneMesh;
+		public static Mesh BoneMesh {
+			get {
+				if (_boneMesh == null) {
+					_boneMesh = new Mesh {
+						vertices = _boneMeshVerts,
+						uv = new Vector2[4],
+						triangles = new [] { 0, 1, 2, 2, 3, 0 }
+					};
+					_boneMesh.RecalculateBounds();
+					_boneMesh.RecalculateNormals();
+				}
+				return _boneMesh;
+			}
+		}
+
+		static Mesh _arrowheadMesh;
+		public static Mesh ArrowheadMesh {
+			get {
+				if (_arrowheadMesh == null) {
+					_arrowheadMesh = new Mesh {
+						vertices = new [] {
+							new Vector3(0, 0),
+							new Vector3(-0.1f, 0.05f),
+							new Vector3(-0.1f, -0.05f)
+						},
+						uv = new Vector2[3],
+						triangles = new [] { 0, 1, 2 }
+					};
+					_arrowheadMesh.RecalculateBounds();
+					_arrowheadMesh.RecalculateNormals();
+				}
+				return _arrowheadMesh;
+			}
+		}
+
+		static Material _boneMaterial;
+		static Material BoneMaterial {
+			get {
+				if (_boneMaterial == null) {
+					_boneMaterial = new Material(Shader.Find("Hidden/Spine/Bones"));
+					_boneMaterial.SetColor("_Color", SpineHandles.BoneColor);
+				}
+
+				return _boneMaterial;
+			}
+		}
+		public static Material GetBoneMaterial () {
+			BoneMaterial.SetColor("_Color", SpineHandles.BoneColor);
+			return BoneMaterial;
+		}
+
+		public static Material GetBoneMaterial (Color color) {
+			BoneMaterial.SetColor("_Color", color);
+			return BoneMaterial;
+		}
+
+		static Material _ikMaterial;
+		public static Material IKMaterial {
+			get {
+				if (_ikMaterial == null) {
+					_ikMaterial = new Material(Shader.Find("Hidden/Spine/Bones"));
+					_ikMaterial.SetColor("_Color", SpineHandles.IkColor);
+				}
+				return _ikMaterial;
+			}
+		}
+
+		static GUIStyle _boneNameStyle;
+		public static GUIStyle BoneNameStyle {
+			get {
+				if (_boneNameStyle == null) {
+					_boneNameStyle = new GUIStyle(EditorStyles.whiteMiniLabel);
+					_boneNameStyle.alignment = TextAnchor.MiddleCenter;
+					_boneNameStyle.stretchWidth = true;
+					_boneNameStyle.padding = new RectOffset(0, 0, 0, 0);
+					_boneNameStyle.contentOffset = new Vector2(-5f, 0f);
+				}
+				return _boneNameStyle;
+			}
+		}
+
+		static GUIStyle _pathNameStyle;
+		public static GUIStyle PathNameStyle {
+			get {
+				if (_pathNameStyle == null) {
+					_pathNameStyle = new GUIStyle(SpineHandles.BoneNameStyle);
+					_pathNameStyle.normal.textColor = SpineHandles.PathColor;
+				}
+				return _pathNameStyle;
+			}
+		}
+
+		public static void DrawBoneNames (Transform transform, Skeleton skeleton, float positionScale = 1f) {
+			GUIStyle style = BoneNameStyle;
+			foreach (Bone b in skeleton.Bones) {
+				var pos = new Vector3(b.WorldX * positionScale, b.WorldY * positionScale, 0) + (new Vector3(b.A, b.C) * (b.Data.Length * 0.5f));
+				pos = transform.TransformPoint(pos);
+				Handles.Label(pos, b.Data.Name, style);
+			}
+		}
+
+		public static void DrawBones (Transform transform, Skeleton skeleton, float positionScale = 1f) {
+			float boneScale = 1.8f; // Draw the root bone largest;
+			DrawCrosshairs2D(skeleton.Bones.Items[0].GetWorldPosition(transform), 0.08f, positionScale);
+
+			foreach (Bone b in skeleton.Bones) {
+				DrawBone(transform, b, boneScale, positionScale);
+				boneScale = 1f;
+			}
+		}
+
+		static Vector3[] _boneWireBuffer = new Vector3[5];
+		static Vector3[] GetBoneWireBuffer (Matrix4x4 m) {
+			for (int i = 0, n = _boneMeshVerts.Length; i < n; i++)
+				_boneWireBuffer[i] = m.MultiplyPoint(_boneMeshVerts[i]);
+
+			_boneWireBuffer[4] = _boneWireBuffer[0]; // closed polygon.
+			return _boneWireBuffer;
+		}
+		public static void DrawBoneWireframe (Transform transform, Bone b, Color color, float skeletonRenderScale = 1f) {
+			Handles.color = color;
+			var pos = new Vector3(b.WorldX * skeletonRenderScale, b.WorldY * skeletonRenderScale, 0);
+			float length = b.Data.Length;
+
+			if (length > 0) {
+				Quaternion rot = Quaternion.Euler(0, 0, b.WorldRotationX);
+				Vector3 scale = Vector3.one * length * b.WorldScaleX * skeletonRenderScale;
+				const float my = 1.5f;
+				scale.y *= (SpineHandles.handleScale + 1) * 0.5f;
+				scale.y = Mathf.Clamp(scale.x, -my * skeletonRenderScale, my * skeletonRenderScale);
+				Handles.DrawPolyLine(GetBoneWireBuffer(transform.localToWorldMatrix * Matrix4x4.TRS(pos, rot, scale)));
+				var wp = transform.TransformPoint(pos);
+				DrawBoneCircle(wp, color, transform.forward, skeletonRenderScale);
+			} else {
+				var wp = transform.TransformPoint(pos);
+				DrawBoneCircle(wp, color, transform.forward, skeletonRenderScale);
+			}
+		}
+
+		public static void DrawBone (Transform transform, Bone b, float boneScale, float skeletonRenderScale = 1f) {
+			var pos = new Vector3(b.WorldX * skeletonRenderScale, b.WorldY * skeletonRenderScale, 0);
+			float length = b.Data.Length;
+			if (length > 0) {
+				Quaternion rot = Quaternion.Euler(0, 0, b.WorldRotationX);
+				Vector3 scale = Vector3.one * length * b.WorldScaleX * skeletonRenderScale;
+				const float my = 1.5f;
+				scale.y *= (SpineHandles.handleScale + 1f) * 0.5f;
+				scale.y = Mathf.Clamp(scale.x, -my * skeletonRenderScale, my * skeletonRenderScale);
+				SpineHandles.GetBoneMaterial().SetPass(0);
+				Graphics.DrawMeshNow(SpineHandles.BoneMesh, transform.localToWorldMatrix * Matrix4x4.TRS(pos, rot, scale));
+			} else {
+				var wp = transform.TransformPoint(pos);
+				DrawBoneCircle(wp, SpineHandles.BoneColor, transform.forward, boneScale * skeletonRenderScale);
+			}
+		}
+
+		public static void DrawBone (Transform transform, Bone b, float boneScale, Color color, float skeletonRenderScale = 1f) {
+			var pos = new Vector3(b.WorldX * skeletonRenderScale, b.WorldY * skeletonRenderScale, 0);
+			float length = b.Data.Length;
+			if (length > 0) {
+				Quaternion rot = Quaternion.Euler(0, 0, b.WorldRotationX);
+				Vector3 scale = Vector3.one * length * b.WorldScaleX;
+				const float my = 1.5f;
+				scale.y *= (SpineHandles.handleScale + 1f) * 0.5f;
+				scale.y = Mathf.Clamp(scale.x, -my, my);
+				SpineHandles.GetBoneMaterial(color).SetPass(0);
+				Graphics.DrawMeshNow(SpineHandles.BoneMesh, transform.localToWorldMatrix * Matrix4x4.TRS(pos, rot, scale));
+			} else {
+				var wp = transform.TransformPoint(pos);
+				DrawBoneCircle(wp, color, transform.forward, boneScale * skeletonRenderScale);
+			}
+		}
+
+		public static void DrawPaths (Transform transform, Skeleton skeleton) {
+			foreach (Slot s in skeleton.DrawOrder) {
+				var p = s.Attachment as PathAttachment;
+				if (p != null) SpineHandles.DrawPath(s, p, transform, true);
+			}
 		}
 
 		static float[] pathVertexBuffer;
-		static public void DrawPath (Slot s, PathAttachment p, Transform t) {
+		public static void DrawPath (Slot s, PathAttachment p, Transform t, bool includeName) {
 			int worldVerticesLength = p.WorldVerticesLength;
 
 			if (pathVertexBuffer == null || pathVertexBuffer.Length < worldVerticesLength)
 				pathVertexBuffer = new float[worldVerticesLength];
-			
+
 			float[] pv = pathVertexBuffer;
 			p.ComputeWorldVertices(s, pv);
 
 			var ocolor = Handles.color;
-			Handles.color = new Color(254f/255f, 127f/255f, 0); // Path orange
+			Handles.color = SpineHandles.PathColor;
 
 			Matrix4x4 m = t.localToWorldMatrix;
 			const int step = 6;
@@ -1482,28 +1783,203 @@ namespace Spine.Unity.Editor {
 			}
 
 			const float endCapSize = 0.05f;
-			var q = Quaternion.identity;
-			Handles.DotCap(0, m.MultiplyPoint(new Vector3(pv[2], pv[3])), q, endCapSize);
-//			if (!p.Closed) Handles.DotCap(0, m.MultiplyPoint(new Vector3(pv[n - 4], pv[n - 3])), q, endCapSize);
+			Vector3 firstPoint = m.MultiplyPoint(new Vector3(pv[2], pv[3]));
+			SpineHandles.DrawDot(firstPoint, endCapSize);
+
+			//if (!p.Closed) SpineHandles.DrawDot(m.MultiplyPoint(new Vector3(pv[n - 4], pv[n - 3])), endCapSize);
+			if (includeName) Handles.Label(firstPoint + new Vector3(0,0.1f), p.Name, PathNameStyle);
 
 			Handles.color = ocolor;
 		}
 
-		static public void DrawCubicBezier (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
-			Handles.DrawBezier(p0, p3, p1, p2, Handles.color, Texture2D.whiteTexture, 2f);
-//			const float dotSize = 0.01f;
-//			Quaternion q = Quaternion.identity;
-//			Handles.DotCap(0, p0, q, dotSize);
-//			Handles.DotCap(0, p1, q, dotSize);
-//			Handles.DotCap(0, p2, q, dotSize);
-//			Handles.DotCap(0, p3, q, dotSize);
-//			Handles.DrawLine(p0, p1);
-//			Handles.DrawLine(p3, p2);
+		public static void DrawDot (Vector3 position, float size) {
+			#if UNITY_5_6_OR_NEWER
+			Handles.DotHandleCap(0, position, Quaternion.identity, size * HandleUtility.GetHandleSize(position), EventType.Ignore);
+			#else
+			Handles.DotCap(0, position, Quaternion.identity, size * HandleUtility.GetHandleSize(position));
+			#endif
 		}
-		#endregion
 
-		public static string GetPathSafeRegionName (AtlasRegion region) {
-			return region.name.Replace("/", "_");
+		public static void DrawBoundingBoxes (Transform transform, Skeleton skeleton) {
+			foreach (var slot in skeleton.Slots) {
+				var bba = slot.Attachment as BoundingBoxAttachment;
+				if (bba != null) SpineHandles.DrawBoundingBox(slot, bba, transform);
+			}
+		}
+
+		public static void DrawBoundingBox (Slot slot, BoundingBoxAttachment box, Transform t) {
+			if (box.Vertices.Length <= 0) return; // Handle cases where user creates a BoundingBoxAttachment but doesn't actually define it.
+
+			var worldVerts = new float[box.Vertices.Length];
+			box.ComputeWorldVertices(slot, worldVerts);
+
+			Handles.color = Color.green;
+			Vector3 lastVert = Vector3.zero;
+			Vector3 vert = Vector3.zero;
+			Vector3 firstVert = t.TransformPoint(new Vector3(worldVerts[0], worldVerts[1], 0));
+			for (int i = 0; i < worldVerts.Length; i += 2) {
+				vert.x = worldVerts[i];
+				vert.y = worldVerts[i + 1];
+				vert.z = 0;
+
+				vert = t.TransformPoint(vert);
+
+				if (i > 0)
+					Handles.DrawLine(lastVert, vert);
+
+				lastVert = vert;
+			}
+
+			Handles.DrawLine(lastVert, firstVert);
+		}
+
+		public static void DrawConstraints (Transform transform, Skeleton skeleton, float skeletonRenderScale = 1f) {
+			Vector3 targetPos;
+			Vector3 pos;
+			bool active;
+			Color handleColor;
+			const float Thickness = 4f;
+			Vector3 normal = transform.forward;
+
+			// Transform Constraints
+			handleColor = SpineHandles.TransformContraintColor;
+			foreach (var tc in skeleton.TransformConstraints) {
+				var targetBone = tc.Target;
+				targetPos = targetBone.GetWorldPosition(transform, skeletonRenderScale);
+
+				if (tc.TranslateMix > 0) {
+					if (tc.TranslateMix != 1f) {
+						Handles.color = handleColor;
+						foreach (var b in tc.Bones) {
+							pos = b.GetWorldPosition(transform, skeletonRenderScale);
+							Handles.DrawDottedLine(targetPos, pos, Thickness);
+						}
+					}
+					SpineHandles.DrawBoneCircle(targetPos, handleColor, normal, 1.3f * skeletonRenderScale);
+					Handles.color = handleColor;
+					SpineHandles.DrawCrosshairs(targetPos, 0.2f, targetBone.A, targetBone.B, targetBone.C, targetBone.D, transform, skeletonRenderScale);
+				}
+			}
+
+			// IK Constraints
+			handleColor = SpineHandles.IkColor;
+			foreach (var ikc in skeleton.IkConstraints) {
+				Bone targetBone = ikc.Target;
+				targetPos = targetBone.GetWorldPosition(transform, skeletonRenderScale);
+				var bones = ikc.Bones;
+				active = ikc.Mix > 0;
+				if (active) {
+					pos = bones.Items[0].GetWorldPosition(transform, skeletonRenderScale);
+					switch (bones.Count) {
+					case 1: {
+							Handles.color = handleColor;
+							Handles.DrawLine(targetPos, pos);
+							SpineHandles.DrawBoneCircle(targetPos, handleColor, normal);
+							var m = bones.Items[0].GetMatrix4x4();
+							m.m03 = targetBone.WorldX * skeletonRenderScale;
+							m.m13 = targetBone.WorldY * skeletonRenderScale;
+							SpineHandles.DrawArrowhead(transform.localToWorldMatrix * m);
+							break;	
+						}
+					case 2: {
+							Bone childBone = bones.Items[1];
+							Vector3 child = childBone.GetWorldPosition(transform, skeletonRenderScale);
+							Handles.color = handleColor;
+							Handles.DrawLine(child, pos);
+							Handles.DrawLine(targetPos, child);
+							SpineHandles.DrawBoneCircle(pos, handleColor, normal, 0.5f);
+							SpineHandles.DrawBoneCircle(child, handleColor, normal, 0.5f);
+							SpineHandles.DrawBoneCircle(targetPos, handleColor, normal);
+							var m = childBone.GetMatrix4x4();
+							m.m03 = targetBone.WorldX * skeletonRenderScale;
+							m.m13 = targetBone.WorldY * skeletonRenderScale;
+							SpineHandles.DrawArrowhead(transform.localToWorldMatrix * m);
+							break;
+						}
+					}
+				}
+				//Handles.Label(targetPos, ikc.Data.Name, SpineHandles.BoneNameStyle);
+			}
+
+			// Path Constraints
+			handleColor = SpineHandles.PathColor;
+			foreach (var pc in skeleton.PathConstraints) {
+				active = pc.TranslateMix > 0;
+				if (active)
+					foreach (var b in pc.Bones)
+						SpineHandles.DrawBoneCircle(b.GetWorldPosition(transform, skeletonRenderScale), handleColor, normal, 1f * skeletonRenderScale);
+			}
+		}
+
+		static void DrawCrosshairs2D (Vector3 position, float scale, float skeletonRenderScale = 1f) {
+			scale *= SpineHandles.handleScale * skeletonRenderScale;
+			Handles.DrawLine(position + new Vector3(-scale, 0), position + new Vector3(scale, 0));
+			Handles.DrawLine(position + new Vector3(0, -scale), position + new Vector3(0, scale));
+		}
+
+		static void DrawCrosshairs (Vector3 position, float scale, float a, float b, float c, float d, Transform transform, float skeletonRenderScale = 1f) {
+			scale *= SpineHandles.handleScale * skeletonRenderScale;
+
+			var xOffset = (Vector3)(new Vector2(a, c).normalized * scale);
+			var yOffset = (Vector3)(new Vector2(b, d).normalized * scale);
+			xOffset = transform.TransformDirection(xOffset);
+			yOffset = transform.TransformDirection(yOffset);
+
+			Handles.DrawLine(position + xOffset, position - xOffset);
+			Handles.DrawLine(position + yOffset, position - yOffset);
+		}
+
+		static void DrawArrowhead2D (Vector3 pos, float localRotation, float scale = 1f) {
+			scale *= SpineHandles.handleScale;
+
+			SpineHandles.IKMaterial.SetPass(0);
+			Graphics.DrawMeshNow(SpineHandles.ArrowheadMesh, Matrix4x4.TRS(pos, Quaternion.Euler(0, 0, localRotation), new Vector3(scale, scale, scale)));
+		}
+
+		static void DrawArrowhead (Matrix4x4 m) {
+			var s = SpineHandles.handleScale;
+			m.m00 *= s;
+			m.m01 *= s;
+			m.m02 *= s;
+			m.m10 *= s;
+			m.m11 *= s;
+			m.m12 *= s;
+			m.m20 *= s;
+			m.m21 *= s;
+			m.m22 *= s;
+
+			SpineHandles.IKMaterial.SetPass(0);
+			Graphics.DrawMeshNow(SpineHandles.ArrowheadMesh, m);
+		}
+
+		static void DrawBoneCircle (Vector3 pos, Color outlineColor, Vector3 normal, float scale = 1f) {
+			scale *= SpineHandles.handleScale;
+
+			Color o = Handles.color;
+			Handles.color = outlineColor;
+			float firstScale = 0.08f * scale;
+			Handles.DrawSolidDisc(pos, normal, firstScale);
+			const float Thickness = 0.03f;
+			float secondScale = firstScale - (Thickness  * SpineHandles.handleScale * scale);
+
+			if (secondScale > 0f) {
+				Handles.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+				Handles.DrawSolidDisc(pos, normal, secondScale);
+			}
+
+			Handles.color = o;
+		}
+
+		internal static void DrawCubicBezier (Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3) {
+			Handles.DrawBezier(p0, p3, p1, p2, Handles.color, Texture2D.whiteTexture, 2f);
+			//			const float dotSize = 0.01f;
+			//			Quaternion q = Quaternion.identity;
+			//			Handles.DotCap(0, p0, q, dotSize);
+			//			Handles.DotCap(0, p1, q, dotSize);
+			//			Handles.DotCap(0, p2, q, dotSize);
+			//			Handles.DotCap(0, p3, q, dotSize);
+			//			Handles.DrawLine(p0, p1);
+			//			Handles.DrawLine(p3, p2);
 		}
 	}
 
