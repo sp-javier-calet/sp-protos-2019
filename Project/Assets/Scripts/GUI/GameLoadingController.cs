@@ -83,7 +83,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
                 _loadSceneOperation.Progress = op.progress;
                 if(op.isDone)
                 {
-                    Hide();
+                    HideImmediate(true);
                     op.allowSceneActivation = true;
                     _loadSceneOperation.Finish("main scene loaded");
                 }
