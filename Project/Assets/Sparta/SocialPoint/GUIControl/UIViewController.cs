@@ -786,7 +786,7 @@ namespace SocialPoint.GUIControl
             return go;
         }
 
-        public void OnForceClose()
+        public void Close()
         {
             Hide(true);
         }
