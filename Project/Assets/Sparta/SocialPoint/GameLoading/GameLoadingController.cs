@@ -7,6 +7,7 @@ using SocialPoint.Crash;
 using SocialPoint.GUIControl;
 using SocialPoint.Locale;
 using SocialPoint.Login;
+using SocialPoint.Utils;
 using UnityEngine;
 
 namespace SocialPoint.GameLoading
@@ -32,6 +33,7 @@ namespace SocialPoint.GameLoading
         public IAppEvents AppEvents;
         public ICrashReporter CrashReporter;
         public IGameErrorHandler ErrorHandler;
+        public INativeUtils NativeUtils;
         public bool Paused;
 
         [SerializeField]
@@ -196,7 +198,7 @@ namespace SocialPoint.GameLoading
         {
             base.OnLoad();
                             
-            DebugUtils.Assert(Login != null, "Login can not be null");
+            DebugUtils.Assert(Login != null, "Login cannot be null");
             if(Login != null)
             {
                 Login.ErrorEvent += OnLoginError;
@@ -204,15 +206,15 @@ namespace SocialPoint.GameLoading
                 RegisterOperation(_loginOperation);
             }
 
-            DebugUtils.Assert(CrashReporter != null, "CrashReporter can not be null");
+            DebugUtils.Assert(CrashReporter != null, "CrashReporter cannot be null");
             if(CrashReporter != null)
             {
                 _sendCrashesBeforeLoginOperation = new LoadingOperation(FakeLoginDuration, DoSendCrashesBeforeLoginOperation);
                 RegisterOperation(_sendCrashesBeforeLoginOperation);
             }
 
-            DebugUtils.Assert(Localization != null, "Localization can not be null");
-            DebugUtils.Assert(ErrorHandler != null, "ErrorHandler can not be null");
+            DebugUtils.Assert(Localization != null, "Localization cannot be null");
+            DebugUtils.Assert(ErrorHandler != null, "ErrorHandler cannot be null");
         }
 
         protected override void OnAppearing()
@@ -325,7 +327,12 @@ namespace SocialPoint.GameLoading
             switch(type)
             {
             case ErrorType.Upgrade:
-                ErrorHandler.ShowUpgrade(Login.Data.Upgrade, success => Application.OpenURL(Login.Data.StoreUrl));
+                ErrorHandler.ShowUpgrade(Login.Data.Upgrade, success => {
+                    if(success)
+                    {
+                        OpenUpgrade();
+                    }
+                });
                 break;
             case ErrorType.MaintenanceMode:
                 ErrorHandler.ShowMaintenance(Login.Data.Maintenance, OnLoginErrorShown);
@@ -339,6 +346,22 @@ namespace SocialPoint.GameLoading
             default:
                 ErrorHandler.ShowLogin(err, OnLoginErrorShown);
                 break;
+            }
+        }
+
+        void OpenUpgrade()
+        {
+            if(Login.Data != null && !string.IsNullOrEmpty(Login.Data.StoreUrl))
+            {
+                Application.OpenURL(Login.Data.StoreUrl);
+            }
+            else if(NativeUtils != null)
+            {
+                NativeUtils.OpenUpgrade();
+            }
+            else
+            {
+                throw new InvalidOperationException("Could not show upgrade");
             }
         }
 
@@ -370,7 +393,7 @@ namespace SocialPoint.GameLoading
             }
             if(Error.IsNullOrEmpty(err) && Login.Data != null)
             {
-                if(Login.Data.Upgrade != null && Login.Data.Upgrade.Type != UpgradeType.None)
+                if(Login.Data.Upgrade != null && Login.Data.Upgrade.Type == UpgradeType.Suggested)
                 {
                     var op = new LoadingOperation(0.0f);
                     RegisterOperation(op);
@@ -378,7 +401,7 @@ namespace SocialPoint.GameLoading
                     ErrorHandler.ShowUpgrade(Login.Data.Upgrade, success => {
                         if(success)
                         {
-                            Application.OpenURL(Login.Data.StoreUrl);
+                            OpenUpgrade();
                         }
                         op.Finish();
                     });
