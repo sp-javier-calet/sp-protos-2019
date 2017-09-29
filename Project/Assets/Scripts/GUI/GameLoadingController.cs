@@ -42,6 +42,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         CrashReporter = Services.Instance.Resolve<ICrashReporter>();
         Localization = Services.Instance.Resolve<Localization>();
         AppEvents = Services.Instance.Resolve<IAppEvents>();
+        NativeUtils = Services.Instance.Resolve<INativeUtils>();
         ErrorHandler = Services.Instance.Resolve<IGameErrorHandler>();
         _assetBundleManager = Services.Instance.Resolve<AssetBundleManager>();
         _socialManager = Services.Instance.Resolve<SocialManager>();

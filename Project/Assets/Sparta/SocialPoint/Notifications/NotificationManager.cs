@@ -24,7 +24,7 @@ namespace SocialPoint.Notifications
         bool _pushTokenReceived;
         string _pushToken;
 
-        protected NotificationManager(ICoroutineRunner coroutineRunner, IAppEvents appEvents, ICommandQueue commandQueue)
+        protected NotificationManager(ICoroutineRunner coroutineRunner, INativeUtils nativeUtils, IAppEvents appEvents, ICommandQueue commandQueue)
         {
             if(coroutineRunner == null)
             {
@@ -38,9 +38,9 @@ namespace SocialPoint.Notifications
             _commandQueue = commandQueue;
 
 #if UNITY_IOS && !UNITY_EDITOR
-            Services = new IosNotificationServices(coroutineRunner);
+            Services = new IosNotificationServices(coroutineRunner, nativeUtils);
 #elif UNITY_ANDROID && !UNITY_EDITOR
-            Services = new AndroidNotificationServices(coroutineRunner);
+            Services = new AndroidNotificationServices(coroutineRunner, nativeUtils);
 #else
             Services = new EmptyNotificationServices();
 #endif

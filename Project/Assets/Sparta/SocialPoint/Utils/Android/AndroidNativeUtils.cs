@@ -1,12 +1,19 @@
 ﻿using System;
 using UnityEngine;
 using SocialPoint.Base;
+using SocialPoint.Login;
+using SocialPoint.Hardware;
 
 namespace SocialPoint.Utils
 {
-    #if UNITY_ANDROID
-    public sealed class AndroidNativeUtils : INativeUtils
+    public sealed class AndroidNativeUtils : UnityNativeUtils
     {
+        public AndroidNativeUtils(IAppInfo appInfo) : base(appInfo)
+        {
+        }
+
+#if UNITY_ANDROID
+
         static AndroidJavaObject GetLaunchIntentForPackage(string packageName)
         {
             using(var packageManager = AndroidContext.PackageManager)
@@ -15,7 +22,7 @@ namespace SocialPoint.Utils
             }
         }
 
-        public bool IsInstalled(string appId)
+        public override bool IsInstalled(string appId)
         {
             try
             {
@@ -30,11 +37,10 @@ namespace SocialPoint.Utils
             }
         }
 
-        public void OpenApp(string appId)
+        public override void OpenApp(string appId)
         {
             try
             {
-
                 using(var intent = GetLaunchIntentForPackage(appId))
                 {
                     if(intent != null)
@@ -48,27 +54,13 @@ namespace SocialPoint.Utils
             }
         }
 
-        public void OpenStore(string appId)
+        public override void OpenStore(string appId)
         {
-            OpenUrl(string.Format("market://details?id={0}", appId));
+            Application.OpenURL(string.Format("market://details?id={0}", appId));
         }
 
-        public void OpenUrl(string url)
-        {
-            Application.OpenURL(url);
-        }
-
-        public bool UserAllowNotification
-        {
-            get
-            {
-                return true; // This only makes sense on IOS
-            }
-        }
-    }
-    #else
-    public sealed class AndroidNativeUtils : EmptyNativeUtils
-    {
-    }
 #endif
+
+    }
+
 }
