@@ -716,7 +716,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        virtual public bool CanPop()
+        virtual public bool CanBack()
         {
             return IsStable; 
         }
@@ -793,7 +793,7 @@ namespace SocialPoint.GUIControl
 
         public virtual void OnCloseClicked()
         {
-            if(CanPop())
+            if(CanBack())
             {
                 Hide();
             }

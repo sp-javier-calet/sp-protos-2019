@@ -56,6 +56,11 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         base.OnLoad();
     }
 
+    public override bool CanBack()
+    {
+        return false;
+    }
+
     override protected void OnAppeared()
     {
         base.OnAppeared();

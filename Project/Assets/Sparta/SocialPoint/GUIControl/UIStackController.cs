@@ -822,16 +822,9 @@ namespace SocialPoint.GUIControl
 
         public void Pop()
         {
-            var top = Top;
-            if(IsValidStackNode(top))
-            {
-                if(!top.Controller.CanPop())
-                {
-                    return;
-                }
-            }
 #if UNITY_EDITOR || UNITY_ANDROID
-            else 
+            var top = Top;
+            if(!IsValidStackNode(top))
             {
                 ExecuteCloseAppCallback();
                 return;
@@ -869,15 +862,8 @@ namespace SocialPoint.GUIControl
         public void PopImmediate()
         {
             var top = Top;
-            if(IsValidStackNode(top))
-            {
-                if(!top.Controller.CanPop())
-                {
-                    return;
-                }
-            }
 #if UNITY_EDITOR || UNITY_ANDROID
-            else 
+            if(!IsValidStackNode(top))
             {
                 ExecuteCloseAppCallback();
                 return;
@@ -1043,7 +1029,7 @@ namespace SocialPoint.GUIControl
             }
             else if(IsValidStackNode(Top))
             {
-                if(Top.Controller.CanPop())
+                if(Top.Controller.CanBack())
                 {
                     Top.Controller.OnCloseClicked();
                 }
