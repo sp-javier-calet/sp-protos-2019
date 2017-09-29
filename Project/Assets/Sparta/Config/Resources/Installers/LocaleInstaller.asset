@@ -13,7 +13,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    EnableViewLocalization: 1
     Localization:
       Environment: 0
       ProjectId: lod
@@ -21,9 +20,11 @@ MonoBehaviour:
       SecretKeyLoc: AE7ffBEUZXNzfTe0
       SecretKeyProd: GpfC4F40mwkX0jBX
       BundleDir: localization
-      CsvMode: 0
+      CsvMode: 2
       ShowKeysOnDevMode: 0
       SupportedLanguages:
       - en
       - es
+      - pt
+      - fr
       Timeout: 20

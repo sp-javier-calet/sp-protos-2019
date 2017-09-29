@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using ObserverPattern;
 
 namespace SocialPoint.Locale
 {
-    public interface ILocalizationManager : IDisposable
+    public interface ILocalizationManager : IObservable, IDisposable
     {
         string[] SupportedLanguages{ get; set; }
 
@@ -12,6 +14,8 @@ namespace SocialPoint.Locale
         string SelectedLanguage{ get; }
 
         Localization Localization{ get; }
+
+        CultureInfo SelectedCultureInfo { get; }
 
         event Action<Dictionary<string, Localization>> Loaded;
     }

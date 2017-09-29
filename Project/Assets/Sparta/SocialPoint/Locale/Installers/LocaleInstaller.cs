@@ -15,7 +15,7 @@ using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Locale
 {
-    public sealed class LocaleInstaller : ServiceInstaller, IInitializable
+    public sealed class LocaleInstaller : ServiceInstaller
     {
         public enum LocalizationEnvironment
         {
@@ -34,7 +34,7 @@ namespace SocialPoint.Locale
         [Serializable]
         public class SettingsData
         {
-            public bool EnableViewLocalization = true;
+            public bool ForceDeviceLanguage = false;
             public LocalizationSettings Localization;
         }
 
@@ -57,14 +57,8 @@ namespace SocialPoint.Locale
 
         public override void InstallBindings()
         {
-            Container.Bind<IInitializable>().ToInstance(this);
             Container.Bind<Localization>().ToGetter<ILocalizationManager>(mng => mng.Localization);
-
             Container.Rebind<LocalizeAttributeConfiguration>().ToMethod<LocalizeAttributeConfiguration>(CreateLocalizeAttributeConfiguration);
-
-            Container.Rebind<UILocalizationUpdater>().ToMethod<UILocalizationUpdater>(CreateViewLocalizer);
-            Container.Bind<IDisposable>().ToLookup<UILocalizationUpdater>();
-
             Container.Rebind<ILocalizationManager>().ToMethod<LocalizationManager>(CreateLocalizationManager, SetupLocalizationManager);
             Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
 
@@ -73,15 +67,7 @@ namespace SocialPoint.Locale
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLocale>(CreateAdminPanel);
             #endif
         }
-
-        public void Initialize()
-        {
-            if(Settings.EnableViewLocalization)
-            {
-                Container.Resolve<UILocalizationUpdater>();
-            }
-        }
-
+            
         LocalizeAttributeConfiguration CreateLocalizeAttributeConfiguration()
         {
             return new LocalizeAttributeConfiguration(
@@ -96,13 +82,6 @@ namespace SocialPoint.Locale
                 Container.Resolve<ILocalizationManager>());
         }
         #endif
-
-        UILocalizationUpdater CreateViewLocalizer()
-        {
-            return new UILocalizationUpdater(
-                Container.Resolve<LocalizeAttributeConfiguration>(),
-                Container.Resolve<IEventDispatcher>());
-        }
 
         LocalizationManager CreateLocalizationManager()
         {

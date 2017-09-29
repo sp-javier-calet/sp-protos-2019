@@ -10,10 +10,11 @@ using SocialPoint.Base;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
 using SocialPoint.Network;
+using ObserverPattern;
 
 namespace SocialPoint.Locale
 {
-    public class LocalizationManager : ILocalizationManager
+    public class LocalizationManager : Observable, ILocalizationManager
     {
         public sealed class LocationData
         {
@@ -74,7 +75,7 @@ namespace SocialPoint.Locale
             WriteCsvWithAllSupportedLanguages,
             NoCsv
         }
-
+            
         const string JsonExtension = ".json";
         const string EtagHeader = "Etag";
         const string IfNoneMatchHeader = "If-None-Match";
@@ -174,8 +175,15 @@ namespace SocialPoint.Locale
 
         public CultureInfo CurrentCultureInfo{ get; private set; }
 
-        public CultureInfo SelectedCultureInfo{ get; private set; }
-
+        CultureInfo _selectedCultureInfo;
+        public CultureInfo SelectedCultureInfo
+        {
+            get
+            {
+                return _selectedCultureInfo;
+            }
+        }
+            
         public delegate void CsvForNGUILoadedDelegate(byte[] bytes);
 
         CsvForNGUILoadedDelegate CsvForNGUILoaded;
@@ -388,6 +396,8 @@ namespace SocialPoint.Locale
             {
                 Loaded(_locales);
             }
+
+            NotifyToObservers();
         }
 
         void DownloadCurrentLanguage()
@@ -692,7 +702,7 @@ namespace SocialPoint.Locale
             }
 
             _selectedLanguage = lang;
-            SelectedCultureInfo = GetCultureInfo(_selectedLanguage);
+            _selectedCultureInfo = GetCultureInfo(_selectedLanguage);
 
             var fixlang = FixLanguage(lang);
 
