@@ -1,25 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using SocialPoint.Utils;
+using SocialPoint.Base;
 
 namespace SocialPoint.Notifications
 {
     public abstract class BaseNotificationServices : INotificationServices, IDisposable
     {
         protected ICoroutineRunner _runner;
+        protected INativeUtils _nativeUtils;
         protected string _pushToken;
         bool _validPushToken;
 
         IList<Action<bool, string>> _pushTokenReceivedListeners;
 
-        protected BaseNotificationServices(ICoroutineRunner runner)
+        protected BaseNotificationServices(ICoroutineRunner runner, INativeUtils nativeUtils)
         {
-            if(runner == null)
-            {
-                throw new ArgumentNullException("runner", "ICoroutineRunner cannot be null or empty!");
-            }
+            DebugUtils.Assert(runner != null);
+            DebugUtils.Assert(nativeUtils != null);
 
             _runner = runner;
+            _nativeUtils = nativeUtils;
             _pushTokenReceivedListeners = new List<Action<bool, string>>();
         }
 
@@ -72,7 +73,7 @@ namespace SocialPoint.Notifications
         {
             get
             {
-                return NativeUtils.UserAllowNotification;
+                return _nativeUtils.UserAllowNotification;
             }
         }
 

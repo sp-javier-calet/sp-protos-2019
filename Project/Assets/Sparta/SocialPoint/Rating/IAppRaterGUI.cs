@@ -5,6 +5,8 @@ namespace SocialPoint.Rating
     {
         bool Show(bool showLaterButton);
 
-        void SetAppRater(IAppRater appRater);
+        void Rate();
+
+        IAppRater AppRater{ set; }
     }
 }

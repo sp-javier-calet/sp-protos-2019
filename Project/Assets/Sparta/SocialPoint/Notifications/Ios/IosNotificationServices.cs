@@ -84,8 +84,8 @@ namespace SocialPoint.Notifications
 
         IEnumerator _checkPermissionStatusCoroutine;
 
-        public IosNotificationServices(ICoroutineRunner runner)
-            : base(runner)
+        public IosNotificationServices(ICoroutineRunner runner, INativeUtils nativeUtils)
+            : base(runner, nativeUtils)
         {
         }
 

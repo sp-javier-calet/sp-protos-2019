@@ -1,5 +1,6 @@
 using System;
 using SocialPoint.Dependency;
+using SocialPoint.Utils;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -42,7 +43,10 @@ namespace SocialPoint.Notifications
 #if UNITY_IOS
     IosNotificationServices CreateIosNotificationServices()
     {
-        return new IosNotificationServices(Container.Resolve<SocialPoint.Utils.ICoroutineRunner>());
+        return new IosNotificationServices(
+            Container.Resolve<ICoroutineRunner>(),
+            Container.Resolve<INativeUtils>()
+            );
     }
 
 
@@ -50,7 +54,10 @@ namespace SocialPoint.Notifications
 #elif UNITY_ANDROID
     AndroidNotificationServices CreateAndroidNotificationServices()
     {
-        return new AndroidNotificationServices(Container.Resolve<SocialPoint.Utils.ICoroutineRunner>());
+        return new AndroidNotificationServices(
+            Container.Resolve<ICoroutineRunner>(),
+            Container.Resolve<INativeUtils>()
+            );
     }
 #endif
     
