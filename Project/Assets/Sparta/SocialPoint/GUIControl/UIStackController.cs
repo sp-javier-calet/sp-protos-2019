@@ -412,11 +412,11 @@ namespace SocialPoint.GUIControl
                 {
                     if(IsPopAction(act))
                     {
-                        from.Controller.Hide(true);
+                        from.Controller.Hide();
                     }
                     else if(IsReplaceAction(act))
                     {
-                        from.Controller.Hide(true);
+                        from.Controller.Hide();
 
                         if(_stack.Count > 1)
                         {
@@ -792,8 +792,12 @@ namespace SocialPoint.GUIControl
         IEnumerator DoPopCoroutine()
         {
             StackNode top = Top;
-            StackNode stackNode = null;
+            if(IsValidStackNode(top))
+            {
+                top.Controller.DestroyOnHide = true;
+            }
 
+            StackNode stackNode = null;
             if(_stack.Count > 1)
             {
                 stackNode = _stack[_stack.Count - 2];
