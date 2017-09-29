@@ -29,8 +29,8 @@ public class GUISceneInstaller : Installer, IInitializable
         {
             return;
         }
-            
-        var stackController = Container.Resolve<UIStackController>();
+
+        var stackController = Container.Resolve<ScreensController>();
         if(stackController == null)
         {
             throw new InvalidOperationException("Could not find screens controller for initial screen");

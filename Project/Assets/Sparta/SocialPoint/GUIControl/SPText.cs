@@ -29,17 +29,20 @@ namespace SocialPoint.GUIControl
         {
             base.Start();
 
-            _localizationManager = Services.Instance.Resolve<ILocalizationManager>();
-            if(_localizationManager == null)
+            if(Application.isPlaying)
             {
-                throw new InvalidOperationException("Could not find Localization");
+                _localizationManager = Services.Instance.Resolve<ILocalizationManager>();
+                if(_localizationManager == null)
+                {
+                    throw new InvalidOperationException("Could not find Localization");
+                }
+
+                _localization = _localizationManager.Localization;
+                _localizationManager.AddObserver(this);
+
+                Key = "HUD_INBOX_MESSAGE_EMPTY_KEY"; // TODO TO TEST
+                LocalizeText();
             }
-
-            _localizationManager.AddObserver(this);
-
-            _localization = _localizationManager.Localization;
-            Key = "HUD_INBOX_MESSAGE_EMPTY_KEY";
-            LocalizeText();
         }
 
         public void OnNotify()
