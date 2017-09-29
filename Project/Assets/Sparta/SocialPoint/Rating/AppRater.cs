@@ -23,13 +23,12 @@ namespace SocialPoint.Rating
 
         const int DayInSeconds = 86400;
 
-        IDeviceInfo _deviceInfo;
+        readonly IDeviceInfo _deviceInfo;
         readonly IAttrStorage _storage;
-        IAppEvents _appEvents;
-
-        IAppRaterGUI _gui;
+        readonly IAppEvents _appEvents;
         AttrDic _appRaterInfo;
 
+        IAppRaterGUI _gui;
         public IAppRaterGUI GUI
         {
             set
@@ -37,12 +36,10 @@ namespace SocialPoint.Rating
                 if(_gui != value)
                 {
                     _gui = value;
-                    _gui.SetAppRater(this);
+                    _gui.AppRater = this;
                 }
             }
         }
-
-        public string StoreUrl = "http://www.socialpoint.es/";
 
         public const int DefaultUsesUntilPrompt = 20;
         public const int DefaultEventsUntilPrompt = -1;
@@ -68,7 +65,6 @@ namespace SocialPoint.Rating
         /// if any version is rated will skip rating others
         /// </summary>
         public bool AnyVersionRateIsValid;
-
 
         public AppRater(IDeviceInfo deviceInfo, IAttrStorage storage, IAppEvents appEvents)
         {
@@ -138,7 +134,6 @@ namespace SocialPoint.Rating
             {
                 return;
             }
-
             if(_gui.Show(true))
             {
                 //increment prompts only if the popup can be shown
@@ -382,7 +377,7 @@ namespace SocialPoint.Rating
 
         void RequestAccepted()
         {
-            Application.OpenURL(StoreUrl);
+            _gui.Rate();
             _appRaterInfo.SetValue(RatedCurrentVersionKey, true);
             _appRaterInfo.SetValue(RatedAnyVersionKey, true);
             SaveInfo();

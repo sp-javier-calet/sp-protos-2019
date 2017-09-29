@@ -4,6 +4,8 @@ using SocialPoint.Alert;
 using SocialPoint.Hardware;
 using SocialPoint.Attributes;
 using SocialPoint.AppEvents;
+using SocialPoint.Utils;
+using SocialPoint.Login;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -23,6 +25,7 @@ namespace SocialPoint.Rating
             public int UserLevelUntilPrompt = AppRater.DefaultUserLevelUntilPrompt;
             public int MaxPromptsPerDay = AppRater.DefaultMaxPromptsPerDay;
             public bool PromptAfterBackground = true;
+            public bool NativeRateDialog = false;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -64,7 +67,10 @@ namespace SocialPoint.Rating
 
         void SetupAppRater(AppRater rater)
         {
-            rater.GUI = new DefaultAppRaterGUI(Container.Resolve<IAlertView>());
+            rater.GUI = new DefaultAppRaterGUI(
+                Container.Resolve<IAlertView>(),
+                Container.Resolve<INativeUtils>(),
+                Settings.NativeRateDialog);
             rater.UsesUntilPrompt = Settings.UsesUntilPrompt;
             rater.EventsUntilPrompt = Settings.EventsUntilPrompt;
             rater.DaysUntilPrompt = Settings.DaysUntilPrompt;

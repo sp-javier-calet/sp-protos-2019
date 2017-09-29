@@ -1,13 +1,27 @@
 ﻿using System;
 using UnityEngine;
 using System.Runtime.InteropServices;
+using SocialPoint.Login;
+using SocialPoint.Hardware;
 
 namespace SocialPoint.Utils
 {
-    public sealed class IosNativeUtils : INativeUtils
+
+    public sealed class IosNativeUtils : UnityNativeUtils
     {
+        public IosNativeUtils(IAppInfo appInfo):base(appInfo)
+        {
+        }
+
+#if (UNITY_IOS || UNITY_TVOS)
+
+        public override void OpenApp(string appId)
+        {
+            Application.OpenURL(appId);
+        }
+
         [StructLayout(LayoutKind.Sequential)]
-        public struct ForceTouchShortcutItem
+        public struct IosShortcutItem
         {
             [MarshalAs(UnmanagedType.LPStr)]
             public string Type;
@@ -26,59 +40,63 @@ namespace SocialPoint.Utils
             /// <param name="title">The localized Title</param>
             /// <param name="subtitle">The localized Subtitle</param>
             /// <param name="iconPath">The icon must be 70x70 and should be placed within a StreamingAssets folder</param>
-            public ForceTouchShortcutItem(string type, string title, string subtitle = null, string iconPath = null)
+            public void Init(ShortcutItem item)
             {
-                Type = type ?? string.Empty;
-                Title = title ?? string.Empty;
-                Subtitle = subtitle ?? string.Empty;
-                IconPath = string.IsNullOrEmpty(iconPath) ? "" : string.Concat("Data/Raw/", iconPath);
+                Type = item.Type ?? string.Empty;
+                Title = item.Title ?? string.Empty;
+                Subtitle = item.Subtitle ?? string.Empty;
+                IconPath = string.IsNullOrEmpty(item.Icon) ? "" : string.Concat("Data/Raw/", item.Icon);
             }
         };
 
-        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         static extern bool SPUnityNativeUtilsIsInstalled(string appId);
-        #else
-        static bool SPUnityNativeUtilsIsInstalled(string appId)
-        {
-            throw new NotImplementedException("Only iOS Supported");
-        }
-        #endif
 
-        public bool IsInstalled(string appId)
+        public override bool IsInstalled(string appId)
         {
             return SPUnityNativeUtilsIsInstalled(appId);
         }
 
-        public void OpenApp(string appId)
+        string GetAppUrl(string appId, string suffix=null)
         {
-            if(IsInstalled(appId))
+            return string.Format("itms-apps://itunes.apple.com/app/id{0}{1}", appId, suffix);
+        }
+
+        public override void OpenStore(string appId)
+        {
+            Application.OpenURL(GetAppUrl(appId));
+        }
+
+        public override void OpenReview()
+        {
+            Application.OpenURL(GetAppUrl(_appInfo.Id, "?action=write-review"));
+        }
+
+        [DllImport("__Internal")]
+        static extern bool SPUnityNativeUtilsSupportsReviewDialog();
+
+
+        public override bool SupportsReviewDialog
+        {
+            get
             {
-                OpenUrl(appId);
+                return SPUnityNativeUtilsSupportsReviewDialog();
             }
+
         }
 
-        public void OpenStore(string appId)
+        [DllImport("__Internal")]
+        static extern void SPUnityNativeUtilsDisplayReviewDialog();
+
+        public override void DisplayReviewDialog()
         {
-            OpenUrl(string.Format("itms-apps://itunes.apple.com/app/id{0}", appId));
+            SPUnityNativeUtilsDisplayReviewDialog();
         }
 
-        public void OpenUrl(string url)
-        {
-            Application.OpenURL(url);
-        }
-
-        #if (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
-        [DllImport ("__Internal")]
+        [DllImport("__Internal")]
         static extern bool SPUnityNativeUtilsUserAllowNotification();
-        #else
-        public bool SPUnityNativeUtilsUserAllowNotification()
-        {
-            return true;
-        }
-        #endif
 
-        public bool UserAllowNotification
+        public override bool UserAllowNotification
         {
             get
             {
@@ -86,20 +104,30 @@ namespace SocialPoint.Utils
             }
         }
 
-        #if UNITY_IOS && !UNITY_EDITOR
         [DllImport("__Internal")]
-        public static extern void SPUnitySetForceTouchShortcutItems(ForceTouchShortcutItem[] shortcuts, int itemsCount);
-#endif
-        public static ForceTouchShortcutItem[] ForceTouchShortcutItems
+        public static extern void SPUnitySetForceTouchShortcutItems(IosShortcutItem[] shortcuts, int itemsCount);
+
+        ShortcutItem[] _shortcutItems;
+
+        public override ShortcutItem[] ShortcutItems
         {
+            get
+            {
+                return _shortcutItems;
+            }
+
             set
             {
-                #if UNITY_IOS && !UNITY_EDITOR
-                
-                SPUnitySetForceTouchShortcutItems(value, value.Length);
-                
-                #endif
+                _shortcutItems = value;
+                var ios = new IosShortcutItem[value.Length];
+                for(var i = 0; i < value.Length; i++)
+                {
+                    ios[i].Init(value[i]);
+                }
+                SPUnitySetForceTouchShortcutItems(ios, ios.Length);
             }
         }
+
+#endif
     }
 }

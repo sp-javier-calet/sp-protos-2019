@@ -35,7 +35,8 @@ namespace SocialPoint.CrossPromotion
         const string kDefaultAppsToCheck = "dragoncity://,monsterlegends://,dragonland://,restaurantcity://,dragonstadium://";
         #elif UNITY_ANDROID
         const string kDefaultAppsToCheck = "es.socialpoint.DragonCity,es.socialpoint.MonsterLegends,es.parrotgames.restaurantcity,es.socialpoint.dragonland";
-        #else
+        
+#else
         const string kDefaultAppsToCheck = "";
         #endif
         string _assetsPath;
@@ -46,6 +47,7 @@ namespace SocialPoint.CrossPromotion
         bool _assetsReadyCalled;
         List<string> _assetsFailed = new List<string>();
         ICoroutineRunner _coroutineRunner;
+        INativeUtils _nativeUtils;
         IAttrStorage _storage;
         IAppEvents _appEvents;
         CrossPromotionIconConfiguration _iconConfig;
@@ -90,10 +92,12 @@ namespace SocialPoint.CrossPromotion
             }
         }
 
-        public CrossPromotionManager(ICoroutineRunner coroutineRunner)
+        public CrossPromotionManager(ICoroutineRunner coroutineRunner, INativeUtils nativeUtils)
         {
             DebugUtils.Assert(coroutineRunner != null);
+            DebugUtils.Assert(nativeUtils != null);
             _coroutineRunner = coroutineRunner;
+            _nativeUtils = nativeUtils;
             _storage = new PlayerPrefsAttrStorage();
             _assetsPath = PathsManager.TemporaryDataPath;
 
@@ -372,7 +376,7 @@ namespace SocialPoint.CrossPromotion
             for(int i = 0, appsToCheckArrayLength = appsToCheckArray.Length; i < appsToCheckArrayLength; i++)
             {
                 var app = appsToCheckArray[i];
-                if(NativeUtils.IsInstalled(app))
+                if(_nativeUtils.IsInstalled(app))
                 {
                     sb.Append(app);
                     sb.Append(",");
@@ -450,7 +454,7 @@ namespace SocialPoint.CrossPromotion
                 var bannerData = new AttrDic();
                 bannerData.SetValue("id", banner.Uid);
                 bannerData.SetValue("xpromo_game", banner.Game);
-                bannerData.SetValue("installed", NativeUtils.IsInstalled(banner.AppId));
+                bannerData.SetValue("installed", _nativeUtils.IsInstalled(banner.AppId));
                 bannerData.SetValue("position", position);
                 bannerList.Add(bannerData);
                 ++position;
@@ -490,7 +494,7 @@ namespace SocialPoint.CrossPromotion
             data.SetValue("id", uid);
             data.SetValue("position", position);
             data.SetValue("xpromo_game", banner.Game);
-            data.SetValue("installed", NativeUtils.IsInstalled(banner.AppId));
+            data.SetValue("installed", _nativeUtils.IsInstalled(banner.AppId));
             TrackSystemEvent("cross.banner_impressed", data);
         }
 
@@ -501,7 +505,7 @@ namespace SocialPoint.CrossPromotion
             data.SetValue("id", uid);
             data.SetValue("position", position);
             data.SetValue("xpromo_game", banner.Game);
-            data.SetValue("installed", NativeUtils.IsInstalled(banner.AppId));
+            data.SetValue("installed", _nativeUtils.IsInstalled(banner.AppId));
             data.SetValue("urgent", urgent);
 
             if(urgent)
@@ -571,13 +575,13 @@ namespace SocialPoint.CrossPromotion
         void OpenApp(int uid)
         {
             CrossPromotionBannerData banner = Data.BannerInfo[uid];
-            if(NativeUtils.IsInstalled(banner.AppId))
+            if(_nativeUtils.IsInstalled(banner.AppId))
             {
-                NativeUtils.OpenApp(banner.AppId);
+                _nativeUtils.OpenApp(banner.AppId);
             }
             else
             {
-                NativeUtils.OpenStore(banner.StoreId);
+                _nativeUtils.OpenStore(banner.StoreId);
             }
         }
 
