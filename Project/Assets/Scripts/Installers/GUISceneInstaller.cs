@@ -30,8 +30,8 @@ public class GUISceneInstaller : Installer, IInitializable
             return;
         }
 
-        var screens = Container.Resolve<ScreensController>();
-        if(screens == null)
+        var stackController = Container.Resolve<UIStackController>();
+        if(stackController == null)
         {
             throw new InvalidOperationException("Could not find screens controller for initial screen");
         }
@@ -45,11 +45,11 @@ public class GUISceneInstaller : Installer, IInitializable
 
         if(Settings.InitialScreenAnimation)
         {
-            screens.Push(ctrl);
+            stackController.Push(ctrl);
         }
         else
         {
-            screens.PushImmediate(ctrl);
+            stackController.PushImmediate(ctrl);
         }
     }
 }
