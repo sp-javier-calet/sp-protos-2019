@@ -28,8 +28,8 @@ namespace SocialPoint.GUIControl
         public event Action<UIViewController, ViewState> ViewEvent;
         public event Action<UIViewController, GameObject> InstantiateEvent;
 
-        public UnityViewAnimation UnityShowAnimation;
-        public UnityViewAnimation UnityHideAnimation;
+        public UIViewAnimation ShowAnimation;
+        public UIViewAnimation HideAnimation;
 
         bool _loaded;
         ViewState _viewState = ViewState.Initial;

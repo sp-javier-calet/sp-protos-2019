@@ -7,19 +7,19 @@ namespace SocialPoint.GUIControl
     public sealed class UIToolAnimation : UIViewAnimation
     {
         string _name;
-        SocialPoint.GUIAnimation.Animation _anim;
+        Animation _anim;
 
         public UIToolAnimation(string name)
         {
             _name = name;
         }
 
-        public void Load(UIViewController ctrl)
+        public override void Load(UIViewController ctrl)
         {
             _anim = GUIAnimationUtility.GetAnimation(ctrl.gameObject, _name);
         }
 
-        public IEnumerator Appear()
+        public override IEnumerator Appear()
         {
             if(!Revert())
             {
@@ -28,7 +28,7 @@ namespace SocialPoint.GUIControl
             yield return Play(false);
         }
 
-        public IEnumerator Disappear()
+        public override IEnumerator Disappear()
         {
             if(!Revert())
             {
@@ -51,7 +51,7 @@ namespace SocialPoint.GUIControl
             _anim.Stop();
         }
 
-        public void Reset()
+        public override void Reset()
         {
             Revert();
         }
@@ -66,7 +66,7 @@ namespace SocialPoint.GUIControl
             return true;
         }
 
-        public object Clone()
+        public override object Clone()
         {
             var clone = new UIToolAnimation(_name);
             clone._anim = _anim;

@@ -355,24 +355,24 @@ namespace SocialPoint.GUIControl
             {
                 if(IsValidStackNode(from))
                 {
-                    SetupAnimation(from, from.Controller.UnityHideAnimation);
+                    SetupAnimation(from, from.Controller.HideAnimation);
                 }
 
                 if(IsValidStackNode(to))
                 {
-                    SetupAnimation(to, to.Controller.UnityShowAnimation);
+                    SetupAnimation(to, to.Controller.ShowAnimation);
                 }
             }
             else
             {
                 if(IsValidStackNode(from))
                 {
-                    SetupAnimation(from, from.Controller.UnityShowAnimation);
+                    SetupAnimation(from, from.Controller.ShowAnimation);
                 }
 
                 if(IsValidStackNode(to))
                 {
-                    SetupAnimation(to, to.Controller.UnityHideAnimation);
+                    SetupAnimation(to, to.Controller.HideAnimation);
                 }
 
             }

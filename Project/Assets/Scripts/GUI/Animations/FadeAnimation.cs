@@ -2,7 +2,8 @@ using UnityEngine;
 using System.Collections;
 using SocialPoint.GUIControl;
 
-public class FadeAnimation : UnityViewAnimation
+[CreateAssetMenu(menuName = "UI Animations/Fade Animation")]
+public class FadeAnimation : UIViewAnimation
 {
     [SerializeField]
     float _time = 1.0f;
@@ -54,7 +55,10 @@ public class FadeAnimation : UnityViewAnimation
 
     public override void Reset()
     {
-        _ctrl.Alpha = _maxAlpha;
+        if(_ctrl != null)
+        {
+            _ctrl.Alpha = _maxAlpha;
+        }
     }
 
     public override object Clone()

@@ -2,9 +2,12 @@
 using System.Collections;
 using SocialPoint.GUIControl;
 
-public class SlideAnimation : UnityViewAnimation 
+[CreateAssetMenu(menuName = "UI Animations/Slide Animation")]
+public class SlideAnimation : UIViewAnimation 
 {
+    [SerializeField]
     float _speed = 1.0f;
+
     UIViewController _controller;
     RectTransform _transform;
 
@@ -14,7 +17,8 @@ public class SlideAnimation : UnityViewAnimation
         Right
     }
 
-    public DirectionType Direction;
+    [SerializeField]
+    DirectionType _direction;
     
     public override void Load(UIViewController ctrl)
     {
@@ -29,19 +33,19 @@ public class SlideAnimation : UnityViewAnimation
     public SlideAnimation(float speed, DirectionType dir=DirectionType.Right)
     {
         _speed = speed;
-        Direction = dir;
+        _direction = dir;
     }
     
     public override IEnumerator Appear()
     {
         var p = _transform.localPosition;
         var np = _transform.localPosition;
-        if(Direction == DirectionType.Right)
+        if(_direction == DirectionType.Right)
         {
             np.x = (float)_transform.sizeDelta.x;
         }
         else
-        if(Direction == DirectionType.Left)
+        if(_direction == DirectionType.Left)
         {
             np.x = (float)-_transform.sizeDelta.x;
         }
@@ -54,12 +58,12 @@ public class SlideAnimation : UnityViewAnimation
     {
         var op = _transform.localPosition;
         var p = op;
-        if(Direction == DirectionType.Right)
+        if(_direction == DirectionType.Right)
         {
             p.x = (float)-_transform.sizeDelta.x;
         }
         else
-        if(Direction == DirectionType.Left)
+        if(_direction == DirectionType.Left)
         {
             p.x = (float)_transform.sizeDelta.x;
         }
@@ -67,9 +71,11 @@ public class SlideAnimation : UnityViewAnimation
         yield return _controller.StartCoroutine(tween.waitForCompletion());
         _transform.localPosition = op;
     }
+
+    public override void Reset() {}
         
     public override object Clone()
     {
-        return new SlideAnimation(_speed, Direction);
+        return new SlideAnimation(_speed, _direction);
     }
 }
