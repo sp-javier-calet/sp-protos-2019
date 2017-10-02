@@ -1,9 +1,12 @@
 apply plugin: 'com.android.library'
 
+def dirPattern = "Sparta/External/Helpshift/Plugins/Android"
+def copyDst = getFirstDirectoryMatching(gitFolder, dirPattern)
+
 repositories {
     mavenCentral()
     flatDir {
-        dirs '../../../../Assets/Sparta/External/Helpshift/Plugins/Android'
+        dirs "$copyDst"
     }
 }
 

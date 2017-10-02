@@ -14,11 +14,14 @@ namespace SocialPoint.Base
 
     public class ScenesData : ScriptableObject
     {
+        const string FolderName = "ScenesData/";
         const string FileName = "ScenesData";
-        const string FileExtension = ".asset";
-        const string ContainerPath = "Assets/Sparta/Config/ScenesData/Resources/";
 
-        const string ScenesDataAssetPath = ContainerPath + FileName + FileExtension;
+        #if UNITY_EDITOR
+        const string FileExtension = ".asset";
+        static readonly string ContainerPath = ConfigPaths.SpartaConfigResourcesPath + FolderName;
+        static readonly string AssetFullPath = ContainerPath + FileName + FileExtension;
+        #endif
 
         static ScenesData _instance;
 
@@ -44,9 +47,9 @@ namespace SocialPoint.Base
             if(_instance == null)
             {
                 #if UNITY_EDITOR
-                _instance = AssetDatabase.LoadAssetAtPath<ScenesData>(ScenesDataAssetPath);
+                _instance = AssetDatabase.LoadAssetAtPath<ScenesData>(AssetFullPath);
                 #else
-                _instance = Resources.Load(FileName) as ScenesData;
+                _instance = Resources.Load<ScenesData>(FolderName + FileName);
                 #endif
 
                 if(_instance == null)
@@ -74,7 +77,12 @@ namespace SocialPoint.Base
                 Directory.CreateDirectory(ContainerPath);
             }
 
-            AssetDatabase.CreateAsset(_instance, ScenesDataAssetPath);
+            if(!File.Exists(AssetFullPath))
+            {
+                string assetPath = AssetDatabase.GenerateUniqueAssetPath(AssetFullPath);
+                AssetDatabase.CreateAsset(_instance, assetPath);
+                AssetDatabase.SaveAssets();
+            }
         }
 
         static public void UpdateData()
@@ -109,7 +117,6 @@ namespace SocialPoint.Base
         #endif
 
         [SerializeField]
-        [HideInInspector]
         string[] _scenesNames;
 
         public string[] ScenesNames

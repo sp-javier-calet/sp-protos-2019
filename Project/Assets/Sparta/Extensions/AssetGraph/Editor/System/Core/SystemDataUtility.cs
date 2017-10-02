@@ -79,7 +79,11 @@ namespace AssetBundleGraph
             var nodeScriptInstance = Assembly.LoadFile("Library/ScriptAssemblies/Assembly-CSharp-Editor.dll").CreateInstance(typeStr);
             if(nodeScriptInstance == null)
             {
-                throw new NodeException(node.Name + ": Failed to create instance:" + typeStr + " derived from:" + typeof(T), node.Id);
+                nodeScriptInstance = Assembly.LoadFile("Library/ScriptAssemblies/Assembly-CSharp-Editor-firstpass.dll").CreateInstance(typeStr);
+                if(nodeScriptInstance == null)
+                {
+                    throw new NodeException(node.Name + ": Failed to create instance:" + typeStr + " derived from:" + typeof(T), node.Id);
+                }
             }
             return ((T)nodeScriptInstance);
         }

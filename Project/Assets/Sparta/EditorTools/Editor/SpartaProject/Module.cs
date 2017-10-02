@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using SpartaTools.Editor.Utils;
 using UnityEngine;
 
 namespace SpartaTools.Editor.SpartaProject
@@ -10,6 +11,14 @@ namespace SpartaTools.Editor.SpartaProject
         public const string DefinitionFileName = ".sparta_module";
 
         static readonly IModuleFilter DefaultDSFilter = new ExtensionFilter(".DS_Store");
+
+        static readonly IDictionary<string, string> _projectVariables = new Dictionary<string, string> {
+            { SpartaPaths.SourcesVariable, SpartaPaths.SourcesDir       },
+            { SpartaPaths.BinariesVariable, SpartaPaths.BinariesDir     },
+            { SpartaPaths.CoreVariable, SpartaPaths.CoreDir             },
+            { SpartaPaths.ExternalVariable, SpartaPaths.ExternalDir     },
+            { SpartaPaths.ExtensionsVariable, SpartaPaths.ExtensionsDir }
+        };
 
         public enum ModuleType
         {
@@ -117,7 +126,7 @@ namespace SpartaTools.Editor.SpartaProject
                 case "sources":
                     Type = ModuleType.Sources;
                     break;
-
+					
                 case "binaries":
                     Type = ModuleType.Binaries;
                     break;
@@ -137,6 +146,7 @@ namespace SpartaTools.Editor.SpartaProject
             }
             else if(tag == "depends_on")
             {
+                content = SpartaPaths.ReplaceProjectVariables(string.Empty, content, _projectVariables);
                 Dependencies.Add(content);
             }
             else if(tag == "desc")
@@ -145,6 +155,7 @@ namespace SpartaTools.Editor.SpartaProject
             }
             else if(tag == "exclude_path")
             {
+                content = SpartaPaths.ReplaceProjectVariables(string.Empty, content, _projectVariables);
                 Filters.Add(new PathFilter(content));
             }
             else if(tag == "exclude_extension")

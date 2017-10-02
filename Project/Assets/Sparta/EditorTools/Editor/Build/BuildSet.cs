@@ -1,9 +1,9 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
 
 namespace SpartaTools.Editor.Build
 {

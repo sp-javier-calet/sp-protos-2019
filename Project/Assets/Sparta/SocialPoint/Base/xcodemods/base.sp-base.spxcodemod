@@ -2,7 +2,7 @@
 {
     "headerpaths": [
         "{ROOT_PATH}/Assets/Plugins/Ios",
-        "{ROOT_PATH}/Assets/Sparta/Binaries/Plugins/Ios"
+        "{SPARTA_BINARIES_PATH}/iOS"
     ],
     "libs": [
         "libz.tbd:weak"
