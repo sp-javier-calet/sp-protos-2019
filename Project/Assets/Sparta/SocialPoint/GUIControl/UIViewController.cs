@@ -18,6 +18,11 @@ namespace SocialPoint.GUIControl
             Destroying,
             Destroyed
         }
+  
+        /// <summary>
+        ///     To check if the UI View is full screen.
+        /// </summary>
+        public bool IsFullScreen = true;
 
         public static event Action<UIViewController> AwakeEvent;
         public event Action<UIViewController, ViewState> ViewEvent;
@@ -467,6 +472,7 @@ namespace SocialPoint.GUIControl
             {
                 ParentController = FindParentController();
             }
+
             if(transform.parent == null)
             {
                 if(ParentController != null)
@@ -482,6 +488,7 @@ namespace SocialPoint.GUIControl
             {
                 return null;
             }
+
             GameObject parent = transform.parent.gameObject;
             while(parent != null)
             {
@@ -705,6 +712,12 @@ namespace SocialPoint.GUIControl
             }
         }
 
+        virtual public bool OnBack()
+        {
+            // TODO To be used with ANDROID Back button
+            return IsStable; 
+        }
+
         virtual protected void OnDisappearing()
         {
             DebugLog("OnDisappearing");
@@ -748,7 +761,11 @@ namespace SocialPoint.GUIControl
         virtual protected void Disable()
         {
             DebugLog("Disable");
-            gameObject.SetActive(false);
+
+            if(this != null && gameObject != null)
+            {
+                gameObject.SetActive(false);
+            }
         }
 
         virtual protected void OnDisappeared()
@@ -761,12 +778,17 @@ namespace SocialPoint.GUIControl
 
         protected GameObject Instantiate(GameObject proto)
         {
-            var go = GameObject.Instantiate(proto);
+            var go = UnityEngine.Object.Instantiate(proto);
             if(InstantiateEvent != null)
             {
                 InstantiateEvent(this, go);
             }
             return go;
+        }
+
+        public void Close()
+        {
+            Hide(true);
         }
     }
 }

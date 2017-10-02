@@ -3,13 +3,13 @@ using SocialPoint.Dependency;
 
 public class PopupsController : UIStackController
 {
-    public const float DefaultFadeSpeed = 4.0f;
-    float FadeSpeed = DefaultFadeSpeed;
+    public const float DefaultAnimationTime = 1.0f;
+    float AnimationTime = DefaultAnimationTime;
 
     override protected void OnLoad()
     {
-        FadeSpeed = Services.Instance.Resolve("popup_fade_speed", DefaultFadeSpeed);
-        ChildAnimation = new FadeAnimation(FadeSpeed);
+        AnimationTime = Services.Instance.Resolve("popup_animation_time", DefaultAnimationTime);
+        ChildAnimation = new FadeAnimation(AnimationTime);
         base.OnLoad();
     }
 }

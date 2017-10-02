@@ -7,6 +7,7 @@ using SocialPoint.Crash;
 using SocialPoint.GUIControl;
 using SocialPoint.Locale;
 using SocialPoint.Login;
+using SocialPoint.UIComponents;
 using SocialPoint.Utils;
 using UnityEngine;
 
@@ -37,10 +38,7 @@ namespace SocialPoint.GameLoading
         public bool Paused;
 
         [SerializeField]
-        GameObject _progressContainer;
-
-        [SerializeField]
-        GameLoadingBarController _loadingBar;
+        BasicProgressBarController _loadingProgressBar;
 
         [SerializeField]
         int _releaseMessageAmount = 5;
@@ -257,11 +255,11 @@ namespace SocialPoint.GameLoading
             _currentOperationDuration += Time.smoothDeltaTime;
             percent = Progress;
 
-            _loadingBar.Percent = percent;
+            _loadingProgressBar.Percent = percent;
             var msg = Message;
-            if(_loadingBar.Message != msg)
+            if(_loadingProgressBar.Message != msg)
             {
-                _loadingBar.Message = Message;
+                _loadingProgressBar.Message = Message;
                 if(op != null)
                 {
                     OnOperationChange(op);
@@ -300,9 +298,9 @@ namespace SocialPoint.GameLoading
         void DoLogin()
         {
             _loginOperation.Message = "logging in...";
-            if(_progressContainer != null)
+            if(_loadingProgressBar != null)
             {
-                _progressContainer.SetActive(true);
+                _loadingProgressBar.gameObject.SetActive(true);
             }
             Login.Login(OnLoginEnd);
         }
@@ -428,9 +426,9 @@ namespace SocialPoint.GameLoading
         void DoSendCrashesBeforeLoginOperation()
         {
             _sendCrashesBeforeLoginOperation.Message = "sending crashes before login...";
-            if(_progressContainer != null)
+            if(_loadingProgressBar != null)
             {
-                _progressContainer.SetActive(true);
+                _loadingProgressBar.gameObject.SetActive(true);
             }
 
             CrashReporter.SendCrashesBeforeLogin(() => _sendCrashesBeforeLoginOperation.Finish());

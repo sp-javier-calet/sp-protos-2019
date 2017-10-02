@@ -1,5 +1,4 @@
-﻿
-using SocialPoint.GUIControl;
+﻿using SocialPoint.GUIControl;
 
 public class ScreensController : UIStackController
 {

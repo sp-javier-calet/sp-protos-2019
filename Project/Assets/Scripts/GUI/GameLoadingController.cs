@@ -25,9 +25,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
     #endif
 
     [SerializeField]
-    string _sceneToLoad = "Main";
-
-    public string SceneToLoad { set { _sceneToLoad = value; } }
+    string _sceneToLoad = "MainScene";
 
     LoadingOperation _loadModelOperation;
     LoadingOperation _loadSceneOperation;
@@ -80,15 +78,18 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
 
     void OnLoadSceneStart()
     {
-        _coroutineRunner.LoadSceneAsyncProgress(_sceneToLoad, op => {
-            _loadSceneOperation.Progress = op.progress;
-            if(op.isDone)
-            {
-                Hide();
-                op.allowSceneActivation = true;
-                _loadSceneOperation.Finish("main scene loaded");
-            }
-        });
+        if(!string.IsNullOrEmpty(_sceneToLoad))
+        {
+            _coroutineRunner.LoadSceneAsyncProgress(_sceneToLoad, op => {
+                _loadSceneOperation.Progress = op.progress;
+                if(op.isDone)
+                {
+                    HideImmediate(true);
+                    op.allowSceneActivation = true;
+                    _loadSceneOperation.Finish("main scene loaded");
+                }
+            });
+        }
     }
 
     #if ADMIN_PANEL

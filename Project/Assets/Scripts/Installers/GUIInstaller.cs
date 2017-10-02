@@ -5,21 +5,24 @@ using SocialPoint.GUIControl;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
 using UnityEngine;
+using System.Text;
 
 public class GUIInstaller : Installer, IDisposable
 {
-    const string UIViewControllerSuffix = "Controller";
-    const string GUIRootPrefab = "GUI_Root";
+    const string kUIViewControllerSuffix = "Controller";
+    const string kGUIRootPrefab = "GUI_Root";
+    const string kUIViewControllerExamplePrefix = "GUI_";
 
     [Serializable]
     public class SettingsData
     {
-        public float PopupFadeSpeed = PopupsController.DefaultFadeSpeed;
+        public float PopupAnimationTime = PopupsController.DefaultAnimationTime;
     }
 
     public SettingsData Settings = new SettingsData();
 
     GameObject _root;
+    ScreensController _screens;
 
     public override void InstallBindings()
     {
@@ -27,23 +30,18 @@ public class GUIInstaller : Installer, IDisposable
 
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
 
-        Container.Bind<float>("popup_fade_speed").ToInstance(Settings.PopupFadeSpeed);
+        Container.Bind<float>("popup_animation_time").ToInstance(Settings.PopupAnimationTime);
 
         _root = CreateRoot();
         var AppEvents = Container.Resolve<IAppEvents>();
-        var popups = _root.GetComponentInChildren<PopupsController>();
-        if(popups != null)
+
+        _screens = _root.GetComponentInChildren<ScreensController>();
+        if(_screens != null)
         {
-            popups.AppEvents = AppEvents;
-            Container.Rebind<PopupsController>().ToInstance(popups);
-            Container.Rebind<UIStackController>().ToLookup<PopupsController>();
+            _screens.AppEvents = AppEvents;
+            Container.Rebind<ScreensController>().ToInstance(_screens);
         }
-        var screens = _root.GetComponentInChildren<ScreensController>();
-        if(screens != null)
-        {
-            screens.AppEvents = AppEvents;
-            Container.Rebind<ScreensController>().ToInstance(screens);
-        }
+            
         var layers = _root.GetComponentInChildren<UILayersController>();
         if(layers != null)
         {
@@ -63,11 +61,12 @@ public class GUIInstaller : Installer, IDisposable
 
     GameObject CreateRoot()
     {
-        var root = Resources.Load<GameObject>(GUIRootPrefab);
+        var root = Resources.Load<GameObject>(kGUIRootPrefab);
         if(root == null)
         {
             throw new InvalidOperationException("Could not load GUI root prefab.");
         }
+
         var rname = root.name;
         root = Instantiate<GameObject>(root);
         root.name = rname;
@@ -78,11 +77,12 @@ public class GUIInstaller : Installer, IDisposable
     string GetControllerFactoryPrefabName(Type type)
     {
         var name = type.Name;
-        if(StringUtils.EndsWith(name, UIViewControllerSuffix))
-        {
-            name = name.Substring(0, name.Length - UIViewControllerSuffix.Length);
-        }
-        return string.Format("GUI_{0}", name);
+        name = name.Replace(kUIViewControllerSuffix, string.Empty);
+
+        StringBuilder stringBuilder = StringUtils.StartBuilder();
+        stringBuilder.Append(kUIViewControllerExamplePrefix);
+        stringBuilder.Append(name);
+        return StringUtils.FinishBuilder(stringBuilder);
     }
 
     public void Dispose()
