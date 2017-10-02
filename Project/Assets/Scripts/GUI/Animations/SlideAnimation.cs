@@ -6,7 +6,7 @@ using SocialPoint.GUIControl;
 public class SlideAnimation : UIViewAnimation 
 {
     [SerializeField]
-    float _speed = 1.0f;
+    float _time = 1.0f;
 
     UIViewController _controller;
     RectTransform _transform;
@@ -30,9 +30,9 @@ public class SlideAnimation : UIViewAnimation
         }
     }
     
-    public SlideAnimation(float speed, DirectionType dir=DirectionType.Right)
+    public SlideAnimation(float time, DirectionType dir=DirectionType.Right)
     {
-        _speed = speed;
+        _time = time;
         _direction = dir;
     }
     
@@ -40,17 +40,20 @@ public class SlideAnimation : UIViewAnimation
     {
         var p = _transform.localPosition;
         var np = _transform.localPosition;
+
         if(_direction == DirectionType.Right)
         {
-            np.x = (float)_transform.sizeDelta.x;
+            np.x = _transform.sizeDelta.x;
         }
         else
         if(_direction == DirectionType.Left)
         {
-            np.x = (float)-_transform.sizeDelta.x;
+            np.x = -_transform.sizeDelta.x;
         }
+        
         _transform.localPosition = np;
-        var tween = Go.to(_transform, 1f, new GoTweenConfig().localPosition(p));
+        var tween = Go.to(_transform, _time, new GoTweenConfig().localPosition(p));
+
         yield return _controller.StartCoroutine(tween.waitForCompletion());
     }
     
@@ -58,16 +61,19 @@ public class SlideAnimation : UIViewAnimation
     {
         var op = _transform.localPosition;
         var p = op;
+
         if(_direction == DirectionType.Right)
         {
-            p.x = (float)-_transform.sizeDelta.x;
+            p.x = -_transform.sizeDelta.x;
         }
         else
         if(_direction == DirectionType.Left)
         {
-            p.x = (float)_transform.sizeDelta.x;
+            p.x = _transform.sizeDelta.x;
         }
-        var tween = Go.to(_transform, 1f, new GoTweenConfig().localPosition(p));
+        
+        var tween = Go.to(_transform, _time, new GoTweenConfig().localPosition(p));
+
         yield return _controller.StartCoroutine(tween.waitForCompletion());
         _transform.localPosition = op;
     }
@@ -76,6 +82,6 @@ public class SlideAnimation : UIViewAnimation
         
     public override object Clone()
     {
-        return new SlideAnimation(_speed, _direction);
+        return new SlideAnimation(_time, _direction);
     }
 }
