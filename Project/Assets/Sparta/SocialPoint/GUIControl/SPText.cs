@@ -39,13 +39,23 @@ namespace SocialPoint.GUIControl
 
                 _localization = _localizationManager.Localization;
 
-                if(Services.Instance.Resolve("use_always_device_language", true))
+                if(!_localizationManager.UseAlwaysDeviceLanguage)
                 {
                     _localizationManager.AddObserver(this);
                 }
                     
                 LocalizeText();
             }
+        }
+
+        protected override void OnDestroy()
+        {
+            if(!_localizationManager.UseAlwaysDeviceLanguage)
+            {
+                _localizationManager.RemoveObserver(this);
+            }
+
+            base.OnDestroy();
         }
 
         public void OnNotify()
@@ -119,6 +129,11 @@ namespace SocialPoint.GUIControl
             Key = string.Empty;
 
             text = _text;
+        }
+
+        public void Refresh()
+        {
+            LocalizeText();
         }
     }
 }

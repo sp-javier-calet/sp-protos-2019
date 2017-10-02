@@ -221,7 +221,6 @@ namespace SocialPoint.Locale
             {
                 return _currentLanguage;
             }
-
             set
             {
                 var oldLang = _currentLanguage;
@@ -231,14 +230,6 @@ namespace SocialPoint.Locale
                     SaveSelectedLanguage(_currentLanguage);
                     UpdateCurrentLanguage();
                 }
-            }
-        }
-
-        void SaveSelectedLanguage(string lang)
-        {
-            if(_storage != null)
-            {
-                _storage.Save(kLanguageSettingsKey, new AttrString(lang));
             }
         }
 
@@ -259,7 +250,6 @@ namespace SocialPoint.Locale
             {
                 return _appEvents;
             }
-
             set
             {
                 if(_appEvents != null)
@@ -274,9 +264,22 @@ namespace SocialPoint.Locale
             }
         }
 
-        IAttrStorage _storage;
+        bool _useAlwaysDeviceLanguage;
+        public bool UseAlwaysDeviceLanguage
+        {
+            get
+            {
+                return _useAlwaysDeviceLanguage;
+            }
+            set
+            {
+                _useAlwaysDeviceLanguage = value;
+            }
+        }
 
         public EnvironmentType EnvironmentType;
+
+        IAttrStorage _storage;
 
         public LocalizationManager(IAttrStorage storage, CsvMode csvMode, CsvForNGUILoadedDelegate csvLoaded)
         {
@@ -292,14 +295,26 @@ namespace SocialPoint.Locale
             PathsManager.CallOnLoaded(Init);
         }
             
+        void SaveSelectedLanguage(string lang)
+        {
+            if(!UseAlwaysDeviceLanguage && _storage != null)
+            {
+                _storage.Save(kLanguageSettingsKey, new AttrString(lang));
+            }
+        }
+
         public void UpdateDefaultLanguage()
         {
-            // Load user language if is stored
-            var language = _storage.Load(kLanguageSettingsKey);
+            Attr language = null;
             var languageStr = string.Empty;
-            if(language != null)
+            if(!UseAlwaysDeviceLanguage)
             {
-                languageStr = language.AsValue.ToString();
+                // Load user language if is stored
+                language = _storage.Load(kLanguageSettingsKey);
+                if(language != null)
+                {
+                    languageStr = language.AsValue.ToString();
+                }
             }
 
             _currentLanguage = (language == null ? GetSupportedLanguage(_currentLanguage) : languageStr);
@@ -416,7 +431,10 @@ namespace SocialPoint.Locale
                 Loaded(_locales);
             }
 
-            NotifyToObservers();
+            if(!UseAlwaysDeviceLanguage)
+            {
+                NotifyToObservers();
+            }
         }
 
         void DownloadCurrentLanguage()

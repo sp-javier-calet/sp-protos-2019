@@ -7,6 +7,8 @@ namespace SocialPoint.Locale
 {
     public interface ILocalizationManager : IObservable, IDisposable
     {
+        bool UseAlwaysDeviceLanguage{ get; set; }
+
         string[] SupportedLanguages{ get; set; }
 
         string CurrentLanguage{ get; set; }

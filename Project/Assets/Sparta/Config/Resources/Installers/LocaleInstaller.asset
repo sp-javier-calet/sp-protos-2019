@@ -13,6 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
+    UseAlwaysDeviceLanguage: 1
     Localization:
       Environment: 0
       ProjectId: lod

@@ -96,7 +96,10 @@ namespace SocialPoint.Locale
             #endif
 
             IAttrStorage storage = Container.Resolve<IAttrStorage>(kPersistentTag);
-            return new LocalizationManager(storage, Settings.Localization.CsvMode, csvLoadedDelegate);
+            LocalizationManager localizationManager = new LocalizationManager(storage, Settings.Localization.CsvMode, csvLoadedDelegate);
+            localizationManager.UseAlwaysDeviceLanguage = Settings.UseAlwaysDeviceLanguage;
+
+            return localizationManager;
         }
 
         #if NGUI
