@@ -8,13 +8,24 @@ namespace SocialPoint.TransparentBundles
     [Category("SocialPoint.TransparentBundles")]
     class DependencyTests
     {
-        const string _testAssetsFolder = "Assets/Sparta/Extensions/TransparentBundles/Editor/Tests/TestAssets/";
+        readonly string _testAssetsFolder;
         const string _prefab1 = "test_prefab_1.prefab";
         const string _prefab2 = "test_prefab_2.prefab";
         const string _texture1 = "texture_1.png";
 
         BundlesManifest _oldBundlesManifest;
         BundlesManifest _testManifest;
+
+        public DependencyTests()
+        {
+            const string type = "t:prefab";
+            var guids = AssetDatabase.FindAssets(string.Format("{0} {1}", _prefab1.TrimEnd(".prefab".ToCharArray()), type));
+            foreach(var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                _testAssetsFolder = path.TrimEnd(_prefab1.ToCharArray());
+            }
+        }
 
         [SetUp]
         public void SetUp()
@@ -27,7 +38,7 @@ namespace SocialPoint.TransparentBundles
         [Test]
         public void AddSingleUserBundle()
         {
-            const string path = _testAssetsFolder + _prefab1;
+            string path = _testAssetsFolder + _prefab1;
             var guid = AssetDatabase.AssetPathToGUID(path);
 
             DependencySystem.RegisterManualBundledAsset(new DependencySystem.BundleInfo(guid));
@@ -55,7 +66,7 @@ namespace SocialPoint.TransparentBundles
         [Test]
         public void AddLocalBundle()
         {
-            const string path = _testAssetsFolder + _prefab1;
+            string path = _testAssetsFolder + _prefab1;
             var guid = AssetDatabase.AssetPathToGUID(path);
 
             DependencySystem.RegisterManualBundledAsset(new DependencySystem.BundleInfo(guid, true));
@@ -86,7 +97,7 @@ namespace SocialPoint.TransparentBundles
         [Test]
         public void RemoveBundle()
         {
-            const string path = _testAssetsFolder + _prefab1;
+            string path = _testAssetsFolder + _prefab1;
             var guid = AssetDatabase.AssetPathToGUID(path);
 
             AddSingleUserBundle();
@@ -111,8 +122,8 @@ namespace SocialPoint.TransparentBundles
         [Test]
         public void AddTwoUserBundleWithShared()
         {
-            const string path1 = _testAssetsFolder + _prefab1;
-            const string path2 = _testAssetsFolder + _prefab2;
+            string path1 = _testAssetsFolder + _prefab1;
+            string path2 = _testAssetsFolder + _prefab2;
 
             var guid1 = AssetDatabase.AssetPathToGUID(path1);
             var guid2 = AssetDatabase.AssetPathToGUID(path2);
@@ -163,8 +174,8 @@ namespace SocialPoint.TransparentBundles
         public void RemoveAutobundle()
         {
 
-            const string path1 = _testAssetsFolder + _prefab1;
-            const string path2 = _testAssetsFolder + _prefab2;
+            string path1 = _testAssetsFolder + _prefab1;
+            string path2 = _testAssetsFolder + _prefab2;
 
             var guid1 = AssetDatabase.AssetPathToGUID(path1);
             var guid2 = AssetDatabase.AssetPathToGUID(path2);

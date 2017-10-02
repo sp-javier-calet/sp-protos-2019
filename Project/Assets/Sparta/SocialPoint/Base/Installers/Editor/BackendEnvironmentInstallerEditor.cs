@@ -6,15 +6,19 @@ using System.Collections.Generic;
 namespace SocialPoint.Base
 {
     [CustomEditor(typeof(BackendEnvironmentsInstaller))]
-    public sealed class BackendEnvironmentsInstallerEditor : UnityEditor.Editor
+    public sealed class BackendEnvironmentsInstallerEditor : Editor
     {
-        readonly static string[] NoEnvironmentOptions = new string[] { "-" };
+        readonly static string[] NoEnvironmentOptions = { "-" };
         readonly Func<Environment, bool> ProductionEnvFilter = env => env.Type == EnvironmentType.Production;
 
         bool _defaultVisible = true;
 
         public override void OnInspectorGUI()
         {
+            serializedObject.Update();
+            base.OnInspectorGUI();
+            serializedObject.ApplyModifiedProperties();
+
             DrawDefaultInspector();
 
             var installer = (BackendEnvironmentsInstaller)target;
@@ -62,11 +66,7 @@ namespace SocialPoint.Base
                 EditorGUILayout.EndHorizontal();
                 EditorGUILayout.EndVertical();
                 EditorGUILayout.EndHorizontal();
-
-                EditorUtility.SetDirty(installer);
             }
-
-            serializedObject.ApplyModifiedProperties();
         }
 
         public string ShowEnvironmentsPopup(Environment[] environments, string current, Func<Environment, bool> filter = null)

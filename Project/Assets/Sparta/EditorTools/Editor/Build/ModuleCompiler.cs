@@ -172,7 +172,7 @@ namespace SpartaTools.Editor.Build
 
         // Name of the main Core library module. Workaround for module dependencies.
         const string SpartaCoreModule = "Sparta Core";
-        const string BinariesFolderPath = "Temp/Sparta/Binaries";
+        const string BinariesFolderPath = "Temp/Sparta/Assemblies";
         const string RspFile = "build_command.rsp";
 
         const string ScriptFilePattern = "*.cs";
@@ -638,6 +638,7 @@ namespace SpartaTools.Editor.Build
 
                 compiler.AddDefinedSymbol("UNITY_IOS");
                 compiler.AddDefinedSymbol("UNITY_IPHONE");
+                compiler.AddDefinedSymbol("NO_GPGS");
                 compiler.DisableFilter(PlatformIosFilter);
             }
         }

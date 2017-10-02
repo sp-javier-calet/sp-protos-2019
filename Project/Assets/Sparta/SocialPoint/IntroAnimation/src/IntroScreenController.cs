@@ -15,9 +15,6 @@ namespace SocialPoint.IntroAnimation
         // This is used just for convenience, just drag&drop the scene object to this field and the name will
         // be serialized. No more typos!
 
-        [Header("Drag here the scene to load after the animation has finished")]
-        public Object DragSceneHere;
-
         /// <summary>
         ///     Here's is where we are actually going to serialize the name of the next scene to load
         /// </summary>
@@ -49,16 +46,8 @@ namespace SocialPoint.IntroAnimation
         #if UNITY_EDITOR
         void OnValidate()
         {
-            var scene = DragSceneHere as SceneAsset;
-            if(scene == null)
-            {
-                NextSceneToLoadName = string.Empty;
-                DragSceneHere = null;
-            }
-            else
-            {
-                NextSceneToLoadName = scene.name;
-            }
+            var scene = IntroScreenData.Instance.NextScene as SceneAsset;
+            NextSceneToLoadName = scene == null ? string.Empty : scene.name;
         }
         #endif
 

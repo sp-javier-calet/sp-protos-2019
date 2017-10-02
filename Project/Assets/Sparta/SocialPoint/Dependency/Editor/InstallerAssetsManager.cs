@@ -1,14 +1,16 @@
 ﻿using System;
-using System.IO;
-using UnityEngine;
-using UnityEditor;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using SocialPoint.Base;
+using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.Dependency
 {
     public static class InstallerAssetsManager
     {
-        public const string ContainerPath = "Assets/Sparta/Config/Resources/Installers";
+        public static readonly string ContainerPath = ConfigPaths.SpartaConfigResourcesPath + "Installers";
         public const string FileExtension = ".asset";
         public const string AssetPattern = "*.asset";
 
@@ -53,12 +55,12 @@ namespace SocialPoint.Dependency
             return AssetDatabase.LoadAssetAtPath<Installer>(path);
         }
 
-        static string GetInstallerPath(Type t)
+        static string GetInstallerPath(MemberInfo t)
         {
             return GetInstallerPath(t.Name);
         }
 
-        static string GetInstallerPath(Type t, string tag)
+        static string GetInstallerPath(MemberInfo t, string tag)
         {
             var name = t.Name;
             if(!string.IsNullOrEmpty(tag))

@@ -1041,7 +1041,7 @@ namespace Spine.Unity.Modules.AttachmentTools {
 				var meshAttachment = o as MeshAttachment;
 				if (meshAttachment != null) {
 					MeshAttachment newAttachment = cloneMeshAsLinked ? meshAttachment.GetLinkedClone(cloneMeshAsLinked) : meshAttachment.GetClone();
-					newAttachment.SetRegion(atlasRegion);
+					newAttachment.SetRegion(atlasRegion, true);
 					return newAttachment;
 				}
 			}

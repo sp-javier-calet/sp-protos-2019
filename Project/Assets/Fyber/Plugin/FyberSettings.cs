@@ -59,8 +59,12 @@ namespace FyberPlugin
                     string fullPath = Path.Combine(Path.Combine("Assets", fyberSettingsPath),
                         fyberSettingsAssetName + fyberSettingsAssetExtension
                     );
-                    instance.hideFlags = HideFlags.HideInInspector;
-                    AssetDatabase.CreateAsset(instance, fullPath);
+
+                    if(!File.Exists(fullPath))
+                    {
+                        instance.hideFlags = HideFlags.HideInInspector;
+                        AssetDatabase.CreateAsset(instance, fullPath);
+                    }
                     #endif
                 }
             }

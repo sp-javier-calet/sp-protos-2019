@@ -1,11 +1,12 @@
-﻿using UnityEditor;
+﻿using SocialPoint.Base;
+using UnityEditor;
 using UnityEngine;
 
 namespace SocialPoint.Exporter
 {
     public static class ExporterSettings
     {
-        const string _projectExporterAssetPath = "Assets/Sparta/Config/Exporters.asset";
+        static readonly string _projectExporterAssetPath = ConfigPaths.SpartaConfigEditorPath + "Exporters/Exporters.asset";
         static ExporterContainer _exporterContainer;
 
         public static ExporterContainer ExporterContainer

@@ -1,4 +1,5 @@
 using System.IO;
+using SocialPoint.Base;
 using UnityEditor;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ namespace SocialPoint.TransparentBundles
     {
         public string project = "";
         public string branchName = "";
-        const string _configDefaultPath = "Assets/Sparta/Config/TransparentBundles/TBConfig.asset";
+        static readonly string _configDefaultPath = ConfigPaths.SpartaConfigEditorPath + "TransparentBundles/TBConfig.asset";
         const string _configSearchPattern = "t:TBConfig";
 
         /// <summary>
