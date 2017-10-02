@@ -36,8 +36,8 @@ namespace SocialPoint.GUIControl
 
         public Action CloseAppShow { get; set; }
 
-        public UIViewAnimation DefaultAnimation;
-        public UIViewAnimation DefaultAnimationFullScreen;
+        public UIViewAnimation UnityDefaultAnimation;
+        public UIViewAnimation UnityDefaultAnimationFullScreen;
 
         /// <summary>
         ///     To be used in Unity Tests to avoid problems with Coroutines and yields.
@@ -353,13 +353,28 @@ namespace SocialPoint.GUIControl
 
             if(IsPushAction(act))
             {
-                SetupAnimation(from, HideAnimation);
-                SetupAnimation(to, ShowAnimation);
+                if(IsValidStackNode(from))
+                {
+                    SetupAnimation(from, from.Controller.UnityHideAnimation);
+                }
+
+                if(IsValidStackNode(to))
+                {
+                    SetupAnimation(to, to.Controller.UnityShowAnimation);
+                }
             }
             else
             {
-                SetupAnimation(to, HideAnimation);
-                SetupAnimation(from, ShowAnimation);
+                if(IsValidStackNode(from))
+                {
+                    SetupAnimation(from, from.Controller.UnityShowAnimation);
+                }
+
+                if(IsValidStackNode(to))
+                {
+                    SetupAnimation(to, to.Controller.UnityHideAnimation);
+                }
+
             }
         }
 
@@ -378,11 +393,14 @@ namespace SocialPoint.GUIControl
             {
                 if(ctrl != null)
                 {
-                    anim = ctrl.IsFullScreen ? DefaultAnimationFullScreen : DefaultAnimation;
+                    anim = ctrl.IsFullScreen ? UnityDefaultAnimationFullScreen : UnityDefaultAnimation;
+                    ctrl.Animation = (anim == null ? null : (UIViewAnimation)anim.Clone());
                 }
             }
-
-            ctrl.Animation = (anim == null ? null : (UIViewAnimation)anim.Clone());
+            else
+            {
+                ctrl.Animation = anim;
+            }
         }
 
         IEnumerator DoTransition(StackNode from, StackNode to, ActionType act)

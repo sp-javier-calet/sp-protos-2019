@@ -1,13 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 using SocialPoint.GUIControl;
-using UnityEngine.UI;
 
-public class SlideAnimation : UIViewAnimation {
-    
-    private float _speed = 1.0f;
-    private UIViewController _controller;
-    private RectTransform _transform;
+public class SlideAnimation : UnityViewAnimation 
+{
+    float _speed = 1.0f;
+    UIViewController _controller;
+    RectTransform _transform;
 
     public enum DirectionType
     {
@@ -17,7 +16,7 @@ public class SlideAnimation : UIViewAnimation {
 
     public DirectionType Direction;
     
-    public void Load(UIViewController ctrl)
+    public override void Load(UIViewController ctrl)
     {
         _controller = ctrl;
         _transform = _controller.gameObject.GetComponent<RectTransform>();
@@ -33,7 +32,7 @@ public class SlideAnimation : UIViewAnimation {
         Direction = dir;
     }
     
-    public IEnumerator Appear()
+    public override IEnumerator Appear()
     {
         var p = _transform.localPosition;
         var np = _transform.localPosition;
@@ -51,7 +50,7 @@ public class SlideAnimation : UIViewAnimation {
         yield return _controller.StartCoroutine(tween.waitForCompletion());
     }
     
-    public IEnumerator Disappear()
+    public override IEnumerator Disappear()
     {
         var op = _transform.localPosition;
         var p = op;
@@ -68,15 +67,9 @@ public class SlideAnimation : UIViewAnimation {
         yield return _controller.StartCoroutine(tween.waitForCompletion());
         _transform.localPosition = op;
     }
-
-    public void Reset()
-    {
-
-    }
-    
-    public object Clone()
+        
+    public override object Clone()
     {
         return new SlideAnimation(_speed, Direction);
     }
 }
-
