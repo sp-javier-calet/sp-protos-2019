@@ -405,7 +405,7 @@ namespace SocialPoint.GUIControl
             ComplexPushesAndPops(false);
 
             var top = UITestStackController.Top;
-            top.Controller.OnCloseClicked();
+            top.Controller.Close();
 
             Assert.IsTrue(UITestStackController.Count == 8);
             CheckViewsVisibility();

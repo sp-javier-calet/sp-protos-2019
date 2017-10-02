@@ -56,7 +56,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         base.OnLoad();
     }
 
-    public override bool CanBack()
+    public override bool CanBeClosed()
     {
         return false;
     }

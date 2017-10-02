@@ -10,7 +10,7 @@ public class ScreensController : UIStackController
     override protected void OnLoad()
     {
         AnimationTime = Services.Instance.Resolve("popup_animation_time", DefaultAnimationTime);
-        ChildAnimationPopups = new FadeAnimation(AnimationTime);
+        DefaultAnimation = new FadeAnimation(AnimationTime);
         base.OnLoad();
     }
 

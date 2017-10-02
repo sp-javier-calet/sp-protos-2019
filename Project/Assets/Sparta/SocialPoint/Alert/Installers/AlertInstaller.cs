@@ -106,7 +106,7 @@ namespace SocialPoint.Alert
         {
             var ctrl = go.GetComponent<UIViewController>();
             DebugUtils.Assert(ctrl != null, "GameObject doesn't have a viewController");
-            ctrl.Hide(true);
+            ctrl.Close();
         }
 
         #if ADMIN_PANEL

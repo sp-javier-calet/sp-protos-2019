@@ -18,18 +18,18 @@ namespace SocialPoint.GUIControl
             Destroying,
             Destroyed
         }
-  
+
         /// <summary>
         ///     To check if the UI View is full screen.
         /// </summary>
         public bool IsFullScreen = true;
 
-        public UIViewAnimation ChildUpAnimation;
-        public UIViewAnimation ChildDownAnimation;
-
         public static event Action<UIViewController> AwakeEvent;
         public event Action<UIViewController, ViewState> ViewEvent;
         public event Action<UIViewController, GameObject> InstantiateEvent;
+
+        public UIViewAnimation ShowAnimation;
+        public UIViewAnimation HideAnimation;
 
         bool _loaded;
         ViewState _viewState = ViewState.Initial;
@@ -297,7 +297,7 @@ namespace SocialPoint.GUIControl
             }
             return size;
         }
-            
+
         public UIViewAnimation Animation
         {
             set
@@ -306,7 +306,6 @@ namespace SocialPoint.GUIControl
                 {
                     _animation.Reset();
                 }
-
                 if(value != null)
                 {
                     value.Load(this);
@@ -442,7 +441,7 @@ namespace SocialPoint.GUIControl
 
         virtual protected void OnAwake()
         {
-            
+
         }
 
         virtual protected void OnStart()
@@ -598,11 +597,11 @@ namespace SocialPoint.GUIControl
             CheckDestroyOnHide(destroy);
         }
 
-        public bool Hide(bool destroy = false)
+        public bool Hide()
         {
             DebugLog("Hide");
             Load();
-            var enm = DoHideCoroutine(destroy);
+            var enm = DoHideCoroutine();
             if(enm != null)
             {
                 StartHideCoroutine(enm);
@@ -611,14 +610,14 @@ namespace SocialPoint.GUIControl
             return false;
         }
 
-        public IEnumerator HideCoroutine(bool destroy = false)
+        public IEnumerator HideCoroutine()
         {
             DebugLog("HideCoroutine");
             Load();
-            yield return StartHideCoroutine(DoHideCoroutine(destroy));
+            yield return StartHideCoroutine(DoHideCoroutine());
         }
 
-        IEnumerator DoHideCoroutine(bool destroy)
+        IEnumerator DoHideCoroutine()
         {
             if(_viewState == ViewState.Initial || _viewState == ViewState.Hidden)
             {
@@ -626,12 +625,11 @@ namespace SocialPoint.GUIControl
             }
             else if(_viewState == ViewState.Disappearing && _hideCoroutine != null)
             {
-                DestroyOnHide |= destroy;
                 yield return _hideCoroutine;
             }
             else if(_viewState != ViewState.Hidden)
             {
-                var enm = FullDisappear(destroy);
+                var enm = FullDisappear(DestroyOnHide);
                 while(enm.MoveNext())
                 {
                     yield return enm.Current;
@@ -652,9 +650,9 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("OnAppearing");
             _viewState = ViewState.Appearing;
-#if !NGUI
+            #if !NGUI
             AddLayers();
-#endif
+            #endif
             NotifyViewEvent();
         }
 
@@ -704,7 +702,7 @@ namespace SocialPoint.GUIControl
             CheckDestroyOnHide(destroy);
         }
 
-        public void CheckDestroyOnHide(bool force)
+        void CheckDestroyOnHide(bool force)
         {
             if(DestroyOnHide || force)
             {
@@ -715,12 +713,7 @@ namespace SocialPoint.GUIControl
                 NotifyViewEvent();
             }
         }
-
-        virtual public bool CanBack()
-        {
-            return IsStable; 
-        }
-
+            
         virtual protected void OnDisappearing()
         {
             DebugLog("OnDisappearing");
@@ -788,15 +781,17 @@ namespace SocialPoint.GUIControl
             }
             return go;
         }
-            
+
+        virtual public bool CanBeClosed()
+        {
+            return IsStable; 
+        }
+
         #region public UI button methods
 
-        public virtual void OnCloseClicked()
+        public void Close()
         {
-            if(CanBack())
-            {
-                Hide();
-            }
+            Hide();
         }
 
         #endregion

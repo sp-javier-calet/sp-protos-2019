@@ -52,7 +52,7 @@ namespace SocialPoint.Alert
         {
             if(_controller != null)
             {
-                _controller.Hide(true);
+                _controller.Close();
             }
         }
 
