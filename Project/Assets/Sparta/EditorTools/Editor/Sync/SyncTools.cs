@@ -258,8 +258,8 @@ namespace SpartaTools.Editor.Sync
             foreach(var file in moduleSync.Files)
             {
                 bool deleteFile = action == CopyAction.TargetToSource ? 
-					file.FileStatus == ModuleSync.FileStatus.MissingFileInTarget :
-					file.FileStatus == ModuleSync.FileStatus.MissingFileInSource;
+                file.FileStatus == ModuleSync.FileStatus.MissingFileInTarget :
+                file.FileStatus == ModuleSync.FileStatus.MissingFileInSource;
 
                 if(deleteFile)
                 {

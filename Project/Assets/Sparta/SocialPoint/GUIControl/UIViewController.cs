@@ -781,7 +781,7 @@ namespace SocialPoint.GUIControl
             }
             return go;
         }
-
+            
         virtual public bool CanBeClosed()
         {
             return IsStable; 

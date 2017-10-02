@@ -134,20 +134,47 @@ namespace SpartaTools.Editor.View
         /*
          * Sparta editor window icon
          */
+
+        static Texture _icon;
+
         static Texture Icon
         {
             get
             {
-                return AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Sparta/EditorTools/Editor/EditorResources/sparta.icon.png");
+                if(_icon == null)
+                {
+                    const string iconName = "sparta.icon";
+                    _icon = LoadTexture2D(iconName);
+                }
+                return _icon;
             }
         }
+
+        static Texture _advancedIcon;
 
         static Texture AdvancedIcon
         {
             get
             {
-                return AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Sparta/EditorTools/Editor/EditorResources/sparta.icon.advanced.png");
+                if(_advancedIcon == null)
+                {
+                    const string iconName = "sparta.icon.advanced";
+                    _advancedIcon = LoadTexture2D(iconName);
+                }
+                return _advancedIcon;
             }
+        }
+
+        static Texture LoadTexture2D(string textureName)
+        {
+            const string type = "t:texture2d";
+            var guids = AssetDatabase.FindAssets(string.Format("{0} {1}", textureName, type));
+            foreach(var guid in guids)
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+            }
+            return null;
         }
     }
 }

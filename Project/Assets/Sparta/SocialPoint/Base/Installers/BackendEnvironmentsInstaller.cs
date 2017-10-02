@@ -16,7 +16,7 @@ namespace SocialPoint.Base
         public class SettingsData
         {
             public bool PersistsSelection;
-            public Environment[] Environments = new Environment[] { 
+            public Environment[] Environments = { 
                 new Environment { 
                     Name = DefaultDevelopmentName, 
                     Url = DefaultDevelopmentUrl, 

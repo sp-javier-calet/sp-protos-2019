@@ -1,4 +1,4 @@
 name Extension/AssetGraph
 desc AssetGraph node importer
 type extension
-depends_on Assets/Sparta/Extensions/GitCommands
+depends_on {SPARTA_EXTENSIONS_PATH}/GitCommands

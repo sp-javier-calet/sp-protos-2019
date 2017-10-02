@@ -43,14 +43,24 @@ else
 fi
 
 echo "Installing Unity Plugin..."
-mkdir -p $MODULE_PATH/libs
 
-PROJECT_ROOT=$MODULE_PATH/../../../..
-INSTALL_PATH=/Assets/Sparta/Binaries/Plugins/Android/
+SRC_DIR="$MODULE_PATH/libs"
 
-mkdir -p $PROJECT_ROOT$INSTALL_PATH
+mkdir -p $SRC_DIR
 
-cp -R $MODULE_PATH/libs $PROJECT_ROOT$INSTALL_PATH
+PROJECT_PATH=$(git rev-parse --show-toplevel)
+echo "Project Path:" $PROJECT_PATH
+
+SEARCH_PATTERN="*Sparta/Binaries/Android"
+INSTALL_PATH=$(find $PROJECT_PATH -type d -wholename $SEARCH_PATTERN)
+DST_DIR=$(cd "$INSTALL_PATH" && pwd)
+
+echo "Source dir:" $SRC_DIR
+echo "Destiny dir:" $DST_DIR
+
+mkdir -p $DST_DIR
+
+cp -R $SRC_DIR $DST_DIR
 INSTALL_SUCCESS=$?
 
 # Check success code
@@ -58,7 +68,7 @@ if [ $INSTALL_SUCCESS != 0 ] ; then
     echo "\nINSTALL FAILED\n"
     abort
 else
-    echo "Plugin installed in $INSTALL_PATH"
+    echo "Plugin installed in $DST_DIR"
     echo "\nINSTALL SUCCESS\n"
 fi
 

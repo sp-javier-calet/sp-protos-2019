@@ -117,7 +117,7 @@ namespace SpartaTools.Editor.Build
             return this;
         }
 
-        string GetIconName(BuildTargetGroup targetGroup)
+        static string GetIconName(BuildTargetGroup targetGroup)
         {
             var textures = PlayerSettings.GetIconsForTargetGroup(targetGroup);
             return (textures.Length > 0 && textures[0] != null) ? textures[0].name : "<null>";

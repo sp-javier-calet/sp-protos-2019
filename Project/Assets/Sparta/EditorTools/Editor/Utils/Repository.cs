@@ -109,7 +109,7 @@ namespace SpartaTools.Editor.Utils
 
         public string ResetToCommit(string commit)
         {
-            StringBuilder log = new StringBuilder();
+            var log = new StringBuilder();
             log.AppendLine("Checkout");
             var checkOutResult = NativeConsole.RunProcess(Binary, string.Format("checkout {0}", commit), _path);
             log.Append(checkOutResult.Output);

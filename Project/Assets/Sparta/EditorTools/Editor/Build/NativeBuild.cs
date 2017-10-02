@@ -1,10 +1,10 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Collections.Generic;
 using SpartaTools.Editor.Utils;
+using UnityEditor;
+using UnityEngine;
 
 namespace SpartaTools.Editor.Build
 {
@@ -12,11 +12,18 @@ namespace SpartaTools.Editor.Build
     {
         static readonly List<string> IgnoredAndroidNativeModules = new List<string>{ "lib" };
 
+        static string _sourcesDirectoryPath;
+
         static string SourcesDirectoryPath
         {
             get
             {
-                return Path.Combine(Application.dataPath, "../Sources");
+                if(string.IsNullOrEmpty(_sourcesDirectoryPath))
+                {
+                    _sourcesDirectoryPath = SpartaPaths.SourcesDir;
+                }
+
+                return _sourcesDirectoryPath;
             }
         }
 
@@ -64,7 +71,9 @@ namespace SpartaTools.Editor.Build
 
         public static void CompileAndroid()
         {
-            CompileAndroid(null, null);
+            CompileAndroid(
+                path => EditorUtility.DisplayProgressBar("Compiling Android plugin", path, 0.1f), 
+                EditorUtility.ClearProgressBar);
         }
 
         public static void CompileAndroid(Action<string> onBuildStart, Action onBuildEnd)
@@ -113,7 +122,9 @@ namespace SpartaTools.Editor.Build
 
         public static void CompileAndroidNative()
         {
-            CompileAndroidNative(null, null);
+            CompileAndroidNative(
+                (progress, msg) => EditorUtility.DisplayProgressBar("Compiling native plugin", msg, progress), 
+                EditorUtility.ClearProgressBar);
         }
 
         public static void CompileAndroidNative(Action<float, string> onProgress, Action onModuleEnd)
@@ -123,7 +134,7 @@ namespace SpartaTools.Editor.Build
                 Debug.LogError("Error compiling Android native plugins. No NDK Path configured");
                 return;
             }
-                
+
             var commandOutput = new StringBuilder("Compile Android Native Plugins");
             var path = Path.Combine(SourcesDirectoryPath, "Android/sp_unity_native_plugins");
 
@@ -210,10 +221,16 @@ namespace SpartaTools.Editor.Build
             commandOutput.AppendLine(msg);
             EditorUtility.DisplayProgressBar("Compiling native plugin", msg, 0.1f);
 
-            var bin = "xcodebuild";
-            var param = paramsBuilder.ToString();
+            const string bin = "xcodebuild";
+
+            var param = "-version";
             Debug.Log(string.Format("Running build command: {0} {1}", bin, param)); 
             var result = NativeConsole.RunProcess(bin, param, path);
+            commandOutput.AppendLine(result.Output);
+
+            param = paramsBuilder.ToString();
+            Debug.Log(string.Format("Running build command: {0} {1}", bin, param)); 
+            result = NativeConsole.RunProcess(bin, param, path);
             commandOutput.AppendLine(result.Output);
 
             Debug.Log(commandOutput.ToString());

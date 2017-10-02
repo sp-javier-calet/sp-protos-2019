@@ -1,4 +1,4 @@
-﻿#if (UNITY_ANDROID || (UNITY_IOS && !NO_GPGS))
+﻿#if (UNITY_ANDROID)
 
 using System;
 using System.Collections.Generic;

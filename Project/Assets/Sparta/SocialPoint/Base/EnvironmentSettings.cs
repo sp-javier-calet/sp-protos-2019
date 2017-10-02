@@ -15,11 +15,14 @@ namespace SocialPoint.Base
     {
         const string EnvironmentUrlEnvironmentKey = "SP_DEFAULT_ENVIRONMENT";
 
+        const string FolderName = "Environment/";
         const string FileName = "Environment";
-        const string FileExtension = ".asset";
-        const string ContainerPath = "Assets/Sparta/Config/Environment/Resources/";
 
-        const string EnvironmentSettingsAssetPath = ContainerPath + FileName + FileExtension;
+        #if UNITY_EDITOR
+        const string FileExtension = ".asset";
+        static readonly string ContainerPath = ConfigPaths.SpartaConfigResourcesPath + FolderName;
+        static readonly string AssetFullPath = ContainerPath + FileName + FileExtension;
+        #endif
 
         static EnvironmentSettings _instance;
 
@@ -45,9 +48,9 @@ namespace SocialPoint.Base
             if(_instance == null)
             {
                 #if UNITY_EDITOR
-                _instance = AssetDatabase.LoadAssetAtPath<EnvironmentSettings>(EnvironmentSettingsAssetPath);
+                _instance = AssetDatabase.LoadAssetAtPath<EnvironmentSettings>(AssetFullPath);
                 #else
-                _instance = Resources.Load(FileName) as EnvironmentSettings;
+                _instance = Resources.Load<EnvironmentSettings>(FolderName + FileName);
                 #endif
 
                 if(_instance == null)
@@ -75,7 +78,11 @@ namespace SocialPoint.Base
                 Directory.CreateDirectory(ContainerPath);
             }
 
-            AssetDatabase.CreateAsset(_instance, EnvironmentSettingsAssetPath);
+            if(!File.Exists(AssetFullPath))
+            {
+                string assetPath = AssetDatabase.GenerateUniqueAssetPath(AssetFullPath);
+                AssetDatabase.CreateAsset(_instance, assetPath);
+            }
         }
 
         static public void UpdateData()
@@ -98,7 +105,6 @@ namespace SocialPoint.Base
         #endif
 
         [SerializeField]
-        [HideInInspector]
         string _environmentUrl;
 
         public string EnvironmentUrl

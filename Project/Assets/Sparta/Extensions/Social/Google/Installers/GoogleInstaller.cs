@@ -1,5 +1,9 @@
-﻿#if(UNITY_ANDROID || (UNITY_IOS && !NO_GPGS))
+﻿#if(UNITY_ANDROID)
 #define GOOGLE_SUPPORTED
+#endif
+
+#if(UNITY_IOS && !NO_GPGS)
+#error We do not support GooglePlayGameServices on iOS platforms, add 'NO_GPGS' to your 'Scripting Define Symbols'
 #endif
 
 using System;

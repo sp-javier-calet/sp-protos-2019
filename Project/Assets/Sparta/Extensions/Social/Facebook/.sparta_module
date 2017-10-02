@@ -1,5 +1,4 @@
 name Extension/Facebook
 desc IFacebook implementation
 type extension
-depends_on Assets/Sparta/External/FacebookSDK
-exclude_path Assets/Sparta/External/FacebookSDK/SDK/Resources/FacebookSettings.asset
+depends_on {SPARTA_EXTERNAL_PATH}/FacebookSDK
