@@ -76,6 +76,9 @@ namespace SocialPoint.Locale
             NoCsv
         }
             
+        const string kPersistentTag = "persistent";
+        const string kLanguageSettingsKey = "CurrentLanguage";
+
         const string JsonExtension = ".json";
         const string EtagHeader = "Etag";
         const string IfNoneMatchHeader = "If-None-Match";
@@ -193,7 +196,6 @@ namespace SocialPoint.Locale
         public IAppInfo AppInfo { get; set; }
 
         readonly LocationData _location;
-
         public LocationData Location
         {
             get
@@ -203,7 +205,6 @@ namespace SocialPoint.Locale
         }
 
         readonly Localization _localization;
-
         public Localization Localization
         {
             get
@@ -214,7 +215,6 @@ namespace SocialPoint.Locale
 
         // language applied after selection (supported one).
         string _currentLanguage;
-
         public string CurrentLanguage
         {
             get
@@ -228,14 +228,22 @@ namespace SocialPoint.Locale
                 _currentLanguage = GetSupportedLanguage(value);
                 if(oldLang != _currentLanguage)
                 {
+                    SaveSelectedLanguage(_currentLanguage);
                     UpdateCurrentLanguage();
                 }
             }
         }
 
+        void SaveSelectedLanguage(string lang)
+        {
+            if(_storage != null)
+            {
+                _storage.Save(kLanguageSettingsKey, new AttrString(lang));
+            }
+        }
+
         // language selected by the user
         string _selectedLanguage;
-
         public string SelectedLanguage
         {
             get
@@ -245,7 +253,6 @@ namespace SocialPoint.Locale
         }
 
         IAppEvents _appEvents;
-
         public IAppEvents AppEvents
         {
             get
@@ -266,10 +273,14 @@ namespace SocialPoint.Locale
                 }
             }
         }
+
+        IAttrStorage _storage;
+
         public EnvironmentType EnvironmentType;
 
-        public LocalizationManager(CsvMode csvMode, CsvForNGUILoadedDelegate csvLoaded)
+        public LocalizationManager(IAttrStorage storage, CsvMode csvMode, CsvForNGUILoadedDelegate csvLoaded)
         {
+            _storage = storage;
             _csvModeForNGUI = csvMode;
             _localization = new Localization();
             _location = new LocationData();
@@ -280,10 +291,18 @@ namespace SocialPoint.Locale
 
             PathsManager.CallOnLoaded(Init);
         }
-
+            
         public void UpdateDefaultLanguage()
         {
-            _currentLanguage = GetSupportedLanguage(_currentLanguage);
+            // Load user language if is stored
+            var language = _storage.Load(kLanguageSettingsKey);
+            var languageStr = string.Empty;
+            if(language != null)
+            {
+                languageStr = language.AsValue.ToString();
+            }
+
+            _currentLanguage = (language == null ? GetSupportedLanguage(_currentLanguage) : languageStr);
             LoadCurrentLanguage();
         }
 

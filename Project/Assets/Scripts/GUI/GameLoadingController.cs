@@ -16,9 +16,6 @@ using SocialPoint.AdminPanel;
 
 public class GameLoadingController : SocialPoint.GameLoading.GameLoadingController
 {
-    const string kPersistentTag = "persistent";
-    const string kLanguageSettingsKey = "CurrentLanguage";
-
     IGameLoader _gameLoader;
     ICoroutineRunner _coroutineRunner;
 
@@ -52,24 +49,11 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         _coroutineRunner = Services.Instance.Resolve<ICoroutineRunner>();
         _gameLoader = Services.Instance.Resolve<IGameLoader>();
 
-        LoadUserSelectedLanguage();
-
         #if ADMIN_PANEL
         _adminPanel = Services.Instance.Resolve<AdminPanel>();
         #endif
 
         base.OnLoad();
-    }
-
-    void LoadUserSelectedLanguage()
-    {
-        var storage = Services.Instance.Resolve<IAttrStorage>(kPersistentTag);
-        var language = storage.Load(kLanguageSettingsKey);
-        if(language != null)
-        {
-            var localizationManager = Services.Instance.Resolve<ILocalizationManager>();
-            localizationManager.CurrentLanguage = storage.Load(kLanguageSettingsKey).AsValue.ToString();
-        }
     }
 
     override protected void OnAppeared()

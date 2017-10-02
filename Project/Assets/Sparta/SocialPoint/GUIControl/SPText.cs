@@ -43,8 +43,7 @@ namespace SocialPoint.GUIControl
                 {
                     _localizationManager.AddObserver(this);
                 }
-
-                Key = "HUD_INBOX_MESSAGE_EMPTY_KEY"; // TODO TO TEST
+                    
                 LocalizeText();
             }
         }
@@ -95,14 +94,12 @@ namespace SocialPoint.GUIControl
             text = localizedString;
         }
 
-        public void SetKey(string key, TextEffect textEffect)
+        public void SetKey(string key, TextEffect textEffect = TextEffect.None)
         {
-            Effect = textEffect;
-            Key = key;
-            LocalizeText();
+            SetKey(key, null, textEffect);
         }
 
-        public void SetKey(string key, TextEffect textEffect, string[] _parameters)
+        public void SetKey(string key, string[] _parameters, TextEffect textEffect = TextEffect.None)
         {
             Effect = textEffect;
             Key = key;

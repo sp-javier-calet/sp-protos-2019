@@ -8,6 +8,7 @@ using SocialPoint.Network;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
 using SocialPoint.Base;
+using SocialPoint.Attributes;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -17,6 +18,8 @@ namespace SocialPoint.Locale
 {
     public sealed class LocaleInstaller : ServiceInstaller
     {
+        const string kPersistentTag = "persistent";
+
         public enum LocalizationEnvironment
         {
             Development,
@@ -92,8 +95,8 @@ namespace SocialPoint.Locale
             csvLoadedDelegate = new LocalizationManager.CsvForNGUILoadedDelegate(LoadNGUICSV);
             #endif
 
-
-            return new LocalizationManager(Settings.Localization.CsvMode, csvLoadedDelegate);
+            IAttrStorage storage = Container.Resolve<IAttrStorage>(kPersistentTag);
+            return new LocalizationManager(storage, Settings.Localization.CsvMode, csvLoadedDelegate);
         }
 
         #if NGUI

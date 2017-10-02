@@ -21,7 +21,7 @@ namespace SocialPoint.Locale
             HttpClient = Substitute.For<IHttpClient>();
             var DeviceInfo = Substitute.For<UnityDeviceInfo>();
 
-            LocalizationManager = new LocalizationManager(LocalizationManager.CsvMode.WriteCsvWithAllSupportedLanguages, null);
+            LocalizationManager = new LocalizationManager(null, LocalizationManager.CsvMode.WriteCsvWithAllSupportedLanguages, null);
             LocalizationManager.HttpClient = HttpClient;
             LocalizationManager.AppInfo = DeviceInfo.AppInfo;
             LocalizationManager.Location.ProjectId = "ds";
