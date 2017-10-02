@@ -38,7 +38,11 @@ namespace SocialPoint.GUIControl
                 }
 
                 _localization = _localizationManager.Localization;
-                _localizationManager.AddObserver(this);
+
+                if(Services.Instance.Resolve("use_always_device_language", true))
+                {
+                    _localizationManager.AddObserver(this);
+                }
 
                 Key = "HUD_INBOX_MESSAGE_EMPTY_KEY"; // TODO TO TEST
                 LocalizeText();
