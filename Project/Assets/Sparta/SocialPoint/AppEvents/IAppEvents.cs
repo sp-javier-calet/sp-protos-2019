@@ -1,8 +1,6 @@
 using System;
-using SocialPoint.Base;
 using SocialPoint.Utils;
 using UnityEngine.SceneManagement;
-using UnityEditor;
 
 namespace SocialPoint.AppEvents
 {
@@ -105,20 +103,18 @@ namespace SocialPoint.AppEvents
 
         public static bool QuitGame(this IAppEvents events)
         {
-            bool movedToBackground = false;
-
             #if UNITY_ANDROID && !UNITY_EDITOR
-            movedToBackground = SocialPoint.Base.AndroidContext.CurrentActivity.Call<bool>("moveTaskToBack", true);
+            return SocialPoint.Base.AndroidContext.CurrentActivity.Call<bool>("moveTaskToBack", true);
+            #else
+            return false;
             #endif
-
-            return movedToBackground;
         }
 
         public static void KillGame(this IAppEvents events)
         {
             
 #if UNITY_EDITOR
-            EditorApplication.isPlaying = false;
+            UnityEditor.EditorApplication.isPlaying = false;
 #elif UNITY_ANDROID
             events.TriggerApplicationQuit();
             try
@@ -128,7 +124,7 @@ namespace SocialPoint.AppEvents
             }
             catch(Exception)
             {
-                Log.w("finishAndRemoveTask not available");
+                SocialPoint.Base.Log.w("finishAndRemoveTask not available");
             }
 
             System.Diagnostics.Process.GetCurrentProcess().Kill();
