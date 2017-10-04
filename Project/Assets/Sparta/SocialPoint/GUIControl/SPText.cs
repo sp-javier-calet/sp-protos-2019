@@ -50,15 +50,18 @@ namespace SocialPoint.GUIControl
 
         protected override void OnDestroy()
         {
-            if(!_localizationManager.UseAlwaysDeviceLanguage)
+            if(Application.isPlaying)
             {
-                _localizationManager.Loaded -= OnChangeLanguage;
+                if(_localizationManager != null && !_localizationManager.UseAlwaysDeviceLanguage)
+                {
+                    _localizationManager.Loaded -= OnChangeLanguage;
+                }
             }
 
             base.OnDestroy();
         }
 
-        public void OnChangeLanguage(Dictionary<string, Localization> loaded)
+        void OnChangeLanguage(Dictionary<string, Localization> loaded)
         {
             LocalizeText();
         }
