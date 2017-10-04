@@ -16,10 +16,7 @@ namespace SocialPoint.GUIControl
 
         #region ICloneable implementation
 
-        public virtual object Clone() 
-        {
-            return null;
-        }
+        public abstract object Clone();
 
         #endregion
     }
