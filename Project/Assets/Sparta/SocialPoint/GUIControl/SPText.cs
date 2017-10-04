@@ -1,14 +1,14 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using SocialPoint.Dependency;
 using SocialPoint.Locale;
-using ObserverPattern;
+using System;
+using System.Collections.Generic;
 
 namespace SocialPoint.GUIControl
 {
     [AddComponentMenu("UI/Extensions/SPText")]
-    public class SPText : Text, IObserver
+    public class SPText : Text
     {
         public enum TextEffect
         {
@@ -41,7 +41,7 @@ namespace SocialPoint.GUIControl
 
                 if(!_localizationManager.UseAlwaysDeviceLanguage)
                 {
-                    _localizationManager.AddObserver(this);
+                    _localizationManager.Loaded += OnChangeLanguage;
                 }
                     
                 LocalizeText();
@@ -52,13 +52,13 @@ namespace SocialPoint.GUIControl
         {
             if(!_localizationManager.UseAlwaysDeviceLanguage)
             {
-                _localizationManager.RemoveObserver(this);
+                _localizationManager.Loaded -= OnChangeLanguage;
             }
 
             base.OnDestroy();
         }
 
-        public void OnNotify()
+        public void OnChangeLanguage(Dictionary<string, Localization> loaded)
         {
             LocalizeText();
         }

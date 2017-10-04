@@ -10,11 +10,10 @@ using SocialPoint.Base;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
 using SocialPoint.Network;
-using ObserverPattern;
 
 namespace SocialPoint.Locale
 {
-    public class LocalizationManager : Observable, ILocalizationManager
+    public class LocalizationManager : ILocalizationManager
     {
         public sealed class LocationData
         {
@@ -429,11 +428,6 @@ namespace SocialPoint.Locale
             if(Loaded != null)
             {
                 Loaded(_locales);
-            }
-
-            if(!UseAlwaysDeviceLanguage)
-            {
-                NotifyToObservers();
             }
         }
 

@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using ObserverPattern;
 
 namespace SocialPoint.Locale
 {
-    public interface ILocalizationManager : IObservable, IDisposable
+    public interface ILocalizationManager : IDisposable
     {
         bool UseAlwaysDeviceLanguage{ get; set; }
 
