@@ -5,7 +5,7 @@ using SocialPoint.GUIControl;
 namespace SpartaTools.Editor.Utils.Decorators
 {
     [CustomEditor(typeof(SPText))]
-    public class CustomTextEditor : UnityEditor.UI.TextEditor
+    public class SPTextEditor : UnityEditor.UI.TextEditor
     {
         public override void OnInspectorGUI()
         {
