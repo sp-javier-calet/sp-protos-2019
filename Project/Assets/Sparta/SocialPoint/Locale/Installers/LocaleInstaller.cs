@@ -89,14 +89,18 @@ namespace SocialPoint.Locale
 
         LocalizationManager CreateLocalizationManager()
         {
-            LocalizationManager.CsvForNGUILoadedDelegate csvLoadedDelegate = null;
-
             #if NGUI
+            LocalizationManager.CsvForNGUILoadedDelegate csvLoadedDelegate = null;
             csvLoadedDelegate = new LocalizationManager.CsvForNGUILoadedDelegate(LoadNGUICSV);
             #endif
 
             IAttrStorage storage = Container.Resolve<IAttrStorage>(kPersistentTag);
-            LocalizationManager localizationManager = new LocalizationManager(storage, Settings.Localization.CsvMode, csvLoadedDelegate);
+
+            #if NGUI
+                LocalizationManager localizationManager = new LocalizationManager(Settings.Localization.CsvMode, csvLoadedDelegate);
+            #else
+                LocalizationManager localizationManager = new LocalizationManager(storage);
+            #endif
             localizationManager.UseAlwaysDeviceLanguage = Settings.UseAlwaysDeviceLanguage;
 
             return localizationManager;

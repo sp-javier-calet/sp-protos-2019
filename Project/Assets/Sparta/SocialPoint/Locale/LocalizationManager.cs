@@ -194,7 +194,7 @@ namespace SocialPoint.Locale
 
         public IAppInfo AppInfo { get; set; }
 
-        readonly LocationData _location;
+        LocationData _location;
         public LocationData Location
         {
             get
@@ -203,7 +203,7 @@ namespace SocialPoint.Locale
             }
         }
 
-        readonly Localization _localization;
+        Localization _localization;
         public Localization Localization
         {
             get
@@ -280,23 +280,35 @@ namespace SocialPoint.Locale
 
         IAttrStorage _storage;
 
-        public LocalizationManager(IAttrStorage storage, CsvMode csvMode, CsvForNGUILoadedDelegate csvLoaded)
+        [Obsolete("Only used by NGUI to setup CSV files")]
+        public LocalizationManager(CsvMode csvMode, CsvForNGUILoadedDelegate csvLoaded)
+        {
+            Initialize(null, csvMode, csvLoaded);
+        }
+
+        public LocalizationManager(IAttrStorage storage)
+        {
+            Initialize(storage);
+        }
+            
+        void Initialize(IAttrStorage storage, CsvMode csvMode = CsvMode.NoCsv, CsvForNGUILoadedDelegate csvLoaded = null)
         {
             _storage = storage;
+
             _csvModeForNGUI = csvMode;
+            CsvForNGUILoaded = csvLoaded;
+
             _localization = new Localization();
             _location = new LocationData();
             _supportedFixedLanguages.Clear();
             _locales.Clear();
-
-            CsvForNGUILoaded = csvLoaded;
 
             PathsManager.CallOnLoaded(Init);
         }
             
         void SaveSelectedLanguage(string lang)
         {
-            if(!UseAlwaysDeviceLanguage && _storage != null)
+            if(_storage != null && !UseAlwaysDeviceLanguage)
             {
                 _storage.Save(kLanguageSettingsKey, new AttrString(lang));
             }
@@ -306,7 +318,7 @@ namespace SocialPoint.Locale
         {
             Attr language = null;
             var languageStr = string.Empty;
-            if(!UseAlwaysDeviceLanguage)
+            if(_storage != null && !UseAlwaysDeviceLanguage)
             {
                 // Load user language if is stored
                 language = _storage.Load(kLanguageSettingsKey);
