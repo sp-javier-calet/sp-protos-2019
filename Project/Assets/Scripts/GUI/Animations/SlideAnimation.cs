@@ -5,83 +5,123 @@ using SocialPoint.GUIControl;
 [CreateAssetMenu(menuName = "UI Animations/Slide Animation")]
 public class SlideAnimation : UIViewAnimation 
 {
+    public enum PosType
+    {
+        Left,
+        Right,
+        Top,
+        Down,
+        Center
+    }
+
+    [SerializeField]
+    Transform _transform;
+
     [SerializeField]
     float _time = 1.0f;
 
-    UIViewController _controller;
-    RectTransform _transform;
-
-    public enum DirectionType
-    {
-        Left,
-        Right
-    }
+    [SerializeField]
+    PosType _moveFromPos = PosType.Center;
 
     [SerializeField]
-    DirectionType _direction;
-    
+    PosType _moveToPos = PosType.Center;
+
+    [SerializeField]
+    GoEaseType _easeType = GoEaseType.Linear;
+
+    [SerializeField]
+    AnimationCurve _easeCurve = default(AnimationCurve);
+
+    RectTransform _rectTransform;
+    UIViewController _ctrl;
+
+    public override float Duration
+    {
+        get
+        {
+            return _time;
+        }
+    }
+
     public override void Load(UIViewController ctrl)
     {
-        _controller = ctrl;
-        _transform = _controller.gameObject.GetComponent<RectTransform>();
-        if(_transform == null)
+        _ctrl = ctrl;
+        if(_ctrl != null)        
         {
-            throw new MissingComponentException("Could not find RectTransform component.");
+            if(_transform == null)
+            {
+                _transform = ctrl.transform;
+                _rectTransform = _transform.GetChild(0).GetComponent<RectTransform>();
+            }
+            else
+            {
+                _rectTransform = _transform.GetComponent<RectTransform>();
+            }
+
+            if(_rectTransform == null)
+            {
+                throw new MissingComponentException("Could not find First Child RectTransform component.");
+            }
         }
     }
     
-    public SlideAnimation(float time, DirectionType dir=DirectionType.Right)
+    public SlideAnimation(float time, PosType moveFromPos = PosType.Center, PosType moveToPos = PosType.Center, GoEaseType easeType = GoEaseType.Linear, AnimationCurve easeCurve = default(AnimationCurve))
     {
         _time = time;
-        _direction = dir;
+        _moveFromPos = moveFromPos;
+        _moveToPos = moveToPos;
+        _easeType = easeType;
+        _easeCurve = easeCurve;
     }
     
-    public override IEnumerator Appear()
+    public override IEnumerator Animate()
     {
-        var p = _transform.localPosition;
-        var np = _transform.localPosition;
+        var initialPos = _rectTransform.localPosition;
+        var finalPos = initialPos;
 
-        if(_direction == DirectionType.Right)
-        {
-            np.x = _transform.sizeDelta.x;
-        }
-        else
-        if(_direction == DirectionType.Left)
-        {
-            np.x = -_transform.sizeDelta.x;
-        }
+        GetPosition(ref initialPos, _moveFromPos);
+        GetPosition(ref finalPos, _moveToPos);
         
-        _transform.localPosition = np;
-        var tween = Go.to(_transform, _time, new GoTweenConfig().localPosition(p));
-
-        yield return _controller.StartCoroutine(tween.waitForCompletion());
+        _rectTransform.localPosition = initialPos;
+        yield return _ctrl.StartCoroutine(CreateTween(finalPos).waitForCompletion());
     }
-    
-    public override IEnumerator Disappear()
-    {
-        var op = _transform.localPosition;
-        var p = op;
 
-        if(_direction == DirectionType.Right)
+    GoTween CreateTween(Vector3 finalValue)
+    {
+        if(_easeType == GoEaseType.AnimationCurve && _easeCurve != null)
         {
-            p.x = -_transform.sizeDelta.x;
+            return Go.to(_rectTransform, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType).setEaseCurve(_easeCurve));
         }
         else
-        if(_direction == DirectionType.Left)
         {
-            p.x = _transform.sizeDelta.x;
+            return Go.to(_rectTransform, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType));
         }
-        
-        var tween = Go.to(_transform, _time, new GoTweenConfig().localPosition(p));
+    }
 
-        yield return _controller.StartCoroutine(tween.waitForCompletion());
-        _transform.localPosition = op;
+    void GetPosition(ref Vector3 pos, PosType position)
+    {
+        if(position == PosType.Right)
+        {
+            pos.x = (_rectTransform.sizeDelta.x + _rectTransform.rect.width);
+        }
+        else if(position == PosType.Left)
+        {
+            pos.x = -(_rectTransform.sizeDelta.x + _rectTransform.rect.width);
+        }
+        else if(position == PosType.Top)
+        {
+            pos.y = (_rectTransform.sizeDelta.y + _rectTransform.rect.height);
+        }
+        else if(position == PosType.Down)
+        {
+            pos.y = -(_rectTransform.sizeDelta.y + _rectTransform.rect.height);
+        }
     }
 
     public override void Reset() {}
-        
+
     public override object Clone()
     {
-        return new SlideAnimation(_time, _direction);
+        return new SlideAnimation(_time, _moveFromPos, _moveToPos, _easeType, _easeCurve);
     }
 }

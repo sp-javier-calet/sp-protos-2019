@@ -6,11 +6,11 @@ namespace SocialPoint.GUIControl
 {
     public abstract class UIViewAnimation : ScriptableObject, ICloneable
     {
+        public abstract float Duration { get; }
+
         public abstract void Load(UIViewController ctrl);
 
-        public abstract IEnumerator Appear();
-
-        public abstract IEnumerator Disappear();
+        public abstract IEnumerator Animate();
 
         public abstract void Reset();
 

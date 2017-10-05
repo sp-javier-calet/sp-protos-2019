@@ -36,9 +36,6 @@ namespace SocialPoint.GUIControl
 
         public Action CloseAppShow { get; set; }
 
-        public UIViewAnimation UnityDefaultAnimation;
-        public UIViewAnimation UnityDefaultAnimationFullScreen;
-
         /// <summary>
         ///     To be used in Unity Tests to avoid problems with Coroutines and yields.
         /// </summary>
@@ -222,22 +219,22 @@ namespace SocialPoint.GUIControl
             return false;
         }
 
-        bool IsPushAction(ActionType act)
+        static bool IsPushAction(ActionType act)
         {
             return act == ActionType.Push || act == ActionType.PushImmediate;
         }
 
-        bool IsPopAction(ActionType act)
+        static bool IsPopAction(ActionType act)
         {
             return act == ActionType.Pop || act == ActionType.PopImmediate || act == ActionType.PopUntilCheck || act == ActionType.PopUntilPos || act == ActionType.PopUntilType;
         }
 
-        bool IsReplaceAction(ActionType act)
+        static bool IsReplaceAction(ActionType act)
         {
             return act == ActionType.Replace || act == ActionType.ReplaceImmediate;
         }
 
-        bool IsImmediateAction(ActionType act)
+        static bool IsImmediateAction(ActionType act)
         {
             return act == ActionType.PushImmediate || act == ActionType.PopImmediate || act == ActionType.ReplaceImmediate;
         }
@@ -350,56 +347,35 @@ namespace SocialPoint.GUIControl
             {
                 from.Controller.SetParent(BackContainer.transform);
             }
-
-            if(IsPushAction(act))
+                
+            if(IsValidStackNode(from))
             {
-                if(IsValidStackNode(from))
-                {
-                    SetupAnimation(from, from.Controller.HideAnimation);
-                }
-
-                if(IsValidStackNode(to))
-                {
-                    SetupAnimation(to, to.Controller.ShowAnimation);
-                }
+                SetupAnimation(from, from.Controller.DisappearAnimation, DisappearAnimation);
             }
-            else
+
+            if(IsValidStackNode(to))
             {
-                if(IsValidStackNode(from))
-                {
-                    SetupAnimation(from, from.Controller.ShowAnimation);
-                }
-
-                if(IsValidStackNode(to))
-                {
-                    SetupAnimation(to, to.Controller.HideAnimation);
-                }
-
+                SetupAnimation(to, to.Controller.AppearAnimation, AppearAnimation);
             }
         }
 
-        void SetupAnimation(StackNode ctrl, UIViewAnimation anim)
+        void SetupAnimation(StackNode ctrl, UIViewAnimation desiredAnim, UIViewAnimation defaultAnim)
         {
             if(IsValidStackNode(ctrl))
             {
-                SetupAnimation(ctrl.Controller, anim);
+                SetupAnimation(ctrl.Controller, desiredAnim, defaultAnim);
             }
         }
 
-        void SetupAnimation(UIViewController ctrl, UIViewAnimation defaultAnim)
+        void SetupAnimation(UIViewController ctrl, UIViewAnimation desiredAnim, UIViewAnimation defaultAnim)
         {
-            var anim = defaultAnim;
-            if(anim == null)
+            if(desiredAnim == null)
             {
-                if(ctrl != null)
-                {
-                    anim = ctrl.IsFullScreen ? UnityDefaultAnimationFullScreen : UnityDefaultAnimation;
-                    ctrl.Animation = (anim == null ? null : (UIViewAnimation)anim.Clone());
-                }
+                ctrl.Animation = (ctrl.IsFullScreen ? null : (UIViewAnimation)defaultAnim.Clone());
             }
             else
             {
-                ctrl.Animation = anim;
+                ctrl.Animation = desiredAnim;
             }
         }
 
@@ -947,7 +923,7 @@ namespace SocialPoint.GUIControl
 
         IEnumerator DoPopUntilCoroutine(Type type)
         {
-            return DoPopUntilCondition((UIViewController ctrl) => { return ctrl.GetType() == type; }, ActionType.PopUntilType);
+            return DoPopUntilCondition(ctrl => ctrl.GetType() == type, ActionType.PopUntilType);
         }
 
         public void PopUntil(int i)
@@ -969,7 +945,7 @@ namespace SocialPoint.GUIControl
         {
             if(Count > i)
             {           
-                return DoPopUntilCondition((UIViewController ctrl) => 
+                return DoPopUntilCondition(ctrl => 
                 { 
                     if(i >= 0)
                     {
@@ -987,22 +963,22 @@ namespace SocialPoint.GUIControl
             return null;
         }
 
-        public void PopUntilCheckPoint(string name)
+        public void PopUntilCheckPoint(string checkPointName)
         {
-            StartActionCoroutine(DoPopUntilCheckPointCoroutine(name), ActionType.PopUntilCheck);
+            StartActionCoroutine(DoPopUntilCheckPointCoroutine(checkPointName), ActionType.PopUntilCheck);
         }
 
-        public IEnumerator PopUntilCheckPointCoroutine(string name)
+        public IEnumerator PopUntilCheckPointCoroutine(string checkPointName)
         {
-            yield return StartActionCoroutine(DoPopUntilCheckPointCoroutine(name), ActionType.PopUntilCheck);
+            yield return StartActionCoroutine(DoPopUntilCheckPointCoroutine(checkPointName), ActionType.PopUntilCheck);
         }
 
-        IEnumerator DoPopUntilCheckPointCoroutine(string name)
+        IEnumerator DoPopUntilCheckPointCoroutine(string checkPointName)
         {
             int i;
-            if(!_checkpoints.TryGetValue(name, out i))
+            if(!_checkpoints.TryGetValue(checkPointName, out i))
             {
-                throw new Exception(string.Format("Could not find checkpoint '{0}'.", name));
+                throw new Exception(string.Format("Could not find checkpoint '{0}'.", checkPointName));
             }
             else
             {

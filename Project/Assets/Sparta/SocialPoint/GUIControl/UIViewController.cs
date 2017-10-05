@@ -28,14 +28,13 @@ namespace SocialPoint.GUIControl
         public event Action<UIViewController, ViewState> ViewEvent;
         public event Action<UIViewController, GameObject> InstantiateEvent;
 
-        public UIViewAnimation ShowAnimation;
-        public UIViewAnimation HideAnimation;
+        public UIViewAnimation AppearAnimation;
+        public UIViewAnimation DisappearAnimation;
 
         bool _loaded;
         ViewState _viewState = ViewState.Initial;
         Coroutine _showCoroutine;
         Coroutine _hideCoroutine;
-        UIViewAnimation _animation;
 
         [HideInInspector]
         public UIViewController ParentController;
@@ -298,6 +297,7 @@ namespace SocialPoint.GUIControl
             return size;
         }
 
+        UIViewAnimation _animation;
         public UIViewAnimation Animation
         {
             set
@@ -672,7 +672,7 @@ namespace SocialPoint.GUIControl
         {
             if(Animation != null)
             {
-                var enm = Animation.Appear();
+                var enm = Animation.Animate();
                 while(enm.MoveNext())
                 {
                     yield return enm.Current;
@@ -726,7 +726,7 @@ namespace SocialPoint.GUIControl
             if(Animation != null)
             {
                 yield return new WaitForEndOfFrame();
-                var enm = Animation.Disappear();
+                var enm = Animation.Animate();
                 while(enm.MoveNext())
                 {
                     yield return enm.Current;

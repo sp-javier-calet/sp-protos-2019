@@ -60,6 +60,7 @@ GameObject:
   - component: {fileID: 114199258558786962}
   - component: {fileID: 222666323638474072}
   - component: {fileID: 114977580801788422}
+  - component: {fileID: 111911594604580074}
   m_Layer: 0
   m_Name: GUI_ExamplePopup
   m_TagString: Untagged
@@ -102,6 +103,22 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!111 &111911594604580074
+Animation:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1195133344905080}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 7400000, guid: 7fb6c63af7e124b6c8b9a238c23f6833, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: 7fb6c63af7e124b6c8b9a238c23f6833, type: 2}
+  - {fileID: 7400000, guid: f16b1cff8232f44119194ac510d6c4a2, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 0
+  m_AnimatePhysics: 0
+  m_CullingType: 0
 --- !u!114 &114058537052627428
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -350,6 +367,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsFullScreen: 0
+  AppearAnimation: {fileID: 0}
+  DisappearAnimation: {fileID: 0}
   ParentController: {fileID: 0}
   DestroyOnHide: 0
   _containers3d: []
