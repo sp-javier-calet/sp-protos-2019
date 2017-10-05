@@ -56,7 +56,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         base.OnLoad();
     }
 
-    public override bool CanBeClosed()
+    public override bool OnBeforeClose()
     {
         return false;
     }

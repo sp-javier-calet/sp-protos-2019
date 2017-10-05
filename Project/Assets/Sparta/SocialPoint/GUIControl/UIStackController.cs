@@ -1026,7 +1026,7 @@ namespace SocialPoint.GUIControl
             else if(IsValidStackNode(Top))
             {
                 var ctrl = Top.Controller;
-                if(ctrl.CanBeClosed())
+                if(ctrl.OnBeforeClose())
                 {
                     ctrl.Close();
                 }
