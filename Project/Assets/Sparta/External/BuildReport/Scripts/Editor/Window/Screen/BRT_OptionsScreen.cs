@@ -1,9 +1,5 @@
 using UnityEngine;
 using UnityEditor;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
 using System.Text.RegularExpressions;
 
 
@@ -145,6 +141,9 @@ public class Options : BaseScreen
 		_selectedCalculationLevelIdx = GetCalculationLevelGuiIdxFromOptions();
 	}
 
+	GUIStyle _linkStyle;
+	GUIStyle _textBesideLinkStyle;
+
 	public override void DrawGUI(Rect position, BuildInfo buildReportToDisplay)
 	{
 		GUILayout.Space(10); // extra top padding
@@ -156,13 +155,30 @@ public class Options : BaseScreen
 			GUILayout.Space(20); // extra left padding
 			GUILayout.BeginVertical();
 
+				if (!string.IsNullOrEmpty(BuildReportTool.Options.FoundPathForSavedOptions))
+				{
+					GUILayout.BeginHorizontal(BuildReportTool.Window.Settings.BOXED_LABEL_STYLE_NAME);
+					GUILayout.Label(string.Format("Using options file in: {0}", BuildReportTool.Options.FoundPathForSavedOptions));
+					GUILayout.FlexibleSpace();
+					if (GUILayout.Button("Reload"))
+					{
+						BuildReportTool.Options.RefreshOptions();
+					}
+					GUILayout.EndHorizontal();
+
+					GUILayout.Space(10);
+				}
+
 				// === Main Options ===
 
-				GUILayout.Label("Main Options", Settings.INFO_TITLE_STYLE_NAME);
+				GUILayout.Label("Main Options", BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
 
 				BuildReportTool.Options.CollectBuildInfo = GUILayout.Toggle(BuildReportTool.Options.CollectBuildInfo, Labels.COLLECT_BUILD_INFO_LABEL);
 
 				BuildReportTool.Options.AllowDeletingOfUsedAssets = GUILayout.Toggle(BuildReportTool.Options.AllowDeletingOfUsedAssets, "Allow deleting of Used Assets (practice caution!)");
+
+				BuildReportTool.Options.UseThreadedFileLoading = GUILayout.Toggle(BuildReportTool.Options.UseThreadedFileLoading,
+					"Use threaded file loading");
 
 				GUILayout.Space(10);
 
@@ -170,12 +186,44 @@ public class Options : BaseScreen
 				BuildReportTool.Options.IncludeBuildSizeInReportCreation = GUILayout.Toggle(BuildReportTool.Options.IncludeBuildSizeInReportCreation, "Get build's file size upon creation of a build report");
 
 				BuildReportTool.Options.GetImportedSizesForUsedAssets = GUILayout.Toggle(BuildReportTool.Options.GetImportedSizesForUsedAssets, "Get imported sizes of Used Assets upon creation of a build report");
-
+				
 				BuildReportTool.Options.GetImportedSizesForUnusedAssets = GUILayout.Toggle(BuildReportTool.Options.GetImportedSizesForUnusedAssets, "Get imported sizes of Unused Assets upon creation of a build report");
 
 				BuildReportTool.Options.GetProjectSettings = GUILayout.Toggle(BuildReportTool.Options.GetProjectSettings, "Get Unity project settings upon creation of a build report");
-
+				
 				GUILayout.Space(10);
+
+				BuildReportTool.Options.ShowImportedSizeForUsedAssets = GUILayout.Toggle(BuildReportTool.Options.ShowImportedSizeForUsedAssets, "Show calculated sizes of Used Assets instead of reported sizes");
+
+				if (_linkStyle == null)
+				{
+					_linkStyle = new GUIStyle(GUI.skin.label);
+					_linkStyle.normal.textColor = new Color(0.266f, 0.533f, 1);
+					_linkStyle.hover.textColor = new Color(0.118f, 0.396f, 1);
+					_linkStyle.stretchWidth = false;
+					_linkStyle.margin.bottom = 0;
+					_linkStyle.padding.bottom = 0;
+				}
+				if (_textBesideLinkStyle == null)
+				{
+					_textBesideLinkStyle = new GUIStyle(GUI.skin.label);
+					_textBesideLinkStyle.stretchWidth = false;
+					_textBesideLinkStyle.margin.right = 0;
+					_textBesideLinkStyle.padding.right = 0;
+					_textBesideLinkStyle.margin.bottom = 0;
+					_textBesideLinkStyle.padding.bottom = 0;
+				}
+				GUILayout.BeginHorizontal();
+				GUILayout.Label("Note: This option is a workaround for the ", _textBesideLinkStyle);
+				if (GUILayout.Button("Unity bug with Issue ID 885258", _linkStyle))
+				{
+					Application.OpenURL("https://issuetracker.unity3d.com/issues/unity-reports-incorrect-textures-size-in-the-editor-dot-log-after-building-on-standalone");
+				}
+				GUILayout.EndHorizontal();
+				GUILayout.Label("This bug has already been fixed in Unity 2017.1, 5.5.3p1 and 5.6.0p1. Only enable this if you are affected by the bug.");
+			
+
+				GUILayout.Space(15);
 
 				GUILayout.BeginHorizontal();
 					GUILayout.Label("Automatically show Build Report Window after building: ");
@@ -212,7 +260,7 @@ public class Options : BaseScreen
 					GUILayout.FlexibleSpace();
 				GUILayout.EndHorizontal();
 
-				GUILayout.Space(Settings.CATEGORY_VERTICAL_SPACING);
+				GUILayout.Space(BuildReportTool.Window.Settings.CATEGORY_VERTICAL_SPACING);
 
 				if (newSelectedCalculationLevelIdx != _selectedCalculationLevelIdx)
 				{
@@ -223,7 +271,7 @@ public class Options : BaseScreen
 
 				// === Editor Log File ===
 
-				GUILayout.Label("Editor Log File", Settings.INFO_TITLE_STYLE_NAME);
+				GUILayout.Label("Editor Log File", BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
 
 				// which Editor.log is used
 				GUILayout.BeginHorizontal();
@@ -260,17 +308,48 @@ public class Options : BaseScreen
 					GUILayout.FlexibleSpace();
 				GUILayout.EndHorizontal();
 
-				GUILayout.Space(Settings.CATEGORY_VERTICAL_SPACING);
+				GUILayout.Space(BuildReportTool.Window.Settings.CATEGORY_VERTICAL_SPACING);
 
 
 
 
 				// === Asset Lists ===
 
-				GUILayout.Label("Asset Lists", Settings.INFO_TITLE_STYLE_NAME);
+				GUILayout.Label("Asset Lists", BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
 
 				BuildReportTool.Options.IncludeSvnInUnused = GUILayout.Toggle(BuildReportTool.Options.IncludeSvnInUnused, Labels.INCLUDE_SVN_LABEL);
 				BuildReportTool.Options.IncludeGitInUnused = GUILayout.Toggle(BuildReportTool.Options.IncludeGitInUnused, Labels.INCLUDE_GIT_LABEL);
+				
+				GUILayout.Space(10);
+
+				
+				// top largest used
+				GUILayout.BeginHorizontal();
+					GUILayout.Label("Number of Top Largest Used Assets to display:");
+					string numberOfTopUsedInput = GUILayout.TextField(BuildReportTool.Options.NumberOfTopLargestUsedAssetsToShow.ToString(), GUILayout.MinWidth(100));
+					numberOfTopUsedInput = Regex.Replace(numberOfTopUsedInput, @"[^0-9]", ""); // positive numbers only, no fractions
+					if (string.IsNullOrEmpty(numberOfTopUsedInput))
+					{
+						numberOfTopUsedInput = "0";
+					}
+					BuildReportTool.Options.NumberOfTopLargestUsedAssetsToShow = int.Parse(numberOfTopUsedInput);
+					GUILayout.FlexibleSpace();
+				GUILayout.EndHorizontal();
+
+				
+				// top largest unused
+				GUILayout.BeginHorizontal();
+					GUILayout.Label("Number of Top Largest Unused Assets to display:");
+					string numberOfTopUnusedInput = GUILayout.TextField(BuildReportTool.Options.NumberOfTopLargestUnusedAssetsToShow.ToString(), GUILayout.MinWidth(100));
+					numberOfTopUnusedInput = Regex.Replace(numberOfTopUnusedInput, @"[^0-9]", ""); // positive numbers only, no fractions
+					if (string.IsNullOrEmpty(numberOfTopUnusedInput))
+					{
+						numberOfTopUnusedInput = "0";
+					}
+					BuildReportTool.Options.NumberOfTopLargestUnusedAssetsToShow = int.Parse(numberOfTopUnusedInput);
+					GUILayout.FlexibleSpace();
+				GUILayout.EndHorizontal();
+
 
 				GUILayout.Space(10);
 
@@ -322,14 +401,14 @@ public class Options : BaseScreen
 					GUILayout.FlexibleSpace();
 				GUILayout.EndHorizontal();
 
-				GUILayout.Space(Settings.CATEGORY_VERTICAL_SPACING);
+				GUILayout.Space(BuildReportTool.Window.Settings.CATEGORY_VERTICAL_SPACING);
 
 
 
 
 				// === Build Report Files ===
 
-				GUILayout.Label("Build Report Files", Settings.INFO_TITLE_STYLE_NAME);
+				GUILayout.Label("Build Report Files", BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
 
 				// build report files save path
 				GUILayout.BeginHorizontal();
@@ -355,7 +434,7 @@ public class Options : BaseScreen
 					GUILayout.FlexibleSpace();
 				GUILayout.EndHorizontal();
 
-				GUILayout.Space(Settings.CATEGORY_VERTICAL_SPACING);
+				GUILayout.Space(BuildReportTool.Window.Settings.CATEGORY_VERTICAL_SPACING);
 
 
 			GUILayout.EndVertical();
@@ -364,16 +443,16 @@ public class Options : BaseScreen
 
 		GUILayout.EndScrollView();
 
-		if (BuildReportTool.Options.SaveType == BuildReportTool.Options.SAVE_TYPE_PERSONAL)
-		{
+		//if (BuildReportTool.Options.SaveType == BuildReportTool.Options.SAVE_TYPE_PERSONAL)
+		//{
 			// changed to user's personal folder
-			BuildReportTool.ReportGenerator.ChangeSavePathToUserPersonalFolder();
-		}
-		else if (BuildReportTool.Options.SaveType == BuildReportTool.Options.SAVE_TYPE_PROJECT)
-		{
+			//BuildReportTool.ReportGenerator.ChangeSavePathToUserPersonalFolder();
+		//}
+		//else if (BuildReportTool.Options.SaveType == BuildReportTool.Options.SAVE_TYPE_PROJECT)
+		//{
 			// changed to project folder
-			BuildReportTool.ReportGenerator.ChangeSavePathToProjectFolder();
-		}
+			//BuildReportTool.ReportGenerator.ChangeSavePathToProjectFolder();
+		//}
 	}
 
 

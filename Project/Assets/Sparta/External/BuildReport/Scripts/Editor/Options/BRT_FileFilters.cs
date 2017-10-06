@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
-using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace BuildReportTool
 {
@@ -176,7 +176,7 @@ public class FileFilters
 
 
 
-[System.Serializable]
+[System.Serializable, XmlRoot("FileFilterGroup")]
 public class FileFilterGroup
 {
 	[SerializeField]
