@@ -74,6 +74,9 @@ namespace SocialPoint.Locale
             WriteCsvWithAllSupportedLanguages,
             NoCsv
         }
+            
+        const string kPersistentTag = "persistent";
+        const string kLanguageSettingsKey = "CurrentLanguage";
 
         const string JsonExtension = ".json";
         const string EtagHeader = "Etag";
@@ -174,8 +177,15 @@ namespace SocialPoint.Locale
 
         public CultureInfo CurrentCultureInfo{ get; private set; }
 
-        public CultureInfo SelectedCultureInfo{ get; private set; }
-
+        CultureInfo _selectedCultureInfo;
+        public CultureInfo SelectedCultureInfo
+        {
+            get
+            {
+                return _selectedCultureInfo;
+            }
+        }
+            
         public delegate void CsvForNGUILoadedDelegate(byte[] bytes);
 
         CsvForNGUILoadedDelegate CsvForNGUILoaded;
@@ -184,8 +194,7 @@ namespace SocialPoint.Locale
 
         public IAppInfo AppInfo { get; set; }
 
-        readonly LocationData _location;
-
+        LocationData _location;
         public LocationData Location
         {
             get
@@ -194,8 +203,7 @@ namespace SocialPoint.Locale
             }
         }
 
-        readonly Localization _localization;
-
+        Localization _localization;
         public Localization Localization
         {
             get
@@ -206,20 +214,19 @@ namespace SocialPoint.Locale
 
         // language applied after selection (supported one).
         string _currentLanguage;
-
         public string CurrentLanguage
         {
             get
             {
                 return _currentLanguage;
             }
-
             set
             {
                 var oldLang = _currentLanguage;
                 _currentLanguage = GetSupportedLanguage(value);
                 if(oldLang != _currentLanguage)
                 {
+                    SaveSelectedLanguage(_currentLanguage);
                     UpdateCurrentLanguage();
                 }
             }
@@ -227,7 +234,6 @@ namespace SocialPoint.Locale
 
         // language selected by the user
         string _selectedLanguage;
-
         public string SelectedLanguage
         {
             get
@@ -237,14 +243,12 @@ namespace SocialPoint.Locale
         }
 
         IAppEvents _appEvents;
-
         public IAppEvents AppEvents
         {
             get
             {
                 return _appEvents;
             }
-
             set
             {
                 if(_appEvents != null)
@@ -258,24 +262,73 @@ namespace SocialPoint.Locale
                 }
             }
         }
+
+        bool _useAlwaysDeviceLanguage;
+        public bool UseAlwaysDeviceLanguage
+        {
+            get
+            {
+                return _useAlwaysDeviceLanguage;
+            }
+            set
+            {
+                _useAlwaysDeviceLanguage = value;
+            }
+        }
+
         public EnvironmentType EnvironmentType;
 
+        IAttrStorage _storage;
+
+        [Obsolete("Only used by NGUI to setup CSV files")]
         public LocalizationManager(CsvMode csvMode, CsvForNGUILoadedDelegate csvLoaded)
         {
+            Initialize(null, csvMode, csvLoaded);
+        }
+
+        public LocalizationManager(IAttrStorage storage)
+        {
+            Initialize(storage);
+        }
+            
+        void Initialize(IAttrStorage storage, CsvMode csvMode = CsvMode.NoCsv, CsvForNGUILoadedDelegate csvLoaded = null)
+        {
+            _storage = storage;
+
             _csvModeForNGUI = csvMode;
+            CsvForNGUILoaded = csvLoaded;
+
             _localization = new Localization();
             _location = new LocationData();
             _supportedFixedLanguages.Clear();
             _locales.Clear();
 
-            CsvForNGUILoaded = csvLoaded;
-
             PathsManager.CallOnLoaded(Init);
+        }
+            
+        void SaveSelectedLanguage(string lang)
+        {
+            if(_storage != null && !UseAlwaysDeviceLanguage)
+            {
+                _storage.Save(kLanguageSettingsKey, new AttrString(lang));
+            }
         }
 
         public void UpdateDefaultLanguage()
         {
-            _currentLanguage = GetSupportedLanguage(_currentLanguage);
+            Attr language = null;
+            var languageStr = string.Empty;
+            if(_storage != null && !UseAlwaysDeviceLanguage)
+            {
+                // Load user language if is stored
+                language = _storage.Load(kLanguageSettingsKey);
+                if(language != null)
+                {
+                    languageStr = language.AsValue.ToString();
+                }
+            }
+
+            _currentLanguage = (language == null ? GetSupportedLanguage(_currentLanguage) : languageStr);
             LoadCurrentLanguage();
         }
 
@@ -692,7 +745,7 @@ namespace SocialPoint.Locale
             }
 
             _selectedLanguage = lang;
-            SelectedCultureInfo = GetCultureInfo(_selectedLanguage);
+            _selectedCultureInfo = GetCultureInfo(_selectedLanguage);
 
             var fixlang = FixLanguage(lang);
 
