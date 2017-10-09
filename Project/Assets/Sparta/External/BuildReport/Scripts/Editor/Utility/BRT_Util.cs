@@ -1,7 +1,26 @@
+#if (UNITY_4 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6 || UNITY_5)
+	#define UNITY_4_AND_GREATER
+#endif
+
+#if (UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6 || UNITY_5)
+	#define UNITY_4_1_AND_GREATER
+#endif
+
+#if (UNITY_4_2 || UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6 || UNITY_5)
+	#define UNITY_4_2_AND_GREATER
+#endif
+
+#if (UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6 || UNITY_5)
+	#define UNITY_4_3_AND_GREATER
+#endif
+
+#if UNITY_4 || UNITY_5_0 || UNITY_5_1 || UNITY_5_2 || UNITY_5_3
+#define UNITY_5_3_AND_LESSER
+#endif
+
 using UnityEngine;
 using UnityEditor;
 using System;
-using System.Collections;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -13,6 +32,42 @@ namespace BuildReportTool
 
 public static class Util
 {
+	public static int GetUnityMajorVersion(string unityVersion)
+	{
+		string majorVersion = string.Empty;
+		
+		int len = 0;
+		
+		int majorIdx = 0;
+		for (majorIdx = 0, len = unityVersion.Length; majorIdx < len; ++majorIdx)
+		{
+			if (System.Char.IsDigit(unityVersion[majorIdx]) && unityVersion[majorIdx] != '.')
+			{
+				majorVersion += unityVersion[majorIdx];
+			}
+			if (unityVersion[majorIdx] == '.')
+			{
+				break;
+			}
+		}
+		
+		return int.Parse(majorVersion);
+	}
+	
+	public static bool UnityMajorVersionUsedIsAtMost(int versionAtMost, string unityVersionName)
+	{
+		int majorVersion = GetUnityMajorVersion(unityVersionName);
+		
+		return (majorVersion <= versionAtMost);
+	}
+	
+	public static bool UnityMajorVersionUsedIsAtLeast(int versionAtLeast, string unityVersionName)
+	{
+		int majorVersion = GetUnityMajorVersion(unityVersionName);
+		
+		return (majorVersion >= versionAtLeast);
+	}
+	
 	// care should be taken when using ShouldGetBuildReportNow and ShouldSaveGottenBuildReportNow
 	// as they are effectively global variables
 	// unfortunately this is the only way I can ensure persistence of bool variables in between recompilations
@@ -22,11 +77,40 @@ public static class Util
 	{
 		switch (b)
 		{
+#if UNITY_5_3_AND_LESSER
+			case BuildTarget.WebPlayer:
+				return BuildPlatform.Web;
+			case BuildTarget.WebPlayerStreamed:
+				return BuildPlatform.Web;
+#endif
+				
+#if UNITY_4
+			case BuildTarget.NaCl:
+				return BuildPlatform.Web;
+
+
+			case BuildTarget.FlashPlayer:
+				return BuildPlatform.Flash;
+#endif
+
+#if UNITY_4
+			case BuildTarget.iPhone:
+#else
 			case BuildTarget.iOS:
+#endif
 				return BuildPlatform.iOS;
 
 			case BuildTarget.Android:
 				return BuildPlatform.Android;
+
+#if !UNITY_5_5_OR_NEWER
+			case BuildTarget.XBOX360:
+				return BuildPlatform.XBOX360;
+
+			case BuildTarget.PS3:
+				return BuildPlatform.PS3;
+#endif
+				
 
 			case BuildTarget.StandaloneWindows:
 				return BuildPlatform.Windows32;
@@ -34,8 +118,29 @@ public static class Util
 			case BuildTarget.StandaloneWindows64:
 				return BuildPlatform.Windows64;
 
+
+#if UNITY_4_AND_GREATER
+			case BuildTarget.StandaloneLinux:
+				return BuildPlatform.Linux32;
+
+			case BuildTarget.StandaloneLinux64:
+				return BuildPlatform.Linux64;
+
+			case BuildTarget.StandaloneLinuxUniversal:
+				return BuildPlatform.LinuxUniversal;
+#endif
+
+
 			case BuildTarget.StandaloneOSXIntel:
 				return BuildPlatform.MacOSX32;
+
+#if UNITY_4_2_AND_GREATER
+			case BuildTarget.StandaloneOSXIntel64:
+				return BuildPlatform.MacOSX64;
+
+			case BuildTarget.StandaloneOSXUniversal:
+				return BuildPlatform.MacOSXUniversal;
+#endif
 		}
 
 		return BuildPlatform.None;
@@ -110,7 +215,7 @@ public static class Util
 		inFolder = inFolder.Replace('\\', '/');
 
 		//Debug.Log("folder: " + inFolder);
-		//string folderName = Path.GetDirectoryName(folderEntries[n]);
+		//string folderName = System.IO.Path.GetDirectoryName(folderEntries[n]);
 
 		int lastSlashIdx = inFolder.LastIndexOf('/');
 		if (lastSlashIdx == -1)
@@ -147,14 +252,64 @@ public static class Util
 	}
 
 
+	static string GetPathParentFolder(string path)
+	{
+		if (string.IsNullOrEmpty(path))
+		{
+			return string.Empty;
+		}
 
+		return System.IO.Path.GetDirectoryName(path);
+	}
+
+	public static string GetBuildSizePathDescription(BuildInfo buildReport)
+	{
+		if (string.IsNullOrEmpty(buildReport.BuildFilePath))
+		{
+			return string.Empty;
+		}
+
+		BuildReportTool.BuildPlatform buildPlatform = BuildReportTool.ReportGenerator.GetBuildPlatformFromString(buildReport.BuildType, buildReport.BuildTargetUsed);
+		
+		if (buildPlatform == BuildPlatform.Windows32 ||
+			buildPlatform == BuildPlatform.Windows64 ||
+			buildPlatform == BuildPlatform.Linux32 ||
+			buildPlatform == BuildPlatform.Linux64)
+		{
+			// in windows builds, `buildFilePath` is the executable file
+			// we additionaly need to get the size of the Data folder
+
+			// in 32 bit builds, `buildFilePath` is the executable file (.x86 file). we still need the Data folder
+			// in 64 bit builds, `buildFilePath` is the executable file (.x86_64 file). we still need the Data folder
+
+			var exeFile = System.IO.Path.GetFileName(buildReport.BuildFilePath);
+			var dataFolder = BuildReportTool.Util.ReplaceFileType(exeFile, "_Data");
+			var buildParentFolder = GetPathParentFolder(buildReport.BuildFilePath);
+
+			return string.Format("File size of {0} and the {1} folder in <b>{2}</b>", exeFile, dataFolder, buildParentFolder);
+		}
+
+		if (buildPlatform == BuildPlatform.LinuxUniversal)
+		{
+			// in universal builds, `buildFilePath` is the 32-bit executable. we still need the 64-bit executable and the Data folder
+			
+			var exe32File = System.IO.Path.GetFileName(buildReport.BuildFilePath);
+			var exe64File = BuildReportTool.Util.ReplaceFileType(exe32File, ".x86_64");
+			var dataFolder = BuildReportTool.Util.ReplaceFileType(exe32File, "_Data");
+			var buildParentFolder = GetPathParentFolder(buildReport.BuildFilePath);
+
+			return string.Format("File size of {0}, {1}, and the {2} folder in <b>{3}</b>", exe32File, exe64File, dataFolder, buildParentFolder);
+		}
+
+		return string.Format("File size of <b>{0}</b>", buildReport.BuildFilePath);
+	}
 
 
 
 
 	public static double GetObbSizeInEclipseProject(string eclipseProjectPath)
 	{
-		if (!Directory.Exists(eclipseProjectPath))
+		if (string.IsNullOrEmpty(eclipseProjectPath) || !Directory.Exists(eclipseProjectPath))
 		{
 			return 0;
 		}
@@ -171,14 +326,25 @@ public static class Util
 
 		return obbSize;
 	}
+
 	public static string GetObbSizeInEclipseProjectReadable(string eclipseProjectPath)
 	{
+		if (string.IsNullOrEmpty(eclipseProjectPath) || !Directory.Exists(eclipseProjectPath))
+		{
+			return string.Empty;
+		}
+
 		return GetBytesReadable( GetObbSizeInEclipseProject(eclipseProjectPath) );
 	}
 
 
 	public static string GetPathSizeReadable(string fileOrFolder)
 	{
+		if (string.IsNullOrEmpty(fileOrFolder))
+		{
+			return string.Empty;
+		}
+
 		return GetBytesReadable( GetPathSizeInBytes(fileOrFolder) );
 	}
 
@@ -197,7 +363,7 @@ public static class Util
 
 	public static double GetFolderSizeInBytes(string folderPath)
 	{
-		if (!Directory.Exists(folderPath))
+		if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath))
 		{
 			return 0;
 		}
@@ -213,9 +379,9 @@ public static class Util
 
 	public static string GetFolderSizeReadable(string folderPath)
 	{
-		if (!Directory.Exists(folderPath))
+		if (string.IsNullOrEmpty(folderPath) || !Directory.Exists(folderPath))
 		{
-			return "0 B";
+			return string.Empty;
 		}
 
 		return GetBytesReadable(GetFolderSizeInBytes(folderPath));
@@ -236,7 +402,7 @@ public static class Util
 	// expects filename given to be full path
 	public static long GetFileSizeInBytes(string filename)
 	{
-		if (!File.Exists(filename))
+		if (string.IsNullOrEmpty(filename) || !File.Exists(filename))
 		{
 			return 0;
 		}
@@ -247,6 +413,11 @@ public static class Util
 
 	public static string GetFileSizeReadable(string filename)
 	{
+		if (string.IsNullOrEmpty(filename))
+		{
+			return string.Empty;
+		}
+
 		return GetBytesReadable(GetFileSizeInBytes(filename));
 	}
 
@@ -399,7 +570,7 @@ public static class Util
 
 		if (HaveToUseSystemForDelete(file))
 		{
-			string fileAbsPath = Path.Combine(projectFolder, file);
+			string fileAbsPath = System.IO.Path.Combine(projectFolder, file);
 			//Debug.Log("will system delete " + fileAbsPath);
 			SystemDeleteFile(fileAbsPath);
 		}
@@ -418,7 +589,7 @@ public static class Util
 
 	public static string ReplaceFileType(string filename, string newFileType)
 	{
-		int idxOfDot = filename.LastIndexOf(".");
+		int idxOfDot = filename.LastIndexOf(".", StringComparison.Ordinal);
 
 		if (idxOfDot < 0)
 		{
@@ -439,29 +610,99 @@ public static class Util
 
 	public static bool IsFileInAPath(string filepath, string pathToCheck)
 	{
-		return filepath.ToLower().IndexOf(pathToCheck.ToLower()) != -1;
+		if (string.IsNullOrEmpty(filepath))
+		{
+			return false;
+		}
+
+		return filepath.ToLower().IndexOf(pathToCheck.ToLower(), StringComparison.Ordinal) != -1;
 	}
 
 	public static bool IsFileOfType(string filepath, string typeExtenstion)
 	{
+		if (string.IsNullOrEmpty(filepath))
+		{
+			return false;
+		}
+
 		return filepath.ToLower().EndsWith(typeExtenstion.ToLower());
 	}
 
 	public static bool IsFileName(string filepath, string filenameToCheck)
 	{
-		return Path.GetFileName(filepath).ToLower() == filenameToCheck.ToLower();
+		return string.Equals(System.IO.Path.GetFileName(filepath), filenameToCheck, StringComparison.CurrentCultureIgnoreCase);
 	}
 
 	public static bool IsFileAUnixHiddenFile(string filepath)
 	{
-		return Path.GetFileName(filepath).StartsWith(".");
+		if (string.IsNullOrEmpty(filepath))
+		{
+			return false;
+		}
+
+		return System.IO.Path.GetFileName(filepath).StartsWith(".");
 	}
 
 	public static bool DoesFileBeginWith(string filepath, string stringToCheck)
 	{
-		return Path.GetFileName(filepath).ToLower().StartsWith(stringToCheck.ToLower());
+		if (string.IsNullOrEmpty(filepath))
+		{
+			return false;
+		}
+
+		return System.IO.Path.GetFileName(filepath).ToLower().StartsWith(stringToCheck.ToLower());
 	}
 
+
+
+	public static bool IsFileAUnityTexture(string file)
+	{
+		return IsFileOfType(file, ".psd") ||
+		       IsFileOfType(file, ".jpg") ||
+		       IsFileOfType(file, ".jpeg") ||
+		       IsFileOfType(file, ".gif") ||
+		       IsFileOfType(file, ".png") ||
+		       IsFileOfType(file, ".tiff") ||
+		       IsFileOfType(file, ".tif") ||
+		       IsFileOfType(file, ".tga") ||
+		       IsFileOfType(file, ".bmp") ||
+		       IsFileOfType(file, ".dds") ||
+		       IsFileOfType(file, ".exr") ||
+		       IsFileOfType(file, ".iff") ||
+		       IsFileOfType(file, ".pict");
+	}
+	
+	public static bool IsFileAUnityMesh(string file)
+	{
+		return IsFileOfType(file, ".fbx") ||
+		       IsFileOfType(file, ".dae") ||
+		       IsFileOfType(file, ".mb") ||
+		       IsFileOfType(file, ".ma") ||
+		       IsFileOfType(file, ".max") ||
+		       IsFileOfType(file, ".blend") ||
+		       IsFileOfType(file, ".obj") ||
+		       IsFileOfType(file, ".3ds") ||
+		       IsFileOfType(file, ".dxf");
+	}
+	
+	public static bool IsFileAUnitySound(string file)
+	{
+		return IsFileOfType(file, ".wav") ||
+		       IsFileOfType(file, ".mp3") ||
+		       IsFileOfType(file, ".ogg") ||
+		       IsFileOfType(file, ".aif") ||
+		       IsFileOfType(file, ".xm") ||
+		       IsFileOfType(file, ".mod") ||
+		       IsFileOfType(file, ".it") ||
+		       IsFileOfType(file, ".s3m");
+	}
+	
+	public static bool IsFileAUnityAnimation(string file)
+	{
+		return IsFileOfType(file, ".anim") ||
+		       IsFileOfType(file, ".controller") ||
+		       IsFileOfType(file, ".mask");
+	}
 
 	// high-level filename checks
 
@@ -512,7 +753,7 @@ public static class Util
 		{
 			return GetBuiltInAssetHeader(assetPath);
 		}
-		return Path.GetDirectoryName(assetPath);
+		return System.IO.Path.GetDirectoryName(assetPath);
 	}
 	
 	public static string GetAssetFilename(string assetPath)
@@ -521,7 +762,7 @@ public static class Util
 		{
 			return GetBuiltInAssetFilename(assetPath);
 		}
-		return Path.GetFileName(assetPath);
+		return System.IO.Path.GetFileName(assetPath);
 	}
 	
 	
@@ -533,33 +774,44 @@ public static class Util
 	
 	static string GetBuiltInAssetHeader(string assetPath)
 	{
-		bool hasSlash = assetPath.IndexOf("/") > 0;
+		bool hasSlash = assetPath.IndexOf("/", StringComparison.Ordinal) > 0;
 		
 		if (hasSlash)
 		{
-			return Path.GetDirectoryName(assetPath);
+			return System.IO.Path.GetDirectoryName(assetPath);
 		}
 		
-		return assetPath.Substring(0, assetPath.IndexOf(":"));
+		return assetPath.Substring(0, assetPath.IndexOf(":", StringComparison.Ordinal));
 	}
 	
 	static string GetBuiltInAssetFilename(string assetPath)
 	{
-		bool hasSlash = assetPath.IndexOf("/") > 0;
+		bool hasSlash = assetPath.IndexOf("/", StringComparison.Ordinal) > 0;
 		
 		if (hasSlash)
 		{
-			return Path.GetFileName(assetPath);
+			return System.IO.Path.GetFileName(assetPath);
 		}
 		
-		int idxOfColon = assetPath.IndexOf(":");
-		return assetPath.Substring(idxOfColon+2, assetPath.Length - idxOfColon - 2); // -2 to get rid of ": "
+		int idxOfColon = assetPath.IndexOf(":", StringComparison.Ordinal);
+		if (idxOfColon > -1)
+		{
+			if (idxOfColon >= assetPath.Length - 2)
+			{
+				// there's nothing else after the colon
+				// filename is empty
+				return string.Empty;
+			}
+			return assetPath.Substring(idxOfColon + 2, assetPath.Length - idxOfColon - 2); // -2 to get rid of ": "
+		}
+
+		return assetPath;
 	}
 	
 	
 	public static string GetAssetPathToNameSeparator(string assetPath)
 	{
-		bool hasSlash = assetPath.IndexOf("/") > 0;
+		bool hasSlash = assetPath.IndexOf("/", StringComparison.Ordinal) > 0;
 		
 		if (hasSlash)
 		{
@@ -790,7 +1042,7 @@ public static class Util
 	{
 		get
 		{
-			return SystemInfo.operatingSystem.IndexOf("Mac OS") != -1;
+			return SystemInfo.operatingSystem.IndexOf("Mac OS", StringComparison.Ordinal) != -1;
 		}
 	}
 
@@ -798,7 +1050,7 @@ public static class Util
 	{
 		get
 		{
-			return SystemInfo.operatingSystem.IndexOf("Windows") != -1;
+			return SystemInfo.operatingSystem.IndexOf("Windows", StringComparison.Ordinal) != -1;
 		}
 	}
 
@@ -1028,6 +1280,26 @@ public static class Util
 			"/Applications/Unity/Unity.app/Contents/Frameworks/Mono/lib/mono",
 			"C:/Program Files (x86)/Unity/Data/Mono/lib/mono",
 			"C:/Program Files (x86)/Unity/Editor/Data/Mono/lib/mono",
+#if UNITY_3_5
+			"/Applications/Unity3/Unity.app/Contents/Frameworks/Mono/lib/mono",
+			"/Applications/Unity 3/Unity.app/Contents/Frameworks/Mono/lib/mono",
+			"/Applications/Unity3.5/Unity.app/Contents/Frameworks/Mono/lib/mono",
+			"/Applications/Unity 3.5/Unity.app/Contents/Frameworks/Mono/lib/mono",
+			"C:/Program Files (x86)/Unity3/Data/Mono/lib/mono",
+			"C:/Program Files (x86)/Unity 3/Data/Mono/lib/mono",
+			"C:/Program Files (x86)/Unity3.5/Data/Mono/lib/mono",
+			"C:/Program Files (x86)/Unity 3.5/Data/Mono/lib/mono",
+			"C:/Program Files (x86)/Unity3/Editor/Data/Mono/lib/mono",
+			"C:/Program Files (x86)/Unity 3/Editor/Data/Mono/lib/mono",
+#endif
+#if UNITY_4_AND_GREATER
+			"/Applications/Unity4/Unity.app/Contents/Frameworks/Mono/lib/mono",
+			"/Applications/Unity 4/Unity.app/Contents/Frameworks/Mono/lib/mono",
+			"C:/Program Files (x86)/Unity4/Data/Mono/lib/mono",
+			"C:/Program Files (x86)/Unity 4/Data/Mono/lib/mono",
+			"C:/Program Files (x86)/Unity4/Editor/Data/Mono/lib/mono",
+			"C:/Program Files (x86)/Unity 4/Editor/Data/Mono/lib/mono",
+#endif
 		};
 
 		string tryPath = "";
@@ -1107,7 +1379,6 @@ public static class Util
 
 
 			long importedSizeBytes = -1;
-			//importedSizeBytes = BRT_LibCacheUtil.GetImportedFileSize(filename);
 
 			outPart.ImportedSizeBytes = importedSizeBytes;
 			outPart.ImportedSize = BuildReportTool.Util.GetBytesReadable(importedSizeBytes);
@@ -1118,7 +1389,7 @@ public static class Util
 			outPart.RawSize = "???";
 		}
 
-		/// \todo perhaps compute percentage: file size of this DLL out of total build size (would need to convert string of total build size into an int of bytes)
+		// todo perhaps compute percentage: file size of this DLL out of total build size (would need to convert string of total build size into an int of bytes)
 		outPart.Percentage = -1;
 
 		return outPart;
@@ -1148,7 +1419,7 @@ public static class Util
 
 		if (string.IsNullOrEmpty(xmlData))
 		{
-			return "";
+			return string.Empty;
 		}
 
 		xmlData = xmlData.Replace("BuildSizePart", "SizePart");
@@ -1202,7 +1473,6 @@ public static class Util
 		input = input.Replace("&copy;", "©");
 		input = input.Replace("&reg;", "®");
 		input = input.Replace("&#8482;", "™");
-		input = input.Replace("&euro;", "€");
 
 		return input;
 	}

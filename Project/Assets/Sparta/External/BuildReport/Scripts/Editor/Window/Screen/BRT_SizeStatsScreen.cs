@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 
 
 
@@ -29,12 +28,12 @@ public class SizeStats : BaseScreen
 
 			DrawTotalSize(buildReportToDisplay);
 
-			GUILayout.Space(Settings.CATEGORY_HORIZONTAL_SPACING);
+			GUILayout.Space(BuildReportTool.Window.Settings.CATEGORY_HORIZONTAL_SPACING);
 			GUILayout.BeginVertical();
 
 				DrawBuildSizes(buildReportToDisplay);
 
-				GUILayout.Space(Settings.CATEGORY_VERTICAL_SPACING);
+				GUILayout.Space(BuildReportTool.Window.Settings.CATEGORY_VERTICAL_SPACING);
 
 				DrawDLLList(buildReportToDisplay);
 
@@ -64,9 +63,16 @@ public class SizeStats : BaseScreen
 		else
 		{
 			// Total Build Size
-			if (!string.IsNullOrEmpty(buildReportToDisplay.TotalBuildSize))
+			if (!string.IsNullOrEmpty(buildReportToDisplay.TotalBuildSize) && !string.IsNullOrEmpty(buildReportToDisplay.BuildFilePath))
 			{
-				BuildReportTool.Window.Utility.DrawLargeSizeDisplay(Labels.BUILD_TOTAL_SIZE_LABEL, BuildReportTool.Window.Utility.GetProperBuildSizeDesc(buildReportToDisplay), buildReportToDisplay.TotalBuildSize);
+				GUILayout.BeginVertical();
+					GUILayout.Label(Labels.BUILD_TOTAL_SIZE_LABEL, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
+					
+					GUILayout.Label(BuildReportTool.Util.GetBuildSizePathDescription(buildReportToDisplay), BuildReportTool.Window.Settings.TINY_HELP_STYLE_NAME);
+
+					GUILayout.Label(buildReportToDisplay.TotalBuildSize, BuildReportTool.Window.Settings.BIG_NUMBER_STYLE_NAME);
+				GUILayout.EndVertical();
+
 				DrawAuxiliaryBuildSizes(buildReportToDisplay);
 				GUILayout.Space(40);
 			}
@@ -101,8 +107,8 @@ public class SizeStats : BaseScreen
 		{
 			GUILayout.Space(20);
 			GUILayout.BeginVertical();
-				GUILayout.Label(Labels.WEB_UNITY3D_FILE_SIZE_LABEL, Settings.INFO_SUBTITLE_BOLD_STYLE_NAME);
-				GUILayout.Label(buildReportToDisplay.WebFileBuildSize, Settings.BIG_NUMBER_STYLE_NAME);
+				GUILayout.Label(Labels.WEB_UNITY3D_FILE_SIZE_LABEL, BuildReportTool.Window.Settings.INFO_SUBTITLE_BOLD_STYLE_NAME);
+				GUILayout.Label(buildReportToDisplay.WebFileBuildSize, BuildReportTool.Window.Settings.BIG_NUMBER_STYLE_NAME);
 			GUILayout.EndVertical();
 		}
 		else if (buildPlatform == BuildReportTool.BuildPlatform.Android)
@@ -111,22 +117,22 @@ public class SizeStats : BaseScreen
 			{
 				GUILayout.Space(20);
 				GUILayout.BeginVertical();
-					GUILayout.Label(Labels.ANDROID_APK_FILE_SIZE_LABEL, Settings.INFO_SUBTITLE_BOLD_STYLE_NAME);
-					GUILayout.Label(buildReportToDisplay.AndroidApkFileBuildSize, Settings.INFO_TITLE_STYLE_NAME);
+					GUILayout.Label(Labels.ANDROID_APK_FILE_SIZE_LABEL, BuildReportTool.Window.Settings.INFO_SUBTITLE_BOLD_STYLE_NAME);
+					GUILayout.Label(buildReportToDisplay.AndroidApkFileBuildSize, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
 				GUILayout.EndVertical();
 
 				GUILayout.Space(20);
 				GUILayout.BeginVertical();
-					GUILayout.Label(Labels.ANDROID_OBB_FILE_SIZE_LABEL, Settings.INFO_SUBTITLE_BOLD_STYLE_NAME);
-					GUILayout.Label(buildReportToDisplay.AndroidObbFileBuildSize, Settings.INFO_TITLE_STYLE_NAME);
+					GUILayout.Label(Labels.ANDROID_OBB_FILE_SIZE_LABEL, BuildReportTool.Window.Settings.INFO_SUBTITLE_BOLD_STYLE_NAME);
+					GUILayout.Label(buildReportToDisplay.AndroidObbFileBuildSize, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
 				GUILayout.EndVertical();
 			}
 			else if (buildReportToDisplay.AndroidCreateProject && buildReportToDisplay.AndroidUseAPKExpansionFiles)
 			{
 				GUILayout.Space(20);
 				GUILayout.BeginVertical();
-					GUILayout.Label(Labels.ANDROID_OBB_FILE_SIZE_LABEL, Settings.INFO_SUBTITLE_BOLD_STYLE_NAME);
-					GUILayout.Label(buildReportToDisplay.AndroidObbFileBuildSize, Settings.INFO_TITLE_STYLE_NAME);
+					GUILayout.Label(Labels.ANDROID_OBB_FILE_SIZE_LABEL, BuildReportTool.Window.Settings.INFO_SUBTITLE_BOLD_STYLE_NAME);
+					GUILayout.Label(buildReportToDisplay.AndroidObbFileBuildSize, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
 				GUILayout.EndVertical();
 			}
 		}
@@ -155,14 +161,14 @@ public class SizeStats : BaseScreen
 			GUILayout.BeginVertical();
 		}
 
-		GUILayout.Label(Labels.TOTAL_SIZE_BREAKDOWN_LABEL, Settings.INFO_TITLE_STYLE_NAME);
+		GUILayout.Label(Labels.TOTAL_SIZE_BREAKDOWN_LABEL, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
 
 		if (!string.IsNullOrEmpty(buildReportToDisplay.CompressedBuildSize))
 		{
 			GUILayout.BeginHorizontal();
-				GUILayout.Label(Labels.TOTAL_SIZE_BREAKDOWN_MSG_PRE_BOLD, Settings.INFO_SUBTITLE_STYLE_NAME);
-				GUILayout.Label(Labels.TOTAL_SIZE_BREAKDOWN_MSG_BOLD, Settings.INFO_SUBTITLE_BOLD_STYLE_NAME);
-				GUILayout.Label(Labels.TOTAL_SIZE_BREAKDOWN_MSG_POST_BOLD, Settings.INFO_SUBTITLE_STYLE_NAME);
+				GUILayout.Label(Labels.TOTAL_SIZE_BREAKDOWN_MSG_PRE_BOLD, BuildReportTool.Window.Settings.INFO_SUBTITLE_STYLE_NAME);
+				GUILayout.Label(Labels.TOTAL_SIZE_BREAKDOWN_MSG_BOLD, BuildReportTool.Window.Settings.INFO_SUBTITLE_BOLD_STYLE_NAME);
+				GUILayout.Label(Labels.TOTAL_SIZE_BREAKDOWN_MSG_POST_BOLD, BuildReportTool.Window.Settings.INFO_SUBTITLE_STYLE_NAME);
 				GUILayout.FlexibleSpace();
 			GUILayout.EndHorizontal();
 
@@ -184,10 +190,12 @@ public class SizeStats : BaseScreen
 
 	void DrawDLLList(BuildInfo buildReportToDisplay)
 	{
+		BuildReportTool.BuildPlatform buildPlatform = BuildReportTool.ReportGenerator.GetBuildPlatformFromString(buildReportToDisplay.BuildType, buildReportToDisplay.BuildTargetUsed);
+
 		GUILayout.BeginHorizontal();
 
 			GUILayout.BeginVertical();
-				GUILayout.Label(Labels.MONO_DLLS_LABEL, Settings.INFO_TITLE_STYLE_NAME);
+				GUILayout.Label(Labels.MONO_DLLS_LABEL, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
 				{
 					GUILayout.BeginHorizontal(GUILayout.MaxWidth(500));
 						DrawNames(buildReportToDisplay.MonoDLLs);
@@ -199,11 +207,15 @@ public class SizeStats : BaseScreen
 			GUILayout.Space(15);
 
 			GUILayout.BeginVertical();
-				GUILayout.Label(Labels.SCRIPT_DLLS_LABEL, Settings.INFO_TITLE_STYLE_NAME);
+				GUILayout.Label(Labels.SCRIPT_DLLS_LABEL, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
 				{
 					GUILayout.BeginHorizontal(GUILayout.MaxWidth(500));
 						DrawNames(buildReportToDisplay.ScriptDLLs);
-						DrawReadableSizes(buildReportToDisplay.ScriptDLLs);
+
+						if (buildPlatform != BuildPlatform.WebGL)
+						{
+							DrawReadableSizes(buildReportToDisplay.ScriptDLLs);
+						}
 					GUILayout.EndHorizontal();
 				}
 			GUILayout.EndVertical();
@@ -219,7 +231,7 @@ public class SizeStats : BaseScreen
 		foreach (BuildReportTool.SizePart b in list)
 		{
 			if (b.IsTotal) continue;
-			string styleToUse = useAlt ? Settings.LIST_NORMAL_ALT_STYLE_NAME : Settings.LIST_NORMAL_STYLE_NAME;
+			string styleToUse = useAlt ? BuildReportTool.Window.Settings.LIST_NORMAL_ALT_STYLE_NAME : BuildReportTool.Window.Settings.LIST_NORMAL_STYLE_NAME;
 			GUILayout.Label(b.Name, styleToUse);
 			useAlt = !useAlt;
 		}
@@ -232,7 +244,7 @@ public class SizeStats : BaseScreen
 		foreach (BuildReportTool.SizePart b in list)
 		{
 			if (b.IsTotal) continue;
-			string styleToUse = useAlt ? Settings.LIST_NORMAL_ALT_STYLE_NAME : Settings.LIST_NORMAL_STYLE_NAME;
+			string styleToUse = useAlt ? BuildReportTool.Window.Settings.LIST_NORMAL_ALT_STYLE_NAME : BuildReportTool.Window.Settings.LIST_NORMAL_STYLE_NAME;
 			GUILayout.Label(b.Size, styleToUse);
 			useAlt = !useAlt;
 		}
@@ -245,7 +257,7 @@ public class SizeStats : BaseScreen
 		foreach (BuildReportTool.SizePart b in list)
 		{
 			if (b.IsTotal) continue;
-			string styleToUse = useAlt ? Settings.LIST_NORMAL_ALT_STYLE_NAME : Settings.LIST_NORMAL_STYLE_NAME;
+			string styleToUse = useAlt ? BuildReportTool.Window.Settings.LIST_NORMAL_ALT_STYLE_NAME : BuildReportTool.Window.Settings.LIST_NORMAL_STYLE_NAME;
 			GUILayout.Label(b.Percentage + "%", styleToUse);
 			useAlt = !useAlt;
 		}

@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
-
+﻿
 
 namespace BuildReportTool
 {
@@ -10,6 +8,7 @@ public enum BuildSettingCategory
 	None = 0,
 
 	WindowsDesktopStandalone = 10,
+	WindowsStoreApp,
 	MacStandalone = 20,
 	LinuxStandalone = 25,
 
