@@ -2,14 +2,21 @@ using UnityEngine;
 using System.Collections;
 using SocialPoint.GUIControl;
 
+[CreateAssetMenu(menuName = "UI Animations/Fade Animation")]
 public class FadeAnimation : UIViewAnimation
 {
+    [SerializeField]
     float _time = 1.0f;
+
+    [SerializeField]
     float _minAlpha = 0.0f;
+
+    [SerializeField]
     float _maxAlpha = 1.0f;
+
     UIViewController _ctrl;
 
-    public void Load(UIViewController ctrl)
+    public override void Load(UIViewController ctrl)
     {
         _maxAlpha = ctrl.Alpha;
         _ctrl = ctrl;
@@ -20,7 +27,7 @@ public class FadeAnimation : UIViewAnimation
         _time = time;
     }
         
-    public IEnumerator Appear()
+    public override IEnumerator Appear()
     {
         _ctrl.Alpha = _minAlpha;
 
@@ -33,7 +40,7 @@ public class FadeAnimation : UIViewAnimation
         }
     }
 
-    public IEnumerator Disappear()
+    public override IEnumerator Disappear()
     {
         _ctrl.Alpha = _maxAlpha;
 
@@ -46,12 +53,15 @@ public class FadeAnimation : UIViewAnimation
         }
     }
 
-    public void Reset()
+    public override void Reset()
     {
-        _ctrl.Alpha = _maxAlpha;
+        if(_ctrl != null)
+        {
+            _ctrl.Alpha = _maxAlpha;
+        }
     }
 
-    public object Clone()
+    public override object Clone()
     {
         var anim = new FadeAnimation(_time);
         return anim;

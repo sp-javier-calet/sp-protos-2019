@@ -106,7 +106,7 @@ namespace SocialPoint.AdminPanel
         public override void ClosePanel()
         {
             NotifyClosedPanel(_gui);
-            Hide(true);
+            Close();
         }
 
         public void OnDrag(PointerEventData eventData)

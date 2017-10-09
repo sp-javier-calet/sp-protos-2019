@@ -9,7 +9,7 @@ public class PopupsController : UIStackController
     override protected void OnLoad()
     {
         AnimationTime = Services.Instance.Resolve("popup_animation_time", DefaultAnimationTime);
-        ChildAnimation = new FadeAnimation(AnimationTime);
+        UnityDefaultAnimation = new FadeAnimation(AnimationTime);
         base.OnLoad();
     }
 }

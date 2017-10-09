@@ -56,6 +56,11 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         base.OnLoad();
     }
 
+    public override bool OnBeforeClose()
+    {
+        return false;
+    }
+
     override protected void OnAppeared()
     {
         base.OnAppeared();

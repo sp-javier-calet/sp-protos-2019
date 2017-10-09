@@ -1,16 +1,23 @@
 ﻿using System;
 using System.Collections;
+using UnityEngine;
 
 namespace SocialPoint.GUIControl
 {
-    public interface UIViewAnimation : ICloneable
+    public abstract class UIViewAnimation : ScriptableObject, ICloneable
     {
-        void Load(UIViewController ctrl);
+        public abstract void Load(UIViewController ctrl);
 
-        IEnumerator Appear();
+        public abstract IEnumerator Appear();
 
-        IEnumerator Disappear();
+        public abstract IEnumerator Disappear();
 
-        void Reset();
+        public abstract void Reset();
+
+        #region ICloneable implementation
+
+        public abstract object Clone();
+
+        #endregion
     }
 }
