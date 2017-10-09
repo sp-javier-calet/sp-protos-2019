@@ -37,7 +37,7 @@ using Spine.Unity;
 namespace Spine.Unity.Modules {
 	
 	[ExecuteInEditMode]
-	[HelpURL("https://github.com/pharan/spine-unity-docs/blob/master/SkeletonRenderSeparator.md")]
+	[HelpURLAttribute("https://github.com/pharan/spine-unity-docs/blob/master/SkeletonRenderSeparator.md")]
 	public class SkeletonRenderSeparator : MonoBehaviour {
 		public const int DefaultSortingOrderIncrement = 5;
 
