@@ -130,6 +130,7 @@ namespace SocialPoint.Login
         public const bool DefaultAutoUpdateFriends = true;
         public const uint DefaultAutoUpdateFriendsPhotoSize = 0;
         public const uint DefaultUserMappingsBlock = 50;
+        public const string DefaultConfigEndpoint = "http://backend.pro.configmanager.sp.laicosp.net/products/bl/envs/bl1/download";
 
         public const string LoadExternalSourceHost = "load-external-user";
         public const string SourceParamEnvironment = "envurl";

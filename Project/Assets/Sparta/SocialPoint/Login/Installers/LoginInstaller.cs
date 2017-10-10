@@ -17,10 +17,17 @@ namespace SocialPoint.Login
 {
     public class LoginInstaller : SubInstaller
     {
+        public enum TypeLogin
+        {
+            Backend,
+            Config,
+            Empty
+        }
+
         [Serializable]
         public class SettingsData
         {
-            public bool UseEmpty;
+            public TypeLogin TypeLogin;
             public float Timeout = SocialPointLogin.DefaultTimeout;
             public float ActivityTimeout = SocialPointLogin.DefaultActivityTimeout;
             public bool AutoupdateFriends = SocialPointLogin.DefaultAutoUpdateFriends;
@@ -29,20 +36,28 @@ namespace SocialPoint.Login
             public uint MaxConnectivityErrorRetries = SocialPointLogin.DefaultMaxConnectivityErrorRetries;
             public bool EnableLinkConfirmRetries = SocialPointLogin.DefaultEnableLinkConfirmRetries;
             public uint UserMappingsBlock = SocialPointLogin.DefaultUserMappingsBlock;
+            public string ConfigManagerEndPoint = SocialPointLogin.DefaultConfigEndpoint;
         }
 
         public SettingsData Settings = new SettingsData();
 
         public override void InstallBindings()
         {
-            if(!Settings.UseEmpty)
+            switch(Settings.TypeLogin)
             {
+            case TypeLogin.Backend:
+                Container.Rebind<SocialPointLogin.LoginConfig>().ToMethod<SocialPointLogin.LoginConfig>(CreateBackendConfig);
+                Container.Rebind<ILogin>().ToMethod<SocialPointLogin>(CreateLogin, SetupLogin);
+                break;
+            case TypeLogin.Config:
                 Container.Rebind<SocialPointLogin.LoginConfig>().ToMethod<SocialPointLogin.LoginConfig>(CreateConfig);
                 Container.Rebind<ILogin>().ToMethod<SocialPointLogin>(CreateLogin, SetupLogin);
-            }
-            else
-            {
+                break;
+            case TypeLogin.Empty:
                 Container.Rebind<ILogin>().ToMethod<EmptyLogin>(CreateEmptyLogin);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
             }
 
             Container.Rebind<ILoginData>().ToLookup<ILogin>();
@@ -53,7 +68,7 @@ namespace SocialPoint.Login
             #endif
         }
 
-        SocialPointLogin.LoginConfig CreateConfig()
+        SocialPointLogin.LoginConfig CreateBackendConfig()
         {
             return new SocialPointLogin.LoginConfig {
                 BaseUrl = Container.Resolve<IBackendEnvironment>().GetUrl(),
@@ -62,6 +77,17 @@ namespace SocialPoint.Login
                 EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries
             };
         }
+
+        SocialPointLogin.LoginConfig CreateConfig()
+        {
+            return new SocialPointLogin.LoginConfig {
+                BaseUrl = Settings.ConfigManagerEndPoint,
+                SecurityTokenErrors = (int)Settings.MaxSecurityTokenErrorRetries,
+                ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
+                EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries
+            };
+        }
+
 
         EmptyLogin CreateEmptyLogin()
         {
