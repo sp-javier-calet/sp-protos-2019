@@ -50,8 +50,7 @@ namespace SocialPoint.Login
                 Container.Rebind<ILogin>().ToMethod<SocialPointLogin>(CreateLogin, SetupLogin);
                 break;
             case TypeLogin.Config:
-                Container.Rebind<SocialPointLogin.LoginConfig>().ToMethod<SocialPointLogin.LoginConfig>(CreateConfig);
-                Container.Rebind<ILogin>().ToMethod<SocialPointLogin>(CreateLogin, SetupLogin);
+                Container.Rebind<ILogin>().ToMethod<ConfigLogin>(CreateConfigLogin);
                 break;
             case TypeLogin.Empty:
                 Container.Rebind<ILogin>().ToMethod<EmptyLogin>(CreateEmptyLogin);
@@ -92,6 +91,13 @@ namespace SocialPoint.Login
         EmptyLogin CreateEmptyLogin()
         {
             return new EmptyLogin(null);
+        }
+
+        ConfigLogin CreateConfigLogin()
+        {
+            return new ConfigLogin(
+                Container.Resolve<IHttpClient>(), 
+                Settings.ConfigManagerEndPoint);
         }
 
         SocialPointLogin CreateLogin()

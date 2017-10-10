@@ -31,9 +31,9 @@ MonoBehaviour:
       MaxConnectivityErrorRetries: 0
       EnableLinkConfirmRetries: 0
       UserMappingsBlock: 50
-      ConfigManagerEndPoint: http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3/
+      ConfigManagerEndPoint: http://backend.pro.configmanager.sp.laicosp.net/products/bl/envs/bl1/download
     Events:
-      UseEmpty: 1
+      UseEmpty: 0
       AutoStart: 1
       MaxOutOfSyncInterval: 0
       SendInterval: 5
