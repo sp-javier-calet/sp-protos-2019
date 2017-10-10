@@ -31,7 +31,8 @@ MonoBehaviour:
       MaxConnectivityErrorRetries: 0
       EnableLinkConfirmRetries: 0
       UserMappingsBlock: 50
-      ConfigManagerEndPoint: http://backend.pro.configmanager.sp.laicosp.net/products/bl/envs/bl1/download
+      GameID: ssp
+      GameEnvironment: ssp1
     Events:
       UseEmpty: 0
       AutoStart: 1
