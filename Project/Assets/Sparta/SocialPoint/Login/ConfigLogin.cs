@@ -9,6 +9,8 @@ namespace SocialPoint.Login
 {
     public sealed class ConfigLogin : ILogin
     {
+        const string kgameData = "game_data";
+
         IHttpClient _httpClient;
 
         public void AddLink(ILink link, LinkMode mode = LinkMode.Auto)
@@ -129,9 +131,8 @@ namespace SocialPoint.Login
             var parser = new JsonAttrParser();
             var configResponse = parser.Parse(resp.Body);
 
-            // TODO structure
             var mainDic = new AttrDic();
-            mainDic.Set("game_data", configResponse);
+            mainDic.Set(kgameData, configResponse);
 
             var serializer = new JsonAttrSerializer();
             var finalBytes = serializer.Serialize(mainDic);
@@ -142,6 +143,7 @@ namespace SocialPoint.Login
             {
                 return;
             }
+
             Attr gameData = null;
             while(reader.Read() && reader.Token != StreamToken.ObjectEnd)
             {
@@ -154,7 +156,6 @@ namespace SocialPoint.Login
                 if(NewUserStreamEvent != null)
                 {
                     NewUserStreamEvent(reader);
-
                 }
                 else if(NewUserEvent != null)
                 {

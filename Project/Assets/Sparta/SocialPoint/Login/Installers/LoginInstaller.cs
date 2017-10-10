@@ -36,7 +36,16 @@ namespace SocialPoint.Login
             public uint MaxConnectivityErrorRetries = SocialPointLogin.DefaultMaxConnectivityErrorRetries;
             public bool EnableLinkConfirmRetries = SocialPointLogin.DefaultEnableLinkConfirmRetries;
             public uint UserMappingsBlock = SocialPointLogin.DefaultUserMappingsBlock;
-            public string ConfigManagerEndPoint = SocialPointLogin.DefaultConfigEndpoint;
+            public string GameID = SocialPointLogin.DefaultGameID;
+            public string GameEnvironment = SocialPointLogin.DefaultGameEnvironment;
+           
+            public string ConfigManagerEndPoint
+            {
+                get
+                {
+                    return string.Format(SocialPointLogin.DefaultConfigEndpoint, GameID, GameEnvironment);
+                }
+            }
         }
 
         public SettingsData Settings = new SettingsData();
