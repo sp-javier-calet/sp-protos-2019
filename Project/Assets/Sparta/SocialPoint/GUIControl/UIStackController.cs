@@ -371,7 +371,10 @@ namespace SocialPoint.GUIControl
         {
             if(desiredAnim == null)
             {
-                ctrl.Animation = (ctrl.IsFullScreen ? null : (UIViewAnimation)defaultAnim.Clone());
+                if(defaultAnim != null)
+                {
+                    ctrl.Animation = (ctrl.IsFullScreen ? null : (UIViewAnimation)defaultAnim.Clone());
+                }
             }
             else
             {
