@@ -20,19 +20,6 @@ public class UnityLegacyAnimation : UIViewAnimation
 
     UIViewController _ctrl;
 
-    public override float Duration
-    {
-        get
-        {
-            if(_animation != null && !string.IsNullOrEmpty(_animName))
-            {
-                return _animation[_animName].length;
-            }
-
-            return 0f;
-        }
-    }
-
     public override void Load(UIViewController ctrl)
     {
         _ctrl = ctrl;

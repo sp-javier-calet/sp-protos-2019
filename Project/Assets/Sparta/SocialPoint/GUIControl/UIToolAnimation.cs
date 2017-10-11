@@ -9,19 +9,6 @@ namespace SocialPoint.GUIControl
         string _name;
         Animation _anim;
 
-        public override float Duration
-        {
-            get
-            {
-                if(_anim != null)
-                {
-                    return _anim.GetEndingTime();
-                }
-
-                return 0f;
-            }
-        }
-
         public UIToolAnimation(string name)
         {
             _name = name;

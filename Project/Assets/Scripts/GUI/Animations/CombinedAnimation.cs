@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using SocialPoint.GUIControl;
+using System.Collections.Generic;
 
 [CreateAssetMenu(menuName = "UI Animations/Combined Animation")]
 public class CombinedAnimation : UIViewAnimation
@@ -8,33 +9,8 @@ public class CombinedAnimation : UIViewAnimation
     [SerializeField]
     UIViewAnimation[] _animations;
 
-    UIViewController _ctrl;
-
-    public override float Duration
-    {
-        get
-        {
-            float max = 0f;
-
-            if(_animations != null)
-            {
-                for(int i = 0; i < _animations.Length; ++i)
-                {
-                    if(_animations[i].Duration > max)
-                    {
-                        max = _animations[i].Duration;
-                    }
-                }
-            }
-
-            return max;
-        }
-    }
-
     public override void Load(UIViewController ctrl)
     {
-        _ctrl = ctrl;
-
         if(_animations.Length == 0)
         {
             throw new MissingComponentException("Combined animation needs some simple animations.");
@@ -50,22 +26,29 @@ public class CombinedAnimation : UIViewAnimation
     {
         _animations = animations;
     }
-        
+
     public override IEnumerator Animate()
     {
+        List<IEnumerator> enums = new List<IEnumerator>();
         for(int i = 0; i < _animations.Length; ++i)
         {
-            var anim = _animations[i];
-            if(anim != null)
-            {
-                _ctrl.StartCoroutine(anim.Animate());
-            }
+            enums.Add(_animations[i].Animate());
         }
 
-        yield return new WaitForSeconds(Duration);
+        while(enums.Count > 0)
+        {
+            for(int i = enums.Count - 1; i >= 0; --i)
+            {
+                if(!enums[i].MoveNext())
+                {
+                    enums.RemoveAt(i);
+                }
+            }
+            yield return null;
+        }
     }
-         
-    public override void Reset() 
+
+    public override void Reset()
     {
         if(_animations != null)
         {

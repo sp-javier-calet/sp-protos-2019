@@ -25,14 +25,6 @@ public class ScaleAnimation : UIViewAnimation
 
     UIViewController _ctrl;
 
-    public override float Duration
-    {
-        get
-        {
-            return _time;
-        }
-    }
-
     public override void Load(UIViewController ctrl)
     {
         _ctrl = ctrl;
