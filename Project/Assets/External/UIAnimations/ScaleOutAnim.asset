@@ -9,12 +9,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: aa5ba99fb941a45619af00fc1afb1db9, type: 3}
-  m_Name: ScaleAnim
+  m_Name: ScaleOutAnim
   m_EditorClassIdentifier: 
   _transform: {fileID: 0}
   _time: 1
-  _minScale: {x: 0, y: 0, z: 0}
-  _maxScale: {x: 1, y: 1, z: 1}
+  _initialScale: {x: 1, y: 1, z: 1}
+  _finalScale: {x: 0, y: 0, z: 0}
   _easeType: 0
   _easeCurve:
     serializedVersion: 2
