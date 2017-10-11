@@ -16,7 +16,7 @@
     "Security.framework:weak"
   ],
   "infoPlist": {
-    "CFBundleIdentifier": "basegame",
+    "CFBundleIdentifier": "es.socialpoint.basegame",
     "CFBundleURLTypes":[{
       "CFBundleURLName":"basegame",
       "CFBundleURLSchemes":["basegame"]
