@@ -1,10 +1,4 @@
 
 {
-    "headerpaths": [
-        "{ROOT_PATH}/Assets/Plugins/Ios",
-        "{SPARTA_BINARIES_PATH}/iOS"
-    ],
-    "libs": [
-        "libz.tbd:weak"
-    ]
+
 }

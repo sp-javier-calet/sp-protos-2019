@@ -41,6 +41,12 @@ namespace
                                                   0x4F, 0x33, 0x25, 0xFB, 0x99, 0x23, 0x55, 0x53, 0x62, 0x71, 0x35, 0xF0, 0xD6,
                                                   0x0D, 0x66, 0x20, 0x45, 0x71, 0x07, 0xF3, 0xBF, 0x51, 0x46, 0x7C, 0x6D, 0x7A};
 
+    // sha256//hpnU8pTmyoSZ03Oc0z1xZ0Yz+jorY57x/QYRks6nNXo=
+    static const uint8_t pinnedCertChampionsArena[] = {0x44, 0x63, 0x4D, 0x75, 0x77, 0x87, 0xD2, 0x55, 0x5F, 0x7B, 0x42, 0x12, 0x7A,
+                                                       0xC1, 0xA9, 0x17, 0x4E, 0x64, 0x7F, 0x1D, 0x72, 0x82, 0xB2, 0x19, 0x07, 0x71,
+                                                       0x1D, 0x3F, 0x18, 0x81, 0xA4, 0x00, 0x1C, 0x61, 0x43, 0x35, 0x1B, 0x84, 0xCA,
+                                                       0x02, 0x18, 0x5A, 0x75, 0x15, 0x29, 0xC2, 0xCB, 0x14, 0x79, 0x53, 0x43, 0x7A};
+
 
     /*
      * Static structure and methods for available certificates definition
@@ -61,7 +67,8 @@ namespace
                                                                     {"dragonland", CERTIFICATE_INFO(pinnedCertDragonLand)},
                                                                     {"dragonstadium", CERTIFICATE_INFO(pinnedCertDragonStadium)},
                                                                     {"leagueofdragons", CERTIFICATE_INFO(pinnedCertLeagueOfDragons)},
-                                                                    {"worldchef", CERTIFICATE_INFO(pinnedCertWorldChef)}};
+                                                                    {"worldchef", CERTIFICATE_INFO(pinnedCertWorldChef)},
+                                                                    {"championsarena", CERTIFICATE_INFO(pinnedCertChampionsArena)}};
 
     CertificateInfo DefaultCertificate CERTIFICATE_INFO(pinnedCertBaseGame);
 
