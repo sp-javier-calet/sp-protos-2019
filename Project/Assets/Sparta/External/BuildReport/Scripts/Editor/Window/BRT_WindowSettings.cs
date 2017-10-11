@@ -1,5 +1,4 @@
 #if UNITY_EDITOR
-using UnityEditor;
 
 namespace BuildReportTool.Window
 {
@@ -13,6 +12,10 @@ public static class Settings
 	// list normal is a list style with normal font size
 	public const string LIST_NORMAL_STYLE_NAME = "ListNormal";
 	public const string LIST_NORMAL_ALT_STYLE_NAME = "ListAltNormal";
+	
+	// list normal is a list style with normal font size
+	public const string LIST_ICON_STYLE_NAME = "ListIcon";
+	public const string LIST_ICON_ALT_STYLE_NAME = "ListAltIcon";
 
 	// list small is a list style with smaller font size (for the asset list)
 	public const string LIST_SMALL_STYLE_NAME = "List";
@@ -58,6 +61,8 @@ public static class Settings
 	public const string MAIN_TITLE_STYLE_NAME = "Title";
 	public const string MAIN_SUBTITLE_STYLE_NAME = "Subtitle";
 	public const string TINY_HELP_STYLE_NAME = "TinyHelp";
+	
+	public const string BOXED_LABEL_STYLE_NAME = "Text-Boxed";
 
 	public const string INFO_TITLE_STYLE_NAME = "Big1";
 

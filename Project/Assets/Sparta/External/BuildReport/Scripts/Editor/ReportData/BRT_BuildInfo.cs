@@ -1,17 +1,19 @@
-using UnityEngine;
+
+#if UNITY_4 || UNITY_5_0 || UNITY_5_1 || UNITY_5_2
+#define UNITY_5_2_AND_LESSER
+#endif
+
 using UnityEditor;
 using System;
-using System.Xml.Serialization;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Serialization;
 
 namespace BuildReportTool
 {
 
 // class for holding a build report
 // this is the class that is serialized when saving a build report to a file
-[System.Serializable]
+[System.Serializable, XmlRoot("BuildInfo")]
 public class BuildInfo
 {
 	// General Info
@@ -109,8 +111,238 @@ public class BuildInfo
 
 	public BuildReportTool.SizePart[] BuildSizes;
 
+	public void SortSizes()
+	{
+		Array.Sort(BuildSizes, delegate(BuildReportTool.SizePart b1, BuildReportTool.SizePart b2) {
+			if (b1.Percentage > b2.Percentage) return -1;
+			else if (b1.Percentage < b2.Percentage) return 1;
+			// if percentages are equal, check actual file size (approximate values)
+			else if (b1.DerivedSize > b2.DerivedSize) return -1;
+			else if (b1.DerivedSize < b2.DerivedSize) return 1;
+			return 0;
+		});
+	}
 
 
+	/// <summary>
+	/// This is called right after generating a build report.
+	/// </summary>
+	public void FixReport()
+	{
+#if UNITY_5_2_AND_LESSER
+		// this bug has already been fixed since Unity 5.2.1
+		// so we only execute this for Unity 5.2.0 and below
+
+		if (!DldUtil.UnityVersion.IsUnityVersionAtLeast(5, 2, 1))
+		{
+			// --------------------------------------------------------------------------------
+			// fix imported sizes of Resources files
+
+			for (int n = 0; n < UsedAssets.All.Length; ++n)
+			{
+				if (BuildReportTool.Util.IsFileInAPath(UsedAssets.All[n].Name, "/Resources/"))
+				{
+					UsedAssets.All[n].ImportedSizeBytes = BRT_LibCacheUtil.GetImportedFileSize(UsedAssets.All[n].Name);
+					UsedAssets.All[n].ImportedSize = BuildReportTool.Util.GetBytesReadable(UsedAssets.All[n].ImportedSizeBytes);
+
+					UsedAssets.All[n].RawSizeBytes = UsedAssets.All[n].ImportedSizeBytes;
+					UsedAssets.All[n].RawSize = UsedAssets.All[n].ImportedSize;
+				
+					UsedAssets.All[n].DerivedSize = 0;
+					UsedAssets.All[n].Percentage = -1;
+				}
+			}
+
+			UsedAssets.ResortDefault(BuildReportTool.Options.NumberOfTopLargestUsedAssetsToShow);
+
+			// --------------------------------------------------------------------------------
+			// recalculate percentages
+		
+			var totalSizePart = BuildSizes.FirstOrDefault(part => part.IsTotal);
+			if (totalSizePart != null && totalSizePart.DerivedSize == 0)
+			{
+				var totalSize = GetTotalSize();
+				ChangeTotalSize(totalSize);
+			}
+
+			// add textures, meshes, sounds, and animations that are in resources folder to the build size
+			// since they are not included anymore in Unity 5
+		
+			var resourcesTextureSizeSum = GetSizeSumForUsedAssets("/Resources/", BuildReportTool.Util.IsFileAUnityTexture);
+			AddToSize("Textures", resourcesTextureSizeSum);
+
+			var resourcesMeshSizeSum = GetSizeSumForUsedAssets("/Resources/", BuildReportTool.Util.IsFileAUnityMesh);
+			AddToSize("Meshes", resourcesMeshSizeSum);
+		
+			var resourcesSoundsSizeSum = GetSizeSumForUsedAssets("/Resources/", BuildReportTool.Util.IsFileAUnitySound);
+			AddToSize("Sounds", resourcesSoundsSizeSum);
+
+			var resourcesAnimationsSizeSum = GetSizeSumForUsedAssets("/Resources/", BuildReportTool.Util.IsFileAUnityAnimation);
+			AddToSize("Animations", resourcesAnimationsSizeSum);
+		
+			AddToTotalSize(resourcesTextureSizeSum);
+			AddToTotalSize(resourcesMeshSizeSum);
+			AddToTotalSize(resourcesSoundsSizeSum);
+			AddToTotalSize(resourcesAnimationsSizeSum);
+		
+			RecalculatePercentages();
+
+			// sort sizes again since we modified them
+			SortSizes();
+		}
+#else
+		
+		var totalSizePart = BuildSizes.FirstOrDefault(part => part.IsTotal);
+		if (totalSizePart != null && totalSizePart.DerivedSize == 0)
+		{
+			var totalSize = GetTotalSize();
+			ChangeTotalSize(totalSize);
+		}
+		
+		RecalculatePercentages();
+		
+		// sort sizes again since we modified them
+		SortSizes();
+#endif
+	}
+
+	double GetTotalSize()
+	{
+		double totalSize = 0;
+		
+		// first try getting total size from the build sizes
+		var totalSizePart = BuildSizes.FirstOrDefault(part => part.IsTotal);
+		if (totalSizePart != null)
+		{
+			totalSize = totalSizePart.DerivedSize;
+		}
+		
+		// if the total size we got is smaller than any of the individual sizes
+		// then it's wrong and we need to derive the total size instead
+		var totalSizeNeedsFixing = false;
+		
+		for (int n = 0, len = BuildSizes.Length; n < len; ++n)
+		{
+			if (BuildSizes[n].DerivedSize > totalSize)
+			{
+				totalSizeNeedsFixing = true;
+				break;
+			}
+		}
+
+		if (totalSizeNeedsFixing)
+		{
+			totalSize = 0;
+			for (int n = 0, len = BuildSizes.Length; n < len; ++n)
+			{
+				totalSize += BuildSizes[n].DerivedSize;
+			}
+		}
+
+		return totalSize;
+	}
+
+	void RecalculatePercentages()
+	{
+		double totalSize = GetTotalSize();
+
+		if (totalSize > 0)
+		{
+			for (int n = 0, len = BuildSizes.Length; n < len; ++n)
+			{
+				BuildSizes[n].Percentage = Math.Round((BuildSizes[n].UsableSize/totalSize)*100, 2, MidpointRounding.AwayFromZero);
+			}
+		}
+		
+		// note: only Used Assets are shown the percentages so we
+		// don't bother recaulculating percentage for Unused Assets
+		if (UsedAssets != null)
+		{
+			UsedAssets.RecalculatePercentages(totalSize);
+		}
+	}
+
+	long GetSizeSumForUsedAssets(string assetFolderName, Func<string, bool> fileTypePredicate)
+	{
+		if (UsedAssets == null || UsedAssets.All == null)
+		{
+			return 0;
+		}
+
+		return UsedAssets.All.Where(part => BuildReportTool.Util.IsFileInAPath(part.Name, assetFolderName) && fileTypePredicate(part.Name))
+					.Sum(part => BRT_LibCacheUtil.GetImportedFileSize(part.Name));
+	}
+
+	static void AddToSize(BuildReportTool.SizePart buildSize, long sizeToAdd)
+	{
+		if (buildSize != null)
+		{
+			buildSize.DerivedSize += sizeToAdd;
+			buildSize.Size = BuildReportTool.Util.GetBytesReadable(buildSize.DerivedSize);
+		}
+	}
+	
+	void AddToSize(string buildSizeName, long sizeToAdd)
+	{
+		if (sizeToAdd == 0)
+		{
+			return;
+		}
+
+		BuildReportTool.SizePart buildSize = BuildSizes.FirstOrDefault(part => part.Name == buildSizeName);
+
+		if (buildSize != null)
+		{
+			//Debug.LogFormat("{0} size before: {1}", buildSizeName, buildSize.DerivedSize);
+
+			AddToSize(buildSize, sizeToAdd);
+
+			//Debug.LogFormat("{0} size after: {1}", buildSizeName, buildSize.DerivedSize);
+		}
+	}
+	
+	void AddToTotalSize(long sizeToAdd)
+	{
+		if (sizeToAdd == 0)
+		{
+			return;
+		}
+
+		BuildReportTool.SizePart buildSize = BuildSizes.FirstOrDefault(part => part.IsTotal);
+
+		if (buildSize != null)
+		{
+			//Debug.LogFormat("total size before: {0}", buildSize.DerivedSize);
+
+			AddToSize(buildSize, sizeToAdd);
+
+			UsedTotalSize = buildSize.Size;
+
+			//Debug.LogFormat("total size after: {0}", buildSize.DerivedSize);
+		}
+	}
+	
+	void ChangeTotalSize(double newSize)
+	{
+		if (newSize == 0)
+		{
+			return;
+		}
+
+		BuildReportTool.SizePart totalSize = BuildSizes.FirstOrDefault(part => part.IsTotal);
+
+		if (totalSize != null)
+		{
+			//Debug.LogFormat("total size before: {0}", buildSize.DerivedSize);
+
+			totalSize.DerivedSize = newSize;
+			totalSize.Size = BuildReportTool.Util.GetBytesReadable(totalSize.DerivedSize);
+
+			UsedTotalSize = totalSize.Size;
+
+			//Debug.LogFormat("total size after: {0}", buildSize.DerivedSize);
+		}
+	}
 
 	// total sizes
 	// ==================================================================================
@@ -166,8 +398,6 @@ public class BuildInfo
 
 	public AssetList UsedAssets = null;
 	public AssetList UnusedAssets = null;
-	public AssetList SceneAssets = null;
-	public AssetList PrefabAssets = null;
 
 	public bool HasUsedAssets
 	{
@@ -181,20 +411,6 @@ public class BuildInfo
 		get
 		{
 			return UnusedAssets != null;
-		}
-	}
-	public bool HasSceneAssets
-	{
-		get
-		{
-			return SceneAssets != null;
-		}
-	}
-	public bool HasPrefabAssets
-	{
-		get
-		{
-			return PrefabAssets != null;
 		}
 	}
 
@@ -237,6 +453,8 @@ public class BuildInfo
 		}
 		--_unusedAssetsBatchNum;
 	}
+	
+	// ---------------------------------------
 
 	string _savedPath;
 
@@ -245,7 +463,8 @@ public class BuildInfo
 	{
 		_savedPath = val;
 	}
-
+	
+	// ---------------------------------------
 
 	BuildTarget _buildTarget;
 
@@ -255,6 +474,7 @@ public class BuildInfo
 		_buildTarget = val;
 	}
 
+	// ---------------------------------------
 
 	bool _refreshRequest;
 
@@ -325,6 +545,8 @@ public class BuildInfo
 			UsedAssets.AssignPerCategoryList( BuildReportTool.ReportGenerator.SegregateAssetSizesPerCategory(UsedAssets.All, fileFiltersToUse) );
 
 			UsedAssets.RefreshFilterLabels(fileFiltersToUse);
+
+			UsedAssets.ResortDefault(BuildReportTool.Options.NumberOfTopLargestUsedAssetsToShow);
 		}
 
 		if (UnusedAssets != null)
@@ -332,6 +554,8 @@ public class BuildInfo
 			UnusedAssets.AssignPerCategoryList( BuildReportTool.ReportGenerator.SegregateAssetSizesPerCategory(UnusedAssets.All, fileFiltersToUse) );
 
 			UnusedAssets.RefreshFilterLabels(fileFiltersToUse);
+			
+			UnusedAssets.ResortDefault(BuildReportTool.Options.NumberOfTopLargestUnusedAssetsToShow);
 		}
 	}
 

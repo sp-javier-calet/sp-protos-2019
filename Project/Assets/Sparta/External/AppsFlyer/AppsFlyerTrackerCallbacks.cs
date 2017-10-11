@@ -1,55 +1,66 @@
 ﻿using UnityEngine;
+using System.Collections;
+using UnityEngine.UI;
 using System;
-
 
 public class AppsFlyerTrackerCallbacks : MonoBehaviour {
 
     public Action<string> OnConversionDataReceived;
-	
+
+	public Text callbacks;
+
 	// Use this for initialization
 	void Start () {
 		print ("AppsFlyerTrackerCallbacks on Start");
 		
 	}
 	
+	// Update is called once per frame
+	void Update () {
+		
+	}
+	
 	public void didReceiveConversionData(string conversionData) {
-		print ("AppsFlyerTrackerCallbacks:: got conversion data = " + conversionData);
-        if(OnConversionDataReceived != null)
-        {
+		printCallback ("AppsFlyerTrackerCallbacks:: got conversion data = " + conversionData);
+        if(OnConversionDataReceived != null) {
             OnConversionDataReceived(conversionData);
         }
 	}
 	
 	public void didReceiveConversionDataWithError(string error) {
-		print ("AppsFlyerTrackerCallbacks:: got conversion data error = " + error);
+		printCallback ("AppsFlyerTrackerCallbacks:: got conversion data error = " + error);
 	}
 	
 	public void didFinishValidateReceipt(string validateResult) {
-		print ("AppsFlyerTrackerCallbacks:: got didFinishValidateReceipt  = " + validateResult);
+		printCallback ("AppsFlyerTrackerCallbacks:: got didFinishValidateReceipt  = " + validateResult);
 		
 	}
 	
 	public void didFinishValidateReceiptWithError (string error) {
-		print ("AppsFlyerTrackerCallbacks:: got idFinishValidateReceiptWithError error = " + error);
+		printCallback ("AppsFlyerTrackerCallbacks:: got idFinishValidateReceiptWithError error = " + error);
 		
 	}
 	
 	public void onAppOpenAttribution(string validateResult) {
-		print ("AppsFlyerTrackerCallbacks:: got onAppOpenAttribution  = " + validateResult);
+		printCallback ("AppsFlyerTrackerCallbacks:: got onAppOpenAttribution  = " + validateResult);
 		
 	}
 	
 	public void onAppOpenAttributionFailure (string error) {
-		print ("AppsFlyerTrackerCallbacks:: got onAppOpenAttributionFailure error = " + error);
+		printCallback ("AppsFlyerTrackerCallbacks:: got onAppOpenAttributionFailure error = " + error);
 		
 	}
 	
 	public void onInAppBillingSuccess () {
-		print ("AppsFlyerTrackerCallbacks:: got onInAppBillingSuccess succcess");
+		printCallback ("AppsFlyerTrackerCallbacks:: got onInAppBillingSuccess succcess");
 		
 	}
 	public void onInAppBillingFailure (string error) {
-		print ("AppsFlyerTrackerCallbacks:: got onInAppBillingFailure error = " + error);
+		printCallback ("AppsFlyerTrackerCallbacks:: got onInAppBillingFailure error = " + error);
 		
+	}
+
+	void printCallback(string str) {
+		callbacks.text += str + "\n";
 	}
 }

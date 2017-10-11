@@ -5,19 +5,6 @@ Note: If you are upgrading Build Report Tool in your project, delete the current
 
 
 
-
-If you need to use Build Report Tool for a project using lower than Unity 4.5, use the included "Build Report Tool for Unity 3 or pre 4.5.unitypackage" file. Otherwise, you may ignore/delete it. 
-
-=== If you want to use the old Build Report Tool ===
-
-1. You will need at least Unity 4.5 to *download* the new Build Report Tool.
-2. It's recommended to create a new blank project whose purpose is to simply import the contents of the Build Report Tool.
-3. Upon download and import, simply move the "Build Report Tool for Unity 3 or pre 4.5.unitypackage" file outside this temporary project and import that into your real project.
-
-
-
-
-
 To show the Build Report Window, go to Window > Show Build Report.
 
 If Build Report Tool doesn't show up when you do that, you may have to reset your Unity Editor layout. Choose Window > Layouts > Default.
@@ -162,6 +149,13 @@ Side note: Size readings in the Build Report window that have fractional parts a
 
 
 
+=== Licenses ===
+
+Build Report Tool uses FuzzyString (https://fuzzystring.codeplex.com/). FuzzyString is in the Eclipse Public License (EPL).
+
+
+
+
 === Additional Notes ===
 
 Don't worry, the assets that the Build Report Tool itself uses won't be included in your build.
@@ -173,7 +167,7 @@ Copyright © 2013-2014 by Anomalous Underdog
 For support, you can either:
 
 * send me a tweet at http://twitter.com/AnomalusUndrdog
-* send me a private message in the Unity forums (http://forum.unity3d.com/members/8479-AnomalusUndrdog) 
+* send me a private message in the Unity forums (http://forum.unity3d.com/members/8479-AnomalusUndrdog)
 * send me an email at anomalous_underdog@yahoo.com
 
 

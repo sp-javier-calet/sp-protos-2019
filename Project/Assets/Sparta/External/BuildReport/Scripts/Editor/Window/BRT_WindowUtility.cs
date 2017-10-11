@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEditor;
-using System.Collections;
 
 
 
@@ -19,11 +18,11 @@ public static class Utility
 		GUI.Label(new Rect(x, y, w, h), msg);
 	}
 
-	public static bool PingAssetInProject(string file)
+	public static void PingAssetInProject(string file)
 	{
 		if (!file.StartsWith("Assets/"))
 		{
-			return false;
+			return;
 		}
 
 		// thanks to http://answers.unity3d.com/questions/37180/how-to-highlight-or-select-an-asset-in-project-win.html
@@ -38,9 +37,7 @@ public static class Utility
 			Selection.activeObject = asset;
 
 			GUI.skin = temp;
-			return true;
 		}
-		return false;
 	}
 
 
@@ -101,9 +98,9 @@ public static class Utility
 		}
 
 		GUILayout.BeginVertical();
-			GUILayout.Label(label, Settings.INFO_TITLE_STYLE_NAME);
-			GUILayout.Label(desc, Settings.TINY_HELP_STYLE_NAME);
-			GUILayout.Label(value, Settings.BIG_NUMBER_STYLE_NAME);
+			GUILayout.Label(label, BuildReportTool.Window.Settings.INFO_TITLE_STYLE_NAME);
+			GUILayout.Label(desc, BuildReportTool.Window.Settings.TINY_HELP_STYLE_NAME);
+			GUILayout.Label(value, BuildReportTool.Window.Settings.BIG_NUMBER_STYLE_NAME);
 		GUILayout.EndVertical();
 	}
 }
