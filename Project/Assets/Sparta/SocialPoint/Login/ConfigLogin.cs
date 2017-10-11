@@ -134,8 +134,10 @@ namespace SocialPoint.Login
                 if(ErrorEvent != null)
                 {
                     var errData = new AttrDic();
-                    errData.SetValue(SocialPointLogin.AttrKeySignature, parser.Parse(resp.Body).ToString());
+                    string errorString = parser.Parse(resp.Body).ToString();
+                    errData.SetValue(SocialPointLogin.AttrKeySignature, errorString);
                     ErrorEvent(ErrorType.GameDataParse, err, errData);
+                    Log.e("Error: "+ err.Code + " Message: "+ err.Msg+ " Signature: "+errorString);
                 }
             }
             else

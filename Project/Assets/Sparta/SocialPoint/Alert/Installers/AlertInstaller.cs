@@ -73,6 +73,7 @@ namespace SocialPoint.Alert
         void ShowUnityAlert(GameObject go)
         {
             var ctrl = go.GetComponent<UIViewController>();
+            ctrl.IsFullScreen = false;
             DebugUtils.Assert(ctrl != null, "GameObject doesn't have a viewController");
             if(_stackController == null)
             {
