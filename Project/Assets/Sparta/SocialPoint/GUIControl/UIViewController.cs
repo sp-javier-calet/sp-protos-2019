@@ -302,14 +302,11 @@ namespace SocialPoint.GUIControl
         {
             set
             {
-                if(_animation != null)
-                {
-                    _animation.Reset();
-                }
                 if(value != null)
                 {
                     value.Load(this);
                 }
+
                 _animation = value;
             }
 
@@ -747,10 +744,7 @@ namespace SocialPoint.GUIControl
                 StopCoroutine(_hideCoroutine);
                 _hideCoroutine = null;
             }
-            if(Animation != null)
-            {
-                Animation.Reset();
-            }
+
             _viewState = ViewState.Initial;
         }
 

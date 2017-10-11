@@ -375,7 +375,7 @@ namespace SocialPoint.GUIControl
             }
             else
             {
-                ctrl.Animation = desiredAnim;
+                ctrl.Animation = (UIViewAnimation)desiredAnim.Clone();
             }
         }
 
