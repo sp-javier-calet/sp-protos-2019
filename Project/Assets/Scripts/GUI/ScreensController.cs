@@ -15,12 +15,12 @@ public class ScreensController : UIStackController
         if(Animation == null)
         {
             // Example ScaleAnimation
-//            AppearAnimation = new ScaleAnimation(animationTime, Vector3.zero, Vector3.one, GoEaseType.QuadIn);
-//            DisappearAnimation = new ScaleAnimation(animationTime, Vector3.one, Vector3.zero, GoEaseType.QuadIn);
+            AppearAnimation = new ScaleAnimation(animationTime, Vector3.zero, Vector3.one, GoEaseType.QuadIn);
+            DisappearAnimation = new ScaleAnimation(animationTime, Vector3.one, Vector3.zero, GoEaseType.QuadIn);
 
             // Example SlideAnimation
-            AppearAnimation = new SlideAnimation(animationTime, SlideAnimation.PosType.Left, SlideAnimation.PosType.Center, GoEaseType.QuadIn);
-            DisappearAnimation = new SlideAnimation(animationTime, SlideAnimation.PosType.Center, SlideAnimation.PosType.Down, GoEaseType.QuadIn);
+//            AppearAnimation = new SlideAnimation(animationTime, SlideAnimation.PosType.Left, SlideAnimation.PosType.Center, GoEaseType.QuadIn);
+//            DisappearAnimation = new SlideAnimation(animationTime, SlideAnimation.PosType.Center, SlideAnimation.PosType.Down, GoEaseType.QuadIn);
 
             // Example FadeAnimation
 //            AppearAnimation = new FadeAnimation(animationTime, 0f, 1f);
@@ -28,7 +28,7 @@ public class ScreensController : UIStackController
 
             // Example CombinedAnimation
 //            UIViewAnimation[] appearAnimations = new UIViewAnimation[2];
-//            appearAnimations[0] = new ScaleAnimation(animationTime, Vector3.zero, Vector3.one, GoEaseType.QuadIn);
+//            appearAnimations[0] = new SlideAnimation(animationTime, SlideAnimation.PosType.Left, SlideAnimation.PosType.Center, GoEaseType.QuadIn);
 //            appearAnimations[1] = new FadeAnimation(animationTime, 0f, 1f);
 //
 //            UIViewAnimation[] disappearAnimations = new UIViewAnimation[2];
@@ -39,8 +39,15 @@ public class ScreensController : UIStackController
 //            DisappearAnimation = new CombinedAnimation(disappearAnimations);
 
             // Example UnityAnimation
-//            AppearAnimation = new UnityAnimation(kShowAnimName);
-//            DisappearAnimation =  new UnityAnimation(kHideAnimName);
+//            AppearAnimation = new UnityLegacyAnimation(kShowAnimName);
+//
+//            UIViewAnimation[] disappearAnimations = new UIViewAnimation[2];
+//            disappearAnimations[0] = new SlideAnimation(animationTime, SlideAnimation.PosType.Center, SlideAnimation.PosType.Top, GoEaseType.QuadIn);
+//            disappearAnimations[1] = new FadeAnimation(animationTime, 1f, 0f);
+//
+//            DisappearAnimation = new CombinedAnimation(disappearAnimations);
+
+//            DisappearAnimation =  new UnityLegacyAnimation(kHideAnimName);
         }
 
         base.OnLoad();
