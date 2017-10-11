@@ -9,7 +9,8 @@ namespace SocialPoint.Login
 {
     public sealed class ConfigLogin : ILogin
     {
-        const string kgameData = "game_data";
+        const string GameData = "game_data";
+        const string Config = "config";
 
         IHttpClient _httpClient;
 
@@ -65,11 +66,7 @@ namespace SocialPoint.Login
             remove { }
         }
 
-        public event LoginErrorDelegate ErrorEvent
-        {
-            add { }
-            remove { }
-        }
+        public event LoginErrorDelegate ErrorEvent = null;
 
         public event RestartDelegate RestartEvent
         {
@@ -128,49 +125,67 @@ namespace SocialPoint.Login
 
         void OnGetConfigData(HttpResponse resp, ErrorDelegate cbk)
         {
+            Error err = null;
             var parser = new JsonAttrParser();
-            var configResponse = parser.Parse(resp.Body);
 
-            var mainDic = new AttrDic();
-            mainDic.Set(kgameData, configResponse);
-
-            var serializer = new JsonAttrSerializer();
-            var finalBytes = serializer.Serialize(mainDic);
-                
-            var reader = new JsonStreamReader(finalBytes);
-
-            if(!reader.Read() || reader.Token != StreamToken.ObjectStart)
+            if(resp.HasError)
             {
-                return;
+                err = resp.Error;
+                if(ErrorEvent != null)
+                {
+                    var errData = new AttrDic();
+                    errData.SetValue(SocialPointLogin.AttrKeySignature, parser.Parse(resp.Body).ToString());
+                    ErrorEvent(ErrorType.GameDataParse, err, errData);
+                }
             }
-
-            Attr gameData = null;
-            while(reader.Read() && reader.Token != StreamToken.ObjectEnd)
+            else
             {
-                if(reader.Token != StreamToken.PropertyName)
+                var configResponse = parser.Parse(resp.Body);
+
+                var configDic = new AttrDic();
+                configDic.Set(Config, configResponse);
+
+                var mainDic = new AttrDic();
+                mainDic.Set(GameData, configDic);
+
+                var serializer = new JsonAttrSerializer();
+                var finalBytes = serializer.Serialize(mainDic);
+                
+                var reader = new JsonStreamReader(finalBytes);
+
+                if(!reader.Read() || reader.Token != StreamToken.ObjectStart)
                 {
                     return;
                 }
-                reader.Read();
 
-                if(NewUserStreamEvent != null)
+                Attr gameData = null;
+                while(reader.Read() && reader.Token != StreamToken.ObjectEnd)
                 {
-                    NewUserStreamEvent(reader);
-                }
-                else if(NewUserEvent != null)
-                {
-                    gameData = reader.ParseElement();
-                    NewUserEvent(gameData, false);
-                }
-                else
-                {
-                    reader.SkipElement();
+                    if(reader.Token != StreamToken.PropertyName)
+                    {
+                        return;
+                    }
+                    reader.Read();
+
+                    if(NewUserStreamEvent != null)
+                    {
+                        NewUserStreamEvent(reader);
+                    }
+                    else if(NewUserEvent != null)
+                    {
+                        gameData = reader.ParseElement();
+                        NewUserEvent(gameData, false);
+                    }
+                    else
+                    {
+                        reader.SkipElement();
+                    }
                 }
             }
 
             if(cbk != null)
             {
-                cbk(null);
+                cbk(err);
             }
         }
 
