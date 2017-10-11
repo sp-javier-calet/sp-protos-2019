@@ -15,7 +15,7 @@ public class SlideAnimation : UIViewAnimation
     }
 
     [SerializeField]
-    Transform _transform;
+    RectTransform _transform;
 
     [SerializeField]
     float _time = 1.0f;
@@ -31,29 +31,26 @@ public class SlideAnimation : UIViewAnimation
 
     [SerializeField]
     AnimationCurve _easeCurve = default(AnimationCurve);
-
-    RectTransform _rectTransform;
+ 
     UIViewController _ctrl;
 
     public override void Load(UIViewController ctrl)
     {
-        _ctrl = ctrl;
-        if(_ctrl != null)        
+        if(ctrl == null)
         {
-            if(_transform == null)
-            {
-                _transform = ctrl.transform;
-                _rectTransform = _transform.GetChild(0).GetComponent<RectTransform>();
-            }
-            else
-            {
-                _rectTransform = _transform.GetComponent<RectTransform>();
-            }
+            throw new MissingComponentException("UIViewController not exists");
+        }
 
-            if(_rectTransform == null)
-            {
-                throw new MissingComponentException("Could not find First Child RectTransform component.");
-            }
+        _ctrl = ctrl;
+
+        if(_transform == null && _ctrl.transform.childCount > 0)
+        {
+            _transform = _ctrl.transform.GetChild(0) as RectTransform;
+        }
+            
+        if(_transform == null)
+        {
+            throw new MissingComponentException("Could not find First Child RectTransform component.");
         }
     }
     
@@ -65,16 +62,16 @@ public class SlideAnimation : UIViewAnimation
         _easeType = easeType;
         _easeCurve = easeCurve;
     }
-    
+
     public override IEnumerator Animate()
     {
-        var initialPos = _rectTransform.localPosition;
+        var initialPos = _transform.localPosition;
         var finalPos = initialPos;
 
         GetPosition(ref initialPos, _moveFromPos);
         GetPosition(ref finalPos, _moveToPos);
-        
-        _rectTransform.localPosition = initialPos;
+
+        _transform.localPosition = initialPos;
         yield return _ctrl.StartCoroutine(CreateTween(finalPos).waitForCompletion());
     }
 
@@ -82,11 +79,11 @@ public class SlideAnimation : UIViewAnimation
     {
         if(_easeType == GoEaseType.AnimationCurve && _easeCurve != null)
         {
-            return Go.to(_rectTransform, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType).setEaseCurve(_easeCurve));
+            return Go.to(_transform, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType).setEaseCurve(_easeCurve));
         }
         else
         {
-            return Go.to(_rectTransform, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType));
+            return Go.to(_transform, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType));
         }
     }
 
@@ -94,23 +91,21 @@ public class SlideAnimation : UIViewAnimation
     {
         if(position == PosType.Right)
         {
-            pos.x = (_rectTransform.sizeDelta.x + _rectTransform.rect.width);
+            pos.x = (_transform.sizeDelta.x + _transform.rect.width);
         }
         else if(position == PosType.Left)
         {
-            pos.x = -(_rectTransform.sizeDelta.x + _rectTransform.rect.width);
+            pos.x = -(_transform.sizeDelta.x + _transform.rect.width);
         }
         else if(position == PosType.Top)
         {
-            pos.y = (_rectTransform.sizeDelta.y + _rectTransform.rect.height);
+            pos.y = (_transform.sizeDelta.y + _transform.rect.height);
         }
         else if(position == PosType.Down)
         {
-            pos.y = -(_rectTransform.sizeDelta.y + _rectTransform.rect.height);
+            pos.y = -(_transform.sizeDelta.y + _transform.rect.height);
         }
     }
-
-    public override void Reset() {}
 
     public override object Clone()
     {

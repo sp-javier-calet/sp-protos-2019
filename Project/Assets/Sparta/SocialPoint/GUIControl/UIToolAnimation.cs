@@ -41,12 +41,7 @@ namespace SocialPoint.GUIControl
             }
             _anim.Stop();
         }
-
-        public override void Reset()
-        {
-            Revert();
-        }
-
+            
         bool Revert()
         {
             if(_anim == null)

@@ -18,6 +18,11 @@ public class FadeAnimation : UIViewAnimation
 
     public override void Load(UIViewController ctrl)
     {
+        if(ctrl == null)
+        {
+            throw new MissingComponentException("UIViewController not exists");
+        }
+
         _ctrl = ctrl;
     }
 
@@ -38,14 +43,6 @@ public class FadeAnimation : UIViewAnimation
             elapsedTime += Time.deltaTime;
             _ctrl.Alpha = Mathf.Lerp(_initialAlpha, _finalAlpha, (elapsedTime / _time));
             yield return null;
-        }
-    }
-        
-    public override void Reset()
-    {
-        if(_ctrl != null)
-        {
-            _ctrl.Alpha = _finalAlpha;
         }
     }
         

@@ -10,8 +10,6 @@ namespace SocialPoint.GUIControl
 
         public abstract IEnumerator Animate();
 
-        public abstract void Reset();
-
         #region ICloneable implementation
 
         public abstract object Clone();

@@ -27,18 +27,21 @@ public class ScaleAnimation : UIViewAnimation
 
     public override void Load(UIViewController ctrl)
     {
-        _ctrl = ctrl;
-        if(_ctrl != null)
+        if(ctrl == null)
         {
-            if(_transform == null && _ctrl.transform.childCount > 0)
-            {
-                _transform = _ctrl.transform.GetChild(0);
-            }
+            throw new MissingComponentException("UIViewController not exists");
+        }
 
-            if(_transform == null)
-            {
-                throw new MissingComponentException("Could not find First Child Transform component.");
-            }
+        _ctrl = ctrl;
+
+        if(_transform == null && _ctrl.transform.childCount > 0)
+        {
+            _transform = _ctrl.transform.GetChild(0);
+        }
+            
+        if(_transform == null)
+        {
+            throw new MissingComponentException("Could not find First Child Transform component.");
         }
     }
 
@@ -70,14 +73,6 @@ public class ScaleAnimation : UIViewAnimation
         else
         {
             return Go.to(_transform, _time, new GoTweenConfig().scale(finalValue).setEaseType(_easeType));
-        }
-    }
-
-    public override void Reset()
-    {
-        if(_transform != null)
-        {
-            _transform.localScale = _finalScale;
         }
     }
         

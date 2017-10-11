@@ -16,6 +16,11 @@ public class CombinedAnimation : UIViewAnimation
             throw new MissingComponentException("Combined animation needs some simple animations.");
         }
 
+        if(ctrl == null)
+        {
+            throw new MissingComponentException("UIViewController not exists");
+        }
+
         for(int i = 0; i < _animations.Length; ++i)
         {
             _animations[i].Load(ctrl);
@@ -32,7 +37,11 @@ public class CombinedAnimation : UIViewAnimation
         List<IEnumerator> enums = new List<IEnumerator>();
         for(int i = 0; i < _animations.Length; ++i)
         {
-            enums.Add(_animations[i].Animate());
+            var anim = _animations[i];
+            if(anim != null)
+            {
+                enums.Add(_animations[i].Animate());
+            }
         }
 
         while(enums.Count > 0)
@@ -47,20 +56,20 @@ public class CombinedAnimation : UIViewAnimation
             yield return null;
         }
     }
-
-    public override void Reset()
-    {
-        if(_animations != null)
-        {
-            for(int i = 0; i < _animations.Length; ++i)
-            {
-                _animations[i].Reset();
-            }
-        }
-    }
-
+        
     public override object Clone()
     {
-        return new CombinedAnimation(_animations);
+        UIViewAnimation[] clonedAnimations = new UIViewAnimation[_animations.Length];
+
+        for(int i = 0; i < _animations.Length; ++i)
+        {
+            var anim = _animations[i];
+            if(anim != null)
+            {
+                clonedAnimations[i] = (UIViewAnimation)_animations[i].Clone();
+            }
+        }
+
+        return new CombinedAnimation(clonedAnimations);
     }
 }

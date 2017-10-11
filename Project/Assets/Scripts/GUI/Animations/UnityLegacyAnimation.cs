@@ -22,8 +22,14 @@ public class UnityLegacyAnimation : UIViewAnimation
 
     public override void Load(UIViewController ctrl)
     {
+        if(ctrl == null)
+        {
+            throw new MissingComponentException("UIViewController not exists");
+        }
+
         _ctrl = ctrl;
-        if(_ctrl != null && _animation == null)        
+
+        if(_animation == null)        
         {
             _animation = _ctrl.GetComponent<Animation>();
             if(_animation == null)
@@ -55,8 +61,6 @@ public class UnityLegacyAnimation : UIViewAnimation
             _animation.Stop(_animName);
         }
     }
-
-    public override void Reset() {}
 
     public override object Clone()
     {
