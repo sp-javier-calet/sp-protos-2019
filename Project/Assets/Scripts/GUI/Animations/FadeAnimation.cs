@@ -20,7 +20,7 @@ public class FadeAnimation : UIViewAnimation
     {
         if(ctrl == null)
         {
-            throw new MissingComponentException("UIViewController not exists");
+            throw new MissingComponentException("UIViewController does not exist");
         }
 
         _ctrl = ctrl;

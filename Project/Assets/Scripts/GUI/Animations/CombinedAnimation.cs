@@ -18,7 +18,7 @@ public class CombinedAnimation : UIViewAnimation
 
         if(ctrl == null)
         {
-            throw new MissingComponentException("UIViewController not exists");
+            throw new MissingComponentException("UIViewController does not exist");
         }
 
         for(int i = 0; i < _animations.Length; ++i)
