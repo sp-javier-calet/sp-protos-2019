@@ -41,7 +41,7 @@ public class ConfigParser : IAttrObjParser<ConfigModel>
 
     Dictionary<string, Attr> ParseGlobals(Attr data)
     {
-        var globalsDict = data.AsDic[AttrKeyGlobals];
+        var globalsDict = data.AsDic[AttrKeyGlobals].AsDic[AttrKeyGlobals];
         var globals = new Dictionary<string, Attr>();
 
         if(globalsDict.AttrType == AttrType.DICTIONARY)
