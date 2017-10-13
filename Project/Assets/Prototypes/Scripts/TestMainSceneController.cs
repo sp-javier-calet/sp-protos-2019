@@ -5,8 +5,10 @@ using SocialPoint.Dependency;
 
 public class TestMainSceneController : MonoBehaviour
 {
-    const string kcubeVelocity = "cube_speed";
     const string kcubesize = "cube_size";
+
+    [SerializeField]
+    private Transform _cubeTransform;
 
     ConfigModel _config;
 
@@ -14,13 +16,12 @@ public class TestMainSceneController : MonoBehaviour
     {
         _config = Services.Instance.Resolve<ConfigModel>();
 
-
         SetCubeSize();
     }
 
     void SetCubeSize()
     {
         Vector3 cubeSize = _config.GetGlobal(kcubesize) == null ? Vector3.one : Vector3.one * _config.GetGlobal(kcubesize).AsValue.ToFloat();
-        transform.localScale = cubeSize;
+        _cubeTransform.localScale = cubeSize;
     }
 }

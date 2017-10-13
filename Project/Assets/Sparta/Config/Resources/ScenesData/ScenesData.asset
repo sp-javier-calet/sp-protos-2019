@@ -18,3 +18,4 @@ MonoBehaviour:
   - MainScene
   - BaseMainScene
   - LockstepScene
+  - PrototypeMainScene
