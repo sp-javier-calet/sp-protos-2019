@@ -4,33 +4,34 @@ using UnityEngine;
 using UnityEngine.UI;
 using SocialPoint.Base;
 using UnityEngine.SceneManagement;
+using SocialPoint.GUIControl;
+using System;
 
-public class SelectorScenesController : MonoBehaviour
+public class SelectorScenesController : UIViewController
 {
-    [SerializeField]
-    private string _forcedSceneName = string.Empty;
-
     [SerializeField]
     private GameObject _prefabButton = null;
 
     [SerializeField]
     private ScrollRect _scrollRect = null;
 
+    public Action<string> OnGoToScene { get; set; }
+
     private string[] _scenes;
 
-    void Start()
+    public SelectorScenesController()
     {
-        _scenes = ScenesData.Instance.ScenesNames;
+        IsFullScreen = true;
+    }
 
-        if(_forcedSceneName != string.Empty && _scenes.Contains<string>(_forcedSceneName))
-        {
-            GoToScene(_forcedSceneName);
-            return;
-        }
+    protected override void OnStart()
+    {
+        base.OnStart();
+        _scenes = ScenesData.Instance.ScenesNames;
 
         ShowScenesUI();
     }
-
+   
     void ShowScenesUI()
     {
         Debug.Log("SCENES: ");
@@ -46,6 +47,8 @@ public class SelectorScenesController : MonoBehaviour
     {
         GameObject button = Instantiate<GameObject>(_prefabButton);
         button.transform.SetParent(_scrollRect.content);
+        button.transform.localPosition = Vector3.zero;
+        button.transform.localScale = Vector3.one;
         button.GetComponentInChildren<Text>().text = nameScene.ToUpper();
         Button buttonComponent = button.GetComponent<Button>();
         buttonComponent.onClick.AddListener(() => GoToScene(nameScene));
@@ -55,17 +58,21 @@ public class SelectorScenesController : MonoBehaviour
     {
         Debug.Log("CLICKED BUTTON : "+nameScene);
 
-        SceneManager.LoadScene(nameScene, LoadSceneMode.Additive);
+        if(OnGoToScene != null)
+        {
+            OnGoToScene(nameScene);
+        }
 
-        Clean();
-
+        Hide();
     }
+//
+//    protected override void OnDisappeared()
+//    {
+//        base.OnDisappeared();
+//        //Destroy Canvas of all Scenes UI buttons
+//        Destroy(_scrollRect.transform.parent.gameObject);
+//
+//        Destroy(gameObject);
+//    }
 
-    void Clean()
-    {
-        //Destroy Canvas of all Scenes UI buttons
-        Destroy(_scrollRect.transform.parent.gameObject);
-
-        Destroy(gameObject);
-    }
 }

@@ -1105,7 +1105,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &1730914884282660
 GameObject:
   m_ObjectHideFlags: 1
@@ -1534,6 +1534,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsFullScreen: 1
+  ShowAnimation: {fileID: 0}
+  HideAnimation: {fileID: 0}
   ParentController: {fileID: 0}
   DestroyOnHide: 0
   _containers3d: []
@@ -1542,6 +1544,8 @@ MonoBehaviour:
   BackContainer: {fileID: 1730914884282660}
   Blocker: {fileID: 1100893622520596}
   SimultaneousAnimations: 1
+  UnityDefaultAnimation: {fileID: 0}
+  UnityDefaultAnimationFullScreen: {fileID: 0}
 --- !u!114 &114813777603242634
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1554,6 +1558,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   IsFullScreen: 1
+  ShowAnimation: {fileID: 0}
+  HideAnimation: {fileID: 0}
   ParentController: {fileID: 0}
   DestroyOnHide: 0
   _containers3d: []
@@ -1562,6 +1568,8 @@ MonoBehaviour:
   BackContainer: {fileID: 1389137535606556}
   Blocker: {fileID: 1898151764981000}
   SimultaneousAnimations: 1
+  UnityDefaultAnimation: {fileID: 0}
+  UnityDefaultAnimationFullScreen: {fileID: 0}
 --- !u!114 &114982994782943330
 MonoBehaviour:
   m_ObjectHideFlags: 1
