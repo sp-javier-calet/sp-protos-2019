@@ -11,24 +11,6 @@
             }
         }
 
-        BehaviorDesigner.Runtime.BehaviorManager _behaviourManager = null;
-        public BehaviorDesigner.Runtime.BehaviorManager BehaviourManager
-        {
-            get
-            {
-                return _behaviourManager;
-            }
-        }
-
-        BinaryDeserialization _binaryDeserialization = null;
-        public BinaryDeserialization BinaryDeserialization
-        {
-            get
-            {
-                return _binaryDeserialization;
-            }
-        }
-
         TypeCache _typeCache = null;
         public TypeCache TypeCache
         {
@@ -46,8 +28,6 @@
         public void Clear()
         {
             _pool = new SocialPoint.Utils.ObjectPool();
-            _behaviourManager = BehaviorDesigner.Runtime.Behavior.CreateBehaviorManager();
-            _binaryDeserialization = new BinaryDeserialization();
             _typeCache = new TypeCache();
         }
     }
