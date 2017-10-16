@@ -14,5 +14,5 @@ MonoBehaviour:
   _isGlobal: 0
   Settings:
     EntryScene: PrototypeMainScene
-    GameId: ssp
-    Environment: ssp1
+    GameId: mt
+    Environment: env1
