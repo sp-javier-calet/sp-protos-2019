@@ -268,7 +268,7 @@ namespace Examples.Lockstep
             _matchClient.RemoveDelegate(this);
             _matchClient.AddDelegate(this);
             _fullscreenText.text = "connecting to matchmaker...";
-            _matchClient.Start();
+            _matchClient.Start(null, false, string.Empty);
         }
 
         #region IMatchmakingClientDelegate implementation

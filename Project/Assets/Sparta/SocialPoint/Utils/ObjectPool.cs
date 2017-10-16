@@ -98,7 +98,6 @@ namespace SocialPoint.Utils
                 return;
             }
 
-            var objType = typeof(T);
             object pooledObjects = null;
             Stack<T> pooledObjectsCasted = null;
 

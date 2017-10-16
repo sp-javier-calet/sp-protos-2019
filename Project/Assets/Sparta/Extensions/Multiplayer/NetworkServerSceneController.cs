@@ -137,7 +137,6 @@ namespace SocialPoint.Multiplayer
         public IGameTime GameTime { get; private set; }
 
         GameTime _gameTime;
-
         public Action<Metric> SendMetric { get; set; }
         public Action<Network.ServerEvents.Log, bool> SendLog { get; set; }
         public Action<string, AttrDic, ErrorDelegate> SendTrack { get; set; }
@@ -151,7 +150,6 @@ namespace SocialPoint.Multiplayer
                 GameTime = _gameTime;
             }
 
-            _sceneDisposer = new ActionUpdater(DisposeScenes, 0.2f);
             Restart(server);
         }
 
@@ -247,7 +245,7 @@ namespace SocialPoint.Multiplayer
             Init(_scene);
 
             SyncController = new NetworkServerSyncController();
-            SyncController.Init(GameTime, _server, _clientData, _serializer, _scene, _prevScene, _actions, _pendingActions);
+            SyncController.Init(_server, _clientData, _serializer, _scene, _prevScene, _actions, _pendingActions);
 
             _server.RemoveDelegate(this);
             _server.AddDelegate(this);

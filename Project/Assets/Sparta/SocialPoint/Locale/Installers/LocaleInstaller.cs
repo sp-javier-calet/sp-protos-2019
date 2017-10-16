@@ -1,15 +1,13 @@
 using System;
 using System.Collections.Generic;
 using SocialPoint.AppEvents;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
 using SocialPoint.Dependency;
 using SocialPoint.Hardware;
 using SocialPoint.Locale;
 using SocialPoint.Network;
-using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
-using SocialPoint.Base;
-using UnityEngine;
-using SocialPoint.Attributes;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -19,6 +17,8 @@ namespace SocialPoint.Locale
 {
     public sealed class LocaleInstaller : ServiceInstaller
     {
+        const string kPersistentTag = "persistent";
+
         [Serializable]
         public struct EnvironmentData
         {

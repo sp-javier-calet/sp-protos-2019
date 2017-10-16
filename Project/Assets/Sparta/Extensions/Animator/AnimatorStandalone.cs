@@ -19,7 +19,6 @@ namespace SocialPoint.Animations
     {
         event Action<IAnimationEvent> EventTriggered;
         event Action<IAnimationEvent> VisualEventTriggered;
-        event Action<IAnimationEvent> AudioEventTriggered;
 
         float CurrentStateDuration { get; }
 
@@ -67,7 +66,6 @@ namespace SocialPoint.Animations
 
         public event Action<IAnimationEvent> EventTriggered;
         public event Action<IAnimationEvent> VisualEventTriggered;
-        public event Action<IAnimationEvent> AudioEventTriggered;
 
         public string CurrentStateName
         {
@@ -335,18 +333,6 @@ namespace SocialPoint.Animations
         }
 
         public  event Action<IAnimationEvent> VisualEventTriggered
-        {
-            add
-            {
-                throw new NotImplementedException();
-            }
-            remove
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public event Action<IAnimationEvent> AudioEventTriggered
         {
             add
             {

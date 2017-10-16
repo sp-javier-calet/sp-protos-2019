@@ -39,13 +39,11 @@ namespace SocialPoint.Exporter
                                 }
                             }
                         }
-                        catch(Exception e)
+                        catch(Exception)
                         {
                         }
                     }
-                    _exporterTypes.Sort((x, y) => {
-                        return x.Name.CompareTo(y.Name);
-                    });
+                    _exporterTypes.Sort((x, y) => x.Name.CompareTo(y.Name));
                 }
                 return _exporterTypes;
             }

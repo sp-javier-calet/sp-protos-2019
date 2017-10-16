@@ -173,7 +173,7 @@ namespace SocialPoint.Multiplayer
         {
             if(_hideIfNotInterpolation && _viewModel != null)
             {
-                _viewModel.gameObject.SetActiveSafe(_iterationCount > 1);
+                _viewModel.gameObject.SetActive(_iterationCount > 1);
             }
         }
 
@@ -200,8 +200,7 @@ namespace SocialPoint.Multiplayer
 
         void InterpolatePosition(float dt)
         {
-            var currToServerLength = (_serverPos - _go.Transform.Position).Length();
-            var delta = (float)_serverSpeed * dt;
+            var delta = _serverSpeed * dt;
             _go.Transform.Position = _go.Transform.Position + _dir * delta;
         }
 

@@ -34,12 +34,10 @@ public class NetworkServerSyncController
         }
     }
 
-    IGameTime _gameTime;
     MemoryStream _memStream = new MemoryStream(64 * 1024);
 
-    public void Init(IGameTime gameTime, INetworkServer server, Dictionary<byte, ClientData> clientData, NetworkSceneSerializer serializer, NetworkScene scene, NetworkScene prevScene, NetworkActionHandler actions, List<ActionInfo> pendingActions)
+    public void Init(INetworkServer server, Dictionary<byte, ClientData> clientData, NetworkSceneSerializer serializer, NetworkScene scene, NetworkScene prevScene, NetworkActionHandler actions, List<ActionInfo> pendingActions)
     {
-        _gameTime = gameTime;
         _server = server;
         _clientData = clientData;
         _serializer = serializer;
@@ -77,8 +75,7 @@ public class NetworkServerSyncController
         _memStream.Seek(0, SeekOrigin.Begin);
         var binWriter = new SystemBinaryWriter(_memStream);
         _serializer.Serialize(_scene, _prevScene, binWriter);
-        // to avoid out of sync exception with GetEnumerator we will "make a copy" of the keys and iterate over them
-        var clients = new Dictionary<byte,ClientData>.KeyCollection(_clientData);
+
         var itrKeys = _clientData.GetEnumerator();
         _keyList.Clear();
         while(itrKeys.MoveNext())
@@ -162,7 +159,6 @@ public class NetworkServerSyncController
     {
         _keyList.Clear();
 
-        _gameTime = null;
         _server = null;
         _prevScene = null;
 

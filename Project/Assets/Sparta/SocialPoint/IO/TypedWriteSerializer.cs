@@ -80,7 +80,6 @@ namespace SocialPoint.IO
             {
                 throw new InvalidOperationException("No valid serializer found");
             }
-            return false;
         }
 
         public bool TrySerializeRaw(T obj, IWriter writer)

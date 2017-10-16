@@ -567,7 +567,7 @@ namespace SocialPoint.GUIControl
             var top = Top;
             if(top != null)
             {
-                top.ShowImmediate();
+                top.Controller.ShowImmediate();
             }
         }
 

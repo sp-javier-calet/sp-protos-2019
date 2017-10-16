@@ -6,19 +6,25 @@ namespace BehaviorDesigner.Runtime.Standalone
     public class BehaviorTreeBuilder
     {
         string _defaultPath = null;
+        #if !BEHAVIOR_DESIGNER_STANDALONE
         string _debugPath = null;
         string _name = null;
+        #endif
 
         public BehaviorTreeBuilder WithTree(string path, string debugPath = null)
         {
             _defaultPath = path;
+            #if !BEHAVIOR_DESIGNER_STANDALONE
             _debugPath = debugPath;
+            #endif
             return this;
         }
 
         public BehaviorTreeBuilder WithName(string name)
         {
+            #if !BEHAVIOR_DESIGNER_STANDALONE
             _name = name;
+            #endif
             return this;
         }
 

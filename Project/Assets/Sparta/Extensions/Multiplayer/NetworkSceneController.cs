@@ -76,7 +76,6 @@ namespace SocialPoint.Multiplayer
 
         protected void UnregisterAllBehaviours()
         {
-            #warning should call Dispose on prototypes, not OnDestroy
             var behaviourEnum = _behaviourPrototypes.GetEnumerator();
             while(behaviourEnum.MoveNext() != false)
             {

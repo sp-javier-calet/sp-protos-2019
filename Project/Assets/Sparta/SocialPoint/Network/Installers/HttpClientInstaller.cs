@@ -135,6 +135,8 @@ namespace SocialPoint.Network
 
         RetryHttpClient CreateRetryHttpClient()
         {
+            #pragma warning disable 0162
+
             IHttpClient client;
             if(Curl.IsSupported)
             {
@@ -144,6 +146,7 @@ namespace SocialPoint.Network
             {
                 client = Container.Resolve <WebRequestHttpClient>();
             }
+            #pragma warning restore 0162
             var retryClient = new RetryHttpClient(client);
                              
             return retryClient;

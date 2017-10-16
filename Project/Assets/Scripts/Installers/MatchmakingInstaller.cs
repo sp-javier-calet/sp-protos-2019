@@ -48,7 +48,7 @@ public class MatchmakingInstaller : Installer
     {
         return new HttpMatchmakingServer(
             Container.Resolve<IHttpClient>(),
-            Settings.BaseUrl);
+            () => Settings.BaseUrl);
     }
 
     void SetupServer(HttpMatchmakingServer server)

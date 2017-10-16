@@ -53,7 +53,7 @@ namespace SocialPoint.Hardware
                         return info.AddressList[0].ToString();
                     }
                 }
-                catch(System.Net.Sockets.SocketException e)
+                catch(System.Net.Sockets.SocketException)
                 {
                     // Do nothing
                 }
