@@ -11,6 +11,8 @@ public class GUISceneSelectorInstaller : Installer, IInitializable
     [Serializable]
     public class SettingsData
     {
+        public bool UsePrototypeConfig = false;
+        public string EntryScene;
         public GameObject InitialScreenPrefab;
     }
 
@@ -42,11 +44,21 @@ public class GUISceneSelectorInstaller : Installer, IInitializable
 
         _scenes = ScenesData.Instance.ScenesNames;
 
-        var config = Container.Resolve<ConfigLoginEnvironment>();
+        string entryScene = string.Empty;
 
-        if(config.EntryScene != string.Empty && _scenes.Contains<string>(config.EntryScene))
+        var config = Container.Resolve<ConfigLoginEnvironment>();
+        if(config != null && Settings.UsePrototypeConfig)
         {
-            GoToScene(config.EntryScene);
+            entryScene = config.EntryScene;
+        }
+        else
+        {
+            entryScene = Settings.EntryScene;
+        }
+
+        if(entryScene != string.Empty && _scenes.Contains<string>(entryScene))
+        {
+            GoToScene(entryScene);
             return;
         }
 

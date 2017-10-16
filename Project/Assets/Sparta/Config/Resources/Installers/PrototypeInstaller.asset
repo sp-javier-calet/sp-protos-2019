@@ -13,6 +13,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 0
   Settings:
-    EntryScene: 
+    EntryScene: PrototypeMainScene
     GameId: ssp
     Environment: ssp1

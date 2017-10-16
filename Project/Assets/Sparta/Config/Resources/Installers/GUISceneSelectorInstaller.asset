@@ -13,7 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 0
   Settings:
-    ForcedSceneName: 
+    UsePrototypeConfig: 1
+    EntryScene: 
     InitialScreenPrefab: {fileID: 1675610529506478, guid: db1a8fcef85f346469a329fe7024f2e0,
       type: 2}
-    InitialScreenAnimation: 0
