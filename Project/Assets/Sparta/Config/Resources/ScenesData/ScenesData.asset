@@ -19,3 +19,5 @@ MonoBehaviour:
   - BaseMainScene
   - LockstepScene
   - PrototypeMainScene
+  - UIScene
+  - CubeMainScene
