@@ -34,11 +34,9 @@ public class SelectorScenesController : UIViewController
    
     void ShowScenesUI()
     {
-        Debug.Log("SCENES: ");
         for(int i = 0; i < _scenes.Length; i++)
         {
             var name = _scenes[i];
-            Debug.Log(name);
             InstantiateScenesButton(name);
         }
     }
@@ -56,8 +54,6 @@ public class SelectorScenesController : UIViewController
 
     public void GoToScene(string nameScene)
     {
-        Debug.Log("CLICKED BUTTON : "+nameScene);
-
         if(OnGoToScene != null)
         {
             OnGoToScene(nameScene);
@@ -65,14 +61,4 @@ public class SelectorScenesController : UIViewController
 
         Hide();
     }
-//
-//    protected override void OnDisappeared()
-//    {
-//        base.OnDisappeared();
-//        //Destroy Canvas of all Scenes UI buttons
-//        Destroy(_scrollRect.transform.parent.gameObject);
-//
-//        Destroy(gameObject);
-//    }
-
 }

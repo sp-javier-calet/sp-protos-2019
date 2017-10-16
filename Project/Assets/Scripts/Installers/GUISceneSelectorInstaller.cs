@@ -3,6 +3,7 @@ using UnityEngine;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.Base;
+using SocialPoint.Login;
 using UnityEngine.SceneManagement;
 
 public class GUISceneSelectorInstaller : Installer, IInitializable
@@ -10,9 +11,7 @@ public class GUISceneSelectorInstaller : Installer, IInitializable
     [Serializable]
     public class SettingsData
     {
-        public string ForcedSceneName = string.Empty;
         public GameObject InitialScreenPrefab;
-        public bool InitialScreenAnimation;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -42,9 +41,12 @@ public class GUISceneSelectorInstaller : Installer, IInitializable
         }
 
         _scenes = ScenesData.Instance.ScenesNames;
-        if(Settings.ForcedSceneName != string.Empty && _scenes.Contains<string>(Settings.ForcedSceneName))
+
+        var config = Container.Resolve<ConfigLoginEnvironment>();
+
+        if(config.EntryScene != string.Empty && _scenes.Contains<string>(config.EntryScene))
         {
-            GoToScene(Settings.ForcedSceneName);
+            GoToScene(config.EntryScene);
             return;
         }
 
@@ -57,18 +59,11 @@ public class GUISceneSelectorInstaller : Installer, IInitializable
 
         ctrl.OnGoToScene = GoToScene;
 
-        if(Settings.InitialScreenAnimation)
-        {
-            stackController.Push(ctrl);
-        }
-        else
-        {
-            stackController.PushImmediate(ctrl);
-        }
+        stackController.PushImmediate(ctrl);
     }
 
     void GoToScene(string nameScene)
     {
-        SceneManager.LoadScene(nameScene, LoadSceneMode.Additive);
+        SceneManager.LoadScene(nameScene, LoadSceneMode.Single);
     }
 }

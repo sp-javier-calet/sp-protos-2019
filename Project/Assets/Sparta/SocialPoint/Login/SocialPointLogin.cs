@@ -130,7 +130,6 @@ namespace SocialPoint.Login
         public const bool DefaultAutoUpdateFriends = true;
         public const uint DefaultAutoUpdateFriendsPhotoSize = 0;
         public const uint DefaultUserMappingsBlock = 50;
-        public const string DefaultConfigEndpoint = "http://backend.pro.configmanager.sp.laicosp.net/products/{0}/envs/{1}/download";
         public const string DefaultGameID = "ssp";
         public const string DefaultGameEnvironment = "ssp1";
 

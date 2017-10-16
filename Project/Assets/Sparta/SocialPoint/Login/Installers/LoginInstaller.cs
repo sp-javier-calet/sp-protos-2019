@@ -36,16 +36,7 @@ namespace SocialPoint.Login
             public uint MaxConnectivityErrorRetries = SocialPointLogin.DefaultMaxConnectivityErrorRetries;
             public bool EnableLinkConfirmRetries = SocialPointLogin.DefaultEnableLinkConfirmRetries;
             public uint UserMappingsBlock = SocialPointLogin.DefaultUserMappingsBlock;
-            public string GameID = SocialPointLogin.DefaultGameID;
-            public string GameEnvironment = SocialPointLogin.DefaultGameEnvironment;
-           
-            public string ConfigManagerEndPoint
-            {
-                get
-                {
-                    return string.Format(SocialPointLogin.DefaultConfigEndpoint, GameID, GameEnvironment);
-                }
-            }
+       
         }
 
         public SettingsData Settings = new SettingsData();
@@ -86,17 +77,6 @@ namespace SocialPoint.Login
             };
         }
 
-        SocialPointLogin.LoginConfig CreateConfig()
-        {
-            return new SocialPointLogin.LoginConfig {
-                BaseUrl = Settings.ConfigManagerEndPoint,
-                SecurityTokenErrors = (int)Settings.MaxSecurityTokenErrorRetries,
-                ConnectivityErrors = (int)Settings.MaxConnectivityErrorRetries,
-                EnableOnLinkConfirm = Settings.EnableLinkConfirmRetries
-            };
-        }
-
-
         EmptyLogin CreateEmptyLogin()
         {
             return new EmptyLogin(null);
@@ -104,9 +84,16 @@ namespace SocialPoint.Login
 
         ConfigLogin CreateConfigLogin()
         {
+            var config = Container.Resolve<ConfigLoginEnvironment>();
+
+            if(config == null)
+            {
+                throw new Exception("ConfigLogin configuration is required for ConfigLogin");
+            }
+
             return new ConfigLogin(
                 Container.Resolve<IHttpClient>(), 
-                Settings.ConfigManagerEndPoint);
+                config.Endpoint);
         }
 
         SocialPointLogin CreateLogin()
