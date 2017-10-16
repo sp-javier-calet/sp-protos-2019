@@ -130,8 +130,6 @@ namespace SocialPoint.Login
         public const bool DefaultAutoUpdateFriends = true;
         public const uint DefaultAutoUpdateFriendsPhotoSize = 0;
         public const uint DefaultUserMappingsBlock = 50;
-        public const string DefaultGameID = "ssp";
-        public const string DefaultGameEnvironment = "ssp1";
 
         public const string LoadExternalSourceHost = "load-external-user";
         public const string SourceParamEnvironment = "envurl";

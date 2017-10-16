@@ -137,7 +137,7 @@ namespace SocialPoint.Login
                     string errorString = parser.Parse(resp.Body).ToString();
                     errData.SetValue(SocialPointLogin.AttrKeySignature, errorString);
                     ErrorEvent(ErrorType.GameDataParse, err, errData);
-                    Log.e("Error: "+ err.Code + " Message: "+ err.Msg+ " Signature: "+errorString);
+                    Log.e("Error: " + err.Code + " Message: " + err.Msg + " Signature: " + errorString);
                 }
             }
             else
@@ -196,7 +196,6 @@ namespace SocialPoint.Login
             Init();
             SetBaseUrl(baseUri);
             _httpClient = client;
-
         }
 
         void Init()
