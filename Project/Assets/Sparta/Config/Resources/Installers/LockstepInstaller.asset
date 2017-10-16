@@ -11,18 +11,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2cf418e947a445e2917c28d24e7af8b, type: 3}
   m_Name: LockstepInstaller
   m_EditorClassIdentifier: 
-  _isGlobal: 0
+  _isGlobal: 1
   Settings:
     Config:
       SimulationStepDuration: 10
       CommandStepDuration: 100
       MaxSkippedEmptyTurns: 0
     ServerConfig:
-      MaxPlayers: 2
+      MaxPlayers: 1
       ClientStartDelay: 3000
       ClientSimulationDelay: 1000
+      MatchEndedWithoutConfirmationTimeout: 10
+      FinishOnClientDisconnection: 1
+      MetricSendInterval: 10000
+      AllowMatchStartWithOnePlayerReady: 0
+      MatchmakingEnabled: 0
     ClientConfig:
       LocalSimulationDelay: 1000
       MaxSimulationStepsPerFrame: 0
       SpeedFactor: 1
+      RecoverGracefully: 1
+      GracefulTurnReceptionDurationFactor: 1.1
+      TurnReceptionDurationAverageSize: 10
     RunLocalServerClient: 1

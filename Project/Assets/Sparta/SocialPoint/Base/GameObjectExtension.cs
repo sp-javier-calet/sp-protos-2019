@@ -282,7 +282,7 @@ namespace SocialPoint.Base
             {
                 if(children[index] != gameObject.transform)
                 {
-                    GameObject.Destroy(children[index].gameObject);
+                    UnityEngine.Object.Destroy(children[index].gameObject);
                 }
             }
         }
@@ -336,42 +336,15 @@ namespace SocialPoint.Base
             return component;
         }
 
-        public static T AddIfNeededComponent<T>(this GameObject target) where T : Component
+        public static void DestroyAnyway(this GameObject gameObject)
         {
-            T component = target.GetComponent<T>();
-            if(component == null)
+            if(!Application.isPlaying)
             {
-                component = target.AddComponent<T>();
-            }
-            return component;
-        }
-    }
-}
-
-public static class GameObjectExtension
-{
-    public static void SetActiveSafe(this GameObject target, bool value)
-    {
-        if(target.activeSelf != value)
-            target.SetActive(value);
-    }
-
-    public static T FindObjectOfTypeRecursiveUp<T>(this GameObject target)
-    {
-        T obj = target.GetComponent<T>();
-        if(obj != null)
-        {
-            return obj;
-        }
-        else
-        {
-            if(target.transform.parent != null)
-            {
-                return FindObjectOfTypeRecursiveUp<T>(target.transform.parent.gameObject);
+                UnityEngine.Object.DestroyImmediate(gameObject);
             }
             else
             {
-                return default(T);
+                UnityEngine.Object.Destroy(gameObject);
             }
         }
     }

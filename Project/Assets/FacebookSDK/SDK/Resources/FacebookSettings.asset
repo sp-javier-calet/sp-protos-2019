@@ -8,10 +8,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 25d16bd96ce334bc4b521072c4441caa, type: 3}
+  m_Script: {fileID: -2115301841, guid: b96583fe9d2614f3081becbbd70cd55f, type: 3}
   m_Name: FacebookSettings
   m_EditorClassIdentifier: 
   selectedAppIndex: 0
+  clientTokens:
+  - 
   appIds:
   - 965032093546412
   appLabels:

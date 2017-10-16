@@ -19,9 +19,17 @@ namespace SocialPoint.GUIControl
             Destroyed
         }
 
+        /// <summary>
+        ///     To check if the UI View is full screen.
+        /// </summary>
+        public bool IsFullScreen = true;
+
         public static event Action<UIViewController> AwakeEvent;
         public event Action<UIViewController, ViewState> ViewEvent;
         public event Action<UIViewController, GameObject> InstantiateEvent;
+
+        public UIViewAnimation ShowAnimation;
+        public UIViewAnimation HideAnimation;
 
         bool _loaded;
         ViewState _viewState = ViewState.Initial;
@@ -433,7 +441,7 @@ namespace SocialPoint.GUIControl
 
         virtual protected void OnAwake()
         {
-            
+
         }
 
         virtual protected void OnStart()
@@ -468,6 +476,7 @@ namespace SocialPoint.GUIControl
             {
                 ParentController = FindParentController();
             }
+
             if(transform.parent == null)
             {
                 if(ParentController != null)
@@ -483,6 +492,7 @@ namespace SocialPoint.GUIControl
             {
                 return null;
             }
+
             GameObject parent = transform.parent.gameObject;
             while(parent != null)
             {
@@ -588,11 +598,11 @@ namespace SocialPoint.GUIControl
             CheckDestroyOnHide(destroy);
         }
 
-        public bool Hide(bool destroy = false)
+        public bool Hide()
         {
             DebugLog("Hide");
             Load();
-            var enm = DoHideCoroutine(destroy);
+            var enm = DoHideCoroutine();
             if(enm != null)
             {
                 StartHideCoroutine(enm);
@@ -601,14 +611,14 @@ namespace SocialPoint.GUIControl
             return false;
         }
 
-        public IEnumerator HideCoroutine(bool destroy = false)
+        public IEnumerator HideCoroutine()
         {
             DebugLog("HideCoroutine");
             Load();
-            yield return StartHideCoroutine(DoHideCoroutine(destroy));
+            yield return StartHideCoroutine(DoHideCoroutine());
         }
 
-        IEnumerator DoHideCoroutine(bool destroy)
+        IEnumerator DoHideCoroutine()
         {
             if(_viewState == ViewState.Initial || _viewState == ViewState.Hidden)
             {
@@ -616,12 +626,11 @@ namespace SocialPoint.GUIControl
             }
             else if(_viewState == ViewState.Disappearing && _hideCoroutine != null)
             {
-                DestroyOnHide |= destroy;
                 yield return _hideCoroutine;
             }
             else if(_viewState != ViewState.Hidden)
             {
-                var enm = FullDisappear(destroy);
+                var enm = FullDisappear(DestroyOnHide);
                 while(enm.MoveNext())
                 {
                     yield return enm.Current;
@@ -642,9 +651,9 @@ namespace SocialPoint.GUIControl
         {
             DebugLog("OnAppearing");
             _viewState = ViewState.Appearing;
-#if !NGUI
+            #if !NGUI
             AddLayers();
-#endif
+            #endif
             NotifyViewEvent();
         }
 
@@ -705,7 +714,7 @@ namespace SocialPoint.GUIControl
                 NotifyViewEvent();
             }
         }
-
+            
         virtual protected void OnDisappearing()
         {
             DebugLog("OnDisappearing");
@@ -749,7 +758,11 @@ namespace SocialPoint.GUIControl
         virtual protected void Disable()
         {
             DebugLog("Disable");
-            gameObject.SetActive(false);
+
+            if(this != null && gameObject != null)
+            {
+                gameObject.SetActive(false);
+            }
         }
 
         virtual protected void OnDisappeared()
@@ -762,7 +775,7 @@ namespace SocialPoint.GUIControl
 
         protected GameObject Instantiate(GameObject proto)
         {
-            var go = GameObject.Instantiate(proto);
+            var go = UnityEngine.Object.Instantiate(proto);
             if(InstantiateEvent != null)
             {
                 InstantiateEvent(this, go);
@@ -777,5 +790,19 @@ namespace SocialPoint.GUIControl
         virtual public void OnNoMorePopupsInView()
         {
         }
+            
+        virtual public bool OnBeforeClose()
+        {
+            return IsStable; 
+        }
+
+        #region public UI button methods
+
+        public void Close()
+        {
+            Hide();
+        }
+
+        #endregion
     }
 }

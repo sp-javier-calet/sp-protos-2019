@@ -1025,7 +1025,7 @@ namespace SocialPoint.Crash
             appEvents.ReceivedMemoryWarning += OnMemoryWarning;
             appEvents.WillGoBackground.Add(0, OnWillGoBackground);
             appEvents.WasOnBackground.Add(0, OnWillGoForeground);
-            appEvents.LevelWasLoaded += OnLevelWasLoaded;
+            SceneManager.sceneLoaded += OnSceneLoaded;
             appEvents.ApplicationQuit += OnApplicationQuit;
             appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
         }
@@ -1035,7 +1035,7 @@ namespace SocialPoint.Crash
             appEvents.ReceivedMemoryWarning -= OnMemoryWarning;
             appEvents.WillGoBackground.Remove(OnWillGoBackground);
             appEvents.WasOnBackground.Remove(OnWillGoForeground);
-            appEvents.LevelWasLoaded -= OnLevelWasLoaded;
+            SceneManager.sceneLoaded -= OnSceneLoaded;
             appEvents.ApplicationQuit -= OnApplicationQuit;
             appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
         }
@@ -1050,7 +1050,7 @@ namespace SocialPoint.Crash
             _breadcrumbManager.DumpToFile();
         }
 
-        void OnLevelWasLoaded(int level)
+        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             ClearUniqueExceptions();
         }

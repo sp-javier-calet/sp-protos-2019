@@ -20,3 +20,4 @@ MonoBehaviour:
     UserLevelUntilPrompt: 20
     MaxPromptsPerDay: -1
     PromptAfterBackground: 1
+    NativeRateDialog: 1

@@ -73,7 +73,6 @@ public sealed class MaintenanceModePopupController : UIViewController
             {
                 SignatureLabel.gameObject.SetActive(!string.IsNullOrEmpty(value));
                 SignatureLabel.text = value;
-
             }
         }
     }

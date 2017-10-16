@@ -1,4 +1,5 @@
-﻿namespace SocialPoint.Utils
+﻿
+namespace SocialPoint.Utils
 {
     public class EmptyNativeUtils : INativeUtils
     {
@@ -15,8 +16,24 @@
         {
         }
 
-        public void OpenUrl(string url)
+        public void OpenUpgrade()
         {
+        }
+
+        public void OpenReview()
+        {
+        }
+
+        public void DisplayReviewDialog()
+        {
+        }
+
+        public virtual bool SupportsReviewDialog
+        {
+            get
+            {
+                return false;
+            }
         }
 
         public bool UserAllowNotification
@@ -26,5 +43,8 @@
                 return false;
             }
         }
+            
+        public ShortcutItem[] ShortcutItems{ get; set; }
+
     }
 }

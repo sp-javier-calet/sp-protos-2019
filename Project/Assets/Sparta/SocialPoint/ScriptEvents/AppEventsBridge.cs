@@ -192,7 +192,6 @@ namespace SocialPoint.ScriptEvents
             _appEvents.WasCovered += OnWasCovered;
             _appEvents.OpenedFromSource += OnOpenedFromSource;
             _appEvents.ApplicationQuit += OnApplicationQuit;
-            _appEvents.LevelWasLoaded += OnLevelWasLoaded;
             _appEvents.ReceivedMemoryWarning += OnReceivedMemoryWarning;
         }
 
@@ -224,7 +223,6 @@ namespace SocialPoint.ScriptEvents
             _appEvents.WasCovered -= OnWasCovered;
             _appEvents.OpenedFromSource -= OnOpenedFromSource;
             _appEvents.ApplicationQuit -= OnApplicationQuit;
-            _appEvents.LevelWasLoaded -= OnLevelWasLoaded;
             _appEvents.ReceivedMemoryWarning -= OnReceivedMemoryWarning;
         }
 
@@ -319,18 +317,6 @@ namespace SocialPoint.ScriptEvents
             }
             _dispatcher.Raise(new AppQuitEvent());
         }
-
-        void OnLevelWasLoaded(int level)
-        {
-            if(_dispatcher == null)
-            {
-                return;
-            }
-            _dispatcher.Raise(new AppLevelWasLoadedEvent {
-                Level = level
-            });
-        }
-
     }
 
 }

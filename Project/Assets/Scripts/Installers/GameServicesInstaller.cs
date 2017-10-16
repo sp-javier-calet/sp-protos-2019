@@ -51,7 +51,10 @@ public class GameServicesInstaller : Installer
 
     GameCrossPromotionManager CreateManager()
     {
-        return new GameCrossPromotionManager(Container.Resolve<ICoroutineRunner>(), Container.Resolve<PopupsController>());
+        return new GameCrossPromotionManager(
+            Container.Resolve<ICoroutineRunner>(),
+            Container.Resolve<INativeUtils>(),
+            Container.Resolve<PopupsController>());
     }
 
     void SetupManager(GameCrossPromotionManager manager)

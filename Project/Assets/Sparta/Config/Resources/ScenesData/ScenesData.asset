@@ -14,12 +14,7 @@ MonoBehaviour:
   _scenesNames:
   - IntroAnimation
   - LoadingScene
-  - Restart
+  - BaseLoadingScene
   - MainScene
   - BaseMainScene
-  - CAMain
-  - EndBattleScreen
-  - BattleArena
-  - Empty
-  - AuthoritativeBattleScene
-  - AuthoritativeBattleScene_Dark
+  - LockstepScene

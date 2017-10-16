@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using System.IO;
 using System.Collections;
@@ -71,6 +71,7 @@ namespace SocialPoint.Network
 
         const string LoggerNameConfig = "LoggerName";
         const string PluginNameConfig = "PluginName";
+        const string AssetsPathConfig = "AssetsPath";
         const string StatsServerEnabled = "StatsServerEnabled";
         const string AssetsPathConfig = "AssetsPath";
 
@@ -121,7 +122,7 @@ namespace SocialPoint.Network
             }
             string configStr;
             string assetsPath;
-            if(config.TryGetValue(PluginNameConfig, out configStr))
+            if (config.TryGetValue(PluginNameConfig, out configStr))
             {
                 _pluginName = configStr;
             }
@@ -129,7 +130,15 @@ namespace SocialPoint.Network
             {
                 _log = LogManager.GetLogger(configStr);
             }
-            if(config.TryGetValue(StatsServerEnabled, out configStr))
+            if (config.TryGetValue(AssetsPathConfig, out configStr))
+            {
+                assetsPath = configStr;
+            }
+            else
+            {
+                assetsPath = Path.GetDirectoryName(GetType().Assembly.Location);
+            }
+            if (config.TryGetValue(StatsServerEnabled, out configStr))
             {
                 _statsServerEnabled = configStr.Equals("true") ? true : false;
                 if(_statsServerEnabled)
@@ -418,7 +427,8 @@ namespace SocialPoint.Network
 
         protected virtual void Update()
         {
-            _updateScheduler.Update((float)UpdateInterval/1000.0f);
+            float deltaTime = (float)UpdateInterval / 1000.0f;
+            _updateScheduler.Update(deltaTime, deltaTime);
         }
 
         void BroadcastError(Error err)

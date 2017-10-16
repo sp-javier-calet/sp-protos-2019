@@ -13,32 +13,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    EnableViewLocalization: 1
+    UseAlwaysDeviceLanguage: 1
     Localization:
-      ProjectId: ca
-      EnvironmentsData:
-      - EnvironmentType: 0
-        Id: prod
-        SecretKey: Lk00s3jrs7rj29TN
-      - EnvironmentType: 1
-        Id: prod
-        SecretKey: Lk00s3jrs7rj29TN
-      - EnvironmentType: 2
-        Id: dev
-        SecretKey: vjKcf9HIq0jN5Xf0
-      - EnvironmentType: 3
-        Id: loc
-        SecretKey: jXX4Jk5vTEjdbZbr
-      - EnvironmentType: 4
-        Id: dev
-        SecretKey: vjKcf9HIq0jN5Xf0
-      SecretKeyDev: vjKcf9HIq0jN5Xf0
-      SecretKeyLoc: jXX4Jk5vTEjdbZbr
-      SecretKeyProd: Lk00s3jrs7rj29TN
+      Environment: 0
+      ProjectId: lod
+      SecretKeyDev: AE7ffBEUZXNzfTe0
+      SecretKeyLoc: AE7ffBEUZXNzfTe0
+      SecretKeyProd: GpfC4F40mwkX0jBX
       BundleDir: localization
-      CsvMode: 1
-      ShowKeysOnDevMode: 1
+      CsvMode: 2
+      ShowKeysOnDevMode: 0
       SupportedLanguages:
       - en
       - es
+      - pt
+      - fr
       Timeout: 20

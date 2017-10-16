@@ -1,27 +1,24 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIControl
 {
     public sealed class UIViewControllerFactory
     {
         public delegate UIViewController Delegate();
-
         public delegate UIViewController DefaultDelegate(Type t);
-
         public delegate string PrefabDelegate();
-
         public delegate string DefaultPrefabDelegate(Type t);
-
         public delegate void DestructorDelegate(UIViewController view);
 
-        private IDictionary<Type, Delegate> _creators = new Dictionary<Type,Delegate>();
-        private IDictionary<Type, PrefabDelegate> _prefabCreators = new Dictionary<Type,PrefabDelegate>();
-        private DefaultDelegate _defaultCreator;
-        private DefaultPrefabDelegate _defaultPrefabCreator;
-        private UIViewControllerFactory _parent;
-        private DestructorDelegate _destructor;
+        IDictionary<Type, Delegate> _creators = new Dictionary<Type,Delegate>();
+        IDictionary<Type, PrefabDelegate> _prefabCreators = new Dictionary<Type,PrefabDelegate>();
+        DefaultDelegate _defaultCreator;
+        DefaultPrefabDelegate _defaultPrefabCreator;
+        UIViewControllerFactory _parent;
+        DestructorDelegate _destructor;
 
         public UIViewControllerFactory(UIViewControllerFactory parent=null)
         {
@@ -75,23 +72,23 @@ namespace SocialPoint.GUIControl
             return (C)Create(typeof(C), name);
         }
         
-        private static UIViewController CreateFromResource(string prefab)
+        static UIViewController CreateFromResource(string prefab)
         {
             var robj = Resources.Load(prefab);
             if(robj != null)
             {
-                var go = (GameObject)GameObject.Instantiate(robj);
+                var go = UnityEngine.Object.Instantiate(robj) as GameObject;
                 return go.GetComponent<UIViewController>();
             }
             return null;
         }
 
-        private static UIViewController CreateFromResource(Type c, string prefab)
+        static UIViewController CreateFromResource(Type c, string prefab)
         {
             var robj = Resources.Load(prefab);
             if(robj != null)
             {
-                var go = (GameObject)GameObject.Instantiate(robj);
+                var go = UnityEngine.Object.Instantiate(robj) as GameObject;
                 return (UIViewController)go.GetComponent(c);
             }
             return null;
@@ -114,6 +111,7 @@ namespace SocialPoint.GUIControl
         {
             UIViewController ctrl = null;
             string prefab = null;
+
             if(ctrl == null)
             {
                 Delegate creator = null;
@@ -122,6 +120,7 @@ namespace SocialPoint.GUIControl
                     ctrl = creator();
                 }
             }
+
             if(ctrl == null)
             {
                 if(_defaultCreator != null)
@@ -129,6 +128,7 @@ namespace SocialPoint.GUIControl
                     ctrl = _defaultCreator(c);
                 }
             }
+
             if(ctrl == null)
             {
                 PrefabDelegate prefabCreator = null;
@@ -138,6 +138,7 @@ namespace SocialPoint.GUIControl
                     ctrl = CreateFromResource(prefab);
                 }
             }
+
             if(ctrl == null)
             {
                 if(_defaultPrefabCreator != null)
@@ -146,10 +147,11 @@ namespace SocialPoint.GUIControl
                     ctrl = CreateFromResource(prefab);
                 }
             }
+
             return CreateEnd(c, prefab, ctrl);
         }
 
-        private UIViewController CreateEnd(Type c, string prefab, UIViewController ctrl)
+        UIViewController CreateEnd(Type c, string prefab, UIViewController ctrl)
         {
             if(ctrl == null)
             {
@@ -160,8 +162,7 @@ namespace SocialPoint.GUIControl
             }
             if(ctrl == null)
             {
-                throw new MissingComponentException(string.Format(
-                    "Could not find controller for type {0} and prefab {1}.", c, prefab)); 
+                throw new MissingComponentException(string.Format("Could not find controller for type {0} and prefab {1}.", c, prefab)); 
             }
             if(prefab != null)
             {
@@ -183,7 +184,10 @@ namespace SocialPoint.GUIControl
             }
             else
             {
-                GameObject.Destroy(view.gameObject);
+                if(view != null && view.gameObject != null)
+                {
+                    view.gameObject.DestroyAnyway();
+                }
             }
         }
     }

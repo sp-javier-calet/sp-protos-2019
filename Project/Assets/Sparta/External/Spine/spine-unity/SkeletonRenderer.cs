@@ -37,7 +37,7 @@ using UnityEngine;
 namespace Spine.Unity {
 	/// <summary>Renders a skeleton.</summary>
 	[ExecuteInEditMode, RequireComponent(typeof(MeshFilter), typeof(MeshRenderer)), DisallowMultipleComponent]
-	[HelpURL("http://esotericsoftware.com/spine-unity-documentation#Rendering")]
+	[HelpURLAttribute("http://esotericsoftware.com/spine-unity-documentation#Rendering")]
 	public class SkeletonRenderer : MonoBehaviour, ISkeletonComponent {
 
 		public delegate void SkeletonRendererDelegate (SkeletonRenderer skeletonRenderer);

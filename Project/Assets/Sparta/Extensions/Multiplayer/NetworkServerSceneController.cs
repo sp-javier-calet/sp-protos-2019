@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SocialPoint.IO;
 using SocialPoint.Network;
@@ -142,21 +142,17 @@ namespace SocialPoint.Multiplayer
         public Action<Network.ServerEvents.Log, bool> SendLog { get; set; }
         public Action<string, AttrDic, ErrorDelegate> SendTrack { get; set; }
 
-        public NetworkServerSceneController(INetworkServer server, IGameTime gameTime = null, bool restart = false)
+        public NetworkServerSceneController(INetworkServer server, IGameTime gameTime = null)
         {
-            ServerConfig = new NetworkServerConfig();
-            _server = server;
-            Paused = false;
             GameTime = gameTime;
             if(GameTime == null)
             {
                 _gameTime = new GameTime();
                 GameTime = _gameTime;
             }
-            if(restart)
-            {
-                Restart(server);
-            }
+
+            _sceneDisposer = new ActionUpdater(DisposeScenes, 0.2f);
+            Restart(server);
         }
 
         void OnObjectRemoved(NetworkGameObject go)
@@ -225,10 +221,16 @@ namespace SocialPoint.Multiplayer
 
         public void Restart(INetworkServer server)
         {
+            if(_server != null)
+            {
+                _server.RemoveDelegate(this);
+            }
+            UnregisterAllBehaviours();
             _server = server;
             Paused = false;
             GameTime.Scale = 1f;
-            UnregisterAllBehaviours();
+            _server.AddDelegate(this);
+            _server.RegisterReceiver(this);
 
             _scene = new NetworkScene(Context);
             _prevScene = (NetworkScene)_scene.DeepClone();

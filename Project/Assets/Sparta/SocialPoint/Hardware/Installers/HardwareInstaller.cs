@@ -1,6 +1,8 @@
 ﻿using System;
 using SocialPoint.Dependency;
 using SocialPoint.Hardware;
+using SocialPoint.Utils;
+using SocialPoint.Login;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -31,9 +33,46 @@ namespace SocialPoint.Hardware
             Container.Rebind<IAppInfo>().ToGetter<IDeviceInfo>(x => x.AppInfo);
             Container.Rebind<INetworkInfo>().ToGetter<IDeviceInfo>(x => x.NetworkInfo);
 
+            #if UNITY_ANDROID && !UNITY_EDITOR
+            Container.Rebind<INativeUtils>().ToMethod<AndroidNativeUtils>(CreateAndroidNativeUtils);
+            #elif (UNITY_IOS || UNITY_TVOS) && !UNITY_EDITOR
+            Container.Rebind<INativeUtils>().ToMethod<IosNativeUtils>(CreateIosNativeUtils);
+            #elif UNITY_EDITOR
+            Container.Rebind<INativeUtils>().ToMethod<UnityNativeUtils>(CreateUnityNativeUtils);
+            #else
+            Container.Rebind<INativeUtils>().ToMethod<EmptyNativeUtils>(CreateEmptyNativeUtils);
+            #endif
+
+
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelHardware>(CreateAdminPanel);
             #endif
+        }
+
+        IosNativeUtils CreateIosNativeUtils()
+        {
+            return new IosNativeUtils(
+                Container.Resolve<IAppInfo>()
+            );
+        }
+
+        AndroidNativeUtils CreateAndroidNativeUtils()
+        {
+            return new AndroidNativeUtils(
+                Container.Resolve<IAppInfo>()
+            );
+        }
+
+        UnityNativeUtils CreateUnityNativeUtils()
+        {
+            return new UnityNativeUtils(
+                Container.Resolve<IAppInfo>()
+            );
+        }
+
+        EmptyNativeUtils CreateEmptyNativeUtils()
+        {
+            return new EmptyNativeUtils();
         }
 
         SocialPointDeviceInfo CreateDeviceInfo()

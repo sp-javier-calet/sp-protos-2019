@@ -37,7 +37,7 @@ public sealed class SocialPointAppsFlyer : IMarketingTracker
             AppsFlyer.loadConversionData("AppsFlyerTrackerCallbacks");
             #endif
         }
-        
+
         /* We set AppsFlyer key here (and not on Init) because it triggers a trackAppLaunch on Android,
          * and we enclose our trackAppLaunch call inside the iOS ifdef because of that reason.
          * (It was happening with v4.14 of the Unity Plugin)

@@ -109,7 +109,7 @@ namespace SocialPoint.Lockstep
             turn.AddCommand(data);
         }
 
-        void OnTurnApplied(ClientTurnData turn)
+        void OnTurnApplied(ClientTurnData turn, int processTime)
         {
             if(_config == null)
             {

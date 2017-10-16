@@ -69,7 +69,7 @@ public class AdminPanelButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
         {
             if(_adminPanelController && _adminPanelController.AdminPanel.Visible)
             {
-                _adminPanelController.Hide(false);
+                _adminPanelController.Hide();
             }
         }
         //

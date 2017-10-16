@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
@@ -107,6 +108,8 @@ namespace SocialPoint.Dependency
                 }
             }
             gameObject.RemoveChildren();
+
+            SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 
         #region Singleton and Monobehaviour events
@@ -115,6 +118,7 @@ namespace SocialPoint.Dependency
         {
             base.SingletonAwakened();
             CheckInitialization();
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         protected override void SingletonStarted()
@@ -123,7 +127,7 @@ namespace SocialPoint.Dependency
             Initialize();
         }
 
-        void OnLevelWasLoaded(int level)
+        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             // After a Clear, wait to Initialize in a scene with a DependencyConfigurer.
             if(!_requiresGlobalInstall)

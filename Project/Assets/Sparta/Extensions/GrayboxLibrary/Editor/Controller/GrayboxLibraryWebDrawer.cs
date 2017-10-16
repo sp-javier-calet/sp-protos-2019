@@ -37,11 +37,18 @@ namespace SocialPoint.GrayboxLibrary
             Assembly[] assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
             foreach(Assembly assembly in assemblies)
             {
-                Type[] types = assembly.GetTypes();
-                foreach(Type type in types)
+                try
                 {
-                    if(type.Name.Equals(typeName, StringComparison.CurrentCultureIgnoreCase) || type.Name.Contains('+' + typeName)) //+ check forinline classes
-                        return type;
+                    Type[] types = assembly.GetTypes();
+                    foreach(Type type in types)
+                    {
+                        if(type.Name.Equals(typeName, StringComparison.CurrentCultureIgnoreCase) || type.Name.Contains('+' + typeName)) //+ check forinline classes
+                            return type;
+                    }
+                }
+                catch(ReflectionTypeLoadException e)
+                {
+                    Debug.LogWarning(e.Message);
                 }
             }
             return null;

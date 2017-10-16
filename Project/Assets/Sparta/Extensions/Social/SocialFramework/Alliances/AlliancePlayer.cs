@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Utils;
 
@@ -252,7 +252,7 @@ namespace SocialPoint.Social
 
     public class AllianceJoinRequestComponent : SocialPlayer.IComponent
     {
-        public string Timestamp{ get; private set;}
+        public string Timestamp{ get; private set; }
 
         public AllianceJoinRequestComponent(string timestamp)
         {
@@ -262,9 +262,8 @@ namespace SocialPoint.Social
         public override string ToString()
         {
             var builder = StringUtils.StartBuilder();
-            builder
-                .AppendLine("AllianceJoinRequestComponent:")
-                .Append("\tTimestamp: ").AppendLine(Timestamp);
+            builder.AppendLine("AllianceJoinRequestComponent:")
+                   .Append("\tTimestamp: ").AppendLine(Timestamp);
             return StringUtils.FinishBuilder(builder);
         }
     }
@@ -272,7 +271,7 @@ namespace SocialPoint.Social
     public class AllianceJoinRequestComponentFactory : SocialPlayerFactory.IFactory
     {
         const string ComponentKey = "alliance_join_request";
-
+        
         const string TimestampKey = "timestamp";
 
         public SocialPlayer.IComponent CreateElement(AttrDic dic)
@@ -285,15 +284,14 @@ namespace SocialPoint.Social
         public void SerializeElement(SocialPlayer player, AttrDic dic)
         {
             var component = player.GetComponent<AllianceJoinRequestComponent>();
-
+            
             if(component == null)
             {
                 return;
             }
-
+            
             AttrDic requestDic = new AttrDic();
             requestDic.SetValue(TimestampKey, component.Timestamp);
         }
-
     }
 }

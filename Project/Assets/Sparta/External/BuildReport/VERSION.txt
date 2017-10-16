@@ -1,4 +1,130 @@
-﻿Version 3.0.4
+Version 3.3
+- NEW: Added option to change the number of items in the Top Largest Assets in the Overview screen. You can set it to 0 to disable it.
+- CHANGE: The checkbox for selection of assets in the Used/Unused Assets List screens are replaced with a ping button.
+  Now, clicking on the asset will select it. You can use ctrl+click to toggle selection,
+  and shift+click to select from previously selected up to the current one.
+- FIX: Fixed bug with Top Largest Assets not showing the same file size as in the Used/Unused Assets List screens.
+
+
+Version 3.2.4
+- FIX: Fixed error when filename is empty for Built-in Texture2D assets.
+- FIX: Fixed error with some percentage values being over 100%
+
+
+Version 3.2.3
+- FIX: Fixed compatibility with Unity 5.6.0p3
+
+
+Version 3.2.2
+- NEW: Added option to show calculated size of used assets instead of the reported size from the build log,
+  as workaround for the Unity bug: https://issuetracker.unity3d.com/issues/unity-reports-incorrect-textures-size-in-the-editor-dot-log-after-building-on-standalone
+  Note: The bug has been fixed in Unity 2017.1, 5.5.3p1 and 5.6.0p1. This option is included for users who can't update to using those new versions.
+- FIX: Fixed compatibility with Unity 2017.1 beta 2.
+- FIX: Fixed report generation when percentage is missing in the build log.
+- FIX: Percentage for all used assets is now calculated properly.
+- FIX: Resources assets that are inside an Editor subfolder are now no longer mistakenly marked as used assets.
+- CHANGE: Streaming Assets is now included in the table for sizes.
+
+
+Version 3.2.1
+- FIX: Threaded file loading is now optional, and turned off by default.
+
+
+Version 3.2
+- NEW: Options are now saved to an XML file named "BuildReportToolOptions.xml". By default this file is saved inside the BuildReport folder, but can be moved to, and will be recognized at certain paths: at the topmost Assets folder, outside the topmost Assets folder, in the project's ProjectSettings folder, and in the user's My Documents (inside where Build Report XML files are saved). This is in prioritized order, so even if there is an options file in the My Documents folder, if there is also one in the project folder, it will use the one in the project folder instead.
+
+
+Version 3.1.2
+- FIX: Fixed syntax errors in Unity 5.4
+
+
+Version 3.1.1
+- FIX: Added compatibility for Unity 5.6.0b4
+- FIX: Got rid of syntax errors when user has their own class named Path.
+
+
+Version 3.1
+- FIX: Added compatibility for Unity 5.5.0f2
+- NEW: Used and Unused Asset Lists now have search textfields
+
+
+Version 3.0.21
+- FIX: Disabled fix for "Resources" assets size for Unity 5.2.1 (and greater) since Unity fixed it now.
+
+
+Version 3.0.20
+- FIX: Removed unneeded "Recalc Imported Size" button in Used Assets list.
+- FIX: Fixed file size of Resources assets in Used Assets list.
+
+
+Version 3.0.19
+- FIX: Got rid of warnings in Unity 5.3.1
+- FIX: Added compatibility for Unity 5.4.0b15
+
+
+Version 3.0.18
+- FIX: Fixed exception if the last known build path is an empty string (happens when build was created using BuildPipeline.BuildPlayer)
+
+
+Version 3.0.17
+- FIX: Added fix for null error when generating a report with minimal info.
+- FIX: Added fix for bug when getting stuck on the "Getting values..." message.
+- FIX: Removed compilation warnings.
+
+
+Version 3.0.16
+- FIX: Fixed bug where file size for Script DLLs sometimes do not show up.
+- FIX: Fixed bug where code could not find build path of a Linux build.
+- FIX: Fixed bug where code could not determine what platform the build was being made for if it was changed.
+- FIX: Fixed a syntax error when using Build Report Tool on Unity 5.2.1 and below.
+- FIX: Fixed bug where size for the .unity3d file for WebPlayer build was not showing.
+- EDT: Build Size displayed now also indicates the path of the build folder.
+
+
+Version 3.0.15
+- FIX: Fixed bug where assets in Resources folder are not taken into account in the Used Assets list and the Size Assets table.
+
+
+Version 3.0.14
+- FIX: Added compatibility for Unity 5.3
+- FIX: Fixed compatibility with Unity 4.6.5
+- FIX: Fixed bug where report generation could not determine the build type.
+- FIX: Fixed bug where texture size was not showing in size stats screen.
+
+
+Version 3.0.13
+- FIX: Added compatibility for Unity 5.2.1
+
+
+Version 3.0.12
+- FIX: Added fix for report not being created if user is building for iOS without Xcode present.
+
+
+Version 3.0.11
+- FIX: Fixed bug when project is using Multiplatform Toolkit (naming conflict with AspectRatio)
+
+
+Version 3.0.10
+- FIX: Added fix for error of getting aspect ratios used in project settings.
+
+
+Version 3.0.9
+- FIX: Updated build settings shown to be compatible for Unity 5.
+
+
+Version 3.0.8
+- FIX: Fixed small glitch in GUI skin for popup widgets.
+
+
+Version 3.0.7
+- FIX: Fixed code so Settings class is always referred to by its fully qualified name, to prevent code conflicts with user code.
+
+
+Version 3.0.6
+- FIX: Removed automatic correction for Euro symbol in build report xml files since it was causing a syntax error in computers using an East Asian language setting.
+
+
+Version 3.0.4
 - FIX: Ensured no resolution conflict for the BuildReportTool.Window.Settings class.
 
 

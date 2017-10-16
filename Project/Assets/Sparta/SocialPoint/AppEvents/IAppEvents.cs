@@ -1,5 +1,4 @@
 using System;
-using SocialPoint.Base;
 using SocialPoint.Utils;
 using UnityEngine.SceneManagement;
 
@@ -52,11 +51,6 @@ namespace SocialPoint.AppEvents
         /// Occurs when application quits.
         /// </summary>
         event Action ApplicationQuit;
-
-        /// <summary>
-        /// Occurs when level is loaded non additive.
-        /// </summary>
-        event Action<int> LevelWasLoaded;
 
         /// <summary>
         /// The source info
@@ -115,18 +109,19 @@ namespace SocialPoint.AppEvents
 
         public static bool QuitGame(this IAppEvents events)
         {
-            bool movedToBackground = false;
-
             #if UNITY_ANDROID && !UNITY_EDITOR
-            movedToBackground = SocialPoint.Base.AndroidContext.CurrentActivity.Call<bool>("moveTaskToBack", true);
+            return SocialPoint.Base.AndroidContext.CurrentActivity.Call<bool>("moveTaskToBack", true);
+            #else
+            return false;
             #endif
-
-            return movedToBackground;
         }
 
         public static void KillGame(this IAppEvents events)
         {
-#if UNITY_ANDROID && !UNITY_EDITOR
+            
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#elif UNITY_ANDROID
             events.TriggerApplicationQuit();
             try
             {
@@ -135,7 +130,7 @@ namespace SocialPoint.AppEvents
             }
             catch(Exception)
             {
-                Log.w("finishAndRemoveTask not available");
+                SocialPoint.Base.Log.w("finishAndRemoveTask not available");
             }
 
             System.Diagnostics.Process.GetCurrentProcess().Kill();

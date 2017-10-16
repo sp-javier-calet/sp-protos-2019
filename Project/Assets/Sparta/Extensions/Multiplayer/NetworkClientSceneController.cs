@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SocialPoint.IO;
 using SocialPoint.Network;
@@ -324,6 +324,7 @@ namespace SocialPoint.Multiplayer
 
         public void RegisterSceneParser<T>(byte type, IDiffReadParser<T> parser) where T : INetworkSceneBehaviour, ICopyable
         {
+            SocialPoint.Base.Log.d("Registering parser of type " + typeof(T));
             _parser.RegisterSceneBehaviour<T>(type, parser);
         }
 

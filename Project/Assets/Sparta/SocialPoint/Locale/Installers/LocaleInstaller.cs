@@ -9,6 +9,7 @@ using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
 using SocialPoint.Base;
 using UnityEngine;
+using SocialPoint.Attributes;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -16,7 +17,7 @@ using SocialPoint.AdminPanel;
 
 namespace SocialPoint.Locale
 {
-    public sealed class LocaleInstaller : ServiceInstaller, IInitializable
+    public sealed class LocaleInstaller : ServiceInstaller
     {
         [Serializable]
         public struct EnvironmentData
@@ -29,7 +30,7 @@ namespace SocialPoint.Locale
         [Serializable]
         public class SettingsData
         {
-            public bool EnableViewLocalization = true;
+            public bool UseAlwaysDeviceLanguage = true;
             public LocalizationSettings Localization;
         }
 
@@ -52,31 +53,18 @@ namespace SocialPoint.Locale
 
         public override void InstallBindings()
         {
-            Container.Bind<IInitializable>().ToInstance(this);
+            Container.Bind<bool>("use_always_device_language").ToInstance(Settings.UseAlwaysDeviceLanguage);
+
             Container.Bind<Localization>().ToGetter<ILocalizationManager>(mng => mng.Localization);
-
             Container.Rebind<LocalizeAttributeConfiguration>().ToMethod<LocalizeAttributeConfiguration>(CreateLocalizeAttributeConfiguration);
-
-            Container.Rebind<UILocalizationUpdater>().ToMethod<UILocalizationUpdater>(CreateViewLocalizer);
-            Container.Bind<IDisposable>().ToLookup<UILocalizationUpdater>();
-
             Container.Rebind<ILocalizationManager>().ToMethod<LocalizationManager>(CreateLocalizationManager, SetupLocalizationManager);
             Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
-
 
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLocale>(CreateAdminPanel);
             #endif
         }
-
-        public void Initialize()
-        {
-            if(Settings.EnableViewLocalization)
-            {
-                Container.Resolve<UILocalizationUpdater>();
-            }
-        }
-
+            
         LocalizeAttributeConfiguration CreateLocalizeAttributeConfiguration()
         {
             return new LocalizeAttributeConfiguration(
@@ -92,23 +80,23 @@ namespace SocialPoint.Locale
         }
         #endif
 
-        UILocalizationUpdater CreateViewLocalizer()
-        {
-            return new UILocalizationUpdater(
-                Container.Resolve<LocalizeAttributeConfiguration>(),
-                Container.Resolve<IEventDispatcher>());
-        }
-
         LocalizationManager CreateLocalizationManager()
         {
-            LocalizationManager.CsvForNGUILoadedDelegate csvLoadedDelegate = null;
-
             #if NGUI
+            LocalizationManager.CsvForNGUILoadedDelegate csvLoadedDelegate = null;
             csvLoadedDelegate = new LocalizationManager.CsvForNGUILoadedDelegate(LoadNGUICSV);
             #endif
 
+            IAttrStorage storage = Container.Resolve<IAttrStorage>(kPersistentTag);
 
-            return new LocalizationManager(Settings.Localization.CsvMode, csvLoadedDelegate);
+            #if NGUI
+                LocalizationManager localizationManager = new LocalizationManager(Settings.Localization.CsvMode, csvLoadedDelegate);
+            #else
+                LocalizationManager localizationManager = new LocalizationManager(storage);
+            #endif
+            localizationManager.UseAlwaysDeviceLanguage = Settings.UseAlwaysDeviceLanguage;
+
+            return localizationManager;
         }
 
         #if NGUI

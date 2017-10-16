@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.IO;
 using SocialPoint.Utils;
+using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
 
 namespace SocialPoint.Network
 {
@@ -350,6 +350,7 @@ namespace SocialPoint.Network
                 PhotonNetwork.SendMonoMessageTargets.Remove(this.gameObject);
             }
         }
+
 
         RoomOptions PhotonRoomOptions
         {

@@ -24,7 +24,7 @@ namespace SocialPoint.Locale
             var environments = Substitute.For<IBackendEnvironment>();
             environments.Environments.Returns(new Environment[]{ new Environment { Name = "Production", Url = string.Empty, Type = EnvironmentType.Production}});
 
-            LocalizationManager = new LocalizationManager(LocalizationManager.CsvMode.WriteCsvWithAllSupportedLanguages, null);
+            LocalizationManager = new LocalizationManager(null);
             LocalizationManager.HttpClient = HttpClient;
             LocalizationManager.AppInfo = DeviceInfo.AppInfo;
             LocalizationManager.BackendEnvironments = environments;
