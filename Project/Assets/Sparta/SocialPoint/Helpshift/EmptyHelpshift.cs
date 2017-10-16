@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using SocialPoint.Attributes;
 
 namespace SocialPoint.Helpshift
 {
@@ -52,6 +53,11 @@ namespace SocialPoint.Helpshift
         public void OpenFromPush(string issueId)
         {
             
+        }
+
+        public void AddFlows(AttrDic flows)
+        {
+
         }
 
         public int PendingNotificationsCount

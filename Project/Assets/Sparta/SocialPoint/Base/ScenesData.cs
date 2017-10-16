@@ -14,11 +14,14 @@ namespace SocialPoint.Base
 
     public class ScenesData : ScriptableObject
     {
+        const string FolderName = "ScenesData/";
         const string FileName = "ScenesData";
-        const string FileExtension = ".asset";
-        const string ContainerPath = "Assets/Sparta/Config/ScenesData/Resources/";
 
-        const string ScenesDataAssetPath = ContainerPath + FileName + FileExtension;
+        #if UNITY_EDITOR
+        const string FileExtension = ".asset";
+        static readonly string ContainerPath = ConfigPaths.SpartaConfigResourcesPath + FolderName;
+        static readonly string AssetFullPath = ContainerPath + FileName + FileExtension;
+        #endif
 
         static ScenesData _instance;
 
@@ -29,21 +32,14 @@ namespace SocialPoint.Base
                 return GetInstance();
             }
         }
-
-        #if UNITY_EDITOR
-        static ScenesData()
-        {
-            #if !UNITY_5_4_OR_NEWER
-            GetInstance();
-            #endif
-        }
-        #else
+            
+        #if !UNITY_EDITOR
         void OnEnable()
         {
             GetInstance();
         }
         #endif
-        #if UNITY_5_4_OR_NEWER && UNITY_EDITOR
+        #if UNITY_EDITOR
         [InitializeOnLoadMethod]
         #endif
         static ScenesData GetInstance()
@@ -51,9 +47,9 @@ namespace SocialPoint.Base
             if(_instance == null)
             {
                 #if UNITY_EDITOR
-                _instance = AssetDatabase.LoadAssetAtPath<ScenesData>(ScenesDataAssetPath);
+                _instance = AssetDatabase.LoadAssetAtPath<ScenesData>(AssetFullPath);
                 #else
-                _instance = Resources.Load(FileName) as ScenesData;
+                _instance = Resources.Load<ScenesData>(FolderName + FileName);
                 #endif
 
                 if(_instance == null)
@@ -81,8 +77,12 @@ namespace SocialPoint.Base
                 Directory.CreateDirectory(ContainerPath);
             }
 
-            AssetDatabase.CreateAsset(Instance, ScenesDataAssetPath);
-            AssetDatabase.SaveAssets();
+            if(!File.Exists(AssetFullPath))
+            {
+                string assetPath = AssetDatabase.GenerateUniqueAssetPath(AssetFullPath);
+                AssetDatabase.CreateAsset(_instance, assetPath);
+                AssetDatabase.SaveAssets();
+            }
         }
 
         static public void UpdateData()
@@ -105,19 +105,19 @@ namespace SocialPoint.Base
                     namesList.Add(sceneName);
                 }
             }
-
-            Instance._scenesNames = namesList.ToArray();
+                
+            _instance._scenesNames = namesList.ToArray();
         }
 
         static void UpdateAsset()
         {
-            EditorUtility.SetDirty(Instance);
+            EditorUtility.SetDirty(_instance);
         }
 
         #endif
 
         [SerializeField]
-        string[] _scenesNames = new string[0];
+        string[] _scenesNames;
 
         public string[] ScenesNames
         {

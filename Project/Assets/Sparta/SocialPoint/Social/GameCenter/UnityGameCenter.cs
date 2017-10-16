@@ -61,7 +61,7 @@ namespace SocialPoint.Social
         void OnLoginEnd(Error err, ErrorDelegate cbk = null)
         {
             _connecting = false;
-            NotifyStateChanged();
+            
             if(!Error.IsNullOrEmpty(err))
             {
                 #if !UNITY_EDITOR
@@ -73,6 +73,7 @@ namespace SocialPoint.Social
                 _connected = true;
             }
 
+            NotifyStateChanged();
             if(cbk != null)
             {
                 cbk(err);

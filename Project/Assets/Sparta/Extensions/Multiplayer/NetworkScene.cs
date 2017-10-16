@@ -45,9 +45,10 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class NetworkScene : IEquatable<NetworkScene>, ICloneable, INetworkBehaviourProvider
+    public class NetworkScene : IEquatable<NetworkScene>, ICloneable, INetworkBehaviourProvider, IDisposable
     {
         NetworkSceneContext _context = null;
+
         public NetworkSceneContext Context
         {
             get
@@ -61,17 +62,14 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public List<SyncGroupSettings> SyncGroupSettings = new List<SyncGroupSettings>();
         public Dictionary<int, NetworkGameObject> SyncObjects = new Dictionary<int, NetworkGameObject>();
-        public List<SyncGroup> SyncGroups = new List<SyncGroup>();
-        public int SelectedSyncGroupId = -1;
+
         Dictionary<int, NetworkGameObject> _objects = new Dictionary<int, NetworkGameObject>();
+
         public int FreeObjectId{ get; private set; }
 
         public Action<NetworkGameObject> OnObjectAdded;
         public Action<NetworkGameObject> OnObjectRemoved;
-
-        public bool InmediateUpdate;
 
         public int ObjectsCount
         {
@@ -91,6 +89,10 @@ namespace SocialPoint.Multiplayer
 
         public INetworkBehaviourContainer Behaviours{ get; protected set; }
 
+        public NetworkBehaviourContainer<INetworkSceneBehaviour> TypedBehaviours{ get; protected set; }
+
+        protected NetworkBehaviourContainerObserver<INetworkSceneBehaviour> _behaviourObserver;
+
         const int InitialObjectId = 1;
 
         public NetworkScene(NetworkSceneContext context)
@@ -98,28 +100,15 @@ namespace SocialPoint.Multiplayer
             Context = context;
             _objects.Clear();
             SyncObjects.Clear();
-            SyncGroups.Clear();
 
             FreeObjectId = InitialObjectId;
+
+            TypedBehaviours = Context.Pool.Get<NetworkBehaviourContainer<INetworkSceneBehaviour>>();
+            Behaviours = TypedBehaviours;
+            _behaviourObserver = Context.Pool.Get<NetworkBehaviourContainerObserver<INetworkSceneBehaviour>>().Init(TypedBehaviours);
         }
 
-        public void SetSyncGroupSettings(List<SyncGroupSettings> syncGroupSettings)
-        {
-            SyncGroupSettings = syncGroupSettings;
-            CreateSyncGroups();
-        }
-
-        void CreateSyncGroups()
-        {
-            SyncGroups.Clear();
-            for(int i = 0; i < SyncGroupSettings.Count; ++i)
-            {
-                var settings = SyncGroupSettings[i];
-                SyncGroups.Add(new SyncGroup { Settings = settings });
-            }
-        }
-
-        public virtual void Copy(NetworkScene other, NetworkGameObject.PairOperation customObjectCopy = null)
+        public virtual void Copy(NetworkScene other, NetworkGameObject.PairOperation newObjectCopy = null, NetworkGameObject.PairOperation customObjectCopy = null)
         {
             Context = other.Context;
             {
@@ -132,7 +121,12 @@ namespace SocialPoint.Multiplayer
                     if(myGo == null)
                     {
                         //New object
-                        AddObject((NetworkGameObject)go.Clone());
+                        var myNewGo = (NetworkGameObject)go.Clone();
+                        AddObject(myNewGo);
+                        if(newObjectCopy != null)
+                        {
+                            newObjectCopy(go, myNewGo);
+                        }
                     }
                     else
                     {
@@ -206,6 +200,8 @@ namespace SocialPoint.Multiplayer
                 itr.Dispose();
                 Context.Pool.Return(tmp);
             }
+
+            TypedBehaviours.Copy(other.TypedBehaviours);
         }
 
         protected void AddClonedObjectsFromScene(NetworkScene other)
@@ -222,9 +218,11 @@ namespace SocialPoint.Multiplayer
 
         public virtual Object Clone()
         {
-            var scene = Context.Pool.Get<NetworkScene>();
+            var scene = new NetworkScene(Context);
             scene.Context = Context;
             scene.AddClonedObjectsFromScene(this);
+            scene.Behaviours = Behaviours;
+            scene.TypedBehaviours = TypedBehaviours;
             return scene;
         }
 
@@ -242,23 +240,43 @@ namespace SocialPoint.Multiplayer
 
         public virtual Object DeepClone()
         {
-            var scene = Context.Pool.Get<NetworkScene>();
+            var scene = new NetworkScene(Context);
             scene.Context = Context;
             scene.AddDeeplyClonedObjectsFromScene(this);
+            scene.TypedBehaviours = (NetworkBehaviourContainer<INetworkSceneBehaviour>)TypedBehaviours.Clone();
+            scene.Behaviours = scene.TypedBehaviours;
             return scene;
         }
 
         public virtual void Dispose()
         {
-            OnObjectAdded = null;
-            OnObjectRemoved = null;
-
             var objectsEnum = _objects.GetEnumerator();
             while(objectsEnum.MoveNext())
             {
+                if(objectsEnum.Current.Value == null)
+                {
+                    continue;
+                }
                 objectsEnum.Current.Value.Dispose();
             }
             objectsEnum.Dispose();
+
+            if(TypedBehaviours != null)
+            {
+                TypedBehaviours.Dispose();
+                TypedBehaviours = null;
+            }
+
+            if(Behaviours != null)
+            {
+                Behaviours.Dispose();
+                Behaviours = null;
+            }
+
+            OnObjectAdded = null;
+            OnObjectRemoved = null;
+
+            _behaviourObserver.Clear();
 
             Clear();
 
@@ -269,7 +287,6 @@ namespace SocialPoint.Multiplayer
         {            
             _objects.Clear();
             SyncObjects.Clear();
-            CreateSyncGroups();
             FreeObjectId = InitialObjectId;
         }
 
@@ -293,33 +310,29 @@ namespace SocialPoint.Multiplayer
             {
                 OnObjectAdded(obj);
             }
-            if(obj.IsServerGameObject)
-            {
-                AddObjectInSyncGroup(obj);
-            }
-        }
 
-        public void AddObjectInSyncGroup(NetworkGameObject obj)
-        {
-            InmediateUpdate = true;
-            for(int i = 0; i < SyncGroups.Count; ++i)
+            var tmp = Context.Pool.Get<List<INetworkSceneBehaviour>>();
+            var itr = TypedBehaviours.GetEnumerator(tmp);
+            while(itr.MoveNext())
             {
-                SyncGroups[i].RemoveObject(obj.Id);
-            }
+                var current = itr.Current;
+                if(current == null)
+                {
+                    continue;
+                }
 
-            SyncGroups[obj.SyncGroup].AddObject(obj);
+                current.OnInstantiateObject(obj);
+            }
+            Context.Pool.Return(tmp);
+            itr.Dispose();
         }
 
         public virtual bool RemoveObject(int id)
         {
             var go = FindObject(id);
+            bool removed = false;
             if(go != null)
             {
-                for(int i = 0; i < SyncGroups.Count; ++i)
-                {
-                    SyncGroups[i].RemoveObject(id);
-                }
-
                 _objects.Remove(id);
                 SyncObjects.Remove(id);
                 go.Invalidate();
@@ -327,10 +340,30 @@ namespace SocialPoint.Multiplayer
                 {
                     OnObjectRemoved(go);
                 }
-                return true;
+                removed = true;
             }
-            //TODO: Find a way to reuse ids?
-            return false;
+
+            if(!removed)
+            {
+                //TODO: Find a way to reuse ids?
+                return false;
+            }
+
+            var tmp = Context.Pool.Get<List<INetworkSceneBehaviour>>();
+            var itr = TypedBehaviours.GetEnumerator(tmp);
+            while(itr.MoveNext())
+            {
+                var current = itr.Current;
+                if(current == null)
+                {
+                    continue;
+                }
+
+                current.OnDestroyObject(id);
+            }
+            Context.Pool.Return(tmp);
+            itr.Dispose();
+            return true;
         }
 
         public NetworkGameObject FindObject(int id)
@@ -344,6 +377,11 @@ namespace SocialPoint.Multiplayer
             return null;
         }
 
+        public Dictionary<int, NetworkGameObject>.ValueCollection.Enumerator GetObjectEnumerator()
+        {
+            return _objects.Values.GetEnumerator();
+        }
+
         public List<NetworkGameObject>.Enumerator GetObjectEnumerator(List<NetworkGameObject> result)
         {
             result.Clear();
@@ -354,16 +392,7 @@ namespace SocialPoint.Multiplayer
         public List<NetworkGameObject>.Enumerator GetSyncObjectEnumerator(List<NetworkGameObject> result)
         {
             result.Clear();
-            if(SelectedSyncGroupId < 0 || SyncGroups.Count == 0)
-            {
-                result.AddRange(SyncObjects.Values);
-            }
-            else
-            {
-                var selectedGroup = SyncGroups[SelectedSyncGroupId];
-                result.AddRange(selectedGroup.Objects.Values);
-            }
-
+            result.AddRange(SyncObjects.Values);
             return result.GetEnumerator();
         }
 
@@ -450,50 +479,8 @@ namespace SocialPoint.Multiplayer
         {
             return !(a == b);
         }
-    }
 
-    public class NetworkScene<B> : NetworkScene where B : class, INetworkSceneBehaviour
-    {
-        public NetworkBehaviourContainer<B> TypedBehaviours{ get; protected set; }
-
-        protected NetworkBehaviourContainerObserver<B> _behaviourObserver;
-
-        public NetworkScene(NetworkSceneContext context) : base(context)
-        {
-            TypedBehaviours = Context.Pool.Get<NetworkBehaviourContainer<B>>().Init(Context);
-            Behaviours = TypedBehaviours;
-            _behaviourObserver = Context.Pool.Get<NetworkBehaviourContainerObserver<B>>().Init(TypedBehaviours);
-        }
-
-        public override object Clone()
-        {
-            var scene = new NetworkScene<B>(Context);
-            scene.AddClonedObjectsFromScene(this);
-            scene.Behaviours = Behaviours;
-            scene.TypedBehaviours = TypedBehaviours;
-            return scene;
-        }
-
-        public override object DeepClone()
-        {
-            var scene = new NetworkScene<B>(Context);
-            scene.AddDeeplyClonedObjectsFromScene(this);
-            scene.TypedBehaviours = (NetworkBehaviourContainer<B>)TypedBehaviours.Clone();
-            scene.Behaviours = scene.TypedBehaviours;
-            return scene;
-        }
-
-        public override void DeepCopy(NetworkScene other)
-        {
-            base.DeepCopy(other);
-            var bscene = other as NetworkScene<B>;
-            if(bscene != null)
-            {
-                TypedBehaviours.Copy(bscene.TypedBehaviours);
-            }
-        }
-
-        public void AddBehaviour(B behaviour)
+        public void AddBehaviour(INetworkSceneBehaviour behaviour)
         {
             TypedBehaviours.Add(behaviour);
         }
@@ -503,22 +490,21 @@ namespace SocialPoint.Multiplayer
             return TypedBehaviours.Get<T>();
         }
 
-        public void AddBehaviours(IEnumerable<B> behaviours)
+        public void AddBehaviours(IEnumerable<INetworkSceneBehaviour> behaviours)
         {
             TypedBehaviours.Add(behaviours);
         }
 
         public void Update(float dt)
         {
-            for(int i = 0; i < SyncGroups.Count; ++i)
-            {
-                SyncGroups[i].Update(dt);
-            }
-            
-            var tmp = Context.Pool.Get<List<B>>();
+            var tmp = Context.Pool.Get<List<INetworkSceneBehaviour>>();
             var itr = TypedBehaviours.GetEnumerator(tmp);
             while(itr.MoveNext())
             {
+                if(itr.Current == null)
+                {
+                    continue;
+                }
                 itr.Current.Update(dt);
             }
             Context.Pool.Return(tmp);
@@ -542,56 +528,24 @@ namespace SocialPoint.Multiplayer
             _behaviourObserver.Clear();
         }
 
-        protected virtual void OnBehaviourAdded(B behaviour)
+        protected virtual void OnBehaviourAdded(INetworkSceneBehaviour behaviour)
         {
             behaviour.OnStart();
         }
 
-        protected virtual void OnBehaviourRemoved(B behaviour)
+        protected virtual void OnBehaviourRemoved(INetworkSceneBehaviour behaviour)
         {
             behaviour.OnDestroy();
         }
-
-        public override void AddObject(NetworkGameObject go)
-        {
-            base.AddObject(go);
-            var tmp = Context.Pool.Get<List<B>>();
-            var itr = TypedBehaviours.GetEnumerator(tmp);
-            while(itr.MoveNext())
-            {
-                itr.Current.OnInstantiateObject(go);
-            }
-            Context.Pool.Return(tmp);
-            itr.Dispose();
-        }
-
-        public override bool RemoveObject(int objectId)
-        {
-            if(!base.RemoveObject(objectId))
-            {
-                return false;
-            }
-            var tmp = Context.Pool.Get<List<B>>();
-            var itr = TypedBehaviours.GetEnumerator(tmp);
-            while(itr.MoveNext())
-            {
-                itr.Current.OnDestroyObject(objectId);
-            }
-            Context.Pool.Return(tmp);
-            itr.Dispose();
-            return true;
-        }
     }
 
-    public interface INetworkSceneBehaviour
+    public interface INetworkSceneBehaviour : IDisposable, IDeltaUpdateable
     {
         NetworkScene Scene { set; }
 
         void OnStart();
 
         void OnDestroy();
-
-        void Update(float dt);
 
         void OnInstantiateObject(NetworkGameObject go);
 
@@ -600,18 +554,42 @@ namespace SocialPoint.Multiplayer
 
     public class NetworkSceneSerializer : IDiffWriteSerializer<NetworkScene>
     {
-        IDiffWriteSerializer<NetworkGameObject> _objectSerializer;
+        NetworkSceneContext _context = null;
 
-        public NetworkSceneSerializer(IDiffWriteSerializer<NetworkGameObject> objectSerializer = null)
+        public NetworkSceneContext Context
         {
-            if(objectSerializer == null)
+            get
             {
-                objectSerializer = new NetworkGameObjectSerializer();
+                SocialPoint.Base.DebugUtils.Assert(_context != null);
+                return _context;
             }
-            _objectSerializer = objectSerializer;
+            set
+            {
+                _context = value;
+            }
         }
 
-        public void Compare(NetworkScene newScene, NetworkScene oldScene, Bitset dirty)
+        readonly NetworkBehaviourContainerSerializer<INetworkSceneBehaviour> _behaviourSerializer;
+        readonly NetworkGameObjectSerializer _objectSerializer;
+
+        public NetworkSceneSerializer(NetworkSceneContext context, NetworkGameObjectSerializer objectSerializer = null)
+        {
+            Context = context;
+            _objectSerializer = objectSerializer ?? new NetworkGameObjectSerializer(context);
+            _behaviourSerializer = new NetworkBehaviourContainerSerializer<INetworkSceneBehaviour>();
+        }
+
+        public void RegisterSceneBehaviour<T>(byte type, IDiffWriteSerializer<T> serializer) where T : INetworkSceneBehaviour
+        {
+            _behaviourSerializer.Register(type, serializer);
+        }
+
+        public void RegisterObjectBehaviour<T>(byte type, IDiffWriteSerializer<T> parser) where T : INetworkBehaviour
+        {
+            _objectSerializer.RegisterBehaviour(type, parser);
+        }
+
+        public void Compare(NetworkScene newObj, NetworkScene oldObj, Bitset dirty)
         {
         }
 
@@ -627,12 +605,13 @@ namespace SocialPoint.Multiplayer
             }
             itr.Dispose();
             newScene.Context.Pool.Return(tmp);
+
+            _behaviourSerializer.Serialize(newScene.TypedBehaviours, writer);
         }
 
         public void Serialize(NetworkScene newScene, NetworkScene oldScene, IWriter writer, Bitset dirty)
         {
-            var syncGroup = newScene.SelectedSyncGroupId >= 0 ? newScene.SyncGroups[newScene.SelectedSyncGroupId] : null;
-            var syncObjects = syncGroup != null ? syncGroup.Objects : newScene.SyncObjects;
+            var syncObjects = newScene.SyncObjects;
 
             // write changes
             writer.Write(syncObjects.Values.Count);
@@ -672,67 +651,7 @@ namespace SocialPoint.Multiplayer
             {
                 writer.Write(removed[i]);
             }
-
-            // restart sync group
-            if(syncGroup != null)
-            {
-                syncGroup.ResetTimer();
-            }
-        }
-    }
-
-    public class NetworkSceneSerializer<Behaviour> : IDiffWriteSerializer<NetworkScene<Behaviour>> where Behaviour : class, INetworkSceneBehaviour
-    {
-        NetworkSceneContext _context = null;
-        public NetworkSceneContext Context
-        {
-            get
-            {
-                SocialPoint.Base.DebugUtils.Assert(_context != null);
-                return _context;
-            }
-            set
-            {
-                _context = value;
-            }
-        }
-
-        NetworkSceneSerializer _sceneSerializer;
-        NetworkBehaviourContainerSerializer<Behaviour> _behaviourSerializer;
-        NetworkGameObjectSerializer<INetworkBehaviour> _objectSerializer;
-
-        public NetworkSceneSerializer(NetworkSceneContext context, NetworkGameObjectSerializer<INetworkBehaviour> objectSerializer = null)
-        {
-            Context = context;
-            _objectSerializer = objectSerializer ?? new NetworkGameObjectSerializer<INetworkBehaviour>(context);
-            _sceneSerializer = new NetworkSceneSerializer(_objectSerializer);
-            _behaviourSerializer = new NetworkBehaviourContainerSerializer<Behaviour>();
-        }
-
-        public void RegisterSceneBehaviour<T>(byte type, IDiffWriteSerializer<T> serializer) where T : Behaviour
-        {
-            _behaviourSerializer.Register(type, serializer);
-        }
-
-        public void RegisterObjectBehaviour<T>(byte type, IDiffWriteSerializer<T> parser) where T : INetworkBehaviour
-        {
-            _objectSerializer.RegisterBehaviour(type, parser);
-        }
-
-        public void Compare(NetworkScene<Behaviour> newObj, NetworkScene<Behaviour> oldObj, Bitset dirty)
-        {
-        }
-
-        public void Serialize(NetworkScene<Behaviour> newObj, IWriter writer)
-        {
-            _sceneSerializer.Serialize(newObj, writer);
-            _behaviourSerializer.Serialize(newObj.TypedBehaviours, writer);
-        }
-
-        public void Serialize(NetworkScene<Behaviour> newObj, NetworkScene<Behaviour> oldObj, IWriter writer, Bitset dirty)
-        {
-            _sceneSerializer.Serialize(newObj, oldObj, writer);
-            _behaviourSerializer.Serialize(newObj.TypedBehaviours, oldObj.TypedBehaviours, writer);
+            _behaviourSerializer.Serialize(newScene.TypedBehaviours, oldScene.TypedBehaviours, writer);
         }
     }
 
@@ -741,6 +660,7 @@ namespace SocialPoint.Multiplayer
     public class NetworkSceneParser : IDiffReadParser<NetworkScene>
     {
         NetworkSceneContext _context = null;
+
         public NetworkSceneContext Context
         {
             get
@@ -755,17 +675,38 @@ namespace SocialPoint.Multiplayer
         }
 
         NetworkSceneFactoryDelegate _factory;
-        IDiffReadParser<NetworkGameObject> _objectParser;
 
-        public NetworkSceneParser(NetworkSceneContext context, IDiffReadParser<NetworkGameObject> objectParser = null, NetworkSceneFactoryDelegate factory = null)
+        readonly NetworkBehaviourContainerParser<INetworkSceneBehaviour> _behaviourParser;
+        readonly NetworkGameObjectParser _objectParser;
+
+        public NetworkSceneParser(NetworkSceneContext context, NetworkGameObjectParser objectParser = null, NetworkSceneFactoryDelegate factory = null)
         {
             Context = context;
-            if(objectParser == null)
-            {
-                objectParser = new NetworkGameObjectParser(Context);
-            }
+            _objectParser = objectParser ?? new NetworkGameObjectParser(Context, CreateObject);
+            _behaviourParser = new NetworkBehaviourContainerParser<INetworkSceneBehaviour>();
             _factory = factory;
-            _objectParser = objectParser;
+        }
+    
+        public void RegisterSceneBehaviour<T>(byte type, IDiffReadParser<T> parser) where T : INetworkSceneBehaviour
+        {
+            _behaviourParser.Register(type, parser);
+        }
+
+        public void RegisterObjectBehaviour<T>(byte type, IDiffReadParser<T> parser) where T : INetworkBehaviour
+        {
+            _objectParser.RegisterBehaviour(type, parser);
+        }
+
+        NetworkScene CreateScene()
+        {
+            return new NetworkScene(Context);
+        }
+
+        NetworkGameObject CreateObject(int objId, byte objType)
+        {
+            var obj = Context.Pool.Get<NetworkGameObject>();
+            obj.Init(Context, objId, false, null, objType);
+            return obj;
         }
 
         public int GetDirtyBitsSize(NetworkScene obj)
@@ -775,23 +716,27 @@ namespace SocialPoint.Multiplayer
 
         public NetworkScene Parse(IReader reader)
         {
-            NetworkScene obj = null;
-            if (_factory == null)
+            NetworkScene scene = null;
+            if(_factory == null)
             {
-                obj = new NetworkScene(Context);
+                scene = new NetworkScene(Context);
             }
             else
             {
-                _factory();
+                scene = _factory();
             }
             var c = reader.ReadInt32();
             for(var i = 0; i < c; i++)
             {
                 var go = _objectParser.Parse(reader);
-                obj.AddObject(go);
+                scene.AddObject(go);
             }
-            return obj;
+
+            scene.Context = Context;
+            scene.TypedBehaviours.Copy(_behaviourParser.Parse(reader));
+            return scene;
         }
+
 
         public NetworkScene Parse(NetworkScene scene, IReader reader, Bitset dirty)
         {
@@ -816,81 +761,10 @@ namespace SocialPoint.Multiplayer
                 var id = reader.ReadInt32();
                 scene.RemoveObject(id);
             }
-            return scene;
-        }
-    }
 
-    public class NetworkSceneParser<Behaviour> : IDiffReadParser<NetworkScene<Behaviour>> where Behaviour : class, INetworkSceneBehaviour
-    {
-        NetworkSceneContext _context = null;
-        public NetworkSceneContext Context
-        {
-            get
-            {
-                SocialPoint.Base.DebugUtils.Assert(_context != null);
-                return _context;
-            }
-            set
-            {
-                _context = value;
-            }
-        }
-
-        readonly NetworkSceneParser _sceneParser;
-        readonly NetworkBehaviourContainerParser<Behaviour> _behaviourParser;
-        readonly NetworkGameObjectParser<INetworkBehaviour> _objectParser;
-
-        public NetworkSceneParser(NetworkSceneContext context, NetworkGameObjectParser<INetworkBehaviour> objectParser = null)
-        {
-            Context = context;
-            _objectParser = objectParser ?? new NetworkGameObjectParser<INetworkBehaviour>(Context, CreateObject);
-            _sceneParser = new NetworkSceneParser(Context, _objectParser, CreateScene);
-            _behaviourParser = new NetworkBehaviourContainerParser<Behaviour>(Context);
-        }
-
-        public void RegisterSceneBehaviour<T>(byte type, IDiffReadParser<T> parser) where T : Behaviour
-        {
-            _behaviourParser.Register(type, parser);
-        }
-
-        public void RegisterObjectBehaviour<T>(byte type, IDiffReadParser<T> parser) where T : INetworkBehaviour
-        {
-            _objectParser.RegisterBehaviour(type, parser);
-        }
-
-        NetworkScene CreateScene()
-        {
-            return new NetworkScene<Behaviour>(Context);
-        }
-
-        NetworkGameObject<INetworkBehaviour> CreateObject(int objId, byte objType)
-        {
-            var obj = Context.Pool.Get<NetworkGameObject<INetworkBehaviour>>();
-            obj.Init(Context, objId, false, null, objType);
-            return obj;
-        }
-
-        public NetworkScene<Behaviour> Parse(IReader reader)
-        {
-            var scene = _sceneParser.Parse(reader) as NetworkScene<Behaviour>;
+            _behaviourParser.Parse(scene.TypedBehaviours, reader);
             scene.Context = Context;
-            scene.TypedBehaviours.Copy(_behaviourParser.Parse(reader));
-            scene.TypedBehaviours.Context = Context;
             return scene;
-        }
-
-        public int GetDirtyBitsSize(NetworkScene<Behaviour> obj)
-        {
-            return 0;
-        }
-
-        public NetworkScene<Behaviour> Parse(NetworkScene<Behaviour> obj, IReader reader, Bitset dirty)
-        {
-            _sceneParser.Parse(obj, reader);
-            _behaviourParser.Parse(obj.TypedBehaviours, reader);
-            obj.Context = Context;
-            obj.TypedBehaviours.Context = Context;
-            return obj;
         }
     }
 }

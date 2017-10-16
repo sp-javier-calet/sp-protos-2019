@@ -95,14 +95,23 @@ namespace Spine {
 			return this;
 		}
 
-		private void CheckRange (int idx, int count) {
-			if (idx < 0)
+		public void EnsureCapacity (int min) {
+			if (Items.Length < min) {
+				int newCapacity = Items.Length == 0 ? DefaultCapacity : Items.Length * 2;
+				//if ((uint)newCapacity > Array.MaxArrayLength) newCapacity = Array.MaxArrayLength;
+				if (newCapacity < min) newCapacity = min;
+				Capacity = newCapacity;
+			}
+		}
+
+		private void CheckRange (int index, int count) {
+			if (index < 0)
 				throw new ArgumentOutOfRangeException("index");
 
 			if (count < 0)
 				throw new ArgumentOutOfRangeException("count");
 
-			if ((uint)idx + (uint)count > (uint)Count)
+			if ((uint)index + (uint)count > (uint)Count)
 				throw new ArgumentException("index and count exceed length of list");
 		}
 
@@ -181,6 +190,8 @@ namespace Spine {
 			CheckRange(index, count);
 			Array.Copy(Items, index, array, arrayIndex, count);
 		}
+
+
 
 		public bool Exists (Predicate<T> match) {
 			CheckMatch(match);
@@ -437,6 +448,21 @@ namespace Spine {
 			Shift(index, -1);
 			Array.Clear(Items, Count, 1);
 			version++;
+		}
+
+		// Spine Added Method
+		// Based on Stack<T>.Pop(); https://referencesource.microsoft.com/#mscorlib/system/collections/stack.cs
+		/// <summary>Pops the last item of the list. If the list is empty, Pop throws an InvalidOperationException.</summary>
+		public T Pop () {
+			if (Count == 0)
+				throw new InvalidOperationException("List is empty. Nothing to pop.");
+			
+			int i = Count - 1;
+			T item = Items[i];
+			Items[i] = default(T);
+			Count--;
+			version++;
+			return item;
 		}
 
 		public void RemoveRange (int index, int count) {

@@ -29,12 +29,18 @@ namespace SocialPoint.Exporter
                     _exporterTypes = new List<Type>();
                     foreach(Assembly a in AppDomain.CurrentDomain.GetAssemblies())
                     {
-                        foreach(Type t in a.GetTypes())
+                        try
                         {
-                            if(!t.IsAbstract && typeof(BaseExporter).IsAssignableFrom(t))
+                            foreach(Type t in a.GetTypes())
                             {
-                                _exporterTypes.Add(t);
+                                if(!t.IsAbstract && typeof(BaseExporter).IsAssignableFrom(t))
+                                {
+                                    _exporterTypes.Add(t);
+                                }
                             }
+                        }
+                        catch(Exception e)
+                        {
                         }
                     }
                     _exporterTypes.Sort((x, y) => {

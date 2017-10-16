@@ -15,7 +15,9 @@ namespace SocialPoint.Social
 
         string Type { get; }
 
-        int Members { get; }
+        int MemberCount { get; }
+
+        List<string> Members { get; }
 
         bool Subscribed { get; }
 
@@ -39,7 +41,9 @@ namespace SocialPoint.Social
 
         public ChatManager ChatManager { private get; set; }
 
-        public event Action<int> OnMembersChanged;
+        public event Action<int> OnMembersCountChanged;
+        public event Action<string> OnMemberConnected;
+        public event Action<string> OnMemberDisconnected;
 
         public string Id { get; private set; }
 
@@ -91,21 +95,31 @@ namespace SocialPoint.Social
 
         #endregion
 
-        int _members;
+        int _memberCount;
 
-        public int Members
+        public int MemberCount
         { 
             get
             {
-                return _members;
+                return _memberCount;
             }
             set
             {
-                _members = value;
-                if(OnMembersChanged != null)
+                _memberCount = value;
+                if(OnMembersCountChanged != null)
                 {
-                    OnMembersChanged(_members);
+                    OnMembersCountChanged(_memberCount);
                 }
+            }
+        }
+
+        List<string> _members;
+
+        public List<string> Members
+        {
+            get
+            {
+                return _members;
             }
         }
 
@@ -146,6 +160,7 @@ namespace SocialPoint.Social
             Type = type;
             _factory = new FactoryChatMessages<MessageType>();
             _messages = new ChatMessageList<MessageType>();
+            _members = new List<string>();
         }
 
         public void ParseInitialInfo(AttrDic dic)
@@ -158,7 +173,7 @@ namespace SocialPoint.Social
 
             Id = dic.GetValue(ChatManager.IdTopicKey).ToString();
             Name = dic.GetValue(ChatManager.NameTopicKey).ToString();
-            Members = dic.GetValue(ChatManager.TopicMembersKey).ToInt();
+            CheckMemberConnected(dic.Get(ChatManager.TopicMembersKey).AsList);
         }
 
         public void AddNotificationMessage(int type, AttrDic dic)
@@ -176,7 +191,8 @@ namespace SocialPoint.Social
         {
             if(type == NotificationType.BroadcastAllianceOnlineMember)
             {
-                Members = dic.GetValue(ChatManager.TopicMembersKey).ToInt();
+                AttrList list = dic.Get(ChatManager.TopicMembersKey).AsList;
+                CheckMemberConnected(list);
             }
         }
 
@@ -256,6 +272,47 @@ namespace SocialPoint.Social
                 }
             };
             _messages.Edit(index, editCallback);
+        }
+
+        void CheckMemberConnected(AttrList list)
+        {
+            List<string> newList = new List<string>();
+            for(int i = 0; i < list.Count; i++)
+            {
+                newList.Add(list[i].AsValue.ToString());
+
+                if(!_members.Contains(newList[i])) //Player connected
+                {
+                    MemberConnected(newList[i]);
+                }
+            }
+
+            for(int i = 0; i < _members.Count; i++)
+            {
+                if(!newList.Contains(_members[i])) //Player disconnected
+                {
+                    MemberDisonnected(_members[i]);
+                }
+            }
+
+            _members = newList;
+            MemberCount = list.Count;
+        }
+
+        void MemberConnected(string id)
+        {
+            if(OnMemberConnected != null)
+            {
+                OnMemberConnected(id);
+            }
+        }
+
+        void MemberDisonnected(string id)
+        {
+            if(OnMemberDisconnected != null)
+            {
+                OnMemberDisconnected(id);
+            }
         }
     }
 }

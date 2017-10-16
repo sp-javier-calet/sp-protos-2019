@@ -173,7 +173,7 @@ void CurlClient::setVerbose(bool verbose)
     _verbose = verbose;
 }
 
-CURL* CurlClient::create(CurlRequestInfo& req)
+CURL* CurlClient::create(CurlRequest* req)
 {
     assert(req);
     CURL* curl = curl_easy_init();
@@ -182,31 +182,34 @@ CURL* CurlClient::create(CurlRequestInfo& req)
         return curl;
     }
 
-    std::string url = (req.url + "?" + req.query).c_str();
-
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    assert(req->url);
+    assert(req->query);
+    std::stringstream url;
+    url << req->url << "?" << req->query;
+    curl_easy_setopt(curl, CURLOPT_URL, url.str().c_str());
 
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
     curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
     curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 10);
 
-    if(req.method == "GET")// method
+    assert(req->method);
+    if(strcmp(req->method, "GET") == 0)// method
     {
         curl_easy_setopt(curl, CURLOPT_HTTPGET, 1);
     }
-    else if(req.method == "POST")
+    else if(strcmp(req->method, "POST") == 0)
     {
         curl_easy_setopt(curl, CURLOPT_POST, 1);
     }
-    else if(req.method == "PUT")
+    else if(strcmp(req->method, "PUT") == 0)
     {
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
     }
-    else if(req.method == "DELETE")
+    else if(strcmp(req->method, "DELETE") == 0)
     {
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
     }
-    else if(req.method == "HEAD")
+    else if(strcmp(req->method, "HEAD") == 0)
     {
         curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
     }
@@ -222,9 +225,9 @@ CURL* CurlClient::create(CurlRequestInfo& req)
         curl_easy_setopt(curl, CURLOPT_TIMEOUT, req->timeout);
     }
 
-    if(!req.proxy.empty())
+    if(req->proxy && *req->proxy != '\0')
     {
-        curl_easy_setopt(curl, CURLOPT_PROXY, req.proxy.c_str());
+        curl_easy_setopt(curl, CURLOPT_PROXY, req->proxy);
         curl_easy_setopt(curl, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
     }
 
@@ -241,13 +244,13 @@ CURL* CurlClient::create(CurlRequestInfo& req)
     }
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
 
-    if(!req.body.empty())
+    if(req->body && *req->body != '\0')
     {
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, req.body.c_str());
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, req.body.length());
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, req->body);
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, req->bodyLength);
     }
 
-    if(!req.headers.empty())
+    if(req->headers && *req->headers != '\0')
     {
         std::vector<std::string> headersData = split(req->headers, "\n");
         curl_slist* headers = nullptr;
@@ -275,17 +278,7 @@ bool CurlClient::send(CurlRequest* req)
         return false;
     }
     
-    // Copy request data to c++ managed memory
-    conn.request.url = req.url;
-    conn.request.query = req.query;
-    conn.request.method = req.method;
-    conn.request.proxy = req.proxy;
-    conn.request.headers = req.headers;
-    conn.request.body = std::string((const char*)req.body, req.bodyLength);
-    conn.request.timeout = req.timeout;
-    conn.request.activityTimeout = req.activityTimeout;
-    
-    conn.easy = create(conn.request);
+    conn.easy = create(req);
     if(!conn.easy)
     {
         return false;
@@ -311,7 +304,6 @@ bool CurlClient::send(CurlRequest* req)
     else
     {
         curl_easy_setopt(conn.easy, CURLOPT_WRITEFUNCTION, write_to_string);
-
         curl_easy_setopt(conn.easy, CURLOPT_WRITEDATA, &conn.response.body);
     }
 

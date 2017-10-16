@@ -1,11 +1,11 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System;
-using System.IO;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using SpartaTools.Editor.Build;
 using SpartaTools.Editor.Build.XcodeEditor;
+using UnityEditor;
+using UnityEngine;
 
 namespace SpartaTools.Editor.View
 {
@@ -104,15 +104,25 @@ namespace SpartaTools.Editor.View
             return newStatus;
         }
 
-        void ApplyXcodeMods()
+        void ApplyXcodeMods(bool forceReapply)
         {
+            if(forceReapply)
+            {
+                var accepted = EditorUtility.DisplayDialog("Warning", "This will leave the selected Xcode project corrupted. Use it only for debugging the XcodeMods code", "Continue");
+
+                if(!accepted)
+                {
+                    return;
+                }
+            }
+
             var lastProject = XcodePostprocess.LastProjectPath;
             var path = EditorUtility.OpenFolderPanel("Select Target Project", lastProject, lastProject);
 
             // Check for cancelled popup
             if(!string.IsNullOrEmpty(path))
             {
-                XcodePostprocess.ApplyXcodeMods(_target, path);
+                XcodePostprocess.ApplyXcodeMods(_target, path, forceReapply);
             }
         }
 
@@ -149,9 +159,14 @@ namespace SpartaTools.Editor.View
 
             EditorGUILayout.Space();
 
-            if(GUILayout.Button(new GUIContent("Apply", "Apply XcodeMods to an existing Xcodeproj. Applies Active Schemes configuration."), EditorStyles.toolbarButton))
+            if(GUILayout.Button(new GUIContent("Apply", "Applies XcodeMods to an existing Xcodeproj. Applies Active Schemes configuration."), EditorStyles.toolbarButton))
             {
-                ApplyXcodeMods();
+                ApplyXcodeMods(false);
+            }
+
+            if(GUILayout.Button(new GUIContent("Force Re-apply", "Reapplies XcodeMods to an existing Xcodeproj. Applies Active Schemes configuration. \nImportant: The resulting Project can be corrupted. Use only for debugiing XcodeMods"), EditorStyles.toolbarButton))
+            {
+                ApplyXcodeMods(true);
             }
 
             EditEnabled = GUILayout.Toggle(EditEnabled, new GUIContent("Advanced Mode", "Enables edition mode for project file"), EditorStyles.toolbarButton);
@@ -413,6 +428,35 @@ namespace SpartaTools.Editor.View
             public void AddKeychainAccessGroup(string accessGroup)
             {
                 Add(new ModData("Keychain Access Group", string.Format("{0} in default entitlements file", accessGroup), _currentXcodeMod));
+            }
+
+            public void AddPushNotificationsEntitlement(bool isProduction)
+            {
+                var envName = string.Empty;
+                if(isProduction)
+                {
+                    envName = "production";
+                }
+                else
+                {
+                    envName = "development";
+                }
+
+                Add(new ModData("Push Notifications Environment set to", string.Format("{0} in default entitlements file", envName), _currentXcodeMod));
+            }
+
+            public void AddPushNotificationsEntitlement(string entitlementsFile, bool isProduction)
+            {
+                var envName = string.Empty;
+                if(isProduction)
+                {
+                    envName = "production";
+                }
+                else
+                {
+                    envName = "development";
+                }
+                Add(new ModData("Push Notifications Environment set to", string.Format("{0} in {1}", envName, entitlementsFile), _currentXcodeMod));
             }
 
             public void Commit()

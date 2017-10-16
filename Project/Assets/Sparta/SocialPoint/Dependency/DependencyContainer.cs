@@ -22,14 +22,14 @@ namespace SocialPoint.Dependency
         public DependencyContainer()
         {
             _installed = new List<IInstaller>();
-            _bindings = new Dictionary<BindingKey, List<IBinding>>();
+            _bindings = new Dictionary<BindingKey, List<IBinding>>(new BindingKeyComparer());
             _resolving = new HashSet<IBinding>();
             _resolved = new List<IBinding>();
             var comparer = new ReferenceComparer<IBinding>();
             _instances = new Dictionary<IBinding, HashSet<object>>(comparer);
-            _lookups = new Dictionary<BindingKey, List<IBinding>>();
-            _aliases = new Dictionary<BindingKey, List<BindingKey>>();
-            _listeners = new Dictionary<BindingKey, List<IListener>>();
+            _lookups = new Dictionary<BindingKey, List<IBinding>>(new BindingKeyComparer());
+            _aliases = new Dictionary<BindingKey, List<BindingKey>>(new BindingKeyComparer());
+            _listeners = new Dictionary<BindingKey, List<IListener>>(new BindingKeyComparer());
         }
 
         public void AddBindingWithInstance<T>(IBinding binding, Type type, T instance, string tag = null)

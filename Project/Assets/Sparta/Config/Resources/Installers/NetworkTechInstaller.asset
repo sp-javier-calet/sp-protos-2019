@@ -11,9 +11,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acee8b89a0cb64ef08cd5bf77905240d, type: 3}
   m_Name: NetworkTechInstaller
   m_EditorClassIdentifier: 
-  _isGlobal: 1
+  _isGlobal: 0
   Settings:
-    Tech: 2
+    Tech: 4
+    Local:
+      Client:
+        EmissionDelay:
+          Average: 0
+          Variance: 0
+        ReceptionDelay:
+          Average: 0
+          Variance: 0
+      Server:
+        EmissionDelay:
+          Average: 0
+          Variance: 0
+        ReceptionDelay:
+          Average: 0
+          Variance: 0
     Unet:
       Config:
         ServerAddress: localhost
@@ -21,7 +36,7 @@ MonoBehaviour:
     Photon:
       Config:
         GameVersion: 
-        RoomName: Test
+        RoomName: 
         CreateRoom: 1
         CustomPhotonConfig:
           Enabled: 0
@@ -41,7 +56,7 @@ MonoBehaviour:
           CustomProperties: []
           CustomLobbyProperties: []
           Plugins:
-          - Lockstep
+          - CaAuthoritative
         ForceRegion: 4
         ForceAppId: 
         ForceServer: 

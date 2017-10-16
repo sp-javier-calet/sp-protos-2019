@@ -19,7 +19,7 @@ MonoBehaviour:
     IconTexture: {fileID: 0}
     OverrideIcon: 0
   Common:
-    Flags: 
+    Flags: +DEBUG_SPPURCHASE
     RebuildNativePlugins: 1
     IsDevelopmentBuild: 0
     AppendBuild: 0
@@ -29,14 +29,14 @@ MonoBehaviour:
     EnableDependencyInspection: 0
   Ios:
     BundleIdentifier: 
-    Flags: +NO_GPGS;
+    Flags: 
     XcodeModSchemes: release
     UseEnvironmentProvisioningUuid: 1
-    RemovedResources: 
+    RemovedResources: StreamingAssets/android_etc
   Android:
     BundleIdentifier: 
     Flags: 
-    RemovedResources: 
+    RemovedResources: StreamingAssets/ios
     UseKeystore: 1
     Keystore:
       Path: 

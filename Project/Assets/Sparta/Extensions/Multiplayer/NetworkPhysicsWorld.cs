@@ -12,11 +12,6 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        void INetworkSceneBehaviour.Update(float dt)
-        {
-            base.Update(dt);
-        }
-
         void INetworkSceneBehaviour.OnInstantiateObject(NetworkGameObject go)
         {
         }
@@ -27,6 +22,11 @@ namespace SocialPoint.Multiplayer
 
         void INetworkSceneBehaviour.OnStart()
         {
+        }
+
+        public void Dispose()
+        {
+            
         }
 
         NetworkScene INetworkSceneBehaviour.Scene

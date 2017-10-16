@@ -34,6 +34,30 @@ namespace SocialPoint.Network
             }
         }
 
+        public string Region
+        {
+            get
+            {
+                return PhotonNetwork.networkingPeer.CloudRegion.ToString();
+            }
+        }
+
+        public int TotalDownloadedBytes
+        {
+            get
+            {
+                return PhotonNetwork.networkingPeer.TrafficStatsIncoming.TotalPacketBytes;
+            }
+        }
+
+        public int TotalUploadedBytes
+        {
+            get
+            {
+                return PhotonNetwork.networkingPeer.TrafficStatsOutgoing.TotalPacketBytes;
+            }
+        }
+
         public string BackendEnv;
 
         List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
@@ -101,7 +125,7 @@ namespace SocialPoint.Network
             }
         }
 
-        protected override void OnNetworkError(Error err)
+        internal override void OnNetworkError(Error err)
         {
             for(var i = 0; i < _delegates.Count; i++)
             {
@@ -121,13 +145,36 @@ namespace SocialPoint.Network
             }
         }
 
+        protected override bool IsRecoverableDisconnectCause(DisconnectCause cause)
+        {
+            bool reconnectable = true;
+            switch(cause)
+            {
+            case DisconnectCause.InvalidAuthentication:
+            case DisconnectCause.InvalidRegion:
+            case DisconnectCause.SecurityExceptionOnConnect:
+                reconnectable = false;
+                break;
+            default:
+                break;
+            }
+            return reconnectable;
+        }
+
         public override void SendNetworkMessage(NetworkMessageData info, byte[] data)
         {
-            var cdata = HttpEncoding.Encode(data, HttpEncoding.DefaultBodyCompression);
-            
+            var cdata = HttpEncoding.Encode(data, HttpEncoding.LZ4);
+
             var options = new RaiseEventOptions();
-            var serverId = PhotonNetworkServer.PhotonPlayerId;
-            options.TargetActors = new int[]{ serverId };
+            if(HasLocalPhotonServer)
+            {
+                options.TargetActors = new int[]{ ClientId };
+            }
+            else
+            {
+                var serverId = PhotonNetworkServer.PhotonPlayerId;
+                options.TargetActors = new int[]{ serverId };
+            }
 
             var reliable = PhotonNetwork.PhotonServerSettings.Protocol == ExitGames.Client.Photon.ConnectionProtocol.Tcp && !info.Unreliable;
             PhotonNetwork.RaiseEvent(info.MessageType, cdata, reliable, options);
@@ -136,7 +183,7 @@ namespace SocialPoint.Network
 
         protected override void ProcessOnEventReceived(byte eventcode, object content, int senderid)
         {
-            var cdata = HttpEncoding.Decode((byte[])content, HttpEncoding.DefaultBodyCompression);
+            var cdata = HttpEncoding.Decode((byte[])content, HttpEncoding.LZ4);
 
             byte clientId = 0;
             var serverId = PhotonNetworkServer.PhotonPlayerId;
@@ -146,7 +193,7 @@ namespace SocialPoint.Network
             }
             var info = new NetworkMessageData {
                 MessageType = eventcode,
-                ClientId = clientId
+                ClientIds = new List<byte>(){ clientId }
             };
             var stream = new MemoryStream(cdata);
             var reader = new SystemBinaryReader(stream);

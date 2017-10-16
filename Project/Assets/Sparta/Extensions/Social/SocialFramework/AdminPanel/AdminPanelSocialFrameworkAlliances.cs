@@ -5,7 +5,6 @@ using System.Text;
 using System.Collections.Generic;
 using SocialPoint.AdminPanel;
 using SocialPoint.Base;
-using SocialPoint.WAMP;
 
 namespace SocialPoint.Social
 {
@@ -27,9 +26,9 @@ namespace SocialPoint.Social
             _console = console;
 
             _createPanel = new AdminPanelAllianceCreate(alliances, console);
-            _infoPanel = new AdminPanelAllianceInfo(alliances, playersManager, console);
-            _searchPanel = new AdminPanelAllianceSearch(alliances, playersManager, console);
-            _rankingPanel = new AdminPanelAllianceRanking(alliances, playersManager, console);
+            _infoPanel = new AdminPanelAllianceInfo(alliances, playersManager, socialManager, console);
+            _searchPanel = new AdminPanelAllianceSearch(alliances, playersManager, socialManager, console);
+            _rankingPanel = new AdminPanelAllianceRanking(alliances, playersManager, socialManager, console);
         }
 
         public void OnCreateGUI(AdminPanelLayout layout)
@@ -304,10 +303,10 @@ namespace SocialPoint.Social
             readonly AdminPanelAllianceUserInfo _userPanel;
             readonly AdminPanelAllianceCreate _editPanel;
 
-            public AdminPanelAllianceInfo(AlliancesManager alliances, PlayersManager playersManager, AdminPanelConsole console) : base(alliances, console)
+            public AdminPanelAllianceInfo(AlliancesManager alliances, PlayersManager playersManager, SocialManager socialManager, AdminPanelConsole console) : base(alliances, console)
             {
                 _content = new StringBuilder();
-                _userPanel = new AdminPanelAllianceUserInfo(alliances, playersManager, console);
+                _userPanel = new AdminPanelAllianceUserInfo(alliances, playersManager, socialManager, console);
                 _editPanel = new AdminPanelAllianceCreate(alliances, console);
             }
 
@@ -441,14 +440,17 @@ namespace SocialPoint.Social
         {
             public Alliance Alliance;
             readonly AlliancesManager _alliances;
+            readonly SocialManager _socialManager;
 
-            public AdminPanelAllianceUserInfo(AlliancesManager alliances, PlayersManager playersManager, AdminPanelConsole console) : base(playersManager, console)
+            public AdminPanelAllianceUserInfo(AlliancesManager alliances, PlayersManager playersManager, SocialManager socialManager, AdminPanelConsole console) : base(playersManager, console)
             {
                 _alliances = alliances;
+                _socialManager = socialManager;
             }
 
-            void OnInfoLoaded(AdminPanelLayout layout)
+            protected override void OnInfoLoaded(AdminPanelLayout layout)
             {
+                base.OnInfoLoaded(layout);
                 CreateAllianceActions(layout);
             }
 
@@ -461,28 +463,28 @@ namespace SocialPoint.Social
                     memberRank = _member.GetComponent<AlliancePlayerBasic>().Rank;
                 }
 
+                var rankToPromote = _alliances.Ranks.GetPromotionRank(memberRank);
+                var rankToDemote = _alliances.Ranks.GetDemotionRank(memberRank);
+
                 var ownAlliance = _alliances.GetLocalBasicData();
                 bool isOwnAlliance = ownAlliance.Id == Alliance.Id;
 
-                var hasMemberManagementPermissions = _alliances.Ranks.HasPermission(ownAlliance.Rank, RankPermission.Members);
-                var playerHasHigherRank = hasMemberManagementPermissions && _alliances.Ranks.Compare(memberRank, ownAlliance.Rank) > 0;
+                var hasCandidateManagementPermissions = _alliances.Ranks.HasPermission(ownAlliance.Rank, RankPermission.ManageCandidates);
+                var playerCanPromote = _alliances.Ranks.CanChangeRank(ownAlliance.Rank, memberRank, rankToPromote);
+                var playerCanDemote = _alliances.Ranks.CanChangeRank(ownAlliance.Rank, memberRank, rankToDemote);
+
+                var isOwnUser = memberId == _socialManager.LocalPlayer.Uid;
                 var userIsMember = Alliance.HasMember(memberId);
                 var userIsCandidate = Alliance.HasCandidate(memberId);
-                var rankActionsEnabled = userIsMember && isOwnAlliance;
-                var manageActionsEnabled = userIsCandidate && isOwnAlliance && hasMemberManagementPermissions;
+                var rankActionsEnabled = !isOwnUser && userIsMember && isOwnAlliance;
+                var manageCandidateActionsEnabled = userIsCandidate && isOwnAlliance && hasCandidateManagementPermissions;
 
                 layout.CreateLabel("Actions");
 
                 // Rank actions
-                layout.CreateButton("Promote", () => {
-                    var newRank = _alliances.Ranks.GetPromoted(_member.GetComponent<AlliancePlayerBasic>().Rank);
-                    _alliances.PromoteMember(memberId, newRank, err => OnResponse(layout, err, "Promotion", () => Alliance.SetMemberRank(memberId, newRank)));
-                }, rankActionsEnabled && playerHasHigherRank);
+                layout.CreateButton("Promote", () => _alliances.PromoteMember(memberId, rankToPromote, err => OnResponse(layout, err, "Promotion", () => Alliance.SetMemberRank(memberId, rankToPromote))), rankActionsEnabled && playerCanPromote);
 
-                layout.CreateButton("Demote", () => {
-                    var newRank = _alliances.Ranks.GetDemoted(_member.GetComponent<AlliancePlayerBasic>().Rank);
-                    _alliances.PromoteMember(memberId, newRank, err => OnResponse(layout, err, "Demotion", () => Alliance.SetMemberRank(memberId, newRank)));
-                }, rankActionsEnabled && playerHasHigherRank);
+                layout.CreateButton("Demote", () => _alliances.PromoteMember(memberId, rankToDemote, err => OnResponse(layout, err, "Demotion", () => Alliance.SetMemberRank(memberId, rankToDemote))), rankActionsEnabled && playerCanDemote);
 
                 layout.CreateButton("Kick", 
                     () => _alliances.KickMember(memberId, err => OnResponse(layout, err, "Kick", () => Alliance.RemoveMember(memberId))), 
@@ -491,10 +493,10 @@ namespace SocialPoint.Social
                 // Management actions
                 layout.CreateButton("Accept Request", 
                     () => _alliances.AcceptCandidate(memberId, err => OnResponse(layout, err, "Accept candidate", () => Alliance.AcceptCandidate(memberId))), 
-                    manageActionsEnabled);
+                    manageCandidateActionsEnabled);
                 layout.CreateButton("Decline Request", 
                     () => _alliances.DeclineCandidate(memberId, err => OnResponse(layout, err, "Decline candidate", () => Alliance.RemoveCandidate(memberId))), 
-                    manageActionsEnabled);
+                    manageCandidateActionsEnabled);
             }
 
             void OnResponse(AdminPanelLayout layout, Error err, string action, Action onSuccess)
@@ -519,9 +521,9 @@ namespace SocialPoint.Social
 
             readonly AdminPanelAllianceInfo _infoPanel;
 
-            public AdminPanelAllianceRanking(AlliancesManager alliances, PlayersManager playersManager, AdminPanelConsole console) : base(alliances, console)
+            public AdminPanelAllianceRanking(AlliancesManager alliances, PlayersManager playersManager, SocialManager socialManager, AdminPanelConsole console) : base(alliances, console)
             {
-                _infoPanel = new AdminPanelAllianceInfo(alliances, playersManager, console);
+                _infoPanel = new AdminPanelAllianceInfo(alliances, playersManager, socialManager, console);
             }
 
             public override void OnOpened()
@@ -554,7 +556,7 @@ namespace SocialPoint.Social
                 {
                     if(_wampRequest == null)
                     {
-                        _wampRequest = _alliances.LoadRanking(
+                        _wampRequest = _alliances.LoadRanking(null,
                             (err, ranking) => {
                                 if(Error.IsNullOrEmpty(err))
                                 {
@@ -596,9 +598,9 @@ namespace SocialPoint.Social
 
             readonly AdminPanelAllianceInfo _infoPanel;
 
-            public AdminPanelAllianceSearch(AlliancesManager alliances, PlayersManager playersManager, AdminPanelConsole console) : base(alliances, console)
+            public AdminPanelAllianceSearch(AlliancesManager alliances, PlayersManager playersManager, SocialManager socialManager, AdminPanelConsole console) : base(alliances, console)
             {
-                _infoPanel = new AdminPanelAllianceInfo(alliances, playersManager, console);
+                _infoPanel = new AdminPanelAllianceInfo(alliances, playersManager, socialManager, console);
             }
 
             public override void OnOpened()

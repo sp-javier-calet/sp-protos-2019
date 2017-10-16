@@ -133,5 +133,11 @@ namespace SocialPoint.Utils
 //            return Activator.CreateInstance(t, true);
 //            #endif
         }
+
+        public void Clear()
+        {
+            poolDictionary.Clear();
+            idPoolDictionary.Clear();
+        }
     }
 }

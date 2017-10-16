@@ -13,6 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    EnableAlliances: 1
-    EnableChat: 1
-    EnableMessageSystem: 1
+    Endpoints:
+    - ws://sprocket-00.int.ca.laicosp.net:8002/ws
+    Protocols:
+    - wamp.2.json

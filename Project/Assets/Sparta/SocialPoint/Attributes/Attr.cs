@@ -112,6 +112,13 @@ namespace SocialPoint.Attributes
             return (int)AttrType;
         }
 
+        public virtual void AppendToStringBuilder(StringBuilder b)
+        {
+            Base.DebugUtils.Assert(!IsDic && !IsList, "AttrDic and AttrList should be overriden");
+
+            b.Append(ToString());
+        }
+
         public override string ToString()
         {
             return string.Empty;
@@ -1312,9 +1319,8 @@ namespace SocialPoint.Attributes
             return GetEnumerator();
         }
 
-        public override string ToString()
+        public override void AppendToStringBuilder(StringBuilder b)
         {
-            var b = StringUtils.StartBuilder();
             b.Append("{");
             var i = 0;
             var itr = GetEnumerator();
@@ -1323,7 +1329,7 @@ namespace SocialPoint.Attributes
                 var pair = itr.Current;
                 b.Append(pair.Key);
                 b.Append(" = ");
-                b.Append(pair.Value);
+                pair.Value.AppendToStringBuilder(b);
                 if(i < Count - 1)
                 {
                     b.Append(", ");
@@ -1332,6 +1338,19 @@ namespace SocialPoint.Attributes
             }
             itr.Dispose();
             b.Append("}");
+        }
+
+        public string ToStringSafe()
+        {
+            var b = new StringBuilder();
+            AppendToStringBuilder(b);
+            return b.ToString();
+        }
+
+        public override string ToString()
+        {
+            var b = StringUtils.StartBuilder();
+            AppendToStringBuilder(b);
             return StringUtils.FinishBuilder(b);
         }
 
@@ -1657,9 +1676,8 @@ namespace SocialPoint.Attributes
             return array;
         }
 
-        public override string ToString()
+        public override void AppendToStringBuilder(StringBuilder b)
         {
-            var b = StringUtils.StartBuilder();
             b.Append("[");
             for(var i = 0; i < Count; i++)
             {
@@ -1670,6 +1688,19 @@ namespace SocialPoint.Attributes
                 }
             }
             b.Append("]");
+        }
+
+        public string ToStringSafe()
+        {
+            var b = new StringBuilder();
+            AppendToStringBuilder(b);
+            return b.ToString();
+        }
+
+        public override string ToString()
+        {
+            var b = StringUtils.StartBuilder();
+            AppendToStringBuilder(b);
             return StringUtils.FinishBuilder(b);
         }
 

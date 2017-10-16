@@ -47,6 +47,9 @@ namespace SocialPoint.GameLoading
         [SerializeField]
         int _releaseMessageAmount = 5;
 
+        int _currentRetriesToShowSupportButton = 0;
+        int kRetriesToShowSupportButton = 3;
+
         // seconds to end progress when real action is finished
         [SerializeField]
         float _speedUpTime = 0.5f;
@@ -337,14 +340,17 @@ namespace SocialPoint.GameLoading
             case ErrorType.MaintenanceMode:
                 ErrorHandler.ShowMaintenance(Login.Data.Maintenance, OnLoginErrorShown);
                 break;
-            case ErrorType.Connection: 
+            case ErrorType.Connection:
                 ErrorHandler.ShowConnection(err, OnLoginErrorShown);
                 break;
             case ErrorType.InvalidSecurityToken:
                 ErrorHandler.ShowInvalidSecurityToken(OnInvalidSecurityTokenShown);
                 break;
             default:
-                ErrorHandler.ShowLogin(err, OnLoginErrorShown);
+                {
+                    ErrorHandler.ShowLogin(err, OnLoginErrorShown, _currentRetriesToShowSupportButton >= kRetriesToShowSupportButton);
+                    _currentRetriesToShowSupportButton++;
+                }
                 break;
             }
         }
@@ -373,9 +379,10 @@ namespace SocialPoint.GameLoading
             }
             else
             {
+                _currentRetriesToShowSupportButton = 0;
                 msg = "login finished sucessfully";
             }
-            if(Login.Data != null)
+            if(Error.IsNullOrEmpty(err) && Login.Data != null)
             {
                 if(Login.Data.Upgrade != null && Login.Data.Upgrade.Type != UpgradeType.None)
                 {

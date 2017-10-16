@@ -1,0 +1,879 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28c75ef01957241928f9f3bcb38eb602, type: 3}
+  m_Name: Exporters
+  m_EditorClassIdentifier: 
+  ExportPath: Resources
+  Exporters:
+  - {fileID: 11450946}
+  - {fileID: 11463928}
+  - {fileID: 11449070}
+  - {fileID: 11465668}
+  - {fileID: 11434114}
+  - {fileID: 114439814524764020}
+  - {fileID: 114085829969118368}
+  - {fileID: 114745589768360252}
+  - {fileID: 114853463478928944}
+  - {fileID: 114536825491439684}
+  - {fileID: 114616226783186464}
+  - {fileID: 114011120527773892}
+  - {fileID: 114943412279691198}
+  - {fileID: 114654063761443554}
+  - {fileID: 114742161372480988}
+  - {fileID: 114267433128743870}
+  - {fileID: 114042582454018646}
+  - {fileID: 114247932463760582}
+  - {fileID: 114006460942047936}
+  - {fileID: 114450828981384832}
+  - {fileID: 114863549562203946}
+  - {fileID: 114446413477731598}
+  - {fileID: 114253617129702684}
+  - {fileID: 114804736478336774}
+  - {fileID: 114451519698422474}
+  - {fileID: 114251910047924002}
+  - {fileID: 114552112498965108}
+  - {fileID: 114451376505364514}
+  - {fileID: 114613523764823328}
+  - {fileID: 114409680677594606}
+  - {fileID: 114485774776101746}
+  - {fileID: 114901349667997098}
+  - {fileID: 114906421781995654}
+  - {fileID: 114764382979643812}
+  - {fileID: 114730881660187854}
+  - {fileID: 114611017675252872}
+  - {fileID: 114321323074578818}
+  - {fileID: 114366182628080128}
+  Tags:
+  - Nexus
+  - Tower
+  - MinionPath
+  - Ground
+  - PlayerSpawn
+  - HealthPickup
+  - TeamOne
+  - TeamTwo
+  - Bush
+  - TopLane
+  - BotLane
+  - TutorialWall
+  - HeroSpawn
+  - Booster
+--- !u!114 &11404098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dcfe2ddc00de4a6ea4a53b18ae0157c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scene: {fileID: 102900000, guid: 8c7d37a3e9d5d483aaff270152f2c906, type: 3}
+  ExportName: Server/transforms1
+  _tags:
+    _tags:
+    - PlayerSpawn
+    - Lane
+--- !u!114 &11411646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7d318464ebdd4049a287b68836ad110, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scene: {fileID: 0}
+  AgentHeight: 2
+  AgentRadius: 0.6
+  ExportName: Navmesh
+  _tags:
+    _tags: []
+  _areaSettings:
+    _areas:
+      _tags: []
+    _flags: []
+    _mapAreas: []
+    _mapFlags: []
+--- !u!114 &11416636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 033966b349cfb41e0872ff1e7115c535, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scene: {fileID: 0}
+  ExportName: SceneColliders
+  _tags:
+    _tags: []
+--- !u!114 &11424916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 033966b349cfb41e0872ff1e7115c535, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scene: {fileID: 0}
+  ExportName: SceneColliders
+  _tags:
+    _tags: []
+--- !u!114 &11434114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: 2f727a5af67004ca2bb0a07283bc0be3, type: 2}
+  ExportName: Server/Animators/sniper_wind_ac
+  DummyName: 
+--- !u!114 &11442220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 033966b349cfb41e0872ff1e7115c535, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scene: {fileID: 0}
+  ExportName: SceneColliders
+  _tags:
+    _tags: []
+--- !u!114 &11448486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 033966b349cfb41e0872ff1e7115c535, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scene: {fileID: 0}
+  ExportName: SceneColliders
+  _tags:
+    _tags: []
+--- !u!114 &11449070
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 033966b349cfb41e0872ff1e7115c535, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scene: {fileID: 102900000, guid: 8c7d37a3e9d5d483aaff270152f2c906, type: 3}
+  ExportName: Server/colliders1
+  _tags:
+    _tags:
+    - Nexus
+    - Tower
+    - Bush
+    - Booster
+--- !u!114 &11450946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7d318464ebdd4049a287b68836ad110, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scene: {fileID: 102900000, guid: 8c7d37a3e9d5d483aaff270152f2c906, type: 3}
+  AgentHeight: 2
+  AgentRadius: 0.6
+  ExportName: Server/navmesh1
+  _tags:
+    _tags:
+    - Ground
+  _areaSettings:
+    _areas:
+      _tags:
+      - TeamOne
+      - TeamTwo
+      - TutorialWall
+    _flags:
+    - TeamOne
+    - TeamTwo
+    - TutorialWall
+    _mapAreas:
+    - TeamOne
+    - TeamTwo
+    - TutorialWall
+    _mapFlags:
+    - TeamOne
+    - TeamTwo
+    - TutorialWall
+--- !u!114 &11461944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 314f23727f53b4831b955eddf7ca7707, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ExportName: BehaviorTree
+  BehaviorTree:
+    name: GameObject
+    tag: untagged
+    enabled: 1
+--- !u!114 &11463928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 314f23727f53b4831b955eddf7ca7707, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ExportName: Server/minion_behaviortree
+  BehaviorTree:
+    name: GameObject
+    tag: untagged
+    enabled: 1
+--- !u!114 &11465668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dcfe2ddc00de4a6ea4a53b18ae0157c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scene: {fileID: 102900000, guid: 8c7d37a3e9d5d483aaff270152f2c906, type: 3}
+  ExportName: Server/transforms1
+  _tags:
+    _tags:
+    - PlayerSpawn
+    - MinionPath
+    - HealthPickup
+    - HeroSpawn
+--- !u!114 &11469428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 033966b349cfb41e0872ff1e7115c535, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scene: {fileID: 0}
+  ExportName: SceneColliders
+  _tags:
+    _tags: []
+--- !u!114 &11475768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 033966b349cfb41e0872ff1e7115c535, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scene: {fileID: 0}
+  ExportName: SceneColliders
+  _tags:
+    _tags: []
+--- !u!114 &114006460942047936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: 661d40ba6364e47b7a2aece7c645e947, type: 2}
+  ExportName: Server/Animators/goblin_fire_ac
+  DummyName: 
+--- !u!114 &114011120527773892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: 84f25d700630142898833bde12a2b84f, type: 2}
+  ExportName: Server/Animators/sniper_darkness_ac
+  DummyName: 
+--- !u!114 &114042582454018646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7d318464ebdd4049a287b68836ad110, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scene: {fileID: 102900000, guid: 8c7d37a3e9d5d483aaff270152f2c906, type: 3}
+  AgentHeight: 2
+  AgentRadius: 0.6
+  ExportName: Server/tutorialMesh
+  _tags:
+    _tags:
+    - Ground
+  _areaSettings:
+    _areas:
+      _tags:
+      - TeamOne
+      - TeamTwo
+      - TutorialWall
+    _flags:
+    - TeamOne
+    - TeamTwo
+    - TutorialWall
+    _mapAreas:
+    - TeamOne
+    - TeamTwo
+    - TutorialWall
+    _mapFlags:
+    - TeamOne
+    - TeamTwo
+    - TutorialWall
+--- !u!114 &114085829969118368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 131004, guid: d868538c16d24481e8a02eba4c9eb8c7, type: 2}
+  ExportName: Server/Animators/assassin_fire_ac
+  DummyName: 
+--- !u!114 &114207182373057630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1197228462126710, guid: 49b864e7172404a489f2d9267514b399, type: 2}
+  ExportName: Server/Animators/mage_tessa_ac
+  DummyName: 
+--- !u!114 &114247932463760582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1197228462126710, guid: 49b864e7172404a489f2d9267514b399, type: 2}
+  ExportName: Server/Animators/mage_earth_ac
+  DummyName: 
+--- !u!114 &114251910047924002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44efc2046e4431f8441ca133353668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 131004, guid: 7fade622f7dd14da8a6996097bac6b14, type: 2}
+  DummiesToExport:
+  - DummyType: Projectile
+    DummyObjectName: ProjectileDummy
+    StateNameContains: Atk,Critical
+    EventNameContains: FireProjectile
+--- !u!114 &114253617129702684
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44efc2046e4431f8441ca133353668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: 2f727a5af67004ca2bb0a07283bc0be3, type: 2}
+  DummiesToExport:
+  - DummyType: Projectile
+    DummyObjectName: ProjectileDummy
+    StateNameContains: Atk,Critical
+    EventNameContains: FireProjectile
+--- !u!114 &114267433128743870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: 9786e34ddbbdc4852bcd23c4fbcb0bfe, type: 2}
+  ExportName: Server/Animators/golem_nature_ac
+  DummyName: 
+--- !u!114 &114285963377327270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 169214, guid: 2f1705d4c1b029d43b09d2f87067aef2, type: 2}
+  ExportName: Server/Animators/Minion_Tenseed
+  DummyName: 
+--- !u!114 &114321323074578818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6dcfe2ddc00de4a6ea4a53b18ae0157c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scene: {fileID: 102900000, guid: b9a3b95e4acaf41dba4a52de819bd480, type: 3}
+  ExportName: Server/transforms_tutorial
+  _tags:
+    _tags:
+    - PlayerSpawn
+    - MinionPath
+    - HealthPickup
+    - HeroSpawn
+--- !u!114 &114328227560572520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: 9786e34ddbbdc4852bcd23c4fbcb0bfe, type: 2}
+  ExportName: Server/Animators/golem_nature_ac
+  DummyName: 
+--- !u!114 &114366182628080128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 033966b349cfb41e0872ff1e7115c535, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Scene: {fileID: 102900000, guid: 8c7d37a3e9d5d483aaff270152f2c906, type: 3}
+  ExportName: Server/defensive_colliders
+  _tags:
+    _tags:
+    - DefensiveZone
+--- !u!114 &114409680677594606
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44efc2046e4431f8441ca133353668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1197228462126710, guid: 49b864e7172404a489f2d9267514b399, type: 2}
+  DummiesToExport:
+  - DummyType: Projectile
+    DummyObjectName: Props1
+    StateNameContains: Atk,Critical,Skill,Ultimate
+    EventNameContains: FireProjectile
+--- !u!114 &114439814524764020
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: bf51979cf8cdb47aeb43828d0c32eb5f, type: 2}
+  ExportName: Server/Animators/rogue_fire_ac
+  DummyName: 
+--- !u!114 &114446413477731598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1175676846534912, guid: 10cf0b7612a3b7149bb25547acf5af33, type: 2}
+  ExportName: Server/Animators/assassin_dark_ac
+  DummyName: 
+--- !u!114 &114450828981384832
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 314f23727f53b4831b955eddf7ca7707, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ExportName: Server/AI/Hero
+  BehaviorTree:
+    name: GameObject
+    tag: untagged
+    enabled: 1
+--- !u!114 &114451376505364514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44efc2046e4431f8441ca133353668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: 661d40ba6364e47b7a2aece7c645e947, type: 2}
+  DummiesToExport:
+  - DummyType: Projectile
+    DummyObjectName: Bottle
+    StateNameContains: Atk,Critical
+    EventNameContains: FireProjectile
+--- !u!114 &114451519698422474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44efc2046e4431f8441ca133353668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: 9b42d4a0f971140c092391a9ff468740, type: 2}
+  DummiesToExport:
+  - DummyType: Projectile
+    DummyObjectName: RightHand
+    StateNameContains: Atk,Critical
+    EventNameContains: FireProjectile
+--- !u!114 &114485774776101746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44efc2046e4431f8441ca133353668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: 9786e34ddbbdc4852bcd23c4fbcb0bfe, type: 2}
+  DummiesToExport: []
+--- !u!114 &114536825491439684
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: 9b42d4a0f971140c092391a9ff468740, type: 2}
+  ExportName: Server/Animators/mage_water_ac
+  DummyName: 
+--- !u!114 &114552112498965108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44efc2046e4431f8441ca133353668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: a09aadb75f6457d439525756bfa2dd50, type: 2}
+  DummiesToExport:
+  - DummyType: Projectile
+    DummyObjectName: Rogue_02_Bow
+    StateNameContains: Atk,Critical,Skill01
+    EventNameContains: FireProjectile
+--- !u!114 &114611017675252872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44efc2046e4431f8441ca133353668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 133236, guid: 5b9c0e4a265e74a35aab216a23232a98, type: 2}
+  DummiesToExport:
+  - DummyType: Projectile
+    DummyObjectName: ShootDummy
+    StateNameContains: Attack
+    EventNameContains: DoDistanceShoot
+--- !u!114 &114613523764823328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44efc2046e4431f8441ca133353668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: 84f25d700630142898833bde12a2b84f, type: 2}
+  DummiesToExport:
+  - DummyType: Projectile
+    DummyObjectName: ProjectileDummy
+    StateNameContains: Atk,Critical
+    EventNameContains: FireProjectile
+--- !u!114 &114616226783186464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 131004, guid: 7fade622f7dd14da8a6996097bac6b14, type: 2}
+  ExportName: Server/Animators/pet_wind_ac
+  DummyName: 
+--- !u!114 &114654063761443554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 169214, guid: a22d9f16745f24f5a902b9bba26cbc49, type: 2}
+  ExportName: Server/Animators/MinionMelee
+  DummyName: 
+--- !u!114 &114730881660187854
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44efc2046e4431f8441ca133353668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 131004, guid: d868538c16d24481e8a02eba4c9eb8c7, type: 2}
+  DummiesToExport: []
+--- !u!114 &114742161372480988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 133236, guid: 5b9c0e4a265e74a35aab216a23232a98, type: 2}
+  ExportName: Server/Animators/MinionRanged_Simple
+  DummyName: 
+--- !u!114 &114745589768360252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 131004, guid: 92e2a5b9cffd34437954780fe3abe3a9, type: 2}
+  ExportName: Server/Animators/beast_fire_ac
+  DummyName: 
+--- !u!114 &114764382979643812
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44efc2046e4431f8441ca133353668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1175676846534912, guid: 10cf0b7612a3b7149bb25547acf5af33, type: 2}
+  DummiesToExport: []
+--- !u!114 &114804736478336774
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44efc2046e4431f8441ca133353668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: bf51979cf8cdb47aeb43828d0c32eb5f, type: 2}
+  DummiesToExport:
+  - DummyType: Projectile
+    DummyObjectName: RightProjectileDummy
+    StateNameContains: Atk1,Critical
+    EventNameContains: FireProjectile
+  - DummyType: Projectile
+    DummyObjectName: LeftProjectileDummy
+    StateNameContains: Atk2
+    EventNameContains: FireProjectile
+--- !u!114 &114853463478928944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 131004, guid: e3202ef4a26ba48739bef264f1813d21, type: 2}
+  ExportName: Server/Animators/knight_nature_ac
+  DummyName: 
+--- !u!114 &114863549562203946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: a09aadb75f6457d439525756bfa2dd50, type: 2}
+  ExportName: Server/Animators/rogue_nature_ac
+  DummyName: 
+--- !u!114 &114901349667997098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44efc2046e4431f8441ca133353668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 131004, guid: e3202ef4a26ba48739bef264f1813d21, type: 2}
+  DummiesToExport: []
+--- !u!114 &114906421781995654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f44efc2046e4431f8441ca133353668, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 131004, guid: 92e2a5b9cffd34437954780fe3abe3a9, type: 2}
+  DummiesToExport: []
+--- !u!114 &114943412279691198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d43e6d868e924e98acdf49600743035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Prefab: {fileID: 1084587135067606, guid: 2f727a5af67004ca2bb0a07283bc0be3, type: 2}
+  ExportName: Server/Animators/sniper_wind_ac
+  DummyName: 

@@ -94,8 +94,8 @@ namespace SocialPoint.AssetBundlesClient
 
         static AttrList GetBundlesDataAttrList()
         {
-            const string bundleDataFile = "bundle_data.json";
-            const string bundleDataKey = "bundle_data";
+            const string bundleDataFile = "local_bundle_data.json";
+            const string bundleDataKey = "local_bundle_data";
 
             string jsonPath = Path.Combine(PathsManager.StreamingAssetsPath, bundleDataFile);
             string json = FileUtils.ReadAllText(jsonPath);

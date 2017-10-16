@@ -33,6 +33,11 @@ namespace SocialPoint.Multiplayer
             _parentTag = parentTag;
         }
 
+        public void Clear()
+        {
+            _prefabs.Clear();
+        }
+
         public GameObject Spawn(string prefabName, Vector3 position, Quaternion rotation)
         {
             GameObject prefab;

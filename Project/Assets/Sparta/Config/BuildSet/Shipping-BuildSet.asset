@@ -32,11 +32,11 @@ MonoBehaviour:
     Flags: 
     XcodeModSchemes: shipping
     UseEnvironmentProvisioningUuid: 1
-    RemovedResources: 
+    RemovedResources: StreamingAssets/android_etc
   Android:
     BundleIdentifier: 
     Flags: 
-    RemovedResources: 
+    RemovedResources: StreamingAssets/ios
     UseKeystore: 1
     Keystore:
       Path: 

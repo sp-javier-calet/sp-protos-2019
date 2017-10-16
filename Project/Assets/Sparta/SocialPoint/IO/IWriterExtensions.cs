@@ -52,6 +52,12 @@ namespace SocialPoint.IO
             writer.Write(array, array.Length);
         }
 
+        public static void WriteByteArray(this IWriter writer, byte[] array, int length)
+        {
+            writer.Write(length);
+            writer.Write(array, length);
+        }
+
         public static void WriteInt32Array(this IWriter writer, int[] array)
         {
             WriteDelegate<int> serializeDelegate = (int i, IWriter w) => { 

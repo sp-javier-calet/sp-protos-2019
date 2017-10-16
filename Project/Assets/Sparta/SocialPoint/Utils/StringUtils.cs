@@ -19,6 +19,38 @@ namespace SocialPoint.Utils
         {
             return builder.Length == 0;
         }
+
+        public static int IndexOf(this StringBuilder sb, string value, int startIndex = 0)
+        {
+            int valueLength = value.Length;
+            int maxSearchLength = (sb.Length - valueLength) + 1;
+
+            for(int i = startIndex; i < maxSearchLength; ++i)
+            {
+                if(sb[i] == value[0])
+                {
+                    int valueIndex = 1;
+                    while((valueIndex < valueLength) && (sb[i + valueIndex] == value[valueIndex]))
+                    {
+                        ++valueIndex;
+                    }
+
+                    if (valueIndex == valueLength)
+                    {
+                        return i;
+                    }
+                }
+            }
+
+            return -1;
+        }
+
+        public static string Substring(this StringBuilder sb, int startingIndex, int length)
+        {
+            char[] charArray = new char[length];
+            sb.CopyTo(startingIndex, charArray, 0, length);
+            return new string(charArray);
+        }
     }
 
     public static class StringUtils

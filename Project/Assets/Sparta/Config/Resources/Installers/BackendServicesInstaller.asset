@@ -16,8 +16,8 @@ MonoBehaviour:
     Sync:
       UseEmpty: 0
       IgnoreResponses: 0
-      SendInterval: 20
-      MaxOutOfSyncInterval: 0
+      SendInterval: 10
+      MaxOutOfSyncInterval: 4
       Timeout: 60
       BackoffMultiplier: 1.1
       PingEnabled: 1
@@ -33,6 +33,7 @@ MonoBehaviour:
       UserMappingsBlock: 50
     Events:
       UseEmpty: 0
+      AutoStart: 1
       MaxOutOfSyncInterval: 0
       SendInterval: 5
       Timeout: 30
@@ -42,7 +43,7 @@ MonoBehaviour:
     Crashes:
       UseEmpty: 0
       SendInterval: 20
-      ErrorLogActive: 1
+      ErrorLogActive: 0
       ExceptionLogActive: 1
       EnableSendingCrashesBeforeLogin: 0
       NumRetriesBeforeSendingCrashBeforeLogin: 3

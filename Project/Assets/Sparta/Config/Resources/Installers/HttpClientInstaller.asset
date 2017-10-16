@@ -13,5 +13,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    Config: basegame
-    EnableHttpStreamPinning: 0
+    Config: championsarena
+    EnableHttpStreamPinning: 1
+    EnableRetryHttpClient: 1

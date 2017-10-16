@@ -1,6 +1,5 @@
-﻿using System;
+﻿using System.Diagnostics;
 using System.Text;
-using System.Diagnostics;
 
 namespace SpartaTools.Editor.Utils
 {

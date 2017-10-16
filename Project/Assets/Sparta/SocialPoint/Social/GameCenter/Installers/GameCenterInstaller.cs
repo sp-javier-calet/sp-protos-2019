@@ -17,6 +17,7 @@ namespace SocialPoint.Social
         {
             public bool UseEmpty;
             public bool LoginLink = true;
+            public LinkMode LoginLinkMode = LinkMode.Auto;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -70,7 +71,7 @@ namespace SocialPoint.Social
         GameCenterLink CreateLoginLink()
         {
             var gc = Container.Resolve<IGameCenter>();
-            return new GameCenterLink(gc);
+            return new GameCenterLink(gc, Settings.LoginLinkMode);
         }
     }
 }

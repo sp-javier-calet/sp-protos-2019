@@ -23,6 +23,11 @@ namespace SocialPoint.Social
             _rankingData.Add(data);
         }
 
+        public List<AllianceBasicData> GetList()
+        {
+            return _rankingData;
+        }
+
         #region IEnumerable implementation
 
         public IEnumerator<AllianceBasicData> GetEnumerator()

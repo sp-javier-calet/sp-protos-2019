@@ -28,12 +28,13 @@ namespace SocialPoint.Matchmaking
         string Room{ get; set; }
 
         void AddDelegate(IMatchmakingClientDelegate dlg);
+
         void RemoveDelegate(IMatchmakingClientDelegate dlg);
 
         /**
          * should look for a match and call OnMatched or OnError
          */
-        void Start(AttrDic extraData);
+        void Start(AttrDic extraData, bool searchForActiveMatch, string connectId);
 
         /**
          * should stop looking for a match

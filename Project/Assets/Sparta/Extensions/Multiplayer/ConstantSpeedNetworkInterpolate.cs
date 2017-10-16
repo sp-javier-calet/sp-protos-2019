@@ -17,6 +17,7 @@ namespace SocialPoint.Multiplayer
         const double _defMaxDistance = 4f;
         const double _minTimeToProcessData = 0.1;
         const int _minIterationCount = 1;
+        const float _maxStartPositionErrorSQ = 4f;
 
         public bool Enable{ get; set; }
 
@@ -42,6 +43,10 @@ namespace SocialPoint.Multiplayer
 
         UnityEngine.Transform _viewModel;
 
+        public JVector ServerPosition { get { return _serverPos; } }
+
+        public JQuaternion ServerRotation { get { return _serverRotation; } }
+
         public ConstantSpeedNetworkInterpolate Init(IGameTime gameTime, double maxDistance = _defMaxDistance, bool hideIfNotInterpolation = false, double rotationLerpSpeed = -1.0)
         {
             _gameTime = gameTime;
@@ -53,6 +58,12 @@ namespace SocialPoint.Multiplayer
             _canSmooth = false;
             _hideIfNotInterpolation = hideIfNotInterpolation;
             return this;
+        }
+
+        public void OnNewObject(Transform t)
+        {
+            _serverPos = t.Position;
+            _serverRotation = t.Rotation;
         }
 
         public void OnServerTransform(Transform t, float serverTimestampf)
@@ -69,6 +80,7 @@ namespace SocialPoint.Multiplayer
             {
                 var serverDeltaPos = t.Position - _serverPos;
                 var serverDeltaMag = serverDeltaPos.Length();
+                _serverSpeed = 0f;
                 if(serverDeltaMag > _epsilon)
                 {
                     _canSmooth = CanSmooth(t);
@@ -91,6 +103,13 @@ namespace SocialPoint.Multiplayer
             if(!_canSmooth)
             {
                 ResetToCurrentTransform(t);
+            }
+            else
+            {
+                if((_go.Transform.Position - _serverPos).LengthSquared() > _maxStartPositionErrorSQ)
+                {
+                    _go.Transform.Position = _serverPos;
+                }
             }
 
             _serverPos = t.Position;
@@ -142,6 +161,12 @@ namespace SocialPoint.Multiplayer
 
         public void OnStart()
         {
+            var prefabBehaviour = _go.GetBehaviour<PrefabNameBehaviour>();
+            if(prefabBehaviour != null && prefabBehaviour.UseInstantiationPosition)
+            {
+                _serverPos = _go.Transform.Position;
+                _go.Transform.Position = prefabBehaviour.InstantiationPosition;
+            }
         }
 
         void RefreshVisibility()
@@ -177,20 +202,12 @@ namespace SocialPoint.Multiplayer
         {
             var currToServerLength = (_serverPos - _go.Transform.Position).Length();
             var delta = (float)_serverSpeed * dt;
-            if(delta > currToServerLength)
-            {
-                _go.Transform.Position = _serverPos;
-                _serverSpeed = 0f;
-            }
-            else
-            {
-                _go.Transform.Position = _go.Transform.Position + _dir * delta;
-            }
+            _go.Transform.Position = _go.Transform.Position + _dir * delta;
         }
 
         void InterpolateRotation(float dt)
         {
-            var rotationLerpSpeed =  _rotationLerpSpeed > 0.0 ? _rotationLerpSpeed : InterpolationSettings.RotationLerpSpeed;
+            var rotationLerpSpeed = _rotationLerpSpeed > 0.0 ? _rotationLerpSpeed : InterpolationSettings.RotationLerpSpeed;
             JQuaternion targetRotation = JQuaternion.Identity;
             JQuaternionUtils.Slerp(ref _go.Transform.Rotation, ref _serverRotation, (float)Math.Min(1f, (dt * rotationLerpSpeed)), out targetRotation);
             _go.Transform.Rotation = targetRotation;

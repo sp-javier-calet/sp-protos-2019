@@ -8,19 +8,22 @@ using System.Diagnostics;
 
 public class NetworkServerSyncController
 {
+    const float DefaultSyncInterval = 0.07f;
+
     float _timestamp;
     List<byte> _keyList = new List<byte>();
 
-    NetworkSceneSerializer<INetworkSceneBehaviour> _serializer;
-    NetworkScene<INetworkSceneBehaviour> _scene;
-    NetworkScene<INetworkSceneBehaviour> _prevScene;
+    NetworkSceneSerializer _serializer;
+    NetworkScene _scene;
+    NetworkScene _prevScene;
 
     Dictionary<byte, ClientData> _clientData;
     List<ActionInfo> _pendingActions;
     INetworkServer _server;
     NetworkActionHandler _actions;
 
-    public float MaxSyncInterval;
+    public bool BroadcastSyncMessageManually; // If false, Photon will send message to all clients. Otherwise, we'll have to do manually.
+    public float SyncInterval = DefaultSyncInterval;
     public float TimeSinceLastSync;
 
     public float LastUpdateTimestamp
@@ -31,10 +34,10 @@ public class NetworkServerSyncController
         }
     }
 
-    List<float> _groupSyncTimestamps = new List<float>();
     IGameTime _gameTime;
+    MemoryStream _memStream = new MemoryStream(64 * 1024);
 
-    public void Init(IGameTime gameTime, INetworkServer server, Dictionary<byte, ClientData> clientData, NetworkSceneSerializer<INetworkSceneBehaviour> serializer, NetworkScene<INetworkSceneBehaviour> scene, NetworkScene<INetworkSceneBehaviour> prevScene, NetworkActionHandler actions, List<ActionInfo> pendingActions)
+    public void Init(IGameTime gameTime, INetworkServer server, Dictionary<byte, ClientData> clientData, NetworkSceneSerializer serializer, NetworkScene scene, NetworkScene prevScene, NetworkActionHandler actions, List<ActionInfo> pendingActions)
     {
         _gameTime = gameTime;
         _server = server;
@@ -44,66 +47,36 @@ public class NetworkServerSyncController
         _scene = scene;
         _prevScene = prevScene;
         _pendingActions = pendingActions;
-
-        for(int i = 0; i < _scene.SyncGroupSettings.Count; ++i)
-        {
-            _groupSyncTimestamps.Add(-1f);
-            MaxSyncInterval = Math.Max(MaxSyncInterval, _scene.SyncGroupSettings[i].SyncInterval);
-        }
+        BroadcastSyncMessageManually = false;
     }
 
     public void Reset()
     {
         _timestamp = 0f;
-        TimeSinceLastSync = -1f;
+        TimeSinceLastSync = 0f;
     }
 
     public bool Update(float serverTimestamp, float dt)
     {
         _timestamp = serverTimestamp;
+        TimeSinceLastSync += dt;
 
-        var synced = false;
-        for(int i = 0; i < _scene.SyncGroups.Count; ++i)
+        if(TimeSinceLastSync >= SyncInterval)
         {
-            if(_scene.SyncGroups[i].CanSync/* || _scene.InmediateUpdate*/)
-            {
-                _scene.InmediateUpdate = false;
-                //Debug.WriteLine("Sync Group: "+ i + " time since last sync: "+ _scene.SyncGroups[i].TimeSinceLastSync);
-                _scene.SelectedSyncGroupId = i;
-                _prevScene.SelectedSyncGroupId = i;
-
-                SendScene(i);
-                _groupSyncTimestamps[i] = _gameTime.Time;
-                CalculateLastSyncTimestamp();
-
-                _scene.SelectedSyncGroupId = -1;
-                _prevScene.SelectedSyncGroupId = -1;
-
-                synced = true;
-            }
+            SendScene();
+            TimeSinceLastSync = 0f;
+            return true;
         }
 
-        return synced;
+        return false;
     }
 
-    void CalculateLastSyncTimestamp()
+    void SendScene()
     {
-        TimeSinceLastSync = _groupSyncTimestamps[0];
-        for(int i = 1; i < _groupSyncTimestamps.Count; ++i)
-        {
-            TimeSinceLastSync = Math.Min(TimeSinceLastSync, _groupSyncTimestamps[i]); 
-        }
-    }
-
-    void SendScene(int syncGroupId)
-    {
-        var syncGroup = _scene.SyncGroups[syncGroupId];
-        var syncGroupTimeSinceLastSync = syncGroup.TimeSinceLastSync;
-
-        var memStream = new MemoryStream();
-        var binWriter = new SystemBinaryWriter(memStream);
+        _memStream.SetLength(0);
+        _memStream.Seek(0, SeekOrigin.Begin);
+        var binWriter = new SystemBinaryWriter(_memStream);
         _serializer.Serialize(_scene, _prevScene, binWriter);
-        var sceneBuffer = memStream.ToArray();
         // to avoid out of sync exception with GetEnumerator we will "make a copy" of the keys and iterate over them
         var clients = new Dictionary<byte,ClientData>.KeyCollection(_clientData);
         var itrKeys = _clientData.GetEnumerator();
@@ -114,26 +87,59 @@ public class NetworkServerSyncController
         }
         itrKeys.Dispose();
 
-        var itr = _keyList.GetEnumerator();
-        int clientIndex = 0;
-        while(itr.MoveNext())
+        if(BroadcastSyncMessageManually)
         {
-            if(!_clientData.ContainsKey(itr.Current))
+            var itr = _keyList.GetEnumerator();
+            while(itr.MoveNext())
             {
-                continue;
+                if(!_clientData.ContainsKey(itr.Current))
+                {
+                    continue;
+                }
+                var msg = _server.CreateMessage(new NetworkMessageData
+                {
+                    ClientIds = new List<byte>(){ itr.Current },
+                    MessageType = SceneMsgType.UpdateSceneEvent
+                });
+
+                // Write Scene Diff
+                msg.Writer.Write(_memStream.GetBuffer(), (int)_memStream.Length);
+
+                // Write Update Scene Event content
+                msg.Writer.Write(new UpdateSceneEvent
+                {
+                    Timestamp = TimeSinceLastSync,
+                    LastAction = _clientData[itr.Current].LastReceivedAction,
+                });
+
+                // Write Events
+                msg.Writer.Write((int)_pendingActions.Count);
+                for(var i = 0; i < _pendingActions.Count; ++i)
+                {
+                    var info = _pendingActions[i];
+                    _actions.SerializeAction(info.Action, msg.Writer);
+                }
+
+                msg.Send();
             }
-            var msg = _server.CreateMessage(new NetworkMessageData {
-                ClientId = itr.Current,
+            itr.Dispose();
+        }
+        else
+        {
+            var msg = _server.CreateMessage(new NetworkMessageData
+            {
+                ClientIds = _keyList,
                 MessageType = SceneMsgType.UpdateSceneEvent
             });
 
             // Write Scene Diff
-            msg.Writer.Write(sceneBuffer, sceneBuffer.Length);
+            msg.Writer.Write(_memStream.GetBuffer(), (int)_memStream.Length);
 
-            // Write Update Scene Event contant
-            msg.Writer.Write(new UpdateSceneEvent {
-                Timestamp = syncGroupTimeSinceLastSync,
-                LastAction = _clientData[itr.Current].LastReceivedAction,
+            // Write Update Scene Event content
+            msg.Writer.Write(new UpdateSceneEvent
+            {
+                Timestamp = TimeSinceLastSync,
+                LastAction = -1,
             });
 
             // Write Events
@@ -146,10 +152,24 @@ public class NetworkServerSyncController
 
             msg.Send();
         }
-        itr.Dispose();
 
         _pendingActions.Clear();
 
         _prevScene.DeepCopy(_scene);
+    }
+
+    public void Dispose()
+    {
+        _keyList.Clear();
+
+        _gameTime = null;
+        _server = null;
+        _prevScene = null;
+
+        _clientData = null;
+        _serializer = null;
+
+        _actions= null;
+        _pendingActions = null;
     }
 }

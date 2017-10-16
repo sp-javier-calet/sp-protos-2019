@@ -1,9 +1,12 @@
 apply plugin: 'com.android.library'
 
+def dirPattern = "Sparta/External/Helpshift/Plugins/Android"
+def copyDst = getFirstDirectoryMatching(gitFolder, dirPattern)
+
 repositories {
     mavenCentral()
     flatDir {
-        dirs '../../../../Assets/Sparta/External/Helpshift/Plugins/Android'
+        dirs "$copyDst"
     }
 }
 
@@ -22,5 +25,6 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:24.0.0'
     compile 'com.android.support:cardview-v7:24.0.0'
     compile 'com.google.android.gms:play-services:10.0.1'
+    compile 'com.google.firebase:firebase-messaging:10.0.1'
     compile (name:'helpshift-plugin-2.6.1', ext:'aar')
 }

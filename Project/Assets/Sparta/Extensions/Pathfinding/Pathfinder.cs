@@ -71,8 +71,14 @@ namespace SocialPoint.Pathfinding
         {
             straightPath.Clear();
             //First, find poly path between targets
-            NavPoint startNavPoint = _query.FindNearestPoly(startPoint, _extents, _filter);
-            NavPoint endNavPoint = _query.FindNearestPoly(endPoint, _extents, _filter);
+            NavPoint startNavPoint;
+            NavPoint endNavPoint;
+            if(!_query.FindNearestPoly(ref startPoint, ref _extents, _filter, out startNavPoint) ||
+                !_query.FindNearestPoly(ref endPoint, ref _extents, _filter, out endNavPoint))
+            {
+                return false;
+            }
+
             _path.Clear();
             if(_query.FindPath(ref startNavPoint, ref endNavPoint, _filter, _path))
             {
@@ -95,7 +101,12 @@ namespace SocialPoint.Pathfinding
         /// <param name="hit">Resulting hit data.</param>
         public bool TryRayCast(Vector3 startPoint, Vector3 endPoint, out RaycastHit hit)
         {
-            NavPoint startNavPoint = _query.FindNearestPoly(startPoint, _extents, _filter);
+            NavPoint startNavPoint;
+            if(!_query.FindNearestPoly(ref startPoint, ref _extents, _filter, out startNavPoint))
+            {
+                hit = new RaycastHit();
+                return false;
+            }
 
             _path.Clear();
 

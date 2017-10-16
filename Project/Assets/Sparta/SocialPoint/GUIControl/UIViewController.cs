@@ -458,6 +458,7 @@ namespace SocialPoint.GUIControl
                 OnLoad();
             }
             Setup();
+
             return loaded;
         }
 
@@ -630,9 +631,9 @@ namespace SocialPoint.GUIControl
 
         void NotifyViewEvent()
         {
-            DebugLog(string.Format("NotifyViewEvent {0}", _viewState));
             if(ViewEvent != null)
             {
+                DebugLog(string.Format("UIVIewController::NotifyViewEvent {0}", _viewState));
                 ViewEvent(this, _viewState);
             }
         }
@@ -767,6 +768,14 @@ namespace SocialPoint.GUIControl
                 InstantiateEvent(this, go);
             }
             return go;
+        }
+
+        virtual public void OnPopupStackedInView()
+        {
+        }
+
+        virtual public void OnNoMorePopupsInView()
+        {
         }
     }
 }

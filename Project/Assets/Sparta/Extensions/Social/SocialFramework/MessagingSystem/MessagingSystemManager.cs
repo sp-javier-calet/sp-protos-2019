@@ -24,6 +24,7 @@ namespace SocialPoint.Social
         const string MsgsKey = "msgs";
         const string MsgKey = "msg";
         const string IdKey = "id";
+        const string TimestampKey = "timestamp";
 
         #endregion
 
@@ -79,6 +80,8 @@ namespace SocialPoint.Social
         public event Action OnHistoricReceived;
         public event OnNewMessage OnNewMessageEvent;
 
+        public bool IsReady{ get; private set; }
+
         public MessagingSystemManager(ConnectionManager connectionManager)
         {
             _connection = connectionManager;
@@ -89,11 +92,14 @@ namespace SocialPoint.Social
             _originFactories = new Dictionary<string, IMessageOriginFactory>();
             _payloadFactories = new Dictionary<string, IMessagePayloadFactory>();
 
+            IsReady = false;
+
             AddDefaultFactories();
         }
 
         public void Dispose()
         {
+            IsReady = false;
             _connection.OnNotificationReceived -= OnNotificationReceived;
             _connection.OnProcessServices -= OnProcessServices;
         }
@@ -103,6 +109,16 @@ namespace SocialPoint.Social
             _originFactories.Add(MessageOriginSystem.IdentifierKey, new MessageOriginSystemFactory());
 
             _payloadFactories.Add(MessagePayloadPlainText.IdentifierKey, new MessagePayloadPlainTextFactory());
+        }
+
+        public void AddOriginFactory(string identifier, IMessageOriginFactory factory)
+        {
+            _originFactories.Add(identifier, factory);
+        }
+
+        public void AddPayloadFactory(string identifier, IMessagePayloadFactory factory)
+        {
+            _payloadFactories.Add(identifier, factory);
         }
 
         public ReadOnlyCollection<Message> GetMessages()
@@ -221,6 +237,8 @@ namespace SocialPoint.Social
                     _listMessages.Add(message);
                 }
             }
+
+            IsReady = true;
             if(OnHistoricReceived != null)
             {
                 OnHistoricReceived();
@@ -255,6 +273,7 @@ namespace SocialPoint.Social
         Message ParseMessage(AttrDic data)
         {
             var id = data.Get(IdKey).AsValue.ToString();
+            var timestamp = data.GetValue(TimestampKey).ToInt();
 
             var origin = ParseMessageOrigin(data);
             var payload = ParseMessagePayload(data);
@@ -263,7 +282,7 @@ namespace SocialPoint.Social
                 return null;
             }
 
-            var message = new Message(id, origin, payload);
+            var message = new Message(id, timestamp, origin, payload);
 
             ParseMessageProperties(data, message);
 

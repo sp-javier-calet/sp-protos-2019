@@ -17,7 +17,7 @@ namespace SocialPoint.Matchmaking
             Connecting,
             Waiting,
             Finished
-        };
+        }
 
         ILoginData _loginData;
         ulong _userId;
@@ -70,7 +70,7 @@ namespace SocialPoint.Matchmaking
             _delegates.Remove(dlg);
         }
 
-        public void Start(AttrDic extraData)
+        public void Start(AttrDic extraData, bool searchForActiveMatch, string connectId)
         {
             _status = Status.Connecting;
             UpdateUrlParameters(extraData);
@@ -165,11 +165,11 @@ namespace SocialPoint.Matchmaking
             }
             else if(attr.ContainsKey(ErrorAttrKey))
             {
-                OnError(new Error("Got error: "+attr.GetValue(ErrorAttrKey).ToString()));
+                OnError(new Error("Got error: " + attr.GetValue(ErrorAttrKey).ToString()));
             }
             else
             {
-                OnError(new Error("Got unknown data: "+data));
+                OnError(new Error("Got unknown data: " + data));
             }
         }
 

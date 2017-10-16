@@ -1,9 +1,9 @@
 /******************************************************************************
  * Spine Runtimes Software License v2.5
- * 
+ *
  * Copyright (c) 2013-2016, Esoteric Software
  * All rights reserved.
- * 
+ *
  * You are granted a perpetual, non-exclusive, non-sublicensable, and
  * non-transferable license to use, install, execute, and perform the Spine
  * Runtimes software and derivative works solely for personal or internal
@@ -15,7 +15,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -27,10 +27,6 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
-
-#if (UNITY_5_0 || UNITY_5_1 || UNITY_5_2 || UNITY_4_0 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7)
-#define PREUNITY_5_3
-#endif
 
 using UnityEngine;
 using System.Collections;
@@ -51,10 +47,6 @@ namespace Spine.Unity {
 
 		#region Constructors
 		void Subscribe (Spine.AnimationState state, Spine.EventData eventDataReference, bool unsubscribe) {
-			#if PREUNITY_5_3
-			Debug.LogWarning("Unity 5.3 or later is required for Spine Unity custom yield instructions to function correctly.");
-			#endif
-
 			if (state == null) {
 				Debug.LogWarning("AnimationState argument was null. Coroutine will continue immediately.");
 				m_WasFired = true;
@@ -74,10 +66,6 @@ namespace Spine.Unity {
 		}
 
 		void SubscribeByName (Spine.AnimationState state, string eventName, bool unsubscribe) {
-			#if PREUNITY_5_3
-			Debug.LogWarning("Unity 5.3 or later is required for Spine Unity custom yield instructions to function correctly.");
-			#endif
-
 			if (state == null) {
 				Debug.LogWarning("AnimationState argument was null. Coroutine will continue immediately.");
 				m_WasFired = true;
@@ -115,20 +103,16 @@ namespace Spine.Unity {
 		#endregion
 
 		#region Event Handlers
-		void HandleAnimationStateEventByName (AnimationState state, int trackIndex, Spine.Event e) {
-			if (state != m_AnimationState) return;
-
+		void HandleAnimationStateEventByName (Spine.TrackEntry trackEntry, Spine.Event e) {
 			m_WasFired |= (e.Data.Name == m_EventName);			// Check event name string match.
 			if (m_WasFired && m_unsubscribeAfterFiring)
-				state.Event -= HandleAnimationStateEventByName;	// Unsubscribe after correct event fires.
+				m_AnimationState.Event -= HandleAnimationStateEventByName;	// Unsubscribe after correct event fires.
 		}
 
-		void HandleAnimationStateEvent (AnimationState state, int trackIndex, Spine.Event e) {
-			if (state != m_AnimationState) return;
-
+		void HandleAnimationStateEvent (Spine.TrackEntry trackEntry, Spine.Event e) {
 			m_WasFired |= (e.Data == m_TargetEvent);			// Check event data reference match.
 			if (m_WasFired && m_unsubscribeAfterFiring)
-				state.Event -= HandleAnimationStateEvent; 		// Usubscribe after correct event fires.
+				m_AnimationState.Event -= HandleAnimationStateEvent; 		// Usubscribe after correct event fires.
 		}
 		#endregion
 
@@ -172,7 +156,5 @@ namespace Spine.Unity {
 		void IEnumerator.Reset () { m_WasFired = false; }
 		object IEnumerator.Current { get { return null; } }
 		#endregion
-
-
 	}
 }

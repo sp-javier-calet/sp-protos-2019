@@ -74,7 +74,9 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             ApplyShellScripts(editor);
             ApplySystemCapabilities(editor);
             ApplyProvisioningProfile(editor);
+            ApplyMainKeychainAccessGroup(editor);
             ApplyKeychainAccessGroups(editor);
+            ApplyPushNotificationsEnvironment(editor);
         }
 
         /// <summary>
@@ -323,6 +325,16 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             }
         }
 
+        void ApplyMainKeychainAccessGroup(XCodeProjectEditor editor)
+        {
+            var mainKeychainAccessGroup = (string)_datastore["mainKeychainAccessGroup"];
+            if(mainKeychainAccessGroup != null)
+            {
+                editor.AddKeychainAccessGroup(mainKeychainAccessGroup);
+                editor.SetSystemCapability("com.apple.Keychain", true);
+            }
+        }
+
         void ApplyKeychainAccessGroups(XCodeProjectEditor editor)
         {
             var keychainAccessGroups = (ArrayList)_datastore["keychainAccessGroups"];
@@ -331,7 +343,19 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 foreach(string accessGroup in keychainAccessGroups)
                 {
                     editor.AddKeychainAccessGroup(accessGroup);
+                    editor.SetSystemCapability("com.apple.Keychain", true);
                 }
+            }
+        }
+
+        void ApplyPushNotificationsEnvironment(XCodeProjectEditor editor)
+        {
+            var definePushNotificationsEnv = (Hashtable)_datastore["pushNotificationsEnvironment"];
+            if(definePushNotificationsEnv != null)
+            {
+                var isProd = (bool)definePushNotificationsEnv["isProduction"];
+                editor.AddPushNotificationsEntitlement(isProd);
+                editor.SetSystemCapability("com.apple.Push", true);
             }
         }
     }

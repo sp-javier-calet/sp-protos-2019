@@ -22,7 +22,7 @@ namespace SocialPoint.Network
             HttpClient = Substitute.For<IHttpClient>();
             HttpClient.Send(Arg.Any<HttpRequest>(), Arg.InvokeDelegate<HttpResponseDelegate>(new HttpResponse(200)));
             EventTracker = new HttpServerEventTracker(Scheduler, HttpClient);
-            EventTracker.BaseUrl = "https://lodx.socialpointgames.com/api/v3/";
+            EventTracker.GetBaseUrlCallback = () => "https://lodx.socialpointgames.com/api/v3/";
             EventTracker.Start();
         }
 
@@ -90,7 +90,6 @@ namespace SocialPoint.Network
             };
             HttpClient.Received().Send(Arg.Is<HttpRequest>(r => pred(r)), Arg.Any<HttpResponseDelegate>());
         }
-
 
         [Test]
         public void MetricIsDeletedAfterSend()
@@ -175,7 +174,6 @@ namespace SocialPoint.Network
         [Test]
         public void EventIsDeletedAfterSend()
         {
-
             EventTracker.SendTrack("Test");
             Predicate<HttpRequest> pred = delegate (HttpRequest req) {
                 var data = new JsonAttrParser().Parse(req.Body).AsDic;
@@ -203,10 +201,108 @@ namespace SocialPoint.Network
         [Test]
         public void SendLog()
         {
-            EventTracker.SendLog(new Log(LogLevel.Error, "TestMessage"), false);
+            EventTracker.SendLog(new Log(LogLevel.Error, "TestMessage"));
             HttpClient.Received(0).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
             EventTracker.Update();
             HttpClient.Received(1).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
+        }
+
+        [Test]
+        public void SendMetricWithMultipleUpdates()
+        {
+            var metric = new Metric(MetricType.Counter, "Tests", 1);
+            EventTracker.SendMetric(metric);
+            EventTracker.Update();
+            EventTracker.Update();
+            HttpClient.Received(1).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
+        }
+
+        [Test]
+        public void SendTrakWithMultipleUpdates()
+        {
+            EventTracker.SendTrack("test-track");
+            EventTracker.Update();
+            EventTracker.Update();
+            HttpClient.Received(1).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
+        }
+
+        [Test]
+        public void SendLogWithMultipleUpdates()
+        {
+            EventTracker.SendLog(new Log(LogLevel.Error, "TestMessage"), true);
+            EventTracker.Update();
+            EventTracker.Update();
+            HttpClient.Received(1).Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
+        }
+
+        [Test]
+        public void MetricIsNotDeletedAfterSendError()
+        {
+            var metric = new Metric(MetricType.Counter, "Tests", 1);
+            EventTracker.SendMetric(metric);
+            Predicate<HttpRequest> pred = delegate (HttpRequest req) {
+                var data = new JsonAttrParser().Parse(req.Body).AsDic;
+                return data.ContainsKey("counters");
+            };
+            HttpClient.Send(Arg.Any<HttpRequest>(), Arg.InvokeDelegate<HttpResponseDelegate>(new HttpResponse((int)HttpResponse.StatusCodeType.NotAvailableError)));
+
+            EventTracker.Update();
+            HttpClient.Received(1).Send(Arg.Is<HttpRequest>(r => pred(r)), Arg.Any<HttpResponseDelegate>());
+
+            HttpClient.Send(Arg.Any<HttpRequest>(), Arg.InvokeDelegate<HttpResponseDelegate>(new HttpResponse(200)));
+
+            EventTracker.Update();
+            HttpClient.Received(1).Send(Arg.Is<HttpRequest>(r => pred(r)), Arg.Any<HttpResponseDelegate>());
+            HttpClient.ClearReceivedCalls();
+
+            EventTracker.Update();
+            HttpClient.DidNotReceiveWithAnyArgs().Send(null, null);
+        }
+
+        [Test]
+        public void TrackIsNotDeletedAfterSendError()
+        {
+            EventTracker.SendTrack("Test");
+            Predicate<HttpRequest> pred = delegate (HttpRequest req) {
+                var data = new JsonAttrParser().Parse(req.Body).AsDic;
+                return data.ContainsKey("events");
+            };
+            HttpClient.Send(Arg.Any<HttpRequest>(), Arg.InvokeDelegate<HttpResponseDelegate>(new HttpResponse((int)HttpResponse.StatusCodeType.NotAvailableError)));
+
+            EventTracker.Update();
+            HttpClient.Received(1).Send(Arg.Is<HttpRequest>(r => pred(r)), Arg.Any<HttpResponseDelegate>());
+
+            HttpClient.Send(Arg.Any<HttpRequest>(), Arg.InvokeDelegate<HttpResponseDelegate>(new HttpResponse(200)));
+
+            EventTracker.Update();
+            HttpClient.Received(1).Send(Arg.Is<HttpRequest>(r => pred(r)), Arg.Any<HttpResponseDelegate>());
+            HttpClient.ClearReceivedCalls();
+
+            EventTracker.Update();
+            HttpClient.DidNotReceiveWithAnyArgs().Send(null, null);
+        }
+
+        [Test]
+        public void LogIsNotDeletedAfterSendError()
+        {
+            EventTracker.SendLog(new Log(LogLevel.Error, "TestMessage"), true);
+            Predicate<HttpRequest> pred = delegate (HttpRequest req) {
+                var data = new JsonAttrParser().Parse(req.Body).AsDic;
+                return data.ContainsKey("logs");
+            };
+            HttpClient.Send(Arg.Any<HttpRequest>(), Arg.InvokeDelegate<HttpResponseDelegate>(new HttpResponse((int)HttpResponse.StatusCodeType.NotAvailableError)));
+
+            EventTracker.Update();
+            HttpClient.Received(1).Send(Arg.Is<HttpRequest>(r => pred(r)), Arg.Any<HttpResponseDelegate>());
+
+            HttpClient.Send(Arg.Any<HttpRequest>(), Arg.InvokeDelegate<HttpResponseDelegate>(new HttpResponse(200)));
+
+            EventTracker.Update();
+            HttpClient.Received(1).Send(Arg.Is<HttpRequest>(r => pred(r)), Arg.Any<HttpResponseDelegate>());
+            HttpClient.ClearReceivedCalls();
+
+            EventTracker.Update();
+            HttpClient.DidNotReceiveWithAnyArgs().Send(null, null);
         }
     }
 }

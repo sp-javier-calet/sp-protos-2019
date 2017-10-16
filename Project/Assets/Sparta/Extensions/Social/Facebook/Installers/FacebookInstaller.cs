@@ -16,6 +16,7 @@ namespace SocialPoint.Social
         {
             public bool UseEmpty = false;
             public bool LoginLink = true;
+            public LinkMode LoginLinkMode = LinkMode.Auto;
             public bool LoginWithUi = false;
         }
 
@@ -58,7 +59,7 @@ namespace SocialPoint.Social
         FacebookLink CreateLoginLink()
         {
             var fb = Container.Resolve<IFacebook>();
-            return new FacebookLink(fb, Settings.LoginWithUi);
+            return new FacebookLink(fb, Settings.LoginLinkMode, Settings.LoginWithUi);
         }
     }
 }

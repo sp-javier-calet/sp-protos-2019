@@ -68,7 +68,14 @@ namespace SharpNav.Pathfinding
 
         public void Reverse()
         {
-            polys.Reverse();
+            for(int i = 0; i < polys.Count/2; ++i)
+            {
+                var j = polys.Count - 1 - i;
+
+                NavPolyId tmpId = polys[i];
+                polys[i] = polys[j];
+                polys[j] = tmpId;
+            }
         }
 
         public void RemoveTrackbacks()

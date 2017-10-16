@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.IO;
 using SocialPoint.Utils;
+using UnityEngine;
+using System.Collections;
 
 namespace SocialPoint.Network
 {
@@ -26,9 +28,10 @@ namespace SocialPoint.Network
         public int EmptyRoomTtl = DefaultEmptyRoomTtl;
         public bool CleanupCache = DefaultCleanupCache;
         public bool PublishUserId = DefaultPublishUserId;
-        public Dictionary<object, object> CustomProperties;
+        public Dictionary<object, object> CustomProperties = new Dictionary<object, object>();
         public string[] CustomLobbyProperties;
         public string[] Plugins;
+        public string[] ForcedPlugins;
 
         public string BackendEnv
         {
@@ -42,11 +45,6 @@ namespace SocialPoint.Network
             {
                 CustomProperties[BackendEnvKey] = value;
             }
-        }
-
-        public PhotonNetworkRoomConfig()
-        {
-            CustomProperties = new ExitGames.Client.Photon.Hashtable();
         }
 
         public RoomOptions ToPhoton()
@@ -68,7 +66,7 @@ namespace SocialPoint.Network
                 CleanupCacheOnLeave = CleanupCache,
                 CustomRoomProperties = hashtable,
                 CustomRoomPropertiesForLobby = CustomLobbyProperties,
-                Plugins = Plugins,
+                Plugins = ForcedPlugins ?? Plugins,
                 PublishUserId = PublishUserId
             };
         }
@@ -78,7 +76,7 @@ namespace SocialPoint.Network
     public class PhotonNetworkConfig
     {
         public const bool DefaultCreateRoom = true;
-		public const ExitGames.Client.Photon.ConnectionProtocol DefaultProtocol = ExitGames.Client.Photon.ConnectionProtocol.Tcp;
+        public const ExitGames.Client.Photon.ConnectionProtocol DefaultProtocol = ExitGames.Client.Photon.ConnectionProtocol.Tcp;
 
         public string GameVersion;
         public string RoomName;
@@ -88,7 +86,8 @@ namespace SocialPoint.Network
         public CloudRegionCode ForceRegion;
         public string ForceAppId;
         public string ForceServer;
-		public ExitGames.Client.Photon.ConnectionProtocol Protocol = DefaultProtocol;
+        public ExitGames.Client.Photon.ConnectionProtocol Protocol = DefaultProtocol;
+        public PhotonNetworkTroubleshootingConfig TroubleshootingConfig = new PhotonNetworkTroubleshootingConfig();
 
         public PhotonNetworkConfig()
         {
@@ -110,6 +109,7 @@ namespace SocialPoint.Network
             ForceAppId = c.ForceAppId;
             ForceRegion = c.ForceRegion;
             ForceServer = c.ForceServer;
+
             GameVersion = c.GameVersion;
             RoomName = c.RoomName;
 
@@ -123,9 +123,34 @@ namespace SocialPoint.Network
             rfg.MaxPlayers = c.RoomOptions.MaxPlayers;
             rfg.PlayerTtl = c.RoomOptions.PlayerTtl;
             rfg.Plugins = (string[])c.RoomOptions.Plugins.Clone();
+            if(c.RoomOptions.ForcedPlugins != null)
+            {
+                rfg.ForcedPlugins = new string[c.RoomOptions.ForcedPlugins.Length];
+                Array.Copy(c.RoomOptions.ForcedPlugins, rfg.ForcedPlugins, c.RoomOptions.ForcedPlugins.Length);
+            }
             rfg.PublishUserId = c.RoomOptions.PublishUserId;
             RoomOptions = rfg;
         }
+    }
+
+    [Serializable]
+    public class PhotonNetworkTroubleshootingConfig
+    {
+        public int MaxReconnectAttempts = 6;
+        public float ReconnectInterval = 3.0f;
+    }
+
+    public interface IPhotonNetworkDelegate
+    {
+        void OnCreatedRoom();
+
+        void OnPhotonCustomRoomPropertiesChanged(ExitGames.Client.Photon.Hashtable properties);
+
+        void OnAutoReconnected();
+
+        void OnConnectingError(DisconnectCause cause);
+
+        void OnTryReconnect(int numReconnects, DisconnectCause cause);
     }
 
     public abstract class PhotonNetworkBase : Photon.MonoBehaviour, IDisposable
@@ -150,10 +175,28 @@ namespace SocialPoint.Network
             }
         }
 
+        enum ReconnectionOrigin
+        {
+            FromFailedConnectAttempt,
+            FromFailedRunningConnection,
+        }
 
-        const int ConnectionError = 1;
-        const int CreateRoomError = 2;
-        const int CustomAuthError = 3;
+        bool _reconnectMidGameEnabled = true;
+        bool _reconnecting;
+        int _reconnectAttempts;
+        ReconnectionOrigin _reconnectionOrigin;
+        Coroutine _reconnectionCoroutine;
+
+        protected List<IPhotonNetworkDelegate> _photonDelegates = new List<IPhotonNetworkDelegate>();
+
+        public enum ErrorType
+        {
+            ConnectionError,
+            ConnectionLostError,
+            CreateRoomError,
+            JoinRoomError,
+            CustomAuthError,
+        }
 
         [Obsolete("Use the Config property")]
         public void Init(PhotonNetworkConfig config)
@@ -170,8 +213,28 @@ namespace SocialPoint.Network
             Config.CustomPhotonConfig.SendOutgoingCommands();
         }
 
+        public void AddPhotonDelegate(IPhotonNetworkDelegate dlg)
+        {
+            if(!_photonDelegates.Contains(dlg))
+            {
+                _photonDelegates.Add(dlg);
+            }
+        }
+
+        public void RemovePhotonDelegate(IPhotonNetworkDelegate dlg)
+        {
+            _photonDelegates.Remove(dlg);
+        }
+
+        public void SetAutoReconnectMidGame(bool enabled)
+        {
+            _reconnectMidGameEnabled = enabled;
+        }
+
         protected virtual void DoConnect()
         {
+            RegisterAsMessageTarget();
+
             if(PhotonNetwork.connectionState != ConnectionState.Disconnected)
             {
                 return;
@@ -211,6 +274,10 @@ namespace SocialPoint.Network
             }
             else
             {
+                if(!string.IsNullOrEmpty(Config.ForceAppId))
+                {
+                    PhotonNetwork.PhotonServerSettings.AppID = Config.ForceAppId;
+                }
                 Log.d("[PhotonNetworkBase] ConnectUsingSettings GameVersion: " + Config.GameVersion);
                 PhotonNetwork.ConnectUsingSettings(Config.GameVersion);
             }
@@ -227,10 +294,61 @@ namespace SocialPoint.Network
             PhotonNetwork.Disconnect();
         }
 
+        IEnumerator ReconnectCoroutine(DisconnectCause cause)
+        {
+            while(_reconnectAttempts < Config.TroubleshootingConfig.MaxReconnectAttempts)
+            {
+                yield return new WaitForSecondsRealtime(Config.TroubleshootingConfig.ReconnectInterval);
+                _reconnectAttempts++;
+                OnTryReconnect(_reconnectAttempts, cause);
+                DoConnect();
+            }
+        }
+
+        void StartReconnection(ReconnectionOrigin origin, DisconnectCause cause)
+        {
+            StopReconnection();
+            _reconnecting = true;
+            _reconnectAttempts = 0;
+            _reconnectionOrigin = origin;
+            _reconnectionCoroutine = StartCoroutine(ReconnectCoroutine(cause));
+        }
+
+        void StopReconnection()
+        {
+            if(_reconnectionCoroutine != null)
+            {
+                StopCoroutine(_reconnectionCoroutine);
+            }
+            _reconnectionCoroutine = null;
+            _reconnectAttempts = 0;
+            _reconnecting = false;
+        }
+
+
         public void Dispose()
         {
+            UnregisterAsMessageTarget();
+            StopReconnection();
             DoDisconnect();
             Destroy(this);
+        }
+
+        void RegisterAsMessageTarget()
+        {
+            if(PhotonNetwork.SendMonoMessageTargets == null)
+            {
+                PhotonNetwork.SendMonoMessageTargets = new HashSet<GameObject>();
+            }
+            PhotonNetwork.SendMonoMessageTargets.Add(this.gameObject);
+        }
+
+        void UnregisterAsMessageTarget()
+        {
+            if(PhotonNetwork.SendMonoMessageTargets != null)
+            {
+                PhotonNetwork.SendMonoMessageTargets.Remove(this.gameObject);
+            }
         }
 
         RoomOptions PhotonRoomOptions
@@ -257,18 +375,46 @@ namespace SocialPoint.Network
             }
         }
 
-        abstract protected void OnNetworkError(Error err);
+        abstract protected bool IsRecoverableDisconnectCause(DisconnectCause cause);
+
+        abstract internal void OnNetworkError(Error err);
+
+        abstract protected void OnMessageReceived(NetworkMessageData data, IReader reader);
 
         abstract protected void OnConnected();
 
+        void OnReconnected()
+        {
+            var delegates = new List<IPhotonNetworkDelegate>(_photonDelegates);
+            for(var i = 0; i < delegates.Count; i++)
+            {
+                delegates[i].OnAutoReconnected();
+            }
+        }
+
+        void OnConnectingError(DisconnectCause cause)
+        {
+            var delegates = new List<IPhotonNetworkDelegate>(_photonDelegates);
+            for(var i = 0; i < delegates.Count; i++)
+            {
+                delegates[i].OnConnectingError(cause);
+            }
+        }
+
+        void OnTryReconnect(int numReconnects, DisconnectCause cause)
+        {
+            var delegates = new List<IPhotonNetworkDelegate>(_photonDelegates);
+            for(var i = 0; i < delegates.Count; i++)
+            {
+                delegates[i].OnTryReconnect(numReconnects, cause);
+            }
+        }
+
         virtual protected void OnDisconnected()
         {
-            PhotonNetwork.OnEventCall -= OnEventReceived;
             _state = ConnState.Disconnected;
             Config.CustomPhotonConfig.RestorePhotonConfig();
         }
-
-        abstract protected void OnMessageReceived(NetworkMessageData data, IReader reader);
 
         #region photon callbacks
 
@@ -316,8 +462,9 @@ namespace SocialPoint.Network
             {
                 return;
             }
-            var err = new Error(ConnectionError, "Failed to join: " + StringUtils.Join(codeAndMsg, " "));
+            var err = new Error((int)ErrorType.JoinRoomError, "Failed to join: " + StringUtils.Join(codeAndMsg, " "));
             OnNetworkError(err);
+            StopReconnection();
         }
 
         public void OnFailedToConnectToPhoton(DisconnectCause cause)
@@ -327,20 +474,45 @@ namespace SocialPoint.Network
             {
                 return;
             }
-            var err = new Error(ConnectionError, "Failed to connect: " + cause);
-            OnNetworkError(err);
+
+            if(IsRecoverableDisconnectCause(cause) && _reconnectAttempts < Config.TroubleshootingConfig.MaxReconnectAttempts)
+            {
+                if(!_reconnecting)
+                {
+                    StartReconnection(ReconnectionOrigin.FromFailedConnectAttempt, cause);
+                }
+            }
+            else
+            {
+                int errorCode = (_reconnecting && _reconnectionOrigin == ReconnectionOrigin.FromFailedRunningConnection) ? (int)ErrorType.ConnectionLostError : (int)ErrorType.ConnectionError;
+                var err = new Error(errorCode, "Failed to connect: " + cause);
+                OnConnectingError(cause);
+                OnNetworkError(err);
+                StopReconnection();
+            }
         }
 
         public void OnPhotonCreateRoomFailed(object[] codeAndMsg)
         {
+            Log.e("Failed to join: " + StringUtils.Join(codeAndMsg, " "));
             if(State != ConnState.Connecting)
             {
                 return;
             }
-            var err = new Error(CreateRoomError, "Failed to create room: " + StringUtils.Join(codeAndMsg, " "));
+            var err = new Error((int)ErrorType.CreateRoomError, "Failed to create room: " + StringUtils.Join(codeAndMsg, " "));
             OnNetworkError(err);
             DoDisconnect();
             OnDisconnected();
+            StopReconnection();
+        }
+
+        protected void OnCreatedRoom()
+        {
+            var delegates = new List<IPhotonNetworkDelegate>(_photonDelegates);
+            for(var i = 0; i < delegates.Count; i++)
+            {
+                delegates[i].OnCreatedRoom();
+            }
         }
 
         protected void OnJoinedRoom()
@@ -350,10 +522,19 @@ namespace SocialPoint.Network
                 return;
             }
             _state = ConnState.Connected;
-            Log.e("[PhotonNetworkBase] Registering to OnEventCall");
+            Log.d("[PhotonNetworkBase] Registering to OnEventCall");
             PhotonNetwork.OnEventCall += OnEventReceived;
             Config.CustomPhotonConfig.SetConfigOnJoinedRoom();
-            OnConnected();
+            if(!_reconnecting || _reconnectionOrigin == ReconnectionOrigin.FromFailedConnectAttempt)
+            {
+                OnConnected();
+            }
+            else
+            {
+                OnReconnected();
+            }
+
+            StopReconnection();
         }
 
         void OnLeftRoom()
@@ -368,11 +549,15 @@ namespace SocialPoint.Network
         void OnDisconnectedFromPhoton()
         {
             Log.d("[PhotonNetworkBase] OnDisconnectedFromPhoton");
+            PhotonNetwork.OnEventCall -= OnEventReceived;
             if(State == ConnState.Disconnected)
             {
                 return;
             }
-            OnDisconnected();
+            if(!_reconnecting)
+            {
+                OnDisconnected();
+            }
         }
 
         void OnConnectionFail(DisconnectCause cause)
@@ -382,9 +567,21 @@ namespace SocialPoint.Network
             {
                 return;
             }
-            var err = new Error(ConnectionError, "Failed to connect: " + cause);
-            OnNetworkError(err);
-            OnDisconnected();
+            if(_reconnectMidGameEnabled && IsRecoverableDisconnectCause(cause))
+            {
+                if(!_reconnecting)
+                {
+                    StartReconnection(ReconnectionOrigin.FromFailedRunningConnection, cause);
+                }
+            }
+            else
+            {
+                var err = new Error((int)ErrorType.ConnectionLostError, "Failed to connect: " + cause);
+                OnConnectingError(cause);
+                OnNetworkError(err);
+                OnDisconnected();
+                StopReconnection();
+            }
         }
 
         void OnCustomAuthenticationFailed(string debugMessage)
@@ -393,9 +590,19 @@ namespace SocialPoint.Network
             {
                 return;
             }
-            var err = new Error(CustomAuthError, "Custom Authentication failed: " + debugMessage);
+            var err = new Error((int)ErrorType.CustomAuthError, "Custom Authentication failed: " + debugMessage);
             OnNetworkError(err);
             OnDisconnected();
+            StopReconnection();
+        }
+
+        void OnPhotonCustomRoomPropertiesChanged(ExitGames.Client.Photon.Hashtable propertiesThatChanged)
+        {
+            var delegates = new List<IPhotonNetworkDelegate>(_photonDelegates);
+            for(var i = 0; i < delegates.Count; i++)
+            {
+                delegates[i].OnPhotonCustomRoomPropertiesChanged(propertiesThatChanged);
+            }
         }
 
         #endregion
@@ -433,6 +640,7 @@ namespace SocialPoint.Network
                 var err = Error.FromString((string)content);
                 OnNetworkError(err);
                 DoDisconnect();
+                StopReconnection();
                 return;
             }
 

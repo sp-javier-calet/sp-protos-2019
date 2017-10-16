@@ -61,7 +61,6 @@ namespace SocialPoint.Multiplayer
             var server = new NetworkServerSceneController(Container.Resolve<INetworkServer>(), Container.Resolve<IGameTime>());
 
             server.BufferSize = Settings.ServerBufferSize;
-            server.SyncGroupsSettings = Settings.SyncGroupsSettings;
 
             return server;
         }

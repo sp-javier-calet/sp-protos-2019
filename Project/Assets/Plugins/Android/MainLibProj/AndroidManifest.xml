@@ -6,7 +6,7 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <!-- replaced during setup -->
+    <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="16" />
 
     <application>
 
@@ -16,11 +16,9 @@
 
         <!-- the space in these forces it to be interpreted as a string vs. int -->
         <meta-data android:name="com.google.android.gms.games.APP_ID"
-            android:value="\ 942387780338" />
-        <meta-data android:name="com.google.android.gms.appstate.APP_ID"
-            android:value="\ 942387780338" />
+            android:value="\ 242284448684" />
         <meta-data android:name="com.google.android.gms.games.unityVersion"
-            android:value="\ 0.9.36" />
+            android:value="\ " />
         <!--<meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />-->
 

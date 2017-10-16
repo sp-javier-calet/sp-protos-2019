@@ -19,3 +19,4 @@ MonoBehaviour:
     DaysBeforeReminding: 1
     UserLevelUntilPrompt: 20
     MaxPromptsPerDay: -1
+    PromptAfterBackground: 1

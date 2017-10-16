@@ -1,40 +1,12 @@
-using UnityEngine;
+﻿using UnityEngine;
 using SocialPoint.Physics;
 using System.Collections.Generic;
+using SocialPoint.Base;
 
 namespace SocialPoint.Multiplayer
 {
     public sealed class UnityViewBehaviour : NetworkBehaviour
     {
-        class NetworkMonoBehaviour : MonoBehaviour
-        {
-            NetworkGameObject _go;
-
-            public void Init(NetworkGameObject go)
-            {
-                _go = go;
-            }
-
-            void Start()
-            {
-                SyncTransform();
-            }
-
-            void Update()
-            {
-                SyncTransform();
-            }
-
-            void SyncTransform()
-            {
-                if(_go != null)
-                {
-                    transform.position = _go.Transform.Position.ToUnity();
-                    transform.rotation = _go.Transform.Rotation.ToUnity();
-                }
-            }
-        }
-
         GameObject _view;
 
         public GameObject View
@@ -59,16 +31,27 @@ namespace SocialPoint.Multiplayer
         void InstantiateGameObject()
         {
             var prefabName = _obtainPrefabNameCallback == null ? _prefabName : _obtainPrefabNameCallback(GameObject);
-            _view = _viewPool.Spawn(prefabName,
-                GameObject.Transform.Position.ToUnity(),
-                GameObject.Transform.Rotation.ToUnity());
+            InstantiateGameObject(prefabName);
+        }
+
+        void InstantiateGameObject(string prefabName)
+        {
+            _view = SpawnPrefab(prefabName);
 
             var networkMonoBehaviour = _view.GetComponent<NetworkMonoBehaviour>();
             if(networkMonoBehaviour == null)
             {
+                Log.w("NetworkMonoBehaviour is not added to '" + prefabName + "' prefab");
                 networkMonoBehaviour = _view.AddComponent<NetworkMonoBehaviour>();
             }
             networkMonoBehaviour.Init(GameObject);
+        }
+
+        GameObject SpawnPrefab(string prefabName)
+        {
+            return _viewPool.Spawn(prefabName,
+                GameObject.Transform.Position.ToUnity(),
+                GameObject.Transform.Rotation.ToUnity());
         }
 
         public UnityViewBehaviour Init(System.Func<NetworkGameObject, string> obtainPrefabNameCallback, UnityViewPool viewPool)

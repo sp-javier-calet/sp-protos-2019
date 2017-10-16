@@ -7,6 +7,7 @@ using SocialPoint.Helpshift;
 using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.Notifications;
+using Helpshift;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -76,11 +77,13 @@ namespace SocialPoint.Helpshift
         #endif
 
         UnityHelpshift CreateUnityHelpshift()
-        {           
-            var hsconfig = new HelpshiftConfiguration() {
+        {
+            var hsconfig = new HelpshiftConfiguration()
+            {
                 Mode = Settings.Mode,
                 SearchOnNewConversationEnabled = Settings.SearchOnNewConversationEnabled,
-                ConversationResolutionQuestionEnabled = Settings.ConversationResolutionQuestionEnabled
+                ConversationResolutionQuestionEnabled = Settings.ConversationResolutionQuestionEnabled,
+                Flows = new Dictionary<string, object>[1],
             };
 
             var hs = new UnityHelpshift(hsconfig);
@@ -115,5 +118,6 @@ namespace SocialPoint.Helpshift
                 _helpshift.UserData = new HelpshiftCustomer(userId, new []{ userImportance }, new Dictionary<string, object>());
             }
         }
+
     }
 }

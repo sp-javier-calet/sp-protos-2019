@@ -5,8 +5,6 @@ namespace BehaviorDesigner.Runtime.Standalone
 {
     public class BehaviorTreeBuilder
     {
-        public static readonly BehaviorTreeBuilder Instance = new BehaviorTreeBuilder();
-
         string _defaultPath = null;
         string _debugPath = null;
         string _name = null;
@@ -48,6 +46,26 @@ namespace BehaviorDesigner.Runtime.Standalone
             tree.EnableBehavior();
             #endif
 
+            behaviourManager.UpdateInterval = UpdateIntervalType.Manual;
+
+            return tree;
+        }
+
+        public BehaviorTree Build(
+            SocialPoint.Multiplayer.NetworkSceneContext context,
+            byte[] behaviourData)
+        {
+            BehaviorManager behaviourManager = context.BehaviourManager;
+            BehaviorSource behaviorSource = new BehaviorSource();
+            behaviorSource.binaryDeserialization = context.BinaryDeserialization;
+            var behaviourStream = new System.IO.MemoryStream(behaviourData);
+            var behaviourReader = new SocialPoint.IO.SystemBinaryReader(behaviourStream);
+            BehaviorSourceSerializer.Instance.Deserialize(behaviorSource, new BehaviorReaderWrapper(behaviourReader));
+            var tree = new BehaviorTree(behaviourManager, context.BinaryDeserialization);
+            tree.SetBehaviorSource(behaviorSource);
+            behaviorSource.Initialize(tree);
+            tree.RestartWhenComplete = true;
+            tree.EnableBehavior();
             behaviourManager.UpdateInterval = UpdateIntervalType.Manual;
 
             return tree;

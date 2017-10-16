@@ -29,11 +29,26 @@
             }
         }
 
+        TypeCache _typeCache = null;
+        public TypeCache TypeCache
+        {
+            get
+            {
+                return _typeCache;
+            }
+        }
+
         public NetworkSceneContext()
+        {
+            Clear();
+        }
+
+        public void Clear()
         {
             _pool = new SocialPoint.Utils.ObjectPool();
             _behaviourManager = BehaviorDesigner.Runtime.Behavior.CreateBehaviorManager();
             _binaryDeserialization = new BinaryDeserialization();
+            _typeCache = new TypeCache();
         }
     }
 }

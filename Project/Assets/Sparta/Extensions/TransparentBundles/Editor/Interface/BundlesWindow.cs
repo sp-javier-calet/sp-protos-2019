@@ -871,6 +871,9 @@ namespace SocialPoint.TransparentBundles
                     icon = processing ? _controller.DownloadImage(Config.IconsPath + Config.OutBuildImageName) : _controller.DownloadImage(Config.IconsPath + Config.OutBuildQueuedImageName);
                     break;
 
+                case BundleOperation.deploy_to_production:
+                    icon = processing ? _controller.DownloadImage(Config.IconsPath + Config.UpdateImageName) : _controller.DownloadImage(Config.IconsPath + Config.UpdateQueuedImageName);
+                    break;
             }
 
             var iconContent = new GUIContent(icon, operation.ToString());

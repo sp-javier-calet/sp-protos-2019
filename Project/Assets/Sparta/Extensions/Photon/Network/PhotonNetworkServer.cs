@@ -37,7 +37,11 @@ namespace SocialPoint.Network
             {
                 return;
             }
-            PhotonNetwork.RaiseEvent(PhotonMsgType.Fail, err.ToString(), true, null);
+            PhotonNetwork.RaiseEvent(PhotonMsgType.Fail, err.ToString(), true, new RaiseEventOptions{Receivers = ReceiverGroup.All});
+            if(HasLocalPhotonClient)
+            {
+                LocalPhotonClient.OnNetworkError(err);
+            }
         }
 
         public void AddDelegate(INetworkServerDelegate dlg)
@@ -88,11 +92,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                if(PhotonNetwork.room == null)
-                {
-                    return null;
-                }
-                return PhotonNetwork.room.name;
+                return PhotonNetwork.room == null ? null : PhotonNetwork.room.name;
             }
         }
 
@@ -146,6 +146,20 @@ namespace SocialPoint.Network
             }
         }
 
+        protected override void DoConnect()
+        {
+            if(HasLocalPhotonClient)
+            {
+                _state = ConnState.Connecting;
+                OnJoinedRoom();
+                OnPhotonPlayerConnected(PhotonNetwork.player);
+            }
+            else
+            {
+                base.DoConnect();
+            }
+        }
+
         protected override void OnConnected()
         {
             if(!SetServerPlayer())
@@ -167,13 +181,14 @@ namespace SocialPoint.Network
 
         protected override void OnDisconnected()
         {
+            base.OnDisconnected();
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnServerStopped();
             }
         }
 
-        protected override void OnNetworkError(Error err)
+        internal override void OnNetworkError(Error err)
         {
             for(var i = 0; i < _delegates.Count; i++)
             {
@@ -193,16 +208,21 @@ namespace SocialPoint.Network
             }
         }
 
+        protected override bool IsRecoverableDisconnectCause(DisconnectCause cause)
+        {
+            return false;
+        }
+
         public override void SendNetworkMessage(NetworkMessageData info, byte[] data)
         {
-            var cdata = HttpEncoding.Encode(data, HttpEncoding.DefaultBodyCompression);
+            var cdata = HttpEncoding.Encode(data, HttpEncoding.LZ4);
 
             var options = new RaiseEventOptions();
 
             var reliable = PhotonNetwork.PhotonServerSettings.Protocol == ConnectionProtocol.Tcp && !info.Unreliable;
-            if(info.ClientId != 0)
+            if(info.ClientIds != null && info.ClientIds.Count > 0)
             {
-                var player = GetPlayer(info.ClientId);
+                var player = GetPlayer(info.ClientIds[0]);
                 if(player == null)
                 {
                     return;
@@ -222,12 +242,12 @@ namespace SocialPoint.Network
 
         protected override void ProcessOnEventReceived(byte eventcode, object content, int senderid)
         {
-            var cdata = HttpEncoding.Decode((byte[])content, HttpEncoding.DefaultBodyCompression);
+            var cdata = HttpEncoding.Decode((byte[])content, HttpEncoding.LZ4);
             
             byte clientId = GetClientId(GetPlayer((byte)senderid));
             var info = new NetworkMessageData {
                 MessageType = eventcode,
-                ClientId = clientId
+                ClientIds = new List<byte>(){ clientId }
             };
             var stream = new MemoryStream(cdata);
             var reader = new SystemBinaryReader(stream);

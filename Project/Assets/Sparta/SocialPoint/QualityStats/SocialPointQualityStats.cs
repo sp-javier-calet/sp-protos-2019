@@ -156,7 +156,7 @@ namespace SocialPoint.QualityStats
             }
         }
 
-        void OnAppWillGoBackground()
+        public void OnAppWillGoBackground()
         {
             var httpRequests = GetHttpRequests();
             var itr = httpRequests.GetEnumerator();
@@ -415,7 +415,7 @@ namespace SocialPoint.QualityStats
             dict.SetValue("opengl_vendor", deviceInfo.OpenglVendor);
             dict.SetValue("opengl_renderer", deviceInfo.OpenglRenderer);
             //dict.SetValue("opengl_extensions", deviceInfo.OpenglExtensions);
-            //dict.SetValue("opengl_shading", deviceInfo.OpenglShadingVersion);
+            dict.SetValue("opengl_shading", deviceInfo.OpenglShadingVersion);
             dict.SetValue("opengl_version", deviceInfo.OpenglVersion);
             dict.SetValue("opengl_memory", deviceInfo.OpenglMemorySize);
 

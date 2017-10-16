@@ -4,7 +4,11 @@ using System;
 using System.Collections.Generic;
 using Helpshift;
 using SocialPoint.Base;
+using SocialPoint.Attributes;
 #endif
+
+using SocialPoint.Dependency;
+using SocialPoint.Hardware;
 
 using SocialPoint.Locale;
 using SocialPoint.Notifications;
@@ -55,6 +59,13 @@ namespace SocialPoint.Helpshift
 #endif
         }
 
+        public void AddFlows(AttrDic flows)
+        {
+            UnityEngine.Debug.LogError("UnityHelpshift: AddFlows");
+            _config.ParseHelpshiftTopics(flows);
+            _configMap.Add(HelpshiftSdk.HsCustomContactUsFlows, _config.Flows);
+        }
+
         void CreateConfigMap()
         {
             _configMap = new Dictionary<string, object>();
@@ -95,6 +106,8 @@ namespace SocialPoint.Helpshift
             {
                 customerMetaData.Add(HelpshiftSdk.HSTAGSKEY, _userData.CustomerTags);
             }
+            
+            _userData.CustomMetaData.Add("ifda", Services.Instance.Resolve<IDeviceInfo>().AdvertisingId);
 
             foreach(var kpv in _userData.CustomMetaData)
             {

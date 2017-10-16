@@ -35,6 +35,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CounterPublisher">
+      <HintPath>..\..\Server\deploy\CounterPublisher\bin\CounterPublisher.dll</HintPath>
+    </Reference>
     <Reference Include="ExitGames.Logging.Log4Net">
       <HintPath>..\..\Server\lib\ExitGames.Logging.Log4Net.dll</HintPath>
     </Reference>
@@ -78,6 +81,7 @@
     <Compile Include="ConnectionStates\LoadBalancing\WaitingForMasterConnect.cs" />
     <Compile Include="Diagnostics\CounterLogger.cs" />
     <Compile Include="Diagnostics\Counters.cs" />
+    <Compile Include="Diagnostics\StatsLogger.cs" />
     <Compile Include="Diagnostics\WindowsCounter.cs" />
     <Compile Include="Enums\LiteEnums.cs" />
     <Compile Include="Enums\LoadBalancingEnums.cs" />

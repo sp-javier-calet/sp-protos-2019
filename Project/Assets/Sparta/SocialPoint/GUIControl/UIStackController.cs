@@ -20,6 +20,8 @@ namespace SocialPoint.GUIControl
         public UIViewAnimation ChildDownAnimation;
         public UIViewAnimation ChildAnimation;
 
+        public UIViewController SceneParent;
+
         IAppEvents _appEvents;
 
         public IAppEvents AppEvents
@@ -148,7 +150,7 @@ namespace SocialPoint.GUIControl
             return false;
         }
 
-        bool IsPopAction(ActionType act)
+        static bool IsPopAction(ActionType act)
         {
             return act == ActionType.Pop || act == ActionType.PopUntilCheck || act == ActionType.PopUntilPos || act == ActionType.PopUntilType;
         }
@@ -196,10 +198,6 @@ namespace SocialPoint.GUIControl
 
             SetupTransition(from, to, act);
 
-            DebugLog(string.Format("StartTransition {0} {1} -> {2}", SimultaneousAnimations ? "sim" : "con",
-                from == null ? string.Empty : from.gameObject.name,
-                to == null ? string.Empty : to.gameObject.name));
-
             // wait one frame to prevent overlapping transitions. meanwhile we disable the "to" controller to avoid it to update before loading
             if(to != null)
             {
@@ -226,7 +224,7 @@ namespace SocialPoint.GUIControl
                 }
                 else if(to != null)
                 {
-                    Show();
+                    Show(); // TODO probably this Show() can be removed
                     to.Show();
                     while(!to.IsStable || !IsStable)
                     {
@@ -236,7 +234,7 @@ namespace SocialPoint.GUIControl
                 else if(from != null)
                 {
                     from.Hide();
-                    Hide();
+                    Hide(); // TODO probably this Hide() can be removed
                     while(!from.IsStable || !IsStable)
                     {
                         yield return null;
@@ -326,6 +324,17 @@ namespace SocialPoint.GUIControl
             base.OnDisappeared();
         }
 
+        override public void OnPopupStackedInView()
+        {
+            _action = ActionType.None;
+
+            var top = Top;
+            if(top != null)
+            {
+                top.ShowImmediate();
+            }
+        }
+
         override protected void OnChildViewStateChanged(UIViewController ctrl, ViewState state)
         {
             if(_action == ActionType.None && state == ViewState.Disappearing && ctrl == Top)
@@ -373,6 +382,10 @@ namespace SocialPoint.GUIControl
         public UIViewController Push(UIViewController ctrl)
         {
             var act = ActionType.Push;
+            if(SceneParent != null)
+            {
+                SceneParent.OnPopupStackedInView();
+            }
             StartActionCoroutine(DoPushCoroutine(ctrl, act), act);
             return ctrl;
         }
@@ -421,6 +434,10 @@ namespace SocialPoint.GUIControl
             DebugLog(string.Format("PushImmediate {0}", ctrl.gameObject.name));
             var top = Top;
             AddChild(ctrl);
+            if(SceneParent != null)
+            {
+                SceneParent.OnPopupStackedInView();
+            }
             _stack.Add(ctrl);
             SetupTransition(top, ctrl, ActionType.Push);
             if(top != null)
@@ -589,6 +606,10 @@ namespace SocialPoint.GUIControl
                 top = _stack[_stack.Count - 1];
                 top.DestroyOnHide = true;
             }
+            if(_stack.Count == 1 && SceneParent != null)
+            {
+                SceneParent.OnNoMorePopupsInView();
+            }
             if(_stack.Count > 1)
             {
                 ctrl = _stack[_stack.Count - 2];
@@ -608,6 +629,10 @@ namespace SocialPoint.GUIControl
             {
                 Top.HideImmediate();
                 _stack.RemoveAt(_stack.Count - 1);
+            }
+            if(_stack.Count == 0 && SceneParent != null)
+            {
+                SceneParent.OnNoMorePopupsInView();
             }
             var ctrl = Top;
             DebugLog(string.Format("PopImmediate {0}", ctrl ? ctrl.gameObject.name : string.Empty));
@@ -653,6 +678,10 @@ namespace SocialPoint.GUIControl
                 {
                     yield return enm.Current;
                 }
+            }
+            if(SceneParent != null)
+            {
+                SceneParent.OnNoMorePopupsInView();
             }
         }
 

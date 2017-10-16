@@ -3,6 +3,7 @@ using NUnit.Framework;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
 using SocialPoint.Network;
+using SocialPoint.Base;
 
 namespace SocialPoint.Locale
 {
@@ -20,13 +21,15 @@ namespace SocialPoint.Locale
 
             HttpClient = Substitute.For<IHttpClient>();
             var DeviceInfo = Substitute.For<UnityDeviceInfo>();
+            var environments = Substitute.For<IBackendEnvironment>();
+            environments.Environments.Returns(new Environment[]{ new Environment { Name = "Production", Url = string.Empty, Type = EnvironmentType.Production}});
 
             LocalizationManager = new LocalizationManager(LocalizationManager.CsvMode.WriteCsvWithAllSupportedLanguages, null);
             LocalizationManager.HttpClient = HttpClient;
             LocalizationManager.AppInfo = DeviceInfo.AppInfo;
+            LocalizationManager.BackendEnvironments = environments;
             LocalizationManager.Location.ProjectId = "ds";
-            LocalizationManager.Location.EnvironmentId = "prod";
-            LocalizationManager.Location.SecretKey = "4HKu9W2Wv4Ooolrt";
+            LocalizationManager.Location.EnvironmentsData.Add(new SocialPoint.Locale.LocaleInstaller.EnvironmentData{ EnvironmentType = EnvironmentType.Production, Id = "prod", SecretKey = "4HKu9W2Wv4Ooolrt"});
             LocalizationManager.SupportedLanguages = LocalizationManager.DefaultSupportedLanguages;
         }
 

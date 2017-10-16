@@ -157,6 +157,7 @@ namespace SocialPoint.Alert
             _controller.ButtonTitles = _buttons;
             _controller.InputEnabled = _input;
             _controller.Result += OnControllerResult;
+            _controller.ViewEvent += OnViewEvents;
             _delegate += dlg;
             if(ShowDelegate != null)
             {
@@ -171,6 +172,23 @@ namespace SocialPoint.Alert
         public object Clone()
         {
             return new UnityAlertView(_prefab);
+        }
+
+        void OnViewEvents(UIViewController view, UIViewController.ViewState state)
+        {
+            switch(state)
+            {
+            case UIViewController.ViewState.Hidden:
+                {
+                    ScreenManager.Instance.SetBlockerEnabled(false);
+                }
+                break;
+            case UIViewController.ViewState.Appearing:
+                {
+                    ScreenManager.Instance.SetBlockerEnabled(true);
+                }
+                break;
+            }
         }
     }
 

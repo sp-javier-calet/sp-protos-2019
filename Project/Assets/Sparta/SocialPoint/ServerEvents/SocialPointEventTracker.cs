@@ -416,6 +416,8 @@ namespace SocialPoint.ServerEvents
             mobile.SetValue("adid_enabled", DeviceInfo.AdvertisingIdEnabled);
             mobile.SetValue("rooted", DeviceInfo.Rooted);
             mobile.SetValue("os", DeviceInfo.PlatformVersion);
+            mobile.SetValue("device_aid_opt_out", "");
+            mobile.SetValue("version", DeviceInfo.AppInfo.Version);
             #if ADMIN_PANEL
             mobile.SetValue("admin_panel", true);
             #endif
@@ -713,7 +715,7 @@ namespace SocialPoint.ServerEvents
             operation.SetValue("lost_amount", Math.Abs(op.LostAmount));
             operation.SetValue("type", op.ResourceName);
 
-            var item = new AttrDic();
+            var item = data.ContainsKey("item") ? data["item"].AsDic : new AttrDic();
             data.Set("item", item);
             item.SetValue("reference", op.ItemId);
 

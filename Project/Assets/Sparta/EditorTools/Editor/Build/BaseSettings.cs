@@ -12,23 +12,23 @@ namespace SpartaTools.Editor.Build
 
         readonly List<Validator> _validators = new List<Validator> { 
             new Validator {
-                Validate = (BuildSet bs) => !string.IsNullOrEmpty(bs.Android.BundleIdentifier),
+                Validate = bs => !string.IsNullOrEmpty(bs.Android.BundleIdentifier),
                 ErrorMessage = "Android Bundle Identifier must be defined"
             },
             new Validator {
-                Validate = (BuildSet bs) => !string.IsNullOrEmpty(bs.Ios.BundleIdentifier),
+                Validate = bs => !string.IsNullOrEmpty(bs.Ios.BundleIdentifier),
                 ErrorMessage = "Ios Bundle Identifier must be defined"
             },
             new Validator {
-                Validate = (BuildSet bs) => bs.App.IconTexture != null,
+                Validate = bs => bs.App.IconTexture != null,
                 ErrorMessage = "Default Icon must be defined"
             },
             new Validator {
-                Validate = (BuildSet bs) => !string.IsNullOrEmpty(bs.App.ProductName),
+                Validate = bs => !string.IsNullOrEmpty(bs.App.ProductName),
                 ErrorMessage = "Default Product Name must be provided"
             },
             new Validator {
-                Validate = (BuildSet bs) => !string.IsNullOrEmpty(bs.Android.Keystore.Path) &&
+                Validate = bs => !string.IsNullOrEmpty(bs.Android.Keystore.Path) &&
                 !string.IsNullOrEmpty(bs.Android.Keystore.FilePassword) &&
                 !string.IsNullOrEmpty(bs.Android.Keystore.Alias) &&
                 !string.IsNullOrEmpty(bs.Android.Keystore.Password),
@@ -108,11 +108,7 @@ namespace SpartaTools.Editor.Build
 
         public static BaseSettings Load()
         {
-            var baseSettings = AssetDatabase.LoadAssetAtPath<BaseSettings>(BaseSettingsAsset);
-            if(baseSettings == null)
-            {
-                baseSettings = Create();
-            }
+            var baseSettings = AssetDatabase.LoadAssetAtPath<BaseSettings>(BaseSettingsAsset) ?? Create();
             return baseSettings;
         }
 
@@ -137,13 +133,11 @@ namespace SpartaTools.Editor.Build
             {
                 PlayerSettings.bundleIdentifier = Android.BundleIdentifier;
             }
-
-            #if UNITY_5_5_OR_NEWER
+                
             // Due to plugins constraints, we need to compile always using Gradle
             EditorUserBuildSettings.exportAsGoogleAndroidProject = false;
             EditorUserBuildSettings.androidBuildSystem = AndroidBuildSystem.Gradle;
             EditorUserBuildSettings.forceInstallation = false;
-            #endif
 
             // Flags
             PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, Common.Flags + ";" + Android.Flags);

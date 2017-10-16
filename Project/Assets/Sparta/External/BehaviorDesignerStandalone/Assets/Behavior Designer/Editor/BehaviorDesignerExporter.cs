@@ -24,7 +24,7 @@ namespace BehaviorDesigner.Runtime
                 get { return line; }
             }
         }
-    
+
         string fileName = "Behavior";
         string behaviorName = "Behavior";
         BehaviorSource _lastBehaviorSource = null;

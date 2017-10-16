@@ -3,6 +3,7 @@ using UnityEngine;
 using SocialPoint.Dependency;
 using SocialPoint.AppEvents;
 using SocialPoint.ScriptEvents;
+using SocialPoint.Restart;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -32,7 +33,7 @@ public class AppEventsInstaller : ServiceInstaller
     #if ADMIN_PANEL
     AdminPanelAppEvents CreateAdminPanelAppEvents()
     {
-        return new AdminPanelAppEvents(Container.Resolve<IAppEvents>());
+        return new AdminPanelAppEvents(Container.Resolve<IAppEvents>(), Container.Resolve<IRestarter>());
     }
     #endif
 

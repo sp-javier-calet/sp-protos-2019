@@ -8,7 +8,7 @@
     <ProjectGuid>{4C79C300-BAD3-465D-B591-AE5E5E4F16E3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SocialPoint.Multiplayer</RootNamespace>
+    <RootNamespace>SocialPoint</RootNamespace>
     <AssemblyName>AuthoritativeBot</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -40,6 +40,10 @@
     </PostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\AuthoritativeGameLogic\AuthoritativeGameLogic.csproj">
+      <Project>{d43e9adc-17ad-49a3-8931-3fa2247c7f9e}</Project>
+      <Name>AuthoritativeGameLogic</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Bot\StarDust.S2S\StarDust.S2S.Server.csproj">
       <Project>{a8cd69c4-6329-4466-8c77-18cbd1d4f162}</Project>
       <Name>StarDust.S2S.Server</Name>
@@ -51,18 +55,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Bot\Shared\StardustApplication.cs">
-      <Link>StardustApplication.cs</Link>
+      <Link>Stardust\StardustApplication.cs</Link>
     </Compile>
     <Compile Include="..\Bot\Shared\StardustClientConnection.cs">
-      <Link>StardustClientConnection.cs</Link>
+      <Link>Stardust\StardustClientConnection.cs</Link>
     </Compile>
     <Compile Include="..\Bot\Shared\StardustNetworkClient.cs">
-      <Link>StardustNetworkClient.cs</Link>
+      <Link>Stardust\StardustNetworkClient.cs</Link>
     </Compile>
     <Compile Include="..\Bot\Shared\StartdustNetworkMessage.cs">
-      <Link>StartdustNetworkMessage.cs</Link>
+      <Link>Stardust\StartdustNetworkMessage.cs</Link>
     </Compile>
     <Compile Include="AuthoritativeApplication.cs" />
+    <Compile Include="LoadTests\GameMultiplayerClientBotLobbyBehaviour.cs" />
+    <Compile Include="LoadTests\NetworkClientBot.cs" />
+    <Compile Include="LoadTests\NetworkClientFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="ExitGames.Logging.Log4Net, Version=1.0.4.0, Culture=neutral, PublicKeyToken=eac0edd9746a4aa0, processorArchitecture=MSIL">

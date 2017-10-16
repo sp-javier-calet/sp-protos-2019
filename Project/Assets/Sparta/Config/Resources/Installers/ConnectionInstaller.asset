@@ -14,7 +14,7 @@ MonoBehaviour:
   _isGlobal: 1
   Settings:
     Endpoints:
-    - ws://sprocket-00.int.lod.laicosp.net:8002/ws
+    - ws://sprocket-00.int.ca.laicosp.net:8002/ws
     Protocols:
     - wamp.2.json
     UseNativeWebsocketIfSupported: 1

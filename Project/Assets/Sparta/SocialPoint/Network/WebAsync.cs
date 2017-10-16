@@ -46,13 +46,16 @@ namespace SocialPoint.Network
                 yield break;
             }
 
+            // Put the request into the state object so it can be passed around
+            WebRequest = webRequest;
+
             if(_timeout > 0)
             {
                 // WebRequest timeout won't work in async calls, so we need this instead
                 ThreadPool.RegisterWaitForSingleObject(
                     asyncResult.AsyncWaitHandle,
                     new WaitOrTimerCallback(ScanTimeoutCallback),
-                    webRequest,
+                    this,
                     (int)(_timeout * 1000), // obviously because this is in miliseconds
                     true
                 );

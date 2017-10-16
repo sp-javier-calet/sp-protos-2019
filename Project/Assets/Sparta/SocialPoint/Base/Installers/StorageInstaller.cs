@@ -11,8 +11,8 @@ namespace SocialPoint.Base
 {
     public class StorageInstaller : ServiceInstaller
     {
-        const string VolatileTag = "volatile";
-        const string PersistentTag = "persistent";
+        public const string VolatileTag = "volatile";
+        public const string PersistentTag = "persistent";
 
         [Serializable]
         public class SettingsData
@@ -58,11 +58,7 @@ namespace SocialPoint.Base
         {
             get
             {
-                #if ADMIN_PANEL
-                return Container.Resolve<BackendEnvironment>().GetEnvironment().Name;
-                #else
                 return Settings.PersistentPrefix;
-                #endif
             }
         }
 
@@ -70,11 +66,7 @@ namespace SocialPoint.Base
         {
             get
             {
-                #if ADMIN_PANEL
-                return Container.Resolve<BackendEnvironment>().GetEnvironment().Name;
-                #else
                 return Settings.VolatilePrefix;
-                #endif
             }
         }
 

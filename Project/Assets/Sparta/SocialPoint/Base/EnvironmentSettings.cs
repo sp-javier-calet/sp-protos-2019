@@ -15,11 +15,14 @@ namespace SocialPoint.Base
     {
         const string EnvironmentUrlEnvironmentKey = "SP_DEFAULT_ENVIRONMENT";
 
+        const string FolderName = "Environment/";
         const string FileName = "Environment";
-        const string FileExtension = ".asset";
-        const string ContainerPath = "Assets/Sparta/Config/Environment/Resources/";
 
-        const string EnvironmentSettingsAssetPath = ContainerPath + FileName + FileExtension;
+        #if UNITY_EDITOR
+        const string FileExtension = ".asset";
+        static readonly string ContainerPath = ConfigPaths.SpartaConfigResourcesPath + FolderName;
+        static readonly string AssetFullPath = ContainerPath + FileName + FileExtension;
+        #endif
 
         static EnvironmentSettings _instance;
 
@@ -30,21 +33,14 @@ namespace SocialPoint.Base
                 return GetInstance();
             }
         }
-
-        #if UNITY_EDITOR
-        static EnvironmentSettings()
-        {
-            #if !UNITY_5_4_OR_NEWER
-            GetInstance();
-            #endif
-        }
-        #else
+            
+        #if !UNITY_EDITOR
         void OnEnable()
         {
             GetInstance();
         }
         #endif
-        #if UNITY_5_4_OR_NEWER && UNITY_EDITOR
+        #if UNITY_EDITOR
         [InitializeOnLoadMethod]
         #endif
         static EnvironmentSettings GetInstance()
@@ -52,9 +48,9 @@ namespace SocialPoint.Base
             if(_instance == null)
             {
                 #if UNITY_EDITOR
-                _instance = AssetDatabase.LoadAssetAtPath<EnvironmentSettings>(EnvironmentSettingsAssetPath);
+                _instance = AssetDatabase.LoadAssetAtPath<EnvironmentSettings>(AssetFullPath);
                 #else
-                _instance = Resources.Load(FileName) as EnvironmentSettings;
+                _instance = Resources.Load<EnvironmentSettings>(FolderName + FileName);
                 #endif
 
                 if(_instance == null)
@@ -82,8 +78,11 @@ namespace SocialPoint.Base
                 Directory.CreateDirectory(ContainerPath);
             }
 
-            AssetDatabase.CreateAsset(Instance, EnvironmentSettingsAssetPath);
-            AssetDatabase.SaveAssets();
+            if(!File.Exists(AssetFullPath))
+            {
+                string assetPath = AssetDatabase.GenerateUniqueAssetPath(AssetFullPath);
+                AssetDatabase.CreateAsset(_instance, assetPath);
+            }
         }
 
         static public void UpdateData()
@@ -94,19 +93,19 @@ namespace SocialPoint.Base
 
         static void UpdateEnvironmentUrl()
         {
-            Instance.EnvironmentUrl = string.Empty;
-            EnvironmentSettings.Instance.EnvironmentUrl = System.Environment.GetEnvironmentVariable(EnvironmentUrlEnvironmentKey);
+            _instance.EnvironmentUrl = string.Empty;
+            EnvironmentSettings._instance.EnvironmentUrl = System.Environment.GetEnvironmentVariable(EnvironmentUrlEnvironmentKey);
         }
 
         static void UpdateAsset()
         {
-            EditorUtility.SetDirty(Instance);
+            EditorUtility.SetDirty(_instance);
         }
 
         #endif
 
         [SerializeField]
-        string _environmentUrl = string.Empty;
+        string _environmentUrl;
 
         public string EnvironmentUrl
         {

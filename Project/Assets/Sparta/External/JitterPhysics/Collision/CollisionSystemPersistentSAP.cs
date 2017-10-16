@@ -390,7 +390,8 @@ namespace Jitter.Collision
                 }
             }
 
-            threadManager.Execute();
+            if(multiThreaded)
+                threadManager.Execute();
 
         }
 

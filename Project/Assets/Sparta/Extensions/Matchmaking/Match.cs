@@ -30,7 +30,7 @@ namespace SocialPoint.Matchmaking
         {
             Id = matchData.GetValue(MatchIdAttrKey).ToString();
             PlayerId = matchData.GetValue(PlayerIdAttrKey).ToString();
-            Running = true;
+            Running = false;
             GameInfo = matchData.Get(GameInfoAttrKey);
             ServerInfo = matchData.Get(ServerInfoAttrKey);
         }

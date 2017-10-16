@@ -1,7 +1,7 @@
 type extension
 desc Lockstep implementation for sparta
 name Extension/Lockstep
-depends_on Assets/Sparta/Extensions/Connection
-depends_on Assets/Sparta/Extensions/Matchmaking
-depends_on Assets/Sparta/Extensions/Network/ServerEvents
-depends_on Assets/Sparta/External/Photon/Plugins/WebSocket/websocket-sharp.dll
+depends_on {SPARTA_EXTENSIONS_PATH}/Connection
+depends_on {SPARTA_EXTENSIONS_PATH}/Matchmaking
+depends_on {SPARTA_EXTENSIONS_PATH}/Network/ServerEvents
+depends_on {SPARTA_EXTERNAL_PATH}/Photon/Plugins/WebSocket/websocket-sharp.dll

@@ -98,29 +98,9 @@ namespace SocialPoint.IO
 
     public class StandaloneFileManager : IFileManager
     {
-        int NumberOfRetries = 3;
-        int DelayOnRetry = 500;
-
         public ReadHandler Read(string asset)
         {
-            FileStream stream = null;
-            for(int i = 1; i <= NumberOfRetries; ++i)
-            {
-                try
-                {
-                    stream = new FileStream(asset, FileMode.Open, FileAccess.Read, FileShare.Read);
-                    break;
-                }
-                catch(IOException e)
-                {
-                    if(i >= NumberOfRetries)
-                    {
-                        throw;
-                    }
-                    Thread.Sleep(DelayOnRetry);
-                }
-            }
-
+            FileStream stream = new FileStream(asset, FileMode.Open, FileAccess.Read, FileShare.Read);
             return new ReadHandler(stream);
         }
 

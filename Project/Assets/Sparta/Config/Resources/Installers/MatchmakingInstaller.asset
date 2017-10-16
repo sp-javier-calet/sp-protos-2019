@@ -13,6 +13,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    BaseUrl: http://int-lod.socialpointgames.es
+    BaseUrl: http://int-ca.socialpointgames.com
     WebsocketUrls:
-    - ws://int-lod.socialpointgames.com:8001/find_opponent
+    - ws://sprocket-00.int.ca.laicosp.net:8004/ws

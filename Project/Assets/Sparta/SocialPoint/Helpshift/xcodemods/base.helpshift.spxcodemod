@@ -1,6 +1,6 @@
 {
     "librarysearchpaths":[
-        "{ROOT_PATH}/Assets/Sparta/External/Helpshift/Plugins/iOS"
+        "{SPARTA_EXTERNAL_PATH}/Helpshift/Plugins/iOS"
     ],
     "frameworks":[
         "CoreTelephony.framework:weak",
@@ -13,10 +13,13 @@
         "libz.dylib:weak"
     ],
     "folders":[
-        "{ROOT_PATH}/Assets/Sparta/External/Helpshift/Plugins/iOS/HSThemes",
-        "{ROOT_PATH}/Assets/Sparta/External/Helpshift/Plugins/iOS/HelpshiftDefaultLocalizations"
+        "{SPARTA_EXTERNAL_PATH}/Helpshift/Plugins/iOS/HSThemes",
+        "{SPARTA_EXTERNAL_PATH}/Helpshift/Plugins/iOS/HelpshiftDefaultLocalizations"
     ]
     "files":[
         "{ROOT_PATH}/Assets/Plugins/iOS/HelpshiftInstallConfig.json"
-    ]
+    ],
+    "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "We need to access photos library to allow users manually pick images meant to be sent as attachment for help and support reasons."
+    }
 }

@@ -1,0 +1,100 @@
+{
+	"loaders": [
+		{
+			"id": "77f09ad4-3bb4-4d0f-9124-a1c7558e793c",
+			"path": {
+				"Unknown": "External/Models/Champs"
+			},
+			"preprocess": false,
+			"permanent": false
+		},
+		{
+			"id": "ab5eaae9-68a3-46ce-9454-fd223b9b3e5a",
+			"path": {
+				"Unknown": "External/Models"
+			},
+			"preprocess": false,
+			"permanent": false
+		},
+		{
+			"id": "843e5b35-9f65-4c1a-9ab4-a9cb68aa842f",
+			"path": {
+				"Unknown": "Rumen_Test"
+			},
+			"preprocess": false,
+			"permanent": false
+		},
+		{
+			"id": "160d2901-6633-4bb5-8926-486a8221deb5",
+			"path": {
+				"Unknown": "External/Gfx3D/Environment/nca_Textures_lev"
+			},
+			"preprocess": false,
+			"permanent": false
+		},
+		{
+			"id": "24ebf57e-88b0-40c9-919a-2c5e3079a9f6",
+			"path": {
+				"Unknown": "External/Gfx3D/Props/prop_totem"
+			},
+			"preprocess": false,
+			"permanent": false
+		},
+		{
+			"id": "2255430a-fd0e-4be2-9e84-1a869169eb29",
+			"path": {
+				"Unknown": "External/Gfx3D/Props/Textures"
+			},
+			"preprocess": false,
+			"permanent": false
+		},
+		{
+			"id": "397e9d7e-cfbe-4727-9081-10e7fabaf146",
+			"path": {
+				"Unknown": "External/Gfx3D/Environment/nca_Prefabs_lev"
+			},
+			"preprocess": false,
+			"permanent": false
+		},
+		{
+			"id": "adff34da-96ec-4ec5-a74e-33771b06f32c",
+			"path": {
+				"Unknown": "External/NguiAssets"
+			},
+			"preprocess": false,
+			"permanent": false
+		},
+		{
+			"id": "85d8647d-b1ca-489d-8c6f-ead26f68d287",
+			"path": {
+				"Unknown": "External/Resources/Textures"
+			},
+			"preprocess": false,
+			"permanent": false
+		},
+		{
+			"id": "f09d8a7b-cb08-4dae-8724-788dbe5918b8",
+			"path": {
+				"Unknown": "External/Gfx3D/Fx/Textures"
+			},
+			"preprocess": false,
+			"permanent": false
+		},
+		{
+			"id": "a37ba0c5-88c8-4e6c-a8fa-2223cc5d4bd5",
+			"path": {
+				"Unknown": "External/Particles/Textures"
+			},
+			"preprocess": false,
+			"permanent": false
+		},
+		{
+			"id": "125dd895-445c-4920-99e8-efdfa509f0a1",
+			"path": {
+				"Unknown": "External/Gfx3D/Fx/Prefabs"
+			},
+			"preprocess": false,
+			"permanent": false
+		}
+	]
+}

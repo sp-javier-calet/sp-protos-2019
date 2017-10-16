@@ -81,11 +81,13 @@ namespace SocialPoint.AssetBundlesClient
         {
             _fullPath = fullPath;
 
+            #if !UNITY_ANDROID
             if(!FileUtils.ExistsFile(_fullPath))
             {
                 Error = string.Format("{0} file does not exists locally. FullPath: {1}", AssetBundleName, _fullPath);
                 return;
             }
+            #endif
 
             _request = AssetBundle.LoadFromFileAsync(_fullPath);
         }

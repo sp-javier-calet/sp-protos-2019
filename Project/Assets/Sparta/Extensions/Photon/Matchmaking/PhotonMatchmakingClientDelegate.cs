@@ -39,17 +39,15 @@ namespace SocialPoint.Matchmaking
 
         public void OnMatched(Match match)
         {
-            /*
             _network.Config.RoomName = match.Id;
-            //_network.Config.CreateRoom = !match.Running; // Running is always true!!
-            _network.Config.CreateRoom = true;
+            _network.Config.CreateRoom = !match.Running;
             var server = match.ServerInfo.AsDic;
             if(server.ContainsKey(RegionAttrKey))
             {
                 try
                 {
                     var region = server.GetValue(RegionAttrKey).ToString();
-                    _network.Config.ForceRegion = (CloudRegionCode) Enum.Parse(typeof(CloudRegionCode), region, true);
+                    _network.Config.ForceRegion = (CloudRegionCode)Enum.Parse(typeof(CloudRegionCode), region, true);
                 }
                 catch(Exception)
                 {
@@ -63,12 +61,8 @@ namespace SocialPoint.Matchmaking
             {
                 _network.Config.ForceAppId = server.GetValue(AppIdAttrKey).ToString();
             }
-            */
-
-            _network.Config.RoomName = match.Id;
-            _network.Config.CreateRoom = true;
         }
-        
+
         public void OnStopped(bool successful)
         {
         }

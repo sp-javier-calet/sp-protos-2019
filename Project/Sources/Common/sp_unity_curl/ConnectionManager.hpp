@@ -25,18 +25,6 @@ struct CurlMessagesInfo
     std::string outcoming;
 };
 
-struct CurlRequestInfo
-{
-    std::string url;
-    std::string query;
-    std::string method;
-    std::string proxy;
-    std::string headers;
-    std::string body;
-    int timeout;
-    int activityTimeout;
-};
-
 struct CurlResponseInfo
 {
     int code = 0;
@@ -61,7 +49,6 @@ class CurlConnection
     CURL* easy = NULL;
     bool isActive = true;
     
-    CurlRequestInfo request;
     CurlResponseInfo response;
     CurlMessagesInfo messages;
 

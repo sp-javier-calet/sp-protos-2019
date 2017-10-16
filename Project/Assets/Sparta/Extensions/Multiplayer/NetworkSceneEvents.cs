@@ -10,7 +10,7 @@ namespace SocialPoint.Multiplayer
         public const byte Highest = 3;
     }
 
-    public struct ConnectEvent : INetworkShareable
+    public class ConnectEvent : INetworkShareable
     {
         public float Timestamp;
 
@@ -25,7 +25,7 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public struct UpdateSceneEvent : INetworkShareable
+    public class UpdateSceneEvent : INetworkShareable
     {
         public float Timestamp;
         public int LastAction;
@@ -43,7 +43,7 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public struct UpdateSceneAckEvent : INetworkShareable
+    public class UpdateSceneAckEvent : INetworkShareable
     {
         public float Timestamp;
 

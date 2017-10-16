@@ -55,7 +55,7 @@ namespace SocialPoint.Multiplayer
             Color = Color.red;
         }
 
-        void INetworkBehaviour.Update(float dt)
+        void IDeltaUpdateable.Update(float dt)
         {
         }
 
@@ -132,7 +132,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        void INetworkBehaviour.Update(float dt)
+        void IDeltaUpdateable.Update(float dt)
         {
         }
 

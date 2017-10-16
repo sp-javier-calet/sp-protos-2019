@@ -1,9 +1,9 @@
 /******************************************************************************
  * Spine Runtimes Software License v2.5
- * 
+ *
  * Copyright (c) 2013-2016, Esoteric Software
  * All rights reserved.
- * 
+ *
  * You are granted a perpetual, non-exclusive, non-sublicensable, and
  * non-transferable license to use, install, execute, and perform the Spine
  * Runtimes software and derivative works solely for personal or internal
@@ -15,7 +15,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -29,25 +29,14 @@
  *****************************************************************************/
 
 using UnityEngine;
-using System.Collections;
 
 namespace Spine.Unity.Modules {
 	[RequireComponent(typeof(SkeletonUtilityBone)), ExecuteInEditMode]
 	public class SkeletonUtilityGroundConstraint : SkeletonUtilityConstraint {
 
-		#if UNITY_4_3
-		public LayerMask groundMask;
-		public bool use2D = false;
-		public bool useRadius = false;
-		public float castRadius = 0.1f;
-		public float castDistance = 5f;
-		public float castOffset = 0;
-		public float groundOffset = 0;
-		public float adjustSpeed = 5;
-		#else
 		[Tooltip("LayerMask for what objects to raycast against")]
 		public LayerMask groundMask;
-		[Tooltip("The 2D")]
+		[Tooltip("Use 2D")]
 		public bool use2D = false;
 		[Tooltip("Uses SphereCast for 3D mode and CircleCast for 2D mode")]
 		public bool useRadius = false;
@@ -61,8 +50,6 @@ namespace Spine.Unity.Modules {
 		public float groundOffset = 0;
 		[Tooltip("How fast the target IK position adjusts to the ground.  Use smaller values to prevent snapping")]
 		public float adjustSpeed = 5;
-		#endif
-
 
 		Vector3 rayOrigin;
 		Vector3 rayDir = new Vector3(0, -1, 0);
@@ -74,10 +61,6 @@ namespace Spine.Unity.Modules {
 			lastHitY = transform.position.y;
 		}
 
-		protected override void OnDisable () {
-			base.OnDisable();
-		}
-
 		public override void DoUpdate () {
 			rayOrigin = transform.position + new Vector3(castOffset, castDistance, 0);
 
@@ -85,22 +68,15 @@ namespace Spine.Unity.Modules {
 			if (use2D) {
 				RaycastHit2D hit;
 
-				if (useRadius) {
-					#if UNITY_4_3
-					//NOTE:  Unity 4.3.x does not have CircleCast
-					hit = Physics2D.Raycast(rayOrigin , rayDir, castDistance + groundOffset, groundMask);
-					#else
+				if (useRadius)
 					hit = Physics2D.CircleCast(rayOrigin, castRadius, rayDir, castDistance + groundOffset, groundMask);
-					#endif
-				} else {
+				else
 					hit = Physics2D.Raycast(rayOrigin, rayDir, castDistance + groundOffset, groundMask);
-				}
 
 				if (hit.collider != null) {
 					hitY = hit.point.y + groundOffset;
-					if (Application.isPlaying) {
+					if (Application.isPlaying)
 						hitY = Mathf.MoveTowards(lastHitY, hitY, adjustSpeed * Time.deltaTime);
-					}
 				} else {
 					if (Application.isPlaying)
 						hitY = Mathf.MoveTowards(lastHitY, transform.position.y, adjustSpeed * Time.deltaTime);
@@ -109,17 +85,16 @@ namespace Spine.Unity.Modules {
 				RaycastHit hit;
 				bool validHit = false;
 
-				if (useRadius) {
+				if (useRadius)
 					validHit = Physics.SphereCast(rayOrigin, castRadius, rayDir, out hit, castDistance + groundOffset, groundMask);
-				} else {
+				else
 					validHit = Physics.Raycast(rayOrigin, rayDir, out hit, castDistance + groundOffset, groundMask);
-				}
 
 				if (validHit) {
 					hitY = hit.point.y + groundOffset;
-					if (Application.isPlaying) {
+					if (Application.isPlaying)
 						hitY = Mathf.MoveTowards(lastHitY, hitY, adjustSpeed * Time.deltaTime);
-					}
+
 				} else {
 					if (Application.isPlaying)
 						hitY = Mathf.MoveTowards(lastHitY, transform.position.y, adjustSpeed * Time.deltaTime);

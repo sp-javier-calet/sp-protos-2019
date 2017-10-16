@@ -1,8 +1,8 @@
-﻿using UnityEngine;
-using System;
-using System.IO;
-using System.Linq;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using SpartaTools.Editor.Utils;
+using UnityEngine;
 
 namespace SpartaTools.Editor.SpartaProject
 {
@@ -12,8 +12,17 @@ namespace SpartaTools.Editor.SpartaProject
 
         static readonly IModuleFilter DefaultDSFilter = new ExtensionFilter(".DS_Store");
 
+        static readonly IDictionary<string, string> _projectVariables = new Dictionary<string, string> {
+            { SpartaPaths.SourcesVariable, SpartaPaths.SourcesDir       },
+            { SpartaPaths.BinariesVariable, SpartaPaths.BinariesDir     },
+            { SpartaPaths.CoreVariable, SpartaPaths.CoreDir             },
+            { SpartaPaths.ExternalVariable, SpartaPaths.ExternalDir     },
+            { SpartaPaths.ExtensionsVariable, SpartaPaths.ExtensionsDir }
+        };
+
         public enum ModuleType
         {
+            Full,
             Core,
             Sources,
             Binaries,
@@ -106,6 +115,10 @@ namespace SpartaTools.Editor.SpartaProject
             {
                 switch(content)
                 {
+                case "full":
+                    Type = ModuleType.Full;
+                    break;
+
                 case "core":
                     Type = ModuleType.Core;
                     break;
@@ -133,6 +146,7 @@ namespace SpartaTools.Editor.SpartaProject
             }
             else if(tag == "depends_on")
             {
+                content = SpartaPaths.ReplaceProjectVariables(string.Empty, content, _projectVariables);
                 Dependencies.Add(content);
             }
             else if(tag == "desc")
@@ -141,6 +155,7 @@ namespace SpartaTools.Editor.SpartaProject
             }
             else if(tag == "exclude_path")
             {
+                content = SpartaPaths.ReplaceProjectVariables(string.Empty, content, _projectVariables);
                 Filters.Add(new PathFilter(content));
             }
             else if(tag == "exclude_extension")
@@ -162,8 +177,8 @@ namespace SpartaTools.Editor.SpartaProject
 
         class PathFilter : IModuleFilter
         {
-            string Path;
-            string PathMeta;
+            readonly string Path;
+            readonly string PathMeta;
 
             public PathFilter(string path)
             {
@@ -179,7 +194,7 @@ namespace SpartaTools.Editor.SpartaProject
 
         class ExtensionFilter : IModuleFilter
         {
-            string Extension;
+            readonly string Extension;
 
             public ExtensionFilter(string extension)
             {

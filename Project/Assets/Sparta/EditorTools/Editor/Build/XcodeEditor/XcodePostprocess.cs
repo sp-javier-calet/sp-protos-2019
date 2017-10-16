@@ -93,10 +93,10 @@ namespace SpartaTools.Editor.Build.XcodeEditor
         [PostProcessBuild(701)]
         public static void OnPostProcessBuild(BuildTarget target, string path)
         {
-            ApplyXcodeMods(target, path);
+            ApplyXcodeMods(target, path, false);
         }
 
-        public static void ApplyXcodeMods(BuildTarget target, string path)
+        public static void ApplyXcodeMods(BuildTarget target, string path, bool force)
         {
             if(target == BuildTarget.iOS || target == BuildTarget.tvOS)
             {
@@ -123,7 +123,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 var project = new XcodeProject(projectPath, baseAppPath);
                 var mods = new XcodeModsSet(target);
 
-                if(IsAppendingBuild(path))
+                if(!force && IsAppendingBuild(path))
                 {
                     mods.AddScheme(AppendScheme);
                     Log("Enabling 'append' scheme for xcodemods");

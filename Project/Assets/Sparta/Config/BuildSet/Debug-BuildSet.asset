@@ -19,7 +19,7 @@ MonoBehaviour:
     IconTexture: {fileID: 0}
     OverrideIcon: 0
   Common:
-    Flags: +SPARTA_PROFILER_ENABLED
+    Flags: +SPARTA_PROFILER_ENABLED;DEBUG_SPPURCHASE
     RebuildNativePlugins: 0
     IsDevelopmentBuild: 1
     AppendBuild: 0
@@ -32,11 +32,11 @@ MonoBehaviour:
     Flags: 
     XcodeModSchemes: debug
     UseEnvironmentProvisioningUuid: 1
-    RemovedResources: 
+    RemovedResources: StreamingAssets/android_etc
   Android:
     BundleIdentifier: 
     Flags: 
-    RemovedResources: 
+    RemovedResources: StreamingAssets/ios
     UseKeystore: 0
     Keystore:
       Path: 

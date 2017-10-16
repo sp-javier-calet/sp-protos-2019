@@ -69,9 +69,10 @@ namespace SocialPoint.Utils
         {
             /* NOTE: Unity's Time.unscaledDeltaTime is counting time while in background (BUG?), 
              * but we want an unscaled game-time-only for UnscaledDeltaTime, 
-             * so we divide delta by scale instead.
+             * so if the unscaledDeltaTime is larger than 0.5, we discard it
+             * This happens when the game goes to background
              * */
-            _scheduler.Update(Time.deltaTime, Time.deltaTime / Time.timeScale);
+            _scheduler.Update(Time.deltaTime, Mathf.Min(Time.unscaledDeltaTime, 0.5f));
         }
     }
 

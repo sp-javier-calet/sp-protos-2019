@@ -1,9 +1,9 @@
 /******************************************************************************
  * Spine Runtimes Software License v2.5
- * 
+ *
  * Copyright (c) 2013-2016, Esoteric Software
  * All rights reserved.
- * 
+ *
  * You are granted a perpetual, non-exclusive, non-sublicensable, and
  * non-transferable license to use, install, execute, and perform the Spine
  * Runtimes software and derivative works solely for personal or internal
@@ -15,7 +15,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -28,17 +28,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-﻿/*****************************************************************************
- * SkeletonRagdoll2D added by Mitch Thompson
- * Full irrevocable rights and permissions granted to Esoteric Software
-*****************************************************************************/
-//#define FLIPDEBUG
+// Contributed by: Mitch Thompson
 
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using Spine.Unity;
-using UnityEngine.Assertions;
 
 namespace Spine.Unity.Modules {
 	[RequireComponent(typeof(SkeletonRenderer))]
@@ -46,14 +40,6 @@ namespace Spine.Unity.Modules {
 		static Transform parentSpaceHelper;
 
 		#region Inspector
-		#if FLIPDEBUG
-		[Header("DEBUG")]
-		public bool flipXInitially;
-		public bool flipYInitially;
-		public bool spawnKinematic;
-		public bool disableUpdateBones;
-		#endif
-
 		[Header("Hierarchy")]
 		[SpineBone]
 		public string startingBoneName = "";
@@ -98,19 +84,11 @@ namespace Spine.Unity.Modules {
 		IEnumerator Start () {
 			if (parentSpaceHelper == null) {
 				parentSpaceHelper = (new GameObject("Parent Space Helper")).transform;
-				#if !FLIPDEBUG
-				parentSpaceHelper.hideFlags = HideFlags.HideInHierarchy;
-				#endif
 			}
 
 			targetSkeletonComponent = GetComponent<SkeletonRenderer>() as ISkeletonAnimation;
 			if (targetSkeletonComponent == null) Debug.LogError("Attached Spine component does not implement ISkeletonAnimation. This script is not compatible.");
 			skeleton = targetSkeletonComponent.Skeleton;
-
-			#if FLIPDEBUG
-			skeleton.flipX = flipXInitially;
-			skeleton.flipY = flipYInitially;
-			#endif
 
 			if (applyOnStart) {
 				yield return null;
@@ -148,9 +126,6 @@ namespace Spine.Unity.Modules {
 			RecursivelyCreateBoneProxies(startingBone);
 
 			RootRigidbody = boneTable[startingBone].GetComponent<Rigidbody2D>();
-			#if FLIPDEBUG
-			if (!RootRigidbody.isKinematic)
-			#endif
 			RootRigidbody.isKinematic = pinStartBone;
 			RootRigidbody.mass = rootMass;
 			var boneColliders = new List<Collider2D>();
@@ -257,6 +232,7 @@ namespace Spine.Unity.Modules {
 			float startTime = Time.time;
 			float startMix = mix;
 			while (mix > 0) {
+				skeleton.SetBonesToSetupPose();
 				mix = Mathf.SmoothStep(startMix, target, (Time.time - startTime) / duration);
 				yield return null;
 			}
@@ -312,7 +288,7 @@ namespace Spine.Unity.Modules {
 			t.localScale = new Vector3(b.WorldScaleX, b.WorldScaleY, 0);
 
 			// MITCH: You left "todo: proper ragdoll branching"
-			var colliders = AttachBoundingBoxRagdollColliders(b, boneGameObject, skeleton);
+			var colliders = AttachBoundingBoxRagdollColliders(b, boneGameObject, skeleton, this.gravityScale);
 			if (colliders.Count == 0) {
 				float length = b.data.length;
 				if (length == 0) {
@@ -324,12 +300,10 @@ namespace Spine.Unity.Modules {
 					box.offset = new Vector2(length * 0.5f, 0); // box.center in UNITY_4
 				}
 			}
-			var rb = boneGameObject.AddComponent<Rigidbody2D>();
-			rb.gravityScale = this.gravityScale;
 
-			#if FLIPDEBUG
-			rb.isKinematic = spawnKinematic;
-			#endif
+			var rb = boneGameObject.GetComponent<Rigidbody2D>();
+			if (rb == null) rb = boneGameObject.AddComponent<Rigidbody2D>();
+			rb.gravityScale = this.gravityScale;
 
 			foreach (Bone child in b.Children)
 				RecursivelyCreateBoneProxies(child);
@@ -337,10 +311,6 @@ namespace Spine.Unity.Modules {
 
 		/// <summary>Performed every skeleton animation update to translate Unity Transforms positions into Spine bone transforms.</summary>
 		void UpdateSpineSkeleton (ISkeletonAnimation animatedSkeleton) {
-			#if FLIPDEBUG
-			if (disableUpdateBones) return;
-			#endif
-
 			bool flipX = skeleton.flipX;
 			bool flipY = skeleton.flipY;
 			bool flipXOR = flipX ^ flipY;
@@ -382,11 +352,11 @@ namespace Spine.Unity.Modules {
 				b.x = Mathf.Lerp(b.x, boneLocalPosition.x, mix);
 				b.y = Mathf.Lerp(b.y, boneLocalPosition.y, mix);
 				b.rotation = Mathf.Lerp(b.rotation, boneLocalRotation, mix);
-				b.appliedRotation = Mathf.Lerp(b.appliedRotation, boneLocalRotation, mix);
+				//b.AppliedRotation = Mathf.Lerp(b.AppliedRotation, boneLocalRotation, mix);
 			}
 		}
 
-		static List<Collider2D> AttachBoundingBoxRagdollColliders (Bone b, GameObject go, Skeleton skeleton) {
+		static List<Collider2D> AttachBoundingBoxRagdollColliders (Bone b, GameObject go, Skeleton skeleton, float gravityScale) {
 			const string AttachmentNameMarker = "ragdoll";
 			var colliders = new List<Collider2D>();
 			var skin = skeleton.Skin ?? skeleton.Data.DefaultSkin;
@@ -401,7 +371,7 @@ namespace Spine.Unity.Modules {
 							if (!a.Name.ToLower().Contains(AttachmentNameMarker))
 								continue;
 
-							var bbCollider = SkeletonUtility.AddBoundingBoxAsComponent(bbAttachment, go, false);
+							var bbCollider = SkeletonUtility.AddBoundingBoxAsComponent(bbAttachment, s, go, isTrigger: false, isKinematic: false, gravityScale: gravityScale);
 							colliders.Add(bbCollider);
 						}
 					}
@@ -410,7 +380,7 @@ namespace Spine.Unity.Modules {
 
 			return colliders;
 		}
-			
+
 		static float GetPropagatedRotation (Bone b) {
 			Bone parent = b.Parent;
 			float a = b.AppliedRotation;

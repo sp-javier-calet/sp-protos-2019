@@ -1,4 +1,5 @@
 using System.IO;
+using SocialPoint.Base;
 using UnityEditor;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ namespace AssetBundleGraph
     public class AssetGraphCIConfig : ScriptableObject
     {
         public string ProjectID = "";
-        public const string ConfigDefaultPath = "Assets/Sparta/Config/AssetGraph/AssetGraphCIConfig.asset";
+        public static readonly string ConfigDefaultPath = ConfigPaths.SpartaConfigEditorPath + "AssetGraph/AssetGraphCIConfig.asset";
         const string _configSearchPattern = "t:AssetGraphCIConfig";
 
         /// <summary>

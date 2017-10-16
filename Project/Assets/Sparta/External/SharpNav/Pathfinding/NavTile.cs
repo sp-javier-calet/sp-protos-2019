@@ -694,12 +694,12 @@ namespace SharpNav.Pathfinding
         /// <param name="poly">The current polygon.</param>
         /// <param name="pos">The current position</param>
         /// <param name="closest">Reference to the closest point</param>
-
-        Vector3[] verts = new Vector3[PathfindingCommon.VERTS_PER_POLYGON];
-        float[] edgeDistance = new float[PathfindingCommon.VERTS_PER_POLYGON];
-        float[] edgeT = new float[PathfindingCommon.VERTS_PER_POLYGON];
         public void ClosestPointOnPolyBoundary(NavPoly poly, Vector3 pos, out Vector3 closest)
         {
+            Vector3[] verts = new Vector3[PathfindingCommon.VERTS_PER_POLYGON];
+            float[] edgeDistance = new float[PathfindingCommon.VERTS_PER_POLYGON];
+            float[] edgeT = new float[PathfindingCommon.VERTS_PER_POLYGON];
+
             //Clamp point to be inside the polygon
             int numPolyVerts = poly.VertCount;
             for(int i = 0; i < numPolyVerts; i++)
@@ -739,9 +739,10 @@ namespace SharpNav.Pathfinding
         /// <param name="pos">Current position</param>
         /// <param name="h">Resulting height</param>
         /// <returns>True, if a height is found. False, if otherwise.</returns>
-        Vector3[] _closeHeightVectorList = new Vector3[3];
         public bool ClosestHeight(int indexPoly, Vector3 pos, out float h)
         {
+            Vector3[] _closeHeightVectorList = new Vector3[3];
+
             NavPoly poly = Polys[indexPoly];
             PolyMeshDetail.MeshData pd = DetailMeshes[indexPoly];
 
@@ -786,7 +787,7 @@ namespace SharpNav.Pathfinding
         {
             if(object.ReferenceEquals(left, right))
                 return true;
-			
+
             if(((object)left == null) || ((object)right == null))
                 return false;
 

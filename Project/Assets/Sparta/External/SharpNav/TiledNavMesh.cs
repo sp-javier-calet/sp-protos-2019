@@ -263,7 +263,7 @@ namespace SharpNav
 
             //connect with layers in current tile
             //[SP-Change]: Replaced foreach
-            var itr = GetTilesAt(header.X, header.Y).GetEnumerator();
+            var itr = GetEnumeratorFromTilesAt(header.X, header.Y);
             while(itr.MoveNext())
             {
                 var layerTile = itr.Current;
@@ -284,7 +284,7 @@ namespace SharpNav
                 BoundarySide b = (BoundarySide)i;
                 BoundarySide bo = b.GetOpposite();
                 //[SP-Change]: Replaced foreach
-                var itr2 = GetNeighborTilesAt(header.X, header.Y, b).GetEnumerator();
+                var itr2 = GetEnumeratorFromNeighborTilesAt(header.X, header.Y, b);
                 while(itr2.MoveNext())
                 {
                     var neighborTile = itr2.Current;
@@ -415,27 +415,27 @@ namespace SharpNav
         /// <param name="x">The x-coordinate</param>
         /// <param name="y">The y-coordinate</param>
         /// <returns>A read-only collection of tiles at the specified coordinate</returns>
-        public IEnumerable<NavTile> GetTilesAt(int x, int y)
+        public List<NavTile>.Enumerator GetEnumeratorFromTilesAt(int x, int y)
         {
-            return GetTilesAt(new Vector2i(x, y));
+            return GetEnumeratorFromTilesAt(new Vector2i(x, y));
         }
 
-        static readonly IEnumerable<NavTile> EmptyNavTileCollection =  Enumerable.Empty<NavTile>();
+        static readonly List<NavTile> EmptyNavTileCollection = new List<NavTile>();
 
-        public IEnumerable<NavTile> GetTilesAt(Vector2i location)
+        public List<NavTile>.Enumerator GetEnumeratorFromTilesAt(Vector2i location)
         {
             //Find tile based off hash
             List<NavTile> list;
             if(!tileSet.TryGetValue(location, out list))
-                return EmptyNavTileCollection;
+                return EmptyNavTileCollection.GetEnumerator();
 
 //            return new ReadOnlyCollection<NavTile>(list); // This was the original code, commented because it generates memory and who uses this does not touch the enumerator
-            return list.AsEnumerable();
+            return list.GetEnumerator();
         }
 
-        public IEnumerable<NavTile> GetNeighborTilesAt(Vector2i location, BoundarySide side)
+        public List<NavTile>.Enumerator GetEnumeratorFromNeighborTilesAt(Vector2i location, BoundarySide side)
         {
-            return GetNeighborTilesAt(location.X, location.Y, side);
+            return GetEnumeratorFromNeighborTilesAt(location.X, location.Y, side);
         }
 
         /// <summary>
@@ -446,7 +446,7 @@ namespace SharpNav
         /// <param name="side">The side value</param>
         /// <param name="tiles">An array of MeshTiles</param>
         /// <returns>The number of tiles satisfying the condition</returns>
-        public IEnumerable<NavTile> GetNeighborTilesAt(int x, int y, BoundarySide side)
+        public List<NavTile>.Enumerator GetEnumeratorFromNeighborTilesAt(int x, int y, BoundarySide side)
         {
             int nx = x, ny = y;
             switch(side)
@@ -488,7 +488,7 @@ namespace SharpNav
                 break;
             }
 
-            return GetTilesAt(nx, ny);
+            return GetEnumeratorFromTilesAt(nx, ny);
         }
 
         /// <summary>

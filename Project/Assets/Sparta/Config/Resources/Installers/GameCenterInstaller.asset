@@ -15,3 +15,4 @@ MonoBehaviour:
   Settings:
     UseEmpty: 0
     LoginLink: 1
+    LoginLinkMode: 1

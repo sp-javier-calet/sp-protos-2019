@@ -14,5 +14,5 @@ MonoBehaviour:
   _isGlobal: 1
   Settings:
     CrossPromotion:
-      ButtonPrefab: {fileID: 169414, guid: c708cb2176ced4497b6b8bae31a93f62, type: 2}
-      PopupPrefab: {fileID: 198162, guid: 777c79b6fceac4174bf5ede41e4c3e70, type: 2}
+      ButtonPrefab: {fileID: 0}
+      PopupPrefab: {fileID: 0}

@@ -1,7 +1,6 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using SocialPoint.Base;
 
 namespace SocialPoint.Base
 {
@@ -335,6 +334,45 @@ namespace SocialPoint.Base
                 component = gameObject.AddComponent<T>();
             }
             return component;
+        }
+
+        public static T AddIfNeededComponent<T>(this GameObject target) where T : Component
+        {
+            T component = target.GetComponent<T>();
+            if(component == null)
+            {
+                component = target.AddComponent<T>();
+            }
+            return component;
+        }
+    }
+}
+
+public static class GameObjectExtension
+{
+    public static void SetActiveSafe(this GameObject target, bool value)
+    {
+        if(target.activeSelf != value)
+            target.SetActive(value);
+    }
+
+    public static T FindObjectOfTypeRecursiveUp<T>(this GameObject target)
+    {
+        T obj = target.GetComponent<T>();
+        if(obj != null)
+        {
+            return obj;
+        }
+        else
+        {
+            if(target.transform.parent != null)
+            {
+                return FindObjectOfTypeRecursiveUp<T>(target.transform.parent.gameObject);
+            }
+            else
+            {
+                return default(T);
+            }
         }
     }
 }

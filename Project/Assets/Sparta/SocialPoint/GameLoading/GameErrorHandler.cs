@@ -3,12 +3,15 @@ using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
+using SocialPoint.Helpshift;
 using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.ServerEvents;
 using SocialPoint.ServerSync;
 using UnityEngine.SceneManagement;
+using SocialPoint.Restart;
 
 namespace SocialPoint.GameLoading
 {
@@ -28,7 +31,7 @@ namespace SocialPoint.GameLoading
 
         void ShowInvalidSecurityToken(Action restart);
 
-        void ShowLogin(Error err, Action finished);
+        void ShowLogin(Error err, Action finished, bool showSupportButton);
 
         void ShowLink(ILink link, LinkConfirmType type, Attr data, ConfirmBackLinkDelegate cbk);
     }
@@ -88,12 +91,19 @@ namespace SocialPoint.GameLoading
         const string RetryButtonDef = "Retry";
         const string SkipButtonDef = "Skip";
 
+        const string SupportButtonKey = "tid_support";
+        const string SupportButtonDef = "Support";
+
         const string UpgradeButtonKey = "game_errors.upgrade_button";
         const string UpgradeButtonDef = "Upgrade";
         const string ForceUpgradeTitleKey = "game_errors.force_upgrade_title";
         const string ForceUpgradeTitleDef = "Force Upgrade";
+        const string ForceUpgradeMessageKey = "game_errors.force_upgrade_message";
+        const string ForceUpgradeMessageDef = "A new version of the game has been released \nIt is mandatory to upgrade to continue playing";
         const string SuggestedUpgradeTitleKey = "game_errors.suggested_upgrade_title";
         const string SuggestedUpgradeTitleDef = "Suggested Upgrade";
+        const string SuggestedUpgradeMessageKey = "game_errors.suggested_upgrade_message";
+        const string SuggestedUpgradeMessageDef = "A new version of the game has been released \nIt is recomended to upgrade";
         const string UpgradeLaterButtonKey = "game_errors.upgrade_later_button";
         const string UpgradeLaterButtonDef = "Later";
 
@@ -135,7 +145,7 @@ namespace SocialPoint.GameLoading
         readonly IAlertView _alert;
         readonly Localization _locale;
         readonly IAppEvents _appEvents;
-        readonly int _restartScene;
+        readonly IRestarter _restarter;
 
         UIStackController _popups;
         Func<UIStackController> _findPopups;
@@ -144,12 +154,12 @@ namespace SocialPoint.GameLoading
 
         public string Signature { set; private get; }
 
-        public GameErrorHandler(IAlertView alert, Localization locale, IAppEvents appEvents, Func<UIStackController> findPopups, int restartScene = 0)
+        public GameErrorHandler(IAlertView alert, Localization locale, IAppEvents appEvents, Func<UIStackController> findPopups, IRestarter restarter = null)
         {
             _alert = alert;
             _locale = locale;
             _appEvents = appEvents;
-            _restartScene = restartScene;
+            _restarter = restarter;
             _findPopups = findPopups;
             Debug = DebugUtils.IsDebugBuild;
 
@@ -196,6 +206,10 @@ namespace SocialPoint.GameLoading
             alert.Signature = Signature;
             if(data.Type == UpgradeType.Forced)
             {
+                if(string.IsNullOrEmpty(data.Message))
+                {
+                    alert.Message = _locale.Get(ForceUpgradeMessageKey, ForceUpgradeMessageDef);
+                }
                 alert.Title = _locale.Get(ForceUpgradeTitleKey, ForceUpgradeTitleDef);
                 alert.Buttons = new []{ _locale.Get(UpgradeButtonKey, UpgradeButtonDef) };
                 alert.Show(result => {
@@ -207,6 +221,10 @@ namespace SocialPoint.GameLoading
             }
             else //suggested
             {
+                if(string.IsNullOrEmpty(data.Message))
+                {
+                    alert.Message = _locale.Get(SuggestedUpgradeMessageKey, SuggestedUpgradeMessageDef);
+                }
                 alert.Title = _locale.Get(SuggestedUpgradeTitleKey, SuggestedUpgradeTitleDef);
                 alert.Buttons = new [] {
                     _locale.Get(UpgradeButtonKey, UpgradeButtonDef),
@@ -304,17 +322,28 @@ namespace SocialPoint.GameLoading
             }
         }
 
-        public virtual void ShowLogin(Error err, Action finished)
+        public virtual void ShowLogin(Error err, Action finished, bool showSupportButton)
         {
             var alert = (IAlertView)_alert.Clone();
             alert.Title = _locale.Get(ResponseErrorTitleKey, ResponseErrorTitleDef);
-            alert.Buttons = new []{ _locale.Get(RetryButtonKey, RetryButtonDef) };
+            if(showSupportButton)
+            {
+                alert.Buttons = new[] { _locale.Get(RetryButtonKey, RetryButtonDef) , _locale.Get(SupportButtonKey, SupportButtonDef)};
+            }
+            else
+            {
+                alert.Buttons = new[] { _locale.Get(RetryButtonKey, RetryButtonDef) };
+            }
             alert.Message = GetErrorMessage(err, ResponseErrorMessageKey, ResponseErrorMessageDef);
             alert.Signature = Signature + "-" + err.Code;
             alert.Show(i => {
                 if(finished != null)
                 {
                     finished();
+                }
+                if(i == 1)
+                {
+                    Services.Instance.Resolve<IHelpshift>().ShowFAQ();
                 }
             });
         }
@@ -328,7 +357,19 @@ namespace SocialPoint.GameLoading
             alert.Buttons = new [] {
                 _locale.Get(SyncButtonKey, SyncButtonDef)
             };
-            alert.Show(i => _appEvents.RestartGame(_restartScene));
+            alert.Show(i => OnRestartGame());
+        }
+
+        void OnRestartGame()
+        {
+            if(_restarter != null)
+            {
+                _restarter.RestartGame();
+            }
+            else if(_appEvents != null)
+            {
+                _appEvents.RestartGame();
+            }
         }
 
         public virtual void ShowLink(ILink link, LinkConfirmType linkConfirmType, Attr data, ConfirmBackLinkDelegate cbk)
@@ -345,7 +386,7 @@ namespace SocialPoint.GameLoading
             alert.Show(result => {
                 if(cbk != null)
                 {
-                    cbk(result == 0 ? LinkConfirmDecision.Cancel : result == 1 ? LinkConfirmDecision.Keep : LinkConfirmDecision.Change);
+                    cbk(result == 0 ? LinkConfirmDecision.Keep : result == 1 ? LinkConfirmDecision.Change : LinkConfirmDecision.Cancel);
                 }
             });
         }

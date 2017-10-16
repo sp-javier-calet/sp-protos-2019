@@ -12,7 +12,7 @@ namespace SocialPoint.Social
     {
         public int Score;
 
-        public readonly List<AllianceBasicData> _searchData;
+        readonly List<AllianceBasicData> _searchData;
 
         public AlliancesSearchResult()
         {
@@ -22,6 +22,11 @@ namespace SocialPoint.Social
         public void Add(AllianceBasicData data)
         {
             _searchData.Add(data);
+        }
+
+        public List<AllianceBasicData> GetList()
+        {
+            return _searchData;
         }
 
         #region IEnumerable implementation

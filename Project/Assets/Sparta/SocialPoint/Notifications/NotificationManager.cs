@@ -116,7 +116,6 @@ namespace SocialPoint.Notifications
         void OnPushTokenReceived(bool valid, string token)
         {
             DebugLog("OnPushTokenReceived\n\tvalid: " + valid + "\n\ttoken: " + token);
-
             _pushTokenReceived = true;
             _pushToken = token;
             VerifyPushReady();
@@ -125,9 +124,9 @@ namespace SocialPoint.Notifications
         void VerifyPushReady()
         {
             DebugLog("VerifyPushReady\n\tgameLoaded: " + _gameLoaded + "\n\tpushTokenReceived: " + _pushTokenReceived);
-
             if(_gameLoaded && _pushTokenReceived)
             {
+                
                 SendPushToken();
             }
         }

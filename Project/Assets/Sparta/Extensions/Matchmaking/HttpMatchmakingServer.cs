@@ -14,14 +14,12 @@ namespace SocialPoint.Matchmaking
         IAttrParser _parser;
         List<IMatchmakingServerDelegate> _delegates;
 
-        HttpRequest _infoRequest = null;
-        HttpRequest _notifyRequest = null;
-        HttpResponse _infoResponse = null;
-        HttpResponse _notifyResponse = null;
+        HttpRequest _infoRequest;
+        HttpRequest _notifyRequest;
+        HttpResponse _infoResponse;
+        HttpResponse _notifyResponse;
 
-        const string MatchMakingUri = "matchmaking";
-
-        Func<string> _getBaseUrl;
+        readonly Func<string> _getBaseUrl;
 
         public bool Enabled
         {
@@ -95,7 +93,7 @@ namespace SocialPoint.Matchmaking
 
         public void LoadInfo(string matchId, List<string> playerIds)
         {
-            _infoRequest = CreateRequest(StringUtils.CombineUri(MatchMakingUri, InfoUri));
+            _infoRequest = CreateRequest(InfoUri);
             _infoRequest.AddQueryParam(MatchIdParam, matchId);
             if(!string.IsNullOrEmpty(Version))
             {
@@ -133,12 +131,12 @@ namespace SocialPoint.Matchmaking
 
         public void NotifyResults(string matchId, AttrDic userData, AttrDic customData)
         {
-            _notifyRequest = CreateRequest(StringUtils.CombineUri(MatchMakingUri, EndUri));
+            _notifyRequest = CreateRequest(EndUri);
             _notifyRequest.Method = HttpRequest.MethodType.POST;
             _notifyRequest.AddParam(MatchIdParam, matchId);
             _notifyRequest.AddParam(PlayersParam, userData);
             _notifyRequest.AddParam(CustomDataParam, customData);
-            _httpClient.Send(_notifyRequest, (resp) => OnResultReceived(resp, userData));
+            _httpClient.Send(_notifyRequest, resp => OnResultReceived(resp, userData));
         }
 
         void OnResultReceived(HttpResponse resp, AttrDic userData)
@@ -183,7 +181,7 @@ namespace SocialPoint.Matchmaking
             {
                 throw new InvalidOperationException("Base url not configured.");
             }
-            return new HttpRequest(StringUtils.CombineUri(baseUrl, uri));
+            return new HttpRequest(StringUtils.CombineUri(baseUrl, "/matchmaking" + uri));
         }
 
     }

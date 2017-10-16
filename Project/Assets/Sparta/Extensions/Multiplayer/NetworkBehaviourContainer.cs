@@ -17,6 +17,8 @@ namespace SocialPoint.Multiplayer
 
         int Remove<T>();
 
+        T Get<T>(int idx) where T : class;
+
         T Get<T>() where T : class;
 
         object Get(Type behavior);
@@ -133,28 +135,52 @@ namespace SocialPoint.Multiplayer
 
     public class NetworkBehaviourContainer<Behaviour> : INetworkBehaviourContainer<Behaviour>, ICloneable where Behaviour : class
     {
-        NetworkSceneContext _context = null;
-        public NetworkSceneContext Context
+        const int MaxCommonBehaviours = 5;
+        static Type[] CommonBehaviourTypes = new Type[MaxCommonBehaviours];
+
+        static bool CheckCommonBehavioursContainsType(Type type)
         {
-            get
+            for(int i = 0; i < MaxCommonBehaviours; ++i)
             {
-                SocialPoint.Base.DebugUtils.Assert(_context != null);
-                return _context;
+                if(CommonBehaviourTypes[i] != null && (CommonBehaviourTypes[i].IsAssignableFrom(type) || type.IsAssignableFrom(CommonBehaviourTypes[i])))
+                {
+                    return true;
+                }
             }
-            set
-            {
-                _context = value;
-            }
+
+            return false;
         }
 
+        public static void AddBehaviourType(int idx, Type type)
+        {
+            SocialPoint.Base.DebugUtils.Assert(idx >= 0);
+            SocialPoint.Base.DebugUtils.Assert(idx < NetworkBehaviourContainer<INetworkBehaviour>.MaxCommonBehaviours);
+            SocialPoint.Base.DebugUtils.Assert(type != null);
+            SocialPoint.Base.DebugUtils.Assert(CommonBehaviourTypes[idx] == null);
+            SocialPoint.Base.DebugUtils.Assert(CheckCommonBehavioursContainsType(type) == false);
+
+            CommonBehaviourTypes[idx] = type;
+        }
+
+        object[] _commonBehaviours = new object[MaxCommonBehaviours];
+
+        // Lenght of these four variables must match always.
         List<Behaviour> _behaviours = new List<Behaviour>();
         List<Type> _behavioursTypes = new List<Type>();
         List<ICopyable> _behavioursCopyable = new List<ICopyable>();
         List<ICloneable> _behavioursCloneable = new List<ICloneable>();
 
         public List<Behaviour> Behaviours { get { return _behaviours; } }
-
         public List<Type> BehavioursTypes { get { return _behavioursTypes; } }
+
+        // Lenght of these three variables must match always.
+        List<Behaviour> _serializableBehaviours = new List<Behaviour>();
+        List<Type> _serializableBehavioursTypes = new List<Type>();
+        List<byte> _serializersCodes = new List<byte>();
+
+        public List<Behaviour> SerializableBehaviours { get { return _serializableBehaviours; } }
+        public List<Type> SerializableBehavioursTypes { get { return _serializableBehavioursTypes; } }
+        public List<byte> SerializersCodes { get { return _serializersCodes; } }
 
         public Action<Behaviour> OnAdded;
         public Action<Behaviour> OnRemoved;
@@ -178,85 +204,56 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        public NetworkBehaviourContainer(NetworkSceneContext context)
-        {
-            Init(context);
-        }
-
-        public NetworkBehaviourContainer<Behaviour> Init(NetworkSceneContext context)
-        {
-            Context = context;
-
-            return this;
-        }
-
         public void Copy(NetworkBehaviourContainer<Behaviour> other)
         {
-            Context = other.Context;
-            var thisUpdated = Context.Pool.Get<List<object>>();
+            var otherCount = other._behaviours.Count;
+            var count = _behaviours.Count;
 
-            for(var i = 0; i < other._behaviours.Count; i++)
+            var countDiff = count - otherCount;
+            for(int i = 0; i < countDiff; ++i)
+            {
+                RemoveAt(i);
+            }
+
+            if(countDiff != 0)
+            {
+                Resize(otherCount);
+            }
+
+            for(var i = 0; i < other._behaviours.Count; ++i)
             {
                 var otherCopyable = other._behavioursCopyable[i];
+                var thisCopyable = _behavioursCopyable[i];
+
                 if(otherCopyable == null)
                 {
+                    if(thisCopyable != null)
+                    {
+                        RemoveAt(i);
+                    }
+
                     continue;
                 }
-                var otherType = other._behavioursTypes[i];
-                var found = false;
-                for(var j = 0; j < _behaviours.Count; j++)
-                {
-                    var thisCopyable = _behavioursCopyable[j];
-                    if(thisCopyable == null || thisUpdated.Contains(thisCopyable))
-                    {
-                        continue;
-                    }
-                    var thisType = _behavioursTypes[j];
-                    if(otherType == thisType)
-                    {
-                        thisCopyable.Copy(otherCopyable);
-                        thisUpdated.Add(thisCopyable);
-                        found = true;
-                        break;
-                    }
-                }
-                if(!found)
-                {
-                    var otherCloneable = other._behavioursCloneable[i];
-                    if(otherCloneable != null)
-                    {
-                        var clone = otherCloneable.Clone();
-                        SocialPoint.Base.DebugUtils.Assert(clone.GetType() == otherCloneable.GetType(), "Cloned object of different type");
-                        var newBehaviour = (Behaviour)clone;
-                        var newCopyable = clone as ICopyable;
-                        if(newCopyable != null)
-                        {
-                            newCopyable.Copy(otherCopyable);
-                        }
-                        Add(newBehaviour, otherType);
-                        thisUpdated.Add(newBehaviour);
-                    }
-                }
-            }
-            for(var i = 0; i < _behaviours.Count; i++)
-            {
-                var thisCopyable = _behavioursCopyable[i];
+
                 if(thisCopyable == null)
                 {
-                    continue;
+                    var otherCloneable = other._behavioursCloneable[i];
+                    var clone = otherCloneable.Clone();
+                    SocialPoint.Base.DebugUtils.Assert(clone.GetType() == otherCloneable.GetType(), "Cloned object of different type");
+                    var newBehaviour = (Behaviour)clone;
+                    var otherType = other._behavioursTypes[i];
+                    Add(i, newBehaviour, otherType);
                 }
-                if(!thisUpdated.Contains(thisCopyable))
+                else
                 {
-                    Remove(thisCopyable);
+                    thisCopyable.Copy(otherCopyable);
                 }
             }
-
-            Context.Pool.Return(thisUpdated);
         }
 
         public object Clone()
         {
-            var container = new NetworkBehaviourContainer<Behaviour>(Context);
+            var container = new NetworkBehaviourContainer<Behaviour>();
             for(var i = 0; i < _behaviours.Count; i++)
             {
                 var cloneable = _behavioursCloneable[i];
@@ -274,7 +271,7 @@ namespace SocialPoint.Multiplayer
         {
             for(int i = 0; i < _behaviours.Count; ++i)
             {
-                var behaviour = _behaviours[i] as INetworkBehaviour;
+                var behaviour = _behaviours[i] as IDisposable;
                 if(behaviour != null)
                 {
                     behaviour.Dispose();
@@ -284,6 +281,15 @@ namespace SocialPoint.Multiplayer
             _behavioursTypes.Clear();
             _behavioursCopyable.Clear();
             _behavioursCloneable.Clear();
+
+            _serializableBehaviours.Clear();
+            _serializableBehavioursTypes.Clear();
+            _serializersCodes.Clear();
+
+            for(int i = 0; i < _commonBehaviours.Length; ++i)
+            {
+                _commonBehaviours[i] = null;
+            }
 
             OnAdded = null;
             OnRemoved = null;
@@ -312,15 +318,61 @@ namespace SocialPoint.Multiplayer
                 return false;
             }
 
-            _behaviours.RemoveAt(index);
-            _behavioursTypes.RemoveAt(index);
-            _behavioursCopyable.RemoveAt(index);
-            _behavioursCloneable.RemoveAt(index);
+            bool isOk = RemoveAt(index);
+
+            int serializablesIndex = _serializableBehaviours.IndexOf(b);
+            if(serializablesIndex != -1)
+            {
+                _serializableBehaviours.RemoveAt(serializablesIndex);
+                _serializableBehavioursTypes.RemoveAt(serializablesIndex);
+                _serializersCodes.RemoveAt(serializablesIndex);
+            }
+
+            return isOk;
+        }
+
+        public bool RemoveAt(int index)
+        {
+            var b = _behaviours[index];
+            if(b == null)
+            {
+                return false;
+            }
+
+            var behaviour = _behaviours[index] as IDisposable;
+            if(behaviour != null)
+            {
+                behaviour.Dispose();
+            }
+
+            _behaviours[index] = null;
+            _behavioursTypes[index] = null;
+            _behavioursCopyable[index] = null;
+            _behavioursCloneable[index] = null;
+
+            for(int i = 0; i < MaxCommonBehaviours; ++i)
+            {
+                if(_commonBehaviours[i] == b)
+                {
+                    _commonBehaviours[i] = null;
+                    break;
+                }
+            }
+
             if(OnRemoved != null)
             {
                 OnRemoved(b);
             }
+
             return true;
+        }
+
+        void Resize(int size)
+        {
+            _behaviours.Resize(size);
+            _behavioursTypes.Resize(size);
+            _behavioursCopyable.Resize(size);
+            _behavioursCloneable.Resize(size);
         }
 
         public int Remove<T>()
@@ -333,6 +385,14 @@ namespace SocialPoint.Multiplayer
             return behaviours.Count;
         }
 
+        public T Get<T>(int idx) where T : class
+        {
+            SocialPoint.Base.DebugUtils.Assert(idx < MaxCommonBehaviours);
+            SocialPoint.Base.DebugUtils.Assert(_commonBehaviours[idx] == null || _commonBehaviours[idx] is T);
+
+            return (T)_commonBehaviours[idx];
+        }
+
         public T Get<T>() where T : class
         {
             return (T)Get(typeof(T));
@@ -342,11 +402,10 @@ namespace SocialPoint.Multiplayer
         {
             for(var i = 0; i < _behaviours.Count; i++)
             {
-                var b = _behaviours[i];
                 var bType = _behavioursTypes[i];
                 if(behaviorType.IsAssignableFrom(bType))
                 {
-                    return b;
+                    return _behaviours[i]; ;
                 }
             }
             return null;
@@ -378,6 +437,32 @@ namespace SocialPoint.Multiplayer
             }
         }
 
+        public delegate bool FindCodeDelegate(Type type, out byte code);
+
+        public void ComputeSerializableBehaviours(FindCodeDelegate FindCode)
+        {
+            SocialPoint.Base.DebugUtils.Assert(_serializableBehaviours.Count == _serializableBehavioursTypes.Count);
+            SocialPoint.Base.DebugUtils.Assert(_serializableBehaviours.Count == _serializersCodes.Count);
+
+            if(_serializableBehaviours.Count > 0)
+            {
+                return;
+            }
+
+            for(int i = 0; i < _behavioursTypes.Count; ++i)
+            {
+                var behaviourType = _behavioursTypes[i];
+                byte code;
+
+                if(behaviourType != null && FindCode(behaviourType, out code))
+                {
+                    _serializableBehaviours.Add(_behaviours[i]);
+                    _serializableBehavioursTypes.Add(behaviourType);
+                    _serializersCodes.Add(code);
+                }
+            }
+        }
+
         public void Add(Behaviour b)
         {
             Add(b, b.GetType());
@@ -393,10 +478,28 @@ namespace SocialPoint.Multiplayer
             {
                 return;
             }
-            _behaviours.Add(b);
-            _behavioursTypes.Add(type);
-            _behavioursCopyable.Add(b as ICopyable);
-            _behavioursCloneable.Add(b as ICloneable);
+
+            var index = _behaviours.Count;
+            Resize(index + 1);
+            Add(index, b, type);
+        }
+
+        void Add(int index, Behaviour b, Type type)
+        {
+            _behaviours[index] = b;
+            _behavioursTypes[index] = type;
+            _behavioursCopyable[index] = b as ICopyable;
+            _behavioursCloneable[index] = b as ICloneable;
+
+            for(int i = 0; i < MaxCommonBehaviours; ++i)
+            {
+                if(CommonBehaviourTypes[i] != null && CommonBehaviourTypes[i].IsAssignableFrom(type))
+                {
+                    _commonBehaviours[i] = b;
+                    break;
+                }
+            }
+
             if(OnAdded != null)
             {
                 OnAdded(b);
@@ -451,9 +554,10 @@ namespace SocialPoint.Multiplayer
         {
             if(a.Count != b.Count)
             {
-                return false;
+                return false; 
             }
-            var tmp = a.Context.Pool.Get<List<Behaviour>>();
+
+            var tmp = new List<Behaviour>();
             var itr = a.GetEnumerator(tmp);
             var result = false;
             while(itr.MoveNext())
@@ -464,7 +568,6 @@ namespace SocialPoint.Multiplayer
                 }
             }
             result = true;
-            a.Context.Pool.Return(tmp);
             return result;
         }
 
@@ -499,8 +602,6 @@ namespace SocialPoint.Multiplayer
                 _container.OnRemoved -= OnRemoved;
                 _container = null;
             }
-
-            _container.Context.Pool.Return(this);
         }
 
         public void Clear()
@@ -525,6 +626,8 @@ namespace SocialPoint.Multiplayer
     public class NetworkBehaviourContainerSerializer<Behaviour> : IDiffWriteSerializer<NetworkBehaviourContainer<Behaviour>> where Behaviour : class
     {
         TypedDiffWriteSerializer<Behaviour> _serializer;
+        MemoryStream _memStream = new MemoryStream(64 * 1024);
+        List<byte> _removedObjects = new List<byte>();
 
         public NetworkBehaviourContainerSerializer()
         {
@@ -540,83 +643,76 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        Dictionary<byte, KeyValuePair<Behaviour, Type>> GetSerializableBehaviours(NetworkBehaviourContainer<Behaviour> obj)
-        {
-            var all = obj.Behaviours;
-            var allTypes = obj.BehavioursTypes;
-            var behaviours = new Dictionary<byte, KeyValuePair<Behaviour, Type>>();
-            byte code;
-            for(var i = 0; i < all.Count; i++)
-            {
-                var behaviour = all[i];
-                var type = allTypes[i];
-                if(_serializer.FindCode(type, out code))
-                {
-                    if(behaviours.ContainsKey(code))
-                    {
-                        throw new InvalidOperationException("A container cannot have multiple serializable behaviours of the same type: " + code.ToString());
-                    }
-                    behaviours[code] = new KeyValuePair<Behaviour, Type>(behaviour, type);
-                }
-            }
-            return behaviours;
-        }
-
         public void Serialize(NetworkBehaviourContainer<Behaviour> newObj, IWriter writer)
         {
-            var memStream = new MemoryStream();
-            var memWriter = new SystemBinaryWriter(memStream);
-            var behaviours = GetSerializableBehaviours(newObj);
-            writer.Write(behaviours.Count);
-            var itr = behaviours.GetEnumerator();
-            while(itr.MoveNext())
+            _memStream.SetLength(0);
+            _memStream.Seek(0, SeekOrigin.Begin);
+            var memWriter = new SystemBinaryWriter(_memStream);
+
+            newObj.ComputeSerializableBehaviours(_serializer.FindCode);
+            var serializableBehaviours = newObj.SerializableBehaviours;
+            var serializableBehavioursTypes = newObj.SerializableBehavioursTypes;
+
+            writer.Write(serializableBehaviours.Count);
+            
+            for(int i = 0; i < serializableBehaviours.Count; ++i)
             {
-                _serializer.SerializeTyped(itr.Current.Value.Key, itr.Current.Value.Value, memWriter);
-                writer.WriteByteArray(memStream.ToArray());
-                memStream.Seek(0, SeekOrigin.Begin);
+                _serializer.SerializeTyped(serializableBehaviours[i], serializableBehavioursTypes[i], memWriter);
+                writer.WriteByteArray(_memStream.GetBuffer(), (int)_memStream.Length);
+                _memStream.SetLength(0);
+                _memStream.Seek(0, SeekOrigin.Begin);
             }
-            itr.Dispose();
         }
 
         public void Serialize(NetworkBehaviourContainer<Behaviour> newObj, NetworkBehaviourContainer<Behaviour> oldObj, IWriter writer, Bitset dirty)
         {
-            var memStream = new MemoryStream();
-            var memWriter = new SystemBinaryWriter(memStream);
-            var newBehaviours = GetSerializableBehaviours(newObj);
-            var oldBehaviours = GetSerializableBehaviours(oldObj);
-            writer.Write(newBehaviours.Count);
-            var itr = newBehaviours.GetEnumerator();
-            while(itr.MoveNext())
+            _memStream.SetLength(0);
+            _memStream.Seek(0, SeekOrigin.Begin);
+            var memWriter = new SystemBinaryWriter(_memStream);
+
+            newObj.ComputeSerializableBehaviours(_serializer.FindCode);
+            oldObj.ComputeSerializableBehaviours(_serializer.FindCode);
+
+            var newSerializableBehaviours = newObj.SerializableBehaviours;
+            var newSerializableBehavioursTypes = newObj.SerializableBehavioursTypes;
+            var newSerializersCodes = newObj.SerializersCodes;
+            var oldSerializableBehaviours = oldObj.SerializableBehaviours;
+            var oldSerializableBehavioursTypes = oldObj.SerializableBehavioursTypes;
+            var oldSerializersCodes = oldObj.SerializersCodes;
+
+            writer.Write(newSerializableBehaviours.Count);
+
+            for(int i = 0; i < newSerializableBehaviours.Count; ++i)
             {
-                KeyValuePair<Behaviour, Type> oldBehaviour;
-                if(oldBehaviours.TryGetValue(itr.Current.Key, out oldBehaviour))
+                bool existsInOldObj = oldSerializersCodes.Contains(newSerializersCodes[i]);
+                if(oldSerializersCodes.Contains(newSerializersCodes[i]))
                 {
-                    _serializer.SerializeTyped(itr.Current.Value.Key, itr.Current.Value.Value, oldBehaviour.Key, oldBehaviour.Value, memWriter, dirty);
+                    _serializer.SerializeTyped(newSerializableBehaviours[i], newSerializableBehavioursTypes[i],
+                        oldSerializableBehaviours[i], oldSerializableBehavioursTypes[i], memWriter, dirty);
                 }
                 else
                 {
-                    _serializer.SerializeTyped(itr.Current.Value.Key, itr.Current.Value.Value, memWriter);
+                    _serializer.SerializeTyped(newSerializableBehaviours[i], newSerializableBehavioursTypes[i], memWriter);
                 }
-                writer.Write(oldBehaviour.Key != null);
-                writer.WriteByteArray(memStream.ToArray());
-                memStream.Seek(0, SeekOrigin.Begin);
+                writer.Write(existsInOldObj);
+                writer.WriteByteArray(_memStream.GetBuffer(), (int)_memStream.Length);
+                _memStream.SetLength(0);
+                _memStream.Seek(0, SeekOrigin.Begin);
             }
-            itr.Dispose();
-            var removed = new List<byte>();
-            itr = oldBehaviours.GetEnumerator();
-            while(itr.MoveNext())
+
+            _removedObjects.Clear();
+            for(int i = 0; i < oldSerializersCodes.Count; ++i)
             {
-                KeyValuePair<Behaviour, Type> newBehaviour;
-                if(!newBehaviours.TryGetValue(itr.Current.Key, out newBehaviour))
+                if(!newSerializersCodes.Contains(oldSerializersCodes[i]))
                 {
-                    removed.Add(itr.Current.Key);
+                    _removedObjects.Add(oldSerializersCodes[i]);
                 }
             }
-            itr.Dispose();
-            writer.Write(removed.Count);
-            for(var i = 0; i < removed.Count; i++)
+
+            writer.Write(_removedObjects.Count);
+            for(var i = 0; i < _removedObjects.Count; i++)
             {
-                writer.Write(removed[i]);
+                writer.Write(_removedObjects[i]);
             }
         }
 
@@ -632,25 +728,11 @@ namespace SocialPoint.Multiplayer
 
     public class NetworkBehaviourContainerParser<Behaviour> : IDiffReadParser<NetworkBehaviourContainer<Behaviour>> where Behaviour : class
     {
-        NetworkSceneContext _context = null;
-        public NetworkSceneContext Context
-        {
-            get
-            {
-                SocialPoint.Base.DebugUtils.Assert(_context != null);
-                return _context;
-            }
-            set
-            {
-                _context = value;
-            }
-        }
-
         TypedDiffReadParser<Behaviour> _behaviourParser;
+        MemoryStream _memStream = new MemoryStream(64 * 1024);
 
-        public NetworkBehaviourContainerParser(NetworkSceneContext context)
+        public NetworkBehaviourContainerParser()
         {
-            Context = context;
             _behaviourParser = new TypedDiffReadParser<Behaviour>();
         }
 
@@ -664,69 +746,54 @@ namespace SocialPoint.Multiplayer
             return 0;
         }
 
-        Dictionary<byte, Behaviour> GetSerializableBehaviours(NetworkBehaviourContainer<Behaviour> obj)
-        {
-            var all = obj.Behaviours;
-            var allTypes = obj.BehavioursTypes;
-            var behaviours = new Dictionary<byte, Behaviour>();
-            byte code;
-            for(var i = 0; i < all.Count; i++)
-            {
-                var behaviour = all[i];
-                var type = allTypes[i];
-                if(_behaviourParser.FindCode(type, out code))
-                {
-                    if(behaviours.ContainsKey(code))
-                    {
-                        throw new InvalidOperationException("A container cannot have multiple serializable behaviours of the same type: " + code.ToString());
-                    }
-                    behaviours[code] = behaviour;
-                }
-            }
-            return behaviours;
-        }
-
         public NetworkBehaviourContainer<Behaviour> Parse(IReader reader)
         {
-            var obj = new NetworkBehaviourContainer<Behaviour>(Context);
+            var obj = new NetworkBehaviourContainer<Behaviour>();
             var behaviourNum = reader.ReadInt32();
-            var memSteam = new MemoryStream();
-            var memReader = new SystemBinaryReader(memSteam);
+            _memStream.SetLength(0);
+            _memStream.Seek(0, SeekOrigin.Begin);
+            var memReader = new SystemBinaryReader(_memStream);
             for(var i = 0; i < behaviourNum; i++)
             {
                 var bytes = reader.ReadByteArray();
-                memSteam.Write(bytes, 0, bytes.Length);
-                memSteam.Seek(0, SeekOrigin.Begin);
+                _memStream.Write(bytes, 0, bytes.Length);
+                _memStream.Seek(0, SeekOrigin.Begin);
                 var code = memReader.ReadByte();
                 Behaviour behaviour;
                 if(_behaviourParser.TryParse(code, memReader, out behaviour))
                 {
                     obj.Add(behaviour);
                 }
-                memSteam.Seek(0, SeekOrigin.Begin);
+                _memStream.Seek(0, SeekOrigin.Begin);
             }
+
             return obj;
         }
 
         public NetworkBehaviourContainer<Behaviour> Parse(NetworkBehaviourContainer<Behaviour> obj, IReader reader, Bitset dirty)
         {
-            var memSteam = new MemoryStream();
-            var memReader = new SystemBinaryReader(memSteam);
-            var oldBehaviours = GetSerializableBehaviours(obj);
+            _memStream.SetLength(0);
+            _memStream.Seek(0, SeekOrigin.Begin);
+            var memReader = new SystemBinaryReader(_memStream);
+
+            obj.ComputeSerializableBehaviours(_behaviourParser.FindCode);
+
             var behaviourNum = reader.ReadInt32();
             for(var i = 0; i < behaviourNum; i++)
             {
                 var isDiff = reader.ReadBoolean();
                 var bytes = reader.ReadByteArray();
-                memSteam.Write(bytes, 0, bytes.Length);
-                memSteam.Seek(0, SeekOrigin.Begin);
+                _memStream.Write(bytes, 0, bytes.Length);
+                _memStream.Seek(0, SeekOrigin.Begin);
                 var code = memReader.ReadByte();
+
                 Behaviour behaviour;
                 if(isDiff)
                 {
-                    if(oldBehaviours.TryGetValue(code, out behaviour))
+                    int index = obj.SerializersCodes.IndexOf(code);
+                    if(index != -1)
                     {
-                        _behaviourParser.TryParse(code, behaviour, memReader, out behaviour);
+                        _behaviourParser.TryParse(code, obj.SerializableBehaviours[index], memReader, out behaviour);
                     }
                 }
                 else
@@ -736,18 +803,20 @@ namespace SocialPoint.Multiplayer
                         obj.Add(behaviour);
                     }
                 }
-                memSteam.Seek(0, SeekOrigin.Begin);
+                _memStream.Seek(0, SeekOrigin.Begin);
             }
+           
             behaviourNum = reader.ReadInt32();
             for(var i = 0; i < behaviourNum; i++)
             {
                 var code = reader.ReadByte();
-                Behaviour behaviour;
-                if(oldBehaviours.TryGetValue(code, out behaviour))
+                int index = obj.SerializersCodes.IndexOf(code);
+                if(index != -1)
                 {
-                    obj.Remove(behaviour);
+                    obj.Remove(obj.SerializableBehaviours[index]);
                 }
             }
+
             return obj;
         }
     }

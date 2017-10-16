@@ -1,0 +1,5 @@
+{
+    "infoPlist": {
+        "NSCalendarsUsageDescription": "Some ad content may create a calendar event"
+    }
+}

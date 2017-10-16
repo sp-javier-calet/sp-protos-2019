@@ -2,6 +2,7 @@
 
 using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
+using UnityEngine;
 
 namespace SocialPoint.Base
 {
@@ -68,6 +69,13 @@ namespace SocialPoint.Base
                 _storage.Save(_key, new AttrString(_value));
                 _console.Print(string.Format("Saved '{0}' key '{1}' with value: {2}", _name, _key, _value));
             });
+            
+            layout.CreateConfirmButton("Clear PlayerPrefs", CleanPlayerPrefs);
+        }
+        
+        public void CleanPlayerPrefs()
+        {
+            PlayerPrefs.DeleteAll();
         }
     }
 }

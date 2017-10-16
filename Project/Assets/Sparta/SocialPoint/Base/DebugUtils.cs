@@ -8,6 +8,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Base
@@ -36,6 +37,7 @@ namespace SocialPoint.Base
             #endif
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         [Conditional("DEBUG")]
         public static void Assert(bool condition, string msg = "")
         {
@@ -51,7 +53,8 @@ namespace SocialPoint.Base
             {
                 if(UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
                 {
-                    UnityEditor.EditorApplication.isPaused = true;
+                    UnityEngine.Debug.LogError(msg);
+                    //UnityEditor.EditorApplication.isPaused = true;
                 }
             }
             catch(MissingMethodException)
@@ -69,12 +72,14 @@ namespace SocialPoint.Base
             #endif
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         [Conditional("DEBUG")]
         public static void Assert(Func<bool> assertFunction, string msg = "")
         {
             Assert(assertFunction(), msg);
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         [Conditional("DEBUG")]
         public static void Assert(Func<string> assertFunction)
         {
@@ -134,3 +139,4 @@ namespace SocialPoint.Base
         }
     }
 }
+

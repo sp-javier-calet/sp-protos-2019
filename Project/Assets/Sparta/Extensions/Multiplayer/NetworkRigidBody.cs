@@ -22,7 +22,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        new public NetworkRigidBody Init(IPhysicsShape shape, ControlType type, PhysicsWorld physicsWorld)
+        public NetworkRigidBody Init(IPhysicsShape shape, ControlType type, PhysicsWorld physicsWorld)
         {
             base.Init(shape, type, physicsWorld);
             return this;

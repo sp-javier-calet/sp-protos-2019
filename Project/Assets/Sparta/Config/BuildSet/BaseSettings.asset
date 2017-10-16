@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Name: BaseSettings
   m_EditorClassIdentifier: 
   App:
-    ProductName: Sparta BaseGame
-    Version: 1.0
-    BuildNumber: 1611111111
+    ProductName: ChampionsArena
+    Version: 1.4
+    BuildNumber: 17
     OverrideBuild: 0
-    IconTexture: {fileID: 2800000, guid: 604c4083957b24de08e594af127db98c, type: 3}
+    IconTexture: {fileID: 2800000, guid: fdee3862b00164db683b61cb0483524e, type: 3}
     OverrideIcon: 0
   Common:
     Flags: 
@@ -28,15 +28,15 @@ MonoBehaviour:
     EnableAdminPanel: 0
     EnableDependencyInspection: 0
   Ios:
-    BundleIdentifier: es.socialpoint.basegame
-    Flags: NO_GPGS
+    BundleIdentifier: es.socialpoint.championsarena
+    Flags: NO_GPGS;NGUI;BEHAVIOR_DESIGNER_STANDALONE;
     XcodeModSchemes: 
     UseEnvironmentProvisioningUuid: 0
-    RemovedResources: 
+    RemovedResources: StreamingAssets/android_etc
   Android:
-    BundleIdentifier: es.socialpoint.basegame
-    Flags: 
-    RemovedResources: 
+    BundleIdentifier: es.socialpoint.championsarena
+    Flags: NGUI;BEHAVIOR_DESIGNER_STANDALONE;
+    RemovedResources: StreamingAssets/ios
     UseKeystore: 0
     Keystore:
       Path: Assets/Plugins/Android/socialpoint.keystore

@@ -1,6 +1,0 @@
-framework module SPUnityPlugins_tvOS {
-  umbrella header "SPUnityPlugins_tvOS.h"
-
-  export *
-  module * { export * }
-}

@@ -379,7 +379,7 @@ namespace SharpNav
                     if(neighborNode.Flags == 0)
                         neighborNode.Position = Vector3.Lerp(va, vb, 0.5f);
 
-                    float total = bestNode.TotalCost + (bestNode.Position - neighborNode.Position).Length();
+                    float total = bestPoly.Cost + bestNode.TotalCost + (bestNode.Position - neighborNode.Position).Length();
 
                     //node is already in open list and new result is worse, so skip
                     if(IsInOpenList(neighborNode) && total >= neighborNode.TotalCost)
@@ -2401,7 +2401,7 @@ namespace SharpNav
         /// <returns>The neareast point.</returns>
         public NavPoint FindNearestPoly(Vector3 center, Vector3 extents, NavQueryFilter filter)
         {
-            NavPoint result;
+            NavPoint result = NavPoint.Null;
             this.FindNearestPoly(ref center, ref extents, filter, out result);
             return result;
         }
@@ -2414,7 +2414,7 @@ namespace SharpNav
         /// <param name="nearestPt">The neareast point.</param>
 
         List<NavPolyId> _nearesPolis = new List<NavPolyId>(128);
-        public void FindNearestPoly(ref Vector3 center, ref Vector3 extents, NavQueryFilter filter, out NavPoint nearestPt)
+        public bool FindNearestPoly(ref Vector3 center, ref Vector3 extents, NavQueryFilter filter, out NavPoint nearestPt)
         {
             nearestPt = NavPoint.Null;
 
@@ -2423,7 +2423,7 @@ namespace SharpNav
             // Get nearby polygons from proximity grid.
             _nearesPolis.Clear();
             if(!QueryPolygons(ref center, ref extents, filter, _nearesPolis))
-                throw new InvalidOperationException("no nearby polys?");
+                return false;
 
             float nearestDistanceSqr = float.MaxValue;
             for(int i = 0; i < _nearesPolis.Count; i++)
@@ -2456,6 +2456,8 @@ namespace SharpNav
                     nearestPt = new NavPoint(reference, closestPtPoly);
                 }
             }
+
+            return true;
         }
 
         /// <summary>
@@ -2481,7 +2483,7 @@ namespace SharpNav
                 for(int x = minx; x <= maxx; x++)
                 {
                     //[SP-Change]: Replaced foreach
-                    var itr = nav.GetTilesAt(x, y).GetEnumerator();
+                    var itr = nav.GetEnumeratorFromTilesAt(x, y);
                     var nIsOutOfCapacity = false;
                     while(itr.MoveNext())
                     {

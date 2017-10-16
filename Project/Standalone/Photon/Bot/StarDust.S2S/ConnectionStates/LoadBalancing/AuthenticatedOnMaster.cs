@@ -7,6 +7,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+#define RETRY_CONNECTION_ALWAYS
+
 namespace Photon.Stardust.S2S.Server.ConnectionStates.LoadBalancing
 {
     using System;
@@ -237,7 +239,7 @@ namespace Photon.Stardust.S2S.Server.ConnectionStates.LoadBalancing
 
                 case (byte)LoadBalancingOperationCode.JoinGame:
                 case (byte)LoadBalancingOperationCode.JoinRandomGame:
-                     if (operationResponse.ReturnCode == 0)
+                    if (operationResponse.ReturnCode == 0)
                     {
                         var gameServerAddress = (string)operationResponse.Parameters[(byte)LoadBalancingParameterCode.Address]; 
                         client.GameServerAddress = gameServerAddress;
@@ -248,33 +250,46 @@ namespace Photon.Stardust.S2S.Server.ConnectionStates.LoadBalancing
                         this.TransitState(client);
                     }
                     else
-                     {
-                         if (client.MatchmakingRetryCount < ClientConnection.MaxMatchmakingRetries)
-                         {
-                             log.WarnFormat(
-                                 "OnOperationReturn: {0} failed for client #{5}: ReturnCode: {1} ({2}). RetryCount: {3} of {4}. Trying again...",
-                                 Enum.GetName(typeof(LoadBalancingOperationCode), operationResponse.OperationCode),
-                                 operationResponse.ReturnCode,
-                                 operationResponse.DebugMessage,
-                                 client.MatchmakingRetryCount,
-                                 ClientConnection.MaxMatchmakingRetries,
-                                 client.Number); 
+                    {
+#if RETRY_CONNECTION_ALWAYS
+                        log.WarnFormat(
+                                "OnOperationReturn: {0} failed for client #{5}: ReturnCode: {1} ({2}). RetryCount: {3} of {4}. Trying again...",
+                                Enum.GetName(typeof(LoadBalancingOperationCode), operationResponse.OperationCode),
+                                operationResponse.ReturnCode,
+                                operationResponse.DebugMessage,
+                                client.MatchmakingRetryCount,
+                                ClientConnection.MaxMatchmakingRetries,
+                                client.Number);
 
-                             client.Fiber.Schedule(
-                                 () => this.JoinOrCreate(client), Settings.StartupInterval * ++client.MatchmakingRetryCount);
-                         }
-                         else
-                         {
-                             log.WarnFormat(
-                                 "OnOperationReturn: {0} failed: ReturnCode: {1} ({2}). JoinLobby and start from beginning again...",
-                                 Enum.GetName(typeof(LoadBalancingOperationCode), operationResponse.OperationCode),
-                                 operationResponse.ReturnCode,
-                                 operationResponse.DebugMessage);
-                             //client.Peer.Disconnect();
+                        client.Fiber.Schedule(() => this.JoinOrCreate(client), Settings.StartupInterval);
+#else
+                        if (client.MatchmakingRetryCount < ClientConnection.MaxMatchmakingRetries)
+                        {
+                            log.WarnFormat(
+                                "OnOperationReturn: {0} failed for client #{5}: ReturnCode: {1} ({2}). RetryCount: {3} of {4}. Trying again...",
+                                Enum.GetName(typeof(LoadBalancingOperationCode), operationResponse.OperationCode),
+                                operationResponse.ReturnCode,
+                                operationResponse.DebugMessage,
+                                client.MatchmakingRetryCount,
+                                ClientConnection.MaxMatchmakingRetries,
+                                client.Number); 
 
-                             this.EnterState(client);
-                         }
-                     }
+                            client.Fiber.Schedule(
+                                () => this.JoinOrCreate(client), Settings.StartupInterval * ++client.MatchmakingRetryCount);
+                        }
+                        else
+                        {
+                           log.WarnFormat(
+                                "OnOperationReturn: {0} failed: ReturnCode: {1} ({2}). JoinLobby and start from beginning again...",
+                                Enum.GetName(typeof(LoadBalancingOperationCode), operationResponse.OperationCode),
+                                operationResponse.ReturnCode,
+                                operationResponse.DebugMessage);
+                           //client.Peer.Disconnect();
+
+                           this.EnterState(client);
+                        }
+#endif
+                    }
                     break;
 
                 default:

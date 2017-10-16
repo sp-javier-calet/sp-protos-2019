@@ -75,8 +75,11 @@ namespace SharpNav.Geometry
         /// <returns>A hash code.</returns>
         public override int GetHashCode()
         {
-            //TODO generate a good hashcode.
-            return base.GetHashCode();
+            //[SP-Change] To avoid boxing.
+            int hash = 23;
+            hash = hash * 31 + X;
+            hash = hash * 31 + Y;
+            return hash;
         }
 
         /// <summary>

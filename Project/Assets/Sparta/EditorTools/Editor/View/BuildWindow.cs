@@ -1,7 +1,7 @@
-﻿using UnityEngine;
-using UnityEditor;
-using System.IO;
+﻿using System.IO;
 using SpartaTools.Editor.Build;
+using UnityEditor;
+using UnityEngine;
 
 namespace SpartaTools.Editor.View
 {
@@ -40,17 +40,13 @@ namespace SpartaTools.Editor.View
         [MenuItem("Sparta/Build/Plugins/Android Java Plugins", false, 182)]
         public static void CompileAndroid()
         {
-            NativeBuild.CompileAndroid(
-                path => EditorUtility.DisplayProgressBar("Compiling Android plugin", path, 0.1f), 
-                EditorUtility.ClearProgressBar);
+            NativeBuild.CompileAndroid();
         }
 
         [MenuItem("Sparta/Build/Plugins/Android Native Plugins", false, 183)]
         public static void CompileAndroidNative()
         {
-            NativeBuild.CompileAndroidNative(
-                (progress, msg) => EditorUtility.DisplayProgressBar("Compiling native plugin", msg, progress), 
-                EditorUtility.ClearProgressBar);
+            NativeBuild.CompileAndroidNative();
         }
 
         [MenuItem("Sparta/Build/Plugins/iOS Plugins", false, 201)]

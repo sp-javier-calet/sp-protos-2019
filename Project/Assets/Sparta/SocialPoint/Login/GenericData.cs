@@ -180,6 +180,7 @@ namespace SocialPoint.Login
         public MaintenanceData Maintenance;
         public SocialFrameworkData Social;
         public AttrDic MatchData;
+        public string AssetsURL;
         const string AttrKeyTimestamp = "ts";
         const string AttrKeyStoreUrl = "store";
         const string AttrKeyUpgradeSuggested = "suggested_upgrade";
@@ -189,6 +190,7 @@ namespace SocialPoint.Login
         const string AttrKeyUserImportance = "user_importance";
         const string AttrKeyCheat = "cheat";
         const string AttrKeyActiveMatch = "active_match";
+        const string AttrKeyAssetsURL = "assets_url";
 
         public void Load(IStreamReader reader)
         {
@@ -228,6 +230,9 @@ namespace SocialPoint.Login
                         break;
                     case AttrKeyCheat:
                         Cheat = reader.GetBoolValue(); 
+                        break;
+                        case AttrKeyAssetsURL:
+                        AssetsURL = reader.GetStringValue();
                         break;
                     default:
                         reader.SkipElement();
@@ -285,6 +290,10 @@ namespace SocialPoint.Login
             if(datadic.ContainsKey(AttrKeyActiveMatch))
             {
                 MatchData = datadic[AttrKeyActiveMatch].AsDic;
+            }
+            if(datadic.ContainsKey(AttrKeyAssetsURL))
+            {
+                AssetsURL = datadic.GetValue(AttrKeyAssetsURL).ToString();
             }
         }
 

@@ -37,6 +37,7 @@ namespace Jitter.LinearMath
     /// </summary>
     public struct JQuaternion
     {
+        private const float EqualsEpsilon = 5e-2f;
 
         /// <summary>The X component of the quaternion.</summary>
         public float X;
@@ -97,6 +98,15 @@ namespace Jitter.LinearMath
             JQuaternion other = (JQuaternion)obj;
 
             return (((X == other.X) && (Y == other.Y)) && (Z == other.Z) && (W == other.W));
+        }
+
+        public bool AlmostEquals(object obj)
+        {
+            if(!(obj is JQuaternion))
+                return false;
+            JQuaternion other = (JQuaternion)obj;
+
+            return Math.Abs(X - other.X) < EqualsEpsilon && Math.Abs(Y - other.Y) < EqualsEpsilon && Math.Abs(Z - other.Z) < EqualsEpsilon && Math.Abs(W - other.W) < EqualsEpsilon;
         }
 
         #endregion

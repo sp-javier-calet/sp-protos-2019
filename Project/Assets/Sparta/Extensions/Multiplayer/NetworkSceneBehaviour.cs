@@ -1,4 +1,7 @@
-﻿namespace SocialPoint.Multiplayer
+﻿using SocialPoint.Utils;
+using System;
+
+namespace SocialPoint.Multiplayer
 {
     public class NetworkSceneBehaviour : INetworkSceneBehaviour
     {
@@ -38,7 +41,7 @@
         {
         }
 
-        void INetworkSceneBehaviour.Update(float dt)
+        void IDeltaUpdateable.Update(float dt)
         {
             Update(dt);
         }
@@ -63,6 +66,20 @@
 
         protected virtual void OnDestroyObject(int id)
         {
+        }
+
+        void IDisposable.Dispose()
+        {
+            Dispose();
+        }
+
+        public virtual void Dispose()
+        {
+            if (_scene != null)
+            {
+                _scene.Context.Pool.Return(this);
+                _scene = null;
+            }
         }
     }
 }

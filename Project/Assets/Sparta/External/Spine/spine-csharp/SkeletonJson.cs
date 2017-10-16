@@ -1,9 +1,9 @@
 /******************************************************************************
  * Spine Runtimes Software License v2.5
- * 
+ *
  * Copyright (c) 2013-2016, Esoteric Software
  * All rights reserved.
- * 
+ *
  * You are granted a perpetual, non-exclusive, non-sublicensable, and
  * non-transferable license to use, install, execute, and perform the Spine
  * Runtimes software and derivative works solely for personal or internal
@@ -15,7 +15,7 @@
  * or other intellectual property or proprietary rights notices on or in the
  * Software, including any copy thereof. Redistributions in binary or source
  * form must include this license and terms.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY ESOTERIC SOFTWARE "AS IS" AND ANY EXPRESS OR
  * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
@@ -28,7 +28,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  *****************************************************************************/
 
-#if (UNITY_5 || UNITY_4_0 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7 || UNITY_WSA || UNITY_WP8 || UNITY_WP8_1)
+#if (UNITY_5 || UNITY_5_3_OR_NEWER || UNITY_WSA || UNITY_WP8 || UNITY_WP8_1)
 #define IS_UNITY
 #endif
 
@@ -58,7 +58,7 @@ namespace Spine {
 			Scale = 1;
 		}
 
-		#if !(IS_UNITY) && WINDOWS_STOREAPP
+		#if !IS_UNITY && WINDOWS_STOREAPP
 		private async Task<SkeletonData> ReadFile(string path) {
 			var folder = Windows.ApplicationModel.Package.Current.InstalledLocation;
 			var file = await folder.GetFileAsync(path).AsTask().ConfigureAwait(false);
@@ -75,17 +75,16 @@ namespace Spine {
 		#else
 		public SkeletonData ReadSkeletonData (String path) {
 		#if WINDOWS_PHONE
-			Stream stream = Microsoft.Xna.Framework.TitleContainer.OpenStream(path);
-			using (StreamReader reader = new StreamReader(stream)) {
+			using (var reader = new StreamReader(Microsoft.Xna.Framework.TitleContainer.OpenStream(path))) {
 		#else
-			using (var reader = new StreamReader(path)) {
-		#endif // WINDOWS_PHONE
+			using (var reader = new StreamReader(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))) {
+		#endif
 				SkeletonData skeletonData = ReadSkeletonData(reader);
 				skeletonData.name = Path.GetFileNameWithoutExtension(path);
 				return skeletonData;
 			}
 		}
-		#endif // WINDOWS_STOREAPP
+		#endif
 
 		public SkeletonData ReadSkeletonData (TextReader reader) {
 			if (reader == null) throw new ArgumentNullException("reader", "reader cannot be null.");
@@ -103,6 +102,8 @@ namespace Spine {
 				skeletonData.version = (String)skeletonMap["spine"];
 				skeletonData.width = GetFloat(skeletonMap, "width", 0);
 				skeletonData.height = GetFloat(skeletonMap, "height", 0);
+				skeletonData.fps = GetFloat(skeletonMap, "fps", 0);
+				skeletonData.imagesPath = GetString(skeletonMap, "images", null);
 			}
 
 			// Bones.
@@ -122,8 +123,9 @@ namespace Spine {
 				data.scaleY = GetFloat(boneMap, "scaleY", 1);
 				data.shearX = GetFloat(boneMap, "shearX", 0);
 				data.shearY = GetFloat(boneMap, "shearY", 0);
-				data.inheritRotation = GetBoolean(boneMap, "inheritRotation", true);
-				data.inheritScale = GetBoolean(boneMap, "inheritScale", true);
+
+				string tm = GetString(boneMap, "transform", TransformMode.Normal.ToString());
+				data.transformMode = (TransformMode)Enum.Parse(typeof(TransformMode), tm, true);
 
 				skeletonData.bones.Add(data);
 			}
@@ -144,12 +146,20 @@ namespace Spine {
 						data.b = ToColor(color, 2);
 						data.a = ToColor(color, 3);
 					}
+
+					if (slotMap.ContainsKey("dark")) {
+						var color2 = (String)slotMap["dark"];
+						data.r2 = ToColor(color2, 0, 6); // expectedLength = 6. ie. "RRGGBB"
+						data.g2 = ToColor(color2, 1, 6);
+						data.b2 = ToColor(color2, 2, 6);
+						data.hasSecondColor = true;
+					}
 						
 					data.attachmentName = GetString(slotMap, "attachment", null);
 					if (slotMap.ContainsKey("blend"))
-						data.blendMode = (BlendMode)Enum.Parse(typeof(BlendMode), (String)slotMap["blend"], false);
+						data.blendMode = (BlendMode)Enum.Parse(typeof(BlendMode), (String)slotMap["blend"], true);
 					else
-						data.blendMode = BlendMode.normal;
+						data.blendMode = BlendMode.Normal;
 					skeletonData.slots.Add(data);
 				}
 			}
@@ -158,6 +168,7 @@ namespace Spine {
 			if (root.ContainsKey("ik")) {
 				foreach (Dictionary<String, Object> constraintMap in (List<Object>)root["ik"]) {
 					IkConstraintData data = new IkConstraintData((String)constraintMap["name"]);
+					data.order = GetInt(constraintMap, "order", 0);
 
 					foreach (String boneName in (List<Object>)constraintMap["bones"]) {
 						BoneData bone = skeletonData.FindBone(boneName);
@@ -180,6 +191,7 @@ namespace Spine {
 			if (root.ContainsKey("transform")) {
 				foreach (Dictionary<String, Object> constraintMap in (List<Object>)root["transform"]) {
 					TransformConstraintData data = new TransformConstraintData((String)constraintMap["name"]);
+					data.order = GetInt(constraintMap, "order", 0);
 
 					foreach (String boneName in (List<Object>)constraintMap["bones"]) {
 						BoneData bone = skeletonData.FindBone(boneName);
@@ -190,6 +202,9 @@ namespace Spine {
 					String targetName = (String)constraintMap["target"];
 					data.target = skeletonData.FindBone(targetName);
 					if (data.target == null) throw new Exception("Target bone not found: " + targetName);
+
+					data.local = GetBoolean(constraintMap, "local", false);
+					data.relative = GetBoolean(constraintMap, "relative", false);
 
 					data.offsetRotation = GetFloat(constraintMap, "rotation", 0);
 					data.offsetX = GetFloat(constraintMap, "x", 0) * scale;
@@ -211,6 +226,7 @@ namespace Spine {
 			if(root.ContainsKey("path")) {
 				foreach (Dictionary<String, Object> constraintMap in (List<Object>)root["path"]) {
 					PathConstraintData data = new PathConstraintData((String)constraintMap["name"]);
+					data.order = GetInt(constraintMap, "order", 0);
 
 					foreach (String boneName in (List<Object>)constraintMap["bones"]) {
 						BoneData bone = skeletonData.FindBone(boneName);
@@ -245,7 +261,7 @@ namespace Spine {
 						int slotIndex = skeletonData.FindSlotIndex(slotEntry.Key);
 						foreach (KeyValuePair<String, Object> entry in ((Dictionary<String, Object>)slotEntry.Value)) {
 							try {
-								Attachment attachment = ReadAttachment((Dictionary<String, Object>)entry.Value, skin, slotIndex, entry.Key);
+								Attachment attachment = ReadAttachment((Dictionary<String, Object>)entry.Value, skin, slotIndex, entry.Key, skeletonData);
 								if (attachment != null) skin.AddAttachment(slotIndex, entry.Key, attachment);
 							} catch (Exception e) {
 								throw new Exception("Error reading attachment: " + entry.Key + ", skin: " + skin, e);
@@ -276,7 +292,7 @@ namespace Spine {
 					var data = new EventData(entry.Key);
 					data.Int = GetInt(entryMap, "int", 0);
 					data.Float = GetFloat(entryMap, "float", 0);
-					data.String = GetString(entryMap, "string", null);
+					data.String = GetString(entryMap, "string", string.Empty);
 					skeletonData.events.Add(data);
 				}
 			}
@@ -301,7 +317,7 @@ namespace Spine {
 			return skeletonData;
 		}
 
-		private Attachment ReadAttachment (Dictionary<String, Object> map, Skin skin, int slotIndex, String name) {
+		private Attachment ReadAttachment (Dictionary<String, Object> map, Skin skin, int slotIndex, String name, SkeletonData skeletonData) {
 			var scale = this.Scale;
 			name = GetString(map, "name", name);
 
@@ -389,6 +405,34 @@ namespace Spine {
 					pathAttachment.lengths = GetFloatArray(map, "lengths", scale);
 					return pathAttachment;
 				}
+			case AttachmentType.Point: {
+					PointAttachment point = attachmentLoader.NewPointAttachment(skin, name);
+					if (point == null) return null;
+					point.x = GetFloat(map, "x", 0) * scale;
+					point.y = GetFloat(map, "y", 0) * scale;
+					point.rotation = GetFloat(map, "rotation", 0);
+
+					//string color = GetString(map, "color", null);
+					//if (color != null) point.color = color;
+					return point;
+				}
+			case AttachmentType.Clipping: {
+					ClippingAttachment clip = attachmentLoader.NewClippingAttachment(skin, name);
+					if (clip == null) return null;
+
+					string end = GetString(map, "end", null);
+					if (end != null) {
+						SlotData slot = skeletonData.FindSlot(end);
+						if (slot == null) throw new Exception("Clipping end slot not found: " + end);
+						clip.EndSlot = slot;
+					}
+
+					ReadVertices(map, clip, GetInt(map, "vertexCount", 0) << 1);
+
+					//string color = GetString(map, "color", null);
+					// if (color != null) clip.color = color;
+					return clip;
+				}
 			}
 			return null;
 		}
@@ -436,22 +480,7 @@ namespace Spine {
 					foreach (KeyValuePair<String, Object> timelineEntry in timelineMap) {
 						var values = (List<Object>)timelineEntry.Value;
 						var timelineName = (String)timelineEntry.Key;
-						if (timelineName == "color") {
-							var timeline = new ColorTimeline(values.Count);
-							timeline.slotIndex = slotIndex;
-
-							int frameIndex = 0;
-							foreach (Dictionary<String, Object> valueMap in values) {
-								float time = (float)valueMap["time"];
-								String c = (String)valueMap["color"];
-								timeline.SetFrame(frameIndex, time, ToColor(c, 0), ToColor(c, 1), ToColor(c, 2), ToColor(c, 3));
-								ReadCurve(valueMap, timeline, frameIndex);
-								frameIndex++;
-							}
-							timelines.Add(timeline);
-							duration = Math.Max(duration, timeline.frames[(timeline.FrameCount - 1) * ColorTimeline.ENTRIES]);
-
-						} else if (timelineName == "attachment") {
+						if (timelineName == "attachment") {
 							var timeline = new AttachmentTimeline(values.Count);
 							timeline.slotIndex = slotIndex;
 
@@ -462,6 +491,38 @@ namespace Spine {
 							}
 							timelines.Add(timeline);
 							duration = Math.Max(duration, timeline.frames[timeline.FrameCount - 1]);
+
+						} else if (timelineName == "color") {
+							var timeline = new ColorTimeline(values.Count);
+							timeline.slotIndex = slotIndex;
+
+							int frameIndex = 0;
+							foreach (Dictionary<string, Object> valueMap in values) {
+								float time = (float)valueMap["time"];
+								string c = (string)valueMap["color"];
+								timeline.SetFrame(frameIndex, time, ToColor(c, 0), ToColor(c, 1), ToColor(c, 2), ToColor(c, 3));
+								ReadCurve(valueMap, timeline, frameIndex);
+								frameIndex++;
+							}
+							timelines.Add(timeline);
+							duration = Math.Max(duration, timeline.frames[(timeline.FrameCount - 1) * ColorTimeline.ENTRIES]);
+
+						} else if (timelineName == "twoColor") {
+							var timeline = new TwoColorTimeline(values.Count);
+							timeline.slotIndex = slotIndex;
+
+							int frameIndex = 0;
+							foreach (Dictionary<string, Object> valueMap in values) {
+								float time = (float)valueMap["time"];
+								string light = (string)valueMap["light"];
+								string dark = (string)valueMap["dark"];
+								timeline.SetFrame(frameIndex, time, ToColor(light, 0), ToColor(light, 1), ToColor(light, 2), ToColor(light, 3),
+									ToColor(dark, 0, 6), ToColor(dark, 1, 6), ToColor(dark, 2, 6));
+								ReadCurve(valueMap, timeline, frameIndex);
+								frameIndex++;
+							}
+							timelines.Add(timeline);
+							duration = Math.Max(duration, timeline.frames[(timeline.FrameCount - 1) * TwoColorTimeline.ENTRIES]);
 
 						} else
 							throw new Exception("Invalid timeline type for a slot: " + timelineName + " (" + slotName + ")");
@@ -796,9 +857,9 @@ namespace Spine {
 			return (String)map[name];
 		}
 
-		static float ToColor(String hexString, int colorIndex) {
-			if (hexString.Length != 8)
-				throw new ArgumentException("Color hexidecimal length must be 8, recieved: " + hexString, "hexString");
+		static float ToColor(String hexString, int colorIndex, int expectedLength = 8) {
+			if (hexString.Length != expectedLength)
+				throw new ArgumentException("Color hexidecimal length must be " + expectedLength + ", recieved: " + hexString, "hexString");
 			return Convert.ToInt32(hexString.Substring(colorIndex * 2, 2), 16) / (float)255;
 		}
 	}

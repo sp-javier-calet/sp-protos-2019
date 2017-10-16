@@ -52,12 +52,7 @@ namespace SpartaTools.Editor.Build
                 Disabled = new List<int>();
             }
 
-			public bool Enable { get;  set; }
-
-
-
-
-
+            public bool Enable { get ; set; }
 
             public void EnableWarning(int code)
             {

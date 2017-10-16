@@ -40,14 +40,11 @@ namespace SocialPoint.Network
 
         public void Update()
         {
-            for(int i = 0; i < _clients.Count; i++)
-            {
-                _server.SendMessage(new NetworkMessageData {
-                    MessageType = LatencyMessageType,
-                    ClientId = _clients[i]
-                }, new NetworkLatencyMessage(_server.GetTimestamp())
-                );
-            }
+            _server.SendMessage(new NetworkMessageData {
+                MessageType = LatencyMessageType,
+                ClientIds = _clients
+            }, new NetworkLatencyMessage(_server.GetTimestamp())
+            );
         }
 
         #endregion
@@ -58,6 +55,7 @@ namespace SocialPoint.Network
             {
                 _scheduler.Remove(this);
             }
+
             _server.Stop();
         }
 

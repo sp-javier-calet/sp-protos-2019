@@ -1,5 +1,9 @@
-﻿#if(UNITY_ANDROID || (UNITY_IOS && !NO_GPGS))
+﻿#if(UNITY_ANDROID)
 #define GOOGLE_SUPPORTED
+#endif
+
+#if(UNITY_IOS && !NO_GPGS)
+#error We do not support GooglePlayGameServices on iOS platforms, add 'NO_GPGS' to your 'Scripting Define Symbols'
 #endif
 
 using System;
@@ -20,6 +24,7 @@ namespace SocialPoint.Social
         {
             public bool UseEmpty;
             public bool LoginLink = true;
+            public LinkMode LoginLinkMode = LinkMode.Auto;
             public bool LoginWithUi = true;
         }
 
@@ -82,7 +87,7 @@ namespace SocialPoint.Social
         GooglePlayLink CreateLoginLink()
         {
             var google = Container.Resolve<IGoogle>();
-            return new GooglePlayLink(google, !Settings.LoginWithUi);
+            return new GooglePlayLink(google, Settings.LoginLinkMode, !Settings.LoginWithUi);
         }
 
         public void Initialize()

@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using SocialPoint.Network;
 using SocialPoint.Dependency;
+using System;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
@@ -53,8 +55,7 @@ namespace SocialPoint.Multiplayer
 
         void INetworkSceneBehaviour.OnInstantiateObject(NetworkGameObject go)
         {
-            var cgo = go as NetworkGameObject<INetworkBehaviour>;
-            if(cgo != null && _serverController != null)
+            if(go != null && _serverController != null)
             {
                 var serverGo = _serverController.FindObject(go.Id);
                 if(serverGo != null)
@@ -62,7 +63,7 @@ namespace SocialPoint.Multiplayer
                     var rigid = serverGo.GetBehaviour<NetworkRigidBody>();
                     if(rigid != null)
                     {
-                        cgo.AddBehaviour(new UnityDebugNetworkClientRigidBody().Init(_serverController, _clientController), UnityDebugNetworkClientRigidBodyType);
+                        go.AddBehaviour(new UnityDebugNetworkClientRigidBody().Init(_serverController, _clientController), UnityDebugNetworkClientRigidBodyType);
                     }
                 }
             }
@@ -76,13 +77,18 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        void INetworkSceneBehaviour.Update(float dt)
-        {
-
-        }
-
         void INetworkSceneBehaviour.OnStart()
         {
+        }
+
+        void IDeltaUpdateable.Update(float elapsed)
+        {
+            
+        }
+
+        void IDisposable.Dispose()
+        {
+
         }
 
         NetworkScene INetworkSceneBehaviour.Scene

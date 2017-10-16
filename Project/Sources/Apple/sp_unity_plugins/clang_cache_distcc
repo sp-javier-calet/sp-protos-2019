@@ -1,12 +1,23 @@
 #!/bin/bash
 export CCACHE_CPP2=yes
-export CCACHE_CONFIGPATH=~/.ccache/ccache.conf
+export CCACHE_CONFIGPATH=~/.ccache/ccache.conf  
 export CCACHE_SLOPPINESS=time_macros,pch_defines
 export PWD=`pwd`
-export CCACHE_PREFIX="$PWD/distcc/distcc"
+export CCACHE_PREFIX=$(which distcc || echo "$PWD/distcc/distcc")
 
-echo "$PWD" 
-echo "$CCACHE_PREFIX" 
+if [ -f "$CCACHE_PREFIX" ]; then
+  if [ "${SP_XCODE_VERSION:0:1}" == "8" ]; then
+      _DISTCC_VER=$($CCACHE_PREFIX --version  | head -n1 | sed 's|^distcc \([0-9].*\) \(.*\)$|\1|g')
+      _DISTCC_REQ_VER="3.2rc1"
+      if [[ "$_DISTCC_VER" < "$_DISTCC_REQ_VER" ]]; then
+        echo "[WARNING] Disabling DISTCC - Minimum required version of DISTCC [$_DISTCC_REQ_VER] wasn't found. Found instead [$_DISTCC_VER] at [$CCACHE_PREFIX]. Please set the required version either in the path variable or \$REPO_ROOT/proj.ios/distcc."
+        export CCACHE_PREFIX=""
+      fi
+  fi
+else
+  export CCACHE_PREFIX=""
+  echo "[WARNING] DISTCC not found. Not using distributed compiling.";
+fi
 
 if [ -z "$DEVELOPER_DIR" ]; then 
   XCODE_DIR="$(xcode-select -p)"
@@ -20,7 +31,7 @@ TMP="$@"
 # sh -c $(CC) -v -E -dM -arch x86_64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator9.0.sdk -x c -c /dev/null 2>&1
 # so this is a tiny "hack" to let it find it
 if [[ $TMP == *"-v "* ]]; then
-	exec $XCODE_DIR/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -Qunused-arguments ${TMP#-x c++ }
+  exec $XCODE_DIR/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -Qunused-arguments ${TMP#-x c++ }
 else
-	exec /usr/local/bin/ccache $XCODE_DIR/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -Qunused-arguments ${TMP#-x c++ }
+  exec /usr/local/bin/ccache $XCODE_DIR/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang++ -Qunused-arguments ${TMP#-x c++ }
 fi

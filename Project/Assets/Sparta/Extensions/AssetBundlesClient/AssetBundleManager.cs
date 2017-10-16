@@ -100,7 +100,7 @@ namespace SocialPoint.AssetBundlesClient
             }
         }
 
-        public void Setup()
+        public void Setup(bool setupLocalAssets = true)
         {
             // http://s3.amazonaws.com/int-sp-static-content/static/basegame/android_etc/1/test_scene_unity
             _baseDownloadingURL = string.Format("{0}/{1}/{2}", Server, Game, Utility.GetPlatformName());
@@ -114,18 +114,19 @@ namespace SocialPoint.AssetBundlesClient
             const string configKey = "config";
             const string bundleDataKey = "bundle_data";
 
-            var dataDic = data != null ? data.AsDic : null;
-            if(dataDic != null)
+            var dataList = data != null ? data.AsList : null;
+            if(dataList != null)
             {
-                if(dataDic.ContainsKey(configKey))
-                {
-                    var configData = dataDic.Get(configKey).AssertDic;
-                    if(configData.ContainsKey(bundleDataKey))
-                    {
-                        var bundleData = configData.Get(bundleDataKey).AssertDic;
-                        LoadBundleData(bundleData.Get(bundleDataKey).AssertList, false);
-                    }
-                }
+                LoadBundleData(dataList, false);
+                //if(dataDic.ContainsKey(configKey))
+                //{
+                //    var configData = dataDic.Get(configKey).AssertDic;
+                //    if(configData.ContainsKey(bundleDataKey))
+                //    {
+                //        var bundleData = configData.Get(bundleDataKey).AssertDic;
+                //        LoadBundleData(bundleData.Get(bundleDataKey).AssertList, false);
+                //    }
+                //}
             }
         }
 
@@ -246,8 +247,12 @@ namespace SocialPoint.AssetBundlesClient
                     dependencies.Add(itemName, new List <string>(dependenciesArray));
                 }
 
-                var assetBundleData = new AssetBundleParsedData(itemName, itemVersion);
-                assetBundlesParsedData.Add(itemName, assetBundleData);
+                if(!assetBundlesParsedData.ContainsKey(itemName))
+                {
+                    var assetBundleData = new AssetBundleParsedData(itemName, itemVersion);
+                    assetBundlesParsedData.Add(itemName, assetBundleData);
+                }
+
                 if(!_parsedBundlesNames.Contains(itemName))
                 {
                     _parsedBundlesNames.Add(itemName);
@@ -613,11 +618,7 @@ namespace SocialPoint.AssetBundlesClient
             stringBuilder.Append(assetBundleData.Name);
             var fullPath = stringBuilder.ToString();
 
-            #if UNITY_EDITOR
             _inProgressOperations.Add(new AssetBundleLoadLocalOperation(assetBundleData.Name, fullPath));
-            #else
-            _inProgressOperations.Add(new AssetBundleDownloadFromWebOperation(assetBundleData.Name, assetBundleData.Version, fullPath));
-            #endif
         }
 
         public IEnumerator LoadAssetAsyncRequest(string assetBundleName, string assetName, Type type, Action<AssetBundleLoadAssetOperation> onRequestChanged)
@@ -687,6 +688,11 @@ namespace SocialPoint.AssetBundlesClient
             _inProgressOperations.Add(operation);
 
             return operation;
+        }
+
+        public int NumberOfInProgressOperations()
+        {
+            return _inProgressOperations.Count;
         }
     }
     // End of AssetBundleManager.

@@ -23,6 +23,7 @@
     public class Application : ApplicationBase
     {
         #region Constants and Fields
+        private const bool UseStatsLogger = false;
 
         private static readonly ILogger log = LogManager.GetCurrentClassLogger();
 
@@ -105,6 +106,12 @@
             fiber.Start();
             counterLoggingFiber.Start();
 
+            if(UseStatsLogger && StatsLogger.IsValid())
+            {
+                StatsLogger.Initialize();
+                counterLoggingFiber.ScheduleOnInterval(StatsLogger.Print, 0, Settings.LogCounterInterval);
+            }
+
             counterLoggingFiber.ScheduleOnInterval(CounterLogger.PrintCounter, Settings.LogCounterInterval, Settings.LogCounterInterval);
 
             try
@@ -166,7 +173,7 @@
             var clients = new List<ClientConnection>(Settings.NumClientsPerLobby);
             lobbies.Add(lobbyName, clients);
 
-            for (int i = 0; i < Settings.NumClientsPerLobby; i++)
+            for (int i = 1; i <= Settings.NumClientsPerLobby; i++)
             {
                 var x = i; 
                 
@@ -200,7 +207,7 @@
             var clients = new List<ClientConnection>(Settings.NumClientsPerGame);
             games.Add(gameName, clients);
 
-            for (int i = 0; i < Settings.NumClientsPerGame; i++)
+            for (int i = 1; i <= Settings.NumClientsPerGame; i++)
             {
                 ++clientCounter;
 

@@ -1,0 +1,1766 @@
+{
+	"lastModified": "06/14/2017 17:28:19",
+	"nodes": [
+		{
+			"name": "Champs",
+			"id": "77f09ad4-3bb4-4d0f-9124-a1c7558e793c",
+			"kind": "LOADER_GUI",
+			"inputPoints": [
+				
+			],
+			"outputPoints": [
+				{
+					"id": "246a1ab4-e1ad-49f8-8bbc-8ac3e2c8742f",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 504,
+				"y": 355
+			},
+			"loadPath": {
+				"Unknown": "External/Models/Champs"
+			},
+			"preProcess": false,
+			"permanent": false
+		},
+		{
+			"name": "Filter0",
+			"id": "251d26d5-14d0-4399-b6b2-de2964f8d0fd",
+			"kind": "FILTER_GUI",
+			"inputPoints": [
+				{
+					"id": "072f3566-a15d-402b-bb2d-009334f51632",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "a44c018f-8257-4414-83a1-891f182ab000",
+					"label": "texture",
+					"hidden": false
+				},
+				{
+					"id": "c916e1d7-0e0b-4f7c-9247-a455e2fdda79",
+					"label": "model_low",
+					"hidden": false
+				},
+				{
+					"id": "26b663e7-fee0-4ca9-a5a6-dc83dc81df54",
+					"label": "model_high",
+					"hidden": false
+				},
+				{
+					"id": "3a8480ec-1167-4976-90cd-efdfb6e2cf48",
+					"label": "anim",
+					"hidden": false
+				},
+				{
+					"id": "40fc380c-59f1-46be-84be-2df5d78ebd1a",
+					"label": "material",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 749,
+				"y": 354
+			},
+			"filter": [
+				{
+					"name": "texture",
+					"keyword": "",
+					"keytype": "UnityEditor.TextureImporter",
+					"excludes": false,
+					"pointId": "a44c018f-8257-4414-83a1-891f182ab000"
+				},
+				{
+					"name": "model_low",
+					"keyword": "",
+					"keytype": "UnityEditor.ModelImporter",
+					"excludes": false,
+					"pointId": "c916e1d7-0e0b-4f7c-9247-a455e2fdda79"
+				},
+				{
+					"name": "model_high",
+					"keyword": "h",
+					"keytype": "UnityEditor.ModelImporter",
+					"excludes": false,
+					"pointId": "26b663e7-fee0-4ca9-a5a6-dc83dc81df54"
+				},
+				{
+					"name": "anim",
+					"keyword": "",
+					"keytype": "UnityEngine.Animator",
+					"excludes": false,
+					"pointId": "3a8480ec-1167-4976-90cd-efdfb6e2cf48"
+				},
+				{
+					"name": "material",
+					"keyword": "",
+					"keytype": "UnityEngine.Material",
+					"excludes": false,
+					"pointId": "40fc380c-59f1-46be-84be-2df5d78ebd1a"
+				}
+			]
+		},
+		{
+			"name": "TextureSize",
+			"id": "369ef5f7-ad9c-4f47-831d-9eed7d32fc09",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "3f18eb73-8d81-4cdb-8c6f-9b301ecdc4b7",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "e27027a3-a433-4c2e-a916-a2b9dde98a39",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1146,
+				"y": 213
+			},
+			"scriptClassName": "TextureSizeValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\"maxWidth\":512,\"maxHeight\":512}"
+			}
+		},
+		{
+			"name": "TriangleCountLow",
+			"id": "37abe185-d05c-4545-8031-4ff07d54db1c",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "25a3f85d-f63b-476e-b766-75039826adb3",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "58c1d5f6-f7a7-438d-b93e-57fc603a1914",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1140,
+				"y": 283
+			},
+			"scriptClassName": "TriCountValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\"maxTriangleCount\":1000}"
+			}
+		},
+		{
+			"name": "TriangleCountHigh",
+			"id": "e7cae5a3-444c-4445-8b81-20528d897c58",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "101c68af-fa57-4815-abd3-e3781712a29f",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "69c21249-2e26-4c36-abb3-8fcf7cf9a754",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1148,
+				"y": 345
+			},
+			"scriptClassName": "TriCountValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\"maxTriangleCount\":4000}"
+			}
+		},
+		{
+			"name": "Animation",
+			"id": "0295e61f-8629-4e31-8fe8-68c341678902",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "fab46da5-d2d3-4790-9b7d-321922f1402b",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "f5a01c22-e1f1-4972-b681-03d47bd56a91",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1145,
+				"y": 529
+			},
+			"scriptClassName": "",
+			"scriptInstanceData": {
+				
+			}
+		},
+		{
+			"name": "TexturePerMat",
+			"id": "5a74cdb2-f5b5-43a0-a469-81b6c735db98",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "1ccf57c4-ae44-458b-ba84-efe046903b7a",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "4a1269fa-9d7d-4909-b28b-ef919276cca8",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1145,
+				"y": 599
+			},
+			"scriptClassName": "TexturePerMaterialValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxTexturePerMaterial\":1\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t}"
+			}
+		},
+		{
+			"name": "Minions",
+			"id": "ab5eaae9-68a3-46ce-9454-fd223b9b3e5a",
+			"kind": "LOADER_GUI",
+			"inputPoints": [
+				
+			],
+			"outputPoints": [
+				{
+					"id": "ab0391b5-795a-485b-91c8-cda4b1ab9dc9",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 494,
+				"y": 731
+			},
+			"loadPath": {
+				"Unknown": "External/Models"
+			},
+			"preProcess": false,
+			"permanent": false
+		},
+		{
+			"name": "Filter1",
+			"id": "ddefde97-30c7-4331-9506-a56fb82915f0",
+			"kind": "FILTER_GUI",
+			"inputPoints": [
+				{
+					"id": "4634ab06-5b30-4238-a549-b7bcaead18e8",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "245f83c1-86ee-4649-a75f-864064b9544d",
+					"label": "Textures",
+					"hidden": false
+				},
+				{
+					"id": "5f7386ef-04c3-4738-8faa-c3e95431e197",
+					"label": "Models",
+					"hidden": false
+				},
+				{
+					"id": "254f4354-0e12-4112-ba7b-d749f714528a",
+					"label": "Anims",
+					"hidden": false
+				},
+				{
+					"id": "b2a3f17e-f181-4aae-9eea-736603de3430",
+					"label": "Materials",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 817,
+				"y": 719
+			},
+			"filter": [
+				{
+					"name": "Textures",
+					"keyword": "",
+					"keytype": "UnityEditor.TextureImporter",
+					"excludes": false,
+					"pointId": "245f83c1-86ee-4649-a75f-864064b9544d"
+				},
+				{
+					"name": "Models",
+					"keyword": "",
+					"keytype": "UnityEditor.ModelImporter",
+					"excludes": false,
+					"pointId": "5f7386ef-04c3-4738-8faa-c3e95431e197"
+				},
+				{
+					"name": "Anims",
+					"keyword": "",
+					"keytype": "UnityEngine.Animation",
+					"excludes": false,
+					"pointId": "254f4354-0e12-4112-ba7b-d749f714528a"
+				},
+				{
+					"name": "Materials",
+					"keyword": "",
+					"keytype": "UnityEngine.Material",
+					"excludes": false,
+					"pointId": "b2a3f17e-f181-4aae-9eea-736603de3430"
+				}
+			]
+		},
+		{
+			"name": "TextureSize",
+			"id": "c14ab946-6822-4e85-9b64-23d21af05afc",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "ab759239-5ac1-458b-b74f-bb0d4ab97a45",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "5f9dac39-36de-4ec9-b390-5cf3640d4a2c",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1146,
+				"y": 707
+			},
+			"scriptClassName": "TextureSizeValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxWidth\":256,\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxHeight\":256\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t}"
+			}
+		},
+		{
+			"name": "TriangleCount",
+			"id": "261b8f5e-c10b-48c4-843e-bb0fdfa09eea",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "8f9b42b0-5416-4c45-b0a2-2be1bb70bff9",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "7e0ecd0b-f7ad-433c-9d46-d641f3a6d9ae",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1146,
+				"y": 764
+			},
+			"scriptClassName": "TriCountValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxTriangleCount\":1000\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t}"
+			}
+		},
+		{
+			"name": "Props",
+			"id": "843e5b35-9f65-4c1a-9ab4-a9cb68aa842f",
+			"kind": "LOADER_GUI",
+			"inputPoints": [
+				
+			],
+			"outputPoints": [
+				{
+					"id": "69cd85c1-ed4c-4769-94cb-8b98c8e718dd",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 493,
+				"y": 958
+			},
+			"loadPath": {
+				"Unknown": "Rumen_Test"
+			},
+			"preProcess": false,
+			"permanent": false
+		},
+		{
+			"name": "Filter2",
+			"id": "30fd37ef-d528-46a7-aeb4-2c1f10aeb260",
+			"kind": "FILTER_GUI",
+			"inputPoints": [
+				{
+					"id": "81f29ba3-fd07-44bf-949f-20e7c182aab6",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "880cf680-5a5d-4232-8218-4179b78e1339",
+					"label": "Textures",
+					"hidden": false
+				},
+				{
+					"id": "fd767ba1-5237-47a4-a922-4c0d9148da66",
+					"label": "Models",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 818,
+				"y": 976
+			},
+			"filter": [
+				{
+					"name": "Textures",
+					"keyword": "",
+					"keytype": "UnityEditor.TextureImporter",
+					"excludes": false,
+					"pointId": "880cf680-5a5d-4232-8218-4179b78e1339"
+				},
+				{
+					"name": "Models",
+					"keyword": "",
+					"keytype": "UnityEditor.ModelImporter",
+					"excludes": false,
+					"pointId": "fd767ba1-5237-47a4-a922-4c0d9148da66"
+				}
+			]
+		},
+		{
+			"name": "Validator9",
+			"id": "42abf2b0-c314-4b9a-9a6e-d0211dce2aee",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "20e1415f-e2d3-41ff-8132-8ecbd2491cfa",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "ac23f87c-d619-4383-967c-26c7aa61b3e4",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1125,
+				"y": 976
+			},
+			"scriptClassName": "TextureSizeValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\"maxWidth\":256,\"maxHeight\":256}"
+			}
+		},
+		{
+			"name": "Validator10",
+			"id": "bc8f0543-48cf-4498-bc15-4514bb71e067",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "5c076792-d942-48fc-9d3f-51ccaa1c0e0d",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "8f01219d-1633-4dce-beb4-a8e5077d2309",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1126,
+				"y": 1038
+			},
+			"scriptClassName": "TriCountValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\"maxTriangleCount\":1000}"
+			}
+		},
+		{
+			"name": "Levels Textures",
+			"id": "160d2901-6633-4bb5-8926-486a8221deb5",
+			"kind": "LOADER_GUI",
+			"inputPoints": [
+				
+			],
+			"outputPoints": [
+				{
+					"id": "57a03417-38d5-467b-a3d8-3bce6743dbaf",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 473,
+				"y": 1390
+			},
+			"loadPath": {
+				"Unknown": "External/Gfx3D/Environment/nca_Textures_lev"
+			},
+			"preProcess": false,
+			"permanent": false
+		},
+		{
+			"name": "Filter3",
+			"id": "9de7e231-8015-4517-8e03-d7e38a004328",
+			"kind": "FILTER_GUI",
+			"inputPoints": [
+				{
+					"id": "6d329c79-0512-4bf7-b80d-35a5a672fae2",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "e0aa7d1a-d405-473d-8bc4-08171d5c1838",
+					"label": "Textures",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 814,
+				"y": 1394
+			},
+			"filter": [
+				{
+					"name": "Textures",
+					"keyword": "",
+					"keytype": "UnityEditor.TextureImporter",
+					"excludes": false,
+					"pointId": "e0aa7d1a-d405-473d-8bc4-08171d5c1838"
+				}
+			]
+		},
+		{
+			"name": "Validator11",
+			"id": "ab3e9863-dbfc-40eb-9105-a0c76bc80edc",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "fe9a4ca8-9966-4933-a06f-713137ea270a",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "0685bd77-589c-45e9-8cf3-95a1cb5025b3",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1118,
+				"y": 1405
+			},
+			"scriptClassName": "TextureSizeValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxWidth\":256,\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxHeight\":256\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t}"
+			}
+		},
+		{
+			"name": "TotemModel",
+			"id": "24ebf57e-88b0-40c9-919a-2c5e3079a9f6",
+			"kind": "LOADER_GUI",
+			"inputPoints": [
+				
+			],
+			"outputPoints": [
+				{
+					"id": "874ebfdd-8a25-49a0-acb2-9ab5f223c8ec",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 501,
+				"y": 1134
+			},
+			"loadPath": {
+				"Unknown": "External/Gfx3D/Props/prop_totem"
+			},
+			"preProcess": false,
+			"permanent": false
+		},
+		{
+			"name": "Filter4",
+			"id": "299b8654-6bd5-4215-b05e-f62ac206532a",
+			"kind": "FILTER_GUI",
+			"inputPoints": [
+				{
+					"id": "03df2ff7-02d8-48f1-b7e3-3e67c5dbdc08",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "d2f87997-110c-4314-93a0-2aad4581de73",
+					"label": "Textures",
+					"hidden": false
+				},
+				{
+					"id": "cac7f5e7-07f3-4671-bbaa-f4e16fabb35d",
+					"label": "Models",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 808,
+				"y": 1129
+			},
+			"filter": [
+				{
+					"name": "Textures",
+					"keyword": "",
+					"keytype": "UnityEditor.TextureImporter",
+					"excludes": false,
+					"pointId": "d2f87997-110c-4314-93a0-2aad4581de73"
+				},
+				{
+					"name": "Models",
+					"keyword": "",
+					"keytype": "UnityEditor.ModelImporter",
+					"excludes": false,
+					"pointId": "cac7f5e7-07f3-4671-bbaa-f4e16fabb35d"
+				}
+			]
+		},
+		{
+			"name": "Validator12",
+			"id": "1f747a7e-bb08-439e-907d-ab1fe50c6e31",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "bfe72dec-8136-4742-a3e7-5cf10daf9743",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "a5fe32ac-0ae1-46c6-9728-d7bb827c80fb",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1115,
+				"y": 1133
+			},
+			"scriptClassName": "TextureSizeValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxWidth\":0,\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxHeight\":0\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t}"
+			}
+		},
+		{
+			"name": "Validator13",
+			"id": "dad213d0-e888-4474-9fdf-99a6a491b754",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "3f35d622-8df3-4e83-b0c1-f6c6f074b1af",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "1053e8f5-aa0c-40bb-bcb1-c6b5750ab663",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1119,
+				"y": 1199
+			},
+			"scriptClassName": "TriCountValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxTriangleCount\":0\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t}"
+			}
+		},
+		{
+			"name": "TotemTextures",
+			"id": "2255430a-fd0e-4be2-9e84-1a869169eb29",
+			"kind": "LOADER_GUI",
+			"inputPoints": [
+				
+			],
+			"outputPoints": [
+				{
+					"id": "532ebe0f-d3ca-4f71-81c5-fc8b8aff5375",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 473,
+				"y": 1261
+			},
+			"loadPath": {
+				"Unknown": "External/Gfx3D/Props/Textures"
+			},
+			"preProcess": false,
+			"permanent": false
+		},
+		{
+			"name": "Filter5",
+			"id": "5556c3b4-6f19-4fe8-890b-0a3540f4030c",
+			"kind": "FILTER_GUI",
+			"inputPoints": [
+				{
+					"id": "1ab1f37d-1b24-43fa-b24b-d1c9f6a1992a",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "082b4a5e-3dc1-4251-8196-98af22438f5f",
+					"label": "Textures",
+					"hidden": false
+				},
+				{
+					"id": "104b514a-a29a-40d8-ba98-627d5205db5c",
+					"label": "Models",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 804,
+				"y": 1262
+			},
+			"filter": [
+				{
+					"name": "Textures",
+					"keyword": "",
+					"keytype": "UnityEditor.TextureImporter",
+					"excludes": false,
+					"pointId": "082b4a5e-3dc1-4251-8196-98af22438f5f"
+				},
+				{
+					"name": "Models",
+					"keyword": "",
+					"keytype": "UnityEditor.ModelImporter",
+					"excludes": false,
+					"pointId": "104b514a-a29a-40d8-ba98-627d5205db5c"
+				}
+			]
+		},
+		{
+			"name": "Validator14",
+			"id": "4ccfd256-c953-42db-b4f8-a14c9e877215",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "066191ce-3d0d-40e8-99ea-b2c9b5e88cef",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "3e1b4ef0-dd03-4686-a23d-d558af272ae1",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1116,
+				"y": 1269
+			},
+			"scriptClassName": "TextureSizeValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxWidth\":0,\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxHeight\":0\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t}"
+			}
+		},
+		{
+			"name": "Validator15",
+			"id": "1a0baa0f-b3b8-439c-b95c-927fe00ed2d8",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "f2e1f252-27f8-42c6-aa3f-de839393d3b5",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "74d675f3-7188-4e67-8296-20cd76f354ec",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1119,
+				"y": 1327
+			},
+			"scriptClassName": "TriCountValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxTriangleCount\":0\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t}"
+			}
+		},
+		{
+			"name": "Levels Meshes",
+			"id": "397e9d7e-cfbe-4727-9081-10e7fabaf146",
+			"kind": "LOADER_GUI",
+			"inputPoints": [
+				
+			],
+			"outputPoints": [
+				{
+					"id": "d1f5933b-1c69-438b-89d7-0f4b7b0f2af7",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 494,
+				"y": 1514
+			},
+			"loadPath": {
+				"Unknown": "External/Gfx3D/Environment/nca_Prefabs_lev"
+			},
+			"preProcess": false,
+			"permanent": false
+		},
+		{
+			"name": "Filter6",
+			"id": "2fd14bc3-34cd-4d9b-8f3c-ddcd6745bb47",
+			"kind": "FILTER_GUI",
+			"inputPoints": [
+				{
+					"id": "fb933e6b-b4e8-44c7-9e19-aa1a177f8070",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "e52de7c7-fd95-4ce1-ba4f-599037299988",
+					"label": "Textures",
+					"hidden": false
+				},
+				{
+					"id": "adef205a-c46c-4c77-860e-f189b093a044",
+					"label": "Models",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 815,
+				"y": 1522
+			},
+			"filter": [
+				{
+					"name": "Textures",
+					"keyword": "",
+					"keytype": "UnityEditor.TextureImporter",
+					"excludes": false,
+					"pointId": "e52de7c7-fd95-4ce1-ba4f-599037299988"
+				},
+				{
+					"name": "Models",
+					"keyword": "",
+					"keytype": "UnityEditor.ModelImporter",
+					"excludes": false,
+					"pointId": "adef205a-c46c-4c77-860e-f189b093a044"
+				}
+			]
+		},
+		{
+			"name": "Validator16",
+			"id": "a1f6eeab-1833-4467-8f43-e058e98760a4",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "aaf24aec-27a4-4802-a6db-2398f39bdd38",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "17fba403-1ef6-4368-97a5-13c33ba018f8",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1124,
+				"y": 1517
+			},
+			"scriptClassName": "TextureSizeValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxWidth\":256,\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxHeight\":256\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t}"
+			}
+		},
+		{
+			"name": "Validator17",
+			"id": "e21fb505-1fa0-41ca-846c-946ee60f9b78",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "08fcc462-3cf1-46bc-9785-20aa18d3d1d7",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "633c79d7-a007-4ae4-b9cf-ae36900a5c26",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1126,
+				"y": 1585
+			},
+			"scriptClassName": "TriCountValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxTriangleCount\":5000\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t}"
+			}
+		},
+		{
+			"name": "UI_NGUI",
+			"id": "adff34da-96ec-4ec5-a74e-33771b06f32c",
+			"kind": "LOADER_GUI",
+			"inputPoints": [
+				
+			],
+			"outputPoints": [
+				{
+					"id": "c6ba2f3d-f85c-4bb3-ab52-1b682f43f3bc",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 501,
+				"y": 1688
+			},
+			"loadPath": {
+				"Unknown": "External/NguiAssets"
+			},
+			"preProcess": false,
+			"permanent": false
+		},
+		{
+			"name": "Filter7",
+			"id": "2fad2fd5-67a8-435b-9a6b-686d48aeb891",
+			"kind": "FILTER_GUI",
+			"inputPoints": [
+				{
+					"id": "2df10a5e-9ff4-4064-8b3b-be26cad2e1e7",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "7319056e-6bdc-45af-90ee-9100fc12b635",
+					"label": "Textures",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 818,
+				"y": 1682
+			},
+			"filter": [
+				{
+					"name": "Textures",
+					"keyword": "",
+					"keytype": "UnityEditor.TextureImporter",
+					"excludes": false,
+					"pointId": "7319056e-6bdc-45af-90ee-9100fc12b635"
+				}
+			]
+		},
+		{
+			"name": "Validator18",
+			"id": "e420768b-2e33-48ed-acd8-991d84af4c78",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "f301b6fc-c1be-45b3-9afd-fe2bda8b01a9",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "25e388f9-6926-486f-a274-25c1cdc327e9",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1131,
+				"y": 1687
+			},
+			"scriptClassName": "TextureSizeValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxWidth\":256,\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxHeight\":256\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t}"
+			}
+		},
+		{
+			"name": "UI_Textures",
+			"id": "85d8647d-b1ca-489d-8c6f-ead26f68d287",
+			"kind": "LOADER_GUI",
+			"inputPoints": [
+				
+			],
+			"outputPoints": [
+				{
+					"id": "9be7fd84-b9a2-41c2-aea2-9bdeb07647b4",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 502,
+				"y": 1799
+			},
+			"loadPath": {
+				"Unknown": "External/Resources/Textures"
+			},
+			"preProcess": false,
+			"permanent": false
+		},
+		{
+			"name": "Filter8",
+			"id": "d2448571-bb10-4832-ad5d-ac3249a2a71e",
+			"kind": "FILTER_GUI",
+			"inputPoints": [
+				{
+					"id": "aada9581-756e-471e-9de9-0aea22e3487a",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "19905393-9f1d-4faa-8b23-fa759a85ad1f",
+					"label": "Textures",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 821,
+				"y": 1806
+			},
+			"filter": [
+				{
+					"name": "Textures",
+					"keyword": "",
+					"keytype": "UnityEditor.TextureImporter",
+					"excludes": false,
+					"pointId": "19905393-9f1d-4faa-8b23-fa759a85ad1f"
+				}
+			]
+		},
+		{
+			"name": "Validator19",
+			"id": "e5fc431b-b09f-4d7e-b8a0-692a66bb3ab8",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "a43d7a3d-3e41-4f53-b23a-09e1bfe1b593",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "03be927f-6ff9-4d2c-9027-5a3fcf9ffb9d",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1133,
+				"y": 1806
+			},
+			"scriptClassName": "TextureSizeValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxWidth\":2048,\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxHeight\":2048\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t}"
+			}
+		},
+		{
+			"name": "Effects",
+			"id": "f09d8a7b-cb08-4dae-8724-788dbe5918b8",
+			"kind": "LOADER_GUI",
+			"inputPoints": [
+				
+			],
+			"outputPoints": [
+				{
+					"id": "3fa39832-8271-489d-b1de-a654dc6edeb8",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 507,
+				"y": 1919
+			},
+			"loadPath": {
+				"Unknown": "External/Gfx3D/Fx/Textures"
+			},
+			"preProcess": false,
+			"permanent": false
+		},
+		{
+			"name": "Filter9",
+			"id": "aa02d910-0024-401a-a9bd-c652c39d94fc",
+			"kind": "FILTER_GUI",
+			"inputPoints": [
+				{
+					"id": "dece6a18-8100-457f-a885-6a4585c15b34",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "b4ac4a12-e9c6-4b49-85fa-a2288ab56922",
+					"label": "Textures",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 824,
+				"y": 1918
+			},
+			"filter": [
+				{
+					"name": "Textures",
+					"keyword": "",
+					"keytype": "UnityEditor.TextureImporter",
+					"excludes": false,
+					"pointId": "b4ac4a12-e9c6-4b49-85fa-a2288ab56922"
+				}
+			]
+		},
+		{
+			"name": "Validator20",
+			"id": "05f64fa0-9077-44cd-8a79-664c9463ed24",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "3579acd9-9e00-4498-811c-5a32f4793463",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "79038518-1cb0-469a-baac-6c0a92d23edc",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1131,
+				"y": 1916
+			},
+			"scriptClassName": "TextureSizeValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\"maxWidth\":128,\"maxHeight\":128}"
+			}
+		},
+		{
+			"name": "Effects2",
+			"id": "a37ba0c5-88c8-4e6c-a8fa-2223cc5d4bd5",
+			"kind": "LOADER_GUI",
+			"inputPoints": [
+				
+			],
+			"outputPoints": [
+				{
+					"id": "0b30417d-c5bc-4bf0-9c1e-8dd7143f30d0",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 509,
+				"y": 2018
+			},
+			"loadPath": {
+				"Unknown": "External/Particles/Textures"
+			},
+			"preProcess": false,
+			"permanent": false
+		},
+		{
+			"name": "Filter10",
+			"id": "fc7a695e-d014-4863-8c66-e4f1d57a07cd",
+			"kind": "FILTER_GUI",
+			"inputPoints": [
+				{
+					"id": "1b3222e3-5ffb-4a6d-ac30-f62b584da3b5",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "bc502469-c591-414d-8f3a-caa12f301ec0",
+					"label": "Textures",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 819,
+				"y": 2019
+			},
+			"filter": [
+				{
+					"name": "Textures",
+					"keyword": "",
+					"keytype": "UnityEditor.TextureImporter",
+					"excludes": false,
+					"pointId": "bc502469-c591-414d-8f3a-caa12f301ec0"
+				}
+			]
+		},
+		{
+			"name": "Validator21",
+			"id": "dcc6bf3b-a712-4460-9888-d43ec4068f3b",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "e03f0cd0-2d6c-49c8-b83d-8436158bd9f2",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "698126f6-9759-4e23-a2b7-42b1f90964f9",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1138,
+				"y": 2016
+			},
+			"scriptClassName": "TextureSizeValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\"maxWidth\":128,\"maxHeight\":128}"
+			}
+		},
+		{
+			"name": "TexturePerMat",
+			"id": "a69210ed-a3f3-4fed-aa64-5d9fad2283b0",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "24a34a16-5b98-4f76-aeec-9ee573855f49",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "7c8718f3-41c2-4905-bbb1-cf549c78a50a",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1147,
+				"y": 823
+			},
+			"scriptClassName": "TexturePerMaterialValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\"maxTexturePerMaterial\":1\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t}"
+			}
+		},
+		{
+			"name": "Particle Validator",
+			"id": "fee8cb50-f490-42ed-852a-7fffbb977315",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "5c6f5e69-a951-400c-9b8e-d7270623c741",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "ee556bf4-4ef3-456f-a429-16e8174e6709",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1141,
+				"y": 2169
+			},
+			"scriptClassName": "AssetBundleGraph.ParticleSystemParamValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\"checkEmissionRateOverTime\":false,\"checkEmissionRateOverDistance\":false,\"emissionRateOverTime\":0,\"emissionRateOverDistance\":0,\"autoclampOverTime\":false,\"autoclampOverDistance\":false}"
+			}
+		},
+		{
+			"name": "Loader11",
+			"id": "125dd895-445c-4920-99e8-efdfa509f0a1",
+			"kind": "LOADER_GUI",
+			"inputPoints": [
+				
+			],
+			"outputPoints": [
+				{
+					"id": "95f2bb33-7088-426c-b474-49450f950e96",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 505,
+				"y": 2170
+			},
+			"loadPath": {
+				"Unknown": "External/Gfx3D/Fx/Prefabs"
+			},
+			"preProcess": false,
+			"permanent": false
+		},
+		{
+			"name": "Filter10",
+			"id": "2d1044ee-6aba-47db-948d-7640ad5f3c17",
+			"kind": "FILTER_GUI",
+			"inputPoints": [
+				{
+					"id": "9ebc1867-a647-402d-a125-8c774e051af9",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "7839de59-bf3d-4d38-b480-8278aa469803",
+					"label": "Particle",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 813,
+				"y": 2170
+			},
+			"filter": [
+				{
+					"name": "Particle",
+					"keyword": "",
+					"keytype": "UnityEngine.GameObject",
+					"excludes": false,
+					"pointId": "7839de59-bf3d-4d38-b480-8278aa469803"
+				}
+			]
+		},
+		{
+			"name": "UITextureImporter",
+			"id": "c68c2939-d438-4c4d-bb1d-b3af82978164",
+			"kind": "IMPORTSETTING_GUI",
+			"inputPoints": [
+				{
+					"id": "8fadad67-7261-44d1-9c25-20ff5481c998",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "713dd5ab-15ef-4a4b-b30b-dfe0420fa484",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1412,
+				"y": 1805
+			}
+		},
+		{
+			"name": "UITextureImporter",
+			"id": "d796e866-2127-46ff-b121-b9cca140ff0a",
+			"kind": "IMPORTSETTING_GUI",
+			"inputPoints": [
+				{
+					"id": "6c0bdc8e-fb6c-4b60-937c-813fd3c9eac8",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "2d924c61-4e1c-41dc-973b-3cb142633926",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1408,
+				"y": 1685
+			}
+		},
+		{
+			"name": "Animator Validation",
+			"id": "45942092-da85-4ed5-922c-1da67fe4b024",
+			"kind": "VALIDATOR_GUI",
+			"inputPoints": [
+				{
+					"id": "0547b212-8500-42e6-953d-10533ba1afbc",
+					"label": "-",
+					"hidden": false
+				}
+			],
+			"outputPoints": [
+				{
+					"id": "4c0a37b2-1d5d-4e65-b561-fd843244797e",
+					"label": "+",
+					"hidden": false
+				}
+			],
+			"pos": {
+				"x": 1153,
+				"y": 441
+			},
+			"scriptClassName": "AssetBundleGraph.AnimatorValidator",
+			"scriptInstanceData": {
+				"Unknown": "{\"anyStateTransitions\":[{\"state\":\"Die\",\"conditions\":[{\"parameter\":\"die\",\"mode\":0,\"threshold\":0.0}]},{\"state\":\"Idle\",\"conditions\":[{\"parameter\":\"idle\",\"mode\":0,\"threshold\":0.0}]}],\"checkList\":[{\"stateName\":\"Idle\",\"speedParam\":\"\",\"outputs\":[{\"state\":\"Atk1_Start\",\"conditions\":[{\"parameter\":\"ComboIdx\",\"mode\":6,\"threshold\":1.0},{\"parameter\":\"Attack\",\"mode\":0,\"threshold\":0.0}]},{\"state\":\"Atk2_Start\",\"conditions\":[{\"parameter\":\"ComboIdx\",\"mode\":6,\"threshold\":2.0},{\"parameter\":\"Attack\",\"mode\":0,\"threshold\":0.0}]}],\"events\":[]},{\"stateName\":\"Locomotion\",\"speedParam\":\"LocomotionAnimSpeed\",\"outputs\":[{\"state\":\"Idle\",\"conditions\":[{\"parameter\":\"LocomotionSpeed\",\"mode\":4,\"threshold\":0.10000000149011612}]}],\"events\":[]},{\"stateName\":\"Atk1_Start\",\"speedParam\":\"AttackSpeed\",\"outputs\":[{\"state\":\"Atk1_Hit\",\"conditions\":[]}],\"events\":[]},{\"stateName\":\"Atk1_Hit\",\"speedParam\":\"AttackSpeed\",\"outputs\":[{\"state\":\"Atk1_End\",\"conditions\":[]}],\"events\":[{\"optionalGroup\":1,\"functionName\":\"OnAnimationEvent\",\"stringValue\":\"ComboSkill:FireProjectile\"},{\"optionalGroup\":1,\"functionName\":\"OnAnimationEvent\",\"stringValue\":\"ComboSkill:DoDamage\"}]},{\"stateName\":\"Atk1_End\",\"speedParam\":\"AttackSpeed\",\"outputs\":[],\"events\":[{\"optionalGroup\":0,\"functionName\":\"OnAnimationEvent\",\"stringValue\":\"ComboSkill:End\"}]},{\"stateName\":\"Atk2_Start\",\"speedParam\":\"AttackSpeed\",\"outputs\":[{\"state\":\"Atk2_Hit\",\"conditions\":[]}],\"events\":[]},{\"stateName\":\"Atk2_Hit\",\"speedParam\":\"AttackSpeed\",\"outputs\":[{\"state\":\"Atk2_End\",\"conditions\":[]}],\"events\":[{\"optionalGroup\":1,\"functionName\":\"OnAnimationEvent\",\"stringValue\":\"ComboSkill:FireProjectile\"},{\"optionalGroup\":1,\"functionName\":\"OnAnimationEvent\",\"stringValue\":\"ComboSkill:DoDamage\"}]},{\"stateName\":\"Atk2_End\",\"speedParam\":\"AttackSpeed\",\"outputs\":[],\"events\":[{\"optionalGroup\":0,\"functionName\":\"OnAnimationEvent\",\"stringValue\":\"ComboSkill:End\"}]},{\"stateName\":\"Critical\",\"speedParam\":\"AttackSpeed\",\"outputs\":[],\"events\":[{\"optionalGroup\":1,\"functionName\":\"OnAnimationEvent\",\"stringValue\":\"ComboSkill:FireProjectile\"},{\"optionalGroup\":1,\"functionName\":\"OnAnimationEvent\",\"stringValue\":\"ComboSkill:DoDamage\"},{\"optionalGroup\":0,\"functionName\":\"OnAnimationEvent\",\"stringValue\":\"ComboSkill:End\"}]},{\"stateName\":\"Skill01\",\"speedParam\":\"\",\"outputs\":[],\"events\":[]},{\"stateName\":\"Skill02\",\"speedParam\":\"\",\"outputs\":[],\"events\":[]},{\"stateName\":\"Ultimate\",\"speedParam\":\"\",\"outputs\":[],\"events\":[]},{\"stateName\":\"Die\",\"speedParam\":\"\",\"outputs\":[],\"events\":[]}]}"
+			}
+		}
+	],
+	"connections": [
+		{
+			"id": "e27c9ffc-5d81-4c43-ab40-3f6f29946e5b",
+			"label": "+",
+			"fromNode": "77f09ad4-3bb4-4d0f-9124-a1c7558e793c",
+			"fromNodeConPointId": "246a1ab4-e1ad-49f8-8bbc-8ac3e2c8742f",
+			"toNode": "251d26d5-14d0-4399-b6b2-de2964f8d0fd",
+			"toNodeConPointId": "072f3566-a15d-402b-bb2d-009334f51632"
+		},
+		{
+			"id": "1372e169-1d49-4076-b2cb-3f5ecdfcc771",
+			"label": "+",
+			"fromNode": "ab5eaae9-68a3-46ce-9454-fd223b9b3e5a",
+			"fromNodeConPointId": "ab0391b5-795a-485b-91c8-cda4b1ab9dc9",
+			"toNode": "ddefde97-30c7-4331-9506-a56fb82915f0",
+			"toNodeConPointId": "4634ab06-5b30-4238-a549-b7bcaead18e8"
+		},
+		{
+			"id": "d48dffff-0627-4313-95d3-39463689d051",
+			"label": "Textures",
+			"fromNode": "ddefde97-30c7-4331-9506-a56fb82915f0",
+			"fromNodeConPointId": "245f83c1-86ee-4649-a75f-864064b9544d",
+			"toNode": "c14ab946-6822-4e85-9b64-23d21af05afc",
+			"toNodeConPointId": "ab759239-5ac1-458b-b74f-bb0d4ab97a45"
+		},
+		{
+			"id": "185a0354-9cd3-4ad8-a16d-af7939b20109",
+			"label": "Models",
+			"fromNode": "ddefde97-30c7-4331-9506-a56fb82915f0",
+			"fromNodeConPointId": "5f7386ef-04c3-4738-8faa-c3e95431e197",
+			"toNode": "261b8f5e-c10b-48c4-843e-bb0fdfa09eea",
+			"toNodeConPointId": "8f9b42b0-5416-4c45-b0a2-2be1bb70bff9"
+		},
+		{
+			"id": "0f95f9b9-f53e-4b83-ab45-c958a550a3eb",
+			"label": "+",
+			"fromNode": "843e5b35-9f65-4c1a-9ab4-a9cb68aa842f",
+			"fromNodeConPointId": "69cd85c1-ed4c-4769-94cb-8b98c8e718dd",
+			"toNode": "30fd37ef-d528-46a7-aeb4-2c1f10aeb260",
+			"toNodeConPointId": "81f29ba3-fd07-44bf-949f-20e7c182aab6"
+		},
+		{
+			"id": "f2dfcd3a-9ff8-4cd0-bad2-86bccbffd2bc",
+			"label": "Textures",
+			"fromNode": "30fd37ef-d528-46a7-aeb4-2c1f10aeb260",
+			"fromNodeConPointId": "880cf680-5a5d-4232-8218-4179b78e1339",
+			"toNode": "42abf2b0-c314-4b9a-9a6e-d0211dce2aee",
+			"toNodeConPointId": "20e1415f-e2d3-41ff-8132-8ecbd2491cfa"
+		},
+		{
+			"id": "1f9c876a-aaa5-453e-af78-ef0d64b8d786",
+			"label": "Models",
+			"fromNode": "30fd37ef-d528-46a7-aeb4-2c1f10aeb260",
+			"fromNodeConPointId": "fd767ba1-5237-47a4-a922-4c0d9148da66",
+			"toNode": "bc8f0543-48cf-4498-bc15-4514bb71e067",
+			"toNodeConPointId": "5c076792-d942-48fc-9d3f-51ccaa1c0e0d"
+		},
+		{
+			"id": "45de3793-dbe9-437d-8454-a62de920e93b",
+			"label": "Textures",
+			"fromNode": "9de7e231-8015-4517-8e03-d7e38a004328",
+			"fromNodeConPointId": "e0aa7d1a-d405-473d-8bc4-08171d5c1838",
+			"toNode": "ab3e9863-dbfc-40eb-9105-a0c76bc80edc",
+			"toNodeConPointId": "fe9a4ca8-9966-4933-a06f-713137ea270a"
+		},
+		{
+			"id": "b857e109-f7fd-446b-987c-935e43f9e4fd",
+			"label": "+",
+			"fromNode": "160d2901-6633-4bb5-8926-486a8221deb5",
+			"fromNodeConPointId": "57a03417-38d5-467b-a3d8-3bce6743dbaf",
+			"toNode": "9de7e231-8015-4517-8e03-d7e38a004328",
+			"toNodeConPointId": "6d329c79-0512-4bf7-b80d-35a5a672fae2"
+		},
+		{
+			"id": "d427381f-f7b2-4a7c-8812-4d89ef62980c",
+			"label": "Models",
+			"fromNode": "299b8654-6bd5-4215-b05e-f62ac206532a",
+			"fromNodeConPointId": "cac7f5e7-07f3-4671-bbaa-f4e16fabb35d",
+			"toNode": "dad213d0-e888-4474-9fdf-99a6a491b754",
+			"toNodeConPointId": "3f35d622-8df3-4e83-b0c1-f6c6f074b1af"
+		},
+		{
+			"id": "1b9b45a0-16a9-41bb-b7a2-be5346c2ee44",
+			"label": "Textures",
+			"fromNode": "299b8654-6bd5-4215-b05e-f62ac206532a",
+			"fromNodeConPointId": "d2f87997-110c-4314-93a0-2aad4581de73",
+			"toNode": "1f747a7e-bb08-439e-907d-ab1fe50c6e31",
+			"toNodeConPointId": "bfe72dec-8136-4742-a3e7-5cf10daf9743"
+		},
+		{
+			"id": "2ca2bfa3-980c-4650-85c0-8e39d5b2eff3",
+			"label": "+",
+			"fromNode": "24ebf57e-88b0-40c9-919a-2c5e3079a9f6",
+			"fromNodeConPointId": "874ebfdd-8a25-49a0-acb2-9ab5f223c8ec",
+			"toNode": "299b8654-6bd5-4215-b05e-f62ac206532a",
+			"toNodeConPointId": "03df2ff7-02d8-48f1-b7e3-3e67c5dbdc08"
+		},
+		{
+			"id": "03cf32bf-6f41-422d-b5f3-d18726745ff7",
+			"label": "Textures",
+			"fromNode": "5556c3b4-6f19-4fe8-890b-0a3540f4030c",
+			"fromNodeConPointId": "082b4a5e-3dc1-4251-8196-98af22438f5f",
+			"toNode": "4ccfd256-c953-42db-b4f8-a14c9e877215",
+			"toNodeConPointId": "066191ce-3d0d-40e8-99ea-b2c9b5e88cef"
+		},
+		{
+			"id": "b18d854f-b405-4cdd-ad28-8c123e1dfc2c",
+			"label": "Models",
+			"fromNode": "5556c3b4-6f19-4fe8-890b-0a3540f4030c",
+			"fromNodeConPointId": "104b514a-a29a-40d8-ba98-627d5205db5c",
+			"toNode": "1a0baa0f-b3b8-439c-b95c-927fe00ed2d8",
+			"toNodeConPointId": "f2e1f252-27f8-42c6-aa3f-de839393d3b5"
+		},
+		{
+			"id": "55ae89c0-d18b-4d1e-920e-384f785ac785",
+			"label": "+",
+			"fromNode": "2255430a-fd0e-4be2-9e84-1a869169eb29",
+			"fromNodeConPointId": "532ebe0f-d3ca-4f71-81c5-fc8b8aff5375",
+			"toNode": "5556c3b4-6f19-4fe8-890b-0a3540f4030c",
+			"toNodeConPointId": "1ab1f37d-1b24-43fa-b24b-d1c9f6a1992a"
+		},
+		{
+			"id": "4f035c3e-f394-4a31-a8e4-42341aced55d",
+			"label": "+",
+			"fromNode": "397e9d7e-cfbe-4727-9081-10e7fabaf146",
+			"fromNodeConPointId": "d1f5933b-1c69-438b-89d7-0f4b7b0f2af7",
+			"toNode": "2fd14bc3-34cd-4d9b-8f3c-ddcd6745bb47",
+			"toNodeConPointId": "fb933e6b-b4e8-44c7-9e19-aa1a177f8070"
+		},
+		{
+			"id": "827171da-dd02-4166-afd3-9600e27bbd08",
+			"label": "Textures",
+			"fromNode": "2fd14bc3-34cd-4d9b-8f3c-ddcd6745bb47",
+			"fromNodeConPointId": "e52de7c7-fd95-4ce1-ba4f-599037299988",
+			"toNode": "a1f6eeab-1833-4467-8f43-e058e98760a4",
+			"toNodeConPointId": "aaf24aec-27a4-4802-a6db-2398f39bdd38"
+		},
+		{
+			"id": "a0f1d3f0-1363-41df-9dfd-1d87b8c78a99",
+			"label": "Models",
+			"fromNode": "2fd14bc3-34cd-4d9b-8f3c-ddcd6745bb47",
+			"fromNodeConPointId": "adef205a-c46c-4c77-860e-f189b093a044",
+			"toNode": "e21fb505-1fa0-41ca-846c-946ee60f9b78",
+			"toNodeConPointId": "08fcc462-3cf1-46bc-9785-20aa18d3d1d7"
+		},
+		{
+			"id": "a9470508-0b2c-4dbc-85c2-5e82db196329",
+			"label": "+",
+			"fromNode": "adff34da-96ec-4ec5-a74e-33771b06f32c",
+			"fromNodeConPointId": "c6ba2f3d-f85c-4bb3-ab52-1b682f43f3bc",
+			"toNode": "2fad2fd5-67a8-435b-9a6b-686d48aeb891",
+			"toNodeConPointId": "2df10a5e-9ff4-4064-8b3b-be26cad2e1e7"
+		},
+		{
+			"id": "561b684a-3bf3-4458-b582-cf8b99ae6b05",
+			"label": "Textures",
+			"fromNode": "2fad2fd5-67a8-435b-9a6b-686d48aeb891",
+			"fromNodeConPointId": "7319056e-6bdc-45af-90ee-9100fc12b635",
+			"toNode": "e420768b-2e33-48ed-acd8-991d84af4c78",
+			"toNodeConPointId": "f301b6fc-c1be-45b3-9afd-fe2bda8b01a9"
+		},
+		{
+			"id": "56429465-0745-4a18-9dc2-91b9877f39e9",
+			"label": "+",
+			"fromNode": "85d8647d-b1ca-489d-8c6f-ead26f68d287",
+			"fromNodeConPointId": "9be7fd84-b9a2-41c2-aea2-9bdeb07647b4",
+			"toNode": "d2448571-bb10-4832-ad5d-ac3249a2a71e",
+			"toNodeConPointId": "aada9581-756e-471e-9de9-0aea22e3487a"
+		},
+		{
+			"id": "b3354713-69ed-4a18-88ca-80c3c237fe01",
+			"label": "Textures",
+			"fromNode": "d2448571-bb10-4832-ad5d-ac3249a2a71e",
+			"fromNodeConPointId": "19905393-9f1d-4faa-8b23-fa759a85ad1f",
+			"toNode": "e5fc431b-b09f-4d7e-b8a0-692a66bb3ab8",
+			"toNodeConPointId": "a43d7a3d-3e41-4f53-b23a-09e1bfe1b593"
+		},
+		{
+			"id": "85a490a0-fafe-49aa-95af-d1847d1a741c",
+			"label": "+",
+			"fromNode": "f09d8a7b-cb08-4dae-8724-788dbe5918b8",
+			"fromNodeConPointId": "3fa39832-8271-489d-b1de-a654dc6edeb8",
+			"toNode": "aa02d910-0024-401a-a9bd-c652c39d94fc",
+			"toNodeConPointId": "dece6a18-8100-457f-a885-6a4585c15b34"
+		},
+		{
+			"id": "b33296ac-dae7-45bb-bd2e-62e71e2a7e0f",
+			"label": "Textures",
+			"fromNode": "aa02d910-0024-401a-a9bd-c652c39d94fc",
+			"fromNodeConPointId": "b4ac4a12-e9c6-4b49-85fa-a2288ab56922",
+			"toNode": "05f64fa0-9077-44cd-8a79-664c9463ed24",
+			"toNodeConPointId": "3579acd9-9e00-4498-811c-5a32f4793463"
+		},
+		{
+			"id": "59cacc10-c565-44e4-b56d-56390e3fad4f",
+			"label": "+",
+			"fromNode": "a37ba0c5-88c8-4e6c-a8fa-2223cc5d4bd5",
+			"fromNodeConPointId": "0b30417d-c5bc-4bf0-9c1e-8dd7143f30d0",
+			"toNode": "fc7a695e-d014-4863-8c66-e4f1d57a07cd",
+			"toNodeConPointId": "1b3222e3-5ffb-4a6d-ac30-f62b584da3b5"
+		},
+		{
+			"id": "54cb2cde-26ab-47bc-b43b-395b7ad63c4e",
+			"label": "Textures",
+			"fromNode": "fc7a695e-d014-4863-8c66-e4f1d57a07cd",
+			"fromNodeConPointId": "bc502469-c591-414d-8f3a-caa12f301ec0",
+			"toNode": "dcc6bf3b-a712-4460-9888-d43ec4068f3b",
+			"toNodeConPointId": "e03f0cd0-2d6c-49c8-b83d-8436158bd9f2"
+		},
+		{
+			"id": "26ed42f0-98d5-4f87-bd98-bcdcd336722c",
+			"label": "Materials",
+			"fromNode": "ddefde97-30c7-4331-9506-a56fb82915f0",
+			"fromNodeConPointId": "b2a3f17e-f181-4aae-9eea-736603de3430",
+			"toNode": "a69210ed-a3f3-4fed-aa64-5d9fad2283b0",
+			"toNodeConPointId": "24a34a16-5b98-4f76-aeec-9ee573855f49"
+		},
+		{
+			"id": "72c43eda-929a-4bce-8a91-7876c5fbc1df",
+			"label": "Particle",
+			"fromNode": "2d1044ee-6aba-47db-948d-7640ad5f3c17",
+			"fromNodeConPointId": "7839de59-bf3d-4d38-b480-8278aa469803",
+			"toNode": "fee8cb50-f490-42ed-852a-7fffbb977315",
+			"toNodeConPointId": "5c6f5e69-a951-400c-9b8e-d7270623c741"
+		},
+		{
+			"id": "1bd2fa03-6a9d-44eb-b715-af6efd0d6c47",
+			"label": "+",
+			"fromNode": "125dd895-445c-4920-99e8-efdfa509f0a1",
+			"fromNodeConPointId": "95f2bb33-7088-426c-b474-49450f950e96",
+			"toNode": "2d1044ee-6aba-47db-948d-7640ad5f3c17",
+			"toNodeConPointId": "9ebc1867-a647-402d-a125-8c774e051af9"
+		},
+		{
+			"id": "91c52642-4bb6-45fa-80f0-a784f0c31c2b",
+			"label": "anim",
+			"fromNode": "251d26d5-14d0-4399-b6b2-de2964f8d0fd",
+			"fromNodeConPointId": "3a8480ec-1167-4976-90cd-efdfb6e2cf48",
+			"toNode": "45942092-da85-4ed5-922c-1da67fe4b024",
+			"toNodeConPointId": "0547b212-8500-42e6-953d-10533ba1afbc"
+		},
+		{
+			"id": "ec6ba774-3d53-4d45-b443-d98597892eae",
+			"label": "texture",
+			"fromNode": "251d26d5-14d0-4399-b6b2-de2964f8d0fd",
+			"fromNodeConPointId": "a44c018f-8257-4414-83a1-891f182ab000",
+			"toNode": "369ef5f7-ad9c-4f47-831d-9eed7d32fc09",
+			"toNodeConPointId": "3f18eb73-8d81-4cdb-8c6f-9b301ecdc4b7"
+		},
+		{
+			"id": "f9375b8f-0969-49a5-b3e7-2152f1e748bf",
+			"label": "model_low",
+			"fromNode": "251d26d5-14d0-4399-b6b2-de2964f8d0fd",
+			"fromNodeConPointId": "c916e1d7-0e0b-4f7c-9247-a455e2fdda79",
+			"toNode": "37abe185-d05c-4545-8031-4ff07d54db1c",
+			"toNodeConPointId": "25a3f85d-f63b-476e-b766-75039826adb3"
+		},
+		{
+			"id": "69fd7c12-41b9-494e-b9de-f3a096b6c721",
+			"label": "model_high",
+			"fromNode": "251d26d5-14d0-4399-b6b2-de2964f8d0fd",
+			"fromNodeConPointId": "26b663e7-fee0-4ca9-a5a6-dc83dc81df54",
+			"toNode": "e7cae5a3-444c-4445-8b81-20528d897c58",
+			"toNodeConPointId": "101c68af-fa57-4815-abd3-e3781712a29f"
+		},
+		{
+			"id": "87bd3806-5e14-413e-b30a-ef8b07ae55da",
+			"label": "material",
+			"fromNode": "251d26d5-14d0-4399-b6b2-de2964f8d0fd",
+			"fromNodeConPointId": "40fc380c-59f1-46be-84be-2df5d78ebd1a",
+			"toNode": "5a74cdb2-f5b5-43a0-a469-81b6c735db98",
+			"toNodeConPointId": "1ccf57c4-ae44-458b-ba84-efe046903b7a"
+		},
+		{
+			"id": "0e536a1b-500d-4877-89ff-d28a3aec369e",
+			"label": "+",
+			"fromNode": "e420768b-2e33-48ed-acd8-991d84af4c78",
+			"fromNodeConPointId": "25e388f9-6926-486f-a274-25c1cdc327e9",
+			"toNode": "d796e866-2127-46ff-b121-b9cca140ff0a",
+			"toNodeConPointId": "6c0bdc8e-fb6c-4b60-937c-813fd3c9eac8"
+		},
+		{
+			"id": "0c41a719-f232-4cd2-ac96-8bf7966fb972",
+			"label": "+",
+			"fromNode": "e5fc431b-b09f-4d7e-b8a0-692a66bb3ab8",
+			"fromNodeConPointId": "03be927f-6ff9-4d2c-9027-5a3fcf9ffb9d",
+			"toNode": "c68c2939-d438-4c4d-bb1d-b3af82978164",
+			"toNodeConPointId": "8fadad67-7261-44d1-9c25-20ff5481c998"
+		}
+	]
+}
