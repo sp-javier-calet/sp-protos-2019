@@ -1,5 +1,6 @@
 ﻿using SocialPoint.GUIControl;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class ScrollViewExample : UIScrollRectExtension<MyData, MyCell> 
 {
@@ -31,7 +32,7 @@ public class ScrollViewExample : UIScrollRectExtension<MyData, MyCell>
 
         for (int i = 0; i < 1000; ++i)
         {
-            myData.Add(new MyData(i, "test item small name " + i, "test item small description for item with index " + i, prefabs[UnityEngine.Random.Range(0,2)]));
+            myData.Add(new MyData(i, "test item small name " + i, "test item small description for item with index " + i, prefabs[UnityEngine.Random.Range(0,3)]));
         }
 
         return myData;

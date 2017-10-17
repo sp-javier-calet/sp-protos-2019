@@ -33,6 +33,9 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         bool _usePooling;
 
+        [SerializeField]
+        UIViewAnimation _scrollAnimation;
+
         public bool Initialized { get; private set; }
 
         Dictionary<int, TCell> _visibleCells;
@@ -42,7 +45,7 @@ namespace SocialPoint.GUIControl
 
         // TODO setup pooled objects
         protected Dictionary<string, GameObject> _prefabs = new Dictionary<string, GameObject>();
-        GameObject GetCellPrefab(string name)
+        GameObject InstantiateCellPrefabIfNeeded(string name)
         {
             GameObject go;
             if(_prefabs.TryGetValue(name, out go))
@@ -79,7 +82,7 @@ namespace SocialPoint.GUIControl
 
         #region Unity methods
 
-        protected void Awake()
+        void Awake()
         {
             if(_scrollRect == null)
             {
@@ -103,7 +106,13 @@ namespace SocialPoint.GUIControl
 
         void Start() 
         { 
+            Debug.Log("start");
             Initialize(); 
+        }
+            
+        void LateUpdate()
+        {
+            MyLateUpdate();
         }
 
         void OnEnable()
@@ -127,8 +136,6 @@ namespace SocialPoint.GUIControl
 
         public void Initialize()
         {
-//            Canvas.ForceUpdateCanvases();
-
             Initialized = true;
         }
 

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 22220126}
   - component: {fileID: 114066581941486724}
   - component: {fileID: 114844738189993870}
+  - component: {fileID: 223590053621644626}
   m_Layer: 0
   m_Name: GUI_StoreItemSmall
   m_TagString: Untagged
@@ -245,6 +246,25 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1287411484567004}
+--- !u!223 &223590053621644626
+Canvas:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 154906}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
 --- !u!224 &224451920443961310
 RectTransform:
   m_ObjectHideFlags: 1
