@@ -9,7 +9,7 @@ namespace SocialPoint.Restart
 
     public class DefaultRestarter : IRestarter
     {
-        IAppEvents _appEvents;
+        readonly IAppEvents _appEvents;
 
         public DefaultRestarter(IAppEvents appEvents)
         {
