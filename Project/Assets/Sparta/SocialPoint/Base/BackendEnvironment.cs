@@ -71,6 +71,12 @@ namespace SocialPoint.Base
         {
             get
             {
+                var forced = ForcedEnvironment;
+                if(forced.HasValue)
+                {
+                    return forced.Value;
+                }
+                
                 return DefaultEnvironment;
             }
         }

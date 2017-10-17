@@ -53,8 +53,7 @@ namespace SocialPoint.Base
             {
                 if(UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
                 {
-                    UnityEngine.Debug.LogError(msg);
-                    //UnityEditor.EditorApplication.isPaused = true;
+                    UnityEditor.EditorApplication.isPaused = true;
                 }
             }
             catch(MissingMethodException)
