@@ -32,9 +32,6 @@ MonoBehaviour:
       - EnvironmentType: 4
         Id: dev
         SecretKey: vjKcf9HIq0jN5Xf0
-      SecretKeyDev: 
-      SecretKeyLoc: 
-      SecretKeyProd: 
       BundleDir: localization
       CsvMode: 2
       ShowKeysOnDevMode: 1
