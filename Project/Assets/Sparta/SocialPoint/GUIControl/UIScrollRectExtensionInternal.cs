@@ -10,12 +10,6 @@ namespace SocialPoint.GUIControl
 {
     public partial class UIScrollRectExtension<TCellData, TCell> where TCellData : UIScrollRectCellData where TCell : UIScrollRectCellItem<TCellData>
     {
-        IEnumerator _smoothScrollCoroutine;
-
-        // Cached default start padding if using it
-        int _defaultStartPadding;
-        bool _requiresRefresh;
-
         int StartPadding
         {
             get
@@ -359,18 +353,19 @@ namespace SocialPoint.GUIControl
             return null;
         }
            
-        void ClearAllElements()
+        void ClearAllVisibleCells()
         {
             while(_visibleCells.Count > 0)
             {
                 RemoceCell(false);
             }
+
             _visibleElementRange = new Range(0, 0);
         }
 
         void RecalculateVisibleCells()
         {
-            ClearAllElements();
+            ClearAllVisibleCells();
             SetInitialVisibleElements();
         }
 
@@ -386,6 +381,7 @@ namespace SocialPoint.GUIControl
             {
                 //We jumped to a completely different segment this frame, destroy all and recreate
                 RecalculateVisibleCells();
+                UpdatePaddingElements();
                 return;
             }
 
@@ -455,8 +451,6 @@ namespace SocialPoint.GUIControl
 //            }
 
             StartCoroutine(ScrollAnimation(position));
-
-//            _scrollContentRectTransform.anchoredPosition = new Vector2(-position, 0f);
         }
 
         IEnumerator ScrollAnimation(float position)
@@ -482,10 +476,7 @@ namespace SocialPoint.GUIControl
 //            {
 //                StopCoroutine(_scrollAnimation);
 //            }
-
-
         }
-
 
         void MyLateUpdate()
         {

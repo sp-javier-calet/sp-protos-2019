@@ -6,6 +6,7 @@ using SocialPoint.Dependency;
 using UnityEngine.SocialPlatforms;
 using System;
 using SocialPoint.Pooling;
+using System.Collections;
 
 namespace SocialPoint.GUIControl
 {
@@ -38,23 +39,14 @@ namespace SocialPoint.GUIControl
 
         public bool Initialized { get; private set; }
 
-        Dictionary<int, TCell> _visibleCells;
         Range _visibleElementRange;
-        List<TCell> _visibleItems = new List<TCell>();
+        Dictionary<int, TCell> _visibleCells;
         List<TCellData> _data = new List<TCellData>();
+        Dictionary<string, GameObject> _prefabs = new Dictionary<string, GameObject>();
 
-        // TODO setup pooled objects
-        protected Dictionary<string, GameObject> _prefabs = new Dictionary<string, GameObject>();
-        GameObject InstantiateCellPrefabIfNeeded(string name)
-        {
-            GameObject go;
-            if(_prefabs.TryGetValue(name, out go))
-            {
-                return go;
-            }
-
-            return null;
-        }
+        IEnumerator _smoothScrollCoroutine;
+        int _defaultStartPadding;
+        bool _requiresRefresh;
             
         public bool UsesVerticalLayout
         {
@@ -166,28 +158,7 @@ namespace SocialPoint.GUIControl
         void Dispose()
         {
             Initialized = false;
-
-            ClearVisibleItems();
-            _visibleItems = null;
-        }
-
-        void ClearVisibleItems()
-        {
-            if (_visibleItems != null)
-            {
-                for (int i = 0; i < _visibleItems.Count; ++i)
-                {
-                    var item = _visibleItems[i];
-                    if(item != null)
-                    {
-                        item.gameObject.DestroyAnyway();
-                    }           
-                }
-
-                _visibleItems.Clear();
-            }
-
-            _visibleElementRange = new Range(0, 0);
+            ClearAllVisibleCells();
         }
     }
 }
