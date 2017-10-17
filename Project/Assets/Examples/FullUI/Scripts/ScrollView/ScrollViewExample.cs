@@ -1,8 +1,5 @@
 ﻿using SocialPoint.GUIControl;
 using System.Collections.Generic;
-using System.Collections;
-using UnityEngine;
-using System;
 
 public class ScrollViewExample : UIScrollRectExtension<MyData, MyCell> 
 {
@@ -30,47 +27,11 @@ public class ScrollViewExample : UIScrollRectExtension<MyData, MyCell>
     List<MyData> GetData()
     {
         List<MyData> myData = new List<MyData>();
+        string[] prefabs = {"GUI_StoreItem", "GUI_StoreItemSmall", "GUI_StoreItem2"};
 
-        int totalNumber = 10;
-        for (int i = 0; i < totalNumber; ++i)
+        for (int i = 0; i < 1000; ++i)
         {
-            string prefabName = "GUI_StoreItem";
-
-            if(!_prefabs.ContainsKey(prefabName))
-            {
-                var prefab = Resources.Load(prefabName);
-                if(prefab != null)
-                {
-                    var go = GameObject.Instantiate(prefab) as GameObject;
-                    if(go != null)
-                    {
-                        _prefabs.Add(prefabName, go);
-                    }
-                }
-            }
-
-            myData.Add(new MyData(i, "test item name " + i, "test item description for item with index " + i, prefabName));
-        }
-
-        totalNumber = 2;
-        for (int i = 0; i < totalNumber; ++i)
-        {
-            string prefabName = "GUI_StoreItemSmall";
-
-            if(!_prefabs.ContainsKey(prefabName))
-            {
-                var prefab = Resources.Load(prefabName);
-                if(prefab != null)
-                {
-                    var go = GameObject.Instantiate(prefab) as GameObject;
-                    if(go != null)
-                    {
-                        _prefabs.Add(prefabName, go);
-                    }
-                }
-            }
-
-            myData.Add(new MyData(i, "test item small name " + i, "test item small description for item with index " + i, prefabName));
+            myData.Add(new MyData(i, "test item small name " + i, "test item small description for item with index " + i, prefabs[UnityEngine.Random.Range(0,2)]));
         }
 
         return myData;

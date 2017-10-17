@@ -2,30 +2,24 @@
 using UnityEngine;
 using System.Collections.Generic;
 using SocialPoint.Base;
-using System.Collections;
-using System;
 using SocialPoint.Dependency;
+using UnityEngine.SocialPlatforms;
+using System;
+using SocialPoint.Pooling;
 
 namespace SocialPoint.GUIControl
 {
     [RequireComponent(typeof(ScrollRect))]
-    public partial class UIScrollRectExtension<TData, TCell> : MonoBehaviour, IInitializable where TCell : UIScrollRectCellItem<TData>
+    public partial class UIScrollRectExtension<TCellData, TCell> : MonoBehaviour where TCellData : UIScrollRectCellData where TCell : UIScrollRectCellItem<TCellData>
     {
-        public delegate List<TData> UIScrollRectExtensionGetData();
-
-//        [Tooltip("Prefab used as cell base")]
-//        [SerializeField]
-//        GameObject _cellPrefab;
+        public delegate List<TCellData> UIScrollRectExtensionGetData();
 
         [Tooltip("UGUI ScrollRect we will use")]
         [SerializeField]
         ScrollRect _scrollRect;
 
-        LayoutGroup _layoutGroup;
-
         RectTransform _scrollRectTransform;
         RectTransform _scrollContentRectTransform;
-//        RectTransform _scrollViewPortRectTransform;
 
         [SerializeField]
         VerticalLayoutGroup _verticalLayoutGroup;
@@ -35,14 +29,16 @@ namespace SocialPoint.GUIControl
 
         [SerializeField]
         GridLayoutGroup _gridLayoutGroup;
-//        ContentSizeFitter _contentSizeFitter;
+
+        [SerializeField]
+        bool _usePooling;
 
         public bool Initialized { get; private set; }
 
-//        int _maxVisibleItems = 0;
-        private Dictionary<int, TCell> _visibleCells;
+        Dictionary<int, TCell> _visibleCells;
+        Range _visibleElementRange;
         List<TCell> _visibleItems = new List<TCell>();
-        List<TData> _data = new List<TData>();
+        List<TCellData> _data = new List<TCellData>();
 
         // TODO setup pooled objects
         protected Dictionary<string, GameObject> _prefabs = new Dictionary<string, GameObject>();
@@ -56,32 +52,7 @@ namespace SocialPoint.GUIControl
 
             return null;
         }
-
-        float _scrollPosition;
-
-//        public LayoutGroup Layout
-//        {
-//            get
-//            {
-//                if(UsesVerticalLayout)
-//                {
-//                    return _verticalLayoutGroup;
-//                }
-//                else if(UsesHorizontalLayout)
-//                {
-//                    return _horizontalLayoutGroup;
-//                }
-//                else if(UsesGridLayout)
-//                {
-//                    return _gridLayoutGroup;
-//                }
-//                else
-//                {
-//                    throw new UnityException("Layout not defined");
-//                }
-//            }
-//        }
-
+            
         public bool UsesVerticalLayout
         {
             get
@@ -117,16 +88,16 @@ namespace SocialPoint.GUIControl
 
             _scrollRectTransform = _scrollRect.transform as RectTransform;
             _scrollContentRectTransform = _scrollRect.content;
-//            _scrollViewPortRectTransform = _scrollRect.viewport;
 
             _verticalLayoutGroup = _verticalLayoutGroup ?? _scrollContentRectTransform.GetComponent<VerticalLayoutGroup>();
             _horizontalLayoutGroup = _horizontalLayoutGroup ?? _scrollContentRectTransform.GetComponent<HorizontalLayoutGroup>();
             _gridLayoutGroup = _gridLayoutGroup ?? _scrollContentRectTransform.GetComponent<GridLayoutGroup>();
-//            _contentSizeFitter = _scrollContentRectTransform.GetComponent<ContentSizeFitter>();
-        
+
             _scrollRect.vertical = UsesVerticalLayout;
             _scrollRect.horizontal = UsesHorizontalLayout;
         
+            _defaultStartPadding = StartPadding;
+
             _visibleCells = new Dictionary<int, TCell>();
         }
 
@@ -156,10 +127,6 @@ namespace SocialPoint.GUIControl
 
         public void Initialize()
         {
-//            if(_cellPrefab == null)
-//            {
-//                throw new UnityException("Cell prefab is not set");
-//            }
 //            Canvas.ForceUpdateCanvases();
 
             Initialized = true;
@@ -184,7 +151,8 @@ namespace SocialPoint.GUIControl
 
             // hide loading spinner
 
-            SetupContenSize();
+            SetupCellSizes();
+            SetupRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
             SetInitialVisibleElements();
         }
 
@@ -211,6 +179,8 @@ namespace SocialPoint.GUIControl
 
                 _visibleItems.Clear();
             }
+
+            _visibleElementRange = new Range(0, 0);
         }
     }
 }

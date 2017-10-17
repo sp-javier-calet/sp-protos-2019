@@ -450,8 +450,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d6eb6754a23d446fa39ff8faeb3e587, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cellPrefab: {fileID: 154906, guid: c48ec18c1b0bd4a479ae79e51e584b82, type: 2}
-  _scrollRect: {fileID: 0}
+  _scrollRect: {fileID: 114656496029349974}
   _verticalLayoutGroup: {fileID: 0}
   _horizontalLayoutGroup: {fileID: 0}
   _gridLayoutGroup: {fileID: 0}
@@ -692,7 +691,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -1014.073, y: 0}
+  m_SizeDelta: {x: -1014, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &224644660470356074
 RectTransform:

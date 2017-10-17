@@ -9,7 +9,7 @@ public class MyCell: UIScrollRectCellItem<MyData>
     {
         if(NameText != null)
         {
-            NameText.text = _index + " -- " + _data.Name;
+            NameText.text = _data.Name;
         }
 
         if(DescriptionText != null)

@@ -1,19 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace SocialPoint.GUIControl
 {
     public abstract class UIScrollRectCellItem<UIScrollRectCellData> : MonoBehaviour 
     {
-        protected int _index;
         protected UIScrollRectCellData _data;
 
-        public void UpdateData(int index, UIScrollRectCellData data)
+        public void UpdateData(UIScrollRectCellData data)
         {
             if(data != null)
             {
-                _index = index;
                 _data = data;
 
                 Show();

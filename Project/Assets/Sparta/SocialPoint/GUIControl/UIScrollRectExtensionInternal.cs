@@ -1,23 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 using UnityEngine.SocialPlatforms;
-using UnityEngine.UI;
+using SocialPoint.Pooling;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIControl
 {
-    public partial class UIScrollRectExtension<TData, TCell> where TCell : UIScrollRectCellItem<TData>
+    public partial class UIScrollRectExtension<TCellData, TCell> where TCellData : UIScrollRectCellData where TCell : UIScrollRectCellItem<TCellData>
     {
+        int _cleanCumulativeIndex;
         float _cumulativeSize;
-//        float[] _elementSizes;
-//        float[] _cumulativeElementSizes;
-//        int _cleanCumulativeIndex;
-//        public event Action<int, bool> CellVisibilityChange;
+        int _defaultStartPadding;
 
-//        Range _visibleElementRange;
-
-        float StartPadding
+        int StartPadding
         {
             get
             {
@@ -31,12 +26,27 @@ namespace SocialPoint.GUIControl
                 }
                 else
                 {
-                    return 0f;//_gridLayoutGroup;
+                    return 0;//_gridLayoutGroup;
                 }
+            }
+            set
+            {
+                if(UsesVerticalLayout)
+                {
+                    _verticalLayoutGroup.padding.top = value;
+                }
+                else if(UsesHorizontalLayout)
+                {
+                    _horizontalLayoutGroup.padding.left = value;
+                }
+//                else
+//                {
+//                    return 0f;//_gridLayoutGroup;
+//                }
             }
         }
 
-        float EndPadding
+        int EndPadding
         {
             get
             {
@@ -50,7 +60,7 @@ namespace SocialPoint.GUIControl
                 }
                 else
                 {
-                    return 0f;//_gridLayoutGroup;
+                    return 0;//_gridLayoutGroup;
                 }
             }
         }
@@ -93,16 +103,16 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        float GetCellSize(RectTransform trans, bool withSpacing = false)
+        float GetCellSize(int index, bool withSpacing = false)
         {
             float size = 0f;
             if(UsesVerticalLayout)
             {
-                size = trans.rect.height;
+                size = _data[index].PrefabHeight;
             }
             else if(UsesHorizontalLayout)
             {
-                size = trans.rect.width;
+                size = _data[index].PrefabWidth;
             }
             else
             {
@@ -113,113 +123,181 @@ namespace SocialPoint.GUIControl
             return size;
         }
 
-        public float ScrollPosition
+        /// <summary>
+        /// Get the maximum scrollable size of the table. scrollPosition property will never be more than this.
+        /// </summary>
+        public float ScrollableSize
         {
             get
             {
-                return _scrollPosition;
+                return UsesVerticalLayout ? _scrollContentRectTransform.rect.height - _scrollRectTransform.rect.height : _scrollContentRectTransform.rect.width - _scrollRectTransform.rect.width;
             }
-            set
+        }
+
+        /// <summary>
+        /// Get the position that the table would need to scroll to to have a certain element at the start
+        /// </summary>
+        /// <param name="index">The desired element index</param>
+        /// <param name="above">Should the start of the table be above the element or below the element?</param>
+        /// <returns>The position to scroll to, can be used with scrollPosition property</returns>
+        public float GetScrollPositionForIndex(int index, bool above)
+        {
+            float cumulativeSize = _defaultStartPadding;
+            for(int i = 0; i < _data.Count; ++i)
             {
-                _scrollPosition = value;
-//                if(this.IsEmpty)
-//                {
-//                    return;
-//                }
-//                value = Mathf.Clamp(value, 0, GetScrollPositionForIndex(_elementSizes.Length - 1, true));
-//                if(_scrollPosition != value)
-//                {
-//                    _scrollPosition = value;
-//                    _requiresRefresh = true;
-//                    float relativeScroll = value / this.ScrollableSize;
-//
-//                    if(IsVertical)
-//                    {
-//                        _scrollRect.verticalNormalizedPosition = 1 - relativeScroll;
-//                    }
-//                    else
-//                    {
-//                        _scrollRect.horizontalNormalizedPosition = relativeScroll;
-//                    }
-//                }
+                cumulativeSize += _data[i].PrefabWidth;
+                cumulativeSize += Spacing;
+
+                if(i > index)
+                {
+                    break;
+                }
             }
+
+            if(above)
+            {
+                cumulativeSize -= _data[index].PrefabWidth;
+            }
+                
+            return cumulativeSize;
         }
 
         void OnScrollViewValueChanged(Vector2 newScrollValue)
         {
-            float relativeScroll = UsesVerticalLayout ? 1 - newScrollValue.y : newScrollValue.x;
-            _scrollPosition = relativeScroll * ScrollViewSize;
-//            _requiresRefresh = true;
+            RefreshVisibleElements();
+        }      
+            
+        Range CalculateCurrentVisibleRange()
+        {
+            float startPosition = Math.Abs(_scrollContentRectTransform.anchoredPosition.x);
+            float endPosition = startPosition + ScrollViewSize;
+
+            int startIndex = FindIndexOfElementAtPosition(startPosition);
+            int endIndex = FindIndexOfElementAtPosition(endPosition);
+
+            return new Range(startIndex, endIndex - startIndex + 1);
+        }
+
+        int FindIndexOfElementAtPosition(float position)
+        {
+            float cumulativeSize = _defaultStartPadding;
+            for(int i = 0; i < _data.Count; ++i)
+            {
+                cumulativeSize += _data[i].PrefabWidth;
+                if(cumulativeSize >= position)
+                {
+                    return i;
+                }
+
+                cumulativeSize += Spacing;
+            }
+
+            return 0;
         }
             
         void SetInitialVisibleElements()
         {
-            _cumulativeSize = StartPadding;
-
-            Debug.Log("initial cumulative size: " + _cumulativeSize);
-
-            int index = 0;
-            Debug.Log("total data values: " + _data.Count);
-            while(_cumulativeSize < ScrollViewSize && index < _data.Count)
+            Range visibleElements = CalculateCurrentVisibleRange();
+            for(int i = 0; i < visibleElements.count; i++)
             {
-                var size = AddCell(index, true);
-                index++;
-
-                _cumulativeSize += size;
-                _cumulativeSize += Spacing;
-
-                Debug.Log("initial cumulative size: " + _cumulativeSize);
-
-
-//                _cleanCumulativeIndex++;
-//                _cumulativeElementSizes[_cleanCumulativeIndex] = _elementSizes[_cleanCumulativeIndex];
-//                if(_cleanCumulativeIndex > 0)
-//                {
-//                    _cumulativeElementSizes[_cleanCumulativeIndex] += _cumulativeElementSizes[_cleanCumulativeIndex - 1];
-//                } 
+                AddCell(visibleElements.from + i, true);
             }
-
-
-//            Range visibleElements = CalculateCurrentVisibleRange();
-//            for(int i = 0; i < visibleElements.count; ++i)
-//            {
-//                AddCell(visibleElements.from + i, true);
-//            }
-//            _visibleElementRange = visibleElements;
-//            UpdatePaddingElements();
+            _visibleElementRange = visibleElements;
         }
 
         float GetContentPanelSize()
         {
-//            float size = StartPadding;
-//            for(int i = 0; i < _data.Count; ++i)
-//            {
-//                size += GetCellSize(i);
-//                size += Spacing; // TODO check that last item has no space
-//            }
-//
-//            size += EndPadding;
+            float size = _defaultStartPadding;
+            for(int i = 0; i < _data.Count; ++i)
+            {
+                size += GetCellSize(i);
+                size += Spacing; // TODO check that last item has no space
+            }
 
-//            return size;
+            size += EndPadding;
 
-            return 1024f;
+            return size;
+        }
+            
+        void SetupCellSizes()
+        {
+            for(int i = 0; i < _data.Count; ++i)
+            {
+                string prefabName = _data[i].PrefabName;
+
+                RectTransform trans;
+                GameObject prefab;
+                if(!_prefabs.TryGetValue(prefabName, out prefab))
+                {
+                    prefab = Resources.Load(prefabName) as GameObject;
+                    if(prefab != null)
+                    { 
+                        _prefabs.Add(prefabName, CreateCellPrefab(prefab));
+                    }
+                } 
+
+                if(prefab != null)
+                {
+                    trans = prefab.transform as RectTransform;
+                    _data[i].SetupPrefabSizes(trans.rect.width, trans.rect.height);
+                }
+            }
+
+            // TODO Clear after creating????
+//            _prefabs.Clear();
         }
 
-        void SetupContenSize()
+        GameObject CreateCellPrefab(GameObject prefab)
         {
-            float size = GetContentPanelSize();
+            if(_usePooling)
+            {
+                UnityObjectPool.CreatePool(prefab, 1);
+            }
+
+            return prefab;
+        }
+
+        GameObject GetCellPrefab(GameObject prefab)
+        {
+            return _usePooling ? UnityObjectPool.Spawn(prefab) : UnityEngine.Object.Instantiate(prefab);
+        }
+
+        void HideCellPrefab(GameObject prefab)
+        {
+            if(_usePooling)
+            {
+                UnityObjectPool.Recycle(prefab);
+            }
+            else
+            {
+                prefab.DestroyAnyway();
+            }
+        }
+
+        void SetupRectTransformSize(RectTransform trans, float size, bool disableIfZero = false)
+        {
             if(UsesVerticalLayout)
             {
                 if(_scrollContentRectTransform.rect.height != size)
                 {
-                    _scrollContentRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
+                    trans.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, size);
+                }
+                    
+                if(disableIfZero)
+                {
+                    _scrollContentRectTransform.gameObject.SetActive(_scrollContentRectTransform.rect.height > 0);
                 }
             }
             else if(UsesHorizontalLayout)
             {
                 if(_scrollContentRectTransform.rect.width != size)
                 {
-                    _scrollContentRectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size);
+                    trans.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, size);
+                }
+
+                if(disableIfZero)
+                {
+                    _scrollContentRectTransform.gameObject.SetActive(_scrollContentRectTransform.rect.width > 0);
                 }
             }
             else if(UsesGridLayout)
@@ -228,125 +306,142 @@ namespace SocialPoint.GUIControl
             }
         }
 
-//        Range CalculateCurrentVisibleRange()
-//        {
-//            var startPosition = Math.Max(_scrollPosition - StartPadding, 0);
-//
-//            var visibleStartPadding = Math.Max(StartPadding - _scrollPosition, 0);
-//            var endPosition = startPosition + ScrollViewSize - visibleStartPadding;
-//
-//            int startIndex = FindIndexOfElementAtPosition(startPosition);
-//            int endIndex = FindIndexOfElementAtPosition(endPosition);
-//
-//            return new Range(startIndex, endIndex - startIndex + 1);
-//        }
-
-//        int FindIndexOfElementAtPosition(float position)
-//        {
-//            return FindIndexOfElementAtPosition(position, 0, _cumulativeElementSizes.Length - 1);
-//        }
-//
-//        private int FindIndexOfElementAtPosition(float position, int startIndex, int endIndex)
-//        {
-//            if(startIndex >= endIndex)
-//            {
-//                return startIndex;
-//            }
-//
-//            int midIndex = (startIndex + endIndex) / 2;
-//            if(GetCumulativeElementSize(midIndex) >= position)
-//            {
-//                return FindIndexOfElementAtPosition(position, startIndex, midIndex);
-//            }
-//            else
-//            {
-//                return FindIndexOfElementAtPosition(position, midIndex + 1, endIndex);
-//            }
-//        }
-//
-//        float GetCumulativeElementSize(int index)
-//        {
-//            while(_cleanCumulativeIndex < index)
-//            {
-//                _cleanCumulativeIndex++;
-//                _cumulativeElementSizes[_cleanCumulativeIndex] = _elementSizes[_cleanCumulativeIndex];
-//                if(_cleanCumulativeIndex > 0)
-//                {
-//                    _cumulativeElementSizes[_cleanCumulativeIndex] += _cumulativeElementSizes[_cleanCumulativeIndex - 1];
-//                } 
-//            }
-//
-//            return _cumulativeElementSizes[index];
-//        }
-
-        float AddCell(int index, bool insertAtEnd)
+        void AddCell(int index, bool insertAtEnd = true)
         {
-//            UIScrollRectCellExtension<TData> newCell = GetCellForIndexInScrollView(this, index);
-
-            // Get from pool
-            var go = GameObject.Instantiate(GetCellPrefab(_data[index].PrefabName));
-
-            var newCell = go.GetComponent<TCell>();
+            TCell newCell = GetCellForIndexInTableView(index);
 
             var trans = newCell.transform;
             trans.SetParent(_scrollContentRectTransform, false);
             trans.localScale = Vector3.one;
             trans.localPosition = Vector3.zero;
 
-//            LayoutElement layoutElement = newCell.GetComponent<LayoutElement>();
-//            if(layoutElement == null)
-//            {
-//                layoutElement = newCell.gameObject.AddComponent<LayoutElement>();
-//            }
-//
-//            if(IsVertical)
-//            {
-//                layoutElement.preferredHeight = _elementSizes[index];
-//                if(index > 0)
-//                {
-//                    layoutElement.preferredHeight -= Spacing;
-//                }
-//            }
-//            else
-//            {
-//                layoutElement.preferredWidth = _elementSizes[index];
-//                if(index > 0)
-//                {
-//                    layoutElement.preferredWidth -= Spacing;
-//                }
-//            }
+            newCell.gameObject.name = "cell " + index; // debug mode
 
-            _visibleCells.Add(index, newCell);
+            _visibleCells[index] = newCell;
 
-            Debug.Log("created new cell with index : " + index);
             if(insertAtEnd)
             {
-                trans.SetSiblingIndex(_scrollContentRectTransform.childCount - 1); //One before end padding
+                trans.SetAsLastSibling();
             }
             else
             {
-                trans.SetSiblingIndex(0); //One after the start padding
+                trans.SetAsFirstSibling(); 
             }
 
 //            if(CellVisibilityChange != null)
 //            {
 //                CellVisibilityChange(index, true);
 //            }
-
-//            var layoutElement = newCell.GetComponent<LayoutElement>();
-            return GetCellSize(trans as RectTransform);
         }
 
-        TCell GetCellForIndexInScrollView(UIScrollRectExtension<TData, TCell> scrollView, int index)
+        void RemoceCell(bool removeAtEnd)
         {
-//            TCell cell = tableView.GetReusableCell(_cellPrefab.ReuseIdentifier) as T;
-//            if(cell == null)
+            int index = removeAtEnd ? _visibleElementRange.Last() : _visibleElementRange.from;
+            TCell removedCell = _visibleCells[index];
+
+            HideCellPrefab(removedCell.gameObject);
+//            StoreCellForReuse(removedCell);
+            _visibleCells.Remove(index);
+            _visibleElementRange.count -= 1;
+            if(!removeAtEnd)
+            {
+                _visibleElementRange.from += 1;
+            }
+
+//            if(CellVisibilityChange != null)
 //            {
-            TCell cell = GameObject.Instantiate(_cellPrefab) as TCell;
-//            cell.name = _cellPrefab.name + (++_numInstancesCreated).ToString();
+//                CellVisibilityChange(element, false);
 //            }
-//            cell.UpdateData(index, _data[index]);
-            return cell;
+        }
+
+        public TCell GetCellForIndexInTableView(int index)
+        {
+            GameObject prefab = null;
+            if(_prefabs.TryGetValue(_data[index].PrefabName, out prefab))
+            {
+                var go = GetCellPrefab(prefab);
+                TCell cell = go.GetComponent<TCell>();
+                cell.UpdateData(_data[index]);
+                return cell;
+            }
+
+            return null;
+        }
+           
+        void RefreshVisibleElements()
+        {
+//            _requiresRefresh = false;
+//
+//            if(this.IsEmpty)
+//            {
+//                return;
+//            }
+
+            Range newVisibleElements = CalculateCurrentVisibleRange();
+            int oldTo = _visibleElementRange.Last();
+            int newTo = newVisibleElements.Last();
+
+            if(newVisibleElements.from > oldTo || newTo < _visibleElementRange.from)
+            {
+                //We jumped to a completely different segment this frame, destroy all and recreate
+//                RecalculateVisibleElementsFromScratch();
+                return;
+            }
+
+            //Remove elements that disappeared to the start
+            for(int i = _visibleElementRange.from; i < newVisibleElements.from; ++i)
+            {
+                Debug.Log("hide element at top");
+                RemoceCell(false);
+            }
+            //Remove elements that disappeared to the end
+            for(int i = newTo; i < oldTo; ++i)
+            {
+                Debug.Log("hide element at bottom");
+                RemoceCell(true);
+            }
+            //Add elements that appeared on start
+            for(int i = _visibleElementRange.from - 1; i >= newVisibleElements.from; --i)
+            {
+                Debug.Log("add element to top");
+                AddCell(i, false);
+            }
+            //Add elements that appeared on end
+            for(int i = oldTo + 1; i <= newTo; ++i)
+            {
+                Debug.Log("add element to bottom");
+                AddCell(i, true);
+            }
+
+            _visibleElementRange = newVisibleElements;
+            UpdatePaddingElements();
+        }
+
+        void UpdatePaddingElements()
+        {
+            // TODO check fake elements without layout group
+            float hiddenElementsSizeSum = 0;
+            for(int i = 0; i < _visibleElementRange.from; ++i)
+            {
+                hiddenElementsSizeSum += _data[i].PrefabWidth;
+                if(i < _visibleElementRange.from - 1)
+                {
+                    hiddenElementsSizeSum += Spacing;
+                }
+            }
+
+            StartPadding = (int)hiddenElementsSizeSum;
+
+            // TODO RIGHT TO LEFT
+//            hiddenElementsSizeSum = 0;
+//            for(int i = _visibleElementRange.from; i <= _visibleElementRange.Last(); i++)
+//            {
+//                // TODO check spacing
+//                hiddenElementsSizeSum += _data[i].PrefabWidth;
+//
+//            }
+//
+//            SetupRectTransformSize(_fakeEndContentPlaceholder, hiddenElementsSizeSum, true);
         }
     }
 }
