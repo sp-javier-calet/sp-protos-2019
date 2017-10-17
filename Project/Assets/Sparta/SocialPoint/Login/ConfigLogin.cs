@@ -26,11 +26,7 @@ namespace SocialPoint.Login
         {
         }
 
-        public event HttpRequestDelegate HttpRequestEvent
-        {
-            add { }
-            remove { }
-        }
+        public event HttpRequestDelegate HttpRequestEvent = null;
 
         public event NewUserDelegate NewUserEvent;
 
@@ -120,6 +116,12 @@ namespace SocialPoint.Login
         void DoGetConfigData(ErrorDelegate cbk)
         {
             var req = new HttpRequest(BaseUrl);
+
+            if(HttpRequestEvent != null)
+            {
+                HttpRequestEvent(req);
+            }
+
             _httpClient.Send(req, resp => OnGetConfigData(resp, cbk));
         }
 
@@ -130,15 +132,15 @@ namespace SocialPoint.Login
 
             if(resp.HasError)
             {
+                string errorString = parser.Parse(resp.Body).ToString();
                 err = resp.Error;
                 if(ErrorEvent != null)
                 {
                     var errData = new AttrDic();
-                    string errorString = parser.Parse(resp.Body).ToString();
                     errData.SetValue(SocialPointLogin.AttrKeySignature, errorString);
                     ErrorEvent(ErrorType.GameDataParse, err, errData);
-                    Log.e("Error: " + err.Code + " Message: " + err.Msg + " Signature: " + errorString);
                 }
+                Log.e("Error: " + err.Code + " Message: " + err.Msg + " Signature: " + errorString);
             }
             else
             {

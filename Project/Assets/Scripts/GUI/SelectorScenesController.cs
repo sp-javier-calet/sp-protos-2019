@@ -10,10 +10,10 @@ using System;
 public class SelectorScenesController : UIViewController
 {
     [SerializeField]
-    private GameObject _prefabButton = null;
+    private Button _prefabButton;
 
     [SerializeField]
-    private ScrollRect _scrollRect = null;
+    private ScrollRect _scrollRect;
 
     public Action<string> OnGoToScene { get; set; }
 
@@ -43,13 +43,12 @@ public class SelectorScenesController : UIViewController
 
     void InstantiateScenesButton(string nameScene)
     {
-        GameObject button = Instantiate<GameObject>(_prefabButton);
+        Button button = Instantiate<Button>(_prefabButton);
         button.transform.SetParent(_scrollRect.content);
         button.transform.localPosition = Vector3.zero;
         button.transform.localScale = Vector3.one;
         button.GetComponentInChildren<Text>().text = nameScene.ToUpper();
-        Button buttonComponent = button.GetComponent<Button>();
-        buttonComponent.onClick.AddListener(() => GoToScene(nameScene));
+        button.onClick.AddListener(() => GoToScene(nameScene));
     }
 
     public void GoToScene(string nameScene)
