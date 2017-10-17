@@ -11,6 +11,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
         public const string BaseScheme = "base";
         public const string EditorScheme = "editor";
         public const string AppendScheme = "append";
+        public const string JenkinsScheme = "jenkins";
 
         const string LastPathPrefsKey = "XcodePostProcessLastPath";
 
@@ -142,6 +143,12 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                         mods.AddScheme(EditorScheme);
                         Log("Enabling 'editor' scheme for xcodemods");
                     }
+
+                    if(IsJenkinsMode)
+                    {
+                        mods.AddScheme(JenkinsScheme);
+                        Log("Enabling 'jenkins' scheme for xcodemods");
+                    }
                 }
 
                 foreach(string file in mods.Files)
@@ -179,6 +186,15 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 #else
                 return false;
                 #endif
+            }
+        }
+
+        static bool IsJenkinsMode
+        {
+            get
+            {
+                return !UnityEditorInternal.InternalEditorUtility.isHumanControllingUs &&
+                UnityEditorInternal.InternalEditorUtility.inBatchMode;
             }
         }
     }
