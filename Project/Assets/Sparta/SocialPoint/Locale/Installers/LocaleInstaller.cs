@@ -39,9 +39,7 @@ namespace SocialPoint.Locale
         {
             public string ProjectId = LocalizationManager.LocationData.DefaultProjectId;
             public List<EnvironmentData> EnvironmentsData = new List<EnvironmentData>();
-            public string SecretKeyDev = string.Empty;
-            public string SecretKeyLoc = string.Empty;
-            public string SecretKeyProd = string.Empty;
+
             public string BundleDir = LocalizationManager.DefaultBundleDir;
             public LocalizationManager.CsvMode CsvMode = LocalizationManager.CsvMode.NoCsv;
             public bool ShowKeysOnDevMode = true;
