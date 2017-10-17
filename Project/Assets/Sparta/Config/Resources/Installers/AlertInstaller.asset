@@ -13,6 +13,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    UseNativeAlert: 0
+    UseNativeAlert: 1
     UnityAlertViewPrefab: {fileID: 114444, guid: 4885b1ce6152048a98b26cd8bb651f5f,
       type: 2}

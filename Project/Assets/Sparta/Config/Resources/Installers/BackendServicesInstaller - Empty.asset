@@ -42,7 +42,7 @@ MonoBehaviour:
     Crashes:
       UseEmpty: 1
       SendInterval: 20
-      ErrorLogActive: 0
+      ErrorLogActive: 1
       ExceptionLogActive: 1
       EnableSendingCrashesBeforeLogin: 0
       NumRetriesBeforeSendingCrashBeforeLogin: 3

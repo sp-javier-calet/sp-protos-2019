@@ -19,7 +19,7 @@ MonoBehaviour:
     IconTexture: {fileID: 0}
     OverrideIcon: 0
   Common:
-    Flags: +DEBUG_SPPURCHASE
+    Flags: 
     RebuildNativePlugins: 1
     IsDevelopmentBuild: 0
     AppendBuild: 0
@@ -32,11 +32,11 @@ MonoBehaviour:
     Flags: 
     XcodeModSchemes: release
     UseEnvironmentProvisioningUuid: 1
-    RemovedResources: StreamingAssets/android_etc
+    RemovedResources: 
   Android:
     BundleIdentifier: 
     Flags: 
-    RemovedResources: StreamingAssets/ios
+    RemovedResources: 
     UseKeystore: 1
     Keystore:
       Path: 

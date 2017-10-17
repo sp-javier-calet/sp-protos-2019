@@ -16,79 +16,25 @@ MonoBehaviour:
     PersistsSelection: 1
     Environments:
     - Name: Production
-      Url: https://cai.socialpointgames.com/api/v3
+      Url: http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3
       Type: 0
-    - Name: Development1
-      Url: http://int-ca.socialpointgames.com/ca1/web/api/v3
-      Type: 4
-    - Name: Development2
-      Url: http://int-ca.socialpointgames.com/ca2/web/api/v3
-      Type: 4
-    - Name: Development3
-      Url: http://int-ca.socialpointgames.com/ca3/web/api/v3
-      Type: 4
-    - Name: Development4
-      Url: http://int-ca.socialpointgames.com/ca4/web/api/v3
-      Type: 4
-    - Name: Development5
-      Url: http://int-ca.socialpointgames.com/ca5/web/api/v3
-      Type: 4
-    - Name: Development6
-      Url: http://int-ca.socialpointgames.com/ca6/web/api/v3
-      Type: 4
-    - Name: Development7
-      Url: http://int-ca.socialpointgames.com/ca7/web/api/v3
-      Type: 4
-    - Name: Development8
-      Url: http://int-ca.socialpointgames.com/ca8/web/api/v3
-      Type: 4
-    - Name: Development9
-      Url: http://int-ca.socialpointgames.com/ca9/web/api/v3
-      Type: 4
-    - Name: Development10
-      Url: http://int-ca.socialpointgames.com/ca10/web/api/v3
-      Type: 4
-    - Name: Development11
-      Url: http://int-ca.socialpointgames.com/ca11/web/api/v3
-      Type: 4
-    - Name: Development12
-      Url: http://int-ca.socialpointgames.com/ca12/web/api/v3
-      Type: 4
-    - Name: Development13
-      Url: http://int-ca.socialpointgames.com/ca13/web/api/v3
-      Type: 4
-    - Name: Development14
-      Url: http://int-ca.socialpointgames.com/ca14/web/api/v3
-      Type: 4
-    - Name: Development15
-      Url: http://int-ca.socialpointgames.com/ca15/web/api/v3
-      Type: 4
-    - Name: Development16
-      Url: http://int-ca.socialpointgames.com/ca16/web/api/v3
-      Type: 4
-    - Name: Development17
-      Url: http://int-ca.socialpointgames.com/ca17/web/api/v3
-      Type: 4
-    - Name: Development18
-      Url: http://int-ca.socialpointgames.com/ca18/web/api/v3
-      Type: 4
-    - Name: Development19
-      Url: http://int-ca.socialpointgames.com/ca19/web/api/v3
-      Type: 4
-    - Name: Development20
-      Url: http://int-ca.socialpointgames.com/ca20/web/api/v3
-      Type: 4
-    - Name: ClosedBeta
-      Url: http://int-ca.socialpointgames.com/caclosedbeta/web/api/v3
-      Type: 4
-    - Name: QA
-      Url: http://int-ca.socialpointgames.com/ca_qa/web/api/v3
+    - Name: Test
+      Url: http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3
       Type: 2
-    - Name: PRE
-      Url: https://pre-ca.socialpointgames.com/api/v3
-      Type: 1
+    - Name: Development
+      Url: http://int-sp-bootstrap-000a.vpc01.use1.laicosp.net/api/v3
+      Type: 3
+    - Name: League Of Dragons
+      Url: http://int-lod.socialpointgames.com/lod3/web/index.php/api/v3
+      Type: 3
+    - Name: Docker
+      Url: http://localhost:4630/api/v3
+      Type: 3
+    - Name: Champions Arena
+      Url: http://int-ca.socialpointgames.com/ca10/web/api/v3
+      Type: 3
   Defaults:
     IosProductionEnvironment: Production
     AndroidProductionEnvironment: Production
     CommonProductionEnvironment: Production
-    DefaultEnvironment: Production
+    DefaultEnvironment: Development

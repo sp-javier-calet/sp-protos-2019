@@ -13,6 +13,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 0
   Settings:
-    InitialScreenPrefab: {fileID: 189856, guid: 4a43203c942774821a4162aaf6a6bb8a,
+    InitialScreenPrefab: {fileID: 189856, guid: d5838d7511bc24545bd432454cfc5365,
       type: 2}
     InitialScreenAnimation: 0

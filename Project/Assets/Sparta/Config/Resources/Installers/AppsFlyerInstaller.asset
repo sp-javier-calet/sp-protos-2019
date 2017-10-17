@@ -15,7 +15,7 @@ MonoBehaviour:
   Settings:
     ActiveOnIOS: 1
     IosAppsFlyerKey: 8vNZLw2QPtD8EnnXXbh9q3
-    IosAppID: 966491613
-    ActiveOnAndroid: 0
-    AndroidAppsFlyerKey: 
-    AndroidAppID: 
+    IosAppID: 1121646376
+    ActiveOnAndroid: 1
+    AndroidAppsFlyerKey: 8vNZLw2QPtD8EnnXXbh9q3
+    AndroidAppID: es.socialpoint.leagueofdragons
