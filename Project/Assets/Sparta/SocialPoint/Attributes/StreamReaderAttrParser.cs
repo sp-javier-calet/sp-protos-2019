@@ -11,7 +11,8 @@ namespace SocialPoint.Attributes
 
         public Attr Parse(byte[] data)
         {
-            return ParseString(Encoding.UTF8.GetString(data));
+            var dataString = Encoding.UTF8.GetString(data);
+            return ParseString(dataString);
         }
 
         static bool IsEmptyString(string data)
@@ -55,10 +56,11 @@ namespace SocialPoint.Attributes
                     return result;
                 }
             }
-            catch
+            catch(Exception e)
             {
+                throw new SerializationException("Error reading data", e);
             }
-            throw new SerializationException("Error reading data");
+            return null;
         }
     }
 }
