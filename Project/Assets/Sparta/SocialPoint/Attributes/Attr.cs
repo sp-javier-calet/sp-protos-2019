@@ -700,7 +700,7 @@ namespace SocialPoint.Attributes
 
         public override float ToFloat()
         {
-            DebugUtils.Assert(_value > float.MaxValue || _value < float.MinValue, "AttrInt: can't cast to float: losing precision");
+            DebugUtils.Assert(_value <= float.MaxValue && _value >= float.MinValue, "AttrInt: can't cast to float: losing precision");
             return (float)_value;
         }
 
@@ -791,7 +791,7 @@ namespace SocialPoint.Attributes
 
         public override int ToInt()
         {
-            DebugUtils.Assert(_value > int.MaxValue || _value < int.MinValue, "AttrLong: Can't cast from AttrLong to int, losing precision");
+            DebugUtils.Assert(_value <= int.MaxValue && _value >= int.MinValue, "AttrLong: Can't cast from AttrLong to int, losing precision");
             return (int)_value;
         }
 
@@ -809,7 +809,6 @@ namespace SocialPoint.Attributes
         {
             DebugUtils.Assert(false, "AttrLong: Can't store float, losing precision");
             _value = (long)val;
-
         }
 
         public override void SetInt(int val)
@@ -1141,7 +1140,7 @@ namespace SocialPoint.Attributes
 
         public override float ToFloat()
         {
-            DebugUtils.Assert(false, "AttrDouble: Can't cast from AttrDouble to float, losing precision");
+            DebugUtils.Assert(_value <= float.MaxValue && _value >= float.MinValue, "AttrDouble: can't cast to float: value overflow");
             return (float)_value;
         }
 
