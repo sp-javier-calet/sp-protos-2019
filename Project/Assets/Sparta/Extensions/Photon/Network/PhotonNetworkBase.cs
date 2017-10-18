@@ -76,7 +76,7 @@ namespace SocialPoint.Network
     public class PhotonNetworkConfig
     {
         public const bool DefaultCreateRoom = true;
-        public const ExitGames.Client.Photon.ConnectionProtocol DefaultProtocol = ExitGames.Client.Photon.ConnectionProtocol.Tcp;
+        public const ExitGames.Client.Photon.ConnectionProtocol DefaultProtocol = ExitGames.Client.Photon.ConnectionProtocol.Udp;
 
         public string GameVersion;
         public string RoomName;
@@ -138,6 +138,7 @@ namespace SocialPoint.Network
     {
         public int MaxReconnectAttempts = 6;
         public float ReconnectInterval = 3.0f;
+        public bool ReconnectMidGameEnabled = true;
     }
 
     public interface IPhotonNetworkDelegate
@@ -181,7 +182,7 @@ namespace SocialPoint.Network
             FromFailedRunningConnection,
         }
 
-        bool _reconnectMidGameEnabled = true;
+
         bool _reconnecting;
         int _reconnectAttempts;
         ReconnectionOrigin _reconnectionOrigin;
@@ -224,11 +225,6 @@ namespace SocialPoint.Network
         public void RemovePhotonDelegate(IPhotonNetworkDelegate dlg)
         {
             _photonDelegates.Remove(dlg);
-        }
-
-        public void SetAutoReconnectMidGame(bool enabled)
-        {
-            _reconnectMidGameEnabled = enabled;
         }
 
         protected virtual void DoConnect()
@@ -568,7 +564,7 @@ namespace SocialPoint.Network
             {
                 return;
             }
-            if(_reconnectMidGameEnabled && IsRecoverableDisconnectCause(cause))
+            if(Config.TroubleshootingConfig.ReconnectMidGameEnabled && IsRecoverableDisconnectCause(cause))
             {
                 if(!_reconnecting)
                 {

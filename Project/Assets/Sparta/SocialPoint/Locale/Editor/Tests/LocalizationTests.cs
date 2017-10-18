@@ -22,14 +22,14 @@ namespace SocialPoint.Locale
             HttpClient = Substitute.For<IHttpClient>();
             var DeviceInfo = Substitute.For<UnityDeviceInfo>();
             var environments = Substitute.For<IBackendEnvironment>();
-            environments.Environments.Returns(new Environment[]{ new Environment { Name = "Production", Url = string.Empty, Type = EnvironmentType.Production}});
+            environments.Environments.Returns(new []{ new Environment { Name = "Production", Url = string.Empty, Type = EnvironmentType.Production}});
 
             LocalizationManager = new LocalizationManager(null);
             LocalizationManager.HttpClient = HttpClient;
             LocalizationManager.AppInfo = DeviceInfo.AppInfo;
             LocalizationManager.BackendEnvironments = environments;
             LocalizationManager.Location.ProjectId = "ds";
-            LocalizationManager.Location.EnvironmentsData.Add(new SocialPoint.Locale.LocaleInstaller.EnvironmentData{ EnvironmentType = EnvironmentType.Production, Id = "prod", SecretKey = "4HKu9W2Wv4Ooolrt"});
+            LocalizationManager.Location.EnvironmentsData.Add(new LocaleInstaller.EnvironmentData{ EnvironmentType = EnvironmentType.Production, Id = "prod", SecretKey = "4HKu9W2Wv4Ooolrt"});
             LocalizationManager.SupportedLanguages = LocalizationManager.DefaultSupportedLanguages;
         }
 

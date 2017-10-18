@@ -329,26 +329,23 @@ namespace SocialPoint.Base
             tmp.z = value;
             transform.localRotation = Quaternion.Euler(tmp);
         }
-    }
-}
 
-public static class TransformExtension
-{
-    public static Transform FindChildRecursive(this Transform parent, string name)
-    {
-        if(parent.name == name)
+        public static Transform FindChildRecursive(this Transform parent, string name)
         {
-            return parent;
-        }
-
-        for (var it = parent.GetEnumerator();it.MoveNext();)
-        {
-            Transform result = FindChildRecursive((Transform)it.Current, name);
-            if(result != null)
+            if(parent.name == name)
             {
-                return result;
+                return parent;
             }
+
+            for (var it = parent.GetEnumerator();it.MoveNext();)
+            {
+                Transform result = FindChildRecursive((Transform)it.Current, name);
+                if(result != null)
+                {
+                    return result;
+                }
+            }
+            return null;
         }
-        return null;
     }
 }

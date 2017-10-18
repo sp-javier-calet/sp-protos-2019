@@ -73,12 +73,12 @@ namespace SocialPoint.IO
                 }
                 else
                 {
-                    throw new InvalidOperationException("Found code but No valid serializer found");
+                    return false;
                 }
             }
             else
             {
-                throw new InvalidOperationException("No valid serializer found");
+                return false;
             }
         }
 

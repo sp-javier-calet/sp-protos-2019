@@ -278,7 +278,9 @@ namespace SocialPoint.GameLoading
             {
                 Paused = true;
                 if(AllOperationsLoadedEvent != null)
+                {
                     AllOperationsLoadedEvent();
+                }
             }
         }
 
