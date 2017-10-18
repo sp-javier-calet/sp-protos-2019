@@ -1,5 +1,4 @@
 ﻿using Jitter.LinearMath;
-using System;
 
 public static class QuaternionExtension
 {

@@ -362,8 +362,6 @@ namespace SocialPoint.Connection
             while(_pendingRequests.Count > 0)
             {
                 var request = _pendingRequests.Dequeue();
-                if(request.Request == null)
-                    continue;
 
                 switch(request.Type)
                 {

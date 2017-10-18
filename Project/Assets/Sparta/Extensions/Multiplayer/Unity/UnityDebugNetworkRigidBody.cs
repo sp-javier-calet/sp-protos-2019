@@ -1,8 +1,9 @@
 using System;
 using Jitter;
 using Jitter.LinearMath;
-using UnityEngine;
+using SocialPoint.JitterPhysics;
 using SocialPoint.Utils;
+using UnityEngine;
 
 namespace SocialPoint.Multiplayer
 {

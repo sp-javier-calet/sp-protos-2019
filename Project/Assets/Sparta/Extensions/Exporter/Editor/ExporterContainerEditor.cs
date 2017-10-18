@@ -1,9 +1,10 @@
-﻿using UnityEditor;
-using System.Collections.Generic;
-using System;
-using System.Reflection;
-using UnityEngine;
+﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
+using SocialPoint.Base;
+using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.Exporter
 {
@@ -39,8 +40,9 @@ namespace SocialPoint.Exporter
                                 }
                             }
                         }
-                        catch(Exception)
+                        catch(Exception e)
                         {
+                            Log.w("Exception while exporting Types: " + e);
                         }
                     }
                     _exporterTypes.Sort((x, y) => x.Name.CompareTo(y.Name));

@@ -1,6 +1,5 @@
+using NSubstitute;
 using NUnit.Framework;
-using System.IO;
-using SocialPoint.IO;
 using SocialPoint.Network;
 
 namespace SocialPoint.Multiplayer
@@ -21,7 +20,7 @@ namespace SocialPoint.Multiplayer
         public void SetUp()
         {
             var localServer = new LocalNetworkServer();
-            _server = localServer;  
+            _server = localServer;
             _client = new LocalNetworkClient(localServer);
             _client2 = new LocalNetworkClient(localServer);
             _serverCtrl = new NetworkServerSceneController(_server);
@@ -39,6 +38,24 @@ namespace SocialPoint.Multiplayer
         void UpdateServerInterval()
         {
             _serverCtrl.Update(_serverCtrl.SyncController.SyncInterval);
+        }
+
+        [Test]
+        public void Reconnect()
+        {
+            var clientDel = Substitute.For<INetworkClientDelegate>();
+            _client.AddDelegate(clientDel);
+            clientDel.Received(1).OnClientConnected();
+            var serverDel = Substitute.For<INetworkServerDelegate>();
+            _server.AddDelegate(serverDel);
+            _client.Disconnect();
+            Assert.That(!_client.Connected);
+            clientDel.Received(1).OnClientDisconnected();
+            serverDel.Received(1).OnClientDisconnected(1);
+            _client.Connect();
+            clientDel.Received(2).OnClientConnected();
+            serverDel.Received(1).OnClientConnected(1);
+            Assert.That(_client.Connected);
         }
 
         [Test]

@@ -1,6 +1,6 @@
 using Jitter.LinearMath;
 using System;
-using SocialPoint.Utils;
+using SocialPoint.JitterPhysics;
 
 namespace SocialPoint.Multiplayer
 {
