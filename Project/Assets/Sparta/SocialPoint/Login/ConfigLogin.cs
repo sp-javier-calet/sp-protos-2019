@@ -9,9 +9,6 @@ namespace SocialPoint.Login
 {
     public sealed class ConfigLogin : ILogin
     {
-        const string GameData = "game_data";
-        const string Config = "config";
-
         IHttpClient _httpClient;
 
         public void AddLink(ILink link, LinkMode mode = LinkMode.Auto)
@@ -144,18 +141,7 @@ namespace SocialPoint.Login
             }
             else
             {
-                var configResponse = parser.Parse(resp.Body);
-
-                var configDic = new AttrDic();
-                configDic.Set(Config, configResponse);
-
-                var mainDic = new AttrDic();
-                mainDic.Set(GameData, configDic);
-
-                var serializer = new JsonAttrSerializer();
-                var finalBytes = serializer.Serialize(mainDic);
-                
-                var reader = new JsonStreamReader(finalBytes);
+                var reader = new ConfigStreamReader(resp.Body);
 
                 if(!reader.Read() || reader.Token != StreamToken.ObjectStart)
                 {
