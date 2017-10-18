@@ -2,7 +2,6 @@
 using Jitter.LinearMath;
 using SocialPoint.IO;
 using SocialPoint.Physics;
-//using SocialPoint.Pooling;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer

@@ -40,7 +40,7 @@ namespace SocialPoint.Network
         public void Send()
         {
             var evData = _stream.ToArray();
-            evData = HttpEncoding.Encode(evData, HttpEncoding.DefaultBodyCompression);
+            evData = HttpEncoding.Encode(evData, HttpEncoding.LZ4);
 
             var data = new Dictionary<byte, object> { { EventDataKey, evData } };
             var parms = new SendParameters();

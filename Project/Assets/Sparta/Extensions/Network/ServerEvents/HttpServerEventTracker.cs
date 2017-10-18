@@ -69,11 +69,14 @@ namespace SocialPoint.Network.ServerEvents
 
         #endregion
 
-        public bool HasPendingData()
+        public bool HasPendingData
         {
-            return _pendingMetrics.Count > 0 || _sendingMetrics.Count > 0 ||
-            _pendingEvents.Count > 0 || _sendingEvents.Count > 0 ||
-            _pendingLogs.Count > 0 || _sendingLogs.Count > 0;
+            get
+            {
+                return _pendingMetrics.Count > 0 || _sendingMetrics.Count > 0 ||
+                _pendingEvents.Count > 0 || _sendingEvents.Count > 0 ||
+                _pendingLogs.Count > 0 || _sendingLogs.Count > 0;
+            }
         }
 
         public void SendMetric(Metric metric)
