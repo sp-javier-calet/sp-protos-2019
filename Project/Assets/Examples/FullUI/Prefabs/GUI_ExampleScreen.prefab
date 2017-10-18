@@ -915,12 +915,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d6eb6754a23d446fa39ff8faeb3e587, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsFullScreen: 1
+  ShowAnimation: {fileID: 0}
+  HideAnimation: {fileID: 0}
+  ParentController: {fileID: 0}
+  DestroyOnHide: 0
+  _containers3d: []
   _scrollRect: {fileID: 114656496029349974}
   _verticalLayoutGroup: {fileID: 0}
   _horizontalLayoutGroup: {fileID: 0}
   _gridLayoutGroup: {fileID: 0}
-  _usePooling: 1
   _scrollAnimation: {fileID: 0}
+  _scrollAnimationDuration: 0.5
+  _disableDragWhileScrollAnimation: 0
+  _usePooling: 1
+  _boundsDelta: 0
 --- !u!114 &114525763816899322
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1536,7 +1545,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.24389793, y: 0}
+  m_AnchoredPosition: {x: -0.095336914, y: 0}
   m_SizeDelta: {x: -1014, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &224334260247223266

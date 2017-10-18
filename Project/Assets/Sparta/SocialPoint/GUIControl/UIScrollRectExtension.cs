@@ -7,15 +7,16 @@ using UnityEngine.SocialPlatforms;
 using System;
 using SocialPoint.Pooling;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 namespace SocialPoint.GUIControl
 {
     [RequireComponent(typeof(ScrollRect))]
-    public partial class UIScrollRectExtension<TCellData, TCell> : MonoBehaviour where TCellData : UIScrollRectCellData where TCell : UIScrollRectCellItem<TCellData>
+    public partial class UIScrollRectExtension<TCellData, TCell> : UIViewController, IDragHandler where TCellData : UIScrollRectCellData where TCell : UIScrollRectCellItem<TCellData>
     {
         public delegate List<TCellData> UIScrollRectExtensionGetData();
 
-        [Tooltip("UGUI ScrollRect we will use")]
+        [Header("UI Components")]
         [SerializeField]
         ScrollRect _scrollRect;
 
@@ -31,11 +32,23 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         GridLayoutGroup _gridLayoutGroup;
 
+        [Header("Animations")]
+        [SerializeField]
+        UIViewAnimation _scrollAnimation;
+
+        [SerializeField]
+        float _scrollAnimationDuration = 0.5f;
+
+        [SerializeField]
+        bool _disableDragWhileScrollAnimation;
+
+        [Header("Visualization")]
         [SerializeField]
         bool _usePooling;
 
+        [Tooltip("Threshold that we will add to bounds to check if we need to show/hide new cells")]
         [SerializeField]
-        UIViewAnimation _scrollAnimation;
+        int _boundsDelta;
 
         public bool Initialized { get; private set; }
 
@@ -47,6 +60,9 @@ namespace SocialPoint.GUIControl
         IEnumerator _smoothScrollCoroutine;
         int _defaultStartPadding;
         bool _requiresRefresh;
+
+        bool _isHorizontal;
+        bool _isVertical;
             
         public bool UsesVerticalLayout
         {
@@ -90,6 +106,9 @@ namespace SocialPoint.GUIControl
 
             _scrollRect.vertical = UsesVerticalLayout;
             _scrollRect.horizontal = UsesHorizontalLayout;
+
+            _isHorizontal = _scrollRect.horizontal;
+            _isVertical = _scrollRect.vertical;
         
             _defaultStartPadding = StartPadding;
 
@@ -98,7 +117,6 @@ namespace SocialPoint.GUIControl
 
         void Start() 
         { 
-            Debug.Log("start");
             Initialize(); 
         }
             
@@ -120,6 +138,11 @@ namespace SocialPoint.GUIControl
         protected virtual void OnDestroy() 
         { 
             Dispose(); 
+        }
+            
+        public void OnDrag(PointerEventData eventData)
+        {
+            MyOnDrag(eventData);
         }
 
         #endregion

@@ -5,11 +5,22 @@ using SocialPoint.Pooling;
 using SocialPoint.Base;
 using UnityEngine.Profiling;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 namespace SocialPoint.GUIControl
 {
     public partial class UIScrollRectExtension<TCellData, TCell> where TCellData : UIScrollRectCellData where TCell : UIScrollRectCellItem<TCellData>
     {
+        float _scrollPosition;
+
+        Vector2 ScrollPositionNormalized
+        {
+            get
+            {
+                return _scrollRect.normalizedPosition;
+            }
+        }
+
         int StartPadding
         {
             get
@@ -134,19 +145,23 @@ namespace SocialPoint.GUIControl
 
         void OnScrollViewValueChanged(Vector2 newScrollValue)
         {
-//            float relativeScroll = UsesVerticalLayout ? 1 - newScrollValue.y : newScrollValue.x;
-//            Debug.Log("anchored: " + _scrollContentRectTransform.anchoredPosition + " -- calc: " + (relativeScroll * ScrollableSize));
+            float relativeScroll = UsesVerticalLayout ? 1 - newScrollValue.y : newScrollValue.x;
+            Debug.Log("anchored: " + _scrollContentRectTransform.anchoredPosition + " -- calc: " + (relativeScroll * ScrollableSize));
+            _scrollPosition = relativeScroll * ScrollableSize;
             _requiresRefresh = true;
         }      
             
         Range CalculateCurrentVisibleRange()
         {
-            float startPosition = Math.Abs(_scrollContentRectTransform.anchoredPosition.x);
-            float endPosition = startPosition + ScrollViewSize - _defaultStartPadding;
+            Profiler.BeginSample("UIScrollRectExtension.CalculateCurrentVisibleRange", this);
+
+            float startPosition = _scrollPosition - _boundsDelta; // TODO CHECK
+            float endPosition = startPosition + ScrollViewSize + _boundsDelta;
 
             int startIndex = FindIndexOfElementAtPosition(startPosition);
             int endIndex = FindIndexOfElementAtPosition(endPosition);
 
+            Profiler.EndSample();
             return new Range(startIndex, endIndex - startIndex + 1);
         }
 
@@ -292,7 +307,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        void AddCell(int index, bool insertAtEnd = true)
+        void AddCell(int index, bool insertAtEnd)
         {
             TCell newCell = GetCellForIndexInTableView(index);
 
@@ -373,7 +388,14 @@ namespace SocialPoint.GUIControl
         {
             _requiresRefresh = false;
 
+            Profiler.BeginSample("UIScrollRectExtension.RefreshVisibleElements", this);
+
             Range newVisibleElements = CalculateCurrentVisibleRange();
+            if(_visibleElementRange.Equals(newVisibleElements))
+            {
+                return;
+            }
+                
             int oldTo = _visibleElementRange.Last();
             int newTo = newVisibleElements.Last();
 
@@ -388,30 +410,28 @@ namespace SocialPoint.GUIControl
             //Remove elements that disappeared to the start
             for(int i = _visibleElementRange.from; i < newVisibleElements.from; ++i)
             {
-                Debug.Log("hide element at top");
                 RemoceCell(false);
             }
             //Remove elements that disappeared to the end
             for(int i = newTo; i < oldTo; ++i)
             {
-                Debug.Log("hide element at bottom");
                 RemoceCell(true);
             }
             //Add elements that appeared on start
             for(int i = _visibleElementRange.from - 1; i >= newVisibleElements.from; --i)
             {
-                Debug.Log("add element to top");
                 AddCell(i, false);
             }
             //Add elements that appeared on end
             for(int i = oldTo + 1; i <= newTo; ++i)
             {
-                Debug.Log("add element to bottom");
                 AddCell(i, true);
             }
 
             _visibleElementRange = newVisibleElements;
             UpdatePaddingElements();
+
+            Profiler.EndSample();
         }
 
         void UpdatePaddingElements()
@@ -425,57 +445,120 @@ namespace SocialPoint.GUIControl
 
             StartPadding = padding;
         }
-
+            
         public void ScrollToTop()
         {
-            ScrollToPosition(_data[0].PrefabAcumulatedWidth);
+//            _scrollRect.normalizedPosition = new Vector2(0, 1);
+         //   Scroll(new Vector2(-_data[0].PrefabAcumulatedWidth, 0f)); // TODO
+//            var finalPos = new Vector2(_defaultStartPadding, );
+//            Scroll(new 
+//            ScrollToPosition(_data[0].PrefabAcumulatedWidth);
         }
 
         public void ScrollToBottom()
         {
-            ScrollToPosition(_data[_data.Count - 1].PrefabAcumulatedWidth);
+            Scroll(new Vector2(-_data[_data.Count - 1].PrefabAcumulatedWidth, 0f)); // TODO
+//            _scrollRect.horizontalNormalizedPosition = 1;
+//            ScrollToPosition(_data[_data.Count - 1].PrefabAcumulatedWidth);
         }
 
         public void ScrollToElement(int index)
         {
-            ScrollToPosition(_data[index].PrefabAcumulatedWidth);
+            Scroll(new Vector2(-_data[index].PrefabAcumulatedWidth, 0f)); // TODO=
         }
 
-        public void ScrollToPosition(float position)
+        public void ScrollToPosition(Vector2 finalPos)
         {
-            CancelAnimationsIfNeeded();
+            Scroll(finalPos); // TODO=
+        }
+            
+        void Scroll(Vector2 finalPos)
+        {
+            StopScrolling();
 
-//            if(_scrollAnimation != null)
-//            {
-//                _scrollAnimation.Appear();
-//            }
-
-            StartCoroutine(ScrollAnimation(position));
+            _smoothScrollCoroutine = ScrollAnimation(finalPos, _scrollAnimationDuration); // TODO
+            StartCoroutine(_smoothScrollCoroutine);
         }
 
-        IEnumerator ScrollAnimation(float position)
+        IEnumerator ScrollAnimation(Vector2 finalPos, float time)
         {
             Go.killAllTweensWithTarget(_scrollContentRectTransform);
 
+            if(time < 0.05f)
+            {
+                yield break;
+            }
+                
+//            float currentTime += Time.deltaTime;
+
             // TODO if is last indexes, we need to move until it fills the screen
-            var tween = Go.to(_scrollContentRectTransform, 0.3f, new GoTweenConfig().anchoredPosition(new Vector2(-position, 0f)));
+            var tween = Go.to(_scrollContentRectTransform, 0.3f, new GoTweenConfig().anchoredPosition(finalPos));
             yield return tween.waitForCompletion();
+
+//            var posOffset = normalizedFinalPos - startPos;
+//            var elapsedTime = 0.0f;
+//            while(elapsedTime <= time)
+//            {
+//                elapsedTime += Time.deltaTime;
+//                _scrollRect.normalizedPosition = EaseVector(elapsedTime, startPos, posOffset, time);
+//                yield return null;
+//            }
+//
+//            _scrollRect.normalizedPosition = normalizedFinalPos;
+
+            if(_disableDragWhileScrollAnimation)
+            {
+                EnableScroll();
+            }
         }
 
-        void CancelAnimationsIfNeeded()
+//        protected virtual Vector2 EaseVector(float currentTime, Vector2 startValue, Vector2 displacement, float time)
+//        {
+//            return new Vector2( displacement.x * Mathf.Sin(currentTime / time * (Mathf.PI * 0.5f)) + startValue.x, displacement.y * Mathf.Sin(currentTime / time * (Mathf.PI * 0.5f)) + startValue.y);
+//        }
+            
+//            float currentTime += Time.deltaTime;
+//            _scrollRect
+//
+//            // TODO if is last indexes, we need to move until it fills the screen
+//            var tween = Go.to(_scrollContentRectTransform, 0.3f, new GoTweenConfig().anchoredPosition(new Vector2(-position, 0f)));
+//            yield return tween.waitForCompletion();
+//        }
+
+        void EnableScroll()
+        {
+            _scrollRect.horizontal = _isHorizontal;
+            _scrollRect.vertical = _isVertical;
+        }
+
+        void DisableScroll()
+        {
+            _scrollRect.horizontal = false;
+            _scrollRect.vertical = false;
+        }
+
+        void StopScrolling()
         {
             _scrollRect.StopMovement();
             Canvas.ForceUpdateCanvases();
 
-//            if(ScrollAnimation != null)
-//            {
-//                StopCoroutine(ScrollAnimation);
-//            }
+            if(_smoothScrollCoroutine != null)
+            {
+                StopCoroutine(_smoothScrollCoroutine);
+            }
 
-//            if(_scrollAnimation != null)
-//            {
-//                StopCoroutine(_scrollAnimation);
-//            }
+            if(_disableDragWhileScrollAnimation)
+            {
+                DisableScroll();
+            }
+        }
+
+        void MyOnDrag(PointerEventData eventData)
+        {
+            if(!_disableDragWhileScrollAnimation)
+            {
+                StopScrolling();
+            }
         }
 
         void MyLateUpdate()
