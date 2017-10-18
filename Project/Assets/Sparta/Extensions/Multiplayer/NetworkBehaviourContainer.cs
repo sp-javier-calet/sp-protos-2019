@@ -151,10 +151,10 @@ namespace SocialPoint.Multiplayer
             return false;
         }
 
-        public static void AddBehaviourType(int idx, Type type)
+        public static void AddCommonBehaviourType(int idx, Type type)
         {
             SocialPoint.Base.DebugUtils.Assert(idx >= 0);
-            SocialPoint.Base.DebugUtils.Assert(idx < NetworkBehaviourContainer<INetworkBehaviour>.MaxCommonBehaviours);
+            SocialPoint.Base.DebugUtils.Assert(idx < MaxCommonBehaviours);
             SocialPoint.Base.DebugUtils.Assert(type != null);
             SocialPoint.Base.DebugUtils.Assert(CommonBehaviourTypes[idx] == null);
             SocialPoint.Base.DebugUtils.Assert(CheckCommonBehavioursContainsType(type) == false);

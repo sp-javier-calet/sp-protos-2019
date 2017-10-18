@@ -9,7 +9,7 @@ namespace SocialPoint.Multiplayer
     {
         public SyncGroupSettings Settings;
 
-        public Dictionary<int, NetworkGameObject> Objects = new Dictionary<int, NetworkGameObject>();
+        readonly Dictionary<int, NetworkGameObject> _objects = new Dictionary<int, NetworkGameObject>();
 
         public float TimeSinceLastSync { get; private set; }
 
@@ -23,15 +23,15 @@ namespace SocialPoint.Multiplayer
 
         public void AddObject(NetworkGameObject obj)
         {
-            if(!Objects.ContainsKey(obj.Id))
+            if(!_objects.ContainsKey(obj.Id))
             {
-                Objects.Add(obj.Id, obj);
+                _objects.Add(obj.Id, obj);
             }
         }
 
         public bool RemoveObject(int objId)
         {
-            return Objects.Remove(objId);
+            return _objects.Remove(objId);
         }
 
         public void Update(float dt)

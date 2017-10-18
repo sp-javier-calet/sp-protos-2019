@@ -4,14 +4,13 @@ using System.Collections.Generic;
 using SocialPoint.IO;
 using SocialPoint.Network;
 using SocialPoint.Multiplayer;
-using System.Diagnostics;
 
 public class NetworkServerSyncController
 {
     const float DefaultSyncInterval = 0.07f;
 
     float _timestamp;
-    List<byte> _keyList = new List<byte>();
+    readonly List<byte> _keyList;
 
     NetworkSceneSerializer _serializer;
     NetworkScene _scene;
@@ -36,8 +35,9 @@ public class NetworkServerSyncController
 
     MemoryStream _memStream = new MemoryStream(64 * 1024);
 
-    public void Init(INetworkServer server, Dictionary<byte, ClientData> clientData, NetworkSceneSerializer serializer, NetworkScene scene, NetworkScene prevScene, NetworkActionHandler actions, List<ActionInfo> pendingActions)
+    public NetworkServerSyncController(INetworkServer server, Dictionary<byte, ClientData> clientData, NetworkSceneSerializer serializer, NetworkScene scene, NetworkScene prevScene, NetworkActionHandler actions, List<ActionInfo> pendingActions)
     {
+        _keyList = new List<byte>();
         _server = server;
         _clientData = clientData;
         _serializer = serializer;

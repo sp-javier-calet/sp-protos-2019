@@ -82,11 +82,12 @@ namespace SocialPoint.Multiplayer
                 var behaviourList = behaviourEnum.Current.Value;
                 for(int i = 0; i < behaviourList.Key.Count; ++i)
                 {
-                    if(behaviourList.Key[i] == null)
+                    var behavior = behaviourList.Key[i];
+                    if(behavior == null)
                     {
                         continue;
                     }
-                    behaviourList.Key[i].OnDestroy();
+                    behavior.OnDestroy();
                 }
             }
 

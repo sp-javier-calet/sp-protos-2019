@@ -1,9 +1,11 @@
-﻿namespace SocialPoint.Multiplayer
+﻿using SocialPoint.Utils;
+
+namespace SocialPoint.Multiplayer
 {
     public class NetworkSceneContext
     {
-        SocialPoint.Utils.ObjectPool _pool = null;
-        public SocialPoint.Utils.ObjectPool Pool
+        ObjectPool _pool;
+        public ObjectPool Pool
         {
             get
             {
@@ -11,7 +13,7 @@
             }
         }
 
-        TypeCache _typeCache = null;
+        TypeCache _typeCache;
         public TypeCache TypeCache
         {
             get
@@ -27,7 +29,7 @@
 
         public void Clear()
         {
-            _pool = new SocialPoint.Utils.ObjectPool();
+            _pool = new ObjectPool();
             _typeCache = new TypeCache();
         }
     }
