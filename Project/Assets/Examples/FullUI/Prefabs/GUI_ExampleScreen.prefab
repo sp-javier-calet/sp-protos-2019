@@ -925,11 +925,22 @@ MonoBehaviour:
   _verticalLayoutGroup: {fileID: 0}
   _horizontalLayoutGroup: {fileID: 0}
   _gridLayoutGroup: {fileID: 0}
-  _scrollAnimation: {fileID: 0}
-  _scrollAnimationDuration: 0.5
-  _disableDragWhileScrollAnimation: 0
   _usePooling: 1
   _boundsDelta: 0
+  _initialIndex: 0
+  _scrollAnimationEaseType: 0
+  _scrollAnimationCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _scrollAnimationDuration: 0.5
+  _disableDragWhileScrollingAnimation: 0
+  _snapToCell: 0
+  _deltaPixelsToChangeCell: 50
+  _maginifyMinScale: {x: 0, y: 0}
+  _maginifyMaxScale: {x: 0, y: 0}
 --- !u!114 &114525763816899322
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1545,8 +1556,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.095336914, y: 0}
-  m_SizeDelta: {x: -1014, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &224334260247223266
 RectTransform:

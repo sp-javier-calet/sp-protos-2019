@@ -11,13 +11,37 @@ namespace SocialPoint.GUIControl
 {
     public partial class UIScrollRectExtension<TCellData, TCell> where TCellData : UIScrollRectCellData where TCell : UIScrollRectCellItem<TCellData>
     {
-        float _scrollPosition;
-
-        Vector2 ScrollPositionNormalized
+        float ScrollPosition
         {
             get
             {
-                return _scrollRect.normalizedPosition;
+                if(UsesVerticalLayout)
+                {
+                    return Mathf.Abs(_scrollContentRectTransform.anchoredPosition.y);
+                }
+                else if(UsesHorizontalLayout)
+                {
+                    return Mathf.Abs(_scrollContentRectTransform.anchoredPosition.x);
+                }
+                else
+                {
+                    return 0;//_gridLayoutGroup;
+                }
+            }
+            set
+            {
+                if(UsesVerticalLayout)
+                {
+                    _scrollContentRectTransform.anchoredPosition = new Vector2(0f, -value);
+                }
+                else if(UsesHorizontalLayout)
+                {
+                    _scrollContentRectTransform.anchoredPosition = new Vector2(-value, 0f);
+                }
+                else
+                {
+                    _scrollContentRectTransform.anchoredPosition = new Vector2(0f, 0f); //_gridLayoutGroup;
+                }
             }
         }
 
@@ -93,6 +117,25 @@ namespace SocialPoint.GUIControl
             }
         }
 
+        float ScrollViewContentSize
+        {
+            get
+            {
+                if(UsesVerticalLayout)
+                {
+                    return _scrollContentRectTransform.rect.height;
+                }
+                else if(UsesHorizontalLayout)
+                {
+                    return _scrollContentRectTransform.rect.width;
+                }
+                else
+                {
+                    return 0f;//_gridLayoutGroup;
+                }
+            }
+        }
+
         float Spacing
         {
             get
@@ -117,11 +160,11 @@ namespace SocialPoint.GUIControl
             float size = 0f;
             if(UsesVerticalLayout)
             {
-                size = _data[index].PrefabHeight;
+                size = _data[index].CellHeight;
             }
             else if(UsesHorizontalLayout)
             {
-                size = _data[index].PrefabWidth;
+                size = _data[index].CellWidth;
             }
             else
             {
@@ -145,9 +188,6 @@ namespace SocialPoint.GUIControl
 
         void OnScrollViewValueChanged(Vector2 newScrollValue)
         {
-            float relativeScroll = UsesVerticalLayout ? 1 - newScrollValue.y : newScrollValue.x;
-            Debug.Log("anchored: " + _scrollContentRectTransform.anchoredPosition + " -- calc: " + (relativeScroll * ScrollableSize));
-            _scrollPosition = relativeScroll * ScrollableSize;
             _requiresRefresh = true;
         }      
             
@@ -155,42 +195,84 @@ namespace SocialPoint.GUIControl
         {
             Profiler.BeginSample("UIScrollRectExtension.CalculateCurrentVisibleRange", this);
 
-            float startPosition = _scrollPosition - _boundsDelta; // TODO CHECK
+            float startPosition = ScrollPosition - _boundsDelta;
             float endPosition = startPosition + ScrollViewSize + _boundsDelta;
 
-            int startIndex = FindIndexOfElementAtPosition(startPosition);
-            int endIndex = FindIndexOfElementAtPosition(endPosition);
+            int startIndex = FindIndexOfElementAtPosition(startPosition, 0, _data.Count - 1);
+            int endIndex = FindIndexOfElementAtPosition(endPosition, 0, _data.Count - 1);
 
             Profiler.EndSample();
             return new Range(startIndex, endIndex - startIndex + 1);
         }
-
-        int FindIndexOfElementAtPosition(float position)
+            
+        int FindIndexOfElementAtPosition(float position, int startIndex, int endIndex)
         {
-            if(position > _scrollContentRectTransform.rect.width)
+            if(startIndex >= endIndex)
             {
-                return _data.Count - 1;
+                return startIndex;
             }
 
-            for(int i = 0; i < _data.Count; ++i)
+            int midIndex = (startIndex + endIndex) / 2;
+            if(_data[midIndex].CellAccumulatedWidth > position)
             {
-                if(_data[i].PrefabTotalAcumulatedWidth >= position)
-                {
-                    return i;
-                }
+                return FindIndexOfElementAtPosition(position, startIndex, midIndex);
             }
-
-            return 0;
+            else
+            {
+                return FindIndexOfElementAtPosition(position, midIndex + 1, endIndex);
+            }
         }
             
+        bool IndexIsValid(int index)
+        {
+            return (index > 0 && index < _data.Count);
+        }
+
+        float GetAccumulatedSizeForIndex(int index)
+        {
+            return (index == 0 ? 0f : _data[index - 1].CellAccumulatedWidth);
+        }
+
+        void SetInitialPosition()
+        {
+            ScrollPosition = 0f;
+  
+            if(!IndexIsValid(_initialIndex))
+            {
+                _initialIndex = 0;
+            }
+
+            if(_centerOnCell)
+            {
+                _centeredIndex = _initialIndex;
+            }
+
+            ScrollPosition += GetAccumulatedSizeForIndex(_initialIndex);
+            ScrollPosition += CenterOnCellDeltaDisplacement();
+        }
+
+        float CenterOnCellDeltaDisplacement()
+        {
+            float delta = 0f;
+            if(_centerOnCell)
+            {
+                delta -= ScrollViewSize * 0.5f;
+                delta += _data[_centeredIndex].CellWidth * 0.5f;
+            }
+
+            return delta;
+        }
+
         void SetInitialVisibleElements()
         {
             Range visibleElements = CalculateCurrentVisibleRange();
-            for(int i = 0; i < visibleElements.count; i++)
+            for(int i = visibleElements.from; i < visibleElements.RelativeCount(); ++i)
             {
-                AddCell(visibleElements.from + i, true);
+                AddCell(i, true);
             }
+                
             _visibleElementRange = visibleElements;
+            UpdatePaddingElements();
         }
 
         float GetContentPanelSize()
@@ -199,7 +281,11 @@ namespace SocialPoint.GUIControl
             for(int i = 0; i < _data.Count; ++i)
             {
                 size += GetCellSize(i);
-                size += Spacing; // TODO check that last item has no space
+
+                if(i < _data.Count - 1)
+                {
+                    size += Spacing;
+                }
             }
 
             size += EndPadding;
@@ -211,10 +297,11 @@ namespace SocialPoint.GUIControl
         {
             Profiler.BeginSample("UIScrollRectExtension.SetupCellSizes", this);
 
-            float acumulatedWidth = 0f;
+            float acumulatedWidth = _defaultStartPadding;
             for(int i = 0; i < _data.Count; ++i)
             {
-                string prefabName = _data[i].PrefabName;
+                var dataValue = _data[i];
+                string prefabName = dataValue.PrefabName;
 
                 RectTransform trans;
                 GameObject prefab;
@@ -230,21 +317,20 @@ namespace SocialPoint.GUIControl
                 if(prefab != null)
                 {
                     trans = prefab.transform as RectTransform;
-                    _data[i].SetupPrefabSizes(trans.rect.width, trans.rect.height);
-                    _data[i].SetupAcumulatedPrefabSizes(acumulatedWidth, acumulatedWidth);
-
+                    dataValue.SetupPrefabSizes(trans.rect.width, trans.rect.height);
+                   
                     acumulatedWidth += trans.rect.width;
+                    dataValue.SetupAcumulatedPrefabSizes(acumulatedWidth, acumulatedWidth);
 
-                    if(i < _data.Count)
+                    Debug.Log("index: " + i + " -- accumulated: " + _data[i].CellAccumulatedWidth);
+
+                    if(i < _data.Count - 1)
                     {
                         acumulatedWidth += Spacing;
                     }
                 }
             }
-
-            // TODO Clear after creating????
-//            _prefabs.Clear();
-
+                
             Profiler.EndSample();
         }
 
@@ -433,54 +519,104 @@ namespace SocialPoint.GUIControl
 
             Profiler.EndSample();
         }
-
+            
         void UpdatePaddingElements()
         {
-//            // TODO check fake elements without layout group
-            int padding = _defaultStartPadding;
-            if(_visibleElementRange.from > 0)
+            int padding = 0;
+            if(_visibleElementRange.from == 0)
             {
-                padding += (int)_data[_visibleElementRange.from - 1].PrefabTotalAcumulatedWidth;
+                padding = _defaultStartPadding;
+            }
+            else
+            {
+                padding += (int)_data[_visibleElementRange.from - 1].CellAccumulatedWidth;
             }
 
             StartPadding = padding;
         }
             
-        public void ScrollToTop()
+        void ScrollToCurrentCell()
         {
-//            _scrollRect.normalizedPosition = new Vector2(0, 1);
-         //   Scroll(new Vector2(-_data[0].PrefabAcumulatedWidth, 0f)); // TODO
-//            var finalPos = new Vector2(_defaultStartPadding, );
-//            Scroll(new 
-//            ScrollToPosition(_data[0].PrefabAcumulatedWidth);
+            ScrollToCell(_centeredIndex);
         }
 
-        public void ScrollToBottom()
+        void ScrollToClosestCell()
         {
-            Scroll(new Vector2(-_data[_data.Count - 1].PrefabAcumulatedWidth, 0f)); // TODO
-//            _scrollRect.horizontalNormalizedPosition = 1;
-//            ScrollToPosition(_data[_data.Count - 1].PrefabAcumulatedWidth);
+            // Setup the position to the middle of the scrollview to check the desired cell to center
+            float position = ScrollPosition;
+            position += ScrollViewSize * 0.5f;
+
+            _centeredIndex = FindIndexOfElementAtPosition(position, _visibleElementRange.from, _visibleElementRange.RelativeCount());
+            ScrollToCell(_centeredIndex);
         }
 
-        public void ScrollToElement(int index)
+        public void ScrollToStartPosition()
         {
-            Scroll(new Vector2(-_data[index].PrefabAcumulatedWidth, 0f)); // TODO=
+            Scroll(0f);
         }
 
-        public void ScrollToPosition(Vector2 finalPos)
+        public void ScrollToFinalPosition()
         {
-            Scroll(finalPos); // TODO=
+            Scroll(ScrollViewContentSize - ScrollViewSize);
+        }
+
+        public void ScrollToCell(int index)
+        {
+            if(index <= 0)
+            {
+                ScrollToStartPosition();
+            }
+            else if(index > 0 && index < _data.Count)
+            {
+                float position = GetAccumulatedSizeForIndex(index);
+                position += CenterOnCellDeltaDisplacement();
+
+                Scroll(position);
+            }
+            else
+            {
+                ScrollToFinalPosition();
+            }
         }
             
-        void Scroll(Vector2 finalPos)
+        public void ScrollToPosition(float finalPosition, bool animate = true)
+        {
+            Scroll(finalPosition, animate);
+        }
+            
+        void Scroll(float finalPosition, bool animate = true)
         {
             StopScrolling();
 
-            _smoothScrollCoroutine = ScrollAnimation(finalPos, _scrollAnimationDuration); // TODO
-            StartCoroutine(_smoothScrollCoroutine);
+            if(animate)
+            {
+                _smoothScrollCoroutine = ScrollAnimation(finalPosition, _scrollAnimationDuration);
+                StartCoroutine(_smoothScrollCoroutine);
+            }
+            else
+            {
+                ScrollPosition = finalPosition;
+                _requiresRefresh = true;
+            }
         }
 
-        IEnumerator ScrollAnimation(Vector2 finalPos, float time)
+        Vector2 GetFinalAnchoredPosition(float position)
+        {
+            if(UsesVerticalLayout)
+            {
+                return new Vector2(0f, -position);
+            }
+            else if(UsesHorizontalLayout)
+            {
+                return new Vector2(-position, 0f);
+            }
+            else
+            {
+                return new Vector2(0f, 0f);
+            }
+        }
+
+        IEnumerator ScrollAnimation(float finalPosition, float time)
         {
             Go.killAllTweensWithTarget(_scrollContentRectTransform);
 
@@ -489,42 +625,27 @@ namespace SocialPoint.GUIControl
                 yield break;
             }
                 
-//            float currentTime += Time.deltaTime;
+            GoTween tween;
+            if(_scrollAnimationEaseType == GoEaseType.AnimationCurve && _scrollAnimationCurve != null)
+            {
+                tween = Go.to(_scrollContentRectTransform, 0.3f, new GoTweenConfig().anchoredPosition(GetFinalAnchoredPosition(finalPosition)).setEaseType(_scrollAnimationEaseType).setEaseCurve(_scrollAnimationCurve));
+            }
+            else
+            {
+                tween = Go.to(_scrollContentRectTransform, 0.3f, new GoTweenConfig().anchoredPosition(GetFinalAnchoredPosition(finalPosition)).setEaseType(_scrollAnimationEaseType));
+            }
 
-            // TODO if is last indexes, we need to move until it fills the screen
-            var tween = Go.to(_scrollContentRectTransform, 0.3f, new GoTweenConfig().anchoredPosition(finalPos));
             yield return tween.waitForCompletion();
 
-//            var posOffset = normalizedFinalPos - startPos;
-//            var elapsedTime = 0.0f;
-//            while(elapsedTime <= time)
-//            {
-//                elapsedTime += Time.deltaTime;
-//                _scrollRect.normalizedPosition = EaseVector(elapsedTime, startPos, posOffset, time);
-//                yield return null;
-//            }
-//
-//            _scrollRect.normalizedPosition = normalizedFinalPos;
+            ScrollPosition = finalPosition;
+            UpdatePaddingElements();
 
-            if(_disableDragWhileScrollAnimation)
+            if(_disableDragWhileScrollingAnimation)
             {
                 EnableScroll();
             }
         }
-
-//        protected virtual Vector2 EaseVector(float currentTime, Vector2 startValue, Vector2 displacement, float time)
-//        {
-//            return new Vector2( displacement.x * Mathf.Sin(currentTime / time * (Mathf.PI * 0.5f)) + startValue.x, displacement.y * Mathf.Sin(currentTime / time * (Mathf.PI * 0.5f)) + startValue.y);
-//        }
             
-//            float currentTime += Time.deltaTime;
-//            _scrollRect
-//
-//            // TODO if is last indexes, we need to move until it fills the screen
-//            var tween = Go.to(_scrollContentRectTransform, 0.3f, new GoTweenConfig().anchoredPosition(new Vector2(-position, 0f)));
-//            yield return tween.waitForCompletion();
-//        }
-
         void EnableScroll()
         {
             _scrollRect.horizontal = _isHorizontal;
@@ -547,17 +668,46 @@ namespace SocialPoint.GUIControl
                 StopCoroutine(_smoothScrollCoroutine);
             }
 
-            if(_disableDragWhileScrollAnimation)
+            if(_disableDragWhileScrollingAnimation)
             {
                 DisableScroll();
             }
         }
 
+        #region Unity methods
+
+        void MyOnBeginDrag(PointerEventData eventData)
+        {
+            _startScrollingPosition = ScrollPosition;
+        }
+
         void MyOnDrag(PointerEventData eventData)
         {
-            if(!_disableDragWhileScrollAnimation)
+//            Debug.Log("start position; " + eventData.position + " anchored: " + _startScrollingPosition);
+
+//            if(_disableDragWhileScrollingAnimation)
+//            {
+//                StopScrolling();
+//            }
+        }
+
+        void MyOnEndDrag(PointerEventData eventData)
+        {
+            Debug.Log("start position; " + eventData.position + " anchored: " + _startScrollingPosition);
+            var scrollSize = Mathf.Abs(ScrollPosition - _startScrollingPosition);
+            Debug.Log("final displacement " + scrollSize);
+            if(_centerOnCell)
             {
-                StopScrolling();
+                if(_deltaDragCell <= scrollSize)
+                {
+                    Debug.Log("moving to closest cell!!!");
+                    ScrollToClosestCell();
+                }
+                else
+                {
+                    Debug.Log("moving to current cell!!!");
+                    ScrollToCurrentCell();
+                }
             }
         }
 
@@ -568,5 +718,7 @@ namespace SocialPoint.GUIControl
                 RefreshVisibleElements();
             }
         }
+
+        #endregion
     }
 }

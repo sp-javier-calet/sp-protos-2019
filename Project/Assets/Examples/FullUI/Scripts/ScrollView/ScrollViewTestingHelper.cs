@@ -15,7 +15,7 @@ public class ScrollViewTestingHelper : MonoBehaviour
     {
         if(_scrollViewExtension != null)
         {
-            _scrollViewExtension.ScrollToTop();
+            _scrollViewExtension.ScrollToStartPosition();
         }
     }
 
@@ -23,7 +23,7 @@ public class ScrollViewTestingHelper : MonoBehaviour
     {
         if(_scrollViewExtension != null)
         {
-            _scrollViewExtension.ScrollToBottom();
+            _scrollViewExtension.ScrollToFinalPosition();
         }
     }
 
@@ -34,7 +34,7 @@ public class ScrollViewTestingHelper : MonoBehaviour
             int parsedValue;
             if(Int32.TryParse(_inputText.text, out parsedValue))
             {
-                _scrollViewExtension.ScrollToElement(parsedValue);
+                _scrollViewExtension.ScrollToCell(parsedValue);
             }
             else
             {

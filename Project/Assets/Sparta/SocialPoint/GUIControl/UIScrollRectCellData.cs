@@ -3,30 +3,22 @@
     public class UIScrollRectCellData
     {
         public string PrefabName;
-        public float PrefabWidth;
-        public float PrefabHeight;
+        public float CellWidth;
+        public float CellHeight;
         public float PrefabStartPosition;
-        public float PrefabAcumulatedWidth;
-        public float PrefabAcumulatedHeight;
+        public float CellAccumulatedWidth;
+        public float CellAccumulatedHeight;
 
         public void SetupPrefabSizes(float prefabWidth, float prefabHeight)
         {
-            PrefabWidth = prefabWidth;
-            PrefabHeight = prefabHeight;
+            CellWidth = prefabWidth;
+            CellHeight = prefabHeight;
         }
 
-        public void SetupAcumulatedPrefabSizes(float prefabAcumulatedWidth, float prefabAcumulatedHeight)
+        public void SetupAcumulatedPrefabSizes(float cellAccumulatedWidth, float cellAccumulatedHeight)
         {
-            PrefabAcumulatedWidth = prefabAcumulatedWidth;
-            PrefabAcumulatedHeight = prefabAcumulatedHeight;
-        }
-
-        public float PrefabTotalAcumulatedWidth
-        {
-            get
-            {
-                return PrefabAcumulatedWidth + PrefabWidth;
-            }
+            CellAccumulatedWidth = cellAccumulatedWidth;
+            CellAccumulatedHeight = cellAccumulatedHeight;
         }
     }
 }

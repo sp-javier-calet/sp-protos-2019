@@ -653,18 +653,23 @@ namespace SocialPoint.GUIControl
 
     internal static class RangeExtensions
     {
+        public static int RelativeCount(this Range range)
+        {
+            return range.from + range.count;
+        }
+
         public static int Last(this Range range)
         {
             if(range.count == 0)
             {
                 throw new System.InvalidOperationException("Empty range has no to()");
             }
-            return (range.from + range.count - 1);
+            return range.RelativeCount() - 1;
         }
 
         public static bool Contains(this Range range, int num)
         {
-            return num >= range.from && num < (range.from + range.count);
+            return num >= range.from && num < range.RelativeCount();
         }
     }
 }

@@ -430,7 +430,7 @@ namespace SocialPoint.GUIControl
             OnStart();
         }
 
-        void OnDestroy()
+        protected virtual void OnDestroy()
         {
             if(_loaded)
             {
