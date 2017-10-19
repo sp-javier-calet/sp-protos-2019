@@ -296,26 +296,7 @@ namespace SocialPoint.GUIControl
             }
             return size;
         }
-
-        UIViewAnimation _animation;
-        public UIViewAnimation Animation
-        {
-            set
-            {
-                if(value != null)
-                {
-                    value.Load(this);
-                }
-
-                _animation = value;
-            }
-
-            get
-            {
-                return _animation;
-            }
-        }
-
+            
         public bool IsStable
         {
             get
@@ -667,9 +648,9 @@ namespace SocialPoint.GUIControl
 
         virtual protected IEnumerator Appear()
         {
-            if(Animation != null)
+            if(AppearAnimation != null)
             {
-                var enm = Animation.Animate();
+                var enm = AppearAnimation.Animate();
                 while(enm.MoveNext())
                 {
                     yield return enm.Current;
@@ -720,10 +701,10 @@ namespace SocialPoint.GUIControl
 
         virtual protected IEnumerator Disappear()
         {
-            if(Animation != null)
+            if(DisappearAnimation != null)
             {
                 yield return new WaitForEndOfFrame();
-                var enm = Animation.Animate();
+                var enm = DisappearAnimation.Animate();
                 while(enm.MoveNext())
                 {
                     yield return enm.Current;

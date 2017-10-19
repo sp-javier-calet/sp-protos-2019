@@ -6,7 +6,8 @@ public class ExampleTransitionController : UIViewController
     protected override void OnLoad()
     {
         base.OnLoad();
-        Animation = new UIToolAnimation("Appear");
+        AppearAnimation = new UIToolAnimation("Appear");
+        DisappearAnimation = new UIToolAnimation("Disappear");
     }
 
     protected override void OnAppearing()

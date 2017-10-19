@@ -188,27 +188,7 @@ namespace SocialPoint.GUIControl
             _action = ActionType.None;
             DebugLog("EndProcess");
         }
-
-        bool SetAnimation(StackNode from, StackNode to, UIViewAnimation anim)
-        {
-            if(anim != null)
-            {
-                if(IsValidStackNode(to))
-                {
-                    to.Controller.Animation = (UIViewAnimation)anim.Clone();
-                }
-
-                if(IsValidStackNode(from))
-                {
-                    from.Controller.Animation = (UIViewAnimation)anim.Clone();
-                }
-
-                return true;
-            }
-
-            return false;
-        }
-
+            
         static bool IsPushAction(ActionType act)
         {
             return act == ActionType.Push || act == ActionType.PushImmediate;
@@ -325,12 +305,7 @@ namespace SocialPoint.GUIControl
                 }
             }
         }
-
-        static UIViewAnimation DefineAnimation(UIViewAnimation desiredAnim, UIViewAnimation defaultAnim)
-        {
-            return desiredAnim ?? defaultAnim;
-        }
-
+            
         void SetupTransition(StackNode from, StackNode to)
         {
             if(FrontContainer != null && IsValidStackNode(to))
@@ -345,31 +320,31 @@ namespace SocialPoint.GUIControl
                 
             if(IsValidStackNode(from))
             {
-                SetupAnimation(from, DefineAnimation(from.Controller.DisappearAnimation, from.Controller.IsFullScreen ? null : DisappearAnimation));
+                SetupAnimation(ref from.Controller.DisappearAnimation, from.Controller, DisappearAnimation);
             }
 
             if(IsValidStackNode(to))
             {
-                SetupAnimation(to, DefineAnimation(to.Controller.AppearAnimation, to.Controller.IsFullScreen ? null : AppearAnimation));
+                SetupAnimation(ref to.Controller.AppearAnimation, to.Controller, AppearAnimation);
             }
         }
 
-        void SetupAnimation(StackNode ctrl, UIViewAnimation anim)
+        void SetupAnimation(ref UIViewAnimation uiViewAnimation, UIViewController ctrl, UIViewAnimation desiredAnim)
         {
-            if(IsValidStackNode(ctrl))
-            {
-                SetupAnimation(ctrl.Controller, anim);
-            }
-        }
-
-        static void SetupAnimation(UIViewController ctrl, UIViewAnimation anim)
-        {
+            var anim = GetAnimation(uiViewAnimation ?? (ctrl.IsFullScreen ? null : desiredAnim));
             if(anim != null)
             {
-                ctrl.Animation = (UIViewAnimation)anim.Clone();
+                anim.Load(ctrl);
             }
+
+            uiViewAnimation = anim;
         }
 
+        static UIViewAnimation GetAnimation(UIViewAnimation anim)
+        {
+            return anim != null ? (UIViewAnimation)anim.Clone() : null;
+        }
+            
         IEnumerator DoTransition(StackNode from, StackNode to, ActionType act)
         {            
             if(IsValidStackNode(from) && IsValidStackNode(to) && from.Controller == to.Controller)
@@ -417,7 +392,7 @@ namespace SocialPoint.GUIControl
                 }
                 else if(IsValidStackNode(to))
                 {
-                    Show();                 
+//                    Show();                 
                     to.Controller.Show();
                     while(!to.Controller.IsStable || !IsStable)
                     {
@@ -427,7 +402,7 @@ namespace SocialPoint.GUIControl
                 else if(IsValidStackNode(from))
                 {
                     from.Controller.Hide();
-                    Hide();
+//                    Hide();
                     while(!from.Controller.IsStable || !IsStable)
                     {
                         yield return null;
