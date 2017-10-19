@@ -30,7 +30,7 @@ namespace SocialPoint.Network
         [Serializable]
         public class SettingsData
         {
-            public string Config = "championsarena";
+            public string Config = "basegame";
             public bool EnableHttpStreamPinning = false;
             public bool EnableRetryHttpClient = false;
         }

@@ -52,8 +52,6 @@
       <Link>PluginNetworkMessage.cs</Link>
     </Compile>
     <Compile Include="AuthoritativePlugin.cs" />
-    <Compile Include="CaAuthoritativePlugin.cs" />
-    <Compile Include="CaPluginFactory .cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="..\Server\Shared\PluginHttpClient.cs">
       <Link>PluginHttpClient.cs</Link>

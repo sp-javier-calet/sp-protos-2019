@@ -118,19 +118,6 @@ namespace SocialPoint.Utils
         object CreateInstance(Type t)
         {
             return Activator.CreateInstance(t);
-//
-//            #if NETFX_CORE && !UNITY_EDITOR
-//            if (t.IsGenericType() && t.GetGenericTypeDefinition() == typeof(Nullable<>)) {
-//            #else
-//            if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>)) {
-//            #endif
-//                t = Nullable.GetUnderlyingType(t);
-//            }
-//            #if NETFX_CORE && !UNITY_EDITOR
-//            return Activator.CreateInstance(t);
-//            #else
-//            return Activator.CreateInstance(t, true);
-//            #endif
         }
 
         public void Clear()
