@@ -151,14 +151,5 @@ namespace SocialPoint.Locale
 
             return StringUtils.FinishBuilder(stringBuilder);
         }
-
-        public void SetTimeLabels()
-        {
-            TimeUtils.DayLocalized = Get("hud_day");
-            TimeUtils.DaysLocalized = Get("hud_days");
-            TimeUtils.HourLocalized = Get("hud_hours");
-            TimeUtils.MinLocalized = Get("hud_min");
-            TimeUtils.SecLocalized = Get("hud_sec");
-        }
     }
 }

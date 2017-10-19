@@ -214,21 +214,20 @@ namespace SocialPoint.Utils
 
             for(int i = 0; i < typeTimeFormat.Count; i++)
             {
-                int extraTime = (i < typeTimeFormat.Count - 1) ? 0 : 1;
                 switch(typeTimeFormat[i])
                 {
                 case TimeType.DAY:
-                    sb.Append((ts.Days + extraTime).ToString());
+                    sb.Append((ts.Days).ToString());
                     sb.Append(" ");
-                    sb.Append((ts.Days + extraTime > 1) ? DaysLocalized : DayLocalized);
+                    sb.Append((ts.Days > 1) ? DaysLocalized : DayLocalized);
                     break;
                 case TimeType.HOUR:
-                    sb.Append((ts.Hours  + extraTime).ToString());
+                    sb.Append((ts.Hours).ToString());
                     sb.Append(" ");
                     sb.Append(HourLocalized);
                     break;
                 case TimeType.MIN:
-                    sb.Append((ts.Minutes + extraTime).ToString());
+                    sb.Append((ts.Minutes).ToString());
                     sb.Append(" ");
                     sb.Append(MinLocalized);
                     break;
