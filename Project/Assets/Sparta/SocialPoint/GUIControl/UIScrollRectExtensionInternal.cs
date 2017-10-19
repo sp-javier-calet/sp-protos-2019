@@ -196,7 +196,7 @@ namespace SocialPoint.GUIControl
             Profiler.BeginSample("UIScrollRectExtension.CalculateCurrentVisibleRange", this);
 
             float startPosition = ScrollPosition - _boundsDelta;
-            float endPosition = startPosition + ScrollViewSize + _boundsDelta;
+            float endPosition = ScrollPosition + ScrollViewSize + _boundsDelta;
 
             int startIndex = FindIndexOfElementAtPosition(startPosition, 0, _data.Count - 1);
             int endIndex = FindIndexOfElementAtPosition(endPosition, 0, _data.Count - 1);

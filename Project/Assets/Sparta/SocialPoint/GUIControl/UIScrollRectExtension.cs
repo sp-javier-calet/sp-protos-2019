@@ -1,11 +1,7 @@
 ﻿using UnityEngine.UI;
 using UnityEngine;
 using System.Collections.Generic;
-using SocialPoint.Base;
-using SocialPoint.Dependency;
 using UnityEngine.SocialPlatforms;
-using System;
-using SocialPoint.Pooling;
 using System.Collections;
 using UnityEngine.EventSystems;
 
@@ -172,10 +168,13 @@ namespace SocialPoint.GUIControl
 //        {
 //            Gizmos.color = Color.red;
 //
+//            GameObject root = (gameObject);
 //            var trans = transform;
 //            var rectTrans = trans as RectTransform;
+//            float posX = (trans.position.x + (rectTrans.rect.xMax * 0.5f)) * 0.416f;
 //
-//            Gizmos.DrawLine(new Vector3(trans.position.x + (rectTrans.rect.xMax * 0.5f), transform.position.y, 0f), new Vector3(trans.position.x + (rectTrans.rect.width * 0.5f), transform.position.y + rectTrans.rect.height, 0f));
+////            Gizmos.DrawLine(new Vector3(trans.position.x + (rectTrans.rect.xMax * 0.5f), transform.position.y, 0f), new Vector3(trans.position.x + (rectTrans.rect.width * 0.5f), transform.position.y + rectTrans.rect.height, 0f));
+//            Gizmos.DrawLine(new Vector3(posX, transform.position.y, 0f), new Vector3(posX, 1000f, 0f));
 //        }
 //
         #endregion
