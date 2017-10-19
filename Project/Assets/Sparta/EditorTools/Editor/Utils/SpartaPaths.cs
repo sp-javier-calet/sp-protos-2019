@@ -35,24 +35,30 @@ namespace SpartaTools.Editor.Utils
             _spartaDirs = Directory.GetDirectories(_currentDir, _sparta, SearchOption.AllDirectories);
 
             SourcesDir = Directory.GetDirectories(_currentDir, _sources, SearchOption.AllDirectories)[0];
+            SourcesDir = TransformToRelativePath(SourcesDir);
 
-            BinariesDir = GetSpartaPath(_binaries);
-            CoreDir = GetSpartaPath(_core);
-            ExternalDir = GetSpartaPath(_external);
-            ExtensionsDir = GetSpartaPath(_extensions);
+            BinariesDir = GetRelativeSpartaPath(_binaries);
+            CoreDir = GetRelativeSpartaPath(_core);
+            ExternalDir = GetRelativeSpartaPath(_external);
+            ExtensionsDir = GetRelativeSpartaPath(_extensions);
         }
 
-        static string GetSpartaPath(string pattern)
+        static string GetRelativeSpartaPath(string pattern)
         {
             foreach(var dir in _spartaDirs)
             {
                 var subDirs = Directory.GetDirectories(dir, pattern, SearchOption.AllDirectories);
-                foreach(var subDir in subDirs)
+                if(subDirs.Length > 0)
                 {
-                    return subDir;
+                    return TransformToRelativePath(subDirs[0]);
                 }
             }
             return string.Empty;
+        }
+
+        static string TransformToRelativePath(string absolutePath)
+        {
+            return absolutePath.Replace(_currentDir, string.Empty);
         }
 
         public static string ReplaceProjectVariables(string basePath, string originalPath, IDictionary<string, string> projectVariables)
@@ -71,7 +77,7 @@ namespace SpartaTools.Editor.Utils
                 path = Path.Combine(basePath, path);
             }
 
-            return Path.GetFullPath(path);
+            return path;
         }
     }
 }
