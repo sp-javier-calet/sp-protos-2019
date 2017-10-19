@@ -69,8 +69,6 @@ namespace SocialPoint.Multiplayer
         float _timestamp;
         float _actionTimestampThreshold;
 
-        bool _paused = false;
-
         Dictionary<byte, ClientData> _clientData;
         List<ActionInfo> _pendingActions;
 
@@ -88,17 +86,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public bool Paused
-        {
-            get
-            {
-                return _paused;
-            }
-            set
-            {
-                _paused = value;
-            }
-        }
+        public bool Paused { get; set; }
 
         public byte MaxPlayers
         {

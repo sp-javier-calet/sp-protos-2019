@@ -161,12 +161,7 @@ namespace SocialPoint.Multiplayer
 
         public void OnStart()
         {
-            var prefabBehaviour = _go.GetBehaviour<PrefabNameBehaviour>();
-            if(prefabBehaviour != null && prefabBehaviour.UseInstantiationPosition)
-            {
-                _serverPos = _go.Transform.Position;
-                _go.Transform.Position = prefabBehaviour.InstantiationPosition;
-            }
+            
         }
 
         void RefreshVisibility()
