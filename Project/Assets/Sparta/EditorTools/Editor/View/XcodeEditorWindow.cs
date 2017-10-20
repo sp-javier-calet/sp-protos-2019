@@ -40,6 +40,8 @@ namespace SpartaTools.Editor.View
         BuildTarget _target = BuildTarget.iOS;
         List<string> _activeSchemes;
         bool _asEditor;
+        bool _asJenkins;
+        bool _asAppend;
         bool _useActiveSchemes = true;
         bool _debugScheme;
         bool _releaseScheme;
@@ -130,7 +132,7 @@ namespace SpartaTools.Editor.View
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
-            var isIos =  _target == BuildTarget.iOS;
+            var isIos = _target == BuildTarget.iOS;
             isIos = AddToogleWithReload(isIos, "iOS", "Use iOS Variant");
             isIos = !AddToogleWithReload(!isIos, "tvOS", "Use tvOS Variant");
             _target = isIos ? BuildTarget.iOS : BuildTarget.tvOS;
@@ -138,6 +140,12 @@ namespace SpartaTools.Editor.View
             EditorGUILayout.Space();
 
             _asEditor = AddToogleWithReload(_asEditor, "Editor", "Enable 'editor' scheme");
+            _asEditor = !AddToogleWithReload(!_asEditor, "Jenkins", "Enable 'jenkins' scheme");
+            _asJenkins = !_asEditor;
+
+            EditorGUILayout.Space();
+
+            _asAppend = AddToogleWithReload(_asAppend, "Append", "Enable 'append' scheme");
 
             EditorGUILayout.Space();
 
@@ -254,6 +262,17 @@ namespace SpartaTools.Editor.View
             if(_asEditor)
             {
                 _activeSchemes.Add("editor");
+            }
+
+            if(_asJenkins)
+            {
+                _activeSchemes.Add("jenkins");
+            }
+
+            if(_asAppend)
+            {
+                _activeSchemes.Clear();
+                _activeSchemes.Add("append");
             }
 
             if(_useActiveSchemes)
