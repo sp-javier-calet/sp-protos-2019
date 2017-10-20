@@ -18,6 +18,12 @@ namespace SpartaTools.Editor.Utils
         public static string ExternalDir;
         public static string ExtensionsDir;
 
+        public static string SourcesDirAbsolute;
+        public static string BinariesDirAbsolute;
+        public static string CoreDirAbsolute;
+        public static string ExternalDirAbsolute;
+        public static string ExtensionsDirAbsolute;
+
         const string _sparta = "Sparta";
         const string _sources = "Sources";
         const string _binaries = "Binaries";
@@ -34,23 +40,27 @@ namespace SpartaTools.Editor.Utils
 
             _spartaDirs = Directory.GetDirectories(_currentDir, _sparta, SearchOption.AllDirectories);
 
-            SourcesDir = Directory.GetDirectories(_currentDir, _sources, SearchOption.AllDirectories)[0];
-            SourcesDir = TransformToRelativePath(SourcesDir);
+            SourcesDirAbsolute = Directory.GetDirectories(_currentDir, _sources, SearchOption.AllDirectories)[0];
+            BinariesDirAbsolute = GetAbsoluteSpartaPath(_binaries);
+            CoreDirAbsolute = GetAbsoluteSpartaPath(_core);
+            ExternalDirAbsolute = GetAbsoluteSpartaPath(_external);
+            ExtensionsDirAbsolute = GetAbsoluteSpartaPath(_extensions);
 
-            BinariesDir = GetRelativeSpartaPath(_binaries);
-            CoreDir = GetRelativeSpartaPath(_core);
-            ExternalDir = GetRelativeSpartaPath(_external);
-            ExtensionsDir = GetRelativeSpartaPath(_extensions);
+            SourcesDir = TransformToRelativePath(SourcesDirAbsolute);
+            BinariesDir = TransformToRelativePath(BinariesDirAbsolute);
+            CoreDir = TransformToRelativePath(CoreDirAbsolute);
+            ExternalDir = TransformToRelativePath(ExternalDirAbsolute);
+            ExtensionsDir = TransformToRelativePath(ExtensionsDirAbsolute);
         }
 
-        static string GetRelativeSpartaPath(string pattern)
+        static string GetAbsoluteSpartaPath(string pattern)
         {
             foreach(var dir in _spartaDirs)
             {
                 var subDirs = Directory.GetDirectories(dir, pattern, SearchOption.AllDirectories);
                 if(subDirs.Length > 0)
                 {
-                    return TransformToRelativePath(subDirs[0]);
+                    return subDirs[0];
                 }
             }
             return string.Empty;
@@ -61,7 +71,7 @@ namespace SpartaTools.Editor.Utils
             return absolutePath.Replace(_currentDir + Path.DirectorySeparatorChar, string.Empty);
         }
 
-        public static string ReplaceProjectVariables(string basePath, string originalPath, IDictionary<string, string> projectVariables)
+        public static string ReplaceProjectVariables(string originalPath, IDictionary<string, string> projectVariables)
         {
             var path = originalPath;
 
@@ -69,12 +79,6 @@ namespace SpartaTools.Editor.Utils
             {
                 var pattern = string.Format("{{{0}}}", entry.Key);
                 path = path.Replace(pattern, entry.Value);
-            }
-
-            // If is not already a full path, use the base path if possible
-            if(!Path.IsPathRooted(path) && !string.IsNullOrEmpty(basePath))
-            {
-                path = Path.Combine(basePath, path);
             }
 
             return path;
