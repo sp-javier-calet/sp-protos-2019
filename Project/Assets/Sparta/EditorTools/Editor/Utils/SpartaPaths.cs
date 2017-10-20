@@ -58,7 +58,7 @@ namespace SpartaTools.Editor.Utils
 
         static string TransformToRelativePath(string absolutePath)
         {
-            return absolutePath.Replace(_currentDir, string.Empty);
+            return absolutePath.Replace(_currentDir + Path.DirectorySeparatorChar, string.Empty);
         }
 
         public static string ReplaceProjectVariables(string basePath, string originalPath, IDictionary<string, string> projectVariables)

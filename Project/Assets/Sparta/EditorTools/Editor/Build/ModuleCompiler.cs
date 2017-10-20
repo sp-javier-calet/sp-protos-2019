@@ -500,6 +500,7 @@ namespace SpartaTools.Editor.Build
             compiler.AddReference("System.Xml.Linq.dll");
             compiler.AddReference("System.Xml.dll");
             compiler.AddReference("GUISystem/UnityEngine.UI.dll");
+            compiler.AddReference("GUISystem/Editor/UnityEditor.UI.dll");
             compiler.AddReference("Networking/UnityEngine.Networking.dll");
 
             var activeCompilationDefines = EditorUserBuildSettings.activeScriptCompilationDefines;
