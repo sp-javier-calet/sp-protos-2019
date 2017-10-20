@@ -20,7 +20,7 @@ namespace SpartaTools.Editor.Build
             {
                 if(string.IsNullOrEmpty(_sourcesDirectoryPath))
                 {
-                    _sourcesDirectoryPath = SpartaPaths.SourcesDir;
+                    _sourcesDirectoryPath = Directory.GetCurrentDirectory() + SpartaPaths.SourcesDir;
                 }
 
                 return _sourcesDirectoryPath;
