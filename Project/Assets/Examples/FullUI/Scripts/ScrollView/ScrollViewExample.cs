@@ -30,7 +30,7 @@ public class ScrollViewExample : UIScrollRectExtension<MyData, MyCell>
         List<MyData> myData = new List<MyData>();
         string[] prefabs = {"GUI_StoreItem", "GUI_StoreItemSmall", "GUI_StoreItem2"};
 
-        for (int i = 0; i < 1000; ++i)
+        for (int i = 0; i < 10; ++i)
         {
             myData.Add(new MyData(i, "test item small name " + i, "test item small description for item with index " + i, prefabs[UnityEngine.Random.Range(0,3)]));
         }

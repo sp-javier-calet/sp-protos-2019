@@ -3,7 +3,7 @@ using System.Collections;
 using SocialPoint.GUIControl;
 
 [CreateAssetMenu(menuName = "UI Animations/Fade Animation")]
-public class FadeAnimation : UIViewAnimation
+public class FadeAnimation : UIViewAnimation<UIViewController>
 {
     [SerializeField]
     float _time = 1.0f;

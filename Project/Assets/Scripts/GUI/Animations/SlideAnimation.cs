@@ -3,7 +3,7 @@ using System.Collections;
 using SocialPoint.GUIControl;
 
 [CreateAssetMenu(menuName = "UI Animations/Slide Animation")]
-public class SlideAnimation : UIViewAnimation 
+public class SlideAnimation : UIViewAnimation<UIViewController>
 {
     [SerializeField]
     float _time = 1.0f;

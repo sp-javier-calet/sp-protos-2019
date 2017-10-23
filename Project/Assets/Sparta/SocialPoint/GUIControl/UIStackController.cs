@@ -36,8 +36,8 @@ namespace SocialPoint.GUIControl
 
         public Action CloseAppShow { get; set; }
 
-        public UIViewAnimation UnityDefaultAnimation;
-        public UIViewAnimation UnityDefaultAnimationFullScreen;
+        public UIViewAnimation<UIViewController> UnityDefaultAnimation;
+        public UIViewAnimation<UIViewController> UnityDefaultAnimationFullScreen;
 
         /// <summary>
         ///     To be used in Unity Tests to avoid problems with Coroutines and yields.
@@ -202,18 +202,18 @@ namespace SocialPoint.GUIControl
             DebugLog("EndProcess");
         }
 
-        bool SetAnimation(StackNode from, StackNode to, UIViewAnimation anim)
+        bool SetAnimation(StackNode from, StackNode to, UIViewAnimation<UIViewController> anim)
         {
             if(anim != null)
             {
                 if(IsValidStackNode(to))
                 {
-                    to.Controller.Animation = (UIViewAnimation)anim.Clone();
+                    to.Controller.Animation = (UIViewAnimation<UIViewController>)anim.Clone();
                 }
 
                 if(IsValidStackNode(from))
                 {
-                    from.Controller.Animation = (UIViewAnimation)anim.Clone();
+                    from.Controller.Animation = (UIViewAnimation<UIViewController>)anim.Clone();
                 }
 
                 return true;
@@ -378,7 +378,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        void SetupAnimation(StackNode ctrl, UIViewAnimation anim)
+        void SetupAnimation(StackNode ctrl, UIViewAnimation<UIViewController> anim)
         {
             if(IsValidStackNode(ctrl))
             {
@@ -386,7 +386,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        void SetupAnimation(UIViewController ctrl, UIViewAnimation defaultAnim)
+        void SetupAnimation(UIViewController ctrl, UIViewAnimation<UIViewController> defaultAnim)
         {
             var anim = defaultAnim;
             if(anim == null)
@@ -394,7 +394,7 @@ namespace SocialPoint.GUIControl
                 if(ctrl != null)
                 {
                     anim = ctrl.IsFullScreen ? UnityDefaultAnimationFullScreen : UnityDefaultAnimation;
-                    ctrl.Animation = (anim == null ? null : (UIViewAnimation)anim.Clone());
+                    ctrl.Animation = (anim == null ? null : (UIViewAnimation<UIViewController>)anim.Clone());
                 }
             }
             else

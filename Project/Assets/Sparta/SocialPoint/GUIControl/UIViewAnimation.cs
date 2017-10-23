@@ -4,9 +4,9 @@ using UnityEngine;
 
 namespace SocialPoint.GUIControl
 {
-    public abstract class UIViewAnimation : ScriptableObject, ICloneable
+    public abstract class UIViewAnimation<T> : ScriptableObject, ICloneable
     {
-        public abstract void Load(UIViewController ctrl);
+        public abstract void Load(T ctrl);
 
         public abstract IEnumerator Appear();
 

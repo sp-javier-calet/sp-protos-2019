@@ -83,17 +83,24 @@ namespace SocialPoint.GUIControl
         {
             get
             {
-                if(UsesVerticalLayout)
+                if(_centerOnCell && _data.Count > 0)
                 {
-                    return _verticalLayoutGroup.padding.bottom;
-                }
-                else if(UsesHorizontalLayout)
-                {
-                    return _horizontalLayoutGroup.padding.right;
+                    return (int)((ScrollViewSize * 0.5f) - (_data[_data.Count - 1].CellWidth * 0.5f));
                 }
                 else
                 {
-                    return 0;//_gridLayoutGroup;
+                    if(UsesVerticalLayout)
+                    {
+                        return _verticalLayoutGroup.padding.bottom;
+                    }
+                    else if(UsesHorizontalLayout)
+                    {
+                        return _horizontalLayoutGroup.padding.right;
+                    }
+                    else
+                    {
+                        return 0;//_gridLayoutGroup;
+                    }
                 }
             }
         }
@@ -205,6 +212,11 @@ namespace SocialPoint.GUIControl
             return new Range(startIndex, endIndex - startIndex + 1);
         }
             
+        int FindIndexOfElementAtPosition(float position)
+        {
+            return FindIndexOfElementAtPosition(position, _visibleElementRange.from, _visibleElementRange.RelativeCount());
+        }
+
         int FindIndexOfElementAtPosition(float position, int startIndex, int endIndex)
         {
             if(startIndex >= endIndex)
@@ -225,7 +237,7 @@ namespace SocialPoint.GUIControl
             
         bool IndexIsValid(int index)
         {
-            return (index > 0 && index < _data.Count);
+            return (index >= 0 && index < _data.Count);
         }
 
         float GetAccumulatedSizeForIndex(int index)
@@ -241,13 +253,10 @@ namespace SocialPoint.GUIControl
             {
                 _initialIndex = 0;
             }
+                
+            CurrentIndex = _initialIndex;
 
-            if(_centerOnCell)
-            {
-                _centeredIndex = _initialIndex;
-            }
-
-            ScrollPosition += GetAccumulatedSizeForIndex(_initialIndex);
+            ScrollPosition += GetAccumulatedSizeForIndex(CurrentIndex);
             ScrollPosition += CenterOnCellDeltaDisplacement();
         }
 
@@ -257,7 +266,7 @@ namespace SocialPoint.GUIControl
             if(_centerOnCell)
             {
                 delta -= ScrollViewSize * 0.5f;
-                delta += _data[_centeredIndex].CellWidth * 0.5f;
+                delta += _data[CurrentIndex].CellWidth * 0.5f;
             }
 
             return delta;
@@ -293,7 +302,7 @@ namespace SocialPoint.GUIControl
             return size;
         }
             
-        void SetupCellSizes()
+        void SetCellSizes()
         {
             Profiler.BeginSample("UIScrollRectExtension.SetupCellSizes", this);
 
@@ -322,8 +331,6 @@ namespace SocialPoint.GUIControl
                     acumulatedWidth += trans.rect.width;
                     dataValue.SetupAcumulatedPrefabSizes(acumulatedWidth, acumulatedWidth);
 
-                    Debug.Log("index: " + i + " -- accumulated: " + _data[i].CellAccumulatedWidth);
-
                     if(i < _data.Count - 1)
                     {
                         acumulatedWidth += Spacing;
@@ -332,6 +339,11 @@ namespace SocialPoint.GUIControl
             }
                 
             Profiler.EndSample();
+        }
+
+        void SetInitialPadding()
+        {
+            _defaultStartPadding = StartPadding;
         }
 
         GameObject GetCellPrefab(GameObject prefab)
@@ -361,7 +373,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        void SetupRectTransformSize(RectTransform trans, float size, bool disableIfZero = false)
+        void SetRectTransformSize(RectTransform trans, float size, bool disableIfZero = false)
         {
             if(UsesVerticalLayout)
             {
@@ -525,7 +537,10 @@ namespace SocialPoint.GUIControl
             int padding = 0;
             if(_visibleElementRange.from == 0)
             {
-                padding = _defaultStartPadding;
+                if(CurrentIndex == 0)
+                {
+                    padding += _defaultStartPadding;
+                }
             }
             else
             {
@@ -535,47 +550,75 @@ namespace SocialPoint.GUIControl
             StartPadding = padding;
         }
             
-        void ScrollToCurrentCell()
+        public void ScrollToPreviousCell()
         {
-            ScrollToCell(_centeredIndex);
+            if(CurrentIndex > 0)
+            {
+                ScrollToCell(CurrentIndex - 1);
+            }
         }
 
-        void ScrollToClosestCell()
+        public void ScrollToCurrentCell()
+        {
+            ScrollToCell(CurrentIndex);
+        }
+
+        public void ScrollToNextCell()
+        {
+            if(CurrentIndex < _data.Count - 1)
+            {
+                ScrollToCell(CurrentIndex + 1);
+            }
+        }
+
+        public void ScrollToSelectedCell(int index)
+        {
+            ScrollToCell(index);
+        }
+
+        void ScrollToClosestCell(int deltaIndex)
         {
             // Setup the position to the middle of the scrollview to check the desired cell to center
-            float position = ScrollPosition;
-            position += ScrollViewSize * 0.5f;
+            float closestPosition = ScrollPosition;
+            closestPosition += ScrollViewSize * 0.5f;
 
-            _centeredIndex = FindIndexOfElementAtPosition(position, _visibleElementRange.from, _visibleElementRange.RelativeCount());
-            ScrollToCell(_centeredIndex);
+            int closestIndex = FindIndexOfElementAtPosition(closestPosition);
+            if(closestIndex == CurrentIndex)
+            {
+                closestIndex += deltaIndex;
+            }
+
+            ScrollToCell(closestIndex);
         }
 
         public void ScrollToStartPosition()
         {
-            Scroll(0f);
+            ScrollToCell(0);
         }
 
         public void ScrollToFinalPosition()
         {
-            Scroll(ScrollViewContentSize - ScrollViewSize);
+            ScrollToCell(_data.Count > 0 ? _data.Count - 1 : 0);
         }
 
         public void ScrollToCell(int index)
         {
-            if(index <= 0)
+            if(index >= 0 && index < _data.Count)
             {
-                ScrollToStartPosition();
-            }
-            else if(index > 0 && index < _data.Count)
-            {
+                if(index != CurrentIndex)
+                {
+                    CurrentIndex = index;
+
+                    if(_pagination != null)
+                    {
+                        _pagination.SetSelectedButton(CurrentIndex);
+                    }
+                }
+
                 float position = GetAccumulatedSizeForIndex(index);
                 position += CenterOnCellDeltaDisplacement();
 
-                Scroll(position);
-            }
-            else
-            {
-                ScrollToFinalPosition();
+                ScrollToPosition(position);
             }
         }
             
@@ -685,29 +728,31 @@ namespace SocialPoint.GUIControl
         {
 //            Debug.Log("start position; " + eventData.position + " anchored: " + _startScrollingPosition);
 
-//            if(_disableDragWhileScrollingAnimation)
-//            {
-//                StopScrolling();
-//            }
+            if(_disableDragWhileScrollingAnimation)
+            {
+                StopScrolling();
+            }
         }
 
         void MyOnEndDrag(PointerEventData eventData)
         {
-            Debug.Log("start position; " + eventData.position + " anchored: " + _startScrollingPosition);
             var scrollSize = Mathf.Abs(ScrollPosition - _startScrollingPosition);
-            Debug.Log("final displacement " + scrollSize);
+            int scrollDirection = ScrollPosition - _startScrollingPosition < 0f ? -1 : 1; 
+
             if(_centerOnCell)
             {
                 if(_deltaDragCell <= scrollSize)
                 {
-                    Debug.Log("moving to closest cell!!!");
-                    ScrollToClosestCell();
+                    ScrollToClosestCell(scrollDirection);
                 }
                 else
                 {
-                    Debug.Log("moving to current cell!!!");
-                    ScrollToCurrentCell();
+                    ScrollToCell(CurrentIndex);
                 }
+            }
+            else
+            {
+                CurrentIndex = FindIndexOfElementAtPosition(ScrollPosition);
             }
         }
 
@@ -716,6 +761,36 @@ namespace SocialPoint.GUIControl
             if(_requiresRefresh)
             {
                 RefreshVisibleElements();
+            }
+        }
+
+        void MyOnDrawGizmoSelected()
+        {
+            if(_mainCanvas != null)
+            {
+                Gizmos.color = Color.red;
+
+                var trans = transform;
+                var rectTrans = trans as RectTransform;
+                float posXtop = 0f;
+                float posXbottom = 0f;
+                float posYtop = 0f;
+                float posYbottom = 0f;
+                if(_scrollRect.vertical)
+                {
+                    posXtop += trans.position.x + (rectTrans.rect.xMax * _mainCanvas.transform.localScale.x);
+                    posXbottom += trans.position.x + (rectTrans.rect.xMin * _mainCanvas.transform.localScale.x);
+                    posYtop += trans.position.y + ((rectTrans.rect.yMax * 0.5f) * _mainCanvas.transform.localScale.y);
+                    posYbottom += trans.position.y + ((rectTrans.rect.yMax * 0.5f) * _mainCanvas.transform.localScale.y);
+                }
+                else if(_scrollRect.horizontal)
+                {
+                    posXtop += trans.position.x + ((rectTrans.rect.xMax * 0.5f) * _mainCanvas.transform.localScale.x);
+                    posXbottom += trans.position.x + ((rectTrans.rect.xMax * 0.5f) * _mainCanvas.transform.localScale.x);
+                    posYtop += trans.position.y + (rectTrans.rect.yMax * _mainCanvas.transform.localScale.y);
+                    posYbottom += trans.position.y + (rectTrans.rect.yMin * _mainCanvas.transform.localScale.y);
+                }
+                Gizmos.DrawLine(new Vector3(posXtop, posYtop, 0f), new Vector3(posXbottom, posYbottom, 0f));
             }
         }
 

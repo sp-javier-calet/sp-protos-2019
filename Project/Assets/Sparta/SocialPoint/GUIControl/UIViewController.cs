@@ -28,14 +28,14 @@ namespace SocialPoint.GUIControl
         public event Action<UIViewController, ViewState> ViewEvent;
         public event Action<UIViewController, GameObject> InstantiateEvent;
 
-        public UIViewAnimation ShowAnimation;
-        public UIViewAnimation HideAnimation;
+        public UIViewAnimation<UIViewController> ShowAnimation;
+        public UIViewAnimation<UIViewController> HideAnimation;
 
         bool _loaded;
         ViewState _viewState = ViewState.Initial;
         Coroutine _showCoroutine;
         Coroutine _hideCoroutine;
-        UIViewAnimation _animation;
+        UIViewAnimation<UIViewController> _animation;
 
         [HideInInspector]
         public UIViewController ParentController;
@@ -298,7 +298,7 @@ namespace SocialPoint.GUIControl
             return size;
         }
 
-        public UIViewAnimation Animation
+        public UIViewAnimation<UIViewController> Animation
         {
             set
             {
@@ -418,7 +418,7 @@ namespace SocialPoint.GUIControl
 
             OnAwake();
         }
-
+            
         [Obsolete("Use Reset instead")]
         public void ResetState()
         {

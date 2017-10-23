@@ -4,7 +4,7 @@ using SocialPoint.GUIAnimation;
 
 namespace SocialPoint.GUIControl
 {
-    public sealed class UIToolAnimation : UIViewAnimation
+    public sealed class UIToolAnimation : UIViewAnimation<UIViewController>
     {
         string _name;
         Animation _anim;

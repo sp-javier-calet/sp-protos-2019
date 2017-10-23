@@ -30,6 +30,9 @@ namespace SocialPoint.GUIControl
 
         [Header("System")]
         [SerializeField]
+        GameObject _loadingGroup;
+
+        [SerializeField]
         bool _usePooling;
 
         [Tooltip("Delta that we will add to bounds to check if we need to show/hide new cells")]
@@ -69,6 +72,14 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         Vector2 _maginifyMaxScale;
 
+        [Header("Pagination")]
+        [SerializeField]
+        UIScrollRectPagination _pagination;
+
+        [Header("Debug")]
+        [SerializeField]
+        Canvas _mainCanvas;
+
         public bool Initialized { get; private set; }
 
         Range _visibleElementRange;
@@ -78,13 +89,24 @@ namespace SocialPoint.GUIControl
 
         IEnumerator _smoothScrollCoroutine;
         int _defaultStartPadding;
+        int _deltaStartPadding;
         bool _requiresRefresh;
         float _initialScrollPosition;
         float _initialPadding;
         bool _isHorizontal;
         bool _isVertical;
         float _startScrollingPosition;
-        int _centeredIndex;
+
+        int _currentIndex;
+        public int CurrentIndex
+        {
+            get { return _currentIndex;}
+            private set
+            {
+                Debug.Log("currentIndex: " + value);
+                _currentIndex = value;
+            }
+        }
             
         public bool UsesVerticalLayout
         {
@@ -132,8 +154,6 @@ namespace SocialPoint.GUIControl
             _isHorizontal = _scrollRect.horizontal;
             _isVertical = _scrollRect.vertical;
         
-            _defaultStartPadding = StartPadding;
-
             _visibleCells = new Dictionary<int, TCell>();
         }
 
@@ -164,19 +184,11 @@ namespace SocialPoint.GUIControl
             base.OnDestroy();
         }
 
-//        void OnDrawGizmosSelected()
-//        {
-//            Gizmos.color = Color.red;
-//
-//            GameObject root = (gameObject);
-//            var trans = transform;
-//            var rectTrans = trans as RectTransform;
-//            float posX = (trans.position.x + (rectTrans.rect.xMax * 0.5f)) * 0.416f;
-//
-////            Gizmos.DrawLine(new Vector3(trans.position.x + (rectTrans.rect.xMax * 0.5f), transform.position.y, 0f), new Vector3(trans.position.x + (rectTrans.rect.width * 0.5f), transform.position.y + rectTrans.rect.height, 0f));
-//            Gizmos.DrawLine(new Vector3(posX, transform.position.y, 0f), new Vector3(posX, 1000f, 0f));
-//        }
-//
+        void OnDrawGizmosSelected()
+        {
+            MyOnDrawGizmoSelected();
+        }
+
         #endregion
 
         #region IBeginDragHandler implementation
@@ -215,37 +227,62 @@ namespace SocialPoint.GUIControl
 
         #endregion
 
+        IEnumerator FetchDataFromServer(UIScrollRectExtensionGetData dlg)
+        {
+            // Simulating server delay
+            yield return new WaitForSeconds(2f);
+    
+            _data = dlg();
+            OnEndFetchingDataFromServer();
+        }
+
         public void FetchData(UIScrollRectExtensionGetData dlg)
         {
-            // show loading spinner
+            if(_loadingGroup != null)
+            {
+                _loadingGroup.SetActive(true);
+            }
 
             _data.Clear();
 
             if(dlg != null)
             {
-                _data = dlg();
+                StartCoroutine(FetchDataFromServer(dlg));
             }
             else
             {
                 throw new UnityException("Get Data delegate not defined");
             }
+        }
 
-            // hide loading spinner
+        void OnEndFetchingDataFromServer()
+        {
+            if(_loadingGroup != null)
+            {
+                _loadingGroup.SetActive(false);
+            }
 
             if(_data.Count == 0)
             {
                 throw new UnityException("Data not loaded!");
             }
 
-            SetupCellSizes();
-            SetupRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
+            SetInitialPadding();
+            SetCellSizes();
+            SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
             SetInitialPosition();
             SetInitialVisibleElements();
+
+            if(_pagination != null)
+            {
+                _pagination.Init(_data.Count, CurrentIndex, ScrollToPreviousCell, ScrollToNextCell, ScrollToSelectedCell);
+            }
         }
 
         void Dispose()
         {
             Initialized = false;
+            StopScrolling();
             ClearAllVisibleCells();
         }
     }
