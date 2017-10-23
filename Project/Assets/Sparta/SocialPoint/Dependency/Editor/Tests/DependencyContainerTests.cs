@@ -21,6 +21,18 @@ namespace SocialPoint.Dependency
         }
     }
 
+    class AnotherTestService : ITestService
+    {
+        public string TestMethod()
+        {
+            return "anotherTest";
+        }
+
+        public void Dispose()
+        {
+        }
+    }
+
     struct TestStruct
     {
         public int Value;
@@ -44,7 +56,6 @@ namespace SocialPoint.Dependency
             return _test.TestMethod();
         }
     }
-
 
     class LoopTestService : ITestService
     {
@@ -282,6 +293,24 @@ namespace SocialPoint.Dependency
         }
 
         [Test]
+        public void HasBindingTest()
+        {
+            var container = new DependencyContainer();
+            container.AddBinding(new TestBinding(), typeof(ITestService));
+            Assert.IsTrue(container.HasBinding<ITestService>());
+        }
+
+        [Test]
+        public void HasDefaultBindingTest()
+        {
+            var container = new DependencyContainer();
+            var defaultTestService = new TestService();
+            container.BindDefault<ITestService>().ToInstance(defaultTestService);
+
+            Assert.IsTrue(container.HasBinding<ITestService>());
+        }
+
+        [Test]
         public void AddBindingTest()
         {
             var container = new DependencyContainer();
@@ -291,14 +320,37 @@ namespace SocialPoint.Dependency
         }
 
         [Test]
-        public void RemoveTest()
+        public void AddDefaultBindingTest()
         {
             var container = new DependencyContainer();
-            var instance = new TestService();
-            container.Bind<ITestService>().ToInstance(instance);
-            container.Remove<ITestService>();
-            var service = container.Resolve<ITestService>();
-            Assert.IsNull(service);
+            var defaultTestService = new TestService();
+            container.BindDefault<ITestService>().ToInstance(defaultTestService);
+
+            Assert.IsInstanceOf<TestService>(container.Resolve<ITestService>());
+
+            var servicesList = container.ResolveList<ITestService>();
+            foreach(var service in servicesList)
+            {
+                Assert.IsInstanceOf<TestService>(service);
+            }
+        }
+
+        [Test]
+        public void AddNormalAndDefaultBindingTest()
+        {
+            var container = new DependencyContainer();
+            var defaultTestService = new TestService();
+            var customTestService = new AnotherTestService();
+            container.BindDefault<ITestService>().ToInstance(defaultTestService);
+            container.Bind<ITestService>().ToInstance(customTestService);
+
+            Assert.IsInstanceOf<AnotherTestService>(container.Resolve<ITestService>());
+
+            var servicesList = container.ResolveList<ITestService>();
+            foreach(var service in servicesList)
+            {
+                Assert.IsInstanceOf<AnotherTestService>(service);
+            }
         }
 
         [Test]
@@ -334,6 +386,24 @@ namespace SocialPoint.Dependency
             TestDisposable.Count = 0;
             var container = new DependencyContainer();
             container.Bind<IDisposable>().ToSingle<TestDisposable>();
+            container.Dispose();
+            Assert.AreEqual(0, TestDisposable.Count);
+            container.Resolve<IDisposable>();
+            container.Dispose();
+            Assert.AreEqual(1, TestDisposable.Count);
+            container.Dispose();
+            Assert.AreEqual(1, TestDisposable.Count);
+            container.Resolve<IDisposable>();
+            container.Dispose();
+            Assert.AreEqual(2, TestDisposable.Count);
+        }
+
+        [Test]
+        public void DisposeDefaultTest()
+        {
+            TestDisposable.Count = 0;
+            var container = new DependencyContainer();
+            container.BindDefault<IDisposable>().ToSingle<TestDisposable>();
             container.Dispose();
             Assert.AreEqual(0, TestDisposable.Count);
             container.Resolve<IDisposable>();
@@ -384,58 +454,6 @@ namespace SocialPoint.Dependency
             var instance = new TestDisposable();
             container.Add<IDisposable, TestDisposable>(instance);
             container.Dispose();
-            Assert.AreEqual(1, TestDisposable.Count);
-        }
-
-        [Test]
-        public void RemoveDisposableTest()
-        {
-            TestDisposable.Count = 0;
-            var container = new DependencyContainer();
-            container.Bind<IDisposable>().ToSingle<TestDisposable>();
-            container.Remove<IDisposable>();
-            Assert.AreEqual(0, TestDisposable.Count);
-            container.Bind<IDisposable>().ToSingle<TestDisposable>();
-            container.Resolve<IDisposable>();
-            container.Remove<IDisposable>();
-            Assert.AreEqual(1, TestDisposable.Count);
-        }
-
-        [Test]
-        public void RemoveDisposableLookupTest()
-        {
-            TestDisposable.Count = 0;
-            var container = new DependencyContainer();
-            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
-            container.Bind<IDisposable>().ToLookup<TestDisposable>();
-            container.Remove<TestDisposable>();
-            Assert.AreEqual(0, TestDisposable.Count);
-            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
-            container.Resolve<IDisposable>();
-            container.Remove<TestDisposable>();
-            Assert.AreEqual(1, TestDisposable.Count);
-            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
-            container.Remove<TestDisposable>();
-            Assert.AreEqual(1, TestDisposable.Count);
-        }
-
-        [Test]
-        public void RemoveDisposableGetterTest()
-        {
-            TestDisposable.Count = 0;
-            var container = new DependencyContainer();
-            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
-            container.Bind<IDisposable>().ToGetter<TestDisposable>((service) => {
-                return new TestDisposable();
-            });
-            container.Remove<TestDisposable>();
-            Assert.AreEqual(0, TestDisposable.Count);
-            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
-            container.Resolve<IDisposable>();
-            container.Remove<TestDisposable>();
-            Assert.AreEqual(1, TestDisposable.Count);
-            container.Bind<TestDisposable>().ToSingle<TestDisposable>();
-            container.Remove<TestDisposable>();
             Assert.AreEqual(1, TestDisposable.Count);
         }
 

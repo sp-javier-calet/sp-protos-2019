@@ -191,6 +191,13 @@ namespace SocialPoint.Dependency
             return bind;
         }
 
+        public static Binding<T> BindDefault<T>(this DependencyContainer container, string tag = null)
+        {
+            var bind = new Binding<T>(container);
+            container.AddDefaultBinding(bind, typeof(T), tag);
+            return bind;
+        }
+
         public static Listener<T> Listen<T>(this DependencyContainer container, string tag = null)
         {
             var listener = new Listener<T>();
