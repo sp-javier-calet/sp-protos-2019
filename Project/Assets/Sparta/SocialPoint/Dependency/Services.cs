@@ -23,11 +23,6 @@ namespace SocialPoint.Dependency
             return _container.ResolveList<T>(tag);
         }
 
-        public void Remove<T>(string tag = null)
-        {
-            _container.Remove<T>(tag);
-        }
-
         public void Install(IInstaller installer)
         {
             CheckInitialization();
