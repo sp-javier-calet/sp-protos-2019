@@ -10,6 +10,18 @@ namespace SocialPoint.GUIControl
     [RequireComponent(typeof(ScrollRect))]
     public partial class UIScrollRectExtension<TCellData, TCell> : UIViewController, IBeginDragHandler, IDragHandler, IEndDragHandler where TCellData : UIScrollRectCellData where TCell : UIScrollRectCellItem<TCellData>
     {
+        public enum ShowLastCellPosition
+        {
+            AtTop,
+            AtBottom
+        }
+
+        public enum ScrollDirection
+        {
+            LeftOrTop = -1,
+            RightOrBottom = 1
+        }
+
         public delegate List<TCellData> UIScrollRectExtensionGetData();
 
         [Header("UI Components")]
@@ -28,19 +40,20 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         GridLayoutGroup _gridLayoutGroup;
 
-        [Header("System")]
-        [SerializeField]
-        GameObject _loadingGroup;
-
+        [Header("ObjectPool")]
         [SerializeField]
         bool _usePooling;
 
+        [Header("Scroll")]
         [Tooltip("Delta that we will add to bounds to check if we need to show/hide new cells")]
         [SerializeField]
         int _boundsDelta;
 
         [SerializeField]
         int _initialIndex;
+
+        [SerializeField]
+        ShowLastCellPosition _showLastCellPosition = ShowLastCellPosition.AtBottom;
 
         [Header("Animations")]
         [SerializeField]
@@ -75,6 +88,10 @@ namespace SocialPoint.GUIControl
         [Header("Pagination")]
         [SerializeField]
         UIScrollRectPagination _pagination;
+
+        [Header("Loading")]
+        [SerializeField]
+        GameObject _loadingGroup;
 
         [Header("Debug")]
         [SerializeField]
