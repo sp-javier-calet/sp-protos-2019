@@ -1,7 +1,6 @@
 using System;
 using Jitter;
 using Jitter.LinearMath;
-using SocialPoint.JitterPhysics;
 using SocialPoint.Utils;
 using UnityEngine;
 

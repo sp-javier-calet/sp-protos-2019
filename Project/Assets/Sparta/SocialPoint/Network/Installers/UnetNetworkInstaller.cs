@@ -27,11 +27,12 @@ namespace SocialPoint.Network
             Container.Rebind<UnetNetworkServer>().ToMethod<UnetNetworkServer>(CreateUnetServer, SetupServer);
             Container.Bind<IDisposable>().ToLookup<UnetNetworkServer>();
             Container.Rebind<INetworkServer>("internal").ToLookup<UnetNetworkServer>();
+            Container.Rebind<INetworkServer>().ToLookup<UnetNetworkServer>();
 
             Container.Rebind<UnetNetworkClient>().ToMethod<UnetNetworkClient>(CreateUnetClient, SetupClient);
             Container.Bind<IDisposable>().ToLookup<UnetNetworkClient>();
             Container.Rebind<INetworkClient>("internal").ToLookup<UnetNetworkClient>();
-
+            Container.Rebind<INetworkClient>().ToLookup<UnetNetworkClient>();
         }
 
         UnetNetworkClient CreateUnetClient()

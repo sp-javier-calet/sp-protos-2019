@@ -1,4 +1,4 @@
-using Photon.Hive.Plugin;
+﻿using Photon.Hive.Plugin;
 using SocialPoint.Attributes;
 using SocialPoint.Matchmaking;
 using SocialPoint.Network;
@@ -36,6 +36,8 @@ namespace SocialPoint.Multiplayer
         }
 
         NetworkServerSceneController _netServer;
+        readonly NetworkSceneContext _networkContext;
+
         HttpMatchmakingServer _matchmaking;
 
         object _game;
@@ -61,8 +63,9 @@ namespace SocialPoint.Multiplayer
 
         const int RetryLogHttpRequestBodyMaxLength = 1024;
 
-        public AuthoritativePlugin(string name="Authoritative") : base(name)
+        public AuthoritativePlugin(NetworkSceneContext context, string name="Authoritative") : base(name)
         {
+            _networkContext = context;
             System.Net.ServicePointManager.ServerCertificateValidationCallback = (sender, cert, chain, error) =>
             {
                 return true;
@@ -107,7 +110,7 @@ namespace SocialPoint.Multiplayer
             PluginEventTracker = new HttpServerEventTracker(UpdateScheduler, trackHttpClient);
             PluginEventTracker.Start();
 
-            _netServer = new NetworkServerSceneController(this);
+            _netServer = new NetworkServerSceneController(this, _networkContext);
 
             _netServer.SendMetric = PluginEventTracker.SendMetric;
             _netServer.SendLog = PluginEventTracker.SendLog;

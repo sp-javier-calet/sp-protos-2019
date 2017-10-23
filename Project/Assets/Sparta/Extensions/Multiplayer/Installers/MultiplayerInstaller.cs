@@ -32,6 +32,8 @@ namespace SocialPoint.Multiplayer
             Container.Rebind<NetworkClientSceneController>().ToLookup<UnityNetworkClientSceneController>();
             Container.Bind<IDeltaUpdateable>().ToLookup<UnityNetworkClientSceneController>();
             Container.Bind<IInitializable>().ToInstance(this);
+
+            Container.BindDefault<NetworkSceneContext>().ToMethod<NetworkSceneContext>(CreateContext);
         }
 
         //TODO FIX FOR ORDERS FIXME
@@ -58,7 +60,7 @@ namespace SocialPoint.Multiplayer
 
         NetworkServerSceneController CreateServerSceneController()
         {
-            var server = new NetworkServerSceneController(Container.Resolve<INetworkServer>(), Container.Resolve<IGameTime>());
+            var server = new NetworkServerSceneController(Container.Resolve<INetworkServer>(), Container.Resolve<NetworkSceneContext>(), Container.Resolve<IGameTime>());
 
             server.BufferSize = Settings.ServerBufferSize;
 
@@ -68,7 +70,8 @@ namespace SocialPoint.Multiplayer
         UnityNetworkClientSceneController CreateClientSceneController()
         {
             UnityNetworkClientSceneController networkClient = new UnityNetworkClientSceneController(
-                                                                  Container.Resolve<INetworkClient>());
+                                                                  Container.Resolve<INetworkClient>(),
+                                                                  Container.Resolve<NetworkSceneContext>());
             return networkClient;
         }
 
@@ -88,6 +91,11 @@ namespace SocialPoint.Multiplayer
             {
                 ctrl.Scene.AddBehaviour(behaviours[i]);
             }
+        }
+
+        NetworkSceneContext CreateContext()
+        {
+            return new NetworkSceneContext();
         }
     }
 }

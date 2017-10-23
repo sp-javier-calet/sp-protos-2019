@@ -17,8 +17,10 @@ namespace SocialPoint.Network
         {
             Container.RebindUnityComponent<PhotonNetworkServer>().WithSetup<PhotonNetworkServer>(SetupPhotonServer);
             Container.Rebind<INetworkServer>("internal").ToLookup<PhotonNetworkServer>();
+            Container.Rebind<INetworkServer>().ToLookup<PhotonNetworkServer>();
             Container.RebindUnityComponent<PhotonNetworkClient>().WithSetup<PhotonNetworkClient>(SetupPhotonClient);
             Container.Rebind<INetworkClient>("internal").ToLookup<PhotonNetworkClient>();
+            Container.Rebind<INetworkClient>().ToLookup<PhotonNetworkClient>();
         }
 
         void SetupPhotonServer(PhotonNetworkServer server)

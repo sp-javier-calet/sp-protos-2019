@@ -1,7 +1,6 @@
-﻿using Jitter.LinearMath;
-using SocialPoint.Base;
+﻿using SocialPoint.Base;
 
-namespace SocialPoint.JitterPhysics
+namespace Jitter.LinearMath
 {
     public static class JBBoxExtensions
     {

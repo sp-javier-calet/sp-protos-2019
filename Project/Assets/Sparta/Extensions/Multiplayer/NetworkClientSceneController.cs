@@ -61,7 +61,8 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public NetworkClientSceneController(INetworkClient client, bool restart = false)
+        public NetworkClientSceneController(INetworkClient client, NetworkSceneContext context, bool restart = false)
+            : base(context)
         {
             _client = client;
 

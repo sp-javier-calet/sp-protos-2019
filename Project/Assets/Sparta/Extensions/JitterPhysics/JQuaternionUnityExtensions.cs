@@ -1,6 +1,4 @@
-﻿using Jitter.LinearMath;
-
-namespace SocialPoint.JitterPhysics
+﻿namespace Jitter.LinearMath
 {
     public static partial class JQuaternionExtensions
     {

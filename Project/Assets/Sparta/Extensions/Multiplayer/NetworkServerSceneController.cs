@@ -132,7 +132,8 @@ namespace SocialPoint.Multiplayer
 
         public Action<string, AttrDic, ErrorDelegate> SendTrack { get; set; }
 
-        public NetworkServerSceneController(INetworkServer server, IGameTime gameTime = null)
+        public NetworkServerSceneController(INetworkServer server, NetworkSceneContext context, IGameTime gameTime = null)
+            : base(context)
         {
             GameTime = gameTime;
             if(GameTime == null)

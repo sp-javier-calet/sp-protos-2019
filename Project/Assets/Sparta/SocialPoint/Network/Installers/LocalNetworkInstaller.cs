@@ -44,11 +44,13 @@ namespace SocialPoint.Network
             Container.Rebind<SimulateNetworkServer>().ToMethod<SimulateNetworkServer>(CreateServer, SetupServer);
             Container.Bind<IDeltaUpdateable>().ToLookup<SimulateNetworkServer>();
             Container.Rebind<INetworkServer>("internal").ToLookup<SimulateNetworkServer>();
+            Container.Rebind<INetworkServer>().ToLookup<LocalNetworkServer>();
 
             Container.Rebind<LocalNetworkClient>().ToMethod<LocalNetworkClient>(CreateLocalClient);
             Container.Rebind<SimulateNetworkClient>().ToMethod<SimulateNetworkClient>(CreateClient, SetupClient);
             Container.Bind<IDeltaUpdateable>().ToLookup<SimulateNetworkClient>();
             Container.Rebind<INetworkClient>("internal").ToLookup<SimulateNetworkClient>();
+            Container.Rebind<INetworkClient>().ToLookup<LocalNetworkClient>();
         }
 
         LocalNetworkClient CreateLocalClient()

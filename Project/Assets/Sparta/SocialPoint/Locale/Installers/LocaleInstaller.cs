@@ -108,7 +108,7 @@ namespace SocialPoint.Locale
             NGUILocalization.LoadCSV(bytes);
             NGUILocalization.language = manager.CurrentLanguage;
 
-            UILocalize[] localizadElements = GameObject.FindObjectsOfType<UILocalize>();
+            UILocalize[] localizadElements = UnityEngine.Object.FindObjectsOfType<UILocalize>();
             for(int i = 0; i < localizadElements.Length; i++)
             {
                 localizadElements[i].OnLocalize();

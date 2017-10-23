@@ -23,9 +23,9 @@ namespace SocialPoint.Multiplayer
             _server = localServer;
             _client = new LocalNetworkClient(localServer);
             _client2 = new LocalNetworkClient(localServer);
-            _serverCtrl = new NetworkServerSceneController(_server);
-            _clientCtrl = new NetworkClientSceneController(_client);
-            _client2Ctrl = new NetworkClientSceneController(_client2);
+            _serverCtrl = new NetworkServerSceneController(_server, new NetworkSceneContext());
+            _clientCtrl = new NetworkClientSceneController(_client, new NetworkSceneContext());
+            _client2Ctrl = new NetworkClientSceneController(_client2, new NetworkSceneContext());
             _serverCtrl.Restart(_server);
             _serverCtrl.SyncController.BroadcastSyncMessageManually = true;
             _clientCtrl.Restart(_client);

@@ -24,10 +24,15 @@ namespace SocialPoint.Multiplayer
 
         public NetworkSceneContext()
         {
-            Clear();
+            DoClear();
         }
 
-        public void Clear()
+        public virtual void Clear()
+        {
+            DoClear();
+        }
+
+        void DoClear()
         {
             _pool = new ObjectPool();
             _typeCache = new TypeCache();

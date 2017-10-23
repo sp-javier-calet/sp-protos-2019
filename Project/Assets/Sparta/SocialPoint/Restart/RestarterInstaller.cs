@@ -6,7 +6,7 @@ public class RestarterInstaller : ServiceInstaller
 {
     public override void InstallBindings()
     {
-        Container.Rebind<IRestarter>().ToMethod<IRestarter>(CreateRestarter);
+        Container.BindDefault<IRestarter>().ToMethod<IRestarter>(CreateRestarter);
     }
 
     IRestarter CreateRestarter()

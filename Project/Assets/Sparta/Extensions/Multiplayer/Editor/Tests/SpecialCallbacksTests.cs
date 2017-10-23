@@ -27,7 +27,7 @@ namespace SocialPoint.Multiplayer
             var context = new NetworkSceneContext();
             var gameObjectPrefab = new NetworkGameObject(context);
 
-            var sceneController = new NetworkServerSceneController(EmptyServer, null);
+            var sceneController = new NetworkServerSceneController(EmptyServer, new NetworkSceneContext(), null);
             sceneController.RegisterBehaviours(TestType, gameObjectPrefab, new INetworkBehaviour[] {
                 new TestSpecialBehaviour(),
             });
@@ -45,7 +45,7 @@ namespace SocialPoint.Multiplayer
             var context = new NetworkSceneContext();
             var gameObjectPrefab = new NetworkGameObject(context);
 
-            var sceneController = new NetworkServerSceneController(EmptyServer, null);
+            var sceneController = new NetworkServerSceneController(EmptyServer, new NetworkSceneContext(), null);
             sceneController.RegisterBehaviours(TestType, gameObjectPrefab, new INetworkBehaviour[] {
                 new TestSpecialBehaviour(),
             });
@@ -64,7 +64,7 @@ namespace SocialPoint.Multiplayer
         [Test]
         public void AddBehaviour()
         {
-            var sceneController = new NetworkServerSceneController(EmptyServer, null);
+            var sceneController = new NetworkServerSceneController(EmptyServer, new NetworkSceneContext(), null);
             var go = sceneController.Instantiate(TestType);
 
             var behaviour = new TestSpecialBehaviour();
@@ -82,7 +82,7 @@ namespace SocialPoint.Multiplayer
             var context = new NetworkSceneContext();
             var gameObjectPrefab = new NetworkGameObject(context);
             
-            var sceneController = new NetworkServerSceneController(EmptyServer, null);
+            var sceneController = new NetworkServerSceneController(EmptyServer, new NetworkSceneContext(), null);
             sceneController.RegisterBehaviours(TestType, gameObjectPrefab, new INetworkBehaviour[] {
                 new TestSpecialBehaviour(),
             });
@@ -104,7 +104,7 @@ namespace SocialPoint.Multiplayer
             var context = new NetworkSceneContext();
             var gameObjectPrefab = new NetworkGameObject(context);
 
-            var sceneController = new NetworkServerSceneController(EmptyServer, null);
+            var sceneController = new NetworkServerSceneController(EmptyServer, new NetworkSceneContext(), null);
             sceneController.RegisterBehaviours(TestType, gameObjectPrefab, new INetworkBehaviour[] {
                 new TestSpecialBehaviour(),
             });

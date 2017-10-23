@@ -25,6 +25,14 @@ namespace SocialPoint.Locale
             environments.Environments.Returns(new []{ new Environment { Name = "Production", Url = string.Empty, Type = EnvironmentType.Production}});
 
             LocalizationManager = new LocalizationManager(null);
+            LocalizationManager.TimeTids = new LocalizationManager.TimeTextIdentifiers{
+                DayIdentifier = string.Empty,
+                DaysIdentifier = string.Empty,
+                HourIdentifier = string.Empty,
+                MinIdentifier = string.Empty,
+                SecIdentifier = string.Empty,
+            };
+
             LocalizationManager.HttpClient = HttpClient;
             LocalizationManager.AppInfo = DeviceInfo.AppInfo;
             LocalizationManager.BackendEnvironments = environments;

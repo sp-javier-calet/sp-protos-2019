@@ -33,14 +33,19 @@ namespace SocialPoint.Multiplayer
 
         abstract public INetworkMessage CreateMessage(NetworkMessageData data);
 
-        readonly NetworkSceneContext _context = new NetworkSceneContext();
+        readonly NetworkSceneContext _context;
         public NetworkSceneContext Context
         {
             get
             {
-                SocialPoint.Base.DebugUtils.Assert(_context != null);
+                SocialPoint.Base.DebugUtils.Assert(_context != null, "NetworkSceneContext doesn't exists for this NetworkSceneController");
                 return _context;
             }
+        }
+
+        protected NetworkSceneController(NetworkSceneContext context)
+        {
+            _context = context;
         }
 
         protected void Init(NetworkScene scene)

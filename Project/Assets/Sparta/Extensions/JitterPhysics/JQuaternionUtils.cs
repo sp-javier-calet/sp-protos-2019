@@ -1,7 +1,6 @@
 ﻿using System;
-using Jitter.LinearMath;
 
-namespace SocialPoint.JitterPhysics
+namespace Jitter.LinearMath
 {
     public static class JQuaternionUtils
     {
