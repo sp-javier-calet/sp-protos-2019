@@ -23,6 +23,20 @@ namespace SocialPoint.GUIControl
         }
 
         public delegate List<TCellData> UIScrollRectExtensionGetData();
+        UIScrollRectExtensionGetData _getDataDlg;
+
+        public void DefineGetData(UIScrollRectExtensionGetData getDataDlg)
+        {
+            _getDataDlg = getDataDlg;
+        }
+
+        public delegate TCellData UIScrollRectExtensionAddCellData();
+        UIScrollRectExtensionAddCellData _addCellDataDlg;
+
+        public void DefineAddCellData(UIScrollRectExtensionAddCellData addCellDataDlg)
+        {
+            _addCellDataDlg = addCellDataDlg;
+        }
 
         [Header("UI Components")]
         [SerializeField]
@@ -39,6 +53,9 @@ namespace SocialPoint.GUIControl
 
         [SerializeField]
         GridLayoutGroup _gridLayoutGroup;
+
+        [SerializeField]
+        LayoutGroup _layoutGroup;
 
         [Header("ObjectPool")]
         [SerializeField]
@@ -108,20 +125,24 @@ namespace SocialPoint.GUIControl
         int _defaultStartPadding;
         int _deltaStartPadding;
         bool _requiresRefresh;
+        bool _requiresReload;
         float _initialScrollPosition;
         float _initialPadding;
         bool _isHorizontal;
         bool _isVertical;
         float _startScrollingPosition;
 
-        int _currentIndex;
         public int CurrentIndex
         {
-            get { return _currentIndex;}
-            private set
-            {
-                Debug.Log("currentIndex: " + value);
-                _currentIndex = value;
+            get 
+            { 
+                float scrollPosition = ScrollPosition;
+                if(_centerOnCell)
+                {
+                    scrollPosition += ScrollViewSize * 0.5f;
+                }
+
+                return FindIndexOfElementAtPosition(scrollPosition, _visibleElementRange.from, _visibleElementRange.RelativeCount());
             }
         }
             
@@ -149,6 +170,29 @@ namespace SocialPoint.GUIControl
             }
         }
 
+        void ApplyLayoutRules()
+        {
+            if(_centerOnCell)
+            {
+                if(_pagination != null)
+                {
+                    _pagination.gameObject.SetActive(true);
+                }
+            }
+            else
+            {
+                if(_pagination != null)
+                {
+                    _pagination.UseNavigationButtons = false;
+                    _pagination.UsePaginationButtons = false;
+
+                    _pagination.gameObject.SetActive(false);
+
+                    _pagination = null;
+                }
+            }
+        }
+
         #region Unity methods
 
         void Awake()
@@ -172,6 +216,8 @@ namespace SocialPoint.GUIControl
             _isVertical = _scrollRect.vertical;
         
             _visibleCells = new Dictionary<int, TCell>();
+
+            ApplyLayoutRules();
         }
 
         void Start() 
@@ -244,16 +290,16 @@ namespace SocialPoint.GUIControl
 
         #endregion
 
-        IEnumerator FetchDataFromServer(UIScrollRectExtensionGetData dlg)
+        IEnumerator FetchDataFromServer(UIScrollRectExtensionGetData getDataDlg)
         {
             // Simulating server delay
             yield return new WaitForSeconds(2f);
     
-            _data = dlg();
+            _data = getDataDlg();
             OnEndFetchingDataFromServer();
         }
 
-        public void FetchData(UIScrollRectExtensionGetData dlg)
+        public void FetchData()
         {
             if(_loadingGroup != null)
             {
@@ -262,13 +308,63 @@ namespace SocialPoint.GUIControl
 
             _data.Clear();
 
-            if(dlg != null)
+            if(_getDataDlg != null)
             {
-                StartCoroutine(FetchDataFromServer(dlg));
+                StartCoroutine(FetchDataFromServer(_getDataDlg));
             }
             else
             {
                 throw new UnityException("Get Data delegate not defined");
+            }
+        }
+
+        public void AddData(bool addAtEnd = true, bool moveToEnd = false)
+        {
+            if(_addCellDataDlg != null)
+            {
+                var data = _addCellDataDlg();
+                if(data != null)
+                {
+                    if(addAtEnd)
+                    {
+                        _data.Add(data);
+                        SetDataValues(_data.Count - 1);
+                    }
+                    else
+                    {
+                        _data.Insert(0, data);
+                        SetDataValues();
+                    }
+
+                    SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
+
+                    if(_pagination != null)
+                    {
+                        _pagination.Reload(_data.Count, CurrentIndex);
+                    }
+                }
+
+                _requiresRefresh = true;
+                _requiresReload = true;
+            }
+        }
+
+        public void RemoveData(int index)
+        {
+            if(IndexIsValid(index))
+            {
+                _data.RemoveAt(index);
+
+                SetDataValues(index);
+                SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
+
+                if(_pagination != null)
+                {
+                    _pagination.Reload(_data.Count, CurrentIndex);
+                }
+
+                _requiresRefresh = true;
+                _requiresReload = true;
             }
         }
 
@@ -283,16 +379,16 @@ namespace SocialPoint.GUIControl
             {
                 throw new UnityException("Data not loaded!");
             }
-
+                
             SetInitialPadding();
-            SetCellSizes();
+            SetDataValues();
             SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
             SetInitialPosition();
             SetInitialVisibleElements();
 
             if(_pagination != null)
             {
-                _pagination.Init(_data.Count, CurrentIndex, ScrollToPreviousCell, ScrollToNextCell, ScrollToSelectedCell);
+                _pagination.Init(_data.Count, CurrentIndex, ScrollToPreviousCell, ScrollToNextCell, ScrollToCell);
             }
         }
 

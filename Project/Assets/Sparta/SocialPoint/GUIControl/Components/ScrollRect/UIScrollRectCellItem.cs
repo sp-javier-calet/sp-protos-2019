@@ -14,7 +14,6 @@ namespace SocialPoint.GUIControl
             if(data != null)
             {
                 _data = data;
-
                 Show();
             }
         }

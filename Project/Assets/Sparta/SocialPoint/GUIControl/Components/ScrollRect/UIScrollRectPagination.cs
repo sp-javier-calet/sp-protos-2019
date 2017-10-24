@@ -3,11 +3,20 @@ using UnityEngine.UI;
 using System;
 using System.Collections.Generic;
 using UnityEngine.Events;
+using SocialPoint.Base;
 
 public class UIScrollRectPagination : MonoBehaviour 
 {
+    [Header("Groups")]
     [SerializeField]
-    GameObject _paginationButton;
+    GameObject _navigationGroup;
+
+    [SerializeField]
+    GameObject _paginationGroup;
+
+    [Header("Pagination Buttons")]
+    [SerializeField]
+    GameObject _paginationButtonPrefab;
 
     [SerializeField]
     Sprite _imageSelected;
@@ -15,10 +24,29 @@ public class UIScrollRectPagination : MonoBehaviour
     [SerializeField]
     Sprite _imageUnSelected;
 
+    [Header("Functionallity")]
     [SerializeField]
-    bool _usePaginationButtons = true;
+    bool _useNavigationButtons;
+    public bool UseNavigationButtons
+    {
+        set
+        {
+            _navigationGroup.SetActive(value);
+            _useNavigationButtons = value;
+        }
+    }
 
-    //    LayoutGroup _layoutGroup;
+    [SerializeField]
+    bool _usePaginationButtons;
+    public bool UsePaginationButtons
+    {
+        set
+        {
+            _paginationGroup.SetActive(value);
+            _usePaginationButtons = value;
+        }
+    }
+
     Transform _parent;
     Action _scrollToPreviousCell;
     Action _scrollToNextCell;
@@ -28,10 +56,9 @@ public class UIScrollRectPagination : MonoBehaviour
 
     void Awake()
     {
-//        _layoutGroup = GetComponent<LayoutGroup>();
-        _parent = transform;
+        _parent = _paginationGroup.transform;
     }
-
+        
     public void Init(int count, int _selectedIndex, Action scrollToPreviousCell, Action scrollToNextCell, Action<int> scrollToSelectedCell)
     {
         _scrollToPreviousCell = scrollToPreviousCell;
@@ -43,7 +70,25 @@ public class UIScrollRectPagination : MonoBehaviour
             // Check if we need to create too much pagination buttons
             for(int i = 0; i < count; ++i)
             {
-                InstantiateNewPaginationButton(_paginationButton, i);
+                InstantiateNewPaginationButton(_paginationButtonPrefab, i);
+            }
+
+            SetSelectedButton(_selectedIndex);
+        }
+    }
+
+    public void Reload(int count, int _selectedIndex)
+    {
+        if(_usePaginationButtons)
+        {
+            for(int i = _parent.childCount; i > count; --i)
+            {
+                RemovePaginationButton(_parent.GetChild(i).gameObject);
+            }
+
+            for(int i = _parent.childCount + 1; i <= count; ++i)
+            {
+                InstantiateNewPaginationButton(_paginationButtonPrefab, i);
             }
 
             SetSelectedButton(_selectedIndex);
@@ -52,31 +97,25 @@ public class UIScrollRectPagination : MonoBehaviour
 
     void InstantiateNewPaginationButton(GameObject prefab, int index)
     {
-        GameObject go = _paginationButton;
-        if(index == 0)
-        {
-            go.SetActive(true);
-        }
-        else
-        {
-            go = Instantiate(prefab);
-            if(go != null)
-            {
-                var trans = go.transform;
-                trans.SetParent(_parent);
-                trans.localPosition = Vector3.zero;
-                trans.localRotation = Quaternion.identity;
-                trans.localScale = Vector3.one;
-
-                go.SetActive(true);
-            }
-        }
-
+        var go = GameObject.Instantiate(prefab);
         if(go != null)
         {
+            var trans = go.transform;
+            trans.SetParent(_parent);
+            trans.localPosition = Vector3.zero;
+            trans.localRotation = Quaternion.identity;
+            trans.localScale = Vector3.one;
+
+            go.SetActive(true);
+
             AddPaginationButton(go);
             SetPaginationButtonListener(go, index);
         }
+    }
+
+    void RemovePaginationButton(GameObject go)
+    {
+        go.DestroyAnyway();
     }
 
     void AddPaginationButton(GameObject go)
@@ -116,7 +155,7 @@ public class UIScrollRectPagination : MonoBehaviour
 
     public void OnPreviousButtonClicked()
     {
-        if(_scrollToPreviousCell != null)
+        if(_scrollToPreviousCell != null && _useNavigationButtons)
         {
             _scrollToPreviousCell();
         }
@@ -124,7 +163,7 @@ public class UIScrollRectPagination : MonoBehaviour
 
     public void OnNextButtonClicked()
     {
-        if(_scrollToNextCell != null)
+        if(_scrollToNextCell != null && _useNavigationButtons)
         {
             _scrollToNextCell();
         }

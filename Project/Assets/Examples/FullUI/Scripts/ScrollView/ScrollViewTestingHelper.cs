@@ -6,7 +6,10 @@ using System;
 public class ScrollViewTestingHelper : MonoBehaviour 
 {
     [SerializeField]
-    InputField _inputText;
+    InputField _inputScrollText;
+
+    [SerializeField]
+    InputField _inputRemoveText;
 
     [SerializeField]
     ScrollViewExample _scrollViewExtension;
@@ -32,9 +35,41 @@ public class ScrollViewTestingHelper : MonoBehaviour
         if(_scrollViewExtension != null)
         {
             int parsedValue;
-            if(Int32.TryParse(_inputText.text, out parsedValue))
+            if(Int32.TryParse(_inputScrollText.text, out parsedValue))
             {
                 _scrollViewExtension.ScrollToCell(parsedValue);
+            }
+            else
+            {
+                Debug.Log("Input field value cannot be converted to an Integer");
+            }
+        }
+    }
+
+    public void OnAddCellAtStart()
+    {
+        if(_scrollViewExtension != null)
+        {
+            _scrollViewExtension.AddData(false);
+        }
+    }
+
+    public void OnAddCellAtEnd()
+    {
+        if(_scrollViewExtension != null)
+        {
+            _scrollViewExtension.AddData(true);
+        }
+    }
+
+    public void OnRemoveAtInput()
+    {
+        if(_scrollViewExtension != null)
+        {
+            int parsedValue;
+            if(Int32.TryParse(_inputRemoveText.text, out parsedValue))
+            {
+                _scrollViewExtension.RemoveData(parsedValue);
             }
             else
             {
