@@ -5,6 +5,11 @@
         const string KGameData = "game_data";
         const string KConfig = "config";
 
+        const int KFirstWord = 1;
+        const int KSecondWord = 2;
+        const int KThirdWord = 3;
+        const int KFourthWord = 4;
+
         IStreamReader _reader;
 
         int _counter;
@@ -20,7 +25,7 @@
         public bool Read()
         {
             _counter++;
-            if(_counter > 4 && !_readerFinished)
+            if(_counter > KFourthWord && !_readerFinished)
             {
                 _readerFinished = !_reader.Read();
                 if(_readerFinished)
@@ -28,7 +33,7 @@
                     _counter = 0;
                 }
             }
-            return _counter < 2 || !_readerFinished;
+            return _counter < KSecondWord || !_readerFinished;
         }
 
         public StreamToken Token
@@ -39,19 +44,19 @@
                 {
                     return StreamToken.ObjectEnd;
                 }
-                else if(_readerFinished && _counter == 1)
+                else if(_readerFinished && _counter == KFirstWord)
                 {
                     return StreamToken.ObjectEnd;
                 }
-                else if(_counter == 1 || _counter == 3)
+                else if(_counter == KFirstWord || _counter == KThirdWord)
                 {
                     return StreamToken.ObjectStart;
                 }
-                else if(_counter == 2 || _counter == 4)
+                else if(_counter == KSecondWord || _counter == KFourthWord)
                 {
                     return StreamToken.PropertyName;
                 }
-                else if(_counter > 4)
+                else if(_counter > KFourthWord)
                 {
                     return _reader.Token;
                 }
@@ -67,15 +72,15 @@
                 {
                     return null;
                 }
-                else if(_counter == 2)
+                else if(_counter == KSecondWord)
                 {
                     return KGameData;
                 }
-                else if(_counter == 4)
+                else if(_counter == KFourthWord)
                 {
                     return KConfig;
                 }
-                else if(_counter > 4)
+                else if(_counter > KFourthWord)
                 {
                     return _reader.Value;
                 }

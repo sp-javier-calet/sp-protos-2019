@@ -19,7 +19,7 @@ namespace SocialPoint.Login
 
         const string kConfigUrl = "http://backend.pro.configmanager.sp.laicosp.net/products/mt/envs/env1/download";
         const string kConfigOKResponse = "{\"game\":{},\"globals\":{\"globals\":[{}]},\"map\":{},\"store\":{},\"payment_products\":{},\"bundle_data\":{}}";
-        const string kConfigKOResponse = "{\"error\":{\"error\":0,\"message\":\"Product dows not exist\"}}";
+        const string kConfigKOResponse = "{\"error\":{\"error\":0,\"message\":\"Product does not exist\"}}";
         const string kConfig = "config";
 
         [SetUp]
