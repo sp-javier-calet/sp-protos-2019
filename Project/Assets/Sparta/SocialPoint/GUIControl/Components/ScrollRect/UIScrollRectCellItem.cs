@@ -18,16 +18,6 @@ namespace SocialPoint.GUIControl
             }
         }
 
-//        public bool GetId(int id)
-//        {
-//            if(_data != null)
-//            {
-//                return _data.Id == id;
-//            }
-//
-//            return false;
-//        }
-
         public abstract void Show();
     }
 }

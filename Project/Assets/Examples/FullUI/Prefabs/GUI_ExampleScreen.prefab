@@ -1018,7 +1018,7 @@ MonoBehaviour:
   m_Script: {fileID: -1200242548, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_ShowMaskGraphic: 1
+  m_ShowMaskGraphic: 0
 --- !u!114 &114083313679774094
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1216,7 +1216,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 0
+  m_Spacing: 200
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -1690,15 +1690,14 @@ MonoBehaviour:
   ParentController: {fileID: 0}
   DestroyOnHide: 0
   _containers3d: []
-  _usePooling: 0
-  _useAnimationForRemoveCells: 1
   _scrollRect: {fileID: 114656496029349974}
   _verticalLayoutGroup: {fileID: 0}
   _horizontalLayoutGroup: {fileID: 0}
   _gridLayoutGroup: {fileID: 0}
   _layoutGroup: {fileID: 0}
+  _usePooling: 1
   _boundsDelta: 400
-  _initialIndex: 0
+  _initialIndex: 5
   _showLastCellPosition: 1
   _scrollAnimationEaseType: 0
   _scrollAnimationCurve:
@@ -1713,10 +1712,9 @@ MonoBehaviour:
   _deltaDragCell: 50
   _maginifyMinScale: {x: 0, y: 0}
   _maginifyMaxScale: {x: 0, y: 0}
-  _pagination: {fileID: 114017358527254550}
+  _pagination: {fileID: 0}
   _loadingGroup: {fileID: 1735378496034082}
   _mainCanvas: {fileID: 223776503781852692}
-  _renameCells: 1
 --- !u!114 &114525763816899322
 MonoBehaviour:
   m_ObjectHideFlags: 1

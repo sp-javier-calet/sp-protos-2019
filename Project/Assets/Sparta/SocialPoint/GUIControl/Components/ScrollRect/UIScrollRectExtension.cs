@@ -1,6 +1,7 @@
 ﻿using UnityEngine.UI;
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.SocialPlatforms;
 using System.Collections;
 using UnityEngine.EventSystems;
 
@@ -11,8 +12,8 @@ namespace SocialPoint.GUIControl
     {
         public enum ShowLastCellPosition
         {
-            AtBegin,
-            AtEnd
+            AtTop,
+            AtBottom
         }
 
         public enum ScrollDirection
@@ -20,8 +21,6 @@ namespace SocialPoint.GUIControl
             LeftOrTop = -1,
             RightOrBottom = 1
         }
-
-
 
         public delegate List<TCellData> UIScrollRectExtensionGetData();
         UIScrollRectExtensionGetData _getDataDlg;
@@ -58,9 +57,9 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         LayoutGroup _layoutGroup;
 
-//        [Header("ObjectPool")]
-//        [SerializeField]
-//        bool _usePooling;
+        [Header("ObjectPool")]
+        [SerializeField]
+        bool _usePooling;
 
         [Header("Scroll")]
         [Tooltip("Delta that we will add to bounds to check if we need to show/hide new cells")]
@@ -71,7 +70,7 @@ namespace SocialPoint.GUIControl
         int _initialIndex;
 
         [SerializeField]
-        ShowLastCellPosition _showLastCellPosition = ShowLastCellPosition.AtEnd;
+        ShowLastCellPosition _showLastCellPosition = ShowLastCellPosition.AtBottom;
 
         [Header("Animations")]
         [SerializeField]
@@ -86,13 +85,12 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         bool _disableDragWhileScrollingAnimation;
 
-
         [Header("Snapping")]
         [SerializeField]
         bool _centerOnCell;
 
-////        [SerializeField]
-////        Vector2 _snapToCellAnchorPoint = new Vector2(0.5f, 0.5f);
+//        [SerializeField]
+//        Vector2 _snapToCellAnchorPoint = new Vector2(0.5f, 0.5f);
 
         [SerializeField]
         float _deltaDragCell = 50f;
@@ -116,21 +114,23 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         Canvas _mainCanvas;
 
-        public bool _renameCells;
-
         public bool Initialized { get; private set; }
 
+        Range _visibleElementRange;
+        Dictionary<int, TCell> _visibleCells;
         List<TCellData> _data = new List<TCellData>();
         Dictionary<string, GameObject> _prefabs = new Dictionary<string, GameObject>();
 
         IEnumerator _smoothScrollCoroutine;
         int _defaultStartPadding;
+        int _deltaStartPadding;
         bool _requiresRefresh;
         bool _requiresReload;
+        float _initialScrollPosition;
+        float _initialPadding;
         bool _isHorizontal;
         bool _isVertical;
         float _startScrollingPosition;
-        Vector2 _tempVector2 = Vector3.zero;
 
         public int CurrentIndex
         {
@@ -141,8 +141,8 @@ namespace SocialPoint.GUIControl
                 {
                     scrollPosition += ScrollViewSize * 0.5f;
                 }
-                    
-                return FindIndexOfElementAtPosition(scrollPosition, FirstVisibleCellIndex, LastVisibleCellIndex);
+
+                return FindIndexOfElementAtPosition(scrollPosition, _visibleElementRange.from, _visibleElementRange.RelativeCount());
             }
         }
             
@@ -214,6 +214,8 @@ namespace SocialPoint.GUIControl
 
             _isHorizontal = _scrollRect.horizontal;
             _isVertical = _scrollRect.vertical;
+        
+            _visibleCells = new Dictionary<int, TCell>();
 
             ApplyLayoutRules();
         }
@@ -314,21 +316,6 @@ namespace SocialPoint.GUIControl
             {
                 throw new UnityException("Get Data delegate not defined");
             }
-        }
-
-        public int GetDataIndexById(int id)
-        {
-            return _data.FindIndex(x => x.Id == id);
-        }
-
-        public TCellData GetDataById(int id)
-        {
-            return _data.Find(x => x.Id == id);
-        }
-
-        public TCellData GetDataByIndex(int index)
-        {
-            return IndexIsValid(index) ? _data[index] : null;
         }
 
         public void AddData(bool addAtEnd = true, bool moveToEnd = false)
