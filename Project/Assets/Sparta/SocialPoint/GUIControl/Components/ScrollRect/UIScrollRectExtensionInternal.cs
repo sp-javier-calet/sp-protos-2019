@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using System;
-using UnityEngine.SocialPlatforms;
 using SocialPoint.Pooling;
-using SocialPoint.Base;
 using UnityEngine.Profiling;
 using System.Collections;
 using UnityEngine.EventSystems;
@@ -30,18 +28,7 @@ namespace SocialPoint.GUIControl
             }
             set
             {
-                if(UsesVerticalLayout)
-                {
-                    _scrollContentRectTransform.anchoredPosition = new Vector2(0f, -value);
-                }
-                else if(UsesHorizontalLayout)
-                {
-                    _scrollContentRectTransform.anchoredPosition = new Vector2(-value, 0f);
-                }
-                else
-                {
-                    _scrollContentRectTransform.anchoredPosition = new Vector2(0f, 0f); //_gridLayoutGroup;
-                }
+                _scrollContentRectTransform.anchoredPosition = GetFinalScrollPosition(value);
             }
         }
 
@@ -103,7 +90,7 @@ namespace SocialPoint.GUIControl
                         padding = 0;//_gridLayoutGroup;
                     }
 
-                    if(_data.Count > 0 && _showLastCellPosition == ShowLastCellPosition.AtTop)
+                    if(_data.Count > 0 && _showLastCellPosition == ShowLastCellPosition.AtBegin)
                     {
                         padding += (int)(ScrollViewSize);
                         padding -= (int)GetCellSize(_data.Count - 1);
@@ -173,18 +160,24 @@ namespace SocialPoint.GUIControl
 
         float GetCellSize(int index)
         {
-            if(UsesVerticalLayout)
+            var data = GetDataByIndex(index);
+            if(data != null)
             {
-                return _data[index].Size.y;
+                if(UsesVerticalLayout)
+                {
+                    return data.Size.y;
+                }
+                else if(UsesHorizontalLayout)
+                {
+                    return data.Size.x;
+                }
+                else
+                {
+                    return 0f;//_gridLayoutGroup;
+                }
             }
-            else if(UsesHorizontalLayout)
-            {
-                return _data[index].Size.x;
-            }
-            else
-            {
-                return 0f;//_gridLayoutGroup;
-            }
+
+            return 0f;
         }
 
         float GetCellAccumulatedSize(int index)
@@ -194,18 +187,24 @@ namespace SocialPoint.GUIControl
                 return 0f;
             }
 
-            if(UsesVerticalLayout)
+            var data = GetDataByIndex(index);
+            if(data != null)
             {
-                return _data[index].AccumulatedSize.y;
+                if(UsesVerticalLayout)
+                {
+                    return data.AccumulatedSize.y;
+                }
+                else if(UsesHorizontalLayout)
+                {
+                    return data.AccumulatedSize.x;
+                }
+                else
+                {
+                    return 0f;//_gridLayoutGroup;
+                }
             }
-            else if(UsesHorizontalLayout)
-            {
-                return _data[index].AccumulatedSize.x;
-            }
-            else
-            {
-                return 0f;//_gridLayoutGroup;
-            }
+
+            return 0;
         }
 
         void OnScrollViewValueChanged(Vector2 newScrollValue)
@@ -213,44 +212,7 @@ namespace SocialPoint.GUIControl
 //            Debug.Log("scroll: " + ScrollPosition);
             _requiresRefresh = true;
         }      
-            
-        Range CalculateCurrentVisibleRange()
-        {
-            Profiler.BeginSample("UIScrollRectExtension.CalculateCurrentVisibleRange", this);
-
-            float startPosition = ScrollPosition - _boundsDelta;
-            float endPosition = ScrollPosition + ScrollViewSize + _boundsDelta;
-
-            int startIndex = FindIndexOfElementAtPosition(startPosition, 0, _data.Count - 1);
-            int endIndex = FindIndexOfElementAtPosition(endPosition, 0, _data.Count - 1);
-
-            Profiler.EndSample();
-            return new Range(startIndex, endIndex - startIndex + 1);
-        }
-            
-        int FindIndexOfElementAtPosition(float position)
-        {
-            return FindIndexOfElementAtPosition(position, _visibleElementRange.from, _visibleElementRange.RelativeCount());
-        }
-
-        int FindIndexOfElementAtPosition(float position, int startIndex, int endIndex)
-        {
-            if(startIndex >= endIndex)
-            {
-                return startIndex;
-            }
-
-            int midIndex = (startIndex + endIndex) / 2;
-            if(GetCellAccumulatedSize(midIndex) > position)
-            {
-                return FindIndexOfElementAtPosition(position, startIndex, midIndex);
-            }
-            else
-            {
-                return FindIndexOfElementAtPosition(position, midIndex + 1, endIndex);
-            }
-        }
-            
+    
         bool IndexIsValid(int index)
         {
             return (index >= 0 && index < _data.Count);
@@ -267,26 +229,18 @@ namespace SocialPoint.GUIControl
                 
             ScrollPosition = GetCellAccumulatedSize(_initialIndex - 1);
         }
-
-//        float CenterOnCellDeltaDisplacement()
-//        {
-//            if(_centerOnCell)
-//            {
-//                return GetCurrentCenteredSizeDelta();
-//            }
-//        }
-
+            
         void SetInitialVisibleElements()
         {
-            Range visibleElements = CalculateCurrentVisibleRange();
-            for(int i = visibleElements.from; i < visibleElements.RelativeCount(); ++i)
+            _tempVisibleCells = CalculateCurrentVisibleIndexs();
+            for(int i = FirstTempVisibleCellIndex; i <= LastTempVisibleCellIndex; ++i)
             {
-                ShowCell(i, true);
+                ShowCell(i, CellPositionShowOrHide.AtEnd, false);
             }
                 
-            _visibleElementRange = visibleElements;
+//            _visibleCells.UseNewIndexsAsCurrent(); ///// NEEDED????
             UpdatePaddingElements();
-            UpdateScroll();
+            UpdateScrollState();
         }
 
         float GetContentPanelSize()
@@ -303,7 +257,6 @@ namespace SocialPoint.GUIControl
         {
             Profiler.BeginSample("UIScrollRectExtension.SetupCellSizes", this);
 
-            Vector2 tempVector = Vector3.zero;
             float acumulatedWidth = 0f;
             float acumulatedHeight = 0f;
 
@@ -351,11 +304,7 @@ namespace SocialPoint.GUIControl
                 if(prefab != null)
                 {
                     trans = prefab.transform as RectTransform;
-
-                    tempVector = Vector3.zero;
-                    tempVector.x = trans.rect.width;
-                    tempVector.y = trans.rect.height;
-                    dataValue.Size = tempVector;
+                    dataValue.Size = ReuseNewTempVector(trans.rect.width, trans.rect.height);
                    
                     if(UsesVerticalLayout)
                     {
@@ -373,27 +322,28 @@ namespace SocialPoint.GUIControl
                             acumulatedWidth += Spacing;
                         }
                     }
-
-                    tempVector = Vector3.zero;
-                    tempVector.x = acumulatedWidth;
-                    tempVector.y = acumulatedHeight;
-                    dataValue.AccumulatedSize = tempVector;
+                        
+                    dataValue.AccumulatedSize = ReuseNewTempVector(acumulatedWidth, acumulatedHeight);
                 }
             }
 
-            for (int i = 0; i < _data.Count; ++i)
-            {
-                UnityEngine.Debug.Log("Index: " + i + " -- (" + _data[i].AccumulatedSize.x + "," + _data[i].AccumulatedSize.y + ")");
-            }
+//            for (int i = 0; i < _data.Count; ++i)
+//            {
+//                UnityEngine.Debug.Log("Index: " + i + " -- (" + _data[i].AccumulatedSize.x + "," + _data[i].AccumulatedSize.y + ")");
+//            }
                 
             Profiler.EndSample();
         }
 
-        TCellData GetIndexFromData(TCellData data)
+        Vector2 ReuseNewTempVector(float x, float y)
         {
-            return _data.Find(x => x.Equals(data));
-        }
+            _tempVector2 = Vector3.zero;
+            _tempVector2.x = x;
+            _tempVector2.y = y;
 
+            return _tempVector2;
+        }
+            
         void SetInitialPadding()
         {
             _defaultStartPadding = _centerOnCell ? 0 : StartPadding;
@@ -407,23 +357,6 @@ namespace SocialPoint.GUIControl
             }
 
             return prefab;
-        }
-
-        GameObject InstantiateCellPrefabIfNeeded(GameObject prefab)
-        {
-            return _usePooling ? UnityObjectPool.Spawn(prefab) : UnityEngine.Object.Instantiate(prefab);
-        }
-
-        void DestroyCellPrefabIfNeeded(GameObject prefab)
-        {
-            if(_usePooling)
-            {
-                UnityObjectPool.Recycle(prefab);
-            }
-            else
-            {
-                prefab.DestroyAnyway();
-            }
         }
 
         void SetRectTransformSize(RectTransform trans, float size, bool disableIfZero = false)
@@ -457,78 +390,7 @@ namespace SocialPoint.GUIControl
                 // TODO
             }
         }
-
-        void ShowCell(int index, bool showAtEnd)
-        {
-            TCell newCell = GetCellForIndexInTableView(index);
-
-            var trans = newCell.transform;
-            trans.SetParent(_scrollContentRectTransform, false);
-            trans.localScale = Vector3.one;
-            trans.localPosition = Vector3.zero;
-
-            newCell.gameObject.name = "cell " + index; // debug mode
-
-            _visibleCells[index] = newCell;
-
-            if(showAtEnd)
-            {
-                trans.SetAsLastSibling();
-            }
-            else
-            {
-                trans.SetAsFirstSibling(); 
-            }
-
-//            if(CellVisibilityChange != null)
-//            {
-//                CellVisibilityChange(index, true);
-//            }
-        }
-
-        void HideCell(bool hideAtEnd)
-        {
-            int index = hideAtEnd ? _visibleElementRange.Last() : _visibleElementRange.from;
-            TCell removedCell = _visibleCells[index];
-
-            DestroyCellPrefabIfNeeded(removedCell.gameObject);
-            _visibleCells.Remove(index);
-            _visibleElementRange.count -= 1;
-            if(!hideAtEnd)
-            {
-                _visibleElementRange.from += 1;
-            }
-
-//            if(CellVisibilityChange != null)
-//            {
-//                CellVisibilityChange(element, false);
-//            }
-        }
             
-        public TCell GetCellForIndexInTableView(int index)
-        {
-            GameObject prefab = null;
-            if(_prefabs.TryGetValue(_data[index].Prefab, out prefab))
-            {
-                var go = InstantiateCellPrefabIfNeeded(prefab);
-                TCell cell = go.GetComponent<TCell>();
-                cell.UpdateData(_data[index]);
-                return cell;
-            }
-
-            return null;
-        }
-           
-        void ClearAllVisibleCells()
-        {
-            while(_visibleCells.Count > 0)
-            {
-                HideCell(false);
-            }
-
-            _visibleElementRange = new Range(0, 0);
-        }
-
         void RecalculateVisibleCells()
         {
             ClearAllVisibleCells();
@@ -539,15 +401,11 @@ namespace SocialPoint.GUIControl
         {
             _requiresReload = false;
 
-            for(int i = _visibleElementRange.from; i < _visibleElementRange.RelativeCount(); ++i)
-            {
-                var go = _visibleCells[i];
-                if(go != null)
-                {
-                    TCell cell = go.GetComponent<TCell>();
-                    cell.UpdateData(_data[i]);
-                }
-            }
+            Profiler.BeginSample("UIScrollRectExtension.ReloadVisibleElements", this);
+
+            UpdateCellsData();
+
+            Profiler.EndSample();
         }
 
         void RefreshVisibleElements()
@@ -556,73 +414,76 @@ namespace SocialPoint.GUIControl
 
             Profiler.BeginSample("UIScrollRectExtension.RefreshVisibleElements", this);
 
-            Range newVisibleElements = CalculateCurrentVisibleRange();
-            if(_visibleElementRange.Equals(newVisibleElements))
+            _tempVisibleCells = CalculateCurrentVisibleIndexs();
+            if(VisibleElementsHaveNotChanged())
             {
                 return;
             }
-                
-            int oldTo = _visibleElementRange.Last();
-            int newTo = newVisibleElements.Last();
 
-            bool _somethingHasChanged = false;
-
-            if(newVisibleElements.from > oldTo || newTo < _visibleElementRange.from)
+            if(FirstTempVisibleCellIndex > LastVisibleCellIndex || LastTempVisibleCellIndex < FirstVisibleCellIndex)
             {
-                _somethingHasChanged = true;
-
                 //We jumped to a completely different segment this frame, destroy all and recreate
                 RecalculateVisibleCells();
-                return;
             }
             else
             {
                 //Remove elements that disappeared to the start
-                for (int i = _visibleElementRange.from; i < newVisibleElements.from; ++i)
+                for (int i = FirstVisibleCellIndex; i < FirstTempVisibleCellIndex; ++i)
                 {
-                    HideCell(false);
-                    _somethingHasChanged = true;
+                    HideCell(i);
+                }
+               
+                //Remove elements that disappeared in the middle
+                for(int i = Mathf.Max(FirstVisibleCellIndex, FirstTempVisibleCellIndex); i < Mathf.Min(LastVisibleCellIndex, LastTempVisibleCellIndex); ++i)
+                {
+//                    if(_visibleCells.GetDesiredCurrentCellIndex(i) != _visibleCells.GetDesiredNewCellIndex(i))
+//                    {
+//                        HideCell(i);
+//                    }
                 }
 
                 //Remove elements that disappeared to the end
-                for (int i = newTo; i < oldTo; ++i)
+                for (int i = LastTempVisibleCellIndex; i < LastVisibleCellIndex; ++i)
                 {
-                    HideCell(true);
-                    _somethingHasChanged = true;
+                    HideCell(i);
                 }
 
                 //Add elements that appeared on start
-                for (int i = _visibleElementRange.from - 1; i >= newVisibleElements.from; --i)
+                for (int i = FirstVisibleCellIndex - 1; i >= FirstTempVisibleCellIndex; --i)
                 {
-                    ShowCell(i, false);
-                    _somethingHasChanged = true;
+                    ShowCell(i, CellPositionShowOrHide.AtBegin, false);
+                }
+
+                //Add elements that appeared on middle
+                for(int i = Mathf.Max(FirstVisibleCellIndex, FirstTempVisibleCellIndex); i < Mathf.Min(LastVisibleCellIndex, LastTempVisibleCellIndex); ++i)
+                {
+//                    if(_visibleCells.GetDesiredCurrentCellIndex(i) != _visibleCells.GetDesiredNewCellIndex(i))
+//                    {
+//                        ShowCell(i, CellPositionShowOrHide.AtMiddle, true);
+//                    }
                 }
 
                 //Add elements that appeared on end
-                for (int i = oldTo + 1; i <= newTo; ++i)
+                for (int i = LastVisibleCellIndex + 1; i <= LastTempVisibleCellIndex; ++i)
                 {
-                    ShowCell(i, true);
-                    _somethingHasChanged = true;
+                    ShowCell(i, CellPositionShowOrHide.AtEnd, false);
                 }
 
-                _visibleElementRange = newVisibleElements;
+//                _visibleCells.UseNewIndexsAsCurrent(); // NEEEEDDEEED???
             }
+                
+            UpdatePaddingElements();
+            UpdateScrollState();
 
-            if(_somethingHasChanged)
-            {
-                UpdatePaddingElements();
-                UpdateScroll();
-            }
+            Profiler.EndSample();
 
             if(_requiresReload)
             {
                 ReloadVisibleElements();
             }
-
-            Profiler.EndSample();
         }
 
-        void UpdateScroll()
+        void UpdateScrollState()
         {
             if(ScrollViewContentSize > ScrollViewSize)
             {
@@ -637,7 +498,7 @@ namespace SocialPoint.GUIControl
         void UpdatePaddingElements()
         {
             float padding = 0f;
-            if(_visibleElementRange.from == 0)
+            if(FirstVisibleCellIndex == 0)
             {
                 if(CurrentIndex == 0)
                 {
@@ -646,7 +507,7 @@ namespace SocialPoint.GUIControl
             }
             else
             {
-                padding += GetCellAccumulatedSize(_visibleElementRange.from - 1);
+                padding += GetCellAccumulatedSize(FirstVisibleCellIndex - 1);
             }
 
             if(_centerOnCell)
@@ -712,7 +573,7 @@ namespace SocialPoint.GUIControl
                 }
                 else
                 {
-                    if(_showLastCellPosition == ShowLastCellPosition.AtTop)
+                    if(_showLastCellPosition == ShowLastCellPosition.AtBegin)
                     {
                         ScrollToCell(index);
                     }
@@ -761,19 +622,19 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        Vector2 GetFinalAnchoredPosition(float position)
+        Vector2 GetFinalScrollPosition(float position)
         {
             if(UsesVerticalLayout)
             {
-                return new Vector2(0f, -position);
+                return ReuseNewTempVector(0f, -position);
             }
             else if(UsesHorizontalLayout)
             {
-                return new Vector2(-position, 0f);
+                return ReuseNewTempVector(-position, 0f);
             }
             else
             {
-                return new Vector2(0f, 0f);
+                return ReuseNewTempVector(0f, 0f);
             }
         }
 
@@ -789,11 +650,11 @@ namespace SocialPoint.GUIControl
             GoTween tween;
             if(_scrollAnimationEaseType == GoEaseType.AnimationCurve && _scrollAnimationCurve != null)
             {
-                tween = Go.to(_scrollContentRectTransform, 0.3f, new GoTweenConfig().anchoredPosition(GetFinalAnchoredPosition(finalPosition)).setEaseType(_scrollAnimationEaseType).setEaseCurve(_scrollAnimationCurve));
+                tween = Go.to(_scrollContentRectTransform, 0.3f, new GoTweenConfig().anchoredPosition(GetFinalScrollPosition(finalPosition)).setEaseType(_scrollAnimationEaseType).setEaseCurve(_scrollAnimationCurve));
             }
             else
             {
-                tween = Go.to(_scrollContentRectTransform, 0.3f, new GoTweenConfig().anchoredPosition(GetFinalAnchoredPosition(finalPosition)).setEaseType(_scrollAnimationEaseType));
+                tween = Go.to(_scrollContentRectTransform, 0.3f, new GoTweenConfig().anchoredPosition(GetFinalScrollPosition(finalPosition)).setEaseType(_scrollAnimationEaseType));
             }
 
             yield return tween.waitForCompletion();
@@ -892,7 +753,7 @@ namespace SocialPoint.GUIControl
 
         void MyOnDrawGizmoSelected()
         {
-            if(_mainCanvas != null)
+            if(_mainCanvas != null && _scrollRect != null)
             {
                 Gizmos.color = Color.red;
 
@@ -902,6 +763,7 @@ namespace SocialPoint.GUIControl
                 float posXbottom = 0f;
                 float posYtop = 0f;
                 float posYbottom = 0f;
+
                 if(_scrollRect.vertical)
                 {
                     posXtop += trans.position.x + (rectTrans.rect.xMax * _mainCanvas.transform.localScale.x);
