@@ -16,10 +16,12 @@ public class GUIInstaller : Installer, IDisposable
     const string kGUIRootPrefab = "GUI_Root";
     const string kUIViewControllerExamplePrefix = "GUI_";
 
+    const float DefaultAnimationTime = 1.0f;
+
     [Serializable]
     public class SettingsData
     {
-        public float PopupAnimationTime = PopupsController.DefaultAnimationTime;
+        public float PopupAnimationTime = DefaultAnimationTime;
     }
 
     public SettingsData Settings = new SettingsData();

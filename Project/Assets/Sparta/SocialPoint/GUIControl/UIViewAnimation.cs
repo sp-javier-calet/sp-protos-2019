@@ -8,11 +8,7 @@ namespace SocialPoint.GUIControl
     {
         public abstract void Load(UIViewController ctrl);
 
-        public abstract IEnumerator Appear();
-
-        public abstract IEnumerator Disappear();
-
-        public abstract void Reset();
+        public abstract IEnumerator Animate();
 
         #region ICloneable implementation
 

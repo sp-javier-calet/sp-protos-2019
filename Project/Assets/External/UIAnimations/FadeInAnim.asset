@@ -8,8 +8,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 404c339c1ce6340069542d4fb27872fc, type: 3}
-  m_Name: SlideAnim
+  m_Script: {fileID: 11500000, guid: 0bfd670d4955f4f499ee3c0a41589556, type: 3}
+  m_Name: FadeInAnim
   m_EditorClassIdentifier: 
-  _speed: 0
-  _direction: 0
+  _time: 1
+  _initialAlpha: 0
+  _finalAlpha: 1
