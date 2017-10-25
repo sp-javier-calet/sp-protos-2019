@@ -146,7 +146,7 @@ namespace SpartaTools.Editor.SpartaProject
             }
             else if(tag == "depends_on")
             {
-                content = SpartaPaths.ReplaceProjectVariables(string.Empty, content, _projectVariables);
+                content = SpartaPaths.ReplaceProjectVariables(content, _projectVariables);
                 Dependencies.Add(content);
             }
             else if(tag == "desc")
@@ -155,7 +155,7 @@ namespace SpartaTools.Editor.SpartaProject
             }
             else if(tag == "exclude_path")
             {
-                content = SpartaPaths.ReplaceProjectVariables(string.Empty, content, _projectVariables);
+                content = SpartaPaths.ReplaceProjectVariables(content, _projectVariables);
                 Filters.Add(new PathFilter(content));
             }
             else if(tag == "exclude_extension")

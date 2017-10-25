@@ -106,22 +106,17 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                     { ProjectPathVar,  project.ProjectPath     }, // Path to the .xcodeproj file
                     { ProjectRootVar,  project.ProjectRootPath }, // Path to the xcode project folder
                     { CurrentRootPath, project.BaseAppPath     }, // Path to the Unity project root
-                    { SpartaPaths.SourcesVariable, SpartaPaths.SourcesDir       },
-                    { SpartaPaths.BinariesVariable, SpartaPaths.BinariesDir     },
-                    { SpartaPaths.CoreVariable, SpartaPaths.CoreDir             },
-                    { SpartaPaths.ExternalVariable, SpartaPaths.ExternalDir     },
-                    { SpartaPaths.ExtensionsVariable, SpartaPaths.ExtensionsDir }
+                    { SpartaPaths.SourcesVariable, SpartaPaths.SourcesDirAbsolute       },
+                    { SpartaPaths.BinariesVariable, SpartaPaths.BinariesDirAbsolute     },
+                    { SpartaPaths.CoreVariable, SpartaPaths.CoreDirAbsolute             },
+                    { SpartaPaths.ExternalVariable, SpartaPaths.ExternalDirAbsolute     },
+                    { SpartaPaths.ExtensionsVariable, SpartaPaths.ExtensionsDirAbsolute }
                 };
             }
 
             public string ReplaceProjectVariables(string originalPath)
             {
-                return ReplaceProjectVariables(string.Empty, originalPath);
-            }
-
-            public string ReplaceProjectVariables(string basePath, string originalPath)
-            {
-                return SpartaPaths.ReplaceProjectVariables(basePath, originalPath, _projectVariables);
+                return SpartaPaths.ReplaceProjectVariables(originalPath, _projectVariables);
             }
 
             #region XCodeProjectEditor interface methods
@@ -352,7 +347,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 {
                     foreach(var mod in _mods)
                     {
-                        var filePath = editor.ReplaceProjectVariables(mod.Base, mod.Src);
+                        var filePath = editor.ReplaceProjectVariables(mod.Src);
                         if(filePath.EndsWith("/*"))
                         {
                             var tempFilePath = filePath.Substring(0, filePath.Length - 1);
@@ -376,8 +371,8 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 {
                     foreach(var mod in _mods)
                     {
-                        var fromPath = editor.ReplaceProjectVariables(mod.Base, mod.Src);
-                        var toPath = editor.ReplaceProjectVariables(mod.Base, mod.Dst);
+                        var fromPath = editor.ReplaceProjectVariables(mod.Src);
+                        var toPath = editor.ReplaceProjectVariables(mod.Dst);
                         CopyFile(fromPath, toPath);
                     }
                 }
