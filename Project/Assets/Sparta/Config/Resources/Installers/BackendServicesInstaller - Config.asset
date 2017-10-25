@@ -9,7 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ecd85d1992203410e8995420a693b61c, type: 3}
-  m_Name: BackendServicesInstaller - Empty
+  m_Name: BackendServicesInstaller - Config
   m_EditorClassIdentifier: 
   _isGlobal: 0
   Settings:
@@ -22,7 +22,7 @@ MonoBehaviour:
       BackoffMultiplier: 1.1
       PingEnabled: 1
     Login:
-      TypeLogin: 2
+      TypeLogin: 1
       Timeout: 120
       ActivityTimeout: 15
       AutoupdateFriends: 1
@@ -31,8 +31,10 @@ MonoBehaviour:
       MaxConnectivityErrorRetries: 0
       EnableLinkConfirmRetries: 0
       UserMappingsBlock: 50
+      GameID: ssp
+      GameEnvironment: ssp1
     Events:
-      UseEmpty: 1
+      UseEmpty: 0
       AutoStart: 1
       MaxOutOfSyncInterval: 0
       SendInterval: 5
