@@ -1,7 +1,6 @@
 ﻿using UnityEngine.UI;
 using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine.SocialPlatforms;
 using System.Collections;
 using UnityEngine.EventSystems;
 using SocialPoint.Base;
@@ -117,8 +116,6 @@ namespace SocialPoint.GUIControl
 
         public bool Initialized { get; private set; }
 
-        Range _visibleElementRange;
-        List<TCell> _visibleCells;
         List<TCellData> _data = new List<TCellData>();
         Dictionary<string, GameObject> _prefabs = new Dictionary<string, GameObject>();
 
@@ -192,7 +189,7 @@ namespace SocialPoint.GUIControl
                 }
             }
         }
-
+            
         #region Unity methods
 
         void Awake()
@@ -318,6 +315,11 @@ namespace SocialPoint.GUIControl
             }
         }
 
+        TCellData GetIndexFromData(TCellData data)
+        {
+            return _data.Find(x => x.Equals(data));
+        }
+
         public void AddData(bool addAtEnd = true, bool moveToEnd = false)
         {
             if(_addCellDataDlg != null)
@@ -345,7 +347,7 @@ namespace SocialPoint.GUIControl
                     }
                 }
 
-                RefreshVisibleElements(true);
+                RefreshVisibleCells(true);
             }
         }
 
@@ -370,7 +372,7 @@ namespace SocialPoint.GUIControl
         {
             SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
 
-            RefreshVisibleElements(true);
+            RefreshVisibleCells(true);
         }
 
         void OnEndFetchingDataFromServer()
