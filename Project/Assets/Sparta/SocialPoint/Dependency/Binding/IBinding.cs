@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections.Generic;
 
 namespace SocialPoint.Dependency
 {
@@ -9,8 +8,19 @@ namespace SocialPoint.Dependency
 
         bool Resolved { get; }
 
+        int Priority{ get; }
+
         object Resolve();
 
         void OnResolved();
+
+    }
+
+    public class BindingComparer : IComparer<IBinding>
+    {
+        public int Compare(IBinding x, IBinding y)
+        {
+            return y.Priority - x.Priority;
+        }
     }
 }
