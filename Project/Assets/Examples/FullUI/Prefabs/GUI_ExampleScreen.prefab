@@ -888,8 +888,8 @@ MonoBehaviour:
   _paginationButtonPrefab: {fileID: 1512948921706926}
   _imageSelected: {fileID: 21300000, guid: 518771c418327f4459332c5fa1020716, type: 3}
   _imageUnSelected: {fileID: 21300000, guid: f910b3a870bab5c4cbbb597a947ca5cb, type: 3}
-  _useNavigationButtons: 0
-  _usePaginationButtons: 0
+  _useNavigationButtons: 1
+  _usePaginationButtons: 1
 --- !u!114 &114019419063491646
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1216,7 +1216,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 200
+  m_Spacing: 0
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -1316,7 +1316,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Add new cell at new
+  m_Text: Add new cell at end
   Key: 
   Parameters: []
   Effect: 0
@@ -1697,7 +1697,7 @@ MonoBehaviour:
   _layoutGroup: {fileID: 0}
   _usePooling: 1
   _boundsDelta: 400
-  _initialIndex: 5
+  _initialIndex: 0
   _showLastCellPosition: 1
   _scrollAnimationEaseType: 0
   _scrollAnimationCurve:
@@ -1708,11 +1708,11 @@ MonoBehaviour:
     m_RotationOrder: 4
   _scrollAnimationDuration: 0.5
   _disableDragWhileScrollingAnimation: 0
-  _centerOnCell: 0
+  _centerOnCell: 1
   _deltaDragCell: 50
   _maginifyMinScale: {x: 0, y: 0}
   _maginifyMaxScale: {x: 0, y: 0}
-  _pagination: {fileID: 0}
+  _pagination: {fileID: 114017358527254550}
   _loadingGroup: {fileID: 1735378496034082}
   _mainCanvas: {fileID: 223776503781852692}
 --- !u!114 &114525763816899322
@@ -2157,7 +2157,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 114017358527254550}
         m_MethodName: OnNextButtonClicked
         m_Mode: 1
         m_Arguments:
@@ -2448,7 +2448,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 114017358527254550}
         m_MethodName: OnPreviousButtonClicked
         m_Mode: 1
         m_Arguments:

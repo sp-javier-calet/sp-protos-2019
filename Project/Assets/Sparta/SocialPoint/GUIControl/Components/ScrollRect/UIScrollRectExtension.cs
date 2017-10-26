@@ -287,14 +287,14 @@ namespace SocialPoint.GUIControl
 
         #endregion
 
-        IEnumerator FetchDataFromServer(UIScrollRectExtensionGetData getDataDlg)
-        {
-            // Simulating server delay
-            yield return new WaitForSeconds(2f);
-    
-            _data = getDataDlg();
-            OnEndFetchingDataFromServer();
-        }
+        // FOR TESTING 
+//        IEnumerator FetchDataFromServer(UIScrollRectExtensionGetData getDataDlg)
+//        {
+//            // Testing Simulating server delay to show loading spinner
+//            yield return new WaitForSeconds(2f);
+//    
+//            FetchDataFromServer(getDataDlg);
+//        }
 
         public void FetchData()
         {
@@ -307,7 +307,8 @@ namespace SocialPoint.GUIControl
 
             if(_getDataDlg != null)
             {
-                StartCoroutine(FetchDataFromServer(_getDataDlg));
+                FetchDataFromServer(_getDataDlg);
+//                StartCoroutine(FetchDataFromServer(_getDataDlg));
             }
             else
             {
@@ -315,64 +316,10 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        TCellData GetIndexFromData(TCellData data)
+        void FetchDataFromServer(UIScrollRectExtensionGetData getDataDlg)
         {
-            return _data.Find(x => x.Equals(data));
-        }
-
-        public void AddData(bool addAtEnd = true, bool moveToEnd = false)
-        {
-            if(_addCellDataDlg != null)
-            {
-                var data = _addCellDataDlg();
-                if(data != null)
-                {
-                    if(addAtEnd)
-                    {
-                        _data.Add(data);
-                        SetDataValues(_data.Count - 1);
-                    }
-                    else
-                    {
-                        _data.Insert(0, data);
-                        _visibleElementRange.from += 1;
-                        SetDataValues();
-                    }
-
-                    SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
-
-                    if(_pagination != null)
-                    {
-                        _pagination.Reload(_data.Count, CurrentIndex);
-                    }
-                }
-
-                RefreshVisibleCells(true);
-            }
-        }
-
-        public void RemoveData(int index)
-        {
-            if(IndexIsValid(index))
-            {
-                _data.RemoveAt(index);
-
-                SetDataValues(index);
-
-                if(_pagination != null)
-                {
-                    _pagination.Reload(_data.Count, CurrentIndex);
-                }
-
-                HideCell(index, true, FinishRemovingData);
-            }
-        }
-
-        void FinishRemovingData()
-        {
-            SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
-
-            RefreshVisibleCells(true);
+            _data = getDataDlg();
+            OnEndFetchingDataFromServer();
         }
 
         void OnEndFetchingDataFromServer()
@@ -386,7 +333,7 @@ namespace SocialPoint.GUIControl
             {
                 throw new UnityException("Data not loaded!");
             }
-                
+
             SetInitialPadding();
             SetDataValues();
             SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
@@ -397,6 +344,71 @@ namespace SocialPoint.GUIControl
             {
                 _pagination.Init(_data.Count, CurrentIndex, ScrollToPreviousCell, ScrollToNextCell, ScrollToCell);
             }
+        }
+
+        TCellData GetIndexFromData(TCellData data)
+        {
+            return _data.Find(x => x.Equals(data));
+        }
+
+        public void AddData(bool addAtEnd = true, bool moveToEnd = false)
+        {
+            if(!_centerOnCell)
+            {
+                if(_addCellDataDlg != null)
+                {
+                    var data = _addCellDataDlg();
+                    if(data != null)
+                    {
+                        if(addAtEnd)
+                        {
+                            _data.Add(data);
+                            SetDataValues(_data.Count - 1);
+                        }
+                        else
+                        {
+                            _data.Insert(0, data);
+                            _visibleElementRange.from += 1;
+                            SetDataValues();
+                        }
+
+                        SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
+
+                        if(_pagination != null)
+                        {
+                            _pagination.Reload(_data.Count, CurrentIndex);
+                        }
+                    }
+
+                    RefreshVisibleCells(true);
+                }
+            }
+        }
+
+        public void RemoveData(int index)
+        {
+            if(!_centerOnCell)
+            {
+                if(IndexIsValid(index))
+                {
+                    _data.RemoveAt(index);
+
+                    SetDataValues(index);
+
+                    if(_pagination != null)
+                    {
+                        _pagination.Reload(_data.Count, CurrentIndex);
+                    }
+
+                    HideCell(index, true, FinishRemovingData);
+                }
+            }
+        }
+
+        void FinishRemovingData()
+        {
+            SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
+            RefreshVisibleCells(true);
         }
 
         void Dispose()
