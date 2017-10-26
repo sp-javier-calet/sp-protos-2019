@@ -28,14 +28,13 @@ namespace SocialPoint.GUIControl
         public event Action<UIViewController, ViewState> ViewEvent;
         public event Action<UIViewController, GameObject> InstantiateEvent;
 
-        public UIViewAnimation<UIViewController> ShowAnimation;
-        public UIViewAnimation<UIViewController> HideAnimation;
+        public UIViewAnimation AppearAnimation;
+        public UIViewAnimation DisappearAnimation;
 
         bool _loaded;
         ViewState _viewState = ViewState.Initial;
         Coroutine _showCoroutine;
         Coroutine _hideCoroutine;
-        UIViewAnimation<UIViewController> _animation;
 
         [HideInInspector]
         public UIViewController ParentController;
@@ -296,27 +295,6 @@ namespace SocialPoint.GUIControl
                 size.y = Screen.height;
             }
             return size;
-        }
-
-        public UIViewAnimation<UIViewController> Animation
-        {
-            set
-            {
-                if(_animation != null)
-                {
-                    _animation.Reset();
-                }
-                if(value != null)
-                {
-                    value.Load(this);
-                }
-                _animation = value;
-            }
-
-            get
-            {
-                return _animation;
-            }
         }
 
         public bool IsStable
@@ -670,9 +648,9 @@ namespace SocialPoint.GUIControl
 
         virtual protected IEnumerator Appear()
         {
-            if(Animation != null)
+            if(AppearAnimation != null)
             {
-                var enm = Animation.Appear();
+                var enm = AppearAnimation.Animate();
                 while(enm.MoveNext())
                 {
                     yield return enm.Current;
@@ -723,10 +701,10 @@ namespace SocialPoint.GUIControl
 
         virtual protected IEnumerator Disappear()
         {
-            if(Animation != null)
+            if(DisappearAnimation != null)
             {
                 yield return new WaitForEndOfFrame();
-                var enm = Animation.Disappear();
+                var enm = DisappearAnimation.Animate();
                 while(enm.MoveNext())
                 {
                     yield return enm.Current;
@@ -747,10 +725,7 @@ namespace SocialPoint.GUIControl
                 StopCoroutine(_hideCoroutine);
                 _hideCoroutine = null;
             }
-            if(Animation != null)
-            {
-                Animation.Reset();
-            }
+
             _viewState = ViewState.Initial;
         }
 

@@ -4,7 +4,7 @@ using SocialPoint.GUIAnimation;
 
 namespace SocialPoint.GUIControl
 {
-    public sealed class UIToolAnimation : UIViewAnimation<UIViewController>
+    public sealed class UIToolAnimation : UIViewAnimation
     {
         string _name;
         Animation _anim;
@@ -19,7 +19,7 @@ namespace SocialPoint.GUIControl
             _anim = GUIAnimationUtility.GetAnimation(ctrl.gameObject, _name);
         }
 
-        public override IEnumerator Appear()
+        public override IEnumerator Animate()
         {
             if(!Revert())
             {
@@ -27,16 +27,7 @@ namespace SocialPoint.GUIControl
             }
             yield return Play(false);
         }
-
-        public override IEnumerator Disappear()
-        {
-            if(!Revert())
-            {
-                yield break;
-            }
-            yield return Play(true);
-        }
-
+            
         IEnumerator Play(bool inverted)
         {
             if(inverted != _anim.IsInverted)
@@ -50,12 +41,7 @@ namespace SocialPoint.GUIControl
             }
             _anim.Stop();
         }
-
-        public override void Reset()
-        {
-            Revert();
-        }
-
+            
         bool Revert()
         {
             if(_anim == null)
@@ -72,6 +58,5 @@ namespace SocialPoint.GUIControl
             clone._anim = _anim;
             return clone;
         }
-
     }
 }

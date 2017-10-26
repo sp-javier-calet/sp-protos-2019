@@ -10,13 +10,15 @@
     "SEPARATE_STRIP": "YES",
     "CODE_SIGN_ENTITLEMENTS": "Unity-iPhone.entitlements",
     "ENABLE_BITCODE": "NO",
-    "CLANG_ENABLE_CODE_COVERAGE": "NO"
+    "CLANG_ENABLE_CODE_COVERAGE": "NO",
+    "DEPLOYMENT_POSTPROCESSING": "YES"
   },
   "frameworks": [
     "Security.framework:weak"
   ],
   "infoPlist": {
-    "CFBundleIdentifier": "basegame",
+    "BundleSeedId": "PD2V9367QH",
+    "CFBundleIdentifier": "es.socialpoint.basegame",
     "CFBundleURLTypes":[{
       "CFBundleURLName":"basegame",
       "CFBundleURLSchemes":["basegame"]

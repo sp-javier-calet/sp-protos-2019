@@ -12,6 +12,7 @@ namespace SocialPoint.Base
     [UnityEditor.InitializeOnLoad]
     #endif
 
+    //IMPORTANT: This assets is Updated only if you SAVE and RESTART UNITY!!!!
     public class ScenesData : ScriptableObject
     {
         const string FolderName = "ScenesData/";

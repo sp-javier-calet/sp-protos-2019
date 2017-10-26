@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 065098479914a4a9088d9c83cf05cd5b, type: 3}
+  m_Name: CombinedInAnim
+  m_EditorClassIdentifier: 
+  _animations:
+  - {fileID: 11400000, guid: dc114338b8c0648c2b7527110314e6d0, type: 2}
+  - {fileID: 11400000, guid: d1b04adfe259c4177812b3bab0b4c035, type: 2}
