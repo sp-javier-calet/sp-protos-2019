@@ -37,7 +37,7 @@ namespace SocialPoint.Dependency
             {
                 var installer = Installers[i];
 
-                if( installer == null )
+                if(installer == null)
                 {
                     continue;
                 }
