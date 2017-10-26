@@ -16,12 +16,16 @@ namespace SocialPoint.Dependency
         public const string FileExtension = ".asset";
         public const string AssetPattern = "*.asset";
 
+        static string[] AssembliesToInspect = {
+            "Assembly-CSharp",
+            "Assembly-CSharp-firstpass"
+        };
+
         [DidReloadScripts]
         static void OnScriptsReloaded()
         {
             Reload();
         }
-
 
         static GlobalDependencyConfigurer GetConfigurerAsset()
         {
@@ -45,10 +49,21 @@ namespace SocialPoint.Dependency
         {
             var installerType = typeof(Installer);
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
             foreach(var assembly in assemblies)
             {
-                // Ignore Unity-Editor assemblies
-                if(assembly.GetName().Name.Contains("CSharp-Editor"))
+                bool valid = false;
+                var assemblyName = assembly.GetName().Name;
+                foreach(var validName in AssembliesToInspect)
+                {
+                    if(assemblyName == validName)
+                    {
+                        valid = true;
+                        break;
+                    }
+                }
+
+                if(!valid)
                 {
                     continue;
                 }

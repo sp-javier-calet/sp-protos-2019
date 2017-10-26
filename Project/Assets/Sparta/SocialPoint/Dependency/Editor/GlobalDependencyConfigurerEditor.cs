@@ -57,6 +57,7 @@ namespace SocialPoint.Dependency
                 _installers[i] = data;
             }
         }
+
         static void SetStyleColor(GUIStyle style, Color color)
         {
             style.normal.textColor = color;
