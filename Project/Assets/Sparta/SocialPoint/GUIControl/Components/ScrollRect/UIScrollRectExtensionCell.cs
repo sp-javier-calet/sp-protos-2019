@@ -33,7 +33,7 @@ namespace SocialPoint.GUIControl
             newCell.gameObject.name = "cell " + index;
             #endif
 
-            _visibleCells.Insert(index, newCell);
+            _visibleCells.Add(newCell);
 
             if(showAtEnd)
             {
