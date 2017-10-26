@@ -103,7 +103,7 @@ namespace SocialPoint.GUIControl
                         padding = 0;//_gridLayoutGroup;
                     }
 
-                    if(_data.Count > 0 && _showLastCellPosition == ShowLastCellPosition.AtTop)
+                    if(_data.Count > 0 && _showLastCellPosition == ShowLastCellPosition.AtStart)
                     {
                         padding += (int)(ScrollViewSize);
                         padding -= (int)GetCellSize(_data.Count - 1);
@@ -333,7 +333,7 @@ namespace SocialPoint.GUIControl
             for(int i = beginIndex; i < _data.Count; ++i)
             {
                 var dataValue = _data[i];
-                dataValue.Id = i;
+                dataValue.Index = i;
 
                 string prefabName = dataValue.Prefab;
 
@@ -414,7 +414,51 @@ namespace SocialPoint.GUIControl
             return _usePooling ? UnityObjectPool.Spawn(prefab) : UnityEngine.Object.Instantiate(prefab);
         }
 
-        void DestroyCellPrefabIfNeeded(GameObject prefab)
+        void DestroyCellPrefabIfNeeded(GameObject prefab, bool animate, Action callback)
+        {
+            var trans = prefab.transform as RectTransform;
+            var originalPivot = trans.pivot;
+            var originalScale = trans.localScale;
+
+            if(animate)
+            {
+                StartCoroutine(DestroyAnimated(prefab, originalPivot, originalScale, callback));
+            }
+            else
+            {
+                DoDestroyCellPrefabIfNeeded(prefab, originalPivot, originalScale, callback);
+            }
+        }
+
+        IEnumerator DestroyAnimated(GameObject prefab, Vector2 originalPivot, Vector3 originalScale, Action callback)
+        {
+            var trans = prefab.transform as RectTransform;
+
+            Go.killAllTweensWithTarget(trans);
+
+            //            if(time < 0.05f)
+            //            {
+            //                yield break;
+            //            }
+
+            trans.pivot = new Vector2(0f, 0.5f);
+            GoTween tween = Go.to(trans, 0.3f, new GoTweenConfig().scale(new Vector3(0f, 1f, 1f)));
+
+            //            if(_scrollAnimationEaseType == GoEaseType.AnimationCurve && _scrollAnimationCurve != null)
+            //            {
+            //                tween = Go.to(_scrollContentRectTransform, 0.3f, new GoTweenConfig().anchoredPosition(GetFinalScrollPosition(finalPosition)).setEaseType(_scrollAnimationEaseType).setEaseCurve(_scrollAnimationCurve));
+            //            }
+            //            else
+            //            {
+            //                tween = Go.to(_scrollContentRectTransform, 0.3f, new GoTweenConfig().anchoredPosition(GetFinalScrollPosition(finalPosition)).setEaseType(_scrollAnimationEaseType));
+            //            }
+
+            yield return tween.waitForCompletion();
+
+            DoDestroyCellPrefabIfNeeded(prefab, originalPivot, originalScale, callback);
+        }
+
+        void DoDestroyCellPrefabIfNeeded(GameObject prefab, Vector2 originalPivot, Vector3 originalScale, Action callback)
         {
             if(_usePooling)
             {
@@ -423,6 +467,11 @@ namespace SocialPoint.GUIControl
             else
             {
                 prefab.DestroyAnyway();
+            }
+
+            if(callback != null)
+            {
+                callback();
             }
         }
 
@@ -460,16 +509,18 @@ namespace SocialPoint.GUIControl
 
         void ShowCell(int index, bool showAtEnd)
         {
-            TCell newCell = GetCellForIndexInTableView(index);
+            TCell newCell = GetCellAndPrefabByIndex(index);
 
             var trans = newCell.transform;
             trans.SetParent(_scrollContentRectTransform, false);
             trans.localScale = Vector3.one;
             trans.localPosition = Vector3.zero;
 
-            newCell.gameObject.name = "cell " + index; // debug mode
+            #if UNITY_EDITOR
+            newCell.gameObject.name = "cell " + index;
+            #endif
 
-            _visibleCells[index] = newCell;
+            _visibleCells.Insert(index, newCell);
 
             if(showAtEnd)
             {
@@ -486,17 +537,21 @@ namespace SocialPoint.GUIControl
 //            }
         }
 
-        void HideCell(bool hideAtEnd)
+        void HideCell(int index, bool animate, Action callback)
         {
-            int index = hideAtEnd ? _visibleElementRange.Last() : _visibleElementRange.from;
-            TCell removedCell = _visibleCells[index];
-
-            DestroyCellPrefabIfNeeded(removedCell.gameObject);
-            _visibleCells.Remove(index);
-            _visibleElementRange.count -= 1;
-            if(!hideAtEnd)
+//            int index = hideAtEnd ? _visibleElementRange.Last() : _visibleElementRange.from;
+            var removedCell = GetVisibleCellByIndex(index);
+            if(removedCell != null)
             {
-                _visibleElementRange.from += 1;
+                DestroyCellPrefabIfNeeded(removedCell.gameObject, animate, callback);
+
+                _visibleCells.Remove(removedCell);
+                _visibleElementRange.count -= 1;
+
+                if(index == _visibleElementRange.from)//!hideAtEnd)
+                {
+                    _visibleElementRange.from += 1;
+                }
             }
 
 //            if(CellVisibilityChange != null)
@@ -505,15 +560,26 @@ namespace SocialPoint.GUIControl
 //            }
         }
             
-        public TCell GetCellForIndexInTableView(int index)
+        TCell GetVisibleCellByIndex(int index)
+        {
+            return _visibleCells.Find(x => x.Index == index);
+        }
+
+        public TCell GetCellAndPrefabByIndex(int index)
         {
             GameObject prefab = null;
             if(_prefabs.TryGetValue(_data[index].Prefab, out prefab))
             {
                 var go = InstantiateCellPrefabIfNeeded(prefab);
-                TCell cell = go.GetComponent<TCell>();
-                cell.UpdateData(_data[index]);
-                return cell;
+                if(go != null)
+                {
+                    TCell cell = go.GetComponent<TCell>();
+                    if(cell != null)
+                    {
+                        cell.UpdateData(_data[index]);
+                        return cell;
+                    }
+                }
             }
 
             return null;
@@ -521,9 +587,9 @@ namespace SocialPoint.GUIControl
            
         void ClearAllVisibleCells()
         {
-            while(_visibleCells.Count > 0)
+            for(int i = 0; i < _visibleCells.Count; ++i)
             {
-                HideCell(false);
+                HideCell(i, false, null);
             }
 
             _visibleElementRange = new Range(0, 0);
@@ -537,22 +603,21 @@ namespace SocialPoint.GUIControl
 
         void ReloadVisibleElements()
         {
-            _requiresReload = false;
-
             for(int i = _visibleElementRange.from; i < _visibleElementRange.RelativeCount(); ++i)
             {
-                var go = _visibleCells[i];
-                if(go != null)
-                {
-                    TCell cell = go.GetComponent<TCell>();
-                    cell.UpdateData(_data[i]);
-                }
+                var cell = GetVisibleCellByIndex(i);
+                cell.UpdateData(_data[i]);
             }
         }
 
-        void RefreshVisibleElements()
+        void RefreshVisibleElements(bool reload)
         {
             _requiresRefresh = false;
+
+            if(_data.Count == 0)
+            {
+                return;
+            }
 
             Profiler.BeginSample("UIScrollRectExtension.RefreshVisibleElements", this);
 
@@ -562,37 +627,42 @@ namespace SocialPoint.GUIControl
                 return;
             }
                 
+            int oldFrom = _visibleElementRange.from;
+            int newFrom = newVisibleElements.from;
+
             int oldTo = _visibleElementRange.Last();
             int newTo = newVisibleElements.Last();
 
             bool _somethingHasChanged = false;
 
-            if(newVisibleElements.from > oldTo || newTo < _visibleElementRange.from)
+            if(newFrom > oldTo || newTo < oldFrom)
             {
                 _somethingHasChanged = true;
 
                 //We jumped to a completely different segment this frame, destroy all and recreate
                 RecalculateVisibleCells();
-                return;
             }
             else
             {
                 //Remove elements that disappeared to the start
-                for (int i = _visibleElementRange.from; i < newVisibleElements.from; ++i)
+                for (int i = oldFrom; i < newFrom; ++i)
                 {
-                    HideCell(false);
+                    HideCell(_visibleElementRange.from, false, null);
                     _somethingHasChanged = true;
                 }
+
+                //Middle
+
 
                 //Remove elements that disappeared to the end
                 for (int i = newTo; i < oldTo; ++i)
                 {
-                    HideCell(true);
+                    HideCell(_visibleElementRange.Last(), false, null);
                     _somethingHasChanged = true;
                 }
 
                 //Add elements that appeared on start
-                for (int i = _visibleElementRange.from - 1; i >= newVisibleElements.from; --i)
+                for (int i = oldFrom - 1; i >= newFrom; --i)
                 {
                     ShowCell(i, false);
                     _somethingHasChanged = true;
@@ -614,7 +684,7 @@ namespace SocialPoint.GUIControl
                 UpdateScroll();
             }
 
-            if(_requiresReload)
+            if(reload)
             {
                 ReloadVisibleElements();
             }
@@ -712,7 +782,7 @@ namespace SocialPoint.GUIControl
                 }
                 else
                 {
-                    if(_showLastCellPosition == ShowLastCellPosition.AtTop)
+                    if(_showLastCellPosition == ShowLastCellPosition.AtStart)
                     {
                         ScrollToCell(index);
                     }
@@ -886,7 +956,7 @@ namespace SocialPoint.GUIControl
         {
             if(_requiresRefresh)
             {
-                RefreshVisibleElements();
+                RefreshVisibleElements(false);
             }
         }
 

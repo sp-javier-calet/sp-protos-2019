@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.SocialPlatforms;
 using System.Collections;
 using UnityEngine.EventSystems;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIControl
 {
@@ -12,8 +13,8 @@ namespace SocialPoint.GUIControl
     {
         public enum ShowLastCellPosition
         {
-            AtTop,
-            AtBottom
+            AtStart,
+            AtEnd
         }
 
         public enum ScrollDirection
@@ -70,7 +71,7 @@ namespace SocialPoint.GUIControl
         int _initialIndex;
 
         [SerializeField]
-        ShowLastCellPosition _showLastCellPosition = ShowLastCellPosition.AtBottom;
+        ShowLastCellPosition _showLastCellPosition = ShowLastCellPosition.AtEnd;
 
         [Header("Animations")]
         [SerializeField]
@@ -117,7 +118,7 @@ namespace SocialPoint.GUIControl
         public bool Initialized { get; private set; }
 
         Range _visibleElementRange;
-        Dictionary<int, TCell> _visibleCells;
+        List<TCell> _visibleCells;
         List<TCellData> _data = new List<TCellData>();
         Dictionary<string, GameObject> _prefabs = new Dictionary<string, GameObject>();
 
@@ -125,7 +126,6 @@ namespace SocialPoint.GUIControl
         int _defaultStartPadding;
         int _deltaStartPadding;
         bool _requiresRefresh;
-        bool _requiresReload;
         float _initialScrollPosition;
         float _initialPadding;
         bool _isHorizontal;
@@ -215,7 +215,7 @@ namespace SocialPoint.GUIControl
             _isHorizontal = _scrollRect.horizontal;
             _isVertical = _scrollRect.vertical;
         
-            _visibleCells = new Dictionary<int, TCell>();
+            _visibleCells = new List<TCell>();
 
             ApplyLayoutRules();
         }
@@ -333,6 +333,7 @@ namespace SocialPoint.GUIControl
                     else
                     {
                         _data.Insert(0, data);
+                        _visibleElementRange.from += 1;
                         SetDataValues();
                     }
 
@@ -344,8 +345,7 @@ namespace SocialPoint.GUIControl
                     }
                 }
 
-                _requiresRefresh = true;
-                _requiresReload = true;
+                RefreshVisibleElements(true);
             }
         }
 
@@ -356,16 +356,21 @@ namespace SocialPoint.GUIControl
                 _data.RemoveAt(index);
 
                 SetDataValues(index);
-                SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
 
                 if(_pagination != null)
                 {
                     _pagination.Reload(_data.Count, CurrentIndex);
                 }
 
-                _requiresRefresh = true;
-                _requiresReload = true;
+                HideCell(index, true, FinishRemovingData);
             }
+        }
+
+        void FinishRemovingData()
+        {
+            SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
+
+            RefreshVisibleElements(true);
         }
 
         void OnEndFetchingDataFromServer()

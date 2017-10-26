@@ -2,14 +2,22 @@
 
 namespace SocialPoint.GUIControl
 {
-    public abstract class UIScrollRectCellItem<UIScrollRectCellData> : MonoBehaviour 
+    public abstract class UIScrollRectCellItem<TCellData> : MonoBehaviour  where TCellData : UIScrollRectCellData 
     {
         [SerializeField]
         bool _expandable;
 
-        protected UIScrollRectCellData _data;
+        protected TCellData _data;
 
-        public void UpdateData(UIScrollRectCellData data)
+        public int Index
+        {
+            get
+            {
+                return _data.Index;
+            }
+        }
+
+        public void UpdateData(TCellData data)
         {
             if(data != null)
             {

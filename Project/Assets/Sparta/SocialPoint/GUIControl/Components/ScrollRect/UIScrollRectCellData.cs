@@ -4,7 +4,7 @@ namespace SocialPoint.GUIControl
 {
     public class UIScrollRectCellData
     {
-        public int Id { get; set; }
+        public int Index { get; set; }
 
         public string Prefab { get; set; }
         public Vector2 Size { get; set; }
