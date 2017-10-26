@@ -15,12 +15,4 @@ namespace SocialPoint.Dependency
         void OnResolved();
 
     }
-
-    public class BindingComparer : IComparer<IBinding>
-    {
-        public int Compare(IBinding x, IBinding y)
-        {
-            return y.Priority - x.Priority;
-        }
-    }
 }

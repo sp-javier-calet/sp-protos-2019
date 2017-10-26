@@ -22,11 +22,8 @@ namespace SocialPoint.Dependency
         Dictionary<BindingKey, List<BindingKey>> _aliases;
         Dictionary<BindingKey, List<IListener>> _listeners;
 
-        readonly IComparer<IBinding> _bindingComparer;
-
         public DependencyContainer()
         {
-            _bindingComparer = new BindingComparer();
             _installed = new List<IInstaller>();
             _bindings = new Dictionary<BindingKey, List<IBinding>>();
             _resolving = new HashSet<IBinding>();
@@ -44,6 +41,20 @@ namespace SocialPoint.Dependency
             AddInstance(binding, instance);
         }
 
+        static void AddBindingSorted(IList<IBinding> list, IBinding binding)
+        {
+            for(int i = 0; i < list.Count; ++i)
+            {
+                var current = list[i];
+                if(current.Priority <= binding.Priority)
+                {
+                    list.Insert(i, binding);
+                    return;
+                }
+            }
+            list.Add(binding);
+        }
+
         public void AddBinding(IBinding binding, Type type, string tag = null)
         {
             List<IBinding> list;
@@ -54,8 +65,7 @@ namespace SocialPoint.Dependency
                 _bindings.Add(key, list);
             }
 
-            list.Add(binding);
-            list.Sort(_bindingComparer);
+            AddBindingSorted(list, binding);
             Log.v(Tag, string.Format("Added binding <{0}> for type `{1}`", tag, type.Name));
         }
 
