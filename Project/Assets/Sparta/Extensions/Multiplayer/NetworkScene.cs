@@ -654,9 +654,7 @@ namespace SocialPoint.Multiplayer
             _behaviourSerializer.Serialize(newScene.TypedBehaviours, oldScene.TypedBehaviours, writer);
         }
     }
-
-    public delegate NetworkScene NetworkSceneFactoryDelegate();
-
+        
     public class NetworkSceneParser : IDiffReadParser<NetworkScene>
     {
         NetworkSceneContext _context = null;
@@ -673,18 +671,15 @@ namespace SocialPoint.Multiplayer
                 _context = value;
             }
         }
-
-        NetworkSceneFactoryDelegate _factory;
-
+            
         readonly NetworkBehaviourContainerParser<INetworkSceneBehaviour> _behaviourParser;
         readonly NetworkGameObjectParser _objectParser;
 
-        public NetworkSceneParser(NetworkSceneContext context, NetworkGameObjectParser objectParser = null, NetworkSceneFactoryDelegate factory = null)
+        public NetworkSceneParser(NetworkSceneContext context, NetworkGameObjectParser objectParser = null)
         {
             Context = context;
             _objectParser = objectParser ?? new NetworkGameObjectParser(Context, CreateObject);
             _behaviourParser = new NetworkBehaviourContainerParser<INetworkSceneBehaviour>();
-            _factory = factory;
         }
     
         public void RegisterSceneBehaviour<T>(byte type, IDiffReadParser<T> parser) where T : INetworkSceneBehaviour
@@ -716,15 +711,8 @@ namespace SocialPoint.Multiplayer
 
         public NetworkScene Parse(IReader reader)
         {
-            NetworkScene scene = null;
-            if(_factory == null)
-            {
-                scene = new NetworkScene(Context);
-            }
-            else
-            {
-                scene = _factory();
-            }
+            NetworkScene scene = new NetworkScene(Context);
+
             var c = reader.ReadInt32();
             for(var i = 0; i < c; i++)
             {
