@@ -8,6 +8,11 @@ namespace SocialPoint.Dependency
     [CustomEditor(typeof(GlobalDependencyConfigurer))]
     public sealed class GlobalDependencyConfigurerEditor : Editor
     {
+        static string[] AssembliesToInspect = {
+            "Assembly-CSharp",
+            "Assembly-CSharp-firstpass"
+        };
+
         GUIStyle EnabledInstaller { get; set; }
 
         GUIStyle DisabledInstaller { get; set; }
@@ -75,19 +80,25 @@ namespace SocialPoint.Dependency
         {
             var installerType = typeof(Installer);
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
             foreach(var assembly in assemblies)
             {
-                // Ignore Unity-Editor assemblies
-                if(assembly.GetName().Name.Contains("CSharp-Editor"))
+                bool valid = false;
+                var assemblyName = assembly.GetName().Name;
+                foreach(var validName in AssembliesToInspect)
+                {
+                    if(assemblyName == validName)
+                    {
+                        valid = true;
+                        break;
+                    }
+                }
+
+                if(!valid)
                 {
                     continue;
                 }
-
-                if(assembly.GetName().Name.Contains("BehaviorDesignerEditor"))
-                {
-                    continue;
-                }
-
+                    
                 foreach(var t in assembly.GetTypes())
                 {
                     if(t.IsSubclassOf(installerType) && !t.IsAbstract)
@@ -96,7 +107,7 @@ namespace SocialPoint.Dependency
                     }
                 }
             }
-
+                
             configurer.Installers = InstallerAssetsManager.Installers;
             return configurer.Installers;
         }
