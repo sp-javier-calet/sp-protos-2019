@@ -65,7 +65,7 @@ namespace SocialPoint.Dependency
             }
 
             list.Add(binding);
-            Log.v(Tag, string.Format("Added binding <{0}> for type `{1}`", tag, type.Name));
+            Log.v(Tag, string.Format("Added default binding <{0}> for type `{1}`", tag, type.Name));
         }
 
         public void AddLookup(IBinding binding, Type type, string tag = null)
@@ -166,7 +166,7 @@ namespace SocialPoint.Dependency
             return list;
         }
 
-        object ResolveFrom(IDictionary<BindingKey, List<IBinding>> container, Type type, string tag, object def)
+        bool TryResolveFrom(IDictionary<BindingKey, List<IBinding>> container, Type type, string tag, out object result)
         {
             List<IBinding> bindings;
             if(container.TryGetValue(new BindingKey(type, tag), out bindings))
@@ -176,30 +176,32 @@ namespace SocialPoint.Dependency
                     object resolved;
                     if(TryResolve(bindings[i], out resolved))
                     {
-                        return resolved;
-                    }
+                        result = resolved;
+                        return true;
                     }
                 }
-            return def;
             }
+            result = null;
+            return false;
+        }
 
         public object Resolve(Type type, string tag = null, object def = null)
         {
-            var result = ResolveFrom(_bindings, type, tag, def);
+            object result;
+            var found = TryResolveFrom(_bindings, type, tag, out result);
 
-            if(result == def)
+            if(!found)
             {
-                result = ResolveFrom(_defaultBindings, type, tag, def);
+                found = TryResolveFrom(_defaultBindings, type, tag, out result);
             }
 
-            if(result == null)
+            if(!found)
             {
-                Log.w(Tag, string.Format("Resolved instance <{0}> for type `{1}`. {2}", tag, type.Name, "Default as null"));
+                Log.w(Tag, string.Format("Resolved instance <{0}> for type `{1}`. Default is {2}", tag, type.Name, def));
+                return def;
             }
-            else
-            {
-                Log.v(Tag, string.Format("Resolved instance <{0}> for type `{1}`. {2}", tag, type.Name, result == def ? "Default" : "Found"));
-            }
+
+            Log.v(Tag, string.Format("Resolved instance <{0}> for type `{1}`. Instance is {2}", tag, type.Name, result));
             return result;
         }
 
@@ -343,10 +345,10 @@ namespace SocialPoint.Dependency
             }
             using(var itr = _defaultBindings.GetEnumerator())
             {
-            while(itr.MoveNext())
-            {
-                if(itr.Current.Value.Contains(binding))
+                while(itr.MoveNext())
                 {
+                    if(itr.Current.Value.Contains(binding))
+                    {
                         return itr.Current.Key;
                     }
                 }
@@ -382,39 +384,39 @@ namespace SocialPoint.Dependency
             var instances = new HashSet<object>();
             using(var itr = container.GetEnumerator())
             {
-            while(itr.MoveNext())
-            {
-                HashSet<object> bindingInstances;
-                var bindings = itr.Current.Value;
-                var key = itr.Current.Key;
-                for(var i = 0; i < bindings.Count; i++)
+                while(itr.MoveNext())
                 {
-                    if(filterKey.Type != null && (filterKey.Type != key.Type || filterKey.Tag != key.Tag))
+                    HashSet<object> bindingInstances;
+                    var bindings = itr.Current.Value;
+                    var key = itr.Current.Key;
+                    for(var i = 0; i < bindings.Count; i++)
                     {
-                        continue;
-                    }
-                    var binding = bindings[i];
-                    var bindingKey = binding.Key;
-                    bool isInstanceBinding = fromKey.Type == bindingKey.Type && fromKey.Tag == bindingKey.Tag;
-
-                    if(isInstanceBinding || IsLookup(fromKey, key))
-                    {
-                        if(_instances.TryGetValue(binding, out bindingInstances))
+                        if(filterKey.Type != null && (filterKey.Type != key.Type || filterKey.Tag != key.Tag))
                         {
-                            var itr2 = bindingInstances.GetEnumerator();
-                            while(itr2.MoveNext())
+                            continue;
+                        }
+                        var binding = bindings[i];
+                        var bindingKey = binding.Key;
+                        bool isInstanceBinding = fromKey.Type == bindingKey.Type && fromKey.Tag == bindingKey.Tag;
+
+                        if(isInstanceBinding || IsLookup(fromKey, key))
+                        {
+                            if(_instances.TryGetValue(binding, out bindingInstances))
                             {
-                                instances.Add(itr2.Current);
-                            }
-                            itr2.Dispose();
-                            if(remove)
-                            {
-                                _instances.Remove(binding);
+                                var itr2 = bindingInstances.GetEnumerator();
+                                while(itr2.MoveNext())
+                                {
+                                    instances.Add(itr2.Current);
+                                }
+                                itr2.Dispose();
+                                if(remove)
+                                {
+                                    _instances.Remove(binding);
+                                }
                             }
                         }
                     }
                 }
-            }
             }
             return instances;
         }

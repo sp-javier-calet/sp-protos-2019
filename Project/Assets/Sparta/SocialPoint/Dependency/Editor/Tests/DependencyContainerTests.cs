@@ -40,7 +40,7 @@ namespace SocialPoint.Dependency
 
     class DependentService
     {
-        ITestService _test;
+        readonly ITestService _test;
 
         public DependentService(ITestService test)
         {
@@ -113,7 +113,7 @@ namespace SocialPoint.Dependency
 
     [TestFixture]
     [Category("SocialPoint.Dependency")]
-    internal class DependencyContainerTests
+    class DependencyContainerTests
     {
         [Test]
         public void SingleResolveTest()
@@ -143,9 +143,7 @@ namespace SocialPoint.Dependency
         {       
             var container = new DependencyContainer();
             container.Bind<ITestService>().ToSingle<TestService>();
-            container.Bind<DependentService>().ToMethod<DependentService>(() => {
-                return new DependentService(container.Resolve<ITestService>());
-            });
+            container.Bind<DependentService>().ToMethod<DependentService>(() => new DependentService(container.Resolve<ITestService>()));
             var service = container.Resolve<DependentService>();
             Assert.AreEqual("test", service.TestMethod());
         }
@@ -216,15 +214,9 @@ namespace SocialPoint.Dependency
         public void ResolveDoubleLoopTest()
         {
             var container = new DependencyContainer();
-            container.Bind<ITestService>().ToMethod(() => {
-                return new LoopTestService(container.Resolve<DependentService>());
-            });
-            container.Bind<DependentService>().ToMethod<DependentService>(() => {
-                return new DependentService(container.Resolve<ITestService>());
-            });
-            Assert.Throws<InvalidOperationException>(() => {
-                container.Resolve<ITestService>();
-            });
+            container.Bind<ITestService>().ToMethod(() => new LoopTestService(container.Resolve<DependentService>()));
+            container.Bind<DependentService>().ToMethod<DependentService>(() => new DependentService(container.Resolve<ITestService>()));
+            Assert.Throws<InvalidOperationException>(() => container.Resolve<ITestService>());
         }
 
         [Test]
@@ -271,10 +263,7 @@ namespace SocialPoint.Dependency
             var instance = new TestStruct();
             instance.Value = value;
             container.Bind<TestStruct>().ToInstance<TestStruct>(instance);
-            container.Bind<int>().ToGetter<TestStruct>(
-                (x) => {
-                    return x.Value;
-                });
+            container.Bind<int>().ToGetter<TestStruct>(x => x.Value);
             var resolved = container.Resolve<int>();
             Assert.AreEqual(value, resolved);
         }
@@ -290,6 +279,41 @@ namespace SocialPoint.Dependency
             container.Bind<TestStruct>().ToLookup<TestStruct>("tag");
             var resolved = container.Resolve<TestStruct>();
             Assert.AreEqual(value, resolved.Value);
+        }
+
+        [Test]
+        public void ResolveBindingWithDefaultValue()
+        {
+            var container = new DependencyContainer();
+
+            var defaultInstance = new AnotherTestService();
+            var instance = new TestService();
+            container.BindDefault<ITestService>().ToInstance(defaultInstance);
+            container.Bind<ITestService>().ToInstance(instance);
+
+            Assert.IsInstanceOf<TestService>(container.Resolve<ITestService>(null, instance));
+        }
+
+        [Test]
+        public void ResolveDefaultBindingWithDefaultValue()
+        {
+            var container = new DependencyContainer();
+
+            var defaultInstance = new AnotherTestService();
+            var instance = new TestService();
+            container.BindDefault<ITestService>().ToInstance(defaultInstance);
+
+            Assert.IsInstanceOf<AnotherTestService>(container.Resolve<ITestService>(null, instance));
+        }
+
+        [Test]
+        public void ResolveUnbindedBindingWithDefaultValue()
+        {
+            var container = new DependencyContainer();
+
+            var instance = new TestService();
+
+            Assert.IsInstanceOf<TestService>(container.Resolve<ITestService>(null, instance));
         }
 
         [Test]
@@ -369,11 +393,7 @@ namespace SocialPoint.Dependency
         {
             var container = new DependencyContainer();
             var count = 0;
-            container.Bind<ITestService>().ToMethod<TestService>(() => {
-                return new TestService();
-            }, (service) => {
-                count++;
-            });
+            container.Bind<ITestService>().ToMethod<TestService>(() => new TestService(), service => count++);
             container.Resolve<ITestService>();
             container.Resolve<ITestService>();
 
@@ -463,9 +483,7 @@ namespace SocialPoint.Dependency
             TestDisposable.Count = 0;
             var container = new DependencyContainer();
             container.Rebind<TestDisposable>().ToSingle<TestDisposable>();
-            container.Bind<IDisposable>().ToGetter<TestDisposable>((service) => {
-                return new TestDisposable();
-            });
+            container.Bind<IDisposable>().ToGetter<TestDisposable>(service => new TestDisposable());
 
             container.Rebind<TestDisposable>().ToSingle<TestDisposable>();
             Assert.AreEqual(0, TestDisposable.Count);
