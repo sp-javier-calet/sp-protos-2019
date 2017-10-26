@@ -83,6 +83,11 @@ namespace SocialPoint.Dependency
                     continue;
                 }
 
+                if(assembly.GetName().Name.Contains("BehaviorDesignerEditor"))
+                {
+                    continue;
+                }
+
                 foreach(var t in assembly.GetTypes())
                 {
                     if(t.IsSubclassOf(installerType) && !t.IsAbstract)
