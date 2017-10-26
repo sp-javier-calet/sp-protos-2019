@@ -54,14 +54,13 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         GridLayoutGroup _gridLayoutGroup;
 
+        [Header("System")]
         [SerializeField]
-        LayoutGroup _layoutGroup;
+        GameObject _loadingGroup;
 
-        [Header("ObjectPool")]
         [SerializeField]
         bool _usePooling;
 
-        [Header("Scroll")]
         [Tooltip("Delta that we will add to bounds to check if we need to show/hide new cells")]
         [SerializeField]
         int _boundsDelta;
@@ -106,10 +105,6 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         UIScrollRectPagination _pagination;
 
-        [Header("Loading")]
-        [SerializeField]
-        GameObject _loadingGroup;
-
         [Header("Debug")]
         [SerializeField]
         Canvas _mainCanvas;
@@ -128,6 +123,7 @@ namespace SocialPoint.GUIControl
         bool _isHorizontal;
         bool _isVertical;
         float _startScrollingPosition;
+        Vector2 _tempVector2 = Vector3.zero;
 
         public int CurrentIndex
         {
@@ -189,7 +185,7 @@ namespace SocialPoint.GUIControl
                 }
             }
         }
-            
+
         #region Unity methods
 
         void Awake()
@@ -287,14 +283,16 @@ namespace SocialPoint.GUIControl
 
         #endregion
 
-        // FOR TESTING 
-//        IEnumerator FetchDataFromServer(UIScrollRectExtensionGetData getDataDlg)
-//        {
-//            // Testing Simulating server delay to show loading spinner
-//            yield return new WaitForSeconds(2f);
-//    
-//            FetchDataFromServer(getDataDlg);
-//        }
+        IEnumerator FetchDataFromServer(UIScrollRectExtensionGetData getDataDlg)
+        {
+            // Simulating server delay to show loading spinner (only for testing)
+            yield return new WaitForSeconds(2f);
+
+            _data = getDataDlg();
+            OnEndFetchingDataFromServer();
+
+            yield return null;
+        }
 
         public void FetchData()
         {
@@ -307,19 +305,12 @@ namespace SocialPoint.GUIControl
 
             if(_getDataDlg != null)
             {
-                FetchDataFromServer(_getDataDlg);
-//                StartCoroutine(FetchDataFromServer(_getDataDlg));
+                StartCoroutine(FetchDataFromServer(_getDataDlg));
             }
             else
             {
                 throw new UnityException("Get Data delegate not defined");
             }
-        }
-
-        void FetchDataFromServer(UIScrollRectExtensionGetData getDataDlg)
-        {
-            _data = getDataDlg();
-            OnEndFetchingDataFromServer();
         }
 
         void OnEndFetchingDataFromServer()
@@ -346,11 +337,6 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        TCellData GetIndexFromData(TCellData data)
-        {
-            return _data.Find(x => x.Equals(data));
-        }
-
         public void AddData(bool addAtEnd = true, bool moveToEnd = false)
         {
             if(!_centerOnCell)
@@ -368,7 +354,6 @@ namespace SocialPoint.GUIControl
                         else
                         {
                             _data.Insert(0, data);
-                            _visibleElementRange.from += 1;
                             SetDataValues();
                         }
 
@@ -378,9 +363,9 @@ namespace SocialPoint.GUIControl
                         {
                             _pagination.Reload(_data.Count, CurrentIndex);
                         }
-                    }
 
-                    RefreshVisibleCells(true);
+                        RefreshVisibleCells(true);
+                    }
                 }
             }
         }
@@ -400,7 +385,7 @@ namespace SocialPoint.GUIControl
                         _pagination.Reload(_data.Count, CurrentIndex);
                     }
 
-                    HideCell(index, true, FinishRemovingData);
+//                    HideCell(index, true, FinishRemovingData);
                 }
             }
         }

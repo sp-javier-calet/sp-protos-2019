@@ -1,11 +1,11 @@
-﻿using UnityEngine.SocialPlatforms;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
+using UnityEngine.SocialPlatforms;
+using UnityEngine.Profiling;
 using SocialPoint.Pooling;
 using SocialPoint.Base;
-using UnityEngine.Profiling;
 using System;
+using System.Collections;
 
 namespace SocialPoint.GUIControl
 {
@@ -13,203 +13,12 @@ namespace SocialPoint.GUIControl
     {
         /// <summary>
         /// This event will be called when a cell's visibility changes
-        /// First param (int) is the element index, second param (bool) is whether or not it is visible
+        /// First param (int) is the cell index, second param (bool) is whether or not it is visible
         /// </summary>
         public event Action<int, bool> CellVisibilityChange;
 
         Range _visibleElementRange;
         List<TCell> _visibleCells;
-
-        void ShowCell(int index, bool showAtEnd)
-        {
-            TCell newCell = GetCellAndPrefabByIndex(index);
-
-            var trans = newCell.transform;
-            trans.SetParent(_scrollContentRectTransform, false);
-            trans.localScale = Vector3.one;
-            trans.localPosition = Vector3.zero;
-
-            #if UNITY_EDITOR
-            newCell.gameObject.name = "cell " + index;
-            #endif
-
-            _visibleCells.Add(newCell);
-
-            if(showAtEnd)
-            {
-                trans.SetAsLastSibling();
-            }
-            else
-            {
-                trans.SetAsFirstSibling(); 
-            }
-
-            if(CellVisibilityChange != null)
-            {
-                CellVisibilityChange(index, true);
-            }
-        }
-
-        void HideCell(int index, bool animate, Action callback)
-        {
-            var removedCell = GetVisibleCellByIndex(index);
-            if(removedCell != null)
-            {
-                DestroyCellPrefabIfNeeded(removedCell.gameObject, animate, callback);
-
-                _visibleCells.Remove(removedCell);
-                _visibleElementRange.count -= 1;
-
-                if(index == _visibleElementRange.from)
-                {
-                    _visibleElementRange.from += 1;
-                }
-            }
-
-            if(CellVisibilityChange != null)
-            {
-                CellVisibilityChange(index, false);
-            }
-        }
-
-        TCell GetVisibleCellByIndex(int index)
-        {
-            return _visibleCells.Find(x => x.Index == index);
-        }
-
-        public TCell GetCellAndPrefabByIndex(int index)
-        {
-            GameObject prefab = null;
-            if(_prefabs.TryGetValue(_data[index].Prefab, out prefab))
-            {
-                var go = InstantiateCellPrefabIfNeeded(prefab);
-                if(go != null)
-                {
-                    TCell cell = go.GetComponent<TCell>();
-                    if(cell != null)
-                    {
-                        cell.UpdateData(_data[index]);
-                        return cell;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        void ClearAllVisibleCells()
-        {
-            for(int i = 0; i < _visibleCells.Count; ++i)
-            {
-                HideCell(i, false, null);
-            }
-
-            _visibleElementRange = new Range(0, 0);
-        }
-
-        void RecalculateVisibleCells()
-        {
-            ClearAllVisibleCells();
-            SetInitialVisibleElements();
-        }
-
-        void ReloadVisibleCells()
-        {
-            for(int i = _visibleElementRange.from; i < _visibleElementRange.RelativeCount(); ++i)
-            {
-                var cell = GetVisibleCellByIndex(i);
-                cell.UpdateData(_data[i]);
-            }
-        }
-
-        void RefreshVisibleCells(bool reload)
-        {
-            _requiresRefresh = false;
-
-            if(_data.Count == 0)
-            {
-                return;
-            }
-
-            Profiler.BeginSample("UIScrollRectExtension.RefreshVisibleElements", this);
-
-            Range newVisibleElements = CalculateCurrentVisibleRange();
-            if(_visibleElementRange.Equals(newVisibleElements))
-            {
-                return;
-            }
-
-            int oldFrom = _visibleElementRange.from;
-            int newFrom = newVisibleElements.from;
-
-            int oldTo = _visibleElementRange.Last();
-            int newTo = newVisibleElements.Last();
-
-            bool _somethingHasChanged = false;
-
-            if(newFrom > oldTo || newTo < oldFrom)
-            {
-                _somethingHasChanged = true;
-
-                //We jumped to a completely different segment this frame, destroy all and recreate
-                RecalculateVisibleCells();
-            }
-            else
-            {
-                //Remove elements that disappeared to the start
-                for (int i = oldFrom; i < newFrom; ++i)
-                {
-                    HideCell(_visibleElementRange.from, false, null);
-                    _somethingHasChanged = true;
-                }
-                    
-                //Remove elements that disappeared to the end
-                for (int i = newTo; i < oldTo; ++i)
-                {
-                    HideCell(_visibleElementRange.Last(), false, null);
-                    _somethingHasChanged = true;
-                }
-
-                //Add elements that appeared on start
-                for (int i = oldFrom - 1; i >= newFrom; --i)
-                {
-                    ShowCell(i, false);
-                    _somethingHasChanged = true;
-                }
-
-                //Add elements that appeared on end
-                for (int i = oldTo + 1; i <= newTo; ++i)
-                {
-                    ShowCell(i, true);
-                    _somethingHasChanged = true;
-                }
-
-                _visibleElementRange = newVisibleElements;
-            }
-
-            if(_somethingHasChanged)
-            {
-                UpdatePaddingElements();
-                UpdateScroll();
-            }
-
-            if(reload)
-            {
-                ReloadVisibleCells();
-            }
-
-            Profiler.EndSample();
-        }
-
-        GameObject GetCellPrefab(GameObject prefab)
-        {
-            if(_usePooling)
-            {
-                UnityObjectPool.CreatePool(prefab, 1);
-            }
-
-            return prefab;
-        }
 
         GameObject InstantiateCellPrefabIfNeeded(GameObject prefab)
         {
@@ -238,10 +47,10 @@ namespace SocialPoint.GUIControl
 
             Go.killAllTweensWithTarget(trans);
 
-//            if(time < 0.05f)
-//            {
-//                yield break;
-//            }
+            //            if(time < 0.05f)
+            //            {
+            //                yield break;
+            //            }
 
             trans.pivot = new Vector2(0f, 0.5f);
             GoTween tween = Go.to(trans, 0.2f, new GoTweenConfig().scale(new Vector3(0f, 1f, 1f)));
@@ -268,6 +77,209 @@ namespace SocialPoint.GUIControl
             if(callback != null)
             {
                 callback();
+            }
+        }
+
+        void ShowCell(int index, bool insertAtEnd)
+        {
+            var newCell = GetCellGameObject(index);
+            var cell = newCell.GetComponent<TCell>();
+            if(cell != null)
+            {
+                cell.UpdateData(_data[index]);
+                _visibleCells.Add(cell);
+            }
+
+            var trans = newCell.transform;
+
+            trans.SetParent(_scrollContentRectTransform, false);
+            trans.localScale = Vector3.one;
+            trans.localPosition = Vector3.zero;
+
+            if(insertAtEnd)
+            {
+                trans.SetAsLastSibling();
+            }
+            else
+            {
+                trans.SetAsFirstSibling(); 
+            }
+
+            if(CellVisibilityChange != null)
+            {
+                CellVisibilityChange(index, true);
+            }
+        }
+
+        TCell GetVisibleCellByUID(string uid)
+        {
+            return _visibleCells.Find( x => x.UID.Equals(uid));
+        }
+
+        void HideCell(bool removeAtEnd)
+
+//        void HideCell(int index, bool animate, Action callback)
+        {
+            var index = (removeAtEnd ? _visibleElementRange.Last() : _visibleElementRange.from);
+            var CellToRemove = GetVisibleCellByUID(_data[index].UID);
+            var go = CellToRemove.gameObject;
+
+            _visibleCells.Remove(CellToRemove);
+            DestroyCellPrefabIfNeeded(go, false, null);
+           
+            _visibleElementRange.count -= 1;
+            if(!removeAtEnd)
+            {
+                _visibleElementRange.from += 1;
+            }
+                
+            if(CellVisibilityChange != null)
+            {
+                CellVisibilityChange(index, false);
+            }
+        }
+            
+        GameObject GetCellGameObject(int index)
+        {
+            GameObject prefab;
+            if(_prefabs.TryGetValue(_data[index].Prefab, out prefab))
+            {
+                var go = InstantiateCellPrefabIfNeeded(prefab);
+                if(go != null)
+                {
+                    #if UNITY_EDITOR
+                    go.name = "cell " + index;
+                    #endif
+
+                    return go;
+                }
+            }
+
+            return null;
+        }
+
+        void ClearAllVisibleCells()
+        {
+            while(_visibleCells.Count > 0)
+            {
+                HideCell(true);
+            }
+
+            _visibleElementRange = new Range(0, 0);
+        }
+
+        void RecalculateVisibleCells()
+        {
+            ClearAllVisibleCells();
+            SetInitialVisibleElements();
+        }
+
+        void RefreshVisibleCells(bool reload)
+        {
+            _requiresRefresh = false;
+
+            Profiler.BeginSample("UIScrollRectExtension.RefreshVisibleElements", this);
+
+            Range newVisibleElements = CalculateCurrentVisibleRange();
+            if(_visibleElementRange.Equals(newVisibleElements))
+            {
+                if(reload)
+                {
+                    ReloadVisibleCells();
+                }
+
+                return;
+            }
+
+            int oldFrom = _visibleElementRange.from;
+            int newFrom = newVisibleElements.from;
+
+            int oldTo = _visibleElementRange.Last();
+            int newTo = newVisibleElements.Last();
+
+            bool hasChanged = false;
+
+            if(newFrom > oldTo || newTo < oldFrom)
+            {
+                hasChanged = true;
+
+                //We jumped to a completely different segment this frame, destroy all and recreate
+                RecalculateVisibleCells();
+            }
+            else
+            {
+                //Remove elements that disappeared to the start
+                for (int i = oldFrom; i < newFrom; ++i)
+                {
+                    HideCell(false);
+//                    HideCell(_visibleElementRange.from, false, null);
+                    hasChanged = true;
+                }
+
+                //Remove elements that disappeared to the end
+                for(int i = newTo; i < oldTo; ++i)
+                {
+                    HideCell(true);
+//                    HideCell(_visibleElementRange.Last(), false, null);
+                    hasChanged = true;
+                }
+
+                //Add elements that appeared on start
+                for (int i = oldFrom - 1; i >= newFrom; --i)
+                {
+                    ShowCell(i, false);
+                    hasChanged = true;
+                }
+
+                //Add elements that appeared on end
+                for(int i = oldTo + 1; i <= newTo; ++i)
+                {
+                    ShowCell(i, true);
+                    hasChanged = true;
+                }
+
+                _visibleElementRange = newVisibleElements;
+            }
+
+            if(hasChanged)
+            {
+                UpdatePaddingElements();
+                UpdateScrollState();
+            }
+
+            if(reload)
+            {
+                ReloadVisibleCells();
+            }
+
+            Profiler.EndSample();
+        }
+
+        public void ReloadVisibleCells()
+        {
+            for(int i = _visibleElementRange.from; i < _visibleElementRange.RelativeCount(); ++i)
+            {
+                var data = _data[i];
+                if(data != null)
+                {
+                    var cell = _visibleCells.Find( x => x.UID.Equals(data.UID));
+                    if(cell != null)
+                    {
+                        cell.UpdateData(data);
+                    }
+                }
+            }
+        }
+
+        void UpdateScrollState()
+        {
+            if(ScrollViewContentSize > ScrollViewSize)
+            {
+                EnableScroll();
+            }
+            else
+            {
+                DisableScroll();
             }
         }
     }

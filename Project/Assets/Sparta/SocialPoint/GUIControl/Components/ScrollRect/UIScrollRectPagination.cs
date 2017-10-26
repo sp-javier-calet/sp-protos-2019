@@ -57,6 +57,16 @@ public class UIScrollRectPagination : MonoBehaviour
     void Awake()
     {
         _parent = _paginationGroup.transform;
+
+        if(_useNavigationButtons && _navigationGroup == null)
+        {
+            throw new UnityException("You are trying to 'Use Navigation Buttons' but 'Navigation Group' is not assigned");
+        }
+
+        if(_usePaginationButtons && _paginationGroup == null)
+        {
+            throw new UnityException("You are trying to 'Use Pagination Buttons' but 'Pagination Group' is not assigned");
+        }
     }
         
     public void Init(int count, int _selectedIndex, Action scrollToPreviousCell, Action scrollToNextCell, Action<int> scrollToSelectedCell)

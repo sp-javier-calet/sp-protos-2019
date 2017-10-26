@@ -1694,7 +1694,7 @@ MonoBehaviour:
   _verticalLayoutGroup: {fileID: 0}
   _horizontalLayoutGroup: {fileID: 0}
   _gridLayoutGroup: {fileID: 0}
-  _layoutGroup: {fileID: 0}
+  _loadingGroup: {fileID: 1735378496034082}
   _usePooling: 1
   _boundsDelta: 400
   _initialIndex: 0
@@ -1708,12 +1708,11 @@ MonoBehaviour:
     m_RotationOrder: 4
   _scrollAnimationDuration: 0.5
   _disableDragWhileScrollingAnimation: 0
-  _centerOnCell: 1
+  _centerOnCell: 0
   _deltaDragCell: 50
   _maginifyMinScale: {x: 0, y: 0}
   _maginifyMaxScale: {x: 0, y: 0}
   _pagination: {fileID: 114017358527254550}
-  _loadingGroup: {fileID: 1735378496034082}
   _mainCanvas: {fileID: 223776503781852692}
 --- !u!114 &114525763816899322
 MonoBehaviour:

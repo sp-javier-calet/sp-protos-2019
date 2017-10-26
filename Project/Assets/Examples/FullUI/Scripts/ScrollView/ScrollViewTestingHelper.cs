@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using SocialPoint.GUIControl;
 using UnityEngine.UI;
 using System;
 
