@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using SocialPoint.Base;
 using UnityEditor;
+using UnityEditor.Callbacks;
 using UnityEngine;
 
 namespace SocialPoint.Dependency
@@ -13,6 +15,56 @@ namespace SocialPoint.Dependency
         public static readonly string ContainerPath = ConfigPaths.SpartaConfigResourcesPath + "Installers";
         public const string FileExtension = ".asset";
         public const string AssetPattern = "*.asset";
+
+        [DidReloadScripts]
+        static void OnScriptsReloaded()
+        {
+            Reload();
+        }
+
+
+        static GlobalDependencyConfigurer GetConfigurerAsset()
+        {
+            var guids = AssetDatabase.FindAssets("t:GlobalDependencyConfigurer");
+            if(guids.Length != 1)
+            {
+                var builder = new StringBuilder();
+                builder.AppendLine();
+                foreach(var guid in guids)
+                {
+                    builder.AppendLine(AssetDatabase.GUIDToAssetPath(guid));
+                }
+                Log.e("InstallerAssetsManager", string.Format("Error searching for GlobalDependencyConfigurer asset. Only 1 expected but found {0} at paths: {1}", guids.Length, builder.ToString()));
+                return null;
+            }
+            var path = AssetDatabase.GUIDToAssetPath(guids[0]);
+            return AssetDatabase.LoadAssetAtPath<GlobalDependencyConfigurer>(path);
+        }
+
+        static public void Reload()
+        {
+            var installerType = typeof(Installer);
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach(var assembly in assemblies)
+            {
+                // Ignore Unity-Editor assemblies
+                if(assembly.GetName().Name.Contains("CSharp-Editor"))
+                {
+                    continue;
+                }
+
+                foreach(var t in assembly.GetTypes())
+                {
+                    if(t.IsSubclassOf(installerType) && !t.IsAbstract)
+                    {
+                        CreateDefault(t);
+                    }
+                }
+            }
+
+            GlobalDependencyConfigurer.Load().Installers = Installers;
+            GetConfigurerAsset().Installers = Installers;
+        }
 
         public static bool CreateDefault(Type t)
         {
