@@ -100,6 +100,11 @@ namespace SocialPoint.Dependency
         {
             _filter = EditorGUILayout.TextField("Search", _filter);
             _filterString = _filter.ToLower();
+            if(GUILayout.Button("Reload installers"))
+            {
+                InstallerAssetsManager.Reload();
+                Repaint();
+            }
             EditorGUILayout.Space();
         }
 
