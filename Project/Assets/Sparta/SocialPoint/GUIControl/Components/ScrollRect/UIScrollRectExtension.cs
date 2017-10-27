@@ -124,21 +124,8 @@ namespace SocialPoint.GUIControl
         bool _isVertical;
         float _startScrollingPosition;
         Vector2 _tempVector2 = Vector3.zero;
+        int _currentIndex;
 
-        public int CurrentIndex
-        {
-            get 
-            { 
-                float scrollPosition = ScrollPosition;
-                if(_centerOnCell)
-                {
-                    scrollPosition += ScrollViewSize * 0.5f;
-                }
-
-                return FindIndexOfElementAtPosition(scrollPosition, _visibleElementRange.from, _visibleElementRange.RelativeCount());
-            }
-        }
-            
         public bool UsesVerticalLayout
         {
             get
@@ -333,7 +320,7 @@ namespace SocialPoint.GUIControl
 
             if(_pagination != null)
             {
-                _pagination.Init(_data.Count, CurrentIndex, ScrollToPreviousCell, ScrollToNextCell, ScrollToCell);
+                _pagination.Init(_data.Count, _currentIndex, ScrollToPreviousCell, ScrollToNextCell, ScrollToCell);
             }
         }
 
@@ -361,7 +348,7 @@ namespace SocialPoint.GUIControl
 
                         if(_pagination != null)
                         {
-                            _pagination.Reload(_data.Count, CurrentIndex);
+                            _pagination.Reload(_data.Count, _currentIndex);
                         }
 
                         RefreshVisibleCells(true);
@@ -372,6 +359,8 @@ namespace SocialPoint.GUIControl
 
         public void RemoveData(int index)
         {
+            // TODO
+            /*
             if(!_centerOnCell)
             {
                 if(IndexIsValid(index))
@@ -382,12 +371,13 @@ namespace SocialPoint.GUIControl
 
                     if(_pagination != null)
                     {
-                        _pagination.Reload(_data.Count, CurrentIndex);
+                        _pagination.Reload(_data.Count, _currentIndex);
                     }
 
-//                    HideCell(index, true, FinishRemovingData);
+                    HideCell(index, true, FinishRemovingData);
                 }
             }
+            */
         }
 
         void FinishRemovingData()

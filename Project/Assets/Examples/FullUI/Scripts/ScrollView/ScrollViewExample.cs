@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ScrollViewExample : UIScrollRectExtension<MyData, MyCell> 
 {
-    string[] prefabs = {"GUI_StoreItem", "GUI_StoreItemSmall", "GUI_StoreItem2"};
+    string[] prefabs = { "GUI_StoreItem", "GUI_StoreItemSmall", "GUI_StoreItem2"};
 
     public void Init()
     {
@@ -17,9 +17,9 @@ public class ScrollViewExample : UIScrollRectExtension<MyData, MyCell>
     List<MyData> GetData()
     {
         List<MyData> myData = new List<MyData>();
-        for (int i = 0; i < 100; ++i)
+        for (int i = 0; i < 1000; ++i)
         {
-            myData.Add(new MyData("test item small name " + i, "test item small description for item with index " + i, prefabs[UnityEngine.Random.Range(0,3)]));
+            myData.Add(new MyData("test item small name " + i, "test item small description for item with index " + i, prefabs[UnityEngine.Random.Range(0,0)]));
         }
 
         return myData;

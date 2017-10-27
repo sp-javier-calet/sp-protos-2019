@@ -1,6 +1,6 @@
 ﻿using SocialPoint.GUIControl;
 
-public class ScreenController : UIViewController 
+public class ScreenController : UIViewController
 {
     public ScrollViewExample ScrollView;
 
@@ -9,8 +9,10 @@ public class ScreenController : UIViewController
         IsFullScreen = true;
     }
 
-    void Start()
+    protected override void OnAppearing()
     {
+        base.OnAppearing();
+
         if(ScrollView != null)
         {
             ScrollView.Init();

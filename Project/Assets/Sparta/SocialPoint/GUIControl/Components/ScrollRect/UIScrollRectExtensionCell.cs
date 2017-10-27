@@ -50,7 +50,7 @@ namespace SocialPoint.GUIControl
             //            if(time < 0.05f)
             //            {
             //                yield break;
-            //            }
+            //            } 
 
             trans.pivot = new Vector2(0f, 0.5f);
             GoTween tween = Go.to(trans, 0.2f, new GoTweenConfig().scale(new Vector3(0f, 1f, 1f)));
@@ -115,20 +115,27 @@ namespace SocialPoint.GUIControl
         {
             return _visibleCells.Find( x => x.UID.Equals(uid));
         }
-
-        void HideCell(bool removeAtEnd)
-
-//        void HideCell(int index, bool animate, Action callback)
+            
+        void CleanLastCell()
         {
-            var index = (removeAtEnd ? _visibleElementRange.Last() : _visibleElementRange.from);
-            var CellToRemove = GetVisibleCellByUID(_data[index].UID);
-            var go = CellToRemove.gameObject;
+            HideCell(_visibleElementRange.Last(), false, null);
+        }
 
-            _visibleCells.Remove(CellToRemove);
-            DestroyCellPrefabIfNeeded(go, false, null);
+        void HideCell(int index, bool animate, Action callback)
+        {
+            bool removeAtStart = index == _visibleElementRange.from;
+
+            var CellToRemove = GetVisibleCellByUID(_data[index].UID);
+            if(CellToRemove != null)
+            {
+                var go = CellToRemove.gameObject;
+
+                _visibleCells.Remove(CellToRemove);
+                DestroyCellPrefabIfNeeded(go, animate, callback);
+            }
            
             _visibleElementRange.count -= 1;
-            if(!removeAtEnd)
+            if(removeAtStart)
             {
                 _visibleElementRange.from += 1;
             }
@@ -162,7 +169,7 @@ namespace SocialPoint.GUIControl
         {
             while(_visibleCells.Count > 0)
             {
-                HideCell(true);
+                CleanLastCell();
             }
 
             _visibleElementRange = new Range(0, 0);
@@ -201,41 +208,38 @@ namespace SocialPoint.GUIControl
 
             if(newFrom > oldTo || newTo < oldFrom)
             {
-                hasChanged = true;
-
                 //We jumped to a completely different segment this frame, destroy all and recreate
                 RecalculateVisibleCells();
+                return;
             }
             else
             {
                 //Remove elements that disappeared to the start
                 for (int i = oldFrom; i < newFrom; ++i)
                 {
-                    HideCell(false);
-//                    HideCell(_visibleElementRange.from, false, null);
                     hasChanged = true;
+                    HideCell(oldFrom, false, null);
                 }
 
                 //Remove elements that disappeared to the end
                 for(int i = newTo; i < oldTo; ++i)
                 {
-                    HideCell(true);
-//                    HideCell(_visibleElementRange.Last(), false, null);
                     hasChanged = true;
+                    HideCell(oldTo, false, null);
                 }
 
                 //Add elements that appeared on start
                 for (int i = oldFrom - 1; i >= newFrom; --i)
                 {
-                    ShowCell(i, false);
                     hasChanged = true;
+                    ShowCell(i, false);
                 }
 
                 //Add elements that appeared on end
                 for(int i = oldTo + 1; i <= newTo; ++i)
                 {
-                    ShowCell(i, true);
                     hasChanged = true;
+                    ShowCell(i, true);
                 }
 
                 _visibleElementRange = newVisibleElements;

@@ -13,9 +13,8 @@ namespace SocialPoint.GUIControl
 
         public UIScrollRectCellData()
         {
-            Guid uid = Guid.NewGuid();
-            Debug.Log("uid: " + uid);
-            UID = uid.ToString();
+            // TODO perhaps we can use a numeric GUID to optimize
+            UID = Guid.NewGuid().ToString();
         }
     }
 }
