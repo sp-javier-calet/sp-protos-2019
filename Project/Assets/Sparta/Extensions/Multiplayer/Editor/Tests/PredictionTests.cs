@@ -27,15 +27,18 @@ namespace SocialPoint.Multiplayer
             _client1 = new SimulateNetworkClient(localServer);
             _client2 = new SimulateNetworkClient(localServer);
             _serverCtrl = new NetworkServerSceneController(_server, new NetworkSceneContext());
+            _serverCtrl.ServerConfig.EnablePrediction = true;
+            _serverCtrl.Restart(localServer);
+
             _clientCtrl1 = new NetworkClientSceneController(_client1, new NetworkSceneContext(), true);
             _clientCtrl2 = new NetworkClientSceneController(_client2, new NetworkSceneContext(), true);
 
             _serverCtrl.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
-            _serverCtrl.RegisterAction<TestMovementAction>(MovementActionType);
+            _serverCtrl.RegisterAction<TestMovementAction>(MovementActionType, TestMovementAction.Apply);
             _clientCtrl1.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
-            _clientCtrl1.RegisterAction<TestMovementAction>(MovementActionType);
+            _clientCtrl1.RegisterAction<TestMovementAction>(MovementActionType, TestMovementAction.Apply);
             _clientCtrl2.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
-            _clientCtrl2.RegisterAction<TestMovementAction>(MovementActionType);
+            _clientCtrl2.RegisterAction<TestMovementAction>(MovementActionType, TestMovementAction.Apply);
 
             _server.Start();
             _client1.Connect();
@@ -200,7 +203,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        class TestMovementAction : INetworkShareable, INetworkSceneAction
+        class TestMovementAction : INetworkShareable
         {
             public JVector Movement;
 
@@ -214,13 +217,14 @@ namespace SocialPoint.Multiplayer
                 JVectorSerializer.Instance.Serialize(Movement, writer);
             }
 
-            public void Apply(NetworkScene scene)
+            public static void Apply(NetworkSceneMemento memento, TestMovementAction action)
             {
+                var scene = memento.CurrentScene;
                 var itr = scene.GetObjectEnumerator();
                 while(itr.MoveNext())
                 {
                     var go = itr.Current;
-                    go.Transform.Position += Movement;
+                    go.Transform.Position += action.Movement;
                 }
                 itr.Dispose();
             }

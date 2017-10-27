@@ -47,6 +47,7 @@ namespace SocialPoint.Multiplayer
         public bool UsePluginHttpClient = DefaultUsePluginHttpClient;
         public Func<string> GetBackendUrlCallback;
         public string MetricEnvironment;
+        public bool EnablePrediction = false;
     }
 
     public class NetworkServerSceneController : NetworkSceneController<NetworkGameObject>, INetworkServerDelegate, INetworkMessageReceiver, IDeltaUpdateable, INetworkSceneController
@@ -72,7 +73,7 @@ namespace SocialPoint.Multiplayer
         Dictionary<byte, ClientData> _clientData;
         List<ActionInfo> _pendingActions;
 
-        public NetworkServerConfig ServerConfig { get; set; }
+        public NetworkServerConfig ServerConfig = new NetworkServerConfig();
 
         public NetworkServerSyncController SyncController{ get; private set; }
 
@@ -88,21 +89,6 @@ namespace SocialPoint.Multiplayer
 
         public bool Paused { get; set; }
 
-        public byte MaxPlayers
-        {
-            get
-            {
-                return ServerConfig.MaxPlayers;
-            }
-        }
-
-        public bool Full
-        {
-            get
-            {
-                return PlayerCount >= ServerConfig.MaxPlayers;
-            }
-        }
 
         public int PlayerCount
         {
@@ -240,7 +226,10 @@ namespace SocialPoint.Multiplayer
             {
                 SyncController.Dispose();
             }
-            SyncController = new NetworkServerSyncController(_server, _clientData, _serializer, _scene, _prevScene, _actions, _pendingActions);
+            SyncController = new NetworkServerSyncController(
+                new NetworkServerSyncController.ServerControllerData{
+                    Server = _server, ClientData = _clientData, Serializer = _serializer, Scene = _scene, PrevScene = _prevScene, Actions = _actions, PendingActions = _pendingActions, EnablePrediction = ServerConfig.EnablePrediction
+                });
 
             _server.RemoveDelegate(this);
             _server.AddDelegate(this);
