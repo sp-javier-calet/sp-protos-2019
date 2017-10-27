@@ -4,10 +4,13 @@ using UnityEngine;
 
 public class ScrollViewExample : UIScrollRectExtension<MyData, MyCell> 
 {
-    string[] prefabs = { "GUI_StoreItem", "GUI_StoreItemSmall", "GUI_StoreItem2"};
-
     public void Init()
     {
+        if(_prefabs.Length == 0)
+        {
+            throw new UnityException("Missing prefabs to instantiate");
+        }
+
         DefineGetData(GetData);
         DefineAddCellData(AddData);
 
@@ -16,10 +19,10 @@ public class ScrollViewExample : UIScrollRectExtension<MyData, MyCell>
       
     List<MyData> GetData()
     {
-        List<MyData> myData = new List<MyData>();
-        for (int i = 0; i < 1000; ++i)
+        var myData = new List<MyData>();
+        for (int i = 0; i < 100; ++i)
         {
-            myData.Add(new MyData("test item small name " + i, "test item small description for item with index " + i, prefabs[UnityEngine.Random.Range(0,0)]));
+            myData.Add(new MyData("test item small name " + i, "test item small description for item with index " + i, GetPrefabIndexFromArray()));
         }
 
         return myData;
@@ -27,6 +30,11 @@ public class ScrollViewExample : UIScrollRectExtension<MyData, MyCell>
 
     MyData AddData()
     {
-        return new MyData("test NEW item small name ", "test NEW item small description for item with index ", prefabs[UnityEngine.Random.Range(0, 3)]);
+        return new MyData("test NEW item small name ", "test NEW item small description for item with index ", GetPrefabIndexFromArray());
+    }
+        
+    int GetPrefabIndexFromArray()
+    {
+        return Random.Range(0, _prefabs.Length - 1);
     }
 }

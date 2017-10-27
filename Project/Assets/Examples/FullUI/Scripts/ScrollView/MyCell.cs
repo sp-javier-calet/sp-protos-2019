@@ -5,7 +5,7 @@ public class MyCell: UIScrollRectCellItem<MyData>
     public SPText NameText;
     public SPText DescriptionText;
 
-    public override void Show()
+    public override void ShowData()
     {
         if(NameText != null)
         {

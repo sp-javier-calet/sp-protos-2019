@@ -377,9 +377,15 @@ namespace SocialPoint.GUIControl
         }
 
         [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
-        void DebugLog(string msg)
+        protected void ShowDebugLogMessage(string msg)
         {
-            Log.i(string.Format("UIViewController {0} {1} | {2}", gameObject.name, _viewState, msg));
+            Log.i(msg);
+        }
+
+        [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
+        protected virtual void DebugLog(string msg)
+        {
+            ShowDebugLogMessage(string.Format("UIViewController {0} {1} | {2}", gameObject.name, _viewState, msg));
         }
 
         public void SetParent(Transform parent)

@@ -2,7 +2,7 @@
 
 namespace SocialPoint.GUIControl
 {
-    public abstract class UIScrollRectCellItem<TCellData> : MonoBehaviour  where TCellData : UIScrollRectCellData 
+    public abstract class UIScrollRectCellItem<TCellData> : UIViewController  where TCellData : UIScrollRectCellData 
     {
         [SerializeField]
         bool _expandable;
@@ -22,10 +22,10 @@ namespace SocialPoint.GUIControl
             if(data != null)
             {
                 _data = data;
-                Show();
+                ShowData();
             }
         }
 
-        public abstract void Show();
+        public abstract void ShowData();
     }
 }

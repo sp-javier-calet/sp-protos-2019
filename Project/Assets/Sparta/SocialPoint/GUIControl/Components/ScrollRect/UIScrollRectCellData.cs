@@ -7,7 +7,7 @@ namespace SocialPoint.GUIControl
     {
         public string UID { get; set; }
 
-        public string Prefab { get; set; }
+        public int PrefabIndex { get; set; }
         public Vector2 Size { get; set; }
         public Vector2 AccumulatedSize { get; set; }
 

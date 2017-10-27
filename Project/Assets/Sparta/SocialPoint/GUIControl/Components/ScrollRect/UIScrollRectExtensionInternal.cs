@@ -304,22 +304,11 @@ namespace SocialPoint.GUIControl
             for(int i = beginIndex; i < _data.Count; ++i)
             {
                 var dataValue = _data[i];
-                var prefabName = dataValue.Prefab;
 
-                RectTransform trans;
-                GameObject prefab;
-                if(!_prefabs.TryGetValue(prefabName, out prefab))
-                {
-                    prefab = Resources.Load(prefabName) as GameObject;
-                    if(prefab != null)
-                    { 
-                        _prefabs.Add(prefabName, GetCellPrefab(prefab));
-                    }
-                } 
-
+                var prefab = _prefabs[dataValue.PrefabIndex];
                 if(prefab != null)
                 {
-                    trans = prefab.transform as RectTransform;
+                    var trans = prefab.transform as RectTransform;
                     dataValue.Size = ReuseNewTempVector(trans.rect.width, trans.rect.height);
 
                     if(UsesVerticalLayout)

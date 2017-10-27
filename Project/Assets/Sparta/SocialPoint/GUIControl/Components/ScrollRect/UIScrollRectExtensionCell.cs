@@ -83,31 +83,34 @@ namespace SocialPoint.GUIControl
         void ShowCell(int index, bool insertAtEnd)
         {
             var newCell = GetCellGameObject(index);
-            var cell = newCell.GetComponent<TCell>();
-            if(cell != null)
+            if(newCell != null)
             {
-                cell.UpdateData(_data[index]);
-                _visibleCells.Add(cell);
-            }
+                var cell = newCell.GetComponent<TCell>();
+                if(cell != null)
+                {
+                    cell.UpdateData(_data[index]);
+                    _visibleCells.Add(cell);
 
-            var trans = newCell.transform;
+                    var trans = newCell.transform;
 
-            trans.SetParent(_scrollContentRectTransform, false);
-            trans.localScale = Vector3.one;
-            trans.localPosition = Vector3.zero;
+                    trans.SetParent(_scrollContentRectTransform, false);
+                    trans.localScale = Vector3.one;
+                    trans.localPosition = Vector3.zero;
 
-            if(insertAtEnd)
-            {
-                trans.SetAsLastSibling();
-            }
-            else
-            {
-                trans.SetAsFirstSibling(); 
-            }
+                    if(insertAtEnd)
+                    {
+                        trans.SetAsLastSibling();
+                    }
+                    else
+                    {
+                        trans.SetAsFirstSibling(); 
+                    }
 
-            if(CellVisibilityChange != null)
-            {
-                CellVisibilityChange(index, true);
+                    if(CellVisibilityChange != null)
+                    {
+                        CellVisibilityChange(index, true);
+                    }
+                }
             }
         }
 
@@ -148,8 +151,8 @@ namespace SocialPoint.GUIControl
             
         GameObject GetCellGameObject(int index)
         {
-            GameObject prefab;
-            if(_prefabs.TryGetValue(_data[index].Prefab, out prefab))
+            var prefab = _prefabs[_data[index].PrefabIndex];
+            if(prefab != null)
             {
                 var go = InstantiateCellPrefabIfNeeded(prefab);
                 if(go != null)

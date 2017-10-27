@@ -15,9 +15,6 @@ public class SlideAnimation : UIViewAnimation
     }
 
     [SerializeField]
-    RectTransform _transform;
-
-    [SerializeField]
     float _time = 1.0f;
 
     [SerializeField]
@@ -32,26 +29,14 @@ public class SlideAnimation : UIViewAnimation
     [SerializeField]
     AnimationCurve _easeCurve = default(AnimationCurve);
  
-    UIViewController _ctrl;
+    RectTransform _rectTransform;
 
-    public override void Load(UIViewController ctrl)
+    public override void Load(Transform transform = null)
     {
-        if(ctrl == null)
-        {
-            throw new MissingComponentException("UIViewController does not exist");
-        }
+        base.Load(transform);
 
-        _ctrl = ctrl;
-
-        if(_transform == null && _ctrl.transform.childCount > 0)
-        {
-            _transform = _ctrl.transform.GetChild(0) as RectTransform;
-        }
-            
-        if(_transform == null)
-        {
-            throw new MissingComponentException("Could not find First Child RectTransform component.");
-        }
+        _rectTransform = _transform as RectTransform;
+        _transform = transform;
     }
     
     public SlideAnimation(float time, PosType moveFromPos = PosType.Center, PosType moveToPos = PosType.Center, GoEaseType easeType = GoEaseType.Linear, AnimationCurve easeCurve = default(AnimationCurve))
@@ -72,7 +57,9 @@ public class SlideAnimation : UIViewAnimation
         GetPosition(ref finalPos, _moveToPos);
 
         _transform.localPosition = initialPos;
-        yield return _ctrl.StartCoroutine(CreateTween(finalPos).waitForCompletion());
+        CreateTween(finalPos);
+
+        yield return null;
     }
 
     GoTween CreateTween(Vector3 finalValue)
@@ -91,19 +78,19 @@ public class SlideAnimation : UIViewAnimation
     {
         if(position == PosType.Right)
         {
-            pos.x = (_transform.sizeDelta.x + _transform.rect.width);
+            pos.x = (_rectTransform.sizeDelta.x + _rectTransform.rect.width);
         }
         else if(position == PosType.Left)
         {
-            pos.x = -(_transform.sizeDelta.x + _transform.rect.width);
+            pos.x = -(_rectTransform.sizeDelta.x + _rectTransform.rect.width);
         }
         else if(position == PosType.Top)
         {
-            pos.y = (_transform.sizeDelta.y + _transform.rect.height);
+            pos.y = (_rectTransform.sizeDelta.y + _rectTransform.rect.height);
         }
         else if(position == PosType.Down)
         {
-            pos.y = -(_transform.sizeDelta.y + _transform.rect.height);
+            pos.y = -(_rectTransform.sizeDelta.y + _rectTransform.rect.height);
         }
     }
 

@@ -288,11 +288,10 @@ namespace SocialPoint.GameLoading
             DebugLog("op " + (_currentOperationIndex + 1) + " start");
             operation.Start();
         }
-
-        [System.Diagnostics.Conditional(DebugFlags.DebugGameLoadingFlag)]
-        void DebugLog(string msg)
+            
+        protected override void DebugLog(string msg)
         {
-            Log.i(string.Format("GameLoadingController: {0}", msg));
+            ShowDebugLogMessage(string.Format("GameLoadingController: {0}", msg));
         }
 
         void DoLogin()

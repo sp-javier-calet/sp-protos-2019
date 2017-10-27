@@ -4,19 +4,19 @@ using System.Collections;
 
 public class Loader : MonoBehaviour 
 {
-//    [SerializeField]
-//    UIViewAnimation _animation;
+    [SerializeField]
+    UIViewAnimation _animation;
 
     IEnumerator _coroutine;
 
     void Awake()
     {
-//        if(_animation == null)
-//        {
-//            _animation = new RotateAnimation(1f);
-//        }
-//        _animation.Load(transform);
-//        _coroutine = _animation.Appear();
+        if(_animation == null)
+        {
+            _animation = new RotateForEverAnimation(1f);
+        }
+        _animation.Load(transform);
+        _coroutine = _animation.Animate();
     }
 
     void OnEnable()
@@ -32,7 +32,7 @@ public class Loader : MonoBehaviour
 
     void OnDestroy()
     {
-//        _animation = null;
+        _animation = null;
         _coroutine = null;
     }
 }

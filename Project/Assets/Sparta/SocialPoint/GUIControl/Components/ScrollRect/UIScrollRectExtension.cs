@@ -59,6 +59,9 @@ namespace SocialPoint.GUIControl
         GameObject _loadingGroup;
 
         [SerializeField]
+        protected GameObject[] _prefabs;
+
+        [SerializeField]
         bool _usePooling;
 
         [Tooltip("Delta that we will add to bounds to check if we need to show/hide new cells")]
@@ -112,8 +115,6 @@ namespace SocialPoint.GUIControl
         public bool Initialized { get; private set; }
 
         List<TCellData> _data = new List<TCellData>();
-        Dictionary<string, GameObject> _prefabs = new Dictionary<string, GameObject>();
-
         IEnumerator _smoothScrollCoroutine;
         int _defaultStartPadding;
         int _deltaStartPadding;

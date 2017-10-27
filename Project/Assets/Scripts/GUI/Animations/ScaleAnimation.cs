@@ -6,9 +6,6 @@ using SocialPoint.GUIControl;
 public class ScaleAnimation : UIViewAnimation
 {
     [SerializeField]
-    Transform _transform;
-
-    [SerializeField]
     float _time = 1.0f;
 
     [SerializeField]
@@ -22,28 +19,6 @@ public class ScaleAnimation : UIViewAnimation
 
     [SerializeField]
     AnimationCurve _easeCurve = default(AnimationCurve);
-
-    UIViewController _ctrl;
-
-    public override void Load(UIViewController ctrl)
-    {
-        if(ctrl == null)
-        {
-            throw new MissingComponentException("UIViewController does not exist");
-        }
-
-        _ctrl = ctrl;
-
-        if(_transform == null && _ctrl.transform.childCount > 0)
-        {
-            _transform = _ctrl.transform.GetChild(0);
-        }
-            
-        if(_transform == null)
-        {
-            throw new MissingComponentException("Could not find First Child Transform component.");
-        }
-    }
 
     public ScaleAnimation(float time, Vector3 initialScale, Vector3 finalScale, GoEaseType easeType = GoEaseType.Linear, AnimationCurve easeCurve = default(AnimationCurve))
     {
@@ -59,8 +34,9 @@ public class ScaleAnimation : UIViewAnimation
         if(_transform != null)
         {
             _transform.localScale = _initialScale;
+            CreateTween(_finalScale);
 
-            yield return _ctrl.StartCoroutine(CreateTween(_finalScale).waitForCompletion());
+            yield return null;
         }
     }
         

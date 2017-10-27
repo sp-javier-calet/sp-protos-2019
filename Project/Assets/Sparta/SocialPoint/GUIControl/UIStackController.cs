@@ -335,7 +335,7 @@ namespace SocialPoint.GUIControl
             var anim = GetAnimation(uiViewAnimation ?? (ctrl.IsFullScreen ? null : desiredAnim));
             if(anim != null)
             {
-                anim.Load(ctrl);
+                anim.Load(ctrl.transform);
             }
 
             uiViewAnimation = anim;
@@ -454,11 +454,10 @@ namespace SocialPoint.GUIControl
             }
             DebugLog("EndTransition");
         }
-
-        [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
-        void DebugLog(string msg)
+            
+        protected override void DebugLog(string msg)
         {
-            Log.i(string.Format("UIStackController | {0}", msg));
+            ShowDebugLogMessage(string.Format("UIStackController | {0}", msg));
         }
 
         public void SetCheckPoint(string name)

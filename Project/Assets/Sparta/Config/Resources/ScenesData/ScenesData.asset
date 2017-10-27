@@ -21,3 +21,4 @@ MonoBehaviour:
   - PrototypeMainScene
   - UIScene
   - CubeMainScene
+  - UIScrollViewScene

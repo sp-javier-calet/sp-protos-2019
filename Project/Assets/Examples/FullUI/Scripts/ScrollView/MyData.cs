@@ -5,10 +5,10 @@ public class MyData : UIScrollRectCellData
     public string Name;
     public string Description;
 
-    public MyData(string name, string description, string prefab)
+    public MyData(string name, string description, int prefabIndex)
     {
         Name = name;
         Description = description;
-        Prefab = prefab;
+        PrefabIndex = prefabIndex;
     }
 }

@@ -14,16 +14,18 @@ public class FadeAnimation : UIViewAnimation
     [SerializeField]
     float _finalAlpha = 1.0f;
 
-    UIViewController _ctrl;
+    CanvasGroup _canvasGroup;
 
-    public override void Load(UIViewController ctrl)
+    public override void Load(Transform transform = null)
     {
-        if(ctrl == null)
-        {
-            throw new MissingComponentException("UIViewController does not exist");
-        }
+        base.Load(transform);
 
-        _ctrl = ctrl;
+        _canvasGroup = transform.GetComponent<CanvasGroup>();
+
+        if(_canvasGroup == null)
+        {
+            throw new MissingComponentException("Missing CanvasGroup component in UIViewAnimation Load");
+        }
     }
 
     public FadeAnimation(float time, float initialAlpha, float finalAlpha)
@@ -35,13 +37,13 @@ public class FadeAnimation : UIViewAnimation
         
     public override IEnumerator Animate()
     {
-        _ctrl.Alpha = _initialAlpha;
+        _canvasGroup.alpha = _initialAlpha;
 
         var elapsedTime = 0.0f;
         while(elapsedTime <= _time)
         {
             elapsedTime += Time.deltaTime;
-            _ctrl.Alpha = Mathf.Lerp(_initialAlpha, _finalAlpha, (elapsedTime / _time));
+            _canvasGroup.alpha = Mathf.Lerp(_initialAlpha, _finalAlpha, (elapsedTime / _time));
             yield return null;
         }
     }
