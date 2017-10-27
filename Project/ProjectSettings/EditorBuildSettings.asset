@@ -17,3 +17,9 @@ EditorBuildSettings:
     path: Assets/Scenes/BaseMainScene.unity
   - enabled: 1
     path: Assets/Examples/Lockstep/LockstepScene.unity
+  - enabled: 1
+    path: Assets/Prototypes/Scenes/PrototypeMainScene.unity
+  - enabled: 1
+    path: Assets/Examples/UIScene.unity
+  - enabled: 1
+    path: Assets/Examples/CubeMainScene.unity

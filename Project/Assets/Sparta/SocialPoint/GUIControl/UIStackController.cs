@@ -36,9 +36,6 @@ namespace SocialPoint.GUIControl
 
         public Action CloseAppShow { get; set; }
 
-        public UIViewAnimation UnityDefaultAnimation;
-        public UIViewAnimation UnityDefaultAnimationFullScreen;
-
         public UIViewController SceneParent;
 
         /// <summary>
@@ -91,16 +88,11 @@ namespace SocialPoint.GUIControl
         {
             get
             {
-                if(Count > 0)
-                {
-                    return _stack[Count - 1];
-                }
-
-                return null;
+                return Count > 0 ? _stack[Count - 1] : null;
             }
         }
 
-        List<StackNode> _stack = new List<StackNode>();
+        readonly List<StackNode> _stack = new List<StackNode>();
         public IList<StackNode> Stack
         {
             get
@@ -110,7 +102,7 @@ namespace SocialPoint.GUIControl
         }
 
         IDictionary<string,int> _checkpoints = new Dictionary<string,int>();
-        IEnumerator _actionCoroutine = null;
+        IEnumerator _actionCoroutine;
         ActionType _action = ActionType.None;
 
         #region Helper StackNodes
@@ -120,15 +112,10 @@ namespace SocialPoint.GUIControl
             return stackNode != null && stackNode.Controller != null && stackNode.GameObject != null;
         }
 
-        StackNode NewStackNode(UIViewController ctrl, bool hideControllersBelow)
+        static StackNode NewStackNode(UIViewController ctrl, bool hideControllersBelow)
         {
-            if(ctrl != null)
-            {
-                return new StackNode(ctrl, ctrl.gameObject, hideControllersBelow);
+            return ctrl != null ? new StackNode(ctrl, ctrl.gameObject, hideControllersBelow) : null;
             }
-
-            return null;
-        }
 
         #endregion
 
@@ -204,42 +191,22 @@ namespace SocialPoint.GUIControl
             DebugLog("EndProcess");
         }
 
-        bool SetAnimation(StackNode from, StackNode to, UIViewAnimation anim)
-        {
-            if(anim != null)
-            {
-                if(IsValidStackNode(to))
+        static bool IsPushAction(ActionType act)
                 {
-                    to.Controller.Animation = (UIViewAnimation)anim.Clone();
-                }
-
-                if(IsValidStackNode(from))
-                {
-                    from.Controller.Animation = (UIViewAnimation)anim.Clone();
-                }
-
-                return true;
-            }
-
-            return false;
-        }
-
-        bool IsPushAction(ActionType act)
-        {
             return act == ActionType.Push || act == ActionType.PushImmediate;
         }
 
-        bool IsPopAction(ActionType act)
+        static bool IsPopAction(ActionType act)
         {
             return act == ActionType.Pop || act == ActionType.PopImmediate || act == ActionType.PopUntilCheck || act == ActionType.PopUntilPos || act == ActionType.PopUntilType;
         }
 
-        bool IsReplaceAction(ActionType act)
+        static bool IsReplaceAction(ActionType act)
         {
             return act == ActionType.Replace || act == ActionType.ReplaceImmediate;
         }
 
-        bool IsImmediateAction(ActionType act)
+        static bool IsImmediateAction(ActionType act)
         {
             return act == ActionType.PushImmediate || act == ActionType.PopImmediate || act == ActionType.ReplaceImmediate;
         }
@@ -341,7 +308,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        void SetupTransition(StackNode from, StackNode to, ActionType act)
+        void SetupTransition(StackNode from, StackNode to)
         {
             if(FrontContainer != null && IsValidStackNode(to))
             {
@@ -353,56 +320,31 @@ namespace SocialPoint.GUIControl
                 from.Controller.SetParent(BackContainer.transform);
             }
 
-            if(IsPushAction(act))
-            {
                 if(IsValidStackNode(from))
                 {
-                    SetupAnimation(from, from.Controller.HideAnimation);
+                SetupAnimation(ref from.Controller.DisappearAnimation, from.Controller, DisappearAnimation);
                 }
 
                 if(IsValidStackNode(to))
                 {
-                    SetupAnimation(to, to.Controller.ShowAnimation);
+                SetupAnimation(ref to.Controller.AppearAnimation, to.Controller, AppearAnimation);
                 }
             }
-            else
+
+        void SetupAnimation(ref UIViewAnimation uiViewAnimation, UIViewController ctrl, UIViewAnimation desiredAnim)
             {
-                if(IsValidStackNode(from))
+            var anim = GetAnimation(uiViewAnimation ?? (ctrl.IsFullScreen ? null : desiredAnim));
+            if(anim != null)
                 {
-                    SetupAnimation(from, from.Controller.ShowAnimation);
+                anim.Load(ctrl);
                 }
 
-                if(IsValidStackNode(to))
-                {
-                    SetupAnimation(to, to.Controller.HideAnimation);
+            uiViewAnimation = anim;
                 }
 
-            }
-        }
-
-        void SetupAnimation(StackNode ctrl, UIViewAnimation anim)
+        static UIViewAnimation GetAnimation(UIViewAnimation anim)
         {
-            if(IsValidStackNode(ctrl))
-            {
-                SetupAnimation(ctrl.Controller, anim);
-            }
-        }
-
-        void SetupAnimation(UIViewController ctrl, UIViewAnimation defaultAnim)
-        {
-            var anim = defaultAnim;
-            if(anim == null)
-            {
-                if(ctrl != null)
-                {
-                    anim = ctrl.IsFullScreen ? UnityDefaultAnimationFullScreen : UnityDefaultAnimation;
-                    ctrl.Animation = (anim == null ? null : (UIViewAnimation)anim.Clone());
-                }
-            }
-            else
-            {
-                ctrl.Animation = anim;
-            }
+            return anim != null ? (UIViewAnimation)anim.Clone() : null;
         }
 
         IEnumerator DoTransition(StackNode from, StackNode to, ActionType act)
@@ -413,7 +355,7 @@ namespace SocialPoint.GUIControl
                 yield break;
             }
 
-            SetupTransition(from, to, act);
+            SetupTransition(from, to);
 
             DebugLog(string.Format("StartTransition {0} {1} -> {2}", SimultaneousAnimations ? "sim" : "con",
                 IsValidStackNode(from) ? from.GameObject.name : string.Empty,
@@ -452,7 +394,7 @@ namespace SocialPoint.GUIControl
                 }
                 else if(IsValidStackNode(to))
                 {
-                    Show();                 
+//                    Show();                 
                     to.Controller.Show();
                     while(!to.Controller.IsStable || !IsStable)
                     {
@@ -462,7 +404,7 @@ namespace SocialPoint.GUIControl
                 else if(IsValidStackNode(from))
                 {
                     from.Controller.Hide();
-                    Hide(); // TODO probably this Hide() can be removed
+//                    Hide();
                     while(!from.Controller.IsStable || !IsStable)
                     {
                         yield return null;
@@ -686,7 +628,7 @@ namespace SocialPoint.GUIControl
             _stack.Add(stackNode);
 
             var act = ActionType.PushImmediate;
-            SetupTransition(top, stackNode, act);
+            SetupTransition(top, stackNode);
             if(IsValidStackNode(top))
             {
                 top.Controller.HideImmediate();
@@ -792,7 +734,7 @@ namespace SocialPoint.GUIControl
 
             AddChild(stackNode.GameObject);
             _stack.Add(stackNode);
-            SetupTransition(top, stackNode, act);
+            SetupTransition(top, stackNode);
 
             if(IsValidStackNode(top))
             {
@@ -955,7 +897,7 @@ namespace SocialPoint.GUIControl
             if(SceneParent != null)
             {
                 SceneParent.OnNoMorePopupsInView();
-            }
+        }
         }
 
         public void PopUntil<C>() where C : UIViewController
@@ -980,7 +922,7 @@ namespace SocialPoint.GUIControl
 
         IEnumerator DoPopUntilCoroutine(Type type)
         {
-            return DoPopUntilCondition((UIViewController ctrl) => { return ctrl.GetType() == type; }, ActionType.PopUntilType);
+            return DoPopUntilCondition(ctrl => ctrl.GetType() == type, ActionType.PopUntilType);
         }
 
         public void PopUntil(int i)
@@ -1002,7 +944,7 @@ namespace SocialPoint.GUIControl
         {
             if(Count > i)
             {           
-                return DoPopUntilCondition((UIViewController ctrl) => 
+                return DoPopUntilCondition(ctrl => 
                 { 
                     if(i >= 0)
                     {
@@ -1020,22 +962,22 @@ namespace SocialPoint.GUIControl
             return null;
         }
 
-        public void PopUntilCheckPoint(string name)
+        public void PopUntilCheckPoint(string checkPointName)
         {
-            StartActionCoroutine(DoPopUntilCheckPointCoroutine(name), ActionType.PopUntilCheck);
+            StartActionCoroutine(DoPopUntilCheckPointCoroutine(checkPointName), ActionType.PopUntilCheck);
         }
 
-        public IEnumerator PopUntilCheckPointCoroutine(string name)
+        public IEnumerator PopUntilCheckPointCoroutine(string checkPointName)
         {
-            yield return StartActionCoroutine(DoPopUntilCheckPointCoroutine(name), ActionType.PopUntilCheck);
+            yield return StartActionCoroutine(DoPopUntilCheckPointCoroutine(checkPointName), ActionType.PopUntilCheck);
         }
 
-        IEnumerator DoPopUntilCheckPointCoroutine(string name)
+        IEnumerator DoPopUntilCheckPointCoroutine(string checkPointName)
         {
             int i;
-            if(!_checkpoints.TryGetValue(name, out i))
+            if(!_checkpoints.TryGetValue(checkPointName, out i))
             {
-                throw new Exception(string.Format("Could not find checkpoint '{0}'.", name));
+                throw new Exception(string.Format("Could not find checkpoint '{0}'.", checkPointName));
             }
             else
             {
