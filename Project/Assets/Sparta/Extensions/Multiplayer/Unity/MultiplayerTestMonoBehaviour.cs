@@ -6,7 +6,7 @@ using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
-    public class MultiplayerTestMonoBehaviour : MonoBehaviour, INetworkSceneBehaviour
+    public class MultiplayerTestMonoBehaviour : INetworkSceneBehaviour
     {
         //Disable if server will be created outside Unity
         public bool CreateServer = true;
@@ -17,41 +17,6 @@ namespace SocialPoint.Multiplayer
         NetworkServerSceneController _serverController;
 
         private static readonly System.Type UnityDebugNetworkClientRigidBodyType = typeof(UnityDebugNetworkClientRigidBody);
-
-        void Start()
-        {
-            //#warning as we install 2 clients we should know which NetworkClient to use here
-            _client = Services.Instance.Resolve<INetworkClient>();
-            _clientController = Services.Instance.Resolve<NetworkClientSceneController>();
-            NetworkGameObject gameObjectPrefab = new NetworkGameObject(_clientController.Context);
-
-            if (CreateServer)
-            {
-                _server = Services.Instance.Resolve<INetworkServer>();
-                _serverController = Services.Instance.Resolve<NetworkServerSceneController>();
-            }
-
-            _clientController.Scene.AddBehaviour(this);
-            _clientController.RegisterBehaviour(gameObjectPrefab, new UnityNetworkClientDebugBehaviour().Init(_clientController, _serverController));
-
-            var debugScene = gameObject.AddComponent<UnityDebugSceneMonoBehaviour>();
-            debugScene.Client = _clientController;
-            debugScene.Server = _serverController;
-
-            if(_server != null)
-            {
-                _server.Start();
-            }
-            if(_client != null)
-            {
-                _client.Connect();
-            }
-        }
-
-        void OnDestroy()
-        {
-            _clientController.Scene.RemoveBehaviour(this);
-        }
 
         void INetworkSceneBehaviour.OnInstantiateObject(NetworkGameObject go)
         {
@@ -75,10 +40,40 @@ namespace SocialPoint.Multiplayer
 
         void INetworkSceneBehaviour.OnDestroy()
         {
+            _clientController.Scene.RemoveBehaviour(this);
         }
 
         void INetworkSceneBehaviour.OnStart()
         {
+            //#warning as we install 2 clients we should know which NetworkClient to use here
+            _client = Services.Instance.Resolve<INetworkClient>();
+            _clientController = Services.Instance.Resolve<NetworkClientSceneController>();
+            NetworkGameObject gameObjectPrefab = new NetworkGameObject(_clientController.Context);
+
+            if (CreateServer)
+            {
+                _server = Services.Instance.Resolve<INetworkServer>();
+                _serverController = Services.Instance.Resolve<NetworkServerSceneController>();
+            }
+
+            _clientController.RegisterBehaviour(gameObjectPrefab, new UnityNetworkClientDebugBehaviour().Init(_clientController, _serverController));
+
+            var debugScene = GameObject.FindObjectOfType<UnityDebugSceneMonoBehaviour>();
+            if(debugScene == null)
+            {
+                debugScene = new GameObject("UnityDebugSceneMonoBehaviour").AddComponent<UnityDebugSceneMonoBehaviour>();
+            }
+            debugScene.Client = _clientController;
+            debugScene.Server = _serverController;
+
+            if(_server != null)
+            {
+                _server.Start();
+            }
+            if(_client != null)
+            {
+                _client.Connect();
+            }
         }
 
         void IDeltaUpdateable.Update(float elapsed)

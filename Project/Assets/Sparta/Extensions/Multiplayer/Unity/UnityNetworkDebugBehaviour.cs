@@ -11,7 +11,7 @@ namespace SocialPoint.Multiplayer
 
     public class UnityNetworkClientDebugBehaviour : NetworkBehaviour
     {
-        public NetworkGameObject ClientObject{ get; private set; }
+        public NetworkGameObject ClientObject{ get { return GameObject; } }
 
         public NetworkClientSceneController Client{ get; private set; }
 
@@ -59,7 +59,6 @@ namespace SocialPoint.Multiplayer
         {
             var b = GameObject.Context.Pool.Get<UnityNetworkClientDebugBehaviour>();
             b.Init(Client, Server);
-            b.ClientObject = ClientObject;
             return b;
         }
     }
