@@ -91,18 +91,24 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         bool _centerOnCell;
 
-//        [SerializeField]
+        // TODO IMPROVEMENT
+//        [SerializeField] 
 //        Vector2 _snapToCellAnchorPoint = new Vector2(0.5f, 0.5f);
 
         [SerializeField]
         float _deltaDragCell = 50f;
 
-        [Header("Magnify")]
-        [SerializeField]
-        Vector2 _maginifyMinScale;
+        // TODO IMPROVEMENT
+//        [Header("Magnify")]
+//        [SerializeField]
+//        bool _magnifyOnCenteredCell;
 
-        [SerializeField]
-        Vector2 _maginifyMaxScale;
+//        [SerializeField]
+//        Vector2 _maginifyMinScale;
+
+        // TODO IMPROVEMENT
+//        [SerializeField]
+//        Vector2 _maginifyMaxScale;
 
         [Header("Pagination")]
         [SerializeField]
@@ -196,7 +202,7 @@ namespace SocialPoint.GUIControl
             _isHorizontal = _scrollRect.horizontal;
             _isVertical = _scrollRect.vertical;
         
-            _visibleCells = new List<TCell>();
+            _visibleCells = new Dictionary<int, TCell>();
 
             ApplyLayoutRules();
         }
@@ -360,8 +366,6 @@ namespace SocialPoint.GUIControl
 
         public void RemoveData(int index)
         {
-            // TODO
-            /*
             if(!_centerOnCell)
             {
                 if(IndexIsValid(index))
@@ -378,7 +382,6 @@ namespace SocialPoint.GUIControl
                     HideCell(index, true, FinishRemovingData);
                 }
             }
-            */
         }
 
         void FinishRemovingData()

@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class ScrollViewExample : UIScrollRectExtension<MyData, MyCell> 
 {
+    [SerializeField]
+    int _numberOfCells = 50;
+
     public void Init()
     {
         if(_prefabs.Length == 0)
@@ -20,7 +23,7 @@ public class ScrollViewExample : UIScrollRectExtension<MyData, MyCell>
     List<MyData> GetData()
     {
         var myData = new List<MyData>();
-        for (int i = 0; i < 100; ++i)
+        for (int i = 0; i < _numberOfCells; ++i)
         {
             myData.Add(new MyData("test item small name " + i, "test item small description for item with index " + i, GetPrefabIndexFromArray()));
         }

@@ -18,7 +18,14 @@ namespace SocialPoint.GUIControl
         public event Action<int, bool> CellVisibilityChange;
 
         Range _visibleElementRange;
-        List<TCell> _visibleCells;
+        Dictionary<int, TCell> _visibleCells;
+        IEnumerator<KeyValuePair<int, TCell>> _visibleCellsEnumerator
+        {
+            get
+            {
+                return _visibleCells.GetEnumerator();    
+            }
+        }
 
         GameObject InstantiateCellPrefabIfNeeded(GameObject prefab)
         {
@@ -27,17 +34,17 @@ namespace SocialPoint.GUIControl
 
         void DestroyCellPrefabIfNeeded(GameObject prefab, bool animate, Action callback)
         {
-            var trans = prefab.transform as RectTransform;
-            var originalPivot = trans.pivot;
-            var originalScale = trans.localScale;
-
             if(animate)
             {
+                var trans = prefab.transform as RectTransform;
+                var originalPivot = trans.pivot;
+                var originalScale = trans.localScale;
+
                 StartCoroutine(DestroyAnimated(prefab, originalPivot, originalScale, callback));
             }
             else
             {
-                DoDestroyCellPrefabIfNeeded(prefab, originalPivot, originalScale, callback);
+                prefab.DestroyAnyway();
             }
         }
 
@@ -88,14 +95,12 @@ namespace SocialPoint.GUIControl
                 var cell = newCell.GetComponent<TCell>();
                 if(cell != null)
                 {
-                    cell.UpdateData(_data[index]);
-                    _visibleCells.Add(cell);
+                    _visibleCells[index] = cell;
+                    cell.UpdateData(_data[index]); 
 
                     var trans = newCell.transform;
-
                     trans.SetParent(_scrollContentRectTransform, false);
-                    trans.localScale = Vector3.one;
-                    trans.localPosition = Vector3.zero;
+                    trans.transform.ResetLocalTransform();
 
                     if(insertAtEnd)
                     {
@@ -116,36 +121,59 @@ namespace SocialPoint.GUIControl
 
         TCell GetVisibleCellByUID(string uid)
         {
-            return _visibleCells.Find( x => x.UID.Equals(uid));
+            while(_visibleCellsEnumerator.MoveNext())
+            {
+                var current = _visibleCellsEnumerator.Current as TCell;
+                if(current != null && current.UID.Equals(uid))
+                {
+                    _visibleCellsEnumerator.Dispose();
+                    return current;
+                }
+            }
+
+            _visibleCellsEnumerator.Dispose();
+            return null;
+        }
+
+        int GetDataByUID(string uid)
+        {
+            return _data.FindIndex(x => x.UID.Equals(uid));
         }
             
-        void CleanLastCell()
+        void HideFirstCell(bool animate = false, Action callback = null)
         {
-            HideCell(_visibleElementRange.Last(), false, null);
+            HideCell(_visibleElementRange.from, animate, callback);
         }
 
-        void HideCell(int index, bool animate, Action callback)
+        void HideLastCell(bool animate = false, Action callback = null)
         {
-            bool removeAtStart = index == _visibleElementRange.from;
+            HideCell(_visibleElementRange.Last(), animate, callback);
+        }
 
-            var CellToRemove = GetVisibleCellByUID(_data[index].UID);
-            if(CellToRemove != null)
-            {
-                var go = CellToRemove.gameObject;
+        void HideCell(int index, bool animate = false, Action callback = null)
+        {
+            var last = (index == _visibleElementRange.Last());
 
-                _visibleCells.Remove(CellToRemove);
-                DestroyCellPrefabIfNeeded(go, animate, callback);
-            }
-           
-            _visibleElementRange.count -= 1;
-            if(removeAtStart)
+            var cellToRemove = _visibleCells[index];
+            if(cellToRemove != null)
             {
-                _visibleElementRange.from += 1;
-            }
-                
-            if(CellVisibilityChange != null)
-            {
-                CellVisibilityChange(index, false);
+                var go = cellToRemove.gameObject;
+                if(go != null)
+                {
+                    DestroyCellPrefabIfNeeded(go, animate, callback);
+                    _visibleCells.Remove(index);
+
+                    _visibleElementRange.count -= 1;
+                    if(!last)
+                    {
+                        _visibleElementRange.from += 1;
+                    }
+
+                    if(CellVisibilityChange != null)
+                    {
+                        CellVisibilityChange(index, false);
+                    }
+                }
             }
         }
             
@@ -172,7 +200,7 @@ namespace SocialPoint.GUIControl
         {
             while(_visibleCells.Count > 0)
             {
-                CleanLastCell();
+                HideFirstCell();
             }
 
             _visibleElementRange = new Range(0, 0);
@@ -190,7 +218,7 @@ namespace SocialPoint.GUIControl
 
             Profiler.BeginSample("UIScrollRectExtension.RefreshVisibleElements", this);
 
-            Range newVisibleElements = CalculateCurrentVisibleRange();
+            var newVisibleElements = CalculateCurrentVisibleRange();
             if(_visibleElementRange.Equals(newVisibleElements))
             {
                 if(reload)
@@ -201,18 +229,18 @@ namespace SocialPoint.GUIControl
                 return;
             }
 
-            int oldFrom = _visibleElementRange.from;
-            int newFrom = newVisibleElements.from;
+            var hasChanged = false;
+            var oldFrom = _visibleElementRange.from;
+            var newFrom = newVisibleElements.from;
+            var oldTo = _visibleElementRange.Last();
+            var newTo = newVisibleElements.Last();
 
-            int oldTo = _visibleElementRange.Last();
-            int newTo = newVisibleElements.Last();
-
-            bool hasChanged = false;
-
+            //We jumped to a completely different segment this frame, destroy all and recreate
             if(newFrom > oldTo || newTo < oldFrom)
             {
-                //We jumped to a completely different segment this frame, destroy all and recreate
                 RecalculateVisibleCells();
+                UpdateScrollState();
+               
                 return;
             }
             else
@@ -221,14 +249,14 @@ namespace SocialPoint.GUIControl
                 for (int i = oldFrom; i < newFrom; ++i)
                 {
                     hasChanged = true;
-                    HideCell(oldFrom, false, null);
+                    HideFirstCell();
                 }
 
                 //Remove elements that disappeared to the end
                 for(int i = newTo; i < oldTo; ++i)
                 {
                     hasChanged = true;
-                    HideCell(oldTo, false, null);
+                    HideLastCell();
                 }
 
                 //Add elements that appeared on start
@@ -269,7 +297,7 @@ namespace SocialPoint.GUIControl
                 var data = _data[i];
                 if(data != null)
                 {
-                    var cell = _visibleCells.Find( x => x.UID.Equals(data.UID));
+                    var cell = GetVisibleCellByUID(data.UID);
                     if(cell != null)
                     {
                         cell.UpdateData(data);
