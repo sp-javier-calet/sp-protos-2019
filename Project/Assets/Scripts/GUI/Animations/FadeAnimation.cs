@@ -16,12 +16,11 @@ public class FadeAnimation : UIViewAnimation
 
     CanvasGroup _canvasGroup;
 
-    public override void Load(Transform transform = null)
+    public override void Load(GameObject gameObject = null)
     {
-        base.Load(transform);
+        base.Load(gameObject);
 
-        _canvasGroup = transform.GetComponent<CanvasGroup>();
-
+        _canvasGroup = gameObject.GetComponent<CanvasGroup>();
         if(_canvasGroup == null)
         {
             throw new MissingComponentException("Missing CanvasGroup component in UIViewAnimation Load");

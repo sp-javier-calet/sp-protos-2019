@@ -335,7 +335,7 @@ namespace SocialPoint.GUIControl
             var anim = GetAnimation(uiViewAnimation ?? (ctrl.IsFullScreen ? null : desiredAnim));
             if(anim != null)
             {
-                anim.Load(ctrl.transform);
+                anim.Load(ctrl.gameObject);
             }
 
             uiViewAnimation = anim;

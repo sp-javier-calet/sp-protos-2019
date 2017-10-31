@@ -18,13 +18,13 @@ public class UnityLegacyAnimation : UIViewAnimation
     [SerializeField]
     string _animName = string.Empty;
 
-    public override void Load(Transform transform = null)
+    public override void Load(GameObject gameObject = null)
     {
-        base.Load(transform);
+        base.Load(gameObject);
 
         if(_animation == null)        
         {
-            _animation = _transform.GetComponent<Animation>();
+            _animation = gameObject.GetComponent<Animation>();
             if(_animation == null)
             {
                 throw new MissingComponentException("Missing Animation component in UIViewAnimation Load");

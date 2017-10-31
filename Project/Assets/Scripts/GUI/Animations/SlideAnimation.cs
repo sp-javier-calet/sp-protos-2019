@@ -29,16 +29,6 @@ public class SlideAnimation : UIViewAnimation
     [SerializeField]
     AnimationCurve _easeCurve = default(AnimationCurve);
  
-    RectTransform _rectTransform;
-
-    public override void Load(Transform transform = null)
-    {
-        base.Load(transform);
-
-        _rectTransform = _transform as RectTransform;
-        _transform = transform;
-    }
-    
     public SlideAnimation(float time, PosType moveFromPos = PosType.Center, PosType moveToPos = PosType.Center, GoEaseType easeType = GoEaseType.Linear, AnimationCurve easeCurve = default(AnimationCurve))
     {
         _time = time;
@@ -50,13 +40,13 @@ public class SlideAnimation : UIViewAnimation
 
     public override IEnumerator Animate()
     {
-        var initialPos = _transform.localPosition;
+        var initialPos = _rectTransform.localPosition;
         var finalPos = initialPos;
 
         GetPosition(ref initialPos, _moveFromPos);
         GetPosition(ref finalPos, _moveToPos);
 
-        _transform.localPosition = initialPos;
+        _rectTransform.localPosition = initialPos;
         CreateTween(finalPos);
 
         yield return null;
@@ -66,11 +56,11 @@ public class SlideAnimation : UIViewAnimation
     {
         if(_easeType == GoEaseType.AnimationCurve && _easeCurve != null)
         {
-            return Go.to(_transform, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType).setEaseCurve(_easeCurve));
+            return Go.to(_gameObject, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType).setEaseCurve(_easeCurve));
         }
         else
         {
-            return Go.to(_transform, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType));
+            return Go.to(_gameObject, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType));
         }
     }
 

@@ -17,7 +17,7 @@ namespace SocialPoint.GUIControl
             {
                 _animation = new RotateForEverAnimation();
             }
-            _animation.Load(transform);
+            _animation.Load(gameObject);
             _coroutine = _animation.Animate();
         }
 

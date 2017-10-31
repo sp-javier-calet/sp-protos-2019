@@ -9,9 +9,9 @@ public class CombinedAnimation : UIViewAnimation
     [SerializeField]
     UIViewAnimation[] _animations;
 
-    public override void Load(Transform transform = null)
+    public override void Load(GameObject gameObject = null)
     {
-        base.Load(transform);
+        base.Load(gameObject);
 
         if(_animations.Length == 0)
         {
@@ -20,7 +20,7 @@ public class CombinedAnimation : UIViewAnimation
             
         for(int i = 0; i < _animations.Length; ++i)
         {
-            _animations[i].Load(transform);
+            _animations[i].Load(gameObject);
         }
     }
 

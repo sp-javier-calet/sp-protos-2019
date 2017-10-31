@@ -14,10 +14,10 @@ namespace SocialPoint.GUIControl
             _name = name;
         }
 
-        public override void Load(Transform transform)
+        public override void Load(GameObject gameObject = null)
         {
-            base.Load(transform);
-            _anim = GUIAnimationUtility.GetAnimation(_transform.gameObject, _name);
+            base.Load(gameObject);
+            _anim = GUIAnimationUtility.GetAnimation(gameObject, _name);
         }
 
         public override IEnumerator Animate()
