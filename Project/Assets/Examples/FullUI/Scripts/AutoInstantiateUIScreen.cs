@@ -13,16 +13,18 @@ public class AutoInstantiateUIScreen : MonoBehaviour
         var stackController = Services.Instance.Resolve<UIStackController>();
         if(stackController == null)
         {
-            throw new InvalidOperationException("Could not find screens controller for initial screen");
+            throw new InvalidOperationException("Could not find stack controller for initial screen");
         }
 
-        if(prefab != null)
+        if(prefab == null)
         {
-            var go = Instantiate(prefab);
-            if(go != null)
-            {
-                stackController.PushImmediate(go);
-            }
+            throw new UnityException("Prefab to instantiate is not setted");
+        }
+
+        var go = Instantiate(prefab);
+        if(go != null)
+        {
+            stackController.PushImmediate(go);
         }
 	}
 }
