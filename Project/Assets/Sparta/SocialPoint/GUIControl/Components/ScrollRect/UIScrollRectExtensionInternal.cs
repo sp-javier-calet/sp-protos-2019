@@ -309,7 +309,7 @@ namespace SocialPoint.GUIControl
                 if(prefab != null)
                 {
                     var trans = prefab.transform as RectTransform;
-                    dataValue.Size = ReuseNewTempVector(trans.rect.width, trans.rect.height);
+                    dataValue.Size = NewVector2(trans.rect.width, trans.rect.height);
 
                     if(UsesVerticalLayout)
                     {
@@ -328,7 +328,7 @@ namespace SocialPoint.GUIControl
                         }
                     }
 
-                    dataValue.AccumulatedSize = ReuseNewTempVector(acumulatedWidth, acumulatedHeight);
+                    dataValue.AccumulatedSize = NewVector2(acumulatedWidth, acumulatedHeight);
                 }
             }
 
@@ -358,7 +358,7 @@ namespace SocialPoint.GUIControl
             _defaultStartPadding = StartPadding;
         }
 
-        Vector2 ReuseNewTempVector(float x, float y)
+        Vector2 NewVector2(float x, float y)
         {
             _tempVector2 = Vector3.zero;
             _tempVector2.x = x;
@@ -548,15 +548,15 @@ namespace SocialPoint.GUIControl
         {
             if(UsesVerticalLayout)
             {
-                return ReuseNewTempVector(0f, -position);
+                return NewVector2(0f, -position);
             }
             else if(UsesHorizontalLayout)
             {
-                return ReuseNewTempVector(-position, 0f);
+                return NewVector2(-position, 0f);
             }
             else
             {
-                return ReuseNewTempVector(0f, 0f);
+                return NewVector2(0f, 0f);
             }
         }
 

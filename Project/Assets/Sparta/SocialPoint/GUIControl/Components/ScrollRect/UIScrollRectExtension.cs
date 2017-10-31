@@ -22,22 +22,6 @@ namespace SocialPoint.GUIControl
             RightOrBottom = 1
         }
 
-        public delegate List<TCellData> UIScrollRectExtensionGetData();
-        UIScrollRectExtensionGetData _getDataDlg;
-
-        public void DefineGetData(UIScrollRectExtensionGetData getDataDlg)
-        {
-            _getDataDlg = getDataDlg;
-        }
-
-        public delegate TCellData UIScrollRectExtensionAddCellData();
-        UIScrollRectExtensionAddCellData _addCellDataDlg;
-
-        public void DefineAddCellData(UIScrollRectExtensionAddCellData addCellDataDlg)
-        {
-            _addCellDataDlg = addCellDataDlg;
-        }
-
         [Header("UI Components")]
         [SerializeField]
         ScrollRect _scrollRect;
@@ -277,12 +261,16 @@ namespace SocialPoint.GUIControl
 
         #endregion
 
-        IEnumerator FetchDataFromServer(UIScrollRectExtensionGetData getDataDlg)
+        protected virtual List<TCellData> GetData() { return null; }
+        protected virtual TCellData AddData() { return null; }
+
+        IEnumerator FetchDataFromServer()
         {
             // Simulating server delay to show loading spinner (only for testing)
             yield return new WaitForSeconds(2f);
 
-            _data = getDataDlg();
+            _data.Clear();
+            _data = GetData();
             OnEndFetchingDataFromServer();
 
             yield return null;
@@ -295,16 +283,7 @@ namespace SocialPoint.GUIControl
                 _loadingGroup.SetActive(true);
             }
 
-            _data.Clear();
-
-            if(_getDataDlg != null)
-            {
-                StartCoroutine(FetchDataFromServer(_getDataDlg));
-            }
-            else
-            {
-                throw new UnityException("Get Data delegate not defined");
-            }
+            StartCoroutine(FetchDataFromServer());
         }
 
         void OnEndFetchingDataFromServer()
@@ -335,31 +314,28 @@ namespace SocialPoint.GUIControl
         {
             if(!_centerOnCell)
             {
-                if(_addCellDataDlg != null)
+                var data = AddData();
+                if(data != null)
                 {
-                    var data = _addCellDataDlg();
-                    if(data != null)
+                    if(addAtEnd)
                     {
-                        if(addAtEnd)
-                        {
-                            _data.Add(data);
-                            SetDataValues(_data.Count - 1);
-                        }
-                        else
-                        {
-                            _data.Insert(0, data);
-                            SetDataValues();
-                        }
-
-                        SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
-
-                        if(_pagination != null)
-                        {
-                            _pagination.Reload(_data.Count, _currentIndex);
-                        }
-
-                        RefreshVisibleCells(true);
+                        _data.Add(data);
+                        SetDataValues(_data.Count - 1);
                     }
+                    else
+                    {
+                        _data.Insert(0, data);
+                        SetDataValues();
+                    }
+
+                    SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
+
+                    if(_pagination != null)
+                    {
+                        _pagination.Reload(_data.Count, _currentIndex);
+                    }
+
+                    RefreshVisibleCells(true);
                 }
             }
         }

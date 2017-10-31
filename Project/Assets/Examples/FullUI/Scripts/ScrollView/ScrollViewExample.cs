@@ -7,7 +7,7 @@ public class ScrollViewExample : UIScrollRectExtension<ScrollViewExampleCellData
     [SerializeField]
     int _numberOfCells = 50;
 
-    List<ScrollViewExampleCellData> _myData = new List<ScrollViewExampleCellData>();
+    List<ScrollViewExampleCellData> _myData;
 
     public void Init()
     {
@@ -15,14 +15,12 @@ public class ScrollViewExample : UIScrollRectExtension<ScrollViewExampleCellData
         {
             throw new UnityException("Missing prefabs to instantiate");
         }
-
-        DefineGetData(GetData);
-        DefineAddCellData(AddData);
-
+            
+        _myData = new List<ScrollViewExampleCellData>();
         FetchData();
     }
       
-    List<ScrollViewExampleCellData> GetData()
+    protected override List<ScrollViewExampleCellData> GetData()
     {
         _myData.Clear();
         for (int i = 0; i < _numberOfCells; ++i)
@@ -33,7 +31,7 @@ public class ScrollViewExample : UIScrollRectExtension<ScrollViewExampleCellData
         return _myData;
     }
 
-    ScrollViewExampleCellData AddData()
+    protected override ScrollViewExampleCellData AddData()
     {
         return new ScrollViewExampleCellData("test NEW item small name ", "test NEW item small description for item with index ", GetPrefabIndexFromArray());
     }
