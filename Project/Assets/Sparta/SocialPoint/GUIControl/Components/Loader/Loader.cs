@@ -23,7 +23,6 @@ namespace SocialPoint.GUIControl
 
         void OnEnable()
         {
-            
             StartCoroutine(_coroutine);
         }
 
