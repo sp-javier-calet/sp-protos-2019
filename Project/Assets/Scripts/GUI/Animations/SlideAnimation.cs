@@ -29,6 +29,24 @@ public class SlideAnimation : UIViewAnimation
     [SerializeField]
     AnimationCurve _easeCurve = default(AnimationCurve);
  
+    public override void Load(GameObject gameObject = null)
+    {
+        base.Load(gameObject);
+
+        // HINT: If we want to move a gameobject with Canvas component on it, we force to move his first child instead
+        var canvas = _gameObject.GetComponent<Canvas>();
+        if(canvas != null)
+        {
+            if(_transform.childCount > 0)
+            {
+                _transform = _transform.GetChild(0);
+                _gameObject = _transform.gameObject;
+            }
+        }
+
+        _rectTransform = _transform as RectTransform;
+    }
+
     public SlideAnimation(float time, PosType moveFromPos = PosType.Center, PosType moveToPos = PosType.Center, GoEaseType easeType = GoEaseType.Linear, AnimationCurve easeCurve = default(AnimationCurve))
     {
         _time = time;

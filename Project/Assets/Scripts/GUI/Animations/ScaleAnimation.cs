@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using SocialPoint.GUIControl;
+using UnityEngine.UI;
 
 [CreateAssetMenu(menuName = "UI Animations/Scale Animation")]
 public class ScaleAnimation : UIViewAnimation
@@ -29,6 +30,24 @@ public class ScaleAnimation : UIViewAnimation
         _easeCurve = easeCurve;
     }
         
+    public override void Load(GameObject gameObject = null)
+    {
+        base.Load(gameObject);
+
+        // HINT: If we want to scale a gameobject with Canvas Scaler component on it, we force to scale his first child instead
+        var canvasScaler = _gameObject.GetComponent<CanvasScaler>();
+        if(canvasScaler != null)
+        {
+            if(_transform.childCount > 0)
+            {
+                _transform = _transform.GetChild(0);
+                _gameObject = _transform.gameObject;
+            }
+        }
+
+        _rectTransform = _transform as RectTransform;
+    }
+
     public override IEnumerator Animate()
     {
         if(_transform != null)
