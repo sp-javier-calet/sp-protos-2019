@@ -24,8 +24,6 @@ public class UIScrollRectPagination : MonoBehaviour
     [SerializeField]
     Sprite _imageUnSelected;
 
-    [Header("Functionallity")]
-    [SerializeField]
     bool _useNavigationButtons;
     public bool UseNavigationButtons
     {
@@ -35,8 +33,7 @@ public class UIScrollRectPagination : MonoBehaviour
             _useNavigationButtons = value;
         }
     }
-
-    [SerializeField]
+        
     bool _usePaginationButtons;
     public bool UsePaginationButtons
     {
@@ -107,7 +104,7 @@ public class UIScrollRectPagination : MonoBehaviour
 
     void InstantiateNewPaginationButton(GameObject prefab, int index)
     {
-        var go = GameObject.Instantiate(prefab);
+        var go = UnityEngine.Object.Instantiate(prefab);
         if(go != null)
         {
             var trans = go.transform;

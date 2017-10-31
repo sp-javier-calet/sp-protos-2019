@@ -73,14 +73,13 @@ namespace SocialPoint.EventSystems
         {
             _newActionRaycaster.RaycastResultGameObject = null;
             m_PointerData = _defaultPointerData;
-
+            base.Process();
             if(ValidateLastPointerEventData(_newActionRaycaster.LastEventData))
             {
                 _newActionRaycaster.RaycastResultGameObject = gameObject;
                 m_PointerData = _actionEventDispatcherPointerData;
+                base.Process();
             }
-
-            base.Process();
         }
 
         #region handlers

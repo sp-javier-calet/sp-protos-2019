@@ -98,6 +98,12 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         UIScrollRectPagination _pagination;
 
+        [SerializeField]
+        bool _useNavigationButtons;
+
+        [SerializeField]
+        bool _usePaginationButtons;
+
         [Header("Debug")]
         [SerializeField]
         Canvas _mainCanvas;
@@ -147,20 +153,15 @@ namespace SocialPoint.GUIControl
             {
                 if(_pagination != null)
                 {
+                    _pagination.UseNavigationButtons = _useNavigationButtons;
+                    _pagination.UsePaginationButtons = _usePaginationButtons;
                     _pagination.gameObject.SetActive(true);
                 }
             }
             else
             {
-                if(_pagination != null)
-                {
-                    _pagination.UseNavigationButtons = false;
-                    _pagination.UsePaginationButtons = false;
-
-                    _pagination.gameObject.SetActive(false);
-
-                    _pagination = null;
-                }
+                _pagination.gameObject.SetActive(false);
+                _pagination = null;
             }
         }
 
