@@ -525,17 +525,31 @@ namespace SocialPoint.GUIControl
             
         public void ScrollToPosition(float finalPosition, bool animate = true)
         {
-            Scroll(finalPosition, animate);
-        }
-            
-        void Scroll(float finalPosition, bool animate = true)
-        {
             StopScrolling();
 
+            _scrollCoroutine = Scroll(finalPosition, animate);
+            StartCoroutine(_scrollCoroutine);
+        }
+            
+        IEnumerator Scroll(float finalPosition, bool animate = true)
+        {
             if(animate)
             {
-                _smoothScrollCoroutine = ScrollAnimation(finalPosition, _scrollAnimationDuration);
-                StartCoroutine(_smoothScrollCoroutine);
+                _scrollAnimation = new AnchoredPositionAnimation(_scrollAnimationTime, GetFinalScrollPosition(finalPosition), _scrollAnimationEaseType, _scrollAnimationCurve);
+                if(_scrollAnimation != null)
+                {
+                    _scrollAnimation.Load(_scrollContentRectTransform.gameObject);
+                    var enm = _scrollAnimation.Animate();
+                    while(enm.MoveNext())
+                    {
+                        yield return enm.Current;
+                    }
+                }
+                else
+                {
+                    ScrollPosition = finalPosition;
+                    _requiresRefresh = true;
+                }
             }
             else
             {
@@ -559,36 +573,6 @@ namespace SocialPoint.GUIControl
                 return NewVector2(0f, 0f);
             }
         }
-
-        IEnumerator ScrollAnimation(float finalPosition, float time)
-        {
-            Go.killAllTweensWithTarget(_scrollContentRectTransform);
-
-            if(time < 0.05f)
-            {
-                yield break;
-            }
-                
-            GoTween tween;
-            if(_scrollAnimationEaseType == GoEaseType.AnimationCurve && _scrollAnimationCurve != null)
-            {
-                tween = Go.to(_scrollContentRectTransform, 0.3f, new GoTweenConfig().anchoredPosition(GetFinalScrollPosition(finalPosition)).setEaseType(_scrollAnimationEaseType).setEaseCurve(_scrollAnimationCurve));
-            }
-            else
-            {
-                tween = Go.to(_scrollContentRectTransform, 0.3f, new GoTweenConfig().anchoredPosition(GetFinalScrollPosition(finalPosition)).setEaseType(_scrollAnimationEaseType));
-            }
-
-            yield return tween.waitForCompletion();
-
-            ScrollPosition = finalPosition;
-            UpdatePaddingElements();
-
-            if(_disableDragWhileScrollingAnimation)
-            {
-                EnableScroll();
-            }
-        }
             
         void EnableScroll()
         {
@@ -607,9 +591,9 @@ namespace SocialPoint.GUIControl
             _scrollRect.StopMovement();
             Canvas.ForceUpdateCanvases();
 
-            if(_smoothScrollCoroutine != null)
+            if(_scrollCoroutine != null)
             {
-                StopCoroutine(_smoothScrollCoroutine);
+                StopCoroutine(_scrollCoroutine);
             }
 
             if(_disableDragWhileScrollingAnimation)

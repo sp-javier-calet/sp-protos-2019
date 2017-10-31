@@ -60,13 +60,13 @@ namespace SocialPoint.GUIControl
 
         [Header("Animations")]
         [SerializeField]
+        float _scrollAnimationTime = 0.5f;
+
+        [SerializeField]
         GoEaseType _scrollAnimationEaseType;
 
         [SerializeField]
         AnimationCurve _scrollAnimationCurve;
-
-        [SerializeField]
-        float _scrollAnimationDuration = 0.5f;
 
         [SerializeField]
         bool _disableDragWhileScrollingAnimation;
@@ -111,7 +111,7 @@ namespace SocialPoint.GUIControl
         public bool Initialized { get; private set; }
 
         List<TCellData> _data = new List<TCellData>();
-        IEnumerator _smoothScrollCoroutine;
+        IEnumerator _scrollCoroutine;
         int _defaultStartPadding;
         int _deltaStartPadding;
         bool _requiresRefresh;
@@ -122,6 +122,7 @@ namespace SocialPoint.GUIControl
         float _startScrollingPosition;
         Vector2 _tempVector2 = Vector3.zero;
         int _currentIndex;
+        UIViewAnimation _scrollAnimation;
 
         public bool UsesVerticalLayout
         {
