@@ -2,37 +2,40 @@
 using SocialPoint.GUIControl;
 using System.Collections;
 
-public class Loader : MonoBehaviour 
+namespace SocialPoint.GUIControl
 {
-    [SerializeField]
-    UIViewAnimation _animation;
-
-    IEnumerator _coroutine;
-
-    void Awake()
+    public class Loader : MonoBehaviour 
     {
-        if(_animation == null)
+        [SerializeField]
+        UIViewAnimation _animation;
+
+        IEnumerator _coroutine;
+
+        void Awake()
         {
-            _animation = new RotateForEverAnimation(1f);
+            if(_animation == null)
+            {
+                _animation = new RotateForEverAnimation();
+            }
+            _animation.Load(transform);
+            _coroutine = _animation.Animate();
         }
-        _animation.Load(transform);
-        _coroutine = _animation.Animate();
-    }
 
-    void OnEnable()
-    {
-        
-        StartCoroutine(_coroutine);
-    }
+        void OnEnable()
+        {
+            
+            StartCoroutine(_coroutine);
+        }
 
-    void OnDisable()
-    {
-        StopCoroutine(_coroutine);
-    }
+        void OnDisable()
+        {
+            StopCoroutine(_coroutine);
+        }
 
-    void OnDestroy()
-    {
-        _animation = null;
-        _coroutine = null;
+        void OnDestroy()
+        {
+            _animation = null;
+            _coroutine = null;
+        }
     }
 }

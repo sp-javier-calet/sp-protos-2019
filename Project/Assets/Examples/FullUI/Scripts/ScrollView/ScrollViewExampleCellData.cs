@@ -1,11 +1,11 @@
 ﻿using SocialPoint.GUIControl;
 
-public class MyData : UIScrollRectCellData
+public class ScrollViewExampleCellData : UIScrollRectCellData
 {
     public string Name;
     public string Description;
 
-    public MyData(string name, string description, int prefabIndex)
+    public ScrollViewExampleCellData(string name, string description, int prefabIndex)
     {
         Name = name;
         Description = description;
