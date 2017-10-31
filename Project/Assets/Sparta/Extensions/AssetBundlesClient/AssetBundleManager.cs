@@ -71,8 +71,8 @@ namespace SocialPoint.AssetBundlesClient
         public const string DefaultGame = "basegame";
         public const int DefaultMaxConcurrentDownloads = 2;
 
-        public string Server = DefaultServer;
-        public string Game = DefaultGame;
+        public AssetBundleManagerInstaller.SettingsData Data{ get; set; }
+
         public int MaxConcurrentDownloads = DefaultMaxConcurrentDownloads;
 
         public ICoroutineRunner CoroutineRunner{ get; set; }
@@ -100,10 +100,15 @@ namespace SocialPoint.AssetBundlesClient
             }
         }
 
+        public AssetBundleManager()
+        {
+            Data = new AssetBundleManagerInstaller.SettingsData{Server = DefaultServer, Game = DefaultGame, TransformNamesToLowercase = false};
+        }
+
         public void Setup(bool setupLocalAssets = true)
         {
             // http://s3.amazonaws.com/int-sp-static-content/static/basegame/android_etc/1/test_scene_unity
-            _baseDownloadingURL = string.Format("{0}/{1}/{2}", Server, Game, Utility.GetPlatformName());
+            _baseDownloadingURL = string.Format("{0}/{1}/{2}", Data.Server, Data.Game, Utility.GetPlatformName());
             DebugLog("BaseDownloadingURL: " + _baseDownloadingURL);
 
             SetupLocal();
@@ -619,9 +624,12 @@ namespace SocialPoint.AssetBundlesClient
 
         public IEnumerator LoadAssetAsyncRequest(string assetBundleName, string assetName, Type type, Action<AssetBundleLoadAssetOperation> onRequestChanged)
         {
-            //#warning debug code to convert everything in lowercase
-            assetBundleName = assetBundleName.ToLower();
-            assetName = assetName.ToLower();
+            if(Data.TransformNamesToLowercase)
+            {
+                assetBundleName = assetBundleName.ToLower();
+                assetName = assetName.ToLower();
+            }
+
             yield return WaitForReady();
 
             // Load asset from assetBundle.

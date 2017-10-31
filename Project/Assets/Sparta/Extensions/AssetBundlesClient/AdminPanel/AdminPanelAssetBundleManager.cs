@@ -146,8 +146,9 @@ namespace SocialPoint.AssetBundlesClient
         void AddBasicInfo()
         {
             var content = new StringBuilder();
-            content.AppendLine("Server: " + _assetBundleManager.Server);
-            content.AppendLine("Game: " + _assetBundleManager.Game);
+            content.AppendLine("Server: " + _assetBundleManager.Data.Server);
+            content.AppendLine("Game: " + _assetBundleManager.Data.Game);
+            content.AppendLine("Names To Lower Case: " + _assetBundleManager.Data.TransformNamesToLowercase);
             content.AppendLine("Platorm: " + Utility.GetPlatformName());
             content.AppendLine("BaseDownloadingURL: " + _baseDownloadingURL);
             content.AppendLine();
