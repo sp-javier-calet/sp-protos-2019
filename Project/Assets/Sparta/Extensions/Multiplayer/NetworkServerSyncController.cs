@@ -7,21 +7,25 @@ using SocialPoint.Multiplayer;
 
 public class NetworkServerSyncController
 {
+    public class ServerControllerData
+    {
+        public INetworkServer Server;
+        public Dictionary<byte, ClientData> ClientData;
+        public NetworkSceneSerializer Serializer;
+        public NetworkScene Scene;
+        public NetworkScene PrevScene;
+        public NetworkActionHandler Actions;
+        public List<ActionInfo> PendingActions;
+        public bool EnablePrediction;
+    }
+    
     const float DefaultSyncInterval = 0.07f;
 
     float _timestamp;
     readonly List<byte> _keyList;
 
-    NetworkSceneSerializer _serializer;
-    NetworkScene _scene;
-    NetworkScene _prevScene;
+    ServerControllerData _serverControllerData;
 
-    Dictionary<byte, ClientData> _clientData;
-    List<ActionInfo> _pendingActions;
-    INetworkServer _server;
-    NetworkActionHandler _actions;
-
-    public bool BroadcastSyncMessageManually; // If false, Photon will send message to all clients. Otherwise, we'll have to do manually.
     public float SyncInterval = DefaultSyncInterval;
     public float TimeSinceLastSync;
 
@@ -35,17 +39,10 @@ public class NetworkServerSyncController
 
     MemoryStream _memStream = new MemoryStream(64 * 1024);
 
-    public NetworkServerSyncController(INetworkServer server, Dictionary<byte, ClientData> clientData, NetworkSceneSerializer serializer, NetworkScene scene, NetworkScene prevScene, NetworkActionHandler actions, List<ActionInfo> pendingActions)
+    public NetworkServerSyncController(ServerControllerData serverControllerData)
     {
         _keyList = new List<byte>();
-        _server = server;
-        _clientData = clientData;
-        _serializer = serializer;
-        _actions = actions;
-        _scene = scene;
-        _prevScene = prevScene;
-        _pendingActions = pendingActions;
-        BroadcastSyncMessageManually = false;
+        _serverControllerData = serverControllerData;
     }
 
     public void Reset()
@@ -74,9 +71,9 @@ public class NetworkServerSyncController
         _memStream.SetLength(0);
         _memStream.Seek(0, SeekOrigin.Begin);
         var binWriter = new SystemBinaryWriter(_memStream);
-        _serializer.Serialize(_scene, _prevScene, binWriter);
+        _serverControllerData.Serializer.Serialize(_serverControllerData.Scene, _serverControllerData.PrevScene, binWriter);
 
-        var itrKeys = _clientData.GetEnumerator();
+        var itrKeys = _serverControllerData.ClientData.GetEnumerator();
         _keyList.Clear();
         while(itrKeys.MoveNext())
         {
@@ -84,16 +81,16 @@ public class NetworkServerSyncController
         }
         itrKeys.Dispose();
 
-        if(BroadcastSyncMessageManually)
+        if(_serverControllerData.EnablePrediction)
         {
             var itr = _keyList.GetEnumerator();
             while(itr.MoveNext())
             {
-                if(!_clientData.ContainsKey(itr.Current))
+                if(!_serverControllerData.ClientData.ContainsKey(itr.Current))
                 {
                     continue;
                 }
-                var msg = _server.CreateMessage(new NetworkMessageData
+                var msg = _serverControllerData.Server.CreateMessage(new NetworkMessageData
                 {
                     ClientIds = new List<byte>(){ itr.Current },
                     MessageType = SceneMsgType.UpdateSceneEvent
@@ -106,15 +103,15 @@ public class NetworkServerSyncController
                 msg.Writer.Write(new UpdateSceneEvent
                 {
                     Timestamp = TimeSinceLastSync,
-                    LastAction = _clientData[itr.Current].LastReceivedAction,
+                    LastAction = _serverControllerData.ClientData[itr.Current].LastReceivedAction,
                 });
 
                 // Write Events
-                msg.Writer.Write((int)_pendingActions.Count);
-                for(var i = 0; i < _pendingActions.Count; ++i)
+                msg.Writer.Write((int)_serverControllerData.PendingActions.Count);
+                for(var i = 0; i < _serverControllerData.PendingActions.Count; ++i)
                 {
-                    var info = _pendingActions[i];
-                    _actions.SerializeAction(info.Action, msg.Writer);
+                    var info = _serverControllerData.PendingActions[i];
+                    _serverControllerData.Actions.SerializeAction(info.Action, msg.Writer);
                 }
 
                 msg.Send();
@@ -123,7 +120,7 @@ public class NetworkServerSyncController
         }
         else
         {
-            var msg = _server.CreateMessage(new NetworkMessageData
+            var msg = _serverControllerData.Server.CreateMessage(new NetworkMessageData
             {
                 ClientIds = _keyList,
                 MessageType = SceneMsgType.UpdateSceneEvent
@@ -140,32 +137,24 @@ public class NetworkServerSyncController
             });
 
             // Write Events
-            msg.Writer.Write((int)_pendingActions.Count);
-            for(var i = 0; i < _pendingActions.Count; ++i)
+            msg.Writer.Write((int)_serverControllerData.PendingActions.Count);
+            for(var i = 0; i < _serverControllerData.PendingActions.Count; ++i)
             {
-                var info = _pendingActions[i];
-                _actions.SerializeAction(info.Action, msg.Writer);
+                var info = _serverControllerData.PendingActions[i];
+                _serverControllerData.Actions.SerializeAction(info.Action, msg.Writer);
             }
 
             msg.Send();
         }
 
-        _pendingActions.Clear();
+        _serverControllerData.PendingActions.Clear();
 
-        _prevScene.DeepCopy(_scene);
+        _serverControllerData.PrevScene.DeepCopy(_serverControllerData.Scene);
     }
 
     public void Dispose()
     {
         _keyList.Clear();
-
-        _server = null;
-        _prevScene = null;
-
-        _clientData = null;
-        _serializer = null;
-
-        _actions= null;
-        _pendingActions = null;
+        _serverControllerData = null;
     }
 }
