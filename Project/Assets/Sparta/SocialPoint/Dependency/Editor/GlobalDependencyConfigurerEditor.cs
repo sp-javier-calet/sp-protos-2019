@@ -1,5 +1,4 @@
 using System;
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -33,7 +32,7 @@ namespace SocialPoint.Dependency
 
         void OnEnable()
         {
-            Reload();
+            ReloadInstallersData(); 
             try
             {
                 EnabledInstaller = new GUIStyle(EditorStyles.foldout);
@@ -45,10 +44,10 @@ namespace SocialPoint.Dependency
             }
         }
 
-        void Reload()
+        void ReloadInstallersData()
         {
             var configurer = (GlobalDependencyConfigurer)target;
-            var installers = Load(configurer);
+            var installers = configurer.Installers;
 
             _installers = new InstallerData[installers.Length];
 
@@ -71,34 +70,14 @@ namespace SocialPoint.Dependency
             style.onHover.textColor = color;
         }
 
-        static Installer[] Load(GlobalDependencyConfigurer configurer)
+        void Duplicate(Installer installer)
         {
-            var installerType = typeof(Installer);
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach(var assembly in assemblies)
+            if(InstallerAssetsManager.Duplicate(installer))
             {
-                // Ignore Unity-Editor assemblies
-                if(assembly.GetName().Name.Contains("CSharp-Editor"))
-                {
-                    continue;
-                }
-
-                foreach(var t in assembly.GetTypes())
-                {
-                    if(t.IsSubclassOf(installerType) && !t.IsAbstract)
-                    {
-                        InstallerAssetsManager.CreateDefault(t);
-                    }
-                }
+                InstallerAssetsManager.Reload();
+                Repaint();
             }
-
-            configurer.Installers = InstallerAssetsManager.Installers;
-            return configurer.Installers;
-        }
-
-        static void Duplicate(Installer installer)
-        {
-            if(!InstallerAssetsManager.Duplicate(installer))
+            else
             {
                 Debug.LogWarning(string.Format("Could not duplicate '{0}' installer asset", installer.name));
             }
@@ -108,7 +87,7 @@ namespace SocialPoint.Dependency
         {
             if(InstallerAssetsManager.Delete(installer))
             {
-                Reload();
+                InstallerAssetsManager.Reload();
                 Repaint();
             }
             else
@@ -121,6 +100,11 @@ namespace SocialPoint.Dependency
         {
             _filter = EditorGUILayout.TextField("Search", _filter);
             _filterString = _filter.ToLower();
+            if(GUILayout.Button("Reload installers"))
+            {
+                InstallerAssetsManager.Reload();
+                Repaint();
+            }
             EditorGUILayout.Space();
         }
 
@@ -171,7 +155,9 @@ namespace SocialPoint.Dependency
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
+            GUI.enabled = false;
             base.OnInspectorGUI();
+            GUI.enabled = true;
             serializedObject.ApplyModifiedProperties();
 
             GUIToolbar();

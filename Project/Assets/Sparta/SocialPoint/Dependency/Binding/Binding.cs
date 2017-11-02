@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using SocialPoint.Base;
-using SocialPoint.Utils;
 using SocialPoint.Dependency.Graph;
 
 namespace SocialPoint.Dependency
@@ -35,9 +33,12 @@ namespace SocialPoint.Dependency
 
         public bool Resolved { get; private set; }
 
-        public Binding(DependencyContainer container)
+        public int Priority { get; private set; }
+
+        public Binding(DependencyContainer container, int priority)
         {
             _container = container;
+            Priority = priority;
         }
 
         public Binding<F> ToSingle<T>() where T : F, new()
@@ -160,7 +161,7 @@ namespace SocialPoint.Dependency
     {
         public static void Add<F, T>(this DependencyContainer container, T instance, string tag = null) where T : F
         {
-            var bind = new Binding<F>(container);
+            var bind = new Binding<F>(container, DependencyContainer.NormalBindingPriority);
             bind.ToInstance(instance);
             container.AddBindingWithInstance(bind, typeof(F), instance, tag);
         }
@@ -172,7 +173,7 @@ namespace SocialPoint.Dependency
 
         public static Binding<T> Rebind<T>(this DependencyContainer container, string tag = null)
         {
-            var bind = new Binding<T>(container);
+            var bind = new Binding<T>(container, DependencyContainer.NormalBindingPriority);
             if(!container.HasBinding<T>(tag))
             {
                 container.AddBinding(bind, typeof(T), tag);
@@ -186,7 +187,14 @@ namespace SocialPoint.Dependency
 
         public static Binding<T> Bind<T>(this DependencyContainer container, string tag = null)
         {
-            var bind = new Binding<T>(container);
+            var bind = new Binding<T>(container, DependencyContainer.NormalBindingPriority);
+            container.AddBinding(bind, typeof(T), tag);
+            return bind;
+        }
+
+        public static Binding<T> BindDefault<T>(this DependencyContainer container, string tag = null)
+        {
+            var bind = new Binding<T>(container, DependencyContainer.DefaultBindingPriority);
             container.AddBinding(bind, typeof(T), tag);
             return bind;
         }

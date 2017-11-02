@@ -23,7 +23,6 @@ namespace SocialPoint.Dependency
             return Resources.Load<GlobalDependencyConfigurer>(ResourcePath);
         }
 
-        [SerializeField]
         public Installer[] Installers;
 
         public GlobalDependencyConfigurer() : base(ModuleType.Configurer)
@@ -37,7 +36,7 @@ namespace SocialPoint.Dependency
             {
                 var installer = Installers[i];
 
-                if( installer == null )
+                if(installer == null)
                 {
                     continue;
                 }
