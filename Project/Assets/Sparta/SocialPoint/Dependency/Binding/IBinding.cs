@@ -1,5 +1,4 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections.Generic;
 
 namespace SocialPoint.Dependency
 {
@@ -9,8 +8,11 @@ namespace SocialPoint.Dependency
 
         bool Resolved { get; }
 
+        int Priority{ get; }
+
         object Resolve();
 
         void OnResolved();
+
     }
 }
