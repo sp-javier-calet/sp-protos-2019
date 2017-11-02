@@ -3,11 +3,11 @@ using SocialPoint.GUIControl;
 
 namespace SpartaTools.Editor.Utils.Decorators
 {
-    [CanEditMultipleObjects]
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(UIScrollRectExtensionInspector), true)]
-        public class SPScrollRectExtensionEditor : UnityEditor.Editor
+    public class SPScrollRectExtensionEditor : UnityEditor.Editor
     {
-                public override void OnInspectorGUI()
+        public override void OnInspectorGUI()
         {
             var script = (UIScrollRectExtensionInspector)target;
 
