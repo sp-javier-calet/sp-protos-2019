@@ -3,12 +3,12 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.EventSystems;
-using SocialPoint.Base;
+using System;
 
 namespace SocialPoint.GUIControl
 {
-    [RequireComponent(typeof(ScrollRect))]
-    public partial class UIScrollRectExtension<TCellData, TCell> : UIViewController, IBeginDragHandler, IDragHandler, IEndDragHandler where TCellData : UIScrollRectCellData where TCell : UIScrollRectCellItem<TCellData>
+    [Serializable]
+    public class UIScrollRectExtensionInspector : UIViewController
     {
         public enum ShowLastCellPosition
         {
@@ -16,97 +16,55 @@ namespace SocialPoint.GUIControl
             AtEnd
         }
 
+        public bool _usePooling;
+        public bool _centerOnCell;
+        public bool _useNavigationButtons;
+        public bool _usePaginationButtons;
+        public bool _disableDragWhileScrollingAnimation;
+        public ShowLastCellPosition _showLastCellPosition = ShowLastCellPosition.AtEnd;
+
+        [SerializeField] protected ScrollRect _scrollRect;
+        [SerializeField] protected VerticalLayoutGroup _verticalLayoutGroup;
+        [SerializeField] protected HorizontalLayoutGroup _horizontalLayoutGroup;
+        [SerializeField] protected GridLayoutGroup _gridLayoutGroup;
+        [SerializeField] protected GameObject _loadingGroup;
+        [SerializeField] protected GameObject[] _prefabs;
+        [SerializeField] protected int _boundsDelta = 50;
+        [SerializeField] protected int _initialIndex;
+        [SerializeField] protected float _scrollAnimationTime = 0.5f;
+        [SerializeField] protected GoEaseType _scrollAnimationEaseType;
+        [SerializeField] protected AnimationCurve _scrollAnimationCurve;
+        [SerializeField] protected float _deltaDragCell = 50f;
+        [SerializeField] protected UIScrollRectPagination _pagination;
+        [SerializeField] protected Canvas _mainCanvas;
+
+        // TODO IMPROVEMENT
+        //        [SerializeField] 
+        //        Vector2 _snapToCellAnchorPoint = new Vector2(0.5f, 0.5f);
+
+
+
+        // TODO IMPROVEMENT
+        //        [Header("Magnify")]
+        //        [SerializeField]
+        //        bool _magnifyOnCenteredCell;
+
+        //        [SerializeField]
+        //        Vector2 _maginifyMinScale;
+
+        // TODO IMPROVEMENT
+        //        [SerializeField]
+        //        Vector2 _maginifyMaxScale;
+    }
+
+    [RequireComponent(typeof(ScrollRect))]
+    public partial class UIScrollRectExtension<TCellData, TCell> : UIScrollRectExtensionInspector, IBeginDragHandler, IDragHandler, IEndDragHandler where TCellData : UIScrollRectCellData where TCell : UIScrollRectCellItem<TCellData>
+    {
         public enum ScrollDirection
         {
             LeftOrTop = -1,
             RightOrBottom = 1
         }
-
-        [Header("UI Components")]
-        [SerializeField]
-        ScrollRect _scrollRect;
-
-        RectTransform _scrollRectTransform;
-        RectTransform _scrollContentRectTransform;
-
-        [SerializeField]
-        VerticalLayoutGroup _verticalLayoutGroup;
-
-        [SerializeField]
-        HorizontalLayoutGroup _horizontalLayoutGroup;
-
-        [SerializeField]
-        GridLayoutGroup _gridLayoutGroup;
-
-        [Header("System")]
-        [SerializeField]
-        GameObject _loadingGroup;
-
-        [SerializeField]
-        protected GameObject[] _prefabs;
-
-        [SerializeField]
-        bool _usePooling;
-
-        [Tooltip("Delta that we will add to bounds to check if we need to show/hide new cells")]
-        [SerializeField]
-        int _boundsDelta;
-
-        [SerializeField]
-        int _initialIndex;
-
-        [SerializeField]
-        ShowLastCellPosition _showLastCellPosition = ShowLastCellPosition.AtEnd;
-
-        [Header("Animations")]
-        [SerializeField]
-        float _scrollAnimationTime = 0.5f;
-
-        [SerializeField]
-        GoEaseType _scrollAnimationEaseType;
-
-        [SerializeField]
-        AnimationCurve _scrollAnimationCurve;
-
-        [SerializeField]
-        bool _disableDragWhileScrollingAnimation;
-
-        [Header("Snapping")]
-        [SerializeField]
-        bool _centerOnCell;
-
-        // TODO IMPROVEMENT
-//        [SerializeField] 
-//        Vector2 _snapToCellAnchorPoint = new Vector2(0.5f, 0.5f);
-
-        [SerializeField]
-        float _deltaDragCell = 50f;
-
-        // TODO IMPROVEMENT
-//        [Header("Magnify")]
-//        [SerializeField]
-//        bool _magnifyOnCenteredCell;
-
-//        [SerializeField]
-//        Vector2 _maginifyMinScale;
-
-        // TODO IMPROVEMENT
-//        [SerializeField]
-//        Vector2 _maginifyMaxScale;
-
-        [Header("Pagination")]
-        [SerializeField]
-        UIScrollRectPagination _pagination;
-
-        [SerializeField]
-        bool _useNavigationButtons;
-
-        [SerializeField]
-        bool _usePaginationButtons;
-
-        [Header("Debug")]
-        [SerializeField]
-        Canvas _mainCanvas;
 
         public bool Initialized { get; private set; }
 
@@ -123,6 +81,8 @@ namespace SocialPoint.GUIControl
         Vector2 _tempVector2 = Vector3.zero;
         int _currentIndex;
         UIViewAnimation _scrollAnimation;
+        RectTransform _scrollRectTransform;
+        RectTransform _scrollContentRectTransform;
 
         public bool UsesVerticalLayout
         {
