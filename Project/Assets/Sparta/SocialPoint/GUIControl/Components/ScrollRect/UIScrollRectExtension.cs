@@ -3,11 +3,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.EventSystems;
-using System;
 
 namespace SocialPoint.GUIControl
 {
-    [Serializable]
     public class UIScrollRectExtensionInspector : UIViewController
     {
         public enum ShowLastCellPosition
