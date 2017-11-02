@@ -301,6 +301,7 @@ namespace SocialPoint.GUIControl
             }
 
             SetInitialPadding();
+            CreatePoolObjectsIfNeeded();
             SetDataValues();
             SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
             SetInitialPosition();

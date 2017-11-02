@@ -44,7 +44,7 @@ namespace SocialPoint.GUIControl
             }
             else
             {
-                prefab.DestroyAnyway();
+                DoDestroyCellPrefabIfNeeded(prefab);
             }
         }
 
@@ -66,7 +66,7 @@ namespace SocialPoint.GUIControl
             DoDestroyCellPrefabIfNeeded(prefab, originalPivot, originalScale, callback);
         }
 
-        void DoDestroyCellPrefabIfNeeded(GameObject prefab, Vector2 originalPivot, Vector3 originalScale, Action callback)
+        void DoDestroyCellPrefabIfNeeded(GameObject prefab, Vector2 originalPivot = default(Vector2), Vector3 originalScale = default(Vector3), Action callback = null)
         {
             if(_usePooling)
             {
@@ -89,6 +89,8 @@ namespace SocialPoint.GUIControl
 
         void ShowCell(int index, bool insertAtEnd)
         {
+            Profiler.BeginSample("UIScrollRectExtension.ShowCell", this);
+
             var newCell = GetCellGameObject(index);
             if(newCell != null)
             {
@@ -117,6 +119,8 @@ namespace SocialPoint.GUIControl
                     }
                 }
             }
+
+            Profiler.EndSample();
         }
 
         TCell GetVisibleCellByUID(string uid)
@@ -152,6 +156,8 @@ namespace SocialPoint.GUIControl
 
         void HideCell(int index, bool animate = false, Action callback = null)
         {
+            Profiler.BeginSample("UIScrollRectExtension.HideCell", this);
+
             var last = (index == _visibleElementRange.Last());
 
             var cellToRemove = _visibleCells[index];
@@ -175,6 +181,8 @@ namespace SocialPoint.GUIControl
                     }
                 }
             }
+
+            Profiler.EndSample();
         }
             
         GameObject GetCellGameObject(int index)
@@ -216,7 +224,7 @@ namespace SocialPoint.GUIControl
         {
             _requiresRefresh = false;
 
-            Profiler.BeginSample("UIScrollRectExtension.RefreshVisibleElements", this);
+            Profiler.BeginSample("UIScrollRectExtension.RefreshVisibleCells", this);
 
             var newVisibleElements = CalculateCurrentVisibleRange();
             if(_visibleElementRange.Equals(newVisibleElements))
@@ -292,6 +300,7 @@ namespace SocialPoint.GUIControl
 
         public void ReloadVisibleCells()
         {
+            Profiler.BeginSample("UIScrollRectExtension.ReloadVisibleCells", this);
             for(int i = _visibleElementRange.from; i < _visibleElementRange.RelativeCount(); ++i)
             {
                 var data = _data[i];
@@ -304,6 +313,7 @@ namespace SocialPoint.GUIControl
                     }
                 }
             }
+            Profiler.EndSample();
         }
 
         void UpdateScrollState()

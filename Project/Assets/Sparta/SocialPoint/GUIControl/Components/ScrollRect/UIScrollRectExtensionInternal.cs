@@ -271,9 +271,20 @@ namespace SocialPoint.GUIControl
             UpdateScrollState();
         }
 
+        void CreatePoolObjectsIfNeeded()
+        {
+            if(_usePooling)
+            {
+                for(int i = 0; i < _prefabs.Length; ++i)
+                {
+                    UnityObjectPool.CreatePool(_prefabs[i], 2);
+                }
+            }
+        }
+
         void SetDataValues(int beginIndex = 0)
         {
-            Profiler.BeginSample("UIScrollRectExtension.SetupCellSizes", this);
+            Profiler.BeginSample("UIScrollRectExtension.SetDataValues", this);
 
             var acumulatedWidth = 0f;
             var acumulatedHeight = 0f;
@@ -366,17 +377,7 @@ namespace SocialPoint.GUIControl
 
             return _tempVector2;
         }
-
-        GameObject GetCellPrefab(GameObject prefab)
-        {
-            if(_usePooling)
-            {
-                UnityObjectPool.CreatePool(prefab, 1);
-            }
-
-            return prefab;
-        }
-
+            
         void SetRectTransformSize(RectTransform trans, float size, bool disableIfZero = false)
         {
             if(UsesVerticalLayout)
@@ -562,7 +563,7 @@ namespace SocialPoint.GUIControl
         {
             if(UsesVerticalLayout)
             {
-                return NewVector2(0f, -position);
+                return NewVector2(0f, position);
             }
             else if(UsesHorizontalLayout)
             {
