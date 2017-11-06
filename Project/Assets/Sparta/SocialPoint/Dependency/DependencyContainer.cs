@@ -44,10 +44,10 @@ namespace SocialPoint.Dependency
         static void AddBindingSorted(IList<IBinding> list, IBinding binding)
         {
             for(int i = 0; i < list.Count; ++i)
-        {
+            {
                 var current = list[i];
                 if(current.Priority <= binding.Priority)
-            {
+                {
                     list.Insert(i, binding);
                     return;
                 }
@@ -145,9 +145,9 @@ namespace SocialPoint.Dependency
             {
                 IBinding firstValidBinding = null;
                 foreach(var currentBinding in bindings)
-            {
-                    if(firstValidBinding != null && firstValidBinding.Priority != currentBinding.Priority)
                 {
+                    if(firstValidBinding != null && firstValidBinding.Priority != currentBinding.Priority)
+                    {
                         //Exit if we found a valid binding and the next one is of less priority
                         break;
                     }
@@ -155,7 +155,7 @@ namespace SocialPoint.Dependency
                     if(TryResolve(currentBinding, out result))
                     {
                         if(firstValidBinding == null)
-                    {
+                        {
                             firstValidBinding = currentBinding;
                         }
                         list.Add((T)result);

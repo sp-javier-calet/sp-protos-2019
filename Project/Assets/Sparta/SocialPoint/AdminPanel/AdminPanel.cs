@@ -7,7 +7,7 @@ using SocialPoint.Console;
 
 namespace SocialPoint.AdminPanel
 {
-    public class AdminPanel
+    public sealed class AdminPanel
     {
         /// <summary>
         /// Static method to ask if AdminPanel is available
@@ -68,7 +68,7 @@ namespace SocialPoint.AdminPanel
             Console.OnConfigure(this);
         }
 
-        public virtual void OnAppearing()
+        public void OnAppearing()
         {
             Visible = true;
             if(ChangedVisibility != null)
@@ -77,7 +77,7 @@ namespace SocialPoint.AdminPanel
             }
         }
 
-        public virtual void OnDisappeared()
+        public void OnDisappeared()
         {
             Visible = false;
             if(ChangedVisibility != null)
