@@ -72,20 +72,22 @@ namespace SocialPoint.Dependency
         {
         }
     }
-
-    class TestBinding : IBinding
+        
+    class TestBinding<T> : IBinding where T : new()
     {
+        public int Priority { get; private set; }
+
         public BindingKey Key
         {
             get
             {
-                return new BindingKey(typeof(TestBinding), null);
+                return new BindingKey(typeof(TestBinding<T>), null);
             }
         }
 
         public object Resolve()
         {
-            return new TestService();
+            return new T();
         }
 
         public bool Resolved
@@ -98,6 +100,11 @@ namespace SocialPoint.Dependency
 
         public void OnResolved()
         {
+        }
+
+        public TestBinding(int priority)
+        {
+            Priority = priority;
         }
     }
 
@@ -188,6 +195,25 @@ namespace SocialPoint.Dependency
             container.Bind<ITestService>().ToInstance(instance);
             var services = container.ResolveList<ITestService>();
             Assert.AreEqual(2, services.Count);
+        }
+
+        [Test]
+        public void ResolveWithPriorityTest()
+        {
+            var container = new DependencyContainer();
+
+            container.AddBinding(new TestBinding<TestService>(0), typeof(ITestService));
+            container.AddBinding(new TestBinding<AnotherTestService>(1), typeof(ITestService));
+            container.AddBinding(new TestBinding<TestService>(0), typeof(ITestService));
+            container.AddBinding(new TestBinding<AnotherTestService>(1), typeof(ITestService));
+
+            var services = container.ResolveList<ITestService>();
+            Assert.AreEqual(2, services.Count);
+
+            foreach(var service in services)
+            {
+                Assert.IsInstanceOf<AnotherTestService>(service);
+            }
         }
 
         [Test]
@@ -320,7 +346,7 @@ namespace SocialPoint.Dependency
         public void HasBindingTest()
         {
             var container = new DependencyContainer();
-            container.AddBinding(new TestBinding(), typeof(ITestService));
+            container.AddBinding(new TestBinding<TestService>(1), typeof(ITestService));
             Assert.IsTrue(container.HasBinding<ITestService>());
         }
 
@@ -338,7 +364,7 @@ namespace SocialPoint.Dependency
         public void AddBindingTest()
         {
             var container = new DependencyContainer();
-            container.AddBinding(new TestBinding(), typeof(ITestService));
+            container.AddBinding(new TestBinding<TestService>(1), typeof(ITestService));
             var service = container.Resolve<ITestService>();
             Assert.IsInstanceOf<TestService>(service);
         }
