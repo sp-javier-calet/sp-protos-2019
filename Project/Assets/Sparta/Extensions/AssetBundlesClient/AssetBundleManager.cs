@@ -105,7 +105,7 @@ namespace SocialPoint.AssetBundlesClient
             Data = new AssetBundleManagerInstaller.SettingsData{Server = DefaultServer, Game = DefaultGame, TransformNamesToLowercase = false};
         }
 
-        public void Setup(bool setupLocalAssets = true)
+        public void Setup()
         {
             // http://s3.amazonaws.com/int-sp-static-content/static/basegame/android_etc/1/test_scene_unity
             _baseDownloadingURL = string.Format("{0}/{1}/{2}", Data.Server, Data.Game, Utility.GetPlatformName());
@@ -119,19 +119,18 @@ namespace SocialPoint.AssetBundlesClient
             const string configKey = "config";
             const string bundleDataKey = "bundle_data";
 
-            var dataList = data != null ? data.AsList : null;
-            if(dataList != null)
+            var dataDic = data != null ? data.AsDic : null;
+            if(dataDic != null)
             {
-                LoadBundleData(dataList, false);
-                //if(dataDic.ContainsKey(configKey))
-                //{
-                //    var configData = dataDic.Get(configKey).AssertDic;
-                //    if(configData.ContainsKey(bundleDataKey))
-                //    {
-                //        var bundleData = configData.Get(bundleDataKey).AssertDic;
-                //        LoadBundleData(bundleData.Get(bundleDataKey).AssertList, false);
-                //    }
-                //}
+                if(dataDic.ContainsKey(configKey))
+                {
+                    var configData = dataDic.Get(configKey).AssertDic;
+                    if(configData.ContainsKey(bundleDataKey))
+                    {
+                        var bundleData = configData.Get(bundleDataKey).AssertDic;
+                        LoadBundleData(bundleData.Get(bundleDataKey).AssertList, false);
+                    }
+                }
             }
         }
 
