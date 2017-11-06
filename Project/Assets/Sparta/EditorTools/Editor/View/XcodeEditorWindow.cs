@@ -451,31 +451,17 @@ namespace SpartaTools.Editor.View
 
             public void AddPushNotificationsEntitlement(bool isProduction)
             {
-                var envName = string.Empty;
-                if(isProduction)
-                {
-                    envName = "production";
-                }
-                else
-                {
-                    envName = "development";
-                }
-
-                Add(new ModData("Push Notifications Environment set to", string.Format("{0} in default entitlements file", envName), _currentXcodeMod));
+                Add(new ModData("Push Notifications Environment set to", string.Format("{0} in default entitlements file", GetPushNotificationsEnvironmentName(isProduction)), _currentXcodeMod));
             }
 
             public void AddPushNotificationsEntitlement(string entitlementsFile, bool isProduction)
             {
-                var envName = string.Empty;
-                if(isProduction)
-                {
-                    envName = "production";
-                }
-                else
-                {
-                    envName = "development";
-                }
-                Add(new ModData("Push Notifications Environment set to", string.Format("{0} in {1}", envName, entitlementsFile), _currentXcodeMod));
+                Add(new ModData("Push Notifications Environment set to", string.Format("{0} in {1}", GetPushNotificationsEnvironmentName(isProduction), entitlementsFile), _currentXcodeMod));
+            }
+
+            static string GetPushNotificationsEnvironmentName(bool isProduction)
+            {
+                return isProduction ? "production" : "development";
             }
 
             public void Commit()
