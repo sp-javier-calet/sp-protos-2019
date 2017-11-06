@@ -167,26 +167,26 @@ namespace SocialPoint.GrayboxLibrary
             if(EditorApplication.isCompiling)
             {
                 _wasInactive = true;
-                if (Tool != null)
+                if(Tool != null)
                     Tool.Disconnect();
                 GUILayout.Label("Project compiling, please wait...");
                 return;
             }
-            else if (EditorApplication.isPlaying)
+            else if(EditorApplication.isPlaying)
             {
                 _wasInactive = true;
-                if (Tool != null)
+                if(Tool != null)
                     Tool.Disconnect();
                 GUILayout.Label("Project playing, please stop the game before importing using this tool.");
                 return;
             }
-            else if (SceneManager.GetActiveScene() != _previousScene && !_wasInactive)
+            else if(SceneManager.GetActiveScene() != _previousScene && !_wasInactive)
             {
                 _wasInactive = true;
-                if (Tool != null)
+                if(Tool != null)
                     Tool.Disconnect();
             }
-            else if (_wasInactive && Event.current.type == EventType.Repaint)
+            else if(_wasInactive && Event.current.type == EventType.Repaint)
             {
                 _wasInactive = false;
                 LaunchClient();
@@ -238,7 +238,7 @@ namespace SocialPoint.GrayboxLibrary
                 tex.Apply();
                 _upperMenuStyle.normal.background = tex;
             }
-            if (_bottomMenuStyle == null)
+            if(_bottomMenuStyle == null)
             {
                 _bottomMenuStyle = new GUIStyle(GUI.skin.label);
                 Texture2D tex = new Texture2D(1, 1);
@@ -246,7 +246,7 @@ namespace SocialPoint.GrayboxLibrary
                 tex.Apply();
                 _bottomMenuStyle.normal.background = tex;
             }
-            if (_separatorStyle == null)
+            if(_separatorStyle == null)
             {
                 _separatorStyle = new GUIStyle(GUI.skin.label);
                 Texture2D tex = new Texture2D(1, 1);
@@ -414,7 +414,7 @@ namespace SocialPoint.GrayboxLibrary
             if(GUILayout.Button("Contact", GUILayout.Width(100)))
                 Application.OpenURL(GrayboxLibraryConfig.ContactUrl);
 
-            if (GUILayout.Button(Tool.DownloadImage(GrayboxLibraryConfig.IconsPath + "help.png"), _simpleButtonStyle, GUILayout.Width(23), GUILayout.Height(23)))
+            if(GUILayout.Button(Tool.DownloadImage(GrayboxLibraryConfig.IconsPath + "help.png"), _simpleButtonStyle, GUILayout.Width(23), GUILayout.Height(23)))
                 Application.OpenURL(GrayboxLibraryConfig.HelpUrl);
 
             GUILayout.EndHorizontal();
@@ -511,7 +511,7 @@ namespace SocialPoint.GrayboxLibrary
             EditorGUILayout.BeginHorizontal();
             GUI.SetNextControlName("SearchBar");
             Filter = EditorGUILayout.TextField(Filter, GUI.skin.FindStyle("ToolbarSeachTextField"), GUILayout.ExpandWidth(true), GUILayout.Height(20));
-            if (GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
+            if(GUILayout.Button("", GUI.skin.FindStyle("ToolbarSeachCancelButton")))
             {
                 Filter = "";
                 Filters = new List<string>();
@@ -532,7 +532,7 @@ namespace SocialPoint.GrayboxLibrary
             {
                 _filterUpdated = false;
                 _displayFilterOptions = false;
-                _tagList = Tool.GetTagsInCategoryAsText(Filter, (GrayboxAssetCategory) _currentCategory, 0, 10);
+                _tagList = Tool.GetTagsInCategoryAsText(Filter, (GrayboxAssetCategory)_currentCategory, 0, 10);
                 if(_tagList.Length > 0 && Filter.Length > 0)
                     _displayFilterOptions = true;
             }
@@ -627,18 +627,18 @@ namespace SocialPoint.GrayboxLibrary
 
                 case KeyCode.Escape:
 
-                    if (_timeKeyPressed + _keyDelay < Time.realtimeSinceStartup)
+                    if(_timeKeyPressed + _keyDelay < Time.realtimeSinceStartup)
                     {
-                            Filter = "";
-                            _currentSelectedOption = "";
-                            _displayFilterOptions = false;
-                            _focusChangeDelay = 1;
+                        Filter = "";
+                        _currentSelectedOption = "";
+                        _displayFilterOptions = false;
+                        _focusChangeDelay = 1;
 
-                            _timeKeyPressed = Time.realtimeSinceStartup;
+                        _timeKeyPressed = Time.realtimeSinceStartup;
                     }
                     break;
 
-                    case KeyCode.DownArrow:
+                case KeyCode.DownArrow:
 
                     if(_displayFilterOptions && _timeKeyPressed + _keyDelay < Time.realtimeSinceStartup)
                     {
@@ -678,9 +678,9 @@ namespace SocialPoint.GrayboxLibrary
 
         private static void Search(List<string> filters, bool resetPage = true, bool updateMaxPage = true)
         {
-            if (resetPage)
+            if(resetPage)
                 _currentPage = 0;
-            if (updateMaxPage)
+            if(updateMaxPage)
                 _maxPage = (int)Math.Ceiling(Tool.GetAssetCount(filters.ToArray(), (GrayboxAssetCategory)_currentCategory) / (float)_assetsPerPage);
             _currentGUIContent = new ArrayList();
             _currentAssetList = Tool.GetAssets(filters.ToArray(), (GrayboxAssetCategory)_currentCategory, _currentPage * _assetsPerPage, _assetsPerPage);
@@ -714,9 +714,9 @@ namespace SocialPoint.GrayboxLibrary
 
         public static GrayboxAsset InstantiateAsset(bool dragAndDrop = false)
         {
-            GrayboxAsset asset= null;
+            GrayboxAsset asset = null;
 
-            if (dragAndDrop)
+            if(dragAndDrop)
             {
                 if(AssetDragged != null)
                 {
@@ -757,7 +757,7 @@ namespace SocialPoint.GrayboxLibrary
 
         public static void ClearDownload(GrayboxAsset asset)
         {
-            if (_toDownload.Contains(asset))
+            if(_toDownload.Contains(asset))
                 _toDownload.Remove(asset);
         }
 
@@ -788,7 +788,7 @@ namespace SocialPoint.GrayboxLibrary
                     {
                         if(_toDownload[i].MainAssetPath.Length > 0)
                         {
-                            if (AssetDatabase.LoadMainAssetAtPath(_toDownload[i].MainAssetPath) != null)
+                            if(AssetDatabase.LoadMainAssetAtPath(_toDownload[i].MainAssetPath) != null)
                                 AssetDatabase.DeleteAsset(_toDownload[i].MainAssetPath);
                             _toInstantiate.Add(_toDownload[i]);
                         }
@@ -806,7 +806,7 @@ namespace SocialPoint.GrayboxLibrary
                     if(AssetDatabase.LoadMainAssetAtPath(_toInstantiate[i].MainAssetPath) != null)
                     {
                         GameObject instance;
-                        if (_instantiateParents.ContainsKey(_toInstantiate[i].Name))
+                        if(_instantiateParents.ContainsKey(_toInstantiate[i].Name))
                         {
                             instance = Tool.InstantiateAsset(_toInstantiate[i], _instantiateParents[_toInstantiate[i].Name]);
                             _instantiateParents.Remove(_toInstantiate[i].Name);
@@ -814,7 +814,7 @@ namespace SocialPoint.GrayboxLibrary
                         else
                             instance = Tool.InstantiateAsset(_toInstantiate[i]);
 
-                        if (_instantiatePositions.ContainsKey(_toInstantiate[i].Name))
+                        if(_instantiatePositions.ContainsKey(_toInstantiate[i].Name))
                         {
                             instance.transform.position = _instantiatePositions[_toInstantiate[i].Name];
                             _instantiatePositions.Remove(_toInstantiate[i].Name);
