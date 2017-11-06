@@ -256,6 +256,10 @@ namespace SocialPoint.AssetBundlesClient
                     var assetBundleData = new AssetBundleParsedData(itemName, itemVersion);
                     assetBundlesParsedData.Add(itemName, assetBundleData);
                 }
+                else
+                {
+                    Log.w("AssetBundleManager", string.Format("Skipped BundleData {0} because it is repeated", itemName));
+                }
 
                 if(!_parsedBundlesNames.Contains(itemName))
                 {
