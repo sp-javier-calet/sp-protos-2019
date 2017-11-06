@@ -171,14 +171,6 @@ namespace Jitter.LinearMath
             if (!(obj is JVector)) return false;
             JVector other = (JVector)obj;
 
-            return (((X == other.X) && (Y == other.Y)) && (Z == other.Z));
-        }
-
-        public bool AlmostEquals(object obj)
-        {
-            if (!(obj is JVector)) return false;
-            JVector other = (JVector)obj;
-
             return Math.Abs(X - other.X) < EqualsEpsilon && Math.Abs(Y - other.Y) < EqualsEpsilon && Math.Abs(Z - other.Z) < EqualsEpsilon;
         }
         #endregion

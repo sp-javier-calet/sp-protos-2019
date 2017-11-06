@@ -91,20 +91,12 @@ namespace Jitter.LinearMath
         /// <param name="obj">The object to test.</param>
         /// <returns>Returns true if they are euqal, otherwise false.</returns>
         #region public override bool Equals(object obj)
+
         public override bool Equals(object obj)
         {
             if(!(obj is JQuaternion))
                 return false;
-            JQuaternion other = (JQuaternion)obj;
-
-            return (((X == other.X) && (Y == other.Y)) && (Z == other.Z) && (W == other.W));
-        }
-
-        public bool AlmostEquals(object obj)
-        {
-            if(!(obj is JQuaternion))
-                return false;
-            JQuaternion other = (JQuaternion)obj;
+            var other = (JQuaternion)obj;
 
             return Math.Abs(X - other.X) < EqualsEpsilon && Math.Abs(Y - other.Y) < EqualsEpsilon && Math.Abs(Z - other.Z) < EqualsEpsilon && Math.Abs(W - other.W) < EqualsEpsilon;
         }

@@ -162,7 +162,7 @@ namespace SocialPoint.Multiplayer
 
         static bool Compare(Transform a, Transform b)
         {
-            return a.Position.AlmostEquals(b.Position) && a.Rotation.AlmostEquals(b.Rotation) && a.Scale.AlmostEquals(b.Scale);
+            return a.Position.Equals(b.Position) && a.Rotation.Equals(b.Rotation) && a.Scale.Equals(b.Scale);
         }
 
         public override int GetHashCode()
