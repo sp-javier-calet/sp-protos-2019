@@ -6,6 +6,12 @@ variables:
   UNITY_PROJ_REL_PATH: Project
   PYTHON_CI_REPO_PATH: C:\sp-tools-Python-CI-Scripts
 
+Copy_New_Branch_Cache:
+  only:
+  - triggers
+  script:
+  - python %PYTHON_CI_REPO_PATH%\GenericJobs\CopyCache.py -s master
+  stage: compile
 Create_UnityCache_Android:
   cache:
     key: '%CI_COMMIT_REF_NAME%/AndroidLib/'
