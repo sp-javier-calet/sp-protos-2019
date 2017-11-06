@@ -18,9 +18,9 @@ namespace Jitter.LinearMath
         {
             var t_ = 1 - t;
             var theta = acos(a.X * b.X + a.Y * b.Y + a.Z * b.Z + a.W * b.W);
-            var sn = sin(theta);
-            var Wa = sin(t_ * theta) / sn;
-            var Wb = sin(t * theta) / sn;
+            var sn = 1f / sin(theta);
+            var Wa = sin(t_ * theta) * sn;
+            var Wb = sin(t * theta) * sn;
             r.X = Wa * a.X + Wb * b.X;
             r.Y = Wa * a.Y + Wb * b.Y;
             r.Z = Wa * a.Z + Wb * b.Z;

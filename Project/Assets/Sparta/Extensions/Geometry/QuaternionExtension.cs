@@ -19,7 +19,8 @@ public static class QuaternionExtension
 
     public static JVector RotateVector(this JQuaternion q, JVector v)
     {
-        JVector t = 2f * JVector.Cross(new JVector(q.X, q.Y, q.Z), v);
-        return v + q.W * t + JVector.Cross(new JVector(q.X, q.Y, q.Z), t);
+        var qVector = new JVector(q.X, q.Y, q.Z);
+        var t = 2f * JVector.Cross(qVector, v);
+        return v + q.W * t + JVector.Cross(qVector, t);
     }
 }
