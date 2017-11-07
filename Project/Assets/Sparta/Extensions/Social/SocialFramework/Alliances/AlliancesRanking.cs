@@ -23,6 +23,7 @@ namespace SocialPoint.Social
             _rankingData.Add(data);
         }
 
+        [System.Obsolete("Use GetEnumerator() instead")]
         public List<AllianceBasicData> GetList()
         {
             return _rankingData;
