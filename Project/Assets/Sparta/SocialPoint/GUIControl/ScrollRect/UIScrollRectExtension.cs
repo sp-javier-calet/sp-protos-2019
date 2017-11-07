@@ -1,12 +1,37 @@
-﻿using UnityEngine.UI;
-using UnityEngine;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Collections;
+using UnityEngine;
 using UnityEngine.EventSystems;
-using SocialPoint.Base;
+using UnityEngine.UI;
 
 namespace SocialPoint.GUIControl
 {
+    public abstract class UIScrollRectBaseDataSource<TCellData> : MonoBehaviour where TCellData : UIScrollRectCellData
+    {
+        public List<TCellData> Data { get; set; } 
+
+        public abstract IEnumerator Load();
+        public abstract TCellData CreateCellData();
+    }
+
+    public class UIScrollRectDataSource<TCellData> : UIScrollRectBaseDataSource<TCellData> where TCellData : UIScrollRectCellData
+    {
+        public UIScrollRectDataSource(List<TCellData> data)
+        {
+            Data = data;
+        }
+
+        public override IEnumerator Load()
+        {
+            return null;
+        }
+
+        public override TCellData CreateCellData()
+        {
+            return null;
+        }
+    }
+
     [RequireComponent(typeof(ScrollRect))]
     public partial class UIScrollRectExtension<TCellData, TCell> : UIViewController, IBeginDragHandler, IDragHandler, IEndDragHandler where TCellData : UIScrollRectCellData where TCell : UIScrollRectCellItem<TCellData>
     {
@@ -42,11 +67,10 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         GameObject _loadingGroup;
 
-        [SerializeField]
-        protected GameObject[] _prefabs;
+        public GameObject[] BasePrefabs;
 
         [SerializeField]
-        bool _usePooling;
+        bool _usePooling = true;
 
         [Tooltip("Delta that we will add to bounds to check if we need to show/hide new cells")]
         [SerializeField]
@@ -76,23 +100,23 @@ namespace SocialPoint.GUIControl
         bool _centerOnCell;
 
         // TODO IMPROVEMENT
-//        [SerializeField] 
-//        Vector2 _snapToCellAnchorPoint = new Vector2(0.5f, 0.5f);
+        //        [SerializeField] 
+        //        Vector2 _snapToCellAnchorPoint = new Vector2(0.5f, 0.5f);
 
         [SerializeField]
         float _deltaDragCell = 50f;
 
         // TODO IMPROVEMENT
-//        [Header("Magnify")]
-//        [SerializeField]
-//        bool _magnifyOnCenteredCell;
+        //        [Header("Magnify")]
+        //        [SerializeField]
+        //        bool _magnifyOnCenteredCell;
 
-//        [SerializeField]
-//        Vector2 _maginifyMinScale;
+        //        [SerializeField]
+        //        Vector2 _maginifyMinScale;
 
         // TODO IMPROVEMENT
-//        [SerializeField]
-//        Vector2 _maginifyMaxScale;
+        //        [SerializeField]
+        //        Vector2 _maginifyMaxScale;
 
         [Header("Pagination")]
         [SerializeField]
@@ -110,7 +134,18 @@ namespace SocialPoint.GUIControl
 
         public bool Initialized { get; private set; }
 
-        List<TCellData> _data = new List<TCellData>();
+        List<TCellData> Data
+        {
+            get
+            {
+                if(DataSource == null)
+                {
+                    return null;
+                }
+                return DataSource.Data;
+            }
+        }
+
         IEnumerator _scrollCoroutine;
         int _defaultStartPadding;
         int _deltaStartPadding;
@@ -150,19 +185,20 @@ namespace SocialPoint.GUIControl
 
         void ApplyLayoutRules()
         {
-            if(_centerOnCell)
+
+            if(_pagination != null)
             {
-                if(_pagination != null)
+                if(_centerOnCell)
                 {
                     _pagination.UseNavigationButtons = _useNavigationButtons;
                     _pagination.UsePaginationButtons = _usePaginationButtons;
                     _pagination.gameObject.SetActive(true);
                 }
-            }
-            else
-            {
-                _pagination.gameObject.SetActive(false);
-                _pagination = null;
+                else
+                {
+                    _pagination.gameObject.SetActive(false);
+                    _pagination = null;
+                }
             }
         }
 
@@ -175,7 +211,7 @@ namespace SocialPoint.GUIControl
                 _scrollRect = GetComponent<ScrollRect>();
             }
 
-            _scrollRectTransform = _scrollRect.transform as RectTransform;
+            _scrollRectTransform = _scrollRect.GetComponent<RectTransform>();
             _scrollContentRectTransform = _scrollRect.content;
 
             _verticalLayoutGroup = _verticalLayoutGroup ?? _scrollContentRectTransform.GetComponent<VerticalLayoutGroup>();
@@ -187,7 +223,7 @@ namespace SocialPoint.GUIControl
 
             _isHorizontal = _scrollRect.horizontal;
             _isVertical = _scrollRect.vertical;
-        
+
             _visibleCells = new Dictionary<int, TCell>();
 
             ApplyLayoutRules();
@@ -197,10 +233,10 @@ namespace SocialPoint.GUIControl
         { 
             Initialize(); 
         }
-            
+
         void LateUpdate()
         {
-            MyLateUpdate();
+            InternalLateUpdate();
         }
 
         void OnEnable()
@@ -222,7 +258,7 @@ namespace SocialPoint.GUIControl
 
         void OnDrawGizmosSelected()
         {
-            MyOnDrawGizmoSelected();
+            InternalOnDrawGizmoSelected();
         }
 
         #endregion
@@ -231,16 +267,16 @@ namespace SocialPoint.GUIControl
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            MyOnBeginDrag(eventData);
+            InternalOnBeginDrag(eventData);
         }
 
         #endregion
-            
+
         #region IDragHandler implementation
 
         public void OnDrag(PointerEventData eventData)
         {
-            MyOnDrag(eventData);
+            InternalOnDrag(eventData);
         }
 
         #endregion
@@ -249,7 +285,7 @@ namespace SocialPoint.GUIControl
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            MyOnEndDrag(eventData);
+            InternalOnEndDrag(eventData);
         }
 
         #endregion
@@ -263,39 +299,33 @@ namespace SocialPoint.GUIControl
 
         #endregion
 
-        protected virtual List<TCellData> GetData() { return null; }
-        protected virtual TCellData AddData() { return null; }
+        public UIScrollRectBaseDataSource<TCellData> DataSource;
 
-        IEnumerator FetchDataFromServer()
-        {
-            // Simulating server delay to show loading spinner (only for testing)
-            yield return new WaitForSeconds(2f);
-
-            _data.Clear();
-            _data = GetData();
-            OnEndFetchingDataFromServer();
-
-            yield return null;
-        }
-
-        public void FetchData()
+        // This is the main method you need to call to start working with ScrollRectExtension
+        public void LoadData()
         {
             if(_loadingGroup != null)
             {
                 _loadingGroup.SetActive(true);
             }
 
-            StartCoroutine(FetchDataFromServer());
+            StartCoroutine(LoadDataCoroutine());
         }
 
-        void OnEndFetchingDataFromServer()
+        IEnumerator LoadDataCoroutine()
+        {
+            yield return StartCoroutine(DataSource.Load());
+            OnDataLoaded();
+        }
+
+        void OnDataLoaded()
         {
             if(_loadingGroup != null)
             {
                 _loadingGroup.SetActive(false);
             }
 
-            if(_data.Count == 0)
+            if(Data.Count == 0)
             {
                 throw new UnityException("Data not loaded!");
             }
@@ -309,25 +339,24 @@ namespace SocialPoint.GUIControl
 
             if(_pagination != null)
             {
-                _pagination.Init(_data.Count, _currentIndex, ScrollToPreviousCell, ScrollToNextCell, ScrollToCell);
+                _pagination.Init(Data.Count, _currentIndex, ScrollToPreviousCell, ScrollToNextCell, ScrollToCell);
             }
         }
 
-        public void AddData(bool addAtEnd = true, bool moveToEnd = false)
+        public void AddData(TCellData data, bool addAtEnd, bool moveToEnd = false)
         {
             if(!_centerOnCell)
             {
-                var data = AddData();
                 if(data != null)
                 {
                     if(addAtEnd)
                     {
-                        _data.Add(data);
-                        SetDataValues(_data.Count - 1);
+                        Data.Add(data);
+                        SetDataValues(Data.Count - 1);
                     }
                     else
                     {
-                        _data.Insert(0, data);
+                        Data.Insert(0, data);
                         SetDataValues();
                     }
 
@@ -335,7 +364,7 @@ namespace SocialPoint.GUIControl
 
                     if(_pagination != null)
                     {
-                        _pagination.Reload(_data.Count, _currentIndex);
+                        _pagination.Reload(Data.Count, _currentIndex);
                     }
 
                     RefreshVisibleCells(true);
@@ -349,13 +378,13 @@ namespace SocialPoint.GUIControl
             {
                 if(IndexIsValid(index))
                 {
-                    _data.RemoveAt(index);
+                    Data.RemoveAt(index);
 
                     SetDataValues(index);
 
                     if(_pagination != null)
                     {
-                        _pagination.Reload(_data.Count, _currentIndex);
+                        _pagination.Reload(Data.Count, _currentIndex);
                     }
 
                     HideCell(index, true, FinishRemovingData);

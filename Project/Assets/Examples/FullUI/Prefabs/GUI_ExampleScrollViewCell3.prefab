@@ -232,6 +232,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cb8219e44dac4702aedb83c7483603b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsFullScreen: 1
+  AppearAnimationFactory: {fileID: 0}
+  DisappearAnimationFactory: {fileID: 0}
+  ParentController: {fileID: 0}
+  DestroyOnHide: 0
+  _containers3d: []
   _expandable: 0
   NameText: {fileID: 114097904923681536}
   DescriptionText: {fileID: 114373256313726004}

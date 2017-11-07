@@ -5,16 +5,20 @@ namespace SocialPoint.GUIControl
 {
     public class UIScrollRectCellData
     {
-        public string UID;
+        public int UID;
 
         public int PrefabIndex;
         public Vector2 Size;
         public Vector2 AccumulatedSize;
 
+        void CreateUID()
+        {
+            UID = GetHashCode();
+        }
+
         public UIScrollRectCellData()
         {
-            // TODO perhaps we can use a numeric GUID to optimize
-            UID = Guid.NewGuid().ToString();
+            CreateUID();
         }
     }
 }

@@ -98,7 +98,7 @@ namespace SocialPoint.GUIControl
                 if(cell != null)
                 {
                     _visibleCells[index] = cell;
-                    cell.UpdateData(_data[index]); 
+                    cell.UpdateData(Data[index]); 
 
                     var trans = newCell.transform;
                     trans.SetParent(_scrollContentRectTransform, false);
@@ -123,12 +123,12 @@ namespace SocialPoint.GUIControl
             Profiler.EndSample();
         }
 
-        TCell GetVisibleCellByUID(string uid)
+        TCell GetVisibleCellByUID(int uid)
         {
             while(_visibleCellsEnumerator.MoveNext())
             {
                 var current = _visibleCellsEnumerator.Current as TCell;
-                if(current != null && current.UID.Equals(uid))
+                if(current != null && current.UID == uid)
                 {
                     _visibleCellsEnumerator.Dispose();
                     return current;
@@ -139,9 +139,9 @@ namespace SocialPoint.GUIControl
             return null;
         }
 
-        int GetDataByUID(string uid)
+        int GetDataByUID(int uid)
         {
-            return _data.FindIndex(x => x.UID.Equals(uid));
+            return Data.FindIndex(x => x.UID == uid);
         }
             
         void HideFirstCell(bool animate = false, Action callback = null)
@@ -187,7 +187,7 @@ namespace SocialPoint.GUIControl
             
         GameObject GetCellGameObject(int index)
         {
-            var prefab = _prefabs[_data[index].PrefabIndex];
+            var prefab = BasePrefabs[Data[index].PrefabIndex];
             if(prefab != null)
             {
                 var go = InstantiateCellPrefabIfNeeded(prefab);
@@ -303,7 +303,7 @@ namespace SocialPoint.GUIControl
             Profiler.BeginSample("UIScrollRectExtension.ReloadVisibleCells", this);
             for(int i = _visibleElementRange.from; i < _visibleElementRange.RelativeCount(); ++i)
             {
-                var data = _data[i];
+                var data = Data[i];
                 if(data != null)
                 {
                     var cell = GetVisibleCellByUID(data.UID);

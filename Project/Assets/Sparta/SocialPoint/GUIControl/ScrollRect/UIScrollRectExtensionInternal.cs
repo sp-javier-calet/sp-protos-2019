@@ -72,9 +72,9 @@ namespace SocialPoint.GUIControl
         {
             get
             {
-                if(_centerOnCell && _data.Count > 0)
+                if(_centerOnCell && Data.Count > 0)
                 {
-                    return (int)((ScrollViewSize * 0.5f) + (GetCellSize(_data.Count - 1) * 0.5f));
+                    return (int)((ScrollViewSize * 0.5f) + (GetCellSize(Data.Count - 1) * 0.5f));
                 }
                 else
                 {
@@ -92,10 +92,10 @@ namespace SocialPoint.GUIControl
                         padding = 0;//_gridLayoutGroup;
                     }
 
-                    if(_data.Count > 0 && _showLastCellPosition == ShowLastCellPosition.AtStart)
+                    if(Data.Count > 0 && _showLastCellPosition == ShowLastCellPosition.AtStart)
                     {
                         padding += (int)(ScrollViewSize);
-                        padding -= (int)GetCellSize(_data.Count - 1);
+                        padding -= (int)GetCellSize(Data.Count - 1);
                     }
 
                     return padding;
@@ -169,11 +169,11 @@ namespace SocialPoint.GUIControl
 
             if(UsesVerticalLayout)
             {
-                return _data[index].AccumulatedSize.y;
+                return Data[index].AccumulatedSize.y;
             }
             else if(UsesHorizontalLayout)
             {
-                return _data[index].AccumulatedSize.x;
+                return Data[index].AccumulatedSize.x;
             }
             else
             {
@@ -185,11 +185,11 @@ namespace SocialPoint.GUIControl
         {
             if(UsesVerticalLayout)
             {
-                return _data[index].Size.y;
+                return Data[index].Size.y;
             }
             else if(UsesHorizontalLayout)
             {
-                return _data[index].Size.x;
+                return Data[index].Size.x;
             }
             else
             {
@@ -209,8 +209,8 @@ namespace SocialPoint.GUIControl
             float startPosition = ScrollPosition - _boundsDelta;
             float endPosition = ScrollPosition + ScrollViewSize + _boundsDelta;
 
-            int startIndex = FindIndexOfElementAtPosition(startPosition, 0, _data.Count - 1);
-            int endIndex = FindIndexOfElementAtPosition(endPosition, 0, _data.Count - 1);
+            int startIndex = FindIndexOfElementAtPosition(startPosition, 0, Data.Count - 1);
+            int endIndex = FindIndexOfElementAtPosition(endPosition, 0, Data.Count - 1);
 
             Profiler.EndSample();
             return new Range(startIndex, endIndex - startIndex + 1);
@@ -241,7 +241,7 @@ namespace SocialPoint.GUIControl
             
         bool IndexIsValid(int index)
         {
-            return (index >= 0 && index < _data.Count);
+            return (index >= 0 && index < Data.Count);
         }
             
         void SetInitialPosition()
@@ -275,9 +275,9 @@ namespace SocialPoint.GUIControl
         {
             if(_usePooling)
             {
-                for(int i = 0; i < _prefabs.Length; ++i)
+                for(int i = 0; i < BasePrefabs.Length; ++i)
                 {
-                    UnityObjectPool.CreatePool(_prefabs[i], 2);
+                    UnityObjectPool.CreatePool(BasePrefabs[i], 2);
                 }
             }
         }
@@ -312,11 +312,11 @@ namespace SocialPoint.GUIControl
                 }
             }
 
-            for(int i = beginIndex; i < _data.Count; ++i)
+            for(int i = beginIndex; i < Data.Count; ++i)
             {
-                var dataValue = _data[i];
+                var dataValue = Data[i];
 
-                var prefab = _prefabs[dataValue.PrefabIndex];
+                var prefab = BasePrefabs[dataValue.PrefabIndex];
                 if(prefab != null)
                 {
                     var trans = prefab.transform as RectTransform;
@@ -325,7 +325,7 @@ namespace SocialPoint.GUIControl
                     if(UsesVerticalLayout)
                     {
                         acumulatedHeight += trans.rect.height;
-                        if(i < _data.Count - 1)
+                        if(i < Data.Count - 1)
                         {
                             acumulatedHeight += Spacing;
                         }
@@ -333,7 +333,7 @@ namespace SocialPoint.GUIControl
                     else if(UsesHorizontalLayout)
                     {
                         acumulatedWidth += trans.rect.width;
-                        if(i < _data.Count - 1)
+                        if(i < Data.Count - 1)
                         {
                             acumulatedWidth += Spacing;
                         }
@@ -349,11 +349,11 @@ namespace SocialPoint.GUIControl
         float GetContentPanelSize()
         {
             float size = _defaultStartPadding;
-            for(int i = 0; i < _data.Count; ++i)
+            for(int i = 0; i < Data.Count; ++i)
             {
                 size += GetCellSize(i);
 
-                if(i < _data.Count - 1)
+                if(i < Data.Count - 1)
                 {
                     size += Spacing;
                 }
@@ -479,9 +479,9 @@ namespace SocialPoint.GUIControl
 
         public void ScrollToFinalPosition()
         {
-            if(_data.Count > 0)
+            if(Data.Count > 0)
             {
-                int index = _data.Count - 1;
+                int index = Data.Count - 1;
 
                 if(_centerOnCell)
                 {
@@ -508,7 +508,7 @@ namespace SocialPoint.GUIControl
 
         public void ScrollToCell(int index)
         {
-            if(index >= 0 && index < _data.Count)
+            if(index >= 0 && index < Data.Count)
             {
                 if(_centerOnCell && index != _currentIndex)
                 {
@@ -605,12 +605,12 @@ namespace SocialPoint.GUIControl
 
         #region Unity methods
 
-        void MyOnBeginDrag(PointerEventData eventData)
+        void InternalOnBeginDrag(PointerEventData eventData)
         {
             _startScrollingPosition = ScrollPosition;
         }
 
-        void MyOnDrag(PointerEventData eventData)
+        void InternalOnDrag(PointerEventData eventData)
         {
             if(_disableDragWhileScrollingAnimation)
             {
@@ -618,7 +618,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        void MyOnEndDrag(PointerEventData eventData)
+        void InternalOnEndDrag(PointerEventData eventData)
         {
             var scrollSize = Mathf.Abs(ScrollPosition - _startScrollingPosition);
             ScrollDirection scrollDirection = ScrollPosition - _startScrollingPosition < 0f ? ScrollDirection.LeftOrTop : ScrollDirection.RightOrBottom; 
@@ -631,7 +631,7 @@ namespace SocialPoint.GUIControl
                     {
                         ScrollToCurrentCell();
                     }
-                    else if(scrollDirection == ScrollDirection.RightOrBottom && _currentIndex == _data.Count - 1)
+                    else if(scrollDirection == ScrollDirection.RightOrBottom && _currentIndex == Data.Count - 1)
                     {
                         ScrollToCurrentCell();
                     }
@@ -647,7 +647,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        void MyLateUpdate()
+        void InternalLateUpdate()
         {
             if(_requiresRefresh)
             {
@@ -655,7 +655,7 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        void MyOnDrawGizmoSelected()
+        void InternalOnDrawGizmoSelected()
         {
             if(_mainCanvas != null && _scrollRect != null)
             {

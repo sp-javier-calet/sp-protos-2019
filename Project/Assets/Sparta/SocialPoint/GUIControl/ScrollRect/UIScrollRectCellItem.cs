@@ -9,7 +9,7 @@ namespace SocialPoint.GUIControl
 
         protected TCellData _data;
 
-        public string UID
+        public int UID
         {
             get
             {
