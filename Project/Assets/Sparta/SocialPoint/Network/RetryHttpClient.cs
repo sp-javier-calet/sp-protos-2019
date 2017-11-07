@@ -62,16 +62,6 @@ namespace SocialPoint.Network
             _client.Send(req, resp2 => OnResponse(retries+1, req, resp2, del));
         }
 
-        public string DefaultProxy
-        {
-            set
-            {                
-                #pragma warning disable 0618
-                _client.DefaultProxy = value;
-                #pragma warning restore 0618
-            }
-        }
-
         public string Config
         {
             set
