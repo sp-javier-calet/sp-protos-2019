@@ -18,8 +18,6 @@ namespace SpartaTools.Editor.Utils.Decorators
             SerializedProperty boundsDeltaValue = serializedObject.FindProperty("_boundsDelta");
             SerializedProperty initialIndexValue = serializedObject.FindProperty("_initialIndex");
             SerializedProperty deltaDragCellValue = serializedObject.FindProperty("_deltaDragCell");
-            //            SerializedProperty magnifyMinScaleValue = serializedObject.FindProperty("_maginifyMinScale");
-            //            SerializedProperty magnifyMaxScaleValue = serializedObject.FindProperty("_maginifyMaxScale");
             SerializedProperty paginationValue = serializedObject.FindProperty("_pagination");
             SerializedProperty loadingGroupValue = serializedObject.FindProperty("_loadingGroup");
             SerializedProperty mainCanvasValue = serializedObject.FindProperty("_mainCanvas");
@@ -68,11 +66,6 @@ namespace SpartaTools.Editor.Utils.Decorators
                 EditorGUILayout.PropertyField(deltaDragCellValue, true);
                 EditorGUILayout.LabelField("Help: Number of pixels that we will allow when dragging cells to move to previous/next. Default value is 50px", EditorStyles.helpBox);
                 EditorGUILayout.Space();
-
-//                EditorGUILayout.LabelField("Magnify effects", EditorStyles.boldLabel);
-//                EditorGUILayout.PropertyField(magnifyMinScaleValue, true);
-//                EditorGUILayout.PropertyField(magnifyMaxScaleValue, true);
-//                EditorGUILayout.Space();
 
                 EditorGUILayout.LabelField("Pagination", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(paginationValue, true);
