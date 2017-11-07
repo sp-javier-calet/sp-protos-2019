@@ -165,14 +165,12 @@ namespace SocialPoint.Multiplayer
             if(TypedBehaviours != null)
             {
                 TypedBehaviours.Dispose();
-//                Context.Pool.Return(TypedBehaviours);
                 TypedBehaviours = null;
             }
 
             if(Behaviours != null)
             {
                 Behaviours.Dispose();
-//                Context.Pool.Return(Behaviours);
                 Behaviours = null;
             }
 

@@ -406,7 +406,7 @@ namespace SocialPoint.Multiplayer
                 var bType = _behavioursTypes[i];
                 if(behaviorType.IsAssignableFrom(bType))
                 {
-                    return _behaviours[i]; ;
+                    return _behaviours[i];
                 }
             }
             return null;

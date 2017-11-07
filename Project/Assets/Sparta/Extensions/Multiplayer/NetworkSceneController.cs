@@ -81,32 +81,36 @@ namespace SocialPoint.Multiplayer
 
         protected void UnregisterAllBehaviours()
         {
-            var behaviourEnum = _behaviourPrototypes.GetEnumerator();
-            while(behaviourEnum.MoveNext() != false)
+            using(var behaviourEnum = _behaviourPrototypes.GetEnumerator())
             {
-                var behaviourList = behaviourEnum.Current.Value;
-                for(int i = 0; i < behaviourList.Key.Count; ++i)
+                while(behaviourEnum.MoveNext())
                 {
-                    var behavior = behaviourList.Key[i];
-                    if(behavior == null)
+                    var behaviourList = behaviourEnum.Current.Value;
+                    for(int i = 0; i < behaviourList.Key.Count; ++i)
                     {
-                        continue;
+                        var behavior = behaviourList.Key[i];
+                        if(behavior == null)
+                        {
+                            continue;
+                        }
+                        behavior.OnDestroy();
                     }
-                    behavior.OnDestroy();
                 }
             }
 
-            behaviourEnum = _behaviourPrototypes.GetEnumerator();
-            while(behaviourEnum.MoveNext() != false)
+            using(var behaviourEnum = _behaviourPrototypes.GetEnumerator())
             {
-                var behaviourList = behaviourEnum.Current.Value;
-                for(int i = 0; i < behaviourList.Key.Count; ++i)
+                while(behaviourEnum.MoveNext())
                 {
-                    if(behaviourList.Key[i] == null)
+                    var behaviourList = behaviourEnum.Current.Value;
+                    for(int i = 0; i < behaviourList.Key.Count; ++i)
                     {
-                        continue;
+                        if(behaviourList.Key[i] == null)
+                        {
+                            continue;
+                        }
+                        behaviourList.Key[i].Dispose();
                     }
-                    behaviourList.Key[i].Dispose();
                 }
             }
 
