@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.IO;
 using SocialPoint.Utils;
+using System.Collections.ObjectModel;
 
 namespace SocialPoint.Multiplayer
 {
@@ -170,17 +171,17 @@ namespace SocialPoint.Multiplayer
         List<ICopyable> _behavioursCopyable = new List<ICopyable>();
         List<ICloneable> _behavioursCloneable = new List<ICloneable>();
 
-        public List<Behaviour> Behaviours { get { return _behaviours; } }
-        public List<Type> BehavioursTypes { get { return _behavioursTypes; } }
+        public ReadOnlyCollection<Behaviour> Behaviours { get { return _behaviours.AsReadOnly(); } }
+        public ReadOnlyCollection<Type> BehavioursTypes { get { return _behavioursTypes.AsReadOnly(); } }
 
         // Lenght of these three variables must match always.
         List<Behaviour> _serializableBehaviours = new List<Behaviour>();
         List<Type> _serializableBehavioursTypes = new List<Type>();
         List<byte> _serializersCodes = new List<byte>();
 
-        public List<Behaviour> SerializableBehaviours { get { return _serializableBehaviours; } }
-        public List<Type> SerializableBehavioursTypes { get { return _serializableBehavioursTypes; } }
-        public List<byte> SerializersCodes { get { return _serializersCodes; } }
+        public ReadOnlyCollection<Behaviour> SerializableBehaviours { get { return _serializableBehaviours.AsReadOnly(); } }
+        public ReadOnlyCollection<Type> SerializableBehavioursTypes { get { return _serializableBehavioursTypes.AsReadOnly(); } }
+        public ReadOnlyCollection<byte> SerializersCodes { get { return _serializersCodes.AsReadOnly(); } }
 
         public Action<Behaviour> OnAdded;
         public Action<Behaviour> OnRemoved;
