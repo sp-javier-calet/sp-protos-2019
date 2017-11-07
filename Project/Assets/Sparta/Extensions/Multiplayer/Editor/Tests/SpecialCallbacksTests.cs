@@ -13,11 +13,12 @@ namespace SocialPoint.Multiplayer
     class SpecialCallbacksTests
     {
         const byte TestType = 0;
-        static INetworkServer EmptyServer = Substitute.For<INetworkServer>();
+        INetworkServer EmptyServer;
 
         [SetUp]
         public void Setup()
         {
+            EmptyServer = Substitute.For<INetworkServer>();
             EmptyServer.Running.Returns(true);
         }
 
