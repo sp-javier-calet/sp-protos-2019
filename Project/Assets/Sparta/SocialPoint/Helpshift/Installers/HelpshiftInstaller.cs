@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Dependency;
+using SocialPoint.Hardware;
 using SocialPoint.Helpshift;
 using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.Notifications;
-using Helpshift;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -83,10 +83,10 @@ namespace SocialPoint.Helpshift
                 Mode = Settings.Mode,
                 SearchOnNewConversationEnabled = Settings.SearchOnNewConversationEnabled,
                 ConversationResolutionQuestionEnabled = Settings.ConversationResolutionQuestionEnabled,
-                Flows = new Dictionary<string, object>[1],
+                Flows = null,
             };
 
-            var hs = new UnityHelpshift(hsconfig);
+            var hs = new UnityHelpshift(hsconfig, Container.Resolve<IDeviceInfo>());
             _helpshift = hs;
             return hs;
         }

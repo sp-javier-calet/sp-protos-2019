@@ -146,6 +146,7 @@ namespace SocialPoint.GameLoading
         readonly Localization _locale;
         readonly IAppEvents _appEvents;
         readonly IRestarter _restarter;
+        readonly IHelpshift _helpshift;
 
         UIStackController _popups;
         Func<UIStackController> _findPopups;
@@ -154,13 +155,14 @@ namespace SocialPoint.GameLoading
 
         public string Signature { set; private get; }
 
-        public GameErrorHandler(IAlertView alert, Localization locale, IAppEvents appEvents, Func<UIStackController> findPopups, IRestarter restarter = null)
+        public GameErrorHandler(IAlertView alert, Localization locale, IAppEvents appEvents, Func<UIStackController> findPopups, IRestarter restarter, IHelpshift helpshift)
         {
             _alert = alert;
             _locale = locale;
             _appEvents = appEvents;
             _restarter = restarter;
             _findPopups = findPopups;
+            _helpshift = helpshift;
             Debug = DebugUtils.IsDebugBuild;
 
             DebugUtils.Assert(_alert != null, "Alert can not be null");
@@ -333,7 +335,10 @@ namespace SocialPoint.GameLoading
             alert.Title = _locale.Get(ResponseErrorTitleKey, ResponseErrorTitleDef);
             if(showSupportButton)
             {
-                alert.Buttons = new[] { _locale.Get(RetryButtonKey, RetryButtonDef) , _locale.Get(SupportButtonKey, SupportButtonDef)};
+                alert.Buttons = new[] {
+                    _locale.Get(RetryButtonKey, RetryButtonDef) ,
+                    _locale.Get(SupportButtonKey, SupportButtonDef)
+                };
             }
             else
             {
@@ -348,7 +353,14 @@ namespace SocialPoint.GameLoading
                 }
                 if(i == 1)
                 {
-                    Services.Instance.Resolve<IHelpshift>().ShowFAQ();
+                    if(_helpshift != null)
+                    {
+                        _helpshift.ShowFAQ();
+                    }
+                    else
+                    {
+                        Log.e("GameErrorHandler", "Button for support pressed but there is no Helpshift configured");
+                    }
                 }
             });
         }

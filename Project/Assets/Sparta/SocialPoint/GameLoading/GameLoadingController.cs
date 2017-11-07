@@ -48,7 +48,7 @@ namespace SocialPoint.GameLoading
         int _releaseMessageAmount = 5;
 
         int _currentRetriesToShowSupportButton = 0;
-        int kRetriesToShowSupportButton = 3;
+        const int RetriesToShowSupportButton = 3;
 
         // seconds to end progress when real action is finished
         [SerializeField]
@@ -320,7 +320,9 @@ namespace SocialPoint.GameLoading
         {
             Login.ErrorEvent -= OnLoginError;
             if(AllOperationsLoadedEvent != null)
+            {
                 AllOperationsLoadedEvent();
+            }
             base.OnDisappearing();
         }
 
@@ -355,7 +357,7 @@ namespace SocialPoint.GameLoading
                 break;
             default:
                 {
-                    ErrorHandler.ShowLogin(err, OnLoginErrorShown, _currentRetriesToShowSupportButton >= kRetriesToShowSupportButton);
+                    ErrorHandler.ShowLogin(err, OnLoginErrorShown, _currentRetriesToShowSupportButton >= RetriesToShowSupportButton);
                     _currentRetriesToShowSupportButton++;
                 }
                 break;

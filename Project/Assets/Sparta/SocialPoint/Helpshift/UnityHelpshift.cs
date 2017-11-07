@@ -27,6 +27,7 @@ namespace SocialPoint.Helpshift
         const string YesKey = "yes";
         const string NoKey = "no";
        
+        readonly IDeviceInfo _deviceInfo;
         HelpshiftConfiguration _config;
 
         public ILocalizationManager LocalizationManager { private get; set; }
@@ -37,9 +38,10 @@ namespace SocialPoint.Helpshift
 
         HelpshiftCustomer _userData;
 
-        public UnityHelpshift(HelpshiftConfiguration config)
+        public UnityHelpshift(HelpshiftConfiguration config, IDeviceInfo deviceInfo)
         {
             _config = config;
+            _deviceInfo = deviceInfo;
         }
 
         void Setup()
@@ -61,9 +63,7 @@ namespace SocialPoint.Helpshift
 
         public void AddFlows(AttrDic flows)
         {
-            UnityEngine.Debug.LogError("UnityHelpshift: AddFlows");
-            _config.ParseHelpshiftTopics(flows);
-            _configMap.Add(HelpshiftSdk.HsCustomContactUsFlows, _config.Flows);
+            Log.e("UnityHelpshift", "Not implemented!!");
         }
 
         void CreateConfigMap()
@@ -107,7 +107,7 @@ namespace SocialPoint.Helpshift
                 customerMetaData.Add(HelpshiftSdk.HSTAGSKEY, _userData.CustomerTags);
             }
             
-            _userData.CustomMetaData.Add("ifda", Services.Instance.Resolve<IDeviceInfo>().AdvertisingId);
+            _userData.CustomMetaData.Add("ifda", _deviceInfo.AdvertisingId);
 
             foreach(var kpv in _userData.CustomMetaData)
             {
