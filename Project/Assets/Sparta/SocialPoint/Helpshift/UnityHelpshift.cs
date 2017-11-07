@@ -54,6 +54,7 @@ namespace SocialPoint.Helpshift
             // Initialize Helpshift sdk
             _helpshift = HelpshiftSdk.getInstance();
 
+
 #if UNITY_ANDROID
             // Install is only called from c# in Android.
             // For iOS, the config is deployed directly in a json file in the bundle to be read from native code
@@ -147,9 +148,10 @@ namespace SocialPoint.Helpshift
                 return;
             }
 
-            #if UNITY_ANDROID
+
+#if UNITY_ANDROID
             _helpshift.registerDelegates();
-            #endif
+#endif
 
             if(validToken)
             {
@@ -157,7 +159,8 @@ namespace SocialPoint.Helpshift
             }
         }
 
-        #region IHelpshift implementation
+
+#region IHelpshift implementation
 
         public HelpshiftConfiguration Configuration
         {
@@ -267,9 +270,11 @@ namespace SocialPoint.Helpshift
             }
         }
 
-        #endregion
+
+#endregion
     }
 }
+
 
 #else
 
@@ -277,7 +282,7 @@ namespace SocialPoint.Helpshift
 {
     public sealed class UnityHelpshift : EmptyHelpshift
     {
-        public UnityHelpshift(HelpshiftConfiguration config)
+        public UnityHelpshift(HelpshiftConfiguration config, IDeviceInfo deviceInfo)
         {
         }
 

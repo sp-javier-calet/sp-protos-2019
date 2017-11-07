@@ -13,7 +13,7 @@ namespace SocialPoint.Login
 
         LinkState State{ get; }
 
-        LinkMode Mode{ get; set; }
+        LinkMode Mode{ get; }
 
         void AddStateChangeDelegate(StateChangeDelegate cbk);
 

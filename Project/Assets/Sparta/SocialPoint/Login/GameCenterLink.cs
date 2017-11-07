@@ -18,7 +18,7 @@ namespace SocialPoint.Login
         public LinkMode Mode
         {
             get;
-            set;
+            private set;
         }
 
         public GameCenterLink(IGameCenter gameCenter, LinkMode mode)

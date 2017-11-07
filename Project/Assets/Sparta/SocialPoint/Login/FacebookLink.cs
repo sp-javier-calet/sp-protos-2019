@@ -20,10 +20,11 @@ namespace SocialPoint.Login
         public readonly static string LinkName = "fb";
 
         LinkState _state;
+
         public LinkMode Mode
         {
             get;
-            set;
+            private set;
         }
 
         public FacebookLink(IFacebook facebook, LinkMode mode, bool loginWithUi = true)

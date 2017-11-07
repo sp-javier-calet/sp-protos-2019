@@ -27,7 +27,7 @@ namespace SocialPoint.Login
         public LinkMode Mode
         {
             get;
-            set;
+            private set;
         }
 
         public GooglePlayLink(IGoogle googlePlay, LinkMode mode, bool silent = false)
