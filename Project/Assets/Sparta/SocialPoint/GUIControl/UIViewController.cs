@@ -28,6 +28,9 @@ namespace SocialPoint.GUIControl
         public event Action<UIViewController, ViewState> ViewEvent;
         public event Action<UIViewController, GameObject> InstantiateEvent;
 
+        public UIViewAnimationFactory AppearAnimationFactory;
+        public UIViewAnimationFactory DisappearAnimationFactory;
+
         public UIViewAnimation AppearAnimation;
         public UIViewAnimation DisappearAnimation;
 

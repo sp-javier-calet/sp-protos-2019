@@ -80,6 +80,8 @@ namespace SocialPoint.GUIControl
 
         int _currentOrderInLayer;
 
+        bool _isBeingDestroyed;
+
         void Awake()
         {
             DebugUtils.Assert(_cameras[0].Type == UICameraData.CameraType.GUI2D, "The first camera must be a 2D camera");
@@ -135,9 +137,12 @@ namespace SocialPoint.GUIControl
             _activeCameras.Push(_inactiveCameras.Pop());
             UICameraData cameraData = _activeCameras.Peek();
 
-            if(cameraData.Type == type)
+            if(cameraData != null && cameraData.Type == type)
             {
-                cameraData.Camera.SetActive(true);
+                if(cameraData.Camera != null)
+                {
+                    cameraData.Camera.SetActive(true);
+                }
             }
             else
             {
@@ -207,6 +212,12 @@ namespace SocialPoint.GUIControl
 
         void RefreshCameras()
         {
+            if(_isBeingDestroyed)
+            {
+                // Avoid Refreshing cameras and layered objects when application is being closed
+                return;
+            }
+
             ResetCameras();
 
             for(int i = 0, _controllersCount = _controllers.Count; i < _controllersCount; i++)
@@ -555,6 +566,11 @@ namespace SocialPoint.GUIControl
                 }
             }
             return null;
+        }
+
+        void OnDestroy()
+        {
+            _isBeingDestroyed = true;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using SocialPoint.GUIControl;
 using SocialPoint.Dependency;
+using UnityEngine;
 
 public class PopupsController : UIStackController
 {
@@ -9,8 +10,15 @@ public class PopupsController : UIStackController
     override protected void OnLoad()
     {
         AnimationTime = Services.Instance.Resolve("popup_animation_time", DefaultAnimationTime);
-        AppearAnimation = new FadeAnimation(AnimationTime, 0f, 1f);
-        DisappearAnimation = new FadeAnimation(AnimationTime, 1f, 0f);
+
+        var appearAnimationFactory = ScriptableObject.CreateInstance<FadeAnimationFactory>();
+        appearAnimationFactory.Create(AnimationTime, 0f, 1f);
+        AppearAnimationFactory = appearAnimationFactory;
+
+        var disappearAnimationFactory = ScriptableObject.CreateInstance<FadeAnimationFactory>();
+        disappearAnimationFactory.Create(AnimationTime, 1f, 0f);
+        DisappearAnimationFactory = disappearAnimationFactory;
+
         base.OnLoad();
     }
 }

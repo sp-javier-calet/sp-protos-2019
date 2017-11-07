@@ -320,29 +320,29 @@ namespace SocialPoint.GUIControl
                 
             if(IsValidStackNode(from))
             {
-                SetupAnimation(ref from.Controller.DisappearAnimation, from.Controller, DisappearAnimation);
+                SetupAnimation(ref from.Controller.DisappearAnimation, from.Controller.DisappearAnimationFactory, from.Controller, DisappearAnimationFactory);
             }
 
             if(IsValidStackNode(to))
             {
-                SetupAnimation(ref to.Controller.AppearAnimation, to.Controller, AppearAnimation);
+                SetupAnimation(ref to.Controller.AppearAnimation, to.Controller.AppearAnimationFactory, to.Controller, AppearAnimationFactory);
             }
         }
-
-        void SetupAnimation(ref UIViewAnimation uiViewAnimation, UIViewController ctrl, UIViewAnimation desiredAnim)
+            
+        void SetupAnimation(ref UIViewAnimation uiViewAnimation, UIViewAnimationFactory animationFactory, UIViewController ctrl, UIViewAnimationFactory defaultAnimationFactory)
         {
-            var anim = GetAnimation(uiViewAnimation ?? (ctrl.IsFullScreen ? null : desiredAnim));
+            var anim = GetAnimation(animationFactory ?? (ctrl.IsFullScreen ? null : defaultAnimationFactory));
             if(anim != null)
             {
-                anim.Load(ctrl);
+                anim.Load(ctrl.gameObject);
             }
 
             uiViewAnimation = anim;
         }
-
-        static UIViewAnimation GetAnimation(UIViewAnimation anim)
+   
+        static UIViewAnimation GetAnimation(UIViewAnimationFactory animationFactory)
         {
-            return anim != null ? (UIViewAnimation)anim.Clone() : null;
+            return animationFactory != null ? animationFactory.Create() : null;
         }
             
         IEnumerator DoTransition(StackNode from, StackNode to, ActionType act)

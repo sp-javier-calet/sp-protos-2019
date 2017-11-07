@@ -6,51 +6,33 @@ using SocialPoint.GUIControl;
 /// This class can execute Unity Animations without Animator.
 /// Remember to check the animation as legacy (Animation -> Inspector -> Debug Mode -> Legacy)
 /// </summary>
-[CreateAssetMenu(menuName = "UI Animations/Unity Animation")]
 public class UnityLegacyAnimation : UIViewAnimation 
 {
-    [SerializeField]
     Animation _animation;
-
-    [SerializeField]
-    float _speed = 1.0f;
-
-    [SerializeField]
+    float _animSpeed;
     string _animName = string.Empty;
 
-    UIViewController _ctrl;
-
-    public override void Load(UIViewController ctrl)
+    public void Load(GameObject gameObject)
     {
-        if(ctrl == null)
+        _animation = gameObject.GetComponent<Animation>();
+        if(_animation == null)
         {
-            throw new MissingComponentException("UIViewController does not exist");
-        }
-
-        _ctrl = ctrl;
-
-        if(_animation == null)        
-        {
-            _animation = _ctrl.GetComponent<Animation>();
-            if(_animation == null)
-            {
-                throw new MissingComponentException("Could not find Animation component.");
-            }
+            throw new MissingComponentException("Missing Animation component in UIViewAnimation Load");
         }
     }
         
-    public UnityLegacyAnimation(string animName, float speed = 1f, Animation animation = null)
+    public UnityLegacyAnimation(Animation animation, string animName, float animSpeed)
     {
-        _speed = speed;
         _animation = animation;
         _animName = animName;
+        _animSpeed = animSpeed;
     }
         
-    public override IEnumerator Animate()
+    public IEnumerator Animate()
     {
         if(_animation != null && !string.IsNullOrEmpty(_animName))
         {
-            _animation[_animName].speed = _speed;
+            _animation[_animName].speed = _animSpeed;
             _animation.Play(_animName);
 
             while(_animation.IsPlaying(_animName))
@@ -61,9 +43,26 @@ public class UnityLegacyAnimation : UIViewAnimation
             _animation.Stop(_animName);
         }
     }
+}
 
-    public override object Clone()
+[CreateAssetMenu(menuName = "UI Animations/Unity Animation")]
+public class UnityLegacyAnimationFactory : UIViewAnimationFactory
+{    
+    public Animation Animation;
+    public string AnimName = string.Empty;
+    public float AmimSpeed;
+
+    public override UIViewAnimation Create()
     {
-        return new UnityLegacyAnimation(_animName, _speed, _animation);
+        return new UnityLegacyAnimation(Animation, AnimName, AmimSpeed);
+    }
+
+    public UIViewAnimation Create(Animation animation, string animName, float animSpeed = 1f)
+    {
+        Animation = animation;
+        AnimName = animName;
+        AmimSpeed = animSpeed;
+
+        return Create();
     }
 }
