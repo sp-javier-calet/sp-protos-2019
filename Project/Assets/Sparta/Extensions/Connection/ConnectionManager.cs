@@ -330,6 +330,7 @@ namespace SocialPoint.Connection
 
         public WAMPConnection.StartRequest Connect()
         {
+            DebugUtils.Assert(LoginData.Data != null && LoginData.Data.Social != null, "ConnectionManager: Trying to connect without the URL set");
             _socket.Urls = LoginData.Data.Social.WebSocketUrls;
 
             return Reconnect();
