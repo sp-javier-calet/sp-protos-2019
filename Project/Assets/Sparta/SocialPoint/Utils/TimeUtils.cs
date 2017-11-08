@@ -177,7 +177,7 @@ namespace SocialPoint.Utils
 
             for(int i = 0; i < typeTimeFormatList.Count; i++)
             {
-                if(ValidateLocalizeTIme(ts, typeTimeFormatList[i][0]))
+                if(ValidateLocalizeTime(ts, typeTimeFormatList[i][0]))
                 {
                     return GetLocalizeTime(ts, typeTimeFormatList[i]);
                 }
@@ -188,7 +188,7 @@ namespace SocialPoint.Utils
             return GetLocalizeTime(ts, secondsType);
         }
 
-        static bool ValidateLocalizeTIme(TimeSpan ts, TimeType typeTimeFormat)
+        static bool ValidateLocalizeTime(TimeSpan ts, TimeType typeTimeFormat)
         {
             bool validated = true;
             switch(typeTimeFormat)
