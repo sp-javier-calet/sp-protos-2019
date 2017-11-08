@@ -1339,13 +1339,6 @@ namespace SocialPoint.Attributes
             b.Append("}");
         }
 
-        public string ToStringSafe()
-        {
-            var b = new StringBuilder();
-            AppendToStringBuilder(b);
-            return b.ToString();
-        }
-
         public override string ToString()
         {
             var b = StringUtils.StartBuilder();
@@ -1687,13 +1680,6 @@ namespace SocialPoint.Attributes
                 }
             }
             b.Append("]");
-        }
-
-        public string ToStringSafe()
-        {
-            var b = new StringBuilder();
-            AppendToStringBuilder(b);
-            return b.ToString();
         }
 
         public override string ToString()

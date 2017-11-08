@@ -60,35 +60,12 @@ namespace SocialPoint.Utils
 
         public static StringBuilder StartBuilder()
         {
-            if(_builders == null)
-            {
-                _builders = new Stack<StringBuilder>();
-            }
-            if(_builders.Count == 0)
-            {
-                return new StringBuilder();
-            }
-            else
-            {
-                var builder = _builders.Pop();
-                builder.Length = 0;
-                return builder;
-            }
+            return new StringBuilder();
         }
 
         public static string FinishBuilder(StringBuilder builder)
         {
-            if(_builders == null)
-            {
-                _builders = new Stack<StringBuilder>();
-            }
-            var str = builder.ToString();
-            builder.Length = 0;
-            if(_builders.Count < _buildersMaxSize)
-            {
-                _builders.Push(builder);
-            }
-            return str;
+            return builder.ToString();
         }
 
         public static string DictToString<T, V>(IEnumerable<KeyValuePair<T, V>> items, string format = "")
