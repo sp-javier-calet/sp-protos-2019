@@ -1,11 +1,12 @@
-﻿using SocialPoint.Base;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Collections;
+using SocialPoint.Base;
+using SocialPoint.Utils;
 using UnityEngine;
 
 namespace SocialPoint.Pooling
 {
-    public sealed class ObjectPool : MonoBehaviour
+    public sealed class ObjectPool : MonoBehaviourSingleton<ObjectPool>
     {
         public enum StartupPoolModeEnum
         {
@@ -25,51 +26,33 @@ namespace SocialPoint.Pooling
         public StartupPoolModeEnum StartupPoolMode;
         public StartupPool[] StartupPools;
 
-        static ObjectPool _instance;
-
-        public static ObjectPool Instance
-        {
-            get
-            {
-                if(_instance != null)
-                {
-                    return _instance;
-                }
-
-                _instance = Object.FindObjectOfType<ObjectPool>();
-                if(_instance != null)
-                {
-                    return _instance;
-                }
-
-                var go = new GameObject("ObjectPool");
-                _instance = go.AddComponent<ObjectPool>();
-                return _instance;
-            }
-        }
-
         static List<GameObject> _recycleList = new List<GameObject>();
         Dictionary<GameObject, List<GameObject>> _pooledObjects = new Dictionary<GameObject, List<GameObject>>();
         Dictionary<GameObject, GameObject> _spawnedObjects = new Dictionary<GameObject, GameObject>();
         HashSet<GameObject> _nonPulledPrefabs = new HashSet<GameObject>();
         bool startupPoolsCreated;
 
-        void Awake()
+        #region Singleton and Monobehaviour events
+
+        protected override void SingletonAwakened()
         {
-            _instance = this;
+            base.SingletonAwakened();
             if(StartupPoolMode == StartupPoolModeEnum.Awake)
             {
                 CreateStartupPools();
             }
         }
 
-        void Start()
+        protected override void SingletonStarted()
         {
+            base.SingletonStarted();
             if(StartupPoolMode == StartupPoolModeEnum.Start)
             {
                 CreateStartupPools();
             }
         }
+
+        #endregion
 
         public static void CreateStartupPools()
         {
@@ -168,7 +151,7 @@ namespace SocialPoint.Pooling
         static Transform CreatePoolTransform(GameObject prefab)
         {
             var parent = new GameObject().transform;
-            parent.parent = _instance.transform;
+            parent.parent = Instance.transform;
             parent.name = "Pool_" + prefab.name;
             return parent;
         }
