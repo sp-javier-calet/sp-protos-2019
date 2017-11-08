@@ -13,8 +13,8 @@ import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.iid.InstanceID;
 import com.unity3d.player.UnityPlayer;
 
 import es.socialpoint.unity.configuration.Metadata;
@@ -103,19 +103,18 @@ public class NotificationBridge {
             mRegisterTask = null;
         }
 
-        FirebaseApp.initializeApp(UnityPlayer.currentActivity);
-
         boolean postSuccess = mHandler.post(new Runnable() {
             public void run() {
                 mRegisterTask = new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... params) {
                         try {
+                            InstanceID instanceID = InstanceID.getInstance(UnityPlayer.currentActivity);
+                            String senderId = getSenderId(UnityPlayer.currentActivity);
 
-                            FirebaseInstanceId instanceID = FirebaseInstanceId.getInstance();
-
-                            if(true) {
-                                String token = instanceID.getToken();
+                            if(senderId != null && !senderId.isEmpty()) {
+                                String token = instanceID.getToken(senderId,
+                                        GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
                                 Log.i(TAG, "GCM Registration Token: " + token);
 
                                 // Notify registered token
