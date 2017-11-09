@@ -40,11 +40,11 @@ namespace SocialPoint.GUIControl
             {
                 if(UsesVerticalLayout)
                 {
-                    return _verticalLayoutGroup.padding.top;
+                    return VerticalLayoutGroup.padding.top;
                 }
                 else if(UsesHorizontalLayout)
                 {
-                    return _horizontalLayoutGroup.padding.left;
+                    return HorizontalLayoutGroup.padding.left;
                 }
                 else
                 {
@@ -55,11 +55,11 @@ namespace SocialPoint.GUIControl
             {
                 if(UsesVerticalLayout)
                 {
-                    _verticalLayoutGroup.padding.top = value;
+                    VerticalLayoutGroup.padding.top = value;
                 }
                 else if(UsesHorizontalLayout)
                 {
-                    _horizontalLayoutGroup.padding.left = value;
+                    HorizontalLayoutGroup.padding.left = value;
                 }
                 else
                 {
@@ -72,7 +72,7 @@ namespace SocialPoint.GUIControl
         {
             get
             {
-                if(_centerOnCell && Data.Count > 0)
+                if(CenterOnCell && Data.Count > 0)
                 {
                     return (int)((ScrollViewSize * 0.5f) + (GetCellSize(Data.Count - 1) * 0.5f));
                 }
@@ -81,18 +81,18 @@ namespace SocialPoint.GUIControl
                     int padding = 0;
                     if(UsesVerticalLayout)
                     {
-                        padding = _verticalLayoutGroup.padding.bottom;
+                        padding = VerticalLayoutGroup.padding.bottom;
                     }
                     else if(UsesHorizontalLayout)
                     {
-                        padding = _horizontalLayoutGroup.padding.right;
+                        padding = HorizontalLayoutGroup.padding.right;
                     }
                     else
                     {
                         padding = 0;//_gridLayoutGroup;
                     }
 
-                    if(Data.Count > 0 && _showLastCellPosition == ShowLastCellPosition.AtStart)
+                    if(Data.Count > 0 && LastCellPosition == ShowLastCellPosition.AtStart)
                     {
                         padding += (int)(ScrollViewSize);
                         padding -= (int)GetCellSize(Data.Count - 1);
@@ -147,11 +147,11 @@ namespace SocialPoint.GUIControl
             {
                 if(UsesVerticalLayout)
                 {
-                    return _verticalLayoutGroup.spacing;
+                    return VerticalLayoutGroup.spacing;
                 }
                 else if(UsesHorizontalLayout)
                 {
-                    return _horizontalLayoutGroup.spacing;
+                    return HorizontalLayoutGroup.spacing;
                 }
                 else
                 {
@@ -206,8 +206,8 @@ namespace SocialPoint.GUIControl
         {
             Profiler.BeginSample("UIScrollRectExtension.CalculateCurrentVisibleRange", this);
 
-            float startPosition = ScrollPosition - _boundsDelta;
-            float endPosition = ScrollPosition + ScrollViewSize + _boundsDelta;
+            float startPosition = ScrollPosition - BoundsDelta;
+            float endPosition = ScrollPosition + ScrollViewSize + BoundsDelta;
 
             int startIndex = FindIndexOfElementAtPosition(startPosition, 0, Data.Count - 1);
             int endIndex = FindIndexOfElementAtPosition(endPosition, 0, Data.Count - 1);
@@ -248,12 +248,12 @@ namespace SocialPoint.GUIControl
         {
             ScrollPosition = 0f;
 
-            if(!IndexIsValid(_initialIndex))
+            if(!IndexIsValid(InitialIndex))
             {
-                _initialIndex = 0;
+                InitialIndex = 0;
             }
 
-            _currentIndex = _initialIndex;
+            _currentIndex = InitialIndex;
                 
             ScrollPosition = GetCellAccumulatedSize(_currentIndex - 1);
         }
@@ -273,7 +273,7 @@ namespace SocialPoint.GUIControl
 
         void CreatePoolObjectsIfNeeded()
         {
-            if(_usePooling)
+            if(UsePooling)
             {
                 for(int i = 0; i < BasePrefabs.Length; ++i)
                 {
@@ -426,7 +426,7 @@ namespace SocialPoint.GUIControl
                 padding += GetCellAccumulatedSize(_visibleElementRange.from - 1);
             }
 
-            if(_centerOnCell)
+            if(CenterOnCell)
             {
                 padding += (ScrollViewSize * 0.5f);
                 padding -= (GetCellSize(_currentIndex) * 0.5f);
@@ -483,18 +483,18 @@ namespace SocialPoint.GUIControl
             {
                 int index = Data.Count - 1;
 
-                if(_centerOnCell)
+                if(CenterOnCell)
                 {
-                    if(_pagination != null)
+                    if(Pagination != null)
                     {
-                        _pagination.SetSelectedButton(index);
+                        Pagination.SetSelectedButton(index);
                     }
 
                     ScrollToCell(index);
                 }
                 else
                 {
-                    if(_showLastCellPosition == ShowLastCellPosition.AtStart)
+                    if(LastCellPosition == ShowLastCellPosition.AtStart)
                     {
                         ScrollToCell(index);
                     }
@@ -510,13 +510,13 @@ namespace SocialPoint.GUIControl
         {
             if(index >= 0 && index < Data.Count)
             {
-                if(_centerOnCell && index != _currentIndex)
+                if(CenterOnCell && index != _currentIndex)
                 {
                     _currentIndex = index;
 
-                    if(_pagination != null)
+                    if(Pagination != null)
                     {
-                        _pagination.SetSelectedButton(index);
+                        Pagination.SetSelectedButton(index);
                     }
                 }
 
@@ -536,7 +536,7 @@ namespace SocialPoint.GUIControl
         {
             if(animate)
             {
-                _scrollAnimation = new AnchoredPositionAnimation(_scrollAnimationTime, GetFinalScrollPosition(finalPosition), _scrollAnimationEaseType, _scrollAnimationCurve);
+                _scrollAnimation = new AnchoredPositionAnimation(ScrollAnimationTime, GetFinalScrollPosition(finalPosition), ScrollAnimationEaseType, ScrollAnimationCurve);
                 if(_scrollAnimation != null)
                 {
                     _scrollAnimation.Load(_scrollContentRectTransform.gameObject);
@@ -577,19 +577,19 @@ namespace SocialPoint.GUIControl
             
         void EnableScroll()
         {
-            _scrollRect.horizontal = _isHorizontal;
-            _scrollRect.vertical = _isVertical;
+            ScrollRect.horizontal = _isHorizontal;
+            ScrollRect.vertical = _isVertical;
         }
 
         void DisableScroll()
         {
-            _scrollRect.horizontal = false;
-            _scrollRect.vertical = false;
+            ScrollRect.horizontal = false;
+            ScrollRect.vertical = false;
         }
 
         void StopScrolling()
         {
-            _scrollRect.StopMovement();
+            ScrollRect.StopMovement();
             Canvas.ForceUpdateCanvases();
 
             if(_scrollCoroutine != null)
@@ -597,7 +597,7 @@ namespace SocialPoint.GUIControl
                 StopCoroutine(_scrollCoroutine);
             }
 
-            if(_disableDragWhileScrollingAnimation)
+            if(DisableDragWhileScrollingAnimation)
             {
                 DisableScroll();
             }
@@ -612,7 +612,7 @@ namespace SocialPoint.GUIControl
 
         void InternalOnDrag(PointerEventData eventData)
         {
-            if(_disableDragWhileScrollingAnimation)
+            if(DisableDragWhileScrollingAnimation)
             {
                 StopScrolling();
             }
@@ -623,9 +623,9 @@ namespace SocialPoint.GUIControl
             var scrollSize = Mathf.Abs(ScrollPosition - _startScrollingPosition);
             ScrollDirection scrollDirection = ScrollPosition - _startScrollingPosition < 0f ? ScrollDirection.LeftOrTop : ScrollDirection.RightOrBottom; 
 
-            if(_centerOnCell)
+            if(CenterOnCell)
             {
-                if(_deltaDragCell <= scrollSize)
+                if(DeltaDragCell <= scrollSize)
                 {
                     if(scrollDirection == ScrollDirection.LeftOrTop && _currentIndex == 0)
                     {
@@ -657,7 +657,7 @@ namespace SocialPoint.GUIControl
 
         void InternalOnDrawGizmoSelected()
         {
-            if(_mainCanvas != null && _scrollRect != null)
+            if(MainCanvas != null && ScrollRect != null)
             {
                 Gizmos.color = Color.red;
 
@@ -668,55 +668,55 @@ namespace SocialPoint.GUIControl
                 float posYtop = 0f;
                 float posYbottom = 0f;
 
-                if(_scrollRect.vertical)
+                if(ScrollRect.vertical)
                 {
-                    posXtop = trans.position.x + (rectTrans.rect.xMax * _mainCanvas.transform.localScale.x);
-                    posXbottom = trans.position.x + (rectTrans.rect.xMin * _mainCanvas.transform.localScale.x);
-                    posYtop = trans.position.y + ((rectTrans.rect.yMax * 0.5f) * _mainCanvas.transform.localScale.y);
-                    posYbottom = trans.position.y + ((rectTrans.rect.yMax * 0.5f) * _mainCanvas.transform.localScale.y);
+                    posXtop = trans.position.x + (rectTrans.rect.xMax * MainCanvas.transform.localScale.x);
+                    posXbottom = trans.position.x + (rectTrans.rect.xMin * MainCanvas.transform.localScale.x);
+                    posYtop = trans.position.y + ((rectTrans.rect.yMax * 0.5f) * MainCanvas.transform.localScale.y);
+                    posYbottom = trans.position.y + ((rectTrans.rect.yMax * 0.5f) * MainCanvas.transform.localScale.y);
                 }
-                else if(_scrollRect.horizontal)
+                else if(ScrollRect.horizontal)
                 {
-                    posXtop = trans.position.x + ((rectTrans.rect.xMax * 0.5f) * _mainCanvas.transform.localScale.x);
-                    posXbottom = trans.position.x + ((rectTrans.rect.xMax * 0.5f) * _mainCanvas.transform.localScale.x);
-                    posYtop = trans.position.y + (rectTrans.rect.yMax * _mainCanvas.transform.localScale.y);
-                    posYbottom = trans.position.y + (rectTrans.rect.yMin * _mainCanvas.transform.localScale.y);
+                    posXtop = trans.position.x + ((rectTrans.rect.xMax * 0.5f) * MainCanvas.transform.localScale.x);
+                    posXbottom = trans.position.x + ((rectTrans.rect.xMax * 0.5f) * MainCanvas.transform.localScale.x);
+                    posYtop = trans.position.y + (rectTrans.rect.yMax * MainCanvas.transform.localScale.y);
+                    posYbottom = trans.position.y + (rectTrans.rect.yMin * MainCanvas.transform.localScale.y);
                 }
 
                 Gizmos.DrawLine(new Vector3(posXtop, posYtop, 0f), new Vector3(posXbottom, posYbottom, 0f));
 
                 Gizmos.color = Color.blue;
 
-                if(_scrollRect.vertical)
+                if(ScrollRect.vertical)
                 {
-                    posXtop = trans.position.x + (rectTrans.rect.xMax * _mainCanvas.transform.localScale.x);
-                    posXbottom = trans.position.x + (rectTrans.rect.xMin * _mainCanvas.transform.localScale.x);
-                    posYtop = trans.position.y + ((rectTrans.rect.yMax * 0.5f) * _mainCanvas.transform.localScale.y);
-                    posYbottom = trans.position.y + ((rectTrans.rect.yMax * 0.5f) * _mainCanvas.transform.localScale.y);
+                    posXtop = trans.position.x + (rectTrans.rect.xMax * MainCanvas.transform.localScale.x);
+                    posXbottom = trans.position.x + (rectTrans.rect.xMin * MainCanvas.transform.localScale.x);
+                    posYtop = trans.position.y + ((rectTrans.rect.yMax * 0.5f) * MainCanvas.transform.localScale.y);
+                    posYbottom = trans.position.y + ((rectTrans.rect.yMax * 0.5f) * MainCanvas.transform.localScale.y);
                 }
-                else if(_scrollRect.horizontal)
+                else if(ScrollRect.horizontal)
                 {
-                    posXtop = trans.position.x + ((rectTrans.rect.xMin - _boundsDelta) * _mainCanvas.transform.localScale.x);
-                    posXbottom = trans.position.x + ((rectTrans.rect.xMin - _boundsDelta) * _mainCanvas.transform.localScale.x);
-                    posYtop = trans.position.y + (rectTrans.rect.yMax * _mainCanvas.transform.localScale.y);
-                    posYbottom = trans.position.y + (rectTrans.rect.yMin * _mainCanvas.transform.localScale.y);
+                    posXtop = trans.position.x + ((rectTrans.rect.xMin - BoundsDelta) * MainCanvas.transform.localScale.x);
+                    posXbottom = trans.position.x + ((rectTrans.rect.xMin - BoundsDelta) * MainCanvas.transform.localScale.x);
+                    posYtop = trans.position.y + (rectTrans.rect.yMax * MainCanvas.transform.localScale.y);
+                    posYbottom = trans.position.y + (rectTrans.rect.yMin * MainCanvas.transform.localScale.y);
                 }
 
                 Gizmos.DrawLine(new Vector3(posXtop, posYtop, 0f), new Vector3(posXbottom, posYbottom, 0f));
 
-                if(_scrollRect.vertical)
+                if(ScrollRect.vertical)
                 {
-                    posXtop = trans.position.x + (rectTrans.rect.xMax * _mainCanvas.transform.localScale.x);
-                    posXbottom = trans.position.x + (rectTrans.rect.xMin * _mainCanvas.transform.localScale.x);
-                    posYtop = trans.position.y + ((rectTrans.rect.yMax * 0.5f) * _mainCanvas.transform.localScale.y);
-                    posYbottom = trans.position.y + ((rectTrans.rect.yMax * 0.5f) * _mainCanvas.transform.localScale.y);
+                    posXtop = trans.position.x + (rectTrans.rect.xMax * MainCanvas.transform.localScale.x);
+                    posXbottom = trans.position.x + (rectTrans.rect.xMin * MainCanvas.transform.localScale.x);
+                    posYtop = trans.position.y + ((rectTrans.rect.yMax * 0.5f) * MainCanvas.transform.localScale.y);
+                    posYbottom = trans.position.y + ((rectTrans.rect.yMax * 0.5f) * MainCanvas.transform.localScale.y);
                 }
-                else if(_scrollRect.horizontal)
+                else if(ScrollRect.horizontal)
                 {
-                    posXtop = trans.position.x + ((_boundsDelta + rectTrans.rect.xMax) * _mainCanvas.transform.localScale.x);
-                    posXbottom = trans.position.x + ((_boundsDelta + rectTrans.rect.xMax) * _mainCanvas.transform.localScale.x);
-                    posYtop = trans.position.y + (rectTrans.rect.yMax * _mainCanvas.transform.localScale.y);
-                    posYbottom = trans.position.y + (rectTrans.rect.yMin * _mainCanvas.transform.localScale.y);
+                    posXtop = trans.position.x + ((BoundsDelta + rectTrans.rect.xMax) * MainCanvas.transform.localScale.x);
+                    posXbottom = trans.position.x + ((BoundsDelta + rectTrans.rect.xMax) * MainCanvas.transform.localScale.x);
+                    posYtop = trans.position.y + (rectTrans.rect.yMax * MainCanvas.transform.localScale.y);
+                    posYbottom = trans.position.y + (rectTrans.rect.yMin * MainCanvas.transform.localScale.y);
                 }
 
                 Gizmos.DrawLine(new Vector3(posXtop, posYtop, 0f), new Vector3(posXbottom, posYbottom, 0f));

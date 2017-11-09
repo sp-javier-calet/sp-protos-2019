@@ -29,7 +29,7 @@ namespace SocialPoint.GUIControl
 
         GameObject InstantiateCellPrefabIfNeeded(GameObject prefab)
         {
-            return _usePooling ? UnityObjectPool.Spawn(prefab) : UnityEngine.Object.Instantiate(prefab);
+            return UsePooling ? UnityObjectPool.Spawn(prefab) : UnityEngine.Object.Instantiate(prefab);
         }
 
         void DestroyCellPrefabIfNeeded(GameObject prefab, bool animate, Action callback)
@@ -68,7 +68,7 @@ namespace SocialPoint.GUIControl
 
         void DoDestroyCellPrefabIfNeeded(GameObject prefab, Vector2 originalPivot = default(Vector2), Vector3 originalScale = default(Vector3), Action callback = null)
         {
-            if(_usePooling)
+            if(UsePooling)
             {
                 UnityObjectPool.Recycle(prefab);
 

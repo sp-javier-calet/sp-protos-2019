@@ -32,8 +32,7 @@ namespace SocialPoint.GUIControl
         }
     }
 
-    [RequireComponent(typeof(ScrollRect))]
-    public partial class UIScrollRectExtension<TCellData, TCell> : UIViewController, IBeginDragHandler, IDragHandler, IEndDragHandler where TCellData : UIScrollRectCellData where TCell : UIScrollRectCellItem<TCellData>
+    public class UIScrollRectExtensionInspector : UIViewController
     {
         public enum ShowLastCellPosition
         {
@@ -47,102 +46,38 @@ namespace SocialPoint.GUIControl
             RightOrBottom = 1
         }
 
-        [Header("UI Components")]
-        [SerializeField]
-        ScrollRect _scrollRect;
-
-        RectTransform _scrollRectTransform;
-        RectTransform _scrollContentRectTransform;
-
-        [SerializeField]
-        VerticalLayoutGroup _verticalLayoutGroup;
-
-        [SerializeField]
-        HorizontalLayoutGroup _horizontalLayoutGroup;
-
-        [SerializeField]
-        GridLayoutGroup _gridLayoutGroup;
-
-        [Header("System")]
-        [SerializeField]
-        GameObject _loadingGroup;
-
+        public bool UsePooling = true;
+        public bool CenterOnCell;
+        public bool UseNavigationButtons;
+        public bool UsePaginationButtons;
+        public bool DisableDragWhileScrollingAnimation;
+        public ShowLastCellPosition LastCellPosition = ShowLastCellPosition.AtEnd;
+        public ScrollRect ScrollRect;
+        public VerticalLayoutGroup VerticalLayoutGroup;
+        public HorizontalLayoutGroup HorizontalLayoutGroup;
+        public GridLayoutGroup GridLayoutGroup;
+        public GameObject LoadingGroup;
         public GameObject[] BasePrefabs;
-
-        [SerializeField]
-        bool _usePooling = true;
-
-        [Tooltip("Delta that we will add to bounds to check if we need to show/hide new cells")]
-        [SerializeField]
-        int _boundsDelta;
-
-        [SerializeField]
-        int _initialIndex;
-
-        [SerializeField]
-        ShowLastCellPosition _showLastCellPosition = ShowLastCellPosition.AtEnd;
-
-        [Header("Animations")]
-        [SerializeField]
-        float _scrollAnimationTime = 0.5f;
-
-        [SerializeField]
-        GoEaseType _scrollAnimationEaseType;
-
-        [SerializeField]
-        AnimationCurve _scrollAnimationCurve;
-
-        [SerializeField]
-        bool _disableDragWhileScrollingAnimation;
-
-        [Header("Snapping")]
-        [SerializeField]
-        bool _centerOnCell;
-
-        // TODO IMPROVEMENT
-        //        [SerializeField] 
-        //        Vector2 _snapToCellAnchorPoint = new Vector2(0.5f, 0.5f);
-
-        [SerializeField]
-        float _deltaDragCell = 50f;
-
-        // TODO IMPROVEMENT
-        //        [Header("Magnify")]
-        //        [SerializeField]
-        //        bool _magnifyOnCenteredCell;
-
-        //        [SerializeField]
-        //        Vector2 _maginifyMinScale;
-
-        // TODO IMPROVEMENT
-        //        [SerializeField]
-        //        Vector2 _maginifyMaxScale;
-
-        [Header("Pagination")]
-        [SerializeField]
-        UIScrollRectPagination _pagination;
-
-        [SerializeField]
-        bool _useNavigationButtons;
-
-        [SerializeField]
-        bool _usePaginationButtons;
-
-        [Header("Debug")]
-        [SerializeField]
-        Canvas _mainCanvas;
-
+        public int BoundsDelta = 50;
+        public int InitialIndex;
+        public float ScrollAnimationTime = 0.5f;
+        public GoEaseType ScrollAnimationEaseType;
+        public AnimationCurve ScrollAnimationCurve;
+        public float DeltaDragCell = 50f;
+        public UIScrollRectPagination Pagination;
+        public Canvas MainCanvas;
+    }
+        
+    [RequireComponent(typeof(ScrollRect))]
+    public partial class UIScrollRectExtension<TCellData, TCell> : UIScrollRectExtensionInspector, IBeginDragHandler, IDragHandler, IEndDragHandler where TCellData : UIScrollRectCellData where TCell : UIScrollRectCellItem<TCellData>
+    {
         public bool Initialized { get; private set; }
 
         List<TCellData> Data
         {
             get
             {
-                if(DataSource == null)
-                {
-                    return null;
-                }
-                return DataSource.Data;
+                return DataSource == null ? null : DataSource.Data;
             }
         }
 
@@ -158,12 +93,14 @@ namespace SocialPoint.GUIControl
         Vector2 _tempVector2 = Vector3.zero;
         int _currentIndex;
         UIViewAnimation _scrollAnimation;
+        RectTransform _scrollRectTransform;
+        RectTransform _scrollContentRectTransform;
 
         public bool UsesVerticalLayout
         {
             get
             {
-                return _verticalLayoutGroup != null;
+                return VerticalLayoutGroup != null;
             }
         }
 
@@ -171,7 +108,7 @@ namespace SocialPoint.GUIControl
         {
             get
             {
-                return _horizontalLayoutGroup != null;
+                return HorizontalLayoutGroup != null;
             }
         }
 
@@ -179,25 +116,25 @@ namespace SocialPoint.GUIControl
         {
             get
             {
-                return _gridLayoutGroup != null;
+                return GridLayoutGroup != null;
             }
         }
 
         void ApplyLayoutRules()
         {
 
-            if(_pagination != null)
+            if(Pagination != null)
             {
-                if(_centerOnCell)
+                if(CenterOnCell)
                 {
-                    _pagination.UseNavigationButtons = _useNavigationButtons;
-                    _pagination.UsePaginationButtons = _usePaginationButtons;
-                    _pagination.gameObject.SetActive(true);
+                    Pagination.UseNavigationButtons = UseNavigationButtons;
+                    Pagination.UsePaginationButtons = UsePaginationButtons;
+                    Pagination.gameObject.SetActive(true);
                 }
                 else
                 {
-                    _pagination.gameObject.SetActive(false);
-                    _pagination = null;
+                    Pagination.gameObject.SetActive(false);
+                    Pagination = null;
                 }
             }
         }
@@ -206,23 +143,23 @@ namespace SocialPoint.GUIControl
 
         void Awake()
         {
-            if(_scrollRect == null)
+            if(ScrollRect == null)
             {
-                _scrollRect = GetComponent<ScrollRect>();
+                ScrollRect = GetComponent<ScrollRect>();
             }
 
-            _scrollRectTransform = _scrollRect.GetComponent<RectTransform>();
-            _scrollContentRectTransform = _scrollRect.content;
+            _scrollRectTransform = ScrollRect.GetComponent<RectTransform>();
+            _scrollContentRectTransform = ScrollRect.content;
 
-            _verticalLayoutGroup = _verticalLayoutGroup ?? _scrollContentRectTransform.GetComponent<VerticalLayoutGroup>();
-            _horizontalLayoutGroup = _horizontalLayoutGroup ?? _scrollContentRectTransform.GetComponent<HorizontalLayoutGroup>();
-            _gridLayoutGroup = _gridLayoutGroup ?? _scrollContentRectTransform.GetComponent<GridLayoutGroup>();
+            VerticalLayoutGroup = VerticalLayoutGroup ?? _scrollContentRectTransform.GetComponent<VerticalLayoutGroup>();
+            HorizontalLayoutGroup = HorizontalLayoutGroup ?? _scrollContentRectTransform.GetComponent<HorizontalLayoutGroup>();
+            GridLayoutGroup = GridLayoutGroup ?? _scrollContentRectTransform.GetComponent<GridLayoutGroup>();
 
-            _scrollRect.vertical = UsesVerticalLayout;
-            _scrollRect.horizontal = UsesHorizontalLayout;
+            ScrollRect.vertical = UsesVerticalLayout;
+            ScrollRect.horizontal = UsesHorizontalLayout;
 
-            _isHorizontal = _scrollRect.horizontal;
-            _isVertical = _scrollRect.vertical;
+            _isHorizontal = ScrollRect.horizontal;
+            _isVertical = ScrollRect.vertical;
 
             _visibleCells = new Dictionary<int, TCell>();
 
@@ -241,12 +178,12 @@ namespace SocialPoint.GUIControl
 
         void OnEnable()
         {
-            _scrollRect.onValueChanged.AddListener(OnScrollViewValueChanged);
+            ScrollRect.onValueChanged.AddListener(OnScrollViewValueChanged);
         }
 
         void OnDisable()
         {
-            _scrollRect.onValueChanged.RemoveListener(OnScrollViewValueChanged);
+            ScrollRect.onValueChanged.RemoveListener(OnScrollViewValueChanged);
         }
 
         protected override void OnDestroy() 
@@ -304,9 +241,9 @@ namespace SocialPoint.GUIControl
         // This is the main method you need to call to start working with ScrollRectExtension
         public void LoadData()
         {
-            if(_loadingGroup != null)
+            if(LoadingGroup != null)
             {
-                _loadingGroup.SetActive(true);
+                LoadingGroup.SetActive(true);
             }
 
             StartCoroutine(LoadDataCoroutine());
@@ -320,9 +257,9 @@ namespace SocialPoint.GUIControl
 
         void OnDataLoaded()
         {
-            if(_loadingGroup != null)
+            if(LoadingGroup != null)
             {
-                _loadingGroup.SetActive(false);
+                LoadingGroup.SetActive(false);
             }
 
             if(Data.Count == 0)
@@ -337,15 +274,15 @@ namespace SocialPoint.GUIControl
             SetInitialPosition();
             SetInitialVisibleElements();
 
-            if(_pagination != null)
+            if(Pagination != null)
             {
-                _pagination.Init(Data.Count, _currentIndex, ScrollToPreviousCell, ScrollToNextCell, ScrollToCell);
+                Pagination.Init(Data.Count, _currentIndex, ScrollToPreviousCell, ScrollToNextCell, ScrollToCell);
             }
         }
 
         public void AddData(TCellData data, bool addAtEnd, bool moveToEnd = false)
         {
-            if(!_centerOnCell)
+            if(!CenterOnCell)
             {
                 if(data != null)
                 {
@@ -362,9 +299,9 @@ namespace SocialPoint.GUIControl
 
                     SetRectTransformSize(_scrollContentRectTransform, GetContentPanelSize());
 
-                    if(_pagination != null)
+                    if(Pagination != null)
                     {
-                        _pagination.Reload(Data.Count, _currentIndex);
+                        Pagination.Reload(Data.Count, _currentIndex);
                     }
 
                     RefreshVisibleCells(true);
@@ -374,7 +311,7 @@ namespace SocialPoint.GUIControl
 
         public void RemoveData(int index)
         {
-            if(!_centerOnCell)
+            if(!CenterOnCell)
             {
                 if(IndexIsValid(index))
                 {
@@ -382,9 +319,9 @@ namespace SocialPoint.GUIControl
 
                     SetDataValues(index);
 
-                    if(_pagination != null)
+                    if(Pagination != null)
                     {
-                        _pagination.Reload(Data.Count, _currentIndex);
+                        Pagination.Reload(Data.Count, _currentIndex);
                     }
 
                     HideCell(index, true, FinishRemovingData);
