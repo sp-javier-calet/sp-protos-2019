@@ -10,11 +10,11 @@ namespace SocialPoint.GUIControl
 {
     public delegate void UIStackControllerDelegate();
 
-    public class StackNode 
-    { 
-        public UIViewController Controller; 
+    public class StackNode
+    {
+        public UIViewController Controller;
         public GameObject GameObject;
-        public bool HideControllersBelow; 
+        public bool HideControllersBelow;
         public bool IsDesiredToShow = true;
 
         public StackNode(UIViewController controller, GameObject gameObject, bool hideControllersBelow)
@@ -93,6 +93,7 @@ namespace SocialPoint.GUIControl
         }
 
         readonly List<StackNode> _stack = new List<StackNode>();
+
         public IList<StackNode> Stack
         {
             get
@@ -115,7 +116,7 @@ namespace SocialPoint.GUIControl
         static StackNode NewStackNode(UIViewController ctrl, bool hideControllersBelow)
         {
             return ctrl != null ? new StackNode(ctrl, ctrl.gameObject, hideControllersBelow) : null;
-            }
+        }
 
         #endregion
 
@@ -192,7 +193,7 @@ namespace SocialPoint.GUIControl
         }
 
         static bool IsPushAction(ActionType act)
-                {
+        {
             return act == ActionType.Push || act == ActionType.PushImmediate;
         }
 
@@ -236,7 +237,7 @@ namespace SocialPoint.GUIControl
                             // Hide all Views behind Top
                             elm.IsDesiredToShow = false;
                         }
-                        else 
+                        else
                         {
                             // Show/Hide all Views behind Top until a screen is found
                             if(!firstFullScreenFound)
@@ -320,27 +321,27 @@ namespace SocialPoint.GUIControl
                 from.Controller.SetParent(BackContainer.transform);
             }
 
-                if(IsValidStackNode(from))
-                {
+            if(IsValidStackNode(from))
+            {
                 SetupAnimation(ref from.Controller.DisappearAnimation, from.Controller, DisappearAnimation);
-                }
-
-                if(IsValidStackNode(to))
-                {
-                SetupAnimation(ref to.Controller.AppearAnimation, to.Controller, AppearAnimation);
-                }
             }
 
-        void SetupAnimation(ref UIViewAnimation uiViewAnimation, UIViewController ctrl, UIViewAnimation desiredAnim)
+            if(IsValidStackNode(to))
             {
+                SetupAnimation(ref to.Controller.AppearAnimation, to.Controller, AppearAnimation);
+            }
+        }
+
+        void SetupAnimation(ref UIViewAnimation uiViewAnimation, UIViewController ctrl, UIViewAnimation desiredAnim)
+        {
             var anim = GetAnimation(uiViewAnimation ?? (ctrl.IsFullScreen ? null : desiredAnim));
             if(anim != null)
-                {
+            {
                 anim.Load(ctrl);
-                }
+            }
 
             uiViewAnimation = anim;
-                }
+        }
 
         static UIViewAnimation GetAnimation(UIViewAnimation anim)
         {
@@ -725,7 +726,7 @@ namespace SocialPoint.GUIControl
                 return null;
             }
 
-            var stackNode =  NewStackNode(ctrl, hideControllersBelow);
+            var stackNode = NewStackNode(ctrl, hideControllersBelow);
 
             var top = Top;
             DebugLog(string.Format("ReplaceImmediate {0} with {1}", IsValidStackNode(top) ? top.GameObject.name : string.Empty, IsValidStackNode(stackNode) ? stackNode.GameObject.name : string.Empty));
@@ -897,7 +898,7 @@ namespace SocialPoint.GUIControl
             if(SceneParent != null)
             {
                 SceneParent.OnNoMorePopupsInView();
-        }
+            }
         }
 
         public void PopUntil<C>() where C : UIViewController
@@ -944,8 +945,7 @@ namespace SocialPoint.GUIControl
         {
             if(Count > i)
             {           
-                return DoPopUntilCondition(ctrl => 
-                { 
+                return DoPopUntilCondition(ctrl => { 
                     if(i >= 0)
                     {
                         var elm = _stack.ElementAt(i);
