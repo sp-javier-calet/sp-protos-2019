@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using SocialPoint.Base;
 using UnityEditor;
+using UnityEditor.Callbacks;
 using UnityEngine;
 
 namespace SocialPoint.Dependency
@@ -13,6 +14,52 @@ namespace SocialPoint.Dependency
         public static readonly string ContainerPath = ConfigPaths.SpartaConfigResourcesPath + "Installers";
         public const string FileExtension = ".asset";
         public const string AssetPattern = "*.asset";
+
+        static string[] AssembliesToInspect = {
+            "Assembly-CSharp",
+            "Assembly-CSharp-firstpass"
+        };
+
+        [DidReloadScripts]
+        static void OnScriptsReloaded()
+        {
+            Reload();
+        }
+
+        static public void Reload()
+        {
+            var installerType = typeof(Installer);
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            foreach(var assembly in assemblies)
+            {
+                bool valid = false;
+                var assemblyName = assembly.GetName().Name;
+                foreach(var validName in AssembliesToInspect)
+                {
+                    if(assemblyName == validName)
+                    {
+                        valid = true;
+                        break;
+                    }
+                }
+
+                if(!valid)
+                {
+                    continue;
+                }
+
+                foreach(var t in assembly.GetTypes())
+                {
+                    if(t.IsSubclassOf(installerType) && !t.IsAbstract)
+                    {
+                        CreateDefault(t);
+                    }
+                }
+            }
+
+            GlobalDependencyConfigurer.Load().Installers = Installers;
+        }
 
         public static bool CreateDefault(Type t)
         {

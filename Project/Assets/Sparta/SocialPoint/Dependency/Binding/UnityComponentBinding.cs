@@ -22,9 +22,12 @@ namespace SocialPoint.Dependency
 
         public bool Resolved { get; private set; }
 
-        public UnityComponentBinding(DependencyContainer container)
+        public int Priority { get; private set; }
+
+        public UnityComponentBinding(DependencyContainer container, int priority)
         {
             _container = container;
+            Priority = priority;
         }
 
         public UnityComponentBinding<F> WithSetup<T>(Action<F> setup)
@@ -68,14 +71,14 @@ namespace SocialPoint.Dependency
     {
         public static UnityComponentBinding<T> BindUnityComponent<T>(this DependencyContainer container, string tag = null) where T : Component
         {
-            var bind = new UnityComponentBinding<T>(container);
+            var bind = new UnityComponentBinding<T>(container, DependencyContainer.NormalBindingPriority);
             container.AddBinding(bind, typeof(T), tag);
             return bind;
         }
 
         public static UnityComponentBinding<T> RebindUnityComponent<T>(this DependencyContainer container, string tag = null) where T : Component
         {
-            var bind = new UnityComponentBinding<T>(container);
+            var bind = new UnityComponentBinding<T>(container, DependencyContainer.NormalBindingPriority);
             if(!container.HasBinding<T>(tag))
             {
                 container.AddBinding(bind, typeof(T), tag);

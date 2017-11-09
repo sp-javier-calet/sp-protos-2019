@@ -419,7 +419,7 @@ GameObject:
   - component: {fileID: 225822737164137184}
   - component: {fileID: 114567547393255484}
   - component: {fileID: 114351683952349514}
-  - component: {fileID: 114103133424147776}
+  - component: {fileID: 114104437322304780}
   m_Layer: 9
   m_Name: GUI_ExampleScrollViewScreen
   m_TagString: Untagged
@@ -706,6 +706,7 @@ GameObject:
   - component: {fileID: 224133386533321818}
   - component: {fileID: 114161346898271426}
   - component: {fileID: 114100082224091366}
+  - component: {fileID: 114831435346771688}
   m_Layer: 0
   m_Name: Scroll View
   m_TagString: Untagged
@@ -936,40 +937,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d6eb6754a23d446fa39ff8faeb3e587, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IsFullScreen: 1
-  AppearAnimation: {fileID: 0}
-  DisappearAnimation: {fileID: 0}
-  ParentController: {fileID: 0}
-  DestroyOnHide: 0
-  _containers3d: []
-  _scrollRect: {fileID: 114161346898271426}
-  _verticalLayoutGroup: {fileID: 0}
-  _horizontalLayoutGroup: {fileID: 114250936560797392}
-  _gridLayoutGroup: {fileID: 0}
-  _loadingGroup: {fileID: 1796695605246944}
-  _usePooling: 1
-  _boundsDelta: 400
-  _initialIndex: 0
-  _showLastCellPosition: 1
-  _scrollAnimationEaseType: 0
-  _scrollAnimationCurve:
-    serializedVersion: 2
-    m_Curve: []
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  _scrollAnimationDuration: 0.5
-  _disableDragWhileScrollingAnimation: 0
-  _centerOnCell: 0
-  _deltaDragCell: 50
-  _maginifyMinScale: {x: 0, y: 0}
-  _maginifyMaxScale: {x: 0, y: 0}
-  _pagination: {fileID: 114537418449598418}
-  _mainCanvas: {fileID: 223778103955784520}
-  _prefabs:
-  - {fileID: 154906, guid: c48ec18c1b0bd4a479ae79e51e584b82, type: 2}
-  - {fileID: 154906, guid: 2b0cf283ec05e431fa706a21e52ca3f7, type: 2}
-  - {fileID: 154906, guid: 322b0823e89274f83b629dedc5ded59c, type: 2}
+  _numberOfCells: 50
 --- !u!114 &114100087328276472
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1006,7 +974,7 @@ MonoBehaviour:
   Key: 
   Parameters: []
   Effect: 0
---- !u!114 &114103133424147776
+--- !u!114 &114104437322304780
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -1014,16 +982,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 1541517902674600}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ff4b94bd33624f6795d9afcf96e054a, type: 3}
+  m_Script: {fileID: 11500000, guid: ad837cf4d2212494bb091ec4ac00a222, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   IsFullScreen: 1
-  AppearAnimation: {fileID: 0}
-  DisappearAnimation: {fileID: 0}
+  AppearAnimationFactory: {fileID: 0}
+  DisappearAnimationFactory: {fileID: 0}
   ParentController: {fileID: 0}
   DestroyOnHide: 0
   _containers3d: []
-  ScrollView: {fileID: 114100082224091366}
+  ScrollRectExtensionDataSource: {fileID: 114100082224091366}
+  ScrollRectExtension: {fileID: 114831435346771688}
 --- !u!114 &114161346898271426
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1649,8 +1618,6 @@ MonoBehaviour:
   _paginationButtonPrefab: {fileID: 1140013230295110}
   _imageSelected: {fileID: 21300000, guid: 518771c418327f4459332c5fa1020716, type: 3}
   _imageUnSelected: {fileID: 21300000, guid: f910b3a870bab5c4cbbb597a947ca5cb, type: 3}
-  _useNavigationButtons: 0
-  _usePaginationButtons: 0
 --- !u!114 &114567547393255484
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1782,7 +1749,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63071bfc50c574ce6bdb16ee760638a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _animation: {fileID: 11400000, guid: bcbc8bdd5f89147a3bad87187ed3d666, type: 2}
 --- !u!114 &114658683457340164
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1823,7 +1789,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _inputScrollText: {fileID: 114446784006418490}
   _inputRemoveText: {fileID: 114795271944797486}
-  _scrollViewExtension: {fileID: 114100082224091366}
+  _scrollViewExtension: {fileID: 114831435346771688}
 --- !u!114 &114675661774669434
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2137,6 +2103,51 @@ MonoBehaviour:
   m_CaretBlinkRate: 0.85
   m_CaretWidth: 1
   m_ReadOnly: 0
+--- !u!114 &114831435346771688
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1963734202421096}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 615c05276f46a41d593b6d20dec80a21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsFullScreen: 1
+  AppearAnimationFactory: {fileID: 0}
+  DisappearAnimationFactory: {fileID: 0}
+  ParentController: {fileID: 0}
+  DestroyOnHide: 0
+  _containers3d: []
+  _scrollRect: {fileID: 114161346898271426}
+  _verticalLayoutGroup: {fileID: 0}
+  _horizontalLayoutGroup: {fileID: 114250936560797392}
+  _gridLayoutGroup: {fileID: 0}
+  _loadingGroup: {fileID: 1796695605246944}
+  BasePrefabs:
+  - {fileID: 154906, guid: c48ec18c1b0bd4a479ae79e51e584b82, type: 2}
+  - {fileID: 154906, guid: 2b0cf283ec05e431fa706a21e52ca3f7, type: 2}
+  - {fileID: 154906, guid: 322b0823e89274f83b629dedc5ded59c, type: 2}
+  _usePooling: 1
+  _boundsDelta: 0
+  _initialIndex: 0
+  _showLastCellPosition: 1
+  _scrollAnimationTime: 0.5
+  _scrollAnimationEaseType: 0
+  _scrollAnimationCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _disableDragWhileScrollingAnimation: 0
+  _centerOnCell: 0
+  _deltaDragCell: 50
+  _pagination: {fileID: 0}
+  _useNavigationButtons: 0
+  _usePaginationButtons: 0
+  _mainCanvas: {fileID: 223778103955784520}
 --- !u!114 &114845665669166438
 MonoBehaviour:
   m_ObjectHideFlags: 1

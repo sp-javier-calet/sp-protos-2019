@@ -11,7 +11,7 @@ public class ScrollViewTestingHelper : MonoBehaviour
     InputField _inputRemoveText;
 
     [SerializeField]
-    ScrollViewExample _scrollViewExtension;
+    ScrollViewExampleRectExtension _scrollViewExtension;
 
     public void OnScrollToTop()
     {
@@ -49,7 +49,8 @@ public class ScrollViewTestingHelper : MonoBehaviour
     {
         if(_scrollViewExtension != null)
         {
-            _scrollViewExtension.AddData(false);
+            var data = _scrollViewExtension.DataSource.CreateCellData();
+            _scrollViewExtension.AddData(data, false);
         }
     }
 
@@ -57,7 +58,8 @@ public class ScrollViewTestingHelper : MonoBehaviour
     {
         if(_scrollViewExtension != null)
         {
-            _scrollViewExtension.AddData(true);
+            var data = _scrollViewExtension.DataSource.CreateCellData();
+            _scrollViewExtension.AddData(data, true);
         }
     }
 

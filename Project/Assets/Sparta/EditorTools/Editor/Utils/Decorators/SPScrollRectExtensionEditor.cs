@@ -11,20 +11,25 @@ namespace SpartaTools.Editor.Utils.Decorators
         {
             var script = (UIScrollRectExtensionInspector)target;
 
-            SerializedProperty scrollRectValue = serializedObject.FindProperty("_scrollRect");
-            SerializedProperty verticalLayoutGroupValue = serializedObject.FindProperty("_verticalLayoutGroup");
-            SerializedProperty horizontalLayoutGroupValue = serializedObject.FindProperty("_horizontalLayoutGroup");
-            SerializedProperty gridLayoutGroupValue = serializedObject.FindProperty("_gridLayoutGroup");
-            SerializedProperty boundsDeltaValue = serializedObject.FindProperty("_boundsDelta");
-            SerializedProperty initialIndexValue = serializedObject.FindProperty("_initialIndex");
-            SerializedProperty deltaDragCellValue = serializedObject.FindProperty("_deltaDragCell");
-            SerializedProperty paginationValue = serializedObject.FindProperty("_pagination");
-            SerializedProperty loadingGroupValue = serializedObject.FindProperty("_loadingGroup");
-            SerializedProperty mainCanvasValue = serializedObject.FindProperty("_mainCanvas");
-            SerializedProperty scrollAnimationTimeValue = serializedObject.FindProperty("_scrollAnimationTime");
-            SerializedProperty scrollAnimationEaseTypeValue = serializedObject.FindProperty("_scrollAnimationEaseType");
-            SerializedProperty scrollAnimationCurveValue = serializedObject.FindProperty("_scrollAnimationCurve");
-            SerializedProperty prefabsValue = serializedObject.FindProperty("_prefabs");
+            SerializedProperty scrollRectValue = serializedObject.FindProperty("ScrollRect");
+            SerializedProperty verticalLayoutGroupValue = serializedObject.FindProperty("VerticalLayoutGroup");
+            SerializedProperty horizontalLayoutGroupValue = serializedObject.FindProperty("HorizontalLayoutGroup");
+            SerializedProperty gridLayoutGroupValue = serializedObject.FindProperty("GridLayoutGroup");
+            SerializedProperty boundsDeltaValue = serializedObject.FindProperty("BoundsDelta");
+            SerializedProperty initialIndexValue = serializedObject.FindProperty("InitialIndex");
+            SerializedProperty deltaDragCellValue = serializedObject.FindProperty("DeltaDragCell");
+            SerializedProperty paginationValue = serializedObject.FindProperty("Pagination");
+            SerializedProperty loadingGroupValue = serializedObject.FindProperty("LoadingGroup");
+            SerializedProperty mainCanvasValue = serializedObject.FindProperty("MainCanvas");
+            SerializedProperty scrollAnimationTimeValue = serializedObject.FindProperty("ScrollAnimationTime");
+            SerializedProperty scrollAnimationEaseTypeValue = serializedObject.FindProperty("ScrollAnimationEaseType");
+            SerializedProperty scrollAnimationCurveValue = serializedObject.FindProperty("ScrollAnimationCurve");
+            SerializedProperty disableDragWhileScrollingAnimationValue = serializedObject.FindProperty("DisableDragWhileScrollingAnimation");
+            SerializedProperty prefabsValue = serializedObject.FindProperty("BasePrefabs");
+            SerializedProperty useNavigationButttonsValue = serializedObject.FindProperty("UseNavigationButtons");
+            SerializedProperty usePaginationButttonsValue = serializedObject.FindProperty("UsePaginationButtons");
+            SerializedProperty usePoolingValue = serializedObject.FindProperty("UsePooling");
+            SerializedProperty centerOnCellValue = serializedObject.FindProperty("CenterOnCell");
 
             EditorGUILayout.LabelField("UI Base Components", EditorStyles.boldLabel);
 
@@ -53,30 +58,31 @@ namespace SpartaTools.Editor.Utils.Decorators
             EditorGUILayout.LabelField("Help: Number of pixels that we will add to bounds to check if we need to show/hide new cells. Default value is 50px", EditorStyles.helpBox);
             EditorGUILayout.Space();
 
-            script._usePooling = EditorGUILayout.Toggle("Use pooling", script._usePooling);
+            EditorGUILayout.PropertyField(usePoolingValue, true);
             EditorGUILayout.LabelField("Help: Use pooling to show/hide cells instead of creating/destroying cells every time", EditorStyles.helpBox);
             EditorGUILayout.Space();
 
-            script._centerOnCell = EditorGUILayout.Toggle("Use snap", script._centerOnCell);
-            EditorGUILayout.LabelField("Help: Force center cells on the center", EditorStyles.helpBox);
+            EditorGUILayout.PropertyField(centerOnCellValue, true);
+            EditorGUILayout.LabelField("Help: Force snapping cells on the center of scroll", EditorStyles.helpBox);
             EditorGUILayout.Space();
 
-            if(script._centerOnCell)
+            if(centerOnCellValue.boolValue)
             {
                 EditorGUILayout.PropertyField(deltaDragCellValue, true);
                 EditorGUILayout.LabelField("Help: Number of pixels that we will allow when dragging cells to move to previous/next. Default value is 50px", EditorStyles.helpBox);
                 EditorGUILayout.Space();
 
-                EditorGUILayout.LabelField("Pagination", EditorStyles.boldLabel);
                 EditorGUILayout.PropertyField(paginationValue, true);
                 EditorGUILayout.LabelField("Help: Pagination component reference if we want to enable pagination to Scroll View. Only works if 'Use snap' is checked", EditorStyles.helpBox);
                 EditorGUILayout.Space();
-                script._useNavigationButtons = EditorGUILayout.Toggle("Use navigation buttons", script._useNavigationButtons);
-                script._usePaginationButtons = EditorGUILayout.Toggle("Use pagination buttons", script._usePaginationButtons);
+
+                EditorGUILayout.PropertyField(useNavigationButttonsValue, true);
+                EditorGUILayout.PropertyField(usePaginationButttonsValue, true);
+                EditorGUILayout.Space();
             }
             else
             {
-                script._showLastCellPosition = (UIScrollRectExtensionInspector.ShowLastCellPosition)EditorGUILayout.EnumPopup("Last row behaviour", script._showLastCellPosition);
+                script.LastCellPosition = (UIScrollRectExtensionInspector.ShowLastCellPosition)EditorGUILayout.EnumPopup("Last row behaviour", script.LastCellPosition);
                 EditorGUILayout.LabelField("Help: If we want to show the last cell in the beginning scrolling position or at last scrolling position", EditorStyles.helpBox);
                 EditorGUILayout.Space();
             }
@@ -85,10 +91,13 @@ namespace SpartaTools.Editor.Utils.Decorators
             EditorGUILayout.PropertyField(scrollAnimationTimeValue, true);
             EditorGUILayout.PropertyField(scrollAnimationEaseTypeValue, true);
             EditorGUILayout.PropertyField(scrollAnimationCurveValue, true);
+            EditorGUILayout.PropertyField(disableDragWhileScrollingAnimationValue, true);
             EditorGUILayout.Space();
 
             EditorGUILayout.LabelField("Debug Mode", EditorStyles.boldLabel);
             EditorGUILayout.PropertyField(mainCanvasValue, true);
+
+            serializedObject.ApplyModifiedProperties();
         }
     }
 }
