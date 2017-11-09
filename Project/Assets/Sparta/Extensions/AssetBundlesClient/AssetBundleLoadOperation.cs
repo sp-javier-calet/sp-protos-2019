@@ -78,13 +78,11 @@ namespace SocialPoint.AssetBundlesClient
         {
             _fullPath = fullPath;
 
-            #if !UNITY_ANDROID
             if(!FileUtils.ExistsFile(_fullPath))
             {
                 Error = string.Format("{0} file does not exists locally. FullPath: {1}", AssetBundleName, _fullPath);
                 return;
             }
-            #endif
 
             _request = AssetBundle.LoadFromFileAsync(_fullPath);
         }
@@ -111,56 +109,6 @@ namespace SocialPoint.AssetBundlesClient
         public override string GetSourceURL()
         {
             return _fullPath;
-        }
-    }
-
-    public class AssetBundleDownloadFromWebOperation : AssetBundleDownloadOperation
-    {
-        readonly string _Url;
-        WWW _WWW;
-
-        public AssetBundleDownloadFromWebOperation(string assetBundleName, int assetBundleVersion, string url)
-            : base(assetBundleName)
-        {
-            _Url = url;
-            _WWW = WWW.LoadFromCacheOrDownload(url, assetBundleVersion);
-        }
-
-        protected override bool downloadIsDone { get { return (_WWW == null) || _WWW.isDone; } }
-
-        protected override void FinishDownload()
-        {
-            if(_WWW == null)
-            {
-                _WWW.Dispose();
-                return;
-            }
-
-            Error = _WWW.error;
-            if(!string.IsNullOrEmpty(Error))
-            {
-                _WWW.Dispose();
-                _WWW = null;
-                return;
-            }
-
-            AssetBundle bundle = _WWW.assetBundle;
-            if(bundle == null)
-            {
-                Error = string.Format("{0} is not a valid asset bundle.", AssetBundleName);
-            }
-            else
-            {
-                AssetBundleLoaded = new LoadedAssetBundle(bundle);
-            }
-
-            _WWW.Dispose();
-            _WWW = null;
-        }
-
-        public override string GetSourceURL()
-        {
-            return _Url;
         }
     }
         
