@@ -36,8 +36,6 @@ namespace SocialPoint.GUIControl
 
         public Action CloseAppShow { get; set; }
 
-        public UIViewController SceneParent;
-
         /// <summary>
         ///     To be used in Unity Tests to avoid problems with Coroutines and yields.
         /// </summary>
@@ -100,6 +98,8 @@ namespace SocialPoint.GUIControl
                 return _stack;
             }
         }
+
+        public event Action<UIViewController, ActionType, int> ActionEvent;
 
         IDictionary<string,int> _checkpoints = new Dictionary<string,int>();
         IEnumerator _actionCoroutine;
@@ -347,6 +347,15 @@ namespace SocialPoint.GUIControl
             return anim != null ? (UIViewAnimation)anim.Clone() : null;
         }
 
+        void NotifyActionEvent(StackNode stackNode, ActionType action)
+        {
+            if(ActionEvent != null)
+            {
+                DebugLog(string.Format("UIStackController::NotifyActionEvent {0} over view {1}. Current stack Count = {2}", action, IsValidStackNode(stackNode) ? stackNode.Controller : null, _stack.Count));
+                ActionEvent(stackNode.Controller, action, _stack.Count);
+            }
+        }
+
         IEnumerator DoTransition(StackNode from, StackNode to, ActionType act)
         {            
             if(IsValidStackNode(from) && IsValidStackNode(to) && from.Controller == to.Controller)
@@ -373,7 +382,7 @@ namespace SocialPoint.GUIControl
             {
                 to.GameObject.SetActive(true);
             }
-
+                
             if(SimultaneousAnimations)
             {   
                 if(IsValidStackNode(from) && IsValidStackNode(to) && from.Controller.State == ViewState.Shown)
@@ -530,6 +539,7 @@ namespace SocialPoint.GUIControl
                         if(index >= 0)
                         {
                             _stack.RemoveAt(index);
+                            NotifyActionEvent(top, _action);
                         }
 
                         UpdateStackVisibility(_action);
@@ -565,10 +575,6 @@ namespace SocialPoint.GUIControl
         public UIViewController Push(UIViewController ctrl, bool hideControllersBelow = true)
         {
             var act = ActionType.Push;
-            if(SceneParent != null)
-            {
-                SceneParent.OnPopupStackedInView();
-            }
             StartActionCoroutine(DoPushCoroutine(ctrl, act, hideControllersBelow), act);
             return ctrl;
         }
@@ -586,6 +592,8 @@ namespace SocialPoint.GUIControl
             var top = Top;
             AddChild(stackNode.GameObject);
             _stack.Add(stackNode);
+
+            NotifyActionEvent(stackNode, act);
 
             var enm = DoTransition(top, stackNode, act);
             while(enm.MoveNext())
@@ -621,11 +629,9 @@ namespace SocialPoint.GUIControl
 
             var top = Top;
             AddChild(stackNode.GameObject);
-            if(SceneParent != null)
-            {
-                SceneParent.OnPopupStackedInView();
-            }
             _stack.Add(stackNode);
+
+            NotifyActionEvent(stackNode, ActionType.Push);
 
             var act = ActionType.PushImmediate;
             SetupTransition(top, stackNode);
@@ -803,10 +809,6 @@ namespace SocialPoint.GUIControl
             if(Count > 1)
             {
                 stackNode = _stack[Count - 2];
-                if(SceneParent != null)
-                {
-                    SceneParent.OnNoMorePopupsInView();
-                }
             }
 
             var act = ActionType.Pop;
@@ -836,10 +838,7 @@ namespace SocialPoint.GUIControl
             if(IsValidStackNode(top))
             {
                 top.Controller.HideImmediate(true);
-                if(SceneParent != null)
-                {
-                    SceneParent.OnNoMorePopupsInView();
-                }
+                NotifyActionEvent(top, ActionType.Pop);
             }
 
             var stackNode = Top;
@@ -884,7 +883,7 @@ namespace SocialPoint.GUIControl
                     }
                 }
             }
-
+                
             DebugLog(string.Format("{0} {1}", act, IsValidStackNode(stackNode) ? stackNode.GameObject.name : string.Empty));
             if(top != stackNode)
             {   
@@ -894,10 +893,6 @@ namespace SocialPoint.GUIControl
                     yield return enm.Current;
                 }
             }
-            if(SceneParent != null)
-            {
-                SceneParent.OnNoMorePopupsInView();
-        }
         }
 
         public void PopUntil<C>() where C : UIViewController
