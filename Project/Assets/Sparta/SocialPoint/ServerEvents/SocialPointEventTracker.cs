@@ -416,8 +416,6 @@ namespace SocialPoint.ServerEvents
             mobile.SetValue("adid_enabled", DeviceInfo.AdvertisingIdEnabled);
             mobile.SetValue("rooted", DeviceInfo.Rooted);
             mobile.SetValue("os", DeviceInfo.PlatformVersion);
-            mobile.SetValue("device_aid_opt_out", "");
-            mobile.SetValue("version", DeviceInfo.AppInfo.Version);
             #if ADMIN_PANEL
             mobile.SetValue("admin_panel", true);
             #endif

@@ -50,7 +50,7 @@ namespace SocialPoint.Multiplayer
 
         public bool Invalid { get; protected set; }
 
-        public bool Untargeteable { get; set; }
+        public bool BehavioursAdded { get; set; }
 
         public byte Type{ get; protected set; }
 
@@ -98,6 +98,7 @@ namespace SocialPoint.Multiplayer
 
         public NetworkGameObject()
         {
+            BehavioursAdded = false;
             TypedBehaviours = new NetworkBehaviourContainer<INetworkBehaviour>();
             Behaviours = TypedBehaviours;
             _behaviourObserver = new NetworkBehaviourContainerObserver<INetworkBehaviour>().Init(TypedBehaviours);
@@ -113,7 +114,7 @@ namespace SocialPoint.Multiplayer
 
         public NetworkGameObject Init(NetworkSceneContext context, int id, bool isServerGameObject = false, Transform transform = null, byte type = 0, bool local = false, int syncGroup = 0)
         {
-            Untargeteable = true;
+            BehavioursAdded = false;
             
             Context = context;
 
@@ -384,7 +385,7 @@ namespace SocialPoint.Multiplayer
                 var behaviour = _behaviourObserver.Added[i];
                 behaviour.GameObject = this;
                 behaviour.OnAwake();
-                Untargeteable = false;
+                BehavioursAdded = true;
             }
             for(var i = 0; i < _behaviourObserver.Added.Count; i++)
             {
