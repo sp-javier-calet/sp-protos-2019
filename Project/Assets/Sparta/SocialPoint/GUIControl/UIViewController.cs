@@ -299,7 +299,7 @@ namespace SocialPoint.GUIControl
             }
             return size;
         }
-            
+
         public bool IsStable
         {
             get
@@ -380,9 +380,15 @@ namespace SocialPoint.GUIControl
         }
 
         [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
-        void DebugLog(string msg)
+        protected void ShowDebugLogMessage(string msg)
         {
-            Log.i(string.Format("UIViewController {0} {1} | {2}", gameObject.name, _viewState, msg));
+            Log.i(msg);
+        }
+
+        [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
+        protected virtual void DebugLog(string msg)
+        {
+            ShowDebugLogMessage(string.Format("UIViewController {0} {1} | {2}", gameObject.name, _viewState, msg));
         }
 
         public void SetParent(Transform parent)
@@ -399,7 +405,7 @@ namespace SocialPoint.GUIControl
 
             OnAwake();
         }
-
+            
         [Obsolete("Use Reset instead")]
         public void ResetState()
         {
@@ -411,7 +417,7 @@ namespace SocialPoint.GUIControl
             OnStart();
         }
 
-        void OnDestroy()
+        protected virtual void OnDestroy()
         {
             if(_loaded)
             {

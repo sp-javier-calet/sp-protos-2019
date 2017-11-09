@@ -5,16 +5,16 @@ GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Component:
-  - 224: {fileID: 22489624}
-  - 223: {fileID: 22397768}
-  - 114: {fileID: 11474312}
-  - 222: {fileID: 22252164}
-  - 114: {fileID: 11475686}
-  - 114: {fileID: 11402046}
-  - 114: {fileID: 11431642}
-  - 114: {fileID: 11469730}
+  - component: {fileID: 22489624}
+  - component: {fileID: 22397768}
+  - component: {fileID: 11474312}
+  - component: {fileID: 22252164}
+  - component: {fileID: 11475686}
+  - component: {fileID: 11402046}
+  - component: {fileID: 11431642}
+  - component: {fileID: 11469730}
   m_Layer: 5
   m_Name: DefaultEventSystem
   m_TagString: Untagged
@@ -150,10 +150,10 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
