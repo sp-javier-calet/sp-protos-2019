@@ -3,7 +3,7 @@ using System.Collections;
 using SocialPoint.GUIControl;
 
 [CreateAssetMenu(menuName = "UI Animations/Slide Animation")]
-public class SlideAnimation : UIViewAnimation 
+public class SlideAnimation : UIViewAnimation
 {
     public enum PosType
     {
@@ -13,9 +13,6 @@ public class SlideAnimation : UIViewAnimation
         Down,
         Center
     }
-
-    [SerializeField]
-    RectTransform _transform;
 
     [SerializeField]
     float _time = 1.0f;
@@ -32,28 +29,24 @@ public class SlideAnimation : UIViewAnimation
     [SerializeField]
     AnimationCurve _easeCurve = default(AnimationCurve);
  
-    UIViewController _ctrl;
-
-    public override void Load(UIViewController ctrl)
+    public override void Load(GameObject gameObject = null)
     {
-        if(ctrl == null)
+        base.Load(gameObject);
+
+        // HINT: If we want to move a gameobject with Canvas component on it, we force to move his first child instead
+        var canvas = _gameObject.GetComponent<Canvas>();
+        if(canvas != null)
         {
-            throw new MissingComponentException("UIViewController does not exist");
+            if(_transform.childCount > 0)
+            {
+                _transform = _transform.GetChild(0);
+                _gameObject = _transform.gameObject;
+            }
         }
 
-        _ctrl = ctrl;
-
-        if(_transform == null && _ctrl.transform.childCount > 0)
-        {
-            _transform = _ctrl.transform.GetChild(0) as RectTransform;
-        }
-            
-        if(_transform == null)
-        {
-            throw new MissingComponentException("Could not find First Child RectTransform component.");
-        }
+        _rectTransform = _transform as RectTransform;
     }
-    
+
     public SlideAnimation(float time, PosType moveFromPos = PosType.Center, PosType moveToPos = PosType.Center, GoEaseType easeType = GoEaseType.Linear, AnimationCurve easeCurve = default(AnimationCurve))
     {
         _time = time;
@@ -65,25 +58,27 @@ public class SlideAnimation : UIViewAnimation
 
     public override IEnumerator Animate()
     {
-        var initialPos = _transform.localPosition;
+        var initialPos = _rectTransform.localPosition;
         var finalPos = initialPos;
 
         GetPosition(ref initialPos, _moveFromPos);
         GetPosition(ref finalPos, _moveToPos);
 
-        _transform.localPosition = initialPos;
-        yield return _ctrl.StartCoroutine(CreateTween(finalPos).waitForCompletion());
+        _rectTransform.localPosition = initialPos;
+        CreateTween(finalPos);
+
+        yield return null;
     }
 
     GoTween CreateTween(Vector3 finalValue)
     {
         if(_easeType == GoEaseType.AnimationCurve && _easeCurve != null)
         {
-            return Go.to(_transform, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType).setEaseCurve(_easeCurve));
+            return Go.to(_gameObject, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType).setEaseCurve(_easeCurve));
         }
         else
         {
-            return Go.to(_transform, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType));
+            return Go.to(_gameObject, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType));
         }
     }
 
@@ -91,19 +86,19 @@ public class SlideAnimation : UIViewAnimation
     {
         if(position == PosType.Right)
         {
-            pos.x = (_transform.sizeDelta.x + _transform.rect.width);
+            pos.x = (_rectTransform.sizeDelta.x + _rectTransform.rect.width);
         }
         else if(position == PosType.Left)
         {
-            pos.x = -(_transform.sizeDelta.x + _transform.rect.width);
+            pos.x = -(_rectTransform.sizeDelta.x + _rectTransform.rect.width);
         }
         else if(position == PosType.Top)
         {
-            pos.y = (_transform.sizeDelta.y + _transform.rect.height);
+            pos.y = (_rectTransform.sizeDelta.y + _rectTransform.rect.height);
         }
         else if(position == PosType.Down)
         {
-            pos.y = -(_transform.sizeDelta.y + _transform.rect.height);
+            pos.y = -(_rectTransform.sizeDelta.y + _rectTransform.rect.height);
         }
     }
 

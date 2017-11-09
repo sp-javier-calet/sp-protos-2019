@@ -1,6 +1,6 @@
 ﻿using SocialPoint.GUIControl;
 
-public class ScreenController : UIViewController 
+public class ScreenController : UIViewController
 {
     public ScreenController()
     {

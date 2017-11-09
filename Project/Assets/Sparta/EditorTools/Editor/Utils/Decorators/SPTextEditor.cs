@@ -4,6 +4,7 @@ using SocialPoint.GUIControl;
 
 namespace SpartaTools.Editor.Utils.Decorators
 {
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(SPText))]
     public class SPTextEditor : UnityEditor.UI.TextEditor
     {
