@@ -119,7 +119,15 @@ namespace SocialPoint.Pooling
             // We force to upload a model to GPU in order to prevent performance
             // spikes when a model is first visible. We place it in front of the
             // camera to avoid culling.
-            prefab.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 2.0f;
+            if(Camera.main != null)
+            {
+                prefab.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 2.0f;
+            }
+            else
+            {
+                Log.w("Cannot draw prefab in front of camera because no Main camera is found");
+            }
+
             prefab.SetActive(true);
 
             yield return 0;

@@ -1,13 +1,11 @@
 using UnityEngine;
 using System.Collections;
 using SocialPoint.GUIControl;
+using UnityEngine.UI;
 
 [CreateAssetMenu(menuName = "UI Animations/Scale Animation")]
 public class ScaleAnimation : UIViewAnimation
 {
-    [SerializeField]
-    Transform _transform;
-
     [SerializeField]
     float _time = 1.0f;
 
@@ -23,28 +21,6 @@ public class ScaleAnimation : UIViewAnimation
     [SerializeField]
     AnimationCurve _easeCurve = default(AnimationCurve);
 
-    UIViewController _ctrl;
-
-    public override void Load(UIViewController ctrl)
-    {
-        if(ctrl == null)
-        {
-            throw new MissingComponentException("UIViewController does not exist");
-        }
-
-        _ctrl = ctrl;
-
-        if(_transform == null && _ctrl.transform.childCount > 0)
-        {
-            _transform = _ctrl.transform.GetChild(0);
-        }
-            
-        if(_transform == null)
-        {
-            throw new MissingComponentException("Could not find First Child Transform component.");
-        }
-    }
-
     public ScaleAnimation(float time, Vector3 initialScale, Vector3 finalScale, GoEaseType easeType = GoEaseType.Linear, AnimationCurve easeCurve = default(AnimationCurve))
     {
         _time = time;
@@ -54,13 +30,32 @@ public class ScaleAnimation : UIViewAnimation
         _easeCurve = easeCurve;
     }
         
+    public override void Load(GameObject gameObject = null)
+    {
+        base.Load(gameObject);
+
+        // HINT: If we want to scale a gameobject with Canvas Scaler component on it, we force to scale his first child instead
+        var canvasScaler = _gameObject.GetComponent<CanvasScaler>();
+        if(canvasScaler != null)
+        {
+            if(_transform.childCount > 0)
+            {
+                _transform = _transform.GetChild(0);
+                _gameObject = _transform.gameObject;
+            }
+        }
+
+        _rectTransform = _transform as RectTransform;
+    }
+
     public override IEnumerator Animate()
     {
         if(_transform != null)
         {
             _transform.localScale = _initialScale;
+            CreateTween(_finalScale);
 
-            yield return _ctrl.StartCoroutine(CreateTween(_finalScale).waitForCompletion());
+            yield return null;
         }
     }
         

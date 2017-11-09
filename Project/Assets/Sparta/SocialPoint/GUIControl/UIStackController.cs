@@ -188,7 +188,7 @@ namespace SocialPoint.GUIControl
             _action = ActionType.None;
             DebugLog("EndProcess");
         }
-            
+  
         static bool IsPushAction(ActionType act)
         {
             return act == ActionType.Push || act == ActionType.PushImmediate;
@@ -329,17 +329,18 @@ namespace SocialPoint.GUIControl
             }
         }
 
+
         void SetupAnimation(ref UIViewAnimation uiViewAnimation, UIViewController ctrl, UIViewAnimation desiredAnim)
         {
             var anim = GetAnimation(uiViewAnimation ?? (ctrl.IsFullScreen ? null : desiredAnim));
             if(anim != null)
             {
-                anim.Load(ctrl);
+                anim.Load(ctrl.gameObject);
             }
 
             uiViewAnimation = anim;
         }
-
+            
         static UIViewAnimation GetAnimation(UIViewAnimation anim)
         {
             return anim != null ? (UIViewAnimation)anim.Clone() : null;
@@ -453,11 +454,10 @@ namespace SocialPoint.GUIControl
             }
             DebugLog("EndTransition");
         }
-
-        [System.Diagnostics.Conditional(DebugFlags.DebugGUIControlFlag)]
-        void DebugLog(string msg)
+            
+        protected override void DebugLog(string msg)
         {
-            Log.i(string.Format("UIStackController | {0}", msg));
+            ShowDebugLogMessage(string.Format("UIStackController | {0}", msg));
         }
 
         public void SetCheckPoint(string name)

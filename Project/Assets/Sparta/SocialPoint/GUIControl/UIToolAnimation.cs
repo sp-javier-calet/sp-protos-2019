@@ -1,22 +1,23 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using SocialPoint.GUIAnimation;
+using UnityEngine;
 
 namespace SocialPoint.GUIControl
 {
     public sealed class UIToolAnimation : UIViewAnimation
     {
         string _name;
-        Animation _anim;
+        SocialPoint.GUIAnimation.Animation _anim;
 
         public UIToolAnimation(string name)
         {
             _name = name;
         }
 
-        public override void Load(UIViewController ctrl)
+        public override void Load(GameObject gameObject = null)
         {
-            _anim = GUIAnimationUtility.GetAnimation(ctrl.gameObject, _name);
+            base.Load(gameObject);
+            _anim = GUIAnimationUtility.GetAnimation(gameObject, _name);
         }
 
         public override IEnumerator Animate()

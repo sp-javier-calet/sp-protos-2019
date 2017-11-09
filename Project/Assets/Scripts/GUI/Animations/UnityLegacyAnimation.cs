@@ -18,23 +18,16 @@ public class UnityLegacyAnimation : UIViewAnimation
     [SerializeField]
     string _animName = string.Empty;
 
-    UIViewController _ctrl;
-
-    public override void Load(UIViewController ctrl)
+    public override void Load(GameObject gameObject = null)
     {
-        if(ctrl == null)
-        {
-            throw new MissingComponentException("UIViewController does not exist");
-        }
-
-        _ctrl = ctrl;
+        base.Load(gameObject);
 
         if(_animation == null)        
         {
-            _animation = _ctrl.GetComponent<Animation>();
+            _animation = gameObject.GetComponent<Animation>();
             if(_animation == null)
             {
-                throw new MissingComponentException("Could not find Animation component.");
+                throw new MissingComponentException("Missing Animation component in UIViewAnimation Load");
             }
         }
     }
