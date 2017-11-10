@@ -2,7 +2,7 @@
 using UnityEditor.UI;
 using SocialPoint.GUIControl;
 
-namespace UnityEngine.UI.Extensions
+namespace SpartaTools.Editor.Utils.Decorators
 {
     [CanEditMultipleObjects, CustomEditor(typeof(NonDrawingGraphic), false)]
     public class SPNonDrawingGraphicEditor : GraphicEditor
@@ -10,7 +10,7 @@ namespace UnityEngine.UI.Extensions
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
-            EditorGUILayout.PropertyField(m_Script, new GUILayoutOption[0]);
+            EditorGUILayout.PropertyField(m_Script);
 
             RaycastControlsGUI();
             serializedObject.ApplyModifiedProperties();
