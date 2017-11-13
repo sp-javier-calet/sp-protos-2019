@@ -1,9 +1,11 @@
 ﻿#if ADMIN_PANEL 
 
 using SocialPoint.AdminPanel;
-using SocialPoint.AppEvents;
 using SocialPoint.Base;
 using SocialPoint.Utils;
+using SocialPoint.Restart;
+using System.Collections;
+using SocialPoint.Dependency;
 
 namespace SocialPoint.Login
 {
@@ -11,13 +13,13 @@ namespace SocialPoint.Login
     {
         readonly ILogin _login;
         readonly IBackendEnvironment _environments;
-        readonly IAppEvents _appEvents;
+        readonly IRestarter _restarter;
         AdminPanelLayout _layout;
 
-        public AdminPanelEnvironment(ILogin login, IBackendEnvironment environment, IAppEvents appEvents)
+        public AdminPanelEnvironment(ILogin login, IBackendEnvironment environment, IRestarter restarter)
         {
             _login = login;
-            _appEvents = appEvents;
+            _restarter = restarter;
             _environments = environment;
         }
 
@@ -59,9 +61,9 @@ namespace SocialPoint.Login
             {
                 _layout.Refresh();
             }
-            if(_appEvents != null)
+            if(_restarter != null)
             {
-                _appEvents.RestartGame();
+                _restarter.RestartGame();
             }
         }
     }

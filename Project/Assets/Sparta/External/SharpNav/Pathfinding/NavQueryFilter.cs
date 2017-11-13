@@ -45,7 +45,7 @@ namespace SharpNav.Pathfinding
                                      NavPolyId curRef, NavTile curTile, NavPoly curPoly,
                                      NavPolyId nextRef, NavTile nextTile, NavPoly nextPoly)
         {
-            return (a - b).Length() * areaCost[(int)curPoly.Area.Id];
+            return (a - b).Length() * areaCost[(int)curPoly.Area.Id] + curPoly.Cost;
         }
 
         public float GetAreaCost(Area area)

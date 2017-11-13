@@ -1,7 +1,9 @@
 ﻿using System;
 using SocialPoint.Alert;
 using SocialPoint.Base;
+using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
+using SocialPoint.Helpshift;
 using SocialPoint.Locale;
 using SocialPoint.Utils;
 using UnityEngine.UI;
@@ -150,7 +152,7 @@ public sealed class InvalidSecurityTokenPopupController : UIViewController
 
     public void OnContactButtonPressed()
     {
-        EmailUtils.SendEmail(ContactEmail, Subject, DefaultBody);
+        Services.Instance.Resolve<IHelpshift>().ShowConversation();
     }
 
     public void OnRestartButtonPressed()

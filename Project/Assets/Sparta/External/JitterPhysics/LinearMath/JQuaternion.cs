@@ -37,6 +37,7 @@ namespace Jitter.LinearMath
     /// </summary>
     public struct JQuaternion
     {
+        private const float EqualsEpsilon = 5e-2f;
 
         /// <summary>The X component of the quaternion.</summary>
         public float X;
@@ -90,13 +91,14 @@ namespace Jitter.LinearMath
         /// <param name="obj">The object to test.</param>
         /// <returns>Returns true if they are euqal, otherwise false.</returns>
         #region public override bool Equals(object obj)
+
         public override bool Equals(object obj)
         {
             if(!(obj is JQuaternion))
                 return false;
-            JQuaternion other = (JQuaternion)obj;
+            var other = (JQuaternion)obj;
 
-            return (((X == other.X) && (Y == other.Y)) && (Z == other.Z) && (W == other.W));
+            return Math.Abs(X - other.X) < EqualsEpsilon && Math.Abs(Y - other.Y) < EqualsEpsilon && Math.Abs(Z - other.Z) < EqualsEpsilon && Math.Abs(W - other.W) < EqualsEpsilon;
         }
 
         #endregion

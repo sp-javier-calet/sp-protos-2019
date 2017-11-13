@@ -81,7 +81,9 @@ namespace SocialPoint.Login
 
         void SetBaseUrl(string url);
 
-        void AddLink(ILink link, LinkMode mode = LinkMode.Auto);
+        void AddLink(ILink link);
+
+        void LoginLinks(ErrorDelegate cbk = null);
 
         void LoginLink(ILink link, ErrorDelegate cbk = null);
 

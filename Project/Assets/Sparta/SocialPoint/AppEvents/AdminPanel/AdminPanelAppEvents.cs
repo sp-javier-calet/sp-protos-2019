@@ -4,20 +4,23 @@ using System;
 using System.Collections;
 using SocialPoint.AdminPanel;
 using UnityEngine.UI;
+using SocialPoint.Restart;
 
 namespace SocialPoint.AppEvents
 {
     public sealed class AdminPanelAppEvents : IAdminPanelGUI, IAdminPanelConfigurer, IDisposable
     {
         IAppEvents _appEvents;
+        IRestarter _restarter;
         Text _textComponent;
         string _eventsLog;
         AdminPanelConsole _console;
 
-        public AdminPanelAppEvents(IAppEvents appEvents)
+        public AdminPanelAppEvents(IAppEvents appEvents, IRestarter restarter)
         {
             _eventsLog = string.Empty;
             _appEvents = appEvents;
+            _restarter = restarter;
 
             _appEvents.OpenedFromSource += OnOpenedFromSource;
             _appEvents.WasCovered += OnWasCovered;
@@ -117,7 +120,7 @@ namespace SocialPoint.AppEvents
                 RefreshContent();
             });
 
-            layout.CreateConfirmButton("Restart Game", () => _appEvents.RestartGame());
+            layout.CreateConfirmButton("Restart Game", () => _restarter.RestartGame());
 
             layout.CreateConfirmButton("Quit Game", () => {
                 var moved = _appEvents.QuitGame();

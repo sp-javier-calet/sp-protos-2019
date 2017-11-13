@@ -55,8 +55,6 @@ namespace SocialPoint.Base
                     }
                 }
                 #endif
-
-
             }
             get
             {

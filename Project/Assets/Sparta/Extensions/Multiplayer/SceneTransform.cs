@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SocialPoint.IO;
 using SocialPoint.Utils;
@@ -6,7 +6,7 @@ using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
-    public class SceneTransform : INetworkShareable, IEquatable<SceneTransform>, ICopyable, ICloneable, ITagged
+    public class SceneTransform : INetworkShareable, IEquatable<SceneTransform>, ICopyable, IPoolCloneable, ITagged
     {
         public TagSet Tags{ get; set; }
 
@@ -69,18 +69,18 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public object Clone()
+        public object Clone(ObjectPool pool = null)
         {
             var st = new SceneTransform {
                 Id = Id,
                 Tags = (TagSet)Tags.Clone(),
-                Transform = (Transform)Transform.Clone(),
+                Transform = (Transform)Transform.Clone(pool),
                 Children = new List<Transform>()
             };
             st.Children.Capacity = Children.Capacity;
             for(var i = 0; i < Children.Count; i++)
             {
-                st.Children.Add((Transform)Children[i].Clone());
+                st.Children.Add((Transform)Children[i].Clone(pool));
             }
             return st;
         }

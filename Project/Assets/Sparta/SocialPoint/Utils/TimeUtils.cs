@@ -1,11 +1,26 @@
 ﻿using System;
 using System.Collections;
 using System.Text;
+using System.Collections.Generic;
 
 namespace SocialPoint.Utils
 {
     public static class TimeUtils
     {
+        public enum TimeType
+        {
+            DAY,
+            HOUR,
+            MIN,
+            SEC
+        }
+
+        public static string DayLocalized = string.Empty;
+        public static string DaysLocalized = string.Empty;
+        public static string HourLocalized = string.Empty;
+        public static string MinLocalized = string.Empty;
+        public static string SecLocalized = string.Empty;
+
         static readonly DateTime Epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
         public delegate void OffsetChangeDelegate(TimeSpan change);
@@ -150,6 +165,90 @@ namespace SocialPoint.Utils
 
             return ts.FormatTime("{3}s");
         }
+
+        #region Localize Time System
+
+        //This system allows to configure the output time so it can return "1 d 1 h", "1 day 20 min", "2 hours 10 min 3 sec"...
+        //The tids needs have to be set in advance
+
+        public static string GetLocalizedTimeWithTypes(long timeFromServer, List<List<TimeType>> typeTimeFormatList)
+        {
+            var ts = TimeSpan.FromSeconds(timeFromServer);
+
+            for(int i = 0; i < typeTimeFormatList.Count; i++)
+            {
+                if(ValidateLocalizeTime(ts, typeTimeFormatList[i][0]))
+                {
+                    return GetLocalizeTime(ts, typeTimeFormatList[i]);
+                }
+            }
+
+            List<TimeType> secondsType = new List<TimeType>();
+            secondsType.Add(TimeType.SEC);
+            return GetLocalizeTime(ts, secondsType);
+        }
+
+        static bool ValidateLocalizeTime(TimeSpan ts, TimeType typeTimeFormat)
+        {
+            bool validated = true;
+            switch(typeTimeFormat)
+            {
+            case TimeType.DAY:
+                validated = ts.Days > 0;
+                break;
+            case TimeType.HOUR:
+                validated = ts.Hours > 0;
+                break;
+            case TimeType.MIN:
+                validated = ts.Minutes > 0;
+            break;
+            default:
+            break;
+            }
+            return validated;
+        }
+
+        static string GetLocalizeTime(TimeSpan ts, List<TimeType> typeTimeFormat)
+        {
+            var sb = StringUtils.StartBuilder();
+
+            for(int i = 0; i < typeTimeFormat.Count; i++)
+            {
+                switch(typeTimeFormat[i])
+                {
+                case TimeType.DAY:
+                    sb.Append((ts.Days).ToString());
+                    sb.Append(" ");
+                    sb.Append((ts.Days > 1) ? DaysLocalized : DayLocalized);
+                    break;
+                case TimeType.HOUR:
+                    sb.Append((ts.Hours).ToString());
+                    sb.Append(" ");
+                    sb.Append(HourLocalized);
+                    break;
+                case TimeType.MIN:
+                    sb.Append((ts.Minutes).ToString());
+                    sb.Append(" ");
+                    sb.Append(MinLocalized);
+                    break;
+                default:
+                    sb.Append(ts.Seconds.ToString());
+                    sb.Append(" ");
+                    sb.Append(SecLocalized);
+                    break;
+                }
+
+                //We will add a space between unit times if there are more in the type list
+                if(typeTimeFormat.Count - 1 > i)
+                {
+                    sb.Append(" ");
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        #endregion
 
         public static string FormatTime(this TimeSpan ts, string formatString)
         {

@@ -1,5 +1,4 @@
 ﻿using NUnit.Framework;
-using System.Collections.Generic;
 using System.IO;
 using SocialPoint.IO;
 using SocialPoint.Network;
@@ -27,12 +26,12 @@ namespace SocialPoint.Multiplayer
             _server = localServer;
             _client1 = new SimulateNetworkClient(localServer);
             _client2 = new SimulateNetworkClient(localServer);
-            _serverCtrl = new NetworkServerSceneController(_server);
-            _clientCtrl1 = new NetworkClientSceneController(_client1);
-            _clientCtrl2 = new NetworkClientSceneController(_client2);
-            _serverCtrl.Restart(_server);
-            _clientCtrl1.Restart(_client1);
-            _clientCtrl2.Restart(_client2);
+            _serverCtrl = new NetworkServerSceneController(_server, new NetworkSceneContext());
+            _serverCtrl.ServerConfig.EnablePrediction = true;
+            _serverCtrl.Restart(localServer);
+
+            _clientCtrl1 = new NetworkClientSceneController(_client1, new NetworkSceneContext(), true);
+            _clientCtrl2 = new NetworkClientSceneController(_client2, new NetworkSceneContext(), true);
 
             _serverCtrl.RegisterAction<TestInstatiateAction>(InstatiateActionType, TestInstatiateAction.Apply);
             _serverCtrl.RegisterAction<TestMovementAction>(MovementActionType, TestMovementAction.Apply);
@@ -48,7 +47,7 @@ namespace SocialPoint.Multiplayer
 
         void UpdateServerInterval()
         {
-            _serverCtrl.Update(_serverCtrl.SyncInterval);
+            _serverCtrl.Update(_serverCtrl.SyncController.SyncInterval);
         }
 
         [Test]
@@ -177,8 +176,8 @@ namespace SocialPoint.Multiplayer
 
         /* Helper Classes */
 
-        const byte InstatiateActionType = 0;
-        const byte MovementActionType = 1;
+        const byte InstatiateActionType = SceneMsgType.Highest + 1;
+        const byte MovementActionType = SceneMsgType.Highest + 2;
 
         class TestInstatiateAction : INetworkShareable
         {
@@ -199,10 +198,9 @@ namespace SocialPoint.Multiplayer
                 Transform newObjTransform = Transform.Identity;
                 newObjTransform.Position = action.Position;
                 var go = new NetworkGameObject();
-                go.Init(scene.CurrentScene.FreeObjectId, false, newObjTransform);
+                go.Init(new NetworkSceneContext(), scene.CurrentScene.FreeObjectId, true, newObjTransform);
                 scene.CurrentScene.AddObject(go);
             }
-
         }
 
         class TestMovementAction : INetworkShareable
@@ -219,10 +217,10 @@ namespace SocialPoint.Multiplayer
                 JVectorSerializer.Instance.Serialize(Movement, writer);
             }
 
-            public static void Apply(NetworkSceneMemento scene, TestMovementAction action)
+            public static void Apply(NetworkSceneMemento memento, TestMovementAction action)
             {
-                var list = new List<NetworkGameObject>();
-                var itr = scene.CurrentScene.GetObjectEnumerator(list);
+                var scene = memento.CurrentScene;
+                var itr = scene.GetObjectEnumerator();
                 while(itr.MoveNext())
                 {
                     var go = itr.Current;

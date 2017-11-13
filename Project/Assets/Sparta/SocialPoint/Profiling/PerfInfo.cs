@@ -246,8 +246,11 @@ namespace SocialPoint.Profiling
 
         void UpdateStats()
         {
-            Frame = SPUnityProfilerGetFrameInfo();
-            Garbage = SPUnityProfilerGetGarbageInfo();
+            if(_behaviour.enabled)
+            {
+                Frame = SPUnityProfilerGetFrameInfo();
+                Garbage = SPUnityProfilerGetGarbageInfo();
+            }
         }
 
         override public string ToString()

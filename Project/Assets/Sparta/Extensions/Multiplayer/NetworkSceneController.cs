@@ -1,15 +1,14 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using SocialPoint.Utils;
 using SocialPoint.IO;
 using SocialPoint.Network;
-using SocialPoint.Pooling;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
     public interface INetworkSceneController
     {
-        NetworkScene<INetworkSceneBehaviour> Scene{ get; }
+        NetworkScene Scene{ get; }
 
         NetworkGameObject InstantiateLocal(byte objType, Transform trans = null);
 
@@ -19,19 +18,35 @@ namespace SocialPoint.Multiplayer
 
         void ApplyActionLocal(object evnt);
 
-        void Destroy(int id);
+        void DestroyObject(int id);
     }
 
-    public abstract class NetworkSceneController<GameObject, ObjectBehaviour> : INetworkMessageSender where GameObject : NetworkGameObject<ObjectBehaviour> where ObjectBehaviour : class, INetworkBehaviour
+    public abstract class NetworkSceneController<GameObject> : INetworkMessageSender, IDisposable where GameObject : NetworkGameObject
     {
         protected NetworkActionHandler _actions;
         protected NetworkScene _activeScene;
-        Dictionary<byte, List<ObjectBehaviour>> _behaviourPrototypes = new Dictionary<byte, List<ObjectBehaviour>>();
-        List<ObjectBehaviour> _genericBehaviourPrototypes = new List<ObjectBehaviour>();
+        Dictionary<byte, KeyValuePair<List<INetworkBehaviour>, List<Type>>> _behaviourPrototypes = new Dictionary<byte, KeyValuePair<List<INetworkBehaviour>, List<Type>>>();
+        List<INetworkBehaviour> _genericBehaviourPrototypes = new List<INetworkBehaviour>();
+        List<Type> _genericBehaviourPrototypesTypes = new List<Type>();
 
         Action<float> _lateUpdateCallback;
 
         abstract public INetworkMessage CreateMessage(NetworkMessageData data);
+
+        readonly NetworkSceneContext _context;
+        public NetworkSceneContext Context
+        {
+            get
+            {
+                SocialPoint.Base.DebugUtils.Assert(_context != null, "NetworkSceneContext doesn't exists for this NetworkSceneController");
+                return _context;
+            }
+        }
+
+        protected NetworkSceneController(NetworkSceneContext context)
+        {
+            _context = context;
+        }
 
         protected void Init(NetworkScene scene)
         {
@@ -39,23 +54,87 @@ namespace SocialPoint.Multiplayer
             _actions = new NetworkActionHandler(_activeScene, this);
         }
 
+        public virtual void Dispose()
+        {
+            if(_activeScene != null)
+            {
+                var objectsEnum = _activeScene.GetObjectEnumerator();
+                while(objectsEnum.MoveNext())
+                {
+                    if(objectsEnum.Current == null)
+                    {
+                        continue;
+                    }
+                    objectsEnum.Current.OnDestroy();
+                }
+                objectsEnum.Dispose();
+
+                _activeScene = null;
+            }
+            
+            UnregisterAllBehaviours();
+
+            _actions = null;
+
+            _lateUpdateCallback = null;
+        }
+
         protected void UnregisterAllBehaviours()
         {
-            var behaviourEnum = _behaviourPrototypes.GetEnumerator();
-            while(behaviourEnum.MoveNext() != false)
+            using(var behaviourEnum = _behaviourPrototypes.GetEnumerator())
             {
-                var behaviourList = behaviourEnum.Current.Value;
-                for(int i = 0; i < behaviourList.Count; ++i)
+                while(behaviourEnum.MoveNext())
                 {
-                    behaviourList[i].OnDestroy();
+                    var behaviourList = behaviourEnum.Current.Value;
+                    for(int i = 0; i < behaviourList.Key.Count; ++i)
+                    {
+                        var behavior = behaviourList.Key[i];
+                        if(behavior == null)
+                        {
+                            continue;
+                        }
+                        behavior.OnDestroy();
+                    }
                 }
             }
+
+            using(var behaviourEnum = _behaviourPrototypes.GetEnumerator())
+            {
+                while(behaviourEnum.MoveNext())
+                {
+                    var behaviourList = behaviourEnum.Current.Value;
+                    for(int i = 0; i < behaviourList.Key.Count; ++i)
+                    {
+                        if(behaviourList.Key[i] == null)
+                        {
+                            continue;
+                        }
+                        behaviourList.Key[i].Dispose();
+                    }
+                }
+            }
+
             for(int i = 0; i < _genericBehaviourPrototypes.Count; ++i)
             {
+                if(_genericBehaviourPrototypes[i] == null)
+                {
+                    continue;
+                }
                 _genericBehaviourPrototypes[i].OnDestroy();
             }
-            _behaviourPrototypes = new Dictionary<byte, List<ObjectBehaviour>>();
-            _genericBehaviourPrototypes = new List<ObjectBehaviour>();
+
+            for(int i = 0; i < _genericBehaviourPrototypes.Count; ++i)
+            {
+                if(_genericBehaviourPrototypes[i] == null)
+                {
+                    continue;
+                }
+                _genericBehaviourPrototypes[i].Dispose();
+            }
+
+            _behaviourPrototypes.Clear();
+            _genericBehaviourPrototypes.Clear();
+            _genericBehaviourPrototypesTypes.Clear();
         }
 
         protected void SetupObject(GameObject go)
@@ -63,11 +142,11 @@ namespace SocialPoint.Multiplayer
             go.TypedBehaviours.OnAdded += RegisterSpecialCallback;
             go.TypedBehaviours.OnRemoved += UnregisterSpecialCallback;
 
-            List<ObjectBehaviour> behaviourPrototypes;
-            go.AddClonedBehaviours(_genericBehaviourPrototypes);
-            if(_behaviourPrototypes.TryGetValue(go.Type, out behaviourPrototypes))
+            KeyValuePair<List<INetworkBehaviour>, List<Type>> behaviourPrototypesAndTypes;
+            go.AddClonedBehaviours(_genericBehaviourPrototypes, _genericBehaviourPrototypesTypes);
+            if(_behaviourPrototypes.TryGetValue(go.Type, out behaviourPrototypesAndTypes))
             {
-                go.AddClonedBehaviours(behaviourPrototypes);
+                go.AddClonedBehaviours(behaviourPrototypesAndTypes.Key, behaviourPrototypesAndTypes.Value);
             }
         }
 
@@ -91,7 +170,7 @@ namespace SocialPoint.Multiplayer
 
         public IEnumerator<GameObject> GetObjectEnumerator()
         {
-            var tmp = ObjectPool.Get<List<NetworkGameObject>>();
+            var tmp = Context.Pool.Get<List<NetworkGameObject>>();
             var itr = _activeScene.GetObjectEnumerator(tmp);
             while(itr.MoveNext())
             {
@@ -102,7 +181,7 @@ namespace SocialPoint.Multiplayer
                 }
             }
             itr.Dispose();
-            ObjectPool.Return(tmp);
+            Context.Pool.Return(tmp);
         }
 
         protected void UpdateObjects(float dt)
@@ -110,6 +189,10 @@ namespace SocialPoint.Multiplayer
             var itr = GetObjectEnumerator();
             while(itr.MoveNext())
             {
+                if(itr.Current == null)
+                {
+                    continue;
+                }
                 itr.Current.Update(dt);
             }
             itr.Dispose();
@@ -123,6 +206,16 @@ namespace SocialPoint.Multiplayer
             }
         }
 
+        public void DestroyObject(int id)
+        {
+            SetupObjectToDestroy(id);
+            var go = _activeScene.FindObject(id);
+            if(go != null)
+            {
+                _activeScene.RemoveObject(id);
+            }
+        }
+
         protected virtual void UpdatePendingLogic()
         {
             var itr = GetObjectEnumerator();
@@ -133,27 +226,34 @@ namespace SocialPoint.Multiplayer
             itr.Dispose();
         }
 
-        public void RegisterBehaviour(ObjectBehaviour behaviour)
+        public void RegisterBehaviour(NetworkGameObject gameObjectPrefab, INetworkBehaviour behaviour)
         {
+            behaviour.GameObject = gameObjectPrefab;
             _genericBehaviourPrototypes.Add(behaviour);
+            _genericBehaviourPrototypesTypes.Add(behaviour.GetType());
         }
 
-        public void RegisterBehaviour(byte objType, ObjectBehaviour behaviour)
+        public void RegisterBehaviour(byte objType, NetworkGameObject gameObjectPrefab, INetworkBehaviour behaviour)
         {
-            List<ObjectBehaviour> behaviours;
-            if(!_behaviourPrototypes.TryGetValue(objType, out behaviours))
+            KeyValuePair<List<INetworkBehaviour>, List<Type>> behavioursAndTypes;
+            if(!_behaviourPrototypes.TryGetValue(objType, out behavioursAndTypes))
             {
-                behaviours = new List<ObjectBehaviour>();
-                _behaviourPrototypes[objType] = behaviours;
+                var behaviours = new List<INetworkBehaviour>();
+                var types = new List<Type>();
+                behavioursAndTypes = new KeyValuePair<List<INetworkBehaviour>, List<Type>>(behaviours, types);
+
+                _behaviourPrototypes[objType] = behavioursAndTypes;
             }
-            behaviours.Add(behaviour);
+            behaviour.GameObject = gameObjectPrefab;
+            behavioursAndTypes.Key.Add(behaviour);
+            behavioursAndTypes.Value.Add(behaviour.GetType());
         }
 
-        public void RegisterBehaviours(byte objType, ObjectBehaviour[] behaviours)
+        public void RegisterBehaviours(byte objType, NetworkGameObject gameObjectPrefab, INetworkBehaviour[] behaviours)
         {
             for(var i = 0; i < behaviours.Length; i++)
             {
-                RegisterBehaviour(objType, behaviours[i]);
+                RegisterBehaviour(objType, gameObjectPrefab, behaviours[i]);
             }
         }
 
@@ -172,14 +272,14 @@ namespace SocialPoint.Multiplayer
             _actions.UnregisterAction<T>();
         }
 
-        void RegisterSpecialCallback(ObjectBehaviour behaviour)
+        void RegisterSpecialCallback(INetworkBehaviour behaviour)
         {
             ApplyIfCast<ILateUpdateable>(behaviour, (ILateUpdateable typedBehaviour) => {
                 _lateUpdateCallback += typedBehaviour.LateUpdate;
             });
         }
 
-        void UnregisterSpecialCallback(ObjectBehaviour behaviour)
+        void UnregisterSpecialCallback(INetworkBehaviour behaviour)
         {
             ApplyIfCast<ILateUpdateable>(behaviour, (ILateUpdateable typedBehaviour) => {
                 _lateUpdateCallback -= typedBehaviour.LateUpdate;
@@ -188,17 +288,17 @@ namespace SocialPoint.Multiplayer
 
         void UnregisterSpecialCallbacks(GameObject go)
         {
-            var tmp = ObjectPool.Get<List<ObjectBehaviour>>();
+            var tmp = Context.Pool.Get<List<INetworkBehaviour>>();
             var itr = go.TypedBehaviours.GetEnumerator(tmp);
             while(itr.MoveNext())
             {
                 UnregisterSpecialCallback(itr.Current);
             }
-            ObjectPool.Return(tmp);
+            Context.Pool.Return(tmp);
             itr.Dispose();
         }
 
-        static void ApplyIfCast<T>(ObjectBehaviour behaviour, Action<T> updateAction)  where T : class
+        static void ApplyIfCast<T>(INetworkBehaviour behaviour, Action<T> updateAction)  where T : class
         {
             var tBehaviour = behaviour as T;
             if(tBehaviour != null)

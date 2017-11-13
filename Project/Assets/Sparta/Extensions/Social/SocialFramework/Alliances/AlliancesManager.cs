@@ -5,6 +5,7 @@ using SocialPoint.Login;
 using SocialPoint.Utils;
 using SocialPoint.WAMP;
 using SocialPoint.Connection;
+using SocialPoint.WAMP.Caller;
 
 namespace SocialPoint.Social
 {
@@ -57,6 +58,7 @@ namespace SocialPoint.Social
         public const string UserIdKey = "user_id";
 
         const string AllianceIdKey = "alliance_id";
+        const string IdKey = "id";
         public const string AvatarKey = "avatar";
         public const string AllianceDescriptionKey = "description";
         public const string AllianceMessageKey = "welcome_message";
@@ -172,7 +174,7 @@ namespace SocialPoint.Social
             return Factory.CreateBasicData(alliance);
         }
 
-        public WAMPRequest LoadAllianceInfo(string allianceId, Action<Error, Alliance> callback)
+        public CallRequest LoadAllianceInfo(string allianceId, Action<Error, Alliance> callback)
         {
             var dic = new AttrDic();
             dic.SetValue(UserIdKey, LoginData.UserId.ToString());
@@ -193,19 +195,18 @@ namespace SocialPoint.Social
             });
         }
 
-        public WAMPRequest LoadRanking(Action<Error, AlliancesRanking> callback)
+        public WAMPRequest LoadRanking(AttrDic extraData, Action<Error, AlliancesRanking> callback)
         {
-            var dic = new AttrDic();
+            AttrDic data = extraData ?? new AttrDic();
             var allianceComponent = GetLocalBasicData();
             if(allianceComponent.IsInAlliance())
             {
-                dic.SetValue(AllianceIdKey, allianceComponent.Id);
+                data.SetValue(AllianceIdKey, allianceComponent.Id);
             }
 
-            dic.SetValue(UserIdKey, LoginData.UserId.ToString());
-            dic.SetValue("ranking_type", ""); // TODO in use?
+            data.SetValue(UserIdKey, LoginData.UserId.ToString());
 
-            return _connection.Call(AllianceRankingMethod, Attr.InvalidList, dic, (err, rList, rDic) => {
+            return _connection.Call(AllianceRankingMethod, Attr.InvalidList, data, (err, rList, rDic) => {
                 AlliancesRanking ranking = null;
                 if(Error.IsNullOrEmpty(err))
                 {
@@ -293,7 +294,16 @@ namespace SocialPoint.Social
         void OnAllianceCreated(Alliance data, AttrDic result)
         {
             DebugUtils.Assert(result.Get(AllianceIdKey).IsValue);
-            var id = result.GetValue(AllianceIdKey).ToString();
+            string id = string.Empty;
+
+            if(result.ContainsKey(AllianceIdKey))
+            {
+                id = result.GetValue(AllianceIdKey).ToString(); 
+            }
+            else
+            {
+                id = result.GetValue(IdKey).ToString();
+            }
 
             var basicComponent = GetLocalBasicData();
             basicComponent.Id = id;
@@ -421,7 +431,7 @@ namespace SocialPoint.Social
                 {
                     callback(null);
                 }
-                NotifyAllianceEvent(AllianceAction.KickedFromAlliance, rDic);
+                NotifyAllianceEvent(AllianceAction.MateKickedFromPlayerAlliance, rDic);
             });
         }
 
@@ -725,7 +735,7 @@ namespace SocialPoint.Social
         void OnUserAppliedToPlayerAlliance(AttrDic dic)
         {
             DebugUtils.Assert(GetLocalBasicData().IsInAlliance, "User is not in an alliance");
-            DebugUtils.Assert(Ranks.HasPermission(GetLocalBasicData().Rank, RankPermission.Members));
+            DebugUtils.Assert(Ranks.HasPermission(GetLocalBasicData().Rank, RankPermission.ManageCandidates));
             NotifyAllianceEvent(AllianceAction.UserAppliedToPlayerAlliance, dic);
         }
 

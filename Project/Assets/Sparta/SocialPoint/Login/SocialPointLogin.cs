@@ -7,6 +7,7 @@ using SocialPoint.Hardware;
 using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.Utils;
+using SocialPoint.Restart;
 
 namespace SocialPoint.Login
 {
@@ -184,6 +185,8 @@ namespace SocialPoint.Login
             get;
             private set;
         }
+
+        public IRestarter Restarter { get; set; }
 
         public IAppEvents AppEvents
         {
@@ -906,7 +909,7 @@ namespace SocialPoint.Login
                 }
                 return null;
             }
-            return _links.Count > 0 ? _links[0] : null;
+            return _links.FirstOrDefault(item => item.MatchesFilter(filter));
         }
 
         void NextLinkLogin(LinkInfo info, ErrorDelegate cbk, LinkInfo.Filter filter)
@@ -1032,7 +1035,7 @@ namespace SocialPoint.Login
                 type = LinkConfirmType.LooseToLinked;
                 break;
             case LinkedToSameError:
-                    // duplicated link attempt, do nothing
+                // duplicated link attempt, do nothing
                 resp.StatusCode = (int)HttpResponse.StatusCodeType.Success;
                 break;
             }
@@ -1276,12 +1279,14 @@ namespace SocialPoint.Login
             Error err;
             ErrorType errType = ErrorType.UserParse;
             User = null;
+            Exception exc = null;
             try
             {
                 err = ReadNewLocalUser(resp.Body, out errType);
             }
             catch(Exception e)
             {
+                exc = e;
                 err = new Error(e.ToString());
             }
             if(Error.IsNullOrEmpty(err))
@@ -1297,7 +1302,7 @@ namespace SocialPoint.Login
             {
                 var errData = new AttrDic();
                 // If the error is a parse error, we don't want to deserialize all the gameData.
-                if(errType != ErrorType.GameDataParse)
+                if(errType != ErrorType.GameDataParse && (exc != null && exc.GetType() != typeof(UnityEngine.Assertions.AssertionException)))
                 {
                     var attrParser = new JsonAttrParser();
                     errData.Set(AttrKeyData, attrParser.Parse(resp.Body));
@@ -2142,14 +2147,10 @@ namespace SocialPoint.Login
         /**
          * Add a new link
          * @param link the link object (will be deleted by SocialPointLogin)
-         * @param the link mode defines when the link is logged in:
-         *   - Auto: link is logged in automatically after the social point main login
-         *   - Normal: link is logged in when calling SocialPointLogin.LoginLinks();
-         *   - Manual: link is logged only if SocialPointLogin.LoginLink() is called manually
          */
-        public void AddLink(ILink link, LinkMode mode = LinkMode.Auto)
+        public void AddLink(ILink link)
         {
-            AddLinkInfo(new LinkInfo(link, mode));
+            AddLinkInfo(new LinkInfo(link));
         }
 
         /**
@@ -2550,8 +2551,6 @@ namespace SocialPoint.Login
 
         public ILink Link { get; private set; }
 
-        public LinkMode Mode { get; private set; }
-
         public string Token { get; set; }
 
         public LinkConfirmType ConfirmType { get; set; }
@@ -2563,22 +2562,20 @@ namespace SocialPoint.Login
         LinkInfo(LinkInfo other)
         {
             Link = other.Link;
-            Mode = other.Mode;
             Token = other.Token;
             LinkData = new AttrDic(other.LinkData);
         }
 
-        public LinkInfo(ILink link, LinkMode mode)
+        public LinkInfo(ILink link)
         {
             Link = link;
-            Mode = mode;
         }
 
         public bool MatchesFilter(Filter filter)
         {
             bool result = false;
 
-            switch(Mode)
+            switch(Link.Mode)
             {
             case LinkMode.Auto:
                 result = filter != Filter.None && filter != Filter.Normal;

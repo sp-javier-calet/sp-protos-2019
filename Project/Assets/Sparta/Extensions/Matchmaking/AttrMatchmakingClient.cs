@@ -51,7 +51,7 @@ namespace SocialPoint.Matchmaking
 
         public string Room{ get; set; }
 
-        public AttrMatchmakingClient(IMatchStorage storage=null)
+        public AttrMatchmakingClient(IMatchStorage storage = null)
         {
             _delegates = new List<IMatchmakingClientDelegate>();
             _storage = storage;
@@ -75,7 +75,7 @@ namespace SocialPoint.Matchmaking
             _delegates.Remove(dlg);
         }
 
-        public void Start()
+        public void Start(AttrDic extraData, bool searchForActiveMatch, string connectId)
         {
             Match match;
             if(_storage.Load(out match))
@@ -111,7 +111,7 @@ namespace SocialPoint.Matchmaking
 
         void IMatchmakingClientDelegate.OnWaiting(int waitTime)
         {
-            for(var i=0; i<_delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnWaiting(waitTime);
             }
@@ -122,14 +122,14 @@ namespace SocialPoint.Matchmaking
             _storage.Save(match);
             OnMatched(match);
         }
-        
+
         void IMatchmakingClientDelegate.OnStopped(bool successful)
         {
         }
 
         void IMatchmakingClientDelegate.OnError(Error err)
         {
-            for(var i=0; i<_delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnError(err);
             }
@@ -137,7 +137,7 @@ namespace SocialPoint.Matchmaking
 
         void OnMatched(Match match)
         {
-            for(var i=0; i<_delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnMatched(match);
             }

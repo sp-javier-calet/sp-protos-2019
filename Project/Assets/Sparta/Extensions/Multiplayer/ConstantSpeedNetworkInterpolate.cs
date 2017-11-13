@@ -1,10 +1,8 @@
-﻿using Jitter.LinearMath;
 using System;
-using SocialPoint.Pooling;
+using Jitter.LinearMath;
 
 namespace SocialPoint.Multiplayer
 {
-    
     public static class InterpolationSettings
     {
         public static bool Enable = true;
@@ -14,16 +12,17 @@ namespace SocialPoint.Multiplayer
     public class ConstantSpeedNetworkInterpolate : INetworkBehaviour, INetworkInterpolate
     {
         public static double PositionLerpSpeed = 18.0;
-        const double _epsilon = 1e-4;
-        const double _defMaxDistance = 4;
+        const double _epsilon = 1e-4f;
+        const double _defMaxDistance = 4f;
         const double _minTimeToProcessData = 0.1;
         const int _minIterationCount = 1;
+        const float _maxStartPositionErrorSQ = 4f;
 
         public bool Enable{ get; set; }
 
         NetworkGameObject _go;
 
-        JQuaternion _targetRotationPredicted;
+        JQuaternion _serverRotation;
 
         IGameTime _gameTime;
 
@@ -33,65 +32,91 @@ namespace SocialPoint.Multiplayer
         double _maxDistance;
         double _maxDistanceSQ;
 
-        JVector _prevServerPos;
+        JVector _serverPos;
 
         double _rotationLerpSpeed;
 
         double _serverTimeStamp;
         float _serverSpeed;
+        bool _hideIfNotInterpolation;
 
-        public ConstantSpeedNetworkInterpolate Init(IGameTime gameTime, double maxDistance = _defMaxDistance, double rotationLerpSpeed = -1.0)
+        UnityEngine.Transform _viewModel;
+
+        public JVector ServerPosition { get { return _serverPos; } }
+
+        public JQuaternion ServerRotation { get { return _serverRotation; } }
+
+        public ConstantSpeedNetworkInterpolate Init(IGameTime gameTime, double maxDistance = _defMaxDistance, bool hideIfNotInterpolation = false, double rotationLerpSpeed = -1.0)
         {
             _gameTime = gameTime;
             _maxDistance = maxDistance;
-            _maxDistanceSQ = maxDistance * maxDistance;
             Enable = true;
             _iterationCount = 0;
             _dir = JVector.Zero;
             _rotationLerpSpeed = rotationLerpSpeed;
             _canSmooth = false;
+            _hideIfNotInterpolation = hideIfNotInterpolation;
             return this;
+        }
+
+        public void OnNewObject(Transform t)
+        {
+            _serverPos = t.Position;
+            _serverRotation = t.Rotation;
         }
 
         public void OnServerTransform(Transform t, float serverTimestampf)
         {
-            var serverDeltaPos = t.Position - _prevServerPos;
-            var serverDeltaMag = serverDeltaPos.Length();
-            if(serverDeltaMag > _epsilon)
+            if(_go == null)
             {
-                _serverTimeStamp = (double)serverTimestampf;
-
-                if(_go == null)
-                {
-                    _iterationCount = 0;
-                    return;
-                }
-
-                _canSmooth = CanSmooth(t);
-                if(_canSmooth)
-                {   
-                    _serverSpeed = serverDeltaMag / ((float)_serverTimeStamp);
-                    var positionDelta = t.Position - _go.Transform.Position;
-                    if(positionDelta.LengthSquared() > _epsilon)
-                    {
-                        _dir = positionDelta.Normalized();
-                    }
-                    else
-                    {
-                        _dir = JVector.Zero;
-                    }
-                }
-
-                if(!_canSmooth)
-                {
-                    ResetToCurrentTransform(t);
-                }
-
-                _prevServerPos = t.Position;
+                return;
             }
-            _targetRotationPredicted = t.Rotation;
+
+            _serverTimeStamp = (double)serverTimestampf;
+            _canSmooth = CanSmooth(t);
+
+            if(_canSmooth)
+            {
+                var serverDeltaPos = t.Position - _serverPos;
+                var serverDeltaMag = serverDeltaPos.Length();
+                _serverSpeed = 0f;
+                if(serverDeltaMag > _epsilon)
+                {
+                    _canSmooth = CanSmooth(t);
+                    if(_canSmooth)
+                    {   
+                        _serverSpeed = serverDeltaMag / ((float)_serverTimeStamp);
+                        var positionDelta = t.Position - _go.Transform.Position;
+                        if(positionDelta.LengthSquared() > _epsilon)
+                        {
+                            _dir = positionDelta.Normalized();
+                        }
+                        else
+                        {
+                            _dir = JVector.Zero;
+                        }
+                    }
+                }
+            }
+
+            if(!_canSmooth)
+            {
+                ResetToCurrentTransform(t);
+            }
+            else
+            {
+                if((_go.Transform.Position - _serverPos).LengthSquared() > _maxStartPositionErrorSQ)
+                {
+                    _go.Transform.Position = _serverPos;
+                }
+            }
+
+            _serverPos = t.Position;
+            _serverRotation = t.Rotation;
             _go.Transform.Scale = t.Scale;
             _iterationCount++;
+
+            RefreshVisibility();
         }
 
         bool CanSmooth(Transform t)
@@ -111,7 +136,7 @@ namespace SocialPoint.Multiplayer
                 return false;
             }
 
-            if(_serverTimeStamp < _epsilon)
+            if(_serverTimeStamp <= 0f)
             {
                 return false;
             }
@@ -121,17 +146,29 @@ namespace SocialPoint.Multiplayer
 
         void ResetToCurrentTransform(Transform t)
         {
-            _go.Transform.Position = _prevServerPos = t.Position;
+            _go.Transform.Position = _serverPos = t.Position;
             _serverSpeed = 0;
         }
 
         public void OnAwake()
         {
+            _maxDistanceSQ = _maxDistance * _maxDistance;
+            var view = _go.GetBehaviour<UnityViewBehaviour>();
+            _viewModel = view.View.transform.childCount > 0 ? view.View.transform.GetChild(0) : view.View.transform;
+            RefreshVisibility();
         }
 
         public void OnStart()
         {
-            _iterationCount = 0;
+            
+        }
+
+        void RefreshVisibility()
+        {
+            if(_hideIfNotInterpolation && _viewModel != null)
+            {
+                _viewModel.gameObject.SetActive(_iterationCount > 1);
+            }
         }
 
         public void OnDestroy()
@@ -157,37 +194,31 @@ namespace SocialPoint.Multiplayer
 
         void InterpolatePosition(float dt)
         {
-            var currToServerLength = (_prevServerPos - _go.Transform.Position).Length();
-            var delta = (float)_serverSpeed * dt;
-            if(delta > currToServerLength)
-            {
-                _go.Transform.Position = _prevServerPos;
-                _serverSpeed = 0f;
-            }
-            else
-            {
-                _go.Transform.Position = _go.Transform.Position + _dir * delta;
-            }
+            var delta = _serverSpeed * dt;
+            _go.Transform.Position = _go.Transform.Position + _dir * delta;
         }
 
         void InterpolateRotation(float dt)
         {
             var rotationLerpSpeed = _rotationLerpSpeed > 0.0 ? _rotationLerpSpeed : InterpolationSettings.RotationLerpSpeed;
             JQuaternion targetRotation = JQuaternion.Identity;
-            JQuaternionUtils.Slerp(ref _go.Transform.Rotation, ref _targetRotationPredicted, (float)Math.Min(1f, (dt * rotationLerpSpeed)), out targetRotation);
+            JQuaternionUtils.Slerp(ref _go.Transform.Rotation, ref _serverRotation, (float)Math.Min(1f, (dt * rotationLerpSpeed)), out targetRotation);
             _go.Transform.Rotation = targetRotation;
         }
 
         public object Clone()
         {
-            var other = ObjectPool.Get<ConstantSpeedNetworkInterpolate>().Init(_gameTime, _maxDistance);
+            var other = _go != null ? _go.Context.Pool.Get<ConstantSpeedNetworkInterpolate>() : new ConstantSpeedNetworkInterpolate();
+            other.Init(_gameTime, _maxDistance);
             other.Enable = Enable;
+            other._hideIfNotInterpolation = _hideIfNotInterpolation;
+            other._rotationLerpSpeed = _rotationLerpSpeed;
             return other;
         }
 
         public void Dispose()
         {
-            ObjectPool.Return(this);
+            _go.Context.Pool.Return(this);
         }
 
         public NetworkGameObject GameObject
@@ -195,6 +226,7 @@ namespace SocialPoint.Multiplayer
             set
             {
                 _go = value;
+                _iterationCount = 0;
             }
         }
     }

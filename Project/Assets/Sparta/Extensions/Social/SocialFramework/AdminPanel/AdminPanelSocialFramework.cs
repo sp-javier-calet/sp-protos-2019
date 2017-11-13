@@ -233,7 +233,7 @@ namespace SocialPoint.Social
                 _member = null;
             }
 
-            void OnInfoLoaded(AdminPanelLayout layout)
+            protected virtual void OnInfoLoaded(AdminPanelLayout layout)
             {
 
             }

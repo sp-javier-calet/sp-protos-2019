@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System;
 
 namespace SocialPoint.IO
@@ -82,7 +82,6 @@ namespace SocialPoint.IO
             return false;
         }
 
-
         public bool TrySerializeRaw(T obj, IWriter writer)
         {
             return TrySerialize(obj, writer, false);
@@ -112,6 +111,44 @@ namespace SocialPoint.IO
             return TrySerialize(newObj, oldObj, writer, false);
         }
 
+        public bool TrySerializeTyped(T obj, Type type, IWriter writer, bool writeCode=true)
+        {
+            byte code;
+            if(FindCode(type, out code))
+            {
+                ITypeDiffSerializer serializer;
+                if(_serializers.TryGetValue(code, out serializer))
+                {
+                    if(writeCode)
+                    {
+                        writer.Write(code);
+                    }
+                    serializer.Serialize(obj, writer);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool TrySerializeTyped(T newObj, Type newType, T oldObj, Type oldType, IWriter writer, bool writeCode=true)
+        {
+            byte newCode, oldCode;
+            if(FindCode(newType, out newCode) && FindCode(oldType, out oldCode))
+            {
+                ITypeDiffSerializer serializer;
+                if(newCode == oldCode && _serializers.TryGetValue(newCode, out serializer))
+                {
+                    if(writeCode)
+                    {
+                        writer.Write(newCode);
+                    }
+                    serializer.Serialize(newObj, oldObj, writer);
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public void Serialize(T obj, IWriter writer)
         {
             if(!TrySerialize(obj, writer))
@@ -123,6 +160,22 @@ namespace SocialPoint.IO
         public void Serialize(T newObj, T oldObj, IWriter writer, Bitset dirty)
         {
             if(!TrySerialize(newObj, oldObj, writer))
+            {
+                throw new InvalidOperationException("No valid serializer found");
+            }
+        }
+
+        public void SerializeTyped(T obj, Type type, IWriter writer)
+        {
+            if(!TrySerializeTyped(obj, type, writer))
+            {
+                throw new InvalidOperationException("No valid serializer found");
+            }
+        }
+
+        public void SerializeTyped(T newObj, Type newType, T oldObj, Type oldType, IWriter writer, Bitset dirty)
+        {
+            if(!TrySerializeTyped(newObj, newType, oldObj, oldType, writer))
             {
                 throw new InvalidOperationException("No valid serializer found");
             }
@@ -151,6 +204,11 @@ namespace SocialPoint.IO
         public bool FindCode(T obj, out byte code)
         {
             return _types.TryGetValue(obj.GetType(), out code);
+        }
+
+        public bool FindCode(Type type, out byte code)
+        {
+            return _types.TryGetValue(type, out code);
         }
 
         public bool FindCode<K>(out byte code)

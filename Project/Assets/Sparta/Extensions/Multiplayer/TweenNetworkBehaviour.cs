@@ -1,5 +1,4 @@
 ﻿using Jitter.LinearMath;
-using SocialPoint.Pooling;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
@@ -24,7 +23,8 @@ namespace SocialPoint.Multiplayer
 
         public override object Clone()
         {
-            var behaviour = ObjectPool.Get<TweenNetworkBehaviour>().Init(_destination, _duration, _easing);
+            var behaviour = GameObject.Context.Pool.Get<TweenNetworkBehaviour>();
+            behaviour.Init(_destination, _duration, _easing);
             behaviour._delta = _delta;
             behaviour._time = _time;
             return behaviour;
@@ -58,12 +58,14 @@ namespace SocialPoint.Multiplayer
 
     public static class TweenNetworkGameObjectExtensions
     {
+        private static readonly System.Type TweenNetworkBehaviourType = typeof(TweenNetworkBehaviour);
+
         public static void Tween(this NetworkServerSceneController ctrl, int id, JVector dest, float duration, Easing.Function easing)
         {
             var go = ctrl.FindObject(id);
             if(go != null)
             {
-                go.AddBehaviour(new TweenNetworkBehaviour().Init(dest, duration, easing));
+                go.AddBehaviour(new TweenNetworkBehaviour().Init(dest, duration, easing), TweenNetworkBehaviourType);
             }
         }
 

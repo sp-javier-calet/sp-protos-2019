@@ -24,6 +24,7 @@ namespace SocialPoint.Social
         {
             public bool UseEmpty;
             public bool LoginLink = true;
+            public LinkMode LoginLinkMode = LinkMode.Auto;
             public bool LoginWithUi = true;
         }
 
@@ -86,7 +87,7 @@ namespace SocialPoint.Social
         GooglePlayLink CreateLoginLink()
         {
             var google = Container.Resolve<IGoogle>();
-            return new GooglePlayLink(google, !Settings.LoginWithUi);
+            return new GooglePlayLink(google, Settings.LoginLinkMode, !Settings.LoginWithUi);
         }
 
         public void Initialize()

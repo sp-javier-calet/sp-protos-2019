@@ -115,7 +115,7 @@ public class GameLoadingController : SocialPoint.GameLoading.GameLoadingControll
         if(data != null)
         {
             ParseSFLocalPlayerData(data);
-//            ParseAssetBundlesData(data);
+            ParseAssetBundlesData(data);
         }
 
         _loadModelOperation.Finish("game model loaded");

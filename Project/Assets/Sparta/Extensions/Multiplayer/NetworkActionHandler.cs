@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.IO;
@@ -40,9 +40,14 @@ namespace SocialPoint.Multiplayer
 
         bool ApplyActionReceived(NetworkMessageData data, NetworkSceneMemento sceneMemento, IReader reader)
         {
+            return ApplyActionReceived(data.MessageType, sceneMemento, reader);
+        }
+
+        bool ApplyActionReceived(byte messageType, NetworkSceneMemento sceneMemento, IReader reader)
+        {
             bool handled = false;
             object action;
-            if(_actionParser.TryParseRaw(data.MessageType, reader, out action))
+            if(_actionParser.TryParseRaw(messageType, reader, out action))
             {
                 handled = ApplyAction(action, sceneMemento);
             }
@@ -74,6 +79,11 @@ namespace SocialPoint.Multiplayer
                 Log.d("Code not found for action: " + action);
             }
             return false;
+        }
+
+        public void SerializeAction(object action, IWriter writer)
+        {
+            _actionSerializer.Serialize(action, writer);
         }
 
         public bool ApplyAction(object action)

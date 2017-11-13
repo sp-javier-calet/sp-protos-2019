@@ -90,12 +90,12 @@ namespace SocialPoint.Social
 
         public void AddMember(SocialPlayer member)
         {
-            AddMembers(_members, new []{ member });
+            AddPlayersToList(_members, new []{ member });
         }
 
         public void AddMembers(IEnumerable<SocialPlayer> members)
         {
-            AddMembers(_members, members);
+            AddPlayersToList(_members, members);
         }
 
         public IEnumerator<SocialPlayer> GetMembers()
@@ -110,13 +110,13 @@ namespace SocialPoint.Social
 
         public bool HasMember(string id)
         {
-            return GetMember(_members, id) != null;
+            return GetPlayerInList(_members, id) != null;
         }
 
         public void SetMemberRank(string id, int rank)
         {
-            var member = GetMember(_members, id);
-            DebugUtils.Assert(member != null, string.Format("Promoting unexistent alliance {0} member {1}", Id, id));
+            var member = GetPlayerInList(_members, id);
+            DebugUtils.Assert(member != null, string.Format("Trying to promote unexistent member {0} in alliance {1}", id, Id));
             if(member != null)
             {
                 var component = member.GetComponent<AlliancePlayerBasic>();
@@ -129,17 +129,17 @@ namespace SocialPoint.Social
 
         public void RemoveMember(string id)
         {
-            RemoveMember(_members, id);
+            RemovePlayerFromList(_members, id);
         }
 
         public void AddCandidate(SocialPlayer candidate)
         {
-            AddMembers(_candidates, new []{ candidate });
+            AddPlayersToList(_candidates, new []{ candidate });
         }
 
         public void AddCandidates(List<SocialPlayer> candidates)
         {
-            AddMembers(_candidates, candidates);
+            AddPlayersToList(_candidates, candidates);
         }
 
         public IEnumerator<SocialPlayer> GetCandidates()
@@ -147,20 +147,25 @@ namespace SocialPoint.Social
             return _candidates.GetEnumerator();
         }
 
+        public List<SocialPlayer> GetCandidatesList()
+        {
+            return new List<SocialPlayer> (_candidates);
+        }
+
         public bool HasCandidate(string id)
         {
-            return GetMember(_candidates, id) != null;
+            return GetPlayerInList(_candidates, id) != null;
         }
 
         public SocialPlayer GetCandidate(string id)
         {
-            return GetMember(_candidates, id);
+            return GetPlayerInList(_candidates, id);
         }
 
         public void AcceptCandidate(string id)
         {
-            var candidate = GetMember(_candidates, id);
-            DebugUtils.Assert(candidate != null, string.Format("Accepting unexistent alliance candidate {0}", id));
+            var candidate = GetPlayerInList(_candidates, id);
+            DebugUtils.Assert(candidate != null, string.Format("Trying to accept unexistent candidate {0}", id));
             if(candidate != null)
             {
                 AddMember(candidate);
@@ -170,7 +175,7 @@ namespace SocialPoint.Social
 
         public void RemoveCandidate(string id)
         {
-            RemoveMember(_candidates, id);
+            RemovePlayerFromList(_candidates, id);
         }
 
         public void RemoveAllCandidates()
@@ -191,39 +196,39 @@ namespace SocialPoint.Social
             });
         }
 
-        static SocialPlayer GetMember(List<SocialPlayer> list, string id)
+        static SocialPlayer GetPlayerInList(List<SocialPlayer> list, string id)
         {
             for(var i = 0; i < list.Count; ++i)
             {
-                var member = list[i];
-                if(member.Uid == id)
+                var player = list[i];
+                if(player.Uid == id)
                 {
-                    return member;
+                    return player;
                 }
             }
             return null;
         }
 
-        static void AddMembers(List<SocialPlayer> list, IEnumerable<SocialPlayer> members)
+        static void AddPlayersToList(List<SocialPlayer> list, IEnumerable<SocialPlayer> players)
         {
-            var itr = members.GetEnumerator();
+            var itr = players.GetEnumerator();
             while(itr.MoveNext())
             {
-                var member = itr.Current;
-                DebugUtils.Assert(GetMember(list, member.Uid) == null, string.Format("Trying to add player {0}  while he is already a member", member.Uid));
-                list.Add(member);
+                var player = itr.Current;
+                DebugUtils.Assert(GetPlayerInList(list, player.Uid) == null, string.Format("Adding player {0} while he is already a member/candidate", player.Uid));
+                list.Add(player);
             }
             itr.Dispose();
             SortMembers(list);
         }
 
-        static void RemoveMember(List<SocialPlayer> list, string id)
+        static void RemovePlayerFromList(List<SocialPlayer> list, string id)
         {
-            var member = GetMember(list, id);
-            DebugUtils.Assert(member != null, string.Format("Removing unexistent alliance member {0}", id));
-            if(member != null)
+            var player = GetPlayerInList(list, id);
+            DebugUtils.Assert(player != null, string.Format("Trying to remove unexistent member/candidate {0}", id));
+            if(player != null)
             {
-                list.Remove(member);
+                list.Remove(player);
             }
         }
 

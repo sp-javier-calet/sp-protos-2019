@@ -1,13 +1,15 @@
 using System;
-using SocialPoint.Dependency;
-using SocialPoint.Attributes;
-using SocialPoint.GameLoading;
 using SocialPoint.Alert;
-using SocialPoint.Locale;
 using SocialPoint.AppEvents;
+using SocialPoint.Attributes;
+using SocialPoint.Dependency;
+using SocialPoint.GameLoading;
+using SocialPoint.Helpshift;
+using SocialPoint.Locale;
+using SocialPoint.Login;
+using SocialPoint.Restart;
 using SocialPoint.ServerSync;
 using SocialPoint.Social;
-using SocialPoint.Login;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -102,6 +104,8 @@ public class GameInstaller : Installer, IInitializable
             Container.Resolve<IAlertView>(),
             Container.Resolve<Localization>(),
             Container.Resolve<IAppEvents>(),
+            Container.Resolve<IRestarter>(),
+            Container.Resolve<IHelpshift>(),
             Container.Resolve<bool>("game_debug"));
 
     }

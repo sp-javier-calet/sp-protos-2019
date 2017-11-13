@@ -54,22 +54,6 @@ namespace SocialPoint.Network
 
         protected abstract BaseYieldHttpConnection CreateConnection(HttpRequest req, HttpResponseDelegate del);
 
-        string _defaultProxy;
-
-        /// <summary>
-        ///     Default proxy address that will be set for any connection created using
-        ///     this client.
-        ///     Set it to String.Emtpy or null to disable the proxy.
-        /// </summary>
-        [Obsolete("Please use the RequestSetup event to set default request values")]
-        public string DefaultProxy
-        {
-            set
-            {
-                _defaultProxy = value;
-            }
-        }
-
         public abstract string Config
         {
             set;
@@ -82,10 +66,6 @@ namespace SocialPoint.Network
 
         protected virtual void SetupHttpRequest(HttpRequest req)
         {
-            if(string.IsNullOrEmpty(req.Proxy))
-            {
-                req.Proxy = _defaultProxy;
-            }
             if(Math.Abs(req.Timeout) < Single.Epsilon)
             {
                 req.Timeout = 60.0f;

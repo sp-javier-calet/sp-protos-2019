@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Helpshift;
+using SocialPoint.Attributes;
 
 namespace SocialPoint.Helpshift
 {
@@ -16,6 +19,8 @@ namespace SocialPoint.Helpshift
         public bool SearchOnNewConversationEnabled { get; set; }
 
         public bool ConversationResolutionQuestionEnabled { get; set; }
+
+        public Dictionary<string, object>[] Flows;
     }
 
     public class HelpshiftCustomer
@@ -51,5 +56,7 @@ namespace SocialPoint.Helpshift
         void OpenFromPush(string issueId);
 
         int PendingNotificationsCount { get; }
+
+        void AddFlows(AttrDic flows);
     }
 }

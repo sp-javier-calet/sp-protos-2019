@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SocialPoint.Multiplayer</RootNamespace>
-    <AssemblyName>AuthoritativePlugin</AssemblyName>
+    <AssemblyName>CaAuthoritativePlugin</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;BEHAVIOR_DESIGNER_STANDALONE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -31,18 +31,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\Server\lib\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="PhotonHivePlugin">
-      <HintPath>..\Server\lib\PhotonHivePlugin.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="log4net">
+      <HintPath>..\Server\lib\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="PhotonHivePlugin">
+      <HintPath>..\Server\deploy\LoadBalancing\Master\bin\PhotonHivePlugin.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Server\Shared\NetworkServerPlugin.cs">
@@ -52,18 +52,20 @@
       <Link>PluginNetworkMessage.cs</Link>
     </Compile>
     <Compile Include="AuthoritativePlugin.cs" />
-    <Compile Include="PluginFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\Server\Shared\PluginHttpClient.cs">
+      <Link>PluginHttpClient.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="AuthoritativeSparta.csproj">
-      <Project>{4ba8ea51-7fea-4e0f-8103-386ffffd6001}</Project>
-      <Name>Sparta</Name>
+      <Project>{4BA8EA51-7FEA-4E0F-8103-386FFFFD6001}</Project>
+      <Name>AuthoritativeSparta</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\Server\deploy\Plugins\AuthoritativePlugin\bin\"</PostBuildEvent>
+    <PostBuildEvent Condition=" '$(OS)' != 'Unix' ">xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\Server\deploy\Plugins\AuthoritativePlugin\bin\"</PostBuildEvent>
     <StartAction>Program</StartAction>
     <StartProgram>..\Server\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
     <StartWorkingDirectory>

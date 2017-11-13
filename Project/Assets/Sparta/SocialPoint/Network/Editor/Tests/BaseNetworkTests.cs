@@ -3,6 +3,7 @@ using System.Collections;
 using NUnit.Framework;
 using NSubstitute;
 using SocialPoint.IO;
+using System.Collections.Generic;
 
 namespace SocialPoint.Network
 {
@@ -136,7 +137,7 @@ namespace SocialPoint.Network
 
             var data = new NetworkMessageData {
                 MessageType = 5,
-                ClientId = 1
+                ClientIds = new List<byte>(){ 1 }
             };
             var msg = _server.CreateMessage(data);
 
@@ -214,5 +215,17 @@ namespace SocialPoint.Network
             cdlg.Received(1).OnClientConnected();
         }
 
+        [Test]
+        public void ClientReceivedMessageSendOnClientConnected()
+        {
+            _server.Start();
+            var sdlg = Substitute.For<INetworkServerDelegate>();
+            sdlg.WhenForAnyArgs(x => x.OnClientConnected(Arg.Any<byte>())).Do(x => _server.SendMessage(new NetworkMessageData { ClientIds = new List<byte>(){ 1 }, MessageType = 1} , Substitute.For<INetworkShareable>()));
+            _server.AddDelegate(sdlg);
+            var cdlg = Substitute.For<INetworkClientDelegate>();
+            _client.AddDelegate(cdlg);
+            _client.Connect();
+            cdlg.Received().OnMessageReceived(new NetworkMessageData {ClientIds = new List<byte>(){ 1 }, MessageType = 1});
+        }
     }
 }

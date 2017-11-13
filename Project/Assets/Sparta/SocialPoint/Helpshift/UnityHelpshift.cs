@@ -4,7 +4,11 @@ using System;
 using System.Collections.Generic;
 using Helpshift;
 using SocialPoint.Base;
+using SocialPoint.Attributes;
 #endif
+
+using SocialPoint.Dependency;
+using SocialPoint.Hardware;
 
 using SocialPoint.Locale;
 using SocialPoint.Notifications;
@@ -23,6 +27,7 @@ namespace SocialPoint.Helpshift
         const string YesKey = "yes";
         const string NoKey = "no";
        
+        readonly IDeviceInfo _deviceInfo;
         HelpshiftConfiguration _config;
 
         public ILocalizationManager LocalizationManager { private get; set; }
@@ -33,9 +38,10 @@ namespace SocialPoint.Helpshift
 
         HelpshiftCustomer _userData;
 
-        public UnityHelpshift(HelpshiftConfiguration config)
+        public UnityHelpshift(HelpshiftConfiguration config, IDeviceInfo deviceInfo)
         {
             _config = config;
+            _deviceInfo = deviceInfo;
         }
 
         void Setup()
@@ -48,11 +54,17 @@ namespace SocialPoint.Helpshift
             // Initialize Helpshift sdk
             _helpshift = HelpshiftSdk.getInstance();
 
+
 #if UNITY_ANDROID
             // Install is only called from c# in Android.
             // For iOS, the config is deployed directly in a json file in the bundle to be read from native code
             _helpshift.install();
 #endif
+        }
+
+        public void AddFlows(AttrDic flows)
+        {
+            Log.e("UnityHelpshift", "Not implemented!!");
         }
 
         void CreateConfigMap()
@@ -95,6 +107,8 @@ namespace SocialPoint.Helpshift
             {
                 customerMetaData.Add(HelpshiftSdk.HSTAGSKEY, _userData.CustomerTags);
             }
+            
+            _userData.CustomMetaData.Add("ifda", _deviceInfo.AdvertisingId);
 
             foreach(var kpv in _userData.CustomMetaData)
             {
@@ -134,9 +148,10 @@ namespace SocialPoint.Helpshift
                 return;
             }
 
-            #if UNITY_ANDROID
+
+#if UNITY_ANDROID
             _helpshift.registerDelegates();
-            #endif
+#endif
 
             if(validToken)
             {
@@ -144,7 +159,8 @@ namespace SocialPoint.Helpshift
             }
         }
 
-        #region IHelpshift implementation
+
+#region IHelpshift implementation
 
         public HelpshiftConfiguration Configuration
         {
@@ -254,9 +270,11 @@ namespace SocialPoint.Helpshift
             }
         }
 
-        #endregion
+
+#endregion
     }
 }
+
 
 #else
 
@@ -264,7 +282,7 @@ namespace SocialPoint.Helpshift
 {
     public sealed class UnityHelpshift : EmptyHelpshift
     {
-        public UnityHelpshift(HelpshiftConfiguration config)
+        public UnityHelpshift(HelpshiftConfiguration config, IDeviceInfo deviceInfo)
         {
         }
 

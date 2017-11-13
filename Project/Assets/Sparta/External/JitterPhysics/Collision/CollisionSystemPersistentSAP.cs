@@ -363,7 +363,7 @@ namespace Jitter.Collision
                 {
                     if(multiThreaded)
                     {
-                        BroadphasePair pair = BroadphasePair.Pool.GetNew();
+                        BroadphasePair pair = broadphasePairPool.GetNew();
                         if(swapOrder)
                         {
                             pair.Entity1 = key.Entity1;
@@ -390,7 +390,8 @@ namespace Jitter.Collision
                 }
             }
 
-            threadManager.Execute();
+            if(multiThreaded)
+                threadManager.Execute();
 
         }
 
@@ -403,7 +404,7 @@ namespace Jitter.Collision
         {
             BroadphasePair pair = obj as BroadphasePair;
             base.Detect(pair.Entity1, pair.Entity2);
-            BroadphasePair.Pool.GiveBack(pair);
+            broadphasePairPool.GiveBack(pair);
         }
 
         // okay, people often say raycasting can be made faster using the sweep
@@ -607,7 +608,7 @@ namespace Jitter.Collision
                 {
                     ms.SetCurrentShape(i);
 
-                    if(GJKCollide.Raycast(ms, ref body.orientation, ref body.invOrientation, ref body.position,
+                    if(gjkCollide.Raycast(ms, ref body.orientation, ref body.invOrientation, ref body.position,
                             ref rayOrigin, ref rayDirection, out tempFraction, out tempNormal))
                     {
                         if(tempFraction < fraction)
@@ -637,7 +638,7 @@ namespace Jitter.Collision
             }
             else
             {
-                return (GJKCollide.Raycast(body.Shape, ref body.orientation, ref body.invOrientation, ref body.position,
+                return (gjkCollide.Raycast(body.Shape, ref body.orientation, ref body.invOrientation, ref body.position,
                     ref rayOrigin, ref rayDirection, out fraction, out normal));
             }
 

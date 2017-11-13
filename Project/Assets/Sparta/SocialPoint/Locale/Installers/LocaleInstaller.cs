@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using SocialPoint.AppEvents;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
 using SocialPoint.Dependency;
 using SocialPoint.Hardware;
 using SocialPoint.Locale;
 using SocialPoint.Network;
-using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
-using SocialPoint.Base;
-using SocialPoint.Attributes;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -20,35 +19,28 @@ namespace SocialPoint.Locale
     {
         const string kPersistentTag = "persistent";
 
-        public enum LocalizationEnvironment
+        [Serializable]
+        public struct EnvironmentData
         {
-            Development,
-            Localization,
-            Production
+            public EnvironmentType EnvironmentType;
+            public string Id;
+            public string SecretKey;
         }
-
-        // Environment Ids mapping
-        static readonly Dictionary<LocalizationEnvironment, string> EnvironmentIds = new Dictionary<LocalizationEnvironment, string> {
-            { LocalizationEnvironment.Development,  "dev"  },
-            { LocalizationEnvironment.Localization, "loc"  },
-            { LocalizationEnvironment.Production,   "prod" }
-        };
 
         [Serializable]
         public class SettingsData
         {
             public bool UseAlwaysDeviceLanguage = true;
             public LocalizationSettings Localization;
+            public LocalizationManager.TimeTextIdentifiers TimeTextIndetifiers;
         }
 
         [Serializable]
         public class LocalizationSettings
         {
-            public LocalizationEnvironment Environment = LocalizationEnvironment.Production;
             public string ProjectId = LocalizationManager.LocationData.DefaultProjectId;
-            public string SecretKeyDev = LocalizationManager.LocationData.DefaultDevSecretKey;
-            public string SecretKeyLoc = LocalizationManager.LocationData.DefaultDevSecretKey;
-            public string SecretKeyProd = LocalizationManager.LocationData.DefaultProdSecretKey;
+            public List<EnvironmentData> EnvironmentsData = new List<EnvironmentData>();
+
             public string BundleDir = LocalizationManager.DefaultBundleDir;
             public LocalizationManager.CsvMode CsvMode = LocalizationManager.CsvMode.NoCsv;
             public bool ShowKeysOnDevMode = true;
@@ -101,6 +93,7 @@ namespace SocialPoint.Locale
             #else
                 LocalizationManager localizationManager = new LocalizationManager(storage);
             #endif
+            localizationManager.TimeTids = Settings.TimeTextIndetifiers;
             localizationManager.UseAlwaysDeviceLanguage = Settings.UseAlwaysDeviceLanguage;
 
             return localizationManager;
@@ -115,7 +108,7 @@ namespace SocialPoint.Locale
             NGUILocalization.LoadCSV(bytes);
             NGUILocalization.language = manager.CurrentLanguage;
 
-            UILocalize[] localizadElements = GameObject.FindObjectsOfType<UILocalize>();
+            UILocalize[] localizadElements = UnityEngine.Object.FindObjectsOfType<UILocalize>();
             for(int i = 0; i < localizadElements.Length; i++)
             {
                 localizadElements[i].OnLocalize();
@@ -128,31 +121,14 @@ namespace SocialPoint.Locale
         {
             mng.HttpClient = Container.Resolve<IHttpClient>();
             mng.AppInfo = Container.Resolve<IAppInfo>();
+            mng.BackendEnvironments = Container.Resolve<IBackendEnvironment>();
             mng.AppEvents = Container.Resolve<IAppEvents>();
-            mng.EnvironmentType = Container.Resolve<IBackendEnvironment>().GetEnvironment().Type;
-
-            string secretKey;
-            if(Settings.Localization.Environment == LocalizationEnvironment.Development)
-            {
-                secretKey = Settings.Localization.SecretKeyDev;
-            }
-            else if(Settings.Localization.Environment == LocalizationEnvironment.Localization)
-            {
-                secretKey = Settings.Localization.SecretKeyLoc;
-            }
-            else
-            {
-                secretKey = Settings.Localization.SecretKeyProd;
-            }
-
             mng.Location.ProjectId = Settings.Localization.ProjectId;
-            mng.Location.EnvironmentId = EnvironmentIds[Settings.Localization.Environment];
-            mng.Location.SecretKey = secretKey;
+            mng.Location.EnvironmentsData = Settings.Localization.EnvironmentsData;
             mng.Timeout = Settings.Localization.Timeout;
             mng.BundleDir = Settings.Localization.BundleDir;
             mng.SupportedLanguages = Settings.Localization.SupportedLanguages;
             mng.Localization.ShowKeysOnDevMode = Settings.Localization.ShowKeysOnDevMode;
-
             mng.UpdateDefaultLanguage();
         }
     }
