@@ -306,7 +306,7 @@ namespace SocialPoint.GUIControl
             }
         }
             
-        void SetupTransition(StackNode from, StackNode to)
+        void SetupTransition(StackNode from, StackNode to, ActionType act)
         {
             if(FrontContainer != null && IsValidStackNode(to))
             {
@@ -320,31 +320,21 @@ namespace SocialPoint.GUIControl
                 
             if(IsValidStackNode(from))
             {
-                SetupAnimation(ref from.Controller.DisappearAnimation, from.Controller.DisappearAnimationFactory, from.Controller, DisappearAnimationFactory);
+                if(!IsImmediateAction(act))
+                {
+                    from.Controller.LoadDisappearAnimation(DisappearAnimationFactory, DisappearAnimation);
+                }
             }
 
             if(IsValidStackNode(to))
             {
-                SetupAnimation(ref to.Controller.AppearAnimation, to.Controller.AppearAnimationFactory, to.Controller, AppearAnimationFactory);
+                if(!IsImmediateAction(act))
+                {
+                    to.Controller.LoadAppearAnimation(AppearAnimationFactory, AppearAnimation);
+                }
             }
         }
-   
-        void SetupAnimation(ref UIViewAnimation uiViewAnimation, UIViewAnimationFactory animationFactory, UIViewController ctrl, UIViewAnimationFactory defaultAnimationFactory)
-        {
-            var anim = GetAnimation(animationFactory ?? (ctrl.IsFullScreen ? null : defaultAnimationFactory));
-            if(anim != null)
-            {
-                anim.Load(ctrl.gameObject);
-            }
 
-            uiViewAnimation = anim;
-        }
-
-        static UIViewAnimation GetAnimation(UIViewAnimationFactory animationFactory)
-        {
-            return animationFactory != null ? animationFactory.Create() : null;
-        }
-            
         IEnumerator DoTransition(StackNode from, StackNode to, ActionType act)
         {            
             if(IsValidStackNode(from) && IsValidStackNode(to) && from.Controller == to.Controller)
@@ -353,7 +343,7 @@ namespace SocialPoint.GUIControl
                 yield break;
             }
 
-            SetupTransition(from, to);
+            SetupTransition(from, to, act);
 
             DebugLog(string.Format("StartTransition {0} {1} -> {2}", SimultaneousAnimations ? "sim" : "con",
                 IsValidStackNode(from) ? from.GameObject.name : string.Empty,
@@ -606,7 +596,7 @@ namespace SocialPoint.GUIControl
             _stack.Add(stackNode);
 
             var act = ActionType.PushImmediate;
-            SetupTransition(top, stackNode);
+            SetupTransition(top, stackNode, act);
             if(IsValidStackNode(top))
             {
                 top.Controller.HideImmediate();
@@ -712,7 +702,7 @@ namespace SocialPoint.GUIControl
 
             AddChild(stackNode.GameObject);
             _stack.Add(stackNode);
-            SetupTransition(top, stackNode);
+            SetupTransition(top, stackNode, act);
 
             if(IsValidStackNode(top))
             {

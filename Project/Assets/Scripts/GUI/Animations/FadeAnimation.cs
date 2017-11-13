@@ -50,13 +50,4 @@ public class FadeAnimationFactory : UIViewAnimationFactory
     {
         return new FadeAnimation(Duration, InitialAlpha, FinalAlpha);
     }
-
-    public UIViewAnimation Create(float duration, float initialAlpha, float finalAlpha)
-    {
-        Duration = duration;
-        InitialAlpha = initialAlpha;
-        FinalAlpha = finalAlpha;
-
-        return Create();
-    }
 }

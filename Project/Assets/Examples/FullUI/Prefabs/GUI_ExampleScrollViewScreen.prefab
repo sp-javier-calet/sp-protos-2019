@@ -1005,7 +1005,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Content: {fileID: 224413261937824440}
-  m_Horizontal: 0
+  m_Horizontal: 1
   m_Vertical: 0
   m_MovementType: 1
   m_Elasticity: 0.1
@@ -1749,6 +1749,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63071bfc50c574ce6bdb16ee760638a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _animationFactory: {fileID: 11400000, guid: 0fb04643e8ffc426a86cf5c34940417d, type: 2}
 --- !u!114 &114658683457340164
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2120,34 +2121,34 @@ MonoBehaviour:
   ParentController: {fileID: 0}
   DestroyOnHide: 0
   _containers3d: []
-  _scrollRect: {fileID: 114161346898271426}
-  _verticalLayoutGroup: {fileID: 0}
-  _horizontalLayoutGroup: {fileID: 114250936560797392}
-  _gridLayoutGroup: {fileID: 0}
-  _loadingGroup: {fileID: 1796695605246944}
+  UsePooling: 1
+  CenterOnCell: 0
+  UseNavigationButtons: 0
+  UsePaginationButtons: 0
+  DisableDragWhileScrollingAnimation: 0
+  LastCellPosition: 1
+  ScrollRect: {fileID: 114161346898271426}
+  VerticalLayoutGroup: {fileID: 0}
+  HorizontalLayoutGroup: {fileID: 114250936560797392}
+  GridLayoutGroup: {fileID: 0}
+  LoadingGroup: {fileID: 1796695605246944}
   BasePrefabs:
   - {fileID: 154906, guid: c48ec18c1b0bd4a479ae79e51e584b82, type: 2}
   - {fileID: 154906, guid: 2b0cf283ec05e431fa706a21e52ca3f7, type: 2}
   - {fileID: 154906, guid: 322b0823e89274f83b629dedc5ded59c, type: 2}
-  _usePooling: 1
-  _boundsDelta: 0
-  _initialIndex: 0
-  _showLastCellPosition: 1
-  _scrollAnimationTime: 0.5
-  _scrollAnimationEaseType: 0
-  _scrollAnimationCurve:
+  BoundsDelta: 50
+  InitialIndex: 0
+  ScrollAnimationTime: 0.5
+  ScrollAnimationEaseType: 0
+  ScrollAnimationCurve:
     serializedVersion: 2
     m_Curve: []
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  _disableDragWhileScrollingAnimation: 0
-  _centerOnCell: 0
-  _deltaDragCell: 50
-  _pagination: {fileID: 0}
-  _useNavigationButtons: 0
-  _usePaginationButtons: 0
-  _mainCanvas: {fileID: 223778103955784520}
+  DeltaDragCell: 50
+  Pagination: {fileID: 0}
+  MainCanvas: {fileID: 223778103955784520}
 --- !u!114 &114845665669166438
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2799,7 +2800,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -814.3357, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0.5}
 --- !u!224 &224461607277972336
 RectTransform:
@@ -3020,7 +3021,7 @@ RectTransform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1557262944174700}
-  m_LocalRotation: {x: 0, y: 0, z: -0.071038574, w: 0.9974736}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []

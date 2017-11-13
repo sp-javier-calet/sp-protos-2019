@@ -391,6 +391,42 @@ namespace SocialPoint.GUIControl
             ShowDebugLogMessage(string.Format("UIViewController {0} {1} | {2}", gameObject.name, _viewState, msg));
         }
 
+        public void LoadAppearAnimation(UIViewAnimationFactory defaultAnimationFactory, UIViewAnimation defaultAnimation)
+        {
+            AppearAnimation = GetAnimation(AppearAnimationFactory, defaultAnimationFactory, defaultAnimation);
+            LoadAnimation(AppearAnimation);
+        }
+
+        public void LoadDisappearAnimation(UIViewAnimationFactory defaultAnimationFactory, UIViewAnimation defaultAnimation)
+        {
+            DisappearAnimation = GetAnimation(DisappearAnimationFactory, defaultAnimationFactory, defaultAnimation);
+            LoadAnimation(DisappearAnimation);
+        }
+
+        void LoadAnimation(UIViewAnimation anim)
+        {
+            if(anim != null)
+            {
+                anim.Load(gameObject);
+            }
+        }
+
+        UIViewAnimation GetAnimation(UIViewAnimationFactory viewAnimationFactory, UIViewAnimationFactory defaultAnimationFactory, UIViewAnimation defaultAnimation)
+        {
+            if(viewAnimationFactory != null)
+            {
+                return viewAnimationFactory.Create();
+            }
+            else if(defaultAnimationFactory != null)
+            {
+                return (IsFullScreen ? null : defaultAnimationFactory.Create());
+            }
+            else
+            {
+                return (IsFullScreen ? null : defaultAnimation);
+            }
+        }
+
         public void SetParent(Transform parent)
         {
             gameObject.transform.SetParent(parent, false);

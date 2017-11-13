@@ -60,11 +60,4 @@ public class CombinedAnimationFactory : UIViewAnimationFactory
 
         return new CombinedAnimation(Animations);
     }
-
-    public UIViewAnimation Create(UIViewAnimation[] animations)
-    {
-        Animations = animations;
-
-        return Create();
-    }
 }

@@ -10,14 +10,8 @@ public class ScreensController : UIStackController
     override protected void OnLoad()
     {
         AnimationTime = Services.Instance.Resolve("popup_animation_time", DefaultAnimationTime);
-
-        var appearAnimationFactory = ScriptableObject.CreateInstance<FadeAnimationFactory>();
-        appearAnimationFactory.Create(AnimationTime, 0f, 1f);
-        AppearAnimationFactory = appearAnimationFactory;
-
-        var disappearAnimationFactory = ScriptableObject.CreateInstance<FadeAnimationFactory>();
-        disappearAnimationFactory.Create(AnimationTime, 1f, 0f);
-        DisappearAnimationFactory = disappearAnimationFactory;
+        AppearAnimation = new FadeAnimation(AnimationTime, 0f, 1f);
+        DisappearAnimation = new FadeAnimation(AnimationTime, 1f, 0f);
 
         base.OnLoad();
     }

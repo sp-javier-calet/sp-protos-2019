@@ -59,15 +59,4 @@ public class ScaleAnimationFactory : UIViewAnimationFactory
     {
         return new ScaleAnimation(Duration, InitialScale, FinalScale, EaseType, EaseCurve);
     }
-
-    public UIViewAnimation Create(float duration, Vector3 initialScale, Vector3 finalScale, GoEaseType easeType, AnimationCurve easeCurve)
-    {
-        Duration = duration;
-        InitialScale = initialScale;
-        FinalScale = finalScale;
-        EaseType = easeType;
-        EaseCurve = easeCurve;
-
-        return Create();
-    }
 }

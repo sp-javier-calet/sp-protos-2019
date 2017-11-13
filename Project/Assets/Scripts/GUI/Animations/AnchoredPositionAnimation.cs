@@ -55,14 +55,4 @@ public class AnchoredPositionAnimationFactory : UIViewAnimationFactory
     {
         return new AnchoredPositionAnimation(Duration, FinalPosition, EaseType, EaseCurve);
     }
-
-    public UIViewAnimation Create(float duration, Vector2 finalPosition, GoEaseType easeType, AnimationCurve easeCurve)
-    {
-        Duration = duration;
-        FinalPosition = finalPosition;
-        EaseType = easeType;
-        EaseCurve = easeCurve;
-
-        return Create();
-    }
 }

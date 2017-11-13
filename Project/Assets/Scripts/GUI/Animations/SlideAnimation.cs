@@ -94,15 +94,4 @@ public class SlideAnimationFactory : UIViewAnimationFactory
     {
         return new SlideAnimation(Duration, FromPos, ToPos, EaseType, EaseCurve);
     }
-
-    public UIViewAnimation Create(float duration, SlideAnimation.PosType fromPos, SlideAnimation.PosType toPos, GoEaseType easeType, AnimationCurve easeCurve)
-    {
-        Duration = duration;
-        FromPos = fromPos;
-        ToPos = toPos;
-        EaseType = easeType;
-        EaseCurve = easeCurve;
-
-        return Create();
-    }
 }

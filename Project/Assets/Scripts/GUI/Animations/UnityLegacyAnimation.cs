@@ -56,13 +56,4 @@ public class UnityLegacyAnimationFactory : UIViewAnimationFactory
     {
         return new UnityLegacyAnimation(Animation, AnimName, AmimSpeed);
     }
-
-    public UIViewAnimation Create(Animation animation, string animName, float animSpeed = 1f)
-    {
-        Animation = animation;
-        AnimName = animName;
-        AmimSpeed = animSpeed;
-
-        return Create();
-    }
 }
