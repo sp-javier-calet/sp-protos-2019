@@ -33,15 +33,6 @@ namespace SocialPoint.QualityStats
         {
         }
 
-        [Obsolete]
-        public string DefaultProxy
-        {
-            set
-            {
-                _client.DefaultProxy = value;
-            }
-        }
-
         public string Config
         {
             set

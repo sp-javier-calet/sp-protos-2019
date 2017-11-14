@@ -24,9 +24,16 @@ namespace SocialPoint.Login
         public readonly static string LinkName = "gp";
         public bool _loginSilent;
 
-        public GooglePlayLink(IGoogle googlePlay, bool silent = false)
+        public LinkMode Mode
+        {
+            get;
+            private set;
+        }
+
+        public GooglePlayLink(IGoogle googlePlay, LinkMode mode, bool silent = false)
         {
             _googlePlay = googlePlay;
+            Mode = mode;
             _loginSilent = silent;
             Init();
         }

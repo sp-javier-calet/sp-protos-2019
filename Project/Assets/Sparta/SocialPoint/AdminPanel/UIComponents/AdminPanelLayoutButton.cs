@@ -4,6 +4,9 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using System.Collections;
+using SocialPoint.AssetBundlesClient;
+using SocialPoint.Dependency;
 
 namespace SocialPoint.AdminPanel
 {
@@ -39,16 +42,22 @@ namespace SocialPoint.AdminPanel
 
     public partial class AdminPanelLayout
     {
+        public delegate void Callback (AssetBundleLoadAssetOperation request);
         /*
          * Generic Button
          */
 
-        public Button CreateButton(string label, Action onClick, bool enabled = true)
+        public Button CreateButton(string label, Action onClick, bool enabled = true, bool bestFit = false)
         {
-            return CreateButton(label, ButtonColor.Default, onClick, enabled);
+            return CreateButton(label, ButtonColor.Default, onClick, enabled, null, bestFit);
         }
 
-        public Button CreateButton(string label, ButtonColor buttonColor, Action onClick, bool enabled = true)
+        public Button CreateButtonWithIcon(string label, Action onClick, string imagePath, bool bestFit, bool enabled = true)
+        {
+            return CreateButton(label, ButtonColor.Default, onClick, enabled, imagePath, bestFit);
+        }
+
+        public Button CreateButton(string label, ButtonColor buttonColor, Action onClick, bool enabled = true, string imagePath = null, bool bestFit = false)
         {
             var rectTransform = CreateUIObject("Admin Panel - Button", Parent);
           
@@ -58,23 +67,58 @@ namespace SocialPoint.AdminPanel
 
             var image = rectTransform.gameObject.AddComponent<Image>();
             image.color = enabled ? buttonColor.Color : ButtonColor.Disabled.Color;
-            
             var button = rectTransform.gameObject.AddComponent<Button>();
-            button.targetGraphic = image;
-            var colors = button.colors;
-            colors.highlightedColor = button.colors.pressedColor;
-            button.colors = colors;
-
+            CreateButtonLabel(label, rectTransform, FontStyle.Normal, enabled, bestFit, (imagePath == null) ? 1 : 0.75f);
             if(enabled && onClick != null)
             {
                 button.onClick.AddListener(() => onClick());
             }
-            
-            CreateButtonLabel(label, rectTransform, FontStyle.Normal, enabled);
 
+            Callback cb = (AssetBundleLoadAssetOperation request) => {
+                Texture prefab = null;
+                if(request != null)
+                {
+                    prefab = request.GetAsset<Texture>();
+                    if(prefab != null)
+                    {
+                        var iconImage = new GameObject("Admin Panel - Icon Button");
+                        iconImage.transform.parent = image.transform;
+                        iconImage.transform.localPosition = new Vector3(25, 0, 0);
+                        RawImage uitexture = iconImage.AddComponent<RawImage>();
+                        uitexture.texture = prefab;
+                        uitexture.raycastTarget = false;
+                        Color col = uitexture.color;
+                        col.a = 0.7f;
+                        uitexture.color = col;
+                    }
+                }
+
+                button.targetGraphic = image;
+            };
+
+            if(imagePath != null)
+            {
+                Services.Instance.Resolve<AssetBundleManager>().CoroutineRunner.StartCoroutine(SetImageIcon(imagePath, cb));
+            }
+            
             return button;
         }
 
+        void LoadAsync(string path, RawImage image)
+        {
+            image.texture = Resources.Load(path) as Texture;
+        }
+
+        IEnumerator SetImageIcon(string imagePath, Callback callBack)
+        {
+            AssetBundleLoadAssetOperation request = null;
+
+            // Get the asset
+            yield return Services.Instance.Resolve<AssetBundleManager>().LoadAssetAsyncRequest(imagePath+"_png", imagePath, typeof(Texture), req => request = req);
+
+            // do something with it
+            callBack(request);
+        }
 
         /*
          * Confirm Button
@@ -225,7 +269,6 @@ namespace SocialPoint.AdminPanel
         }
 
 
-
         /*
          * Toggle Button
          */
@@ -356,15 +399,24 @@ namespace SocialPoint.AdminPanel
          * Internal
          */
 
-        void CreateButtonLabel(string label, Transform buttonTransform, FontStyle style = FontStyle.Normal, bool enabled = true)
+        void CreateButtonLabel(string label, Transform buttonTransform, FontStyle style = FontStyle.Normal, bool enabled = true, bool bestFit = false, float xMaxAnchor = -1)
         {
             var rectTransform = CreateUIObject("Admin Panel - Button Label", buttonTransform);
-            
+
+            if(xMaxAnchor > 0)
+            {
+                Vector2 anchor = rectTransform.anchorMax;
+                anchor.x = xMaxAnchor;
+                rectTransform.anchorMax = anchor;
+            }
+
             var text = rectTransform.gameObject.AddComponent<Text>();
             text.text = label;
             text.font = DefaultFont;
             text.fontSize = DefaultFontSize;
             text.color = enabled ? Color.white : Color.gray;
+            text.resizeTextForBestFit = bestFit;
+            text.resizeTextMinSize = 10;
             text.alignment = TextAnchor.MiddleCenter;
             text.fontStyle = style;
             

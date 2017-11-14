@@ -75,6 +75,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 { typeof(SystemCapabilityModEditor),    new SystemCapabilityModEditor()    },
                 { typeof(ProvisioningModEditor),        new ProvisioningModEditor()        },
                 { typeof(KeychainAccessGroupModEditor), new KeychainAccessGroupModEditor() },
+                { typeof(PushNotificationsModEditor),   new PushNotificationsModEditor()   },
             };
 
             public T GetEditor<T>() where T : IModEditor
@@ -219,6 +220,16 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             public void AddKeychainAccessGroup(string accessGroup)
             {
                 GetEditor<KeychainAccessGroupModEditor>().Add(accessGroup);
+            }
+
+            public void AddPushNotificationsEntitlement(bool isProduction)
+            {
+                GetEditor<PushNotificationsModEditor>().Add(isProduction);
+            }
+
+            public void AddPushNotificationsEntitlement(string entitlementsFile, bool isProduction)
+            {
+                GetEditor<PushNotificationsModEditor>().Add(entitlementsFile, isProduction);
             }
 
             public void Commit()
@@ -994,6 +1005,121 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 }
             }
 
+            class PushNotificationsModEditor : IModEditor
+            {
+                const string DefaultEntitlementsFile = "Unity-iPhone.entitlements";
+                const string ApsEnvironmentKey = "aps-environment";
+                const string DevelopmentApsKey = "development";
+                const string ProductionApsKey = "production";
+
+                readonly List<ModData> _mods = new List<ModData>();
+
+                struct ModData
+                {
+                    public readonly string EntitlementsFile;
+                    public readonly bool IsProduction;
+
+                    public ModData(string entitlementsFile, bool isProduction)
+                    {
+                        EntitlementsFile = entitlementsFile;
+                        IsProduction = isProduction;
+                    }
+
+                    public override bool Equals(object obj)
+                    {
+                        if(obj == null)
+                            return false;
+                        if(obj.GetType() != typeof(ModData))
+                            return false;
+                        var other = (ModData)obj;
+                        return this == other;
+                    }
+
+                    public override int GetHashCode()
+                    {
+                        unchecked
+                        {
+                            return (EntitlementsFile != null ? EntitlementsFile.GetHashCode() : 0) ^ IsProduction.GetHashCode();
+                        }
+                    }
+
+                    public static bool operator ==(ModData x, ModData y)
+                    {
+                        return x.EntitlementsFile == y.EntitlementsFile && x.IsProduction == y.IsProduction;
+                    }
+
+                    public static bool operator !=(ModData x, ModData y)
+                    {
+                        return !(x == y);
+                    }
+                }
+
+                public void Add(bool isProduction)
+                {
+                    Add(DefaultEntitlementsFile, isProduction);
+                }
+
+                public void Add(string entitlementsFile, bool isProduction)
+                {
+                    _mods.Add(new ModData(entitlementsFile, isProduction));
+                }
+
+                public override string Validate(XcodeEditorInternal editor)
+                {
+                    var baseRet = base.Validate(editor);
+                    if(baseRet != null)
+                    {
+                        return baseRet;
+                    }
+
+                    if(_mods.Count == 0)
+                    {
+                        return null;
+                    }
+                    ModData referenceData = _mods.First();  
+                    foreach(var data in _mods)
+                    {
+                        //All the ModsData should be equal
+                        if(data != referenceData)
+                        {
+                            return "Conflicting PushNotifications environments";
+                        }
+                    }
+                    return null;
+                }
+
+                public override void Apply(XcodeEditorInternal editor)
+                {
+                    base.Apply(editor);
+
+                    if(_mods.Count == 0)
+                    {
+                        return;
+                    }
+
+                    //Only reading First() because the Validate() mehtod assures that all the items in this list are equal
+                    var modData = _mods.First();
+
+                    var path = Path.Combine(editor.Project.ProjectRootPath, modData.EntitlementsFile);
+                    var plist = new PlistDocument();
+
+                    if(!File.Exists(path))
+                    {
+                        File.Create(path).Dispose();
+                        editor.Pbx.AddFile(path, modData.EntitlementsFile);
+                    }
+                    else
+                    {
+                        plist.ReadFromFile(path);
+                    }
+
+                    var envName = modData.IsProduction ? ProductionApsKey : DevelopmentApsKey;
+                    plist.root.SetString(ApsEnvironmentKey, envName);
+
+                    plist.WriteToFile(path);
+                }
+            }
+
             /// <summary>
             /// Keychain Access Groups Editor
             /// </summary>
@@ -1018,6 +1144,30 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 public void Add(string entitlementsFile, string accessGroup)
                 {
                     _mods.Add(new ModData{ EntitlementsFile = entitlementsFile, AccessGroup = accessGroup });
+                }
+
+                public override string Validate(XcodeEditorInternal editor)
+                {
+                    var baseRet = base.Validate(editor);
+                    if(baseRet != null)
+                    {
+                        return baseRet;
+                    }
+
+                    if(_mods.Count == 0)
+                    {
+                        return null;
+                    }
+                    var referenceEntitlementFile = _mods.First().EntitlementsFile;  
+                    foreach(var data in _mods)
+                    {
+                        //All the ModsData should be equal
+                        if(data.EntitlementsFile != referenceEntitlementFile)
+                        {
+                            return "Conflicting KeychainAccessGroupMod. Trying to use multiple .entitlement files";
+                        }
+                    }
+                    return null;
                 }
 
                 public override void Apply(XcodeEditorInternal editor)

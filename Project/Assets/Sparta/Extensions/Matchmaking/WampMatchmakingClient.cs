@@ -11,12 +11,13 @@ namespace SocialPoint.Matchmaking
     public class WampMatchmakingClient : IMatchmakingClient, IDisposable
     {
         const string MatchmakingStartMethodName = "matchmaking.match.start";
-        const string MatchmakingStopMethodName = "matchmaking.match.stop";
+        const string MatchmakingStopMethodName = "matchmaking.match.cancel";
         const string MatchmakingGetMethodName = "matchmaking.match.find_active_match";
 
         const string RoomParameter = "room";
         const string UserIdParameter = "user_id";
         const string ConnectIdParameter = "connect_id";
+        const string ExtraDataParameter = "extra_data";
 
         const string ErrorAttrKey = "error";
         const string StatusAttrKey = "status";
@@ -25,9 +26,6 @@ namespace SocialPoint.Matchmaking
         const string ResultAttrKey = "result";
         const string SuccessAttrKey = "success";
         const string MatchFoundAttrKey = "found";
-
-        const int SuccessNotification = 502;
-        const int TimeoutNotification = 503;
 
         public string Room{ get; set; }
 
@@ -46,17 +44,18 @@ namespace SocialPoint.Matchmaking
         ILoginData _login;
         CallRequest _startRequest;
         CallRequest _stopRequest;
-        bool _searchingForOpponent;
-        string _connectionID;
+        string _connectionID = string.Empty;
+        AttrDic _extraData;
 
-        public WampMatchmakingClient(ConnectionManager wamp, ILoginData login, string connectionID = null)
+        bool _searchForActiveMatchAndPersistOnReconnect;
+
+        public WampMatchmakingClient(ConnectionManager wamp, ILoginData login)
         {
             _delegates = new List<IMatchmakingClientDelegate>();
             _delegatesToAdd = new List<IMatchmakingClientDelegate>();
             _delegatesToRemove = new List<IMatchmakingClientDelegate>();
             _wamp = wamp;
             _login = login;
-            _connectionID = connectionID ?? string.Empty;
 
             _wamp.OnNotificationReceived += OnWampNotificationReceived;
             _wamp.OnError += OnWampError;
@@ -73,12 +72,23 @@ namespace SocialPoint.Matchmaking
             _wamp.OnClosed -= OnConnectionClosed;
             if(_startRequest != null)
             {
-                _wamp.OnConnected += OnReconnected;
+                if(_searchForActiveMatchAndPersistOnReconnect)
+                {
+                    _wamp.OnConnected += OnReconnected;
+                }
+                else
+                {
+                    DisposeStartRequest();
+                }
             }
         }
 
-        public void Start()
+        public void Start(AttrDic extraData, bool searchForActiveMatchAndPersistOnReconnect, string connectId)
         {
+            _extraData = extraData;
+            _searchForActiveMatchAndPersistOnReconnect = searchForActiveMatchAndPersistOnReconnect;
+            _connectionID = connectId;
+
             DispatchOnStartEvent();
 
             if(!_wamp.IsConnected)
@@ -100,15 +110,20 @@ namespace SocialPoint.Matchmaking
 
         void CheckStart()
         {
-            _searchingForOpponent = false;
             _wamp.OnClosed += OnConnectionClosed;
-
 
             DisposeStartRequest();
 
-            var dic = new AttrDic();
-            dic.SetValue(UserIdParameter, _login.UserId.ToString());
-            _wamp.Call(MatchmakingGetMethodName, Attr.InvalidList, dic, OnCheckStartResponse);
+            if(_searchForActiveMatchAndPersistOnReconnect)
+            {
+                var dic = new AttrDic();
+                dic.SetValue(UserIdParameter, _login.UserId.ToString());
+                _wamp.Call(MatchmakingGetMethodName, Attr.InvalidList, dic, OnCheckStartResponse);
+            }
+            else
+            {
+                SearchOpponent();
+            }
         }
 
         void OnCheckStartResponse(Error error, AttrList args, AttrDic kwargs)
@@ -150,7 +165,6 @@ namespace SocialPoint.Matchmaking
             case NotificationType.MatchmakingSuccessNotification:
                 {
                     UnregisterEvents();
-                    _searchingForOpponent = false;
                     DisposeStartRequest();
                     DisposeStopRequest();
 
@@ -162,9 +176,14 @@ namespace SocialPoint.Matchmaking
             case NotificationType.MatchmakingTimeoutNotification:
                 {
                     UnregisterEvents();
-                    _searchingForOpponent = false;
                     DisposeStopRequest();
                     OnError(new Error(MatchmakingClientErrorCode.Timeout, new JsonAttrSerializer().SerializeString(attr)));
+                }
+                break;
+            case NotificationType.MatchmakingCanceled:
+                {
+                    UnregisterEvents();
+                    DispatchOnStoppedEvent(true);
                 }
                 break;
             }
@@ -172,10 +191,13 @@ namespace SocialPoint.Matchmaking
 
         void SearchOpponent()
         {
-            _searchingForOpponent = true;
             DispatchOnSearchOpponentEvent();
 
             var kwargs = new AttrDic();
+            if(_extraData != null && _extraData.Count > 0)
+            {
+                kwargs.Set(ExtraDataParameter, _extraData);
+            }
             kwargs.SetValue(UserIdParameter, _login.UserId.ToString());
             if(!string.IsNullOrEmpty(Room))
             {
@@ -222,10 +244,6 @@ namespace SocialPoint.Matchmaking
 
         public void Stop()
         {
-            if(!_searchingForOpponent)
-            {
-                return;
-            }
             var kwargs = new AttrDic();
             if(_login != null)
             {
@@ -268,7 +286,6 @@ namespace SocialPoint.Matchmaking
 
                     if(stopped)
                     {
-                        _searchingForOpponent = false;
                         UnregisterEvents();
                         DisposeStartRequest();
                     }
@@ -409,8 +426,7 @@ namespace SocialPoint.Matchmaking
 
         public void RemoveDelegate(IMatchmakingClientDelegate dlg)
         {
-            _delegatesToRemove.Remove(dlg);
+            _delegatesToRemove.Add(dlg);
         }
     }
-
 }

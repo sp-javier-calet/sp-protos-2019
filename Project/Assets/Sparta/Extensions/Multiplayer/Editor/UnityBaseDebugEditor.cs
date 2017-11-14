@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.Reflection;
@@ -11,7 +11,7 @@ namespace SocialPoint.Multiplayer
         protected GUIStyle _titleStyle;
         protected GUIStyle _subtitleStyle;
         Dictionary<object, bool> _foldouts;
-        List<object> _behaviours = new List<object>();
+        List<object> _behaviours = new List<object>(FinderSettings.DefaultListCapacity);
 
         public override void OnInspectorGUI()
         {

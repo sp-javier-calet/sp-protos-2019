@@ -173,5 +173,4 @@ namespace SocialPoint.Alert
             return new UnityAlertView(_prefab);
         }
     }
-
 }

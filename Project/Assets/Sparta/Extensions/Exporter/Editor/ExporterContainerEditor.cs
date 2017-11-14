@@ -1,9 +1,10 @@
-﻿using UnityEditor;
-using System.Collections.Generic;
-using System;
-using System.Reflection;
-using UnityEngine;
+﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
+using SocialPoint.Base;
+using UnityEditor;
+using UnityEngine;
 
 namespace SocialPoint.Exporter
 {
@@ -29,17 +30,22 @@ namespace SocialPoint.Exporter
                     _exporterTypes = new List<Type>();
                     foreach(Assembly a in AppDomain.CurrentDomain.GetAssemblies())
                     {
-                        foreach(Type t in a.GetTypes())
+                        try
                         {
-                            if(!t.IsAbstract && typeof(BaseExporter).IsAssignableFrom(t))
+                            foreach(Type t in a.GetTypes())
                             {
-                                _exporterTypes.Add(t);
+                                if(!t.IsAbstract && typeof(BaseExporter).IsAssignableFrom(t))
+                                {
+                                    _exporterTypes.Add(t);
+                                }
                             }
                         }
+                        catch(Exception e)
+                        {
+                            Log.w("Exception while exporting Types: " + e);
+                        }
                     }
-                    _exporterTypes.Sort((x, y) => {
-                        return x.Name.CompareTo(y.Name);
-                    });
+                    _exporterTypes.Sort((x, y) => x.Name.CompareTo(y.Name));
                 }
                 return _exporterTypes;
             }

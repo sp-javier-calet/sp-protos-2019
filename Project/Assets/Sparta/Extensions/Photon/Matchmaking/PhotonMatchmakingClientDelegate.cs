@@ -47,7 +47,7 @@ namespace SocialPoint.Matchmaking
                 try
                 {
                     var region = server.GetValue(RegionAttrKey).ToString();
-                    _network.Config.ForceRegion = (CloudRegionCode) Enum.Parse(typeof(CloudRegionCode), region, true);
+                    _network.Config.ForceRegion = (CloudRegionCode)Enum.Parse(typeof(CloudRegionCode), region, true);
                 }
                 catch(Exception)
                 {
@@ -62,7 +62,7 @@ namespace SocialPoint.Matchmaking
                 _network.Config.ForceAppId = server.GetValue(AppIdAttrKey).ToString();
             }
         }
-        
+
         public void OnStopped(bool successful)
         {
         }

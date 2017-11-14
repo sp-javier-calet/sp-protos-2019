@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
@@ -76,6 +76,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             ApplyProvisioningProfile(editor);
             ApplyMainKeychainAccessGroup(editor);
             ApplyKeychainAccessGroups(editor);
+            ApplyPushNotificationsEnvironment(editor);
         }
 
         /// <summary>
@@ -330,6 +331,7 @@ namespace SpartaTools.Editor.Build.XcodeEditor
             if(mainKeychainAccessGroup != null)
             {
                 editor.AddKeychainAccessGroup(mainKeychainAccessGroup);
+                editor.SetSystemCapability("com.apple.Keychain", true);
             }
         }
 
@@ -341,7 +343,19 @@ namespace SpartaTools.Editor.Build.XcodeEditor
                 foreach(string accessGroup in keychainAccessGroups)
                 {
                     editor.AddKeychainAccessGroup(accessGroup);
+                    editor.SetSystemCapability("com.apple.Keychain", true);
                 }
+            }
+        }
+
+        void ApplyPushNotificationsEnvironment(XCodeProjectEditor editor)
+        {
+            var definePushNotificationsEnv = (Hashtable)_datastore["pushNotificationsEnvironment"];
+            if(definePushNotificationsEnv != null)
+            {
+                var isProd = (bool)definePushNotificationsEnv["isProduction"];
+                editor.AddPushNotificationsEntitlement(isProd);
+                editor.SetSystemCapability("com.apple.Push", true);
             }
         }
     }

@@ -27,5 +27,5 @@ namespace SocialPoint.TransparentBundles
         Error
     }
 
-    
+
 }

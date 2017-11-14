@@ -133,7 +133,7 @@ namespace SocialPoint.Network
                 return;
             }
             NetworkMessageData data = msg.Data;
-            data.ClientId = clientId;
+            data.ClientIds = new List<byte>(){ clientId };
             if(_receiver != null)
             {
                 _receiver.OnMessageReceived(data, msg.Receive());
@@ -156,13 +156,13 @@ namespace SocialPoint.Network
                 return new LocalNetworkMessage(info, null);
             }
             LocalNetworkClient[] clients;
-            if(info.ClientId > 0)
+            if(info.ClientIds != null && info.ClientIds.Count > 0)
             {
                 var itr = _clients.GetEnumerator();
                 LocalNetworkClient client = null;
                 while(itr.MoveNext())
                 {
-                    if(itr.Current.Value == info.ClientId)
+                    if(itr.Current.Value == info.ClientIds[0])
                     {
                         client = itr.Current.Key;
                         break;

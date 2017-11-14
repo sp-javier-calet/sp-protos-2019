@@ -1,9 +1,7 @@
 using UnityEngine;
-using UnityEditor;
-using System.Collections;
 using System.Collections.Generic;
-using SocialPoint.GitCommands;
 using System.IO;
+using SpartaTools.Editor.Utils;
 
 namespace SocialPoint.TransparentBundles
 {

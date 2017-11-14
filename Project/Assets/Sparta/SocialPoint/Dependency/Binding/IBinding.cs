@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-
+﻿
 namespace SocialPoint.Dependency
 {
     public interface IBinding

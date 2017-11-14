@@ -1,17 +1,56 @@
-﻿using System;
-using System.Collections.Generic;
-using SocialPoint.Base;
+﻿using SocialPoint.Base;
 using SocialPoint.IO;
-using SocialPoint.Pooling;
 using SocialPoint.Utils;
+using System;
+using System.Collections.Generic;
+
+public class FinderSettings
+{
+    public static readonly int DefaultListCapacity = 20;
+}
 
 namespace SocialPoint.Multiplayer
 {
+    public interface INetworkBehaviour : ICloneable, IDisposable, IDeltaUpdateable
+    {
+        NetworkGameObject GameObject { set; }
+
+        void OnAwake();
+
+        void OnStart();
+
+        void OnDestroy();
+    }
+
     public class NetworkGameObject : IEquatable<NetworkGameObject>, ICloneable, INetworkBehaviourProvider
     {
         public delegate void PairOperation(NetworkGameObject go1, NetworkGameObject go2);
 
+        public Action<NetworkGameObject> SyncGroupChanged;
+
+        int _syncGroup = 0;
+
+        public int SyncGroup
+        {
+            get
+            {
+                return _syncGroup;
+            }
+            set
+            {
+                var changed = value != _syncGroup;
+                _syncGroup = value;
+
+                if(changed && SyncGroupChanged != null)
+                {
+                    SyncGroupChanged(this);
+                }
+            }
+        }
+
         public bool Invalid { get; protected set; }
+
+        public bool BehavioursAdded { get; set; }
 
         public byte Type{ get; protected set; }
 
@@ -33,13 +72,56 @@ namespace SocialPoint.Multiplayer
             }
         }
 
+        NetworkSceneContext _context = null;
+
+        public NetworkSceneContext Context
+        {
+            get
+            {
+                SocialPoint.Base.DebugUtils.Assert(_context != null);
+                return _context;
+            }
+            set
+            {
+                _context = value;
+            }
+        }
+
         public static bool IsNullOrInvalid(NetworkGameObject go)
         {
             return (go == null || go.Invalid);
         }
 
-        public void Init(int id, bool isServerGameObject = false, Transform transform = null, byte type = 0, bool local = false)
+        public NetworkBehaviourContainer<INetworkBehaviour> TypedBehaviours{ get; protected set; }
+
+        protected NetworkBehaviourContainerObserver<INetworkBehaviour> _behaviourObserver;
+
+        public NetworkGameObject()
         {
+            BehavioursAdded = false;
+            TypedBehaviours = new NetworkBehaviourContainer<INetworkBehaviour>();
+            Behaviours = TypedBehaviours;
+            _behaviourObserver = new NetworkBehaviourContainerObserver<INetworkBehaviour>().Init(TypedBehaviours);
+        }
+
+        public NetworkGameObject(NetworkSceneContext context)
+        {
+            Context = context;
+            TypedBehaviours = Context.Pool.Get<NetworkBehaviourContainer<INetworkBehaviour>>();
+            Behaviours = TypedBehaviours;
+            _behaviourObserver = Context.Pool.Get<NetworkBehaviourContainerObserver<INetworkBehaviour>>().Init(TypedBehaviours);
+        }
+
+        public NetworkGameObject Init(NetworkSceneContext context, int id, bool isServerGameObject = false, Transform transform = null, byte type = 0, bool local = false, int syncGroup = 0)
+        {
+            BehavioursAdded = false;
+            
+            Context = context;
+
+            SyncGroupChanged = null;
+
+            SyncGroup = syncGroup;
+
             IsServerGameObject = isServerGameObject;
             if(id <= 0)
             {
@@ -50,64 +132,71 @@ namespace SocialPoint.Multiplayer
             Id = local ? -id : id;
             if(transform == null)
             {
-                transform = ObjectPool.Get<Transform>();
+                transform = Context.Pool.Get<Transform>();
             }
             else
             {
-                transform = (Transform)transform.Clone();
+                transform = (Transform)transform.Clone(Context.Pool);
             }
             Transform = transform;
+            Behaviours = TypedBehaviours;
+
+            return this;
         }
 
-        public virtual void Copy(NetworkGameObject other)
+        public NetworkGameObject Init(NetworkSceneContext context,
+                                      int id,
+                                      bool isServerGameObject, 
+                                      Transform transform,
+                                      byte type,
+                                      bool local, 
+                                      NetworkBehaviourContainer<INetworkBehaviour> typedBehaviours, 
+                                      NetworkBehaviourContainerObserver<INetworkBehaviour> behaviourObserver = null,
+                                      int syncGroup = 0)
         {
-            Id = other.Id;
-            Type = other.Type;
-            Local = other.Local;
-            Transform.Copy(other.Transform);
-            Behaviours = other.Behaviours;
-        }
+            Init(context, id, isServerGameObject, transform, type, local, syncGroup);
 
-        public virtual object Clone()
-        {
-            var instance = ObjectPool.Get<NetworkGameObject>();
-            instance.Init(UniqueId, IsServerGameObject, Transform, Type, Local);
-            return instance;
-        }
-
-        public virtual object DeepClone()
-        {
-            return Clone();
-        }
-
-        public virtual void DeepCopy(NetworkGameObject other)
-        {
-            Copy(other);
+            Behaviours = TypedBehaviours = typedBehaviours;
+            _behaviourObserver = behaviourObserver ?? Context.Pool.Get<NetworkBehaviourContainerObserver<INetworkBehaviour>>().Init(typedBehaviours);
+            return this;
         }
 
         public virtual void Dispose()
         {
+            if(TypedBehaviours != null)
+            {
+                TypedBehaviours.Dispose();
+                TypedBehaviours = null;
+            }
+
+            if(Behaviours != null)
+            {
+                Behaviours.Dispose();
+                Behaviours = null;
+            }
+
+            if(Transform != null)
+            {
+                Transform.Dispose();
+                Context.Pool.Return(Transform);
+                Transform = null;
+            }
+
+            if(_behaviourObserver != null)
+            {
+                _behaviourObserver.Dispose();
+                _behaviourObserver = null;
+            }
+
             Invalid = false;
             Type = 0;
             Id = 0;
             Local = false;
+            _syncGroup = 0;
             IsServerGameObject = false;
 
-            Transform.Dispose();
-            Transform = null;
-
-            Behaviours.Dispose();
-            Behaviours = null;
-
-            ObjectPool.Return(this);
-        }
-
-        public virtual void OnDestroy()
-        {
-        }
-
-        public virtual void Update(float dt)
-        {
+            //Nando - NetworkScene<B> refactor: Commented because it is not working properly. Pooling wasn't working before this refactor so it won't affect performance
+            //Context.Pool.Return(this);
         }
 
         public void Invalidate()
@@ -166,140 +255,126 @@ namespace SocialPoint.Multiplayer
         {
             return string.Format("[NetworkGameObject:{0}({1}) {2}]", Id, Type, Transform);
         }
-    }
 
-    public interface INetworkBehaviour : ICloneable
-    {
-        NetworkGameObject GameObject { set; }
-
-        void OnAwake();
-
-        void OnStart();
-
-        void OnDestroy();
-
-        void Dispose();
-
-        void Update(float dt);
-    }
-
-    public class NetworkGameObject<B> : NetworkGameObject where B : class, INetworkBehaviour
-    {
-        public NetworkBehaviourContainer<B> TypedBehaviours{ get; protected set; }
-
-        protected NetworkBehaviourContainerObserver<B> _behaviourObserver;
-
-        public NetworkGameObject()
+        public virtual object Clone()
         {
-            TypedBehaviours = ObjectPool.Get<NetworkBehaviourContainer<B>>();
-            Behaviours = TypedBehaviours;
-            _behaviourObserver = ObjectPool.Get<NetworkBehaviourContainerObserver<B>>().Init(TypedBehaviours);
-        }
-
-        public void Init(int id,
-                         bool isServerGameObject, 
-                         Transform transform,
-                         byte type,
-                         bool local, 
-                         NetworkBehaviourContainer<B> typedBehaviours, 
-                         NetworkBehaviourContainerObserver<B> behaviourObserver = null)
-        {
-            base.Init(id, isServerGameObject, transform, type, local);
-
-            Behaviours = TypedBehaviours = typedBehaviours;
-            _behaviourObserver = behaviourObserver ?? ObjectPool.Get<NetworkBehaviourContainerObserver<B>>().Init(typedBehaviours);
-        }
-
-        public override object Clone()
-        {
-            var other = ObjectPool.Get<NetworkGameObject<B>>();
-            other.Init(UniqueId, IsServerGameObject, Transform, Type, Local, TypedBehaviours, _behaviourObserver);
+            var other = Context.Pool.Get<NetworkGameObject>();
+            other.Init(Context, UniqueId, IsServerGameObject, Transform, Type, Local, TypedBehaviours, _behaviourObserver, SyncGroup);
             return other;
         }
 
-        public override object DeepClone()
+        public virtual object DeepClone()
         {
-            var typedBehaviours = (NetworkBehaviourContainer<B>)TypedBehaviours.Clone();
-            var other = ObjectPool.Get<NetworkGameObject<B>>();
-            other.Init(UniqueId, IsServerGameObject, Transform, Type, Local, typedBehaviours);
+            var typedBehaviours = (NetworkBehaviourContainer<INetworkBehaviour>)TypedBehaviours.Clone();
+            var other = Context.Pool.Get<NetworkGameObject>();
+            other.Init(Context, UniqueId, IsServerGameObject, Transform, Type, Local, typedBehaviours, null, SyncGroup);
             return other;
         }
 
-        public override void Dispose()
-        {
-            _behaviourObserver.Dispose();
-            _behaviourObserver = null;
-            TypedBehaviours = null;
 
-            base.Dispose();
+        public virtual void Copy(NetworkGameObject other)
+        {
+            Context = other.Context;
+            Id = other.Id;
+            Type = other.Type;
+            Local = other.Local;
+            _syncGroup = other.SyncGroup;
+            Transform.Copy(other.Transform);
+            Behaviours = other.Behaviours;
         }
 
-        public override void DeepCopy(NetworkGameObject other)
+        public virtual void DeepCopy(NetworkGameObject other)
         {
-            base.DeepCopy(other);
-            var bother = other as NetworkGameObject<B>;
-            if(bother != null)
+            Copy(other);
+
+            if(other != null)
             {
-                TypedBehaviours.Copy(bother.TypedBehaviours);
+                TypedBehaviours.Copy(other.TypedBehaviours);
             }
         }
 
-        public B AddBehaviour(B behaviour)
+        public INetworkBehaviour AddBehaviour(INetworkBehaviour behaviour, Type type)
         {
-            TypedBehaviours.Add(behaviour);
+            TypedBehaviours.Add(behaviour, type);
             return behaviour;
         }
 
-        public void AddBehaviours(IEnumerable<B> bs)
+        public void AddBehaviours(List<INetworkBehaviour> bs, List<Type> types)
         {
             if(bs == null)
             {
                 return;
             }
             var itr = bs.GetEnumerator();
+            var itrType = types.GetEnumerator();
             while(itr.MoveNext())
             {
-                AddBehaviour(itr.Current);
+                itrType.MoveNext();
+
+                if(itr.Current == null)
+                {
+                    continue;
+                }
+
+                AddBehaviour(itr.Current, itrType.Current);
             }
             itr.Dispose();
+            itrType.Dispose();
         }
 
-        public void AddClonedBehaviours(IEnumerable<B> bs)
+        public void AddClonedBehaviours(List<INetworkBehaviour> bs, List<Type> types)
         {
             var itr = bs.GetEnumerator();
+            var itrType = types.GetEnumerator();
             while(itr.MoveNext())
             {
+                itrType.MoveNext();
+
+                if(itr.Current == null)
+                {
+                    continue;
+                }
+
                 var proto = itr.Current as ICloneable;
                 if(proto == null)
                 {
                     throw new ArgumentException(string.Format("Class {0} is not ICloneable.", itr.Current.GetType()));
                 }
-                AddBehaviour((B)proto.Clone());
+                AddBehaviour((INetworkBehaviour)proto.Clone(), itrType.Current);
             }
             itr.Dispose();
+            itrType.Dispose();
         }
 
-        public override void OnDestroy()
+        public virtual void OnDestroy()
         {
-            var tmp = ObjectPool.Get<List<B>>();
+            var tmp = Context.Pool.Get<List<INetworkBehaviour>>();
             var itr = TypedBehaviours.GetEnumerator(tmp);
             while(itr.MoveNext())
             {
+                if(itr.Current == null)
+                {
+                    continue;
+                }
                 itr.Current.OnDestroy();
             }
-            ObjectPool.Return(tmp);
+            Context.Pool.Return(tmp);
             itr.Dispose();
         }
 
-        public override void Update(float dt)
+        public virtual void Update(float dt)
         {
-            var tmp = ObjectPool.Get<List<B>>();
+            var tmp = Context.Pool.Get<List<INetworkBehaviour>>();
             var itr = TypedBehaviours.GetEnumerator(tmp);
             while(itr.MoveNext())
             {
+                if(itr.Current == null)
+                {
+                    continue;
+                }
                 itr.Current.Update(dt);
             }
-            ObjectPool.Return(tmp);
+            Context.Pool.Return(tmp);
             itr.Dispose();
         }
 
@@ -310,6 +385,7 @@ namespace SocialPoint.Multiplayer
                 var behaviour = _behaviourObserver.Added[i];
                 behaviour.GameObject = this;
                 behaviour.OnAwake();
+                BehavioursAdded = true;
             }
             for(var i = 0; i < _behaviourObserver.Added.Count; i++)
             {
@@ -322,12 +398,12 @@ namespace SocialPoint.Multiplayer
             _behaviourObserver.Clear();
         }
 
-        protected virtual void OnBehaviourAdded(B behaviour)
+        protected virtual void OnBehaviourAdded(INetworkBehaviour behaviour)
         {
             behaviour.OnStart();
         }
 
-        protected virtual void OnBehaviourRemoved(B behaviour)
+        protected virtual void OnBehaviourRemoved(INetworkBehaviour behaviour)
         {
             behaviour.OnDestroy();
         }
@@ -335,56 +411,49 @@ namespace SocialPoint.Multiplayer
 
     public class NetworkGameObjectSerializer : IDiffWriteSerializer<NetworkGameObject>
     {
+        NetworkSceneContext _context = null;
+
+        public NetworkSceneContext Context
+        {
+            get
+            {
+                SocialPoint.Base.DebugUtils.Assert(_context != null);
+                return _context;
+            }
+            set
+            {
+                _context = value;
+            }
+        }
+
+        readonly NetworkBehaviourContainerSerializer<INetworkBehaviour> _behaviourSerializer;
+
+        public NetworkGameObjectSerializer(NetworkSceneContext context)
+        {
+            Context = context;
+            _behaviourSerializer = new NetworkBehaviourContainerSerializer<INetworkBehaviour>();
+        }
+
         public void Compare(NetworkGameObject newObj, NetworkGameObject oldObj, Bitset dirty)
         {
             dirty.Set(newObj.Transform != oldObj.Transform);
+        }
+
+        public void RegisterBehaviour<T>(byte type, IDiffWriteSerializer<T> serializer) where T : INetworkBehaviour
+        {
+            _behaviourSerializer.Register(type, serializer);
         }
 
         public void Serialize(NetworkGameObject newObj, IWriter writer)
         {
             writer.Write(newObj.Id);
             writer.Write(newObj.Type);
-            TransformSerializer.Instance.Serialize(newObj.Transform, writer);
-        }
+            TransformShortSerializer.Instance.Serialize(newObj.Transform, writer);
 
-        public void Serialize(NetworkGameObject newObj, NetworkGameObject oldObj, IWriter writer, Bitset dirty)
-        {
-            if(Bitset.NullOrGet(dirty))
-            {
-                TransformSerializer.Instance.Serialize(newObj.Transform, oldObj.Transform, writer);
-            }
-        }
-    }
-
-    public class NetworkGameObjectSerializer<Behaviour> : IDiffWriteSerializer<NetworkGameObject> where Behaviour : class, INetworkBehaviour
-    {
-        NetworkGameObjectSerializer _objectSerializer;
-        NetworkBehaviourContainerSerializer<Behaviour> _behaviourSerializer;
-
-        public NetworkGameObjectSerializer()
-        {
-            _objectSerializer = new NetworkGameObjectSerializer();
-            _behaviourSerializer = new NetworkBehaviourContainerSerializer<Behaviour>();
-        }
-
-        public void RegisterBehaviour<T>(byte type, IDiffWriteSerializer<T> serializer) where T : Behaviour
-        {
-            _behaviourSerializer.Register(type, serializer);
-        }
-
-        public void Compare(NetworkGameObject newObj, NetworkGameObject oldObj, Bitset dirty)
-        {
-        }
-
-        public void Serialize(NetworkGameObject newObj, IWriter writer)
-        {
-            _objectSerializer.Serialize(newObj, writer);
-
-            var newBobj = newObj as NetworkGameObject<Behaviour>;
-            if(newBobj != null)
+            if(newObj != null)
             {
                 writer.Write(true);
-                _behaviourSerializer.Serialize(newBobj.TypedBehaviours, writer);
+                _behaviourSerializer.Serialize(newObj.TypedBehaviours, writer);
             }
             else
             {
@@ -394,15 +463,16 @@ namespace SocialPoint.Multiplayer
 
         public void Serialize(NetworkGameObject newObj, NetworkGameObject oldObj, IWriter writer, Bitset dirty)
         {
-            _objectSerializer.Serialize(newObj, oldObj, writer);
+            if(Bitset.NullOrGet(dirty))
+            {
+                TransformShortSerializer.Instance.Serialize(newObj.Transform, oldObj.Transform, writer);
+            }
 
-            var newBobj = newObj as NetworkGameObject<Behaviour>;
-            if(newBobj != null)
+            if(newObj != null)
             {
                 writer.Write(true);
-                var oldBobj = oldObj as NetworkGameObject<Behaviour>;
-                var oldBehaviours = oldBobj == null ? new NetworkBehaviourContainer<Behaviour>() : oldBobj.TypedBehaviours;
-                _behaviourSerializer.Serialize(newBobj.TypedBehaviours, oldBehaviours, writer);
+                var oldBehaviours = oldObj == null ? new NetworkBehaviourContainer<INetworkBehaviour>() : oldObj.TypedBehaviours;
+                _behaviourSerializer.Serialize(newObj.TypedBehaviours, oldBehaviours, writer);
             }
             else
             {
@@ -415,11 +485,29 @@ namespace SocialPoint.Multiplayer
 
     public class NetworkGameObjectParser : IDiffReadParser<NetworkGameObject>
     {
-        NetworkGameObjectFactoryDelegate _factory;
+        NetworkSceneContext _context = null;
 
-        public NetworkGameObjectParser(NetworkGameObjectFactoryDelegate factory = null)
+        public NetworkSceneContext Context
         {
+            get
+            {
+                SocialPoint.Base.DebugUtils.Assert(_context != null);
+                return _context;
+            }
+            set
+            {
+                _context = value;
+            }
+        }
+
+        readonly NetworkGameObjectFactoryDelegate _factory;
+        readonly NetworkBehaviourContainerParser<INetworkBehaviour> _behaviourParser;
+
+        public NetworkGameObjectParser(NetworkSceneContext context, NetworkGameObjectFactoryDelegate factory = null)
+        {
+            Context = context;
             _factory = factory;
+            _behaviourParser = new NetworkBehaviourContainerParser<INetworkBehaviour>();
         }
 
         public NetworkGameObject Parse(IReader reader)
@@ -430,17 +518,46 @@ namespace SocialPoint.Multiplayer
             if(_factory != null)
             {
                 obj = _factory(objId, objType);
+                obj.Context = Context;
             }
             else
             {
-                obj = ObjectPool.Get<NetworkGameObject>();
-                obj.Init(objId, false, null, objType, false);
+                obj = Context.Pool.Get<NetworkGameObject>();
+                obj.Init(Context, objId, false, null, objType, false);
             }
             if(obj != null)
             {
-                obj.Transform.Copy(TransformParser.Instance.Parse(reader));
+                obj.Transform.Copy(TransformShortParser.Instance.Parse(reader));
+            }
+
+            var hasBehaviours = reader.ReadBoolean();
+            if(hasBehaviours && obj != null)
+            {
+                NetworkBehaviourContainer<INetworkBehaviour> behaviourContainer = _behaviourParser.Parse(reader);
+                var itr = behaviourContainer.Behaviours.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    if(itr.Current == null)
+                    {
+                        continue;
+                    }
+
+                    itr.Current.GameObject = obj;
+                }
+                itr.Dispose();
+                obj.TypedBehaviours.Copy(behaviourContainer);
             }
             return obj;
+        }
+            
+        NetworkGameObject CreateObject(int objId, byte objType)
+        {
+            return _factory(objId, objType);
+        }
+
+        public void RegisterBehaviour<T>(byte type, IDiffReadParser<T> parser) where T : INetworkBehaviour
+        {
+            _behaviourParser.Register(type, parser);
         }
 
         public int GetDirtyBitsSize(NetworkGameObject obj)
@@ -452,72 +569,18 @@ namespace SocialPoint.Multiplayer
         {
             if(Bitset.NullOrGet(dirty))
             {
-                obj.Transform.Copy(TransformParser.Instance.Parse(obj.Transform, reader));
+                obj.Transform.Copy(TransformShortParser.Instance.Parse(obj.Transform, reader));
             }
-            return obj;
-        }
-    }
-
-    public class NetworkGameObjectParser<Behaviour> : IDiffReadParser<NetworkGameObject> where Behaviour : class, INetworkBehaviour
-    {
-        NetworkGameObjectFactoryDelegate _factory;
-        NetworkGameObjectParser _objectParser;
-        NetworkBehaviourContainerParser<Behaviour> _behaviourParser;
-
-        public NetworkGameObjectParser(NetworkGameObjectFactoryDelegate factory = null)
-        {
-            DebugUtils.Assert(factory != null, "factory cannot be null");
-            _factory = factory;
-            _objectParser = new NetworkGameObjectParser(CreateObject);
-            _behaviourParser = new NetworkBehaviourContainerParser<Behaviour>();
-        }
-
-        NetworkGameObject CreateObject(int objId, byte objType)
-        {
-            return _factory(objId, objType);
-        }
-
-        public void RegisterBehaviour<T>(byte type, IDiffReadParser<T> parser) where T : Behaviour
-        {
-            _behaviourParser.Register(type, parser);
-        }
-
-        public NetworkGameObject Parse(IReader reader)
-        {
-            var obj = _objectParser.Parse(reader);
-
-            var bobj = obj as NetworkGameObject<Behaviour>;
-            var hasBehaviours = reader.ReadBoolean();
-            if(hasBehaviours && bobj != null)
-            {
-                bobj.TypedBehaviours.Copy(_behaviourParser.Parse(reader));
-            }
-            return obj;
-        }
-
-        public int GetDirtyBitsSize(NetworkGameObject obj)
-        {
-            return 0;
-        }
-
-        public NetworkGameObject Parse(NetworkGameObject obj, IReader reader, Bitset dirty)
-        {
-            _objectParser.Parse(obj, reader);
 
             var hasBehaviours = reader.ReadBoolean();
             if(hasBehaviours)
             {
-                var bobj = obj as NetworkGameObject<Behaviour>;
-                if(bobj != null)
+                if(obj != null)
                 {
-                    _behaviourParser.Parse(bobj.TypedBehaviours, reader);
+                    _behaviourParser.Parse(obj.TypedBehaviours, reader);
                 }
             }
             return obj;
         }
-    }
-
-    public class NetworkServerGameObjectSerializer : NetworkGameObjectSerializer<INetworkBehaviour>
-    {
     }
 }

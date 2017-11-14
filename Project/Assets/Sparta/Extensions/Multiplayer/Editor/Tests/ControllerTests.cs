@@ -1,9 +1,6 @@
-using NUnit.Framework;
 using NSubstitute;
-using System.IO;
-using SocialPoint.IO;
+using NUnit.Framework;
 using SocialPoint.Network;
-using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
@@ -26,9 +23,10 @@ namespace SocialPoint.Multiplayer
             _server = localServer;
             _client = new LocalNetworkClient(localServer);
             _client2 = new LocalNetworkClient(localServer);
-            _serverCtrl = new NetworkServerSceneController(_server);
-            _clientCtrl = new NetworkClientSceneController(_client);
-            _client2Ctrl = new NetworkClientSceneController(_client2);
+            _serverCtrl = new NetworkServerSceneController(_server, new NetworkSceneContext());
+            _clientCtrl = new NetworkClientSceneController(_client, new NetworkSceneContext());
+            _client2Ctrl = new NetworkClientSceneController(_client2, new NetworkSceneContext());
+            _serverCtrl.ServerConfig.EnablePrediction = true;
             _serverCtrl.Restart(_server);
             _clientCtrl.Restart(_client);
             _client2Ctrl.Restart(_client2);
@@ -39,7 +37,7 @@ namespace SocialPoint.Multiplayer
 
         void UpdateServerInterval()
         {
-            _serverCtrl.Update(_serverCtrl.SyncInterval);
+            _serverCtrl.Update(_serverCtrl.SyncController.SyncInterval);
         }
 
         [Test]
@@ -63,7 +61,7 @@ namespace SocialPoint.Multiplayer
         [Test]
         public void SceneSync()
         {
-            var go = _serverCtrl.Instantiate(0);
+            var go = _serverCtrl.Instantiate(1);
             UpdateServerInterval();
             Assert.That(_clientCtrl.Equals(_serverCtrl.Scene));
             Assert.That(_client2Ctrl.Equals(_serverCtrl.Scene));

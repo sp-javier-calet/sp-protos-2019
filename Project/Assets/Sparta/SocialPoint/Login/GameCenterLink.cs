@@ -15,10 +15,16 @@ namespace SocialPoint.Login
         public readonly static string LinkName = "gc";
 
         LinkState _state;
+        public LinkMode Mode
+        {
+            get;
+            private set;
+        }
 
-        public GameCenterLink(IGameCenter gameCenter)
+        public GameCenterLink(IGameCenter gameCenter, LinkMode mode)
         {
             _gameCenter = gameCenter;
+            Mode = mode;
             Init();
         }
 

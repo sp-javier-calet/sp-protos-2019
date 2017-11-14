@@ -162,7 +162,7 @@ namespace SocialPoint.Network
         {
             var data = new NetworkMessageData {
                 MessageType = UnetMsgType.ConvertType(umsg.msgType),
-                ClientId = (byte)umsg.conn.connectionId
+                ClientIds = new List<byte>(){ (byte)umsg.conn.connectionId }
             };
             if(_receiver != null)
             {
@@ -177,9 +177,9 @@ namespace SocialPoint.Network
         public INetworkMessage CreateMessage(NetworkMessageData data)
         {
             NetworkConnection[] conns;
-            if(data.ClientId > 0)
+            if(data.ClientIds != null && data.ClientIds.Count > 0)
             {
-                var conn = _server.FindConnection(data.ClientId);
+                var conn = _server.FindConnection(data.ClientIds[0]);
                 if(conn == null)
                 {
                     conns = new NetworkConnection[]{ };

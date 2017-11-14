@@ -11,11 +11,15 @@ namespace SocialPoint.Login
     {
         IHttpClient _httpClient;
 
-        public void AddLink(ILink link, LinkMode mode = LinkMode.Auto)
+        public void AddLink(ILink link)
+        {
+        }
+            
+        public void LoginLink(ILink link, ErrorDelegate cbk = null)
         {
         }
 
-        public void LoginLink(ILink link, ErrorDelegate cbk = null)
+        public void LoginLinks(ErrorDelegate cbk = null)
         {
         }
 

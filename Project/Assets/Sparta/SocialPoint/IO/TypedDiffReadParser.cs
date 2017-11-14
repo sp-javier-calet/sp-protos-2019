@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System;
 
 namespace SocialPoint.IO
@@ -131,9 +131,9 @@ namespace SocialPoint.IO
             return 0;
         }
 
-        public bool FindCode(T obj, out byte code)
+        public bool FindCode(Type type, out byte code)
         {
-            return _types.TryGetValue(obj.GetType(), out code);
+            return _types.TryGetValue(type, out code);
         }
 
         public bool FindCode<K>(out byte code)

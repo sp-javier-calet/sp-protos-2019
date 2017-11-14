@@ -4,7 +4,6 @@ using System.IO;
 using SocialPoint.IO;
 using SocialPoint.Utils;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace SocialPoint.Multiplayer
 {
@@ -109,11 +108,12 @@ namespace SocialPoint.Multiplayer
         [Test]
         public void AddInLoop()
         {
+            var tmpList = new List<ITestBehaviour>();
+            
             var container = new NetworkBehaviourContainer<ITestBehaviour>();
             var behaviour = Substitute.For<ITestBehaviour>();
             container.Add(new UpdateAddBehaviour(container, behaviour));
-            var list = new List<ITestBehaviour>();
-            var itr = container.GetEnumerator(list);
+            var itr = container.GetEnumerator(tmpList);
             while(itr.MoveNext())
             {
                 itr.Current.Update();
@@ -124,7 +124,7 @@ namespace SocialPoint.Multiplayer
 
             var behaviour2 = Substitute.For<ITestBehaviour>();
             container.Add(new UpdateAddBehaviour(container, behaviour2));
-            itr = container.GetEnumerator(list);
+            itr = container.GetEnumerator(tmpList);
             while(itr.MoveNext())
             {
                 itr.Current.Update();

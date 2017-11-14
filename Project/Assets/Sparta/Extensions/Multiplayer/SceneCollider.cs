@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using SocialPoint.IO;
 using SocialPoint.Physics;
 using SocialPoint.Utils;
@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Multiplayer
 {
-    public class SceneCollider : INetworkShareable, IEquatable<SceneCollider>, ICopyable, ICloneable, ITagged
+    public class SceneCollider : INetworkShareable, IEquatable<SceneCollider>, ICopyable, IPoolCloneable, ITagged
     {
         public TagSet Tags{ get; set; }
 
@@ -36,12 +36,12 @@ namespace SocialPoint.Multiplayer
             PhysicsShapeSerializer.Instance.Serialize(Shape, writer);
         }
 
-        public object Clone()
+        public object Clone(ObjectPool pool = null)
         {
             return new SceneCollider {
                 Id = Id,
                 Tags = (TagSet)Tags.Clone(),
-                Transform = (Transform)Transform.Clone(),
+                Transform = (Transform)Transform.Clone(pool),
                 Shape = (IPhysicsShape)Shape.Clone()
             };
         }

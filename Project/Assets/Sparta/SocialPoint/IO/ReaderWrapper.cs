@@ -1,4 +1,4 @@
-﻿
+
 namespace SocialPoint.IO
 {
     public class ReaderWrapper : IReader
@@ -68,6 +68,11 @@ namespace SocialPoint.IO
         public ulong ReadUInt64()
         {
             return _reader.ReadUInt64();
+        }
+
+        public float ReadShortFloat()
+        {
+            return _reader.ReadShortFloat();
         }
 
         public bool Finished

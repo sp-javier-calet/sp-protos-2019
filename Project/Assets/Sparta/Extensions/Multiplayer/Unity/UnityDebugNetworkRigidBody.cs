@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 using Jitter;
 using Jitter.LinearMath;
+using SocialPoint.Utils;
 using UnityEngine;
-using SocialPoint.Pooling;
 
 namespace SocialPoint.Multiplayer
 {
@@ -55,7 +55,7 @@ namespace SocialPoint.Multiplayer
             Color = Color.red;
         }
 
-        void INetworkBehaviour.Update(float dt)
+        void IDeltaUpdateable.Update(float dt)
         {
         }
 
@@ -80,12 +80,15 @@ namespace SocialPoint.Multiplayer
 
         public object Clone()
         {
-            return ObjectPool.Get<UnityDebugNetworkServerRigidBody>();
+            return _object != null ? _object.Context.Pool.Get<UnityDebugNetworkServerRigidBody>() : new UnityDebugNetworkServerRigidBody();
         }
 
         public void Dispose()
         {
-            ObjectPool.Return(this);
+            if (_object != null)
+            {
+                _object.Context.Pool.Return(this);
+            }
         }
     }
 
@@ -129,7 +132,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        void INetworkBehaviour.Update(float dt)
+        void IDeltaUpdateable.Update(float dt)
         {
         }
 
@@ -160,12 +163,17 @@ namespace SocialPoint.Multiplayer
 
         public object Clone()
         {
-            return ObjectPool.Get<UnityDebugNetworkClientRigidBody>().Init(_server, _client);
+            var b = _object != null ? _object.Context.Pool.Get<UnityDebugNetworkClientRigidBody>() : new UnityDebugNetworkClientRigidBody();
+            b.Init(_server, _client);
+            return b;
         }
 
         public void Dispose()
         {
-            ObjectPool.Return(this);
+            if (_object != null)
+            {
+                _object.Context.Pool.Return(this);
+            }
         }
     }
 }

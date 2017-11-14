@@ -15,6 +15,7 @@ public class NetworkTechInstaller : Installer
     public class SettingsData
     {
         public NetworkTech Tech = NetworkTech.Local;
+        public LocalNetworkInstaller.SettingsData Local = new LocalNetworkInstaller.SettingsData();
         public UnetNetworkInstaller.SettingsData Unet = new UnetNetworkInstaller.SettingsData();
         public PhotonNetworkInstaller.SettingsData Photon = new PhotonNetworkInstaller.SettingsData();
     }
@@ -37,7 +38,9 @@ public class NetworkTechInstaller : Installer
             techInstaller = photon;
             break;
         default:
-            techInstaller = new LocalNetworkInstaller();
+            var local = new LocalNetworkInstaller();
+            local.Settings = Settings.Local;
+            techInstaller = local;
             break;
         }
 

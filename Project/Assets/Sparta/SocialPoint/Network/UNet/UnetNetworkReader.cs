@@ -80,5 +80,10 @@ namespace SocialPoint.Network
         {
             return _reader.ReadUInt64();
         }
+
+        public float ReadShortFloat()
+        {
+            return ShortEncoding.Decode(_reader.ReadInt16());
+        }
     }
 }

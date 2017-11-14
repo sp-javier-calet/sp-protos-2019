@@ -35,8 +35,8 @@ public class CustomPhotonConfig
         _originalUpdateInterval = PhotonNetwork.photonMono.updateInterval;
         _originalUpdateIntervalOnSerialize = PhotonNetwork.photonMono.updateIntervalOnSerialize;
 
-        _originalSentCountAllowance = PhotonNetwork.networkingPeer.SentCountAllowance;
-        _originalQuickResendAttempts = PhotonNetwork.networkingPeer.QuickResendAttempts;
+        _originalSentCountAllowance = PhotonNetwork.MaxResendsBeforeDisconnect;
+        _originalQuickResendAttempts = PhotonNetwork.QuickResends;
 
         _originalMaximumTransferUnit = PhotonNetwork.networkingPeer.MaximumTransferUnit;
 
@@ -75,8 +75,8 @@ public class CustomPhotonConfig
             PhotonNetwork.photonMono.updateInterval = UpdateInterval;
             PhotonNetwork.photonMono.updateIntervalOnSerialize = UpdateIntervalOnSerialize;
 
-            PhotonNetwork.networkingPeer.SentCountAllowance = SentCountAllowance;
-            PhotonNetwork.networkingPeer.QuickResendAttempts = (byte) QuickResendAttempts;
+            PhotonNetwork.MaxResendsBeforeDisconnect = SentCountAllowance;
+            PhotonNetwork.QuickResends = QuickResendAttempts;
         }
     }
 
@@ -90,8 +90,8 @@ public class CustomPhotonConfig
         PhotonNetwork.photonMono.updateInterval = _originalUpdateInterval;
         PhotonNetwork.photonMono.updateIntervalOnSerialize = _originalUpdateIntervalOnSerialize;
 
-        PhotonNetwork.networkingPeer.SentCountAllowance = _originalSentCountAllowance;
-        PhotonNetwork.networkingPeer.QuickResendAttempts = (byte) _originalQuickResendAttempts;
+        PhotonNetwork.MaxResendsBeforeDisconnect = _originalSentCountAllowance;
+        PhotonNetwork.QuickResends = _originalQuickResendAttempts;
 
         PhotonNetwork.networkingPeer.MaximumTransferUnit = _originalMaximumTransferUnit;
     }
@@ -103,7 +103,8 @@ public class CustomPhotonConfig
 
     public void SendOutgoingCommands()
     {
-        if(Enabled && _pendingOutgoingCommands)
+        //if (Enabled && _pendingOutgoingCommands)
+        if (_pendingOutgoingCommands)
         {
             _pendingOutgoingCommands = false;
             PhotonNetwork.SendOutgoingCommands();

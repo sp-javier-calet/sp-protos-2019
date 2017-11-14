@@ -77,6 +77,11 @@ namespace SocialPoint.WebSockets
             throw new NotImplementedException();
         }
 
+        public float ReadShortFloat()
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }

@@ -117,23 +117,13 @@ namespace Jitter.Dynamics
         public ContactList ContactList { get { return contactList; } }
 
         /// <summary>
+        /// Unique instance per world.
         /// </summary>
-        public static ResourcePool<Arbiter> Pool = new ResourcePool<Arbiter>();
+        public ResourcePool<Contact> contactPool = null;
 
         // internal values for faster access within the engine
         internal RigidBody body1, body2;
         internal ContactList contactList;
-
-        /// <summary>
-        /// </summary>
-        /// <param name="body1"></param>
-        /// <param name="body2"></param>
-        public Arbiter(RigidBody body1, RigidBody body2)
-        {
-            this.contactList = new ContactList();
-            this.body1 = body1;
-            this.body2 = body2;
-        }
 
         /// <summary>
         /// Initializes a new instance of the Arbiter class.
@@ -188,7 +178,7 @@ namespace Jitter.Dynamics
                 }
                 else
                 {
-                    Contact contact = Contact.Pool.GetNew();
+                    Contact contact = contactPool.GetNew();
                     contact.Initialize(body1, body2, ref point1, ref point2, ref normal, penetration, true, contactSettings);
                     contactList.Add(contact);
                     return contact;

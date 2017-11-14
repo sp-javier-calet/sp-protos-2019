@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using SocialPoint.Pooling;
 using System.Collections.Generic;
 
@@ -33,6 +33,11 @@ namespace SocialPoint.Multiplayer
             _parentTag = parentTag;
         }
 
+        public void Clear()
+        {
+            _prefabs.Clear();
+        }
+
         public GameObject Spawn(string prefabName, Vector3 position, Quaternion rotation)
         {
             GameObject prefab;
@@ -41,12 +46,12 @@ namespace SocialPoint.Multiplayer
                 prefab = Resources.Load(prefabName) as GameObject;
                 _prefabs.Add(prefabName, prefab);
             }
-            return UnityObjectPool.Spawn(prefab, ParentTransform, position, rotation);
+            return ObjectPool.Spawn(prefab, ParentTransform, position, rotation);
         }
 
         public void Recycle(GameObject view)
         {
-            UnityObjectPool.Recycle(view);
+            ObjectPool.Recycle(view);
         }
     }
 }
