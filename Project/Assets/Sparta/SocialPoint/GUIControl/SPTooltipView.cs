@@ -126,31 +126,32 @@ namespace SocialPoint.GUIControl
                 break;
 
             case ArrowPosition.Left:
-                _baseTransform.pivot = new Vector2(0f, 0.5f);
-                _contentTransform.pivot = new Vector2(0f, 0.5f);
+                _baseTransform.SetPivotAndAnchors(new Vector2(0f, 0.5f));
+                _contentTransform.SetPivotAndAnchors(new Vector2(0f, 0.5f));
                 _spikeTransform.localRotation = Quaternion.Euler(0f, 0f, 270f);
                 break;
 
             case ArrowPosition.Top:
-                _baseTransform.pivot = new Vector2(0.5f, 0f);
-                _contentTransform.pivot = new Vector2(0.5f, 0f);
+                _baseTransform.SetPivotAndAnchors(new Vector2(0.5f, 0f));
+                _contentTransform.SetPivotAndAnchors(new Vector2(0.5f, 0f));
                 _spikeTransform.localRotation = Quaternion.Euler(Vector3.zero);
                 break;
 
             case ArrowPosition.Right:
-                _baseTransform.pivot = new Vector2(1f, 0.5f);
-                _contentTransform.pivot = new Vector2(1f, 0.5f);
+                _baseTransform.SetPivotAndAnchors(new Vector2(1f, 0.5f));
+                _contentTransform.SetPivotAndAnchors(new Vector2(1f, 0.5f));
                 _spikeTransform.localRotation = Quaternion.Euler(0f, 0f, 90f);
                 break;
 
             case ArrowPosition.Bottom:
-                _baseTransform.pivot = new Vector2(0.5f, 1f);
-                _contentTransform.pivot = new Vector2(0.5f, 1f);
+                _baseTransform.SetPivotAndAnchors(new Vector2(0.5f, 1f));
+                _contentTransform.SetPivotAndAnchors(new Vector2(0.5f, 1f));
                 _spikeTransform.localRotation = Quaternion.Euler(0f, 0f, 180f);
                 break;
             }
 
-            _spikeTransform.position = _baseTransform.position;
+            _contentTransform.localPosition = Vector3.zero;
+            _spikeTransform.localPosition = Vector3.zero;
         }
 
         void SetTooltipScreenPosition(Vector2 pos)

@@ -16,6 +16,12 @@ namespace SocialPoint.Base
             trans.anchorMax = aVec;
         }
 
+        public static void SetAndAnchors(this RectTransform trans, Vector2 aVec)
+        {
+            trans.anchorMin = aVec;
+            trans.anchorMax = aVec;
+        }
+            
         public static Vector2 GetSize(this RectTransform trans)
         {
             return trans.rect.size;
