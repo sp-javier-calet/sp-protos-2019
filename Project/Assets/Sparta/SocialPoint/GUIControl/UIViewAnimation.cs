@@ -1,33 +1,16 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 namespace SocialPoint.GUIControl
 {
-    public abstract class UIViewAnimation : ScriptableObject, ICloneable
+    public interface UIViewAnimation
     {
-        [SerializeField]
-        protected GameObject _gameObject;
-        protected Transform _transform;
-        protected RectTransform _rectTransform;
+        void Load(GameObject gameObject);
+        IEnumerator Animate();
+    }
 
-        public virtual void Load(GameObject gameObject = null)
-        {
-            if(_gameObject == null)
-            {
-                _gameObject = gameObject;
-                _transform = _gameObject.transform;
-            }
-                
-            _rectTransform = _transform as RectTransform;
-        }
-
-        public abstract IEnumerator Animate();
-
-        #region ICloneable implementation
-
-        public abstract object Clone();
-
-        #endregion
+    public abstract class UIViewAnimationFactory : ScriptableObject
+    {
+        public abstract UIViewAnimation Create();
     }
 }

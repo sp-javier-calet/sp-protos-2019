@@ -1,78 +1,62 @@
 using UnityEngine;
 using System.Collections;
 using SocialPoint.GUIControl;
-using UnityEngine.UI;
 
-[CreateAssetMenu(menuName = "UI Animations/Scale Animation")]
 public class ScaleAnimation : UIViewAnimation
 {
-    [SerializeField]
-    float _time = 1.0f;
+    float _duration;
+    Vector3 _initialScale;
+    Vector3 _finalScale;
+    GoEaseType _easeType;
+    AnimationCurve _easeCurve;
+    Transform _transform;
 
-    [SerializeField]
-    Vector3 _initialScale = Vector3.zero;
-
-    [SerializeField]
-    Vector3 _finalScale = Vector3.one;
-
-    [SerializeField]
-    GoEaseType _easeType = GoEaseType.Linear;
-
-    [SerializeField]
-    AnimationCurve _easeCurve = default(AnimationCurve);
-
-    public ScaleAnimation(float time, Vector3 initialScale, Vector3 finalScale, GoEaseType easeType = GoEaseType.Linear, AnimationCurve easeCurve = default(AnimationCurve))
+    public ScaleAnimation(float duration, Vector3 initialScale, Vector3 finalScale, GoEaseType easeType, AnimationCurve easeCurve)
     {
-        _time = time;
+        _duration = duration;
         _initialScale = initialScale;
         _finalScale = finalScale;
         _easeType = easeType;
         _easeCurve = easeCurve;
     }
         
-    public override void Load(GameObject gameObject = null)
+    public void Load(GameObject gameObject)
     {
-        base.Load(gameObject);
-
-        // HINT: If we want to scale a gameobject with Canvas Scaler component on it, we force to scale his first child instead
-        var canvasScaler = _gameObject.GetComponent<CanvasScaler>();
-        if(canvasScaler != null)
-        {
-            if(_transform.childCount > 0)
-            {
-                _transform = _transform.GetChild(0);
-                _gameObject = _transform.gameObject;
-            }
-        }
-
-        _rectTransform = _transform as RectTransform;
+        _transform = gameObject.transform;
     }
 
-    public override IEnumerator Animate()
+    public IEnumerator Animate()
     {
-        if(_transform != null)
-        {
-            _transform.localScale = _initialScale;
-            CreateTween(_finalScale);
+        _transform.localScale = _initialScale;
+        CreateTween(_finalScale);
 
-            yield return null;
-        }
+        yield return null;
     }
         
     GoTween CreateTween(Vector3 finalValue)
     {
         if(_easeType == GoEaseType.AnimationCurve && _easeCurve != null)
         {
-            return Go.to(_transform, _time, new GoTweenConfig().scale(finalValue).setEaseType(_easeType).setEaseCurve(_easeCurve));
+            return Go.to(_transform, _duration, new GoTweenConfig().scale(finalValue).setEaseType(_easeType).setEaseCurve(_easeCurve));
         }
         else
         {
-            return Go.to(_transform, _time, new GoTweenConfig().scale(finalValue).setEaseType(_easeType));
+            return Go.to(_transform, _duration, new GoTweenConfig().scale(finalValue).setEaseType(_easeType));
         }
     }
-        
-    public override object Clone()
+}
+
+[CreateAssetMenu(menuName = "UI Animations/Scale Animation")]
+public class ScaleAnimationFactory : UIViewAnimationFactory
+{
+    public float Duration;
+    public Vector3 InitialScale = Vector3.zero;
+    public Vector3 FinalScale = Vector3.one;
+    public GoEaseType EaseType = GoEaseType.Linear;
+    public AnimationCurve EaseCurve = default(AnimationCurve);
+
+    public override UIViewAnimation Create()
     {
-        return new ScaleAnimation(_time, _initialScale, _finalScale, _easeType, _easeCurve);
+        return new ScaleAnimation(Duration, InitialScale, FinalScale, EaseType, EaseCurve);
     }
 }
