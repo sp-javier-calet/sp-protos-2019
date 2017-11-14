@@ -80,7 +80,7 @@ namespace SocialPoint.GUIControl
 
         int _currentOrderInLayer;
 
-        bool _isBeingDestroyed = false;
+        bool _isBeingDestroyed;
 
         void Awake()
         {
@@ -137,9 +137,12 @@ namespace SocialPoint.GUIControl
             _activeCameras.Push(_inactiveCameras.Pop());
             UICameraData cameraData = _activeCameras.Peek();
 
-            if(cameraData.Type == type)
+            if(cameraData != null && cameraData.Type == type)
             {
-                cameraData.Camera.SetActive(true);
+                if(cameraData.Camera != null)
+                {
+                    cameraData.Camera.SetActive(true);
+                }
             }
             else
             {
@@ -211,7 +214,7 @@ namespace SocialPoint.GUIControl
         {
             if(_isBeingDestroyed)
             {
-                // avoid refreshing the cameras when the application is being closed
+                // Avoid Refreshing cameras and layered objects when application is being closed
                 return;
             }
 

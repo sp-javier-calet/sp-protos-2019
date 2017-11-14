@@ -2,7 +2,6 @@
 using System.Collections;
 using SocialPoint.GUIControl;
 
-[CreateAssetMenu(menuName = "UI Animations/Slide Animation")]
 public class SlideAnimation : UIViewAnimation
 {
     public enum PosType
@@ -14,55 +13,34 @@ public class SlideAnimation : UIViewAnimation
         Center
     }
 
-    [SerializeField]
-    float _time = 1.0f;
-
-    [SerializeField]
-    PosType _moveFromPos = PosType.Center;
-
-    [SerializeField]
-    PosType _moveToPos = PosType.Center;
-
-    [SerializeField]
+    float _duration;
+    PosType _fromPos = PosType.Center;
+    PosType _toPos = PosType.Center;
     GoEaseType _easeType = GoEaseType.Linear;
-
-    [SerializeField]
     AnimationCurve _easeCurve = default(AnimationCurve);
- 
-    public override void Load(GameObject gameObject = null)
+    RectTransform _rectTransform;
+
+    public void Load(GameObject gameObject)
     {
-        base.Load(gameObject);
-
-        // HINT: If we want to move a gameobject with Canvas component on it, we force to move his first child instead
-        var canvas = _gameObject.GetComponent<Canvas>();
-        if(canvas != null)
-        {
-            if(_transform.childCount > 0)
-            {
-                _transform = _transform.GetChild(0);
-                _gameObject = _transform.gameObject;
-            }
-        }
-
-        _rectTransform = _transform as RectTransform;
+        _rectTransform = gameObject.GetComponent<RectTransform>();
     }
 
-    public SlideAnimation(float time, PosType moveFromPos = PosType.Center, PosType moveToPos = PosType.Center, GoEaseType easeType = GoEaseType.Linear, AnimationCurve easeCurve = default(AnimationCurve))
+    public SlideAnimation(float duration, PosType fromPos, PosType toPos, GoEaseType easeType, AnimationCurve easeCurve)
     {
-        _time = time;
-        _moveFromPos = moveFromPos;
-        _moveToPos = moveToPos;
+        _duration = duration;
+        _fromPos = fromPos;
+        _toPos = toPos;
         _easeType = easeType;
         _easeCurve = easeCurve;
     }
 
-    public override IEnumerator Animate()
+    public IEnumerator Animate()
     {
         var initialPos = _rectTransform.localPosition;
         var finalPos = initialPos;
 
-        GetPosition(ref initialPos, _moveFromPos);
-        GetPosition(ref finalPos, _moveToPos);
+        GetPosition(ref initialPos, _fromPos);
+        GetPosition(ref finalPos, _toPos);
 
         _rectTransform.localPosition = initialPos;
         CreateTween(finalPos);
@@ -74,11 +52,11 @@ public class SlideAnimation : UIViewAnimation
     {
         if(_easeType == GoEaseType.AnimationCurve && _easeCurve != null)
         {
-            return Go.to(_gameObject, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType).setEaseCurve(_easeCurve));
+            return Go.to(_rectTransform, _duration, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType).setEaseCurve(_easeCurve));
         }
         else
         {
-            return Go.to(_gameObject, _time, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType));
+            return Go.to(_rectTransform, _duration, new GoTweenConfig().localPosition(finalValue).setEaseType(_easeType));
         }
     }
 
@@ -101,9 +79,19 @@ public class SlideAnimation : UIViewAnimation
             pos.y = -(_rectTransform.sizeDelta.y + _rectTransform.rect.height);
         }
     }
+}
 
-    public override object Clone()
+[CreateAssetMenu(menuName = "UI Animations/Slide Animation")]
+public class SlideAnimationFactory : UIViewAnimationFactory
+{    
+    public float Duration;
+    public SlideAnimation.PosType FromPos = SlideAnimation.PosType.Center;
+    public SlideAnimation.PosType ToPos = SlideAnimation.PosType.Center;
+    public GoEaseType EaseType = GoEaseType.Linear;
+    public AnimationCurve EaseCurve = default(AnimationCurve);
+
+    public override UIViewAnimation Create()
     {
-        return new SlideAnimation(_time, _moveFromPos, _moveToPos, _easeType, _easeCurve);
+        return new SlideAnimation(Duration, FromPos, ToPos, EaseType, EaseCurve);
     }
 }

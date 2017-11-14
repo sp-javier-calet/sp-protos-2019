@@ -2,48 +2,28 @@
 using System.Collections;
 using SocialPoint.GUIControl;
 
-[CreateAssetMenu(menuName = "UI Animations/Anchored Position Animation")]
 public class AnchoredPositionAnimation : UIViewAnimation
 {
-    [SerializeField]
-    float _time = 1.0f;
-
-    [SerializeField]
-    GoEaseType _easeType = GoEaseType.Linear;
-
-    [SerializeField]
-    AnimationCurve _easeCurve = default(AnimationCurve);
-
-    [SerializeField]
+    float _duration;
+    GoEaseType _easeType;
+    AnimationCurve _easeCurve;
     Vector2 _finalPosition;
- 
-    public override void Load(GameObject gameObject = null)
+    RectTransform _rectTransform;
+
+    public void Load(GameObject gameObject)
     {
-        base.Load(gameObject);
-
-        // HINT: If we want to move a gameobject with Canvas component on it, we force to move his first child instead
-        var canvas = _gameObject.GetComponent<Canvas>();
-        if(canvas != null)
-        {
-            if(_transform.childCount > 0)
-            {
-                _transform = _transform.GetChild(0);
-                _gameObject = _transform.gameObject;
-            }
-        }
-
-        _rectTransform = _transform as RectTransform;
+        _rectTransform = gameObject.GetComponent<RectTransform>();
     }
         
-    public AnchoredPositionAnimation(float time, Vector2 finalPosition, GoEaseType easeType = GoEaseType.Linear, AnimationCurve easeCurve = default(AnimationCurve))
+    public AnchoredPositionAnimation(float duration, Vector2 finalPosition, GoEaseType easeType, AnimationCurve easeCurve)
     {
-        _time = time;
+        _duration = duration;
+        _finalPosition = finalPosition;
         _easeType = easeType;
         _easeCurve = easeCurve;
-        _finalPosition = finalPosition;
     }
 
-    public override IEnumerator Animate()
+    public IEnumerator Animate()
     {
         CreateTween(_finalPosition);
 
@@ -54,16 +34,25 @@ public class AnchoredPositionAnimation : UIViewAnimation
     {
         if(_easeType == GoEaseType.AnimationCurve && _easeCurve != null)
         {
-            return Go.to(_rectTransform, 0.3f, new GoTweenConfig().anchoredPosition(finalValue).setEaseType(_easeType).setEaseCurve(_easeCurve));
+            return Go.to(_rectTransform, _duration, new GoTweenConfig().anchoredPosition(finalValue).setEaseType(_easeType).setEaseCurve(_easeCurve));
         }
         else
         {
-            return Go.to(_rectTransform, 0.3f, new GoTweenConfig().anchoredPosition(finalValue).setEaseType(_easeType));
+            return Go.to(_rectTransform, _duration, new GoTweenConfig().anchoredPosition(finalValue).setEaseType(_easeType));
         }
     }
-        
-    public override object Clone()
+}
+
+[CreateAssetMenu(menuName = "UI Animations/Anchored Position Animation")]
+public class AnchoredPositionAnimationFactory : UIViewAnimationFactory
+{
+    public float Duration;
+    public Vector2 FinalPosition;
+    public GoEaseType EaseType = GoEaseType.Linear;
+    public AnimationCurve EaseCurve = default(AnimationCurve);
+
+    public override UIViewAnimation Create()
     {
-        return new AnchoredPositionAnimation(_time, _finalPosition, _easeType, _easeCurve);
+        return new AnchoredPositionAnimation(Duration, FinalPosition, EaseType, EaseCurve);
     }
 }

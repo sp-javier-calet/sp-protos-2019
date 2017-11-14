@@ -7,18 +7,22 @@ namespace SocialPoint.GUIControl
     public class Loader : MonoBehaviour 
     {
         [SerializeField]
-        UIViewAnimation _animation;
+        UIViewAnimationFactory _animationFactory;
 
+        UIViewAnimation _animation;
         IEnumerator _coroutine;
 
         void Awake()
         {
-            if(_animation == null)
+            if(_animationFactory != null)
             {
-                _animation = new RotateForEverAnimation();
+                _animation = _animationFactory.Create();
+                if(_animation != null)
+                {
+                    _animation.Load(gameObject);
+                    _coroutine = _animation.Animate();
+                }
             }
-            _animation.Load(gameObject);
-            _coroutine = _animation.Animate();
         }
 
         void OnEnable()

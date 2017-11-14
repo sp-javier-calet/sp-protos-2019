@@ -1,23 +1,14 @@
 using UnityEngine;
 using System.Collections;
-using SocialPoint.GUIControl;
 using System.Collections.Generic;
+using SocialPoint.GUIControl;
 
-[CreateAssetMenu(menuName = "UI Animations/Combined Animation")]
 public class CombinedAnimation : UIViewAnimation
 {
-    [SerializeField]
     UIViewAnimation[] _animations;
 
-    public override void Load(GameObject gameObject = null)
-    {
-        base.Load(gameObject);
-
-        if(_animations.Length == 0)
-        {
-            throw new UnityException("Combined UIViewAnimation needs some simple animations");
-        }
-            
+    public void Load(GameObject gameObject)
+    {  
         for(int i = 0; i < _animations.Length; ++i)
         {
             _animations[i].Load(gameObject);
@@ -29,9 +20,9 @@ public class CombinedAnimation : UIViewAnimation
         _animations = animations;
     }
 
-    public override IEnumerator Animate()
+    public IEnumerator Animate()
     {
-        List<IEnumerator> enums = new List<IEnumerator>();
+        var enums = new List<IEnumerator>();
         for(int i = 0; i < _animations.Length; ++i)
         {
             var anim = _animations[i];
@@ -53,20 +44,20 @@ public class CombinedAnimation : UIViewAnimation
             yield return null;
         }
     }
-        
-    public override object Clone()
-    {
-        UIViewAnimation[] clonedAnimations = new UIViewAnimation[_animations.Length];
+}
 
-        for(int i = 0; i < _animations.Length; ++i)
+[CreateAssetMenu(menuName = "UI Animations/Combined Animation")]
+public class CombinedAnimationFactory : UIViewAnimationFactory
+{    
+    public UIViewAnimation[] Animations;
+
+    public override UIViewAnimation Create()
+    {
+        if(Animations.Length == 0)
         {
-            var anim = _animations[i];
-            if(anim != null)
-            {
-                clonedAnimations[i] = (UIViewAnimation)_animations[i].Clone();
-            }
+            throw new UnityException("Combined UIViewAnimation needs some simple animations to work properly");
         }
 
-        return new CombinedAnimation(clonedAnimations);
+        return new CombinedAnimation(Animations);
     }
 }

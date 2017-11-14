@@ -2,24 +2,15 @@ using UnityEngine;
 using System.Collections;
 using SocialPoint.GUIControl;
 
-[CreateAssetMenu(menuName = "UI Animations/Fade Animation")]
 public class FadeAnimation : UIViewAnimation
 {
-    [SerializeField]
-    float _time = 1.0f;
-
-    [SerializeField]
-    float _initialAlpha = 0.0f;
-
-    [SerializeField]
-    float _finalAlpha = 1.0f;
-
+    float _duration;
+    float _initialAlpha;
+    float _finalAlpha;
     CanvasGroup _canvasGroup;
 
-    public override void Load(GameObject gameObject = null)
+    public void Load(GameObject gameObject)
     {
-        base.Load(gameObject);
-
         _canvasGroup = gameObject.GetComponent<CanvasGroup>();
         if(_canvasGroup == null)
         {
@@ -27,28 +18,36 @@ public class FadeAnimation : UIViewAnimation
         }
     }
 
-    public FadeAnimation(float time, float initialAlpha, float finalAlpha)
+    public FadeAnimation(float duration, float initialAlpha, float finalAlpha)
     {
-        _time = time;
+        _duration = duration;
         _initialAlpha = initialAlpha;
         _finalAlpha = finalAlpha;
     }
         
-    public override IEnumerator Animate()
+    public IEnumerator Animate()
     {
         _canvasGroup.alpha = _initialAlpha;
 
         var elapsedTime = 0.0f;
-        while(elapsedTime <= _time)
+        while(elapsedTime <= _duration)
         {
             elapsedTime += Time.deltaTime;
-            _canvasGroup.alpha = Mathf.Lerp(_initialAlpha, _finalAlpha, (elapsedTime / _time));
+            _canvasGroup.alpha = Mathf.Lerp(_initialAlpha, _finalAlpha, (elapsedTime / _duration));
             yield return null;
         }
     }
-        
-    public override object Clone()
+}
+
+[CreateAssetMenu(menuName = "UI Animations/Fade Animation")]
+public class FadeAnimationFactory : UIViewAnimationFactory
+{
+    public float Duration;
+    public float InitialAlpha;
+    public float FinalAlpha;
+
+    public override UIViewAnimation Create()
     {
-        return new FadeAnimation(_time, _initialAlpha, _finalAlpha);
+        return new FadeAnimation(Duration, InitialAlpha, FinalAlpha);
     }
 }
