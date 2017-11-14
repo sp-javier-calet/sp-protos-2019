@@ -21,10 +21,17 @@ namespace SocialPoint.Login
 
         LinkState _state;
 
-        public FacebookLink(IFacebook facebook, bool loginWithUi = true)
+        public LinkMode Mode
+        {
+            get;
+            private set;
+        }
+
+        public FacebookLink(IFacebook facebook, LinkMode mode, bool loginWithUi = true)
         {
             _loginWithUi = loginWithUi;
             _facebook = facebook;
+            Mode = mode;
             Init();
         }
 
@@ -231,6 +238,5 @@ namespace SocialPoint.Login
         {
             _facebook.Logout(null);
         }
-
     }
 }

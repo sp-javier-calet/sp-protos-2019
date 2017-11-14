@@ -117,6 +117,7 @@ namespace SocialPoint.WebSockets
                 _socket.ConnectionStateChanged -= OnSocketStateChanged;
                 _socket.ConnectionError -= OnSocketError;
                 _socket.MessageReceived -= OnSocketMessage;
+                _socket.Dispose();
             }
             _socket = null;
         }

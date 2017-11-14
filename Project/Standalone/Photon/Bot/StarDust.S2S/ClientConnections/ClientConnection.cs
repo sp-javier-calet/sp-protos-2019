@@ -213,7 +213,7 @@ namespace Photon.Stardust.S2S.Server.ClientConnections
             // stop position sending
             this.StopTimers();
 
-            if (Settings.ActiveDisconnect)
+            if (Settings.ActiveDisconnect && this.Peer != null)
             {
                 this.Fiber.Enqueue(this.Peer.Disconnect);
             }

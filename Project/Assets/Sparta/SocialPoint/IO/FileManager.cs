@@ -1,7 +1,8 @@
-﻿
+
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace SocialPoint.IO
 {
@@ -99,7 +100,7 @@ namespace SocialPoint.IO
     {
         public ReadHandler Read(string asset)
         {
-            var stream = new FileStream(asset, FileMode.Open);
+            FileStream stream = new FileStream(asset, FileMode.Open, FileAccess.Read, FileShare.Read);
             return new ReadHandler(stream);
         }
 

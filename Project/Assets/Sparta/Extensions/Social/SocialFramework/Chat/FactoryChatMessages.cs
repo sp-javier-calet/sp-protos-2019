@@ -291,7 +291,8 @@ namespace SocialPoint.Social
 
         MessageType[] ParsePlayerKickedMessage(int type, AttrDic dic)
         {
-            if(!Validate(dic, KickedUserNameKey, AdminUserNameKey))
+            //AdminUserNameKey is not mandatory
+            if(!Validate(dic, KickedUserNameKey))
             {
                 Log.e(Tag, "Received chat message of player left type does not contain all the mandatory fields");
                 return new MessageType[0];

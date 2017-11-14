@@ -316,9 +316,42 @@ namespace SocialPoint.Utils
             }
         }
 
+        sealed class LogTypeComparer : IEqualityComparer<LogType>
+        {
+            public bool Equals(LogType x, LogType y)
+            {
+                return x == y;
+            }
+
+            public int GetHashCode(LogType obj)
+            {
+                return (int)obj;
+            }
+        }
+
+        static string GetLogTypeString(LogType type)
+        {
+            switch(type)
+            {
+            case LogType.Error: 
+                return "Error";
+            case LogType.Assert:
+                return "Assert";
+            case LogType.Warning:
+                return "Warning";
+            case LogType.Log:
+                return "Log";
+            case LogType.Exception:
+                return "Exception";
+            default:
+                DebugUtils.Assert(false, "Type '" + type + "' is unknown");
+                return "";
+            }
+        }
+
         sealed class LogConfig
         {
-            public readonly Dictionary<LogType, bool> ActiveTypes = new Dictionary<LogType, bool>();
+			public readonly Dictionary<LogType, bool> ActiveTypes = new Dictionary<LogType, bool>(new LogTypeComparer());
             public bool AutoRefresh = true;
             public int MaxEntriesToDisplay = 100;
             public string Filter;
@@ -326,7 +359,7 @@ namespace SocialPoint.Utils
 
         sealed class LogEntry
         {
-            static readonly Dictionary<LogType, string> LogColors = new Dictionary<LogType, string> {
+			static readonly Dictionary<LogType, string> LogColors = new Dictionary<LogType, string>(new LogTypeComparer()) {
                 { LogType.Log, "#EEE" },
                 { LogType.Warning, "#FFA" },
                 { LogType.Error, "#F88" },
@@ -350,7 +383,7 @@ namespace SocialPoint.Utils
                 LogColors.TryGetValue(type, out color);
 
                 var contentBuilder = StringUtils.StartBuilder();
-                contentBuilder.Append("<color=").Append(color).Append("><b> ").Append(type.ToString()).Append("</b>: ")
+                contentBuilder.Append("<color=").Append(color).Append("><b> ").Append(GetLogTypeString(type)).Append("</b>: ")
                               .AppendLine(message)
                               .Append(((type == LogType.Exception) ? "<b>Stack:</b>" + stackTrace : ""))
                               .AppendLine("</color>");

@@ -41,7 +41,7 @@ namespace SocialPoint.Physics
             }
         }
 
-        public Ray(JVector pOrigin, JVector pDirection, int layerMask = 0xFFFFFFF)
+        public Ray(JVector pOrigin, JVector pDirection, int layerMask = 0xFFFFFFF) : this()
         {
             LayerMask = layerMask;
 

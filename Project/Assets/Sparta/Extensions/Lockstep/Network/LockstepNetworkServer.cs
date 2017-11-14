@@ -292,18 +292,20 @@ namespace SocialPoint.Lockstep
 
         void SendTurn(ServerTurnData turnData, byte client)
         {
+            var clientIds = new List<byte>();
+            clientIds.Add(client);
             if(ServerTurnData.IsNullOrEmpty(turnData))
             {
                 _server.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.EmptyTurns,
-                    ClientId = client
+                    ClientIds = clientIds
                 }, new EmptyTurnsMessage(1));
             }
             else
             {
                 _server.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.Turn,
-                    ClientId = client
+                    ClientIds = clientIds
                 }, turnData);
             }
         }
@@ -316,9 +318,11 @@ namespace SocialPoint.Lockstep
                 var client = itr.Current;
                 if(client.Ready)
                 {
+                    var clientIds = new List<byte>();
+                    clientIds.Add(client.ClientId);
                     _server.SendMessage(new NetworkMessageData {
                         MessageType = LockstepMsgType.EmptyTurns,
-                        ClientId = client.ClientId
+                        ClientIds = clientIds
                     }, new EmptyTurnsMessage(emptyTurns));
                 }
             }
@@ -330,13 +334,13 @@ namespace SocialPoint.Lockstep
             switch(data.MessageType)
             {
             case LockstepMsgType.Command:
-                OnLockstepCommandReceived(data.ClientId, reader);
+                OnLockstepCommandReceived(data.ClientIds[0], reader);
                 break;
             case LockstepMsgType.PlayerReady:
-                OnPlayerReadyReceived(data.ClientId, reader);
+                OnPlayerReadyReceived(data.ClientIds[0], reader);
                 break;
             case LockstepMsgType.PlayerFinish:
-                OnPlayerFinishReceived(data.ClientId, reader);
+                OnPlayerFinishReceived(data.ClientIds[0], reader);
                 break;
             default:
                 if(_receiver != null)
@@ -642,9 +646,11 @@ namespace SocialPoint.Lockstep
                 CheckAllPlayersReady();
                 return;
             }
+            var clientIds = new List<byte>();
+            clientIds.Add(clientId);
             _server.SendMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.ClientStart,
-                ClientId = clientId
+                ClientIds = clientIds
             }, new ClientStartMessage(
                 _server.GetTimestamp(),
                 ClientUpdateTime,
@@ -774,10 +780,12 @@ namespace SocialPoint.Lockstep
                 var client = _clients[i];
                 if(results.ContainsKey(client.PlayerToken))
                 {
+                    var clientIds = new List<byte>();
+                    clientIds.Add(client.ClientId);
                     var result = results[client.PlayerToken];
                     _server.SendMessage(new NetworkMessageData {
                         MessageType = LockstepMsgType.ClientEnd,
-                        ClientId = client.ClientId
+                        ClientIds = clientIds
                     }, new AttrMessage(result));
                 }
             }
@@ -802,9 +810,11 @@ namespace SocialPoint.Lockstep
             for(var i = 0; i < _clients.Count; i++)
             {
                 var client = _clients[i];
+                var clientIds = new List<byte>();
+                clientIds.Add(client.ClientId);
                 _server.SendMessage(new NetworkMessageData {
                     MessageType = LockstepMsgType.ClientStart,
-                    ClientId = client.ClientId
+                    ClientIds = clientIds
                 }, new ClientStartMessage(
                     _server.GetTimestamp(),
                     ClientUpdateTime,
@@ -1082,9 +1092,11 @@ namespace SocialPoint.Lockstep
             }
 
             ClientCount++;
+            var clientIds = new List<byte>();
+            clientIds.Add(clientId);
             _server.SendMessage(new NetworkMessageData {
                 MessageType = LockstepMsgType.ClientSetup,
-                ClientId = clientId,
+                ClientIds = clientIds,
                 Unreliable = false
             }, new ClientSetupMessage(Config, GameParams));
         }
@@ -1180,9 +1192,11 @@ namespace SocialPoint.Lockstep
                 var other = _clients[i];
                 if(other.Ready && !string.Equals(other.PlayerToken, client.PlayerToken, StringComparison.CurrentCultureIgnoreCase))
                 {
+                    var clientIds = new List<byte>();
+                    clientIds.Add(other.ClientId);
                     _server.SendMessage(new NetworkMessageData {
                         MessageType = LockstepMsgType.ClientConnectionStatus,
-                        ClientId = other.ClientId
+                        ClientIds = clientIds
                     }, new ClientChangedConnectionStatusMessage(client.ClientId, connected));
                 }
             }

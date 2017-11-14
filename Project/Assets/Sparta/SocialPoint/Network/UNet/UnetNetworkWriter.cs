@@ -86,5 +86,10 @@ namespace SocialPoint.Network
         {
             _writer.Write(value);
         }
+
+        public void WriteShortFloat(float value)
+        {
+            _writer.Write(ShortEncoding.Encode(value));
+        }
     }
 }

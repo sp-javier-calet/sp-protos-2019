@@ -111,56 +111,6 @@ namespace SocialPoint.AssetBundlesClient
             return _fullPath;
         }
     }
-
-    public class AssetBundleDownloadFromWebOperation : AssetBundleDownloadOperation
-    {
-        readonly string _Url;
-        WWW _WWW;
-
-        public AssetBundleDownloadFromWebOperation(string assetBundleName, int assetBundleVersion, string url)
-            : base(assetBundleName)
-        {
-            _Url = url;
-            _WWW = WWW.LoadFromCacheOrDownload(url, assetBundleVersion);
-        }
-
-        protected override bool downloadIsDone { get { return (_WWW == null) || _WWW.isDone; } }
-
-        protected override void FinishDownload()
-        {
-            if(_WWW == null)
-            {
-                _WWW.Dispose();
-                return;
-            }
-
-            Error = _WWW.error;
-            if(!string.IsNullOrEmpty(Error))
-            {
-                _WWW.Dispose();
-                _WWW = null;
-                return;
-            }
-
-            AssetBundle bundle = _WWW.assetBundle;
-            if(bundle == null)
-            {
-                Error = string.Format("{0} is not a valid asset bundle.", AssetBundleName);
-            }
-            else
-            {
-                AssetBundleLoaded = new LoadedAssetBundle(bundle);
-            }
-
-            _WWW.Dispose();
-            _WWW = null;
-        }
-
-        public override string GetSourceURL()
-        {
-            return _Url;
-        }
-    }
         
     public class AssetBundleDownloadFromUnityWebRequestOperation : AssetBundleDownloadOperation
     {

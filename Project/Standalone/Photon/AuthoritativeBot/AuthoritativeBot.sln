@@ -2,11 +2,11 @@
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthortiativeBot", "AuthoritativeBot.csproj", "{4C79C300-BAD3-465D-B591-AE5E5E4F16E3}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthoritativeSparta", "..\AuthoritativePlugin\AuthoritativeSparta.csproj", "{4BA8EA51-7FEA-4E0F-8103-386FFFFD6001}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthoritativeBot", "AuthoritativeBot.csproj", "{4C79C300-BAD3-465D-B591-AE5E5E4F16E3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StarDust.S2S.Server", "..\Bot\StarDust.S2S\StarDust.S2S.Server.csproj", "{A8CD69C4-6329-4466-8C77-18CBD1D4F162}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthoritativeSparta", "..\AuthoritativePlugin\AuthoritativeSparta.csproj", "{4BA8EA51-7FEA-4E0F-8103-386FFFFD6001}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,10 +14,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4BA8EA51-7FEA-4E0F-8103-386FFFFD6001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4BA8EA51-7FEA-4E0F-8103-386FFFFD6001}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4BA8EA51-7FEA-4E0F-8103-386FFFFD6001}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4BA8EA51-7FEA-4E0F-8103-386FFFFD6001}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4C79C300-BAD3-465D-B591-AE5E5E4F16E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4C79C300-BAD3-465D-B591-AE5E5E4F16E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4C79C300-BAD3-465D-B591-AE5E5E4F16E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -26,6 +22,10 @@ Global
 		{A8CD69C4-6329-4466-8C77-18CBD1D4F162}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8CD69C4-6329-4466-8C77-18CBD1D4F162}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8CD69C4-6329-4466-8C77-18CBD1D4F162}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BA8EA51-7FEA-4E0F-8103-386FFFFD6001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BA8EA51-7FEA-4E0F-8103-386FFFFD6001}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BA8EA51-7FEA-4E0F-8103-386FFFFD6001}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BA8EA51-7FEA-4E0F-8103-386FFFFD6001}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

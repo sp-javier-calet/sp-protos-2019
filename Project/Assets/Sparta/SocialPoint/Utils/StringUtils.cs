@@ -19,6 +19,38 @@ namespace SocialPoint.Utils
         {
             return builder.Length == 0;
         }
+
+        public static int IndexOf(this StringBuilder sb, string value, int startIndex = 0)
+        {
+            int valueLength = value.Length;
+            int maxSearchLength = (sb.Length - valueLength) + 1;
+
+            for(int i = startIndex; i < maxSearchLength; ++i)
+            {
+                if(sb[i] == value[0])
+                {
+                    int valueIndex = 1;
+                    while((valueIndex < valueLength) && (sb[i + valueIndex] == value[valueIndex]))
+                    {
+                        ++valueIndex;
+                    }
+
+                    if (valueIndex == valueLength)
+                    {
+                        return i;
+                    }
+                }
+            }
+
+            return -1;
+        }
+
+        public static string Substring(this StringBuilder sb, int startingIndex, int length)
+        {
+            char[] charArray = new char[length];
+            sb.CopyTo(startingIndex, charArray, 0, length);
+            return new string(charArray);
+        }
     }
 
     public static class StringUtils
@@ -28,35 +60,12 @@ namespace SocialPoint.Utils
 
         public static StringBuilder StartBuilder()
         {
-            if(_builders == null)
-            {
-                _builders = new Stack<StringBuilder>();
-            }
-            if(_builders.Count == 0)
-            {
-                return new StringBuilder();
-            }
-            else
-            {
-                var builder = _builders.Pop();
-                builder.Length = 0;
-                return builder;
-            }
+            return new StringBuilder();
         }
 
         public static string FinishBuilder(StringBuilder builder)
         {
-            if(_builders == null)
-            {
-                _builders = new Stack<StringBuilder>();
-            }
-            var str = builder.ToString();
-            builder.Length = 0;
-            if(_builders.Count < _buildersMaxSize)
-            {
-                _builders.Push(builder);
-            }
-            return str;
+            return builder.ToString();
         }
 
         public static string DictToString<T, V>(IEnumerable<KeyValuePair<T, V>> items, string format = "")

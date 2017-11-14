@@ -106,15 +106,25 @@ namespace SpartaTools.Editor.View
             return newStatus;
         }
 
-        void ApplyXcodeMods()
+        void ApplyXcodeMods(bool forceReapply)
         {
+            if(forceReapply)
+            {
+                var accepted = EditorUtility.DisplayDialog("Warning", "This will leave the selected Xcode project corrupted. Use it only for debugging the XcodeMods code", "Continue");
+
+                if(!accepted)
+                {
+                    return;
+                }
+            }
+
             var lastProject = XcodePostprocess.LastProjectPath;
             var path = EditorUtility.OpenFolderPanel("Select Target Project", lastProject, lastProject);
 
             // Check for cancelled popup
             if(!string.IsNullOrEmpty(path))
             {
-                XcodePostprocess.ApplyXcodeMods(_target, path);
+                XcodePostprocess.ApplyXcodeMods(_target, path, forceReapply);
             }
         }
 
@@ -157,9 +167,14 @@ namespace SpartaTools.Editor.View
 
             EditorGUILayout.Space();
 
-            if(GUILayout.Button(new GUIContent("Apply", "Apply XcodeMods to an existing Xcodeproj. Applies Active Schemes configuration."), EditorStyles.toolbarButton))
+            if(GUILayout.Button(new GUIContent("Apply", "Applies XcodeMods to an existing Xcodeproj. Applies Active Schemes configuration."), EditorStyles.toolbarButton))
             {
-                ApplyXcodeMods();
+                ApplyXcodeMods(false);
+            }
+
+            if(GUILayout.Button(new GUIContent("Force Re-apply", "Reapplies XcodeMods to an existing Xcodeproj. Applies Active Schemes configuration. \nImportant: The resulting Project can be corrupted. Use only for debugiing XcodeMods"), EditorStyles.toolbarButton))
+            {
+                ApplyXcodeMods(true);
             }
 
             EditEnabled = GUILayout.Toggle(EditEnabled, new GUIContent("Advanced Mode", "Enables edition mode for project file"), EditorStyles.toolbarButton);
@@ -432,6 +447,21 @@ namespace SpartaTools.Editor.View
             public void AddKeychainAccessGroup(string accessGroup)
             {
                 Add(new ModData("Keychain Access Group", string.Format("{0} in default entitlements file", accessGroup), _currentXcodeMod));
+            }
+
+            public void AddPushNotificationsEntitlement(bool isProduction)
+            {
+                Add(new ModData("Push Notifications Environment set to", string.Format("{0} in default entitlements file", GetPushNotificationsEnvironmentName(isProduction)), _currentXcodeMod));
+            }
+
+            public void AddPushNotificationsEntitlement(string entitlementsFile, bool isProduction)
+            {
+                Add(new ModData("Push Notifications Environment set to", string.Format("{0} in {1}", GetPushNotificationsEnvironmentName(isProduction), entitlementsFile), _currentXcodeMod));
+            }
+
+            static string GetPushNotificationsEnvironmentName(bool isProduction)
+            {
+                return isProduction ? "production" : "development";
             }
 
             public void Commit()

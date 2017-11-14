@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Dependency;
+using SocialPoint.Hardware;
 using SocialPoint.Helpshift;
 using SocialPoint.Locale;
 using SocialPoint.Login;
@@ -76,14 +77,16 @@ namespace SocialPoint.Helpshift
         #endif
 
         UnityHelpshift CreateUnityHelpshift()
-        {           
-            var hsconfig = new HelpshiftConfiguration() {
+        {
+            var hsconfig = new HelpshiftConfiguration()
+            {
                 Mode = Settings.Mode,
                 SearchOnNewConversationEnabled = Settings.SearchOnNewConversationEnabled,
-                ConversationResolutionQuestionEnabled = Settings.ConversationResolutionQuestionEnabled
+                ConversationResolutionQuestionEnabled = Settings.ConversationResolutionQuestionEnabled,
+                Flows = null,
             };
 
-            var hs = new UnityHelpshift(hsconfig);
+            var hs = new UnityHelpshift(hsconfig, Container.Resolve<IDeviceInfo>());
             _helpshift = hs;
             return hs;
         }
@@ -115,5 +118,6 @@ namespace SocialPoint.Helpshift
                 _helpshift.UserData = new HelpshiftCustomer(userId, new []{ userImportance }, new Dictionary<string, object>());
             }
         }
+
     }
 }

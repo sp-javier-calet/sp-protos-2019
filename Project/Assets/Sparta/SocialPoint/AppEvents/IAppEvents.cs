@@ -95,6 +95,12 @@ namespace SocialPoint.AppEvents
             events.RestartGame(0);
         }
 
+        public static void RestartGame(this IAppEvents events, string restartScene)
+        {
+            events.TriggerGameWillRestart();
+            SceneManager.LoadScene(restartScene);
+        }
+
         public static void RestartGame(this IAppEvents events, int restartScene)
         {
             events.TriggerGameWillRestart();

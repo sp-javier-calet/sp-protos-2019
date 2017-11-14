@@ -1,9 +1,10 @@
-﻿using Jitter.LinearMath;
-
-public static partial class JQuaternionExtensions
+﻿namespace Jitter.LinearMath
 {
-    public static UnityEngine.Quaternion ToUnity(this JQuaternion q)
+    public static partial class JQuaternionExtensions
     {
-        return new UnityEngine.Quaternion(q.X, q.Y, q.Z, q.W);
+        public static UnityEngine.Quaternion ToUnity(this JQuaternion q)
+        {
+            return new UnityEngine.Quaternion(q.X, q.Y, q.Z, q.W);
+        }
     }
 }

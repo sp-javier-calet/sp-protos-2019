@@ -99,6 +99,8 @@ namespace SocialPoint.GUIControl
             }
         }
 
+        public event Action<UIViewController, ActionType, int> ActionEvent;
+
         IDictionary<string,int> _checkpoints = new Dictionary<string,int>();
         IEnumerator _actionCoroutine;
         ActionType _action = ActionType.None;
@@ -188,7 +190,7 @@ namespace SocialPoint.GUIControl
             _action = ActionType.None;
             DebugLog("EndProcess");
         }
-  
+            
         static bool IsPushAction(ActionType act)
         {
             return act == ActionType.Push || act == ActionType.PushImmediate;
@@ -340,12 +342,21 @@ namespace SocialPoint.GUIControl
 
             uiViewAnimation = anim;
         }
-            
+
         static UIViewAnimation GetAnimation(UIViewAnimation anim)
         {
             return anim != null ? (UIViewAnimation)anim.Clone() : null;
         }
             
+        void NotifyActionEvent(StackNode stackNode, ActionType action)
+        {
+            if(ActionEvent != null)
+            {
+                DebugLog(string.Format("UIStackController::NotifyActionEvent {0} over view {1}. Current stack Count = {2}", action, IsValidStackNode(stackNode) ? stackNode.Controller : null, _stack.Count));
+                ActionEvent(IsValidStackNode(stackNode) ? stackNode.Controller : null, action, _stack.Count);
+            }
+        }
+
         IEnumerator DoTransition(StackNode from, StackNode to, ActionType act)
         {            
             if(IsValidStackNode(from) && IsValidStackNode(to) && from.Controller == to.Controller)
@@ -454,7 +465,7 @@ namespace SocialPoint.GUIControl
             }
             DebugLog("EndTransition");
         }
-            
+
         protected override void DebugLog(string msg)
         {
             ShowDebugLogMessage(string.Format("UIStackController | {0}", msg));
@@ -500,6 +511,17 @@ namespace SocialPoint.GUIControl
             base.OnDisappeared();
         }
 
+        override public void OnPopupStackedInView()
+        {
+            _action = ActionType.None;
+
+            var top = Top;
+            if(top != null)
+            {
+                top.Controller.ShowImmediate();
+            }
+        }
+
         override protected void OnChildViewStateChanged(UIViewController ctrl, ViewState state)
         {
             var top = Top;
@@ -517,6 +539,7 @@ namespace SocialPoint.GUIControl
                         if(index >= 0)
                         {
                             _stack.RemoveAt(index);
+                            NotifyActionEvent(top, _action);
                         }
 
                         UpdateStackVisibility(_action);
@@ -570,6 +593,8 @@ namespace SocialPoint.GUIControl
             AddChild(stackNode.GameObject);
             _stack.Add(stackNode);
 
+            NotifyActionEvent(stackNode, act);
+
             var enm = DoTransition(top, stackNode, act);
             while(enm.MoveNext())
             {
@@ -605,6 +630,8 @@ namespace SocialPoint.GUIControl
             var top = Top;
             AddChild(stackNode.GameObject);
             _stack.Add(stackNode);
+
+            NotifyActionEvent(stackNode, ActionType.Push);
 
             var act = ActionType.PushImmediate;
             SetupTransition(top, stackNode);
@@ -811,6 +838,7 @@ namespace SocialPoint.GUIControl
             if(IsValidStackNode(top))
             {
                 top.Controller.HideImmediate(true);
+                NotifyActionEvent(top, ActionType.Pop);
             }
 
             var stackNode = Top;

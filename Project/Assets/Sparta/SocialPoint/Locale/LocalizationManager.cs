@@ -10,11 +10,23 @@ using SocialPoint.Base;
 using SocialPoint.Hardware;
 using SocialPoint.IO;
 using SocialPoint.Network;
+using SocialPoint.Dependency;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Locale
 {
     public class LocalizationManager : ILocalizationManager
     {
+        [Serializable]
+        public class TimeTextIdentifiers
+        {
+            public string DayIdentifier;
+            public string DaysIdentifier;
+            public string HourIdentifier;
+            public string MinIdentifier;
+            public string SecIdentifier;
+        }
+
         public sealed class LocationData
         {
             public const string DevEnvironmentId = "dev";
@@ -26,9 +38,7 @@ namespace SocialPoint.Locale
             public const string DefaultPlatform = "ios";
 
             public const string DefaultDevEnvironmentId = DevEnvironmentId;
-            public const string DefaultDevSecretKey = "AE7ffBEUZXNzfTe0";
             public const string DefaultProdEnvironmentId = ProdEnvironmentId;
-            public const string DefaultProdSecretKey = "GpfC4F40mwkX0jBX";
 
             const string UrlFormat = "http://sp-translations.socialpointgames.com/deploy/<PROJ>/<PLAT>/<ENV>/<PROJ>_<PLAT>_<LANG>_<ENV>_<KEY>.json";
             const string ProjectIdPlaceholder = "<PROJ>";
@@ -38,8 +48,9 @@ namespace SocialPoint.Locale
             const string LanguagePlaceholder = "<LANG>";
 
             public string ProjectId = DefaultProjectId;
-            public string EnvironmentId = DefaultDevEnvironmentId;
-            public string SecretKey = DefaultDevSecretKey;
+
+            public List<SocialPoint.Locale.LocaleInstaller.EnvironmentData> EnvironmentsData = new List<SocialPoint.Locale.LocaleInstaller.EnvironmentData>();
+
             public string Platform = DefaultPlatform;
 
             public string Format(string pattern, string lang, EnvironmentType environmentType)
@@ -47,15 +58,13 @@ namespace SocialPoint.Locale
                 pattern = pattern.Replace(ProjectIdPlaceholder, ProjectId);
                 pattern = pattern.Replace(PlatformPlaceholder, Platform);
 
-                if(environmentType == EnvironmentType.Production || environmentType == EnvironmentType.PreProduction)
+                for(int i = 0; i < EnvironmentsData.Count; i++)
                 {
-                    pattern = pattern.Replace(EnvionmentIdPlaceholder, ProdEnvironmentId);
-                    pattern = pattern.Replace(SecretKeyPlaceholder, DefaultProdSecretKey);
-                }
-                else
-                {
-                    pattern = pattern.Replace(EnvionmentIdPlaceholder, DevEnvironmentId);
-                    pattern = pattern.Replace(SecretKeyPlaceholder, DefaultDevSecretKey);
+                    if(EnvironmentsData[i].EnvironmentType == environmentType)
+                    {
+                        pattern = pattern.Replace(EnvionmentIdPlaceholder, EnvironmentsData[i].Id);
+                        pattern = pattern.Replace(SecretKeyPlaceholder, EnvironmentsData[i].SecretKey);
+                    }
                 }
 
                 pattern = pattern.Replace(LanguagePlaceholder, lang);
@@ -74,7 +83,7 @@ namespace SocialPoint.Locale
             WriteCsvWithAllSupportedLanguages,
             NoCsv
         }
-            
+
         const string kPersistentTag = "persistent";
         const string kLanguageSettingsKey = "CurrentLanguage";
 
@@ -178,6 +187,7 @@ namespace SocialPoint.Locale
         public CultureInfo CurrentCultureInfo{ get; private set; }
 
         CultureInfo _selectedCultureInfo;
+
         public CultureInfo SelectedCultureInfo
         {
             get
@@ -185,7 +195,7 @@ namespace SocialPoint.Locale
                 return _selectedCultureInfo;
             }
         }
-            
+
         public delegate void CsvForNGUILoadedDelegate(byte[] bytes);
 
         CsvForNGUILoadedDelegate CsvForNGUILoaded;
@@ -195,6 +205,7 @@ namespace SocialPoint.Locale
         public IAppInfo AppInfo { get; set; }
 
         LocationData _location;
+
         public LocationData Location
         {
             get
@@ -204,6 +215,7 @@ namespace SocialPoint.Locale
         }
 
         Localization _localization;
+
         public Localization Localization
         {
             get
@@ -214,6 +226,7 @@ namespace SocialPoint.Locale
 
         // language applied after selection (supported one).
         string _currentLanguage;
+
         public string CurrentLanguage
         {
             get
@@ -234,6 +247,7 @@ namespace SocialPoint.Locale
 
         // language selected by the user
         string _selectedLanguage;
+
         public string SelectedLanguage
         {
             get
@@ -243,6 +257,7 @@ namespace SocialPoint.Locale
         }
 
         IAppEvents _appEvents;
+
         public IAppEvents AppEvents
         {
             get
@@ -264,6 +279,7 @@ namespace SocialPoint.Locale
         }
 
         bool _useAlwaysDeviceLanguage;
+
         public bool UseAlwaysDeviceLanguage
         {
             get
@@ -276,7 +292,9 @@ namespace SocialPoint.Locale
             }
         }
 
-        public EnvironmentType EnvironmentType;
+        public TimeTextIdentifiers TimeTids { get; set; }
+
+        public IBackendEnvironment BackendEnvironments;
 
         IAttrStorage _storage;
 
@@ -290,7 +308,7 @@ namespace SocialPoint.Locale
         {
             Initialize(storage);
         }
-            
+
         void Initialize(IAttrStorage storage, CsvMode csvMode = CsvMode.NoCsv, CsvForNGUILoadedDelegate csvLoaded = null)
         {
             _storage = storage;
@@ -305,7 +323,7 @@ namespace SocialPoint.Locale
 
             PathsManager.CallOnLoaded(Init);
         }
-            
+
         void SaveSelectedLanguage(string lang)
         {
             if(_storage != null && !UseAlwaysDeviceLanguage)
@@ -598,12 +616,14 @@ namespace SocialPoint.Locale
                 FileUtils.WriteAllBytes(localFile, data);
             }
 
+            SetTimeLabels(locale);
+
             return true;
         }
 
         string GetLocalizationPathPrefix(string lang)
         {
-            return Path.Combine(_cachePath, _location.Format(FilePrefixFormat, lang, EnvironmentType));
+            return Path.Combine(_cachePath, _location.Format(FilePrefixFormat, lang, BackendEnvironments.GetEnvironment().Type));
         }
 
         string FindLocalizationFile(string lang)
@@ -643,7 +663,8 @@ namespace SocialPoint.Locale
                 }
                 return;
             }
-            var url = _location.GetUrl(lang, EnvironmentType);
+                
+            var url = _location.GetUrl(lang, BackendEnvironments.GetEnvironment().Type);
             var request = new HttpRequest(url);
 
             var etag = FindLanguageEtag(lang);
@@ -829,6 +850,15 @@ namespace SocialPoint.Locale
                 }
             }
             return string.Empty;
+        }
+
+        void SetTimeLabels(Localization locale)
+        {
+            TimeUtils.DayLocalized = locale.Get(TimeTids.DayIdentifier);
+            TimeUtils.DaysLocalized = locale.Get(TimeTids.DaysIdentifier);
+            TimeUtils.HourLocalized = locale.Get(TimeTids.HourIdentifier);
+            TimeUtils.MinLocalized = locale.Get(TimeTids.MinIdentifier);
+            TimeUtils.SecLocalized = locale.Get(TimeTids.SecIdentifier);
         }
     }
 }

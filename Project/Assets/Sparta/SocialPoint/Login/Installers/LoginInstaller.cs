@@ -8,6 +8,7 @@ using SocialPoint.Hardware;
 using SocialPoint.Locale;
 using SocialPoint.Network;
 using SocialPoint.ServerEvents;
+using SocialPoint.Restart;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -107,6 +108,7 @@ namespace SocialPoint.Login
         {
             login.DeviceInfo = Container.Resolve<IDeviceInfo>();
             login.AppEvents = Container.Resolve<IAppEvents>();
+            login.Restarter = Container.Resolve<IRestarter>();
             login.TrackEvent = Container.Resolve<IEventTracker>().TrackSystemEvent;
             login.Storage = Container.Resolve<IAttrStorage>("persistent");
             login.Localization = Container.Resolve<ILocalizationManager>();
@@ -119,7 +121,8 @@ namespace SocialPoint.Login
             var links = Container.ResolveList<ILink>();
             for(var i = 0; i < links.Count; i++)
             {
-                login.AddLink(links[i]);
+                var link = links[i];
+                login.AddLink(link);
             }
         }
 
@@ -129,7 +132,7 @@ namespace SocialPoint.Login
             return new AdminPanelLogin(
                 Container.Resolve<ILogin>(), 
                 Container.Resolve<IBackendEnvironment>(),
-                Container.Resolve<IAppEvents>());
+                Container.Resolve<IRestarter>());
         }
         #endif
     }

@@ -7,6 +7,9 @@ namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout
     {
+
+        public float Width { get; private set;}
+
         public HorizontalLayout CreateHorizontalLayout()
         {
             return new HorizontalLayout(this);
@@ -25,6 +28,8 @@ namespace SocialPoint.AdminPanel
                 layoutGroup.childForceExpandWidth = false;
 
                 Parent = rectTrans;
+
+                Width = rectTrans.rect.width;
             }
         }
     }

@@ -89,6 +89,11 @@ namespace SocialPoint.WebSockets
             throw new NotImplementedException();
         }
 
+        public void WriteShortFloat(float value)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         public override string ToString()

@@ -10,11 +10,14 @@ namespace SocialPoint.Network.ServerEvents
 {
     public class HttpServerEventTracker : IUpdateable
     {
+        // datadog
         const string MetricUri = "rtmp/metrics";
+        // analytics - backoffice
         const string TrackUri = "rtmp/tracks";
+        // kibana
         const string LogUri = "rtmp/logs";
 
-        public string BaseUrl;
+        public Func<string> GetBaseUrlCallback;
         public string Environment;
         public string Platform;
 
@@ -24,10 +27,12 @@ namespace SocialPoint.Network.ServerEvents
 
         public event Action<AttrDic> UpdateCommonTrackData;
 
+        IUpdateScheduler _updateScheduler;
         IHttpClient _httpClient;
         Dictionary<MetricType, List<Metric>> _pendingMetrics;
+        Dictionary<MetricType, List<Metric>> _sendingMetrics;
         List<Event> _pendingEvents;
-        IUpdateScheduler _updateScheduler;
+        List<Event> _sendingEvents;
         List<Log> _pendingLogs;
         List<Log> _sendingLogs;
         bool _sending;
@@ -38,7 +43,9 @@ namespace SocialPoint.Network.ServerEvents
             _updateScheduler = updateScheduler;
             _httpClient = httpClient;
             _pendingMetrics = new Dictionary<MetricType, List<Metric>>();
+            _sendingMetrics = new Dictionary<MetricType, List<Metric>>();
             _pendingEvents = new List<Event>();
+            _sendingEvents = new List<Event>();
             _pendingLogs = new List<Log>();
             _sendingLogs = new List<Log>();
         }
@@ -62,6 +69,16 @@ namespace SocialPoint.Network.ServerEvents
 
         #endregion
 
+        public bool HasPendingData
+        {
+            get
+            {
+                return _pendingMetrics.Count > 0 || _sendingMetrics.Count > 0 ||
+                _pendingEvents.Count > 0 || _sendingEvents.Count > 0 ||
+                _pendingLogs.Count > 0 || _sendingLogs.Count > 0;
+            }
+        }
+
         public void SendMetric(Metric metric)
         {
             if(!_pendingMetrics.ContainsKey(metric.MetricType))
@@ -81,44 +98,73 @@ namespace SocialPoint.Network.ServerEvents
             SetupRequest(req, MetricUri);
 
             var metricsData = new AttrDic();
-            var sendMetrics = new List<Metric>();
-            var keys = _pendingMetrics.Keys.GetEnumerator();
-            while(keys.MoveNext())
+            var itr = _pendingMetrics.GetEnumerator();
+            while(itr.MoveNext())
             {
                 var metrics = new AttrList();
-                var pendingMetrics = _pendingMetrics[keys.Current];
-                for(int i = 0; i < pendingMetrics.Count; i++)
+                var metricList = itr.Current.Value;
+                for(int i = 0; i < metricList.Count; ++i)
                 {
-                    var metric = pendingMetrics[i];
+                    var metric = metricList[i];
                     if(!string.IsNullOrEmpty(Environment))
                     {
                         metric.Tags.Add(string.Format("environment:{0}", Environment));
                     }
                     metrics.Add(metric.ToAttr());
-                    sendMetrics.Add(metric);
                 }
-                var dicKey = keys.Current.ToApiKey();
-                metricsData.Set(dicKey, metrics);
+
+                var metricType = itr.Current.Key;
+                metricsData.Set(metricType.ToApiKey(), metrics);
+                if(!_sendingMetrics.ContainsKey(metricType))
+                {
+                    _sendingMetrics.Add(metricType, new List<Metric>());
+                }
+                _sendingMetrics[metricType].AddRange(metricList);
             }
-            keys.Dispose();
+            itr.Dispose();
+            _pendingMetrics.Clear();
             req.Body = new JsonAttrSerializer().Serialize(metricsData);
-            _httpClient.Send(req, (r) => OnMetricResponse(r, sendMetrics));
+            _httpClient.Send(req, OnMetricResponse);
         }
 
-        void OnMetricResponse(HttpResponse resp, List<Metric> sendMetrics)
+        void OnMetricResponse(HttpResponse resp)
         {
             if(!resp.HasError)
             {
-                for(int i = 0; i < sendMetrics.Count; i++)
+                var itr = _sendingMetrics.GetEnumerator();
+                while(itr.MoveNext())
                 {
-                    var metric = sendMetrics[i];
-                    if(metric.ResponseDelegate != null)
+                    var metricList = itr.Current.Value;
+                    for(int i = 0; i < metricList.Count; ++i)
                     {
-                        metric.ResponseDelegate(resp.Error);
+                        var metric = metricList[i];
+                        if(metric.ResponseDelegate != null)
+                        {
+                            metric.ResponseDelegate(resp.Error);
+                        }
                     }
-                    _pendingMetrics[metric.MetricType].Remove(metric);
                 }
+                itr.Dispose();
             }
+            else
+            {
+                var itr = _sendingMetrics.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    var metricType = itr.Current.Key;
+                    var metricList = itr.Current.Value;
+
+                    if(!_pendingMetrics.ContainsKey(metricType))
+                    {
+                        _pendingMetrics.Add(metricType, new List<Metric>());
+                    }
+
+                    _pendingMetrics[metricType].AddRange(metricList);
+                }
+                itr.Dispose();
+            }
+
+            _sendingMetrics.Clear();
         }
 
         public void SendTrack(string eventName, AttrDic data = null, ErrorDelegate del = null)
@@ -141,13 +187,14 @@ namespace SocialPoint.Network.ServerEvents
             var req = new HttpRequest();
             SetupRequest(req, TrackUri);
             var track = new AttrDic();
-            var events = new List<Event>(_pendingEvents);
+            _sendingEvents.AddRange(_pendingEvents);
             var eventsAttr = new AttrList();
-            for(int i = 0; i < events.Count; i++)
+            for(int i = 0; i < _pendingEvents.Count; ++i)
             {
-                var ev = events[i];
+                var ev = _pendingEvents[i];
                 eventsAttr.Add(ev.ToAttr());
             }
+            _pendingEvents.Clear();
 
             var common = new AttrDic();
             var handler = UpdateCommonTrackData;
@@ -159,23 +206,28 @@ namespace SocialPoint.Network.ServerEvents
             track.Set("common", common);
             track.Set("events", eventsAttr);
             req.Body = new JsonAttrSerializer().Serialize(track);
-            _httpClient.Send(req, r => OnSendEventResponse(r, events));
+            _httpClient.Send(req, OnSendEventResponse);
         }
 
-        void OnSendEventResponse(HttpResponse resp, List<Event> sendEvents)
+        void OnSendEventResponse(HttpResponse resp)
         {
             if(!resp.HasError)
             {
-                for(int i = 0; i < sendEvents.Count; i++)
+                for(int i = 0; i < _sendingEvents.Count; ++i)
                 {
-                    var ev = sendEvents[i];
+                    var ev = _sendingEvents[i];
                     if(ev.ResponseDelegate != null)
                     {
                         ev.ResponseDelegate(resp.Error);
                     }
-                    _pendingEvents.Remove(ev);
                 }
             }
+            else
+            {
+                _pendingEvents.AddRange(_sendingEvents);
+            }
+
+            _sendingEvents.Clear();
         }
 
         public void SendLog(Log log, bool immediate = false)
@@ -203,8 +255,9 @@ namespace SocialPoint.Network.ServerEvents
             var req = new HttpRequest();
             SetupRequest(req, LogUri);
             var body = new AttrDic();
+            _sendingLogs.AddRange(_pendingLogs);
             var logList = new AttrList();
-            for(int i = 0; i < _pendingLogs.Count; i++)
+            for(int i = 0; i < _pendingLogs.Count; ++i)
             {
                 var log = _pendingLogs[i];
                 if(!string.IsNullOrEmpty(Environment))
@@ -212,7 +265,6 @@ namespace SocialPoint.Network.ServerEvents
                     log.Context.SetValue("environment", Environment);
                 }
                 logList.Add(log.ToAttr());
-                _sendingLogs.Add(log);
             }
             _pendingLogs.Clear();
             body.Set("logs", logList);
@@ -223,15 +275,23 @@ namespace SocialPoint.Network.ServerEvents
 
         void OnSendLogResponse(HttpResponse resp)
         {
-            for(int i = 0; i < _sendingLogs.Count; i++)
+            if(!resp.HasError)
             {
-                var log = _sendingLogs[i];
-                if(log.ResponseDelegate != null)
+                for(int i = 0; i < _sendingLogs.Count; ++i)
                 {
-                    log.ResponseDelegate(resp.Error);
+                    var log = _sendingLogs[i];
+                    if(log.ResponseDelegate != null)
+                    {
+                        log.ResponseDelegate(resp.Error);
+                    }
                 }
             }
-            _pendingLogs.Clear();
+            else
+            {
+                _pendingLogs.AddRange(_sendingLogs);
+            }
+
+            _sendingLogs.Clear();
             _sending = false;
             if(_sendAgain)
             {
@@ -244,7 +304,7 @@ namespace SocialPoint.Network.ServerEvents
         {
             req.Method = HttpRequest.MethodType.POST;
             Uri auxUri;
-            Uri.TryCreate(StringUtils.CombineUri(BaseUrl, uri), UriKind.Absolute, out auxUri);
+            Uri.TryCreate(StringUtils.CombineUri(GetBaseUrlCallback(), uri), UriKind.Absolute, out auxUri);
             req.Url = auxUri;
         }
     }

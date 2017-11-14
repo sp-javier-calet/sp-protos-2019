@@ -25,6 +25,10 @@ namespace SocialPoint.GameLoading
     /// </summary>
     public class GameLoadingController : UIViewController
     {
+        public delegate void AllOperationsLoadedDelegate();
+
+        AllOperationsLoadedDelegate AllOperationsLoadedEvent;
+
         const string ReleaseMessageKey = "gameloading.release_message_{0}";
 
         const float FakeLoginDuration = 2.0f;
@@ -42,6 +46,9 @@ namespace SocialPoint.GameLoading
 
         [SerializeField]
         int _releaseMessageAmount = 5;
+
+        int _currentRetriesToShowSupportButton = 0;
+        const int RetriesToShowSupportButton = 3;
 
         // seconds to end progress when real action is finished
         [SerializeField]
@@ -185,7 +192,7 @@ namespace SocialPoint.GameLoading
         protected virtual void OnAllOperationsLoaded()
         {
             DebugLog("all operations loaded");
-
+            AllOperationsLoadedEvent -= OnAllOperationsLoaded;
             if(AppEvents != null)
             {
                 AppEvents.TriggerGameWasLoaded();
@@ -200,6 +207,7 @@ namespace SocialPoint.GameLoading
             if(Login != null)
             {
                 Login.ErrorEvent += OnLoginError;
+                AllOperationsLoadedEvent += OnAllOperationsLoaded;
                 _loginOperation = new LoadingOperation(FakeLoginDuration, DoLogin);
                 RegisterOperation(_loginOperation);
             }
@@ -269,7 +277,10 @@ namespace SocialPoint.GameLoading
             if(!Paused && HasFinished(percent))
             {
                 Paused = true;
-                OnAllOperationsLoaded();
+                if(AllOperationsLoadedEvent != null)
+                {
+                    AllOperationsLoadedEvent();
+                }
             }
         }
 
@@ -307,7 +318,10 @@ namespace SocialPoint.GameLoading
         override protected void OnDisappearing()
         {
             Login.ErrorEvent -= OnLoginError;
-            OnAllOperationsLoaded();
+            if(AllOperationsLoadedEvent != null)
+            {
+                AllOperationsLoadedEvent();
+            }
             base.OnDisappearing();
         }
 
@@ -334,14 +348,17 @@ namespace SocialPoint.GameLoading
             case ErrorType.MaintenanceMode:
                 ErrorHandler.ShowMaintenance(Login.Data.Maintenance, OnLoginErrorShown);
                 break;
-            case ErrorType.Connection: 
+            case ErrorType.Connection:
                 ErrorHandler.ShowConnection(err, OnLoginErrorShown);
                 break;
             case ErrorType.InvalidSecurityToken:
                 ErrorHandler.ShowInvalidSecurityToken(OnInvalidSecurityTokenShown);
                 break;
             default:
-                ErrorHandler.ShowLogin(err, OnLoginErrorShown);
+                {
+                    ErrorHandler.ShowLogin(err, OnLoginErrorShown, _currentRetriesToShowSupportButton >= RetriesToShowSupportButton);
+                    _currentRetriesToShowSupportButton++;
+                }
                 break;
             }
         }
@@ -386,6 +403,7 @@ namespace SocialPoint.GameLoading
             }
             else
             {
+                _currentRetriesToShowSupportButton = 0;
                 msg = "login finished sucessfully";
             }
             if(Error.IsNullOrEmpty(err) && Login.Data != null)

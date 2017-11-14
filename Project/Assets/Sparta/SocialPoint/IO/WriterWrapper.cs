@@ -1,4 +1,4 @@
-﻿
+
 namespace SocialPoint.IO
 {
     public class WriterWrapper : IWriter
@@ -83,6 +83,11 @@ namespace SocialPoint.IO
         public void Write(uint value)
         {
             _writer.Write(value);
+        }
+
+        public void WriteShortFloat(float value)
+        {
+            _writer.WriteShortFloat(value);
         }
     }
 }

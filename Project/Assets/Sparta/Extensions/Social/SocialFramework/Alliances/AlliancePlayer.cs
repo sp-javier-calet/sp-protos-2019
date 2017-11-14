@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using SocialPoint.Attributes;
 using SocialPoint.Utils;
 
@@ -276,7 +276,8 @@ namespace SocialPoint.Social
 
         public SocialPlayer.IComponent CreateElement(AttrDic dic)
         {
-            var timestamp = dic.GetValue(TimestampKey).ToString();
+            var joinRequestDic = dic.Get(ComponentKey).AsDic;
+            var timestamp = joinRequestDic.GetValue(TimestampKey).ToString();
             return new AllianceJoinRequestComponent(timestamp);
         }
 

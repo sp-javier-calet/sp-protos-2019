@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
-using SocialPoint.Pooling;
 using UnityEngine;
+using SocialPoint.Physics;
+using System.Collections.Generic;
 
 namespace SocialPoint.Multiplayer
 {
@@ -11,7 +11,7 @@ namespace SocialPoint.Multiplayer
 
     public class UnityNetworkClientDebugBehaviour : NetworkBehaviour
     {
-        public NetworkGameObject ClientObject{ get; private set; }
+        public NetworkGameObject ClientObject{ get { return GameObject; } }
 
         public NetworkClientSceneController Client{ get; private set; }
 
@@ -57,15 +57,15 @@ namespace SocialPoint.Multiplayer
 
         public override object Clone()
         {
-            var b = ObjectPool.Get<UnityNetworkClientDebugBehaviour>().Init(Client, Server);
-            b.ClientObject = ClientObject;
+            var b = GameObject.Context.Pool.Get<UnityNetworkClientDebugBehaviour>();
+            b.Init(Client, Server);
             return b;
         }
     }
 
     public class UnityDebugMonoBehaviour : MonoBehaviour
     {
-        List<IUnityDebugBehaviour> _behaviours = new List<IUnityDebugBehaviour>();
+        List<IUnityDebugBehaviour> _behaviours = new List<IUnityDebugBehaviour>(FinderSettings.DefaultListCapacity);
         public UnityNetworkClientDebugBehaviour NetworkBehaviour;
 
         GameObject _clientObject;

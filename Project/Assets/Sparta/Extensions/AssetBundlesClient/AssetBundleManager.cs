@@ -71,8 +71,8 @@ namespace SocialPoint.AssetBundlesClient
         public const string DefaultGame = "basegame";
         public const int DefaultMaxConcurrentDownloads = 2;
 
-        public string Server = DefaultServer;
-        public string Game = DefaultGame;
+        public AssetBundleManagerInstaller.SettingsData Data{ get; set; }
+
         public int MaxConcurrentDownloads = DefaultMaxConcurrentDownloads;
 
         public ICoroutineRunner CoroutineRunner{ get; set; }
@@ -100,10 +100,15 @@ namespace SocialPoint.AssetBundlesClient
             }
         }
 
+        public AssetBundleManager()
+        {
+            Data = new AssetBundleManagerInstaller.SettingsData{Server = DefaultServer, Game = DefaultGame, TransformNamesToLowercase = false};
+        }
+
         public void Setup()
         {
             // http://s3.amazonaws.com/int-sp-static-content/static/basegame/android_etc/1/test_scene_unity
-            _baseDownloadingURL = string.Format("{0}/{1}/{2}", Server, Game, Utility.GetPlatformName());
+            _baseDownloadingURL = string.Format("{0}/{1}/{2}", Data.Server, Data.Game, Utility.GetPlatformName());
             DebugLog("BaseDownloadingURL: " + _baseDownloadingURL);
 
             SetupLocal();
@@ -246,8 +251,16 @@ namespace SocialPoint.AssetBundlesClient
                     dependencies.Add(itemName, new List <string>(dependenciesArray));
                 }
 
-                var assetBundleData = new AssetBundleParsedData(itemName, itemVersion);
-                assetBundlesParsedData.Add(itemName, assetBundleData);
+                if(!assetBundlesParsedData.ContainsKey(itemName))
+                {
+                    var assetBundleData = new AssetBundleParsedData(itemName, itemVersion);
+                    assetBundlesParsedData.Add(itemName, assetBundleData);
+                }
+                else
+                {
+                    Log.w("AssetBundleManager", string.Format("Skipped BundleData {0} because it is repeated", itemName));
+                }
+
                 if(!_parsedBundlesNames.Contains(itemName))
                 {
                     _parsedBundlesNames.Add(itemName);
@@ -609,15 +622,17 @@ namespace SocialPoint.AssetBundlesClient
             stringBuilder.Append(assetBundleData.Name);
             var fullPath = stringBuilder.ToString();
 
-            #if UNITY_EDITOR
             _inProgressOperations.Add(new AssetBundleLoadLocalOperation(assetBundleData.Name, fullPath));
-            #else
-            _inProgressOperations.Add(new AssetBundleDownloadFromWebOperation(assetBundleData.Name, assetBundleData.Version, fullPath));
-            #endif
         }
 
         public IEnumerator LoadAssetAsyncRequest(string assetBundleName, string assetName, Type type, Action<AssetBundleLoadAssetOperation> onRequestChanged)
         {
+            if(Data.TransformNamesToLowercase)
+            {
+                assetBundleName = assetBundleName.ToLower();
+                assetName = assetName.ToLower();
+            }
+
             yield return WaitForReady();
 
             // Load asset from assetBundle.
@@ -680,6 +695,11 @@ namespace SocialPoint.AssetBundlesClient
             _inProgressOperations.Add(operation);
 
             return operation;
+        }
+
+        public int NumberOfInProgressOperations()
+        {
+            return _inProgressOperations.Count;
         }
     }
     // End of AssetBundleManager.

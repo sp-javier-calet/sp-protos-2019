@@ -94,13 +94,15 @@ namespace SocialPoint.PerformanceSettings
 
         void Init(AttrDic config)
         {
-            _data[kDefaultSettings] = new PerformanceSettingsData(config);
+            _data.Clear();
+            _data.Add(kDefaultSettings, new PerformanceSettingsData(config));
 
             ApplyPerformanceSettings(kDefaultSettings);	
         }
 
         void InitMulti(AttrDic config)
         {
+            _data.Clear();
             var itr = config.GetEnumerator();
             while(itr.MoveNext())
             {

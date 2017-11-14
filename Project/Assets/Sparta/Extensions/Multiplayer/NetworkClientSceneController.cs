@@ -1,20 +1,19 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using SocialPoint.IO;
 using SocialPoint.Network;
-using SocialPoint.Pooling;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
 
-    public class NetworkClientSceneController : NetworkSceneController<NetworkGameObject<INetworkBehaviour>, INetworkBehaviour>, INetworkClientDelegate, INetworkMessageReceiver, IDeltaUpdateable, INetworkSceneController
+    public class NetworkClientSceneController : NetworkSceneController<NetworkGameObject>, INetworkClientDelegate, INetworkMessageReceiver, IDeltaUpdateable, INetworkSceneController
     {
         INetworkClient _client;
-        NetworkScene<INetworkSceneBehaviour> _scene;
-        NetworkScene<INetworkSceneBehaviour> _clientScene;
+        NetworkScene _scene;
+        NetworkScene _clientScene;
         INetworkMessageReceiver _receiver;
-        NetworkSceneParser<INetworkSceneBehaviour> _parser;
+        NetworkSceneParser _parser;
 
         Dictionary<int, object> _pendingActions;
         int _lastAppliedAction;
@@ -26,7 +25,11 @@ namespace SocialPoint.Multiplayer
         bool _stop = true;
         bool _willDestroyScene = false;
 
-        public NetworkScene<INetworkSceneBehaviour> Scene
+        // Member used for loading server tests. Most of client code references
+        // (direct or indirectly) Unity stuff, so we can't use it outside of it.
+        public bool ReceiveUpdateSceneEvents = true;
+
+        public NetworkScene Scene
         {
             get
             {
@@ -58,9 +61,15 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        public NetworkClientSceneController(INetworkClient client)
+        public NetworkClientSceneController(INetworkClient client, NetworkSceneContext context, bool restart = false)
+            : base(context)
         {
             _client = client;
+
+            if(restart)
+            {
+                Restart(client);
+            }
         }
 
         public override INetworkMessage CreateMessage(NetworkMessageData data)
@@ -81,6 +90,15 @@ namespace SocialPoint.Multiplayer
             }
         }
 
+        void NewNetworkGameObject(NetworkGameObject serverGo, NetworkGameObject clientGo)
+        {   
+            var interpolate = clientGo.GetBehaviour<INetworkInterpolate>();
+            if(interpolate != null)
+            {
+                interpolate.OnNewObject(serverGo.Transform);
+            }
+        }
+
         public void Restart(INetworkClient client)
         {
             _client = client;
@@ -89,16 +107,22 @@ namespace SocialPoint.Multiplayer
 
             UnregisterAllBehaviours();
 
-            _clientScene = new NetworkScene<INetworkSceneBehaviour>();
-            _scene = (NetworkScene<INetworkSceneBehaviour>)_clientScene.Clone();
-            _parser = new NetworkSceneParser<INetworkSceneBehaviour>();
+            _clientScene = new NetworkScene(Context);
+            _scene = (NetworkScene)_clientScene.Clone();
+            _parser = new NetworkSceneParser(Context);
             _pendingActions = new Dictionary<int, object>();
             _pendingGameObjectAdded = new List<NetworkGameObject>();
 
             Init(_clientScene);
+
+            _client.RemoveDelegate(this);
             _client.AddDelegate(this);
             _client.RegisterReceiver(this);
+
+            _clientScene.OnObjectAdded -= OnObjectAddedToScene;
             _clientScene.OnObjectAdded += OnObjectAddedToScene;
+
+            _clientScene.OnObjectRemoved -= OnObjectRemovedFromScene;
             _clientScene.OnObjectRemoved += OnObjectRemovedFromScene;
         }
 
@@ -140,25 +164,46 @@ namespace SocialPoint.Multiplayer
             {
                 var ev = reader.Read<ConnectEvent>();
                 _serverTimestamp = ev.Timestamp;
+
+                bool handled = _actions.ApplyActionReceived(data, reader);
+                if(!handled && _receiver != null)
+                {
+                    _receiver.OnMessageReceived(data, reader);
+                }
             }
             else if(data.MessageType == SceneMsgType.UpdateSceneEvent)
             {
+                if(!ReceiveUpdateSceneEvents)
+                {
+                    return;
+                }
+
                 _scene = _parser.Parse(_scene, reader);
+
                 var ev = reader.Read<UpdateSceneEvent>();
                 _serverTimestamp = ev.Timestamp;
 
-                var msg = _client.CreateMessage(new NetworkMessageData {
-                    MessageType = SceneMsgType.UpdateSceneAckEvent
-                });
-                msg.Writer.Write(new UpdateSceneAckEvent {
-                    Timestamp = _serverTimestamp,
-                });
-                msg.Send();
-
-                _clientScene.Copy(_scene, CopyNetworkGameObject);
+                _clientScene.Copy(_scene, NewNetworkGameObject, CopyNetworkGameObject);
                 UpdatePendingLogic();
                 OnActionFromServer(ev.LastAction);
                 ServerUpdateObjectBehaviours();
+
+                var actionsCount = reader.ReadInt32();
+                for(int i = 0; i < actionsCount; ++i)
+                {
+                    var messageType = reader.ReadByte();
+
+                    var messageInfo = new NetworkMessageData {
+                        MessageType = messageType,
+                        ClientIds = data.ClientIds
+                    };
+
+                    var handled = _actions.ApplyActionReceived(messageInfo, reader);
+                    if(!handled && _receiver != null)
+                    {
+                        _receiver.OnMessageReceived(messageInfo, reader);
+                    }
+                }
             }
             else
             {
@@ -174,10 +219,7 @@ namespace SocialPoint.Multiplayer
         {
             if(!go.Local)
             {
-                if(go is NetworkGameObject<INetworkBehaviour>)
-                {
-                    SetupObject(go as NetworkGameObject<INetworkBehaviour>);
-                }
+                SetupObject(go);
             }
         }
 
@@ -186,22 +228,49 @@ namespace SocialPoint.Multiplayer
             go.OnDestroy();
         }
 
-        public void Pause()
+        public void Pause(bool value)
         {
-            _stop = true;
+            _stop = value;
         }
 
-        public void DestroyScene()
+        public override void Dispose()
         {
+            base.Dispose();
+
             _stop = true;
             _willDestroyScene = true;
 
-            var itr = GetObjectEnumerator();
-            while(itr.MoveNext())
+            if(_scene != null)
             {
-                Destroy(itr.Current.Id);
+                _scene.Dispose();
+                _scene = null;
             }
-            itr.Dispose();
+
+            if(_clientScene != null)
+            {
+                _clientScene.Dispose();
+                _clientScene = null;
+            }
+
+            _receiver = null;
+            _client = null;
+            _parser = null;
+            ServerUpdated = null;
+
+            if(_pendingActions != null)
+            {
+                _pendingActions.Clear();
+                _pendingActions = null;
+            }
+            if(_pendingGameObjectAdded != null)
+            {
+                _pendingGameObjectAdded.Clear();
+                _pendingGameObjectAdded = null;
+            }
+            if(Context != null)
+            {
+                Context.Clear();
+            }
         }
 
         public void Resume()
@@ -211,16 +280,18 @@ namespace SocialPoint.Multiplayer
 
         public void Update(float dt)
         {
-            if(!_stop)
+            if(_scene == null || _stop)
             {
-                AddPendingGameObjects();
-                UpdatePendingLogic();
-                UpdateObjects(dt);
-                LateUpdateObjects(dt);
-                UpdatePendingLogic();
-                _clientScene.Update(dt);
-                UpdatePendingLogic();
+                return;
             }
+
+            AddPendingGameObjects();
+            UpdatePendingLogic();
+            UpdateObjects(dt);
+            LateUpdateObjects(dt);
+            UpdatePendingLogic();
+            _clientScene.Update(dt);
+            UpdatePendingLogic();
         }
 
         void ServerUpdateObjectBehaviours()
@@ -237,15 +308,6 @@ namespace SocialPoint.Multiplayer
             base.UpdatePendingLogic();
         }
 
-        public void Destroy(int id)
-        {
-            SetupObjectToDestroy(id);
-            var go = _clientScene.FindObject(id);
-            if(go != null && (go.Local || _willDestroyScene))
-            {
-                _clientScene.RemoveObject(id);
-            }
-        }
 
         virtual protected void OnError(SocialPoint.Base.Error err)
         {
@@ -279,8 +341,8 @@ namespace SocialPoint.Multiplayer
 
         public NetworkGameObject Instantiate(byte objType, Transform trans = null)
         {
-            var go = ObjectPool.Get<NetworkGameObject<INetworkBehaviour>>();
-            go.Init(_clientScene.ProvideObjectId(), false, trans, objType, true);
+            var go = Context.Pool.Get<NetworkGameObject>();
+            go.Init(Context, _clientScene.ProvideObjectId(), false, trans, objType, true);
             SetupObject(go);
             _pendingGameObjectAdded.Add(go);
             return go;
@@ -321,11 +383,19 @@ namespace SocialPoint.Multiplayer
 
         void OnActionFromServer(int lastServerAction)
         {
-            //Remove pending actions with id or lower
-            RemoveOldPendingActions(lastServerAction);
+            if(lastServerAction >= 0)
+            {
+                //Remove pending actions with id or lower
+                RemoveOldPendingActions(lastServerAction);
 
-            //Reapply client prediction
-            ApplyAllPendingActions();
+                //Reapply client prediction
+                ApplyAllPendingActions();
+            }
+            else
+            {
+                ApplyAllPendingActions();
+                _pendingActions.Clear();
+            }
         }
 
         void RemoveOldPendingActions(int fromAction)

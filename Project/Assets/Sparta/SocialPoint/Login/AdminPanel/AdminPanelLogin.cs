@@ -4,6 +4,7 @@ using System.Text;
 using SocialPoint.AdminPanel;
 using SocialPoint.AppEvents;
 using SocialPoint.Base;
+using SocialPoint.Restart;
 
 namespace SocialPoint.Login
 {
@@ -11,7 +12,7 @@ namespace SocialPoint.Login
     {
         readonly ILogin _login;
         readonly IBackendEnvironment _environments;
-        readonly IAppEvents _appEvents;
+        readonly IRestarter _restarter;
         readonly AdminPanelLoginForcedErrors _forcedErrorPanel;
         readonly AdminPanelEnvironment _environmentsPanel;
 
@@ -20,14 +21,14 @@ namespace SocialPoint.Login
             _login = login;
         }
 
-        public AdminPanelLogin(ILogin login, IBackendEnvironment environment, IAppEvents appEvents = null) : this(login)
+        public AdminPanelLogin(ILogin login, IBackendEnvironment environment, IRestarter restarter = null) : this(login)
         {
             _login = login;
-            _appEvents = appEvents;
+            _restarter = restarter;
             _environments = environment;
 
-            _forcedErrorPanel = new AdminPanelLoginForcedErrors(login, appEvents);
-            _environmentsPanel = new AdminPanelEnvironment(_login, _environments, _appEvents);
+            _forcedErrorPanel = new AdminPanelLoginForcedErrors(login, restarter);
+            _environmentsPanel = new AdminPanelEnvironment(_login, _environments, _restarter);
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -93,17 +94,19 @@ namespace SocialPoint.Login
             
             layout.CreateLabel("Friends");
             layout.CreateVerticalScrollLayout().CreateTextArea((friends.Length > 0) ? friends.ToString() : "No friends");
+
+            UnityEngine.Debug.Log(loginInfo);
         }
             
         public sealed class AdminPanelLoginForcedErrors : IAdminPanelGUI
         {
             readonly SocialPointLogin _login;
-            readonly IAppEvents _appEvents;
+            readonly IRestarter _restarter;
 
-            public AdminPanelLoginForcedErrors(ILogin login, IAppEvents appEvents)
+            public AdminPanelLoginForcedErrors(ILogin login, IRestarter restarter)
             {
                 _login = login as SocialPointLogin;
-                _appEvents = appEvents;
+                _restarter = restarter;
             }
 
             public void OnCreateGUI(AdminPanelLayout layout)
@@ -136,7 +139,7 @@ namespace SocialPoint.Login
                 });
                 
                 layout.CreateMargin();
-                layout.CreateConfirmButton("Restart Game", () => _appEvents.RestartGame());
+                layout.CreateConfirmButton("Restart Game", () => _restarter.RestartGame());
             }
         }
     }

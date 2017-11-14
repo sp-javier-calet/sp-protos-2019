@@ -1,4 +1,5 @@
-using SocialPoint.Pooling;
+using SocialPoint.Utils;
+using System;
 
 namespace SocialPoint.Multiplayer
 {
@@ -18,6 +19,7 @@ namespace SocialPoint.Multiplayer
         {
             get
             {
+                SocialPoint.Base.DebugUtils.Assert(_go != null);
                 return _go;
             }
         }
@@ -57,7 +59,7 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        void INetworkBehaviour.Update(float dt)
+        void IDeltaUpdateable.Update(float dt)
         {
             Update(dt);
         }
@@ -68,7 +70,7 @@ namespace SocialPoint.Multiplayer
 
         public abstract object Clone();
 
-        void INetworkBehaviour.Dispose()
+        void IDisposable.Dispose()
         {
             Dispose();
             _go = null;
@@ -76,7 +78,10 @@ namespace SocialPoint.Multiplayer
 
         protected virtual void Dispose()
         {
-            ObjectPool.Return(this);
+            if (_go != null)
+            {
+                _go.Context.Pool.Return(this);
+            }
         }
     }
 }

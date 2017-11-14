@@ -79,6 +79,7 @@ namespace SocialPoint.GUIControl
 
         virtual protected void OnChildViewStateChanged(UIViewController ctrl, ViewState state)
         {
+            
         }
 
         override protected void Disable()

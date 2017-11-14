@@ -55,6 +55,10 @@ namespace SpartaTools.Editor.Build.XcodeEditor
 
         void AddKeychainAccessGroup(string accessGroup);
 
+        void AddPushNotificationsEntitlement(bool isProduction); 
+
+        void AddPushNotificationsEntitlement(string entitlementsFile, bool isProduction); 
+
         void Commit();
     }
 }

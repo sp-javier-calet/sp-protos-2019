@@ -2,12 +2,11 @@
 using Jitter.LinearMath;
 using SocialPoint.IO;
 using SocialPoint.Physics;
-using SocialPoint.Pooling;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
-    public partial class Transform : IEquatable<Transform>, ICloneable, ICopyable
+    public partial class Transform : IEquatable<Transform>, IPoolCloneable, ICopyable
     {
         public JVector Position;
 
@@ -42,9 +41,9 @@ namespace SocialPoint.Multiplayer
             Scale = trans.Scale;
         }
 
-        public object Clone()
+        public object Clone(ObjectPool pool = null)
         {
-            var t = ObjectPool.Get<Transform>();
+            var t = pool == null ? new Transform() : pool.Get<Transform>();
             t.Copy(this);
             return t;
         }
@@ -52,7 +51,6 @@ namespace SocialPoint.Multiplayer
         public void Dispose()
         {
             Reset();
-            ObjectPool.Return(this);
         }
 
         public void Reset()
@@ -164,7 +162,7 @@ namespace SocialPoint.Multiplayer
 
         static bool Compare(Transform a, Transform b)
         {
-            return a.Position == b.Position && a.Rotation == b.Rotation && a.Scale == b.Scale;
+            return a.Position.Equals(b.Position) && a.Rotation.Equals(b.Rotation) && a.Scale.Equals(b.Scale);
         }
 
         public override int GetHashCode()
@@ -255,6 +253,77 @@ namespace SocialPoint.Multiplayer
             if(Bitset.NullOrGet(dirty))
             {
                 obj.Scale = JVectorParser.Instance.Parse(obj.Scale, reader);
+            }
+            return obj;
+        }
+    }
+
+    public class TransformShortSerializer : IDiffWriteSerializer<Transform>
+    {
+        public static readonly TransformShortSerializer Instance = new TransformShortSerializer();
+
+        public void Compare(Transform newObj, Transform oldObj, Bitset dirty)
+        {
+            dirty.Set(newObj.Position != oldObj.Position);
+            dirty.Set(newObj.Rotation != oldObj.Rotation);
+            dirty.Set(newObj.Scale != oldObj.Scale);
+        }
+
+        public void Serialize(Transform newObj, IWriter writer)
+        {
+            JVectorShortSerializer.Instance.Serialize(newObj.Position, writer);
+            JQuaternionShortSerializer.Instance.Serialize(newObj.Rotation, writer);
+            JVectorShortSerializer.Instance.Serialize(newObj.Scale, writer);
+        }
+
+        public void Serialize(Transform newObj, Transform oldObj, IWriter writer, Bitset dirty)
+        {
+            if(Bitset.NullOrGet(dirty))
+            {
+                JVectorShortSerializer.Instance.Serialize(newObj.Position, oldObj.Position, writer);
+            }
+            if(Bitset.NullOrGet(dirty))
+            {
+                JQuaternionShortSerializer.Instance.Serialize(newObj.Rotation, oldObj.Rotation, writer);
+            }
+            if(Bitset.NullOrGet(dirty))
+            {
+                JVectorShortSerializer.Instance.Serialize(newObj.Scale, oldObj.Scale, writer);
+            }
+        }
+    }
+
+    public class TransformShortParser : IDiffReadParser<Transform>
+    {
+        public static readonly TransformShortParser Instance = new TransformShortParser();
+
+        public Transform Parse(IReader reader)
+        {
+            var obj = new Transform();
+            obj.Position = JVectorShortParser.Instance.Parse(reader);
+            obj.Rotation = JQuaternionShortParser.Instance.Parse(reader);
+            obj.Scale = JVectorShortParser.Instance.Parse(reader);
+            return obj;
+        }
+
+        public int GetDirtyBitsSize(Transform obj)
+        {
+            return 3;
+        }
+
+        public Transform Parse(Transform obj, IReader reader, Bitset dirty)
+        {
+            if(Bitset.NullOrGet(dirty))
+            {
+                obj.Position = JVectorShortParser.Instance.Parse(obj.Position, reader);
+            }
+            if(Bitset.NullOrGet(dirty))
+            {
+                obj.Rotation = JQuaternionShortParser.Instance.Parse(obj.Rotation, reader);
+            }
+            if(Bitset.NullOrGet(dirty))
+            {
+                obj.Scale = JVectorShortParser.Instance.Parse(obj.Scale, reader);
             }
             return obj;
         }

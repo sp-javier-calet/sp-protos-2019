@@ -52,9 +52,20 @@ namespace SocialPoint.Base
 
         public static void ResetLocalTransform(this Transform transform)
         {
-            transform.localScale = Vector3.one;
-            transform.localEulerAngles = Vector3.zero;
             transform.localPosition = Vector3.zero;
+            transform.localRotation = Quaternion.identity;
+            transform.localScale = Vector3.one;
+        }
+
+        public static bool FindPosition(this Transform viewTransform, string name, ref Vector3 res)
+        {
+            var child = viewTransform.GetChildRecursive(name);
+            if(child != null)
+            {
+                res = child.position;
+                return true;
+            }
+            return false;
         }
 
         public static Transform GetChildRecursive(this Transform trans, string name)
@@ -318,6 +329,23 @@ namespace SocialPoint.Base
             tmp.z = value;
             transform.localRotation = Quaternion.Euler(tmp);
         }
+
+        public static Transform FindChildRecursive(this Transform parent, string name)
+        {
+            if(parent.name == name)
+            {
+                return parent;
+            }
+
+            for (var it = parent.GetEnumerator();it.MoveNext();)
+            {
+                Transform result = FindChildRecursive((Transform)it.Current, name);
+                if(result != null)
+                {
+                    return result;
+                }
+            }
+            return null;
+        }
     }
 }
-

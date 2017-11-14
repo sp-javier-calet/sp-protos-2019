@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Jitter;
-using Jitter.Dynamics;
 using Jitter.LinearMath;
+using Jitter.Dynamics;
 
 namespace SocialPoint.Physics
 {

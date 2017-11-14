@@ -43,6 +43,7 @@ namespace SocialPoint.Connection
         public const int MatchmakingSuccessNotification = 502;
         public const int MatchmakingTimeoutNotification = 503;
         public const int MatchmakingWaitingTimeNotification = 504;
+        public const int MatchmakingCanceled = 505;
 
         public const int MessagingSystemNewMessage = 600;
 
@@ -166,7 +167,6 @@ namespace SocialPoint.Connection
             {
                 if(_appEvents != null)
                 {
-                    _appEvents.GameWasLoaded.Remove(OnGameWasLoaded);
                     _appEvents.GameWillRestart.Remove(Disconnect);
                     _appEvents.WillGoBackground.Remove(OnWillGoBackground);
                     _appEvents.WasOnBackground.Remove(OnWasOnBackground);
@@ -175,7 +175,6 @@ namespace SocialPoint.Connection
                 _appEvents = value;
                 if(_appEvents != null)
                 {
-                    _appEvents.GameWasLoaded.Add(0, OnGameWasLoaded);
                     _appEvents.GameWillRestart.Add(0, Disconnect);
                     _appEvents.WillGoBackground.Add(WillGoBackgroundPriority, OnWillGoBackground);
                     _appEvents.WasOnBackground.Add(WasOnBackgroundPriority, OnWasOnBackground);
@@ -298,7 +297,7 @@ namespace SocialPoint.Connection
             _socket = client;
             _socket.AddDelegate(this);
             _connection = new WAMPConnection(client);
-            _config = (config != null) ? config : new ConnectionManagerConfig();
+            _config = config ?? new ConnectionManagerConfig();
 
             _active = false;
             _joined = false;
@@ -331,6 +330,9 @@ namespace SocialPoint.Connection
 
         public WAMPConnection.StartRequest Connect()
         {
+            DebugUtils.Assert(LoginData.Data != null && LoginData.Data.Social != null, "ConnectionManager: Trying to connect without the URL set");
+            _socket.Urls = LoginData.Data.Social.WebSocketUrls;
+
             return Reconnect();
         }
 
@@ -343,18 +345,7 @@ namespace SocialPoint.Connection
 
             _active = true;
             SchedulePing();
-            return _connection.Start(() => {
-                SendHello();
-            });
-        }
-
-        void OnGameWasLoaded()
-        {
-            if(LoginData != null && LoginData.Data != null && LoginData.Data.Social != null)
-            {
-                var urls = LoginData.Data.Social.WebSocketUrls;
-                _socket.Urls = urls;
-            }
+            return _connection.Start(() => SendHello());
         }
 
         void OnWillGoBackground()
@@ -372,6 +363,7 @@ namespace SocialPoint.Connection
             while(_pendingRequests.Count > 0)
             {
                 var request = _pendingRequests.Dequeue();
+
                 switch(request.Type)
                 {
                 case RequestWrapper.RequestType.Publish:
@@ -448,9 +440,7 @@ namespace SocialPoint.Connection
 
             if(_reconnectUpdate == null)
             {
-                _reconnectUpdate = new ScheduledAction(_scheduler, () => {
-                    Reconnect();
-                });
+                _reconnectUpdate = new ScheduledAction(_scheduler, () => Reconnect());
             }
 
             _pingUpdate.Start(_config.PingInterval);

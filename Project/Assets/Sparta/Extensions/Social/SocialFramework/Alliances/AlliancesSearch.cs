@@ -24,6 +24,12 @@ namespace SocialPoint.Social
             _searchData.Add(data);
         }
 
+        [System.Obsolete("Use GetEnumerator() instead")]
+        public List<AllianceBasicData> GetList()
+        {
+            return _searchData;
+        }
+
         #region IEnumerable implementation
 
         public IEnumerator<AllianceBasicData> GetEnumerator()

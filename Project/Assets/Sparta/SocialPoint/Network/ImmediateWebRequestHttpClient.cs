@@ -90,13 +90,6 @@ namespace SocialPoint.Network
             return new ImmediateWebRequestHttpConnection();
         }
 
-        public string DefaultProxy
-        {
-            set
-            {
-            }
-        }
-
         public string Config
         {
             set

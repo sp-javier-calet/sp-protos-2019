@@ -27,6 +27,8 @@ namespace SocialPoint.IO
 
         ulong ReadUInt64();
 
+        float ReadShortFloat();
+
         bool Finished{ get; }
     }
 
@@ -64,6 +66,11 @@ namespace SocialPoint.IO
                 bytes[i] = ReadByte();
             }
             return bytes;
+        }
+
+        public float ReadShortFloat()
+        {
+            return ShortEncoding.Decode(ReadInt16());
         }
     }
 }

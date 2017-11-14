@@ -3,12 +3,15 @@ using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
+using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
+using SocialPoint.Helpshift;
 using SocialPoint.Locale;
 using SocialPoint.Login;
 using SocialPoint.ServerEvents;
 using SocialPoint.ServerSync;
 using UnityEngine.SceneManagement;
+using SocialPoint.Restart;
 
 namespace SocialPoint.GameLoading
 {
@@ -28,7 +31,7 @@ namespace SocialPoint.GameLoading
 
         void ShowInvalidSecurityToken(Action restart);
 
-        void ShowLogin(Error err, Action finished);
+        void ShowLogin(Error err, Action finished, bool showSupportButton);
 
         void ShowLink(ILink link, LinkConfirmType type, Attr data, ConfirmBackLinkDelegate cbk);
     }
@@ -88,6 +91,9 @@ namespace SocialPoint.GameLoading
         const string RetryButtonDef = "Retry";
         const string SkipButtonDef = "Skip";
 
+        const string SupportButtonKey = "tid_support";
+        const string SupportButtonDef = "Support";
+
         const string UpgradeButtonKey = "game_errors.upgrade_button";
         const string UpgradeButtonDef = "Upgrade";
         const string ForceUpgradeTitleKey = "game_errors.force_upgrade_title";
@@ -139,7 +145,8 @@ namespace SocialPoint.GameLoading
         readonly IAlertView _alert;
         readonly Localization _locale;
         readonly IAppEvents _appEvents;
-        readonly int _restartScene;
+        readonly IRestarter _restarter;
+        readonly IHelpshift _helpshift;
 
         UIStackController _popups;
         Func<UIStackController> _findPopups;
@@ -148,13 +155,14 @@ namespace SocialPoint.GameLoading
 
         public string Signature { set; private get; }
 
-        public GameErrorHandler(IAlertView alert, Localization locale, IAppEvents appEvents, Func<UIStackController> findPopups, int restartScene = 0)
+        public GameErrorHandler(IAlertView alert, Localization locale, IAppEvents appEvents, Func<UIStackController> findPopups, IRestarter restarter, IHelpshift helpshift)
         {
             _alert = alert;
             _locale = locale;
             _appEvents = appEvents;
-            _restartScene = restartScene;
+            _restarter = restarter;
             _findPopups = findPopups;
+            _helpshift = helpshift;
             Debug = DebugUtils.IsDebugBuild;
 
             DebugUtils.Assert(_alert != null, "Alert can not be null");
@@ -321,17 +329,38 @@ namespace SocialPoint.GameLoading
             }
         }
 
-        public virtual void ShowLogin(Error err, Action finished)
+        public virtual void ShowLogin(Error err, Action finished, bool showSupportButton)
         {
             var alert = (IAlertView)_alert.Clone();
             alert.Title = _locale.Get(ResponseErrorTitleKey, ResponseErrorTitleDef);
-            alert.Buttons = new []{ _locale.Get(RetryButtonKey, RetryButtonDef) };
+            if(showSupportButton)
+            {
+                alert.Buttons = new[] {
+                    _locale.Get(RetryButtonKey, RetryButtonDef) ,
+                    _locale.Get(SupportButtonKey, SupportButtonDef)
+                };
+            }
+            else
+            {
+                alert.Buttons = new[] { _locale.Get(RetryButtonKey, RetryButtonDef) };
+            }
             alert.Message = GetErrorMessage(err, ResponseErrorMessageKey, ResponseErrorMessageDef);
             alert.Signature = Signature + "-" + err.Code;
             alert.Show(i => {
                 if(finished != null)
                 {
                     finished();
+                }
+                if(i == 1)
+                {
+                    if(_helpshift != null)
+                    {
+                        _helpshift.ShowFAQ();
+                    }
+                    else
+                    {
+                        Log.e("GameErrorHandler", "Button for support pressed but there is no Helpshift configured");
+                    }
                 }
             });
         }
@@ -345,7 +374,19 @@ namespace SocialPoint.GameLoading
             alert.Buttons = new [] {
                 _locale.Get(SyncButtonKey, SyncButtonDef)
             };
-            alert.Show(i => _appEvents.RestartGame(_restartScene));
+            alert.Show(i => OnRestartGame());
+        }
+
+        void OnRestartGame()
+        {
+            if(_restarter != null)
+            {
+                _restarter.RestartGame();
+            }
+            else if(_appEvents != null)
+            {
+                _appEvents.RestartGame();
+            }
         }
 
         public virtual void ShowLink(ILink link, LinkConfirmType linkConfirmType, Attr data, ConfirmBackLinkDelegate cbk)
@@ -362,7 +403,7 @@ namespace SocialPoint.GameLoading
             alert.Show(result => {
                 if(cbk != null)
                 {
-                    cbk(result == 0 ? LinkConfirmDecision.Cancel : result == 1 ? LinkConfirmDecision.Keep : LinkConfirmDecision.Change);
+                    cbk(result == 0 ? LinkConfirmDecision.Keep : result == 1 ? LinkConfirmDecision.Change : LinkConfirmDecision.Cancel);
                 }
             });
         }

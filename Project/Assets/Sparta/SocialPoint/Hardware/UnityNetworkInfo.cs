@@ -44,11 +44,18 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                var host = System.Net.Dns.GetHostName();
-                var info = System.Net.Dns.GetHostEntry(host);
-                if(info.AddressList.Length > 0)
+                var host = Dns.GetHostName();
+                try
                 {
-                    return info.AddressList[0].ToString();
+                    var info = Dns.GetHostEntry(host);
+                    if(info.AddressList.Length > 0)
+                    {
+                        return info.AddressList[0].ToString();
+                    }
+                }
+                catch(System.Net.Sockets.SocketException)
+                {
+                    // Do nothing
                 }
                 return null;
             }

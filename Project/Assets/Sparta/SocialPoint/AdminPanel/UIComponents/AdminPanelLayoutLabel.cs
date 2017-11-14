@@ -7,7 +7,7 @@ namespace SocialPoint.AdminPanel
 {
     public partial class AdminPanelLayout
     {
-        public Text CreateLabel(string label)
+        public Text CreateLabel(string label, bool bestFit = false)
         {
             var rectTransform = CreateUIObject("Admin Panel - Label", Parent);
 
@@ -16,6 +16,8 @@ namespace SocialPoint.AdminPanel
             text.font = DefaultFont;
             text.fontSize = DefaultFontSize;
             text.color = Color.white;
+            text.resizeTextForBestFit = bestFit;
+            text.resizeTextMinSize = 10;
             text.alignment = TextAnchor.UpperCenter;
 
             var layoutElement = rectTransform.gameObject.AddComponent<LayoutElement>();

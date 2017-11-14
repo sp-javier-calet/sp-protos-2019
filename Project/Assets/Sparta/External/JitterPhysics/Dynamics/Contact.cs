@@ -95,12 +95,6 @@ namespace Jitter.Dynamics
         float lostSpeculativeBounce = 0.0f;
         float speculativeVelocity = 0.0f;
 
-        /// <summary>
-        /// A contact resource pool.
-        /// </summary>
-        public static readonly ResourcePool<Contact> Pool =
-            new ResourcePool<Contact>();
-
         private float lastTimeStep = float.PositiveInfinity;
 
         #region Properties
