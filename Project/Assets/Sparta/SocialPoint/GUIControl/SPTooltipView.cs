@@ -26,6 +26,7 @@ namespace SocialPoint.GUIControl
         RectTransform _spikeTransform;
 
         Action _finishHideCallback;
+        Action _hideTimedCallback;
 
         Canvas _baseCanvas;
         RectTransform _baseTransform;
@@ -37,13 +38,12 @@ namespace SocialPoint.GUIControl
         bool _closeTimed;
         float _timeToClose;
         float _time;
-        UITooltipController _uiTooltipController;
 //        IEnumerator _appearCoroutine;
 //        IEnumerator _disappearCoroutine;
 
 //        EventSystem _eventSystem;
 
-        public void Init(UITooltipController uiTooltipController, Vector2 boundDelta, Transform parentTransform, ArrowPosition spikePosition, Vector3 offset, float timeToClose, Action finishHideCallback)
+        public void Init(Vector2 boundDelta, Transform parentTransform, ArrowPosition spikePosition, Vector3 offset, float timeToClose, Action finishHideCallback, Action hideTimedCallback)
         {
 //            _eventSystem = Services.Instance.Resolve<EventSystem>();
 
@@ -55,13 +55,14 @@ namespace SocialPoint.GUIControl
 
             _baseTransform = GetComponent<RectTransform>();
 
-            _uiTooltipController = uiTooltipController;
+
             _boundDelta = boundDelta;
             _parentTransform = parentTransform;
             _spikePosition = spikePosition;
             _offset = offset;
             _timeToClose = timeToClose;
             _finishHideCallback = finishHideCallback;
+            _hideTimedCallback = hideTimedCallback;
 //            _isShown = false;
 
             SetTooltipInfo();
@@ -227,7 +228,11 @@ namespace SocialPoint.GUIControl
                 if(_time >= _timeToClose)
                 {
                     _closeTimed = false;
-                    _uiTooltipController.HideTooltip(false);
+
+                    if(_hideTimedCallback != null)
+                    {
+                        _hideTimedCallback();
+                    }
                 }
             }
         }

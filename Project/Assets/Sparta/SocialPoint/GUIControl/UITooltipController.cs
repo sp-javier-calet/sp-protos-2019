@@ -46,7 +46,7 @@ namespace SocialPoint.GUIControl
                     if(spTooltipItem != null)
                     {
 //                        spTooltipItem.Load(); // TODO
-                        spTooltipItem.Init(this, ScreenBoundsDelta, parent, arrowPosition, offset, timeToclose, DestroyTooltip);
+                        spTooltipItem.Init(ScreenBoundsDelta, parent, arrowPosition, offset, timeToclose, DestroyTooltip, HideTooltipTimed);
                     }
                 }
             }
@@ -71,6 +71,11 @@ namespace SocialPoint.GUIControl
         GameObject CreateTooltip(GameObject prefab)
         {
             return UsePooling ? UnityObjectPool.Spawn(prefab) : Object.Instantiate(prefab);
+        }
+
+        void HideTooltipTimed()
+        {
+            HideTooltip(false);
         }
 
         void DestroyTooltip()
