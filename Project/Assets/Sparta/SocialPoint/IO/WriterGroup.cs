@@ -1,4 +1,4 @@
-﻿
+
 namespace SocialPoint.IO
 {
     public class WriterGroup : IWriter
@@ -127,6 +127,14 @@ namespace SocialPoint.IO
             for (int i = 0; i < _writers.Length; ++i)
             {
                 _writers[i].Write(buffer, count);
+            }
+        }
+
+        public void WriteShortFloat(float value)
+        {
+            for (int i = 0; i < _writers.Length; ++i)
+            {
+                _writers[i].WriteShortFloat(value);
             }
         }
     }

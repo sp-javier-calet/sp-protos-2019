@@ -94,8 +94,8 @@ namespace SocialPoint.AssetBundlesClient
 
         static AttrList GetBundlesDataAttrList()
         {
-            const string bundleDataFile = "bundle_data.json";
-            const string bundleDataKey = "bundle_data";
+            const string bundleDataFile = "local_bundle_data.json";
+            const string bundleDataKey = "local_bundle_data";
 
             string jsonPath = Path.Combine(PathsManager.StreamingAssetsPath, bundleDataFile);
             string json = FileUtils.ReadAllText(jsonPath);
@@ -146,8 +146,9 @@ namespace SocialPoint.AssetBundlesClient
         void AddBasicInfo()
         {
             var content = new StringBuilder();
-            content.AppendLine("Server: " + _assetBundleManager.Server);
-            content.AppendLine("Game: " + _assetBundleManager.Game);
+            content.AppendLine("Server: " + _assetBundleManager.Data.Server);
+            content.AppendLine("Game: " + _assetBundleManager.Data.Game);
+            content.AppendLine("Names To Lower Case: " + _assetBundleManager.Data.TransformNamesToLowercase);
             content.AppendLine("Platorm: " + Utility.GetPlatformName());
             content.AppendLine("BaseDownloadingURL: " + _baseDownloadingURL);
             content.AppendLine();

@@ -13,106 +13,116 @@ namespace SocialPoint.Multiplayer
     class SpecialCallbacksTests
     {
         const byte TestType = 0;
-        LocalNetworkServer _server;
-        NetworkServerSceneController _serverCtrl;
+        INetworkServer EmptyServer;
 
         [SetUp]
         public void Setup()
         {
-            var localServer = new LocalNetworkServer();
-            _server = localServer;
-            _serverCtrl = new NetworkServerSceneController(_server);
-            _serverCtrl.Restart(_server);
-            _server.Start();
-        }
-
-        void UpdateServerInterval()
-        {
-            _serverCtrl.Update(_serverCtrl.SyncInterval);
+            EmptyServer = Substitute.For<INetworkServer>();
+            EmptyServer.Running.Returns(true);
         }
 
         [Test]
         public void InstantiateObject()
         {
-            _serverCtrl.RegisterBehaviours(TestType, new INetworkBehaviour[] {
+            var context = new NetworkSceneContext();
+            var gameObjectPrefab = new NetworkGameObject(context);
+
+            var sceneController = new NetworkServerSceneController(EmptyServer, new NetworkSceneContext(), null);
+            sceneController.RegisterBehaviours(TestType, gameObjectPrefab, new INetworkBehaviour[] {
                 new TestSpecialBehaviour(),
             });
-            var go = _serverCtrl.Instantiate(TestType);
+            var go = sceneController.Instantiate(TestType);
             var behaviour = go.Behaviours.Get<TestSpecialBehaviour>();
 
             Assert.IsFalse(behaviour.CallbackCalled);
-            UpdateServerInterval();
+            sceneController.Update(0.0f);
             Assert.IsTrue(behaviour.CallbackCalled);
         }
 
         [Test]
         public void DestroyObject()
         {
-            _serverCtrl.RegisterBehaviours(TestType, new INetworkBehaviour[] {
+            var context = new NetworkSceneContext();
+            var gameObjectPrefab = new NetworkGameObject(context);
+
+            var sceneController = new NetworkServerSceneController(EmptyServer, new NetworkSceneContext(), null);
+            sceneController.RegisterBehaviours(TestType, gameObjectPrefab, new INetworkBehaviour[] {
                 new TestSpecialBehaviour(),
             });
-            var go = _serverCtrl.Instantiate(TestType);
+            var go = sceneController.Instantiate(TestType);
             var behaviour = go.Behaviours.Get<TestSpecialBehaviour>();
 
             Assert.IsFalse(behaviour.CallbackCalled);
-            UpdateServerInterval();
+            sceneController.Update(0.0f);
             Assert.IsTrue(behaviour.CallbackCalled);
             behaviour.CallbackCalled = false;
-            _serverCtrl.Destroy(go.UniqueId);
-            UpdateServerInterval();
+            sceneController.Destroy(go.UniqueId);
+            sceneController.Update(0.0f);
             Assert.IsFalse(behaviour.CallbackCalled);
         }
 
         [Test]
         public void AddBehaviour()
         {
-            var go = _serverCtrl.Instantiate(TestType);
+            var sceneController = new NetworkServerSceneController(EmptyServer, new NetworkSceneContext(), null);
+            var go = sceneController.Instantiate(TestType);
 
             var behaviour = new TestSpecialBehaviour();
-            ((NetworkGameObject<INetworkBehaviour>)go).AddBehaviour(behaviour);
+            var behaviourType = behaviour.GetType();
+
+            go.AddBehaviour(behaviour, behaviourType);
             Assert.IsFalse(behaviour.CallbackCalled);
-            UpdateServerInterval();
+            sceneController.Update(0.0f);
             Assert.IsTrue(behaviour.CallbackCalled);
         }
 
         [Test]
         public void RemoveBehaviour()
         {
-            _serverCtrl.RegisterBehaviours(TestType, new INetworkBehaviour[] {
+            var context = new NetworkSceneContext();
+            var gameObjectPrefab = new NetworkGameObject(context);
+            
+            var sceneController = new NetworkServerSceneController(EmptyServer, new NetworkSceneContext(), null);
+            sceneController.RegisterBehaviours(TestType, gameObjectPrefab, new INetworkBehaviour[] {
                 new TestSpecialBehaviour(),
             });
-            var go = _serverCtrl.Instantiate(TestType);
+            var go = sceneController.Instantiate(TestType);
             var behaviour = go.Behaviours.Get<TestSpecialBehaviour>();
 
             Assert.IsFalse(behaviour.CallbackCalled);
-            UpdateServerInterval();
+            sceneController.Update(0.0f);
             Assert.IsTrue(behaviour.CallbackCalled);
             behaviour.CallbackCalled = false;
             go.RemoveBehaviour<TestSpecialBehaviour>();
-            UpdateServerInterval();
+            sceneController.Update(0.0f);
             Assert.IsFalse(behaviour.CallbackCalled);
         }
 
         [Test]
         public void MultipleObject()
         {
-            _serverCtrl.RegisterBehaviours(TestType, new INetworkBehaviour[] {
+            var context = new NetworkSceneContext();
+            var gameObjectPrefab = new NetworkGameObject(context);
+
+            var sceneController = new NetworkServerSceneController(EmptyServer, new NetworkSceneContext(), null);
+            sceneController.RegisterBehaviours(TestType, gameObjectPrefab, new INetworkBehaviour[] {
                 new TestSpecialBehaviour(),
             });
-            var go1 = _serverCtrl.Instantiate(TestType);
-            var go2 = _serverCtrl.Instantiate(TestType);
+            var go1 = sceneController.Instantiate(TestType);
+            var go2 = sceneController.Instantiate(TestType);
             var behaviour1 = go1.Behaviours.Get<TestSpecialBehaviour>();
             var behaviour2 = go2.Behaviours.Get<TestSpecialBehaviour>();
 
             Assert.IsFalse(behaviour1.CallbackCalled);
             Assert.IsFalse(behaviour2.CallbackCalled);
-            UpdateServerInterval();
+            sceneController.Update(0.0f);
             Assert.IsTrue(behaviour1.CallbackCalled);
             Assert.IsTrue(behaviour2.CallbackCalled);
             behaviour1.CallbackCalled = false;
             behaviour2.CallbackCalled = false;
-            _serverCtrl.Destroy(go1.UniqueId);
-            UpdateServerInterval();
+            sceneController.Destroy(go1.UniqueId);
+            sceneController.Update(0.0f);
             Assert.IsFalse(behaviour1.CallbackCalled);
             Assert.IsTrue(behaviour2.CallbackCalled);
         }
@@ -145,6 +155,10 @@ namespace SocialPoint.Multiplayer
             {
             }
 
+            public void Dispose()
+            {
+            }
+
             public void OnDestroy()
             {
             }
@@ -152,11 +166,6 @@ namespace SocialPoint.Multiplayer
             public object Clone()
             {
                 return new TestSpecialBehaviour();
-            }
-
-            public void Dispose()
-            {
-                
             }
         }
     }

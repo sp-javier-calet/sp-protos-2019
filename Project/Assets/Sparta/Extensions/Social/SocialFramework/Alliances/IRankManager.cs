@@ -5,7 +5,7 @@ namespace SocialPoint.Social
     public enum RankPermission
     {
         EditAlliance,
-        Members
+        ManageCandidates
     }
 
     public interface IRankManager
@@ -25,21 +25,11 @@ namespace SocialPoint.Social
         /// </summary>
         bool Exists(int rank);
 
-        /// <summary>
-        /// Compare two ranks
-        /// </summary>
-        int Compare(int rank1, int rank2);
+        bool CanChangeRank(int ownRank, int oldRank, int newRank);
 
-        /// <summary>
-        /// Try a promotion to another Rank.
-        /// Game may have restriction for when a promotions is available
-        /// </summary>
-        /// <returns>Final promotion rank</returns>
-        int GetPromotedTo(int toRank);
+        int GetPromotionRank(int rank);
 
-        int GetPromoted(int rank);
-
-        int GetDemoted(int rank);
+        int GetDemotionRank(int rank);
 
         bool HasPermission(int rank, RankPermission permission);
 
@@ -64,33 +54,35 @@ namespace SocialPoint.Social
             return rank >= 0 && rank <= (int)Rank.Member;
         }
 
-        public int Compare(int rank1, int rank2)
+        public bool CanChangeRank(int ownRank, int oldRank, int newRank)
         {
-            if(!Exists(rank1))
+            if(!Exists(ownRank))
             {
-                throw new InvalidRankException(rank1);
+                throw new InvalidRankException(ownRank);
+            }
+            if(!Exists(oldRank))
+            {
+                throw new InvalidRankException(oldRank);
+            }
+            if(!Exists(newRank))
+            {
+                throw new InvalidRankException(newRank);
             }
 
-            if(!Exists(rank2))
+            switch((Rank)ownRank)
             {
-                throw new InvalidRankException(rank2);
+            case Rank.Lead:
+                return true;
+            case Rank.Colead:
+                return oldRank != (int)Rank.Lead && newRank != (int)Rank.Lead;
+            case Rank.Member:
+                return false;
+            default:
+                return false;
             }
-
-            return rank2 - rank1;
         }
 
-        public int GetPromotedTo(int toRank)
-        {
-            if(!Exists(toRank))
-            {
-                throw new InvalidRankException(toRank);
-            }
-
-            var rank = (Rank)toRank;
-            return rank == Rank.Lead ? (int)Rank.Colead : toRank;
-        }
-
-        public int GetPromoted(int rank)
+        public int GetPromotionRank(int rank)
         {
             if(!Exists(rank))
             {
@@ -109,7 +101,7 @@ namespace SocialPoint.Social
             }
         }
 
-        public int GetDemoted(int rank)
+        public int GetDemotionRank(int rank)
         {
             if(!Exists(rank))
             {
@@ -134,8 +126,8 @@ namespace SocialPoint.Social
             {
             case RankPermission.EditAlliance:
                 return HasAllianceManagementPermission(rank);
-            case RankPermission.Members:
-                return HasMemberManagementPermission(rank);
+            case RankPermission.ManageCandidates:
+                return HasManageCandidatesPermission(rank);
             }
 
             return false;
@@ -152,7 +144,7 @@ namespace SocialPoint.Social
             return (r == Rank.Lead || r == Rank.Colead);
         }
 
-        bool HasMemberManagementPermission(int rank)
+        bool HasManageCandidatesPermission(int rank)
         {
             if(!Exists(rank))
             {
@@ -161,6 +153,34 @@ namespace SocialPoint.Social
 
             var r = (Rank)rank;
             return (r == Rank.Lead || r == Rank.Colead);
+        }
+
+        bool IsPromotion(int oldRank, int newRank)
+        {
+            if(!Exists(newRank))
+            {
+                throw new InvalidRankException(newRank);
+            }
+            if(!Exists(oldRank))
+            {
+                throw new InvalidRankException(oldRank);
+            }
+
+            return newRank < oldRank;
+        }
+
+        bool IsDemotion(int oldRank, int newRank)
+        {
+            if(!Exists(newRank))
+            {
+                throw new InvalidRankException(newRank);
+            }
+            if(!Exists(oldRank))
+            {
+                throw new InvalidRankException(oldRank);
+            }
+
+            return newRank > oldRank;
         }
 
         public string GetRankChangeMessageTid(int oldRank, int newRank)
@@ -175,12 +195,18 @@ namespace SocialPoint.Social
                 throw new InvalidRankException(newRank);
             }
 
-            var comp = Compare(oldRank, newRank);
-            if(comp > 0)
+            if(IsPromotion(oldRank, newRank))
             {
                 return SocialFrameworkStrings.ChatPlayerPromotedKey;
             }
-            return comp < 0 ? SocialFrameworkStrings.ChatPlayerDemotedKey : string.Empty;
+            else if(IsDemotion(oldRank, newRank))
+            {
+                return SocialFrameworkStrings.ChatPlayerDemotedKey;
+            }
+            else
+            {
+                return string.Empty;
+            }
         }
 
         public string GetRankNameTid(int rank)

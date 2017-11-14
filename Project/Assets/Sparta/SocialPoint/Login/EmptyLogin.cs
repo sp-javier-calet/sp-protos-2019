@@ -9,7 +9,11 @@ namespace SocialPoint.Login
 {
     public sealed class EmptyLogin : ILogin
     {
-        public void AddLink(ILink link, LinkMode mode = LinkMode.Auto)
+        public void AddLink(ILink link)
+        {
+        }
+
+        public void LoginLinks(ErrorDelegate cbk = null)
         {
         }
 

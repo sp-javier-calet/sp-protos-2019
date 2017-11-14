@@ -1,4 +1,4 @@
-﻿#if ADMIN_PANEL 
+#if ADMIN_PANEL 
 
 using System;
 using System.Collections.Generic;

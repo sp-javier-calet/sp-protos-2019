@@ -1,37 +1,41 @@
-﻿using Jitter.LinearMath;
-using SocialPoint.Base;
-
-public static partial class JVectorExtensions
+﻿namespace Jitter.LinearMath
 {
-    public static JVector Normalized(this JVector v)
+    public static partial class JVectorExtensions
     {
-        DebugUtils.Assert(v.LengthSquared() > 1e-4f, "Trying to normalize a vector with lenght 0");
-        v.Normalize();
-        return v;
-    }
+        const float _epsilon = 1e-5f;
 
-    public static JVector ZeroXValue(this JVector v)
-    {
-        return new JVector(0f, v.Y, v.Z);
-    }
+        public static JVector Normalized(this JVector v)
+        {
+            if(v.LengthSquared() < _epsilon)
+            {
+                v = JVector.Zero;
+            }
+            else
+            {
+                v.Normalize();
+            }
+            return v;
+        }
 
-    public static JVector ZeroYValue(this JVector v)
-    {
-        return new JVector(v.X, 0f, v.Z);
-    }
+        public static JVector ZeroYValue(this JVector v)
+        {
+            return new JVector(v.X, 0f, v.Z);
+        }
 
-    public static JVector ZeroZValue(this JVector v)
-    {
-        return new JVector(v.X, v.Y, 0f);
-    }
+        public static float DistanceSQ(this JVector v, JVector other)
+        {
+            return (v - other).LengthSquared();
+        }
 
-    public static float DistanceSQ(this JVector v, JVector other)
-    {
-        return (v - other).LengthSquared();
-    }
+        public static float LengthXZ(this JVector v)
+        {
+            var sq = v.X * v.X + v.Z * v.Z;
+            return JMath.Sqrt(sq);
+        }
 
-    public static bool NearlyEquals(this JVector v, JVector other, float sqMagnitudePrecision = 1e-3f)
-    {
-        return v.DistanceSQ(other) < sqMagnitudePrecision;
+        public static bool NearlyEquals(this JVector v, JVector other, float sqMagnitudePrecision = 1e-3f)
+        {
+            return v.DistanceSQ(other) < sqMagnitudePrecision;
+        }
     }
 }

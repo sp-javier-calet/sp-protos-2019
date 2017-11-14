@@ -2,6 +2,7 @@
 using SocialPoint.Utils;
 using SocialPoint.Dependency;
 using SocialPoint.Network;
+using System.Collections.Generic;
 
 namespace SocialPoint.Multiplayer
 {
@@ -11,8 +12,12 @@ namespace SocialPoint.Multiplayer
         public class SettingsData
         {
             public string MultiplayerParentTag = "MultiplayerParent";
-            public float ServerUpdateInterval = NetworkServerSceneController.DefaultSyncInterval;
             public int ServerBufferSize = NetworkServerSceneController.DefaultBufferSize;
+            public List<SyncGroupSettings> SyncGroupsSettings = new List<SyncGroupSettings>() {
+                new SyncGroupSettings{ SyncInterval = 0.3f },
+                new SyncGroupSettings{ SyncInterval = 0.1f },
+                new SyncGroupSettings{ SyncInterval = 0.05f },
+            };
         }
 
         public SettingsData Settings = new SettingsData();
@@ -27,6 +32,8 @@ namespace SocialPoint.Multiplayer
             Container.Rebind<NetworkClientSceneController>().ToLookup<UnityNetworkClientSceneController>();
             Container.Bind<IDeltaUpdateable>().ToLookup<UnityNetworkClientSceneController>();
             Container.Bind<IInitializable>().ToInstance(this);
+
+            Container.BindDefault<NetworkSceneContext>().ToMethod<NetworkSceneContext>(CreateContext);
         }
 
         //TODO FIX FOR ORDERS FIXME
@@ -53,9 +60,8 @@ namespace SocialPoint.Multiplayer
 
         NetworkServerSceneController CreateServerSceneController()
         {
-            var server = new NetworkServerSceneController(Container.Resolve<INetworkServer>(), Container.Resolve<IGameTime>());
+            var server = new NetworkServerSceneController(Container.Resolve<INetworkServer>(), Container.Resolve<NetworkSceneContext>(), Container.Resolve<IGameTime>());
 
-            server.SyncInterval = Settings.ServerUpdateInterval;
             server.BufferSize = Settings.ServerBufferSize;
 
             return server;
@@ -64,7 +70,8 @@ namespace SocialPoint.Multiplayer
         UnityNetworkClientSceneController CreateClientSceneController()
         {
             UnityNetworkClientSceneController networkClient = new UnityNetworkClientSceneController(
-                Container.Resolve<INetworkClient>());
+                                                                  Container.Resolve<INetworkClient>(),
+                                                                  Container.Resolve<NetworkSceneContext>());
             return networkClient;
         }
 
@@ -84,6 +91,11 @@ namespace SocialPoint.Multiplayer
             {
                 ctrl.Scene.AddBehaviour(behaviours[i]);
             }
+        }
+
+        NetworkSceneContext CreateContext()
+        {
+            return new NetworkSceneContext();
         }
     }
 }

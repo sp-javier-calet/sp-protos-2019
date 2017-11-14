@@ -66,7 +66,7 @@ namespace SocialPoint.Network
             var streamArray = _stream.ToArray();
             var data = new NetworkMessageData
             {
-                ClientId = Data.ClientId,
+                ClientIds = Data.ClientIds,
                 MessageType = Data.MessageType,
                 Unreliable = Data.Unreliable,
                 MessageLength = streamArray.Length

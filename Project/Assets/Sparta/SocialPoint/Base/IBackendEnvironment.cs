@@ -7,6 +7,7 @@ namespace SocialPoint.Base
         Production,
         PreProduction,
         QA,
+        Localization,
         Development
     }
 

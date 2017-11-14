@@ -14,20 +14,18 @@ namespace SocialPoint.Matchmaking
         IAttrParser _parser;
         List<IMatchmakingServerDelegate> _delegates;
 
-        HttpRequest _infoRequest = null;
-        HttpRequest _notifyRequest = null;
-        HttpResponse _infoResponse = null;
-        HttpResponse _notifyResponse = null;
+        HttpRequest _infoRequest;
+        HttpRequest _notifyRequest;
+        HttpResponse _infoResponse;
+        HttpResponse _notifyResponse;
 
-        const string MatchMakingUri = "matchmaking";
-
-        public string BaseUrl;
+        readonly Func<string> _getBaseUrl;
 
         public bool Enabled
         {
             get
             {
-                return !string.IsNullOrEmpty(BaseUrl);
+                return  _getBaseUrl != null && !string.IsNullOrEmpty(_getBaseUrl());
             }
         }
 
@@ -67,15 +65,15 @@ namespace SocialPoint.Matchmaking
             }
         }
 
-        public HttpMatchmakingServer(IHttpClient httpClient, string baseUrl = null)
+        public HttpMatchmakingServer(IHttpClient httpClient, Func<string> getBaseUrlCallback)
         {
             _delegates = new List<IMatchmakingServerDelegate>();
             _httpClient = httpClient;
-            BaseUrl = baseUrl;
+            _getBaseUrl = getBaseUrlCallback;
             _parser = new JsonAttrParser();
         }
 
-        const string InfoUri = "/start_match";
+        const string InfoUri = "/get_match";
         const string EndUri = "/end_match";
         const string MatchIdParam = "match_id";
         const string VersionParam = "version";
@@ -95,7 +93,7 @@ namespace SocialPoint.Matchmaking
 
         public void LoadInfo(string matchId, List<string> playerIds)
         {
-            _infoRequest = CreateRequest(StringUtils.CombineUri(MatchMakingUri, InfoUri));
+            _infoRequest = CreateRequest(InfoUri);
             _infoRequest.AddQueryParam(MatchIdParam, matchId);
             if(!string.IsNullOrEmpty(Version))
             {
@@ -133,12 +131,12 @@ namespace SocialPoint.Matchmaking
 
         public void NotifyResults(string matchId, AttrDic userData, AttrDic customData)
         {
-            _notifyRequest = CreateRequest(StringUtils.CombineUri(MatchMakingUri, EndUri));
+            _notifyRequest = CreateRequest(EndUri);
             _notifyRequest.Method = HttpRequest.MethodType.POST;
             _notifyRequest.AddParam(MatchIdParam, matchId);
             _notifyRequest.AddParam(PlayersParam, userData);
             _notifyRequest.AddParam(CustomDataParam, customData);
-            _httpClient.Send(_notifyRequest, (resp) => OnResultReceived(resp, userData));
+            _httpClient.Send(_notifyRequest, resp => OnResultReceived(resp, userData));
         }
 
         void OnResultReceived(HttpResponse resp, AttrDic userData)
@@ -174,11 +172,16 @@ namespace SocialPoint.Matchmaking
 
         HttpRequest CreateRequest(string uri)
         {
-            if(string.IsNullOrEmpty(BaseUrl))
+            string baseUrl = string.Empty;
+            if(_getBaseUrl != null)
+            {
+                baseUrl = _getBaseUrl();
+            }
+            if(string.IsNullOrEmpty(baseUrl))
             {
                 throw new InvalidOperationException("Base url not configured.");
             }
-            return new HttpRequest(StringUtils.CombineUri(BaseUrl, uri));
+            return new HttpRequest(StringUtils.CombineUri(baseUrl, "/matchmaking" + uri));
         }
 
     }

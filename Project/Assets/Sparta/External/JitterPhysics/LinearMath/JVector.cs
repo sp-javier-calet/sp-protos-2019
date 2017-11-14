@@ -37,7 +37,7 @@ namespace Jitter.LinearMath
     /// </summary>
     public struct JVector
     {
-
+        private const float EqualsEpsilon = 5e-2f;
         private const float ZeroEpsilonSq = JMath.Epsilon * JMath.Epsilon;
         internal static JVector InternalZero;
         internal static JVector Arbitrary;
@@ -171,7 +171,7 @@ namespace Jitter.LinearMath
             if (!(obj is JVector)) return false;
             JVector other = (JVector)obj;
 
-            return (((X == other.X) && (Y == other.Y)) && (Z == other.Z));
+            return Math.Abs(X - other.X) < EqualsEpsilon && Math.Abs(Y - other.Y) < EqualsEpsilon && Math.Abs(Z - other.Z) < EqualsEpsilon;
         }
         #endregion
 

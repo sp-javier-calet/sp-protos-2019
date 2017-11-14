@@ -1,61 +1,85 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
-using System.IO;
 using SocialPoint.IO;
 using SocialPoint.Network;
-using SocialPoint.Pooling;
 using SocialPoint.Utils;
+using SocialPoint.Attributes;
+using SocialPoint.Base;
+using SocialPoint.Network.ServerEvents;
 
 namespace SocialPoint.Multiplayer
 {
-    public struct NetworkServerSceneActionData
+    [Serializable]
+    public class SyncGroupSettings
     {
-        public bool Synced;
+        public float SyncInterval;
+    }
+
+    public class NetworkServerSceneActionData
+    {
+        public bool Synced = true;
         public bool Unreliable;
     }
 
-    public class NetworkServerSceneController : NetworkSceneController<NetworkGameObject<INetworkBehaviour>, INetworkBehaviour>, INetworkServerDelegate, INetworkMessageReceiver, IDeltaUpdateable, INetworkSceneController
+    public class ClientData
+    {
+        public int LastReceivedAction;
+        public float LastAckTimestamp;
+        public NetworkScene Scene;
+    }
+
+    public struct ActionInfo
+    {
+        public NetworkServerSceneActionData Data;
+        public object Action;
+        public float Time;
+    }
+
+    [Serializable]
+    public sealed class NetworkServerConfig
+    {
+        public const byte DefaultMaxPlayers = 6;
+        public const int DefaultMetricSendInterval = 10000;
+        public const bool DefaultUsePluginHttpClient = false;
+
+        public byte MaxPlayers = DefaultMaxPlayers;
+        public int MetricSendInterval = DefaultMetricSendInterval;
+        public bool UsePluginHttpClient = DefaultUsePluginHttpClient;
+        public Func<string> GetBackendUrlCallback;
+        public string MetricEnvironment;
+        public bool EnablePrediction = false;
+    }
+
+    public class NetworkServerSceneController : NetworkSceneController<NetworkGameObject>, INetworkServerDelegate, INetworkMessageReceiver, IDeltaUpdateable, INetworkSceneController
     {
         public static bool SerializeAlways = false;
-        public static bool IsEnableSceneDispose = false;
-        public static float GlobalSyncInterval = -1f;
-
-        struct ActionInfo
-        {
-            public NetworkServerSceneActionData Data;
-            public object Action;
-        }
-
-        class ClientData
-        {
-            public int LastReceivedAction;
-            public float LastAckTimestamp;
-            public NetworkScene Scene;
-        }
 
         INetworkServer _server;
-        NetworkScene<INetworkSceneBehaviour> _scene;
-        NetworkScene<INetworkSceneBehaviour> _prevScene;
-        List<NetworkScene<INetworkSceneBehaviour>> _oldScenes;
-        NetworkScene<INetworkSceneBehaviour> _emptyScene;
+
+        NetworkScene _scene;
+        NetworkScene _prevScene;
+
+        List<NetworkScene> _oldScenes;
+        NetworkScene _emptyScene;
         INetworkMessageReceiver _receiver;
-        NetworkSceneSerializer<INetworkSceneBehaviour> _serializer;
+        NetworkSceneSerializer _serializer;
 
-        public const float DefaultSyncInterval = 0.02f;
-        public const int DefaultBufferSize = 10;
-
-        public float SyncInterval = DefaultSyncInterval;
+        public const int DefaultBufferSize = 0;
         public int BufferSize = DefaultBufferSize;
 
-        float _timeSinceLastSync;
         float _timestamp;
-        float _lastSentTimestamp;
         float _actionTimestampThreshold;
 
         Dictionary<byte, ClientData> _clientData;
         List<ActionInfo> _pendingActions;
 
-        public NetworkScene<INetworkSceneBehaviour> Scene
+        public NetworkServerConfig ServerConfig = new NetworkServerConfig();
+
+        public NetworkServerSyncController SyncController{ get; private set; }
+
+        public Func<bool> HasMatchFinished;
+
+        public NetworkScene Scene
         {
             get
             {
@@ -63,12 +87,39 @@ namespace SocialPoint.Multiplayer
             }
         }
 
+        public bool Paused { get; set; }
+
+
+        public int PlayerCount
+        {
+            get
+            {
+                return ClientCount;
+            }
+        }
+
+        public int ClientCount { get; private set; }
+
+        public bool Running
+        {
+            get
+            {
+                return _server.Running && !Paused;
+            }
+        }
+
         public IGameTime GameTime { get; private set; }
 
         GameTime _gameTime;
-        ActionUpdater _sceneDisposer;
 
-        public NetworkServerSceneController(INetworkServer server, IGameTime gameTime = null)
+        public Action<Metric> SendMetric { get; set; }
+
+        public Action<Network.ServerEvents.Log, bool> SendLog { get; set; }
+
+        public Action<string, AttrDic, ErrorDelegate> SendTrack { get; set; }
+
+        public NetworkServerSceneController(INetworkServer server, NetworkSceneContext context, IGameTime gameTime = null)
+            : base(context)
         {
             GameTime = gameTime;
             if(GameTime == null)
@@ -77,13 +128,71 @@ namespace SocialPoint.Multiplayer
                 GameTime = _gameTime;
             }
 
-            _sceneDisposer = new ActionUpdater(DisposeScenes, 0.2f);
             Restart(server);
         }
 
         void OnObjectRemoved(NetworkGameObject go)
         {
             go.OnDestroy();
+        }
+
+        public override void Dispose()
+        {
+            base.Dispose();
+
+            if(_scene != null)
+            {
+                _scene.OnObjectRemoved -= OnObjectRemoved;
+                
+                _scene.Dispose();
+                _scene = null;
+            }
+
+            if(_prevScene != null)
+            {
+                _prevScene.Dispose();
+                _prevScene = null;
+            }
+
+            if(_emptyScene != null)
+            {
+                _emptyScene.Dispose();
+                _emptyScene = null;
+            }
+
+            if(_oldScenes != null)
+            {
+                for(int i = 0; i < _oldScenes.Count; i++)
+                {
+                    _oldScenes[i].Dispose();
+                }
+                _oldScenes.Clear();
+                _oldScenes = null;
+            }
+
+            if(SyncController != null)
+            {
+                SyncController.Dispose();
+                SyncController = null;
+            }
+
+            if(_clientData != null)
+            {
+                _clientData.Clear();
+                _clientData = null;
+            }
+            if(_pendingActions != null)
+            {
+                _pendingActions.Clear();
+                _pendingActions = null;
+            }
+
+            _serializer = null;
+
+            if(Context != null)
+            {
+                Context.Clear();
+            }
         }
 
         public void Restart(INetworkServer server)
@@ -94,38 +203,54 @@ namespace SocialPoint.Multiplayer
             }
             UnregisterAllBehaviours();
             _server = server;
+            Paused = false;
+            GameTime.Scale = 1f;
             _server.AddDelegate(this);
             _server.RegisterReceiver(this);
 
-            _scene = new NetworkScene<INetworkSceneBehaviour>();
-            _prevScene = (NetworkScene<INetworkSceneBehaviour>)_scene.DeepClone();
-            _oldScenes = new List<NetworkScene<INetworkSceneBehaviour>>();
-            _emptyScene = new NetworkScene<INetworkSceneBehaviour>();
+            _scene = new NetworkScene(Context);
+            _prevScene = (NetworkScene)_scene.DeepClone();
+
+            _oldScenes = new List<NetworkScene>();
+            _emptyScene = new NetworkScene(Context);
 
             _clientData = new Dictionary<byte, ClientData>();
             _pendingActions = new List<ActionInfo>();
-            _serializer = new NetworkSceneSerializer<INetworkSceneBehaviour>();
+            _serializer = new NetworkSceneSerializer(Context);
 
             _scene.OnObjectRemoved += OnObjectRemoved;
-            Init(_scene);
-        }
 
-        public float LastUpdateTimestamp
-        {
-            get
+            Init(_scene);
+
+            if(SyncController != null)
             {
-                return _timestamp - _timeSinceLastSync;
+                SyncController.Dispose();
             }
+            SyncController = new NetworkServerSyncController(
+                new NetworkServerSyncController.ServerControllerData{
+                    Server = _server, ClientData = _clientData, Serializer = _serializer, Scene = _scene, PrevScene = _prevScene, Actions = _actions, PendingActions = _pendingActions, EnablePrediction = ServerConfig.EnablePrediction
+                });
+
+            _server.RemoveDelegate(this);
+            _server.AddDelegate(this);
+            _server.RegisterReceiver(this);
         }
 
         public NetworkScene GetSceneForTimestamp(float ts)
         {
-            var i = (int)(((LastUpdateTimestamp - ts) / SyncInterval) + 0.5f);
-            if(i >= 0 && i < _oldScenes.Count)
+            if(BufferSize > 0)
             {
-                return _oldScenes[i];
+                var i = (int)(((SyncController.LastUpdateTimestamp - ts) / SyncController.SyncInterval) + 0.5f);
+                if(i >= 0 && i < _oldScenes.Count)
+                {
+                    return _oldScenes[i];
+                }
+                return null;
             }
-            return null;
+            else
+            {
+                return _activeScene;
+            }
         }
 
         public override INetworkMessage CreateMessage(NetworkMessageData data)
@@ -156,12 +281,14 @@ namespace SocialPoint.Multiplayer
         virtual protected void OnServerStarted()
         {
             _timestamp = 0.0f;
-            _timeSinceLastSync = 0.0f;
-            _lastSentTimestamp = -1.0f;
+
             _scene.Clear();
             _prevScene.Clear();
+
             _oldScenes.Clear();
             _clientData.Clear();
+
+            SyncController.Reset();
         }
 
         void INetworkServerDelegate.OnServerStopped()
@@ -173,7 +300,7 @@ namespace SocialPoint.Multiplayer
         {
             if(_server == null || Scene == null)
             {
-                //TODO: CHECK: Receiving OnServerStopped on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
+                //#warning CHECK: Receiving OnServerStopped on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
                 return;
             }
 
@@ -187,38 +314,35 @@ namespace SocialPoint.Multiplayer
 
         public void Update(float dt)
         {
-            if(GlobalSyncInterval < -0.1f)
-            {
-                GlobalSyncInterval = SyncInterval;
-            }
-            else
-            {
-                SyncInterval = GlobalSyncInterval;
-            }
-            SyncInterval = Math.Max(SyncInterval, 0f);
-
-            //TODO: Remove this
-            SyncInterval = 0.02f;
-
-            if(!_server.Running)
+            if(_scene == null || !Running)
             {
                 return;
             }
+
             if(_gameTime != null)
             {
                 _gameTime.Update(dt);
             }
+
             _timestamp += dt;
-            _timeSinceLastSync += dt;
             UpdateScene(dt);
-            if(_timeSinceLastSync >= SyncInterval || SerializeAlways)
+
+            var synced = SyncController.Update(_timestamp, dt);
+
+            if(synced && BufferSize > 0)
             {
-                SendScene();
-                _timeSinceLastSync = 0f;
+                _oldScenes.Insert(0, (NetworkScene)_scene.DeepClone());
+
+                var excess = _oldScenes.Count - BufferSize;
+                if(excess > 0)
+                {
+                    _oldScenes.RemoveRange(BufferSize, excess);
+                }
             }
-            else
+
+            if(HasMatchFinished != null)
             {
-                _sceneDisposer.Update(dt);
+                Paused = HasMatchFinished();
             }
         }
 
@@ -238,98 +362,15 @@ namespace SocialPoint.Multiplayer
             UpdatePendingLogic();
         }
 
-        List<byte> keyList = new List<byte>();
-
-        void SendScene()
-        {
-            var timestamp = LastUpdateTimestamp;
-            if(timestamp <= _lastSentTimestamp)
-            {
-                return;
-            }
-            var memStream = new MemoryStream();
-            var binWriter = new SystemBinaryWriter(memStream);
-            _serializer.Serialize(_scene, _prevScene, binWriter);
-            var sceneBuffer = memStream.ToArray();
-            // to avoid out of sync exception with GetEnumerator we will "make a copy" of the keys and iterate over them
-            var itrKeys = _clientData.GetEnumerator();
-            keyList.Clear();
-            while(itrKeys.MoveNext())
-            {
-                keyList.Add(itrKeys.Current.Key);
-            }
-            itrKeys.Dispose();
-
-            var itr = keyList.GetEnumerator();
-            while(itr.MoveNext())
-            {
-                if(!_clientData.ContainsKey(itr.Current))
-                {
-                    continue;
-                }
-                var msg = _server.CreateMessage(new NetworkMessageData {
-                    ClientId = itr.Current,
-                    MessageType = SceneMsgType.UpdateSceneEvent
-                });
-                msg.Writer.Write(sceneBuffer, sceneBuffer.Length);
-                msg.Writer.Write(new UpdateSceneEvent {
-                    Timestamp = _timeSinceLastSync,
-                    LastAction = _clientData[itr.Current].LastReceivedAction,
-                });
-                msg.Send();
-            }
-            itr.Dispose();
-            _lastSentTimestamp = timestamp;
-
-            //update old scenes
-            if(IsEnableSceneDispose)
-            {
-                _prevScene.Dispose();
-            }
-            _prevScene.DeepCopy(_scene);
-                
-            if(BufferSize > 0)
-            {
-                _oldScenes.Insert(0, (NetworkScene<INetworkSceneBehaviour>)_scene.DeepClone());
-            }
-            //send pending actions
-            for(var i = _pendingActions.Count - 1; i >= 0; i--)
-            {
-                var info = _pendingActions[i];
-                if(info.Data.Synced)
-                {
-                    _actions.SendAction(info.Action, info.Data.Unreliable);
-                    _pendingActions.RemoveAt(i);
-                }
-            }
-        }
-
-        void DisposeScenes(float dt)
-        {
-            var excess = _oldScenes.Count - BufferSize;
-            if(excess <= 0)
-            {
-                return;
-            }
-            
-            for(int i = 0; i < excess; ++i)
-            {
-                var scene = _oldScenes[BufferSize + i];
-                scene.Dispose();
-            }
-
-            _oldScenes.RemoveRange(BufferSize, excess);
-        }
-
         public NetworkGameObject InstantiateLocal(byte objType, Transform trans = null)
         {
             return Instantiate(objType, trans, true);
         }
 
-        public NetworkGameObject Instantiate(byte objType, Transform trans = null, bool local = false)
+        public NetworkGameObject Instantiate(byte objType, Transform trans = null, bool local = false, int syncGroup = 0)
         {
-            var go = ObjectPool.Get<NetworkGameObject<INetworkBehaviour>>();
-            go.Init(_scene.FreeObjectId, true, trans, objType, local);
+            var go = Context.Pool.Get<NetworkGameObject>();
+            go.Init(Context, _scene.FreeObjectId, true, trans, objType, local, syncGroup);
             SetupObject(go);
             _scene.AddObject(go);
             return go;
@@ -363,7 +404,7 @@ namespace SocialPoint.Multiplayer
         public void ApplyAction(object evnt)
         {
             ApplyAction(new NetworkServerSceneActionData {
-                Synced = false,
+                Synced = true,
                 Unreliable = false
             }, evnt);
         }
@@ -372,11 +413,13 @@ namespace SocialPoint.Multiplayer
         {
             if(data.Synced)
             {
-                _actions.ApplyAction(evnt);
                 _pendingActions.Add(new ActionInfo {
                     Data = data,
-                    Action = evnt
+                    Action = evnt,
+                    Time = GameTime.Time
                 });
+
+                _actions.ApplyAction(evnt);
             }
             else
             {
@@ -385,21 +428,23 @@ namespace SocialPoint.Multiplayer
         }
 
         public event Action<byte> ClientConnected;
-
         public event Action<byte> ClientDisconnected;
 
         void INetworkServerDelegate.OnClientConnected(byte clientId)
         {
             if(_server == null || Scene == null)
             {
-                //TODO: CHECK: Receiving OnClientConnected on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
+                //#warning CHECK: Receiving OnClientConnected on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
                 return;
             }
+
+            ++ClientCount;
 
             _clientData.Add(clientId, new ClientData {
                 LastReceivedAction = 0,
                 LastAckTimestamp = 0f,
             });
+
             _server.SendMessage(new NetworkMessageData {
                 MessageType = SceneMsgType.ConnectEvent
             }, new ConnectEvent {
@@ -407,13 +452,19 @@ namespace SocialPoint.Multiplayer
             });
             //Send scene
             var msg = _server.CreateMessage(new NetworkMessageData {
-                ClientId = clientId,
+                ClientIds = new List<byte>() { clientId },
                 MessageType = SceneMsgType.UpdateSceneEvent
             });
+
             _serializer.Serialize(_scene, _emptyScene, msg.Writer);
+
             msg.Writer.Write(new UpdateSceneEvent {
-                Timestamp = _timeSinceLastSync,
+                Timestamp = SyncController.TimeSinceLastSync,
             });
+
+            // Write Events
+            msg.Writer.Write(0);
+
             msg.Send();
 
             //Run behaviours logic as last step
@@ -428,9 +479,11 @@ namespace SocialPoint.Multiplayer
         {
             if(_server == null || Scene == null)
             {
-                //TODO: CHECK: Receiving OnClientDisconnected on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
+                //#warning CHECK: Receiving OnClientDisconnected on an undesired NetworkServerSceneController (Using standalone server but a local server is also instantiated)?
                 return;
             }
+
+            --ClientCount;
 
             _clientData.Remove(clientId);
             UpdatePendingLogic();
@@ -444,18 +497,21 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        void INetworkServerDelegate.OnNetworkError(SocialPoint.Base.Error err)
+        void INetworkServerDelegate.OnNetworkError(Error err)
         {
         }
 
         void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, IReader reader)
         {
+            DebugUtils.Assert(data.ClientIds.Count == 1);
+            var clientId = data.ClientIds[0];
+
             if(data.MessageType == SceneMsgType.UpdateSceneAckEvent)
             {
                 var ev = reader.Read<UpdateSceneAckEvent>();
                 float lastAckTimestamp = ev.Timestamp;
                 ClientData clientData = null;
-                if(_clientData.TryGetValue(data.ClientId, out clientData))
+                if(_clientData.TryGetValue(clientId, out clientData))
                 {
                     clientData.LastAckTimestamp = lastAckTimestamp;
                     clientData.Scene = GetSceneForTimestamp(lastAckTimestamp);
@@ -463,16 +519,16 @@ namespace SocialPoint.Multiplayer
             }
             else
             {
-                _actionTimestampThreshold = SyncInterval * BufferSize;
+                _actionTimestampThreshold = SyncController.SyncInterval * BufferSize;
                 ClientData clientData = null;
                 NetworkScene mementoScene = null;
                 float mementoDelta = 0f;
-                if(_clientData.TryGetValue(data.ClientId, out clientData))
+                if(_clientData.TryGetValue(clientId, out clientData))
                 {
-                    mementoScene = clientData.Scene;
+                    mementoScene = _scene; //clientData.Scene;
                     mementoDelta = _timestamp - clientData.LastAckTimestamp;
                 }
-                bool handled = _actions.ApplyActionReceived(data, mementoScene, mementoDelta, _actionTimestampThreshold, data.ClientId, reader);
+                bool handled = _actions.ApplyActionReceived(data, mementoScene, mementoDelta, _actionTimestampThreshold, clientId, reader);
                 if(handled)
                 {
                     if(clientData != null)

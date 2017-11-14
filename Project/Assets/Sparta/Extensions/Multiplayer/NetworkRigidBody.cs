@@ -1,6 +1,6 @@
 ﻿using Jitter.LinearMath;
 using SocialPoint.Physics;
-using SocialPoint.Pooling;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
@@ -12,6 +12,10 @@ namespace SocialPoint.Multiplayer
 
         public NetworkGameObject GameObject
         {
+            get
+            {
+                return _go;
+            }
             set
             {
                 _go = value;
@@ -67,7 +71,7 @@ namespace SocialPoint.Multiplayer
         public object Clone()
         {
             var shapeClone = (IPhysicsShape)_shape.Clone();
-            var behaviour = ObjectPool.Get<NetworkRigidBody>();
+            var behaviour = _go != null && _go.Context != null ? _go.Context.Pool.Get<NetworkRigidBody>() : new NetworkRigidBody();
             behaviour.Init(shapeClone, _controlType, _physicsWorld);
             behaviour.GameObject = _go;
             return behaviour;
@@ -75,7 +79,10 @@ namespace SocialPoint.Multiplayer
 
         public void Dispose()
         {
-            ObjectPool.Return(this);
+            if(_go != null)
+            {
+                _go.Context.Pool.Return(this);
+            }
         }
 
         void UpdateTransformFromGameObject()

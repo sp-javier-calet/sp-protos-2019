@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
+using System.Diagnostics;
 
 namespace SocialPoint.IO
 {
@@ -55,7 +56,7 @@ namespace SocialPoint.IO
             }
         }
 
-        public bool TrySerialize(T obj, IWriter writer, bool writeCode=true)
+        public bool TrySerialize(T obj, IWriter writer, bool writeCode = true)
         {
             byte code;
             if(FindCode(obj, out code))
@@ -70,8 +71,15 @@ namespace SocialPoint.IO
                     serializer.Serialize(obj, writer);
                     return true;
                 }
+                else
+                {
+                    return false;
+                }
             }
-            return false;
+            else
+            {
+                return false;
+            }
         }
 
         public bool TrySerializeRaw(T obj, IWriter writer)

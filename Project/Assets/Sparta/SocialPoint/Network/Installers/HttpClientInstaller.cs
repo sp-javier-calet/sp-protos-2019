@@ -32,6 +32,7 @@ namespace SocialPoint.Network
         {
             public string Config = "basegame";
             public bool EnableHttpStreamPinning = false;
+            public bool EnableRetryHttpClient = false;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -49,15 +50,28 @@ namespace SocialPoint.Network
             if(Curl.IsSupported)
             {
                 Container.Rebind<CurlHttpClient>().ToMethod<CurlHttpClient>(CreateCurlHttpClient);
-                Container.Rebind<IHttpClient>("internal").ToLookup<CurlHttpClient>();
+                if(!Settings.EnableRetryHttpClient)
+                {
+                    Container.Rebind<IHttpClient>("internal").ToLookup<CurlHttpClient>();
+                }
             }
             else
             {
                 Container.Rebind<WebRequestHttpClient>().ToMethod<WebRequestHttpClient>(CreateWebRequestHttpClient);
-                Container.Rebind<IHttpClient>("internal").ToLookup<WebRequestHttpClient>();
+                if(!Settings.EnableRetryHttpClient)
+                {
+                    Container.Rebind<IHttpClient>("internal").ToLookup<WebRequestHttpClient>();
+                }
+            }
+
+            if(Settings.EnableRetryHttpClient)
+            {
+                Container.Rebind<RetryHttpClient>().ToMethod<RetryHttpClient>(CreateRetryHttpClient);
+                Container.Rebind<IHttpClient>("internal").ToLookup<RetryHttpClient>();
             }
 
             Container.Bind<IDisposable>().ToLookup<IHttpClient>("internal");
+
 
             // Http Stream Client
             if(Curl.IsSupported)
@@ -117,6 +131,25 @@ namespace SocialPoint.Network
                 client.Config = Settings.Config;
             }
             return client;
+        }
+
+        RetryHttpClient CreateRetryHttpClient()
+        {
+            #pragma warning disable 0162
+
+            IHttpClient client;
+            if(Curl.IsSupported)
+            {
+                client = Container.Resolve<CurlHttpClient>();
+            }
+            else
+            {
+                client = Container.Resolve <WebRequestHttpClient>();
+            }
+            #pragma warning restore 0162
+            var retryClient = new RetryHttpClient(client);
+                             
+            return retryClient;
         }
 
         void OnRequestSetup(HttpRequest req)

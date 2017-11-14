@@ -174,12 +174,8 @@ namespace SharpNav.Crowds
 
             //find nearest position on the navmesh and place the agent there
             NavPoint nearest;
-            navQuery.FindNearestPoly(ref pos, ref ext, navQueryFilter, out nearest);
-            /*if (status == false)
-			{
-				nearest = pos;
-				reference = 0;
-			}*/
+            if(!navQuery.FindNearestPoly(ref pos, ref ext, navQueryFilter, out nearest))
+                return -1;
 
             agents[idx].Reset(nearest.Polygon, nearest.Position);
             agents[idx].IsActive = true;
@@ -871,27 +867,29 @@ namespace SharpNav.Crowds
                     Vector3 pos = ag.Position;
                     agentRef = NavPolyId.Null;
                     NavPoint nearestPt;
-                    navQuery.FindNearestPoly(ref pos, ref ext, navQueryFilter, out nearestPt);
-                    //nearest = nearestPt.Position;//[SP-Change]
-                    agentRef = nearestPt.Polygon;
-                    agentPos = nearestPt.Position;
-
-                    if(agentRef == NavPolyId.Null)
+                    if(navQuery.FindNearestPoly(ref pos, ref ext, navQueryFilter, out nearestPt))
                     {
-                        //could not find location in navmesh, set state to invalid
-                        ag.Corridor.Reset(NavPolyId.Null, agentPos);
-                        ag.IsPartial = false;
+                        //nearest = nearestPt.Position;//[SP-Change]
+                        agentRef = nearestPt.Polygon;
+                        agentPos = nearestPt.Position;
+
+                        if (agentRef == NavPolyId.Null)
+                        {
+                            //could not find location in navmesh, set state to invalid
+                            ag.Corridor.Reset(NavPolyId.Null, agentPos);
+                            ag.IsPartial = false;
+                            ag.Boundary.Reset();
+                            ag.State = AgentState.Invalid;
+                            continue;
+                        }
+
+                        //make sure the first polygon is valid
+                        ag.Corridor.FixPathStart(agentRef, agentPos);
                         ag.Boundary.Reset();
-                        ag.State = AgentState.Invalid;
-                        continue;
+                        ag.Position = agentPos;
+
+                        replan = true;
                     }
-
-                    //make sure the first polygon is valid
-                    ag.Corridor.FixPathStart(agentRef, agentPos);
-                    ag.Boundary.Reset();
-                    ag.Position = agentPos;
-
-                    replan = true;
                 }
 
                 //try to recover move request position
@@ -905,11 +903,13 @@ namespace SharpNav.Crowds
                         Vector3 tpos = ag.TargetPosition;
                         ag.TargetRef = NavPolyId.Null;
                         NavPoint nearestPt;
-                        navQuery.FindNearestPoly(ref tpos, ref ext, navQueryFilter, out nearestPt);
-                        ag.TargetRef = nearestPt.Polygon;
-                        nearest = nearestPt.Position;
-                        ag.TargetPosition = nearest;
-                        replan = true;
+                        if(navQuery.FindNearestPoly(ref tpos, ref ext, navQueryFilter, out nearestPt))
+                        {
+                            ag.TargetRef = nearestPt.Polygon;
+                            nearest = nearestPt.Position;
+                            ag.TargetPosition = nearest;
+                            replan = true;
+                        }
                     }
 
                     if(ag.TargetRef == NavPolyId.Null)

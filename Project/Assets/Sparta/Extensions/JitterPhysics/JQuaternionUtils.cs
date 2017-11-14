@@ -4,7 +4,7 @@ namespace Jitter.LinearMath
 {
     public static class JQuaternionUtils
     {
-        public static JQuaternion LookRotation(ref JVector forward)
+        public static JQuaternion LookRotation(JVector forward)
         {
             forward.Normalize();
 

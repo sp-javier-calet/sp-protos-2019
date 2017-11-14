@@ -15,17 +15,47 @@ MonoBehaviour:
   Settings:
     UseAlwaysDeviceLanguage: 1
     Localization:
-      Environment: 0
-      ProjectId: lod
-      SecretKeyDev: AE7ffBEUZXNzfTe0
-      SecretKeyLoc: AE7ffBEUZXNzfTe0
-      SecretKeyProd: GpfC4F40mwkX0jBX
+      ProjectId: ca
+      EnvironmentsData:
+      - EnvironmentType: 0
+        Id: prod
+        SecretKey: Lk00s3jrs7rj29TN
+      - EnvironmentType: 1
+        Id: prod
+        SecretKey: Lk00s3jrs7rj29TN
+      - EnvironmentType: 2
+        Id: dev
+        SecretKey: vjKcf9HIq0jN5Xf0
+      - EnvironmentType: 3
+        Id: loc
+        SecretKey: jXX4Jk5vTEjdbZbr
+      - EnvironmentType: 4
+        Id: dev
+        SecretKey: vjKcf9HIq0jN5Xf0
       BundleDir: localization
       CsvMode: 2
-      ShowKeysOnDevMode: 0
+      ShowKeysOnDevMode: 1
       SupportedLanguages:
       - en
       - es
-      - pt
+      - de
       - fr
+      - tr
+      - it
+      - pt
+      - ru
+      - ja
+      - ko
+      - br
+      - gl
+      - eu
+      - ca
+      - zh-Hans
+      - zh-Hant
       Timeout: 20
+    TimeTextIndetifiers:
+      DayIdentifier: timeUtils.Day
+      DaysIdentifier: timeUtils.Days
+      HourIdentifier: timeUtils.Hour
+      MinIdentifier: timeUtils.Min
+      SecIdentifier: timeUtils.Sec

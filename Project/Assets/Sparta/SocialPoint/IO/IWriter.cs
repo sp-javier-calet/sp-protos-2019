@@ -33,6 +33,8 @@ namespace SocialPoint.IO
         void Write(long value);
 
         void Write(uint value);
+
+        void WriteShortFloat(float value);
     }
 
     public abstract class SimpleWriter : IWriter
@@ -78,6 +80,11 @@ namespace SocialPoint.IO
         public void Write(byte[] buffer, int count)
         {
             Write(buffer, 0, count);
+        }
+
+        public void WriteShortFloat(float value)
+        {
+            Write(ShortEncoding.Encode(value));
         }
     }
 }

@@ -15,6 +15,7 @@ namespace SocialPoint.AssetBundlesClient
         {
             public string Server = AssetBundleManager.DefaultServer;
             public string Game = AssetBundleManager.DefaultGame;
+            public bool TransformNamesToLowercase = false;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -44,8 +45,7 @@ namespace SocialPoint.AssetBundlesClient
 
         void SetupAssetBundleManager(AssetBundleManager mng)
         {
-            mng.Server = Settings.Server;
-            mng.Game = Settings.Game;
+            mng.Data = Settings;
 
             mng.Scheduler = Container.Resolve<IUpdateScheduler>();
             mng.CoroutineRunner = Container.Resolve<ICoroutineRunner>();

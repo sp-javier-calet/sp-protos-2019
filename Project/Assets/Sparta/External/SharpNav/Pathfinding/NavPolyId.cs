@@ -51,8 +51,8 @@ namespace SharpNav.Pathfinding
 
 		public override int GetHashCode()
 		{
-			//TODO actual hash code
-			return base.GetHashCode();
+			//[SP-Change] To avoid boxing.
+			return bits;
 		}
 
 		public string ToString(NavPolyIdManager manager)

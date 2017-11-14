@@ -2,11 +2,22 @@ using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.IO;
 using ExitGames.Client.Photon;
+using System.IO;
 
 namespace SocialPoint.Network
 {
-    class PhotonNetworkServer : PhotonNetworkBase, INetworkServer
+    public class PhotonNetworkServer : PhotonNetworkBase, INetworkServer
     {
+        public PhotonNetworkClient LocalPhotonClient;
+
+        public bool HasLocalPhotonClient
+        {
+            get
+            {
+                return LocalPhotonClient != null;
+            }
+        }
+        
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         INetworkMessageReceiver _receiver;
 
@@ -26,7 +37,11 @@ namespace SocialPoint.Network
             {
                 return;
             }
-            PhotonNetwork.RaiseEvent(PhotonMsgType.Fail, err.ToString(), true, null);
+            PhotonNetwork.RaiseEvent(PhotonMsgType.Fail, err.ToString(), true, new RaiseEventOptions{Receivers = ReceiverGroup.All});
+            if(HasLocalPhotonClient)
+            {
+                LocalPhotonClient.OnNetworkError(err);
+            }
         }
 
         public void AddDelegate(INetworkServerDelegate dlg)
@@ -65,15 +80,19 @@ namespace SocialPoint.Network
             }
         }
 
+        public byte ClientId
+        {
+            get
+            {
+                return GetClientId(PhotonNetwork.player);
+            }
+        }
+
         public string Id
         {
             get
             {
-                if(PhotonNetwork.room == null)
-                {
-                    return null;
-                }
-                return PhotonNetwork.room.name;
+                return PhotonNetwork.room == null ? null : PhotonNetwork.room.Name;
             }
         }
 
@@ -85,7 +104,7 @@ namespace SocialPoint.Network
             {
                 var room = PhotonNetwork.room;
                 object serverId = 0;
-                if(room != null && room.customProperties.TryGetValue(ServerIdRoomProperty, out serverId))
+                if(room != null && room.CustomProperties.TryGetValue(ServerIdRoomProperty, out serverId))
                 {
                     if(serverId is int)
                     {
@@ -98,7 +117,7 @@ namespace SocialPoint.Network
 
         bool SetServerPlayer()
         {
-            if(PhotonNetwork.room.customProperties.ContainsKey(ServerIdRoomProperty))
+            if(PhotonNetwork.room.CustomProperties.ContainsKey(ServerIdRoomProperty))
             {
                 return false;
             }
@@ -109,7 +128,7 @@ namespace SocialPoint.Network
             return true;
         }
 
-        void OnPhotonPlayerConnected(PhotonPlayer player)
+        public void OnPhotonPlayerConnected(PhotonPlayer player)
         {
             var clientId = GetClientId(player);
             for(var i = 0; i < _delegates.Count; i++)
@@ -124,6 +143,20 @@ namespace SocialPoint.Network
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnClientDisconnected(clientId);
+            }
+        }
+
+        protected override void DoConnect()
+        {
+            if(HasLocalPhotonClient)
+            {
+                _state = ConnState.Connecting;
+                OnJoinedRoom();
+                OnPhotonPlayerConnected(PhotonNetwork.player);
+            }
+            else
+            {
+                base.DoConnect();
             }
         }
 
@@ -148,13 +181,14 @@ namespace SocialPoint.Network
 
         protected override void OnDisconnected()
         {
+            base.OnDisconnected();
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnServerStopped();
             }
         }
 
-        protected override void OnNetworkError(Error err)
+        internal override void OnNetworkError(Error err)
         {
             for(var i = 0; i < _delegates.Count; i++)
             {
@@ -172,6 +206,53 @@ namespace SocialPoint.Network
             {
                 _receiver.OnMessageReceived(data, reader);
             }
+        }
+
+        protected override bool IsRecoverableDisconnectCause(DisconnectCause cause)
+        {
+            return false;
+        }
+
+        public override void SendNetworkMessage(NetworkMessageData info, byte[] data)
+        {
+            var cdata = HttpEncoding.Encode(data, HttpEncoding.LZ4);
+
+            var options = new RaiseEventOptions();
+
+            var reliable = PhotonNetwork.PhotonServerSettings.Protocol == ConnectionProtocol.Tcp && !info.Unreliable;
+            if(info.ClientIds != null && info.ClientIds.Count > 0)
+            {
+                var player = GetPlayer(info.ClientIds[0]);
+                if(player == null)
+                {
+                    return;
+                }
+
+                options.TargetActors = new int[]{ player.ID };
+                PhotonNetwork.RaiseEvent(info.MessageType, cdata, reliable, options);
+            }
+            else
+            {
+                options.Receivers = HasLocalPhotonClient ? ReceiverGroup.All : ReceiverGroup.Others;
+                PhotonNetwork.RaiseEvent(info.MessageType, cdata, reliable, options);
+            }
+
+            Config.CustomPhotonConfig.RegisterOnGoingCommand();
+        }
+
+        protected override void ProcessOnEventReceived(byte eventcode, object content, int senderid)
+        {
+            var cdata = HttpEncoding.Decode((byte[])content, HttpEncoding.LZ4);
+            
+            byte clientId = GetClientId(GetPlayer((byte)senderid));
+            var info = new NetworkMessageData {
+                MessageType = eventcode,
+                ClientIds = new List<byte>(){ clientId }
+            };
+            var stream = new MemoryStream(cdata);
+            var reader = new SystemBinaryReader(stream);
+
+            OnMessageReceived(info, reader);
         }
     }
 }

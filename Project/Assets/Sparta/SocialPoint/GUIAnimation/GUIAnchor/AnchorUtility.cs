@@ -573,7 +573,7 @@ namespace SocialPoint.GUIAnimation
                 List<UIRect> rects = new List<UIRect>(trans.GetComponentsInChildren<UIRect>(true));
                 for(int i = 0; i < rects.Count; ++i)
                 {
-                    if(rects[i].gameObject.tag.CompareTo("Anchored") != 0)
+                    if(!rects[i].Anchored)
                     {
                         DoRemoveAnchorsNGUI(rects[i]);
                     }

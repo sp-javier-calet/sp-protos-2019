@@ -8,8 +8,11 @@ namespace SocialPoint.Matchmaking
     public interface IMatchStorage
     {
         bool Stored{ get; }
+
         bool Load(out Match match);
+
         void Save(Match match);
+
         void Clear();
     }
 
@@ -20,7 +23,7 @@ namespace SocialPoint.Matchmaking
         string _storageKey;
         IAttrStorage _storage;
 
-        public AttrMatchStorage(IAttrStorage storage, string storageKey=null)
+        public AttrMatchStorage(IAttrStorage storage, string storageKey = null)
         {
             if(string.IsNullOrEmpty(storageKey))
             {
@@ -87,7 +90,7 @@ namespace SocialPoint.Matchmaking
             }
         }
 
-        public StoredMatchmakingClient(IMatchmakingClient client, IMatchStorage storage=null)
+        public StoredMatchmakingClient(IMatchmakingClient client, IMatchStorage storage = null)
         {
             _client = client;
             _storage = storage;
@@ -113,7 +116,7 @@ namespace SocialPoint.Matchmaking
             _delegates.Remove(dlg);
         }
 
-        public void Start()
+        public void Start(AttrDic extraData, bool searchForActiveMatch, string connectId)
         {
             Match match;
             if(_storage.Load(out match))
@@ -121,7 +124,7 @@ namespace SocialPoint.Matchmaking
                 OnMatched(match);
                 return;
             }
-            _client.Start();
+            _client.Start(extraData, searchForActiveMatch, connectId);
         }
 
         public void Stop()
@@ -153,7 +156,7 @@ namespace SocialPoint.Matchmaking
 
         void IMatchmakingClientDelegate.OnWaiting(int waitTime)
         {
-            for(var i=0; i<_delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnWaiting(waitTime);
             }
@@ -171,7 +174,7 @@ namespace SocialPoint.Matchmaking
 
         void IMatchmakingClientDelegate.OnError(Error err)
         {
-            for(var i=0; i<_delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnError(err);
             }
@@ -179,7 +182,7 @@ namespace SocialPoint.Matchmaking
 
         void OnMatched(Match match)
         {
-            for(var i=0; i<_delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnMatched(match);
             }

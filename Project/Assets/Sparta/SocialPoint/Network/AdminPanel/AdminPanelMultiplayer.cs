@@ -298,7 +298,7 @@ namespace SocialPoint.Network
 
         void INetworkServerDelegate.OnMessageReceived(NetworkMessageData data)
         {
-            Log("server received message from client " + data.ClientId + " of type " + data.MessageType);
+            Log("server received message from client " + data.ClientIds[0] + " of type " + data.MessageType);
         }
 
         void INetworkServerDelegate.OnNetworkError(SocialPoint.Base.Error err)

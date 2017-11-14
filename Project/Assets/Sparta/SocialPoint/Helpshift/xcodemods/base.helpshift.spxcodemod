@@ -18,5 +18,8 @@
     ]
     "files":[
         "{ROOT_PATH}/Assets/Plugins/iOS/HelpshiftInstallConfig.json"
-    ]
+    ],
+    "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "We need to access photos library to allow users manually pick images meant to be sent as attachment for help and support reasons."
+    }
 }
