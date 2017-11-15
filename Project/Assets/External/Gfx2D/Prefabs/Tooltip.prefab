@@ -94,6 +94,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 15bcad52c90234d6b8da9d24f46c262b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IsFullScreen: 0
   AppearAnimationFactory: {fileID: 0}
   DisappearAnimationFactory: {fileID: 0}
   ParentController: {fileID: 0}
