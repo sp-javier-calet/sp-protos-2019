@@ -1749,7 +1749,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 63071bfc50c574ce6bdb16ee760638a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _animationFactory: {fileID: 11400000, guid: 96d24ba87d55042ffac1159ebe4eeb85, type: 2}
+  _animationFactory: {fileID: 11400000, guid: 2aa9f8c1184d349c193ae0ed9d1d18fa, type: 2}
 --- !u!114 &114658683457340164
 MonoBehaviour:
   m_ObjectHideFlags: 1
