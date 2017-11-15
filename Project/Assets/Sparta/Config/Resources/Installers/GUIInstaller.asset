@@ -14,5 +14,5 @@ MonoBehaviour:
   _isGlobal: 1
   Settings:
     PopupAnimationTime: 0.3
-    TooltipAnimationTime: 0.5
+    TooltipAnimationTime: 0.3
     TooltipScreenBoundsDelta: {x: 0, y: 0}

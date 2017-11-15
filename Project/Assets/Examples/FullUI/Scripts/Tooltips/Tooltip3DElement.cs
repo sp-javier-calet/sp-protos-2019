@@ -23,11 +23,12 @@ public class Tooltip3DElement : SPTooltipView
         }
 
         _go.transform.SetParent(_placeholder, false);
+        _go.transform.localPosition = Vector3.down * 40;
         _go.transform.localScale *= Math.Min(_placeholder.rect.width, _placeholder.rect.height) * 0.5f;
 
-        _go.transform.rotation = Quaternion.Euler(30f, 30f, 0f);
+        _go.transform.rotation = Quaternion.Euler(10f, 0f, -30f);
 
-        var anim = new RotateForEverAnimation();
+        var anim = new RotateForEverAnimation(false, 0f, true, 360f, false, 0f, true);
         if(anim != null)
         {
             anim.Load(_go);

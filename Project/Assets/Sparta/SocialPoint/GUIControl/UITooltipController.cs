@@ -54,7 +54,7 @@ namespace SocialPoint.GUIControl
                     if(spTooltipItem != null)
                     {
                         
-                        spTooltipItem.Init(_screenBounds, _rectTransform, triggerTransform, spikePosition, offset, timeToclose, DestroyTooltip, HideTooltipTimed);
+                        spTooltipItem.Init(_screenBounds, _rectTransform, triggerTransform, spikePosition, offset, timeToclose, HideTooltipTimed);
                         spTooltipItem.LoadAppearAnimation(AppearAnimationFactory, AppearAnimation);
                         spTooltipItem.ShowTooltip();
                     }
@@ -66,14 +66,18 @@ namespace SocialPoint.GUIControl
         {
             if(_currentTooltipGO != null)
             {
-                _tempTooltipGO = _currentTooltipGO;
+                var tempTooltipGO = _currentTooltipGO;
                 _currentTooltipGO = null;
 
-                var spTooltipItem = _tempTooltipGO.GetComponent<SPTooltipView>();
+                var spTooltipItem = tempTooltipGO.GetComponent<SPTooltipView>();
                 if(spTooltipItem != null)
                 {
-                    spTooltipItem.LoadDisappearAnimation(DisappearAnimationFactory, DisappearAnimation);
-                    spTooltipItem.HideTooltip(immediate);
+                    if(spTooltipItem.IsStable)
+                    {
+                        spTooltipItem.LoadDisappearAnimation(DisappearAnimationFactory, DisappearAnimation);
+                    }
+
+                    spTooltipItem.HideTooltip(!spTooltipItem.IsStable || immediate, () => DestroyTooltip(tempTooltipGO));
                 }
             }
         }
@@ -88,20 +92,18 @@ namespace SocialPoint.GUIControl
             HideTooltip(false);
         }
 
-        void DestroyTooltip()
+        void DestroyTooltip(GameObject tempTooltipGO)
         {
-            if(_tempTooltipGO != null)
+            if(tempTooltipGO != null)
             {
                 if(UsePooling)
                 {
-                    UnityObjectPool.Recycle(_tempTooltipGO);
+                    UnityObjectPool.Recycle(tempTooltipGO);
                 }
                 else
                 {
-                    _tempTooltipGO.DestroyAnyway();
+                    tempTooltipGO.DestroyAnyway();
                 }
-
-                _currentTooltipGO = null;
             }
         }
     }

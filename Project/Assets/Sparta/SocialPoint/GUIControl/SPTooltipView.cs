@@ -7,7 +7,7 @@ using System;
 namespace SocialPoint.GUIControl
 {
     [AddComponentMenu("UI/Extensions/SPTooltip Item")]
-    public abstract class SPTooltipView : UIViewController
+    public class SPTooltipView : UIViewController
     {
         public enum SpikePosition
         {
@@ -44,7 +44,12 @@ namespace SocialPoint.GUIControl
 
         //        EventSystem _eventSystem;
 
-        public void Init(Rect screenBounds, RectTransform uiControllerTransform, RectTransform triggerTransform, SpikePosition spikePosition, Vector3 offset, float timeToClose, Action finishHideCallback, Action hideTimedCallback)
+        public SPTooltipView()
+        {
+            IsFullScreen = false;
+        }
+
+        public void Init(Rect screenBounds, RectTransform uiControllerTransform, RectTransform triggerTransform, SpikePosition spikePosition, Vector3 offset, float timeToClose, Action hideTimedCallback)
         {
 //            _eventSystem = Services.Instance.Resolve<EventSystem>();
 
@@ -61,13 +66,14 @@ namespace SocialPoint.GUIControl
             _spikePosition = spikePosition;
             _offset = offset;
             _timeToClose = timeToClose;
-            _finishHideCallback = finishHideCallback;
             _hideTimedCallback = hideTimedCallback;
 
             SetTooltipInfo();
         }
 
-        public abstract void SetTooltipInfo();
+        public virtual void SetTooltipInfo()
+        {
+        }
 
         void MoveTooltipToTriggerPosition()
         {
@@ -100,10 +106,12 @@ namespace SocialPoint.GUIControl
             _time = 0f;
         }
 
-        public void HideTooltip(bool immediate)
+        public void HideTooltip(bool immediate, Action finishHideCallback)
         {
             if(IsStable)
             {
+                _finishHideCallback = finishHideCallback;
+
                 if(immediate)
                 {
                     Hide();
@@ -120,6 +128,7 @@ namespace SocialPoint.GUIControl
             if(_finishHideCallback != null)
             {
                 _finishHideCallback();
+                _finishHideCallback = null;
             }
 
             base.OnDisappeared();
@@ -194,6 +203,7 @@ namespace SocialPoint.GUIControl
                     if(_hideTimedCallback != null)
                     {
                         _hideTimedCallback();
+                        _hideTimedCallback = null;
                     }
                 }
             }
