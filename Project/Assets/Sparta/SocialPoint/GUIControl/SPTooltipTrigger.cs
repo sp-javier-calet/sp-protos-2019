@@ -14,7 +14,7 @@ namespace SocialPoint.GUIControl
         GameObject prefab;
 
         [SerializeField]
-        SPTooltipView.ArrowPosition _arrowPosition = SPTooltipView.ArrowPosition.Default;
+        SPTooltipView.SpikePosition _spikePosition = SPTooltipView.SpikePosition.Default;
 
         [SerializeField]
         bool _useHover;
@@ -29,6 +29,13 @@ namespace SocialPoint.GUIControl
         float _timeToClose = 0;
 
         UITooltipController _tooltipController;
+        RectTransform _rectTransform;
+        bool _hovering;
+
+        void Awake()
+        {
+            _rectTransform = transform.GetComponent<RectTransform>();
+        }
 
         void Start()
         {
@@ -48,8 +55,9 @@ namespace SocialPoint.GUIControl
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if(_useHover)
+            if(_useHover && !_hovering)
             {
+                _hovering = true;
                 ShowTooltip();
             }
         }
@@ -60,8 +68,9 @@ namespace SocialPoint.GUIControl
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if(_useHover)
+            if(_useHover && _hovering)
             {
+                _hovering = false;
                 HideTooltip();
             }
         }
@@ -82,7 +91,7 @@ namespace SocialPoint.GUIControl
 
         void ShowTooltip()
         {
-            _tooltipController.ShowTooltip(prefab, transform, _arrowPosition, _offset, _timeToClose);
+            _tooltipController.ShowTooltip(prefab, _rectTransform, _spikePosition, (_useHover && _useOffsetHover ? _offset : Vector3.zero), (_useHover ? 0f : _timeToClose));
         }
             
         void HideTooltip()

@@ -9,7 +9,7 @@ namespace SocialPoint.GUIControl
     [AddComponentMenu("UI/Extensions/SPTooltip Item")]
     public abstract class SPTooltipView : UIViewController
     {
-        public enum ArrowPosition
+        public enum SpikePosition
         {
             Default,
             BestFit,
@@ -29,21 +29,22 @@ namespace SocialPoint.GUIControl
         Action _hideTimedCallback;
 
         Canvas _baseCanvas;
+        RectTransform _uiControllerTransform;
         RectTransform _baseTransform;
-        Vector2 _boundDelta;
+        RectTransform _triggerTransform;
+        Rect _screenBounds;
         Vector3 _offset;
-        Transform _parentTransform;
-        ArrowPosition _spikePosition;
-//        bool _isShown;
+        SpikePosition _spikePosition;
+        Camera _camera;
         bool _closeTimed;
         float _timeToClose;
         float _time;
-//        IEnumerator _appearCoroutine;
-//        IEnumerator _disappearCoroutine;
 
-//        EventSystem _eventSystem;
+        SpikePosition[] BestFitSpikeDirection = { SpikePosition.Top, SpikePosition.Bottom, SpikePosition.Left, SpikePosition.Right };
 
-        public void Init(Vector2 boundDelta, Transform parentTransform, ArrowPosition spikePosition, Vector3 offset, float timeToClose, Action finishHideCallback, Action hideTimedCallback)
+        //        EventSystem _eventSystem;
+
+        public void Init(Rect screenBounds, RectTransform uiControllerTransform, RectTransform triggerTransform, SpikePosition spikePosition, Vector3 offset, float timeToClose, Action finishHideCallback, Action hideTimedCallback)
         {
 //            _eventSystem = Services.Instance.Resolve<EventSystem>();
 
@@ -54,36 +55,43 @@ namespace SocialPoint.GUIControl
             }
 
             _baseTransform = GetComponent<RectTransform>();
-
-
-            _boundDelta = boundDelta;
-            _parentTransform = parentTransform;
+            _screenBounds = screenBounds;
+            _uiControllerTransform = uiControllerTransform;
+            _triggerTransform = triggerTransform;
             _spikePosition = spikePosition;
             _offset = offset;
             _timeToClose = timeToClose;
             _finishHideCallback = finishHideCallback;
             _hideTimedCallback = hideTimedCallback;
-//            _isShown = false;
 
             SetTooltipInfo();
-            ShowTooltip();
         }
 
         public abstract void SetTooltipInfo();
-            
-        public void ShowTooltip()
+
+        void MoveTooltipToTriggerPosition()
         {
-            SetSpikeAndPivots();
-
-            transform.SetParent(_parentTransform);
-            transform.localPosition = Vector3.zero;
-            transform.localScale = Vector3.one;
-
-            SetTooltipWorldPosition(_parentTransform.position + _offset);
-
-            Show();
+            _baseTransform.position = _triggerTransform.position + _offset;
+            _baseTransform.localScale = Vector3.one;
         }
 
+        public void ShowTooltip()
+        {
+            _baseTransform.SetParent(_uiControllerTransform);
+
+            _camera = _baseCanvas.GetCamera();
+            SetSpikeAndPivots(_spikePosition);
+            if(_contentTransform.IsOutOfBounds(_camera, _screenBounds))
+            {
+                if(!TryToRepositionAsBestFit())
+                {
+                    Log.w("Tooltip cannot be fit correctly in screen. Move the tooltip trigger " + _triggerTransform.name + " to a new desired position");
+                }
+            }
+                
+            Show();
+        }
+            
         protected override void OnAppeared()
         {
             base.OnAppeared();
@@ -116,34 +124,34 @@ namespace SocialPoint.GUIControl
 
             base.OnDisappeared();
         }
- 
-        void SetSpikeAndPivots()
+
+        void SetSpikeAndPivots(SpikePosition spikePosition)
         {
-            switch(_spikePosition)
+            switch(spikePosition)
             {
-            case ArrowPosition.BestFit:
-                // TODO
+            case SpikePosition.BestFit:
+                TryToRepositionAsBestFit();
                 break;
 
-            case ArrowPosition.Left:
-                _baseTransform.SetPivotAndAnchors(new Vector2(0f, 0.5f));
-                _contentTransform.SetPivotAndAnchors(new Vector2(0f, 0.5f));
-                _spikeTransform.localRotation = Quaternion.Euler(0f, 0f, 270f);
-                break;
-
-            case ArrowPosition.Top:
-                _baseTransform.SetPivotAndAnchors(new Vector2(0.5f, 0f));
-                _contentTransform.SetPivotAndAnchors(new Vector2(0.5f, 0f));
-                _spikeTransform.localRotation = Quaternion.Euler(Vector3.zero);
-                break;
-
-            case ArrowPosition.Right:
+            case SpikePosition.Left:
                 _baseTransform.SetPivotAndAnchors(new Vector2(1f, 0.5f));
                 _contentTransform.SetPivotAndAnchors(new Vector2(1f, 0.5f));
                 _spikeTransform.localRotation = Quaternion.Euler(0f, 0f, 90f);
                 break;
 
-            case ArrowPosition.Bottom:
+            case SpikePosition.Top:
+                _baseTransform.SetPivotAndAnchors(new Vector2(0.5f, 0f));
+                _contentTransform.SetPivotAndAnchors(new Vector2(0.5f, 0f));
+                _spikeTransform.localRotation = Quaternion.Euler(Vector3.zero);
+                break;
+
+            case SpikePosition.Right:
+                _baseTransform.SetPivotAndAnchors(new Vector2(0f, 0.5f));
+                _contentTransform.SetPivotAndAnchors(new Vector2(0f, 0.5f));
+                _spikeTransform.localRotation = Quaternion.Euler(0f, 0f, 270f);
+                break;
+
+            case SpikePosition.Bottom:
                 _baseTransform.SetPivotAndAnchors(new Vector2(0.5f, 1f));
                 _contentTransform.SetPivotAndAnchors(new Vector2(0.5f, 1f));
                 _spikeTransform.localRotation = Quaternion.Euler(0f, 0f, 180f);
@@ -152,73 +160,26 @@ namespace SocialPoint.GUIControl
 
             _contentTransform.localPosition = Vector3.zero;
             _spikeTransform.localPosition = Vector3.zero;
+
+            MoveTooltipToTriggerPosition();
         }
 
-        void SetTooltipScreenPosition(Vector2 pos)
+        bool TryToRepositionAsBestFit()
         {
-            var renderingCamera = _contentTransform.GetRectScreenPointCamera(_baseCanvas);
-            if(renderingCamera != null)
+            for(int i = 0; i < BestFitSpikeDirection.Length; ++i)
             {
-                SetTooltipFinalPosition(renderingCamera, pos);
-            }
-            else
-            {
-                _contentTransform.position = (Vector3)pos;
-
-                // TODO check if is visible without a camera, then check which corners and size to adjust
-            }
-        }
-
-        void SetTooltipWorldPosition(Vector3 pos)
-        {
-            var renderingCamera = _contentTransform.GetRectScreenPointCamera(_baseCanvas);
-            if(renderingCamera != null)
-            {
-                Vector2 screenPos = RectTransformUtility.WorldToScreenPoint(renderingCamera, pos);
-                SetTooltipFinalPosition(renderingCamera, screenPos);
-            }
-            else
-            {
-                _contentTransform.position = pos;
-
-                // TODO check if is visible without a camera, then check which corners and size to adjust
-            }
-        }
-
-        void SetTooltipFinalPosition(Camera renderingCamera, Vector2 pos)
-        {
-            var screenBounds = new Rect(0f + _boundDelta.x, 0f + _boundDelta.y, Screen.width - _boundDelta.x, Screen.height - _boundDelta.y);
-
-            Vector3 worldPos;
-            var finalPos = pos;
-            if(_contentTransform.IsOutOfBounds(renderingCamera, screenBounds))
-            {
-                var tooltipBounds = _contentTransform.GetScreenRect(renderingCamera);
-                var pivot = _contentTransform.pivot;
-
-                // Check x axis
-                if((int)tooltipBounds.x < (int)screenBounds.x)
+                var spike = BestFitSpikeDirection[i];
+                if(spike != _spikePosition)
                 {
-                    finalPos.x = screenBounds.x + (tooltipBounds.width * pivot.x);
-                }
-                else if((int)tooltipBounds.x + tooltipBounds.width > (int)screenBounds.width)
-                {
-                    finalPos.x = screenBounds.width - (tooltipBounds.width * pivot.x);
-                }
-
-                // Check y axis
-                if((int)tooltipBounds.y <= (int)screenBounds.y)
-                {
-                    finalPos.y = screenBounds.y + (tooltipBounds.height * pivot.y);
-                }
-                else if((int)(tooltipBounds.y + tooltipBounds.height) > (int)screenBounds.height)
-                {
-                    finalPos.y = screenBounds.height - (tooltipBounds.height * pivot.y);
+                    SetSpikeAndPivots(spike);
+                    if(!_contentTransform.IsOutOfBounds(_camera, _screenBounds))
+                    {
+                        return true;
+                    }
                 }
             }
 
-            RectTransformUtility.ScreenPointToWorldPointInRectangle(_contentTransform, finalPos, renderingCamera, out worldPos);
-            _contentTransform.position = worldPos;
+            return false;
         }
 
         void LateUpdate()
@@ -240,18 +201,18 @@ namespace SocialPoint.GUIControl
     }
         
     // TEST WHILE WE CANNOT PROCESS CLICKS IN FULL SCREEN
-//        void Update()
-//        {
-//            if(_isShown && Input.GetMouseButtonUp(0))
-//            {
-//                // Does the RectTransform contain the screen point as seen from the given camera?
-//                Camera renderingCamera = _transform.GetRectScreenPointCamera(_canvas);
-//                bool contains = RectTransformUtility.RectangleContainsScreenPoint(_transform, Input.mousePosition, renderingCamera);
-//                if(!contains)
-//                {
-//                    HideTooltip();
-//                }
-//            }
-//        }
-//    }
+    //        void Update()
+    //        {
+    //            if(_isShown && Input.GetMouseButtonUp(0))
+    //            {
+    //                // Does the RectTransform contain the screen point as seen from the given camera?
+    //                Camera renderingCamera = _transform.GetRectScreenPointCamera(_canvas);
+    //                bool contains = RectTransformUtility.RectangleContainsScreenPoint(_transform, Input.mousePosition, renderingCamera);
+    //                if(!contains)
+    //                {
+    //                    HideTooltip();
+    //                }
+    //            }
+    //        }
+    //    }
 }

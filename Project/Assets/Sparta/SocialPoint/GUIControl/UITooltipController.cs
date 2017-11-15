@@ -5,35 +5,43 @@ using SocialPoint.Dependency;
 
 namespace SocialPoint.GUIControl
 {
-    public class UITooltipController : MonoBehaviour 
+    public class UITooltipController : UIViewController
     {
         public const float DefaultAnimationTime = 1.0f;
         float AnimationTime = DefaultAnimationTime;
 
-        [Header("Animations")]
-        public UIViewAnimation AppearAnimation;
-        public UIViewAnimation DisappearAnimation;
-
-        [Header("System")]
         public bool UsePooling = true;
         public Vector2 ScreenBoundsDelta = Vector2.zero;
 
         GameObject _currentTooltipGO;
         GameObject _tempTooltipGO;
+        RectTransform _rectTransform;
+        Rect _screenBounds;
 
         public bool TooltipIsShown
         {
             get { return _currentTooltipGO != null; }
         }
 
-        void Start()
+        protected override void OnAwake()
         {
+            base.OnAwake();
+
+            _rectTransform = transform.GetComponent<RectTransform>();
+        }
+
+        protected override void OnStart()
+        {
+            base.OnStart();
+
             AnimationTime = Services.Instance.Resolve("tooltip_animation_time", DefaultAnimationTime);
             AppearAnimation = new FadeAnimation(AnimationTime, 0f, 1f);
             DisappearAnimation = new FadeAnimation(AnimationTime, 1f, 0f);
-        }  
 
-        public void ShowTooltip(GameObject prefab, Transform parent, SPTooltipView.ArrowPosition arrowPosition, Vector3 offset, float timeToclose)
+            _screenBounds = new Rect(0f + ScreenBoundsDelta.x, 0f + ScreenBoundsDelta.y, Screen.width - ScreenBoundsDelta.x, Screen.height - ScreenBoundsDelta.y);
+        }
+
+        public void ShowTooltip(GameObject prefab, RectTransform triggerTransform, SPTooltipView.SpikePosition spikePosition, Vector3 offset, float timeToclose)
         {
             HideTooltip(true);
 
@@ -45,8 +53,10 @@ namespace SocialPoint.GUIControl
                     var spTooltipItem = _currentTooltipGO.GetComponent<SPTooltipView>();
                     if(spTooltipItem != null)
                     {
-//                        spTooltipItem.Load(); // TODO
-                        spTooltipItem.Init(ScreenBoundsDelta, parent, arrowPosition, offset, timeToclose, DestroyTooltip, HideTooltipTimed);
+                        
+                        spTooltipItem.Init(_screenBounds, _rectTransform, triggerTransform, spikePosition, offset, timeToclose, DestroyTooltip, HideTooltipTimed);
+                        spTooltipItem.LoadAppearAnimation(AppearAnimationFactory, AppearAnimation);
+                        spTooltipItem.ShowTooltip();
                     }
                 }
             }
@@ -62,12 +72,12 @@ namespace SocialPoint.GUIControl
                 var spTooltipItem = _tempTooltipGO.GetComponent<SPTooltipView>();
                 if(spTooltipItem != null)
                 {
-//                        spTooltipItem.Load(); // TODO
+                    spTooltipItem.LoadDisappearAnimation(DisappearAnimationFactory, DisappearAnimation);
                     spTooltipItem.HideTooltip(immediate);
                 }
             }
         }
-            
+
         GameObject CreateTooltip(GameObject prefab)
         {
             return UsePooling ? UnityObjectPool.Spawn(prefab) : Object.Instantiate(prefab);
