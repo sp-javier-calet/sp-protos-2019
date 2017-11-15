@@ -26,13 +26,13 @@ namespace AssetBundleGraph
 
         public const string GUI_TEXT_MENU_DELETE_IMPORTSETTING_SETTINGS = "Window/AssetGraph/Clear Saved ImportSettings";
 
-        public const string ASSETNBUNDLEGRAPH_DATA_PATH = "Sparta/Config/AssetGraph/SettingFiles";
+        public const string ASSETNBUNDLEGRAPH_DATA_PATH = "Sparta/Config/Editor/AssetGraph/SettingFiles";
         public const string ASSETBUNDLEGRAPH_DATA_NAME = "AssetGraph.json";
         public const string ASSETGRAPH_VALIDATOR_DATA_NAME = "ValidatorLog.json";
         public const string ASSETBUNDLEGRAPH_LOADER_DATA_NAME = "LoaderFolders.json";
 
         public const string ASSETS_PATH = "Assets/";
-        public const string ASSETBUNDLEGRAPH_PATH = ASSETS_PATH + "Sparta/Config/AssetGraph/";
+        public const string ASSETBUNDLEGRAPH_PATH = ASSETS_PATH + "Sparta/Config/Editor/AssetGraph/";
         public const string APPLICATIONDATAPATH_CACHE_PATH = ASSETBUNDLEGRAPH_PATH + "Cache/";
         public const string USERSPACE_PATH = ASSETBUNDLEGRAPH_PATH + "Generated/Editor/";
         public const string CUISPACE_PATH = ASSETBUNDLEGRAPH_PATH + "Generated/CUI/";
