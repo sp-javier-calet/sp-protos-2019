@@ -124,30 +124,6 @@ namespace SocialPoint.Base
             return new Rect(bottomLeft, size);
         }
  
-//        static int CountCornersInsideBounds(this RectTransform trans, RectTransform bounds)
-//        {
-//            var objectCorners = new Vector3[4];
-//            trans.GetWorldCorners(objectCorners);
-//
-//            var boundCorners = new Vector3[4];
-//            bounds.GetWorldCorners(boundCorners);
-//
-//            int visibleCorners = 0;
-////            Vector3 tempScreenSpaceCorner;
-//            for(var i = 0; i < objectCorners.Length; i++)
-//            {
-//                // Transform world space position of corners to screen space and check if they are contained in boundsRect
-////                tempScreenSpaceCorner = camera.WorldToScreenPoint(objectCorners[i]); 
-//                var corner = objectCorners[i];
-//                if(bounds.rect.Contains(corner))
-//                {
-//                    visibleCorners++;
-//                }
-//            }
-//
-//            return visibleCorners;
-//        }
-
         static int CountCornersInsideBounds(this RectTransform trans, Camera camera, Rect boundsRect)
         {
             var objectCorners = new Vector3[4];
@@ -189,27 +165,5 @@ namespace SocialPoint.Base
             var screenBounds = new Rect(0f, 0f, Screen.width, Screen.height);
             return CountCornersInsideBounds(trans, camera, screenBounds) == 0; 
         }
-
-//        public static bool IsOutOfBounds(this RectTransform trans, RectTransform boundsTrans)
-//        {
-//            return CountCornersInsideBounds(trans, boundsTrans) < 4; 
-//        }
-//
-//        public static bool IsTotallyOutOfBounds(this RectTransform trans, RectTransform boundsTrans)
-//        {
-//            return CountCornersInsideBounds(trans, boundsTrans) == 0; 
-//        }
-
-//        public static bool IsOutOfScreenBounds(this RectTransform trans)
-//        {
-//            var screenBounds = new Rect(0f, 0f, Screen.width, Screen.height);
-//            return CountCornersInsideBounds(trans, screenBounds) < 4; 
-//        }
-//
-//        public static bool IsTotallyOutOfScreenBounds(this RectTransform trans)
-//        {
-//            var screenBounds = new Rect(0f, 0f, Screen.width, Screen.height);
-//            return CountCornersInsideBounds(trans, screenBounds) == 0; 
-//        }
     }
 }
