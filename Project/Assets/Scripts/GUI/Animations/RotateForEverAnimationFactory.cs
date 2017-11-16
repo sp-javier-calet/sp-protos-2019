@@ -4,9 +4,6 @@ using SocialPoint.GUIControl;
 
 public class RotateForEverAnimation : UIViewAnimation
 {
-    bool _animateX;
-    bool _animateY;
-    bool _animateZ;
     bool _keepOriginalRotation;
     float _angleX;
     float _angleY;
@@ -19,11 +16,8 @@ public class RotateForEverAnimation : UIViewAnimation
         _transform = gameObject.transform;
     }
 
-    public RotateForEverAnimation(bool animateX, float angleX, bool animateY, float angleY, bool animateZ, float angleZ, bool keepOriginalRotation)
+    public RotateForEverAnimation(float angleX, float angleY, float angleZ, bool keepOriginalRotation)
     {
-        _animateX = animateX;
-        _animateY = animateY;
-        _animateZ = animateZ;
         _angleX = angleX;
         _angleY = angleY;
         _angleZ = angleZ;
@@ -39,7 +33,7 @@ public class RotateForEverAnimation : UIViewAnimation
 
         while(true)
         {
-            _transform.Rotate((_animateX ? _angleX  * Time.deltaTime : 0f), (_animateY ? _angleY  * Time.deltaTime : 0f), (_animateZ ? _angleZ  * Time.deltaTime : 0f)); 
+            _transform.Rotate(_angleX  * Time.deltaTime, _angleY  * Time.deltaTime, _angleZ  * Time.deltaTime); 
             yield return null;
         }
     }        
@@ -48,9 +42,6 @@ public class RotateForEverAnimation : UIViewAnimation
 [CreateAssetMenu(menuName = "UI Animations/Rotate For Ever Animation")]
 public class RotateForEverAnimationFactory : UIViewAnimationFactory
 {
-    public bool _animateX;
-    public bool _animateY;
-    public bool _animateZ;
     public bool _keepOriginalRotation;
     public float _angleX;
     public float _angleY;
@@ -58,7 +49,7 @@ public class RotateForEverAnimationFactory : UIViewAnimationFactory
 
     public override UIViewAnimation Create()
     {
-        return new RotateForEverAnimation(_animateX, _angleX, _animateY, _angleY, _animateZ, _angleZ, _keepOriginalRotation);
+        return new RotateForEverAnimation(_angleX, _angleY, _angleZ, _keepOriginalRotation);
     }
 }
 
