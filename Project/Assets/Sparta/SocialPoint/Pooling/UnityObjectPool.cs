@@ -21,8 +21,7 @@ namespace SocialPoint.Pooling
             public int size;
             public GameObject prefab;
         }
-
-        public bool AllowAutoPoolCreation;
+            
         public StartupPoolModeEnum StartupPoolMode;
         public StartupPool[] StartupPools;
 
@@ -99,7 +98,7 @@ namespace SocialPoint.Pooling
         bool GetOrCreatePool(GameObject prefab, out List<GameObject> list)
         {
             bool found = Instance._pooledObjects.TryGetValue(prefab, out list);
-            if(!found && AllowAutoPoolCreation)
+            if(!found)
             {
                 list = CreatePool(prefab, 1);
                 found = list != null;
