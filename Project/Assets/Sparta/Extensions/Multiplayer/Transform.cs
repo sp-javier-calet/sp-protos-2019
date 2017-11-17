@@ -2,11 +2,12 @@
 using Jitter.LinearMath;
 using SocialPoint.IO;
 using SocialPoint.Physics;
+using SocialPoint.Pooling;
 using SocialPoint.Utils;
 
 namespace SocialPoint.Multiplayer
 {
-    public partial class Transform : IEquatable<Transform>, IPoolCloneable, ICopyable
+    public class Transform : IEquatable<Transform>, IPoolCloneable, ICopyable
     {
         public JVector Position;
 
