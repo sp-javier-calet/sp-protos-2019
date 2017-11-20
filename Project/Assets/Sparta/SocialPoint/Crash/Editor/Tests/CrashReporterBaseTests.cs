@@ -75,7 +75,7 @@ namespace SocialPoint.Crash
         }
 
         [Test]
-        public void ReportHandledExpcetion()
+        public void ReportHandledException()
         {
             var exception = new Exception();
 
