@@ -23,11 +23,16 @@ namespace SocialPoint.Crash
         Text _textAreaComponent;
         bool _showOldBreadcrumbs;
         AdminPanelConsole _console;
+        ScheduledAction _exceptionThrowerAction;
 
-        public AdminPanelCrashReporter(ICrashReporter reporter, IBreadcrumbManager breadcrumbs)
+        public AdminPanelCrashReporter(ICrashReporter reporter, IBreadcrumbManager breadcrumbs, IUpdateScheduler scheduler)
         {
             _reporter = reporter;
             _breadcrumbs = breadcrumbs;
+            _exceptionThrowerAction = new ScheduledAction(scheduler, () => {
+                _exceptionThrowerAction.Stop();
+                throw new AdminPanelCrashReporterException();
+            });
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -105,6 +110,8 @@ namespace SocialPoint.Crash
                         _reporter.ReportHandledException(e);
                     }
                 });
+
+                layout.CreateConfirmButton("Force Exception in Update()", ButtonColor.Red, () => _exceptionThrowerAction.Start());
                 layout.CreateMargin(2);
 
                 layout.CreateConfirmButton("Force crash", ButtonColor.Red, _reporter.ForceCrash);

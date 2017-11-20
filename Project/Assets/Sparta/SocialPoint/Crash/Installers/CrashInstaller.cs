@@ -64,7 +64,8 @@ namespace SocialPoint.Crash
         {
             return new AdminPanelCrashReporter(
                 Container.Resolve<ICrashReporter>(),
-                Container.Resolve<IBreadcrumbManager>());
+                Container.Resolve<IBreadcrumbManager>(),
+                Container.Resolve<IUpdateScheduler>());
         }
         #endif
 

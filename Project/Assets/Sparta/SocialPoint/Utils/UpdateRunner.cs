@@ -43,6 +43,8 @@ namespace SocialPoint.Utils
         void Remove(IDeltaUpdateable elm);
 
         bool Contains(IDeltaUpdateable elm);
+
+        event Action<Exception> OnExceptionInUpdate;
     }
 
     public static class UpdateSchedulerExtension
@@ -150,6 +152,8 @@ namespace SocialPoint.Utils
         readonly List<Exception> _exceptions = new List<Exception>();
 
         double _lastUpdateTimestamp;
+
+        public event Action<Exception> OnExceptionInUpdate;
 
         public UpdateScheduler()
         {
@@ -341,6 +345,10 @@ namespace SocialPoint.Utils
                 }
                 catch(Exception e)
                 {
+                    if(OnExceptionInUpdate != null)
+                    {
+                        OnExceptionInUpdate(e);
+                    }
                     _exceptions.Add(e);
                 }
             }

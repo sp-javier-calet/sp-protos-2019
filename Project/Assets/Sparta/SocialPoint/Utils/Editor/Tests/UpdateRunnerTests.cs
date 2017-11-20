@@ -355,5 +355,46 @@ namespace SocialPoint.Utils
             updateable0.Received(1).Update();
             updateable1.Received(0).Update();
         }
+
+        [Test]
+        public void ExceptionDuringUpdate()
+        {
+            var updateable0 = Substitute.For<IUpdateable>();
+            updateable0.When(x => x.Update()).Do(x => {
+                throw new Exception();
+            });
+            var updateable1 = Substitute.For<IUpdateable>();
+            _scheduler.Add(updateable0);
+            _scheduler.Add(updateable1);
+
+            Assert.Throws(Is.InstanceOf<Exception>(), () => _scheduler.Update(0.05f, 0.05f));
+
+            updateable0.Received(1).Update();
+            updateable1.Received(1).Update();
+        }
+
+        [Test]
+        public void ExceptionDuringUpdateCallback()
+        {
+            var exception = new Exception();
+            var updateable = Substitute.For<IUpdateable>();
+            updateable.When(x => x.Update()).Do(x => {
+                throw exception;
+            });
+
+            bool callbackCalled = false;
+            _scheduler.OnExceptionInUpdate += e => {
+                callbackCalled = true;
+                Assert.AreEqual(exception, e);
+            };
+
+            _scheduler.Add(updateable);
+
+            Assert.Throws(Is.InstanceOf<Exception>(), () => _scheduler.Update(0.05f, 0.05f));
+
+            updateable.Received(1).Update();
+
+            Assert.True(callbackCalled);
+        }
     }
 }

@@ -6,6 +6,8 @@ using SocialPoint.IO;
 using SocialPoint.Network;
 using SocialPoint.Utils;
 using UnityEngine;
+using System;
+using SocialPoint.Base;
 
 
 namespace SocialPoint.Crash
@@ -70,6 +72,21 @@ namespace SocialPoint.Crash
             CrashReporterBase.Update();
             HttpClient.Received().Send(Arg.Any<HttpRequest>(), Arg.Any<HttpResponseDelegate>());
             _exceptionStorage.Remove(uuid);
+        }
+
+        [Test]
+        public void ReportHandledExpcetion()
+        {
+            var exception = new Exception();
+
+            bool trackEventReceived = false;
+            CrashReporterBase.TrackEvent = (name, data, handler) => {
+                trackEventReceived = true;
+                var exceptionData = data.Get("error").AsDic.Get("unity_exception").AsDic;
+                Assert.AreEqual(1, exceptionData.GetValue("type").ToInt());
+            };
+            CrashReporterBase.ReportHandledException(exception);
+            Assert.That(trackEventReceived);
         }
 
         [TearDown]
