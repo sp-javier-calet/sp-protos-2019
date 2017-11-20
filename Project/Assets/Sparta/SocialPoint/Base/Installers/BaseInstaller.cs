@@ -1,8 +1,6 @@
-using System;
 using SocialPoint.Dependency;
 using SocialPoint.Utils;
 using UnityEngine;
-using SocialPoint.Crash;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -12,15 +10,6 @@ namespace SocialPoint.Base
 {
     public class BaseInstaller : ServiceInstaller, IInitializable
     {
-        [Serializable]
-        public class SettingsData
-        {
-            [Tooltip("If true exceptions during Update() for IUpdateScheduler will be tracked as handled exceptions one by one")]
-            public bool TrackUpdateExceptionsAsHandled;
-        }
-
-        public SettingsData Settings = new SettingsData();
-
         public override void InstallBindings()
         {
             Container.Bind<IInitializable>().ToInstance(this);
@@ -43,18 +32,13 @@ namespace SocialPoint.Base
             {
                 scheduler.Add(updateables);
             }
-
-            if(Settings.TrackUpdateExceptionsAsHandled)
-            {
-                scheduler.OnExceptionInUpdate += Container.Resolve<ICrashReporter>().ReportHandledException;
-            }
         }
 
         NativeCallsHandler CreateNativeCallsHandler()
         {
             var trans = Container.Resolve<Transform>();
             var go = new GameObject();
-            UnityEngine.Object.DontDestroyOnLoad(go);
+            Object.DontDestroyOnLoad(go);
             go.transform.SetParent(trans);
             return go.AddComponent<NativeCallsHandler>();
         }
