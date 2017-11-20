@@ -513,7 +513,7 @@ namespace SocialPoint.ServerEvents
             req.AddHeader(HttpRequest.ContentTypeHeader, HttpRequest.ContentTypeJson);
             req.CompressBody = true;
             _httpConn = HttpClient.Send(req, resp => {
-                OnHttpResponse(resp, sentEvents);
+                OnHttpResponse(resp, sentEvents, LoginData.SessionId);
                 if(finish != null)
                 {
                     finish();
@@ -548,7 +548,7 @@ namespace SocialPoint.ServerEvents
             return _synced;
         }
 
-        void OnHttpResponse(HttpResponse resp, List<Event> sentEvents)
+        void OnHttpResponse(HttpResponse resp, List<Event> sentEvents, string sessiondId)
         {
             bool synced = CheckSync(resp);
             ApplyBackoff(synced);
@@ -584,7 +584,11 @@ namespace SocialPoint.ServerEvents
             {
                 if(error.Code == SessionLostErrorStatusCode)
                 {
-                    GeneralError(EventTrackerErrorType.SessionLost, error);
+                    // ignore the error if it comes from an old session
+                    if(sessiondId == LoginData.SessionId)
+                    {
+                        GeneralError(EventTrackerErrorType.SessionLost, error);
+                    }
                 }
                 else
                 {
