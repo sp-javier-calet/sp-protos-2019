@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using NSubstitute;
 using NUnit.Framework;
 using SocialPoint.Base;
-using SocialPoint.Login;
-using SocialPoint.Network;
 using SocialPoint.Hardware;
 using SocialPoint.Locale;
+using SocialPoint.Login;
+using SocialPoint.Network;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Connection
 {
@@ -32,6 +33,7 @@ namespace SocialPoint.Connection
             _connectionManager.LoginData = Substitute.For<ILoginData>();
             _connectionManager.DeviceInfo = Substitute.For<IDeviceInfo>();
             _connectionManager.Localization = new Localization();
+            _connectionManager.Scheduler = Substitute.For<IUpdateScheduler>();
         }
 
         void CallOnDelegates(Action<INetworkClientDelegate> callback)
