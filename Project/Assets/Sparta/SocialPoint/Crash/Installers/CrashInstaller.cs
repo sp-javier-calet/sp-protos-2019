@@ -63,7 +63,7 @@ namespace SocialPoint.Crash
 
             if(Settings.TrackUpdateExceptionsAsHandled)
             {
-                Container.Resolve<IUpdateScheduler>().OnExceptionInUpdate += crashReporter.ReportHandledException;
+                Container.Resolve<IUpdateScheduler>().UpdateExceptionThrown += crashReporter.ReportHandledException;
             }
         }
 

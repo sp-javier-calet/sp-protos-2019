@@ -20,11 +20,11 @@ namespace SocialPoint.Utils
 
         readonly UpdateScheduler _scheduler = new UpdateScheduler();
 
-        public event Action<Exception> OnExceptionInUpdate;
+        public event Action<Exception> UpdateExceptionThrown;
 
         void Awake()
         {
-            _scheduler.OnExceptionInUpdate += ExceptionsInUpdateCallback;
+            _scheduler.UpdateExceptionThrown += ExceptionsInUpdateCallback;
         }
 
         public void Add(IUpdateable elm, UpdateableTimeMode updateTimeMode = UpdateableTimeMode.GameTimeUnscaled, float interval = -1)
@@ -86,9 +86,9 @@ namespace SocialPoint.Utils
 
         void ExceptionsInUpdateCallback(Exception e)
         {
-            if(OnExceptionInUpdate != null)
+            if(UpdateExceptionThrown != null)
             {
-                OnExceptionInUpdate(e);
+                UpdateExceptionThrown(e);
             }
         }
     }

@@ -383,7 +383,7 @@ namespace SocialPoint.Utils
             });
 
             bool callbackCalled = false;
-            _scheduler.OnExceptionInUpdate += e => {
+            _scheduler.UpdateExceptionThrown += e => {
                 callbackCalled = true;
                 Assert.AreEqual(exception, e);
             };

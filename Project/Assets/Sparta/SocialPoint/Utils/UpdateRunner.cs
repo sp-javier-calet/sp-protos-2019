@@ -44,7 +44,7 @@ namespace SocialPoint.Utils
 
         bool Contains(IDeltaUpdateable elm);
 
-        event Action<Exception> OnExceptionInUpdate;
+        event Action<Exception> UpdateExceptionThrown;
     }
 
     public static class UpdateSchedulerExtension
@@ -153,7 +153,7 @@ namespace SocialPoint.Utils
 
         double _lastUpdateTimestamp;
 
-        public event Action<Exception> OnExceptionInUpdate;
+        public event Action<Exception> UpdateExceptionThrown;
 
         public UpdateScheduler()
         {
@@ -345,9 +345,9 @@ namespace SocialPoint.Utils
                 }
                 catch(Exception e)
                 {
-                    if(OnExceptionInUpdate != null)
+                    if(UpdateExceptionThrown != null)
                     {
-                        OnExceptionInUpdate(e);
+                        UpdateExceptionThrown(e);
                     }
                     _exceptions.Add(e);
                 }
