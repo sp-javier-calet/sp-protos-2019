@@ -4,10 +4,8 @@ using SocialPoint.GUIControl;
 
 public class RotateForEverAnimation : UIViewAnimation
 {
+    Vector3 _eulerRotation;
     bool _keepOriginalRotation;
-    float _angleX;
-    float _angleY;
-    float _angleZ;
 
     Transform _transform;
 
@@ -16,11 +14,9 @@ public class RotateForEverAnimation : UIViewAnimation
         _transform = gameObject.transform;
     }
 
-    public RotateForEverAnimation(float angleX, float angleY, float angleZ, bool keepOriginalRotation)
+    public RotateForEverAnimation(Vector3 eulerRotation, bool keepOriginalRotation)
     {
-        _angleX = angleX;
-        _angleY = angleY;
-        _angleZ = angleZ;
+        _eulerRotation = eulerRotation;
         _keepOriginalRotation = keepOriginalRotation;
     }
 
@@ -33,7 +29,7 @@ public class RotateForEverAnimation : UIViewAnimation
 
         while(true)
         {
-            _transform.Rotate(_angleX  * Time.deltaTime, _angleY  * Time.deltaTime, _angleZ  * Time.deltaTime); 
+            _transform.Rotate(_eulerRotation * Time.deltaTime); 
             yield return null;
         }
     }        
@@ -42,14 +38,11 @@ public class RotateForEverAnimation : UIViewAnimation
 [CreateAssetMenu(menuName = "UI Animations/Rotate For Ever Animation")]
 public class RotateForEverAnimationFactory : UIViewAnimationFactory
 {
+    public Vector3 _eulerRotation;
     public bool _keepOriginalRotation;
-    public float _angleX;
-    public float _angleY;
-    public float _angleZ;
 
     public override UIViewAnimation Create()
     {
-        return new RotateForEverAnimation(_angleX, _angleY, _angleZ, _keepOriginalRotation);
+        return new RotateForEverAnimation(_eulerRotation, _keepOriginalRotation);
     }
 }
-

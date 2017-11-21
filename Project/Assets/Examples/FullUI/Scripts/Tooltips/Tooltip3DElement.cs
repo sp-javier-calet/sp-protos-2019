@@ -28,7 +28,7 @@ public class Tooltip3DElement : SPTooltipView
 
         _go.transform.rotation = Quaternion.Euler(10f, 0f, -30f);
 
-        var anim = new RotateForEverAnimation(0f, 360f, 0f, true);
+        var anim = new RotateForEverAnimation(new Vector3(0f, 360f, 0f), true);
         if(anim != null)
         {
             anim.Load(_go);
