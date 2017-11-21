@@ -3,7 +3,7 @@ using SocialPoint.GUIControl;
 using System;
 using SocialPoint.Base;
 
-public class Tooltip3DElement : SPTooltipView 
+public class Tooltip3DElement : SPTooltipViewController 
 {
     [SerializeField]
     RectTransform _placeholder;

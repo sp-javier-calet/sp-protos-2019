@@ -2,7 +2,7 @@
 using SocialPoint.GUIControl;
 using UnityEngine.UI;
 
-public class TooltipTextExample : SPTooltipView 
+public class TooltipTextExample : SPTooltipViewController 
 {
     [SerializeField]
     Text _infoText;

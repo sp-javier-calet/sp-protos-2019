@@ -41,7 +41,7 @@ namespace SocialPoint.GUIControl
             _screenBounds = new Rect(0f + ScreenBoundsDelta.x, 0f + ScreenBoundsDelta.y, Screen.width - ScreenBoundsDelta.x, Screen.height - ScreenBoundsDelta.y);
         }
 
-        public void ShowTooltip(GameObject prefab, RectTransform triggerTransform, SPTooltipView.SpikePosition spikePosition, Vector3 offset, float timeToclose)
+        public void ShowTooltip(GameObject prefab, RectTransform triggerTransform, SPTooltipViewController.SpikePosition spikePosition, Vector3 offset, float timeToclose)
         {
             HideTooltip(true);
 
@@ -50,13 +50,13 @@ namespace SocialPoint.GUIControl
                 _currentTooltipGO = CreateTooltip(prefab);
                 if(_currentTooltipGO != null)
                 {
-                    var spTooltipItem = _currentTooltipGO.GetComponent<SPTooltipView>();
+                    var spTooltipItem = _currentTooltipGO.GetComponent<SPTooltipViewController>();
                     if(spTooltipItem != null)
                     {
-                        
-                        spTooltipItem.Init(_screenBounds, _rectTransform, triggerTransform, spikePosition, offset, timeToclose, HideTooltipTimed);
+                        spTooltipItem.HideTimedCallback = HideTooltipTimed;
+                        spTooltipItem.Init(_screenBounds, _rectTransform, triggerTransform, spikePosition, offset, timeToclose);
                         spTooltipItem.LoadAppearAnimation(AppearAnimationFactory, AppearAnimation);
-                        spTooltipItem.ShowTooltip();
+                        spTooltipItem.Show();
                     }
                 }
             }
@@ -69,7 +69,7 @@ namespace SocialPoint.GUIControl
                 var tempTooltipGO = _currentTooltipGO;
                 _currentTooltipGO = null;
 
-                var spTooltipItem = tempTooltipGO.GetComponent<SPTooltipView>();
+                var spTooltipItem = tempTooltipGO.GetComponent<SPTooltipViewController>();
                 if(spTooltipItem != null)
                 {
                     if(spTooltipItem.IsStable)
@@ -77,7 +77,15 @@ namespace SocialPoint.GUIControl
                         spTooltipItem.LoadDisappearAnimation(DisappearAnimationFactory, DisappearAnimation);
                     }
 
-                    spTooltipItem.HideTooltip(!spTooltipItem.IsStable || immediate, () => DestroyTooltip(tempTooltipGO));
+                    spTooltipItem.FinishHideCallback = (() => DestroyTooltip(tempTooltipGO));
+                    if(!spTooltipItem.IsStable || immediate)
+                    {
+                        spTooltipItem.HideImmediate();
+                    }
+                    else
+                    {
+                        spTooltipItem.Hide();
+                    }
                 }
             }
         }

@@ -14,7 +14,7 @@ namespace SocialPoint.GUIControl
         GameObject prefab;
 
         [SerializeField]
-        SPTooltipView.SpikePosition _spikePosition = SPTooltipView.SpikePosition.Default;
+        SPTooltipViewController.SpikePosition _spikePosition = SPTooltipViewController.SpikePosition.Default;
 
         [SerializeField]
         bool _useHover;
@@ -34,7 +34,7 @@ namespace SocialPoint.GUIControl
 
         void Awake()
         {
-            _rectTransform = transform.GetComponent<RectTransform>();
+            _rectTransform = GetComponent<RectTransform>();
         }
 
         void Start()

@@ -7,7 +7,7 @@ using System;
 namespace SocialPoint.GUIControl
 {
     [AddComponentMenu("UI/Extensions/SPTooltip Item")]
-    public class SPTooltipView : UIViewController
+    public class SPTooltipViewController : UIViewController
     {
         public enum SpikePosition
         {
@@ -25,8 +25,8 @@ namespace SocialPoint.GUIControl
         [SerializeField]
         RectTransform _spikeTransform;
 
-        Action _finishHideCallback;
-        Action _hideTimedCallback;
+        public Action FinishHideCallback;
+        public Action HideTimedCallback;
 
         Canvas _baseCanvas;
         RectTransform _uiControllerTransform;
@@ -44,12 +44,12 @@ namespace SocialPoint.GUIControl
 
         //        EventSystem _eventSystem;
 
-        public SPTooltipView()
+        public SPTooltipViewController()
         {
             IsFullScreen = false;
         }
 
-        public void Init(Rect screenBounds, RectTransform uiControllerTransform, RectTransform triggerTransform, SpikePosition spikePosition, Vector3 offset, float timeToClose, Action hideTimedCallback)
+        public void Init(Rect screenBounds, RectTransform uiControllerTransform, RectTransform triggerTransform, SpikePosition spikePosition, Vector3 offset, float timeToClose)
         {
 //            _eventSystem = Services.Instance.Resolve<EventSystem>();
 
@@ -66,7 +66,6 @@ namespace SocialPoint.GUIControl
             _spikePosition = spikePosition;
             _offset = offset;
             _timeToClose = timeToClose;
-            _hideTimedCallback = hideTimedCallback;
 
             SetTooltipInfo();
         }
@@ -81,8 +80,10 @@ namespace SocialPoint.GUIControl
             _baseTransform.localScale = Vector3.one;
         }
 
-        public void ShowTooltip()
+        protected override void OnAppearing()
         {
+            base.OnAppearing();
+
             _baseTransform.SetParent(_uiControllerTransform);
 
             _camera = _baseCanvas.GetCamera();
@@ -91,11 +92,9 @@ namespace SocialPoint.GUIControl
             {
                 if(!TryToRepositionAsBestFit())
                 {
-                    Log.w("Tooltip cannot be fit correctly in screen. Move the tooltip trigger " + _triggerTransform.name + " to a new desired position");
+                    DebugLog("Tooltip cannot be fit correctly in screen. Move the tooltip trigger " + _triggerTransform.name + " to a new desired position");
                 }
             }
-                
-            Show();
         }
             
         protected override void OnAppeared()
@@ -106,29 +105,36 @@ namespace SocialPoint.GUIControl
             _time = 0f;
         }
 
-        public void HideTooltip(bool immediate, Action finishHideCallback)
-        {
-            if(IsStable)
-            {
-                _finishHideCallback = finishHideCallback;
+//        protected override void OnDisappearing()
+//        {
+//            base.OnDisappearing();
+//
+//                FinishHideCallback = finis;
+//        }
 
-                if(immediate)
-                {
-                    Hide();
-                }
-                else
-                {
-                    HideImmediate();
-                }
-            }
-        }
+//        public void HideTooltip(bool immediate, Action finishHideCallback)
+//        {
+//            if(IsStable)
+//            {
+//                _finishHideCallback = finishHideCallback;
+//
+//                if(immediate)
+//                {
+//                    Hide();
+//                }
+//                else
+//                {
+//                    HideImmediate();
+//                }
+//            }
+//        }
 
         protected override void OnDisappeared()
         {
-            if(_finishHideCallback != null)
+            if(FinishHideCallback != null)
             {
-                _finishHideCallback();
-                _finishHideCallback = null;
+                FinishHideCallback();
+                FinishHideCallback = null;
             }
 
             base.OnDisappeared();
@@ -200,10 +206,10 @@ namespace SocialPoint.GUIControl
                 {
                     _closeTimed = false;
 
-                    if(_hideTimedCallback != null)
+                    if(HideTimedCallback != null)
                     {
-                        _hideTimedCallback();
-                        _hideTimedCallback = null;
+                        HideTimedCallback();
+                        HideTimedCallback = null;
                     }
                 }
             }
