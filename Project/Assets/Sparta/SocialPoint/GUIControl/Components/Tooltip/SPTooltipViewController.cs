@@ -1,8 +1,8 @@
-﻿using UnityEngine;
-using SocialPoint.GUIControl;
-using UnityEngine.EventSystems;
+﻿using System;
 using SocialPoint.Base;
-using System;
+using SocialPoint.GUIControl;
+using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace SocialPoint.GUIControl
 {
@@ -104,31 +104,7 @@ namespace SocialPoint.GUIControl
             _closeTimed = _timeToClose > 0f;
             _time = 0f;
         }
-
-//        protected override void OnDisappearing()
-//        {
-//            base.OnDisappearing();
-//
-//                FinishHideCallback = finis;
-//        }
-
-//        public void HideTooltip(bool immediate, Action finishHideCallback)
-//        {
-//            if(IsStable)
-//            {
-//                _finishHideCallback = finishHideCallback;
-//
-//                if(immediate)
-//                {
-//                    Hide();
-//                }
-//                else
-//                {
-//                    HideImmediate();
-//                }
-//            }
-//        }
-
+            
         protected override void OnDisappeared()
         {
             if(FinishHideCallback != null)

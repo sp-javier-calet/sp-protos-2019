@@ -1,9 +1,9 @@
-﻿using SocialPoint.Dependency;
+﻿using System;
+using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
+using SocialPoint.Pooling;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using System;
-using SocialPoint.Pooling;
 
 namespace SocialPoint.GUIControl
 {
