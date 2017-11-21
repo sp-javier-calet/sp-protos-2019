@@ -76,7 +76,7 @@ namespace SocialPoint.Multiplayer
             }
         }
 
-        void IDeltaUpdateable.Update(float elapsed)
+        void IDeltaUpdateable<float>.Update(float elapsed)
         {
             
         }
