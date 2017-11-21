@@ -16,6 +16,8 @@ namespace SocialPoint.Utils
 
     public sealed class UnityUpdateRunner : MonoBehaviour, ICoroutineRunner, IUpdateScheduler
     {
+        const float kMaxUnscaledDelta = 0.5f;
+
         readonly UpdateScheduler _scheduler = new UpdateScheduler();
 
         public void Add(IUpdateable elm, UpdateableTimeMode mode = UpdateableTimeMode.GameTimeUnscaled, float interval = 0.0f)
@@ -28,7 +30,7 @@ namespace SocialPoint.Utils
             _scheduler.Add(elm, mode, interval);
         }
 
-        public void Add(IDeltaUpdateable<int> elm, UpdateableTimeIntMode mode = UpdateableTimeIntMode.RealTime, int interval = 0)
+        public void Add(IDeltaUpdateable<int> elm, UpdateableTimeIntMode mode = UpdateableTimeIntMode.GameTimeUnscaled, int interval = 0)
         {
             _scheduler.Add(elm, mode, interval);
         }
@@ -84,9 +86,9 @@ namespace SocialPoint.Utils
         {
             /* NOTE: Unity's Time.unscaledDeltaTime is counting time while in background (BUG?), 
              * but we want an unscaled game-time-only for UnscaledDeltaTime, 
-             * so we divide delta by scale instead.
+             * so we ignore big deltas in Time.unscaledDeltaTime.
              * */
-            float unscaledDeltaTime = (Time.timeScale == 0.0f) ? 0.0f : Time.deltaTime / Time.timeScale;
+            float unscaledDeltaTime = (Time.unscaledDeltaTime > kMaxUnscaledDelta) ? kMaxUnscaledDelta : Time.unscaledDeltaTime;
             _scheduler.Update(Time.deltaTime, unscaledDeltaTime);
         }
     }
