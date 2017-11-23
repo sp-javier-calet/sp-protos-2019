@@ -31,8 +31,6 @@ MonoBehaviour:
       MaxConnectivityErrorRetries: 0
       EnableLinkConfirmRetries: 0
       UserMappingsBlock: 50
-      GameID: ssp
-      GameEnvironment: ssp1
     Events:
       UseEmpty: 0
       AutoStart: 1
@@ -49,6 +47,7 @@ MonoBehaviour:
       ExceptionLogActive: 1
       EnableSendingCrashesBeforeLogin: 0
       NumRetriesBeforeSendingCrashBeforeLogin: 3
+      TrackUpdateExceptionsAsHandled: 1
     QualityStats:
       UseEmpty: 1
     MessageCenter:

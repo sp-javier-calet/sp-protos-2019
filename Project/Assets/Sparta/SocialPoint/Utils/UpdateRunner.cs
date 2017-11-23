@@ -373,7 +373,7 @@ namespace SocialPoint.Utils
             return time;
         }
 
-        sealed class AggregateException : Exception
+        public sealed class AggregateException : Exception
         {
             static string CreateMessage(IEnumerable<Exception> exceptions)
             {

@@ -47,6 +47,7 @@ MonoBehaviour:
       ExceptionLogActive: 1
       EnableSendingCrashesBeforeLogin: 0
       NumRetriesBeforeSendingCrashBeforeLogin: 3
+      TrackUpdateExceptionsAsHandled: 1
     QualityStats:
       UseEmpty: 1
     MessageCenter:
