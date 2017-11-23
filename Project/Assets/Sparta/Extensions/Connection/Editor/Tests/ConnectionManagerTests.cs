@@ -77,7 +77,7 @@ namespace SocialPoint.Connection
 
             _connectionManager.Update();
 
-            CallOnDelegates(del => del.OnNetworkError(new Error()));
+            Assert.DoesNotThrow(() => CallOnDelegates(del => del.OnNetworkError(new Error())));
         }
 
         [Test]
@@ -94,7 +94,7 @@ namespace SocialPoint.Connection
 
             _connectionManager.Update();
 
-            CallOnDelegates(del => del.OnNetworkError(new Error()));
+            Assert.DoesNotThrow(() => CallOnDelegates(del => del.OnNetworkError(new Error())));
         }
     }
 }
