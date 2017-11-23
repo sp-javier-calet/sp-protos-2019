@@ -2,7 +2,6 @@
 using SocialPoint.Base;
 using SocialPoint.GUIControl;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace SocialPoint.GUIControl
 {
@@ -42,8 +41,6 @@ namespace SocialPoint.GUIControl
 
         SpikePosition[] BestFitSpikeDirection = { SpikePosition.Top, SpikePosition.Bottom, SpikePosition.Left, SpikePosition.Right };
 
-        //        EventSystem _eventSystem;
-
         public SPTooltipViewController()
         {
             IsFullScreen = false;
@@ -51,8 +48,6 @@ namespace SocialPoint.GUIControl
 
         public void Init(Rect screenBounds, RectTransform uiControllerTransform, RectTransform triggerTransform, SpikePosition spikePosition, Vector3 offset, float timeToClose)
         {
-//            _eventSystem = Services.Instance.Resolve<EventSystem>();
-
             _baseCanvas = GetComponent<Canvas>();
             if(_baseCanvas == null)
             {
@@ -191,20 +186,4 @@ namespace SocialPoint.GUIControl
             }
         }
     }
-        
-    // TEST WHILE WE CANNOT PROCESS CLICKS IN FULL SCREEN
-    //        void Update()
-    //        {
-    //            if(_isShown && Input.GetMouseButtonUp(0))
-    //            {
-    //                // Does the RectTransform contain the screen point as seen from the given camera?
-    //                Camera renderingCamera = _transform.GetRectScreenPointCamera(_canvas);
-    //                bool contains = RectTransformUtility.RectangleContainsScreenPoint(_transform, Input.mousePosition, renderingCamera);
-    //                if(!contains)
-    //                {
-    //                    HideTooltip();
-    //                }
-    //            }
-    //        }
-    //    }
 }
