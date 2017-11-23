@@ -8,29 +8,29 @@ using UnityEngine.EventSystems;
 namespace SocialPoint.GUIControl
 {
     [AddComponentMenu("UI/Extensions/SPTooltip Trigger")]
-    public class SPTooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
+    public class SPTooltipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
-        [SerializeField]
-        GameObject prefab;
-
-        [SerializeField]
-        SPTooltipViewController.SpikePosition _spikePosition = SPTooltipViewController.SpikePosition.Default;
-
-        [SerializeField]
-        bool _useHover;
-
-        [SerializeField]
-        bool _useOffsetHover;
-
-        [SerializeField]
-        Vector3 _offset;
-
-        [SerializeField]
-        float _timeToClose = 0;
+        public enum TriggerType
+        {
+            Press,
+            Hold,
+            Hover
+        }
+            
+        public GameObject Prefab;
+        public TriggerType PressType;
+        public SPTooltipViewController.SpikePosition SpikePosition = SPTooltipViewController.SpikePosition.Default;
+        public float HoldTime;
+        public Vector3 Offset;
+        public float TimeToClose;
 
         UITooltipController _tooltipController;
         RectTransform _rectTransform;
         bool _hovering;
+        bool _holding;
+        float _time;
+
+        #region Unity methods
 
         void Awake()
         {
@@ -47,51 +47,64 @@ namespace SocialPoint.GUIControl
 
             if(_tooltipController.UsePooling)
             {
-                UnityObjectPool.CreatePool(prefab, 1);
+                UnityObjectPool.CreatePool(Prefab, 1);
             }
         }
-            
-        #region IPointerEnterHandler implementation
 
+        void LateUpdate()
+        {
+            if(_holding)
+            {
+                _time += Time.deltaTime;
+                if(_time >= HoldTime)
+                {
+                    _holding = false;
+                    ShowTooltip();
+                }
+            }
+        }
+
+        #endregion
+           
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if(_useHover && !_hovering)
+            if(PressType == TriggerType.Hover && !_hovering)
             {
                 _hovering = true;
                 ShowTooltip();
             }
         }
 
-        #endregion
-
-        #region IPointerExitHandler implementation
-
         public void OnPointerExit(PointerEventData eventData)
         {
-            if(_useHover && _hovering)
+            if(PressType == TriggerType.Hover && _hovering)
             {
                 _hovering = false;
                 HideTooltip();
             }
         }
-
-        #endregion
-
-        #region IPointerDownHandler implementation
-
+            
         public void OnPointerDown(PointerEventData eventData)
         {
-            if(!_useHover)
+            if(PressType == TriggerType.Press)
             {
                 ShowTooltip();
             }
+            else if(PressType == TriggerType.Hold)
+            {
+                _holding = true;
+                _time = 0f;
+            }
         }
 
-        #endregion
-
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            _holding = false;
+        }
+            
         void ShowTooltip()
         {
-            _tooltipController.ShowTooltip(prefab, _rectTransform, _spikePosition, (_useHover && _useOffsetHover ? _offset : Vector3.zero), (_useHover ? 0f : _timeToClose));
+            _tooltipController.ShowTooltip(Prefab, _rectTransform, SpikePosition, Offset, (PressType == TriggerType.Hover ? 0f : TimeToClose));
         }
             
         void HideTooltip()

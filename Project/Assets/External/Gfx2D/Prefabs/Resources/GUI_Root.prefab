@@ -1397,6 +1397,9 @@ MonoBehaviour:
   _containers3d: []
   UsePooling: 1
   ScreenBoundsDelta: {x: 0, y: 0}
+  _ignoreDispatcherMask:
+    serializedVersion: 2
+    m_Bits: 131072
 --- !u!114 &114584113985035820
 MonoBehaviour:
   m_ObjectHideFlags: 1

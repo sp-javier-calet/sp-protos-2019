@@ -2,10 +2,12 @@
 using SocialPoint.Pooling;
 using SocialPoint.Base;
 using SocialPoint.Dependency;
+using SocialPoint.EventSystems;
+using UnityEngine.EventSystems;
 
 namespace SocialPoint.GUIControl
 {
-    public class UITooltipController : UIViewController
+    public class UITooltipController : UIViewController, IPointerDownHandler
     {
         public const float DefaultAnimationTime = 1.0f;
         float AnimationTime = DefaultAnimationTime;
@@ -13,15 +15,28 @@ namespace SocialPoint.GUIControl
         public bool UsePooling = true;
         public Vector2 ScreenBoundsDelta = Vector2.zero;
 
+        [SerializeField]
+        LayerMask _ignoreDispatcherMask;
+
         GameObject _currentTooltipGO;
         GameObject _tempTooltipGO;
         RectTransform _rectTransform;
         Rect _screenBounds;
+        ActionStandaloneInputModule _eventSystem;
 
         public bool TooltipIsShown
         {
             get { return _currentTooltipGO != null; }
         }
+
+        #region IPointerDownHandler implementation
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            HideTooltip(false);
+        }
+
+        #endregion
 
         protected override void OnAwake()
         {
@@ -39,6 +54,22 @@ namespace SocialPoint.GUIControl
             DisappearAnimation = new FadeAnimation(AnimationTime, 1f, 0f);
 
             _screenBounds = new Rect(0f + ScreenBoundsDelta.x, 0f + ScreenBoundsDelta.y, Screen.width - ScreenBoundsDelta.x, Screen.height - ScreenBoundsDelta.y);
+
+            _eventSystem = Services.Instance.Resolve<ActionStandaloneInputModule>();
+            if(_eventSystem != null)
+            {
+                _eventSystem.AddEventListener(gameObject, _ignoreDispatcherMask);
+            }
+        }
+
+        protected override void OnDestroy()
+        {
+            if(_eventSystem != null)
+            {
+                _eventSystem.RemoveEventListener(gameObject);
+            }
+
+            base.OnDestroy();
         }
 
         public void ShowTooltip(GameObject prefab, RectTransform triggerTransform, SPTooltipViewController.SpikePosition spikePosition, Vector3 offset, float timeToclose)
