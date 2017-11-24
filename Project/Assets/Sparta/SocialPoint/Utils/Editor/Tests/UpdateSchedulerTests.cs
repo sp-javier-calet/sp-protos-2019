@@ -365,10 +365,10 @@ namespace SocialPoint.Utils
             updateable.Received(1).Update(0);
             System.Threading.Thread.Sleep(100);
             _scheduler.Update(0.05f, 0.05f);
-            updateable.Received(1).Update(Arg.Is<int>( x => x > 100 && x < 150 ));
+            updateable.Received(1).Update(Arg.Is<int>( x => x >= 100 ));
             System.Threading.Thread.Sleep(200);
             _scheduler.Update(0.0f, 0.0f);
-            updateable.Received(1).Update(Arg.Is<int>( x => x > 200 && x < 250 ));
+            updateable.Received(1).Update(Arg.Is<int>( x => x >= 200 ));
         }
 
         [Test]
