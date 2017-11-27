@@ -15,25 +15,34 @@ namespace SocialPoint.Utils
             while(itr.MoveNext())
             {
                 var ex = itr.Current;
-                sb.Append(count++)
-                    .Append(". ")
-                    .Append(ex.GetType().Name)
-                    .Append(": ")
-                    .AppendLine(ex.Message);
-
-                // InnerException stacktrace usually has more valuable data. Still, as it may be null sometimes, we should check.
-                if(ex.InnerException != null)
-                {
-                    sb.AppendLine(ex.InnerException.StackTrace);
-                }
-                else
-                {
-                    sb.AppendLine(ex.StackTrace);
-                }
-                sb.AppendLine();
+                sb.Append(count++).Append(". ");
+                AddException(sb, ex);
             }
             itr.Dispose();
             return sb.ToString();
+        }
+
+        static void AddException(StringBuilder sb, Exception ex, int lvl=0)
+        {
+            var prefix = new StringBuilder();
+            for(var i = 0; i < lvl; i++)
+            {
+                prefix.Append("    ");
+            }
+            sb.Append(prefix)
+                .Append(ex.GetType().Name)
+                .Append(": ")
+                .AppendLine(ex.Message);
+            var stack = ex.StackTrace;
+            if(!string.IsNullOrEmpty(stack))
+            {
+                stack = stack.Replace("\n", "\n"+prefix.ToString());
+                sb.Append(prefix).AppendLine(stack);
+            }
+            if(ex.InnerException != null)
+            {
+                AddException(sb, ex.InnerException, lvl+1);
+            }
         }
 
         public List<Exception> Exceptions { get; private set; }
