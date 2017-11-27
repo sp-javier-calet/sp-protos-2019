@@ -29,9 +29,11 @@ namespace SocialPoint.Utils
         [Test]
         public void ConvertToString()
         {
+            var stack = @"first line
+second line";
             var str = new AggregateException(new Exception[] {
-                new Exception("outer1", new TestException("inner1", "first line\nsecond line", new Exception("inner2"))),
-                new TestException("outer2", "first line\nsecond line", new Exception("inner1"))
+                new Exception("outer1", new TestException("inner1", stack, new Exception("inner2"))),
+                new TestException("outer2", stack, new Exception("inner1"))
             }).ToString();
             Assert.AreEqual(@"SocialPoint.Utils.AggregateException: Multiple Exceptions thrown:
 1. Exception: outer1
