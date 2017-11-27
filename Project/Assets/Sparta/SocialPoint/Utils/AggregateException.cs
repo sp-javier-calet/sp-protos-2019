@@ -36,7 +36,7 @@ namespace SocialPoint.Utils
             var stack = ex.StackTrace;
             if(!string.IsNullOrEmpty(stack))
             {
-                stack = stack.Replace("\n", "\n"+prefix.ToString());
+                stack = stack.Replace(Environment.NewLine, Environment.NewLine+prefix.ToString());
                 sb.Append(prefix).AppendLine(stack);
             }
             if(ex.InnerException != null)
