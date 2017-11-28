@@ -8,6 +8,8 @@ using SocialPoint.Utils;
 using UnityEngine;
 using System.Text;
 using SocialPoint.Base;
+using SocialPoint.AdminPanel;
+using SocialPoint.Attributes;
 
 public class GUIInstaller : Installer, IDisposable
 {
@@ -15,6 +17,7 @@ public class GUIInstaller : Installer, IDisposable
     const string kUIViewControllerSuffix = "Controller";
     const string kGUIRootPrefab = "GUI_Root";
     const string kUIViewControllerExamplePrefix = "GUI_";
+    const string kPersistentTag = "persistent";
 
     const float DefaultAnimationTime = 1.0f;
 
@@ -64,7 +67,21 @@ public class GUIInstaller : Installer, IDisposable
 
         Container.Bind<IEventsBridge>().ToSingle<GUIControlBridge>();
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
+
+        #if ADMIN_PANEL
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelUI>(CreateAdminPanel);
+        #endif
     }
+
+    #if ADMIN_PANEL
+    AdminPanelUI CreateAdminPanel()
+    {
+        var safeArea = new Rect(132f, 0f, 2172f, 1062f);
+        var storage = Container.Resolve<IAttrStorage>(kPersistentTag);
+
+        return new AdminPanelUI(safeArea, storage);
+    }
+    #endif
 
     void ShowCloseAppAlertView()
     {
