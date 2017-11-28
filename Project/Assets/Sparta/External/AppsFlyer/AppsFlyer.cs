@@ -146,8 +146,6 @@ public class AppsFlyer : MonoBehaviour {
 
 	private static AndroidJavaClass obj = new AndroidJavaClass ("com.appsflyer.AppsFlyerLib");
 	private static AndroidJavaObject cls_AppsFlyer = obj.CallStatic<AndroidJavaObject>("getInstance");
-	private static AndroidJavaClass propertiesClass = new AndroidJavaClass ("com.appsflyer.AppsFlyerProperties");
-	private static AndroidJavaObject afPropertiesInstance = propertiesClass.CallStatic<AndroidJavaObject>("getInstance");
 	private static AndroidJavaClass cls_AppsFlyerHelper = new AndroidJavaClass("com.appsflyer.AppsFlyerUnityHelper");
 	private static string devKey;
 
