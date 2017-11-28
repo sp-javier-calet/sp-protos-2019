@@ -31,6 +31,10 @@ namespace SocialPoint.Marketing
         {
             layout.CreateLabel("Marketing");
             layout.CreateMargin();
+
+            CreateAppsFlyerEntry(layout);
+            layout.CreateMargin();
+
             layout.CreateToggleButton("Debug Mode", _manager.DebugMode, debug => {
                 _manager.DebugMode = debug;
             });
@@ -44,6 +48,12 @@ namespace SocialPoint.Marketing
         }
 
         #endregion
+
+        void CreateAppsFlyerEntry(AdminPanelLayout layout)
+        {
+            var appsFlyerTracker = _manager.GetTracker(SocialPointAppsFlyer.TrackerName) as SocialPointAppsFlyer;
+            layout.CreateOpenPanelButton("Apps Flyer", new AdminPanelMarketingAppsFlyer(appsFlyerTracker), /*enabled*/(appsFlyerTracker != null));
+        }
     }
 }
 
