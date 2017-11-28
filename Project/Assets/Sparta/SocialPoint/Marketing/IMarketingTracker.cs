@@ -19,6 +19,8 @@ namespace SocialPoint.Marketing
 
     public interface IMarketingTracker : IDisposable
     {
+        string Name { get; }
+
         void Init();
 
         void SetUserID(string userID);

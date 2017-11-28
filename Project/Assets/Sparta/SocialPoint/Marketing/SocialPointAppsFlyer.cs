@@ -6,17 +6,47 @@ using UnityEngine;
 
 public sealed class SocialPointAppsFlyer : IMarketingTracker
 {
-    const string TrackerName = "appsflyer";
+    public struct AFConversionData
+    {
+        public string AdId;
+        public string Status;
+        public string MediaSource;
+        public string Campaign;
+    }
+
+    public const string TrackerName = "appsflyer";
+    public const string NonOrganicInstall = "Non-organic";
+    public const string OrganicInstall = "Organic";
+    public const string AdvertisingIdentifierKey = "ad_id";
+
     AppsFlyerTrackerCallbacks _trackerDelegate;
 
     public string AppsFlyerKey;
     public string AppID;
 
+    public AFConversionData ConversionData
+    {
+        get;
+        private set;
+    }
+
     #region IMarketingTracker implementation
+
+    public string Name
+    { 
+        get
+        {
+            return TrackerName;
+        }
+    }
 
     public void Init()
     {
         SetupAppsFlyerDelegate();
+        DebugUtils.Assert(!String.IsNullOrEmpty(AppsFlyerKey));
+        AppsFlyer.setAppsFlyerKey(AppsFlyerKey);
+        DebugUtils.Assert(!String.IsNullOrEmpty(AppID));
+        AppsFlyer.setAppID(AppID);
     }
 
     public void SetUserID(string userID)
@@ -26,26 +56,14 @@ public sealed class SocialPointAppsFlyer : IMarketingTracker
 
     public void TrackInstall(bool isNewInstall)
     {
-        DebugUtils.Assert(!String.IsNullOrEmpty(AppID));
-        AppsFlyer.setAppID(AppID);
-
-        if(isNewInstall)
-        {
-            #if UNITY_IOS
-            AppsFlyer.getConversionData();
-            #elif UNITY_ANDROID
-            AppsFlyer.loadConversionData("AppsFlyerTrackerCallbacks");
-            #endif
-        }
-
-        /* We set AppsFlyer key here (and not on Init) because it triggers a trackAppLaunch on Android,
-         * and we enclose our trackAppLaunch call inside the iOS ifdef because of that reason.
-         * (It was happening with v4.14 of the Unity Plugin)
-         * */
-        DebugUtils.Assert(!String.IsNullOrEmpty(AppsFlyerKey));
-        AppsFlyer.setAppsFlyerKey(AppsFlyerKey);
         #if UNITY_IOS
+        AppsFlyer.getConversionData();
         AppsFlyer.trackAppLaunch();
+        #elif UNITY_ANDROID
+        /* This AppsFlyer.init method calls "loadConversionData" and triggers a "trackAppLaunch" in Android
+         * (v4.15.1 of the Unity Plugin)
+         * */
+        AppsFlyer.init(AppsFlyerKey, "AppsFlyerTrackerCallbacks");
         #endif
     }
 
@@ -75,10 +93,14 @@ public sealed class SocialPointAppsFlyer : IMarketingTracker
             {
                 var parser = new JsonAttrParser();
                 AttrDic conversionDictionary = parser.ParseString(data).AsDic;
+                SetConversionData(conversionDictionary);
 
-                if(conversionDictionary != null && conversionDictionary.ContainsKey("af_status") && conversionDictionary.GetValue("af_status").ToString() == "Non-organic")
+                if(ConversionData.Status == NonOrganicInstall)
                 {
-                    OnDataReceived(new TrackerAttributionData{ trackerName = TrackerName, data = data });
+                    OnDataReceived(new TrackerAttributionData {
+                        trackerName = TrackerName,
+                        data = data
+                    });
                 }
             }
             catch(Exception e)
@@ -86,6 +108,19 @@ public sealed class SocialPointAppsFlyer : IMarketingTracker
                 Log.x(e);
             }
         }
+    }
+
+    void SetConversionData(AttrDic conversionDictionary)
+    {
+        var afData = new AFConversionData();
+        afData.Status = conversionDictionary.Get("af_status").ToString();
+        if(ConversionData.Status == NonOrganicInstall)
+        {
+            afData.AdId = conversionDictionary.Get(AdvertisingIdentifierKey).ToString();
+            afData.MediaSource = conversionDictionary.Get("media_source").ToString();
+            afData.Campaign = conversionDictionary.Get("campaign").ToString();
+        }
+        ConversionData = afData;
     }
 
     #region IDisposable implementation

@@ -4,6 +4,14 @@ public sealed class EmptyAppsFlyer : IMarketingTracker
 {
     #region IMarketingTracker implementation
 
+    public string Name
+    { 
+        get
+        {
+            return SocialPointAppsFlyer.TrackerName;
+        }
+    }
+
     public void Init()
     {
     }
