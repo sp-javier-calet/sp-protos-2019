@@ -5,6 +5,9 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 
+/*
+ v4.15.1
+*/
 public class AppsFlyer : MonoBehaviour {
 	
 	
@@ -143,8 +146,8 @@ public class AppsFlyer : MonoBehaviour {
 
 	private static AndroidJavaClass obj = new AndroidJavaClass ("com.appsflyer.AppsFlyerLib");
 	private static AndroidJavaObject cls_AppsFlyer = obj.CallStatic<AndroidJavaObject>("getInstance");
-//	private static AndroidJavaClass propertiesClass = new AndroidJavaClass ("com.appsflyer.AppsFlyerProperties");
-//	private static AndroidJavaObject afPropertiesInstance = propertiesClass.CallStatic<AndroidJavaObject>("getInstance");
+	private static AndroidJavaClass propertiesClass = new AndroidJavaClass ("com.appsflyer.AppsFlyerProperties");
+	private static AndroidJavaObject afPropertiesInstance = propertiesClass.CallStatic<AndroidJavaObject>("getInstance");
 	private static AndroidJavaClass cls_AppsFlyerHelper = new AndroidJavaClass("com.appsflyer.AppsFlyerUnityHelper");
 	private static string devKey;
 
@@ -194,6 +197,17 @@ public class AppsFlyer : MonoBehaviour {
 		cls_AppsFlyer.Call("setCollectAndroidID", shouldCollect);
 	}
 
+	/**
+	*  This method initializes AppsFlyer SDK with getConversionData callback
+	*/
+	public static void init(string key, string callbackObject){
+		AppsFlyer.init(key);
+
+		if(callbackObject != null){
+	      AppsFlyer.loadConversionData(callbackObject);
+		}
+	}
+
 	public static void init(string key){
 		print("AF.cs init");
 		devKey = key;
@@ -203,6 +217,8 @@ public class AppsFlyer : MonoBehaviour {
 			}
 		}
 	}
+
+
 
 	static void init_cb() {
 
@@ -364,7 +380,8 @@ public class AppsFlyer : MonoBehaviour {
 	public static void registerUninstall(byte[] token) {}
 	public static void setCollectIMEI (bool shouldCollect) {}
 	public static void createValidateInAppListener(string aObject, string callbackMethod, string callbackFailedMethod){}
-	public static void init (string devKey){}
+	public static void init(string devKey){}
+	public static void init(string devKey, string callbackObject){}
 	public static void setImeiData(string imeiData){}
 	public static void trackEvent(string eventName,string eventValue){}
 	public static void setCurrencyCode(string currencyCode){}
