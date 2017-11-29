@@ -3,23 +3,23 @@ using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.IO;
 using SocialPoint.Network;
-using SocialPoint.Utils;
+using SocialPoint.Components;
 using SocialPoint.Base;
 
 namespace SocialPoint.Multiplayer
 {
-    public class NetworkActionHandler
+    public class NetworkActionProcessor
     {
-        NetworkSceneActionHandler _actionHandler;
+        NetworkSceneActionProcessor _actionProcessor;
         TypedWriteSerializer _actionSerializer;
         TypedReadParser _actionParser;
 
         NetworkScene _scene;
         INetworkMessageSender _messageSender;
 
-        public NetworkActionHandler(NetworkScene scene, INetworkMessageSender messageSender)
+        public NetworkActionProcessor(NetworkScene scene, INetworkMessageSender messageSender)
         {
-            _actionHandler = new NetworkSceneActionHandler();
+            _actionProcessor = new NetworkSceneActionProcessor();
             _actionSerializer = new TypedWriteSerializer();
             _actionParser = new TypedReadParser();
             _scene = scene;
@@ -93,29 +93,29 @@ namespace SocialPoint.Multiplayer
 
         bool ApplyAction(object action, NetworkSceneMemento sceneMemento)
         {
-            return _actionHandler.HandleAction(sceneMemento, action);
+            return _actionProcessor.Handle(sceneMemento, action);
         }
 
         public void RegisterAction<T>(byte msgType, Action<NetworkSceneMemento, T> callback = null) where T : INetworkShareable, new()
         {
             if(callback != null)
             {
-                _actionHandler.Register(callback);
+                _actionProcessor.Register(callback);
             }
             _actionParser.Register<T>(msgType);
             _actionSerializer.Register<T>(msgType);
         }
 
-        public void RegisterAction<T>(byte msgType, IActionHandler<NetworkSceneMemento, T> handler) where T : INetworkShareable, new()
+        public void RegisterAction<T>(byte msgType, IStateActionHandler<NetworkSceneMemento, T> handler) where T : INetworkShareable, new()
         {
-            _actionHandler.Register(handler);
+            _actionProcessor.Register(handler);
             _actionParser.Register<T>(msgType);
             _actionSerializer.Register<T>(msgType);
         }
 
         public void UnregisterAction<T>()
         {
-            _actionHandler.Unregister<T>();
+            _actionProcessor.Unregister<T>();
             _actionParser.Unregister<T>();
             _actionSerializer.Unregister<T>();
         }

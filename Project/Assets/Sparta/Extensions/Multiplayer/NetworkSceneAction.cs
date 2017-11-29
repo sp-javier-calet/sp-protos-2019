@@ -1,13 +1,13 @@
 ﻿
-using SocialPoint.Utils;
+using SocialPoint.Components;
 
 namespace SocialPoint.Multiplayer
 {
-    public interface INetworkSceneActionHandler<T> : IActionHandler<NetworkScene, T>
+    public interface INetworkSceneActionHandler<T> : IStateActionHandler<NetworkScene, T>
     {
     }
 
-    public interface INetworkSceneAction : IAppliable<NetworkScene>
+    public interface INetworkSceneAction : IStateAppliable<NetworkScene>
     {
     }
 
@@ -40,7 +40,7 @@ namespace SocialPoint.Multiplayer
         }
     }
 
-    public class NetworkSceneActionHandler : ActionHandler<NetworkSceneMemento>
+    public class NetworkSceneActionProcessor : StateActionProcessor<NetworkSceneMemento>
     {
     }
 }
