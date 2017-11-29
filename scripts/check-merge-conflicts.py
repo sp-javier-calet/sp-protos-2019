@@ -23,22 +23,27 @@ def get_tree_paths(tree, paths):
     for subtree in tree.trees:
         get_tree_paths(subtree, paths)
 
+def fropen(path):
+    if sys.hexversion >= 0x3000000:
+        return open(path,'r', encoding="ISO-8859-1")
+    else:
+        return open(path,'r')
+
 repo = git.Repo(base_path)
 if args.src is None:
     paths = []
     get_tree_paths(repo.tree(args.dst), paths)
-    print args
-    print 'found %d files changed in %s' % (len(paths), args.dst)
+    print('found %d files changed in %s' % (len(paths), args.dst))
 else:
     span = '%s..%s' % (args.src, args.dst)
     paths = repo.git.diff(span, name_only=True).split()
-    print 'found %d files changed from %s to %s' % (len(paths), args.src, args.dst)
+    print('found %d files changed from %s to %s' % (len(paths), args.src, args.dst))
 conflicted = []
 for rpath in paths:
     path = os.path.join(base_path, rpath)
     if os.path.isfile(path):
         if path_pattern is None or fnmatch.fnmatch(path, path_pattern):
-            with open(path,'r') as file:
+            with fropen(path) as file:
                 found = False
                 for line in file:
                     if line.startswith('>>>>>>>') or line.startswith('<<<<<<<'):
@@ -49,7 +54,7 @@ for rpath in paths:
                     break
 
 if len(conflicted) > 0:
-    print >> sys.stderr, ("You have merge markers in the following files:")
+    print("You have merge markers in the following files:")
     for path in conflicted:
-        print >> sys.stderr, path
+        print(path)
     exit(1)
