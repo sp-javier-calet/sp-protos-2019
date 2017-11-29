@@ -2,6 +2,9 @@
 
 using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
+using SocialPoint.Alert;
+using SocialPoint.AppEvents;
+using SocialPoint.Hardware;
 
 namespace SocialPoint.Marketing
 {
@@ -9,11 +12,17 @@ namespace SocialPoint.Marketing
     {
         readonly IMarketingAttributionManager _manager;
         readonly IAttrStorage _storage;
+        readonly IDeviceInfo _deviceInfo;
+        readonly IAppEvents _appEvents;
+        readonly IAlertView _alertPrototype;
 
-        public AdminPanelMarketing(IMarketingAttributionManager manager, IAttrStorage persistentStorage)
+        public AdminPanelMarketing(IMarketingAttributionManager manager, IAttrStorage persistentStorage, IDeviceInfo deviceInfo, IAppEvents appEvents, IAlertView alertPrototype)
         {
             _manager = manager;
             _storage = persistentStorage;
+            _deviceInfo = deviceInfo;
+            _appEvents = appEvents;
+            _alertPrototype = alertPrototype;
         }
 
         #region IAdminPanelConfigurer implementation
@@ -52,7 +61,9 @@ namespace SocialPoint.Marketing
         void CreateAppsFlyerEntry(AdminPanelLayout layout)
         {
             var appsFlyerTracker = _manager.GetTracker(SocialPointAppsFlyer.TrackerName) as SocialPointAppsFlyer;
-            layout.CreateOpenPanelButton("Apps Flyer", new AdminPanelMarketingAppsFlyer(appsFlyerTracker), /*enabled*/(appsFlyerTracker != null));
+            layout.CreateOpenPanelButton("Apps Flyer", 
+                new AdminPanelMarketingAppsFlyer(appsFlyerTracker, _deviceInfo, _appEvents, _alertPrototype), 
+                /*enabled*/(appsFlyerTracker != null));
         }
     }
 }

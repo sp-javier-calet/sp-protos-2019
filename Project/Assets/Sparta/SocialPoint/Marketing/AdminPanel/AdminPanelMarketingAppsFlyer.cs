@@ -1,21 +1,30 @@
 ﻿#if ADMIN_PANEL 
 
-using SocialPoint.AdminPanel;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
+using SocialPoint.AdminPanel;
+using SocialPoint.Alert;
+using SocialPoint.AppEvents;
+using SocialPoint.Hardware;
 
 namespace SocialPoint.Marketing
 {
     public class AdminPanelMarketingAppsFlyer : IAdminPanelGUI
     {
-        SocialPointAppsFlyer _appsFlyerTracker;
+        readonly SocialPointAppsFlyer _appsFlyerTracker;
+        readonly IDeviceInfo _deviceInfo;
+        readonly IAppEvents _appEvents;
+        readonly IAlertView _alertPrototype;
         string _customMediaSource;
         string _customCampaign;
 
-        public AdminPanelMarketingAppsFlyer(SocialPointAppsFlyer appsFlyerTracker)
+        public AdminPanelMarketingAppsFlyer(SocialPointAppsFlyer appsFlyerTracker, IDeviceInfo deviceInfo, IAppEvents appEvents, IAlertView alertPrototype)
         {
             _appsFlyerTracker = appsFlyerTracker;
+            _deviceInfo = deviceInfo;
+            _appEvents = appEvents;
+            _alertPrototype = alertPrototype;
             _customMediaSource = "AdminPanelSource";
             _customCampaign = "AdminPanelCampaign";
         }
@@ -26,34 +35,40 @@ namespace SocialPoint.Marketing
             layout.CreateMargin();
 
             DisplayTitle(layout, "< Device Info >");
-            DisplayInfoField(layout, "IDFA:", "*** TODO ***");
+            DisplayInfoField(layout, "IDFA:", _deviceInfo.AdvertisingId);
+            layout.CreateMargin();
 
             DisplayTitle(layout, "< Install Data Info >");
             SocialPointAppsFlyer.AFConversionData convData = _appsFlyerTracker.ConversionData;
             DisplayConversionData(layout, convData);
+            layout.CreateMargin();
 
             DisplayTitle(layout, "< Attribution Actions >");
             layout.CreateButton("Clean", () => {
-                /*displayActionConfirm([]()
-                        {
-                            clearAndKillApp();
-                        });*/
+                DisplayActionConfirm(() => {
+                    ClearAndKillApp();
+                });
             });
             layout.CreateButton("Install", () => {
-                /*displayActionConfirm([this]()
-                        {
-                            std::string appId = _appsFlyerTracker.getAppIdentifier();
-                            std::string idfaValue = _deviceInfo->getIFDA();
-                            std::string url = createInstallURL(appId, _customMediaSource, _customCampaign, idfaValue);
+                DisplayActionConfirm(() => {
+                    string appId = _appsFlyerTracker.AppID;
+                    string idfaValue = _deviceInfo.AdvertisingId;
+                    string url = CreateInstallURL(appId, _customMediaSource, _customCampaign, idfaValue);
 
-                            NativeUtils::openUrl(url);
-                            clearAndKillApp();
-                        });*/
+                    Application.OpenURL(url);
+                    ClearAndKillApp();
+                });
             });
 
             DisplayTitle(layout, "< Edit Install >");
             DisplayEditionField(layout, "Media Source:", _customMediaSource, value => _customMediaSource = value);
             DisplayEditionField(layout, "Campaign:", _customCampaign, value => _customCampaign = value);
+        }
+
+        void ClearAndKillApp()
+        {
+            //TODO: Clear data
+            _appEvents.KillGame();
         }
 
         string CreateInstallURL(string appId, string mediaSource, string campaign, string idfaValue)
@@ -102,7 +117,7 @@ namespace SocialPoint.Marketing
                 hLayout.CreateLabel(name);
             }
             {
-                var label = hLayout.CreateLabel(name);
+                var label = hLayout.CreateLabel(content);
                 label.color = color;
             }
         }
@@ -145,9 +160,32 @@ namespace SocialPoint.Marketing
             }
         }
 
+        void DisplayActionConfirm(Action callback)
+        {
+            var alertView = (IAlertView)_alertPrototype.Clone();
+            alertView.Title = "Apps Flyer Action";
+            alertView.Message = "App will close and should be restarted manually.\n"
+            + "All data will be deleted.\n"
+            + "Device must be listed in Apps Flyer's whitelist for the install tests to work properly.";
+            alertView.Input = false;
+            alertView.Buttons = new []{ "Ok", "Cancel" };
+            alertView.Show(result => {
+                if(result == 0)
+                {
+                    callback();
+                }
+            });
+        }
+
         void DisplayError(string error)
         {
-            //TODO: Display alert view
+            var alertView = (IAlertView)_alertPrototype.Clone();
+            alertView.Title = "Apps Flyer Config Error";
+            alertView.Message = error;
+            alertView.Input = false;
+            alertView.Buttons = new []{ "Ok" };
+            alertView.Show(result => {
+            });
         }
     }
 }
