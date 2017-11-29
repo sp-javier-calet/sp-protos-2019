@@ -11,7 +11,7 @@ Check_MergeConflict_Files:
   only:
   - triggers
   script:
-  - %CI_PROJECT_DIR%\scripts\check-merge-conflicts.sh
+  - sh %CI_PROJECT_DIR%\scripts\check-merge-conflicts.sh
   stage: check
 Copy_New_Branch_Cache:
   only:
