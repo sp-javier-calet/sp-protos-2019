@@ -27,6 +27,7 @@ repo = git.Repo(base_path)
 if args.src is None:
     paths = []
     get_tree_paths(repo.tree(args.dst), paths)
+    print args
     print 'found %d files changed in %s' % (len(paths), args.dst)
 else:
     span = '%s..%s' % (args.src, args.dst)
