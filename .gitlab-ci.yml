@@ -11,7 +11,7 @@ Check_MergeConflict_Files:
   only:
   - triggers
   script:
-  - python %CI_PROJECT_DIR%\scripts\check-merge-conflicts.py --all --base-path %CI_PROJECT_DIR%
+  - python %CI_PROJECT_DIR%\scripts\check-merge-conflicts.py --path %CI_PROJECT_DIR%
   stage: check
 Copy_New_Branch_Cache:
   only:
