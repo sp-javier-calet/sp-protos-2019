@@ -31,7 +31,9 @@ public class GUIInstaller : Installer, IDisposable
 
     GameObject _root;
     UIStackController _stackController;
+    UISafeAreaController _safeAreaController;
     IAppEvents _appEvents;
+    IAttrStorage _storage;
 
     public override void InstallBindings()
     {
@@ -43,6 +45,7 @@ public class GUIInstaller : Installer, IDisposable
 
         _root = CreateRoot();
         _appEvents = Container.Resolve<IAppEvents>();
+        _storage = Container.Resolve<IAttrStorage>(kPersistentTag);
 
         _stackController = _root.GetComponentInChildren<ScreensController>();
         if(_stackController != null)
@@ -50,6 +53,13 @@ public class GUIInstaller : Installer, IDisposable
             _stackController.AppEvents = _appEvents;
             _stackController.CloseAppShow = ShowCloseAppAlertView;
             Container.Rebind<UIStackController>().ToInstance(_stackController);
+        }
+
+        _safeAreaController = _root.GetComponent<UISafeAreaController>();
+        if(_safeAreaController != null)
+        {
+            _safeAreaController.Storage = _storage;
+            Container.Rebind<UISafeAreaController>().ToInstance(_safeAreaController);
         }
             
         var layers = _root.GetComponentInChildren<UILayersController>();
@@ -72,14 +82,15 @@ public class GUIInstaller : Installer, IDisposable
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelUI>(CreateAdminPanel);
         #endif
     }
-
+        
     #if ADMIN_PANEL
     AdminPanelUI CreateAdminPanel()
     {
-        var safeArea = new Rect(132f, 0f, 2172f, 1062f);
-        var storage = Container.Resolve<IAttrStorage>(kPersistentTag);
+        var screenArea = _safeAreaController.GetScreenArea();
+        var iphoneXSafeArea = _safeAreaController.GetIphoneXSafeArea();
+        var safeArea = _safeAreaController.GetSafeArea();
 
-        return new AdminPanelUI(safeArea, storage);
+        return new AdminPanelUI(screenArea, iphoneXSafeArea, safeArea, _storage, _stackController);
     }
     #endif
 

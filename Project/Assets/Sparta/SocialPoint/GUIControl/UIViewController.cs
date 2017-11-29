@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Base;
 using UnityEngine;
+using SocialPoint.Dependency;
 
 namespace SocialPoint.GUIControl
 {
@@ -38,6 +39,9 @@ namespace SocialPoint.GUIControl
         ViewState _viewState = ViewState.Initial;
         Coroutine _showCoroutine;
         Coroutine _hideCoroutine;
+
+        [SerializeField]
+        RectTransform _safeAreaParent;
 
         [HideInInspector]
         public UIViewController ParentController;
@@ -327,6 +331,24 @@ namespace SocialPoint.GUIControl
             set
             {
                 _worldSpaceFullScreen = value;
+            }
+        }
+
+        public void ApplySafeArea()
+        {
+            var uiSafeAreaController = Services.Instance.Resolve<UISafeAreaController>();
+            if(uiSafeAreaController != null && _safeAreaParent)
+            {
+                var area = uiSafeAreaController.GetSafeArea();
+                var anchorMin = area.position;
+                var anchorMax = area.position + area.size;
+                anchorMin.x /= Screen.width;
+                anchorMin.y /= Screen.height;
+                anchorMax.x /= Screen.width;
+                anchorMax.y /= Screen.height;
+
+                _safeAreaParent.anchorMin = anchorMin;
+                _safeAreaParent.anchorMax = anchorMax;
             }
         }
 
@@ -677,6 +699,8 @@ namespace SocialPoint.GUIControl
             #if !NGUI
             AddLayers();
             #endif
+
+            ApplySafeArea();
             NotifyViewEvent();
         }
 
