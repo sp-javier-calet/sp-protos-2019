@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.Utils;
+using SocialPoint.Components;
 using System;
 
 namespace SocialPoint.Components
@@ -14,7 +15,7 @@ namespace SocialPoint.Components
         List<IBattleStart> _startComponents;
         List<IBattleStop> _stopComponents;
         List<IBattleStopListener> _stopListeners;
-        ActionProcessor _actionDispatcher;
+        ValidateActionProcessor _actions;
         BattleErrorDispatcherBase _errorDispatcher;
         BattleStep _battleStep;
         protected IUpdateScheduler _scheduler;
@@ -38,7 +39,7 @@ namespace SocialPoint.Components
             _cleanupComponents = new List<IBattleCleanup>();
             _stopComponents = new List<IBattleStop>();
             _stopListeners = new List<IBattleStopListener>();
-            _actionDispatcher = new BattleActionDispatcher();
+            _actions = new ValidateActionProcessor();
             _errorDispatcher = new BattleErrorDispatcherBase();
             _battleStep = BattleStep.None;
             _scheduler = scheduler;
@@ -191,11 +192,11 @@ namespace SocialPoint.Components
             }
         }
 
-        public void ProcessAction<T>(T action)
+        public void ProcessAction(object action)
         {
             if(_battleStep == BattleStep.Update)
             {
-                _actionDispatcher.ProcessAction<T>(action);
+                _actions.Process(action);
             }
             else
             {
@@ -326,7 +327,7 @@ namespace SocialPoint.Components
         {
             if(validator != null)
             {
-                _actionDispatcher.RegisterValidator(validator);
+                _actions.Register(validator);
             }
         }
 
@@ -334,7 +335,7 @@ namespace SocialPoint.Components
         {
             if(handler != null)
             {
-                _actionDispatcher.RegisterSuccessHandler(handler);
+                _actions.RegisterSuccess(handler);
             }
         }
 
@@ -342,7 +343,7 @@ namespace SocialPoint.Components
         {
             if(handler != null)
             {
-                _actionDispatcher.RegisterFailureHandler(handler);
+                _actions.RegisterFailure(handler);
             }
         }
 
@@ -350,23 +351,23 @@ namespace SocialPoint.Components
         {
             if(validator != null)
             {
-                _actionDispatcher.RegisterValidator(validator);
+                _actions.Register(validator);
             }
         }
 
-        protected void RegisterSuccessHandler<T, R>(IActionHandler<T, R> handler)
+        protected void RegisterSuccessHandler<T, R>(IValidatedActionHandler<T, R> handler)
         {
             if(handler != null)
             {
-                _actionDispatcher.RegisterSuccessHandler(handler);
+                _actions.RegisterSuccess(handler);
             }
         }
 
-        protected void RegisterFailureHandler<T, R>(IActionHandler<T, R> handler)
+        protected void RegisterFailureHandler<T, R>(IValidatedActionHandler<T, R> handler)
         {
             if(handler != null)
             {
-                _actionDispatcher.RegisterFailureHandler(handler);
+                _actions.RegisterFailure(handler);
             }
         }
     }

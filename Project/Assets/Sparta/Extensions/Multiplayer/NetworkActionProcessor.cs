@@ -93,7 +93,7 @@ namespace SocialPoint.Multiplayer
 
         bool ApplyAction(object action, NetworkSceneMemento sceneMemento)
         {
-            return _actionProcessor.Handle(sceneMemento, action);
+            return _actionProcessor.Process(sceneMemento, action);
         }
 
         public void RegisterAction<T>(byte msgType, Action<NetworkSceneMemento, T> callback = null) where T : INetworkShareable, new()

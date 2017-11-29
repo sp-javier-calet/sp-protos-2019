@@ -25,181 +25,257 @@ namespace SocialPoint.Components
     {
         interface ITypeValidator
         {
-            void RegisterObject(object obj);
-            void UnregisterObject(object obj);
-            void RegisterDelegate(object dlg);
-            void UnregisterDelegate(object dlg);
-            bool ValidateAction(object action, out object result);
+            void Register(object obj);
+            void Unregister(object dlg);
+            bool Validate(object action, out object result);
         }
 
         class TypeValidator<K> : ITypeValidator
         {
-            List<IActionValidator<K>> _validators = new List<IActionValidator<K>>();
-            List<IActionValidator<K>> _validators = new List<IActionValidator<K>>();
-            ActionValidatorFunc<K, object> _delegates;
+            List<IActionValidator<K, object>> _validators = new List<IActionValidator<K, object>>();
 
             public void Register(object obj)
             {
-                var handlerk = obj as IActionValidator<K>;
-                if(handlerk != null)
+                var validatork = obj as IActionValidator<K, object>;
+                if(validatork != null)
                 {
-                    _delegates.Add(handlerk);
+                    _validators.Add(validatork);
                 }
             }
 
-            public void UnregisterHandler(object handler)
+            public void Unregister(object obj)
             {
-                var handlerk = handler as IActionHandler<K>;
-                if(handlerk != null)
+                var validatork = obj as IActionValidator<K, object>;
+                if(validatork != null)
                 {
-                    _handlers.Remove(handlerk);
+                    _validators.Remove(validatork);
                 }
             }
 
-            public void RegisterActionHandler(object action)
+            public bool Validate(object action, out object result)
             {
-                var actionk = action as Action<K>;
-                if(actionk != null)
-                {
-                    _actions += actionk;
-                }
-            }
-
-            public void UnregisterActionHandler(object action)
-            {
-                var actionk = action as Action<K>;
-                if(actionk != null)
-                {
-                    _actions -= actionk;
-                }
-            }
-
-            public bool HandleAction(object action)
-            {
+                result = null;
                 if(!(action is K))
                 {
                     return false;
                 }
-                if(_handlers.Count == 0 && _actions == null)
+                if(_validators.Count == 0)
                 {
                     return false;
                 }
                 var kaction = (K)action;
-                for(var i = 0; i < _handlers.Count; i++)
+                for(var i = 0; i < _validators.Count; i++)
                 {
-                    _handlers[i].Handle(kaction);
-                }
-                if(_actions != null)
-                {
-                    _actions(kaction);
+                    if(!_validators[i].Validate(kaction, out result))
+                    {
+                        return false;
+                    }
                 }
                 return true;
             }
         }
 
-        /*
         interface ITypeHandler
         {
-            void RegisterHandler(object handler);
-            void UnregisterHandler(object handler);
-            void RegisterDelegate(object dlg);
-            void UnregisterDelegate(object dlg);
-            bool HandleAction(object obj, R result);
+            void Register(object obj);
+            void Unregister(object obj);
+            bool Handle(object action, object result);
         }
 
         class TypeHandler<K> : ITypeHandler
         {
-            List<IStateActionHandler<S, K>> _handlers = new List<IStateActionHandler<S, K>>();
-            Action<S, K> _delegates;
+            List<IValidatedActionHandler<K, object>> _handlers = new List<IValidatedActionHandler<K, object>>();
 
-            public void RegisterHandler(object handler)
+            public void Register(object obj)
             {
-                var handlerk = handler as IStateActionHandler<S, K>;
+                var handlerk = obj as IValidatedActionHandler<K, object>;
                 if(handlerk != null)
                 {
                     _handlers.Add(handlerk);
                 }
             }
 
-            public void UnregisterHandler(object handler)
+            public void Unregister(object obj)
             {
-                var handlerk = handler as IStateActionHandler<S, K>;
+                var handlerk = obj as IValidatedActionHandler<K, object>;
                 if(handlerk != null)
                 {
                     _handlers.Remove(handlerk);
                 }
             }
 
-            public void RegisterDelegate(object dlg)
-            {
-                var dlgk = dlg as Action<S, K>;
-                if(dlgk != null)
-                {
-                    _delegates += dlgk;
-                }
-            }
-
-            public void UnregisterAction(object dlg)
-            {
-                var dlgk = dlg as Action<S, K>;
-                if(dlgk != null)
-                {
-                    _delegates -= dlgk;
-                }
-            }
-
-            public bool HandleAction(S state, object action)
+            public bool Handle(object action, object result)
             {
                 if(!(action is K))
                 {
                     return false;
                 }
-                if(_handlers.Count == 0 && _delegates == null)
+                if(_handlers.Count == 0)
                 {
                     return false;
                 }
                 var kaction = (K)action;
                 for(var i = 0; i < _handlers.Count; i++)
                 {
-                    _handlers[i].Handle(state, kaction);
-                }
-                if(_delegates != null)
-                {
-                    _delegates(state, kaction);
+                    _handlers[i].Handle(kaction, result);
                 }
                 return true;
             }
         }
 
-        public bool Handle(T action)
-        {
+        Dictionary<Type, ITypeValidator> _validators;
+        Dictionary<Type, ITypeHandler> _successHandlers;
+        Dictionary<Type, ITypeHandler> _failureHandlers;
 
+        public ValidateActionProcessor()
+        {
+            _validators = new Dictionary<Type, ITypeValidator>();
+            _successHandlers = new Dictionary<Type, ITypeHandler>();
+            _failureHandlers = new Dictionary<Type, ITypeHandler>();
         }
 
-        public void Register<K>(IActionHandler<K> handler)
+        void IActionHandler<T>.Handle(T action)
         {
+            Process(action);
+        }
 
+        public bool Process(T action)
+        {
+            object result;
+            return Process(action, out result);
+        }
+
+        public bool Process(T action, out object result)
+        {
+            result = null;
+            var success = true;
+            {
+                var itr = _validators.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    if(!itr.Current.Value.Validate(action, out result))
+                    {
+                        success = false;
+                        break;
+                    }
+                }
+                itr.Dispose();
+            }
+            var handled = false;
+            var handlers = success ? _successHandlers : _failureHandlers;
+            {
+                var itr = handlers.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    if(itr.Current.Value.Handle(action, result))
+                    {
+                        handled = true;
+                    }
+                }
+                itr.Dispose();
+            }
+            return handled;
+        }
+
+        void DoRegister<K>(object obj, Dictionary<Type, ITypeHandler> handlers)
+        {
+            var type = typeof(K);
+            ITypeHandler typeHandler;
+            if(!handlers.TryGetValue(type, out typeHandler))
+            {
+                typeHandler = new TypeHandler<K>();
+                handlers[type] = typeHandler;
+            }
+            typeHandler.Register(obj);
+        }
+
+        void DoUnregister<K>(object obj, Dictionary<Type, ITypeHandler> handlers)
+        {
+            var type = typeof(K);
+            ITypeHandler typeHandler;
+            if(handlers.TryGetValue(type, out typeHandler))
+            {
+                typeHandler.Unregister(obj);
+            }
+        }
+
+        public void RegisterSuccess<K>(IValidatedActionHandler<K, object> handler)
+        {
+            DoRegister<K>(handler, _successHandlers);
+        }
+
+        public void RegisterFailure<K>(IValidatedActionHandler<K, object> handler)
+        {
+            DoRegister<K>(handler, _failureHandlers);
+        }
+
+        public void Unregister<K>(IValidatedActionHandler<K, object> handler)
+        {
+            DoUnregister<K>(handler, _successHandlers);
+            DoUnregister<K>(handler, _failureHandlers);
+        }
+
+        public void Register<K>(IActionValidator<K, object> validator)
+        {
+            var type = typeof(K);
+            ITypeValidator typeValidator;
+            if(!_validators.TryGetValue(type, out typeValidator))
+            {
+                typeValidator = new TypeValidator<K>();
+                _validators[type] = typeValidator;
+            }
+            typeValidator.Register(validator);
+        }
+
+        public void Unregister<K>(IActionValidator<K, object> validator)
+        {
+            var type = typeof(K);
+            ITypeValidator typeValidator;
+            if(_validators.TryGetValue(type, out typeValidator))
+            {
+                typeValidator.Unregister(validator);
+            }
+        }
+
+        public void RegisterSuccess<K, R>(IValidatedActionHandler<K, R> handler)
+        {
+        }
+
+        public void RegisterFailure<K, R>(IValidatedActionHandler<K, R> handler)
+        {
+        }
+
+        public void RegisterSuccess<K>(IActionHandler<K> handler)
+        {
+        }
+
+        public void RegisterFailure<K>(IActionHandler<K> handler)
+        {
         }
 
         public void Unregister<K>(IActionHandler<K> handler)
         {
-           
         }
 
-        public void Unregister<K>()
+        public void Register<K>(IActionValidator<K> validator)
         {
         }
 
-        public void Register<K>(Action<K> action)
-        {
-            
-        }
-
-        public void Unregister<K>(Action<K> action)
+        public void Unregister<K>(IActionValidator<K> validator)
         {
         }
 
-*/
+        public void Register<K, R>(IActionValidator<K, R> validator)
+        {
+        }
+
+        public void Unregister<K, R>(IActionValidator<K, R> validator)
+        {
+        }
+    }
+
+    public class ValidateActionProcessor : ValidateActionProcessor<object>
+    {
     }
 
 }

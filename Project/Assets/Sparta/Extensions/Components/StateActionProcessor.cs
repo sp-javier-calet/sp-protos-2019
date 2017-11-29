@@ -19,7 +19,7 @@ namespace SocialPoint.Components
 
     public class AppliableStateActionHandler<S> : IStateActionHandler<S, IStateAppliable<S>>
     {
-        public void HandleAction(S state, IStateAppliable<S> action)
+        public void Handle(S state, IStateAppliable<S> action)
         {
             if(action != null)
             {
@@ -30,14 +30,14 @@ namespace SocialPoint.Components
 
     public class StateActionProcessor<S, T> : IStateActionHandler<S, T>
     {
-        interface ITypeProcessor
+        interface ITypeHandler
         {
             void Register(object obj);
             void Unregister(object obj);
-            bool Process(S state, object action);
+            bool Handle(S state, object action);
         }
 
-        class TypeHandler<K> : ITypeProcessor
+        class TypeHandler<K> : ITypeHandler
         {
             List<IStateActionHandler<S, K>> _handlers = new List<IStateActionHandler<S, K>>();
             Action<S, K> _delegates;
@@ -70,7 +70,7 @@ namespace SocialPoint.Components
                 }
             }
 
-            public bool Process(S state, object action)
+            public bool Handle(S state, object action)
             {
                 if(!(action is K))
                 {
@@ -93,11 +93,11 @@ namespace SocialPoint.Components
             }
         }
 
-        Dictionary<Type, ITypeProcessor> _types;
+        Dictionary<Type, ITypeHandler> _types;
 
         public StateActionProcessor()
         {
-            _types = new Dictionary<Type, ITypeProcessor>();
+            _types = new Dictionary<Type, ITypeHandler>();
             Register<IStateAppliable<S>>(new AppliableStateActionHandler<S>());
         }
 
@@ -112,7 +112,7 @@ namespace SocialPoint.Components
             var itr = _types.GetEnumerator();
             while (itr.MoveNext())
             {
-                if(itr.Current.Value.Process(state, action))
+                if(itr.Current.Value.Handle(state, action))
                 {
                     handled = true;
                 }
@@ -121,25 +121,25 @@ namespace SocialPoint.Components
             return handled;
         }
 
-        public void Register<K>(IStateActionHandler<S, K> handler)
+        void DoRegister<K>(object obj)
         {
             var type = typeof(K);
-            ITypeProcessor typeProcessor;
-            if(!_types.TryGetValue(type, out typeProcessor))
+            ITypeHandler typeHandler;
+            if(!_types.TryGetValue(type, out typeHandler))
             {
-                typeProcessor = new TypeHandler<K>();
-                _types[type] = typeProcessor;
+                typeHandler = new TypeHandler<K>();
+                _types[type] = typeHandler;
             }
-            typeProcessor.Register(handler);
+            typeHandler.Register(obj);
         }
 
-        public void Unregister<K>(IStateActionHandler<S, K> handler)
+        void DoUnregister<K>(object obj)
         {
             var type = typeof(K);
-            ITypeProcessor typeProcessor;
-            if(_types.TryGetValue(type, out typeProcessor))
+            ITypeHandler typeHandler;
+            if(_types.TryGetValue(type, out typeHandler))
             {
-                typeProcessor.Unregister(handler);
+                typeHandler.Unregister(obj);
             }
         }
 
@@ -148,30 +148,32 @@ namespace SocialPoint.Components
             _types.Remove(typeof(K));
         }
 
+        public void Register<K>(IStateActionHandler<S, K> handler)
+        {
+            DoRegister<K>(handler);
+        }
+
+        public void Unregister<K>(IStateActionHandler<S, K> handler)
+        {
+            DoUnregister<K>(handler);
+        }
+
         public void Register<K>(Action<S, K> dlg)
         {
-            var type = typeof(K);
-            ITypeProcessor typeProcessor;
-            if(!_types.TryGetValue(type, out typeProcessor))
-            {
-                typeProcessor = new TypeHandler<K>();
-                _types[type] = typeProcessor;
-            }
-            typeProcessor.Register(dlg);
+            DoRegister<K>(dlg);
         }
 
         public void Unregister<K>(Action<S, K> dlg)
         {
-            var type = typeof(K);
-            ITypeProcessor typeProcessor;
-            if(_types.TryGetValue(type, out typeProcessor))
-            {
-                typeProcessor.Unregister(dlg);
-            }
+            DoUnregister<K>(dlg);
         }
     }
 
     public class StateActionProcessor<S> : StateActionProcessor<S, object>
+    {
+    }
+
+    public class StateActionProcessor : StateActionProcessor<object>
     {
     }
 }
