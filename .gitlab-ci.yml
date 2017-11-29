@@ -1,5 +1,6 @@
 ---
 stages:
+- check
 - compile
 - test
 variables:
@@ -10,8 +11,8 @@ Check_MergeConflict_Files:
   only:
   - triggers
   script:
-  - bash %CI_PROJECT_DIR%\scripts\check-merge-conflicts.py
-  stage: compile
+  - %CI_PROJECT_DIR%\scripts\check-merge-conflicts.sh
+  stage: check
 Copy_New_Branch_Cache:
   only:
   - triggers
