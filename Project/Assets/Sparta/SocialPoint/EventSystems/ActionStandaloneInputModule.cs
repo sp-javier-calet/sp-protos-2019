@@ -1,35 +1,16 @@
-﻿using UnityEngine.EventSystems;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
+using UnityEngine.EventSystems;
 
 namespace SocialPoint.EventSystems
 {
-    public class ActionStandaloneInputModule : StandaloneInputModule,
-    IPointerEventDispatcher, 
-    IBeginDragHandler,
-    IDragHandler,
-    IEndDragHandler, 
-    IScrollHandler,
-    IPointerEnterHandler, 
-    IPointerExitHandler, 
-    IPointerDownHandler,
-    IPointerUpHandler,
-    IPointerClickHandler
+    public class ActionStandaloneInputModule : StandaloneInputModule
     {
-        [SerializeField]
-        LayerMask _ignoreDispatcherMask;
-
         Dictionary<int, PointerEventData> _actionEventDispatcherPointerData = new Dictionary<int, PointerEventData>();
         Dictionary<int, PointerEventData> _defaultPointerData;
+        Dictionary<GameObject, LayerMask> _registeredHandlers = new Dictionary<GameObject, LayerMask>();
         ForcedGameObjectRaycaster _newActionRaycaster;
-        bool _hasFocus = true;
-        List<int> _pointerIds = new List<int>();
-
-        void OnApplicationFocus(bool focusStatus)
-        {
-            _hasFocus = focusStatus;
-        }
 
         public override void ActivateModule()
         {
@@ -38,11 +19,48 @@ namespace SocialPoint.EventSystems
             _newActionRaycaster = gameObject.AddComponent<ForcedGameObjectRaycaster>();
         }
 
-        bool ValidateLastEventMask(GameObject go)
+        public void AddEventListener(GameObject sender, LayerMask ignoreDispatcherMask)
+        {
+            if(_registeredHandlers.ContainsKey(sender))
+            {
+                return;
+            }
+                
+            _registeredHandlers.Add(sender, ignoreDispatcherMask);
+        }
+
+        public void RemoveEventListener(GameObject sender)
+        {
+            if(_registeredHandlers.Count == 0)
+            {
+                return;
+            }
+                
+            if(!_registeredHandlers.ContainsKey(sender))
+            {
+                return;
+            }
+                
+            _registeredHandlers.Remove(sender);
+        }
+
+        public void ClearEventListeners()
+        {
+            _registeredHandlers.Clear();
+        }
+
+        protected override void OnDestroy()
+        {
+            ClearEventListeners();
+
+            base.OnDestroy();
+        }
+
+        bool ValidateLastEventMask(LayerMask ignoreDispatcherMask, GameObject go)
         {
             while(go != null)
             {
-                if((_ignoreDispatcherMask.value & 1 << go.layer) != 0)
+                if((ignoreDispatcherMask.value & 1 << go.layer) != 0)
                 {
                     return false;
                 }
@@ -56,141 +74,50 @@ namespace SocialPoint.EventSystems
             return true;
         }
 
-        bool ValidateLastPointerEventData(PointerEventData p)
+        bool ValidateLastPointerEventData(PointerEventData p, LayerMask ignoreDispatcherMask)
         {
             if(p != null)
             {
-                if(ValidateLastEventMask(p.pointerPressRaycast.gameObject) ||
-                   ValidateLastEventMask(p.pointerCurrentRaycast.gameObject))
+                if(ValidateLastEventMask(ignoreDispatcherMask, p.pointerPressRaycast.gameObject) || ValidateLastEventMask(ignoreDispatcherMask, p.pointerCurrentRaycast.gameObject))
                 {
                     return true;
                 }
             }
             return false;
         }
-
+            
         public override void Process()
         {
+            // First process the current tick with all received events
             _newActionRaycaster.RaycastResultGameObject = null;
             m_PointerData = _defaultPointerData;
             base.Process();
-            if(ValidateLastPointerEventData(_newActionRaycaster.LastEventData))
-            {
-                _newActionRaycaster.RaycastResultGameObject = gameObject;
-                m_PointerData = _actionEventDispatcherPointerData;
-                base.Process();
-            }
+
+            // Second, with the previous events received we want to check if someone has been registered 
+            // and in this case, for every registered GameObjects we will check if the events layer need to be ignored.
+            // If not, we will redirect the event calls to every of the desired registered GameObjects
+            ProcessRegisteredHandlers();
         }
 
-        #region handlers
-
-        public event Action<PointerEventData> OnBeginDrag;
-        public event Action<PointerEventData> OnEndDrag;
-        public event Action<PointerEventData> OnDrag;
-        public event Action<PointerEventData> OnDragMain;
-        public event Action<PointerEventData> OnScroll;
-        public event Action<PointerEventData> OnPointerEnter;
-        public event Action<PointerEventData> OnPointerExit;
-        public event Action<PointerEventData> OnPointerDown;
-        public event Action<PointerEventData> OnPointerUp;
-        public event Action<PointerEventData> OnPointerClick;
-
-        void IBeginDragHandler.OnBeginDrag(PointerEventData eventData)
+        void ProcessRegisteredHandlers()
         {
-            _pointerIds.Add(eventData.pointerId);
-            var handler = OnBeginDrag;
-            if(handler != null)
-            {
-                handler(eventData);
-            }
-        }
-
-        void IEndDragHandler.OnEndDrag(PointerEventData eventData)
-        {
-            _pointerIds.Remove(eventData.pointerId);
-            var handler = OnEndDrag;
-            if(handler != null)
-            {
-                handler(eventData);
-            }
-        }
-
-        void IDragHandler.OnDrag(PointerEventData eventData)
-        {
-            if(_pointerIds.IndexOf(eventData.pointerId) == 0)
-            {
-                var mhandler = OnDragMain;
-                if(mhandler != null)
-                {
-                    mhandler(eventData);
-                }
-            }
-            var handler = OnDrag;
-            if(handler != null)
-            {
-                handler(eventData);
-            }
-        }
-
-        void IScrollHandler.OnScroll(PointerEventData eventData)
-        {
-            if(!_hasFocus)
+            if(_registeredHandlers.Count == 0)
             {
                 return;
             }
 
-            var handler = OnScroll;
-            if(handler != null)
+            var itr = _registeredHandlers.GetEnumerator();
+            while(itr.MoveNext())
             {
-                handler(eventData);
+                var sender = itr.Current.Key;
+                var layers = itr.Current.Value;
+                if(ValidateLastPointerEventData(_newActionRaycaster.LastEventData, layers))
+                {
+                    _newActionRaycaster.RaycastResultGameObject = sender;
+                    m_PointerData = _actionEventDispatcherPointerData;
+                    base.Process();
+                }
             }
         }
-
-        void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
-        {
-            var handler = OnPointerEnter;
-            if(handler != null)
-            {
-                handler(eventData);
-            }
-        }
-
-        void IPointerExitHandler.OnPointerExit(PointerEventData eventData)
-        {
-            var handler = OnPointerExit;
-            if(handler != null)
-            {
-                handler(eventData);
-            }
-        }
-
-        void IPointerDownHandler.OnPointerDown(PointerEventData eventData)
-        {
-            var handler = OnPointerDown;
-            if(handler != null)
-            {
-                handler(eventData);
-            }
-        }
-
-        void IPointerUpHandler.OnPointerUp(PointerEventData eventData)
-        {
-            var handler = OnPointerUp;
-            if(handler != null)
-            {
-                handler(eventData);
-            }
-        }
-
-        void IPointerClickHandler.OnPointerClick(PointerEventData eventData)
-        {
-            var handler = OnPointerClick;
-            if(handler != null)
-            {
-                handler(eventData);
-            }
-        }
-
-        #endregion
     }
 }
