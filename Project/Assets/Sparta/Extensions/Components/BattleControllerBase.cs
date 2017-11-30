@@ -15,7 +15,7 @@ namespace SocialPoint.Components
         List<IBattleStart> _startComponents;
         List<IBattleStop> _stopComponents;
         List<IBattleStopListener> _stopListeners;
-        ValidateActionProcessor _actions;
+        ActionProcessor _actions;
         BattleErrorDispatcherBase _errorDispatcher;
         BattleStep _battleStep;
         protected IUpdateScheduler _scheduler;
@@ -39,7 +39,7 @@ namespace SocialPoint.Components
             _cleanupComponents = new List<IBattleCleanup>();
             _stopComponents = new List<IBattleStop>();
             _stopListeners = new List<IBattleStopListener>();
-            _actions = new ValidateActionProcessor();
+            _actions = new ActionProcessor();
             _errorDispatcher = new BattleErrorDispatcherBase();
             _battleStep = BattleStep.None;
             _scheduler = scheduler;

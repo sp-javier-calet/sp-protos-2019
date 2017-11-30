@@ -4,7 +4,7 @@ using NSubstitute;
 namespace SocialPoint.Components
 {
     [TestFixture]
-    class BattleActionTests
+    class ActionProcessorTests
     {
         class TestAction
         {
@@ -31,7 +31,7 @@ namespace SocialPoint.Components
         IActionHandler<TestAction> _failureHandler2;
 
         IActionHandler<TestOtherAction> _otherSuccessHandler;
-        ValidateActionProcessor _processor;
+        ActionProcessor _processor;
 
         [SetUp]
         public void SetUp()
@@ -46,7 +46,7 @@ namespace SocialPoint.Components
             _failureHandler1 = Substitute.For<IActionHandler<TestAction>>();
             _failureHandler2 = Substitute.For<IActionHandler<TestAction>>();
             _otherSuccessHandler = Substitute.For<IActionHandler<TestOtherAction>>();
-            _processor = new ValidateActionProcessor();
+            _processor = new ActionProcessor();
         }
 
         [Test]

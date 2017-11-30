@@ -44,7 +44,7 @@ namespace SocialPoint.Multiplayer
     {
         public NetworkSceneActionProcessor()
         {
-            Register(new AppliableStateActionHandler<NetworkSceneMemento>());
+            RegisterHandler(new AppliableStateActionHandler<NetworkSceneMemento>());
         }
     }
 }

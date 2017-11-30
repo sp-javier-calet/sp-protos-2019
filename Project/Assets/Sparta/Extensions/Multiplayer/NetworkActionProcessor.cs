@@ -98,17 +98,14 @@ namespace SocialPoint.Multiplayer
 
         public void RegisterAction<T>(byte msgType, Action<NetworkSceneMemento, T> callback = null) where T : INetworkShareable, new()
         {
-            if(callback != null)
-            {
-                _actionProcessor.Register(callback);
-            }
+            _actionProcessor.RegisterStateHandler(callback);
             _actionParser.Register<T>(msgType);
             _actionSerializer.Register<T>(msgType);
         }
 
         public void RegisterAction<T>(byte msgType, IStateActionHandler<NetworkSceneMemento, T> handler) where T : INetworkShareable, new()
         {
-            _actionProcessor.Register(handler);
+            _actionProcessor.RegisterHandler(handler);
             _actionParser.Register<T>(msgType);
             _actionSerializer.Register<T>(msgType);
         }
