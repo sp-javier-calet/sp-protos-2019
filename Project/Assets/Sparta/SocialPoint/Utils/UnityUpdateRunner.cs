@@ -27,6 +27,11 @@ namespace SocialPoint.Utils
             _scheduler.UpdateExceptionThrown += ExceptionsInUpdateCallback;
         }
 
+        void OnDestroy()
+        {
+            _scheduler.UpdateExceptionThrown -= ExceptionsInUpdateCallback;
+        }
+
         public void Add(IUpdateable elm, UpdateableTimeMode mode = UpdateableTimeMode.GameTimeUnscaled, float interval = 0.0f)
         {
             _scheduler.Add(elm, mode, interval);
