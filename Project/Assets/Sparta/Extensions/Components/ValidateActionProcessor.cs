@@ -6,6 +6,11 @@ namespace SocialPoint.Components
 {
     public interface IValidatedActionHandler<T, R>
     {
+        void Handle(T action, bool success, R result);
+    }
+
+    public interface IResultActionHandler<T, R>
+    {
         void Handle(T action, R result);
     }
 
@@ -23,33 +28,261 @@ namespace SocialPoint.Components
 
     public class ValidateActionProcessor<T> : IActionHandler<T>
     {
+        class ActionValidatorWrapper<K, R> : IActionValidator<T, object> where K : T
+        {
+            IActionValidator<K, R> _validator;
+
+            public ActionValidatorWrapper(IActionValidator<K, R> validator)
+            {
+                _validator = validator;
+            }
+
+            public bool Validate(T action, out object result)
+            {
+                result = null;
+                if(_validator != null)
+                {
+                    if(action is K)
+                    {
+                        R rresult;
+                        var success = _validator.Validate((K)action, out rresult);
+                        result = rresult;
+                        return success;
+                    }
+                }
+                return true;
+            }
+        }
+
+        class ActionValidatorWrapper<K> : IActionValidator<T, object> where K : T
+        {
+            IActionValidator<K> _validator;
+
+            public ActionValidatorWrapper(IActionValidator<K> validator)
+            {
+                _validator = validator;
+            }
+
+            public bool Validate(T action, out object result)
+            {
+                result = null;
+                if(_validator != null)
+                {
+                    if(action is K)
+                    {
+                        return _validator.Validate((K)action);
+                    }
+                }
+                return true;
+            }
+        }
+
+        class DelegateActionValidatorWrapper<K> : IActionValidator<T, object> where K : T
+        {
+            Func<K, bool> _validator;
+
+            public DelegateActionValidatorWrapper(Func<K, bool> validator)
+            {
+                _validator = validator;
+            }
+
+            public bool Validate(T action, out object result)
+            {
+                result = null;
+                if(_validator != null)
+                {
+                    if(action is K)
+                    {
+                        return _validator((K)action);
+                    }
+                }
+                return true;
+            }
+        }
+
+        class DelegateActionValidatorWrapper<K, R> : IActionValidator<T, object> where K : T
+        {
+            ActionValidatorFunc<K, R> _validator;
+
+            public DelegateActionValidatorWrapper(ActionValidatorFunc<K, R> validator)
+            {
+                _validator = validator;
+            }
+
+            public bool Validate(T action, out object result)
+            {
+                result = null;
+                if(_validator != null)
+                {
+                    if(action is K)
+                    {
+                        R rresult;
+                        var success = _validator((K)action, out rresult);
+                        result = rresult;
+                        return success;
+                    }
+                }
+                return true;
+            }
+        }
+
+        class ActionHandlerWrapper<K> : IValidatedActionHandler<T, object> where K : T
+        {
+            IActionHandler<K> _handler;
+            bool _successFilter;
+
+            public ActionHandlerWrapper(IActionHandler<K> handler, bool successFilter)
+            {
+                _handler = handler;
+                _successFilter = successFilter;
+            }
+
+            public void Handle(T action, bool success, object result)
+            {
+                if(_successFilter == success && _handler != null)
+                {
+                    if(action is K)
+                    {
+                        _handler.Handle((K)action);
+                    }
+                }
+            }
+        }
+
+        class ValidatedActionHandlerWrapper<K, R> : IValidatedActionHandler<T, object> where K : T
+        {
+            IValidatedActionHandler<K, R> _handler;
+
+            public ValidatedActionHandlerWrapper(IValidatedActionHandler<K, R> handler)
+            {
+                _handler = handler;
+            }
+
+            public void Handle(T action, bool success, object result)
+            {
+                if(_handler != null)
+                {
+                    if(action is K && result is R)
+                    {
+                        _handler.Handle((K)action, success, (R)result);
+                    }
+                }
+            }
+        }
+
+        class ResultActionHandlerWrapper<K, R> : IValidatedActionHandler<T, object> where K : T
+        {
+            IResultActionHandler<K, R> _handler;
+            bool _successFilter;
+
+            public ResultActionHandlerWrapper(IResultActionHandler<K, R> handler, bool successFilter)
+            {
+                _handler = handler;
+                _successFilter = successFilter;
+            }
+
+            public void Handle(T action, bool success, object result)
+            {
+                if(_successFilter == success && _handler != null)
+                {
+                    if(action is K && result is R)
+                    {
+                        _handler.Handle((K)action, (R)result);
+                    }
+                }
+            }
+        }
+
+        class DelegateActionHandlerWrapper<K> : IValidatedActionHandler<T, object> where K : T
+        {
+            Action<K> _delegate;
+            bool _successFilter;
+
+            public DelegateActionHandlerWrapper(Action<K> dlg, bool successFilter)
+            {
+                _delegate = dlg;
+                _successFilter = successFilter;
+            }
+
+            public void Handle(T action, bool success, object result)
+            {
+                if(_successFilter == success && _delegate != null)
+                {
+                    if(action is K)
+                    {
+                        _delegate((K)action);
+                    }
+                }
+            }
+        }
+
+        class DelegateActionHandlerWrapper<K, R> : IValidatedActionHandler<T, object> where K : T
+        {
+            Action<K, R> _delegate;
+            bool _successFilter;
+
+            public DelegateActionHandlerWrapper(Action<K, R> dlg, bool successFilter)
+            {
+                _delegate = dlg;
+                _successFilter = successFilter;
+            }
+
+            public void Handle(T action, bool success, object result)
+            {
+                if(_successFilter == success && _delegate != null)
+                {
+                    if(action is K && result is R)
+                    {
+                        _delegate((K)action, (R)result);
+                    }
+                }
+            }
+        }
+
+        class GeneralDelegateActionHandlerWrapper<K, R> : IValidatedActionHandler<T, object> where K : T
+        {
+            Action<K, bool, R> _delegate;
+
+            public GeneralDelegateActionHandlerWrapper(Action<K, bool, R> dlg)
+            {
+                _delegate = dlg;
+            }
+
+            public void Handle(T action, bool success, object result)
+            {
+                if(_delegate != null)
+                {
+                    if(action is K && result is R)
+                    {
+                        _delegate((K)action, success, (R)result);
+                    }
+                }
+            }
+        }
+
         interface ITypeValidator
         {
-            void Register(object obj);
-            void Unregister(object dlg);
+            void Register(object key, object obj);
+            void Unregister(object key);
             bool Validate(object action, out object result);
         }
 
         class TypeValidator<K> : ITypeValidator
         {
-            List<IActionValidator<K, object>> _validators = new List<IActionValidator<K, object>>();
+            Dictionary<object, IActionValidator<K, object>> _validators = new Dictionary<object, IActionValidator<K, object>>();
 
-            public void Register(object obj)
+            public void Register(object key, object obj)
             {
                 var validatork = obj as IActionValidator<K, object>;
                 if(validatork != null)
                 {
-                    _validators.Add(validatork);
+                    _validators.Add(key, validatork);
                 }
             }
 
             public void Unregister(object obj)
             {
-                var validatork = obj as IActionValidator<K, object>;
-                if(validatork != null)
-                {
-                    _validators.Remove(validatork);
-                }
+                _validators.Remove(obj);
             }
 
             public bool Validate(object action, out object result)
@@ -64,47 +297,47 @@ namespace SocialPoint.Components
                     return false;
                 }
                 var kaction = (K)action;
-                for(var i = 0; i < _validators.Count; i++)
+                var itr = _validators.GetEnumerator();
+                var success = true;
+                while(itr.MoveNext())
                 {
-                    if(!_validators[i].Validate(kaction, out result))
+                    if(!itr.Current.Value.Validate(kaction, out result))
                     {
-                        return false;
+                        success = false;
+                        break;
                     }
                 }
-                return true;
+                itr.Dispose();
+                return success;
             }
         }
 
         interface ITypeHandler
         {
-            void Register(object obj);
-            void Unregister(object obj);
-            bool Handle(object action, object result);
+            void Register(object key, object obj);
+            void Unregister(object key);
+            bool Handle(object action, bool success, object result);
         }
 
         class TypeHandler<K> : ITypeHandler
         {
-            List<IValidatedActionHandler<K, object>> _handlers = new List<IValidatedActionHandler<K, object>>();
+            Dictionary<object, IValidatedActionHandler<K, object>> _handlers = new Dictionary<object, IValidatedActionHandler<K, object>>();
 
-            public void Register(object obj)
+            public void Register(object key, object obj)
             {
                 var handlerk = obj as IValidatedActionHandler<K, object>;
                 if(handlerk != null)
                 {
-                    _handlers.Add(handlerk);
+                    _handlers.Add(key, handlerk);
                 }
             }
 
-            public void Unregister(object obj)
+            public void Unregister(object key)
             {
-                var handlerk = obj as IValidatedActionHandler<K, object>;
-                if(handlerk != null)
-                {
-                    _handlers.Remove(handlerk);
-                }
+                _handlers.Remove(key);
             }
 
-            public bool Handle(object action, object result)
+            public bool Handle(object action, bool success, object result)
             {
                 if(!(action is K))
                 {
@@ -115,23 +348,23 @@ namespace SocialPoint.Components
                     return false;
                 }
                 var kaction = (K)action;
-                for(var i = 0; i < _handlers.Count; i++)
+                var itr = _handlers.GetEnumerator();
+                while(itr.MoveNext())
                 {
-                    _handlers[i].Handle(kaction, result);
+                    itr.Current.Value.Handle(kaction, success, result);
                 }
+                itr.Dispose();
                 return true;
             }
         }
 
         Dictionary<Type, ITypeValidator> _validators;
-        Dictionary<Type, ITypeHandler> _successHandlers;
-        Dictionary<Type, ITypeHandler> _failureHandlers;
+        Dictionary<Type, ITypeHandler> _handlers;
 
         public ValidateActionProcessor()
         {
             _validators = new Dictionary<Type, ITypeValidator>();
-            _successHandlers = new Dictionary<Type, ITypeHandler>();
-            _failureHandlers = new Dictionary<Type, ITypeHandler>();
+            _handlers = new Dictionary<Type, ITypeHandler>();
         }
 
         void IActionHandler<T>.Handle(T action)
@@ -162,12 +395,11 @@ namespace SocialPoint.Components
                 itr.Dispose();
             }
             var handled = false;
-            var handlers = success ? _successHandlers : _failureHandlers;
             {
-                var itr = handlers.GetEnumerator();
+                var itr = _handlers.GetEnumerator();
                 while(itr.MoveNext())
                 {
-                    if(itr.Current.Value.Handle(action, result))
+                    if(itr.Current.Value.Handle(action, success, result))
                     {
                         handled = true;
                     }
@@ -177,45 +409,29 @@ namespace SocialPoint.Components
             return handled;
         }
 
-        void DoRegister<K>(object obj, Dictionary<Type, ITypeHandler> handlers)
+        void DoRegisterHandler<K>(object key, object obj)
         {
             var type = typeof(K);
             ITypeHandler typeHandler;
-            if(!handlers.TryGetValue(type, out typeHandler))
+            if(!_handlers.TryGetValue(type, out typeHandler))
             {
                 typeHandler = new TypeHandler<K>();
-                handlers[type] = typeHandler;
+                _handlers[type] = typeHandler;
             }
-            typeHandler.Register(obj);
+            typeHandler.Register(key, obj);
         }
 
-        void DoUnregister<K>(object obj, Dictionary<Type, ITypeHandler> handlers)
+        void DoUnregisterHandler<K>(object key)
         {
             var type = typeof(K);
             ITypeHandler typeHandler;
-            if(handlers.TryGetValue(type, out typeHandler))
+            if(_handlers.TryGetValue(type, out typeHandler))
             {
-                typeHandler.Unregister(obj);
+                typeHandler.Unregister(key);
             }
         }
 
-        public void RegisterSuccess<K>(IValidatedActionHandler<K, object> handler)
-        {
-            DoRegister<K>(handler, _successHandlers);
-        }
-
-        public void RegisterFailure<K>(IValidatedActionHandler<K, object> handler)
-        {
-            DoRegister<K>(handler, _failureHandlers);
-        }
-
-        public void Unregister<K>(IValidatedActionHandler<K, object> handler)
-        {
-            DoUnregister<K>(handler, _successHandlers);
-            DoUnregister<K>(handler, _failureHandlers);
-        }
-
-        public void Register<K>(IActionValidator<K, object> validator)
+        void DoRegisterValidator<K>(object key, object validator)
         {
             var type = typeof(K);
             ITypeValidator typeValidator;
@@ -224,53 +440,137 @@ namespace SocialPoint.Components
                 typeValidator = new TypeValidator<K>();
                 _validators[type] = typeValidator;
             }
-            typeValidator.Register(validator);
+            typeValidator.Register(key, validator);
         }
 
-        public void Unregister<K>(IActionValidator<K, object> validator)
+        public void DoUnregisterValidator<K>(object key)
         {
             var type = typeof(K);
             ITypeValidator typeValidator;
             if(_validators.TryGetValue(type, out typeValidator))
             {
-                typeValidator.Unregister(validator);
+                typeValidator.Unregister(key);
             }
         }
 
-        public void RegisterSuccess<K, R>(IValidatedActionHandler<K, R> handler)
+        public void RegisterHandler<K, R>(IValidatedActionHandler<K, R> handler) where K : T
         {
+            DoRegisterHandler<K>(handler, new ValidatedActionHandlerWrapper<K, R>(handler));
         }
 
-        public void RegisterFailure<K, R>(IValidatedActionHandler<K, R> handler)
+        public void UnregisterHandler<K, R>(IValidatedActionHandler<K, R> handler) where K : T
         {
+            DoUnregisterHandler<K>(handler);
         }
 
-        public void RegisterSuccess<K>(IActionHandler<K> handler)
+        public void RegisterSuccessHandler<K, R>(IResultActionHandler<K, R> handler) where K : T
         {
+            DoRegisterHandler<K>(handler, new ResultActionHandlerWrapper<K, R>(handler, true));
         }
 
-        public void RegisterFailure<K>(IActionHandler<K> handler)
+        public void RegisterFailureHandler<K, R>(IResultActionHandler<K, R> handler) where K : T
         {
+            DoRegisterHandler<K>(handler, new ResultActionHandlerWrapper<K, R>(handler, false));
         }
 
-        public void Unregister<K>(IActionHandler<K> handler)
+        public void UnregisterHandler<K, R>(IResultActionHandler<K, R> handler) where K : T
         {
+            DoUnregisterHandler<K>(handler);
         }
 
-        public void Register<K>(IActionValidator<K> validator)
+        public void RegisterSuccessHandler<K>(IActionHandler<K> handler) where K : T
         {
+            DoRegisterHandler<K>(handler, new ActionHandlerWrapper<K>(handler, true));
         }
 
-        public void Unregister<K>(IActionValidator<K> validator)
+        public void RegisterFailureHandler<K>(IActionHandler<K> handler) where K : T
         {
+            DoRegisterHandler<K>(handler, new ActionHandlerWrapper<K>(handler, false));
         }
 
-        public void Register<K, R>(IActionValidator<K, R> validator)
+        public void UnregisterHandler<K>(IActionHandler<K> handler) where K : T
         {
+            DoUnregisterHandler<K>(handler);
         }
 
-        public void Unregister<K, R>(IActionValidator<K, R> validator)
+        public void RegisterSuccessHandler<K>(Action<K> handler) where K : T
         {
+            DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K>(handler, true));
+        }
+
+        public void RegisterFailureHandler<K>(Action<K> handler) where K : T
+        {
+            DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K>(handler, false));
+        }
+
+        public void UnregisterHandler<K>(Action<K> handler) where K : T
+        {
+            DoUnregisterHandler<K>(handler);
+        }
+
+        public void RegisterSuccessHandler<K, R>(Action<K, R> handler) where K : T
+        {
+            DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K, R>(handler, true));
+        }
+
+        public void RegisterFailureHandler<K, R>(Action<K, R> handler) where K : T
+        {
+            DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K, R>(handler, false));
+        }
+
+        public void UnregisterHandler<K>(Action<K, T> handler) where K : T
+        {
+            DoUnregisterHandler<K>(handler);
+        }
+
+        public void RegisterHandler<K, R>(Action<K, bool, R> handler) where K : T
+        {
+            DoRegisterHandler<K>(handler, new GeneralDelegateActionHandlerWrapper<K, R>(handler));
+        }
+
+        public void UnregisterHandler<K>(Action<K, bool, T> handler) where K : T
+        {
+            DoUnregisterHandler<K>(handler);
+        }
+
+        public void RegisterValidator<K>(IActionValidator<K> validator) where K : T
+        {
+            DoRegisterValidator<K>(validator, new ActionValidatorWrapper<K>(validator));
+        }
+
+        public void UnregisterValidator<K>(IActionValidator<K> validator) where K : T
+        {
+            DoUnregisterValidator<K>(validator);
+        }
+
+        public void RegisterValidator<K, R>(IActionValidator<K, R> validator) where K : T
+        {
+            DoRegisterValidator<K>(validator, new ActionValidatorWrapper<K, R>(validator));
+        }
+
+        public void UnregisterValidator<K, R>(IActionValidator<K, R> validator) where K : T
+        {
+            DoUnregisterValidator<K>(validator);
+        }
+
+        public void RegisterValidator<K>(Func<K, bool> validator) where K : T
+        {
+            DoRegisterValidator<K>(validator, new DelegateActionValidatorWrapper<K>(validator));
+        }
+
+        public void UnregisterValidator<K>(Func<K, bool> validator) where K : T
+        {
+            DoUnregisterValidator<K>(validator);
+        }
+
+        public void RegisterValidator<K, R>(ActionValidatorFunc<K, R> validator) where K : T
+        {
+            DoRegisterValidator<K>(validator, new DelegateActionValidatorWrapper<K, R>(validator));
+        }
+
+        public void UnregisterValidator<K, R>(ActionValidatorFunc<K, R> validator) where K : T
+        {
+            DoUnregisterValidator<K>(validator);
         }
     }
 

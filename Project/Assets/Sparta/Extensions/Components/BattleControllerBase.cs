@@ -327,7 +327,7 @@ namespace SocialPoint.Components
         {
             if(validator != null)
             {
-                _actions.Register(validator);
+                _actions.RegisterValidator(validator);
             }
         }
 
@@ -335,7 +335,7 @@ namespace SocialPoint.Components
         {
             if(handler != null)
             {
-                _actions.RegisterSuccess(handler);
+                _actions.RegisterSuccessHandler(handler);
             }
         }
 
@@ -343,7 +343,7 @@ namespace SocialPoint.Components
         {
             if(handler != null)
             {
-                _actions.RegisterFailure(handler);
+                _actions.RegisterFailureHandler(handler);
             }
         }
 
@@ -351,23 +351,23 @@ namespace SocialPoint.Components
         {
             if(validator != null)
             {
-                _actions.Register(validator);
+                _actions.RegisterValidator(validator);
             }
         }
 
-        protected void RegisterSuccessHandler<T, R>(IValidatedActionHandler<T, R> handler)
+        protected void RegisterSuccessHandler<T, R>(IResultActionHandler<T, R> handler)
         {
             if(handler != null)
             {
-                _actions.RegisterSuccess(handler);
+                _actions.RegisterSuccessHandler(handler);
             }
         }
 
-        protected void RegisterFailureHandler<T, R>(IValidatedActionHandler<T, R> handler)
+        protected void RegisterFailureHandler<T, R>(IResultActionHandler<T, R> handler)
         {
             if(handler != null)
             {
-                _actions.RegisterFailure(handler);
+                _actions.RegisterFailureHandler(handler);
             }
         }
     }
