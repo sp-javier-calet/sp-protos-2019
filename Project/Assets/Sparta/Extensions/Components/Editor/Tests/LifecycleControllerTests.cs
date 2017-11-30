@@ -10,34 +10,34 @@ using System;
 namespace SocialPoint.Components
 {
     [TestFixture]
-    class BattleControllerTests
+    class LifecycleControllerTests
     {
         const float dtTest = 0.33f;
 
-        IBattleSetup _setupComp1;
-        IBattleSetup _setupComp2;
-        IBattleUpdate _updateComp1;
-        IBattleUpdate _updateComp2;
-        IBattleCleanup _cleanupComp1;
-        IBattleCleanup _cleanupComp2;
-        IBattleStop _stopComp1;
-        IBattleStop _stopComp2;
+        ISetupComponent _setupComp1;
+        ISetupComponent _setupComp2;
+        IUpdateComponent _updateComp1;
+        IUpdateComponent _updateComp2;
+        ICleanupComponent _cleanupComp1;
+        ICleanupComponent _cleanupComp2;
+        IStopComponent _stopComp1;
+        IStopComponent _stopComp2;
         IBattleErrorHandler _errorHandlerComp;
-        BattleControllerBase _battleController;
+        LifecycleController _battleController;
 
         [SetUp]
         public void SetUp()
         {
-            _setupComp1 = Substitute.For<IBattleSetup>();
-            _setupComp2 = Substitute.For<IBattleSetup>();
-            _updateComp1 = Substitute.For<IBattleUpdate>();
-            _updateComp2 = Substitute.For<IBattleUpdate>();
-            _cleanupComp1 = Substitute.For<IBattleCleanup>();
-            _cleanupComp2 = Substitute.For<IBattleCleanup>();
-            _stopComp1 = Substitute.For<IBattleStop>();
-            _stopComp2 = Substitute.For<IBattleStop>();
+            _setupComp1 = Substitute.For<ISetupComponent>();
+            _setupComp2 = Substitute.For<ISetupComponent>();
+            _updateComp1 = Substitute.For<IUpdateComponent>();
+            _updateComp2 = Substitute.For<IUpdateComponent>();
+            _cleanupComp1 = Substitute.For<ICleanupComponent>();
+            _cleanupComp2 = Substitute.For<ICleanupComponent>();
+            _stopComp1 = Substitute.For<IStopComponent>();
+            _stopComp2 = Substitute.For<IStopComponent>();
             _errorHandlerComp = Substitute.For<IBattleErrorHandler>();
-            _battleController = new BattleControllerBase(
+            _battleController = new LifecycleController(
                 Substitute.For<IUpdateScheduler>()
             );
             _battleController.Start();
@@ -56,7 +56,7 @@ namespace SocialPoint.Components
         [Test]
         public void StepOrder()
         {
-            _setupComp1.Update(Arg.Any<float>()).Returns(BattleSetupState.Success);
+            _setupComp1.Update(Arg.Any<float>()).Returns(SetupStepState.Success);
             _battleController.RegisterSetupComponent(_setupComp1);
             _battleController.RegisterUpdateComponent(_updateComp1);
             _battleController.RegisterCleanupComponent(_cleanupComp1);
@@ -102,8 +102,8 @@ namespace SocialPoint.Components
         [Test]
         public void MultiSetupSuccess()
         {
-            _setupComp1.Update(Arg.Any<float>()).Returns(BattleSetupState.Success);
-            _setupComp2.Update(Arg.Any<float>()).Returns(BattleSetupState.Success);
+            _setupComp1.Update(Arg.Any<float>()).Returns(SetupStepState.Success);
+            _setupComp2.Update(Arg.Any<float>()).Returns(SetupStepState.Success);
             _battleController.RegisterSetupComponent(_setupComp1);
             _battleController.RegisterSetupComponent(_setupComp2);
             _battleController.RegisterUpdateComponent(_updateComp1);
@@ -142,7 +142,7 @@ namespace SocialPoint.Components
         public void MultiSetupFailure()
         {
             _setupComp1.When(setupComp => setupComp.Update(Arg.Any<float>())).Do(setupComp => ((IBattleErrorHandler)_battleController).OnError(new BattleError()));
-            _setupComp2.Update(Arg.Any<float>()).Returns(BattleSetupState.Success);
+            _setupComp2.Update(Arg.Any<float>()).Returns(SetupStepState.Success);
             _battleController.RegisterSetupComponent(_setupComp1);
             _battleController.RegisterSetupComponent(_setupComp2);
             _battleController.RegisterUpdateComponent(_updateComp1);
@@ -188,7 +188,7 @@ namespace SocialPoint.Components
         [Test]
         public void StopSuccess()
         {
-            _stopComp1.When(s => s.Stop()).Do(s => ((IBattleStopListener)_battleController).OnStopped(true));
+            _stopComp1.When(s => s.Stop()).Do(s => ((IStopListener)_battleController).OnStopped(true));
             _battleController.RegisterStopComponent(_stopComp1);
             _battleController.RegisterCleanupComponent(_cleanupComp1);
 
@@ -200,8 +200,8 @@ namespace SocialPoint.Components
         [Test]
         public void StopFailure()
         {
-            _stopComp1.When(s => s.Stop()).Do(s => ((IBattleStopListener)_battleController).OnStopped(true));
-            _stopComp2.When(s => s.Stop()).Do(s => ((IBattleStopListener)_battleController).OnStopped(false));
+            _stopComp1.When(s => s.Stop()).Do(s => ((IStopListener)_battleController).OnStopped(true));
+            _stopComp2.When(s => s.Stop()).Do(s => ((IStopListener)_battleController).OnStopped(false));
             _battleController.RegisterStopComponent(_stopComp1);
             _battleController.RegisterStopComponent(_stopComp2);
             _battleController.RegisterCleanupComponent(_cleanupComp1);

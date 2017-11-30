@@ -29,26 +29,6 @@ namespace SocialPoint.Components
         void Handle(T action, R result);
     }
 
-    public interface IActionValidator<T>
-    {
-        bool Validate(T action);
-    }
-
-    public interface IActionValidator<T, R>
-    {
-        bool Validate(T action, out R result);
-    }
-
-    public interface IStateActionValidator<S, T, R>
-    {
-        bool Validate(S state, T action, out R result);
-    }
-
-    public interface IStateActionValidator<S, T>
-    {
-        bool Validate(S state, T action);
-    }
-
     public interface IStateActionHandler<S, T>
     {
         void Handle(S state, T action);
@@ -72,6 +52,26 @@ namespace SocialPoint.Components
                 action.Apply(state);
             }
         }
+    }
+
+    public interface IActionValidator<T>
+    {
+        bool Validate(T action);
+    }
+
+    public interface IActionValidator<T, R>
+    {
+        bool Validate(T action, out R result);
+    }
+
+    public interface IStateActionValidator<S, T, R>
+    {
+        bool Validate(S state, T action, out R result);
+    }
+
+    public interface IStateActionValidator<S, T>
+    {
+        bool Validate(S state, T action);
     }
 
     public delegate bool ActionValidatorFunc<T, R>(T action, out R result);

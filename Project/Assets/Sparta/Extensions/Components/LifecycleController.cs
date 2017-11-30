@@ -6,55 +6,91 @@ using System;
 
 namespace SocialPoint.Components
 {
-    public class BattleControllerBase : IDeltaUpdateable, IBattleStopListener, IBattleErrorDispatcher, IBattleErrorHandler, IDisposable
+    public enum LifecyclePhase
     {
-        IBattleSetup _currentSetupComponent;
-        Queue<IBattleSetup> _setupComponents;
-        List<IBattleUpdate> _updateComponents;
-        List<IBattleCleanup> _cleanupComponents;
-        List<IBattleStart> _startComponents;
-        List<IBattleStop> _stopComponents;
-        List<IBattleStopListener> _stopListeners;
+        None,
+        Setup,
+        Start,
+        Update,
+        Cleanup,
+    }
+
+    public interface ISetupComponent
+    {
+        void Start();
+        void Update(float dt);
+        bool Finished { get; }
+    }
+
+    public interface IUpdateComponent
+    {
+        void Update(float dt);
+    }
+
+    public interface ICleanupComponent
+    {
+        void Cleanup();
+    }
+
+    public interface IStopListener
+    {
+        void OnStopped(bool successful);
+    }
+
+    public interface IStopComponent
+    {
+        IStopListener Listener { get; set; }
+
+        void Stop();
+    }
+
+    public interface IStartComponent
+    {
+        void Start();
+    }
+
+    public interface IErrorHandler
+    {
+        void OnError(BattleError battleError);
+    }
+
+    public interface IErrorDispatcher
+    {
+        IErrorHandler Handler { get; set; }
+    }
+
+    public class LifecycleController : IDeltaUpdateable, IStopListener, IErrorHandler, IDisposable
+    {
+        ISetupComponent _currentSetupComponent;
+        Queue<ISetupComponent> _setupComponents;
+        List<IUpdateComponent> _updateComponents;
+        List<ICleanupComponent> _cleanupComponents;
+        List<IStartComponent> _startComponents;
+        List<IStopComponent> _stopComponents;
+        List<IStopListener> _stopListeners;
+        List<IErrorHandler> _errorHandlers;
+
         ActionProcessor _actions;
-        BattleErrorDispatcherBase _errorDispatcher;
-        BattleStep _battleStep;
         protected IUpdateScheduler _scheduler;
         int _successfulStopEventsCount;
         int _totalStopEventsCount;
         bool _componentsRegistered;
 
-        public BattleStep Step
-        {
-            get
-            {
-                return _battleStep;
-            }
-        }
+        public LifecyclePhase Phase { get; private set; }
 
-        public BattleControllerBase(IUpdateScheduler scheduler)
+        public LifecycleController(IUpdateScheduler scheduler)
         {
-            _setupComponents = new Queue<IBattleSetup>();
-            _startComponents = new List<IBattleStart>();
-            _updateComponents = new List<IBattleUpdate>();
-            _cleanupComponents = new List<IBattleCleanup>();
-            _stopComponents = new List<IBattleStop>();
-            _stopListeners = new List<IBattleStopListener>();
+            _setupComponents = new Queue<ISetupComponent>();
+            _startComponents = new List<IStartComponent>();
+            _updateComponents = new List<IUpdateComponent>();
+            _cleanupComponents = new List<ICleanupComponent>();
+            _stopComponents = new List<IStopComponent>();
+            _stopListeners = new List<IStopListener>();
             _actions = new ActionProcessor();
-            _errorDispatcher = new BattleErrorDispatcherBase();
-            _battleStep = BattleStep.None;
+            Phase = LifecyclePhase.None;
             _scheduler = scheduler;
             _successfulStopEventsCount = 0;
             _totalStopEventsCount = 0;
-        }
-
-        // This method was added to ensure that certain components are registered before anything else. 
-        // Atm the overrides for RegisterComponents() on the subclasses execute their own logic 
-        // before deferring to base.RegisterComponents(), so I'm assuming that it's because of some order dependencies
-        //
-        // Alternatively, since the only component that requires this right now is the BattleControllerErrorHandler 
-        // we might even add it directly to BattleControllerBase.Start()
-        protected virtual void RegisterBootstrapComponents()
-        {
         }
 
         protected virtual void RegisterComponents()
@@ -65,13 +101,11 @@ namespace SocialPoint.Components
         {
             if(!_componentsRegistered)
             {
-                
                 _componentsRegistered = true;
-                RegisterBootstrapComponents();
                 RegisterComponents();
             }
-            _battleStep = BattleStep.Setup;
-            _scheduler.Add(this, UpdateableTimeMode.GameTimeScaled, -1.0f);
+            Phase = LifecyclePhase.Setup;
+            _scheduler.Add(this, UpdateableTimeMode.GameTimeScaled);
         }
 
         public void Stop()
@@ -81,24 +115,22 @@ namespace SocialPoint.Components
 
         public void Dispose()
         {
-            _battleStep = BattleStep.Cleanup;
+            Phase = LifecyclePhase.Cleanup;
             _scheduler.Remove(this);
-            _errorDispatcher.Dispose();
             RunCleanupComponents();
         }
 
-        //IUpdateable
         public void Update(float dt)
         {
-            switch(_battleStep)
+            switch(Phase)
             {
-            case BattleStep.Setup:
+            case LifecyclePhase.Setup:
                 UpdateSetupStep(dt);
                 break;
-            case BattleStep.Start:
+            case LifecyclePhase.Start:
                 RunStartStep();
                 break;
-            case BattleStep.Update:
+            case LifecyclePhase.Update:
                 RunUpdateComponents(dt);
                 break;
             default:
@@ -111,8 +143,8 @@ namespace SocialPoint.Components
             var setupState = RunSetupComponents(dt);
             switch(setupState)
             {
-            case BattleSetupState.Success:
-                _battleStep = BattleStep.Start;
+            case SetupStepState.Success:
+                _phase = LifecyclePhase.Start;
                 break;
             default:
                 break;
@@ -121,14 +153,14 @@ namespace SocialPoint.Components
 
         void RunStartStep()
         {
-            for(int i = 0; i < _startComponents.Count && _battleStep != BattleStep.Cleanup; i++)
+            for(int i = 0; i < _startComponents.Count && _phase != LifecyclePhase.Cleanup; i++)
             {
                 _startComponents[i].Start();
             }
-            _battleStep = BattleStep.Update;
+            _phase = LifecyclePhase.Update;
         }
 
-        BattleSetupState RunSetupComponents(float dt)
+        SetupStepState RunSetupComponents(float dt)
         {
             if(_currentSetupComponent == null && _setupComponents.Count > 0)
             {
@@ -138,22 +170,22 @@ namespace SocialPoint.Components
             if(_currentSetupComponent != null)
             {
                 var setupState = _currentSetupComponent.Update(dt);
-                if(setupState == BattleSetupState.Success)
+                if(setupState == SetupStepState.Success)
                 {
                     _currentSetupComponent = null;
                     if(_setupComponents.Count > 0)
                     {
-                        setupState = BattleSetupState.Processing;
+                        setupState = SetupStepState.Processing;
                     }
                 }
                 return setupState;
             }
-            return BattleSetupState.Success;
+            return SetupStepState.Success;
         }
 
         void RunUpdateComponents(float dt)
         {
-            for(int i = 0; i < _updateComponents.Count && _battleStep != BattleStep.Cleanup; i++)
+            for(int i = 0; i < _updateComponents.Count && _phase != LifecyclePhase.Cleanup; i++)
             {
                 _updateComponents[i].Update(dt);
             }
@@ -194,7 +226,7 @@ namespace SocialPoint.Components
 
         public void ProcessAction(object action)
         {
-            if(_battleStep == BattleStep.Update)
+            if(_phase == LifecyclePhase.Update)
             {
                 _actions.Process(action);
             }
@@ -216,7 +248,7 @@ namespace SocialPoint.Components
             }
         }
 
-        void IBattleStopListener.OnStopped(bool successful)
+        void IStopListener.OnStopped(bool successful)
         {
             ++_totalStopEventsCount;
             if(successful)
@@ -239,18 +271,18 @@ namespace SocialPoint.Components
 
         public T RegisterComponent<T>(T component) where T : class
         {
-            RegisterSetupComponent(component as IBattleSetup);
-            RegisterStartComponent(component as IBattleStart);
-            RegisterUpdateComponent(component as IBattleUpdate);
-            RegisterCleanupComponent(component as IBattleCleanup);
-            RegisterStopComponent(component as IBattleStop);
-            RegisterStopListener(component as IBattleStopListener);
+            RegisterSetupComponent(component as ISetupComponent);
+            RegisterStartComponent(component as IStartComponent);
+            RegisterUpdateComponent(component as IUpdateComponent);
+            RegisterCleanupComponent(component as ICleanupComponent);
+            RegisterStopComponent(component as IStopComponent);
+            RegisterStopListener(component as IStopListener);
             RegisterErrorDispatcherComponent(component as IBattleErrorDispatcher);
             RegisterErrorHandlerComponent(component as IBattleErrorHandler);
             return component;
         }
 
-        public void RegisterSetupComponent(IBattleSetup setupComp)
+        public void RegisterSetupComponent(ISetupComponent setupComp)
         {
             if(setupComp != null)
             {
@@ -258,7 +290,7 @@ namespace SocialPoint.Components
             }
         }
 
-        public void RegisterStartComponent(IBattleStart startComp)
+        public void RegisterStartComponent(IStartComponent startComp)
         {
             if (startComp != null)
             {
@@ -266,7 +298,7 @@ namespace SocialPoint.Components
             }
         }
 
-        public void RegisterUpdateComponent(IBattleUpdate updateComp)
+        public void RegisterUpdateComponent(IUpdateComponent updateComp)
         {
             if(updateComp != null)
             {
@@ -274,7 +306,7 @@ namespace SocialPoint.Components
             }
         }
 
-        public void RegisterCleanupComponent(IBattleCleanup cleanupComp)
+        public void RegisterCleanupComponent(ICleanupComponent cleanupComp)
         {
             if(cleanupComp != null)
             {
@@ -282,7 +314,7 @@ namespace SocialPoint.Components
             }
         }
 
-        public void RegisterStopComponent(IBattleStop stopComp)
+        public void RegisterStopComponent(IStopComponent stopComp)
         {
             if(stopComp != null)
             {
@@ -291,7 +323,7 @@ namespace SocialPoint.Components
             }
         }
 
-        public void RegisterStopListener(IBattleStopListener listener)
+        public void RegisterStopListener(IStopListener listener)
         {
             if(listener != null)
             {
@@ -299,7 +331,7 @@ namespace SocialPoint.Components
             }
         }
 
-        public void UnregisterStopListener(IBattleStopListener listener)
+        public void UnregisterStopListener(IStopListener listener)
         {
             if(listener != null)
             {

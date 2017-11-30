@@ -20,6 +20,10 @@ namespace SocialPoint.Components
             Error2
         };
 
+        class State
+        {
+        }
+
         TestAction _action;
         TestOtherAction _otherAction;
         IActionValidator<TestAction> _validator1;
@@ -29,6 +33,7 @@ namespace SocialPoint.Components
         IActionHandler<TestAction> _successHandler2;
         IActionHandler<TestAction> _failureHandler1;
         IActionHandler<TestAction> _failureHandler2;
+        IStateActionHandler<object, TestAction> _stateHandler; 
 
         IActionHandler<TestOtherAction> _otherSuccessHandler;
         ActionProcessor _processor;
@@ -47,6 +52,36 @@ namespace SocialPoint.Components
             _failureHandler2 = Substitute.For<IActionHandler<TestAction>>();
             _otherSuccessHandler = Substitute.For<IActionHandler<TestOtherAction>>();
             _processor = new ActionProcessor();
+        }
+
+        [Test]
+        public void BasicHandlers()
+        {
+            TestAction receivedAction = null;
+            _processor.RegisterHandler((TestAction a) => receivedAction = a);
+            _processor.RegisterHandler(_successHandler1);
+            _processor.Process(_action);
+            _successHandler1.Received(1).Handle(_action);
+            Assert.AreEqual(_action, receivedAction);
+
+            _processor.UnregisterHandler(_successHandler1);
+            _successHandler1.ClearReceivedCalls();
+            _processor.Process(_action);
+            _successHandler1.DidNotReceive().Handle(Arg.Any<TestAction>());
+        }
+
+        [Test]
+        public void BasicStateHandlers()
+        {
+            TestAction receivedAction = null;
+            object receivedState = null;
+            _processor.RegisterStateHandler((object s, TestAction a) => { receivedAction = a; receivedState = s; });
+            _processor.RegisterHandler(_successHandler1);
+            var state = new State();
+            _processor.Process(state, _action);
+            _successHandler1.Received(1).Handle(_action);
+            Assert.AreEqual(_action, receivedAction);
+            Assert.AreEqual(state, receivedState);
         }
 
         [Test]

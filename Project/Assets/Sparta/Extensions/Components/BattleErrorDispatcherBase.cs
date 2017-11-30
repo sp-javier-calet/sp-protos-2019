@@ -5,9 +5,18 @@ using SocialPoint.Locale;
 
 namespace SocialPoint.Components
 {
+
+
+    public class BattleError
+    {
+        public Error Error;
+        public string Title;
+        public string Description;
+    }
+
     public class BattleErrorDispatcherBase : IBattleErrorDispatcher, IDisposable
     {
-        readonly List<IBattleErrorHandler> _errorHandlers;
+        
 
         public BattleErrorDispatcherBase()
         {
