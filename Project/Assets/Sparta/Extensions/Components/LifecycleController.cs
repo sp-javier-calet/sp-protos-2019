@@ -6,15 +6,6 @@ using System;
 
 namespace SocialPoint.Components
 {
-    public enum LifecyclePhase
-    {
-        None,
-        Setup,
-        Start,
-        Update,
-        Cleanup,
-    }
-
     public interface ISetupComponent
     {
         void Start();
@@ -51,7 +42,7 @@ namespace SocialPoint.Components
 
     public interface IErrorHandler
     {
-        void OnError(BattleError battleError);
+        void OnError(Error error);
     }
 
     public interface IErrorDispatcher
@@ -61,36 +52,54 @@ namespace SocialPoint.Components
 
     public class LifecycleController : IDeltaUpdateable, IStopListener, IErrorHandler, IDisposable
     {
-        ISetupComponent _currentSetupComponent;
-        Queue<ISetupComponent> _setupComponents;
+        List<ISetupComponent> _setupComponents;
         List<IUpdateComponent> _updateComponents;
         List<ICleanupComponent> _cleanupComponents;
         List<IStartComponent> _startComponents;
         List<IStopComponent> _stopComponents;
         List<IStopListener> _stopListeners;
+        List<IErrorDispatcher> _errorDispatchers;
         List<IErrorHandler> _errorHandlers;
 
-        ActionProcessor _actions;
-        protected IUpdateScheduler _scheduler;
+        IUpdateScheduler _scheduler;
+
+        int _currentSetupComponent;
+        bool _currentSetupComponentStarted;
+
         int _successfulStopEventsCount;
         int _totalStopEventsCount;
-        bool _componentsRegistered;
 
-        public LifecyclePhase Phase { get; private set; }
-
-        public LifecycleController(IUpdateScheduler scheduler)
+        public enum PhaseType
         {
-            _setupComponents = new Queue<ISetupComponent>();
+            None,
+            Setup,
+            Start,
+            Update,
+            Cleanup,
+        }
+
+        public PhaseType Phase { get; private set; }
+
+        public LifecycleController(IUpdateScheduler scheduler = null)
+        {
+            _setupComponents = new List<ISetupComponent>();
             _startComponents = new List<IStartComponent>();
             _updateComponents = new List<IUpdateComponent>();
             _cleanupComponents = new List<ICleanupComponent>();
             _stopComponents = new List<IStopComponent>();
             _stopListeners = new List<IStopListener>();
-            _actions = new ActionProcessor();
-            Phase = LifecyclePhase.None;
+            _errorDispatchers = new List<IErrorDispatcher>();
+            _errorHandlers = new List<IErrorHandler>();
+            Phase = PhaseType.None;
             _scheduler = scheduler;
             _successfulStopEventsCount = 0;
             _totalStopEventsCount = 0;
+
+            if(_scheduler != null)
+            {
+                _scheduler.Add(this, UpdateableTimeMode.GameTimeScaled, 0.0f);
+            }
+            RegisterComponents();
         }
 
         protected virtual void RegisterComponents()
@@ -99,140 +108,107 @@ namespace SocialPoint.Components
 
         public void Start()
         {
-            if(!_componentsRegistered)
-            {
-                _componentsRegistered = true;
-                RegisterComponents();
-            }
-            Phase = LifecyclePhase.Setup;
-            _scheduler.Add(this, UpdateableTimeMode.GameTimeScaled);
+            Phase = PhaseType.Setup;
+            _currentSetupComponent = 0;
+            _currentSetupComponentStarted = false;
         }
 
         public void Stop()
         {
-            StopComponents();
-        }
-
-        public void Dispose()
-        {
-            Phase = LifecyclePhase.Cleanup;
-            _scheduler.Remove(this);
-            RunCleanupComponents();
-        }
-
-        public void Update(float dt)
-        {
-            switch(Phase)
+            for(int i = 0; i < _stopComponents.Count; i++)
             {
-            case LifecyclePhase.Setup:
-                UpdateSetupStep(dt);
-                break;
-            case LifecyclePhase.Start:
-                RunStartStep();
-                break;
-            case LifecyclePhase.Update:
-                RunUpdateComponents(dt);
-                break;
-            default:
-                break;
+                _stopComponents[i].Listener = this;
             }
-        }
-
-        void UpdateSetupStep(float dt)
-        {
-            var setupState = RunSetupComponents(dt);
-            switch(setupState)
-            {
-            case SetupStepState.Success:
-                _phase = LifecyclePhase.Start;
-                break;
-            default:
-                break;
-            }
-        }
-
-        void RunStartStep()
-        {
-            for(int i = 0; i < _startComponents.Count && _phase != LifecyclePhase.Cleanup; i++)
-            {
-                _startComponents[i].Start();
-            }
-            _phase = LifecyclePhase.Update;
-        }
-
-        SetupStepState RunSetupComponents(float dt)
-        {
-            if(_currentSetupComponent == null && _setupComponents.Count > 0)
-            {
-                _currentSetupComponent = _setupComponents.Dequeue();
-                _currentSetupComponent.Start();
-            }
-            if(_currentSetupComponent != null)
-            {
-                var setupState = _currentSetupComponent.Update(dt);
-                if(setupState == SetupStepState.Success)
-                {
-                    _currentSetupComponent = null;
-                    if(_setupComponents.Count > 0)
-                    {
-                        setupState = SetupStepState.Processing;
-                    }
-                }
-                return setupState;
-            }
-            return SetupStepState.Success;
-        }
-
-        void RunUpdateComponents(float dt)
-        {
-            for(int i = 0; i < _updateComponents.Count && _phase != LifecyclePhase.Cleanup; i++)
-            {
-                _updateComponents[i].Update(dt);
-            }
-        }
-
-        void RunCleanupComponents()
-        {
-            for(int i = 0; i < _cleanupComponents.Count; i++)
-            {
-                _cleanupComponents[i].Cleanup();
-            }
-
-            _cleanupComponents.Clear();
-        }
-
-        void StopComponents()
-        {
-            ResetStopComponentsListener();
-
             _successfulStopEventsCount = 0;
             _totalStopEventsCount = 0;
             OnStopCountUpdate();
-
             for(int i = 0; i < _stopComponents.Count; i++)
             {
                 _stopComponents[i].Stop();
             }
         }
 
-        void ResetStopComponentsListener()
+        public void Dispose()
         {
+            Phase = PhaseType.Cleanup;
+            _scheduler.Remove(this);
+            for(int i = 0; i < _cleanupComponents.Count; i++)
+            {
+                _cleanupComponents[i].Cleanup();
+            }
+            _cleanupComponents.Clear();
+            for(int i = 0; i < _errorDispatchers.Count; i++)
+            {
+                _errorDispatchers[i].Handler = null;
+            }
+            _errorDispatchers.Clear();
             for(int i = 0; i < _stopComponents.Count; i++)
             {
-                _stopComponents[i].UnregisterListener(this);
-                _stopComponents[i].RegisterListener(this);
+                _stopComponents[i].Listener = null;
+            }
+            _stopComponents.Clear();
+            _setupComponents.Clear();
+            _startComponents.Clear();
+            _updateComponents.Clear();
+            _stopListeners.Clear();
+            _errorHandlers.Clear();
+        }
+
+        public void Update(float dt)
+        {
+            switch(Phase)
+            {
+            case PhaseType.Setup:
+                RunSetupPhase(dt);
+                break;
+            case PhaseType.Start:
+                RunStartPhase();
+                break;
+            case PhaseType.Update:
+                RunUpdatePhase(dt);
+                break;
+            default:
+                break;
             }
         }
 
-        public void ProcessAction(object action)
+        void RunSetupPhase(float dt)
         {
-            if(_phase == LifecyclePhase.Update)
+            if(_currentSetupComponent < _setupComponents.Count)
             {
-                _actions.Process(action);
+                var comp = _setupComponents[_currentSetupComponent];
+                if(!_currentSetupComponentStarted)
+                {
+                    _currentSetupComponentStarted = true;
+                    comp.Start();
+                }
+                comp.Update(dt);
+                if(comp.Finished)
+                {
+                    _currentSetupComponent++;
+                    _currentSetupComponentStarted = false;
+                }
             }
-            else
+            if(_currentSetupComponent >= _setupComponents.Count)
             {
-                Log.d("Trying to process action while the battle is not running!");
+                Phase = PhaseType.Start;
+            }
+        }
+
+        void RunStartPhase()
+        {
+            for(int i = 0; i < _startComponents.Count && Phase != PhaseType.Cleanup; i++)
+            {
+                _startComponents[i].Start();
+            }
+            Phase = PhaseType.Update;
+        }
+
+        void RunUpdatePhase(float dt)
+        {
+            for(int i = 0; i < _updateComponents.Count && Phase != PhaseType.Cleanup; i++)
+            {
+                _updateComponents[i].Update(dt);
             }
         }
 
@@ -258,14 +234,12 @@ namespace SocialPoint.Components
             OnStopCountUpdate();
         }
 
-        void IBattleErrorDispatcher.RegisterHandler(IBattleErrorHandler handler)
+        void IErrorHandler.OnError(Error error)
         {
-            _errorDispatcher.RegisterHandler(handler);
-        }
-
-        void IBattleErrorHandler.OnError(BattleError battleError)
-        {
-            _errorDispatcher.DispatchError(battleError);
+            for(var i = 0; i < _errorHandlers.Count; i++)
+            {
+                _errorHandlers[i].OnError(error);
+            }
             Dispose();
         }
 
@@ -277,49 +251,48 @@ namespace SocialPoint.Components
             RegisterCleanupComponent(component as ICleanupComponent);
             RegisterStopComponent(component as IStopComponent);
             RegisterStopListener(component as IStopListener);
-            RegisterErrorDispatcherComponent(component as IBattleErrorDispatcher);
-            RegisterErrorHandlerComponent(component as IBattleErrorHandler);
+            RegisterErrorDispatcher(component as IErrorDispatcher);
+            RegisterErrorHandler(component as IErrorHandler);
             return component;
         }
 
-        public void RegisterSetupComponent(ISetupComponent setupComp)
+        public void RegisterSetupComponent(ISetupComponent setup)
         {
-            if(setupComp != null)
+            if(setup != null)
             {
-                _setupComponents.Enqueue(setupComp);
+                _setupComponents.Add(setup);
             }
         }
 
-        public void RegisterStartComponent(IStartComponent startComp)
+        public void RegisterStartComponent(IStartComponent start)
         {
-            if (startComp != null)
+            if (start != null)
             {
-                _startComponents.Add(startComp);
+                _startComponents.Add(start);
             }
         }
 
-        public void RegisterUpdateComponent(IUpdateComponent updateComp)
+        public void RegisterUpdateComponent(IUpdateComponent update)
         {
-            if(updateComp != null)
+            if(update != null)
             {
-                _updateComponents.Add(updateComp);
+                _updateComponents.Add(update);
             }
         }
 
-        public void RegisterCleanupComponent(ICleanupComponent cleanupComp)
+        public void RegisterCleanupComponent(ICleanupComponent cleanup)
         {
-            if(cleanupComp != null)
+            if(cleanup != null)
             {
-                _cleanupComponents.Add(cleanupComp);
+                _cleanupComponents.Add(cleanup);
             }
         }
 
-        public void RegisterStopComponent(IStopComponent stopComp)
+        public void RegisterStopComponent(IStopComponent stop)
         {
-            if(stopComp != null)
+            if(stop != null)
             {
-                _stopComponents.Add(stopComp);
-                stopComp.RegisterListener(this);
+                _stopComponents.Add(stop);
             }
         }
 
@@ -339,67 +312,20 @@ namespace SocialPoint.Components
             }
         }
 
-        public void RegisterErrorDispatcherComponent(IBattleErrorDispatcher errDispatcherComp)
+        public void RegisterErrorDispatcher(IErrorDispatcher dispatcher)
         {
-            if(errDispatcherComp != null)
+            if(dispatcher != null)
             {
-                errDispatcherComp.RegisterHandler(this);
+                dispatcher.Handler = this;
+                _errorDispatchers.Add(dispatcher);
             }
         }
 
-        public void RegisterErrorHandlerComponent(IBattleErrorHandler errHandlerComp)
-        {
-            if(errHandlerComp != null)
-            {
-                ((IBattleErrorDispatcher)this).RegisterHandler(errHandlerComp);
-            }
-        }
-
-        protected void RegisterValidator<T>(IActionValidator<T> validator)
-        {
-            if(validator != null)
-            {
-                _actions.RegisterValidator(validator);
-            }
-        }
-
-        protected void RegisterSuccessHandler<T>(IActionHandler<T> handler)
+        public void RegisterErrorHandler(IErrorHandler handler)
         {
             if(handler != null)
             {
-                _actions.RegisterSuccessHandler(handler);
-            }
-        }
-
-        protected void RegisterFailureHandler<T>(IActionHandler<T> handler)
-        {
-            if(handler != null)
-            {
-                _actions.RegisterFailureHandler(handler);
-            }
-        }
-
-        protected void RegisterValidator<T, R>(IActionValidator<T, R> validator)
-        {
-            if(validator != null)
-            {
-                _actions.RegisterValidator(validator);
-            }
-        }
-
-        protected void RegisterSuccessHandler<T, R>(IResultActionHandler<T, R> handler)
-        {
-            if(handler != null)
-            {
-                _actions.RegisterSuccessHandler(handler);
-            }
-        }
-
-        protected void RegisterFailureHandler<T, R>(IResultActionHandler<T, R> handler)
-        {
-            if(handler != null)
-            {
-                _actions.RegisterFailureHandler(handler);
+                _errorHandlers.Add(handler);
             }
         }
     }

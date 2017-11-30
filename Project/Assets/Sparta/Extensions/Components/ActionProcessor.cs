@@ -78,7 +78,7 @@ namespace SocialPoint.Components
 
     public delegate bool ActionValidatorFunc<S, T, R>(S state, T action, out R result);
 
-    public class ActionProcessor<T, S> : IActionHandler<T>, IStateActionHandler<S, T>
+    public class ActionProcessor<T, S> : IActionHandler<T>, IStateActionHandler<S, T>, IDisposable
     {
         class ActionValidatorWrapper<K, R> : IStateActionValidator<S, K, object> where K : T
         {
@@ -553,6 +553,12 @@ namespace SocialPoint.Components
         {
             _validators = new Dictionary<Type, ITypeValidator>();
             _handlers = new Dictionary<Type, ITypeHandler>();
+        }
+
+        public void Dispose()
+        {
+            _validators.Clear();
+            _handlers.Clear();
         }
 
         void IActionHandler<T>.Handle(T action)

@@ -6,6 +6,7 @@ using SocialPoint.ServerSync;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
 using System;
+using SocialPoint.Base;
 
 namespace SocialPoint.Components
 {
@@ -22,7 +23,7 @@ namespace SocialPoint.Components
         ICleanupComponent _cleanupComp2;
         IStopComponent _stopComp1;
         IStopComponent _stopComp2;
-        IBattleErrorHandler _errorHandlerComp;
+        IErrorHandler _errorHandlerComp;
         LifecycleController _battleController;
 
         [SetUp]
@@ -36,7 +37,7 @@ namespace SocialPoint.Components
             _cleanupComp2 = Substitute.For<ICleanupComponent>();
             _stopComp1 = Substitute.For<IStopComponent>();
             _stopComp2 = Substitute.For<IStopComponent>();
-            _errorHandlerComp = Substitute.For<IBattleErrorHandler>();
+            _errorHandlerComp = Substitute.For<IErrorHandler>();
             _battleController = new LifecycleController(
                 Substitute.For<IUpdateScheduler>()
             );
@@ -56,7 +57,7 @@ namespace SocialPoint.Components
         [Test]
         public void StepOrder()
         {
-            _setupComp1.Update(Arg.Any<float>()).Returns(SetupStepState.Success);
+            _setupComp1.Finished.Returns(true);
             _battleController.RegisterSetupComponent(_setupComp1);
             _battleController.RegisterUpdateComponent(_updateComp1);
             _battleController.RegisterCleanupComponent(_cleanupComp1);
@@ -102,8 +103,8 @@ namespace SocialPoint.Components
         [Test]
         public void MultiSetupSuccess()
         {
-            _setupComp1.Update(Arg.Any<float>()).Returns(SetupStepState.Success);
-            _setupComp2.Update(Arg.Any<float>()).Returns(SetupStepState.Success);
+            _setupComp1.Finished.Returns(true);
+            _setupComp2.Finished.Returns(true);
             _battleController.RegisterSetupComponent(_setupComp1);
             _battleController.RegisterSetupComponent(_setupComp2);
             _battleController.RegisterUpdateComponent(_updateComp1);
@@ -141,8 +142,8 @@ namespace SocialPoint.Components
         [Test]
         public void MultiSetupFailure()
         {
-            _setupComp1.When(setupComp => setupComp.Update(Arg.Any<float>())).Do(setupComp => ((IBattleErrorHandler)_battleController).OnError(new BattleError()));
-            _setupComp2.Update(Arg.Any<float>()).Returns(SetupStepState.Success);
+            _setupComp1.When(setupComp => setupComp.Update(Arg.Any<float>())).Do(setupComp => ((IErrorHandler)_battleController).OnError(new Error()));
+            _setupComp2.Finished.Returns(true);
             _battleController.RegisterSetupComponent(_setupComp1);
             _battleController.RegisterSetupComponent(_setupComp2);
             _battleController.RegisterUpdateComponent(_updateComp1);
@@ -216,10 +217,10 @@ namespace SocialPoint.Components
         [Test]
         public void ErrorHandlerSetup()
         {
-            _setupComp1.When(setupComp => setupComp.Update(Arg.Any<float>())).Do(setupComp => ((IBattleErrorHandler)_battleController).OnError(new BattleError()));
+            _setupComp1.When(setupComp => setupComp.Update(Arg.Any<float>())).Do(setupComp => ((IErrorHandler)_battleController).OnError(new Error()));
             _battleController.RegisterSetupComponent(_setupComp1);
             _battleController.RegisterUpdateComponent(_updateComp1);
-            _battleController.RegisterErrorHandlerComponent(_errorHandlerComp);
+            _battleController.RegisterErrorHandler(_errorHandlerComp);
 
             _battleController.Update(dtTest);
             _battleController.Update(dtTest);//Should not update components after error
@@ -227,22 +228,22 @@ namespace SocialPoint.Components
             _setupComp1.Received(1).Start();
             _setupComp1.Received(1).Update(Arg.Is<float>(dt => NearlyEqual(dt, dtTest)));
             _updateComp1.DidNotReceive().Update(Arg.Any<float>());
-            _errorHandlerComp.Received(1).OnError(Arg.Any<BattleError>());
+            _errorHandlerComp.Received(1).OnError(Arg.Any<Error>());
         }
 
         [Test]
         public void ErrorHandlerUpdate()
         {
-            _updateComp1.When(updateComp => updateComp.Update(Arg.Any<float>())).Do(updateComp => ((IBattleErrorHandler)_battleController).OnError(new BattleError()));
+            _updateComp1.When(updateComp => updateComp.Update(Arg.Any<float>())).Do(updateComp => ((IErrorHandler)_battleController).OnError(new Error()));
             _battleController.RegisterUpdateComponent(_updateComp1);
-            _battleController.RegisterErrorHandlerComponent(_errorHandlerComp);
+            _battleController.RegisterErrorHandler(_errorHandlerComp);
 
             _battleController.Update(dtTest);//Run empty Setup
             _battleController.Update(dtTest);
             _battleController.Update(dtTest);//Should not update components after error
 
             _updateComp1.Received(1).Update(Arg.Is<float>(dt => NearlyEqual(dt, dtTest)));
-            _errorHandlerComp.Received(1).OnError(Arg.Any<BattleError>());
+            _errorHandlerComp.Received(1).OnError(Arg.Any<Error>());
         }
 
         public static bool NearlyEqual(float a, float b) {
