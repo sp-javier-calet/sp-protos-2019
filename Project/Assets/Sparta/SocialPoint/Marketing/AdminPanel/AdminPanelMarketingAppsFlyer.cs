@@ -7,6 +7,7 @@ using SocialPoint.AdminPanel;
 using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.Hardware;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Marketing
 {
@@ -14,15 +15,17 @@ namespace SocialPoint.Marketing
     {
         readonly SocialPointAppsFlyer _appsFlyerTracker;
         readonly IDeviceInfo _deviceInfo;
+        readonly INativeUtils _nativeUtils;
         readonly IAppEvents _appEvents;
         readonly IAlertView _alertPrototype;
         string _customMediaSource;
         string _customCampaign;
 
-        public AdminPanelMarketingAppsFlyer(SocialPointAppsFlyer appsFlyerTracker, IDeviceInfo deviceInfo, IAppEvents appEvents, IAlertView alertPrototype)
+        public AdminPanelMarketingAppsFlyer(SocialPointAppsFlyer appsFlyerTracker, IDeviceInfo deviceInfo, INativeUtils nativeUtils, IAppEvents appEvents, IAlertView alertPrototype)
         {
             _appsFlyerTracker = appsFlyerTracker;
             _deviceInfo = deviceInfo;
+            _nativeUtils = nativeUtils;
             _appEvents = appEvents;
             _alertPrototype = alertPrototype;
             _customMediaSource = "AdminPanelSource";
@@ -55,8 +58,8 @@ namespace SocialPoint.Marketing
                     string idfaValue = _deviceInfo.AdvertisingId;
                     string url = CreateInstallURL(appId, _customMediaSource, _customCampaign, idfaValue);
 
+                    _appEvents.WillGoBackground.Add(0, ClearAndKillApp);
                     Application.OpenURL(url);
-                    ClearAndKillApp();
                 });
             });
 
@@ -67,8 +70,7 @@ namespace SocialPoint.Marketing
 
         void ClearAndKillApp()
         {
-            //TODO: Clear data
-            _appEvents.KillGame();
+            _nativeUtils.ClearDataAndKillApp();
         }
 
         string CreateInstallURL(string appId, string mediaSource, string campaign, string idfaValue)

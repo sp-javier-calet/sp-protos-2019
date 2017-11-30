@@ -8,11 +8,25 @@ namespace SocialPoint.Utils
 {
     public sealed class AndroidNativeUtils : UnityNativeUtils
     {
+        #if ADMIN_PANEL
+        const string FullClassName = "es.socialpoint.unity.base.NativeUtils";
+
+        const string FunctionClearDataAndKillApp = "ClearDataAndKillApp";
+
+        static AndroidJavaClass _notifClass;
+        #endif
+
         public AndroidNativeUtils(IAppInfo appInfo) : base(appInfo)
         {
+            #if ADMIN_PANEL
+            if(Application.platform == RuntimePlatform.Android)
+            {
+                _notifClass = new AndroidJavaClass(FullClassName);
+            }
+            #endif
         }
 
-#if UNITY_ANDROID
+        #if UNITY_ANDROID
 
         static AndroidJavaObject GetLaunchIntentForPackage(string packageName)
         {
@@ -59,7 +73,17 @@ namespace SocialPoint.Utils
             Application.OpenURL(string.Format("market://details?id={0}", appId));
         }
 
-#endif
+        #if ADMIN_PANEL
+        public override void ClearDataAndKillApp()
+        {
+            if(Application.platform == RuntimePlatform.Android)
+            {
+                _notifClass.CallStatic<bool>(FunctionClearDataAndKillApp);
+            }
+        }
+        #endif
+
+        #endif
 
     }
 

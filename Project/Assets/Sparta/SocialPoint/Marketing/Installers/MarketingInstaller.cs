@@ -3,6 +3,7 @@ using SocialPoint.Attributes;
 using SocialPoint.Login;
 using SocialPoint.Dependency;
 using System;
+using SocialPoint.Utils;
 
 #if ADMIN_PANEL
 using SocialPoint.AdminPanel;
@@ -64,6 +65,7 @@ namespace SocialPoint.Marketing
                                  Container.Resolve<IMarketingAttributionManager>(), 
                                  Container.Resolve<IAttrStorage>("persistent"),
                                  Container.Resolve<IDeviceInfo>(),
+                                 Container.Resolve<INativeUtils>(),
                                  Container.Resolve<IAppEvents>(),
                                  Container.Resolve<IAlertView>()
                              );
