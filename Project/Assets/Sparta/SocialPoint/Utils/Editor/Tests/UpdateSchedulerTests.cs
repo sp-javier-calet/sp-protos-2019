@@ -367,7 +367,7 @@ namespace SocialPoint.Utils
             _scheduler.Add(updateable0);
             _scheduler.Add(updateable1);
 
-            Assert.Throws<UpdateScheduler.AggregateException>(() => _scheduler.Update(0.05f, 0.05f));
+            Assert.Throws<AggregateException>(() => _scheduler.Update(0.05f, 0.05f));
 
             updateable0.Received(1).Update();
             updateable1.Received(1).Update();
@@ -390,7 +390,7 @@ namespace SocialPoint.Utils
 
             _scheduler.Add(updateable);
 
-            Assert.Throws<UpdateScheduler.AggregateException>(() => _scheduler.Update(0.05f, 0.05f));
+            Assert.Throws<AggregateException>(() => _scheduler.Update(0.05f, 0.05f));
 
             updateable.Received(1).Update();
 
