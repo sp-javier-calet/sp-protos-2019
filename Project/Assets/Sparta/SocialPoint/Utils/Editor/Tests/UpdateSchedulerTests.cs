@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -6,7 +6,7 @@ namespace SocialPoint.Utils
 {
     [TestFixture]
     [Category("SocialPoint.Utils")]
-    public class UnityUpdaterTests
+    public class UpdateSchedulerTests
     {
         UpdateScheduler _scheduler;
 
@@ -395,6 +395,58 @@ namespace SocialPoint.Utils
             updateable.Received(1).Update();
 
             Assert.True(callbackCalled);
+        }
+
+        public void RealTimeMillis()
+        {
+            var updateable = Substitute.For<IDeltaUpdateable<int>>();
+            _scheduler.Add(updateable, UpdateableTimeIntMode.RealTime);
+            _scheduler.Update(0, 0);
+            updateable.Received(1).Update(0);
+            System.Threading.Thread.Sleep(100);
+            _scheduler.Update(0.05f, 0.05f);
+            updateable.Received(1).Update(Arg.Is<int>( x => x >= 100 ));
+            System.Threading.Thread.Sleep(200);
+            _scheduler.Update(0.0f, 0.0f);
+            updateable.Received(1).Update(Arg.Is<int>( x => x >= 200 ));
+        }
+
+        [Test]
+        public void ScaledMillis()
+        {
+            var updateable = Substitute.For<IDeltaUpdateable<int>>();
+            _scheduler.Add(updateable, UpdateableTimeIntMode.GameTimeScaled);
+            _scheduler.Update(0, 0);
+            updateable.Received(1).Update(0);
+            _scheduler.Update(0.05f, 0.1f);
+            updateable.Received(1).Update(50);
+            _scheduler.Update(0.033f, 0.15f);
+            updateable.Received(1).Update(33);
+        }
+
+        [Test]
+        public void UnscaledMillis()
+        {
+            var updateable = Substitute.For<IDeltaUpdateable<int>>();
+            _scheduler.Add(updateable);
+            _scheduler.Update(0, 0);
+            updateable.Received(1).Update(0);
+            _scheduler.Update(0.05f, 0.1f);
+            updateable.Received(1).Update(100);
+            _scheduler.Update(0.033f, 0.15f);
+            updateable.Received(1).Update(150);
+        }
+
+        [Test]
+        public void MillisRounding()
+        {
+            var updateable = Substitute.For<IDeltaUpdateable<int>>();
+            _scheduler.Add(updateable);
+            _scheduler.Update(0, 0.0014f);
+            updateable.Received(1).Update(1);
+            _scheduler.Update(0, 0.0015f);
+            updateable.Received(1).Update(2);
+
         }
     }
 }

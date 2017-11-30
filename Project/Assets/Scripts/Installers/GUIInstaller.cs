@@ -22,6 +22,8 @@ public class GUIInstaller : Installer, IDisposable
     public class SettingsData
     {
         public float PopupAnimationTime = DefaultAnimationTime;
+        public float TooltipAnimationTime = DefaultAnimationTime;
+        public Vector2 TooltipScreenBoundsDelta = Vector2.zero;
     }
 
     public SettingsData Settings = new SettingsData();
@@ -37,6 +39,7 @@ public class GUIInstaller : Installer, IDisposable
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
 
         Container.Bind<float>("popup_animation_time").ToInstance(Settings.PopupAnimationTime);
+        Container.Bind<float>("tooltip_animation_time").ToInstance(Settings.TooltipAnimationTime);
 
         _root = CreateRoot();
         _appEvents = Container.Resolve<IAppEvents>();
@@ -47,6 +50,13 @@ public class GUIInstaller : Installer, IDisposable
             _stackController.AppEvents = _appEvents;
             _stackController.CloseAppShow = ShowCloseAppAlertView;
             Container.Rebind<UIStackController>().ToInstance(_stackController);
+        }
+
+        var uiTooltipController = _root.GetComponentInChildren<UITooltipController>();
+        if(_stackController != null)
+        {
+            uiTooltipController.ScreenBoundsDelta = Settings.TooltipScreenBoundsDelta;
+            Container.Rebind<UITooltipController>().ToInstance(uiTooltipController);
         }
             
         var layers = _root.GetComponentInChildren<UILayersController>();

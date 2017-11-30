@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using UnityEngine.EventSystems;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace SocialPoint.EventSystems
 {

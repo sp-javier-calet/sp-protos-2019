@@ -13,14 +13,26 @@ namespace SocialPoint.Utils
         RealTime
     }
 
+    public enum UpdateableTimeIntMode
+    {
+        Ticks,
+        GameTimeScaled,
+        GameTimeUnscaled,
+        RealTime
+    }
+
     public interface IUpdateable
     {
         void Update();
     }
 
-    public interface IDeltaUpdateable
+    public interface IDeltaUpdateable<T>
     {
-        void Update(float elapsed);
+        void Update(T elapsed);
+    }
+
+    public interface IDeltaUpdateable : IDeltaUpdateable<float>
+    {
     }
 
     public interface ICoroutineRunner
@@ -32,17 +44,23 @@ namespace SocialPoint.Utils
 
     public interface IUpdateScheduler
     {
-        void Add(IUpdateable elm, UpdateableTimeMode updateTimeMode, float interval);
+        void Add(IUpdateable elm, UpdateableTimeMode mode = UpdateableTimeMode.GameTimeUnscaled, float interval = 0.0f);
 
         void Remove(IUpdateable elm);
 
         bool Contains(IUpdateable elm);
 
-        void Add(IDeltaUpdateable elm, UpdateableTimeMode updateTimeMode, float interval);
+        void Add(IDeltaUpdateable elm, UpdateableTimeMode mode = UpdateableTimeMode.GameTimeUnscaled, float interval = 0.0f);
 
         void Remove(IDeltaUpdateable elm);
 
         bool Contains(IDeltaUpdateable elm);
+
+        void Add(IDeltaUpdateable<int> elm, UpdateableTimeIntMode mode = UpdateableTimeIntMode.GameTimeUnscaled, int interval = 0);
+
+        void Remove(IDeltaUpdateable<int> elm);
+
+        bool Contains(IDeltaUpdateable<int> elm);
 
         event Action<Exception> UpdateExceptionThrown;
     }
@@ -69,76 +87,45 @@ namespace SocialPoint.Utils
             scheduler.Add(elm, updateTimeMode, (float)interval);
         }
 
-        public static void Add(this IUpdateScheduler scheduler, IUpdateable elm)
-        {
-            scheduler.Add(elm, UpdateableTimeMode.GameTimeUnscaled, -1.0f);
-        }
-
         public static void Add(this IUpdateScheduler scheduler, IUpdateable elm, float interval)
         {
             scheduler.Add(elm, UpdateableTimeMode.GameTimeUnscaled, interval);
-        }
-
-        public static void Add(this IUpdateScheduler scheduler, IDeltaUpdateable elm)
-        {
-            scheduler.Add(elm, UpdateableTimeMode.GameTimeUnscaled, -1.0f);
         }
 
         public static void Add(this IUpdateScheduler scheduler, IDeltaUpdateable elm, float interval)
         {
             scheduler.Add(elm, UpdateableTimeMode.GameTimeUnscaled, interval);
         }
-    }
 
-    public sealed class ScheduledAction : IUpdateable, IDisposable
+        public static void Add(this IUpdateScheduler scheduler, IDeltaUpdateable<int> elm, int interval)
     {
-        Action _action;
-        IUpdateScheduler _scheduler;
-        bool _started;
-
-        public ScheduledAction(IUpdateScheduler scheduler, Action action)
-        {
-            _scheduler = scheduler;
-            _action = action;
+            scheduler.Add(elm, UpdateableTimeIntMode.GameTimeUnscaled, interval);
+        }
         }
 
-        public void Start(float interval = 0)
+    public struct UpdateableTimeModeComparer : IEqualityComparer<UpdateableTimeMode>
         {
-            if(_started)
+        public bool Equals(UpdateableTimeMode x, UpdateableTimeMode y)
             {
-                Stop();
+            return x == y;
             }
 
-            _started = true;
-            if(interval <= 0)
+        public int GetHashCode(UpdateableTimeMode obj)
             {
-                _scheduler.Add(this);
-            }
-            else
-            {
-                _scheduler.Add(this, UpdateableTimeMode.GameTimeUnscaled, interval);
+            return (int)obj;
             }
         }
 
-        public void Update()
+    public struct UpdateableTimeIntModeComparer : IEqualityComparer<UpdateableTimeIntMode>
         {
-            _action();
+        public bool Equals(UpdateableTimeIntMode x, UpdateableTimeIntMode y)
+        {
+            return x == y;
         }
 
-        public void Stop()
+        public int GetHashCode(UpdateableTimeIntMode obj)
         {
-            _started = false;
-            _scheduler.Remove(this);
-        }
-
-        public void Dispose()
-        {
-            if(_started)
-            {
-                Stop();
-            }
-            _scheduler = null;
-            _action = null;
+            return (int)obj;
         }
     }
 
@@ -147,11 +134,14 @@ namespace SocialPoint.Utils
         readonly Dictionary<Object, IUpdateableHandler> _elements;
         readonly Dictionary<Object, IUpdateableHandler> _elementsToAdd;
         readonly List<Object> _elementsToRemove;
+        readonly Dictionary<UpdateableTimeMode, IDeltaTimeSource<float>> _floatSources;
+        readonly Dictionary<UpdateableTimeIntMode, IDeltaTimeSource<int>> _intSources;
         bool _dirty;
 
         readonly List<Exception> _exceptions = new List<Exception>();
 
         double _lastUpdateTimestamp;
+        long _lastUpdateTimestampMillis;
 
         public event Action<Exception> UpdateExceptionThrown;
 
@@ -160,60 +150,119 @@ namespace SocialPoint.Utils
             _elements = new Dictionary<Object, IUpdateableHandler>();
             _elementsToAdd = new Dictionary<Object, IUpdateableHandler>();
             _elementsToRemove = new List<object>();
+            _floatSources = new Dictionary<UpdateableTimeMode, IDeltaTimeSource<float>>(new UpdateableTimeModeComparer());
+            _intSources = new Dictionary<UpdateableTimeIntMode, IDeltaTimeSource<int>>(new UpdateableTimeIntModeComparer());
         }
 
-        IUpdateableTimer CreateTimer(float interval = -1)
+        IUpdateableTimer<int> CreateTimer(int interval)
         {
-            if(interval == -1)
+            if(interval <= 0)
             {
-                return new ContinuousTimer();
+                return new ContinuousTimer<int>();
             }
             else
             {
-                return new FixedTimer(interval);
+                return new FixedIntTimer(interval);
             }
         }
 
-        public void Add(IUpdateable elm, UpdateableTimeMode updateTimeMode = UpdateableTimeMode.GameTimeUnscaled, float interval = -1)
+        IUpdateableTimer<float> CreateTimer(float interval)
+        {
+            if(interval <= 0.0f)
+            {
+                return new ContinuousTimer<float>();
+            }
+            else
+            {
+                return new FixedFloatTimer(interval);
+            }
+        }
+
+        IDeltaTimeSource<float> GetSource(UpdateableTimeMode mode)
+        {
+            IDeltaTimeSource<float> source;
+            if(!_floatSources.TryGetValue(mode, out source))
+            {
+                source = CreateSource(mode);
+                _floatSources.Add(mode, source);
+            }
+            return source;
+        }
+
+
+        IDeltaTimeSource<int> GetSource(UpdateableTimeIntMode mode)
+        {
+            IDeltaTimeSource<int> source;
+            if(!_intSources.TryGetValue(mode, out source))
+        {
+                source = CreateSource(mode);
+                _intSources.Add(mode, source);
+            }
+            return source;
+        }
+
+        IDeltaTimeSource<float> CreateSource(UpdateableTimeMode mode)
+            {
+            switch(mode)
+                {
+                case UpdateableTimeMode.GameTimeScaled:
+                return new ScaledDeltaTimeSource();
+            case UpdateableTimeMode.RealTime:
+                return new RealDeltaTimeSource();
+                case UpdateableTimeMode.GameTimeUnscaled:
+                return new UnscaledDeltaTimeSource();
+            }
+            throw new InvalidOperationException("Unsupported time mode.");
+        }
+
+        IDeltaTimeSource<int> CreateSource(UpdateableTimeIntMode mode)
+        {
+            switch(mode)
+            {
+            case UpdateableTimeIntMode.Ticks:
+                return new TicksDeltaTimeSource();
+            case UpdateableTimeIntMode.GameTimeScaled:
+                return new ScaledMillisDeltaTimeSource();
+            case UpdateableTimeIntMode.RealTime:
+                return new RealMillisDeltaTimeSource();
+            case UpdateableTimeIntMode.GameTimeUnscaled:
+                return new UnscaledMillisDeltaTimeSource();
+            }
+            throw new InvalidOperationException("Unsupported time mode.");
+                }
+
+        public void Add(IUpdateable elm, UpdateableTimeMode mode = UpdateableTimeMode.GameTimeUnscaled, float interval = 0.0f)
         {
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                IUpdateableHandler handler = null;
-                switch(updateTimeMode)
-                {
-                case UpdateableTimeMode.GameTimeScaled:
-                    handler = new ScaledUpdateableHandler(elm, CreateTimer(interval));
-                    break;
-                case UpdateableTimeMode.GameTimeUnscaled:
-                    handler = new UpdateableHandler(elm, CreateTimer(interval));  
-                    break;
-                case UpdateableTimeMode.RealTime:
-                    handler = new RealTimeUpdateableHandler(elm, CreateTimer(interval));
-                    break;
-                }
+                var source = GetSource(mode);
+                var timer = CreateTimer(interval);
+                var handler = new UpdateableHandler<float>(elm, timer, source);
                 DoAdd(elm, handler);
             }
         }
 
-        public void Add(IDeltaUpdateable elm, UpdateableTimeMode updateTimeMode = UpdateableTimeMode.GameTimeUnscaled, float interval = -1)
+        public void Add(IDeltaUpdateable elm, UpdateableTimeMode mode = UpdateableTimeMode.GameTimeUnscaled, float interval = 0.0f)
         {
             DebugUtils.Assert(elm != null);
             if(elm != null)
             {
-                IUpdateableHandler handler = null;
-                switch(updateTimeMode)
+                var source = GetSource(mode);
+                var timer = CreateTimer(interval);
+                var handler = new DeltaUpdateableHandler<float>(elm, timer, source);
+                DoAdd(elm, handler);
+            }
+        }
+
+        public void Add(IDeltaUpdateable<int> elm, UpdateableTimeIntMode mode = UpdateableTimeIntMode.GameTimeUnscaled, int interval = 0)
+        {
+            DebugUtils.Assert(elm != null);
+            if(elm != null)
                 {
-                case UpdateableTimeMode.GameTimeScaled:
-                    handler = new DeltaScaledUpdateableHandler(elm, CreateTimer(interval));
-                    break;
-                case UpdateableTimeMode.GameTimeUnscaled:
-                    handler = new DeltaUpdateableHandler(elm, CreateTimer(interval));   
-                    break;
-                case UpdateableTimeMode.RealTime:
-                    handler = new RealTimeDeltaUpdateableHandler(elm, CreateTimer(interval));   
-                    break;
-                }
+                var source = GetSource(mode);
+                var timer = CreateTimer(interval);
+                var handler = new DeltaUpdateableHandler<int>(elm, timer, source);
                 DoAdd(elm, handler);
             }
         }
@@ -235,6 +284,11 @@ namespace SocialPoint.Utils
             DoRemove(elm);
         }
 
+        public void Remove(IDeltaUpdateable<int> elm)
+        {
+            DoRemove(elm);
+        }
+
         void DoRemove(object elm)
         {
             DebugUtils.Assert(elm != null);
@@ -248,15 +302,20 @@ namespace SocialPoint.Utils
 
         public bool Contains(IUpdateable elm)
         { 
-            return Contains((object)elm);
+            return DoContains(elm);
         }
 
         public bool Contains(IDeltaUpdateable elm)
         { 
-            return Contains((object)elm);
+            return DoContains(elm);
         }
 
-        bool Contains(object elm)
+        public bool Contains(IDeltaUpdateable<int> elm)
+        {
+            return DoContains(elm);
+        }
+
+        bool DoContains(object elm)
         {
             DebugUtils.Assert(elm != null);
             if(elm != null)
@@ -311,16 +370,15 @@ namespace SocialPoint.Utils
             }
         }
 
-        public void Update(float deltaTime, float unscaledDeltaTime)
+        public void Update(float scaledDt, float unscaledDt)
         {
             // Sync for external changes
             Synchronize();
 
             _exceptions.Clear();
 
-            // Update registered elements
-            var time = GetUpdateTime(deltaTime, unscaledDeltaTime);
-            DoUpdate(time);
+            UpdateSources(scaledDt, unscaledDt);
+            UpdateHandlers();
 
             // Check new exceptions
             var exceptionsCount = _exceptions.Count;
@@ -333,7 +391,27 @@ namespace SocialPoint.Utils
             Synchronize();
         }
 
-        void DoUpdate(UpdateableTime time)
+        void UpdateSources(float scaledDelta, float unscaledDelta)
+        {
+            {
+                var itr = _floatSources.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    itr.Current.Value.Update(scaledDelta, unscaledDelta);
+                }
+                itr.Dispose();
+            }
+            {
+                var itr = _intSources.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    itr.Current.Value.Update(scaledDelta, unscaledDelta);
+                }
+                itr.Dispose();
+            }
+        }
+
+        void UpdateHandlers()
         {
             var itr = _elements.GetEnumerator();
             while(itr.MoveNext())
@@ -341,7 +419,7 @@ namespace SocialPoint.Utils
                 var elm = itr.Current;
                 try
                 {
-                    elm.Value.Update(time);
+                    elm.Value.Update();
                 }
                 catch(Exception e)
                 {
@@ -355,119 +433,141 @@ namespace SocialPoint.Utils
             itr.Dispose();
         }
 
-        UpdateableTime GetUpdateTime(float deltaTime, float unscaledDeltaTime)
-        {
-            var currentTimeStamp = TimeUtils.GetTimestampDouble(DateTime.Now);
-            if(_lastUpdateTimestamp < float.Epsilon)
-            {
-                _lastUpdateTimestamp = currentTimeStamp;
-            }
-            var nonScaledDeltaTime = currentTimeStamp - _lastUpdateTimestamp;
-            _lastUpdateTimestamp = currentTimeStamp;
+        #region TimeSources
 
-            var time = new UpdateableTime {
-                DeltaTime = deltaTime,
-                UnscaledDeltaTime = unscaledDeltaTime,
-                RealDeltaTime = (float)nonScaledDeltaTime
-            };
-            return time;
+        interface IDeltaTimeSource<T>
+        {
+            void Update(float scaledDelta, float unscaledDelta);
+            T Value { get; }
         }
 
-        public sealed class AggregateException : Exception
+        class ScaledDeltaTimeSource : IDeltaTimeSource<float>
         {
-            static string CreateMessage(IEnumerable<Exception> exceptions)
+            public void Update(float scaledDelta, float unscaledDelta)
             {
-                var sb = new StringBuilder();
-                sb.AppendLine("Multiple Exceptions thrown:");
-                var count = 1;
-                var itr = exceptions.GetEnumerator();
-                while(itr.MoveNext())
-                {
-                    var ex = itr.Current;
-                    sb.Append(count++)
-                        .Append(". ")
-                        .Append(ex.GetType().Name)
-                        .Append(": ")
-                        .Append(ex.Message)
-                        .AppendLine(ex.StackTrace);
-                    sb.AppendLine();
+                Value = scaledDelta;
+            }
+
+            public float Value { get; private set; }
+        }
+
+        class UnscaledDeltaTimeSource : IDeltaTimeSource<float>
+        {
+            public void Update(float scaledDelta, float unscaledDelta)
+            {
+                Value = unscaledDelta;
                 }
-                itr.Dispose();
-                return sb.ToString();
+
+            public float Value { get; private set; }
             }
 
-            public List<Exception> Exceptions { get; private set; }
-
-            public AggregateException(IEnumerable<Exception> exceptions) : base(CreateMessage(exceptions))
-            {
-                Exceptions = new List<Exception>(exceptions);
-            }
-        }
-
-        sealed class TimeScaleDependantInterval
+        class RealDeltaTimeSource : IDeltaTimeSource<float>
         {
-            public readonly double Interval;
-            public double AccumTime;
+            double _timestamp;
 
-            public TimeScaleDependantInterval(double interval)
+            public void Update(float scaledDelta, float unscaledDelta)
             {
-                Interval = interval;
-                AccumTime = 0.0;
+                var ts = TimeUtils.GetTimestampDouble(DateTime.Now);
+                if(_timestamp < double.Epsilon)
+            {
+                    _timestamp = ts;
             }
+                Value = (float)(ts - _timestamp);
+                _timestamp = ts;
         }
 
-        sealed class TimeScaleNonDependantInterval
+            public float Value { get; private set; }
+        }
+
+        class TicksDeltaTimeSource : IDeltaTimeSource<int>
         {
-            public readonly double Interval;
-            public double CurrentTimeStamp;
+            long _ticks;
 
-            public TimeScaleNonDependantInterval(double interval)
+            public void Update(float scaledDelta, float unscaledDelta)
             {
-                Interval = interval;
-                CurrentTimeStamp = TimeUtils.GetTimestampDouble(DateTime.Now);
+                var ticks = DateTime.Now.Ticks;
+                if(_ticks < double.Epsilon)
+            {
+                    _ticks = ticks;
+                }
+                Value = (int)(ticks - _ticks);
+                _ticks = ticks;
             }
+
+            public int Value { get; private set; }
         }
+
+        class RealMillisDeltaTimeSource : IDeltaTimeSource<int>
+        {
+            long _timestamp;
+
+            public void Update(float scaledDelta, float unscaledDelta)
+            {
+                var ts = TimeUtils.GetTimestampMilliseconds(DateTime.Now);
+                if(_timestamp <= 0)
+            {
+                    _timestamp =  ts;
+                }
+                Value = (int)(ts - _timestamp);
+                _timestamp = ts;
+            }
+
+            public int Value { get; private set; }
+            }
+
+        class ScaledMillisDeltaTimeSource : IDeltaTimeSource<int>
+        {
+            public void Update(float scaledDelta, float unscaledDelta)
+            {
+                Value = (int)((scaledDelta + 0.0005f) * 1000.0f);
+        }
+
+            public int Value { get; private set; }
     }
 
-    struct UpdateableTime
+        class UnscaledMillisDeltaTimeSource : IDeltaTimeSource<int>
+        {
+            public void Update(float scaledDelta, float unscaledDelta)
     {
-        public int Ticks;
-        public float DeltaTime;
-        public float UnscaledDeltaTime;
-        public float RealDeltaTime;
+                Value = (int)((unscaledDelta + 0.0005f) * 1000.0f);
+            }
+
+            public int Value { get; private set; }
     }
+
+        #endregion
 
     #region TimeHandlers
 
-    public interface IUpdateableTimer
+        public interface IUpdateableTimer<T>
     {
-        bool Step(float delta, out float interval);
+            bool Step(T delta, out T interval);
     }
 
-    public struct ContinuousTimer : IUpdateableTimer
+        public class ContinuousTimer<T> : IUpdateableTimer<T>
     {
-        public bool Step(float delta, out float interval)
+            public bool Step(T delta, out T interval)
         {
             interval = delta;
             return true;
         }
     }
 
-    public struct FixedTimer : IUpdateableTimer
+        public class FixedFloatTimer : IUpdateableTimer<float>
     {
         readonly float _interval;
         float _current;
 
-        public FixedTimer(float interval)
+            public FixedFloatTimer(float interval)
         {
-            _current = 0;
+                _current = 0.0f;
             _interval = interval;
         }
 
         public bool Step(float delta, out float interval)
         {
             _current += delta;
-            interval = 0;
+                interval = 0.0f;
             if(_current >= _interval)
             {
                 _current = _current - _interval;
@@ -478,135 +578,80 @@ namespace SocialPoint.Utils
         }
     }
 
-    #endregion
-
-    #region UpdateableHandlers
-
-    interface IUpdateableHandler
+        public struct FixedIntTimer : IUpdateableTimer<int>
     {
-        void Update(UpdateableTime time);
+            readonly int _interval;
+            int _current;
+
+            public FixedIntTimer(int interval)
+    {
+                _current = 0;
+                _interval = interval;
+        }
+
+            public bool Step(int delta, out int interval)
+        {
+                _current += delta;
+                interval = 0;
+                if(_current >= _interval)
+            {
+                    _current = _current - _interval;
+                    interval = _interval;
+                    return true;
+            }
+                return false;
+        }
     }
 
-    struct UpdateableHandler : IUpdateableHandler
-    {
-        readonly IUpdateableTimer _timer;
-        readonly IUpdateable _updateable;
+        #endregion
 
-        public UpdateableHandler(IUpdateable updateable, IUpdateableTimer timer)
+        #region UpdateableHandlers
+
+        interface IUpdateableHandler
+        {
+            void Update();
+        }
+
+        class UpdateableHandler<T> : IUpdateableHandler
+    {
+            readonly IUpdateableTimer<T> _timer;
+        readonly IUpdateable _updateable;
+            readonly IDeltaTimeSource<T> _source;
+
+            public UpdateableHandler(IUpdateable updateable, IUpdateableTimer<T> timer, IDeltaTimeSource<T> source)
         {
             _updateable = updateable;
             _timer = timer;
+                _source = source;
         }
 
-        public void Update(UpdateableTime time)
+            public void Update()
         {
-            float interval;
-            if(_timer.Step(time.UnscaledDeltaTime, out interval))
+                T interval;
+                if(_timer.Step(_source.Value, out interval))
             {
                 _updateable.Update();
             }
         }
     }
 
-    struct ScaledUpdateableHandler : IUpdateableHandler
+        class DeltaUpdateableHandler<T> : IUpdateableHandler
     {
-        readonly IUpdateableTimer _timer;
-        readonly IUpdateable _updateable;
+            readonly IUpdateableTimer<T> _timer;
+            readonly IDeltaUpdateable<T> _updateable;
+            readonly IDeltaTimeSource<T> _source;
 
-        public ScaledUpdateableHandler(IUpdateable updateable, IUpdateableTimer timer)
+            public DeltaUpdateableHandler(IDeltaUpdateable<T> updateable, IUpdateableTimer<T> timer, IDeltaTimeSource<T> source)
         {
             _updateable = updateable;
             _timer = timer;
+                _source = source;
         }
 
-        public void Update(UpdateableTime time)
+            public void Update()
         {
-            float interval;
-            if(_timer.Step(time.DeltaTime, out interval))
-            {
-                _updateable.Update();
-            }
-        }
-    }
-
-    struct RealTimeUpdateableHandler : IUpdateableHandler
-    {
-        readonly IUpdateableTimer _timer;
-        readonly IUpdateable _updateable;
-
-        public RealTimeUpdateableHandler(IUpdateable updateable, IUpdateableTimer timer)
-        {
-            _updateable = updateable;
-            _timer = timer;
-        }
-
-        public void Update(UpdateableTime time)
-        {
-            float interval;
-            if(_timer.Step(time.RealDeltaTime, out interval))
-            {
-                _updateable.Update();
-            }
-        }
-    }
-
-    struct DeltaUpdateableHandler : IUpdateableHandler
-    {
-        readonly IUpdateableTimer _timer;
-        readonly IDeltaUpdateable _updateable;
-
-        public DeltaUpdateableHandler(IDeltaUpdateable updateable, IUpdateableTimer timer)
-        {
-            _updateable = updateable;
-            _timer = timer;
-        }
-
-        public void Update(UpdateableTime time)
-        {
-            float interval;
-            if(_timer.Step(time.UnscaledDeltaTime, out interval))
-            {
-                _updateable.Update(interval);
-            }
-        }
-    }
-
-    struct DeltaScaledUpdateableHandler : IUpdateableHandler
-    {
-        readonly IUpdateableTimer _timer;
-        readonly IDeltaUpdateable _updateable;
-
-        public DeltaScaledUpdateableHandler(IDeltaUpdateable updateable, IUpdateableTimer timer)
-        {
-            _updateable = updateable;
-            _timer = timer;
-        }
-
-        public void Update(UpdateableTime time)
-        {
-            float interval;
-            if(_timer.Step(time.DeltaTime, out interval))
-            {
-                _updateable.Update(interval);
-            }
-        }
-    }
-
-    struct RealTimeDeltaUpdateableHandler : IUpdateableHandler
-    {
-        readonly IUpdateableTimer _timer;
-        readonly IDeltaUpdateable _updateable;
-
-        public RealTimeDeltaUpdateableHandler(IDeltaUpdateable updateable, IUpdateableTimer timer)
-        {
-            _updateable = updateable;
-            _timer = timer;
-        }
-
-        public void Update(UpdateableTime time)
-        {
-            float interval;
-            if(_timer.Step(time.RealDeltaTime, out interval))
+                T interval;
+                if(_timer.Step(_source.Value, out interval))
             {
                 _updateable.Update(interval);
             }
@@ -614,19 +659,5 @@ namespace SocialPoint.Utils
     }
 
     #endregion
-
-    public class ImmediateCoroutineRunner : ICoroutineRunner
-    {
-        public IEnumerator StartCoroutine(IEnumerator enumerator)
-        {
-            while(enumerator.MoveNext())
-            {
-            }
-            return enumerator;
-        }
-
-        public void StopCoroutine(IEnumerator enumerator)
-        {
-        }
     }
 }
