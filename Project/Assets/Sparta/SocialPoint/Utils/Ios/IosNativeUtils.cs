@@ -6,7 +6,6 @@ using SocialPoint.Hardware;
 
 namespace SocialPoint.Utils
 {
-
     public sealed class IosNativeUtils : UnityNativeUtils
     {
         public IosNativeUtils(IAppInfo appInfo) : base(appInfo)
@@ -57,7 +56,7 @@ namespace SocialPoint.Utils
             return SPUnityNativeUtilsIsInstalled(appId);
         }
 
-        string GetAppUrl(string appId, string suffix=null)
+        string GetAppUrl(string appId, string suffix = null)
         {
             return string.Format("itms-apps://itunes.apple.com/app/id{0}{1}", appId, suffix);
         }
@@ -126,10 +125,9 @@ namespace SocialPoint.Utils
                 }
                 SPUnitySetForceTouchShortcutItems(ios, ios.Length);
             }
-        }  
+        }
 
-
-#if ADMIN_PANEL
+        #if ADMIN_PANEL
         [DllImport("__Internal")]
         public static extern void SPUnityNativeUtilsClearDataAndKillApp();
 
@@ -137,8 +135,8 @@ namespace SocialPoint.Utils
         {
             SPUnityNativeUtilsClearDataAndKillApp();
         }
-#endif
+        #endif
         
-#endif
+        #endif
     }
 }
