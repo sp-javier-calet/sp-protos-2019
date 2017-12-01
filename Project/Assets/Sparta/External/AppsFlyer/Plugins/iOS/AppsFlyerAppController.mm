@@ -5,12 +5,14 @@
 //
 //
 
+#import <SPUnityPlugins/SPUnitySubController.h>
+
 #import "UnityAppController.h"
 #import "AppsFlyerTracker.h"
 #import "AppsFlyerDelegate.h"
 #import "AppDelegateListener.h"
 
-@interface AppsFlyerAppController : UnityAppController <AppDelegateListener>
+@interface AppsFlyerAppController : SPUnitySubController <AppDelegateListener>
 {
     BOOL didEnteredBackGround;
 }
@@ -105,4 +107,3 @@
 
 @end
 
-IMPL_APP_CONTROLLER_SUBCLASS(AppsFlyerAppController)
