@@ -1,5 +1,5 @@
 ﻿
-using SocialPoint.Components;
+using SocialPoint.Lifecycle;
 
 namespace SocialPoint.Multiplayer
 {

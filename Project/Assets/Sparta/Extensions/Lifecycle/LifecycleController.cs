@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using SocialPoint.Base;
 using SocialPoint.Utils;
-using SocialPoint.Components;
 using System;
 
-namespace SocialPoint.Components
+namespace SocialPoint.Lifecycle
 {
     public interface ISetupComponent
     {
@@ -71,7 +70,7 @@ namespace SocialPoint.Components
 
         public enum PhaseType
         {
-            None,
+            Stopped,
             Setup,
             Start,
             Update,
@@ -90,15 +89,11 @@ namespace SocialPoint.Components
             _stopListeners = new List<IStopListener>();
             _errorDispatchers = new List<IErrorDispatcher>();
             _errorHandlers = new List<IErrorHandler>();
-            Phase = PhaseType.None;
+            Phase = PhaseType.Stopped;
             _scheduler = scheduler;
             _successfulStopEventsCount = 0;
             _totalStopEventsCount = 0;
 
-            if(_scheduler != null)
-            {
-                _scheduler.Add(this, UpdateableTimeMode.GameTimeScaled, 0.0f);
-            }
             RegisterComponents();
         }
 
@@ -108,13 +103,25 @@ namespace SocialPoint.Components
 
         public void Start()
         {
+            if(Phase == PhaseType.Cleanup)
+            {
+                throw new InvalidOperationException("Controller was already disposed");
+            }
             Phase = PhaseType.Setup;
             _currentSetupComponent = 0;
             _currentSetupComponentStarted = false;
+            if(Phase == PhaseType.Stopped && _scheduler != null)
+            {
+                _scheduler.Add(this, UpdateableTimeMode.GameTimeScaled, 0.0f);
+            }
         }
 
         public void Stop()
         {
+            if(Phase == PhaseType.Cleanup)
+            {
+                throw new InvalidOperationException("Controller was already disposed");
+            }
             for(int i = 0; i < _stopComponents.Count; i++)
             {
                 _stopComponents[i].Listener = this;
@@ -131,7 +138,10 @@ namespace SocialPoint.Components
         public void Dispose()
         {
             Phase = PhaseType.Cleanup;
-            _scheduler.Remove(this);
+            if(_scheduler != null)
+            {
+                _scheduler.Remove(this);
+            }
             for(int i = 0; i < _cleanupComponents.Count; i++)
             {
                 _cleanupComponents[i].Cleanup();
@@ -214,12 +224,21 @@ namespace SocialPoint.Components
 
         void OnStopCountUpdate()
         {
-            if(_totalStopEventsCount == _stopComponents.Count)
+            if(_totalStopEventsCount != _stopComponents.Count)
             {
-                var successful = _successfulStopEventsCount == _totalStopEventsCount;
-                for(int i = 0; i < _stopListeners.Count; i++)
+                return;
+            }
+            var successful = _successfulStopEventsCount == _totalStopEventsCount;
+            for(int i = 0; i < _stopListeners.Count; i++)
+            {
+                _stopListeners[i].OnStopped(successful);
+            }
+            if(successful)
+            {
+                Phase = PhaseType.Stopped;
+                if(_scheduler != null)
                 {
-                    _stopListeners[i].OnStopped(successful);
+                    _scheduler.Remove(this);
                 }
             }
         }

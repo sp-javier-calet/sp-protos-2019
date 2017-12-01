@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using NSubstitute;
 
-namespace SocialPoint.Components
+namespace SocialPoint.Lifecycle
 {
     [TestFixture]
     class ActionProcessorTests

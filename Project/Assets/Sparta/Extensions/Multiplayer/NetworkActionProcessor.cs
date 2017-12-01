@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.IO;
 using SocialPoint.Network;
-using SocialPoint.Components;
+using SocialPoint.Lifecycle;
 using SocialPoint.Base;
 
 namespace SocialPoint.Multiplayer

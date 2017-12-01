@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using SocialPoint.Base;
 
-namespace SocialPoint.Components
+namespace SocialPoint.Lifecycle
 {
     public interface IActionHandler<T>
     {
@@ -682,12 +682,18 @@ namespace SocialPoint.Components
 
         public void RegisterHandler<K, R>(IValidatedActionHandler<K, R> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new ValidatedActionHandlerWrapper<K, R>(handler));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new ValidatedActionHandlerWrapper<K, R>(handler));
+            }
         }
 
         public void UnregisterHandler<K, R>(IValidatedActionHandler<K, R> handler) where K : T
         {
-            DoUnregisterHandler<K>(handler);
+            if(handler != null)
+            {
+                DoUnregisterHandler<K>(handler);
+            }
         }
 
         public void RegisterHandler<K, R>(IResultActionHandler<K, R> handler) where K : T
@@ -697,12 +703,18 @@ namespace SocialPoint.Components
 
         public void RegisterSuccessHandler<K, R>(IResultActionHandler<K, R> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new ResultActionHandlerWrapper<K, R>(handler, true));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new ResultActionHandlerWrapper<K, R>(handler, true));
+            }
         }
 
         public void RegisterFailureHandler<K, R>(IResultActionHandler<K, R> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new ResultActionHandlerWrapper<K, R>(handler, false));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new ResultActionHandlerWrapper<K, R>(handler, false));
+            }
         }
 
         public void UnregisterHandler<K, R>(IResultActionHandler<K, R> handler) where K : T
@@ -717,12 +729,18 @@ namespace SocialPoint.Components
 
         public void RegisterSuccessHandler<K>(IActionHandler<K> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new ActionHandlerWrapper<K>(handler, true));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new ActionHandlerWrapper<K>(handler, true));
+            }
         }
 
         public void RegisterFailureHandler<K>(IActionHandler<K> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new ActionHandlerWrapper<K>(handler, false));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new ActionHandlerWrapper<K>(handler, false));
+            }
         }
 
         public void UnregisterHandler<K>(IActionHandler<K> handler) where K : T
@@ -737,12 +755,18 @@ namespace SocialPoint.Components
 
         public void RegisterSuccessHandler<K>(Action<K> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K>(handler, true));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K>(handler, true));
+            }
         }
 
         public void RegisterFailureHandler<K>(Action<K> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K>(handler, false));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K>(handler, false));
+            }
         }
 
         public void UnregisterHandler<K>(Action<K> handler) where K : T
@@ -757,12 +781,18 @@ namespace SocialPoint.Components
 
         public void RegisterSuccessResultHandler<K, R>(Action<K, R> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K, R>(handler, true));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K, R>(handler, true));
+            }
         }
 
         public void RegisterFailureResultHandler<K, R>(Action<K, R> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K, R>(handler, false));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K, R>(handler, false));
+            }
         }
 
         public void UnregisterResultHandler<K, R>(Action<K, R> handler) where K : T
@@ -772,7 +802,10 @@ namespace SocialPoint.Components
 
         public void RegisterResultHandler<K, R>(Action<K, bool, R> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new GeneralDelegateActionHandlerWrapper<K, R>(handler));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new GeneralDelegateActionHandlerWrapper<K, R>(handler));
+            }
         }
 
         public void UnregisterResultHandler<K, R>(Action<K, bool, R> handler) where K : T
@@ -782,7 +815,10 @@ namespace SocialPoint.Components
 
         public void RegisterValidator<K>(IActionValidator<K> validator) where K : T
         {
-            DoRegisterValidator<K>(validator, new ActionValidatorWrapper<K>(validator));
+            if(validator != null)
+            {
+                DoRegisterValidator<K>(validator, new ActionValidatorWrapper<K>(validator));
+            }
         }
 
         public void UnregisterValidator<K>(IActionValidator<K> validator) where K : T
@@ -792,7 +828,10 @@ namespace SocialPoint.Components
 
         public void RegisterValidator<K, R>(IActionValidator<K, R> validator) where K : T
         {
-            DoRegisterValidator<K>(validator, new ActionValidatorWrapper<K, R>(validator));
+            if(validator != null)
+            {
+                DoRegisterValidator<K>(validator, new ActionValidatorWrapper<K, R>(validator));
+            }
         }
 
         public void UnregisterValidator<K, R>(IActionValidator<K, R> validator) where K : T
@@ -802,7 +841,10 @@ namespace SocialPoint.Components
 
         public void RegisterValidator<K>(Func<K, bool> validator) where K : T
         {
-            DoRegisterValidator<K>(validator, new DelegateActionValidatorWrapper<K>(validator));
+            if(validator != null)
+            {
+                DoRegisterValidator<K>(validator, new DelegateActionValidatorWrapper<K>(validator));
+            }
         }
 
         public void UnregisterValidator<K>(Func<K, bool> validator) where K : T
@@ -812,7 +854,10 @@ namespace SocialPoint.Components
 
         public void RegisterValidator<K, R>(ActionValidatorFunc<K, R> validator) where K : T
         {
-            DoRegisterValidator<K>(validator, new DelegateActionValidatorWrapper<K, R>(validator));
+            if(validator != null)
+            {
+                DoRegisterValidator<K>(validator, new DelegateActionValidatorWrapper<K, R>(validator));
+            }
         }
 
         public void UnregisterValidator<K, R>(ActionValidatorFunc<K, R> validator) where K : T
@@ -822,7 +867,10 @@ namespace SocialPoint.Components
 
         public void RegisterHandler<K, R>(IStateValidatedActionHandler<S, K, R> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new StateValidatedActionHandlerWrapper<K, R>(handler));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new StateValidatedActionHandlerWrapper<K, R>(handler));
+            }
         }
 
         public void UnregisterHandler<K, R>(IStateValidatedActionHandler<S, K, R> handler) where K : T
@@ -837,12 +885,18 @@ namespace SocialPoint.Components
 
         public void RegisterSuccessHandler<K, R>(IStateResultActionHandler<S, K, R> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new StateResultActionHandlerWrapper<K, R>(handler, true));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new StateResultActionHandlerWrapper<K, R>(handler, true));
+            }
         }
 
         public void RegisterFailureHandler<K, R>(IStateResultActionHandler<S, K, R> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new StateResultActionHandlerWrapper<K, R>(handler, false));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new StateResultActionHandlerWrapper<K, R>(handler, false));
+            }
         }
 
         public void UnregisterHandler<K, R>(IStateResultActionHandler<S, K, R> handler) where K : T
@@ -857,12 +911,18 @@ namespace SocialPoint.Components
 
         public void RegisterSuccessHandler<K>(IStateActionHandler<S, K> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new StateActionHandlerWrapper<K>(handler, true));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new StateActionHandlerWrapper<K>(handler, true));
+            }
         }
 
         public void RegisterFailureHandler<K>(IStateActionHandler<S, K> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new StateActionHandlerWrapper<K>(handler, false));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new StateActionHandlerWrapper<K>(handler, false));
+            }
         }
 
         public void UnregisterHandler<K>(IStateActionHandler<S, K> handler) where K : T
@@ -877,12 +937,18 @@ namespace SocialPoint.Components
 
         public void RegisterSuccessStateHandler<K>(Action<S, K> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new DelegateStateActionHandlerWrapper<K>(handler, true));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new DelegateStateActionHandlerWrapper<K>(handler, true));
+            }
         }
 
         public void RegisterFailureStateHandler<K>(Action<S, K> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new DelegateStateActionHandlerWrapper<K>(handler, false));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new DelegateStateActionHandlerWrapper<K>(handler, false));
+            }
         }
 
         public void UnregisterStateHandler<K>(Action<S, K> handler) where K : T
@@ -897,12 +963,18 @@ namespace SocialPoint.Components
 
         public void RegisterSuccessHandler<K, R>(Action<S, K, R> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new DelegateStateActionHandlerWrapper<K, R>(handler, true));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new DelegateStateActionHandlerWrapper<K, R>(handler, true));
+            }
         }
 
         public void RegisterFailureHandler<K, R>(Action<S, K, R> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new DelegateStateActionHandlerWrapper<K, R>(handler, false));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new DelegateStateActionHandlerWrapper<K, R>(handler, false));
+            }
         }
 
         public void UnregisterHandler<K, R>(Action<S, K, R> handler) where K : T
@@ -912,7 +984,10 @@ namespace SocialPoint.Components
 
         public void RegisterHandler<K, R>(Action<S, K, bool, R> handler) where K : T
         {
-            DoRegisterHandler<K>(handler, new GeneralDelegateStateActionHandlerWrapper<K, R>(handler));
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new GeneralDelegateStateActionHandlerWrapper<K, R>(handler));
+            }
         }
 
         public void UnregisterHandler<K, R>(Action<S, K, bool, R> handler) where K : T
@@ -922,7 +997,10 @@ namespace SocialPoint.Components
 
         public void RegisterValidator<K>(IStateActionValidator<S, K> validator) where K : T
         {
-            DoRegisterValidator<K>(validator, new StateActionValidatorWrapper<K>(validator));
+            if(validator != null)
+            {
+                DoRegisterValidator<K>(validator, new StateActionValidatorWrapper<K>(validator));
+            }
         }
 
         public void UnregisterValidator<K>(IStateActionValidator<S, K> validator) where K : T
@@ -932,7 +1010,10 @@ namespace SocialPoint.Components
 
         public void RegisterValidator<K, R>(IStateActionValidator<S, K, R> validator) where K : T
         {
-            DoRegisterValidator<K>(validator, new StateActionValidatorWrapper<K, R>(validator));
+            if(validator != null)
+            {
+                DoRegisterValidator<K>(validator, new StateActionValidatorWrapper<K, R>(validator));
+            }
         }
 
         public void UnregisterValidator<K, R>(IStateActionValidator<S, K, R> validator) where K : T
@@ -942,7 +1023,10 @@ namespace SocialPoint.Components
 
         public void RegisterValidator<K>(Func<S, K, bool> validator) where K : T
         {
-            DoRegisterValidator<K>(validator, new DelegateStateActionValidatorWrapper<K>(validator));
+            if(validator != null)
+            {
+                DoRegisterValidator<K>(validator, new DelegateStateActionValidatorWrapper<K>(validator));
+            }
         }
 
         public void UnregisterValidator<K>(Func<S, K, bool> validator) where K : T
@@ -952,7 +1036,10 @@ namespace SocialPoint.Components
 
         public void RegisterValidator<K, R>(ActionValidatorFunc<S, K, R> validator) where K : T
         {
-            DoRegisterValidator<K>(validator, new DelegateStateActionValidatorWrapper<K, R>(validator));
+            if(validator != null)
+            {
+                DoRegisterValidator<K>(validator, new DelegateStateActionValidatorWrapper<K, R>(validator));
+            }
         }
 
         public void UnregisterValidator<K, R>(ActionValidatorFunc<S, K, R> validator) where K : T
