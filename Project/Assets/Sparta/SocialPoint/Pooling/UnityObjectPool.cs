@@ -22,6 +22,8 @@ namespace SocialPoint.Pooling
             public int size;
             public GameObject prefab;
         }
+
+        const string PoolPrefix = "Pool_";
             
         public StartupPoolModeEnum StartupPoolMode;
         public StartupPool[] StartupPools;
@@ -115,42 +117,35 @@ namespace SocialPoint.Pooling
             }
 
             bool active = prefab.activeSelf;
-            Transform parent = Instance.transform.FindChild("Pool_" + prefab.name);
+            Transform parent; 
             if(!Instance._pooledObjects.ContainsKey(prefab))
             {
                 list = new List<GameObject>();
                 Instance._pooledObjects.Add(prefab, list);
 
-                if(parent == null)
-                {
-                    parent = CreatePoolTransform(prefab);
-                }
+                parent = new GameObject().transform;
+                parent.SetParent(Instance.transform);
+                parent.name = string.Concat(PoolPrefix, prefab.name);
             }
             else
             {
                 list = Instance._pooledObjects[prefab];
                 initialPoolSize += list.Count;
+
+                parent = FindChildPoolGameObject(prefab);
             }
 
             prefab.SetActive(false);
             while(list.Count < initialPoolSize)
             {
                 var obj = Object.Instantiate(prefab);
-                SetupTransform(parent, Vector3.zero, Quaternion.identity, obj);
+                SetupTransform(parent ?? Instance.transform, Vector3.zero, Quaternion.identity, obj);
 
                 list.Add(obj);
             }
             Instance.StartCoroutine(HidePrefab(prefab, active, prefab.transform.position));
 
             return list;
-        }
-
-        static Transform CreatePoolTransform(GameObject prefab)
-        {
-            var parent = new GameObject().transform;
-            parent.parent = Instance.transform;
-            parent.name = "Pool_" + prefab.name;
-            return parent;
         }
 
         public static T Spawn<T>(T prefab, Transform parent, Vector3 position, Quaternion rotation) where T : Component
@@ -353,10 +348,12 @@ namespace SocialPoint.Pooling
             {
                 Instance._pooledObjects[prefab].Add(obj);
                 Instance._spawnedObjects.Remove(obj);
-                var parent = Instance.transform.FindChild("Pool_" + prefab.name).transform ?? CreatePoolTransform(prefab);
+
+                Transform parent = FindChildPoolGameObject(prefab);
+
                 if(obj)
                 {
-                    SetupTransform(parent.transform, Vector3.zero, Quaternion.identity, obj, keepWorldScale);
+                    SetupTransform(parent ?? Instance.transform, Vector3.zero, Quaternion.identity, obj, keepWorldScale);
                     obj.SetActive(false);
                 }
             }
@@ -563,16 +560,22 @@ namespace SocialPoint.Pooling
         {
             RecycleAll(prefab);
             DestroyPooled(prefab);
+
             ClearPoolRef(prefab);
         }
-
+            
         static void ClearPoolRef(GameObject prefab)
         {
-            var poolRef = Instance.transform.FindChild("Pool_" + prefab.name);
+            var poolRef = FindChildPoolGameObject(prefab);
             if(poolRef != null)
             {
                 poolRef.gameObject.DestroyAnyway();
             }
+        }
+
+        public static Transform FindChildPoolGameObject(GameObject prefab)
+        {
+            return Instance.transform.FindChild(string.Concat(PoolPrefix, prefab.name));
         }
 
         public static void DestroyAll<T>(T prefab) where T : Component
