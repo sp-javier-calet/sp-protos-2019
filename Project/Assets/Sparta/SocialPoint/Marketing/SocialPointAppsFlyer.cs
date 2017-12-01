@@ -114,7 +114,7 @@ public sealed class SocialPointAppsFlyer : IMarketingTracker
     {
         var afData = new AFConversionData();
         afData.Status = conversionDictionary.Get("af_status").ToString();
-        if(ConversionData.Status == NonOrganicInstall)
+        if(afData.Status == NonOrganicInstall)
         {
             afData.AdId = conversionDictionary.Get(AdvertisingIdentifierKey).ToString();
             afData.MediaSource = conversionDictionary.Get("media_source").ToString();
