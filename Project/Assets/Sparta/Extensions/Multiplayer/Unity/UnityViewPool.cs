@@ -17,7 +17,7 @@ namespace SocialPoint.Multiplayer
             {                
                 if(_parentTransform == null && !string.IsNullOrEmpty(_parentTag))
                 {
-                    var parentGo = UnityEngine.GameObject.FindGameObjectWithTag(_parentTag);
+                    var parentGo = GameObject.FindGameObjectWithTag(_parentTag);
                     if(parentGo != null)
                     {
                         _parentTransform = parentGo.transform;
@@ -46,12 +46,12 @@ namespace SocialPoint.Multiplayer
                 prefab = Resources.Load(prefabName) as GameObject;
                 _prefabs.Add(prefabName, prefab);
             }
-            return ObjectPool.Spawn(prefab, ParentTransform, position, rotation);
+            return UnityObjectPool.Spawn(prefab, ParentTransform, position, rotation);
         }
 
         public void Recycle(GameObject view)
         {
-            ObjectPool.Recycle(view);
+            UnityObjectPool.Recycle(view);
         }
     }
 }
