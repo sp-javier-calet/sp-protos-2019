@@ -58,7 +58,7 @@ namespace SocialPoint.Marketing
                     string idfaValue = _deviceInfo.AdvertisingId;
                     string url = CreateInstallURL(appId, _customMediaSource, _customCampaign, idfaValue);
 
-                    _appEvents.WillGoBackground.Add(0, ClearAndKillApp);
+                    _appEvents.WillGoBackground.Add(int.MaxValue, ClearAndKillApp);
                     Application.OpenURL(url);
                 });
             });
