@@ -20,14 +20,19 @@ namespace SocialPoint.Utils
 
         readonly UpdateScheduler _scheduler = new UpdateScheduler();
 
-        public void Add(IUpdateable elm, UpdateableTimeMode updateTimeMode = UpdateableTimeMode.GameTimeUnscaled, float interval = -1)
+        public void Add(IUpdateable elm, UpdateableTimeMode mode = UpdateableTimeMode.GameTimeUnscaled, float interval = 0.0f)
         {
-            _scheduler.Add(elm, updateTimeMode, interval);
+            _scheduler.Add(elm, mode, interval);
         }
 
-        public void Add(IDeltaUpdateable elm, UpdateableTimeMode updateTimeMode = UpdateableTimeMode.GameTimeUnscaled, float interval = -1)
+        public void Add(IDeltaUpdateable elm, UpdateableTimeMode mode = UpdateableTimeMode.GameTimeUnscaled, float interval = 0.0f)
         {
-            _scheduler.Add(elm, updateTimeMode, interval);
+            _scheduler.Add(elm, mode, interval);
+        }
+
+        public void Add(IDeltaUpdateable<int> elm, UpdateableTimeIntMode mode = UpdateableTimeIntMode.GameTimeUnscaled, int interval = 0)
+        {
+            _scheduler.Add(elm, mode, interval);
         }
 
         public void Remove(IUpdateable elm)
@@ -40,12 +45,22 @@ namespace SocialPoint.Utils
             _scheduler.Remove(elm);
         }
 
+        public void Remove(IDeltaUpdateable<int> elm)
+        {
+            _scheduler.Remove(elm);
+        }
+
         public bool Contains(IUpdateable elm)
         {
             return _scheduler.Contains(elm);
         }
 
         public bool Contains(IDeltaUpdateable elm)
+        {
+            return _scheduler.Contains(elm);
+        }
+
+        public bool Contains(IDeltaUpdateable<int> elm)
         {
             return _scheduler.Contains(elm);
         }

@@ -18,6 +18,15 @@ namespace SocialPoint.GUIControl
 
         public Rect GetSafeAreaRect()
         {
+            if(Storage != null)
+            {
+                Storage.Remove(kShowSafeArea);
+                Storage.Remove(kCustomX);
+                Storage.Remove(kCustomY);
+                Storage.Remove(kCustomWidth);
+                Storage.Remove(kCustomHeight);
+            }
+
             float x = 0f;
             float y = 0f;
             float w = DeviceInfo == null ? Screen.width : DeviceInfo.ScreenSize.x;
@@ -53,6 +62,10 @@ namespace SocialPoint.GUIControl
                         h = heightAttr.AsValue.ToFloat(); 
                     }
                 }
+            }
+            else
+            {
+                return DeviceInfo.SafeAreaRectSize; 
             }
 #else
             return DeviceInfo.SafeAreaRectSize;
