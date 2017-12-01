@@ -10,8 +10,9 @@ using System.Text;
 using SocialPoint.Base;
 using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
+using SocialPoint.Hardware;
 
-public class GUIInstaller : Installer, IDisposable
+public class GUIInstaller : Installer, IDisposable, IInitializable
 {
     const string kUIViewUnitySuffix = "Unity";
     const string kUIViewControllerSuffix = "Controller";
@@ -34,9 +35,37 @@ public class GUIInstaller : Installer, IDisposable
     UISafeAreaController _safeAreaController;
     IAppEvents _appEvents;
     IAttrStorage _storage;
+    IDeviceInfo _iDeviceInfo;
+
+    #region IInitializable implementation
+
+    public void Initialize()
+    {
+        _appEvents = Container.Resolve<IAppEvents>();
+        _storage = Container.Resolve<IAttrStorage>(kPersistentTag);
+        _iDeviceInfo = Container.Resolve<IDeviceInfo>();
+
+        if(_stackController != null)
+        {
+            _stackController.AppEvents = _appEvents;
+        }
+
+        if(_safeAreaController != null)
+        {
+            _safeAreaController.Storage = _storage;
+            _safeAreaController.DeviceInfo = _iDeviceInfo;
+        }
+
+        #if ADMIN_PANEL
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelUI>(CreateAdminPanel);
+        #endif
+    }
+
+    #endregion
 
     public override void InstallBindings()
     {
+        Container.Bind<IInitializable>().ToInstance(this);
         Container.Add<IDisposable, GUIInstaller>(this);
 
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
@@ -44,13 +73,10 @@ public class GUIInstaller : Installer, IDisposable
         Container.Bind<float>("popup_animation_time").ToInstance(Settings.PopupAnimationTime);
 
         _root = CreateRoot();
-        _appEvents = Container.Resolve<IAppEvents>();
-        _storage = Container.Resolve<IAttrStorage>(kPersistentTag);
 
         _stackController = _root.GetComponentInChildren<ScreensController>();
         if(_stackController != null)
         {
-            _stackController.AppEvents = _appEvents;
             _stackController.CloseAppShow = ShowCloseAppAlertView;
             Container.Rebind<UIStackController>().ToInstance(_stackController);
         }
@@ -58,7 +84,6 @@ public class GUIInstaller : Installer, IDisposable
         _safeAreaController = _root.GetComponent<UISafeAreaController>();
         if(_safeAreaController != null)
         {
-            _safeAreaController.Storage = _storage;
             Container.Rebind<UISafeAreaController>().ToInstance(_safeAreaController);
         }
             
@@ -86,11 +111,7 @@ public class GUIInstaller : Installer, IDisposable
     #if ADMIN_PANEL
     AdminPanelUI CreateAdminPanel()
     {
-        var screenArea = _safeAreaController.GetScreenArea();
-        var iphoneXSafeArea = _safeAreaController.GetIphoneXSafeArea();
-        var safeArea = _safeAreaController.GetSafeArea();
-
-        return new AdminPanelUI(screenArea, iphoneXSafeArea, safeArea, _storage, _stackController);
+        return new AdminPanelUI(_iDeviceInfo, _safeAreaController, _storage, _stackController);
     }
     #endif
 

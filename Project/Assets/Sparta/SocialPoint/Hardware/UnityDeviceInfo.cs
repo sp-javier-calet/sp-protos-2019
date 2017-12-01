@@ -147,10 +147,37 @@ namespace SocialPoint.Hardware
             {
                 if(_screenSize == Vector2.zero)
                 {
+//                    var size = UnityGameWindowUtils.GetMainGameViewSize();
                     _screenSize.x = Screen.width;
                     _screenSize.y = Screen.height;
                 }
                 return _screenSize;
+            }
+        }
+
+        Rect _safeAreaRectSize = Rect.zero;
+
+        public Rect SafeAreaRectSize
+        {
+            get
+            {
+                if(_safeAreaRectSize == Rect.zero)
+                {
+#if UNITY_IOS
+                    if(ScreenSize.x == 2436f && ScreenSize.y == 1125f)
+                    {
+                        // IphoneX resolution
+                        _safeAreaRectSize = new Rect(132f, 63f, 2172f, 1062f);
+                    }
+                    else
+                    {
+                        _safeAreaRectSize = new Rect(0f, 0f, ScreenSize.x, ScreenSize.y);
+                    }
+#else
+                    _safeAreaRectSize = new Rect(0f, 0f, ScreenSize.x, ScreenSize.y);
+#endif
+                }
+                return _safeAreaRectSize;
             }
         }
 

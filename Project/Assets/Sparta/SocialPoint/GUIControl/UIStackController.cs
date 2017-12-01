@@ -120,14 +120,14 @@ namespace SocialPoint.GUIControl
         #endregion
 
         #if ADMIN_PANEL
-        public void RefreshSafeArea()
+        public void RefreshSafeArea(Rect rect)
         {
             for(int i = Count - 1; i >= 0; --i)
             {
                 var node = _stack[i]; 
                 if(IsValidStackNode(node))
                 {
-                    node.Controller.ApplySafeArea();
+                    node.Controller.ApplySafeArea(rect);
                 }
             }
         }

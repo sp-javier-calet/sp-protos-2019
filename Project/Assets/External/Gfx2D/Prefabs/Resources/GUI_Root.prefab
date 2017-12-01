@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 478128}
   - component: {fileID: 114477865945221414}
   m_Layer: 0
-  m_Name: GUI_Root 1
+  m_Name: GUI_Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1329,7 +1329,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2906fa00bfdc47ebb031721ea53f991, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SafeAreaPanel: {fileID: 224898009236780752}
+  ShowSafearea: 0
 --- !u!114 &114548472270309708
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1402,6 +1402,7 @@ MonoBehaviour:
   IsFullScreen: 1
   AppearAnimationFactory: {fileID: 0}
   DisappearAnimationFactory: {fileID: 0}
+  _safeAreaParent: {fileID: 0}
   ParentController: {fileID: 0}
   DestroyOnHide: 0
   _containers3d: []
@@ -1424,6 +1425,7 @@ MonoBehaviour:
   IsFullScreen: 1
   AppearAnimationFactory: {fileID: 0}
   DisappearAnimationFactory: {fileID: 0}
+  _safeAreaParent: {fileID: 0}
   ParentController: {fileID: 0}
   DestroyOnHide: 0
   _containers3d: []
