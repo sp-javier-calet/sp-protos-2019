@@ -1,7 +1,7 @@
-﻿using SocialPoint.Network;
-using SocialPoint.Utils;
+﻿using System;
 using System.Collections.Generic;
 using SocialPoint.IO;
+using SocialPoint.Network;
 
 namespace SocialPoint.Network
 {
@@ -12,7 +12,6 @@ namespace SocialPoint.Network
 
     public sealed class MatchConnectMessage : INetworkShareable
     {
-        public const byte MessageType = 5;
 
         public string MatchId { get; private set; }
 
@@ -32,7 +31,7 @@ namespace SocialPoint.Network
         }
     }
 
-    public class MultiMatchController : INetworkServerDelegate, INetworkMessageReceiver
+    public class MultiMatchController : INetworkServerDelegate, INetworkMessageReceiver, IDisposable
     {
         class MatchInfo
         {
@@ -68,16 +67,19 @@ namespace SocialPoint.Network
             }
         }
 
+        byte _connectMessageType;
+
         INetworkServer _netServer;
 
         INetworkMatchDelegateFactory _factory;
 
         List<MatchInfo> _matches;
 
-        public MultiMatchController(INetworkServer server, INetworkMatchDelegateFactory factory)
+        public MultiMatchController(INetworkServer server, INetworkMatchDelegateFactory factory, byte connectMessageType)
         {
             _netServer = server;
             _factory = factory;
+            _connectMessageType = connectMessageType;
             _matches = new List<MatchInfo>();
             _netServer.AddDelegate(this);
             _netServer.RegisterReceiver(this);
@@ -135,7 +137,7 @@ namespace SocialPoint.Network
                     match.Delegate.OnServerStopped();
                 }
             }
-           
+            _matches.Clear();
         }
 
         void INetworkServerDelegate.OnClientConnected(byte clientId)
@@ -148,18 +150,16 @@ namespace SocialPoint.Network
             if(match != null && match.Delegate != null)
             {
                 match.Delegate.OnClientDisconnected(clientId);
+                match.ClientIds.Remove(clientId);
 
-                if(match.ClientIds.Count == 1)
+                if(match.ClientIds.Count == 0)
                 {
                     match.Delegate.OnServerStopped();
                     _matches.Remove(match);
                     match.Delegate = null;
                     match.Receiver = null;
                 }
-                else
-                {
-                    match.ClientIds.Remove(clientId);
-                }
+
             }
         }
 
@@ -193,15 +193,14 @@ namespace SocialPoint.Network
 
         void INetworkMessageReceiver.OnMessageReceived(NetworkMessageData data, SocialPoint.IO.IReader reader)
         {
-            switch(data.MessageType)
+            if(data.MessageType == _connectMessageType)
             {
-            case MatchConnectMessage.MessageType:
                 var cmd = new MatchConnectMessage();
                 cmd.Deserialize(reader);
                 CreateOrJoinMatch(data.ClientIds[0], cmd.MatchId);
-                break;       
-            default:
-
+            }
+            else
+            {
                 var match = GetMatch(data.ClientIds[0]);
                 if(match != null)
                 {
@@ -215,9 +214,18 @@ namespace SocialPoint.Network
                         match.Receiver.OnMessageReceived(data, reader);
                     }
                 }
-                break;
             }
+        }
 
+        #endregion
+
+        #region IDisposable implementation
+
+        public void Dispose()
+        {
+            _netServer.RemoveDelegate(this);
+            _netServer.RegisterReceiver(null);
+            ((INetworkServerDelegate)this).OnServerStopped();
         }
 
         #endregion

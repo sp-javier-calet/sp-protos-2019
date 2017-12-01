@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using NUnit.Framework;
 using NSubstitute;
 using System.Collections.Generic;
@@ -147,13 +145,15 @@ namespace SocialPoint.Network
         MultiMatchController _multiMatch;
         TestMatchDelegateFactory _factory;
 
+        const byte ConnectMessageType = 5;
+
 
         [SetUp]
         public void SetUp()
         {
             _server = new TestNetworkServer();
             _factory = new TestMatchDelegateFactory();
-            _multiMatch = new MultiMatchController(_server, _factory);
+            _multiMatch = new MultiMatchController(_server, _factory, ConnectMessageType);
 
             // HACK: avoid not used warning
             _server.RemoveDelegate(_multiMatch);
@@ -166,7 +166,7 @@ namespace SocialPoint.Network
             //CHECK OnClientConnected
             var reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 1 }
             }, reader);
             _factory.Delegates["matchId"].Received(1).OnClientConnected(1);
@@ -178,14 +178,14 @@ namespace SocialPoint.Network
             //CHECK OnClientConnected
             var reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 1 }
             }, reader);
 
 
             reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 2 }
             }, reader);
 
@@ -209,25 +209,25 @@ namespace SocialPoint.Network
             //CHECK OnClientConnected
             var reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 1 }
             }, reader);
 
             reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 2 }
             }, reader);
 
             var reader2 = CreateReader(new MatchConnectMessage("matchId1"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 3 }
             }, reader2);
 
             reader2 = CreateReader(new MatchConnectMessage("matchId1"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 4 }
             }, reader2);
 
@@ -250,13 +250,13 @@ namespace SocialPoint.Network
         {
             var reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 1 }
             }, reader);
 
             var reader1 = CreateReader(new MatchConnectMessage("matchId1"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 2 }
             }, reader1);
 
@@ -274,13 +274,13 @@ namespace SocialPoint.Network
         {
             var reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 100 }
             }, reader);
 
             var reader1 = CreateReader(new MatchConnectMessage("matchId1"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 200 }
             }, reader1);
 
@@ -301,13 +301,13 @@ namespace SocialPoint.Network
         {
             var reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 1 }
             }, reader);
 
             var reader1 = CreateReader(new MatchConnectMessage("matchId1"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 1 }
             }, reader1);
 
@@ -320,13 +320,13 @@ namespace SocialPoint.Network
         {
             var reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 1 }
             }, reader);
 
             var reader1 = CreateReader(new MatchConnectMessage("matchId1"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 2 }
             }, reader1);
 
@@ -342,7 +342,7 @@ namespace SocialPoint.Network
         {
             var reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 1 }
             }, reader);
 
@@ -356,7 +356,7 @@ namespace SocialPoint.Network
         {
             var reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 1 }
             }, reader);
 
@@ -368,7 +368,7 @@ namespace SocialPoint.Network
 
             reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 1 }
             }, reader);
 
@@ -380,25 +380,25 @@ namespace SocialPoint.Network
         {
             var reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 1 }
             }, reader);
 
             reader = CreateReader(new MatchConnectMessage("matchId1"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 2 }
             }, reader);
 
             reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 3 }
             }, reader);
 
             reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 4 }
             }, reader);
 
@@ -415,19 +415,19 @@ namespace SocialPoint.Network
         {
             var reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 1 }
             }, reader);
 
             reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 2 }
             }, reader);
 
             reader = CreateReader(new MatchConnectMessage("matchId"));
             _server.ReceivedMessage(new NetworkMessageData {
-                MessageType = MatchConnectMessage.MessageType,
+                MessageType = ConnectMessageType,
                 ClientIds = new List<byte>{ 3 }
             }, reader);
 
