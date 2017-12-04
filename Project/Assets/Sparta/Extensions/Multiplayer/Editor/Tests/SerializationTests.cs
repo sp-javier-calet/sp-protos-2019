@@ -375,11 +375,11 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        void IDeltaUpdateable.Update(float elapsed)
+        public void Update(float elapsed)
         {
         }
 
-        void IDisposable.Dispose()
+        public void Dispose()
         {
         }
 

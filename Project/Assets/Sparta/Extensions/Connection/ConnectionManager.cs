@@ -503,10 +503,7 @@ namespace SocialPoint.Connection
         {
             DebugUtils.Assert(_active, "Connect the ConnectionManager before attempting to send a publish");
             var request = _connection.CreatePublish(topic, args, kwargs, onComplete != null, onComplete);
-            _pendingRequests.Enqueue(new RequestWrapper {
-                Type = RequestWrapper.RequestType.Publish,
-                Request = request,
-            });
+            EnqueuePendingRequest(request, RequestWrapper.RequestType.Publish);
             return request;
         }
 
@@ -514,11 +511,21 @@ namespace SocialPoint.Connection
         {
             DebugUtils.Assert(_active, "Connect the ConnectionManager before attempting to send a call");
             var request = _connection.CreateCall(procedure, args, kwargs, (err, iargs, ikwargs) => OnRPCFinished(iargs, ikwargs, onResult, err));
+            EnqueuePendingRequest(request, RequestWrapper.RequestType.Call);
+            return request;
+        }
+
+        void EnqueuePendingRequest(WAMPRequest request, RequestWrapper.RequestType type)
+        {
+            if(request == null)
+            {
+                //Do not enqueue the request in _pendingRequests because it is not a valid request
+                return;
+            }
             _pendingRequests.Enqueue(new RequestWrapper {
-                Type = RequestWrapper.RequestType.Call,
+                Type = type,
                 Request = request,
             });
-            return request;
         }
 
         void OnConnectionError(Error err)

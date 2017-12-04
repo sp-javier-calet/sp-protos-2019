@@ -41,7 +41,7 @@ namespace SocialPoint.Multiplayer
         {
         }
 
-        void IDeltaUpdateable.Update(float dt)
+        void IDeltaUpdateable<float>.Update(float dt)
         {
             Update(dt);
         }
