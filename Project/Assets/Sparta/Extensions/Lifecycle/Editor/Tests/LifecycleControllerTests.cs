@@ -10,6 +10,10 @@ namespace SocialPoint.Lifecycle
     {
         const float dtTest = 0.33f;
 
+        public interface ISetupCleanupComponent : ISetupComponent, ICleanupComponent
+        {
+        }
+
         ISetupComponent _setupComp1;
         ISetupComponent _setupComp2;
         IUpdateComponent _updateComp1;
@@ -18,7 +22,9 @@ namespace SocialPoint.Lifecycle
         ICleanupComponent _cleanupComp2;
         ICancelComponent _cancelComp1;
         ICancelComponent _cancelComp2;
-        IErrorHandler _errorHandlerComp;
+        IErrorHandler _errorHandler;
+        ISetupCleanupComponent _setupCleanupComp1;
+        ISetupCleanupComponent _setupCleanupComp2;
         LifecycleController _controller;
 
         [SetUp]
@@ -32,7 +38,9 @@ namespace SocialPoint.Lifecycle
             _cleanupComp2 = Substitute.For<ICleanupComponent>();
             _cancelComp1 = Substitute.For<ICancelComponent>();
             _cancelComp2 = Substitute.For<ICancelComponent>();
-            _errorHandlerComp = Substitute.For<IErrorHandler>();
+            _errorHandler = Substitute.For<IErrorHandler>();
+            _setupCleanupComp1 = Substitute.For<ISetupCleanupComponent>();
+            _setupCleanupComp2 = Substitute.For<ISetupCleanupComponent>();
             _controller = new LifecycleController();
             _controller.Start();
         }
@@ -195,7 +203,7 @@ namespace SocialPoint.Lifecycle
         }
 
         [Test]
-        public void CancelSuccessCleanupDisabled()
+        public void CancelSuccessDisposeDisabled()
         {
             _controller.DisposeAfterCancel = false;
             _controller.RegisterCancelComponent(_cancelComp1);
@@ -228,7 +236,7 @@ namespace SocialPoint.Lifecycle
             _setupComp1.When(setupComp => setupComp.Update(Arg.Any<float>())).Do(setupComp => ((IErrorHandler)_controller).OnError(new Error()));
             _controller.RegisterSetupComponent(_setupComp1);
             _controller.RegisterUpdateComponent(_updateComp1);
-            _controller.RegisterErrorHandler(_errorHandlerComp);
+            _controller.RegisterErrorHandler(_errorHandler);
 
             _controller.Update(dtTest);
             _controller.Update(dtTest);//Should not update components after error
@@ -236,7 +244,7 @@ namespace SocialPoint.Lifecycle
             _setupComp1.Received(1).Start();
             _setupComp1.Received(1).Update(Arg.Is<float>(dt => NearlyEqual(dt, dtTest)));
             _updateComp1.DidNotReceive().Update(Arg.Any<float>());
-            _errorHandlerComp.Received(1).OnError(Arg.Any<Error>());
+            _errorHandler.Received(1).OnError(Arg.Any<Error>());
         }
 
         [Test]
@@ -244,18 +252,36 @@ namespace SocialPoint.Lifecycle
         {
             _updateComp1.When(updateComp => updateComp.Update(Arg.Any<float>())).Do(updateComp => ((IErrorHandler)_controller).OnError(new Error()));
             _controller.RegisterUpdateComponent(_updateComp1);
-            _controller.RegisterErrorHandler(_errorHandlerComp);
+            _controller.RegisterErrorHandler(_errorHandler);
 
             _controller.Update(dtTest);//Run empty Setup
             _controller.Update(dtTest);
             _controller.Update(dtTest);//Should not update components after error
 
             _updateComp1.Received(1).Update(Arg.Is<float>(dt => NearlyEqual(dt, dtTest)));
-            _errorHandlerComp.Received(1).OnError(Arg.Any<Error>());
+            _errorHandler.Received(1).OnError(Arg.Any<Error>());
         }
 
         public static bool NearlyEqual(float a, float b) {
             return UnityEngine.Mathf.Approximately(a, b);
+        }
+
+        [Test]
+        public void SetupCleanupComponent()
+        {
+            _controller.RegisterComponent(_setupCleanupComp1);
+            _controller.RegisterComponent(_setupCleanupComp2);
+
+            _controller.Update(dtTest);
+
+            _controller.Cancel();
+
+            _setupCleanupComp1.Received(1).Start();
+            _setupCleanupComp1.Received(1).Update(dtTest);
+            _setupCleanupComp1.Received(1).Cleanup();
+            _setupCleanupComp2.DidNotReceive().Start();
+            _setupCleanupComp2.DidNotReceive().Update(Arg.Any<float>());
+            _setupCleanupComp2.DidNotReceive().Cleanup();
         }
     }
 }

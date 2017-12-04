@@ -146,7 +146,17 @@ namespace SocialPoint.Lifecycle
             }
             for(int i = 0; i < _cleanupComponents.Count; i++)
             {
-                _cleanupComponents[i].Cleanup();
+                var cleanup = _cleanupComponents[i];
+                var setup = cleanup as ISetupComponent;
+                var idx = -1;
+                if(setup != null)
+                {
+                    idx = _setupComponents.IndexOf(setup);
+                }
+                if(idx < 0 || idx <= _currentSetupComponent)
+                {
+                    cleanup.Cleanup();
+                }
             }
             _cleanupComponents.Clear();
             for(int i = 0; i < _errorDispatchers.Count; i++)
@@ -283,7 +293,7 @@ namespace SocialPoint.Lifecycle
 
         public void RegisterSetupComponent(ISetupComponent setup)
         {
-            if(setup != null)
+            if(setup != null && !_setupComponents.Contains(setup))
             {
                 _setupComponents.Add(setup);
             }
@@ -291,7 +301,7 @@ namespace SocialPoint.Lifecycle
 
         public void RegisterStartComponent(IStartComponent start)
         {
-            if (start != null)
+            if (start != null && !_startComponents.Contains(start))
             {
                 _startComponents.Add(start);
             }
@@ -299,7 +309,7 @@ namespace SocialPoint.Lifecycle
 
         public void RegisterUpdateComponent(IUpdateComponent update)
         {
-            if(update != null)
+            if(update != null && !_updateComponents.Contains(update))
             {
                 _updateComponents.Add(update);
             }
@@ -307,7 +317,7 @@ namespace SocialPoint.Lifecycle
 
         public void RegisterCleanupComponent(ICleanupComponent cleanup)
         {
-            if(cleanup != null)
+            if(cleanup != null && !_cleanupComponents.Contains(cleanup))
             {
                 _cleanupComponents.Add(cleanup);
             }
@@ -315,7 +325,7 @@ namespace SocialPoint.Lifecycle
 
         public void RegisterCancelComponent(ICancelComponent cancel)
         {
-            if(cancel != null)
+            if(cancel != null && !_cancelComponents.Contains(cancel))
             {
                 _cancelComponents.Add(cancel);
             }
@@ -323,23 +333,15 @@ namespace SocialPoint.Lifecycle
 
         public void RegisterCancelListener(ICancelListener listener)
         {
-            if(listener != null)
+            if(listener != null && !_cancelListeners.Contains(listener))
             {
                 _cancelListeners.Add(listener);
             }
         }
 
-        public void UnregisterCancelListener(ICancelListener listener)
-        {
-            if(listener != null)
-            {
-                _cancelListeners.Remove(listener);
-            }
-        }
-
         public void RegisterErrorDispatcher(IErrorDispatcher dispatcher)
         {
-            if(dispatcher != null)
+            if(dispatcher != null && !_errorDispatchers.Contains(dispatcher))
             {
                 dispatcher.Handler = this;
                 _errorDispatchers.Add(dispatcher);
@@ -348,7 +350,7 @@ namespace SocialPoint.Lifecycle
 
         public void RegisterErrorHandler(IErrorHandler handler)
         {
-            if(handler != null)
+            if(handler != null && !_errorHandlers.Contains(handler))
             {
                 _errorHandlers.Add(handler);
             }
