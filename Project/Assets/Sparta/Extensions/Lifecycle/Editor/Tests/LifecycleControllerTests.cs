@@ -16,8 +16,8 @@ namespace SocialPoint.Lifecycle
         IUpdateComponent _updateComp2;
         ICleanupComponent _cleanupComp1;
         ICleanupComponent _cleanupComp2;
-        IStopComponent _stopComp1;
-        IStopComponent _stopComp2;
+        ICancelComponent _cancelComp1;
+        ICancelComponent _cancelComp2;
         IErrorHandler _errorHandlerComp;
         LifecycleController _controller;
 
@@ -30,8 +30,8 @@ namespace SocialPoint.Lifecycle
             _updateComp2 = Substitute.For<IUpdateComponent>();
             _cleanupComp1 = Substitute.For<ICleanupComponent>();
             _cleanupComp2 = Substitute.For<ICleanupComponent>();
-            _stopComp1 = Substitute.For<IStopComponent>();
-            _stopComp2 = Substitute.For<IStopComponent>();
+            _cancelComp1 = Substitute.For<ICancelComponent>();
+            _cancelComp2 = Substitute.For<ICancelComponent>();
             _errorHandlerComp = Substitute.For<IErrorHandler>();
             _controller = new LifecycleController();
             _controller.Start();
@@ -180,45 +180,45 @@ namespace SocialPoint.Lifecycle
 
 
         [Test]
-        public void StopSuccess()
+        public void CancelSuccess()
         {
-            _controller.RegisterStopComponent(_stopComp1);
+            _controller.RegisterCancelComponent(_cancelComp1);
             _controller.RegisterCleanupComponent(_cleanupComp1);
 
-            _controller.Stop();
+            _controller.Cancel();
 
-            _stopComp1.Received(1).Stop();
+            _cancelComp1.Received(1).Cancel();
             _cleanupComp1.DidNotReceive().Cleanup();
 
-            _stopComp1.Listener.OnStopped(true);
+            _cancelComp1.Listener.OnCancelled(true);
             _cleanupComp1.Received(1).Cleanup();
         }
 
         [Test]
-        public void StopSuccessCleanupDisabled()
+        public void CancelSuccessCleanupDisabled()
         {
-            _controller.DisposeAfterSuccessfulStop = false;
-            _controller.RegisterStopComponent(_stopComp1);
+            _controller.DisposeAfterCancel = false;
+            _controller.RegisterCancelComponent(_cancelComp1);
             _controller.RegisterCleanupComponent(_cleanupComp1);
 
-            _controller.Stop();
-            _stopComp1.Listener.OnStopped(true);
+            _controller.Cancel();
+            _cancelComp1.Listener.OnCancelled(true);
             _cleanupComp1.DidNotReceive().Cleanup();
         }
 
         [Test]
-        public void StopFailure()
+        public void CancelFailure()
         {
-            _stopComp1.When(s => s.Stop()).Do(s => _stopComp1.Listener.OnStopped(true));
-            _stopComp2.When(s => s.Stop()).Do(s => _stopComp1.Listener.OnStopped(false));
-            _controller.RegisterStopComponent(_stopComp1);
-            _controller.RegisterStopComponent(_stopComp2);
+            _cancelComp1.When(s => s.Cancel()).Do(s => _cancelComp1.Listener.OnCancelled(true));
+            _cancelComp2.When(s => s.Cancel()).Do(s => _cancelComp1.Listener.OnCancelled(false));
+            _controller.RegisterCancelComponent(_cancelComp1);
+            _controller.RegisterCancelComponent(_cancelComp2);
             _controller.RegisterCleanupComponent(_cleanupComp1);
 
-            _controller.Stop();
+            _controller.Cancel();
 
-            _stopComp1.Received(1).Stop();
-            _stopComp2.Received(1).Stop();
+            _cancelComp1.Received(1).Cancel();
+            _cancelComp2.Received(1).Cancel();
             _cleanupComp1.DidNotReceive().Cleanup();
         }
 

@@ -22,16 +22,16 @@ namespace SocialPoint.Lifecycle
         void Cleanup();
     }
 
-    public interface IStopListener
+    public interface ICancelListener
     {
-        void OnStopped(bool successful);
+        void OnCancelled(bool successful);
     }
 
-    public interface IStopComponent
+    public interface ICancelComponent
     {
-        IStopListener Listener { get; set; }
+        ICancelListener Listener { get; set; }
 
-        void Stop();
+        void Cancel();
     }
 
     public interface IStartComponent
@@ -49,14 +49,14 @@ namespace SocialPoint.Lifecycle
         IErrorHandler Handler { get; set; }
     }
 
-    public class LifecycleController : IDeltaUpdateable, IStopListener, IErrorHandler, IDisposable
+    public class LifecycleController : IDeltaUpdateable, ICancelListener, IErrorHandler, IDisposable
     {
         List<ISetupComponent> _setupComponents;
         List<IUpdateComponent> _updateComponents;
         List<ICleanupComponent> _cleanupComponents;
         List<IStartComponent> _startComponents;
-        List<IStopComponent> _stopComponents;
-        List<IStopListener> _stopListeners;
+        List<ICancelComponent> _cancelComponents;
+        List<ICancelListener> _cancelListeners;
         List<IErrorDispatcher> _errorDispatchers;
         List<IErrorHandler> _errorHandlers;
 
@@ -65,8 +65,8 @@ namespace SocialPoint.Lifecycle
         int _currentSetupComponent;
         bool _currentSetupComponentStarted;
 
-        int _successfulStopEventsCount;
-        int _totalStopEventsCount;
+        int _successfulCancelEventsCount;
+        int _totalCancelEventsCount;
 
         public enum PhaseType
         {
@@ -79,7 +79,7 @@ namespace SocialPoint.Lifecycle
 
         public PhaseType Phase { get; private set; }
 
-        public bool DisposeAfterSuccessfulStop = true;
+        public bool DisposeAfterCancel = true;
 
         public LifecycleController(IUpdateScheduler scheduler = null)
         {
@@ -87,14 +87,14 @@ namespace SocialPoint.Lifecycle
             _startComponents = new List<IStartComponent>();
             _updateComponents = new List<IUpdateComponent>();
             _cleanupComponents = new List<ICleanupComponent>();
-            _stopComponents = new List<IStopComponent>();
-            _stopListeners = new List<IStopListener>();
+            _cancelComponents = new List<ICancelComponent>();
+            _cancelListeners = new List<ICancelListener>();
             _errorDispatchers = new List<IErrorDispatcher>();
             _errorHandlers = new List<IErrorHandler>();
             Phase = PhaseType.Stopped;
             _scheduler = scheduler;
-            _successfulStopEventsCount = 0;
-            _totalStopEventsCount = 0;
+            _successfulCancelEventsCount = 0;
+            _totalCancelEventsCount = 0;
 
             RegisterComponents();
         }
@@ -118,22 +118,22 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void Stop()
+        public void Cancel()
         {
             if(Phase != PhaseType.Setup)
             {
                 throw new InvalidOperationException("Controller can only be stopped during setup.");
             }
-            for(int i = 0; i < _stopComponents.Count; i++)
+            for(int i = 0; i < _cancelComponents.Count; i++)
             {
-                _stopComponents[i].Listener = this;
+                _cancelComponents[i].Listener = this;
             }
-            _successfulStopEventsCount = 0;
-            _totalStopEventsCount = 0;
-            OnStopCountUpdate();
-            for(int i = 0; i < _stopComponents.Count; i++)
+            _successfulCancelEventsCount = 0;
+            _totalCancelEventsCount = 0;
+            CheckCancelCount();
+            for(int i = 0; i < _cancelComponents.Count; i++)
             {
-                _stopComponents[i].Stop();
+                _cancelComponents[i].Cancel();
             }
         }
 
@@ -154,15 +154,15 @@ namespace SocialPoint.Lifecycle
                 _errorDispatchers[i].Handler = null;
             }
             _errorDispatchers.Clear();
-            for(int i = 0; i < _stopComponents.Count; i++)
+            for(int i = 0; i < _cancelComponents.Count; i++)
             {
-                _stopComponents[i].Listener = null;
+                _cancelComponents[i].Listener = null;
             }
-            _stopComponents.Clear();
+            _cancelComponents.Clear();
             _setupComponents.Clear();
             _startComponents.Clear();
             _updateComponents.Clear();
-            _stopListeners.Clear();
+            _cancelListeners.Clear();
             _errorHandlers.Clear();
         }
 
@@ -224,16 +224,16 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        void OnStopCountUpdate()
+        void CheckCancelCount()
         {
-            if(_totalStopEventsCount < _stopComponents.Count)
+            if(_totalCancelEventsCount < _cancelComponents.Count)
             {
                 return;
             }
-            var successful = _successfulStopEventsCount == _totalStopEventsCount;
-            for(int i = 0; i < _stopListeners.Count; i++)
+            var successful = _successfulCancelEventsCount == _totalCancelEventsCount;
+            for(int i = 0; i < _cancelListeners.Count; i++)
             {
-                _stopListeners[i].OnStopped(successful);
+                _cancelListeners[i].OnCancelled(successful);
             }
             if(successful)
             {
@@ -242,21 +242,21 @@ namespace SocialPoint.Lifecycle
                 {
                     _scheduler.Remove(this);
                 }
-                if(DisposeAfterSuccessfulStop)
+                if(DisposeAfterCancel)
                 {
                     Dispose();
                 }
             }
         }
 
-        void IStopListener.OnStopped(bool successful)
+        void ICancelListener.OnCancelled(bool successful)
         {
-            ++_totalStopEventsCount;
+            ++_totalCancelEventsCount;
             if(successful)
             {
-                ++_successfulStopEventsCount;
+                ++_successfulCancelEventsCount;
             }
-            OnStopCountUpdate();
+            CheckCancelCount();
         }
 
         void IErrorHandler.OnError(Error error)
@@ -274,8 +274,8 @@ namespace SocialPoint.Lifecycle
             RegisterStartComponent(component as IStartComponent);
             RegisterUpdateComponent(component as IUpdateComponent);
             RegisterCleanupComponent(component as ICleanupComponent);
-            RegisterStopComponent(component as IStopComponent);
-            RegisterStopListener(component as IStopListener);
+            RegisterCancelComponent(component as ICancelComponent);
+            RegisterCancelListener(component as ICancelListener);
             RegisterErrorDispatcher(component as IErrorDispatcher);
             RegisterErrorHandler(component as IErrorHandler);
             return component;
@@ -313,27 +313,27 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void RegisterStopComponent(IStopComponent stop)
+        public void RegisterCancelComponent(ICancelComponent cancel)
         {
-            if(stop != null)
+            if(cancel != null)
             {
-                _stopComponents.Add(stop);
+                _cancelComponents.Add(cancel);
             }
         }
 
-        public void RegisterStopListener(IStopListener listener)
+        public void RegisterCancelListener(ICancelListener listener)
         {
             if(listener != null)
             {
-                _stopListeners.Add(listener);
+                _cancelListeners.Add(listener);
             }
         }
 
-        public void UnregisterStopListener(IStopListener listener)
+        public void UnregisterCancelListener(ICancelListener listener)
         {
             if(listener != null)
             {
-                _stopListeners.Remove(listener);
+                _cancelListeners.Remove(listener);
             }
         }
 
