@@ -22,6 +22,10 @@ namespace SocialPoint.Lifecycle
         void Cleanup();
     }
 
+    public interface ICleanSetupComponent : ISetupComponent, ICleanupComponent
+    {
+    }
+
     public interface ICancelListener
     {
         void OnCancelled(bool successful);
@@ -147,7 +151,7 @@ namespace SocialPoint.Lifecycle
             for(int i = 0; i < _cleanupComponents.Count; i++)
             {
                 var cleanup = _cleanupComponents[i];
-                var setup = cleanup as ISetupComponent;
+                var setup = cleanup as ICleanSetupComponent;
                 var idx = -1;
                 if(setup != null)
                 {

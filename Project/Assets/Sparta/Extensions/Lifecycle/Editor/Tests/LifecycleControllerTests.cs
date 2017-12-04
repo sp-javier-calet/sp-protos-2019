@@ -10,7 +10,7 @@ namespace SocialPoint.Lifecycle
     {
         const float dtTest = 0.33f;
 
-        public interface ISetupCleanupComponent : ISetupComponent, ICleanupComponent
+        public interface ITestSetupCleanupComponent : ISetupComponent, ICleanupComponent
         {
         }
 
@@ -23,8 +23,6 @@ namespace SocialPoint.Lifecycle
         ICancelComponent _cancelComp1;
         ICancelComponent _cancelComp2;
         IErrorHandler _errorHandler;
-        ISetupCleanupComponent _setupCleanupComp1;
-        ISetupCleanupComponent _setupCleanupComp2;
         LifecycleController _controller;
 
         [SetUp]
@@ -39,8 +37,6 @@ namespace SocialPoint.Lifecycle
             _cancelComp1 = Substitute.For<ICancelComponent>();
             _cancelComp2 = Substitute.For<ICancelComponent>();
             _errorHandler = Substitute.For<IErrorHandler>();
-            _setupCleanupComp1 = Substitute.For<ISetupCleanupComponent>();
-            _setupCleanupComp2 = Substitute.For<ISetupCleanupComponent>();
             _controller = new LifecycleController();
             _controller.Start();
         }
@@ -269,19 +265,27 @@ namespace SocialPoint.Lifecycle
         [Test]
         public void SetupCleanupComponent()
         {
-            _controller.RegisterComponent(_setupCleanupComp1);
-            _controller.RegisterComponent(_setupCleanupComp2);
+            var comp1 = Substitute.For<ITestSetupCleanupComponent>();
+            var comp2 = Substitute.For<ICleanSetupComponent>();
+            var comp3 = Substitute.For<ITestSetupCleanupComponent>();
+
+            _controller.RegisterComponent(comp1);
+            _controller.RegisterComponent(comp2);
+            _controller.RegisterComponent(comp3);
 
             _controller.Update(dtTest);
 
             _controller.Cancel();
 
-            _setupCleanupComp1.Received(1).Start();
-            _setupCleanupComp1.Received(1).Update(dtTest);
-            _setupCleanupComp1.Received(1).Cleanup();
-            _setupCleanupComp2.DidNotReceive().Start();
-            _setupCleanupComp2.DidNotReceive().Update(Arg.Any<float>());
-            _setupCleanupComp2.DidNotReceive().Cleanup();
+            comp1.Received(1).Start();
+            comp1.Received(1).Update(dtTest);
+            comp1.Received(1).Cleanup();
+            comp2.DidNotReceive().Start();
+            comp2.DidNotReceive().Update(Arg.Any<float>());
+            comp2.DidNotReceive().Cleanup();
+            comp3.DidNotReceive().Start();
+            comp3.DidNotReceive().Update(Arg.Any<float>());
+            comp3.Received(1).Cleanup();
         }
     }
 }
