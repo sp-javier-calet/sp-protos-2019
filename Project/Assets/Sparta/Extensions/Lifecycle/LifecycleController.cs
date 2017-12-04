@@ -79,6 +79,8 @@ namespace SocialPoint.Lifecycle
 
         public PhaseType Phase { get; private set; }
 
+        public bool DisposeAfterSuccessfulStop = true;
+
         public LifecycleController(IUpdateScheduler scheduler = null)
         {
             _setupComponents = new List<ISetupComponent>();
@@ -103,9 +105,9 @@ namespace SocialPoint.Lifecycle
 
         public void Start()
         {
-            if(Phase == PhaseType.Cleanup)
+            if(Phase != PhaseType.Stopped)
             {
-                throw new InvalidOperationException("Controller was already disposed");
+                throw new InvalidOperationException("Controller can only be started while stopped");
             }
             Phase = PhaseType.Setup;
             _currentSetupComponent = 0;
@@ -118,9 +120,9 @@ namespace SocialPoint.Lifecycle
 
         public void Stop()
         {
-            if(Phase == PhaseType.Cleanup)
+            if(Phase != PhaseType.Setup)
             {
-                throw new InvalidOperationException("Controller was already disposed");
+                throw new InvalidOperationException("Controller can only be stopped during setup.");
             }
             for(int i = 0; i < _stopComponents.Count; i++)
             {
@@ -224,7 +226,7 @@ namespace SocialPoint.Lifecycle
 
         void OnStopCountUpdate()
         {
-            if(_totalStopEventsCount != _stopComponents.Count)
+            if(_totalStopEventsCount < _stopComponents.Count)
             {
                 return;
             }
@@ -239,6 +241,10 @@ namespace SocialPoint.Lifecycle
                 if(_scheduler != null)
                 {
                     _scheduler.Remove(this);
+                }
+                if(DisposeAfterSuccessfulStop)
+                {
+                    Dispose();
                 }
             }
         }

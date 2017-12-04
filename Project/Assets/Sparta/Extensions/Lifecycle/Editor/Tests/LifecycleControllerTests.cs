@@ -1,10 +1,5 @@
 ﻿using NUnit.Framework;
 using NSubstitute;
-using System.Collections;
-using System.Collections.Generic;
-using SocialPoint.ServerSync;
-using SocialPoint.ScriptEvents;
-using SocialPoint.Utils;
 using System;
 using SocialPoint.Base;
 
@@ -187,20 +182,35 @@ namespace SocialPoint.Lifecycle
         [Test]
         public void StopSuccess()
         {
-            _stopComp1.When(s => s.Stop()).Do(s => ((IStopListener)_controller).OnStopped(true));
             _controller.RegisterStopComponent(_stopComp1);
             _controller.RegisterCleanupComponent(_cleanupComp1);
 
             _controller.Stop();
 
             _stopComp1.Received(1).Stop();
+            _cleanupComp1.DidNotReceive().Cleanup();
+
+            _stopComp1.Listener.OnStopped(true);
+            _cleanupComp1.Received(1).Cleanup();
+        }
+
+        [Test]
+        public void StopSuccessCleanupDisabled()
+        {
+            _controller.DisposeAfterSuccessfulStop = false;
+            _controller.RegisterStopComponent(_stopComp1);
+            _controller.RegisterCleanupComponent(_cleanupComp1);
+
+            _controller.Stop();
+            _stopComp1.Listener.OnStopped(true);
+            _cleanupComp1.DidNotReceive().Cleanup();
         }
 
         [Test]
         public void StopFailure()
         {
-            _stopComp1.When(s => s.Stop()).Do(s => ((IStopListener)_controller).OnStopped(true));
-            _stopComp2.When(s => s.Stop()).Do(s => ((IStopListener)_controller).OnStopped(false));
+            _stopComp1.When(s => s.Stop()).Do(s => _stopComp1.Listener.OnStopped(true));
+            _stopComp2.When(s => s.Stop()).Do(s => _stopComp1.Listener.OnStopped(false));
             _controller.RegisterStopComponent(_stopComp1);
             _controller.RegisterStopComponent(_stopComp2);
             _controller.RegisterCleanupComponent(_cleanupComp1);
@@ -209,7 +219,7 @@ namespace SocialPoint.Lifecycle
 
             _stopComp1.Received(1).Stop();
             _stopComp2.Received(1).Stop();
-            _cleanupComp1.Received(0).Cleanup();
+            _cleanupComp1.DidNotReceive().Cleanup();
         }
 
         [Test]
@@ -245,18 +255,7 @@ namespace SocialPoint.Lifecycle
         }
 
         public static bool NearlyEqual(float a, float b) {
-            float absA = Math.Abs(a);
-            float absB = Math.Abs(b);
-            float diff = Math.Abs(a - b);
-
-            if (a == b)
-            {
-                return true;
-            }
-            else
-            {
-                return diff / (absA + absB) < float.MinValue;
-            }
+            return UnityEngine.Mathf.Approximately(a, b);
         }
     }
 }
