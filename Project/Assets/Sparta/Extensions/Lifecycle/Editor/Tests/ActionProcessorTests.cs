@@ -14,6 +14,10 @@ namespace SocialPoint.Lifecycle
         {
         }
 
+        class TestDerivedAction : TestAction
+        {
+        }
+
         enum TestActionResult
         {
             Error1,
@@ -68,6 +72,22 @@ namespace SocialPoint.Lifecycle
             _successHandler1.ClearReceivedCalls();
             _processor.Process(_action);
             _successHandler1.DidNotReceive().Handle(Arg.Any<TestAction>());
+        }
+
+        [Test]
+        public void DerivedHandlers()
+        {
+            var action = new TestDerivedAction();
+            TestDerivedAction receivedAction = null;
+            _processor.RegisterHandler((TestDerivedAction a) => receivedAction = a);
+            _processor.RegisterHandler(_successHandler1);
+            _processor.Process(action);
+            _successHandler1.DidNotReceive().Handle(Arg.Any<TestAction>());
+            Assert.AreEqual(action, receivedAction);
+
+            _processor.DerivedActionSupport = true;
+            _processor.Process(action);
+            _successHandler1.Received(1).Handle(action);
         }
 
         [Test]

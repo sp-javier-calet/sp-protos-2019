@@ -549,6 +549,8 @@ namespace SocialPoint.Lifecycle
         Dictionary<Type, ITypeValidator> _validators;
         Dictionary<Type, ITypeHandler> _handlers;
 
+        public bool DerivedActionSupport = false;
+
         public ActionProcessor()
         {
             _validators = new Dictionary<Type, ITypeValidator>();
@@ -589,33 +591,63 @@ namespace SocialPoint.Lifecycle
             return Process(state, action, out result);
         }
 
-        public bool Process(S state, T action, out object result)
+        public bool Validate(S state, T action, out object result)
         {
             result = null;
             var success = true;
+            if(DerivedActionSupport)
             {
                 var itr = _validators.GetEnumerator();
                 while(itr.MoveNext())
                 {
-                    if(!itr.Current.Value.Validate(state, action, out result))
+                    if(itr.Current.Key.IsAssignableFrom(action.GetType()))
                     {
-                        success = false;
-                        break;
+                        if(!itr.Current.Value.Validate(state, action, out result))
+                        {
+                            success = false;
+                            break;
+                        }
                     }
                 }
                 itr.Dispose();
             }
+            else
+            {
+                ITypeValidator validator;
+                if(_validators.TryGetValue(action.GetType(), out validator))
+                {
+                    success = validator.Validate(state, action, out result);
+                }
+            }
+            return success;
+        }
+
+        public bool Process(S state, T action, out object result)
+        {
+            var success = Validate(state, action, out result);
             var handled = false;
+            if(DerivedActionSupport)
             {
                 var itr = _handlers.GetEnumerator();
                 while(itr.MoveNext())
                 {
-                    if(itr.Current.Value.Handle(state, action, success, result))
+                    if(itr.Current.Key.IsAssignableFrom(action.GetType()))
                     {
-                        handled = true;
+                        if(itr.Current.Value.Handle(state, action, success, result))
+                        {
+                            handled = true;
+                        }
                     }
                 }
                 itr.Dispose();
+            }
+            else
+            {
+                ITypeHandler handler;
+                if(_handlers.TryGetValue(action.GetType(), out handler))
+                {
+                    handled = handler.Handle(state, action, success, result);
+                }
             }
             return handled;
         }
