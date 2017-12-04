@@ -27,16 +27,12 @@ namespace SocialPoint.GUIControl
         bool _showSafeArea;
 
         IAttrStorage _storage;
-        UIStackController _stackController;
-        UISafeAreaController _safeAreaController;
         IDeviceInfo _deviceInfo;
 
-        public AdminPanelUI(IDeviceInfo deviceInfo, UISafeAreaController safeAreaController, IAttrStorage persistentStorage, UIStackController stackController)
+        public AdminPanelUI(IDeviceInfo deviceInfo, IAttrStorage persistentStorage)
         {
             _deviceInfo = deviceInfo;
-            _safeAreaController = safeAreaController;
             _storage = persistentStorage;
-            _stackController = stackController;
         }
             
         #region IAdminPanelConfigurer implementation
@@ -61,7 +57,7 @@ namespace SocialPoint.GUIControl
             {
                 _layout.CreateButton("Hide safe area", HideSafeArea);
 
-                _layout.CreateTextArea("Current safe area: " + _safeAreaController.GetSafeAreaRect());
+//                _layout.CreateTextArea("Current safe area: " + _safeAreaController.GetSafeAreaRect());
 
 //                var lhlayout = _layout.CreateHorizontalLayout();
 //                lhlayout.CreateLabel("Left");
@@ -191,10 +187,29 @@ namespace SocialPoint.GUIControl
         {
             _layout.Refresh();
 
-            if(_stackController != null)
-            {
-                _stackController.RefreshSafeArea(_safeAreaController.GetSafeAreaRect());
-            }
+//            if(_stackController != null)
+//            {
+//                _stackController.RefreshSafeArea(_safeAreaController.GetSafeAreaRect());
+//            }
+//
+//            if(_safeAreaController)
+//            {
+//                _safeAreaController.ShowGizmos(_showSafeArea);
+//            }
+        }
+
+        public void RefreshSafeArea(Rect rect)
+        {
+//            var safeAreaViews = f
+
+//            for(int i = Count - 1; i >= 0; --i)
+//            {
+//                var node = _stack[i]; 
+//                if(IsValidStackNode(node))
+//                {
+//                    node.Controller.ApplySafeArea(rect);
+//                }
+//            }
         }
     }
 }

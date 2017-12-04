@@ -119,20 +119,6 @@ namespace SocialPoint.GUIControl
 
         #endregion
 
-        #if ADMIN_PANEL
-        public void RefreshSafeArea(Rect rect)
-        {
-            for(int i = Count - 1; i >= 0; --i)
-            {
-                var node = _stack[i]; 
-                if(IsValidStackNode(node))
-                {
-                    node.Controller.ApplySafeArea(rect);
-                }
-            }
-        }
-        #endif
-
         IEnumerator StartActionCoroutine(IEnumerator enm, ActionType act)
         {
             if(IsPopAction(_action))

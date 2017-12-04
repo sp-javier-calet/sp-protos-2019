@@ -40,7 +40,6 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 478128}
-  - component: {fileID: 114024019008374558}
   m_Layer: 0
   m_Name: GUI_Root
   m_TagString: Untagged
@@ -1217,17 +1216,6 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
---- !u!114 &114024019008374558
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 111274}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2906fa00bfdc47ebb031721ea53f991, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114066446666538522
 MonoBehaviour:
   m_ObjectHideFlags: 1

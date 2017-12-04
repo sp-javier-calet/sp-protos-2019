@@ -34,30 +34,19 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
 
     GameObject _root;
     UIStackController _stackController;
-    UISafeAreaController _safeAreaController;
     IAppEvents _appEvents;
-    IAttrStorage _storage;
-    IDeviceInfo _iDeviceInfo;
 
     #region IInitializable implementation
 
     public void Initialize()
     {
         _appEvents = Container.Resolve<IAppEvents>();
-        _storage = Container.Resolve<IAttrStorage>(kPersistentTag);
-        _iDeviceInfo = Container.Resolve<IDeviceInfo>();
 
         if(_stackController != null)
         {
             _stackController.AppEvents = _appEvents;
         }
-
-        if(_safeAreaController != null)
-        {
-            _safeAreaController.Storage = _storage;
-            _safeAreaController.DeviceInfo = _iDeviceInfo;
-        }
-
+            
         #if ADMIN_PANEL
         Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelUI>(CreateAdminPanel);
         #endif
@@ -68,6 +57,7 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
     public override void InstallBindings()
     {
         Container.Bind<IInitializable>().ToInstance(this);
+
         Container.Add<IDisposable, GUIInstaller>(this);
 
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
@@ -83,20 +73,14 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
             _stackController.CloseAppShow = ShowCloseAppAlertView;
             Container.Rebind<UIStackController>().ToInstance(_stackController);
         }
-
-        _safeAreaController = _root.GetComponent<UISafeAreaController>();
-        if(_safeAreaController != null)
-        {
-            Container.Rebind<UISafeAreaController>().ToInstance(_safeAreaController);
-        }
-
+            
         var uiTooltipController = _root.GetComponentInChildren<UITooltipController>();
         if(uiTooltipController != null)
         {
             uiTooltipController.ScreenBoundsDelta = Settings.TooltipScreenBoundsDelta;
             Container.Rebind<UITooltipController>().ToInstance(uiTooltipController);
         }
-            
+
         var layers = _root.GetComponentInChildren<UILayersController>();
         if(layers != null)
         {
@@ -112,16 +96,15 @@ public class GUIInstaller : Installer, IDisposable, IInitializable
 
         Container.Bind<IEventsBridge>().ToSingle<GUIControlBridge>();
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
-
-        #if ADMIN_PANEL
-        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelUI>(CreateAdminPanel);
-        #endif
     }
         
     #if ADMIN_PANEL
     AdminPanelUI CreateAdminPanel()
     {
-        return new AdminPanelUI(_iDeviceInfo, _safeAreaController, _storage, _stackController);
+        var storage = Container.Resolve<IAttrStorage>(kPersistentTag);
+        var iDeviceInfo = Container.Resolve<IDeviceInfo>();
+
+        return new AdminPanelUI(iDeviceInfo, storage);
     }
     #endif
 

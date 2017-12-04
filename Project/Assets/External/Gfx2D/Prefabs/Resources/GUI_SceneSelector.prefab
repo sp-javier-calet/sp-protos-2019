@@ -157,6 +157,7 @@ GameObject:
   m_Component:
   - component: {fileID: 224461056447768420}
   - component: {fileID: 222162133334578876}
+  - component: {fileID: 114694827503172588}
   m_Layer: 5
   m_Name: SafeAreaGroup
   m_TagString: Untagged
@@ -383,7 +384,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 224690856253711696}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.5160917
+  m_Size: 0
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -491,6 +492,17 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114694827503172588
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1683834891263824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2906fa00bfdc47ebb031721ea53f991, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114724699416202680
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -740,7 +752,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -403.5, y: 157.39539}
+  m_AnchoredPosition: {x: -403.5, y: 152.45325}
   m_SizeDelta: {x: 807, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!224 &224222915396654730

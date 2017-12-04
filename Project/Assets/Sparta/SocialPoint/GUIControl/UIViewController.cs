@@ -334,23 +334,6 @@ namespace SocialPoint.GUIControl
             }
         }
 
-        public void ApplySafeArea(Rect rect)
-        {
-            if(_safeAreaParent && rect != Rect.zero)
-            {
-                //TODO Move this to recttransform extensions
-                var anchorMin = rect.position;
-                var anchorMax = rect.position + rect.size;
-                anchorMin.x /= Screen.width;
-                anchorMin.y /= Screen.height;
-                anchorMax.x /= Screen.width;
-                anchorMax.y /= Screen.height;
-
-                _safeAreaParent.anchorMin = anchorMin;
-                _safeAreaParent.anchorMax = anchorMax;
-            }
-        }
-
         void AddLayers()
         {
             if(LayersController != null)
@@ -698,13 +681,6 @@ namespace SocialPoint.GUIControl
             #if !NGUI
             AddLayers();
             #endif
-
-            var uiSafeAreaController = Services.Instance.Resolve<UISafeAreaController>();
-            if(uiSafeAreaController != null)
-            {
-                var rect = uiSafeAreaController.GetSafeAreaRect();
-                ApplySafeArea(rect);
-            }
 
             NotifyViewEvent();
         }
