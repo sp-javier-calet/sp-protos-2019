@@ -16,6 +16,7 @@ SP_BRANCH = $GIT_BRANCH
 SP_BUILDER = Unity
 SP_UNITY_VERSION = 5.5.3p2
 SP_UNITY_EXEC = /Applications/Unity-$SP_UNITY_VERSION/Unity.app/Contents/MacOS/Unity
+SP_UNITY_AUTOBUILDER_PATH = Project/Assets/Plugins/Sparta/EditorTools/Editor/Build/AutoBuilder.cs
 
 # NOTE - Ignore specifying the signing identity until xcrun bug is fixed. When specifying the signing identity with xcrun, the codesign tool is invoqued then with resource-rules which is incompatible with v2 of the sign tool. By specifying only the mobileprovision file the certificate is safely (normally!) found and everything is signed correctly.
 #SP_XCODE_SIGNING_IDENTITY=iPhone Distribution: Social Point S.L.
