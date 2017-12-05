@@ -109,16 +109,6 @@ namespace SocialPoint.ScriptEvents
             bridge.Received().Dispose();
         }
 
-        [Test]
-        public void Raise_Calls_ChildDispatcher()
-        {
-            var child = Substitute.For<IEventDispatcher>();
-            _dispatcher.AddDispatcher(child);
-
-            _dispatcher.Raise(_testEvent);
-
-            child.Received().Raise(_testEvent);
-        }
     }
 
 }

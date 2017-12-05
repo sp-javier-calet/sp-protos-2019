@@ -382,12 +382,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterHandler<K, E>(IValidatedActionHandler<K, E> handler) where K : T where E : R
+        public bool UnregisterHandler<K, E>(IValidatedActionHandler<K, E> handler) where K : T where E : R
         {
-            if(handler != null)
-            {
-                DoUnregisterHandler<K>(handler);
-            }
+            return DoUnregisterHandler<K>(handler);
         }
 
         public void RegisterHandler<K, E>(IResultActionHandler<K, E> handler) where K : T where E : R
@@ -411,9 +408,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterHandler<K, E>(IResultActionHandler<K, E> handler) where K : T where E : R
+        public bool UnregisterHandler<K, E>(IResultActionHandler<K, E> handler) where K : T where E : R
         {
-            DoUnregisterHandler<K>(handler);
+            return DoUnregisterHandler<K>(handler);
         }
 
         public void RegisterHandler<K>(IActionHandler<K> handler) where K : T
@@ -437,9 +434,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterHandler<K>(IActionHandler<K> handler) where K : T
+        public bool UnregisterHandler<K>(IActionHandler<K> handler) where K : T
         {
-            DoUnregisterHandler<K>(handler);
+            return DoUnregisterHandler<K>(handler);
         }
 
         public void RegisterHandler<K>(Action<K> handler) where K : T
@@ -463,9 +460,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterHandler<K>(Action<K> handler) where K : T
+        public bool UnregisterHandler<K>(Action<K> handler) where K : T
         {
-            DoUnregisterHandler<K>(handler);
+            return DoUnregisterHandler<K>(handler);
         }
 
         public void RegisterResultHandler<K, E>(Action<K, E> handler) where K : T where E : R
@@ -489,9 +486,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterResultHandler<K, E>(Action<K, E> handler) where K : T where E : R
+        public bool UnregisterResultHandler<K, E>(Action<K, E> handler) where K : T where E : R
         {
-            DoUnregisterHandler<K>(handler);
+            return DoUnregisterHandler<K>(handler);
         }
 
         public void RegisterResultHandler<K, E>(Action<K, bool, E> handler) where K : T where E : R
@@ -502,9 +499,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterResultHandler<K, E>(Action<K, bool, E> handler) where K : T where E : R
+        public bool UnregisterResultHandler<K, E>(Action<K, bool, E> handler) where K : T where E : R
         {
-            DoUnregisterHandler<K>(handler);
+            return DoUnregisterHandler<K>(handler);
         }
 
         public void RegisterValidator<K>(IActionValidator<K> validator) where K : T
@@ -515,9 +512,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterValidator<K>(IActionValidator<K> validator) where K : T
+        public bool UnregisterValidator<K>(IActionValidator<K> validator) where K : T
         {
-            DoUnregisterValidator<K>(validator);
+            return DoUnregisterValidator<K>(validator);
         }
 
         public void RegisterValidator<K, E>(IActionValidator<K, E> validator) where K : T where E : R
@@ -528,9 +525,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterValidator<K, E>(IActionValidator<K, E> validator) where K : T where E : R
+        public bool UnregisterValidator<K, E>(IActionValidator<K, E> validator) where K : T where E : R
         {
-            DoUnregisterValidator<K>(validator);
+            return DoUnregisterValidator<K>(validator);
         }
 
         public void RegisterValidator<K>(Func<K, bool> validator) where K : T
@@ -541,9 +538,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterValidator<K>(Func<K, bool> validator) where K : T
+        public bool UnregisterValidator<K>(Func<K, bool> validator) where K : T
         {
-            DoUnregisterValidator<K>(validator);
+            return DoUnregisterValidator<K>(validator);
         }
 
         public void RegisterValidator<K, E>(ActionValidatorFunc<K, E> validator) where K : T where E : R
@@ -554,9 +551,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterValidator<K, E>(ActionValidatorFunc<K, E> validator) where K : T where E : R
+        public bool UnregisterValidator<K, E>(ActionValidatorFunc<K, E> validator) where K : T where E : R
         {
-            DoUnregisterValidator<K>(validator);
+            return DoUnregisterValidator<K>(validator);
         }
 
         public void RegisterHandler<K, E>(IStateValidatedActionHandler<S, K, E> handler) where K : T where E : R
@@ -567,9 +564,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterHandler<K, E>(IStateValidatedActionHandler<S, K, E> handler) where K : T where E : R
+        public bool UnregisterHandler<K, E>(IStateValidatedActionHandler<S, K, E> handler) where K : T where E : R
         {
-            DoUnregisterHandler<K>(handler);
+            return DoUnregisterHandler<K>(handler);
         }
 
         public void RegisterHandler<K, E>(IStateResultActionHandler<S, K, E> handler) where K : T where E : R
@@ -593,9 +590,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterHandler<K, E>(IStateResultActionHandler<S, K, E> handler) where K : T where E : R
+        public bool UnregisterHandler<K, E>(IStateResultActionHandler<S, K, E> handler) where K : T where E : R
         {
-            DoUnregisterHandler<K>(handler);
+            return DoUnregisterHandler<K>(handler);
         }
 
         public void RegisterHandler<K>(IStateActionHandler<S, K> handler) where K : T
@@ -619,9 +616,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterHandler<K>(IStateActionHandler<S, K> handler) where K : T
+        public bool UnregisterHandler<K>(IStateActionHandler<S, K> handler) where K : T
         {
-            DoUnregisterHandler<K>(handler);
+            return DoUnregisterHandler<K>(handler);
         }
 
         public void RegisterStateHandler<K>(Action<S, K> handler) where K : T
@@ -645,9 +642,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterStateHandler<K>(Action<S, K> handler) where K : T
+        public bool UnregisterStateHandler<K>(Action<S, K> handler) where K : T
         {
-            DoUnregisterHandler<K>(handler);
+            return DoUnregisterHandler<K>(handler);
         }
 
         public void RegisterHandler<K, E>(Action<S, K, E> handler) where K : T where E : R
@@ -671,9 +668,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterHandler<K, E>(Action<S, K, E> handler) where K : T where E : R
+        public bool UnregisterHandler<K, E>(Action<S, K, E> handler) where K : T where E : R
         {
-            DoUnregisterHandler<K>(handler);
+            return DoUnregisterHandler<K>(handler);
         }
 
         public void RegisterHandler<K, E>(Action<S, K, bool, E> handler) where K : T where E : R
@@ -684,9 +681,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterHandler<K, E>(Action<S, K, bool, E> handler) where K : T where E : R
+        public bool UnregisterHandler<K, E>(Action<S, K, bool, E> handler) where K : T where E : R
         {
-            DoUnregisterHandler<K>(handler);
+            return DoUnregisterHandler<K>(handler);
         }
 
         public void RegisterValidator<K>(IStateActionValidator<S, K> validator) where K : T
@@ -697,9 +694,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterValidator<K>(IStateActionValidator<S, K> validator) where K : T
+        public bool UnregisterValidator<K>(IStateActionValidator<S, K> validator) where K : T
         {
-            DoUnregisterValidator<K>(validator);
+            return DoUnregisterValidator<K>(validator);
         }
 
         public void RegisterValidator<K, E>(IStateActionValidator<S, K, E> validator) where K : T where E : R
@@ -710,9 +707,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterValidator<K, E>(IStateActionValidator<S, K, E> validator) where K : T where E : R
+        public bool UnregisterValidator<K, E>(IStateActionValidator<S, K, E> validator) where K : T where E : R
         {
-            DoUnregisterValidator<K>(validator);
+            return DoUnregisterValidator<K>(validator);
         }
 
         public void RegisterValidator<K>(Func<S, K, bool> validator) where K : T
@@ -723,9 +720,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterValidator<K>(Func<S, K, bool> validator) where K : T
+        public bool UnregisterValidator<K>(Func<S, K, bool> validator) where K : T
         {
-            DoUnregisterValidator<K>(validator);
+            return DoUnregisterValidator<K>(validator);
         }
 
         public void RegisterValidator<K, E>(ActionValidatorFunc<S, K, E> validator) where K : T where E : R
@@ -736,9 +733,9 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void UnregisterValidator<K, E>(ActionValidatorFunc<S, K, E> validator) where K : T where E : R
+        public bool UnregisterValidator<K, E>(ActionValidatorFunc<S, K, E> validator) where K : T where E : R
         {
-            DoUnregisterValidator<K>(validator);
+            return DoUnregisterValidator<K>(validator);
         }
     }
 }

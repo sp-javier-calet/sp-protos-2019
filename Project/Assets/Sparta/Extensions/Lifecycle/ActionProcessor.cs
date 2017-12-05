@@ -9,7 +9,7 @@ namespace SocialPoint.Lifecycle
         interface ITypeValidator
         {
             void Register(object key, object obj);
-            void Unregister(object key);
+            bool Unregister(object key);
             bool Validate(S state, T action, out R result);
         }
 
@@ -26,9 +26,9 @@ namespace SocialPoint.Lifecycle
                 }
             }
 
-            public void Unregister(object obj)
+            public bool Unregister(object obj)
             {
-                _validators.Remove(obj);
+                return _validators.Remove(obj);
             }
 
             public bool Validate(S state, T action, out R result)
@@ -61,7 +61,7 @@ namespace SocialPoint.Lifecycle
         interface ITypeHandler
         {
             void Register(object key, object obj);
-            void Unregister(object key);
+            bool Unregister(object key);
             bool Handle(S state, T action, bool success, R result);
         }
 
@@ -78,9 +78,9 @@ namespace SocialPoint.Lifecycle
                 }
             }
 
-            public void Unregister(object key)
+            public bool Unregister(object key)
             {
-                _handlers.Remove(key);
+                return _handlers.Remove(key);
             }
 
             public bool Handle(S state, T action, bool success, R result)
@@ -149,37 +149,6 @@ namespace SocialPoint.Lifecycle
             return Process(state, action, out result);
         }
 
-        public bool Validate(S state, T action, out R result)
-        {
-            result = default(R);
-            var success = true;
-            if(DerivedActionSupport)
-            {
-                var itr = _validators.GetEnumerator();
-                while(itr.MoveNext())
-                {
-                    if(itr.Current.Key.IsAssignableFrom(action.GetType()))
-                    {
-                        if(!itr.Current.Value.Validate(state, action, out result))
-                        {
-                            success = false;
-                            break;
-                        }
-                    }
-                }
-                itr.Dispose();
-            }
-            else
-            {
-                ITypeValidator validator;
-                if(_validators.TryGetValue(action.GetType(), out validator))
-                {
-                    success = validator.Validate(state, action, out result);
-                }
-            }
-            return success;
-        }
-
         public bool Process(S state, T action, out R result)
         {
             var success = Validate(state, action, out result);
@@ -210,7 +179,38 @@ namespace SocialPoint.Lifecycle
             return handled;
         }
 
-        void DoRegisterHandler<K>(object key, object obj) where K : T
+        bool Validate(S state, T action, out R result)
+        {
+            result = default(R);
+            var success = true;
+            if(DerivedActionSupport)
+            {
+                var itr = _validators.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    if(itr.Current.Key.IsAssignableFrom(action.GetType()))
+                    {
+                        if(!itr.Current.Value.Validate(state, action, out result))
+                        {
+                            success = false;
+                            break;
+                        }
+                    }
+                }
+                itr.Dispose();
+            }
+            else
+            {
+                ITypeValidator validator;
+                if(_validators.TryGetValue(action.GetType(), out validator))
+                {
+                    success = validator.Validate(state, action, out result);
+                }
+            }
+            return success;
+        }
+
+        public void DoRegisterHandler<K>(object key, IStateValidatedActionHandler<S, K, R> obj) where K : T
         {
             var type = typeof(K);
             ITypeHandler typeHandler;
@@ -222,17 +222,18 @@ namespace SocialPoint.Lifecycle
             typeHandler.Register(key, obj);
         }
 
-        void DoUnregisterHandler<K>(object key) where K : T
+        public bool DoUnregisterHandler<K>(object key) where K : T
         {
             var type = typeof(K);
             ITypeHandler typeHandler;
             if(_handlers.TryGetValue(type, out typeHandler))
             {
-                typeHandler.Unregister(key);
+                return typeHandler.Unregister(key);
             }
+            return false;
         }
 
-        void DoRegisterValidator<K>(object key, object validator) where K : T
+        public void DoRegisterValidator<K>(object key, IStateActionValidator<S, K, R> validator) where K : T
         {
             var type = typeof(K);
             ITypeValidator typeValidator;
@@ -244,14 +245,15 @@ namespace SocialPoint.Lifecycle
             typeValidator.Register(key, validator);
         }
 
-        void DoUnregisterValidator<K>(object key) where K : T
+        public bool DoUnregisterValidator<K>(object key) where K : T
         {
             var type = typeof(K);
             ITypeValidator typeValidator;
             if(_validators.TryGetValue(type, out typeValidator))
             {
-                typeValidator.Unregister(key);
+                return typeValidator.Unregister(key);
             }
+            return false;
         }
 
         public void Unregister<K>() where K : T

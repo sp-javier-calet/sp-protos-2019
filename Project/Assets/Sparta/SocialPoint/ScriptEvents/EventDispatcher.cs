@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using SocialPoint.Lifecycle;
 
 namespace SocialPoint.ScriptEvents
 {
@@ -13,47 +14,11 @@ namespace SocialPoint.ScriptEvents
 
         void Raise(object e);
 
-        Dictionary<Type, List<Delegate>> Listeners { get; }
-    }
+        void AddListener<T>(Action<T> action);
 
-    public static class EventDispatcherExtensions
-    {
-        public static void AddListener<T>(this IEventDispatcher dispatcher, Action<T> action)
-        {
-            var ttype = typeof(T);
-            List<Delegate> d;
-            if(!dispatcher.Listeners.TryGetValue(ttype, out d))
-            {
-                d = new List<Delegate>();
-                dispatcher.Listeners[ttype] = d;
-            }
-            if(!d.Contains(action))
-            {
-                d.Add(action);
-            }
-        }
+        bool RemoveListener<T>(Action<T> action);
 
-        public static bool RemoveListener<T>(this IEventDispatcher dispatcher, Action<T> action)
-        {
-            List<Delegate> d;
-            return dispatcher.Listeners.TryGetValue(typeof(T), out d) && d.Remove(action);
-        }
-
-        public static Action<F> Connect<F,T>(this IEventDispatcher dispatcher, Func<F, T> conversion = null)
-        {
-            Action<F> action = from => {
-                if(conversion == null)
-                {
-                    dispatcher.Raise(default(T));
-                }
-                else
-                {
-                    dispatcher.Raise(conversion(from));
-                }
-            };
-            dispatcher.AddListener<F>(action);
-            return action;
-        }
+        Action<F> Connect<F,T>(Func<F, T> conversion = null);
     }
 
     public interface IEventsBridge : IDisposable
@@ -63,48 +28,44 @@ namespace SocialPoint.ScriptEvents
 
     public sealed class EventDispatcher : IEventDispatcher
     {
-        readonly Dictionary<Type, List<Delegate>> _listeners = new Dictionary<Type, List<Delegate>>();
-        readonly List<IEventDispatcher> _dispatchers = new List<IEventDispatcher>();
-        readonly List<IEventsBridge> _bridges = new List<IEventsBridge>();
-        readonly List<Action<object>> _defaultListeners = new List<Action<object>>();
-
-        public event Action<Exception> ExceptionThrown;
-
-        public Dictionary<Type, List<Delegate>> Listeners
+        class DefaultListenerValidator : IStateActionValidator<object, object, object>
         {
-            get
+            Action<object> _action;
+
+            public DefaultListenerValidator(Action<object> action)
             {
-                return _listeners;
+                _action = action;
+            }
+
+            public bool Validate(object state, object ev, out object result)
+            {
+                result = null;
+                if(_action != null)
+                {
+                    _action(ev);
+                }
+                return true;
             }
         }
 
-        public void Dispose()
+        readonly ActionProcessor _processor;
+        readonly List<IEventsBridge> _bridges;
+
+        public EventDispatcher()
         {
-            for(int i = 0, _bridgesCount = _bridges.Count; i < _bridgesCount; i++)
-            {
-                var bridge = _bridges[i];
-                bridge.Dispose();
-            }
-            Clear();
+            _processor = new ActionProcessor();
+            _processor.DerivedActionSupport = true;
+            _bridges = new List<IEventsBridge>();
         }
 
-        public void Clear()
+        public void AddDefaultListener(Action<object> listener)
         {
-            _listeners.Clear();
-            _dispatchers.Clear();
-            _bridges.Clear();
-            _defaultListeners.Clear();
+            _processor.DoRegisterValidator(listener, new DefaultListenerValidator(listener));
         }
 
-        public void AddBridges(IEnumerable<IEventsBridge> bridges)
+        public bool RemoveDefaultListener(Action<object> listener)
         {
-            var itr = bridges.GetEnumerator();
-            while(itr.MoveNext())
-            {
-                var bridge = itr.Current;
-                AddBridge(bridge);
-            }
-            itr.Dispose();
+            return _processor.DoUnregisterValidator<object>(listener);
         }
 
         public void AddBridge(IEventsBridge bridge)
@@ -116,109 +77,45 @@ namespace SocialPoint.ScriptEvents
             }
         }
 
-        public void AddDispatcher(IEventDispatcher dispatcher)
+        public void Dispose()
         {
-            if(dispatcher != null && !_dispatchers.Contains(dispatcher))
+            for(int i = 0, _bridgesCount = _bridges.Count; i < _bridgesCount; i++)
             {
-                _dispatchers.Add(dispatcher);
+                var bridge = _bridges[i];
+                bridge.Dispose();
             }
+            _bridges.Clear();
         }
 
-        public bool RemoveDispatcher(IEventDispatcher dispatcher)
+        public void Raise(object e)
         {
-            return _dispatchers.Remove(dispatcher);
+            _processor.Process(e);
         }
 
-        public void AddDefaultListener(Action<object> listener)
+        public void AddListener<T>(Action<T> action)
         {
-            if(!_defaultListeners.Contains(listener))
-            {
-                _defaultListeners.Add(listener);
-            }
+            _processor.RegisterHandler(action);
         }
 
-        public bool RemoveDefaultListener(Action<object> listener)
+        public bool RemoveListener<T>(Action<T> action)
         {
-            return _defaultListeners.Remove(listener);
+            return _processor.UnregisterHandler(action);
         }
 
-        public void Raise(object ev)
+        public Action<F> Connect<F,T>(Func<F, T> conversion = null)
         {
-            if(ev == null)
-            {
-                throw new ArgumentNullException("e");
-            }
-
-            // default listeners
-            var ddlgList = new List<Action<object>>(_defaultListeners);
-            for(int i = 0, ddlgListCount = ddlgList.Count; i < ddlgListCount; i++)
-            {
-                var action = ddlgList[i];
-                if(action != null)
+            Action<F> action = from => {
+                if(conversion == null)
                 {
-                    try
-                    {
-                        action(ev);
-                    }
-                    catch(Exception ex)
-                    {
-                        if(ExceptionThrown != null)
-                        {
-                            ExceptionThrown(ex);
-                        }
-                        else
-                        {
-                            throw ex;
-                        }
-                    }
+                    Raise(default(T));
                 }
-            }
-
-            var evType = ev.GetType();
-
-            // event listeners
-            List<Delegate> dlgList;
-            if(_listeners.TryGetValue(evType, out dlgList))
-            {
-                // You need to create a copy of the delegates because TryGetValue returns a reference to the internal list
-                // of delegates, so if an event listener modifies the delegate list while you are iterating it you'll run
-                // into problems. This can happen, for example, if the event listener unregisters itself
-                dlgList = new List<Delegate>(dlgList);
-
-                for(int i = 0, dlgListCount = dlgList.Count; i < dlgListCount; i++)
+                else
                 {
-                    var dlg = dlgList[i];
-                    if(dlg != null)
-                    {
-                        try
-                        {
-                            // TODO: find solution that does not use reflection
-                            var method = dlg.GetType().GetMethod("Invoke");
-                            method.Invoke(dlg, new[] {
-                                ev
-                            });
-                        }
-                        catch(Exception ex)
-                        {
-                            if(ExceptionThrown != null)
-                            {
-                                ExceptionThrown(ex);
-                            }
-                            else
-                            {
-                                throw ex;
-                            }
-                        }
-                    }
+                    Raise(conversion(from));
                 }
-            }
-
-            for(int i = 0, _dispatchersCount = _dispatchers.Count; i < _dispatchersCount; i++)
-            {
-                var dispatcher = _dispatchers[i];
-                dispatcher.Raise(ev);
-            }
+            };
+            AddListener<F>(action);
+            return action;
         }
-
     }
 }
