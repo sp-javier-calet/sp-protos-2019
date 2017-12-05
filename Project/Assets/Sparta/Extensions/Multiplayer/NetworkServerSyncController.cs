@@ -14,7 +14,7 @@ public class NetworkServerSyncController
         public NetworkSceneSerializer Serializer;
         public NetworkScene Scene;
         public NetworkScene PrevScene;
-        public NetworkActionHandler Actions;
+        public NetworkActionProcessor Actions;
         public List<ActionInfo> PendingActions;
         public bool EnablePrediction;
     }
