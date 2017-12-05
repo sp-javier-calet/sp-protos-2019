@@ -38,7 +38,7 @@ namespace SocialPoint.Network
         public SettingsData Settings = new SettingsData();
 
         string _httpProxy;
-        IDeviceInfo _deviceInfo;
+        INetworkInfo _networkInfo;
 
         public override void InstallBindings()
         {
@@ -91,7 +91,7 @@ namespace SocialPoint.Network
         public void Initialize()
         {
             _httpProxy = EditorProxy.GetProxy();
-            _deviceInfo = Container.Resolve<IDeviceInfo>();
+            _networkInfo = Container.Resolve<INetworkInfo>();
         }
 
         CurlHttpClient CreateCurlHttpClient()
@@ -158,9 +158,9 @@ namespace SocialPoint.Network
             {
                 req.Proxy = _httpProxy;
             }
-            if(string.IsNullOrEmpty(req.Proxy) && _deviceInfo.NetworkInfo.Proxy != null)
+            if(string.IsNullOrEmpty(req.Proxy) && _networkInfo != null && _networkInfo.Proxy != null)
             {
-                req.Proxy = _deviceInfo.NetworkInfo.Proxy.ToString();
+                req.Proxy = _networkInfo.Proxy.ToString();
             }
         }
 
