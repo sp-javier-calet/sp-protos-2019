@@ -63,7 +63,7 @@ namespace SocialPoint.Network
             }
             Running = true;
             for(var i = 0; i < _delegates.Count; i++)
-            {                
+            {
                 _delegates[i].OnServerStarted();
             }
         }
@@ -81,7 +81,7 @@ namespace SocialPoint.Network
             _server.Stop();
             Running = false;
             for(var i = 0; i < _delegates.Count; i++)
-            {                
+            {
                 _delegates[i].OnServerStopped();
             }
         }
@@ -103,7 +103,7 @@ namespace SocialPoint.Network
         }
 
         public void Update()
-        {            
+        {
             _server.Update();
         }
 
@@ -134,7 +134,7 @@ namespace SocialPoint.Network
         {
             var clientId = (byte)umsg.conn.connectionId;
             for(var i = 0; i < _delegates.Count; i++)
-            {                
+            {
                 _delegates[i].OnClientConnected(clientId);
             }
         }
