@@ -23,7 +23,7 @@ public class FyberPostProcessBuild
 			XCProject project = new XCProject(path);
 			
 			// Find and run through all projmods files to patch the project
-			string projModPath = System.IO.Path.Combine(Application.dataPath, "Fyber/iOS");
+			string projModPath = System.IO.Path.Combine(Application.dataPath, "Plugins/Sparta/External/Fyber/iOS");
 			string[] files = System.IO.Directory.GetFiles(projModPath, "*.projmods", System.IO.SearchOption.AllDirectories);
 			foreach( var file in files ) 
 			{
