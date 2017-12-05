@@ -116,7 +116,7 @@ namespace SocialPoint.Lifecycle
             Phase = PhaseType.Setup;
             _currentSetupComponent = 0;
             _currentSetupComponentStarted = false;
-            if(Phase == PhaseType.Stopped && _scheduler != null)
+            if(_scheduler != null)
             {
                 _scheduler.Add(this, UpdateableTimeMode.GameTimeScaled, 0.0f);
             }
