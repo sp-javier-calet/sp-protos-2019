@@ -33,883 +33,883 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Ionic.Zlib.CF">
-      <HintPath>..\..\..\Assets\Sparta\External\Ionic\Zlib\Ionic.Zlib.CF.dll</HintPath>
+      <HintPath>..\..\..\Assets\Plugins\Sparta\External\Ionic\Zlib\Ionic.Zlib.CF.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.XML" />
     <Reference Include="LZ4">
-      <HintPath>..\..\..\Assets\Sparta\External\LZ4\LZ4.dll</HintPath>
+      <HintPath>..\..\..\Assets\Plugins\Sparta\External\LZ4\LZ4.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Geometry\QuaternionExtension.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Geometry\QuaternionExtension.cs">
       <Link>Geometry\QuaternionExtension.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Matchmaking\HttpMatchmakingServer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Matchmaking\HttpMatchmakingServer.cs">
       <Link>Matchmaking\HttpMatchmakingServer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Matchmaking\IMatchmakingServer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Matchmaking\IMatchmakingServer.cs">
       <Link>Matchmaking\IMatchmakingServer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\INetworkServerGameFactory.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\INetworkServerGameFactory.cs">
       <Link>Multiplayer\INetworkServerGameFactory.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\MultiplayerModelExtensions.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\MultiplayerModelExtensions.cs">
       <Link>Multiplayer\MultiplayerModelExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkBehaviour.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkBehaviour.cs">
       <Link>Multiplayer\NetworkBehaviour.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkBehaviourContainer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkBehaviourContainer.cs">
       <Link>Multiplayer\NetworkBehaviourContainer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkClientSceneController.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkClientSceneController.cs">
       <Link>Network\NetworkClientSceneController.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkGameObject.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkGameObject.cs">
       <Link>Multiplayer\NetworkGameObject.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkInterpolate.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkInterpolate.cs">
       <Link>Multiplayer\NetworkInterpolate.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkPhysicsWorld.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkPhysicsWorld.cs">
       <Link>Multiplayer\NetworkPhysicsWorld.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkRigidBody.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkRigidBody.cs">
       <Link>Multiplayer\NetworkRigidBody.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkScene.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkScene.cs">
       <Link>Multiplayer\NetworkScene.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkSceneAction.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkSceneAction.cs">
       <Link>Multiplayer\NetworkSceneAction.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkSceneCallbacks.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkSceneCallbacks.cs">
       <Link>Multiplayer\NetworkSceneCallbacks.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkSceneController.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkSceneController.cs">
       <Link>Multiplayer\NetworkSceneController.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkSceneBehaviour.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkSceneBehaviour.cs">
       <Link>Multiplayer\NetworkSceneBehaviour.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkSceneContext.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkSceneContext.cs">
       <Link>Multiplayer\NetworkSceneContext.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkSceneEvents.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkSceneEvents.cs">
       <Link>Multiplayer\NetworkSceneEvents.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkServerSceneController.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkServerSceneController.cs">
       <Link>Multiplayer\NetworkServerSceneController.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkServerSyncController.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkServerSyncController.cs">
       <Link>Multiplayer\NetworkServerSyncController.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\SceneCollider.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\SceneCollider.cs">
       <Link>Multiplayer\SceneCollider.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\SceneColliderExtensions.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\SceneColliderExtensions.cs">
       <Link>Multiplayer\SceneColliderExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\SceneTransform.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\SceneTransform.cs">
       <Link>Multiplayer\SceneTransform.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\Transform.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\Transform.cs">
       <Link>Multiplayer\Transform.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\TweenNetworkBehaviour.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\TweenNetworkBehaviour.cs">
       <Link>Multiplayer\TweenNetworkBehaviour.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\HttpServerEventTracker.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Network\ServerEvents\HttpServerEventTracker.cs">
       <Link>Network\HttpServerEventTracker.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\IServerEventTracker.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Network\ServerEvents\IServerEventTracker.cs">
       <Link>Network\IServerEventTracker.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\Log.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Network\ServerEvents\Log.cs">
       <Link>Network\Log.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Network\ServerEvents\Metric.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Network\ServerEvents\Metric.cs">
       <Link>Network\Metric.cs</Link>
     </Compile>
-	<Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\IPathfindingDebugger.cs">
+	<Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\IPathfindingDebugger.cs">
       <Link>Pathfinding\IPathfindingDebugger.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\NavmeshAreaSettings.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\NavmeshAreaSettings.cs">
       <Link>Pathfinding\NavmeshAreaSettings.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\NavmeshAreaSettingsSerialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\NavmeshAreaSettingsSerialization.cs">
       <Link>Pathfinding\NavmeshAreaSettingsSerialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\NavMeshBuildUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\NavMeshBuildUtils.cs">
       <Link>Pathfinding\NavMeshBuildUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\NavMeshExtension.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\NavMeshExtension.cs">
       <Link>Pathfinding\NavMeshExtension.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\PathExtensions.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\PathExtensions.cs">
       <Link>Pathfinding\PathExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\Pathfinder.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\Pathfinder.cs">
       <Link>Pathfinding\Pathfinder.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\Serialization\NavBBox3Serialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\Serialization\NavBBox3Serialization.cs">
       <Link>Pathfinding\Serialization\NavBBox3Serialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\Serialization\NavBVTreeNodeSerialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\Serialization\NavBVTreeNodeSerialization.cs">
       <Link>Pathfinding\Serialization\NavBVTreeNodeSerialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\Serialization\NavDetailMeshDataSerialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\Serialization\NavDetailMeshDataSerialization.cs">
       <Link>Pathfinding\Serialization\NavDetailMeshDataSerialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\Serialization\NavDetailTriangleDataSerialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\Serialization\NavDetailTriangleDataSerialization.cs">
       <Link>Pathfinding\Serialization\NavDetailTriangleDataSerialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\Serialization\NavLinkSerialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\Serialization\NavLinkSerialization.cs">
       <Link>Pathfinding\Serialization\NavLinkSerialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\Serialization\NavMeshSerialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\Serialization\NavMeshSerialization.cs">
       <Link>Pathfinding\Serialization\NavMeshSerialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\Serialization\NavOffMeshConnSerialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\Serialization\NavOffMeshConnSerialization.cs">
       <Link>Pathfinding\Serialization\NavOffMeshConnSerialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\Serialization\NavPolyBoundsSerialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\Serialization\NavPolyBoundsSerialization.cs">
       <Link>Pathfinding\Serialization\NavPolyBoundsSerialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\Serialization\NavPolySerialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\Serialization\NavPolySerialization.cs">
       <Link>Pathfinding\Serialization\NavPolySerialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\Serialization\NavPolyVertexSerialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\Serialization\NavPolyVertexSerialization.cs">
       <Link>Pathfinding\Serialization\NavPolyVertexSerialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\Serialization\NavTagSerialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\Serialization\NavTagSerialization.cs">
       <Link>Pathfinding\Serialization\NavTagSerialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\Serialization\NavVector2iSerialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\Serialization\NavVector2iSerialization.cs">
       <Link>Pathfinding\Serialization\NavVector2iSerialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Pathfinding\Serialization\NavVector3Serialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Pathfinding\Serialization\NavVector3Serialization.cs">
       <Link>Pathfinding\Serialization\NavVector3Serialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Physics\EmptyPhysicsDebugger.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Physics\EmptyPhysicsDebugger.cs">
       <Link>Physics\EmptyPhysicsDebugger.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Physics\IPhysicsDebugger.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Physics\IPhysicsDebugger.cs">
       <Link>Physics\IPhysicsDebugger.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Physics\PhysicsContact.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Physics\PhysicsContact.cs">
       <Link>Physics\PhysicsContact.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\assets\sparta\extensions\physics\PhysicsRaycast.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\extensions\physics\PhysicsRaycast.cs">
       <Link>Physics\PhysicsRaycast.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Physics\PhysicsRigidBody.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Physics\PhysicsRigidBody.cs">
       <Link>Physics\PhysicsRigidBody.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Physics\PhysicsShapes.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Physics\PhysicsShapes.cs">
       <Link>Physics\PhysicsShapes.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Physics\PhysicsWorld.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Physics\PhysicsWorld.cs">
       <Link>Physics\PhysicsWorld.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Physics\Ray.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Physics\Ray.cs">
       <Link>Physics\Ray.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Physics\Serialization\MatrixSerialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Physics\Serialization\MatrixSerialization.cs">
       <Link>Physics\Serialization\MatrixSerialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Physics\Serialization\QuaternionSerialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Physics\Serialization\QuaternionSerialization.cs">
       <Link>Physics\Serialization\QuaternionSerialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Physics\Serialization\TriangleVertexIndicesSerialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Physics\Serialization\TriangleVertexIndicesSerialization.cs">
       <Link>Physics\Serialization\TriangleVertexIndicesSerialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Physics\Serialization\Vector3Serialization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Physics\Serialization\Vector3Serialization.cs">
       <Link>Physics\Serialization\Vector3Serialization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\dynamic.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\dynamic.cs">
       <Link>External\fastJSON\dynamic.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\Formatter.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\Formatter.cs">
       <Link>External\fastJSON\Formatter.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\Getters.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\Getters.cs">
       <Link>External\fastJSON\Getters.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\JSON.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\JSON.cs">
       <Link>External\fastJSON\JSON.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\JsonParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\JsonParser.cs">
       <Link>External\fastJSON\JsonParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\JsonSerializer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\JsonSerializer.cs">
       <Link>External\fastJSON\JsonSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\Reflection.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\Reflection.cs">
       <Link>External\fastJSON\Reflection.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\fastJSON\SafeDictionary.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\fastJSON\SafeDictionary.cs">
       <Link>External\fastJSON\SafeDictionary.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\CollisionIsland.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\CollisionIsland.cs">
       <Link>External\JitterPhysics\Collision\CollisionIsland.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\CollisionSystem.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\CollisionSystem.cs">
       <Link>External\JitterPhysics\Collision\CollisionSystem.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\CollisionSystemBrute.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\CollisionSystemBrute.cs">
       <Link>External\JitterPhysics\Collision\CollisionSystemBrute.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\CollisionSystemPersistentSAP.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\CollisionSystemPersistentSAP.cs">
       <Link>External\JitterPhysics\Collision\CollisionSystemPersistentSAP.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\CollisionSystemSAP.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\CollisionSystemSAP.cs">
       <Link>External\JitterPhysics\Collision\CollisionSystemSAP.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\DynamicTree.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\DynamicTree.cs">
       <Link>External\JitterPhysics\Collision\DynamicTree.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\GJKCollide.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\GJKCollide.cs">
       <Link>External\JitterPhysics\Collision\GJKCollide.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\IslandManager.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\IslandManager.cs">
       <Link>External\JitterPhysics\Collision\IslandManager.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\Octree.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\Octree.cs">
       <Link>External\JitterPhysics\Collision\Octree.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\Shapes\BoxShape.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\Shapes\BoxShape.cs">
       <Link>External\JitterPhysics\Collision\Shapes\BoxShape.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\Shapes\CapsuleShape.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\Shapes\CapsuleShape.cs">
       <Link>External\JitterPhysics\Collision\Shapes\CapsuleShape.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\Shapes\CompoundShape.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\Shapes\CompoundShape.cs">
       <Link>External\JitterPhysics\Collision\Shapes\CompoundShape.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\Shapes\ConeShape.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\Shapes\ConeShape.cs">
       <Link>External\JitterPhysics\Collision\Shapes\ConeShape.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\Shapes\ConvexHullShape.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\Shapes\ConvexHullShape.cs">
       <Link>External\JitterPhysics\Collision\Shapes\ConvexHullShape.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\Shapes\CylinderShape.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\Shapes\CylinderShape.cs">
       <Link>External\JitterPhysics\Collision\Shapes\CylinderShape.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\Shapes\MinkowskiSumShape.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\Shapes\MinkowskiSumShape.cs">
       <Link>External\JitterPhysics\Collision\Shapes\MinkowskiSumShape.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\Shapes\Multishape.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\Shapes\Multishape.cs">
       <Link>External\JitterPhysics\Collision\Shapes\Multishape.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\Shapes\Shape.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\Shapes\Shape.cs">
       <Link>External\JitterPhysics\Collision\Shapes\Shape.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\Shapes\SphereShape.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\Shapes\SphereShape.cs">
       <Link>External\JitterPhysics\Collision\Shapes\SphereShape.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\Shapes\TerrainShape.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\Shapes\TerrainShape.cs">
       <Link>External\JitterPhysics\Collision\Shapes\TerrainShape.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\Shapes\TriangleMeshShape.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\Shapes\TriangleMeshShape.cs">
       <Link>External\JitterPhysics\Collision\Shapes\TriangleMeshShape.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Collision\XenoCollide.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Collision\XenoCollide.cs">
       <Link>External\JitterPhysics\Collision\XenoCollide.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\DataStructures\Action.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\DataStructures\Action.cs">
       <Link>External\JitterPhysics\DataStructures\Action.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\DataStructures\Hashset.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\DataStructures\Hashset.cs">
       <Link>External\JitterPhysics\DataStructures\Hashset.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\DataStructures\ReadOnlyHashset.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\DataStructures\ReadOnlyHashset.cs">
       <Link>External\JitterPhysics\DataStructures\ReadOnlyHashset.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\Arbiter.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\Arbiter.cs">
       <Link>External\JitterPhysics\Dynamics\Arbiter.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\ArbiterMap.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\ArbiterMap.cs">
       <Link>External\JitterPhysics\Dynamics\ArbiterMap.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\Constraint.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\Constraint.cs">
       <Link>External\JitterPhysics\Dynamics\Constraint.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\Constraints\FixedAngle.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\Constraints\FixedAngle.cs">
       <Link>External\JitterPhysics\Dynamics\Constraints\FixedAngle.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\Constraints\PointOnLine.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\Constraints\PointOnLine.cs">
       <Link>External\JitterPhysics\Dynamics\Constraints\PointOnLine.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\Constraints\PointOnPoint.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\Constraints\PointOnPoint.cs">
       <Link>External\JitterPhysics\Dynamics\Constraints\PointOnPoint.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\Constraints\PointPointDistance.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\Constraints\PointPointDistance.cs">
       <Link>External\JitterPhysics\Dynamics\Constraints\PointPointDistance.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\Constraints\SingleBody\FixedAngle.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\Constraints\SingleBody\FixedAngle.cs">
       <Link>External\JitterPhysics\Dynamics\Constraints\SingleBody\FixedAngle.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\Constraints\SingleBody\PointOnLine.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\Constraints\SingleBody\PointOnLine.cs">
       <Link>External\JitterPhysics\Dynamics\Constraints\SingleBody\PointOnLine.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\Constraints\SingleBody\PointOnPoint.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\Constraints\SingleBody\PointOnPoint.cs">
       <Link>External\JitterPhysics\Dynamics\Constraints\SingleBody\PointOnPoint.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\Contact.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\Contact.cs">
       <Link>External\JitterPhysics\Dynamics\Contact.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\IConstraint.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\IConstraint.cs">
       <Link>External\JitterPhysics\Dynamics\IConstraint.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\Joints\HingeJoint.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\Joints\HingeJoint.cs">
       <Link>External\JitterPhysics\Dynamics\Joints\HingeJoint.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\Joints\Joint.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\Joints\Joint.cs">
       <Link>External\JitterPhysics\Dynamics\Joints\Joint.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\Joints\LimitedHingeJoint.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\Joints\LimitedHingeJoint.cs">
       <Link>External\JitterPhysics\Dynamics\Joints\LimitedHingeJoint.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\Joints\PrismaticJoint.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\Joints\PrismaticJoint.cs">
       <Link>External\JitterPhysics\Dynamics\Joints\PrismaticJoint.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\Material.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\Material.cs">
       <Link>External\JitterPhysics\Dynamics\Material.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\RigidBody.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\RigidBody.cs">
       <Link>External\JitterPhysics\Dynamics\RigidBody.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\Dynamics\SoftBody.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\Dynamics\SoftBody.cs">
       <Link>External\JitterPhysics\Dynamics\SoftBody.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\IDebugDraw.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\IDebugDraw.cs">
       <Link>External\JitterPhysics\IDebugDraw.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\LinearMath\JBBox.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\LinearMath\JBBox.cs">
       <Link>External\JitterPhysics\LinearMath\JBBox.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\LinearMath\JConvexHull.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\LinearMath\JConvexHull.cs">
       <Link>External\JitterPhysics\LinearMath\JConvexHull.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\LinearMath\JMath.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\LinearMath\JMath.cs">
       <Link>External\JitterPhysics\LinearMath\JMath.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\LinearMath\JMatrix.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\LinearMath\JMatrix.cs">
       <Link>External\JitterPhysics\LinearMath\JMatrix.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\LinearMath\JQuaternion.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\LinearMath\JQuaternion.cs">
       <Link>External\JitterPhysics\LinearMath\JQuaternion.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\LinearMath\JVector.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\LinearMath\JVector.cs">
       <Link>External\JitterPhysics\LinearMath\JVector.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\ResourcePool.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\ResourcePool.cs">
       <Link>External\JitterPhysics\ResourcePool.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\ThreadManager.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\ThreadManager.cs">
       <Link>External\JitterPhysics\ThreadManager.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\JitterPhysics\World.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\JitterPhysics\World.cs">
       <Link>External\JitterPhysics\World.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\LitJson\JsonException.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LitJson\JsonException.cs">
       <Link>External\LitJson\JsonException.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\LitJson\JsonWriter.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LitJson\JsonWriter.cs">
       <Link>External\LitJson\JsonWriter.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\LitJson\ParserToken.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LitJson\ParserToken.cs">
       <Link>External\LitJson\ParserToken.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\LitJson\IJsonWrapper.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LitJson\IJsonWrapper.cs">
       <Link>External\LitJson\IJsonWrapper.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\LitJson\JsonData.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LitJson\JsonData.cs">
       <Link>External\LitJson\JsonData.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\LitJson\JsonMapper.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LitJson\JsonMapper.cs">
       <Link>External\LitJson\JsonMapper.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\LitJson\JsonMockWrapper.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LitJson\JsonMockWrapper.cs">
       <Link>External\LitJson\JsonMockWrapper.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\LitJson\JsonReader.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LitJson\JsonReader.cs">
       <Link>External\LitJson\JsonReader.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\LitJson\Lexer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\LitJson\Lexer.cs">
       <Link>External\LitJson\Lexer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Area.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Area.cs">
       <Link>External\SharpNav\Area.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\AreaGenerator.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\AreaGenerator.cs">
       <Link>External\SharpNav\AreaGenerator.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Cell.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Cell.cs">
       <Link>External\SharpNav\Cell.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Collections\BVTree.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Collections\BVTree.cs">
       <Link>External\SharpNav\Collections\BVTree.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Collections\Generic\BufferedQueue.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Collections\Generic\BufferedQueue.cs">
       <Link>External\SharpNav\Collections\Generic\BufferedQueue.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Collections\Generic\BufferedStack.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Collections\Generic\BufferedStack.cs">
       <Link>External\SharpNav\Collections\Generic\BufferedStack.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Collections\Generic\IValueWithCost.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Collections\Generic\IValueWithCost.cs">
       <Link>External\SharpNav\Collections\Generic\IValueWithCost.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Collections\Generic\PriorityQueue.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Collections\Generic\PriorityQueue.cs">
       <Link>External\SharpNav\Collections\Generic\PriorityQueue.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Collections\Generic\ProximityGrid.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Collections\Generic\ProximityGrid.cs">
       <Link>External\SharpNav\Collections\Generic\ProximityGrid.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Collections\Tuple.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Collections\Tuple.cs">
       <Link>External\SharpNav\Collections\Tuple.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\CompactCell.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\CompactCell.cs">
       <Link>External\SharpNav\CompactCell.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\CompactHeightfield.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\CompactHeightfield.cs">
       <Link>External\SharpNav\CompactHeightfield.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\CompactSpan.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\CompactSpan.cs">
       <Link>External\SharpNav\CompactSpan.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\CompactSpanReference.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\CompactSpanReference.cs">
       <Link>External\SharpNav\CompactSpanReference.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Contour.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Contour.cs">
       <Link>External\SharpNav\Contour.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\ContourBuildFlags.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\ContourBuildFlags.cs">
       <Link>External\SharpNav\ContourBuildFlags.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\ContourSet.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\ContourSet.cs">
       <Link>External\SharpNav\ContourSet.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\ContourVertex.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\ContourVertex.cs">
       <Link>External\SharpNav\ContourVertex.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Crowds\Agent.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Crowds\Agent.cs">
       <Link>External\SharpNav\Crowds\Agent.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Crowds\Crowd.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Crowds\Crowd.cs">
       <Link>External\SharpNav\Crowds\Crowd.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Crowds\CrowdAgentState.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Crowds\CrowdAgentState.cs">
       <Link>External\SharpNav\Crowds\CrowdAgentState.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Crowds\LocalBoundary.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Crowds\LocalBoundary.cs">
       <Link>External\SharpNav\Crowds\LocalBoundary.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Crowds\ObstacleAvoidanceQuery.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Crowds\ObstacleAvoidanceQuery.cs">
       <Link>External\SharpNav\Crowds\ObstacleAvoidanceQuery.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Crowds\PathCorridor.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Crowds\PathCorridor.cs">
       <Link>External\SharpNav\Crowds\PathCorridor.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Crowds\PathQueue.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Crowds\PathQueue.cs">
       <Link>External\SharpNav\Crowds\PathQueue.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Crowds\Status.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Crowds\Status.cs">
       <Link>External\SharpNav\Crowds\Status.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Crowds\TargetState.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Crowds\TargetState.cs">
       <Link>External\SharpNav\Crowds\TargetState.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Crowds\UpdateFlags.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Crowds\UpdateFlags.cs">
       <Link>External\SharpNav\Crowds\UpdateFlags.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Direction.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Direction.cs">
       <Link>External\SharpNav\Direction.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\EdgeFlags.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\EdgeFlags.cs">
       <Link>External\SharpNav\EdgeFlags.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Geometry\BBox2i.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Geometry\BBox2i.cs">
       <Link>External\SharpNav\Geometry\BBox2i.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Geometry\BBox3.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Geometry\BBox3.cs">
       <Link>External\SharpNav\Geometry\BBox3.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Geometry\Containment.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Geometry\Containment.cs">
       <Link>External\SharpNav\Geometry\Containment.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Geometry\ConvexVolume.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Geometry\ConvexVolume.cs">
       <Link>External\SharpNav\Geometry\ConvexVolume.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Geometry\Distance.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Geometry\Distance.cs">
       <Link>External\SharpNav\Geometry\Distance.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Geometry\Intersection.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Geometry\Intersection.cs">
       <Link>External\SharpNav\Geometry\Intersection.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Geometry\Triangle3.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Geometry\Triangle3.cs">
       <Link>External\SharpNav\Geometry\Triangle3.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Geometry\TriangleEnumerable.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Geometry\TriangleEnumerable.cs">
       <Link>External\SharpNav\Geometry\TriangleEnumerable.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Geometry\Vector2.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Geometry\Vector2.cs">
       <Link>External\SharpNav\Geometry\Vector2.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Geometry\Vector2i.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Geometry\Vector2i.cs">
       <Link>External\SharpNav\Geometry\Vector2i.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Geometry\Vector3.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Geometry\Vector3.cs">
       <Link>External\SharpNav\Geometry\Vector3.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Geometry\Vector3Extensions.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Geometry\Vector3Extensions.cs">
       <Link>External\SharpNav\Geometry\Vector3Extensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Heightfield.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Heightfield.cs">
       <Link>External\SharpNav\Heightfield.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Heightfield.Rasterization.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Heightfield.Rasterization.cs">
       <Link>External\SharpNav\Heightfield.Rasterization.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\HeightPatch.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\HeightPatch.cs">
       <Link>External\SharpNav\HeightPatch.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\MathHelper.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\MathHelper.cs">
       <Link>External\SharpNav\MathHelper.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\NavMesh.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\NavMesh.cs">
       <Link>External\SharpNav\NavMesh.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\NavMeshBuilder.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\NavMeshBuilder.cs">
       <Link>External\SharpNav\NavMeshBuilder.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\NavMeshGenerationSettings.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\NavMeshGenerationSettings.cs">
       <Link>External\SharpNav\NavMeshGenerationSettings.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\NavMeshQuery.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\NavMeshQuery.cs">
       <Link>External\SharpNav\NavMeshQuery.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\NodeFlags.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\NodeFlags.cs">
       <Link>External\SharpNav\NodeFlags.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\NodePool.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\NodePool.cs">
       <Link>External\SharpNav\NodePool.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\BoundarySide.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\BoundarySide.cs">
       <Link>External\SharpNav\Pathfinding\BoundarySide.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\FindPathOptions.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\FindPathOptions.cs">
       <Link>External\SharpNav\Pathfinding\FindPathOptions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\Link.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\Link.cs">
       <Link>External\SharpNav\Pathfinding\Link.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\NavNode.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\NavNode.cs">
       <Link>External\SharpNav\Pathfinding\NavNode.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\NavPoint.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\NavPoint.cs">
       <Link>External\SharpNav\Pathfinding\NavPoint.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\NavPoly.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\NavPoly.cs">
       <Link>External\SharpNav\Pathfinding\NavPoly.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\NavPolyId.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\NavPolyId.cs">
       <Link>External\SharpNav\Pathfinding\NavPolyId.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\NavPolyIdManager.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\NavPolyIdManager.cs">
       <Link>External\SharpNav\Pathfinding\NavPolyIdManager.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\NavQueryFilter.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\NavQueryFilter.cs">
       <Link>External\SharpNav\Pathfinding\NavQueryFilter.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\NavTile.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\NavTile.cs">
       <Link>External\SharpNav\Pathfinding\NavTile.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\OffMeshConnection.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\OffMeshConnection.cs">
       <Link>External\SharpNav\Pathfinding\OffMeshConnection.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\Path.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\Path.cs">
       <Link>External\SharpNav\Pathfinding\Path.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\PathBuildFlags.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\PathBuildFlags.cs">
       <Link>External\SharpNav\Pathfinding\PathBuildFlags.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\PathfindingCommon.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\PathfindingCommon.cs">
       <Link>External\SharpNav\Pathfinding\PathfindingCommon.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\RaycastHit.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\RaycastHit.cs">
       <Link>External\SharpNav\Pathfinding\RaycastHit.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\RaycastOptions.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\RaycastOptions.cs">
       <Link>External\SharpNav\Pathfinding\RaycastOptions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Pathfinding\StraightPathFlags.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Pathfinding\StraightPathFlags.cs">
       <Link>External\SharpNav\Pathfinding\StraightPathFlags.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\PolyBounds.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\PolyBounds.cs">
       <Link>External\SharpNav\PolyBounds.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\PolyMesh.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\PolyMesh.cs">
       <Link>External\SharpNav\PolyMesh.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\PolyMeshDetail.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\PolyMeshDetail.cs">
       <Link>External\SharpNav\PolyMeshDetail.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\PolyVertex.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\PolyVertex.cs">
       <Link>External\SharpNav\PolyVertex.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Region.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Region.cs">
       <Link>External\SharpNav\Region.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\Span.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\Span.cs">
       <Link>External\SharpNav\Span.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\SpanReference.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\SpanReference.cs">
       <Link>External\SharpNav\SpanReference.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\External\SharpNav\TiledNavMesh.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\External\SharpNav\TiledNavMesh.cs">
       <Link>External\SharpNav\TiledNavMesh.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\Attr.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\Attr.cs">
       <Link>Attributes\Attr.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\AttrExtensions.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\AttrExtensions.cs">
       <Link>Attributes\AttrExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\IAttrParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\IAttrParser.cs">
       <Link>Attributes\IAttrParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\IAttrSerializer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\IAttrSerializer.cs">
       <Link>Attributes\IAttrSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\JsonAttrSerializer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\JsonAttrSerializer.cs">
       <Link>Attributes\JsonAttrSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\LitJsonAttrSerializer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\LitJsonAttrSerializer.cs">
       <Link>Attributes\LitJsonAttrSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\UrlQueryAttrParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\UrlQueryAttrParser.cs">
       <Link>Attributes\UrlQueryAttrParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\UrlQueryAttrSerializer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\UrlQueryAttrSerializer.cs">
       <Link>Attributes\UrlQueryAttrSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Base\DebugUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Base\DebugUtils.cs">
       <Link>Base\DebugUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Base\Error.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Base\Error.cs">
       <Link>Base\Error.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Base\IEnumerableExtensions.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Base\IEnumerableExtensions.cs">
       <Link>Base\IEnumerableExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Base\Log.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Base\Log.cs">
       <Link>Base\Log.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\Bitset.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\Bitset.cs">
       <Link>IO\Bitset.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\FileManager.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\FileManager.cs">
       <Link>IO\FileManager.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\FileUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\FileUtils.cs">
       <Link>IO\FileUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\ICopyable.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\ICopyable.cs">
       <Link>IO\ICopyable.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\INetworkShareable.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\INetworkShareable.cs">
       <Link>IO\INetworkShareable.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\IReader.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\IReader.cs">
       <Link>IO\IReader.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\IReaderExtensions.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\IReaderExtensions.cs">
       <Link>IO\IReaderExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\IReadParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\IReadParser.cs">
       <Link>IO\IReadParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\IWriter.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\IWriter.cs">
       <Link>IO\IWriter.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\IWriterExtensions.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\IWriterExtensions.cs">
       <Link>IO\IWriterExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\IWriteSerializer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\IWriteSerializer.cs">
       <Link>IO\IWriteSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\ReaderWrapper.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\ReaderWrapper.cs">
       <Link>IO\ReaderWrapper.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\ShortEncoding.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\ShortEncoding.cs">
       <Link>IO\ShortEncoding.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\SystemBinaryReader.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\SystemBinaryReader.cs">
       <Link>IO\SystemBinaryReader.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\SystemBinaryWriter.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\SystemBinaryWriter.cs">
       <Link>IO\SystemBinaryWriter.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\TypedDiffReadParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\TypedDiffReadParser.cs">
       <Link>IO\TypedDiffReadParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\TypedDiffWriteSerializer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\TypedDiffWriteSerializer.cs">
       <Link>IO\TypedDiffWriteSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\TypedReadParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\TypedReadParser.cs">
       <Link>IO\TypedReadParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\TypedWriteSerializer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\TypedWriteSerializer.cs">
       <Link>IO\TypedWriteSerializer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\EditorProxy.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\EditorProxy.cs">
       <Link>Network\EditorProxy.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\HttpEncoding.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\HttpEncoding.cs">
       <Link>Network\HttpEncoding.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\HttpRequest.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\HttpRequest.cs">
       <Link>Network\HttpRequest.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\HttpResponse.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\HttpResponse.cs">
       <Link>Network\HttpResponse.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\IHttpClient.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\IHttpClient.cs">
       <Link>Network\IHttpClient.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\ImmediateWebRequestHttpClient.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\ImmediateWebRequestHttpClient.cs">
       <Link>Network\ImmediateWebRequestHttpClient.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\INetworkClient.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\INetworkClient.cs">
       <Link>Network\INetworkClient.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\INetworkClientGameFactory.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\INetworkClientGameFactory.cs">
       <Link>Network\INetworkClientGameFactory.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\INetworkMessage.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\INetworkMessage.cs">
       <Link>Network\INetworkMessage.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\INetworkServer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\INetworkServer.cs">
       <Link>Network\INetworkServer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\NetworkStatsBase.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\NetworkStatsBase.cs">
       <Link>Network\NetworkStatsBase.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\NetworkStatsClient.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\NetworkStatsClient.cs">
       <Link>Network\NetworkStatsClient.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\NetworkStatsServer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\NetworkStatsServer.cs">
       <Link>Network\NetworkStatsServer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\WebRequestUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\WebRequestUtils.cs">
       <Link>Network\WebRequestUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\ServerEvents\Event.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\ServerEvents\Event.cs">
       <Link>ServerEvents\Event.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\ActionUpdater.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\ActionUpdater.cs">
       <Link>Utils\ActionUpdater.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\CompareUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\CompareUtils.cs">
       <Link>Utils\CompareUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\CryptographyUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\CryptographyUtils.cs">
       <Link>Utils\CryptographyUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\Easing.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\Easing.cs">
       <Link>Utils\Easing.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\GameTime.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\GameTime.cs">
       <Link>Utils\GameTime.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\RandomUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\RandomUtils.cs">
       <Link>Utils\RandomUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\StateMachine.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\StateMachine.cs">
       <Link>Utils\StateMachine.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\StringUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\StringUtils.cs">
       <Link>Utils\StringUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\TagSet.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\TagSet.cs">
       <Link>Utils\TagSet.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\Timer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\Timer.cs">
       <Link>Utils\Timer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\TimeUtils.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\TimeUtils.cs">
       <Link>Utils\TimeUtils.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\UpdateRunner.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\UpdateRunner.cs">
       <Link>Utils\UpdateRunner.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Matchmaking\Match.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Matchmaking\Match.cs">
       <Link>Matchmaking\Match.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Social\SocialFramework\SocialPlayer.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Social\SocialFramework\SocialPlayer.cs">
       <Link>Social\SocialFramework\SocialPlayer.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Social\SocialFramework\SocialPlayerFactory.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Social\SocialFramework\SocialPlayerFactory.cs">
       <Link>Social\SocialFramework\SocialPlayerFactory.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\AttrListReader.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\AttrListReader.cs">
       <Link>IO\AttrListReader.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\AttrListWriter.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\IO\AttrListWriter.cs">
       <Link>IO\AttrListWriter.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\TypeCache.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\TypeCache.cs">
       <Link>Utils\TypeCache.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\JsonAttrParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\JsonAttrParser.cs">
       <Link>Attributes\JsonAttrParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\FastJsonAttrParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\FastJsonAttrParser.cs">
       <Link>Attributes\FastJsonAttrParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\StreamReaderAttrParser.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\StreamReaderAttrParser.cs">
       <Link>Attributes\StreamReaderAttrParser.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\IStreamReader.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\IStreamReader.cs">
       <Link>Attributes\IStreamReader.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Attributes\FastJsonStreamReader.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Attributes\FastJsonStreamReader.cs">
       <Link>Attributes\FastJsonStreamReader.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\ListExtensions.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\ListExtensions.cs">
       <Link>Utils\ListExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\RetryHttpClient.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\RetryHttpClient.cs">
       <Link>Network\RetryHttpClient.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\WebAsync.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\WebAsync.cs">
       <Link>Network\WebAsync.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\WebRequestHttpClient.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\WebRequestHttpClient.cs">
       <Link>Network\WebRequestHttpClient.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\WebRequestHttpConnection.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\WebRequestHttpConnection.cs">
       <Link>Network\WebRequestHttpConnection.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Network\BaseYieldHttpClient.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Network\BaseYieldHttpClient.cs">
       <Link>Network\BaseYieldHttpClient.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\PriorityQueue.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\PriorityQueue.cs">
       <Link>Utils\PriorityQueue.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\UpdateCoroutineRunner.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\UpdateCoroutineRunner.cs">
       <Link>Utils\UpdateCoroutineRunner.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lifecycle\ActionProcessor.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Lifecycle\ActionProcessor.cs">
       <Link>Lifecycle\ActionProcessor.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Pooling\ObjectPool.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Pooling\ObjectPool.cs">
       <Link>Pooling\ObjectPool.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkActionProcessor.cs">
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\Extensions\Multiplayer\NetworkActionProcessor.cs">
       <Link>Multiplayer\NetworkActionProcessor.cs</Link>
     </Compile>
   </ItemGroup>
