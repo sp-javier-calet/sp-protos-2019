@@ -42,6 +42,30 @@ Create_UnityCache_iOS:
     ios
   stage: compile
 
+Authoritative_Server_Compile:
+  only:
+  - triggers
+  script:
+  - python %PYTHON_CI_REPO_PATH%\StandaloneCSharpCompilerCall\CompileSlnCaller.py
+  stage: test
+  variables:
+    DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    SLN_FILE_RELATIVE_PATH: Project/Standalone/Photon/AuthoritativeGameLogic/AuthoritativeGameLogic.sln
+    UNITY_PROJ_REL_PATH: Project
+    WARN_AS_ERROR: 0
+
+Lockstep_Server_Compile:
+  only:
+  - triggers
+  script:
+  - python %PYTHON_CI_REPO_PATH%\StandaloneCSharpCompilerCall\CompileSlnCaller.py
+  stage: test
+  variables:
+    DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    SLN_FILE_RELATIVE_PATH: Project/Standalone/Photon/LockstepGameLogic/LockstepGameLogic.sln
+    UNITY_PROJ_REL_PATH: Project
+    WARN_AS_ERROR: 0
+
 Android_Unity_Tests:
   artifacts:
     paths:
