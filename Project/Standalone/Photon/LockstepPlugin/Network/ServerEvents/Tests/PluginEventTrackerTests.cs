@@ -22,7 +22,7 @@ namespace SocialPoint.Network
             HttpClient = Substitute.For<IHttpClient>();
             HttpClient.Send(Arg.Any<HttpRequest>(), Arg.InvokeDelegate<HttpResponseDelegate>(new HttpResponse(200)));
             EventTracker = new HttpServerEventTracker(Scheduler, HttpClient);
-            EventTracker.BaseUrl = "https://lodx.socialpointgames.com/api/v3/";
+            EventTracker.GetBaseUrlCallback = () => "https://lodx.socialpointgames.com/api/v3/";
             EventTracker.Start();
         }
         [Test]

@@ -42,6 +42,9 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.XML" />
+    <Reference Include="LZ4">
+      <HintPath>..\..\..\Assets\Sparta\External\LZ4\LZ4.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Assets\Sparta\Extensions\Lockstep\ClientCommandData.cs">
@@ -303,6 +306,9 @@
       <Link>Lockstep\Network\LockstepNetworkClient.cs</Link>
     </Compile>
     <Compile Include="Network\ServerEvents\Tests\PluginEventTrackerTests.cs" />
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\IO\ShortEncoding.cs">
+      <Link>IO\ShortEncoding.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
