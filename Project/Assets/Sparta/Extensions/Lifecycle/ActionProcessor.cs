@@ -78,7 +78,7 @@ namespace SocialPoint.Lifecycle
 
     public delegate bool ActionValidatorFunc<S, T, R>(S state, T action, out R result);
 
-    public class ActionProcessor<T, S, R> : IActionHandler<T>, IStateActionHandler<S, T>, IDisposable
+    public class ActionProcessor<S, T, R> : IActionHandler<T>, IStateActionHandler<S, T>, IDisposable
     {
         class ActionValidatorWrapper<K, E> : IStateActionValidator<S, K, R> where K : T where E : R
         {
@@ -452,10 +452,10 @@ namespace SocialPoint.Lifecycle
         {
             void Register(object key, object obj);
             void Unregister(object key);
-            bool Validate(S state, object action, out R result);
+            bool Validate(S state, T action, out R result);
         }
 
-        class TypeValidator<K> : ITypeValidator
+        class TypeValidator<K> : ITypeValidator where K : T
         {
             Dictionary<object, IStateActionValidator<S, K, R>> _validators = new Dictionary<object, IStateActionValidator<S, K, R>>();
 
@@ -473,7 +473,7 @@ namespace SocialPoint.Lifecycle
                 _validators.Remove(obj);
             }
 
-            public bool Validate(S state, object action, out R result)
+            public bool Validate(S state, T action, out R result)
             {
                 result = default(R);
                 if(!(action is K))
@@ -504,10 +504,10 @@ namespace SocialPoint.Lifecycle
         {
             void Register(object key, object obj);
             void Unregister(object key);
-            bool Handle(S state, object action, bool success, R result);
+            bool Handle(S state, T action, bool success, R result);
         }
 
-        class TypeHandler<K> : ITypeHandler
+        class TypeHandler<K> : ITypeHandler where K : T
         {
             Dictionary<object, IStateValidatedActionHandler<S, K, R>> _handlers = new Dictionary<object, IStateValidatedActionHandler<S, K, R>>();
 
@@ -525,7 +525,7 @@ namespace SocialPoint.Lifecycle
                 _handlers.Remove(key);
             }
 
-            public bool Handle(S state, object action, bool success, R result)
+            public bool Handle(S state, T action, bool success, R result)
             {
                 if(!(action is K))
                 {
@@ -652,7 +652,7 @@ namespace SocialPoint.Lifecycle
             return handled;
         }
 
-        void DoRegisterHandler<K>(object key, object obj)
+        void DoRegisterHandler<K>(object key, object obj) where K : T
         {
             var type = typeof(K);
             ITypeHandler typeHandler;
@@ -664,7 +664,7 @@ namespace SocialPoint.Lifecycle
             typeHandler.Register(key, obj);
         }
 
-        void DoUnregisterHandler<K>(object key)
+        void DoUnregisterHandler<K>(object key) where K : T
         {
             var type = typeof(K);
             ITypeHandler typeHandler;
@@ -674,7 +674,7 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        void DoRegisterValidator<K>(object key, object validator)
+        void DoRegisterValidator<K>(object key, object validator) where K : T
         {
             var type = typeof(K);
             ITypeValidator typeValidator;
@@ -686,7 +686,7 @@ namespace SocialPoint.Lifecycle
             typeValidator.Register(key, validator);
         }
 
-        public void DoUnregisterValidator<K>(object key)
+        public void DoUnregisterValidator<K>(object key) where K : T
         {
             var type = typeof(K);
             ITypeValidator typeValidator;
@@ -1081,11 +1081,11 @@ namespace SocialPoint.Lifecycle
 
     }
 
-    public class ActionProcessor<K> : ActionProcessor<K, object, object>
+    public class ActionProcessor<K> : ActionProcessor<object, K, object>
     {
     }
 
-    public class StateActionProcessor<S> : ActionProcessor<object, S, object>
+    public class StateActionProcessor<S> : ActionProcessor<S, object, object>
     {
     }
 
