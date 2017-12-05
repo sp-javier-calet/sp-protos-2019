@@ -89,6 +89,21 @@ namespace SocialPoint.Multiplayer
 
         public bool Paused { get; set; }
 
+        public byte MaxPlayers
+        {
+            get
+            {
+                return ServerConfig.MaxPlayers;
+            }
+        }
+
+        public bool Full
+        {
+            get
+            {
+                return PlayerCount >= ServerConfig.MaxPlayers;
+            }
+        }
 
         public int PlayerCount
         {

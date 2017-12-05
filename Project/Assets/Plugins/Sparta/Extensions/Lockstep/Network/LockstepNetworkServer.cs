@@ -48,6 +48,8 @@ namespace SocialPoint.Lockstep
         public int MetricSendInterval = DefaultMetricSendInterval;
         public bool AllowMatchStartWithOnePlayerReady = DefaultAllowMatchStartWithOnePlayerReady;
         public bool MatchmakingEnabled = DefaultMatchmakingEnabled;
+        public Func<string> GetBackendUrlCallback;
+        public string MetricEnvironment;
 
         public override string ToString()
         {
