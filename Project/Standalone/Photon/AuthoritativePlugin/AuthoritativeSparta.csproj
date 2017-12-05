@@ -57,9 +57,6 @@
     <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\MultiplayerModelExtensions.cs">
       <Link>Multiplayer\MultiplayerModelExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkActionHandler.cs">
-      <Link>Multiplayer\NetworkActionHandler.cs</Link>
-    </Compile>
     <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkBehaviour.cs">
       <Link>Multiplayer\NetworkBehaviour.cs</Link>
     </Compile>
@@ -813,9 +810,6 @@
     <Compile Include="..\..\..\Assets\Sparta\SocialPoint\ServerEvents\Event.cs">
       <Link>ServerEvents\Event.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\ActionHandler.cs">
-      <Link>Utils\ActionHandler.cs</Link>
-    </Compile>
     <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\ActionUpdater.cs">
       <Link>Utils\ActionUpdater.cs</Link>
     </Compile>
@@ -830,9 +824,6 @@
     </Compile>
     <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\GameTime.cs">
       <Link>Utils\GameTime.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\ObjectPool.cs">
-      <Link>Utils\ObjectPool.cs</Link>
     </Compile>
     <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\RandomUtils.cs">
       <Link>Utils\RandomUtils.cs</Link>
@@ -912,11 +903,21 @@
     <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Utils\UpdateCoroutineRunner.cs">
       <Link>Utils\UpdateCoroutineRunner.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\Extensions\Lifecycle\ActionProcessor.cs">
+      <Link>Lifecycle\ActionProcessor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\SocialPoint\Pooling\ObjectPool.cs">
+      <Link>Pooling\ObjectPool.cs</Link>
+    </Compile>
+    <Compile Include="..\..\..\Assets\Sparta\Extensions\Multiplayer\NetworkActionProcessor.cs">
+      <Link>Multiplayer\NetworkActionProcessor.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup />
   <ItemGroup />
   <ItemGroup>
     <Folder Include="Pooling\" />
+    <Folder Include="Lifecycle\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
