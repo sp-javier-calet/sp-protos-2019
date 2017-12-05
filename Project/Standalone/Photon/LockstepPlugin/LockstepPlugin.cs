@@ -65,7 +65,9 @@ namespace SocialPoint.Lockstep
                 return false;
             }
 
-            _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient(), () => BaseBackendUrl);
+            Func<string> getBaseUrlCallback = () => { return BaseBackendUrl; };
+
+            _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient(), getBaseUrlCallback);
             _netServer = new LockstepNetworkServer(this, _matchmaking);
 
             _netServer.SendMetric = PluginEventTracker.SendMetric;
@@ -90,8 +92,16 @@ namespace SocialPoint.Lockstep
                 MetricSendIntervalConfig, _netServer.ServerConfig.MetricSendInterval);
 
             _netServer.ServerLockstep.MetricSendInterval = _netServer.ServerConfig.MetricSendInterval;
+            _netServer.ServerConfig.GetBackendUrlCallback = getBaseUrlCallback;
+            config.TryGetValue(MetricEnvironmentConfig, out _netServer.ServerConfig.MetricEnvironment);
 
-            PluginEventTracker.GetBaseUrlCallback = () => BaseBackendUrl;
+            if (PluginEventTracker != null)
+            {
+                PluginEventTracker.Environment = _netServer.ServerConfig.MetricEnvironment;
+                PluginEventTracker.GetBaseUrlCallback = _netServer.ServerConfig.GetBackendUrlCallback;
+                PluginEventTracker.Platform = "PhotonPlugin";
+                PluginEventTracker.UpdateCommonTrackData += (data) => { data.SetValue("ver", AppVersion); };
+            }
 
             _netServer.ServerConfig.AllowMatchStartWithOnePlayerReady = GetConfigOption(config,
                 AllowBattleStartWithOnePlayerReadyConfig, _netServer.ServerConfig.AllowMatchStartWithOnePlayerReady);
