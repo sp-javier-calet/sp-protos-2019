@@ -78,27 +78,27 @@ namespace SocialPoint.Lifecycle
 
     public delegate bool ActionValidatorFunc<S, T, R>(S state, T action, out R result);
 
-    public class ActionProcessor<T, S> : IActionHandler<T>, IStateActionHandler<S, T>, IDisposable
+    public class ActionProcessor<T, S, R> : IActionHandler<T>, IStateActionHandler<S, T>, IDisposable
     {
-        class ActionValidatorWrapper<K, R> : IStateActionValidator<S, K, object> where K : T
+        class ActionValidatorWrapper<K, E> : IStateActionValidator<S, K, R> where K : T where E : R
         {
-            IActionValidator<K, R> _validator;
+            IActionValidator<K, E> _validator;
 
-            public ActionValidatorWrapper(IActionValidator<K, R> validator)
+            public ActionValidatorWrapper(IActionValidator<K, E> validator)
             {
                 _validator = validator;
             }
 
-            public bool Validate(S state, K action, out object result)
+            public bool Validate(S state, K action, out R result)
             {
-                R rresult;
-                var success = _validator.Validate(action, out rresult);
-                result = rresult;
+                E eresult;
+                var success = _validator.Validate(action, out eresult);
+                result = eresult;
                 return success;
             }
         }
 
-        class ActionValidatorWrapper<K> : IStateActionValidator<S, K, object> where K : T
+        class ActionValidatorWrapper<K> : IStateActionValidator<S, K, R> where K : T
         {
             IActionValidator<K> _validator;
 
@@ -107,14 +107,14 @@ namespace SocialPoint.Lifecycle
                 _validator = validator;
             }
 
-            public bool Validate(S state, K action, out object result)
+            public bool Validate(S state, K action, out R result)
             {
-                result = null;
+                result = default(R);
                 return _validator.Validate(action);
             }
         }
 
-        class DelegateActionValidatorWrapper<K> : IStateActionValidator<S, K, object> where K : T
+        class DelegateActionValidatorWrapper<K> : IStateActionValidator<S, K, R> where K : T
         {
             Func<K, bool> _validator;
 
@@ -123,32 +123,32 @@ namespace SocialPoint.Lifecycle
                 _validator = validator;
             }
 
-            public bool Validate(S state, K action, out object result)
+            public bool Validate(S state, K action, out R result)
             {
-                result = null;
+                result = default(R);
                 return _validator(action);
             }
         }
 
-        class DelegateActionValidatorWrapper<K, R> : IStateActionValidator<S, K, object> where K : T
+        class DelegateActionValidatorWrapper<K, E> : IStateActionValidator<S, K, R> where K : T where E : R
         {
-            ActionValidatorFunc<K, R> _validator;
+            ActionValidatorFunc<K, E> _validator;
 
-            public DelegateActionValidatorWrapper(ActionValidatorFunc<K, R> validator)
+            public DelegateActionValidatorWrapper(ActionValidatorFunc<K, E> validator)
             {
                 _validator = validator;
             }
 
-            public bool Validate(S state, K action, out object result)
+            public bool Validate(S state, K action, out R result)
             {
-                R rresult;
-                var success = _validator(action, out rresult);
-                result = rresult;
+                E eresult;
+                var success = _validator(action, out eresult);
+                result = eresult;
                 return success;
             }
         }
 
-        class ActionHandlerWrapper<K> : IStateValidatedActionHandler<S, K, object> where K : T
+        class ActionHandlerWrapper<K> : IStateValidatedActionHandler<S, K, R> where K : T
         {
             IActionHandler<K> _handler;
             bool _successFilter;
@@ -159,7 +159,7 @@ namespace SocialPoint.Lifecycle
                 _successFilter = successFilter;
             }
 
-            public void Handle(S state, K action, bool success, object result)
+            public void Handle(S state, K action, bool success, R result)
             {
                 if(_successFilter == success)
                 {
@@ -168,45 +168,45 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        class ValidatedActionHandlerWrapper<K, R> : IStateValidatedActionHandler<S, K, object> where K : T
+        class ValidatedActionHandlerWrapper<K, E> : IStateValidatedActionHandler<S, K, R> where K : T where E : R
         {
-            IValidatedActionHandler<K, R> _handler;
+            IValidatedActionHandler<K, E> _handler;
 
-            public ValidatedActionHandlerWrapper(IValidatedActionHandler<K, R> handler)
+            public ValidatedActionHandlerWrapper(IValidatedActionHandler<K, E> handler)
             {
                 _handler = handler;
             }
 
-            public void Handle(S state, K action, bool success, object result)
+            public void Handle(S state, K action, bool success, R result)
             {
-                if(result is R)
+                if(result is E)
                 {
-                    _handler.Handle(action, success, (R)result);
+                    _handler.Handle(action, success, (E)result);
                 }
             }
         }
 
-        class ResultActionHandlerWrapper<K, R> : IStateValidatedActionHandler<S, K, object> where K : T
+        class ResultActionHandlerWrapper<K, E> : IStateValidatedActionHandler<S, K, R> where K : T where E : R
         {
-            IResultActionHandler<K, R> _handler;
+            IResultActionHandler<K, E> _handler;
             bool _successFilter;
 
-            public ResultActionHandlerWrapper(IResultActionHandler<K, R> handler, bool successFilter)
+            public ResultActionHandlerWrapper(IResultActionHandler<K, E> handler, bool successFilter)
             {
                 _handler = handler;
                 _successFilter = successFilter;
             }
 
-            public void Handle(S state, K action, bool success, object result)
+            public void Handle(S state, K action, bool success, R result)
             {
-                if(_successFilter == success && result is R)
+                if(_successFilter == success && result is E)
                 {
-                    _handler.Handle(action, (R)result);
+                    _handler.Handle(action, (E)result);
                 }
             }
         }
 
-        class DelegateActionHandlerWrapper<K> : IStateValidatedActionHandler<S, K, object> where K : T
+        class DelegateActionHandlerWrapper<K> : IStateValidatedActionHandler<S, K, R> where K : T
         {
             Action<K> _delegate;
             bool _successFilter;
@@ -217,7 +217,7 @@ namespace SocialPoint.Lifecycle
                 _successFilter = successFilter;
             }
 
-            public void Handle(S state, K action, bool success, object result)
+            public void Handle(S state, K action, bool success, R result)
             {
                 if(_successFilter == success)
                 {
@@ -226,63 +226,63 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        class DelegateActionHandlerWrapper<K, R> : IStateValidatedActionHandler<S, K, object> where K : T
+        class DelegateActionHandlerWrapper<K, E> : IStateValidatedActionHandler<S, K, R> where K : T where E : R
         {
-            Action<K, R> _delegate;
+            Action<K, E> _delegate;
             bool _successFilter;
 
-            public DelegateActionHandlerWrapper(Action<K, R> dlg, bool successFilter)
+            public DelegateActionHandlerWrapper(Action<K, E> dlg, bool successFilter)
             {
                 _delegate = dlg;
                 _successFilter = successFilter;
             }
 
-            public void Handle(S state, K action, bool success, object result)
+            public void Handle(S state, K action, bool success, R result)
             {
-                if(_successFilter == success && result is R)
+                if(_successFilter == success && result is E)
                 {
-                    _delegate(action, (R)result);
+                    _delegate(action, (E)result);
                 }
             }
         }
 
-        class GeneralDelegateActionHandlerWrapper<K, R> : IStateValidatedActionHandler<S, K, object> where K : T
+        class GeneralDelegateActionHandlerWrapper<K, E> : IStateValidatedActionHandler<S, K, R> where K : T where E : R
         {
-            Action<K, bool, R> _delegate;
+            Action<K, bool, E> _delegate;
 
-            public GeneralDelegateActionHandlerWrapper(Action<K, bool, R> dlg)
+            public GeneralDelegateActionHandlerWrapper(Action<K, bool, E> dlg)
             {
                 _delegate = dlg;
             }
 
-            public void Handle(S state, K action, bool success, object result)
+            public void Handle(S state, K action, bool success, R result)
             {
-                if(result is R)
+                if(result is E)
                 {
-                    _delegate(action, success, (R)result);
+                    _delegate(action, success, (E)result);
                 }
             }
         }
 
-        class StateActionValidatorWrapper<K, R> : IStateActionValidator<S, K, object> where K : T
+        class StateActionValidatorWrapper<K, E> : IStateActionValidator<S, K, R> where K : T where E : R
         {
-            IStateActionValidator<S, K, R> _validator;
+            IStateActionValidator<S, K, E> _validator;
 
-            public StateActionValidatorWrapper(IStateActionValidator<S, K, R> validator)
+            public StateActionValidatorWrapper(IStateActionValidator<S, K, E> validator)
             {
                 _validator = validator;
             }
 
-            public bool Validate(S state, K action, out object result)
+            public bool Validate(S state, K action, out R result)
             {
-                R rresult;
-                var success = _validator.Validate(state, action, out rresult);
-                result = rresult;
+                E eresult;
+                var success = _validator.Validate(state, action, out eresult);
+                result = eresult;
                 return success;
             }
         }
 
-        class StateActionValidatorWrapper<K> : IStateActionValidator<S, K, object> where K : T
+        class StateActionValidatorWrapper<K> : IStateActionValidator<S, K, R> where K : T
         {
             IStateActionValidator<S, K> _validator;
 
@@ -291,14 +291,14 @@ namespace SocialPoint.Lifecycle
                 _validator = validator;
             }
 
-            public bool Validate(S state, K action, out object result)
+            public bool Validate(S state, K action, out R result)
             {
-                result = null;
+                result = default(R);
                 return _validator.Validate(state, action);
             }
         }
 
-        class DelegateStateActionValidatorWrapper<K> : IStateActionValidator<S, K, object> where K : T
+        class DelegateStateActionValidatorWrapper<K> : IStateActionValidator<S, K, R> where K : T
         {
             Func<S, K, bool> _validator;
 
@@ -307,32 +307,32 @@ namespace SocialPoint.Lifecycle
                 _validator = validator;
             }
 
-            public bool Validate(S state, K action, out object result)
+            public bool Validate(S state, K action, out R result)
             {
-                result = null;
+                result = default(R);
                 return _validator(state, action);
             }
         }
 
-        class DelegateStateActionValidatorWrapper<K, R> : IStateActionValidator<S, K, object> where K : T
+        class DelegateStateActionValidatorWrapper<K, E> : IStateActionValidator<S, K, R> where K : T where E : R
         {
-            ActionValidatorFunc<S, K, R> _validator;
+            ActionValidatorFunc<S, K, E> _validator;
 
-            public DelegateStateActionValidatorWrapper(ActionValidatorFunc<S, K, R> validator)
+            public DelegateStateActionValidatorWrapper(ActionValidatorFunc<S, K, E> validator)
             {
                 _validator = validator;
             }
 
-            public bool Validate(S state, K action, out object result)
+            public bool Validate(S state, K action, out R result)
             {
-                R rresult;
-                var success = _validator(state, action, out rresult);
-                result = rresult;
+                E eresult;
+                var success = _validator(state, action, out eresult);
+                result = eresult;
                 return success;
             }
         }
 
-        class StateActionHandlerWrapper<K> : IStateValidatedActionHandler<S, K, object> where K : T
+        class StateActionHandlerWrapper<K> : IStateValidatedActionHandler<S, K, R> where K : T
         {
             IStateActionHandler<S, K> _handler;
             bool _successFilter;
@@ -343,7 +343,7 @@ namespace SocialPoint.Lifecycle
                 _successFilter = successFilter;
             }
 
-            public void Handle(S state, K action, bool success, object result)
+            public void Handle(S state, K action, bool success, R result)
             {
                 if(_successFilter == success)
                 {
@@ -352,45 +352,45 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        class StateValidatedActionHandlerWrapper<K, R> : IStateValidatedActionHandler<S, K, object> where K : T
+        class StateValidatedActionHandlerWrapper<K, E> : IStateValidatedActionHandler<S, K, R> where K : T where E : R
         {
-            IStateValidatedActionHandler<S, K, R> _handler;
+            IStateValidatedActionHandler<S, K, E> _handler;
 
-            public StateValidatedActionHandlerWrapper(IStateValidatedActionHandler<S, K, R> handler)
+            public StateValidatedActionHandlerWrapper(IStateValidatedActionHandler<S, K, E> handler)
             {
                 _handler = handler;
             }
 
-            public void Handle(S state, K action, bool success, object result)
+            public void Handle(S state, K action, bool success, R result)
             {
-                if(result is R)
+                if(result is E)
                 {
-                    _handler.Handle(state, action, success, (R)result);
+                    _handler.Handle(state, action, success, (E)result);
                 }
             }
         }
 
-        class StateResultActionHandlerWrapper<K, R> : IStateValidatedActionHandler<S, K, object> where K : T
+        class StateResultActionHandlerWrapper<K, E> : IStateValidatedActionHandler<S, K, R> where K : T where E : R
         {
-            IStateResultActionHandler<S, K, R> _handler;
+            IStateResultActionHandler<S, K, E> _handler;
             bool _successFilter;
 
-            public StateResultActionHandlerWrapper(IStateResultActionHandler<S, K, R> handler, bool successFilter)
+            public StateResultActionHandlerWrapper(IStateResultActionHandler<S, K, E> handler, bool successFilter)
             {
                 _handler = handler;
                 _successFilter = successFilter;
             }
 
-            public void Handle(S state, K action, bool success, object result)
+            public void Handle(S state, K action, bool success, R result)
             {
-                if(_successFilter == success && result is R)
+                if(_successFilter == success && result is E)
                 {
-                    _handler.Handle(state, action, (R)result);
+                    _handler.Handle(state, action, (E)result);
                 }
             }
         }
 
-        class DelegateStateActionHandlerWrapper<K> : IStateValidatedActionHandler<S, K, object> where K : T
+        class DelegateStateActionHandlerWrapper<K> : IStateValidatedActionHandler<S, K, R> where K : T
         {
             Action<S, K> _delegate;
             bool _successFilter;
@@ -401,7 +401,7 @@ namespace SocialPoint.Lifecycle
                 _successFilter = successFilter;
             }
 
-            public void Handle(S state, K action, bool success, object result)
+            public void Handle(S state, K action, bool success, R result)
             {
                 if(_successFilter == success)
                 {
@@ -410,40 +410,40 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        class DelegateStateActionHandlerWrapper<K, R> : IStateValidatedActionHandler<S, K, object> where K : T
+        class DelegateStateActionHandlerWrapper<K, E> : IStateValidatedActionHandler<S, K, R> where K : T where E : R
         {
-            Action<S, K, R> _delegate;
+            Action<S, K, E> _delegate;
             bool _successFilter;
 
-            public DelegateStateActionHandlerWrapper(Action<S, K, R> dlg, bool successFilter)
+            public DelegateStateActionHandlerWrapper(Action<S, K, E> dlg, bool successFilter)
             {
                 _delegate = dlg;
                 _successFilter = successFilter;
             }
 
-            public void Handle(S state, K action, bool success, object result)
+            public void Handle(S state, K action, bool success, R result)
             {
-                if(_successFilter == success && result is R)
+                if(_successFilter == success && result is E)
                 {
-                    _delegate(state, action, (R)result);
+                    _delegate(state, action, (E)result);
                 }
             }
         }
 
-        class GeneralDelegateStateActionHandlerWrapper<K, R> : IStateValidatedActionHandler<S, K, object> where K : T
+        class GeneralDelegateStateActionHandlerWrapper<K, E> : IStateValidatedActionHandler<S, K, R> where K : T where E : R
         {
-            Action<S, K, bool, R> _delegate;
+            Action<S, K, bool, E> _delegate;
 
-            public GeneralDelegateStateActionHandlerWrapper(Action<S, K, bool, R> dlg)
+            public GeneralDelegateStateActionHandlerWrapper(Action<S, K, bool, E> dlg)
             {
                 _delegate = dlg;
             }
 
-            public void Handle(S state, K action, bool success, object result)
+            public void Handle(S state, K action, bool success, R result)
             {
-                if(result is R)
+                if(result is E)
                 {
-                    _delegate(state, action, success, (R)result);
+                    _delegate(state, action, success, (E)result);
                 }
             }
         }
@@ -452,19 +452,19 @@ namespace SocialPoint.Lifecycle
         {
             void Register(object key, object obj);
             void Unregister(object key);
-            bool Validate(S state, object action, out object result);
+            bool Validate(S state, object action, out R result);
         }
 
         class TypeValidator<K> : ITypeValidator
         {
-            Dictionary<object, IStateActionValidator<S, K, object>> _validators = new Dictionary<object, IStateActionValidator<S, K, object>>();
+            Dictionary<object, IStateActionValidator<S, K, R>> _validators = new Dictionary<object, IStateActionValidator<S, K, R>>();
 
             public void Register(object key, object obj)
             {
-                var validatork = obj as IStateActionValidator<S, K, object>;
-                if(validatork != null)
+                var validator = obj as IStateActionValidator<S, K, R>;
+                if(validator != null)
                 {
-                    _validators.Add(key, validatork);
+                    _validators.Add(key, validator);
                 }
             }
 
@@ -473,9 +473,9 @@ namespace SocialPoint.Lifecycle
                 _validators.Remove(obj);
             }
 
-            public bool Validate(S state, object action, out object result)
+            public bool Validate(S state, object action, out R result)
             {
-                result = null;
+                result = default(R);
                 if(!(action is K))
                 {
                     return true;
@@ -504,19 +504,19 @@ namespace SocialPoint.Lifecycle
         {
             void Register(object key, object obj);
             void Unregister(object key);
-            bool Handle(S state, object action, bool success, object result);
+            bool Handle(S state, object action, bool success, R result);
         }
 
         class TypeHandler<K> : ITypeHandler
         {
-            Dictionary<object, IStateValidatedActionHandler<S, K, object>> _handlers = new Dictionary<object, IStateValidatedActionHandler<S, K, object>>();
+            Dictionary<object, IStateValidatedActionHandler<S, K, R>> _handlers = new Dictionary<object, IStateValidatedActionHandler<S, K, R>>();
 
             public void Register(object key, object obj)
             {
-                var handlerk = obj as IStateValidatedActionHandler<S, K, object>;
-                if(handlerk != null)
+                var handler = obj as IStateValidatedActionHandler<S, K, R>;
+                if(handler != null)
                 {
-                    _handlers.Add(key, handlerk);
+                    _handlers.Add(key, handler);
                 }
             }
 
@@ -525,7 +525,7 @@ namespace SocialPoint.Lifecycle
                 _handlers.Remove(key);
             }
 
-            public bool Handle(S state, object action, bool success, object result)
+            public bool Handle(S state, object action, bool success, R result)
             {
                 if(!(action is K))
                 {
@@ -575,25 +575,25 @@ namespace SocialPoint.Lifecycle
 
         public bool Process(T action)
         {
-            object result;
+            R result;
             return Process(action, out result);
         }
 
         public bool Process(S state, T action)
         {
-            object result;
+            R result;
             return Process(state, action, out result);
         }
 
-        public bool Process(T action, out object result)
+        public bool Process(T action, out R result)
         {
             var state = default(S);
             return Process(state, action, out result);
         }
 
-        public bool Validate(S state, T action, out object result)
+        public bool Validate(S state, T action, out R result)
         {
-            result = null;
+            result = default(R);
             var success = true;
             if(DerivedActionSupport)
             {
@@ -622,7 +622,7 @@ namespace SocialPoint.Lifecycle
             return success;
         }
 
-        public bool Process(S state, T action, out object result)
+        public bool Process(S state, T action, out R result)
         {
             var success = Validate(state, action, out result);
             var handled = false;
@@ -712,15 +712,15 @@ namespace SocialPoint.Lifecycle
             _validators.Remove(typeof(K));
         }
 
-        public void RegisterHandler<K, R>(IValidatedActionHandler<K, R> handler) where K : T
+        public void RegisterHandler<K, E>(IValidatedActionHandler<K, E> handler) where K : T where E : R
         {
             if(handler != null)
             {
-                DoRegisterHandler<K>(handler, new ValidatedActionHandlerWrapper<K, R>(handler));
+                DoRegisterHandler<K>(handler, new ValidatedActionHandlerWrapper<K, E>(handler));
             }
         }
 
-        public void UnregisterHandler<K, R>(IValidatedActionHandler<K, R> handler) where K : T
+        public void UnregisterHandler<K, E>(IValidatedActionHandler<K, E> handler) where K : T where E : R
         {
             if(handler != null)
             {
@@ -728,28 +728,28 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        public void RegisterHandler<K, R>(IResultActionHandler<K, R> handler) where K : T
+        public void RegisterHandler<K, E>(IResultActionHandler<K, E> handler) where K : T where E : R
         {
-            RegisterSuccessHandler<K, R>(handler);
+            RegisterSuccessHandler<K, E>(handler);
         }
 
-        public void RegisterSuccessHandler<K, R>(IResultActionHandler<K, R> handler) where K : T
-        {
-            if(handler != null)
-            {
-                DoRegisterHandler<K>(handler, new ResultActionHandlerWrapper<K, R>(handler, true));
-            }
-        }
-
-        public void RegisterFailureHandler<K, R>(IResultActionHandler<K, R> handler) where K : T
+        public void RegisterSuccessHandler<K, E>(IResultActionHandler<K, E> handler) where K : T where E : R
         {
             if(handler != null)
             {
-                DoRegisterHandler<K>(handler, new ResultActionHandlerWrapper<K, R>(handler, false));
+                DoRegisterHandler<K>(handler, new ResultActionHandlerWrapper<K, E>(handler, true));
             }
         }
 
-        public void UnregisterHandler<K, R>(IResultActionHandler<K, R> handler) where K : T
+        public void RegisterFailureHandler<K, E>(IResultActionHandler<K, E> handler) where K : T where E : R
+        {
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new ResultActionHandlerWrapper<K, E>(handler, false));
+            }
+        }
+
+        public void UnregisterHandler<K, E>(IResultActionHandler<K, E> handler) where K : T where E : R
         {
             DoUnregisterHandler<K>(handler);
         }
@@ -806,41 +806,41 @@ namespace SocialPoint.Lifecycle
             DoUnregisterHandler<K>(handler);
         }
 
-        public void RegisterResultHandler<K, R>(Action<K, R> handler) where K : T
+        public void RegisterResultHandler<K, E>(Action<K, E> handler) where K : T where E : R
         {
-            RegisterSuccessResultHandler<K, R>(handler);
+            RegisterSuccessResultHandler<K, E>(handler);
         }
 
-        public void RegisterSuccessResultHandler<K, R>(Action<K, R> handler) where K : T
-        {
-            if(handler != null)
-            {
-                DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K, R>(handler, true));
-            }
-        }
-
-        public void RegisterFailureResultHandler<K, R>(Action<K, R> handler) where K : T
+        public void RegisterSuccessResultHandler<K, E>(Action<K, E> handler) where K : T where E : R
         {
             if(handler != null)
             {
-                DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K, R>(handler, false));
+                DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K, E>(handler, true));
             }
         }
 
-        public void UnregisterResultHandler<K, R>(Action<K, R> handler) where K : T
+        public void RegisterFailureResultHandler<K, E>(Action<K, E> handler) where K : T where E : R
+        {
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new DelegateActionHandlerWrapper<K, E>(handler, false));
+            }
+        }
+
+        public void UnregisterResultHandler<K, E>(Action<K, E> handler) where K : T where E : R
         {
             DoUnregisterHandler<K>(handler);
         }
 
-        public void RegisterResultHandler<K, R>(Action<K, bool, R> handler) where K : T
+        public void RegisterResultHandler<K, E>(Action<K, bool, E> handler) where K : T where E : R
         {
             if(handler != null)
             {
-                DoRegisterHandler<K>(handler, new GeneralDelegateActionHandlerWrapper<K, R>(handler));
+                DoRegisterHandler<K>(handler, new GeneralDelegateActionHandlerWrapper<K, E>(handler));
             }
         }
 
-        public void UnregisterResultHandler<K, R>(Action<K, bool, R> handler) where K : T
+        public void UnregisterResultHandler<K, E>(Action<K, bool, E> handler) where K : T where E : R
         {
             DoUnregisterHandler<K>(handler);
         }
@@ -858,15 +858,15 @@ namespace SocialPoint.Lifecycle
             DoUnregisterValidator<K>(validator);
         }
 
-        public void RegisterValidator<K, R>(IActionValidator<K, R> validator) where K : T
+        public void RegisterValidator<K, E>(IActionValidator<K, E> validator) where K : T where E : R
         {
             if(validator != null)
             {
-                DoRegisterValidator<K>(validator, new ActionValidatorWrapper<K, R>(validator));
+                DoRegisterValidator<K>(validator, new ActionValidatorWrapper<K, E>(validator));
             }
         }
 
-        public void UnregisterValidator<K, R>(IActionValidator<K, R> validator) where K : T
+        public void UnregisterValidator<K, E>(IActionValidator<K, E> validator) where K : T where E : R
         {
             DoUnregisterValidator<K>(validator);
         }
@@ -884,54 +884,54 @@ namespace SocialPoint.Lifecycle
             DoUnregisterValidator<K>(validator);
         }
 
-        public void RegisterValidator<K, R>(ActionValidatorFunc<K, R> validator) where K : T
+        public void RegisterValidator<K, E>(ActionValidatorFunc<K, E> validator) where K : T where E : R
         {
             if(validator != null)
             {
-                DoRegisterValidator<K>(validator, new DelegateActionValidatorWrapper<K, R>(validator));
+                DoRegisterValidator<K>(validator, new DelegateActionValidatorWrapper<K, E>(validator));
             }
         }
 
-        public void UnregisterValidator<K, R>(ActionValidatorFunc<K, R> validator) where K : T
+        public void UnregisterValidator<K, E>(ActionValidatorFunc<K, E> validator) where K : T where E : R
         {
             DoUnregisterValidator<K>(validator);
         }
 
-        public void RegisterHandler<K, R>(IStateValidatedActionHandler<S, K, R> handler) where K : T
+        public void RegisterHandler<K, E>(IStateValidatedActionHandler<S, K, E> handler) where K : T where E : R
         {
             if(handler != null)
             {
-                DoRegisterHandler<K>(handler, new StateValidatedActionHandlerWrapper<K, R>(handler));
+                DoRegisterHandler<K>(handler, new StateValidatedActionHandlerWrapper<K, E>(handler));
             }
         }
 
-        public void UnregisterHandler<K, R>(IStateValidatedActionHandler<S, K, R> handler) where K : T
+        public void UnregisterHandler<K, E>(IStateValidatedActionHandler<S, K, E> handler) where K : T where E : R
         {
             DoUnregisterHandler<K>(handler);
         }
 
-        public void RegisterHandler<K, R>(IStateResultActionHandler<S, K, R> handler) where K : T
+        public void RegisterHandler<K, E>(IStateResultActionHandler<S, K, E> handler) where K : T where E : R
         {
-            RegisterSuccessHandler<K, R>(handler);
+            RegisterSuccessHandler<K, E>(handler);
         }
 
-        public void RegisterSuccessHandler<K, R>(IStateResultActionHandler<S, K, R> handler) where K : T
-        {
-            if(handler != null)
-            {
-                DoRegisterHandler<K>(handler, new StateResultActionHandlerWrapper<K, R>(handler, true));
-            }
-        }
-
-        public void RegisterFailureHandler<K, R>(IStateResultActionHandler<S, K, R> handler) where K : T
+        public void RegisterSuccessHandler<K, E>(IStateResultActionHandler<S, K, E> handler) where K : T where E : R
         {
             if(handler != null)
             {
-                DoRegisterHandler<K>(handler, new StateResultActionHandlerWrapper<K, R>(handler, false));
+                DoRegisterHandler<K>(handler, new StateResultActionHandlerWrapper<K, E>(handler, true));
             }
         }
 
-        public void UnregisterHandler<K, R>(IStateResultActionHandler<S, K, R> handler) where K : T
+        public void RegisterFailureHandler<K, E>(IStateResultActionHandler<S, K, E> handler) where K : T where E : R
+        {
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new StateResultActionHandlerWrapper<K, E>(handler, false));
+            }
+        }
+
+        public void UnregisterHandler<K, E>(IStateResultActionHandler<S, K, E> handler) where K : T where E : R
         {
             DoUnregisterHandler<K>(handler);
         }
@@ -988,41 +988,41 @@ namespace SocialPoint.Lifecycle
             DoUnregisterHandler<K>(handler);
         }
 
-        public void RegisterHandler<K, R>(Action<S, K, R> handler) where K : T
+        public void RegisterHandler<K, E>(Action<S, K, E> handler) where K : T where E : R
         {
-            RegisterSuccessHandler<K, R>(handler);
+            RegisterSuccessHandler<K, E>(handler);
         }
 
-        public void RegisterSuccessHandler<K, R>(Action<S, K, R> handler) where K : T
-        {
-            if(handler != null)
-            {
-                DoRegisterHandler<K>(handler, new DelegateStateActionHandlerWrapper<K, R>(handler, true));
-            }
-        }
-
-        public void RegisterFailureHandler<K, R>(Action<S, K, R> handler) where K : T
+        public void RegisterSuccessHandler<K, E>(Action<S, K, E> handler) where K : T where E : R
         {
             if(handler != null)
             {
-                DoRegisterHandler<K>(handler, new DelegateStateActionHandlerWrapper<K, R>(handler, false));
+                DoRegisterHandler<K>(handler, new DelegateStateActionHandlerWrapper<K, E>(handler, true));
             }
         }
 
-        public void UnregisterHandler<K, R>(Action<S, K, R> handler) where K : T
+        public void RegisterFailureHandler<K, E>(Action<S, K, E> handler) where K : T where E : R
+        {
+            if(handler != null)
+            {
+                DoRegisterHandler<K>(handler, new DelegateStateActionHandlerWrapper<K, E>(handler, false));
+            }
+        }
+
+        public void UnregisterHandler<K, E>(Action<S, K, E> handler) where K : T where E : R
         {
             DoUnregisterHandler<K>(handler);
         }
 
-        public void RegisterHandler<K, R>(Action<S, K, bool, R> handler) where K : T
+        public void RegisterHandler<K, E>(Action<S, K, bool, E> handler) where K : T where E : R
         {
             if(handler != null)
             {
-                DoRegisterHandler<K>(handler, new GeneralDelegateStateActionHandlerWrapper<K, R>(handler));
+                DoRegisterHandler<K>(handler, new GeneralDelegateStateActionHandlerWrapper<K, E>(handler));
             }
         }
 
-        public void UnregisterHandler<K, R>(Action<S, K, bool, R> handler) where K : T
+        public void UnregisterHandler<K, E>(Action<S, K, bool, E> handler) where K : T where E : R
         {
             DoUnregisterHandler<K>(handler);
         }
@@ -1040,15 +1040,15 @@ namespace SocialPoint.Lifecycle
             DoUnregisterValidator<K>(validator);
         }
 
-        public void RegisterValidator<K, R>(IStateActionValidator<S, K, R> validator) where K : T
+        public void RegisterValidator<K, E>(IStateActionValidator<S, K, E> validator) where K : T where E : R
         {
             if(validator != null)
             {
-                DoRegisterValidator<K>(validator, new StateActionValidatorWrapper<K, R>(validator));
+                DoRegisterValidator<K>(validator, new StateActionValidatorWrapper<K, E>(validator));
             }
         }
 
-        public void UnregisterValidator<K, R>(IStateActionValidator<S, K, R> validator) where K : T
+        public void UnregisterValidator<K, E>(IStateActionValidator<S, K, E> validator) where K : T where E : R
         {
             DoUnregisterValidator<K>(validator);
         }
@@ -1066,26 +1066,26 @@ namespace SocialPoint.Lifecycle
             DoUnregisterValidator<K>(validator);
         }
 
-        public void RegisterValidator<K, R>(ActionValidatorFunc<S, K, R> validator) where K : T
+        public void RegisterValidator<K, E>(ActionValidatorFunc<S, K, E> validator) where K : T where E : R
         {
             if(validator != null)
             {
-                DoRegisterValidator<K>(validator, new DelegateStateActionValidatorWrapper<K, R>(validator));
+                DoRegisterValidator<K>(validator, new DelegateStateActionValidatorWrapper<K, E>(validator));
             }
         }
 
-        public void UnregisterValidator<K, R>(ActionValidatorFunc<S, K, R> validator) where K : T
+        public void UnregisterValidator<K, E>(ActionValidatorFunc<S, K, E> validator) where K : T where E : R
         {
             DoUnregisterValidator<K>(validator);
         }
 
     }
 
-    public class ActionProcessor<K> : ActionProcessor<K, object>
+    public class ActionProcessor<K> : ActionProcessor<K, object, object>
     {
     }
 
-    public class StateActionProcessor<S> : ActionProcessor<object, S>
+    public class StateActionProcessor<S> : ActionProcessor<object, S, object>
     {
     }
 
