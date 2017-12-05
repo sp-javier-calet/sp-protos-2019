@@ -166,8 +166,13 @@ namespace SocialPoint.Hardware
 #if UNITY_IOS
                     if(ScreenSize.x == 2436f && ScreenSize.y == 1125f)
                     {
-                        // IphoneX resolution
+                        // IphoneX resolution in landscape mode
                         _safeAreaRectSize = new Rect(132f, 63f, 2172f, 1062f);
+                    }
+                    else if(ScreenSize.x == 1125f && ScreenSize.y == 2436f)
+                    {
+                        // IphoneX resolution in portrait mode
+                        _safeAreaRectSize = new Rect(0f, 102f, 1125f, 2202f);
                     }
                     else
                     {

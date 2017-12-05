@@ -2,6 +2,7 @@
 using SocialPoint.Hardware;
 using UnityEngine;
 using SocialPoint.Dependency;
+using SocialPoint.Base;
 
 namespace SocialPoint.GUIControl
 {
@@ -16,48 +17,56 @@ namespace SocialPoint.GUIControl
 
         public bool ShowGizmos;
 
+        Rect _screenRect;
+        Rect _gizmoRect;
+        Texture _texture;
+
         IDeviceInfo _deviceInfo;
         IAttrStorage _storage;
-        Texture _texture;
 
         void Start()
         {
             _deviceInfo = Services.Instance.Resolve<IDeviceInfo>();
-            if(_deviceInfo != null)
-            {
-                ApplySafeArea(_deviceInfo.SafeAreaRectSize);
-            }
-
             _storage = Services.Instance.Resolve<IAttrStorage>(kPersistentTag);
+
+            _screenRect = _deviceInfo == null ? new Rect(0f, 0f, Screen.width, Screen.height) : new Rect(0f, 0f, _deviceInfo.ScreenSize.x, _deviceInfo.ScreenSize.y);
+            ApplyGizmoSafeArea(_screenRect);
+
+            ApplySafeArea();
         }
 
+        void ApplySafeArea()
+        {
+            ApplySafeArea(GetSafeAreaRect());
+        }
+ 
         public void ApplySafeArea(Rect rect)
         {
             if(rect != Rect.zero)
             {
-                #if NGUI
-
-                #else
+#if NGUI
+                Log.w("We have not NGUI libraries in base game");
+#else
                 var anchorMin = rect.position;
                 var anchorMax = rect.position + rect.size;
-                anchorMin.x /= Screen.width;
-                anchorMin.y /= Screen.height;
-                anchorMax.x /= Screen.width;
-                anchorMax.y /= Screen.height;
+                anchorMin.x /= _screenRect.width;
+                anchorMin.y /= _screenRect.height;
+                anchorMax.x /= _screenRect.width;
+                anchorMax.y /= _screenRect.height;
 
                 var rectTransform = GetComponent<RectTransform>();
                 rectTransform.anchorMin = anchorMin;
                 rectTransform.anchorMax = anchorMax;
-                #endif
+#endif
             }
         }
 
-        public Rect GetSafeAreaRect()
+        Rect GetSafeAreaRect()
         {
             float x = 0f;
             float y = 0f;
-            float w = _deviceInfo == null ? Screen.width : _deviceInfo.ScreenSize.x;
-            float h = _deviceInfo == null ? Screen.height : _deviceInfo.ScreenSize.y;
+            float w = _screenRect.width;
+            float h = _screenRect.height;
 
 #if ADMIN_PANEL
             if(_storage != null)
@@ -89,6 +98,10 @@ namespace SocialPoint.GUIControl
                         h = heightAttr.AsValue.ToFloat(); 
                     }
                 }
+                else
+                {
+                    return _deviceInfo.SafeAreaRectSize; 
+                }
             }
             else
             {
@@ -101,23 +114,28 @@ namespace SocialPoint.GUIControl
             return new Rect(x, y, w, h);
         }
             
-        Texture CreateSafeAreaTexture()
+        static Texture CreateSafeAreaTexture()
         {
             // Create a new 2x2 texture ARGB32 (32 bit with alpha) and no mipmaps
             var texture = new Texture2D(2, 2, TextureFormat.ARGB32, false);
 
             // set the pixel values
-            texture.SetPixel(0, 0, new Color(1f, 1f, 1f, 0.5f));
-            texture.SetPixel(1, 0, new Color(1f, 1f, 1f, 0.5f));
-            texture.SetPixel(0, 1, new Color(1f, 1f, 1f, 0.5f));
-            texture.SetPixel(1, 1, new Color(1f, 1f, 1f, 0.5f));
+            texture.SetPixel(0, 0, new Color(1f, 1f, 1f, 0.25f));
+            texture.SetPixel(1, 0, new Color(1f, 1f, 1f, 0.25f));
+            texture.SetPixel(0, 1, new Color(1f, 1f, 1f, 0.25f));
+            texture.SetPixel(1, 1, new Color(1f, 1f, 1f, 0.25f));
 
             // Apply all SetPixel calls
             texture.Apply();
 
             return texture;
         }
-            
+
+        public void ApplyGizmoSafeArea(Rect rect)
+        {
+            _gizmoRect = rect;
+        }
+
         void OnDrawGizmos()
         {
             if(ShowGizmos)
@@ -127,7 +145,7 @@ namespace SocialPoint.GUIControl
                     _texture = CreateSafeAreaTexture();
                 }
 
-                Gizmos.DrawGUITexture(new Rect(132f, 63f, 2172f, 1062f), _texture);
+                Gizmos.DrawGUITexture(_gizmoRect, _texture);
             }
         }
     }

@@ -1,19 +1,31 @@
-﻿using UnityEditor;
+﻿using System;
+using SocialPoint.Base;
 using UnityEngine;
 
 namespace SocialPoint.Utils
 {
-    public static class UnityGameWindowUtils 
+    public static class UnityGameWindowUtils
     {
+        /// <summary>
+        /// Size of the game view cannot be retrieved from Screen.width and Screen.height when the game view is hidden.
+        /// </summary>
+        // summa
         public static Vector2 GetMainGameViewSize()
         {
-            //Creates a game window. Only works if there isn't one already.
-//            EditorApplication.ExecuteMenuItem("Window/Game");
+            Type type = Type.GetType("UnityEditor.GameView,UnityEditor");
+            var methodInfo = type.GetMethod("GetMainGameViewTargetSize", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
 
-            System.Type T = System.Type.GetType("UnityEditor.GameView,UnityEditor");
-            System.Reflection.MethodInfo GetSizeOfMainGameView = T.GetMethod("GetSizeOfMainGameView",System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            System.Object Res = GetSizeOfMainGameView.Invoke(null, null);
-            return (Vector2)Res;
+            Func<Vector2> s_GetSizeOfMainGameView = null;
+            if(methodInfo != null)
+            {
+                s_GetSizeOfMainGameView = (Func<Vector2>)Delegate.CreateDelegate(typeof(Func<Vector2>), methodInfo);
+            }
+            else
+            {
+                Log.w("Unable to get the main game view size function");
+            }
+
+            return s_GetSizeOfMainGameView != null ? s_GetSizeOfMainGameView() : new Vector2(Screen.width, Screen.height);
         }
     }
 }
