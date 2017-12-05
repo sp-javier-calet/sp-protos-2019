@@ -4,22 +4,22 @@ using SocialPoint.Base;
 
 namespace SocialPoint.Lifecycle
 {
-    public partial class ActionProcessor<S, T, R> : IActionProcessor<S, T, R>, IActionHandler<T>, IStateActionHandler<S, T>, IDisposable
+    public partial class EventProcessor<S, T, R> : IEventProcessor<S, T, R>, IEventHandler<T>, IStateEventHandler<S, T>, IDisposable
     {
         interface ITypeValidator
         {
             void Register(object key, object obj);
             bool Unregister(object key);
-            bool Validate(S state, T action, out R result);
+            bool Validate(S state, T ev, out R result);
         }
 
         class TypeValidator<K> : ITypeValidator where K : T
         {
-            Dictionary<object, IStateActionValidator<S, K, R>> _validators = new Dictionary<object, IStateActionValidator<S, K, R>>();
+            Dictionary<object, IStateEventValidator<S, K, R>> _validators = new Dictionary<object, IStateEventValidator<S, K, R>>();
 
             public void Register(object key, object obj)
             {
-                var validator = obj as IStateActionValidator<S, K, R>;
+                var validator = obj as IStateEventValidator<S, K, R>;
                 if(validator != null)
                 {
                     _validators.Add(key, validator);
@@ -31,10 +31,10 @@ namespace SocialPoint.Lifecycle
                 return _validators.Remove(obj);
             }
 
-            public bool Validate(S state, T action, out R result)
+            public bool Validate(S state, T ev, out R result)
             {
                 result = default(R);
-                if(!(action is K))
+                if(!(ev is K))
                 {
                     return true;
                 }
@@ -42,12 +42,12 @@ namespace SocialPoint.Lifecycle
                 {
                     return true;
                 }
-                var kaction = (K)action;
+                var kev = (K)ev;
                 var itr = _validators.GetEnumerator();
                 var success = true;
                 while(itr.MoveNext())
                 {
-                    if(!itr.Current.Value.Validate(state, kaction, out result))
+                    if(!itr.Current.Value.Validate(state, kev, out result))
                     {
                         success = false;
                         break;
@@ -67,11 +67,11 @@ namespace SocialPoint.Lifecycle
 
         class TypeHandler<K> : ITypeHandler where K : T
         {
-            Dictionary<object, IStateValidatedActionHandler<S, K, R>> _handlers = new Dictionary<object, IStateValidatedActionHandler<S, K, R>>();
+            Dictionary<object, IStateValidatedEventHandler<S, K, R>> _handlers = new Dictionary<object, IStateValidatedEventHandler<S, K, R>>();
 
             public void Register(object key, object obj)
             {
-                var handler = obj as IStateValidatedActionHandler<S, K, R>;
+                var handler = obj as IStateValidatedEventHandler<S, K, R>;
                 if(handler != null)
                 {
                     _handlers.Add(key, handler);
@@ -83,9 +83,9 @@ namespace SocialPoint.Lifecycle
                 return _handlers.Remove(key);
             }
 
-            public bool Handle(S state, T action, bool success, R result)
+            public bool Handle(S state, T ev, bool success, R result)
             {
-                if(!(action is K))
+                if(!(ev is K))
                 {
                     return false;
                 }
@@ -93,11 +93,11 @@ namespace SocialPoint.Lifecycle
                 {
                     return false;
                 }
-                var kaction = (K)action;
+                var kev = (K)ev;
                 var itr = _handlers.GetEnumerator();
                 while(itr.MoveNext())
                 {
-                    itr.Current.Value.Handle(state, kaction, success, result);
+                    itr.Current.Value.Handle(state, kev, success, result);
                 }
                 itr.Dispose();
                 return true;
@@ -107,9 +107,9 @@ namespace SocialPoint.Lifecycle
         Dictionary<Type, ITypeValidator> _validators;
         Dictionary<Type, ITypeHandler> _handlers;
 
-        public bool DerivedActionSupport = false;
+        public bool DerivedEventSupport = false;
 
-        public ActionProcessor()
+        public EventProcessor()
         {
             _validators = new Dictionary<Type, ITypeValidator>();
             _handlers = new Dictionary<Type, ITypeHandler>();
@@ -121,46 +121,46 @@ namespace SocialPoint.Lifecycle
             _handlers.Clear();
         }
 
-        void IActionHandler<T>.Handle(T action)
+        void IEventHandler<T>.Handle(T ev)
         {
-            Process(action);
+            Process(ev);
         }
 
-        void IStateActionHandler<S, T>.Handle(S state, T action)
+        void IStateEventHandler<S, T>.Handle(S state, T ev)
         {
-            Process(state, action);
+            Process(state, ev);
         }
 
-        public bool Process(T action)
-        {
-            R result;
-            return Process(action, out result);
-        }
-
-        public bool Process(S state, T action)
+        public bool Process(T ev)
         {
             R result;
-            return Process(state, action, out result);
+            return Process(ev, out result);
         }
 
-        public bool Process(T action, out R result)
+        public bool Process(S state, T ev)
+        {
+            R result;
+            return Process(state, ev, out result);
+        }
+
+        public bool Process(T ev, out R result)
         {
             var state = default(S);
-            return Process(state, action, out result);
+            return Process(state, ev, out result);
         }
 
-        public bool Process(S state, T action, out R result)
+        public bool Process(S state, T ev, out R result)
         {
-            var success = Validate(state, action, out result);
+            var success = Validate(state, ev, out result);
             var handled = false;
-            if(DerivedActionSupport)
+            if(DerivedEventSupport)
             {
                 var itr = _handlers.GetEnumerator();
                 while(itr.MoveNext())
                 {
-                    if(itr.Current.Key.IsAssignableFrom(action.GetType()))
+                    if(itr.Current.Key.IsAssignableFrom(ev.GetType()))
                     {
-                        if(itr.Current.Value.Handle(state, action, success, result))
+                        if(itr.Current.Value.Handle(state, ev, success, result))
                         {
                             handled = true;
                         }
@@ -171,26 +171,26 @@ namespace SocialPoint.Lifecycle
             else
             {
                 ITypeHandler handler;
-                if(_handlers.TryGetValue(action.GetType(), out handler))
+                if(_handlers.TryGetValue(ev.GetType(), out handler))
                 {
-                    handled = handler.Handle(state, action, success, result);
+                    handled = handler.Handle(state, ev, success, result);
                 }
             }
             return handled;
         }
 
-        bool Validate(S state, T action, out R result)
+        bool Validate(S state, T ev, out R result)
         {
             result = default(R);
             var success = true;
-            if(DerivedActionSupport)
+            if(DerivedEventSupport)
             {
                 var itr = _validators.GetEnumerator();
                 while(itr.MoveNext())
                 {
-                    if(itr.Current.Key.IsAssignableFrom(action.GetType()))
+                    if(itr.Current.Key.IsAssignableFrom(ev.GetType()))
                     {
-                        if(!itr.Current.Value.Validate(state, action, out result))
+                        if(!itr.Current.Value.Validate(state, ev, out result))
                         {
                             success = false;
                             break;
@@ -202,15 +202,15 @@ namespace SocialPoint.Lifecycle
             else
             {
                 ITypeValidator validator;
-                if(_validators.TryGetValue(action.GetType(), out validator))
+                if(_validators.TryGetValue(ev.GetType(), out validator))
                 {
-                    success = validator.Validate(state, action, out result);
+                    success = validator.Validate(state, ev, out result);
                 }
             }
             return success;
         }
 
-        public void DoRegisterHandler<K>(object key, IStateValidatedActionHandler<S, K, R> obj) where K : T
+        public void DoRegisterHandler<K>(object key, IStateValidatedEventHandler<S, K, R> obj) where K : T
         {
             var type = typeof(K);
             ITypeHandler typeHandler;
@@ -233,7 +233,7 @@ namespace SocialPoint.Lifecycle
             return false;
         }
 
-        public void DoRegisterValidator<K>(object key, IStateActionValidator<S, K, R> validator) where K : T
+        public void DoRegisterValidator<K>(object key, IStateEventValidator<S, K, R> validator) where K : T
         {
             var type = typeof(K);
             ITypeValidator typeValidator;
@@ -273,15 +273,15 @@ namespace SocialPoint.Lifecycle
         }
     }
 
-    public class ActionProcessor<K> : ActionProcessor<object, K, object>
+    public class EventProcessor<K> : EventProcessor<object, K, object>
     {
     }
 
-    public class StateActionProcessor<S> : ActionProcessor<S, object, object>
+    public class StateEventProcessor<S> : EventProcessor<S, object, object>
     {
     }
 
-    public class ActionProcessor : ActionProcessor<object>
+    public class EventProcessor : EventProcessor<object>
     {
     }
 

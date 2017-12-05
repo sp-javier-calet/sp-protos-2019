@@ -28,7 +28,7 @@ namespace SocialPoint.ScriptEvents
 
     public sealed class EventDispatcher : IEventDispatcher
     {
-        class DefaultListenerValidator : IStateActionValidator<object, object, object>
+        class DefaultListenerValidator : IStateEventValidator<object, object, object>
         {
             Action<object> _action;
 
@@ -48,13 +48,13 @@ namespace SocialPoint.ScriptEvents
             }
         }
 
-        readonly ActionProcessor _processor;
+        readonly EventProcessor _processor;
         readonly List<IEventsBridge> _bridges;
 
         public EventDispatcher()
         {
-            _processor = new ActionProcessor();
-            _processor.DerivedActionSupport = true;
+            _processor = new EventProcessor();
+            _processor.DerivedEventSupport = true;
             _bridges = new List<IEventsBridge>();
         }
 
