@@ -30,9 +30,6 @@ namespace SocialPoint.ScriptEvents
             Container.Rebind<IAttrObjParser<IScriptCondition>>().ToMethod<FamilyParser<IScriptCondition>>(CreateScriptConditionParser);
             Container.Rebind<IAttrObjParser<ScriptModel>>().ToMethod<ScriptModelParser>(CreateScriptModelParser);
 
-            Container.Rebind<IEventDispatcher>().ToSingle<EventDispatcher>();
-            Container.Rebind<IScriptEventDispatcher>().ToMethod<ScriptEventDispatcher>(CreateScriptEventDispatcher);
-
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelScriptEvents>(CreateAdminPanel);
             #endif
@@ -46,12 +43,6 @@ namespace SocialPoint.ScriptEvents
                 Container.Resolve<IAttrObjParser<ScriptModel>>());
         }
         #endif
-
-        ScriptEventDispatcher CreateScriptEventDispatcher()
-        {
-            return new ScriptEventDispatcher(
-                Container.Resolve<IEventDispatcher>());
-        }
 
         ScriptBridge CreateScriptBridge()
         {
@@ -74,8 +65,9 @@ namespace SocialPoint.ScriptEvents
 
         public void Initialize()
         {
+            var dispatcher = new EventDispatcher();
+            var scriptDispatcher = new ScriptEventDispatcher(dispatcher);
             {
-                var dispatcher = Container.Resolve<IEventDispatcher>();
                 var bridges = Container.ResolveList<IEventsBridge>();
                 for(var i = 0; i < bridges.Count; i++)
                 {
@@ -83,11 +75,10 @@ namespace SocialPoint.ScriptEvents
                 }
             }
             {
-                var dispatcher = Container.Resolve<IScriptEventDispatcher>();
                 var bridges = Container.ResolveList<IScriptEventsBridge>();
                 for(var i = 0; i < bridges.Count; i++)
                 {
-                    dispatcher.AddBridge(bridges[i]);
+                    scriptDispatcher.AddBridge(bridges[i]);
                 }
             }
         }
