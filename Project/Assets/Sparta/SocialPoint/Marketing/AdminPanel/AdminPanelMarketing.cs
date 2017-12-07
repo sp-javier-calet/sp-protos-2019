@@ -2,6 +2,10 @@
 
 using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
+using SocialPoint.Alert;
+using SocialPoint.AppEvents;
+using SocialPoint.Hardware;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Marketing
 {
@@ -9,11 +13,19 @@ namespace SocialPoint.Marketing
     {
         readonly IMarketingAttributionManager _manager;
         readonly IAttrStorage _storage;
+        readonly IDeviceInfo _deviceInfo;
+        readonly INativeUtils _nativeUtils;
+        readonly IAppEvents _appEvents;
+        readonly IAlertView _alertPrototype;
 
-        public AdminPanelMarketing(IMarketingAttributionManager manager, IAttrStorage persistentStorage)
+        public AdminPanelMarketing(IMarketingAttributionManager manager, IAttrStorage persistentStorage, IDeviceInfo deviceInfo, INativeUtils nativeUtils, IAppEvents appEvents, IAlertView alertPrototype)
         {
             _manager = manager;
             _storage = persistentStorage;
+            _deviceInfo = deviceInfo;
+            _nativeUtils = nativeUtils;
+            _appEvents = appEvents;
+            _alertPrototype = alertPrototype;
         }
 
         #region IAdminPanelConfigurer implementation
@@ -31,6 +43,10 @@ namespace SocialPoint.Marketing
         {
             layout.CreateLabel("Marketing");
             layout.CreateMargin();
+
+            CreateAppsFlyerEntry(layout);
+            layout.CreateMargin();
+
             layout.CreateToggleButton("Debug Mode", _manager.DebugMode, debug => {
                 _manager.DebugMode = debug;
             });
@@ -44,6 +60,14 @@ namespace SocialPoint.Marketing
         }
 
         #endregion
+
+        void CreateAppsFlyerEntry(AdminPanelLayout layout)
+        {
+            var appsFlyerTracker = _manager.GetTracker(SocialPointAppsFlyer.TrackerName) as SocialPointAppsFlyer;
+            layout.CreateOpenPanelButton("Apps Flyer", 
+                new AdminPanelMarketingAppsFlyer(appsFlyerTracker, _deviceInfo, _nativeUtils, _appEvents, _alertPrototype), 
+                /*enabled*/(appsFlyerTracker != null));
+        }
     }
 }
 
