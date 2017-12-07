@@ -3,7 +3,7 @@
   "group": "Mediation/UnityAds",
   "patches": [],
   "libs": [
-    "Fyber/iOS/mediation/UnityAds/Fyber_UnityAds_1.5.5-r1.embeddedframework/Fyber_UnityAds_1.5.5-r1.framework:<group>",
+    "Plugins/Sparta/External/Fyber/iOS/mediation/UnityAds/1.5.5-r1.framework:<group>",
   ],
   "librarysearchpaths": [],
   "frameworks": [
@@ -15,12 +15,12 @@
     "SystemConfiguration.framework"
   ],
   "frameworksearchpaths": [
-    "Fyber/iOS/mediation/UnityAds/Fyber_UnityAds_1.5.5-r1.embeddedframework/"
+    "Plugins/Sparta/External/Fyber/iOS/mediation/UnityAds/"
   ],
   "headerpaths": [],
   "files": [],
   "folders": [
-    "Fyber/iOS/mediation/UnityAds/Fyber_UnityAds_1.5.5-r1.embeddedframework/Resources"
+    "Plugins/Sparta/External/Fyber/iOS/mediation/UnityAds/Resources"
   ],	
   "excludes": [],
   "linkers": [],

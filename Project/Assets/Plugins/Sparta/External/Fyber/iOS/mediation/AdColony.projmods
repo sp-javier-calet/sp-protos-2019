@@ -4,7 +4,7 @@
   "patches": [],
   "libs": [
     "libz.1.2.5.dylib",
-    "Fyber/iOS/mediation/AdColony/Fyber_AdColony_2.6.1-r1.embeddedframework/Fyber_AdColony_2.6.1-r1.framework:<group>"
+    "Plugins/Sparta/External/Fyber/iOS/mediation/AdColony/Fyber_AdColony_2.6.1-r1.embeddedframework/Fyber_AdColony_2.6.1-r1.framework:<group>"
   ],
   "librarysearchpaths":[],
   "frameworks": [
@@ -25,7 +25,7 @@
     "WebKit.framework:weak",
   ],
   "frameworksearchpaths": [
-    "Fyber/iOS/mediation/AdColony/Fyber_AdColony_2.6.1-r1.embeddedframework/"
+    "Plugins/Sparta/External/Fyber/iOS/mediation/AdColony/Fyber_AdColony_2.6.1-r1.embeddedframework/"
   ],
   "headerpaths": [
   ],
