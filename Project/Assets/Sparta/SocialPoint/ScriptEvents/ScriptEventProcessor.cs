@@ -260,7 +260,6 @@ namespace SocialPoint.ScriptEvents
         {
             Attr args = null;
             string name = null;
-
             if(ev is ScriptEvent)
             {
                 var sev = (ScriptEvent)ev;
@@ -283,10 +282,7 @@ namespace SocialPoint.ScriptEvents
                     }
                 }
             }
-            if(args != null && !string.IsNullOrEmpty(name))
-            {
-                Handle(name, args);
-            }
+            Handle(name, args);
         }
 
         void Handle(string name, Attr args)
