@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SocialPoint.Attributes;
+using SocialPoint.Lifecycle;
 
 namespace SocialPoint.ScriptEvents
 {
@@ -66,34 +67,87 @@ namespace SocialPoint.ScriptEvents
     public interface IScriptCondition
     {
         bool Matches(string name, Attr arguments);
-    }
-
-    public struct ScriptEventAction
-    {
-        public string Name;
-        public Attr Arguments;
-    }
+    }        
 
     public sealed class ScriptEventDispatcher : IScriptEventDispatcher
     {
-        public struct ConditionListener
+        public struct ScriptEventData
         {
-            public IScriptCondition Condition;
-            public Action<string, Attr> Action;
+            public string Name;
+            public Attr Arguments;
         }
 
-        readonly Dictionary<string, List<Action<Attr>>> _listeners = new Dictionary<string, List<Action<Attr>>>();
-        readonly List<Action<string, Attr>> _defaultListeners = new List<Action<string, Attr>>();
-        readonly List<IScriptEventParser> _parsers = new List<IScriptEventParser>();
-        readonly List<IScriptEventSerializer> _serializers = new List<IScriptEventSerializer>();
-        readonly List<IScriptEventsBridge> _bridges = new List<IScriptEventsBridge>();
-        readonly List<ConditionListener> _conditionListeners = new List<ConditionListener>();
-        IEventDispatcher _dispatcher;
+        class EventHandlerWrapper : IStateValidatedEventHandler<ScriptEventData>
+        {
+            readonly string _name;
+            readonly Action<Attr> _action;
 
-        public event Action<Exception> ExceptionThrown;
+            public EventHandlerWrapper(string name, Action<Attr> action)
+            {
+                _name = name;
+                _action = action;
+            }
+
+            public void Handle(object state, ScriptEventData ev, bool success, object result)
+            {
+                if(_action != null && _name == ev.Name)
+                {
+                    _action(ev.Arguments);
+                }
+            }
+        }
+
+        class EventHandlerDefaultWrapper : IStateValidatedEventHandler<ScriptEventData>
+        {
+            readonly Action<string, Attr> _action;
+
+            public EventHandlerDefaultWrapper(Action<string, Attr> action)
+            {
+                _action = action;
+            }
+
+            public void Handle(object state, ScriptEventData ev, bool success, object result)
+            {
+                if(_action != null)
+                {
+                    _action(ev.Name, ev.Arguments);
+                }
+            }
+        }
+
+        class EventHandlerConditionWrapper : IStateValidatedEventHandler<ScriptEventData>
+        {
+            readonly IScriptCondition _condition;
+            readonly Action<string, Attr> _action;
+
+            public EventHandlerConditionWrapper(IScriptCondition condition, Action<string, Attr> action)
+            {
+                _condition = condition;
+                _action = action;
+            }
+
+            public void Handle(object state, ScriptEventData ev, bool success, object result)
+            {
+                if(_action != null && _condition.Matches(ev.Name, ev.Arguments))
+                {
+                    _action(ev.Name, ev.Arguments);
+                }
+            }
+        }
+
+        readonly EventProcessor<ScriptEventData> _processor;
+
+        readonly List<IScriptEventParser> _parsers;
+        readonly List<IScriptEventSerializer> _serializers;
+        readonly List<IScriptEventsBridge> _bridges;
+        IEventDispatcher _dispatcher;
 
         public ScriptEventDispatcher(IEventDispatcher dispatcher)
         {
+            _processor = new EventProcessor<ScriptEventData>();
+            _parsers = new List<IScriptEventParser>();
+            _serializers = new List<IScriptEventSerializer>();
+            _bridges = new List<IScriptEventsBridge>();
             _dispatcher = dispatcher;
             _dispatcher.AddDefaultListener(OnRaised);
         }
@@ -106,27 +160,10 @@ namespace SocialPoint.ScriptEvents
                 var bridge = _bridges[i];
                 bridge.Dispose();
             }
-            Clear();
-        }
-
-        public void Clear()
-        {
-            _listeners.Clear();
-            _defaultListeners.Clear();
+            _processor.Dispose();
             _serializers.Clear();
             _parsers.Clear();
             _bridges.Clear();
-        }
-
-        public void AddBridges(IEnumerable<IScriptEventsBridge> bridges)
-        {
-            var itr = bridges.GetEnumerator();
-            while(itr.MoveNext())
-            {
-                var bridge = itr.Current;
-                AddBridge(bridge);
-            }
-            itr.Dispose();
         }
 
         public void AddBridge(IScriptEventsBridge bridge)
@@ -140,50 +177,27 @@ namespace SocialPoint.ScriptEvents
 
         public void AddListener(string name, Action<Attr> listener)
         {
-            List<Action<Attr>> d;
-            if(!_listeners.TryGetValue(name, out d))
-            {
-                d = new List<Action<Attr>>();
-                _listeners[name] = d;
-            }
-            d.Add(listener);
+            _processor.DoRegisterHandler(listener, new EventHandlerWrapper(name, listener));
         }
 
-        public void AddListener(IScriptCondition condition, Action<string, Attr> action)
+        public void AddListener(IScriptCondition condition, Action<string, Attr> listener)
         {
-            var listener = new ConditionListener{ Condition = condition, Action = action };
-            if(!_conditionListeners.Contains(listener))
-            {
-                _conditionListeners.Add(listener);
-            }
+            _processor.DoRegisterHandler(listener, new EventHandlerConditionWrapper(condition, listener));
         }
 
         public void AddListener(Action<string, Attr> listener)
         {
-            if(!_defaultListeners.Contains(listener))
-            {
-                _defaultListeners.Add(listener);
-            }
+            _processor.DoRegisterHandler(listener, new EventHandlerDefaultWrapper(listener));
         }
 
         public bool RemoveListener(Action<Attr> listener)
         {
-            bool found = false;
-            var itr = _listeners.GetEnumerator();
-            while(itr.MoveNext())
-            {
-                var kvp = itr.Current;
-                found |= kvp.Value.Remove(listener);
-            }
-            itr.Dispose();
-            return found;
+            return _processor.DoUnregisterHandler<ScriptEventData>(listener);
         }
 
         public bool RemoveListener(Action<string, Attr> listener)
         {           
-            bool found = false || _defaultListeners.Remove(listener);
-            found |= _conditionListeners.RemoveAll(l => l.Action == listener) > 0;
-            return found;
+            return _processor.DoUnregisterHandler<ScriptEventData>(listener);
         }
 
         public void AddConverter(IScriptEventConverter converter)
@@ -223,7 +237,7 @@ namespace SocialPoint.ScriptEvents
             {
                 return parser.Parse(args);
             }
-            return new ScriptEventAction {
+            return new ScriptEventData {
                 Name = name,
                 Arguments = args
             };
@@ -246,9 +260,9 @@ namespace SocialPoint.ScriptEvents
         {
             Attr args = null;
             string name = null;
-            if(ev is ScriptEventAction)
+            if(ev is ScriptEventData)
             {
-                var sev = (ScriptEventAction)ev;
+                var sev = (ScriptEventData)ev;
                 name = sev.Name;
                 args = sev.Arguments;
             }
@@ -278,84 +292,10 @@ namespace SocialPoint.ScriptEvents
 
         void OnRaised(string name, Attr args)
         {
-            // default  listeners
-            var ddlgList = new List<Action<string, Attr>>(_defaultListeners);
-            for(int i = 0, ddlgListCount = ddlgList.Count; i < ddlgListCount; i++)
-            {
-                var dlg = ddlgList[i];
-                if(dlg != null)
-                {
-                    try
-                    {
-                        dlg(name, args);
-                    }
-                    catch(Exception ex)
-                    {
-                        if(ExceptionThrown != null)
-                        {
-                            ExceptionThrown(ex);
-                        }
-                        else
-                        {
-                            throw ex;
-                        }
-                    }
-                }
-            }
-            
-            // event listeners
-            List<Action<Attr>> dlgList;
-            if(_listeners.TryGetValue(name, out dlgList))
-            {
-                dlgList = new List<Action<Attr>>(dlgList);
-                for(int i = 0, dlgListCount = dlgList.Count; i < dlgListCount; i++)
-                {
-                    var dlg = dlgList[i];
-                    if(dlg != null)
-                    {
-                        try
-                        {
-                            dlg(args);
-                        }
-                        catch(Exception ex)
-                        {
-                            if(ExceptionThrown != null)
-                            {
-                                ExceptionThrown(ex);
-                            }
-                            else
-                            {
-                                throw ex;
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // condition listeners
-            var cdlgList = new List<ConditionListener>(_conditionListeners);
-            for(int i = 0, cdlgListCount = cdlgList.Count; i < cdlgListCount; i++)
-            {
-                var listener = cdlgList[i];
-                if(listener.Action != null && (listener.Condition == null || listener.Condition.Matches(name, args)))
-                {
-                    try
-                    {
-                        listener.Action(name, args);
-                    }
-                    catch(Exception ex)
-                    {
-                        if(ExceptionThrown != null)
-                        {
-                            ExceptionThrown(ex);
-                        }
-                        else
-                        {
-                            throw ex;
-                        }
-                    }
-                }
-            }
+            _processor.Process(new ScriptEventData {
+                Name = name,
+                Arguments = args
+            });
         }
 
     }

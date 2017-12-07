@@ -19,6 +19,10 @@ namespace SocialPoint.Lifecycle
         void Handle(S state, T ev, bool success, R result);
     }
 
+    public interface IStateValidatedEventHandler<T> : IStateValidatedEventHandler<object, T, object>
+    {
+    }
+
     public interface IStateResultEventHandler<S, T, R>
     {
         void Handle(S state, T ev, R result);

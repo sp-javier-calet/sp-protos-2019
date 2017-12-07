@@ -15,7 +15,9 @@ namespace SocialPoint.Lifecycle
 
         class TypeValidator<K> : ITypeValidator where K : T
         {
-            Dictionary<object, IStateEventValidator<S, K, R>> _validators = new Dictionary<object, IStateEventValidator<S, K, R>>();
+            readonly Dictionary<object, IStateEventValidator<S, K, R>> _validators = new Dictionary<object, IStateEventValidator<S, K, R>>();
+            readonly Dictionary<object, IStateEventValidator<S, K, R>> _tempValidators = new Dictionary<object, IStateEventValidator<S, K, R>>();
+            int _depth;
 
             public void Register(object key, object obj)
             {
@@ -42,9 +44,15 @@ namespace SocialPoint.Lifecycle
                 {
                     return true;
                 }
+                if(_depth == 0)
+                {
+                    _tempValidators.Clear();
+                    _tempValidators.Merge(_validators);
+                }
+                _depth++;
                 var kev = (K)ev;
-                var itr = _validators.GetEnumerator();
                 var success = true;
+                var itr = _tempValidators.GetEnumerator();
                 while(itr.MoveNext())
                 {
                     if(!itr.Current.Value.Validate(state, kev, out result))
@@ -54,6 +62,7 @@ namespace SocialPoint.Lifecycle
                     }
                 }
                 itr.Dispose();
+                _depth--;
                 return success;
             }
         }
@@ -67,7 +76,9 @@ namespace SocialPoint.Lifecycle
 
         class TypeHandler<K> : ITypeHandler where K : T
         {
-            Dictionary<object, IStateValidatedEventHandler<S, K, R>> _handlers = new Dictionary<object, IStateValidatedEventHandler<S, K, R>>();
+            readonly Dictionary<object, IStateValidatedEventHandler<S, K, R>> _handlers = new Dictionary<object, IStateValidatedEventHandler<S, K, R>>();
+            readonly Dictionary<object, IStateValidatedEventHandler<S, K, R>> _tempHandlers = new Dictionary<object, IStateValidatedEventHandler<S, K, R>>();
+            int _depth;
 
             public void Register(object key, object obj)
             {
@@ -89,17 +100,24 @@ namespace SocialPoint.Lifecycle
                 {
                     return false;
                 }
-                if(_handlers.Count == 0)
+                if(_depth == 0)
+                {
+                    _tempHandlers.Clear();
+                    _tempHandlers.Merge(_handlers);
+                }
+                if(_tempHandlers.Count == 0)
                 {
                     return false;
                 }
+                _depth++;
                 var kev = (K)ev;
-                var itr = _handlers.GetEnumerator();
+                var itr = _tempHandlers.GetEnumerator();
                 while(itr.MoveNext())
                 {
                     itr.Current.Value.Handle(state, kev, success, result);
                 }
                 itr.Dispose();
+                _depth--;
                 return true;
             }
         }
