@@ -21,7 +21,7 @@ namespace SocialPoint.ScriptEvents
             _dispatcher.AddListener<TestEvent>(ev => {
                 val = ev.Value;
             });
-            _scriptDispatcher.Raise("test", _testArgs);
+            _scriptProcessor.Process("test", _testArgs);
             Assert.AreEqual(_testEvent.Value, val);
         }
 
@@ -29,10 +29,10 @@ namespace SocialPoint.ScriptEvents
         public void Script_Raise_Calls_Script_Listener()
         {
             Attr val = null;
-            _scriptDispatcher.AddListener("test", args => {
+            _scriptProcessor.RegisterHandler("test", args => {
                 val = (Attr)args.Clone();
             });
-            _scriptDispatcher.Raise("test", _testArgs);
+            _scriptProcessor.Process("test", _testArgs);
             Assert.AreEqual(_testArgs, val);
         }
 
@@ -40,7 +40,7 @@ namespace SocialPoint.ScriptEvents
         public void Raise_Calls_Script_Listener()
         {
             Attr val = null;
-            _scriptDispatcher.AddListener("test", args => {
+            _scriptProcessor.RegisterHandler("test", args => {
                 val = (Attr)args.Clone();
             });
             _dispatcher.Raise(_testEvent);
@@ -52,10 +52,10 @@ namespace SocialPoint.ScriptEvents
         {
             var bridge = Substitute.For<IScriptEventsBridge>();
 			
-            _scriptDispatcher.AddBridge(bridge);
-            _scriptDispatcher.AddBridge(bridge);
+            _scriptProcessor.RegisterBridge(bridge);
+            _scriptProcessor.RegisterBridge(bridge);
 			
-            bridge.Received(1).Load(_scriptDispatcher);
+            bridge.Received(1).Load(_scriptProcessor);
         }
 
         [Test]
@@ -63,8 +63,8 @@ namespace SocialPoint.ScriptEvents
         {
             var bridge = Substitute.For<IScriptEventsBridge>();
 			
-            _scriptDispatcher.AddBridge(bridge);
-            _scriptDispatcher.Dispose();
+            _scriptProcessor.RegisterBridge(bridge);
+            _scriptProcessor.Dispose();
 			
             bridge.Received().Dispose();
         }
@@ -74,7 +74,7 @@ namespace SocialPoint.ScriptEvents
         {
             string evName = null;
             var cond = new NameCondition("te*");
-            _scriptDispatcher.AddListener(cond, (name, args) => {
+            _scriptProcessor.RegisterHandler(cond, (name, args) => {
                 evName = name;
             });
 
@@ -89,7 +89,7 @@ namespace SocialPoint.ScriptEvents
         {
             string evName = null;
             var cond = new ArgumentsCondition(_testArgs);
-            _scriptDispatcher.AddListener(cond, (name, args) => {
+            _scriptProcessor.RegisterHandler(cond, (name, args) => {
                 evName = name;
             });
 			
@@ -106,7 +106,7 @@ namespace SocialPoint.ScriptEvents
         {
             string evName = null;
             var cond = new NotCondition(new ArgumentsCondition(_testArgs));
-            _scriptDispatcher.AddListener(cond, (name, args) => {
+            _scriptProcessor.RegisterHandler(cond, (name, args) => {
                 evName = name;
             });
 			
@@ -124,7 +124,7 @@ namespace SocialPoint.ScriptEvents
                 new ArgumentsCondition(new AttrString("1")),
                 new NameCondition("??st")
             });
-            _scriptDispatcher.AddListener(cond, (name, args) => {
+            _scriptProcessor.RegisterHandler(cond, (name, args) => {
                 evName = name;
             });
 			
@@ -144,7 +144,7 @@ namespace SocialPoint.ScriptEvents
                 new ArgumentsCondition(new AttrString("1")),
                 new NameCondition("??st")
             });
-            _scriptDispatcher.AddListener(cond, (name, args) => {
+            _scriptProcessor.RegisterHandler(cond, (name, args) => {
                 evName = name;
             });
 

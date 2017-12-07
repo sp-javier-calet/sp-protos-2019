@@ -8,10 +8,10 @@ public class GoalsModelParser : IAttrObjParser<GoalsModel>, IAttrObjSerializer<G
     GoalsModel _goals;
     ConfigModel _config;
     GoalModelParser _goalParser;
-    IScriptEventDispatcher _scriptEventDispatcher;
+    IScriptEventProcessor _scriptEventDispatcher;
     PlayerModel _playerModel;
 
-    public GoalsModelParser(GoalsModel goals, ConfigModel config, IScriptEventDispatcher scriptEventDispatcher, PlayerModel playerModel)
+    public GoalsModelParser(GoalsModel goals, ConfigModel config, IScriptEventProcessor scriptEventDispatcher, PlayerModel playerModel)
     {
         _goals = goals;
         _config = config;

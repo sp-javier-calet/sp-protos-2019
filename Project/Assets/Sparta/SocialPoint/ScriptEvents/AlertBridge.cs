@@ -27,9 +27,9 @@ namespace SocialPoint.ScriptEvents
         const string AttrKeyInput = "input";
 
 
-        readonly IScriptEventDispatcher _dispatcher;
+        readonly IScriptEventProcessor _dispatcher;
 
-        public AlertActionParser(IScriptEventDispatcher dispatcher) : base("action.alert")
+        public AlertActionParser(IScriptEventProcessor dispatcher) : base("action.alert")
         {
             _dispatcher = dispatcher;
         }
@@ -76,9 +76,9 @@ namespace SocialPoint.ScriptEvents
             _dispatcher.AddListener<AlertAction>(OnAlertAction);
         }
 
-        public void Load(IScriptEventDispatcher dispatcher)
+        public void Load(IScriptEventProcessor dispatcher)
         {
-            dispatcher.AddParser(new AlertActionParser(dispatcher));
+            dispatcher.RegisterParser(new AlertActionParser(dispatcher));
         }
 
         public void Dispose()

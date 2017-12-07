@@ -16,7 +16,7 @@ namespace SocialPoint.ScriptEvents
         [Test]
         public void Empty_Finishes()
         {
-            var script = new Script(_scriptDispatcher, new ScriptStepModel[]{ });
+            var script = new Script(_scriptProcessor, new ScriptStepModel[]{ });
             bool finished = false;
             script.Run(() => {
                 finished = true;
@@ -27,7 +27,7 @@ namespace SocialPoint.ScriptEvents
         [Test]
         public void Simple_Finishes()
         {
-            var script = new Script(_scriptDispatcher, new [] {
+            var script = new Script(_scriptProcessor, new [] {
                 new ScriptStepModel {
                     Name = "test",
                     Arguments = new AttrString("lala")
@@ -50,7 +50,7 @@ namespace SocialPoint.ScriptEvents
         [Test]
         public void Multi_Finishes()
         {
-            var script = new Script(_scriptDispatcher, new [] {
+            var script = new Script(_scriptProcessor, new [] {
                 new ScriptStepModel {
                     Name = "test",
                     Arguments = new AttrString("lala"),
@@ -92,7 +92,7 @@ namespace SocialPoint.ScriptEvents
 ";
             var data = new JsonAttrParser().ParseString(json);
             var scriptModel = new ScriptModelParser().Parse(data);
-            var script = new Script(_scriptDispatcher, scriptModel);
+            var script = new Script(_scriptProcessor, scriptModel);
             TestScript(script);
         }
 

@@ -90,11 +90,11 @@ namespace SocialPoint.ScriptEvents
 
         const string UIViewControllerInstantiateEvent = "event.gui.instantiate";
 
-        public void Load(IScriptEventDispatcher dispatcher)
+        public void Load(IScriptEventProcessor dispatcher)
         {
-            dispatcher.AddSerializer(new UIViewControllerAwakeEventSerializer());
-            dispatcher.AddSerializer(new UIViewControllerStateChangeEventSerializer());
-            dispatcher.AddSerializer(new UIViewControllerInstantiateEventSerializer());
+            dispatcher.RegisterSerializer(new UIViewControllerAwakeEventSerializer());
+            dispatcher.RegisterSerializer(new UIViewControllerStateChangeEventSerializer());
+            dispatcher.RegisterSerializer(new UIViewControllerInstantiateEventSerializer());
         }
 
         public void Load(IEventDispatcher dispatcher)

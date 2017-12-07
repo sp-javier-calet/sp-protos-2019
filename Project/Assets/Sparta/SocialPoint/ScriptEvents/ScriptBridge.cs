@@ -88,9 +88,9 @@ namespace SocialPoint.ScriptEvents
         const string AttrKeySeconds = "secs";
         const string AttrKeyAction = "action";
 
-        readonly IScriptEventDispatcher _dispatcher;
+        readonly IScriptEventProcessor _dispatcher;
 
-        public WaitActionParser(IScriptEventDispatcher dispatcher) : base("action.wait")
+        public WaitActionParser(IScriptEventProcessor dispatcher) : base("action.wait")
         {
             _dispatcher = dispatcher;
         }
@@ -111,7 +111,7 @@ namespace SocialPoint.ScriptEvents
         IScriptEventsBridge
     {
         IEventDispatcher _dispatcher;
-        IScriptEventDispatcher _scriptDispatcher;
+        IScriptEventProcessor _scriptDispatcher;
         IAttrObjParser<ScriptModel> _scriptParser;
         ICoroutineRunner _runner;
 
@@ -121,12 +121,12 @@ namespace SocialPoint.ScriptEvents
             _runner = runner;
         }
 
-        public void Load(IScriptEventDispatcher dispatcher)
+        public void Load(IScriptEventProcessor dispatcher)
         {
             _scriptDispatcher = dispatcher;
-            _scriptDispatcher.AddParser(new RunScriptActionParser(_scriptParser));
-            _scriptDispatcher.AddParser(new LogActionParser());
-            _scriptDispatcher.AddParser(new WaitActionParser(dispatcher));
+            _scriptDispatcher.RegisterParser(new RunScriptActionParser(_scriptParser));
+            _scriptDispatcher.RegisterParser(new LogActionParser());
+            _scriptDispatcher.RegisterParser(new WaitActionParser(dispatcher));
         }
 
         public void Load(IEventDispatcher dispatcher)

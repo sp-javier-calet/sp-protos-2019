@@ -195,17 +195,17 @@ namespace SocialPoint.ScriptEvents
             _appEvents.ReceivedMemoryWarning += OnReceivedMemoryWarning;
         }
 
-        public void Load(IScriptEventDispatcher dispatcher)
+        public void Load(IScriptEventProcessor dispatcher)
         {
-            dispatcher.AddSerializer(new AppWillGoBackgroundEventSerializer());
-            dispatcher.AddSerializer(new AppGameWasLoadedEventSerializer());
-            dispatcher.AddSerializer(new AppGameWillRestartEventSerializer());
-            dispatcher.AddSerializer(new AppLevelWasLoadedEventSerializer());
-            dispatcher.AddSerializer(new AppOpenedFromSourceEventSerializer());
-            dispatcher.AddSerializer(new AppWasOnBackgroundEventSerializer());
-            dispatcher.AddSerializer(new AppWasCoveredEventSerializer());
-            dispatcher.AddSerializer(new AppReceivedMemoryWarningEventSerializer());
-            dispatcher.AddSerializer(new AppQuitEventSerializer());
+            dispatcher.RegisterSerializer(new AppWillGoBackgroundEventSerializer());
+            dispatcher.RegisterSerializer(new AppGameWasLoadedEventSerializer());
+            dispatcher.RegisterSerializer(new AppGameWillRestartEventSerializer());
+            dispatcher.RegisterSerializer(new AppLevelWasLoadedEventSerializer());
+            dispatcher.RegisterSerializer(new AppOpenedFromSourceEventSerializer());
+            dispatcher.RegisterSerializer(new AppWasOnBackgroundEventSerializer());
+            dispatcher.RegisterSerializer(new AppWasCoveredEventSerializer());
+            dispatcher.RegisterSerializer(new AppReceivedMemoryWarningEventSerializer());
+            dispatcher.RegisterSerializer(new AppQuitEventSerializer());
         }
 
         public void Load(IEventDispatcher dispatcher)

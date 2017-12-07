@@ -81,10 +81,10 @@ namespace SocialPoint.ScriptEvents
             _dispatcher.AddListener<ServerCommandAction>(OnCommandAction);
         }
 
-        public void Load(IScriptEventDispatcher dispatcher)
+        public void Load(IScriptEventProcessor dispatcher)
         {
-            dispatcher.AddParser(new ServerCommandActionParser());
-            dispatcher.AddSerializer(new ServerCommandResponseEventSerializer());
+            dispatcher.RegisterParser(new ServerCommandActionParser());
+            dispatcher.RegisterSerializer(new ServerCommandResponseEventSerializer());
         }
 
         public void Dispose()

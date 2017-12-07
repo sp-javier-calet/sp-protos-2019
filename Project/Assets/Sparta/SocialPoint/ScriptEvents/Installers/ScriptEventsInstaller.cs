@@ -39,7 +39,7 @@ namespace SocialPoint.ScriptEvents
         AdminPanelScriptEvents CreateAdminPanel()
         {
             return new AdminPanelScriptEvents(
-                Container.Resolve<IScriptEventDispatcher>(),
+                Container.Resolve<IScriptEventProcessor>(),
                 Container.Resolve<IAttrObjParser<ScriptModel>>());
         }
         #endif
@@ -66,7 +66,7 @@ namespace SocialPoint.ScriptEvents
         public void Initialize()
         {
             var dispatcher = new EventDispatcher();
-            var scriptDispatcher = new ScriptEventDispatcher(dispatcher);
+            var scriptDispatcher = new ScriptEventProcessor(dispatcher);
             {
                 var bridges = Container.ResolveList<IEventsBridge>();
                 for(var i = 0; i < bridges.Count; i++)
@@ -78,7 +78,7 @@ namespace SocialPoint.ScriptEvents
                 var bridges = Container.ResolveList<IScriptEventsBridge>();
                 for(var i = 0; i < bridges.Count; i++)
                 {
-                    scriptDispatcher.AddBridge(bridges[i]);
+                    scriptDispatcher.RegisterBridge(bridges[i]);
                 }
             }
         }

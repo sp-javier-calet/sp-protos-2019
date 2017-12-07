@@ -5,27 +5,27 @@ using SocialPoint.Lifecycle;
 
 namespace SocialPoint.ScriptEvents
 {
-    public interface IScriptEventDispatcher : IDisposable
+    public interface IScriptEventProcessor : IDisposable
     {
-        void AddListener(string name, Action<Attr> listener);
+        void RegisterHandler(string name, Action<Attr> handler);
 
-        void AddListener(Action<string, Attr> listener);
+        void RegisterHandler(Action<string, Attr> handler);
 
-        void AddListener(IScriptCondition condition, Action<string, Attr> listener);
+        void RegisterHandler(IScriptCondition condition, Action<string, Attr> handler);
 
-        bool RemoveListener(Action<Attr> listener);
+        bool UnregisterHandler(Action<Attr> handler);
 
-        bool RemoveListener(Action<string, Attr> listener);
+        bool UnregisterHandler(Action<string, Attr> handler);
 
-        void AddConverter(IScriptEventConverter converter);
+        void RegisterConverter(IScriptEventConverter converter);
 
-        void AddSerializer(IScriptEventSerializer serializer);
+        void RegisterSerializer(IScriptEventSerializer serializer);
 
-        void AddParser(IScriptEventParser parser);
+        void RegisterParser(IScriptEventParser parser);
 
-        void AddBridge(IScriptEventsBridge bridge);
+        void RegisterBridge(IScriptEventsBridge bridge);
 
-        void Raise(string name, Attr args);
+        void Process(string name, Attr args);
 
         object Parse(string name, Attr args);
     }
@@ -35,7 +35,7 @@ namespace SocialPoint.ScriptEvents
         const string AttrKeyActionName = "name";
         const string AttrKeyActionArguments = "args";
 
-        public static object Parse(this IScriptEventDispatcher dispatcher, Attr data)
+        public static object Parse(this IScriptEventProcessor dispatcher, Attr data)
         {
             if(data.AttrType == AttrType.DICTIONARY)
             {
@@ -61,7 +61,7 @@ namespace SocialPoint.ScriptEvents
 
     public interface IScriptEventsBridge : IDisposable
     {
-        void Load(IScriptEventDispatcher dispatcher);
+        void Load(IScriptEventProcessor dispatcher);
     }
 
     public interface IScriptCondition
@@ -69,7 +69,7 @@ namespace SocialPoint.ScriptEvents
         bool Matches(string name, Attr arguments);
     }        
 
-    public sealed class ScriptEventDispatcher : IScriptEventDispatcher
+    public sealed class ScriptEventProcessor : IScriptEventProcessor
     {
         public struct ScriptEventData
         {
@@ -142,7 +142,7 @@ namespace SocialPoint.ScriptEvents
         readonly List<IScriptEventsBridge> _bridges;
         IEventDispatcher _dispatcher;
 
-        public ScriptEventDispatcher(IEventDispatcher dispatcher)
+        public ScriptEventProcessor(IEventDispatcher dispatcher)
         {
             _processor = new EventProcessor<ScriptEventData>();
             _parsers = new List<IScriptEventParser>();
@@ -166,7 +166,7 @@ namespace SocialPoint.ScriptEvents
             _bridges.Clear();
         }
 
-        public void AddBridge(IScriptEventsBridge bridge)
+        public void RegisterBridge(IScriptEventsBridge bridge)
         {
             if(bridge != null && !_bridges.Contains(bridge))
             {
@@ -175,38 +175,38 @@ namespace SocialPoint.ScriptEvents
             }
         }
 
-        public void AddListener(string name, Action<Attr> listener)
+        public void RegisterHandler(string name, Action<Attr> listener)
         {
             _processor.DoRegisterHandler(listener, new EventHandlerWrapper(name, listener));
         }
 
-        public void AddListener(IScriptCondition condition, Action<string, Attr> listener)
+        public void RegisterHandler(IScriptCondition condition, Action<string, Attr> listener)
         {
             _processor.DoRegisterHandler(listener, new EventHandlerConditionWrapper(condition, listener));
         }
 
-        public void AddListener(Action<string, Attr> listener)
+        public void RegisterHandler(Action<string, Attr> listener)
         {
             _processor.DoRegisterHandler(listener, new EventHandlerDefaultWrapper(listener));
         }
 
-        public bool RemoveListener(Action<Attr> listener)
+        public bool UnregisterHandler(Action<Attr> listener)
         {
             return _processor.DoUnregisterHandler<ScriptEventData>(listener);
         }
 
-        public bool RemoveListener(Action<string, Attr> listener)
+        public bool UnregisterHandler(Action<string, Attr> listener)
         {           
             return _processor.DoUnregisterHandler<ScriptEventData>(listener);
         }
 
-        public void AddConverter(IScriptEventConverter converter)
+        public void RegisterConverter(IScriptEventConverter converter)
         {
-            AddSerializer(converter);
-            AddParser(converter);
+            RegisterSerializer(converter);
+            RegisterParser(converter);
         }
 
-        public void AddSerializer(IScriptEventSerializer serializer)
+        public void RegisterSerializer(IScriptEventSerializer serializer)
         {
             if(!_serializers.Contains(serializer))
             {
@@ -214,7 +214,7 @@ namespace SocialPoint.ScriptEvents
             }
         }
 
-        public void AddParser(IScriptEventParser parser)
+        public void RegisterParser(IScriptEventParser parser)
         {
             if(!_parsers.Contains(parser))
             {
@@ -243,7 +243,7 @@ namespace SocialPoint.ScriptEvents
             };
         }
 
-        public void Raise(string name, Attr args)
+        public void Process(string name, Attr args)
         {
             var ev = Parse(name, args);
             if(ev != null)

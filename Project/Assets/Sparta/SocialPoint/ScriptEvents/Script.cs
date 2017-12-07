@@ -97,7 +97,7 @@ namespace SocialPoint.ScriptEvents
     {
         ScriptStepModel _model;
         Action<Decision, string, Attr> _callback;
-        readonly IScriptEventDispatcher _dispatcher;
+        readonly IScriptEventProcessor _dispatcher;
         bool _eventRaised;
 
         public enum Decision
@@ -106,7 +106,7 @@ namespace SocialPoint.ScriptEvents
             Backward
         }
 
-        public ScriptStep(IScriptEventDispatcher dispatcher, ScriptStepModel model)
+        public ScriptStep(IScriptEventProcessor dispatcher, ScriptStepModel model)
         {
             if(dispatcher == null)
             {
@@ -123,7 +123,7 @@ namespace SocialPoint.ScriptEvents
 
         public void Reset()
         {
-            _dispatcher.RemoveListener(OnEvent);
+            _dispatcher.UnregisterHandler(OnEvent);
             _callback = null;
             _eventRaised = false;
         }
@@ -167,9 +167,9 @@ namespace SocialPoint.ScriptEvents
             _callback = finished;
             if(_model.Forward != null)
             {
-                _dispatcher.AddListener(OnEvent);
+                _dispatcher.RegisterHandler(OnEvent);
             }
-            _dispatcher.Raise(_model.Name, _model.Arguments);
+            _dispatcher.Process(_model.Name, _model.Arguments);
             _eventRaised = true;
             if(_model.Forward == null)
             {
@@ -181,7 +181,7 @@ namespace SocialPoint.ScriptEvents
     public sealed class Script
     {
         readonly List<ScriptStep> _steps = new List<ScriptStep>();
-        IScriptEventDispatcher _dispatcher;
+        IScriptEventProcessor _dispatcher;
         Action _finished;
 
         public Action StepStarted;
@@ -221,12 +221,12 @@ namespace SocialPoint.ScriptEvents
             }
         }
 
-        public Script(IScriptEventDispatcher dispatcher, ScriptStepModel[] stepModels) :
+        public Script(IScriptEventProcessor dispatcher, ScriptStepModel[] stepModels) :
             this(dispatcher, new ScriptModel{ Steps = stepModels })
         {
         }
 
-        public Script(IScriptEventDispatcher dispatcher, ScriptModel model)
+        public Script(IScriptEventProcessor dispatcher, ScriptModel model)
         {
             if(dispatcher == null)
             {

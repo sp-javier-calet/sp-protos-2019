@@ -54,7 +54,7 @@ namespace SocialPoint.ScriptEvents
     class BaseScriptEventsTests
     {
         protected EventDispatcher _dispatcher;
-        protected ScriptEventDispatcher _scriptDispatcher;
+        protected ScriptEventProcessor _scriptProcessor;
         protected TestEvent _testEvent;
         protected Attr _testArgs;
 
@@ -62,10 +62,10 @@ namespace SocialPoint.ScriptEvents
         virtual public void SetUp()
         {
             _dispatcher = new EventDispatcher();
-            _scriptDispatcher = new ScriptEventDispatcher(_dispatcher);
+            _scriptProcessor = new ScriptEventProcessor(_dispatcher);
             var testConv = new TestEventConverter();
-            _scriptDispatcher.AddConverter(testConv);
-            _scriptDispatcher.AddConverter(new OtherTestEventConverter());
+            _scriptProcessor.RegisterConverter(testConv);
+            _scriptProcessor.RegisterConverter(new OtherTestEventConverter());
             _testEvent = new TestEvent{ Value = "test_value" };
             _testArgs = testConv.Serialize(_testEvent);
         }

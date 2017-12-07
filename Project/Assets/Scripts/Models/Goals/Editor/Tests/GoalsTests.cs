@@ -10,7 +10,7 @@ using System;
 public class GoalsTests
 {
     PlayerModel _playerModel;
-    IScriptEventDispatcher _scriptEventDispatcher;
+    IScriptEventProcessor _scriptEventDispatcher;
     GoalsTypeModel _goalsTypeModel;
     Dictionary<string, GoalModel> _goalsModel;
 
@@ -23,7 +23,7 @@ public class GoalsTests
     public void SetUp()
     {
         _playerModel = new PlayerModel();
-        _scriptEventDispatcher = new ScriptEventDispatcher(new EventDispatcher());
+        _scriptEventDispatcher = new ScriptEventProcessor(new EventDispatcher());
 
         var goalsConfig = new Dictionary<string, GoalTypeModel>();
         _goalsModel = new Dictionary<string, GoalModel>();
@@ -97,7 +97,7 @@ public class GoalsTests
         Assert.AreEqual(CompletedGoals, 0);
 
         //wrong number. this won't complete any repetition
-        _scriptEventDispatcher.Raise("event_condition_example", attr);
+        _scriptEventDispatcher.Process("event_condition_example", attr);
 
         Assert.AreEqual(CompletedGoals, 0);
 
@@ -113,7 +113,7 @@ public class GoalsTests
 
         //right number. this will complete another repetition.
         //we had one repetition completed, and with two repetitions needed, now we have completed the goal
-        _scriptEventDispatcher.Raise("event_condition_example", attr);
+        _scriptEventDispatcher.Process("event_condition_example", attr);
     }
 
     [Test]
@@ -147,7 +147,7 @@ public class GoalsTests
     void AddResourcesToPlayer(ResourcePool resources)
     {
         _playerModel.Resources.Add(resources);
-        _scriptEventDispatcher.Raise("model_condition_example", null);
+        _scriptEventDispatcher.Process("model_condition_example", null);
     }
 
     [Test]

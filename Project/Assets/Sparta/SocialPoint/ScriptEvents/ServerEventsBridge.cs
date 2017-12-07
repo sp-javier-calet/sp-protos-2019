@@ -46,9 +46,9 @@ namespace SocialPoint.ScriptEvents
             _dispatcher.AddListener<ServerTrackAction>(OnTrackAction);
         }
 
-        public void Load(IScriptEventDispatcher dispatcher)
+        public void Load(IScriptEventProcessor dispatcher)
         {
-            dispatcher.AddParser(new ServerTrackActionParser());
+            dispatcher.RegisterParser(new ServerTrackActionParser());
         }
 
         public void Dispose()
