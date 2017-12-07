@@ -71,17 +71,17 @@ namespace SocialPoint.ScriptEvents
     public interface IScriptCondition
     {
         bool Matches(string name, Attr arguments);
-    }        
+    }
+
+    public struct ScriptEvent
+    {
+        public string Name;
+        public Attr Arguments;
+    }
 
     public sealed class ScriptEventProcessor : IScriptEventProcessor, IEventHandler<object>
     {
-        public struct ScriptEventData
-        {
-            public string Name;
-            public Attr Arguments;
-        }
-
-        class EventHandlerWrapper : IStateValidatedEventHandler<ScriptEventData>
+        class EventHandlerWrapper : IStateValidatedEventHandler<ScriptEvent>
         {
             readonly string _name;
             readonly Action<Attr> _action;
@@ -92,7 +92,7 @@ namespace SocialPoint.ScriptEvents
                 _action = action;
             }
 
-            public void Handle(object state, ScriptEventData ev, bool success, object result)
+            public void Handle(object state, ScriptEvent ev, bool success, object result)
             {
                 if(_action != null && _name == ev.Name)
                 {
@@ -101,7 +101,7 @@ namespace SocialPoint.ScriptEvents
             }
         }
 
-        class EventHandlerDefaultWrapper : IStateValidatedEventHandler<ScriptEventData>
+        class EventHandlerDefaultWrapper : IStateValidatedEventHandler<ScriptEvent>
         {
             readonly Action<string, Attr> _action;
 
@@ -110,7 +110,7 @@ namespace SocialPoint.ScriptEvents
                 _action = action;
             }
 
-            public void Handle(object state, ScriptEventData ev, bool success, object result)
+            public void Handle(object state, ScriptEvent ev, bool success, object result)
             {
                 if(_action != null)
                 {
@@ -119,7 +119,7 @@ namespace SocialPoint.ScriptEvents
             }
         }
 
-        class EventHandlerConditionWrapper : IStateValidatedEventHandler<ScriptEventData>
+        class EventHandlerConditionWrapper : IStateValidatedEventHandler<ScriptEvent>
         {
             readonly IScriptCondition _condition;
             readonly Action<string, Attr> _action;
@@ -130,7 +130,7 @@ namespace SocialPoint.ScriptEvents
                 _action = action;
             }
 
-            public void Handle(object state, ScriptEventData ev, bool success, object result)
+            public void Handle(object state, ScriptEvent ev, bool success, object result)
             {
                 if(_action != null && _condition.Matches(ev.Name, ev.Arguments))
                 {
@@ -140,7 +140,7 @@ namespace SocialPoint.ScriptEvents
         }
 
         readonly EventProcessor _processor;
-        readonly EventProcessor<ScriptEventData> _scriptProcessor;
+        readonly EventProcessor<ScriptEvent> _scriptProcessor;
 
         readonly List<IScriptEventParser> _parsers;
         readonly List<IScriptEventSerializer> _serializers;
@@ -149,7 +149,7 @@ namespace SocialPoint.ScriptEvents
         public ScriptEventProcessor()
         {
             _processor = new EventProcessor();
-            _scriptProcessor = new EventProcessor<ScriptEventData>();
+            _scriptProcessor = new EventProcessor<ScriptEvent>();
             _parsers = new List<IScriptEventParser>();
             _serializers = new List<IScriptEventSerializer>();
             _bridges = new List<IScriptEventsBridge>();
@@ -198,12 +198,12 @@ namespace SocialPoint.ScriptEvents
 
         public bool UnregisterHandler(Action<Attr> listener)
         {
-            return _scriptProcessor.DoUnregisterHandler<ScriptEventData>(listener);
+            return _scriptProcessor.DoUnregisterHandler<ScriptEvent>(listener);
         }
 
         public bool UnregisterHandler(Action<string, Attr> listener)
         {           
-            return _scriptProcessor.DoUnregisterHandler<ScriptEventData>(listener);
+            return _scriptProcessor.DoUnregisterHandler<ScriptEvent>(listener);
         }
             
         public void RegisterSerializer(IScriptEventSerializer serializer)
@@ -237,7 +237,7 @@ namespace SocialPoint.ScriptEvents
             {
                 return parser.Parse(args);
             }
-            return new ScriptEventData {
+            return new ScriptEvent {
                 Name = name,
                 Arguments = args
             };
@@ -260,16 +260,26 @@ namespace SocialPoint.ScriptEvents
         {
             Attr args = null;
             string name = null;
-            for(int i = 0, _serializersCount = _serializers.Count; i < _serializersCount; i++)
+
+            if(ev is ScriptEvent)
             {
-                var serializer = _serializers[i];
-                if(serializer != null)
+                var sev = (ScriptEvent)ev;
+                args = sev.Arguments;
+                name = sev.Name;
+            }
+            else
+            {
+                for(int i = 0, _serializersCount = _serializers.Count; i < _serializersCount; i++)
                 {
-                    args = serializer.Serialize(ev);
-                    if(args != null)
+                    var serializer = _serializers[i];
+                    if(serializer != null)
                     {
-                        name = serializer.Name;
-                        break;
+                        args = serializer.Serialize(ev);
+                        if(args != null)
+                        {
+                            name = serializer.Name;
+                            break;
+                        }
                     }
                 }
             }
@@ -281,7 +291,7 @@ namespace SocialPoint.ScriptEvents
 
         void Handle(string name, Attr args)
         {
-            _scriptProcessor.Process(new ScriptEventData {
+            _scriptProcessor.Process(new ScriptEvent {
                 Name = name,
                 Arguments = args
             });

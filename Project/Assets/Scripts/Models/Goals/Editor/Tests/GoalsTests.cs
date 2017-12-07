@@ -10,7 +10,7 @@ using System;
 public class GoalsTests
 {
     PlayerModel _playerModel;
-    IScriptEventProcessor _scriptEventDispatcher;
+    IScriptEventProcessor _scriptProcessor;
     GoalsTypeModel _goalsTypeModel;
     Dictionary<string, GoalModel> _goalsModel;
 
@@ -23,7 +23,7 @@ public class GoalsTests
     public void SetUp()
     {
         _playerModel = new PlayerModel();
-        _scriptEventDispatcher = new ScriptEventProcessor();
+        _scriptProcessor = new ScriptEventProcessor();
 
         var goalsConfig = new Dictionary<string, GoalTypeModel>();
         _goalsModel = new Dictionary<string, GoalModel>();
@@ -37,7 +37,7 @@ public class GoalsTests
 
     void InitPlayer()
     {
-        _playerModel.Goals.Init(_goalsModel, _goalsTypeModel, _scriptEventDispatcher, _playerModel);
+        _playerModel.Goals.Init(_goalsModel, _goalsTypeModel, _scriptProcessor, _playerModel);
         _playerModel.Init(1, new ResourcePool());
     }
 
@@ -94,16 +94,16 @@ public class GoalsTests
         var attr = new AttrDic();
         attr.SetValue("value", 3);
 
-        Assert.AreEqual(CompletedGoals, 0);
+        Assert.AreEqual(0, CompletedGoals);
 
         //wrong number. this won't complete any repetition
-        _scriptEventDispatcher.Process("event_condition_example", attr);
+        _scriptProcessor.Process("event_condition_example", attr);
 
-        Assert.AreEqual(CompletedGoals, 0);
+        Assert.AreEqual(0, CompletedGoals);
 
         CompleteEventBasedGoal();
 
-        Assert.AreEqual(CompletedGoals, 1);
+        Assert.AreEqual(1, CompletedGoals);
     }
 
     void CompleteEventBasedGoal()
@@ -113,7 +113,7 @@ public class GoalsTests
 
         //right number. this will complete another repetition.
         //we had one repetition completed, and with two repetitions needed, now we have completed the goal
-        _scriptEventDispatcher.Process("event_condition_example", attr);
+        _scriptProcessor.Process("event_condition_example", attr);
     }
 
     [Test]
@@ -121,7 +121,7 @@ public class GoalsTests
     {
         InitPlayer();
 
-        Assert.AreEqual(CompletedGoals, 0);
+        Assert.AreEqual(0, CompletedGoals);
 
         //the required resource is gold, so this won't complete the goal
         var resources = new ResourcePool();
@@ -129,7 +129,7 @@ public class GoalsTests
 
         AddResourcesToPlayer(resources);
 
-        Assert.AreEqual(CompletedGoals, 0);
+        Assert.AreEqual(0, CompletedGoals);
 
         //you need more resources than this, so this won't complete the goal
         resources = new ResourcePool();
@@ -137,17 +137,17 @@ public class GoalsTests
 
         AddResourcesToPlayer(resources);
 
-        Assert.AreEqual(CompletedGoals, 0);
+        Assert.AreEqual(0, CompletedGoals);
 
         AddResourcesToPlayer(resources);
 
-        Assert.AreEqual(CompletedGoals, 1);
+        Assert.AreEqual(1, CompletedGoals);
     }
 
     void AddResourcesToPlayer(ResourcePool resources)
     {
         _playerModel.Resources.Add(resources);
-        _scriptEventDispatcher.Process("model_condition_example", null);
+        _scriptProcessor.Process("model_condition_example", null);
     }
 
     [Test]
@@ -179,15 +179,15 @@ public class GoalsTests
     [Test]
     public void GoalCompletedWhenPlayerInitializes()
     {
-        _playerModel.Goals.Init(_goalsModel, _goalsTypeModel, _scriptEventDispatcher, _playerModel);
+        _playerModel.Goals.Init(_goalsModel, _goalsTypeModel, _scriptProcessor, _playerModel);
 
-        Assert.AreEqual(CompletedGoals, 0);
+        Assert.AreEqual(0, CompletedGoals);
 
         var resources = new ResourcePool();
         resources["g"] = 1000;
         _playerModel.Init(1, resources);
 
-        Assert.AreEqual(CompletedGoals, 1);
+        Assert.AreEqual(1, CompletedGoals);
     }
 
     int CompletedGoals

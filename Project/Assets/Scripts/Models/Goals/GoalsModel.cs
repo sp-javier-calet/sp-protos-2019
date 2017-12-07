@@ -8,7 +8,7 @@ public class GoalsModel : IDisposable
 {
     Dictionary<string, GoalModel> _goals;
     GoalsTypeModel _goalsConfig;
-    IScriptEventProcessor _dispatcher;
+    IScriptEventProcessor _processor;
     PlayerModel _playerModel;
     Dictionary<IModelCondition, Action<string, Attr>> _listenersByCondition;
 
@@ -23,7 +23,7 @@ public class GoalsModel : IDisposable
     public event Action<GoalModel> GoalCompleted;
     public event Action<GoalModel> GoalClaimed;
 
-    public GoalsModel Init(Dictionary<string, GoalModel> goals, GoalsTypeModel goalsConfig, IScriptEventProcessor dispatcher, PlayerModel playerModel)
+    public GoalsModel Init(Dictionary<string, GoalModel> goals, GoalsTypeModel goalsConfig, IScriptEventProcessor processor, PlayerModel playerModel)
     {
         Cleanup();
 
@@ -31,7 +31,7 @@ public class GoalsModel : IDisposable
 
         _goals = goals;
         _goalsConfig = goalsConfig;
-        _dispatcher = dispatcher;
+        _processor = processor;
         _playerModel = playerModel;
 
         _playerModel.Initialized += Initialize;
@@ -41,7 +41,7 @@ public class GoalsModel : IDisposable
 
     void Initialize(PlayerModel playerModel)
     {
-        if(_goalsConfig != null && _dispatcher != null)
+        if(_goalsConfig != null && _processor != null)
         {
             var goalsEnumerator = _goalsConfig.GetEnumerator();
 
@@ -137,7 +137,7 @@ public class GoalsModel : IDisposable
             Action<string, Attr> listener = (name, attributes) => OnGoalMatched(matchedGoal, goalIndex, attributes);
 
             _listenersByCondition.Add(condition, listener);
-            _dispatcher.RegisterHandler(condition, listener);
+            _processor.RegisterHandler(condition, listener);
         }
     }
 
@@ -150,7 +150,7 @@ public class GoalsModel : IDisposable
 
             if(_listenersByCondition.TryGetValue(condition, out listener))
             {
-                _dispatcher.UnregisterHandler(listener);
+                _processor.UnregisterHandler(listener);
                 _listenersByCondition.Remove(condition);
             }
         }
@@ -249,13 +249,13 @@ public class GoalsModel : IDisposable
 
         if(_listenersByCondition != null)
         {
-            if(_dispatcher != null)
+            if(_processor != null)
             {
                 var listenerEnumerator = _listenersByCondition.GetEnumerator();
 
                 while(listenerEnumerator.MoveNext())
                 {
-                    _dispatcher.UnregisterHandler(listenerEnumerator.Current.Value);
+                    _processor.UnregisterHandler(listenerEnumerator.Current.Value);
                 }
 
                 listenerEnumerator.Dispose();
