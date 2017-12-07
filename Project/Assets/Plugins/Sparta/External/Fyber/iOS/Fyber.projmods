@@ -2,12 +2,12 @@
   "group": "Fyber",
   "patches": [],
   "libs": [
-    "Fyber/iOS/fyber-sdk-lib/libFyberSDK-8.2.1.a:<group>",
-    "Fyber/iOS/fyber-unity-bridge/unitybridge.a:<group>"
+    "Plugins/Sparta/External/Fyber/iOS/fyber-sdk-lib/libFyberSDK-8.2.1.a:<group>",
+    "Plugins/Sparta/External/Fyber/iOS/fyber-unity-bridge/unitybridge.a:<group>"
   ],
   "librarysearchpaths": [
-    "Fyber/iOS/fyber-sdk-lib/",
-    "Fyber/iOS/fyber-unity-bridge/"
+    "Plugins/Sparta/External/Fyber/iOS/fyber-sdk-lib/",
+    "Plugins/Sparta/External/Fyber/iOS/fyber-unity-bridge/"
   ],
   "frameworks": [
     "AdSupport.framework:weak",
@@ -20,11 +20,11 @@
     "Security.framework"
   ],
   "headerpaths": [
-    "Fyber/iOS/fyber-sdk-lib"
+    "Plugins/Sparta/External/Fyber/iOS/fyber-sdk-lib"
   ],
   "files": [],
   "folders": [
-    "Fyber/iOS/fyber-sdk-lib/Resources"
+    "Plugins/Sparta/External/Fyber/iOS/fyber-sdk-lib/Resources"
   ],
   "plist": [],
   "excludes": [],

@@ -3,7 +3,7 @@
   "group": "Mediation/UnityAds",
   "patches": [],
   "libs": [
-    "Plugins/Sparta/External/Fyber/iOS/mediation/UnityAds/1.5.5-r1.framework:<group>",
+    "Plugins/Sparta/External/Fyber/iOS/mediation/UnityAds/Fyber_UnityAds_1.5.5-r1.framework:<group>",
   ],
   "librarysearchpaths": [],
   "frameworks": [
