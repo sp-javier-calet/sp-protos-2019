@@ -23,8 +23,9 @@ namespace SocialPoint.ScriptEvents
             Container.Bind<IChildParser<IScriptCondition>>().ToSingle<OrConditionParser>();
             Container.Bind<IChildParser<IScriptCondition>>().ToSingle<NotConditionParser>();
 
+            Container.Bind<IScriptEventProcessor>().ToSingle<ScriptEventProcessor>();
+            Container.Bind<IDisposable>().ToLookup<IScriptEventProcessor>();
             Container.Bind<ScriptBridge>().ToMethod<ScriptBridge>(CreateScriptBridge);
-            Container.Bind<IEventsBridge>().ToLookup<ScriptBridge>();
             Container.Bind<IScriptEventsBridge>().ToLookup<ScriptBridge>();
         
             Container.Rebind<IAttrObjParser<IScriptCondition>>().ToMethod<FamilyParser<IScriptCondition>>(CreateScriptConditionParser);
@@ -65,21 +66,11 @@ namespace SocialPoint.ScriptEvents
 
         public void Initialize()
         {
-            var dispatcher = new EventDispatcher();
-            var scriptDispatcher = new ScriptEventProcessor(dispatcher);
+            var processor = Container.Resolve<IScriptEventProcessor>();
+            var bridges = Container.ResolveList<IScriptEventsBridge>();
+            for(var i = 0; i < bridges.Count; i++)
             {
-                var bridges = Container.ResolveList<IEventsBridge>();
-                for(var i = 0; i < bridges.Count; i++)
-                {
-                    dispatcher.AddBridge(bridges[i]);
-                }
-            }
-            {
-                var bridges = Container.ResolveList<IScriptEventsBridge>();
-                for(var i = 0; i < bridges.Count; i++)
-                {
-                    scriptDispatcher.RegisterBridge(bridges[i]);
-                }
+                processor.RegisterBridge(bridges[i]);
             }
         }
     }

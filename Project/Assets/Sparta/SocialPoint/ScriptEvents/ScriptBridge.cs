@@ -4,6 +4,7 @@ using SocialPoint.Attributes;
 using SocialPoint.Base;
 using SocialPoint.Utils;
 using UnityEngine;
+using SocialPoint.Lifecycle;
 
 namespace SocialPoint.ScriptEvents
 {
@@ -107,11 +108,10 @@ namespace SocialPoint.ScriptEvents
     }
 
     public sealed class ScriptBridge :
-        IEventsBridge,
         IScriptEventsBridge
     {
-        IEventDispatcher _dispatcher;
-        IScriptEventProcessor _scriptDispatcher;
+        IEventProcessor _processor;
+        IScriptEventProcessor _scriptProcessor;
         IAttrObjParser<ScriptModel> _scriptParser;
         ICoroutineRunner _runner;
 
@@ -121,33 +121,30 @@ namespace SocialPoint.ScriptEvents
             _runner = runner;
         }
 
-        public void Load(IScriptEventProcessor dispatcher)
+        public void Load(IScriptEventProcessor scriptProcessor, IEventProcessor processor)
         {
-            _scriptDispatcher = dispatcher;
-            _scriptDispatcher.RegisterParser(new RunScriptActionParser(_scriptParser));
-            _scriptDispatcher.RegisterParser(new LogActionParser());
-            _scriptDispatcher.RegisterParser(new WaitActionParser(dispatcher));
-        }
+            _processor = processor;
+            _processor.RegisterHandler<RunScriptAction>(OnRunScriptAction);
+            _processor.RegisterHandler<LogAction>(OnLogAction);
+            _processor.RegisterHandler<WaitAction>(OnWaitAction);
 
-        public void Load(IEventDispatcher dispatcher)
-        {
-            _dispatcher = dispatcher;
-            _dispatcher.AddListener<RunScriptAction>(OnRunScriptAction);
-            _dispatcher.AddListener<LogAction>(OnLogAction);
-            _dispatcher.AddListener<WaitAction>(OnWaitAction);
+            _scriptProcessor = scriptProcessor;
+            _scriptProcessor.RegisterParser(new RunScriptActionParser(_scriptParser));
+            _scriptProcessor.RegisterParser(new LogActionParser());
+            _scriptProcessor.RegisterParser(new WaitActionParser(scriptProcessor));
         }
 
         public void Dispose()
         {
-            if(_dispatcher != null)
+            if(_processor != null)
             {
-                _dispatcher.RemoveListener<RunScriptAction>(OnRunScriptAction);
+                _processor.UnregisterHandler<RunScriptAction>(OnRunScriptAction);
             }
         }
 
         void OnRunScriptAction(RunScriptAction action)
         {
-            var script = new Script(_scriptDispatcher, action.Script);
+            var script = new Script(_scriptProcessor, action.Script);
             script.Run();
         }
 
@@ -175,7 +172,7 @@ namespace SocialPoint.ScriptEvents
         IEnumerator WaitCoroutine(WaitAction action)
         {
             yield return new WaitForSeconds(action.Seconds);
-            _dispatcher.Raise(action.Action);
+            _processor.Process(action.Action);
         }
 
     }

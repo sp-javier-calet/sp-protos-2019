@@ -23,7 +23,7 @@ public class GoalsTests
     public void SetUp()
     {
         _playerModel = new PlayerModel();
-        _scriptEventDispatcher = new ScriptEventProcessor(new EventDispatcher());
+        _scriptEventDispatcher = new ScriptEventProcessor();
 
         var goalsConfig = new Dictionary<string, GoalTypeModel>();
         _goalsModel = new Dictionary<string, GoalModel>();

@@ -37,7 +37,6 @@ namespace SocialPoint.ServerEvents
                 Container.Rebind<IEventTracker>().ToLookup<SocialPointEventTracker>();
 
                 Container.Rebind<ServerEventsBridge>().ToMethod<ServerEventsBridge>(CreateBridge);
-                Container.Bind<IEventsBridge>().ToLookup<ServerEventsBridge>();
                 Container.Bind<IScriptEventsBridge>().ToLookup<ServerEventsBridge>();
             }
             else

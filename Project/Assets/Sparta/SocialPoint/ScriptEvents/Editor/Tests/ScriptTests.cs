@@ -35,7 +35,7 @@ namespace SocialPoint.ScriptEvents
             });
 
             string arg = null;
-            _dispatcher.AddListener<TestEvent>(ev => {
+            _processor.RegisterHandler<TestEvent>(ev => {
                 arg = ev.Value;
             });
 
@@ -105,22 +105,22 @@ namespace SocialPoint.ScriptEvents
             Assert.AreEqual(0, script.CurrentStepNum);
             Assert.IsTrue(script.IsRunning);
 			
-            _dispatcher.Raise(new OtherTestEvent{ Value = 1 });
+            _processor.Process(new OtherTestEvent{ Value = 1 });
 			
             Assert.AreEqual(1, script.CurrentStepNum);
             Assert.IsTrue(script.IsRunning);
 			
-            _dispatcher.Raise(new TestEvent{ Value = "lala" });
+            _processor.Process(new TestEvent{ Value = "lala" });
 			
             Assert.AreEqual(0, script.CurrentStepNum);
             Assert.IsTrue(script.IsRunning);
 			
-            _dispatcher.Raise(new OtherTestEvent{ Value = 1 });
+            _processor.Process(new OtherTestEvent{ Value = 1 });
 			
             Assert.AreEqual(1, script.CurrentStepNum);
             Assert.IsTrue(script.IsRunning);
 			
-            _dispatcher.Raise(_testEvent);
+            _processor.Process(_testEvent);
 			
             Assert.AreEqual(2, script.CurrentStepNum);
             Assert.IsFalse(script.IsRunning);

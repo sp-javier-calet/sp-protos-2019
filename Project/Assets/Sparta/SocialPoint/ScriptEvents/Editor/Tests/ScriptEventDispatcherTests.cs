@@ -15,10 +15,10 @@ namespace SocialPoint.ScriptEvents
         }
 
         [Test]
-        public void Script_Raise_Calls_Listener()
+        public void Script_Process_Calls_Listener()
         {
             string val = null;
-            _dispatcher.AddListener<TestEvent>(ev => {
+            _processor.RegisterHandler<TestEvent>(ev => {
                 val = ev.Value;
             });
             _scriptProcessor.Process("test", _testArgs);
@@ -26,7 +26,7 @@ namespace SocialPoint.ScriptEvents
         }
 
         [Test]
-        public void Script_Raise_Calls_Script_Listener()
+        public void Script_Process_Calls_Script_Listener()
         {
             Attr val = null;
             _scriptProcessor.RegisterHandler("test", args => {
@@ -37,13 +37,13 @@ namespace SocialPoint.ScriptEvents
         }
 
         [Test]
-        public void Raise_Calls_Script_Listener()
+        public void Process_Calls_Script_Listener()
         {
             Attr val = null;
             _scriptProcessor.RegisterHandler("test", args => {
                 val = (Attr)args.Clone();
             });
-            _dispatcher.Raise(_testEvent);
+            _processor.Process(_testEvent);
             Assert.AreEqual(_testEvent.Value, val.ToString());
         }
 
@@ -55,7 +55,7 @@ namespace SocialPoint.ScriptEvents
             _scriptProcessor.RegisterBridge(bridge);
             _scriptProcessor.RegisterBridge(bridge);
 			
-            bridge.Received(1).Load(_scriptProcessor);
+            bridge.Received(1).Load(_scriptProcessor, _processor);
         }
 
         [Test]
@@ -78,9 +78,9 @@ namespace SocialPoint.ScriptEvents
                 evName = name;
             });
 
-            _dispatcher.Raise(new OtherTestEvent{ Value = 1 });
+            _processor.Process(new OtherTestEvent{ Value = 1 });
             Assert.IsNull(evName);
-            _dispatcher.Raise(new TestEvent{ Value = "lala" });
+            _processor.Process(new TestEvent{ Value = "lala" });
             Assert.AreEqual("test", evName);
         }
 
@@ -93,11 +93,11 @@ namespace SocialPoint.ScriptEvents
                 evName = name;
             });
 			
-            _dispatcher.Raise(new OtherTestEvent{ Value = 1 });
+            _processor.Process(new OtherTestEvent{ Value = 1 });
             Assert.IsNull(evName);
-            _dispatcher.Raise(new TestEvent{ Value = "lala" });
+            _processor.Process(new TestEvent{ Value = "lala" });
             Assert.IsNull(evName);
-            _dispatcher.Raise(_testEvent);
+            _processor.Process(_testEvent);
             Assert.AreEqual("test", evName);
         }
 
@@ -110,9 +110,9 @@ namespace SocialPoint.ScriptEvents
                 evName = name;
             });
 			
-            _dispatcher.Raise(_testEvent);
+            _processor.Process(_testEvent);
             Assert.IsNull(evName);
-            _dispatcher.Raise(new TestEvent{ Value = "lala" });
+            _processor.Process(new TestEvent{ Value = "lala" });
             Assert.AreEqual("test", evName);
         }
 
@@ -128,11 +128,11 @@ namespace SocialPoint.ScriptEvents
                 evName = name;
             });
 			
-            _dispatcher.Raise(new OtherTestEvent{ Value = 1 });
+            _processor.Process(new OtherTestEvent{ Value = 1 });
             Assert.IsNull(evName);
-            _dispatcher.Raise(_testEvent);
+            _processor.Process(_testEvent);
             Assert.IsNull(evName);
-            _dispatcher.Raise(new TestEvent{ Value = "1" });
+            _processor.Process(new TestEvent{ Value = "1" });
             Assert.AreEqual("test", evName);
         }
 
@@ -148,11 +148,11 @@ namespace SocialPoint.ScriptEvents
                 evName = name;
             });
 
-            _dispatcher.Raise(new OtherTestEvent{ Value = 2 });
+            _processor.Process(new OtherTestEvent{ Value = 2 });
             Assert.IsNull(evName);
-            _dispatcher.Raise(new OtherTestEvent{ Value = 1 });
+            _processor.Process(new OtherTestEvent{ Value = 1 });
             Assert.AreEqual("other", evName);
-            _dispatcher.Raise(new TestEvent{ Value = "1" });
+            _processor.Process(new TestEvent{ Value = "1" });
             Assert.AreEqual("test", evName);
         }
 

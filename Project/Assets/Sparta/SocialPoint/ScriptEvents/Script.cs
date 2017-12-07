@@ -97,7 +97,7 @@ namespace SocialPoint.ScriptEvents
     {
         ScriptStepModel _model;
         Action<Decision, string, Attr> _callback;
-        readonly IScriptEventProcessor _dispatcher;
+        readonly IScriptEventProcessor _processor;
         bool _eventRaised;
 
         public enum Decision
@@ -106,13 +106,13 @@ namespace SocialPoint.ScriptEvents
             Backward
         }
 
-        public ScriptStep(IScriptEventProcessor dispatcher, ScriptStepModel model)
+        public ScriptStep(IScriptEventProcessor processor, ScriptStepModel model)
         {
-            if(dispatcher == null)
+            if(processor == null)
             {
-                throw new ArgumentNullException("dispatcher");
+                throw new ArgumentNullException("processor");
             }
-            _dispatcher = dispatcher;
+            _processor = processor;
             _model = model;
         }
 
@@ -123,7 +123,7 @@ namespace SocialPoint.ScriptEvents
 
         public void Reset()
         {
-            _dispatcher.UnregisterHandler(OnEvent);
+            _processor.UnregisterHandler(OnEvent);
             _callback = null;
             _eventRaised = false;
         }
@@ -167,9 +167,9 @@ namespace SocialPoint.ScriptEvents
             _callback = finished;
             if(_model.Forward != null)
             {
-                _dispatcher.RegisterHandler(OnEvent);
+                _processor.RegisterHandler(OnEvent);
             }
-            _dispatcher.Process(_model.Name, _model.Arguments);
+            _processor.Process(_model.Name, _model.Arguments);
             _eventRaised = true;
             if(_model.Forward == null)
             {
@@ -181,7 +181,7 @@ namespace SocialPoint.ScriptEvents
     public sealed class Script
     {
         readonly List<ScriptStep> _steps = new List<ScriptStep>();
-        IScriptEventProcessor _dispatcher;
+        IScriptEventProcessor _processor;
         Action _finished;
 
         public Action StepStarted;
@@ -226,17 +226,17 @@ namespace SocialPoint.ScriptEvents
         {
         }
 
-        public Script(IScriptEventProcessor dispatcher, ScriptModel model)
+        public Script(IScriptEventProcessor processor, ScriptModel model)
         {
-            if(dispatcher == null)
+            if(processor == null)
             {
                 throw new ArgumentNullException("dispatcher");
             }
-            _dispatcher = dispatcher;
+            _processor = processor;
             for(int i = 0, modelStepsLength = model.Steps.Length; i < modelStepsLength; i++)
             {
                 var stepModel = model.Steps[i];
-                _steps.Add(new ScriptStep(_dispatcher, stepModel));
+                _steps.Add(new ScriptStep(_processor, stepModel));
             }
             Reset();
         }

@@ -291,15 +291,15 @@ namespace SocialPoint.Lifecycle
         }
     }
 
-    public class EventProcessor<K> : EventProcessor<object, K, object>
+    public class EventProcessor<K> : EventProcessor<object, K, object>, IEventProcessor<K>
     {
     }
 
-    public class StateEventProcessor<S> : EventProcessor<S, object, object>
+    public class StateEventProcessor<S> : EventProcessor<S, object, object>, IStateEventProcessor<S>
     {
     }
 
-    public class EventProcessor : EventProcessor<object>
+    public class EventProcessor : EventProcessor<object>, IEventProcessor
     {
     }
 

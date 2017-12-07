@@ -38,7 +38,6 @@ namespace SocialPoint.ServerSync
                 Container.Rebind<ICommandQueue>().ToMethod<CommandQueue>(CreateCommandQueue, SetupCommandQueue);
 
                 Container.Rebind<ServerSyncBridge>().ToMethod<ServerSyncBridge>(CreateBridge);
-                Container.Bind<IEventsBridge>().ToLookup<ServerSyncBridge>();
                 Container.Bind<IScriptEventsBridge>().ToLookup<ServerSyncBridge>();
             }
             else

@@ -17,8 +17,6 @@ namespace SocialPoint.ScriptEvents
 
         bool UnregisterHandler(Action<string, Attr> handler);
 
-        void RegisterConverter(IScriptEventConverter converter);
-
         void RegisterSerializer(IScriptEventSerializer serializer);
 
         void RegisterParser(IScriptEventParser parser);
@@ -35,33 +33,39 @@ namespace SocialPoint.ScriptEvents
         const string AttrKeyActionName = "name";
         const string AttrKeyActionArguments = "args";
 
-        public static object Parse(this IScriptEventProcessor dispatcher, Attr data)
+        public static object Parse(this IScriptEventProcessor processor, Attr data)
         {
             if(data.AttrType == AttrType.DICTIONARY)
             {
-                return dispatcher.Parse(
+                return processor.Parse(
                     data.AsDic[AttrKeyActionName].AsValue.ToString(),
                     data.AsDic[AttrKeyActionArguments]);
             }
             if(data.AttrType == AttrType.LIST)
             {
-                return dispatcher.Parse(
+                return processor.Parse(
                     data.AsList[0].AsValue.ToString(),
                     data.AsList[1]);
             }
             if(data.AttrType == AttrType.VALUE)
             {
-                return dispatcher.Parse(
+                return processor.Parse(
                     data.AsValue.ToString(),
                     new AttrEmpty());
             }
             return null;
         }
+
+        public static void RegisterConverter(this IScriptEventProcessor processor, IScriptEventConverter converter)
+        {
+            processor.RegisterSerializer(converter);
+            processor.RegisterParser(converter);
+        }
     }
 
     public interface IScriptEventsBridge : IDisposable
     {
-        void Load(IScriptEventProcessor dispatcher);
+        void Load(IScriptEventProcessor scriptProcessor, IEventProcessor processor);
     }
 
     public interface IScriptCondition
@@ -69,7 +73,7 @@ namespace SocialPoint.ScriptEvents
         bool Matches(string name, Attr arguments);
     }        
 
-    public sealed class ScriptEventProcessor : IScriptEventProcessor
+    public sealed class ScriptEventProcessor : IScriptEventProcessor, IEventHandler<object>
     {
         public struct ScriptEventData
         {
@@ -135,32 +139,34 @@ namespace SocialPoint.ScriptEvents
             }
         }
 
-        readonly EventProcessor<ScriptEventData> _processor;
+        readonly EventProcessor _processor;
+        readonly EventProcessor<ScriptEventData> _scriptProcessor;
 
         readonly List<IScriptEventParser> _parsers;
         readonly List<IScriptEventSerializer> _serializers;
         readonly List<IScriptEventsBridge> _bridges;
-        IEventDispatcher _dispatcher;
 
-        public ScriptEventProcessor(IEventDispatcher dispatcher)
+        public ScriptEventProcessor()
         {
-            _processor = new EventProcessor<ScriptEventData>();
+            _processor = new EventProcessor();
+            _scriptProcessor = new EventProcessor<ScriptEventData>();
             _parsers = new List<IScriptEventParser>();
             _serializers = new List<IScriptEventSerializer>();
             _bridges = new List<IScriptEventsBridge>();
-            _dispatcher = dispatcher;
-            _dispatcher.AddDefaultListener(OnRaised);
+
+            _processor.DerivedEventSupport = true;
+            _processor.RegisterHandler(this);
         }
 
         public void Dispose()
         {
-            _dispatcher.RemoveDefaultListener(OnRaised);
+            _processor.UnregisterHandler(this);
             for(int i = 0, _bridgesCount = _bridges.Count; i < _bridgesCount; i++)
             {
                 var bridge = _bridges[i];
                 bridge.Dispose();
             }
-            _processor.Dispose();
+            _scriptProcessor.Dispose();
             _serializers.Clear();
             _parsers.Clear();
             _bridges.Clear();
@@ -170,42 +176,36 @@ namespace SocialPoint.ScriptEvents
         {
             if(bridge != null && !_bridges.Contains(bridge))
             {
-                bridge.Load(this);
+                bridge.Load(this, _processor);
                 _bridges.Add(bridge);
             }
         }
 
         public void RegisterHandler(string name, Action<Attr> listener)
         {
-            _processor.DoRegisterHandler(listener, new EventHandlerWrapper(name, listener));
+            _scriptProcessor.DoRegisterHandler(listener, new EventHandlerWrapper(name, listener));
         }
 
         public void RegisterHandler(IScriptCondition condition, Action<string, Attr> listener)
         {
-            _processor.DoRegisterHandler(listener, new EventHandlerConditionWrapper(condition, listener));
+            _scriptProcessor.DoRegisterHandler(listener, new EventHandlerConditionWrapper(condition, listener));
         }
 
         public void RegisterHandler(Action<string, Attr> listener)
         {
-            _processor.DoRegisterHandler(listener, new EventHandlerDefaultWrapper(listener));
+            _scriptProcessor.DoRegisterHandler(listener, new EventHandlerDefaultWrapper(listener));
         }
 
         public bool UnregisterHandler(Action<Attr> listener)
         {
-            return _processor.DoUnregisterHandler<ScriptEventData>(listener);
+            return _scriptProcessor.DoUnregisterHandler<ScriptEventData>(listener);
         }
 
         public bool UnregisterHandler(Action<string, Attr> listener)
         {           
-            return _processor.DoUnregisterHandler<ScriptEventData>(listener);
+            return _scriptProcessor.DoUnregisterHandler<ScriptEventData>(listener);
         }
-
-        public void RegisterConverter(IScriptEventConverter converter)
-        {
-            RegisterSerializer(converter);
-            RegisterParser(converter);
-        }
-
+            
         public void RegisterSerializer(IScriptEventSerializer serializer)
         {
             if(!_serializers.Contains(serializer))
@@ -248,51 +248,40 @@ namespace SocialPoint.ScriptEvents
             var ev = Parse(name, args);
             if(ev != null)
             {
-                _dispatcher.Raise(ev);
+                _processor.Process(ev);
             }
             else
             {
-                OnRaised(name, args);
+                Handle(name, args);
             }
         }
 
-        void OnRaised(object ev)
+        void IEventHandler<object>.Handle(object ev)
         {
             Attr args = null;
             string name = null;
-            if(ev is ScriptEventData)
+            for(int i = 0, _serializersCount = _serializers.Count; i < _serializersCount; i++)
             {
-                var sev = (ScriptEventData)ev;
-                name = sev.Name;
-                args = sev.Arguments;
-            }
-            else
-            {
-                for(int i = 0, _serializersCount = _serializers.Count; i < _serializersCount; i++)
+                var serializer = _serializers[i];
+                if(serializer != null)
                 {
-                    var serializer = _serializers[i];
-                    if(serializer != null)
+                    args = serializer.Serialize(ev);
+                    if(args != null)
                     {
-                        args = serializer.Serialize(ev);
-                        if(args != null)
-                        {
-                            name = serializer.Name;
-                            break;
-                        }
+                        name = serializer.Name;
+                        break;
                     }
                 }
-                if(args == null || string.IsNullOrEmpty(name))
-                {
-                    return;
-                }
             }
-
-            OnRaised(name, args);
+            if(args != null && !string.IsNullOrEmpty(name))
+            {
+                Handle(name, args);
+            }
         }
 
-        void OnRaised(string name, Attr args)
+        void Handle(string name, Attr args)
         {
-            _processor.Process(new ScriptEventData {
+            _scriptProcessor.Process(new ScriptEventData {
                 Name = name,
                 Arguments = args
             });

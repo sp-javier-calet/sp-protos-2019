@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using SocialPoint.Alert;
 using SocialPoint.Attributes;
+using SocialPoint.Lifecycle;
 
 namespace SocialPoint.ScriptEvents
 {
@@ -58,11 +59,9 @@ namespace SocialPoint.ScriptEvents
     }
 
     public sealed class AlertBridge :
-        IEventsBridge, 
         IScriptEventsBridge
     {
-        
-        IEventDispatcher _dispatcher;
+        IEventProcessor _processor;
         readonly IAlertView _prototype;
 
         public AlertBridge(IAlertView prototype)
@@ -70,22 +69,18 @@ namespace SocialPoint.ScriptEvents
             _prototype = prototype;
         }
 
-        public void Load(IEventDispatcher dispatcher)
+        public void Load(IScriptEventProcessor scriptProcessor, IEventProcessor processor)
         {
-            _dispatcher = dispatcher;
-            _dispatcher.AddListener<AlertAction>(OnAlertAction);
-        }
-
-        public void Load(IScriptEventProcessor dispatcher)
-        {
-            dispatcher.RegisterParser(new AlertActionParser(dispatcher));
+            _processor = processor;
+            _processor.RegisterHandler<AlertAction>(OnAlertAction);
+            scriptProcessor.RegisterParser(new AlertActionParser(scriptProcessor));
         }
 
         public void Dispose()
         {
-            if(_dispatcher != null)
+            if(_processor != null)
             {
-                _dispatcher.RemoveListener<AlertAction>(OnAlertAction);
+                _processor.UnregisterHandler<AlertAction>(OnAlertAction);
             }
         }
 
@@ -100,7 +95,7 @@ namespace SocialPoint.ScriptEvents
             alert.Show(result => {
                 if(result >= 0 && action.Actions.Length > result)
                 {
-                    _dispatcher.Raise(action.Actions[result]);
+                    _processor.Process(action.Actions[result]);
                 }
                 alert.Dispose();
             });

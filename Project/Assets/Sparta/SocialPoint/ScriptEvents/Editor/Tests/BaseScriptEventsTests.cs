@@ -1,4 +1,6 @@
 ﻿using SocialPoint.Attributes;
+using SocialPoint.Lifecycle;
+using NSubstitute;
 
 namespace SocialPoint.ScriptEvents
 {
@@ -53,21 +55,24 @@ namespace SocialPoint.ScriptEvents
 
     class BaseScriptEventsTests
     {
-        protected EventDispatcher _dispatcher;
-        protected ScriptEventProcessor _scriptProcessor;
+        protected IScriptEventProcessor _scriptProcessor;
+        protected IEventProcessor _processor;
         protected TestEvent _testEvent;
         protected Attr _testArgs;
 
 
         virtual public void SetUp()
         {
-            _dispatcher = new EventDispatcher();
-            _scriptProcessor = new ScriptEventProcessor(_dispatcher);
+            _scriptProcessor = new ScriptEventProcessor();
             var testConv = new TestEventConverter();
             _scriptProcessor.RegisterConverter(testConv);
             _scriptProcessor.RegisterConverter(new OtherTestEventConverter());
             _testEvent = new TestEvent{ Value = "test_value" };
             _testArgs = testConv.Serialize(_testEvent);
+
+            var bridge = Substitute.For<IScriptEventsBridge>();
+            bridge.Load(Arg.Any<IScriptEventProcessor>(), Arg.Do<IEventProcessor>(p => _processor = p));
+            _scriptProcessor.RegisterBridge(bridge);
         }
     }
 
