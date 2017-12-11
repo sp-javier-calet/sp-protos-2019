@@ -1,65 +1,73 @@
-﻿using System;
+﻿
 using SocialPoint.IO;
+using System.IO;
 
 namespace SocialPoint.Network
 {
-    public static class SocketMsgType
+    public sealed class SocketNetworkMessage : INetworkMessage
     {
-        public const short Fail = UnityEngine.Networking.MsgType.Highest + 1;
-        public const short Highest = Fail;
+        public IWriter Writer{ get; private set; }
 
-        public static byte ConvertType(short type)
+        public NetworkMessageData Data{ get; private set; }
+
+//        SocketNetworkServer _server;
+//        SocketNetworkClient[] _clients;
+//        SocketNetworkClient _origin;
+        MemoryStream _stream;
+
+        public SocketNetworkMessage(NetworkMessageData data, SocketNetworkClient[] clients)
         {
-            return (byte)(type - 1 - UnetMsgType.Highest);
+//            _clients = clients;
+            Init(data);
         }
-    }
 
-    class SocketNetworkMessage : INetworkMessage
-    {
-        #region INetworkMessage implementation
+        public SocketNetworkMessage(NetworkMessageData data, SocketNetworkClient origin, SocketNetworkServer server)
+        {
+//            _origin = origin;
+//            _server = server;
+            Init(data);
+        }
+
+        void Init(NetworkMessageData data)
+        {
+            Data = data;
+            _stream = new MemoryStream();
+            Writer = new SystemBinaryWriter(_stream);
+        }
+
         public void Send()
         {
-            throw new NotImplementedException();
-        }
-        public IWriter Writer
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-        #endregion
-//        public IWriter Writer{ get; private set; }
-//
-//        NetworkWriter _writer;
-//        NetworkConnection[] _conns;
-//        int _channelId;
-//
-//        public EnetNetworkMessage(NetworkMessageData data, NetworkConnection[] conns)
-//        {
-//            if(data.MessageType > byte.MaxValue - UnetMsgType.Highest)
-//            {
-//                throw new ArgumentException("Message type is too big.");
-//            }
-//            _channelId = data.Unreliable ? Channels.DefaultUnreliable : Channels.DefaultReliable;
-//            _conns = conns;
-//            _writer = new NetworkWriter();
-//            _writer.StartMessage((short)(UnetMsgType.Highest + 1 + data.MessageType));
-//            Writer = new UnetNetworkWriter(_writer);
-//        }
-//
-//        public void Send()
-//        {
+            UnityEngine.Debug.Log("SocketNetworkMessage Send");
 //            Writer = null;
-//            _writer.FinishMessage();
-//            for(var i = 0; i < _conns.Length; i++)
+//            if(_server != null)
 //            {
-//                var conn = _conns[i];
-//                if(conn != null)
+//                _server.OnLocalMessageReceived(_origin, this);
+//            }
+//            if(_clients != null)
+//            {
+//                for(var i = 0; i < _clients.Length; i++)
 //                {
-//                    conn.SendWriter(_writer, _channelId);
+//                    var client = _clients[i];
+//                    if(client != null)
+//                    {
+//                        client.OnLocalMessageReceived(this);
+//                    }
 //                }
 //            }
-//        }
+        }
+
+        public IReader Receive()
+        {
+            var streamArray = _stream.ToArray();
+            var data = new NetworkMessageData
+            {
+                ClientIds = Data.ClientIds,
+                MessageType = Data.MessageType,
+                Unreliable = Data.Unreliable,
+                MessageLength = streamArray.Length
+            };
+            Data = data;
+            return new SystemBinaryReader(new MemoryStream(streamArray));
+        }
     }
 }

@@ -32,8 +32,8 @@ namespace SocialPoint.Network
             {
                 _delegates[i].OnServerStarted();
             }
-//            _serverListener.Start();
-//            _serverSocket = _serverListener.AcceptSocket();
+             _serverListener.Start();
+            _serverSocket = _serverListener.AcceptSocket();
         }
 
 
@@ -78,8 +78,8 @@ namespace SocialPoint.Network
 
         public override INetworkMessage CreateMessage(NetworkMessageData data)
         {
-            UnityEngine.Debug.Log("TCPSocketNetworkServer CreateMessage");
-            return null;
+            UnityEngine.Debug.Log("TCPSocketNetworkServer CreateMessage " + data.MessageType);
+            return new SocketNetworkMessage(data, null);
         }
 
       
