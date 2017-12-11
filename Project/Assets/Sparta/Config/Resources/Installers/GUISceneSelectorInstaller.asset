@@ -15,5 +15,5 @@ MonoBehaviour:
   Settings:
     UsePrototypeConfig: 1
     EntryScene: 
-    InitialScreenPrefab: {fileID: 1675610529506478, guid: e0b8d6de73a504ea3a23aa305ec18bf0,
+    InitialScreenPrefab: {fileID: 1675610529506478, guid: db1a8fcef85f346469a329fe7024f2e0,
       type: 2}
