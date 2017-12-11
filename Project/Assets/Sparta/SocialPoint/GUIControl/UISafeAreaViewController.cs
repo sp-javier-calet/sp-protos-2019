@@ -9,7 +9,6 @@ namespace SocialPoint.GUIControl
     public class UISafeAreaViewController : MonoBehaviour 
     {
         const string kPersistentTag = "persistent";
-        const string kShowSafeArea = "ShowSafeArea";
         const string kCustomX = "CustomSafeAreaX";
         const string kCustomY = "CustomSafeAreaY";
         const string kCustomWidth = "CustomSafeAreaWidth";
@@ -71,36 +70,28 @@ namespace SocialPoint.GUIControl
 #if ADMIN_PANEL
             if(_storage != null)
             {
-                var attr = _storage.Load(kShowSafeArea);
-                if(attr != null && attr.AsValue.ToBool())
+                var xAttr = _storage.Load(kCustomX);
+                if(xAttr != null)
                 {
-                    var xAttr = _storage.Load(kCustomX);
-                    if(xAttr != null)
-                    {
-                        x = xAttr.AsValue.ToFloat();  
-                    }
-
-                    var yAttr = _storage.Load(kCustomY);
-                    if(yAttr != null)
-                    {
-                        y = yAttr.AsValue.ToFloat(); 
-                    }
-
-                    var widthAttr = _storage.Load(kCustomWidth);
-                    if(widthAttr != null)
-                    {
-                        w = widthAttr.AsValue.ToFloat(); 
-                    }
-
-                    var heightAttr = _storage.Load(kCustomHeight);
-                    if(heightAttr != null)
-                    {
-                        h = heightAttr.AsValue.ToFloat(); 
-                    }
+                    x = xAttr.AsValue.ToFloat();  
                 }
-                else
+
+                var yAttr = _storage.Load(kCustomY);
+                if(yAttr != null)
                 {
-                    return _deviceInfo.SafeAreaRectSize; 
+                    y = yAttr.AsValue.ToFloat(); 
+                }
+
+                var widthAttr = _storage.Load(kCustomWidth);
+                if(widthAttr != null)
+                {
+                    w = widthAttr.AsValue.ToFloat(); 
+                }
+
+                var heightAttr = _storage.Load(kCustomHeight);
+                if(heightAttr != null)
+                {
+                    h = heightAttr.AsValue.ToFloat(); 
                 }
             }
             else

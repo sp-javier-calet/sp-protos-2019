@@ -1,30 +1,29 @@
 ﻿#if ADMIN_PANEL 
 
-using System.Collections.Generic;
-using System.Text;
 using SocialPoint.AdminPanel;
-using SocialPoint.Console;
-using UnityEngine.UI;
 using UnityEngine;
 using SocialPoint.Attributes;
-using SocialPoint.Dependency;
 using SocialPoint.Hardware;
+using UnityEngine.UI;
 
 namespace SocialPoint.GUIControl
 {
     public sealed class AdminPanelUI : IAdminPanelGUI, IAdminPanelConfigurer
     {
-        const string kShowSafeArea = "ShowSafeArea";
         const string kCustomX = "CustomSafeAreaX";
         const string kCustomY = "CustomSafeAreaY";
         const string kCustomWidth = "CustomSafeAreaWidth";
         const string kCustomHeight = "CustomSafeAreaHeight";
 
-        string _safeAreaX;
-        string _safeAreaY;
-        string _safeAreaWidth;
-        string _safeAreaHeight;
-        bool _showSafeArea;
+        float _safeAreaX;
+        float _safeAreaY;
+        float _safeAreaWidth;
+        float _safeAreaHeight;
+
+        InputField _safeAreaXInput;
+        InputField _safeAreaYInput;
+        InputField _safeAreaWidthInput;
+        InputField _safeAreaHeightInput;
 
         IAttrStorage _storage;
         IDeviceInfo _deviceInfo;
@@ -33,6 +32,8 @@ namespace SocialPoint.GUIControl
         {
             _deviceInfo = deviceInfo;
             _storage = persistentStorage;
+
+            LoadCustomSafeArea();
         }
             
         #region IAdminPanelConfigurer implementation
@@ -53,163 +54,102 @@ namespace SocialPoint.GUIControl
             _layout = layout;
             _layout.CreateLabel("Safe Area");
 
-            if(_showSafeArea)
-            {
-                _layout.CreateButton("Hide safe area", HideSafeArea);
+            var lhlayout = _layout.CreateHorizontalLayout();
+            lhlayout.CreateLabel("Left");
+            lhlayout.CreateLabel("Top");
+            lhlayout.CreateLabel("Width");
+            lhlayout.CreateLabel("Height");
 
-//                _layout.CreateTextArea("Current safe area: " + _safeAreaController.GetSafeAreaRect());
+            var hlayout = _layout.CreateHorizontalLayout();
+            _safeAreaXInput = hlayout.CreateTextInput(_safeAreaX.ToString());
+            _safeAreaYInput = hlayout.CreateTextInput(_safeAreaY.ToString());
+            _safeAreaWidthInput = hlayout.CreateTextInput(_safeAreaWidth.ToString());
+            _safeAreaHeightInput = hlayout.CreateTextInput(_safeAreaHeight.ToString());
 
-//                var lhlayout = _layout.CreateHorizontalLayout();
-//                lhlayout.CreateLabel("Left");
-//                lhlayout.CreateLabel("Top");
-//                lhlayout.CreateLabel("Width");
-//                lhlayout.CreateLabel("Height");
+            _layout.CreateButton("Use custom Safe Area", SetCustomSafeArea);
+            _layout.CreateMargin();
 
-//                var hlayout = _layout.CreateHorizontalLayout();
-//                hlayout.CreateTextInput(_safeAreaX, OnKeyXSubmitted);
-//                hlayout.CreateTextInput(_safeAreaY, OnKeyYSubmitted);
-//                hlayout.CreateTextInput(_safeAreaWidth, OnKeyWidthSubmitted);
-//                hlayout.CreateTextInput(_safeAreaHeight, OnKeyHeightSubmitted);
-//
-//                _layout.CreateButton("Set custom safe area", SetCustomSafeArea);
+            _layout.CreateButton("Use device Safe Area", SetDefaultSafeArea);
+            _layout.CreateButton("Use whole screen Safe Area", SetWholeScreenSafeArea);
+        }
 
-                _layout.CreateMargin();
+        void LoadCustomSafeArea()
+        {
+            var xAttr = _storage.Load(kCustomX);
+            _safeAreaX = xAttr != null ? xAttr.AsValue.ToFloat() : 0f;  
 
-                _layout.CreateButton("Set whole screen as safe area", SetWholeScreenSafeArea);
+            var yAttr = _storage.Load(kCustomY);
+            _safeAreaY = yAttr != null ? yAttr.AsValue.ToFloat() : 0f; 
 
-#if UNITY_IOS
-                _layout.CreateButton("Set Default Safe area", SetDefaultSafeArea);    
-#endif
-            }
-            else
-            {
-                _layout.CreateButton("Show safe area", ShowSafeArea);
-            }
+            var widthAttr = _storage.Load(kCustomWidth);
+            _safeAreaWidth = widthAttr != null ? widthAttr.AsValue.ToFloat() : _deviceInfo.ScreenSize.x; 
+
+            var heightAttr = _storage.Load(kCustomHeight);
+            _safeAreaHeight = heightAttr != null ? heightAttr.AsValue.ToFloat() : _deviceInfo.ScreenSize.y; 
         }
 
         void SaveCustomSafeArea()
         {
-            float valueX;
-            float.TryParse(_safeAreaX, out valueX);
-
-            float valueY;
-            float.TryParse(_safeAreaY, out valueY);
-
-            float valueWidth;
-            float.TryParse(_safeAreaWidth, out valueWidth);
-
-            float valueHeight;
-            float.TryParse(_safeAreaHeight, out valueHeight);
-
-            _storage.Save(kCustomX, new AttrString(_safeAreaX));
-            _storage.Save(kCustomY, new AttrString(_safeAreaY));
-            _storage.Save(kCustomWidth, new AttrString(_safeAreaWidth));
-            _storage.Save(kCustomHeight, new AttrString(_safeAreaHeight));
-        }
-
-        void OnKeyXSubmitted(string value)
-        {
-            _safeAreaX = value;
-            _storage.Save(kCustomX, new AttrString(_safeAreaX));
-
             _layout.Refresh();
-        }
 
-        void OnKeyYSubmitted(string value)
-        {
-            _safeAreaY = value;
-            _storage.Save(kCustomY, new AttrString(_safeAreaY));
-
-            _layout.Refresh();
-        }
-
-        void OnKeyWidthSubmitted(string value)
-        {
-            _safeAreaWidth = value;
-            _storage.Save(kCustomWidth, new AttrString(_safeAreaWidth));
-
-            _layout.Refresh();
-        }
-
-        void OnKeyHeightSubmitted(string value)
-        {
-            _safeAreaHeight = value;
-            _storage.Save(kCustomHeight, new AttrString(_safeAreaHeight));
-
-            _layout.Refresh();
-        }
-
-        #endregion
-
-        void ShowSafeArea()
-        {
-            _showSafeArea = true;
-            _storage.Save(kShowSafeArea, new AttrString(_showSafeArea.ToString()));
-
-            RefreshUIViewControllersSafeArea();
-        }
-
-        void HideSafeArea()
-        {
-            _showSafeArea = false;
-            _storage.Save(kShowSafeArea, new AttrString(_showSafeArea.ToString()));
-
-            SetWholeScreenSafeArea();
+            _storage.Save(kCustomX, new AttrFloat(_safeAreaX));
+            _storage.Save(kCustomY, new AttrFloat(_safeAreaY));
+            _storage.Save(kCustomWidth, new AttrFloat(_safeAreaWidth));
+            _storage.Save(kCustomHeight, new AttrFloat(_safeAreaHeight));
         }
             
+        #endregion
+
         void SetWholeScreenSafeArea()
         {
-            var rect = new Rect(0f, 0f, _deviceInfo.ScreenSize.x, _deviceInfo.ScreenSize.y);
-
-            _safeAreaX = rect.x.ToString();
-            _safeAreaY = rect.y.ToString();
-            _safeAreaWidth = rect.width.ToString();
-            _safeAreaHeight = rect.height.ToString();
+            _safeAreaX = 0f;
+            _safeAreaY = 0f;
+            _safeAreaWidth = _deviceInfo.ScreenSize.x;
+            _safeAreaHeight = _deviceInfo.ScreenSize.y;
 
             SaveCustomSafeArea();
-            RefreshUIViewControllersSafeArea();
+            ApplySafeArea();
+        }
+
+        void SetCustomSafeArea()
+        {
+            float.TryParse(_safeAreaXInput.text, out _safeAreaX);
+            float.TryParse(_safeAreaYInput.text, out _safeAreaY);
+            float.TryParse(_safeAreaWidthInput.text, out _safeAreaWidth);
+            float.TryParse(_safeAreaHeightInput.text, out _safeAreaHeight);
+
+            SaveCustomSafeArea();
+            ApplySafeArea();
         }
 
         void SetDefaultSafeArea()
         {
-            var rect = _deviceInfo.SafeAreaRectSize;
-
-            _safeAreaX = rect.x.ToString();
-            _safeAreaY = rect.y.ToString();
-            _safeAreaWidth = rect.width.ToString();
-            _safeAreaHeight = rect.height.ToString();
+            _safeAreaX = _deviceInfo.SafeAreaRectSize.x;
+            _safeAreaY = _deviceInfo.SafeAreaRectSize.y;
+            _safeAreaWidth = _deviceInfo.SafeAreaRectSize.width;
+            _safeAreaHeight = _deviceInfo.SafeAreaRectSize.height;
 
             SaveCustomSafeArea();
-            RefreshUIViewControllersSafeArea();
+            ApplySafeArea();
         }
-
-        void RefreshUIViewControllersSafeArea()
+            
+        void ApplySafeArea()
         {
-            _layout.Refresh();
+            var rect = new Rect(_safeAreaX, _safeAreaY, _safeAreaWidth, _safeAreaHeight);
+            var ratioX = Screen.width / _deviceInfo.ScreenSize.x;
+            var ratioY = Screen.height / _deviceInfo.ScreenSize.y;
 
-//            if(_stackController != null)
-//            {
-//                _stackController.RefreshSafeArea(_safeAreaController.GetSafeAreaRect());
-//            }
-//
-//            if(_safeAreaController)
-//            {
-//                _safeAreaController.ShowGizmos(_showSafeArea);
-//            }
-        }
+            var finalRect = new Rect(rect.x * ratioX, rect.y * ratioY, rect.width * ratioX, rect.height * ratioY);
 
-        public void RefreshSafeArea(Rect rect)
-        {
-//            var safeAreaViews = f
-
-//            for(int i = Count - 1; i >= 0; --i)
-//            {
-//                var node = _stack[i]; 
-//                if(IsValidStackNode(node))
-//                {
-//                    node.Controller.ApplySafeArea(rect);
-//                }
-//            }
+            var views = Object.FindObjectsOfType<UISafeAreaViewController>();
+            for(int i = 0; i < views.Length; ++i)
+            {
+                var view = views[i];
+                if(view != null)
+                {
+                    view.ApplySafeArea(finalRect);
+                }
+            }
         }
     }
 }

@@ -147,7 +147,6 @@ namespace SocialPoint.Hardware
             {
                 if(_screenSize == Vector2.zero)
                 {
-//                    var size = UnityGameWindowUtils.GetMainGameViewSize();
                     _screenSize.x = Screen.width;
                     _screenSize.y = Screen.height;
                 }
