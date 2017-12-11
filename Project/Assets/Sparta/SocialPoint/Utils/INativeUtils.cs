@@ -60,5 +60,9 @@
         /// </summary>
         /// <value>The shortcut items.</value>
         ShortcutItem[] ShortcutItems{ get; set; }
+
+        #if ADMIN_PANEL
+        void ClearDataAndKillApp();
+        #endif
     }
 }

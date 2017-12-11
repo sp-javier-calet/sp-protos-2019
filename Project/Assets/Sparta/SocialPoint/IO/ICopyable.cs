@@ -1,4 +1,4 @@
-using SocialPoint.Utils;
+using SocialPoint.Pooling;
 
 namespace SocialPoint.IO
 {
@@ -9,6 +9,6 @@ namespace SocialPoint.IO
 
     public interface IPoolCloneable
     {
-        object Clone(ObjectPool pool);
+        object Clone(ObjectPool pool = null);
     }
 }

@@ -11,6 +11,8 @@ namespace SocialPoint.Marketing
     {
         void AddTracker(IMarketingTracker tracker);
 
+        IMarketingTracker GetTracker(string name);
+
         void OnGameLoaded();
 
         void TrackInstall();

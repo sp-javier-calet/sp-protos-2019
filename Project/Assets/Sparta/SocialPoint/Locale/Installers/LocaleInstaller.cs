@@ -55,20 +55,12 @@ namespace SocialPoint.Locale
             Container.Bind<bool>("use_always_device_language").ToInstance(Settings.UseAlwaysDeviceLanguage);
 
             Container.Bind<Localization>().ToGetter<ILocalizationManager>(mng => mng.Localization);
-            Container.Rebind<LocalizeAttributeConfiguration>().ToMethod<LocalizeAttributeConfiguration>(CreateLocalizeAttributeConfiguration);
             Container.Rebind<ILocalizationManager>().ToMethod<LocalizationManager>(CreateLocalizationManager, SetupLocalizationManager);
             Container.Bind<IDisposable>().ToLookup<ILocalizationManager>();
 
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelLocale>(CreateAdminPanel);
             #endif
-        }
-            
-        LocalizeAttributeConfiguration CreateLocalizeAttributeConfiguration()
-        {
-            return new LocalizeAttributeConfiguration(
-                Container.Resolve<Localization>(),
-                Container.ResolveList<IMemberAttributeObserver<LocalizeAttribute>>());
         }
 
         #if ADMIN_PANEL

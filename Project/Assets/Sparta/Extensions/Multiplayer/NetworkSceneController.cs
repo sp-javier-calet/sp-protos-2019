@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using SocialPoint.Utils;
+using SocialPoint.Lifecycle;
 using SocialPoint.IO;
 using SocialPoint.Network;
 
@@ -23,7 +23,7 @@ namespace SocialPoint.Multiplayer
 
     public abstract class NetworkSceneController<GameObject> : INetworkMessageSender, IDisposable where GameObject : NetworkGameObject
     {
-        protected NetworkActionHandler _actions;
+        protected NetworkActionProcessor _actions;
         protected NetworkScene _activeScene;
         Dictionary<byte, KeyValuePair<List<INetworkBehaviour>, List<Type>>> _behaviourPrototypes = new Dictionary<byte, KeyValuePair<List<INetworkBehaviour>, List<Type>>>();
         List<INetworkBehaviour> _genericBehaviourPrototypes = new List<INetworkBehaviour>();
@@ -51,7 +51,7 @@ namespace SocialPoint.Multiplayer
         protected void Init(NetworkScene scene)
         {
             _activeScene = scene;
-            _actions = new NetworkActionHandler(_activeScene, this);
+            _actions = new NetworkActionProcessor(_activeScene, this);
         }
 
         public virtual void Dispose()
@@ -262,7 +262,7 @@ namespace SocialPoint.Multiplayer
             _actions.RegisterAction<T>(msgType, callback);
         }
 
-        public void RegisterAction<T>(byte msgType, IActionHandler<NetworkSceneMemento, T> handler) where T : INetworkShareable, new()
+        public void RegisterAction<T>(byte msgType, IStateActionHandler<NetworkSceneMemento, T> handler) where T : INetworkShareable, new()
         {
             _actions.RegisterAction<T>(msgType, handler);
         }

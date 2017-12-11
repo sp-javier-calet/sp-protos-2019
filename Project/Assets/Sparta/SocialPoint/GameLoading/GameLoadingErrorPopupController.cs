@@ -11,8 +11,7 @@ public sealed class GameLoadingErrorPopupController : UIViewController
 
     public event Action Dismissed;
 
-    [Localize]
-    public Text Message;
+    public SPText Message;
 
     protected override void OnLoad()
     {
