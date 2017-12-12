@@ -6,15 +6,14 @@ using SocialPoint.Hardware;
 
 namespace SocialPoint.Utils
 {
-
     public sealed class IosNativeUtils : UnityNativeUtils
     {
-        public IosNativeUtils(IAppInfo appInfo):base(appInfo)
+        public IosNativeUtils(IAppInfo appInfo) : base(appInfo)
         {
         }
 
-#if (UNITY_IOS || UNITY_TVOS)
-
+        #if (UNITY_IOS || UNITY_TVOS)
+        
         public override void OpenApp(string appId)
         {
             Application.OpenURL(appId);
@@ -57,7 +56,7 @@ namespace SocialPoint.Utils
             return SPUnityNativeUtilsIsInstalled(appId);
         }
 
-        string GetAppUrl(string appId, string suffix=null)
+        string GetAppUrl(string appId, string suffix = null)
         {
             return string.Format("itms-apps://itunes.apple.com/app/id{0}{1}", appId, suffix);
         }
@@ -128,6 +127,16 @@ namespace SocialPoint.Utils
             }
         }
 
-#endif
+        #if ADMIN_PANEL
+        [DllImport("__Internal")]
+        public static extern void SPUnityNativeUtilsClearDataAndKillApp();
+
+        public override void ClearDataAndKillApp()
+        {
+            SPUnityNativeUtilsClearDataAndKillApp();
+        }
+        #endif
+        
+        #endif
     }
 }

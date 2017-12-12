@@ -101,6 +101,7 @@ EXPORT_API char* SPUnityNotificationsDeviceToken();
 EXPORT_API char* SPUnityNotificationsRegistrationError();
 EXPORT_API bool SPUnityNativeUtilsSupportsReviewDialog();
 EXPORT_API void SPUnityNativeUtilsDisplayReviewDialog();
+EXPORT_API void SPUnityNativeUtilsClearDataAndKillApp();
 }
 
 #endif

@@ -13,7 +13,7 @@ namespace SocialPoint.Marketing
 
         public const string AppPreviouslyInstalledForMarketing = "sparta_app_previously_installed_for_marketing";
 
-        readonly List<IMarketingTracker> _trackers;
+        readonly Dictionary<string, IMarketingTracker> _trackers;
         readonly IAppEvents _appEvents;
 
         IAttrStorage _storage;
@@ -25,7 +25,7 @@ namespace SocialPoint.Marketing
 
         public SocialPointMarketingAttributionManager(IAppEvents appEvents, IAttrStorage storage)
         {
-            _trackers = new List<IMarketingTracker>();
+            _trackers = new Dictionary<string, IMarketingTracker>();
             _appEvents = appEvents;
             _appEvents.GameWasLoaded.Add(0, OnGameLoaded);
 
@@ -46,9 +46,19 @@ namespace SocialPoint.Marketing
         public void AddTracker(IMarketingTracker tracker)
         {
             DebugUtils.Assert(!_tracked, "SocialPointMarketingAttributionManager Track already done, add the tracker before");
-            DebugUtils.Assert(!_trackers.Contains(tracker), "SocialPointMarketingAttributionManager tracker already added");
+            DebugUtils.Assert(!_trackers.ContainsValue(tracker), "SocialPointMarketingAttributionManager tracker already added");
             tracker.OnDataReceived += OnTrackerReceivedData;
-            _trackers.Add(tracker);
+            _trackers.Add(tracker.Name, tracker);
+        }
+
+        public IMarketingTracker GetTracker(string name)
+        {
+            IMarketingTracker tracker = null;
+            if(_trackers.ContainsKey(name))
+            {
+                tracker = _trackers[name];
+            }
+            return tracker;
         }
 
         public void OnGameLoaded()
@@ -62,9 +72,11 @@ namespace SocialPoint.Marketing
             bool isNewInstall = !_appPreviouslyInstalled;
             DebugUtils.Assert(LoginData != null, "SocialPointMarketingAttributionManager UserId is null");
             DebugUtils.Assert(!String.IsNullOrEmpty(LoginData.UserId.ToString()), "SocialPointMarketingAttributionManager UserId returns empty");
-            for(var i = 0; i < _trackers.Count; i++)
+
+            var itr = _trackers.Values.GetEnumerator();
+            while(itr.MoveNext())
             {
-                var tracker = _trackers[i];
+                var tracker = itr.Current;
                 #if DEBUG
                 tracker.SetDebugMode(DebugMode);
                 #endif
@@ -72,6 +84,7 @@ namespace SocialPoint.Marketing
 
                 tracker.TrackInstall(isNewInstall);
             }
+            itr.Dispose();
             _tracked = true;
         }
 
@@ -107,10 +120,12 @@ namespace SocialPoint.Marketing
 
         public void Dispose()
         {
-            for(int i = 0; i < _trackers.Count; i++)
+            var itr = _trackers.Values.GetEnumerator();
+            while(itr.MoveNext())
             {
-                _trackers[i].OnDataReceived -= OnTrackerReceivedData;
+                itr.Current.OnDataReceived -= OnTrackerReceivedData;
             }
+            itr.Dispose();
             _appEvents.GameWasLoaded.Remove(OnGameLoaded);
         }
 
