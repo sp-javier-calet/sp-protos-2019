@@ -93,7 +93,9 @@ namespace SocialPoint.Network
 
         public virtual void Dispose()
         {
-            throw new NotImplementedException();
+            _delegates.Clear();
+            _delegates = null;
+            _receiver = null;
         }
 
         #endregion

@@ -11,43 +11,53 @@ namespace SocialPoint.Network
     {
         private  TCPServerListener _listener;
 
-        public TCPSocketNetworkServer(IUpdateScheduler updateScheduler, int port = DefaultPort) : base(updateScheduler, port)
+        public TCPSocketNetworkServer(IUpdateScheduler updateScheduler, int port = DefaultPort)
+            : base(updateScheduler, port)
         {
             UnityEngine.Debug.Log("TCPSocketNetworkServer CONSTRUCTOR");
 
             IPAddress ipAdress = IPAddress.Any;
             _serverAddr = ipAdress.ToString();
 
-            _listener = new TCPServerListener(this, ipAdress, port);
+            _listener = new TCPServerListener(ipAdress, port);
+
+            RegisterHandlers();
+
+        }
+
+        void RegisterHandlers()
+        {
+            _listener.OnConnectClient += NotifyClientConnected;
+            _listener.OnDisconnectClient += NotifyClientConnected;
         }
 
         public override void Start()
         {
             UnityEngine.Debug.Log("TCPSocketNetworkServer Start");
-            if(Running)
+            if (Running)
             {
                 return;
             }
 
             Running = true;
-            for(var i = 0; i < _delegates.Count; i++)
+            for (var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnServerStarted();
             }
-                _listener.Start();
+            _listener.Start();
         }
 
 
         public override void Stop()
         {
             UnityEngine.Debug.Log("TCPSocketNetworkServer RegisterReceiver");
-            if(!Running)
+            if (!Running)
             {
                 return;
             }
 
             Running = false;
-            for(var i = 0; i < _delegates.Count; i++)
+            for (var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnServerStopped();
             }
@@ -88,32 +98,39 @@ namespace SocialPoint.Network
         public override void Dispose()
         {
             UnityEngine.Debug.Log("TCPSocketNetworkServer Dispose");
+            base.Dispose();
+            UnregisterHandlers();
         }
 
+        void UnregisterHandlers()
+        {
+            _listener.OnConnectClient -= NotifyClientConnected;
+            _listener.OnDisconnectClient -= NotifyClientConnected;
+        }
       
         public override void Update()
         {
             UnityEngine.Debug.Log("TCPSocketNetworkServer Update");
         }
 
-        public void NotifyClientConnected(TCPServerListener tCPServerListener, TcpClient newClient)
+        public void NotifyClientConnected(TcpClient client)
         {
-            throw new NotImplementedException();
+            UnityEngine.Debug.Log("NotifyClientConnected");
+            byte clientId = 0;
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnClientConnected(clientId);
+            }
         }
 
-        public void NotifyClientDisconnected(TCPServerListener tCPServerListener, TcpClient disC)
+        public void NotifyClientDisconnected(TcpClient client)
         {
-            throw new NotImplementedException();
-        }
-
-        public void NotifyDelimiterMessageRx(TCPServerListener tCPServerListener, TcpClient c, byte[] msg)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void NotifyEndTransmissionRx(TCPServerListener tCPServerListener, TcpClient c, byte[] @byte)
-        {
-            throw new NotImplementedException();
+            UnityEngine.Debug.Log("NotifyClientDisconnected");
+            byte clientId = 0;
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnClientDisconnected(clientId);
+            }
         }
 
 

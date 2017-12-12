@@ -19,15 +19,19 @@ public class SocketController : MonoBehaviour , INetworkClientDelegate, INetwork
         _netServer.Start();
 
 
-//        //CLIENT
-//        _netClient = Services.Instance.Resolve<SocketNetworkClient>();
-//        _netClient.RemoveDelegate(this);
-//        _netClient.AddDelegate(this);
-//        _netClient.RegisterReceiver(this);
-//        _netClient.Connect();
+        //CLIENT
+        _netClient = Services.Instance.Resolve<SocketNetworkClient>();
+        _netClient.RemoveDelegate(this);
+        _netClient.AddDelegate(this);
+        _netClient.RegisterReceiver(this);
+        _netClient.Connect();
     }
 
-
+    void OnDestroy()
+    {
+        _netServer.Dispose();
+        _netClient.Dispose();
+    }
     #region INetworkClientDelegate implementation
     public void OnClientConnected()
     {

@@ -1,12 +1,18 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Threading;
+using System.Collections.Generic;
 
 namespace SocialPoint.Network
 {
     public sealed class TCPSocketNetworkClient : SocketNetworkClient
     {
-        TcpClient _client;
-//        NetworkStream _stream;
+        const int ReadLoopIntervalMs = 10;
+
+        internal bool QueueStop { get; set; }
+
+        private TcpClient _client;
+        private Thread _receiveMessagesThread = null;
 
         public override byte ClientId
         {
@@ -25,10 +31,10 @@ namespace SocialPoint.Network
         }
 
 
-        public TCPSocketNetworkClient(string serverAddr = null, int serverPort = UnetNetworkServer.DefaultPort) : base(serverAddr, serverPort)
+        public TCPSocketNetworkClient(string serverAddr = null, int serverPort = UnetNetworkServer.DefaultPort)
+            : base(serverAddr, serverPort)
         {
             _client = new TcpClient();
-//            _stream = _client.GetStream();
         }
 
 
@@ -36,19 +42,98 @@ namespace SocialPoint.Network
         {
             UnityEngine.Debug.Log("Connect");
 
-            if(Connected)
+            if (Connected)
             {
                 return;
             }
 
             _client.Connect(_serverAddr, _serverPort);
+            StartReceiveMessagesThread();
+        }
+
+        void StartReceiveMessagesThread()
+        {
+            if (_receiveMessagesThread != null)
+            {
+                return;
+            }
+
+            _receiveMessagesThread = new Thread(ListenerLoop);
+            _receiveMessagesThread.IsBackground = true;
+            _receiveMessagesThread.Start();
+        }
+
+        private void ListenerLoop(object state)
+        {
+            while (!QueueStop)
+            {
+                try
+                {
+                    RunLoopStep();
+                }
+                catch
+                {
+        
+                }
+        
+                System.Threading.Thread.Sleep(ReadLoopIntervalMs);
+            }
+        
+            _receiveMessagesThread = null;
+        }
+
+        private void RunLoopStep()
+        {
+            if (_client == null)
+            {
+                return;
+            }
+            if (_client.Connected == false)
+            {
+                return;
+            }
+        
+            UnityEngine.Debug.Log("CLIENT RunLoopStep");
+//            var delimiter = this.Delimiter;
+//            var c = _client;
+//        
+//            int bytesAvailable = c.Available;
+//            if (bytesAvailable == 0)
+//            {
+//                System.Threading.Thread.Sleep(10);
+//                return;
+//            }
+//        
+//            List<byte> bytesReceived = new List<byte>();
+//        
+//            while (c.Available > 0 && c.Connected)
+//            {
+//                byte[] nextByte = new byte[1];
+//                c.Client.Receive(nextByte, 0, 1, SocketFlags.None);
+//                bytesReceived.AddRange(nextByte);
+//                if (nextByte[0] == delimiter)
+//                {
+//                    byte[] msg = _queuedMsg.ToArray();
+//                    _queuedMsg.Clear();
+//                    NotifyDelimiterMessageRx(c, msg);
+//                }
+//                else
+//                {
+//                    _queuedMsg.AddRange(nextByte);
+//                }
+//            }
+//        
+//            if (bytesReceived.Count > 0)
+//            {
+//                NotifyEndTransmissionRx(c, bytesReceived.ToArray());
+//            }
         }
 
         public override void Disconnect()
         {
             UnityEngine.Debug.Log("Disconnect");
 
-            if(!Connected)
+            if (!Connected)
             {
                 return;
             }
@@ -57,7 +142,7 @@ namespace SocialPoint.Network
             _client.Client.Disconnect(true);
 
         }
-       
+
         public override int GetDelay(int networkTimestamp)
         {
             throw new NotImplementedException();
@@ -73,6 +158,8 @@ namespace SocialPoint.Network
         public override void Dispose()
         {
             base.Dispose();
+
+            QueueStop = true;
 
             _client.Close();
             _client = null;

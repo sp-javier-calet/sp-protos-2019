@@ -1,27 +1,39 @@
 ﻿using System.Net;
 using System.Net.Sockets;
 using System.Collections.Generic;
+using System;
 
 namespace SocialPoint.Network
 {
     public class TCPServerListener
     {
-        const int ReadLoopIntervalMs  = 10;
+        const int ReadLoopIntervalMs = 10;
 
         internal bool QueueStop { get; set; }
 
-        private TCPSocketNetworkServer _server;
         private TcpListener _listener = null;
         private List<TcpClient> _connectedClients = new List<TcpClient>();
         private List<TcpClient> _disconnectedClients = new List<TcpClient>();
-//        private List<byte> _queuedMsg = new List<byte>();
+        //        private List<byte> _queuedMsg = new List<byte>();
         private IPAddress _ipAddress;
         private int _port;
 
 
-        public TCPServerListener(TCPSocketNetworkServer server, IPAddress ipAddress, int port)
+        //        public delegate void StartEvent();
+        //        public delegate void StopEvent(Exception exception = null);
+        public delegate void ConnectClientEvent(TcpClient client);
+        public delegate void DisconnectClientEvent(TcpClient client);
+        //        public delegate void DataEvent(IPEndPoint remoteIPEP,byte[] data);
+
+
+        //        public event StartEvent OnStart;
+        //        public event StopEvent OnStop;
+        public event ConnectClientEvent OnConnectClient;
+        public event DisconnectClientEvent OnDisconnectClient;
+        //        public event DataEvent OnData;
+
+        public TCPServerListener(IPAddress ipAddress, int port)
         {
-            _server = server;
             _ipAddress = ipAddress;
             _port = port;
 
@@ -29,7 +41,7 @@ namespace SocialPoint.Network
 
             _listener = new TcpListener(_ipAddress, _port);
         }
-       
+
         public void Start()
         {
             _listener.Start();
@@ -45,7 +57,7 @@ namespace SocialPoint.Network
                 {
                     RunLoopStep();
                 }
-                catch 
+                catch
                 {
 
                 }
@@ -62,10 +74,13 @@ namespace SocialPoint.Network
                 var disconnectedClients = _disconnectedClients.ToArray();
                 _disconnectedClients.Clear();
 
-                foreach (var disC in disconnectedClients)
+                foreach (var client in disconnectedClients)
                 {
-                    _connectedClients.Remove(disC);
-                    _server.NotifyClientDisconnected(this, disC);
+                    if (OnDisconnectClient != null)
+                    {
+                        OnDisconnectClient(client);
+                    }
+                    _connectedClients.Remove(client);
                 }
             }
 
@@ -73,7 +88,10 @@ namespace SocialPoint.Network
             {
                 var newClient = _listener.AcceptTcpClient();
                 _connectedClients.Add(newClient);
-                _server.NotifyClientConnected(this, newClient);
+                if (OnConnectClient != null)
+                {
+                    OnConnectClient(newClient);
+                }
             }
 
 //            _delimiter = _server.Delimiter;
