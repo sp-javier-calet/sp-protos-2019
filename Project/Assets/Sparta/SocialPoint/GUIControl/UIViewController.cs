@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using SocialPoint.Base;
 using UnityEngine;
-using SocialPoint.Dependency;
 
 namespace SocialPoint.GUIControl
 {
@@ -39,9 +38,6 @@ namespace SocialPoint.GUIControl
         ViewState _viewState = ViewState.Initial;
         Coroutine _showCoroutine;
         Coroutine _hideCoroutine;
-
-        [SerializeField]
-        RectTransform _safeAreaParent;
 
         [HideInInspector]
         public UIViewController ParentController;
@@ -681,7 +677,6 @@ namespace SocialPoint.GUIControl
             #if !NGUI
             AddLayers();
             #endif
-
             NotifyViewEvent();
         }
 
