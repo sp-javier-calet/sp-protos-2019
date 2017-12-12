@@ -6,6 +6,7 @@ namespace SocialPoint.Network
     public sealed class TCPSocketNetworkClient : SocketNetworkClient
     {
         TcpClient _client;
+//        NetworkStream _stream;
 
         public override byte ClientId
         {
@@ -27,6 +28,7 @@ namespace SocialPoint.Network
         public TCPSocketNetworkClient(string serverAddr = null, int serverPort = UnetNetworkServer.DefaultPort) : base(serverAddr, serverPort)
         {
             _client = new TcpClient();
+//            _stream = _client.GetStream();
         }
 
 
@@ -55,7 +57,6 @@ namespace SocialPoint.Network
             _client.Client.Disconnect(true);
 
         }
-
        
         public override int GetDelay(int networkTimestamp)
         {

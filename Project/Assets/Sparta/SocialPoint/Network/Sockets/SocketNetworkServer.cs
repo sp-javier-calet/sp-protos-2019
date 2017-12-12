@@ -108,9 +108,6 @@ namespace SocialPoint.Network
         #endregion
 
 
-
-
-
         //
         //
         //

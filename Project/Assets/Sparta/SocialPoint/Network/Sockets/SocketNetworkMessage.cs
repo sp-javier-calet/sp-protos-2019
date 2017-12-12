@@ -38,22 +38,8 @@ namespace SocialPoint.Network
         public void Send()
         {
             UnityEngine.Debug.Log("SocketNetworkMessage Send");
-//            Writer = null;
-//            if(_server != null)
-//            {
-//                _server.OnLocalMessageReceived(_origin, this);
-//            }
-//            if(_clients != null)
-//            {
-//                for(var i = 0; i < _clients.Length; i++)
-//                {
-//                    var client = _clients[i];
-//                    if(client != null)
-//                    {
-//                        client.OnLocalMessageReceived(this);
-//                    }
-//                }
-//            }
+            Writer.Write("test");
+           
         }
 
         public IReader Receive()

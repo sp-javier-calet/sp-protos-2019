@@ -3,22 +3,24 @@ using SocialPoint.Base;
 using SocialPoint.Utils;
 using System.Net.Sockets;
 using System.Net;
+using System.Collections.Generic;
 
 namespace SocialPoint.Network
 {
     public class TCPSocketNetworkServer : SocketNetworkServer
     {
-        TcpListener _serverListener;
-        Socket _serverSocket;
+        private  TCPServerListener _listener;
 
         public TCPSocketNetworkServer(IUpdateScheduler updateScheduler, int port = DefaultPort) : base(updateScheduler, port)
         {
             UnityEngine.Debug.Log("TCPSocketNetworkServer CONSTRUCTOR");
 
-            _serverAddr = IPAddress.Any.ToString();
+            IPAddress ipAdress = IPAddress.Any;
+            _serverAddr = ipAdress.ToString();
 
-            _serverListener = new TcpListener(IPAddress.Any, port);
+            _listener = new TCPServerListener(this, ipAdress, port);
         }
+
         public override void Start()
         {
             UnityEngine.Debug.Log("TCPSocketNetworkServer Start");
@@ -32,8 +34,7 @@ namespace SocialPoint.Network
             {
                 _delegates[i].OnServerStarted();
             }
-             _serverListener.Start();
-            _serverSocket = _serverListener.AcceptSocket();
+                _listener.Start();
         }
 
 
@@ -50,8 +51,8 @@ namespace SocialPoint.Network
             {
                 _delegates[i].OnServerStopped();
             }
-            _serverSocket.Close();
-            _serverListener.Stop();
+
+            _listener.QueueStop = true;
         }
 
        
@@ -94,6 +95,37 @@ namespace SocialPoint.Network
         {
             UnityEngine.Debug.Log("TCPSocketNetworkServer Update");
         }
+
+        public void NotifyClientConnected(TCPServerListener tCPServerListener, TcpClient newClient)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void NotifyClientDisconnected(TCPServerListener tCPServerListener, TcpClient disC)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void NotifyDelimiterMessageRx(TCPServerListener tCPServerListener, TcpClient c, byte[] msg)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void NotifyEndTransmissionRx(TCPServerListener tCPServerListener, TcpClient c, byte[] @byte)
+        {
+            throw new NotImplementedException();
+        }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
