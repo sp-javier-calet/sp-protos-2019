@@ -25,8 +25,8 @@ namespace SocialPoint.GUIControl
         InputField _safeAreaWidthInput;
         InputField _safeAreaHeightInput;
 
-        IAttrStorage _storage;
-        IDeviceInfo _deviceInfo;
+        readonly IAttrStorage _storage;
+        readonly IDeviceInfo _deviceInfo;
 
         public AdminPanelUI(IDeviceInfo deviceInfo, IAttrStorage persistentStorage)
         {
@@ -61,16 +61,40 @@ namespace SocialPoint.GUIControl
             lhlayout.CreateLabel("Height");
 
             var hlayout = _layout.CreateHorizontalLayout();
-            _safeAreaXInput = hlayout.CreateTextInput(_safeAreaX.ToString());
-            _safeAreaYInput = hlayout.CreateTextInput(_safeAreaY.ToString());
-            _safeAreaWidthInput = hlayout.CreateTextInput(_safeAreaWidth.ToString());
-            _safeAreaHeightInput = hlayout.CreateTextInput(_safeAreaHeight.ToString());
+            _safeAreaXInput = hlayout.CreateTextInput(_safeAreaX.ToString(), OnKeyXSubmitted);
+            _safeAreaYInput = hlayout.CreateTextInput(_safeAreaY.ToString(), OnKeyYSubmitted);
+            _safeAreaWidthInput = hlayout.CreateTextInput(_safeAreaWidth.ToString(), OnKeyWidthSubmitted);
+            _safeAreaHeightInput = hlayout.CreateTextInput(_safeAreaHeight.ToString(), OnKeyHeightSubmitted);
 
             _layout.CreateButton("Use custom Safe Area", SetCustomSafeArea);
             _layout.CreateMargin();
 
             _layout.CreateButton("Use device Safe Area", SetDefaultSafeArea);
-            _layout.CreateButton("Use whole screen Safe Area", SetWholeScreenSafeArea);
+            _layout.CreateButton("Disable Safe Area", SetWholeScreenSafeArea);
+        }
+
+        void OnKeyXSubmitted(string value)
+        {
+            float.TryParse(_safeAreaXInput.text, out _safeAreaX);
+            _storage.Save(kCustomX, new AttrFloat(_safeAreaX));
+        }
+
+        void OnKeyYSubmitted(string value)
+        {
+            float.TryParse(_safeAreaYInput.text, out _safeAreaY);
+            _storage.Save(kCustomY, new AttrFloat(_safeAreaY));
+        }
+
+        void OnKeyWidthSubmitted(string value)
+        {
+            float.TryParse(_safeAreaWidthInput.text, out _safeAreaWidth);
+            _storage.Save(kCustomWidth, new AttrFloat(_safeAreaWidth));
+        }
+
+        void OnKeyHeightSubmitted(string value)
+        {
+            float.TryParse(_safeAreaHeightInput.text, out _safeAreaHeight);
+            _storage.Save(kCustomHeight, new AttrFloat(_safeAreaHeight));
         }
 
         void LoadCustomSafeArea()
@@ -113,11 +137,6 @@ namespace SocialPoint.GUIControl
 
         void SetCustomSafeArea()
         {
-            float.TryParse(_safeAreaXInput.text, out _safeAreaX);
-            float.TryParse(_safeAreaYInput.text, out _safeAreaY);
-            float.TryParse(_safeAreaWidthInput.text, out _safeAreaWidth);
-            float.TryParse(_safeAreaHeightInput.text, out _safeAreaHeight);
-
             SaveCustomSafeArea();
             ApplySafeArea();
         }
