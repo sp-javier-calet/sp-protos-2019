@@ -42,9 +42,9 @@ namespace SocialPoint.GUIControl
         {
             if(rect != Rect.zero)
             {
-//#if NGUI
+#if NGUI
                 SocialPoint.Base.Log.w("We have not NGUI libraries in base game");
-//#else
+#else
                 var anchorMin = rect.position;
                 var anchorMax = rect.position + rect.size;
                 anchorMin.x /= _screenRect.width;
@@ -55,7 +55,7 @@ namespace SocialPoint.GUIControl
                 var rectTransform = GetComponent<RectTransform>();
                 rectTransform.anchorMin = anchorMin;
                 rectTransform.anchorMax = anchorMax;
-//#endif
+#endif
             }
         }
 
