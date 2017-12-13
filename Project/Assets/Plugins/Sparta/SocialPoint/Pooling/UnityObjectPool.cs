@@ -537,7 +537,7 @@ namespace SocialPoint.Pooling
             return list;
         }
 
-        public static void DestroyPooled(GameObject prefab)
+        static void DestroyPooled(GameObject prefab, bool removePool)
         {
             List<GameObject> pooled;
             if(Instance._pooledObjects.TryGetValue(prefab, out pooled))
@@ -547,8 +547,16 @@ namespace SocialPoint.Pooling
                     pooled[i].DestroyAnyway();
                 }
                 pooled.Clear();
-                Instance._pooledObjects.Remove(prefab);
+                if(removePool)
+                {
+                    Instance._pooledObjects.Remove(prefab);
+                }
             }
+        }
+
+        public static void DestroyPooled(GameObject prefab)
+        {
+            DestroyPooled(prefab, true);
         }
 
         public static void DestroyPooled<T>(T prefab) where T : Component
@@ -556,14 +564,19 @@ namespace SocialPoint.Pooling
             DestroyPooled(prefab.gameObject);
         }
 
-        public static void DestroyAll(GameObject prefab)
+        static void DestroyAll(GameObject prefab, bool removePool)
         {
             RecycleAll(prefab);
-            DestroyPooled(prefab);
+            DestroyPooled(prefab, removePool);
 
             ClearPoolRef(prefab);
         }
-            
+
+        public static void DestroyAll(GameObject prefab)
+        {
+            DestroyAll(prefab, true);
+        }
+
         static void ClearPoolRef(GameObject prefab)
         {
             var poolRef = FindChildPoolGameObject(prefab);
@@ -588,9 +601,11 @@ namespace SocialPoint.Pooling
             var itr = Instance._pooledObjects.GetEnumerator();
             while(itr.MoveNext())
             {
-                DestroyAll(itr.Current.Key);
+                DestroyAll(itr.Current.Key, false);
             }
             itr.Dispose();
+
+            Instance._pooledObjects.Clear();
         }
     }
 }
