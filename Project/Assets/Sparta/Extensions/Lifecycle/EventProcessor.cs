@@ -7,23 +7,48 @@ namespace SocialPoint.Lifecycle
 {
     public partial class EventProcessor<S, T, R> : IEventProcessor<S, T, R>, IEventHandler<T>, IStateEventHandler<S, T>, IDisposable
     {
-        interface ITypeValidator
+        interface ITypeValidator : ICloneable
         {
             void Register(object key, object obj);
             bool Unregister(object key);
             bool Validate(S state, T ev, out R result);
+            void Load(ITypeValidator other);
         }
 
         class TypeValidator<K> : ITypeValidator where K : T
         {
-            readonly Dictionary<object, IStateEventValidator<S, K, R>> _validators = new Dictionary<object, IStateEventValidator<S, K, R>>();
-            readonly Dictionary<object, IStateEventValidator<S, K, R>> _tempValidators = new Dictionary<object, IStateEventValidator<S, K, R>>();
-            int _depth;
+            readonly Dictionary<object, IStateEventValidator<S, K, R>> _validators;
+
+            public TypeValidator()
+            {
+                _validators = new Dictionary<object, IStateEventValidator<S, K, R>>();
+            }
+
+            public TypeValidator(Dictionary<object, IStateEventValidator<S, K, R>> validators)
+            {
+                _validators = validators;
+            }
+
+            public void Load(ITypeValidator other)
+            {
+                _validators.Clear();
+                var kother = other as TypeValidator<K>;
+                if(kother != null)
+                {
+                    _validators.Merge(kother._validators);
+                }
+            }
+
+            public object Clone()
+            {
+                var other = new TypeValidator<K>(new Dictionary<object, IStateEventValidator<S, K, R>>(_validators));
+                return other;
+            }
 
             public void Register(object key, object obj)
             {
                 var validator = obj as IStateEventValidator<S, K, R>;
-                if(validator != null)
+                if(validator != null && !_validators.ContainsKey(key))
                 {
                     _validators.Add(key, validator);
                 }
@@ -45,15 +70,9 @@ namespace SocialPoint.Lifecycle
                 {
                     return true;
                 }
-                if(_depth == 0)
-                {
-                    _tempValidators.Clear();
-                    _tempValidators.Merge(_validators);
-                }
-                _depth++;
                 var kev = (K)ev;
                 var success = true;
-                var itr = _tempValidators.GetEnumerator();
+                var itr = _validators.GetEnumerator();
                 var exceptions = new List<Exception>();
                 while(itr.MoveNext())
                 {
@@ -71,7 +90,6 @@ namespace SocialPoint.Lifecycle
                     }
                 }
                 itr.Dispose();
-                _depth--;
                 if(exceptions.Count > 0)
                 {
                     throw new AggregateException(exceptions);
@@ -80,23 +98,48 @@ namespace SocialPoint.Lifecycle
             }
         }
 
-        interface ITypeHandler
+        interface ITypeHandler : ICloneable
         {
             void Register(object key, object obj);
             bool Unregister(object key);
             bool Handle(S state, T action, bool success, R result);
+            void Load(ITypeHandler other);
         }
 
         class TypeHandler<K> : ITypeHandler where K : T
         {
-            readonly Dictionary<object, IStateValidatedEventHandler<S, K, R>> _handlers = new Dictionary<object, IStateValidatedEventHandler<S, K, R>>();
-            readonly Dictionary<object, IStateValidatedEventHandler<S, K, R>> _tempHandlers = new Dictionary<object, IStateValidatedEventHandler<S, K, R>>();
-            int _depth;
+            readonly Dictionary<object, IStateValidatedEventHandler<S, K, R>> _handlers;
+
+            public TypeHandler()
+            {
+                _handlers = new Dictionary<object, IStateValidatedEventHandler<S, K, R>>();
+            }
+
+            public TypeHandler(Dictionary<object, IStateValidatedEventHandler<S, K, R>> handlers)
+            {
+                _handlers = handlers;
+            }
+
+            public void Load(ITypeHandler other)
+            {
+                _handlers.Clear();
+                var kother = other as TypeHandler<K>;
+                if(kother != null)
+                {
+                    _handlers.Merge(kother._handlers);
+                }
+            }
+
+            public object Clone()
+            {
+                var other = new TypeHandler<K>(new Dictionary<object, IStateValidatedEventHandler<S, K, R>>(_handlers));
+                return other;
+            }
 
             public void Register(object key, object obj)
             {
                 var handler = obj as IStateValidatedEventHandler<S, K, R>;
-                if(handler != null)
+                if(handler != null && !_handlers.ContainsKey(key))
                 {
                     _handlers.Add(key, handler);
                 }
@@ -113,18 +156,12 @@ namespace SocialPoint.Lifecycle
                 {
                     return false;
                 }
-                if(_depth == 0)
-                {
-                    _tempHandlers.Clear();
-                    _tempHandlers.Merge(_handlers);
-                }
-                if(_tempHandlers.Count == 0)
+                if(_handlers.Count == 0)
                 {
                     return false;
                 }
-                _depth++;
                 var kev = (K)ev;
-                var itr = _tempHandlers.GetEnumerator();
+                var itr = _handlers.GetEnumerator();
                 var exceptions = new List<Exception>();
                 while(itr.MoveNext())
                 {
@@ -138,7 +175,6 @@ namespace SocialPoint.Lifecycle
                     }
                 }
                 itr.Dispose();
-                _depth--;
                 if(exceptions.Count > 0)
                 {
                     throw new AggregateException(exceptions);
@@ -149,6 +185,9 @@ namespace SocialPoint.Lifecycle
 
         Dictionary<Type, ITypeValidator> _validators;
         Dictionary<Type, ITypeHandler> _handlers;
+        Dictionary<Type, ITypeValidator> _iterValidators;
+        Dictionary<Type, ITypeHandler> _iterHandlers;
+        int _depth;
 
         public bool DerivedEventSupport = false;
 
@@ -156,12 +195,16 @@ namespace SocialPoint.Lifecycle
         {
             _validators = new Dictionary<Type, ITypeValidator>();
             _handlers = new Dictionary<Type, ITypeHandler>();
+            _iterValidators = new Dictionary<Type, ITypeValidator>();
+            _iterHandlers = new Dictionary<Type, ITypeHandler>();
         }
 
         public void Dispose()
         {
             _validators.Clear();
             _handlers.Clear();
+            _iterValidators.Clear();
+            _iterHandlers.Clear();
         }
 
         void IEventHandler<T>.Handle(T ev)
@@ -194,11 +237,68 @@ namespace SocialPoint.Lifecycle
 
         public bool Process(S state, T ev, out R result)
         {
-            var success = Validate(state, ev, out result);
+            if(_depth == 0)
+            {
+                UpdateContainers();
+            }
+            _depth++;
+            var handled = false;
+            try
+            {
+                var success = Validate(state, ev, out result);
+                handled = DoProcess(state, ev, success, result);
+            }
+            finally
+            {
+                _depth--;
+            }
+            return handled;
+        }
+
+        void UpdateContainers()
+        {
+            {
+                var itr = _validators.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    ITypeValidator validator;
+                    if(!_iterValidators.TryGetValue(itr.Current.Key, out validator))
+                    {
+                        validator = (ITypeValidator)itr.Current.Value.Clone();
+                        _iterValidators.Add(itr.Current.Key, validator);
+                    }
+                    else
+                    {
+                        validator.Load(itr.Current.Value);
+                    }
+                }
+                itr.Dispose();
+            }
+            {
+                var itr = _handlers.GetEnumerator();
+                while(itr.MoveNext())
+                {
+                    ITypeHandler handler;
+                    if(!_iterHandlers.TryGetValue(itr.Current.Key, out handler))
+                    {
+                        handler = (ITypeHandler)itr.Current.Value.Clone();
+                        _iterHandlers.Add(itr.Current.Key, handler);
+                    }
+                    else
+                    {
+                        handler.Load(itr.Current.Value);
+                    }
+                }
+                itr.Dispose();
+            }
+        }
+
+        bool DoProcess(S state, T ev, bool success, R result)
+        {
             var handled = false;
             if(DerivedEventSupport)
             {
-                var itr = _handlers.GetEnumerator();
+                var itr = _iterHandlers.GetEnumerator();
                 while(itr.MoveNext())
                 {
                     if(itr.Current.Key.IsAssignableFrom(ev.GetType()))
@@ -214,7 +314,7 @@ namespace SocialPoint.Lifecycle
             else
             {
                 ITypeHandler handler;
-                if(_handlers.TryGetValue(ev.GetType(), out handler))
+                if(_iterHandlers.TryGetValue(ev.GetType(), out handler))
                 {
                     handled = handler.Handle(state, ev, success, result);
                 }
@@ -228,7 +328,7 @@ namespace SocialPoint.Lifecycle
             var success = true;
             if(DerivedEventSupport)
             {
-                var itr = _validators.GetEnumerator();
+                var itr = _iterValidators.GetEnumerator();
                 while(itr.MoveNext())
                 {
                     if(itr.Current.Key.IsAssignableFrom(ev.GetType()))

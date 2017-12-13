@@ -256,21 +256,38 @@ namespace SocialPoint.Lifecycle
 
         [Test]
         public void RecursiveProcess()
-        {            
-            _processor.RegisterSuccessHandler((TestEvent e) => _processor.Process(_otherEvent));
+        {
+            _processor.DerivedEventSupport = true;
+            _processor.RegisterSuccessHandler((TestOtherEvent e) => {
+                _processor.RegisterValidator(_validator1);
+                _processor.RegisterSuccessHandler(_successHandler2);
+                _processor.RegisterSuccessHandler(_otherSuccessHandler);
+                _processor.Process(_event);
+            });
             _processor.RegisterSuccessHandler(_successHandler1);
-            _processor.RegisterSuccessHandler(_otherSuccessHandler);
-            _processor.Process(_event);
+            _validator1.Validate(_event).Returns(true);
+
+            // validators & handlers are added but don't trigger until next process
+            _processor.Process(_otherEvent);
             _successHandler1.Received(1).Handle(_event);
+            _validator1.DidNotReceive().Validate(Arg.Any<TestEvent>());
+            _successHandler2.DidNotReceive().Handle(Arg.Any<TestEvent>());
+            _otherSuccessHandler.DidNotReceive().Handle(Arg.Any<TestOtherEvent>());
+
+            _processor.Process(_event);
+            _validator1.Received(1).Validate(_event);
+            _successHandler2.Received(1).Handle(_event);
+
+            _processor.Process(_otherEvent);
             _otherSuccessHandler.Received(1).Handle(_otherEvent);
         }
 
         [Test]
         public void AggregateException()
         {
-            _processor.RegisterSuccessHandler((TestEvent e) => { throw new Exception("aaa"); });
-            _processor.RegisterSuccessHandler(_successHandler1);
-            _processor.RegisterSuccessHandler((TestEvent e) => { throw new InvalidOperationException("aaa"); });
+            _processor.RegisterHandler((TestEvent e) => { throw new Exception("aaa"); });
+            _processor.RegisterHandler(_successHandler1);
+            _processor.RegisterHandler((TestEvent e) => { _processor.RegisterHandler(_successHandler2); throw new InvalidOperationException("aaa"); });
 
             var exceptionCount = 0;
             try
@@ -283,6 +300,33 @@ namespace SocialPoint.Lifecycle
             }
             _successHandler1.Received(1).Handle(_event);
             Assert.AreEqual(2, exceptionCount);
+
+            try
+            {
+                _processor.Process(_event);
+            }
+            catch(AggregateException e)
+            {
+            }
+            _successHandler2.Received(1).Handle(_event);
+        }
+
+        [Test]
+        public void DoubleRegister()
+        {
+            _processor.RegisterSuccessHandler(_successHandler1);
+            _processor.RegisterSuccessHandler(_successHandler1);
+            _processor.RegisterValidator(_validator1);
+            _processor.RegisterValidator(_validator1);
+
+            _processor.UnregisterValidator(_validator1);
+            _processor.Process(_event);
+            _successHandler1.Received(1).Handle(_event);
+            _successHandler1.ClearReceivedCalls();
+
+            _processor.UnregisterHandler(_successHandler1);
+            _processor.Process(_event);
+            _successHandler1.DidNotReceive().Handle(Arg.Any<TestEvent>());
         }
     }
 }
