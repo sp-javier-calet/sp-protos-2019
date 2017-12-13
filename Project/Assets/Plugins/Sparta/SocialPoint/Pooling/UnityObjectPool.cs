@@ -604,6 +604,8 @@ namespace SocialPoint.Pooling
                 DestroyAll(itr.Current.Key, false);
             }
             itr.Dispose();
+
+            Instance._pooledObjects.Clear();
         }
     }
 }
