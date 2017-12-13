@@ -31,6 +31,7 @@ namespace SocialPoint.Pooling
             {
                 Object.DestroyImmediate(prefab);
             }
+            Object.DestroyImmediate(UnityObjectPool.Instance);
         }
 
         [Test]
