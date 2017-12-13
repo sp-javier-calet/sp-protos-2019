@@ -14,7 +14,7 @@ LOCAL_LDLIBS    := -llog
 LOCAL_SRC_FILES := $(CR_SRC_PATH)/SPUnityBreadcrumbManager.cpp \
                    $(CR_SRC_PATH)/SPUnityBreadcrumbManagerFacade.cpp \
                    $(BASE_PATH)/src/SPUnityCrashReporter.cpp \
-                   $(BASE_PATH)/src/SPUnityCrashRepoterFacade.cpp
+                   $(BASE_PATH)/src/SPUnityCrashReporterFacade.cpp
                    
 
 LOCAL_STATIC_LIBRARIES := breakpad_client
