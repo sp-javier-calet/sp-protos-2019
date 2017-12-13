@@ -13,34 +13,40 @@ namespace SocialPoint.Pooling
 
         }
 
-        GameObject _testGo;
+        GameObject[] _prefabs;
 
         [SetUp]
         public void SetUp()
         {
-            _testGo = new GameObject("CreatePoolTestGO", typeof(TestBehaviour));
+            _prefabs = new [] {
+                new GameObject("CreatePoolTestGO", typeof(TestBehaviour)),
+                new GameObject("CreatePoolTestGO", typeof(TestBehaviour))
+            };
         }
-    
+
         [TearDown]
         public void TearDown()
         {
-            Object.DestroyImmediate(_testGo);
+            foreach(var prefab in _prefabs)
+            {
+                Object.DestroyImmediate(prefab);
+            }
         }
 
         [Test]
         public void CreatePool()
         {
-            var list = UnityObjectPool.CreatePool(_testGo, 1);
+            var list = UnityObjectPool.CreatePool(_prefabs[0], 1);
             Assert.AreEqual(1, list.Count);
             Assert.IsNotNull(list.First().GetComponent<TestBehaviour>());
-            Assert.IsTrue(UnityObjectPool.IsPooled(_testGo));
+            Assert.IsTrue(UnityObjectPool.IsPooled(_prefabs[0]));
         }
 
         [Test]
         public void SpawnObject()
         {
-            var spawned = UnityObjectPool.Spawn(_testGo, null, Vector3.one, Quaternion.identity);
-            Assert.IsTrue(UnityObjectPool.IsPooled(_testGo));
+            var spawned = UnityObjectPool.Spawn(_prefabs[0], null, Vector3.one, Quaternion.identity);
+            Assert.IsTrue(UnityObjectPool.IsPooled(_prefabs[0]));
             Assert.IsTrue(UnityObjectPool.IsSpawned(spawned));
 
             Assert.IsNotNull(spawned.GetComponent<TestBehaviour>());
@@ -52,44 +58,73 @@ namespace SocialPoint.Pooling
         [Test]
         public void SpawnAndRecycleObject()
         {
-            var spawned = UnityObjectPool.Spawn(_testGo);
-            Assert.AreEqual(1, UnityObjectPool.CountSpawned(_testGo));
+            var spawned = UnityObjectPool.Spawn(_prefabs[0]);
+            Assert.AreEqual(1, UnityObjectPool.CountSpawned(_prefabs[0]));
+            Assert.AreEqual(0, UnityObjectPool.CountPooled(_prefabs[0]));
+
             UnityObjectPool.Recycle(spawned);
-            Assert.AreEqual(0, UnityObjectPool.CountSpawned(_testGo));
+            Assert.AreEqual(0, UnityObjectPool.CountSpawned(_prefabs[0]));
+            Assert.AreEqual(1, UnityObjectPool.CountPooled(_prefabs[0]));
+        }
+
+        [Test]
+        public void SpawnAndRecycleDifferent()
+        {
+            var spawned1 = UnityObjectPool.Spawn(_prefabs[0]);
+            var spawned2 = UnityObjectPool.Spawn(_prefabs[1]);
+            Assert.AreEqual(1, UnityObjectPool.CountSpawned(_prefabs[0]));
+            Assert.AreEqual(0, UnityObjectPool.CountPooled(_prefabs[0]));
+            Assert.AreEqual(1, UnityObjectPool.CountSpawned(_prefabs[1]));
+            Assert.AreEqual(0, UnityObjectPool.CountPooled(_prefabs[1]));
+            Assert.AreEqual(0, UnityObjectPool.CountAllPooled());
+
+            UnityObjectPool.Recycle(spawned1);
+            Assert.AreEqual(0, UnityObjectPool.CountSpawned(_prefabs[0]));
+            Assert.AreEqual(1, UnityObjectPool.CountPooled(_prefabs[0]));
+            Assert.AreEqual(1, UnityObjectPool.CountSpawned(_prefabs[1]));
+            Assert.AreEqual(0, UnityObjectPool.CountPooled(_prefabs[1]));
+            Assert.AreEqual(1, UnityObjectPool.CountAllPooled());
+
+            UnityObjectPool.Recycle(spawned2);
+            Assert.AreEqual(0, UnityObjectPool.CountSpawned(_prefabs[0]));
+            Assert.AreEqual(1, UnityObjectPool.CountPooled(_prefabs[0]));
+            Assert.AreEqual(0, UnityObjectPool.CountSpawned(_prefabs[1]));
+            Assert.AreEqual(1, UnityObjectPool.CountPooled(_prefabs[1]));
+            Assert.AreEqual(2, UnityObjectPool.CountAllPooled());
         }
 
         [Test]
         public void SpawnAndRecycleMultipleObject()
         {
-            var spawned1 = UnityObjectPool.Spawn(_testGo);
-            Assert.AreEqual(1, UnityObjectPool.CountSpawned(_testGo));
-            Assert.AreEqual(0, UnityObjectPool.CountPooled(_testGo));
+            var spawned1 = UnityObjectPool.Spawn(_prefabs[0]);
+            Assert.AreEqual(1, UnityObjectPool.CountSpawned(_prefabs[0]));
+            Assert.AreEqual(0, UnityObjectPool.CountPooled(_prefabs[0]));
 
-            var spawned2 = UnityObjectPool.Spawn(_testGo);
-            Assert.AreEqual(2, UnityObjectPool.CountSpawned(_testGo));
-            Assert.AreEqual(0, UnityObjectPool.CountPooled(_testGo));
+            var spawned2 = UnityObjectPool.Spawn(_prefabs[0]);
+            Assert.AreEqual(2, UnityObjectPool.CountSpawned(_prefabs[0]));
+            Assert.AreEqual(0, UnityObjectPool.CountPooled(_prefabs[0]));
 
             UnityObjectPool.Recycle(spawned1);
-            Assert.AreEqual(1, UnityObjectPool.CountSpawned(_testGo));
-            Assert.AreEqual(1, UnityObjectPool.CountPooled(_testGo));
+            Assert.AreEqual(1, UnityObjectPool.CountSpawned(_prefabs[0]));
+            Assert.AreEqual(1, UnityObjectPool.CountPooled(_prefabs[0]));
 
-            var spawned3 = UnityObjectPool.Spawn(_testGo);
-            Assert.AreEqual(2, UnityObjectPool.CountSpawned(_testGo));
-            Assert.AreEqual(0, UnityObjectPool.CountPooled(_testGo));
+            var spawned3 = UnityObjectPool.Spawn(_prefabs[0]);
+            Assert.AreEqual(2, UnityObjectPool.CountSpawned(_prefabs[0]));
+            Assert.AreEqual(0, UnityObjectPool.CountPooled(_prefabs[0]));
 
             UnityObjectPool.Recycle(spawned2);
-            Assert.AreEqual(1, UnityObjectPool.CountSpawned(_testGo));
-            Assert.AreEqual(1, UnityObjectPool.CountPooled(_testGo));
+            Assert.AreEqual(1, UnityObjectPool.CountSpawned(_prefabs[0]));
+            Assert.AreEqual(1, UnityObjectPool.CountPooled(_prefabs[0]));
 
             UnityObjectPool.Recycle(spawned3);
-            Assert.AreEqual(0, UnityObjectPool.CountSpawned(_testGo));
-            Assert.AreEqual(2, UnityObjectPool.CountPooled(_testGo));
+            Assert.AreEqual(0, UnityObjectPool.CountSpawned(_prefabs[0]));
+            Assert.AreEqual(2, UnityObjectPool.CountPooled(_prefabs[0]));
         }
 
         [Test]
         public void ClearPool()
         {
-            UnityObjectPool.CreatePool(_testGo, 1);
+            UnityObjectPool.CreatePool(_prefabs[0], 1);
             Assert.AreEqual(1, UnityObjectPool.CountAllPooled());
             UnityObjectPool.ClearPool();
             Assert.AreEqual(0, UnityObjectPool.CountAllPooled());
