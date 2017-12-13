@@ -29,7 +29,7 @@ $(call import-add-path,$(PLUGINS_PATH))
 
 ifeq ($(TARGET_ARCH),x86)
 else
-$(call import-module,lib/google-breakpad/android/google_breakpad)
+$(call import-module,lib/google-breakpad)
 endif
 
 $(call import-module,sp_unity_utils/jni)
