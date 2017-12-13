@@ -1,5 +1,7 @@
 ﻿using NUnit.Framework;
 using NSubstitute;
+using System;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Lifecycle
 {
@@ -250,6 +252,37 @@ namespace SocialPoint.Lifecycle
             _successHandler1.DidNotReceive().Handle(Arg.Any<TestEvent>());
             _otherValidator.Received(1).Validate(Arg.Is<TestOtherEvent>(ev => ev == _otherEvent));
             _otherSuccessHandler.Received(1).Handle(Arg.Is<TestOtherEvent>(ev => ev == _otherEvent));
+        }
+
+        [Test]
+        public void RecursiveProcess()
+        {            
+            _processor.RegisterSuccessHandler((TestEvent e) => _processor.Process(_otherEvent));
+            _processor.RegisterSuccessHandler(_successHandler1);
+            _processor.RegisterSuccessHandler(_otherSuccessHandler);
+            _processor.Process(_event);
+            _successHandler1.Received(1).Handle(_event);
+            _otherSuccessHandler.Received(1).Handle(_otherEvent);
+        }
+
+        [Test]
+        public void AggregateException()
+        {
+            _processor.RegisterSuccessHandler((TestEvent e) => { throw new Exception("aaa"); });
+            _processor.RegisterSuccessHandler(_successHandler1);
+            _processor.RegisterSuccessHandler((TestEvent e) => { throw new InvalidOperationException("aaa"); });
+
+            var exceptionCount = 0;
+            try
+            {
+                _processor.Process(_event);
+            }
+            catch(AggregateException e)
+            {
+                exceptionCount = e.Exceptions.Count;
+            }
+            _successHandler1.Received(1).Handle(_event);
+            Assert.AreEqual(2, exceptionCount);
         }
     }
 }

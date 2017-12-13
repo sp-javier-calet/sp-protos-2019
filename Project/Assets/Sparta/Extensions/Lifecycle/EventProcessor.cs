@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using SocialPoint.Base;
+using SocialPoint.Utils;
 
 namespace SocialPoint.Lifecycle
 {
@@ -53,16 +54,28 @@ namespace SocialPoint.Lifecycle
                 var kev = (K)ev;
                 var success = true;
                 var itr = _tempValidators.GetEnumerator();
+                var exceptions = new List<Exception>();
                 while(itr.MoveNext())
                 {
-                    if(!itr.Current.Value.Validate(state, kev, out result))
+                    try
                     {
-                        success = false;
-                        break;
+                        if(!itr.Current.Value.Validate(state, kev, out result))
+                        {
+                            success = false;
+                            break;
+                        }
+                    }
+                    catch(Exception e)
+                    {
+                        exceptions.Add(e);
                     }
                 }
                 itr.Dispose();
                 _depth--;
+                if(exceptions.Count > 0)
+                {
+                    throw new AggregateException(exceptions);
+                }
                 return success;
             }
         }
@@ -112,12 +125,24 @@ namespace SocialPoint.Lifecycle
                 _depth++;
                 var kev = (K)ev;
                 var itr = _tempHandlers.GetEnumerator();
+                var exceptions = new List<Exception>();
                 while(itr.MoveNext())
                 {
-                    itr.Current.Value.Handle(state, kev, success, result);
+                    try
+                    {
+                        itr.Current.Value.Handle(state, kev, success, result);
+                    }
+                    catch(Exception e)
+                    {
+                        exceptions.Add(e);
+                    }
                 }
                 itr.Dispose();
                 _depth--;
+                if(exceptions.Count > 0)
+                {
+                    throw new AggregateException(exceptions);
+                }
                 return true;
             }
         }
