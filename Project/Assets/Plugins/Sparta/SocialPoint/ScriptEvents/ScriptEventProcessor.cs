@@ -28,7 +28,7 @@ namespace SocialPoint.ScriptEvents
         object Parse(string name, Attr args);
     }
 
-    public static class ScriptEventDispatcherExtension
+    public static class ScriptEventProcessorExtensions
     {
         const string AttrKeyActionName = "name";
         const string AttrKeyActionArguments = "args";

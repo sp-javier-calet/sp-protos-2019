@@ -6,7 +6,7 @@ namespace SocialPoint.ScriptEvents
 {
     [TestFixture]
     [Category("SocialPoint.ScriptEvents")]
-    class ScriptEventDispatcherTests : BaseScriptEventsTests
+    class ScriptEventProcessorTests : BaseScriptEventsTests
     {
         [SetUp]
         public void SetUpBase()
