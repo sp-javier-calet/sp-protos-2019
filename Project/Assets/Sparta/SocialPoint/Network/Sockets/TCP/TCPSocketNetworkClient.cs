@@ -88,7 +88,7 @@ namespace SocialPoint.Network
             {
                 return;
             }
-            if (_client.Connected == false)
+            if (!Connected)
             {
                 return;
             }

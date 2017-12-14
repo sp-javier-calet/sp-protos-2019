@@ -4,11 +4,10 @@ using UnityEngine;
 using SocialPoint.Network;
 using SocialPoint.Dependency;
 
-public class SocketController : MonoBehaviour , INetworkClientDelegate, INetworkMessageReceiver
+public class SocketServerController : MonoBehaviour, INetworkServerDelegate, INetworkMessageReceiver
 {
 
 
-    SocketNetworkClient _netClient;
     SocketNetworkServer _netServer;
 
 
@@ -17,38 +16,45 @@ public class SocketController : MonoBehaviour , INetworkClientDelegate, INetwork
         //SERVER
         _netServer = Services.Instance.Resolve<SocketNetworkServer>();
         _netServer.Start();
-
-
-        //CLIENT
-        _netClient = Services.Instance.Resolve<SocketNetworkClient>();
-        _netClient.RemoveDelegate(this);
-        _netClient.AddDelegate(this);
-        _netClient.RegisterReceiver(this);
-        _netClient.Connect();
     }
 
-    void OnDestroy()
+    void OnApplicationQuit()
     {
         _netServer.Dispose();
-        _netClient.Dispose();
     }
-    #region INetworkClientDelegate implementation
-    public void OnClientConnected()
+
+    #region INetworkServerDelegate implementation
+
+    public void OnServerStarted()
     {
         throw new System.NotImplementedException();
     }
-    public void OnClientDisconnected()
+
+    public void OnServerStopped()
     {
         throw new System.NotImplementedException();
     }
+
+    public void OnClientConnected(byte clientId)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void OnClientDisconnected(byte clientId)
+    {
+        throw new System.NotImplementedException();
+    }
+
     public void OnMessageReceived(NetworkMessageData data)
     {
         throw new System.NotImplementedException();
     }
+
     public void OnNetworkError(SocialPoint.Base.Error err)
     {
         throw new System.NotImplementedException();
     }
+
     #endregion
 
     #region INetworkMessageReceiver implementation

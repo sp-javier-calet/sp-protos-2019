@@ -96,13 +96,13 @@ namespace SocialPoint.Network
 
 //            _delimiter = _server.Delimiter;
 //
-//            foreach (var c in _connectedClients)
-//            {
-//
-//                if ( IsSocketConnected(c.Client) == false)
-//                {
-//                    _disconnectedClients.Add(c);
-//                }
+            foreach (var c in _connectedClients)
+            {
+
+                if ( IsSocketConnected(c.Client) == false)
+                {
+                    _disconnectedClients.Add(c);
+                }
 //
 //                int bytesAvailable = c.Available;
 //                if (bytesAvailable == 0)
@@ -134,7 +134,7 @@ namespace SocialPoint.Network
 //                {
 //                    _server.NotifyEndTransmissionRx(this, c, bytesReceived.ToArray());
 //                }  
-//            }
+            }
         }
 
         bool IsSocketConnected(Socket s)

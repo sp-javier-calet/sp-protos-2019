@@ -7,7 +7,7 @@ namespace SocialPoint.Network
     public class UDPReliableSocketNetworkServer : SocketNetworkServer
     {
        
-        public UDPReliableSocketNetworkServer(IUpdateScheduler updateScheduler, int port = DefaultPort) : base(updateScheduler, port)
+        public UDPReliableSocketNetworkServer(IUpdateScheduler updateScheduler, string serverAddr = null, int port = DefaultPort) : base(updateScheduler, serverAddr, port)
         {
             
         }

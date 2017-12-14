@@ -15,10 +15,11 @@ namespace SocialPoint.Network
         protected  int _port;
         protected  string _serverAddr;
 
-        public SocketNetworkServer(IUpdateScheduler updateScheduler, int port = DefaultPort)
+        public SocketNetworkServer(IUpdateScheduler updateScheduler, string serverAddr = null, int port = DefaultPort)
         {
             UnityEngine.Debug.Log("SocketNetworkServer CONSTRUCTOR");
             _updateScheduler = updateScheduler;
+            _serverAddr = serverAddr;
             _port = port;
         }
 

@@ -162,6 +162,23 @@ namespace SocialPoint.Network
             var sdlg = Substitute.For<INetworkServerDelegate>();
             _client.AddDelegate(cdlg);
             _server.AddDelegate(sdlg);
+
+            _server.Start();
+            _client.Connect();
+
+            WaitForEvents();
+
+            cdlg.Received(1).OnClientConnected();
+            sdlg.Received(1).OnClientConnected(Arg.Any<byte>());
+        }
+
+        [Test]
+        public void ClientConnectBeforeServerStart()
+        {
+            var cdlg = Substitute.For<INetworkClientDelegate>();
+            var sdlg = Substitute.For<INetworkServerDelegate>();
+            _client.AddDelegate(cdlg);
+            _server.AddDelegate(sdlg);
             _client.Connect();
 
             WaitForEvents();

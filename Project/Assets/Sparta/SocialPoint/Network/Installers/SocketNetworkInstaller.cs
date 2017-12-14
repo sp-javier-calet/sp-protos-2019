@@ -72,6 +72,7 @@ namespace SocialPoint.Network
             case Protocol.TCP:
                 socketServer = new TCPSocketNetworkServer(
                     Container.Resolve<IUpdateScheduler>(),
+                    Settings.Config.ServerAddress, 
                     Settings.Config.ServerPort);
                 break;
             case Protocol.UDP:
@@ -79,6 +80,7 @@ namespace SocialPoint.Network
             case Protocol.ReliableUDP:
                 socketServer = new UDPReliableSocketNetworkServer(
                     Container.Resolve<IUpdateScheduler>(),
+                    Settings.Config.ServerAddress, 
                     Settings.Config.ServerPort);
                 break;
             }

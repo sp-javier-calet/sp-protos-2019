@@ -37,7 +37,7 @@ namespace SocialPoint.Network
 
         public void Send()
         {
-            UnityEngine.Debug.Log("SocketNetworkMessage Send");
+//            UnityEngine.Debug.Log("SocketNetworkMessage Send");
             Writer.Write("test");
            
         }

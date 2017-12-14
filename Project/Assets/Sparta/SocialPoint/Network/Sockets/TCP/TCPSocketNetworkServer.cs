@@ -4,65 +4,105 @@ using SocialPoint.Utils;
 using System.Net.Sockets;
 using System.Net;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 
 namespace SocialPoint.Network
 {
     public class TCPSocketNetworkServer : SocketNetworkServer
     {
+        private  List<TCPServerListener> _listenersList;
         private  TCPServerListener _listener;
 
-        public TCPSocketNetworkServer(IUpdateScheduler updateScheduler, int port = DefaultPort)
-            : base(updateScheduler, port)
+        public TCPSocketNetworkServer(IUpdateScheduler updateScheduler, string serverAddr = null, int port = DefaultPort)
+            : base(updateScheduler,serverAddr, port)
         {
-            UnityEngine.Debug.Log("TCPSocketNetworkServer CONSTRUCTOR");
+            UnityEngine.Debug.Log("TCPSocketNetworkServer CONSTRUCTOR " + port);
 
-            IPAddress ipAdress = IPAddress.Any;
-            _serverAddr = ipAdress.ToString();
+            _listenersList = new List<TCPServerListener>();
 
-            _listener = new TCPServerListener(ipAdress, port);
+            _listener = new TCPServerListener(IPAddress.Parse(serverAddr), port);
+//            var ipAddresses = GetIPAddresses();
+//                foreach (var ipAddr in ipAddresses)
+//                {
+//                  try
+//                  {
+//                      CreateListeners(ipAddr, port);
+//                  }
+//                  catch (SocketException ex)
+//                  {
+//                    UnityEngine.Debug.LogException(ex);
+//                  }
+//                }
+
 
             RegisterHandlers();
 
         }
 
+        void CreateListeners (IPAddress ipAddress, int port)
+        {
+            var listener = new TCPServerListener(ipAddress, port);
+            _listenersList.Add(listener);
+        }
+       
+
         void RegisterHandlers()
         {
             _listener.OnConnectClient += NotifyClientConnected;
             _listener.OnDisconnectClient += NotifyClientConnected;
+
+//            foreach(var listener in _listenersList)
+//            {
+//                listener.OnConnectClient += NotifyClientConnected;
+//                listener.OnDisconnectClient += NotifyClientConnected;
+//            }
+           
         }
 
         public override void Start()
         {
             UnityEngine.Debug.Log("TCPSocketNetworkServer Start");
-            if (Running)
+            if(Running)
             {
                 return;
             }
 
             Running = true;
-            for (var i = 0; i < _delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnServerStarted();
             }
+
             _listener.Start();
+
+//            foreach(var listener in _listenersList)
+//            {
+//                listener.Start();
+//            }
+           
         }
 
 
         public override void Stop()
         {
             UnityEngine.Debug.Log("TCPSocketNetworkServer RegisterReceiver");
-            if (!Running)
+            if(!Running)
             {
                 return;
             }
 
             Running = false;
-            for (var i = 0; i < _delegates.Count; i++)
+            for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnServerStopped();
             }
 
             _listener.QueueStop = true;
+
+//            foreach(var listener in _listenersList)
+//            {
+//                listener.QueueStop = true;
+//            }
         }
 
        
@@ -89,7 +129,7 @@ namespace SocialPoint.Network
 
         public override INetworkMessage CreateMessage(NetworkMessageData data)
         {
-            UnityEngine.Debug.Log("TCPSocketNetworkServer CreateMessage " + data.MessageType);
+//            UnityEngine.Debug.Log("TCPSocketNetworkServer CreateMessage " + data.MessageType);
             return new SocketNetworkMessage(data, null);
         }
 
@@ -106,8 +146,14 @@ namespace SocialPoint.Network
         {
             _listener.OnConnectClient -= NotifyClientConnected;
             _listener.OnDisconnectClient -= NotifyClientConnected;
+
+//            foreach(var listener in _listenersList)
+//            {
+//                listener.OnConnectClient -= NotifyClientConnected;
+//                listener.OnDisconnectClient -= NotifyClientConnected;
+//            }
         }
-      
+
         public override void Update()
         {
             UnityEngine.Debug.Log("TCPSocketNetworkServer Update");
@@ -136,12 +182,77 @@ namespace SocialPoint.Network
 
 
 
+        public IEnumerable<IPAddress> GetIPAddresses()
+        {
+            List<IPAddress> ipAddresses = new List<IPAddress>();
+
+            IEnumerable<NetworkInterface> enabledNetInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+            foreach(NetworkInterface netInterface in enabledNetInterfaces)
+            {
+                if(netInterface.OperationalStatus != OperationalStatus.Up)
+                {
+                    continue;
+                }
+
+                IPInterfaceProperties ipProps = netInterface.GetIPProperties();
+                foreach(UnicastIPAddressInformation addr in ipProps.UnicastAddresses)
+                {
+                    if(!ipAddresses.Contains(addr.Address))
+                    {
+                        ipAddresses.Add(addr.Address);
+                    }
+                }
+            }
+
+            var ipSorted = ipAddresses; //.OrderByDescending(ip => RankIpAddress(ip)).ToList();
+            return ipSorted;
+        }
 
 
 
 
-
-
+//        private int RankIpAddress(IPAddress addr)
+//        {
+//            int rankScore = 1000;
+//
+//            if (IPAddress.IsLoopback(addr))
+//            {
+//                // rank loopback below others, even though their routing metrics may be better
+//                rankScore = 300;
+//            }
+//            else if (addr.AddressFamily == AddressFamily.InterNetwork)
+//            {
+//                rankScore += 100;
+//                // except...
+//                if (addr.GetAddressBytes().Take(2).SequenceEqual(new byte[] { 169, 254 }))
+//                {
+//                    // APIPA generated address - no router or DHCP server - to the bottom of the pile
+//                    rankScore = 0;
+//                }
+//            }
+//
+//            if (rankScore > 500)
+//            {
+//                foreach (var nic in TryGetCurrentNetworkInterfaces())
+//                {
+//                    var ipProps = nic.GetIPProperties();
+//                    if (ipProps.GatewayAddresses.Any())
+//                    {
+//                        if (ipProps.UnicastAddresses.Any(u => u.Address.Equals(addr)))
+//                        {
+//                            // if the preferred NIC has multiple addresses, boost all equally
+//                            // (justifies not bothering to differentiate... IOW YAGNI)
+//                            rankScore += 1000;
+//                        }
+//
+//                        // only considering the first NIC that is UP and has a gateway defined
+//                        break;
+//                    }
+//                }
+//            }
+//
+//            return rankScore;
+//        }
 
 
 
