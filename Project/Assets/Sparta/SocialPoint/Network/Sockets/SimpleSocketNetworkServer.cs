@@ -7,7 +7,23 @@ using System.Net.Sockets;
 
 namespace SocialPoint.Network
 {
-    public class SimpleSocketNetworkServer : INetworkServer, IDisposable, IUpdateable
+
+    interface ISimpleSocketNetworkServer : INetworkServer
+    {
+        byte OnClientConnecting(LocalNetworkClient client);
+        void OnClientConnected(LocalNetworkClient client);
+        void OnClientDisconnected(LocalNetworkClient client);
+//        void OnLocalMessageReceived(LocalNetworkClient origin, ILocalNetworkMessage msg);
+//        ILocalNetworkMessage CreateLocalMessage(NetworkMessageData data);
+    }
+
+    struct SimpleSocketClient
+    {
+        public TcpClient TpcClient;
+        public SimpleSocketNetworkClient Client;
+    }
+
+    public class SimpleSocketNetworkServer : ISimpleSocketNetworkServer, IDisposable, IUpdateable
     {
         public const int DefaultPort = 8888;
 
@@ -16,6 +32,7 @@ namespace SocialPoint.Network
         private IUpdateScheduler _updateScheduler;
         private TcpListener _listener;
         private List<TcpClient> _connectedClients = new List<TcpClient>();
+        private List<TcpClient> _disconnectedClients = new List<TcpClient>();
 
         public SimpleSocketNetworkServer(IUpdateScheduler updateScheduler, string serverAddr = null, int port = DefaultPort)
         {
@@ -26,12 +43,33 @@ namespace SocialPoint.Network
         public void Start()
         {
             _listener.Start();
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnServerStarted();
+            }
             _updateScheduler.Add(this);
+
         }
 
         public void Stop()
         {
+            foreach(var client in _connectedClients)
+            {
+                for(var i = 0; i < _delegates.Count; i++)
+                {
+                    _delegates[i].OnClientDisconnected((byte)(i + 1));
+                }
+            }
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnServerStopped();
+            }
+
+
+            _listener.Stop();
+
             _updateScheduler.Remove(this);
+
         }
 
         public void Fail(Error err)
@@ -41,7 +79,6 @@ namespace SocialPoint.Network
 
         public void AddDelegate(INetworkServerDelegate dlg)
         {
-            UnityEngine.Debug.Log("SocketNetworkServer AddDelegate");
             _delegates.Add(dlg);
             if(Running && dlg != null)
             {
@@ -51,13 +88,11 @@ namespace SocialPoint.Network
 
         public void RemoveDelegate(INetworkServerDelegate dlg)
         {
-            UnityEngine.Debug.Log("SocketNetworkServer RemoveDelegate");
             _delegates.Remove(dlg);
         }
 
         public void RegisterReceiver(INetworkMessageReceiver receiver)
         {
-            UnityEngine.Debug.Log("SocketNetworkServer RegisterReceiver");
             //_receiver = receiver;
         }
 
@@ -100,7 +135,14 @@ namespace SocialPoint.Network
 
         public void Update()
         {
-            if (_listener.Pending())
+            ConnectClients();
+
+            DisconnectClients();
+        }
+
+        void ConnectClients()
+        {
+            if(_listener.Pending())
             {
                 var newClient = _listener.AcceptTcpClient();
                 _connectedClients.Add(newClient);
@@ -109,6 +151,57 @@ namespace SocialPoint.Network
                     _delegates[i].OnClientConnected((byte)_connectedClients.Count);
                 }
             }
+        }
+
+        void DisconnectClients()
+        {
+            foreach(var c in _connectedClients)
+            {
+                if(IsSocketConnected(c.Client) == false)
+                {
+                    _disconnectedClients.Add(c);
+                }
+            }
+
+            if(_disconnectedClients.Count > 0)
+            {
+                var disconnectedClients = _disconnectedClients.ToArray();
+                _disconnectedClients.Clear();
+                foreach(var client in disconnectedClients)
+                {
+                    for(var i = 0; i < _delegates.Count; i++)
+                    {
+                        _delegates[i].OnClientDisconnected((byte)(_connectedClients.IndexOf(client) + 1));
+                    }
+                    _connectedClients.Remove(client);
+                }
+            }
+        }
+
+        bool IsSocketConnected(Socket s)
+        {
+            // https://stackoverflow.com/questions/2661764/how-to-check-if-a-socket-is-connected-disconnected-in-c
+            bool part1 = s.Poll(1000, SelectMode.SelectRead);
+            bool part2 = (s.Available == 0);
+            if((part1 && part2) || !s.Connected)
+                return false;
+            else
+                return true;
+        }
+
+        public byte OnClientConnecting(LocalNetworkClient client)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnClientConnected(LocalNetworkClient client)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnClientDisconnected(LocalNetworkClient client)
+        {
+            throw new NotImplementedException();
         }
     }
 }
