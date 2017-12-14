@@ -33,9 +33,14 @@ namespace SocialPoint.Lifecycle
             {
                 _validators.Clear();
                 var kother = other as TypeValidator<K>;
-                if(kother != null)
+                if(kother != null && kother._validators != null)
                 {
-                    _validators.Merge(kother._validators);
+                    var itr = kother._validators.GetEnumerator();
+                    while(itr.MoveNext())
+                    {
+                        _validators.Add(itr.Current.Key, itr.Current.Value);
+                    }
+                    itr.Dispose();
                 }
             }
 
@@ -124,9 +129,14 @@ namespace SocialPoint.Lifecycle
             {
                 _handlers.Clear();
                 var kother = other as TypeHandler<K>;
-                if(kother != null)
+                if (kother != null && kother._handlers != null)
                 {
-                    _handlers.Merge(kother._handlers);
+                    var itr = kother._handlers.GetEnumerator();
+                    while (itr.MoveNext())
+                    {
+                        _handlers.Add(itr.Current.Key, itr.Current.Value);
+                    }
+                    itr.Dispose();
                 }
             }
 
