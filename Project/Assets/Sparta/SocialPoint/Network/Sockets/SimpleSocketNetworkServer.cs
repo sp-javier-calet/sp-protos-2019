@@ -7,20 +7,14 @@ using System.Net.Sockets;
 
 namespace SocialPoint.Network
 {
-
-    interface ISimpleSocketNetworkServer : INetworkServer
+    public interface ISimpleSocketNetworkServer : INetworkServer
     {
-        byte OnClientConnecting(LocalNetworkClient client);
-        void OnClientConnected(LocalNetworkClient client);
-        void OnClientDisconnected(LocalNetworkClient client);
-//        void OnLocalMessageReceived(LocalNetworkClient origin, ILocalNetworkMessage msg);
-//        ILocalNetworkMessage CreateLocalMessage(NetworkMessageData data);
-    }
+        //        byte OnClientConnecting(LocalNetworkClient client);
+        void OnClientConnected(SimpleSocketNetworkClient client);
 
-    struct SimpleSocketClient
-    {
-        public TcpClient TpcClient;
-        public SimpleSocketNetworkClient Client;
+        void OnClientDisconnected(SimpleSocketNetworkClient client);
+        //        void OnLocalMessageReceived(LocalNetworkClient origin, ILocalNetworkMessage msg);
+        //        ILocalNetworkMessage CreateLocalMessage(NetworkMessageData data);
     }
 
     public class SimpleSocketNetworkServer : ISimpleSocketNetworkServer, IDisposable, IUpdateable
@@ -33,6 +27,8 @@ namespace SocialPoint.Network
         private TcpListener _listener;
         private List<TcpClient> _connectedClients = new List<TcpClient>();
         private List<TcpClient> _disconnectedClients = new List<TcpClient>();
+
+        List<SimpleSocketNetworkClient> _networkClientList = new List<SimpleSocketNetworkClient>();
 
         public SimpleSocketNetworkServer(IUpdateScheduler updateScheduler, string serverAddr = null, int port = DefaultPort)
         {
@@ -47,6 +43,10 @@ namespace SocialPoint.Network
             {
                 _delegates[i].OnServerStarted();
             }
+            foreach(var client in _networkClientList)
+            {
+                client.OnServerStarted();
+            }
             _updateScheduler.Add(this);
 
         }
@@ -60,6 +60,12 @@ namespace SocialPoint.Network
                     _delegates[i].OnClientDisconnected((byte)(i + 1));
                 }
             }
+
+            foreach(var client in _networkClientList)
+            {
+                client.OnServerStopped();
+            }
+
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnServerStopped();
@@ -70,6 +76,22 @@ namespace SocialPoint.Network
 
             _updateScheduler.Remove(this);
 
+        }
+
+        public void OnClientConnected(SimpleSocketNetworkClient client)
+        {
+            if(!_networkClientList.Contains(client))
+            {
+                _networkClientList.Add(client);
+            }
+        }
+
+        public void OnClientDisconnected(SimpleSocketNetworkClient client)
+        {
+            if(_networkClientList.Contains(client))
+            {
+                _networkClientList.Remove(client);
+            }
         }
 
         public void Fail(Error err)
@@ -187,21 +209,6 @@ namespace SocialPoint.Network
                 return false;
             else
                 return true;
-        }
-
-        public byte OnClientConnecting(LocalNetworkClient client)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnClientConnected(LocalNetworkClient client)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void OnClientDisconnected(LocalNetworkClient client)
-        {
-            throw new NotImplementedException();
         }
     }
 }

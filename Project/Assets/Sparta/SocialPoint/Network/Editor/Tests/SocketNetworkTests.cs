@@ -20,9 +20,10 @@ namespace SocialPoint.Network
             var random = new Random();
             var port = random.Next(3000, 5000);
             _scheduler = new UpdateScheduler();
-            _server = new SimpleSocketNetworkServer(_scheduler, ip, port);
-            _client = new SimpleSocketNetworkClient(_scheduler, ip, port);
-            _client2 = new SimpleSocketNetworkClient(_scheduler, ip, port);
+            var socketServer = new SimpleSocketNetworkServer(_scheduler, ip, port);
+            _server = socketServer;
+            _client = new SimpleSocketNetworkClient(_scheduler, socketServer, ip, port);
+            _client2 = new SimpleSocketNetworkClient(_scheduler, socketServer, ip, port);
         }
 
         override protected void WaitForEvents()
