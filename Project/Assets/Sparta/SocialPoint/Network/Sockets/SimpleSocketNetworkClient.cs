@@ -25,6 +25,13 @@ namespace SocialPoint.Network
         private bool _connected;
         IUpdateScheduler _scheduler;
 
+        public TcpClient Client
+        {
+            get
+            {
+                return _client;
+            }
+        }
        
         public SimpleSocketNetworkClient(IUpdateScheduler scheduler,string serverAddr = null, int serverPort = UnetNetworkServer.DefaultPort)
         {

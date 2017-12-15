@@ -35,6 +35,4 @@ namespace SocialPoint.Network
 
         #endregion
     }
-
-    }
 }

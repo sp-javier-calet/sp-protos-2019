@@ -61,5 +61,16 @@ namespace SocialPoint.Network
 
             Assert.IsNotNull(expectedExcetpion);
         }
+
+        [Test]
+        public void ReceivedNetworkMessageData()
+        {
+            var networkStream = _client.Client.GetStream();
+            var msg = new SimpleSocketNetworkMessage(new NetworkMessageData{}, new LocalNetworkClient[0]);
+            msg.Writer.Write("test");
+            msg.Send();
+            var reader = msg.Receive();
+            Assert.That(reader.ReadString() == "test");
+        }
     }
 }
