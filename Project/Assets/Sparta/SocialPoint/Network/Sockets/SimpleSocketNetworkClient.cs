@@ -25,13 +25,10 @@ namespace SocialPoint.Network
         private bool _connected;
         IUpdateScheduler _scheduler;
 
-        ISimpleSocketNetworkServer _server;
-
-
-        public SimpleSocketNetworkClient(IUpdateScheduler scheduler, ISimpleSocketNetworkServer server,string serverAddr = null, int serverPort = UnetNetworkServer.DefaultPort)
+       
+        public SimpleSocketNetworkClient(IUpdateScheduler scheduler,string serverAddr = null, int serverPort = UnetNetworkServer.DefaultPort)
         {
             _scheduler = scheduler;
-            _server = server;
             _serverAddr = serverAddr;
             _serverPort = serverPort;
             _client = new TcpClient();
@@ -42,7 +39,6 @@ namespace SocialPoint.Network
             _connecting = true;
             _scheduler.Add(this);
             _client.Connect(_serverAddr, _serverPort);
-            _server.OnClientConnected(this);
         }
 
         public void Disconnect()
@@ -163,5 +159,18 @@ namespace SocialPoint.Network
                 Disconnect();
             }
         }
+
+        public void SendNetworkMessage(NetworkMessageData _data, string str)
+        {
+            if(_client != null && Connected)
+            {
+                //_client.GetStream().Write();
+            }
+            else
+            {
+                DebugUtils.Assert(false, "Message could not be sent. Socket is not connected");
+            }
+        }
+
     }
 }

@@ -1,59 +1,40 @@
 ﻿
 using SocialPoint.IO;
 using System.IO;
+using System.Net.Sockets;
 
 namespace SocialPoint.Network
 {
     public sealed class SocketNetworkMessage : INetworkMessage
     {
-        public IWriter Writer{ get; private set; }
+        readonly NetworkMessageData _data;
+        readonly SocketNetworkWriter _writer;
+        readonly SimpleSocketNetworkClient _client;
 
-        public NetworkMessageData Data{ get; private set; }
-
-//        SocketNetworkServer _server;
-//        SocketNetworkClient[] _clients;
-//        SocketNetworkClient _origin;
-        MemoryStream _stream;
-
-        public SocketNetworkMessage(NetworkMessageData data, SocketNetworkClient[] clients)
+        public SocketNetworkMessage(NetworkMessageData data, SimpleSocketNetworkClient client)
         {
-//            _clients = clients;
-            Init(data);
+            _data = data;
+            _writer = new SocketNetworkWriter();
+            _client = client;
         }
 
-        public SocketNetworkMessage(NetworkMessageData data, SocketNetworkClient origin, SocketNetworkServer server)
-        {
-//            _origin = origin;
-//            _server = server;
-            Init(data);
-        }
-
-        void Init(NetworkMessageData data)
-        {
-            Data = data;
-            _stream = new MemoryStream();
-            Writer = new SystemBinaryWriter(_stream);
-        }
+        #region INetworkMessage implementation
 
         public void Send()
         {
-//            UnityEngine.Debug.Log("SocketNetworkMessage Send");
-            Writer.Write("test");
-           
+            _client.SendNetworkMessage(_data, _writer.ToString());
         }
 
-        public IReader Receive()
+        public IWriter Writer
         {
-            var streamArray = _stream.ToArray();
-            var data = new NetworkMessageData
+            get
             {
-                ClientIds = Data.ClientIds,
-                MessageType = Data.MessageType,
-                Unreliable = Data.Unreliable,
-                MessageLength = streamArray.Length
-            };
-            Data = data;
-            return new SystemBinaryReader(new MemoryStream(streamArray));
+                return _writer;
+            }
         }
+
+        #endregion
+    }
+
     }
 }

@@ -1,28 +1,38 @@
 ﻿using UnityEngine.Networking;
 using SocialPoint.IO;
 using System;
+using System.Net.Sockets;
 
 namespace SocialPoint.Network
 {
-    public sealed class SocketNetworkReader : IReader
+    public sealed class SimpleSocketNetworkReader : IReader
     {
-        readonly NetworkReader _reader;
+        readonly Socket _socket;
+        readonly int _messageLen;
+        int _currentPos;
+        readonly SystemBinaryReader _reader;
 
-        public SocketNetworkReader(NetworkReader reader)
+        public SimpleSocketNetworkReader(Socket socket, int messageLen)
         {
-            _reader = reader;
+            _reader = new SystemBinaryReader(new NetworkStream(socket));
+            _reader.
+
+            socket.Str
+            _socket = socket;
+            _messageLen = messageLen;
         }
 
         public bool Finished
         {
             get
             {
-                return _reader.Position >= _reader.Length;
+                return _currentPos >= _messageLen;
             }
         }
 
         public bool ReadBoolean()
         {
+            _currentPos
             return _reader.ReadBoolean();
         }
 

@@ -4,6 +4,8 @@ using SocialPoint.Base;
 using SocialPoint.Utils;
 using System.Net;
 using System.Net.Sockets;
+using SocialPoint.IO;
+using System.IO;
 
 namespace SocialPoint.Network
 {
@@ -21,12 +23,53 @@ namespace SocialPoint.Network
     {
         public const int DefaultPort = 8888;
 
-        //private INetworkMessageReceiver _receiver;
+        struct ClientMessageData
+        {
+            SystemBinaryReader Reader;
+            MemoryStream Stream;
+            byte Type;
+            int Length;
+
+            public ClientMessageData()
+            {
+                Stream = new MemoryStream();
+                Reader = new SystemBinaryReader(Stream);
+            }
+
+            public event Action<NetworkMessageData, IReader> MessageReceived;
+
+            public void Receive(Socket socket)
+            {
+                var nextByte = new byte[1];
+                socket.Receive(nextByte, 0, 1, SocketFlags.None);
+                Stream.Write(nextByte, 0, 1);
+                if(Stream.Position == 1)
+                {
+                    Type = Reader.ReadByte();
+                }
+                if(Stream.Position == 3)
+                {
+                    Length = Reader.ReadInt32();
+                }
+                if(Stream.Position == 3 + Length)
+                {
+                    var data =  Reader.ReadBytes(Length);
+                    var reader = new SystemBinaryReader(new MemoryStream(data));
+                    MessageReceived(new NetworkMessageData {
+                        MessageType = Type,
+
+                    }, reader);
+                }
+            }
+        }
+
+        private INetworkMessageReceiver _receiver;
         private List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         private IUpdateScheduler _updateScheduler;
         private TcpListener _listener;
         private List<TcpClient> _connectedClients = new List<TcpClient>();
         private List<TcpClient> _disconnectedClients = new List<TcpClient>();
+        private List<ClientMessageData> _clientMesages = new List<ClientMessageData>();
 
         List<SimpleSocketNetworkClient> _networkClientList = new List<SimpleSocketNetworkClient>();
 
@@ -115,7 +158,7 @@ namespace SocialPoint.Network
 
         public void RegisterReceiver(INetworkMessageReceiver receiver)
         {
-            //_receiver = receiver;
+            _receiver = receiver;
         }
 
         public int GetTimestamp()
@@ -160,6 +203,21 @@ namespace SocialPoint.Network
             ConnectClients();
 
             DisconnectClients();
+
+            ReceiveClientMessages();
+        }
+
+        void ReceiveClientMessages()
+        {
+            byte[] nextByte = new byte[1];
+            for(var i = 0; i < _connectedClients.Count; i++)
+            {
+                var c = _connectedClients[i];
+                while (c.Available > 0 && c.Connected)
+                {
+                    _clientMesages[i].Receive(c.Client);
+                }
+            }
         }
 
         void ConnectClients()
