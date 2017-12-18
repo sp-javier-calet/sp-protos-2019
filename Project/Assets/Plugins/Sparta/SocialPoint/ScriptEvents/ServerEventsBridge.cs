@@ -1,5 +1,6 @@
 using SocialPoint.Attributes;
 using SocialPoint.ServerEvents;
+using SocialPoint.Lifecycle;
 
 namespace SocialPoint.ScriptEvents
 {
@@ -28,11 +29,9 @@ namespace SocialPoint.ScriptEvents
     }
 
     public sealed class ServerEventsBridge :
-        IEventsBridge, 
         IScriptEventsBridge
     {
-
-        IEventDispatcher _dispatcher;
+        IEventProcessor _processor;
         IEventTracker _tracker;
 
         public ServerEventsBridge(IEventTracker tracker)
@@ -40,22 +39,18 @@ namespace SocialPoint.ScriptEvents
             _tracker = tracker;
         }
 
-        public void Load(IEventDispatcher dispatcher)
+        public void Load(IScriptEventProcessor scriptProcessor, IEventProcessor processor)
         {
-            _dispatcher = dispatcher;
-            _dispatcher.AddListener<ServerTrackAction>(OnTrackAction);
-        }
-
-        public void Load(IScriptEventDispatcher dispatcher)
-        {
-            dispatcher.AddParser(new ServerTrackActionParser());
+            _processor = processor;
+            _processor.RegisterHandler<ServerTrackAction>(OnTrackAction);
+            scriptProcessor.RegisterParser(new ServerTrackActionParser());
         }
 
         public void Dispose()
         {
-            if(_dispatcher != null)
+            if(_processor != null)
             {
-                _dispatcher.RemoveListener<ServerTrackAction>(OnTrackAction);
+                _processor.UnregisterHandler<ServerTrackAction>(OnTrackAction);
             }
         }
 

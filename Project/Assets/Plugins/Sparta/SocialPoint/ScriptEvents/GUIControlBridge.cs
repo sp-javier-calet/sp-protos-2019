@@ -1,6 +1,7 @@
 using SocialPoint.Attributes;
 using SocialPoint.GUIControl;
 using UnityEngine;
+using SocialPoint.Lifecycle;
 
 namespace SocialPoint.ScriptEvents
 {
@@ -78,10 +79,9 @@ namespace SocialPoint.ScriptEvents
     }
 
     public sealed class GUIControlBridge :
-        IEventsBridge,
         IScriptEventsBridge
     {
-        IEventDispatcher _dispatcher;
+        IEventProcessor _processor;
 
         public GUIControlBridge()
         {
@@ -90,16 +90,12 @@ namespace SocialPoint.ScriptEvents
 
         const string UIViewControllerInstantiateEvent = "event.gui.instantiate";
 
-        public void Load(IScriptEventDispatcher dispatcher)
+        public void Load(IScriptEventProcessor scriptProcessor, IEventProcessor processor)
         {
-            dispatcher.AddSerializer(new UIViewControllerAwakeEventSerializer());
-            dispatcher.AddSerializer(new UIViewControllerStateChangeEventSerializer());
-            dispatcher.AddSerializer(new UIViewControllerInstantiateEventSerializer());
-        }
-
-        public void Load(IEventDispatcher dispatcher)
-        {
-            _dispatcher = dispatcher;
+            _processor = processor;
+            scriptProcessor.RegisterSerializer(new UIViewControllerAwakeEventSerializer());
+            scriptProcessor.RegisterSerializer(new UIViewControllerStateChangeEventSerializer());
+            scriptProcessor.RegisterSerializer(new UIViewControllerInstantiateEventSerializer());
         }
 
         public void Dispose()
@@ -111,22 +107,22 @@ namespace SocialPoint.ScriptEvents
         {
             ctrl.ViewEvent += OnViewControllerStateChange;
             ctrl.InstantiateEvent += OnViewControllerInstantiate;
-            if(_dispatcher == null)
+            if(_processor == null)
             {
                 return;
             }
-            _dispatcher.Raise(new UIViewControllerAwakeEvent {
+            _processor.Process(new UIViewControllerAwakeEvent {
                 Controller = ctrl
             });
         }
 
         void OnViewControllerStateChange(UIViewController ctrl, UIViewController.ViewState state)
         {
-            if(_dispatcher == null)
+            if(_processor == null)
             {
                 return;
             }
-            _dispatcher.Raise(new UIViewControllerStateChangeEvent { 
+            _processor.Process(new UIViewControllerStateChangeEvent { 
                 Controller = ctrl,
                 State = state
             });
@@ -134,11 +130,11 @@ namespace SocialPoint.ScriptEvents
 
         void OnViewControllerInstantiate(UIViewController ctrl, GameObject go)
         {
-            if(_dispatcher == null)
+            if(_processor == null)
             {
                 return;
             }
-            _dispatcher.Raise(new UIViewControllerInstantiateEvent { 
+            _processor.Process(new UIViewControllerInstantiateEvent { 
                 Controller = ctrl,
                 Object = go
             });

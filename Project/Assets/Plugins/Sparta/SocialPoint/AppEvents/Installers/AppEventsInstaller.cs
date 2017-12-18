@@ -21,7 +21,6 @@ public class AppEventsInstaller : ServiceInstaller
         #endif
 
         Container.Bind<AppEventsBridge>().ToMethod<AppEventsBridge>(CreateAppEventsBridge);
-        Container.Bind<IEventsBridge>().ToLookup<AppEventsBridge>();
         Container.Bind<IScriptEventsBridge>().ToLookup<AppEventsBridge>();
     }
 

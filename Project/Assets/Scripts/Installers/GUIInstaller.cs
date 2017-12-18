@@ -72,7 +72,6 @@ public class GUIInstaller : Installer, IDisposable
             Container.Rebind<HUDNotificationsController>().ToInstance(notifications);
         }
 
-        Container.Bind<IEventsBridge>().ToSingle<GUIControlBridge>();
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
     }
 

@@ -103,7 +103,7 @@ namespace SocialPoint.Multiplayer
             _actionSerializer.Register<T>(msgType);
         }
 
-        public void RegisterAction<T>(byte msgType, IStateActionHandler<NetworkSceneMemento, T> handler) where T : INetworkShareable, new()
+        public void RegisterAction<T>(byte msgType, IStateEventHandler<NetworkSceneMemento, T> handler) where T : INetworkShareable, new()
         {
             _actionProcessor.RegisterHandler(handler);
             _actionParser.Register<T>(msgType);

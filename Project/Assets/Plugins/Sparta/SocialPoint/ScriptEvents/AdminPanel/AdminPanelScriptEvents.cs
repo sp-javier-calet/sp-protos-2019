@@ -9,17 +9,17 @@ namespace SocialPoint.ScriptEvents
 {
     public sealed class AdminPanelScriptEvents : IAdminPanelGUI, IAdminPanelConfigurer
     {
-        IScriptEventDispatcher _dispatcher;
+        IScriptEventProcessor _processor;
         Text _eventsArea;
         string _eventsLog;
         IAttrSerializer _attrSerializer;
         IAttrParser _attrParser;
         IAttrObjParser<ScriptModel> _scriptParser;
 
-        public AdminPanelScriptEvents(IScriptEventDispatcher dispatcher, IAttrObjParser<ScriptModel> scriptParser)
+        public AdminPanelScriptEvents(IScriptEventProcessor processor, IAttrObjParser<ScriptModel> scriptParser)
         {
-            _dispatcher = dispatcher;
-            _dispatcher.AddListener(OnScriptEvent);
+            _processor = processor;
+            _processor.RegisterHandler(OnScriptEvent);
             var serializer = new JsonAttrSerializer();
             serializer.PrettyPrint = true;
             _attrSerializer = serializer;
@@ -70,7 +70,7 @@ namespace SocialPoint.ScriptEvents
                 var attr = _attrParser.ParseString(defaultGame);
                 var scriptModel = _scriptParser.Parse(attr);
                 Log(string.Format("loaded script '{0}'\n{1}", value, scriptModel));
-                var script = new Script(_dispatcher, scriptModel);
+                var script = new Script(_processor, scriptModel);
                 script.StepStarted += () => Log(string.Format("script '{0}' step {1} started", value, script.CurrentStepNum));
                 script.StepFinished += (decision, evName, evArgs) => Log(string.Format("script '{0}' step {1} finished with decision {2}", value, script.CurrentStepNum, decision));
                 script.Run(() => Log(string.Format("script '{0}' finished running", value)));
