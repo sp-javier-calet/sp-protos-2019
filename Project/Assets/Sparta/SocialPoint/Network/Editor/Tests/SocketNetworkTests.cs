@@ -4,6 +4,8 @@ using NUnit.Framework;
 using NSubstitute;
 using SocialPoint.Utils;
 using System.Net.Sockets;
+using SocialPoint.IO;
+using System.Text;
 
 namespace SocialPoint.Network
 {
@@ -65,12 +67,20 @@ namespace SocialPoint.Network
         [Test]
         public void ReceivedNetworkMessageData()
         {
-            var networkStream = _client.Client.GetStream();
-            var msg = new SimpleSocketNetworkMessage(new NetworkMessageData{}, new LocalNetworkClient[0]);
-            msg.Writer.Write("test");
-            msg.Send();
-            var reader = msg.Receive();
-            Assert.That(reader.ReadString() == "test");
+            var rcvr = Substitute.For<INetworkMessageReceiver>();
+            _server.Start();
+            _server.RegisterReceiver(rcvr);
+            _client.Connect();
+
+            NetworkMessageData messageData = new NetworkMessageData {
+                MessageType = 4
+            };
+
+            _client.SendMessage(messageData, Encoding.ASCII.GetBytes("test"));
+
+            WaitForEvents();
+            rcvr.Received(1).OnMessageReceived(messageData, null);
+
         }
     }
 }

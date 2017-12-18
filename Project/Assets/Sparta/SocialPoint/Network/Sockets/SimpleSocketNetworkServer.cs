@@ -164,10 +164,10 @@ namespace SocialPoint.Network
 
             DisconnectClients();
 
-            ReceiveClientMessages();
+            ReceiveClientData();
         }
 
-        void ReceiveClientMessages()
+        void ReceiveClientData()
         {
             for(var i = 0; i < _connectedClients.Count; i++)
             {
@@ -175,12 +175,6 @@ namespace SocialPoint.Network
                 while (c.Available > 0 && c.Connected)
                 {
                     _clientMesages[i].Receive(c.Client);
-                    _clientMesages[i].MessageReceived += (data, reader) => {
-                        if(_receiver != null)
-                        {
-                            _receiver.OnMessageReceived(data, reader);
-                        }
-                    };
                 }
             }
         }
@@ -191,10 +185,26 @@ namespace SocialPoint.Network
             {
                 var newClient = _listener.AcceptTcpClient();
                 _connectedClients.Add(newClient);
+                byte clienId = (byte)_connectedClients.Count;
+                var msg = new SimpleSocketClientMessageData(clienId);
+                msg.MessageReceived += OnClientMessageReceived;
+                _clientMesages.Add(msg);
                 for(var i = 0; i < _delegates.Count; i++)
                 {
-                    _delegates[i].OnClientConnected((byte)_connectedClients.Count);
+                    _delegates[i].OnClientConnected(clienId);
                 }
+            }
+        }
+
+        void OnClientMessageReceived(NetworkMessageData data, IReader reader)
+        {
+            for(var i = 0; i < _delegates.Count; i++)
+            {
+                _delegates[i].OnMessageReceived(data);
+            }
+            if(_receiver != null)
+            {
+                _receiver.OnMessageReceived(data, reader);
             }
         }
 
@@ -218,7 +228,9 @@ namespace SocialPoint.Network
                     {
                         _delegates[i].OnClientDisconnected((byte)(_connectedClients.IndexOf(client) + 1));
                     }
-                    _connectedClients.Remove(client);
+                    int posClient = _connectedClients.IndexOf(client);
+                    _connectedClients.RemoveAt(posClient);
+                    _clientMesages.RemoveAt(posClient);
                 }
             }
         }

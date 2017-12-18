@@ -13,9 +13,11 @@ public class SimpleSocketClientMessageData
     MemoryStream Stream;
     byte Type;
     int Length;
+    byte _clientId;
 
-    public SimpleSocketClientMessageData()
+    public SimpleSocketClientMessageData(byte clientId)
     {
+        _clientId = clientId;
         Stream = new MemoryStream();
         Reader = new SystemBinaryReader(Stream);
     }
@@ -39,10 +41,14 @@ public class SimpleSocketClientMessageData
         {
             var data = Reader.ReadBytes(Length);
             var reader = new SystemBinaryReader(new MemoryStream(data));
-            MessageReceived(new NetworkMessageData {
-                MessageType = Type,
-
-            }, reader);
+            if(MessageReceived != null)
+            {
+                MessageReceived(new NetworkMessageData {
+                    MessageType = Type,
+                    ClientIds = { _clientId }
+                }, reader);
+            }
+            Stream.Seek(0, SeekOrigin.Begin);
         }
     }
 }

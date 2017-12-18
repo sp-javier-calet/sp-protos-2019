@@ -24,15 +24,8 @@ namespace SocialPoint.Network
         private bool _connecting;
         private bool _connected;
         IUpdateScheduler _scheduler;
+        NetworkStream _stream;
 
-        public TcpClient Client
-        {
-            get
-            {
-                return _client;
-            }
-        }
-       
         public SimpleSocketNetworkClient(IUpdateScheduler scheduler,string serverAddr = null, int serverPort = UnetNetworkServer.DefaultPort)
         {
             _scheduler = scheduler;
@@ -46,6 +39,7 @@ namespace SocialPoint.Network
             _connecting = true;
             _scheduler.Add(this);
             _client.Connect(_serverAddr, _serverPort);
+            _stream = new NetworkStream(_client.Client);
         }
 
         public void Disconnect()
@@ -109,10 +103,17 @@ namespace SocialPoint.Network
 
         public INetworkMessage CreateMessage(NetworkMessageData data)
         {
-            throw new NotImplementedException();
+            return new SimpleSocketNetworkMessage(data, _stream);
         }
 
         public void Update()
+        {
+            ConnectClients();
+            DisconnectClients();
+            ReceiveServertMessages();
+        }
+
+        void ConnectClients()
         {
             UnityEngine.Debug.Log("CLIENT Update ");
             if(_connecting && _client.Connected)
@@ -125,12 +126,19 @@ namespace SocialPoint.Network
                     _delegates[i].OnClientConnected();
                 }
             }
+        }
 
+        void DisconnectClients()
+        {
             if(_connected && !_client.Connected)
             {
                 UnityEngine.Debug.Log("CLIENT OnClientDisconnected ");
                 OnDisconnected();
             }
+        }
+
+        void ReceiveServertMessages()
+        {
         }
 
         void OnDisconnected()
