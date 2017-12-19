@@ -22,42 +22,41 @@ namespace UnityTest
         public static int returnCodeTestsFailed = 2;
         public static int returnCodeRunError = 3;
 
-        public static void RunIntegrationTests()
+        public static void RunIntegrationTests ()
         {
-            var targetPlatform = GetTargetPlatform();
+            var targetPlatform = GetTargetPlatform ();
             var otherBuildScenes = GetSceneListFromParam (k_OtherBuildScenesParam);
 
-            var testScenes = GetSceneListFromParam(k_TestScenesParam);
+            var testScenes = GetSceneListFromParam (k_TestScenesParam);
             if (testScenes.Count == 0)
-                testScenes = FindTestScenesInProject();
+                testScenes = FindTestScenesInProject ();
 
-            RunIntegrationTests(targetPlatform, testScenes, otherBuildScenes);
+            RunIntegrationTests (targetPlatform, testScenes, otherBuildScenes);
         }
-        
-        public static void RunIntegrationTests(BuildTarget ? targetPlatform)
+
+        public static void RunIntegrationTests (BuildTarget? targetPlatform)
         {
-            var sceneList = FindTestScenesInProject();
-            RunIntegrationTests(targetPlatform, sceneList, new List<string>());
+            var sceneList = FindTestScenesInProject ();
+            RunIntegrationTests (targetPlatform, sceneList, new List<string> ());
         }
 
 
-        public static void RunIntegrationTests(BuildTarget? targetPlatform, List<string> testScenes, List<string> otherBuildScenes)
+        public static void RunIntegrationTests (BuildTarget? targetPlatform, List<string> testScenes, List<string> otherBuildScenes)
         {
             if (targetPlatform.HasValue)
-                BuildAndRun(targetPlatform.Value, testScenes, otherBuildScenes);
+                BuildAndRun (targetPlatform.Value, testScenes, otherBuildScenes);
             else
-                RunInEditor(testScenes,  otherBuildScenes);
+                RunInEditor (testScenes, otherBuildScenes);
         }
-        
-        private static void BuildAndRun(BuildTarget target, List<string> testScenes, List<string> otherBuildScenes)
+
+        private static void BuildAndRun (BuildTarget target, List<string> testScenes, List<string> otherBuildScenes)
         {
-            var resultFilePath = GetParameterArgument(k_ResultFileDirParam);
+            var resultFilePath = GetParameterArgument (k_ResultFileDirParam);
 
             const int port = 0;
-            var ipList = TestRunnerConfigurator.GetAvailableNetworkIPs();
+            var ipList = TestRunnerConfigurator.GetAvailableNetworkIPs ();
 
-            var config = new PlatformRunnerConfiguration
-            {
+            var config = new PlatformRunnerConfiguration {
                 buildTarget = target,
                 buildScenes = otherBuildScenes,
                 testScenes = testScenes,
@@ -68,12 +67,14 @@ namespace UnityTest
                 port = port
             };
 
+#if !UNITY_2017
             if (Application.isWebPlayer)
             {
                 config.sendResultsOverNetwork = false;
                 Debug.Log("You can't use WebPlayer as active platform for running integration tests. Switching to Standalone");
                 EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTarget.StandaloneWindows);
             }
+#endif
 
             PlatformRunner.BuildAndRunInPlayer(config);
         }
