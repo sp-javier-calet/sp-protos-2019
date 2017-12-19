@@ -14,7 +14,7 @@ LOCAL_LDLIBS    := -llog
 LOCAL_SRC_FILES := $(CR_SRC_PATH)/SPUnityBreadcrumbManager.cpp \
                    $(CR_SRC_PATH)/SPUnityBreadcrumbManagerFacade.cpp \
                    $(BASE_PATH)/src/SPUnityCrashReporter.cpp \
-                   $(BASE_PATH)/src/SPUnityCrashRepoterFacade.cpp
+                   $(BASE_PATH)/src/SPUnityCrashReporterFacade.cpp
                    
 
 LOCAL_STATIC_LIBRARIES := breakpad_client
@@ -29,7 +29,7 @@ $(call import-add-path,$(PLUGINS_PATH))
 
 ifeq ($(TARGET_ARCH),x86)
 else
-$(call import-module,lib/google-breakpad/android/google_breakpad)
+$(call import-module,lib/google-breakpad)
 endif
 
 $(call import-module,sp_unity_utils/jni)

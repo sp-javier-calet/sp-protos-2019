@@ -44,6 +44,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="PhotonHivePlugin">
+      <HintPath>..\Server\deploy\LoadBalancing\Master\bin\PhotonHivePlugin.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Server\Shared\NetworkServerPlugin.cs">
@@ -61,13 +64,13 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="LockstepSparta.csproj">
-      <Project>{4ba8ea51-7fea-4e0f-8103-386ffffd6001}</Project>
-      <Name>Sparta</Name>
+      <Project>{4BA8EA51-7FEA-4E0F-8103-386FFFFD6001}</Project>
+      <Name>LockstepSparta</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\Server\deploy\Plugins\LockstepPlugin\bin\"</PostBuildEvent>
+    <PostBuildEvent Condition=" '$(OS)' != 'Unix' ">xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\Server\deploy\Plugins\LockstepPlugin\bin\"</PostBuildEvent>
     <StartAction>Program</StartAction>
     <StartProgram>..\Server\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
     <StartWorkingDirectory>

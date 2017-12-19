@@ -40,19 +40,10 @@ namespace SocialPoint.Lockstep
         LockstepNetworkServer _netServer;
         HttpMatchmakingServer _matchmaking;
         object _game;
-        bool _isURLEditable;
 
         public LockstepPlugin() : base("Lockstep")
         {
             System.Net.ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-        }
-
-        void OnBeforeMatchStarts()
-        {
-            if(_isURLEditable)
-            {
-                _matchmaking.BaseUrl = BackendEnv;
-            }
         }
 
         const string CommandStepDurationConfig = "CommandStepDuration";
@@ -60,25 +51,24 @@ namespace SocialPoint.Lockstep
         const string MaxPlayersConfig = "MaxPlayers";
         const string ClientStartDelayConfig = "ClientStartDelay";
         const string ClientSimulationDelayConfig = "ClientSimulationDelay";
-        const string BackendBaseUrlConfig = "BackendBaseUrl";
         const string BattleEndedWithoutConfirmationTimeoutConfig = "BattleEndedWithoutConfirmationTimeout";
         const string FinishOnClientDisconnectionConfig = "FinishOnClientDisconnection";
         const string AllowBattleStartWithOnePlayerReadyConfig = "AllowBattleStartWithOnePlayerReady";
-        const string IsURLEditableConfig = "IsURLEditable";
         const string GameAssemblyNameConfig = "GameAssemblyName";
         const string GameTypeConfig = "GameType";
         const string MetricSendIntervalConfig = "MetricSendInterval";
 
         public override bool SetupInstance(IPluginHost host, Dictionary<string, string> config, out string errorMsg)
         {
-            if(!base.SetupInstance(host, config, out errorMsg))
+            if (!base.SetupInstance(host, config, out errorMsg))
             {
                 return false;
             }
 
-            _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient());
-            _netServer = new LockstepNetworkServer(NetworkServer, _matchmaking);
-            _netServer.BeforeMatchStarts += OnBeforeMatchStarts;
+            Func<string> getBaseUrlCallback = () => { return BaseBackendUrl; };
+
+            _matchmaking = new HttpMatchmakingServer(new ImmediateWebRequestHttpClient(), getBaseUrlCallback);
+            _netServer = new LockstepNetworkServer(this, _matchmaking);
 
             _netServer.SendMetric = PluginEventTracker.SendMetric;
             _netServer.SendLog = PluginEventTracker.SendLog;
@@ -95,32 +85,30 @@ namespace SocialPoint.Lockstep
                 ClientStartDelayConfig, _netServer.ServerConfig.ClientStartDelay);
             _netServer.ServerConfig.ClientSimulationDelay = GetConfigOption(config,
                 ClientSimulationDelayConfig, _netServer.ServerConfig.ClientSimulationDelay);
-            _netServer.ServerConfig.BattleEndedWithoutConfirmationTimeout = GetConfigOption(config,
-                BattleEndedWithoutConfirmationTimeoutConfig, _netServer.ServerConfig.BattleEndedWithoutConfirmationTimeout);
+            _netServer.ServerConfig.MatchEndedWithoutConfirmationTimeout = GetConfigOption(config,
+                BattleEndedWithoutConfirmationTimeoutConfig, _netServer.ServerConfig.MatchEndedWithoutConfirmationTimeout);
             _netServer.ServerConfig.FinishOnClientDisconnection = GetConfigOption(config, FinishOnClientDisconnectionConfig, _netServer.ServerConfig.FinishOnClientDisconnection);
             _netServer.ServerConfig.MetricSendInterval = GetConfigOption(config,
                 MetricSendIntervalConfig, _netServer.ServerConfig.MetricSendInterval);
-            
+
             _netServer.ServerLockstep.MetricSendInterval = _netServer.ServerConfig.MetricSendInterval;
+            _netServer.ServerConfig.GetBackendUrlCallback = getBaseUrlCallback;
+            config.TryGetValue(MetricEnvironmentConfig, out _netServer.ServerConfig.MetricEnvironment);
 
-            string baseUrl;
-            config.TryGetValue(BackendBaseUrlConfig, out baseUrl);
-            if (_matchmaking != null && !string.IsNullOrEmpty(baseUrl))
+            if (PluginEventTracker != null)
             {
-                _matchmaking.BaseUrl = baseUrl;
-            }
-            if(PluginEventTracker != null && baseUrl != string.Empty)
-            {
-                PluginEventTracker.BaseUrl = baseUrl;
+                PluginEventTracker.Environment = _netServer.ServerConfig.MetricEnvironment;
+                PluginEventTracker.GetBaseUrlCallback = _netServer.ServerConfig.GetBackendUrlCallback;
+                PluginEventTracker.Platform = "PhotonPlugin";
+                PluginEventTracker.UpdateCommonTrackData += (data) => { data.SetValue("ver", AppVersion); };
             }
 
-            _netServer.ServerConfig.AllowBattleStartWithOnePlayerReady = GetConfigOption(config,
-                AllowBattleStartWithOnePlayerReadyConfig, _netServer.ServerConfig.AllowBattleStartWithOnePlayerReady);
-            _isURLEditable = GetConfigOption(config, IsURLEditableConfig, _isURLEditable);
+            _netServer.ServerConfig.AllowMatchStartWithOnePlayerReady = GetConfigOption(config,
+                AllowBattleStartWithOnePlayerReadyConfig, _netServer.ServerConfig.AllowMatchStartWithOnePlayerReady);
 
             string gameAssembly;
             string gameType;
-            if(config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) &&
+            if (config.TryGetValue(GameAssemblyNameConfig, out gameAssembly) &&
                 config.TryGetValue(GameTypeConfig, out gameType))
             {
                 try
@@ -128,7 +116,7 @@ namespace SocialPoint.Lockstep
                     var factory = (INetworkServerGameFactory)CreateInstanceFromAssembly(gameAssembly, gameType);
                     _game = factory.Create(_netServer, config);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     errorMsg = e.Message;
                 }
@@ -136,9 +124,9 @@ namespace SocialPoint.Lockstep
             return string.IsNullOrEmpty(errorMsg);
         }
 
-        protected override void Update()
+        protected override void Update(float dt)
         {
-            base.Update();
+            base.Update(dt);
             _netServer.Update();
         }
 

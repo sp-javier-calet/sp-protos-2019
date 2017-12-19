@@ -1,0 +1,3 @@
+type extension
+desc Lifecycle implementation for sparta
+name Extension/Lifecycle
