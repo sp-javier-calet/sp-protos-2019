@@ -59,6 +59,8 @@ namespace SocialPoint.GUIControl
             if(ctrl.ParentController != this)
             {
                 ctrl.ParentController = this;
+
+                ctrl.ViewEvent -= OnChildViewStateChanged;
                 ctrl.ViewEvent += OnChildViewStateChanged;
             }
         }
