@@ -457,7 +457,7 @@ namespace Spine.Unity {
 			var skeleton = instruction.skeleton;
 			var drawOrderItems = skeleton.drawOrder.Items;
 
-			Color32 color;
+            Color32 color = default(Color32);
 			float skeletonA = skeleton.a * 255, skeletonR = skeleton.r, skeletonG = skeleton.g, skeletonB = skeleton.b;
 			Vector2 meshBoundsMin = this.meshBoundsMin, meshBoundsMax = this.meshBoundsMax;
 
@@ -660,8 +660,8 @@ namespace Spine.Unity {
 				vertexBuffer.Count = uvBuffer.Count = colorBuffer.Count = totalVertexCount;
 			}
 
-			// Populate Verts
-			Color32 color;
+            // Populate Verts
+            Color32 color = default(Color32);
 
 			int vertexIndex = 0;
 			var tempVerts = this.tempVerts;

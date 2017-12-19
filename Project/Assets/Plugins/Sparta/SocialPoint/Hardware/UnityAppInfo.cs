@@ -29,7 +29,7 @@ namespace SocialPoint.Hardware
 #if UNITY_EDITOR
                 if(_id == null)
                 {
-                    _id = UnityEditor.PlayerSettings.bundleIdentifier;
+                    _id = UnityEditor.PlayerSettings.applicationIdentifier;
                 }
 #endif
                 return _id;

@@ -131,7 +131,7 @@ namespace SpartaTools.Editor.Build
                 .Indent()
                     .Add("Product Name", PlayerSettings.productName)
                     .Add("Version", PlayerSettings.bundleVersion)
-                    .Add("Bundle id", PlayerSettings.bundleIdentifier)
+                    .Add("Bundle id", PlayerSettings.applicationIdentifier)
                     .Add("Development build", EditorUserBuildSettings.development.ToString())
                 .IndentBack()
 

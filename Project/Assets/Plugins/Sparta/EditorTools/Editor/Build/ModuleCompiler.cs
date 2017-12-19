@@ -541,7 +541,7 @@ namespace SpartaTools.Editor.Build
                 break;
             case BuildTarget.StandaloneOSXIntel:
             case BuildTarget.StandaloneOSXIntel64:
-            case BuildTarget.StandaloneOSXUniversal:
+            case BuildTarget.StandaloneOSX:
                 compiler.ConfigureAs(new StandAloneOSXPlatformConfiguration());
                 break;
             default:

@@ -588,7 +588,7 @@ namespace SocialPoint.Pooling
 
         public static Transform FindChildPoolGameObject(GameObject prefab)
         {
-            return Instance.transform.FindChild(string.Concat(PoolPrefix, prefab.name));
+            return Instance.transform.Find(string.Concat(PoolPrefix, prefab.name));
         }
 
         public static void DestroyAll<T>(T prefab) where T : Component

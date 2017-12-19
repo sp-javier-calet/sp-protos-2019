@@ -504,7 +504,7 @@ namespace SocialPoint.TransparentBundles
 
         static void LogMessageHandler(string message, LogType severity)
         {
-            Debug.logger.Log(severity, message);
+            Debug.unityLogger.Log(severity, message);
         }
 
         #endregion

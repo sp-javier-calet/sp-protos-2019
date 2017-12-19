@@ -605,7 +605,7 @@ namespace SpartaTools.Editor.Build
             {
                 if(!string.IsNullOrEmpty(bundleIdentifier))
                 {
-                    PlayerSettings.bundleIdentifier = bundleIdentifier;
+                    PlayerSettings.applicationIdentifier = bundleIdentifier;
                 }
             }
 
