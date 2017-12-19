@@ -46,7 +46,6 @@ namespace SocialPoint.Hardware
             Container.Rebind<INativeUtils>().ToMethod<EmptyNativeUtils>(CreateEmptyNativeUtils);
             #endif
 
-
             #if ADMIN_PANEL
             Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelHardware>(CreateAdminPanel);
             #endif

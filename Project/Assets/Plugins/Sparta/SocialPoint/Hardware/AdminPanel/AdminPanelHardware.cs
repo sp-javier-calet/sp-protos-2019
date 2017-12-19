@@ -79,14 +79,12 @@ namespace SocialPoint.Hardware
             //Storage size warning
             var storageLayout = layout.CreateHorizontalLayout();
             storageLayout.CreateLabel("Storage Warning At (" + _storageAnalyzerUnit.ToString() + ")");
-            storageLayout.CreateTextInput(_storageAnalyzer.Config.FreeStorageWarning.ToString(), value => {
-                try
+            var val = _storageAnalyzer.Config.FreeStorageWarning.ToAmount(_storageAnalyzerUnit);
+            storageLayout.CreateTextInput(val.ToString(), value => {
+                ulong parsed;
+                if(ulong.TryParse(value, out parsed))
                 {
-                    var parsed = ulong.Parse(value);
                     UpdateAnalyzerFreeStorageWarningValue(parsed);
-                }
-                catch(Exception)
-                {
                 }
                 layout.Refresh();
             });
@@ -95,13 +93,10 @@ namespace SocialPoint.Hardware
             var timeLayout = layout.CreateHorizontalLayout();
             timeLayout.CreateLabel("Check Interval (Seconds)");
             timeLayout.CreateTextInput(_storageAnalyzer.Config.AnalysisInterval.ToString(), value => {
-                try
+                float parsed;
+                if(float.TryParse(value, out parsed))
                 {
-                    var parsed = float.Parse(value);
                     UpdateAnalyzerCheckInterval(parsed);
-                }
-                catch(Exception)
-                {
                 }
                 layout.Refresh();
             });
@@ -131,7 +126,7 @@ namespace SocialPoint.Hardware
         void UpdateAnalyzerFreeStorageWarningValue(ulong value)
         {
             var config = _storageAnalyzer.Config;
-            config.FreeStorageWarning = new StorageAmount(value);
+            config.FreeStorageWarning = new StorageAmount(value, _storageAnalyzerUnit);
             _storageAnalyzer.Config = config;
         }
 

@@ -20,8 +20,23 @@ namespace SocialPoint.Hardware
         {
             get
             {
-                return Transform(Amount, StorageUnit.Bytes);
+                return ToAmount(StorageUnit.Bytes);
             }
+        }
+
+        public ulong ToAmount(StorageUnit target = StorageUnit.Bytes)
+        {
+            int shift = ((int)Unit - (int)target) * 10;
+            var amount = Amount;
+            if(shift > 0)
+            {
+                amount <<= shift;
+            }
+            else
+            {
+                amount >>= Math.Abs(shift);
+            }
+            return amount;
         }
 
         public StorageAmount(ulong amount, StorageUnit unit = StorageUnit.Bytes)
@@ -33,7 +48,7 @@ namespace SocialPoint.Hardware
         public StorageAmount Transform(StorageUnit target)
         {
             return new StorageAmount{
-                Amount = Transform(Amount, target),
+                Amount = ToAmount(target),
                 Unit = target
             };
         }
@@ -41,20 +56,6 @@ namespace SocialPoint.Hardware
         public override string ToString()
         {
             return string.Format("[{0} {1}]", Amount, Unit);
-        }
-
-        ulong Transform(ulong amount, StorageUnit target)
-        {
-            int shift = ((int)Unit - (int)target) * 10;
-            if(shift > 0)
-            {
-                amount <<= shift;
-            }
-            else
-            {
-                amount >>= Math.Abs(shift);
-            }
-            return amount;
         }
     }
 }
