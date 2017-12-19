@@ -2,6 +2,7 @@
 using SocialPoint.IO;
 using System.IO;
 using System.Net.Sockets;
+using System.Collections.Generic;
 
 namespace SocialPoint.Network
 {
@@ -10,27 +11,30 @@ namespace SocialPoint.Network
         readonly NetworkMessageData _data;
         readonly SystemBinaryWriter _writer;
         readonly MemoryStream _memStream;
-        readonly NetworkStream _netStream;
+        List<NetworkStream> _netStreams;
 
 
-        public SimpleSocketNetworkMessage(NetworkMessageData data, NetworkStream netStream)
+        public SimpleSocketNetworkMessage(NetworkMessageData data, List<NetworkStream> netStreams)
         {
             _data = data;
             _memStream = new MemoryStream();
-            _netStream = netStream;
+            _netStreams = netStreams;
             _writer = new SystemBinaryWriter(_memStream);
         }
-
 
         public void Send()
         {
             _memStream.Seek(0, SeekOrigin.Begin);
             var data = _memStream.ToArray();
-            var netWriter = new SystemBinaryWriter(_netStream);
-            netWriter.Write(_data.MessageType);
-            netWriter.Write(data.Length);
-            netWriter.Write(data, data.Length);
-            netWriter.Flush();
+            for(int i = 0; i < _netStreams.Count; i++)
+            {
+                NetworkStream netStream = _netStreams[i];
+                var netWriter = new SystemBinaryWriter(netStream);
+                netWriter.Write(_data.MessageType);
+                netWriter.Write(data.Length);
+                netWriter.Write(data, data.Length);
+                netWriter.Flush();
+            }
         }
 
         public IWriter Writer

@@ -63,7 +63,7 @@ namespace SocialPoint.Network
         }
 
         [Test]
-        public void SendMessageFromClientToServer()
+        public virtual void SendMessageFromClientToServer()
         {
             var receiver = Substitute.For<INetworkMessageReceiver>();
             _server.RegisterReceiver(receiver);
@@ -90,7 +90,7 @@ namespace SocialPoint.Network
         }
 
         [Test]
-        public void SendMessageFromServerToClients()
+        public virtual void SendMessageFromServerToClients()
         {
             var receiver = Substitute.For<INetworkMessageReceiver>();
             _client.RegisterReceiver(receiver);

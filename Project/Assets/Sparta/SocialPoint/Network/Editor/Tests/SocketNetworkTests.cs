@@ -6,9 +6,23 @@ using SocialPoint.Utils;
 using System.Net.Sockets;
 using SocialPoint.IO;
 using System.Text;
+using System.IO;
+using System.Collections.Generic;
 
 namespace SocialPoint.Network
 {
+    class TestMessageReceiver : INetworkMessageReceiver
+    {
+        public NetworkMessageData Data;
+        public string Body;
+
+        public void OnMessageReceived(NetworkMessageData data, IReader reader)
+        {
+            Data = data;
+            Body = reader.ReadString();
+        }
+    }
+
     [TestFixture]
     [Category("SocialPoint.Network")]
     class SocketNetworkTests : BaseNetworkTests
@@ -65,22 +79,65 @@ namespace SocialPoint.Network
         }
 
         [Test]
-        public void ReceivedNetworkMessageData()
+        public override void SendMessageFromClientToServer()
         {
-            var rcvr = Substitute.For<INetworkMessageReceiver>();
+            var receiver = new TestMessageReceiver();
             _server.Start();
-            _server.RegisterReceiver(rcvr);
+            _server.RegisterReceiver(receiver);
             _client.Connect();
 
-            NetworkMessageData messageData = new NetworkMessageData {
-                MessageType = 4
+
+            NetworkMessageData data = new NetworkMessageData {
+                MessageType = 5,
+                ClientIds = new List<byte>(){ 1 }
             };
 
-            _client.SendMessage(messageData, Encoding.ASCII.GetBytes("test"));
+            var msg = _client.CreateMessage(data);
+            msg.Writer.Write("test");
+            msg.Send();
 
             WaitForEvents();
-            rcvr.Received(1).OnMessageReceived(messageData, null);
 
+            Assert.AreEqual(data.MessageType, receiver.Data.MessageType);
+            Assert.AreEqual(1, receiver.Data.ClientIds[0]);
+            Assert.AreEqual(1, receiver.Data.ClientIds.Count);
+            Assert.AreEqual("test", receiver.Body);
         }
+
+        [Test]
+        public override void SendMessageFromServerToClients()
+        {
+            var receiver = new TestMessageReceiver();
+            _client.RegisterReceiver(receiver);
+            _client2.RegisterReceiver(receiver);
+            _server.Start();
+            _client.Connect();
+            _client2.Connect();
+
+            WaitForEvents();
+
+            var data = new NetworkMessageData {
+                MessageType = 5
+            };
+            var msg = _server.CreateMessage(data);
+
+            msg.Writer.Write("test");
+
+            msg.Send();
+
+            WaitForEvents();
+
+            Assert.AreEqual(data.MessageType, receiver.Data.MessageType);
+            Assert.AreEqual(1, receiver.Data.ClientIds[0]);
+            Assert.AreEqual(2, receiver.Data.ClientIds[1]);
+            Assert.AreEqual(2, receiver.Data.ClientIds.Count);
+            Assert.AreEqual("test", receiver.Body);
+//            receiver.Received(2).OnMessageReceived(data,
+//                Arg.Is<IReader>( reader => 
+//                    reader.ReadInt32() == 42 &&
+//                    reader.ReadString() == "test"
+//                ));
+        }
+
     }
 }

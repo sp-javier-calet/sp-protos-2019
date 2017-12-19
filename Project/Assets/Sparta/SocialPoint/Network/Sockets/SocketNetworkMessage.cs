@@ -7,22 +7,21 @@ namespace SocialPoint.Network
 {
     public sealed class SocketNetworkMessage : INetworkMessage
     {
-        readonly NetworkMessageData _data;
+//        readonly NetworkMessageData _data;
         readonly SocketNetworkWriter _writer;
-        readonly SimpleSocketNetworkClient _client;
+//        readonly SimpleSocketNetworkClient _client;
 
         public SocketNetworkMessage(NetworkMessageData data, SimpleSocketNetworkClient client)
         {
-            _data = data;
+//            _data = data;
             _writer = new SocketNetworkWriter();
-            _client = client;
+//            _client = client;
         }
 
         #region INetworkMessage implementation
 
         public void Send()
         {
-            _client.SendNetworkMessage(_data, _writer.ToString());
         }
 
         public IWriter Writer

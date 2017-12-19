@@ -6,49 +6,106 @@ using System;
 using System.Net.Sockets;
 using SocialPoint.Network;
 
-public class SimpleSocketClientMessageData
+public class SimpleSocketClientData
 {
-
-    SystemBinaryReader Reader;
-    MemoryStream Stream;
     byte Type;
     int Length;
     byte _clientId;
+    TcpClient _client;
+    NetworkStream _netStream;
+    MemoryStream _memStream;
+    SystemBinaryReader _reader;
 
-    public SimpleSocketClientMessageData(byte clientId)
+    public TcpClient Client
     {
+        get
+        {
+            return _client;
+        }
+    }
+
+    public NetworkStream Stream
+    {
+        get
+        {
+            return _netStream;
+        }
+    }
+
+    public byte ClientId
+    {
+        get
+        {
+            return _clientId;
+        }
+    }
+
+    public SimpleSocketClientData(byte clientId, TcpClient client)
+    {
+        _client = client;
         _clientId = clientId;
-        Stream = new MemoryStream();
-        Reader = new SystemBinaryReader(Stream);
+        _netStream = client.GetStream();
+        _memStream = new MemoryStream();
+        _reader = new SystemBinaryReader(_memStream);
     }
 
     public event Action<NetworkMessageData, IReader> MessageReceived;
 
-    public void Receive(Socket socket)
+    public void Receive()
     {
-        var nextByte = new byte[1];
-        socket.Receive(nextByte, 0, 1, SocketFlags.None);
-        Stream.Write(nextByte, 0, 1);
-        if(Stream.Position == 1)
+
+        if(!_netStream.CanRead)
         {
-            Type = Reader.ReadByte();
+            return;
         }
-        if(Stream.Position == 3)
+
+        // leer de net stream en mem stream
+//        byte[] bytes = new byte[bytesAvailable];
+//        _netStream.Read(bytes, 0, bytesAvailable);
+//        _memStream.Write(bytes, 0, bytesAvailable);
+
+//        _memStream.Seek(0, SeekOrigin.Begin);
+//
+//        Type = _reader.ReadByte();
+//
+//        Length = _reader.ReadInt32();
+//        UnityEngine.Debug.Log("LENGHT "+Length);
+//
+//        if(MessageReceived != null)
+//        {
+//            MessageReceived(new NetworkMessageData {
+//                MessageType = Type,
+//                ClientIds = { _clientId }
+//            }, _reader);
+//        }
+//        _memStream.Seek(0, SeekOrigin.Begin);
+
+
+        byte[] bytes = new byte[1];
+        _netStream.Read(bytes, 0, sizeof(byte));
+        _memStream.Write(bytes, 0, sizeof(byte));
+
+        if(_memStream.Position == sizeof(byte))
         {
-            Length = Reader.ReadInt32();
+            _memStream.Seek(0, SeekOrigin.Begin);
+            Type = _reader.ReadByte();
         }
-        if(Stream.Position == 3 + Length)
+        if(_memStream.Position == sizeof(byte) + sizeof(Int32))
         {
-            var data = Reader.ReadBytes(Length);
-            var reader = new SystemBinaryReader(new MemoryStream(data));
+            _memStream.Seek(1, SeekOrigin.Begin);
+            Length = _reader.ReadInt32();
+        }
+        if(_memStream.Position == sizeof(byte) + sizeof(Int32) + Length)
+        {
+            _memStream.Seek(5, SeekOrigin.Begin);
             if(MessageReceived != null)
             {
                 MessageReceived(new NetworkMessageData {
                     MessageType = Type,
-                    ClientIds = { _clientId }
-                }, reader);
+                    ClientIds = new List<byte>(){_clientId},
+                }, _reader);
             }
-            Stream.Seek(0, SeekOrigin.Begin);
+            _memStream.Seek(0, SeekOrigin.Begin);
         }
     }
 }

@@ -9,17 +9,8 @@ using System.IO;
 
 namespace SocialPoint.Network
 {
-    public interface ISimpleSocketNetworkServer : INetworkServer
-    {
-        //        byte OnClientConnecting(LocalNetworkClient client);
-        void OnClientConnected(SimpleSocketNetworkClient client);
-
-        void OnClientDisconnected(SimpleSocketNetworkClient client);
-        //        void OnLocalMessageReceived(LocalNetworkClient origin, ILocalNetworkMessage msg);
-        //        ILocalNetworkMessage CreateLocalMessage(NetworkMessageData data);
-    }
-
-    public class SimpleSocketNetworkServer : ISimpleSocketNetworkServer, IDisposable, IUpdateable
+   
+    public class SimpleSocketNetworkServer : INetworkServer, IDisposable, IUpdateable
     {
         public const int DefaultPort = 8888;
 
@@ -27,11 +18,11 @@ namespace SocialPoint.Network
         private List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         private IUpdateScheduler _updateScheduler;
         private TcpListener _listener;
-        private List<TcpClient> _connectedClients = new List<TcpClient>();
-        private List<TcpClient> _disconnectedClients = new List<TcpClient>();
-        private List<SimpleSocketClientMessageData> _clientMesages = new List<SimpleSocketClientMessageData>();
+        private List<SimpleSocketClientData> _connectedDataClients = new List<SimpleSocketClientData>();
+        private List<SimpleSocketClientData> _disconnectedDataClients = new List<SimpleSocketClientData>();
+        //        private List<SimpleSocketClientData> _clientData = new List<SimpleSocketClientData>();
 
-        List<SimpleSocketNetworkClient> _networkClientList = new List<SimpleSocketNetworkClient>();
+        //        List<SimpleSocketNetworkClient> _networkClientList = new List<SimpleSocketNetworkClient>();
 
         public SimpleSocketNetworkServer(IUpdateScheduler updateScheduler, string serverAddr = null, int port = DefaultPort)
         {
@@ -46,27 +37,19 @@ namespace SocialPoint.Network
             {
                 _delegates[i].OnServerStarted();
             }
-            foreach(var client in _networkClientList)
-            {
-                client.OnServerStarted();
-            }
+           
             _updateScheduler.Add(this);
 
         }
 
         public void Stop()
         {
-            foreach(var client in _connectedClients)
+            foreach(var client in _connectedDataClients)
             {
                 for(var i = 0; i < _delegates.Count; i++)
                 {
-                    _delegates[i].OnClientDisconnected((byte)(i + 1));
+                    _delegates[i].OnClientDisconnected(client.ClientId);
                 }
-            }
-
-            foreach(var client in _networkClientList)
-            {
-                client.OnServerStopped();
             }
 
             for(var i = 0; i < _delegates.Count; i++)
@@ -74,27 +57,10 @@ namespace SocialPoint.Network
                 _delegates[i].OnServerStopped();
             }
 
-
             _listener.Stop();
 
             _updateScheduler.Remove(this);
 
-        }
-
-        public void OnClientConnected(SimpleSocketNetworkClient client)
-        {
-            if(!_networkClientList.Contains(client))
-            {
-                _networkClientList.Add(client);
-            }
-        }
-
-        public void OnClientDisconnected(SimpleSocketNetworkClient client)
-        {
-            if(_networkClientList.Contains(client))
-            {
-                _networkClientList.Remove(client);
-            }
         }
 
         public void Fail(Error err)
@@ -146,9 +112,27 @@ namespace SocialPoint.Network
 
         public INetworkMessage CreateMessage(NetworkMessageData data)
         {
-            throw new NotImplementedException();
+            var clientsToSendMessage = new  List<NetworkStream>();
+            if(data.ClientIds != null && data.ClientIds.Count == 1)
+            {
+                foreach(var clientIdConnected in _connectedDataClients)
+                {
+                    if(data.ClientIds.Contains(clientIdConnected.ClientId))
+                    {
+                        clientsToSendMessage.Add(clientIdConnected.Stream);
+                    }
+                }
+            }
+            else
+            {
+                foreach(var simpleSocketClientData in _connectedDataClients)
+                {
+                    clientsToSendMessage.Add(simpleSocketClientData.Stream);
+                }
+            }
+           
+            return new SimpleSocketNetworkMessage(data, clientsToSendMessage);
         }
-
 
         public void Dispose()
         {
@@ -169,12 +153,12 @@ namespace SocialPoint.Network
 
         void ReceiveClientData()
         {
-            for(var i = 0; i < _connectedClients.Count; i++)
+            for(var i = 0; i < _connectedDataClients.Count; i++)
             {
-                var c = _connectedClients[i];
-                while (c.Available > 0 && c.Connected)
+                var c = _connectedDataClients[i];
+                while(c.Client.Available > 0 && c.Client.Connected)
                 {
-                    _clientMesages[i].Receive(c.Client);
+                    c.Receive();
                 }
             }
         }
@@ -183,12 +167,11 @@ namespace SocialPoint.Network
         {
             if(_listener.Pending())
             {
+                byte clienId = (byte)(_connectedDataClients.Count+1);
                 var newClient = _listener.AcceptTcpClient();
-                _connectedClients.Add(newClient);
-                byte clienId = (byte)_connectedClients.Count;
-                var msg = new SimpleSocketClientMessageData(clienId);
-                msg.MessageReceived += OnClientMessageReceived;
-                _clientMesages.Add(msg);
+                var data = new SimpleSocketClientData(clienId, newClient);
+                _connectedDataClients.Add(data);
+                data.MessageReceived += OnClientMessageReceived;
                 for(var i = 0; i < _delegates.Count; i++)
                 {
                     _delegates[i].OnClientConnected(clienId);
@@ -210,27 +193,25 @@ namespace SocialPoint.Network
 
         void DisconnectClients()
         {
-            foreach(var c in _connectedClients)
+            foreach(var c in _connectedDataClients)
             {
-                if(IsSocketConnected(c.Client) == false)
+                if(IsSocketConnected(c.Client.Client) == false)
                 {
-                    _disconnectedClients.Add(c);
+                    _disconnectedDataClients.Add(c);
                 }
             }
 
-            if(_disconnectedClients.Count > 0)
+            if(_disconnectedDataClients.Count > 0)
             {
-                var disconnectedClients = _disconnectedClients.ToArray();
-                _disconnectedClients.Clear();
+                var disconnectedClients = _disconnectedDataClients.ToArray();
+                _disconnectedDataClients.Clear();
                 foreach(var client in disconnectedClients)
                 {
                     for(var i = 0; i < _delegates.Count; i++)
                     {
-                        _delegates[i].OnClientDisconnected((byte)(_connectedClients.IndexOf(client) + 1));
+                        _delegates[i].OnClientDisconnected((byte)(client.ClientId));
                     }
-                    int posClient = _connectedClients.IndexOf(client);
-                    _connectedClients.RemoveAt(posClient);
-                    _clientMesages.RemoveAt(posClient);
+                    _connectedDataClients.Remove(client);
                 }
             }
         }
