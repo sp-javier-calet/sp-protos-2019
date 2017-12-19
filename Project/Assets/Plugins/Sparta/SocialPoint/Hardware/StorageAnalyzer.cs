@@ -7,14 +7,14 @@ namespace SocialPoint.Hardware
     public struct StorageAnalyzerConfig
     {
         public float AnalysisInterval;
-        public ulong FreeStorageWarning;
+        public StorageAmount FreeStorageWarning;
         public bool StopOnFirstWarning;
     }
 
     public interface IStorageAnalyzer : IDisposable
     {
         //Handlers receive amount of free bytes (1) and minimun expected (2)
-        event Action<ulong, ulong> OnLowStorageWarning;
+        event Action<ulong, ulong> LowStorage;
 
         StorageAnalyzerConfig Config { get; set; }
 
@@ -29,7 +29,7 @@ namespace SocialPoint.Hardware
 
     public class StorageAnalyzer : IStorageAnalyzer, IUpdateable
     {
-        public event Action<ulong, ulong> OnLowStorageWarning;
+        public event Action<ulong, ulong> LowStorage;
 
         public StorageAnalyzerConfig Config
         {
@@ -97,7 +97,7 @@ namespace SocialPoint.Hardware
         void CheckFreeStorageSpace()
         {
             var freeBytesStorage = _storageInfo.FreeStorage;
-            var requiredBytesStorage = _config.FreeStorageWarning;
+            var requiredBytesStorage = _config.FreeStorageWarning.Bytes;
             if(freeBytesStorage < requiredBytesStorage)
             {
                 RaiseLowStorageWarning(freeBytesStorage, requiredBytesStorage);
@@ -106,14 +106,14 @@ namespace SocialPoint.Hardware
 
         void RaiseLowStorageWarning(ulong freeBytesStorage, ulong requiredBytesStorage)
         {
-            if(OnLowStorageWarning != null)
+            if(LowStorage != null)
             {
                 if(_config.StopOnFirstWarning)
                 {
                     Stop();
                 }
 
-                OnLowStorageWarning(freeBytesStorage, requiredBytesStorage);
+                LowStorage(freeBytesStorage, requiredBytesStorage);
             }
         }
     }

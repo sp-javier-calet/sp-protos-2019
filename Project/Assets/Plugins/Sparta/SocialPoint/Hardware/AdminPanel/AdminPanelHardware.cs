@@ -66,11 +66,11 @@ namespace SocialPoint.Hardware
                 value => {
                     if(_listeningStorageWarning)
                     {
-                        _storageAnalyzer.OnLowStorageWarning -= OnLowStorageSpace;
+                        _storageAnalyzer.LowStorage -= OnLowStorageSpace;
                     }
                     else
                     {
-                        _storageAnalyzer.OnLowStorageWarning += OnLowStorageSpace;
+                        _storageAnalyzer.LowStorage += OnLowStorageSpace;
                     }
                     _listeningStorageWarning = !_listeningStorageWarning;
                     layout.Refresh();
@@ -79,7 +79,7 @@ namespace SocialPoint.Hardware
             //Storage size warning
             var storageLayout = layout.CreateHorizontalLayout();
             storageLayout.CreateLabel("Storage Warning At (" + _storageAnalyzerUnit.ToString() + ")");
-            storageLayout.CreateTextInput(StorageToDisplayValue(_storageAnalyzer.Config.FreeStorageWarning).ToString(), value => {
+            storageLayout.CreateTextInput(_storageAnalyzer.Config.FreeStorageWarning.ToString(), value => {
                 try
                 {
                     var parsed = ulong.Parse(value);
@@ -116,16 +116,6 @@ namespace SocialPoint.Hardware
                 });
         }
 
-        ulong StorageToDisplayValue(ulong value)
-        {
-            return StorageUtils.TransformStorageUnit(value, StorageUnit.Bytes, _storageAnalyzerUnit);
-        }
-
-        ulong DisplayToStorageValue(ulong value)
-        {
-            return StorageUtils.TransformStorageUnit(value, _storageAnalyzerUnit, StorageUnit.Bytes);
-        }
-
         StorageUnit StringToStorageUnit(string value)
         {
             for(int i = 0; i < _storageUnitNames.Length; i++)
@@ -141,7 +131,7 @@ namespace SocialPoint.Hardware
         void UpdateAnalyzerFreeStorageWarningValue(ulong value)
         {
             var config = _storageAnalyzer.Config;
-            config.FreeStorageWarning = DisplayToStorageValue(value);
+            config.FreeStorageWarning = new StorageAmount(value);
             _storageAnalyzer.Config = config;
         }
 

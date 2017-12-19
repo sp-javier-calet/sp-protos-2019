@@ -13,13 +13,6 @@ namespace SocialPoint.Hardware
     public class HardwareInstaller : ServiceInstaller
     {
         [Serializable]
-        public struct AnalyzerSettings
-        {
-            public StorageAnalyzerConfig Config;
-            public StorageUnit ConfigStorageUnit;
-        }
-
-        [Serializable]
         public class SettingsData
         {
             public string AppSeedId;
@@ -29,7 +22,7 @@ namespace SocialPoint.Hardware
             public string AppLanguage;
             public string AppCountry;
 
-            public AnalyzerSettings AnalyzerSettings;
+            public StorageAnalyzerConfig StorageAnalyzer;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -87,16 +80,10 @@ namespace SocialPoint.Hardware
 
         StorageAnalyzer CreateStorageAnalyzer()
         {
-            var settingsConfig = Settings.AnalyzerSettings.Config;
-            settingsConfig.FreeStorageWarning = StorageUtils.TransformStorageUnit(
-                settingsConfig.FreeStorageWarning,
-                Settings.AnalyzerSettings.ConfigStorageUnit,
-                StorageUnit.Bytes);
-
             return new StorageAnalyzer(
                 Container.Resolve<IStorageInfo>(),
                 Container.Resolve<IUpdateScheduler>(),
-                settingsConfig
+                Settings.StorageAnalyzer
             );
         }
 
