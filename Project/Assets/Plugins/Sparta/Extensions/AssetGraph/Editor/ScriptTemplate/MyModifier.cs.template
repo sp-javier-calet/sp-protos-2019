@@ -1,0 +1,37 @@
+using UnityEngine;
+using UnityEditor;
+using System;
+using System.Collections.Generic;
+
+namespace AssetBundleGraph {
+    [CustomModifier("MyModifier", typeof(RenderTexture))]
+    public class MyModifier : IModifier {
+
+        [SerializeField] private bool doSomething;
+
+        // Test if asset is different from intended configuration 
+        public bool IsModified (object asset) {
+            return true;
+        }
+
+        // Actually change asset configurations. 
+        public void Modify (object asset) {
+        }
+
+        // Draw inspector gui 
+        public void OnInspectorGUI (Action onValueChanged) {
+            GUILayout.Label("MyModifier!");
+
+            var newValue = EditorGUILayout.Toggle("Do Something", doSomething);
+            if(newValue != doSomething) {
+                doSomething = newValue;
+                onValueChanged();
+            }
+        }
+
+        // serialize this class to JSON 
+        public string Serialize() {
+            return JsonUtility.ToJson(this);
+        }
+    }
+}

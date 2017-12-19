@@ -5,11 +5,9 @@ import os
 import subprocess
 import sys
 
-PROJECT_NAME = "Project"
-PROJECT_ROOT_NAME = "sp_unity_plugins"
+SEARCH_PATTERN = '*Sources/Apple/'
 
-XCODE_PROJECT_PATH = os.path.join(PROJECT_NAME, "Sources/Apple")
-FULL_PROJECT_ROOT_NAME = os.path.join(XCODE_PROJECT_PATH, PROJECT_ROOT_NAME)
+PROJECT_ROOT_NAME = "sp_unity_plugins"
 
 XCODEPROJ_NAME = PROJECT_ROOT_NAME + ".xcodeproj/"
 PBXPROJ_NAME = XCODEPROJ_NAME + "project.pbxproj"
@@ -65,7 +63,7 @@ def get_added_or_mod_proj_files(files):
 
     return res
 
-# end def get_added_or_mod_cpp_files
+# end def get_added_or_mod_proj_files
 
 def restage_file(file):
 
@@ -81,7 +79,7 @@ def reorder_xcode_project():
     cmd_args = ["/usr/bin/perl", "-w", script_path, os.path.join(project_dir, XCODEPROJ_NAME)]
     execute_cmd(cmd_args)
 
-# end def reindent_file
+# end def reorder_xcode_project
 
 def get_staged_files():
     '''
@@ -111,19 +109,18 @@ def execute_cmd(cmd):
 # end def execute_cmd
 
 def get_project_dir():
-    '''
-    return project dir searching in current dir tree
-    '''
-    result = None
-    full_path= os.path.join(os.getcwd(), FULL_PROJECT_ROOT_NAME)
-    pwd_split = full_path.split('/')
-    for dir in pwd_split:
-        if PROJECT_ROOT_NAME in dir:
-            result = '/'.join(pwd_split[0:pwd_split.index(dir) + 1])
-        # end if
-    # end for
-    return result
-# end def get_dc_resources_dir
+    result = find(SEARCH_PATTERN + PROJECT_ROOT_NAME, os.getcwd())
+    if len(result) > 0:
+        return result[0]
+    else:
+        sys.exit("Project dir '" + SEARCH_PATTERN + PROJECT_ROOT_NAME + "' not found")
+
+# end def get_project_dir
+
+def find(patern, path):
+    return [line[2:] for line in subprocess.check_output("find . -type d -wholename " + patern, shell=True).splitlines()]
+
+# end find(patern, path)
 
 # make the module executable
 if __name__ == "__main__":

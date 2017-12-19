@@ -1,25 +1,36 @@
 ﻿using System;
+using SocialPoint.Alert;
 using SocialPoint.AppEvents;
 using SocialPoint.Dependency;
 using SocialPoint.GUIControl;
 using SocialPoint.ScriptEvents;
 using SocialPoint.Utils;
 using UnityEngine;
+using System.Text;
+using SocialPoint.Base;
 
 public class GUIInstaller : Installer, IDisposable
 {
-    const string UIViewControllerSuffix = "Controller";
-    const string GUIRootPrefab = "GUI_Root";
+    const string kUIViewUnitySuffix = "Unity";
+    const string kUIViewControllerSuffix = "Controller";
+    const string kGUIRootPrefab = "GUI_Root";
+    const string kUIViewControllerExamplePrefix = "GUI_";
+
+    const float DefaultAnimationTime = 1.0f;
 
     [Serializable]
     public class SettingsData
     {
-        public float PopupFadeSpeed = PopupsController.DefaultFadeSpeed;
+        public float PopupAnimationTime = DefaultAnimationTime;
+        public float TooltipAnimationTime = DefaultAnimationTime;
+        public Vector2 TooltipScreenBoundsDelta = Vector2.zero;
     }
 
     public SettingsData Settings = new SettingsData();
 
     GameObject _root;
+    UIStackController _stackController;
+    IAppEvents _appEvents;
 
     public override void InstallBindings()
     {
@@ -27,23 +38,27 @@ public class GUIInstaller : Installer, IDisposable
 
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
 
-        Container.Bind<float>("popup_fade_speed").ToInstance(Settings.PopupFadeSpeed);
+        Container.Bind<float>("popup_animation_time").ToInstance(Settings.PopupAnimationTime);
+        Container.Bind<float>("tooltip_animation_time").ToInstance(Settings.TooltipAnimationTime);
 
         _root = CreateRoot();
-        var AppEvents = Container.Resolve<IAppEvents>();
-        var popups = _root.GetComponentInChildren<PopupsController>();
-        if(popups != null)
+        _appEvents = Container.Resolve<IAppEvents>();
+
+        _stackController = _root.GetComponentInChildren<ScreensController>();
+        if(_stackController != null)
         {
-            popups.AppEvents = AppEvents;
-            Container.Rebind<PopupsController>().ToInstance(popups);
-            Container.Rebind<UIStackController>().ToLookup<PopupsController>();
+            _stackController.AppEvents = _appEvents;
+            _stackController.CloseAppShow = ShowCloseAppAlertView;
+            Container.Rebind<UIStackController>().ToInstance(_stackController);
         }
-        var screens = _root.GetComponentInChildren<ScreensController>();
-        if(screens != null)
+
+        var uiTooltipController = _root.GetComponentInChildren<UITooltipController>();
+        if(_stackController != null)
         {
-            screens.AppEvents = AppEvents;
-            Container.Rebind<ScreensController>().ToInstance(screens);
+            uiTooltipController.ScreenBoundsDelta = Settings.TooltipScreenBoundsDelta;
+            Container.Rebind<UITooltipController>().ToInstance(uiTooltipController);
         }
+            
         var layers = _root.GetComponentInChildren<UILayersController>();
         if(layers != null)
         {
@@ -57,17 +72,48 @@ public class GUIInstaller : Installer, IDisposable
             Container.Rebind<HUDNotificationsController>().ToInstance(notifications);
         }
 
-        Container.Bind<IEventsBridge>().ToSingle<GUIControlBridge>();
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
+    }
+
+    void ShowCloseAppAlertView()
+    {
+        try
+        {  
+            var alert = Container.Resolve<IAlertView>();
+            if(alert == null)
+            {
+                throw new InvalidOperationException("Could not resolve Alert View");
+            }
+
+            var _closeAppPopup = (IAlertView)alert.Clone();
+            _closeAppPopup.Title = "CLOSE APP";
+            _closeAppPopup.Message = "Do you want to close this app?";
+            _closeAppPopup.Input = false;
+            _closeAppPopup.Buttons = new []{ "YES", "NO" };
+            _closeAppPopup.Show(result => 
+            {
+                if(result == 0)
+                {
+                    _appEvents.KillGame();
+                }
+
+                _closeAppPopup = null;
+            });
+        }
+        catch(Exception e)
+        {
+            Log.e("Exception while creating Alert View - " + e.Message);
+        }
     }
 
     GameObject CreateRoot()
     {
-        var root = Resources.Load<GameObject>(GUIRootPrefab);
+        var root = Resources.Load<GameObject>(kGUIRootPrefab);
         if(root == null)
         {
             throw new InvalidOperationException("Could not load GUI root prefab.");
         }
+
         var rname = root.name;
         root = Instantiate<GameObject>(root);
         root.name = rname;
@@ -78,11 +124,13 @@ public class GUIInstaller : Installer, IDisposable
     string GetControllerFactoryPrefabName(Type type)
     {
         var name = type.Name;
-        if(StringUtils.EndsWith(name, UIViewControllerSuffix))
-        {
-            name = name.Substring(0, name.Length - UIViewControllerSuffix.Length);
-        }
-        return string.Format("GUI_{0}", name);
+        name = name.Replace(kUIViewUnitySuffix, string.Empty);
+        name = name.Replace(kUIViewControllerSuffix, string.Empty);
+
+        StringBuilder stringBuilder = StringUtils.StartBuilder();
+        stringBuilder.Append(kUIViewControllerExamplePrefix);
+        stringBuilder.Append(name);
+        return StringUtils.FinishBuilder(stringBuilder);
     }
 
     public void Dispose()

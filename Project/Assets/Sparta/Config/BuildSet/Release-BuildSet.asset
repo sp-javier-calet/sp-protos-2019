@@ -29,7 +29,7 @@ MonoBehaviour:
     EnableDependencyInspection: 0
   Ios:
     BundleIdentifier: 
-    Flags: +NO_GPGS;
+    Flags: 
     XcodeModSchemes: release
     UseEnvironmentProvisioningUuid: 1
     RemovedResources: 

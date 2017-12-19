@@ -1,6 +1,0 @@
-type extension
-desc Matchmaking implementation for sparta
-name Extension/Matchmaking
-depends_on Assets/Sparta/Extensions/Connection
-depends_on Assets/Sparta/External/Photon/Plugins/WebSocket/websocket-sharp.dll
-

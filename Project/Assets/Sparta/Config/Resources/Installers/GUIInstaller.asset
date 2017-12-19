@@ -13,4 +13,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _isGlobal: 1
   Settings:
-    PopupFadeSpeed: 4
+    PopupAnimationTime: 0.3
+    TooltipAnimationTime: 0.3
+    TooltipScreenBoundsDelta: {x: 0, y: 0}

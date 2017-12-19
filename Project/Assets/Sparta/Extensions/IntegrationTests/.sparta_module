@@ -1,4 +1,0 @@
-type extension
-desc Integration tests for sparta
-name Extension/IntegrationTests
-depends_on Assets/Sparta/External/UnityTestTools

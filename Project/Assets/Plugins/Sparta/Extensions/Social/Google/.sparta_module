@@ -1,0 +1,5 @@
+name Extension/Google
+desc IGoogle implementation for Google Play Games Services 
+type extension
+depends_on Assets/GooglePlayGames
+depends_on Assets/Plugins/Android/MainLibProj

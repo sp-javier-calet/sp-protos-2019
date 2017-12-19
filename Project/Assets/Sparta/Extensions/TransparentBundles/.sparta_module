@@ -1,4 +1,0 @@
-name Extension/TransparentBundles
-desc Tool for AssetBundles pipeline
-type extension
-depends_on Assets/Sparta/Extensions/GitCommands

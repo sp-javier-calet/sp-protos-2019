@@ -12,3 +12,7 @@ MonoBehaviour:
   m_Name: SocialFrameworkInstaller
   m_EditorClassIdentifier: 
   _isGlobal: 1
+  Settings:
+    EnableAlliances: 1
+    EnableChat: 1
+    EnableMessageSystem: 1

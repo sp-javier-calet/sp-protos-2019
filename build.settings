@@ -1,10 +1,9 @@
 [common]
 # Build system version to use for this build. If a branch matches this value, the branch is used, otherwise if a tag match this value the tag is used.
-SP_BUILD_SYSTEM_VERSION = v2.0-dev
+SP_BUILD_SYSTEM_VERSION = v2.08
 
 # Unity project path relative to the Jenkins Workspace
-SP_PROJECT_LEAD = dani.garcia@socialpoint.es
-SP_PROJECT_PATH = Project
+SP_PROJECT_LEAD = daniel.garcia@socialpoint.es
 SP_PROJECT_NAME = Unity Base Game
 
 # One of application, static_library or dynamic_library
@@ -15,15 +14,16 @@ SP_BRANCH = $GIT_BRANCH
 
 # One of Unity or Native
 SP_BUILDER = Unity
-SP_UNITY_VERSION = 5.3.7f1
+SP_UNITY_VERSION = 5.5.3p2
 SP_UNITY_EXEC = /Applications/Unity-$SP_UNITY_VERSION/Unity.app/Contents/MacOS/Unity
+SP_UNITY_AUTOBUILDER_PATH = Project/Assets/Plugins/Sparta/EditorTools/Editor/Build/AutoBuilder.cs
 
 # NOTE - Ignore specifying the signing identity until xcrun bug is fixed. When specifying the signing identity with xcrun, the codesign tool is invoqued then with resource-rules which is incompatible with v2 of the sign tool. By specifying only the mobileprovision file the certificate is safely (normally!) found and everything is signed correctly.
 #SP_XCODE_SIGNING_IDENTITY=iPhone Distribution: Social Point S.L.
 SP_PREPROCESSOR_DEFINITIONS =
 
 # It will contain the Revision number or Git hash of the build
-SP_REV = 0 
+SP_REV = 0
 
 SP_CHAT_ROOMS = Mobile Platform
 
@@ -31,6 +31,9 @@ SP_CHAT_ROOMS = Mobile Platform
 [ios]
 # Target platform. One of Android or iOS
 SP_PLATFORM = ios
+
+# Must match the path to the root of the Unity project.
+SP_PROJECT_PATH = Project
 
 # One of google or amazon or appstore.
 SP_STORE = appstore
@@ -40,9 +43,9 @@ SP_ARCHITECTURE = arm+arm64
 
 SP_TEXTURE_FORMATS = pvr
 
-SP_DEFAULT_ENVIRONMENT = 
+SP_DEFAULT_ENVIRONMENT =
 
-SP_XCODE_VERSION = 7.2
+SP_XCODE_VERSION = 9-GM
 
 SP_PROCESS_SYMBOLS = True
 
@@ -50,6 +53,9 @@ SP_PROCESS_SYMBOLS = True
 [android]
 # Target platform. One of Android or iOS
 SP_PLATFORM = android
+
+# Must match the path to the root of the Unity project.
+SP_PROJECT_PATH = Project
 
 # One of google or amazon or appstore.
 SP_STORE = google
@@ -59,13 +65,11 @@ SP_ARCHITECTURE = arm+x86
 
 SP_TEXTURE_FORMATS = pvr
 
-SP_DEFAULT_ENVIRONMENT = 
+SP_DEFAULT_ENVIRONMENT =
 
 # One of the different versions of the Android NDK.
-#   NOTE: It is only appended to the value contained in
-#      the exported SP_ANDROID_NDK_HOME var. in order
-#      finding a valid Android NDK installation dir.
-SP_ANDROID_NDK_VERSION = r10d
+# NOTE: It is only appended to the value contained in the exported SP_ANDROID_NDK_HOME var. in order finding a valid Android NDK installation dir.
+SP_ANDROID_NDK_VERSION = r10e
 
 SP_PROCESS_SYMBOLS = True
 

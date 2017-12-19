@@ -1,0 +1,4 @@
+type extension
+desc SharpNav pathfinding extension for Sparta
+name Extension/Pathfinding
+depends_on {SPARTA_EXTERNAL_PATH}/SharpNav

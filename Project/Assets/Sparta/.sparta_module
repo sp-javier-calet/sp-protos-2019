@@ -1,0 +1,5 @@
+name Sparta Full
+desc All Sparta Code and its dependencies as it was an Assembly-first-pass
+type full
+depends_on Assets/Fyber
+depends_on Assets/GooglePlayGames

@@ -1,6 +1,0 @@
-type extension
-desc Photon implementations of sparta interfaces
-name Extension/Photon
-depends_on Assets/Sparta/External/Photon
-depends_on Assets/Sparta/Extensions/Matchmaking
-depends_on Assets/Sparta/Extensions/Connection

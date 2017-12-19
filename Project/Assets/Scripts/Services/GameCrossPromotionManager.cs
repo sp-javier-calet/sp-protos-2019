@@ -9,8 +9,8 @@ public class GameCrossPromotionManager : CrossPromotionManager
 
     readonly PopupsController _popupsController;
 
-    public GameCrossPromotionManager(ICoroutineRunner coroutineRunner, PopupsController popupsController) :
-        base(coroutineRunner)
+    public GameCrossPromotionManager(ICoroutineRunner coroutineRunner, INativeUtils nativeUtils, PopupsController popupsController) :
+    base(coroutineRunner, nativeUtils)
     {
         _popupsController = popupsController;
 

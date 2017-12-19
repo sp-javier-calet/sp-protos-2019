@@ -1,0 +1,4 @@
+type extension
+desc Integration tests for sparta
+name Extension/IntegrationTests
+depends_on {SPARTA_EXTERNAL_PATH}/UnityTestTools

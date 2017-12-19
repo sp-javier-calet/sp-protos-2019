@@ -1,0 +1,7 @@
+type extension
+desc Authoritative multiplayer server implementation for sparta
+name Extension/Multiplayer
+depends_on {SPARTA_EXTERNAL_PATH}/JitterPhysics
+depends_on {SPARTA_EXTERNAL_PATH}/SharpNav
+depends_on {SPARTA_EXTENSIONS_PATH}/Physics
+depends_on {SPARTA_EXTENSIONS_PATH}/Pathfinding

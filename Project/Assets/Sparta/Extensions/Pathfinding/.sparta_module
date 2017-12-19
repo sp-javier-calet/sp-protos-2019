@@ -1,4 +1,0 @@
-type extension
-desc SharpNav pathfinding extension for Sparta
-name Extension/Pathfinding
-depends_on Assets/Sparta/External/SharpNav

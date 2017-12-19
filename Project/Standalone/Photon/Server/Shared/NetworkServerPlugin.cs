@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using Photon.Hive.Plugin;
 using SocialPoint.IO;
 using SocialPoint.Base;
-using SocialPoint.Utils;
 using log4net;
 using SocialPoint.Network.ServerEvents;
+using SocialPoint.Utils;
 using SocialPoint.Attributes;
 
 namespace SocialPoint.Network
@@ -46,16 +46,32 @@ namespace SocialPoint.Network
             }
         }
 
-        public HttpServerEventTracker PluginEventTracker { get; private set; }
+        public HttpServerEventTracker PluginEventTracker { get; protected set; }
 
         List<INetworkServerDelegate> _delegates;
         INetworkMessageReceiver _receiver;
-        protected UpdateScheduler _updateScheduler;
+        UpdateScheduler _updateScheduler;
+        UpdateScheduler _trackingsHttpClientScheduler;
         protected NetworkStatsServer _statsServer;
         protected bool _statsServerEnabled;
         ILog _log;
-        object _timer;
-        protected string BackendEnv { get; private set; }
+        protected object _timer;
+        float _deltaTimeMsAverage;
+        const float NAveragedSamples = 1000;
+        long _lastTimestamp;
+        long _lastUpdateTimestamp;
+        protected IFileManager _fileManager;
+
+#if LOAD_TESTS
+        // WARNING: this will log A LOT, talk with backend after enabling it.
+        const bool SendUpdateTrack = false;
+#endif
+
+        const int TimerUpdateInterval = 10;
+        const float MaxUpdateDelay = 1.5f;
+
+        static readonly TimeSpan TimeoutFlushingTrackings = TimeSpan.FromSeconds(10);
+        static readonly TimeSpan SleepTimeWhileFlushingTrackings = TimeSpan.FromMilliseconds(100);
 
         const byte FailEventCode = 199;
         const byte EventContentParam = 245;
@@ -63,42 +79,53 @@ namespace SocialPoint.Network
         const byte IsOpenKey = 253;
         const byte MasterClientIdKey = 248;
 
+        const string BackendBaseUrlConfigKey = "BackendBaseUrl";
+        const string ClientCanChangeBackendBaseUrlConfigKey = "ClientCanChangeBackendBaseUrl";
+
+        const string BackendEnvKey = "be_env";
         const string ServerIdRoomProperty = "server";
-        const byte BackendEnvMessageType = 198;
-        const byte DifferentBackendEnvErrorCode = 252;
 
         const string LoggerNameConfig = "LoggerName";
         const string PluginNameConfig = "PluginName";
+        const string AssetsPathConfig = "AssetsPath";
         const string StatsServerEnabled = "StatsServerEnabled";
         const string FullErrorMsg = "Game is full.";
         const string ServerPresentErrorMsg = "This room already has a server.";
         const string ExceptionMetricName = "multiplayer.exception_raised";
-
-        public INetworkServer NetworkServer
-        {
-            get
-            {
-                if(_statsServerEnabled)
-                {
-                    return _statsServer;
-                }
-                return this;
-            }
-        }
+        protected const string MetricSendIntervalConfig = "MetricSendInterval";
+        protected const string MetricEnvironmentConfig = "MetricEnvironment";
 
         abstract protected int MaxPlayers { get; }
         abstract protected bool Full { get; }
         abstract protected int UpdateInterval { get; }
 
-        public NetworkServerPlugin(string pluginName)
+        public string BaseBackendUrl { get; private set; }
+
+        protected IUpdateScheduler UpdateScheduler
+        {
+            get
+            {
+                return _updateScheduler;
+            }
+        }
+
+        protected IUpdateScheduler TrackingsHttpClientScheduler
+        {
+            get
+            {
+                return _trackingsHttpClientScheduler;
+            }
+        }
+
+        bool _clientCanChangeBackendBaseUrl;
+
+        protected NetworkServerPlugin(string pluginName)
         {
             _pluginName = pluginName;
             UseStrictMode = true;
             _delegates = new List<INetworkServerDelegate>();
-            var httpServer = new ImmediateWebRequestHttpClient();
             _updateScheduler = new UpdateScheduler();
-            PluginEventTracker = new HttpServerEventTracker(_updateScheduler, httpServer);
-            PluginEventTracker.Start();
+            _trackingsHttpClientScheduler = new UpdateScheduler();
         }
 
         /*
@@ -112,6 +139,7 @@ namespace SocialPoint.Network
                 return false;
             }
             string configStr;
+            string assetsPath;
             if(config.TryGetValue(PluginNameConfig, out configStr))
             {
                 _pluginName = configStr;
@@ -132,6 +160,22 @@ namespace SocialPoint.Network
             {
                 PluginEventTracker.UpdateCommonTrackData += (dic => dic.SetValue("ver", AppVersion));
             }
+            if(config.TryGetValue(AssetsPathConfig, out configStr))
+            {
+                assetsPath = configStr;
+            }
+            else
+            {
+                assetsPath = Path.GetDirectoryName(GetType().Assembly.Location);
+            }
+            _fileManager = new FileManagerWrapper(new StandaloneFileManager(),
+                Path.Combine(assetsPath, "{0}.bytes"), true);
+
+            SetupBackendUrl(config);
+
+            _lastTimestamp = GetTimestampMilliseconds();
+            _lastUpdateTimestamp = _lastTimestamp;
+
             return true;
         }
 
@@ -171,12 +215,23 @@ namespace SocialPoint.Network
             }
         }
 
+        void SendLog(LogLevel level, string message, AttrDic dic = null)
+        {
+            if(dic == null)
+            {
+                dic = new AttrDic();
+            }
+            dic.SetValue("match_id", PluginHost.GameId);
+            var log = new ServerEvents.Log(level, message, dic);
+            PluginEventTracker.SendLog(log, level == LogLevel.Error);
+        }
+
         bool CheckServer(ICallInfo info)
         {
             if(Full)
             {
                 info.Fail(FullErrorMsg);
-                LogWarn(FullErrorMsg);
+                SendLog(LogLevel.Warning, FullErrorMsg);
             }
             else
             {
@@ -216,6 +271,7 @@ namespace SocialPoint.Network
                 _delegates[i].OnServerStopped();
             }
             info.Continue();
+            FlushAllPendingTrackings();
         }
 
         public override void OnCreateGame(ICreateGameCallInfo info)
@@ -224,6 +280,8 @@ namespace SocialPoint.Network
             {
                 return;
             }
+
+            CheckAndOverwriteBackendEnv(info);
 
             PluginHost.SetProperties(0, new Hashtable {
                 { (int)MaxPlayersKey,MaxPlayers },
@@ -241,22 +299,31 @@ namespace SocialPoint.Network
                 _statsServer.Start();
             }
 
-            var u = UpdateInterval;
-            if(u > 0)
-            {
-                _timer = PluginHost.CreateTimer(TryUpdate, 0, u);
-            }
+            SendLog(LogLevel.Info,"OnCreateGame");
+
+            _deltaTimeMsAverage = UpdateInterval;
+            var interval = Math.Min(TimerUpdateInterval, UpdateInterval);
+            _timer = PluginHost.CreateTimer(TryUpdate, 0, interval);
+
             var clientId = GetClientId(info.UserId);
             OnClientConnected(clientId);
         }
 
         protected virtual void OnClientConnected(byte clientId)
         {
-            for(var i = 0; i < _delegates.Count; i++)
+            try
             {
-                _delegates[i].OnClientConnected(clientId);
+                for(var i = 0; i < _delegates.Count; i++)
+                {
+                    _delegates[i].OnClientConnected(clientId);
+                }
+                OnClientChanged();
             }
-            OnClientChanged();
+            catch(Exception e)
+            {
+                HandleException(e);
+                LogError("OnClientConnected", e);
+            }
         }
 
         public override void BeforeJoin(IBeforeJoinGameCallInfo info)
@@ -278,11 +345,19 @@ namespace SocialPoint.Network
 
         protected virtual void OnClientDisconnected(byte clientId)
         {
-            for(var i = 0; i < _delegates.Count; i++)
+            try
             {
-                _delegates[i].OnClientDisconnected(clientId);
+                for(var i = 0; i < _delegates.Count; i++)
+                {
+                    _delegates[i].OnClientDisconnected(clientId);
+                }
+                OnClientChanged();
             }
-            OnClientChanged();
+            catch(Exception e)
+            {
+                HandleException(e);
+                LogError("OnClientDisconnected", e);
+            }
         }
 
         protected virtual void OnClientChanged()
@@ -307,33 +382,23 @@ namespace SocialPoint.Network
         public override void OnRaiseEvent(IRaiseEventCallInfo info)
         {
             info.Continue();
-            if (info.Request.EvCode == BackendEnvMessageType)
-            {
-                var backendEnv = info.Request.Data as String;
-
-                if (BackendEnv != null && BackendEnv != backendEnv)
-                {
-                    var exp = (INetworkServer)this;
-                    exp.Fail(new Error(DifferentBackendEnvErrorCode, "Trying to set different backend environments."));
-                }
-                BackendEnv = backendEnv;
-                return;
-            }
 
             if(_receiver == null)
             {
                 return;
             }
             try
-            {
+            {   
                 var data = info.Request.Data as byte[];
                 if(data != null)
                 {
+                    data = HttpEncoding.Decode(data, HttpEncoding.LZ4);
+
                     var stream = new MemoryStream(data);
                     var reader = new SystemBinaryReader(stream);
                     var netData = new NetworkMessageData
                     {
-                        ClientId = GetClientId(info.ActorNr),
+                        ClientIds = new List<byte>() { GetClientId(info.ActorNr) },
                         MessageType = info.Request.EvCode
                     };
                     _receiver.OnMessageReceived(netData, reader);
@@ -342,7 +407,9 @@ namespace SocialPoint.Network
             catch(Exception e)
             {
                 HandleException(e);
-                LogError("OnRaiseEvent", e);
+                var dic = new AttrDic();
+                dic.SetValue("detail", e.StackTrace);
+                SendLog(LogLevel.Error, e.Message, dic);
             }
         }
 
@@ -378,7 +445,45 @@ namespace SocialPoint.Network
         {
             try
             {
-                Update();
+                // Update delta time.
+                long currentTimestamp = GetTimestampMilliseconds();
+                long deltaTimeMs = currentTimestamp - _lastTimestamp;
+                _lastTimestamp = currentTimestamp;
+
+                long deltaUpdateTimeMs = currentTimestamp - _lastUpdateTimestamp;
+                if(deltaUpdateTimeMs >= UpdateInterval)
+                {
+                    _lastUpdateTimestamp = _lastTimestamp;
+
+                    // Update rolling average.
+                    _deltaTimeMsAverage -= _deltaTimeMsAverage / NAveragedSamples;
+                    _deltaTimeMsAverage += deltaUpdateTimeMs / NAveragedSamples;
+
+                    var updateLogDic = new AttrDic();
+                    updateLogDic.SetValue("match_id", PluginHost.GameId);
+                    updateLogDic.SetValue("timestamp", currentTimestamp);
+                    updateLogDic.SetValue("deltatime", deltaUpdateTimeMs);
+
+#if LOAD_TESTS
+                    if (SendUpdateTrack)
+                    {
+                        var updateLog = new ServerEvents.Log(LogLevel.Notice, "update_server", updateLogDic);
+                        PluginEventTracker.SendLog(updateLog);
+                    }
+#endif
+
+                    // Track when server update method takes much more time than expected.
+                    if(deltaUpdateTimeMs >= _deltaTimeMsAverage * MaxUpdateDelay)
+                    {
+                        // NOTE: LogLevel is notice because backend has raised it to avoid logging debug/info stuff.
+                        var slowUpdateLog = new ServerEvents.Log(LogLevel.Notice, "slow_update_server", updateLogDic);
+                        PluginEventTracker.SendLog(slowUpdateLog);
+                    }
+
+                    // Perform update method passing it delta time in seconds.
+                    float dt = deltaUpdateTimeMs * 0.001f;
+                    Update(dt);
+                }
             }
             catch(Exception e)
             {
@@ -387,9 +492,10 @@ namespace SocialPoint.Network
             }
         }
 
-        protected virtual void Update()
+        protected virtual void Update(float dt)
         {
-            _updateScheduler.Update((float)UpdateInterval/1000.0f);
+            _updateScheduler.Update(dt, dt);
+            _trackingsHttpClientScheduler.Update(dt, dt);
         }
 
         void BroadcastError(Error err)
@@ -399,9 +505,8 @@ namespace SocialPoint.Network
             if(err.Detail != string.Empty)
             {
                 context.SetValue("detail", err.Detail);
-                context.SetValue("match_id", PluginHost.GameId);
             }
-            PluginEventTracker.SendLog(new Network.ServerEvents.Log(LogLevel.Error, err.Msg, context), true);
+            SendLog(LogLevel.Error, err.Msg, context);
             var dic = new Dictionary<byte, object>();
             dic.Add(EventContentParam, err.ToString());
             BroadcastEvent(FailEventCode, dic);
@@ -427,11 +532,11 @@ namespace SocialPoint.Network
             {
                 _delegates[i].OnServerStopped();
             }
-            LogDebug("Stop");
+            SendLog(LogLevel.Debug, "Stop");
             BroadcastError(new Error("server stopped"));
         }
 
-        void INetworkServer.Fail(Error err)
+        public void Fail(Error err)
         {
             BroadcastError(err);
         }
@@ -439,12 +544,15 @@ namespace SocialPoint.Network
         INetworkMessage INetworkMessageSender.CreateMessage(NetworkMessageData info)
         {
             List<int> actors = null;
-            if(info.ClientId != 0)
+            if(info.ClientIds != null)
             {
+                DebugUtils.Assert(info.ClientIds.Count > 0);
                 actors = new List<int>();
-                actors.Add(info.ClientId);
+                for(int i = 0; i < info.ClientIds.Count; ++i)
+                {
+                    actors.Add(info.ClientIds[i]);
+                }
             }
-            LogDebug("CreateMessage", info.MessageType, info.ClientId, info.Unreliable);
             return new PluginNetworkMessage(PluginHost, info.MessageType, info.Unreliable, actors);
         }
 
@@ -468,11 +576,16 @@ namespace SocialPoint.Network
             return System.Environment.TickCount;
         }
 
-        bool INetworkServer.LatencySupported
+        long GetTimestampMilliseconds()
+        {
+            return DateTime.Now.Ticks / TimeSpan.TicksPerMillisecond;
+        }
+
+        public bool LatencySupported
         {
             get
             {
-                return true;
+                return false;
             }
         }
 
@@ -482,6 +595,50 @@ namespace SocialPoint.Network
             var path = Path.Combine(dir, assemblyName);
             var gameType = Assembly.LoadFile(path).GetType(typeName);
             return Activator.CreateInstance(gameType);
+        }
+
+        void SetupBackendUrl(Dictionary<string, string> config)
+        {
+            _clientCanChangeBackendBaseUrl = GetConfigOption(config, ClientCanChangeBackendBaseUrlConfigKey, 0) != 0;
+
+            string baseUrl;
+            if(config.TryGetValue(BackendBaseUrlConfigKey, out baseUrl))
+            {
+                BaseBackendUrl = baseUrl;
+            }
+        }
+
+        void CheckAndOverwriteBackendEnv(ICreateGameCallInfo info)
+        {
+            if(_clientCanChangeBackendBaseUrl && info.Request.GameProperties != null && info.Request.GameProperties.ContainsKey(BackendEnvKey))
+            {
+                object url = info.Request.GameProperties[BackendEnvKey];
+                if(url is string)
+                {
+                    BaseBackendUrl = url as string;
+                }
+            }
+        }
+
+        void FlushAllPendingTrackings()
+        {
+            var startingTime = DateTime.Now;
+
+            // Update to send requests to HTTP client.
+            PluginEventTracker.Update();
+            
+            // First update in case of using immediate scheduler for trackings. In this case the PluginEventTracker.HasPendingData() will return false.
+            _trackingsHttpClientScheduler.Update(0.0f, 0.0f);
+            while(PluginEventTracker.HasPendingData)
+            {
+                _trackingsHttpClientScheduler.Update(0.0f, 0.0f);
+                System.Threading.Thread.Sleep(SleepTimeWhileFlushingTrackings);
+
+                if(DateTime.Now - startingTime > TimeoutFlushingTrackings)
+                {
+                    break;
+                }
+            }
         }
     }
 }

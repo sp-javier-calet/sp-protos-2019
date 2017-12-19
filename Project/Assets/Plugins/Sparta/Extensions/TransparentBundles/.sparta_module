@@ -1,0 +1,4 @@
+name Extension/TransparentBundles
+desc Tool for AssetBundles pipeline
+type extension
+depends_on {SPARTA_EXTENSIONS_PATH}/GitCommands

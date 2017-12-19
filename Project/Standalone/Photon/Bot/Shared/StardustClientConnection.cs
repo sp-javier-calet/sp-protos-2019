@@ -31,7 +31,7 @@ namespace SocialPoint.Network
         public override void Update()
         {
             base.Update();
-            Scheduler.Update(UpdateInterval);
+            Scheduler.Update(UpdateInterval, UpdateInterval);
         }
 
         protected override GamingPeer CreateGamingPeer()

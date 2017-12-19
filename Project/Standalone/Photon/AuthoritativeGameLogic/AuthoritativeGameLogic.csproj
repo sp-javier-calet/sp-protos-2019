@@ -31,41 +31,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\ClickAction.cs">
-      <Link>ClickAction.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\ExplosionEvent.cs">
-      <Link>ExplosionEvent.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\GameMsgType.cs">
-      <Link>GameMsgType.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\GameMultiplayerServerBehaviour.cs">
-      <Link>GameMultiplayerServerBehaviour.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\MovementAction.cs">
-      <Link>MovementAction.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\NetworkServerFactory.cs">
-      <Link>NetworkServerFactory.cs</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\Project\Assets\Examples\Multiplayer\PathEvent.cs">
-      <Link>PathEvent.cs</Link>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="System" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AuthoritativePlugin\AuthoritativeSparta.csproj">
-      <Project>{4ba8ea51-7fea-4e0f-8103-386ffffd6001}</Project>
-      <Name>Sparta</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\Server\deploy\Plugins\AuthoritativePlugin\bin\"
-xcopy /Y /Q "$(TargetDir)*.*" "$(ProjectDir)..\AuthoritativeBot\bin\"</PostBuildEvent>
+    <PostBuildEvent Condition=" '$(OS)' != 'Unix' ">xcopy /Y /Q /S "$(SolutionDir)..\..\..\Assets\Resources\Server\*.*" "$(TargetDir)data\"
+xcopy /Y /Q /S "$(TargetDir)*.*" "$(ProjectDir)..\Server\deploy\Plugins\AuthoritativePlugin\bin\"
+xcopy /Y /Q /S "$(TargetDir)*.*" "$(ProjectDir)..\AuthoritativeBot\bin\"</PostBuildEvent>
     <StartAction>Program</StartAction>
     <StartProgram>..\Server\deploy\bin_Win32\PhotonSocketServer.exe</StartProgram>
     <StartWorkingDirectory>

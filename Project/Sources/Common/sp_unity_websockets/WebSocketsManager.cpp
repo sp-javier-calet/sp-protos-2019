@@ -357,6 +357,7 @@ void WebSocketsManager::connect(WebSocketConnection* connection)
     else
     {
         currentUrlIndex = 0;
+        connection->connectionError((int)WebSocketConnection::Error::ConnectionError, "Connection Error. Cannot connect to any of the specified URLs");
         connection->setState(WebSocketConnection::State::Closed);
     }
 }

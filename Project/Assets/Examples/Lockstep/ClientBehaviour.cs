@@ -235,6 +235,7 @@ namespace Examples.Lockstep
             _netServer = Services.Instance.Resolve<INetworkServer>();
             SetupPhoton(_netServer as PhotonNetworkBase);
             _netLockstepServer = Services.Instance.Resolve<LockstepNetworkServer>();
+            _netLockstepServer.ServerConfig.MatchmakingEnabled = true;
             _serverBehaviour = new ServerBehaviour(_netLockstepServer, _gameConfig);
             _netServer.RemoveDelegate(this);
             _netServer.AddDelegate(this);
@@ -256,6 +257,7 @@ namespace Examples.Lockstep
             SetupGameScreen();
             StartServer();
             _netLockstepServer.UnregisterLocalClient();
+            _netLockstepServer.ServerConfig.MatchmakingEnabled = false;
             StartClient(GameLockstepMode.Host);
         }
 
@@ -266,10 +268,20 @@ namespace Examples.Lockstep
             _matchClient.RemoveDelegate(this);
             _matchClient.AddDelegate(this);
             _fullscreenText.text = "connecting to matchmaker...";
-            _matchClient.Start();
+            _matchClient.Start(null, false, string.Empty);
         }
 
         #region IMatchmakingClientDelegate implementation
+
+        void IMatchmakingClientDelegate.OnStart()
+        {
+            _fullscreenText.text = string.Format("matchmaking start");
+        }
+
+        void IMatchmakingClientDelegate.OnSearchOpponent()
+        {
+            _fullscreenText.text = string.Format("searching for opponent");
+        }
 
         void IMatchmakingClientDelegate.OnWaiting(int waitTime)
         {

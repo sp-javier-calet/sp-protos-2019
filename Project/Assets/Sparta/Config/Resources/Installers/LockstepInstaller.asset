@@ -18,12 +18,19 @@ MonoBehaviour:
       CommandStepDuration: 100
       MaxSkippedEmptyTurns: 0
     ServerConfig:
-      MaxPlayers: 2
+      MaxPlayers: 1
       ClientStartDelay: 3000
       ClientSimulationDelay: 1000
+      MatchEndedWithoutConfirmationTimeout: 10
       FinishOnClientDisconnection: 1
+      MetricSendInterval: 10000
+      AllowMatchStartWithOnePlayerReady: 0
+      MatchmakingEnabled: 0
     ClientConfig:
       LocalSimulationDelay: 1000
       MaxSimulationStepsPerFrame: 0
       SpeedFactor: 1
+      RecoverGracefully: 1
+      GracefulTurnReceptionDurationFactor: 1.1
+      TurnReceptionDurationAverageSize: 10
     RunLocalServerClient: 1
