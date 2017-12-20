@@ -14,7 +14,7 @@ namespace SocialPoint.Network
         {
             var localServer = new LocalNetworkServer();
             _server = localServer;
-            _client1 = new LocalNetworkClient(localServer);
+            _client = new LocalNetworkClient(localServer);
             _client2 = new LocalNetworkClient(localServer);
         }
 
@@ -28,5 +28,36 @@ namespace SocialPoint.Network
             Assert.That(reader.ReadString() == "test");
         }
 
+
+        [Test]
+        public void ClientConnectBeforeServerStart()
+        {
+            var cdlg = Substitute.For<INetworkClientDelegate>();
+            var sdlg = Substitute.For<INetworkServerDelegate>();
+            _client.AddDelegate(cdlg);
+            _server.AddDelegate(sdlg);
+            _client.Connect();
+
+            WaitForEvents();
+            cdlg.Received(0).OnClientConnected();
+            sdlg.Received(0).OnClientConnected(Arg.Any<byte>());
+
+            _server.Start();
+
+            WaitForEvents();
+            cdlg.Received(1).OnClientConnected();
+            sdlg.Received(1).OnClientConnected(Arg.Any<byte>());
+        }
+
+        [Test]
+        public void OnServerStartedCalledIfDelegateAddedAfterStart()
+        {
+            _server.Start();
+            var sdlg = Substitute.For<INetworkServerDelegate>();
+            _server.AddDelegate(sdlg);
+
+            WaitForEvents();
+            sdlg.Received(1).OnServerStarted();
+        }
     }
 }

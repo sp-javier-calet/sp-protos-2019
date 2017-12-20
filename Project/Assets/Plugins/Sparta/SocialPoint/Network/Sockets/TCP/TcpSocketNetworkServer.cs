@@ -49,6 +49,7 @@ namespace SocialPoint.Network
                 {
                     _delegates[i].OnClientDisconnected(client.ClientId);
                 }
+                client.Client.Close();
             }
 
             for(var i = 0; i < _delegates.Count; i++)

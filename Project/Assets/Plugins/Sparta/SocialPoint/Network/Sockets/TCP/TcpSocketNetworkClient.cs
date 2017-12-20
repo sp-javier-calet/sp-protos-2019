@@ -21,7 +21,7 @@ namespace SocialPoint.Network
         List<NetworkStream> _stream;
         TcpSocketClientData _socketMessageData;
 
-        public TcpSocketNetworkClient(IUpdateScheduler scheduler,string serverAddr = TcpSocketNetworkServer.DefaultAddress, int serverPort = TcpSocketNetworkServer.DefaultPort)
+        public TcpSocketNetworkClient(IUpdateScheduler scheduler, string serverAddr = TcpSocketNetworkServer.DefaultAddress, int serverPort = TcpSocketNetworkServer.DefaultPort)
         {
             _scheduler = scheduler;
             _serverAddr = serverAddr;
@@ -103,10 +103,8 @@ namespace SocialPoint.Network
 
         void ConnectClients()
         {
-            UnityEngine.Debug.Log("CLIENT Update ");
             if(_connecting && _client.Connected)
             {
-                UnityEngine.Debug.Log("CLIENT OnClientConnected ");
                 _connecting = false;
                 _connected = true;
                 for(var i = 0; i < _delegates.Count; i++)
@@ -132,20 +130,33 @@ namespace SocialPoint.Network
 
         void DisconnectClients()
         {
-            if(_connected && !_client.Connected)
+            if(_connected && IsClientDisconnected())
             {
-                UnityEngine.Debug.Log("CLIENT OnClientDisconnected ");
                 OnDisconnected();
             }
+        }
+
+        bool IsClientDisconnected()
+        {
+            if( _client.Client.Poll( 0, SelectMode.SelectRead ) )
+            {
+                byte[] buff = new byte[1];
+                if( _client.Client.Receive( buff, SocketFlags.Peek ) == 0 )
+                {
+                    // Client disconnected
+                    return true;
+                }
+            }
+            return false;
         }
 
         void ReceiveServertMessages()
         {
            
-            while (_client.Available > 0 && _client.Connected)
-                {
+            while(_client.Available > 0 && _client.Connected)
+            {
                 _socketMessageData.Receive();
-                }
+            }
         }
 
         void OnDisconnected()
