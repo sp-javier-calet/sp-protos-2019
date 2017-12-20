@@ -45,7 +45,14 @@ namespace SocialPoint.Connection
         public const int MatchmakingWaitingTimeNotification = 504;
         public const int MatchmakingCanceled = 505;
 
+        // Message System
         public const int MessagingSystemNewMessage = 600;
+
+        // Donations System
+        public const int BroadcastDonationRequest = 700;
+        public const int BroadcastDonationContribute = 701;
+        public const int BroadcastDonationRemove = 702;
+        public const int BroadcastDonationUserRemove = 703;
 
         public const int MaxValue = 1000;
     }
