@@ -377,7 +377,7 @@ namespace SocialPoint.Utils
             UpdateHandlers();
 
             // Check new exceptions
-            AggregateException.Trigger(_exceptions);
+            SocialPoint.Utils.AggregateException.Trigger(_exceptions);
 
             // Sync for internal changes during update
             Synchronize();
