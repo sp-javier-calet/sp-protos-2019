@@ -28,7 +28,8 @@ static std::vector<SPUnitySubController*>* _controllers = nullptr;
     
     // Check for SPUnitySubController subclasses and register the existing ones
     NSArray* extensions = @[ @"SPUnityAppEvents",
-                             @"HsUnityAppController"];
+                             @"HsUnityAppController",
+                             @"AppsFlyerAppController"];
     
     id parentClass = objc_getClass("SPUnitySubController");
     

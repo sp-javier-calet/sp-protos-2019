@@ -44,6 +44,7 @@ public class SPUnityActivity extends UnityPlayerActivity {
 		super.onCreate(savedInstanceState);
 		storeSourceFromIntent(getIntent());
 		UnityGameObject.Init(this);
+		NativeUtils.Init(this);
 	}
 
 	// SocialPoint code

@@ -8,15 +8,15 @@ public class GoalsModelParser : IAttrObjParser<GoalsModel>, IAttrObjSerializer<G
     GoalsModel _goals;
     ConfigModel _config;
     GoalModelParser _goalParser;
-    IScriptEventDispatcher _scriptEventDispatcher;
+    IScriptEventProcessor _scriptEvents;
     PlayerModel _playerModel;
 
-    public GoalsModelParser(GoalsModel goals, ConfigModel config, IScriptEventDispatcher scriptEventDispatcher, PlayerModel playerModel)
+    public GoalsModelParser(GoalsModel goals, ConfigModel config, IScriptEventProcessor scriptEventDispatcher, PlayerModel playerModel)
     {
         _goals = goals;
         _config = config;
         _goalParser = new GoalModelParser(config);
-        _scriptEventDispatcher = scriptEventDispatcher;
+        _scriptEvents = scriptEventDispatcher;
         _playerModel = playerModel;
     }
 
@@ -35,7 +35,7 @@ public class GoalsModelParser : IAttrObjParser<GoalsModel>, IAttrObjSerializer<G
             }
         }
 
-        return _goals.Init(goals, _config.Goals, _scriptEventDispatcher, _playerModel);
+        return _goals.Init(goals, _config.Goals, _scriptEvents, _playerModel);
     }
 
     public Attr Serialize(GoalsModel goals)

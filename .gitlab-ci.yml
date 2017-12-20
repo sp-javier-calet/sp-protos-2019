@@ -7,11 +7,11 @@ variables:
   UNITY_PROJ_REL_PATH: Project
   PYTHON_CI_REPO_PATH: C:\sp-tools-Python-CI-Scripts
 
-Check_MergeConflict_Files:
+Check_Merge_Conflict_Markers:
   only:
   - triggers
   script:
-  - python %CI_PROJECT_DIR%\scripts\check-merge-conflicts.py --path %CI_PROJECT_DIR%
+  - call C:\conf.bat & set PYTHONPATH=%PYTHON_CI_REPO_PATH% & python -m MergeConflictChecker.CheckMergeConflicts
   stage: check
 Copy_New_Branch_Cache:
   only:
@@ -41,6 +41,30 @@ Create_UnityCache_iOS:
   - python %PYTHON_CI_REPO_PATH%\UnityGenericCall\UnityImportProject.py -buildTarget
     ios
   stage: compile
+
+Authoritative_Server_Compile:
+  only:
+  - triggers
+  script:
+  - python %PYTHON_CI_REPO_PATH%\StandaloneCSharpCompilerCall\CompileSlnCaller.py
+  stage: test
+  variables:
+    DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    SLN_FILE_RELATIVE_PATH: Project/Standalone/Photon/AuthoritativeGameLogic/AuthoritativeGameLogic.sln
+    UNITY_PROJ_REL_PATH: Project
+    WARN_AS_ERROR: 0
+
+Lockstep_Server_Compile:
+  only:
+  - triggers
+  script:
+  - python %PYTHON_CI_REPO_PATH%\StandaloneCSharpCompilerCall\CompileSlnCaller.py
+  stage: test
+  variables:
+    DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    SLN_FILE_RELATIVE_PATH: Project/Standalone/Photon/LockstepGameLogic/LockstepGameLogic.sln
+    UNITY_PROJ_REL_PATH: Project
+    WARN_AS_ERROR: 0
 
 Android_Unity_Tests:
   artifacts:

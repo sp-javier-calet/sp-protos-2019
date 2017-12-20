@@ -1,0 +1,24 @@
+{
+  "version": "6.4.0-r1",
+  "group": "Mediation/Chartboost",
+  "patches": [],
+  "libs": [
+    "Plugins/Sparta/External/Fyber/iOS/mediation/Chartboost/Fyber_Chartboost_6.4.0-r1.embeddedframework/Fyber_Chartboost_6.4.0-r1.framework:<group>"
+  ],
+  "librarysearchpaths": [],
+  "frameworks": [
+    "CoreGraphics.framework",
+    "Foundation.framework",
+    "StoreKit.framework",
+    "UIKit.framework"
+  ],
+  "frameworksearchpaths": [
+    "Plugins/Sparta/External/Fyber/iOS/mediation/Chartboost/Fyber_Chartboost_6.4.0-r1.embeddedframework/"
+  ],
+  "headerpaths": [],
+  "files": [],
+  "folders": [],	
+  "excludes": [],
+  "linkers": [],
+  "plist": []
+}
