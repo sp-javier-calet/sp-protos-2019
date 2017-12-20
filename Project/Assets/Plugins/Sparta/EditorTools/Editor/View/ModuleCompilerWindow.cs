@@ -101,8 +101,13 @@ namespace SpartaTools.Editor.View
 
                 if(compileStandalone)
                 {
+                    #if UNITY_2017
                     Variants.Add(new Variant("macOS", module, BuildTarget.StandaloneOSX, false));
                     Variants.Add(new Variant("macOS-Editor", module, BuildTarget.StandaloneOSX, true));
+                    #else
+                    Variants.Add(new Variant("macOS", module, BuildTarget.StandaloneOSXUniversal, false));
+                    Variants.Add(new Variant("macOS-Editor", module, BuildTarget.StandaloneOSXUniversal, true));
+                    #endif
                     Variants.Add(new Variant("linux", module, BuildTarget.StandaloneLinuxUniversal, false));
                     Variants.Add(new Variant("linux-Editor", module, BuildTarget.StandaloneLinuxUniversal, true));
                     Variants.Add(new Variant("Win Standalone", module, BuildTarget.StandaloneWindows, false));
