@@ -491,7 +491,7 @@ namespace SocialPoint.Crash
             }
 
             WasEnabled = true;
-            LogCallbackHandler.RegisterLogCallback(HandleLog);
+            Application.logMessageReceived += HandleLog;
 
             if(_updateScheduler != null)
             { 
@@ -509,7 +509,7 @@ namespace SocialPoint.Crash
         public void Disable()
         {
             WasEnabled = false;
-            LogCallbackHandler.UnregisterLogCallback(HandleLog);
+            Application.logMessageReceived -= HandleLog;
 
             if(_updateScheduler != null)
             { 
