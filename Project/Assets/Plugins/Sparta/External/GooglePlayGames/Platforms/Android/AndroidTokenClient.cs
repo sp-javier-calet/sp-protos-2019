@@ -382,7 +382,7 @@ namespace GooglePlayGames.Android
             }
         }
 
-        public string toString()
+        public override string toString()
         {
             return ToString();
         }
