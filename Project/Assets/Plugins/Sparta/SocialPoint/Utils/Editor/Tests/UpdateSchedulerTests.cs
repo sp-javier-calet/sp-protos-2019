@@ -377,8 +377,8 @@ namespace SocialPoint.Utils
         [Test]
         public void ExceptionDuringUpdateCallback()
         {
-            var oldThrow = AggregateException.ThrowOnTrigger;
-            AggregateException.ThrowOnTrigger = false;
+            var oldThrow = AggregateException.ForceTriggerLog;
+            AggregateException.ForceTriggerLog = true;
 
             var exception = new Exception();
             var updateable = Substitute.For<IUpdateable>();
@@ -387,12 +387,14 @@ namespace SocialPoint.Utils
             });
 
             bool callbackCalled = false;
-            Application.logMessageReceived += (string condition, string stackTrace, LogType type) => {
+            Application.LogCallback onReceived = (string condition, string stackTrace, LogType type) => {
                 callbackCalled = true;
                 Assert.AreEqual(LogType.Exception, type);
                 Assert.IsTrue(condition.EndsWith(exception.Message));
                 Assert.AreEqual(exception.StackTrace, stackTrace);
             };
+
+            Application.logMessageReceived += onReceived;
 
             _scheduler.Add(updateable);
 
@@ -402,7 +404,8 @@ namespace SocialPoint.Utils
 
             Assert.True(callbackCalled);
 
-            AggregateException.ThrowOnTrigger = oldThrow;
+            AggregateException.ForceTriggerLog = oldThrow;
+            Application.logMessageReceived -= onReceived;
         }
 
         public void RealTimeMillis()

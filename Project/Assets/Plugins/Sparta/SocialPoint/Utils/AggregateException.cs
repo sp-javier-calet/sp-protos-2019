@@ -70,22 +70,17 @@ namespace SocialPoint.Utils
             }
         }
 
-        public AggregateException(Exception[] exceptions)
+        AggregateException(Exception[] exceptions)
         {
             Exceptions = exceptions;
         }
 
-        public static bool ThrowOnTrigger = true;
-
-        static AggregateException()
+        public static string GetString(Exception[] exceptions)
         {
-            #if UNITY_5_3_OR_NEWER
-            if(UnityEngine.Application.isPlaying)
-            {
-                ThrowOnTrigger = false;
-            }
-            #endif
+            return new AggregateException(exceptions).ToString();
         }
+
+        public static bool ForceTriggerLog = false;
 
         public static void Trigger(List<Exception> exceptions)
         {
@@ -99,17 +94,17 @@ namespace SocialPoint.Utils
                 return;
             }
 
-            if(ThrowOnTrigger)
-            {
-                throw new AggregateException(exceptions);
-            }
-            else
+            #if UNITY_5_3_OR_NEWER
+            if(ForceTriggerLog || UnityEngine.Application.isPlaying)
             {
                 for(var i = 0; i < exceptions.Length; i++)
                 {
                     UnityEngine.Debug.LogException(exceptions[i]);
                 }
+                return;
             }
+            #endif
+            throw new AggregateException(exceptions);
         }
     }
 }
