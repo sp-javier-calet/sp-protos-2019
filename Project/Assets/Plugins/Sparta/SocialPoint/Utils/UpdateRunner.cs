@@ -61,8 +61,6 @@ namespace SocialPoint.Utils
         void Remove(IDeltaUpdateable<int> elm);
 
         bool Contains(IDeltaUpdateable<int> elm);
-
-        event Action<Exception> UpdateExceptionThrown;
     }
 
     public static class UpdateSchedulerExtension
@@ -142,8 +140,6 @@ namespace SocialPoint.Utils
 
         double _lastUpdateTimestamp;
         long _lastUpdateTimestampMillis;
-
-        public event Action<Exception> UpdateExceptionThrown;
 
         public UpdateScheduler()
         {
@@ -381,11 +377,7 @@ namespace SocialPoint.Utils
             UpdateHandlers();
 
             // Check new exceptions
-            var exceptionsCount = _exceptions.Count;
-            if(exceptionsCount > 0)
-            {
-                throw new AggregateException(_exceptions);
-            }
+            AggregateException.Trigger(_exceptions);
 
             // Sync for internal changes during update
             Synchronize();
@@ -423,10 +415,6 @@ namespace SocialPoint.Utils
                 }
                 catch(Exception e)
                 {
-                    if(UpdateExceptionThrown != null)
-                    {
-                        UpdateExceptionThrown(e);
-                    }
                     _exceptions.Add(e);
                 }
             }

@@ -283,7 +283,7 @@ namespace SocialPoint.Lifecycle
         }
 
         [Test]
-        public void AggregateException()
+        public void HandlerExceptions()
         {
             _processor.RegisterHandler((TestEvent e) => { throw new Exception("aaa"); });
             _processor.RegisterHandler(_successHandler1);
@@ -296,7 +296,7 @@ namespace SocialPoint.Lifecycle
             }
             catch(AggregateException e)
             {
-                exceptionCount = e.Exceptions.Count;
+                exceptionCount = e.Exceptions.Length;
             }
             _successHandler1.Received(1).Handle(_event);
             Assert.AreEqual(2, exceptionCount);

@@ -26,9 +26,6 @@ namespace SocialPoint.Crash
             public bool ExceptionLogActive = SocialPointCrashReporter.DefaultExceptionLogActive;
             public bool EnableSendingCrashesBeforeLogin = SocialPointCrashReporter.DefaultEnableSendingCrashesBeforeLogin;
             public int NumRetriesBeforeSendingCrashBeforeLogin = SocialPointCrashReporter.DefaultNumRetriesBeforeSendingCrashBeforeLogin;
-
-            [UnityEngine.Tooltip("If true exceptions during Update() for IUpdateScheduler will be tracked as handled exceptions one by one")]
-            public bool TrackUpdateExceptionsAsHandled;
         }
 
         public SettingsData Settings = new SettingsData();
@@ -60,11 +57,6 @@ namespace SocialPoint.Crash
         {
             var crashReporter = Container.Resolve<ICrashReporter>();
             crashReporter.Enable();
-
-            if(Settings.TrackUpdateExceptionsAsHandled)
-            {
-                Container.Resolve<IUpdateScheduler>().UpdateExceptionThrown += crashReporter.ReportHandledException;
-            }
         }
 
         #if ADMIN_PANEL

@@ -1,6 +1,7 @@
 using System;
 using NSubstitute;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace SocialPoint.Utils
 {
@@ -376,6 +377,9 @@ namespace SocialPoint.Utils
         [Test]
         public void ExceptionDuringUpdateCallback()
         {
+            var oldThrow = AggregateException.ThrowOnTrigger;
+            AggregateException.ThrowOnTrigger = false;
+
             var exception = new Exception();
             var updateable = Substitute.For<IUpdateable>();
             updateable.When(x => x.Update()).Do(x => {
@@ -383,18 +387,22 @@ namespace SocialPoint.Utils
             });
 
             bool callbackCalled = false;
-            _scheduler.UpdateExceptionThrown += e => {
+            Application.logMessageReceived += (string condition, string stackTrace, LogType type) => {
                 callbackCalled = true;
-                Assert.AreEqual(exception, e);
+                Assert.AreEqual(LogType.Exception, type);
+                Assert.IsTrue(condition.EndsWith(exception.Message));
+                Assert.AreEqual(exception.StackTrace, stackTrace);
             };
 
             _scheduler.Add(updateable);
 
-            Assert.Throws<AggregateException>(() => _scheduler.Update(0.05f, 0.05f));
+            _scheduler.Update(0.5f, 0.5f);
 
             updateable.Received(1).Update();
 
             Assert.True(callbackCalled);
+
+            AggregateException.ThrowOnTrigger = oldThrow;
         }
 
         public void RealTimeMillis()

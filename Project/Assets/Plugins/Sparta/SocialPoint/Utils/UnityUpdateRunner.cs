@@ -20,18 +20,6 @@ namespace SocialPoint.Utils
 
         readonly UpdateScheduler _scheduler = new UpdateScheduler();
 
-        public event Action<Exception> UpdateExceptionThrown;
-
-        void Awake()
-        {
-            _scheduler.UpdateExceptionThrown += ExceptionsInUpdateCallback;
-        }
-
-        void OnDestroy()
-        {
-            _scheduler.UpdateExceptionThrown -= ExceptionsInUpdateCallback;
-        }
-
         public void Add(IUpdateable elm, UpdateableTimeMode mode = UpdateableTimeMode.GameTimeUnscaled, float interval = 0.0f)
         {
             _scheduler.Add(elm, mode, interval);
@@ -102,14 +90,6 @@ namespace SocialPoint.Utils
              * */
             float unscaledDeltaTime = (Time.unscaledDeltaTime > kMaxUnscaledDelta) ? kMaxUnscaledDelta : Time.unscaledDeltaTime;
             _scheduler.Update(Time.deltaTime, unscaledDeltaTime);
-        }
-
-        void ExceptionsInUpdateCallback(Exception e)
-        {
-            if(UpdateExceptionThrown != null)
-            {
-                UpdateExceptionThrown(e);
-            }
         }
     }
 
