@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace SocialPoint.Network
 {
-    public sealed class SimpleSocketNetworkMessage : INetworkMessage
+    public sealed class TcpSocketNetworkMessage : INetworkMessage
     {
         readonly NetworkMessageData _data;
         readonly SystemBinaryWriter _writer;
@@ -14,7 +14,7 @@ namespace SocialPoint.Network
         List<NetworkStream> _netStreams;
 
 
-        public SimpleSocketNetworkMessage(NetworkMessageData data, List<NetworkStream> netStreams)
+        public TcpSocketNetworkMessage(NetworkMessageData data, List<NetworkStream> netStreams)
         {
             _data = data;
             _memStream = new MemoryStream();

@@ -6,12 +6,12 @@ using SocialPoint.Dependency;
 
 public class SocketServerController : MonoBehaviour, INetworkServerDelegate, INetworkMessageReceiver
 {
-    SocketNetworkServer _netServer;
+    TcpSocketNetworkServer _netServer;
 
     void Start()
     {
         //SERVER
-        _netServer = Services.Instance.Resolve<SocketNetworkServer>();
+        _netServer = Services.Instance.Resolve<TcpSocketNetworkServer>();
         _netServer.Start();
     }
 

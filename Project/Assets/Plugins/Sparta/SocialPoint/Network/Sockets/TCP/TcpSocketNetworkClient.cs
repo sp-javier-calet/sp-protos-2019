@@ -7,15 +7,8 @@ using SocialPoint.IO;
 
 namespace SocialPoint.Network
 {
-    public class SimpleSocketNetworkClient : INetworkClient, IDisposable, IUpdateable
+    public class TcpSocketNetworkClient : INetworkClient, IDisposable, IUpdateable
     {
-        public enum Protocol
-        {
-            Tcp,
-            Udp
-        }
-
-        public const string DefaultServerAddr = "localhost";
 
         private List<INetworkClientDelegate> _delegates = new List<INetworkClientDelegate>();
         private INetworkMessageReceiver _receiver;
@@ -26,9 +19,9 @@ namespace SocialPoint.Network
         private bool _connected;
         IUpdateScheduler _scheduler;
         List<NetworkStream> _stream;
-        SimpleSocketClientData _socketMessageData;
+        TcpSocketClientData _socketMessageData;
 
-        public SimpleSocketNetworkClient(IUpdateScheduler scheduler,string serverAddr = null, int serverPort = UnetNetworkServer.DefaultPort)
+        public TcpSocketNetworkClient(IUpdateScheduler scheduler,string serverAddr = TcpSocketNetworkServer.DefaultAddress, int serverPort = TcpSocketNetworkServer.DefaultPort)
         {
             _scheduler = scheduler;
             _serverAddr = serverAddr;
@@ -71,14 +64,6 @@ namespace SocialPoint.Network
             throw new NotImplementedException();
         }
 
-        public  byte ClientId
-        {
-            get
-            {
-                return 0;
-            }
-        }
-
         public bool Connected
         {
             get
@@ -106,7 +91,7 @@ namespace SocialPoint.Network
 
         public INetworkMessage CreateMessage(NetworkMessageData data)
         {
-            return new SimpleSocketNetworkMessage(data, _stream);
+            return new TcpSocketNetworkMessage(data, _stream);
         }
 
         public void Update()
@@ -128,7 +113,7 @@ namespace SocialPoint.Network
                 {
                     _delegates[i].OnClientConnected();
                 }
-                _socketMessageData = new SimpleSocketClientData(ClientId, _client);
+                _socketMessageData = new TcpSocketClientData(_client);
                 _socketMessageData.MessageReceived += OnServerMessageReceived;
             }
         }
@@ -161,10 +146,6 @@ namespace SocialPoint.Network
                 {
                 _socketMessageData.Receive();
                 }
-//            if(_receiver != null)
-//            {
-//                _receiver.OnMessageReceived(data, new UnetNetworkReader(umsg.reader));
-//            }
         }
 
         void OnDisconnected()

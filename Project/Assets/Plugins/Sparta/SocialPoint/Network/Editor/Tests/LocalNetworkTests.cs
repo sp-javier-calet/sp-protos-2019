@@ -14,7 +14,7 @@ namespace SocialPoint.Network
         {
             var localServer = new LocalNetworkServer();
             _server = localServer;
-            _client = new LocalNetworkClient(localServer);
+            _client1 = new LocalNetworkClient(localServer);
             _client2 = new LocalNetworkClient(localServer);
         }
 

@@ -18,8 +18,8 @@ namespace SocialPoint.Network
         public class SocketNetworkConfig
         {
             public Protocol Protocol = Protocol.TCP;
-            public string ServerAddress = SocketNetworkClient.DefaultServerAddr;
-            public int ServerPort = SocketNetworkServer.DefaultPort;
+            public string ServerAddress = TcpSocketNetworkServer.DefaultAddress;
+            public int ServerPort = TcpSocketNetworkServer.DefaultPort;
         }
 
         [Serializable]
@@ -32,45 +32,43 @@ namespace SocialPoint.Network
 
         public override void InstallBindings()
         {
-            Container.Rebind<SocketNetworkServer>().ToMethod<SocketNetworkServer>(CreateSocketServer, SetupServer);
-            Container.Bind<IDisposable>().ToLookup<SocketNetworkServer>();
-            Container.Rebind<INetworkServer>("internal").ToLookup<SocketNetworkServer>();
-            Container.Rebind<INetworkServer>().ToLookup<SocketNetworkServer>();
+            Container.Rebind<TcpSocketNetworkServer>().ToMethod<TcpSocketNetworkServer>(CreateSocketServer, SetupServer);
+            Container.Bind<IDisposable>().ToLookup<TcpSocketNetworkServer>();
+            Container.Rebind<INetworkServer>("internal").ToLookup<TcpSocketNetworkServer>();
+            Container.Rebind<INetworkServer>().ToLookup<TcpSocketNetworkServer>();
 
-            Container.Rebind<SocketNetworkClient>().ToMethod<SocketNetworkClient>(CreateSocketClient, SetupClient);
-            Container.Bind<IDisposable>().ToLookup<SocketNetworkClient>();
-            Container.Rebind<INetworkClient>("internal").ToLookup<SocketNetworkClient>();
-            Container.Rebind<INetworkClient>().ToLookup<SocketNetworkClient>();
+            Container.Rebind<TcpSocketNetworkClient>().ToMethod<TcpSocketNetworkClient>(CreateSocketClient, SetupClient);
+            Container.Bind<IDisposable>().ToLookup<TcpSocketNetworkClient>();
+            Container.Rebind<INetworkClient>("internal").ToLookup<TcpSocketNetworkClient>();
+            Container.Rebind<INetworkClient>().ToLookup<TcpSocketNetworkClient>();
         }
 
-        SocketNetworkClient CreateSocketClient()
+        TcpSocketNetworkClient CreateSocketClient()
         {
-            SocketNetworkClient socketClient = null;
+            TcpSocketNetworkClient socketClient = null;
             switch(Settings.Config.Protocol)
             {
             case Protocol.TCP:
-                socketClient = new TCPSocketNetworkClient(
+                socketClient = new TcpSocketNetworkClient(
+                    Container.Resolve<IUpdateScheduler>(),
                     Settings.Config.ServerAddress, 
                     Settings.Config.ServerPort);
                 break;
             case Protocol.UDP:
                 break;
             case Protocol.ReliableUDP:
-                socketClient = new UDPReliableSocketNetworkClient(
-                    Settings.Config.ServerAddress, 
-                    Settings.Config.ServerPort);
                 break;
             }
             return socketClient; 
         }
 
-        SocketNetworkServer CreateSocketServer()
+        TcpSocketNetworkServer CreateSocketServer()
         {
-            SocketNetworkServer socketServer = null;
+            TcpSocketNetworkServer socketServer = null;
             switch(Settings.Config.Protocol)
             {
             case Protocol.TCP:
-                socketServer = new TCPSocketNetworkServer(
+                socketServer = new TcpSocketNetworkServer(
                     Container.Resolve<IUpdateScheduler>(),
                     Settings.Config.ServerAddress, 
                     Settings.Config.ServerPort);
@@ -78,10 +76,6 @@ namespace SocialPoint.Network
             case Protocol.UDP:
                 break;
             case Protocol.ReliableUDP:
-                socketServer = new UDPReliableSocketNetworkServer(
-                    Container.Resolve<IUpdateScheduler>(),
-                    Settings.Config.ServerAddress, 
-                    Settings.Config.ServerPort);
                 break;
             }
             return socketServer; 

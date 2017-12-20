@@ -10,7 +10,7 @@ namespace SocialPoint.Network
     public abstract class BaseNetworkTests
     {
         protected INetworkServer _server;
-        protected INetworkClient _client;
+        protected INetworkClient _client1;
         protected INetworkClient _client2;
 
         virtual protected void WaitForEvents()
@@ -27,12 +27,12 @@ namespace SocialPoint.Network
             WaitForEvents();
             sdlg.Received(1).OnServerStarted();
 
-            _client.Connect();
+            _client1.Connect();
 
             WaitForEvents();
             sdlg.Received(1).OnClientConnected(1);
 
-            _client.Disconnect();
+            _client1.Disconnect();
 
             WaitForEvents();
             sdlg.Received(1).OnClientDisconnected(1);
@@ -47,16 +47,16 @@ namespace SocialPoint.Network
         public void ClientDelegateCalled()
         {
             var cdlg = Substitute.For<INetworkClientDelegate>();
-            _client.AddDelegate(cdlg);
+            _client1.AddDelegate(cdlg);
 
             _server.Start();
 
-            _client.Connect();
+            _client1.Connect();
 
             WaitForEvents();
             cdlg.Received(1).OnClientConnected();
 
-            _client.Disconnect();
+            _client1.Disconnect();
 
             WaitForEvents();
             cdlg.Received(1).OnClientDisconnected();
@@ -68,9 +68,9 @@ namespace SocialPoint.Network
             var receiver = Substitute.For<INetworkMessageReceiver>();
             _server.RegisterReceiver(receiver);
             _server.Start();
-            _client.Connect();
+            _client1.Connect();
 
-            var msg = _client.CreateMessage(new NetworkMessageData {
+            var msg = _client1.CreateMessage(new NetworkMessageData {
                 MessageType = 5,
             });
 
@@ -93,10 +93,10 @@ namespace SocialPoint.Network
         public virtual void SendMessageFromServerToClients()
         {
             var receiver = Substitute.For<INetworkMessageReceiver>();
-            _client.RegisterReceiver(receiver);
+            _client1.RegisterReceiver(receiver);
             _client2.RegisterReceiver(receiver);
             _server.Start();
-            _client.Connect();
+            _client1.Connect();
             _client2.Connect();
 
             var data = new NetworkMessageData {
@@ -118,14 +118,14 @@ namespace SocialPoint.Network
         }
 
         [Test]
-        public void SendMessageFromServerToOneClient()
+        public virtual void SendMessageFromServerToOneClient()
         {
             var receiver1 = Substitute.For<INetworkMessageReceiver>();
             var receiver2 = Substitute.For<INetworkMessageReceiver>();
-            _client.RegisterReceiver(receiver1);
+            _client1.RegisterReceiver(receiver1);
             _client2.RegisterReceiver(receiver2);
             _server.Start();
-            _client.Connect();
+            _client1.Connect();
             _client2.Connect();
 
             var data = new NetworkMessageData {
@@ -153,11 +153,11 @@ namespace SocialPoint.Network
         {
             var cdlg = Substitute.For<INetworkClientDelegate>();
             var sdlg = Substitute.For<INetworkServerDelegate>();
-            _client.AddDelegate(cdlg);
+            _client1.AddDelegate(cdlg);
             _server.AddDelegate(sdlg);
 
             _server.Start();
-            _client.Connect();
+            _client1.Connect();
 
             WaitForEvents();
 
@@ -172,9 +172,9 @@ namespace SocialPoint.Network
         {
             var cdlg = Substitute.For<INetworkClientDelegate>();
             var sdlg = Substitute.For<INetworkServerDelegate>();
-            _client.AddDelegate(cdlg);
+            _client1.AddDelegate(cdlg);
             _server.AddDelegate(sdlg);
-            _client.Connect();
+            _client1.Connect();
 
             WaitForEvents();
             cdlg.Received(0).OnClientConnected();
@@ -192,11 +192,11 @@ namespace SocialPoint.Network
         {
             var cdlg = Substitute.For<INetworkClientDelegate>();
             var sdlg = Substitute.For<INetworkServerDelegate>();
-            _client.AddDelegate(cdlg);
+            _client1.AddDelegate(cdlg);
             _server.AddDelegate(sdlg);
 
             _server.Start();
-            _client.Connect();
+            _client1.Connect();
 
             WaitForEvents();
             _server.Stop();
@@ -207,7 +207,7 @@ namespace SocialPoint.Network
         }
 
         [Test]
-        public void OnServerStartedCalledIfDelegateAddedAfterStart()
+        public virtual void OnServerStartedCalledIfDelegateAddedAfterStart()
         {
             _server.Start();
             var sdlg = Substitute.For<INetworkServerDelegate>();
@@ -221,24 +221,27 @@ namespace SocialPoint.Network
         public void OnClientConnectedCalledIfDelegateAddedAfterConnect()
         {
             _server.Start();
-            _client.Connect();
+            _client1.Connect();
             var cdlg = Substitute.For<INetworkClientDelegate>();
-            _client.AddDelegate(cdlg);
+            _client1.AddDelegate(cdlg);
 
             WaitForEvents();
             cdlg.Received(1).OnClientConnected();
         }
 
         [Test]
-        public void ClientReceivedMessageSendOnClientConnected()
+        public virtual void ClientReceivedMessageSendOnClientConnected()
         {
             _server.Start();
             var sdlg = Substitute.For<INetworkServerDelegate>();
             sdlg.WhenForAnyArgs(x => x.OnClientConnected(Arg.Any<byte>())).Do(x => _server.SendMessage(new NetworkMessageData { ClientIds = new List<byte>(){ 1 }, MessageType = 1} , Substitute.For<INetworkShareable>()));
             _server.AddDelegate(sdlg);
             var cdlg = Substitute.For<INetworkClientDelegate>();
-            _client.AddDelegate(cdlg);
-            _client.Connect();
+            _client1.AddDelegate(cdlg);
+            _client1.Connect();
+
+            WaitForEvents();
+
             cdlg.Received().OnMessageReceived(new NetworkMessageData {ClientIds = new List<byte>(){ 1 }, MessageType = 1});
         }
     }

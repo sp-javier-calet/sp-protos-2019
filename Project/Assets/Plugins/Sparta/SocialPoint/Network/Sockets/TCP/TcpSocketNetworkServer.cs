@@ -10,21 +10,20 @@ using System.IO;
 namespace SocialPoint.Network
 {
    
-    public class SimpleSocketNetworkServer : INetworkServer, IDisposable, IUpdateable
+    public class TcpSocketNetworkServer : INetworkServer, IDisposable, IUpdateable
     {
+        public const string DefaultAddress = "127.0.0.1";
         public const int DefaultPort = 8888;
 
-        private INetworkMessageReceiver _receiver;
-        private List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
-        private IUpdateScheduler _updateScheduler;
-        private TcpListener _listener;
-        private List<SimpleSocketClientData> _connectedDataClients = new List<SimpleSocketClientData>();
-        private List<SimpleSocketClientData> _disconnectedDataClients = new List<SimpleSocketClientData>();
-        //        private List<SimpleSocketClientData> _clientData = new List<SimpleSocketClientData>();
+        INetworkMessageReceiver _receiver;
+        List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
+        IUpdateScheduler _updateScheduler;
+        TcpListener _listener;
+        List<TcpSocketClientData> _connectedDataClients = new List<TcpSocketClientData>();
+        List<TcpSocketClientData> _disconnectedDataClients = new List<TcpSocketClientData>();
+        byte _clientID = 1;
 
-        //        List<SimpleSocketNetworkClient> _networkClientList = new List<SimpleSocketNetworkClient>();
-
-        public SimpleSocketNetworkServer(IUpdateScheduler updateScheduler, string serverAddr = null, int port = DefaultPort)
+        public TcpSocketNetworkServer(IUpdateScheduler updateScheduler, string serverAddr = DefaultAddress, int port = DefaultPort)
         {
             _updateScheduler = updateScheduler;
             _listener = new TcpListener(IPAddress.Parse(serverAddr), port);
@@ -113,7 +112,7 @@ namespace SocialPoint.Network
         public INetworkMessage CreateMessage(NetworkMessageData data)
         {
             var clientsToSendMessage = new  List<NetworkStream>();
-            if(data.ClientIds != null && data.ClientIds.Count == 1)
+            if(data.ClientIds != null && data.ClientIds.Count > 0)
             {
                 foreach(var clientIdConnected in _connectedDataClients)
                 {
@@ -131,7 +130,7 @@ namespace SocialPoint.Network
                 }
             }
            
-            return new SimpleSocketNetworkMessage(data, clientsToSendMessage);
+            return new TcpSocketNetworkMessage(data, clientsToSendMessage);
         }
 
         public void Dispose()
@@ -165,17 +164,17 @@ namespace SocialPoint.Network
 
         void ConnectClients()
         {
-            if(_listener.Pending())
+            while(_listener.Pending())
             {
-                byte clienId = (byte)(_connectedDataClients.Count+1);
                 var newClient = _listener.AcceptTcpClient();
-                var data = new SimpleSocketClientData(clienId, newClient);
+                var data = new TcpSocketClientData(newClient, _clientID);
                 _connectedDataClients.Add(data);
                 data.MessageReceived += OnClientMessageReceived;
                 for(var i = 0; i < _delegates.Count; i++)
                 {
-                    _delegates[i].OnClientConnected(clienId);
+                    _delegates[i].OnClientConnected(_clientID);
                 }
+                _clientID++;
             }
         }
 
@@ -209,7 +208,7 @@ namespace SocialPoint.Network
                 {
                     for(var i = 0; i < _delegates.Count; i++)
                     {
-                        _delegates[i].OnClientDisconnected((byte)(client.ClientId));
+                        _delegates[i].OnClientDisconnected((client.ClientId));
                     }
                     _connectedDataClients.Remove(client);
                 }

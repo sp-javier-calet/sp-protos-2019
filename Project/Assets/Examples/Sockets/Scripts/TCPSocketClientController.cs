@@ -4,15 +4,15 @@ using UnityEngine;
 using SocialPoint.Network;
 using SocialPoint.Dependency;
 
-public class SocketClientController : MonoBehaviour, INetworkClientDelegate, INetworkMessageReceiver
+public class TCPSocketClientController : MonoBehaviour, INetworkClientDelegate, INetworkMessageReceiver
 {
 
-    SocketNetworkClient _netClient;
+    TcpSocketNetworkClient _netClient;
 
     void Start()
     {
         //CLIENT
-        _netClient = Services.Instance.Resolve<SocketNetworkClient>();
+        _netClient = Services.Instance.Resolve<TcpSocketNetworkClient>();
         _netClient.Connect();
     }
 
