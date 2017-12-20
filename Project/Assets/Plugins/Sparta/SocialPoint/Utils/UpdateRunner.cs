@@ -96,26 +96,26 @@ namespace SocialPoint.Utils
         }
 
         public static void Add(this IUpdateScheduler scheduler, IDeltaUpdateable<int> elm, int interval)
-    {
+        {
             scheduler.Add(elm, UpdateableTimeIntMode.GameTimeUnscaled, interval);
         }
-        }
+    }
 
     public struct UpdateableTimeModeComparer : IEqualityComparer<UpdateableTimeMode>
-        {
+    {
         public bool Equals(UpdateableTimeMode x, UpdateableTimeMode y)
-            {
+        {
             return x == y;
-            }
-
-        public int GetHashCode(UpdateableTimeMode obj)
-            {
-            return (int)obj;
-            }
         }
 
-    public struct UpdateableTimeIntModeComparer : IEqualityComparer<UpdateableTimeIntMode>
+        public int GetHashCode(UpdateableTimeMode obj)
         {
+            return (int)obj;
+        }
+    }
+
+    public struct UpdateableTimeIntModeComparer : IEqualityComparer<UpdateableTimeIntMode>
+    {
         public bool Equals(UpdateableTimeIntMode x, UpdateableTimeIntMode y)
         {
             return x == y;
@@ -190,7 +190,7 @@ namespace SocialPoint.Utils
         {
             IDeltaTimeSource<int> source;
             if(!_intSources.TryGetValue(mode, out source))
-        {
+            {
                 source = CreateSource(mode);
                 _intSources.Add(mode, source);
             }
@@ -198,14 +198,14 @@ namespace SocialPoint.Utils
         }
 
         IDeltaTimeSource<float> CreateSource(UpdateableTimeMode mode)
-            {
+        {
             switch(mode)
-                {
-                case UpdateableTimeMode.GameTimeScaled:
+            {
+            case UpdateableTimeMode.GameTimeScaled:
                 return new ScaledDeltaTimeSource();
             case UpdateableTimeMode.RealTime:
                 return new RealDeltaTimeSource();
-                case UpdateableTimeMode.GameTimeUnscaled:
+            case UpdateableTimeMode.GameTimeUnscaled:
                 return new UnscaledDeltaTimeSource();
             }
             throw new InvalidOperationException("Unsupported time mode.");
@@ -225,7 +225,7 @@ namespace SocialPoint.Utils
                 return new UnscaledMillisDeltaTimeSource();
             }
             throw new InvalidOperationException("Unsupported time mode.");
-                }
+        }
 
         public void Add(IUpdateable elm, UpdateableTimeMode mode = UpdateableTimeMode.GameTimeUnscaled, float interval = 0.0f)
         {
@@ -255,7 +255,7 @@ namespace SocialPoint.Utils
         {
             DebugUtils.Assert(elm != null);
             if(elm != null)
-                {
+            {
                 var source = GetSource(mode);
                 var timer = CreateTimer(interval);
                 var handler = new DeltaUpdateableHandler<int>(elm, timer, source);
@@ -297,12 +297,12 @@ namespace SocialPoint.Utils
         }
 
         public bool Contains(IUpdateable elm)
-        { 
+        {
             return DoContains(elm);
         }
 
         public bool Contains(IDeltaUpdateable elm)
-        { 
+        {
             return DoContains(elm);
         }
 
@@ -426,6 +426,7 @@ namespace SocialPoint.Utils
         interface IDeltaTimeSource<T>
         {
             void Update(float scaledDelta, float unscaledDelta);
+
             T Value { get; }
         }
 
@@ -444,10 +445,10 @@ namespace SocialPoint.Utils
             public void Update(float scaledDelta, float unscaledDelta)
             {
                 Value = unscaledDelta;
-                }
+            }
 
             public float Value { get; private set; }
-            }
+        }
 
         class RealDeltaTimeSource : IDeltaTimeSource<float>
         {
@@ -457,12 +458,12 @@ namespace SocialPoint.Utils
             {
                 var ts = TimeUtils.GetTimestampDouble(DateTime.Now);
                 if(_timestamp < double.Epsilon)
-            {
+                {
                     _timestamp = ts;
-            }
+                }
                 Value = (float)(ts - _timestamp);
                 _timestamp = ts;
-        }
+            }
 
             public float Value { get; private set; }
         }
@@ -475,7 +476,7 @@ namespace SocialPoint.Utils
             {
                 var ticks = DateTime.Now.Ticks;
                 if(_ticks < double.Epsilon)
-            {
+                {
                     _ticks = ticks;
                 }
                 Value = (int)(ticks - _ticks);
@@ -493,103 +494,103 @@ namespace SocialPoint.Utils
             {
                 var ts = TimeUtils.GetTimestampMilliseconds(DateTime.Now);
                 if(_timestamp <= 0)
-            {
-                    _timestamp =  ts;
+                {
+                    _timestamp = ts;
                 }
                 Value = (int)(ts - _timestamp);
                 _timestamp = ts;
             }
 
             public int Value { get; private set; }
-            }
+        }
 
         class ScaledMillisDeltaTimeSource : IDeltaTimeSource<int>
         {
             public void Update(float scaledDelta, float unscaledDelta)
             {
                 Value = (int)((scaledDelta + 0.0005f) * 1000.0f);
-        }
+            }
 
             public int Value { get; private set; }
-    }
+        }
 
         class UnscaledMillisDeltaTimeSource : IDeltaTimeSource<int>
         {
             public void Update(float scaledDelta, float unscaledDelta)
-    {
+            {
                 Value = (int)((unscaledDelta + 0.0005f) * 1000.0f);
             }
 
             public int Value { get; private set; }
-    }
+        }
 
         #endregion
 
-    #region TimeHandlers
+        #region TimeHandlers
 
         public interface IUpdateableTimer<T>
-    {
+        {
             bool Step(T delta, out T interval);
-    }
+        }
 
         public class ContinuousTimer<T> : IUpdateableTimer<T>
-    {
+        {
             public bool Step(T delta, out T interval)
-        {
-            interval = delta;
-            return true;
-        }
-    }
-
-        public class FixedFloatTimer : IUpdateableTimer<float>
-    {
-        readonly float _interval;
-        float _current;
-
-            public FixedFloatTimer(float interval)
-        {
-                _current = 0.0f;
-            _interval = interval;
-        }
-
-        public bool Step(float delta, out float interval)
-        {
-            _current += delta;
-                interval = 0.0f;
-            if(_current >= _interval)
             {
-                _current = _current - _interval;
-                interval = _interval;
+                interval = delta;
                 return true;
             }
-            return false;
         }
-    }
+
+        public class FixedFloatTimer : IUpdateableTimer<float>
+        {
+            readonly float _interval;
+            float _current;
+
+            public FixedFloatTimer(float interval)
+            {
+                _current = 0.0f;
+                _interval = interval;
+            }
+
+            public bool Step(float delta, out float interval)
+            {
+                _current += delta;
+                interval = 0.0f;
+                if(_current >= _interval)
+                {
+                    _current = _current - _interval;
+                    interval = _interval;
+                    return true;
+                }
+                return false;
+            }
+        }
 
         public struct FixedIntTimer : IUpdateableTimer<int>
-    {
+        {
             readonly int _interval;
             int _current;
 
             public FixedIntTimer(int interval)
-    {
+            {
                 _current = 0;
                 _interval = interval;
-        }
+            }
 
             public bool Step(int delta, out int interval)
-        {
+            {
                 _current += delta;
                 interval = 0;
                 if(_current >= _interval)
-            {
+                {
                     _current = _current - _interval;
                     interval = _interval;
                     return true;
-            }
+                }
                 return false;
+            }
         }
-    }
 
         #endregion
 
@@ -601,51 +602,51 @@ namespace SocialPoint.Utils
         }
 
         class UpdateableHandler<T> : IUpdateableHandler
-    {
+        {
             readonly IUpdateableTimer<T> _timer;
-        readonly IUpdateable _updateable;
+            readonly IUpdateable _updateable;
             readonly IDeltaTimeSource<T> _source;
 
             public UpdateableHandler(IUpdateable updateable, IUpdateableTimer<T> timer, IDeltaTimeSource<T> source)
-        {
-            _updateable = updateable;
-            _timer = timer;
+            {
+                _updateable = updateable;
+                _timer = timer;
                 _source = source;
-        }
+            }
 
             public void Update()
-        {
+            {
                 T interval;
                 if(_timer.Step(_source.Value, out interval))
-            {
-                _updateable.Update();
+                {
+                    _updateable.Update();
+                }
             }
         }
-    }
 
         class DeltaUpdateableHandler<T> : IUpdateableHandler
-    {
+        {
             readonly IUpdateableTimer<T> _timer;
             readonly IDeltaUpdateable<T> _updateable;
             readonly IDeltaTimeSource<T> _source;
 
             public DeltaUpdateableHandler(IDeltaUpdateable<T> updateable, IUpdateableTimer<T> timer, IDeltaTimeSource<T> source)
-        {
-            _updateable = updateable;
-            _timer = timer;
+            {
+                _updateable = updateable;
+                _timer = timer;
                 _source = source;
-        }
+            }
 
             public void Update()
-        {
+            {
                 T interval;
                 if(_timer.Step(_source.Value, out interval))
-            {
-                _updateable.Update(interval);
+                {
+                    _updateable.Update(interval);
+                }
             }
         }
-    }
 
-    #endregion
+        #endregion
     }
 }
