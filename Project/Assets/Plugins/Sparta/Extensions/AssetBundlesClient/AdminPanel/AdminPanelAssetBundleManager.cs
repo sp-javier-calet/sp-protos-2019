@@ -85,7 +85,7 @@ namespace SocialPoint.AssetBundlesClient
         {
             _layout.CreateButton("Clean Cache", () =>
             {
-#if UNITY_2017
+#if UNITY_2017_1_OR_NEWER
                 bool succeeded = Caching.ClearCache();
 #else
                 bool succeeded = Caching.CleanCache();

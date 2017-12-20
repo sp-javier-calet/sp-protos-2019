@@ -504,11 +504,11 @@ namespace SocialPoint.TransparentBundles
 
         static void LogMessageHandler(string message, LogType severity)
         {
-            #if UNITY_2017
+#if UNITY_2017_1_OR_NEWER
             Debug.unityLogger.Log(severity, message);
-            #else
+#else
             Debug.logger.Log(severity, message);
-            #endif
+#endif
         }
 
         #endregion

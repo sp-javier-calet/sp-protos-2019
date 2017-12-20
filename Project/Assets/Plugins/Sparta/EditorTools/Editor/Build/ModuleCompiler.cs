@@ -541,11 +541,11 @@ namespace SpartaTools.Editor.Build
                 break;
             case BuildTarget.StandaloneOSXIntel:
             case BuildTarget.StandaloneOSXIntel64:
-            #if UNITY_2017
+#if UNITY_2017_1_OR_NEWER
             case BuildTarget.StandaloneOSX:
-            #else
+#else
             case BuildTarget.StandaloneOSXUniversal:
-            #endif
+#endif
                 compiler.ConfigureAs(new StandAloneOSXPlatformConfiguration());
                 break;
             default:

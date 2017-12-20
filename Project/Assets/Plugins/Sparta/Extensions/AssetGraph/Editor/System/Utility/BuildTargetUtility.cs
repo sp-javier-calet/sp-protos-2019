@@ -48,11 +48,11 @@ namespace AssetBundleGraph
                 return "OSX Standalone";
             case BuildTarget.StandaloneOSXIntel64:
                 return "OSX Standalone(64-bit)";
-            #if UNITY_2017
+#if UNITY_2017_1_OR_NEWER
             case BuildTarget.StandaloneOSX:
-            #else
+#else
             case BuildTarget.StandaloneOSXUniversal:
-            #endif
+#endif
                 return "OSX Standalone(Universal)";
             case BuildTarget.StandaloneWindows:
                 return "Windows Standalone";
@@ -112,11 +112,11 @@ namespace AssetBundleGraph
                 return "Linux";
             case BuildTarget.StandaloneOSXIntel:
             case BuildTarget.StandaloneOSXIntel64:
-            #if UNITY_2017
+#if UNITY_2017_1_OR_NEWER
             case BuildTarget.StandaloneOSX:
-            #else
-        case BuildTarget.StandaloneOSXUniversal:
-            #endif
+#else
+            case BuildTarget.StandaloneOSXUniversal:
+#endif
                 return "OSX";
             case BuildTarget.StandaloneWindows:
             case BuildTarget.StandaloneWindows64:
@@ -234,11 +234,11 @@ namespace AssetBundleGraph
             case BuildTarget.StandaloneLinuxUniversal:
             case BuildTarget.StandaloneOSXIntel:
             case BuildTarget.StandaloneOSXIntel64:
-            #if UNITY_2017
+#if UNITY_2017_1_OR_NEWER
             case BuildTarget.StandaloneOSX:
-            #else
-        case BuildTarget.StandaloneOSXUniversal:
-            #endif
+#else
+            case BuildTarget.StandaloneOSXUniversal:
+#endif
             case BuildTarget.StandaloneWindows:
             case BuildTarget.StandaloneWindows64:
                 return BuildTargetGroup.Standalone;

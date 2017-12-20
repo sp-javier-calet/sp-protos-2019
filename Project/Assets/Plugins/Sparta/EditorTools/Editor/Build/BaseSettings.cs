@@ -88,18 +88,18 @@ namespace SpartaTools.Editor.Build
                 config.App.IconTexture = icons[0];
             }
 
-            #if UNITY_2017
+#if UNITY_2017_1_OR_NEWER
             config.Ios.BundleIdentifier = PlayerSettings.applicationIdentifier;
-            #else
+#else
             config.Ios.BundleIdentifier = PlayerSettings.bundleIdentifier;
-            #endif
+#endif
             config.Ios.Flags = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS);
 
-            #if UNITY_2017
+#if UNITY_2017_1_OR_NEWER
             config.Android.BundleIdentifier = PlayerSettings.applicationIdentifier;
-            #else
+#else
             config.Android.BundleIdentifier = PlayerSettings.bundleIdentifier;
-            #endif
+#endif
 
             config.Android.Flags = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android);
             config.Android.Keystore.Path = PlayerSettings.Android.keystoreName;
@@ -136,19 +136,19 @@ namespace SpartaTools.Editor.Build
             // Bundle Identifier
             if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.iOS)
             {
-                #if UNITY_2017
+#if UNITY_2017_1_OR_NEWER
                 PlayerSettings.applicationIdentifier = Ios.BundleIdentifier;
-                #else
+#else
                 PlayerSettings.bundleIdentifier = Ios.BundleIdentifier;
-                #endif
+#endif
             }
             else if(EditorUserBuildSettings.activeBuildTarget == BuildTarget.Android)
             {
-                #if UNITY_2017
+#if UNITY_2017_1_OR_NEWER
                 PlayerSettings.applicationIdentifier = Android.BundleIdentifier;
-                #else
+#else
                 PlayerSettings.bundleIdentifier = Android.BundleIdentifier;
-                #endif
+#endif
             }
                 
             // Due to plugins constraints, we need to compile always using Gradle
