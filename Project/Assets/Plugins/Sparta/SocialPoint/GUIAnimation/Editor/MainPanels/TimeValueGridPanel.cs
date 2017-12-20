@@ -50,7 +50,7 @@ namespace SocialPoint.GUIAnimation
                 {
                     if(
                         Event.current.keyCode == KeyCode.Delete
-                        && Event.current.type == EventType.keyUp
+                        && Event.current.type == EventType.KeyUp
                         && _host._lastUsed != null)
                     {
                         _toRemove = _host._lastUsed;
@@ -379,7 +379,7 @@ namespace SocialPoint.GUIAnimation
 
         void TryToTriggerTouchCallback()
         {
-            if((Event.current.type == EventType.mouseDown || Event.current.type == EventType.mouseUp)
+            if((Event.current.type == EventType.MouseDown || Event.current.type == EventType.MouseUp)
                && _gridWindow.Contains(Event.current.mousePosition))
             {
                 TriggerModificationCallback();

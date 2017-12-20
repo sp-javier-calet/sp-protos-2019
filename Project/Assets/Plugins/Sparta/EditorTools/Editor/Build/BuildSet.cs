@@ -605,7 +605,11 @@ namespace SpartaTools.Editor.Build
             {
                 if(!string.IsNullOrEmpty(bundleIdentifier))
                 {
+                    #if UNITY_2017
+                    PlayerSettings.applicationIdentifier = bundleIdentifier;
+                    #else
                     PlayerSettings.bundleIdentifier = bundleIdentifier;
+                    #endif
                 }
             }
 
