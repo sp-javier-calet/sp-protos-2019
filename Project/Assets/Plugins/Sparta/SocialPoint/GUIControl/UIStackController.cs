@@ -44,6 +44,17 @@ namespace SocialPoint.GUIControl
         IList<StackNode> _views = new List<StackNode>();
         IAppEvents _appEvents;
         bool _enabled;
+        public bool Enabled
+        {
+            get
+            {
+                return _enabled || !Application.isPlaying;
+            }
+            private set
+            {
+                _enabled = value;
+            }
+        }
 
         public IAppEvents AppEvents
         {
@@ -518,7 +529,9 @@ namespace SocialPoint.GUIControl
                         // This is only for using Hide or HideImmedate methods. 
                         // In this case we only want to Destroy the UIViewController if is the top and we are not 
                         // disabling the whole UIStackController directly
-                        if(_enabled)
+
+                        // We have added a isPlaying check to do this properly UnityTests
+                        if(Enabled)
                         {
                             ctrl.DestroyOnHide = true;
                         }
