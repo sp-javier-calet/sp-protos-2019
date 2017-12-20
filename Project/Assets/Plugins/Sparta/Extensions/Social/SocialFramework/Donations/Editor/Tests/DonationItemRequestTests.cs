@@ -4,6 +4,8 @@ using SocialPoint.Attributes;
 
 namespace SocialPoint.Social
 {
+    [TestFixture]
+    [Category("SocialPoint.Social")]
     public class DonationItemRequestTests
     {
         [SetUp]
@@ -106,6 +108,60 @@ namespace SocialPoint.Social
             request.CollectContribution(userId);
 
             Assert.AreEqual(contributed, request.TotalCollectedAmount);
+        }
+
+        [Test]
+        public void MultipleContributeAndCollect()
+        {
+            const int contribution1 = 5;
+            const int userId1 = 123;
+            const int contribution2 = 10;
+            const int userId2 = 456;
+
+            var request = CreateRequest(20);
+
+            Assert.AreEqual(0, request.GetContributedBy(userId1));
+            Assert.AreEqual(0, request.GetContributedBy(userId2));
+            Assert.AreEqual(0, request.TotalReceivedAmount);
+            Assert.AreEqual(0, request.GetCollectedBy(userId1));
+            Assert.AreEqual(0, request.GetCollectedBy(userId2));
+            Assert.AreEqual(0, request.TotalCollectedAmount);
+
+            request.AddContribution(userId1, contribution1);
+
+            Assert.AreEqual(contribution1, request.GetContributedBy(userId1));
+            Assert.AreEqual(0, request.GetContributedBy(userId2));
+            Assert.AreEqual(contribution1, request.TotalReceivedAmount);
+            Assert.AreEqual(0, request.GetCollectedBy(userId1));
+            Assert.AreEqual(0, request.GetCollectedBy(userId2));
+            Assert.AreEqual(0, request.TotalCollectedAmount);
+
+            request.AddContribution(userId2, contribution2);
+
+            Assert.AreEqual(contribution1, request.GetContributedBy(userId1));
+            Assert.AreEqual(contribution2, request.GetContributedBy(userId2));
+            Assert.AreEqual(contribution1 + contribution2, request.TotalReceivedAmount);
+            Assert.AreEqual(0, request.GetCollectedBy(userId1));
+            Assert.AreEqual(0, request.GetCollectedBy(userId2));
+            Assert.AreEqual(0, request.TotalCollectedAmount);
+
+            request.CollectContribution(userId1);
+
+            Assert.AreEqual(contribution1, request.GetContributedBy(userId1));
+            Assert.AreEqual(contribution2, request.GetContributedBy(userId2));
+            Assert.AreEqual(contribution1 + contribution2, request.TotalReceivedAmount);
+            Assert.AreEqual(contribution1, request.GetCollectedBy(userId1));
+            Assert.AreEqual(0, request.GetCollectedBy(userId2));
+            Assert.AreEqual(contribution1, request.TotalCollectedAmount);
+
+            request.CollectContribution(userId2);
+
+            Assert.AreEqual(contribution1, request.GetContributedBy(userId1));
+            Assert.AreEqual(contribution2, request.GetContributedBy(userId2));
+            Assert.AreEqual(contribution1 + contribution2, request.TotalReceivedAmount);
+            Assert.AreEqual(contribution1, request.GetCollectedBy(userId1));
+            Assert.AreEqual(contribution2, request.GetCollectedBy(userId2));
+            Assert.AreEqual(contribution1 + contribution2, request.TotalCollectedAmount);
         }
     }
 }

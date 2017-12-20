@@ -152,13 +152,13 @@ namespace SocialPoint.Social
 
             int diff = received - collected;
 
-            if(_receivedMap.ContainsKey(contributorId))
+            if(_collectedMap.ContainsKey(contributorId))
             {
-                _receivedMap[contributorId] += received;
+                _collectedMap[contributorId] += received;
             }
             else
             {
-                _receivedMap.Add(contributorId, received);
+                _collectedMap.Add(contributorId, received);
             }
             TotalCollectedAmount += diff;
         }
