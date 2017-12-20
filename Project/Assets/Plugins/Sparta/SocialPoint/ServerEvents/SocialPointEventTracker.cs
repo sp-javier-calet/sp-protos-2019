@@ -512,8 +512,9 @@ namespace SocialPoint.ServerEvents
             }
             req.AddHeader(HttpRequest.ContentTypeHeader, HttpRequest.ContentTypeJson);
             req.CompressBody = true;
+            var sessionId = LoginData.SessionId;
             _httpConn = HttpClient.Send(req, resp => {
-                OnHttpResponse(resp, sentEvents, LoginData.SessionId);
+                OnHttpResponse(resp, sentEvents, sessionId);
                 if(finish != null)
                 {
                     finish();
@@ -540,9 +541,9 @@ namespace SocialPoint.ServerEvents
                 }
             }
             
-            if(!_synced && MaxOutOfSyncInterval > 0 && _syncTimestamp + MaxOutOfSyncInterval < CurrentTimestamp && GeneralError != null)
+            if(!_synced && MaxOutOfSyncInterval > 0 && _syncTimestamp + MaxOutOfSyncInterval < CurrentTimestamp)
             {
-                GeneralError(EventTrackerErrorType.OutOfSync, new Error("Too much time passed without sync."));
+                TriggerGeneralError(EventTrackerErrorType.OutOfSync, new Error("Too much time passed without sync."));
             }
             
             return _synced;
@@ -580,21 +581,46 @@ namespace SocialPoint.ServerEvents
                     _pendingEvents.Remove(ev);
                 }
             }
-            if(synced && error != null && error.HasError && GeneralError != null)
+            if(synced && error != null && error.HasError)
             {
                 if(error.Code == SessionLostErrorStatusCode)
                 {
-                    // ignore the error if it comes from an old session
                     if(sessiondId == LoginData.SessionId)
                     {
-                        GeneralError(EventTrackerErrorType.SessionLost, error);
+                        TriggerGeneralError(EventTrackerErrorType.SessionLost, error);
+                    }
+                    else
+                    {
+                        LogOldSessionEvents(sentEvents);
                     }
                 }
                 else
                 {
-                    GeneralError(EventTrackerErrorType.HttpResponse, error);
+                    TriggerGeneralError(EventTrackerErrorType.HttpResponse, error);
                 }
             }
+        }
+
+        void TriggerGeneralError(EventTrackerErrorType type, Error error)
+        {
+            if(GeneralError != null)
+            {
+                GeneralError(type, error);
+            }
+        }
+
+        void LogOldSessionEvents(List<Event> sentEvents)
+        {
+            var evNames = new StringBuilder();
+            for(var i = 0; i < sentEvents.Count; i++)
+            {
+                if(i > 0)
+                {
+                    evNames.Append(", ");
+                }
+                evNames.AppendFormat("'%s'", sentEvents[i].Name);
+            }
+            Log.w("Tried to send authorized track "+evNames+" with old session id.");
         }
 
         void ApplyBackoff(bool success)
@@ -730,10 +756,7 @@ namespace SocialPoint.ServerEvents
             #if UNITY_EDITOR
             DebugUtils.Stop();
             #else
-            if(GeneralError != null)
-            {
-                GeneralError(EventTrackerErrorType.Exception, new Error(e.ToString()));
-            }
+            TriggerGeneralError(EventTrackerErrorType.Exception, new Error(e.ToString()));
             #endif
         }
     }
