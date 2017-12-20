@@ -1,4 +1,6 @@
-﻿using SocialPoint.GUIControl;
+﻿using System;
+using SocialPoint.Base;
+using SocialPoint.GUIControl;
 using SocialPoint.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -33,7 +35,7 @@ public class SafeAreaWindow : EditorWindow
     {
         if(_screenSize == Vector2.zero)
         {
-            var currentScreeSize = UnityGameWindowUtils.GetMainGameViewSize();
+            var currentScreeSize = GetMainGameViewSize();
             _screenSize = currentScreeSize;
         }
 
@@ -72,7 +74,7 @@ public class SafeAreaWindow : EditorWindow
             _showSafeArea = EditorGUILayout.Toggle("Show Safe Area:", _showSafeArea);
             if(_showSafeArea)
             {
-                var currentScreeSize = UnityGameWindowUtils.GetMainGameViewSize();
+                var currentScreeSize = GetMainGameViewSize();
                 if(_screenSize != currentScreeSize)
                 {
                     // If we have changed the game resolution we need to setup and apply the correct safe area
@@ -119,7 +121,7 @@ public class SafeAreaWindow : EditorWindow
 
                 EditorGUILayout.Space();
 
-                var views = FindObjectsOfType<UISafeAreaViewController>();
+                var views = FindObjectsOfType<UISafeAreaView>();
                 if(views.Length == 0)
                 {
                     EditorGUILayout.LabelField("Help: No UIVIewcontroller with UISafeAreaViewController found in the hierarchy", EditorStyles.helpBox);
@@ -139,7 +141,7 @@ public class SafeAreaWindow : EditorWindow
                                 EditorGUILayout.LabelField(root.name);
                             }
 
-                            EditorGUILayout.ObjectField(view, typeof(Object), true);
+                            EditorGUILayout.ObjectField(view, typeof(UnityEngine.Object), true);
                         }
                     }
                 }
@@ -186,7 +188,7 @@ public class SafeAreaWindow : EditorWindow
 
         var finalRect = new Rect(rect.x * ratioX, rect.y * ratioY, rect.width * ratioX, rect.height * ratioY);
 
-        var views = FindObjectsOfType<UISafeAreaViewController>();
+        var views = FindObjectsOfType<UISafeAreaView>();
         for(int i = 0; i < views.Length; ++i)
         {
             var view = views[i];
@@ -202,5 +204,27 @@ public class SafeAreaWindow : EditorWindow
     static float ConvertRectToScreenResolution(float value, float screenValue, float gameScreenValue)
     {
         return value * screenValue / gameScreenValue;
+    }
+
+    /// <summary>
+    /// Size of the game view cannot be retrieved from Screen.width and Screen.height when the game view is hidden.
+    /// </summary>
+    // summa
+    static Vector2 GetMainGameViewSize()
+    {
+        Type type = Type.GetType("UnityEditor.GameView,UnityEditor");
+        var methodInfo = type.GetMethod("GetMainGameViewTargetSize", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+
+        Func<Vector2> s_GetSizeOfMainGameView = null;
+        if(methodInfo != null)
+        {
+            s_GetSizeOfMainGameView = (Func<Vector2>)Delegate.CreateDelegate(typeof(Func<Vector2>), methodInfo);
+        }
+        else
+        {
+            Log.w("Unable to get the main game view size function");
+        }
+
+        return s_GetSizeOfMainGameView != null ? s_GetSizeOfMainGameView() : new Vector2(Screen.width, Screen.height);
     }
 }

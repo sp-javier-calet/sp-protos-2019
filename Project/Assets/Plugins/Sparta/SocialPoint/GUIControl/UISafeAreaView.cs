@@ -1,11 +1,11 @@
 ﻿using SocialPoint.Attributes;
+using SocialPoint.Dependency;
 using SocialPoint.Hardware;
 using UnityEngine;
-using SocialPoint.Dependency;
 
 namespace SocialPoint.GUIControl
 {
-    public class UISafeAreaViewController : MonoBehaviour 
+    public class UISafeAreaView : MonoBehaviour 
     {
         const string kPersistentTag = "persistent";
         const string kCustomX = "CustomSafeAreaX";

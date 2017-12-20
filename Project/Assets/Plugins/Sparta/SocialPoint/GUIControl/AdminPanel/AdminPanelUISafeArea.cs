@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace SocialPoint.GUIControl
 {
-    public sealed class AdminPanelUI : IAdminPanelGUI, IAdminPanelConfigurer
+    public sealed class AdminPanelUISafeArea : IAdminPanelGUI
     {
         const string kCustomX = "CustomSafeAreaX";
         const string kCustomY = "CustomSafeAreaY";
@@ -28,7 +28,7 @@ namespace SocialPoint.GUIControl
         readonly IAttrStorage _storage;
         readonly IDeviceInfo _deviceInfo;
 
-        public AdminPanelUI(IDeviceInfo deviceInfo, IAttrStorage persistentStorage)
+        public AdminPanelUISafeArea(IDeviceInfo deviceInfo, IAttrStorage persistentStorage)
         {
             _deviceInfo = deviceInfo;
             _storage = persistentStorage;
@@ -36,15 +36,6 @@ namespace SocialPoint.GUIControl
             LoadCustomSafeArea();
         }
             
-        #region IAdminPanelConfigurer implementation
-
-        public void OnConfigure(AdminPanel.AdminPanel adminPanel)
-        {
-            adminPanel.RegisterGUI("System", new AdminPanelNestedGUI("UI", this));
-        }
-
-        #endregion
-
         #region IAdminPanelGUI implementation
 
         AdminPanelLayout _layout;
@@ -160,7 +151,7 @@ namespace SocialPoint.GUIControl
 
             var finalRect = new Rect(rect.x * ratioX, rect.y * ratioY, rect.width * ratioX, rect.height * ratioY);
 
-            var views = Object.FindObjectsOfType<UISafeAreaViewController>();
+            var views = Object.FindObjectsOfType<UISafeAreaView>();
             for(int i = 0; i < views.Length; ++i)
             {
                 var view = views[i];
