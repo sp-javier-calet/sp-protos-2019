@@ -16,6 +16,23 @@ namespace SocialPoint.Crash
         }
     }
 
+    class ExceptionThrowerAction : IUpdateable
+    {
+        IUpdateScheduler _scheduler;
+
+        public ExceptionThrowerAction(IUpdateScheduler scheduler)
+        {
+            _scheduler = scheduler;
+            _scheduler.Add(this);
+        }
+
+        public void Update()
+        {
+            _scheduler.Remove(this);
+            throw new AdminPanelCrashReporterException();
+        }
+    }
+
     public sealed class AdminPanelCrashReporter : IAdminPanelGUI, IAdminPanelConfigurer
     {
         ICrashReporter _reporter;
@@ -23,16 +40,13 @@ namespace SocialPoint.Crash
         Text _textAreaComponent;
         bool _showOldBreadcrumbs;
         AdminPanelConsole _console;
-        ScheduledAction _exceptionThrowerAction;
+        IUpdateScheduler _scheduler;
 
         public AdminPanelCrashReporter(ICrashReporter reporter, IBreadcrumbManager breadcrumbs, IUpdateScheduler scheduler)
         {
             _reporter = reporter;
             _breadcrumbs = breadcrumbs;
-            _exceptionThrowerAction = new ScheduledAction(scheduler, () => {
-                _exceptionThrowerAction.Stop();
-                throw new AdminPanelCrashReporterException();
-            });
+            _scheduler = scheduler;
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -111,7 +125,13 @@ namespace SocialPoint.Crash
                     }
                 });
 
-                layout.CreateConfirmButton("Force Exception in Update()", ButtonColor.Red, () => _exceptionThrowerAction.Start());
+                if(_scheduler != null)
+                {
+                    layout.CreateConfirmButton("Force Exception in Update()", ButtonColor.Red, () => {
+                        new ExceptionThrowerAction(_scheduler);
+                        new ExceptionThrowerAction(_scheduler);
+                    });
+                }
                 layout.CreateMargin(2);
 
                 layout.CreateConfirmButton("Force crash", ButtonColor.Red, _reporter.ForceCrash);
