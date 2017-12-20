@@ -20,36 +20,34 @@ namespace SocialPoint.Social
 
         #region String Keys
 
-        const string kUserId = "user_id";
-        const string kItemId = "item_id";
-        const string kAmount = "amount";
-        const string kRequesterId = "requester_id";
-        const string kRequestUuid = "donation_id";
-        const string kContributorId = "contributor_id";
-        const string kType = "type";
-        const string kDonationType = "donation_type";
-        const string kCreatedAt = "created_at";
-        const string kTs = "ts";
-        const string kMetadata = "metadata";
+        public const string kUserId = "user_id";
+        public const string kItemId = "item_id";
+        public const string kAmount = "amount";
+        public const string kRequesterId = "requester_id";
+        public const string kRequestUuid = "donation_id";
+        public const string kContributorId = "contributor_id";
+        public const string kType = "type";
+        public const string kDonationType = "donation_type";
+        public const string kCreatedAt = "created_at";
+        public const string kTs = "ts";
+        public const string kMetadata = "metadata";
          
-        const string kResultOperation = "result";
-        const string kDonations = "donations";
-        const string kStats = "stats";
-        const string kNbRequest = "nb_request";
-        const string kNbDonation = "nb_donation";
-        const string kEndCooldownTs = "end_cooldown_ts";
-        const string kContributions = "contributions";
-        const string kAmountContributed = "amount_contributed";
-        const string kAmountCollected = "amount_collected";
+        public const string kResultOperation = "result";
+        public const string kDonations = "donations";
+        public const string kStats = "stats";
+        public const string kNbRequest = "nb_request";
+        public const string kNbDonation = "nb_donation";
+        public const string kEndCooldownTs = "end_cooldown_ts";
+        public const string kContributions = "contributions";
+        public const string kAmountContributed = "amount_contributed";
+        public const string kAmountCollected = "amount_collected";
          
-        const string kDonationLoginMethod = "donation.login";
-        const string kDonationRequestMethod = "donation.request";
-        const string kDonationContributeMethod = "donation.contribute";
-        const string kDonationCollectMethod = "donation.collect";
-        const string kDonationRemoveMethod = "donation.remove";
+        public const string kDonationLoginMethod = "donation.login";
+        public const string kDonationRequestMethod = "donation.request";
+        public const string kDonationContributeMethod = "donation.contribute";
+        public const string kDonationCollectMethod = "donation.collect";
+        public const string kDonationRemoveMethod = "donation.remove";
          
-        const string ErrorTag = "donations_manager";
-
         #endregion
 
         public event Action<ActionType, AttrDic> DonationsSignal;
@@ -62,7 +60,7 @@ namespace SocialPoint.Social
 
         public TimeSpan EndCooldownTs{ get; private set; }
 
-        ConnectionManager _connectionManager;
+        IConnectionManager _connectionManager;
         List<ItemRequest> _itemsRequests;
 
         public ReadOnlyCollection<ItemRequest> ItemsRequests
@@ -78,7 +76,7 @@ namespace SocialPoint.Social
             _itemsRequests = new List<ItemRequest>();
         }
 
-        public void Setup(ConnectionManager connectionManager)
+        public void Setup(IConnectionManager connectionManager)
         {
             _connectionManager = connectionManager;
 
@@ -462,27 +460,32 @@ namespace SocialPoint.Social
         {
             var itemRequest = new ItemRequest(requesterId, requestUuid, itemId, amount, donationType, timestamp, metadata);
             _itemsRequests.Add(itemRequest);
+            NumRequests++;
             return itemRequest;
         }
 
         void RemoveItemRequest(long requesterId, string requestUuid)
         {
-            _itemsRequests.RemoveAll(element => element.RequesterId == requesterId && element.RequestUuid == requestUuid);
+            var removed = _itemsRequests.RemoveAll(element => element.RequesterId == requesterId && element.RequestUuid == requestUuid);
+            NumRequests -= removed;
         }
 
         void RemoveUserRequests(string type)
         {
-            _itemsRequests.RemoveAll(element => element.DonationType == type);
+            var removed = _itemsRequests.RemoveAll(element => element.DonationType == type);
+            NumRequests -= removed;
         }
 
         void RemoveUserRequests(long requesterId, string type)
         {
-            _itemsRequests.RemoveAll(element => element.DonationType == type && element.RequesterId == requesterId);
+            var removed = _itemsRequests.RemoveAll(element => element.DonationType == type && element.RequesterId == requesterId);
+            NumRequests -= removed;
         }
 
         void AddContribution(ItemRequest itemRequest, long contributorId, int amount)
         {
             itemRequest.AddContribution(contributorId, amount);
+            NumDonations++;
         }
 
         void CollectContribution(ItemRequest itemRequest, long contributorId)
