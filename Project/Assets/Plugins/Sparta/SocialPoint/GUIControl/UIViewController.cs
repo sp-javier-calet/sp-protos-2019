@@ -35,9 +35,11 @@ namespace SocialPoint.GUIControl
         public UIViewAnimation DisappearAnimation;
 
         bool _loaded;
-        ViewState _viewState = ViewState.Initial;
         Coroutine _showCoroutine;
         Coroutine _hideCoroutine;
+
+        [SerializeField]
+        ViewState _viewState = ViewState.Initial;
 
         [HideInInspector]
         public UIViewController ParentController;

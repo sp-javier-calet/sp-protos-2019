@@ -36,7 +36,7 @@ namespace SocialPoint.Alert
                 return true;
                 #else
                 return false;
-                #endif 
+                #endif
             }
         }
 

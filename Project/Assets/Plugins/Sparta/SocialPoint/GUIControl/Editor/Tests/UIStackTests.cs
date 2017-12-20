@@ -133,7 +133,7 @@ namespace SocialPoint.GUIControl
             for(int i = 0; i < stack.Count; ++i)
             {
                 var elm = stack[i];
-                if(UITestStackController.IsValidStackNode(elm))
+                if(StackNode.IsValid(elm))
                 {
                     if(elm.IsDesiredToShow)
                     {

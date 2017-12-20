@@ -98,7 +98,7 @@ public class FullUITestingController : MonoBehaviour
         else if(Input.GetKeyUp(KeyCode.Alpha6))
         {
             var top = _stackController.Top;
-            if(_stackController.IsValidStackNode(top))
+            if(StackNode.IsValid(top))
             {
                 _latestCheckPoint = top.GameObject.name;
                 _stackController.SetCheckPoint(_latestCheckPoint);
