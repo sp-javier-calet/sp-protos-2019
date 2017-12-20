@@ -88,27 +88,6 @@ namespace SocialPoint.ServerEvents
         }
 
         [Test]
-        public void Trigger_GeneralError_If_Invalid_Session()
-        {
-            HttpResponseDelegate respDelegate = null;
-            _tracker.HttpClient.Send(Arg.Any<HttpRequest>(), Arg.Do<HttpResponseDelegate>(dlg => {
-                respDelegate = dlg;
-            }));
-            var resp = new HttpResponse(482);
-            resp.Error = new Error(resp.StatusCode, "HTTP Server responded with error code.");
-
-            var gotError = false;
-            _tracker.GeneralError += (EventTrackerErrorType type, Error err) => {
-                gotError = type == EventTrackerErrorType.SessionLost;
-            };
-            _tracker.TrackSystemEvent("Test event");
-            _tracker.Send();
-            respDelegate(resp);
-
-            Assert.IsTrue(gotError);
-        }
-
-        [Test]
         public void Avoid_GeneralError_If_Old_Session()
         {
             HttpResponseDelegate respDelegate = null;
@@ -122,13 +101,30 @@ namespace SocialPoint.ServerEvents
             _tracker.GeneralError += (EventTrackerErrorType type, Error err) => {
                 gotError = type == EventTrackerErrorType.SessionLost;
             };
+            _tracker.Send();
+            respDelegate(resp);
+
+            Assert.IsTrue(gotError);
+            gotError = false;
+
+            _tracker.LoginData.SessionId.Returns("old session");
 
             _tracker.TrackSystemEvent("Test event");
+            _tracker.TrackSystemEvent("Other event");
             _tracker.Send();
+
             _tracker.LoginData.SessionId.Returns("new session");
+
+            string logMsg = null;
+            Application.logMessageReceived += (condition, stackTrace, type) => {
+                Assert.AreEqual(LogType.Warning, type);
+                logMsg = condition;
+            };
+
             respDelegate(resp);
 
             Assert.IsFalse(gotError);
+            Assert.AreEqual("Tried to send authorized track 'Test event', 'Other event' with old session id.", logMsg);
         }
 
         [TearDown]

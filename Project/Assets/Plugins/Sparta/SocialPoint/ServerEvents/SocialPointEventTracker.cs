@@ -618,7 +618,7 @@ namespace SocialPoint.ServerEvents
                 {
                     evNames.Append(", ");
                 }
-                evNames.AppendFormat("'%s'", sentEvents[i].Name);
+                evNames.AppendFormat("'{0}'", sentEvents[i].Name);
             }
             Log.w("Tried to send authorized track "+evNames+" with old session id.");
         }
