@@ -153,10 +153,7 @@ void SPUnityHardwareGetMemoryStatistics(vm_statistics_data_t& vm_stat, vm_size_t
 
 EXPORT_API uint64_t SPUnityHardwareGetTotalMemory()
 {
-    vm_statistics_data_t vm_stat;
-    vm_size_t pagesize;
-    SPUnityHardwareGetMemoryStatistics(vm_stat, pagesize);
-    return (vm_stat.active_count + vm_stat.inactive_count + vm_stat.wire_count + vm_stat.free_count) * pagesize;
+    return [NSProcessInfo processInfo].physicalMemory;
 }
 
 EXPORT_API uint64_t SPUnityHardwareGetFreeMemory()
