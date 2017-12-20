@@ -44,7 +44,7 @@ namespace SocialPoint.GUIControl
         IList<StackNode> _views = new List<StackNode>();
         IAppEvents _appEvents;
         bool _enabled;
-        public bool Enabled
+        public bool IsEnabled
         {
             get
             {
@@ -531,7 +531,7 @@ namespace SocialPoint.GUIControl
                         // disabling the whole UIStackController directly
 
                         // We have added a isPlaying check to do this properly UnityTests
-                        if(Enabled)
+                        if(IsEnabled)
                         {
                             ctrl.DestroyOnHide = true;
                         }
