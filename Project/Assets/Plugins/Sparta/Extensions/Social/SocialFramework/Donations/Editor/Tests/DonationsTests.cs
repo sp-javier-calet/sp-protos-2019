@@ -99,9 +99,9 @@ namespace SocialPoint.Social
         {
             _connection.When(x => x.Call(rpc, Arg.Any<AttrList>(), Arg.Any<AttrDic>(), Arg.Any<HandlerCall>()))
                 .Do(callInfo => {
-                    var resultHandler = (HandlerCall)callInfo.Args()[3];
-                    resultHandler(new Error(), null, null);
-                });
+                var resultHandler = (HandlerCall)callInfo.Args()[3];
+                resultHandler(new Error(), null, null);
+            });
         }
 
         [Test]
@@ -359,6 +359,87 @@ namespace SocialPoint.Social
             Assert.AreEqual(1, numsHandlerExecuted);
             Assert.AreEqual(contributionAmount1 + contributionAmount2, request.TotalReceivedAmount);
             Assert.AreEqual(collectAmount1 + collectAmount2, request.TotalCollectedAmount);
+        }
+
+        [Test]
+        public void DonationsSignal()
+        {
+            LoginManager();
+
+            const string uuid = "ABCD";
+            AddItemRequest(kLocalUserId, uuid, 0, 0, "", new AttrDic());
+            _donationsSignal.Received(1).Invoke(DonationsManager.ActionType.OnDonationRequestReceived, Arg.Any<AttrDic>());
+
+            AddItemContribution(963, uuid, 0);
+            _donationsSignal.Received(1).Invoke(DonationsManager.ActionType.OnDonationContributeReceived, Arg.Any<AttrDic>());
+
+            {
+                var notificationDic = new AttrDic();
+                notificationDic.SetValue(DonationsManager.kUserId, kLocalUserId);
+                notificationDic.SetValue(DonationsManager.kRequestUuid, uuid);
+                _connection.OnNotificationReceived += Raise.Event<NotificationReceivedDelegate>(NotificationType.BroadcastDonationRemove, string.Empty, notificationDic);
+            }
+            _donationsSignal.Received(1).Invoke(DonationsManager.ActionType.OnDonationRequestRemoved, Arg.Any<AttrDic>());
+        }
+
+        [Test]
+        public void DonationsSignalRemoveOwnUser()
+        {
+            LoginManager();
+
+            const string uuid = "ABCD";
+            const string donationType1 = "type1";
+            const string donationType2 = "type2";
+            const long anotherUser = 159;
+
+            AddItemRequest(kLocalUserId, uuid, 0, 0, donationType1, new AttrDic());
+            AddItemRequest(kLocalUserId, uuid, 0, 0, donationType2, new AttrDic());
+            AddItemRequest(anotherUser, uuid, 0, 0, donationType1, new AttrDic());
+
+            Assert.AreEqual(3, _manager.NumRequests);
+
+            {
+                var notificationDic = new AttrDic();
+                notificationDic.SetValue(DonationsManager.kUserId, kLocalUserId);
+                notificationDic.SetValue(DonationsManager.kDonationType, donationType1);
+                _connection.OnNotificationReceived += Raise.Event<NotificationReceivedDelegate>(NotificationType.BroadcastDonationUserRemove, string.Empty, notificationDic);
+            }
+            _donationsSignal.Received(1).Invoke(DonationsManager.ActionType.OnDonationRequestUserRemoved, Arg.Any<AttrDic>());
+
+            Assert.AreEqual(1, _manager.NumRequests);
+            Assert.AreEqual(donationType2, _manager.ItemsRequests.First().DonationType);
+            Assert.AreEqual(kLocalUserId, _manager.ItemsRequests.First().RequesterId);
+        }
+
+        [Test]
+        public void DonationsSignalRemoveOtherUser()
+        {
+            LoginManager();
+
+            const string uuid = "ABCD";
+            const string donationType1 = "type1";
+            const string donationType2 = "type2";
+            const long anotherUser = 159;
+
+            AddItemRequest(kLocalUserId, uuid, 0, 0, donationType1, new AttrDic());
+            AddItemRequest(kLocalUserId, uuid, 0, 0, donationType2, new AttrDic());
+            AddItemRequest(anotherUser, uuid, 0, 0, donationType1, new AttrDic());
+
+            Assert.AreEqual(3, _manager.NumRequests);
+
+            {
+                var notificationDic = new AttrDic();
+                notificationDic.SetValue(DonationsManager.kUserId, anotherUser);
+                notificationDic.SetValue(DonationsManager.kDonationType, donationType1);
+                _connection.OnNotificationReceived += Raise.Event<NotificationReceivedDelegate>(NotificationType.BroadcastDonationUserRemove, string.Empty, notificationDic);
+            }
+            _donationsSignal.Received(1).Invoke(DonationsManager.ActionType.OnDonationRequestUserRemoved, Arg.Any<AttrDic>());
+
+            Assert.AreEqual(2, _manager.NumRequests);
+            foreach(var request in _manager.ItemsRequests)
+            {
+                Assert.AreEqual(kLocalUserId, request.RequesterId);
+            }
         }
     }
 }
