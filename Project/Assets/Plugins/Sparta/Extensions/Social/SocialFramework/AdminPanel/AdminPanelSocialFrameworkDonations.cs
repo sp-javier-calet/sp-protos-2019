@@ -1,16 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿#if ADMIN_PANEL 
 
-public class AdminPanelSocialFrameworkDonations : MonoBehaviour {
+using SocialPoint.AdminPanel;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+namespace SocialPoint.Social
+{
+    public class AdminPanelSocialFrameworkDonations : IAdminPanelGUI
+    {
+        public void OnCreateGUI(AdminPanelLayout layout)
+        {
+            throw new System.NotImplementedException();
+        }
+    }
 }
+#endif
