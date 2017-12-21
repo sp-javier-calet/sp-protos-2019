@@ -61,28 +61,6 @@ namespace SocialPoint.Network
                 return;
             }
 
-            // leer de net stream en mem stream
-//        byte[] bytes = new byte[bytesAvailable];
-//        _netStream.Read(bytes, 0, bytesAvailable);
-//        _memStream.Write(bytes, 0, bytesAvailable);
-
-//        _memStream.Seek(0, SeekOrigin.Begin);
-//
-//        Type = _reader.ReadByte();
-//
-//        Length = _reader.ReadInt32();
-//        UnityEngine.Debug.Log("LENGHT "+Length);
-//
-//        if(MessageReceived != null)
-//        {
-//            MessageReceived(new NetworkMessageData {
-//                MessageType = Type,
-//                ClientIds = { _clientId }
-//            }, _reader);
-//        }
-//        _memStream.Seek(0, SeekOrigin.Begin);
-
-
             byte[] bytes = new byte[1];
             _netStream.Read(bytes, 0, sizeof(byte));
             _memStream.Write(bytes, 0, sizeof(byte));

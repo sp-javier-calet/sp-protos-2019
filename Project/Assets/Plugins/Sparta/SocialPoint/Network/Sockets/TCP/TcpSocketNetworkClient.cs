@@ -138,12 +138,11 @@ namespace SocialPoint.Network
 
         bool IsClientDisconnected()
         {
-            if( _client.Client.Poll( 0, SelectMode.SelectRead ) )
+            if(_client.Client.Poll(0, SelectMode.SelectRead))
             {
                 byte[] buff = new byte[1];
-                if( _client.Client.Receive( buff, SocketFlags.Peek ) == 0 )
+                if(_client.Client.Receive(buff, SocketFlags.Peek) == 0)
                 {
-                    // Client disconnected
                     return true;
                 }
             }

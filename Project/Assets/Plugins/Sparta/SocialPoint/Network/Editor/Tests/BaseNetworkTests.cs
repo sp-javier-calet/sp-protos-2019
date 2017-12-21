@@ -224,7 +224,10 @@ namespace SocialPoint.Network
         {
             _server.Start();
             var sdlg = Substitute.For<INetworkServerDelegate>();
-            sdlg.WhenForAnyArgs(x => x.OnClientConnected(Arg.Any<byte>())).Do(x => _server.SendMessage(new NetworkMessageData { ClientIds = new List<byte>(){ 1 }, MessageType = 1} , Substitute.For<INetworkShareable>()));
+            sdlg.WhenForAnyArgs(x => x.OnClientConnected(Arg.Any<byte>())).Do(x => _server.SendMessage(new NetworkMessageData {
+                ClientIds = new List<byte>(){ 1 },
+                MessageType = 1
+            }, Substitute.For<INetworkShareable>()));
             _server.AddDelegate(sdlg);
             var cdlg = Substitute.For<INetworkClientDelegate>();
             _client.AddDelegate(cdlg);
@@ -232,7 +235,10 @@ namespace SocialPoint.Network
 
             WaitForEvents();
 
-            cdlg.Received().OnMessageReceived(new NetworkMessageData {ClientIds = new List<byte>(){ 1 }, MessageType = 1});
+            cdlg.Received().OnMessageReceived(new NetworkMessageData {
+                ClientIds = new List<byte>(){ 1 },
+                MessageType = 1
+            });
         }
     }
 }

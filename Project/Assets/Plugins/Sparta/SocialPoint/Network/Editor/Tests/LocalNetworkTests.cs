@@ -21,7 +21,7 @@ namespace SocialPoint.Network
         [Test]
         public void ReceivedNetworkMessageData()
         {
-            var msg = new LocalNetworkMessage(new NetworkMessageData{}, new LocalNetworkClient[0]);
+            var msg = new LocalNetworkMessage(new NetworkMessageData{ }, new LocalNetworkClient[0]);
             msg.Writer.Write("test");
             msg.Send();
             var reader = msg.Receive();
@@ -58,6 +58,58 @@ namespace SocialPoint.Network
 
             WaitForEvents();
             sdlg.Received(1).OnServerStarted();
+        }
+
+        [Test]
+        public void ServerDelegateCalledTwice()
+        {
+            var sdlg = Substitute.For<INetworkServerDelegate>();
+            _server.AddDelegate(sdlg);
+            _server.Start();
+            _server.Start();
+
+            WaitForEvents();
+            sdlg.Received(1).OnServerStarted();
+
+            _client.Connect();
+            _client.Connect();
+
+            WaitForEvents();
+            sdlg.Received(1).OnClientConnected(1);
+
+            _client.Disconnect();
+            _client.Disconnect();
+
+            WaitForEvents();
+            sdlg.Received(1).OnClientDisconnected(1);
+
+            _server.Stop();
+            _server.Stop();
+
+            WaitForEvents();
+            sdlg.Received(1).OnServerStopped();
+        }
+
+        [Test]
+        public void ClientDelegateCalledTwice()
+        {
+            var cdlg = Substitute.For<INetworkClientDelegate>();
+            _client.AddDelegate(cdlg);
+
+            _server.Start();
+            _server.Start();           
+
+            _client.Connect();
+            _client.Connect();
+
+            WaitForEvents();
+            cdlg.Received(1).OnClientConnected();
+
+            _client.Disconnect();
+            _client.Disconnect();
+
+            WaitForEvents();
+            cdlg.Received(1).OnClientDisconnected();
         }
     }
 }
