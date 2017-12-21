@@ -95,10 +95,15 @@ namespace SocialPoint.Social
             _connection.OnProcessServices += Raise.Event<Action<AttrDic>>(GetDefaultServicesDic());
         }
 
-        void RegisterSuccessHandlerForRPC(string rpc)
+        void RegisterSuccessHandlerForRPC(string rpc, Action actionBeforeCompletion)
         {
+            _connection.ClearReceivedCalls();
             _connection.When(x => x.Call(rpc, Arg.Any<AttrList>(), Arg.Any<AttrDic>(), Arg.Any<HandlerCall>()))
                 .Do(callInfo => {
+                if(actionBeforeCompletion != null)
+                {
+                    actionBeforeCompletion();
+                }
                 var resultHandler = (HandlerCall)callInfo.Args()[3];
                 resultHandler(new Error(), null, null);
             });
@@ -170,7 +175,7 @@ namespace SocialPoint.Social
 
             LoginManager();
 
-            RegisterSuccessHandlerForRPC(DonationsManager.kDonationRequestMethod);
+            RegisterSuccessHandlerForRPC(DonationsManager.kDonationRequestMethod, null);
 
             var executed = false;
             Action<Error, ItemRequest> handler = (err, item) => {
@@ -227,7 +232,7 @@ namespace SocialPoint.Social
             LoginManager();
             AddItemRequest(requesterId, uuid, itemId, amount, type, new AttrDic());
 
-            RegisterSuccessHandlerForRPC(DonationsManager.kDonationContributeMethod);
+            RegisterSuccessHandlerForRPC(DonationsManager.kDonationContributeMethod, null);
 
             const int donateAmount = 6;
             var executed = false;
@@ -266,7 +271,7 @@ namespace SocialPoint.Social
             const string type = "fake_type";
 
             LoginManager();
-            RegisterSuccessHandlerForRPC(DonationsManager.kDonationCollectMethod);
+            RegisterSuccessHandlerForRPC(DonationsManager.kDonationCollectMethod, null);
 
             var numsHandlerExecuted = 0;
             Action<Error> handler = err => {
@@ -282,14 +287,14 @@ namespace SocialPoint.Social
             const int contributionAmount1 = 4;
             AddItemContribution(contributorId1, uuid, contributionAmount1);
 
-            _manager.CollectItem(contributorId1, uuid, contributionAmount1, type, handler);
+            _manager.CollectItem(contributorId1, uuid, type, handler);
             Assert.AreEqual(1, numsHandlerExecuted);
             Assert.AreEqual(contributionAmount1, request.TotalReceivedAmount);
             Assert.AreEqual(contributionAmount1, request.TotalCollectedAmount);
         }
 
         [Test]
-        public void CollectItemDifferentAmount()
+        public void CollectItemWhileReceivingNewContribution()
         {
             const string uuid = "A-B-C-D";
             const int itemId = 10;
@@ -297,7 +302,6 @@ namespace SocialPoint.Social
             const string type = "fake_type";
 
             LoginManager();
-            RegisterSuccessHandlerForRPC(DonationsManager.kDonationCollectMethod);
 
             var numsHandlerExecuted = 0;
             Action<Error> handler = err => {
@@ -311,17 +315,25 @@ namespace SocialPoint.Social
 
             const long contributorId1 = 852;
             const int contributionAmount1 = 4;
+            const int contributionAmount2 = 6;
+            RegisterSuccessHandlerForRPC(DonationsManager.kDonationCollectMethod, () => AddItemContribution(contributorId1, uuid, contributionAmount2));
             AddItemContribution(contributorId1, uuid, contributionAmount1);
 
-            const int collectAmount1 = 3;
-            _manager.CollectItem(contributorId1, uuid, collectAmount1, type, handler);
+            _manager.CollectItem(contributorId1, uuid, type, handler);
+
             Assert.AreEqual(1, numsHandlerExecuted);
-            Assert.AreEqual(contributionAmount1, request.TotalReceivedAmount);
-            Assert.AreEqual(collectAmount1, request.TotalCollectedAmount);
+            Assert.AreEqual(contributionAmount1 + contributionAmount2 * numsHandlerExecuted, request.TotalReceivedAmount);
+            Assert.AreEqual(contributionAmount1 + contributionAmount2 * (numsHandlerExecuted - 1), request.TotalCollectedAmount);
+
+            _manager.CollectItem(contributorId1, uuid, type, handler);
+
+            Assert.AreEqual(2, numsHandlerExecuted);
+            Assert.AreEqual(contributionAmount1 + contributionAmount2 * numsHandlerExecuted, request.TotalReceivedAmount);
+            Assert.AreEqual(contributionAmount1 + contributionAmount2 * (numsHandlerExecuted - 1), request.TotalCollectedAmount);
         }
 
         [Test]
-        public void CollectItemMultipleContributionsAmount()
+        public void CollectItemMultipleContributors()
         {
             const string uuid = "A-B-C-D";
             const int itemId = 10;
@@ -329,7 +341,7 @@ namespace SocialPoint.Social
             const string type = "fake_type";
 
             LoginManager();
-            RegisterSuccessHandlerForRPC(DonationsManager.kDonationCollectMethod);
+            RegisterSuccessHandlerForRPC(DonationsManager.kDonationCollectMethod, null);
 
             var numsHandlerExecuted = 0;
             Action<Error> handler = err => {
@@ -342,23 +354,21 @@ namespace SocialPoint.Social
             Assert.AreEqual(0, request.TotalReceivedAmount);
 
             const long contributorId1 = 852;
+            const long contributorId2 = 963;
             const int contributionAmount1 = 4;
-            AddItemContribution(contributorId1, uuid, contributionAmount1);
-
-            const int collectAmount1 = 3;
-            _manager.CollectItem(contributorId1, uuid, collectAmount1, type, handler);
-            Assert.AreEqual(1, numsHandlerExecuted);
-            Assert.AreEqual(contributionAmount1, request.TotalReceivedAmount);
-            Assert.AreEqual(collectAmount1, request.TotalCollectedAmount);
-
             const int contributionAmount2 = 3;
-            AddItemContribution(contributorId1, uuid, contributionAmount2);
+            AddItemContribution(contributorId1, uuid, contributionAmount1);
+            AddItemContribution(contributorId2, uuid, contributionAmount2);
 
-            const int collectAmount2 = 3;
-            _manager.CollectItem(contributorId1, uuid, collectAmount2, type, handler);
+            _manager.CollectItem(contributorId2, uuid, type, handler);
             Assert.AreEqual(1, numsHandlerExecuted);
             Assert.AreEqual(contributionAmount1 + contributionAmount2, request.TotalReceivedAmount);
-            Assert.AreEqual(collectAmount1 + collectAmount2, request.TotalCollectedAmount);
+            Assert.AreEqual(contributionAmount2, request.TotalCollectedAmount);
+
+            _manager.CollectItem(contributorId1, uuid, type, handler);
+            Assert.AreEqual(2, numsHandlerExecuted);
+            Assert.AreEqual(contributionAmount1 + contributionAmount2, request.TotalReceivedAmount);
+            Assert.AreEqual(contributionAmount1 + contributionAmount2, request.TotalCollectedAmount);
         }
 
         [Test]

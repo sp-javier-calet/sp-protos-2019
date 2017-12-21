@@ -143,7 +143,7 @@ namespace SocialPoint.Social
             TotalReceivedAmount += amount;
         }
 
-        public void CollectContribution(long contributorId)
+        public void CollectContribution(long contributorId, int amount)
         {
             int received;
             int collected;
@@ -151,16 +151,20 @@ namespace SocialPoint.Social
             _collectedMap.TryGetValue(contributorId, out collected);
 
             int diff = received - collected;
+            if(amount > diff)
+            {
+                amount = diff;
+            }
 
             if(_collectedMap.ContainsKey(contributorId))
             {
-                _collectedMap[contributorId] += received;
+                _collectedMap[contributorId] += amount;
             }
             else
             {
-                _collectedMap.Add(contributorId, received);
+                _collectedMap.Add(contributorId, amount);
             }
-            TotalCollectedAmount += diff;
+            TotalCollectedAmount += amount;
         }
 
         public int GetContributedBy(long contributorId)

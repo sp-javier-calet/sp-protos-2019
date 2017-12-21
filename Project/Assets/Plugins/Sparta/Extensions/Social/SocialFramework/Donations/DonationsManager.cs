@@ -202,7 +202,7 @@ namespace SocialPoint.Social
             _connectionManager.Call(kDonationContributeMethod, null, dict, handler);
         }
 
-        public void CollectItem(long contributorId, string requestUuid, int amount, string type, Action<Error> completionCallback)
+        public void CollectItem(long contributorId, string requestUuid, string type, Action<Error> completionCallback)
         {
             if(!IsLoggedIn)
             {
@@ -213,6 +213,8 @@ namespace SocialPoint.Social
             }
 
             long userId = (long)_connectionManager.LoginData.UserId;
+            var req = GetItemRequest(userId, requestUuid);
+            var amount = req.GetContributedBy(contributorId) - req.GetCollectedBy(contributorId);
 
             var dict = new AttrDic();
             dict.SetValue(kUserId, userId.ToString());
@@ -229,7 +231,7 @@ namespace SocialPoint.Social
                 }
 
                 ItemRequest itemRequest = FindItemRequest(userId, requestUuid);
-                CollectContribution(itemRequest, contributorId);
+                CollectContribution(itemRequest, contributorId, amount);
 
                 completionCallback(new Error());
             };
@@ -485,9 +487,9 @@ namespace SocialPoint.Social
             NumDonations++;
         }
 
-        void CollectContribution(ItemRequest itemRequest, long contributorId)
+        void CollectContribution(ItemRequest itemRequest, long contributorId, int amount)
         {
-            itemRequest.CollectContribution(contributorId);
+            itemRequest.CollectContribution(contributorId, amount);
         }
     }
 }

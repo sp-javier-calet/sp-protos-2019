@@ -86,7 +86,7 @@ namespace SocialPoint.Social
 
             Assert.AreEqual(0, request.TotalCollectedAmount);
 
-            request.CollectContribution(userId);
+            request.CollectContribution(userId, contributed);
 
             Assert.AreEqual(contributed, request.TotalCollectedAmount);
         }
@@ -105,7 +105,7 @@ namespace SocialPoint.Social
             Assert.AreEqual(contributed, request.TotalReceivedAmount);
             Assert.AreEqual(collectedInitial, request.TotalCollectedAmount);
 
-            request.CollectContribution(userId);
+            request.CollectContribution(userId, contributed - collectedInitial);
 
             Assert.AreEqual(contributed, request.TotalCollectedAmount);
         }
@@ -145,7 +145,7 @@ namespace SocialPoint.Social
             Assert.AreEqual(0, request.GetCollectedBy(userId2));
             Assert.AreEqual(0, request.TotalCollectedAmount);
 
-            request.CollectContribution(userId1);
+            request.CollectContribution(userId1, contribution1);
 
             Assert.AreEqual(contribution1, request.GetContributedBy(userId1));
             Assert.AreEqual(contribution2, request.GetContributedBy(userId2));
@@ -154,7 +154,7 @@ namespace SocialPoint.Social
             Assert.AreEqual(0, request.GetCollectedBy(userId2));
             Assert.AreEqual(contribution1, request.TotalCollectedAmount);
 
-            request.CollectContribution(userId2);
+            request.CollectContribution(userId2, contribution2);
 
             Assert.AreEqual(contribution1, request.GetContributedBy(userId1));
             Assert.AreEqual(contribution2, request.GetContributedBy(userId2));
