@@ -33,11 +33,10 @@ namespace SocialPoint.Social
         public const string kMetadata = "metadata";
          
         public const string kResultOperation = "result";
-        public const string kDonations = "donations";
+        public const string kDonationsService = "donations";
         public const string kStats = "stats";
-        public const string kNbRequest = "nb_request";
-        public const string kNbDonation = "nb_donation";
         public const string kEndCooldownTs = "end_cooldown_ts";
+        public const string kDonationsList = "donations";
         public const string kContributions = "contributions";
         public const string kAmountContributed = "amount_contributed";
         public const string kAmountCollected = "amount_collected";
@@ -319,19 +318,17 @@ namespace SocialPoint.Social
             Clear();
 
             // backend enabled deferred login
-            if(!servicesDic.ContainsKey(kDonations))
+            if(!servicesDic.ContainsKey(kDonationsService))
             {
                 return;
             }
 
-            var donationsDict = servicesDic.Get(kDonations).AsDic;
+            var donationsDict = servicesDic.Get(kDonationsService).AsDic;
 
             var stats = donationsDict.Get(kStats).AsDic;
-            NumRequests = stats.GetValue(kNbRequest).ToInt();
-            NumDonations = stats.GetValue(kNbDonation).ToInt();
             EndCooldownTs = TimeSpan.FromSeconds(stats.GetValue(kEndCooldownTs).ToLong());
 
-            var donationsList = donationsDict.Get(kDonations).AsList;
+            var donationsList = donationsDict.Get(kDonationsList).AsList;
 
             foreach(var donation in donationsList)
             {
@@ -357,7 +354,7 @@ namespace SocialPoint.Social
                     var amountContributed = contributionDict.GetValue(kAmountContributed).ToInt();
                     var amountCollected = contributionDict.GetValue(kAmountCollected).ToInt();
 
-                    itemRequest.AddContribution(contributorId, amountContributed);
+                    AddContribution(itemRequest, contributorId, amountContributed);
                     itemRequest.SetCollected(contributorId, amountCollected);
                 }
             }

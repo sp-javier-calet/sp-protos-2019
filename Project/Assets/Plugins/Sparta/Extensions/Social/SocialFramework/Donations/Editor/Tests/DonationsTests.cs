@@ -12,13 +12,14 @@ namespace SocialPoint.Social
     [Category("SocialPoint.Social")]
     public class DonationsTests
     {
-        const ulong kLocalUserId = 123456789;
+        const long kLocalUserId = 123456789;
         const int kNumRequests = 10;
-        const int kNumDonations = 10;
+        const int kNumDonations = 2;
         TimeSpan kEndCooldownTS;
 
         DonationsManager _manager;
         IConnectionManager _connection;
+        Action<DonationsManager.ActionType, AttrDic> _donationsSignal;
 
         [SetUp]
         public void Setup()
@@ -29,7 +30,10 @@ namespace SocialPoint.Social
             _connection = Substitute.For<IConnectionManager>();
             _manager.Setup(_connection);
 
-            _connection.LoginData.UserId.Returns(kLocalUserId);
+            _donationsSignal = Substitute.For<Action<DonationsManager.ActionType, AttrDic>>();
+            _manager.DonationsSignal += _donationsSignal;
+
+            _connection.LoginData.UserId.Returns((ulong)kLocalUserId);
         }
 
         AttrDic GetDefaultServicesDic()
@@ -45,22 +49,59 @@ namespace SocialPoint.Social
         AttrDic GetServicesDic(int numRequests, int numDonations, long endCooldownTs)
         {
             var statsDic = new AttrDic();
-            statsDic.SetValue(DonationsManager.kNbRequest, numRequests);
-            statsDic.SetValue(DonationsManager.kNbDonation, numDonations);
             statsDic.SetValue(DonationsManager.kEndCooldownTs, endCooldownTs);
+
+            var requestsList = new AttrList();
+            for(int i = 0; i < numRequests; ++i)
+            {
+                requestsList.Add(GetDonationRequestDic(numDonations));
+            }
 
             var donationsDic = new AttrDic();
             donationsDic.Set(DonationsManager.kStats, statsDic);
+            donationsDic.Set(DonationsManager.kDonationsList, requestsList);
 
             var servicesDic = new AttrDic();
-            servicesDic.Set(DonationsManager.kDonations, donationsDic);
+            servicesDic.Set(DonationsManager.kDonationsService, donationsDic);
 
             return servicesDic;
+        }
+
+        AttrDic GetDonationRequestDic(int numDonations)
+        {
+            var dic = new AttrDic();
+            dic.SetValue(DonationsManager.kRequesterId, "123");
+            dic.SetValue(DonationsManager.kRequestUuid, "F-E-D-C");
+            dic.SetValue(DonationsManager.kItemId, 321);
+            dic.SetValue(DonationsManager.kAmount, 6);
+            dic.SetValue(DonationsManager.kType, "type_fake");
+            dic.SetValue(DonationsManager.kCreatedAt, 654);
+            dic.Set(DonationsManager.kMetadata, new AttrDic());
+            var contributionsList = new AttrList();
+            for(int i = 0; i < numDonations; ++i)
+            {
+                var contribution = new AttrDic();
+                contribution.SetValue(DonationsManager.kContributorId, "789");
+                contribution.SetValue(DonationsManager.kAmountContributed, 2);
+                contribution.SetValue(DonationsManager.kAmountCollected, 1);
+                contributionsList.Add(contribution);
+            }
+            dic.Set(DonationsManager.kContributions, contributionsList);
+            return dic;
         }
 
         void LoginManager()
         {
             _connection.OnProcessServices += Raise.Event<Action<AttrDic>>(GetDefaultServicesDic());
+        }
+
+        void RegisterSuccessHandlerForRPC(string rpc)
+        {
+            _connection.When(x => x.Call(rpc, Arg.Any<AttrList>(), Arg.Any<AttrDic>(), Arg.Any<HandlerCall>()))
+                .Do(callInfo => {
+                    var resultHandler = (HandlerCall)callInfo.Args()[3];
+                    resultHandler(new Error(), null, null);
+                });
         }
 
         [Test]
@@ -72,7 +113,7 @@ namespace SocialPoint.Social
 
             Assert.IsTrue(_manager.IsLoggedIn);
             Assert.AreEqual(kNumRequests, _manager.NumRequests);
-            Assert.AreEqual(kNumDonations, _manager.NumDonations);
+            Assert.AreEqual(kNumDonations * kNumRequests, _manager.NumDonations);
             Assert.AreEqual(kEndCooldownTS, _manager.EndCooldownTs);
         }
 
@@ -96,13 +137,12 @@ namespace SocialPoint.Social
             Assert.IsFalse(_manager.IsLoggedIn);
 
             _connection.When(x => x.Call(DonationsManager.kDonationLoginMethod, Arg.Any<AttrList>(), Arg.Any<AttrDic>(), Arg.Any<HandlerCall>()))
-                .Do(callInfo => 
-                    {
-                        var result = new AttrDic();
-                        result.Set(DonationsManager.kResultOperation, GetFakeServicesDic());
-                        var handler = (HandlerCall)callInfo.Args()[3];
-                        handler(new Error(), null, result);
-                    });
+                .Do(callInfo => {
+                var result = new AttrDic();
+                result.Set(DonationsManager.kResultOperation, GetFakeServicesDic());
+                var handler = (HandlerCall)callInfo.Args()[3];
+                handler(new Error(), null, result);
+            });
 
             bool executed = false;
             _manager.Login(error => {
@@ -113,7 +153,7 @@ namespace SocialPoint.Social
             Assert.IsTrue(executed);
             Assert.IsTrue(_manager.IsLoggedIn);
             Assert.AreEqual(kNumRequests, _manager.NumRequests);
-            Assert.AreEqual(kNumDonations, _manager.NumDonations);
+            Assert.AreEqual(kNumDonations * kNumRequests, _manager.NumDonations);
             Assert.AreEqual(kEndCooldownTS, _manager.EndCooldownTs);
         }
 
@@ -130,12 +170,7 @@ namespace SocialPoint.Social
 
             LoginManager();
 
-            _connection.When(x => x.Call(DonationsManager.kDonationRequestMethod, Arg.Any<AttrList>(), Arg.Any<AttrDic>(), Arg.Any<HandlerCall>()))
-                .Do(callInfo => 
-                    {
-                        var resultHandler = (HandlerCall)callInfo.Args()[3];
-                        resultHandler(new Error(), null, null);
-                    });
+            RegisterSuccessHandlerForRPC(DonationsManager.kDonationRequestMethod);
 
             var executed = false;
             Action<Error, ItemRequest> handler = (err, item) => {
@@ -166,10 +201,10 @@ namespace SocialPoint.Social
             Assert.AreEqual(value, request.Metadata.GetValue(key).ToString());
         }
 
-        void AddItemRequest(long userId, string uuid, int itemId, int amount, string type, AttrDic metadata)
+        void AddItemRequest(long requesterId, string uuid, int itemId, int amount, string type, AttrDic metadata)
         {
             var notificationDic = new AttrDic();
-            notificationDic.SetValue(DonationsManager.kUserId, userId);
+            notificationDic.SetValue(DonationsManager.kUserId, requesterId);
             notificationDic.SetValue(DonationsManager.kRequestUuid, uuid);
             notificationDic.SetValue(DonationsManager.kItemId, itemId);
             notificationDic.SetValue(DonationsManager.kAmount, amount);
@@ -183,21 +218,16 @@ namespace SocialPoint.Social
         [Test]
         public void ContributeItem()
         {
-            const long userId = 147;
+            const long requesterId = 147;
             const string uuid = "A-B-C-D";
             const int itemId = 10;
             const int amount = 12;
             const string type = "fake_type";
 
             LoginManager();
-            AddItemRequest(userId, uuid, itemId, amount, type, new AttrDic());
+            AddItemRequest(requesterId, uuid, itemId, amount, type, new AttrDic());
 
-            _connection.When(x => x.Call(DonationsManager.kDonationContributeMethod, Arg.Any<AttrList>(), Arg.Any<AttrDic>(), Arg.Any<HandlerCall>()))
-                .Do(callInfo => 
-                    {
-                        var resultHandler = (HandlerCall)callInfo.Args()[3];
-                        resultHandler(new Error(), null, null);
-                    });
+            RegisterSuccessHandlerForRPC(DonationsManager.kDonationContributeMethod);
 
             const int donateAmount = 6;
             var executed = false;
@@ -206,14 +236,129 @@ namespace SocialPoint.Social
                 Assert.IsTrue(Error.IsNullOrEmpty(err));
             };
 
-            var request = _manager.GetItemRequest(userId, uuid);
+            var request = _manager.GetItemRequest(requesterId, uuid);
             Assert.AreEqual(0, request.TotalReceivedAmount);
 
-            _manager.ContributeItem(userId, uuid, donateAmount, type, handler);
+            _manager.ContributeItem(requesterId, uuid, donateAmount, type, handler);
             Assert.IsTrue(executed);
 
             Assert.AreEqual(amount, request.Amount);
             Assert.AreEqual(donateAmount, request.TotalReceivedAmount);
+        }
+
+        void AddItemContribution(long userId, string uuid, int amount)
+        {
+            var notificationDic = new AttrDic();
+            notificationDic.SetValue(DonationsManager.kUserId, userId);
+            notificationDic.SetValue(DonationsManager.kRequesterId, kLocalUserId);
+            notificationDic.SetValue(DonationsManager.kRequestUuid, uuid);
+            notificationDic.SetValue(DonationsManager.kAmount, amount);
+
+            _connection.OnNotificationReceived += Raise.Event<NotificationReceivedDelegate>(NotificationType.BroadcastDonationContribute, string.Empty, notificationDic);
+        }
+
+        [Test]
+        public void CollectItem()
+        {
+            const string uuid = "A-B-C-D";
+            const int itemId = 10;
+            const int amount = 12;
+            const string type = "fake_type";
+
+            LoginManager();
+            RegisterSuccessHandlerForRPC(DonationsManager.kDonationCollectMethod);
+
+            var numsHandlerExecuted = 0;
+            Action<Error> handler = err => {
+                numsHandlerExecuted++;
+                Assert.IsTrue(Error.IsNullOrEmpty(err));
+            };
+
+            AddItemRequest(kLocalUserId, uuid, itemId, amount, type, new AttrDic());
+            var request = _manager.GetItemRequest(kLocalUserId, uuid);
+            Assert.AreEqual(0, request.TotalReceivedAmount);
+
+            const long contributorId1 = 852;
+            const int contributionAmount1 = 4;
+            AddItemContribution(contributorId1, uuid, contributionAmount1);
+
+            _manager.CollectItem(contributorId1, uuid, contributionAmount1, type, handler);
+            Assert.AreEqual(1, numsHandlerExecuted);
+            Assert.AreEqual(contributionAmount1, request.TotalReceivedAmount);
+            Assert.AreEqual(contributionAmount1, request.TotalCollectedAmount);
+        }
+
+        [Test]
+        public void CollectItemDifferentAmount()
+        {
+            const string uuid = "A-B-C-D";
+            const int itemId = 10;
+            const int amount = 12;
+            const string type = "fake_type";
+
+            LoginManager();
+            RegisterSuccessHandlerForRPC(DonationsManager.kDonationCollectMethod);
+
+            var numsHandlerExecuted = 0;
+            Action<Error> handler = err => {
+                numsHandlerExecuted++;
+                Assert.IsTrue(Error.IsNullOrEmpty(err));
+            };
+
+            AddItemRequest(kLocalUserId, uuid, itemId, amount, type, new AttrDic());
+            var request = _manager.GetItemRequest(kLocalUserId, uuid);
+            Assert.AreEqual(0, request.TotalReceivedAmount);
+
+            const long contributorId1 = 852;
+            const int contributionAmount1 = 4;
+            AddItemContribution(contributorId1, uuid, contributionAmount1);
+
+            const int collectAmount1 = 3;
+            _manager.CollectItem(contributorId1, uuid, collectAmount1, type, handler);
+            Assert.AreEqual(1, numsHandlerExecuted);
+            Assert.AreEqual(contributionAmount1, request.TotalReceivedAmount);
+            Assert.AreEqual(collectAmount1, request.TotalCollectedAmount);
+        }
+
+        [Test]
+        public void CollectItemMultipleContributionsAmount()
+        {
+            const string uuid = "A-B-C-D";
+            const int itemId = 10;
+            const int amount = 12;
+            const string type = "fake_type";
+
+            LoginManager();
+            RegisterSuccessHandlerForRPC(DonationsManager.kDonationCollectMethod);
+
+            var numsHandlerExecuted = 0;
+            Action<Error> handler = err => {
+                numsHandlerExecuted++;
+                Assert.IsTrue(Error.IsNullOrEmpty(err));
+            };
+
+            AddItemRequest(kLocalUserId, uuid, itemId, amount, type, new AttrDic());
+            var request = _manager.GetItemRequest(kLocalUserId, uuid);
+            Assert.AreEqual(0, request.TotalReceivedAmount);
+
+            const long contributorId1 = 852;
+            const int contributionAmount1 = 4;
+            AddItemContribution(contributorId1, uuid, contributionAmount1);
+
+            const int collectAmount1 = 3;
+            _manager.CollectItem(contributorId1, uuid, collectAmount1, type, handler);
+            Assert.AreEqual(1, numsHandlerExecuted);
+            Assert.AreEqual(contributionAmount1, request.TotalReceivedAmount);
+            Assert.AreEqual(collectAmount1, request.TotalCollectedAmount);
+
+            const int contributionAmount2 = 3;
+            AddItemContribution(contributorId1, uuid, contributionAmount2);
+
+            const int collectAmount2 = 3;
+            _manager.CollectItem(contributorId1, uuid, collectAmount2, type, handler);
+            Assert.AreEqual(1, numsHandlerExecuted);
+            Assert.AreEqual(contributionAmount1 + contributionAmount2, request.TotalReceivedAmount);
+            Assert.AreEqual(collectAmount1 + collectAmount2, request.TotalCollectedAmount);
         }
     }
 }
