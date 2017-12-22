@@ -11,6 +11,14 @@ namespace SocialPoint.Network
 {
     public class TcpSocketNetworkServer : INetworkServer, IDisposable, IUpdateable
     {
+        public struct ClientData
+        {
+            public TcpClient Client;
+            public byte Id;
+            public TcpSocketMessageReader Reader;
+        }
+
+
         public const string DefaultAddress = "127.0.0.1";
         public const int DefaultPort = 8888;
 
@@ -18,8 +26,8 @@ namespace SocialPoint.Network
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         IUpdateScheduler _updateScheduler;
         TcpListener _listener;
-        List<NetworkStreamMessageReader> _connectedDataClients = new List<NetworkStreamMessageReader>();
-        List<NetworkStreamMessageReader> _disconnectedDataClients = new List<NetworkStreamMessageReader>();
+        List<ClientData> _connectedDataClients = new List<ClientData>();
+        List<ClientData> _disconnectedDataClients = new List<ClientData>();
         byte _nextClientID = 1;
 
         public TcpSocketNetworkServer(IUpdateScheduler updateScheduler, string serverAddr = DefaultAddress, int port = DefaultPort)
@@ -47,7 +55,7 @@ namespace SocialPoint.Network
                 var client = _connectedDataClients[i];
                 for(var j = 0; j < _delegates.Count; j++)
                 {
-                    _delegates[j].OnClientDisconnected(client.ClientId);
+                    _delegates[j].OnClientDisconnected(client.Id);
                 }
                 client.Client.Close();
             }
@@ -114,10 +122,10 @@ namespace SocialPoint.Network
             {
                 for(int i = 0; i < _connectedDataClients.Count; i++)
                 {
-                    var clientIdConnected = _connectedDataClients[i];
-                    if(data.ClientIds.Contains(clientIdConnected.ClientId))
+                    var clientData = _connectedDataClients[i];
+                    if(data.ClientIds.Contains(clientData.Id))
                     {
-                        clientsToSendMessage.Add(clientIdConnected.Stream);
+                        clientsToSendMessage.Add(clientData.Reader.Stream);
                     }
                 }
             }
@@ -126,7 +134,7 @@ namespace SocialPoint.Network
                 for(int i = 0; i < _connectedDataClients.Count; i++)
                 {
                     var simpleSocketClientData = _connectedDataClients[i];
-                    clientsToSendMessage.Add(simpleSocketClientData.Stream);
+                    clientsToSendMessage.Add(simpleSocketClientData.Reader.Stream);
                 }
             }
            
@@ -149,7 +157,7 @@ namespace SocialPoint.Network
                 var c = _connectedDataClients[i];
                 while(c.Client.Available > 0 && c.Client.Connected)
                 {
-                    c.Receive();
+                    c.Reader.Receive();
                 }
             }
         }
@@ -158,10 +166,14 @@ namespace SocialPoint.Network
         {
             while(_listener.Pending())
             {
-                var newClient = _listener.AcceptTcpClient();
-                var data = new NetworkStreamMessageReader(newClient, _nextClientID);
-                _connectedDataClients.Add(data);
-                data.MessageReceived += OnClientMessageReceived;
+                ClientData clientData = new ClientData();
+                var newTcpClient = _listener.AcceptTcpClient();
+                var messageReader = new TcpSocketMessageReader(newTcpClient.GetStream(), _nextClientID);
+                clientData.Client = newTcpClient;
+                clientData.Id = _nextClientID;
+                clientData.Reader = messageReader;
+                _connectedDataClients.Add(clientData);
+                messageReader.MessageReceived += OnClientMessageReceived;
                 for(var i = 0; i < _delegates.Count; i++)
                 {
                     _delegates[i].OnClientConnected(_nextClientID);
@@ -200,9 +212,9 @@ namespace SocialPoint.Network
                 for(int i = 0; i < disconnectedClients.Length; i++)
                 {
                     var client = disconnectedClients[i];
-                    for(var i = 0; i < _delegates.Count; i++)
+                    for(var j = 0; j < _delegates.Count; j++)
                     {
-                        _delegates[i].OnClientDisconnected((client.ClientId));
+                        _delegates[j].OnClientDisconnected((client.Id));
                     }
                     _connectedDataClients.Remove(client);
                 }

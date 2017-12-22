@@ -64,8 +64,7 @@ MonoBehaviour:
           MaxReconnectAttempts: 6
           ReconnectInterval: 3
           ReconnectMidGameEnabled: 1
-    Socket:
+    TcpSocket:
       Config:
-        Protocol: 0
         ServerAddress: 127.0.0.1
         ServerPort: 8888

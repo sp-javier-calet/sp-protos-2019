@@ -8,7 +8,7 @@ using SocialPoint.Network;
 
 namespace SocialPoint.Network
 {
-    public class NetworkStreamMessageReader
+    public class TcpSocketMessageReader
     {
         byte Type;
         int Length;
@@ -19,14 +19,6 @@ namespace SocialPoint.Network
         SystemBinaryReader _reader;
 
         public event Action<NetworkMessageData, IReader> MessageReceived;
-
-        public TcpClient Client
-        {
-            get
-            {
-                return _client;
-            }
-        }
 
         public NetworkStream Stream
         {
@@ -44,11 +36,10 @@ namespace SocialPoint.Network
             }
         }
 
-        public NetworkStreamMessageReader(TcpClient client, byte clientId = 0)
+        public TcpSocketMessageReader(NetworkStream netStream, byte clientId = 0)
         {
-            _client = client;
             _clientId = clientId;
-            _netStream = client.GetStream();
+            _netStream = netStream;
             _memStream = new MemoryStream();
             _reader = new SystemBinaryReader(_memStream);
         }

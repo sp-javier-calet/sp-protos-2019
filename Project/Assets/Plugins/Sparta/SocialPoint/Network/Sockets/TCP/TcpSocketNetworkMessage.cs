@@ -27,8 +27,7 @@ namespace SocialPoint.Network
             var data = _memStream.ToArray();
             for(int i = 0; i < _netStreams.Count; i++)
             {
-                NetworkStream netStream = _netStreams[i];
-                var netWriter = new SystemBinaryWriter(netStream);
+                var netWriter = new SystemBinaryWriter(_netStreams[i]);
                 netWriter.Write(_data.MessageType);
                 netWriter.Write(data.Length);
                 netWriter.Write(data, data.Length);
