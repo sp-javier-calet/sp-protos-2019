@@ -4,6 +4,7 @@ using SocialPoint.AdminPanel;
 using SocialPoint.Attributes;
 using SocialPoint.Base;
 using System;
+using UnityEngine.UI;
 
 namespace SocialPoint.Social
 {
@@ -41,23 +42,116 @@ namespace SocialPoint.Social
 
         class AdminPanelSendRequest : BaseDonationsPanel
         {
+            readonly long _localUserId;
+
             int _itemId;
             int _amount;
             string _donationType;
             AttrDic _metadata;
 
-            public AdminPanelSendRequest(DonationsManager manager, AdminPanelConsole console) : base(manager, console)
+            Text _textArea;
+
+            public AdminPanelSendRequest(DonationsManager manager, AdminPanelConsole console, long localUserId) : base(manager, console)
             {
+                _localUserId = localUserId;
+                _metadata = new AttrDic();
             }
 
             public override void OnCreateGUI(AdminPanelLayout layout)
             {
-                throw new System.NotImplementedException();
+                CreateSendGUI(layout);
             }
 
             void CreateSendGUI(AdminPanelLayout layout)
             {
+                layout.CreateLabel("Request Donation Data");
+                layout.CreateMargin();
 
+                layout.CreateLabel("Requester Id: " + _localUserId);
+                
+                layout.CreateTextInput("ItemId", text => {
+                    int itemId;
+                    TryParseInt(text, out itemId);
+
+                    if(itemId > 0)
+                    {
+                        _itemId = itemId;
+                    }
+                    else
+                    {
+                        _console.Print("ItemId must be greater than zero");
+                    }
+                    RefreshDonationInfo();
+                });
+
+                layout.CreateTextInput("Amount", text => {
+                    int itemId;
+                    TryParseInt(text, out itemId);
+
+                    if(itemId > 0)
+                    {
+                        _amount = itemId;
+                    }
+                    else
+                    {
+                        _console.Print("Amount must be greater than zero");
+                    }
+                    RefreshDonationInfo();
+                });
+
+                layout.CreateTextInput("Donation Type", text => {
+                    _donationType = text;
+                    RefreshDonationInfo();
+                });
+
+                const string infoText = " RequesterId: {0}\\n ItemId: {1}\\n Amount: {2}\\n Type: {3}\\n Metadata: {4}";
+                _textArea = layout.CreateTextArea(string.Format(infoText, _localUserId, _itemId, _amount, _donationType, _metadata));
+
+                layout.CreateButton("Send", () => {
+                    Action<Error, ItemRequest> finishCallback = (err, itemRequest) =>
+                    {
+                        _requestInProgress = false;
+                        _wampRequestError = err;
+
+                        string info;
+                        if(Error.IsNullOrEmpty(err))
+                        {
+                            info = "Request {0} with itemId {1} and amount {2} sent";
+                            info = string.Format(info, itemRequest.RequestUuid, itemRequest.ItemId, itemRequest.Amount);
+                        }
+                        else
+                        {
+                            info = "Error sending request";
+                        }
+                        _console.Print(info);
+                        layout.Refresh();
+                    };
+
+                    _manager.RequestItem(_itemId, _amount, _donationType, _metadata, finishCallback);
+                    _requestInProgress = true;
+                });
+            }
+
+            void RefreshDonationInfo()
+            {
+                const string infoText = " RequesterId: {0}\\n ItemId: {1}\\n Amount: {2}\\n Type: {3}\\n Metadata: {4}";
+                _textArea.text = string.Format(infoText, _localUserId, _itemId, _amount, _donationType, _metadata);
+            }
+
+            bool TryParseInt(string text, out int num)
+            {
+                try
+                {
+                    num = Int32.Parse(text);
+                }
+                catch(Exception e)
+                {
+                    _console.Print(e.ToString());
+                    num = 0;
+                    return false;
+                }
+
+                return true;
             }
         }
 
@@ -85,13 +179,13 @@ namespace SocialPoint.Social
         {
             _localUserId = localUserId;
 
-            _requestSendPanel = new AdminPanelSendRequest(manager, console);
+            _requestSendPanel = new AdminPanelSendRequest(manager, console, localUserId);
             _requestPanel = new AdminPanelItemRequest(manager, console);
         }
 
         public override void OnCreateGUI(AdminPanelLayout layout)
         {
-            layout.CreateLabel("Message Info");
+            layout.CreateLabel("Donations");
             layout.CreateMargin();
 
             if(_requestInProgress)

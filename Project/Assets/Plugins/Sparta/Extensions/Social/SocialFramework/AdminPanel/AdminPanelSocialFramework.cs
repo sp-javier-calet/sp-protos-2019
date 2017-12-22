@@ -172,7 +172,30 @@ namespace SocialPoint.Social
             layout.CreateOpenPanelButton("Chat", _chatPanel, ChatManager != null && connected);
             layout.CreateOpenPanelButton("Alliances", _alliancesPanel, AlliancesManager != null && connected);
             layout.CreateOpenPanelButton("Messages", _messagesPanel, MessagesManager != null && connected);
-            layout.CreateOpenPanelButton("Donations", _donationsPanel, DonationsManager != null && connected);
+
+            ShowDonationsSection(layout, connected);
+        }
+
+        void ShowDonationsSection(AdminPanelLayout layout, bool connected)
+        {
+            bool donationsLoggedIn = DonationsManager != null && DonationsManager.IsLoggedIn && connected;
+            bool donationLoginEnabled = DonationsManager != null && !DonationsManager.IsLoggedIn && connected;
+
+            layout.CreateOpenPanelButton("Donations", _donationsPanel, donationsLoggedIn);
+            Action<Error> completionHandler = err => {
+                if(!Error.IsNullOrEmpty(err))
+                {
+                    _console.Print(err.ToString());
+                }
+                layout.Refresh();
+            };
+            Action<bool> onPress = state => {
+                if(!state)
+                {
+                    DonationsManager.Login(completionHandler);
+                }
+            };
+            layout.CreateToggleButton("Donations LoggedIn", donationsLoggedIn, onPress, donationLoginEnabled);
         }
 
         void OnConnected()
