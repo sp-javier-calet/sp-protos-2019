@@ -28,7 +28,7 @@ namespace SocialPoint.Utils
             _selectedTags = new HashSet<string>();
             _config = new LogConfig();
 
-            LogCallbackHandler.RegisterLogCallback(HandleLog);
+            Application.logMessageReceived += HandleLog;
 
             var array = Enum.GetValues(typeof(LogType));
             for(int i = 0, arrayCount = array.Length; i < arrayCount; i++)

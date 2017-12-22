@@ -626,8 +626,8 @@ public static class UnityBuildSettingsUtility
 
 	public static void PopulateTvDeviceSettings(UnityBuildSettings settings)
 	{
+#if !UNITY_2017_1_OR_NEWER
 		settings.SamsungTVDeviceAddress = PlayerSettings.SamsungTV.deviceAddress;
-#if !UNITY_4
 		settings.SamsungTVAuthor = PlayerSettings.SamsungTV.productAuthor;
 		settings.SamsungTVAuthorEmail = PlayerSettings.SamsungTV.productAuthorEmail;
 		settings.SamsungTVAuthorWebsiteUrl = PlayerSettings.SamsungTV.productLink;

@@ -21,7 +21,7 @@ namespace SocialPoint.GUIAnimation
 
         public void UpdateState()
         {
-            if(Event.current.type == EventType.mouseDown)
+            if(Event.current.type == EventType.MouseDown)
             {
                 _doubleClick = IsDoubleClick();
                 _lastTimeClicked = EditorApplication.timeSinceStartup;

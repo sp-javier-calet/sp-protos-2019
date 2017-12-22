@@ -8,13 +8,17 @@ using SocialPoint.Utils;
 using UnityEngine;
 using System.Text;
 using SocialPoint.Base;
+using SocialPoint.AdminPanel;
+using SocialPoint.Attributes;
+using SocialPoint.Hardware;
 
-public class GUIInstaller : Installer, IDisposable
+public class GUIInstaller : Installer, IDisposable, IInitializable
 {
     const string kUIViewUnitySuffix = "Unity";
     const string kUIViewControllerSuffix = "Controller";
     const string kGUIRootPrefab = "GUI_Root";
     const string kUIViewControllerExamplePrefix = "GUI_";
+    const string kPersistentTag = "persistent";
 
     const float DefaultAnimationTime = 1.0f;
 
@@ -32,8 +36,28 @@ public class GUIInstaller : Installer, IDisposable
     UIStackController _stackController;
     IAppEvents _appEvents;
 
+    #region IInitializable implementation
+
+    public void Initialize()
+    {
+        _appEvents = Container.Resolve<IAppEvents>();
+
+        if(_stackController != null)
+        {
+            _stackController.AppEvents = _appEvents;
+        }
+            
+        #if ADMIN_PANEL
+        Container.Bind<IAdminPanelConfigurer>().ToMethod<AdminPanelUI>(CreateAdminPanel);
+        #endif
+    }
+
+    #endregion
+
     public override void InstallBindings()
     {
+        Container.Bind<IInitializable>().ToInstance(this);
+
         Container.Add<IDisposable, GUIInstaller>(this);
 
         UIViewController.Factory.Define((UIViewControllerFactory.DefaultPrefabDelegate)GetControllerFactoryPrefabName);
@@ -42,23 +66,21 @@ public class GUIInstaller : Installer, IDisposable
         Container.Bind<float>("tooltip_animation_time").ToInstance(Settings.TooltipAnimationTime);
 
         _root = CreateRoot();
-        _appEvents = Container.Resolve<IAppEvents>();
 
         _stackController = _root.GetComponentInChildren<ScreensController>();
         if(_stackController != null)
         {
-            _stackController.AppEvents = _appEvents;
             _stackController.CloseAppShow = ShowCloseAppAlertView;
             Container.Rebind<UIStackController>().ToInstance(_stackController);
         }
-
+            
         var uiTooltipController = _root.GetComponentInChildren<UITooltipController>();
-        if(_stackController != null)
+        if(uiTooltipController != null)
         {
             uiTooltipController.ScreenBoundsDelta = Settings.TooltipScreenBoundsDelta;
             Container.Rebind<UITooltipController>().ToInstance(uiTooltipController);
         }
-            
+
         var layers = _root.GetComponentInChildren<UILayersController>();
         if(layers != null)
         {
@@ -74,6 +96,16 @@ public class GUIInstaller : Installer, IDisposable
 
         Container.Bind<IScriptEventsBridge>().ToSingle<GUIControlBridge>();
     }
+        
+    #if ADMIN_PANEL
+    AdminPanelUI CreateAdminPanel()
+    {
+        var storage = Container.Resolve<IAttrStorage>(kPersistentTag);
+        var iDeviceInfo = Container.Resolve<IDeviceInfo>();
+
+        return new AdminPanelUI(iDeviceInfo, storage);
+    }
+    #endif
 
     void ShowCloseAppAlertView()
     {

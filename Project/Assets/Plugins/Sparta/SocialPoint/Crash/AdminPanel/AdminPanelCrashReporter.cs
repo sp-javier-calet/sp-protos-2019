@@ -16,6 +16,23 @@ namespace SocialPoint.Crash
         }
     }
 
+    class ExceptionThrowerAction : IUpdateable
+    {
+        IUpdateScheduler _scheduler;
+
+        public ExceptionThrowerAction(IUpdateScheduler scheduler)
+        {
+            _scheduler = scheduler;
+            _scheduler.Add(this);
+        }
+
+        public void Update()
+        {
+            _scheduler.Remove(this);
+            throw new AdminPanelCrashReporterException();
+        }
+    }
+
     public sealed class AdminPanelCrashReporter : IAdminPanelGUI, IAdminPanelConfigurer
     {
         ICrashReporter _reporter;
@@ -23,11 +40,13 @@ namespace SocialPoint.Crash
         Text _textAreaComponent;
         bool _showOldBreadcrumbs;
         AdminPanelConsole _console;
+        IUpdateScheduler _scheduler;
 
-        public AdminPanelCrashReporter(ICrashReporter reporter, IBreadcrumbManager breadcrumbs)
+        public AdminPanelCrashReporter(ICrashReporter reporter, IBreadcrumbManager breadcrumbs, IUpdateScheduler scheduler)
         {
             _reporter = reporter;
             _breadcrumbs = breadcrumbs;
+            _scheduler = scheduler;
         }
 
         public void OnConfigure(AdminPanel.AdminPanel adminPanel)
@@ -105,6 +124,14 @@ namespace SocialPoint.Crash
                         _reporter.ReportHandledException(e);
                     }
                 });
+
+                if(_scheduler != null)
+                {
+                    layout.CreateConfirmButton("Force Exception in Update()", ButtonColor.Red, () => {
+                        new ExceptionThrowerAction(_scheduler);
+                        new ExceptionThrowerAction(_scheduler);
+                    });
+                }
                 layout.CreateMargin(2);
 
                 layout.CreateConfirmButton("Force crash", ButtonColor.Red, _reporter.ForceCrash);
