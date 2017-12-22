@@ -18,6 +18,8 @@ namespace SocialPoint.Network
         MemoryStream _memStream;
         SystemBinaryReader _reader;
 
+        public event Action<NetworkMessageData, IReader> MessageReceived;
+
         public TcpClient Client
         {
             get
@@ -51,11 +53,8 @@ namespace SocialPoint.Network
             _reader = new SystemBinaryReader(_memStream);
         }
 
-        public event Action<NetworkMessageData, IReader> MessageReceived;
-
         public void Receive()
         {
-
             if(!_netStream.CanRead)
             {
                 return;

@@ -13,7 +13,6 @@ namespace SocialPoint.Network
         MemoryStream _memStream;
         List<NetworkStream> _netStreams;
 
-
         public TcpSocketNetworkMessage(NetworkMessageData data, List<NetworkStream> netStreams)
         {
             _data = data;

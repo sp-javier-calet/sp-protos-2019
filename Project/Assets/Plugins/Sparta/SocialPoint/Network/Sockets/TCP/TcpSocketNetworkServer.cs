@@ -9,7 +9,6 @@ using System.IO;
 
 namespace SocialPoint.Network
 {
-   
     public class TcpSocketNetworkServer : INetworkServer, IDisposable, IUpdateable
     {
         public const string DefaultAddress = "127.0.0.1";
@@ -51,14 +50,11 @@ namespace SocialPoint.Network
                 }
                 client.Client.Close();
             }
-
             for(var i = 0; i < _delegates.Count; i++)
             {
                 _delegates[i].OnServerStopped();
             }
-
             _listener.Stop();
-
             _updateScheduler.Remove(this);
 
         }
@@ -133,14 +129,6 @@ namespace SocialPoint.Network
            
             return new TcpSocketNetworkMessage(data, clientsToSendMessage);
         }
-
-        public void Dispose()
-        {
-            _delegates.Clear();
-            _delegates = null;
-            _receiver = null;
-        }
-
 
         public void Update()
         {
@@ -225,6 +213,17 @@ namespace SocialPoint.Network
                 return false;
             else
                 return true;
+        }
+
+        public void Dispose()
+        {
+            _delegates.Clear();
+            _delegates = null;
+            _receiver = null;
+            _connectedDataClients.Clear();
+            _connectedDataClients = null;
+            _disconnectedDataClients.Clear();
+            _disconnectedDataClients = null;
         }
     }
 }

@@ -60,7 +60,7 @@ namespace SocialPoint.Network
 
         public int GetDelay(int networkTimestamp)
         {
-            throw new NotImplementedException();
+            return 0;
         }
 
         public bool Connected
@@ -150,7 +150,6 @@ namespace SocialPoint.Network
 
         void ReceiveServertMessages()
         {
-           
             while(_client.Available > 0 && _client.Connected)
             {
                 _socketMessageData.Receive();
@@ -164,6 +163,7 @@ namespace SocialPoint.Network
             {
                 _delegates[i].OnClientDisconnected();
             }
+            _socketMessageData.MessageReceived -= OnServerMessageReceived;
             _scheduler.Remove(this);
         }
 
@@ -172,6 +172,8 @@ namespace SocialPoint.Network
             _delegates.Clear();
             _delegates = null;
             _receiver = null;
+            _stream.Clear();
+            _stream = null;
         }
 
 
