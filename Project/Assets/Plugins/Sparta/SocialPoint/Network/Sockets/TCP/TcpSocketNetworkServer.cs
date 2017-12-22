@@ -18,9 +18,9 @@ namespace SocialPoint.Network
         List<INetworkServerDelegate> _delegates = new List<INetworkServerDelegate>();
         IUpdateScheduler _updateScheduler;
         TcpListener _listener;
-        List<TcpSocketClientData> _connectedDataClients = new List<TcpSocketClientData>();
-        List<TcpSocketClientData> _disconnectedDataClients = new List<TcpSocketClientData>();
-        byte _clientID = 1;
+        List<NetworkStreamMessageReader> _connectedDataClients = new List<NetworkStreamMessageReader>();
+        List<NetworkStreamMessageReader> _disconnectedDataClients = new List<NetworkStreamMessageReader>();
+        byte _nextClientID = 1;
 
         public TcpSocketNetworkServer(IUpdateScheduler updateScheduler, string serverAddr = DefaultAddress, int port = DefaultPort)
         {
@@ -156,14 +156,14 @@ namespace SocialPoint.Network
             while(_listener.Pending())
             {
                 var newClient = _listener.AcceptTcpClient();
-                var data = new TcpSocketClientData(newClient, _clientID);
+                var data = new NetworkStreamMessageReader(newClient, _nextClientID);
                 _connectedDataClients.Add(data);
                 data.MessageReceived += OnClientMessageReceived;
                 for(var i = 0; i < _delegates.Count; i++)
                 {
-                    _delegates[i].OnClientConnected(_clientID);
+                    _delegates[i].OnClientConnected(_nextClientID);
                 }
-                _clientID++;
+                _nextClientID++;
             }
         }
 

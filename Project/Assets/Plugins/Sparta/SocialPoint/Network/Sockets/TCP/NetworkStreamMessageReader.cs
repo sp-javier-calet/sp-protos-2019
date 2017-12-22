@@ -8,7 +8,7 @@ using SocialPoint.Network;
 
 namespace SocialPoint.Network
 {
-    public class TcpSocketClientData
+    public class NetworkStreamMessageReader
     {
         byte Type;
         int Length;
@@ -44,7 +44,7 @@ namespace SocialPoint.Network
             }
         }
 
-        public TcpSocketClientData(TcpClient client, byte clientId = 0)
+        public NetworkStreamMessageReader(TcpClient client, byte clientId = 0)
         {
             _client = client;
             _clientId = clientId;

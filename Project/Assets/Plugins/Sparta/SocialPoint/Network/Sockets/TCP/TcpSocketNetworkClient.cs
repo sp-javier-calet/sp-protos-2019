@@ -18,7 +18,7 @@ namespace SocialPoint.Network
         bool _connected;
         IUpdateScheduler _scheduler;
         List<NetworkStream> _stream;
-        TcpSocketClientData _socketMessageData;
+        NetworkStreamMessageReader _socketMessageData;
 
         public TcpSocketNetworkClient(IUpdateScheduler scheduler, string serverAddr = TcpSocketNetworkServer.DefaultAddress, int serverPort = TcpSocketNetworkServer.DefaultPort)
         {
@@ -95,12 +95,12 @@ namespace SocialPoint.Network
 
         public void Update()
         {
-            ConnectClients();
-            DisconnectClients();
-            ReceiveServertMessages();
+            ConnectClient();
+            DisconnectClient();
+            ReceiveServerMessages();
         }
 
-        void ConnectClients()
+        void ConnectClient()
         {
             if(_connecting && _client.Connected)
             {
@@ -110,7 +110,7 @@ namespace SocialPoint.Network
                 {
                     _delegates[i].OnClientConnected();
                 }
-                _socketMessageData = new TcpSocketClientData(_client);
+                _socketMessageData = new NetworkStreamMessageReader(_client);
                 _socketMessageData.MessageReceived += OnServerMessageReceived;
             }
         }
@@ -127,7 +127,7 @@ namespace SocialPoint.Network
             }
         }
 
-        void DisconnectClients()
+        void DisconnectClient()
         {
             if(_connected && IsClientDisconnected())
             {
@@ -148,7 +148,7 @@ namespace SocialPoint.Network
             return false;
         }
 
-        void ReceiveServertMessages()
+        void ReceiveServerMessages()
         {
             while(_client.Available > 0 && _client.Connected)
             {
@@ -175,23 +175,5 @@ namespace SocialPoint.Network
             _stream.Clear();
             _stream = null;
         }
-
-
-        public void OnServerStarted()
-        {
-            if(!Connected)
-            {
-                Connect();
-            }
-        }
-
-        public void OnServerStopped()
-        {
-            if(Connected)
-            {
-                Disconnect();
-            }
-        }
-
     }
 }
