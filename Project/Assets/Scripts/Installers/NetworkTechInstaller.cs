@@ -8,7 +8,8 @@ public class NetworkTechInstaller : Installer
     {
         Local,
         Unet,
-        Photon
+        Photon,
+        Socket
     }
 
     [Serializable]
@@ -18,6 +19,7 @@ public class NetworkTechInstaller : Installer
         public LocalNetworkInstaller.SettingsData Local = new LocalNetworkInstaller.SettingsData();
         public UnetNetworkInstaller.SettingsData Unet = new UnetNetworkInstaller.SettingsData();
         public PhotonNetworkInstaller.SettingsData Photon = new PhotonNetworkInstaller.SettingsData();
+        public SocketNetworkInstaller.SettingsData Socket = new SocketNetworkInstaller.SettingsData();
     }
 
     public SettingsData Settings = new SettingsData();
@@ -36,6 +38,11 @@ public class NetworkTechInstaller : Installer
             var photon = new PhotonNetworkInstaller();
             photon.Settings = Settings.Photon;
             techInstaller = photon;
+            break;
+        case NetworkTech.Socket:
+            var socket = new SocketNetworkInstaller();
+            socket.Settings = Settings.Socket;
+            techInstaller = socket;
             break;
         default:
             var local = new LocalNetworkInstaller();
