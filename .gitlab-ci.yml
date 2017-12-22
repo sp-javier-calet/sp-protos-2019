@@ -20,6 +20,11 @@ Copy_New_Branch_Cache:
   - python %PYTHON_CI_REPO_PATH%\GenericJobs\CopyCache.py -s master
   stage: compile
 Create_UnityCache_Android:
+  artifacts:
+    paths:
+    - '%CI_PROJECT_DIR%/UnityLog/'
+    when: on_failure
+    expire_in: 4 weeks
   cache:
     key: '%CI_COMMIT_REF_NAME%/AndroidLib/'
     paths:
@@ -31,6 +36,11 @@ Create_UnityCache_Android:
     android
   stage: compile
 Create_UnityCache_iOS:
+  artifacts:
+    paths:
+    - '%CI_PROJECT_DIR%/UnityLog/'
+    when: on_failure
+    expire_in: 4 weeks
   cache:
     key: '%CI_COMMIT_REF_NAME%/iOSLib/'
     paths:

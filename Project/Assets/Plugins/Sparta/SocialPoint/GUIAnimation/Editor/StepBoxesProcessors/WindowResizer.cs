@@ -34,7 +34,7 @@ namespace SocialPoint.GUIAnimation
         public void Resize(ref Rect ResizingWindow, Vector2 axis, OnResized callback = null)
         {
             if(ResizingWindow.Contains(Event.current.mousePosition) &&
-               Event.current.type == EventType.mouseDown &&
+               Event.current.type == EventType.MouseDown &&
                Mathf.Abs(Event.current.mousePosition.x - (ResizingWindow.position.x + ResizingWindow.width)) < _grabDistance &&
                Mathf.Abs(Event.current.mousePosition.y - (ResizingWindow.position.y + ResizingWindow.height)) < _grabDistance)
             {
@@ -42,7 +42,7 @@ namespace SocialPoint.GUIAnimation
                 LastMousePos = Event.current.mousePosition;
             }
             else
-                _isResizing &= Event.current.type != EventType.mouseUp;
+                _isResizing &= Event.current.type != EventType.MouseUp;
 
             if(_isResizing)
             {
