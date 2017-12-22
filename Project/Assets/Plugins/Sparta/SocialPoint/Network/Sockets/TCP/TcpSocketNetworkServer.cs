@@ -85,7 +85,7 @@ namespace SocialPoint.Network
 
         public int GetTimestamp()
         {
-            throw new NotImplementedException();
+            return (int)TimeUtils.Timestamp;
         }
 
         public bool Running{ get; protected set; }
@@ -94,7 +94,7 @@ namespace SocialPoint.Network
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
