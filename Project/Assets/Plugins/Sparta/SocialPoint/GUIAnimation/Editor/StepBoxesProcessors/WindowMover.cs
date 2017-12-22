@@ -31,13 +31,13 @@ namespace SocialPoint.GUIAnimation
             Rect expandedWindow = window;
             expandedWindow.size += GrabSize;
 
-            if(Event.current.type == EventType.mouseUp)
+            if(Event.current.type == EventType.MouseUp)
             {
                 _isMoving = false;
                 return;
             }
 
-            if(!_isMoving && Event.current.type == EventType.mouseDown &&
+            if(!_isMoving && Event.current.type == EventType.MouseDown &&
                expandedWindow.Contains(Event.current.mousePosition))
             {
                 _isMoving = true;

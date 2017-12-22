@@ -344,13 +344,21 @@ namespace GooglePlayGames.Editor
         {
             string packageName = GPGSProjectSettings.Instance.Get(
                 GPGSUtil.ANDROIDBUNDLEIDKEY, string.Empty);
+#if UNITY_2017_1_OR_NEWER
+            string currentId = PlayerSettings.applicationIdentifier;
+#else
             string currentId = PlayerSettings.bundleIdentifier;
+#endif
             if (!string.IsNullOrEmpty(packageName))
             {
                 if (string.IsNullOrEmpty(currentId) ||
                     currentId == "com.Company.ProductName")
                 {
+#if UNITY_2017_1_OR_NEWER
+                    PlayerSettings.applicationIdentifier = packageName;
+#else
                     PlayerSettings.bundleIdentifier = packageName;
+#endif
                 }
                 else if (currentId != packageName)
                 {
@@ -363,7 +371,11 @@ namespace GooglePlayGames.Editor
                         "OK",
                         "Cancel"))
                     {
+#if UNITY_2017_1_OR_NEWER
+                        PlayerSettings.applicationIdentifier = packageName;
+#else
                         PlayerSettings.bundleIdentifier = packageName;
+#endif
                     }
                 }
             }

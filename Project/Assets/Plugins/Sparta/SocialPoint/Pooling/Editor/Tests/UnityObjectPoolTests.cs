@@ -39,7 +39,7 @@ namespace SocialPoint.Pooling
         {
             var list = UnityObjectPool.CreatePool(_prefabs[0], 1);
             Assert.AreEqual(1, list.Count);
-            Assert.IsNotNull(list.First().GetComponent<TestBehaviour>());
+            Assert.IsNotNull(list[0].GetComponent<TestBehaviour>());
             Assert.IsTrue(UnityObjectPool.IsPooled(_prefabs[0]));
         }
 

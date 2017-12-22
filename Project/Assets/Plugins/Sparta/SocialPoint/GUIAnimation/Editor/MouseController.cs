@@ -13,11 +13,11 @@ namespace SocialPoint.GUIAnimation
         {
             _doubleClick.UpdateState();
 
-            if(Event.current.type == EventType.mouseDown)
+            if(Event.current.type == EventType.MouseDown)
             {
                 SetMouseButton(Event.current.button, true);
             }
-            else if(Event.current.type == EventType.keyUp)
+            else if(Event.current.type == EventType.KeyUp)
             {
                 SetMouseButton(Event.current.button, false);
             }

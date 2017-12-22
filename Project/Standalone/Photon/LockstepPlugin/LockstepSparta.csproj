@@ -278,6 +278,9 @@
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\ServerEvents\Event.cs">
       <Link>ServerEvents\Event.cs</Link>
     </Compile>
+    <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\AggregateException.cs">
+      <Link>Utils\AggregateException.cs</Link>
+    </Compile>
     <Compile Include="..\..\..\Assets\Plugins\Sparta\SocialPoint\Utils\CompareUtils.cs">
       <Link>Utils\CompareUtils.cs</Link>
     </Compile>

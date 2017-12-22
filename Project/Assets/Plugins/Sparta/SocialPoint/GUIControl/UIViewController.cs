@@ -159,7 +159,7 @@ namespace SocialPoint.GUIControl
             get
             {
                 var canvases = UILayersController.GetCanvasFromElement(gameObject);
-                for(var i=0; i<canvases.Count; i++)
+                for(var i = 0; i < canvases.Count; i++)
                 {
                     var itr = canvases[i].transform.GetEnumerator();
                     while(itr.MoveNext())
@@ -231,7 +231,7 @@ namespace SocialPoint.GUIControl
             get
             {
                 var canvases = UILayersController.GetCanvasFromElement(gameObject);
-                for(var i=0; i<canvases.Count; i++)
+                for(var i = 0; i < canvases.Count; i++)
                 {
                     var canvas = canvases[i];
                     var scale = UILayersController.GetCanvasScale(canvas);
@@ -443,7 +443,7 @@ namespace SocialPoint.GUIControl
 
             OnAwake();
         }
-            
+
         [Obsolete("Use Reset instead")]
         public void ResetState()
         {
@@ -460,13 +460,15 @@ namespace SocialPoint.GUIControl
             if(_loaded)
             {
                 HideImmediate();
+            }
+            else
+            {
                 OnDestroyed();
             }
         }
 
         virtual protected void OnAwake()
         {
-
         }
 
         virtual protected void OnStart()
@@ -481,18 +483,15 @@ namespace SocialPoint.GUIControl
         {
         }
 
-        public bool Load()
+        public void Load()
         {
-            bool loaded = false;
             if(!_loaded)
             {
                 _loaded = true;
-                loaded = true;
                 OnLoad();
             }
-            Setup();
 
-            return loaded;
+            Setup();
         }
 
         void Setup()
@@ -735,11 +734,12 @@ namespace SocialPoint.GUIControl
                 _viewState = ViewState.Destroying;
                 NotifyViewEvent();
                 Factory.Destroy(this);
+                _loaded = false;
                 _viewState = ViewState.Destroyed;
                 NotifyViewEvent();
             }
         }
-            
+
         virtual protected void OnDisappearing()
         {
             DebugLog("OnDisappearing");
@@ -795,6 +795,10 @@ namespace SocialPoint.GUIControl
             NotifyViewEvent();
         }
 
+        virtual public void OnStackActionEvent(UIViewController ctrl, UIStackController.ActionType action, int count)
+        {
+        }
+
         protected GameObject Instantiate(GameObject proto)
         {
             var go = UnityEngine.Object.Instantiate(proto);
@@ -803,14 +807,6 @@ namespace SocialPoint.GUIControl
                 InstantiateEvent(this, go);
             }
             return go;
-        }
-
-        virtual public void OnPopupStackedInView()
-        {
-        }
-
-        virtual public void OnNoMorePopupsInView()
-        {
         }
             
         virtual public bool OnBeforeClose()

@@ -83,7 +83,7 @@ namespace SocialPoint.GUIAnimation
 
         Transform GetAnimationsRoot()
         {
-            return _currentScreen == null ? null : _currentScreen.transform.FindChild(AnimationsRootName);
+            return _currentScreen == null ? null : _currentScreen.transform.Find(AnimationsRootName);
         }
 
         public Animation GetAnimationByIdx(int idx)
