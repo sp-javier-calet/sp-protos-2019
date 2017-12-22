@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using NSubstitute;
 using NUnit.Framework;
+using UnityEngine;
 
 namespace SocialPoint.Utils
 {
@@ -357,6 +358,56 @@ namespace SocialPoint.Utils
         }
 
         [Test]
+        public void ExceptionDuringUpdate()
+        {
+            var updateable0 = Substitute.For<IUpdateable>();
+            updateable0.When(x => x.Update()).Do(x => {
+                throw new Exception();
+            });
+            var updateable1 = Substitute.For<IUpdateable>();
+            _scheduler.Add(updateable0);
+            _scheduler.Add(updateable1);
+
+            Assert.Throws<AggregateException>(() => _scheduler.Update(0.05f, 0.05f));
+
+            updateable0.Received(1).Update();
+            updateable1.Received(1).Update();
+        }
+
+        [Test]
+        public void ExceptionDuringUpdateCallback()
+        {
+            var oldThrow = AggregateException.ForceTriggerLog;
+            AggregateException.ForceTriggerLog = true;
+
+            var exception = new Exception();
+            var updateable = Substitute.For<IUpdateable>();
+            updateable.When(x => x.Update()).Do(x => {
+                throw exception;
+            });
+
+            bool callbackCalled = false;
+            Application.LogCallback onReceived = (string condition, string stackTrace, LogType type) => {
+                callbackCalled = true;
+                Assert.AreEqual(LogType.Exception, type);
+                Assert.IsTrue(condition.EndsWith(exception.Message));
+                Assert.AreEqual(exception.StackTrace, stackTrace);
+            };
+
+            Application.logMessageReceived += onReceived;
+
+            _scheduler.Add(updateable);
+
+            _scheduler.Update(0.5f, 0.5f);
+
+            updateable.Received(1).Update();
+
+            Assert.True(callbackCalled);
+
+            AggregateException.ForceTriggerLog = oldThrow;
+            Application.logMessageReceived -= onReceived;
+        }
+
         public void RealTimeMillis()
         {
             var updateable = Substitute.For<IDeltaUpdateable<int>>();
