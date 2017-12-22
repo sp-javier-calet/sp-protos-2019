@@ -12,8 +12,11 @@ namespace SocialPoint.Hardware
         const string UidKeychainItemId = "SPDeviceID";
         const string UidKeychainAccessGroup = "es.socialpoint";
 
+        #if UNITY_2017_2_OR_NEWER
+        #else
         [DllImport("__Internal")]
         private extern static void GetSafeAreaImpl(out float x, out float y, out float w, out float h);
+        #endif
 
         static Dictionary<string, int> CpuFreqMap = new Dictionary<string, int> {
             { "iPhone1,1", 412 },  // iPhone
@@ -248,9 +251,18 @@ namespace SocialPoint.Hardware
                     float w = ScreenSize.x;
                     float h = ScreenSize.y;
 
-                    // TODO change this or add #if UNITY_2017.2 and use Screen.safeArea;
+                    #if UNITY_2017_2_OR_NEWER
+                    var safeRect = Screen.safeArea;
+
+                    x = safeRect.x;
+                    y = safeRect.y;
+                    w = safeRect.width;
+                    h = safeRect.height;
+                    #else
                     GetSafeAreaImpl(out x, out y, out w, out h);
-                    _safeAreaRectSize = new Rect(x, y, w, h); 
+                    #endif
+
+                    _safeAreaRectSize = new Rect(x, y, w, h);
                 }
                 return _safeAreaRectSize;
             }
