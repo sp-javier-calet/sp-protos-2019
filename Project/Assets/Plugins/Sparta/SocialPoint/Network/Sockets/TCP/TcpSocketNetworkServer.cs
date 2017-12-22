@@ -42,11 +42,12 @@ namespace SocialPoint.Network
 
         public void Stop()
         {
-            foreach(var client in _connectedDataClients)
+            for(int i = 0; i < _connectedDataClients.Count; i++)
             {
-                for(var i = 0; i < _delegates.Count; i++)
+                var client = _connectedDataClients[i];
+                for(var j = 0; j < _delegates.Count; j++)
                 {
-                    _delegates[i].OnClientDisconnected(client.ClientId);
+                    _delegates[j].OnClientDisconnected(client.ClientId);
                 }
                 client.Client.Close();
             }
@@ -111,8 +112,9 @@ namespace SocialPoint.Network
             var clientsToSendMessage = new  List<NetworkStream>();
             if(data.ClientIds != null && data.ClientIds.Count > 0)
             {
-                foreach(var clientIdConnected in _connectedDataClients)
+                for(int i = 0; i < _connectedDataClients.Count; i++)
                 {
+                    var clientIdConnected = _connectedDataClients[i];
                     if(data.ClientIds.Contains(clientIdConnected.ClientId))
                     {
                         clientsToSendMessage.Add(clientIdConnected.Stream);
@@ -121,8 +123,9 @@ namespace SocialPoint.Network
             }
             else
             {
-                foreach(var simpleSocketClientData in _connectedDataClients)
+                for(int i = 0; i < _connectedDataClients.Count; i++)
                 {
+                    var simpleSocketClientData = _connectedDataClients[i];
                     clientsToSendMessage.Add(simpleSocketClientData.Stream);
                 }
             }
@@ -181,8 +184,9 @@ namespace SocialPoint.Network
 
         void DisconnectClients()
         {
-            foreach(var c in _connectedDataClients)
+            for(int i = 0; i < _connectedDataClients.Count; i++)
             {
+                var c = _connectedDataClients[i];
                 if(IsSocketConnected(c.Client.Client) == false)
                 {
                     _disconnectedDataClients.Add(c);
@@ -193,8 +197,9 @@ namespace SocialPoint.Network
             {
                 var disconnectedClients = _disconnectedDataClients.ToArray();
                 _disconnectedDataClients.Clear();
-                foreach(var client in disconnectedClients)
+                for(int i = 0; i < disconnectedClients.Length; i++)
                 {
+                    var client = disconnectedClients[i];
                     for(var i = 0; i < _delegates.Count; i++)
                     {
                         _delegates[i].OnClientDisconnected((client.ClientId));
