@@ -104,7 +104,7 @@ namespace SocialPoint.Social
                     RefreshDonationInfo();
                 });
 
-                const string infoText = " RequesterId: {0}\\n ItemId: {1}\\n Amount: {2}\\n Type: {3}\\n Metadata: {4}";
+                const string infoText = " RequesterId: {0}\n ItemId: {1}\n Amount: {2}\n Type: {3}\n Metadata: {4}";
                 _textArea = layout.CreateTextArea(string.Format(infoText, _localUserId, _itemId, _amount, _donationType, _metadata));
 
                 layout.CreateButton("Send", () => {
@@ -133,7 +133,7 @@ namespace SocialPoint.Social
 
             void RefreshDonationInfo()
             {
-                const string infoText = " RequesterId: {0}\\n ItemId: {1}\\n Amount: {2}\\n Type: {3}\\n Metadata: {4}";
+                const string infoText = " RequesterId: {0}\n ItemId: {1}\n Amount: {2}\n Type: {3}\n Metadata: {4}";
                 _textArea.text = string.Format(infoText, _localUserId, _itemId, _amount, _donationType, _metadata);
             }
 
