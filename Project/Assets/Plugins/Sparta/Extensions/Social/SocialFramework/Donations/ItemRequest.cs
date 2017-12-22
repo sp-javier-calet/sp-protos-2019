@@ -186,6 +186,11 @@ namespace SocialPoint.Social
             const string message = "RequesterId:{0}\nRequestUuid:{1}\nItemId:{2} - Amount:{3} - Amount Received:{4} - Amount Collected:{5}";
             return string.Format(message, RequesterId, RequestUuid, ItemId, Amount, TotalReceivedAmount, TotalCollectedAmount);
         }
-        
+
+        public string ToStringExtended()
+        {
+            const string message = "RequesterId:{0}\nRequestUuid:{1}\nItemId:{2} - Amount:{3} - Amount Received:{4} - Amount Collected:{5}\\n Type: {6}\\n Timestamp: {7}\\n Metadata: {8}";
+            return string.Format(message, RequesterId, RequestUuid, ItemId, Amount, TotalReceivedAmount, TotalCollectedAmount, DonationType, Timestamp, Metadata);
+        }
     }
 }

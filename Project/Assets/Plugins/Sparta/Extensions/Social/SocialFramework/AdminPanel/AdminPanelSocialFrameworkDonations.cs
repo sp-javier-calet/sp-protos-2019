@@ -108,8 +108,7 @@ namespace SocialPoint.Social
                 _textArea = layout.CreateTextArea(string.Format(infoText, _localUserId, _itemId, _amount, _donationType, _metadata));
 
                 layout.CreateButton("Send", () => {
-                    Action<Error, ItemRequest> finishCallback = (err, itemRequest) =>
-                    {
+                    Action<Error, ItemRequest> finishCallback = (err, itemRequest) => {
                         _requestInProgress = false;
                         _wampRequestError = err;
 
@@ -157,15 +156,94 @@ namespace SocialPoint.Social
 
         class AdminPanelItemRequest : BaseDonationsPanel
         {
+            AdminPanelLayout _layout;
+            readonly long _localUserId;
+
             public ItemRequest ItemRequest{ get; set; }
 
-            public AdminPanelItemRequest(DonationsManager manager, AdminPanelConsole console) : base(manager, console)
+            public AdminPanelItemRequest(DonationsManager manager, AdminPanelConsole console, long localUserId) : base(manager, console)
             {
+                _localUserId = localUserId;
             }
 
             public override void OnCreateGUI(AdminPanelLayout layout)
             {
-                throw new System.NotImplementedException();
+                _layout = layout;
+                CreateItemRequestGUI(layout);
+            }
+
+            public override void OnOpened()
+            {
+                base.OnOpened();
+                _manager.DonationsSignal += OnDonationSignalReceived;
+            }
+
+            public override void OnClosed()
+            {
+                base.OnClosed();
+                _manager.DonationsSignal -= OnDonationSignalReceived;
+            }
+
+            void OnDonationSignalReceived(DonationsManager.ActionType action, AttrDic dict)
+            {
+                _console.Print("DonationsSignal received");
+                _layout.Refresh();
+            }
+
+            void CreateItemRequestGUI(AdminPanelLayout layout)
+            {
+                if(ItemRequest == null)
+                {
+                    _console.Print("Item Request is null, closing panel.");
+                    layout.ClosePanel();
+                    return;
+                }
+
+                bool isMyRequest = _localUserId == ItemRequest.RequesterId;
+
+                Action<Error> collectCallback = err =>
+                {
+                    _requestInProgress = false;
+                    _wampRequestError = err;
+                    string result = (Error.IsNullOrEmpty(err) ? "true" : "false");
+                    _console.Print("Collect Action Success: " + result);
+                    layout.Refresh();
+                };
+
+                layout.CreateLabel("Item Request");
+                layout.CreateMargin();
+
+                layout.CreateTextArea(ItemRequest.ToStringExtended());
+
+                layout.CreateLabel("Contributions");
+
+                bool hasPendingCollects = false;
+                using(var itr = ItemRequest.ReceivedMapEnumerator)
+                {
+                    while(itr.MoveNext())
+                    {
+                        var contributorId = itr.Current.Key;
+                        var amountReceived = itr.Current.Value;
+
+                        var amountCollected = ItemRequest.GetCollectedBy(contributorId);
+
+                        bool isPendingCollect = amountReceived > amountCollected;
+
+                        hasPendingCollects |= isPendingCollect;
+
+                        const string btnMessage = "ContributorId: {0}\n AmountReceived: {1} - AmountCollected: {2}";
+                        var hlayout = layout.CreateHorizontalLayout();
+                        hlayout.CreateLabel(string.Format(btnMessage, contributorId, amountReceived, amountCollected));
+
+                        if(isMyRequest && isPendingCollect)
+                        {
+                            hlayout.CreateButton("Collect", () =>{
+                                _requestInProgress = true;
+                                _manager.CollectItem(contributorId, ItemRequest.RequestUuid, ItemRequest.DonationType, collectCallback);
+                            });
+                        }
+                    }
+                }
             }
         }
 
@@ -175,16 +253,19 @@ namespace SocialPoint.Social
         readonly AdminPanelItemRequest _requestPanel;
         readonly long _localUserId;
 
+        AdminPanelLayout _layout;
+
         public AdminPanelSocialFrameworkDonations(AdminPanelConsole console, DonationsManager manager, long localUserId) : base(manager, console)
         {
             _localUserId = localUserId;
 
             _requestSendPanel = new AdminPanelSendRequest(manager, console, localUserId);
-            _requestPanel = new AdminPanelItemRequest(manager, console);
+            _requestPanel = new AdminPanelItemRequest(manager, console, localUserId);
         }
 
         public override void OnCreateGUI(AdminPanelLayout layout)
         {
+            _layout = layout;
             layout.CreateLabel("Donations");
             layout.CreateMargin();
 
@@ -202,13 +283,26 @@ namespace SocialPoint.Social
             }
         }
 
+        public override void OnOpened()
+        {
+            base.OnOpened();
+            _manager.DonationsSignal += OnDonationSignalReceived;
+        }
+
+        public override void OnClosed()
+        {
+            base.OnClosed();
+            _manager.DonationsSignal -= OnDonationSignalReceived;
+        }
+
+        void OnDonationSignalReceived(DonationsManager.ActionType action, AttrDic dict)
+        {
+            _console.Print("DonationsSignal received");
+            _layout.Refresh();
+        }
+
         void CreateDonationsGUI(AdminPanelLayout layout)
         {
-            _manager.DonationsSignal += (action, dict) => {
-                _console.Print("DonationsSignal received");
-                layout.Refresh();
-            };
-            
             layout.CreateLabel("Donations Manager");
             layout.CreateMargin();
 
